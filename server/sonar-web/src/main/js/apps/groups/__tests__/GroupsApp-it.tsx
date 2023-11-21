@@ -64,8 +64,8 @@ const ui = {
   membersDialog: byRole('dialog', { name: 'users.update' }),
   getMembers: () => within(ui.membersDialog.get()).getAllByRole('checkbox'),
 
-  managedGroupRow: byRole('row', { name: 'managed-group 1' }),
-  githubManagedGroupRow: byRole('row', { name: 'managed-group github 1' }),
+  managedGroupRow: byRole('row', { name: 'managed-group 3' }),
+  githubManagedGroupRow: byRole('row', { name: 'managed-group github 3' }),
   managedGroupEditMembersButton: byRole('button', { name: 'groups.users.edit.managed-group' }),
   managedGroupViewMembersButton: byRole('button', { name: 'groups.users.view.managed-group' }),
 
@@ -75,13 +75,13 @@ const ui = {
 
   managedEditButton: byRole('button', { name: 'groups.edit.managed-group' }),
 
-  localGroupRow: byRole('row', { name: 'local-group 1' }),
+  localGroupRow: byRole('row', { name: 'local-group 3' }),
   localGroupEditMembersButton: byRole('button', { name: 'groups.users.edit.local-group' }),
-  localGroupRow2: byRole('row', { name: 'local-group 2 1 group 2 is loco!' }),
-  editedLocalGroupRow: byRole('row', { name: 'local-group 3 1 group 3 rocks!' }),
+  localGroupRow2: byRole('row', { name: 'local-group 2 3 group 2 is loco!' }),
+  editedLocalGroupRow: byRole('row', { name: 'local-group 3 3 group 3 rocks!' }),
   localEditButton: byRole('button', { name: 'groups.edit.local-group' }),
   localGroupRowWithLocalBadge: byRole('row', {
-    name: 'local-group local 1',
+    name: 'local-group local 3',
   }),
 
   githubProvisioningPending: byText(/synchronization_pending/),
@@ -299,7 +299,7 @@ describe('in manage mode', () => {
 
     await act(async () => expect(await ui.localAndManagedFilter.find()).toBeInTheDocument());
 
-    expect(ui.localGroupRowWithLocalBadge.get()).toBeInTheDocument();
+    expect(await ui.localGroupRowWithLocalBadge.find()).toBeInTheDocument();
     expect(ui.managedGroupRow.get()).toBeInTheDocument();
   });
 
@@ -311,8 +311,8 @@ describe('in manage mode', () => {
       await user.click(await ui.managedFilter.find());
     });
 
+    expect(await ui.managedGroupRow.find()).toBeInTheDocument();
     expect(ui.localGroupRow.query()).not.toBeInTheDocument();
-    expect(ui.managedGroupRow.get()).toBeInTheDocument();
   });
 
   it('should render list of local groups', async () => {
@@ -323,7 +323,7 @@ describe('in manage mode', () => {
       await user.click(await ui.localFilter.find());
     });
 
-    expect(ui.localGroupRowWithLocalBadge.get()).toBeInTheDocument();
+    expect(await ui.localGroupRowWithLocalBadge.find()).toBeInTheDocument();
     expect(ui.managedGroupRow.query()).not.toBeInTheDocument();
   });
 
@@ -395,7 +395,7 @@ describe('in manage mode', () => {
       });
 
       expect(
-        within(ui.githubManagedGroupRow.get()).getByRole('img', { name: 'github' }),
+        within(await ui.githubManagedGroupRow.find()).getByRole('img', { name: 'github' }),
       ).toBeInTheDocument();
     });
   });

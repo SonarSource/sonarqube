@@ -18,30 +18,33 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { useCallback } from 'react';
-import { deleteGroup } from '../../../api/user_groups';
 import SimpleModal from '../../../components/controls/SimpleModal';
 import { ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
 import Spinner from '../../../components/ui/Spinner';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { useDeleteGroupMutation } from '../../../queries/groups';
 import { Group } from '../../../types/types';
 
 interface Props {
   group: Group;
   onClose: () => void;
-  reload: () => void;
 }
 
 export default function DeleteGroupForm(props: Props) {
+  const { group } = props;
+
+  const { mutate: deleteGroup } = useDeleteGroupMutation();
+
+  const onSubmit = () => {
+    deleteGroup(
+      { name: group.name },
+      {
+        onSuccess: props.onClose,
+      },
+    );
+  };
+
   const header = translate('groups.delete_group');
-  const { group, reload, onClose } = props;
-
-  const onSubmit = useCallback(async () => {
-    await deleteGroup({ name: group.name });
-    reload();
-    onClose();
-  }, [group, reload, onClose]);
-
   return (
     <SimpleModal header={header} onClose={props.onClose} onSubmit={onSubmit}>
       {({ onCloseClick, onFormSubmit, submitting }) => (

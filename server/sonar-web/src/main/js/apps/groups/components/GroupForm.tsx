@@ -18,8 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { useCallback, useEffect, useState } from 'react';
-import { createGroup, updateGroup } from '../../../api/user_groups';
+import { useState } from 'react';
 import SimpleModal from '../../../components/controls/SimpleModal';
 import { ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
 import MandatoryFieldMarker from '../../../components/ui/MandatoryFieldMarker';
@@ -27,6 +26,7 @@ import MandatoryFieldsExplanation from '../../../components/ui/MandatoryFieldsEx
 import Spinner from '../../../components/ui/Spinner';
 import { translate } from '../../../helpers/l10n';
 import { omitNil } from '../../../helpers/request';
+import { useCreateGroupMutation, useUpdateGroupMutation } from '../../../queries/groups';
 import { Group } from '../../../types/types';
 
 type Props =
@@ -34,52 +34,46 @@ type Props =
       create: true;
       group?: undefined;
       onClose: () => void;
-      reload: () => void;
     }
   | {
       create: false;
       group: Group;
       onClose: () => void;
-      reload: () => void;
     };
 
 export default function GroupForm(props: Props) {
-  const { group, create, reload, onClose } = props;
+  const { group, create } = props;
 
-  const [name, setName] = useState<string>('');
-  const [description, setDescription] = useState<string>('');
+  const [name, setName] = useState<string>(create ? '' : group.name);
+  const [description, setDescription] = useState<string>(create ? '' : group.description ?? '');
 
-  const handleSubmit = useCallback(async () => {
-    try {
-      if (create) {
-        await createGroup({ name, description });
-      } else {
-        const data = {
-          currentName: group.name,
-          description,
-          // pass `name` only if it has changed, otherwise the WS fails
-          ...omitNil({ name: name !== group.name ? name : undefined }),
-        };
-        await updateGroup(data);
-      }
-    } finally {
-      reload();
-      onClose();
+  const { mutate: createGroup } = useCreateGroupMutation();
+  const { mutate: updateGroup } = useUpdateGroupMutation();
+
+  const handleCreateGroup = () => {
+    createGroup({ name, description }, { onSuccess: props.onClose });
+  };
+
+  const handleUpdateGroup = () => {
+    if (!group) {
+      return;
     }
-  }, [name, description, group, create, reload, onClose]);
-
-  useEffect(() => {
-    if (!create) {
-      setDescription(group.description ?? '');
-      setName(group.name);
-    }
-  }, []);
+    updateGroup(
+      {
+        currentName: group.name,
+        description,
+        // pass `name` only if it has changed, otherwise the WS fails
+        ...omitNil({ name: name !== group.name ? name : undefined }),
+      },
+      { onSuccess: props.onClose },
+    );
+  };
 
   return (
     <SimpleModal
       header={create ? translate('groups.create_group') : translate('groups.update_group')}
       onClose={props.onClose}
-      onSubmit={handleSubmit}
+      onSubmit={create ? handleCreateGroup : handleUpdateGroup}
       size="small"
     >
       {({ onCloseClick, onFormSubmit, submitting }) => (

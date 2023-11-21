@@ -18,9 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { useCallback, useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { searchUsersGroups } from '../../api/user_groups';
 import GitHubSynchronisationWarning from '../../app/components/GitHubSynchronisationWarning';
 import ListFooter from '../../components/controls/ListFooter';
 import { ManagedFilter } from '../../components/controls/ManagedFilter';
@@ -28,67 +27,37 @@ import SearchBox from '../../components/controls/SearchBox';
 import Suggestions from '../../components/embed-docs-modal/Suggestions';
 import { Provider, useManageProvider } from '../../components/hooks/useManageProvider';
 import { translate } from '../../helpers/l10n';
-import { Group, Paging } from '../../types/types';
+import { useGroupsQueries } from '../../queries/groups';
 import Header from './components/Header';
 import List from './components/List';
 import './groups.css';
 
 export default function GroupsApp() {
-  const [loading, setLoading] = useState<boolean>(true);
-  const [paging, setPaging] = useState<Paging>();
+  const [numberOfPages, setNumberOfPages] = useState<number>(1);
   const [search, setSearch] = useState<string>('');
-  const [groups, setGroups] = useState<Group[]>([]);
   const [managed, setManaged] = useState<boolean | undefined>();
   const manageProvider = useManageProvider();
 
-  const fetchGroups = useCallback(async () => {
-    setLoading(true);
-    try {
-      const { groups, paging } = await searchUsersGroups({
-        q: search,
-        managed,
-      });
-      setGroups(groups);
-      setPaging(paging);
-    } finally {
-      setLoading(false);
-    }
-  }, [search, managed]);
-
-  const fetchMoreGroups = useCallback(async () => {
-    if (!paging) {
-      return;
-    }
-    setLoading(true);
-    try {
-      const { groups: nextGroups, paging: nextPage } = await searchUsersGroups({
-        q: search,
-        managed,
-        p: paging.pageIndex + 1,
-      });
-      setPaging(nextPage);
-      setGroups([...groups, ...nextGroups]);
-    } finally {
-      setLoading(false);
-    }
-  }, [groups, search, managed, paging]);
-
-  useEffect(() => {
-    fetchGroups();
-  }, [search, managed]);
+  const { groups, total, isLoading } = useGroupsQueries(
+    {
+      q: search,
+      managed,
+    },
+    numberOfPages,
+  );
 
   return (
     <>
       <Suggestions suggestions="user_groups" />
       <Helmet defer={false} title={translate('user_groups.page')} />
       <main className="page page-limited" id="groups-page">
-        <Header reload={fetchGroups} manageProvider={manageProvider} />
+        <Header manageProvider={manageProvider} />
         {manageProvider === Provider.Github && <GitHubSynchronisationWarning short />}
 
         <div className="display-flex-justify-start big-spacer-bottom big-spacer-top">
           <ManagedFilter
             manageProvider={manageProvider}
-            loading={loading}
+            loading={isLoading}
             managed={managed}
             setManaged={setManaged}
           />
@@ -101,19 +70,17 @@ export default function GroupsApp() {
           />
         </div>
 
-        <List groups={groups} reload={fetchGroups} manageProvider={manageProvider} />
+        <List groups={groups} manageProvider={manageProvider} />
 
-        {paging !== undefined && (
-          <div id="groups-list-footer">
-            <ListFooter
-              count={groups.length}
-              loading={loading}
-              loadMore={fetchMoreGroups}
-              ready={!loading}
-              total={paging.total}
-            />
-          </div>
-        )}
+        <div id="groups-list-footer">
+          <ListFooter
+            count={groups.length}
+            loading={isLoading}
+            loadMore={() => setNumberOfPages((n) => n + 1)}
+            ready={!isLoading}
+            total={total}
+          />
+        </div>
       </main>
     </>
   );

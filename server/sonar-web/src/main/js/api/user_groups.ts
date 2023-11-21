@@ -21,7 +21,7 @@ import { throwGlobalError } from '../helpers/error';
 import { getJSON, post, postJSON } from '../helpers/request';
 import { Group, Paging, UserGroupMember } from '../types/types';
 
-export function searchUsersGroups(data: {
+export function getUsersGroups(data: {
   f?: string;
   p?: number;
   ps?: number;

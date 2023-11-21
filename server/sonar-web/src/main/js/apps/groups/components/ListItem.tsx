@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Spinner } from 'design-system';
 import * as React from 'react';
 import { useState } from 'react';
 import ActionsDropdown, {
@@ -26,6 +27,7 @@ import ActionsDropdown, {
 import { Provider } from '../../../components/hooks/useManageProvider';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { getBaseUrl } from '../../../helpers/system';
+import { useMembersCountQuery } from '../../../queries/groups';
 import { Group } from '../../../types/types';
 import DeleteGroupForm from './DeleteGroupForm';
 import GroupForm from './GroupForm';
@@ -33,16 +35,17 @@ import Members from './Members';
 
 export interface ListItemProps {
   group: Group;
-  reload: () => void;
   manageProvider: string | undefined;
 }
 
 export default function ListItem(props: ListItemProps) {
   const { manageProvider, group } = props;
-  const { name, managed, membersCount, description } = group;
+  const { name, managed, description } = group;
 
   const [groupToDelete, setGroupToDelete] = useState<Group | undefined>();
   const [groupToEdit, setGroupToEdit] = useState<Group | undefined>();
+
+  const { data: membersCount, isLoading, refetch } = useMembersCountQuery(group.name);
 
   const isManaged = () => {
     return manageProvider !== undefined;
@@ -73,8 +76,10 @@ export default function ListItem(props: ListItemProps) {
       </td>
 
       <td className="group-members display-flex-justify-end" headers="list-group-member">
-        <span>{membersCount}</span>
-        <Members group={group} onEdit={props.reload} isManaged={isManaged()} />
+        <Spinner loading={isLoading}>
+          <span>{membersCount}</span>
+        </Spinner>
+        <Members group={group} onEdit={refetch} isManaged={isManaged()} />
       </td>
 
       <td className="width-40" headers="list-group-description">
@@ -107,19 +112,10 @@ export default function ListItem(props: ListItemProps) {
           </ActionsDropdown>
         )}
         {groupToDelete && (
-          <DeleteGroupForm
-            group={groupToDelete}
-            reload={props.reload}
-            onClose={() => setGroupToDelete(undefined)}
-          />
+          <DeleteGroupForm group={groupToDelete} onClose={() => setGroupToDelete(undefined)} />
         )}
         {groupToEdit && (
-          <GroupForm
-            create={false}
-            group={groupToEdit}
-            reload={props.reload}
-            onClose={() => setGroupToEdit(undefined)}
-          />
+          <GroupForm create={false} group={groupToEdit} onClose={() => setGroupToEdit(undefined)} />
         )}
       </td>
     </tr>

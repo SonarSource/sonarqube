@@ -26,7 +26,6 @@ import { translate } from '../../../helpers/l10n';
 import GroupForm from './GroupForm';
 
 interface HeaderProps {
-  reload: () => void;
   manageProvider?: string;
 }
 
@@ -68,9 +67,7 @@ export default function Header(props: HeaderProps) {
           </Alert>
         )}
       </div>
-      {createModal && (
-        <GroupForm onClose={() => setCreateModal(false)} create reload={props.reload} />
-      )}
+      {createModal && <GroupForm onClose={() => setCreateModal(false)} create />}
     </>
   );
 }

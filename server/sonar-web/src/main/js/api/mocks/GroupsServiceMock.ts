@@ -39,9 +39,9 @@ import {
   addUserToGroup,
   createGroup,
   deleteGroup,
+  getUsersGroups,
   getUsersInGroup,
   removeUserFromGroup,
-  searchUsersGroups,
   updateGroup,
 } from '../user_groups';
 import { getIdentityProviders } from '../users';
@@ -79,7 +79,7 @@ export default class GroupsServiceMock {
 
     jest.mocked(getSystemInfo).mockImplementation(this.handleGetSystemInfo);
     jest.mocked(getIdentityProviders).mockImplementation(this.handleGetIdentityProviders);
-    jest.mocked(searchUsersGroups).mockImplementation((p) => this.handleSearchUsersGroups(p));
+    jest.mocked(getUsersGroups).mockImplementation((p) => this.handleSearchUsersGroups(p));
     jest.mocked(createGroup).mockImplementation((g) => this.handleCreateGroup(g));
     jest.mocked(deleteGroup).mockImplementation((g) => this.handleDeleteGroup(g));
     jest.mocked(updateGroup).mockImplementation((g) => this.handleUpdateGroup(g));
@@ -154,20 +154,22 @@ export default class GroupsServiceMock {
     q?: string;
     selected?: string;
   }): Promise<{ paging: Paging; users: UserGroupMember[] }> => {
+    const users = this.users
+      .filter((u) => u.name.includes(data.q ?? ''))
+      .filter((u) => {
+        switch (data.selected) {
+          case 'selected':
+            return u.selected;
+          case 'deselected':
+            return !u.selected;
+          default:
+            return true;
+        }
+      });
+
     return this.reply({
-      users: this.users
-        .filter((u) => u.name.includes(data.q ?? ''))
-        .filter((u) => {
-          switch (data.selected) {
-            case 'selected':
-              return u.selected;
-            case 'deselected':
-              return !u.selected;
-            default:
-              return true;
-          }
-        }),
-      paging: { ...this.paging },
+      users,
+      paging: { ...this.paging, total: users.length },
     });
   };
 

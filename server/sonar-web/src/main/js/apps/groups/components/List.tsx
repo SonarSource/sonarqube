@@ -25,7 +25,6 @@ import ListItem from './ListItem';
 
 interface Props {
   groups: Group[];
-  reload: () => void;
   manageProvider: string | undefined;
 }
 
@@ -49,12 +48,7 @@ export default function List(props: Props) {
         </thead>
         <tbody>
           {sortBy(groups, (group) => group.name.toLowerCase()).map((group) => (
-            <ListItem
-              group={group}
-              key={group.name}
-              reload={props.reload}
-              manageProvider={manageProvider}
-            />
+            <ListItem group={group} key={group.name} manageProvider={manageProvider} />
           ))}
         </tbody>
       </table>
