@@ -22,7 +22,9 @@ import { useOutletContext } from 'react-router-dom';
 import { AdminPagesContext } from '../../../types/admin';
 
 export default function withAdminPagesOutletContext(
-  WrappedComponent: React.ComponentType<AdminPagesContext>,
+  WrappedComponent: React.ComponentType<
+    React.PropsWithChildren<React.PropsWithChildren<AdminPagesContext>>
+  >,
 ) {
   return function WithAdminPagesOutletContext() {
     const { adminPages } = useOutletContext<AdminPagesContext>();

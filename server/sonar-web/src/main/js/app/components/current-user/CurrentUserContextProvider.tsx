@@ -29,7 +29,10 @@ interface State {
   currentUser: CurrentUser;
 }
 
-export default class CurrentUserContextProvider extends React.PureComponent<Props, State> {
+export default class CurrentUserContextProvider extends React.PureComponent<
+  React.PropsWithChildren<Props>,
+  State
+> {
   constructor(props: Props) {
     super(props);
     this.state = { currentUser: props.currentUser ?? { isLoggedIn: false, dismissedNotices: {} } };

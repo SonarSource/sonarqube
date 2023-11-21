@@ -18,4 +18,5 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-export type FCProps<T extends React.FunctionComponent<any>> = Parameters<T>[0];
+export type FCProps<T extends React.FunctionComponent<React.PropsWithChildren<any>>> =
+  Parameters<T>[0];

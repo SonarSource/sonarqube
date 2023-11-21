@@ -28,7 +28,7 @@ interface Props {
   innerRef?: React.Ref<HTMLButtonElement>;
   overlay: string;
   toggleFavorite: VoidFunction;
-  tooltip?: React.ComponentType<{ overlay: React.ReactNode }>;
+  tooltip?: React.ComponentType<React.PropsWithChildren<{ overlay: React.ReactNode }>>;
 }
 
 export function FavoriteButton(props: Props) {

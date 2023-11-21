@@ -22,7 +22,9 @@ import { LanguagesContext } from '../../app/components/languages/LanguagesContex
 import { getWrappedDisplayName } from './utils';
 
 export function withCLanguageFeature<P>(
-  WrappedComponent: React.ComponentType<P & { hasCLanguageFeature: boolean }>,
+  WrappedComponent: React.ComponentType<
+    React.PropsWithChildren<React.PropsWithChildren<P & { hasCLanguageFeature: boolean }>>
+  >,
 ) {
   class Wrapper extends React.Component<Omit<P, 'hasCLanguageFeature'>> {
     static displayName = getWrappedDisplayName(WrappedComponent, 'withCLanguageFeature');

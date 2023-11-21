@@ -35,7 +35,7 @@ interface State {
   lastLocation?: string;
 }
 
-export class PageTracker extends React.Component<Props, State> {
+export class PageTracker extends React.Component<React.PropsWithChildren<Props>, State> {
   state: State = {};
 
   componentDidMount() {

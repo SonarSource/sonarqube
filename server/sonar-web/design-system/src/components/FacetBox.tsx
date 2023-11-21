@@ -51,7 +51,7 @@ export interface FacetBoxProps {
   onClear?: () => void;
   onClick?: (isOpen: boolean) => void;
   open?: boolean;
-  tooltipComponent?: React.ComponentType<{ overlay: React.ReactNode }>;
+  tooltipComponent?: React.ComponentType<React.PropsWithChildren<{ overlay: React.ReactNode }>>;
 }
 
 export function FacetBox(props: FacetBoxProps) {

@@ -31,7 +31,7 @@ interface Props {
   ariaLabel?: string;
 }
 
-export default class Radio extends React.PureComponent<Props> {
+export default class Radio extends React.PureComponent<React.PropsWithChildren<Props>> {
   handleClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
     event.preventDefault();
 

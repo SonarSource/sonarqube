@@ -23,7 +23,7 @@ import { ComponentContextShape } from '../../../types/component';
 import { ComponentContext } from './ComponentContext';
 
 export default function withComponentContext<P extends Partial<ComponentContextShape>>(
-  WrappedComponent: React.ComponentType<P>,
+  WrappedComponent: React.ComponentType<React.PropsWithChildren<React.PropsWithChildren<P>>>,
 ) {
   return class WithComponentContext extends React.PureComponent<
     Omit<P, keyof ComponentContextShape>

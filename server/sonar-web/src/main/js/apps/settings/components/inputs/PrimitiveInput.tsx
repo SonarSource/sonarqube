@@ -29,7 +29,11 @@ import InputForSingleSelectList from './InputForSingleSelectList';
 import InputForString from './InputForString';
 import InputForText from './InputForText';
 
-function withOptions(options: string[]): React.ComponentType<DefaultSpecializedInputProps> {
+function withOptions(
+  options: string[],
+): React.ComponentType<
+  React.PropsWithChildren<React.PropsWithChildren<DefaultSpecializedInputProps>>
+> {
   return function Wrapped(props: DefaultSpecializedInputProps) {
     return <InputForSingleSelectList options={options} {...props} />;
   };
@@ -39,7 +43,9 @@ export default function PrimitiveInput(props: DefaultSpecializedInputProps) {
   const { setting, name, isDefault, ...other } = props;
   const { definition } = setting;
   const typeMapping: {
-    [type in SettingType]?: React.ComponentType<DefaultSpecializedInputProps>;
+    [type in SettingType]?: React.ComponentType<
+      React.PropsWithChildren<React.PropsWithChildren<DefaultSpecializedInputProps>>
+    >;
   } = {
     STRING: InputForString,
     TEXT: InputForText,

@@ -22,7 +22,7 @@ import styled from '@emotion/styled';
 import { OPACITY_20_PERCENT, themeColor } from '../../helpers';
 import { Button, ButtonProps } from './Button';
 
-export const WrapperButton: React.FC<ButtonProps> = styled(Button)`
+export const WrapperButton: React.FC<React.PropsWithChildren<ButtonProps>> = styled(Button)`
   --background: none;
   --backgroundHover: none;
   --color: none;

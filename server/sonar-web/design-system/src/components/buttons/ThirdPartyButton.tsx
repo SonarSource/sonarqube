@@ -39,7 +39,7 @@ export function ThirdPartyButton({ children, iconPath, name, ...buttonProps }: T
   );
 }
 
-const ThirdPartyButtonStyled: React.FC<ButtonProps> = styled(Button)`
+const ThirdPartyButtonStyled: React.FC<React.PropsWithChildren<ButtonProps>> = styled(Button)`
   --background: ${themeColor('thirdPartyButton')};
   --backgroundHover: ${themeColor('thirdPartyButtonHover')};
   --color: ${themeContrast('thirdPartyButton')};

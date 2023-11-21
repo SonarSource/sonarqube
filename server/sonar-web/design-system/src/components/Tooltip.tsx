@@ -401,7 +401,7 @@ export class TooltipInner extends React.Component<TooltipProps, State> {
   }
 }
 
-class TooltipPortal extends React.Component {
+class TooltipPortal extends React.Component<React.PropsWithChildren> {
   el: HTMLElement;
 
   constructor(props: object) {

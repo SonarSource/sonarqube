@@ -36,7 +36,9 @@ export interface WithKeyboardNavigationProps {
 }
 
 export default function withKeyboardNavigation<P>(
-  WrappedComponent: React.ComponentType<P & Partial<WithKeyboardNavigationProps>>,
+  WrappedComponent: React.ComponentType<
+    React.PropsWithChildren<React.PropsWithChildren<P & Partial<WithKeyboardNavigationProps>>>
+  >,
 ) {
   return class Wrapper extends React.Component<P & WithKeyboardNavigationProps> {
     static displayName = getWrappedDisplayName(WrappedComponent, 'withKeyboardNavigation');

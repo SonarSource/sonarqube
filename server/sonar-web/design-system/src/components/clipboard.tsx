@@ -133,7 +133,7 @@ export function ClipboardButton({
 }
 
 interface IconButtonProps {
-  Icon?: React.ComponentType<IconProps>;
+  Icon?: React.ComponentType<React.PropsWithChildren<IconProps>>;
   'aria-label'?: string;
   className?: string;
   copiedLabel?: string;

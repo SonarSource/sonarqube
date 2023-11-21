@@ -27,7 +27,9 @@ export interface WithAppStateContextProps {
 }
 
 export default function withAppStateContext<P>(
-  WrappedComponent: React.ComponentType<P & WithAppStateContextProps>,
+  WrappedComponent: React.ComponentType<
+    React.PropsWithChildren<React.PropsWithChildren<P & WithAppStateContextProps>>
+  >,
 ) {
   return class WithAppStateContext extends React.PureComponent<
     Omit<P, keyof WithAppStateContextProps>

@@ -37,7 +37,9 @@ const BUILD_TOOLS_WITH_NO_ADDITIONAL_OPTIONS = [
 ];
 
 const BUILDTOOL_COMPONENT_MAP: {
-  [x in BuildTools]: React.ComponentType<LanguageProps>;
+  [x in BuildTools]: React.ComponentType<
+    React.PropsWithChildren<React.PropsWithChildren<LanguageProps>>
+  >;
 } = {
   [BuildTools.Maven]: Maven,
   [BuildTools.Gradle]: Gradle,

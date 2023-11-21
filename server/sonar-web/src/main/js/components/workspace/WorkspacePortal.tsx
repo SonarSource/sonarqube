@@ -20,7 +20,7 @@
 import * as React from 'react';
 import { createPortal } from 'react-dom';
 
-export default class WorkspacePortal extends React.PureComponent {
+export default class WorkspacePortal extends React.PureComponent<React.PropsWithChildren> {
   el: HTMLElement;
 
   constructor(props: {}) {

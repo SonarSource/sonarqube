@@ -27,7 +27,10 @@ interface State {
   metrics: Dict<Metric>;
 }
 
-export default class MetricsContextProvider extends React.PureComponent<{}, State> {
+export default class MetricsContextProvider extends React.PureComponent<
+  React.PropsWithChildren,
+  State
+> {
   mounted = false;
   state: State = {
     metrics: {},

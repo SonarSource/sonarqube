@@ -26,7 +26,7 @@ import { IconProps } from '../icons/Icon';
 import { Size, iconSizeMap, sizeMap } from './utils';
 
 export interface GenericAvatarProps {
-  Icon?: React.ComponentType<IconProps>;
+  Icon?: React.ComponentType<React.PropsWithChildren<IconProps>>;
   className?: string;
   name: string;
   size?: Size;

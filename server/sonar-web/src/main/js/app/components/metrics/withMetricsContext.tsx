@@ -27,7 +27,9 @@ export interface WithMetricsContextProps {
 }
 
 export default function withMetricsContext<P>(
-  WrappedComponent: React.ComponentType<P & WithMetricsContextProps>,
+  WrappedComponent: React.ComponentType<
+    React.PropsWithChildren<React.PropsWithChildren<P & WithMetricsContextProps>>
+  >,
 ) {
   return class WithMetricsContext extends React.PureComponent<
     Omit<P, keyof WithMetricsContextProps>

@@ -27,7 +27,9 @@ export interface WithLanguagesContextProps {
 }
 
 export default function withLanguagesContext<P>(
-  WrappedComponent: React.ComponentType<P & WithLanguagesContextProps>,
+  WrappedComponent: React.ComponentType<
+    React.PropsWithChildren<React.PropsWithChildren<P & WithLanguagesContextProps>>
+  >,
 ) {
   return class WithLanguagesContext extends React.PureComponent<
     Omit<P, keyof WithLanguagesContextProps>

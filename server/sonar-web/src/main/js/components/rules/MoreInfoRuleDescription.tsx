@@ -37,7 +37,9 @@ interface Props {
   sections?: RuleDescriptionSection[];
 }
 
-const EDUCATION_PRINCIPLES_MAP: Dict<React.ComponentType> = {
+const EDUCATION_PRINCIPLES_MAP: Dict<
+  React.ComponentType<React.PropsWithChildren<React.PropsWithChildren<unknown>>>
+> = {
   defense_in_depth: DefenseInDepth,
   never_trust_user_input: NeverTrustUserInput,
 };

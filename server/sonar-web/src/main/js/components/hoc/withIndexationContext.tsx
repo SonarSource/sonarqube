@@ -27,7 +27,9 @@ export interface WithIndexationContextProps {
 }
 
 export default function withIndexationContext<P>(
-  WrappedComponent: React.ComponentType<P & WithIndexationContextProps>,
+  WrappedComponent: React.ComponentType<
+    React.PropsWithChildren<React.PropsWithChildren<P & WithIndexationContextProps>>
+  >,
 ) {
   return class WithIndexationContext extends React.PureComponent<
     Omit<P, keyof WithIndexationContextProps>

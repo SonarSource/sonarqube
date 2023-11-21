@@ -46,7 +46,7 @@ export enum WorkspaceTypes {
   Component = 'component',
 }
 
-export default class Workspace extends React.PureComponent<{}, State> {
+export default class Workspace extends React.PureComponent<React.PropsWithChildren, State> {
   mounted = false;
 
   constructor(props: {}) {

@@ -33,7 +33,7 @@ import { IconProps } from './icons/Icon';
 export type InteractiveIconSize = 'small' | 'medium';
 
 export interface InteractiveIconProps {
-  Icon: React.ComponentType<IconProps>;
+  Icon: React.ComponentType<React.PropsWithChildren<IconProps>>;
   'aria-label': string;
   children?: React.ReactNode;
   className?: string;
@@ -147,7 +147,9 @@ const IconButton = styled.button`
   ${buttonIconStyle}
 `;
 
-export const InteractiveIcon: React.FC<InteractiveIconProps> = styled(InteractiveIconBase)`
+export const InteractiveIcon: React.FC<React.PropsWithChildren<InteractiveIconProps>> = styled(
+  InteractiveIconBase,
+)`
   --background: ${themeColor('interactiveIcon')};
   --backgroundHover: ${themeColor('interactiveIconHover')};
   --color: ${({ currentColor, theme }) =>
@@ -156,11 +158,15 @@ export const InteractiveIcon: React.FC<InteractiveIconProps> = styled(Interactiv
   --focus: ${themeColor('interactiveIconFocus', OPACITY_20_PERCENT)};
 `;
 
-export const DiscreetInteractiveIcon: React.FC<InteractiveIconProps> = styled(InteractiveIcon)`
+export const DiscreetInteractiveIcon: React.FC<
+  React.PropsWithChildren<InteractiveIconProps>
+> = styled(InteractiveIcon)`
   --color: ${themeColor('discreetInteractiveIcon')};
 `;
 
-export const DestructiveIcon: React.FC<InteractiveIconProps> = styled(InteractiveIconBase)`
+export const DestructiveIcon: React.FC<React.PropsWithChildren<InteractiveIconProps>> = styled(
+  InteractiveIconBase,
+)`
   --background: ${themeColor('destructiveIcon')};
   --backgroundHover: ${themeColor('destructiveIconHover')};
   --color: ${themeContrast('destructiveIcon')};
@@ -168,7 +174,9 @@ export const DestructiveIcon: React.FC<InteractiveIconProps> = styled(Interactiv
   --focus: ${themeColor('destructiveIconFocus', OPACITY_20_PERCENT)};
 `;
 
-export const DismissProductNewsIcon: React.FC<InteractiveIconProps> = styled(InteractiveIcon)`
+export const DismissProductNewsIcon: React.FC<
+  React.PropsWithChildren<InteractiveIconProps>
+> = styled(InteractiveIcon)`
   --background: ${themeColor('productNews')};
   --backgroundHover: ${themeColor('productNewsHover')};
   --color: ${themeContrast('productNews')};

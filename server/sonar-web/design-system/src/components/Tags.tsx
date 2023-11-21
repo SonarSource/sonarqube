@@ -39,7 +39,7 @@ interface Props {
   popupPlacement?: PopupPlacement;
   tags: string[];
   tagsToDisplay?: number;
-  tooltip?: React.ComponentType<{ overlay: React.ReactNode }>;
+  tooltip?: React.ComponentType<React.PropsWithChildren<{ overlay: React.ReactNode }>>;
 }
 
 export function Tags({

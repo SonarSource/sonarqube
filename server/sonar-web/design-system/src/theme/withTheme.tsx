@@ -26,8 +26,8 @@ export interface ThemeProp {
 }
 
 export function withTheme<P>(
-  WrappedComponent: React.ComponentType<P & ThemeProp>
-): React.ComponentType<P> {
+  WrappedComponent: React.ComponentType<React.PropsWithChildren<P & ThemeProp>>,
+): React.ComponentType<React.PropsWithChildren<P>> {
   return function WrappedComponentWithTheme(props: P) {
     const theme = useTheme();
 

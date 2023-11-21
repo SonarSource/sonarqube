@@ -28,8 +28,12 @@ export interface WithScrollToProps {
 const TOP_OFFSET = 200;
 const BOTTOM_OFFSET = 10;
 
-export function withScrollTo<P>(WrappedComponent: React.ComponentClass<P>) {
-  return class Wrapper extends React.Component<P & Partial<WithScrollToProps>> {
+export function withScrollTo<P>(
+  WrappedComponent: React.ComponentClass<React.PropsWithChildren<P>>,
+) {
+  return class Wrapper extends React.Component<
+    React.PropsWithChildren<P> & Partial<WithScrollToProps>
+  > {
     componentRef?: React.Component | null;
     node?: Element | Text | null;
 

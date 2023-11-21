@@ -32,6 +32,6 @@ export const PrimaryStyle = (props: ThemedProps) => css`
   --border: ${themeBorder('default', 'transparent')(props)};
 `;
 
-export const ButtonPrimary: React.FC<ButtonProps> = styled(Button)`
+export const ButtonPrimary: React.FC<React.PropsWithChildren<ButtonProps>> = styled(Button)`
   ${PrimaryStyle}
 `;

@@ -41,7 +41,7 @@ interface State {
 
 const LICENSE_PROMPT = 'sonarqube.license.prompt';
 
-export class StartupModal extends React.PureComponent<Props, State> {
+export class StartupModal extends React.PureComponent<React.PropsWithChildren<Props>, State> {
   state: State = {};
 
   componentDidMount() {

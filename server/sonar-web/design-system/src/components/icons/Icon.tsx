@@ -87,9 +87,9 @@ export function CustomIcon(props: Props) {
 }
 
 export function OcticonHoc(
-  WrappedOcticon: React.ComponentType<OcticonProps>,
-  displayName?: string
-): React.ComponentType<IconProps> {
+  WrappedOcticon: React.ComponentType<React.PropsWithChildren<OcticonProps>>,
+  displayName?: string,
+): React.ComponentType<React.PropsWithChildren<IconProps>> {
   function IconWrapper({ fill, ...props }: IconProps) {
     const theme = useTheme();
 

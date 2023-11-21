@@ -273,7 +273,7 @@ export class PortalPopup extends React.Component<PortalPopupProps, State> {
   }
 }
 
-class PortalWrapper extends React.Component {
+class PortalWrapper extends React.Component<React.PropsWithChildren> {
   el: HTMLElement;
 
   constructor(props: {}) {

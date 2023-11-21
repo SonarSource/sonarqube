@@ -37,7 +37,9 @@ export default function Input(props: DefaultInputProps) {
   const { definition } = setting;
   const name = getUniqueName(definition);
 
-  let Input: React.ComponentType<DefaultSpecializedInputProps> = PrimitiveInput;
+  let Input: React.ComponentType<
+    React.PropsWithChildren<React.PropsWithChildren<DefaultSpecializedInputProps>>
+  > = PrimitiveInput;
 
   if (isCategoryDefinition(definition) && definition.multiValues) {
     Input = MultiValueInput;

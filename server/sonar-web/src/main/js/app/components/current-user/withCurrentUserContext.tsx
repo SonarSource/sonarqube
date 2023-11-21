@@ -22,7 +22,11 @@ import { getWrappedDisplayName } from '../../../components/hoc/utils';
 import { CurrentUserContext, CurrentUserContextInterface } from './CurrentUserContext';
 
 export default function withCurrentUserContext<P>(
-  WrappedComponent: React.ComponentType<P & Pick<CurrentUserContextInterface, 'currentUser'>>,
+  WrappedComponent: React.ComponentType<
+    React.PropsWithChildren<
+      React.PropsWithChildren<P & Pick<CurrentUserContextInterface, 'currentUser'>>
+    >
+  >,
 ) {
   return class WithCurrentUserContext extends React.PureComponent<
     Omit<P, 'currentUser' | 'updateCurrentUserHomepage' | 'updateDismissedNotices'>

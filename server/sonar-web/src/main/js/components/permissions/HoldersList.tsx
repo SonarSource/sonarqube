@@ -46,7 +46,10 @@ interface Props {
 interface State {
   initialPermissionsCount: Dict<number>;
 }
-export default class HoldersList extends React.PureComponent<Props, State> {
+export default class HoldersList extends React.PureComponent<
+  React.PropsWithChildren<Props>,
+  State
+> {
   state: State = { initialPermissionsCount: {} };
   componentDidUpdate(prevProps: Props) {
     if (this.props.filter !== prevProps.filter || this.props.query !== prevProps.query) {

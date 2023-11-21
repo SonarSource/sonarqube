@@ -27,7 +27,9 @@ export interface WithAvailableFeaturesProps {
 }
 
 export default function withAvailableFeatures<P>(
-  WrappedComponent: React.ComponentType<P & WithAvailableFeaturesProps>,
+  WrappedComponent: React.ComponentType<
+    React.PropsWithChildren<React.PropsWithChildren<P & WithAvailableFeaturesProps>>
+  >,
 ) {
   return class WithAvailableFeatures extends React.PureComponent<
     Omit<P, keyof WithAvailableFeaturesProps>
