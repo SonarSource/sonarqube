@@ -31,58 +31,36 @@ interface Props {
   onEdit: () => void;
 }
 
-interface State {
-  modal: boolean;
-}
+export default function Members(props: Readonly<Props>) {
+  const [openModal, setOpenModal] = React.useState(false);
+  const { isManaged, group } = props;
 
-export default class Members extends React.PureComponent<Props, State> {
-  mounted = false;
-  state: State = { modal: false };
-
-  componentDidMount() {
-    this.mounted = true;
-  }
-
-  componentWillUnmount() {
-    this.mounted = false;
-  }
-
-  handleMembersClick = () => {
-    this.setState({ modal: true });
-  };
-
-  handleModalClose = () => {
-    const { isManaged, group } = this.props;
-    if (this.mounted) {
-      this.setState({ modal: false });
-      if (!isManaged && !group.default) {
-        this.props.onEdit();
-      }
+  const handleModalClose = () => {
+    setOpenModal(false);
+    if (!isManaged && !group.default) {
+      props.onEdit();
     }
   };
 
-  render() {
-    const { isManaged, group } = this.props;
-    return (
-      <>
-        <ButtonIcon
-          aria-label={translateWithParameters(
-            isManaged || group.default ? 'groups.users.view' : 'groups.users.edit',
-            group.name,
-          )}
-          className="button-small little-spacer-left little-padded"
-          onClick={this.handleMembersClick}
-          title={translateWithParameters('groups.users.edit', group.name)}
-        >
-          <BulletListIcon />
-        </ButtonIcon>
-        {this.state.modal &&
-          (isManaged || group.default ? (
-            <ViewMembersModal isManaged={isManaged} group={group} onClose={this.handleModalClose} />
-          ) : (
-            <EditMembersModal group={group} onClose={this.handleModalClose} />
-          ))}
-      </>
-    );
-  }
+  return (
+    <>
+      <ButtonIcon
+        aria-label={translateWithParameters(
+          isManaged || group.default ? 'groups.users.view' : 'groups.users.edit',
+          group.name,
+        )}
+        className="button-small little-spacer-left little-padded"
+        onClick={() => setOpenModal(true)}
+        title={translateWithParameters('groups.users.edit', group.name)}
+      >
+        <BulletListIcon />
+      </ButtonIcon>
+      {openModal &&
+        (isManaged || group.default ? (
+          <ViewMembersModal isManaged={isManaged} group={group} onClose={handleModalClose} />
+        ) : (
+          <EditMembersModal group={group} onClose={handleModalClose} />
+        ))}
+    </>
+  );
 }

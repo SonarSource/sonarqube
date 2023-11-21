@@ -34,95 +34,56 @@ interface Props {
   onClose: () => void;
 }
 
-interface State {
-  lastSearchParams?: SelectListSearchParams;
-  needToReload: boolean;
-  users: UserSelected[];
-  usersTotalCount?: number;
-  selectedUsers: string[];
-}
+export default function EditMembersModal(props: Readonly<Props>) {
+  const [needToReload, setNeedToReload] = React.useState(false);
+  const [users, setUsers] = React.useState<UserSelected[]>([]);
+  const [selectedUsers, setSelectedUsers] = React.useState<string[]>([]);
+  const [usersTotalCount, setUsersTotalCount] = React.useState<number | undefined>(undefined);
+  const [lastSearchParams, setLastSearchParams] = React.useState<
+    SelectListSearchParams | undefined
+  >(undefined);
 
-export default class EditMembersModal extends React.PureComponent<Props, State> {
-  mounted = false;
+  const { group } = props;
+  const modalHeader = translate('users.update');
 
-  constructor(props: Props) {
-    super(props);
-
-    this.state = {
-      needToReload: false,
-      users: [],
-      selectedUsers: [],
-    };
-  }
-
-  componentDidMount() {
-    this.mounted = true;
-  }
-
-  componentWillUnmount() {
-    this.mounted = false;
-  }
-
-  fetchUsers = (searchParams: SelectListSearchParams) =>
+  const fetchUsers = (searchParams: SelectListSearchParams) =>
     getUsersInGroup({
-      name: this.props.group.name,
+      name: props.group.name,
       p: searchParams.page,
       ps: searchParams.pageSize,
       q: searchParams.query !== '' ? searchParams.query : undefined,
       selected: searchParams.filter,
     }).then((data) => {
-      if (this.mounted) {
-        this.setState((prevState) => {
-          const more = searchParams.page != null && searchParams.page > 1;
+      const more = searchParams.page != null && searchParams.page > 1;
 
-          const users = more ? [...prevState.users, ...data.users] : data.users;
-          const newSelectedUsers = data.users
-            .filter((user) => user.selected)
-            .map((user) => user.login);
-          const selectedUsers = more
-            ? [...prevState.selectedUsers, ...newSelectedUsers]
-            : newSelectedUsers;
-
-          return {
-            needToReload: false,
-            lastSearchParams: searchParams,
-            loading: false,
-            users,
-            usersTotalCount: data.paging.total,
-            selectedUsers,
-          };
-        });
-      }
+      setUsers(more ? [...users, ...data.users] : data.users);
+      const newSelectedUsers = data.users.filter((user) => user.selected).map((user) => user.login);
+      setSelectedUsers(more ? [...selectedUsers, ...newSelectedUsers] : newSelectedUsers);
+      setNeedToReload(false);
+      setLastSearchParams(searchParams);
+      setUsersTotalCount(data.paging.total);
     });
 
-  handleSelect = (login: string) =>
+  const handleSelect = (login: string) =>
     addUserToGroup({
-      name: this.props.group.name,
+      name: group.name,
       login,
     }).then(() => {
-      if (this.mounted) {
-        this.setState((state: State) => ({
-          needToReload: true,
-          selectedUsers: [...state.selectedUsers, login],
-        }));
-      }
+      setNeedToReload(true);
+      setSelectedUsers([...selectedUsers, login]);
     });
 
-  handleUnselect = (login: string) =>
+  const handleUnselect = (login: string) =>
     removeUserFromGroup({
-      name: this.props.group.name,
+      name: group.name,
       login,
     }).then(() => {
-      if (this.mounted) {
-        this.setState((state: State) => ({
-          needToReload: true,
-          selectedUsers: without(state.selectedUsers, login),
-        }));
-      }
+      setNeedToReload(true);
+      setSelectedUsers(without(selectedUsers, login));
     });
 
-  renderElement = (login: string): React.ReactNode => {
-    const user = find(this.state.users, { login });
+  const renderElement = (login: string): React.ReactNode => {
+    const user = find(users, { login });
     return (
       <div className="select-list-list-item">
         {user === undefined ? (
@@ -138,40 +99,35 @@ export default class EditMembersModal extends React.PureComponent<Props, State> 
     );
   };
 
-  render() {
-    const modalHeader = translate('users.update');
-    return (
-      <Modal
-        className="group-menbers-modal"
-        contentLabel={modalHeader}
-        onRequestClose={this.props.onClose}
-      >
-        <header className="modal-head">
-          <h2>{modalHeader}</h2>
-        </header>
+  return (
+    <Modal
+      className="group-menbers-modal"
+      contentLabel={modalHeader}
+      onRequestClose={props.onClose}
+    >
+      <header className="modal-head">
+        <h2>{modalHeader}</h2>
+      </header>
 
-        <div className="modal-body modal-container">
-          <SelectList
-            elements={this.state.users.map((user) => user.login)}
-            elementsTotalCount={this.state.usersTotalCount}
-            needToReload={
-              this.state.needToReload &&
-              this.state.lastSearchParams &&
-              this.state.lastSearchParams.filter !== SelectListFilter.All
-            }
-            onSearch={this.fetchUsers}
-            onSelect={this.handleSelect}
-            onUnselect={this.handleUnselect}
-            renderElement={this.renderElement}
-            selectedElements={this.state.selectedUsers}
-            withPaging
-          />
-        </div>
+      <div className="modal-body modal-container">
+        <SelectList
+          elements={users.map((user) => user.login)}
+          elementsTotalCount={usersTotalCount}
+          needToReload={
+            needToReload && lastSearchParams && lastSearchParams.filter !== SelectListFilter.All
+          }
+          onSearch={fetchUsers}
+          onSelect={handleSelect}
+          onUnselect={handleUnselect}
+          renderElement={renderElement}
+          selectedElements={selectedUsers}
+          withPaging
+        />
+      </div>
 
-        <footer className="modal-foot">
-          <ResetButtonLink onClick={this.props.onClose}>{translate('done')}</ResetButtonLink>
-        </footer>
-      </Modal>
-    );
-  }
+      <footer className="modal-foot">
+        <ResetButtonLink onClick={props.onClose}>{translate('done')}</ResetButtonLink>
+      </footer>
+    </Modal>
+  );
 }
