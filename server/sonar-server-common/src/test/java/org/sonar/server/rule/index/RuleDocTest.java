@@ -38,7 +38,7 @@ import static org.sonar.server.security.SecurityStandards.fromSecurityStandards;
 public class RuleDocTest {
 
   @Test
-  public void ruleDocOf_mapsFieldCorrectly() {
+  public void createFrom_mapsFieldCorrectly() {
     RuleDto ruleDto = newRule();
     RuleForIndexingDto ruleForIndexingDto = RuleForIndexingDto.fromRuleDto(ruleDto);
     ruleForIndexingDto.setTemplateRuleKey("templateKey");
@@ -75,7 +75,7 @@ public class RuleDocTest {
   }
 
   @Test
-  public void ruleDocOf_whenGivenNoHtmlSections_hasEmptyStringInHtmlDescription() {
+  public void createFrom_whenGivenNoHtmlSections_hasEmptyStringInHtmlDescription() {
     RuleDto ruleDto = newRuleWithoutDescriptionSection();
     ruleDto.setDescriptionFormat(RuleDto.Format.HTML);
 
@@ -87,7 +87,7 @@ public class RuleDocTest {
   }
 
   @Test
-  public void ruleDocOf_whenGivenMultipleHtmlSections_hasConcatenationInHtmlDescription() {
+  public void createFrom_whenGivenMultipleHtmlSections_hasConcatenationInHtmlDescription() {
     RuleDescriptionSectionDto section1 = buildRuleDescriptionSectionDto("section1", "<p>html content 1</p>");
     RuleDescriptionSectionDto section2 = buildRuleDescriptionSectionDto("section2", "<p>html content 2</p>");
     RuleDescriptionSectionDto section3ctx1 = buildRuleDescriptionSectionDtoWithContext("section3", "<p>html content 3.1</p>", "ctx1");
@@ -108,7 +108,7 @@ public class RuleDocTest {
   }
 
   @Test
-  public void ruleDocOf_whenGivenMultipleMarkdownSections_transformToHtmlAndConcatenatesInHtmlDescription() {
+  public void createFrom_whenGivenMultipleMarkdownSections_transformToHtmlAndConcatenatesInHtmlDescription() {
     RuleDescriptionSectionDto section1 = buildRuleDescriptionSectionDto("section1", "*html content 1*");
     RuleDescriptionSectionDto section2 = buildRuleDescriptionSectionDto("section2", "*html content 2*");
 
@@ -126,7 +126,7 @@ public class RuleDocTest {
   }
 
   @Test
-  public void ruleDocOf_whenSecurityHotSpot_shouldNotPopulateCleanCodeAttribute() {
+  public void createFrom_whenSecurityHotSpot_shouldNotPopulateCleanCodeAttribute() {
     RuleDto ruleDto = newRule();
     ruleDto.setCleanCodeAttribute(CleanCodeAttribute.CONVENTIONAL);
     ruleDto.setType(RuleType.SECURITY_HOTSPOT.getDbConstant());
@@ -136,6 +136,19 @@ public class RuleDocTest {
     SecurityStandards securityStandards = fromSecurityStandards(Set.of());
     Object field = RuleDoc.createFrom(ruleForIndexingDto, securityStandards).getNullableField(RuleIndexDefinition.FIELD_RULE_CLEAN_CODE_ATTRIBUTE_CATEGORY);
     assertThat(field).isNull();
+  }
+
+  @Test
+  public void createFrom_whenAdHocRule_shouldPopulateWithAdHocType() {
+    RuleDto ruleDto = newRule();
+    ruleDto.setType(RuleType.CODE_SMELL);
+    ruleDto.setIsAdHoc(true);
+    ruleDto.setAdHocType(RuleType.BUG);
+    RuleForIndexingDto ruleForIndexingDto = RuleForIndexingDto.fromRuleDto(ruleDto);
+
+    RuleDoc ruleDoc = RuleDoc.createFrom(ruleForIndexingDto, fromSecurityStandards(Set.of()));
+
+    assertThat(ruleDoc.type()).isEqualTo(RuleType.BUG);
   }
 
   private static RuleDescriptionSectionDto buildRuleDescriptionSectionDto(String key, String content) {

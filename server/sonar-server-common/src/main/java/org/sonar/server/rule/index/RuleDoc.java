@@ -35,7 +35,6 @@ import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
-import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleType;
 import org.sonar.db.issue.ImpactDto;
 import org.sonar.db.rule.RuleDescriptionSectionDto;
@@ -337,7 +336,7 @@ public class RuleDoc extends BaseDoc {
       .setRuleKey(dto.getPluginRuleKey())
       .setSeverity(dto.getSeverityAsString())
       .setStatus(dto.getStatus().toString())
-      .setType(dto.getTypeAsRuleType())
+      .setType(getType(dto))
       .setCreatedAt(dto.getCreatedAt())
       .setTags(Sets.union(dto.getTags(), dto.getSystemTags()))
       .setUpdatedAt(dto.getUpdatedAt())
@@ -345,6 +344,14 @@ public class RuleDoc extends BaseDoc {
       .setTemplateKey(getRuleKey(dto))
       .setCleanCodeAttributeCategory(dto.getTypeAsRuleType() != RuleType.SECURITY_HOTSPOT ? dto.getCleanCodeAttributeCategory() : null)
       .setImpacts(dto.getImpacts().stream().collect(Collectors.toMap(ImpactDto::getSoftwareQuality, ImpactDto::getSeverity)));
+  }
+
+  @CheckForNull
+  private static RuleType getType(RuleForIndexingDto dto) {
+    if (dto.isAdHoc() && dto.getAdHocType() != null) {
+      return RuleType.valueOf(dto.getAdHocType());
+    }
+    return dto.getTypeAsRuleType();
   }
 
   @CheckForNull

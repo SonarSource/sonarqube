@@ -25,6 +25,7 @@ import org.sonar.api.issue.impact.Severity;
 import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rules.CleanCodeAttribute;
 import org.sonar.api.rules.CleanCodeAttributeCategory;
+import org.sonar.api.rules.RuleType;
 import org.sonar.db.issue.ImpactDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -47,4 +48,15 @@ public class RuleForIndexingDtoTest {
     assertThat(impact.getSoftwareQuality()).isEqualTo(SoftwareQuality.SECURITY);
   }
 
+  @Test
+  public void fromRuleDto_whenAdHocRule_setAdHocFields() {
+    RuleDto ruleDto = RuleTesting.newRuleWithoutDescriptionSection();
+    ruleDto.setIsAdHoc(true);
+    ruleDto.setAdHocType(RuleType.BUG);
+
+    RuleForIndexingDto ruleForIndexingDto = RuleForIndexingDto.fromRuleDto(ruleDto);
+
+    assertThat(ruleForIndexingDto.isAdHoc()).isTrue();
+    assertThat(ruleForIndexingDto.getAdHocType()).isEqualTo(RuleType.BUG.getDbConstant());
+  }
 }

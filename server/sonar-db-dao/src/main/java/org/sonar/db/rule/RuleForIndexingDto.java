@@ -49,7 +49,8 @@ public class RuleForIndexingDto {
   private String internalKey;
   private String language;
   private boolean isExternal;
-
+  private boolean isAdHoc;
+  private Integer adHocType;
   private int type;
 
   private long createdAt;
@@ -81,6 +82,8 @@ public class RuleForIndexingDto {
     ruleForIndexingDto.internalKey = r.getConfigKey();
     ruleForIndexingDto.language = r.getLanguage();
     ruleForIndexingDto.isExternal = r.isExternal();
+    ruleForIndexingDto.isAdHoc = r.isAdHoc();
+    ruleForIndexingDto.adHocType = r.getAdHocType();
     ruleForIndexingDto.type = r.getType();
     ruleForIndexingDto.createdAt = r.getCreatedAt();
     ruleForIndexingDto.updatedAt = r.getUpdatedAt();
@@ -175,6 +178,14 @@ public class RuleForIndexingDto {
 
   public boolean isExternal() {
     return isExternal;
+  }
+
+  public boolean isAdHoc() {
+    return isAdHoc;
+  }
+
+  public Integer getAdHocType() {
+    return adHocType;
   }
 
   public long getCreatedAt() {
