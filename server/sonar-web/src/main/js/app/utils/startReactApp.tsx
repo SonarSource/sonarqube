@@ -21,7 +21,7 @@ import { ThemeProvider } from '@emotion/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { lightTheme } from 'design-system';
 import * as React from 'react';
-import { render } from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import { Helmet, HelmetProvider } from 'react-helmet-async';
 import { IntlShape, RawIntlProvider } from 'react-intl';
 import {
@@ -259,8 +259,9 @@ export default function startReactApp(
   exportModulesAsGlobals();
 
   const el = document.getElementById('content');
+  const root = createRoot(el as HTMLElement);
 
-  render(
+  root.render(
     <HelmetProvider>
       <AppStateContextProvider appState={appState ?? DEFAULT_APP_STATE}>
         <AvailableFeaturesContext.Provider value={availableFeatures ?? DEFAULT_AVAILABLE_FEATURES}>
@@ -278,6 +279,5 @@ export default function startReactApp(
         </AvailableFeaturesContext.Provider>
       </AppStateContextProvider>
     </HelmetProvider>,
-    el,
   );
 }
