@@ -42,6 +42,7 @@ import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.management.ManagedInstanceService;
 import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.usergroups.DefaultGroupFinder;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
@@ -63,9 +64,10 @@ public class DeleteActionIT {
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
   public DbTester db = DbTester.create(new AlwaysIncreasingSystem2());
-  private final GroupService groupService = new GroupService(db.getDbClient(), UuidFactoryImpl.INSTANCE);
 
-  private final ManagedInstanceService managedInstanceService = mock(ManagedInstanceService.class);
+  private final ManagedInstanceService managedInstanceService = mock();
+  private final DefaultGroupFinder defaultGroupFinder = new DefaultGroupFinder(db.getDbClient());
+  private final GroupService groupService = new GroupService(db.getDbClient(), UuidFactoryImpl.INSTANCE, defaultGroupFinder, managedInstanceService);
   private final WsActionTester ws = new WsActionTester(new DeleteAction(db.getDbClient(), userSession, groupService, managedInstanceService));
 
   @Test

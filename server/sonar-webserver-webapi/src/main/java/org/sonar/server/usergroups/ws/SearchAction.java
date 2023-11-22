@@ -23,9 +23,8 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
-import org.jetbrains.annotations.Nullable;
+import java.util.stream.Collectors;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -36,16 +35,15 @@ import org.sonar.api.utils.Paging;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.user.GroupDto;
-import org.sonar.db.user.GroupQuery;
-import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.management.ManagedInstanceService;
+import org.sonar.server.common.SearchResults;
+import org.sonar.server.common.group.service.GroupInformation;
+import org.sonar.server.common.group.service.GroupSearchRequest;
+import org.sonar.server.common.group.service.GroupService;
 import org.sonar.server.user.UserSession;
-import org.sonar.server.usergroups.DefaultGroupFinder;
 
 import static java.lang.Boolean.TRUE;
 import static java.util.Optional.ofNullable;
 import static org.sonar.api.utils.Paging.forPageIndex;
-import static org.sonar.db.permission.GlobalPermission.ADMINISTER;
 import static org.sonar.server.es.SearchOptions.MAX_PAGE_SIZE;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.UserGroups.Group;
@@ -62,14 +60,13 @@ public class SearchAction implements UserGroupsWsAction {
 
   private final DbClient dbClient;
   private final UserSession userSession;
-  private final DefaultGroupFinder defaultGroupFinder;
-  private final ManagedInstanceService managedInstanceService;
 
-  public SearchAction(DbClient dbClient, UserSession userSession, DefaultGroupFinder defaultGroupFinder, ManagedInstanceService managedInstanceService) {
+  private final GroupService groupService;
+
+  public SearchAction(DbClient dbClient, UserSession userSession, GroupService groupService) {
     this.dbClient = dbClient;
     this.userSession = userSession;
-    this.defaultGroupFinder = defaultGroupFinder;
-    this.managedInstanceService = managedInstanceService;
+    this.groupService = groupService;
   }
 
   @Override
@@ -103,49 +100,26 @@ public class SearchAction implements UserGroupsWsAction {
     int page = request.mandatoryParamAsInt(Param.PAGE);
     int pageSize = request.mandatoryParamAsInt(Param.PAGE_SIZE);
 
-    GroupQuery query = buildGroupQuery(request);
     Set<String> fields = neededFields(request);
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-      userSession.checkLoggedIn().checkPermission(ADMINISTER);
-      GroupDto defaultGroup = defaultGroupFinder.findDefaultGroup(dbSession);
+      userSession.checkLoggedIn().checkIsSystemAdministrator();
 
-      int limit = dbClient.groupDao().countByQuery(dbSession, query);
-      List<GroupDto> groups = dbClient.groupDao().selectByQuery(dbSession, query, page, pageSize);
-      List<String> groupUuids = extractGroupUuids(groups);
-      Map<String, Boolean> groupUuidToIsManaged = managedInstanceService.getGroupUuidToManaged(dbSession, new HashSet<>(groupUuids));
+      GroupSearchRequest groupSearchRequest = new GroupSearchRequest(request.param(Param.TEXT_QUERY), request.paramAsBoolean(MANAGED_PARAM), page, pageSize);
+      SearchResults<GroupInformation> searchResults = groupService.search(dbSession, groupSearchRequest);
+
+      Set<String> groupUuids = extractGroupUuids(searchResults.searchResults());
+
       Map<String, Integer> userCountByGroup = dbClient.groupMembershipDao().countUsersByGroups(dbSession, groupUuids);
-      Paging paging = forPageIndex(page).withPageSize(pageSize).andTotal(limit);
-      writeProtobuf(buildResponse(groups, userCountByGroup, groupUuidToIsManaged, fields, paging, defaultGroup), request, response);
+      Paging paging = forPageIndex(page).withPageSize(pageSize).andTotal(searchResults.total());
+      writeProtobuf(buildResponse(searchResults.searchResults(), userCountByGroup, fields, paging), request, response);
     }
   }
 
-  private GroupQuery buildGroupQuery(Request request) {
-    String textQuery = request.param(Param.TEXT_QUERY);
-    Boolean managed = request.paramAsBoolean(MANAGED_PARAM);
-
-    GroupQuery.GroupQueryBuilder queryBuilder = GroupQuery.builder()
-      .searchText(textQuery);
-
-    if (managedInstanceService.isInstanceExternallyManaged()) {
-      String managedInstanceSql = getManagedInstanceSql(managed);
-      queryBuilder.isManagedClause(managedInstanceSql);
-    } else if (TRUE.equals(managed)) {
-      throw BadRequestException.create("The 'managed' parameter is only available for managed instances.");
-    }
-    return queryBuilder.build();
-
-  }
-
-  @Nullable
-  private String getManagedInstanceSql(@Nullable Boolean managed) {
-    return Optional.ofNullable(managed)
-      .map(managedInstanceService::getManagedGroupsSqlFilter)
-      .orElse(null);
-  }
-
-  private static List<String> extractGroupUuids(List<GroupDto> groups) {
-    return groups.stream().map(GroupDto::getUuid).toList();
+  private static Set<String> extractGroupUuids(List<GroupInformation> groupInformations) {
+    return groupInformations.stream()
+      .map(groupInformation -> groupInformation.groupDto().getUuid())
+      .collect(Collectors.toSet());
   }
 
   private static Set<String> neededFields(Request request) {
@@ -159,11 +133,11 @@ public class SearchAction implements UserGroupsWsAction {
     return fields;
   }
 
-  private static SearchWsResponse buildResponse(List<GroupDto> groups, Map<String, Integer> userCountByGroup,
-    Map<String, Boolean> groupUuidToIsManaged, Set<String> fields, Paging paging, GroupDto defaultGroup) {
+  private static SearchWsResponse buildResponse(List<GroupInformation> groups, Map<String, Integer> userCountByGroup,
+   Set<String> fields, Paging paging) {
     SearchWsResponse.Builder responseBuilder = SearchWsResponse.newBuilder();
     groups.forEach(group -> responseBuilder
-      .addGroups(toWsGroup(group, userCountByGroup.get(group.getName()), groupUuidToIsManaged.get(group.getUuid()), fields, defaultGroup.getUuid().equals(group.getUuid()))));
+      .addGroups(toWsGroup(group.groupDto(), userCountByGroup.get(group.groupDto().getName()), group.isManaged(), fields, group.isDefault())));
     responseBuilder.getPagingBuilder()
       .setPageIndex(paging.pageIndex())
       .setPageSize(paging.pageSize())

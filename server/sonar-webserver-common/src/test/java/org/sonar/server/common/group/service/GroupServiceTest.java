@@ -22,12 +22,16 @@ package org.sonar.server.common.group.service;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
@@ -46,16 +50,23 @@ import org.sonar.db.scim.ScimGroupDao;
 import org.sonar.db.user.ExternalGroupDao;
 import org.sonar.db.user.GroupDao;
 import org.sonar.db.user.GroupDto;
+import org.sonar.db.user.GroupQuery;
 import org.sonar.db.user.RoleDao;
 import org.sonar.db.user.UserGroupDao;
+import org.sonar.server.common.SearchResults;
 import org.sonar.server.exceptions.BadRequestException;
+import org.sonar.server.management.ManagedInstanceService;
+import org.sonar.server.usergroups.DefaultGroupFinder;
 
 import static java.lang.String.format;
+import static java.util.function.Function.identity;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -75,8 +86,15 @@ public class GroupServiceTest {
   private DbClient dbClient;
   @Mock
   private UuidFactory uuidFactory;
+  @Mock
+  private DefaultGroupFinder defaultGroupFinder;
+  @Mock
+  private ManagedInstanceService managedInstanceService;
   @InjectMocks
   private GroupService groupService;
+
+  @Captor
+  private ArgumentCaptor<GroupQuery> queryCaptor;
 
   @Rule
   public MockitoRule rule = MockitoJUnit.rule();
@@ -317,10 +335,87 @@ public class GroupServiceTest {
     };
   }
 
+  @Test
+  public void search_whenSeveralGroupFound_returnsThem() {
+    GroupDto groupDto1 = mockGroupDto("1");
+    GroupDto groupDto2 = mockGroupDto("2");
+    GroupDto defaultGroup = mockDefaultGroup();
+
+    when(dbClient.groupDao().selectByQuery(eq(dbSession), queryCaptor.capture(), eq(5), eq(24)))
+      .thenReturn(List.of(groupDto1, groupDto2, defaultGroup));
+
+    Map<String, Boolean> groupUuidToManaged = Map.of(
+      groupDto1.getUuid(), false,
+      groupDto2.getUuid(), true,
+      defaultGroup.getUuid(), false
+    );
+    when(managedInstanceService.getGroupUuidToManaged(dbSession, groupUuidToManaged.keySet())).thenReturn(groupUuidToManaged);
+
+    when(dbClient.groupDao().countByQuery(eq(dbSession), any())).thenReturn(300);
+
+    SearchResults<GroupInformation> searchResults = groupService.search(dbSession, new GroupSearchRequest("query", null, 5, 24));
+    assertThat(searchResults.total()).isEqualTo(300);
+
+    Map<String, GroupInformation> uuidToGroupInformation = searchResults.searchResults().stream()
+      .collect(Collectors.toMap(groupInformation -> groupInformation.groupDto().getUuid(), identity()));
+    assertGroupInformation(uuidToGroupInformation, groupDto1, false, false);
+    assertGroupInformation(uuidToGroupInformation, groupDto2, true, false);
+    assertGroupInformation(uuidToGroupInformation, defaultGroup, false, true);
+
+    assertThat(queryCaptor.getValue().getSearchText()).isEqualTo("%QUERY%");
+    assertThat(queryCaptor.getValue().getIsManagedSqlClause()).isNull();
+  }
+
+  @Test
+  public void search_whenInstanceManagedAndManagedIsTrue_addsManagedClause() {
+    mockManagedInstance();
+    when(dbClient.groupDao().selectByQuery(eq(dbSession), queryCaptor.capture(), anyInt(), anyInt())).thenReturn(List.of());
+
+    groupService.search(dbSession, new GroupSearchRequest("query", true, 5, 24));
+
+    assertThat(queryCaptor.getValue().getIsManagedSqlClause()).isEqualTo("managed_filter");
+  }
+
+  @Test
+  public void search_whenInstanceManagedAndManagedIsFalse_addsManagedClause() {
+    mockManagedInstance();
+    when(dbClient.groupDao().selectByQuery(eq(dbSession), queryCaptor.capture(), anyInt(), anyInt())).thenReturn(List.of());
+
+    groupService.search(dbSession, new GroupSearchRequest("query", false, 5, 24));
+
+    assertThat(queryCaptor.getValue().getIsManagedSqlClause()).isEqualTo("not_managed_filter");
+  }
+
+  @Test
+  public void search_whenInstanceNotManagedAndManagedIsTrue_throws() {
+    assertThatExceptionOfType(BadRequestException.class)
+      .isThrownBy(() -> groupService.search(dbSession, new GroupSearchRequest("query", true, 5, 24)))
+      .withMessage("The 'managed' parameter is only available for managed instances.");
+  }
+
+  private void mockManagedInstance() {
+    when(managedInstanceService.isInstanceExternallyManaged()).thenReturn(true);
+    when(managedInstanceService.getManagedGroupsSqlFilter(true)).thenReturn("managed_filter");
+    when(managedInstanceService.getManagedGroupsSqlFilter(false)).thenReturn("not_managed_filter");
+  }
+
+  private static void assertGroupInformation(Map<String, GroupInformation> uuidToGroupInformation, GroupDto expectedGroupDto, boolean expectedManaged, boolean expectedDefault) {
+    assertThat(uuidToGroupInformation.get(expectedGroupDto.getUuid()).groupDto()).isEqualTo(expectedGroupDto);
+    assertThat(uuidToGroupInformation.get(expectedGroupDto.getUuid()).isManaged()).isEqualTo(expectedManaged);
+    assertThat(uuidToGroupInformation.get(expectedGroupDto.getUuid()).isDefault()).isEqualTo(expectedDefault);
+  }
+
   private static GroupDto mockGroupDto() {
     GroupDto groupDto = mock(GroupDto.class);
     when(groupDto.getName()).thenReturn(GROUP_NAME);
     when(groupDto.getUuid()).thenReturn(GROUP_UUID);
+    return groupDto;
+  }
+
+  private static GroupDto mockGroupDto(String id) {
+    GroupDto groupDto = mock(GroupDto.class);
+    when(groupDto.getUuid()).thenReturn(id);
+    when(groupDto.getName()).thenReturn("name_" + id);
     return groupDto;
   }
 
@@ -329,6 +424,7 @@ public class GroupServiceTest {
     when(defaultGroup.getName()).thenReturn(DEFAULT_GROUP_NAME);
     when(defaultGroup.getUuid()).thenReturn(DEFAULT_GROUP_UUID);
     when(dbClient.groupDao().selectByName(dbSession, DEFAULT_GROUP_NAME)).thenReturn(Optional.of(defaultGroup));
+    when(defaultGroupFinder.findDefaultGroup(dbSession)).thenReturn(defaultGroup);
     return defaultGroup;
   }
 

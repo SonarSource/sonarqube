@@ -30,8 +30,11 @@ import org.sonar.db.DbTester;
 import org.sonar.db.user.ExternalGroupDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.server.common.group.service.GroupService;
+import org.sonar.server.management.ManagedInstanceService;
+import org.sonar.server.usergroups.DefaultGroupFinder;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 public class ExternalGroupServiceIT {
 
@@ -43,7 +46,11 @@ public class ExternalGroupServiceIT {
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
   private final DbClient dbClient = dbTester.getDbClient();
   private final DbSession dbSession = dbTester.getSession();
-  private final GroupService groupService = new GroupService(dbClient, UuidFactoryFast.getInstance());
+
+  private final DefaultGroupFinder defaultGroupFinder = new DefaultGroupFinder(dbClient);
+
+  private final ManagedInstanceService managedInstanceService = mock();
+  private final GroupService groupService = new GroupService(dbClient, UuidFactoryFast.getInstance(), defaultGroupFinder, managedInstanceService);
 
   private final ExternalGroupService externalGroupService = new ExternalGroupService(dbClient, groupService);
 

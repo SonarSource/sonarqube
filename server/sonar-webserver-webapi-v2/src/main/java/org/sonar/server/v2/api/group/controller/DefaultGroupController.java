@@ -19,15 +19,23 @@
  */
 package org.sonar.server.v2.api.group.controller;
 
+import java.util.List;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.user.GroupDto;
+import org.sonar.server.common.SearchResults;
+import org.sonar.server.common.group.service.GroupInformation;
+import org.sonar.server.common.group.service.GroupSearchRequest;
 import org.sonar.server.common.group.service.GroupService;
 import org.sonar.server.common.management.ManagedInstanceChecker;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.v2.api.group.request.GroupUpdateRestRequest;
+import org.sonar.server.v2.api.group.request.GroupsSearchRestRequest;
+import org.sonar.server.v2.api.group.response.GroupsSearchRestResponse;
 import org.sonar.server.v2.api.group.response.RestGroupResponse;
+import org.sonar.server.v2.api.model.RestPage;
+import org.sonar.server.v2.api.response.PageRestResponse;
 
 public class DefaultGroupController implements GroupController {
 
@@ -42,6 +50,23 @@ public class DefaultGroupController implements GroupController {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.managedInstanceChecker = managedInstanceChecker;
+  }
+
+  @Override
+  public GroupsSearchRestResponse search(GroupsSearchRestRequest groupsSearchRestRequest, RestPage restPage) {
+    userSession.checkLoggedIn().checkIsSystemAdministrator();
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      GroupSearchRequest groupSearchRequest = new GroupSearchRequest(groupsSearchRestRequest.q(), groupsSearchRestRequest.managed(), restPage.pageIndex(), restPage.pageSize());
+      SearchResults<GroupInformation> searchResults = groupService.search(dbSession, groupSearchRequest);
+      List<RestGroupResponse> restGroupResponses = toRestGroupResponses(searchResults);
+      return new GroupsSearchRestResponse(restGroupResponses, new PageRestResponse(restPage.pageIndex(), restPage.pageSize(), searchResults.total()));
+    }
+  }
+
+  private static List<RestGroupResponse> toRestGroupResponses(SearchResults<GroupInformation> searchResults) {
+    return searchResults.searchResults().stream()
+      .map(groupInformation -> toRestGroup(groupInformation.groupDto()))
+      .toList();
   }
 
   @Override
@@ -89,7 +114,7 @@ public class DefaultGroupController implements GroupController {
       .orElseThrow(() -> new NotFoundException(String.format(GROUP_NOT_FOUND_MESSAGE, id)));
   }
 
-  private static RestGroupResponse toRestGroup(GroupDto updatedGroup) {
-    return new RestGroupResponse(updatedGroup.getUuid(), updatedGroup.getName(), updatedGroup.getDescription());
+  private static RestGroupResponse toRestGroup(GroupDto groupDto) {
+    return new RestGroupResponse(groupDto.getUuid(), groupDto.getName(), groupDto.getDescription());
   }
 }

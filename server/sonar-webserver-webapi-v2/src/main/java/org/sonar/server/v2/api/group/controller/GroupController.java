@@ -24,7 +24,11 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import javax.validation.Valid;
 import org.sonar.server.v2.api.group.request.GroupUpdateRestRequest;
+import org.sonar.server.v2.api.group.request.GroupsSearchRestRequest;
+import org.sonar.server.v2.api.group.response.GroupsSearchRestResponse;
 import org.sonar.server.v2.api.group.response.RestGroupResponse;
+import org.sonar.server.v2.api.model.RestPage;
+import org.springdoc.api.annotations.ParameterObject;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -42,6 +46,16 @@ import static org.sonar.server.v2.WebApiEndpoints.JSON_MERGE_PATCH_CONTENT_TYPE;
 @RequestMapping(GROUPS_ENDPOINT)
 @RestController
 public interface GroupController {
+
+  @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+  @ResponseStatus(HttpStatus.OK)
+  @Operation(summary = "Group search", description = """
+      Get the list of groups.
+      The results are sorted alphabetically by group name.
+    """)
+  GroupsSearchRestResponse search(
+    @Valid @ParameterObject GroupsSearchRestRequest groupsSearchRestRequest,
+    @Valid @ParameterObject RestPage restPage);
 
   @GetMapping(path = "/{id}")
   @ResponseStatus(HttpStatus.OK)

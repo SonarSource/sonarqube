@@ -21,31 +21,45 @@ package org.sonar.server.v2.api.group.controller;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.user.GroupDto;
+import org.sonar.server.common.SearchResults;
+import org.sonar.server.common.group.service.GroupInformation;
+import org.sonar.server.common.group.service.GroupSearchRequest;
 import org.sonar.server.common.group.service.GroupService;
 import org.sonar.server.common.management.ManagedInstanceChecker;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.v2.api.ControllerTester;
+import org.sonar.server.v2.api.group.response.GroupsSearchRestResponse;
 import org.sonar.server.v2.api.group.response.RestGroupResponse;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.sonar.server.v2.WebApiEndpoints.GROUPS_ENDPOINT;
 import static org.sonar.server.v2.WebApiEndpoints.JSON_MERGE_PATCH_CONTENT_TYPE;
+import static org.sonar.server.v2.api.model.RestPage.DEFAULT_PAGE_INDEX;
+import static org.sonar.server.v2.api.model.RestPage.DEFAULT_PAGE_SIZE;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
@@ -235,4 +249,94 @@ public class DefaultGroupControllerTest {
     assertThat(restGroupResponse.description()).isEqualTo(newDescription);
   }
 
+  @Test
+  public void search_whenCallerIsNotAdmin_shouldReturnForbidden() throws Exception {
+    userSession.logIn().setNonSystemAdministrator();
+    mockMvc.perform(
+        get(GROUPS_ENDPOINT + "/" + GROUP_UUID)
+      )
+      .andExpectAll(
+        status().isForbidden(),
+        content().json("{\"message\":\"Insufficient privileges\"}"));
+  }
+
+  @Test
+  public void search_whenNoParameters_shouldUseDefaultAndForwardToUserService() throws Exception {
+    userSession.logIn().setSystemAdministrator();
+    when(groupService.search(eq(dbSession), any())).thenReturn(new SearchResults<>(List.of(), 0));
+
+    mockMvc.perform(get(GROUPS_ENDPOINT)).andExpect(status().isOk());
+
+    ArgumentCaptor<GroupSearchRequest> requestCaptor = ArgumentCaptor.forClass(GroupSearchRequest.class);
+    verify(groupService).search(eq(dbSession), requestCaptor.capture());
+    assertThat(requestCaptor.getValue().pageSize()).hasToString(DEFAULT_PAGE_SIZE);
+    assertThat(requestCaptor.getValue().page()).hasToString(DEFAULT_PAGE_INDEX);
+    assertThat(requestCaptor.getValue().managed()).isNull();
+    assertThat(requestCaptor.getValue().query()).isNull();
+  }
+
+  @Test
+  public void search_whenParametersUsed_shouldForwardWithParameters() throws Exception {
+    userSession.logIn().setSystemAdministrator();
+    when(groupService.search(eq(dbSession), any())).thenReturn(new SearchResults<>(List.of(), 0));
+
+    mockMvc.perform(get(GROUPS_ENDPOINT)
+        .param("managed", "true")
+        .param("q", "q")
+        .param("pageSize", "100")
+        .param("pageIndex", "2"))
+      .andExpect(status().isOk());
+
+    ArgumentCaptor<GroupSearchRequest> requestCaptor = ArgumentCaptor.forClass(GroupSearchRequest.class);
+    verify(groupService).search(eq(dbSession), requestCaptor.capture());
+    assertThat(requestCaptor.getValue().pageSize()).isEqualTo(100);
+    assertThat(requestCaptor.getValue().page()).isEqualTo(2);
+    assertThat(requestCaptor.getValue().managed()).isTrue();
+    assertThat(requestCaptor.getValue().query()).isEqualTo("q");
+  }
+
+  @Test
+  public void search_whenGroupServiceReturnUsers_shouldReturnThem() throws Exception {
+    userSession.logIn().setSystemAdministrator();
+
+    GroupInformation group1 = generateGroupSearchResult("group1", true, true);
+    GroupInformation group2 = generateGroupSearchResult("user2", false, false);
+    GroupInformation group3 = generateGroupSearchResult("user3", true, false);
+    List<GroupInformation> groups = List.of(group1, group2, group3);
+    SearchResults<GroupInformation> searchResult = new SearchResults<>(groups, groups.size());
+    when(groupService.search(eq(dbSession), any())).thenReturn(searchResult);
+
+    MvcResult mvcResult = mockMvc.perform(get(GROUPS_ENDPOINT))
+      .andExpect(status().isOk())
+      .andReturn();
+
+    GroupsSearchRestResponse actualGroupsSearchRestResponse = GSON.fromJson(mvcResult.getResponse().getContentAsString(), GroupsSearchRestResponse.class);
+    Map<String, RestGroupResponse> groupIdToGroupResponse = actualGroupsSearchRestResponse.groups().stream()
+      .collect(Collectors.toMap(RestGroupResponse::id, Function.identity()));
+
+    assertResponseContains(groupIdToGroupResponse, group1);
+    assertResponseContains(groupIdToGroupResponse, group2);
+    assertResponseContains(groupIdToGroupResponse, group3);
+
+    assertThat(actualGroupsSearchRestResponse.page().pageIndex()).hasToString(DEFAULT_PAGE_INDEX);
+    assertThat(actualGroupsSearchRestResponse.page().pageSize()).hasToString(DEFAULT_PAGE_SIZE);
+    assertThat(actualGroupsSearchRestResponse.page().total()).isEqualTo(groups.size());
+
+  }
+
+  private void assertResponseContains(Map<String, RestGroupResponse> groupIdToGroupResponse, GroupInformation expectedGroup) {
+    RestGroupResponse restGroup = groupIdToGroupResponse.get(expectedGroup.groupDto().getUuid());
+    assertThat(restGroup).isNotNull();
+    assertThat(restGroup.name()).isEqualTo(expectedGroup.groupDto().getName());
+    assertThat(restGroup.description()).isEqualTo(expectedGroup.groupDto().getDescription());
+    //TODO add assertions for managed & default flag
+  }
+
+  private GroupInformation generateGroupSearchResult(String id, boolean managed, boolean isDefault) {
+    GroupDto groupDto = new GroupDto()
+      .setUuid(id)
+      .setName("name_"+id)
+      .setDescription("description_"+id);
+    return new GroupInformation(groupDto, managed, isDefault);
+  }
 }

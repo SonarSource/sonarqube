@@ -25,12 +25,14 @@ import org.junit.Test;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
+import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.scim.ScimGroupDao;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.common.group.service.GroupService;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.management.ManagedInstanceService;
@@ -56,7 +58,6 @@ import static org.sonar.api.server.ws.WebService.Param.FIELDS;
 import static org.sonar.api.server.ws.WebService.Param.PAGE;
 import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
 import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
-import static org.sonar.db.permission.GlobalPermission.ADMINISTER;
 import static org.sonar.db.user.GroupTesting.newGroupDto;
 import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonarqube.ws.UserGroups.Group;
@@ -72,8 +73,9 @@ public class SearchActionIT {
 
   private final ManagedInstanceService managedInstanceService = mock(ManagedInstanceService.class);
 
-  private final WsActionTester ws = new WsActionTester(new SearchAction(db.getDbClient(), userSession,
-    new DefaultGroupFinder(db.getDbClient()), managedInstanceService));
+  private final GroupService groupService = new GroupService(db.getDbClient(), new SequenceUuidFactory(), new DefaultGroupFinder(db.getDbClient()), managedInstanceService);
+
+  private final WsActionTester ws = new WsActionTester(new SearchAction(db.getDbClient(), userSession, groupService));
 
   @Test
   public void define_search_action() {
@@ -187,6 +189,7 @@ public class SearchActionIT {
 
   @Test
   public void search_whenFilteringByManagedAndInstanceNotManaged_throws() {
+    insertDefaultGroup(1);
     userSession.logIn().setSystemAdministrator();
 
     TestRequest testRequest = ws.newRequest()
@@ -372,6 +375,6 @@ public class SearchActionIT {
   }
 
   private void loginAsAdmin() {
-    userSession.logIn("user").addPermission(ADMINISTER);
+    userSession.logIn("user").setSystemAdministrator();
   }
 }

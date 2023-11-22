@@ -19,7 +19,11 @@
  */
 package org.sonar.server.common.group.service;
 
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.server.ServerSide;
@@ -29,9 +33,14 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.user.GroupDto;
+import org.sonar.db.user.GroupQuery;
+import org.sonar.server.common.SearchResults;
 import org.sonar.server.exceptions.BadRequestException;
+import org.sonar.server.management.ManagedInstanceService;
+import org.sonar.server.usergroups.DefaultGroupFinder;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static java.lang.Boolean.TRUE;
 import static org.sonar.server.exceptions.BadRequestException.checkRequest;
 
 @ServerSide
@@ -40,9 +49,14 @@ public class GroupService {
   private final DbClient dbClient;
   private final UuidFactory uuidFactory;
 
-  public GroupService(DbClient dbClient, UuidFactory uuidFactory) {
+  private final DefaultGroupFinder defaultGroupFinder;
+  private final ManagedInstanceService managedInstanceService;
+
+  public GroupService(DbClient dbClient, UuidFactory uuidFactory, DefaultGroupFinder defaultGroupFinder, ManagedInstanceService managedInstanceService) {
     this.dbClient = dbClient;
     this.uuidFactory = uuidFactory;
+    this.defaultGroupFinder = defaultGroupFinder;
+    this.managedInstanceService = managedInstanceService;
   }
 
   public Optional<GroupDto> findGroup(DbSession dbSession, String groupName) {
@@ -51,6 +65,49 @@ public class GroupService {
 
   public Optional<GroupDto> findGroupByUuid(DbSession dbSession, String groupUuid) {
     return Optional.ofNullable(dbClient.groupDao().selectByUuid(dbSession, groupUuid));
+  }
+
+  public SearchResults<GroupInformation> search(DbSession dbSession, GroupSearchRequest groupSearchRequest) {
+    GroupDto defaultGroup = defaultGroupFinder.findDefaultGroup(dbSession);
+    GroupQuery query = toGroupQuery(groupSearchRequest);
+
+    List<GroupDto> groups = dbClient.groupDao().selectByQuery(dbSession, query, groupSearchRequest.page(), groupSearchRequest.pageSize());
+    List<String> groupUuids = extractGroupUuids(groups);
+    Map<String, Boolean> groupUuidToIsManaged = managedInstanceService.getGroupUuidToManaged(dbSession, new HashSet<>(groupUuids));
+
+    List<GroupInformation> results = groups.stream()
+      .map(groupDto -> toGroupInformation(groupDto, defaultGroup.getUuid(), groupUuidToIsManaged))
+      .toList();
+
+    int limit = dbClient.groupDao().countByQuery(dbSession, query);
+    return new SearchResults<>(results, limit);
+  }
+
+  private GroupQuery toGroupQuery(GroupSearchRequest groupSearchRequest) {
+    return GroupQuery.builder()
+      .searchText(groupSearchRequest.query())
+      .isManagedClause(getManagedInstanceSql(groupSearchRequest.managed()))
+      .build();
+  }
+
+  @CheckForNull
+  private String getManagedInstanceSql(@Nullable Boolean isManaged) {
+    if (managedInstanceService.isInstanceExternallyManaged()) {
+      return Optional.ofNullable(isManaged)
+        .map(managedInstanceService::getManagedGroupsSqlFilter)
+        .orElse(null);
+    } else if (TRUE.equals(isManaged)) {
+      throw BadRequestException.create("The 'managed' parameter is only available for managed instances.");
+    }
+    return null;
+  }
+
+  private static List<String> extractGroupUuids(List<GroupDto> groups) {
+    return groups.stream().map(GroupDto::getUuid).toList();
+  }
+
+  private static GroupInformation toGroupInformation(GroupDto groupDto, String defaultGroupUuid, Map<String, Boolean> groupUuidToIsManaged) {
+    return new GroupInformation(groupDto, groupUuidToIsManaged.getOrDefault(groupDto.getUuid(), false), defaultGroupUuid.equals(groupDto.getUuid()));
   }
 
   public void delete(DbSession dbSession, GroupDto group) {
@@ -168,6 +225,7 @@ public class GroupService {
   private void removeExternalGroupMapping(DbSession dbSession, GroupDto group) {
     dbClient.externalGroupDao().deleteByGroupUuid(dbSession, group.getUuid());
   }
+
   private void removeGithubOrganizationGroup(DbSession dbSession, GroupDto group) {
     dbClient.githubOrganizationGroupDao().deleteByGroupUuid(dbSession, group.getUuid());
   }

@@ -29,11 +29,13 @@ import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.db.DbTester;
 import org.sonar.db.user.GroupDto;
 import org.sonar.server.common.group.service.GroupService;
+import org.sonar.server.common.management.ManagedInstanceChecker;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.ServerException;
-import org.sonar.server.common.management.ManagedInstanceChecker;
+import org.sonar.server.management.ManagedInstanceService;
 import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.usergroups.DefaultGroupFinder;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 
@@ -51,7 +53,10 @@ public class CreateActionIT {
   public UserSessionRule userSession = UserSessionRule.standalone();
   private ManagedInstanceChecker managedInstanceChecker = mock(ManagedInstanceChecker.class);
 
-  private final CreateAction underTest = new CreateAction(db.getDbClient(), userSession, newGroupService(), managedInstanceChecker);
+  private final ManagedInstanceService managedInstanceService = mock();
+  private final DefaultGroupFinder defaultGroupFinder = new DefaultGroupFinder(db.getDbClient());
+  private final GroupService groupService = new GroupService(db.getDbClient(), new SequenceUuidFactory(), defaultGroupFinder, managedInstanceService);
+  private final CreateAction underTest = new CreateAction(db.getDbClient(), userSession, groupService, managedInstanceChecker);
   private final WsActionTester tester = new WsActionTester(underTest);
 
   @Test
@@ -75,12 +80,12 @@ public class CreateActionIT {
       .setParam("description", "Business Unit for Some Awesome Product")
       .execute()
       .assertJson("{" +
-        "  \"group\": {" +
-        "    \"name\": \"some-product-bu\"," +
-        "    \"description\": \"Business Unit for Some Awesome Product\"," +
-        "    \"membersCount\": 0" +
-        "  }" +
-        "}");
+                  "  \"group\": {" +
+                  "    \"name\": \"some-product-bu\"," +
+                  "    \"description\": \"Business Unit for Some Awesome Product\"," +
+                  "    \"membersCount\": 0" +
+                  "  }" +
+                  "}");
 
     assertThat(db.users().selectGroup("some-product-bu")).isPresent();
   }
@@ -94,13 +99,13 @@ public class CreateActionIT {
       .setParam("description", "Business Unit for Some Awesome Product")
       .execute()
       .assertJson("{" +
-        "  \"group\": {" +
-        "    \"name\": \"some-product-bu\"," +
-        "    \"description\": \"Business Unit for Some Awesome Product\"," +
-        "    \"membersCount\": 0," +
-        "    \"default\": false" +
-        "  }" +
-        "}");
+                  "  \"group\": {" +
+                  "    \"name\": \"some-product-bu\"," +
+                  "    \"description\": \"Business Unit for Some Awesome Product\"," +
+                  "    \"membersCount\": 0," +
+                  "    \"default\": false" +
+                  "  }" +
+                  "}");
   }
 
   @Test
@@ -193,7 +198,4 @@ public class CreateActionIT {
     userSession.logIn().addPermission(ADMINISTER);
   }
 
-  private GroupService newGroupService() {
-    return new GroupService(db.getDbClient(), new SequenceUuidFactory());
-  }
 }
