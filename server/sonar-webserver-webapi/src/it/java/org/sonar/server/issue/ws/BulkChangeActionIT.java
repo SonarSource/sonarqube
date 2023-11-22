@@ -32,6 +32,7 @@ import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
+import org.sonar.core.issue.status.IssueStatus;
 import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
@@ -418,6 +419,8 @@ public class BulkChangeActionIT {
     ChangedIssue changedIssue = builder.getIssues().iterator().next();
     assertThat(changedIssue.getKey()).isEqualTo(issue.getKey());
     assertThat(changedIssue.getNewStatus()).isEqualTo(STATUS_CONFIRMED);
+    assertThat(changedIssue.getNewIssueStatus()).contains(IssueStatus.CONFIRMED);
+    assertThat(changedIssue.getOldIssueStatus()).contains(IssueStatus.OPEN);
     assertThat(changedIssue.getAssignee()).isEmpty();
     assertThat(changedIssue.getRule()).isEqualTo(ruleOf(rule));
     assertThat(changedIssue.getProject()).isEqualTo(projectBranchOf(db, branch));
@@ -484,6 +487,8 @@ public class BulkChangeActionIT {
     ChangedIssue changedIssue = builder.getIssues().iterator().next();
     assertThat(changedIssue.getKey()).isEqualTo(issue3.getKey());
     assertThat(changedIssue.getNewStatus()).isEqualTo(STATUS_OPEN);
+    assertThat(changedIssue.getNewIssueStatus()).contains(IssueStatus.OPEN);
+    assertThat(changedIssue.getOldIssueStatus()).contains(IssueStatus.OPEN);
     assertThat(changedIssue.getAssignee()).isEmpty();
     assertThat(changedIssue.getRule()).isEqualTo(ruleOf(rule));
     assertThat(changedIssue.getProject()).isEqualTo(projectOf(project));

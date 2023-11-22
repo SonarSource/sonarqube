@@ -89,6 +89,7 @@ public class IssuesChangesNotificationSerializer {
       .map(issue -> new ChangedIssue.Builder(issue.key)
         .setNewStatus(issue.newStatus)
         .setNewIssueStatus(issue.newIssueStatus == null ? null : IssueStatus.valueOf(issue.newIssueStatus))
+        .setOldIssueStatus(issue.oldIssueStatus == null ? null : IssueStatus.valueOf(issue.oldIssueStatus))
         .setAssignee(issue.assignee)
         .setRule(rules.get(issue.ruleKey))
         .setProject(projects.get(issue.projectUuid))
@@ -125,6 +126,8 @@ public class IssuesChangesNotificationSerializer {
     notification.setFieldValue(issuePropertyPrefix + ".newStatus", issue.getNewStatus());
     issue.getNewIssueStatus()
       .ifPresent(newIssueStatus -> notification.setFieldValue(issuePropertyPrefix + ".newIssueStatus", newIssueStatus.name()));
+    issue.getOldIssueStatus()
+      .ifPresent(oldIssueStatus -> notification.setFieldValue(issuePropertyPrefix + ".oldIssueStatus", oldIssueStatus.name()));
     notification.setFieldValue(issuePropertyPrefix + ".ruleKey", issue.getRule().getKey().toString());
     notification.setFieldValue(issuePropertyPrefix + ".projectUuid", issue.getProject().getUuid());
   }
@@ -137,6 +140,7 @@ public class IssuesChangesNotificationSerializer {
       .setNewStatus(getIssueFieldValue(notification, issuePropertyPrefix + ".newStatus", index))
       .setNewResolution(notification.getFieldValue(issuePropertyPrefix + ".newResolution"))
       .setNewIssueStatus(notification.getFieldValue(issuePropertyPrefix + ".newIssueStatus"))
+      .setOldIssueStatus(notification.getFieldValue(issuePropertyPrefix + ".oldIssueStatus"))
       .setAssignee(assignee)
       .setRuleKey(getIssueFieldValue(notification, issuePropertyPrefix + ".ruleKey", index))
       .setProjectUuid(getIssueFieldValue(notification, issuePropertyPrefix + ".projectUuid", index))
@@ -254,6 +258,8 @@ public class IssuesChangesNotificationSerializer {
     @CheckForNull
     private final String newIssueStatus;
     @CheckForNull
+    private final String oldIssueStatus;
+    @CheckForNull
     private final User assignee;
     private final RuleKey ruleKey;
     private final String projectUuid;
@@ -266,9 +272,11 @@ public class IssuesChangesNotificationSerializer {
       this.ruleKey = RuleKey.parse(builder.ruleKey);
       this.projectUuid = builder.projectUuid;
       this.newIssueStatus = builder.newIssueStatus;
+      this.oldIssueStatus = builder.oldIssueStatus;
     }
 
     static class Builder {
+      private String oldIssueStatus = null;
       private String key = null;
       private String newStatus = null;
       @CheckForNull
@@ -296,6 +304,11 @@ public class IssuesChangesNotificationSerializer {
 
       public Builder setNewIssueStatus(@Nullable String newIssueStatus) {
         this.newIssueStatus = newIssueStatus;
+        return this;
+      }
+
+      public Builder setOldIssueStatus(@Nullable String oldIssueStatus) {
+        this.oldIssueStatus = oldIssueStatus;
         return this;
       }
 

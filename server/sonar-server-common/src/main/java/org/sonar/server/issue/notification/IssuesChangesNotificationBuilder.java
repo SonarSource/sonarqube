@@ -65,11 +65,13 @@ public class IssuesChangesNotificationBuilder {
     private final User assignee;
     private final Rule rule;
     private final Project project;
+    private final IssueStatus oldIssueStatus;
 
     public ChangedIssue(Builder builder) {
       this.key = requireNonNull(builder.key, KEY_CANT_BE_NULL_MESSAGE);
       this.newStatus = requireNonNull(builder.newStatus, "newStatus can't be null");
       this.newIssueStatus = builder.newIssueStatus;
+      this.oldIssueStatus = builder.oldIssueStatus;
       this.assignee = builder.assignee;
       this.rule = requireNonNull(builder.rule, "rule can't be null");
       this.project = requireNonNull(builder.project, "project can't be null");
@@ -85,6 +87,10 @@ public class IssuesChangesNotificationBuilder {
 
     public Optional<IssueStatus> getNewIssueStatus() {
       return ofNullable(newIssueStatus);
+    }
+
+    public Optional<IssueStatus> getOldIssueStatus() {
+      return ofNullable(oldIssueStatus);
     }
 
     public Optional<User> getAssignee() {
@@ -103,6 +109,8 @@ public class IssuesChangesNotificationBuilder {
       private final String key;
       @CheckForNull
       private IssueStatus newIssueStatus;
+      @CheckForNull
+      private IssueStatus oldIssueStatus;
       private String newStatus;
       @CheckForNull
       private User assignee;
@@ -125,6 +133,11 @@ public class IssuesChangesNotificationBuilder {
 
       public Builder setNewIssueStatus(@Nullable IssueStatus newIssueStatus) {
         this.newIssueStatus = newIssueStatus;
+        return this;
+      }
+
+      public Builder setOldIssueStatus(@Nullable IssueStatus oldIssueStatus) {
+        this.oldIssueStatus = oldIssueStatus;
         return this;
       }
 

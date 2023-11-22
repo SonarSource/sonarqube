@@ -162,7 +162,7 @@ public class ChangeStatusAction implements HotspotsWsAction {
         issueFieldsSetter.addComment(defaultIssue, comment, context);
       }
 
-      issueUpdater.saveIssueAndPreloadSearchResponseData(session, defaultIssue, context);
+      issueUpdater.saveIssueAndPreloadSearchResponseData(session, issueDto, defaultIssue, context);
 
       BranchDto branch = issueUpdater.getBranch(session, defaultIssue);
       if (BRANCH.equals(branch.getBranchType())) {

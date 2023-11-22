@@ -566,6 +566,7 @@ public class AssignActionIT {
     verify(issueFieldsSetter).assign(defaultIssueCaptor.capture(), userMatcher(assignee), any(IssueChangeContext.class));
     verify(issueUpdater).saveIssueAndPreloadSearchResponseData(
       any(DbSession.class),
+      any(IssueDto.class),
       defaultIssueCaptor.capture(),
       any(IssueChangeContext.class));
 

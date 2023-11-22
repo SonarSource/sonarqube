@@ -71,12 +71,12 @@ public class SetSeverityAction implements IssuesWsAction {
   public void define(WebService.NewController controller) {
     WebService.NewAction action = controller.createAction(ACTION_SET_SEVERITY)
       .setDescription("Change severity.<br/>" +
-        "Requires the following permissions:" +
-        "<ul>" +
-        "  <li>'Authentication'</li>" +
-        "  <li>'Browse' rights on project of the specified issue</li>" +
-        "  <li>'Administer Issues' rights on project of the specified issue</li>" +
-        "</ul>")
+                      "Requires the following permissions:" +
+                      "<ul>" +
+                      "  <li>'Authentication'</li>" +
+                      "  <li>'Browse' rights on project of the specified issue</li>" +
+                      "  <li>'Administer Issues' rights on project of the specified issue</li>" +
+                      "</ul>")
       .setSince("3.6")
       .setChangelog(
         new Change("10.4", "The response fields 'status' and 'resolution' are deprecated. Please use 'issueStatus' instead."),
@@ -121,7 +121,7 @@ public class SetSeverityAction implements IssuesWsAction {
     IssueChangeContext context = issueChangeContextByUserBuilder(new Date(), userSession.getUuid()).withRefreshMeasures().build();
     if (issueFieldsSetter.setManualSeverity(issue, severity, context)) {
       BranchDto branch = issueUpdater.getBranch(session, issue);
-      SearchResponseData response = issueUpdater.saveIssueAndPreloadSearchResponseData(session, issue, context, branch);
+      SearchResponseData response = issueUpdater.saveIssueAndPreloadSearchResponseData(session, issueDto, issue, context, branch);
 
       if (branch.getBranchType().equals(BRANCH) && response.getComponentByUuid(issue.projectUuid()) != null) {
         issueChangeEventService.distributeIssueChangeEvent(issue, severity, null, null,

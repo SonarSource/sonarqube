@@ -71,16 +71,17 @@ public class IssueUpdater {
     this.notificationSerializer = notificationSerializer;
   }
 
-  public SearchResponseData saveIssueAndPreloadSearchResponseData(DbSession dbSession, DefaultIssue issue, IssueChangeContext context) {
-    BranchDto branch = getBranch(dbSession, issue);
-    return saveIssueAndPreloadSearchResponseData(dbSession, issue, context, branch);
+  public SearchResponseData saveIssueAndPreloadSearchResponseData(DbSession dbSession, IssueDto originalIssue, DefaultIssue newIssue, IssueChangeContext context) {
+    BranchDto branch = getBranch(dbSession, newIssue);
+    return saveIssueAndPreloadSearchResponseData(dbSession, originalIssue, newIssue, context, branch);
   }
 
-  public SearchResponseData saveIssueAndPreloadSearchResponseData(DbSession dbSession, DefaultIssue issue, IssueChangeContext context, BranchDto branch) {
-    Optional<RuleDto> rule = getRuleByKey(dbSession, issue.getRuleKey());
-    ComponentDto branchComponent = dbClient.componentDao().selectOrFailByUuid(dbSession, issue.projectUuid());
-    ComponentDto component = getComponent(dbSession, issue, issue.componentUuid());
-    IssueDto issueDto = doSaveIssue(dbSession, issue, context, rule.orElse(null), branchComponent, branch);
+  public SearchResponseData saveIssueAndPreloadSearchResponseData(DbSession dbSession, IssueDto originalIssue,
+    DefaultIssue newIssue, IssueChangeContext context, BranchDto branch) {
+    Optional<RuleDto> rule = getRuleByKey(dbSession, newIssue.getRuleKey());
+    ComponentDto branchComponent = dbClient.componentDao().selectOrFailByUuid(dbSession, newIssue.projectUuid());
+    ComponentDto component = getComponent(dbSession, newIssue, newIssue.componentUuid());
+    IssueDto issueDto = doSaveIssue(dbSession, originalIssue, newIssue, context, rule.orElse(null), branchComponent, branch);
 
     SearchResponseData result = new SearchResponseData(issueDto);
     rule.ifPresent(r -> result.addRules(singletonList(r)));
@@ -107,18 +108,18 @@ public class IssueUpdater {
     return branchDto;
   }
 
-  private IssueDto doSaveIssue(DbSession session, DefaultIssue issue, IssueChangeContext context,
+  private IssueDto doSaveIssue(DbSession session, IssueDto originalIssue, DefaultIssue issue, IssueChangeContext context,
     @Nullable RuleDto ruleDto, ComponentDto project, BranchDto branchDto) {
     IssueDto issueDto = issueStorage.save(session, singletonList(issue)).iterator().next();
     Date updateDate = issue.updateDate();
     if (
       // since this method is called after an update of the issue, date should never be null
       updateDate == null
-        // name of rule is displayed in notification, rule must therefor be present
-        || ruleDto == null
-        // notification are not supported on PRs
-        || !hasNotificationSupport(branchDto)
-        || context.getWebhookSource() != null) {
+      // name of rule is displayed in notification, rule must therefor be present
+      || ruleDto == null
+      // notification are not supported on PRs
+      || !hasNotificationSupport(branchDto)
+      || context.getWebhookSource() != null) {
       return issueDto;
     }
 
@@ -131,6 +132,7 @@ public class IssueUpdater {
       new ChangedIssue.Builder(issue.key())
         .setNewStatus(issue.status())
         .setNewIssueStatus(IssueStatus.of(issue.status(), issue.resolution()))
+        .setOldIssueStatus(originalIssue.getIssueStatus())
         .setAssignee(assignee.map(assigneeDto -> new User(assigneeDto.getUuid(), assigneeDto.getLogin(), assigneeDto.getName())).orElse(null))
         .setRule(new Rule(ruleDto.getKey(), RuleType.valueOfNullable(ruleDto.getType()), ruleDto.getName()))
         .setProject(new Project.Builder(project.uuid())

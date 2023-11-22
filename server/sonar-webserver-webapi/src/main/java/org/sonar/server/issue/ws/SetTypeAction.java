@@ -126,7 +126,7 @@ public class SetTypeAction implements IssuesWsAction {
     IssueChangeContext context = issueChangeContextByUserBuilder(new Date(system2.now()), userSession.getUuid()).withRefreshMeasures().build();
     if (issueFieldsSetter.setType(issue, ruleType, context)) {
       BranchDto branch = issueUpdater.getBranch(session, issue);
-      SearchResponseData response = issueUpdater.saveIssueAndPreloadSearchResponseData(session, issue, context, branch);
+      SearchResponseData response = issueUpdater.saveIssueAndPreloadSearchResponseData(session, issueDto, issue, context, branch);
       if (branch.getBranchType().equals(BRANCH) && response.getComponentByUuid(issue.projectUuid()) != null) {
         issueChangeEventService.distributeIssueChangeEvent(issue, null, ruleType.name(), null, branch,
           response.getComponentByUuid(issue.projectUuid()).getKey());

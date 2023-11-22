@@ -86,8 +86,8 @@ public class FPOrAcceptedNotificationHandler extends EmailNotificationHandler<Is
       .map(serializer::from)
       // ignore notifications which contain no issue changed to a FP or Accepted status
       .filter(t -> t.getIssues().stream()
-        .filter(issue -> issue.getNewIssueStatus().isPresent())
-        .anyMatch(issue -> FP_OR_ACCEPTED_SIMPLE_STATUSES.contains(issue.getNewIssueStatus().get())))
+        .filter(issue -> issue.getNewIssueStatus().isPresent() && issue.getOldIssueStatus().isPresent())
+        .anyMatch(issue -> !issue.getNewIssueStatus().equals(issue.getOldIssueStatus()) && FP_OR_ACCEPTED_SIMPLE_STATUSES.contains(issue.getNewIssueStatus().get())))
       .map(NotificationWithProjectKeys::new)
       .collect(Collectors.toSet());
     if (changeNotificationsWithFpOrAccepted.isEmpty()) {
@@ -144,14 +144,14 @@ public class FPOrAcceptedNotificationHandler extends EmailNotificationHandler<Is
           .collect(unorderedIndex(t -> t.getNewIssueStatus().get(), issue -> issue));
 
         return Stream.of(
-          of(issuesByNewIssueStatus.get(IssueStatus.FALSE_POSITIVE))
-            .filter(t -> !t.isEmpty())
-            .map(fpIssues -> new FPOrAcceptedNotification(notification.getChange(), fpIssues, FP))
-            .orElse(null),
-          of(issuesByNewIssueStatus.get(IssueStatus.ACCEPTED))
-            .filter(t -> !t.isEmpty())
-            .map(acceptedIssues -> new FPOrAcceptedNotification(notification.getChange(), acceptedIssues, ACCEPTED))
-            .orElse(null))
+            of(issuesByNewIssueStatus.get(IssueStatus.FALSE_POSITIVE))
+              .filter(t -> !t.isEmpty())
+              .map(fpIssues -> new FPOrAcceptedNotification(notification.getChange(), fpIssues, FP))
+              .orElse(null),
+            of(issuesByNewIssueStatus.get(IssueStatus.ACCEPTED))
+              .filter(t -> !t.isEmpty())
+              .map(acceptedIssues -> new FPOrAcceptedNotification(notification.getChange(), acceptedIssues, ACCEPTED))
+              .orElse(null))
           .filter(Objects::nonNull)
           .map(fpOrAcceptedNotification -> new EmailDeliveryRequest(recipient.email(), fpOrAcceptedNotification));
       });

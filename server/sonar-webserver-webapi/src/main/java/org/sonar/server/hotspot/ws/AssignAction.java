@@ -126,7 +126,7 @@ public class AssignAction implements HotspotsWsAction {
       }
 
       if (issueFieldsSetter.assign(defaultIssue, assignee, context)) {
-        issueUpdater.saveIssueAndPreloadSearchResponseData(dbSession, defaultIssue, context);
+        issueUpdater.saveIssueAndPreloadSearchResponseData(dbSession, hotspotDto, defaultIssue, context);
 
         BranchDto branch = issueUpdater.getBranch(dbSession, defaultIssue);
         if (BRANCH.equals(branch.getBranchType())) {

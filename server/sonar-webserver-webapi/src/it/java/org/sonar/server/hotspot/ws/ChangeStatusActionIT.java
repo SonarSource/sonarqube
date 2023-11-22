@@ -441,6 +441,7 @@ public class ChangeStatusActionIT {
     if (transitionDone) {
       verify(issueUpdater).saveIssueAndPreloadSearchResponseData(
         any(DbSession.class),
+        any(IssueDto.class),
         defaultIssueCaptor.capture(),
         eq(issueChangeContext));
 
@@ -546,6 +547,7 @@ public class ChangeStatusActionIT {
     if (transitionDone) {
       verify(issueUpdater).saveIssueAndPreloadSearchResponseData(
         any(DbSession.class),
+        any(IssueDto.class),
         defaultIssueCaptor.capture(),
         eq(issueChangeContext));
 
@@ -595,6 +597,7 @@ public class ChangeStatusActionIT {
       verify(issueFieldsSetter).addComment(defaultIssueCaptor.capture(), eq(comment), eq(issueChangeContext));
       verify(issueUpdater).saveIssueAndPreloadSearchResponseData(
         any(DbSession.class),
+        any(IssueDto.class),
         defaultIssueCaptor.capture(),
         eq(issueChangeContext));
 

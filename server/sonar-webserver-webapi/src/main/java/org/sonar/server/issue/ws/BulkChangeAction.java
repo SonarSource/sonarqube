@@ -47,7 +47,6 @@ import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
-import org.sonar.core.issue.status.IssueStatus;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
@@ -152,7 +151,7 @@ public class BulkChangeAction implements IssuesWsAction {
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction(ACTION_BULK_CHANGE)
       .setDescription("Bulk change on issues. Up to 500 issues can be updated. <br/>" +
-        "Requires authentication.")
+                      "Requires authentication.")
       .setSince("3.7")
       .setChangelog(
         new Change("10.4", ("Transitions '%s' and '%s' are now deprecated. Use transition '%s' instead. " +
@@ -196,7 +195,7 @@ public class BulkChangeAction implements IssuesWsAction {
       .setExampleValue("security,java8");
     action.createParam(PARAM_COMMENT)
       .setDescription("Add a comment. "
-        + "The comment will only be added to issues that are affected either by a change of type or a change of severity as a result of the same WS call.")
+                      + "The comment will only be added to issues that are affected either by a change of type or a change of severity as a result of the same WS call.")
       .setExampleValue("Here is my comment");
     action.createParam(PARAM_SEND_NOTIFICATIONS)
       .setSince("4.0")
@@ -334,11 +333,13 @@ public class BulkChangeAction implements IssuesWsAction {
     if (ruleDefinitionDto == null || projectDto == null) {
       return null;
     }
+    IssueDto oldIssueDto = bulkChangeData.originalIssueByKey.get(issue.key());
 
     Optional<UserDto> assignee = Optional.ofNullable(issue.assignee()).map(userDtoByUuid::get);
     return new ChangedIssue.Builder(issue.key())
       .setNewStatus(issue.status())
-      .setNewIssueStatus(IssueStatus.of(issue.status(), issue.resolution()))
+      .setNewIssueStatus(issue.getIssueStatus())
+      .setOldIssueStatus(oldIssueDto.getIssueStatus())
       .setAssignee(assignee.map(u -> new User(u.getUuid(), u.getLogin(), u.getName())).orElse(null))
       .setRule(new IssuesChangesNotificationBuilder.Rule(ruleDefinitionDto.getKey(), RuleType.valueOfNullable(ruleDefinitionDto.getType()), ruleDefinitionDto.getName()))
       .setProject(new Project.Builder(projectDto.uuid())
@@ -382,6 +383,7 @@ public class BulkChangeAction implements IssuesWsAction {
     private final Map<String, ComponentDto> componentsByUuid;
     private final Map<RuleKey, RuleDto> rulesByKey;
     private final List<Action> availableActions;
+    private final Map<String, IssueDto> originalIssueByKey;
 
     BulkChangeData(DbSession dbSession, Request request) {
       this.sendNotification = request.mandatoryParamAsBoolean(PARAM_SEND_NOTIFICATIONS);
@@ -398,12 +400,14 @@ public class BulkChangeAction implements IssuesWsAction {
       this.branchComponentByUuid = getAuthorizedComponents(allBranches).stream().collect(toMap(ComponentDto::uuid, identity()));
       this.branchesByProjectUuid = dbClient.branchDao().selectByUuids(dbSession, branchComponentByUuid.keySet()).stream()
         .collect(toMap(BranchDto::getUuid, identity()));
-      this.issues = getAuthorizedIssues(allIssues);
+      List<IssueDto> authorizedIssues = getAuthorizedIssues(allIssues);
+      this.originalIssueByKey = authorizedIssues.stream().collect(toMap(IssueDto::getKee, identity()));
+      this.issues = toDefaultIssues(authorizedIssues);
       this.componentsByUuid = getComponents(dbSession,
         issues.stream().map(DefaultIssue::componentUuid).collect(Collectors.toSet())).stream()
-          .collect(toMap(ComponentDto::uuid, identity()));
+        .collect(toMap(ComponentDto::uuid, identity()));
       this.rulesByKey = dbClient.ruleDao().selectByKeys(dbSession,
-        issues.stream().map(DefaultIssue::ruleKey).collect(Collectors.toSet())).stream()
+          issues.stream().map(DefaultIssue::ruleKey).collect(Collectors.toSet())).stream()
         .collect(toMap(RuleDto::getKey, identity()));
 
       this.availableActions = actions.stream()
@@ -420,10 +424,15 @@ public class BulkChangeAction implements IssuesWsAction {
       return userSession.keepAuthorizedComponents(UserRole.USER, projectDtos);
     }
 
-    private List<DefaultIssue> getAuthorizedIssues(List<IssueDto> allIssues) {
+    private List<IssueDto> getAuthorizedIssues(List<IssueDto> allIssues) {
       Set<String> branchUuids = branchComponentByUuid.values().stream().map(ComponentDto::uuid).collect(Collectors.toSet());
       return allIssues.stream()
         .filter(issue -> branchUuids.contains(issue.getProjectUuid()))
+        .toList();
+    }
+
+    private List<DefaultIssue> toDefaultIssues(List<IssueDto> allIssues) {
+      return allIssues.stream()
         .map(IssueDto::toDefaultIssue)
         .toList();
     }

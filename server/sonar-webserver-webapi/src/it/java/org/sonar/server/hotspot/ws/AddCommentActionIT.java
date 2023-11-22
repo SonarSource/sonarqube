@@ -242,6 +242,7 @@ public class AddCommentActionIT {
     verify(issueFieldsSetter).addComment(defaultIssueCaptor.capture(), eq(comment), eq(issueChangeContext));
     verify(issueUpdater).saveIssueAndPreloadSearchResponseData(
       any(DbSession.class),
+      any(IssueDto.class),
       defaultIssueCaptor.capture(),
       eq(issueChangeContext));
 

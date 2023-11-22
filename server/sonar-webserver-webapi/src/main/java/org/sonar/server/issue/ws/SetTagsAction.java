@@ -109,7 +109,7 @@ public class SetTagsAction implements IssuesWsAction {
       DefaultIssue issue = issueDto.toDefaultIssue();
       IssueChangeContext context = issueChangeContextByUserBuilder(new Date(), userSession.getUuid()).build();
       if (issueFieldsSetter.setTags(issue, tags, context)) {
-        return issueUpdater.saveIssueAndPreloadSearchResponseData(session, issue, context);
+        return issueUpdater.saveIssueAndPreloadSearchResponseData(session, issueDto, issue, context);
       }
       return new SearchResponseData(issueDto);
     }
