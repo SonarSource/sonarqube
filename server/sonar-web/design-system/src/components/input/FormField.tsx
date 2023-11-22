@@ -52,15 +52,15 @@ export function FormField({
 }: Props) {
   return (
     <FieldWrapper className={className} id={id}>
-      <label aria-label={ariaLabel} className="sw-mb-2" htmlFor={htmlFor} title={title}>
-        <Highlight className="sw-flex sw-items-center sw-gap-2">
+      <Highlight className="sw-mb-2 sw-flex sw-items-center sw-gap-2">
+        <StyledLabel aria-label={ariaLabel} htmlFor={htmlFor} title={title}>
           {label}
           {required && (
-            <RequiredIcon aria-label={requiredAriaLabel ?? 'required'} className="sw--ml-1" />
+            <RequiredIcon aria-label={requiredAriaLabel ?? 'required'} className="sw-ml-1" />
           )}
-          {help}
-        </Highlight>
-      </label>
+        </StyledLabel>
+        {help}
+      </Highlight>
 
       {children}
 
@@ -68,6 +68,12 @@ export function FormField({
     </FieldWrapper>
   );
 }
+
+// This is needed to prevent the target input/button from being focused
+// when clicking/hovering on the label. More info https://stackoverflow.com/questions/9098581/why-is-hover-for-input-triggered-on-corresponding-label-in-css
+const StyledLabel = styled.label`
+  pointer-events: none;
+`;
 
 const FieldWrapper = styled.div`
   ${tw`sw-flex sw-flex-col sw-w-full`}
