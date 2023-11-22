@@ -42,7 +42,6 @@ import { UserActivity } from './types';
 
 export default function UsersApp() {
   const [identityProviders, setIdentityProviders] = useState<IdentityProvider[]>([]);
-  const [numberOfPages, setNumberOfPages] = useState<number>(1);
   const [search, setSearch] = useState('');
   const [usersActivity, setUsersActivity] = useState<UserActivity>(UserActivity.AnyActivity);
   const [managed, setManaged] = useState<boolean | undefined>(undefined);
@@ -71,14 +70,13 @@ export default function UsersApp() {
     }
   }, [usersActivity]);
 
-  const { users, total, isLoading } = useUsersQueries<RestUserDetailed>(
-    {
-      q: search,
-      managed,
-      ...usersActivityParams,
-    },
-    numberOfPages,
-  );
+  const { data, isLoading, fetchNextPage } = useUsersQueries<RestUserDetailed>({
+    q: search,
+    managed,
+    ...usersActivityParams,
+  });
+
+  const users = data?.pages.flatMap((page) => page.users) ?? [];
 
   const manageProvider = useManageProvider();
 
@@ -100,18 +98,12 @@ export default function UsersApp() {
           manageProvider={manageProvider}
           loading={isLoading}
           managed={managed}
-          setManaged={(m) => {
-            setManaged(m);
-            setNumberOfPages(1);
-          }}
+          setManaged={(m) => setManaged(m)}
         />
         <SearchBox
           id="users-search"
           minLength={2}
-          onChange={(search: string) => {
-            setSearch(search);
-            setNumberOfPages(1);
-          }}
+          onChange={(search: string) => setSearch(search)}
           placeholder={translate('search.search_by_login_or_name')}
           value={search}
         />
@@ -120,10 +112,9 @@ export default function UsersApp() {
             id="users-activity-filter"
             className="input-large"
             isDisabled={isLoading}
-            onChange={(userActivity: LabelValueSelectOption<UserActivity>) => {
-              setUsersActivity(userActivity.value);
-              setNumberOfPages(1);
-            }}
+            onChange={(userActivity: LabelValueSelectOption<UserActivity>) =>
+              setUsersActivity(userActivity.value)
+            }
             options={USERS_ACTIVITY_OPTIONS}
             isSearchable={false}
             placeholder={translate('users.activity_filter.placeholder')}
@@ -151,9 +142,9 @@ export default function UsersApp() {
 
       <ListFooter
         count={users.length}
-        loadMore={() => setNumberOfPages((n) => n + 1)}
+        loadMore={fetchNextPage}
         ready={!isLoading}
-        total={total}
+        total={data?.pages[0].page.total}
       />
     </main>
   );

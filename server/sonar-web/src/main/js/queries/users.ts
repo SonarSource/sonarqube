@@ -18,14 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import {
-  QueryFunctionContext,
-  useMutation,
-  useQueries,
-  useQuery,
-  useQueryClient,
-} from '@tanstack/react-query';
-import { range } from 'lodash';
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { generateToken, getTokens, revokeToken } from '../api/user-tokens';
 import { addUserToGroup, removeUserFromGroup } from '../api/user_groups';
 import {
@@ -44,31 +37,17 @@ const STALE_TIME = 4 * 60 * 1000;
 
 export function useUsersQueries<U extends RestUserBase>(
   getParams: Omit<Parameters<typeof getUsers>[0], 'pageSize' | 'pageIndex'>,
-  numberOfPages: number,
 ) {
-  type QueryKey = [
-    'user',
-    'list',
-    number,
-    Omit<Parameters<typeof getUsers>[0], 'pageSize' | 'pageIndex'>,
-  ];
-  const results = useQueries({
-    queries: range(1, numberOfPages + 1).map((page: number) => ({
-      queryKey: ['user', 'list', page, getParams],
-      queryFn: ({ queryKey: [_u, _l, page, getParams] }: QueryFunctionContext<QueryKey>) =>
-        getUsers<U>({ ...getParams, pageIndex: page }),
-      staleTime: STALE_TIME,
-    })),
+  return useInfiniteQuery({
+    queryKey: ['user', 'list', getParams],
+    queryFn: ({ pageParam = 1 }) => getUsers<U>({ ...getParams, pageIndex: pageParam }),
+    getNextPageParam: (lastPage) =>
+      lastPage.page.total <= lastPage.page.pageIndex * lastPage.page.pageSize
+        ? undefined
+        : lastPage.page.pageIndex + 1,
+    getPreviousPageParam: (firstPage) =>
+      firstPage.page.pageIndex === 1 ? undefined : firstPage.page.pageIndex - 1,
   });
-
-  return results.reduce(
-    (acc, { data, isLoading }) => ({
-      users: acc.users.concat(data?.users ?? []),
-      total: data?.page.total,
-      isLoading: acc.isLoading || isLoading,
-    }),
-    { users: [] as U[], total: 0, isLoading: false },
-  );
 }
 
 export function useUserTokensQuery(login: string) {

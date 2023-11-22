@@ -159,14 +159,14 @@ describe('different filters combinations', () => {
   it('should display all users with default filters', async () => {
     renderUsersApp();
 
-    await act(async () => expect(await ui.userRows.findAll()).toHaveLength(6));
+    expect(await ui.userRows.findAll()).toHaveLength(6);
   });
 
   it('should display users filtered with text search', async () => {
     const user = userEvent.setup();
     renderUsersApp();
 
-    await act(async () => user.type(await ui.searchInput.find(), 'ar'));
+    await user.type(await ui.searchInput.find(), 'ar');
 
     expect(await ui.userRows.findAll()).toHaveLength(2);
     expect(ui.bobRow.get()).toBeInTheDocument();
@@ -177,13 +177,12 @@ describe('different filters combinations', () => {
     const user = userEvent.setup();
     renderUsersApp();
 
-    await act(async () => user.click(await ui.localFilter.find()));
-    await act(async () => {
-      await selectEvent.select(
-        ui.activityFilter.get(),
-        'users.activity_filter.active_sonarlint_users',
-      );
-    });
+    await user.click(await ui.localFilter.find());
+    await waitFor(() => expect(ui.activityFilter.get()).toBeEnabled());
+    await selectEvent.select(
+      ui.activityFilter.get(),
+      'users.activity_filter.active_sonarlint_users',
+    );
 
     expect(await ui.userRows.findAll()).toHaveLength(1);
     expect(ui.charlieRow.get()).toBeInTheDocument();
@@ -193,13 +192,12 @@ describe('different filters combinations', () => {
     const user = userEvent.setup();
     renderUsersApp();
 
-    await act(async () => user.click(await ui.managedFilter.find()));
-    await act(async () => {
-      await selectEvent.select(
-        ui.activityFilter.get(),
-        'users.activity_filter.active_sonarqube_users',
-      );
-    });
+    await user.click(await ui.managedFilter.find());
+    await waitFor(() => expect(ui.activityFilter.get()).toBeEnabled());
+    await selectEvent.select(
+      ui.activityFilter.get(),
+      'users.activity_filter.active_sonarqube_users',
+    );
 
     expect(await ui.userRows.findAll()).toHaveLength(1);
     expect(ui.denisRow.get()).toBeInTheDocument();
@@ -210,9 +208,8 @@ describe('different filters combinations', () => {
     renderUsersApp();
 
     await user.click(await ui.localAndManagedFilter.find());
-    await act(async () => {
-      await selectEvent.select(ui.activityFilter.get(), 'users.activity_filter.inactive_users');
-    });
+    await waitFor(() => expect(ui.activityFilter.get()).toBeEnabled());
+    await selectEvent.select(ui.activityFilter.get(), 'users.activity_filter.inactive_users');
 
     expect(await ui.userRows.findAll()).toHaveLength(2);
     expect(ui.evaRow.get()).toBeInTheDocument();
@@ -229,7 +226,7 @@ describe('in non managed mode', () => {
     const user = userEvent.setup();
     renderUsersApp();
 
-    await act(async () => expect(await ui.description.find()).toBeInTheDocument());
+    expect(await ui.description.find()).toBeInTheDocument();
     expect(ui.createUserButton.get()).toBeEnabled();
     await user.click(ui.createUserButton.get());
 
@@ -248,9 +245,7 @@ describe('in non managed mode', () => {
     await user.clear(ui.dialogSCMInput('SCM').get());
     await act(() => user.click(ui.createUserDialogButton.get()));
     expect(ui.dialogCreateUser.get()).toBeInTheDocument();
-    expect(
-      await within(ui.dialogCreateUser.get()).findByText('Error: Empty SCM'),
-    ).toBeInTheDocument();
+    expect(await ui.dialogCreateUser.byText('Error: Empty SCM').find()).toBeInTheDocument();
     // Remove SCM account
     await user.click(ui.deleteSCMButton().get());
     expect(ui.dialogSCMInputs.queryAll()).toHaveLength(0);
@@ -263,7 +258,7 @@ describe('in non managed mode', () => {
   it('should render all users', async () => {
     renderUsersApp();
 
-    await act(async () => expect(await ui.aliceRow.find()).toBeInTheDocument());
+    expect(await ui.aliceRow.find()).toBeInTheDocument();
     expect(ui.bobRow.get()).toBeInTheDocument();
     expect(ui.aliceRowWithLocalBadge.query()).not.toBeInTheDocument();
   });
@@ -272,13 +267,11 @@ describe('in non managed mode', () => {
     const user = userEvent.setup();
     renderUsersApp();
 
-    await act(async () => expect(await ui.aliceRow.find()).toBeInTheDocument());
+    expect(await ui.aliceRow.find()).toBeInTheDocument();
     expect(await ui.userRows.findAll()).toHaveLength(6);
     expect(ui.bobRow.get()).toBeInTheDocument();
 
-    await act(async () => {
-      await user.click(await ui.showMore.find());
-    });
+    await user.click(await ui.showMore.find());
 
     expect(await ui.userRows.findAll()).toHaveLength(8);
   });
@@ -286,7 +279,7 @@ describe('in non managed mode', () => {
   it('should be able to edit the groups of a user', async () => {
     const user = userEvent.setup();
     renderUsersApp();
-    expect(await within(await ui.aliceRow.find()).findByText('3')).toBeInTheDocument();
+    expect(await ui.aliceRow.byText('3').find()).toBeInTheDocument();
 
     await act(async () => user.click(await ui.aliceUpdateGroupButton.find()));
     expect(await ui.dialogGroups.find()).toBeInTheDocument();
@@ -306,7 +299,7 @@ describe('in non managed mode', () => {
 
     await act(() => user.click(ui.doneButton.get()));
     expect(ui.dialogGroups.query()).not.toBeInTheDocument();
-    expect(await within(await ui.aliceRow.find()).findByText('4')).toBeInTheDocument();
+    expect(await ui.aliceRow.byText('4').find()).toBeInTheDocument();
 
     await act(async () => user.click(await ui.aliceUpdateGroupButton.find()));
 
@@ -317,23 +310,21 @@ describe('in non managed mode', () => {
     await act(() => user.click(ui.reloadButton.get()));
     expect(ui.getGroups()).toHaveLength(3);
 
-    await act(() => user.type(within(ui.dialogGroups.get()).getByRole('searchbox'), '4'));
+    await act(() => user.type(ui.dialogGroups.byRole('searchbox').get(), '4'));
 
     expect(ui.getGroups()).toHaveLength(1);
 
     await act(() => user.click(ui.doneButton.get()));
     expect(ui.dialogGroups.query()).not.toBeInTheDocument();
-    expect(await within(await ui.aliceRow.find()).findByText('3')).toBeInTheDocument();
+    expect(await ui.aliceRow.byText('3').find()).toBeInTheDocument();
   });
 
   it('should update user', async () => {
     const user = userEvent.setup();
     renderUsersApp();
 
-    await act(async () => user.click(await ui.aliceUpdateButton.find()));
-    await user.click(
-      await within(ui.aliceRow.get()).findByRole('button', { name: 'update_details' }),
-    );
+    await user.click(await ui.aliceUpdateButton.find());
+    await user.click(await ui.aliceRow.byRole('button', { name: 'update_details' }).find());
     expect(await ui.dialogUpdateUser.find()).toBeInTheDocument();
 
     expect(ui.userNameInput.get()).toHaveValue('Alice Merveille');
@@ -351,19 +342,15 @@ describe('in non managed mode', () => {
     const user = userEvent.setup();
     renderUsersApp();
 
-    await act(async () => user.click(await ui.aliceUpdateButton.find()));
-    await user.click(
-      await within(ui.aliceRow.get()).findByRole('button', { name: 'users.deactivate' }),
-    );
+    await user.click(await ui.aliceUpdateButton.find());
+    await user.click(await ui.aliceRow.byRole('button', { name: 'users.deactivate' }).find());
     expect(await ui.dialogDeactivateUser.find()).toBeInTheDocument();
     expect(ui.deleteUserAlert.query()).not.toBeInTheDocument();
     await user.click(ui.deleteUserCheckbox.get());
     expect(await ui.deleteUserAlert.find()).toBeInTheDocument();
 
     await act(() =>
-      user.click(
-        within(ui.dialogDeactivateUser.get()).getByRole('button', { name: 'users.deactivate' }),
-      ),
+      user.click(ui.dialogDeactivateUser.byRole('button', { name: 'users.deactivate' }).get()),
     );
     expect(ui.aliceRow.query()).not.toBeInTheDocument();
   });
@@ -373,9 +360,9 @@ describe('in non managed mode', () => {
     const currentUser = mockLoggedInUser({ login: 'alice.merveille' });
     renderUsersApp([], currentUser);
 
-    await act(async () => user.click(await ui.aliceUpdateButton.find()));
+    await user.click(await ui.aliceUpdateButton.find());
     await user.click(
-      await within(ui.aliceRow.get()).findByRole('button', { name: 'my_profile.password.title' }),
+      await ui.aliceRow.byRole('button', { name: 'my_profile.password.title' }).find(),
     );
     expect(await ui.dialogPasswords.find()).toBeInTheDocument();
 
@@ -393,9 +380,7 @@ describe('in non managed mode', () => {
     ).not.toBeInTheDocument();
     await act(() => user.click(ui.changeButton.get()));
     expect(
-      await within(ui.dialogPasswords.get()).findByText(
-        `user.${ChangePasswordResults.OldPasswordIncorrect}`,
-      ),
+      await ui.dialogPasswords.byText(`user.${ChangePasswordResults.OldPasswordIncorrect}`).find(),
     ).toBeInTheDocument();
 
     await user.clear(ui.oldPassword.get());
@@ -428,10 +413,8 @@ describe('in non managed mode', () => {
     const currentUser = mockLoggedInUser({ login: 'denis.villeneuve' });
     renderUsersApp([], currentUser);
 
-    await act(async () => user.click(await ui.denisUpdateButton.find()));
-    await user.click(
-      await within(ui.denisRow.get()).findByRole('button', { name: 'update_details' }),
-    );
+    await user.click(await ui.denisUpdateButton.find());
+    await user.click(await ui.denisRow.byRole('button', { name: 'update_details' }).find());
     expect(await ui.dialogUpdateUser.find()).toBeInTheDocument();
 
     expect(ui.userNameInput.get()).toHaveValue('Denis Villeneuve');
@@ -441,7 +424,7 @@ describe('in non managed mode', () => {
     await user.type(ui.dialogSCMInput().get(), 'SCM');
     await act(() => user.click(ui.updateButton.get()));
     expect(ui.dialogUpdateUser.query()).not.toBeInTheDocument();
-    expect(await within(ui.denisRow.get()).findByText('SCM')).toBeInTheDocument();
+    expect(await ui.denisRow.byText('SCM').find()).toBeInTheDocument();
   });
 
   it('should be able to remove email', async () => {
@@ -449,22 +432,18 @@ describe('in non managed mode', () => {
     const currentUser = mockLoggedInUser({ login: 'alice.merveille' });
     renderUsersApp([], currentUser);
 
-    expect(
-      within(await ui.aliceRow.find()).getByText('alice.merveille@wonderland.com'),
-    ).toBeInTheDocument();
+    expect(await ui.aliceRow.byText('alice.merveille@wonderland.com').find()).toBeInTheDocument();
     await act(async () => user.click(await ui.aliceUpdateButton.find()));
-    await user.click(
-      await within(ui.aliceRow.get()).findByRole('button', { name: 'update_details' }),
-    );
+    await user.click(await ui.aliceRow.byRole('button', { name: 'update_details' }).find());
     expect(await ui.dialogUpdateUser.find()).toBeInTheDocument();
 
     expect(ui.emailInput.get()).toHaveValue('alice.merveille@wonderland.com');
     await user.clear(ui.emailInput.get());
     await act(() => user.click(ui.updateButton.get()));
     expect(ui.dialogUpdateUser.query()).not.toBeInTheDocument();
-    expect(
-      within(ui.aliceRow.get()).queryByText('alice.merveille@wonderland.com'),
-    ).not.toBeInTheDocument();
+    await waitFor(() =>
+      expect(ui.aliceRow.byText('alice.merveille@wonderland.com').query()).not.toBeInTheDocument(),
+    );
   });
 });
 
@@ -476,14 +455,14 @@ describe('in manage mode', () => {
   it('should not be able to create a user"', async () => {
     renderUsersApp();
 
-    await act(async () => expect(await ui.infoManageMode.find()).toBeInTheDocument());
+    expect(await ui.infoManageMode.find()).toBeInTheDocument();
     expect(ui.createUserButton.get()).toBeDisabled();
   });
 
   it("should not be able to add/remove a user's group", async () => {
     renderUsersApp();
 
-    await act(async () => expect(await ui.aliceRowWithLocalBadge.find()).toBeInTheDocument());
+    expect(await ui.aliceRowWithLocalBadge.find()).toBeInTheDocument();
     expect(ui.aliceUpdateGroupButton.query()).not.toBeInTheDocument();
     expect(ui.bobRow.get()).toBeInTheDocument();
     expect(ui.bobUpdateGroupButton.query()).not.toBeInTheDocument();
@@ -494,7 +473,7 @@ describe('in manage mode', () => {
 
     renderUsersApp();
 
-    await act(async () => expect(await ui.bobRow.find()).toBeInTheDocument());
+    expect(await ui.bobRow.find()).toBeInTheDocument();
     expect(ui.bobUpdateButton.get()).toBeInTheDocument();
 
     await user.click(ui.bobUpdateButton.get());
@@ -506,7 +485,7 @@ describe('in manage mode', () => {
       ui.bobRow.byRole('button', { name: 'my_profile.password.title' }).query(),
     ).not.toBeInTheDocument();
 
-    await user.click(await ui.bobRow.byRole('button', { name: 'update_scm' }).get());
+    await user.click(ui.bobRow.byRole('button', { name: 'update_scm' }).get());
 
     expect(ui.userNameInput.get()).toBeDisabled();
     expect(ui.emailInput.get()).toBeDisabled();
@@ -522,7 +501,7 @@ describe('in manage mode', () => {
     const user = userEvent.setup();
     renderUsersApp();
 
-    await act(async () => expect(await ui.aliceRowWithLocalBadge.find()).toBeInTheDocument());
+    expect(await ui.aliceRowWithLocalBadge.find()).toBeInTheDocument();
     await user.click(ui.aliceUpdateButton.get());
     expect(await ui.alicedDeactivateButton.find()).toBeInTheDocument();
   });
@@ -530,9 +509,9 @@ describe('in manage mode', () => {
   it('should render list of all users', async () => {
     renderUsersApp();
 
-    await act(async () => expect(await ui.localAndManagedFilter.find()).toBeInTheDocument());
+    expect(await ui.localAndManagedFilter.find()).toBeInTheDocument();
 
-    expect(ui.aliceRowWithLocalBadge.get()).toBeInTheDocument();
+    expect(await ui.aliceRowWithLocalBadge.find()).toBeInTheDocument();
     expect(ui.bobRow.get()).toBeInTheDocument();
   });
 
@@ -540,7 +519,7 @@ describe('in manage mode', () => {
     const user = userEvent.setup();
     renderUsersApp();
 
-    await act(async () => expect(await ui.aliceRowWithLocalBadge.find()).toBeInTheDocument());
+    expect(await ui.aliceRowWithLocalBadge.find()).toBeInTheDocument();
 
     await act(async () => user.click(await ui.managedFilter.find()));
 
@@ -552,9 +531,7 @@ describe('in manage mode', () => {
     const user = userEvent.setup();
     renderUsersApp();
 
-    await act(async () => {
-      await user.click(await ui.localFilter.find());
-    });
+    await user.click(await ui.localFilter.find());
 
     expect(await ui.aliceRowWithLocalBadge.find()).toBeInTheDocument();
     expect(ui.bobRow.query()).not.toBeInTheDocument();
@@ -564,16 +541,16 @@ describe('in manage mode', () => {
     const user = userEvent.setup();
     renderUsersApp();
 
-    await act(async () =>
-      user.click(
-        await within(await ui.aliceRow.find()).findByRole('button', {
+    user.click(
+      await ui.aliceRow
+        .byRole('button', {
           name: 'users.update_tokens_for_x.Alice Merveille',
-        }),
-      ),
+        })
+        .find(),
     );
     expect(await ui.dialogTokens.find()).toBeInTheDocument();
 
-    const getTokensList = () => within(ui.dialogTokens.get()).getAllByRole('row');
+    const getTokensList = () => ui.dialogTokens.byRole('row').getAll();
 
     expect(getTokensList()).toHaveLength(3);
 
@@ -610,7 +587,7 @@ describe('in manage mode', () => {
         executedAt: '2022-02-03T11:45:35+0200',
       });
       renderUsersApp([Feature.GithubProvisioning]);
-      await act(async () => expect(await ui.githubProvisioningSuccess.find()).toBeInTheDocument());
+      expect(await ui.githubProvisioningSuccess.find()).toBeInTheDocument();
     });
 
     it('should display a success status even when another task is pending', async () => {
@@ -623,7 +600,7 @@ describe('in manage mode', () => {
         executedAt: '2022-02-03T11:45:35+0200',
       });
       renderUsersApp([Feature.GithubProvisioning]);
-      await act(async () => expect(await ui.githubProvisioningSuccess.find()).toBeInTheDocument());
+      expect(await ui.githubProvisioningSuccess.find()).toBeInTheDocument();
       expect(ui.githubProvisioningPending.query()).not.toBeInTheDocument();
     });
 
@@ -634,7 +611,7 @@ describe('in manage mode', () => {
         errorMessage: 'Error Message',
       });
       renderUsersApp([Feature.GithubProvisioning]);
-      await act(async () => expect(await ui.githubProvisioningAlert.find()).toBeInTheDocument());
+      expect(await ui.githubProvisioningAlert.find()).toBeInTheDocument();
       expect(screen.queryByText('Error Message')).not.toBeInTheDocument();
       expect(ui.githubProvisioningSuccess.query()).not.toBeInTheDocument();
     });
@@ -650,7 +627,7 @@ describe('in manage mode', () => {
         errorMessage: 'Error Message',
       });
       renderUsersApp([Feature.GithubProvisioning]);
-      await act(async () => expect(await ui.githubProvisioningAlert.find()).toBeInTheDocument());
+      expect(await ui.githubProvisioningAlert.find()).toBeInTheDocument();
       expect(screen.queryByText('Error Message')).not.toBeInTheDocument();
       expect(ui.githubProvisioningSuccess.query()).not.toBeInTheDocument();
       expect(ui.githubProvisioningInProgress.query()).not.toBeInTheDocument();
@@ -663,7 +640,7 @@ describe('in manage mode', () => {
         warnings: [warningMessage],
       });
       renderUsersApp([Feature.GithubProvisioning]);
-      await act(async () => expect(await ui.githubProvisioningWarning.find()).toBeInTheDocument());
+      expect(await ui.githubProvisioningWarning.find()).toBeInTheDocument();
       // We don't want to display the full warning message.
       expect(screen.queryByText(warningMessage)).not.toBeInTheDocument();
       expect(ui.githubProvisioningWarning.byRole('link').get()).toBeInTheDocument();
@@ -674,7 +651,7 @@ describe('in manage mode', () => {
 it('should render external identity Providers', async () => {
   renderUsersApp();
 
-  await act(async () => expect(await ui.charlieRow.find()).toHaveTextContent(/ExternalTest/));
+  expect(await ui.charlieRow.find()).toHaveTextContent(/ExternalTest/);
   expect(await ui.denisRow.find()).toHaveTextContent(/test2: UnknownExternalProvider/);
 });
 
