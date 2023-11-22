@@ -72,7 +72,7 @@ public class AnticipatedTransitionsActionIT {
     assertThat(definition.description()).isEqualTo("""
       Receive a list of anticipated transitions that can be applied to not yet discovered issues on a specific project.<br>
       Requires the following permission: 'Administer Issues' on the specified project.<br>
-      Only <code>falsepositive</code> and <code>wontfix</code> transitions are supported.<br>
+      Only <code>falsepositive</code>, <code>wontfix</code> and <code>accept</code> transitions are supported.<br>
       Upon successful execution, the HTTP status code returned is 202 (Accepted).<br><br>
       Request example:
       <pre><code>[

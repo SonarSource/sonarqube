@@ -84,7 +84,8 @@ public class DoTransitionAction implements IssuesWsAction {
         """.formatted(DefaultTransitions.ACCEPT, DefaultTransitions.WONT_FIX, DefaultTransitions.FALSE_POSITIVE))
       .setSince("3.6")
       .setChangelog(
-        new Change("10.4", "The transition '%s' is deprecated. Please use '%s' instead.".formatted(DefaultTransitions.WONT_FIX, DefaultTransitions.ACCEPT)),
+        new Change("10.4", "The transitions '%s' and '%s' are deprecated. Please use '%s' instead. The transition '%s' is deprecated too. "
+          .formatted(DefaultTransitions.WONT_FIX, DefaultTransitions.CONFIRM, DefaultTransitions.ACCEPT, DefaultTransitions.UNCONFIRM)),
         new Change("10.4", "Add transition '%s'.".formatted(DefaultTransitions.ACCEPT)),
         new Change("10.4", "The response fields 'status' and 'resolution' are deprecated. Please use 'issueStatus' instead."),
         new Change("10.4", "Add 'issueStatus' field to the response."),
