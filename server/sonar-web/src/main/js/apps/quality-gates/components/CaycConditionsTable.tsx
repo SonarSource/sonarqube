@@ -29,7 +29,7 @@ interface Props {
 
 export default function CaycConditionsTable({ metrics, conditions }: Readonly<Props>) {
   return (
-    <HighlightedSection className="sw-px-4 sw-py-0 sw-my-2">
+    <HighlightedSection className="sw-px-4 sw-py-0 sw-my-2" id="cayc-hihlight">
       <Table
         columnCount={2}
         columnWidths={['auto', '1fr']}

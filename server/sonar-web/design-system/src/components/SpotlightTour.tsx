@@ -29,6 +29,7 @@ import ReactJoyride, {
 } from 'react-joyride';
 import tw from 'twin.macro';
 import { GLOBAL_POPUP_Z_INDEX, PopupZLevel, themeColor } from '../helpers';
+import { findAnchor } from '../helpers/dom';
 import { ButtonLink, ButtonPrimary, WrapperButton } from './buttons';
 import { CloseIcon } from './icons';
 import { PopupWrapper } from './popups';
@@ -45,7 +46,7 @@ export interface SpotlightTourProps extends Omit<JoyrideProps, 'steps'> {
   width?: number;
 }
 
-export type SpotlightTourStep = Pick<JoyrideStep, 'target' | 'content' | 'title'> & {
+export type SpotlightTourStep = JoyrideStep & {
   placement?: Placement;
 };
 
@@ -54,9 +55,9 @@ export type SpotlightTourStep = Pick<JoyrideStep, 'target' | 'content' | 'title'
 (window as any).global = (window as any).global ?? {};
 
 const PULSE_SIZE = 8;
-const ARROW_LENGTH = 40;
 const DEFAULT_PLACEMENT = 'bottom';
 const DEFAULT_WIDTH = 315;
+const defultRect = new DOMRect(0, 0, 0, 0);
 
 function TooltipComponent({
   continuous,
@@ -76,7 +77,7 @@ function TooltipComponent({
   stepXofYLabel: SpotlightTourProps['stepXofYLabel'];
   width?: number;
 }) {
-  const [arrowPosition, setArrowPosition] = React.useState({ left: 0, top: 0, rotate: '0deg' });
+  const [timeStamp, setTimeStamp] = React.useState(0);
   const ref = React.useRef<HTMLDivElement | null>(null);
   const setRef = React.useCallback((node: HTMLDivElement) => {
     ref.current = node;
@@ -95,40 +96,33 @@ function TooltipComponent({
     };
   }, [step]);
 
+  const rect = ref.current?.parentElement?.getBoundingClientRect();
+  const targetElement =
+    typeof step.target === 'string'
+      ? document.querySelector<HTMLElement>(step.target)
+      : step.target;
+  const targetRect = targetElement?.getBoundingClientRect();
+
   React.useEffect(() => {
-    // We don't compute for "center"; "center" will simply not show any arrow.
-    if (placement !== 'center' && ref.current?.parentNode) {
-      let left = 0;
-      let top = 0;
-      let rotate = '0deg';
+    const updateScroll = (event: Event) => {
+      // The spotlight is doint transition that would look strange when we
+      // re-render arrow right away.
+      setTimeout(() => {
+        setTimeStamp(event.timeStamp);
+      }, 0);
+    };
 
-      const rect = (ref.current.parentNode as HTMLDivElement).getBoundingClientRect();
-      // In case target is null for some reason we use mocking object
-      const targetRect = (typeof step.target === 'string'
-        ? document.querySelector(step.target)?.getBoundingClientRect()
-        : step.target.getBoundingClientRect()) ?? { height: 0, y: 0, x: 0, width: 0 };
+    document.addEventListener('scroll', updateScroll, { capture: true });
 
-      if (placement === 'right') {
-        left = -ARROW_LENGTH - PULSE_SIZE;
-        top = Math.abs(targetRect.y - rect.y) + targetRect.height / 2 - PULSE_SIZE / 2;
-        rotate = '0deg';
-      } else if (placement === 'left') {
-        left = rect.width + ARROW_LENGTH + PULSE_SIZE;
-        top = Math.abs(targetRect.y - rect.y) + targetRect.height / 2 - PULSE_SIZE / 2;
-        rotate = '180deg';
-      } else if (placement === 'bottom') {
-        left = Math.abs(targetRect.x - rect.x) + targetRect.width / 2 - PULSE_SIZE / 2;
-        top = -ARROW_LENGTH - PULSE_SIZE;
-        rotate = '90deg';
-      } else if (placement === 'top') {
-        left = Math.abs(targetRect.x - rect.x) + targetRect.width / 2 - PULSE_SIZE / 2;
-        top = rect.height + ARROW_LENGTH + PULSE_SIZE;
-        rotate = '-90deg';
-      }
+    return () => {
+      document.removeEventListener('scroll', updateScroll, { capture: true });
+    };
+  }, []);
 
-      setArrowPosition({ left, top, rotate });
-    }
-  }, [step, ref, setArrowPosition, placement]);
+  const arrowPosition = React.useMemo(
+    () => findAnchor(rect ?? defultRect, targetRect ?? defultRect, PULSE_SIZE),
+    [rect, targetRect, timeStamp],
+  );
 
   /**
    * Preventing click events from bubbling to avoid closing other popups, in cases when the guide
@@ -142,14 +136,13 @@ function TooltipComponent({
     <StyledPopupWrapper
       className="sw-p-3 sw-body-sm sw-relative sw-border-0"
       onClick={handleClick}
-      placement={(step.placement as Placement | undefined) ?? DEFAULT_PLACEMENT}
       style={{ width }}
       zLevel={PopupZLevel.Absolute}
       {...tooltipProps}
     >
       {placement !== 'center' && (
         <SpotlightArrowWrapper left={arrowPosition.left} top={arrowPosition.top}>
-          <SpotlightArrow rotate={arrowPosition.rotate} />
+          <SpotlightArrow rotate={arrowPosition.rotate} width={arrowPosition.width} />
         </SpotlightArrowWrapper>
       )}
 
@@ -242,31 +235,11 @@ export function SpotlightTour(props: SpotlightTourProps) {
   );
 }
 
-const StyledPopupWrapper = styled(PopupWrapper)<{ placement: Placement }>`
+const StyledPopupWrapper = styled(PopupWrapper)`
   background-color: ${themeColor('spotlightBackgroundColor')};
   ${tw`sw-overflow-visible`};
   ${tw`sw-rounded-1`};
-  ${({ placement }) => getStyledPopupWrapperMargin(placement)};
 `;
-
-function getStyledPopupWrapperMargin(placement: Placement) {
-  switch (placement) {
-    case 'left':
-      return `margin-right: 2rem`;
-
-    case 'right':
-      return `margin-left: 2rem`;
-
-    case 'bottom':
-      return `margin-top: 2rem`;
-
-    case 'top':
-      return `margin-bottom: 2rem`;
-
-    default:
-      return null;
-  }
-}
 
 const SpotlightArrowWrapper = styled.div<{ left: number; top: number }>`
   ${tw`sw-absolute`}
@@ -283,7 +256,7 @@ const pulseKeyFrame = keyframes`
   80%, 100% { opacity: 0 }
 `;
 
-const SpotlightArrow = styled.div<{ rotate: string }>`
+const SpotlightArrow = styled.div<{ rotate: string; width: number }>`
   ${tw`sw-w-full sw-h-full`}
   ${tw`sw-rounded-pill`}
   background: ${themeColor('spotlightPulseBackground')};
@@ -306,7 +279,7 @@ const SpotlightArrow = styled.div<{ rotate: string }>`
   &::before {
     ${tw`sw-block sw-absolute`}
 
-    width: ${ARROW_LENGTH}px;
+    width: ${({ width }) => width}px;
     height: 0.125rem;
     background-color: ${themeColor('spotlightPulseBackground')};
     left: 100%;

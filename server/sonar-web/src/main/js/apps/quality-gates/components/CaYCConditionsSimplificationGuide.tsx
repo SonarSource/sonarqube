@@ -34,12 +34,12 @@ export default function CaYCConditionsSimplificationGuide() {
 
   const steps: SpotlightTourStep[] = [
     {
-      target: '[data-guiding-id="caycConditionsSimplification"]',
+      target: '#cayc-hihlight',
       content: (
         <p>{translate('quality_gates.cayc.condition_simplification_tour.page_1.content1')}</p>
       ),
       title: translate('quality_gates.cayc.condition_simplification_tour.page_1.title'),
-      placement: 'right',
+      placement: 'top',
     },
     {
       target: '[data-guiding-id="caycConditionsSimplification"]',
