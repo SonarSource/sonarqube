@@ -118,7 +118,8 @@ public class EsJvmOptions extends JvmOptions<EsJvmOptions> {
     res.put("-Dlog4j2.disable.jmx=", "true");
     res.put("-Dlog4j2.formatMsgNoLookups=", "true");
     /*
-     * Due to internationalization enhancements in JDK 9 Elasticsearch need to set the provider to COMPAT otherwise time/date
+     * Due to internationalization enhancements in JDK 9 org.sonarqube.ws.tester.Elasticsearch need to set the provider to COMPAT otherwise
+     * time/date
      * parsing will break in an incompatible way for some date patterns and locales.
      */
     res.put("-Djava.locale.providers=", "COMPAT");

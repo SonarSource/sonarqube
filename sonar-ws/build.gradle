@@ -20,15 +20,21 @@ dependencies {
   compileOnlyApi 'com.google.code.findbugs:jsr305'
   compileOnlyApi 'javax.annotation:javax.annotation-api'
 
-  testImplementation 'com.squareup.okhttp3:mockwebserver'
-  testImplementation 'com.squareup.okio:okio'
-  testImplementation 'commons-io:commons-io'
-  testImplementation 'commons-lang:commons-lang'
-  testImplementation 'junit:junit'
-  testImplementation 'org.assertj:assertj-core'
-  testImplementation 'org.hamcrest:hamcrest-core'
-  testImplementation 'org.mockito:mockito-core'
-  testImplementation project(':sonar-testing-harness')
+    testImplementation 'com.squareup.okhttp3:mockwebserver'
+    testImplementation 'com.squareup.okio:okio'
+    testImplementation 'commons-io:commons-io'
+    testImplementation 'commons-lang:commons-lang'
+    testImplementation 'junit:junit'
+    testImplementation 'org.assertj:assertj-core'
+    testImplementation 'org.hamcrest:hamcrest-core'
+    testImplementation 'org.mockito:mockito-core'
+    testImplementation project(':sonar-testing-harness')
+
+    testFixturesApi 'junit:junit'
+    testFixturesApi 'com.google.guava:guava'
+    testFixturesApi 'org.assertj:assertj-core'
+    testFixturesApi 'org.sonarsource.orchestrator:sonar-orchestrator-junit4'
+    testFixturesApi 'commons-io:commons-io'
 }
 
 artifactoryPublish.skip = false

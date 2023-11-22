@@ -700,6 +700,7 @@ subprojects {
       bbtImplementation 'org.sonarsource.orchestrator:sonar-orchestrator-junit4'
       bbtImplementation project(":sonar-testing-harness")
       bbtImplementation project(":private:it-common")
+      bbtImplementation testFixtures(project(":sonar-ws"))
     }
   }
 
