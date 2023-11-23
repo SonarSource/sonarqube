@@ -19,6 +19,7 @@
  */
 package org.sonar.server.user;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -178,6 +179,9 @@ public class ServerUserSession extends AbstractUserSession {
 
   @Override
   public List<ProjectDto> keepAuthorizedProjects(String permission, Collection<ProjectDto> projects) {
+    if (isRoot()) {
+      return new ArrayList<>(projects);
+    }
     Set<String> projectsUuids = projects.stream().map(ProjectDto::getUuid).collect(Collectors.toSet());
     Set<String> authorizedProjectsUuids = keepProjectsUuidsByPermission(permission, projectsUuids);
 
