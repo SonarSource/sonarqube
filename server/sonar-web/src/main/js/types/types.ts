@@ -223,10 +223,10 @@ export interface FlowLocation {
 }
 
 export interface Group {
+  id: string;
   default?: boolean;
-  description?: string;
-  membersCount: number;
   name: string;
+  description?: string;
   managed: boolean;
 }
 

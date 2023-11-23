@@ -18,14 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import {
-  QueryFunctionContext,
-  useMutation,
-  useQueries,
-  useQuery,
-  useQueryClient,
-} from '@tanstack/react-query';
-import { range } from 'lodash';
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   createGroup,
   deleteGroup,
@@ -33,37 +26,19 @@ import {
   getUsersInGroup,
   updateGroup,
 } from '../api/user_groups';
-import { Group } from '../types/types';
+import { getNextPageParam, getPreviousPageParam } from '../helpers/react-query';
 
 const STALE_TIME = 4 * 60 * 1000;
 
 export function useGroupsQueries(
   getParams: Omit<Parameters<typeof getUsersGroups>[0], 'pageSize' | 'pageIndex'>,
-  numberOfPages: number,
 ) {
-  type QueryKey = [
-    'group',
-    'list',
-    number,
-    Omit<Parameters<typeof getUsersGroups>[0], 'pageSize' | 'pageIndex'>,
-  ];
-  const results = useQueries({
-    queries: range(1, numberOfPages + 1).map((page: number) => ({
-      queryKey: ['group', 'list', page, getParams],
-      queryFn: ({ queryKey: [_u, _l, page, getParams] }: QueryFunctionContext<QueryKey>) =>
-        getUsersGroups({ ...getParams, p: page }),
-      staleTime: STALE_TIME,
-    })),
+  return useInfiniteQuery({
+    queryKey: ['group', 'list', getParams],
+    queryFn: ({ pageParam = 1 }) => getUsersGroups({ ...getParams, pageIndex: pageParam }),
+    getNextPageParam,
+    getPreviousPageParam,
   });
-
-  return results.reduce<{ groups: Group[]; total: number | undefined; isLoading: boolean }>(
-    (acc, { data, isLoading }) => ({
-      groups: acc.groups.concat(data?.groups ?? []),
-      total: data?.paging.total,
-      isLoading: acc.isLoading || isLoading,
-    }),
-    { groups: [], total: 0, isLoading: false },
-  );
 }
 
 export function useMembersCountQuery(name: string) {
@@ -89,7 +64,13 @@ export function useUpdateGroupMutation() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: Parameters<typeof updateGroup>[0]) => updateGroup(data),
+    mutationFn: ({
+      id,
+      data,
+    }: {
+      id: Parameters<typeof updateGroup>[0];
+      data: Parameters<typeof updateGroup>[1];
+    }) => updateGroup(id, data),
     onSuccess() {
       queryClient.invalidateQueries({ queryKey: ['group', 'list'] });
     },

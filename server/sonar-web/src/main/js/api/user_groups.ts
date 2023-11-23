@@ -17,18 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import axios from 'axios';
 import { throwGlobalError } from '../helpers/error';
-import { getJSON, post, postJSON } from '../helpers/request';
+import { axiosToCatch, getJSON, post } from '../helpers/request';
 import { Group, Paging, UserGroupMember } from '../types/types';
 
-export function getUsersGroups(data: {
-  f?: string;
-  p?: number;
-  ps?: number;
+const GROUPS_ENDPOINT = '/api/v2/authorizations/groups';
+
+export function getUsersGroups(params: {
   q?: string;
   managed: boolean | undefined;
-}): Promise<{ groups: Group[]; paging: Paging }> {
-  return getJSON('/api/user_groups/search', data).catch(throwGlobalError);
+  pageIndex?: number;
+  pageSize?: number;
+}): Promise<{ groups: Group[]; page: Paging }> {
+  return axios.get(GROUPS_ENDPOINT, { params });
 }
 
 export function getUsersInGroup(data: {
@@ -53,13 +55,19 @@ export function removeUserFromGroup(data: { name: string; login?: string }) {
 }
 
 export function createGroup(data: { description?: string; name: string }): Promise<Group> {
-  return postJSON('/api/user_groups/create', data).then((r) => r.group, throwGlobalError);
+  return axios.post(GROUPS_ENDPOINT, data).then((r) => r.group);
 }
 
-export function updateGroup(data: { description?: string; currentName: string; name?: string }) {
-  return post('/api/user_groups/update', data).catch(throwGlobalError);
+export function updateGroup(
+  id: string,
+  data: {
+    name?: string;
+    description?: string;
+  },
+) {
+  return axiosToCatch.patch(`${GROUPS_ENDPOINT}/${id}`, data);
 }
 
-export function deleteGroup(data: { name: string }) {
-  return post('/api/user_groups/delete', data).catch(throwGlobalError);
+export function deleteGroup(id: string) {
+  return axios.delete(`${GROUPS_ENDPOINT}/${id}`);
 }

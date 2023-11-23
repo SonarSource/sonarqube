@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { UseQueryResult } from '@tanstack/react-query';
+import { Paging } from '../types/types';
 
 const notUndefined = <T>(x: T | undefined): x is T => x !== undefined;
 
@@ -32,3 +33,11 @@ export const mapReactQueryResult = <T, R>(
     data: notUndefined(res.data) ? mapper(res.data) : res.data,
   } as UseQueryResult<R>;
 };
+
+export const getNextPageParam = <T extends { page: Paging }>(params: T) =>
+  params.page.total <= params.page.pageIndex * params.page.pageSize
+    ? undefined
+    : params.page.pageIndex + 1;
+
+export const getPreviousPageParam = <T extends { page: Paging }>(params: T) =>
+  params.page.pageIndex === 1 ? undefined : params.page.pageIndex - 1;

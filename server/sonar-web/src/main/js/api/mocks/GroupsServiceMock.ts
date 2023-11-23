@@ -81,8 +81,8 @@ export default class GroupsServiceMock {
     jest.mocked(getIdentityProviders).mockImplementation(this.handleGetIdentityProviders);
     jest.mocked(getUsersGroups).mockImplementation((p) => this.handleSearchUsersGroups(p));
     jest.mocked(createGroup).mockImplementation((g) => this.handleCreateGroup(g));
-    jest.mocked(deleteGroup).mockImplementation((g) => this.handleDeleteGroup(g));
-    jest.mocked(updateGroup).mockImplementation((g) => this.handleUpdateGroup(g));
+    jest.mocked(deleteGroup).mockImplementation((id) => this.handleDeleteGroup(id));
+    jest.mocked(updateGroup).mockImplementation((id, data) => this.handleUpdateGroup(id, data));
     jest.mocked(getUsersInGroup).mockImplementation(this.handlegetUsersInGroup);
     jest.mocked(addUserToGroup).mockImplementation(this.handleAddUserToGroup);
     jest.mocked(removeUserFromGroup).mockImplementation(this.handleRemoveUserFromGroup);
@@ -111,39 +111,34 @@ export default class GroupsServiceMock {
     return this.reply(newGroup);
   };
 
-  handleDeleteGroup = (group: { name: string }): Promise<Record<string, never>> => {
-    if (!this.groups.some((g) => g.name === group.name)) {
+  handleDeleteGroup: typeof deleteGroup = (id: string) => {
+    if (!this.groups.some((g) => g.id === id)) {
       return Promise.reject();
     }
 
-    const groupToDelete = this.groups.find((g) => g.name === group.name);
+    const groupToDelete = this.groups.find((g) => g.id === id);
     if (groupToDelete?.managed) {
       return Promise.reject();
     }
 
-    this.groups = this.groups.filter((g) => g.name !== group.name);
-    return this.reply({});
+    this.groups = this.groups.filter((g) => g.id !== id);
+    return this.reply(undefined);
   };
 
-  handleUpdateGroup = (group: {
-    currentName: string;
-    name?: string;
-    description?: string;
-  }): Promise<Record<string, never>> => {
-    if (!this.groups.some((g) => group.currentName === g.name)) {
+  handleUpdateGroup: typeof updateGroup = (id, data): Promise<Record<string, never>> => {
+    const group = this.groups.find((g) => g.id === id);
+    if (group === undefined) {
       return Promise.reject();
     }
 
-    this.groups.map((g) => {
-      if (g.name === group.currentName) {
-        if (group.name !== undefined) {
-          g.name = group.name;
-        }
-        if (group.description !== undefined) {
-          g.description = group.description;
-        }
-      }
-    });
+    if (data.description !== undefined) {
+      group.description = data.description;
+    }
+
+    if (data.name !== undefined) {
+      group.name = data.name;
+    }
+
     return this.reply({});
   };
 
@@ -173,39 +168,35 @@ export default class GroupsServiceMock {
     });
   };
 
-  handleSearchUsersGroups = (data: {
-    f?: string;
-    p?: number;
-    ps?: number;
-    q?: string;
-    managed: boolean | undefined;
-  }): Promise<{ groups: Group[]; paging: Paging }> => {
-    const { paging } = this;
-    if (data.p !== undefined && data.p !== paging.pageIndex) {
-      this.setPaging({ pageIndex: paging.pageIndex++ });
+  handleSearchUsersGroups = (
+    params: Parameters<typeof getUsersGroups>[0],
+  ): Promise<{ groups: Group[]; page: Paging }> => {
+    const { paging: page } = this;
+    if (params.pageIndex !== undefined && params.pageIndex !== page.pageIndex) {
+      this.setPaging({ pageIndex: page.pageIndex++ });
       const groups = [
         mockGroup({ name: `local-group ${this.groups.length + 4}` }),
         mockGroup({ name: `local-group ${this.groups.length + 5}` }),
       ];
 
-      return this.reply({ paging, groups });
+      return this.reply({ page, groups });
     }
     if (this.isManaged) {
-      if (data.managed === undefined) {
+      if (params.managed === undefined) {
         return this.reply({
-          paging,
-          groups: this.groups.filter((g) => (data?.q ? g.name.includes(data.q) : true)),
+          page,
+          groups: this.groups.filter((g) => (params?.q ? g.name.includes(params.q) : true)),
         });
       }
-      const groups = this.groups.filter((group) => group.managed === data.managed);
+      const groups = this.groups.filter((group) => group.managed === params.managed);
       return this.reply({
-        paging,
-        groups: groups.filter((g) => (data?.q ? g.name.includes(data.q) : true)),
+        page,
+        groups: groups.filter((g) => (params?.q ? g.name.includes(params.q) : true)),
       });
     }
     return this.reply({
-      paging,
-      groups: this.groups.filter((g) => (data?.q ? g.name.includes(data.q) : true)),
+      page,
+      groups: this.groups.filter((g) => (params?.q ? g.name.includes(params.q) : true)),
     });
   };
 

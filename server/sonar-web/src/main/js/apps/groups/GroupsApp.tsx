@@ -33,18 +33,16 @@ import List from './components/List';
 import './groups.css';
 
 export default function GroupsApp() {
-  const [numberOfPages, setNumberOfPages] = useState<number>(1);
   const [search, setSearch] = useState<string>('');
   const [managed, setManaged] = useState<boolean | undefined>();
   const manageProvider = useManageProvider();
 
-  const { groups, total, isLoading } = useGroupsQueries(
-    {
-      q: search,
-      managed,
-    },
-    numberOfPages,
-  );
+  const { data, isLoading, fetchNextPage } = useGroupsQueries({
+    q: search,
+    managed,
+  });
+
+  const groups = data?.pages.flatMap((page) => page.groups) ?? [];
 
   return (
     <>
@@ -76,9 +74,9 @@ export default function GroupsApp() {
           <ListFooter
             count={groups.length}
             loading={isLoading}
-            loadMore={() => setNumberOfPages((n) => n + 1)}
+            loadMore={fetchNextPage}
             ready={!isLoading}
-            total={total}
+            total={data?.pages[0].page.total}
           />
         </div>
       </main>

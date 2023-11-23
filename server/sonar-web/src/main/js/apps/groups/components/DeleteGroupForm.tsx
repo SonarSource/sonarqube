@@ -36,12 +36,9 @@ export default function DeleteGroupForm(props: Props) {
   const { mutate: deleteGroup } = useDeleteGroupMutation();
 
   const onSubmit = () => {
-    deleteGroup(
-      { name: group.name },
-      {
-        onSuccess: props.onClose,
-      },
-    );
+    deleteGroup(group.id, {
+      onSuccess: props.onClose,
+    });
   };
 
   const header = translate('groups.delete_group');

@@ -30,6 +30,7 @@ import {
   updateUser,
 } from '../api/users';
 import { useCurrentUser } from '../app/components/current-user/CurrentUserContext';
+import { getNextPageParam, getPreviousPageParam } from '../helpers/react-query';
 import { UserToken } from '../types/token';
 import { NoticeType, RestUserBase } from '../types/users';
 
@@ -41,12 +42,8 @@ export function useUsersQueries<U extends RestUserBase>(
   return useInfiniteQuery({
     queryKey: ['user', 'list', getParams],
     queryFn: ({ pageParam = 1 }) => getUsers<U>({ ...getParams, pageIndex: pageParam }),
-    getNextPageParam: (lastPage) =>
-      lastPage.page.total <= lastPage.page.pageIndex * lastPage.page.pageSize
-        ? undefined
-        : lastPage.page.pageIndex + 1,
-    getPreviousPageParam: (firstPage) =>
-      firstPage.page.pageIndex === 1 ? undefined : firstPage.page.pageIndex - 1,
+    getNextPageParam,
+    getPreviousPageParam,
   });
 }
 

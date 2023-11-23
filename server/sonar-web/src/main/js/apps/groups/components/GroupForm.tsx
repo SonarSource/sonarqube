@@ -25,7 +25,6 @@ import MandatoryFieldMarker from '../../../components/ui/MandatoryFieldMarker';
 import MandatoryFieldsExplanation from '../../../components/ui/MandatoryFieldsExplanation';
 import Spinner from '../../../components/ui/Spinner';
 import { translate } from '../../../helpers/l10n';
-import { omitNil } from '../../../helpers/request';
 import { useCreateGroupMutation, useUpdateGroupMutation } from '../../../queries/groups';
 import { Group } from '../../../types/types';
 
@@ -60,10 +59,11 @@ export default function GroupForm(props: Props) {
     }
     updateGroup(
       {
-        currentName: group.name,
-        description,
-        // pass `name` only if it has changed, otherwise the WS fails
-        ...omitNil({ name: name !== group.name ? name : undefined }),
+        id: group.id,
+        data: {
+          name,
+          description,
+        },
       },
       { onSuccess: props.onClose },
     );

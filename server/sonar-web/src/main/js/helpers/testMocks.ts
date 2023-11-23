@@ -293,7 +293,7 @@ export function mockLoggedInUser(overrides: Partial<LoggedInUser> = {}): LoggedI
 
 export function mockGroup(overrides: Partial<Group> = {}): Group {
   return {
-    membersCount: 1,
+    id: Math.random().toString(),
     name: 'Foo',
     managed: false,
     ...overrides,
