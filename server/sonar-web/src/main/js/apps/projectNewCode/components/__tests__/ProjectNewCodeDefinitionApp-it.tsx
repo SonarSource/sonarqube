@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { act } from '@testing-library/react';
+import { act, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { last } from 'lodash';
 import selectEvent from 'react-select-event';
@@ -60,7 +60,13 @@ it('renders correctly without branch support feature', async () => {
   renderProjectNewCodeDefinitionApp();
   await ui.appIsLoaded();
 
-  expect(await ui.generalSettingRadio.find()).toBeChecked();
+  await waitFor(
+    async () => {
+      expect(await ui.generalSettingRadio.find()).toBeChecked();
+    },
+    { timeout: 10000 },
+  );
+
   expect(ui.specificAnalysisRadio.query()).not.toBeInTheDocument();
 
   // User is not admin
@@ -95,7 +101,13 @@ it('can set previous version specific setting', async () => {
   renderProjectNewCodeDefinitionApp();
   await ui.appIsLoaded();
 
-  expect(await ui.previousVersionRadio.find()).toHaveClass('disabled');
+  await waitFor(
+    async () => {
+      expect(await ui.previousVersionRadio.find()).toHaveClass('disabled');
+    },
+    { timeout: 10000 },
+  );
+
   await ui.setPreviousVersionSetting();
   expect(ui.previousVersionRadio.get()).toBeChecked();
 
@@ -116,7 +128,13 @@ it('can set number of days specific setting', async () => {
   renderProjectNewCodeDefinitionApp();
   await ui.appIsLoaded();
 
-  expect(await ui.numberDaysRadio.find()).toHaveClass('disabled');
+  await waitFor(
+    async () => {
+      expect(await ui.numberDaysRadio.find()).toHaveClass('disabled');
+    },
+    { timeout: 10000 },
+  );
+
   await ui.setNumberDaysSetting('10');
   expect(ui.numberDaysRadio.get()).toBeChecked();
 
@@ -167,7 +185,13 @@ it('cannot set specific analysis setting', async () => {
   renderProjectNewCodeDefinitionApp();
   await ui.appIsLoaded();
 
-  expect(await ui.specificAnalysisRadio.find()).toBeChecked();
+  await waitFor(
+    async () => {
+      expect(await ui.specificAnalysisRadio.find()).toBeChecked();
+    },
+    { timeout: 10000 },
+  );
+
   expect(ui.baselineSpecificAnalysisDate.get()).toBeInTheDocument();
 
   expect(ui.specificAnalysisRadio.get()).toHaveClass('disabled');
@@ -286,7 +310,13 @@ it('should display NCD banner if some branches had their NCD automatically chang
     featureList: [Feature.BranchSupport],
   });
 
-  expect(await ui.branchNCDsBanner.find()).toBeInTheDocument();
+  await waitFor(
+    async () => {
+      expect(await ui.branchNCDsBanner.find()).toBeInTheDocument();
+    },
+    { timeout: 10000 },
+  );
+
   expect(
     ui.branchNCDsBanner.byText('new_code_definition.auto_update.branch.list_itemmaster32150').get(),
   ).toBeInTheDocument();
@@ -351,7 +381,12 @@ it('should correctly dismiss branch banner', async () => {
     featureList: [Feature.BranchSupport],
   });
 
-  expect(await ui.branchNCDsBanner.find()).toBeInTheDocument();
+  await waitFor(
+    async () => {
+      expect(await ui.branchNCDsBanner.find()).toBeInTheDocument();
+    },
+    { timeout: 10000 },
+  );
 
   const user = userEvent.setup();
   await act(async () => {

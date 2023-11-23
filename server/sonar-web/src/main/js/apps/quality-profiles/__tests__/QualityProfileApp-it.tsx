@@ -445,7 +445,11 @@ describe('Users with no permission', () => {
 
   it('should not be able to grant permission to a user', async () => {
     renderQualityProfile();
-    expect(await screen.findByText('Good old PHP quality profile')).toBeInTheDocument();
+
+    await ui.waitForDataLoaded();
+
+    expect(await screen.findAllByText('Good old PHP quality profile')).toHaveLength(2);
+
     expect(ui.permissionSection.query()).not.toBeInTheDocument();
   });
 

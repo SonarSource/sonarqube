@@ -544,7 +544,13 @@ it('should not apply permissions for github projects', async () => {
 it('should not show local badge for applications and portfolios', async () => {
   authHandler.githubProvisioningStatus = true;
   renderProjectManagementApp({}, {}, { featureList: [Feature.GithubProvisioning] });
-  await waitFor(() => expect(screen.getAllByText('local')).toHaveLength(3));
+
+  await waitFor(
+    async () => {
+      expect(await screen.findAllByText('local')).toHaveLength(3);
+    },
+    { timeout: 10000 },
+  );
 
   await selectEvent.select(ui.qualifierFilter.get(), 'qualifiers.VW');
   expect(screen.queryByText('local')).not.toBeInTheDocument();

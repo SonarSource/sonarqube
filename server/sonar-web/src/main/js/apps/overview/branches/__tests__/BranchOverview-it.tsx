@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { screen } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
 import { getMeasuresWithPeriodAndMetrics } from '../../../../api/measures';
@@ -487,9 +487,11 @@ it.each([
 
     await screen.findByText('overview.quality_gate.status');
 
-    expect(
-      screen.queryByText(/overview.quality_profiles_update_after_sq_upgrade.message/) !== null,
-    ).toBe(expected);
+    await waitFor(() =>
+      expect(
+        screen.queryByText(/overview.quality_profiles_update_after_sq_upgrade.message/) !== null,
+      ).toBe(expected),
+    );
 
     jest.useRealTimers();
   },

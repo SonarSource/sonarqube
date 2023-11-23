@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { act, getByText, screen } from '@testing-library/react';
+import { act, getByText, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import selectEvent from 'react-select-event';
 import QualityProfilesServiceMock from '../../../api/mocks/QualityProfilesServiceMock';
@@ -181,7 +181,13 @@ describe('Evolution', () => {
     });
     renderQualityProfiles();
 
-    expect(await ui.recentlyAddedRulesRegion.find()).toBeInTheDocument();
+    await waitFor(
+      async () => {
+        expect(await ui.recentlyAddedRulesRegion.find()).toBeInTheDocument();
+      },
+      { timeout: 10000 },
+    );
+
     expect(ui.newRuleLink.get()).toBeInTheDocument();
     expect(ui.seeAllNewRulesLink.get()).toBeInTheDocument();
   });

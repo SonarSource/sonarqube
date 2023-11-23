@@ -48,7 +48,7 @@ it('should not start polling if no issue sync is needed', () => {
   expect(IndexationNotificationHelper.startPolling).not.toHaveBeenCalled();
 });
 
-it('should update the state on new status', () => {
+it('should update the state on new status', async () => {
   renderIndexationContextProvider();
 
   const triggerNewStatus = jest.mocked(IndexationNotificationHelper.startPolling).mock
@@ -63,7 +63,9 @@ it('should update the state on new status', () => {
 
   triggerNewStatus(newStatus);
 
-  expect(byText('{"status":{"hasFailures":false,"isCompleted":true}}').get()).toBeInTheDocument();
+  expect(
+    await byText('{"status":{"hasFailures":false,"isCompleted":true}}').find(),
+  ).toBeInTheDocument();
 });
 
 function renderIndexationContextProvider(props?: IndexationContextProviderProps) {

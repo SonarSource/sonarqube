@@ -26,7 +26,7 @@ function NullComponent() {
   return null;
 }
 
-it('should display messages', () => {
+it('should display messages', async () => {
   jest.useFakeTimers();
 
   // we render anything, the GlobalMessageContainer is rendered independently from routing
@@ -35,14 +35,16 @@ it('should display messages', () => {
   addGlobalErrorMessage('This is an error');
   addGlobalSuccessMessage('This was a triumph!');
 
-  expect(screen.getByRole('alert')).toHaveTextContent('This is an error');
+  expect(await screen.findByRole('alert')).toHaveTextContent('This is an error');
   expect(screen.getByRole('status')).toHaveTextContent('This was a triumph!');
 
   // No duplicate message
   addGlobalErrorMessage('This is an error');
   expect(screen.getByRole('alert')).toHaveTextContent(/^This is an error$/);
   addGlobalSuccessMessage('This was a triumph!');
-  expect(screen.getByRole('status')).toHaveTextContent(/^This was a triumph!This was a triumph!$/);
+  expect(await screen.findByRole('status')).toHaveTextContent(
+    /^This was a triumph!This was a triumph!$/,
+  );
 
   jest.runAllTimers();
 

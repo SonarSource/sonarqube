@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { screen } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import * as React from 'react';
 import BranchesServiceMock from '../../../../api/mocks/BranchesServiceMock';
 import ComputeEngineServiceMock from '../../../../api/mocks/ComputeEngineServiceMock';
@@ -42,11 +42,15 @@ beforeEach(() => {
 it('should render Empty Overview for Application with no analysis', async () => {
   renderApp({ component: mockComponent({ qualifier: ComponentQualifier.Application }) });
 
+  await appLoaded();
+
   expect(await screen.findByText('provisioning.no_analysis.application')).toBeInTheDocument();
 });
 
 it('should render Empty Overview on main branch with no analysis', async () => {
   renderApp({}, mockCurrentUser());
+
+  await appLoaded();
 
   expect(
     await screen.findByText('provisioning.no_analysis_on_main_branch.main'),
@@ -55,6 +59,8 @@ it('should render Empty Overview on main branch with no analysis', async () => {
 
 it('should render Empty Overview on main branch with multiple branches with bad configuration', async () => {
   renderApp({ branchLikes: [mockBranch(), mockBranch()] });
+
+  await appLoaded();
 
   expect(
     await screen.findByText(
@@ -115,6 +121,16 @@ describe('Permission provisioning', () => {
     expect(screen.queryByText('provisioning.permission_synch_in_progress')).not.toBeInTheDocument();
   });
 });
+
+const appLoaded = async () => {
+  await waitFor(() => {
+    expect(screen.getByText('loading')).toBeInTheDocument();
+  });
+
+  await waitFor(() => {
+    expect(screen.queryByText('loading')).not.toBeInTheDocument();
+  });
+};
 
 function renderApp(props = {}, userProps = {}) {
   return renderComponent(

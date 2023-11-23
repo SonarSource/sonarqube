@@ -42,7 +42,7 @@ it('should allow selecting and deselecting a new option', async () => {
   await user.keyboard('new option');
   jest.runAllTimers(); // skip the debounce
 
-  expect(screen.getByText('new option')).toBeInTheDocument();
+  expect(await screen.findByText('new option')).toBeInTheDocument();
 
   await user.click(screen.getByText('new option'));
 
