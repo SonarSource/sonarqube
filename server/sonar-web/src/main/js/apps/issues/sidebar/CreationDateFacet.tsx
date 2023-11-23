@@ -123,29 +123,26 @@ export class CreationDateFacetClass extends React.PureComponent<Props & WrappedC
         endDate = createdBefore ? parseDate(createdBefore) : undefined;
       }
 
-      const tooltipEndDate = endDate || new Date();
-      const tooltip = (
-        // eslint-disable-next-line react/jsx-fragments
-        <React.Fragment>
-          {formatMeasure(stats[start], MetricType.ShortInteger)}
-          <br />
-          {formatDate(startDate, longFormatterOption)}
-          {!isSameDay(tooltipEndDate, startDate) &&
-            ` - ${formatDate(tooltipEndDate, longFormatterOption)}`}
-        </React.Fragment>
-      );
+      const tooltipEndDate = endDate ?? new Date();
       const description = translateWithParameters(
         'issues.facet.createdAt.bar_description',
         formatMeasure(stats[start], MetricType.ShortInteger),
         formatDate(startDate, longFormatterOption),
         formatDate(tooltipEndDate, longFormatterOption),
       );
+      let tooltip = `${formatMeasure(stats[start], MetricType.ShortInteger)} ${formatDate(
+        startDate,
+        longFormatterOption,
+      )}`;
+      if (!isSameDay(tooltipEndDate, startDate)) {
+        tooltip += ` - ${formatDate(tooltipEndDate, longFormatterOption)}`;
+      }
 
       return {
         createdAfter: startDate,
         createdBefore: endDate,
-        tooltip,
         description,
+        tooltip,
         x: index,
         y: stats[start],
       };

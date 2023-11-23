@@ -24,7 +24,7 @@ import { themeColor } from '../helpers';
 
 interface DataPoint {
   description: string;
-  tooltip?: string | JSX.Element;
+  tooltip?: string;
   x: number;
   y: number;
 }
@@ -81,7 +81,7 @@ function Xvalues<T>(
   props: {
     xScale: ScaleBand<number>;
     yScale: ScaleLinear<number, number>;
-  } & Pick<Props<T>, 'data' | 'xValues' | 'onBarClick'>
+  } & Pick<Props<T>, 'data' | 'xValues' | 'onBarClick'>,
 ) {
   const { data, xValues = [], xScale, yScale } = props;
 
@@ -118,7 +118,7 @@ function Bars<T>(
   props: {
     xScale: ScaleBand<number>;
     yScale: ScaleLinear<number, number>;
-  } & Pick<Props<T>, 'data' | 'barsWidth' | 'onBarClick'>
+  } & Pick<Props<T>, 'data' | 'barsWidth' | 'onBarClick'>,
 ) {
   const { barsWidth, data, xScale, yScale } = props;
 
