@@ -439,7 +439,7 @@ export class App extends React.PureComponent<Props, State> {
   selectIssue = (issueKey: string) => {
     this.setState({
       selected: issueKey,
-      selectedFlowIndex: undefined,
+      selectedFlowIndex: 0,
       selectedLocationIndex: undefined,
     });
   };

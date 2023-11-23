@@ -84,7 +84,11 @@ describe('issue app', () => {
 
   it('should interact with flows and locations', async () => {
     const user = userEvent.setup();
-    renderProjectIssuesApp('project/issues?issues=issue11&open=issue11&id=myproject');
+    renderProjectIssuesApp('project/issues?id=myproject');
+
+    await act(async () => {
+      await user.click(await ui.issueItemAction2.find());
+    });
 
     expect(await screen.findByLabelText('list_of_issues')).toBeInTheDocument();
 
