@@ -331,7 +331,7 @@ export class RuleTabViewer extends React.PureComponent<RuleTabViewerProps, State
 
         <div
           aria-labelledby={getTabId(selectedTab.value)}
-          className="sw-flex sw-flex-col sw-py-6"
+          className="sw-flex sw-flex-col"
           id={getTabPanelId(selectedTab.value)}
           role="tabpanel"
         >

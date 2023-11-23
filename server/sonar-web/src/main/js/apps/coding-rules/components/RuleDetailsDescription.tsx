@@ -223,15 +223,6 @@ export default class RuleDetailsDescription extends React.PureComponent<Props, S
 
     return (
       <div className="js-rule-description">
-        {defaultSection && (
-          <CodeSyntaxHighlighter
-            className="coding-rules-detail-description markdown"
-            key={defaultSection.key}
-            htmlAsString={sanitizeString(defaultSection.content)}
-            language={ruleDetails.lang}
-          />
-        )}
-
         {hasDescriptionSection && !defaultSection && (
           <>
             {introductionSection && (
@@ -241,10 +232,10 @@ export default class RuleDetailsDescription extends React.PureComponent<Props, S
                 language={ruleDetails.lang}
               />
             )}
-
-            <RuleTabViewer ruleDetails={ruleDetails} />
           </>
         )}
+
+        <RuleTabViewer ruleDetails={ruleDetails} />
 
         {ruleDetails.isExternal && (
           <div className="coding-rules-detail-description rule-desc markdown">
