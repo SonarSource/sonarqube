@@ -17,10 +17,41 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.v2.api.user.model;
+package org.sonar.server.v2.api.user.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import java.util.List;
+import javax.annotation.Nullable;
 
-@Schema(implementation = RestUserForAdmins.class)
-public interface RestUser {
+public record UserRestResponseForAdmins(
+  @Schema(accessMode = Schema.AccessMode.READ_ONLY)
+  String id,
+  String login,
+  String name,
+  @Nullable
+  String email,
+  @Nullable
+  @Schema(accessMode = Schema.AccessMode.READ_ONLY)
+  Boolean active,
+  @Nullable
+  @Schema(accessMode = Schema.AccessMode.READ_ONLY)
+  Boolean local,
+  @Nullable
+  @Schema(accessMode = Schema.AccessMode.READ_ONLY)
+  Boolean managed,
+  @Nullable
+  String externalLogin,
+  @Nullable
+  String externalProvider,
+  @Nullable
+  String avatar,
+  @Nullable
+  @Schema(accessMode = Schema.AccessMode.READ_ONLY)
+  String sonarQubeLastConnectionDate,
+  @Nullable
+  @Schema(accessMode = Schema.AccessMode.READ_ONLY)
+  String sonarLintLastConnectionDate,
+  @Nullable
+  List<String> scmAccounts
+) implements UserRestResponse {
 }

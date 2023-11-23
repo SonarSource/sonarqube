@@ -24,7 +24,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import javax.validation.Valid;
 import org.sonar.server.v2.api.model.RestPage;
-import org.sonar.server.v2.api.user.model.RestUser;
+import org.sonar.server.v2.api.user.response.UserRestResponse;
 import org.sonar.server.v2.api.user.request.UserCreateRestRequest;
 import org.sonar.server.v2.api.user.request.UserUpdateRestRequest;
 import org.sonar.server.v2.api.user.request.UsersSearchRestRequest;
@@ -90,7 +90,7 @@ public interface UserController {
         'tokensCount'
       Field 'sonarqubeLastConnectionDate' is only updated every hour, so it may not be accurate, for instance when a user authenticates many times in less than one hour.
     """)
-  RestUser fetchUser(@PathVariable("id") @Parameter(description = "The id of the user to fetch.", required = true, in = ParameterIn.PATH) String id);
+  UserRestResponse fetchUser(@PathVariable("id") @Parameter(description = "The id of the user to fetch.", required = true, in = ParameterIn.PATH) String id);
 
   @PatchMapping(path = "/{id}", consumes = JSON_MERGE_PATCH_CONTENT_TYPE, produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.OK)
@@ -98,7 +98,7 @@ public interface UserController {
     Update a user.
     Allows updating user's name, email and SCM accounts.
     """)
-  RestUser updateUser(@PathVariable("id") String id, @Valid @RequestBody UserUpdateRestRequest updateRequest);
+  UserRestResponse updateUser(@PathVariable("id") String id, @Valid @RequestBody UserUpdateRestRequest updateRequest);
 
   @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.OK)
@@ -107,6 +107,6 @@ public interface UserController {
       If a deactivated user account exists with the given login, it will be reactivated.
       Requires Administer System permission.
     """)
-  RestUser create(@Valid @RequestBody UserCreateRestRequest userCreateRestRequest);
+  UserRestResponse create(@Valid @RequestBody UserCreateRestRequest userCreateRestRequest);
 
 }

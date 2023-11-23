@@ -32,7 +32,7 @@ import org.sonar.server.user.UpdateUser;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.v2.api.model.RestPage;
 import org.sonar.server.v2.api.user.converter.UsersSearchRestResponseGenerator;
-import org.sonar.server.v2.api.user.model.RestUser;
+import org.sonar.server.v2.api.user.response.UserRestResponse;
 import org.sonar.server.v2.api.user.request.UserCreateRestRequest;
 import org.sonar.server.v2.api.user.request.UserUpdateRestRequest;
 import org.sonar.server.v2.api.user.request.UsersSearchRestRequest;
@@ -106,12 +106,12 @@ public class DefaultUserController implements UserController {
   }
 
   @Override
-  public RestUser fetchUser(String id) {
+  public UserRestResponse fetchUser(String id) {
     return usersSearchResponseGenerator.toRestUser(userService.fetchUser(id));
   }
 
   @Override
-  public RestUser updateUser(String id, UserUpdateRestRequest updateRequest) {
+  public UserRestResponse updateUser(String id, UserUpdateRestRequest updateRequest) {
     userSession.checkLoggedIn().checkIsSystemAdministrator();
     UpdateUser update = toUpdateUser(updateRequest);
     UserInformation updatedUser = userService.updateUser(id, update);
@@ -127,7 +127,7 @@ public class DefaultUserController implements UserController {
   }
 
   @Override
-  public RestUser create(UserCreateRestRequest userCreateRestRequest) {
+  public UserRestResponse create(UserCreateRestRequest userCreateRestRequest) {
     userSession.checkLoggedIn().checkIsSystemAdministrator();
     UserCreateRequest userCreateRequest = toUserCreateRequest(userCreateRestRequest);
     return usersSearchResponseGenerator.toRestUser(userService.createUser(userCreateRequest));

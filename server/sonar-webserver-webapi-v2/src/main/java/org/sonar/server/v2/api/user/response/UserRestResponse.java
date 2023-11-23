@@ -17,12 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.v2.api.user.model;
+package org.sonar.server.v2.api.user.response;
 
-public record RestUserForAnonymousUsers(
-  String id,
-  String login,
-  String name
+import io.swagger.v3.oas.annotations.media.Schema;
 
-) implements RestUser {
+@Schema(implementation = UserRestResponseForAdmins.class)
+public interface UserRestResponse {
 }

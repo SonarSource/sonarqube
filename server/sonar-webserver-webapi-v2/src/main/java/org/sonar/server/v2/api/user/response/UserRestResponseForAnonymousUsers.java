@@ -19,8 +19,10 @@
  */
 package org.sonar.server.v2.api.user.response;
 
-import java.util.List;
-import org.sonar.server.v2.api.response.PageRestResponse;
+public record UserRestResponseForAnonymousUsers(
+  String id,
+  String login,
+  String name
 
-public record UsersSearchRestResponse(List<UserRestResponse> users, PageRestResponse page) {
+) implements UserRestResponse {
 }

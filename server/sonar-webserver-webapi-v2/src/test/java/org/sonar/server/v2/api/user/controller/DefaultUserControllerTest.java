@@ -44,8 +44,8 @@ import org.sonar.server.v2.api.ControllerTester;
 import org.sonar.server.v2.api.model.RestError;
 import org.sonar.server.v2.api.response.PageRestResponse;
 import org.sonar.server.v2.api.user.converter.UsersSearchRestResponseGenerator;
-import org.sonar.server.v2.api.user.model.RestUser;
-import org.sonar.server.v2.api.user.model.RestUserForAdmins;
+import org.sonar.server.v2.api.user.response.UserRestResponse;
+import org.sonar.server.v2.api.user.response.UserRestResponseForAdmins;
 import org.sonar.server.v2.api.user.request.UserCreateRestRequest;
 import org.sonar.server.v2.api.user.response.UsersSearchRestResponse;
 import org.springframework.http.MediaType;
@@ -80,7 +80,7 @@ public class DefaultUserControllerTest {
   private final UsersSearchRestResponseGenerator responseGenerator = mock(UsersSearchRestResponseGenerator.class);
   private final MockMvc mockMvc = ControllerTester.getMockMvc(new DefaultUserController(userSession, userService, responseGenerator));
 
-  private static final Gson gson = new GsonBuilder().registerTypeAdapter(RestUser.class, new RestUserDeserializer()).create();
+  private static final Gson gson = new GsonBuilder().registerTypeAdapter(UserRestResponse.class, new RestUserDeserializer()).create();
 
   @Test
   public void search_whenNoParameters_shouldUseDefaultAndForwardToUserService() throws Exception {
@@ -171,7 +171,7 @@ public class DefaultUserControllerTest {
     List<UserInformation> users = List.of(user1, user2, user3, user4);
     SearchResults<UserInformation> searchResult = new SearchResults<>(users, users.size());
     when(userService.findUsers(any())).thenReturn(searchResult);
-    List<RestUser> restUserForAdmins = List.of(toRestUser(user1), toRestUser(user2), toRestUser(user3), toRestUser(user4));
+    List<UserRestResponse> restUserForAdmins = List.of(toRestUser(user1), toRestUser(user2), toRestUser(user3), toRestUser(user4));
     when(responseGenerator.toUsersForResponse(eq(searchResult.searchResults()), any())).thenReturn(new UsersSearchRestResponse(restUserForAdmins, new PageRestResponse(1, 50, 4)));
     userSession.logIn().setSystemAdministrator();
 
@@ -186,16 +186,16 @@ public class DefaultUserControllerTest {
 
   }
 
-  static class RestUserDeserializer extends TypeAdapter<RestUser> {
+  static class RestUserDeserializer extends TypeAdapter<UserRestResponse> {
 
     @Override
-    public void write(JsonWriter out, RestUser value) {
+    public void write(JsonWriter out, UserRestResponse value) {
       throw new IllegalStateException("not implemented");
     }
 
     @Override
-    public RestUser read(JsonReader reader) {
-      return gson.fromJson(reader, RestUserForAdmins.class);
+    public UserRestResponse read(JsonReader reader) {
+      return gson.fromJson(reader, UserRestResponseForAdmins.class);
     }
   }
 
@@ -219,8 +219,8 @@ public class DefaultUserControllerTest {
     return new UserInformation(userDto, managed, Optional.of("avatar_" + id), groups, tokensCount);
   }
 
-  private RestUserForAdmins toRestUser(UserInformation userInformation) {
-    return new RestUserForAdmins(
+  private UserRestResponseForAdmins toRestUser(UserInformation userInformation) {
+    return new UserRestResponseForAdmins(
       userInformation.userDto().getLogin(),
       userInformation.userDto().getLogin(),
       userInformation.userDto().getName(),
@@ -331,13 +331,13 @@ public class DefaultUserControllerTest {
   @Test
   public void fetchUser_whenUserExists_shouldReturnUser() throws Exception {
     UserInformation user = generateUserSearchResult("user1", true, true, false, 2, 3);
-    RestUserForAdmins restUserForAdmins = toRestUser(user);
+    UserRestResponseForAdmins restUserForAdmins = toRestUser(user);
     when(userService.fetchUser("userLogin")).thenReturn(user);
     when(responseGenerator.toRestUser(user)).thenReturn(restUserForAdmins);
     MvcResult mvcResult = mockMvc.perform(get(USER_ENDPOINT + "/userLogin"))
       .andExpect(status().isOk())
       .andReturn();
-    RestUserForAdmins responseUser = gson.fromJson(mvcResult.getResponse().getContentAsString(), RestUserForAdmins.class);
+    UserRestResponseForAdmins responseUser = gson.fromJson(mvcResult.getResponse().getContentAsString(), UserRestResponseForAdmins.class);
     assertThat(responseUser).isEqualTo(restUserForAdmins);
   }
 
@@ -409,7 +409,7 @@ public class DefaultUserControllerTest {
           userDto.getEmail(), userDto.isLocal(), userDto.getLogin(), userDto.getName(), "password", userDto.getSortedScmAccounts()))))
       .andExpect(status().isOk())
       .andReturn();
-    RestUserForAdmins responseUser = gson.fromJson(mvcResult.getResponse().getContentAsString(), RestUserForAdmins.class);
+    UserRestResponseForAdmins responseUser = gson.fromJson(mvcResult.getResponse().getContentAsString(), UserRestResponseForAdmins.class);
     assertThat(responseUser).isEqualTo(toRestUser(userInformation));
   }
 
@@ -460,7 +460,7 @@ public class DefaultUserControllerTest {
         status().isOk())
       .andReturn();
 
-    RestUserForAdmins responseUser = gson.fromJson(mvcResult.getResponse().getContentAsString(), RestUserForAdmins.class);
+    UserRestResponseForAdmins responseUser = gson.fromJson(mvcResult.getResponse().getContentAsString(), UserRestResponseForAdmins.class);
     assertThat(responseUser).isEqualTo(toRestUser(userInformation));
 
     ArgumentCaptor<UpdateUser> updateUserCaptor = ArgumentCaptor.forClass(UpdateUser.class);
