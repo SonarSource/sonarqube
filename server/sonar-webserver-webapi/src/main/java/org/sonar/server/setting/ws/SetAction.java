@@ -49,11 +49,15 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.property.PropertyDto;
+import org.sonar.db.user.TokenType;
+import org.sonar.db.user.UserTokenDto;
 import org.sonar.scanner.protocol.GsonHelper;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.setting.SettingsChangeNotifier;
 import org.sonar.server.setting.ws.SettingValidations.SettingData;
+import org.sonar.server.user.ThreadLocalUserSession;
+import org.sonar.server.user.TokenUserSession;
 import org.sonar.server.user.UserSession;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -285,6 +289,17 @@ public class SetAction implements SettingsWsAction {
 
   private void checkPermissions(Optional<ComponentDto> component) {
     if (component.isPresent()) {
+      if (userSession instanceof ThreadLocalUserSession) {
+        UserSession tokenUserSession = ((ThreadLocalUserSession) userSession).get();
+        if (tokenUserSession instanceof TokenUserSession) {
+          UserTokenDto userToken = ((TokenUserSession) tokenUserSession).getUserToken();
+          if (TokenType.PROJECT_ANALYSIS_TOKEN.name().equals(userToken.getType())) {
+            if (userToken.getProjectKey().equals(component.get().getKey())) {
+              return;
+            }
+          }
+        }
+      }
       userSession.checkComponentPermission(UserRole.ADMIN, component.get());
     } else {
       userSession.checkIsSystemAdministrator();
