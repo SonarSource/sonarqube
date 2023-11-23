@@ -17,12 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { FlagErrorIcon, FlagSuccessIcon, InteractiveIcon, MenuIcon } from 'design-system';
 import * as React from 'react';
 import { useState } from 'react';
-import { ButtonIcon } from '../../../components/controls/buttons';
-import AlertErrorIcon from '../../../components/icons/AlertErrorIcon';
-import AlertSuccessIcon from '../../../components/icons/AlertSuccessIcon';
-import BulletListIcon from '../../../components/icons/BulletListIcon';
 import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { WebhookResponse } from '../../../types/webhook';
@@ -40,22 +37,20 @@ export default function WebhookItemLatestDelivery({ webhook }: Props) {
   }
 
   return (
-    <>
-      {webhook.latestDelivery.success ? (
-        <AlertSuccessIcon className="text-text-top" />
-      ) : (
-        <AlertErrorIcon className="text-text-top" />
-      )}
-      <span className="spacer-left display-inline-flex-center">
+    <div className="sw-flex sw-items-center">
+      {webhook.latestDelivery.success ? <FlagSuccessIcon /> : <FlagErrorIcon />}
+      <div className="sw-ml-2 sw-flex sw-items-center">
         <DateTimeFormatter date={webhook.latestDelivery.at} />
-        <ButtonIcon
-          aria-label={translateWithParameters('webhooks.last_execution.open_for_x', webhook.name)}
-          className="button-small little-spacer-left"
-          onClick={() => setModalOpen(true)}
-        >
-          <BulletListIcon />
-        </ButtonIcon>
-      </span>
+        <span title={translateWithParameters('webhooks.last_execution.open_for_x', webhook.name)}>
+          <InteractiveIcon
+            className="sw-ml-2"
+            Icon={MenuIcon}
+            aria-label={translateWithParameters('webhooks.last_execution.open_for_x', webhook.name)}
+            onClick={() => setModalOpen(true)}
+            size="small"
+          />
+        </span>
+      </div>
 
       {modalOpen && (
         <LatestDeliveryForm
@@ -64,6 +59,6 @@ export default function WebhookItemLatestDelivery({ webhook }: Props) {
           webhook={webhook}
         />
       )}
-    </>
+    </div>
   );
 }

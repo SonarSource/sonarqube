@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { ActionCell, ContentCell, Table, TableRow } from 'design-system';
 import { sortBy } from 'lodash';
 import * as React from 'react';
 import { translate } from '../../../helpers/l10n';
@@ -29,32 +30,34 @@ interface Props {
   webhooks: WebhookResponse[];
 }
 
+const COLUMN_WIDTHS = ['auto', 'auto', 'auto', 'auto', '5%'];
+
 export default function WebhooksList({ webhooks, onDelete, onUpdate }: Props) {
   if (webhooks.length < 1) {
-    return <p>{translate('webhooks.no_result')}</p>;
+    return <p className="it__webhook-empty-list">{translate('webhooks.no_result')}</p>;
   }
 
+  const tableHeader = (
+    <TableRow>
+      <ContentCell>{translate('name')}</ContentCell>
+      <ContentCell>{translate('webhooks.url')}</ContentCell>
+      <ContentCell>{translate('webhooks.secret_header')}</ContentCell>
+      <ContentCell>{translate('webhooks.last_execution')}</ContentCell>
+      <ActionCell>{translate('actions')}</ActionCell>
+    </TableRow>
+  );
+
   return (
-    <table className="data zebra">
-      <thead>
-        <tr>
-          <th>{translate('name')}</th>
-          <th>{translate('webhooks.url')}</th>
-          <th>{translate('webhooks.secret_header')}</th>
-          <th>{translate('webhooks.last_execution')}</th>
-          <th className="sw-text-right">{translate('actions')}</th>
-        </tr>
-      </thead>
-      <tbody>
-        {sortBy(webhooks, (webhook) => webhook.name.toLowerCase()).map((webhook) => (
-          <WebhookItem
-            key={webhook.key}
-            onDelete={onDelete}
-            onUpdate={onUpdate}
-            webhook={webhook}
-          />
-        ))}
-      </tbody>
-    </table>
+    <Table
+      className="it__webhooks-list"
+      noHeaderTopBorder
+      columnCount={COLUMN_WIDTHS.length}
+      columnWidths={COLUMN_WIDTHS}
+      header={tableHeader}
+    >
+      {sortBy(webhooks, (webhook) => webhook.name.toLowerCase()).map((webhook) => (
+        <WebhookItem key={webhook.key} onDelete={onDelete} onUpdate={onUpdate} webhook={webhook} />
+      ))}
+    </Table>
   );
 }

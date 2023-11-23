@@ -65,6 +65,8 @@ const TEMP_PAGELIST_WITH_NEW_BACKGROUND_WHITE = [
   '/project/import_export',
   '/project/quality_gate',
   '/project/quality_profiles',
+  '/project/webhooks',
+  '/admin/webhooks',
 ];
 
 export default function GlobalContainer() {

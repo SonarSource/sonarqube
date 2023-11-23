@@ -17,12 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { FlagErrorIcon, FlagSuccessIcon, TextAccordion } from 'design-system';
 import * as React from 'react';
 import { useState } from 'react';
+import { useIntl } from 'react-intl';
 import { getDelivery } from '../../../api/webhooks';
-import BoxedGroupAccordion from '../../../components/controls/BoxedGroupAccordion';
-import AlertErrorIcon from '../../../components/icons/AlertErrorIcon';
-import AlertSuccessIcon from '../../../components/icons/AlertSuccessIcon';
+import { longFormatterOption } from '../../../components/intl/DateFormatter';
 import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
 import { translate } from '../../../helpers/l10n';
 import { WebhookDelivery } from '../../../types/webhook';
@@ -36,6 +36,8 @@ export default function DeliveryAccordion({ delivery }: Props) {
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
   const [payload, setPayload] = useState<string | undefined>(undefined);
+
+  const intl = useIntl();
 
   async function fetchPayload() {
     setLoading(true);
@@ -55,24 +57,31 @@ export default function DeliveryAccordion({ delivery }: Props) {
   }
 
   return (
-    <BoxedGroupAccordion
+    <TextAccordion
+      ariaLabel={intl.formatDate(delivery.at, longFormatterOption)}
       onClick={handleClick}
       open={open}
       renderHeader={() =>
         delivery.success ? (
-          <AlertSuccessIcon aria-label={translate('success')} className="it__success" />
+          <FlagSuccessIcon
+            aria-label={translate('success')}
+            className="sw-pt-4 sw-pb-2 sw-pr-4 sw-float-right it__success"
+          />
         ) : (
-          <AlertErrorIcon aria-label={translate('error')} />
+          <FlagErrorIcon
+            aria-label={translate('error')}
+            className="sw-pt-4 sw-pb-2 sw-pr-4 sw-float-right js-error"
+          />
         )
       }
       title={<DateTimeFormatter date={delivery.at} />}
     >
       <DeliveryItem
-        className="big-spacer-left"
+        className="it__accordion-content sw-ml-4"
         delivery={delivery}
         loading={loading}
         payload={payload}
       />
-    </BoxedGroupAccordion>
+    </TextAccordion>
   );
 }

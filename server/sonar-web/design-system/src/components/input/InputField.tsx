@@ -45,7 +45,7 @@ export const InputField = forwardRef<HTMLInputElement, InputProps>(
     return (
       <StyledInput ref={ref} style={{ ...style, '--inputSize': INPUT_SIZES[size] }} {...props} />
     );
-  }
+  },
 );
 InputField.displayName = 'InputField';
 
@@ -54,7 +54,7 @@ export const InputTextArea = forwardRef<HTMLTextAreaElement, InputTextAreaProps>
     return (
       <StyledTextArea ref={ref} style={{ ...style, '--inputSize': INPUT_SIZES[size] }} {...props} />
     );
-  }
+  },
 );
 InputTextArea.displayName = 'InputTextArea';
 
@@ -136,6 +136,11 @@ const StyledInput = styled.input`
   }
 
   input[type='number']& {
+    ${getInputVariant}
+    ${baseStyle}
+    ${tw`sw-h-control`}
+  }
+  input[type='password']& {
     ${getInputVariant}
     ${baseStyle}
     ${tw`sw-h-control`}

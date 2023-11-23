@@ -17,13 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Modal, Spinner } from 'design-system';
 import * as React from 'react';
 import { useCallback, useEffect, useState } from 'react';
 import { searchDeliveries } from '../../../api/webhooks';
 import ListFooter from '../../../components/controls/ListFooter';
-import Modal from '../../../components/controls/Modal';
-import { ResetButtonLink } from '../../../components/controls/buttons';
-import Spinner from '../../../components/ui/Spinner';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { Paging } from '../../../types/types';
 import { WebhookDelivery, WebhookResponse } from '../../../types/webhook';
@@ -77,31 +75,30 @@ export default function DeliveriesForm({ onClose, webhook }: Props) {
     }
   }
 
+  const formBody = (
+    <Spinner loading={loading}>
+      {deliveries.map((delivery) => (
+        <DeliveryAccordion delivery={delivery} key={delivery.id} />
+      ))}
+      {paging !== undefined && (
+        <ListFooter
+          className="sw-mb-2"
+          count={deliveries.length}
+          loadMore={fetchMoreDeliveries}
+          ready={!loading}
+          total={paging.total}
+          useMIUIButtons
+        />
+      )}
+    </Spinner>
+  );
+
   return (
-    <Modal contentLabel={header} onRequestClose={onClose}>
-      <header className="modal-head">
-        <h2>{header}</h2>
-      </header>
-      <div className="modal-body modal-container">
-        {deliveries.map((delivery) => (
-          <DeliveryAccordion delivery={delivery} key={delivery.id} />
-        ))}
-        <div className="text-center">
-          <Spinner loading={loading} />
-        </div>
-        {paging !== undefined && (
-          <ListFooter
-            className="little-spacer-bottom"
-            count={deliveries.length}
-            loadMore={fetchMoreDeliveries}
-            ready={!loading}
-            total={paging.total}
-          />
-        )}
-      </div>
-      <footer className="modal-foot">
-        <ResetButtonLink onClick={onClose}>{translate('close')}</ResetButtonLink>
-      </footer>
-    </Modal>
+    <Modal
+      onClose={onClose}
+      headerTitle={header}
+      body={formBody}
+      secondaryButtonLabel={translate('close')}
+    />
   );
 }

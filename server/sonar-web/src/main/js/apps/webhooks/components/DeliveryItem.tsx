@@ -17,9 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { CodeSnippet, Spinner } from 'design-system';
 import * as React from 'react';
-import CodeSnippet from '../../../components/common/CodeSnippet';
-import Spinner from '../../../components/ui/Spinner';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { formatMeasure } from '../../../helpers/measures';
 import { WebhookDelivery } from '../../../types/webhook';
@@ -35,21 +34,27 @@ interface Props {
 export default function DeliveryItem({ className, delivery, loading, payload }: Props) {
   return (
     <div className={className}>
-      <p className="spacer-bottom">
+      <p className="sw-mb-2">
         {translateWithParameters(
           'webhooks.delivery.response_x',
           delivery.httpStatus ?? translate('webhooks.delivery.server_unreachable'),
         )}
       </p>
-      <p className="spacer-bottom">
+      <p className="sw-mb-2">
         {translateWithParameters(
           'webhooks.delivery.duration_x',
           formatMeasure(delivery.durationMs, 'MILLISEC'),
         )}
       </p>
-      <p className="spacer-bottom">{translate('webhooks.delivery.payload')}</p>
-      <Spinner className="spacer-left spacer-top" loading={loading}>
-        {payload !== undefined && <CodeSnippet noCopy snippet={formatPayload(payload)} />}
+      <p className="sw-mb-2">{translate('webhooks.delivery.payload')}</p>
+      <Spinner loading={loading}>
+        {payload !== undefined && (
+          <CodeSnippet
+            className="sw-p-2 sw-max-h-abs-200 sw-overflow-y-scroll"
+            noCopy
+            snippet={formatPayload(payload)}
+          />
+        )}
       </Spinner>
     </div>
   );

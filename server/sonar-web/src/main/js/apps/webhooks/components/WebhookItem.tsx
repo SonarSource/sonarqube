@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { ActionCell, ContentCell, TableRowInteractive } from 'design-system';
 import * as React from 'react';
 import { translate } from '../../../helpers/l10n';
 import { WebhookResponse, WebhookUpdatePayload } from '../../../types/webhook';
@@ -31,16 +32,16 @@ interface Props {
 
 export default function WebhookItem({ onDelete, onUpdate, webhook }: Props) {
   return (
-    <tr>
-      <td>{webhook.name}</td>
-      <td>{webhook.url}</td>
-      <td>{webhook.hasSecret ? translate('yes') : translate('no')}</td>
-      <td>
+    <TableRowInteractive>
+      <ContentCell>{webhook.name}</ContentCell>
+      <ContentCell>{webhook.url}</ContentCell>
+      <ContentCell>{webhook.hasSecret ? translate('yes') : translate('no')}</ContentCell>
+      <ContentCell>
         <WebhookItemLatestDelivery webhook={webhook} />
-      </td>
-      <td className="sw-text-right">
+      </ContentCell>
+      <ActionCell className="sw-text-right">
         <WebhookActions onDelete={onDelete} onUpdate={onUpdate} webhook={webhook} />
-      </td>
-    </tr>
+      </ActionCell>
+    </TableRowInteractive>
   );
 }

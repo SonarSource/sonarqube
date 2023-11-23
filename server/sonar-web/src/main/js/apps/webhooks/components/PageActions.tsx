@@ -17,10 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { ButtonPrimary } from 'design-system/lib';
 import * as React from 'react';
 import { useState } from 'react';
 import Tooltip from '../../../components/controls/Tooltip';
-import { Button } from '../../../components/controls/buttons';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import CreateWebhookForm from './CreateWebhookForm';
 
@@ -51,22 +51,20 @@ export default function PageActions(props: Props) {
 
   if (webhooksCount >= WEBHOOKS_LIMIT) {
     return (
-      <div className="page-actions">
-        <Tooltip overlay={translateWithParameters('webhooks.maximum_reached', WEBHOOKS_LIMIT)}>
-          <Button className="it__webhook-create" disabled>
-            {translate('create')}
-          </Button>
-        </Tooltip>
-      </div>
+      <Tooltip overlay={translateWithParameters('webhooks.maximum_reached', WEBHOOKS_LIMIT)}>
+        <ButtonPrimary className="it__webhook-create" disabled>
+          {translate('create')}
+        </ButtonPrimary>
+      </Tooltip>
     );
   }
 
   return (
-    <div className="page-actions">
-      <Button className="it__webhook-create" onClick={handleCreateOpen}>
+    <>
+      <ButtonPrimary className="it__webhook-create" onClick={handleCreateOpen}>
         {translate('create')}
-      </Button>
+      </ButtonPrimary>
       {openCreate && <CreateWebhookForm onClose={handleCreateClose} onDone={onCreate} />}
-    </div>
+    </>
   );
 }

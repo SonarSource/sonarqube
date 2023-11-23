@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import classNames from 'classnames';
+import { InputField } from 'design-system';
 import * as React from 'react';
 import ModalValidationField from './ModalValidationField';
 
@@ -37,15 +37,16 @@ interface Props {
   touched: boolean | undefined;
   type?: string;
   value: string;
+  required?: boolean;
 }
 
-export default function InputValidationField({ className, ...props }: Props) {
-  const { description, dirty, error, label, touched, ...inputProps } = props;
-  const modalValidationProps = { description, dirty, error, label, touched };
+export default function InputValidationField({ ...props }: Readonly<Props>) {
+  const { description, dirty, error, label, touched, required, ...inputProps } = props;
+  const modalValidationProps = { description, dirty, error, label, touched, required };
   return (
-    <ModalValidationField {...modalValidationProps}>
-      {({ className: validationClassName }) => (
-        <input className={classNames(className, validationClassName)} {...inputProps} />
+    <ModalValidationField id={props.id} {...modalValidationProps}>
+      {({ isInvalid, isValid }) => (
+        <InputField size="full" isInvalid={isInvalid} isValid={isValid} {...inputProps} />
       )}
     </ModalValidationField>
   );

@@ -17,10 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { DangerButtonPrimary, Modal } from 'design-system';
 import * as React from 'react';
-import SimpleModal from '../../../components/controls/SimpleModal';
-import { ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
-import Spinner from '../../../components/ui/Spinner';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { WebhookResponse } from '../../../types/webhook';
 
@@ -30,32 +28,34 @@ interface Props {
   webhook: WebhookResponse;
 }
 
+const FORM_ID = 'delete-webhook-modal';
+
 export default function DeleteWebhookForm({ onClose, onSubmit, webhook }: Props) {
   const header = translate('webhooks.delete');
 
+  const onFormSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    onSubmit();
+  };
+
+  const renderForm = (
+    <form id={FORM_ID} onSubmit={onFormSubmit}>
+      {translateWithParameters('webhooks.delete.confirm', webhook.name)}
+    </form>
+  );
+
   return (
-    <SimpleModal header={header} onClose={onClose} onSubmit={onSubmit}>
-      {({ onCloseClick, onFormSubmit, submitting }) => (
-        <form onSubmit={onFormSubmit}>
-          <header className="modal-head">
-            <h2>{header}</h2>
-          </header>
-
-          <div className="modal-body">
-            {translateWithParameters('webhooks.delete.confirm', webhook.name)}
-          </div>
-
-          <footer className="modal-foot">
-            <Spinner className="spacer-right" loading={submitting} />
-            <SubmitButton className="button-red" disabled={submitting}>
-              {translate('delete')}
-            </SubmitButton>
-            <ResetButtonLink disabled={submitting} onClick={onCloseClick}>
-              {translate('cancel')}
-            </ResetButtonLink>
-          </footer>
-        </form>
-      )}
-    </SimpleModal>
+    <Modal
+      onClose={onClose}
+      headerTitle={header}
+      isOverflowVisible
+      body={renderForm}
+      primaryButton={
+        <DangerButtonPrimary form={FORM_ID} type="submit">
+          {translate('delete')}
+        </DangerButtonPrimary>
+      }
+      secondaryButtonLabel={translate('cancel')}
+    />
   );
 }

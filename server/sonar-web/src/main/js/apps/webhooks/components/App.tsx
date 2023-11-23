@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { LargeCenteredLayout, PageContentFontWrapper, Spinner } from 'design-system';
 import * as React from 'react';
 import { useCallback, useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
@@ -97,22 +98,19 @@ export function App({ component }: AppProps) {
   }
 
   return (
-    <>
-      <Suggestions suggestions="webhooks" />
-      <Helmet defer={false} title={translate('webhooks.page')} />
-
-      <div className="page page-limited">
-        <PageHeader loading={loading}>
+    <LargeCenteredLayout id="project-webhooks">
+      <PageContentFontWrapper className="sw-my-8 sw-body-sm">
+        <Suggestions suggestions="webhooks" />
+        <Helmet defer={false} title={translate('webhooks.page')} />
+        <PageHeader>
           <PageActions loading={loading} onCreate={handleCreate} webhooksCount={webhooks.length} />
         </PageHeader>
 
-        {!loading && (
-          <div className="boxed-group boxed-group-inner">
-            <WebhooksList onDelete={handleDelete} onUpdate={handleUpdate} webhooks={webhooks} />
-          </div>
-        )}
-      </div>
-    </>
+        <Spinner loading={loading}>
+          <WebhooksList onDelete={handleDelete} onUpdate={handleUpdate} webhooks={webhooks} />
+        </Spinner>
+      </PageContentFontWrapper>
+    </LargeCenteredLayout>
   );
 }
 

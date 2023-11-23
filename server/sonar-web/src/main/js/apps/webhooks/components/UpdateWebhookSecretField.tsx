@@ -17,11 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { DiscreetLink, FlagMessage } from 'design-system';
 import { useField } from 'formik';
 import * as React from 'react';
+import { FormattedMessage } from 'react-intl';
 import InputValidationField from '../../../components/controls/InputValidationField';
 import ModalValidationField from '../../../components/controls/ModalValidationField';
-import { ButtonLink } from '../../../components/controls/buttons';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {
@@ -89,11 +90,25 @@ export default function UpdateWebhookSecretField(props: Props) {
       touched
     >
       {() => (
-        <div className="sw-mb-5 sw-leading-6 sw-flex sw-items-center">
-          <span className="sw-mr-1/2">{translate('webhooks.secret.field_mask.description')}</span>
-          <ButtonLink onClick={showSecretInput}>
-            {translate('webhooks.secret.field_mask.link')}
-          </ButtonLink>
+        <div>
+          <FlagMessage variant="info" className="sw-w-full">
+            <FormattedMessage
+              defaultMessage={translate('webhooks.secret.field_mask.description')}
+              id="webhooks.secret.field_mask.description"
+              values={{
+                link: (
+                  <DiscreetLink
+                    className="sw-ml-1"
+                    onClick={showSecretInput}
+                    preventDefault
+                    to={{}}
+                  >
+                    {translate('webhooks.secret.field_mask.link')}
+                  </DiscreetLink>
+                ),
+              }}
+            />
+          </FlagMessage>
         </div>
       )}
     </ModalValidationField>

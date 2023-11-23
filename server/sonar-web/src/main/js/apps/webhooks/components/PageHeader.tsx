@@ -17,37 +17,35 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Link, Title } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import DocLink from '../../../components/common/DocLink';
+import { useDocUrl } from '../../../helpers/docs';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {
   children?: React.ReactNode;
-  loading: boolean;
 }
 
-export default function PageHeader({ children, loading }: Props) {
+export default function PageHeader({ children }: Readonly<Props>) {
+  const toUrl = useDocUrl('/project-administration/webhooks/');
+
   return (
-    <header className="page-header">
-      <h1 className="page-title">{translate('webhooks.page')}</h1>
-      {loading && <i className="spinner" />}
-
-      {children}
-
-      <p className="page-description">
-        <FormattedMessage
-          defaultMessage={translate('webhooks.description')}
-          id="webhooks.description"
-          values={{
-            url: (
-              <DocLink to="/project-administration/webhooks/">
-                {translate('webhooks.documentation_link')}
-              </DocLink>
-            ),
-          }}
-        />
-      </p>
+    <header className="sw-mb-2 sw-flex sw-items-center sw-justify-between">
+      <div>
+        <Title>{translate('webhooks.page')}</Title>
+        <p>{translate('webhooks.description0')}</p>
+        <p>
+          <FormattedMessage
+            defaultMessage={translate('webhooks.description1')}
+            id="webhooks.description"
+            values={{
+              url: <Link to={toUrl}>{translate('webhooks.documentation_link')}</Link>,
+            }}
+          />
+        </p>
+      </div>
+      <div>{children}</div>
     </header>
   );
 }

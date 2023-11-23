@@ -128,7 +128,7 @@ describe('webhook CRUD', () => {
     renderWebhooksApp();
     await ui.waitForWebhooksLoaded();
 
-    await ui.clickWebhookRowAction(1, 'Global webhook 2', 'update_verb');
+    await ui.clickWebhookRowAction(1, 'Global webhook 2', 'update_verb', 'menuitem');
     await ui.fillUpdateForm('modified-webhook', 'https://webhook.example.sonarqube.com', 'secret');
     await ui.submitForm();
 
@@ -140,7 +140,7 @@ describe('webhook CRUD', () => {
     });
 
     // Edit again, removing the secret
-    await ui.clickWebhookRowAction(1, 'modified-webhook', 'update_verb');
+    await ui.clickWebhookRowAction(1, 'modified-webhook', 'update_verb', 'menuitem');
     await ui.fillUpdateForm(undefined, undefined, '');
     await ui.submitForm();
 
@@ -152,7 +152,7 @@ describe('webhook CRUD', () => {
     });
 
     // Edit once again, not touching the secret
-    await ui.clickWebhookRowAction(1, 'modified-webhook', 'update_verb');
+    await ui.clickWebhookRowAction(1, 'modified-webhook', 'update_verb', 'menuitem');
     await ui.fillUpdateForm('modified-webhook2');
     await ui.submitForm();
 
@@ -170,7 +170,7 @@ describe('webhook CRUD', () => {
     await ui.waitForWebhooksLoaded();
 
     expect(ui.webhookRow.getAll()).toHaveLength(3); // We count the header
-    await ui.clickWebhookRowAction(0, 'Global webhook 1', 'delete');
+    await ui.clickWebhookRowAction(0, 'Global webhook 1', 'delete', 'menuitem');
     await ui.submitForm();
     expect(ui.webhookRow.getAll()).toHaveLength(2);
   });
@@ -182,31 +182,31 @@ describe('should properly show deliveries', () => {
     renderWebhooksApp();
     await ui.waitForWebhooksLoaded();
 
-    await ui.clickWebhookRowAction(0, 'Global webhook 1', 'webhooks.deliveries.show');
-    ui.checkDeliveryRow(0, {
+    await ui.clickWebhookRowAction(0, 'Global webhook 1', 'webhooks.deliveries.show', 'menuitem');
+    ui.checkDeliveryRow(1, {
       date: 'June 24, 2019',
       status: 'success',
     });
-    ui.checkDeliveryRow(1, {
+    ui.checkDeliveryRow(2, {
       date: 'June 23, 2019',
       status: 'success',
     });
-    ui.checkDeliveryRow(2, {
+    ui.checkDeliveryRow(3, {
       date: 'June 22, 2019',
       status: 'error',
     });
-    ui.checkDeliveryRow(3, {
+    ui.checkDeliveryRow(4, {
       date: 'June 21, 2019',
       status: 'success',
     });
 
-    await ui.toggleDeliveryRow(1);
+    await ui.toggleDeliveryRow(2);
     expect(screen.getByText('webhooks.delivery.response_x.200')).toBeInTheDocument();
     expect(screen.getByText('webhooks.delivery.duration_x.1s')).toBeInTheDocument();
     expect(screen.getByText('{ "id": "global-webhook-1-delivery-0" }')).toBeInTheDocument();
 
-    await ui.toggleDeliveryRow(1);
     await ui.toggleDeliveryRow(2);
+    await ui.toggleDeliveryRow(3);
     expect(
       screen.getByText('webhooks.delivery.response_x.webhooks.delivery.server_unreachable'),
     ).toBeInTheDocument();
@@ -230,7 +230,7 @@ describe('should properly show deliveries', () => {
     renderWebhooksApp();
     await ui.waitForWebhooksLoaded();
 
-    await ui.clickWebhookRowAction(0, 'Global webhook 1', 'webhooks.deliveries.show');
+    await ui.clickWebhookRowAction(0, 'Global webhook 1', 'webhooks.deliveries.show', 'menuitem');
     expect(screen.getByText('x_of_y_shown.10.16')).toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: 'show_more' }));
@@ -253,9 +253,9 @@ function getPageObject() {
     formDialog: byRole('dialog'),
     formNameInput: byRole('textbox', { name: 'webhooks.name field_required' }),
     formUrlInput: byRole('textbox', { name: 'webhooks.url field_required' }),
-    formSecretInput: byLabelText('webhooks.secret'),
-    formSecretInputMaskButton: byRole('button', { name: 'webhooks.secret.field_mask.link' }),
-    formUpdateButton: byRole('button', { name: 'update_verb' }),
+    formSecretInput: byLabelText(/webhooks.secret/),
+    formSecretInputMaskButton: byRole('link', { name: 'webhooks.secret.field_mask.link' }),
+    formUpdateButton: byRole('menuitem', { name: 'update_verb' }),
   };
 
   const ui = {
@@ -273,12 +273,17 @@ function getPageObject() {
     getWebhookRow: (index: number) => {
       return selectors.webhookRow.getAll()[index + 1];
     },
-    clickWebhookRowAction: async (rowIndex: number, webhookName: string, actionName: string) => {
+    clickWebhookRowAction: async (
+      rowIndex: number,
+      webhookName: string,
+      actionName: string,
+      role: string = 'button',
+    ) => {
       const row = ui.getWebhookRow(rowIndex);
       await user.click(
         within(row).getByRole('button', { name: `webhooks.show_actions.${webhookName}` }),
       );
-      await user.click(within(row).getByRole('button', { name: actionName }));
+      await user.click(within(row).getByRole(role, { name: actionName }));
     },
     clickWebhookLatestDelivery: async (rowIndex: number, webhookName: string) => {
       const row = ui.getWebhookRow(rowIndex);
@@ -344,13 +349,12 @@ function getPageObject() {
     // Deliveries
     getDeliveryRow: (index: number) => {
       const dialog = selectors.formDialog.get();
-      const rows = within(dialog).getAllByRole('listitem');
+      const rows = within(dialog).getAllByRole('heading');
       return rows[index];
     },
     checkDeliveryRow: (index: number, expected: { date: string; status: 'success' | 'error' }) => {
       const row = ui.getDeliveryRow(index);
-      const date = within(row).getByRole('button');
-      expect(date).toHaveTextContent(new RegExp(expected.date));
+      expect(row).toHaveTextContent(new RegExp(expected.date));
       const status = within(row).getByLabelText(expected.status);
       expect(status).toBeInTheDocument();
     },

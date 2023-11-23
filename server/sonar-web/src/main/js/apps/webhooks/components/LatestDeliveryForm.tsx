@@ -17,11 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Modal } from 'design-system';
 import * as React from 'react';
 import { useCallback, useEffect, useState } from 'react';
 import { getDelivery } from '../../../api/webhooks';
-import Modal from '../../../components/controls/Modal';
-import { ResetButtonLink } from '../../../components/controls/buttons';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { WebhookDelivery, WebhookResponse } from '../../../types/webhook';
 import DeliveryItem from './DeliveryItem';
@@ -53,19 +52,12 @@ export default function LatestDeliveryForm(props: Props) {
   }, [fetchPayload]);
 
   return (
-    <Modal contentLabel={header} onRequestClose={onClose}>
-      <header className="modal-head">
-        <h2>{header}</h2>
-      </header>
-      <DeliveryItem
-        className="modal-body modal-container"
-        delivery={delivery}
-        loading={loading}
-        payload={payload}
-      />
-      <footer className="modal-foot">
-        <ResetButtonLink onClick={onClose}>{translate('close')}</ResetButtonLink>
-      </footer>
-    </Modal>
+    <Modal
+      onClose={onClose}
+      headerTitle={header}
+      isOverflowVisible
+      body={<DeliveryItem delivery={delivery} loading={loading} payload={payload} />}
+      secondaryButtonLabel={translate('cancel')}
+    />
   );
 }

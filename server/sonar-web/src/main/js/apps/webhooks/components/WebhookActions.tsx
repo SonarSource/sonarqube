@@ -17,12 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { ActionsDropdown, ItemButton, ItemDangerButton } from 'design-system';
 import * as React from 'react';
 import { useState } from 'react';
-import ActionsDropdown, {
-  ActionsDropdownDivider,
-  ActionsDropdownItem,
-} from '../../../components/controls/ActionsDropdown';
+
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { WebhookResponse, WebhookUpdatePayload } from '../../../types/webhook';
 import CreateWebhookForm from './CreateWebhookForm';
@@ -49,28 +47,19 @@ export default function WebhookActions(props: Props) {
   return (
     <>
       <ActionsDropdown
-        className="big-spacer-left"
-        label={translateWithParameters('webhooks.show_actions', webhook.name)}
+        toggleClassName="it__webhook-actions"
+        id={webhook.key}
+        ariaLabel={translateWithParameters('webhooks.show_actions', webhook.name)}
       >
-        <ActionsDropdownItem onClick={() => setUpdating(true)}>
-          {translate('update_verb')}
-        </ActionsDropdownItem>
+        <ItemButton onClick={() => setUpdating(true)}>{translate('update_verb')}</ItemButton>
         {webhook.latestDelivery && (
-          <ActionsDropdownItem
-            className="it__webhook-deliveries"
-            onClick={() => setDeliveries(true)}
-          >
+          <ItemButton className="it__webhook-deliveries" onClick={() => setDeliveries(true)}>
             {translate('webhooks.deliveries.show')}
-          </ActionsDropdownItem>
+          </ItemButton>
         )}
-        <ActionsDropdownDivider />
-        <ActionsDropdownItem
-          className="it__webhook-delete"
-          destructive
-          onClick={() => setDeleting(true)}
-        >
+        <ItemDangerButton className="it__webhook-delete" onClick={() => setDeleting(true)}>
           {translate('delete')}
-        </ActionsDropdownItem>
+        </ItemDangerButton>
       </ActionsDropdown>
 
       {deliveries && <DeliveriesForm onClose={() => setDeliveries(false)} webhook={webhook} />}

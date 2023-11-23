@@ -75,6 +75,7 @@ export * from './Switch';
 export * from './Table';
 export * from './Tags';
 export * from './Text';
+export * from './TextAccordion';
 export * from './Title';
 export { ToggleButton } from './ToggleButton';
 export { Tooltip } from './Tooltip';

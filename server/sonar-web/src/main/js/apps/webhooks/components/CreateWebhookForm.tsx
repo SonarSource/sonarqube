@@ -21,8 +21,6 @@ import * as React from 'react';
 import { isWebUri } from 'valid-url';
 import InputValidationField from '../../../components/controls/InputValidationField';
 import ValidationModal from '../../../components/controls/ValidationModal';
-import MandatoryFieldMarker from '../../../components/ui/MandatoryFieldMarker';
-import MandatoryFieldsExplanation from '../../../components/ui/MandatoryFieldsExplanation';
 import { translate } from '../../../helpers/l10n';
 import { WebhookBasePayload, WebhookResponse } from '../../../types/webhook';
 import UpdateWebhookSecretField from './UpdateWebhookSecretField';
@@ -68,25 +66,18 @@ export default function CreateWebhookForm({ webhook, onClose, onDone }: Props) {
       }}
       onClose={onClose}
       onSubmit={onDone}
-      size="small"
       validate={handleValidate}
     >
       {({ dirty, errors, handleBlur, handleChange, isSubmitting, touched, values }) => (
         <>
-          <MandatoryFieldsExplanation className="big-spacer-bottom" />
-
           <InputValidationField
+            required
             autoFocus
             dirty={dirty}
             disabled={isSubmitting}
             error={errors.name}
             id="webhook-name"
-            label={
-              <label htmlFor="webhook-name">
-                {translate('webhooks.name')}
-                <MandatoryFieldMarker />
-              </label>
-            }
+            label={translate('webhooks.name')}
             name="name"
             onBlur={handleBlur}
             onChange={handleChange}
@@ -95,17 +86,13 @@ export default function CreateWebhookForm({ webhook, onClose, onDone }: Props) {
             value={values.name}
           />
           <InputValidationField
+            required
             description={translate('webhooks.url.description')}
             dirty={dirty}
             disabled={isSubmitting}
             error={errors.url}
             id="webhook-url"
-            label={
-              <label htmlFor="webhook-url">
-                {translate('webhooks.url')}
-                <MandatoryFieldMarker />
-              </label>
-            }
+            label={translate('webhooks.url')}
             name="url"
             onBlur={handleBlur}
             onChange={handleChange}
@@ -122,7 +109,7 @@ export default function CreateWebhookForm({ webhook, onClose, onDone }: Props) {
             error={errors.secret}
             id="webhook-secret"
             isUpdateForm={isUpdate}
-            label={<label htmlFor="webhook-secret">{translate('webhooks.secret')}</label>}
+            label={translate('webhooks.secret')}
             name="secret"
             onBlur={handleBlur}
             onChange={handleChange}
