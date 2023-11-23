@@ -29,11 +29,11 @@ import org.sonar.db.DbSession;
 import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.common.group.service.GroupMembershipService;
 import org.sonar.server.common.management.ManagedInstanceChecker;
 import org.sonar.server.user.UserSession;
 
 import static java.lang.String.format;
-import static org.sonar.server.exceptions.BadRequestException.checkRequest;
 import static org.sonar.server.exceptions.NotFoundException.checkFound;
 import static org.sonar.server.usergroups.ws.GroupWsSupport.PARAM_GROUP_NAME;
 import static org.sonar.server.usergroups.ws.GroupWsSupport.PARAM_LOGIN;
@@ -45,22 +45,24 @@ public class RemoveUserAction implements UserGroupsWsAction {
   private final DbClient dbClient;
   private final UserSession userSession;
   private final GroupWsSupport support;
-
   private final ManagedInstanceChecker managedInstanceChecker;
+  private final GroupMembershipService groupMembershipService;
 
-  public RemoveUserAction(DbClient dbClient, UserSession userSession, GroupWsSupport support, ManagedInstanceChecker managedInstanceChecker) {
+  public RemoveUserAction(DbClient dbClient, UserSession userSession, GroupWsSupport support, ManagedInstanceChecker managedInstanceChecker,
+    GroupMembershipService groupMembershipService) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.support = support;
     this.managedInstanceChecker = managedInstanceChecker;
+    this.groupMembershipService = groupMembershipService;
   }
 
   @Override
   public void define(NewController context) {
     NewAction action = context.createAction("remove_user")
       .setDescription(format("Remove a user from a group.<br />" +
-        "'%s' must be provided.<br>" +
-        "Requires the following permission: 'Administer System'.", PARAM_GROUP_NAME))
+                             "'%s' must be provided.<br>" +
+                             "Requires the following permission: 'Administer System'.", PARAM_GROUP_NAME))
       .setHandler(this)
       .setPost(true)
       .setSince("5.2")
@@ -75,32 +77,14 @@ public class RemoveUserAction implements UserGroupsWsAction {
   @Override
   public void handle(Request request, Response response) throws Exception {
     userSession.checkLoggedIn();
-
+    userSession.checkPermission(GlobalPermission.ADMINISTER);
+    managedInstanceChecker.throwIfInstanceIsManaged();
     try (DbSession dbSession = dbClient.openSession(false)) {
-      userSession.checkPermission(GlobalPermission.ADMINISTER);
-      managedInstanceChecker.throwIfInstanceIsManaged();
-      GroupDto group = support.findGroupDto(dbSession, request);
-      support.checkGroupIsNotDefault(dbSession, group);
-
-      String login = request.mandatoryParam(PARAM_LOGIN);
-      UserDto user = getUser(dbSession, login);
-
-      ensureLastAdminIsNotRemoved(dbSession, group, user);
-
-      dbClient.userGroupDao().delete(dbSession, group, user);
-      dbSession.commit();
-
+      GroupDto groupDto = support.findGroupDto(dbSession, request);
+      UserDto userDto = getUser(dbSession, request.mandatoryParam(PARAM_LOGIN));
+      groupMembershipService.removeMembership(groupDto.getUuid(), userDto.getUuid());
       response.noContent();
     }
-  }
-
-  /**
-   * Ensure that there are still users with admin global permission if user is removed from the group.
-   */
-  private void ensureLastAdminIsNotRemoved(DbSession dbSession, GroupDto group, UserDto user) {
-    int remainingAdmins = dbClient.authorizationDao().countUsersWithGlobalPermissionExcludingGroupMember(dbSession,
-      GlobalPermission.ADMINISTER.getKey(), group.getUuid(), user.getUuid());
-    checkRequest(remainingAdmins > 0, "The last administrator user cannot be removed");
   }
 
   private UserDto getUser(DbSession dbSession, String userLogin) {

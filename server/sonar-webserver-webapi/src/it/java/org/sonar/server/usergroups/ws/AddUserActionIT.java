@@ -27,10 +27,11 @@ import org.sonar.api.server.ws.WebService.Action;
 import org.sonar.db.DbTester;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.common.group.service.GroupMembershipService;
+import org.sonar.server.common.management.ManagedInstanceChecker;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
-import org.sonar.server.common.management.ManagedInstanceChecker;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.usergroups.DefaultGroupFinder;
 import org.sonar.server.ws.TestRequest;
@@ -39,6 +40,7 @@ import org.sonar.server.ws.WsActionTester;
 
 import static java.net.HttpURLConnection.HTTP_NO_CONTENT;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.doThrow;
@@ -56,7 +58,10 @@ public class AddUserActionIT {
 
   private ManagedInstanceChecker managedInstanceChecker = mock(ManagedInstanceChecker.class);
 
-  private final WsActionTester ws = new WsActionTester(new AddUserAction(db.getDbClient(), userSession, newGroupWsSupport(), managedInstanceChecker));
+  private GroupMembershipService groupMembershipService = new GroupMembershipService(db.getDbClient(), db.getDbClient().userGroupDao(), db.getDbClient().userDao(), db.getDbClient()
+    .groupDao());
+
+  private final WsActionTester ws = new WsActionTester(new AddUserAction(db.getDbClient(), userSession, newGroupWsSupport(), managedInstanceChecker, groupMembershipService));
 
   @Test
   public void verify_definition() {
@@ -69,7 +74,6 @@ public class AddUserActionIT {
       tuple("10.0", "Parameter 'id' is removed. Use 'name' instead."),
       tuple("8.4", "Parameter 'id' is deprecated. Format changes from integer to string. Use 'name' instead."));
   }
-
 
   @Test
   public void add_user_to_group_referenced_by_its_name() {
@@ -104,20 +108,19 @@ public class AddUserActionIT {
   }
 
   @Test
-  public void do_not_fail_if_user_is_already_member_of_group() {
+  public void fail_if_user_is_already_member_of_group() {
     insertDefaultGroup();
-    GroupDto users = db.users().insertGroup();
-    UserDto user = db.users().insertUser();
-    db.users().insertMember(users, user);
+    GroupDto group = db.users().insertGroup(g -> g.setName("group1"));
+    UserDto user = db.users().insertUser(u -> u.setLogin("user1"));
+    db.users().insertMember(group, user);
     loginAsAdmin();
 
-    newRequest()
-      .setParam(PARAM_GROUP_NAME, users.getName())
-      .setParam(PARAM_LOGIN, user.getLogin())
-      .execute();
+    TestRequest testRequest = newRequest()
+      .setParam(PARAM_GROUP_NAME, group.getName())
+      .setParam(PARAM_LOGIN, user.getLogin());
 
-    // do not insert duplicated row
-    assertThat(db.users().selectGroupUuidsOfUser(user)).hasSize(1).containsOnly(users.getUuid());
+    assertThatIllegalArgumentException().isThrownBy(testRequest::execute)
+      .withMessage("User 'user1' is already a member of group 'group1'");
   }
 
   @Test
@@ -202,20 +205,6 @@ public class AddUserActionIT {
     assertThatThrownBy(request::execute)
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("Default group 'sonar-users' cannot be used to perform this action");
-  }
-
-  @Test
-  public void fail_when_no_default_group() {
-    GroupDto group = db.users().insertGroup();
-    UserDto user = db.users().insertUser();
-    loginAsAdmin();
-    TestRequest request = newRequest()
-      .setParam(PARAM_LOGIN, user.getLogin())
-      .setParam(PARAM_GROUP_NAME, group.getName());
-
-    assertThatThrownBy(request::execute)
-      .isInstanceOf(IllegalStateException.class)
-      .hasMessage("Default group cannot be found");
   }
 
   @Test

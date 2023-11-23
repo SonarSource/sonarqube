@@ -28,7 +28,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
-import org.sonar.db.user.UserGroupDto;
+import org.sonar.server.common.group.service.GroupMembershipService;
 import org.sonar.server.common.management.ManagedInstanceChecker;
 import org.sonar.server.user.UserSession;
 
@@ -47,19 +47,23 @@ public class AddUserAction implements UserGroupsWsAction {
   private final GroupWsSupport support;
   private final ManagedInstanceChecker managedInstanceChecker;
 
-  public AddUserAction(DbClient dbClient, UserSession userSession, GroupWsSupport support, ManagedInstanceChecker managedInstanceChecker) {
+  private final GroupMembershipService groupMembershipService;
+
+  public AddUserAction(DbClient dbClient, UserSession userSession, GroupWsSupport support, ManagedInstanceChecker managedInstanceChecker,
+    GroupMembershipService groupMembershipService) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.support = support;
     this.managedInstanceChecker = managedInstanceChecker;
+    this.groupMembershipService = groupMembershipService;
   }
 
   @Override
   public void define(NewController context) {
     NewAction action = context.createAction("add_user")
       .setDescription(format("Add a user to a group.<br />" +
-        "'%s' must be provided.<br />" +
-        "Requires the following permission: 'Administer System'.", PARAM_GROUP_NAME))
+                             "'%s' must be provided.<br />" +
+                             "Requires the following permission: 'Administer System'.", PARAM_GROUP_NAME))
       .setHandler(this)
       .setPost(true)
       .setSince("5.2")
@@ -79,22 +83,14 @@ public class AddUserAction implements UserGroupsWsAction {
       GroupDto group = support.findGroupDto(dbSession, request);
 
       String login = request.mandatoryParam(PARAM_LOGIN);
-      UserDto user = dbClient.userDao().selectActiveUserByLogin(dbSession, login);
+      UserDto user = dbClient.userDao().selectByLogin(dbSession, login);
       checkFound(user, "Could not find a user with login '%s'", login);
 
-      support.checkGroupIsNotDefault(dbSession, group);
-
-      if (!isMemberOf(dbSession, user, group)) {
-        UserGroupDto membershipDto = new UserGroupDto().setGroupUuid(group.getUuid()).setUserUuid(user.getUuid());
-        dbClient.userGroupDao().insert(dbSession, membershipDto, group.getName(), login);
-        dbSession.commit();
-      }
+      groupMembershipService.addMembership(group.getUuid(), user.getUuid());
+      dbSession.commit();
 
       response.noContent();
     }
   }
 
-  private boolean isMemberOf(DbSession dbSession, UserDto user, GroupDto group) {
-    return dbClient.groupMembershipDao().selectGroupUuidsByUserUuid(dbSession, user.getUuid()).contains(group.getUuid());
-  }
 }

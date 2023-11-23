@@ -73,6 +73,11 @@ public class GroupService {
     GroupDto defaultGroup = defaultGroupFinder.findDefaultGroup(dbSession);
     GroupQuery query = toGroupQuery(groupSearchRequest);
 
+    int limit = dbClient.groupDao().countByQuery(dbSession, query);
+    if (groupSearchRequest.page() == 0) {
+      return new SearchResults<>(List.of(), limit);
+    }
+
     List<GroupDto> groups = dbClient.groupDao().selectByQuery(dbSession, query, groupSearchRequest.page(), groupSearchRequest.pageSize());
     List<String> groupUuids = extractGroupUuids(groups);
     Map<String, Boolean> groupUuidToIsManaged = managedInstanceService.getGroupUuidToManaged(dbSession, new HashSet<>(groupUuids));
@@ -81,7 +86,6 @@ public class GroupService {
       .map(groupDto -> toGroupInformation(groupDto, defaultGroup.getUuid(), groupUuidToIsManaged))
       .toList();
 
-    int limit = dbClient.groupDao().countByQuery(dbSession, query);
     return new SearchResults<>(results, limit);
   }
 

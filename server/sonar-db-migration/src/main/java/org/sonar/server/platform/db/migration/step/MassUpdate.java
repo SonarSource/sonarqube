@@ -67,7 +67,7 @@ public class MassUpdate {
     this.writeConnection = writeConnection;
   }
 
-  public SqlStatement select(String sql) throws SQLException {
+  public SqlStatement<Select> select(String sql) throws SQLException {
     this.select = SelectImpl.create(db, readConnection, sql);
     return this.select;
   }

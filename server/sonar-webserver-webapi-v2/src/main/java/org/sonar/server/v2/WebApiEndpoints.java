@@ -30,6 +30,7 @@ public class WebApiEndpoints {
   public static final String AUTHORIZATIONS_DOMAIN = "/authorizations";
 
   public static final String GROUPS_ENDPOINT = AUTHORIZATIONS_DOMAIN + "/groups";
+  public static final String GROUP_MEMBERSHIPS_ENDPOINT = AUTHORIZATIONS_DOMAIN + "/group-memberships";
 
   private WebApiEndpoints() {
   }

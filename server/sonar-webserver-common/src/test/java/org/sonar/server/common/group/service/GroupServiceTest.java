@@ -390,6 +390,16 @@ public class GroupServiceTest {
     assertThat(queryCaptor.getValue().getSearchText()).isEqualTo("%QUERY%");
     assertThat(queryCaptor.getValue().getIsManagedSqlClause()).isNull();
   }
+  @Test
+  public void search_whenPageSizeEquals0_returnsOnlyTotal() {
+    when(dbClient.groupDao().countByQuery(eq(dbSession), any())).thenReturn(10);
+
+    SearchResults<GroupInformation> searchResults = groupService.search(dbSession, new GroupSearchRequest("query", null, 0, 24));
+    assertThat(searchResults.total()).isEqualTo(10);
+    assertThat(searchResults.searchResults()).isEmpty();
+
+    verify(dbClient.groupDao(), never()).selectByQuery(eq(dbSession), any(), anyInt(), anyInt());
+  }
 
   @Test
   public void search_whenInstanceManagedAndManagedIsTrue_addsManagedClause() {

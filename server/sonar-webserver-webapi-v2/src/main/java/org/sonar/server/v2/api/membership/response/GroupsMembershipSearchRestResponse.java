@@ -17,27 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.usergroups.ws;
+package org.sonar.server.v2.api.membership.response;
 
-import org.sonar.core.platform.Module;
-import org.sonar.server.common.management.ManagedInstanceChecker;
+import java.util.List;
+import org.sonar.server.v2.api.response.PageRestResponse;
 
-public class UserGroupsModule extends Module {
-
-  @Override
-  protected void configureModule() {
-    add(
-      UserGroupsWs.class,
-      GroupWsSupport.class,
-      ManagedInstanceChecker.class,
-      // actions
-      SearchAction.class,
-      CreateAction.class,
-      DeleteAction.class,
-      UpdateAction.class,
-      UsersAction.class,
-      AddUserAction.class,
-      RemoveUserAction.class);
-  }
-
+public record GroupsMembershipSearchRestResponse(List<GroupMembershipRestResponse> groupMemberships, PageRestResponse page) {
 }

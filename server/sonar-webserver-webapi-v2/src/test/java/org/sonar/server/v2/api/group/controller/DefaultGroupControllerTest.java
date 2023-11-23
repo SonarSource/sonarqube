@@ -80,11 +80,20 @@ public class DefaultGroupControllerTest {
   private final DbSession dbSession = mock();
   private final ManagedInstanceChecker managedInstanceChecker = mock();
   private final MockMvc mockMvc = ControllerTester
-    .getMockMvc(new DefaultGroupController(groupService, dbClient, managedInstanceChecker, userSession));
+    .getMockMvc(new DefaultGroupController(userSession, dbClient, groupService, managedInstanceChecker));
 
   @Before
   public void setUp() {
     when(dbClient.openSession(false)).thenReturn(dbSession);
+  }
+
+  @Test
+  public void fetchGroup_whenNotAnAdmin_shouldThrow() throws Exception {
+    userSession.logIn();
+    mockMvc.perform(get(GROUPS_ENDPOINT + "/" + GROUP_UUID))
+      .andExpectAll(
+        status().isForbidden(),
+        content().json("{\"message\":\"Insufficient privileges\"}"));
   }
 
   @Test
@@ -262,13 +271,13 @@ public class DefaultGroupControllerTest {
     when(groupService.updateGroup(dbSession, groupDto, newName, newDescription)).thenReturn(newGroupInformation);
 
     MvcResult mvcResult = mockMvc.perform(
-      patch(GROUPS_ENDPOINT + "/" + GROUP_UUID).contentType(JSON_MERGE_PATCH_CONTENT_TYPE).content(
-        """
-          {
-            "name": "%s",
-            "description": %s
-          }
-          """.formatted(newName, newDescription == null ? "null" : "\"" + newDescription + "\"")))
+        patch(GROUPS_ENDPOINT + "/" + GROUP_UUID).contentType(JSON_MERGE_PATCH_CONTENT_TYPE).content(
+          """
+            {
+              "name": "%s",
+              "description": %s
+            }
+            """.formatted(newName, newDescription == null ? "null" : "\"" + newDescription + "\"")))
       .andExpect(status().isOk())
       .andReturn();
 
@@ -384,7 +393,7 @@ public class DefaultGroupControllerTest {
   public void search_whenCallerIsNotAdmin_shouldReturnForbidden() throws Exception {
     userSession.logIn().setNonSystemAdministrator();
     mockMvc.perform(
-      get(GROUPS_ENDPOINT + "/" + GROUP_UUID))
+      get(GROUPS_ENDPOINT))
       .andExpectAll(
         status().isForbidden(),
         content().json("{\"message\":\"Insufficient privileges\"}"));

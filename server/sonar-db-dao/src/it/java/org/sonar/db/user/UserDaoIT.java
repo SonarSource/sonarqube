@@ -267,6 +267,40 @@ public class UserDaoIT {
   }
 
   @Test
+  public void selectUsersByQuery_whenSearchingByGroupUuid_findsTheRightResults() {
+    db.users().insertUser();
+    UserDto userToFind1 = db.users().insertUser(u -> u.setLogin("z"));
+    UserDto userToFind2 = db.users().insertUser(u -> u.setLogin("a"));
+
+    GroupDto groupDto = db.users().insertGroup();
+    db.users().insertMember(groupDto, userToFind2);
+    db.users().insertMember(groupDto, userToFind1);
+
+    UserQuery query = UserQuery.builder().groupUuid(groupDto.getUuid()).build();
+    List<UserDto> users = underTest.selectUsers(session, query);
+
+    assertThat(users).usingRecursiveFieldByFieldElementComparator().containsExactly(userToFind2, userToFind1);
+    assertThat(underTest.countUsers(session, query)).isEqualTo(2);
+  }
+
+  @Test
+  public void selectUsersByQuery_whenExcludingGroupUuid_findsTheRightResults() {
+    UserDto userToFind1 = db.users().insertUser(u -> u.setLogin("z"));
+    UserDto userToFind2 = db.users().insertUser(u -> u.setLogin("a"));
+    UserDto userToFind3 = db.users().insertUser(u -> u.setLogin("b"));
+
+    GroupDto groupDto = db.users().insertGroup();
+    db.users().insertMember(groupDto, userToFind2);
+    db.users().insertMember(groupDto, userToFind1);
+
+    UserQuery query = UserQuery.builder().excludedGroupUuid(groupDto.getUuid()).build();
+    List<UserDto> users = underTest.selectUsers(session, query);
+
+    assertThat(users).usingRecursiveFieldByFieldElementComparator().containsExactly(userToFind3);
+    assertThat(underTest.countUsers(session, query)).isEqualTo(1);
+  }
+
+  @Test
   public void selectUsersByQuery_whenSearchingByUuidsWithLongRange_shouldReturnTheExpectedUsers() {
     db.users().insertUser();
     List<UserDto> users = generateAndInsertUsers(3200);

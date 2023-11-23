@@ -31,6 +31,7 @@ import org.sonar.alm.client.github.GithubApplicationClientImpl;
 import org.sonar.alm.client.github.GithubApplicationHttpClientImpl;
 import org.sonar.alm.client.github.GithubGlobalSettingsValidator;
 import org.sonar.alm.client.github.GithubPaginatedHttpClientImpl;
+import org.sonar.alm.client.github.GithubPermissionConverter;
 import org.sonar.alm.client.github.RatioBasedRateLimitChecker;
 import org.sonar.alm.client.github.config.GithubProvisioningConfigValidator;
 import org.sonar.alm.client.github.security.GithubAppSecurityImpl;
@@ -41,7 +42,6 @@ import org.sonar.api.server.rule.RulesDefinitionXmlLoader;
 import org.sonar.auth.bitbucket.BitbucketModule;
 import org.sonar.auth.github.GitHubModule;
 import org.sonar.auth.github.GitHubSettings;
-import org.sonar.alm.client.github.GithubPermissionConverter;
 import org.sonar.auth.gitlab.GitLabModule;
 import org.sonar.auth.ldap.LdapModule;
 import org.sonar.auth.saml.SamlModule;
@@ -78,6 +78,8 @@ import org.sonar.server.branch.ws.BranchWsModule;
 import org.sonar.server.ce.CeModule;
 import org.sonar.server.ce.projectdump.ProjectExportWsModule;
 import org.sonar.server.ce.ws.CeWsModule;
+import org.sonar.server.common.group.service.GroupMembershipService;
+import org.sonar.server.common.group.service.GroupService;
 import org.sonar.server.component.ComponentCleanerService;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.component.ComponentService;
@@ -392,6 +394,8 @@ public class PlatformLevel4 extends PlatformLevel {
       new LdapModule(),
       new SamlModule(),
       new SamlValidationModule(),
+      GroupService.class,
+      GroupMembershipService.class,
       DefaultAdminCredentialsVerifierImpl.class,
       DefaultAdminCredentialsVerifierNotificationTemplate.class,
       DefaultAdminCredentialsVerifierNotificationHandler.class,

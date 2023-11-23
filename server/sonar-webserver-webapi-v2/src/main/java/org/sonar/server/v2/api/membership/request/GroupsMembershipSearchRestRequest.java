@@ -17,27 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.usergroups.ws;
+package org.sonar.server.v2.api.membership.request;
 
-import org.sonar.core.platform.Module;
-import org.sonar.server.common.management.ManagedInstanceChecker;
+import io.swagger.v3.oas.annotations.media.Schema;
+import javax.annotation.Nullable;
 
-public class UserGroupsModule extends Module {
+public record GroupsMembershipSearchRestRequest(
+  @Nullable
+  @Schema(description = "ID of the user for which to search groups. If not set, all groups are returned.")
+  String userId,
 
-  @Override
-  protected void configureModule() {
-    add(
-      UserGroupsWs.class,
-      GroupWsSupport.class,
-      ManagedInstanceChecker.class,
-      // actions
-      SearchAction.class,
-      CreateAction.class,
-      DeleteAction.class,
-      UpdateAction.class,
-      UsersAction.class,
-      AddUserAction.class,
-      RemoveUserAction.class);
-  }
+  @Nullable
+  @Schema(description = "ID of the group for which to search members. If not set, all groups are returned.")
+  String groupId
+
+) {
 
 }

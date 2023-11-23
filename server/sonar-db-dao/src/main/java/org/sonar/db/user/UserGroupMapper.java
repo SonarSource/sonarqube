@@ -19,8 +19,10 @@
  */
 package org.sonar.db.user;
 
+import java.util.List;
 import java.util.Set;
 import org.apache.ibatis.annotations.Param;
+import org.sonar.db.Pagination;
 
 public interface UserGroupMapper {
 
@@ -34,4 +36,6 @@ public interface UserGroupMapper {
 
   int deleteByUserUuid(@Param("userUuid") String userUuid);
 
+  List<UserGroupDto> selectByQuery(@Param("query") UserGroupQuery query, @Param("pagination") Pagination pagination);
+  int countByQuery(@Param("query") UserGroupQuery query);
 }

@@ -56,17 +56,19 @@ public class DefaultUserController implements UserController {
   }
 
   @Override
-  public UsersSearchRestResponse search(UsersSearchRestRequest usersSearchRestRequest, RestPage page) {
-    throwIfAdminOnlyParametersAreUsed(usersSearchRestRequest);
+  public UsersSearchRestResponse search(UsersSearchRestRequest usersSearchRestRequest, @Nullable String excludedGroupId, RestPage page) {
+    throwIfAdminOnlyParametersAreUsed(usersSearchRestRequest, excludedGroupId);
 
-    SearchResults<UserInformation> userSearchResults = userService.findUsers(toUserSearchRequest(usersSearchRestRequest, page));
+    SearchResults<UserInformation> userSearchResults = userService.findUsers(toUserSearchRequest(usersSearchRestRequest, excludedGroupId, page));
     PaginationInformation paging = forPageIndex(page.pageIndex()).withPageSize(page.pageSize()).andTotal(userSearchResults.total());
 
     return usersSearchResponseGenerator.toUsersForResponse(userSearchResults.searchResults(), paging);
   }
 
-  private void throwIfAdminOnlyParametersAreUsed(UsersSearchRestRequest usersSearchRestRequest) {
+  private void throwIfAdminOnlyParametersAreUsed(UsersSearchRestRequest usersSearchRestRequest, @Nullable String excludedGroupId) {
     if (!userSession.isSystemAdministrator()) {
+      throwIfValuePresent("groupId", usersSearchRestRequest.groupId());
+      throwIfValuePresent("groupId!", excludedGroupId);
       throwIfValuePresent("externalIdentity", usersSearchRestRequest.externalIdentity());
       throwIfValuePresent("sonarLintLastConnectionDateFrom", usersSearchRestRequest.sonarLintLastConnectionDateFrom());
       throwIfValuePresent("sonarLintLastConnectionDateTo", usersSearchRestRequest.sonarLintLastConnectionDateTo());
@@ -83,7 +85,7 @@ public class DefaultUserController implements UserController {
     throw new ForbiddenException("Parameter " + parameterName + " requires Administer System permission.");
   }
 
-  private static UsersSearchRequest toUserSearchRequest(UsersSearchRestRequest usersSearchRestRequest, RestPage page) {
+  private static UsersSearchRequest toUserSearchRequest(UsersSearchRestRequest usersSearchRestRequest, @Nullable String excludedGroupId, RestPage page) {
     return UsersSearchRequest.builder()
       .setDeactivated(Optional.ofNullable(usersSearchRestRequest.active()).map(active -> !active).orElse(false))
       .setManaged(usersSearchRestRequest.managed())
@@ -93,6 +95,8 @@ public class DefaultUserController implements UserController {
       .setLastConnectionDateTo(usersSearchRestRequest.sonarQubeLastConnectionDateTo())
       .setSonarLintLastConnectionDateFrom(usersSearchRestRequest.sonarLintLastConnectionDateFrom())
       .setSonarLintLastConnectionDateTo(usersSearchRestRequest.sonarLintLastConnectionDateTo())
+      .setGroupUuid(usersSearchRestRequest.groupId())
+      .setExcludedGroupUuid(excludedGroupId)
       .setPage(page.pageIndex())
       .setPageSize(page.pageSize())
       .build();

@@ -45,7 +45,7 @@ public class DefaultGroupController implements GroupController {
   private final UserSession userSession;
   private final ManagedInstanceChecker managedInstanceChecker;
 
-  public DefaultGroupController(GroupService groupService, DbClient dbClient, ManagedInstanceChecker managedInstanceChecker, UserSession userSession) {
+  public DefaultGroupController(UserSession userSession, DbClient dbClient, GroupService groupService, ManagedInstanceChecker managedInstanceChecker) {
     this.groupService = groupService;
     this.dbClient = dbClient;
     this.userSession = userSession;

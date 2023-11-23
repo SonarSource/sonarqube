@@ -38,6 +38,8 @@ public class UsersSearchRequest {
   private final OffsetDateTime sonarLintLastConnectionDateFrom;
   private final OffsetDateTime sonarLintLastConnectionDateTo;
   private final String externalLogin;
+  private final String groupUuid;
+  private final String excludedGroupUuid;
 
   private UsersSearchRequest(Builder builder) {
     this.page = builder.page;
@@ -46,6 +48,8 @@ public class UsersSearchRequest {
     this.deactivated = builder.deactivated;
     this.managed = builder.managed;
     this.externalLogin = builder.externalLogin;
+    this.groupUuid = builder.groupUuid;
+    this.excludedGroupUuid = builder.excludedGroupUuid;
     try {
       this.lastConnectionDateFrom = Optional.ofNullable(builder.lastConnectionDateFrom).map(DateUtils::parseOffsetDateTime).orElse(null);
       this.lastConnectionDateTo = Optional.ofNullable(builder.lastConnectionDateTo).map(DateUtils::parseOffsetDateTime).orElse(null);
@@ -98,8 +102,16 @@ public class UsersSearchRequest {
     return Optional.ofNullable(externalLogin);
   }
 
+  public Optional<String> getGroupUuid() {
+    return Optional.ofNullable(groupUuid);
+  }
+
   public static Builder builder() {
     return new Builder();
+  }
+
+  public Optional<String> getExcludedGroupUuid() {
+    return Optional.ofNullable(excludedGroupUuid);
   }
 
   public static class Builder {
@@ -113,6 +125,8 @@ public class UsersSearchRequest {
     private String sonarLintLastConnectionDateFrom;
     private String sonarLintLastConnectionDateTo;
     private String externalLogin;
+    private String groupUuid;
+    private String excludedGroupUuid;
 
     private Builder() {
       // enforce factory method use
@@ -165,6 +179,16 @@ public class UsersSearchRequest {
 
     public Builder setExternalLogin(@Nullable String externalLogin) {
       this.externalLogin = externalLogin;
+      return this;
+    }
+
+    public Builder setGroupUuid(@Nullable String groupUuid) {
+      this.groupUuid = groupUuid;
+      return this;
+    }
+
+    public Builder setExcludedGroupUuid(@Nullable String excludedGroupUuid) {
+      this.excludedGroupUuid = excludedGroupUuid;
       return this;
     }
 

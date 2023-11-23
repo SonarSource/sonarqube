@@ -27,10 +27,11 @@ import org.sonar.api.server.ws.WebService.Action;
 import org.sonar.db.DbTester;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.common.group.service.GroupMembershipService;
+import org.sonar.server.common.management.ManagedInstanceChecker;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.common.management.ManagedInstanceChecker;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.usergroups.DefaultGroupFinder;
 import org.sonar.server.ws.TestRequest;
@@ -55,8 +56,12 @@ public class RemoveUserActionIT {
   public UserSessionRule userSession = UserSessionRule.standalone();
 
   private ManagedInstanceChecker managedInstanceChecker = mock(ManagedInstanceChecker.class);
+
+  private final GroupMembershipService groupMembershipService = new GroupMembershipService(db.getDbClient(), db.getDbClient().userGroupDao(), db.getDbClient().userDao(),
+    db.getDbClient().groupDao());
   private final WsActionTester ws = new WsActionTester(
-    new RemoveUserAction(db.getDbClient(), userSession, new GroupWsSupport(db.getDbClient(), new DefaultGroupFinder(db.getDbClient())), managedInstanceChecker));
+    new RemoveUserAction(db.getDbClient(), userSession, new GroupWsSupport(db.getDbClient(), new DefaultGroupFinder(db.getDbClient())), managedInstanceChecker,
+      groupMembershipService));
 
   @Test
   public void verify_definition() {

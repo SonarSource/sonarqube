@@ -19,10 +19,25 @@
  */
 package org.sonar.db.user;
 
-public class UserGroupDto {
+import java.util.Objects;
 
+public class UserGroupDto {
+  private String uuid;
   private String userUuid;
   private String groupUuid;
+
+  public UserGroupDto() {
+    //
+  }
+
+  public String getUuid() {
+    return uuid;
+  }
+
+  public UserGroupDto setUuid(String uuid) {
+    this.uuid = uuid;
+    return this;
+  }
 
   public String getUserUuid() {
     return userUuid;
@@ -40,5 +55,22 @@ public class UserGroupDto {
   public UserGroupDto setGroupUuid(String groupUuid) {
     this.groupUuid = groupUuid;
     return this;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    UserGroupDto that = (UserGroupDto) o;
+    return Objects.equals(userUuid, that.userUuid) && Objects.equals(groupUuid, that.groupUuid);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(userUuid, groupUuid);
   }
 }

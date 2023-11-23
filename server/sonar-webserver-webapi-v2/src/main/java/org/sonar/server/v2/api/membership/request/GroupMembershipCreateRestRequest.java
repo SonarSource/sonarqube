@@ -17,27 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.usergroups.ws;
+package org.sonar.server.v2.api.membership.request;
 
-import org.sonar.core.platform.Module;
-import org.sonar.server.common.management.ManagedInstanceChecker;
+import io.swagger.v3.oas.annotations.media.Schema;
 
-public class UserGroupsModule extends Module {
+public record GroupMembershipCreateRestRequest(
 
-  @Override
-  protected void configureModule() {
-    add(
-      UserGroupsWs.class,
-      GroupWsSupport.class,
-      ManagedInstanceChecker.class,
-      // actions
-      SearchAction.class,
-      CreateAction.class,
-      DeleteAction.class,
-      UpdateAction.class,
-      UsersAction.class,
-      AddUserAction.class,
-      RemoveUserAction.class);
-  }
+  @Schema(description = "ID of the user to add to group.")
+  String userId,
 
-}
+  @Schema(description = "ID of the group where a member needs to be added.")
+  String groupId
+
+) {}

@@ -19,20 +19,26 @@
  */
 package org.sonar.db.user;
 
+import java.util.List;
 import java.util.Set;
+import org.sonar.core.util.UuidFactory;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
+import org.sonar.db.Pagination;
 import org.sonar.db.audit.AuditPersister;
 import org.sonar.db.audit.model.UserGroupNewValue;
 
 public class UserGroupDao implements Dao {
   private final AuditPersister auditPersister;
+  private final UuidFactory uuidFactory;
 
-  public UserGroupDao(AuditPersister auditPersister) {
+  public UserGroupDao(AuditPersister auditPersister, UuidFactory uuidFactory) {
     this.auditPersister = auditPersister;
+    this.uuidFactory = uuidFactory;
   }
 
   public UserGroupDto insert(DbSession session, UserGroupDto dto, String groupName, String login) {
+    dto.setUuid(uuidFactory.create());
     mapper(session).insert(dto);
     auditPersister.addUserToGroup(session, new UserGroupNewValue(dto, groupName, login));
     return dto;
@@ -40,6 +46,14 @@ public class UserGroupDao implements Dao {
 
   public Set<String> selectUserUuidsInGroup(DbSession session, String groupUuid) {
     return mapper(session).selectUserUuidsInGroup(groupUuid);
+  }
+
+  public List<UserGroupDto> selectByQuery(DbSession session, UserGroupQuery query, int page, int pageSize) {
+    return mapper(session).selectByQuery(query, Pagination.forPage(page).andSize(pageSize));
+  }
+
+  public int countByQuery(DbSession session, UserGroupQuery query) {
+    return mapper(session).countByQuery(query);
   }
 
   public void delete(DbSession session, GroupDto group, UserDto user) {

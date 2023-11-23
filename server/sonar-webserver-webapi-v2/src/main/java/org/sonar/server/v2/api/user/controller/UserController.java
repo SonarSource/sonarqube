@@ -22,6 +22,10 @@ package org.sonar.server.v2.api.user.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.extensions.Extension;
+import io.swagger.v3.oas.annotations.extensions.ExtensionProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
+import javax.annotation.Nullable;
 import javax.validation.Valid;
 import org.sonar.server.v2.api.model.RestPage;
 import org.sonar.server.v2.api.user.response.UserRestResponse;
@@ -67,6 +71,8 @@ public interface UserController {
     """)
   UsersSearchRestResponse search(
     @Valid @ParameterObject UsersSearchRestRequest usersSearchRestRequest,
+    @RequestParam(name = "groupId!") @Nullable @Schema(description = "Filter users not belonging to group. Only available for system administrators.",
+      extensions = @Extension(properties = {@ExtensionProperty(name = "internal", value = "true")}), hidden = true) String excludedGroupId,
     @Valid @ParameterObject RestPage restPage);
 
   @DeleteMapping(path = "/{id}")

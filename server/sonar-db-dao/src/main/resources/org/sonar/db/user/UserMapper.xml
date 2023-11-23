@@ -172,6 +172,12 @@
             <if test="query.externalLogin != null">
                 AND (u.external_login = #{query.externalLogin, jdbcType=VARCHAR})
             </if>
+            <if test="query.groupUuid != null">
+                AND exists (select 1 from groups_users ug where ug.user_uuid = u.uuid AND ug.group_uuid=#{query.groupUuid, jdbcType=VARCHAR})
+            </if>
+            <if test="query.excludedGroupUuid != null">
+                AND NOT exists (select 1 from groups_users ug where ug.user_uuid = u.uuid AND ug.group_uuid=#{query.excludedGroupUuid, jdbcType=VARCHAR})
+            </if>
         </where>
     </sql>
 

@@ -17,24 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.v2.api.group.controller;
+package org.sonar.server.v2.api.membership.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import javax.validation.Valid;
-import org.sonar.server.v2.api.group.request.GroupCreateRestRequest;
-import org.sonar.server.v2.api.group.request.GroupUpdateRestRequest;
-import org.sonar.server.v2.api.group.request.GroupsSearchRestRequest;
-import org.sonar.server.v2.api.group.response.GroupRestResponse;
-import org.sonar.server.v2.api.group.response.GroupsSearchRestResponse;
+import org.sonar.server.v2.api.membership.request.GroupMembershipCreateRestRequest;
+import org.sonar.server.v2.api.membership.request.GroupsMembershipSearchRestRequest;
+import org.sonar.server.v2.api.membership.response.GroupsMembershipSearchRestResponse;
+import org.sonar.server.v2.api.membership.response.GroupMembershipRestResponse;
 import org.sonar.server.v2.api.model.RestPage;
 import org.springdoc.api.annotations.ParameterObject;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -42,42 +40,30 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import static org.sonar.server.v2.WebApiEndpoints.GROUPS_ENDPOINT;
-import static org.sonar.server.v2.WebApiEndpoints.JSON_MERGE_PATCH_CONTENT_TYPE;
+import static org.sonar.server.v2.WebApiEndpoints.GROUP_MEMBERSHIPS_ENDPOINT;
 
-@RequestMapping(GROUPS_ENDPOINT)
+@RequestMapping(GROUP_MEMBERSHIPS_ENDPOINT)
 @RestController
-public interface GroupController {
+public interface GroupMembershipController {
 
   @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.OK)
-  @Operation(summary = "Group search", description = """
-      Get the list of groups.
-      The results are sorted alphabetically by group name.
+  @Operation(summary = "Search across group memberships", description = """
+      Get the list of groups and members matching the query.
     """)
-  GroupsSearchRestResponse search(
-    @Valid @ParameterObject GroupsSearchRestRequest groupsSearchRestRequest,
+  GroupsMembershipSearchRestResponse search(
+    @Valid @ParameterObject GroupsMembershipSearchRestRequest groupsSearchRestRequest,
     @Valid @ParameterObject RestPage restPage);
-
-  @GetMapping(path = "/{id}")
-  @ResponseStatus(HttpStatus.OK)
-  @Operation(summary = "Fetch a single group", description = "Fetch a single group.")
-  GroupRestResponse fetchGroup(@PathVariable("id") @Parameter(description = "The id of the group to fetch.", required = true, in = ParameterIn.PATH) String id);
 
   @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.CREATED)
-  @Operation(summary = "Create a new group", description = "Create a new group.")
-  GroupRestResponse create(@Valid @RequestBody GroupCreateRestRequest request);
+  @Operation(summary = "Add a group membership", description = "Add a user to a group.")
+  GroupMembershipRestResponse create(@Valid @RequestBody GroupMembershipCreateRestRequest request);
 
   @DeleteMapping(path = "/{id}")
   @ResponseStatus(HttpStatus.NO_CONTENT)
-  @Operation(summary = "Deletes a group", description = "Deletes a group.")
-  void deleteGroup(@PathVariable("id") @Parameter(description = "The ID of the group to delete.", required = true, in = ParameterIn.PATH) String id);
+  @Operation(summary = "Remove a group membership", description = "Remove a user from a group")
+  void delete(@PathVariable("id") @Parameter(description = "The ID of the group membership to delete.", required = true, in = ParameterIn.PATH) String id);
 
-  @PatchMapping(path = "/{id}", consumes = JSON_MERGE_PATCH_CONTENT_TYPE, produces = MediaType.APPLICATION_JSON_VALUE)
-  @ResponseStatus(HttpStatus.OK)
-  @Operation(summary = "Update a group", description = """
-    Update a group name or description.
-    """)
-  GroupRestResponse updateGroup(@PathVariable("id") String id, @Valid @RequestBody GroupUpdateRestRequest updateRequest);
+
 }

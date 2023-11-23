@@ -110,6 +110,8 @@ public class DefaultUserControllerTest {
         .param("sonarQubeLastConnectionDateTo", "2020-01-01T00:00:00+0100")
         .param("sonarLintLastConnectionDateFrom", "2020-01-01T00:00:00+0100")
         .param("sonarLintLastConnectionDateTo", "2020-01-01T00:00:00+0100")
+        .param("groupId", "groupId1")
+        .param("groupId!", "groupId2")
         .param("pageSize", "100")
         .param("pageIndex", "2"))
       .andExpect(status().isOk());
@@ -125,6 +127,8 @@ public class DefaultUserControllerTest {
     assertThat(requestCaptor.getValue().getLastConnectionDateTo()).contains(parseOffsetDateTime("2020-01-01T00:00:00+0100"));
     assertThat(requestCaptor.getValue().getSonarLintLastConnectionDateFrom()).contains(parseOffsetDateTime("2020-01-01T00:00:00+0100"));
     assertThat(requestCaptor.getValue().getSonarLintLastConnectionDateTo()).contains(parseOffsetDateTime("2020-01-01T00:00:00+0100"));
+    assertThat(requestCaptor.getValue().getGroupUuid()).contains("groupId1");
+    assertThat(requestCaptor.getValue().getExcludedGroupUuid()).contains("groupId2");
     assertThat(requestCaptor.getValue().getPageSize()).isEqualTo(100);
     assertThat(requestCaptor.getValue().getPage()).isEqualTo(2);
   }
@@ -160,6 +164,18 @@ public class DefaultUserControllerTest {
       .andExpectAll(
         status().isForbidden(),
         content().string("{\"message\":\"Parameter externalIdentity requires Administer System permission.\"}"));
+
+    mockMvc.perform(get(USER_ENDPOINT)
+        .param("groupId", "groupId"))
+      .andExpectAll(
+        status().isForbidden(),
+        content().string("{\"message\":\"Parameter groupId requires Administer System permission.\"}"));
+
+    mockMvc.perform(get(USER_ENDPOINT)
+        .param("groupId!", "groupId"))
+      .andExpectAll(
+        status().isForbidden(),
+        content().string("{\"message\":\"Parameter groupId! requires Administer System permission.\"}"));
   }
 
   @Test

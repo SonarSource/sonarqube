@@ -21,6 +21,7 @@ package org.sonar.server.v2.config;
 
 import javax.annotation.Nullable;
 import org.sonar.db.DbClient;
+import org.sonar.server.common.group.service.GroupMembershipService;
 import org.sonar.server.common.group.service.GroupService;
 import org.sonar.server.common.health.CeStatusNodeCheck;
 import org.sonar.server.common.health.DbConnectionNodeCheck;
@@ -36,6 +37,8 @@ import org.sonar.server.user.SystemPasscode;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.v2.api.group.controller.DefaultGroupController;
 import org.sonar.server.v2.api.group.controller.GroupController;
+import org.sonar.server.v2.api.membership.controller.DefaultGroupMembershipController;
+import org.sonar.server.v2.api.membership.controller.GroupMembershipController;
 import org.sonar.server.v2.api.system.controller.DefaultLivenessController;
 import org.sonar.server.v2.api.system.controller.HealthController;
 import org.sonar.server.v2.api.system.controller.LivenessController;
@@ -81,8 +84,16 @@ public class PlatformLevel4WebConfig {
   }
 
   @Bean
-  public GroupController groupController(GroupService groupService, DbClient dbClient, ManagedInstanceChecker managedInstanceChecker, UserSession userSession) {
-    return new DefaultGroupController(groupService, dbClient, managedInstanceChecker, userSession);
+  public GroupController groupController(UserSession userSession, DbClient dbClient, GroupService groupService, ManagedInstanceChecker managedInstanceChecker) {
+    return new DefaultGroupController(userSession, dbClient, groupService, managedInstanceChecker);
   }
+
+
+  @Bean
+  public GroupMembershipController groupMembershipsController(UserSession userSession,
+    GroupMembershipService groupMembershipService, ManagedInstanceChecker managedInstanceChecker) {
+    return new DefaultGroupMembershipController(userSession, groupMembershipService, managedInstanceChecker);
+  }
+
 
 }

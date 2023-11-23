@@ -37,6 +37,8 @@ public class UserQuery {
   private final Long sonarLintLastConnectionDateFrom;
   private final Long sonarLintLastConnectionDateTo;
   private final String externalLogin;
+  private final String groupUuid;
+  private final String excludedGroupUuid;
   private final Set<String> userUuids;
 
   private UserQuery(UserQuery userQuery, Collection<String> userUuids) {
@@ -48,13 +50,15 @@ public class UserQuery {
     this.sonarLintLastConnectionDateTo = userQuery.getSonarLintLastConnectionDateTo();
     this.sonarLintLastConnectionDateFrom = userQuery.getSonarLintLastConnectionDateFrom();
     this.externalLogin = userQuery.externalLogin;
+    this.groupUuid = userQuery.groupUuid;
+    this.excludedGroupUuid = userQuery.excludedGroupUuid;
     this.userUuids = new HashSet<>(userUuids);
   }
 
   private UserQuery(@Nullable String searchText, @Nullable Boolean isActive, @Nullable String isManagedSqlClause,
     @Nullable OffsetDateTime lastConnectionDateFrom, @Nullable OffsetDateTime lastConnectionDateTo,
     @Nullable OffsetDateTime sonarLintLastConnectionDateFrom, @Nullable OffsetDateTime sonarLintLastConnectionDateTo, @Nullable String externalLogin,
-    @Nullable Set<String> userUuids) {
+    @Nullable String groupUuid, @Nullable String excludedGroupUuid, @Nullable Set<String> userUuids) {
     this.searchText = searchTextToSearchTextSql(searchText);
     this.isActive = isActive;
     this.isManagedSqlClause = isManagedSqlClause;
@@ -63,6 +67,8 @@ public class UserQuery {
     this.sonarLintLastConnectionDateFrom = parseDateToLong(sonarLintLastConnectionDateFrom);
     this.sonarLintLastConnectionDateTo = formatDateToInput(sonarLintLastConnectionDateTo);
     this.externalLogin = externalLogin;
+    this.groupUuid = groupUuid;
+    this.excludedGroupUuid = excludedGroupUuid;
     this.userUuids = userUuids;
   }
 
@@ -142,6 +148,16 @@ public class UserQuery {
     return userUuids;
   }
 
+  @CheckForNull
+  private String getGroupUuid() {
+    return groupUuid;
+  }
+
+  @CheckForNull
+  private String getExcludedGroupUuid() {
+    return excludedGroupUuid;
+  }
+
   public static UserQueryBuilder builder() {
     return new UserQueryBuilder();
   }
@@ -155,6 +171,8 @@ public class UserQuery {
     private OffsetDateTime sonarLintLastConnectionDateFrom = null;
     private OffsetDateTime sonarLintLastConnectionDateTo = null;
     private String externalLogin = null;
+    private String groupUuid = null;
+    private String excludedGroupUuid;
     private Set<String> userUuids = null;
 
     private UserQueryBuilder() {
@@ -200,6 +218,16 @@ public class UserQuery {
       return this;
     }
 
+    public UserQueryBuilder groupUuid(@Nullable String groupUuid) {
+      this.groupUuid = groupUuid;
+      return this;
+    }
+
+    public UserQueryBuilder excludedGroupUuid(@Nullable String excludedGroupUuid) {
+      this.excludedGroupUuid = excludedGroupUuid;
+      return this;
+    }
+
     public UserQueryBuilder userUuids(@Nullable Set<String> userUuids) {
       this.userUuids = userUuids;
       return this;
@@ -208,7 +236,7 @@ public class UserQuery {
     public UserQuery build() {
       return new UserQuery(
         searchText, isActive, isManagedSqlClause, lastConnectionDateFrom, lastConnectionDateTo,
-        sonarLintLastConnectionDateFrom, sonarLintLastConnectionDateTo, externalLogin, userUuids);
+        sonarLintLastConnectionDateFrom, sonarLintLastConnectionDateTo, externalLogin, groupUuid, excludedGroupUuid, userUuids);
     }
   }
 }

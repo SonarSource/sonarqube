@@ -19,6 +19,8 @@
  */
 package org.sonar.server.v2.api.user.request;
 
+import io.swagger.v3.oas.annotations.extensions.Extension;
+import io.swagger.v3.oas.annotations.extensions.ExtensionProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import javax.annotation.Nullable;
 
@@ -62,7 +64,12 @@ public record UsersSearchRestRequest(
   @Schema(description = "Filter users based on the SonarLint last connection date field. Only users that never connected or who interacted with this instance "
     + "using SonarLint at or before the date will be returned. The format must be ISO 8601 datetime format (YYYY-MM-DDThh:mm:ss±hhmm)",
     example = "2020-01-01T00:00:00+0100")
-  String sonarLintLastConnectionDateTo
+  String sonarLintLastConnectionDateTo,
+
+  @Nullable
+  @Schema(description = "Filter users belonging to group. Only available for system administrators. Using != operator will exclude users from this group.",
+    extensions = @Extension(properties = {@ExtensionProperty(name = "internal", value = "true")}))
+  String groupId
 
 ) {
 

@@ -163,6 +163,36 @@ public class UserServiceIT {
   }
 
   @Test
+  public void findUsers_whenFilteringByGroup_returnsCorrectUsers() {
+    GroupDto groupDto = db.users().insertGroup();
+    UserDto user3 = db.users().insertUser(u -> u.setLogin("user3"));
+    UserDto user2 = db.users().insertUser(u -> u.setLogin("user2"));
+    db.users().insertUser(u -> u.setLogin("user1"));
+
+    db.users().insertMember(groupDto, user3);
+    db.users().insertMember(groupDto, user2);
+
+    SearchResults<UserInformation> users = userService.findUsers(UsersSearchRequest.builder().setGroupUuid(groupDto.getUuid()).setPageSize(10).setPage(1).build());
+    assertThat(users.searchResults()).extracting(UserInformation::userDto).extracting(UserDto::getLogin)
+      .containsExactly(user2.getLogin(), user3.getLogin());
+  }
+
+  @Test
+  public void findUsers_whenGroupIsExcluded_returnsCorrectUsers() {
+    GroupDto groupDto = db.users().insertGroup();
+    UserDto user3 = db.users().insertUser(u -> u.setLogin("user3"));
+    UserDto user2 = db.users().insertUser(u -> u.setLogin("user2"));
+    UserDto user1 = db.users().insertUser(u -> u.setLogin("user1"));
+
+    db.users().insertMember(groupDto, user3);
+    db.users().insertMember(groupDto, user2);
+
+    SearchResults<UserInformation> users = userService.findUsers(UsersSearchRequest.builder().setExcludedGroupUuid(groupDto.getUuid()).setPageSize(10).setPage(1).build());
+    assertThat(users.searchResults()).extracting(UserInformation::userDto).extracting(UserDto::getLogin)
+      .containsOnly(user1.getLogin());
+  }
+
+  @Test
   public void return_avatar() {
     UserDto user = db.users().insertUser(u -> u.setEmail("john@doe.com"));
 
@@ -510,7 +540,7 @@ public class UserServiceIT {
     db.users().insertToken(user);
     db.commit();
 
-    userService.deactivate(user.getUuid(),false);
+    userService.deactivate(user.getUuid(), false);
 
     assertThat(db.getDbClient().userTokenDao().selectByUser(dbSession, user)).isEmpty();
   }

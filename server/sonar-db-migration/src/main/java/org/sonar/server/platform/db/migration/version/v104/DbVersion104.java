@@ -46,6 +46,10 @@ public class DbVersion104 implements DbVersion {
       .add(10_4_002, "Create table 'rules_tags'", CreateRuleTagsTable.class)
       .add(10_4_003, "Populate 'rule_tags' table", PopulateRuleTagsTable.class)
       .add(10_4_004, "Drop column 'tags' in the 'rules' table", DropTagsInRules.class)
-      .add(10_4_005, "Drop column 'system_tags' in the 'rules' table", DropSystemTagsInRules.class);
+      .add(10_4_005, "Drop column 'system_tags' in the 'rules' table", DropSystemTagsInRules.class)
+      .add(10_4_006, "Add 'uuid' column to 'groups_users'", AddUuidColumnToGroupsUsers.class)
+      .add(10_4_007, "Populate 'uuid' column in 'groups_users'", PopulateGroupsUsersUuid.class)
+      .add(10_4_008, "Make 'uuid' column in 'groups_users' table non-nullable", MakeUuidInGroupsUsersNotNullable.class)
+      .add(10_4_009, "Create primary key on 'groups_users.uuid'", CreatePrimaryKeyOnGroupsUsersTable.class);
   }
 }
