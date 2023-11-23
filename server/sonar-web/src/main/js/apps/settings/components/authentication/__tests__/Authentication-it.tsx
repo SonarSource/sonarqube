@@ -569,9 +569,7 @@ describe('Github tab', () => {
       renderAuthentication([Feature.GithubProvisioning]);
       await github.enableConfiguration(user);
 
-      expect(
-        await github.configurationValiditySuccess.find(undefined, { timeout: 10000 }),
-      ).toBeInTheDocument();
+      await waitFor(() => expect(github.configurationValiditySuccess.query()).toBeInTheDocument());
     });
 
     it('should display that config is valid for both provisioning with multiple orgs', async () => {
@@ -592,9 +590,7 @@ describe('Github tab', () => {
       renderAuthentication([Feature.GithubProvisioning]);
       await github.enableConfiguration(user);
 
-      expect(
-        await github.configurationValiditySuccess.find(undefined, { timeout: 10000 }),
-      ).toBeInTheDocument();
+      await waitFor(() => expect(github.configurationValiditySuccess.query()).toBeInTheDocument());
       expect(github.configurationValiditySuccess.get()).toHaveTextContent('2');
 
       await act(() => user.click(github.viewConfigValidityDetailsButton.get()));
@@ -630,9 +626,7 @@ describe('Github tab', () => {
       renderAuthentication([Feature.GithubProvisioning]);
       await github.enableConfiguration(user);
 
-      expect(
-        await github.configurationValidityWarning.find(undefined, { timeout: 10000 }),
-      ).toBeInTheDocument();
+      await waitFor(() => expect(github.configurationValidityWarning.get()).toBeInTheDocument());
       expect(github.configurationValidityWarning.get()).toHaveTextContent(errorMessage);
 
       await act(() => user.click(github.viewConfigValidityDetailsButton.get()));
@@ -666,9 +660,7 @@ describe('Github tab', () => {
       renderAuthentication([Feature.GithubProvisioning]);
       await github.enableConfiguration(user);
 
-      expect(
-        await github.configurationValiditySuccess.find(undefined, { timeout: 10000 }),
-      ).toBeInTheDocument();
+      await waitFor(() => expect(github.configurationValiditySuccess.get()).toBeInTheDocument());
       expect(github.configurationValiditySuccess.get()).toHaveTextContent('1');
 
       await act(() => user.click(github.viewConfigValidityDetailsButton.get()));
@@ -700,9 +692,7 @@ describe('Github tab', () => {
       renderAuthentication([Feature.GithubProvisioning]);
       await github.enableConfiguration(user);
 
-      expect(
-        await github.configurationValidityError.find(undefined, { timeout: 10000 }),
-      ).toBeInTheDocument();
+      await waitFor(() => expect(github.configurationValidityError.query()).toBeInTheDocument());
       expect(github.configurationValidityError.get()).toHaveTextContent(errorMessage);
 
       await act(() => user.click(github.viewConfigValidityDetailsButton.get()));
@@ -728,9 +718,7 @@ describe('Github tab', () => {
       renderAuthentication([Feature.GithubProvisioning]);
       await github.enableConfiguration(user);
 
-      expect(
-        await github.configurationValiditySuccess.find(undefined, { timeout: 10000 }),
-      ).toBeInTheDocument();
+      await waitFor(() => expect(github.configurationValiditySuccess.query()).toBeInTheDocument());
       expect(github.configurationValiditySuccess.get()).not.toHaveTextContent(errorMessage);
 
       await act(() => user.click(github.viewConfigValidityDetailsButton.get()));
@@ -771,9 +759,7 @@ describe('Github tab', () => {
       renderAuthentication([Feature.GithubProvisioning]);
       await github.enableConfiguration(user);
 
-      expect(
-        await github.configurationValiditySuccess.find(undefined, { timeout: 10000 }),
-      ).toBeInTheDocument();
+      await waitFor(() => expect(github.configurationValiditySuccess.query()).toBeInTheDocument());
 
       await act(() => user.click(github.viewConfigValidityDetailsButton.get()));
 
@@ -827,9 +813,7 @@ describe('Github tab', () => {
         },
       });
 
-      expect(
-        await github.configurationValidityError.find(undefined, { timeout: 10000 }),
-      ).toBeInTheDocument();
+      expect(await github.configurationValidityError.find()).toBeInTheDocument();
 
       await act(() => user.click(github.checkConfigButton.get()));
 

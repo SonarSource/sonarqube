@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { screen, waitFor } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
 import AlmSettingsServiceMock from '../../../../../api/mocks/AlmSettingsServiceMock';
@@ -169,16 +169,9 @@ it('should show the correct help tooltip when branch support is not enabled', as
     },
     [],
   );
-
-  await waitFor(
-    async () => {
-      expect(
-        await screen.findByText('branch_like_navigation.no_branch_support.title.mr'),
-      ).toBeInTheDocument();
-    },
-    { timeout: 10000 },
-  );
-
+  expect(
+    await screen.findByText('branch_like_navigation.no_branch_support.title.mr'),
+  ).toBeInTheDocument();
   expect(
     screen.getByText('branch_like_navigation.no_branch_support.content_x.mr.alm.gitlab'),
   ).toBeInTheDocument();

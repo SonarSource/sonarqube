@@ -103,14 +103,8 @@ describe('in non managed mode', () => {
   it('should render all groups', async () => {
     renderGroupsApp();
 
-    await waitFor(
-      async () => {
-        expect(await ui.localGroupRow.find()).toBeInTheDocument();
-      },
-      { timeout: 10000 },
-    );
-
-    expect(await ui.managedGroupRow.find()).toBeInTheDocument();
+    await act(async () => expect(await ui.localGroupRow.find()).toBeInTheDocument());
+    expect(ui.managedGroupRow.get()).toBeInTheDocument();
     expect(ui.localGroupRowWithLocalBadge.query()).not.toBeInTheDocument();
   });
 
@@ -149,13 +143,7 @@ describe('in non managed mode', () => {
     });
 
     expect(await ui.managedGroupRow.find()).toBeInTheDocument();
-
-    await waitFor(
-      async () => {
-        expect(await ui.localGroupRow.query()).not.toBeInTheDocument();
-      },
-      { timeout: 10000 },
-    );
+    expect(ui.localGroupRow.query()).not.toBeInTheDocument();
   });
 
   it('should be able to edit a group', async () => {
@@ -190,13 +178,7 @@ describe('in non managed mode', () => {
     const user = userEvent.setup();
     renderGroupsApp();
 
-    await waitFor(
-      async () => {
-        expect(await ui.localGroupRow.find()).toBeInTheDocument();
-      },
-      { timeout: 10000 },
-    );
-
+    await act(async () => expect(await ui.localGroupRow.find()).toBeInTheDocument());
     expect(await ui.localGroupEditMembersButton.find()).toBeInTheDocument();
 
     await act(async () => {
@@ -231,19 +213,8 @@ describe('in non managed mode', () => {
     const user = userEvent.setup();
     renderGroupsApp();
 
-    await waitFor(
-      async () => {
-        expect(await ui.localGroupRow.find()).toBeInTheDocument();
-      },
-      { timeout: 10000 },
-    );
-
-    await waitFor(
-      async () => {
-        expect(await ui.managedGroupRow.find()).toBeInTheDocument();
-      },
-      { timeout: 10000 },
-    );
+    await act(async () => expect(await ui.localGroupRow.find()).toBeInTheDocument());
+    expect(ui.managedGroupRow.get()).toBeInTheDocument();
 
     await act(async () => {
       await user.type(await ui.searchInput.find(), 'local');
@@ -257,22 +228,14 @@ describe('in non managed mode', () => {
     const user = userEvent.setup();
     renderGroupsApp();
 
-    await waitFor(
-      async () => {
-        expect(await ui.localGroupRow.find()).toBeInTheDocument();
-      },
-      { timeout: 10000 },
-    );
-
+    await act(async () => expect(await ui.localGroupRow.find()).toBeInTheDocument());
     expect(await screen.findAllByRole('row')).toHaveLength(3);
 
     await act(async () => {
       await user.click(await ui.showMore.find());
     });
 
-    await waitFor(async () => {
-      expect(await screen.findAllByRole('row')).toHaveLength(5);
-    });
+    expect(await screen.findAllByRole('row')).toHaveLength(5);
   });
 });
 

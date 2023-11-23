@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { act, waitFor } from '@testing-library/react';
+import { act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
 import { Route } from 'react-router-dom';
@@ -84,26 +84,13 @@ describe('Global NCD update notification banner', () => {
   it('renders global banner if user is global admin', async () => {
     newCodeDefinitionMock.setNewCodePeriod(previouslyNonCompliantNewCodeDefinition);
     renderGlobalMessage();
-
-    await waitFor(
-      async () => {
-        expect(await ui.globalBannerContent.find()).toBeVisible();
-      },
-      { timeout: 10000 },
-    );
+    expect(await ui.globalBannerContent.find()).toBeVisible();
   });
 
   it('dismisses global banner', async () => {
     newCodeDefinitionMock.setNewCodePeriod(previouslyNonCompliantNewCodeDefinition);
     renderGlobalMessage();
-
-    await waitFor(
-      async () => {
-        expect(await ui.globalBannerContent.find()).toBeVisible();
-      },
-      { timeout: 10000 },
-    );
-
+    expect(await ui.globalBannerContent.find()).toBeVisible();
     const user = userEvent.setup();
     await act(async () => {
       await user.click(ui.dismissButton.get());
@@ -130,14 +117,7 @@ describe('Global NCD update notification banner', () => {
   it('clicking on review link redirects to global NCD admin page', async () => {
     newCodeDefinitionMock.setNewCodePeriod(previouslyNonCompliantNewCodeDefinition);
     renderGlobalMessage();
-
-    await waitFor(
-      async () => {
-        expect(await ui.globalBannerContent.find()).toBeVisible();
-      },
-      { timeout: 10000 },
-    );
-
+    expect(await ui.globalBannerContent.find()).toBeVisible();
     const user = userEvent.setup();
     await act(async () => {
       await user.click(ui.reviewLink.get());
@@ -201,26 +181,13 @@ describe('Project NCD update notification banner', () => {
   it('renders project banner if user is project admin', async () => {
     newCodeDefinitionMock.setNewCodePeriod(previouslyNonCompliantNewCodeDefinition);
     renderProjectMessage(component);
-
-    await waitFor(
-      async () => {
-        expect(await ui.projectBannerContent.find()).toBeVisible();
-      },
-      { timeout: 10000 },
-    );
+    expect(await ui.projectBannerContent.find()).toBeVisible();
   });
 
   it('dismisses project banner', async () => {
     newCodeDefinitionMock.setNewCodePeriod(previouslyNonCompliantNewCodeDefinition);
     renderProjectMessage(component);
-
-    await waitFor(
-      async () => {
-        expect(await ui.projectBannerContent.find()).toBeVisible();
-      },
-      { timeout: 10000 },
-    );
-
+    expect(await ui.projectBannerContent.find()).toBeVisible();
     const user = userEvent.setup();
     await act(async () => {
       await user.click(ui.dismissButton.get());
@@ -247,16 +214,8 @@ describe('Project NCD update notification banner', () => {
 
   it('clicking on review link redirects to project NCD admin page', async () => {
     newCodeDefinitionMock.setNewCodePeriod(previouslyNonCompliantNewCodeDefinition);
-
     renderProjectMessage(component);
-
-    await waitFor(
-      async () => {
-        expect(await ui.projectBannerContent.find()).toBeVisible();
-      },
-      { timeout: 10000 },
-    );
-
+    expect(await ui.projectBannerContent.find()).toBeVisible();
     const user = userEvent.setup();
     await act(async () => {
       await user.click(ui.reviewLink.get());
