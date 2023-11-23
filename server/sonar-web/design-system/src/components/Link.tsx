@@ -93,7 +93,7 @@ function BaseLinkWithRef(props: LinkProps, ref: React.ForwardedRef<HTMLAnchorEle
       >
         {icon}
         {children}
-        {showExternalIcon && <OpenNewTabIcon className="sw-ml-1" />}
+        {showExternalIcon && <ExternalIcon className="sw-ml-1" />}
       </a>
     );
   }
@@ -105,6 +105,10 @@ function BaseLinkWithRef(props: LinkProps, ref: React.ForwardedRef<HTMLAnchorEle
     </RouterLink>
   );
 }
+
+const ExternalIcon = styled(OpenNewTabIcon)`
+  color: ${themeColor('linkExternalIcon')};
+`;
 
 export const BaseLink = React.forwardRef(BaseLinkWithRef);
 
@@ -123,6 +127,10 @@ const StyledBaseLink = styled(BaseLink)`
     color: var(--active);
     border-bottom: ${({ children, icon, theme }) =>
       icon && !children ? themeBorder('default', 'transparent')({ theme }) : 'var(--borderActive)'};
+
+    ${ExternalIcon} {
+      color: ${themeColor('linkExternalIconActive')};
+    }
   }
 
   & > svg {

@@ -335,6 +335,8 @@ export const lightTheme = {
     linkTooltipDefault: COLORS.indigo[200],
     linkTooltipActive: COLORS.indigo[100],
     linkBorder: COLORS.indigo[300],
+    linkExternalIcon: COLORS.indigo[300],
+    linkExternalIconActive: COLORS.indigo[400],
     contentLinkBorder: COLORS.blueGrey[200],
 
     // discreet select
