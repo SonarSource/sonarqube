@@ -174,10 +174,12 @@ export default class BitbucketProjectCreate extends React.PureComponent<Props, S
     router.replace(location);
   };
 
-  handlePersonalAccessTokenCreated = async () => {
-    this.setState({ showPersonalAccessTokenForm: false });
+  handlePersonalAccessTokenCreated = () => {
     this.cleanUrl();
-    await this.fetchInitialData();
+
+    this.setState({ showPersonalAccessTokenForm: false }, () => {
+      this.fetchInitialData();
+    });
   };
 
   handleImportRepository = (selectedRepository: BitbucketRepository) => {

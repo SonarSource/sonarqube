@@ -185,10 +185,11 @@ export default class GitlabProjectCreate extends React.PureComponent<Props, Stat
     router.replace(location);
   };
 
-  handlePersonalAccessTokenCreated = async () => {
-    this.setState({ showPersonalAccessTokenForm: false, resetPat: false });
+  handlePersonalAccessTokenCreated = () => {
     this.cleanUrl();
-    await this.fetchInitialData();
+    this.setState({ showPersonalAccessTokenForm: false, resetPat: false }, () => {
+      this.fetchInitialData();
+    });
   };
 
   onSelectedAlmInstanceChange = (instance: AlmSettingsInstance) => {

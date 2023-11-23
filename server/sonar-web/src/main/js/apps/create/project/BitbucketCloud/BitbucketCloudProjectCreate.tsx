@@ -84,12 +84,16 @@ export default class BitbucketCloudProjectCreate extends React.PureComponent<Pro
     }
   }
 
-  handlePersonalAccessTokenCreated = async () => {
-    this.setState({ showPersonalAccessTokenForm: false });
+  handlePersonalAccessTokenCreated = () => {
     this.cleanUrl();
-    this.setState({ loading: true });
-    await this.fetchData();
-    this.setState({ loading: false });
+
+    this.setState({ loading: true, showPersonalAccessTokenForm: false }, () => {
+      this.fetchData()
+        .then(() => this.setState({ loading: false }))
+        .catch(() => {
+          /* noop */
+        });
+    });
   };
 
   cleanUrl = () => {

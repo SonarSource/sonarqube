@@ -223,10 +223,12 @@ export default class AzureProjectCreate extends React.PureComponent<Props, State
     }
   };
 
-  handlePersonalAccessTokenCreate = async () => {
-    this.setState({ showPersonalAccessTokenForm: false });
+  handlePersonalAccessTokenCreate = () => {
     this.cleanUrl();
-    await this.fetchData();
+
+    this.setState({ showPersonalAccessTokenForm: false }, () => {
+      this.fetchData();
+    });
   };
 
   onSelectedAlmInstanceChange = (instance: AlmSettingsInstance) => {

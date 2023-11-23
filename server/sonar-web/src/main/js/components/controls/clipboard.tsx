@@ -22,8 +22,8 @@ import Clipboard from 'clipboard';
 import * as React from 'react';
 import { translate } from '../../helpers/l10n';
 import CopyIcon from '../icons/CopyIcon';
-import { Button, ButtonIcon } from './buttons';
 import Tooltip from './Tooltip';
+import { Button, ButtonIcon } from './buttons';
 
 export interface State {
   copySuccess: boolean;
@@ -75,15 +75,16 @@ export class ClipboardBase extends React.PureComponent<Props, State> {
 
   handleSuccessCopy = () => {
     if (this.mounted) {
-      this.setState({ copySuccess: true });
-      if (this.copyButton) {
-        this.copyButton.focus();
-      }
-      setTimeout(() => {
-        if (this.mounted) {
-          this.setState({ copySuccess: false });
+      this.setState({ copySuccess: true }, () => {
+        if (this.copyButton) {
+          this.copyButton.focus();
         }
-      }, 1000);
+        setTimeout(() => {
+          if (this.mounted) {
+            this.setState({ copySuccess: false });
+          }
+        }, 1000);
+      });
     }
   };
 
