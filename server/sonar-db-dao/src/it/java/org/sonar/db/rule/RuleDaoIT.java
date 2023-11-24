@@ -66,6 +66,7 @@ import static org.sonar.api.issue.impact.SoftwareQuality.SECURITY;
 import static org.sonar.api.rule.RuleStatus.*;
 import static org.sonar.api.rule.RuleStatus.DEPRECATED;
 import static org.sonar.api.rule.RuleStatus.REMOVED;
+import static org.sonar.db.Pagination.forPage;
 
 public class RuleDaoIT {
   private static final String UNKNOWN_RULE_UUID = "unknown-uuid";
@@ -493,12 +494,14 @@ public class RuleDaoIT {
       .setDefRemediationBaseEffort("10h")
       .setGapDescription("java.S115.effortToFix")
       .setSystemTags(newHashSet("systag1", "systag2"))
+      .setTags(newHashSet("tag1", "tag2"))
       .setSecurityStandards(newHashSet("owaspTop10:a1", "cwe:123"))
       .setType(RuleType.BUG)
       .setCleanCodeAttribute(CleanCodeAttribute.CLEAR)
       .setScope(Scope.ALL)
       .setCreatedAt(1_500_000_000_000L)
       .setUpdatedAt(2_000_000_000_000L);
+
     underTest.insert(db.getSession(), newRule);
     db.getSession().commit();
 
@@ -1061,20 +1064,6 @@ public class RuleDaoIT {
   }
 
   @Test
-  public void scrollIndexingRuleExtensionsByIds() {
-    Accumulator<RuleExtensionForIndexingDto> accumulator = new Accumulator<>();
-    RuleDto r1 = db.rules().insert(ruleDto -> ruleDto.setTagsField("t1,t2"));
-    db.rules().insert(ruleDto -> ruleDto.setTagsField("t1,t3"));
-
-    underTest.scrollIndexingRuleExtensionsByIds(db.getSession(), singletonList(r1.getUuid()), accumulator);
-
-    assertThat(accumulator.list)
-      .extracting(RuleExtensionForIndexingDto::getRuleUuid, RuleExtensionForIndexingDto::getRuleKey, RuleExtensionForIndexingDto::getTags)
-      .containsExactlyInAnyOrder(
-        tuple(r1.getUuid(), r1.getKey(), r1.getTagsAsString()));
-  }
-
-  @Test
   public void selectAllDeprecatedRuleKeys() {
     RuleDto r1 = db.rules().insert();
     RuleDto r2 = db.rules().insert();
@@ -1145,6 +1134,27 @@ public class RuleDaoIT {
     underTest.deleteDeprecatedRuleKeys(db.getSession(), asList("B1", "B2"));
 
     assertThat(underTest.selectAllDeprecatedRuleKeys(db.getSession())).hasSize(2);
+  }
+
+  @Test
+  public void selectTags_shouldReturnSortedAndDistinct() {
+    db.rules().insert(ruleDto -> ruleDto.setSystemTags(newHashSet("s1", "s2")).setTags(newHashSet("t1", "t2", "t3")));
+    db.rules().insert(ruleDto -> ruleDto.setSystemTags(newHashSet("s3", "s4", "s5")).setTags(newHashSet("t3", "t4")));
+
+    db.getSession().commit();
+
+    assertThat(underTest.selectTags(db.getSession(), null, forPage(1).andSize(10)))
+      .containsExactly("s1", "s2", "s3", "s4", "s5", "t1", "t2", "t3", "t4");
+  }
+
+  @Test
+  public void selectTags_whenQueryPresent_shouldReturnFilteredList() {
+    db.rules().insert(ruleDto -> ruleDto.setSystemTags(newHashSet("foo_1", "bar_2")).setTags(newHashSet("foo_3", "bar_4")));
+    db.rules().insert(ruleDto -> ruleDto.setSystemTags(newHashSet("ping_5", "pong_6")).setTags(newHashSet("ping_7", "pong_8")));
+
+    db.getSession().commit();
+
+    assertThat(underTest.selectTags(db.getSession(), "foo", forPage(1).andSize(10))).containsExactly("foo_1", "foo_3");
   }
 
   @Test

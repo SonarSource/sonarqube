@@ -99,6 +99,7 @@ public final class SqTables {
     "report_subscriptions",
     "rules",
     "rule_desc_sections",
+    "rule_tags",
     "rules_default_impacts",
     "rules_parameters",
     "rules_profiles",

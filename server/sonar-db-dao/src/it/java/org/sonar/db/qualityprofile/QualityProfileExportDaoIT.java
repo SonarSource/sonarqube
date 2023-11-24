@@ -98,7 +98,7 @@ public class QualityProfileExportDaoIT {
     assertThat(exportCustomRuleDto.getName()).isEqualTo(customRule.getName());
     assertThat(exportCustomRuleDto.getRuleKey()).isEqualTo(customRule.getKey());
     assertThat(exportCustomRuleDto.getRuleType()).isEqualTo(RuleType.valueOf(customRule.getType()));
-    assertThat(exportCustomRuleDto.getTags()).isEqualTo(String.join(",", customRule.getTags()));
+    assertThat(exportCustomRuleDto.getTags()).isEqualTo(customRule.getTags());
     assertThat(exportCustomRuleDto.getTemplateRuleKey()).isEqualTo(ruleTemplate.getKey());
 
     ActiveRuleDto activeCustomRule = activeRules.stream().filter(activeRuleDto -> activeRuleDto.getRuleKey().equals(customRule.getKey())).findFirst().get();

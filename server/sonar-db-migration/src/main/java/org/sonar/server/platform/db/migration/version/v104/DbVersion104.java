@@ -42,6 +42,10 @@ public class DbVersion104 implements DbVersion {
   public void addSteps(MigrationStepRegistry registry) {
     registry
       .add(10_4_000, "Delete redundant Failed Alerts for Applications", DeleteRedundantFailedAlertsForApplications.class)
-      .add(10_4_001, "Rename metric 'wont_fix_issues' to 'accepted_issues'", RenameWontFixIssuesMetric.class);
+      .add(10_4_001, "Rename metric 'wont_fix_issues' to 'accepted_issues'", RenameWontFixIssuesMetric.class)
+      .add(10_4_002, "Create table 'rules_tags'", CreateRuleTagsTable.class)
+      .add(10_4_003, "Populate 'rule_tags' table", PopulateRuleTagsTable.class)
+      .add(10_4_004, "Drop column 'tags' in the 'rules' table", DropTagsInRules.class)
+      .add(10_4_005, "Drop column 'system_tags' in the 'rules' table", DropSystemTagsInRules.class);
   }
 }

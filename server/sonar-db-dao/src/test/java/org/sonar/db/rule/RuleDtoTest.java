@@ -45,59 +45,58 @@ public class RuleDtoTest {
   private static final String SECTION_KEY = "section key";
 
   @Test
-  public void fail_if_key_is_too_long() {
+  public void setRuleKey_whenTooLong_shouldFail() {
     assertThatThrownBy(() -> new RuleDto().setRuleKey(repeat("x", 250)))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessageContaining("Rule key is too long: ");
   }
 
   @Test
-  public void fail_if_name_is_too_long() {
+  public void setName_whenTooLong_shouldFail() {
     assertThatThrownBy(() -> new RuleDto().setName(repeat("x", 300)))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessageContaining("Rule name is too long: ");
   }
 
   @Test
-  public void fail_if_tags_are_too_long() {
+  public void setTags_whenTooLong_shouldFail() {
     assertThatThrownBy(() -> {
-      Set<String> tags = ImmutableSet.of(repeat("a", 2000), repeat("b", 1000), repeat("c", 2000));
+      Set<String> tags = ImmutableSet.of(repeat("a", 25), repeat("b", 20), repeat("c", 41));
       new RuleDto().setTags(tags);
     })
       .isInstanceOf(IllegalArgumentException.class)
-      .hasMessageContaining("Rule tags are too long: ");
+      .hasMessageContaining("Rule tag is too long: ccccccccccccccccccccccccccccccccccccccccc");
   }
 
   @Test
-  public void tags_are_optional() {
+  public void setTags_shouldBeOptional() {
     RuleDto dto = new RuleDto().setTags(Collections.emptySet());
     assertThat(dto.getTags()).isEmpty();
   }
 
   @Test
-  public void tags_are_joined_with_comma() {
+  public void setTags_shouldBeSet() {
     Set<String> tags = new TreeSet<>(Set.of("first_tag", "second_tag", "third_tag"));
     RuleDto dto = new RuleDto().setTags(tags);
     assertThat(dto.getTags()).isEqualTo(tags);
-    assertThat(dto.getTagsAsString()).isEqualTo("first_tag,second_tag,third_tag");
   }
 
   @Test
-  public void system_tags_are_joined_with_comma() {
+  public void setSystemTags_shouldBeSet() {
     Set<String> systemTags = new TreeSet<>(Set.of("first_tag", "second_tag", "third_tag"));
     RuleDto dto = new RuleDto().setSystemTags(systemTags);
     assertThat(dto.getSystemTags()).isEqualTo(systemTags);
   }
 
   @Test
-  public void security_standards_are_joined_with_comma() {
+  public void setSecurityStandards_shouldBeJoinedByCommas() {
     Set<String> securityStandards = new TreeSet<>(Set.of("first_tag", "second_tag", "third_tag"));
     RuleDto dto = new RuleDto().setSecurityStandards(securityStandards);
     assertThat(dto.getSecurityStandards()).isEqualTo(securityStandards);
   }
 
   @Test
-  public void equals_is_based_on_uuid() {
+  public void equals_shouldBeBasedOnUuid() {
     String uuid = Uuids.createFast();
     RuleDto dto = newRule().setUuid(uuid);
 
@@ -112,7 +111,7 @@ public class RuleDtoTest {
   }
 
   @Test
-  public void hashcode_is_based_on_uuid() {
+  public void hashcode_shouldBeBasedOnUuid() {
     String uuid = Uuids.createFast();
     RuleDto dto = newRule().setUuid(uuid);
 
@@ -127,7 +126,7 @@ public class RuleDtoTest {
   }
 
   @Test
-  public void add_rule_description_section_same_key_should_throw_error() {
+  public void addRuleDescriptionSectionDto_whenSameKey_shouldThrowError() {
     RuleDto dto = new RuleDto();
 
     RuleDescriptionSectionDto section1 = createSection(SECTION_KEY);
@@ -140,7 +139,7 @@ public class RuleDtoTest {
   }
 
   @Test
-  public void add_rule_description_section_with_different_context() {
+  public void addRuleDescriptionSectionDto_whenDifferentContext() {
     RuleDto dto = new RuleDto();
 
     RuleDescriptionSectionDto section1 = createSection(RuleDtoTest.SECTION_KEY, "context key 1", "context display Name 1");
@@ -156,7 +155,7 @@ public class RuleDtoTest {
   }
 
   @Test
-  public void add_rule_description_section_with_same_section_and_context_should_throw_error() {
+  public void addRuleDescriptionSectionDto_whenSameSectionAndContext_shouldThrowError() {
     RuleDto dto = new RuleDto();
     String contextKey = randomAlphanumeric(50);
     String displayName = randomAlphanumeric(50);

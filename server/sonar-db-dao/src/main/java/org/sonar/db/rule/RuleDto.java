@@ -26,11 +26,9 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.TreeSet;
 import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.RuleKey;
@@ -41,7 +39,6 @@ import org.sonar.db.issue.ImpactDto;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
-import static java.util.Arrays.asList;
 import static java.util.Collections.emptySet;
 import static java.util.Optional.ofNullable;
 import static org.sonar.db.rule.RuleDescriptionSectionDto.DEFAULT_KEY;
@@ -103,7 +100,8 @@ public class RuleDto {
   private String defRemediationGapMultiplier = null;
   private String defRemediationBaseEffort = null;
   private String gapDescription = null;
-  private String systemTagsField = null;
+  private Set<String> systemTags = new HashSet<>();
+  private Set<String> tags = new HashSet<>();
   private String securityStandardsField = null;
   private int type = 0;
   private CleanCodeAttribute cleanCodeAttribute = null;
@@ -119,7 +117,6 @@ public class RuleDto {
   private String remediationFunction = null;
   private String remediationGapMultiplier = null;
   private String remediationBaseEffort = null;
-  private String tags = null;
 
   /**
    * Name of on ad hoc rule.
@@ -396,7 +393,7 @@ public class RuleDto {
   }
 
   public RuleDto setSystemTags(Set<String> tags) {
-    this.systemTagsField = serializeStringSet(tags);
+    this.systemTags = tags;
     return this;
   }
 
@@ -406,7 +403,7 @@ public class RuleDto {
   }
 
   public Set<String> getSystemTags() {
-    return deserializeTagsString(systemTagsField);
+    return systemTags;
   }
 
   public Set<String> getSecurityStandards() {
@@ -586,26 +583,13 @@ public class RuleDto {
   }
 
   public Set<String> getTags() {
-    return tags == null ? new HashSet<>() : new TreeSet<>(asList(StringUtils.split(tags, ',')));
-  }
-
-  String getTagsAsString() {
     return tags;
   }
 
   public RuleDto setTags(Set<String> tags) {
-    String raw = tags.isEmpty() ? null : String.join(",", tags);
-    checkArgument(raw == null || raw.length() <= 4000, "Rule tags are too long: %s", raw);
-    this.tags = raw;
+    tags.forEach(tag -> checkArgument(tag.length() <= 40, "Rule tag is too long: %s", tag));
+    this.tags = tags;
     return this;
-  }
-
-  private String getTagsField() {
-    return tags;
-  }
-
-  void setTagsField(String s) {
-    tags = s;
   }
 
   @CheckForNull

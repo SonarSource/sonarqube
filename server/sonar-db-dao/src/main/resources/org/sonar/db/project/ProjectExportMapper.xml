@@ -76,9 +76,12 @@
         rdi.uuid as "rdi_uuid",
         rdi.rule_uuid as "rdi_ruleUuid",
         rdi.software_quality as "rdi_softwareQuality",
-        rdi.severity as "rdi_severity"
+        rdi.severity as "rdi_severity",
+        CASE WHEN rt.is_system_tag = ${_true} THEN rt.value ELSE NULL END as rt_systemTags,
+        CASE WHEN rt.is_system_tag = ${_false} THEN rt.value ELSE NULL END as rt_tags
     from
       rules r
+      left outer join rule_tags rt on rt.rule_uuid = r.uuid
       left outer join rules_default_impacts rdi on rdi.rule_uuid = r.uuid
       where
         r.status != 'REMOVED' and r.is_ad_hoc = ${_true}

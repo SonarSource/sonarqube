@@ -20,7 +20,6 @@
     r.def_remediation_gap_mult as "defRemediationGapMultiplier",
     r.def_remediation_base_effort as "defRemediationBaseEffort",
     r.gap_description as "gapDescription",
-    r.system_tags as "systemTagsField",
     r.security_standards as "securityStandardsField",
     r.rule_type as "type",
     r.plugin_key as "pluginKey",
@@ -34,7 +33,6 @@
     r.remediation_function as "remediationFunction",
     r.remediation_gap_mult as "remediationGapMultiplier",
     r.remediation_base_effort as "remediationBaseEffort",
-    r.tags as "tagsField",
     r.ad_hoc_name as "adHocName",
     r.ad_hoc_description as "adHocDescription",
     r.ad_hoc_severity as "adHocSeverity",
@@ -53,12 +51,22 @@
       rdi.rule_uuid = r.uuid
   </sql>
 
+  <sql id="leftOuterJoinRulesTags">
+    left outer join rule_tags rt on
+      rt.rule_uuid = r.uuid
+  </sql>
+
   <sql id="selectJoinedTablesColumns">
     <!-- rule default impacts -->
     rdi.uuid as "rdi_uuid",
     rdi.rule_uuid as "rdi_ruleUuid",
     rdi.software_quality as "rdi_softwareQuality",
     rdi.severity as "rdi_severity",
+    <!-- rule tags -->
+    CASE WHEN rt.is_system_tag = ${_true} THEN rt.value ELSE NULL END as rt_systemTags,
+    CASE WHEN rt.is_system_tag = ${_false} THEN rt.value ELSE NULL END as rt_tags,
+    rt.is_system_tag as "rt_isSystemTag",
+    rt.value as "rt_value",
     <!-- rule description sections -->
     rds.content as "rds_content",
     rds.uuid as "rds_uuid",
@@ -77,6 +85,7 @@
       rules r
     <include refid="leftOuterJoinRulesDescriptionSections"/>
     <include refid="leftOuterJoinRulesDefaultImpacts"/>
+    <include refid="leftOuterJoinRulesTags"/>
     order by r.uuid
   </select>
 
@@ -99,6 +108,12 @@
      <result property="softwareQuality" column="rdi_softwareQuality"/>
      <result property="severity" column="rdi_severity"/>
     </collection>
+    <collection property="systemTags" column="rt_systemTags" notNullColumn="rt_systemTags" javaType="java.util.Set" ofType="string">
+     <result column="rt_systemTags"/>
+    </collection>
+    <collection property="tags" column="rt_tags" notNullColumn="rt_tags" javaType="java.util.Set" ofType="string">
+     <result column="rt_tags"/>
+    </collection>
   </resultMap>
 
   <select id="selectEnabled" resultMap="ruleResultMap">
@@ -108,6 +123,7 @@
       rules r
     <include refid="leftOuterJoinRulesDescriptionSections"/>
     <include refid="leftOuterJoinRulesDefaultImpacts"/>
+    <include refid="leftOuterJoinRulesTags"/>
     where
       r.status != 'REMOVED'
     order by r.uuid
@@ -120,6 +136,7 @@
       rules r
     <include refid="leftOuterJoinRulesDescriptionSections"/>
     <include refid="leftOuterJoinRulesDefaultImpacts"/>
+    <include refid="leftOuterJoinRulesTags"/>
     where
       r.uuid=#{uuid,jdbcType=VARCHAR}
     order by r.uuid
@@ -132,6 +149,7 @@
       rules r
     <include refid="leftOuterJoinRulesDescriptionSections"/>
     <include refid="leftOuterJoinRulesDefaultImpacts"/>
+    <include refid="leftOuterJoinRulesTags"/>
     where
       <foreach collection="uuids" index="index" item="uuid" open="" separator=" or " close="">
         r.uuid=#{uuid,jdbcType=VARCHAR}
@@ -146,6 +164,7 @@
       rules r
     <include refid="leftOuterJoinRulesDescriptionSections"/>
     <include refid="leftOuterJoinRulesDefaultImpacts"/>
+    <include refid="leftOuterJoinRulesTags"/>
     where
       r.plugin_name=#{ruleKey.repository,jdbcType=VARCHAR}
       and r.plugin_rule_key=#{ruleKey.rule,jdbcType=VARCHAR}
@@ -190,6 +209,7 @@
       rules r
     <include refid="leftOuterJoinRulesDescriptionSections"/>
     <include refid="leftOuterJoinRulesDefaultImpacts"/>
+    <include refid="leftOuterJoinRulesTags"/>
     where
       <foreach collection="ruleKeys" index="index" item="ruleKey" open="" separator=" or " close="">
         (r.plugin_name=#{ruleKey.repository,jdbcType=VARCHAR} and r.plugin_rule_key=#{ruleKey.rule,jdbcType=VARCHAR})
@@ -204,6 +224,7 @@
       rules r
     <include refid="leftOuterJoinRulesDescriptionSections"/>
     <include refid="leftOuterJoinRulesDefaultImpacts"/>
+    <include refid="leftOuterJoinRulesTags"/>
     where
       r.status != 'REMOVED'
       <if test="query.repositoryKey!=null">
@@ -227,6 +248,7 @@
     rules r
     <include refid="leftOuterJoinRulesDescriptionSections"/>
     <include refid="leftOuterJoinRulesDefaultImpacts"/>
+    <include refid="leftOuterJoinRulesTags"/>
     where
       r.status != 'REMOVED' and r.is_external=${_false} and r.is_template=${_false}
       and r.rule_type in
@@ -300,7 +322,6 @@
       def_remediation_gap_mult,
       def_remediation_base_effort,
       gap_description,
-      system_tags,
       security_standards,
       rule_type,
       scope,
@@ -311,7 +332,6 @@
       remediation_function,
       remediation_gap_mult,
       remediation_base_effort,
-      tags,
       ad_hoc_name,
       ad_hoc_description,
       ad_hoc_severity,
@@ -340,7 +360,6 @@
       #{defRemediationGapMultiplier,jdbcType=VARCHAR},
       #{defRemediationBaseEffort,jdbcType=VARCHAR},
       #{gapDescription,jdbcType=VARCHAR},
-      #{systemTagsField,jdbcType=VARCHAR},
       #{securityStandardsField,jdbcType=VARCHAR},
       #{type,jdbcType=TINYINT},
       #{scope,jdbcType=VARCHAR},
@@ -351,7 +370,6 @@
       #{remediationFunction,jdbcType=VARCHAR},
       #{remediationGapMultiplier,jdbcType=VARCHAR},
       #{remediationBaseEffort,jdbcType=VARCHAR},
-      #{tagsField,jdbcType=VARCHAR},
       #{adHocName,jdbcType=VARCHAR},
       #{adHocDescription,jdbcType=CLOB},
       #{adHocSeverity,jdbcType=VARCHAR},
@@ -370,6 +388,14 @@
     #{ruleUuid,jdbcType=VARCHAR},
     #{dto.softwareQuality,jdbcType=VARCHAR},
     #{dto.severity,jdbcType=VARCHAR})
+  </insert>
+
+  <insert id="insertRuleTag" parameterType="Map" useGeneratedKeys="false">
+    INSERT INTO rule_tags (rule_uuid, value, is_system_tag)
+    VALUES (
+    #{ruleUuid,jdbcType=VARCHAR},
+    #{value,jdbcType=VARCHAR},
+    #{isSystemTag,jdbcType=BOOLEAN})
   </insert>
 
   <update id="updateRule" parameterType="org.sonar.db.rule.RuleDto">
@@ -391,7 +417,6 @@
       def_remediation_gap_mult=#{defRemediationGapMultiplier,jdbcType=VARCHAR},
       def_remediation_base_effort=#{defRemediationBaseEffort,jdbcType=VARCHAR},
       gap_description=#{gapDescription,jdbcType=VARCHAR},
-      system_tags=#{systemTagsField,jdbcType=VARCHAR},
       security_standards=#{securityStandardsField,jdbcType=VARCHAR},
       scope=#{scope,jdbcType=VARCHAR},
       rule_type=#{type,jdbcType=TINYINT},
@@ -402,7 +427,6 @@
       remediation_function=#{remediationFunction,jdbcType=VARCHAR},
       remediation_gap_mult=#{remediationGapMultiplier,jdbcType=VARCHAR},
       remediation_base_effort=#{remediationBaseEffort,jdbcType=VARCHAR},
-      tags=#{tagsField,jdbcType=VARCHAR},
       ad_hoc_name=#{adHocName,jdbcType=VARCHAR},
       ad_hoc_description=#{adHocDescription,jdbcType=CLOB},
       ad_hoc_severity=#{adHocSeverity,jdbcType=VARCHAR},
@@ -424,6 +448,13 @@
   <delete id="deleteRuleDefaultImpacts" parameterType="String">
     delete from
       rules_default_impacts
+    where
+      rule_uuid=#{ruleUuid,jdbcType=VARCHAR}
+  </delete>
+
+  <delete id="deleteRuleTags" parameterType="String">
+    delete from
+      rule_tags
     where
       rule_uuid=#{ruleUuid,jdbcType=VARCHAR}
   </delete>
@@ -579,5 +610,14 @@
       #{createdAt,jdbcType=BIGINT}
     )
   </insert>
+
+  <select id="selectTags" resultType="string">
+    SELECT DISTINCT value FROM
+    rule_tags rt
+    WHERE lower(value) like #{query}
+    ORDER BY value
+    <include refid="org.sonar.db.common.Common.pagination"/>
+  </select>
+
 </mapper>
 

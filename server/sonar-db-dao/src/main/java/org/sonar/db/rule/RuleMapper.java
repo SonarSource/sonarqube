@@ -25,6 +25,7 @@ import java.util.Set;
 import org.apache.ibatis.annotations.Param;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.RuleQuery;
+import org.sonar.db.Pagination;
 import org.sonar.db.issue.ImpactDto;
 
 public interface RuleMapper {
@@ -57,6 +58,8 @@ public interface RuleMapper {
 
   void insertRuleDefaultImpact(@Param("ruleUuid") String ruleUuid, @Param("dto") ImpactDto ruleDefaultImpactDto);
 
+  void insertRuleTag(@Param("ruleUuid") String ruleUuid, @Param("value") String value, @Param("isSystemTag") boolean isSystemTag);
+
   void updateRule(RuleDto ruleDefinitionDto);
 
   void deleteRuleDescriptionSection(String ruleUuid);
@@ -84,4 +87,8 @@ public interface RuleMapper {
   void insertDeprecatedRuleKey(DeprecatedRuleKeyDto deprecatedRuleKeyDto);
 
   void deleteRuleDefaultImpacts(String ruleUuid);
+
+  void deleteRuleTags(String ruleUuid);
+
+  List<String> selectTags(@Param("query") String query, @Param("pagination") Pagination pagination);
 }

@@ -22,27 +22,33 @@ package org.sonar.db.rule;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import javax.annotation.Nullable;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.RuleQuery;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
+import org.sonar.db.Pagination;
 import org.sonar.db.RowNotFoundException;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toMap;
+import static org.apache.commons.lang.StringUtils.isBlank;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 import static org.sonar.db.DatabaseUtils.executeLargeInputsWithoutOutput;
 import static org.sonar.db.DatabaseUtils.executeLargeUpdates;
 
 public class RuleDao implements Dao {
+
+  private static final String PERCENT_SIGN = "%";
 
   private final UuidFactory uuidFactory;
 
@@ -103,6 +109,7 @@ public class RuleDao implements Dao {
     mapper.insertRule(ruleDto);
     updateRuleDescriptionSectionDtos(ruleDto, mapper);
     updateRuleDefaultImpacts(ruleDto, mapper);
+    updateRuleTags(ruleDto, mapper);
   }
 
   public void update(DbSession session, RuleDto ruleDto) {
@@ -110,6 +117,12 @@ public class RuleDao implements Dao {
     mapper.updateRule(ruleDto);
     updateRuleDescriptionSectionDtos(ruleDto, mapper);
     updateRuleDefaultImpacts(ruleDto, mapper);
+    updateRuleTags(ruleDto, mapper);
+  }
+
+  public List<String> selectTags(DbSession session, @Nullable String query, Pagination pagination) {
+    String queryUpgraded = toLowerCaseAndSurroundWithPercentSigns(query);
+    return mapper(session).selectTags(queryUpgraded, pagination);
   }
 
   private static void updateRuleDescriptionSectionDtos(RuleDto ruleDto, RuleMapper mapper) {
@@ -127,18 +140,21 @@ public class RuleDao implements Dao {
     insertRuleDefaultImpacts(ruleDto, mapper);
   }
 
+  private static void updateRuleTags(RuleDto ruleDto, RuleMapper mapper) {
+    mapper.deleteRuleTags(ruleDto.getUuid());
+    insertRuleTags(ruleDto, mapper);
+  }
+
   private static void insertRuleDefaultImpacts(RuleDto ruleDto, RuleMapper mapper) {
     ruleDto.getDefaultImpacts()
       .forEach(impact -> mapper.insertRuleDefaultImpact(ruleDto.getUuid(), impact));
   }
 
-  public void scrollIndexingRuleExtensionsByIds(DbSession dbSession, Collection<String> ruleExtensionIds, Consumer<RuleExtensionForIndexingDto> consumer) {
-    RuleMapper mapper = mapper(dbSession);
-
-    executeLargeInputsWithoutOutput(ruleExtensionIds,
-      pageOfRuleExtensionIds -> mapper
-        .selectIndexingRuleExtensionsByIds(pageOfRuleExtensionIds)
-        .forEach(consumer));
+  private static void insertRuleTags(RuleDto ruleDto, RuleMapper mapper) {
+    ruleDto.getSystemTags()
+      .forEach(tag -> mapper.insertRuleTag(ruleDto.getUuid(), tag, true));
+    ruleDto.getTags()
+      .forEach(tag -> mapper.insertRuleTag(ruleDto.getUuid(), tag, false));
   }
 
   public void selectIndexingRulesByKeys(DbSession dbSession, Collection<String> ruleUuids, Consumer<RuleForIndexingDto> consumer) {
@@ -249,5 +265,9 @@ public class RuleDao implements Dao {
 
   public long countByLanguage(DbSession dbSession, String language) {
     return mapper(dbSession).countByLanguage(language);
+  }
+
+  private static String toLowerCaseAndSurroundWithPercentSigns(@Nullable String query) {
+    return isBlank(query) ? PERCENT_SIGN : (PERCENT_SIGN + query.toLowerCase(Locale.ENGLISH) + PERCENT_SIGN);
   }
 }

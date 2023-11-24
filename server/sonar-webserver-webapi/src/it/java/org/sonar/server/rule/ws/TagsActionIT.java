@@ -22,14 +22,8 @@ package org.sonar.server.rule.ws;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
-import org.sonar.db.rule.RuleDto;
-import org.sonar.server.es.EsClient;
-import org.sonar.server.es.EsTester;
-import org.sonar.server.rule.index.RuleIndex;
-import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
 
@@ -44,15 +38,9 @@ public class TagsActionIT {
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
   public DbTester db = DbTester.create();
-  @Rule
-  public EsTester es = EsTester.create();
 
   private final DbClient dbClient = db.getDbClient();
-  private final EsClient esClient = es.client();
-  private final RuleIndex ruleIndex = new RuleIndex(esClient, System2.INSTANCE);
-  private final RuleIndexer ruleIndexer = new RuleIndexer(esClient, dbClient);
-
-  private final WsActionTester ws = new WsActionTester(new org.sonar.server.rule.ws.TagsAction(ruleIndex));
+  private final WsActionTester ws = new WsActionTester(new org.sonar.server.rule.ws.TagsAction(dbClient));
 
   @Test
   public void definition() {
@@ -78,21 +66,73 @@ public class TagsActionIT {
   }
 
   @Test
-  public void system_tag() {
-    RuleDto r = db.rules().insert(setSystemTags("tag"), setTags());
-    ruleIndexer.commitAndIndex(db.getSession(), r.getUuid());
+  public void execute_whenSystemTags() {
+    db.rules().insert(setSystemTags("system_tag1", "system_tag2"), setTags());
+    db.rules().insert(setSystemTags("system_tag3", "system_tag4", "system_tag5"), setTags());
+
 
     String result = ws.newRequest().execute().getInput();
-    assertJson(result).isSimilarTo("{\"tags\":[\"tag\"]}");
+    assertJson(result).isSimilarTo("""
+      {
+        "tags": ["system_tag1", "system_tag2", "system_tag3", "system_tag4", "system_tag5"]
+      }
+      """);
   }
 
   @Test
-  public void tag() {
-    RuleDto r = db.rules().insert(setSystemTags(), setTags("tag"));
-    ruleIndexer.commitAndIndex(db.getSession(), r.getUuid());
-    ruleIndexer.commitAndIndex(db.getSession(), r.getUuid());
+  public void execute_whenBothSystemTagsAndTags_shouldReturnBothTypes() {
+    db.rules().insert(setSystemTags("system_tag1", "system_tag2"), setTags());
+    db.rules().insert(setSystemTags(), setTags("tag3", "tag4"));
+
 
     String result = ws.newRequest().execute().getInput();
-    assertJson(result).isSimilarTo("{\"tags\":[\"tag\"]}");
+    assertJson(result).isSimilarTo("""
+      {
+        "tags": ["system_tag1", "system_tag2", "tag3", "tag4"]
+      }
+      """);
   }
+
+  @Test
+  public void execute_whenSystemTagsContainDuplicatesOrNull() {
+    db.rules().insert(setSystemTags("system_tag1", "system_tag2"), setTags());
+    db.rules().insert(setSystemTags("system_tag2", "system_tag3"), setTags());
+    db.rules().insert(setSystemTags(), setTags());
+
+    String result = ws.newRequest().execute().getInput();
+    assertJson(result).isSimilarTo("""
+      {
+        "tags": ["system_tag1", "system_tag2", "system_tag3"]
+      }
+      """);
+  }
+
+  @Test
+  public void execute_whenFilterQueryNotEmpty() {
+    db.rules().insert(setSystemTags("system_tag1", "async_tag2", "jessica"), setTags());
+    db.rules().insert(setSystemTags("async_tag1", "system_tag3"), setTags());
+    db.rules().insert(setSystemTags(), setTags());
+
+    String result = ws.newRequest().setParam("q", "async").execute().getInput();
+    assertJson(result).isSimilarTo("""
+      {
+        "tags": ["async_tag1", "async_tag2"]
+      }
+      """);
+  }
+
+  @Test
+  public void execute_whenMixed_shouldReturnSorted() {
+    db.rules().insert(setSystemTags("z", "y", "x"), setTags());
+    db.rules().insert(setSystemTags(), setTags("d", "c", "b", "a"));
+    db.rules().insert(setSystemTags(), setTags());
+
+    String result = ws.newRequest().execute().getInput();
+    assertJson(result).isSimilarTo("""
+      {
+        "tags": ["a", "b", "c", "d", "x", "y", "z"]
+      }
+      """);
+  }
+
 }

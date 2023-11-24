@@ -19,9 +19,11 @@
  */
 package org.sonar.db.qualityprofile;
 
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.RuleType;
 import org.sonar.db.rule.SeverityUtil;
@@ -36,7 +38,7 @@ public class ExportRuleDto {
   private String template = null;
   private Integer severity = null;
   private Integer type = null;
-  private String tags = null;
+  private Set<String> tags = new HashSet<>();
 
   private List<ExportRuleParamDto> params = null;
 
@@ -68,7 +70,7 @@ public class ExportRuleDto {
     return RuleType.valueOf(type);
   }
 
-  public String getTags() {
+  public Set<String> getTags() {
     return tags;
   }
 

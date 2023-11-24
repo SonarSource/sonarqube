@@ -597,12 +597,10 @@ public class SearchActionIT {
     checkField(rule, "status", r -> r.getStatus().toString(), rule.getStatus().toString());
     checkField(rule, "internalKey", Rule::getInternalKey, rule.getConfigKey());
     checkField(rule, "isTemplate", Rule::getIsTemplate, rule.isTemplate());
-    checkField(rule, "sysTags",
-      r -> r.getSysTags().getSysTagsList().stream().collect(Collectors.joining(",")),
-      rule.getSystemTags().stream().collect(Collectors.joining(",")));
     checkField(rule, "lang", Rule::getLang, rule.getLanguage());
     checkField(rule, "langName", Rule::getLangName, languages.get(rule.getLanguage()).getName());
     checkField(rule, "gapDescription", Rule::getGapDescription, rule.getGapDescription());
+    checkTags(rule, rule.getSystemTags());
     checkDescriptionSections(rule, rule.getRuleDescriptionSectionDtos().stream()
       .map(SearchActionIT::toProtobufDto)
       .collect(Collectors.toSet()));
@@ -1119,7 +1117,16 @@ public class SearchActionIT {
       .setParam("f", fieldName)
       .executeProtobuf(SearchResponse.class);
     assertThat(result.getRulesList()).extracting(Rule::getKey).containsExactly(rule.getKey().toString());
-    assertThat(result.getRulesList()).extracting(responseExtractor).containsExactly(expected);
+    assertThat(result.getRulesList()).extracting(responseExtractor).containsExactlyInAnyOrder(expected);
+  }
+
+  private void checkTags(RuleDto rule, Set<String> expected) {
+    SearchResponse result = ws.newRequest()
+      .setParam("f", "sysTags")
+      .executeProtobuf(SearchResponse.class);
+    assertThat(result.getRulesList()).extracting(Rule::getKey).containsExactly(rule.getKey().toString());
+    Set<String> actualTags = new HashSet<>(result.getRules(0).getSysTags().getSysTagsList());
+    assertThat(actualTags).hasSameElementsAs(expected);
   }
 
   private void checkDescriptionSections(RuleDto rule, Set<Rule.DescriptionSection> expected) {

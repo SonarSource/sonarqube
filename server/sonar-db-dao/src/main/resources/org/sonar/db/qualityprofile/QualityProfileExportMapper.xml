@@ -26,7 +26,7 @@
     r.description_format as "descriptionFormat",
     r.rule_type as "type",
     r.note_data as "extendedDescription",
-    r.tags,
+    t.value as "t_tags",
     rt.plugin_rule_key as "template",
     rds.content as "description"
   </sql>
@@ -47,9 +47,10 @@
     <result property="type" column="type"/>
     <result property="template" column="template"/>
     <result property="extendedDescription" column="extendedDescription"/>
-    <result property="tags" column="tags"/>
     <result property="description" column="description"/>
-
+    <collection property="tags" column="t_tags" notNullColumn="t_tags" javaType="java.util.Set" ofType="string">
+     <result column="t_tags"/>
+    </collection>
   </resultMap>
 
   <select id="selectByProfileUuid" parameterType="string" resultMap="exportRuleResultMap">
@@ -60,6 +61,7 @@
     inner join org_qprofiles oqp on oqp.rules_profile_uuid = rp.uuid
     inner join rules r on r.uuid = a.rule_uuid and r.status != 'REMOVED'
     left join rules rt on rt.uuid = r.template_uuid
+    left join rule_tags t on r.uuid = t.rule_uuid and t.is_system_tag = ${_false}
     <include refid="leftOuterJoinRulesDefaultDescriptionSection"/>
     where oqp.uuid = #{id, jdbcType=VARCHAR}
   </select>
