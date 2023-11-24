@@ -97,7 +97,7 @@ it('should redirect to github authorization page when not already authorized', a
   expect(screen.getByText('alm.configuration.selector.placeholder')).toBeInTheDocument();
   expect(ui.instanceSelector.get()).toBeInTheDocument();
 
-  await selectEvent.select(ui.instanceSelector.get(), [/conf-github-1/]);
+  await selectEvent.select(await ui.instanceSelector.find(), [/conf-github-1/]);
 
   expect(window.location.replace).toHaveBeenCalled();
 });
@@ -263,7 +263,7 @@ it('should have load more', async () => {
 
   await selectEvent.select(ui.organizationSelector.get(), [/org-1/]);
 
-  const loadMore = screen.getByRole('button', { name: 'show_more' });
+  const loadMore = await screen.findByRole('button', { name: 'show_more' });
   expect(loadMore).toBeInTheDocument();
 
   /*

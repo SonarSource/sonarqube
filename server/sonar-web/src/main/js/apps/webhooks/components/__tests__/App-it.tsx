@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { act, screen, waitFor, within } from '@testing-library/react';
+import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
 import WebhooksMock from '../../../../api/mocks/WebhooksMock';
@@ -109,9 +109,7 @@ describe('webhook CRUD', () => {
     renderWebhooksApp();
     await ui.waitForWebhooksLoaded();
 
-    await act(async () => {
-      await user.click(ui.webhookCreateButton.get());
-    });
+    await user.click(ui.webhookCreateButton.get());
     await ui.fillUpdateForm('new-webhook');
     ui.formShouldNotBeValid();
     await ui.fillUpdateForm(undefined, 'https://webhook.example.sonarqube.com');
@@ -184,9 +182,7 @@ describe('should properly show deliveries', () => {
     renderWebhooksApp();
     await ui.waitForWebhooksLoaded();
 
-    await act(async () => {
-      await ui.clickWebhookRowAction(0, 'Global webhook 1', 'webhooks.deliveries.show');
-    });
+    await ui.clickWebhookRowAction(0, 'Global webhook 1', 'webhooks.deliveries.show');
     ui.checkDeliveryRow(0, {
       date: 'June 24, 2019',
       status: 'success',
@@ -204,17 +200,13 @@ describe('should properly show deliveries', () => {
       status: 'success',
     });
 
-    await act(async () => {
-      await ui.toggleDeliveryRow(1);
-    });
+    await ui.toggleDeliveryRow(1);
     expect(screen.getByText('webhooks.delivery.response_x.200')).toBeInTheDocument();
     expect(screen.getByText('webhooks.delivery.duration_x.1s')).toBeInTheDocument();
     expect(screen.getByText('{ "id": "global-webhook-1-delivery-0" }')).toBeInTheDocument();
 
-    await act(async () => {
-      await ui.toggleDeliveryRow(1);
-      await ui.toggleDeliveryRow(2);
-    });
+    await ui.toggleDeliveryRow(1);
+    await ui.toggleDeliveryRow(2);
     expect(
       screen.getByText('webhooks.delivery.response_x.webhooks.delivery.server_unreachable'),
     ).toBeInTheDocument();
@@ -241,9 +233,7 @@ describe('should properly show deliveries', () => {
     await ui.clickWebhookRowAction(0, 'Global webhook 1', 'webhooks.deliveries.show');
     expect(screen.getByText('x_of_y_shown.10.16')).toBeInTheDocument();
 
-    await act(async () => {
-      await user.click(screen.getByRole('button', { name: 'show_more' }));
-    });
+    await user.click(screen.getByRole('button', { name: 'show_more' }));
     expect(screen.getByText('x_of_y_shown.16.16')).toBeInTheDocument();
   });
 });
@@ -285,22 +275,18 @@ function getPageObject() {
     },
     clickWebhookRowAction: async (rowIndex: number, webhookName: string, actionName: string) => {
       const row = ui.getWebhookRow(rowIndex);
-      await act(async () => {
-        await user.click(
-          within(row).getByRole('button', { name: `webhooks.show_actions.${webhookName}` }),
-        );
-        await user.click(within(row).getByRole('button', { name: actionName }));
-      });
+      await user.click(
+        within(row).getByRole('button', { name: `webhooks.show_actions.${webhookName}` }),
+      );
+      await user.click(within(row).getByRole('button', { name: actionName }));
     },
     clickWebhookLatestDelivery: async (rowIndex: number, webhookName: string) => {
       const row = ui.getWebhookRow(rowIndex);
-      await act(async () => {
-        await user.click(
-          within(row).getByRole('button', {
-            name: `webhooks.last_execution.open_for_x.${webhookName}`,
-          }),
-        );
-      });
+      await user.click(
+        within(row).getByRole('button', {
+          name: `webhooks.last_execution.open_for_x.${webhookName}`,
+        }),
+      );
     },
     checkWebhookRow: (
       index: number,
@@ -320,27 +306,25 @@ function getPageObject() {
 
     // Creation/Update form
     fillUpdateForm: async (name?: string, url?: string, secret?: string) => {
-      await act(async () => {
-        if (name !== undefined) {
-          await user.clear(selectors.formNameInput.get());
-          await user.type(selectors.formNameInput.get(), name);
+      if (name !== undefined) {
+        await user.clear(selectors.formNameInput.get());
+        await user.type(selectors.formNameInput.get(), name);
+      }
+      if (url !== undefined) {
+        await user.clear(selectors.formUrlInput.get());
+        await user.type(selectors.formUrlInput.get(), url);
+      }
+      if (secret !== undefined) {
+        // Do we have to update secret
+        const secretMaskButton = selectors.formSecretInputMaskButton.get();
+        if (secretMaskButton) {
+          await user.click(secretMaskButton);
         }
-        if (url !== undefined) {
-          await user.clear(selectors.formUrlInput.get());
-          await user.type(selectors.formUrlInput.get(), url);
+        await user.clear(selectors.formSecretInput.get());
+        if (secret) {
+          await user.type(selectors.formSecretInput.get(), secret);
         }
-        if (secret !== undefined) {
-          // Do we have to update secret
-          const secretMaskButton = selectors.formSecretInputMaskButton.get();
-          if (secretMaskButton) {
-            await user.click(secretMaskButton);
-          }
-          await user.clear(selectors.formSecretInput.get());
-          if (secret) {
-            await user.type(selectors.formSecretInput.get(), secret);
-          }
-        }
-      });
+      }
     },
     getFormSubmitButton: () => {
       const form = selectors.formDialog.get();
@@ -352,10 +336,8 @@ function getPageObject() {
       expect(ui.getFormSubmitButton()).toBeDisabled();
     },
     submitForm: async () => {
-      await act(async () => {
-        const submitBtn = ui.getFormSubmitButton();
-        await user.click(submitBtn);
-      });
+      const submitBtn = ui.getFormSubmitButton();
+      await user.click(submitBtn);
       await waitFor(() => expect(selectors.formDialog.query()).not.toBeInTheDocument());
     },
 

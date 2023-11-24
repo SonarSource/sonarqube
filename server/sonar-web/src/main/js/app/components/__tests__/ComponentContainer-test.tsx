@@ -29,7 +29,6 @@ import { getComponentNavigation } from '../../../api/navigation';
 import { mockProjectAlmBindingConfigurationErrors } from '../../../helpers/mocks/alm-settings';
 import { mockComponent } from '../../../helpers/mocks/component';
 import { HttpStatus } from '../../../helpers/request';
-import { mockLocation, mockRouter } from '../../../helpers/testMocks';
 import { renderAppRoutes, renderComponent } from '../../../helpers/testReactTestingUtils';
 import { byRole, byText } from '../../../helpers/testSelector';
 import { ComponentQualifier } from '../../../types/component';
@@ -181,11 +180,9 @@ describe('getTasksForComponent', () => {
 
     act(() => jest.runOnlyPendingTimers());
 
-    jest.runOnlyPendingTimers();
-
     // Second round, the queue is now empty, hence we assume the previous task
     // was done. We immediately load the component again.
-    expect(getTasksForComponent).toHaveBeenCalledTimes(2);
+    await waitFor(() => expect(getTasksForComponent).toHaveBeenCalledTimes(2));
 
     // Trigger the update.
     // The component was correctly re-loaded.
@@ -232,12 +229,10 @@ describe('getTasksForComponent', () => {
 
     act(() => jest.runOnlyPendingTimers());
 
-    jest.runOnlyPendingTimers();
-
     // Second round, nothing in the queue, BUT a success task is current. This
     // means the queue was processed too quick for us to see, and we didn't see
     // any pending tasks in the queue. So we immediately load the component again.
-    expect(getTasksForComponent).toHaveBeenCalledTimes(2);
+    await waitFor(() => expect(getTasksForComponent).toHaveBeenCalledTimes(2));
 
     // Trigger the update.
     // The component was correctly re-loaded.
@@ -294,7 +289,7 @@ describe('getTasksForComponent', () => {
     // implies the current task was updated, and previously we displayed some information
     // about a pending task. This new information must prompt the component to reload
     // all data.
-    expect(getTasksForComponent).toHaveBeenCalledTimes(2);
+    await waitFor(() => expect(getTasksForComponent).toHaveBeenCalledTimes(2));
 
     // The component was correctly re-loaded.
     await waitFor(() => {
@@ -399,32 +394,25 @@ it.each([
 function renderComponentContainerAsComponent(props: Partial<Props> = {}) {
   return renderComponent(
     <>
-      <div id="component-nav-portal" />{' '}
-      <ComponentContainer
-        hasFeature={jest.fn().mockReturnValue(false)}
-        location={mockLocation({ query: { id: 'foo' } })}
-        router={mockRouter()}
-        {...props}
-      />
+      <div id="component-nav-portal" />
+      <ComponentContainer {...props} />
     </>,
+    '/?id=foo',
   );
 }
 
-function renderComponentContainer(props: Partial<Props> = {}, pathName: string = '/') {
-  renderAppRoutes(pathName, () => (
-    <Route
-      element={
-        <ComponentContainer
-          hasFeature={jest.fn().mockReturnValue(false)}
-          location={mockLocation({ query: { id: 'foo' } })}
-          router={mockRouter()}
-          {...props}
-        />
-      }
-    >
-      <Route path="*" element={<TestComponent />} />
-    </Route>
-  ));
+function renderComponentContainer(props: Partial<Props> = {}) {
+  renderAppRoutes(
+    '/',
+    () => (
+      <Route element={<ComponentContainer {...props} />}>
+        <Route path="*" element={<TestComponent />} />
+      </Route>
+    ),
+    {
+      navigateTo: '?id=foo',
+    },
+  );
 }
 
 function TestComponent() {

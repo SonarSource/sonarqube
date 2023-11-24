@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { act, getByText, screen } from '@testing-library/react';
+import { getByText, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import selectEvent from 'react-select-event';
 import QualityProfilesServiceMock from '../../../api/mocks/QualityProfilesServiceMock';
@@ -140,9 +140,8 @@ it('should list Quality Profiles and filter by language', async () => {
   expect(ui.listLinkJavaQualityProfile.query()).not.toBeInTheDocument();
 
   // Creation form should have language pre-selected
-  await act(async () => {
-    await user.click(await ui.createButton.find());
-  });
+  await user.click(await ui.createButton.find());
+
   // eslint-disable-next-line testing-library/prefer-screen-queries
   expect(getByText(ui.popup.get(), 'C')).toBeInTheDocument();
 });
@@ -197,23 +196,17 @@ describe('Create', () => {
     await user.click(ui.extendButton.get());
     await user.clear(ui.namePropupInput.get());
     await user.type(ui.namePropupInput.get(), ui.newCQualityProfileName);
-    await act(async () => {
-      await user.keyboard('{Enter}');
-    });
+    await user.keyboard('{Enter}');
 
     expect(await ui.headingNewCQualityProfile.find()).toBeInTheDocument();
 
     await user.click(ui.returnToList.get());
-    await act(async () => {
-      await user.click(ui.createButton.get());
-      await user.click(ui.extendRadio.get());
-    });
+    await user.click(ui.createButton.get());
+    await user.click(ui.extendRadio.get());
     await selectEvent.select(ui.languageSelect.get(), 'C');
     await selectEvent.select(ui.profileExtendSelect.get(), ui.newCQualityProfileName);
     await user.type(ui.nameCreatePopupInput.get(), ui.newCQualityProfileNameFromCreateButton);
-    await act(async () => {
-      await user.click(ui.createButton.get(ui.popup.get()));
-    });
+    await user.click(ui.createButton.get(ui.popup.get()));
 
     expect(await ui.headingNewCQualityProfileFromCreateButton.find()).toBeInTheDocument();
   });
@@ -227,23 +220,17 @@ describe('Create', () => {
     await user.click(ui.copyButton.get());
     await user.clear(ui.namePropupInput.get());
     await user.type(ui.namePropupInput.get(), ui.newCQualityProfileName);
-    await act(async () => {
-      await user.click(ui.modalCopyButton.get(ui.popup.get()));
-    });
+    await user.click(ui.modalCopyButton.get(ui.popup.get()));
 
     expect(await ui.headingNewCQualityProfile.find()).toBeInTheDocument();
 
     await user.click(ui.returnToList.get());
-    await act(async () => {
-      await user.click(ui.createButton.get());
-    });
+    await user.click(ui.createButton.get());
     await user.click(ui.copyRadio.get());
     await selectEvent.select(ui.languageSelect.get(), 'C');
     await selectEvent.select(ui.profileCopySelect.get(), ui.newCQualityProfileName);
     await user.type(ui.nameCreatePopupInput.get(), ui.newCQualityProfileNameFromCreateButton);
-    await act(async () => {
-      await user.click(ui.createButton.get(ui.popup.get()));
-    });
+    await user.click(ui.createButton.get(ui.popup.get()));
 
     expect(await ui.headingNewCQualityProfileFromCreateButton.find()).toBeInTheDocument();
   });
@@ -253,15 +240,11 @@ describe('Create', () => {
     serviceMock.setAdmin();
     renderQualityProfiles();
 
-    await act(async () => {
-      await user.click(await ui.createButton.find());
-    });
+    await user.click(await ui.createButton.find());
     await user.click(ui.blankRadio.get());
     await selectEvent.select(ui.languageSelect.get(), 'C');
     await user.type(ui.nameCreatePopupInput.get(), ui.newCQualityProfileName);
-    await act(async () => {
-      await user.click(ui.createButton.get(ui.popup.get()));
-    });
+    await user.click(ui.createButton.get(ui.popup.get()));
 
     expect(await ui.headingNewCQualityProfile.find()).toBeInTheDocument();
   });
@@ -271,9 +254,7 @@ describe('Create', () => {
     serviceMock.setAdmin();
     renderQualityProfiles();
 
-    await act(async () => {
-      await user.click(await ui.createButton.find());
-    });
+    await user.click(await ui.createButton.find());
     await user.click(ui.blankRadio.get());
     await selectEvent.select(ui.languageSelect.get(), 'C');
 
@@ -354,14 +335,10 @@ it('should be able to activate or deactivate rules in comparison page', async ()
   expect(ui.summaryAdditionalRules(1).get()).toBeInTheDocument();
 
   // Activate
-  await act(async () => {
-    await user.click(ui.activeRuleButton('java quality profile #2').get());
-  });
+  await user.click(ui.activeRuleButton('java quality profile #2').get());
   expect(ui.popup.get()).toBeInTheDocument();
 
-  await act(async () => {
-    await user.click(ui.activateConfirmButton.get());
-  });
+  await user.click(ui.activateConfirmButton.get());
   expect(ui.summaryFewerRules(1).query()).not.toBeInTheDocument();
 
   // Deactivate

@@ -48,12 +48,12 @@ describe('ClipboardBase', () => {
     const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
     renderClipboardBase();
 
-    user.click(screen.getByRole('button'));
+    await user.click(screen.getByRole('button'));
     expect(await screen.findByText('copied')).toBeInTheDocument();
 
     act(() => jest.runAllTimers());
 
-    expect(screen.getByText('click to copy')).toBeInTheDocument();
+    expect(await screen.findByText('click to copy')).toBeInTheDocument();
   });
 
   function renderClipboardBase(props: Partial<ClipboardBase['props']> = {}) {

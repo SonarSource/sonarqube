@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { act, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
 import { branchHandler, componentsHandler, issuesHandler, renderIssueApp, ui } from '../test-utils';
@@ -58,48 +58,40 @@ it('should be able to add or update comment', async () => {
   const user = userEvent.setup();
   issuesHandler.setIsAdmin(true);
   renderIssueApp();
-  await act(async () => {
-    await user.click(await ui.issueItemAction5.find());
-  });
+  await user.click(await ui.issueItemAction5.find());
 
   expect(ui.issueActivityTab.get()).toBeInTheDocument();
 
-  await act(async () => {
-    await user.click(ui.issueActivityTab.get());
-  });
+  await user.click(ui.issueActivityTab.get());
 
   // Add comment to the issue
-  await act(async () => {
-    await user.click(ui.issueActivityAddComment.get());
-    await user.click(screen.getByRole('textbox'));
-    await user.keyboard('activity comment');
-    await user.click(screen.getByText('hotspots.comment.submit'));
-  });
+  await user.click(ui.issueActivityAddComment.get());
+  await user.click(screen.getByRole('textbox'));
+  await user.keyboard('activity comment');
+  await user.click(screen.getByText('hotspots.comment.submit'));
+
   expect(screen.getByText('activity comment')).toBeInTheDocument();
 
   // Cancel editing the comment
-  await act(async () => {
-    await user.click(ui.issueAcitivityEditComment.get());
-    await user.click(screen.getByRole('textbox'));
-    await user.keyboard(' new');
-    await user.click(screen.getByRole('button', { name: 'cancel' }));
-  });
+  await user.click(ui.issueAcitivityEditComment.get());
+  await user.click(screen.getByRole('textbox'));
+  await user.keyboard(' new');
+  await user.click(screen.getByRole('button', { name: 'cancel' }));
+
   expect(screen.queryByText('activity comment new')).not.toBeInTheDocument();
 
   // Edit the comment
-  await act(async () => {
-    await user.click(ui.issueAcitivityEditComment.get());
-    await user.click(screen.getByRole('textbox'));
-    await user.keyboard(' new');
-    await user.click(screen.getByText('hotspots.comment.submit'));
-  });
+  await user.click(ui.issueAcitivityEditComment.get());
+  await user.click(screen.getByRole('textbox'));
+  await user.keyboard(' new');
+  await user.click(screen.getByText('hotspots.comment.submit'));
+
   expect(screen.getByText('activity comment new')).toBeInTheDocument();
 
   // Delete the comment
-  await act(async () => {
-    await user.click(ui.issueActivityDeleteComment.get());
-    await user.click(screen.getByRole('button', { name: 'delete' })); // Confirm button
-  });
+  await user.click(ui.issueActivityDeleteComment.get());
+  await user.click(screen.getByRole('button', { name: 'delete' })); // Confirm button
+
   expect(screen.queryByText('activity comment new')).not.toBeInTheDocument();
 });
 
@@ -108,11 +100,9 @@ it('should be able to show changelog', async () => {
   issuesHandler.setIsAdmin(true);
   renderIssueApp();
 
-  await act(async () => {
-    await user.click(await ui.issueItemAction5.find());
+  await user.click(await ui.issueItemAction5.find());
 
-    await user.click(ui.issueActivityTab.get());
-  });
+  await user.click(ui.issueActivityTab.get());
 
   expect(screen.getByText('issue.activity.review_history.created')).toBeInTheDocument();
   expect(

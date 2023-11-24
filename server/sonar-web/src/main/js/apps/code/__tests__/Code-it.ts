@@ -21,7 +21,6 @@ import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { UserEvent } from '@testing-library/user-event/dist/types/setup/setup';
 import { keyBy, times } from 'lodash';
-import { act } from 'react-dom/test-utils';
 import ComponentsServiceMock from '../../../api/mocks/ComponentsServiceMock';
 import IssuesServiceMock from '../../../api/mocks/IssuesServiceMock';
 import { isDiffMetric } from '../../../helpers/measures';
@@ -103,16 +102,12 @@ it('should allow navigating through the tree', async () => {
   // Open "index.tsx" file using keyboard navigation.
   await ui.arrowDown();
   await ui.arrowDown();
-  await act(async () => {
-    await ui.arrowRight();
-    // Load source viewer.
-    expect((await ui.sourceCode.findAll()).length).toEqual(DEFAULT_LINES_LOADED);
-  });
+  await ui.arrowRight();
+  // Load source viewer.
+  expect((await ui.sourceCode.findAll()).length).toEqual(DEFAULT_LINES_LOADED);
 
   // Navigate back using keyboard.
-  await act(async () => {
-    await ui.arrowLeft();
-  });
+  await ui.arrowLeft();
   expect(await ui.childComponent(/folderA/).find()).toBeInTheDocument();
 });
 
@@ -140,16 +135,12 @@ it('should behave correctly when using search', async () => {
   await ui.searchForComponent('index');
   await ui.arrowDown();
   await ui.arrowDown();
-  await act(async () => {
-    await ui.arrowRight();
-    // Load source viewer.
-    expect((await ui.sourceCode.findAll()).length).toEqual(DEFAULT_LINES_LOADED);
-  });
+  await ui.arrowRight();
+  // Load source viewer.
+  expect((await ui.sourceCode.findAll()).length).toEqual(DEFAULT_LINES_LOADED);
 
   // Navigate back using keyboard.
-  await act(async () => {
-    await ui.arrowLeft();
-  });
+  await ui.arrowLeft();
   expect(await ui.searchResult(/folderA/).find()).toBeInTheDocument();
 });
 

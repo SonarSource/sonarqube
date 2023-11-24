@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { act, screen, waitFor, within } from '@testing-library/react';
+import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { times } from 'lodash';
 import selectEvent from 'react-select-event';
@@ -305,7 +305,7 @@ describe('navigation', () => {
     await ui.changeViewToList();
 
     expect(
-      within(ui.measuresRow('out.tsx').get()).getByRole('cell', { name: '1' }),
+      within(await ui.measuresRow('out.tsx').find()).getByRole('cell', { name: '1' }),
     ).toBeInTheDocument();
     expect(
       within(ui.measuresRow('test1.js').get()).getByRole('cell', { name: '2' }),
@@ -324,7 +324,7 @@ describe('navigation', () => {
     await user.click(ui.measureBtn('Maintainability Rating metric.has_rating_X.E').get());
     await ui.changeViewToTreeMap();
 
-    expect(ui.treeMapCell(/folderA/).get()).toBeInTheDocument();
+    expect(await ui.treeMapCell(/folderA/).find()).toBeInTheDocument();
     expect(ui.treeMapCell(/test1\.js/).get()).toBeInTheDocument();
 
     await user.click(ui.treeMapCell(/folderA/).get());
@@ -346,10 +346,7 @@ describe('navigation', () => {
     await user.click(ui.measureBtn('Code Smells 8').get());
 
     await ui.arrowDown(); // Select the 1st element ("folderA")
-
-    await act(async () => {
-      await ui.arrowRight(); // Open "folderA"
-    });
+    await ui.arrowRight(); // Open "folderA"
 
     expect(
       within(ui.measuresRow('out.tsx').get()).getByRole('cell', { name: '1' }),
@@ -358,24 +355,17 @@ describe('navigation', () => {
       within(ui.measuresRow('in.tsx').get()).getByRole('cell', { name: '2' }),
     ).toBeInTheDocument();
 
-    // Move back to project.
-    await act(async () => {
-      await ui.arrowLeft(); // Close "folderA"
-    });
+    // Move back to project
+    await ui.arrowLeft(); // Close "folderA"
 
     expect(
       within(ui.measuresRow('folderA').get()).getByRole('cell', { name: '3' }),
     ).toBeInTheDocument();
 
-    await act(async () => {
-      await ui.arrowRight(); // Open "folderA"
-    });
+    await ui.arrowRight(); // Open "folderA"
 
     await ui.arrowDown(); // Select the 1st element ("out.tsx")
-
-    await act(async () => {
-      await ui.arrowRight(); // Open "out.tsx"
-    });
+    await ui.arrowRight(); // Open "out.tsx"
 
     expect((await ui.sourceCode.findAll()).length).toBeGreaterThan(0);
     expect(screen.getAllByText('out.tsx').length).toBeGreaterThan(0);

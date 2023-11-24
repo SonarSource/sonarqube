@@ -20,7 +20,6 @@
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
-import { act } from 'react-dom/test-utils';
 import CurrentUserContextProvider from '../../../../app/components/current-user/CurrentUserContextProvider';
 import { mockUserBase } from '../../../../helpers/mocks/users';
 import { mockCurrentUser, mockIssue, mockLoggedInUser } from '../../../../helpers/testMocks';
@@ -97,17 +96,15 @@ it('should handle assignee search correctly', async () => {
   renderAssigneeSelect();
 
   // Minimum MIN_QUERY_LENGTH charachters to trigger search
-  await act(async () => {
-    await user.click(ui.combobox.get());
-    await user.type(ui.searchbox.get(), 'a');
-  });
+  await user.click(ui.combobox.get());
+  await user.type(ui.searchbox.get(), 'a');
+
   expect(await screen.findByText(`select2.tooShort.${MIN_QUERY_LENGTH}`)).toBeInTheDocument();
 
   // Trigger search
-  await act(async () => {
-    await user.click(ui.combobox.get());
-    await user.type(ui.searchbox.get(), 'someone');
-  });
+  await user.click(ui.combobox.get());
+  await user.type(ui.searchbox.get(), 'someone');
+
   expect(await screen.findByText('toto')).toBeInTheDocument();
   expect(await screen.findByText('user.x_deleted.tata')).toBeInTheDocument();
   expect(await screen.findByText('user.x_deleted.titi@titi')).toBeInTheDocument();
@@ -118,10 +115,8 @@ it('should handle assignee selection', async () => {
   const user = userEvent.setup();
   renderAssigneeSelect({ onAssigneeSelect });
 
-  await act(async () => {
-    await user.click(ui.combobox.get());
-    await user.type(ui.searchbox.get(), 'tot');
-  });
+  await user.click(ui.combobox.get());
+  await user.type(ui.searchbox.get(), 'tot');
 
   // Do not select assignee until suggestion is selected
   expect(onAssigneeSelect).not.toHaveBeenCalled();

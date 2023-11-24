@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { act, screen, waitFor, within } from '@testing-library/react';
+import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
 import selectEvent from 'react-select-event';
@@ -179,6 +179,7 @@ describe('different filters combinations', () => {
 
     await user.click(await ui.localFilter.find());
     await waitFor(() => expect(ui.activityFilter.get()).toBeEnabled());
+
     await selectEvent.select(
       ui.activityFilter.get(),
       'users.activity_filter.active_sonarlint_users',
@@ -194,6 +195,7 @@ describe('different filters combinations', () => {
 
     await user.click(await ui.managedFilter.find());
     await waitFor(() => expect(ui.activityFilter.get()).toBeEnabled());
+
     await selectEvent.select(
       ui.activityFilter.get(),
       'users.activity_filter.active_sonarqube_users',
@@ -209,6 +211,7 @@ describe('different filters combinations', () => {
 
     await user.click(await ui.localAndManagedFilter.find());
     await waitFor(() => expect(ui.activityFilter.get()).toBeEnabled());
+
     await selectEvent.select(ui.activityFilter.get(), 'users.activity_filter.inactive_users');
 
     expect(await ui.userRows.findAll()).toHaveLength(2);
@@ -243,14 +246,14 @@ describe('in non managed mode', () => {
     expect(ui.dialogSCMInput('SCM').get()).toBeInTheDocument();
     // Clear input to get an error on save
     await user.clear(ui.dialogSCMInput('SCM').get());
-    await act(() => user.click(ui.createUserDialogButton.get()));
+    await user.click(ui.createUserDialogButton.get());
     expect(ui.dialogCreateUser.get()).toBeInTheDocument();
     expect(await ui.dialogCreateUser.byText('Error: Empty SCM').find()).toBeInTheDocument();
     // Remove SCM account
     await user.click(ui.deleteSCMButton().get());
     expect(ui.dialogSCMInputs.queryAll()).toHaveLength(0);
 
-    await act(() => user.click(ui.createUserDialogButton.get()));
+    await user.click(ui.createUserDialogButton.get());
     expect(ui.jackRow.get()).toBeInTheDocument();
     expect(ui.dialogCreateUser.query()).not.toBeInTheDocument();
   });
@@ -281,40 +284,40 @@ describe('in non managed mode', () => {
     renderUsersApp();
     expect(await ui.aliceRow.byText('3').find()).toBeInTheDocument();
 
-    await act(async () => user.click(await ui.aliceUpdateGroupButton.find()));
+    await user.click(await ui.aliceUpdateGroupButton.find());
     expect(await ui.dialogGroups.find()).toBeInTheDocument();
 
     expect(ui.getGroups()).toHaveLength(3);
 
-    await act(async () => user.click(await ui.allFilter.find()));
+    await user.click(await ui.allFilter.find());
     expect(ui.getGroups()).toHaveLength(4);
 
-    await act(() => user.click(ui.unselectedFilter.get()));
+    await user.click(ui.unselectedFilter.get());
     expect(ui.reloadButton.query()).not.toBeInTheDocument();
-    await act(() => user.click(ui.getGroups()[0]));
+    await user.click(ui.getGroups()[0]);
     expect(await ui.reloadButton.find()).toBeInTheDocument();
 
-    await act(() => user.click(ui.selectedFilter.get()));
+    await user.click(ui.selectedFilter.get());
     expect(ui.getGroups()).toHaveLength(4);
 
-    await act(() => user.click(ui.doneButton.get()));
+    await user.click(ui.doneButton.get());
     expect(ui.dialogGroups.query()).not.toBeInTheDocument();
     expect(await ui.aliceRow.byText('4').find()).toBeInTheDocument();
 
-    await act(async () => user.click(await ui.aliceUpdateGroupButton.find()));
+    await user.click(await ui.aliceUpdateGroupButton.find());
 
     await user.click(ui.selectedFilter.get());
 
-    await act(() => user.click(ui.getGroups()[1]));
+    await user.click(ui.getGroups()[1]);
     expect(await ui.reloadButton.find()).toBeInTheDocument();
-    await act(() => user.click(ui.reloadButton.get()));
+    await user.click(ui.reloadButton.get());
     expect(ui.getGroups()).toHaveLength(3);
 
-    await act(() => user.type(ui.dialogGroups.byRole('searchbox').get(), '4'));
+    await user.type(ui.dialogGroups.byRole('searchbox').get(), '4');
 
     expect(ui.getGroups()).toHaveLength(1);
 
-    await act(() => user.click(ui.doneButton.get()));
+    await user.click(ui.doneButton.get());
     expect(ui.dialogGroups.query()).not.toBeInTheDocument();
     expect(await ui.aliceRow.byText('3').find()).toBeInTheDocument();
   });
@@ -332,7 +335,7 @@ describe('in non managed mode', () => {
     await user.type(ui.userNameInput.get(), '1');
     await user.clear(ui.emailInput.get());
     await user.type(ui.emailInput.get(), 'test@test.com');
-    await act(() => user.click(ui.updateButton.get()));
+    await user.click(ui.updateButton.get());
     expect(ui.dialogUpdateUser.query()).not.toBeInTheDocument();
     expect(await screen.findByText('Alice Merveille1')).toBeInTheDocument();
     expect(await screen.findByText('test@test.com')).toBeInTheDocument();
@@ -349,9 +352,8 @@ describe('in non managed mode', () => {
     await user.click(ui.deleteUserCheckbox.get());
     expect(await ui.deleteUserAlert.find()).toBeInTheDocument();
 
-    await act(() =>
-      user.click(ui.dialogDeactivateUser.byRole('button', { name: 'users.deactivate' }).get()),
-    );
+    await user.click(ui.dialogDeactivateUser.byRole('button', { name: 'users.deactivate' }).get());
+
     expect(ui.aliceRow.query()).not.toBeInTheDocument();
   });
 
@@ -378,7 +380,7 @@ describe('in non managed mode', () => {
     expect(
       screen.queryByText(`user.${ChangePasswordResults.OldPasswordIncorrect}`),
     ).not.toBeInTheDocument();
-    await act(() => user.click(ui.changeButton.get()));
+    await user.click(ui.changeButton.get());
     expect(
       await ui.dialogPasswords.byText(`user.${ChangePasswordResults.OldPasswordIncorrect}`).find(),
     ).toBeInTheDocument();
@@ -393,7 +395,7 @@ describe('in non managed mode', () => {
     expect(
       screen.queryByText(`user.${ChangePasswordResults.NewPasswordSameAsOld}`),
     ).not.toBeInTheDocument();
-    await act(() => user.click(ui.changeButton.get()));
+    await user.click(ui.changeButton.get());
     expect(
       await screen.findByText(`user.${ChangePasswordResults.NewPasswordSameAsOld}`),
     ).toBeInTheDocument();
@@ -403,7 +405,7 @@ describe('in non managed mode', () => {
     await user.type(ui.newPassword.get(), 'test2');
     await user.type(ui.confirmPassword.get(), 'test2');
 
-    await act(() => user.click(ui.changeButton.get()));
+    await user.click(ui.changeButton.get());
 
     expect(ui.dialogPasswords.query()).not.toBeInTheDocument();
   });
@@ -422,7 +424,7 @@ describe('in non managed mode', () => {
     expect(ui.emailInput.get()).toBeDisabled();
     await user.click(ui.scmAddButton.get());
     await user.type(ui.dialogSCMInput().get(), 'SCM');
-    await act(() => user.click(ui.updateButton.get()));
+    await user.click(ui.updateButton.get());
     expect(ui.dialogUpdateUser.query()).not.toBeInTheDocument();
     expect(await ui.denisRow.byText('SCM').find()).toBeInTheDocument();
   });
@@ -433,13 +435,13 @@ describe('in non managed mode', () => {
     renderUsersApp([], currentUser);
 
     expect(await ui.aliceRow.byText('alice.merveille@wonderland.com').find()).toBeInTheDocument();
-    await act(async () => user.click(await ui.aliceUpdateButton.find()));
+    await user.click(await ui.aliceUpdateButton.find());
     await user.click(await ui.aliceRow.byRole('button', { name: 'update_details' }).find());
     expect(await ui.dialogUpdateUser.find()).toBeInTheDocument();
 
     expect(ui.emailInput.get()).toHaveValue('alice.merveille@wonderland.com');
     await user.clear(ui.emailInput.get());
-    await act(() => user.click(ui.updateButton.get()));
+    await user.click(ui.updateButton.get());
     expect(ui.dialogUpdateUser.query()).not.toBeInTheDocument();
     await waitFor(() =>
       expect(ui.aliceRow.byText('alice.merveille@wonderland.com').query()).not.toBeInTheDocument(),
@@ -492,7 +494,7 @@ describe('in manage mode', () => {
 
     await user.click(ui.scmAddButton.get());
     await user.type(ui.dialogSCMInput().get(), 'SCM');
-    await act(() => user.click(ui.updateButton.get()));
+    await user.click(ui.updateButton.get());
 
     expect(await ui.bobRow.byText(/SCM/).find()).toBeInTheDocument();
   });
@@ -521,7 +523,7 @@ describe('in manage mode', () => {
 
     expect(await ui.aliceRowWithLocalBadge.find()).toBeInTheDocument();
 
-    await act(async () => user.click(await ui.managedFilter.find()));
+    await user.click(await ui.managedFilter.find());
 
     expect(await ui.bobRow.find()).toBeInTheDocument();
     expect(ui.aliceRowWithLocalBadge.query()).not.toBeInTheDocument();
@@ -541,7 +543,7 @@ describe('in manage mode', () => {
     const user = userEvent.setup();
     renderUsersApp();
 
-    user.click(
+    await user.click(
       await ui.aliceRow
         .byRole('button', {
           name: 'users.update_tokens_for_x.Alice Merveille',
@@ -564,12 +566,12 @@ describe('in manage mode', () => {
     expect(ui.sureButton.query()).not.toBeInTheDocument();
     await user.click(ui.revokeButton('test').get());
     expect(await ui.sureButton.find()).toBeInTheDocument();
-    await act(() => user.click(ui.sureButton.get()));
+    await user.click(ui.sureButton.get());
 
-    await waitFor(() => expect(getTokensList()).toHaveLength(2));
+    expect(getTokensList()).toHaveLength(2);
 
-    await act(() => user.click(ui.generateButton.get()));
-    await waitFor(() => expect(getTokensList()).toHaveLength(3));
+    await user.click(ui.generateButton.get());
+    expect(getTokensList()).toHaveLength(3);
     expect(await screen.findByText('users.tokens.new_token_created.test')).toBeInTheDocument();
 
     await user.click(ui.doneButton.get());
@@ -674,9 +676,7 @@ it('accessibility', async () => {
   user.click(await ui.aliceUpdateGroupButton.find());
   expect(await ui.dialogGroups.find()).toBeInTheDocument();
   await expect(await ui.dialogGroups.find()).toHaveNoA11yViolations();
-  await act(async () => {
-    await user.click(ui.doneButton.get());
-  });
+  await user.click(ui.doneButton.get());
 
   // user update dialog should be accessible
   await user.click(await ui.aliceUpdateButton.find());

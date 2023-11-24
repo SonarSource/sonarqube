@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { act, screen, within } from '@testing-library/react';
+import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
 import { mockLoggedInUser } from '../../../helpers/testMocks';
@@ -63,9 +63,7 @@ describe('issues app', () => {
       });
       expect(screen.getByText('issues.not_all_issue_show')).toBeInTheDocument();
 
-      await act(async () => {
-        await user.keyboard('{ArrowRight}');
-      });
+      await user.keyboard('{ArrowRight}');
 
       expect(screen.getByText('issues.not_all_issue_show')).toBeInTheDocument();
     });
@@ -77,22 +75,16 @@ describe('issues app', () => {
       renderIssueApp();
 
       // Navigate to 2nd issue
-      await act(async () => {
-        await user.keyboard('{ArrowDown}');
-      });
+      await user.keyboard('{ArrowDown}');
 
       // Select it
-      await act(async () => {
-        await user.keyboard('{ArrowRight}');
-      });
+      await user.keyboard('{ArrowRight}');
       expect(
         screen.getByRole('heading', { name: issuesHandler.list[1].issue.message }),
       ).toBeInTheDocument();
 
       // Go back
-      await act(async () => {
-        await user.keyboard('{ArrowLeft}');
-      });
+      await user.keyboard('{ArrowLeft}');
       expect(
         screen.queryByRole('heading', { name: issuesHandler.list[1].issue.message }),
       ).not.toBeInTheDocument();
@@ -100,9 +92,8 @@ describe('issues app', () => {
       // Navigate to 1st issue and select it
       await user.keyboard('{ArrowUp}');
       await user.keyboard('{ArrowUp}');
-      await act(async () => {
-        await user.keyboard('{ArrowRight}');
-      });
+      await user.keyboard('{ArrowRight}');
+
       expect(
         screen.getByRole('heading', { name: issuesHandler.list[0].issue.message }),
       ).toBeInTheDocument();
@@ -113,9 +104,7 @@ describe('issues app', () => {
       renderIssueApp();
 
       // Select an issue with an advanced rule
-      await act(async () => {
-        await user.click(await screen.findByRole('link', { name: 'Fix that' }));
-      });
+      await user.click(await screen.findByRole('link', { name: 'Fix that' }));
       expect(screen.getByRole('tab', { name: 'issue.tabs.code' })).toBeInTheDocument();
 
       // Are rule headers present?
@@ -123,19 +112,15 @@ describe('issues app', () => {
       expect(screen.getByRole('link', { name: 'advancedRuleId' })).toBeInTheDocument();
 
       // Select the "why is this an issue" tab and check its content
-      await act(async () => {
-        await user.click(
-          screen.getByRole('tab', { name: `coding_rules.description_section.title.root_cause` }),
-        );
-      });
+      await user.click(
+        screen.getByRole('tab', { name: `coding_rules.description_section.title.root_cause` }),
+      );
       expect(screen.getByRole('heading', { name: 'Because' })).toBeInTheDocument();
 
       // Select the "how to fix it" tab
-      await act(async () => {
-        await user.click(
-          screen.getByRole('tab', { name: `coding_rules.description_section.title.how_to_fix` }),
-        );
-      });
+      await user.click(
+        screen.getByRole('tab', { name: `coding_rules.description_section.title.how_to_fix` }),
+      );
 
       // Is the context selector present with the expected values and default selection?
       expect(screen.getByRole('radio', { name: 'Context 2' })).toBeInTheDocument();
@@ -147,17 +132,14 @@ describe('issues app', () => {
       expect(screen.getByRole('radio', { name: 'Spring', current: true })).toBeInTheDocument();
 
       // Select context 2 and check tab content
-      await act(async () => {
-        await user.click(screen.getByRole('radio', { name: 'Context 2' }));
-      });
+      await user.click(screen.getByRole('radio', { name: 'Context 2' }));
       expect(screen.getByText('Context 2 content')).toBeInTheDocument();
 
       // Select the "other" context and check tab content
-      await act(async () => {
-        await user.click(
-          screen.getByRole('radio', { name: 'coding_rules.description_context.other' }),
-        );
-      });
+      await user.click(
+        screen.getByRole('radio', { name: 'coding_rules.description_context.other' }),
+      );
+
       expect(screen.getByText('coding_rules.context.others.title')).toBeInTheDocument();
       expect(screen.getByText('coding_rules.context.others.description.first')).toBeInTheDocument();
       expect(
@@ -165,11 +147,9 @@ describe('issues app', () => {
       ).toBeInTheDocument();
 
       // Select the main info tab and check its content
-      await act(async () => {
-        await user.click(
-          screen.getByRole('tab', { name: `coding_rules.description_section.title.more_info` }),
-        );
-      });
+      await user.click(
+        screen.getByRole('tab', { name: `coding_rules.description_section.title.more_info` }),
+      );
       expect(screen.getByRole('heading', { name: 'Link' })).toBeInTheDocument();
 
       // Check for extended description (eslint FP)
@@ -177,26 +157,20 @@ describe('issues app', () => {
       expect(screen.getAllByText('Extended Description')).toHaveLength(1);
 
       // Select the previous issue (with a simple rule) through keyboard shortcut
-      await act(async () => {
-        await user.keyboard('{ArrowUp}');
-      });
+      await user.keyboard('{ArrowUp}');
 
       // Are rule headers present?
       expect(screen.getByRole('heading', { level: 1, name: 'Fix this' })).toBeInTheDocument();
       expect(screen.getByRole('link', { name: 'simpleRuleId' })).toBeInTheDocument();
 
       // Select the "why is this an issue tab" and check its content
-      await act(async () => {
-        await user.click(
-          screen.getByRole('tab', { name: `coding_rules.description_section.title.root_cause` }),
-        );
-      });
+      await user.click(
+        screen.getByRole('tab', { name: `coding_rules.description_section.title.root_cause` }),
+      );
       expect(screen.getByRole('heading', { name: 'Default' })).toBeInTheDocument();
 
       // Select the previous issue (with a simple rule) through keyboard shortcut
-      await act(async () => {
-        await user.keyboard('{ArrowUp}');
-      });
+      await user.keyboard('{ArrowUp}');
 
       // Are rule headers present?
       expect(screen.getByRole('heading', { level: 1, name: 'Issue on file' })).toBeInTheDocument();
@@ -215,14 +189,10 @@ describe('issues app', () => {
       const user = userEvent.setup();
       renderIssueApp();
 
-      await act(async () => {
-        await user.click(await ui.issueItemAction5.find());
-      });
+      await user.click(await ui.issueItemAction5.find());
       expect(ui.projectIssueItem6.getAll()).toHaveLength(2); // there will be 2 buttons one in concise issue and other in code viewer
 
-      await act(async () => {
-        await user.click(ui.projectIssueItem6.getAll()[1]);
-      });
+      await user.click(ui.projectIssueItem6.getAll()[1]);
       expect(screen.getByRole('heading', { level: 1, name: 'Second issue' })).toBeInTheDocument();
     });
 
@@ -233,9 +203,7 @@ describe('issues app', () => {
       expect(await ui.issueItems.findAll()).toHaveLength(7);
       expect(ui.issueItem9.query()).not.toBeInTheDocument();
 
-      await act(async () => {
-        await user.click(screen.getByRole('button', { name: 'show_more' }));
-      });
+      await user.click(screen.getByRole('button', { name: 'show_more' }));
 
       expect(ui.issueItems.getAll()).toHaveLength(9);
       expect(ui.issueItem9.get()).toBeInTheDocument();
@@ -255,9 +223,7 @@ describe('issues app', () => {
       expect(screen.getByRole('button', { name: 'bulk_change' })).toBeDisabled();
 
       // Select all issues
-      await act(async () => {
-        await user.click(screen.getByRole('checkbox', { name: 'issues.select_all_issues' }));
-      });
+      await user.click(screen.getByRole('checkbox', { name: 'issues.select_all_issues' }));
       expect(
         screen.getByRole('button', { name: 'issues.bulk_change_X_issues.10' }),
       ).toBeInTheDocument();
@@ -268,9 +234,7 @@ describe('issues app', () => {
       expect(screen.getByRole('button', { name: 'issues.bulk_change_X_issues.10' })).toHaveFocus();
 
       // Unselect all
-      await act(async () => {
-        await user.click(screen.getByRole('checkbox', { name: 'issues.select_all_issues' }));
-      });
+      await user.click(screen.getByRole('checkbox', { name: 'issues.select_all_issues' }));
       expect(screen.getByRole('button', { name: 'bulk_change' })).toBeDisabled();
     });
 

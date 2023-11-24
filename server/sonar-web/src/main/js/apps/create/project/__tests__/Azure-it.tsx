@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { act, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
@@ -93,11 +93,9 @@ it('should show import project feature when PAT is already set', async () => {
   renderCreateProject();
   expect(await screen.findByText('onboarding.create_project.azure.title')).toBeInTheDocument();
 
-  await act(async () => {
-    await selectEvent.select(ui.instanceSelector.get(), [/conf-azure-2/]);
-  });
+  await selectEvent.select(ui.instanceSelector.get(), [/conf-azure-2/]);
 
-  expect(screen.getByText('Azure project')).toBeInTheDocument();
+  expect(await screen.findByText('Azure project')).toBeInTheDocument();
   expect(screen.getByText('Azure project 2')).toBeInTheDocument();
 
   expect(
@@ -134,12 +132,10 @@ it('should show search filter when PAT is already set', async () => {
   renderCreateProject();
   expect(await screen.findByText('onboarding.create_project.azure.title')).toBeInTheDocument();
 
-  await act(async () => {
-    await selectEvent.select(ui.instanceSelector.get(), [/conf-azure-2/]);
-  });
+  await selectEvent.select(ui.instanceSelector.get(), [/conf-azure-2/]);
 
   // Should search with positive results
-  const inputSearch = screen.getByPlaceholderText(
+  const inputSearch = await screen.findByPlaceholderText(
     'onboarding.create_project.search_projects_repositories',
   );
   await user.click(inputSearch);

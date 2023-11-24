@@ -22,7 +22,6 @@ import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { keyBy, times } from 'lodash';
 import React from 'react';
-import { act } from 'react-dom/test-utils';
 import { Route } from 'react-router-dom';
 import ApplicationServiceMock from '../../../../api/mocks/ApplicationServiceMock';
 import { ProjectActivityServiceMock } from '../../../../api/mocks/ProjectActivityServiceMock';
@@ -257,10 +256,8 @@ describe('CRUD', () => {
     await ui.addVersionEvent('1.1.0.1', initialValue);
     expect(screen.getAllByText(initialValue).length).toBeGreaterThan(0);
 
-    await act(async () => {
-      await ui.updateEvent(1, updatedValue);
-      expect(screen.getAllByText(updatedValue).length).toBeGreaterThan(0);
-    });
+    await ui.updateEvent(1, updatedValue);
+    expect(screen.getAllByText(updatedValue).length).toBeGreaterThan(0);
 
     await ui.deleteEvent(0);
     expect(screen.queryByText(updatedValue)).not.toBeInTheDocument();
@@ -282,15 +279,11 @@ describe('CRUD', () => {
 
     await ui.appLoaded();
 
-    await act(async () => {
-      await ui.addCustomEvent('1.1.0.1', initialValue);
-      expect(screen.getAllByText(initialValue).length).toBeGreaterThan(0);
-    });
+    await ui.addCustomEvent('1.1.0.1', initialValue);
+    expect(screen.getAllByText(initialValue).length).toBeGreaterThan(0);
 
-    await act(async () => {
-      await ui.updateEvent(1, updatedValue);
-      expect(screen.getAllByText(updatedValue).length).toBeGreaterThan(0);
-    });
+    await ui.updateEvent(1, updatedValue);
+    expect(screen.getAllByText(updatedValue).length).toBeGreaterThan(0);
 
     await ui.deleteEvent(0);
     expect(screen.queryByText(updatedValue)).not.toBeInTheDocument();
@@ -464,9 +457,7 @@ describe('graph interactions', () => {
 
     expect(ui.bugsPopupCell.query()).not.toBeInTheDocument();
 
-    await act(async () => {
-      await ui.showDetails('1.1.0.1');
-    });
+    await ui.showDetails('1.1.0.1');
 
     expect(ui.bugsPopupCell.get()).toBeInTheDocument();
   });

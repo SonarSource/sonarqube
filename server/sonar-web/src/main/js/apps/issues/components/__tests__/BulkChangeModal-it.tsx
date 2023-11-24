@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { act, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
 import { bulkChangeIssues } from '../../../../api/issues';
@@ -114,11 +114,9 @@ it('should disable the submit button unless some change is configured', async ()
   expect(await screen.findByRole('button', { name: 'apply' })).toBeDisabled();
 
   // Add a tag
-  await act(async () => {
-    await user.click(screen.getByRole('combobox', { name: 'issue.add_tags' }));
-    await user.click(screen.getByText('tag1'));
-    await user.click(screen.getByText('tag2'));
-  });
+  await user.click(screen.getByRole('combobox', { name: 'issue.add_tags' }));
+  await user.click(screen.getByText('tag1'));
+  await user.click(screen.getByText('tag2'));
 
   // Apply button should be enabled now
   expect(screen.getByRole('button', { name: 'apply' })).toBeEnabled();
@@ -164,11 +162,9 @@ it('should properly submit', async () => {
   await user.click(await screen.findByText('issue.transition.accept'));
 
   // Add a tag
-  await act(async () => {
-    await user.click(screen.getByRole('combobox', { name: 'issue.add_tags' }));
-    await user.click(screen.getByText('tag1'));
-    await user.click(screen.getByText('tag2'));
-  });
+  await user.click(screen.getByRole('combobox', { name: 'issue.add_tags' }));
+  await user.click(screen.getByText('tag1'));
+  await user.click(screen.getByText('tag2'));
 
   // Comment
   await user.type(

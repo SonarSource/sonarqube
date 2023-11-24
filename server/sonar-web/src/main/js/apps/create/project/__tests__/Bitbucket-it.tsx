@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { act, screen, within } from '@testing-library/react';
+import { screen, within } from '@testing-library/react';
 
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
@@ -100,11 +100,9 @@ it('should show import project feature when PAT is already set', async () => {
   expect(screen.getByText('onboarding.create_project.bitbucket.title')).toBeInTheDocument();
   expect(await ui.instanceSelector.find()).toBeInTheDocument();
 
-  await act(async () => {
-    await selectEvent.select(ui.instanceSelector.get(), [/conf-bitbucketserver-2/]);
-  });
+  await selectEvent.select(ui.instanceSelector.get(), [/conf-bitbucketserver-2/]);
 
-  expect(screen.getByText('Bitbucket Project 1')).toBeInTheDocument();
+  expect(await screen.findByText('Bitbucket Project 1')).toBeInTheDocument();
 
   const projectItem = screen.getByRole('region', { name: /Bitbucket Project 1/ });
 
@@ -156,11 +154,9 @@ it('should show search filter when PAT is already set', async () => {
   expect(screen.getByText('onboarding.create_project.bitbucket.title')).toBeInTheDocument();
   expect(await ui.instanceSelector.find()).toBeInTheDocument();
 
-  await act(async () => {
-    await selectEvent.select(ui.instanceSelector.get(), [/conf-bitbucketserver-2/]);
-  });
+  await selectEvent.select(ui.instanceSelector.get(), [/conf-bitbucketserver-2/]);
 
-  const inputSearch = screen.getByRole('searchbox', {
+  const inputSearch = await screen.findByRole('searchbox', {
     name: 'onboarding.create_project.search_repositories_by_name',
   });
   await user.click(inputSearch);
@@ -178,11 +174,9 @@ it('should show no result message when there are no projects', async () => {
   expect(screen.getByText('onboarding.create_project.bitbucket.title')).toBeInTheDocument();
   expect(await ui.instanceSelector.find()).toBeInTheDocument();
 
-  await act(async () => {
-    await selectEvent.select(ui.instanceSelector.get(), [/conf-bitbucketserver-2/]);
-  });
+  await selectEvent.select(ui.instanceSelector.get(), [/conf-bitbucketserver-2/]);
 
-  expect(screen.getByText('onboarding.create_project.no_bbs_projects')).toBeInTheDocument();
+  expect(await screen.findByText('onboarding.create_project.no_bbs_projects')).toBeInTheDocument();
 });
 
 function renderCreateProject() {

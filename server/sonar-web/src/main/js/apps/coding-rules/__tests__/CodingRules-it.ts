@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { act, fireEvent, screen, within } from '@testing-library/react';
+import { fireEvent, screen, within } from '@testing-library/react';
 import selectEvent from 'react-select-event';
 import CodingRulesServiceMock, { RULE_TAGS_MOCK } from '../../../api/mocks/CodingRulesServiceMock';
 import SettingsServiceMock from '../../../api/mocks/SettingsServiceMock';
@@ -102,37 +102,27 @@ describe('Rules app list', () => {
       expect(ui.getAllRuleListItems()).toHaveLength(11);
 
       // Filter by language facet
-      await act(async () => {
-        await user.type(ui.facetSearchInput('search.search_for_languages').get(), 'ja');
-        await user.click(ui.facetItem('JavaScript').get());
-      });
+      await user.type(ui.facetSearchInput('search.search_for_languages').get(), 'ja');
+      await user.click(ui.facetItem('JavaScript').get());
       expect(ui.getAllRuleListItems()).toHaveLength(2);
       // Clear language facet and search box, and filter by python language
-      await act(async () => {
-        await user.clear(ui.facetSearchInput('search.search_for_languages').get());
-        await user.click(ui.facetItem('Python').get());
-      });
+      await user.clear(ui.facetSearchInput('search.search_for_languages').get());
+      await user.click(ui.facetItem('Python').get());
       expect(ui.getAllRuleListItems()).toHaveLength(6);
 
       // Filter by date facet
-      await act(async () => {
-        await user.click(await ui.availableSinceFacet.find());
-        await user.click(screen.getByPlaceholderText('date'));
-      });
+      await user.click(await ui.availableSinceFacet.find());
+      await user.click(screen.getByPlaceholderText('date'));
       const monthSelector = within(ui.dateInputMonthSelect.get()).getByRole('combobox');
 
-      await act(async () => {
-        await user.click(monthSelector);
-        await selectEvent.select(ui.dateInputMonthSelect.byRole('combobox').get(), 'Nov');
-      });
+      await user.click(monthSelector);
+      await selectEvent.select(ui.dateInputMonthSelect.byRole('combobox').get(), 'Nov');
 
       const yearSelector = within(ui.dateInputYearSelect.get()).getByRole('combobox');
 
-      await act(async () => {
-        await user.click(yearSelector);
-        await selectEvent.select(ui.dateInputYearSelect.byRole('combobox').get(), '2022');
-        await user.click(screen.getByText('1', { selector: 'button' }));
-      });
+      await user.click(yearSelector);
+      await selectEvent.select(ui.dateInputYearSelect.byRole('combobox').get(), '2022');
+      await user.click(await screen.findByText('1', { selector: 'button' }));
 
       expect(ui.getAllRuleListItems()).toHaveLength(1);
     });
@@ -145,17 +135,13 @@ describe('Rules app list', () => {
       expect(ui.getAllRuleListItems()).toHaveLength(11);
 
       // Filter by repository
-      await act(async () => {
-        await user.click(ui.repositoriesFacet.get());
-        await user.click(ui.facetItem('Repository 1').get());
-      });
+      await user.click(ui.repositoriesFacet.get());
+      await user.click(ui.facetItem('Repository 1').get());
       expect(ui.getAllRuleListItems()).toHaveLength(2);
 
       // Search second repository
-      await act(async () => {
-        await user.type(ui.facetSearchInput('search.search_for_repositories').get(), 'y 2');
-        await user.click(ui.facetItem('Repository 2').get());
-      });
+      await user.type(ui.facetSearchInput('search.search_for_repositories').get(), 'y 2');
+      await user.click(ui.facetItem('Repository 2').get());
       expect(ui.getAllRuleListItems()).toHaveLength(1);
     });
 
@@ -167,24 +153,18 @@ describe('Rules app list', () => {
       expect(ui.getAllRuleListItems()).toHaveLength(11);
 
       // Filter by quality profile
-      await act(async () => {
-        await user.click(ui.qpFacet.get());
-        await user.click(ui.facetItem('QP Foo Java').get());
-      });
+      await user.click(ui.qpFacet.get());
+      await user.click(ui.facetItem('QP Foo Java').get());
       expect(ui.getAllRuleListItems()).toHaveLength(1);
 
       // Filter by tag
-      await act(async () => {
-        await user.click(ui.facetClear('clear-coding_rules.facet.qprofile').get()); // Clear quality profile facet
-        await user.click(ui.tagsFacet.get());
-        await user.click(ui.facetItem('awesome').get());
-      });
+      await user.click(ui.facetClear('clear-coding_rules.facet.qprofile').get()); // Clear quality profile facet
+      await user.click(ui.tagsFacet.get());
+      await user.click(ui.facetItem('awesome').get());
       expect(ui.getAllRuleListItems()).toHaveLength(5);
 
       // Search by tag
-      await act(async () => {
-        await user.type(ui.facetSearchInput('search.search_for_tags').get(), 'te');
-      });
+      await user.type(ui.facetSearchInput('search.search_for_tags').get(), 'te');
       expect(ui.facetItem('cute').get()).toHaveAttribute('aria-disabled', 'true');
     });
 
@@ -195,23 +175,17 @@ describe('Rules app list', () => {
 
       expect(ui.getAllRuleListItems()).toHaveLength(11);
       // Filter by clean code category
-      await act(async () => {
-        await user.click(ui.facetItem('issue.clean_code_attribute_category.ADAPTABLE').get());
-      });
+      await user.click(ui.facetItem('issue.clean_code_attribute_category.ADAPTABLE').get());
 
       expect(ui.getAllRuleListItems()).toHaveLength(10);
 
       // Filter by software quality
-      await act(async () => {
-        await user.click(ui.facetItem('software_quality.MAINTAINABILITY').get());
-      });
+      await user.click(ui.facetItem('software_quality.MAINTAINABILITY').get());
       expect(ui.getAllRuleListItems()).toHaveLength(10);
 
       // Filter by severity
-      await act(async () => {
-        await user.click(ui.severetiesFacet.get());
-        await user.click(ui.facetItem(/severity.HIGH/).get());
-      });
+      await user.click(ui.severetiesFacet.get());
+      await user.click(ui.facetItem(/severity.HIGH/).get());
       expect(ui.getAllRuleListItems()).toHaveLength(9);
     });
 
@@ -221,42 +195,30 @@ describe('Rules app list', () => {
       await ui.appLoaded();
 
       expect(ui.getAllRuleListItems()).toHaveLength(11);
-      await act(async () => {
-        await user.click(ui.standardsFacet.get());
-        await user.click(ui.facetItem('Buffer Overflow').get());
-      });
+      await user.click(ui.standardsFacet.get());
+      await user.click(ui.facetItem('Buffer Overflow').get());
       expect(ui.getAllRuleListItems()).toHaveLength(6);
 
-      await act(async () => {
-        await user.click(ui.standardsOwasp2021Top10Facet.get());
-        await user.click(ui.facetItem('A2 - Cryptographic Failures').get());
-        await user.click(ui.standardsOwasp2021Top10Facet.get()); // Close facet
-      });
+      await user.click(ui.standardsOwasp2021Top10Facet.get());
+      await user.click(ui.facetItem('A2 - Cryptographic Failures').get());
+      await user.click(ui.standardsOwasp2021Top10Facet.get()); // Close facet
       expect(ui.getAllRuleListItems()).toHaveLength(5);
 
-      await act(async () => {
-        await user.click(ui.standardsOwasp2017Top10Facet.get());
-        await user.click(ui.facetItem('A3 - Sensitive Data Exposure').get());
-      });
+      await user.click(ui.standardsOwasp2017Top10Facet.get());
+      await user.click(ui.facetItem('A3 - Sensitive Data Exposure').get());
       expect(ui.getAllRuleListItems()).toHaveLength(4);
 
-      await act(async () => {
-        await user.click(ui.standardsCweFacet.get());
-        await user.click(ui.facetItem('CWE-102 - Struts: Duplicate Validation Forms').get());
-      });
+      await user.click(ui.standardsCweFacet.get());
+      await user.click(ui.facetItem('CWE-102 - Struts: Duplicate Validation Forms').get());
       expect(ui.getAllRuleListItems()).toHaveLength(3);
 
-      await act(async () => {
-        await user.type(ui.facetSearchInput('search.search_for_cwe').get(), 'Certificate');
-        await user.click(
-          ui.facetItem('CWE-297 - Improper Validation of Certificate with Host Mismatch').get(),
-        );
-      });
+      await user.type(ui.facetSearchInput('search.search_for_cwe').get(), 'Certificate');
+      await user.click(
+        ui.facetItem('CWE-297 - Improper Validation of Certificate with Host Mismatch').get(),
+      );
       expect(ui.getAllRuleListItems()).toHaveLength(2);
 
-      await act(async () => {
-        await user.click(ui.facetClear('clear-issues.facet.standards').get());
-      });
+      await user.click(ui.facetClear('clear-issues.facet.standards').get());
       expect(ui.getAllRuleListItems()).toHaveLength(11);
     });
 
@@ -265,15 +227,11 @@ describe('Rules app list', () => {
       renderCodingRulesApp(mockCurrentUser());
       await ui.appLoaded();
 
-      await act(async () => {
-        await user.type(ui.searchInput.get(), 'Python');
-      });
+      await user.type(ui.searchInput.get(), 'Python');
       expect(ui.getAllRuleListItems()).toHaveLength(4);
 
-      await act(async () => {
-        await user.clear(ui.searchInput.get());
-        await user.type(ui.searchInput.get(), 'Hot hotspot');
-      });
+      await user.clear(ui.searchInput.get());
+      await user.type(ui.searchInput.get(), 'Hot hotspot');
       expect(ui.getAllRuleListItems()).toHaveLength(1);
     });
   });
@@ -285,9 +243,7 @@ describe('Rules app list', () => {
       renderCodingRulesApp(mockLoggedInUser());
       await ui.appLoaded();
 
-      await act(async () => {
-        await user.click(ui.facetItem('C').get());
-      });
+      await user.click(ui.facetItem('C').get());
       await user.click(ui.bulkChangeButton.get());
       await user.click(ui.activateIn.get());
 
@@ -351,18 +307,14 @@ describe('Rules app list', () => {
     renderCodingRulesApp(mockLoggedInUser());
     await ui.appLoaded();
 
-    await act(async () => {
-      await user.click(ui.qpFacet.get());
-      await user.click(ui.facetItem('QP Bar Python').get());
-    });
+    await user.click(ui.qpFacet.get());
+    await user.click(ui.facetItem('QP Bar Python').get());
 
     // Only 4 rules are activated in selected QP
     expect(ui.getAllRuleListItems()).toHaveLength(4);
 
     // Switch to inactive rules
-    await act(async () => {
-      await user.click(ui.qpInactiveRadio.get(ui.facetItem('QP Bar Python').get()));
-    });
+    await user.click(ui.qpInactiveRadio.get(ui.facetItem('QP Bar Python').get()));
     expect(ui.getAllRuleListItems()).toHaveLength(2);
     expect(ui.activateButton.getAll()).toHaveLength(2);
 
@@ -405,26 +357,18 @@ describe('Rules app list', () => {
       ui.ruleListItemLink('Awsome java rule').get(ui.currentListItem.get()),
     ).toBeInTheDocument();
 
-    await act(async () => {
-      await user.keyboard('{ArrowDown}');
-    });
+    await user.keyboard('{ArrowDown}');
     expect(ui.ruleListItemLink('Hot hotspot').get(ui.currentListItem.get())).toBeInTheDocument();
 
-    await act(async () => {
-      await user.keyboard('{ArrowUp}');
-    });
+    await user.keyboard('{ArrowUp}');
     expect(
       ui.ruleListItemLink('Awsome java rule').get(ui.currentListItem.get()),
     ).toBeInTheDocument();
 
-    await act(async () => {
-      await user.keyboard('{ArrowRight}');
-    });
+    await user.keyboard('{ArrowRight}');
     expect(screen.getByRole('heading', { level: 1, name: 'Awsome java rule' })).toBeInTheDocument();
 
-    await act(async () => {
-      await user.keyboard('{ArrowLeft}');
-    });
+    await user.keyboard('{ArrowLeft}');
     expect(
       ui.ruleListItemLink('Awsome java rule').get(ui.currentListItem.get()),
     ).toBeInTheDocument();
@@ -561,13 +505,13 @@ describe('Rule app details', () => {
     await user.click(ui.activateButton.get());
     await selectEvent.select(ui.qualityProfileSelect.get(), 'QP FooBar');
 
-    await act(() => user.click(ui.activateButton.get(ui.activateQPDialog.get())));
+    await user.click(ui.activateButton.get(ui.activateQPDialog.get()));
     expect(ui.qpLink('QP FooBar').get()).toBeInTheDocument();
 
     // Activate last java rule
     await user.click(ui.activateButton.get());
     await user.type(ui.paramInput('1').get(), 'paramInput');
-    await act(() => user.click(ui.activateButton.get(ui.activateQPDialog.get())));
+    await user.click(ui.activateButton.get(ui.activateQPDialog.get()));
     expect(ui.qpLink('QP FooBarBaz').get()).toBeInTheDocument();
     expect(ui.qpLink('QP FooBaz').get()).toBeInTheDocument();
 
@@ -580,19 +524,17 @@ describe('Rule app details', () => {
     // Change rule details in quality profile
     await user.click(ui.changeButton('QP FooBaz').get());
     await user.type(ui.paramInput('1').get(), 'New');
-    await act(async () => {
-      await user.click(ui.saveButton.get(ui.changeQPDialog.get()));
-    });
+    await user.click(ui.saveButton.get(ui.changeQPDialog.get()));
     expect(screen.getByText('New')).toBeInTheDocument();
 
     // Revert rule details in quality profile
     await user.click(ui.revertToParentDefinitionButton.get());
-    await act(() => user.click(ui.yesButton.get()));
+    await user.click(ui.yesButton.get());
     expect(screen.queryByText('New')).not.toBeInTheDocument();
 
     // Deactivate rule in quality profile
     await user.click(ui.deactivateInQPButton('QP FooBar').get());
-    await act(() => user.click(ui.yesButton.get()));
+    await user.click(ui.yesButton.get());
     expect(ui.qpLink('QP FooBar').query()).not.toBeInTheDocument();
   });
 
@@ -608,9 +550,7 @@ describe('Rule app details', () => {
 
     // Deactivate rule in inherited quality profile
     await user.click(ui.deactivateInQPButton('QP FooBaz').get());
-    await act(async () => {
-      await user.click(ui.yesButton.get());
-    });
+    await user.click(ui.yesButton.get());
     expect(ui.qpLink('QP FooBaz').query()).not.toBeInTheDocument();
   });
 
@@ -695,17 +635,14 @@ describe('Rule app details', () => {
       renderCodingRulesApp(mockLoggedInUser());
       await ui.appLoaded();
 
-      await act(async () => {
-        await user.click(ui.templateFacet.get());
-        await user.click(ui.facetItem('coding_rules.filters.template.is_template').get());
-      });
+      await user.click(ui.templateFacet.get());
+      await user.click(ui.facetItem('coding_rules.filters.template.is_template').get());
+
       // Shows only one template rule
       expect(ui.getAllRuleListItems()).toHaveLength(1);
 
       // Show template rule details
-      await act(async () => {
-        await user.click(ui.ruleListItemLink('Template rule').get());
-      });
+      await user.click(ui.ruleListItemLink('Template rule').get());
       expect(ui.ruleTitle('Template rule').get()).toBeInTheDocument();
       expect(ui.customRuleSectionTitle.get()).toBeInTheDocument();
 
@@ -723,9 +660,7 @@ describe('Rule app details', () => {
       await user.type(ui.descriptionTextbox.get(), 'Some description for custom rule');
       await user.type(ui.paramInput('1').get(), 'Default value');
 
-      await act(async () => {
-        await user.click(ui.createButton.get());
-      });
+      await user.click(ui.createButton.get());
 
       // Verify the rule is created
       expect(ui.customRuleItemLink('New Custom Rule').get()).toBeInTheDocument();
@@ -744,9 +679,7 @@ describe('Rule app details', () => {
       await user.type(ui.ruleNameTextbox.get(), 'Updated custom rule name');
       await user.type(ui.descriptionTextbox.get(), 'Some description for custom rule');
 
-      await act(async () => {
-        await user.click(ui.saveButton.get(ui.updateCustomRuleDialog.get()));
-      });
+      await user.click(ui.saveButton.get(ui.updateCustomRuleDialog.get()));
 
       expect(ui.ruleTitle('Updated custom rule name').get()).toBeInTheDocument();
     });
@@ -758,9 +691,7 @@ describe('Rule app details', () => {
       await ui.appLoaded();
 
       await user.click(ui.deleteButton.get());
-      await act(async () => {
-        await user.click(ui.deleteButton.get(ui.deleteCustomRuleDialog.get()));
-      });
+      await user.click(ui.deleteButton.get(ui.deleteCustomRuleDialog.get()));
 
       // Shows the list of rules, custom rule should not be included
       expect(ui.ruleListItemLink('Custom Rule based on rule8').query()).not.toBeInTheDocument();

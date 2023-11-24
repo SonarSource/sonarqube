@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { act, screen, within } from '@testing-library/react';
+import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
 import selectEvent from 'react-select-event';
@@ -80,11 +80,10 @@ it('should ask for PAT when it is not set yet and show the import project featur
     screen.getByText('onboarding.create_project.pat_help.instructions.gitlab'),
   ).toBeInTheDocument();
   expect(screen.getByRole('button', { name: 'save' })).toBeInTheDocument();
-  await act(async () => {
-    await user.click(ui.personalAccessTokenInput.get());
-    await user.keyboard('secret');
-    await user.click(screen.getByRole('button', { name: 'save' }));
-  });
+
+  await user.click(ui.personalAccessTokenInput.get());
+  await user.keyboard('secret');
+  await user.click(screen.getByRole('button', { name: 'save' }));
 
   expect(screen.getByText('Gitlab project 1')).toBeInTheDocument();
   expect(screen.getByText('Gitlab project 2')).toBeInTheDocument();
@@ -98,11 +97,9 @@ it('should show import project feature when PAT is already set', async () => {
   renderCreateProject();
 
   expect(await screen.findByText('onboarding.create_project.gitlab.title')).toBeInTheDocument();
-  await act(async () => {
-    await selectEvent.select(ui.instanceSelector.get(), [/conf-final-2/]);
-  });
+  await selectEvent.select(ui.instanceSelector.get(), [/conf-final-2/]);
 
-  expect(screen.getByText('Gitlab project 1')).toBeInTheDocument();
+  expect(await screen.findByText('Gitlab project 1')).toBeInTheDocument();
   expect(screen.getByText('Gitlab project 2')).toBeInTheDocument();
 
   projectItem = screen.getByRole('listitem', { name: /Gitlab project 1/ });
@@ -142,11 +139,9 @@ it('should show search filter when PAT is already set', async () => {
 
   expect(await screen.findByText('onboarding.create_project.gitlab.title')).toBeInTheDocument();
 
-  await act(async () => {
-    await selectEvent.select(ui.instanceSelector.get(), [/conf-final-2/]);
-  });
+  await selectEvent.select(ui.instanceSelector.get(), [/conf-final-2/]);
 
-  const inputSearch = screen.getByRole('searchbox');
+  const inputSearch = await screen.findByRole('searchbox');
   await user.click(inputSearch);
   await user.keyboard('sea');
 
@@ -164,10 +159,8 @@ it('should have load more', async () => {
   renderCreateProject();
 
   expect(await screen.findByText('onboarding.create_project.gitlab.title')).toBeInTheDocument();
-  await act(async () => {
-    await selectEvent.select(ui.instanceSelector.get(), [/conf-final-2/]);
-  });
-  const loadMore = screen.getByRole('button', { name: 'show_more' });
+  await selectEvent.select(ui.instanceSelector.get(), [/conf-final-2/]);
+  const loadMore = await screen.findByRole('button', { name: 'show_more' });
   expect(loadMore).toBeInTheDocument();
 
   /*
@@ -190,11 +183,11 @@ it('should show no result message when there are no projects', async () => {
   renderCreateProject();
 
   expect(await screen.findByText('onboarding.create_project.gitlab.title')).toBeInTheDocument();
-  await act(async () => {
-    await selectEvent.select(ui.instanceSelector.get(), [/conf-final-2/]);
-  });
+  await selectEvent.select(ui.instanceSelector.get(), [/conf-final-2/]);
 
-  expect(screen.getByText('onboarding.create_project.gitlab.no_projects')).toBeInTheDocument();
+  expect(
+    await screen.findByText('onboarding.create_project.gitlab.no_projects'),
+  ).toBeInTheDocument();
 });
 
 function renderCreateProject() {

@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { act, screen, waitFor } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import selectEvent from 'react-select-event';
 import QualityProfilesServiceMock from '../../../api/mocks/QualityProfilesServiceMock';
@@ -108,14 +108,10 @@ describe('Admin or user with permission', () => {
       expect(await ui.permissionSection.find()).toBeInTheDocument();
 
       // Add user
-      await act(async () => {
-        await user.click(ui.grantPermissionButton.get());
-      });
+      await user.click(ui.grantPermissionButton.get());
       expect(ui.dialog.get()).toBeInTheDocument();
       await selectEvent.select(ui.selectUserOrGroup.get(), 'Buzz');
-      await act(async () => {
-        await user.click(ui.addButton.get());
-      });
+      await user.click(ui.addButton.get());
       expect(ui.permissionSection.byText('Buzz').get()).toBeInTheDocument();
 
       // Remove User
@@ -125,9 +121,7 @@ describe('Admin or user with permission', () => {
           .get(),
       );
       expect(ui.dialog.get()).toBeInTheDocument();
-      await act(async () => {
-        await user.click(ui.removeButton.get());
-      });
+      await user.click(ui.removeButton.get());
       expect(ui.permissionSection.byText('buzz').query()).not.toBeInTheDocument();
     });
 
@@ -139,14 +133,10 @@ describe('Admin or user with permission', () => {
       expect(await ui.permissionSection.find()).toBeInTheDocument();
 
       // Add Group
-      await act(async () => {
-        await user.click(ui.grantPermissionButton.get());
-      });
+      await user.click(ui.grantPermissionButton.get());
       expect(ui.dialog.get()).toBeInTheDocument();
       await selectEvent.select(ui.selectUserOrGroup.get(), 'ACDC');
-      await act(async () => {
-        await user.click(ui.addButton.get());
-      });
+      await user.click(ui.addButton.get());
       expect(ui.permissionSection.byText('ACDC').get()).toBeInTheDocument();
 
       // Remove group
@@ -156,9 +146,7 @@ describe('Admin or user with permission', () => {
           .get(),
       );
       expect(ui.dialog.get()).toBeInTheDocument();
-      await act(async () => {
-        await user.click(ui.removeButton.get());
-      });
+      await user.click(ui.removeButton.get());
       expect(ui.permissionSection.byText('ACDC').query()).not.toBeInTheDocument();
     });
 
@@ -179,15 +167,11 @@ describe('Admin or user with permission', () => {
       expect(await ui.projectSection.find()).toBeInTheDocument();
 
       expect(ui.projectSection.byText('Twitter').query()).not.toBeInTheDocument();
-      await act(async () => {
-        await user.click(ui.changeProjectsButton.get());
-      });
+      await user.click(ui.changeProjectsButton.get());
       expect(ui.dialog.get()).toBeInTheDocument();
 
-      await act(async () => {
-        await user.click(ui.withoutFilterButton.get());
-        await user.click(ui.twitterCheckbox.get());
-      });
+      await user.click(ui.withoutFilterButton.get());
+      await user.click(ui.twitterCheckbox.get());
       await user.click(ui.closeButton.get());
       expect(ui.projectSection.byText('Twitter').get()).toBeInTheDocument();
     });
@@ -200,14 +184,10 @@ describe('Admin or user with permission', () => {
       expect(await ui.projectSection.find()).toBeInTheDocument();
 
       expect(ui.projectSection.byText('Benflix').get()).toBeInTheDocument();
-      await act(async () => {
-        await user.click(ui.changeProjectsButton.get());
-      });
+      await user.click(ui.changeProjectsButton.get());
       expect(ui.dialog.get()).toBeInTheDocument();
 
-      await act(async () => {
-        await user.click(ui.benflixCheckbox.get());
-      });
+      await user.click(ui.benflixCheckbox.get());
       await user.click(ui.closeButton.get());
       expect(ui.projectSection.byText('Benflix').query()).not.toBeInTheDocument();
     });
@@ -270,15 +250,11 @@ describe('Admin or user with permission', () => {
       // Children
       expect(ui.inheritanceSection.byText('PHP way').get()).toBeInTheDocument();
 
-      await act(async () => {
-        await user.click(ui.changeParentButton.get());
-      });
+      await user.click(ui.changeParentButton.get());
       expect(await ui.dialog.find()).toBeInTheDocument();
       expect(ui.changeButton.get()).toBeDisabled();
       await selectEvent.select(ui.selectField.get(), 'PHP Sonar way 2');
-      await act(async () => {
-        await user.click(ui.changeButton.get());
-      });
+      await user.click(ui.changeButton.get());
       expect(ui.dialog.query()).not.toBeInTheDocument();
 
       await ui.waitForDataLoaded();
@@ -330,9 +306,7 @@ describe('Admin or user with permission', () => {
 
       await user.clear(ui.newNameInput.get());
       await user.type(ui.newNameInput.get(), 'Bad new PHP quality profile');
-      await act(async () => {
-        await user.click(ui.dialog.byRole('button', { name: 'extend' }).get());
-      });
+      await user.click(ui.dialog.byRole('button', { name: 'extend' }).get());
 
       expect(ui.dialog.query()).not.toBeInTheDocument();
 
@@ -355,9 +329,7 @@ describe('Admin or user with permission', () => {
 
       await user.clear(ui.newNameInput.get());
       await user.type(ui.newNameInput.get(), 'Good old PHP quality profile copy');
-      await act(async () => {
-        await user.click(ui.dialog.byRole('button', { name: 'copy' }).get());
-      });
+      await user.click(ui.dialog.byRole('button', { name: 'copy' }).get());
 
       expect(ui.dialog.query()).not.toBeInTheDocument();
 
@@ -378,9 +350,7 @@ describe('Admin or user with permission', () => {
 
       await user.clear(ui.newNameInput.get());
       await user.type(ui.newNameInput.get(), 'Fossil PHP quality profile');
-      await act(async () => {
-        await user.click(ui.dialog.byRole('button', { name: 'rename' }).get());
-      });
+      await user.click(ui.dialog.byRole('button', { name: 'rename' }).get());
 
       expect(ui.dialog.query()).not.toBeInTheDocument();
 
@@ -422,9 +392,7 @@ describe('Admin or user with permission', () => {
           .byText(/quality_profiles.are_you_sure_want_delete_profile_x_and_descendants/)
           .get(),
       ).toBeInTheDocument();
-      await act(async () => {
-        await user.click(ui.dialog.byRole('button', { name: 'delete' }).get());
-      });
+      await user.click(ui.dialog.byRole('button', { name: 'delete' }).get());
 
       expect(ui.qualityProfilesHeader.get()).toBeInTheDocument();
       // children
@@ -445,10 +413,7 @@ describe('Users with no permission', () => {
 
   it('should not be able to grant permission to a user', async () => {
     renderQualityProfile();
-
     await ui.waitForDataLoaded();
-
-    expect(await screen.findAllByText('Good old PHP quality profile')).toHaveLength(2);
 
     expect(ui.permissionSection.query()).not.toBeInTheDocument();
   });

@@ -69,7 +69,7 @@ describe('issues app filtering', () => {
     await waitOnDataLoaded();
 
     // Select CC responsible category (should make the first issue disappear)
-    await user.click(ui.responsibleCategoryFilter.get());
+    await user.click(await ui.responsibleCategoryFilter.find());
     expect(ui.issueItem1.query()).not.toBeInTheDocument();
 
     // Select responsible + Maintainability quality
@@ -174,7 +174,7 @@ describe('issues app filtering', () => {
 
     // Clear filter
     await user.click(ui.clearCodeVariantsFacet.get());
-    expect(ui.issueItem1.get()).toBeInTheDocument();
+    expect(await ui.issueItem1.find()).toBeInTheDocument();
   });
 
   it('should properly hide the code variants filter if no issue has any code variants', async () => {

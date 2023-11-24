@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { act, within } from '@testing-library/react';
+import { within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
 import BranchesServiceMock from '../../../api/mocks/BranchesServiceMock';
@@ -135,9 +135,7 @@ it('should be able to rename main branch, but not others', async () => {
   ).toBeDisabled();
   await user.type(within(ui.renameBranchDialog.get()).getByRole('textbox'), 'develop');
   expect(within(ui.renameBranchDialog.get()).getByRole('button', { name: 'rename' })).toBeEnabled();
-  await act(() =>
-    user.click(within(ui.renameBranchDialog.get()).getByRole('button', { name: 'rename' })),
-  );
+  await user.click(ui.renameBranchDialog.byRole('button', { name: 'rename' }).get());
   expect(ui.branchRow.getAt(1)).toHaveTextContent('developbranches.main_branchOK1 month ago');
   await expect(byLabelText('help').get()).toHaveATooltipWithContent(
     'project_branch_pull_request.branch.auto_deletion.main_branch_tooltip',
@@ -162,13 +160,13 @@ it('should be able to set a branch as the main branch', async () => {
   // Change main branch.
   await user.click(await ui.updateSecondBranchBtn.find());
   await user.click(ui.setMainBranchBtn.get());
-  await act(async () => {
-    await user.click(
-      within(ui.dialog.get()).getByRole('button', {
+  await user.click(
+    ui.dialog
+      .byRole('button', {
         name: 'project_branch_pull_request.branch.set_main',
-      }),
-    );
-  });
+      })
+      .get(),
+  );
 
   // "delete-branch" is now the main branch.
   expect(ui.getBranchRow(/delete-branch/)).toBeInTheDocument();
@@ -190,9 +188,7 @@ it('should be able to delete branch, but not main', async () => {
   await user.click(ui.deleteBranchBtn.get());
   expect(ui.deleteBranchDialog.get()).toBeInTheDocument();
   expect(ui.deleteBranchDialog.get()).toHaveTextContent('delete-branch');
-  await act(() =>
-    user.click(within(ui.deleteBranchDialog.get()).getByRole('button', { name: 'delete' })),
-  );
+  await user.click(ui.deleteBranchDialog.byRole('button', { name: 'delete' }).get());
   expect(ui.branchRow.getAll()).toHaveLength(3);
 
   await user.click(await ui.updateMasterBtn.find());
@@ -204,11 +200,12 @@ it('should exclude from purge', async () => {
   renderProjectBranchesApp();
   expect(await ui.branchTabContent.find()).toBeInTheDocument();
   expect(within(await ui.branchRow.findAt(2)).getByRole('switch')).not.toBeChecked();
-  await act(() => user.click(within(ui.branchRow.getAt(2)).getByRole('switch')));
+
+  await user.click(within(ui.branchRow.getAt(2)).getByRole('switch'));
   expect(within(ui.branchRow.getAt(2)).getByRole('switch')).toBeChecked();
 
   expect(within(ui.branchRow.getAt(3)).getByRole('switch')).toBeChecked();
-  await act(() => user.click(within(ui.branchRow.getAt(3)).getByRole('switch')));
+  await user.click(within(ui.branchRow.getAt(3)).getByRole('switch'));
   expect(within(ui.branchRow.getAt(3)).getByRole('switch')).not.toBeChecked();
 
   await user.click(ui.pullRequestTabBtn.get());
@@ -239,9 +236,7 @@ it('should delete pull requests', async () => {
   await user.click(ui.deletePullRequestBtn.get());
   expect(await ui.deletePullRequestDialog.find()).toBeInTheDocument();
   expect(ui.deletePullRequestDialog.get()).toHaveTextContent('01 – TEST-191 update master');
-  await act(() =>
-    user.click(within(ui.deletePullRequestDialog.get()).getByRole('button', { name: 'delete' })),
-  );
+  await user.click(ui.deletePullRequestDialog.byRole('button', { name: 'delete' }).get());
   expect(ui.pullRequestRow.getAll()).toHaveLength(3);
 });
 

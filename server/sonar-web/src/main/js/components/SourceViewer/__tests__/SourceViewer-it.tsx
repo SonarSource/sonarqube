@@ -21,7 +21,6 @@
 import { queryHelpers, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
-import { act } from 'react-dom/test-utils';
 import ComponentsServiceMock from '../../../api/mocks/ComponentsServiceMock';
 import IssuesServiceMock from '../../../api/mocks/IssuesServiceMock';
 import { HttpStatus } from '../../../helpers/request';
@@ -81,9 +80,7 @@ it('should show a permalink on line number', async () => {
     ),
   ).toBeInTheDocument();
 
-  await act(async () => {
-    await user.keyboard('[Escape]');
-  });
+  await user.keyboard('[Escape]');
 
   expect(
     /* eslint-disable-next-line testing-library/prefer-presence-queries */
@@ -98,13 +95,11 @@ it('should show a permalink on line number', async () => {
   expect(row).toBeInTheDocument();
   const lowerRowScreen = within(row);
 
-  await act(async () => {
-    await user.click(
-      lowerRowScreen.getByRole('button', {
-        name: 'source_viewer.line_X.6',
-      }),
-    );
-  });
+  await user.click(
+    lowerRowScreen.getByRole('button', {
+      name: 'source_viewer.line_X.6',
+    }),
+  );
 
   expect(
     lowerRowScreen.getByRole('menuitem', {
@@ -146,13 +141,11 @@ it('should be able to interact with issue action', async () => {
   renderSourceViewer();
 
   // Assign issue to a different user
-  await act(async () => {
-    await user.click(
-      await screen.findByRole('combobox', { name: 'issue.assign.unassigned_click_to_assign' }),
-    );
-    await user.click(screen.getByLabelText('search.search_for_users'));
-    await user.keyboard('luke');
-  });
+  await user.click(
+    await screen.findByRole('combobox', { name: 'issue.assign.unassigned_click_to_assign' }),
+  );
+  await user.click(screen.getByLabelText('search.search_for_users'));
+  await user.keyboard('luke');
   expect(screen.getByText('Skywalker')).toBeInTheDocument();
 });
 
@@ -203,13 +196,11 @@ it('should show SCM information', async () => {
   expect(row).toBeInTheDocument();
   const fourthRowScreen = within(row);
 
-  await act(async () => {
-    await user.click(
-      fourthRowScreen.getByRole('button', {
-        name: 'source_viewer.author_X.stas.vilchik@sonarsource.com, source_viewer.click_for_scm_info.4',
-      }),
-    );
-  });
+  await user.click(
+    fourthRowScreen.getByRole('button', {
+      name: 'source_viewer.author_X.stas.vilchik@sonarsource.com, source_viewer.click_for_scm_info.4',
+    }),
+  );
 
   // SCM with no date no author
   row = await screen.findByRole('row', { name: /\* 5$/ });
@@ -217,13 +208,11 @@ it('should show SCM information', async () => {
   const fithRowScreen = within(row);
   expect(fithRowScreen.getByText('…')).toBeInTheDocument();
 
-  await act(async () => {
-    await user.click(
-      fithRowScreen.getByRole('button', {
-        name: 'source_viewer.click_for_scm_info.5',
-      }),
-    );
-  });
+  await user.click(
+    fithRowScreen.getByRole('button', {
+      name: 'source_viewer.click_for_scm_info.5',
+    }),
+  );
 
   // No SCM Popup
   row = await screen.findByRole('row', {
@@ -323,17 +312,13 @@ it('should show duplication block', async () => {
     duplicateLine.getByLabelText('source_viewer.tooltip.duplicated_block'),
   ).toBeInTheDocument();
 
-  await act(async () => {
-    await user.click(
-      duplicateLine.getByRole('button', { name: 'source_viewer.tooltip.duplicated_block' }),
-    );
-  });
+  await user.click(
+    duplicateLine.getByRole('button', { name: 'source_viewer.tooltip.duplicated_block' }),
+  );
 
   expect(screen.getByRole('tooltip')).toBeVisible();
 
-  await act(async () => {
-    await user.click(document.body);
-  });
+  await user.click(document.body);
 
   expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
 });

@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { act, screen, waitFor, within } from '@testing-library/react';
+import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { UserEvent } from '@testing-library/user-event/dist/types/setup/setup';
 import { uniq } from 'lodash';
@@ -117,9 +117,7 @@ describe('CRUD', () => {
     renderPermissionTemplatesApp();
     await ui.appLoaded();
 
-    await act(async () => {
-      await ui.createNewTemplate('New Permission Template', 'New template description');
-    });
+    await ui.createNewTemplate('New Permission Template', 'New template description');
     await ui.appLoaded();
 
     expect(screen.getByRole('heading', { name: 'New Permission Template' })).toBeInTheDocument();
@@ -195,9 +193,7 @@ describe('CRUD', () => {
     renderPermissionTemplatesApp();
     await ui.appLoaded();
 
-    await act(async () => {
-      await ui.deleteTemplate('Permission Template 2');
-    });
+    await ui.deleteTemplate('Permission Template 2');
     await ui.appLoaded();
 
     expect(ui.templateLink('Permission Template 1').get()).toBeInTheDocument();
@@ -213,9 +209,7 @@ describe('CRUD', () => {
     await ui.openTemplateDetails('Permission Template 2');
     await ui.appLoaded();
 
-    await act(async () => {
-      await ui.deleteTemplate('Permission Template 2');
-    });
+    await ui.deleteTemplate('Permission Template 2');
     await ui.appLoaded();
 
     expect(ui.templateLink('Permission Template 1').get()).toBeInTheDocument();
@@ -472,7 +466,7 @@ function getPageObject(user: UserEvent) {
       await user.click(ui.loadMoreBtn.get());
     },
     async togglePermission(target: string, permission: Permissions) {
-      await act(() => user.click(ui.permissionCheckbox(target, permission).get()));
+      await user.click(ui.permissionCheckbox(target, permission).get());
     },
     async openCreateModal() {
       await user.click(ui.createNewTemplateBtn.get());

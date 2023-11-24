@@ -21,7 +21,6 @@
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
-import { act } from 'react-dom/test-utils';
 import AuthenticationServiceMock from '../../../api/mocks/AuthenticationServiceMock';
 import GroupsServiceMock from '../../../api/mocks/GroupsServiceMock';
 import { Provider } from '../../../components/hooks/useManageProvider';
@@ -103,7 +102,7 @@ describe('in non managed mode', () => {
   it('should render all groups', async () => {
     renderGroupsApp();
 
-    await act(async () => expect(await ui.localGroupRow.find()).toBeInTheDocument());
+    expect(await ui.localGroupRow.find()).toBeInTheDocument();
     expect(ui.managedGroupRow.get()).toBeInTheDocument();
     expect(ui.localGroupRowWithLocalBadge.query()).not.toBeInTheDocument();
   });
@@ -112,18 +111,15 @@ describe('in non managed mode', () => {
     const user = userEvent.setup();
     renderGroupsApp();
 
-    await act(async () => expect(await ui.description.find()).toBeInTheDocument());
-    await act(async () => {
-      await user.click(ui.createGroupButton.get());
-    });
+    expect(await ui.description.find()).toBeInTheDocument();
+
+    await user.click(ui.createGroupButton.get());
 
     expect(await ui.createGroupDialog.find()).toBeInTheDocument();
 
-    await act(async () => {
-      await user.type(ui.nameInput.get(), 'local-group 2');
-      await user.type(ui.descriptionInput.get(), 'group 2 is loco!');
-      await user.click(ui.createGroupDialogButton.get());
-    });
+    await user.type(ui.nameInput.get(), 'local-group 2');
+    await user.type(ui.descriptionInput.get(), 'group 2 is loco!');
+    await user.click(ui.createGroupDialogButton.get());
 
     expect(await ui.localGroupRow2.find()).toBeInTheDocument();
   });
@@ -132,15 +128,12 @@ describe('in non managed mode', () => {
     const user = userEvent.setup();
     renderGroupsApp();
 
-    await act(async () => {
-      await user.click(await ui.localEditButton.find());
-      await user.click(await ui.deleteButton.find());
-    });
+    await user.click(await ui.localEditButton.find());
+    await user.click(await ui.deleteButton.find());
 
     expect(await ui.deleteDialog.find()).toBeInTheDocument();
-    await act(async () => {
-      await user.click(ui.deleteDialogButton.get());
-    });
+
+    await user.click(ui.deleteDialogButton.get());
 
     expect(await ui.managedGroupRow.find()).toBeInTheDocument();
     expect(ui.localGroupRow.query()).not.toBeInTheDocument();
@@ -150,25 +143,19 @@ describe('in non managed mode', () => {
     const user = userEvent.setup();
     renderGroupsApp();
 
-    await act(async () => {
-      await user.click(await ui.localEditButton.find());
-      await user.click(await ui.updateButton.find());
-    });
+    await user.click(await ui.localEditButton.find());
+    await user.click(await ui.updateButton.find());
 
     expect(ui.updateDialog.get()).toBeInTheDocument();
 
-    await act(async () => {
-      await user.clear(ui.nameInput.get());
-      await user.type(ui.nameInput.get(), 'local-group 3');
-      await user.clear(ui.descriptionInput.get());
-      await user.type(ui.descriptionInput.get(), 'group 3 rocks!');
-    });
+    await user.clear(ui.nameInput.get());
+    await user.type(ui.nameInput.get(), 'local-group 3');
+    await user.clear(ui.descriptionInput.get());
+    await user.type(ui.descriptionInput.get(), 'group 3 rocks!');
 
     expect(ui.updateDialog.get()).toBeInTheDocument();
 
-    await act(async () => {
-      await user.click(ui.updateDialogButton.get());
-    });
+    await user.click(ui.updateDialogButton.get());
 
     expect(await ui.managedGroupRow.find()).toBeInTheDocument();
     expect(await ui.editedLocalGroupRow.find()).toBeInTheDocument();
@@ -178,12 +165,10 @@ describe('in non managed mode', () => {
     const user = userEvent.setup();
     renderGroupsApp();
 
-    await act(async () => expect(await ui.localGroupRow.find()).toBeInTheDocument());
+    expect(await ui.localGroupRow.find()).toBeInTheDocument();
     expect(await ui.localGroupEditMembersButton.find()).toBeInTheDocument();
 
-    await act(async () => {
-      await user.click(ui.localGroupEditMembersButton.get());
-    });
+    await user.click(ui.localGroupEditMembersButton.get());
 
     expect(await ui.membersDialog.find()).toBeInTheDocument();
 
@@ -205,7 +190,7 @@ describe('in non managed mode', () => {
     await user.click(ui.reloadButton.get());
     expect(ui.getMembers()).toHaveLength(2);
 
-    await act(() => user.click(ui.doneButton.get()));
+    await user.click(ui.doneButton.get());
     expect(ui.membersDialog.query()).not.toBeInTheDocument();
   });
 
@@ -213,12 +198,10 @@ describe('in non managed mode', () => {
     const user = userEvent.setup();
     renderGroupsApp();
 
-    await act(async () => expect(await ui.localGroupRow.find()).toBeInTheDocument());
+    expect(await ui.localGroupRow.find()).toBeInTheDocument();
     expect(ui.managedGroupRow.get()).toBeInTheDocument();
 
-    await act(async () => {
-      await user.type(await ui.searchInput.find(), 'local');
-    });
+    await user.type(await ui.searchInput.find(), 'local');
 
     expect(await ui.localGroupRow.find()).toBeInTheDocument();
     expect(ui.managedGroupRow.query()).not.toBeInTheDocument();
@@ -228,12 +211,10 @@ describe('in non managed mode', () => {
     const user = userEvent.setup();
     renderGroupsApp();
 
-    await act(async () => expect(await ui.localGroupRow.find()).toBeInTheDocument());
+    expect(await ui.localGroupRow.find()).toBeInTheDocument();
     expect(await screen.findAllByRole('row')).toHaveLength(3);
 
-    await act(async () => {
-      await user.click(await ui.showMore.find());
-    });
+    await user.click(await ui.showMore.find());
 
     expect(await screen.findAllByRole('row')).toHaveLength(5);
   });
@@ -246,7 +227,7 @@ describe('in manage mode', () => {
 
   it('should not be able to create a group', async () => {
     renderGroupsApp();
-    await act(async () => expect(await ui.createGroupButton.find()).toBeDisabled());
+    expect(await ui.createGroupButton.find()).toBeDisabled();
     expect(ui.infoManageMode.get()).toBeInTheDocument();
   });
 
@@ -254,22 +235,18 @@ describe('in manage mode', () => {
     const user = userEvent.setup();
     renderGroupsApp();
 
-    await act(async () => expect(await ui.localGroupRowWithLocalBadge.find()).toBeInTheDocument());
+    expect(await ui.localGroupRowWithLocalBadge.find()).toBeInTheDocument();
 
-    await act(async () => {
-      await user.click(await ui.localFilter.find());
-      await user.click(await ui.localEditButton.find());
-    });
+    await user.click(await ui.localFilter.find());
+    await user.click(await ui.localEditButton.find());
+
     expect(ui.updateButton.query()).not.toBeInTheDocument();
 
-    await act(async () => {
-      await user.click(await ui.deleteButton.find());
-    });
+    await user.click(await ui.deleteButton.find());
 
     expect(await ui.deleteDialog.find()).toBeInTheDocument();
-    await act(async () => {
-      await user.click(ui.deleteDialogButton.get());
-    });
+
+    await user.click(ui.deleteDialogButton.get());
 
     await waitFor(() => {
       expect(ui.localGroupRowWithLocalBadge.query()).not.toBeInTheDocument();
@@ -280,18 +257,18 @@ describe('in manage mode', () => {
     const user = userEvent.setup();
     renderGroupsApp();
 
-    await act(async () => expect(await ui.managedGroupRow.find()).toBeInTheDocument());
+    expect(await ui.managedGroupRow.find()).toBeInTheDocument();
     expect(ui.managedEditButton.query()).not.toBeInTheDocument();
 
     expect(ui.managedGroupEditMembersButton.query()).not.toBeInTheDocument();
 
-    await act(() => user.click(ui.managedGroupViewMembersButton.get()));
+    await user.click(ui.managedGroupViewMembersButton.get());
     expect(await ui.membersViewDialog.find()).toBeInTheDocument();
 
     expect(ui.memberAliceUser.get()).toBeInTheDocument();
     expect(ui.memberBobUser.get()).toBeInTheDocument();
 
-    await act(() => user.type(ui.memberSearchInput.get(), 'b'));
+    await user.type(ui.memberSearchInput.get(), 'b');
 
     expect(await ui.memberBobUser.find()).toBeInTheDocument();
     expect(ui.memberAliceUser.query()).not.toBeInTheDocument();
@@ -300,7 +277,7 @@ describe('in manage mode', () => {
   it('should render list of all groups', async () => {
     renderGroupsApp();
 
-    await act(async () => expect(await ui.localAndManagedFilter.find()).toBeInTheDocument());
+    expect(await ui.localAndManagedFilter.find()).toBeInTheDocument();
 
     expect(await ui.localGroupRowWithLocalBadge.find()).toBeInTheDocument();
 
@@ -311,9 +288,7 @@ describe('in manage mode', () => {
     const user = userEvent.setup();
     renderGroupsApp();
 
-    await act(async () => {
-      await user.click(await ui.managedFilter.find());
-    });
+    await user.click(await ui.managedFilter.find());
 
     expect(await ui.managedGroupRow.find()).toBeInTheDocument();
     expect(ui.localGroupRow.query()).not.toBeInTheDocument();
@@ -323,9 +298,7 @@ describe('in manage mode', () => {
     const user = userEvent.setup();
     renderGroupsApp();
 
-    await act(async () => {
-      await user.click(await ui.localFilter.find());
-    });
+    await user.click(await ui.localFilter.find());
 
     expect(await ui.localGroupRowWithLocalBadge.find()).toBeInTheDocument();
     expect(ui.managedGroupRow.query()).not.toBeInTheDocument();
@@ -343,7 +316,8 @@ describe('in manage mode', () => {
         executedAt: '2022-02-03T11:45:35+0200',
       });
       renderGroupsApp([Feature.GithubProvisioning]);
-      await act(async () => expect(await ui.githubProvisioningSuccess.find()).toBeInTheDocument());
+
+      expect(await ui.githubProvisioningSuccess.find()).toBeInTheDocument();
     });
 
     it('should display a success status even when another task is pending', async () => {
@@ -356,7 +330,8 @@ describe('in manage mode', () => {
         executedAt: '2022-02-03T11:45:35+0200',
       });
       renderGroupsApp([Feature.GithubProvisioning]);
-      await act(async () => expect(await ui.githubProvisioningSuccess.find()).toBeInTheDocument());
+
+      expect(await ui.githubProvisioningSuccess.find()).toBeInTheDocument();
       expect(ui.githubProvisioningPending.query()).not.toBeInTheDocument();
     });
 
@@ -367,7 +342,8 @@ describe('in manage mode', () => {
         errorMessage: "T'es mauvais Jacques",
       });
       renderGroupsApp([Feature.GithubProvisioning]);
-      await act(async () => expect(await ui.githubProvisioningAlert.find()).toBeInTheDocument());
+
+      expect(await ui.githubProvisioningAlert.find()).toBeInTheDocument();
       expect(screen.queryByText("T'es mauvais Jacques")).not.toBeInTheDocument();
       expect(ui.githubProvisioningSuccess.query()).not.toBeInTheDocument();
     });
@@ -383,7 +359,8 @@ describe('in manage mode', () => {
         errorMessage: "T'es mauvais Jacques",
       });
       renderGroupsApp([Feature.GithubProvisioning]);
-      await act(async () => expect(await ui.githubProvisioningAlert.find()).toBeInTheDocument());
+
+      expect(await ui.githubProvisioningAlert.find()).toBeInTheDocument();
       expect(screen.queryByText("T'es mauvais Jacques")).not.toBeInTheDocument();
       expect(ui.githubProvisioningSuccess.query()).not.toBeInTheDocument();
       expect(ui.githubProvisioningInProgress.query()).not.toBeInTheDocument();
@@ -394,9 +371,7 @@ describe('in manage mode', () => {
       const user = userEvent.setup();
       renderGroupsApp();
 
-      await act(async () => {
-        await user.click(await ui.managedFilter.find());
-      });
+      await user.click(await ui.managedFilter.find());
 
       expect(
         within(await ui.githubManagedGroupRow.find()).getByRole('img', { name: 'github' }),

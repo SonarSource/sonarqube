@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { act, screen, within } from '@testing-library/react';
+import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
 import { TabKeys } from '../../../components/rules/RuleTabViewer';
@@ -86,9 +86,7 @@ describe('issue app', () => {
     const user = userEvent.setup();
     renderProjectIssuesApp('project/issues?id=myproject');
 
-    await act(async () => {
-      await user.click(await ui.issueItemAction2.find());
-    });
+    await user.click(await ui.issueItemAction2.find());
 
     expect(await screen.findByLabelText('list_of_issues')).toBeInTheDocument();
 
@@ -162,22 +160,17 @@ describe('issue app', () => {
 
     expect(listItem.getByText('issue.issue_status.OPEN')).toBeInTheDocument();
 
-    await act(async () => {
-      await user.click(listItem.getByText('issue.issue_status.OPEN'));
-    });
+    await user.click(listItem.getByText('issue.issue_status.OPEN'));
+
     expect(listItem.getByText('issue.transition.accept')).toBeInTheDocument();
     expect(listItem.getByText('issue.transition.confirm')).toBeInTheDocument();
 
-    await act(async () => {
-      await user.click(listItem.getByText('issue.transition.confirm'));
-    });
+    await user.click(listItem.getByText('issue.transition.confirm'));
 
     expect(listItem.getByRole('textbox')).toBeInTheDocument();
 
-    await act(async () => {
-      await user.type(listItem.getByRole('textbox'), 'test');
-      await user.click(listItem.getByText('resolve'));
-    });
+    await user.type(listItem.getByRole('textbox'), 'test');
+    await user.click(listItem.getByText('resolve'));
 
     expect(
       listItem.getByLabelText(
@@ -186,11 +179,9 @@ describe('issue app', () => {
     ).toBeInTheDocument();
 
     // Change status again
-    await act(async () => {
-      await user.click(listItem.getByText('issue.issue_status.CONFIRMED'));
-      await user.click(listItem.getByText('issue.transition.accept'));
-      await user.click(listItem.getByText('resolve'));
-    });
+    await user.click(listItem.getByText('issue.issue_status.CONFIRMED'));
+    await user.click(listItem.getByText('issue.transition.accept'));
+    await user.click(listItem.getByText('resolve'));
 
     expect(
       listItem.getByLabelText(
@@ -211,17 +202,15 @@ describe('issue app', () => {
     // Get a specific issue list item
     const listItem = within(await screen.findByLabelText('Fix that'));
     // Assign issue to a different user
-    await act(async () => {
-      await user.click(listItem.getByLabelText('issue.assign.unassigned_click_to_assign'));
-      await user.click(screen.getByLabelText('search.search_for_users'));
-      await user.keyboard('luke');
-    });
+    await user.click(listItem.getByLabelText('issue.assign.unassigned_click_to_assign'));
+    await user.click(screen.getByLabelText('search.search_for_users'));
+    await user.keyboard('luke');
+
     expect(screen.getByText('Skywalker')).toBeInTheDocument();
 
-    await act(async () => {
-      await user.click(screen.getByText('Skywalker'));
-    });
+    await user.click(screen.getByText('Skywalker'));
     await listItem.findByLabelText('issue.assign.assigned_to_x_click_to_change.luke');
+
     expect(
       listItem.getByLabelText('issue.assign.assigned_to_x_click_to_change.luke'),
     ).toBeInTheDocument();
@@ -237,45 +226,36 @@ describe('issue app', () => {
 
     // Change tags
     expect(listItem.getByText('issue.no_tag')).toBeInTheDocument();
-    await act(async () => {
-      await user.click(listItem.getByText('issue.no_tag'));
-    });
+
+    await user.click(listItem.getByText('issue.no_tag'));
+
     expect(listItem.getByLabelText('search.search_for_tags')).toBeInTheDocument();
     expect(listItem.getByText('android')).toBeInTheDocument();
     expect(listItem.getByText('accessibility')).toBeInTheDocument();
 
-    await act(async () => {
-      await user.click(listItem.getByText('accessibility'));
-      await user.click(listItem.getByText('android'));
-    });
+    await user.click(listItem.getByText('accessibility'));
+    await user.click(listItem.getByText('android'));
 
     await user.keyboard('{Escape}');
     await expect(
       byRole('button', { name: 'accessibility android +' }).byText('accessibility').get(),
     ).toHaveATooltipWithContent('accessibility, android');
 
-    await act(async () => {
-      await user.click(listItem.getByRole('button', { name: 'accessibility android +' }));
-    });
+    await user.click(listItem.getByRole('button', { name: 'accessibility android +' }));
 
     // Unselect
-    await act(async () => {
-      await user.click(screen.getByLabelText('accessibility'));
-    });
+    await user.click(screen.getByLabelText('accessibility'));
 
     await user.keyboard('{Escape}');
     await expect(
       byRole('button', { name: 'android +' }).byText('android').get(),
     ).toHaveATooltipWithContent('android');
 
-    await act(async () => {
-      await user.click(listItem.getByRole('button', { name: 'android +' }));
-    });
+    await user.click(listItem.getByRole('button', { name: 'android +' }));
 
-    await act(async () => {
-      await user.click(screen.getByLabelText('search.search_for_tags'));
-      await user.keyboard('addNewTag');
-    });
+    await user.click(screen.getByLabelText('search.search_for_tags'));
+    await user.keyboard('addNewTag');
+
     expect(screen.getByLabelText('issue.create_tag: addnewtag')).toBeInTheDocument();
   });
 
@@ -283,9 +263,7 @@ describe('issue app', () => {
     const user = userEvent.setup();
     renderIssueApp();
 
-    await act(async () => {
-      await user.click(await ui.issueItem4.find());
-    });
+    await user.click(await ui.issueItem4.find());
 
     expect(
       screen.queryByRole('button', {
@@ -316,39 +294,33 @@ describe('issue app', () => {
     renderIssueApp();
 
     // Select an issue with an advanced rule
-    await act(async () => {
-      await user.click(await ui.issueItemAction5.find());
+    await user.click(await ui.issueItemAction5.find());
 
-      // Open status popup on key press 'f'
-      await user.keyboard('f');
-    });
+    // Open status popup on key press 'f'
+    await user.keyboard('f');
+
     expect(screen.getByText('issue.transition.confirm')).toBeInTheDocument();
     expect(screen.getByText('issue.transition.resolve')).toBeInTheDocument();
 
     // Open comment popup on key press 'c'
-    await act(async () => {
-      await user.keyboard('c');
-    });
+    await user.keyboard('c');
+
     expect(screen.getByText('issue.comment.formlink')).toBeInTheDocument();
-    await act(async () => {
-      await user.keyboard('{Escape}');
-    });
+    await user.keyboard('{Escape}');
 
     // Open tags popup on key press 't'
-    await act(async () => {
-      await user.keyboard('t');
-    });
+    await user.keyboard('t');
+
     expect(screen.getByRole('searchbox', { name: 'search.search_for_tags' })).toBeInTheDocument();
     expect(screen.getByText('android')).toBeInTheDocument();
     expect(screen.getByText('accessibility')).toBeInTheDocument();
 
     // Close tags popup
-    await act(async () => {
-      await user.click(screen.getByText('issue.no_tag'));
+    await user.click(screen.getByText('issue.no_tag'));
 
-      // Open assign popup on key press 'a'
-      await user.keyboard('a');
-    });
+    // Open assign popup on key press 'a'
+    await user.keyboard('a');
+
     expect(screen.getByRole('searchbox', { name: 'search.search_for_tags' })).toBeInTheDocument();
   });
 
@@ -359,9 +331,7 @@ describe('issue app', () => {
     renderIssueApp();
 
     // Select an issue with an advanced rule
-    await act(async () => {
-      await user.click(await ui.issueItem5.find());
-    });
+    await user.click(await ui.issueItem5.find());
 
     // open status popup on key press 'f'
     await user.keyboard('f');
@@ -378,27 +348,24 @@ describe('issue app', () => {
     const user = userEvent.setup();
     renderIssueApp();
 
-    await act(async () => {
-      await user.click(await ui.issueItemAction4.find());
-    });
+    await user.click(await ui.issueItemAction4.find());
+
     expect(screen.getByRole('link', { name: 'location 1' })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'location 2' })).toBeInTheDocument();
 
     // Select the "why is this an issue" tab
-    await act(async () => {
-      await user.click(
-        screen.getByRole('tab', { name: 'coding_rules.description_section.title.root_cause' }),
-      );
-    });
+    await user.click(
+      screen.getByRole('tab', { name: 'coding_rules.description_section.title.root_cause' }),
+    );
+
     expect(
       screen.queryByRole('tab', {
         name: `issue.tabs.${TabKeys.Code}`,
       }),
     ).toHaveAttribute('aria-current', 'false');
 
-    await act(async () => {
-      await user.click(screen.getByRole('link', { name: 'location 1' }));
-    });
+    await user.click(screen.getByRole('link', { name: 'location 1' }));
+
     expect(
       screen.queryByRole('tab', {
         name: `issue.tabs.${TabKeys.Code}`,
@@ -406,20 +373,18 @@ describe('issue app', () => {
     ).toHaveAttribute('aria-current', 'true');
 
     // Select the same selected hotspot location should also navigate back to code page
-    await act(async () => {
-      await user.click(
-        screen.getByRole('tab', { name: 'coding_rules.description_section.title.root_cause' }),
-      );
-    });
+    await user.click(
+      screen.getByRole('tab', { name: 'coding_rules.description_section.title.root_cause' }),
+    );
+
     expect(
       screen.queryByRole('tab', {
         name: `issue.tabs.${TabKeys.Code}`,
       }),
     ).toHaveAttribute('aria-current', 'false');
 
-    await act(async () => {
-      await user.click(screen.getByRole('link', { name: 'location 1' }));
-    });
+    await user.click(screen.getByRole('link', { name: 'location 1' }));
+
     expect(
       screen.queryByRole('tab', {
         name: `issue.tabs.${TabKeys.Code}`,
@@ -433,9 +398,7 @@ describe('issue app', () => {
     renderIssueApp();
 
     // Select an issue with an advanced rule
-    await act(async () => {
-      await user.click(await ui.issueItemAction7.find());
-    });
+    await user.click(await ui.issueItemAction7.find());
 
     await expect(
       screen.getByText('issue.quick_fix_available_with_sonarlint_no_link'),

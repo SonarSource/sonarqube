@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { act, screen, waitFor, within } from '@testing-library/react';
+import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import selectEvent from 'react-select-event';
 import AuthenticationServiceMock from '../../../api/mocks/AuthenticationServiceMock';
@@ -176,7 +176,7 @@ it('should filter projects', async () => {
   renderProjectManagementApp();
   await waitFor(() => expect(ui.row.getAll()).toHaveLength(5));
   await selectEvent.select(ui.visibilityFilter.get(), 'visibility.public');
-  expect(ui.row.getAll()).toHaveLength(4);
+  await waitFor(() => expect(ui.row.getAll()).toHaveLength(4));
   await user.click(ui.analysisDateFilter.get());
   await user.click(await screen.findByRole('gridcell', { name: '5' }));
   expect(ui.row.getAll()).toHaveLength(3);
@@ -186,11 +186,11 @@ it('should filter projects', async () => {
   await selectEvent.select(ui.qualifierFilter.get(), 'qualifiers.VW');
   expect(ui.provisionedFilter.query()).not.toBeInTheDocument();
   expect(ui.row.getAll()).toHaveLength(2);
-  expect(ui.row.getAll()[1]).toHaveTextContent('Portfolio 1');
+  await waitFor(() => expect(ui.row.getAll()[1]).toHaveTextContent('Portfolio 1'));
   await selectEvent.select(ui.qualifierFilter.get(), 'qualifiers.APP');
   expect(ui.provisionedFilter.query()).not.toBeInTheDocument();
   expect(ui.row.getAll()).toHaveLength(2);
-  expect(ui.row.getAll()[1]).toHaveTextContent('Application 1');
+  await waitFor(() => expect(ui.row.getAll()[1]).toHaveTextContent('Application 1'));
 });
 
 it('should search by text', async () => {
@@ -200,12 +200,12 @@ it('should search by text', async () => {
   await user.type(ui.searchFilter.get(), 'provision');
   expect(ui.row.getAll()).toHaveLength(2);
   await selectEvent.select(ui.qualifierFilter.get(), 'qualifiers.VW');
-  expect(ui.row.getAll()).toHaveLength(4);
+  await waitFor(() => expect(ui.row.getAll()).toHaveLength(4));
   expect(ui.searchFilter.get()).toHaveValue('');
   await user.type(ui.searchFilter.get(), 'Portfolio 2');
   expect(ui.row.getAll()).toHaveLength(2);
   await selectEvent.select(ui.qualifierFilter.get(), 'qualifiers.APP');
-  expect(ui.row.getAll()).toHaveLength(4);
+  await waitFor(() => expect(ui.row.getAll()).toHaveLength(4));
   expect(ui.searchFilter.get()).toHaveValue('');
   await user.type(ui.searchFilter.get(), 'Application 3');
   expect(ui.row.getAll()).toHaveLength(2);
@@ -359,42 +359,46 @@ it('should load more and change the filter without caching old pages', async () 
   handler.setProjects([
     ...Array.from({ length: 60 }, (_, i) =>
       mockProject({
-        key: ComponentQualifier.Project + i.toString(),
+        key: `${ComponentQualifier.Project}${i.toString()}`,
         name: `Project ${i}`,
         qualifier: ComponentQualifier.Project,
       }),
     ),
     ...Array.from({ length: 60 }, (_, i) =>
       mockProject({
-        key: ComponentQualifier.Portfolio + i.toString(),
+        key: `${ComponentQualifier.Portfolio}${i.toString()}`,
         name: `Portfolio ${i}`,
         qualifier: ComponentQualifier.Portfolio,
       }),
     ),
     ...Array.from({ length: 60 }, (_, i) =>
       mockProject({
-        key: ComponentQualifier.Application + i.toString(),
+        key: `${ComponentQualifier.Application}${i.toString()}`,
         name: `Application ${i}`,
         qualifier: ComponentQualifier.Application,
       }),
     ),
   ]);
   renderProjectManagementApp();
+
   await waitFor(() => expect(ui.row.getAll()).toHaveLength(51));
   await user.click(ui.showMore.get());
-  let rows = ui.row.getAll();
-  expect(rows).toHaveLength(61);
-  expect(rows[1]).toHaveTextContent('Project 0');
-  expect(rows[60]).toHaveTextContent('Project 59');
+  const projectRows = ui.row.getAll();
+  expect(projectRows).toHaveLength(61);
+  expect(projectRows[1]).toHaveTextContent('Project 0');
+  expect(projectRows[60]).toHaveTextContent('Project 59');
+
   await selectEvent.select(ui.qualifierFilter.get(), 'qualifiers.VW');
-  rows = ui.row.getAll();
-  expect(rows).toHaveLength(51);
-  expect(rows[1]).toHaveTextContent('Portfolio 0');
+  await waitFor(() => expect(projectRows[1]).not.toBeInTheDocument());
+  const portfolioRows = ui.row.getAll();
+  expect(portfolioRows).toHaveLength(51);
+  expect(portfolioRows[1]).toHaveTextContent('Portfolio 0');
+
   await user.click(ui.showMore.get());
-  rows = ui.row.getAll();
-  expect(rows).toHaveLength(61);
-  expect(rows[1]).toHaveTextContent('Portfolio 0');
-  expect(rows[60]).toHaveTextContent('Portfolio 59');
+  const allPortfolioRows = ui.row.getAll();
+  expect(allPortfolioRows).toHaveLength(61);
+  expect(allPortfolioRows[1]).toHaveTextContent('Portfolio 0');
+  expect(allPortfolioRows[60]).toHaveTextContent('Portfolio 59');
 });
 
 it('should create project', async () => {
@@ -436,7 +440,7 @@ it('should create project', async () => {
 it('should edit permissions of single project', async () => {
   const user = userEvent.setup();
   renderProjectManagementApp();
-  await act(async () => user.click(await ui.firstProjectActions.find()));
+  await user.click(await ui.firstProjectActions.find());
   expect(ui.restoreAccess.query()).not.toBeInTheDocument();
   expect(ui.editPermissions.get()).toBeInTheDocument();
   await user.click(ui.editPermissions.get());
@@ -447,7 +451,7 @@ it('should edit permissions of single project', async () => {
 it('should apply template for single object', async () => {
   const user = userEvent.setup();
   renderProjectManagementApp();
-  await act(async () => user.click(await ui.firstProjectActions.find()));
+  await user.click(await ui.firstProjectActions.find());
   await user.click(ui.applyPermissionTemplate.get());
 
   expect(ui.applyTemplateDialog.get()).toBeInTheDocument();
@@ -465,35 +469,35 @@ it('should apply template for single object', async () => {
 it('should restore access to admin', async () => {
   const user = userEvent.setup();
   renderProjectManagementApp({}, { login: 'gooduser2', local: true });
-  await act(async () => user.click(await ui.firstProjectActions.find()));
+  await user.click(await ui.firstProjectActions.find());
   expect(await ui.restoreAccess.find()).toBeInTheDocument();
   expect(ui.editPermissions.query()).not.toBeInTheDocument();
   await user.click(ui.restoreAccess.get());
   expect(ui.restoreAccessDialog.get()).toBeInTheDocument();
-  await act(() => user.click(ui.restoreAccessDialog.by(ui.restore).get()));
+  await user.click(ui.restoreAccessDialog.by(ui.restore).get());
   expect(ui.restoreAccessDialog.query()).not.toBeInTheDocument();
-  await act(async () => user.click(await ui.firstProjectActions.find()));
+  await user.click(await ui.firstProjectActions.find());
   expect(ui.restoreAccess.query()).not.toBeInTheDocument();
   expect(ui.editPermissions.get()).toBeInTheDocument();
 });
 
 it('should restore access for github project', async () => {
   const user = userEvent.setup();
-  authHandler.githubProvisioningStatus = true;
+  authHandler.enableGithubProvisioning();
   renderProjectManagementApp(
     {},
     { login: 'gooduser2', local: true },
     { featureList: [Feature.GithubProvisioning] },
   );
   await waitFor(() => expect(ui.row.getAll()).toHaveLength(5));
-  await act(async () => user.click(await ui.projectActions('Project 4').find()));
+  await user.click(await ui.projectActions('Project 4').find());
   expect(await ui.restoreAccess.find()).toBeInTheDocument();
   expect(ui.showPermissions.query()).not.toBeInTheDocument();
   await user.click(ui.restoreAccess.get());
   expect(ui.restoreAccessDialog.get()).toBeInTheDocument();
-  await act(() => user.click(ui.restoreAccessDialog.by(ui.restore).get()));
+  await user.click(ui.restoreAccessDialog.by(ui.restore).get());
   expect(ui.restoreAccessDialog.query()).not.toBeInTheDocument();
-  await act(async () => user.click(await ui.projectActions('Project 4').find()));
+  await user.click(await ui.projectActions('Project 4').find());
   expect(ui.restoreAccess.query()).not.toBeInTheDocument();
   expect(ui.showPermissions.get()).toBeInTheDocument();
 });
@@ -507,9 +511,9 @@ it('should not allow to restore access on github project for GH user', async () 
     { featureList: [Feature.GithubProvisioning] },
   );
   await waitFor(() => expect(ui.row.getAll()).toHaveLength(5));
-  await act(async () => user.click(await ui.projectActions('Project 4').find()));
+  await user.click(await ui.projectActions('Project 4').find());
   expect(ui.restoreAccess.query()).not.toBeInTheDocument();
-  await act(async () => user.click(await ui.projectActions('Project 1').find()));
+  await user.click(await ui.projectActions('Project 1').find());
   expect(ui.restoreAccess.get()).toBeInTheDocument();
 });
 
@@ -531,23 +535,23 @@ it('should not apply permissions for github projects', async () => {
   await user.click(ui.checkAll.get());
   expect(ui.checkbox('Project 4').get()).toBeChecked();
   expect(ui.checkbox('Project 1').get()).toBeChecked();
-  await act(() => user.click(ui.projectActions('Project 4').get()));
+  await user.click(ui.projectActions('Project 4').get());
   expect(ui.applyPermissionTemplate.query()).not.toBeInTheDocument();
   expect(ui.editPermissions.query()).not.toBeInTheDocument();
   expect(ui.showPermissions.get()).toBeInTheDocument();
-  await act(() => user.click(ui.projectActions('Project 1').get()));
+  await user.click(ui.projectActions('Project 1').get());
   expect(ui.applyPermissionTemplate.get()).toBeInTheDocument();
   expect(ui.editPermissions.get()).toBeInTheDocument();
   expect(ui.showPermissions.query()).not.toBeInTheDocument();
 });
 
 it('should not show local badge for applications and portfolios', async () => {
-  authHandler.githubProvisioningStatus = true;
+  authHandler.enableGithubProvisioning();
   renderProjectManagementApp({}, {}, { featureList: [Feature.GithubProvisioning] });
   await waitFor(() => expect(screen.getAllByText('local')).toHaveLength(3));
 
   await selectEvent.select(ui.qualifierFilter.get(), 'qualifiers.VW');
-  expect(screen.queryByText('local')).not.toBeInTheDocument();
+  await waitFor(() => expect(screen.queryByText('local')).not.toBeInTheDocument());
 
   await selectEvent.select(ui.qualifierFilter.get(), 'qualifiers.APP');
   expect(screen.queryByText('local')).not.toBeInTheDocument();

@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { act, screen, waitFor, within } from '@testing-library/react';
+import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { UserEvent } from '@testing-library/user-event/dist/types/setup/setup';
 import React from 'react';
@@ -108,25 +108,21 @@ const ui = {
     }),
     fillForm: async (user: UserEvent) => {
       const { saml } = ui;
-      await act(async () => {
-        await user.clear(saml.providerName.get());
-        await user.type(saml.providerName.get(), 'Awsome SAML config');
-        await user.type(saml.providerId.get(), 'okta-1234');
-        await user.type(saml.loginUrl.get(), 'http://test.org');
-        await user.type(saml.providerCertificate.get(), '-secret-');
-        await user.type(saml.userLoginAttribute.get(), 'login');
-        await user.type(saml.userNameAttribute.get(), 'name');
-      });
+
+      await user.clear(saml.providerName.get());
+      await user.type(saml.providerName.get(), 'Awsome SAML config');
+      await user.type(saml.providerId.get(), 'okta-1234');
+      await user.type(saml.loginUrl.get(), 'http://test.org');
+      await user.type(saml.providerCertificate.get(), '-secret-');
+      await user.type(saml.userLoginAttribute.get(), 'login');
+      await user.type(saml.userNameAttribute.get(), 'name');
     },
     createConfiguration: async (user: UserEvent) => {
       const { saml } = ui;
-      await act(async () => {
-        await user.click((await saml.createConfigButton.findAll())[0]);
-      });
+
+      await user.click((await saml.createConfigButton.findAll())[0]);
       await saml.fillForm(user);
-      await act(async () => {
-        await user.click(saml.saveConfigButton.get());
-      });
+      await user.click(saml.saveConfigButton.get());
     },
   },
   github: {
@@ -234,42 +230,39 @@ const ui = {
     getOrgs: () => within(ui.github.configDetailsDialog.get()).getAllByRole('listitem'),
     fillForm: async (user: UserEvent) => {
       const { github } = ui;
-      await act(async () => {
-        await user.type(await github.clientId.find(), 'Awsome GITHUB config');
-        await user.type(github.clientSecret.get(), 'Client shut');
-        await user.type(github.appId.get(), 'App id');
-        await user.type(github.privateKey.get(), 'Private Key');
-        await user.type(github.githubApiUrl.get(), 'API Url');
-        await user.type(github.githubWebUrl.get(), 'WEb Url');
-        await user.type(github.organizations.get(), 'organization1');
-      });
+
+      await user.type(await github.clientId.find(), 'Awsome GITHUB config');
+      await user.type(github.clientSecret.get(), 'Client shut');
+      await user.type(github.appId.get(), 'App id');
+      await user.type(github.privateKey.get(), 'Private Key');
+      await user.type(github.githubApiUrl.get(), 'API Url');
+      await user.type(github.githubWebUrl.get(), 'WEb Url');
+      await user.type(github.organizations.get(), 'organization1');
     },
     createConfiguration: async (user: UserEvent) => {
       const { github } = ui;
-      await act(async () => {
-        await user.click((await github.createConfigButton.findAll())[1]);
-      });
+
+      await user.click((await github.createConfigButton.findAll())[1]);
       await github.fillForm(user);
-      await act(async () => {
-        await user.click(github.saveConfigButton.get());
-      });
+
+      await user.click(github.saveConfigButton.get());
     },
     enableConfiguration: async (user: UserEvent) => {
       const { github } = ui;
-      await act(async () => user.click(await github.tab.find()));
+      await user.click(await github.tab.find());
       await github.createConfiguration(user);
-      await act(async () => user.click(await github.enableConfigButton.find()));
+      await user.click(await github.enableConfigButton.find());
     },
     enableProvisioning: async (user: UserEvent) => {
       const { github } = ui;
-      await act(async () => user.click(await github.tab.find()));
+      await user.click(await github.tab.find());
 
       await github.createConfiguration(user);
 
-      await act(async () => user.click(await github.enableConfigButton.find()));
+      await user.click(await github.enableConfigButton.find());
       await user.click(await github.githubProvisioningButton.find());
       await user.click(github.saveGithubProvisioning.get());
-      await act(() => user.click(github.confirmProvisioningButton.get()));
+      await user.click(github.confirmProvisioningButton.get());
     },
   },
 };
@@ -321,9 +314,7 @@ describe('SAML tab', () => {
     await saml.fillForm(user);
     expect(saml.saveConfigButton.get()).toBeEnabled();
 
-    await act(async () => {
-      await user.click(saml.saveConfigButton.get());
-    });
+    await user.click(saml.saveConfigButton.get());
 
     expect(await saml.editConfigButton.find()).toBeInTheDocument();
   });
@@ -360,7 +351,7 @@ describe('SAML tab', () => {
     await user.click(saml.scimProvisioningButton.get());
     expect(saml.saveScim.get()).toBeEnabled();
     await user.click(saml.saveScim.get());
-    await act(() => user.click(saml.confirmProvisioningButton.get()));
+    await user.click(saml.confirmProvisioningButton.get());
 
     expect(await saml.scimProvisioningButton.find()).toBeChecked();
     expect(await saml.saveScim.find()).toBeDisabled();
@@ -402,9 +393,7 @@ describe('Github tab', () => {
     await github.fillForm(user);
     expect(github.saveConfigButton.get()).toBeEnabled();
 
-    await act(async () => {
-      await user.click(github.saveConfigButton.get());
-    });
+    await user.click(github.saveConfigButton.get());
 
     expect(await github.editConfigButton.find()).toBeInTheDocument();
   });
@@ -484,7 +473,7 @@ describe('Github tab', () => {
 
     expect(github.saveGithubProvisioning.get()).toBeEnabled();
     await user.click(github.saveGithubProvisioning.get());
-    await act(() => user.click(github.confirmProvisioningButton.get()));
+    await user.click(github.confirmProvisioningButton.get());
 
     expect(await github.githubProvisioningButton.find()).toBeChecked();
     expect(github.disableConfigButton.get()).toBeDisabled();
@@ -569,6 +558,8 @@ describe('Github tab', () => {
       renderAuthentication([Feature.GithubProvisioning]);
       await github.enableConfiguration(user);
 
+      await appLoaded();
+
       await waitFor(() => expect(github.configurationValiditySuccess.query()).toBeInTheDocument());
     });
 
@@ -590,10 +581,12 @@ describe('Github tab', () => {
       renderAuthentication([Feature.GithubProvisioning]);
       await github.enableConfiguration(user);
 
+      await appLoaded();
+
       await waitFor(() => expect(github.configurationValiditySuccess.query()).toBeInTheDocument());
       expect(github.configurationValiditySuccess.get()).toHaveTextContent('2');
 
-      await act(() => user.click(github.viewConfigValidityDetailsButton.get()));
+      await user.click(github.viewConfigValidityDetailsButton.get());
       expect(github.getConfigDetailsTitle()).toHaveTextContent(
         'settings.authentication.github.configuration.validation.details.valid_label',
       );
@@ -626,10 +619,12 @@ describe('Github tab', () => {
       renderAuthentication([Feature.GithubProvisioning]);
       await github.enableConfiguration(user);
 
+      await appLoaded();
+
       await waitFor(() => expect(github.configurationValidityWarning.get()).toBeInTheDocument());
       expect(github.configurationValidityWarning.get()).toHaveTextContent(errorMessage);
 
-      await act(() => user.click(github.viewConfigValidityDetailsButton.get()));
+      await user.click(github.viewConfigValidityDetailsButton.get());
       expect(github.getConfigDetailsTitle()).toHaveTextContent(
         'settings.authentication.github.configuration.validation.details.valid_label',
       );
@@ -637,9 +632,7 @@ describe('Github tab', () => {
         'settings.authentication.github.configuration.validation.details.invalid_labelorg1 - Installation suspended',
       );
 
-      await act(() =>
-        user.click(within(github.configDetailsDialog.get()).getByRole('button', { name: 'close' })),
-      );
+      await user.click(github.configDetailsDialog.byRole('button', { name: 'close' }).get());
 
       await user.click(github.githubProvisioningButton.get());
       await waitFor(() => expect(github.configurationValidityError.get()).toBeInTheDocument());
@@ -660,10 +653,12 @@ describe('Github tab', () => {
       renderAuthentication([Feature.GithubProvisioning]);
       await github.enableConfiguration(user);
 
+      await appLoaded();
+
       await waitFor(() => expect(github.configurationValiditySuccess.get()).toBeInTheDocument());
       expect(github.configurationValiditySuccess.get()).toHaveTextContent('1');
 
-      await act(() => user.click(github.viewConfigValidityDetailsButton.get()));
+      await user.click(github.viewConfigValidityDetailsButton.get());
       expect(github.getConfigDetailsTitle()).toHaveTextContent(
         'settings.authentication.github.configuration.validation.details.valid_label',
       );
@@ -692,10 +687,12 @@ describe('Github tab', () => {
       renderAuthentication([Feature.GithubProvisioning]);
       await github.enableConfiguration(user);
 
+      await appLoaded();
+
       await waitFor(() => expect(github.configurationValidityError.query()).toBeInTheDocument());
       expect(github.configurationValidityError.get()).toHaveTextContent(errorMessage);
 
-      await act(() => user.click(github.viewConfigValidityDetailsButton.get()));
+      await user.click(github.viewConfigValidityDetailsButton.get());
       expect(github.getConfigDetailsTitle()).toHaveTextContent(
         'settings.authentication.github.configuration.validation.details.invalid_label',
       );
@@ -718,23 +715,23 @@ describe('Github tab', () => {
       renderAuthentication([Feature.GithubProvisioning]);
       await github.enableConfiguration(user);
 
+      await appLoaded();
+
       await waitFor(() => expect(github.configurationValiditySuccess.query()).toBeInTheDocument());
       expect(github.configurationValiditySuccess.get()).not.toHaveTextContent(errorMessage);
 
-      await act(() => user.click(github.viewConfigValidityDetailsButton.get()));
+      await user.click(github.viewConfigValidityDetailsButton.get());
       expect(github.getConfigDetailsTitle()).toHaveTextContent(
         'settings.authentication.github.configuration.validation.details.valid_label',
       );
-      await act(() =>
-        user.click(within(github.configDetailsDialog.get()).getByRole('button', { name: 'close' })),
-      );
+      await user.click(github.configDetailsDialog.byRole('button', { name: 'close' }).get());
 
-      await act(() => user.click(github.githubProvisioningButton.get()));
+      await user.click(github.githubProvisioningButton.get());
 
       expect(github.configurationValidityError.get()).toBeInTheDocument();
       expect(github.configurationValidityError.get()).toHaveTextContent(errorMessage);
 
-      await act(() => user.click(github.viewConfigValidityDetailsButton.get()));
+      await user.click(github.viewConfigValidityDetailsButton.get());
       expect(github.getConfigDetailsTitle()).toHaveTextContent(
         'settings.authentication.github.configuration.validation.details.invalid_label',
       );
@@ -759,9 +756,11 @@ describe('Github tab', () => {
       renderAuthentication([Feature.GithubProvisioning]);
       await github.enableConfiguration(user);
 
+      await appLoaded();
+
       await waitFor(() => expect(github.configurationValiditySuccess.query()).toBeInTheDocument());
 
-      await act(() => user.click(github.viewConfigValidityDetailsButton.get()));
+      await user.click(github.viewConfigValidityDetailsButton.get());
 
       expect(github.getOrgs()[0]).toHaveTextContent(
         'settings.authentication.github.configuration.validation.details.valid_labelorg1',
@@ -770,17 +769,15 @@ describe('Github tab', () => {
         'settings.authentication.github.configuration.validation.details.invalid_labelorg2 - Test error',
       );
 
-      await act(() =>
-        user.click(within(github.configDetailsDialog.get()).getByRole('button', { name: 'close' })),
-      );
+      await user.click(github.configDetailsDialog.byRole('button', { name: 'close' }).get());
 
-      await act(() => user.click(github.githubProvisioningButton.get()));
+      await user.click(github.githubProvisioningButton.get());
 
       expect(github.configurationValidityError.get()).toBeInTheDocument();
       expect(github.configurationValidityError.get()).toHaveTextContent(
         `settings.authentication.github.configuration.validation.invalid_org.org2.${errorMessage}`,
       );
-      await act(() => user.click(github.viewConfigValidityDetailsButton.get()));
+      await user.click(github.viewConfigValidityDetailsButton.get());
       expect(github.getOrgs()[1]).toHaveTextContent(
         `settings.authentication.github.configuration.validation.details.invalid_labelorg2 - ${errorMessage}`,
       );
@@ -813,9 +810,11 @@ describe('Github tab', () => {
         },
       });
 
+      await appLoaded();
+
       expect(await github.configurationValidityError.find()).toBeInTheDocument();
 
-      await act(() => user.click(github.checkConfigButton.get()));
+      await user.click(github.checkConfigButton.get());
 
       expect(github.configurationValiditySuccess.get()).toBeInTheDocument();
       expect(github.configurationValidityError.query()).not.toBeInTheDocument();
@@ -917,7 +916,7 @@ describe('Github tab', () => {
       await user.click(github.mappingDialogClose.get());
 
       await user.click(github.saveGithubProvisioning.get());
-      await act(() => user.click(github.confirmProvisioningButton.get()));
+      await user.click(github.confirmProvisioningButton.get());
 
       // Clean local mapping state
       await user.click(github.jitProvisioningButton.get());
@@ -954,7 +953,7 @@ describe('Github tab', () => {
 
       expect(await github.saveGithubProvisioning.find()).toBeEnabled();
 
-      await act(() => user.click(github.saveGithubProvisioning.get()));
+      await user.click(github.saveGithubProvisioning.get());
 
       // Clean local mapping state
       await user.click(github.jitProvisioningButton.get());
@@ -1032,7 +1031,7 @@ describe('Github tab', () => {
       await user.click(github.mappingDialogClose.get());
 
       expect(await github.saveGithubProvisioning.find()).toBeEnabled();
-      await act(() => user.click(github.saveGithubProvisioning.get()));
+      await user.click(github.saveGithubProvisioning.get());
 
       // Clean local mapping state
       await user.click(github.jitProvisioningButton.get());
@@ -1064,6 +1063,12 @@ describe('Github tab', () => {
     });
   });
 });
+
+const appLoaded = async () => {
+  await waitFor(async () => {
+    expect(await screen.findByText('loading')).not.toBeInTheDocument();
+  });
+};
 
 function renderAuthentication(features: Feature[] = []) {
   renderComponent(

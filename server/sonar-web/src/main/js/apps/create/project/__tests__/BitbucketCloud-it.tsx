@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { act, screen, waitFor, within } from '@testing-library/react';
+import { screen, waitFor, within } from '@testing-library/react';
 
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
@@ -124,11 +124,9 @@ it('should show import project feature when PAT is already set', async () => {
   expect(screen.getByText('onboarding.create_project.bitbucketcloud.title')).toBeInTheDocument();
   expect(await ui.instanceSelector.find()).toBeInTheDocument();
 
-  await act(async () => {
-    await selectEvent.select(ui.instanceSelector.get(), [/conf-bitbucketcloud-2/]);
-  });
+  await selectEvent.select(ui.instanceSelector.get(), [/conf-bitbucketcloud-2/]);
 
-  expect(screen.getByText('BitbucketCloud Repo 1')).toBeInTheDocument();
+  expect(await screen.findByText('BitbucketCloud Repo 1')).toBeInTheDocument();
   expect(screen.getByText('BitbucketCloud Repo 2')).toBeInTheDocument();
 
   projectItem = screen.getByRole('listitem', { name: /BitbucketCloud Repo 1/ });
@@ -172,15 +170,15 @@ it('should show search filter when PAT is already set', async () => {
   expect(screen.getByText('onboarding.create_project.bitbucketcloud.title')).toBeInTheDocument();
   expect(await ui.instanceSelector.find()).toBeInTheDocument();
 
-  await act(async () => {
-    await selectEvent.select(ui.instanceSelector.get(), [/conf-bitbucketcloud-2/]);
-  });
+  await selectEvent.select(ui.instanceSelector.get(), [/conf-bitbucketcloud-2/]);
 
-  expect(searchForBitbucketCloudRepositories).toHaveBeenLastCalledWith(
-    'conf-bitbucketcloud-2',
-    '',
-    BITBUCKET_CLOUD_PROJECTS_PAGESIZE,
-    1,
+  await waitFor(() =>
+    expect(searchForBitbucketCloudRepositories).toHaveBeenLastCalledWith(
+      'conf-bitbucketcloud-2',
+      '',
+      BITBUCKET_CLOUD_PROJECTS_PAGESIZE,
+      1,
+    ),
   );
 
   const inputSearch = screen.getByRole('searchbox', {
@@ -204,12 +202,10 @@ it('should show no result message when there are no projects', async () => {
   expect(screen.getByText('onboarding.create_project.bitbucketcloud.title')).toBeInTheDocument();
   expect(await ui.instanceSelector.find()).toBeInTheDocument();
 
-  await act(async () => {
-    await selectEvent.select(ui.instanceSelector.get(), [/conf-bitbucketcloud-2/]);
-  });
+  await selectEvent.select(ui.instanceSelector.get(), [/conf-bitbucketcloud-2/]);
 
   expect(
-    screen.getByText('onboarding.create_project.bitbucketcloud.no_projects'),
+    await screen.findByText('onboarding.create_project.bitbucketcloud.no_projects'),
   ).toBeInTheDocument();
 });
 
@@ -224,11 +220,9 @@ it('should have load more', async () => {
   expect(screen.getByText('onboarding.create_project.bitbucketcloud.title')).toBeInTheDocument();
   expect(await ui.instanceSelector.find()).toBeInTheDocument();
 
-  await act(async () => {
-    await selectEvent.select(ui.instanceSelector.get(), [/conf-bitbucketcloud-2/]);
-  });
+  await selectEvent.select(ui.instanceSelector.get(), [/conf-bitbucketcloud-2/]);
 
-  expect(screen.getByRole('button', { name: 'show_more' })).toBeInTheDocument();
+  expect(await screen.findByRole('button', { name: 'show_more' })).toBeInTheDocument();
 
   /*
    * Next api call response will simulate reaching the last page so we can test the
