@@ -91,6 +91,7 @@ export function EmbedDocsPopup() {
         {translate('docs.documentation')}
       </DocItemLink>
       <ItemLink to="/web_api">{translate('api_documentation.page')}</ItemLink>
+      <ItemLink to="/web_api_v2">{translate('api_documentation.page.v2')}</ItemLink>
       <ItemDivider />
       <ItemLink to="https://community.sonarsource.com/">
         <OpenNewTabIcon />
