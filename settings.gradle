@@ -30,6 +30,9 @@ gradleEnterprise {
     uploadInBackground = false
     publishAlwaysIf( isCiServer )
   }
+  if (System.getenv().containsKey('CIRRUS_BRANCH')) {
+    buildScan.value 'BranchName', System.env.'CIRRUS_BRANCH'
+  }
 }
 
 rootProject.name = 'sonarqube'
