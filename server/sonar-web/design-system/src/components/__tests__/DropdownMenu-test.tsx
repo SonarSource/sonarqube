@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { screen } from '@testing-library/react';
+import { act, screen, waitFor } from '@testing-library/react';
 import { noop } from 'lodash';
 import { render, renderWithRouter } from '../../helpers/testUtils';
 import {
@@ -65,14 +65,20 @@ it('menu items should work with tooltips', async () => {
   await user.hover(screen.getByRole('menuitem'));
   expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
 
-  jest.runAllTimers();
+  act(() => {
+    jest.runAllTimers();
+  });
   expect(screen.getByRole('tooltip')).toBeVisible();
 
   await user.unhover(screen.getByRole('menuitem'));
   expect(screen.getByRole('tooltip')).toBeVisible();
 
-  jest.runAllTimers();
-  expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+  act(() => {
+    jest.runAllTimers();
+  });
+  await waitFor(() => {
+    expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+  });
 });
 
 function renderDropdownMenu() {

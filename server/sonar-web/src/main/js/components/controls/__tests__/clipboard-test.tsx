@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { screen } from '@testing-library/react';
+import { act, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
 import { renderComponent } from '../../../helpers/testReactTestingUtils';
@@ -45,13 +45,13 @@ describe('ClipboardBase', () => {
   });
 
   it('should allow its content to be copied', async () => {
-    const user = userEvent.setup();
+    const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
     renderClipboardBase();
 
     user.click(screen.getByRole('button'));
     expect(await screen.findByText('copied')).toBeInTheDocument();
 
-    jest.runAllTimers();
+    act(() => jest.runAllTimers());
 
     expect(screen.getByText('click to copy')).toBeInTheDocument();
   });

@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { screen } from '@testing-library/react';
+import { act, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { formatISO, parseISO } from 'date-fns';
 import { byRole } from '../../../../../src/main/js/helpers/testSelector';
@@ -43,12 +43,13 @@ it('behaves correctly', async () => {
 
   await user.click(screen.getByRole('textbox', { name: 'from' }));
 
-  expect(nav.get()).toBeInTheDocument();
+  const fromNav = nav.get();
+  expect(fromNav).toBeInTheDocument();
 
   await user.click(nav.byRole('button', { name: 'previous_month_x' }).get());
   await user.click(screen.getByText('7'));
 
-  expect(nav.query()).not.toBeInTheDocument();
+  expect(fromNav).not.toBeInTheDocument();
 
   expect(onChange).toHaveBeenCalled();
   const { from } = onChange.mock.calls[0][0]; // first argument
@@ -57,7 +58,9 @@ it('behaves correctly', async () => {
 
   onChange.mockClear();
 
-  jest.runAllTimers();
+  act(() => {
+    jest.runAllTimers();
+  });
 
   const previousButton = nav.byRole('button', { name: 'previous_month_x' });
   const nextButton = nav.byRole('button', { name: 'next_month_x' });

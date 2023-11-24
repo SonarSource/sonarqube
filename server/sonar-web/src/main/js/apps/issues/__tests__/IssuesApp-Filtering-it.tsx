@@ -64,7 +64,7 @@ beforeEach(() => {
 describe('issues app filtering', () => {
   it('should combine sidebar filters properly', async () => {
     jest.useFakeTimers();
-    const user = userEvent.setup({ delay: null });
+    const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
     renderIssueApp();
     await waitOnDataLoaded();
 
@@ -157,6 +157,7 @@ describe('issues app filtering', () => {
     expect(ui.issueItem5.get()).toBeInTheDocument();
     expect(ui.issueItem6.get()).toBeInTheDocument();
     expect(ui.issueItem7.get()).toBeInTheDocument();
+    jest.runOnlyPendingTimers();
     jest.useRealTimers();
   });
 

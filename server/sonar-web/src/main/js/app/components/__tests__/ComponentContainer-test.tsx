@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { screen, waitFor } from '@testing-library/react';
+import { act, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React, { useContext } from 'react';
 import { Route } from 'react-router-dom';
@@ -155,6 +155,7 @@ describe('getTasksForComponent', () => {
   });
 
   afterEach(() => {
+    jest.runOnlyPendingTimers();
     jest.useRealTimers();
   });
 
@@ -176,8 +177,9 @@ describe('getTasksForComponent', () => {
     await waitFor(() => {
       expect(getComponentNavigation).toHaveBeenCalledTimes(1);
     });
-    expect(getComponentNavigation).toHaveBeenCalledTimes(1);
-    expect(getTasksForComponent).toHaveBeenCalledTimes(1);
+    await waitFor(() => expect(getTasksForComponent).toHaveBeenCalledTimes(1));
+
+    act(() => jest.runOnlyPendingTimers());
 
     jest.runOnlyPendingTimers();
 
@@ -195,7 +197,8 @@ describe('getTasksForComponent', () => {
     expect(getTasksForComponent).toHaveBeenCalledTimes(3);
 
     // Make sure the timeout was cleared. It should not be called again.
-    jest.runAllTimers();
+    act(() => jest.runAllTimers());
+
     // The number of calls haven't changed.
     await waitFor(() => {
       expect(getComponentNavigation).toHaveBeenCalledTimes(2);
@@ -225,7 +228,9 @@ describe('getTasksForComponent', () => {
     await waitFor(() => {
       expect(getComponentNavigation).toHaveBeenCalledTimes(1);
     });
-    expect(getTasksForComponent).toHaveBeenCalledTimes(1);
+    await waitFor(() => expect(getTasksForComponent).toHaveBeenCalledTimes(1));
+
+    act(() => jest.runOnlyPendingTimers());
 
     jest.runOnlyPendingTimers();
 
@@ -259,7 +264,7 @@ describe('getTasksForComponent', () => {
       expect(getComponentNavigation).toHaveBeenCalledTimes(1);
     });
 
-    expect(getTasksForComponent).toHaveBeenCalledTimes(1);
+    await waitFor(() => expect(getTasksForComponent).toHaveBeenCalledTimes(1));
   });
 
   it('only fully reloads a non-empty component if there was previously some task in progress', async () => {
@@ -281,10 +286,9 @@ describe('getTasksForComponent', () => {
 
     // First round, a pending task in the queue. This should trigger a reload of the
     // status endpoint.
-    await waitFor(() => {
-      expect(getTasksForComponent).toHaveBeenCalledTimes(1);
-    });
-    jest.runOnlyPendingTimers();
+    await waitFor(() => expect(getTasksForComponent).toHaveBeenCalledTimes(1));
+
+    act(() => jest.runOnlyPendingTimers());
 
     // Second round, nothing in the queue, and a success task is current. This
     // implies the current task was updated, and previously we displayed some information
