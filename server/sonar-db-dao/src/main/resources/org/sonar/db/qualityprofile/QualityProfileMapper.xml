@@ -145,14 +145,14 @@
     where dp.language = #{language, jdbcType=VARCHAR}
   </select>
 
-  <select id="selectDefaultBuiltInProfilesWithoutActiveRules" parameterType="map" resultType="org.sonar.db.qualityprofile.QProfileDto">
+  <select id="selectDefaultProfilesWithoutActiveRules" parameterType="map" resultType="org.sonar.db.qualityprofile.QProfileDto">
     SELECT
     <include refid="qProfileColumns"/>
     FROM org_qprofiles oqp
     INNER JOIN rules_profiles rp ON oqp.rules_profile_uuid = rp.uuid
     INNER JOIN default_qprofiles dp ON dp.qprofile_uuid = oqp.uuid
     WHERE
-      rp.is_built_in = ${_true}
+      rp.is_built_in = #{builtIn, jdbcType=BOOLEAN}
       AND rp.language IN <foreach collection="languages" open="(" close=")" item="language"
                                   separator=",">#{language, jdbcType=VARCHAR}</foreach>
       AND NOT EXISTS (

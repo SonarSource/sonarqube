@@ -32,6 +32,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.config.Configuration;
+import org.sonar.api.resources.Languages;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.RulePriority;
@@ -49,6 +50,7 @@ import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.qualityprofile.RulesProfileDto;
 import org.sonar.db.rule.RuleDto;
+import org.sonar.server.language.LanguageTesting;
 import org.sonar.server.pushapi.qualityprofile.QualityProfileChangeEventService;
 import org.sonar.server.qualityprofile.builtin.BuiltInQProfile;
 import org.sonar.server.qualityprofile.builtin.BuiltInQProfileInsert;
@@ -113,8 +115,9 @@ public class RegisterQualityProfilesNotificationIT {
   private QProfileRules qProfileRules = new QProfileRulesImpl(dbClient, ruleActivator, mock(RuleIndex.class), activeRuleIndexer, qualityProfileChangeEventService);
   private BuiltInQProfileUpdate builtInQProfileUpdate = new BuiltInQProfileUpdateImpl(dbClient, ruleActivator, activeRuleIndexer, qualityProfileChangeEventService);
   private BuiltInQualityProfilesUpdateListener builtInQualityProfilesNotification = mock(BuiltInQualityProfilesUpdateListener.class);
+  private final Languages languages = LanguageTesting.newLanguages();
   private RegisterQualityProfiles underTest = new RegisterQualityProfiles(builtInQProfileRepositoryRule, dbClient,
-    builtInQProfileInsert, builtInQProfileUpdate, builtInQualityProfilesNotification, system2);
+    builtInQProfileInsert, builtInQProfileUpdate, builtInQualityProfilesNotification, system2, languages);
 
   @Test
   public void do_not_send_notification_on_new_profile() {

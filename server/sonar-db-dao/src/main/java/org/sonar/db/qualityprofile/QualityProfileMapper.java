@@ -52,7 +52,7 @@ public interface QualityProfileMapper {
   @CheckForNull
   QProfileDto selectDefaultProfile(@Param("language") String language);
 
-  List<QProfileDto> selectDefaultBuiltInProfilesWithoutActiveRules(@Param("languages") List<String> languages);
+  List<QProfileDto> selectDefaultProfilesWithoutActiveRules(@Param("languages") List<String> languages, @Param("builtIn") boolean builtIn);
 
   List<QProfileDto> selectDefaultProfiles(
     @Param("languages") Collection<String> languages);

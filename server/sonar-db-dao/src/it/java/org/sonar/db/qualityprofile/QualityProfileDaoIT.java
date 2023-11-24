@@ -538,7 +538,7 @@ public class QualityProfileDaoIT {
   }
 
   @Test
-  public void selectDefaultBuiltInProfilesWithoutActiveRules() {
+  public void selectDefaultProfilesWithoutActiveRules_whenIsBuiltIn_shouldReturnBuiltInProfiles() {
     // a quality profile without active rules but not builtin
     db.qualityProfiles().insert(qp -> qp.setIsBuiltIn(false).setLanguage("java"));
 
@@ -557,19 +557,34 @@ public class QualityProfileDaoIT {
 
     dbSession.commit();
 
-    assertThat(underTest.selectDefaultBuiltInProfilesWithoutActiveRules(dbSession, Sets.newHashSet("java", "cpp")))
+    assertThat(underTest.selectDefaultProfilesWithoutActiveRules(dbSession, Sets.newHashSet("java", "cpp"), true))
       .extracting(QProfileDto::getName)
       .containsOnly(javaQPWithoutActiveRules.getName(), cppQPWithoutActiveRules.getName());
 
-    assertThat(underTest.selectDefaultBuiltInProfilesWithoutActiveRules(dbSession, Sets.newHashSet("java")))
+    assertThat(underTest.selectDefaultProfilesWithoutActiveRules(dbSession, Sets.newHashSet("java"), true))
       .extracting(QProfileDto::getName)
       .containsOnly(javaQPWithoutActiveRules.getName());
 
-    assertThat(underTest.selectDefaultBuiltInProfilesWithoutActiveRules(dbSession, Sets.newHashSet("cobol")))
+    assertThat(underTest.selectDefaultProfilesWithoutActiveRules(dbSession, Sets.newHashSet("cobol"), true))
       .isEmpty();
 
-    assertThat(underTest.selectDefaultBuiltInProfilesWithoutActiveRules(dbSession, Sets.newHashSet()))
+    assertThat(underTest.selectDefaultProfilesWithoutActiveRules(dbSession, Sets.newHashSet(), true))
       .isEmpty();
+  }
+
+  @Test
+  public void selectDefaultProfilesWithoutActiveRules_whenNotBuiltIn_shouldReturnNotBuiltInOnly() {
+    // a quality profile without active rules but not builtin
+    QProfileDto customJavaQpWithoutActiveRules = db.qualityProfiles().insert(qp -> qp.setIsBuiltIn(false).setLanguage("java"));
+    db.qualityProfiles().setAsDefault(customJavaQpWithoutActiveRules);
+
+    // a built-in quality profile without active rules
+    db.qualityProfiles().insert(qp -> qp.setIsBuiltIn(true).setLanguage("java"));
+
+
+    assertThat(underTest.selectDefaultProfilesWithoutActiveRules(dbSession, Sets.newHashSet("java"), false))
+      .extracting(QProfileDto::getName)
+      .containsOnly(customJavaQpWithoutActiveRules.getName());
   }
 
   @Test

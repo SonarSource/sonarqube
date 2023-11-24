@@ -32,8 +32,10 @@ import org.junit.Test;
 import org.slf4j.event.Level;
 import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.api.resources.Language;
+import org.sonar.api.resources.Languages;
 import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.api.utils.System2;
+import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -72,8 +74,9 @@ public class RegisterQualityProfilesIT {
   private final DbClient dbClient = db.getDbClient();
   private final DummyBuiltInQProfileInsert insert = new DummyBuiltInQProfileInsert();
   private final DummyBuiltInQProfileUpdate update = new DummyBuiltInQProfileUpdate();
+  private final Languages languages = LanguageTesting.newLanguages("foo");
   private final RegisterQualityProfiles underTest = new RegisterQualityProfiles(builtInQProfileRepositoryRule, dbClient, insert, update,
-    mock(BuiltInQualityProfilesUpdateListener.class), system2);
+    mock(BuiltInQualityProfilesUpdateListener.class), system2, languages);
 
   @Test
   public void start_fails_if_BuiltInQProfileRepository_has_not_been_initialized() {
@@ -182,7 +185,7 @@ public class RegisterQualityProfilesIT {
 
     RulesProfileDto ruleProfileWithoutRule = newRuleProfileDto(rp -> rp.setIsBuiltIn(true).setName("Foo way").setLanguage(FOO_LANGUAGE.getKey()));
     RulesProfileDto ruleProfileLongNameWithoutRule = newRuleProfileDto(rp -> rp.setIsBuiltIn(true).setName("That's a very very very very very very "
-      + "very very very very long name").setLanguage(FOO_LANGUAGE.getKey()));
+                                                                                                           + "very very very very long name").setLanguage(FOO_LANGUAGE.getKey()));
     RulesProfileDto ruleProfileWithOneRuleToBeRenamed = newRuleProfileDto(rp -> rp.setIsBuiltIn(true).setName("Foo way 2").setLanguage(FOO_LANGUAGE.getKey()));
     RulesProfileDto ruleProfileWithOneRule = newRuleProfileDto(rp -> rp.setIsBuiltIn(true).setName("Foo way 3").setLanguage(FOO_LANGUAGE.getKey()));
 
@@ -230,13 +233,13 @@ public class RegisterQualityProfilesIT {
 
     assertThat(logTester.logs(Level.INFO)).contains(
       format("Quality profile [%s] for language [%s] is no longer built-in and has been renamed to [%s] "
-        + "since it does not have any active rules.",
+             + "since it does not have any active rules.",
         qProfileWithoutRule.getName(), qProfileWithoutRule.getLanguage(), qProfileWithoutRule.getName() + expectedSuffix),
       format("Quality profile [%s] for language [%s] is no longer built-in and has been renamed to [%s] "
-        + "since it does not have any active rules.",
+             + "since it does not have any active rules.",
         qProfileLongNameWithoutRule.getName(), qProfileLongNameWithoutRule.getLanguage(), "That's a very very very very very ver..." + expectedSuffix),
       format("Quality profile [%s] for language [%s] is no longer built-in and has been renamed to [%s] "
-        + "since it does not have any active rules.",
+             + "since it does not have any active rules.",
         qProfileWithOneRuleToBeRenamed.getName(), qProfileWithOneRuleToBeRenamed.getLanguage(), qProfileWithOneRuleToBeRenamed.getName() + expectedSuffix));
 
     assertThat(dbClient.qualityProfileDao().selectByUuid(db.getSession(), qProfileWithoutRule.getKee()))
@@ -259,8 +262,8 @@ public class RegisterQualityProfilesIT {
 
   private Optional<String> selectUuidOfDefaultProfile(String language) {
     return db.select("select qprofile_uuid as \"profileUuid\" " +
-      " from default_qprofiles " +
-      " where language='" + language + "'")
+                     " from default_qprofiles " +
+                     " where language='" + language + "'")
       .stream()
       .findFirst()
       .map(m -> (String) m.get("profileUuid"));
@@ -296,5 +299,60 @@ public class RegisterQualityProfilesIT {
       callLogs.add(builtIn);
       return Collections.emptyList();
     }
+  }
+
+  @Test
+  public void start_shouldSetBuiltInProfileAsDefault_whenCustomDefaultProfileHasNoRule() {
+    QProfileDto customProfile = newQualityProfileDto()
+      .setIsBuiltIn(false)
+      .setLanguage(FOO_LANGUAGE.getKey())
+      .setName("Name")
+      .setRulesProfileUuid(Uuids.createFast());
+
+    QProfileDto builtinProfile = newQualityProfileDto()
+      .setIsBuiltIn(true)
+      .setName(Uuids.createFast())
+      .setLanguage(FOO_LANGUAGE.getKey())
+      .setRulesProfileUuid(Uuids.createFast());
+
+    db.qualityProfiles().insert(customProfile, builtinProfile);
+    db.qualityProfiles().setAsDefault(customProfile);
+
+    builtInQProfileRepositoryRule.add(FOO_LANGUAGE, builtinProfile.getName(), false);
+    builtInQProfileRepositoryRule.initialize();
+    underTest.start();
+
+    assertThat(selectUuidOfDefaultProfile(FOO_LANGUAGE.getKey()))
+      .isPresent().contains(builtinProfile.getKee());
+
+  }
+
+  @Test
+  public void start_shouldNotSetBuiltInProfileAsDefault_whenCustomDefaultProfileHasRule() {
+    QProfileDto customProfile = newQualityProfileDto()
+      .setIsBuiltIn(false)
+      .setLanguage(FOO_LANGUAGE.getKey())
+      .setName("Name")
+      .setRulesProfileUuid(Uuids.createFast());
+
+    QProfileDto builtinProfile = newQualityProfileDto()
+      .setIsBuiltIn(true)
+      .setName(Uuids.createFast())
+      .setLanguage(FOO_LANGUAGE.getKey())
+      .setRulesProfileUuid(Uuids.createFast());
+
+    db.qualityProfiles().insert(customProfile, builtinProfile);
+    db.qualityProfiles().setAsDefault(customProfile);
+
+    RuleDto ruleDto = db.rules().insert(r -> r.setLanguage(FOO_LANGUAGE.getKey()));
+    db.qualityProfiles().activateRule(customProfile, ruleDto);
+
+    builtInQProfileRepositoryRule.add(FOO_LANGUAGE, builtinProfile.getName(), false);
+    builtInQProfileRepositoryRule.initialize();
+    underTest.start();
+
+    assertThat(selectUuidOfDefaultProfile(FOO_LANGUAGE.getKey()))
+      .isPresent().contains(customProfile.getKee());
+
   }
 }

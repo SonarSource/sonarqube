@@ -148,8 +148,8 @@ public class QualityProfileDao implements Dao {
     return mapper(dbSession).selectAllDefaultProfiles();
   }
 
-  public List<QProfileDto> selectDefaultBuiltInProfilesWithoutActiveRules(DbSession dbSession, Set<String> languages) {
-    return executeLargeInputs(languages, partition -> mapper(dbSession).selectDefaultBuiltInProfilesWithoutActiveRules(partition));
+  public List<QProfileDto> selectDefaultProfilesWithoutActiveRules(DbSession dbSession, Set<String> languages, boolean builtIn) {
+    return executeLargeInputs(languages, partition -> mapper(dbSession).selectDefaultProfilesWithoutActiveRules(partition, builtIn));
   }
 
   @CheckForNull
