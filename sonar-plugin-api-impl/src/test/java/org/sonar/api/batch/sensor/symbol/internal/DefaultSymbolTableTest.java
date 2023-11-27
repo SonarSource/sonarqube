@@ -67,4 +67,16 @@ public class DefaultSymbolTableTest {
     assertThat(referencesPerSymbol).hasSize(2);
   }
 
+  @Test
+  public void should_fail_on_reference_overlaps_declaration() {
+    DefaultSymbolTable symbolTableBuilder = new DefaultSymbolTable(mock(SensorStorage.class))
+      .onFile(INPUT_FILE);
+    symbolTableBuilder = symbolTableBuilder
+      .newSymbol(1, 0, 1, 10);
+    
+    assertThatThrownBy(() -> {
+      symbolTableBuilder.newReference(1, 0, 1, 10);
+    }).isInstanceOf(IllegalArgumentException.class)
+      .hasMessageMatching(".*");
+  }
 }
