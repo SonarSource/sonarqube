@@ -127,11 +127,12 @@ function renderSelectList(props: Partial<SelectList['props']> = {}) {
     <SelectList
       disabledElements={disabledElements}
       elements={elements}
-      onSearch={jest.fn(() => Promise.resolve())}
+      onSearch={jest.fn()}
       onSelect={jest.fn(() => Promise.resolve())}
       onUnselect={jest.fn(() => Promise.resolve())}
       renderElement={(foo: string) => foo}
       selectedElements={selectedElements}
+      loading={false}
       {...props}
     />,
   );

@@ -19,8 +19,8 @@
  */
 
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { addUserToGroup, removeUserFromGroup } from '../api/legacy-group-membership';
 import { generateToken, getTokens, revokeToken } from '../api/user-tokens';
-import { addUserToGroup, removeUserFromGroup } from '../api/user_groups';
 import {
   deleteUser,
   dismissNotice,

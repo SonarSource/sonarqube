@@ -17,35 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import axios from 'axios';
-import { axiosToCatch } from '../helpers/request';
-import { Group, Paging } from '../types/types';
+import { throwGlobalError } from '../helpers/error';
+import { post } from '../helpers/request';
 
-const GROUPS_ENDPOINT = '/api/v2/authorizations/groups';
-
-export function getUsersGroups(params: {
-  q?: string;
-  managed: boolean | undefined;
-  pageIndex?: number;
-  pageSize?: number;
-}): Promise<{ groups: Group[]; page: Paging }> {
-  return axios.get(GROUPS_ENDPOINT, { params });
+export function addUserToGroup(data: { name: string; login?: string }) {
+  return post('/api/user_groups/add_user', data).catch(throwGlobalError);
 }
 
-export function createGroup(data: { description?: string; name: string }): Promise<Group> {
-  return axios.post(GROUPS_ENDPOINT, data).then((r) => r.group);
-}
-
-export function updateGroup(
-  id: string,
-  data: {
-    name?: string;
-    description?: string;
-  },
-) {
-  return axiosToCatch.patch(`${GROUPS_ENDPOINT}/${id}`, data);
-}
-
-export function deleteGroup(id: string) {
-  return axios.delete(`${GROUPS_ENDPOINT}/${id}`);
+export function removeUserFromGroup(data: { name: string; login?: string }) {
+  return post('/api/user_groups/remove_user', data).catch(throwGlobalError);
 }

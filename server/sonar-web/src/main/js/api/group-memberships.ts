@@ -18,34 +18,26 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import axios from 'axios';
-import { axiosToCatch } from '../helpers/request';
-import { Group, Paging } from '../types/types';
+import { GroupMembership, Paging } from '../types/types';
 
-const GROUPS_ENDPOINT = '/api/v2/authorizations/groups';
+const GROUPS_MEMBERSHIPS_ENDPOINT = '/api/v2/authorizations/group-memberships';
 
-export function getUsersGroups(params: {
-  q?: string;
-  managed: boolean | undefined;
-  pageIndex?: number;
+export function getGroupMemberships(data: {
+  userId?: string;
+  groupId?: string;
   pageSize?: number;
-}): Promise<{ groups: Group[]; page: Paging }> {
-  return axios.get(GROUPS_ENDPOINT, { params });
+  pageIndex?: number;
+}) {
+  return axios.get<{ page: Paging; groupMemberships: GroupMembership[] }>(
+    GROUPS_MEMBERSHIPS_ENDPOINT,
+    { params: data },
+  );
 }
 
-export function createGroup(data: { description?: string; name: string }): Promise<Group> {
-  return axios.post(GROUPS_ENDPOINT, data).then((r) => r.group);
+export function addGroupMembership(data: { userId: string; groupId: string }) {
+  return axios.post<GroupMembership>(GROUPS_MEMBERSHIPS_ENDPOINT, data);
 }
 
-export function updateGroup(
-  id: string,
-  data: {
-    name?: string;
-    description?: string;
-  },
-) {
-  return axiosToCatch.patch(`${GROUPS_ENDPOINT}/${id}`, data);
-}
-
-export function deleteGroup(id: string) {
-  return axios.delete(`${GROUPS_ENDPOINT}/${id}`);
+export function removeGroupMembership(id: string) {
+  return axios.delete(`${GROUPS_MEMBERSHIPS_ENDPOINT}/${id}`);
 }

@@ -26,8 +26,6 @@ import { byRole, byText } from '../../../../helpers/testSelector';
 import routes from '../../routes';
 import { LogsLevels } from '../../utils';
 
-jest.mock('../../../../api/system');
-
 const systemMock = new SystemServiceMock();
 
 afterEach(() => {

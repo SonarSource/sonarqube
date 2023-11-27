@@ -21,11 +21,10 @@
 import { isAfter, isBefore } from 'date-fns';
 import { cloneDeep, isEmpty, isUndefined, omitBy } from 'lodash';
 import { HttpStatus } from '../../helpers/request';
-import { mockClusterSysInfo, mockIdentityProvider, mockRestUser } from '../../helpers/testMocks';
-import { IdentityProvider, SysInfoCluster } from '../../types/types';
+import { mockIdentityProvider, mockRestUser } from '../../helpers/testMocks';
+import { IdentityProvider } from '../../types/types';
 import { ChangePasswordResults, RestUserDetailed } from '../../types/users';
-import { getSystemInfo } from '../system';
-import { addUserToGroup, removeUserFromGroup } from '../user_groups';
+import { addUserToGroup, removeUserFromGroup } from '../legacy-group-membership';
 import {
   UserGroup,
   changePassword,
@@ -37,10 +36,10 @@ import {
   postUser,
   updateUser,
 } from '../users';
+import GroupMembershipsServiceMock from './GroupMembersipsServiceMock';
 
 jest.mock('../users');
-jest.mock('../user_groups');
-jest.mock('../system');
+jest.mock('../legacy-group-membership');
 
 const DEFAULT_USERS = [
   mockRestUser({
@@ -49,6 +48,7 @@ const DEFAULT_USERS = [
     name: 'Bob Marley',
     sonarQubeLastConnectionDate: '2023-06-27T17:08:59+0200',
     sonarLintLastConnectionDate: '2023-06-27T17:08:59+0200',
+    id: '1',
   }),
   mockRestUser({
     managed: false,
@@ -57,6 +57,7 @@ const DEFAULT_USERS = [
     sonarQubeLastConnectionDate: '2023-06-27T17:08:59+0200',
     sonarLintLastConnectionDate: '2023-05-27T17:08:59+0200',
     email: 'alice.merveille@wonderland.com',
+    id: '2',
   }),
   mockRestUser({
     managed: false,
@@ -67,6 +68,7 @@ const DEFAULT_USERS = [
     sonarLintLastConnectionDate: '2023-06-20T12:10:59+0200',
     externalProvider: 'test',
     externalLogin: 'ExternalTest',
+    id: '3',
   }),
   mockRestUser({
     managed: true,
@@ -77,17 +79,20 @@ const DEFAULT_USERS = [
     name: 'Denis Villeneuve',
     sonarQubeLastConnectionDate: '2023-06-20T15:08:59+0200',
     sonarLintLastConnectionDate: '2023-05-25T10:08:59+0200',
+    id: '4',
   }),
   mockRestUser({
     managed: true,
     login: 'eva.green',
     name: 'Eva Green',
     sonarQubeLastConnectionDate: '2023-05-27T17:08:59+0200',
+    id: '5',
   }),
   mockRestUser({
     managed: false,
     login: 'franck.grillo',
     name: 'Franck Grillo',
+    id: '6',
   }),
 ];
 
@@ -129,8 +134,9 @@ export default class UsersServiceMock {
   users = cloneDeep(DEFAULT_USERS);
   groups = cloneDeep(DEFAULT_GROUPS);
   password = DEFAULT_PASSWORD;
-  constructor() {
-    jest.mocked(getSystemInfo).mockImplementation(this.handleGetSystemInfo);
+  groupMembershipsServiceMock?: GroupMembershipsServiceMock = undefined;
+  constructor(groupMembershipsServiceMock?: GroupMembershipsServiceMock) {
+    this.groupMembershipsServiceMock = groupMembershipsServiceMock;
     jest.mocked(getIdentityProviders).mockImplementation(this.handleGetIdentityProviders);
     jest.mocked(getUsers).mockImplementation(this.handleGetUsers);
     jest.mocked(postUser).mockImplementation(this.handlePostUser);
@@ -143,18 +149,7 @@ export default class UsersServiceMock {
     jest.mocked(dismissNotice).mockResolvedValue({});
   }
 
-  setIsManaged(managed: boolean) {
-    this.isManaged = managed;
-  }
-
-  getFilteredRestUsers = (filterParams: {
-    q: string;
-    managed?: boolean;
-    sonarQubeLastConnectionDateFrom?: string;
-    sonarQubeLastConnectionDateTo?: string;
-    sonarLintLastConnectionDateFrom?: string;
-    sonarLintLastConnectionDateTo?: string;
-  }) => {
+  getFilteredRestUsers = (filterParams: Parameters<typeof getUsers>[0]) => {
     const {
       managed,
       q,
@@ -162,9 +157,24 @@ export default class UsersServiceMock {
       sonarQubeLastConnectionDateTo,
       sonarLintLastConnectionDateFrom,
       sonarLintLastConnectionDateTo,
+      groupId,
+      'groupId!': groupIdExclude,
     } = filterParams;
+    let { users } = this;
+    if (groupId || groupIdExclude) {
+      if (!this.groupMembershipsServiceMock) {
+        throw new Error(
+          'groupMembershipsServiceMock is not defined. Please provide GroupMembershipsServiceMock to UsersServiceMock constructor',
+        );
+      }
+      const groupMemberships = this.groupMembershipsServiceMock?.memberships.filter(
+        (m) => m.groupId === (groupId ?? groupIdExclude),
+      );
+      const userIds = groupMemberships?.map((m) => m.userId);
+      users = users.filter((u) => (groupId ? userIds?.includes(u.id) : !userIds?.includes(u.id)));
+    }
 
-    return this.users.filter((user) => {
+    return users.filter((user) => {
       if (this.isManaged && managed !== undefined && user.managed !== managed) {
         return false;
       }
@@ -216,44 +226,18 @@ export default class UsersServiceMock {
   };
 
   handleGetUsers: typeof getUsers<RestUserDetailed> = (data) => {
-    let page = {
-      pageIndex: 1,
-      pageSize: 0,
-      total: 10,
-    };
+    const pageIndex = data.pageIndex ?? 1;
+    const pageSize = data.pageSize ?? 10;
 
-    if (data.pageIndex !== undefined && data.pageIndex !== page.pageIndex) {
-      page = { pageIndex: 2, pageSize: 2, total: 10 };
-      const users = [
-        mockRestUser({
-          name: `Local User ${this.users.length + 4}`,
-          login: `local-user-${this.users.length + 4}`,
-        }),
-        mockRestUser({
-          name: `Local User ${this.users.length + 5}`,
-          login: `local-user-${this.users.length + 5}`,
-        }),
-      ];
-
-      return this.reply({ page, users });
-    }
-
-    const users = this.getFilteredRestUsers({
-      managed: data.managed,
-      q: data.q,
-      sonarQubeLastConnectionDateFrom: data.sonarQubeLastConnectionDateFrom,
-      sonarQubeLastConnectionDateTo: data.sonarQubeLastConnectionDateTo,
-      sonarLintLastConnectionDateFrom: data.sonarLintLastConnectionDateFrom,
-      sonarLintLastConnectionDateTo: data.sonarLintLastConnectionDateTo,
-    });
+    const users = this.getFilteredRestUsers(data);
 
     return this.reply({
       page: {
-        pageIndex: 1,
-        pageSize: users.length,
-        total: 10,
+        pageIndex,
+        pageSize,
+        total: users.length,
       },
-      users,
+      users: users.slice((pageIndex - 1) * pageSize, pageIndex * pageSize),
     });
   };
 
@@ -301,22 +285,6 @@ export default class UsersServiceMock {
     return this.reply({
       identityProviders: [mockIdentityProvider({ key: 'test' })],
     });
-  };
-
-  handleGetSystemInfo = (): Promise<SysInfoCluster> => {
-    return this.reply(
-      mockClusterSysInfo(
-        this.isManaged
-          ? {
-              System: {
-                'High Availability': true,
-                'Server ID': 'asd564-asd54a-5dsfg45',
-                'External Users and Groups Provisioning': 'GitHub',
-              },
-            }
-          : {},
-      ),
-    );
   };
 
   handleGetUserGroups: typeof getUserGroups = (data) => {

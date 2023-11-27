@@ -21,8 +21,11 @@ import { cloneDeep } from 'lodash';
 import { SysInfoCluster, SysInfoLogging, SysInfoStandalone } from '../../types/types';
 
 import { LogsLevels } from '../../apps/system/utils';
+import { Provider } from '../../components/hooks/useManageProvider';
 import { mockClusterSysInfo, mockLogs, mockStandaloneSysInfo } from '../../helpers/testMocks';
 import { getSystemInfo, setLogLevel } from '../system';
+
+jest.mock('../system');
 
 export default class SystemServiceMock {
   isCluster: boolean = false;
@@ -38,6 +41,16 @@ export default class SystemServiceMock {
   handleGetSystemInfo = () => {
     return this.reply(this.systemInfo);
   };
+
+  setProvider(provider: Provider | null) {
+    this.systemInfo = mockStandaloneSysInfo({
+      ...this.systemInfo,
+      System: {
+        ...this.systemInfo.System,
+        ...(provider ? { 'External Users and Groups Provisioning': provider } : {}),
+      },
+    });
+  }
 
   handleSetLogLevel = (logsLevel: LogsLevels) => {
     this.logging = mockLogs(logsLevel);

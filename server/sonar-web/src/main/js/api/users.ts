@@ -87,6 +87,8 @@ export function getUsers<T extends RestUserBase>(data: {
   sonarLintLastConnectionDateTo?: string;
   pageSize?: number;
   pageIndex?: number;
+  groupId?: string;
+  'groupId!'?: string;
 }) {
   return axios.get<{ page: Paging; users: T[] }>(USERS_ENDPOINT, {
     params: data,

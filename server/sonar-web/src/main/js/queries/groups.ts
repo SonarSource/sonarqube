@@ -18,17 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import {
-  createGroup,
-  deleteGroup,
-  getUsersGroups,
-  getUsersInGroup,
-  updateGroup,
-} from '../api/user_groups';
+import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { createGroup, deleteGroup, getUsersGroups, updateGroup } from '../api/user_groups';
 import { getNextPageParam, getPreviousPageParam } from '../helpers/react-query';
-
-const STALE_TIME = 4 * 60 * 1000;
 
 export function useGroupsQueries(
   getParams: Omit<Parameters<typeof getUsersGroups>[0], 'pageSize' | 'pageIndex'>,
@@ -38,14 +30,6 @@ export function useGroupsQueries(
     queryFn: ({ pageParam = 1 }) => getUsersGroups({ ...getParams, pageIndex: pageParam }),
     getNextPageParam,
     getPreviousPageParam,
-  });
-}
-
-export function useMembersCountQuery(name: string) {
-  return useQuery({
-    queryKey: ['group', name, 'members', 'total'],
-    queryFn: () => getUsersInGroup({ name, ps: 1 }).then((r) => r.paging.total),
-    staleTime: STALE_TIME,
   });
 }
 

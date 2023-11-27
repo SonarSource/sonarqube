@@ -230,6 +230,12 @@ export interface Group {
   managed: boolean;
 }
 
+export interface GroupMembership {
+  id: string;
+  groupId: string;
+  userId: string;
+}
+
 export enum HealthTypes {
   RED = 'RED',
   YELLOW = 'YELLOW',

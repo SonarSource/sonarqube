@@ -22,15 +22,22 @@ import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
 import AuthenticationServiceMock from '../../../api/mocks/AuthenticationServiceMock';
+import GroupMembershipsServiceMock from '../../../api/mocks/GroupMembersipsServiceMock';
 import GroupsServiceMock from '../../../api/mocks/GroupsServiceMock';
+import SystemServiceMock from '../../../api/mocks/SystemServiceMock';
+import UsersServiceMock from '../../../api/mocks/UsersServiceMock';
 import { Provider } from '../../../components/hooks/useManageProvider';
+import { mockGroupMembership, mockRestUser } from '../../../helpers/testMocks';
 import { renderApp } from '../../../helpers/testReactTestingUtils';
 import { byRole, byText } from '../../../helpers/testSelector';
 import { Feature } from '../../../types/features';
 import { TaskStatuses } from '../../../types/tasks';
 import GroupsApp from '../GroupsApp';
 
+const systemHandler = new SystemServiceMock();
 const handler = new GroupsServiceMock();
+const groupMembershipsHandler = new GroupMembershipsServiceMock();
+const userHandler = new UsersServiceMock(groupMembershipsHandler);
 const authenticationHandler = new AuthenticationServiceMock();
 
 const ui = {
@@ -61,22 +68,23 @@ const ui = {
   createGroupDialog: byRole('dialog', { name: 'groups.create_group' }),
   membersViewDialog: byRole('dialog', { name: 'users.list' }),
   membersDialog: byRole('dialog', { name: 'users.update' }),
-  getMembers: () => within(ui.membersDialog.get()).getAllByRole('checkbox'),
+  getMembers: () => within(ui.membersDialog.get()).findAllByRole('checkbox'),
 
-  managedGroupRow: byRole('row', { name: 'managed-group 3' }),
+  managedGroupRow: byRole('table').byRole('row', { name: 'managed-group 3' }),
   githubManagedGroupRow: byRole('row', { name: 'managed-group github 3' }),
   managedGroupEditMembersButton: byRole('button', { name: 'groups.users.edit.managed-group' }),
   managedGroupViewMembersButton: byRole('button', { name: 'groups.users.view.managed-group' }),
 
-  memberAliceUser: byText('alice'),
-  memberBobUser: byText('bob'),
+  memberAliceUser: byText('alice.merveille'),
+  memberBobUser: byText('bob.marley'),
   memberSearchInput: byRole('searchbox', { name: 'search_verb' }),
 
   managedEditButton: byRole('button', { name: 'groups.edit.managed-group' }),
 
   localGroupRow: byRole('row', { name: 'local-group 3' }),
+  localGroupWithALotOfSelected: byRole('row', { name: 'local-group 15' }),
   localGroupEditMembersButton: byRole('button', { name: 'groups.users.edit.local-group' }),
-  localGroupRow2: byRole('row', { name: 'local-group 2 3 group 2 is loco!' }),
+  localGroupRow2: byRole('row', { name: 'local-group 2 0 group 2 is loco!' }),
   editedLocalGroupRow: byRole('row', { name: 'local-group 3 3 group 3 rocks!' }),
   localEditButton: byRole('button', { name: 'groups.edit.local-group' }),
   localGroupRowWithLocalBadge: byRole('row', {
@@ -91,12 +99,23 @@ const ui = {
 
 beforeEach(() => {
   handler.reset();
+  systemHandler.reset();
   authenticationHandler.reset();
+  userHandler.reset();
+  groupMembershipsHandler.reset();
+  groupMembershipsHandler.memberships = [
+    mockGroupMembership({ groupId: '1', userId: '1' }),
+    mockGroupMembership({ groupId: '1', userId: '2' }),
+    mockGroupMembership({ groupId: '1', userId: '3' }),
+    mockGroupMembership({ groupId: '2', userId: '1' }),
+    mockGroupMembership({ groupId: '2', userId: '2' }),
+    mockGroupMembership({ groupId: '2', userId: '3' }),
+  ];
 });
 
 describe('in non managed mode', () => {
   beforeEach(() => {
-    handler.setIsManaged(false);
+    systemHandler.setProvider(null);
   });
 
   it('should render all groups', async () => {
@@ -172,24 +191,53 @@ describe('in non managed mode', () => {
 
     expect(await ui.membersDialog.find()).toBeInTheDocument();
 
-    expect(ui.getMembers()).toHaveLength(2);
+    expect(await ui.getMembers()).toHaveLength(3);
 
     await user.click(ui.allFilter.get());
-    expect(ui.getMembers()).toHaveLength(3);
+    expect(await ui.getMembers()).toHaveLength(6);
+    expect((await ui.getMembers()).filter((m) => (m as HTMLInputElement).checked)).toHaveLength(3);
 
     await user.click(ui.unselectedFilter.get());
+    expect(await ui.getMembers()).toHaveLength(3);
     expect(ui.reloadButton.query()).not.toBeInTheDocument();
-    await user.click(ui.getMembers()[0]);
+    await user.click((await ui.getMembers())[0]);
     expect(await ui.reloadButton.find()).toBeInTheDocument();
 
     await user.click(ui.selectedFilter.get());
-    expect(ui.getMembers()).toHaveLength(3);
+    expect(await ui.getMembers()).toHaveLength(4);
     expect(ui.reloadButton.query()).not.toBeInTheDocument();
-    await user.click(ui.getMembers()[0]);
+    await user.click((await ui.getMembers())[0]);
     expect(await ui.reloadButton.find()).toBeInTheDocument();
     await user.click(ui.reloadButton.get());
-    expect(ui.getMembers()).toHaveLength(2);
+    expect(await ui.getMembers()).toHaveLength(3);
 
+    await user.click(ui.doneButton.get());
+    expect(ui.membersDialog.query()).not.toBeInTheDocument();
+  });
+
+  it('should be able to load more members of a group', async () => {
+    const user = userEvent.setup();
+    userHandler.users = new Array(20)
+      .fill(null)
+      .map((_, i) => mockRestUser({ login: `user${i}`, id: `${i}` }));
+    groupMembershipsHandler.memberships = new Array(15)
+      .fill(null)
+      .map((_, i) => mockGroupMembership({ groupId: '2', userId: `${i}` }));
+    renderGroupsApp();
+
+    expect(await ui.localGroupWithALotOfSelected.find()).toBeInTheDocument();
+    expect(await ui.localGroupEditMembersButton.find()).toBeInTheDocument();
+    await user.click(ui.localGroupEditMembersButton.get());
+
+    expect(await ui.membersDialog.find()).toBeInTheDocument();
+
+    expect(await ui.getMembers()).toHaveLength(10);
+    await user.click(ui.membersDialog.by(ui.showMore).get());
+    expect(await ui.getMembers()).toHaveLength(15);
+    expect(ui.membersDialog.by(ui.showMore).query()).not.toBeInTheDocument();
+
+    await user.click(ui.unselectedFilter.get());
+    expect(await ui.getMembers()).toHaveLength(5);
     await user.click(ui.doneButton.get());
     expect(ui.membersDialog.query()).not.toBeInTheDocument();
   });
@@ -222,7 +270,7 @@ describe('in non managed mode', () => {
 
 describe('in manage mode', () => {
   beforeEach(() => {
-    handler.setIsManaged(true);
+    systemHandler.setProvider(Provider.Scim);
   });
 
   it('should not be able to create a group', async () => {
@@ -265,7 +313,7 @@ describe('in manage mode', () => {
     await user.click(ui.managedGroupViewMembersButton.get());
     expect(await ui.membersViewDialog.find()).toBeInTheDocument();
 
-    expect(ui.memberAliceUser.get()).toBeInTheDocument();
+    expect(ui.membersViewDialog.by(ui.memberAliceUser).get()).toBeInTheDocument();
     expect(ui.memberBobUser.get()).toBeInTheDocument();
 
     await user.type(ui.memberSearchInput.get(), 'b');
@@ -307,7 +355,7 @@ describe('in manage mode', () => {
   describe('Github Provisioning', () => {
     beforeEach(() => {
       authenticationHandler.handleActivateGithubProvisioning();
-      handler.setProvider(Provider.Github);
+      systemHandler.setProvider(Provider.Github);
     });
 
     it('should display a success status when the synchronisation is a success', async () => {
@@ -367,7 +415,6 @@ describe('in manage mode', () => {
     });
 
     it('should render a github icon for github groups', async () => {
-      handler.setProvider(Provider.Github);
       const user = userEvent.setup();
       renderGroupsApp();
 

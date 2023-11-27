@@ -50,6 +50,7 @@ import {
   Condition,
   FlowLocation,
   Group,
+  GroupMembership,
   HealthTypes,
   IdentityProvider,
   Issue,
@@ -296,6 +297,15 @@ export function mockGroup(overrides: Partial<Group> = {}): Group {
     id: Math.random().toString(),
     name: 'Foo',
     managed: false,
+    ...overrides,
+  };
+}
+
+export function mockGroupMembership(overrides: Partial<GroupMembership> = {}): GroupMembership {
+  return {
+    id: Math.random().toString(),
+    userId: Math.random().toString(),
+    groupId: Math.random().toString(),
     ...overrides,
   };
 }

@@ -19,14 +19,13 @@
  */
 import { Spinner } from 'design-system';
 import * as React from 'react';
-import { getUsersInGroup } from '../../../api/user_groups';
 import ListFooter from '../../../components/controls/ListFooter';
 import Modal from '../../../components/controls/Modal';
 import SearchBox from '../../../components/controls/SearchBox';
-import { SelectListFilter } from '../../../components/controls/SelectList';
 import { ResetButtonLink } from '../../../components/controls/buttons';
 import { translate } from '../../../helpers/l10n';
-import { Group, UserGroupMember } from '../../../types/types';
+import { useGroupMembersQuery } from '../../../queries/group-memberships';
+import { Group } from '../../../types/types';
 
 interface Props {
   isManaged: boolean;
@@ -34,33 +33,16 @@ interface Props {
   onClose: () => void;
 }
 
-export default function ViewMembersModal(props: Props) {
+export default function ViewMembersModal(props: Readonly<Props>) {
   const { isManaged, group } = props;
 
-  const [loading, setLoading] = React.useState(false);
-  const [page, setPage] = React.useState(1);
   const [query, setQuery] = React.useState<string>();
-  const [total, setTotal] = React.useState<number>();
-  const [users, setUsers] = React.useState<UserGroupMember[]>([]);
+  const { data, isLoading, fetchNextPage } = useGroupMembersQuery({
+    q: query,
+    groupId: group.id,
+  });
 
-  React.useEffect(() => {
-    (async () => {
-      setLoading(true);
-      const data = await getUsersInGroup({
-        name: group.name,
-        p: page,
-        q: query,
-        selected: SelectListFilter.Selected,
-      });
-      if (page > 1) {
-        setUsers([...users, ...data.users]);
-      } else {
-        setUsers(data.users);
-      }
-      setTotal(data.paging.total);
-      setLoading(false);
-    })();
-  }, [query, page]);
+  const users = data?.pages.flatMap((page) => page.users) ?? [];
 
   const modalHeader = translate('users.list');
   return (
@@ -76,16 +58,13 @@ export default function ViewMembersModal(props: Props) {
       <div className="modal-body modal-container">
         <SearchBox
           className="view-search-box"
-          loading={loading}
-          onChange={(q) => {
-            setQuery(q);
-            setPage(1);
-          }}
+          loading={isLoading}
+          onChange={setQuery}
           placeholder={translate('search_verb')}
           value={query}
         />
         <div className="select-list-list-container spacer-top sw-overflow-auto">
-          <Spinner loading={loading}>
+          <Spinner loading={isLoading}>
             <ul className="menu">
               {users.map((user) => (
                 <li key={user.login} className="display-flex-center">
@@ -106,8 +85,12 @@ export default function ViewMembersModal(props: Props) {
             </ul>
           </Spinner>
         </div>
-        {total !== undefined && (
-          <ListFooter count={users.length} loadMore={() => setPage((p) => p + 1)} total={total} />
+        {data !== undefined && (
+          <ListFooter
+            count={users.length}
+            loadMore={fetchNextPage}
+            total={data?.pages[0].page.total}
+          />
         )}
       </div>
 

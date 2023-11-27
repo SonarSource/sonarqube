@@ -27,7 +27,7 @@ import ActionsDropdown, {
 import { Provider } from '../../../components/hooks/useManageProvider';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { getBaseUrl } from '../../../helpers/system';
-import { useMembersCountQuery } from '../../../queries/groups';
+import { useGroupMembersCountQuery } from '../../../queries/group-memberships';
 import { Group } from '../../../types/types';
 import DeleteGroupForm from './DeleteGroupForm';
 import GroupForm from './GroupForm';
@@ -45,7 +45,7 @@ export default function ListItem(props: ListItemProps) {
   const [groupToDelete, setGroupToDelete] = useState<Group | undefined>();
   const [groupToEdit, setGroupToEdit] = useState<Group | undefined>();
 
-  const { data: membersCount, isLoading, refetch } = useMembersCountQuery(group.name);
+  const { data: membersCount, isLoading, refetch } = useGroupMembersCountQuery(group.id);
 
   const isManaged = () => {
     return manageProvider !== undefined;

@@ -21,44 +21,23 @@
 import { cloneDeep } from 'lodash';
 import { Provider } from '../../components/hooks/useManageProvider';
 import {
-  mockClusterSysInfo,
   mockGroup,
   mockIdentityProvider,
   mockPaging,
   mockUserGroupMember,
 } from '../../helpers/testMocks';
-import {
-  Group,
-  IdentityProvider,
-  Paging,
-  SysInfoCluster,
-  UserGroupMember,
-} from '../../types/types';
-import { getSystemInfo } from '../system';
-import {
-  addUserToGroup,
-  createGroup,
-  deleteGroup,
-  getUsersGroups,
-  getUsersInGroup,
-  removeUserFromGroup,
-  updateGroup,
-} from '../user_groups';
-import { getIdentityProviders } from '../users';
+import { Group, IdentityProvider, Paging } from '../../types/types';
+import { createGroup, deleteGroup, getUsersGroups, updateGroup } from '../user_groups';
 
-jest.mock('../users');
-jest.mock('../system');
 jest.mock('../user_groups');
 
 export default class GroupsServiceMock {
   provider: Provider | undefined;
-  isManaged = false;
   paging: Paging;
   groups: Group[];
-  users: UserGroupMember[];
   readOnlyGroups = [
-    mockGroup({ name: 'managed-group', managed: true }),
-    mockGroup({ name: 'local-group', managed: false }),
+    mockGroup({ name: 'managed-group', managed: true, id: '1' }),
+    mockGroup({ name: 'local-group', managed: false, id: '2' }),
   ];
 
   defaultUsers = [
@@ -68,37 +47,21 @@ export default class GroupsServiceMock {
   ];
 
   constructor() {
-    this.provider = Provider.Scim;
     this.groups = cloneDeep(this.readOnlyGroups);
     this.paging = mockPaging({
       pageIndex: 1,
       pageSize: 2,
       total: 200,
     });
-    this.users = cloneDeep(this.defaultUsers);
 
-    jest.mocked(getSystemInfo).mockImplementation(this.handleGetSystemInfo);
-    jest.mocked(getIdentityProviders).mockImplementation(this.handleGetIdentityProviders);
     jest.mocked(getUsersGroups).mockImplementation((p) => this.handleSearchUsersGroups(p));
     jest.mocked(createGroup).mockImplementation((g) => this.handleCreateGroup(g));
     jest.mocked(deleteGroup).mockImplementation((id) => this.handleDeleteGroup(id));
     jest.mocked(updateGroup).mockImplementation((id, data) => this.handleUpdateGroup(id, data));
-    jest.mocked(getUsersInGroup).mockImplementation(this.handlegetUsersInGroup);
-    jest.mocked(addUserToGroup).mockImplementation(this.handleAddUserToGroup);
-    jest.mocked(removeUserFromGroup).mockImplementation(this.handleRemoveUserFromGroup);
   }
 
   reset() {
     this.groups = cloneDeep(this.readOnlyGroups);
-    this.users = cloneDeep(this.defaultUsers);
-  }
-
-  setProvider(provider: Provider) {
-    this.provider = provider;
-  }
-
-  setIsManaged(managed: boolean) {
-    this.isManaged = managed;
   }
 
   setPaging(paging: Partial<Paging>) {
@@ -142,32 +105,6 @@ export default class GroupsServiceMock {
     return this.reply({});
   };
 
-  handlegetUsersInGroup = (data: {
-    name?: string;
-    p?: number;
-    ps?: number;
-    q?: string;
-    selected?: string;
-  }): Promise<{ paging: Paging; users: UserGroupMember[] }> => {
-    const users = this.users
-      .filter((u) => u.name.includes(data.q ?? ''))
-      .filter((u) => {
-        switch (data.selected) {
-          case 'selected':
-            return u.selected;
-          case 'deselected':
-            return !u.selected;
-          default:
-            return true;
-        }
-      });
-
-    return this.reply({
-      users,
-      paging: { ...this.paging, total: users.length },
-    });
-  };
-
   handleSearchUsersGroups = (
     params: Parameters<typeof getUsersGroups>[0],
   ): Promise<{ groups: Group[]; page: Paging }> => {
@@ -181,53 +118,21 @@ export default class GroupsServiceMock {
 
       return this.reply({ page, groups });
     }
-    if (this.isManaged) {
-      if (params.managed === undefined) {
-        return this.reply({
-          page,
-          groups: this.groups.filter((g) => (params?.q ? g.name.includes(params.q) : true)),
-        });
-      }
-      const groups = this.groups.filter((group) => group.managed === params.managed);
+    if (params.managed === undefined) {
       return this.reply({
         page,
-        groups: groups.filter((g) => (params?.q ? g.name.includes(params.q) : true)),
+        groups: this.groups.filter((g) => (params?.q ? g.name.includes(params.q) : true)),
       });
     }
+    const groups = this.groups.filter((group) => group.managed === params.managed);
     return this.reply({
       page,
-      groups: this.groups.filter((g) => (params?.q ? g.name.includes(params.q) : true)),
+      groups: groups.filter((g) => (params?.q ? g.name.includes(params.q) : true)),
     });
   };
 
   handleGetIdentityProviders = (): Promise<{ identityProviders: IdentityProvider[] }> => {
     return this.reply({ identityProviders: [mockIdentityProvider()] });
-  };
-
-  handleGetSystemInfo = (): Promise<SysInfoCluster> => {
-    return this.reply(
-      mockClusterSysInfo(
-        this.isManaged
-          ? {
-              System: {
-                'High Availability': true,
-                'Server ID': 'asd564-asd54a-5dsfg45',
-                'External Users and Groups Provisioning': this.provider,
-              },
-            }
-          : {},
-      ),
-    );
-  };
-
-  handleAddUserToGroup: typeof addUserToGroup = ({ login }) => {
-    this.users = this.users.map((u) => (u.login === login ? { ...u, selected: true } : u));
-    return this.reply({});
-  };
-
-  handleRemoveUserFromGroup: typeof removeUserFromGroup = ({ login }) => {
-    this.users = this.users.map((u) => (u.login === login ? { ...u, selected: false } : u));
-    return this.reply({});
   };
 
   reply<T>(response: T): Promise<T> {

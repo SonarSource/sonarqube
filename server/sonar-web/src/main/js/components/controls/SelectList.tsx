@@ -29,7 +29,7 @@ export enum SelectListFilter {
   Unselected = 'deselected',
 }
 
-interface Props {
+type Props = {
   allowBulkSelection?: boolean;
   elements: string[];
   elementsTotalCount?: number;
@@ -38,7 +38,6 @@ interface Props {
   labelUnselected?: string;
   labelAll?: string;
   needToReload?: boolean;
-  onSearch: (searchParams: SelectListSearchParams) => Promise<void>;
   onSelect: (element: string) => Promise<void>;
   onUnselect: (element: string) => Promise<void>;
   pageSize?: number;
@@ -47,7 +46,16 @@ interface Props {
   selectedElements: string[];
   withPaging?: boolean;
   autoFocusSearch?: boolean;
-}
+} & (
+  | {
+      onSearch: (searchParams: SelectListSearchParams) => Promise<void>;
+      loading?: never;
+    }
+  | {
+      loading: boolean;
+      onSearch: (searchParams: SelectListSearchParams) => void;
+    }
+);
 
 export interface SelectListSearchParams {
   filter: SelectListFilter;
@@ -100,24 +108,28 @@ export default class SelectList extends React.PureComponent<Props, State> {
       ? this.state.lastSearchParams.filter
       : SelectListFilter.All;
 
-  search = (searchParams: Partial<SelectListSearchParams>) =>
+  search = (searchParams: Partial<SelectListSearchParams>) => {
     this.setState(
       (prevState) => ({
         loading: true,
         lastSearchParams: { ...prevState.lastSearchParams, ...searchParams },
       }),
       () => {
-        this.props
-          .onSearch({
-            filter: this.getFilter(),
-            page: this.props.withPaging ? this.state.lastSearchParams.page : undefined,
-            pageSize: this.props.withPaging ? this.state.lastSearchParams.pageSize : undefined,
-            query: this.state.lastSearchParams.query,
-          })
-          .then(this.stopLoading)
-          .catch(this.stopLoading);
+        const params = {
+          filter: this.getFilter(),
+          page: this.props.withPaging ? this.state.lastSearchParams.page : undefined,
+          pageSize: this.props.withPaging ? this.state.lastSearchParams.pageSize : undefined,
+          query: this.state.lastSearchParams.query,
+        };
+
+        if (this.props.loading !== undefined) {
+          this.props.onSearch(params);
+        } else {
+          this.props.onSearch(params).then(this.stopLoading).catch(this.stopLoading);
+        }
       },
     );
+  };
 
   changeFilter = (filter: SelectListFilter) => this.search({ filter, page: 1 });
 
@@ -159,7 +171,7 @@ export default class SelectList extends React.PureComponent<Props, State> {
           </span>
           <InputSearch
             autoFocus={autoFocusSearch}
-            loading={this.state.loading}
+            loading={this.props.loading ?? this.state.loading}
             onChange={this.handleQueryChange}
             placeholder={translate('search_verb')}
             value={this.state.lastSearchParams.query}

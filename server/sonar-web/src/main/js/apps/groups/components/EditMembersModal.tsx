@@ -17,9 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { find, without } from 'lodash';
+import { find } from 'lodash';
 import * as React from 'react';
-import { addUserToGroup, getUsersInGroup, removeUserFromGroup } from '../../../api/user_groups';
 import Modal from '../../../components/controls/Modal';
 import SelectList, {
   SelectListFilter,
@@ -27,7 +26,13 @@ import SelectList, {
 } from '../../../components/controls/SelectList';
 import { ResetButtonLink } from '../../../components/controls/buttons';
 import { translate } from '../../../helpers/l10n';
-import { Group, UserSelected } from '../../../types/types';
+import {
+  useAddGroupMembershipMutation,
+  useGroupMembersQuery,
+  useRemoveGroupMembershipMutation,
+} from '../../../queries/group-memberships';
+import { Group } from '../../../types/types';
+import { RestUserBase } from '../../../types/users';
 
 interface Props {
   group: Group;
@@ -35,68 +40,73 @@ interface Props {
 }
 
 export default function EditMembersModal(props: Readonly<Props>) {
-  const [needToReload, setNeedToReload] = React.useState(false);
-  const [users, setUsers] = React.useState<UserSelected[]>([]);
-  const [selectedUsers, setSelectedUsers] = React.useState<string[]>([]);
-  const [usersTotalCount, setUsersTotalCount] = React.useState<number | undefined>(undefined);
-  const [lastSearchParams, setLastSearchParams] = React.useState<
-    SelectListSearchParams | undefined
-  >(undefined);
-
   const { group } = props;
+
+  const [query, setQuery] = React.useState<string>('');
+  const [changedUsers, setChangedUsers] = React.useState<Map<string, boolean>>(new Map());
+  const [filter, setFilter] = React.useState<SelectListFilter>(SelectListFilter.Selected);
+  const { mutateAsync: addUserToGroup } = useAddGroupMembershipMutation();
+  const { mutateAsync: removeUserFromGroup } = useRemoveGroupMembershipMutation();
+  const {
+    data,
+    isLoading,
+    fetchNextPage,
+    remove: emptyQueryCache,
+  } = useGroupMembersQuery({
+    q: query,
+    groupId: group.id,
+    filter,
+  });
+
+  const users: (RestUserBase & { selected?: boolean })[] =
+    data?.pages.flatMap((page) => page.users) ?? [];
+
   const modalHeader = translate('users.update');
 
-  const fetchUsers = (searchParams: SelectListSearchParams) =>
-    getUsersInGroup({
-      name: props.group.name,
-      p: searchParams.page,
-      ps: searchParams.pageSize,
-      q: searchParams.query !== '' ? searchParams.query : undefined,
-      selected: searchParams.filter,
-    }).then((data) => {
-      const more = searchParams.page != null && searchParams.page > 1;
-
-      setUsers(more ? [...users, ...data.users] : data.users);
-      const newSelectedUsers = data.users.filter((user) => user.selected).map((user) => user.login);
-      setSelectedUsers(more ? [...selectedUsers, ...newSelectedUsers] : newSelectedUsers);
-      setNeedToReload(false);
-      setLastSearchParams(searchParams);
-      setUsersTotalCount(data.paging.total);
-    });
-
-  const handleSelect = (login: string) =>
+  const handleSelect = (userId: string) =>
     addUserToGroup({
-      name: group.name,
-      login,
+      groupId: group.id,
+      userId,
     }).then(() => {
-      setNeedToReload(true);
-      setSelectedUsers([...selectedUsers, login]);
+      const newChangedUsers = new Map(changedUsers);
+      newChangedUsers.set(userId, true);
+      setChangedUsers(newChangedUsers);
     });
 
-  const handleUnselect = (login: string) =>
+  const handleUnselect = (userId: string) =>
     removeUserFromGroup({
-      name: group.name,
-      login,
+      userId,
+      groupId: group.id,
     }).then(() => {
-      setNeedToReload(true);
-      setSelectedUsers(without(selectedUsers, login));
+      const newChangedUsers = new Map(changedUsers);
+      newChangedUsers.set(userId, false);
+      setChangedUsers(newChangedUsers);
     });
 
-  const renderElement = (login: string): React.ReactNode => {
-    const user = find(users, { login });
+  const renderElement = (id: string): React.ReactNode => {
+    const user = find(users, { id });
+    if (!user) {
+      return null;
+    }
+
     return (
       <div className="select-list-list-item">
-        {user === undefined ? (
-          login
-        ) : (
-          <>
-            {user.name}
-            <br />
-            <span className="note">{user.login}</span>
-          </>
-        )}
+        {user.name}
+        <br />
+        <span className="note">{user.login}</span>
       </div>
     );
+  };
+
+  const onSearch = (searchParams: SelectListSearchParams) => {
+    setQuery(searchParams.query);
+    setFilter(searchParams.filter);
+    if (searchParams.page === 1) {
+      emptyQueryCache();
+      setChangedUsers(new Map());
+    } else {
+      fetchNextPage();
+    }
   };
 
   return (
@@ -111,17 +121,18 @@ export default function EditMembersModal(props: Readonly<Props>) {
 
       <div className="modal-body modal-container">
         <SelectList
-          elements={users.map((user) => user.login)}
-          elementsTotalCount={usersTotalCount}
-          needToReload={
-            needToReload && lastSearchParams && lastSearchParams.filter !== SelectListFilter.All
-          }
-          onSearch={fetchUsers}
+          elements={users.map((user) => user.id)}
+          elementsTotalCount={data?.pages[0].page.total}
+          needToReload={changedUsers.size > 0 && filter !== SelectListFilter.All}
+          onSearch={onSearch}
           onSelect={handleSelect}
           onUnselect={handleUnselect}
           renderElement={renderElement}
-          selectedElements={selectedUsers}
+          selectedElements={users
+            .filter((u) => (changedUsers.has(u.id) ? changedUsers.get(u.id) : u.selected))
+            .map((u) => u.id)}
           withPaging
+          loading={isLoading}
         />
       </div>
 

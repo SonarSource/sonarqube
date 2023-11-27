@@ -25,9 +25,11 @@ import selectEvent from 'react-select-event';
 import AuthenticationServiceMock from '../../../api/mocks/AuthenticationServiceMock';
 import ComponentsServiceMock from '../../../api/mocks/ComponentsServiceMock';
 import SettingsServiceMock from '../../../api/mocks/SettingsServiceMock';
+import SystemServiceMock from '../../../api/mocks/SystemServiceMock';
 import UserTokensMock from '../../../api/mocks/UserTokensMock';
 import UsersServiceMock from '../../../api/mocks/UsersServiceMock';
-import { mockCurrentUser, mockLoggedInUser } from '../../../helpers/testMocks';
+import { Provider } from '../../../components/hooks/useManageProvider';
+import { mockCurrentUser, mockLoggedInUser, mockRestUser } from '../../../helpers/testMocks';
 import { renderApp } from '../../../helpers/testReactTestingUtils';
 import { byLabelText, byRole, byText } from '../../../helpers/testSelector';
 import { Feature } from '../../../types/features';
@@ -39,6 +41,7 @@ jest.mock('../../../api/user-tokens');
 
 const userHandler = new UsersServiceMock();
 const tokenHandler = new UserTokensMock();
+const systemHandler = new SystemServiceMock();
 const componentsHandler = new ComponentsServiceMock();
 const settingsHandler = new SettingsServiceMock();
 const authenticationHandler = new AuthenticationServiceMock();
@@ -140,6 +143,7 @@ beforeEach(() => {
   userHandler.reset();
   componentsHandler.reset();
   settingsHandler.reset();
+  systemHandler.reset();
   authenticationHandler.reset();
 });
 
@@ -149,6 +153,8 @@ describe('different filters combinations', () => {
       advanceTimers: true,
       now: new Date('2023-07-05T07:08:59Z'),
     });
+
+    systemHandler.setProvider(Provider.Scim);
   });
 
   afterEach(() => {
@@ -222,7 +228,7 @@ describe('different filters combinations', () => {
 
 describe('in non managed mode', () => {
   beforeEach(() => {
-    userHandler.setIsManaged(false);
+    systemHandler.setProvider(null);
   });
 
   it('should allow the creation of user', async () => {
@@ -268,15 +274,23 @@ describe('in non managed mode', () => {
 
   it('should be able load more users', async () => {
     const user = userEvent.setup();
+    userHandler.users = [
+      mockRestUser({ login: 'bob.marley', name: 'Bob Marley' }),
+      ...Array(10)
+        .fill(null)
+        .map((_, i) => mockRestUser({ login: `user${i}` })),
+      mockRestUser({ login: 'alice.merveille', name: 'Alice Merveille' }),
+    ];
     renderUsersApp();
 
-    expect(await ui.aliceRow.find()).toBeInTheDocument();
-    expect(await ui.userRows.findAll()).toHaveLength(6);
+    expect(await ui.userRows.findAll()).toHaveLength(10);
     expect(ui.bobRow.get()).toBeInTheDocument();
+    expect(ui.aliceRow.query()).not.toBeInTheDocument();
 
     await user.click(await ui.showMore.find());
 
-    expect(await ui.userRows.findAll()).toHaveLength(8);
+    await waitFor(async () => expect(await ui.userRows.findAll()).toHaveLength(12));
+    expect(ui.aliceRow.get()).toBeInTheDocument();
   });
 
   it('should be able to edit the groups of a user', async () => {
@@ -451,7 +465,7 @@ describe('in non managed mode', () => {
 
 describe('in manage mode', () => {
   beforeEach(() => {
-    userHandler.setIsManaged(true);
+    systemHandler.setProvider(Provider.Github);
   });
 
   it('should not be able to create a user"', async () => {
@@ -658,7 +672,7 @@ it('should render external identity Providers', async () => {
 });
 
 it('accessibility', async () => {
-  userHandler.setIsManaged(false);
+  systemHandler.setProvider(null);
   const user = userEvent.setup();
   renderUsersApp();
 
