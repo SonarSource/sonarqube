@@ -32,6 +32,7 @@ import {
   IssueStatus,
   IssueType,
 } from '../types/issues';
+import { MetricKey } from '../types/metrics';
 import { RuleType } from '../types/types';
 
 export const SEVERITIES = Object.values(IssueSeverity);
@@ -91,6 +92,8 @@ export const RATING_COLORS = [
   { fill: colors.warningAccent, fillTransparent: colors.warningAccenta20, stroke: colors.warning },
   { fill: colors.error400, fillTransparent: colors.error400a20, stroke: colors.error700 },
 ];
+
+export const HIDDEN_METRICS = [MetricKey.open_issues, MetricKey.reopened_issues];
 
 export const PROJECT_KEY_MAX_LEN = 400;
 

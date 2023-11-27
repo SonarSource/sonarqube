@@ -140,6 +140,14 @@ describe('rendering', () => {
     expect(screen.getAllByText('Releasability rating').length).toBeGreaterThan(0);
   });
 
+  it('should render issues measures when query by open_issues', async () => {
+    const { ui } = getPageObject();
+    renderMeasuresApp('component_measures?id=foo&metric=open_issues');
+    await ui.appLoaded();
+
+    expect(screen.getAllByText('Issues').length).toBeGreaterThan(1);
+  });
+
   it('should render correctly if there are no measures', async () => {
     componentsHandler.registerComponentMeasures({});
     measuresHandler.registerComponentMeasures({});

@@ -20,6 +20,7 @@
 import { groupBy, memoize, sortBy, toPairs } from 'lodash';
 import { enhanceMeasure } from '../../components/measure/utils';
 import { isBranch, isPullRequest } from '../../helpers/branch-like';
+import { HIDDEN_METRICS } from '../../helpers/constants';
 import { getLocalizedMetricName } from '../../helpers/l10n';
 import { MEASURES_REDIRECTION, getDisplayMetrics, isDiffMetric } from '../../helpers/measures';
 import {
@@ -59,21 +60,9 @@ export const KNOWN_DOMAINS = [
   'Size',
   'Complexity',
 ];
-const BANNED_MEASURES = [
-  MetricKey.blocker_violations,
-  MetricKey.new_blocker_violations,
-  MetricKey.critical_violations,
-  MetricKey.new_critical_violations,
-  MetricKey.major_violations,
-  MetricKey.new_major_violations,
-  MetricKey.minor_violations,
-  MetricKey.new_minor_violations,
-  MetricKey.info_violations,
-  MetricKey.new_info_violations,
-];
 
 export function filterMeasures(measures: MeasureEnhanced[]): MeasureEnhanced[] {
-  return measures.filter((measure) => !BANNED_MEASURES.includes(measure.metric.key as MetricKey));
+  return measures.filter((measure) => !HIDDEN_METRICS.includes(measure.metric.key as MetricKey));
 }
 
 export function sortMeasures(

@@ -66,7 +66,7 @@ describe('filterMeasures', () => {
   it('should exclude banned measures', () => {
     expect(
       utils.filterMeasures([
-        { metric: { id: '1', key: MetricKey.bugs, name: 'Bugs', type: 'INT' } },
+        { metric: { id: '1', key: MetricKey.open_issues, name: 'Bugs', type: 'INT' } },
         {
           metric: {
             id: '2',

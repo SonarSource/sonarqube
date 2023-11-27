@@ -30,6 +30,8 @@ import { isDefined } from './types';
 
 export const MEASURES_REDIRECTION: Partial<Record<MetricKey, MetricKey>> = {
   [MetricKey.wont_fix_issues]: MetricKey.accepted_issues,
+  [MetricKey.open_issues]: MetricKey.violations,
+  [MetricKey.reopened_issues]: MetricKey.violations,
 };
 
 export function enhanceMeasuresWithMetrics(

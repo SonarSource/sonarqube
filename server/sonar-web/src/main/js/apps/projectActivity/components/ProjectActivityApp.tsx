@@ -39,6 +39,7 @@ import {
 } from '../../../components/activity-graph/utils';
 import { Location, Router, withRouter } from '../../../components/hoc/withRouter';
 import { getBranchLikeQuery } from '../../../helpers/branch-like';
+import { HIDDEN_METRICS } from '../../../helpers/constants';
 import { parseDate } from '../../../helpers/dates';
 import { serializeStringArray } from '../../../helpers/query';
 import { withBranchLikes } from '../../../queries/branch';
@@ -290,7 +291,8 @@ class ProjectActivityApp extends React.PureComponent<Props, State> {
     }
 
     return Object.values(metrics).filter(
-      (metric) => metric.key !== MetricKey.security_review_rating,
+      (metric) =>
+        ![...HIDDEN_METRICS, MetricKey.security_review_rating].includes(metric.key as MetricKey),
     );
   };
 

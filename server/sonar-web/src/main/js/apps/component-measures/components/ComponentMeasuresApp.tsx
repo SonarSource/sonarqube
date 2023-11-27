@@ -51,6 +51,7 @@ import '../style.css';
 import {
   Query,
   banQualityGateMeasure,
+  filterMeasures,
   getMeasuresPageMetricKeys,
   groupByDomains,
   hasBubbleChart,
@@ -144,10 +145,9 @@ class ComponentMeasuresApp extends React.PureComponent<Props, State> {
     getMeasuresWithPeriod(componentKey, filteredKeys, getBranchLikeQuery(branchLike)).then(
       ({ component, period }) => {
         if (this.mounted) {
-          const measures = banQualityGateMeasure(component).map((measure) =>
-            enhanceMeasure(measure, metrics),
+          const measures = filterMeasures(
+            banQualityGateMeasure(component).map((measure) => enhanceMeasure(measure, metrics)),
           );
-
           const leakPeriod =
             component.qualifier === ComponentQualifier.Project ? period : undefined;
 

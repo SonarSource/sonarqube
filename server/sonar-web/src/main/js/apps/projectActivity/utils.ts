@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { startOfDay } from 'date-fns';
-import { isEqual } from 'lodash';
+import { isEqual, uniq } from 'lodash';
 import { DEFAULT_GRAPH } from '../../components/activity-graph/utils';
 import { parseDate } from '../../helpers/dates';
 import { MEASURES_REDIRECTION } from '../../helpers/measures';
@@ -112,7 +112,7 @@ export function getAnalysesByVersionByDay(
 
 export function parseQuery(urlQuery: RawQuery): Query {
   const parsedMetrics = parseAsArray(urlQuery['custom_metrics'], parseAsString<MetricKey>);
-  const customMetrics = parsedMetrics.map((metric) => MEASURES_REDIRECTION[metric] ?? metric);
+  const customMetrics = uniq(parsedMetrics.map((metric) => MEASURES_REDIRECTION[metric] ?? metric));
 
   return {
     category: parseAsString(urlQuery['category']),
