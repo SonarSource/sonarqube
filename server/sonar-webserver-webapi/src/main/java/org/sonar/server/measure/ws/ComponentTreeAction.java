@@ -108,8 +108,8 @@ import static org.sonar.server.measure.ws.SnapshotDtoToWsPeriod.snapshotToWsPeri
 import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PULL_REQUEST_EXAMPLE_001;
-import static org.sonar.server.ws.WsParameterBuilder.createQualifiersParameter;
 import static org.sonar.server.ws.WsParameterBuilder.QualifierParameterContext.newQualifierParameterContext;
+import static org.sonar.server.ws.WsParameterBuilder.createQualifiersParameter;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 /**
@@ -181,6 +181,8 @@ public class ComponentTreeAction implements MeasuresWsAction {
       .setHandler(this)
       .addPagingParams(100, MAX_SIZE)
       .setChangelog(
+        new Change("10.4", "The metrics 'open_issues', 'reopened_issues' and 'confirmed_issues' are now deprecated in the response. Consume 'violations' instead."),
+        new Change("10.4", "The use of 'open_issues', 'reopened_issues' and 'confirmed_issues' values in 'metricKeys' param are now deprecated. Use 'violations' instead."),
         new Change("10.4", "The metric 'wont_fix_issues' is now deprecated in the response. Consume 'accepted_issues' instead."),
         new Change("10.4", "The use of 'wont_fix_issues' value in 'metricKeys' and 'metricSort' params is now deprecated. Use 'accepted_issues' instead."),
         new Change("10.4", "Added new accepted value for the 'metricKeys' and 'metricSort' param: 'accepted_issues'."),

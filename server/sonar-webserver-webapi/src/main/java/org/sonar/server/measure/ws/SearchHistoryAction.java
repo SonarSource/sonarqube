@@ -95,6 +95,8 @@ public class SearchHistoryAction implements MeasuresWsAction {
       .setResponseExample(getClass().getResource("search_history-example.json"))
       .setSince("6.3")
       .setChangelog(
+        new Change("10.4", "The metrics 'open_issues', 'reopened_issues' and 'confirmed_issues' are now deprecated in the response. Consume 'violations' instead."),
+        new Change("10.4", "The use of 'open_issues', 'reopened_issues' and 'confirmed_issues' values in 'metricKeys' param are now deprecated. Use 'violations' instead."),
         new Change("10.4", "The metric 'wont_fix_issues' is now deprecated in the response. Consume 'accepted_issues' instead."),
         new Change("10.4", "The use of 'wont_fix_issues' value in 'metricKeys' param is now deprecated. Use 'accepted_issues' instead."),
         new Change("10.4", "Added new accepted value for the 'metricKeys' param: 'accepted_issues'."),
