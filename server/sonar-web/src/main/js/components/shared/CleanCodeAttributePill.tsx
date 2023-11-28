@@ -31,7 +31,7 @@ export interface Props {
   cleanCodeAttribute?: CleanCodeAttribute;
 }
 
-export function CleanCodeAttributePill(props: Props) {
+export function CleanCodeAttributePill(props: Readonly<Props>) {
   const { className, cleanCodeAttributeCategory, cleanCodeAttribute, type = 'issue' } = props;
 
   return (
@@ -65,12 +65,7 @@ export function CleanCodeAttributePill(props: Props) {
     >
       <Pill variant="neutral" data-guiding-id="issue-1" className={className}>
         <span className={classNames({ 'sw-font-semibold': !!cleanCodeAttribute })}>
-          {translate(
-            type,
-            'clean_code_attribute_category',
-            cleanCodeAttributeCategory,
-            'title_short',
-          )}
+          {translate(type, 'clean_code_attribute_category', cleanCodeAttributeCategory)}
         </span>
         {cleanCodeAttribute && (
           <span> | {translate(type, 'clean_code_attribute', cleanCodeAttribute)}</span>

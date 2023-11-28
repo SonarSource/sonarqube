@@ -92,7 +92,7 @@ it('should see the changelog', async () => {
     'April 23, 2019',
     'System',
     'quality_profiles.changelog.DEACTIVATED',
-    'Rule 0issue.clean_code_attribute_category.RESPONSIBLE.title_shortsoftware_quality.SECURITYsoftware_quality.MAINTAINABILITY',
+    'Rule 0issue.clean_code_attribute_category.RESPONSIBLEsoftware_quality.SECURITYsoftware_quality.MAINTAINABILITY',
     [/quality_profiles.deprecated_severity_set_to severity.MAJOR/],
   );
   ui.checkRow(
@@ -100,7 +100,7 @@ it('should see the changelog', async () => {
     '',
     '',
     '',
-    'Rule 1issue.clean_code_attribute_category.RESPONSIBLE.title_shortsoftware_quality.SECURITYsoftware_quality.MAINTAINABILITY',
+    'Rule 1issue.clean_code_attribute_category.RESPONSIBLEsoftware_quality.SECURITYsoftware_quality.MAINTAINABILITY',
     [
       /quality_profiles.deprecated_severity_set_to severity.CRITICAL/,
       /quality_profiles.changelog.cca_and_category_changed.*COMPLETE.*INTENTIONAL.*LAWFUL.*RESPONSIBLE/,

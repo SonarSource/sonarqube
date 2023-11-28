@@ -114,7 +114,7 @@ const selectors = {
   cancelButton: byRole('button', { name: 'cancel' }),
   removeButton: byRole('button', { name: 'remove' }),
   ruleCleanCodeAttributeCategory: (category: CleanCodeAttributeCategory) =>
-    byText(`rule.clean_code_attribute_category.${category}.title_short`),
+    byText(`rule.clean_code_attribute_category.${category}`),
   ruleCleanCodeAttribute: (attribute: CleanCodeAttribute) =>
     byText(new RegExp(`rule\\.clean_code_attribute\\.${attribute}$`)),
   ruleSoftwareQuality: (quality: SoftwareQuality) => byText(`software_quality.${quality}`),
