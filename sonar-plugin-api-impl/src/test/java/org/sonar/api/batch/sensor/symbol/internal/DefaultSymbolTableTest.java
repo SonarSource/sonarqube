@@ -27,8 +27,10 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.internal.SensorStorage;
+import org.sonar.api.batch.sensor.symbol.NewSymbol;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 
 public class DefaultSymbolTableTest {
@@ -42,7 +44,6 @@ public class DefaultSymbolTableTest {
 
   private Map<TextRange, Set<TextRange>> referencesPerSymbol;
 
-
   @Before
   public void setUpSampleSymbols() {
 
@@ -51,7 +52,7 @@ public class DefaultSymbolTableTest {
     symbolTableBuilder
       .newSymbol(1, 0, 1, 10)
       .newReference(2, 10, 2, 15)
-    .newReference(1, 16, 1, 20);
+      .newReference(1, 16, 1, 20);
 
     symbolTableBuilder
       .newSymbol(1, 12, 1, 15)
@@ -68,15 +69,14 @@ public class DefaultSymbolTableTest {
   }
 
   @Test
-  public void should_fail_on_reference_overlaps_declaration() {
-    DefaultSymbolTable symbolTableBuilder = new DefaultSymbolTable(mock(SensorStorage.class))
-      .onFile(INPUT_FILE);
-    symbolTableBuilder = symbolTableBuilder
+  public void fail_on_reference_overlaps_declaration() {
+    NewSymbol symbol = new DefaultSymbolTable(mock(SensorStorage.class))
+      .onFile(INPUT_FILE)
       .newSymbol(1, 0, 1, 10);
-    
-    assertThatThrownBy(() -> {
-      symbolTableBuilder.newReference(1, 0, 1, 10);
-    }).isInstanceOf(IllegalArgumentException.class)
-      .hasMessageMatching(".*");
+
+    assertThatThrownBy(() -> symbol.newReference(1, 3, 1, 12))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage(
+        "Overlapping symbol declaration and reference for symbol declared at Range[from [line=1, lineOffset=0] to [line=1, lineOffset=10]] and referenced at Range[from [line=1, lineOffset=3] to [line=1, lineOffset=12]] in file src/Foo.java");
   }
 }
