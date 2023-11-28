@@ -65,7 +65,7 @@ if [[ -n "${NEXT_TOKEN-}" ]]; then
 
   if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then
     echo '======= Analyze pull request'
-    ./gradlew jacocoTestReport yarn_validate-ci sonarqube --info --console plain \
+    ./gradlew jacocoTestReport yarn_validate-ci sonarqube --warn --console plain \
       "${sonar_params[@]}" \
       -Dsonar.analysis.prNumber="$PULL_REQUEST_NUMBER" \
       -Dsonar.pullrequest.branch="$GIT_BRANCH" \
@@ -73,12 +73,12 @@ if [[ -n "${NEXT_TOKEN-}" ]]; then
       -Dsonar.pullrequest.key="$PULL_REQUEST_NUMBER"
   elif [ "${TRAVIS_BRANCH}" == "master" ]; then
     echo '======= Analyze master'
-    ./gradlew jacocoTestReport yarn_validate-ci sonarqube --info --console plain \
+    ./gradlew jacocoTestReport yarn_validate-ci sonarqube --warn --console plain \
       "${sonar_params[@]}" \
       -Dsonar.projectVersion="$INITIAL_VERSION"
   else
     echo '======= Analyze branch'
-    ./gradlew jacocoTestReport yarn_validate-ci sonarqube --info --console plain \
+    ./gradlew jacocoTestReport yarn_validate-ci sonarqube --warn --console plain \
       "${sonar_params[@]}" \
       -Dsonar.branch.name="$GIT_BRANCH" \
       -Dsonar.projectVersion="$INITIAL_VERSION"
