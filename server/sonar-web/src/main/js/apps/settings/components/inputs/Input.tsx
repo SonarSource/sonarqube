@@ -32,7 +32,7 @@ import MultiValueInput from './MultiValueInput';
 import PrimitiveInput from './PrimitiveInput';
 import PropertySetInput from './PropertySetInput';
 
-export default function Input(props: DefaultInputProps) {
+export default function Input(props: Readonly<DefaultInputProps>) {
   const { setting } = props;
   const { definition } = setting;
   const name = getUniqueName(definition);

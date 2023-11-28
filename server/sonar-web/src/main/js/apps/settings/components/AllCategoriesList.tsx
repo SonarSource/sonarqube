@@ -17,10 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import classNames from 'classnames';
+import { SubnavigationGroup, SubnavigationItem } from 'design-system';
 import { sortBy } from 'lodash';
 import * as React from 'react';
-import { NavLink } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import withAvailableFeatures, {
   WithAvailableFeaturesProps,
 } from '../../../app/components/available-features/withAvailableFeatures';
@@ -38,8 +38,21 @@ export interface CategoriesListProps extends WithAvailableFeaturesProps {
   selectedCategory: string;
 }
 
-function CategoriesList(props: CategoriesListProps) {
+function CategoriesList(props: Readonly<CategoriesListProps>) {
   const { categories, component, defaultCategory, selectedCategory } = props;
+
+  const navigate = useNavigate();
+
+  const openCategory = React.useCallback(
+    (category: string | undefined) => {
+      const url = component
+        ? getProjectSettingsUrl(component.key, category)
+        : getGlobalSettingsUrl(category);
+
+      navigate(url);
+    },
+    [component, navigate],
+  );
 
   const categoriesWithName = categories
     .filter((key) => !CATEGORY_OVERRIDES[key.toLowerCase()])
@@ -61,31 +74,20 @@ function CategoriesList(props: CategoriesListProps) {
   const sortedCategories = sortBy(categoriesWithName, (category) => category.name.toLowerCase());
 
   return (
-    <ul className="side-tabs-menu">
+    <SubnavigationGroup className="sw-box-border it__subnavigation_menu">
       {sortedCategories.map((c) => {
         const category = c.key !== defaultCategory ? c.key.toLowerCase() : undefined;
         return (
-          <li key={c.key}>
-            <NavLink
-              end
-              className={(_) =>
-                classNames({
-                  active: c.key.toLowerCase() === selectedCategory.toLowerCase(),
-                })
-              }
-              title={c.name}
-              to={
-                component
-                  ? getProjectSettingsUrl(component.key, category)
-                  : getGlobalSettingsUrl(category)
-              }
-            >
-              {c.name}
-            </NavLink>
-          </li>
+          <SubnavigationItem
+            active={c.key.toLowerCase() === selectedCategory.toLowerCase()}
+            onClick={() => openCategory(category)}
+            key={c.key}
+          >
+            {c.name}
+          </SubnavigationItem>
         );
       })}
-    </ul>
+    </SubnavigationGroup>
   );
 }
 

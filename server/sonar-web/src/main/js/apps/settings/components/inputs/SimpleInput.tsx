@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import classNames from 'classnames';
+import { InputField } from 'design-system';
 import * as React from 'react';
 import { KeyboardKeys } from '../../../../helpers/keycodes';
 import { DefaultSpecializedInputProps, getPropertyName } from '../../utils';
@@ -40,17 +40,29 @@ export default class SimpleInput extends React.PureComponent<SimpleInputProps> {
   };
 
   render() {
-    const { autoComplete, autoFocus, className, name, value = '', setting, type } = this.props;
+    const {
+      autoComplete,
+      autoFocus,
+      className,
+      isInvalid,
+      name,
+      value = '',
+      setting,
+      size,
+      type,
+    } = this.props;
     return (
-      <input
+      <InputField
+        isInvalid={isInvalid}
         autoComplete={autoComplete}
         autoFocus={autoFocus}
-        className={classNames('text-top', className)}
+        className={className}
         name={name}
         onChange={this.handleInputChange}
         onKeyDown={this.handleKeyDown}
         type={type}
         value={value}
+        size={size}
         aria-label={getPropertyName(setting.definition)}
       />
     );

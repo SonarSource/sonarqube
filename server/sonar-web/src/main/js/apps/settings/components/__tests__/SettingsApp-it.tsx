@@ -56,7 +56,7 @@ const ui = {
   jsGeneralSubCategoryHeading: byRole('heading', { name: 'property.category.javascript.General' }),
 
   settingsSearchInput: byRole('searchbox', { name: 'settings.search.placeholder' }),
-  searchList: byRole('list', { name: 'settings.search.results' }),
+  searchResultsList: byRole('menu'),
   searchItem: (key: string) => byRole('link', { name: new RegExp(key) }),
   searchClear: byRole('button', { name: 'clear' }),
 
@@ -118,12 +118,12 @@ describe('Global Settings', () => {
 
     // List popup should be closed if input is empty
     await user.click(ui.settingsSearchInput.get());
-    expect(ui.searchList.query()).not.toBeInTheDocument();
+    expect(ui.searchResultsList.query()).not.toBeInTheDocument();
 
     // Should shot 'no results' based on input value
     await user.type(ui.settingsSearchInput.get(), 'asdjasnd');
-    expect(ui.searchList.get()).toBeInTheDocument();
-    expect(within(ui.searchList.get()).getByText('no_results')).toBeInTheDocument();
+    expect(ui.searchResultsList.get()).toBeInTheDocument();
+    expect(within(ui.searchResultsList.get()).getByText('no_results')).toBeInTheDocument();
     await user.click(ui.searchClear.get());
 
     // Should show results based on input value

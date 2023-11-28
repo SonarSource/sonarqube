@@ -17,8 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { PopupZLevel, SearchSelectDropdown, SubHeading } from 'design-system';
 import * as React from 'react';
-import Select from '../../../components/controls/Select';
+import { Options } from 'react-select';
 import { Location, Router, withRouter } from '../../../components/hoc/withRouter';
 import { translate } from '../../../helpers/l10n';
 import { CATEGORY_OVERRIDES, LANGUAGES_CATEGORY } from '../constants';
@@ -37,7 +38,7 @@ interface SelectOption {
   value: string;
 }
 
-export function Languages(props: LanguagesProps) {
+export function Languages(props: Readonly<LanguagesProps>) {
   const { categories, component, definitions, location, router, selectedCategory } = props;
   const { availableLanguages, selectedLanguage } = getLanguages(categories, selectedCategory);
 
@@ -48,29 +49,45 @@ export function Languages(props: LanguagesProps) {
     });
   };
 
+  const handleLanguagesSearch = React.useCallback(
+    (query: string, cb: (options: Options<SelectOption>) => void) => {
+      const normalizedQuery = query.toLowerCase();
+
+      cb(
+        availableLanguages.filter(
+          (lang) =>
+            lang.label.toLowerCase().includes(normalizedQuery) ||
+            lang.value.includes(normalizedQuery),
+        ),
+      );
+    },
+    [availableLanguages],
+  );
+
   return (
     <>
-      <h2 id="languages-category-title" className="settings-sub-category-name">
+      <SubHeading id="languages-category-title">
         {translate('property.category.languages')}
-      </h2>
+      </SubHeading>
       <div data-test="language-select">
-        <Select
-          aria-labelledby="languages-category-title"
+        <SearchSelectDropdown
+          defaultOptions={availableLanguages}
+          controlAriaLabel={translate('property.category.languages')}
           className="input-large select-settings-language"
           onChange={handleOnChange}
-          options={availableLanguages}
+          loadOptions={handleLanguagesSearch}
           placeholder={translate('settings.languages.select_a_language_placeholder')}
+          size="large"
+          zLevel={PopupZLevel.Content}
           value={availableLanguages.find((language) => language.value === selectedLanguage)}
         />
       </div>
       {selectedLanguage && (
-        <div className="settings-sub-category">
-          <CategoryDefinitionsList
-            category={selectedLanguage}
-            component={component}
-            definitions={definitions}
-          />
-        </div>
+        <CategoryDefinitionsList
+          category={selectedLanguage}
+          component={component}
+          definitions={definitions}
+        />
       )}
     </>
   );

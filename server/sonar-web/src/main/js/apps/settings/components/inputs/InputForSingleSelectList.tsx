@@ -17,15 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { InputSelect } from 'design-system';
 import * as React from 'react';
-import Select from '../../../../components/controls/Select';
 import { ExtendedSettingDefinition } from '../../../../types/settings';
 import { DefaultSpecializedInputProps, getPropertyName } from '../../utils';
 
 type Props = DefaultSpecializedInputProps & Pick<ExtendedSettingDefinition, 'options'>;
 
 export default class InputForSingleSelectList extends React.PureComponent<Props> {
-  handleInputChange = ({ value }: { value: string }) => {
+  handleInputChange = ({ value }: { label: string; value: string }) => {
     this.props.onChange(value);
   };
 
@@ -38,8 +38,7 @@ export default class InputForSingleSelectList extends React.PureComponent<Props>
     }));
 
     return (
-      <Select
-        className="settings-large-input"
+      <InputSelect
         name={name}
         onChange={this.handleInputChange}
         aria-label={getPropertyName(setting.definition)}

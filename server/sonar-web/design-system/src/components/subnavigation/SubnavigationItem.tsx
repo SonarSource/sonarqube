@@ -19,7 +19,7 @@
  */
 import styled from '@emotion/styled';
 import classNames from 'classnames';
-import { ReactNode, useCallback } from 'react';
+import { ReactNode, SyntheticEvent, useCallback } from 'react';
 import tw, { theme as twTheme } from 'twin.macro';
 import { themeBorder, themeColor, themeContrast } from '../../helpers/theme';
 
@@ -27,20 +27,25 @@ interface Props {
   active?: boolean;
   children: ReactNode;
   className?: string;
-  innerRef?: (node: HTMLDivElement) => void;
+  innerRef?: (node: HTMLAnchorElement) => void;
   onClick: (value?: string) => void;
   value?: string;
 }
 
-export function SubnavigationItem(props: Props) {
+export function SubnavigationItem(props: Readonly<Props>) {
   const { active, className, children, innerRef, onClick, value } = props;
-  const handleClick = useCallback(() => {
-    onClick(value);
-  }, [onClick, value]);
+  const handleClick = useCallback(
+    (e: SyntheticEvent<HTMLAnchorElement>) => {
+      e.preventDefault();
+      onClick(value);
+    },
+    [onClick, value],
+  );
   return (
     <StyledSubnavigationItem
       className={classNames({ active }, className)}
       data-testid="js-subnavigation-item"
+      href="#"
       onClick={handleClick}
       ref={innerRef}
     >
@@ -49,7 +54,7 @@ export function SubnavigationItem(props: Props) {
   );
 }
 
-const StyledSubnavigationItem = styled.div`
+const StyledSubnavigationItem = styled.a`
   ${tw`sw-flex sw-items-center sw-justify-between`}
   ${tw`sw-box-border`}
   ${tw`sw-body-sm`}
@@ -60,6 +65,7 @@ const StyledSubnavigationItem = styled.div`
   padding-left: calc(${twTheme('spacing.4')} - 3px);
   color: ${themeContrast('subnavigation')};
   background-color: ${themeColor('subnavigation')};
+  border-bottom: none;
   border-left: ${themeBorder('active', 'transparent')};
   transition: 0.2 ease;
   transition-property: border-left, background-color, color;

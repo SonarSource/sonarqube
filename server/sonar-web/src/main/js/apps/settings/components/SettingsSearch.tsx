@@ -32,7 +32,6 @@ import {
 import SettingsSearchRenderer from './SettingsSearchRenderer';
 
 interface Props {
-  className?: string;
   component?: Component;
   definitions: ExtendedSettingDefinition[];
   router: Router;
@@ -176,11 +175,10 @@ export class SettingsSearch extends React.Component<Props, State> {
   };
 
   render() {
-    const { className, component } = this.props;
+    const { component } = this.props;
 
     return (
       <SettingsSearchRenderer
-        className={className}
         component={component}
         onClickOutside={this.hideResults}
         onMouseOverResult={this.handleMouseOverResult}

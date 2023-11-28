@@ -57,6 +57,7 @@ export function Switch(props: Readonly<Props>) {
       name={name}
       onClick={handleClick}
       role="switch"
+      type="button"
     >
       <CheckIconContainer active={value} disabled={disabled}>
         {value && <CheckIcon fill="currentColor" />}

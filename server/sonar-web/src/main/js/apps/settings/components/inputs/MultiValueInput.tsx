@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { DestructiveIcon, TrashIcon } from 'design-system';
 import * as React from 'react';
-import { DeleteButton } from '../../../../components/controls/buttons';
 import { translateWithParameters } from '../../../../helpers/l10n';
 import { DefaultSpecializedInputProps, getEmptyValue, getPropertyName } from '../../utils';
 import PrimitiveInput from './PrimitiveInput';
@@ -43,7 +43,7 @@ export default class MultiValueInput extends React.PureComponent<DefaultSpeciali
   renderInput(value: any, index: number, isLast: boolean) {
     const { setting, isDefault, name } = this.props;
     return (
-      <li className="spacer-bottom" key={index}>
+      <li className="sw-flex sw-items-center sw-mb-2" key={index}>
         <PrimitiveInput
           isDefault={isDefault}
           name={name}
@@ -54,8 +54,9 @@ export default class MultiValueInput extends React.PureComponent<DefaultSpeciali
         />
 
         {!isLast && (
-          <div className="display-inline-block spacer-left">
-            <DeleteButton
+          <div className="sw-inline-block sw-ml-2">
+            <DestructiveIcon
+              Icon={TrashIcon}
               className="js-remove-value"
               aria-label={translateWithParameters(
                 'settings.definition.delete_value',

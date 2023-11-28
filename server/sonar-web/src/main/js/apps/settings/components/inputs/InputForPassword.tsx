@@ -22,7 +22,5 @@ import { DefaultSpecializedInputProps } from '../../utils';
 import SimpleInput from './SimpleInput';
 
 export default function InputForPassword(props: DefaultSpecializedInputProps) {
-  return (
-    <SimpleInput {...props} className="settings-large-input" type="password" autoComplete="off" />
-  );
+  return <SimpleInput {...props} size="large" type="password" autoComplete="off" />;
 }

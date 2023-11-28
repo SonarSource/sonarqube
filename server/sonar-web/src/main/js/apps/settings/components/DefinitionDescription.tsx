@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Note, SubHeading } from 'design-system';
 import * as React from 'react';
 import Tooltip from '../../../components/controls/Tooltip';
 import { translateWithParameters } from '../../../helpers/l10n';
@@ -28,28 +29,26 @@ interface Props {
   definition: ExtendedSettingDefinition;
 }
 
-export default function DefinitionDescription({ definition }: Props) {
+export default function DefinitionDescription({ definition }: Readonly<Props>) {
   const propertyName = getPropertyName(definition);
   const description = getPropertyDescription(definition);
 
   return (
-    <div className="settings-definition-left">
-      <h4 className="settings-definition-name" title={propertyName}>
-        {propertyName}
-      </h4>
+    <div className="sw-w-abs-300">
+      <SubHeading title={propertyName}>{propertyName}</SubHeading>
 
       {description && (
         <div
-          className="markdown small spacer-top"
+          className="markdown sw-mt-1"
           // eslint-disable-next-line react/no-danger
           dangerouslySetInnerHTML={{ __html: sanitizeStringRestricted(description) }}
         />
       )}
 
       <Tooltip overlay={translateWithParameters('settings.key_x', definition.key)}>
-        <div className="settings-definition-key note little-spacer-top">
+        <Note as="div" className="sw-mt-4">
           {translateWithParameters('settings.key_x', definition.key)}
-        </div>
+        </Note>
       </Tooltip>
     </div>
   );

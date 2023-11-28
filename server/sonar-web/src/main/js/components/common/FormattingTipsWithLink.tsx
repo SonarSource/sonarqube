@@ -17,8 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import classNames from 'classnames';
+import { CodeSnippet, Link } from 'design-system';
 import * as React from 'react';
+import { FormattedMessage } from 'react-intl';
 import { translate } from '../../helpers/l10n';
 import { getFormattingHelpUrl } from '../../helpers/urls';
 
@@ -38,11 +39,27 @@ export default class FormattingTipsWithLink extends React.PureComponent<Props> {
 
   render() {
     return (
-      <div className={classNames('markdown-tips', this.props.className)}>
-        <a href="#" onClick={this.handleClick}>
+      <div className={this.props.className}>
+        <Link onClick={this.handleClick} to="#">
           {translate('formatting.helplink')}
-        </a>
-        <p className="spacer-top">{translate('formatting.example.link')}</p>
+        </Link>
+        <p className="sw-mt-2">
+          <FormattedMessage
+            id="formatting.example.link"
+            values={{
+              example: (
+                <>
+                  <br />
+                  <CodeSnippet
+                    isOneLine
+                    noCopy
+                    snippet={translate('formatting.example.link.example')}
+                  />
+                </>
+              ),
+            }}
+          />
+        </p>
       </div>
     );
   }

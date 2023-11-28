@@ -17,9 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { ButtonPrimary, FlagMessage, InputTextArea } from 'design-system/lib';
 import * as React from 'react';
-import { Button } from '../../../../components/controls/buttons';
-import { Alert } from '../../../../components/ui/Alert';
 import { translate } from '../../../../helpers/l10n';
 import { DefaultSpecializedInputProps, getPropertyName } from '../../utils';
 
@@ -49,26 +48,33 @@ export default class InputForJSON extends React.PureComponent<DefaultSpecialized
   };
 
   render() {
-    const { value, name, setting } = this.props;
+    const { value, name, setting, isInvalid } = this.props;
     const { formatError } = this.state;
 
     return (
-      <div className="display-flex-end">
-        <textarea
-          className="settings-large-input text-top monospaced spacer-right"
-          name={name}
-          onChange={this.handleInputChange}
-          rows={5}
-          value={value || ''}
-          aria-label={getPropertyName(setting.definition)}
-        />
-        <div>
-          {formatError && <Alert variant="info">{translate('settings.json.format_error')} </Alert>}
-          <Button className="spacer-top" onClick={this.format}>
-            {translate('settings.json.format')}
-          </Button>
+      <>
+        <div className="sw-flex sw-items-end">
+          <InputTextArea
+            size="large"
+            name={name}
+            onChange={this.handleInputChange}
+            rows={5}
+            value={value || ''}
+            aria-label={getPropertyName(setting.definition)}
+            isInvalid={isInvalid}
+          />
+          <div className="sw-ml-2">
+            <ButtonPrimary className="sw-mt-2" onClick={this.format}>
+              {translate('settings.json.format')}
+            </ButtonPrimary>
+          </div>
         </div>
-      </div>
+        {formatError && (
+          <FlagMessage className="sw-mt-2" variant="warning">
+            {translate('settings.json.format_error')}{' '}
+          </FlagMessage>
+        )}
+      </>
     );
   }
 }

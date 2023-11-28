@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { InputTextArea } from 'design-system';
 import * as React from 'react';
 import { DefaultSpecializedInputProps, getPropertyName } from '../../utils';
 
@@ -28,8 +29,8 @@ export default class InputForText extends React.PureComponent<DefaultSpecialized
   render() {
     const { setting, name, value } = this.props;
     return (
-      <textarea
-        className="settings-large-input text-top"
+      <InputTextArea
+        size="large"
         name={name}
         onChange={this.handleInputChange}
         rows={5}

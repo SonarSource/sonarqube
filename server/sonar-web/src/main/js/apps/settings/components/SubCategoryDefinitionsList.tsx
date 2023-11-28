@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { BasicSeparator, Note, SubTitle } from 'design-system';
 import { groupBy, sortBy } from 'lodash';
 import * as React from 'react';
 import { Location, withRouter } from '../../../components/hoc/withRouter';
@@ -40,7 +41,7 @@ class SubCategoryDefinitionsList extends React.PureComponent<SubCategoryDefiniti
   componentDidUpdate(prevProps: SubCategoryDefinitionsListProps) {
     const { hash } = this.props.location;
     if (hash && prevProps.location.hash !== hash) {
-      const query = `[data-key=${hash.substring(1).replace(/[.#/]/g, '\\$&')}]`;
+      const query = `[data-scroll-key=${hash.substring(1).replace(/[.#/]/g, '\\$&')}]`;
       const element = document.querySelector<HTMLHeadingElement | HTMLLIElement>(query);
       this.scrollToSubCategoryOrDefinition(element);
     }
@@ -49,7 +50,7 @@ class SubCategoryDefinitionsList extends React.PureComponent<SubCategoryDefiniti
   scrollToSubCategoryOrDefinition = (element: HTMLHeadingElement | HTMLLIElement | null) => {
     if (element) {
       const { hash } = this.props.location;
-      if (hash && hash.substring(1) === element.getAttribute('data-key')) {
+      if (hash && hash.substring(1) === element.getAttribute('data-scroll-key')) {
         element.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
       }
     }
@@ -78,33 +79,39 @@ class SubCategoryDefinitionsList extends React.PureComponent<SubCategoryDefiniti
       ? sortedSubCategories.filter((c) => c.key === subCategory)
       : sortedSubCategories;
     return (
-      <ul className="settings-sub-categories-list">
-        {filteredSubCategories.map((subCategory) => (
-          <li key={subCategory.key}>
+      <ul>
+        {filteredSubCategories.map((subCategory, index) => (
+          <li className="sw-p-6" key={subCategory.key}>
             {displaySubCategoryTitle && (
-              <h3
-                className="settings-sub-category-name h2"
+              <SubTitle
+                as="h3"
                 data-key={subCategory.key}
                 ref={this.scrollToSubCategoryOrDefinition}
               >
                 {subCategory.name}
-              </h3>
+              </SubTitle>
             )}
             {subCategory.description != null && (
-              <div
-                className="settings-sub-category-description markdown"
+              <Note
+                className="markdown"
                 // eslint-disable-next-line react/no-danger
                 dangerouslySetInnerHTML={{
                   __html: sanitizeStringRestricted(subCategory.description),
                 }}
               />
             )}
+            <BasicSeparator className="sw-mt-6" />
             <DefinitionsList
               component={component}
               scrollToDefinition={this.scrollToSubCategoryOrDefinition}
               settings={bySubCategory[subCategory.key]}
             />
             {this.renderEmailForm(subCategory.key)}
+
+            {
+              // Add a separator to all but the last element
+              index !== filteredSubCategories.length - 1 && <BasicSeparator />
+            }
           </li>
         ))}
       </ul>

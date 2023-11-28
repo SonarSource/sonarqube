@@ -17,8 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import {
+  ActionCell,
+  ContentCell,
+  DestructiveIcon,
+  Note,
+  Table,
+  TableRow,
+  TrashIcon,
+} from 'design-system';
 import * as React from 'react';
-import { DeleteButton } from '../../../../components/controls/buttons';
 import { translateWithParameters } from '../../../../helpers/l10n';
 import {
   DefaultSpecializedInputProps,
@@ -53,7 +61,7 @@ export default class PropertySetInput extends React.PureComponent<DefaultSpecial
     const { definition } = setting;
 
     return (
-      <tr key={index}>
+      <TableRow key={index}>
         {isCategoryDefinition(definition) &&
           definition.fields.map((field) => {
             const newSetting = {
@@ -62,21 +70,23 @@ export default class PropertySetInput extends React.PureComponent<DefaultSpecial
               value: fieldValues[field.key],
             };
             return (
-              <td key={field.key}>
+              <ContentCell className="sw-py-2 sw-border-0" key={field.key}>
                 <PrimitiveInput
                   isDefault={isDefault}
                   hasValueChanged={this.props.hasValueChanged}
                   name={getUniqueName(definition, field.key)}
                   onChange={(value) => this.handleInputChange(index, field.key, value)}
                   setting={newSetting}
+                  size="auto"
                   value={fieldValues[field.key]}
                 />
-              </td>
+              </ContentCell>
             );
           })}
-        <td className="thin nowrap text-middle">
+        <ActionCell className="sw-border-0">
           {!isLast && (
-            <DeleteButton
+            <DestructiveIcon
+              Icon={TrashIcon}
               aria-label={translateWithParameters(
                 'settings.definitions.delete_fields',
                 getPropertyName(setting.definition),
@@ -86,8 +96,8 @@ export default class PropertySetInput extends React.PureComponent<DefaultSpecial
               onClick={() => this.handleDeleteValue(index)}
             />
           )}
-        </td>
-      </tr>
+        </ActionCell>
+      </TableRow>
     );
   }
 
@@ -95,32 +105,40 @@ export default class PropertySetInput extends React.PureComponent<DefaultSpecial
     const { definition } = this.props.setting;
     const displayedValue = [...this.ensureValue(), ...getEmptyValue(definition)];
 
+    const columnWidths = (isCategoryDefinition(definition) ? definition.fields : [])
+      .map(() => 'auto')
+      .concat('1px');
+
     return (
       <div>
-        <table
-          className="data zebra-hover no-outer-padding"
-          style={{ width: 'auto', minWidth: 480, marginTop: -12 }}
-        >
-          <thead>
-            <tr>
+        <Table
+          header={
+            <TableRow>
               {isCategoryDefinition(definition) &&
                 definition.fields.map((field) => (
-                  <th key={field.key}>
-                    {field.name}
-                    {field.description != null && (
-                      <span className="spacer-top small">{field.description}</span>
-                    )}
-                  </th>
+                  <ContentCell key={field.key}>
+                    <div className="sw-text-start sw-h-full">
+                      {field.name}
+                      {field.description != null && (
+                        <Note as="p" className="sw-mt-2">
+                          {field.description}
+                        </Note>
+                      )}
+                    </div>
+                  </ContentCell>
                 ))}
-              <th>&nbsp;</th>
-            </tr>
-          </thead>
-          <tbody>
-            {displayedValue.map((fieldValues, index) =>
-              this.renderFields(fieldValues, index, index === displayedValue.length - 1),
-            )}
-          </tbody>
-        </table>
+              <ContentCell />
+            </TableRow>
+          }
+          columnCount={columnWidths.length}
+          columnWidths={columnWidths}
+          noHeaderTopBorder
+          noSidePadding
+        >
+          {displayedValue.map((fieldValues, index) =>
+            this.renderFields(fieldValues, index, index === displayedValue.length - 1),
+          )}
+        </Table>
       </div>
     );
   }

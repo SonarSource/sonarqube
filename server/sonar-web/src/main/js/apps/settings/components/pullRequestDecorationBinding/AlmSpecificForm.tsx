@@ -17,14 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { FlagMessage, InputField, Note, SubHeading, Switch } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import withAvailableFeatures, {
   WithAvailableFeaturesProps,
 } from '../../../../app/components/available-features/withAvailableFeatures';
 import DocLink from '../../../../components/common/DocLink';
-import Toggle from '../../../../components/controls/Toggle';
-import { Alert } from '../../../../components/ui/Alert';
 import MandatoryFieldMarker from '../../../../components/ui/MandatoryFieldMarker';
 import { ALM_DOCUMENTATION_PATHS } from '../../../../helpers/constants';
 import { translate } from '../../../../helpers/l10n';
@@ -63,12 +62,12 @@ function renderFieldWrapper(
   help?: React.ReactNode,
 ) {
   return (
-    <div className="settings-definition">
-      <div className="settings-definition-left">
-        {label}
-        {help && <div className="markdown small spacer-top">{help}</div>}
+    <div className="sw-p-6 sw-flex sw-gap-12">
+      <div className="sw-w-abs-300">
+        <SubHeading>{label}</SubHeading>
+        {help && <div className="markdown">{help}</div>}
       </div>
-      <div className="settings-definition-right padded-top">{input}</div>
+      <div className="sw-flex-1">{input}</div>
     </div>
   );
 }
@@ -83,7 +82,7 @@ function renderHelp({ help, helpExample, helpParams = {}, id }: CommonFieldProps
           values={helpParams}
         />
         {helpExample && (
-          <div className="spacer-top nowrap">
+          <div className="sw-mt-2 sw-whitespace-nowrap">
             {translate('example')}: <em>{helpExample}</em>
           </div>
         )}
@@ -95,10 +94,12 @@ function renderHelp({ help, helpExample, helpParams = {}, id }: CommonFieldProps
 function renderLabel(props: LabelProps) {
   const { optional, id } = props;
   return (
-    <label className="h3" htmlFor={id}>
-      {translate('settings.pr_decoration.binding.form', id)}
-      {!optional && <MandatoryFieldMarker />}
-    </label>
+    <SubHeading>
+      <label htmlFor={id}>
+        {translate('settings.pr_decoration.binding.form', id)}
+        {!optional && <MandatoryFieldMarker />}
+      </label>
+    </SubHeading>
   );
 }
 
@@ -109,13 +110,19 @@ function renderBooleanField(
   },
 ) {
   const { id, value, onFieldChange, propKey, inputExtra } = props;
+
+  const label = translate('settings.pr_decoration.binding.form', id);
+
   return renderFieldWrapper(
     renderLabel({ ...props, optional: true }),
-    <div className="display-flex-center big-spacer-top">
-      <div className="display-inline-block text-top">
-        <Toggle id={id} name={id} onChange={(v) => onFieldChange(propKey, v)} value={value} />
-        {value == null && <span className="spacer-left note">{translate('settings.not_set')}</span>}
-      </div>
+    <div className="sw-flex sw-items-start">
+      <Switch
+        name={id}
+        labels={{ on: label, off: label }}
+        onChange={(v) => onFieldChange(propKey, v)}
+        value={value}
+      />
+      {value == null && <Note className="sw-ml-2">{translate('settings.not_set')}</Note>}
       {inputExtra}
     </div>,
     renderHelp(props),
@@ -130,12 +137,12 @@ function renderField(
   const { id, propKey, value, onFieldChange } = props;
   return renderFieldWrapper(
     renderLabel(props),
-    <input
-      className="input-super-large big-spacer-top"
+    <InputField
       id={id}
       maxLength={256}
       name={id}
       onChange={(e) => onFieldChange(propKey, e.currentTarget.value)}
+      size="large"
       type="text"
       value={value}
     />,
@@ -165,6 +172,7 @@ export function AlmSpecificForm(props: AlmSpecificFormProps) {
             propKey: 'slug',
             value: slug || '',
           })}
+
           {renderField({
             help: true,
             helpExample: <strong>My Repository</strong>,
@@ -195,6 +203,7 @@ export function AlmSpecificForm(props: AlmSpecificFormProps) {
             propKey: 'repository',
             value: repository || '',
           })}
+
           {renderField({
             help: true,
             helpExample: (
@@ -251,6 +260,7 @@ export function AlmSpecificForm(props: AlmSpecificFormProps) {
             propKey: 'repository',
             value: repository || '',
           })}
+
           {renderBooleanField({
             help: true,
             id: 'github.summary_comment_setting',
@@ -295,9 +305,9 @@ export function AlmSpecificForm(props: AlmSpecificFormProps) {
           propKey: 'monorepo',
           value: monorepo,
           inputExtra: monorepo && (
-            <Alert className="no-margin-bottom spacer-left" variant="warning" display="inline">
+            <FlagMessage className="sw-ml-2" variant="warning">
               {translate('settings.pr_decoration.binding.form.monorepo.warning')}
-            </Alert>
+            </FlagMessage>
           ),
         })}
     </>

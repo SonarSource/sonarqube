@@ -22,5 +22,5 @@ import { DefaultSpecializedInputProps } from '../../utils';
 import SimpleInput from './SimpleInput';
 
 export default function InputForString(props: DefaultSpecializedInputProps) {
-  return <SimpleInput className="settings-large-input" type="text" {...props} />;
+  return <SimpleInput size="large" type="text" {...props} />;
 }

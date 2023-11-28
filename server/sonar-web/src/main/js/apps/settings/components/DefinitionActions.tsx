@@ -17,9 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { ButtonPrimary, ButtonSecondary, DangerButtonPrimary, Modal, Note } from 'design-system';
 import * as React from 'react';
-import { Button, ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
-import Modal from '../../../components/controls/Modal';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { Setting } from '../../../types/settings';
 import { getDefaultValue, getPropertyName, isEmptyValue } from '../utils';
@@ -38,6 +37,8 @@ type Props = {
 
 type State = { reseting: boolean };
 
+const MODAL_FORM_ID = 'SETTINGS.RESET_CONFIRM.FORM';
+
 export default class DefinitionActions extends React.PureComponent<Props, State> {
   state: State = { reseting: false };
 
@@ -49,7 +50,8 @@ export default class DefinitionActions extends React.PureComponent<Props, State>
     this.setState({ reseting: true });
   };
 
-  handleSubmit = () => {
+  handleSubmit = (e: React.SyntheticEvent<HTMLFormElement>) => {
+    e.preventDefault();
     this.props.onReset();
     this.handleClose();
   };
@@ -57,78 +59,68 @@ export default class DefinitionActions extends React.PureComponent<Props, State>
   renderModal() {
     const header = translate('settings.reset_confirm.title');
     return (
-      <Modal contentLabel={header} onRequestClose={this.handleClose}>
-        <header className="modal-head">
-          <h2>{header}</h2>
-        </header>
-        <form onSubmit={this.handleSubmit}>
-          <div className="modal-body">
+      <Modal
+        headerTitle={header}
+        onClose={this.handleClose}
+        body={
+          <form id={MODAL_FORM_ID} onSubmit={this.handleSubmit}>
             <p>{translate('settings.reset_confirm.description')}</p>
-          </div>
-          <footer className="modal-foot">
-            <SubmitButton className="button-red">{translate('reset_verb')}</SubmitButton>
-            <ResetButtonLink onClick={this.handleClose}>{translate('cancel')}</ResetButtonLink>
-          </footer>
-        </form>
-      </Modal>
+          </form>
+        }
+        primaryButton={
+          <DangerButtonPrimary type="submit" form={MODAL_FORM_ID}>
+            {translate('reset_verb')}
+          </DangerButtonPrimary>
+        }
+        secondaryButtonLabel={translate('cancel')}
+      />
     );
   }
 
   render() {
-    const { setting, changedValue, isDefault, isEditing, hasValueChanged } = this.props;
+    const { setting, changedValue, isDefault, isEditing, hasValueChanged, hasError } = this.props;
     const hasBeenChangedToEmptyValue =
       changedValue !== undefined && isEmptyValue(setting.definition, changedValue);
     const showReset = hasBeenChangedToEmptyValue || (!isDefault && setting.hasValue);
     const showCancel = hasValueChanged || isEditing;
 
     return (
-      <>
-        {isDefault && !hasValueChanged && (
-          <div className="spacer-top note" style={{ lineHeight: '24px' }}>
-            {translate('settings._default')}
-          </div>
+      <div className="sw-mt-8">
+        {hasValueChanged && (
+          <ButtonPrimary className="sw-mr-3" disabled={hasError} onClick={this.props.onSave}>
+            {translate('save')}
+          </ButtonPrimary>
         )}
-        <div className="settings-definition-changes nowrap">
-          {hasValueChanged && (
-            <Button
-              className="spacer-right button-success"
-              disabled={this.props.hasError}
-              onClick={this.props.onSave}
-            >
-              {translate('save')}
-            </Button>
-          )}
 
-          {showReset && (
-            <Button
-              className="spacer-right"
-              aria-label={translateWithParameters(
-                'settings.definition.reset',
-                getPropertyName(setting.definition),
-              )}
-              onClick={this.handleReset}
-            >
-              {translate('reset_verb')}
-            </Button>
-          )}
+        {showReset && (
+          <ButtonSecondary
+            className="sw-mr-3"
+            aria-label={translateWithParameters(
+              'settings.definition.reset',
+              getPropertyName(setting.definition),
+            )}
+            onClick={this.handleReset}
+          >
+            {translate('reset_verb')}
+          </ButtonSecondary>
+        )}
 
-          {showCancel && (
-            <ResetButtonLink className="spacer-right" onClick={this.props.onCancel}>
-              {translate('cancel')}
-            </ResetButtonLink>
-          )}
+        {showCancel && (
+          <ButtonSecondary className="sw-mr-3" onClick={this.props.onCancel}>
+            {translate('cancel')}
+          </ButtonSecondary>
+        )}
 
-          {showReset && (
-            <span className="note">
-              {translate('default')}
-              {': '}
-              {getDefaultValue(setting)}
-            </span>
-          )}
+        {showReset && (
+          <Note>
+            {translate('default')}
+            {': '}
+            {getDefaultValue(setting)}
+          </Note>
+        )}
 
-          {this.state.reseting && this.renderModal()}
-        </div>
-      </>
+        {this.state.reseting && this.renderModal()}
+      </div>
     );
   }
 }

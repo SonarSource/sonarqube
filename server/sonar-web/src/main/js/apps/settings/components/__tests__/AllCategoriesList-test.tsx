@@ -69,7 +69,7 @@ it('should render correctly', () => {
   expect(screen.getByText('CAT_2_NAME')).toBeInTheDocument();
   expect(screen.queryByText('CAT_3_NAME')).not.toBeInTheDocument();
   expect(screen.queryByText('CAT_4_NAME')).not.toBeInTheDocument();
-  expect(screen.getByText('CAT_2_NAME')).toHaveClass('active', { exact: true });
+  expect(screen.getByText('CAT_2_NAME')).toHaveClass('active');
 });
 
 it('should correctly for project', () => {

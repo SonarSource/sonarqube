@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { InputSizeKeys } from 'design-system';
 import { sortBy } from 'lodash';
 import { Path } from 'react-router-dom';
 import { hasMessage, translate } from '../../helpers/l10n';
@@ -45,6 +46,8 @@ export type DefaultSpecializedInputProps = DefaultInputProps & {
 export interface DefaultInputProps {
   autoFocus?: boolean;
   isEditing?: boolean;
+  isInvalid?: boolean;
+  size?: InputSizeKeys;
   hasValueChanged?: boolean;
   onCancel?: () => void;
   onChange: (value: any) => void;

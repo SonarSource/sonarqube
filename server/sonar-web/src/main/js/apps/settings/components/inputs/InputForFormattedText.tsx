@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { InputTextArea } from 'design-system/lib';
 import * as React from 'react';
 import FormattingTipsWithLink from '../../../../components/common/FormattingTipsWithLink';
 import { Button } from '../../../../components/controls/buttons';
@@ -36,33 +37,30 @@ export default function InputForFormattedText(props: DefaultSpecializedInputProp
     props.onChange(event.target.value);
   }
 
-  return (
+  return editMode ? (
     <div>
-      {editMode ? (
-        <div className="display-flex-row">
-          <textarea
-            aria-label={getPropertyName(setting.definition)}
-            className="settings-large-input text-top spacer-right"
-            name={name}
-            onChange={handleInputChange}
-            rows={5}
-            value={value || ''}
-          />
-          <FormattingTipsWithLink className="abs-width-100" />
-        </div>
-      ) : (
-        <>
-          <div
-            className="markdown-preview markdown"
-            // eslint-disable-next-line react/no-danger
-            dangerouslySetInnerHTML={{ __html: sanitizeUserInput(formattedValue ?? '') }}
-          />
-          <Button className="spacer-top" onClick={props.onEditing}>
-            <EditIcon className="spacer-right" />
-            {translate('edit')}
-          </Button>
-        </>
-      )}
+      <InputTextArea
+        size="large"
+        aria-label={getPropertyName(setting.definition)}
+        className="settings-large-input text-top spacer-right"
+        name={name}
+        onChange={handleInputChange}
+        rows={5}
+        value={value || ''}
+      />
+      <FormattingTipsWithLink className="sw-mt-2" />
     </div>
+  ) : (
+    <>
+      <div
+        className="markdown-preview markdown"
+        // eslint-disable-next-line react/no-danger
+        dangerouslySetInnerHTML={{ __html: sanitizeUserInput(formattedValue ?? '') }}
+      />
+      <Button className="spacer-top" onClick={props.onEditing}>
+        <EditIcon className="spacer-right" />
+        {translate('edit')}
+      </Button>
+    </>
   );
 }

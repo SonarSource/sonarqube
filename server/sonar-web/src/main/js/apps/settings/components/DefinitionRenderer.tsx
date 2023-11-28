@@ -17,10 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import classNames from 'classnames';
+import { FlagMessage, Note, Spinner, TextError } from 'design-system';
 import * as React from 'react';
-import AlertErrorIcon from '../../../components/icons/AlertErrorIcon';
-import AlertSuccessIcon from '../../../components/icons/AlertSuccessIcon';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { ExtendedSettingDefinition, SettingValue } from '../../../types/settings';
 import { combineDefinitionAndSettingValue, getSettingValue, isDefaultOrInherited } from '../utils';
@@ -45,7 +43,7 @@ export interface DefinitionRendererProps {
 
 const formNoop = (e: React.FormEvent<HTMLFormElement>) => e.preventDefault();
 
-export default function DefinitionRenderer(props: DefinitionRendererProps) {
+export default function DefinitionRenderer(props: Readonly<DefinitionRendererProps>) {
   const { changedValue, loading, validationMessage, settingValue, success, definition, isEditing } =
     props;
 
@@ -57,39 +55,10 @@ export default function DefinitionRenderer(props: DefinitionRendererProps) {
   const settingDefinitionAndValue = combineDefinitionAndSettingValue(definition, settingValue);
 
   return (
-    <div
-      className={classNames('settings-definition', {
-        'settings-definition-changed': hasValueChanged,
-      })}
-      data-key={definition.key}
-    >
+    <div data-key={definition.key} className="sw-flex sw-gap-12">
       <DefinitionDescription definition={definition} />
 
-      <div className="settings-definition-right">
-        <div className="settings-definition-state">
-          {loading && (
-            <span className="text-info">
-              <i className="spinner spacer-right" />
-              {translate('settings.state.saving')}
-            </span>
-          )}
-
-          {!loading && validationMessage && (
-            <span className="text-danger">
-              <AlertErrorIcon className="spacer-right" />
-              <span>
-                {translateWithParameters('settings.state.validation_failed', validationMessage)}
-              </span>
-            </span>
-          )}
-
-          {!loading && !hasError && success && (
-            <span className="text-success">
-              <AlertSuccessIcon className="spacer-right" />
-              {translate('settings.state.saved')}
-            </span>
-          )}
-        </div>
+      <div className="sw-flex-1">
         <form onSubmit={formNoop}>
           <Input
             hasValueChanged={hasValueChanged}
@@ -98,9 +67,35 @@ export default function DefinitionRenderer(props: DefinitionRendererProps) {
             onSave={props.onSave}
             onEditing={props.onEditing}
             isEditing={isEditing}
+            isInvalid={hasError}
             setting={settingDefinitionAndValue}
             value={effectiveValue}
           />
+
+          <div className="sw-mt-2">
+            {loading && (
+              <div className="sw-flex">
+                <Spinner />
+                <Note className="sw-ml-2">{translate('settings.state.saving')}</Note>
+              </div>
+            )}
+
+            {!loading && validationMessage && (
+              <div>
+                <TextError
+                  text={translateWithParameters(
+                    'settings.state.validation_failed',
+                    validationMessage,
+                  )}
+                />
+              </div>
+            )}
+
+            {!loading && !hasError && success && (
+              <FlagMessage variant="success">{translate('settings.state.saved')}</FlagMessage>
+            )}
+          </div>
+
           <DefinitionActions
             changedValue={changedValue}
             hasError={hasError}

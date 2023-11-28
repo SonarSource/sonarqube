@@ -17,10 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import styled from '@emotion/styled';
+import { LargeCenteredLayout, PageContentFontWrapper, themeBorder } from 'design-system';
 import { uniqBy } from 'lodash';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
-import ScreenPositionHelper from '../../../components/common/ScreenPositionHelper';
 import Suggestions from '../../../components/embed-docs-modal/Suggestions';
 import { Location, withRouter } from '../../../components/hoc/withRouter';
 import { translate } from '../../../helpers/l10n';
@@ -40,7 +41,7 @@ export interface SettingsAppRendererProps {
   location: Location;
 }
 
-function SettingsAppRenderer(props: SettingsAppRendererProps) {
+function SettingsAppRenderer(props: Readonly<SettingsAppRendererProps>) {
   const { definitions, component, loading, location } = props;
 
   const categories = React.useMemo(() => {
@@ -67,51 +68,52 @@ function SettingsAppRenderer(props: SettingsAppRendererProps) {
       (!isProjectSettings && foundAdditionalCategory.availableGlobally));
 
   return (
-    <main id="settings-page">
+    <LargeCenteredLayout id="settings-page">
       <Suggestions suggestions="settings" />
       <Helmet defer={false} title={translate('settings.page')} />
-      <PageHeader component={component} definitions={definitions} />
 
-      <div className="layout-page">
-        <ScreenPositionHelper className="layout-page-side-outer">
-          {({ top }) => (
-            <div className="layout-page-side" style={{ top }}>
-              <div className="layout-page-side-inner">
-                <AllCategoriesList
-                  categories={categories}
-                  component={component}
-                  defaultCategory={defaultCategory}
-                  selectedCategory={selectedCategory}
-                />
-              </div>
-            </div>
-          )}
-        </ScreenPositionHelper>
+      <PageContentFontWrapper className="sw-my-8">
+        <PageHeader component={component} definitions={definitions} />
 
-        <div className="layout-page-main">
-          <div className="layout-page-main-inner">
-            {/* Adding a key to force re-rendering of the category content, so that it resets the scroll position */}
-            <div className="big-padded" key={selectedCategory}>
-              {shouldRenderAdditionalCategory ? (
-                foundAdditionalCategory.renderComponent({
-                  categories,
-                  component,
-                  definitions,
-                  selectedCategory: originalCategory,
-                })
-              ) : (
-                <CategoryDefinitionsList
-                  category={selectedCategory}
-                  component={component}
-                  definitions={definitions}
-                />
-              )}
-            </div>
+        <div className="sw-body-sm sw-flex sw-items-stretch sw-justify-between">
+          <div className="sw-min-w-abs-250">
+            <AllCategoriesList
+              categories={categories}
+              component={component}
+              defaultCategory={defaultCategory}
+              selectedCategory={selectedCategory}
+            />
           </div>
+
+          {/* Adding a key to force re-rendering of the category content, so that it resets the scroll position */}
+          <StyledBox
+            className="it__settings_list sw-flex-1 sw-p-6 sw-min-w-0"
+            key={selectedCategory}
+          >
+            {shouldRenderAdditionalCategory ? (
+              foundAdditionalCategory.renderComponent({
+                categories,
+                component,
+                definitions,
+                selectedCategory: originalCategory,
+              })
+            ) : (
+              <CategoryDefinitionsList
+                category={selectedCategory}
+                component={component}
+                definitions={definitions}
+              />
+            )}
+          </StyledBox>
         </div>
-      </div>
-    </main>
+      </PageContentFontWrapper>
+    </LargeCenteredLayout>
   );
 }
 
 export default withRouter(SettingsAppRenderer);
+
+const StyledBox = styled.div`
+  border: ${themeBorder('default', 'subnavigationBorder')};
+  margin-left: -1px;
+`;

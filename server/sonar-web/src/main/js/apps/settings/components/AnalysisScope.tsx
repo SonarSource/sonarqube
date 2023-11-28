@@ -17,8 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import styled from '@emotion/styled';
+import { LightLabel } from 'design-system/lib';
 import * as React from 'react';
-import DocLink from '../../../components/common/DocLink';
+import DocumentationLink from '../../../components/common/DocumentationLink';
 import { translate } from '../../../helpers/l10n';
 import { AdditionalCategoryComponentProps } from './AdditionalCategories';
 import CategoryDefinitionsList from './CategoryDefinitionsList';
@@ -28,37 +30,37 @@ export function AnalysisScope(props: AdditionalCategoryComponentProps) {
 
   return (
     <>
-      <p className="spacer-bottom">
-        {translate('settings.analysis_scope.wildcards.introduction')}
-        <DocLink className="spacer-left" to="/project-administration/analysis-scope/">
-          {translate('learn_more')}
-        </DocLink>
-      </p>
+      <StyledGrid className="sw-pt-6 sw-px-6 sw-gap-2">
+        <p className="sw-col-span-2">
+          {translate('settings.analysis_scope.wildcards.introduction')}
+        </p>
 
-      <table className="data spacer-bottom">
-        <tbody>
-          <tr>
-            <td>*</td>
-            <td>{translate('settings.analysis_scope.wildcards.zero_more_char')}</td>
-          </tr>
-          <tr>
-            <td>**</td>
-            <td>{translate('settings.analysis_scope.wildcards.zero_more_dir')}</td>
-          </tr>
-          <tr>
-            <td>?</td>
-            <td>{translate('settings.analysis_scope.wildcards.single_char')}</td>
-          </tr>
-        </tbody>
-      </table>
+        <span>*</span>
+        <LightLabel>{translate('settings.analysis_scope.wildcards.zero_more_char')}</LightLabel>
 
-      <div className="settings-sub-category">
-        <CategoryDefinitionsList
-          category={selectedCategory}
-          component={component}
-          definitions={definitions}
-        />
-      </div>
+        <span>**</span>
+        <LightLabel>{translate('settings.analysis_scope.wildcards.zero_more_dir')}</LightLabel>
+
+        <span>?</span>
+        <LightLabel>{translate('settings.analysis_scope.wildcards.single_char')}</LightLabel>
+
+        <div className="sw-col-span-2">
+          <DocumentationLink to="/project-administration/analysis-scope/">
+            {translate('learn_more')}
+          </DocumentationLink>
+        </div>
+      </StyledGrid>
+
+      <CategoryDefinitionsList
+        category={selectedCategory}
+        component={component}
+        definitions={definitions}
+      />
     </>
   );
 }
+
+const StyledGrid = styled.div`
+  display: grid;
+  grid-template-columns: 1.5rem auto;
+`;
