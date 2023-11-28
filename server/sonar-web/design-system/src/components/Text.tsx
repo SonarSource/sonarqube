@@ -116,9 +116,14 @@ const StyledTextSuccess = styled(StyledText)`
   color: ${themeColor('textSuccess')};
 `;
 
-export const DisabledText = styled.span`
+export const TextDisabled = styled.span`
   ${tw`sw-font-regular`};
-  color: ${themeColor('pageContentLight')};
+  color: ${themeColor('textDisabled')};
+`;
+
+export const TextSubdued = styled.span`
+  ${tw`sw-font-regular`};
+  color: ${themeColor('textSubdued')};
 `;
 
 export const LightLabel = styled.span`

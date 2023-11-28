@@ -22,7 +22,6 @@ import {
   Badge,
   BasicSeparator,
   ClipboardIconButton,
-  DisabledText,
   HelperHintIcon,
   IssueMessageHighlighting,
   LightLabel,
@@ -30,6 +29,7 @@ import {
   LinkIcon,
   Note,
   PageContentFontWrapper,
+  TextSubdued,
   themeBorder,
 } from 'design-system';
 import * as React from 'react';
@@ -75,10 +75,10 @@ export default class RuleDetailsMeta extends React.PureComponent<Props> {
             },
           ]}
         >
-          <DisabledText className="sw-flex sw-items-center sw-gap-1">
+          <TextSubdued className="sw-flex sw-items-center sw-gap-1">
             <IssueTypeIcon fill="iconTypeDisabled" type={ruleDetails.type} aria-hidden />
             {translate('issue.type', ruleDetails.type)}
-          </DisabledText>
+          </TextSubdued>
         </DocumentationTooltip>
       </Note>
     );
@@ -100,14 +100,14 @@ export default class RuleDetailsMeta extends React.PureComponent<Props> {
           },
         ]}
       >
-        <DisabledText className="sw-flex sw-items-center sw-gap-1">
+        <TextSubdued className="sw-flex sw-items-center sw-gap-1">
           <IssueSeverityIcon
             fill="iconSeverityDisabled"
             severity={this.props.ruleDetails.severity as IssueSeverityType}
             aria-hidden
           />
           {translate('severity', this.props.ruleDetails.severity)}
-        </DisabledText>
+        </TextSubdued>
       </DocumentationTooltip>
     </Note>
   );

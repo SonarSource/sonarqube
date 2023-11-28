@@ -22,10 +22,10 @@ import styled from '@emotion/styled';
 import {
   Badge,
   DangerButtonSecondary,
-  DisabledText,
   InheritanceIcon,
   Link,
   OverridenIcon,
+  TextSubdued,
   themeBorder,
 } from 'design-system';
 import * as React from 'react';
@@ -265,13 +265,13 @@ export default class RuleListItem extends React.PureComponent<Props> {
                   },
                 ]}
               >
-                <DisabledText className="sw-ml-3 sw-whitespace-nowrap">
+                <TextSubdued className="sw-ml-3 sw-whitespace-nowrap">
                   <TypeHelper
                     className="sw-flex sw-items-center"
                     iconFill="iconTypeDisabled"
                     type={rule.type}
                   />
-                </DisabledText>
+                </TextSubdued>
               </DocumentationTooltip>
               {allTags.length > 0 && (
                 <TagsList allowUpdate={false} className="sw-ml-3" tags={allTags} />

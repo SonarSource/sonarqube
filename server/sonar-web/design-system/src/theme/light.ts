@@ -77,6 +77,8 @@ export const lightTheme = {
     danger: danger.dark,
 
     // text
+    textDisabled: COLORS.blueGrey[300],
+    textSubdued: COLORS.blueGrey[400],
     textSuccess: COLORS.yellowGreen[700],
 
     //Project list card

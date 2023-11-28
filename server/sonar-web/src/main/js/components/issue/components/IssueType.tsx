@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { DisabledText } from 'design-system';
+import { TextSubdued } from 'design-system';
 import * as React from 'react';
 import { translate } from '../../../helpers/l10n';
 import { Issue } from '../../../types/types';
@@ -41,10 +41,10 @@ export default function IssueType({ issue }: Props) {
         },
       ]}
     >
-      <DisabledText className="sw-flex sw-items-center sw-gap-1">
+      <TextSubdued className="sw-flex sw-items-center sw-gap-1">
         <IssueTypeIcon fill="iconTypeDisabled" type={issue.type} aria-hidden />
         {translate('issue.type', issue.type)}
-      </DisabledText>
+      </TextSubdued>
     </DocumentationTooltip>
   );
 }
