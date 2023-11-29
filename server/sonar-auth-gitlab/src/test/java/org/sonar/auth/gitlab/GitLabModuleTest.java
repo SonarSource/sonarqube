@@ -33,7 +33,7 @@ public class GitLabModuleTest {
   public void verify_count_of_added_components() {
     ListContainer container = new ListContainer();
     new GitLabModule().configure(container);
-    assertThat(container.getAddedObjects()).hasSize(10);
+    assertThat(container.getAddedObjects()).hasSize(13);
   }
 
   private static class ListContainer implements Container {

@@ -21,6 +21,7 @@ package org.sonar.auth.gitlab;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 import org.sonar.api.PropertyType;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.config.PropertyDefinition;
@@ -37,6 +38,9 @@ public class GitLabSettings {
   public static final String GITLAB_AUTH_SECRET = "sonar.auth.gitlab.secret.secured";
   public static final String GITLAB_AUTH_ALLOW_USERS_TO_SIGNUP = "sonar.auth.gitlab.allowUsersToSignUp";
   public static final String GITLAB_AUTH_SYNC_USER_GROUPS = "sonar.auth.gitlab.groupsSync";
+  public static final String GITLAB_AUTH_PROVISIONING_TOKEN = "provisioning.gitlab.token.secured";
+  public static final String GITLAB_AUTH_PROVISIONING_GROUPS = "provisioning.gitlab.groups";
+  public static final String GITLAB_AUTH_PROVISIONING_ENABLED = "provisioning.gitlab.enabled";
 
   private static final String CATEGORY = "authentication";
   private static final String SUBCATEGORY = "gitlab";
@@ -73,6 +77,18 @@ public class GitLabSettings {
 
   public boolean syncUserGroups() {
     return configuration.getBoolean(GITLAB_AUTH_SYNC_USER_GROUPS).orElse(false);
+  }
+
+  public String provisioningToken() {
+    return configuration.get(GITLAB_AUTH_PROVISIONING_TOKEN).orElse(null);
+  }
+
+  public Set<String> provisioningGroups() {
+    return Set.of(configuration.getStringArray(GITLAB_AUTH_PROVISIONING_GROUPS));
+  }
+
+  public boolean isProvisioningEnabled() {
+    return isEnabled() && configuration.getBoolean(GITLAB_AUTH_PROVISIONING_ENABLED).orElse(false);
   }
 
   static List<PropertyDefinition> definitions() {
@@ -128,6 +144,32 @@ public class GitLabSettings {
         .type(PropertyType.BOOLEAN)
         .defaultValue(valueOf(false))
         .index(6)
+        .build(),
+      PropertyDefinition.builder(GITLAB_AUTH_PROVISIONING_TOKEN)
+        .name("Provisioning token")
+        .description("Token used for provisioning users. Both a group or a personal access token can be used as soon as it has visibility on desired groups.")
+        .category(CATEGORY)
+        .subCategory(SUBCATEGORY)
+        .type(PASSWORD)
+        .index(7)
+        .build(),
+      PropertyDefinition.builder(GITLAB_AUTH_PROVISIONING_GROUPS)
+        .name("Groups")
+        .description("Only members of these groups (and sub-groups) will be provisioned. Please enter the group slug as it appears in GitLab URL, for instance `my-gitlab-group`.")
+        .multiValues(true)
+        .category(CATEGORY)
+        .subCategory(SUBCATEGORY)
+        .index(8)
+        .build(),
+      PropertyDefinition.builder(GITLAB_AUTH_PROVISIONING_ENABLED)
+        .name("Provisioning enabled")
+        .description("Enable Gitlab provisioning for users.")
+        .category(CATEGORY)
+        .subCategory(SUBCATEGORY)
+        .type(BOOLEAN)
+        .defaultValue(valueOf(false))
+        .index(9)
         .build());
+
   }
 }
