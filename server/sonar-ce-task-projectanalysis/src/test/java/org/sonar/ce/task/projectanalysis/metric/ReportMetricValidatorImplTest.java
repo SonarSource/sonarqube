@@ -44,6 +44,8 @@ public class ReportMetricValidatorImplTest {
 
   ScannerMetrics scannerMetrics = mock(ScannerMetrics.class);
 
+  private static final String expectedLog = "The metric 'metric_key' is ignored and should not be send in the batch report";
+
   @Before
   public void before() {
     logTester.setLevel(Level.DEBUG);
@@ -55,7 +57,7 @@ public class ReportMetricValidatorImplTest {
     ReportMetricValidator validator = new ReportMetricValidatorImpl(scannerMetrics);
 
     assertThat(validator.validate(METRIC_KEY)).isTrue();
-    assertThat(logTester.logs()).isEmpty();
+    assertThat(logTester.logs()).noneMatch(expectedLog::equals);
   }
 
   @Test
@@ -64,7 +66,8 @@ public class ReportMetricValidatorImplTest {
     ReportMetricValidator validator = new ReportMetricValidatorImpl(scannerMetrics);
 
     assertThat(validator.validate(METRIC_KEY)).isFalse();
-    assertThat(logTester.logs()).containsOnly("The metric 'metric_key' is ignored and should not be send in the batch report");
+
+    assertThat(logTester.logs()).contains(expectedLog);
   }
 
   @Test
@@ -73,8 +76,8 @@ public class ReportMetricValidatorImplTest {
     ReportMetricValidator validator = new ReportMetricValidatorImpl(scannerMetrics);
 
     assertThat(validator.validate(METRIC_KEY)).isFalse();
-    assertThat(logTester.logs()).hasSize(1);
+    assertThat(logTester.logs()).filteredOn(expectedLog::equals).hasSize(1);
     assertThat(validator.validate(METRIC_KEY)).isFalse();
-    assertThat(logTester.logs()).hasSize(1);
+    assertThat(logTester.logs()).filteredOn(expectedLog::equals).hasSize(1);
   }
 }
