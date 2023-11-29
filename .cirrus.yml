@@ -1042,7 +1042,7 @@ weekly_mssql_task:
       - QA_CATEGORY: Cat2
       - QA_CATEGORY: Cat3
       - QA_CATEGORY: Cat4
-      #- QA_CATEGORY: Cat5 Needs to be disabled because the test PullRequestMeasuresPageTest.test_as_anonymous regularly fails on MSSQL
+      - QA_CATEGORY: Cat5
       - QA_CATEGORY: Cat6
       - QA_CATEGORY: Analysis
       - QA_CATEGORY: Authorization
