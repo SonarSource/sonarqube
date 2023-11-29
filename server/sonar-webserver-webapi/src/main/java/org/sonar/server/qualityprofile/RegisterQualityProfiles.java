@@ -32,7 +32,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.Startable;
 import org.sonar.api.resources.Language;
@@ -56,6 +55,7 @@ import org.sonar.server.qualityprofile.builtin.QProfileName;
 
 import static java.lang.String.format;
 import static java.util.stream.Collectors.toMap;
+import static java.util.stream.Collectors.toSet;
 import static org.sonar.server.qualityprofile.ActiveRuleInheritance.NONE;
 
 /**
@@ -180,7 +180,7 @@ public class RegisterQualityProfiles implements Startable {
    * @see <a href="https://jira.sonarsource.com/browse/SONAR-19478">SONAR-19478</a>
    */
   private void ensureBuiltInAreDefaultQPWhenNoRules(DbSession dbSession) {
-    Set<String> activeLanguages = Arrays.stream(languages.all()).map(Language::getKey).collect(Collectors.toSet());
+    Set<String> activeLanguages = Arrays.stream(languages.all()).map(Language::getKey).collect(toSet());
     Map<String, RulesProfileDto> builtInQProfileByLanguage = dbClient.qualityProfileDao().selectBuiltInRuleProfiles(dbSession).stream()
       .collect(toMap(RulesProfileDto::getLanguage, Function.identity(), (oldValue, newValue) -> oldValue));
     List<QProfileDto> defaultProfileWithNoRules = dbClient.qualityProfileDao().selectDefaultProfilesWithoutActiveRules(dbSession, activeLanguages, false);
@@ -237,12 +237,15 @@ public class RegisterQualityProfiles implements Startable {
   }
 
   public void unsetBuiltInFlagAndRenameQPWhenPluginUninstalled(DbSession dbSession) {
-    var pluginsBuiltInQProfiles = builtInQProfileRepository.get()
+    Set<QProfileName> pluginsBuiltInQProfiles = builtInQProfileRepository.get()
       .stream()
       .map(BuiltInQProfile::getQProfileName)
-      .collect(Collectors.toSet());
+      .collect(toSet());
 
-    var languages = pluginsBuiltInQProfiles.stream().map(QProfileName::getLanguage).collect(Collectors.toSet());
+    Set<String> qualityProfileLanguages = pluginsBuiltInQProfiles
+      .stream()
+      .map(QProfileName::getLanguage)
+      .collect(toSet());
 
     dbClient.qualityProfileDao().selectBuiltInRuleProfiles(dbSession)
       .forEach(qProfileDto -> {
@@ -251,7 +254,7 @@ public class RegisterQualityProfiles implements Startable {
         // Built-in Quality Profile can be a leftover from plugin which has been removed
         // Rename Quality Profile and unset built-in flag allowing Quality Profile for existing languages to be removed
         // Quality Profiles for languages not existing anymore are marked as 'REMOVED' and won't be seen in UI
-        if (!pluginsBuiltInQProfiles.contains(dbProfileName) && languages.contains(qProfileDto.getLanguage())) {
+        if (!pluginsBuiltInQProfiles.contains(dbProfileName) && qualityProfileLanguages.contains(qProfileDto.getLanguage())) {
           String oldName = qProfileDto.getName();
           String newName = generateNewProfileName(qProfileDto);
           qProfileDto.setName(newName);
