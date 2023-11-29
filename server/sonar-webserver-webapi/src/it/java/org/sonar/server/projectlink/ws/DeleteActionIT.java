@@ -27,11 +27,14 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ProjectLinkDto;
+import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.project.ProjectDto;
+import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 
@@ -49,7 +52,7 @@ public class DeleteActionIT {
 
   private final DbClient dbClient = db.getDbClient();
   private final DbSession dbSession = db.getSession();
-  private final WsActionTester ws = new WsActionTester(new DeleteAction(dbClient, userSession));
+  private final WsActionTester ws = new WsActionTester(new DeleteAction(dbClient, userSession, TestComponentFinder.from(db)));
 
   @Test
   public void no_response() {
@@ -68,6 +71,17 @@ public class DeleteActionIT {
     ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     ProjectLinkDto link = db.projectLinks().insertCustomLink(project);
     logInAsProjectAdministrator(project);
+
+    deleteLink(link);
+
+    assertLinkIsDeleted(link.getUuid());
+  }
+
+  @Test
+  public void delete_whenGlobalAdminPermission_shouldDeleteLink() {
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
+    ProjectLinkDto link = db.projectLinks().insertCustomLink(project);
+    userSession.logIn().addPermission(GlobalPermission.ADMINISTER);
 
     deleteLink(link);
 
@@ -101,11 +115,11 @@ public class DeleteActionIT {
 
   @Test
   public void fail_on_unknown_link() {
-    assertThatThrownBy(() -> ws.newRequest()
+    TestRequest testRequest = ws.newRequest()
       .setMethod("POST")
-      .setParam(PARAM_ID, "UNKNOWN")
-      .execute())
-        .isInstanceOf(NotFoundException.class);
+      .setParam(PARAM_ID, "UNKNOWN");
+    assertThatThrownBy(testRequest::execute)
+      .isInstanceOf(NotFoundException.class);
   }
 
   @Test
