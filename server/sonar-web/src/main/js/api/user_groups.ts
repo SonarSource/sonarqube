@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import axios from 'axios';
-import { axiosToCatch } from '../helpers/request';
 import { Group, Paging } from '../types/types';
 
 const GROUPS_ENDPOINT = '/api/v2/authorizations/groups';
@@ -43,7 +42,7 @@ export function updateGroup(
     description?: string;
   },
 ) {
-  return axiosToCatch.patch(`${GROUPS_ENDPOINT}/${id}`, data);
+  return axios.patch(`${GROUPS_ENDPOINT}/${id}`, data);
 }
 
 export function deleteGroup(id: string) {
