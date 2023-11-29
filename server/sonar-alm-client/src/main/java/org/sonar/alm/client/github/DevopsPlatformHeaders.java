@@ -19,14 +19,18 @@
  */
 package org.sonar.alm.client.github;
 
-import org.sonar.alm.client.TimeoutConfiguration;
-import org.sonar.api.ce.ComputeEngineSide;
-import org.sonar.api.server.ServerSide;
+import java.util.Optional;
 
-@ServerSide
-@ComputeEngineSide
-public class GithubApplicationHttpClient extends GenericApplicationHttpClient {
-  public GithubApplicationHttpClient(GithubHeaders githubHeaders, TimeoutConfiguration timeoutConfiguration) {
-    super(githubHeaders, timeoutConfiguration);
-  }
+public interface DevopsPlatformHeaders {
+  Optional<String> getApiVersionHeader();
+
+  Optional<String> getApiVersion();
+
+  String getRateLimitRemainingHeader();
+
+  String getRateLimitLimitHeader();
+
+  String getRateLimitResetHeader();
+
+  String getAuthorizationHeader();
 }

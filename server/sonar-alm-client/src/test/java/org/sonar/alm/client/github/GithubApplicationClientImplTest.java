@@ -36,7 +36,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.slf4j.event.Level;
-import org.sonar.alm.client.github.GithubApplicationHttpClient.RateLimit;
+import org.sonar.alm.client.github.ApplicationHttpClient.RateLimit;
 import org.sonar.alm.client.github.api.GsonRepositoryCollaborator;
 import org.sonar.alm.client.github.api.GsonRepositoryTeam;
 import org.sonar.alm.client.github.config.GithubAppConfiguration;
@@ -68,7 +68,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.sonar.alm.client.github.GithubApplicationHttpClient.GetResponse;
+import static org.sonar.alm.client.github.ApplicationHttpClient.GetResponse;
 
 @RunWith(DataProviderRunner.class)
 public class GithubApplicationClientImplTest {
@@ -114,12 +114,12 @@ public class GithubApplicationClientImplTest {
   @ClassRule
   public static LogTester logTester = new LogTester().setLevel(LoggerLevel.WARN);
 
-  private GithubApplicationHttpClientImpl httpClient = mock();
+  private GenericApplicationHttpClient httpClient = mock();
   private GithubAppSecurity appSecurity = mock();
   private GithubAppConfiguration githubAppConfiguration = mock();
   private GitHubSettings gitHubSettings = mock();
 
-  private GithubPaginatedHttpClient githubPaginatedHttpClient = mock();
+  private PaginatedHttpClient githubPaginatedHttpClient = mock();
   private AppInstallationToken appInstallationToken = mock();
   private GithubApplicationClient underTest;
 

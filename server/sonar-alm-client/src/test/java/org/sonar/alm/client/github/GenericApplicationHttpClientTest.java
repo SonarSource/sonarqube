@@ -36,8 +36,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.event.Level;
 import org.sonar.alm.client.ConstantTimeoutConfiguration;
-import org.sonar.alm.client.github.GithubApplicationHttpClient.GetResponse;
-import org.sonar.alm.client.github.GithubApplicationHttpClient.Response;
+import org.sonar.alm.client.TimeoutConfiguration;
+import org.sonar.alm.client.github.ApplicationHttpClient.GetResponse;
+import org.sonar.alm.client.github.ApplicationHttpClient.Response;
 import org.sonar.alm.client.github.security.AccessToken;
 import org.sonar.alm.client.github.security.UserAccessToken;
 import org.sonar.api.testfixtures.log.LogTester;
@@ -48,10 +49,10 @@ import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.Assert.fail;
-import static org.sonar.alm.client.github.GithubApplicationHttpClient.RateLimit;
+import static org.sonar.alm.client.github.ApplicationHttpClient.RateLimit;
 
 @RunWith(DataProviderRunner.class)
-public class GithubApplicationHttpClientImplTest {
+public class GenericApplicationHttpClientTest {
   private static final String GH_API_VERSION_HEADER = "X-GitHub-Api-Version";
   private static final String GH_API_VERSION = "2022-11-28";
 
@@ -61,7 +62,7 @@ public class GithubApplicationHttpClientImplTest {
   @ClassRule
   public static LogTester logTester = new LogTester().setLevel(LoggerLevel.WARN);
 
-  private GithubApplicationHttpClientImpl underTest;
+  private GenericApplicationHttpClient underTest;
 
   private final AccessToken accessToken = new UserAccessToken(randomAlphabetic(10));
   private final String randomEndPoint = "/" + randomAlphabetic(10);
@@ -71,8 +72,14 @@ public class GithubApplicationHttpClientImplTest {
   @Before
   public void setUp() {
     this.appUrl = format("http://%s:%s", server.getHostName(), server.getPort());
-    this.underTest = new GithubApplicationHttpClientImpl(new ConstantTimeoutConfiguration(500));
+    this.underTest = new TestApplicationHttpClient(new GithubHeaders(), new ConstantTimeoutConfiguration(500));
     logTester.clear();
+  }
+
+  private class TestApplicationHttpClient extends GenericApplicationHttpClient {
+    public TestApplicationHttpClient(DevopsPlatformHeaders devopsPlatformHeaders, TimeoutConfiguration timeoutConfiguration) {
+      super(devopsPlatformHeaders, timeoutConfiguration);
+    }
   }
 
   @Test

@@ -50,20 +50,16 @@ import static java.util.Optional.empty;
 import static java.util.Optional.of;
 import static java.util.Optional.ofNullable;
 
-public class GithubApplicationHttpClientImpl implements GithubApplicationHttpClient {
+public abstract class GenericApplicationHttpClient implements ApplicationHttpClient {
 
-  private static final Logger LOG = LoggerFactory.getLogger(GithubApplicationHttpClientImpl.class);
+  private static final Logger LOG = LoggerFactory.getLogger(GenericApplicationHttpClient.class);
   private static final Pattern NEXT_LINK_PATTERN = Pattern.compile("<([^<]+)>; rel=\"next\"");
-  private static final String GH_API_VERSION_HEADER = "X-GitHub-Api-Version";
-  private static final String GH_API_VERSION = "2022-11-28";
 
-  private static final String GH_RATE_LIMIT_REMAINING_HEADER = "x-ratelimit-remaining";
-  private static final String GH_RATE_LIMIT_LIMIT_HEADER = "x-ratelimit-limit";
-  private static final String GH_RATE_LIMIT_RESET_HEADER = "x-ratelimit-reset";
-
+  private final DevopsPlatformHeaders devopsPlatformHeaders;
   private final OkHttpClient client;
 
-  public GithubApplicationHttpClientImpl(TimeoutConfiguration timeoutConfiguration) {
+  public GenericApplicationHttpClient(DevopsPlatformHeaders devopsPlatformHeaders, TimeoutConfiguration timeoutConfiguration) {
+    this.devopsPlatformHeaders = devopsPlatformHeaders;
     client = new OkHttpClientBuilder()
       .setConnectTimeoutMs(timeoutConfiguration.getConnectTimeout())
       .setReadTimeoutMs(timeoutConfiguration.getReadTimeout())
@@ -102,7 +98,7 @@ public class GithubApplicationHttpClientImpl implements GithubApplicationHttpCli
       "endpoint must start with '/' or 'http'");
   }
 
-  private static Request newGetRequest(String appUrl, AccessToken token, String endPoint) {
+  private Request newGetRequest(String appUrl, AccessToken token, String endPoint) {
     return newRequestBuilder(appUrl, token, endPoint).get().build();
   }
 
@@ -139,7 +135,7 @@ public class GithubApplicationHttpClientImpl implements GithubApplicationHttpCli
     }
   }
 
-  private static Request newDeleteRequest(String appUrl, AccessToken token, String endPoint) {
+  private Request newDeleteRequest(String appUrl, AccessToken token, String endPoint) {
     return newRequestBuilder(appUrl, token, endPoint).delete().build();
   }
 
@@ -177,19 +173,21 @@ public class GithubApplicationHttpClientImpl implements GithubApplicationHttpCli
     }
   }
 
-  private static Request newPostRequest(String appUrl, @Nullable AccessToken token, String endPoint, RequestBody body) {
+  private Request newPostRequest(String appUrl, @Nullable AccessToken token, String endPoint, RequestBody body) {
     return newRequestBuilder(appUrl, token, endPoint).post(body).build();
   }
 
-  private static Request newPatchRequest(AccessToken token, String appUrl, String endPoint, RequestBody body) {
+  private Request newPatchRequest(AccessToken token, String appUrl, String endPoint, RequestBody body) {
     return newRequestBuilder(appUrl, token, endPoint).patch(body).build();
   }
 
-  private static Request.Builder newRequestBuilder(String appUrl, @Nullable AccessToken token, String endPoint) {
+  private Request.Builder newRequestBuilder(String appUrl, @Nullable AccessToken token, String endPoint) {
     Request.Builder url = new Request.Builder().url(toAbsoluteEndPoint(appUrl, endPoint));
     if (token != null) {
-      url.addHeader("Authorization", token.getAuthorizationHeaderPrefix() + " " + token);
-      url.addHeader(GH_API_VERSION_HEADER, GH_API_VERSION);
+      url.addHeader(devopsPlatformHeaders.getAuthorizationHeader(), token.getAuthorizationHeaderPrefix() + " " + token);
+      devopsPlatformHeaders.getApiVersion().ifPresent(apiVersion ->
+        url.addHeader(devopsPlatformHeaders.getApiVersionHeader().orElseThrow(), apiVersion)
+      );
     }
     return url;
   }
@@ -240,10 +238,10 @@ public class GithubApplicationHttpClientImpl implements GithubApplicationHttpCli
   }
 
   @CheckForNull
-  private static RateLimit readRateLimit(okhttp3.Response response) {
-    Integer remaining = headerValueOrNull(response, GH_RATE_LIMIT_REMAINING_HEADER, Integer::valueOf);
-    Integer limit = headerValueOrNull(response, GH_RATE_LIMIT_LIMIT_HEADER, Integer::valueOf);
-    Long reset = headerValueOrNull(response, GH_RATE_LIMIT_RESET_HEADER, Long::valueOf);
+  private RateLimit readRateLimit(okhttp3.Response response) {
+    Integer remaining = headerValueOrNull(response, devopsPlatformHeaders.getRateLimitRemainingHeader(), Integer::valueOf);
+    Integer limit = headerValueOrNull(response, devopsPlatformHeaders.getRateLimitLimitHeader(), Integer::valueOf);
+    Long reset = headerValueOrNull(response, devopsPlatformHeaders.getRateLimitResetHeader(), Long::valueOf);
     if (remaining == null || limit == null || reset == null) {
       return null;
     }

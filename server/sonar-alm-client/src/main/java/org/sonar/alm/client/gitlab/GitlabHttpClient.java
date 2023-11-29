@@ -35,10 +35,10 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 import org.apache.logging.log4j.util.Strings;
-import org.sonar.alm.client.TimeoutConfiguration;
-import org.sonar.api.server.ServerSide;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.alm.client.TimeoutConfiguration;
+import org.sonar.api.server.ServerSide;
 import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.client.OkHttpClientBuilder;
 
@@ -323,6 +323,34 @@ public class GitlabHttpClient {
       throw new IllegalStateException(e.getMessage(), e);
     }
   }
+
+  /*public void getGroups(String gitlabUrl, String token) {
+    String url = String.format("%s/groups", gitlabUrl);
+    LOG.debug(String.format("get groups : [%s]", url));
+
+    Request request = new Request.Builder()
+      .addHeader(PRIVATE_TOKEN, token)
+      .url(url)
+      .get()
+      .build();
+
+
+    try (Response response = client.newCall(request).execute()) {
+      Headers headers = response.headers();
+      checkResponseIsSuccessful(response, "Could not get projects from GitLab instance");
+      List<Project> projectList = Project.parseJsonArray(response.body().string());
+      int returnedPageNumber = parseAndGetIntegerHeader(headers.get("X-Page"));
+      int returnedPageSize = parseAndGetIntegerHeader(headers.get("X-Per-Page"));
+      String xtotal = headers.get("X-Total");
+      Integer totalProjects = Strings.isEmpty(xtotal) ? null : parseAndGetIntegerHeader(xtotal);
+      return new ProjectList(projectList, returnedPageNumber, returnedPageSize, totalProjects);
+    } catch (JsonSyntaxException e) {
+      throw new IllegalArgumentException("Could not parse GitLab answer to search projects. Got a non-json payload as result.");
+    } catch (IOException e) {
+      logException(url, e);
+      throw new IllegalStateException(e.getMessage(), e);
+    }
+  }*/
 
   private static int parseAndGetIntegerHeader(@Nullable String header) {
     if (header == null) {

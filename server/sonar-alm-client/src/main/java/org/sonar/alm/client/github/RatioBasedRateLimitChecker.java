@@ -34,19 +34,19 @@ public class RatioBasedRateLimitChecker extends RateLimitChecker {
 
   @VisibleForTesting
   static final String RATE_RATIO_EXCEEDED_MESSAGE = "The GitHub API rate limit is almost reached. Pausing GitHub provisioning until the next rate limit reset. "
-    + "{} out of {} calls were used.";
+                                                    + "{} out of {} calls were used.";
 
   private static final int MAX_PERCENTAGE_OF_CALLS_FOR_PROVISIONING = 90;
 
-  @Override
-  public boolean checkRateLimit(GHRateLimit.Record rateLimitRecord, long count) throws InterruptedException {
-    int limit = rateLimitRecord.getLimit();
-    int apiCallsUsed = limit - rateLimitRecord.getRemaining();
+  public boolean checkRateLimit(ApplicationHttpClient.RateLimit rateLimitRecord) throws InterruptedException {
+    int limit = rateLimitRecord.limit();
+    int apiCallsUsed = limit - rateLimitRecord.remaining();
     double percentageOfCallsUsed = computePercentageOfCallsUsed(apiCallsUsed, limit);
     LOGGER.debug("{} GitHub API calls used of {} available per hours", apiCallsUsed, limit);
     if (percentageOfCallsUsed >= MAX_PERCENTAGE_OF_CALLS_FOR_PROVISIONING) {
       LOGGER.warn(RATE_RATIO_EXCEEDED_MESSAGE, apiCallsUsed, limit);
-      return sleepUntilReset(rateLimitRecord);
+      GHRateLimit.Record rateLimit = new GHRateLimit.Record(rateLimitRecord.limit(), rateLimitRecord.remaining(), rateLimitRecord.reset());
+      return sleepUntilReset(rateLimit);
     }
     return false;
   }

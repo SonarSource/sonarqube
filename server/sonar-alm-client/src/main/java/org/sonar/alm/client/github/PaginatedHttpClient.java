@@ -19,14 +19,12 @@
  */
 package org.sonar.alm.client.github;
 
-import org.sonar.alm.client.TimeoutConfiguration;
-import org.sonar.api.ce.ComputeEngineSide;
-import org.sonar.api.server.ServerSide;
+import java.io.IOException;
+import java.util.List;
+import java.util.function.Function;
+import org.sonar.alm.client.github.security.AccessToken;
 
-@ServerSide
-@ComputeEngineSide
-public class GithubApplicationHttpClient extends GenericApplicationHttpClient {
-  public GithubApplicationHttpClient(GithubHeaders githubHeaders, TimeoutConfiguration timeoutConfiguration) {
-    super(githubHeaders, timeoutConfiguration);
-  }
+public interface PaginatedHttpClient {
+
+  <E> List<E> get(String appUrl, AccessToken token, String query, Function<String, List<E>> responseDeserializer) throws IOException;
 }

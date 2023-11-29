@@ -37,7 +37,7 @@ import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.alm.client.github.GithubApplicationHttpClient.GetResponse;
+import org.sonar.alm.client.github.ApplicationHttpClient.GetResponse;
 import org.sonar.alm.client.github.GithubBinding.GsonGithubRepository;
 import org.sonar.alm.client.github.GithubBinding.GsonInstallations;
 import org.sonar.alm.client.github.GithubBinding.GsonRepositorySearch;
@@ -76,13 +76,13 @@ public class GithubApplicationClientImpl implements GithubApplicationClient {
   private static final Type REPOSITORY_TEAM_LIST_TYPE = TypeToken.getParameterized(List.class, GsonRepositoryTeam.class).getType();
   private static final Type REPOSITORY_COLLABORATORS_LIST_TYPE = TypeToken.getParameterized(List.class, GsonRepositoryCollaborator.class).getType();
   private static final Type ORGANIZATION_LIST_TYPE = TypeToken.getParameterized(List.class, GithubBinding.GsonInstallation.class).getType();
-  protected final GithubApplicationHttpClient appHttpClient;
+  protected final ApplicationHttpClient appHttpClient;
   protected final GithubAppSecurity appSecurity;
   private final GitHubSettings gitHubSettings;
-  private final GithubPaginatedHttpClient githubPaginatedHttpClient;
+  private final PaginatedHttpClient githubPaginatedHttpClient;
 
-  public GithubApplicationClientImpl(GithubApplicationHttpClient appHttpClient, GithubAppSecurity appSecurity, GitHubSettings gitHubSettings,
-    GithubPaginatedHttpClient githubPaginatedHttpClient) {
+  public GithubApplicationClientImpl(ApplicationHttpClient appHttpClient, GithubAppSecurity appSecurity, GitHubSettings gitHubSettings,
+    PaginatedHttpClient githubPaginatedHttpClient) {
     this.appHttpClient = appHttpClient;
     this.appSecurity = appSecurity;
     this.gitHubSettings = gitHubSettings;
@@ -106,7 +106,7 @@ public class GithubApplicationClientImpl implements GithubApplicationClient {
 
   private <T> Optional<T> post(String baseUrl, AccessToken token, String endPoint, Class<T> gsonClass) {
     try {
-      GithubApplicationHttpClient.Response response = appHttpClient.post(baseUrl, token, endPoint);
+      ApplicationHttpClient.Response response = appHttpClient.post(baseUrl, token, endPoint);
       return handleResponse(response, endPoint, gsonClass);
     } catch (Exception e) {
       LOG.warn(FAILED_TO_REQUEST_BEGIN_MSG + endPoint, e);
@@ -291,7 +291,7 @@ public class GithubApplicationClientImpl implements GithubApplicationClient {
       GetResponse response = appHttpClient.get(appUrl, accessToken, String.format("/repos/%s", organizationAndRepository));
       return Optional.of(response)
         .filter(r -> r.getCode() == HTTP_OK)
-        .flatMap(GithubApplicationHttpClient.Response::getContent)
+        .flatMap(ApplicationHttpClient.Response::getContent)
         .map(content -> GSON.fromJson(content, GsonGithubRepository.class))
         .map(GsonGithubRepository::toRepository);
     } catch (Exception e) {
@@ -315,7 +315,7 @@ public class GithubApplicationClientImpl implements GithubApplicationClient {
         baseAppUrl = appUrl;
       }
 
-      GithubApplicationHttpClient.Response response = appHttpClient.post(baseAppUrl, null, endpoint);
+      ApplicationHttpClient.Response response = appHttpClient.post(baseAppUrl, null, endpoint);
 
       if (response.getCode() != HTTP_OK) {
         throw new IllegalStateException("Failed to create GitHub's user access token. GitHub returned code " + code + ". " + response.getContent().orElse(""));
@@ -359,7 +359,7 @@ public class GithubApplicationClientImpl implements GithubApplicationClient {
     }
   }
 
-  protected static <T> Optional<T> handleResponse(GithubApplicationHttpClient.Response response, String endPoint, Class<T> gsonClass) {
+  protected static <T> Optional<T> handleResponse(ApplicationHttpClient.Response response, String endPoint, Class<T> gsonClass) {
     try {
       return response.getContent().map(c -> GSON.fromJson(c, gsonClass));
     } catch (Exception e) {
