@@ -40,6 +40,7 @@ initApplication();
 
 async function initApplication() {
   axiosToCatch.interceptors.response.use((response) => response.data);
+  axiosToCatch.defaults.baseURL = getBaseUrl();
   axiosToCatch.defaults.headers.patch['Content-Type'] = 'application/merge-patch+json';
   axios.defaults.headers.patch['Content-Type'] = 'application/merge-patch+json';
   axios.defaults.baseURL = getBaseUrl();
