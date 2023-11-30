@@ -17,26 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
 import * as React from 'react';
-import { useEffect } from 'react';
-import { getSystemInfo } from '../../api/system';
-import { SysInfoCluster } from '../../types/types';
+import { useGitLabSyncStatusQuery } from '../../queries/identity-provider';
+import AlmSynchronisationWarning from './AlmSynchronisationWarning';
+import './SystemAnnouncement.css';
 
-export enum Provider {
-  Github = 'GitHub',
-  Scim = 'SCIM',
+interface Props {
+  short?: boolean;
 }
 
-export function useManageProvider(): string | undefined {
-  const [manageProvider, setManageProvider] = React.useState<Provider | undefined>();
+function GitLabSynchronisationWarning({ short }: Readonly<Props>) {
+  const { data } = useGitLabSyncStatusQuery();
 
-  useEffect(() => {
-    (async () => {
-      const info = (await getSystemInfo()) as SysInfoCluster;
-      setManageProvider(info.System['External Users and Groups Provisioning'] as Provider);
-    })();
-  }, []);
+  if (!data) {
+    return null;
+  }
 
-  return manageProvider;
+  return <AlmSynchronisationWarning short={short} data={data} />;
 }
+
+export default GitLabSynchronisationWarning;

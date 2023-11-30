@@ -19,10 +19,11 @@
  */
 import * as React from 'react';
 import { translate } from '../../helpers/l10n';
+import { Provider } from '../../types/types';
 import ButtonToggle from './ButtonToggle';
 
 interface ManagedFilterProps {
-  manageProvider: string | undefined;
+  manageProvider: Provider | undefined;
   loading: boolean;
   managed: boolean | undefined;
   setManaged: (managed: boolean | undefined) => void;

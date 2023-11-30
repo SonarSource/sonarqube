@@ -28,12 +28,12 @@ import SettingsServiceMock from '../../../api/mocks/SettingsServiceMock';
 import SystemServiceMock from '../../../api/mocks/SystemServiceMock';
 import UserTokensMock from '../../../api/mocks/UserTokensMock';
 import UsersServiceMock from '../../../api/mocks/UsersServiceMock';
-import { Provider } from '../../../components/hooks/useManageProvider';
 import { mockCurrentUser, mockLoggedInUser, mockRestUser } from '../../../helpers/testMocks';
 import { renderApp } from '../../../helpers/testReactTestingUtils';
 import { byLabelText, byRole, byText } from '../../../helpers/testSelector';
 import { Feature } from '../../../types/features';
 import { TaskStatuses } from '../../../types/tasks';
+import { Provider } from '../../../types/types';
 import { ChangePasswordResults, CurrentUser } from '../../../types/users';
 import UsersApp from '../UsersApp';
 

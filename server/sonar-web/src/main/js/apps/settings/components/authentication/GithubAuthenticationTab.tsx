@@ -25,7 +25,6 @@ import ConfirmModal from '../../../../components/controls/ConfirmModal';
 import RadioCard from '../../../../components/controls/RadioCard';
 import Tooltip from '../../../../components/controls/Tooltip';
 import { Button, ResetButtonLink, SubmitButton } from '../../../../components/controls/buttons';
-import { Provider } from '../../../../components/hooks/useManageProvider';
 import DeleteIcon from '../../../../components/icons/DeleteIcon';
 import EditIcon from '../../../../components/icons/EditIcon';
 import { Alert } from '../../../../components/ui/Alert';
@@ -37,6 +36,7 @@ import {
 } from '../../../../queries/identity-provider';
 import { AlmKeys } from '../../../../types/alm-settings';
 import { ExtendedSettingDefinition } from '../../../../types/settings';
+import { Provider } from '../../../../types/types';
 import { AuthenticationTabs, DOCUMENTATION_LINK_SUFFIXES } from './Authentication';
 import AuthenticationFormField from './AuthenticationFormField';
 import AuthenticationFormFieldWrapper from './AuthenticationFormFieldWrapper';
@@ -223,7 +223,6 @@ export default function GithubAuthenticationTab(props: GithubAuthenticationProps
                       <p className="spacer-bottom">
                         <FormattedMessage
                           id="settings.authentication.github.form.description.doc"
-                          tagName="p"
                           values={{
                             documentation: (
                               <DocLink

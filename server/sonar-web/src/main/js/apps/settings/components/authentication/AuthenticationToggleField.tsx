@@ -19,12 +19,12 @@
  */
 import React from 'react';
 import Toggle from '../../../../components/controls/Toggle';
-import { ExtendedSettingDefinition } from '../../../../types/settings';
+import { DefinitionV2, ExtendedSettingDefinition } from '../../../../types/settings';
 
 interface SamlToggleFieldProps {
   onChange: (value: boolean) => void;
   settingValue?: string | boolean;
-  definition: ExtendedSettingDefinition;
+  definition: ExtendedSettingDefinition | DefinitionV2;
 }
 
 export default function AuthenticationToggleField(props: SamlToggleFieldProps) {

@@ -26,6 +26,7 @@ import {
   GithubRepository,
   GitlabProject,
 } from '../../types/alm-integration';
+import { GitlabConfiguration, ProvisioningType } from '../../types/provisioning';
 
 export function mockAzureProject(overrides: Partial<AzureProject> = {}): AzureProject {
   return {
@@ -95,6 +96,21 @@ export function mockGitlabProject(overrides: Partial<GitlabProject> = {}): Gitla
     pathName: 'Company / Best Projects',
     pathSlug: 'company/best-projects',
     url: 'https://gitlab.company.com/best-projects/awesome-project-exclamation',
+    ...overrides,
+  };
+}
+
+export function mockGitlabConfiguration(
+  overrides: Partial<GitlabConfiguration> = {},
+): GitlabConfiguration {
+  return {
+    id: Math.random().toString(),
+    enabled: false,
+    url: 'URL',
+    allowUsersToSignUp: false,
+    synchronizeUserGroups: true,
+    type: ProvisioningType.jit,
+    groups: [],
     ...overrides,
   };
 }

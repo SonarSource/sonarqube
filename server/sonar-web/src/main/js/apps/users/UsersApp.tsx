@@ -22,18 +22,19 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { getIdentityProviders } from '../../api/users';
 import GitHubSynchronisationWarning from '../../app/components/GitHubSynchronisationWarning';
+import GitLabSynchronisationWarning from '../../app/components/GitLabSynchronisationWarning';
 import HelpTooltip from '../../components/controls/HelpTooltip';
 import ListFooter from '../../components/controls/ListFooter';
 import { ManagedFilter } from '../../components/controls/ManagedFilter';
 import SearchBox from '../../components/controls/SearchBox';
 import Select, { LabelValueSelectOption } from '../../components/controls/Select';
 import Suggestions from '../../components/embed-docs-modal/Suggestions';
-import { Provider, useManageProvider } from '../../components/hooks/useManageProvider';
 import Spinner from '../../components/ui/Spinner';
 import { now, toISO8601WithOffsetString } from '../../helpers/dates';
 import { translate } from '../../helpers/l10n';
+import { useIdentityProviderQuery } from '../../queries/identity-provider';
 import { useUsersQueries } from '../../queries/users';
-import { IdentityProvider } from '../../types/types';
+import { IdentityProvider, Provider } from '../../types/types';
 import { RestUserDetailed } from '../../types/users';
 import Header from './Header';
 import UsersList from './UsersList';
@@ -45,6 +46,8 @@ export default function UsersApp() {
   const [search, setSearch] = useState('');
   const [usersActivity, setUsersActivity] = useState<UserActivity>(UserActivity.AnyActivity);
   const [managed, setManaged] = useState<boolean | undefined>(undefined);
+
+  const { data: manageProvider } = useIdentityProviderQuery();
 
   const usersActivityParams = useMemo(() => {
     const nowDate = now();
@@ -78,8 +81,6 @@ export default function UsersApp() {
 
   const users = data?.pages.flatMap((page) => page.users) ?? [];
 
-  const manageProvider = useManageProvider();
-
   useEffect(() => {
     (async () => {
       const { identityProviders } = await getIdentityProviders();
@@ -91,11 +92,12 @@ export default function UsersApp() {
     <main className="page page-limited" id="users-page">
       <Suggestions suggestions="users" />
       <Helmet defer={false} title={translate('users.page')} />
-      <Header manageProvider={manageProvider} />
-      {manageProvider === Provider.Github && <GitHubSynchronisationWarning short />}
+      <Header manageProvider={manageProvider?.provider} />
+      {manageProvider?.provider === Provider.Github && <GitHubSynchronisationWarning short />}
+      {manageProvider?.provider === Provider.Gitlab && <GitLabSynchronisationWarning short />}
       <div className="display-flex-justify-start big-spacer-bottom big-spacer-top">
         <ManagedFilter
-          manageProvider={manageProvider}
+          manageProvider={manageProvider?.provider}
           loading={isLoading}
           managed={managed}
           setManaged={(m) => setManaged(m)}
@@ -136,7 +138,7 @@ export default function UsersApp() {
         <UsersList
           identityProviders={identityProviders}
           users={users}
-          manageProvider={manageProvider}
+          manageProvider={manageProvider?.provider}
         />
       </Spinner>
 

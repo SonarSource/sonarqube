@@ -23,6 +23,7 @@ import userEvent from '@testing-library/user-event';
 import AlmSettingsServiceMock from '../../../../../api/mocks/AlmSettingsServiceMock';
 import AuthenticationServiceMock from '../../../../../api/mocks/AuthenticationServiceMock';
 import PermissionsServiceMock from '../../../../../api/mocks/PermissionsServiceMock';
+import SystemServiceMock from '../../../../../api/mocks/SystemServiceMock';
 import { mockComponent } from '../../../../../helpers/mocks/component';
 import { mockPermissionGroup, mockPermissionUser } from '../../../../../helpers/mocks/permissions';
 import {
@@ -41,17 +42,19 @@ import {
 } from '../../../../../types/component';
 import { Feature } from '../../../../../types/features';
 import { Permissions } from '../../../../../types/permissions';
-import { Component, PermissionGroup, PermissionUser } from '../../../../../types/types';
+import { Component, PermissionGroup, PermissionUser, Provider } from '../../../../../types/types';
 import { projectPermissionsRoutes } from '../../../routes';
 import { getPageObject } from '../../../test-utils';
 
 let serviceMock: PermissionsServiceMock;
 let authHandler: AuthenticationServiceMock;
 let almHandler: AlmSettingsServiceMock;
+let systemHandler: SystemServiceMock;
 beforeAll(() => {
   serviceMock = new PermissionsServiceMock();
   authHandler = new AuthenticationServiceMock();
   almHandler = new AlmSettingsServiceMock();
+  systemHandler = new SystemServiceMock();
 });
 
 afterEach(() => {
@@ -237,195 +240,205 @@ it('should correctly handle pagination', async () => {
   expect(screen.getAllByRole('row').length).toBe(21);
 });
 
-it('should not allow to change visibility for GH Project with auto-provisioning', async () => {
-  const user = userEvent.setup();
-  const ui = getPageObject(user);
-  authHandler.githubProvisioningStatus = true;
-  almHandler.handleSetProjectBinding(AlmKeys.GitHub, {
-    almSetting: 'test',
-    repository: 'test',
-    monorepo: false,
-    project: 'my-project',
+describe('GH provisioning', () => {
+  beforeEach(() => {
+    systemHandler.setProvider(Provider.Github);
   });
-  renderPermissionsProjectApp({}, { featureList: [Feature.GithubProvisioning] });
-  await ui.appLoaded();
 
-  expect(ui.visibilityRadio(Visibility.Public).get()).toBeDisabled();
-  expect(ui.visibilityRadio(Visibility.Public).get()).toBeChecked();
-  expect(ui.visibilityRadio(Visibility.Private).get()).toBeDisabled();
-  await act(async () => {
-    await ui.turnProjectPrivate();
+  it('should not allow to change visibility for GH Project with auto-provisioning', async () => {
+    const user = userEvent.setup();
+    const ui = getPageObject(user);
+    authHandler.githubProvisioningStatus = true;
+    almHandler.handleSetProjectBinding(AlmKeys.GitHub, {
+      almSetting: 'test',
+      repository: 'test',
+      monorepo: false,
+      project: 'my-project',
+    });
+    renderPermissionsProjectApp({}, { featureList: [Feature.GithubProvisioning] });
+    await ui.appLoaded();
+
+    expect(ui.visibilityRadio(Visibility.Public).get()).toBeDisabled();
+    expect(ui.visibilityRadio(Visibility.Public).get()).toBeChecked();
+    expect(ui.visibilityRadio(Visibility.Private).get()).toBeDisabled();
+    await act(async () => {
+      await ui.turnProjectPrivate();
+    });
+    expect(ui.visibilityRadio(Visibility.Private).get()).not.toBeChecked();
   });
-  expect(ui.visibilityRadio(Visibility.Private).get()).not.toBeChecked();
-});
 
-it('should allow to change visibility for non-GH Project', async () => {
-  const user = userEvent.setup();
-  const ui = getPageObject(user);
-  authHandler.githubProvisioningStatus = true;
-  almHandler.handleSetProjectBinding(AlmKeys.Azure, {
-    almSetting: 'test',
-    repository: 'test',
-    monorepo: false,
-    project: 'my-project',
+  it('should allow to change visibility for non-GH Project', async () => {
+    const user = userEvent.setup();
+    const ui = getPageObject(user);
+    authHandler.githubProvisioningStatus = true;
+    almHandler.handleSetProjectBinding(AlmKeys.Azure, {
+      almSetting: 'test',
+      repository: 'test',
+      monorepo: false,
+      project: 'my-project',
+    });
+    renderPermissionsProjectApp({}, { featureList: [Feature.GithubProvisioning] });
+    await ui.appLoaded();
+
+    expect(ui.visibilityRadio(Visibility.Public).get()).not.toHaveClass('disabled');
+    expect(ui.visibilityRadio(Visibility.Public).get()).toBeChecked();
+    expect(ui.visibilityRadio(Visibility.Private).get()).not.toHaveClass('disabled');
+    await act(async () => {
+      await ui.turnProjectPrivate();
+    });
+    expect(ui.visibilityRadio(Visibility.Private).get()).toBeChecked();
   });
-  renderPermissionsProjectApp({}, { featureList: [Feature.GithubProvisioning] });
-  await ui.appLoaded();
 
-  expect(ui.visibilityRadio(Visibility.Public).get()).not.toHaveClass('disabled');
-  expect(ui.visibilityRadio(Visibility.Public).get()).toBeChecked();
-  expect(ui.visibilityRadio(Visibility.Private).get()).not.toHaveClass('disabled');
-  await act(async () => {
-    await ui.turnProjectPrivate();
+  it('should allow to change visibility for GH Project with disabled auto-provisioning', async () => {
+    const user = userEvent.setup();
+    const ui = getPageObject(user);
+    authHandler.githubProvisioningStatus = false;
+    almHandler.handleSetProjectBinding(AlmKeys.GitHub, {
+      almSetting: 'test',
+      repository: 'test',
+      monorepo: false,
+      project: 'my-project',
+    });
+    renderPermissionsProjectApp({}, { featureList: [Feature.GithubProvisioning] });
+    await ui.appLoaded();
+
+    expect(ui.visibilityRadio(Visibility.Public).get()).not.toHaveClass('disabled');
+    expect(ui.visibilityRadio(Visibility.Public).get()).toBeChecked();
+    expect(ui.visibilityRadio(Visibility.Private).get()).not.toHaveClass('disabled');
+    await act(async () => {
+      await ui.turnProjectPrivate();
+    });
+    expect(ui.visibilityRadio(Visibility.Private).get()).toBeChecked();
   });
-  expect(ui.visibilityRadio(Visibility.Private).get()).toBeChecked();
-});
 
-it('should allow to change visibility for GH Project with disabled auto-provisioning', async () => {
-  const user = userEvent.setup();
-  const ui = getPageObject(user);
-  authHandler.githubProvisioningStatus = false;
-  almHandler.handleSetProjectBinding(AlmKeys.GitHub, {
-    almSetting: 'test',
-    repository: 'test',
-    monorepo: false,
-    project: 'my-project',
+  it('should have disabled permissions for GH Project', async () => {
+    const user = userEvent.setup();
+    const ui = getPageObject(user);
+    authHandler.githubProvisioningStatus = true;
+    almHandler.handleSetProjectBinding(AlmKeys.GitHub, {
+      almSetting: 'test',
+      repository: 'test',
+      monorepo: false,
+      project: 'my-project',
+    });
+    renderPermissionsProjectApp(
+      {},
+      { featureList: [Feature.GithubProvisioning] },
+      {
+        component: mockComponent({ visibility: Visibility.Private }),
+      },
+    );
+    await ui.appLoaded();
+
+    expect(ui.pageTitle.get()).toBeInTheDocument();
+    await waitFor(() =>
+      expect(ui.pageTitle.get()).toHaveAccessibleName(/project_permission.github_managed/),
+    );
+    expect(ui.pageTitle.byRole('img').get()).toBeInTheDocument();
+    expect(ui.githubExplanations.get()).toBeInTheDocument();
+
+    expect(ui.projectPermissionCheckbox('John', Permissions.Admin).get()).toBeChecked();
+    expect(ui.projectPermissionCheckbox('John', Permissions.Admin).get()).toBeDisabled();
+    expect(ui.projectPermissionCheckbox('Alexa', Permissions.IssueAdmin).get()).toBeChecked();
+    expect(ui.projectPermissionCheckbox('Alexa', Permissions.IssueAdmin).get()).toBeEnabled();
+    await ui.toggleProjectPermission('Alexa', Permissions.IssueAdmin);
+    expect(ui.confirmRemovePermissionDialog.get()).toBeInTheDocument();
+    expect(ui.confirmRemovePermissionDialog.get()).toHaveTextContent(
+      `${Permissions.IssueAdmin}Alexa`,
+    );
+    await act(() =>
+      user.click(ui.confirmRemovePermissionDialog.byRole('button', { name: 'confirm' }).get()),
+    );
+    expect(ui.projectPermissionCheckbox('Alexa', Permissions.IssueAdmin).get()).not.toBeChecked();
+
+    expect(ui.projectPermissionCheckbox('sonar-users', Permissions.Browse).get()).toBeChecked();
+    expect(ui.projectPermissionCheckbox('sonar-users', Permissions.Browse).get()).toBeEnabled();
+    await ui.toggleProjectPermission('sonar-users', Permissions.Browse);
+    expect(ui.confirmRemovePermissionDialog.get()).toBeInTheDocument();
+    expect(ui.confirmRemovePermissionDialog.get()).toHaveTextContent(
+      `${Permissions.Browse}sonar-users`,
+    );
+    await act(() =>
+      user.click(ui.confirmRemovePermissionDialog.byRole('button', { name: 'confirm' }).get()),
+    );
+    expect(ui.projectPermissionCheckbox('sonar-users', Permissions.Browse).get()).not.toBeChecked();
+    expect(ui.projectPermissionCheckbox('sonar-admins', Permissions.Admin).get()).toBeChecked();
+    expect(ui.projectPermissionCheckbox('sonar-admins', Permissions.Admin).get()).toHaveAttribute(
+      'disabled',
+    );
+
+    const johnRow = screen.getAllByRole('row')[4];
+    expect(johnRow).toHaveTextContent('John');
+    expect(ui.githubLogo.get(johnRow)).toBeInTheDocument();
+    const alexaRow = screen.getAllByRole('row')[5];
+    expect(alexaRow).toHaveTextContent('Alexa');
+    expect(ui.githubLogo.query(alexaRow)).not.toBeInTheDocument();
+    const usersGroupRow = screen.getAllByRole('row')[1];
+    expect(usersGroupRow).toHaveTextContent('sonar-users');
+    expect(ui.githubLogo.query(usersGroupRow)).not.toBeInTheDocument();
+    const adminsGroupRow = screen.getAllByRole('row')[2];
+    expect(adminsGroupRow).toHaveTextContent('sonar-admins');
+    expect(ui.githubLogo.query(adminsGroupRow)).toBeInTheDocument();
+
+    expect(ui.applyTemplateBtn.query()).not.toBeInTheDocument();
+
+    // not possible to grant permissions at all
+    expect(
+      screen
+        .getAllByRole('checkbox', { checked: false })
+        .every((item) => item.getAttributeNames().includes('disabled')),
+    ).toBe(true);
   });
-  renderPermissionsProjectApp({}, { featureList: [Feature.GithubProvisioning] });
-  await ui.appLoaded();
 
-  expect(ui.visibilityRadio(Visibility.Public).get()).not.toHaveClass('disabled');
-  expect(ui.visibilityRadio(Visibility.Public).get()).toBeChecked();
-  expect(ui.visibilityRadio(Visibility.Private).get()).not.toHaveClass('disabled');
-  await act(async () => {
-    await ui.turnProjectPrivate();
+  it('should allow to change permissions for GH Project without auto-provisioning', async () => {
+    const user = userEvent.setup();
+    const ui = getPageObject(user);
+    authHandler.githubProvisioningStatus = false;
+    almHandler.handleSetProjectBinding(AlmKeys.GitHub, {
+      almSetting: 'test',
+      repository: 'test',
+      monorepo: false,
+      project: 'my-project',
+    });
+    renderPermissionsProjectApp(
+      { visibility: Visibility.Private },
+      { featureList: [Feature.GithubProvisioning] },
+    );
+    await ui.appLoaded();
+
+    expect(ui.pageTitle.get()).toBeInTheDocument();
+    expect(ui.pageTitle.byRole('img').query()).not.toBeInTheDocument();
+
+    expect(ui.applyTemplateBtn.get()).toBeInTheDocument();
+
+    // no restrictions
+    expect(
+      screen
+        .getAllByRole('checkbox')
+        .every((item) => item.getAttributeNames().includes('disabled')),
+    ).toBe(false);
   });
-  expect(ui.visibilityRadio(Visibility.Private).get()).toBeChecked();
-});
 
-it('should have disabled permissions for GH Project', async () => {
-  const user = userEvent.setup();
-  const ui = getPageObject(user);
-  authHandler.githubProvisioningStatus = true;
-  almHandler.handleSetProjectBinding(AlmKeys.GitHub, {
-    almSetting: 'test',
-    repository: 'test',
-    monorepo: false,
-    project: 'my-project',
+  it('should allow to change permissions for non-GH Project', async () => {
+    const user = userEvent.setup();
+    const ui = getPageObject(user);
+    authHandler.githubProvisioningStatus = true;
+    renderPermissionsProjectApp({}, { featureList: [Feature.GithubProvisioning] });
+    await ui.appLoaded();
+
+    expect(ui.pageTitle.get()).toBeInTheDocument();
+    expect(ui.nonGHProjectWarning.get()).toBeInTheDocument();
+    expect(ui.pageTitle.byRole('img').query()).not.toBeInTheDocument();
+
+    expect(ui.applyTemplateBtn.get()).toBeInTheDocument();
+
+    // no restrictions
+    expect(
+      screen
+        .getAllByRole('checkbox')
+        .every((item) => item.getAttributeNames().includes('disabled')),
+    ).toBe(false);
   });
-  renderPermissionsProjectApp(
-    {},
-    { featureList: [Feature.GithubProvisioning] },
-    {
-      component: mockComponent({ visibility: Visibility.Private }),
-    },
-  );
-  await ui.appLoaded();
-
-  expect(ui.pageTitle.get()).toBeInTheDocument();
-  await waitFor(() =>
-    expect(ui.pageTitle.get()).toHaveAccessibleName(/project_permission.github_managed/),
-  );
-  expect(ui.pageTitle.byRole('img').get()).toBeInTheDocument();
-  expect(ui.githubExplanations.get()).toBeInTheDocument();
-
-  expect(ui.projectPermissionCheckbox('John', Permissions.Admin).get()).toBeChecked();
-  expect(ui.projectPermissionCheckbox('John', Permissions.Admin).get()).toBeDisabled();
-  expect(ui.projectPermissionCheckbox('Alexa', Permissions.IssueAdmin).get()).toBeChecked();
-  expect(ui.projectPermissionCheckbox('Alexa', Permissions.IssueAdmin).get()).toBeEnabled();
-  await ui.toggleProjectPermission('Alexa', Permissions.IssueAdmin);
-  expect(ui.confirmRemovePermissionDialog.get()).toBeInTheDocument();
-  expect(ui.confirmRemovePermissionDialog.get()).toHaveTextContent(
-    `${Permissions.IssueAdmin}Alexa`,
-  );
-  await act(() =>
-    user.click(ui.confirmRemovePermissionDialog.byRole('button', { name: 'confirm' }).get()),
-  );
-  expect(ui.projectPermissionCheckbox('Alexa', Permissions.IssueAdmin).get()).not.toBeChecked();
-
-  expect(ui.projectPermissionCheckbox('sonar-users', Permissions.Browse).get()).toBeChecked();
-  expect(ui.projectPermissionCheckbox('sonar-users', Permissions.Browse).get()).toBeEnabled();
-  await ui.toggleProjectPermission('sonar-users', Permissions.Browse);
-  expect(ui.confirmRemovePermissionDialog.get()).toBeInTheDocument();
-  expect(ui.confirmRemovePermissionDialog.get()).toHaveTextContent(
-    `${Permissions.Browse}sonar-users`,
-  );
-  await act(() =>
-    user.click(ui.confirmRemovePermissionDialog.byRole('button', { name: 'confirm' }).get()),
-  );
-  expect(ui.projectPermissionCheckbox('sonar-users', Permissions.Browse).get()).not.toBeChecked();
-  expect(ui.projectPermissionCheckbox('sonar-admins', Permissions.Admin).get()).toBeChecked();
-  expect(ui.projectPermissionCheckbox('sonar-admins', Permissions.Admin).get()).toHaveAttribute(
-    'disabled',
-  );
-
-  const johnRow = screen.getAllByRole('row')[4];
-  expect(johnRow).toHaveTextContent('John');
-  expect(ui.githubLogo.get(johnRow)).toBeInTheDocument();
-  const alexaRow = screen.getAllByRole('row')[5];
-  expect(alexaRow).toHaveTextContent('Alexa');
-  expect(ui.githubLogo.query(alexaRow)).not.toBeInTheDocument();
-  const usersGroupRow = screen.getAllByRole('row')[1];
-  expect(usersGroupRow).toHaveTextContent('sonar-users');
-  expect(ui.githubLogo.query(usersGroupRow)).not.toBeInTheDocument();
-  const adminsGroupRow = screen.getAllByRole('row')[2];
-  expect(adminsGroupRow).toHaveTextContent('sonar-admins');
-  expect(ui.githubLogo.query(adminsGroupRow)).toBeInTheDocument();
-
-  expect(ui.applyTemplateBtn.query()).not.toBeInTheDocument();
-
-  // not possible to grant permissions at all
-  expect(
-    screen
-      .getAllByRole('checkbox', { checked: false })
-      .every((item) => item.getAttributeNames().includes('disabled')),
-  ).toBe(true);
-});
-
-it('should allow to change permissions for GH Project without auto-provisioning', async () => {
-  const user = userEvent.setup();
-  const ui = getPageObject(user);
-  authHandler.githubProvisioningStatus = false;
-  almHandler.handleSetProjectBinding(AlmKeys.GitHub, {
-    almSetting: 'test',
-    repository: 'test',
-    monorepo: false,
-    project: 'my-project',
-  });
-  renderPermissionsProjectApp(
-    { visibility: Visibility.Private },
-    { featureList: [Feature.GithubProvisioning] },
-  );
-  await ui.appLoaded();
-
-  expect(ui.pageTitle.get()).toBeInTheDocument();
-  expect(ui.pageTitle.byRole('img').query()).not.toBeInTheDocument();
-
-  expect(ui.applyTemplateBtn.get()).toBeInTheDocument();
-
-  // no restrictions
-  expect(
-    screen.getAllByRole('checkbox').every((item) => item.getAttributeNames().includes('disabled')),
-  ).toBe(false);
-});
-
-it('should allow to change permissions for non-GH Project', async () => {
-  const user = userEvent.setup();
-  const ui = getPageObject(user);
-  authHandler.githubProvisioningStatus = true;
-  renderPermissionsProjectApp({}, { featureList: [Feature.GithubProvisioning] });
-  await ui.appLoaded();
-
-  expect(ui.pageTitle.get()).toBeInTheDocument();
-  expect(ui.nonGHProjectWarning.get()).toBeInTheDocument();
-  expect(ui.pageTitle.byRole('img').query()).not.toBeInTheDocument();
-
-  expect(ui.applyTemplateBtn.get()).toBeInTheDocument();
-
-  // no restrictions
-  expect(
-    screen.getAllByRole('checkbox').every((item) => item.getAttributeNames().includes('disabled')),
-  ).toBe(false);
 });
 
 function renderPermissionsProjectApp(

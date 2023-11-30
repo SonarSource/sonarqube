@@ -19,14 +19,13 @@
  */
 
 import { cloneDeep } from 'lodash';
-import { Provider } from '../../components/hooks/useManageProvider';
 import {
   mockGroup,
   mockIdentityProvider,
   mockPaging,
   mockUserGroupMember,
 } from '../../helpers/testMocks';
-import { Group, IdentityProvider, Paging } from '../../types/types';
+import { Group, IdentityProvider, Paging, Provider } from '../../types/types';
 import { createGroup, deleteGroup, getUsersGroups, updateGroup } from '../user_groups';
 
 jest.mock('../user_groups');

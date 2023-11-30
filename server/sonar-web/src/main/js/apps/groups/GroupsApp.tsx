@@ -25,9 +25,10 @@ import ListFooter from '../../components/controls/ListFooter';
 import { ManagedFilter } from '../../components/controls/ManagedFilter';
 import SearchBox from '../../components/controls/SearchBox';
 import Suggestions from '../../components/embed-docs-modal/Suggestions';
-import { Provider, useManageProvider } from '../../components/hooks/useManageProvider';
 import { translate } from '../../helpers/l10n';
 import { useGroupsQueries } from '../../queries/groups';
+import { useIdentityProviderQuery } from '../../queries/identity-provider';
+import { Provider } from '../../types/types';
 import Header from './components/Header';
 import List from './components/List';
 import './groups.css';
@@ -35,7 +36,7 @@ import './groups.css';
 export default function GroupsApp() {
   const [search, setSearch] = useState<string>('');
   const [managed, setManaged] = useState<boolean | undefined>();
-  const manageProvider = useManageProvider();
+  const { data: manageProvider } = useIdentityProviderQuery();
 
   const { data, isLoading, fetchNextPage } = useGroupsQueries({
     q: search,
@@ -49,12 +50,12 @@ export default function GroupsApp() {
       <Suggestions suggestions="user_groups" />
       <Helmet defer={false} title={translate('user_groups.page')} />
       <main className="page page-limited" id="groups-page">
-        <Header manageProvider={manageProvider} />
-        {manageProvider === Provider.Github && <GitHubSynchronisationWarning short />}
+        <Header manageProvider={manageProvider?.provider} />
+        {manageProvider?.provider === Provider.Github && <GitHubSynchronisationWarning short />}
 
         <div className="display-flex-justify-start big-spacer-bottom big-spacer-top">
           <ManagedFilter
-            manageProvider={manageProvider}
+            manageProvider={manageProvider?.provider}
             loading={isLoading}
             managed={managed}
             setManaged={setManaged}
@@ -68,7 +69,7 @@ export default function GroupsApp() {
           />
         </div>
 
-        <List groups={groups} manageProvider={manageProvider} />
+        <List groups={groups} manageProvider={manageProvider?.provider} />
 
         <div id="groups-list-footer">
           <ListFooter

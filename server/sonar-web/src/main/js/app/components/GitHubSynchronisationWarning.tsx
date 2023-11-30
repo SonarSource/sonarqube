@@ -17,156 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { formatDistance } from 'date-fns';
 import * as React from 'react';
-import { FormattedMessage } from 'react-intl';
-import Link from '../../components/common/Link';
-import CheckIcon from '../../components/icons/CheckIcon';
-import WarningIcon from '../../components/icons/WarningIcon';
-import { Alert } from '../../components/ui/Alert';
-import { translate, translateWithParameters } from '../../helpers/l10n';
 import { useGitHubSyncStatusQuery } from '../../queries/identity-provider';
-import { GithubStatusEnabled } from '../../types/provisioning';
-import { TaskStatuses } from '../../types/tasks';
+import AlmSynchronisationWarning from './AlmSynchronisationWarning';
 import './SystemAnnouncement.css';
 
-interface LastSyncProps {
-  short?: boolean;
-  info: GithubStatusEnabled['lastSync'];
-}
-
-interface GitHubSynchronisationWarningProps {
+interface Props {
   short?: boolean;
 }
 
-function LastSyncAlert({ info, short }: LastSyncProps) {
-  if (info === undefined) {
-    return null;
-  }
-  const { finishedAt, errorMessage, status, summary, warningMessage } = info;
-
-  const formattedDate = finishedAt ? formatDistance(new Date(finishedAt), new Date()) : '';
-
-  if (short) {
-    return status === TaskStatuses.Success ? (
-      <div>
-        <span className="authentication-enabled spacer-left">
-          {warningMessage ? (
-            <WarningIcon className="spacer-right" />
-          ) : (
-            <CheckIcon className="spacer-right" />
-          )}
-        </span>
-        <i>
-          {warningMessage ? (
-            <FormattedMessage
-              id="settings.authentication.github.synchronization_successful.with_warning"
-              defaultMessage={translate(
-                'settings.authentication.github.synchronization_successful.with_warning',
-              )}
-              values={{
-                date: formattedDate,
-                details: (
-                  <Link to="/admin/settings?category=authentication&tab=github">
-                    {translate('settings.authentication.github.synchronization_details_link')}
-                  </Link>
-                ),
-              }}
-            />
-          ) : (
-            translateWithParameters(
-              'settings.authentication.github.synchronization_successful',
-              formattedDate,
-            )
-          )}
-        </i>
-      </div>
-    ) : (
-      <Alert variant="error">
-        <FormattedMessage
-          id="settings.authentication.github.synchronization_failed_short"
-          defaultMessage={translate('settings.authentication.github.synchronization_failed_short')}
-          values={{
-            details: (
-              <Link to="/admin/settings?category=authentication&tab=github">
-                {translate('settings.authentication.github.synchronization_details_link')}
-              </Link>
-            ),
-          }}
-        />
-      </Alert>
-    );
-  }
-
-  return (
-    <>
-      <Alert
-        variant={status === TaskStatuses.Success ? 'success' : 'error'}
-        role="alert"
-        aria-live="assertive"
-      >
-        {status === TaskStatuses.Success ? (
-          <>
-            {translateWithParameters(
-              'settings.authentication.github.synchronization_successful',
-              formattedDate,
-            )}
-            <br />
-            {summary ?? ''}
-          </>
-        ) : (
-          <React.Fragment key={`synch-alert-${finishedAt}`}>
-            <div>
-              {translateWithParameters(
-                'settings.authentication.github.synchronization_failed',
-                formattedDate,
-              )}
-            </div>
-            <br />
-            {errorMessage ?? ''}
-          </React.Fragment>
-        )}
-      </Alert>
-      <Alert variant="warning" role="alert" aria-live="assertive">
-        {warningMessage}
-      </Alert>
-    </>
-  );
-}
-
-function GitHubSynchronisationWarning({ short }: GitHubSynchronisationWarningProps) {
+function GitHubSynchronisationWarning({ short }: Readonly<Props>) {
   const { data } = useGitHubSyncStatusQuery();
 
   if (!data) {
     return null;
   }
 
-  return (
-    <>
-      <Alert
-        variant="loading"
-        className="spacer-bottom"
-        aria-atomic
-        role="alert"
-        aria-live="assertive"
-        aria-label={
-          data.nextSync === undefined
-            ? translate('settings.authentication.github.synchronization_finish')
-            : ''
-        }
-      >
-        {!short &&
-          data?.nextSync &&
-          translate(
-            data.nextSync.status === TaskStatuses.Pending
-              ? 'settings.authentication.github.synchronization_pending'
-              : 'settings.authentication.github.synchronization_in_progress',
-          )}
-      </Alert>
-
-      <LastSyncAlert short={short} info={data.lastSync} />
-    </>
-  );
+  return <AlmSynchronisationWarning short={short} data={data} />;
 }
 
 export default GitHubSynchronisationWarning;

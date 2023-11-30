@@ -26,12 +26,12 @@ import GroupMembershipsServiceMock from '../../../api/mocks/GroupMembersipsServi
 import GroupsServiceMock from '../../../api/mocks/GroupsServiceMock';
 import SystemServiceMock from '../../../api/mocks/SystemServiceMock';
 import UsersServiceMock from '../../../api/mocks/UsersServiceMock';
-import { Provider } from '../../../components/hooks/useManageProvider';
 import { mockGroupMembership, mockRestUser } from '../../../helpers/testMocks';
 import { renderApp } from '../../../helpers/testReactTestingUtils';
 import { byRole, byText } from '../../../helpers/testSelector';
 import { Feature } from '../../../types/features';
 import { TaskStatuses } from '../../../types/tasks';
+import { Provider } from '../../../types/types';
 import GroupsApp from '../GroupsApp';
 
 const systemHandler = new SystemServiceMock();
@@ -275,6 +275,7 @@ describe('in manage mode', () => {
 
   it('should not be able to create a group', async () => {
     renderGroupsApp();
+    expect(await ui.createGroupButton.find()).toBeInTheDocument();
     expect(await ui.createGroupButton.find()).toBeDisabled();
     expect(ui.infoManageMode.get()).toBeInTheDocument();
   });

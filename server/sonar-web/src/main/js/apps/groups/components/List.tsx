@@ -20,12 +20,12 @@
 import { sortBy } from 'lodash';
 import * as React from 'react';
 import { translate } from '../../../helpers/l10n';
-import { Group } from '../../../types/types';
+import { Group, Provider } from '../../../types/types';
 import ListItem from './ListItem';
 
 interface Props {
   groups: Group[];
-  manageProvider: string | undefined;
+  manageProvider: Provider | undefined;
 }
 
 export default function List(props: Props) {

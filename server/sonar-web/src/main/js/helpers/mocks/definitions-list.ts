@@ -255,6 +255,28 @@ export const definitions: ExtendedSettingDefinition[] = [
     fields: [],
   },
   {
+    key: 'provisioning.gitlab.token.secured',
+    name: 'Provisioning token',
+    description:
+      'Token used for provisioning users. Both a group or a personal access token can be used as soon as it has visibility on desired groups.',
+    type: SettingType.PASSWORD,
+    category: 'authentication',
+    subCategory: 'gitlab',
+    options: [],
+    fields: [],
+  },
+  {
+    key: 'provisioning.gitlab.groups',
+    name: 'Groups',
+    description:
+      'Only members of these groups (and sub-groups) will be able to authenticate to the server.',
+    category: 'authentication',
+    subCategory: 'gitlab',
+    multiValues: true,
+    options: [],
+    fields: [],
+  },
+  {
     key: 'sonar.auth.saml.loginUrl',
     name: 'SAML login url',
     description: 'The URL where the Identity Provider expects to receive SAML requests.',

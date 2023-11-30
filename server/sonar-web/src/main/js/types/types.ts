@@ -741,6 +741,12 @@ export interface SysInfoBase extends SysInfoValueObject {
   };
 }
 
+export enum Provider {
+  Github = 'github',
+  Gitlab = 'gitlab',
+  Scim = 'SCIM',
+}
+
 export interface SysInfoCluster extends SysInfoBase {
   'Application Nodes': SysInfoAppNode[];
   'Search Nodes': SysInfoSearchNode[];
@@ -752,7 +758,7 @@ export interface SysInfoCluster extends SysInfoBase {
     'High Availability': true;
     'Server ID': string;
     Version: string;
-    'External Users and Groups Provisioning'?: string;
+    'External Users and Groups Provisioning'?: Provider;
   };
 }
 

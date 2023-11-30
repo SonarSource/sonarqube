@@ -24,7 +24,6 @@ import Link from '../../../../components/common/Link';
 import ConfirmModal from '../../../../components/controls/ConfirmModal';
 import RadioCard from '../../../../components/controls/RadioCard';
 import { Button, ResetButtonLink, SubmitButton } from '../../../../components/controls/buttons';
-import { Provider } from '../../../../components/hooks/useManageProvider';
 import CheckIcon from '../../../../components/icons/CheckIcon';
 import DeleteIcon from '../../../../components/icons/DeleteIcon';
 import EditIcon from '../../../../components/icons/EditIcon';
@@ -36,6 +35,7 @@ import {
 } from '../../../../queries/identity-provider';
 import { useSaveValueMutation } from '../../../../queries/settings';
 import { ExtendedSettingDefinition } from '../../../../types/settings';
+import { Provider } from '../../../../types/types';
 import ConfigurationForm from './ConfigurationForm';
 import useSamlConfiguration, {
   SAML_ENABLED_FIELD,

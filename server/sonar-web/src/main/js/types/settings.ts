@@ -89,6 +89,15 @@ export interface ExtendedSettingDefinition extends SettingDefinition {
   subCategory: string;
 }
 
+export interface DefinitionV2 {
+  name: string;
+  key: string;
+  description?: string;
+  secured: boolean;
+  multiValues?: boolean;
+  type?: SettingType;
+}
+
 export interface SettingValueResponse {
   settings: SettingValue[];
   setSecuredSettings: string[];

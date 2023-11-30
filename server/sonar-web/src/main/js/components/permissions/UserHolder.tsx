@@ -22,7 +22,8 @@ import * as React from 'react';
 import { translate } from '../../helpers/l10n';
 import { isPermissionDefinitionGroup } from '../../helpers/permissions';
 import { getBaseUrl } from '../../helpers/system';
-import { PermissionDefinitions, PermissionUser } from '../../types/types';
+import { useIdentityProviderQuery } from '../../queries/identity-provider';
+import { PermissionDefinitions, PermissionUser, Provider } from '../../types/types';
 import PermissionCell from './PermissionCell';
 import usePermissionChange from './usePermissionChange';
 
@@ -44,6 +45,7 @@ export default function UserHolder(props: Props) {
     permissions,
     removeOnly,
   });
+  const { data: identityProvider } = useIdentityProviderQuery();
 
   const permissionCells = permissions.map((permission) => (
     <PermissionCell
@@ -90,15 +92,17 @@ export default function UserHolder(props: Props) {
                 <strong>{user.name}</strong>
                 <Note className="sw-ml-2">{user.login}</Note>
               </div>
-              {isGitHubProject && user.managed && (
-                <img
-                  alt="github"
-                  className="sw-my-2"
-                  height={16}
-                  aria-label={translate('project_permission.github_managed')}
-                  src={`${getBaseUrl()}/images/alm/github.svg`}
-                />
-              )}
+              {isGitHubProject &&
+                identityProvider?.provider === Provider.Github &&
+                user.managed && (
+                  <img
+                    alt="github"
+                    className="sw-ml-2"
+                    height={16}
+                    aria-label={translate('project_permission.github_managed')}
+                    src={`${getBaseUrl()}/images/alm/github.svg`}
+                  />
+                )}
             </div>
             {user.email && (
               <div className="sw-mt-2 sw-max-w-100 sw-text-ellipsis sw-whitespace-nowrap sw-overflow-hidden">

@@ -22,6 +22,7 @@ export enum TaskTypes {
   IssueSync = 'ISSUE_SYNC',
   GithubProvisioning = 'GITHUB_AUTH_PROVISIONING',
   GithubProjectPermissionsProvisioning = 'GITHUB_PROJECT_PERMISSIONS_PROVISIONING',
+  GitlabProvisioning = 'GITLAB_AUTH_PROVISIONING',
   AppRefresh = 'APP_REFRESH',
   ViewRefresh = 'VIEW_REFRESH',
   ProjectExport = 'PROJECT_EXPORT',
@@ -63,6 +64,7 @@ export interface Task {
   type: TaskTypes;
   warningCount?: number;
   warnings?: string[];
+  infoMessages?: string[];
 }
 
 export interface TaskWarning {

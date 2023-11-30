@@ -25,8 +25,11 @@ export type GithubStatusDisabled = {
   nextSync?: never;
   lastSync?: never;
 };
-export type GithubStatusEnabled = {
+export interface GithubStatusEnabled extends AlmSyncStatus {
   enabled: true;
+}
+
+export interface AlmSyncStatus {
   nextSync?: { status: TaskStatuses.Pending | TaskStatuses.InProgress };
   lastSync?: {
     executionTimeMs: number;
@@ -45,7 +48,7 @@ export type GithubStatusEnabled = {
         errorMessage?: string;
       }
   );
-};
+}
 
 export type GithubStatus = GithubStatusDisabled | GithubStatusEnabled;
 
@@ -88,4 +91,38 @@ export interface GitHubMapping {
     admin: boolean;
     scan: boolean;
   };
+}
+
+export interface GitLabConfigurationCreateBody {
+  applicationId: string;
+  url: string;
+  clientSecret: string;
+  synchronizeUserGroups: boolean;
+}
+
+export type GitLabConfigurationUpdateBody = {
+  applicationId?: string;
+  url?: string;
+  clientSecret?: string;
+  synchronizeUserGroups?: boolean;
+  enabled?: boolean;
+  type?: ProvisioningType;
+  provisioningToken?: string;
+  groups?: string[];
+  allowUsersToSignUp?: boolean;
+};
+
+export type GitlabConfiguration = {
+  id: string;
+  enabled: boolean;
+  synchronizeUserGroups: boolean;
+  url: string;
+  type: ProvisioningType;
+  groups: string[];
+  allowUsersToSignUp: boolean;
+};
+
+export enum ProvisioningType {
+  jit = 'JIT',
+  auto = 'Auto',
 }

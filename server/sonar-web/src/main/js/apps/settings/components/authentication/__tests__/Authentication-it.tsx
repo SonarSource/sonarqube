@@ -26,12 +26,13 @@ import ComputeEngineServiceMock from '../../../../../api/mocks/ComputeEngineServ
 import SettingsServiceMock from '../../../../../api/mocks/SettingsServiceMock';
 import SystemServiceMock from '../../../../../api/mocks/SystemServiceMock';
 import { AvailableFeaturesContext } from '../../../../../app/components/available-features/AvailableFeaturesContext';
+import { mockGitlabConfiguration } from '../../../../../helpers/mocks/alm-integrations';
 import { definitions } from '../../../../../helpers/mocks/definitions-list';
 import { renderComponent } from '../../../../../helpers/testReactTestingUtils';
 import { byRole, byText } from '../../../../../helpers/testSelector';
 import { Feature } from '../../../../../types/features';
-import { GitHubProvisioningStatus } from '../../../../../types/provisioning';
-import { TaskStatuses } from '../../../../../types/tasks';
+import { GitHubProvisioningStatus, ProvisioningType } from '../../../../../types/provisioning';
+import { TaskStatuses, TaskTypes } from '../../../../../types/tasks';
 import Authentication from '../Authentication';
 
 let handler: AuthenticationServiceMock;
@@ -71,6 +72,10 @@ afterEach(() => {
   computeEngineHandler.reset();
 });
 
+const ghContainer = byRole('tabpanel', { name: 'github GitHub' });
+const glContainer = byRole('tabpanel', { name: 'gitlab GitLab' });
+const samlContainer = byRole('tabpanel', { name: 'SAML' });
+
 const ui = {
   saveButton: byRole('button', { name: 'settings.authentication.saml.form.save' }),
   customMessageInformation: byText('settings.authentication.custom_message_information'),
@@ -80,7 +85,9 @@ const ui = {
   textbox2: byRole('textbox', { name: 'test2' }),
   saml: {
     noSamlConfiguration: byText('settings.authentication.saml.form.not_configured'),
-    createConfigButton: byRole('button', { name: 'settings.authentication.form.create' }),
+    createConfigButton: samlContainer.byRole('button', {
+      name: 'settings.authentication.form.create',
+    }),
     providerName: byRole('textbox', { name: 'property.sonar.auth.saml.providerName.name' }),
     providerId: byRole('textbox', { name: 'property.sonar.auth.saml.providerId.name' }),
     providerCertificate: byRole('textbox', {
@@ -93,10 +100,16 @@ const ui = {
     confirmProvisioningButton: byRole('button', {
       name: 'yes',
     }),
-    saveScim: byRole('button', { name: 'save' }),
-    enableConfigButton: byRole('button', { name: 'settings.authentication.form.enable' }),
-    disableConfigButton: byRole('button', { name: 'settings.authentication.form.disable' }),
-    editConfigButton: byRole('button', { name: 'settings.authentication.form.edit' }),
+    saveScim: samlContainer.byRole('button', { name: 'save' }),
+    enableConfigButton: samlContainer.byRole('button', {
+      name: 'settings.authentication.form.enable',
+    }),
+    disableConfigButton: samlContainer.byRole('button', {
+      name: 'settings.authentication.form.disable',
+    }),
+    editConfigButton: samlContainer.byRole('button', {
+      name: 'settings.authentication.form.edit',
+    }),
     enableFirstMessage: byText('settings.authentication.saml.enable_first'),
     jitProvisioningButton: byRole('radio', {
       name: 'settings.authentication.saml.form.provisioning_at_login',
@@ -118,7 +131,7 @@ const ui = {
     createConfiguration: async (user: UserEvent) => {
       const { saml } = ui;
 
-      await user.click((await saml.createConfigButton.findAll())[0]);
+      await user.click(await saml.createConfigButton.find());
       await saml.fillForm(user);
       await user.click(saml.saveConfigButton.get());
     },
@@ -126,10 +139,16 @@ const ui = {
   github: {
     tab: byRole('tab', { name: 'github GitHub' }),
     noGithubConfiguration: byText('settings.authentication.github.form.not_configured'),
-    createConfigButton: byRole('button', { name: 'settings.authentication.form.create' }),
-    clientId: byRole('textbox', { name: 'property.sonar.auth.github.clientId.secured.name' }),
+    createConfigButton: ghContainer.byRole('button', {
+      name: 'settings.authentication.form.create',
+    }),
+    clientId: byRole('textbox', {
+      name: 'property.sonar.auth.github.clientId.secured.name',
+    }),
     appId: byRole('textbox', { name: 'property.sonar.auth.github.appId.name' }),
-    privateKey: byRole('textbox', { name: 'property.sonar.auth.github.privateKey.secured.name' }),
+    privateKey: byRole('textbox', {
+      name: 'property.sonar.auth.github.privateKey.secured.name',
+    }),
     clientSecret: byRole('textbox', {
       name: 'property.sonar.auth.github.clientSecret.secured.name',
     }),
@@ -138,17 +157,27 @@ const ui = {
     allowUserToSignUp: byRole('switch', {
       name: 'sonar.auth.github.allowUsersToSignUp',
     }),
-    organizations: byRole('textbox', { name: 'property.sonar.auth.github.organizations.name' }),
+    organizations: byRole('textbox', {
+      name: 'property.sonar.auth.github.organizations.name',
+    }),
     saveConfigButton: byRole('button', { name: 'settings.almintegration.form.save' }),
     confirmProvisioningButton: byRole('button', {
       name: 'settings.authentication.github.provisioning_change.confirm_changes',
     }),
-    saveGithubProvisioning: byRole('button', { name: 'save' }),
-    groupAttribute: byRole('textbox', { name: 'property.sonar.auth.github.group.name.name' }),
-    enableConfigButton: byRole('button', { name: 'settings.authentication.form.enable' }),
-    disableConfigButton: byRole('button', { name: 'settings.authentication.form.disable' }),
-    editConfigButton: byRole('button', { name: 'settings.authentication.form.edit' }),
-    editMappingButton: byRole('button', {
+    saveGithubProvisioning: ghContainer.byRole('button', { name: 'save' }),
+    groupAttribute: byRole('textbox', {
+      name: 'property.sonar.auth.github.group.name.name',
+    }),
+    enableConfigButton: ghContainer.byRole('button', {
+      name: 'settings.authentication.form.enable',
+    }),
+    disableConfigButton: ghContainer.byRole('button', {
+      name: 'settings.authentication.form.disable',
+    }),
+    editConfigButton: ghContainer.byRole('button', {
+      name: 'settings.authentication.form.edit',
+    }),
+    editMappingButton: ghContainer.byRole('button', {
       name: 'settings.authentication.github.configuration.roles_mapping.button_label',
     }),
     mappingRow: byRole('dialog', {
@@ -181,35 +210,35 @@ const ui = {
       byRole('button', {
         name: `settings.definition.delete_value.property.sonar.auth.github.organizations.name.${org}`,
       }),
-    enableFirstMessage: byText('settings.authentication.github.enable_first'),
-    jitProvisioningButton: byRole('radio', {
+    enableFirstMessage: ghContainer.byText('settings.authentication.github.enable_first'),
+    jitProvisioningButton: ghContainer.byRole('radio', {
       name: 'settings.authentication.form.provisioning_at_login',
     }),
-    githubProvisioningButton: byRole('radio', {
+    githubProvisioningButton: ghContainer.byRole('radio', {
       name: 'settings.authentication.github.form.provisioning_with_github',
     }),
-    githubProvisioningPending: byText(/synchronization_pending/),
-    githubProvisioningInProgress: byText(/synchronization_in_progress/),
-    githubProvisioningSuccess: byText(/synchronization_successful/),
-    githubProvisioningAlert: byText(/synchronization_failed/),
-    configurationValidityLoading: byRole('status', {
+    githubProvisioningPending: ghContainer.byText(/synchronization_pending/),
+    githubProvisioningInProgress: ghContainer.byText(/synchronization_in_progress/),
+    githubProvisioningSuccess: ghContainer.byText(/synchronization_successful/),
+    githubProvisioningAlert: ghContainer.byText(/synchronization_failed/),
+    configurationValidityLoading: ghContainer.byRole('status', {
       name: /github.configuration.validation.loading/,
     }),
-    configurationValiditySuccess: byRole('status', {
+    configurationValiditySuccess: ghContainer.byRole('status', {
       name: /github.configuration.validation.valid/,
     }),
-    configurationValidityError: byRole('status', {
+    configurationValidityError: ghContainer.byRole('status', {
       name: /github.configuration.validation.invalid/,
     }),
-    syncWarning: byText(/Warning/),
-    syncSummary: byText(/Test summary/),
-    configurationValidityWarning: byRole('status', {
+    syncWarning: ghContainer.byText(/Warning/),
+    syncSummary: ghContainer.byText(/Test summary/),
+    configurationValidityWarning: ghContainer.byRole('status', {
       name: /github.configuration.validation.valid.short/,
     }),
-    checkConfigButton: byRole('button', {
+    checkConfigButton: ghContainer.byRole('button', {
       name: 'settings.authentication.github.configuration.validation.test',
     }),
-    viewConfigValidityDetailsButton: byRole('button', {
+    viewConfigValidityDetailsButton: ghContainer.byRole('button', {
       name: 'settings.authentication.github.configuration.validation.details',
     }),
     configDetailsDialog: byRole('dialog', {
@@ -240,7 +269,7 @@ const ui = {
     createConfiguration: async (user: UserEvent) => {
       const { github } = ui;
 
-      await user.click((await github.createConfigButton.findAll())[1]);
+      await user.click(await github.createConfigButton.find());
       await github.fillForm(user);
 
       await user.click(github.saveConfigButton.get());
@@ -262,6 +291,78 @@ const ui = {
       await user.click(github.saveGithubProvisioning.get());
       await user.click(github.confirmProvisioningButton.get());
     },
+  },
+  gitlab: {
+    tab: byRole('tab', { name: 'gitlab GitLab' }),
+    noGitlabConfiguration: glContainer.byText('settings.authentication.gitlab.form.not_configured'),
+    createConfigButton: glContainer.byRole('button', {
+      name: 'settings.authentication.form.create',
+    }),
+    editConfigButton: glContainer.byRole('button', {
+      name: 'settings.authentication.form.edit',
+    }),
+    deleteConfigButton: glContainer.byRole('button', {
+      name: 'settings.authentication.form.delete',
+    }),
+    enableConfigButton: glContainer.byRole('button', {
+      name: 'settings.authentication.form.enable',
+    }),
+    disableConfigButton: glContainer.byRole('button', {
+      name: 'settings.authentication.form.disable',
+    }),
+    createDialog: byRole('dialog', {
+      name: 'settings.authentication.gitlab.form.create',
+    }),
+    editDialog: byRole('dialog', {
+      name: 'settings.authentication.gitlab.form.edit',
+    }),
+    applicationId: byRole('textbox', {
+      name: 'property.applicationId.name',
+    }),
+    url: byRole('textbox', { name: 'property.url.name' }),
+    clientSecret: byRole('textbox', {
+      name: 'property.clientSecret.name',
+    }),
+    synchronizeUserGroups: byRole('switch', {
+      name: 'synchronizeUserGroups',
+    }),
+    saveConfigButton: byRole('button', { name: 'settings.almintegration.form.save' }),
+    jitProvisioningRadioButton: glContainer.byRole('radio', {
+      name: 'settings.authentication.gitlab.provisioning_at_login',
+    }),
+    autoProvisioningRadioButton: glContainer.byRole('radio', {
+      name: 'settings.authentication.gitlab.form.provisioning_with_gitlab',
+    }),
+    jitAllowUsersToSignUpToggle: byRole('switch', { name: 'sonar.auth.gitlab.allowUsersToSignUp' }),
+    autoProvisioningToken: byRole('textbox', {
+      name: 'property.provisioning.gitlab.token.secured.name',
+    }),
+    autoProvisioningUpdateTokenButton: byRole('button', {
+      name: 'settings.almintegration.form.secret.update_field',
+    }),
+    autoProvisioningGroupsInput: byRole('textbox', {
+      name: 'property.provisioning.gitlab.groups.name',
+    }),
+    removeProvisioniongGroup: byRole('button', {
+      name: /settings.definition.delete_value.property.provisioning.gitlab.groups.name./,
+    }),
+    saveProvisioning: glContainer.byRole('button', { name: 'save' }),
+    cancelProvisioningChanges: glContainer.byRole('button', { name: 'cancel' }),
+    confirmAutoProvisioningDialog: byRole('dialog', {
+      name: 'settings.authentication.gitlab.confirm.Auto',
+    }),
+    confirmJitProvisioningDialog: byRole('dialog', {
+      name: 'settings.authentication.gitlab.confirm.JIT',
+    }),
+    confirmProvisioningChange: byRole('button', {
+      name: 'settings.authentication.gitlab.provisioning_change.confirm_changes',
+    }),
+    syncSummary: glContainer.byText(/Test summary/),
+    syncWarning: glContainer.byText(/Warning/),
+    gitlabProvisioningPending: glContainer.byText(/synchronization_pending/),
+    gitlabProvisioningInProgress: glContainer.byText(/synchronization_in_progress/),
+    gitlabProvisioningSuccess: glContainer.byText(/synchronization_successful/),
+    gitlabProvisioningAlert: glContainer.byText(/synchronization_failed/),
   },
 };
 
@@ -306,7 +407,7 @@ describe('SAML tab', () => {
     const user = userEvent.setup();
     renderAuthentication();
 
-    await user.click((await saml.createConfigButton.findAll())[0]);
+    await user.click(await saml.createConfigButton.find());
 
     expect(saml.saveConfigButton.get()).toBeDisabled();
     await saml.fillForm(user);
@@ -384,7 +485,7 @@ describe('Github tab', () => {
     renderAuthentication();
 
     await user.click(await github.tab.find());
-    await user.click((await github.createConfigButton.findAll())[1]);
+    await user.click(await github.createConfigButton.find());
 
     expect(github.saveConfigButton.get()).toBeDisabled();
 
@@ -1058,6 +1159,359 @@ describe('Github tab', () => {
       expect(custom3Checkboxes[4]).not.toBeChecked();
       expect(custom3Checkboxes[5]).not.toBeChecked();
       await user.click(github.mappingDialogClose.get());
+    });
+  });
+});
+
+describe('GitLab', () => {
+  const { gitlab } = ui;
+
+  it('should create a Gitlab configuration and disable it', async () => {
+    handler.setGitlabConfigurations([]);
+    renderAuthentication();
+    const user = userEvent.setup();
+    await user.click(await gitlab.tab.find());
+
+    expect(await gitlab.noGitlabConfiguration.find()).toBeInTheDocument();
+    expect(gitlab.createConfigButton.get()).toBeInTheDocument();
+
+    await user.click(gitlab.createConfigButton.get());
+    expect(await gitlab.createDialog.find()).toBeInTheDocument();
+    await user.type(gitlab.applicationId.get(), '123');
+    await user.type(gitlab.url.get(), 'https://company.gitlab.com');
+    await user.type(gitlab.clientSecret.get(), '123');
+    await user.click(gitlab.synchronizeUserGroups.get());
+    await user.click(gitlab.saveConfigButton.get());
+
+    expect(await gitlab.editConfigButton.find()).toBeInTheDocument();
+    expect(gitlab.noGitlabConfiguration.query()).not.toBeInTheDocument();
+    expect(glContainer.get()).toHaveTextContent('https://company.gitlab.com');
+
+    expect(gitlab.disableConfigButton.get()).toBeInTheDocument();
+    await user.click(gitlab.disableConfigButton.get());
+    expect(gitlab.enableConfigButton.get()).toBeInTheDocument();
+    expect(gitlab.disableConfigButton.query()).not.toBeInTheDocument();
+  });
+
+  it('should edit/delete configuration', async () => {
+    const user = userEvent.setup();
+    renderAuthentication();
+    await user.click(await gitlab.tab.find());
+
+    expect(await gitlab.editConfigButton.find()).toBeInTheDocument();
+    expect(glContainer.get()).toHaveTextContent('URL');
+    expect(gitlab.disableConfigButton.get()).toBeInTheDocument();
+    expect(gitlab.deleteConfigButton.get()).toBeInTheDocument();
+    expect(gitlab.deleteConfigButton.get()).toBeDisabled();
+
+    await user.click(gitlab.editConfigButton.get());
+    expect(await gitlab.editDialog.find()).toBeInTheDocument();
+    expect(gitlab.url.get()).toHaveValue('URL');
+    expect(gitlab.applicationId.query()).not.toBeInTheDocument();
+    expect(gitlab.clientSecret.query()).not.toBeInTheDocument();
+    expect(gitlab.synchronizeUserGroups.get()).toBeChecked();
+    await user.clear(gitlab.url.get());
+    await user.type(gitlab.url.get(), 'https://company.gitlab.com');
+    await user.click(gitlab.saveConfigButton.get());
+
+    expect(glContainer.get()).not.toHaveTextContent('URL');
+    expect(glContainer.get()).toHaveTextContent('https://company.gitlab.com');
+
+    expect(gitlab.disableConfigButton.get()).toBeInTheDocument();
+    await user.click(gitlab.disableConfigButton.get());
+    expect(await gitlab.enableConfigButton.find()).toBeInTheDocument();
+    expect(gitlab.deleteConfigButton.get()).toBeEnabled();
+    await user.click(gitlab.deleteConfigButton.get());
+    expect(await gitlab.noGitlabConfiguration.find()).toBeInTheDocument();
+    expect(gitlab.editConfigButton.query()).not.toBeInTheDocument();
+  });
+
+  it('should change from just-in-time to Auto Provisioning with proper validation', async () => {
+    const user = userEvent.setup();
+    renderAuthentication([Feature.GitlabProvisioning]);
+    await user.click(await gitlab.tab.find());
+
+    expect(await gitlab.editConfigButton.find()).toBeInTheDocument();
+    expect(gitlab.jitProvisioningRadioButton.get()).toBeChecked();
+
+    user.click(gitlab.autoProvisioningRadioButton.get());
+    expect(await gitlab.autoProvisioningRadioButton.find()).toBeEnabled();
+    expect(gitlab.saveProvisioning.get()).toBeDisabled();
+
+    await user.type(gitlab.autoProvisioningToken.get(), 'JRR Tolkien');
+    expect(await gitlab.saveProvisioning.find()).toBeDisabled();
+
+    await user.type(gitlab.autoProvisioningGroupsInput.get(), 'NWA');
+    user.click(gitlab.autoProvisioningRadioButton.get());
+    expect(await gitlab.saveProvisioning.find()).toBeEnabled();
+
+    await user.click(gitlab.removeProvisioniongGroup.get());
+    expect(await gitlab.saveProvisioning.find()).toBeDisabled();
+    await user.type(gitlab.autoProvisioningGroupsInput.get(), 'Wu-Tang Clan');
+    expect(await gitlab.saveProvisioning.find()).toBeEnabled();
+
+    await user.clear(gitlab.autoProvisioningToken.get());
+    expect(await gitlab.saveProvisioning.find()).toBeDisabled();
+    await user.type(gitlab.autoProvisioningToken.get(), 'tiktoken');
+    expect(await gitlab.saveProvisioning.find()).toBeEnabled();
+
+    await user.click(gitlab.saveProvisioning.get());
+    expect(gitlab.confirmAutoProvisioningDialog.get()).toBeInTheDocument();
+    await user.click(gitlab.confirmProvisioningChange.get());
+    expect(gitlab.confirmAutoProvisioningDialog.query()).not.toBeInTheDocument();
+
+    expect(gitlab.autoProvisioningRadioButton.get()).toBeChecked();
+    expect(await gitlab.saveProvisioning.find()).toBeDisabled();
+  });
+
+  it('should change from auto provisioning to JIT with proper validation', async () => {
+    handler.setGitlabConfigurations([
+      mockGitlabConfiguration({
+        allowUsersToSignUp: false,
+        enabled: true,
+        type: ProvisioningType.auto,
+        groups: ['D12'],
+      }),
+    ]);
+    const user = userEvent.setup();
+    renderAuthentication([Feature.GitlabProvisioning]);
+    await user.click(await gitlab.tab.find());
+
+    expect(await gitlab.editConfigButton.find()).toBeInTheDocument();
+
+    expect(gitlab.jitProvisioningRadioButton.get()).not.toBeChecked();
+    expect(gitlab.autoProvisioningRadioButton.get()).toBeChecked();
+    expect(gitlab.autoProvisioningGroupsInput.get()).toHaveValue('D12');
+
+    expect(gitlab.autoProvisioningToken.query()).not.toBeInTheDocument();
+    expect(gitlab.autoProvisioningUpdateTokenButton.get()).toBeInTheDocument();
+
+    await user.click(gitlab.jitProvisioningRadioButton.get());
+    expect(await gitlab.jitProvisioningRadioButton.find()).toBeChecked();
+
+    expect(await gitlab.saveProvisioning.find()).toBeEnabled();
+
+    expect(gitlab.jitAllowUsersToSignUpToggle.get()).toBeInTheDocument();
+
+    await user.click(gitlab.saveProvisioning.get());
+    expect(gitlab.confirmJitProvisioningDialog.get()).toBeInTheDocument();
+    await user.click(gitlab.confirmProvisioningChange.get());
+    expect(gitlab.confirmJitProvisioningDialog.query()).not.toBeInTheDocument();
+
+    expect(gitlab.jitProvisioningRadioButton.get()).toBeChecked();
+    expect(await gitlab.saveProvisioning.find()).toBeDisabled();
+  });
+
+  it('should be able to allow user to sign up for JIT with proper validation', async () => {
+    handler.setGitlabConfigurations([
+      mockGitlabConfiguration({
+        allowUsersToSignUp: false,
+        enabled: true,
+        type: ProvisioningType.jit,
+      }),
+    ]);
+    const user = userEvent.setup();
+    renderAuthentication([Feature.GitlabProvisioning]);
+    await user.click(await gitlab.tab.find());
+
+    expect(await gitlab.editConfigButton.find()).toBeInTheDocument();
+
+    expect(gitlab.jitProvisioningRadioButton.get()).toBeChecked();
+    expect(gitlab.autoProvisioningRadioButton.get()).not.toBeChecked();
+
+    expect(gitlab.jitAllowUsersToSignUpToggle.get()).not.toBeChecked();
+
+    expect(gitlab.saveProvisioning.get()).toBeDisabled();
+    await user.click(gitlab.jitAllowUsersToSignUpToggle.get());
+    expect(gitlab.saveProvisioning.get()).toBeEnabled();
+    await user.click(gitlab.jitAllowUsersToSignUpToggle.get());
+    expect(gitlab.saveProvisioning.get()).toBeDisabled();
+    await user.click(gitlab.jitAllowUsersToSignUpToggle.get());
+
+    await user.click(gitlab.saveProvisioning.get());
+
+    expect(gitlab.jitProvisioningRadioButton.get()).toBeChecked();
+    expect(gitlab.jitAllowUsersToSignUpToggle.get()).toBeChecked();
+    expect(await gitlab.saveProvisioning.find()).toBeDisabled();
+  });
+
+  it('should be able to edit groups and token for Auto provisioning with proper validation', async () => {
+    handler.setGitlabConfigurations([
+      mockGitlabConfiguration({
+        allowUsersToSignUp: false,
+        enabled: true,
+        type: ProvisioningType.auto,
+        groups: ['Cypress Hill', 'Public Enemy'],
+      }),
+    ]);
+    const user = userEvent.setup();
+    renderAuthentication([Feature.GitlabProvisioning]);
+    await user.click(await gitlab.tab.find());
+
+    expect(gitlab.autoProvisioningRadioButton.get()).toBeChecked();
+    expect(gitlab.autoProvisioningUpdateTokenButton.get()).toBeInTheDocument();
+    expect(gitlab.autoProvisioningGroupsInput.get()).toHaveValue('Cypress Hill');
+
+    expect(gitlab.saveProvisioning.get()).toBeDisabled();
+
+    // Changing the Provisioning token should enable save
+    await user.click(gitlab.autoProvisioningUpdateTokenButton.get());
+    await user.type(gitlab.autoProvisioningGroupsInput.get(), 'Tok Token!');
+    expect(gitlab.saveProvisioning.get()).toBeEnabled();
+    await user.click(gitlab.cancelProvisioningChanges.get());
+    expect(gitlab.saveProvisioning.get()).toBeDisabled();
+
+    // Adding a group should enable save
+    await user.click(gitlab.autoProvisioningGroupsInput.get());
+    await user.tab();
+    await user.tab();
+    await user.tab();
+    await user.tab();
+    await user.keyboard('Run DMC');
+    expect(gitlab.saveProvisioning.get()).toBeEnabled();
+    await user.tab();
+    await user.keyboard('{Enter}');
+    expect(gitlab.saveProvisioning.get()).toBeDisabled();
+
+    // Removing a group should enable save
+    await user.click(gitlab.autoProvisioningGroupsInput.get());
+    await user.tab();
+    await user.keyboard('{Enter}');
+    expect(gitlab.saveProvisioning.get()).toBeEnabled();
+
+    // Removing all groups should disable save
+    await user.click(gitlab.autoProvisioningGroupsInput.get());
+    await user.tab();
+    await user.keyboard('{Enter}');
+    expect(gitlab.saveProvisioning.get()).toBeDisabled();
+  });
+
+  it('should be able to reset Auto Provisioning changes', async () => {
+    handler.setGitlabConfigurations([
+      mockGitlabConfiguration({
+        allowUsersToSignUp: false,
+        enabled: true,
+        type: ProvisioningType.auto,
+        groups: ['Cypress Hill', 'Public Enemy'],
+      }),
+    ]);
+    const user = userEvent.setup();
+    renderAuthentication([Feature.GitlabProvisioning]);
+    await user.click(await gitlab.tab.find());
+
+    expect(gitlab.autoProvisioningRadioButton.get()).toBeChecked();
+
+    // Cancel doesn't fully work yet as the AuthenticationFormField needs to be worked on
+    await user.click(gitlab.autoProvisioningGroupsInput.get());
+    await user.tab();
+    await user.tab();
+    await user.tab();
+    await user.tab();
+    await user.keyboard('A Tribe Called Quest');
+    await user.click(gitlab.autoProvisioningGroupsInput.get());
+    await user.tab();
+    await user.keyboard('{Enter}');
+    await user.click(gitlab.autoProvisioningUpdateTokenButton.get());
+    await user.type(gitlab.autoProvisioningGroupsInput.get(), 'ToToken!');
+    expect(gitlab.saveProvisioning.get()).toBeEnabled();
+    await user.click(gitlab.cancelProvisioningChanges.get());
+    // expect(gitlab.autoProvisioningUpdateTokenButton.get()).toBeInTheDocument();
+    expect(gitlab.autoProvisioningGroupsInput.get()).toHaveValue('Cypress Hill');
+  });
+
+  describe('Gitlab Provisioning', () => {
+    beforeEach(() => {
+      jest.useFakeTimers({
+        advanceTimers: true,
+        now: new Date('2022-02-04T12:00:59Z'),
+      });
+      handler.setGitlabConfigurations([
+        mockGitlabConfiguration({
+          id: '1',
+          enabled: true,
+          type: ProvisioningType.auto,
+          groups: ['Test'],
+        }),
+      ]);
+    });
+
+    afterEach(() => {
+      jest.runOnlyPendingTimers();
+      jest.useRealTimers();
+    });
+
+    it('should display a success status when the synchronisation is a success', async () => {
+      computeEngineHandler.addTask({
+        status: TaskStatuses.Success,
+        executedAt: '2022-02-03T11:45:35+0200',
+        infoMessages: ['Test summary'],
+        type: TaskTypes.GitlabProvisioning,
+      });
+
+      renderAuthentication([Feature.GitlabProvisioning]);
+      expect(await gitlab.gitlabProvisioningSuccess.find()).toBeInTheDocument();
+      expect(gitlab.syncSummary.get()).toBeInTheDocument();
+    });
+
+    it('should display a success status even when another task is pending', async () => {
+      computeEngineHandler.addTask({
+        status: TaskStatuses.Pending,
+        executedAt: '2022-02-03T11:55:35+0200',
+        type: TaskTypes.GitlabProvisioning,
+      });
+      computeEngineHandler.addTask({
+        status: TaskStatuses.Success,
+        executedAt: '2022-02-03T11:45:35+0200',
+        type: TaskTypes.GitlabProvisioning,
+      });
+      renderAuthentication([Feature.GitlabProvisioning]);
+      expect(await gitlab.gitlabProvisioningSuccess.find()).toBeInTheDocument();
+      expect(gitlab.gitlabProvisioningPending.get()).toBeInTheDocument();
+    });
+
+    it('should display an error alert when the synchronisation failed', async () => {
+      computeEngineHandler.addTask({
+        status: TaskStatuses.Failed,
+        executedAt: '2022-02-03T11:45:35+0200',
+        errorMessage: "T'es mauvais Jacques",
+        type: TaskTypes.GitlabProvisioning,
+      });
+      renderAuthentication([Feature.GitlabProvisioning]);
+      expect(await gitlab.gitlabProvisioningAlert.find()).toBeInTheDocument();
+      expect(gitlab.autoProvisioningRadioButton.get()).toHaveTextContent("T'es mauvais Jacques");
+      expect(gitlab.gitlabProvisioningSuccess.query()).not.toBeInTheDocument();
+    });
+
+    it('should display an error alert even when another task is in progress', async () => {
+      computeEngineHandler.addTask({
+        status: TaskStatuses.InProgress,
+        executedAt: '2022-02-03T11:55:35+0200',
+        type: TaskTypes.GitlabProvisioning,
+      });
+      computeEngineHandler.addTask({
+        status: TaskStatuses.Failed,
+        executedAt: '2022-02-03T11:45:35+0200',
+        errorMessage: "T'es mauvais Jacques",
+        type: TaskTypes.GitlabProvisioning,
+      });
+      renderAuthentication([Feature.GitlabProvisioning]);
+      expect(await gitlab.gitlabProvisioningAlert.find()).toBeInTheDocument();
+      expect(gitlab.autoProvisioningRadioButton.get()).toHaveTextContent("T'es mauvais Jacques");
+      expect(gitlab.gitlabProvisioningSuccess.query()).not.toBeInTheDocument();
+      expect(gitlab.gitlabProvisioningInProgress.get()).toBeInTheDocument();
+    });
+
+    it('should show warning', async () => {
+      computeEngineHandler.addTask({
+        status: TaskStatuses.Success,
+        warnings: ['Warning'],
+        infoMessages: ['Test summary'],
+        type: TaskTypes.GitlabProvisioning,
+      });
+      renderAuthentication([Feature.GitlabProvisioning]);
+
+      expect(await gitlab.syncWarning.find()).toBeInTheDocument();
+      expect(gitlab.syncSummary.get()).toBeInTheDocument();
     });
   });
 });

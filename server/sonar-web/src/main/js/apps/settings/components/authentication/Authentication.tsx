@@ -37,6 +37,7 @@ import { Feature } from '../../../../types/features';
 import { ExtendedSettingDefinition } from '../../../../types/settings';
 import { AUTHENTICATION_CATEGORY } from '../../constants';
 import CategoryDefinitionsList from '../CategoryDefinitionsList';
+import GitLabAuthenticationTab from './GitLabAuthenticationTab';
 import GithubAuthenticationTab from './GithubAuthenticationTab';
 import SamlAuthenticationTab, { SAML } from './SamlAuthenticationTab';
 
@@ -112,10 +113,11 @@ export function Authentication(props: Props & WithAvailableFeaturesProps) {
     },
   ] as const;
 
-  const [samlDefinitions, githubDefinitions] = React.useMemo(
+  const [samlDefinitions, githubDefinitions, gitlabDefinitions] = React.useMemo(
     () => [
       definitions.filter((def) => def.subCategory === SAML),
       definitions.filter((def) => def.subCategory === AlmKeys.GitHub),
+      definitions.filter((def) => def.subCategory === AlmKeys.GitLab),
     ],
     [definitions],
   );
@@ -161,7 +163,7 @@ export function Authentication(props: Props & WithAvailableFeaturesProps) {
               <div
                 style={{
                   maxHeight:
-                    tab.key !== SAML && tab.key !== AlmKeys.GitHub
+                    tab.key === AlmKeys.BitbucketServer
                       ? `calc(100vh - ${top + HEIGHT_ADJUSTMENT}px)`
                       : '',
                 }}
@@ -183,7 +185,11 @@ export function Authentication(props: Props & WithAvailableFeaturesProps) {
                     />
                   )}
 
-                  {tab.key !== SAML && tab.key !== AlmKeys.GitHub && (
+                  {tab.key === AlmKeys.GitLab && (
+                    <GitLabAuthenticationTab definitions={gitlabDefinitions} />
+                  )}
+
+                  {tab.key === AlmKeys.BitbucketServer && (
                     <>
                       <Alert variant="info">
                         <FormattedMessage

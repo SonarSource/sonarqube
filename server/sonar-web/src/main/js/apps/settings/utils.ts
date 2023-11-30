@@ -24,6 +24,7 @@ import { hasMessage, translate } from '../../helpers/l10n';
 import { getGlobalSettingsUrl, getProjectSettingsUrl } from '../../helpers/urls';
 import { AlmKeys } from '../../types/alm-settings';
 import {
+  DefinitionV2,
   ExtendedSettingDefinition,
   Setting,
   SettingDefinition,
@@ -57,7 +58,7 @@ export interface DefaultInputProps {
   value: any;
 }
 
-export function getPropertyName(definition: SettingDefinition) {
+export function getPropertyName(definition: SettingDefinition | DefinitionV2) {
   const key = `property.${definition.key}.name`;
   if (hasMessage(key)) {
     return translate(key);
@@ -66,7 +67,7 @@ export function getPropertyName(definition: SettingDefinition) {
   return definition.name ?? definition.key;
 }
 
-export function getPropertyDescription(definition: SettingDefinition) {
+export function getPropertyDescription(definition: SettingDefinition | DefinitionV2) {
   const key = `property.${definition.key}.description`;
   return hasMessage(key) ? translate(key) : definition.description;
 }
@@ -148,8 +149,8 @@ export function isURLKind(definition: SettingDefinition) {
   ].includes(definition.key);
 }
 
-export function isSecuredDefinition(item: SettingDefinition): boolean {
-  return item.key.endsWith('.secured');
+export function isSecuredDefinition(item: SettingDefinition | DefinitionV2): boolean {
+  return 'secured' in item ? item.secured : item.key.endsWith('.secured');
 }
 
 export function isCategoryDefinition(item: SettingDefinition): item is ExtendedSettingDefinition {

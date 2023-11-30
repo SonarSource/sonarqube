@@ -18,10 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { cloneDeep } from 'lodash';
-import { SysInfoCluster, SysInfoLogging, SysInfoStandalone } from '../../types/types';
+import { Provider, SysInfoCluster, SysInfoLogging, SysInfoStandalone } from '../../types/types';
 
 import { LogsLevels } from '../../apps/system/utils';
-import { Provider } from '../../components/hooks/useManageProvider';
 import { mockClusterSysInfo, mockLogs, mockStandaloneSysInfo } from '../../helpers/testMocks';
 import { getSystemInfo, setLogLevel } from '../system';
 

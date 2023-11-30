@@ -23,13 +23,13 @@ import * as React from 'react';
 import { colors } from '../../../app/theme';
 import { translate } from '../../../helpers/l10n';
 import { getBaseUrl } from '../../../helpers/system';
-import { IdentityProvider } from '../../../types/types';
+import { IdentityProvider, Provider } from '../../../types/types';
 import { RestUserDetailed } from '../../../types/users';
 
 export interface Props {
   identityProvider?: IdentityProvider;
   user: RestUserDetailed;
-  manageProvider?: string;
+  manageProvider: Provider | undefined;
 }
 
 export default function UserListItemIdentity({ identityProvider, user, manageProvider }: Props) {

@@ -27,4 +27,5 @@ export enum Feature {
   RegulatoryReport = 'regulatory-reports',
   Scim = 'scim',
   GithubProvisioning = 'github-provisioning',
+  GitlabProvisioning = 'gitlab-provisioning',
 }

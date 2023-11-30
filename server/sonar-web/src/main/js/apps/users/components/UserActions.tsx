@@ -23,6 +23,7 @@ import ActionsDropdown, {
   ActionsDropdownItem,
 } from '../../../components/controls/ActionsDropdown';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { Provider } from '../../../types/types';
 import { RestUserDetailed, isUserActive } from '../../../types/users';
 import DeactivateForm from './DeactivateForm';
 import PasswordForm from './PasswordForm';
@@ -30,7 +31,7 @@ import UserForm from './UserForm';
 
 interface Props {
   user: RestUserDetailed;
-  manageProvider: string | undefined;
+  manageProvider: Provider | undefined;
 }
 
 export default function UserActions(props: Props) {

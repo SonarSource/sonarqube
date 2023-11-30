@@ -20,13 +20,13 @@
 import * as React from 'react';
 import { DeleteButton } from '../../../../components/controls/buttons';
 import { translateWithParameters } from '../../../../helpers/l10n';
-import { ExtendedSettingDefinition } from '../../../../types/settings';
+import { DefinitionV2, ExtendedSettingDefinition } from '../../../../types/settings';
 import { getPropertyName } from '../../utils';
 
 interface Props {
   onFieldChange: (value: string[]) => void;
   settingValue?: string[];
-  definition: ExtendedSettingDefinition;
+  definition: ExtendedSettingDefinition | DefinitionV2;
 }
 
 export default function AuthenticationMultiValueField(props: Props) {

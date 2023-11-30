@@ -21,18 +21,23 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { isEqual, keyBy, partition, pick, unionBy } from 'lodash';
 import { useContext } from 'react';
+import { getActivity } from '../api/ce';
 import {
   activateGithubProvisioning,
   activateScim,
   addGithubRolesMapping,
   checkConfigurationValidity,
+  createGitLabConfiguration,
   deactivateGithubProvisioning,
   deactivateScim,
+  deleteGitLabConfiguration,
   deleteGithubRolesMapping,
+  fetchGitLabConfigurations,
   fetchGithubProvisioningStatus,
   fetchGithubRolesMapping,
   fetchIsScimEnabled,
   syncNowGithubProvisioning,
+  updateGitLabConfiguration,
   updateGithubRolesMapping,
 } from '../api/provisioning';
 import { getSystemInfo } from '../api/system';
@@ -41,7 +46,8 @@ import { addGlobalSuccessMessage } from '../helpers/globalMessages';
 import { translate } from '../helpers/l10n';
 import { mapReactQueryResult } from '../helpers/react-query';
 import { Feature } from '../types/features';
-import { GitHubMapping } from '../types/provisioning';
+import { AlmSyncStatus, GitHubMapping } from '../types/provisioning';
+import { TaskStatuses, TaskTypes } from '../types/tasks';
 import { SysInfoCluster } from '../types/types';
 
 const MAPPING_STALE_TIME = 60_000;
@@ -182,4 +188,128 @@ export function useGithubRolesMappingMutation() {
       );
     },
   });
+}
+
+export function useGitLabConfigurationsQuery() {
+  return useQuery(['identity_provider', 'gitlab_config', 'list'], fetchGitLabConfigurations);
+}
+
+export function useCreateGitLabConfigurationMutation() {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: (data: Parameters<typeof createGitLabConfiguration>[0]) =>
+      createGitLabConfiguration(data),
+    onSuccess(data) {
+      client.setQueryData(['identity_provider', 'gitlab_config', 'list'], {
+        configurations: [data],
+        page: {
+          pageIndex: 1,
+          pageSize: 1,
+          total: 1,
+        },
+      });
+    },
+  });
+}
+
+export function useUpdateGitLabConfigurationMutation() {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      id,
+      data,
+    }: {
+      id: Parameters<typeof updateGitLabConfiguration>[0];
+      data: Parameters<typeof updateGitLabConfiguration>[1];
+    }) => updateGitLabConfiguration(id, data),
+    onSuccess(data) {
+      client.invalidateQueries({ queryKey: ['identity_provider'] });
+      client.setQueryData(['identity_provider', 'gitlab_config', 'list'], {
+        configurations: [data],
+        page: {
+          pageIndex: 1,
+          pageSize: 1,
+          total: 1,
+        },
+      });
+    },
+  });
+}
+
+export function useDeleteGitLabConfigurationMutation() {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: (id: Parameters<typeof deleteGitLabConfiguration>[0]) =>
+      deleteGitLabConfiguration(id),
+    onSuccess() {
+      client.setQueryData(['identity_provider', 'gitlab_config', 'list'], {
+        configurations: [],
+        page: {
+          pageIndex: 1,
+          pageSize: 1,
+          total: 0,
+        },
+      });
+    },
+  });
+}
+
+export function useGitLabSyncStatusQuery() {
+  const getLastSync = async () => {
+    const lastSyncTasks = await getActivity({
+      type: TaskTypes.GitlabProvisioning,
+      p: 1,
+      ps: 1,
+      status: [TaskStatuses.Success, TaskStatuses.Failed, TaskStatuses.Canceled].join(','),
+    });
+    const lastSync = lastSyncTasks?.tasks[0];
+    if (!lastSync) {
+      return undefined;
+    }
+    const summary = lastSync.infoMessages ? lastSync.infoMessages?.join(', ') : '';
+    const errorMessage = lastSync.errorMessage ?? '';
+    return {
+      executionTimeMs: lastSync?.executionTimeMs ?? 0,
+      startedAt: +new Date(lastSync?.startedAt ?? 0),
+      finishedAt: +new Date(lastSync?.startedAt ?? 0) + (lastSync?.executionTimeMs ?? 0),
+      warningMessage:
+        lastSync.warnings && lastSync.warnings.length > 0
+          ? lastSync.warnings?.join(', ')
+          : undefined,
+      status: lastSync?.status as
+        | TaskStatuses.Success
+        | TaskStatuses.Failed
+        | TaskStatuses.Canceled,
+      ...(lastSync.status === TaskStatuses.Success ? { summary } : {}),
+      ...(lastSync.status !== TaskStatuses.Success ? { errorMessage } : {}),
+    };
+  };
+
+  const getNextSync = async () => {
+    const nextSyncTasks = await getActivity({
+      type: TaskTypes.GitlabProvisioning,
+      p: 1,
+      ps: 1,
+      status: [TaskStatuses.Pending, TaskStatuses.InProgress].join(','),
+    });
+    const nextSync = nextSyncTasks?.tasks[0];
+    if (!nextSync) {
+      return undefined;
+    }
+    return { status: nextSync.status as TaskStatuses.Pending | TaskStatuses.InProgress };
+  };
+
+  return useQuery(
+    ['identity_provider', 'gitlab_sync', 'status'],
+    async () => {
+      const [lastSync, nextSync] = await Promise.all([getLastSync(), getNextSync()]);
+      return {
+        lastSync,
+        nextSync,
+      } as AlmSyncStatus;
+    },
+    {
+      refetchInterval: 10_000,
+    },
+  );
 }

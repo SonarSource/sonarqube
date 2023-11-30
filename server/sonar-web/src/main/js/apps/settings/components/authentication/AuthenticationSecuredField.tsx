@@ -20,13 +20,13 @@
 import React, { useEffect } from 'react';
 import { ButtonLink } from '../../../../components/controls/buttons';
 import { translate } from '../../../../helpers/l10n';
-import { ExtendedSettingDefinition, SettingType } from '../../../../types/settings';
+import { DefinitionV2, ExtendedSettingDefinition, SettingType } from '../../../../types/settings';
 import { isSecuredDefinition } from '../../utils';
 
 interface SamlToggleFieldProps {
   onFieldChange: (key: string, value: string) => void;
   settingValue?: string;
-  definition: ExtendedSettingDefinition;
+  definition: ExtendedSettingDefinition | DefinitionV2;
   optional?: boolean;
   isNotSet: boolean;
 }

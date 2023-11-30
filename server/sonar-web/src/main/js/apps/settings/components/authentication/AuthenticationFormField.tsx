@@ -21,23 +21,23 @@ import React from 'react';
 import ValidationInput, {
   ValidationInputErrorPlacement,
 } from '../../../../components/controls/ValidationInput';
-import { ExtendedSettingDefinition, SettingType } from '../../../../types/settings';
+import { DefinitionV2, ExtendedSettingDefinition, SettingType } from '../../../../types/settings';
 import { getPropertyDescription, getPropertyName, isSecuredDefinition } from '../../utils';
 import AuthenticationFormFieldWrapper from './AuthenticationFormFieldWrapper';
 import AuthenticationMultiValueField from './AuthenticationMultiValuesField';
 import AuthenticationSecuredField from './AuthenticationSecuredField';
 import AuthenticationToggleField from './AuthenticationToggleField';
 
-interface SamlToggleFieldProps {
+interface Props {
   settingValue?: string | boolean | string[];
-  definition: ExtendedSettingDefinition;
+  definition: ExtendedSettingDefinition | DefinitionV2;
   mandatory?: boolean;
   onFieldChange: (key: string, value: string | boolean | string[]) => void;
   isNotSet: boolean;
   error?: string;
 }
 
-export default function AuthenticationFormField(props: SamlToggleFieldProps) {
+export default function AuthenticationFormField(props: Readonly<Props>) {
   const { mandatory = false, definition, settingValue, isNotSet, error } = props;
 
   const name = getPropertyName(definition);

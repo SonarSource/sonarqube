@@ -23,14 +23,14 @@ import DocLink from '../../../components/common/DocLink';
 import { Button } from '../../../components/controls/buttons';
 import { Alert } from '../../../components/ui/Alert';
 import { translate } from '../../../helpers/l10n';
+import { Provider } from '../../../types/types';
 import GroupForm from './GroupForm';
 
 interface HeaderProps {
-  manageProvider?: string;
+  manageProvider: Provider | undefined;
 }
 
-export default function Header(props: HeaderProps) {
-  const { manageProvider } = props;
+export default function Header({ manageProvider }: Readonly<HeaderProps>) {
   const [createModal, setCreateModal] = React.useState(false);
 
   return (

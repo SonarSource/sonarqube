@@ -25,7 +25,7 @@ import LegacyAvatar from '../../../components/ui/LegacyAvatar';
 import Spinner from '../../../components/ui/Spinner';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { useUserGroupsCountQuery, useUserTokensQuery } from '../../../queries/users';
-import { IdentityProvider } from '../../../types/types';
+import { IdentityProvider, Provider } from '../../../types/types';
 import { RestUserDetailed } from '../../../types/users';
 import GroupsForm from './GroupsForm';
 import TokensFormModal from './TokensFormModal';
@@ -36,7 +36,7 @@ import UserScmAccounts from './UserScmAccounts';
 export interface UserListItemProps {
   identityProvider?: IdentityProvider;
   user: RestUserDetailed;
-  manageProvider: string | undefined;
+  manageProvider: Provider | undefined;
 }
 
 export default function UserListItem(props: UserListItemProps) {

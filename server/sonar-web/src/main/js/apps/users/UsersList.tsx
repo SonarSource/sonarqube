@@ -20,14 +20,14 @@
 import * as React from 'react';
 import HelpTooltip from '../../components/controls/HelpTooltip';
 import { translate } from '../../helpers/l10n';
-import { IdentityProvider } from '../../types/types';
+import { IdentityProvider, Provider } from '../../types/types';
 import { RestUserDetailed } from '../../types/users';
 import UserListItem from './components/UserListItem';
 
 interface Props {
   identityProviders: IdentityProvider[];
   users: RestUserDetailed[];
-  manageProvider: string | undefined;
+  manageProvider: Provider | undefined;
 }
 
 export default function UsersList({ identityProviders, users, manageProvider }: Props) {
