@@ -30,6 +30,7 @@ import { IconProps } from './Icon';
 
 interface Props extends IconProps {
   severity: string | null | undefined;
+  disabled?: boolean;
 }
 
 const severityIcons: Dict<(props: IconProps) => React.ReactElement> = {
@@ -38,7 +39,7 @@ const severityIcons: Dict<(props: IconProps) => React.ReactElement> = {
   [SoftwareImpactSeverity.Low]: SoftwareImpactSeverityLowIcon,
 };
 
-export default function SoftwareImpactSeverityIcon({ severity, ...iconProps }: Props) {
+export default function SoftwareImpactSeverityIcon({ severity, ...iconProps }: Readonly<Props>) {
   if (typeof severity !== 'string' || !severityIcons[severity]) {
     return null;
   }

@@ -365,6 +365,7 @@ export const lightTheme = {
     iconSoftwareImpactSeverityHigh: COLORS.red[500],
     iconSoftwareImpactSeverityMedium: COLORS.yellow[700],
     iconSoftwareImpactSeverityLow: COLORS.blue[700],
+    iconSoftwareImpactSeverityDisabled: COLORS.blueGrey[300],
     iconSeverityMajor: danger.light,
     iconSeverityMinor: COLORS.yellowGreen[400],
     iconSeverityInfo: COLORS.blue[400],

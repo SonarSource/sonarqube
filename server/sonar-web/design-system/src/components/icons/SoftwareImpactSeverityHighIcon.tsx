@@ -21,15 +21,20 @@ import { useTheme } from '@emotion/react';
 import { themeColor } from '../../helpers';
 import { CustomIcon, IconProps } from './Icon';
 
-export function SoftwareImpactSeverityHighIcon(iconProps: IconProps) {
+export function SoftwareImpactSeverityHighIcon({
+  disabled,
+  ...iconProps
+}: IconProps & { disabled?: boolean }) {
   const theme = useTheme();
+  const color = disabled ? 'iconSoftwareImpactSeverityDisabled' : 'iconSoftwareImpactSeverityHigh';
 
   return (
     <CustomIcon {...iconProps}>
-      <circle cx="8" cy="8" fill={themeColor('iconSoftwareImpactSeverityHigh')({ theme })} r="7" />
       <path
-        d="M5 6.67113C5 6.56986 5.05583 6.47727 5.14421 6.43198L7.88334 5.02823C7.95678 4.99059 8.04322 4.99059 8.11666 5.02823L10.8558 6.43198C10.9442 6.47727 11 6.56986 11 6.67113V10.7324C11 10.9191 10.8181 11.0483 10.6475 10.9827L8.0916 10.0003C8.03254 9.97763 7.96746 9.97763 7.9084 10.0003L5.35247 10.9827C5.18192 11.0483 5 10.9191 5 10.7324V6.67113Z"
-        fill="white"
+        clipRule="evenodd"
+        d="M7 14C10.866 14 14 10.866 14 7C14 3.13401 10.866 0 7 0C3.13401 0 0 3.13401 0 7C0 10.866 3.13401 14 7 14ZM4.14421 5.43198C4.05583 5.47727 4 5.56986 4 5.67113V9.73238C4 9.91906 4.18192 10.0483 4.35247 9.98273L6.9084 9.00033C6.96746 8.97763 7.03254 8.97763 7.0916 9.00033L9.64753 9.98273C9.81808 10.0483 10 9.91906 10 9.73238V5.67113C10 5.56986 9.94417 5.47727 9.85579 5.43198L7.11666 4.02823C7.04322 3.99059 6.95678 3.99059 6.88334 4.02823L4.14421 5.43198Z"
+        fill={themeColor(color)({ theme })}
+        fillRule="evenodd"
       />
     </CustomIcon>
   );

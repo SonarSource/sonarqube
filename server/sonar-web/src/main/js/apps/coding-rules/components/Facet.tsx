@@ -45,7 +45,7 @@ interface Props extends BasicProps {
   options?: string[];
   property: FacetKey;
   renderFooter?: () => React.ReactNode;
-  renderName?: (value: string) => React.ReactNode;
+  renderName?: (value: string, disabled: boolean) => React.ReactNode;
   renderTextName?: (value: string) => string;
   singleSelection?: boolean;
 }
@@ -76,6 +76,7 @@ export default class Facet extends React.PureComponent<Props> {
   renderItem = (value: string) => {
     const active = this.props.values.includes(value);
     const stat = this.getStat(value);
+    const disabled = stat === 0 || typeof stat === 'undefined';
     const { renderName = defaultRenderName, renderTextName = defaultRenderName } = this.props;
 
     return (
@@ -83,7 +84,7 @@ export default class Facet extends React.PureComponent<Props> {
         className="it__search-navigator-facet"
         active={active}
         key={value}
-        name={renderName(value)}
+        name={renderName(value, disabled)}
         onClick={this.handleItemClick}
         stat={stat && formatMeasure(stat, MetricType.ShortInteger)}
         value={value}

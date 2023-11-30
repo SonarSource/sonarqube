@@ -28,9 +28,9 @@ import Facet, { BasicProps } from './Facet';
 
 export default function SeverityFacet(props: BasicProps) {
   const renderName = React.useCallback(
-    (severity: string) => (
-      <div className="sw-flex">
-        <SoftwareImpactSeverityIcon severity={severity} />
+    (severity: string, disabled: boolean) => (
+      <div className="sw-flex sw-items-center">
+        <SoftwareImpactSeverityIcon severity={severity} disabled={disabled} />
         <span className="sw-ml-1">{translate('severity', severity)}</span>
       </div>
     ),

@@ -42,7 +42,7 @@ interface Props<T = string> extends CommonProps {
   listItems: Array<T>;
   itemNamePrefix: string;
   selectedItems: Array<T>;
-  renderIcon?: (item: string) => React.ReactNode;
+  renderIcon?: (item: string, disabled: boolean) => React.ReactNode;
 }
 
 export function SimpleListStyleFacet(props: Props) {
@@ -82,13 +82,14 @@ export function SimpleListStyleFacet(props: Props) {
         {listItems.map((item) => {
           const active = selectedItems.includes(item);
           const stat = stats[item];
+          const disabled = stat === 0 || typeof stat === 'undefined';
 
           return (
             <FacetItem
               active={active}
               className="it__search-navigator-facet"
               key={item}
-              icon={renderIcon?.(item)}
+              icon={renderIcon?.(item, disabled)}
               name={translate(itemNamePrefix, item)}
               onClick={(itemValue, multiple) => {
                 if (multiple) {

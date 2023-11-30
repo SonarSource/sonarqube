@@ -40,7 +40,9 @@ export function SeverityFacet(props: Props) {
       itemNamePrefix="severity"
       listItems={IMPACT_SEVERITIES}
       selectedItems={severities}
-      renderIcon={(severity: string) => <SoftwareImpactSeverityIcon severity={severity} />}
+      renderIcon={(severity: string, disabled: boolean) => (
+        <SoftwareImpactSeverityIcon severity={severity} disabled={disabled} />
+      )}
       help={
         <DocumentationTooltip
           placement="right"
