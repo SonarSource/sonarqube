@@ -17,17 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.alm.client.github;
+package org.sonar.alm.client.gitlab;
 
-import org.sonar.alm.client.GenericApplicationHttpClient;
 import org.sonar.alm.client.TimeoutConfiguration;
+import org.sonar.alm.client.GenericApplicationHttpClient;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
 
 @ServerSide
 @ComputeEngineSide
-public class GithubApplicationHttpClient extends GenericApplicationHttpClient {
-  public GithubApplicationHttpClient(GithubHeaders githubHeaders, TimeoutConfiguration timeoutConfiguration) {
-    super(githubHeaders, timeoutConfiguration);
+public class GitlabApplicationHttpClient extends GenericApplicationHttpClient {
+  public GitlabApplicationHttpClient(GitlabHeaders gitlabHeaders, TimeoutConfiguration timeoutConfiguration) {
+    super(gitlabHeaders, timeoutConfiguration);
   }
 }

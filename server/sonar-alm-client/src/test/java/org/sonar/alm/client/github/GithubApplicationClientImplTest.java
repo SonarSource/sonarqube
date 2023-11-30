@@ -36,7 +36,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.slf4j.event.Level;
-import org.sonar.alm.client.github.ApplicationHttpClient.RateLimit;
+import org.sonar.alm.client.ApplicationHttpClient.RateLimit;
 import org.sonar.alm.client.github.api.GsonRepositoryCollaborator;
 import org.sonar.alm.client.github.api.GsonRepositoryTeam;
 import org.sonar.alm.client.github.config.GithubAppConfiguration;
@@ -68,7 +68,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.sonar.alm.client.github.ApplicationHttpClient.GetResponse;
+import static org.sonar.alm.client.ApplicationHttpClient.GetResponse;
 
 @RunWith(DataProviderRunner.class)
 public class GithubApplicationClientImplTest {
@@ -114,12 +114,12 @@ public class GithubApplicationClientImplTest {
   @ClassRule
   public static LogTester logTester = new LogTester().setLevel(LoggerLevel.WARN);
 
-  private GenericApplicationHttpClient httpClient = mock();
+  private GithubApplicationHttpClient githubApplicationHttpClient = mock();
   private GithubAppSecurity appSecurity = mock();
   private GithubAppConfiguration githubAppConfiguration = mock();
   private GitHubSettings gitHubSettings = mock();
 
-  private PaginatedHttpClient githubPaginatedHttpClient = mock();
+  private GithubPaginatedHttpClient githubPaginatedHttpClient = mock();
   private AppInstallationToken appInstallationToken = mock();
   private GithubApplicationClient underTest;
 
@@ -129,7 +129,7 @@ public class GithubApplicationClientImplTest {
   @Before
   public void setup() {
     when(githubAppConfiguration.getApiEndpoint()).thenReturn(appUrl);
-    underTest = new GithubApplicationClientImpl(httpClient, appSecurity, gitHubSettings, githubPaginatedHttpClient);
+    underTest = new GithubApplicationClientImpl(githubApplicationHttpClient, appSecurity, gitHubSettings, githubPaginatedHttpClient);
     logTester.clear();
   }
 
@@ -179,7 +179,7 @@ public class GithubApplicationClientImplTest {
   public void checkAppPermissions_IOException() throws IOException {
     AppToken appToken = mockAppToken();
 
-    when(httpClient.get(appUrl, appToken, "/app")).thenThrow(new IOException("OOPS"));
+    when(githubApplicationHttpClient.get(appUrl, appToken, "/app")).thenThrow(new IOException("OOPS"));
 
     assertThatThrownBy(() -> underTest.checkAppPermissions(githubAppConfiguration))
       .isInstanceOf(IllegalArgumentException.class)
@@ -191,7 +191,7 @@ public class GithubApplicationClientImplTest {
   public void checkAppPermissions_ErrorCodes(int errorCode, String expectedMessage) throws IOException {
     AppToken appToken = mockAppToken();
 
-    when(httpClient.get(appUrl, appToken, "/app")).thenReturn(new ErrorGetResponse(errorCode, null));
+    when(githubApplicationHttpClient.get(appUrl, appToken, "/app")).thenReturn(new ErrorGetResponse(errorCode, null));
 
     assertThatThrownBy(() -> underTest.checkAppPermissions(githubAppConfiguration))
       .isInstanceOf(IllegalArgumentException.class)
@@ -211,7 +211,7 @@ public class GithubApplicationClientImplTest {
   public void checkAppPermissions_MissingPermissions() throws IOException {
     AppToken appToken = mockAppToken();
 
-    when(httpClient.get(appUrl, appToken, "/app")).thenReturn(new OkGetResponse("{}"));
+    when(githubApplicationHttpClient.get(appUrl, appToken, "/app")).thenReturn(new OkGetResponse("{}"));
 
     assertThatThrownBy(() -> underTest.checkAppPermissions(githubAppConfiguration))
       .isInstanceOf(IllegalArgumentException.class)
@@ -230,7 +230,7 @@ public class GithubApplicationClientImplTest {
                   + "      }\n"
                   + "}";
 
-    when(httpClient.get(appUrl, appToken, "/app")).thenReturn(new OkGetResponse(json));
+    when(githubApplicationHttpClient.get(appUrl, appToken, "/app")).thenReturn(new OkGetResponse(json));
 
     assertThatThrownBy(() -> underTest.checkAppPermissions(githubAppConfiguration))
       .isInstanceOf(IllegalArgumentException.class)
@@ -249,7 +249,7 @@ public class GithubApplicationClientImplTest {
                   + "      }\n"
                   + "}";
 
-    when(httpClient.get(appUrl, appToken, "/app")).thenReturn(new OkGetResponse(json));
+    when(githubApplicationHttpClient.get(appUrl, appToken, "/app")).thenReturn(new OkGetResponse(json));
 
     assertThatCode(() -> underTest.checkAppPermissions(githubAppConfiguration)).isNull();
   }
@@ -258,7 +258,7 @@ public class GithubApplicationClientImplTest {
   public void getInstallationId_returns_installation_id_of_given_account() throws IOException {
     AppToken appToken = new AppToken(APP_JWT_TOKEN);
     when(appSecurity.createAppToken(githubAppConfiguration.getId(), githubAppConfiguration.getPrivateKey())).thenReturn(appToken);
-    when(httpClient.get(appUrl, appToken, "/repos/torvalds/linux/installation"))
+    when(githubApplicationHttpClient.get(appUrl, appToken, "/repos/torvalds/linux/installation"))
       .thenReturn(new OkGetResponse("{" +
         "  \"id\": 2," +
         "  \"account\": {" +
@@ -281,7 +281,7 @@ public class GithubApplicationClientImplTest {
   public void getInstallationId_return_empty_if_no_installation_found_for_githubAccount() throws IOException {
     AppToken appToken = new AppToken(APP_JWT_TOKEN);
     when(appSecurity.createAppToken(githubAppConfiguration.getId(), githubAppConfiguration.getPrivateKey())).thenReturn(appToken);
-    when(httpClient.get(appUrl, appToken, "/repos/torvalds/linux/installation"))
+    when(githubApplicationHttpClient.get(appUrl, appToken, "/repos/torvalds/linux/installation"))
       .thenReturn(new ErrorGetResponse(404, null));
 
     assertThat(underTest.getInstallationId(githubAppConfiguration, "torvalds")).isEmpty();
@@ -290,44 +290,44 @@ public class GithubApplicationClientImplTest {
   @Test
   @UseDataProvider("githubServers")
   public void createUserAccessToken_returns_empty_if_access_token_cant_be_created(String apiUrl, String appUrl) throws IOException {
-    when(httpClient.post(appUrl, null, "/login/oauth/access_token?client_id=clientId&client_secret=clientSecret&code=code"))
+    when(githubApplicationHttpClient.post(appUrl, null, "/login/oauth/access_token?client_id=clientId&client_secret=clientSecret&code=code"))
       .thenReturn(new Response(400, null));
 
     assertThatThrownBy(() -> underTest.createUserAccessToken(appUrl, "clientId", "clientSecret", "code"))
       .isInstanceOf(IllegalStateException.class);
-    verify(httpClient).post(appUrl, null, "/login/oauth/access_token?client_id=clientId&client_secret=clientSecret&code=code");
+    verify(githubApplicationHttpClient).post(appUrl, null, "/login/oauth/access_token?client_id=clientId&client_secret=clientSecret&code=code");
   }
 
   @Test
   @UseDataProvider("githubServers")
   public void createUserAccessToken_fail_if_access_token_request_fails(String apiUrl, String appUrl) throws IOException {
-    when(httpClient.post(appUrl, null, "/login/oauth/access_token?client_id=clientId&client_secret=clientSecret&code=code"))
+    when(githubApplicationHttpClient.post(appUrl, null, "/login/oauth/access_token?client_id=clientId&client_secret=clientSecret&code=code"))
       .thenThrow(new IOException("OOPS"));
 
     assertThatThrownBy(() -> underTest.createUserAccessToken(apiUrl, "clientId", "clientSecret", "code"))
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("Failed to create GitHub's user access token");
 
-    verify(httpClient).post(appUrl, null, "/login/oauth/access_token?client_id=clientId&client_secret=clientSecret&code=code");
+    verify(githubApplicationHttpClient).post(appUrl, null, "/login/oauth/access_token?client_id=clientId&client_secret=clientSecret&code=code");
   }
 
   @Test
   @UseDataProvider("githubServers")
   public void createUserAccessToken_throws_illegal_argument_exception_if_access_token_code_is_expired(String apiUrl, String appUrl) throws IOException {
-    when(httpClient.post(appUrl, null, "/login/oauth/access_token?client_id=clientId&client_secret=clientSecret&code=code"))
+    when(githubApplicationHttpClient.post(appUrl, null, "/login/oauth/access_token?client_id=clientId&client_secret=clientSecret&code=code"))
       .thenReturn(new OkGetResponse("error_code=100&error=expired_or_invalid"));
 
     assertThatThrownBy(() -> underTest.createUserAccessToken(apiUrl, "clientId", "clientSecret", "code"))
       .isInstanceOf(IllegalArgumentException.class);
 
-    verify(httpClient).post(appUrl, null, "/login/oauth/access_token?client_id=clientId&client_secret=clientSecret&code=code");
+    verify(githubApplicationHttpClient).post(appUrl, null, "/login/oauth/access_token?client_id=clientId&client_secret=clientSecret&code=code");
   }
 
   @Test
   @UseDataProvider("githubServers")
   public void createUserAccessToken_from_authorization_code_returns_access_token(String apiUrl, String appUrl) throws IOException {
     String token = randomAlphanumeric(10);
-    when(httpClient.post(appUrl, null, "/login/oauth/access_token?client_id=clientId&client_secret=clientSecret&code=code"))
+    when(githubApplicationHttpClient.post(appUrl, null, "/login/oauth/access_token?client_id=clientId&client_secret=clientSecret&code=code"))
       .thenReturn(new OkGetResponse("access_token=" + token + "&status="));
 
     UserAccessToken userAccessToken = underTest.createUserAccessToken(apiUrl, "clientId", "clientSecret", "code");
@@ -335,14 +335,14 @@ public class GithubApplicationClientImplTest {
     assertThat(userAccessToken)
       .extracting(UserAccessToken::getValue, UserAccessToken::getAuthorizationHeaderPrefix)
       .containsOnly(token, "token");
-    verify(httpClient).post(appUrl, null, "/login/oauth/access_token?client_id=clientId&client_secret=clientSecret&code=code");
+    verify(githubApplicationHttpClient).post(appUrl, null, "/login/oauth/access_token?client_id=clientId&client_secret=clientSecret&code=code");
   }
 
   @Test
   public void getApp_returns_id() throws IOException {
     AppToken appToken = new AppToken(APP_JWT_TOKEN);
     when(appSecurity.createAppToken(githubAppConfiguration.getId(), githubAppConfiguration.getPrivateKey())).thenReturn(appToken);
-    when(httpClient.get(appUrl, appToken, "/app"))
+    when(githubApplicationHttpClient.get(appUrl, appToken, "/app"))
       .thenReturn(new OkGetResponse("{\"installations_count\": 2}"));
 
     assertThat(underTest.getApp(githubAppConfiguration).getInstallationsCount()).isEqualTo(2L);
@@ -352,7 +352,7 @@ public class GithubApplicationClientImplTest {
   public void getApp_whenStatusCodeIsNotOk_shouldThrowHttpException() throws IOException {
     AppToken appToken = new AppToken(APP_JWT_TOKEN);
     when(appSecurity.createAppToken(githubAppConfiguration.getId(), githubAppConfiguration.getPrivateKey())).thenReturn(appToken);
-    when(httpClient.get(appUrl, appToken, "/app"))
+    when(githubApplicationHttpClient.get(appUrl, appToken, "/app"))
       .thenReturn(new ErrorGetResponse(418, "I'm a teapot"));
 
     assertThatThrownBy(() -> underTest.getApp(githubAppConfiguration))
@@ -378,7 +378,7 @@ public class GithubApplicationClientImplTest {
     String appUrl = "https://github.sonarsource.com";
     AccessToken accessToken = new UserAccessToken(randomAlphanumeric(10));
 
-    when(httpClient.get(appUrl, accessToken, String.format("/user/installations?page=%s&per_page=%s", 1, 100)))
+    when(githubApplicationHttpClient.get(appUrl, accessToken, String.format("/user/installations?page=%s&per_page=%s", 1, 100)))
       .thenThrow(new IOException("OOPS"));
 
     assertThatThrownBy(() -> underTest.listOrganizations(appUrl, accessToken, 1, 100))
@@ -413,7 +413,7 @@ public class GithubApplicationClientImplTest {
                           + "  \"total_count\": 0\n"
                           + "} ";
 
-    when(httpClient.get(appUrl, accessToken, String.format("/user/installations?page=%s&per_page=%s", 1, 100)))
+    when(githubApplicationHttpClient.get(appUrl, accessToken, String.format("/user/installations?page=%s&per_page=%s", 1, 100)))
       .thenReturn(new OkGetResponse(responseJson));
 
     GithubApplicationClient.Organizations organizations = underTest.listOrganizations(appUrl, accessToken, 1, 100);
@@ -504,7 +504,7 @@ public class GithubApplicationClientImplTest {
                           + "  ]\n"
                           + "} ";
 
-    when(httpClient.get(appUrl, accessToken, String.format("/user/installations?page=%s&per_page=%s", 1, 100)))
+    when(githubApplicationHttpClient.get(appUrl, accessToken, String.format("/user/installations?page=%s&per_page=%s", 1, 100)))
       .thenReturn(new OkGetResponse(responseJson));
 
     GithubApplicationClient.Organizations organizations = underTest.listOrganizations(appUrl, accessToken, 1, 100);
@@ -581,18 +581,14 @@ public class GithubApplicationClientImplTest {
   }
 
   @Test
-  public void getWhitelistedGithubAppInstallations_whenGithubReturnsError_shouldThrow() throws IOException {
+  public void getWhitelistedGithubAppInstallations_whenGithubReturnsError_shouldReThrow() {
     AppToken appToken = new AppToken(APP_JWT_TOKEN);
     when(appSecurity.createAppToken(githubAppConfiguration.getId(), githubAppConfiguration.getPrivateKey())).thenReturn(appToken);
-    when(githubPaginatedHttpClient.get(any(), any(), any(), any())).thenThrow(new IOException("io exception"));
+    when(githubPaginatedHttpClient.get(any(), any(), any(), any())).thenThrow(new IllegalStateException("exception"));
 
     assertThatThrownBy(() -> underTest.getWhitelistedGithubAppInstallations(githubAppConfiguration))
       .isInstanceOf(IllegalStateException.class)
-      .hasMessage(
-        "SonarQube was not able to retrieve resources from GitHub. "
-        + "This is likely due to a connectivity problem or a temporary network outage: "
-        + "Error while executing a paginated call to GitHub - appUrl: Any URL, path: /app/installations. io exception"
-        );
+      .hasMessage("exception");
   }
 
   @Test
@@ -600,7 +596,7 @@ public class GithubApplicationClientImplTest {
     String appUrl = "https://github.sonarsource.com";
     AccessToken accessToken = new UserAccessToken(randomAlphanumeric(10));
 
-    when(httpClient.get(appUrl, accessToken, String.format("/search/repositories?q=%s&page=%s&per_page=%s", "org:test", 1, 100)))
+    when(githubApplicationHttpClient.get(appUrl, accessToken, String.format("/search/repositories?q=%s&page=%s&per_page=%s", "org:test", 1, 100)))
       .thenThrow(new IOException("OOPS"));
 
     assertThatThrownBy(() -> underTest.listRepositories(appUrl, accessToken, "test", null, 1, 100))
@@ -635,7 +631,7 @@ public class GithubApplicationClientImplTest {
                           + "  \"total_count\": 0\n"
                           + "}";
 
-    when(httpClient.get(appUrl, accessToken, String.format("/search/repositories?q=%s&page=%s&per_page=%s", "fork:true+org:github", 1, 100)))
+    when(githubApplicationHttpClient.get(appUrl, accessToken, String.format("/search/repositories?q=%s&page=%s&per_page=%s", "fork:true+org:github", 1, 100)))
       .thenReturn(new OkGetResponse(responseJson));
 
     GithubApplicationClient.Repositories repositories = underTest.listRepositories(appUrl, accessToken, "github", null, 1, 100);
@@ -723,7 +719,7 @@ public class GithubApplicationClientImplTest {
                           + "  ]\n"
                           + "}";
 
-    when(httpClient.get(appUrl, accessToken, String.format("/search/repositories?q=%s&page=%s&per_page=%s", "fork:true+org:github", 1, 100)))
+    when(githubApplicationHttpClient.get(appUrl, accessToken, String.format("/search/repositories?q=%s&page=%s&per_page=%s", "fork:true+org:github", 1, 100)))
       .thenReturn(new OkGetResponse(responseJson));
     GithubApplicationClient.Repositories repositories = underTest.listRepositories(appUrl, accessToken, "github", null, 1, 100);
 
@@ -778,7 +774,7 @@ public class GithubApplicationClientImplTest {
                           + "  ]\n"
                           + "}";
 
-    when(httpClient.get(appUrl, accessToken, String.format("/search/repositories?q=%s&page=%s&per_page=%s", "world+fork:true+org:github", 1, 100)))
+    when(githubApplicationHttpClient.get(appUrl, accessToken, String.format("/search/repositories?q=%s&page=%s&per_page=%s", "world+fork:true+org:github", 1, 100)))
       .thenReturn(new GetResponse() {
         @Override
         public Optional<String> getNextEndPoint() {
@@ -811,7 +807,7 @@ public class GithubApplicationClientImplTest {
 
   @Test
   public void getRepository_returns_empty_when_repository_doesnt_exist() throws IOException {
-    when(httpClient.get(any(), any(), any()))
+    when(githubApplicationHttpClient.get(any(), any(), any()))
       .thenReturn(new Response(404, null));
 
     Optional<GithubApplicationClient.Repository> repository = underTest.getRepository(appUrl, new UserAccessToken("temp"), "octocat/Hello-World");
@@ -823,7 +819,7 @@ public class GithubApplicationClientImplTest {
   public void getRepository_fails_on_failure() throws IOException {
     String repositoryKey = "octocat/Hello-World";
 
-    when(httpClient.get(any(), any(), any()))
+    when(githubApplicationHttpClient.get(any(), any(), any()))
       .thenThrow(new IOException("OOPS"));
 
     UserAccessToken token = new UserAccessToken("temp");
@@ -974,7 +970,7 @@ public class GithubApplicationClientImplTest {
                           + "  }"
                           + "}";
 
-    when(httpClient.get(appUrl, accessToken, "/repos/octocat/Hello-World"))
+    when(githubApplicationHttpClient.get(appUrl, accessToken, "/repos/octocat/Hello-World"))
       .thenReturn(new GetResponse() {
         @Override
         public Optional<String> getNextEndPoint() {
@@ -1022,7 +1018,7 @@ public class GithubApplicationClientImplTest {
   @Test
   public void createAppInstallationToken_returns_empty_if_post_throws_IOE() throws IOException {
     mockAppToken();
-    when(httpClient.post(anyString(), any(AccessToken.class), anyString())).thenThrow(IOException.class);
+    when(githubApplicationHttpClient.post(anyString(), any(AccessToken.class), anyString())).thenThrow(IOException.class);
     Optional<AppInstallationToken> accessToken = underTest.createAppInstallationToken(githubAppConfiguration, INSTALLATION_ID);
 
     assertThat(accessToken).isEmpty();
@@ -1037,7 +1033,7 @@ public class GithubApplicationClientImplTest {
     Optional<AppInstallationToken> accessToken = underTest.createAppInstallationToken(githubAppConfiguration, INSTALLATION_ID);
 
     assertThat(accessToken).isEmpty();
-    verify(httpClient).post(appUrl, appToken, "/app/installations/" + INSTALLATION_ID + "/access_tokens");
+    verify(githubApplicationHttpClient).post(appUrl, appToken, "/app/installations/" + INSTALLATION_ID + "/access_tokens");
   }
 
   @Test
@@ -1048,7 +1044,7 @@ public class GithubApplicationClientImplTest {
     Optional<AppInstallationToken> accessToken = underTest.createAppInstallationToken(githubAppConfiguration, INSTALLATION_ID);
 
     assertThat(accessToken).hasValue(installToken);
-    verify(httpClient).post(appUrl, appToken, "/app/installations/" + INSTALLATION_ID + "/access_tokens");
+    verify(githubApplicationHttpClient).post(appUrl, appToken, "/app/installations/" + INSTALLATION_ID + "/access_tokens");
   }
 
   @Test
@@ -1067,18 +1063,12 @@ public class GithubApplicationClientImplTest {
   }
 
   @Test
-  public void getRepositoryTeams_whenGitHubCallThrowsIOException_shouldLogAndThrow() throws IOException {
-    when(githubPaginatedHttpClient.get(eq(APP_URL), eq(appInstallationToken), eq(REPO_TEAMS_ENDPOINT), any())).thenThrow(new IOException("error"));
+  public void getRepositoryTeams_whenGitHubCallThrowsException_shouldRethrow() {
+    when(githubPaginatedHttpClient.get(eq(APP_URL), eq(appInstallationToken), eq(REPO_TEAMS_ENDPOINT), any())).thenThrow(new IllegalStateException("error"));
 
     assertThatIllegalStateException()
       .isThrownBy(() -> underTest.getRepositoryTeams(APP_URL, appInstallationToken, ORG_NAME, REPO_NAME))
-      .isInstanceOf(IllegalStateException.class)
-      .withMessage(
-        "SonarQube was not able to retrieve resources from GitHub. This is likely due to a connectivity problem or a temporary network outage: Error while executing a paginated call to GitHub - appUrl: https://github.com/, path: /repos/ORG_NAME/repo1/teams. error");
-
-    assertThat(logTester.logs()).hasSize(1);
-    assertThat(logTester.logs(Level.WARN))
-      .containsExactly("Error while executing a paginated call to GitHub - appUrl: https://github.com/, path: /repos/ORG_NAME/repo1/teams.");
+      .withMessage("error");
   }
 
   private static List<GsonRepositoryTeam> expectedTeams() {
@@ -1104,19 +1094,12 @@ public class GithubApplicationClientImplTest {
   }
 
   @Test
-  public void getRepositoryCollaborators_whenGitHubCallThrowsIOException_shouldLogAndThrow() throws IOException {
-    when(githubPaginatedHttpClient.get(eq(APP_URL), eq(appInstallationToken), eq(REPO_COLLABORATORS_ENDPOINT), any())).thenThrow(new IOException("error"));
+  public void getRepositoryCollaborators_whenGitHubCallThrowsException_shouldRethrow() {
+    when(githubPaginatedHttpClient.get(eq(APP_URL), eq(appInstallationToken), eq(REPO_COLLABORATORS_ENDPOINT), any())).thenThrow(new IllegalStateException("error"));
 
     assertThatIllegalStateException()
       .isThrownBy(() -> underTest.getRepositoryCollaborators(APP_URL, appInstallationToken, ORG_NAME, REPO_NAME))
-      .isInstanceOf(IllegalStateException.class)
-      .withMessage(
-        "SonarQube was not able to retrieve resources from GitHub. This is likely due to a connectivity problem or a temporary network outage: "
-        + "Error while executing a paginated call to GitHub - appUrl: https://github.com/, path: /repos/ORG_NAME/repo1/collaborators?affiliation=direct. error");
-
-    assertThat(logTester.logs()).hasSize(1);
-    assertThat(logTester.logs(Level.WARN))
-      .containsExactly("Error while executing a paginated call to GitHub - appUrl: https://github.com/, path: /repos/ORG_NAME/repo1/collaborators?affiliation=direct.");
+      .withMessage("error");
   }
 
   private static String getResponseContent(String path) throws IOException {
@@ -1133,7 +1116,7 @@ public class GithubApplicationClientImplTest {
     Response response = mock(Response.class);
     when(response.getContent()).thenReturn(Optional.empty());
     when(response.getCode()).thenReturn(HTTP_UNAUTHORIZED);
-    when(httpClient.post(eq(appUrl), any(AppToken.class), eq("/app/installations/" + INSTALLATION_ID + "/access_tokens"))).thenReturn(response);
+    when(githubApplicationHttpClient.post(eq(appUrl), any(AppToken.class), eq("/app/installations/" + INSTALLATION_ID + "/access_tokens"))).thenReturn(response);
   }
 
   private AppToken mockAppToken() {
@@ -1149,7 +1132,7 @@ public class GithubApplicationClientImplTest {
                                                        "  \"token\": \"" + token + "\"" +
                                                        "}"));
     when(response.getCode()).thenReturn(HTTP_CREATED);
-    when(httpClient.post(eq(appUrl), any(AppToken.class), eq("/app/installations/" + INSTALLATION_ID + "/access_tokens"))).thenReturn(response);
+    when(githubApplicationHttpClient.post(eq(appUrl), any(AppToken.class), eq("/app/installations/" + INSTALLATION_ID + "/access_tokens"))).thenReturn(response);
     return new AppInstallationToken(token);
   }
 

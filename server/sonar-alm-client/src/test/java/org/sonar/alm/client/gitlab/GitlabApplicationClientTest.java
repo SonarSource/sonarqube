@@ -20,31 +20,46 @@
 package org.sonar.alm.client.gitlab;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
+import org.apache.commons.io.IOUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.slf4j.event.Level;
 import org.sonar.alm.client.ConstantTimeoutConfiguration;
 import org.sonar.alm.client.TimeoutConfiguration;
 import org.sonar.api.testfixtures.log.LogTester;
+import org.sonar.auth.gitlab.GsonGroup;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
-public class GitlabHttpClientTest {
+public class GitlabApplicationClientTest {
 
   @Rule
   public LogTester logTester = new LogTester();
 
+
+  private GitlabPaginatedHttpClient gitlabPaginatedHttpClient = mock();
+
   private final MockWebServer server = new MockWebServer();
-  private GitlabHttpClient underTest;
+  private GitlabApplicationClient underTest;
   private String gitlabUrl;
 
   @Before
@@ -54,7 +69,7 @@ public class GitlabHttpClientTest {
     gitlabUrl = urlWithEndingSlash.substring(0, urlWithEndingSlash.length() - 1);
 
     TimeoutConfiguration timeoutConfiguration = new ConstantTimeoutConfiguration(10_000);
-    underTest = new GitlabHttpClient(timeoutConfiguration);
+    underTest = new GitlabApplicationClient(gitlabPaginatedHttpClient, timeoutConfiguration);
   }
 
   @After
@@ -523,4 +538,52 @@ public class GitlabHttpClientTest {
           + "] " +
           "failed with error message : [Failed to connect to " + server.getHostName());
   }
+
+  @Test
+  public void getGroups_whenCallIsInError_rethrows() throws IOException {
+    String token = "token-toto";
+    GitlabToken gitlabToken = new GitlabToken(token);
+    when(gitlabPaginatedHttpClient.get(eq(gitlabUrl), eq(gitlabToken), eq("/groups"), any())).thenThrow(new IllegalStateException("exception"));
+
+    assertThatIllegalStateException()
+      .isThrownBy(() -> underTest.getGroups(gitlabUrl, token))
+      .withMessage("exception");
+  }
+
+  @Test
+  public void getGroups_whenCallIsSuccessful_deserializesAndReturnsCorrectlyGroups() throws IOException {
+    ArgumentCaptor<Function<String, List<GsonGroup>>> deserializerCaptor = ArgumentCaptor.forClass(Function.class);
+
+    String token = "token-toto";
+    GitlabToken gitlabToken = new GitlabToken(token);
+    List<GsonGroup> expectedGroups = expectedGroups();
+    when(gitlabPaginatedHttpClient.get(eq(gitlabUrl), eq(gitlabToken), eq("/groups"), deserializerCaptor.capture())).thenReturn(expectedGroups);
+
+    Set<GsonGroup> groups = underTest.getGroups(gitlabUrl, token);
+    assertThat(groups).containsExactlyInAnyOrderElementsOf(expectedGroups);
+
+    String responseContent = getResponseContent("groups-full-response.json");
+
+    List<GsonGroup> deserializedGroups = deserializerCaptor.getValue().apply(responseContent);
+    assertThat(deserializedGroups).usingRecursiveComparison().isEqualTo(expectedGroups);
+  }
+
+  private static List<GsonGroup> expectedGroups() {
+    GsonGroup gsonGroup = createGsonGroup("56232243", "sonarsource/cfamily", "this is a long description");
+    GsonGroup gsonGroup2 = createGsonGroup("78902256", "sonarsource/sonarqube/mmf-3052-ant1", "");
+    return List.of(gsonGroup, gsonGroup2);
+  }
+
+  private static GsonGroup createGsonGroup(String number, String fullPath, String description) {
+    GsonGroup gsonGroup = mock(GsonGroup.class);
+    when(gsonGroup.getId()).thenReturn(number);
+    when(gsonGroup.getFullPath()).thenReturn(fullPath);
+    when(gsonGroup.getDescription()).thenReturn(description);
+    return gsonGroup;
+  }
+
+  private static String getResponseContent(String path) throws IOException {
+    return IOUtils.toString(GitlabApplicationClientTest.class.getResourceAsStream(path), StandardCharsets.UTF_8);
+  }
+
 }

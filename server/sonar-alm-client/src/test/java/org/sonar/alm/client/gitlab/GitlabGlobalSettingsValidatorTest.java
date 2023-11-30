@@ -21,8 +21,6 @@ package org.sonar.alm.client.gitlab;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.sonar.alm.client.gitlab.GitlabGlobalSettingsValidator;
-import org.sonar.alm.client.gitlab.GitlabHttpClient;
 import org.sonar.api.config.internal.Encryption;
 import org.sonar.api.config.internal.Settings;
 import org.sonar.db.alm.setting.AlmSettingDto;
@@ -37,7 +35,7 @@ public class GitlabGlobalSettingsValidatorTest {
   private static final Encryption encryption = mock(Encryption.class);
   private static final Settings settings = mock(Settings.class);
 
-  private final GitlabHttpClient gitlabHttpClient = mock(GitlabHttpClient.class);
+  private final GitlabApplicationClient gitlabHttpClient = mock(GitlabApplicationClient.class);
 
   private final GitlabGlobalSettingsValidator underTest = new GitlabGlobalSettingsValidator(gitlabHttpClient, settings);
 

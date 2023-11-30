@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.alm.client.github;
+package org.sonar.alm.client;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -45,10 +45,10 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.sonar.alm.client.github.ApplicationHttpClient.GetResponse;
+import static org.sonar.alm.client.ApplicationHttpClient.GetResponse;
 
 @RunWith(MockitoJUnitRunner.class)
-public class GithubPaginatedHttpClientImplTest {
+public class GenericPaginatedHttpClientImplTest {
 
   private static final String APP_URL = "https://github.com/";
 
@@ -71,7 +71,13 @@ public class GithubPaginatedHttpClientImplTest {
   ApplicationHttpClient appHttpClient;
 
   @InjectMocks
-  private GithubPaginatedHttpClient underTest;
+  private TestPaginatedHttpClient underTest;
+
+  private static class TestPaginatedHttpClient extends GenericPaginatedHttpClient {
+    protected TestPaginatedHttpClient(ApplicationHttpClient appHttpClient, RatioBasedRateLimitChecker rateLimitChecker) {
+      super(appHttpClient, rateLimitChecker);
+    }
+  }
 
   @Test
   public void get_whenNoPagination_ReturnsCorrectResponse() throws IOException {
@@ -141,7 +147,8 @@ public class GithubPaginatedHttpClientImplTest {
 
     assertThatIllegalStateException()
       .isThrownBy(() -> underTest.get(APP_URL, accessToken, ENDPOINT, result -> gson.fromJson(result, STRING_LIST_TYPE)))
-      .withMessage("Error while executing a call to GitHub. Return code 400. Error message: failed.");
+      .withMessage("SonarQube was not able to retrieve resources from external system. Error while executing a paginated call to https://github.com/, endpoint:/next-endpoint. "
+                   + "Error while executing a call to https://github.com/. Return code 400. Error message: failed.");
   }
 
   private static GetResponse mockFailedResponse(String content) {
@@ -165,5 +172,22 @@ public class GithubPaginatedHttpClientImplTest {
     assertThat(logTester.logs()).hasSize(1);
     assertThat(logTester.logs(Level.WARN))
       .containsExactly("Thread interrupted: interrupted");
+  }
+
+  @Test
+  public void getRepositoryCollaborators_whenDevOpsPlatformCallThrowsIOException_shouldLogAndReThrow() throws IOException {
+    AccessToken accessToken = mock();
+    when(appHttpClient.get(APP_URL, accessToken, "query?per_page=100")).thenThrow(new IOException("error"));
+
+    assertThatIllegalStateException()
+      .isThrownBy(() -> underTest.get(APP_URL, accessToken, "query", mock()))
+      .isInstanceOf(IllegalStateException.class)
+      .withMessage("SonarQube was not able to retrieve resources from external system. Error while executing a paginated call to https://github.com/, "
+                   + "endpoint:query?per_page=100. error");
+
+    assertThat(logTester.logs()).hasSize(1);
+    assertThat(logTester.logs(Level.WARN))
+      .containsExactly("SonarQube was not able to retrieve resources from external system. "
+                       + "Error while executing a paginated call to https://github.com/, endpoint:query?per_page=100.");
   }
 }

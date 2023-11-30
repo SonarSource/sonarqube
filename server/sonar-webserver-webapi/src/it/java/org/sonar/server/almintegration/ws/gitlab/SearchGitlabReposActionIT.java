@@ -23,7 +23,7 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.alm.client.gitlab.GitlabHttpClient;
+import org.sonar.alm.client.gitlab.GitlabApplicationClient;
 import org.sonar.alm.client.gitlab.Project;
 import org.sonar.alm.client.gitlab.ProjectList;
 import org.sonar.api.server.ws.WebService;
@@ -59,9 +59,9 @@ public class SearchGitlabReposActionIT {
   @Rule
   public DbTester db = DbTester.create();
 
-  private final GitlabHttpClient gitlabHttpClient = mock(GitlabHttpClient.class);
+  private final GitlabApplicationClient gitlabApplicationClient = mock(GitlabApplicationClient.class);
   private final WsActionTester ws = new WsActionTester(new SearchGitlabReposAction(db.getDbClient(), userSession,
-    gitlabHttpClient));
+    gitlabApplicationClient));
 
   @Test
   public void list_gitlab_repos() {
@@ -69,7 +69,7 @@ public class SearchGitlabReposActionIT {
     Project gitlabProject2 = new Project(2L, "repoName2", "path1 / repoName2", "repo-slug-2", "path-1/repo-slug-2", "url-2");
     Project gitlabProject3 = new Project(3L, "repoName3", "repoName3 / repoName3", "repo-slug-3", "repo-slug-3/repo-slug-3", "url-3");
     Project gitlabProject4 = new Project(4L, "repoName4", "repoName4 / repoName4 / repoName4", "repo-slug-4", "repo-slug-4/repo-slug-4/repo-slug-4", "url-4");
-    when(gitlabHttpClient.searchProjects(any(), any(), any(), anyInt(), anyInt()))
+    when(gitlabApplicationClient.searchProjects(any(), any(), any(), anyInt(), anyInt()))
       .thenReturn(
         new ProjectList(Arrays.asList(gitlabProject1, gitlabProject2, gitlabProject3, gitlabProject4), 1, 10, 4));
 
@@ -112,7 +112,7 @@ public class SearchGitlabReposActionIT {
     Project gitlabProject2 = new Project(2L, "repoName2", "path1 / repoName2", "repo-slug-2", "path-1/repo-slug-2", "url-2");
     Project gitlabProject3 = new Project(3L, "repoName3", "repoName3 / repoName3", "repo-slug-3", "repo-slug-3/repo-slug-3", "url-3");
     Project gitlabProject4 = new Project(4L, "repoName4", "repoName4 / repoName4 / repoName4", "repo-slug-4", "repo-slug-4/repo-slug-4/repo-slug-4", "url-4");
-    when(gitlabHttpClient.searchProjects(any(), any(), any(), anyInt(), anyInt()))
+    when(gitlabApplicationClient.searchProjects(any(), any(), any(), anyInt(), anyInt()))
       .thenReturn(
         new ProjectList(Arrays.asList(gitlabProject1, gitlabProject2, gitlabProject3, gitlabProject4), 1, 10, 4));
 
@@ -160,7 +160,7 @@ public class SearchGitlabReposActionIT {
 
   @Test
   public void return_empty_list_when_no_gitlab_projects() {
-    when(gitlabHttpClient.searchProjects(any(), any(), any(), anyInt(), anyInt())).thenReturn(new ProjectList(new LinkedList<>(), 1, 10, 0));
+    when(gitlabApplicationClient.searchProjects(any(), any(), any(), anyInt(), anyInt())).thenReturn(new ProjectList(new LinkedList<>(), 1, 10, 0));
     UserDto user = db.users().insertUser();
     userSession.logIn(user).addPermission(PROVISION_PROJECTS);
     AlmSettingDto almSetting = db.almSettings().insertBitbucketAlmSetting();
@@ -238,7 +238,7 @@ public class SearchGitlabReposActionIT {
       "https://example.gitlab.com/group/gitlab-repo-name-2");
     Project gitlabProject3 = new Project(3L, "Gitlab repo name 3", "Group / Gitlab repo name 3", "gitlab-repo-name-3", "group/gitlab-repo-name-3",
       "https://example.gitlab.com/group/gitlab-repo-name-3");
-    when(gitlabHttpClient.searchProjects(any(), any(), any(), anyInt(), anyInt()))
+    when(gitlabApplicationClient.searchProjects(any(), any(), any(), anyInt(), anyInt()))
       .thenReturn(
         new ProjectList(Arrays.asList(gitlabProject1, gitlabProject2, gitlabProject3), 1, 3, 10));
 

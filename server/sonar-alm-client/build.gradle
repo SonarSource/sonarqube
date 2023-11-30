@@ -13,6 +13,7 @@ dependencies {
     api 'org.bouncycastle:bcpkix-jdk18on:1.76'
     api 'org.sonarsource.api.plugin:sonar-plugin-api'
     api project(':server:sonar-auth-github')
+    api project(':server:sonar-auth-gitlab')
 
     testImplementation project(':sonar-plugin-api-impl')
 

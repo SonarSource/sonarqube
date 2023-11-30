@@ -36,9 +36,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.event.Level;
 import org.sonar.alm.client.ConstantTimeoutConfiguration;
+import org.sonar.alm.client.DevopsPlatformHeaders;
+import org.sonar.alm.client.GenericApplicationHttpClient;
 import org.sonar.alm.client.TimeoutConfiguration;
-import org.sonar.alm.client.github.ApplicationHttpClient.GetResponse;
-import org.sonar.alm.client.github.ApplicationHttpClient.Response;
+import org.sonar.alm.client.ApplicationHttpClient.GetResponse;
+import org.sonar.alm.client.ApplicationHttpClient.Response;
 import org.sonar.alm.client.github.security.AccessToken;
 import org.sonar.alm.client.github.security.UserAccessToken;
 import org.sonar.api.testfixtures.log.LogTester;
@@ -49,7 +51,7 @@ import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.Assert.fail;
-import static org.sonar.alm.client.github.ApplicationHttpClient.RateLimit;
+import static org.sonar.alm.client.ApplicationHttpClient.RateLimit;
 
 @RunWith(DataProviderRunner.class)
 public class GenericApplicationHttpClientTest {
@@ -76,7 +78,7 @@ public class GenericApplicationHttpClientTest {
     logTester.clear();
   }
 
-  private class TestApplicationHttpClient extends GenericApplicationHttpClient {
+  private static class TestApplicationHttpClient extends GenericApplicationHttpClient {
     public TestApplicationHttpClient(DevopsPlatformHeaders devopsPlatformHeaders, TimeoutConfiguration timeoutConfiguration) {
       super(devopsPlatformHeaders, timeoutConfiguration);
     }
@@ -183,7 +185,7 @@ public class GenericApplicationHttpClientTest {
   public void get_returns_empty_endPoint_when_link_header_does_not_have_next_rel() throws IOException {
     server.enqueue(new MockResponse().setBody(randomBody)
       .setHeader("link", "<https://api.github.com/installation/repositories?per_page=5&page=4>; rel=\"prev\", " +
-        "<https://api.github.com/installation/repositories?per_page=5&page=1>; rel=\"first\""));
+                         "<https://api.github.com/installation/repositories?per_page=5&page=1>; rel=\"first\""));
 
     GetResponse response = underTest.get(appUrl, accessToken, randomEndPoint);
 
@@ -212,18 +214,30 @@ public class GenericApplicationHttpClientTest {
     assertThat(response.getNextEndPoint()).contains("https://api.github.com/installation/repositories?per_page=5&page=2");
   }
 
+  @Test
+  public void get_returns_endPoint_when_link_header_is_from_gitlab() throws IOException {
+    String linkHeader = "<https://gitlab.com/api/v4/groups?all_available=false&order_by=name&owned=false&page=2&per_page=2&sort=asc&statistics=false&with_custom_attributes=false>; rel=\"next\", <https://gitlab.com/api/v4/groups?all_available=false&order_by=name&owned=false&page=1&per_page=2&sort=asc&statistics=false&with_custom_attributes=false>; rel=\"first\", <https://gitlab.com/api/v4/groups?all_available=false&order_by=name&owned=false&page=8&per_page=2&sort=asc&statistics=false&with_custom_attributes=false>; rel=\"last\"";
+    server.enqueue(new MockResponse().setBody(randomBody)
+      .setHeader("link", linkHeader));
+
+    GetResponse response = underTest.get(appUrl, accessToken, randomEndPoint);
+
+    assertThat(response.getNextEndPoint()).contains("https://gitlab.com/api/v4/groups?all_available=false"
+                                                    + "&order_by=name&owned=false&page=2&per_page=2&sort=asc&statistics=false&with_custom_attributes=false");
+  }
+
   @DataProvider
   public static Object[][] linkHeadersWithNextRel() {
     String expected = "https://api.github.com/installation/repositories?per_page=5&page=2";
     return new Object[][] {
       {"<" + expected + ">; rel=\"next\""},
       {"<" + expected + ">; rel=\"next\", " +
-        "<https://api.github.com/installation/repositories?per_page=5&page=1>; rel=\"first\""},
+       "<https://api.github.com/installation/repositories?per_page=5&page=1>; rel=\"first\""},
       {"<https://api.github.com/installation/repositories?per_page=5&page=1>; rel=\"first\", " +
-        "<" + expected + ">; rel=\"next\""},
+       "<" + expected + ">; rel=\"next\""},
       {"<https://api.github.com/installation/repositories?per_page=5&page=1>; rel=\"first\", " +
-        "<" + expected + ">; rel=\"next\", " +
-        "<https://api.github.com/installation/repositories?per_page=5&page=5>; rel=\"last\""},
+       "<" + expected + ">; rel=\"next\", " +
+       "<https://api.github.com/installation/repositories?per_page=5&page=5>; rel=\"last\""},
     };
   }
 
@@ -416,14 +430,19 @@ public class GenericApplicationHttpClientTest {
 
   @Test
   public void get_whenRateLimitHeadersArePresent_returnsRateLimit() throws Exception {
-    testRateLimitHeader(() -> underTest.get(appUrl, accessToken, randomEndPoint));
+    testRateLimitHeader(() -> underTest.get(appUrl, accessToken, randomEndPoint), false);
   }
 
-  private void testRateLimitHeader(Callable<Response> request ) throws Exception {
+  @Test
+  public void get_whenRateLimitHeadersArePresentAndUppercased_returnsRateLimit() throws Exception {
+    testRateLimitHeader(() -> underTest.get(appUrl, accessToken, randomEndPoint), true);
+  }
+
+  private void testRateLimitHeader(Callable<Response> request, boolean uppercasedHeaders) throws Exception {
     server.enqueue(new MockResponse().setBody(randomBody)
-      .setHeader("x-ratelimit-remaining", "1")
-      .setHeader("x-ratelimit-limit", "10")
-      .setHeader("x-ratelimit-reset", "1000"));
+      .setHeader(uppercasedHeaders ? "x-ratelimit-remaining" : "x-ratelimit-REMAINING", "1")
+      .setHeader(uppercasedHeaders ? "x-ratelimit-limit" : "X-RATELIMIT-LIMIT", "10")
+      .setHeader(uppercasedHeaders ? "x-ratelimit-reset" : "X-ratelimit-reset", "1000"));
 
     Response response = request.call();
 
@@ -438,7 +457,7 @@ public class GenericApplicationHttpClientTest {
 
   }
 
-  private void testMissingRateLimitHeader(Callable<Response> request ) throws Exception {
+  private void testMissingRateLimitHeader(Callable<Response> request) throws Exception {
     server.enqueue(new MockResponse().setBody(randomBody));
 
     Response response = request.call();
@@ -448,7 +467,7 @@ public class GenericApplicationHttpClientTest {
 
   @Test
   public void delete_whenRateLimitHeadersArePresent_returnsRateLimit() throws Exception {
-    testRateLimitHeader(() -> underTest.delete(appUrl, accessToken, randomEndPoint));
+    testRateLimitHeader(() -> underTest.delete(appUrl, accessToken, randomEndPoint), false);
 
   }
 
@@ -460,7 +479,7 @@ public class GenericApplicationHttpClientTest {
 
   @Test
   public void patch_whenRateLimitHeadersArePresent_returnsRateLimit() throws Exception {
-    testRateLimitHeader(() -> underTest.patch(appUrl, accessToken, randomEndPoint, "body"));
+    testRateLimitHeader(() -> underTest.patch(appUrl, accessToken, randomEndPoint, "body"), false);
   }
 
   @Test
@@ -470,7 +489,7 @@ public class GenericApplicationHttpClientTest {
 
   @Test
   public void post_whenRateLimitHeadersArePresent_returnsRateLimit() throws Exception {
-    testRateLimitHeader(() -> underTest.post(appUrl, accessToken, randomEndPoint));
+    testRateLimitHeader(() -> underTest.post(appUrl, accessToken, randomEndPoint), false);
   }
 
   @Test

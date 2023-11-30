@@ -19,15 +19,20 @@
  */
 package org.sonar.alm.client.gitlab;
 
+import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonSyntaxException;
+import com.google.gson.reflect.TypeToken;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Type;
 import java.net.URLEncoder;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.function.Function;
 import javax.annotation.Nullable;
 import okhttp3.Headers;
 import okhttp3.OkHttpClient;
@@ -39,6 +44,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.alm.client.TimeoutConfiguration;
 import org.sonar.api.server.ServerSide;
+import org.sonar.auth.gitlab.GsonGroup;
 import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.client.OkHttpClientBuilder;
 
@@ -47,13 +53,18 @@ import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 @ServerSide
-public class GitlabHttpClient {
+public class GitlabApplicationClient {
+  private static final Logger LOG = LoggerFactory.getLogger(GitlabApplicationClient.class);
+  private static final Gson GSON = new Gson();
+  private static final Type GITLAB_GROUP = TypeToken.getParameterized(List.class, GsonGroup.class).getType();
 
-  private static final Logger LOG = LoggerFactory.getLogger(GitlabHttpClient.class);
   protected static final String PRIVATE_TOKEN = "Private-Token";
   protected final OkHttpClient client;
 
-  public GitlabHttpClient(TimeoutConfiguration timeoutConfiguration) {
+  private final GitlabPaginatedHttpClient gitlabPaginatedHttpClient;
+
+  public GitlabApplicationClient(GitlabPaginatedHttpClient gitlabPaginatedHttpClient, TimeoutConfiguration timeoutConfiguration) {
+    this.gitlabPaginatedHttpClient = gitlabPaginatedHttpClient;
     client = new OkHttpClientBuilder()
       .setConnectTimeoutMs(timeoutConfiguration.getConnectTimeout())
       .setReadTimeoutMs(timeoutConfiguration.getReadTimeout())
@@ -324,34 +335,6 @@ public class GitlabHttpClient {
     }
   }
 
-  /*public void getGroups(String gitlabUrl, String token) {
-    String url = String.format("%s/groups", gitlabUrl);
-    LOG.debug(String.format("get groups : [%s]", url));
-
-    Request request = new Request.Builder()
-      .addHeader(PRIVATE_TOKEN, token)
-      .url(url)
-      .get()
-      .build();
-
-
-    try (Response response = client.newCall(request).execute()) {
-      Headers headers = response.headers();
-      checkResponseIsSuccessful(response, "Could not get projects from GitLab instance");
-      List<Project> projectList = Project.parseJsonArray(response.body().string());
-      int returnedPageNumber = parseAndGetIntegerHeader(headers.get("X-Page"));
-      int returnedPageSize = parseAndGetIntegerHeader(headers.get("X-Per-Page"));
-      String xtotal = headers.get("X-Total");
-      Integer totalProjects = Strings.isEmpty(xtotal) ? null : parseAndGetIntegerHeader(xtotal);
-      return new ProjectList(projectList, returnedPageNumber, returnedPageSize, totalProjects);
-    } catch (JsonSyntaxException e) {
-      throw new IllegalArgumentException("Could not parse GitLab answer to search projects. Got a non-json payload as result.");
-    } catch (IOException e) {
-      logException(url, e);
-      throw new IllegalStateException(e.getMessage(), e);
-    }
-  }*/
-
   private static int parseAndGetIntegerHeader(@Nullable String header) {
     if (header == null) {
       throw new IllegalArgumentException("Pagination data from GitLab response is missing");
@@ -362,6 +345,15 @@ public class GitlabHttpClient {
         throw new IllegalArgumentException("Could not parse pagination number", e);
       }
     }
+  }
+
+  public Set<GsonGroup> getGroups(String gitlabUrl, String token) {
+    return Set.copyOf(executePaginatedQuery(gitlabUrl, token, "/groups", resp -> GSON.fromJson(resp, GITLAB_GROUP)));
+  }
+
+  private <E> List<E> executePaginatedQuery(String appUrl, String token, String query, Function<String, List<E>> responseDeserializer) {
+    GitlabToken gitlabToken = new GitlabToken(token);
+    return gitlabPaginatedHttpClient.get(appUrl, gitlabToken, query, responseDeserializer);
   }
 
 }

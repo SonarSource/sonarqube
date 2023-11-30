@@ -26,7 +26,7 @@ import java.util.Set;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import org.sonar.alm.client.gitlab.GitlabHttpClient;
+import org.sonar.alm.client.gitlab.GitlabApplicationClient;
 import org.sonar.alm.client.gitlab.Project;
 import org.sonar.alm.client.gitlab.ProjectList;
 import org.sonar.api.server.ws.Request;
@@ -58,12 +58,12 @@ public class SearchGitlabReposAction implements AlmIntegrationsWsAction {
 
   private final DbClient dbClient;
   private final UserSession userSession;
-  private final GitlabHttpClient gitlabHttpClient;
+  private final GitlabApplicationClient gitlabApplicationClient;
 
-  public SearchGitlabReposAction(DbClient dbClient, UserSession userSession, GitlabHttpClient gitlabHttpClient) {
+  public SearchGitlabReposAction(DbClient dbClient, UserSession userSession, GitlabApplicationClient gitlabApplicationClient) {
     this.dbClient = dbClient;
     this.userSession = userSession;
-    this.gitlabHttpClient = gitlabHttpClient;
+    this.gitlabApplicationClient = gitlabApplicationClient;
   }
 
   @Override
@@ -113,7 +113,7 @@ public class SearchGitlabReposAction implements AlmIntegrationsWsAction {
       String personalAccessToken = almPatDto.map(AlmPatDto::getPersonalAccessToken).orElseThrow(() -> new IllegalArgumentException("No personal access token found"));
       String gitlabUrl = requireNonNull(almSettingDto.getUrl(), "DevOps Platform url cannot be null");
 
-      ProjectList gitlabProjectList = gitlabHttpClient
+      ProjectList gitlabProjectList = gitlabApplicationClient
         .searchProjects(gitlabUrl, personalAccessToken, projectName, pageNumber, pageSize);
 
       Map<String, ProjectKeyName> sqProjectsKeyByGitlabProjectId = getSqProjectsKeyByGitlabProjectId(dbSession, almSettingDto, gitlabProjectList);

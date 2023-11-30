@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.alm.client.github;
+package org.sonar.alm.client;
 
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
@@ -32,7 +32,7 @@ import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.sonar.alm.client.github.RatioBasedRateLimitChecker.RATE_RATIO_EXCEEDED_MESSAGE;
+import static org.sonar.alm.client.RatioBasedRateLimitChecker.RATE_RATIO_EXCEEDED_MESSAGE;
 
 @RunWith(DataProviderRunner.class)
 public class RatioBasedRateLimitCheckerTest {

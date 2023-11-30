@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.alm.client.github;
+package org.sonar.alm.client;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -37,7 +37,6 @@ import okhttp3.ResponseBody;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.alm.client.TimeoutConfiguration;
 import org.sonar.alm.client.github.security.AccessToken;
 import org.sonarqube.ws.client.OkHttpClientBuilder;
 
@@ -58,7 +57,7 @@ public abstract class GenericApplicationHttpClient implements ApplicationHttpCli
   private final DevopsPlatformHeaders devopsPlatformHeaders;
   private final OkHttpClient client;
 
-  public GenericApplicationHttpClient(DevopsPlatformHeaders devopsPlatformHeaders, TimeoutConfiguration timeoutConfiguration) {
+  protected GenericApplicationHttpClient(DevopsPlatformHeaders devopsPlatformHeaders, TimeoutConfiguration timeoutConfiguration) {
     this.devopsPlatformHeaders = devopsPlatformHeaders;
     client = new OkHttpClientBuilder()
       .setConnectTimeoutMs(timeoutConfiguration.getConnectTimeout())
@@ -184,7 +183,7 @@ public abstract class GenericApplicationHttpClient implements ApplicationHttpCli
   private Request.Builder newRequestBuilder(String appUrl, @Nullable AccessToken token, String endPoint) {
     Request.Builder url = new Request.Builder().url(toAbsoluteEndPoint(appUrl, endPoint));
     if (token != null) {
-      url.addHeader(devopsPlatformHeaders.getAuthorizationHeader(), token.getAuthorizationHeaderPrefix() + " " + token);
+      url.addHeader(devopsPlatformHeaders.getAuthorizationHeader(), token.getAuthorizationHeaderPrefix() + " " + token.getValue());
       devopsPlatformHeaders.getApiVersion().ifPresent(apiVersion ->
         url.addHeader(devopsPlatformHeaders.getApiVersionHeader().orElseThrow(), apiVersion)
       );
@@ -224,17 +223,16 @@ public abstract class GenericApplicationHttpClient implements ApplicationHttpCli
 
   @CheckForNull
   private static String readNextEndPoint(okhttp3.Response response) {
-    String links = response.headers().get("link");
-    if (links == null || links.isEmpty() || !links.contains("rel=\"next\"")) {
-      return null;
-    }
-
+    String links = Optional.ofNullable(response.headers().get("link")).orElse("");
     Matcher nextLinkMatcher = NEXT_LINK_PATTERN.matcher(links);
     if (!nextLinkMatcher.find()) {
       return null;
     }
-
-    return nextLinkMatcher.group(1);
+    String nextUrl = nextLinkMatcher.group(1);
+    if (response.request().url().toString().equals(nextUrl)) {
+      return null;
+    }
+    return nextUrl;
   }
 
   @CheckForNull
@@ -250,7 +248,7 @@ public abstract class GenericApplicationHttpClient implements ApplicationHttpCli
 
   @CheckForNull
   private static <T> T headerValueOrNull(okhttp3.Response response, String header, Function<String, T> mapper) {
-    return ofNullable(response.header(header)).map(mapper::apply).orElse(null);
+    return ofNullable(response.headers().get(header)).map(mapper::apply).orElse(null);
   }
 
   private static class ResponseImpl implements Response {

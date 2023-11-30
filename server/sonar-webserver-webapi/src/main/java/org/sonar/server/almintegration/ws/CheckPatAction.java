@@ -22,7 +22,7 @@ package org.sonar.server.almintegration.ws;
 import org.sonar.alm.client.azure.AzureDevOpsHttpClient;
 import org.sonar.alm.client.bitbucket.bitbucketcloud.BitbucketCloudRestClient;
 import org.sonar.alm.client.bitbucketserver.BitbucketServerRestClient;
-import org.sonar.alm.client.gitlab.GitlabHttpClient;
+import org.sonar.alm.client.gitlab.GitlabApplicationClient;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -50,19 +50,19 @@ public class CheckPatAction implements AlmIntegrationsWsAction {
   private final AzureDevOpsHttpClient azureDevOpsHttpClient;
   private final BitbucketCloudRestClient bitbucketCloudRestClient;
   private final BitbucketServerRestClient bitbucketServerRestClient;
-  private final GitlabHttpClient gitlabHttpClient;
+  private final GitlabApplicationClient gitlabApplicationClient;
 
   public CheckPatAction(DbClient dbClient, UserSession userSession,
     AzureDevOpsHttpClient azureDevOpsHttpClient,
     BitbucketCloudRestClient bitbucketCloudRestClient,
     BitbucketServerRestClient bitbucketServerRestClient,
-    GitlabHttpClient gitlabHttpClient) {
+    GitlabApplicationClient gitlabApplicationClient) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.azureDevOpsHttpClient = azureDevOpsHttpClient;
     this.bitbucketCloudRestClient = bitbucketCloudRestClient;
     this.bitbucketServerRestClient = bitbucketServerRestClient;
-    this.gitlabHttpClient = gitlabHttpClient;
+    this.gitlabApplicationClient = gitlabApplicationClient;
   }
 
   @Override
@@ -113,7 +113,7 @@ public class CheckPatAction implements AlmIntegrationsWsAction {
             requireNonNull(almPatDto.getPersonalAccessToken(), PAT_CANNOT_BE_NULL));
           break;
         case GITLAB:
-          gitlabHttpClient.searchProjects(
+          gitlabApplicationClient.searchProjects(
             requireNonNull(almSettingDto.getUrl(), URL_CANNOT_BE_NULL),
             requireNonNull(almPatDto.getPersonalAccessToken(), PAT_CANNOT_BE_NULL),
             null, null, null);

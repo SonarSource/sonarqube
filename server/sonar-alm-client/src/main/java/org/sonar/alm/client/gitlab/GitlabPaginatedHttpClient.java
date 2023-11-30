@@ -17,14 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.alm.client.github;
+package org.sonar.alm.client.gitlab;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.function.Function;
-import org.sonar.alm.client.github.security.AccessToken;
+import org.sonar.alm.client.GenericPaginatedHttpClient;
+import org.sonar.alm.client.RatioBasedRateLimitChecker;
+import org.sonar.api.ce.ComputeEngineSide;
+import org.sonar.api.server.ServerSide;
 
-public interface PaginatedHttpClient {
+@ServerSide
+@ComputeEngineSide
+public class GitlabPaginatedHttpClient extends GenericPaginatedHttpClient {
 
-  <E> List<E> get(String appUrl, AccessToken token, String query, Function<String, List<E>> responseDeserializer) throws IOException;
+  public GitlabPaginatedHttpClient(GitlabApplicationHttpClient appHttpClient, RatioBasedRateLimitChecker rateLimitChecker) {
+    super(appHttpClient, rateLimitChecker);
+  }
+
 }

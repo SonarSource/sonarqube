@@ -33,11 +33,14 @@ import org.sonar.alm.client.github.GithubGlobalSettingsValidator;
 import org.sonar.alm.client.github.GithubHeaders;
 import org.sonar.alm.client.github.GithubPaginatedHttpClient;
 import org.sonar.alm.client.github.GithubPermissionConverter;
-import org.sonar.alm.client.github.RatioBasedRateLimitChecker;
+import org.sonar.alm.client.RatioBasedRateLimitChecker;
 import org.sonar.alm.client.github.config.GithubProvisioningConfigValidator;
 import org.sonar.alm.client.github.security.GithubAppSecurityImpl;
+import org.sonar.alm.client.gitlab.GitlabApplicationHttpClient;
 import org.sonar.alm.client.gitlab.GitlabGlobalSettingsValidator;
-import org.sonar.alm.client.gitlab.GitlabHttpClient;
+import org.sonar.alm.client.gitlab.GitlabHeaders;
+import org.sonar.alm.client.gitlab.GitlabApplicationClient;
+import org.sonar.alm.client.gitlab.GitlabPaginatedHttpClient;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.server.rule.RulesDefinitionXmlLoader;
 import org.sonar.auth.bitbucket.BitbucketModule;
@@ -555,22 +558,25 @@ public class PlatformLevel4 extends PlatformLevel {
       ProjectKeyGenerator.class,
       RatioBasedRateLimitChecker.class,
       GithubAppSecurityImpl.class,
-      GithubApplicationClientImpl.class,
-      GithubPaginatedHttpClient.class,
       GithubHeaders.class,
       GithubApplicationHttpClient.class,
+      GithubPaginatedHttpClient.class,
+      GithubApplicationClientImpl.class,
       GithubProvisioningConfigValidator.class,
       GithubProvisioningWs.class,
       GithubProjectCreatorFactory.class,
       GithubPermissionConverter.class,
       BitbucketCloudRestClientConfiguration.class,
       BitbucketServerRestClient.class,
-      GitlabHttpClient.class,
       AzureDevOpsHttpClient.class,
       new AlmIntegrationsWSModule(),
       BitbucketCloudValidator.class,
       BitbucketServerSettingsValidator.class,
       GithubGlobalSettingsValidator.class,
+      GitlabHeaders.class,
+      GitlabApplicationHttpClient.class,
+      GitlabPaginatedHttpClient.class,
+      GitlabApplicationClient.class,
       GitlabGlobalSettingsValidator.class,
       AzureDevOpsValidator.class,
 

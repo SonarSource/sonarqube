@@ -23,7 +23,7 @@ import java.util.Optional;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 import org.sonar.alm.client.gitlab.GitLabBranch;
-import org.sonar.alm.client.gitlab.GitlabHttpClient;
+import org.sonar.alm.client.gitlab.GitlabApplicationClient;
 import org.sonar.alm.client.gitlab.Project;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
@@ -70,7 +70,7 @@ public class ImportGitLabProjectAction implements AlmIntegrationsWsAction {
   private final DbClient dbClient;
   private final UserSession userSession;
   private final ProjectDefaultVisibility projectDefaultVisibility;
-  private final GitlabHttpClient gitlabHttpClient;
+  private final GitlabApplicationClient gitlabApplicationClient;
   private final ComponentUpdater componentUpdater;
   private final ImportHelper importHelper;
   private final ProjectKeyGenerator projectKeyGenerator;
@@ -79,13 +79,13 @@ public class ImportGitLabProjectAction implements AlmIntegrationsWsAction {
 
   @Inject
   public ImportGitLabProjectAction(DbClient dbClient, UserSession userSession,
-    ProjectDefaultVisibility projectDefaultVisibility, GitlabHttpClient gitlabHttpClient,
+    ProjectDefaultVisibility projectDefaultVisibility, GitlabApplicationClient gitlabApplicationClient,
     ComponentUpdater componentUpdater, ImportHelper importHelper, ProjectKeyGenerator projectKeyGenerator, NewCodeDefinitionResolver newCodeDefinitionResolver,
     DefaultBranchNameResolver defaultBranchNameResolver) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.projectDefaultVisibility = projectDefaultVisibility;
-    this.gitlabHttpClient = gitlabHttpClient;
+    this.gitlabApplicationClient = gitlabApplicationClient;
     this.componentUpdater = componentUpdater;
     this.importHelper = importHelper;
     this.projectKeyGenerator = projectKeyGenerator;
@@ -139,7 +139,7 @@ public class ImportGitLabProjectAction implements AlmIntegrationsWsAction {
       long gitlabProjectId = request.mandatoryParamAsLong(PARAM_GITLAB_PROJECT_ID);
 
       String gitlabUrl = requireNonNull(almSettingDto.getUrl(), "DevOps Platform gitlabUrl cannot be null");
-      Project gitlabProject = gitlabHttpClient.getProject(gitlabUrl, pat, gitlabProjectId);
+      Project gitlabProject = gitlabApplicationClient.getProject(gitlabUrl, pat, gitlabProjectId);
 
       Optional<String> almMainBranchName = getAlmDefaultBranch(pat, gitlabProjectId, gitlabUrl);
 
@@ -169,7 +169,7 @@ public class ImportGitLabProjectAction implements AlmIntegrationsWsAction {
   }
 
   private Optional<String> getAlmDefaultBranch(String pat, long gitlabProjectId, String gitlabUrl) {
-    Optional<GitLabBranch> almMainBranch = gitlabHttpClient.getBranches(gitlabUrl, pat, gitlabProjectId).stream().filter(GitLabBranch::isDefault).findFirst();
+    Optional<GitLabBranch> almMainBranch = gitlabApplicationClient.getBranches(gitlabUrl, pat, gitlabProjectId).stream().filter(GitLabBranch::isDefault).findFirst();
     return almMainBranch.map(GitLabBranch::getName);
   }
 

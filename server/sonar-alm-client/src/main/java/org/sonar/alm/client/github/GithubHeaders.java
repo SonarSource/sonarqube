@@ -20,6 +20,7 @@
 package org.sonar.alm.client.github;
 
 import java.util.Optional;
+import org.sonar.alm.client.DevopsPlatformHeaders;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
 

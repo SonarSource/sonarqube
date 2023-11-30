@@ -24,7 +24,7 @@ import org.junit.Test;
 import org.sonar.alm.client.azure.AzureDevOpsHttpClient;
 import org.sonar.alm.client.bitbucket.bitbucketcloud.BitbucketCloudRestClient;
 import org.sonar.alm.client.bitbucketserver.BitbucketServerRestClient;
-import org.sonar.alm.client.gitlab.GitlabHttpClient;
+import org.sonar.alm.client.gitlab.GitlabApplicationClient;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbTester;
 import org.sonar.db.alm.pat.AlmPatDto;
@@ -60,9 +60,9 @@ public class CheckPatActionIT {
   private final AzureDevOpsHttpClient azureDevOpsPrHttpClient = mock(AzureDevOpsHttpClient.class);
   private final BitbucketCloudRestClient bitbucketCloudRestClient = mock(BitbucketCloudRestClient.class);
   private final BitbucketServerRestClient bitbucketServerRestClient = mock(BitbucketServerRestClient.class);
-  private final GitlabHttpClient gitlabPrHttpClient = mock(GitlabHttpClient.class);
+  private final GitlabApplicationClient gitlabApplicationClient = mock(GitlabApplicationClient.class);
   private final WsActionTester ws = new WsActionTester(new CheckPatAction(db.getDbClient(), userSession, azureDevOpsPrHttpClient,
-    bitbucketCloudRestClient, bitbucketServerRestClient, gitlabPrHttpClient));
+    bitbucketCloudRestClient, bitbucketServerRestClient, gitlabApplicationClient));
 
   @Test
   public void check_pat_for_github() {
@@ -134,7 +134,7 @@ public class CheckPatActionIT {
       .execute();
 
     assertThat(almSetting.getUrl()).isNotNull();
-    verify(gitlabPrHttpClient).searchProjects(almSetting.getUrl(), PAT_SECRET, null, null, null);
+    verify(gitlabApplicationClient).searchProjects(almSetting.getUrl(), PAT_SECRET, null, null, null);
   }
 
   @Test
@@ -175,7 +175,7 @@ public class CheckPatActionIT {
 
   @Test
   public void fail_when_personal_access_token_is_invalid_for_gitlab() {
-    when(gitlabPrHttpClient.searchProjects(any(), any(), any(), any(), any()))
+    when(gitlabApplicationClient.searchProjects(any(), any(), any(), any(), any()))
       .thenThrow(new IllegalArgumentException("Invalid personal access token"));
     UserDto user = db.users().insertUser();
     userSession.logIn(user).addPermission(PROVISION_PROJECTS);

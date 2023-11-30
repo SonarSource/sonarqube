@@ -31,20 +31,34 @@ import java.util.List;
  */
 public class GsonGroup {
 
+  @SerializedName("id")
+  private String id;
   @SerializedName("full_path")
   private String fullPath;
+  @SerializedName("description")
+  private String description;
 
   public GsonGroup() {
     // http://stackoverflow.com/a/18645370/229031
-    this("");
+    this("", "", "");
   }
 
-  GsonGroup(String fullPath) {
+  private GsonGroup(String id, String fullPath, String description) {
+    this.id = id;
     this.fullPath = fullPath;
+    this.description = description;
   }
 
-  String getFullPath() {
+  public String getId() {
+    return id;
+  }
+
+  public String getFullPath() {
     return fullPath;
+  }
+
+  public String getDescription() {
+    return description;
   }
 
   static List<GsonGroup> parse(String json) {

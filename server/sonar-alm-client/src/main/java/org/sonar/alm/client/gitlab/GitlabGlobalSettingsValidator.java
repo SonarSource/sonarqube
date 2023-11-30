@@ -28,11 +28,11 @@ import org.sonar.db.alm.setting.AlmSettingDto;
 public class GitlabGlobalSettingsValidator {
 
   private final Encryption encryption;
-  private final GitlabHttpClient gitlabHttpClient;
+  private final GitlabApplicationClient gitlabApplicationClient;
 
-  public GitlabGlobalSettingsValidator(GitlabHttpClient gitlabHttpClient, Settings settings) {
+  public GitlabGlobalSettingsValidator(GitlabApplicationClient gitlabApplicationClient, Settings settings) {
     this.encryption = settings.getEncryption();
-    this.gitlabHttpClient = gitlabHttpClient;
+    this.gitlabApplicationClient = gitlabApplicationClient;
   }
 
   public void validate(AlmSettingDto almSettingDto) {
@@ -43,10 +43,10 @@ public class GitlabGlobalSettingsValidator {
       throw new IllegalArgumentException("Your Gitlab global configuration is incomplete.");
     }
 
-    gitlabHttpClient.checkUrl(gitlabUrl);
-    gitlabHttpClient.checkToken(gitlabUrl, accessToken);
-    gitlabHttpClient.checkReadPermission(gitlabUrl, accessToken);
-    gitlabHttpClient.checkWritePermission(gitlabUrl, accessToken);
+    gitlabApplicationClient.checkUrl(gitlabUrl);
+    gitlabApplicationClient.checkToken(gitlabUrl, accessToken);
+    gitlabApplicationClient.checkReadPermission(gitlabUrl, accessToken);
+    gitlabApplicationClient.checkWritePermission(gitlabUrl, accessToken);
   }
 
 }

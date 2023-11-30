@@ -17,17 +17,42 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.alm.client.github;
+package org.sonar.alm.client.gitlab;
 
-import org.sonar.alm.client.GenericApplicationHttpClient;
-import org.sonar.alm.client.TimeoutConfiguration;
-import org.sonar.api.ce.ComputeEngineSide;
-import org.sonar.api.server.ServerSide;
+import java.util.Objects;
+import org.sonar.alm.client.github.security.AccessToken;
 
-@ServerSide
-@ComputeEngineSide
-public class GithubApplicationHttpClient extends GenericApplicationHttpClient {
-  public GithubApplicationHttpClient(GithubHeaders githubHeaders, TimeoutConfiguration timeoutConfiguration) {
-    super(githubHeaders, timeoutConfiguration);
+public class GitlabToken implements AccessToken {
+  private final String token;
+
+  public GitlabToken(String token) {
+    this.token = token;
+  }
+
+  @Override
+  public String getValue() {
+    return token;
+  }
+
+  @Override
+  public String getAuthorizationHeaderPrefix() {
+    return "";
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    GitlabToken that = (GitlabToken) o;
+    return Objects.equals(token, that.token);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(token);
   }
 }

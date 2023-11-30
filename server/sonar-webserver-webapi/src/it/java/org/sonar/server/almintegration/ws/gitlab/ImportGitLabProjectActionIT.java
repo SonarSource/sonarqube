@@ -26,7 +26,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.alm.client.gitlab.GitLabBranch;
-import org.sonar.alm.client.gitlab.GitlabHttpClient;
+import org.sonar.alm.client.gitlab.GitlabApplicationClient;
 import org.sonar.alm.client.gitlab.Project;
 import org.sonar.api.utils.System2;
 import org.sonar.core.i18n.I18n;
@@ -94,14 +94,14 @@ public class ImportGitLabProjectActionIT {
     mock(PermissionTemplateService.class), new FavoriteUpdater(db.getDbClient()), new TestIndexers(), new SequenceUuidFactory(),
     defaultBranchNameResolver, mock(PermissionUpdater.class), mock(PermissionService.class));
 
-  private final GitlabHttpClient gitlabHttpClient = mock(GitlabHttpClient.class);
+  private final GitlabApplicationClient gitlabApplicationClient = mock(GitlabApplicationClient.class);
   private final ImportHelper importHelper = new ImportHelper(db.getDbClient(), userSession);
   private final ProjectDefaultVisibility projectDefaultVisibility = mock(ProjectDefaultVisibility.class);
   private final ProjectKeyGenerator projectKeyGenerator = mock(ProjectKeyGenerator.class);
   private PlatformEditionProvider editionProvider = mock(PlatformEditionProvider.class);
   private NewCodeDefinitionResolver newCodeDefinitionResolver = new NewCodeDefinitionResolver(db.getDbClient(), editionProvider);
   private final ImportGitLabProjectAction importGitLabProjectAction = new ImportGitLabProjectAction(
-    db.getDbClient(), userSession, projectDefaultVisibility, gitlabHttpClient, componentUpdater, importHelper, projectKeyGenerator, newCodeDefinitionResolver,
+    db.getDbClient(), userSession, projectDefaultVisibility, gitlabApplicationClient, componentUpdater, importHelper, projectKeyGenerator, newCodeDefinitionResolver,
     defaultBranchNameResolver);
   private final WsActionTester ws = new WsActionTester(importGitLabProjectAction);
 
@@ -125,7 +125,7 @@ public class ImportGitLabProjectActionIT {
       .setParam(PARAM_NEW_CODE_DEFINITION_VALUE, "30")
       .executeProtobuf(Projects.CreateWsResponse.class);
 
-    verify(gitlabHttpClient).getProject(almSetting.getUrl(), "PAT", 12345L);
+    verify(gitlabApplicationClient).getProject(almSetting.getUrl(), "PAT", 12345L);
 
     Projects.CreateWsResponse.Project result = response.getProject();
     assertThat(result.getKey()).isEqualTo(PROJECT_KEY_NAME);
@@ -179,8 +179,8 @@ public class ImportGitLabProjectActionIT {
       .setParam("gitlabProjectId", "12345")
       .executeProtobuf(Projects.CreateWsResponse.class);
 
-    verify(gitlabHttpClient).getProject(almSetting.getUrl(), "PAT", 12345L);
-    verify(gitlabHttpClient).getBranches(almSetting.getUrl(), "PAT", 12345L);
+    verify(gitlabApplicationClient).getProject(almSetting.getUrl(), "PAT", 12345L);
+    verify(gitlabApplicationClient).getBranches(almSetting.getUrl(), "PAT", 12345L);
 
     Projects.CreateWsResponse.Project result = response.getProject();
     assertThat(result.getKey()).isEqualTo(PROJECT_KEY_NAME);
@@ -205,8 +205,8 @@ public class ImportGitLabProjectActionIT {
       .setParam("gitlabProjectId", "12345")
       .executeProtobuf(Projects.CreateWsResponse.class);
 
-    verify(gitlabHttpClient).getProject(almSetting.getUrl(), "PAT", 12345L);
-    verify(gitlabHttpClient).getBranches(almSetting.getUrl(), "PAT", 12345L);
+    verify(gitlabApplicationClient).getProject(almSetting.getUrl(), "PAT", 12345L);
+    verify(gitlabApplicationClient).getBranches(almSetting.getUrl(), "PAT", 12345L);
 
     Projects.CreateWsResponse.Project result = response.getProject();
     assertThat(result.getKey()).isEqualTo(PROJECT_KEY_NAME);
@@ -231,7 +231,7 @@ public class ImportGitLabProjectActionIT {
       .setParam("gitlabProjectId", "12345")
       .executeProtobuf(Projects.CreateWsResponse.class);
 
-    verify(gitlabHttpClient).getProject(almSetting.getUrl(), "PAT", 12345L);
+    verify(gitlabApplicationClient).getProject(almSetting.getUrl(), "PAT", 12345L);
 
     Projects.CreateWsResponse.Project result = response.getProject();
     assertThat(result.getKey()).isEqualTo(PROJECT_KEY_NAME);
@@ -344,8 +344,8 @@ public class ImportGitLabProjectActionIT {
 
   private Project mockGitlabProject(List<GitLabBranch> master) {
     Project project = new Project(randomAlphanumeric(5), randomAlphanumeric(5));
-    when(gitlabHttpClient.getProject(any(), any(), any())).thenReturn(project);
-    when(gitlabHttpClient.getBranches(any(), any(), any())).thenReturn(master);
+    when(gitlabApplicationClient.getProject(any(), any(), any())).thenReturn(project);
+    when(gitlabApplicationClient.getBranches(any(), any(), any())).thenReturn(master);
     when(projectKeyGenerator.generateUniqueProjectKey(project.getPathWithNamespace())).thenReturn(PROJECT_KEY_NAME);
     return project;
   }
