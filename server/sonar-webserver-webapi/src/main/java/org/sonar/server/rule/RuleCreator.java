@@ -50,6 +50,7 @@ import org.sonar.db.rule.RuleParamDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.util.TypeValidations;
+import org.sonarqube.ws.Common;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.Lists.newArrayList;
@@ -201,7 +202,6 @@ public class RuleCreator {
       .setSeverity(severity)
       .setStatus(newRule.status())
       .setType(type)
-      .setCleanCodeAttribute(CleanCodeAttribute.CONVENTIONAL)
       .setLanguage(templateRuleDto.getLanguage())
       .setDefRemediationFunction(templateRuleDto.getDefRemediationFunction())
       .setDefRemediationGapMultiplier(templateRuleDto.getDefRemediationGapMultiplier())
@@ -220,7 +220,9 @@ public class RuleCreator {
     if (type != RuleType.SECURITY_HOTSPOT.getDbConstant()) {
       SoftwareQuality softwareQuality = ImpactMapper.convertToSoftwareQuality(RuleType.valueOf(type));
       org.sonar.api.issue.impact.Severity impactSeverity = ImpactMapper.convertToImpactSeverity(severity);
-      ruleDto = ruleDto.addDefaultImpact(new ImpactDto().setUuid(uuidFactory.create()).setSoftwareQuality(softwareQuality).setSeverity(impactSeverity));
+      ruleDto = ruleDto.addDefaultImpact(new ImpactDto().setUuid(uuidFactory.create()).setSoftwareQuality(softwareQuality)
+        .setSeverity(impactSeverity))
+        .setCleanCodeAttribute(CleanCodeAttribute.CONVENTIONAL);
     }
 
     Set<String> tags = templateRuleDto.getTags();
