@@ -55,7 +55,6 @@ function dotnetYamlSteps(projectKey: string) {
           New-Item -Path .\\.sonar\\scanner -ItemType Directory
           dotnet tool update dotnet-sonarscanner --tool-path .\\.sonar\\scanner
       - name: Build and analyze
-        env:
         shell: powershell
         run: |
           .\\.sonar\\scanner\\dotnet-sonarscanner begin /k:"${projectKey}" /d:sonar.token="\${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="\${{ secrets.SONAR_HOST_URL }}"
