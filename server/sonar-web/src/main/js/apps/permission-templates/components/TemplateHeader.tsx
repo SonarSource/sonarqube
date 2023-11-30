@@ -17,34 +17,33 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Link, Title } from 'design-system';
 import * as React from 'react';
-import Link from '../../../components/common/Link';
-import Spinner from '../../../components/ui/Spinner';
 import { translate } from '../../../helpers/l10n';
 import { PermissionTemplate } from '../../../types/types';
 import { PERMISSION_TEMPLATES_PATH } from '../utils';
 import ActionsCell from './ActionsCell';
 
 interface Props {
-  loading: boolean;
   refresh: () => void;
   template: PermissionTemplate;
   topQualifiers: string[];
 }
 
 export default function TemplateHeader(props: Props) {
-  const { template, loading } = props;
+  const { template } = props;
   return (
-    <header className="page-header" id="project-permissions-header">
-      <div className="note spacer-bottom">
-        <Link to={PERMISSION_TEMPLATES_PATH}>{translate('permission_templates.page')}</Link>
+    <header className="sw-mb-2 sw-flex sw-justify-between" id="project-permissions-header">
+      <div>
+        <div className="sw-mb-2">
+          <Link to={PERMISSION_TEMPLATES_PATH}>{translate('permission_templates.page')}</Link>
+        </div>
+        <div>
+          <Title>{template.name}</Title>
+        </div>
+        <div>{translate('global_permissions.page.description')}</div>
       </div>
-
-      <h1 className="page-title">{template.name}</h1>
-
-      <Spinner loading={loading} />
-
-      <div className="pull-right">
+      <div>
         <ActionsCell
           fromDetails
           permissionTemplate={template}

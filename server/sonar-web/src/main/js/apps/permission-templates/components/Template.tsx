@@ -17,19 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { FlagMessage, LargeCenteredLayout, PageContentFontWrapper } from 'design-system';
 import { without } from 'lodash';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import * as api from '../../../api/permissions';
 import AllHoldersList from '../../../components/permissions/AllHoldersList';
 import { FilterOption } from '../../../components/permissions/SearchForm';
-import { Alert } from '../../../components/ui/Alert';
+import UseQuery from '../../../helpers/UseQuery';
 import { translate } from '../../../helpers/l10n';
 import {
-  convertToPermissionDefinitions,
   PERMISSIONS_ORDER_FOR_PROJECT_TEMPLATE,
+  convertToPermissionDefinitions,
 } from '../../../helpers/permissions';
-import UseQuery from '../../../helpers/UseQuery';
 import { useGithubProvisioningEnabledQuery } from '../../../queries/identity-provider';
 import { Paging, PermissionGroup, PermissionTemplate, PermissionUser } from '../../../types/types';
 import TemplateDetails from './TemplateDetails';
@@ -321,48 +321,49 @@ export default class Template extends React.PureComponent<Props, State> {
     }
 
     return (
-      <div className="page page-limited">
-        <Helmet defer={false} title={template.name} />
+      <LargeCenteredLayout id="permission-template">
+        <PageContentFontWrapper className="sw-my-8 sw-body-sm">
+          <Helmet defer={false} title={template.name} />
 
-        <TemplateHeader
-          loading={loading}
-          refresh={this.props.refresh}
-          template={template}
-          topQualifiers={topQualifiers}
-        />
-        <main>
-          <TemplateDetails template={template} />
-          <UseQuery query={useGithubProvisioningEnabledQuery}>
-            {({ data: githubProvisioningStatus }) =>
-              githubProvisioningStatus ? (
-                <Alert variant="warning" className="sw-w-fit">
-                  {translate('permission_templates.github_warning')}
-                </Alert>
-              ) : null
-            }
-          </UseQuery>
-
-          <AllHoldersList
-            filter={filter}
-            onGrantPermissionToGroup={this.grantPermissionToGroup}
-            onGrantPermissionToUser={this.grantPermissionToUser}
-            groups={groups}
-            groupsPaging={groupsPaging}
-            loading={loading}
-            onFilter={this.handleFilter}
-            onLoadMore={this.onLoadMore}
-            onQuery={this.handleSearch}
-            query={query}
-            onRevokePermissionFromGroup={this.revokePermissionFromGroup}
-            onRevokePermissionFromUser={this.revokePermissionFromUser}
-            users={allUsers}
-            usersPaging={usersPagingWithCreator}
-            permissions={permissions}
-            selectedPermission={selectedPermission}
-            onSelectPermission={this.handleSelectPermission}
+          <TemplateHeader
+            refresh={this.props.refresh}
+            template={template}
+            topQualifiers={topQualifiers}
           />
-        </main>
-      </div>
+          <main>
+            <TemplateDetails template={template} />
+            <UseQuery query={useGithubProvisioningEnabledQuery}>
+              {({ data: githubProvisioningStatus }) =>
+                githubProvisioningStatus ? (
+                  <FlagMessage variant="warning" className="sw-w-fit">
+                    {translate('permission_templates.github_warning')}
+                  </FlagMessage>
+                ) : null
+              }
+            </UseQuery>
+
+            <AllHoldersList
+              filter={filter}
+              onGrantPermissionToGroup={this.grantPermissionToGroup}
+              onGrantPermissionToUser={this.grantPermissionToUser}
+              groups={groups}
+              groupsPaging={groupsPaging}
+              loading={loading}
+              onFilter={this.handleFilter}
+              onLoadMore={this.onLoadMore}
+              onQuery={this.handleSearch}
+              query={query}
+              onRevokePermissionFromGroup={this.revokePermissionFromGroup}
+              onRevokePermissionFromUser={this.revokePermissionFromUser}
+              users={allUsers}
+              usersPaging={usersPagingWithCreator}
+              permissions={permissions}
+              selectedPermission={selectedPermission}
+              onSelectPermission={this.handleSelectPermission}
+            />
+          </main>
+        </PageContentFontWrapper>
+      </LargeCenteredLayout>
     );
   }
 }

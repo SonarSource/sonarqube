@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { BasicSeparator, Spinner } from 'design-system';
 import * as React from 'react';
 import {
   Paging,
@@ -87,11 +88,31 @@ export default class AllHoldersList extends React.PureComponent<Props> {
   };
 
   render() {
-    const { filter, query, groups, users, permissions, selectedPermission, loading } = this.props;
+    const {
+      filter,
+      query,
+      groups,
+      users,
+      permissions,
+      selectedPermission,
+      loading = false,
+    } = this.props;
     const { count, total } = this.getPaging();
 
     return (
       <>
+        <div>
+          <div className="sw-flex sw-justify-between">
+            <SearchForm
+              filter={filter}
+              onFilter={this.props.onFilter}
+              onSearch={this.props.onQuery}
+              query={query}
+            />
+            <Spinner loading={loading} />
+          </div>
+          <BasicSeparator className="sw-mt-4" />
+        </div>
         <HoldersList
           loading={loading}
           filter={filter}
@@ -103,15 +124,8 @@ export default class AllHoldersList extends React.PureComponent<Props> {
           query={query}
           selectedPermission={selectedPermission}
           users={users}
-        >
-          <SearchForm
-            filter={filter}
-            onFilter={this.props.onFilter}
-            onSearch={this.props.onQuery}
-            query={query}
-          />
-        </HoldersList>
-        <ListFooter count={count} loadMore={this.props.onLoadMore} total={total} />
+        />
+        <ListFooter count={count} loadMore={this.props.onLoadMore} total={total} useMIUIButtons />
       </>
     );
   }

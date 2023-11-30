@@ -17,23 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Title } from 'design-system';
 import * as React from 'react';
 import { translate } from '../../../../helpers/l10n';
 
-interface Props {
-  loading?: boolean;
-}
-
-export default class PageHeader extends React.PureComponent<Props> {
-  render() {
-    return (
-      <header className="page-header">
-        <h1 className="page-title">{translate('global_permissions.page')}</h1>
-
-        {this.props.loading && <i className="spinner" />}
-
-        <div className="page-description">{translate('global_permissions.page.description')}</div>
-      </header>
-    );
-  }
+export default function PageHeader() {
+  return (
+    <header className="sw-mb-2 sw-flex sw-flex-col sw-justify-between sw-mb-4">
+      <div>
+        <Title>{translate('global_permissions.page')}</Title>
+      </div>
+      <div>{translate('global_permissions.page.description')}</div>
+    </header>
+  );
 }

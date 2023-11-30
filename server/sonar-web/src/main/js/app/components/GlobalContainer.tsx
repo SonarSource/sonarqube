@@ -67,6 +67,9 @@ const TEMP_PAGELIST_WITH_NEW_BACKGROUND_WHITE = [
   '/project/quality_profiles',
   '/project/webhooks',
   '/admin/webhooks',
+  '/project_roles',
+  '/admin/permissions',
+  '/admin/permission_templates',
 ];
 
 export default function GlobalContainer() {

@@ -131,7 +131,7 @@ const ui = {
   applyTemplateDialog: byRole('dialog', {
     name: 'projects_role.apply_template_to_x.Project 1',
   }),
-  selectTemplate: byRole('combobox', { name: 'template field_required' }),
+  selectTemplate: (required: string) => byRole('combobox', { name: `template ${required}` }),
 
   deleteDialog: byRole('dialog', { name: 'qualifiers.delete.TRK' }),
 
@@ -283,7 +283,7 @@ describe('Bulk permission templates', () => {
         .get(),
     ).toBeInTheDocument();
     await selectEvent.select(
-      ui.bulkApplyDialog.by(ui.selectTemplate).get(),
+      ui.bulkApplyDialog.by(ui.selectTemplate('field_required')).get(),
       'Permission Template 2',
     );
     await user.click(ui.bulkApplyDialog.by(ui.apply).get());
@@ -456,7 +456,7 @@ it('should apply template for single object', async () => {
 
   expect(ui.applyTemplateDialog.get()).toBeInTheDocument();
   await selectEvent.select(
-    ui.applyTemplateDialog.by(ui.selectTemplate).get(),
+    ui.applyTemplateDialog.by(ui.selectTemplate('required')).get(),
     'Permission Template 2',
   );
   await user.click(ui.applyTemplateDialog.by(ui.apply).get());

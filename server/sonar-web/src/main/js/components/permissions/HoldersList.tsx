@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { ContentCell, Table, TableRow, TableSeparator } from 'design-system';
 import { partition } from 'lodash';
 import * as React from 'react';
 import UseQuery from '../../helpers/UseQuery';
@@ -146,45 +147,44 @@ export default class HoldersList extends React.PureComponent<
   }
 
   render() {
-    const { permissions, users, groups, loading, children, selectedPermission } = this.props;
+    const { permissions, users, groups, loading, selectedPermission } = this.props;
     const items = [...groups, ...users];
     const [itemWithPermissions, itemWithoutPermissions] = partition(items, (item) =>
       this.getItemInitialPermissionsCount(item),
     );
 
+    const HEADER_COLUMNS = permissions.length + 1;
+
+    const tableHeader = (
+      <TableRow>
+        <ContentCell />
+        {permissions.map((permission) => (
+          <PermissionHeader
+            key={isPermissionDefinitionGroup(permission) ? permission.category : permission.key}
+            onSelectPermission={this.props.onSelectPermission}
+            permission={permission}
+            selectedPermission={selectedPermission}
+          />
+        ))}
+      </TableRow>
+    );
+
     return (
-      <div className="boxed-group boxed-group-inner">
-        <table className="data zebra permissions-table">
-          <thead>
-            <tr>
-              <td className="nowrap bordered-bottom">{children}</td>
-              {permissions.map((permission) => (
-                <PermissionHeader
-                  key={
-                    isPermissionDefinitionGroup(permission) ? permission.category : permission.key
-                  }
-                  onSelectPermission={this.props.onSelectPermission}
-                  permission={permission}
-                  selectedPermission={selectedPermission}
-                />
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {items.length === 0 && !loading && this.renderEmpty()}
-            {itemWithPermissions.map((item) => this.renderItem(item, permissions))}
-            {itemWithPermissions.length > 0 && itemWithoutPermissions.length > 0 && (
-              <>
-                <tr>
-                  <td className="divider" colSpan={20} />
-                </tr>
-                <tr />
-                {/* Keep correct zebra colors in the table */}
-              </>
-            )}
-            {itemWithoutPermissions.map((item) => this.renderItem(item, permissions))}
-          </tbody>
-        </table>
+      <div>
+        <Table
+          columnWidths={[500, ...permissions.map(() => 100)]}
+          className="it__permission-list"
+          noHeaderTopBorder
+          columnCount={HEADER_COLUMNS}
+          header={tableHeader}
+        >
+          {items.length === 0 && !loading && this.renderEmpty()}
+          {itemWithPermissions.map((item) => this.renderItem(item, permissions))}
+          {itemWithPermissions.length > 0 && itemWithoutPermissions.length > 0 && (
+            <TableSeparator />
+          )}
+          {itemWithoutPermissions.map((item) => this.renderItem(item, permissions))}
+        </Table>
       </div>
     );
   }

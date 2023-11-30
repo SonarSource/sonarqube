@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { FlagMessage } from 'design-system/lib';
 import * as React from 'react';
 import ConfirmModal from '../../../../components/controls/ConfirmModal';
-import { Alert } from '../../../../components/ui/Alert';
 import { translate, translateWithParameters } from '../../../../helpers/l10n';
 
 interface Props {
@@ -40,9 +40,9 @@ export default function PublicProjectDisclaimer({ component, onClose, onConfirm 
       onClose={onClose}
       onConfirm={onConfirm}
     >
-      <Alert variant="warning">
+      <FlagMessage className="sw-mb-4" variant="warning">
         {translate('projects_role.are_you_sure_to_turn_project_to_public.warning', qualifier)}
-      </Alert>
+      </FlagMessage>
       <p>{translate('projects_role.are_you_sure_to_turn_project_to_public', qualifier)}</p>
     </ConfirmModal>
   );

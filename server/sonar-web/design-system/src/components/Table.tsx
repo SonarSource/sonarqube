@@ -86,6 +86,11 @@ export function Table(props: TableProps) {
   );
 }
 
+export const TableSeparator = styled.tr`
+  ${tw`sw-h-4`}
+  border-top: ${themeBorder('default')};
+`;
+
 export const TableRow = styled.tr`
   td,
   th {
@@ -182,10 +187,14 @@ export function CellComponent(props: CellComponentProps) {
   return <CellComponentStyled as={containerType} {...props} />;
 }
 
-export function ContentCell({ children, ...props }: CellComponentProps) {
+export function ContentCell({ children, className, ...props }: CellComponentProps) {
   return (
     <CellComponent {...props}>
-      <div className="sw-text-left sw-justify-start sw-flex sw-items-center">{children}</div>
+      <div
+        className={classNames('sw-text-left sw-justify-start sw-flex sw-items-center', className)}
+      >
+        {children}
+      </div>
     </CellComponent>
   );
 }

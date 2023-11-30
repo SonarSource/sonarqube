@@ -284,11 +284,11 @@ describe('filtering', () => {
     await ui.openTemplateDetails('Permission Template 1');
     await ui.appLoaded();
 
-    expect(screen.getAllByRole('row').length).toBe(12);
+    expect(screen.getAllByRole('row').length).toBe(11);
     await ui.toggleFilterByPermission(Permissions.Admin);
     expect(screen.getAllByRole('row').length).toBe(3);
     await ui.toggleFilterByPermission(Permissions.Admin);
-    expect(screen.getAllByRole('row').length).toBe(12);
+    expect(screen.getAllByRole('row').length).toBe(11);
   });
 });
 
@@ -368,9 +368,9 @@ it('should correctly handle pagination', async () => {
   await ui.openTemplateDetails('Permission Template 1');
   await ui.appLoaded();
 
-  expect(screen.getAllByRole('row').length).toBe(14);
+  expect(screen.getAllByRole('row').length).toBe(13);
   await ui.clickLoadMore();
-  expect(screen.getAllByRole('row').length).toBe(24);
+  expect(screen.getAllByRole('row').length).toBe(23);
 });
 
 it.each([ComponentQualifier.Project, ComponentQualifier.Application, ComponentQualifier.Portfolio])(
@@ -412,21 +412,21 @@ function getPageObject(user: UserEvent) {
         name: `permission.assign_x_to_y.projects_role.${permission}.${target}`,
       }),
     tableHeaderFilter: (permission: Permissions) =>
-      byRole('link', { name: `projects_role.${permission}` }),
-    onlyUsersBtn: byRole('button', { name: 'users.page' }),
-    onlyGroupsBtn: byRole('button', { name: 'user_groups.page' }),
+      byRole('button', { name: `projects_role.${permission}` }),
+    onlyUsersBtn: byRole('radio', { name: 'users.page' }),
+    onlyGroupsBtn: byRole('radio', { name: 'user_groups.page' }),
     githubWarning: byText('permission_templates.github_warning'),
-    showAllBtn: byRole('button', { name: 'all' }),
+    showAllBtn: byRole('radio', { name: 'all' }),
     searchInput: byRole('searchbox', { name: 'search.search_for_users_or_groups' }),
     loadMoreBtn: byRole('button', { name: 'show_more' }),
     createNewTemplateBtn: byRole('button', { name: 'create' }),
     modal: byRole('dialog'),
     cogMenuBtn: (name: string) =>
       byRole('button', { name: `permission_templates.show_actions_for_x.${name}` }),
-    deleteBtn: byRole('button', { name: 'delete' }),
-    updateDetailsBtn: byRole('button', { name: 'update_details' }),
+    deleteBtn: byRole('menuitem', { name: 'delete' }),
+    updateDetailsBtn: byRole('menuitem', { name: 'update_details' }),
     setDefaultBtn: (qualifier: ComponentQualifier) =>
-      byRole('button', {
+      byRole('menuitem', {
         name:
           qualifier === ComponentQualifier.Project
             ? 'permission_templates.set_default'

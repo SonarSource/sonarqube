@@ -18,11 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import classNames from 'classnames';
+import { BareButton, ContentCell, HelperHintIcon } from 'design-system';
 import * as React from 'react';
 import { translate, translateWithParameters } from '../../helpers/l10n';
 import { isPermissionDefinitionGroup } from '../../helpers/permissions';
 import { PermissionDefinition, PermissionDefinitionGroup } from '../../types/types';
 import InstanceMessage from '../common/InstanceMessage';
+import ClickEventBoundary from '../controls/ClickEventBoundary';
 import HelpTooltip from '../controls/HelpTooltip';
 import Tooltip from '../controls/Tooltip';
 
@@ -33,9 +35,7 @@ interface Props {
 }
 
 export default class PermissionHeader extends React.PureComponent<Props> {
-  handlePermissionClick = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
-    event.preventDefault();
-    event.currentTarget.blur();
+  handlePermissionClick = () => {
     const { permission } = this.props;
     if (this.props.onSelectPermission && !isPermissionDefinitionGroup(permission)) {
       this.props.onSelectPermission(permission.key);
@@ -65,34 +65,39 @@ export default class PermissionHeader extends React.PureComponent<Props> {
       name = translate('global_permissions', permission.category);
     } else {
       name = onSelectPermission ? (
-        <Tooltip
-          overlay={translateWithParameters(
-            'global_permissions.filter_by_x_permission',
-            permission.name,
-          )}
-        >
-          <a href="#" onClick={this.handlePermissionClick}>
-            {permission.name}
-          </a>
-        </Tooltip>
+        <ClickEventBoundary>
+          <BareButton onClick={this.handlePermissionClick}>
+            <Tooltip
+              overlay={translateWithParameters(
+                'global_permissions.filter_by_x_permission',
+                permission.name,
+              )}
+            >
+              <span>{permission.name}</span>
+            </Tooltip>
+          </BareButton>
+        </ClickEventBoundary>
       ) : (
         permission.name
       );
     }
     return (
-      <th
+      <ContentCell
         scope="col"
-        className={classNames('permission-column text-center text-middle', {
+        className={classNames('sw-justify-center', {
           selected:
             !isPermissionDefinitionGroup(permission) &&
             permission.key === this.props.selectedPermission,
         })}
       >
-        <div className="permission-column-inner">
-          {name}
-          <HelpTooltip className="spacer-left" overlay={this.getTooltipOverlay()} />
+        <div className="sw-flex sw-content-center">
+          <div className="sw-grow-1 sw-text-center">{name}</div>
+
+          <HelpTooltip className="sw-ml-2" overlay={this.getTooltipOverlay()}>
+            <HelperHintIcon aria-label="help-tooltip" />
+          </HelpTooltip>
         </div>
-      </th>
+      </ContentCell>
     );
   }
 }

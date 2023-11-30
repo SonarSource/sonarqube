@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { LargeCenteredLayout, PageContentFontWrapper } from 'design-system';
 import { without } from 'lodash';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
@@ -29,9 +30,9 @@ import AllHoldersList from '../../../../components/permissions/AllHoldersList';
 import { FilterOption } from '../../../../components/permissions/SearchForm';
 import { translate } from '../../../../helpers/l10n';
 import {
+  PERMISSIONS_ORDER_GLOBAL,
   convertToPermissionDefinitions,
   filterPermissions,
-  PERMISSIONS_ORDER_GLOBAL,
 } from '../../../../helpers/permissions';
 import { ComponentQualifier } from '../../../../types/component';
 import { Paging, PermissionGroup, PermissionUser } from '../../../../types/types';
@@ -256,28 +257,30 @@ class PermissionsGlobalApp extends React.PureComponent<Props, State> {
       'global_permissions',
     );
     return (
-      <main className="page page-limited">
-        <Suggestions suggestions="global_permissions" />
-        <Helmet defer={false} title={translate('global_permissions.permission')} />
-        <PageHeader loading={loading} />
-        <AllHoldersList
-          permissions={permissions}
-          filter={filter}
-          onGrantPermissionToGroup={this.handleGrantPermissionToGroup}
-          onGrantPermissionToUser={this.handleGrantPermissionToUser}
-          groups={groups}
-          groupsPaging={groupsPaging}
-          loading={loading}
-          onFilter={this.handleFilter}
-          onLoadMore={this.handleLoadMore}
-          onQuery={this.handleSearch}
-          query={query}
-          onRevokePermissionFromGroup={this.handleRevokePermissionFromGroup}
-          onRevokePermissionFromUser={this.handleRevokePermissionFromUser}
-          users={users}
-          usersPaging={usersPaging}
-        />
-      </main>
+      <LargeCenteredLayout id="project-permissions-page">
+        <PageContentFontWrapper className="sw-my-8 sw-body-sm">
+          <Suggestions suggestions="global_permissions" />
+          <Helmet defer={false} title={translate('global_permissions.permission')} />
+          <PageHeader />
+          <AllHoldersList
+            permissions={permissions}
+            filter={filter}
+            onGrantPermissionToGroup={this.handleGrantPermissionToGroup}
+            onGrantPermissionToUser={this.handleGrantPermissionToUser}
+            groups={groups}
+            groupsPaging={groupsPaging}
+            loading={loading}
+            onFilter={this.handleFilter}
+            onLoadMore={this.handleLoadMore}
+            onQuery={this.handleSearch}
+            query={query}
+            onRevokePermissionFromGroup={this.handleRevokePermissionFromGroup}
+            onRevokePermissionFromUser={this.handleRevokePermissionFromUser}
+            users={users}
+            usersPaging={usersPaging}
+          />
+        </PageContentFontWrapper>
+      </LargeCenteredLayout>
     );
   }
 }

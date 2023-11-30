@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { LargeCenteredLayout, PageContentFontWrapper } from 'design-system';
 import { noop, without } from 'lodash';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
@@ -344,63 +345,65 @@ class PermissionsProjectApp extends React.PureComponent<Props, State> {
     const permissions = convertToPermissionDefinitions(order, 'projects_role');
 
     return (
-      <main className="page page-limited" id="project-permissions-page">
-        <Helmet defer={false} title={translate('permissions.page')} />
+      <LargeCenteredLayout id="project-permissions-page">
+        <PageContentFontWrapper className="sw-my-8 sw-body-sm">
+          <Helmet defer={false} title={translate('permissions.page')} />
 
-        <UseQuery query={useIsGitHubProjectQuery} args={[component.key]}>
-          {({ data: isGitHubProject }) => (
-            <>
-              <PageHeader
-                component={component}
-                isGitHubProject={isGitHubProject}
-                loadHolders={this.loadHolders}
-                loading={loading}
-              />
-              <div>
-                <UseQuery query={useGithubProvisioningEnabledQuery}>
-                  {({ data: githubProvisioningStatus, isFetching }) => (
-                    <VisibilitySelector
-                      canTurnToPrivate={canTurnToPrivate}
-                      className="sw-flex big-spacer-top big-spacer-bottom"
-                      onChange={this.handleVisibilityChange}
-                      loading={loading || isFetching}
-                      disabled={isGitHubProject && !!githubProvisioningStatus}
-                      visibility={component.visibility}
+          <UseQuery query={useIsGitHubProjectQuery} args={[component.key]}>
+            {({ data: isGitHubProject }) => (
+              <>
+                <PageHeader
+                  component={component}
+                  isGitHubProject={isGitHubProject}
+                  loadHolders={this.loadHolders}
+                />
+                <div>
+                  <UseQuery query={useGithubProvisioningEnabledQuery}>
+                    {({ data: githubProvisioningStatus, isFetching }) => (
+                      <VisibilitySelector
+                        canTurnToPrivate={canTurnToPrivate}
+                        className="sw-flex sw-my-4"
+                        onChange={this.handleVisibilityChange}
+                        loading={loading || isFetching}
+                        disabled={isGitHubProject && !!githubProvisioningStatus}
+                        visibility={component.visibility}
+                      />
+                    )}
+                  </UseQuery>
+
+                  {disclaimer && (
+                    <PublicProjectDisclaimer
+                      component={component}
+                      onClose={this.handleCloseDisclaimer}
+                      onConfirm={this.handleTurnProjectToPublic}
                     />
                   )}
-                </UseQuery>
+                </div>
+              </>
+            )}
+          </UseQuery>
 
-                {disclaimer && (
-                  <PublicProjectDisclaimer
-                    component={component}
-                    onClose={this.handleCloseDisclaimer}
-                    onConfirm={this.handleTurnProjectToPublic}
-                  />
-                )}
-              </div>
-            </>
-          )}
-        </UseQuery>
-
-        <AllHoldersList
-          filter={filter}
-          onGrantPermissionToGroup={this.handleGrantPermissionToGroup}
-          onGrantPermissionToUser={this.handleGrantPermissionToUser}
-          groups={groups}
-          groupsPaging={groupsPaging}
-          onFilter={this.handleFilterChange}
-          onLoadMore={this.handleLoadMore}
-          onSelectPermission={this.handlePermissionSelect}
-          onQuery={this.handleQueryChange}
-          query={query}
-          onRevokePermissionFromGroup={this.handleRevokePermissionFromGroup}
-          onRevokePermissionFromUser={this.handleRevokePermissionFromUser}
-          selectedPermission={selectedPermission}
-          users={users}
-          usersPaging={usersPaging}
-          permissions={permissions}
-        />
-      </main>
+          <AllHoldersList
+            loading={loading}
+            filter={filter}
+            onGrantPermissionToGroup={this.handleGrantPermissionToGroup}
+            onGrantPermissionToUser={this.handleGrantPermissionToUser}
+            groups={groups}
+            groupsPaging={groupsPaging}
+            onFilter={this.handleFilterChange}
+            onLoadMore={this.handleLoadMore}
+            onSelectPermission={this.handlePermissionSelect}
+            onQuery={this.handleQueryChange}
+            query={query}
+            onRevokePermissionFromGroup={this.handleRevokePermissionFromGroup}
+            onRevokePermissionFromUser={this.handleRevokePermissionFromUser}
+            selectedPermission={selectedPermission}
+            users={users}
+            usersPaging={usersPaging}
+            permissions={permissions}
+          />
+        </PageContentFontWrapper>
+      </LargeCenteredLayout>
     );
   }
 }

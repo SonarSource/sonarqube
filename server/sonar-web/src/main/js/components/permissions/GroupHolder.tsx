@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Badge, ContentCell, TableRowInteractive } from 'design-system';
 import * as React from 'react';
 import { translate } from '../../helpers/l10n';
 import { isPermissionDefinitionGroup } from '../../helpers/permissions';
@@ -57,38 +58,38 @@ export default function GroupHolder(props: Props) {
     removeOnly,
   });
 
+  const description =
+    group.name === ANYONE ? translate('user_groups.anyone.description') : group.description;
+
   return (
-    <tr>
-      <td className="nowrap text-middle">
-        <div className="display-flex-center">
-          <GroupIcon className="big-spacer-right" />
-          <div className="max-width-100">
+    <TableRowInteractive>
+      <ContentCell>
+        <div className="sw-flex sw-items-center">
+          <GroupIcon className="sw-mr-4" />
+          <div className="sw-max-w-abs-800">
             <div className="sw-flex sw-w-fit sw-max-w-full">
-              <div className="sw-flex-1 text-ellipsis">
+              <div className="sw-flex-1 sw-text-ellipsis sw-whitespace-nowrap sw-overflow-hidden  sw-min-w-0">
                 <strong>{group.name}</strong>
               </div>
               {isGitHubProject && group.managed && (
                 <img
                   alt="github"
-                  className="spacer-left spacer-right"
+                  className="sw-my-2"
                   aria-label={translate('project_permission.github_managed')}
                   height={16}
                   src={`${getBaseUrl()}/images/alm/github.svg`}
                 />
               )}
               {group.name === ANYONE && (
-                <span className="spacer-left badge badge-error">{translate('deprecated')}</span>
+                <Badge className="sw-ml-2" variant="deleted">
+                  {translate('deprecated')}
+                </Badge>
               )}
             </div>
-
-            <div className="little-spacer-top" style={{ whiteSpace: 'normal' }}>
-              {group.name === ANYONE
-                ? translate('user_groups.anyone.description')
-                : group.description}
-            </div>
+            {description && <div className="sw-mt-2 sw-whitespace-normal">{description}</div>}
           </div>
         </div>
-      </td>
+      </ContentCell>
       {permissions.map((permission) => {
         const isPermissionGroup = isPermissionDefinitionGroup(permission);
         const permissionKey = isPermissionGroup ? permission.category : permission.key;
@@ -105,11 +106,12 @@ export default function GroupHolder(props: Props) {
             onCheck={handleCheck}
             permission={permission}
             permissionItem={group}
+            prefixID={group.name}
             selectedPermission={selectedPermission}
           />
         );
       })}
       {modal}
-    </tr>
+    </TableRowInteractive>
   );
 }

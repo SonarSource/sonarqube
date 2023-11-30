@@ -17,10 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { InputSearch, ToggleButton } from 'design-system';
 import * as React from 'react';
 import { translate } from '../../helpers/l10n';
-import ButtonToggle from '../controls/ButtonToggle';
-import SearchBox from '../controls/SearchBox';
 
 export type FilterOption = 'all' | 'users' | 'groups';
 interface Props {
@@ -38,11 +37,11 @@ export default function SearchForm(props: Props) {
   ];
 
   return (
-    <div className="display-flex-row">
-      <ButtonToggle onCheck={props.onFilter} options={filterOptions} value={props.filter} />
+    <div className="sw-flex sw-flex-row">
+      <ToggleButton onChange={props.onFilter} options={filterOptions} value={props.filter} />
 
-      <div className="flex-1 spacer-left">
-        <SearchBox
+      <div className="sw-flex-1 sw-ml-2">
+        <InputSearch
           minLength={3}
           onChange={props.onSearch}
           placeholder={translate('search.search_for_users_or_groups')}

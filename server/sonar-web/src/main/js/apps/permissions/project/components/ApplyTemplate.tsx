@@ -17,15 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import {
+  ButtonPrimary,
+  FlagMessage,
+  FormField,
+  InputSelect,
+  LabelValueSelectOption,
+  Modal,
+} from 'design-system';
 import * as React from 'react';
 import { applyTemplateToProject, getPermissionTemplates } from '../../../../api/permissions';
-import Select from '../../../../components/controls/Select';
-import SimpleModal from '../../../../components/controls/SimpleModal';
-import { ResetButtonLink, SubmitButton } from '../../../../components/controls/buttons';
-import { Alert } from '../../../../components/ui/Alert';
-import MandatoryFieldMarker from '../../../../components/ui/MandatoryFieldMarker';
 import MandatoryFieldsExplanation from '../../../../components/ui/MandatoryFieldsExplanation';
-import Spinner from '../../../../components/ui/Spinner';
 import { translate, translateWithParameters } from '../../../../helpers/l10n';
 import { PermissionTemplate } from '../../../../types/types';
 
@@ -70,8 +72,10 @@ export default class ApplyTemplate extends React.PureComponent<Props, State> {
     );
   };
 
-  handleSubmit = () => {
+  handleSubmit = (event: React.SyntheticEvent<HTMLFormElement>) => {
+    event.preventDefault();
     if (this.state.permissionTemplate) {
+      this.setState({ loading: true });
       return applyTemplateToProject({
         projectKey: this.props.project.key,
         templateId: this.state.permissionTemplate,
@@ -80,13 +84,13 @@ export default class ApplyTemplate extends React.PureComponent<Props, State> {
           if (this.props.onApply) {
             this.props.onApply();
           }
-          this.setState({ done: true });
+          this.setState({ done: true, loading: false });
         }
       });
     }
   };
 
-  handlePermissionTemplateChange = ({ value }: { value: string }) => {
+  handlePermissionTemplateChange = ({ value }: LabelValueSelectOption<string>) => {
     this.setState({ permissionTemplate: value });
   };
 
@@ -103,63 +107,59 @@ export default class ApplyTemplate extends React.PureComponent<Props, State> {
         }))
       : [];
 
+    const FORM_ID = 'project-permissions-apply-template-form';
+
     return (
-      <SimpleModal
-        header={header}
+      <Modal
+        isOverflowVisible
+        headerTitle={header}
         onClose={this.props.onClose}
-        onSubmit={this.handleSubmit}
-        size="small"
-      >
-        {({ onCloseClick, onFormSubmit, submitting }) => (
-          <form id="project-permissions-apply-template-form" onSubmit={onFormSubmit}>
-            <header className="modal-head">
-              <h2>{header}</h2>
-            </header>
-
-            <div className="modal-body">
+        primaryButton={
+          !this.state.done && (
+            <ButtonPrimary
+              disabled={this.state.loading || !this.state.permissionTemplate}
+              type="submit"
+              form={FORM_ID}
+            >
+              {translate('apply')}
+            </ButtonPrimary>
+          )
+        }
+        secondaryButtonLabel={translate(this.state.done ? 'close' : 'cancel')}
+        body={
+          <form id={FORM_ID} onSubmit={this.handleSubmit}>
+            <div>
               {this.state.done && (
-                <Alert variant="success">{translate('projects_role.apply_template.success')}</Alert>
+                <FlagMessage variant="success">
+                  {translate('projects_role.apply_template.success')}
+                </FlagMessage>
               )}
-
-              {this.state.loading && <i className="spinner" />}
 
               {!this.state.done && !this.state.loading && (
                 <>
-                  <MandatoryFieldsExplanation className="modal-field" />
-                  <div className="modal-field">
-                    <label htmlFor="project-permissions-template-input">
-                      {translate('template')}
-                      <MandatoryFieldMarker />
-                    </label>
+                  <MandatoryFieldsExplanation className="sw-mb-4" />
+                  <FormField
+                    label={translate('template')}
+                    required
+                    htmlFor="project-permissions-template-input"
+                  >
                     {this.state.permissionTemplates && (
-                      <Select
+                      <InputSelect
+                        size="full"
                         id="project-permissions-template"
-                        className="Select"
                         inputId="project-permissions-template-input"
                         onChange={this.handlePermissionTemplateChange}
                         options={options}
                         value={options.filter((o) => o.value === this.state.permissionTemplate)}
                       />
                     )}
-                  </div>
+                  </FormField>
                 </>
               )}
             </div>
-
-            <footer className="modal-foot">
-              <Spinner className="spacer-right" loading={submitting} />
-              {!this.state.done && (
-                <SubmitButton disabled={submitting || !this.state.permissionTemplate}>
-                  {translate('apply')}
-                </SubmitButton>
-              )}
-              <ResetButtonLink onClick={onCloseClick}>
-                {translate(this.state.done ? 'close' : 'cancel')}
-              </ResetButtonLink>
-            </footer>
           </form>
-        )}
-      </SimpleModal>
+        }
+      />
     );
   }
 }

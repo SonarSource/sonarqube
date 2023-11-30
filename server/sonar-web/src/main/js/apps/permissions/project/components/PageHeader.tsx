@@ -17,11 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { ButtonPrimary, FlagMessage, Title } from 'design-system';
 import * as React from 'react';
 import GitHubSynchronisationWarning from '../../../../app/components/GitHubSynchronisationWarning';
-import { Button } from '../../../../components/controls/buttons';
-import { Alert } from '../../../../components/ui/Alert';
-import Spinner from '../../../../components/ui/Spinner';
 import { translate } from '../../../../helpers/l10n';
 import { getBaseUrl } from '../../../../helpers/system';
 import { useGithubProvisioningEnabledQuery } from '../../../../queries/identity-provider';
@@ -33,14 +31,13 @@ interface Props {
   component: Component;
   isGitHubProject?: boolean;
   loadHolders: () => void;
-  loading: boolean;
 }
 
 export default function PageHeader(props: Props) {
   const [applyTemplateModal, setApplyTemplateModal] = React.useState(false);
   const { data: githubProvisioningStatus } = useGithubProvisioningEnabledQuery();
 
-  const { component, isGitHubProject, loading } = props;
+  const { component, isGitHubProject } = props;
   const { configuration } = component;
   const provisionedByGitHub = isGitHubProject && !!githubProvisioningStatus;
   const canApplyPermissionTemplate =
@@ -67,27 +64,44 @@ export default function PageHeader(props: Props) {
       : undefined;
 
   return (
-    <header className="page-header">
-      <h1 className="page-title">
-        {translate('permissions.page')}
-        {provisionedByGitHub && (
-          <img
-            alt="github"
-            className="spacer-left spacer-right"
-            aria-label={translate('project_permission.github_managed')}
-            height={16}
-            src={`${getBaseUrl()}/images/alm/github.svg`}
-          />
-        )}
-      </h1>
+    <header className="sw-mb-2 sw-flex sw-items-center sw-justify-between">
+      <div>
+        <Title>
+          {translate('permissions.page')}
+          {provisionedByGitHub && (
+            <img
+              alt="github"
+              className="sw-mx-2"
+              aria-label={translate('project_permission.github_managed')}
+              height={16}
+              src={`${getBaseUrl()}/images/alm/github.svg`}
+            />
+          )}
+        </Title>
 
-      <Spinner className="spacer-left" loading={loading} />
-
+        <div>
+          <p>{description}</p>
+          {visibilityDescription && <p>{visibilityDescription}</p>}
+          {provisionedByGitHub && (
+            <>
+              <p>{translate('roles.page.description.github')}</p>
+              <div className="sw-mt-2">
+                <GitHubSynchronisationWarning short />
+              </div>
+            </>
+          )}
+          {githubProvisioningStatus && !isGitHubProject && (
+            <FlagMessage variant="warning" className="sw-mt-2">
+              {translate('project_permission.local_project_with_github_provisioning')}
+            </FlagMessage>
+          )}
+        </div>
+      </div>
       {canApplyPermissionTemplate && (
-        <div className="page-actions">
-          <Button className="js-apply-template" onClick={handleApplyTemplate}>
+        <div>
+          <ButtonPrimary className="js-apply-template" onClick={handleApplyTemplate}>
             {translate('projects_role.apply_template')}
-          </Button>
+          </ButtonPrimary>
 
           {applyTemplateModal && (
             <ApplyTemplate
@@ -98,24 +112,6 @@ export default function PageHeader(props: Props) {
           )}
         </div>
       )}
-
-      <div className="page-description">
-        <p>{description}</p>
-        {visibilityDescription && <p>{visibilityDescription}</p>}
-        {provisionedByGitHub && (
-          <>
-            <p>{translate('roles.page.description.github')}</p>
-            <div className="sw-mt-2">
-              <GitHubSynchronisationWarning short />
-            </div>
-          </>
-        )}
-        {githubProvisioningStatus && !isGitHubProject && (
-          <Alert variant="warning" className="sw-mt-2">
-            {translate('project_permission.local_project_with_github_provisioning')}
-          </Alert>
-        )}
-      </div>
     </header>
   );
 }

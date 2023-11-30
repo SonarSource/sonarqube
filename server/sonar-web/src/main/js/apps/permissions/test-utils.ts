@@ -56,10 +56,10 @@ export function getPageObject(user: UserEvent) {
     templateSuccessfullyApplied: byText('projects_role.apply_template.success'),
     confirmApplyTemplateBtn: byRole('button', { name: 'apply' }),
     tableHeaderFilter: (permission: Permissions) =>
-      byRole('link', { name: `projects_role.${permission}` }),
-    onlyUsersBtn: byRole('button', { name: 'users.page' }),
-    onlyGroupsBtn: byRole('button', { name: 'user_groups.page' }),
-    showAllBtn: byRole('button', { name: 'all' }),
+      byRole('button', { name: `projects_role.${permission}` }),
+    onlyUsersBtn: byRole('radio', { name: 'users.page' }),
+    onlyGroupsBtn: byRole('radio', { name: 'user_groups.page' }),
+    showAllBtn: byRole('radio', { name: 'all' }),
     searchInput: byRole('searchbox', { name: 'search.search_for_users_or_groups' }),
     loadMoreBtn: byRole('button', { name: 'show_more' }),
   };

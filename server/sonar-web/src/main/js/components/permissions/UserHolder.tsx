@@ -17,12 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Avatar, ContentCell, Note, TableRowInteractive } from 'design-system';
 import * as React from 'react';
 import { translate } from '../../helpers/l10n';
 import { isPermissionDefinitionGroup } from '../../helpers/permissions';
 import { getBaseUrl } from '../../helpers/system';
 import { PermissionDefinitions, PermissionUser } from '../../types/types';
-import LegacyAvatar from '../ui/LegacyAvatar';
 import PermissionCell from './PermissionCell';
 import usePermissionChange from './usePermissionChange';
 
@@ -54,59 +54,62 @@ export default function UserHolder(props: Props) {
       disabled={disabled}
       removeOnly={removeOnly}
       permissionItem={user}
+      prefixID={user.login}
       selectedPermission={selectedPermission}
     />
   ));
 
   if (user.login === '<creator>') {
     return (
-      <tr>
-        <td className="nowrap text-middle">
-          <div>
-            <strong>{user.name}</strong>
+      <TableRowInteractive>
+        <ContentCell>
+          <div className="sw-max-w-abs-800">
+            <div className="sw-flex sw-flex-col sw-w-fit sw-max-w-full">
+              <strong className="sw-text-ellipsis sw-whitespace-nowrap sw-overflow-hidden">
+                {user.name}
+              </strong>
+              <p className="sw-mt-2">
+                {translate('permission_templates.project_creators.explanation')}
+              </p>
+            </div>
           </div>
-          <div className="little-spacer-top" style={{ whiteSpace: 'normal' }}>
-            {translate('permission_templates.project_creators.explanation')}
-          </div>
-        </td>
+        </ContentCell>
         {permissionCells}
-      </tr>
+      </TableRowInteractive>
     );
   }
 
   return (
-    <tr>
-      <td className="nowrap text-middle">
-        <div className="display-flex-center">
-          <LegacyAvatar
-            className="text-middle big-spacer-right flex-0"
-            hash={user.avatar}
-            name={user.name}
-            size={36}
-          />
-          <div className="max-width-100">
+    <TableRowInteractive>
+      <ContentCell>
+        <div className="sw-flex sw-items-center">
+          <Avatar className="sw-mr-4" hash={user.avatar} name={user.name} size="md" />
+          <div className="sw-max-w-abs-800">
             <div className="sw-flex sw-w-fit sw-max-w-full">
-              <div className="sw-flex-1 text-ellipsis">
+              <div className="sw-flex-1 sw-text-ellipsis sw-whitespace-nowrap sw-overflow-hidden">
                 <strong>{user.name}</strong>
-                <span className="note spacer-left">{user.login}</span>
+                <Note className="sw-ml-2">{user.login}</Note>
               </div>
               {isGitHubProject && user.managed && (
                 <img
                   alt="github"
-                  className="spacer-left spacer-right"
+                  className="sw-my-2"
                   height={16}
                   aria-label={translate('project_permission.github_managed')}
                   src={`${getBaseUrl()}/images/alm/github.svg`}
                 />
               )}
             </div>
-
-            <div className="little-spacer-top max-width-100 text-ellipsis">{user.email}</div>
+            {user.email && (
+              <div className="sw-mt-2 sw-max-w-100 sw-text-ellipsis sw-whitespace-nowrap sw-overflow-hidden">
+                {user.email}
+              </div>
+            )}
           </div>
         </div>
-      </td>
+      </ContentCell>
       {permissionCells}
       {modal}
-    </tr>
+    </TableRowInteractive>
   );
 }

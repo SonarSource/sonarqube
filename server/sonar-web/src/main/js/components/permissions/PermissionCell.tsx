@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import classNames from 'classnames';
+import { Checkbox, CheckboxCell } from 'design-system';
 import * as React from 'react';
 import { translateWithParameters } from '../../helpers/l10n';
 import { isPermissionDefinitionGroup } from '../../helpers/permissions';
@@ -27,7 +28,6 @@ import {
   PermissionGroup,
   PermissionUser,
 } from '../../types/types';
-import Checkbox from '../controls/Checkbox';
 
 export interface PermissionCellProps {
   disabled?: boolean;
@@ -37,38 +37,50 @@ export interface PermissionCellProps {
   permission: PermissionDefinition | PermissionDefinitionGroup;
   permissionItem: PermissionGroup | PermissionUser;
   selectedPermission?: string;
+  prefixID: string;
 }
 
 export default function PermissionCell(props: PermissionCellProps) {
-  const { disabled, loading, onCheck, permission, permissionItem, selectedPermission, removeOnly } =
-    props;
+  const {
+    disabled,
+    loading,
+    onCheck,
+    permission,
+    permissionItem,
+    selectedPermission,
+    removeOnly,
+    prefixID,
+  } = props;
 
   if (isPermissionDefinitionGroup(permission)) {
     return (
-      <td className="text-middle">
-        {permission.permissions.map((permissionDefinition) => {
-          const isChecked = permissionItem.permissions.includes(permissionDefinition.key);
-          const isDisabled = disabled || loading.includes(permissionDefinition.key);
+      <CheckboxCell>
+        <div className="sw-flex sw-flex-col sw-text-left">
+          {permission.permissions.map((permissionDefinition) => {
+            const isChecked = permissionItem.permissions.includes(permissionDefinition.key);
+            const isDisabled = disabled || loading.includes(permissionDefinition.key);
 
-          return (
-            <div key={permissionDefinition.key}>
-              <Checkbox
-                checked={isChecked}
-                disabled={isDisabled || (!isChecked && removeOnly)}
-                id={permissionDefinition.key}
-                label={translateWithParameters(
-                  'permission.assign_x_to_y',
-                  permissionDefinition.name,
-                  permissionItem.name,
-                )}
-                onCheck={onCheck}
-              >
-                <span className="little-spacer-left">{permissionDefinition.name}</span>
-              </Checkbox>
-            </div>
-          );
-        })}
-      </td>
+            return (
+              <div key={permissionDefinition.key}>
+                <Checkbox
+                  aria-disabled={isDisabled || (!isChecked && removeOnly)}
+                  checked={isChecked}
+                  disabled={isDisabled || (!isChecked && removeOnly)}
+                  id={`${permissionDefinition.key}`}
+                  label={translateWithParameters(
+                    'permission.assign_x_to_y',
+                    permissionDefinition.name,
+                    permissionItem.name,
+                  )}
+                  onCheck={() => onCheck(isChecked, permissionDefinition.key)}
+                >
+                  <span className="sw-ml-2">{permissionDefinition.name}</span>
+                </Checkbox>
+              </div>
+            );
+          })}
+        </div>
+      </CheckboxCell>
     );
   }
 
@@ -76,22 +88,23 @@ export default function PermissionCell(props: PermissionCellProps) {
   const isDisabled = disabled || loading.includes(permission.key);
 
   return (
-    <td
-      className={classNames('permission-column text-center text-middle', {
+    <CheckboxCell
+      className={classNames({
         selected: permission.key === selectedPermission,
       })}
     >
       <Checkbox
+        aria-disabled={isDisabled || (!isChecked && removeOnly)}
         checked={isChecked}
         disabled={isDisabled || (!isChecked && removeOnly)}
-        id={permission.key}
+        id={`${prefixID}-${permission.key}`}
         label={translateWithParameters(
           'permission.assign_x_to_y',
           permission.name,
           permissionItem.name,
         )}
-        onCheck={onCheck}
+        onCheck={() => onCheck(isChecked, permission.key)}
       />
-    </td>
+    </CheckboxCell>
   );
 }

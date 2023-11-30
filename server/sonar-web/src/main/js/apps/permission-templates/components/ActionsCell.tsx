@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { ActionsDropdown, ItemButton, ItemLink, PopupZLevel } from 'design-system';
 import { difference } from 'lodash';
 import * as React from 'react';
 import {
@@ -24,7 +25,6 @@ import {
   setDefaultPermissionTemplate,
   updatePermissionTemplate,
 } from '../../../api/permissions';
-import ActionsDropdown, { ActionsDropdownItem } from '../../../components/controls/ActionsDropdown';
 import { Router, withRouter } from '../../../components/hoc/withRouter';
 import QualifierIcon from '../../../components/icons/QualifierIcon';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
@@ -121,14 +121,14 @@ class ActionsCell extends React.PureComponent<Props, State> {
 
   renderSetDefaultLink(qualifier: string, child: React.ReactNode) {
     return (
-      <ActionsDropdownItem
+      <ItemButton
         className="js-set-default"
         data-qualifier={qualifier}
         key={qualifier}
         onClick={this.setDefault(qualifier)}
       >
         {child}
-      </ActionsDropdownItem>
+      </ItemButton>
     );
   }
 
@@ -159,27 +159,32 @@ class ActionsCell extends React.PureComponent<Props, State> {
     return (
       <>
         <ActionsDropdown
-          label={translateWithParameters('permission_templates.show_actions_for_x', t.name)}
+          id={`permission-template-actions-${t.id}`}
+          zLevel={PopupZLevel.Global}
+          toggleClassName="it__permission-actions"
+          ariaLabel={translateWithParameters('permission_templates.show_actions_for_x', t.name)}
         >
-          {this.renderSetDefaultsControl()}
+          <>
+            {this.renderSetDefaultsControl()}
 
-          {!this.props.fromDetails && (
-            <ActionsDropdownItem
-              to={{ pathname: PERMISSION_TEMPLATES_PATH, search: queryToSearch({ id: t.id }) }}
-            >
-              {translate('edit_permissions')}
-            </ActionsDropdownItem>
-          )}
+            {!this.props.fromDetails && (
+              <ItemLink
+                to={{ pathname: PERMISSION_TEMPLATES_PATH, search: queryToSearch({ id: t.id }) }}
+              >
+                {translate('edit_permissions')}
+              </ItemLink>
+            )}
 
-          <ActionsDropdownItem className="js-update" onClick={this.handleUpdateClick}>
-            {translate('update_details')}
-          </ActionsDropdownItem>
+            <ItemButton className="js-update" onClick={this.handleUpdateClick}>
+              {translate('update_details')}
+            </ItemButton>
 
-          {t.defaultFor.length === 0 && (
-            <ActionsDropdownItem className="js-delete" destructive onClick={this.handleDeleteClick}>
-              {translate('delete')}
-            </ActionsDropdownItem>
-          )}
+            {t.defaultFor.length === 0 && (
+              <ItemButton className="js-delete" onClick={this.handleDeleteClick}>
+                {translate('delete')}
+              </ItemButton>
+            )}
+          </>
         </ActionsDropdown>
 
         {this.state.updateModal && (
