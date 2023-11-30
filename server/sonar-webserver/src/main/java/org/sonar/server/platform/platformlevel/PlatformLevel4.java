@@ -80,6 +80,7 @@ import org.sonar.server.ce.projectdump.ProjectExportWsModule;
 import org.sonar.server.ce.ws.CeWsModule;
 import org.sonar.server.common.group.service.GroupMembershipService;
 import org.sonar.server.common.group.service.GroupService;
+import org.sonar.server.common.rule.service.RuleService;
 import org.sonar.server.component.ComponentCleanerService;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.component.ComponentService;
@@ -358,7 +359,7 @@ public class PlatformLevel4 extends PlatformLevel {
       RepositoriesAction.class,
       RuleQueryFactory.class,
       org.sonar.server.rule.ws.AppAction.class,
-
+      RuleService.class,
       // languages
       LanguagesProvider.class,
       LanguageWs.class,

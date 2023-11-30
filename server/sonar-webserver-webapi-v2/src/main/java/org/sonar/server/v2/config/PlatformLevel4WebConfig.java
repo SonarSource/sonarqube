@@ -30,6 +30,7 @@ import org.sonar.server.common.health.WebServerStatusNodeCheck;
 import org.sonar.server.common.management.ManagedInstanceChecker;
 import org.sonar.server.common.platform.LivenessChecker;
 import org.sonar.server.common.platform.LivenessCheckerImpl;
+import org.sonar.server.common.rule.service.RuleService;
 import org.sonar.server.common.user.service.UserService;
 import org.sonar.server.health.HealthChecker;
 import org.sonar.server.platform.NodeInformation;
@@ -39,6 +40,9 @@ import org.sonar.server.v2.api.group.controller.DefaultGroupController;
 import org.sonar.server.v2.api.group.controller.GroupController;
 import org.sonar.server.v2.api.membership.controller.DefaultGroupMembershipController;
 import org.sonar.server.v2.api.membership.controller.GroupMembershipController;
+import org.sonar.server.v2.api.rule.controller.DefaultRuleController;
+import org.sonar.server.v2.api.rule.controller.RuleController;
+import org.sonar.server.v2.api.rule.converter.RuleRestResponseGenerator;
 import org.sonar.server.v2.api.system.controller.DefaultLivenessController;
 import org.sonar.server.v2.api.system.controller.HealthController;
 import org.sonar.server.v2.api.system.controller.LivenessController;
@@ -93,6 +97,16 @@ public class PlatformLevel4WebConfig {
   public GroupMembershipController groupMembershipsController(UserSession userSession,
     GroupMembershipService groupMembershipService, ManagedInstanceChecker managedInstanceChecker) {
     return new DefaultGroupMembershipController(userSession, groupMembershipService, managedInstanceChecker);
+  }
+
+  @Bean
+  public RuleRestResponseGenerator ruleRestResponseGenerator() {
+    return new RuleRestResponseGenerator();
+  }
+
+  @Bean
+  public RuleController ruleController(UserSession userSession, RuleService ruleService, RuleRestResponseGenerator ruleRestResponseGenerator) {
+    return new DefaultRuleController(userSession, ruleService, ruleRestResponseGenerator);
   }
 
 
