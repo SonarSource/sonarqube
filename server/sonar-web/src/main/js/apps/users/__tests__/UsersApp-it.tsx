@@ -289,7 +289,7 @@ describe('in non managed mode', () => {
 
     await user.click(await ui.showMore.find());
 
-    await waitFor(async () => expect(await ui.userRows.findAll()).toHaveLength(12));
+    expect(ui.userRows.getAll()).toHaveLength(12);
     expect(ui.aliceRow.get()).toBeInTheDocument();
   });
 
