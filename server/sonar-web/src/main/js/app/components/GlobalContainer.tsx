@@ -70,6 +70,8 @@ const TEMP_PAGELIST_WITH_NEW_BACKGROUND_WHITE = [
   '/project_roles',
   '/admin/permissions',
   '/admin/permission_templates',
+  '/project/background_tasks',
+  '/admin/background_tasks',
 ];
 
 export default function GlobalContainer() {

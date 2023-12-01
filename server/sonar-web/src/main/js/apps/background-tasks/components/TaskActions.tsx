@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { ActionCell, ActionsDropdown, ItemButton, ItemDangerButton } from 'design-system';
 import * as React from 'react';
-import ActionsDropdown, { ActionsDropdownItem } from '../../../components/controls/ActionsDropdown';
 import ConfirmModal from '../../../components/controls/ConfirmModal';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { Task, TaskStatuses } from '../../../types/tasks';
@@ -103,51 +103,45 @@ export default class TaskActions extends React.PureComponent<Props, State> {
     }
 
     return (
-      <td className="thin nowrap">
+      <ActionCell>
         <ActionsDropdown
-          label={translate('background_tasks.show_actions')}
+          id={`task-${task.id}-actions`}
+          ariaLabel={translate('background_tasks.show_actions')}
           className="js-task-action"
         >
           {canFilter && task.componentName && (
-            <ActionsDropdownItem className="js-task-filter" onClick={this.handleFilterClick}>
+            <ItemButton className="js-task-filter" onClick={this.handleFilterClick}>
               {translateWithParameters(
                 'background_tasks.filter_by_component_x',
                 task.componentName,
               )}
-            </ActionsDropdownItem>
+            </ItemButton>
           )}
           {canCancel && (
-            <ActionsDropdownItem
-              className="js-task-cancel"
-              destructive
-              onClick={this.handleCancelClick}
-            >
+            <ItemDangerButton className="js-task-cancel" onClick={this.handleCancelClick}>
               {translate('background_tasks.cancel_task')}
-            </ActionsDropdownItem>
+            </ItemDangerButton>
           )}
           {task.hasScannerContext && (
-            <ActionsDropdownItem
+            <ItemButton
               className="js-task-show-scanner-context"
               onClick={this.handleShowScannerContextClick}
             >
               {translate('background_tasks.show_scanner_context')}
-            </ActionsDropdownItem>
+            </ItemButton>
           )}
           {canShowStacktrace && (
-            <ActionsDropdownItem
+            <ItemButton
               className="js-task-show-stacktrace"
               onClick={this.handleShowStacktraceClick}
             >
               {translate('background_tasks.show_stacktrace')}
-            </ActionsDropdownItem>
+            </ItemButton>
           )}
           {canShowWarnings && (
-            <ActionsDropdownItem
-              className="js-task-show-warnings"
-              onClick={this.handleShowWarningsClick}
-            >
+            <ItemButton className="js-task-show-warnings" onClick={this.handleShowWarningsClick}>
               {translate('background_tasks.show_warnings')}
-            </ActionsDropdownItem>
+            </ItemButton>
           )}
         </ActionsDropdown>
 
@@ -177,7 +171,7 @@ export default class TaskActions extends React.PureComponent<Props, State> {
             taskId={task.id}
           />
         )}
-      </td>
+      </ActionCell>
     );
   }
 }

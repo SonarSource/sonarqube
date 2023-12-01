@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { InputSelect, LabelValueSelectOption } from 'design-system';
 import * as React from 'react';
-import Select, { LabelValueSelectOption } from '../../../components/controls/Select';
 import { translate } from '../../../helpers/l10n';
 import { ALL_TYPES } from '../constants';
 
@@ -30,7 +30,7 @@ interface Props {
 }
 
 export default class TypesFilter extends React.PureComponent<Props> {
-  handleChange = ({ value }: LabelValueSelectOption) => {
+  handleChange = ({ value }: LabelValueSelectOption<string>) => {
     this.props.onChange(value);
   };
 
@@ -43,20 +43,20 @@ export default class TypesFilter extends React.PureComponent<Props> {
       };
     });
 
-    const allOptions: LabelValueSelectOption[] = [
+    const allOptions: LabelValueSelectOption<string>[] = [
       { value: ALL_TYPES, label: translate('background_task.type.ALL') },
       ...options,
     ];
 
     return (
-      <Select
+      <InputSelect
         aria-labelledby="background-task-type-filter-label"
-        className="input-large"
+        className="sw-w-abs-200"
         id={id}
         isClearable={false}
+        size="medium"
         onChange={this.handleChange}
         options={allOptions}
-        isSearchable={false}
         value={allOptions.find((o) => o.value === value)}
       />
     );

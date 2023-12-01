@@ -17,9 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { ButtonSecondary, InputSearch } from 'design-system';
 import * as React from 'react';
-import { Button } from '../../../components/controls/buttons';
-import SearchBox from '../../../components/controls/SearchBox';
 import { translate } from '../../../helpers/l10n';
 import { DEFAULT_FILTERS } from '../constants';
 import { Query } from '../utils';
@@ -67,78 +66,61 @@ export default class Search extends React.PureComponent<Props> {
     this.props.onFilterUpdate(DEFAULT_FILTERS);
   };
 
-  renderSearchBox() {
-    const { component, query } = this.props;
-
-    if (component) {
-      // do not render search form on the project-level page
-      return null;
-    }
-
-    return (
-      <li className="bt-search-form-large">
-        <SearchBox
-          onChange={this.handleQueryChange}
-          placeholder={translate('background_tasks.search_by_task_or_component')}
-          value={query}
-        />
-      </li>
-    );
-  }
-
   render() {
-    const { loading, component, types, status, taskType, currents, minSubmittedAt, maxExecutedAt } =
-      this.props;
+    const {
+      loading,
+      component,
+      query,
+      types,
+      status,
+      taskType,
+      currents,
+      minSubmittedAt,
+      maxExecutedAt,
+    } = this.props;
 
     return (
-      <section className="big-spacer-top big-spacer-bottom">
-        <ul className="bt-search-form">
+      <section className="sw-my-4">
+        <ul className="sw-flex sw-items-center sw-flex-wrap sw-gap-4">
           <li>
-            <div className="display-flex-column">
-              <label
-                id="background-task-status-filter-label"
-                className="text-bold little-spacer-bottom"
-                htmlFor="status-filter"
-              >
-                {translate('status')}
-              </label>
-              <StatusFilter id="status-filter" onChange={this.handleStatusChange} value={status} />
-            </div>
+            <label
+              id="background-task-status-filter-label"
+              className="sw-body-sm-highlight sw-mr-2"
+              htmlFor="status-filter"
+            >
+              {translate('status')}
+            </label>
+            <StatusFilter id="status-filter" onChange={this.handleStatusChange} value={status} />
           </li>
           {types.length > 1 && (
             <li>
-              <div className="display-flex-column">
-                <label
-                  id="background-task-type-filter-label"
-                  className="text-bold little-spacer-bottom"
-                  htmlFor="types-filter"
-                >
-                  {translate('type')}
-                </label>
-                <TypesFilter
-                  id="types-filter"
-                  onChange={this.handleTypeChange}
-                  types={types}
-                  value={taskType}
-                />
-              </div>
+              <label
+                id="background-task-type-filter-label"
+                className="sw-body-sm-highlight sw-mr-2"
+                htmlFor="types-filter"
+              >
+                {translate('type')}
+              </label>
+              <TypesFilter
+                id="types-filter"
+                onChange={this.handleTypeChange}
+                types={types}
+                value={taskType}
+              />
             </li>
           )}
           {!component && (
-            <li>
-              <div className="display-flex-column">
-                <label className="text-bold little-spacer-bottom" htmlFor="currents-filter">
-                  {translate('background_tasks.currents_filter.ONLY_CURRENTS')}
-                </label>
-                <CurrentsFilter
-                  id="currents-filter"
-                  onChange={this.handleCurrentsChange}
-                  value={currents}
-                />
-              </div>
+            <li className="sw-flex sw-items-center">
+              <label className="sw-body-sm-highlight sw-mr-2">
+                {translate('background_tasks.currents_filter.ONLY_CURRENTS')}
+              </label>
+              <CurrentsFilter onChange={this.handleCurrentsChange} value={currents} />
             </li>
           )}
-          <li>
+          <li className="sw-flex sw-items-center">
+            <label className="sw-body-sm-highlight sw-mr-2">
+              {translate('background_tasks.date_filter')}
+            </label>
             <DateFilter
               maxExecutedAt={maxExecutedAt}
               minSubmittedAt={minSubmittedAt}
@@ -146,15 +128,27 @@ export default class Search extends React.PureComponent<Props> {
             />
           </li>
 
-          {this.renderSearchBox()}
+          {!component && (
+            <li>
+              <InputSearch
+                onChange={this.handleQueryChange}
+                placeholder={translate('background_tasks.search_by_task_or_component')}
+                value={query}
+              />
+            </li>
+          )}
 
-          <li className="nowrap">
-            <Button className="js-reload" disabled={loading} onClick={this.props.onReload}>
+          <li>
+            <ButtonSecondary
+              className="js-reload sw-mr-2"
+              disabled={loading}
+              onClick={this.props.onReload}
+            >
               {translate('reload')}
-            </Button>{' '}
-            <Button disabled={loading} onClick={this.handleReset}>
+            </ButtonSecondary>
+            <ButtonSecondary disabled={loading} onClick={this.handleReset}>
               {translate('reset_verb')}
-            </Button>
+            </ButtonSecondary>
           </li>
         </ul>
       </section>

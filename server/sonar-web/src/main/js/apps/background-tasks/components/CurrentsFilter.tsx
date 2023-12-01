@@ -17,19 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Switch } from 'design-system';
 import * as React from 'react';
-import Checkbox from '../../../components/controls/Checkbox';
 import { translate } from '../../../helpers/l10n';
 import { CURRENTS } from '../constants';
 
 interface CurrentsFilterProps {
   value?: string;
-  id: string;
   onChange: (value: string) => void;
 }
 
-export default function CurrentsFilter(props: CurrentsFilterProps) {
-  const { id, value, onChange } = props;
+export default function CurrentsFilter(props: Readonly<CurrentsFilterProps>) {
+  const { value, onChange } = props;
   const checked = value === CURRENTS.ONLY_CURRENTS;
 
   const handleChange = React.useCallback(
@@ -41,10 +40,13 @@ export default function CurrentsFilter(props: CurrentsFilterProps) {
   );
 
   return (
-    <div className="bt-search-form-field">
-      <Checkbox id={id} checked={checked} onCheck={handleChange}>
-        <span className="little-spacer-left">{translate('yes')}</span>
-      </Checkbox>
-    </div>
+    <Switch
+      value={checked}
+      onChange={handleChange}
+      labels={{
+        on: translate('background_tasks.currents_filter.ONLY_CURRENTS'),
+        off: translate('background_tasks.currents_filter.ALL'),
+      }}
+    />
   );
 }

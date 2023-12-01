@@ -17,8 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import {
+  ClockIcon,
+  ContentCell,
+  FlagErrorIcon,
+  FlagSuccessIcon,
+  FlagWarningIcon,
+  Spinner,
+} from 'design-system';
 import * as React from 'react';
-import PendingIcon from '../../../components/icons/PendingIcon';
 import { translate } from '../../../helpers/l10n';
 import { TaskStatuses } from '../../../types/tasks';
 
@@ -26,32 +33,51 @@ interface Props {
   status: string;
 }
 
-export default function TaskStatus({ status }: Props) {
-  let inner;
+interface StatusDataDictionnary {
+  [key: string]: StatusDataType;
+}
 
-  switch (status) {
-    case TaskStatuses.Pending:
-      inner = <PendingIcon />;
-      break;
-    case TaskStatuses.InProgress:
-      inner = <i className="spinner" />;
-      break;
-    case TaskStatuses.Success:
-      inner = (
-        <span className="badge badge-success">{translate('background_task.status.SUCCESS')}</span>
-      );
-      break;
-    case TaskStatuses.Failed:
-      inner = (
-        <span className="badge badge-error">{translate('background_task.status.FAILED')}</span>
-      );
-      break;
-    case TaskStatuses.Canceled:
-      inner = <span className="badge">{translate('background_task.status.CANCELED')}</span>;
-      break;
-    default:
-      inner = '';
+interface StatusDataType {
+  iconComponent: React.ReactElement;
+  textKey: string;
+}
+
+const STATUS_ENUM: StatusDataDictionnary = {
+  [TaskStatuses.Pending]: {
+    iconComponent: <ClockIcon />,
+    textKey: 'background_task.status.PENDING',
+  },
+  [TaskStatuses.InProgress]: {
+    iconComponent: <Spinner />,
+    textKey: 'background_task.status.IN_PROGRESS',
+  },
+  [TaskStatuses.Success]: {
+    iconComponent: <FlagSuccessIcon />,
+    textKey: 'background_task.status.SUCCESS',
+  },
+  [TaskStatuses.Failed]: {
+    iconComponent: <FlagErrorIcon />,
+    textKey: 'background_task.status.FAILED',
+  },
+  [TaskStatuses.Canceled]: {
+    iconComponent: <FlagWarningIcon />,
+    textKey: 'background_task.status.CANCELED',
+  },
+};
+
+export default function TaskStatus({ status }: Readonly<Props>) {
+  const statusData = STATUS_ENUM[status];
+
+  if (!statusData) {
+    return <ContentCell />;
   }
 
-  return <td className="thin spacer-right">{inner}</td>;
+  return (
+    <ContentCell>
+      <div className="sw-flex sw-gap-1 sw-items-center">
+        {statusData.iconComponent}
+        {translate(statusData.textKey)}
+      </div>
+    </ContentCell>
+  );
 }

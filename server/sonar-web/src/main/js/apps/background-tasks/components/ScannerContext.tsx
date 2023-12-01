@@ -17,10 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Modal, Spinner } from 'design-system';
+import { noop } from 'lodash';
 import * as React from 'react';
+import { FormattedMessage } from 'react-intl';
 import { getTask } from '../../../api/ce';
-import Modal from '../../../components/controls/Modal';
-import { ResetButtonLink } from '../../../components/controls/buttons';
 import { translate } from '../../../helpers/l10n';
 import { Task } from '../../../types/tasks';
 
@@ -51,7 +52,7 @@ export default class ScannerContext extends React.PureComponent<Props, State> {
       if (this.mounted) {
         this.setState({ scannerContext: task.scannerContext });
       }
-    });
+    }, noop);
   }
 
   render() {
@@ -59,30 +60,26 @@ export default class ScannerContext extends React.PureComponent<Props, State> {
     const { scannerContext } = this.state;
 
     return (
-      <Modal contentLabel="scanner context" onRequestClose={this.props.onClose} size="large">
-        <div className="modal-head">
-          <h2>
-            {translate('background_tasks.scanner_context')}
-            {': '}
-            {task.componentName}
-            {' ['}
-            {translate('background_task.type', task.type)}
-            {']'}
-          </h2>
-        </div>
-
-        <div className="modal-body modal-container">
-          {scannerContext != null ? (
+      <Modal
+        onClose={this.props.onClose}
+        isLarge
+        isScrollable
+        headerTitle={
+          <FormattedMessage
+            id="background_tasks.error_stacktrace.title"
+            values={{
+              project: task.componentName,
+              type: translate('background_task.type', task.type),
+            }}
+          />
+        }
+        body={
+          <Spinner loading={scannerContext == null}>
             <pre className="js-task-scanner-context">{scannerContext}</pre>
-          ) : (
-            <i className="spinner" />
-          )}
-        </div>
-
-        <div className="modal-foot">
-          <ResetButtonLink onClick={this.props.onClose}>{translate('close')}</ResetButtonLink>
-        </div>
-      </Modal>
+          </Spinner>
+        }
+        secondaryButtonLabel={translate('close')}
+      />
     );
   }
 }

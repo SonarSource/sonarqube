@@ -17,8 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { DateRangePicker } from 'design-system';
 import * as React from 'react';
-import DageRangeInput from '../../../components/controls/DateRangeInput';
+import { translate } from '../../../helpers/l10n';
 
 interface Props {
   maxExecutedAt: Date | undefined;
@@ -34,9 +35,14 @@ export default class DateFilter extends React.PureComponent<Props> {
   render() {
     const dateRange = { from: this.props.minSubmittedAt, to: this.props.maxExecutedAt };
     return (
-      <div className="nowrap">
-        <DageRangeInput onChange={this.handleDateRangeChange} value={dateRange} />
-      </div>
+      <DateRangePicker
+        clearButtonLabel={translate('clear')}
+        fromLabel={translate('start_date')}
+        toLabel={translate('end_date')}
+        onChange={this.handleDateRangeChange}
+        inputSize="small"
+        value={dateRange}
+      />
     );
   }
 }

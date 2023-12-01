@@ -17,11 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import styled from '@emotion/styled';
+import {
+  BranchIcon,
+  ContentCell,
+  Note,
+  PullRequestIcon,
+  QualifierIcon,
+  StandoutLink,
+} from 'design-system';
 import * as React from 'react';
-import Link from '../../../components/common/Link';
-import BranchIcon from '../../../components/icons/BranchIcon';
-import PullRequestIcon from '../../../components/icons/PullRequestIcon';
-import QualifierIcon from '../../../components/icons/QualifierIcon';
+import { translate } from '../../../helpers/l10n';
 import {
   getBranchUrl,
   getPortfolioUrl,
@@ -30,57 +36,50 @@ import {
 } from '../../../helpers/urls';
 import { isPortfolioLike } from '../../../types/component';
 import { Task } from '../../../types/tasks';
-import TaskType from './TaskType';
 
 interface Props {
   task: Task;
 }
 
-export default function TaskComponent({ task }: Props) {
-  if (!task.componentKey) {
-    return (
-      <td>
-        <span className="note">{task.id}</span>
-        <TaskType type={task.type} />
-      </td>
-    );
-  }
-
+export default function TaskComponent({ task }: Readonly<Props>) {
   return (
-    <td>
-      {task.branch !== undefined && <BranchIcon className="little-spacer-right" />}
-      {task.pullRequest !== undefined && <PullRequestIcon className="little-spacer-right" />}
+    <ContentCell>
+      <div>
+        <p>
+          {task.componentKey && (
+            <span className="sw-mr-2">
+              <TaskComponentIndicator task={task} />
 
-      {!task.branch && !task.pullRequest && task.componentQualifier && (
-        <span className="little-spacer-right">
-          <QualifierIcon qualifier={task.componentQualifier} />
-        </span>
-      )}
+              {task.componentName && (
+                <StandoutLink className="sw-ml-2" to={getTaskComponentUrl(task.componentKey, task)}>
+                  <StyledSpan title={task.componentName}>{task.componentName}</StyledSpan>
 
-      {task.componentName && (
-        <Link className="spacer-right" to={getTaskComponentUrl(task.componentKey, task)}>
-          <span className="text-limited text-text-top" title={task.componentName}>
-            {task.componentName}
-          </span>
+                  {task.branch && (
+                    <StyledSpan title={task.branch}>
+                      <span className="sw-mx-1">/</span>
+                      {task.branch}
+                    </StyledSpan>
+                  )}
 
-          {task.branch && (
-            <span className="text-limited text-text-top" title={task.branch}>
-              <span style={{ marginLeft: 5, marginRight: 5 }}>/</span>
-              {task.branch}
+                  {task.pullRequest && (
+                    <StyledSpan title={task.pullRequestTitle}>
+                      <span className="sw-mx-1">/</span>
+                      {task.pullRequest}
+                    </StyledSpan>
+                  )}
+                </StandoutLink>
+              )}
             </span>
           )}
 
-          {task.pullRequest && (
-            <span className="text-limited text-text-top" title={task.pullRequestTitle}>
-              <span style={{ marginLeft: 5, marginRight: 5 }}>/</span>
-              {task.pullRequest}
-            </span>
-          )}
-        </Link>
-      )}
+          <span>{translate('background_task.type', task.type)}</span>
+        </p>
 
-      <TaskType type={task.type} />
-    </td>
+        <Note as="div" className="sw-mt-2">
+          {translate('background_tasks.table.id')}: {task.id}
+        </Note>
+      </div>
+    </ContentCell>
   );
 }
 
@@ -93,4 +92,29 @@ function getTaskComponentUrl(componentKey: string, task: Task) {
     return getPullRequestUrl(componentKey, task.pullRequest);
   }
   return getProjectUrl(componentKey);
+}
+
+const StyledSpan = styled.span`
+  display: inline-block;
+  max-width: 16vw;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-bottom: -4px; /* compensate the inline-block effect on the wrapping link */
+`;
+
+function TaskComponentIndicator({ task }: Readonly<Props>) {
+  if (task.branch !== undefined) {
+    return <BranchIcon />;
+  }
+
+  if (task.pullRequest !== undefined) {
+    return <PullRequestIcon />;
+  }
+
+  if (task.componentQualifier) {
+    return <QualifierIcon qualifier={task.componentQualifier} />;
+  }
+
+  return null;
 }

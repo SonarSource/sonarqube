@@ -17,36 +17,38 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { HelperHintIcon, StandoutLink } from 'design-system';
 import * as React from 'react';
-import { ButtonLink } from '../../../components/controls/buttons';
 import HelpTooltip from '../../../components/controls/HelpTooltip';
 import { translate } from '../../../helpers/l10n';
 
 export interface Props {
-  className?: string;
   failingCount?: number;
-  onShowFailing: () => void;
+  onShowFailing: (e: React.SyntheticEvent<HTMLAnchorElement>) => void;
 }
 
-export default function StatStillFailing({ className, failingCount, onShowFailing }: Props) {
+export default function StatStillFailing({ failingCount, onShowFailing }: Readonly<Props>) {
   if (failingCount === undefined) {
     return null;
   }
 
   return (
-    <span className={className}>
+    <div className="sw-flex sw-items-center ">
       {failingCount > 0 ? (
-        <ButtonLink className="emphasised-measure text-baseline" onClick={onShowFailing}>
+        <StandoutLink
+          className="sw-body-md-highlight sw-align-baseline"
+          to="#"
+          onClick={onShowFailing}
+        >
           {failingCount}
-        </ButtonLink>
+        </StandoutLink>
       ) : (
-        <span className="emphasised-measure">{failingCount}</span>
+        <span className="sw-body-md-highlight">{failingCount}</span>
       )}
-      <span className="little-spacer-left">{translate('background_tasks.failures')}</span>
-      <HelpTooltip
-        className="little-spacer-left"
-        overlay={translate('background_tasks.failing_count')}
-      />
-    </span>
+      <span className="sw-ml-1">{translate('background_tasks.failures')}</span>
+      <HelpTooltip className="sw-ml-1" overlay={translate('background_tasks.failing_count')}>
+        <HelperHintIcon />
+      </HelpTooltip>
+    </div>
   );
 }

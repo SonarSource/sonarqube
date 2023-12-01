@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { HelperHintIcon } from 'design-system';
 import * as React from 'react';
 import HelpTooltip from '../../../components/controls/HelpTooltip';
 import { translate } from '../../../helpers/l10n';
@@ -26,23 +27,24 @@ import { formatMeasure } from '../../../helpers/measures';
 const MIN_PENDING_TIME_THRESHOLD = 1000;
 
 export interface Props {
-  className?: string;
   pendingCount?: number;
   pendingTime?: number;
 }
 
-export default function StatPendingTime({ className, pendingCount, pendingTime }: Props) {
+export default function StatPendingTime({ pendingCount, pendingTime }: Readonly<Props>) {
   if (!pendingTime || !pendingCount || pendingTime < MIN_PENDING_TIME_THRESHOLD) {
     return null;
   }
   return (
-    <span className={className}>
-      <span className="emphasised-measure">{formatMeasure(pendingTime, 'MILLISEC')}</span>
-      <span className="little-spacer-left">{translate('background_tasks.pending_time')}</span>
+    <div className="sw-flex sw-items-center">
+      <span className="sw-body-md-highlight sw-mr-1">{formatMeasure(pendingTime, 'MILLISEC')}</span>
+      {translate('background_tasks.pending_time')}
       <HelpTooltip
-        className="little-spacer-left"
+        className="sw-ml-1"
         overlay={translate('background_tasks.pending_time.description')}
-      />
-    </span>
+      >
+        <HelperHintIcon />
+      </HelpTooltip>
+    </div>
   );
 }

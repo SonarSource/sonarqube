@@ -17,16 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { ContentCell, Note } from 'design-system';
 import * as React from 'react';
 
 interface Props {
   nodeName?: string;
 }
 
-export default function TaskNodeName({ nodeName }: Props) {
+export default function TaskNodeName({ nodeName }: Readonly<Props>) {
   return (
-    <td className="thin">
-      <div className="note">{nodeName}</div>
-    </td>
+    <ContentCell>
+      <Note>{nodeName}</Note>
+    </ContentCell>
   );
 }

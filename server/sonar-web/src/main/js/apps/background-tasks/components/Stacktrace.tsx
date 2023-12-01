@@ -17,10 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Modal, Spinner } from 'design-system';
 import * as React from 'react';
+import { FormattedMessage } from 'react-intl';
 import { getTask } from '../../../api/ce';
-import Modal from '../../../components/controls/Modal';
-import { ResetButtonLink } from '../../../components/controls/buttons';
 import { translate } from '../../../helpers/l10n';
 import { Task } from '../../../types/tasks';
 
@@ -67,40 +67,36 @@ export default class Stacktrace extends React.PureComponent<Props, State> {
     const { loading, stacktrace } = this.state;
 
     return (
-      <Modal contentLabel="stacktrace" onRequestClose={this.props.onClose} size="large">
-        <div className="modal-head">
-          <h2>
-            {translate('background_tasks.error_stacktrace')}
-            {': '}
-            {task.componentName}
-            {' ['}
-            {translate('background_task.type', task.type)}
-            {']'}
-          </h2>
-        </div>
-
-        <div className="modal-body modal-container">
-          {loading ? (
-            <i className="spinner" />
-          ) : stacktrace ? (
-            <div>
-              <h4 className="spacer-bottom">{translate('background_tasks.error_stacktrace')}</h4>
-              <pre className="js-task-stacktrace">{stacktrace}</pre>
-            </div>
-          ) : (
-            <div>
-              <h4 className="spacer-bottom">{translate('background_tasks.error_message')}</h4>
-              <pre className="js-task-error-message">{task.errorMessage}</pre>
-            </div>
-          )}
-        </div>
-
-        <div className="modal-foot">
-          <ResetButtonLink className="js-modal-close" onClick={this.props.onClose}>
-            {translate('close')}
-          </ResetButtonLink>
-        </div>
-      </Modal>
+      <Modal
+        onClose={this.props.onClose}
+        isLarge
+        isScrollable
+        headerTitle={
+          <FormattedMessage
+            id="background_tasks.error_stacktrace.title"
+            values={{
+              project: task.componentName,
+              type: translate('background_task.type', task.type),
+            }}
+          />
+        }
+        body={
+          <Spinner loading={loading}>
+            {stacktrace ? (
+              <div>
+                <h4 className="sw-mb-2">{translate('background_tasks.error_stacktrace')}</h4>
+                <pre className="js-task-stacktrace">{stacktrace}</pre>
+              </div>
+            ) : (
+              <div>
+                <h4 className="sw-mb-2">{translate('background_tasks.error_message')}</h4>
+                <pre className="js-task-error-message">{task.errorMessage}</pre>
+              </div>
+            )}
+          </Spinner>
+        }
+        secondaryButtonLabel={translate('close')}
+      />
     );
   }
 }

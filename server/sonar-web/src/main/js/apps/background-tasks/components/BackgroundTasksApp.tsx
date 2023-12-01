@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { LargeCenteredLayout, PageContentFontWrapper } from 'design-system';
 import { debounce } from 'lodash';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
@@ -37,7 +38,6 @@ import { translate } from '../../../helpers/l10n';
 import { parseAsDate } from '../../../helpers/query';
 import { Task, TaskStatuses } from '../../../types/tasks';
 import { Component, Paging, RawQuery } from '../../../types/types';
-import '../background-tasks.css';
 import { CURRENTS, DEBOUNCE_DELAY, DEFAULT_FILTERS, PAGE_SIZE } from '../constants';
 import { Query, mapFiltersToParameters, updateTask } from '../utils';
 import Header from './Header';
@@ -192,7 +192,9 @@ export class BackgroundTasksApp extends React.PureComponent<Props, State> {
     this.handleFilterUpdate({ query: task.componentKey });
   };
 
-  handleShowFailing = () => {
+  handleShowFailing = (e: React.SyntheticEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+
     this.handleFilterUpdate({
       ...DEFAULT_FILTERS,
       status: TaskStatuses.Failed,
@@ -211,7 +213,7 @@ export class BackgroundTasksApp extends React.PureComponent<Props, State> {
   };
 
   render() {
-    const { component } = this.props;
+    const { component, location } = this.props;
     const { loading, pagination, types, tasks } = this.state;
 
     if (!types) {
@@ -223,58 +225,60 @@ export class BackgroundTasksApp extends React.PureComponent<Props, State> {
       );
     }
 
-    const status = this.props.location.query.status || DEFAULT_FILTERS.status;
-    const taskType = this.props.location.query.taskType || DEFAULT_FILTERS.taskType;
-    const currents = this.props.location.query.currents || DEFAULT_FILTERS.currents;
-    const minSubmittedAt = parseAsDate(this.props.location.query.minSubmittedAt);
-    const maxExecutedAt = parseAsDate(this.props.location.query.maxExecutedAt);
-    const query = this.props.location.query.query || '';
+    const status = location.query.status || DEFAULT_FILTERS.status;
+    const taskType = location.query.taskType || DEFAULT_FILTERS.taskType;
+    const currents = location.query.currents || DEFAULT_FILTERS.currents;
+    const minSubmittedAt = parseAsDate(location.query.minSubmittedAt);
+    const maxExecutedAt = parseAsDate(location.query.maxExecutedAt);
+    const query = location.query.query ?? '';
 
     return (
-      <main className="page page-limited">
-        <Suggestions suggestions="background_tasks" />
-        <Helmet defer={false} title={translate('background_tasks.page')} />
-        <Header component={component} />
+      <LargeCenteredLayout id="background-tasks">
+        <PageContentFontWrapper className="sw-my-8 sw-body-sm">
+          <Suggestions suggestions="background_tasks" />
+          <Helmet defer={false} title={translate('background_tasks.page')} />
+          <Header component={component} />
 
-        <Stats
-          component={component}
-          failingCount={this.state.failingCount}
-          onCancelAllPending={this.handleCancelAllPending}
-          onShowFailing={this.handleShowFailing}
-          pendingCount={this.state.pendingCount}
-          pendingTime={this.state.pendingTime}
-        />
+          <Stats
+            component={component}
+            failingCount={this.state.failingCount}
+            onCancelAllPending={this.handleCancelAllPending}
+            onShowFailing={this.handleShowFailing}
+            pendingCount={this.state.pendingCount}
+            pendingTime={this.state.pendingTime}
+          />
 
-        <Search
-          component={component}
-          currents={currents}
-          loading={loading}
-          maxExecutedAt={maxExecutedAt}
-          minSubmittedAt={minSubmittedAt}
-          onFilterUpdate={this.handleFilterUpdate}
-          onReload={this.loadTasksDebounced}
-          query={query}
-          status={status}
-          taskType={taskType}
-          types={types}
-        />
+          <Search
+            component={component}
+            currents={currents}
+            loading={loading}
+            maxExecutedAt={maxExecutedAt}
+            minSubmittedAt={minSubmittedAt}
+            onFilterUpdate={this.handleFilterUpdate}
+            onReload={this.loadTasksDebounced}
+            query={query}
+            status={status}
+            taskType={taskType}
+            types={types}
+          />
 
-        <Tasks
-          component={component}
-          loading={loading}
-          onCancelTask={this.handleCancelTask}
-          onFilterTask={this.handleFilterTask}
-          tasks={tasks}
-        />
+          <Tasks
+            component={component}
+            onCancelTask={this.handleCancelTask}
+            onFilterTask={this.handleFilterTask}
+            tasks={tasks}
+          />
 
-        <ListFooter
-          count={tasks.length}
-          loadMore={this.loadMoreTasks}
-          loading={loading}
-          pageSize={pagination.pageSize}
-          total={pagination.total}
-        />
-      </main>
+          <ListFooter
+            count={tasks.length}
+            loadMore={this.loadMoreTasks}
+            loading={loading}
+            pageSize={pagination.pageSize}
+            total={pagination.total}
+            useMIUIButtons
+          />
+        </PageContentFontWrapper>
+      </LargeCenteredLayout>
     );
   }
 }

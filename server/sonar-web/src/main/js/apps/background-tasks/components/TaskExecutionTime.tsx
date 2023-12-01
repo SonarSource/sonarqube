@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { NumericalCell } from 'design-system/lib';
 import * as React from 'react';
 import { formatDuration } from '../utils';
 
@@ -24,6 +25,10 @@ interface Props {
   ms?: number;
 }
 
-export default function TaskExecutionTime({ ms }: Props) {
-  return <td className="thin nowrap text-right">{ms && formatDuration(ms)}</td>;
+export default function TaskExecutionTime({ ms }: Readonly<Props>) {
+  return (
+    <NumericalCell className="sw-whitespace-nowrap">
+      {ms !== undefined && formatDuration(ms)}
+    </NumericalCell>
+  );
 }

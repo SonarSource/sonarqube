@@ -19,15 +19,18 @@
  */
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import selectEvent from 'react-select-event';
 import ComputeEngineServiceMock from '../../../api/mocks/ComputeEngineServiceMock';
 import { parseDate } from '../../../helpers/dates';
 import { mockAppState } from '../../../helpers/testMocks';
+import { RenderContext, renderAppWithAdminContext } from '../../../helpers/testReactTestingUtils';
 import {
-  RenderContext,
-  dateInputEvent,
-  renderAppWithAdminContext,
-} from '../../../helpers/testReactTestingUtils';
-import { byLabelText, byPlaceholderText, byRole, byText } from '../../../helpers/testSelector';
+  byLabelText,
+  byPlaceholderText,
+  byRole,
+  byTestId,
+  byText,
+} from '../../../helpers/testSelector';
 import { EditionKey } from '../../../types/editions';
 import { TaskStatuses, TaskTypes } from '../../../types/tasks';
 import routes from '../routes';
@@ -47,7 +50,7 @@ describe('The Global background task page', () => {
     renderGlobalBackgroundTasksApp();
     await ui.appLoaded();
 
-    expect(ui.numberOfWorkers(2).get()).toBeInTheDocument();
+    expect(ui.numberOfWorkers().get()).toHaveTextContent('2');
 
     const editWorkersButton = screen.getByRole('button', {
       name: 'background_tasks.change_number_of_workers',
@@ -72,7 +75,7 @@ describe('The Global background task page', () => {
 
     await user.click(within(modal).getByRole('button', { name: 'save' }));
 
-    expect(ui.numberOfWorkers(4).get()).toBeInTheDocument();
+    expect(ui.numberOfWorkers().get()).toHaveTextContent('4');
   });
 
   it('should display the list of tasks', async () => {
@@ -311,18 +314,22 @@ function getPageObject() {
   const selectors = {
     loading: byLabelText('loading'),
     pageHeading: byRole('heading', { name: 'background_tasks.page' }),
-    numberOfWorkers: (count: number) =>
-      byText('background_tasks.number_of_workers').byText(`${count}`),
-    onlyLatestAnalysis: byRole('checkbox', { name: 'yes' }),
+    numberOfWorkers: () => byLabelText(`background_tasks.number_of_workers`),
+    onlyLatestAnalysis: byRole('switch', {
+      name: 'background_tasks.currents_filter.ALL',
+    }),
     search: byPlaceholderText('background_tasks.search_by_task_or_component'),
-    fromDateInput: byRole('textbox', { name: 'start_date' }),
-    toDateInput: byRole('textbox', { name: 'end_date' }),
+    fromDateInput: byLabelText('start_date'),
+    toDateInput: byLabelText('end_date'),
     resetFilters: byRole('button', { name: 'reset_verb' }),
     showMoreButton: byRole('button', { name: 'show_more' }),
     reloadButton: byRole('button', { name: 'reload' }),
     cancelAllButton: byRole('button', { description: 'background_tasks.cancel_all_tasks' }),
     cancelAllButtonConfirm: byText('background_tasks.cancel_all_tasks.submit'),
     row: byRole('row'),
+    startDateInput: byPlaceholderText('start_date'),
+    monthSelector: byTestId('month-select'),
+    yearSelector: byTestId('year-select'),
   };
 
   const ui = {
@@ -339,26 +346,64 @@ function getPageObject() {
     },
 
     async changeTaskFilter(fieldLabel: string, value: string) {
-      await user.click(screen.getByLabelText(fieldLabel, { selector: 'input' }));
-      await user.click(screen.getByText(value));
+      await selectEvent.select(screen.getByRole('combobox', { name: fieldLabel }), [value]);
+      expect(await screen.findByRole('button', { name: 'reload' })).toBeEnabled();
     },
 
     async setDateRange(from?: string, to?: string) {
-      const dateInput = dateInputEvent(user);
       if (from) {
-        await dateInput.pickDate(ui.fromDateInput.get(), parseDate(from));
+        await this.selectDate(from, ui.fromDateInput.get());
       }
 
       if (to) {
-        await dateInput.pickDate(ui.toDateInput.get(), parseDate(to));
+        await this.selectDate(to, ui.toDateInput.get());
       }
+      expect(await screen.findByRole('button', { name: 'reload' })).toBeEnabled();
+    },
+
+    async selectDate(date: string, datePickerSelector: HTMLElement) {
+      const monthMap = [
+        'Jan',
+        'Feb',
+        'Mar',
+        'Apr',
+        'May',
+        'Jun',
+        'Jul',
+        'Aug',
+        'Sep',
+        'Oct',
+        'Nov',
+        'Dec',
+      ];
+      const parsedDate = parseDate(date);
+      await user.click(datePickerSelector);
+      const monthSelector = within(ui.monthSelector.get()).getByRole('combobox');
+
+      await user.click(monthSelector);
+      const selectedMonthElements = within(ui.monthSelector.get()).getAllByText(
+        monthMap[parseDate(parsedDate).getMonth()],
+      );
+      await user.click(selectedMonthElements[selectedMonthElements.length - 1]);
+
+      const yearSelector = within(ui.yearSelector.get()).getByRole('combobox');
+
+      await user.click(yearSelector);
+      const selectedYearElements = within(ui.yearSelector.get()).getAllByText(
+        parseDate(parsedDate).getFullYear(),
+      );
+      await user.click(selectedYearElements[selectedYearElements.length - 1]);
+
+      await user.click(
+        screen.getByText(parseDate(parsedDate).getDate().toString(), { selector: 'button' }),
+      );
     },
 
     async clickOnTaskAction(rowIndex: number, label: string) {
       const row = ui.getAllRows()[rowIndex];
       expect(row).toBeVisible();
       await user.click(within(row).getByRole('button', { name: 'background_tasks.show_actions' }));
-      await user.click(within(row).getByRole('button', { name: label }));
+      await user.click(within(row).getByRole('menuitem', { name: label }));
     },
   };
 
