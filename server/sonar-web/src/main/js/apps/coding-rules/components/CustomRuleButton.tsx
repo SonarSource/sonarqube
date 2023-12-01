@@ -24,18 +24,12 @@ import CustomRuleFormModal from './CustomRuleFormModal';
 interface Props {
   children: (props: { onClick: () => void }) => React.ReactNode;
   customRule?: RuleDetails;
-  onDone: (newRuleDetails: RuleDetails) => void;
   templateRule: RuleDetails;
 }
 
 export default function CustomRuleButton(props: Props) {
   const { customRule, templateRule } = props;
   const [modalOpen, setModalOpen] = React.useState(false);
-
-  const handleDone = (newRuleDetails: RuleDetails) => {
-    setModalOpen(false);
-    props.onDone(newRuleDetails);
-  };
 
   return (
     <>
@@ -44,7 +38,6 @@ export default function CustomRuleButton(props: Props) {
         <CustomRuleFormModal
           customRule={customRule}
           onClose={() => setModalOpen(false)}
-          onDone={handleDone}
           templateRule={templateRule}
         />
       )}

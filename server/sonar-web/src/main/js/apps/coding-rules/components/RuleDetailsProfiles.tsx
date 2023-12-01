@@ -34,10 +34,14 @@ import {
 import { filter } from 'lodash';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { Profile, activateRule, deactivateRule } from '../../../api/quality-profiles';
+import { Profile } from '../../../api/quality-profiles';
 import ConfirmButton from '../../../components/controls/ConfirmButton';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { getQualityProfileUrl } from '../../../helpers/urls';
+import {
+  useActivateRuleMutation,
+  useDeactivateRuleMutation,
+} from '../../../queries/quality-profiles';
 import { Dict, RuleActivation, RuleDetails } from '../../../types/types';
 import BuiltInQualityProfileBadge from '../../quality-profiles/components/BuiltInQualityProfileBadge';
 import ActivationButton from './ActivationButton';
@@ -45,8 +49,8 @@ import ActivationButton from './ActivationButton';
 interface Props {
   activations: RuleActivation[] | undefined;
   canDeactivateInherited?: boolean;
-  onActivate: () => Promise<void>;
-  onDeactivate: () => Promise<void>;
+  onActivate: () => void;
+  onDeactivate: () => void;
   referencedProfiles: Dict<Profile>;
   ruleDetails: RuleDetails;
 }
@@ -56,84 +60,38 @@ const COLUMN_COUNT_WITHOUT_PARAMS = 2;
 
 const PROFILES_HEADING_ID = 'rule-details-profiles-heading';
 
-export default class RuleDetailsProfiles extends React.PureComponent<Props> {
-  handleActivate = () => this.props.onActivate();
+export default function RuleDetailsProfiles(props: Readonly<Props>) {
+  const { activations = [], referencedProfiles, ruleDetails, canDeactivateInherited } = props;
+  const { mutate: activateRule } = useActivateRuleMutation(props.onActivate);
+  const { mutate: deactivateRule } = useDeactivateRuleMutation(props.onDeactivate);
 
-  handleDeactivate = (key?: string) => {
+  const canActivate = Object.values(referencedProfiles).some((profile) =>
+    Boolean(profile.actions?.edit && profile.language === ruleDetails.lang),
+  );
+
+  const handleDeactivate = (key?: string) => {
     if (key !== undefined) {
       deactivateRule({
         key,
-        rule: this.props.ruleDetails.key,
-      }).then(this.props.onDeactivate, () => {});
+        rule: ruleDetails.key,
+      });
     }
   };
 
-  handleRevert = (key?: string) => {
+  const handleRevert = (key?: string) => {
     if (key !== undefined) {
       activateRule({
         key,
-        rule: this.props.ruleDetails.key,
+        rule: ruleDetails.key,
         reset: true,
-      }).then(this.props.onActivate, () => {});
+      });
     }
   };
 
-  renderInheritedProfile = (activation: RuleActivation, profile: Profile) => {
-    if (!profile.parentName) {
-      return null;
-    }
-    const profilePath = getQualityProfileUrl(profile.parentName, profile.language);
-    return (
-      (activation.inherit === 'OVERRIDES' || activation.inherit === 'INHERITED') && (
-        <Note as="div" className="sw-flex sw-items-center sw-mt-2">
-          <InheritanceIcon
-            fill={activation.inherit === 'OVERRIDES' ? 'destructiveIconFocus' : 'currentColor'}
-          />
-          <DiscreetLink
-            className="sw-ml-1"
-            aria-label={`${translate('quality_profiles.parent')} ${profile.parentName}`}
-            to={profilePath}
-          >
-            {profile.parentName}
-          </DiscreetLink>
-        </Note>
-      )
-    );
-  };
-
-  renderParameter = (param: { key: string; value: string }, parentActivation?: RuleActivation) => {
-    const originalParam = parentActivation?.params.find((p) => p.key === param.key);
-    const originalValue = originalParam?.value;
-
-    return (
-      <StyledParameter className="sw-my-4" key={param.key}>
-        <span className="key">{param.key}</span>
-        <span className="sep sw-mr-1">: </span>
-        <span className="value" title={param.value}>
-          {param.value}
-        </span>
-        {parentActivation && param.value !== originalValue && (
-          <div className="sw-flex sw-ml-4">
-            {translate('coding_rules.original')}
-            <span className="value sw-ml-1" title={originalValue}>
-              {originalValue}
-            </span>
-          </div>
-        )}
-      </StyledParameter>
-    );
-  };
-
-  renderParameters = (activation: RuleActivation, parentActivation?: RuleActivation) => (
-    <CellComponent>
-      {activation.params.map((param) => this.renderParameter(param, parentActivation))}
-    </CellComponent>
-  );
-
-  renderActions = (activation: RuleActivation, profile: Profile) => {
+  const renderRowActions = (activation: RuleActivation, profile: Profile) => {
     const canEdit = profile.actions?.edit && !profile.isBuiltIn;
-    const { ruleDetails } = this.props;
     const hasParent = activation.inherit !== 'NONE' && profile.parentKey;
+
     return (
       <ActionCell>
         {canEdit && (
@@ -144,7 +102,7 @@ export default class RuleDetailsProfiles extends React.PureComponent<Props> {
                 ariaLabel={translateWithParameters('coding_rules.change_details_x', profile.name)}
                 buttonText={translate('change_verb')}
                 modalHeader={translate('coding_rules.change_details')}
-                onDone={this.handleActivate}
+                onDone={props.onActivate}
                 profiles={[profile]}
                 rule={ruleDetails}
               />
@@ -160,7 +118,7 @@ export default class RuleDetailsProfiles extends React.PureComponent<Props> {
                 )}
                 isDestructive
                 modalHeader={translate('coding_rules.revert_to_parent_definition')}
-                onConfirm={this.handleRevert}
+                onConfirm={handleRevert}
               >
                 {({ onClick }) => (
                   <DangerButtonSecondary className="sw-ml-2" onClick={onClick}>
@@ -170,13 +128,13 @@ export default class RuleDetailsProfiles extends React.PureComponent<Props> {
               </ConfirmButton>
             )}
 
-            {(!hasParent || this.props.canDeactivateInherited) && (
+            {(!hasParent || canDeactivateInherited) && (
               <ConfirmButton
                 confirmButtonText={translate('yes')}
                 confirmData={profile.key}
                 modalBody={translate('coding_rules.deactivate.confirm')}
                 modalHeader={translate('coding_rules.deactivate')}
-                onConfirm={this.handleDeactivate}
+                onConfirm={handleDeactivate}
               >
                 {({ onClick }) => (
                   <DangerButtonSecondary
@@ -198,14 +156,31 @@ export default class RuleDetailsProfiles extends React.PureComponent<Props> {
     );
   };
 
-  renderActivation = (activation: RuleActivation) => {
-    const { activations = [], ruleDetails } = this.props;
-    const profile = this.props.referencedProfiles[activation.qProfile];
+  const renderActivationRow = (activation: RuleActivation) => {
+    const profile = referencedProfiles[activation.qProfile];
+
     if (!profile) {
       return null;
     }
 
     const parentActivation = activations.find((x) => x.qProfile === profile.parentKey);
+
+    const inheritedProfileSection = profile.parentName
+      ? (activation.inherit === 'OVERRIDES' || activation.inherit === 'INHERITED') && (
+          <Note as="div" className="sw-flex sw-items-center sw-mt-2">
+            <InheritanceIcon
+              fill={activation.inherit === 'OVERRIDES' ? 'destructiveIconFocus' : 'currentColor'}
+            />
+            <DiscreetLink
+              className="sw-ml-1"
+              aria-label={`${translate('quality_profiles.parent')} ${profile.parentName}`}
+              to={getQualityProfileUrl(profile.parentName, profile.language)}
+            >
+              {profile.parentName}
+            </DiscreetLink>
+          </Note>
+        )
+      : null;
 
     return (
       <TableRowInteractive key={profile.key}>
@@ -220,57 +195,74 @@ export default class RuleDetailsProfiles extends React.PureComponent<Props> {
               </Link>
               {profile.isBuiltIn && <BuiltInQualityProfileBadge className="sw-ml-2" />}
             </div>
-            {this.renderInheritedProfile(activation, profile)}
+            {inheritedProfileSection}
           </div>
         </ContentCell>
 
-        {!ruleDetails.templateKey && this.renderParameters(activation, parentActivation)}
-        {this.renderActions(activation, profile)}
+        {!ruleDetails.templateKey && (
+          <CellComponent>
+            {activation.params.map((param: { key: string; value: string }) => {
+              const originalParam = parentActivation?.params.find((p) => p.key === param.key);
+              const originalValue = originalParam?.value;
+
+              return (
+                <StyledParameter className="sw-my-4" key={param.key}>
+                  <span className="key">{param.key}</span>
+                  <span className="sep sw-mr-1">: </span>
+                  <span className="value" title={param.value}>
+                    {param.value}
+                  </span>
+                  {parentActivation && param.value !== originalValue && (
+                    <div className="sw-flex sw-ml-4">
+                      {translate('coding_rules.original')}
+                      <span className="value sw-ml-1" title={originalValue}>
+                        {originalValue}
+                      </span>
+                    </div>
+                  )}
+                </StyledParameter>
+              );
+            })}
+          </CellComponent>
+        )}
+        {renderRowActions(activation, profile)}
       </TableRowInteractive>
     );
   };
+  return (
+    <div className="js-rule-profiles sw-mb-8">
+      <SubHeadingHighlight as="h2" id={PROFILES_HEADING_ID}>
+        <FormattedMessage id="coding_rules.quality_profiles" />
+      </SubHeadingHighlight>
 
-  render() {
-    const { activations = [], referencedProfiles, ruleDetails } = this.props;
-    const canActivate = Object.values(referencedProfiles).some((profile) =>
-      Boolean(profile.actions?.edit && profile.language === ruleDetails.lang),
-    );
+      {canActivate && (
+        <ActivationButton
+          buttonText={translate('coding_rules.activate')}
+          className="sw-mt-6"
+          modalHeader={translate('coding_rules.activate_in_quality_profile')}
+          onDone={props.onActivate}
+          profiles={filter(
+            referencedProfiles,
+            (profile) => !activations.find((activation) => activation.qProfile === profile.key),
+          )}
+          rule={ruleDetails}
+        />
+      )}
 
-    return (
-      <div className="js-rule-profiles sw-mb-8">
-        <SubHeadingHighlight as="h2" id={PROFILES_HEADING_ID}>
-          <FormattedMessage id="coding_rules.quality_profiles" />
-        </SubHeadingHighlight>
-
-        {canActivate && (
-          <ActivationButton
-            buttonText={translate('coding_rules.activate')}
-            className="sw-mt-6"
-            modalHeader={translate('coding_rules.activate_in_quality_profile')}
-            onDone={this.handleActivate}
-            profiles={filter(
-              this.props.referencedProfiles,
-              (profile) => !activations.find((activation) => activation.qProfile === profile.key),
-            )}
-            rule={ruleDetails}
-          />
-        )}
-
-        {activations.length > 0 && (
-          <Table
-            aria-labelledby={PROFILES_HEADING_ID}
-            className="sw-my-6"
-            columnCount={
-              ruleDetails.templateKey ? COLUMN_COUNT_WITHOUT_PARAMS : COLUMN_COUNT_WITH_PARAMS
-            }
-            id="coding-rules-detail-quality-profiles"
-          >
-            {activations.map(this.renderActivation)}
-          </Table>
-        )}
-      </div>
-    );
-  }
+      {activations.length > 0 && (
+        <Table
+          aria-labelledby={PROFILES_HEADING_ID}
+          className="sw-my-6"
+          columnCount={
+            ruleDetails.templateKey ? COLUMN_COUNT_WITHOUT_PARAMS : COLUMN_COUNT_WITH_PARAMS
+          }
+          id="coding-rules-detail-quality-profiles"
+        >
+          {activations.map(renderActivationRow)}
+        </Table>
+      )}
+    </div>
+  );
 }
 
 const StyledParameter = styled.div`

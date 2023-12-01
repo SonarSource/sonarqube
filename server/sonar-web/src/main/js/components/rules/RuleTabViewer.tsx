@@ -19,7 +19,8 @@
  */
 
 import classNames from 'classnames';
-import { cloneDeep, debounce, groupBy } from 'lodash';
+import { ToggleButton } from 'design-system';
+import { cloneDeep, debounce, groupBy, isEqual } from 'lodash';
 import * as React from 'react';
 import { Location } from 'react-router-dom';
 import { dismissNotice } from '../../api/users';
@@ -27,25 +28,17 @@ import { CurrentUserContextInterface } from '../../app/components/current-user/C
 import withCurrentUserContext from '../../app/components/current-user/withCurrentUserContext';
 import { RuleDescriptionSections } from '../../apps/coding-rules/rule';
 import { translate } from '../../helpers/l10n';
-import { Issue, RuleDetails } from '../../types/types';
+import { RuleDetails } from '../../types/types';
 import { NoticeType } from '../../types/users';
 import { getTabId, getTabPanelId } from '../controls/BoxedTabs';
 import withLocation from '../hoc/withLocation';
 import MoreInfoRuleDescription from './MoreInfoRuleDescription';
 import RuleDescription from './RuleDescription';
-
-import { ToggleButton } from 'design-system/lib';
 import './style.css';
 
 interface RuleTabViewerProps extends CurrentUserContextInterface {
   ruleDetails: RuleDetails;
-  extendedDescription?: string;
-  ruleDescriptionContextKey?: string;
-  activityTabContent?: React.ReactNode;
   location: Location;
-  selectedFlowIndex?: number;
-  selectedLocationIndex?: number;
-  issue?: Issue;
 }
 
 interface State {
@@ -107,34 +100,15 @@ export class RuleTabViewer extends React.PureComponent<RuleTabViewerProps, State
   }
 
   componentDidUpdate(prevProps: RuleTabViewerProps, prevState: State) {
-    const {
-      ruleDetails,
-      ruleDescriptionContextKey,
-      currentUser,
-      issue,
-      selectedFlowIndex,
-      selectedLocationIndex,
-    } = this.props;
+    const { ruleDetails, currentUser } = this.props;
 
     const { selectedTab } = this.state;
 
     if (
-      prevProps.ruleDetails.key !== ruleDetails.key ||
-      prevProps.ruleDescriptionContextKey !== ruleDescriptionContextKey ||
-      prevProps.issue !== issue ||
-      prevProps.selectedFlowIndex !== selectedFlowIndex ||
-      prevProps.selectedLocationIndex !== selectedLocationIndex ||
-      prevProps.currentUser !== currentUser
+      !isEqual(prevProps.ruleDetails, ruleDetails) ||
+      !isEqual(prevProps.currentUser, currentUser)
     ) {
-      this.setState((pState) =>
-        this.computeState(
-          pState,
-          prevProps.ruleDetails !== ruleDetails ||
-            (prevProps.issue && issue && prevProps.issue.key !== issue.key) ||
-            prevProps.selectedFlowIndex !== selectedFlowIndex ||
-            prevProps.selectedLocationIndex !== selectedLocationIndex,
-        ),
-      );
+      this.setState((pState) => this.computeState(pState, prevProps.ruleDetails !== ruleDetails));
     }
 
     if (selectedTab?.value === TabKeys.MoreInfo) {
@@ -178,30 +152,12 @@ export class RuleTabViewer extends React.PureComponent<RuleTabViewerProps, State
   computeTabs = (displayEducationalPrinciplesNotification: boolean) => {
     const {
       ruleDetails: { descriptionSections, educationPrinciples, lang: ruleLanguage, type: ruleType },
-      extendedDescription,
-      activityTabContent,
     } = this.props;
 
     // As we might tamper with the description later on, we clone to avoid any side effect
     const descriptionSectionsByKey = cloneDeep(
       groupBy(descriptionSections, (section) => section.key),
     );
-
-    if (extendedDescription) {
-      if (descriptionSectionsByKey[RuleDescriptionSections.RESOURCES]?.length > 0) {
-        // We add the extended description (htmlNote) in the first context, in case there are contexts
-        // Extended description will get reworked in future
-        descriptionSectionsByKey[RuleDescriptionSections.RESOURCES][0].content +=
-          '<br/>' + extendedDescription;
-      } else {
-        descriptionSectionsByKey[RuleDescriptionSections.RESOURCES] = [
-          {
-            content: extendedDescription,
-            key: RuleDescriptionSections.RESOURCES,
-          },
-        ];
-      }
-    }
 
     const tabs: Tab[] = [
       {
@@ -240,11 +196,6 @@ export class RuleTabViewer extends React.PureComponent<RuleTabViewerProps, State
         ),
         value: TabKeys.HowToFixIt,
         label: translate('coding_rules.description_section.title', TabKeys.HowToFixIt),
-      },
-      {
-        content: activityTabContent,
-        value: TabKeys.Activity,
-        label: translate('coding_rules.description_section.title', TabKeys.Activity),
       },
       {
         content: ((educationPrinciples && educationPrinciples.length > 0) ||

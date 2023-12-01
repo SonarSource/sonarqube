@@ -31,7 +31,6 @@ import {
 } from 'design-system';
 import * as React from 'react';
 import { OptionProps, SingleValueProps, components } from 'react-select';
-import { createRule, updateRule } from '../../../api/rules';
 import FormattingTips from '../../../components/common/FormattingTips';
 import TypeHelper from '../../../components/shared/TypeHelper';
 import MandatoryFieldsExplanation from '../../../components/ui/MandatoryFieldsExplanation';
@@ -40,215 +39,148 @@ import { csvEscape } from '../../../helpers/csv';
 import { translate } from '../../../helpers/l10n';
 import { sanitizeString } from '../../../helpers/sanitize';
 import { latinize } from '../../../helpers/strings';
+import { useCreateRuleMutation, useUpdateRuleMutation } from '../../../queries/rules';
 import { Dict, RuleDetails, RuleParameter, RuleType, Status } from '../../../types/types';
 import { SeveritySelect } from './SeveritySelect';
 
 interface Props {
   customRule?: RuleDetails;
   onClose: () => void;
-  onDone: (newRuleDetails: RuleDetails) => void;
   templateRule: RuleDetails;
-}
-
-interface State {
-  description: string;
-  key: string;
-  keyModifiedByUser: boolean;
-  name: string;
-  params: Dict<string>;
-  reactivating: boolean;
-  severity: string;
-  status: string;
-  submitting: boolean;
-  type: RuleType;
 }
 
 const FORM_ID = 'custom-rule-form';
 
-export default class CustomRuleFormModal extends React.PureComponent<Props, State> {
-  mounted = false;
+export default function CustomRuleFormModal(props: Readonly<Props>) {
+  const { customRule, templateRule } = props;
+  const [description, setDescription] = React.useState(customRule?.mdDesc ?? '');
+  const [key, setKey] = React.useState(customRule?.key ?? '');
+  const [keyModifiedByUser, setKeyModifiedByUser] = React.useState(false);
+  const [name, setName] = React.useState(customRule?.name ?? '');
+  const [params, setParams] = React.useState(getParams(customRule));
+  const [reactivating, setReactivating] = React.useState(false);
+  const [severity, setSeverity] = React.useState(customRule?.severity ?? templateRule.severity);
+  const [status, setStatus] = React.useState(customRule?.status ?? templateRule.status);
+  const [type, setType] = React.useState(customRule?.type ?? templateRule.type);
+  const { mutate: updateRule, isLoading: updatingRule } = useUpdateRuleMutation(props.onClose);
+  const { mutate: createRule, isLoading: creatingRule } = useCreateRuleMutation(
+    {
+      f: 'name,severity,params',
+      template_key: templateRule.key,
+    },
+    props.onClose,
+    (response: Response) => {
+      setReactivating(response.status === HttpStatusCode.Conflict);
+    },
+  );
 
-  constructor(props: Props) {
-    super(props);
-    const params: Dict<string> = {};
-    if (props.customRule?.params) {
-      for (const param of props.customRule.params) {
-        params[param.key] = param.defaultValue ?? '';
-      }
-    }
-    this.state = {
-      description: props.customRule?.mdDesc ?? '',
-      key: '',
-      keyModifiedByUser: false,
-      name: props.customRule?.name ?? '',
-      params,
-      reactivating: false,
-      severity: props.customRule?.severity ?? props.templateRule.severity,
-      status: props.customRule?.status ?? props.templateRule.status,
-      submitting: false,
-      type: props.customRule?.type ?? props.templateRule.type,
-    };
-  }
+  const submitting = updatingRule || creatingRule;
 
-  componentDidMount() {
-    this.mounted = true;
-  }
-
-  componentWillUnmount() {
-    this.mounted = false;
-  }
-
-  prepareRequest = () => {
-    const { customRule, templateRule } = this.props;
-    const params = Object.keys(this.state.params)
-      .map((key) => `${key}=${csvEscape(this.state.params[key])}`)
+  const submit = () => {
+    const stringifiedParams = Object.keys(params)
+      .map((key) => `${key}=${csvEscape(params[key])}`)
       .join(';');
     const ruleData = {
-      markdownDescription: this.state.description,
-      name: this.state.name,
-      params,
-      severity: this.state.severity,
-      status: this.state.status,
+      markdownDescription: description,
+      name,
+      params: stringifiedParams,
+      severity,
+      status,
     };
     return customRule
       ? updateRule({ ...ruleData, key: customRule.key })
       : createRule({
           ...ruleData,
-          customKey: this.state.key,
-          preventReactivation: !this.state.reactivating,
+          customKey: key,
+          preventReactivation: !reactivating,
           templateKey: templateRule.key,
-          type: this.state.type,
+          type,
         });
   };
 
-  handleFormSubmit = (event: React.SyntheticEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    this.setState({ submitting: true });
-    this.prepareRequest().then(
-      (newRuleDetails) => {
-        if (this.mounted) {
-          this.setState({ submitting: false });
-          this.props.onDone(newRuleDetails);
-        }
-      },
-      (response: Response) => {
-        if (this.mounted) {
-          this.setState({
-            reactivating: response.status === HttpStatusCode.Conflict,
-            submitting: false,
-          });
-        }
-      },
-    );
-  };
-
-  handleNameChange = (event: React.SyntheticEvent<HTMLInputElement>) => {
-    const { value: name } = event.currentTarget;
-    this.setState((state) => ({
-      name,
-      key: state.keyModifiedByUser ? state.key : latinize(name).replace(/[^A-Za-z0-9]/g, '_'),
-    }));
-  };
-
-  handleKeyChange = (event: React.SyntheticEvent<HTMLInputElement>) =>
-    this.setState({ key: event.currentTarget.value, keyModifiedByUser: true });
-
-  handleDescriptionChange = (event: React.SyntheticEvent<HTMLTextAreaElement>) =>
-    this.setState({ description: event.currentTarget.value });
-
-  handleTypeChange = ({ value }: LabelValueSelectOption<RuleType>) =>
-    this.setState({ type: value });
-
-  handleSeverityChange = ({ value }: { value: string }) => this.setState({ severity: value });
-
-  handleStatusChange = ({ value }: LabelValueSelectOption<Status>) =>
-    this.setState({ status: value });
-
-  handleParameterChange = (event: React.SyntheticEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = event.currentTarget;
-    this.setState((state: State) => ({ params: { ...state.params, [name]: value } }));
-  };
-
-  renderNameField = () => (
-    <FormField
-      ariaLabel={translate('name')}
-      label={translate('name')}
-      htmlFor="coding-rules-custom-rule-creation-name"
-      required
-    >
-      <InputField
-        autoFocus
-        disabled={this.state.submitting}
-        id="coding-rules-custom-rule-creation-name"
-        onChange={this.handleNameChange}
+  const NameField = React.useMemo(
+    () => (
+      <FormField
+        ariaLabel={translate('name')}
+        label={translate('name')}
+        htmlFor="coding-rules-custom-rule-creation-name"
         required
-        size="full"
-        type="text"
-        value={this.state.name}
-      />
-    </FormField>
-  );
-
-  renderKeyField = () => (
-    <FormField
-      ariaLabel={translate('key')}
-      label={translate('key')}
-      htmlFor="coding-rules-custom-rule-creation-key"
-      required
-    >
-      {this.props.customRule ? (
-        <span title={this.props.customRule.key}>{this.props.customRule.key}</span>
-      ) : (
+      >
         <InputField
-          disabled={this.state.submitting}
-          id="coding-rules-custom-rule-creation-key"
-          onChange={this.handleKeyChange}
+          autoFocus
+          disabled={submitting}
+          id="coding-rules-custom-rule-creation-name"
+          onChange={({
+            currentTarget: { value: name },
+          }: React.SyntheticEvent<HTMLInputElement>) => {
+            setName(name);
+            setKey(keyModifiedByUser ? key : latinize(name).replace(/[^A-Za-z0-9]/g, '_'));
+          }}
           required
           size="full"
           type="text"
-          value={this.state.key}
+          value={name}
         />
-      )}
-    </FormField>
+      </FormField>
+    ),
+    [key, keyModifiedByUser, name, submitting],
   );
 
-  renderDescriptionField = () => (
-    <FormField
-      ariaLabel={translate('description')}
-      label={translate('description')}
-      htmlFor="coding-rules-custom-rule-creation-html-description"
-      required
-    >
-      <InputTextArea
-        disabled={this.state.submitting}
-        id="coding-rules-custom-rule-creation-html-description"
-        onChange={this.handleDescriptionChange}
+  const KeyField = React.useMemo(
+    () => (
+      <FormField
+        ariaLabel={translate('key')}
+        label={translate('key')}
+        htmlFor="coding-rules-custom-rule-creation-key"
         required
-        rows={5}
-        size="full"
-        value={this.state.description}
-      />
-      <FormattingTips />
-    </FormField>
+      >
+        {customRule ? (
+          <span title={customRule.key}>{customRule.key}</span>
+        ) : (
+          <InputField
+            disabled={submitting}
+            id="coding-rules-custom-rule-creation-key"
+            onChange={(event: React.SyntheticEvent<HTMLInputElement>) => {
+              setKey(event.currentTarget.value);
+              setKeyModifiedByUser(true);
+            }}
+            required
+            size="full"
+            type="text"
+            value={key}
+          />
+        )}
+      </FormField>
+    ),
+    [customRule, key, submitting],
   );
 
-  renderTypeOption = (props: OptionProps<LabelValueSelectOption<RuleType>, false>) => {
-    return (
-      <components.Option {...props}>
-        <TypeHelper type={props.data.value} />
-      </components.Option>
-    );
-  };
+  const DescriptionField = React.useMemo(
+    () => (
+      <FormField
+        ariaLabel={translate('description')}
+        label={translate('description')}
+        htmlFor="coding-rules-custom-rule-creation-html-description"
+        required
+      >
+        <InputTextArea
+          disabled={submitting}
+          id="coding-rules-custom-rule-creation-html-description"
+          onChange={(event: React.SyntheticEvent<HTMLTextAreaElement>) =>
+            setDescription(event.currentTarget.value)
+          }
+          required
+          rows={5}
+          size="full"
+          value={description}
+        />
+        <FormattingTips />
+      </FormField>
+    ),
+    [description, submitting],
+  );
 
-  renderTypeSingleValue = (props: SingleValueProps<LabelValueSelectOption<RuleType>, false>) => {
-    return (
-      <components.SingleValue {...props}>
-        <TypeHelper className="display-flex-center" type={props.data.value} />
-      </components.SingleValue>
-    );
-  };
-
-  renderTypeField = () => {
+  const TypeField = React.useMemo(() => {
     const ruleTypeOption: LabelValueSelectOption<RuleType>[] = RULE_TYPES.map((type) => ({
       label: translate('issue.type', type),
       value: type,
@@ -262,39 +194,43 @@ export default class CustomRuleFormModal extends React.PureComponent<Props, Stat
         <InputSelect
           inputId="coding-rules-custom-rule-type"
           isClearable={false}
-          isDisabled={this.state.submitting}
+          isDisabled={submitting}
           isSearchable={false}
-          onChange={this.handleTypeChange}
+          onChange={({ value }: LabelValueSelectOption<RuleType>) => setType(value)}
           components={{
-            Option: this.renderTypeOption,
-            SingleValue: this.renderTypeSingleValue,
+            Option: TypeSelectOption,
+            SingleValue: TypeSelectValue,
           }}
           options={ruleTypeOption}
-          value={ruleTypeOption.find((t) => t.value === this.state.type)}
+          value={ruleTypeOption.find((t) => t.value === type)}
         />
       </FormField>
     );
-  };
+  }, [type, submitting]);
 
-  renderSeverityField = () => (
-    <FormField
-      ariaLabel={translate('severity')}
-      label={translate('severity')}
-      htmlFor="coding-rules-severity-select"
-    >
-      <SeveritySelect
-        isDisabled={this.state.submitting}
-        onChange={this.handleSeverityChange}
-        severity={this.state.severity}
-      />
-    </FormField>
+  const SeverityField = React.useMemo(
+    () => (
+      <FormField
+        ariaLabel={translate('severity')}
+        label={translate('severity')}
+        htmlFor="coding-rules-severity-select"
+      >
+        <SeveritySelect
+          isDisabled={submitting}
+          onChange={({ value }: { value: string }) => setSeverity(value)}
+          severity={severity}
+        />
+      </FormField>
+    ),
+    [severity, submitting],
   );
 
-  renderStatusField = () => {
+  const StatusField = React.useMemo(() => {
     const statusesOptions = RULE_STATUSES.map((status) => ({
       label: translate('rules.status', status),
       value: status,
     }));
+
     return (
       <FormField
         ariaLabel={translate('coding_rules.filters.status')}
@@ -304,110 +240,152 @@ export default class CustomRuleFormModal extends React.PureComponent<Props, Stat
         <InputSelect
           inputId="coding-rules-custom-rule-status"
           isClearable={false}
-          isDisabled={this.state.submitting}
+          isDisabled={submitting}
           aria-labelledby="coding-rules-custom-rule-status"
-          onChange={this.handleStatusChange}
+          onChange={({ value }: LabelValueSelectOption<Status>) => setStatus(value)}
           options={statusesOptions}
           isSearchable={false}
-          value={statusesOptions.find((s) => s.value === this.state.status)}
+          value={statusesOptions.find((s) => s.value === status)}
         />
       </FormField>
     );
-  };
+  }, [status, submitting]);
 
-  renderParameterField = (param: RuleParameter) => {
-    // Gets the actual value from params from the state.
-    // Without it, we have a issue with string 'constructor' as key
-    const actualValue = new Map(Object.entries(this.state.params)).get(param.key) ?? '';
+  const handleParameterChange = React.useCallback(
+    (event: React.SyntheticEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+      const { name, value } = event.currentTarget;
+      setParams({ ...params, [name]: value });
+    },
+    [params],
+  );
 
-    return (
-      <FormField
-        ariaLabel={param.key}
-        className="sw-capitalize"
-        label={param.key}
-        htmlFor={`coding-rule-custom-rule-${param.key}`}
-        key={param.key}
-      >
-        {param.type === 'TEXT' ? (
-          <InputTextArea
-            disabled={this.state.submitting}
-            id={`coding-rule-custom-rule-${param.key}`}
-            name={param.key}
-            onChange={this.handleParameterChange}
-            placeholder={param.defaultValue}
-            size="full"
-            rows={3}
-            value={actualValue}
-          />
-        ) : (
-          <InputField
-            disabled={this.state.submitting}
-            id={`coding-rule-custom-rule-${param.key}`}
-            name={param.key}
-            onChange={this.handleParameterChange}
-            placeholder={param.defaultValue}
-            size="full"
-            type="text"
-            value={actualValue}
-          />
-        )}
-        {param.htmlDesc !== undefined && (
-          <LightLabel
-            // eslint-disable-next-line react/no-danger
-            dangerouslySetInnerHTML={{ __html: sanitizeString(param.htmlDesc) }}
-          />
-        )}
-      </FormField>
-    );
-  };
+  const renderParameterField = React.useCallback(
+    (param: RuleParameter) => {
+      // Gets the actual value from params from the state.
+      // Without it, we have a issue with string 'constructor' as key
+      const actualValue = new Map(Object.entries(params)).get(param.key) ?? '';
 
-  render() {
-    const { customRule, templateRule } = this.props;
-    const { reactivating, submitting } = this.state;
-    const { params = [] } = templateRule;
-    const header = customRule
-      ? translate('coding_rules.update_custom_rule')
-      : translate('coding_rules.create_custom_rule');
-    let submit = translate(customRule ? 'save' : 'create');
-    if (this.state.reactivating) {
-      submit = translate('coding_rules.reactivate');
-    }
-    return (
-      <Modal
-        headerTitle={header}
-        onClose={this.props.onClose}
-        body={
-          <form
-            className="sw-flex sw-flex-col sw-justify-stretch sw-pb-4"
-            id={FORM_ID}
-            onSubmit={this.handleFormSubmit}
-          >
-            {reactivating && (
-              <FlagMessage variant="warning" className="sw-mb-6">
-                {translate('coding_rules.reactivate.help')}
-              </FlagMessage>
-            )}
+      return (
+        <FormField
+          ariaLabel={param.key}
+          className="sw-capitalize"
+          label={param.key}
+          htmlFor={`coding-rule-custom-rule-${param.key}`}
+          key={param.key}
+        >
+          {param.type === 'TEXT' ? (
+            <InputTextArea
+              disabled={submitting}
+              id={`coding-rule-custom-rule-${param.key}`}
+              name={param.key}
+              onChange={handleParameterChange}
+              placeholder={param.defaultValue}
+              size="full"
+              rows={3}
+              value={actualValue}
+            />
+          ) : (
+            <InputField
+              disabled={submitting}
+              id={`coding-rule-custom-rule-${param.key}`}
+              name={param.key}
+              onChange={handleParameterChange}
+              placeholder={param.defaultValue}
+              size="full"
+              type="text"
+              value={actualValue}
+            />
+          )}
+          {param.htmlDesc !== undefined && (
+            <LightLabel
+              // eslint-disable-next-line react/no-danger
+              dangerouslySetInnerHTML={{ __html: sanitizeString(param.htmlDesc) }}
+            />
+          )}
+        </FormField>
+      );
+    },
+    [params, submitting, handleParameterChange],
+  );
 
-            <MandatoryFieldsExplanation className="sw-mb-4" />
-
-            {this.renderNameField()}
-            {this.renderKeyField()}
-            {/* do not allow to change the type of existing rule */}
-            {!customRule && this.renderTypeField()}
-            {this.renderSeverityField()}
-            {this.renderStatusField()}
-            {this.renderDescriptionField()}
-            {params.map(this.renderParameterField)}
-          </form>
-        }
-        primaryButton={
-          <ButtonPrimary disabled={submitting} type="submit" form={FORM_ID}>
-            {submit}
-          </ButtonPrimary>
-        }
-        loading={submitting}
-        secondaryButtonLabel={translate('cancel')}
-      />
-    );
+  const { params: templateParams = [] } = templateRule;
+  const header = customRule
+    ? translate('coding_rules.update_custom_rule')
+    : translate('coding_rules.create_custom_rule');
+  let buttonText = translate(customRule ? 'save' : 'create');
+  if (reactivating) {
+    buttonText = translate('coding_rules.reactivate');
   }
+  return (
+    <Modal
+      headerTitle={header}
+      onClose={props.onClose}
+      body={
+        <form
+          className="sw-flex sw-flex-col sw-justify-stretch sw-pb-4"
+          id={FORM_ID}
+          onSubmit={(event: React.SyntheticEvent<HTMLFormElement>) => {
+            event.preventDefault();
+            submit();
+          }}
+        >
+          {reactivating && (
+            <FlagMessage variant="warning" className="sw-mb-6">
+              {translate('coding_rules.reactivate.help')}
+            </FlagMessage>
+          )}
+
+          <MandatoryFieldsExplanation className="sw-mb-4" />
+
+          {NameField}
+          {KeyField}
+          {/* do not allow to change the type of existing rule */}
+          {!customRule && TypeField}
+          {SeverityField}
+          {StatusField}
+          {DescriptionField}
+          {templateParams.map(renderParameterField)}
+        </form>
+      }
+      primaryButton={
+        <ButtonPrimary disabled={submitting} type="submit" form={FORM_ID}>
+          {buttonText}
+        </ButtonPrimary>
+      }
+      loading={submitting}
+      secondaryButtonLabel={translate('cancel')}
+    />
+  );
+}
+
+function TypeSelectOption(
+  optionProps: Readonly<OptionProps<LabelValueSelectOption<RuleType>, false>>,
+) {
+  return (
+    <components.Option {...optionProps}>
+      <TypeHelper type={optionProps.data.value} />
+    </components.Option>
+  );
+}
+
+function TypeSelectValue(
+  valueProps: Readonly<SingleValueProps<LabelValueSelectOption<RuleType>, false>>,
+) {
+  return (
+    <components.SingleValue {...valueProps}>
+      <TypeHelper className="display-flex-center" type={valueProps.data.value} />
+    </components.SingleValue>
+  );
+}
+
+function getParams(customRule?: RuleDetails) {
+  const params: Dict<string> = {};
+
+  if (customRule?.params) {
+    for (const param of customRule.params) {
+      params[param.key] = param.defaultValue ?? '';
+    }
+  }
+
+  return params;
 }

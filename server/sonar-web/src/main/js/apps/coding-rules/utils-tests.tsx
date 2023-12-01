@@ -192,6 +192,11 @@ export function getPageObjects() {
       });
     },
 
+    async detailsloaded() {
+      expect(await byRole('heading', { level: 1 }).find()).toBeInTheDocument();
+      await ui.appLoaded();
+    },
+
     async bulkActivate(rulesCount: number, profile: Profile) {
       await user.click(ui.bulkChangeButton.get());
       await user.click(ui.activateIn.get());

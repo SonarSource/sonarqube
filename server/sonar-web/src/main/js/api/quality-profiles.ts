@@ -323,18 +323,25 @@ export function bulkDeactivateRules(data: BulkActivateParameters) {
   return postJSON('/api/qualityprofiles/deactivate_rules', data);
 }
 
-export function activateRule(data: {
+export interface ActivateRuleParameters {
   key: string;
   params?: Dict<string>;
   reset?: boolean;
   rule: string;
   severity?: string;
-}) {
+}
+
+export function activateRule(data: ActivateRuleParameters) {
   const params =
     data.params && map(data.params, (value, key) => `${key}=${csvEscape(value)}`).join(';');
   return post('/api/qualityprofiles/activate_rule', { ...data, params }).catch(throwGlobalError);
 }
 
-export function deactivateRule(data: { key: string; rule: string }) {
+export interface DeactivateRuleParameters {
+  key: string;
+  rule: string;
+}
+
+export function deactivateRule(data: DeactivateRuleParameters) {
   return post('/api/qualityprofiles/deactivate_rule', data).catch(throwGlobalError);
 }

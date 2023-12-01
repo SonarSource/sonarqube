@@ -29,12 +29,16 @@ import {
 } from 'design-system';
 import * as React from 'react';
 import { Profile } from '../../../api/quality-profiles';
-import { deleteRule, getRuleDetails, updateRule } from '../../../api/rules';
 import ConfirmButton from '../../../components/controls/ConfirmButton';
 import HelpTooltip from '../../../components/controls/HelpTooltip';
 import DateFormatter from '../../../components/intl/DateFormatter';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
-import { Dict, RuleActivation, RuleDetails as TypeRuleDetails } from '../../../types/types';
+import {
+  useDeleteRuleMutation,
+  useRuleDetailsQuery,
+  useUpdateRuleMutation,
+} from '../../../queries/rules';
+import { Dict } from '../../../types/types';
 import { Activation } from '../query';
 import CustomRuleButton from './CustomRuleButton';
 import RuleDetailsCustomRules from './RuleDetailsCustomRules';
@@ -57,223 +61,147 @@ interface Props {
   selectedProfile?: Profile;
 }
 
-interface State {
-  actives?: RuleActivation[];
-  loading: boolean;
-  ruleDetails?: TypeRuleDetails;
-}
+export default function RuleDetails(props: Readonly<Props>) {
+  const {
+    ruleKey,
+    allowCustomRules,
+    canWrite,
+    referencedProfiles,
+    canDeactivateInherited,
+    selectedProfile,
+    referencedRepositories,
+  } = props;
+  const { isLoading: loadingRule, data } = useRuleDetailsQuery({
+    actives: true,
+    key: ruleKey,
+  });
+  const { mutate: updateRule } = useUpdateRuleMutation();
+  const { mutate: deleteRule } = useDeleteRuleMutation({}, props.onDelete);
 
-export default class RuleDetails extends React.PureComponent<Props, State> {
-  mounted = false;
-  state: State = { loading: true };
+  const { rule: ruleDetails, actives = [] } = data ?? {};
 
-  componentDidMount() {
-    this.mounted = true;
-    this.setState({ loading: true });
-    this.fetchRuleDetails();
-  }
+  const params = ruleDetails?.params ?? [];
+  const isCustom = !!ruleDetails?.templateKey;
+  const isEditable = canWrite && !!allowCustomRules && isCustom;
 
-  componentDidUpdate(prevProps: Props) {
-    if (prevProps.ruleKey !== this.props.ruleKey) {
-      this.setState({ loading: true });
-      this.fetchRuleDetails();
-    }
-  }
-
-  componentWillUnmount() {
-    this.mounted = false;
-  }
-
-  fetchRuleDetails = () => {
-    return getRuleDetails({
-      actives: true,
-      key: this.props.ruleKey,
-    }).then(
-      ({ actives, rule }) => {
-        if (this.mounted) {
-          this.setState({ actives, loading: false, ruleDetails: rule });
-        }
-      },
-      () => {
-        if (this.mounted) {
-          this.setState({ loading: false });
-        }
-      },
-    );
+  const handleTagsChange = (tags: string[]) => {
+    updateRule({ key: ruleKey, tags: tags.join() });
   };
 
-  handleRuleChange = (ruleDetails: TypeRuleDetails) => {
-    if (this.mounted) {
-      this.setState({ ruleDetails });
+  const handleActivate = () => {
+    if (selectedProfile) {
+      const active = actives.find((active) => active.qProfile === selectedProfile.key);
+      if (active) {
+        props.onActivate(selectedProfile.key, ruleKey, active);
+      }
     }
   };
 
-  handleTagsChange = (tags: string[]) => {
-    // optimistic update
-    const oldTags = this.state.ruleDetails && this.state.ruleDetails.tags;
-    this.setState((state) =>
-      state.ruleDetails ? { ruleDetails: { ...state.ruleDetails, tags } } : null,
-    );
-    updateRule({
-      key: this.props.ruleKey,
-      tags: tags.join(),
-    }).catch(() => {
-      if (this.mounted) {
-        this.setState((state) =>
-          state.ruleDetails ? { ruleDetails: { ...state.ruleDetails, tags: oldTags } } : null,
-        );
-      }
-    });
-  };
-
-  handleActivate = () => {
-    return this.fetchRuleDetails().then(() => {
-      const { ruleKey, selectedProfile } = this.props;
-      if (selectedProfile && this.state.actives) {
-        const active = this.state.actives.find((active) => active.qProfile === selectedProfile.key);
-        if (active) {
-          this.props.onActivate(selectedProfile.key, ruleKey, active);
-        }
-      }
-    });
-  };
-
-  handleDeactivate = () => {
-    return this.fetchRuleDetails().then(() => {
-      const { ruleKey, selectedProfile } = this.props;
-      if (
-        selectedProfile &&
-        this.state.actives &&
-        !this.state.actives.find((active) => active.qProfile === selectedProfile.key)
-      ) {
-        this.props.onDeactivate(selectedProfile.key, ruleKey);
-      }
-    });
-  };
-
-  handleDelete = () => {
-    return deleteRule({ key: this.props.ruleKey }).then(() =>
-      this.props.onDelete(this.props.ruleKey),
-    );
-  };
-
-  render() {
-    const { ruleDetails } = this.state;
-
-    if (!ruleDetails) {
-      return <div className="coding-rule-details" />;
+  const handleDeactivate = () => {
+    if (selectedProfile && actives.find((active) => active.qProfile === selectedProfile.key)) {
+      props.onDeactivate(selectedProfile.key, ruleKey);
     }
+  };
 
-    const { allowCustomRules, canWrite, referencedProfiles, canDeactivateInherited } = this.props;
-    const { params = [] } = ruleDetails;
+  return (
+    <StyledRuleDetails className="it__coding-rule-details sw-p-6 sw-mt-6">
+      <Spinner loading={loadingRule}>
+        {ruleDetails && (
+          <>
+            <RuleDetailsMeta
+              canWrite={canWrite}
+              onTagsChange={handleTagsChange}
+              referencedRepositories={referencedRepositories}
+              ruleDetails={ruleDetails}
+            />
 
-    const isCustom = !!ruleDetails.templateKey;
-    const isEditable = canWrite && !!this.props.allowCustomRules && isCustom;
+            <RuleDetailsDescription canWrite={canWrite} ruleDetails={ruleDetails} />
 
-    return (
-      <StyledRuleDetails className="it__coding-rule-details sw-p-6 sw-mt-6">
-        <Spinner loading={this.state.loading}>
-          <RuleDetailsMeta
-            canWrite={canWrite}
-            onTagsChange={this.handleTagsChange}
-            referencedRepositories={this.props.referencedRepositories}
-            ruleDetails={ruleDetails}
-          />
+            {params.length > 0 && <RuleDetailsParameters params={params} />}
 
-          <RuleDetailsDescription
-            canWrite={canWrite}
-            onChange={this.handleRuleChange}
-            ruleDetails={ruleDetails}
-          />
-
-          {params.length > 0 && <RuleDetailsParameters params={params} />}
-
-          {isEditable && (
-            <div className="coding-rules-detail-description display-flex-center">
-              {/* `templateRule` is used to get rule meta data, `customRule` is used to get parameter values */}
-              {/* it's expected to pass the same rule to both parameters */}
-              <CustomRuleButton
-                customRule={ruleDetails}
-                onDone={this.handleRuleChange}
-                templateRule={ruleDetails}
-              >
-                {({ onClick }) => (
-                  <ButtonSecondary
-                    className="js-edit-custom"
-                    id="coding-rules-detail-custom-rule-change"
-                    onClick={onClick}
-                  >
-                    {translate('edit')}
-                  </ButtonSecondary>
-                )}
-              </CustomRuleButton>
-              <ConfirmButton
-                confirmButtonText={translate('delete')}
-                isDestructive
-                modalBody={translateWithParameters(
-                  'coding_rules.delete.custom.confirm',
-                  ruleDetails.name,
-                )}
-                modalHeader={translate('coding_rules.delete_rule')}
-                onConfirm={this.handleDelete}
-              >
-                {({ onClick }) => (
-                  <>
-                    <DangerButtonSecondary
-                      className="sw-ml-2 js-delete"
-                      id="coding-rules-detail-rule-delete"
+            {isEditable && (
+              <div className="coding-rules-detail-description display-flex-center">
+                {/* `templateRule` is used to get rule meta data, `customRule` is used to get parameter values */}
+                {/* it's expected to pass the same rule to both parameters */}
+                <CustomRuleButton customRule={ruleDetails} templateRule={ruleDetails}>
+                  {({ onClick }) => (
+                    <ButtonSecondary
+                      className="js-edit-custom"
+                      id="coding-rules-detail-custom-rule-change"
                       onClick={onClick}
                     >
-                      {translate('delete')}
-                    </DangerButtonSecondary>
-                    <HelpTooltip
-                      className="sw-ml-2"
-                      overlay={
-                        <div className="sw-py-4">
-                          {translate('coding_rules.custom_rule.removal')}
-                        </div>
-                      }
-                    >
-                      <HelperHintIcon />
-                    </HelpTooltip>
-                  </>
-                )}
-              </ConfirmButton>
+                      {translate('edit')}
+                    </ButtonSecondary>
+                  )}
+                </CustomRuleButton>
+                <ConfirmButton
+                  confirmButtonText={translate('delete')}
+                  isDestructive
+                  modalBody={translateWithParameters(
+                    'coding_rules.delete.custom.confirm',
+                    ruleDetails.name,
+                  )}
+                  modalHeader={translate('coding_rules.delete_rule')}
+                  onConfirm={() => deleteRule({ key: ruleKey })}
+                >
+                  {({ onClick }) => (
+                    <>
+                      <DangerButtonSecondary
+                        className="sw-ml-2 js-delete"
+                        id="coding-rules-detail-rule-delete"
+                        onClick={onClick}
+                      >
+                        {translate('delete')}
+                      </DangerButtonSecondary>
+                      <HelpTooltip
+                        className="sw-ml-2"
+                        overlay={
+                          <div className="sw-py-4">
+                            {translate('coding_rules.custom_rule.removal')}
+                          </div>
+                        }
+                      >
+                        <HelperHintIcon />
+                      </HelpTooltip>
+                    </>
+                  )}
+                </ConfirmButton>
+              </div>
+            )}
+
+            {ruleDetails.isTemplate && (
+              <RuleDetailsCustomRules
+                canChange={allowCustomRules && canWrite}
+                ruleDetails={ruleDetails}
+              />
+            )}
+
+            {!ruleDetails.isTemplate && (
+              <RuleDetailsProfiles
+                activations={actives}
+                canDeactivateInherited={canDeactivateInherited}
+                onActivate={handleActivate}
+                onDeactivate={handleDeactivate}
+                referencedProfiles={referencedProfiles}
+                ruleDetails={ruleDetails}
+              />
+            )}
+
+            {!ruleDetails.isTemplate && ruleDetails.type !== 'SECURITY_HOTSPOT' && (
+              <RuleDetailsIssues ruleDetails={ruleDetails} />
+            )}
+
+            <div className="sw-my-8" data-meta="available-since">
+              <SubHeadingHighlight as="h3">
+                {translate('coding_rules.available_since')}
+              </SubHeadingHighlight>
+              <DateFormatter date={ruleDetails.createdAt} />
             </div>
-          )}
-
-          {ruleDetails.isTemplate && (
-            <RuleDetailsCustomRules
-              canChange={allowCustomRules && canWrite}
-              ruleDetails={ruleDetails}
-            />
-          )}
-
-          {!ruleDetails.isTemplate && (
-            <RuleDetailsProfiles
-              activations={this.state.actives}
-              canDeactivateInherited={canDeactivateInherited}
-              onActivate={this.handleActivate}
-              onDeactivate={this.handleDeactivate}
-              referencedProfiles={referencedProfiles}
-              ruleDetails={ruleDetails}
-            />
-          )}
-
-          {!ruleDetails.isTemplate && ruleDetails.type !== 'SECURITY_HOTSPOT' && (
-            <RuleDetailsIssues ruleDetails={ruleDetails} />
-          )}
-
-          <div className="sw-my-8" data-meta="available-since">
-            <SubHeadingHighlight as="h3">
-              {translate('coding_rules.available_since')}
-            </SubHeadingHighlight>
-            <DateFormatter date={ruleDetails.createdAt} />
-          </div>
-        </Spinner>
-      </StyledRuleDetails>
-    );
-  }
+          </>
+        )}
+      </Spinner>
+    </StyledRuleDetails>
+  );
 }
 
 const StyledRuleDetails = styled.div`

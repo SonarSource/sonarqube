@@ -359,7 +359,7 @@ export default class CodingRulesServiceMock {
       data.remediation_fn_type !== undefined ? data.remediation_fn_type : rule.remFnType;
     rule.severity = data.severity !== undefined ? data.severity : rule.severity;
     rule.status = data.status !== undefined ? data.status : rule.status;
-    rule.tags = data.tags !== undefined ? data.tags.split(';') : rule.tags;
+    rule.tags = data.tags !== undefined ? data.tags.split(',') : rule.tags;
 
     return this.reply(rule);
   };

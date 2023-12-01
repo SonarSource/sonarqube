@@ -380,7 +380,7 @@ describe('Rule app details', () => {
     it('shows rule with default description section and params', async () => {
       const { ui } = getPageObjects();
       renderCodingRulesApp(undefined, 'coding_rules?open=rule1');
-      await ui.appLoaded();
+      await ui.detailsloaded();
       expect(ui.ruleTitle('Awsome java rule').get()).toBeInTheDocument();
       expect(
         ui.ruleCleanCodeAttributeCategory(CleanCodeAttributeCategory.Adaptable).get(),
@@ -400,7 +400,7 @@ describe('Rule app details', () => {
     it('shows external rule', async () => {
       const { ui } = getPageObjects();
       renderCodingRulesApp(undefined, 'coding_rules?open=rule6');
-      await ui.appLoaded();
+      await ui.detailsloaded();
       expect(ui.ruleTitle('Bad Python rule').get()).toBeInTheDocument();
       expect(ui.externalDescription('Bad Python rule').get()).toBeInTheDocument();
     });
@@ -408,7 +408,7 @@ describe('Rule app details', () => {
     it('shows hotspot rule', async () => {
       const { ui, user } = getPageObjects();
       renderCodingRulesApp(undefined, 'coding_rules?open=rule2');
-      await ui.appLoaded();
+      await ui.detailsloaded();
       expect(ui.ruleTitle('Hot hotspot').get()).toBeInTheDocument();
       expect(ui.introTitle.get()).toBeInTheDocument();
 
@@ -424,7 +424,7 @@ describe('Rule app details', () => {
     it('shows rule advanced section', async () => {
       const { ui } = getPageObjects();
       renderCodingRulesApp(undefined, 'coding_rules?open=rule5');
-      await ui.appLoaded();
+      await ui.detailsloaded();
       expect(ui.ruleTitle('Awsome Python rule').get()).toBeInTheDocument();
       expect(ui.introTitle.get()).toBeInTheDocument();
       // Shows correct tabs
@@ -436,7 +436,7 @@ describe('Rule app details', () => {
     it('shows rule advanced section with context', async () => {
       const { ui, user } = getPageObjects();
       renderCodingRulesApp(undefined, 'coding_rules?open=rule7');
-      await ui.appLoaded();
+      await ui.detailsloaded();
       expect(ui.ruleTitle('Python rule with context').get()).toBeInTheDocument();
 
       await user.click(ui.howToFixTab.get());
@@ -455,7 +455,7 @@ describe('Rule app details', () => {
     it('should show CYAC notification for rule advanced section and removes it after user`s visit', async () => {
       const { ui, user } = getPageObjects();
       renderCodingRulesApp(mockLoggedInUser(), 'coding_rules?open=rule10');
-      await ui.appLoaded();
+      await ui.detailsloaded();
       await user.click(ui.moreInfoTab.get());
 
       expect(ui.caycNotificationButton.get()).toBeInTheDocument();
@@ -470,7 +470,7 @@ describe('Rule app details', () => {
     it('should show CAYC notification for rule advanced section and removes it when user scrolls to the principles', async () => {
       const { ui, user } = getPageObjects();
       renderCodingRulesApp(mockLoggedInUser(), 'coding_rules?open=rule10');
-      await ui.appLoaded();
+      await ui.detailsloaded();
       await user.click(ui.moreInfoTab.get());
       expect(ui.caycNotificationButton.get()).toBeInTheDocument();
 
@@ -487,7 +487,7 @@ describe('Rule app details', () => {
       const { ui, user } = getPageObjects();
       renderCodingRulesApp(mockCurrentUser(), 'coding_rules?open=rule10');
 
-      await ui.appLoaded();
+      await ui.detailsloaded();
       await user.click(ui.moreInfoTab.get());
 
       expect(ui.caycNotificationButton.query()).not.toBeInTheDocument();
@@ -498,7 +498,7 @@ describe('Rule app details', () => {
     const { ui, user } = getPageObjects();
     rulesHandler.setIsAdmin();
     renderCodingRulesApp(mockLoggedInUser(), 'coding_rules?open=rule1');
-    await ui.appLoaded();
+    await ui.detailsloaded();
     expect(ui.qpLink('QP Foo').get()).toBeInTheDocument();
 
     // Activate rule in quality profile
@@ -542,7 +542,7 @@ describe('Rule app details', () => {
     const { ui, user } = getPageObjects();
     rulesHandler.setIsAdmin();
     renderCodingRulesApp(mockLoggedInUser(), 'coding_rules?open=rule1');
-    await ui.appLoaded();
+    await ui.detailsloaded();
 
     // Should show 2 deactivate buttons: one for the parent, one for the child profile.
     expect(ui.deactivateInQPButton('QP FooBarBaz').get()).toBeInTheDocument();
@@ -559,7 +559,7 @@ describe('Rule app details', () => {
     rulesHandler.setIsAdmin();
     settingsHandler.set(SettingsKey.QPAdminCanDisableInheritedRules, 'false');
     renderCodingRulesApp(mockLoggedInUser(), 'coding_rules?open=rule1');
-    await ui.appLoaded();
+    await ui.detailsloaded();
 
     // Should show 1 deactivate button: one for the parent, none for the child profile.
     expect(ui.deactivateInQPButton('QP FooBarBaz').get()).toBeInTheDocument();
@@ -570,7 +570,7 @@ describe('Rule app details', () => {
     const { ui, user } = getPageObjects();
     rulesHandler.setIsAdmin();
     renderCodingRulesApp(undefined, 'coding_rules?open=rule5');
-    await ui.appLoaded();
+    await ui.detailsloaded();
     expect(ui.ruleTitle('Awsome Python rule').get()).toBeInTheDocument();
 
     // Add
@@ -603,7 +603,7 @@ describe('Rule app details', () => {
     const { ui, user } = getPageObjects();
     rulesHandler.setIsAdmin();
     renderCodingRulesApp(undefined, 'coding_rules?open=rule10');
-    await ui.appLoaded();
+    await ui.detailsloaded();
 
     await user.click(ui.tagsDropdown.get());
 
@@ -670,7 +670,7 @@ describe('Rule app details', () => {
       const { ui, user } = getPageObjects();
       rulesHandler.setIsAdmin();
       renderCodingRulesApp(mockLoggedInUser(), 'coding_rules?open=rule9');
-      await ui.appLoaded();
+      await ui.detailsloaded();
 
       await user.click(ui.editCustomRuleButton.get());
 
@@ -688,7 +688,7 @@ describe('Rule app details', () => {
       const { ui, user } = getPageObjects();
       rulesHandler.setIsAdmin();
       renderCodingRulesApp(mockLoggedInUser(), 'coding_rules?open=rule9');
-      await ui.appLoaded();
+      await ui.detailsloaded();
 
       await user.click(ui.deleteButton.get());
       await user.click(ui.deleteButton.get(ui.deleteCustomRuleDialog.get()));
@@ -701,7 +701,7 @@ describe('Rule app details', () => {
       const { ui, user } = getPageObjects();
       rulesHandler.setIsAdmin();
       renderCodingRulesApp(mockLoggedInUser(), 'coding_rules?open=rule8');
-      await ui.appLoaded();
+      await ui.detailsloaded();
 
       await user.click(ui.deleteCustomRuleButton('Custom Rule based on rule8').get());
       await user.click(ui.deleteButton.get(ui.deleteCustomRuleDialog.get()));

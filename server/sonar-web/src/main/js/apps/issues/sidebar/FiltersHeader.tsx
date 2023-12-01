@@ -31,7 +31,7 @@ export function FiltersHeader({ displayReset, onReset }: Props) {
   return (
     <div className="sw-mb-5">
       <div className="sw-flex sw-h-9 sw-items-center sw-justify-between">
-        <PageTitle className="sw-body-md-highlight" text={translate('filters')} />
+        <PageTitle className="sw-body-md-highlight" as="h2" text={translate('filters')} />
 
         {displayReset && (
           <DangerButtonSecondary onClick={onReset}>

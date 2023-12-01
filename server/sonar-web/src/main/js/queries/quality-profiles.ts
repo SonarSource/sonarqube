@@ -17,14 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { UseQueryResult, useMutation, useQuery } from '@tanstack/react-query';
+import { UseQueryResult, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
+  ActivateRuleParameters,
   AddRemoveGroupParameters,
   AddRemoveUserParameters,
+  DeactivateRuleParameters,
   Profile,
+  activateRule,
   addGroup,
   addUser,
   compareProfiles,
+  deactivateRule,
   getProfileInheritance,
 } from '../api/quality-profiles';
 import { ProfileInheritanceDetails } from '../types/types';
@@ -59,6 +63,30 @@ export function useProfilesCompareQuery(leftKey: string, rightKey: string) {
       }
 
       return compareProfiles(leftKey, rightKey);
+    },
+  });
+}
+
+export function useActivateRuleMutation(onSuccess: (data: ActivateRuleParameters) => unknown) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: activateRule,
+    onSuccess: (_, data) => {
+      queryClient.invalidateQueries({ queryKey: ['rules', 'details'] });
+      onSuccess(data);
+    },
+  });
+}
+
+export function useDeactivateRuleMutation(onSuccess: (data: DeactivateRuleParameters) => unknown) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: deactivateRule,
+    onSuccess: (_, data) => {
+      queryClient.invalidateQueries({ queryKey: ['rules', 'details'] });
+      onSuccess(data);
     },
   });
 }
