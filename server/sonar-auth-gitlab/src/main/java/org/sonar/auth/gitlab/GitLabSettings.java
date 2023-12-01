@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import org.sonar.api.PropertyType;
+import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.config.PropertyDefinition;
 
@@ -30,6 +31,7 @@ import static java.lang.String.valueOf;
 import static org.sonar.api.PropertyType.BOOLEAN;
 import static org.sonar.api.PropertyType.PASSWORD;
 
+@ComputeEngineSide
 public class GitLabSettings {
 
   public static final String GITLAB_AUTH_ENABLED = "sonar.auth.gitlab.enabled";
