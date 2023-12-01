@@ -169,7 +169,7 @@ public final class IssueDto implements Serializable {
   @NotNull
   private static Set<ImpactDto> mapToImpactDto(Map<SoftwareQuality, Severity> impacts) {
     return impacts.entrySet().stream().map(e -> new ImpactDto()
-        .setUuid(Uuids.createFast())
+        .setUuid(Uuids.create())
         .setSoftwareQuality(e.getKey())
         .setSeverity(e.getValue()))
       .collect(Collectors.toSet());
