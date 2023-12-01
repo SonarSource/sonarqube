@@ -39,11 +39,6 @@ dependencies {
 
 artifactoryPublish.skip = false
 
-// Produce Java 11 bytecode while making sure the code does not use any APIs from Java 17
-tasks.withType(JavaCompile) {
-  options.release = 11
-}
-
 publishing {
   publications {
     mavenJava(MavenPublication) {
