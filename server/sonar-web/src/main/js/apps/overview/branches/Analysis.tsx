@@ -44,7 +44,16 @@ export function Analysis(props: Readonly<AnalysisProps>) {
   const { analysis, isFirstAnalysis, qualifier, qualityGateStatus, variations } = props;
 
   const sortedEvents = sortBy(
-    analysis.events.filter((event) => event.category !== ProjectAnalysisEventCategory.QualityGate),
+    analysis.events.filter((event) => {
+      switch (event.category) {
+        case ProjectAnalysisEventCategory.QualityGate:
+          return false;
+        case ProjectAnalysisEventCategory.SqUpgrade:
+          return !isFirstAnalysis;
+        default:
+          return true;
+      }
+    }),
     (event) => {
       switch (event.category) {
         case ProjectAnalysisEventCategory.Version:
