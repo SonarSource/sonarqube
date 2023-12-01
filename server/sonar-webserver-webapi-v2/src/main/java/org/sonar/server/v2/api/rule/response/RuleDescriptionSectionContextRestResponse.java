@@ -17,11 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.text;
+package org.sonar.server.v2.api.rule.response;
 
-public interface Macro {
+import io.swagger.v3.oas.annotations.media.Schema;
 
-  String getRegex();
+@Schema(accessMode = Schema.AccessMode.READ_ONLY)
+public record RuleDescriptionSectionContextRestResponse(
+  String key,
+  String displayName
 
-  String getReplacement();
+) {
+
 }

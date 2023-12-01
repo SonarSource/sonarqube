@@ -17,12 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.common.rule.service;
+package org.sonar.server.v2.api.rule.response;
 
-public class RuleService {
+import io.swagger.v3.oas.annotations.media.Schema;
+import javax.annotation.Nullable;
 
-  public RuleInformation create(CreateRuleRequest request) {
-    return null;
-  }
+public record RuleDescriptionSectionRestResponse(
+  @Schema(accessMode = Schema.AccessMode.READ_ONLY)
+  String key,
+  @Schema(accessMode = Schema.AccessMode.READ_ONLY)
+  String content,
+  @Nullable
+  @Schema(accessMode = Schema.AccessMode.READ_ONLY)
+  RuleDescriptionSectionContextRestResponse context
 
+) {
 }

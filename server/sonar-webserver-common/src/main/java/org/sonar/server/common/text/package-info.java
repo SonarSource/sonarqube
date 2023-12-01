@@ -17,12 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.common.rule.service;
+@ParametersAreNonnullByDefault
+package org.sonar.server.common.text;
 
-public class RuleService {
+import javax.annotation.ParametersAreNonnullByDefault;
 
-  public RuleInformation create(CreateRuleRequest request) {
-    return null;
-  }
-
-}

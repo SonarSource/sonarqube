@@ -17,12 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.common.rule.service;
+package org.sonar.server.common.text;
 
-public class RuleService {
+import java.util.List;
+import org.sonar.api.platform.Server;
+import org.sonar.api.server.ServerSide;
 
-  public RuleInformation create(CreateRuleRequest request) {
-    return null;
+@ServerSide
+public class MacroInterpreter {
+  private final List<Macro> macros;
+
+  public MacroInterpreter(Server server) {
+    this.macros = List.of(
+      new RuleMacro(server.getContextPath())
+    );
   }
 
+  public String interpret(String text) {
+    String textReplaced = text;
+    for (Macro macro : macros) {
+      textReplaced = textReplaced.replaceAll(macro.getRegex(), macro.getReplacement());
+    }
+    return textReplaced;
+  }
 }

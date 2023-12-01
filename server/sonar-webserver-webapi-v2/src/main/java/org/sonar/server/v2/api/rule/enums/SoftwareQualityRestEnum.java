@@ -17,12 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.common.rule.service;
+package org.sonar.server.v2.api.rule.enums;
 
-public class RuleService {
+import java.util.Arrays;
+import org.sonar.api.issue.impact.SoftwareQuality;
 
-  public RuleInformation create(CreateRuleRequest request) {
-    return null;
+public enum SoftwareQualityRestEnum {
+  MAINTAINABILITY(SoftwareQuality.MAINTAINABILITY),
+  RELIABILITY(SoftwareQuality.RELIABILITY),
+  SECURITY(SoftwareQuality.SECURITY);
+
+
+  private final SoftwareQuality softwareQuality;
+
+  SoftwareQualityRestEnum(SoftwareQuality softwareQuality) {
+
+    this.softwareQuality = softwareQuality;
   }
 
+  public static SoftwareQualityRestEnum from(SoftwareQuality softwareQuality) {
+    return Arrays.stream(SoftwareQualityRestEnum.values())
+      .filter(softwareQualityRest -> softwareQualityRest.softwareQuality.equals(softwareQuality))
+      .findFirst()
+      .orElseThrow(() -> new IllegalArgumentException("Unsupported SoftwareQuality: " + softwareQuality));
+  }
 }

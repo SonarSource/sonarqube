@@ -17,12 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.common.rule.service;
+package org.sonar.server.v2.api.rule.enums;
 
-public class RuleService {
+import java.util.Arrays;
+import org.sonar.api.issue.impact.Severity;
 
-  public RuleInformation create(CreateRuleRequest request) {
-    return null;
+public enum ImpactSeverityRestEnum {
+  LOW(Severity.LOW),
+  MEDIUM(Severity.MEDIUM),
+  HIGH(Severity.HIGH);
+
+  private final Severity severity;
+
+  ImpactSeverityRestEnum(Severity severity) {
+
+    this.severity = severity;
   }
 
+  public static ImpactSeverityRestEnum from(Severity severity) {
+    return Arrays.stream(ImpactSeverityRestEnum.values())
+      .filter(severityRestResponse -> severityRestResponse.severity.equals(severity))
+      .findFirst()
+      .orElseThrow(() -> new IllegalArgumentException("Unsupported impact severity: " + severity));
+  }
 }

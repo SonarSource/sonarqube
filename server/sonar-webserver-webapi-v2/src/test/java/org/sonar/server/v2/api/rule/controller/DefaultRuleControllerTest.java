@@ -27,12 +27,16 @@ import org.sonar.server.common.rule.service.RuleService;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.v2.api.ControllerTester;
 import org.sonar.server.v2.api.rule.converter.RuleRestResponseGenerator;
+import org.sonar.server.v2.api.rule.response.RuleRestResponse;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.sonar.server.v2.WebApiEndpoints.RULES_ENDPOINT;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -43,8 +47,9 @@ public class DefaultRuleControllerTest {
 
   private final RuleService ruleService = mock();
 
+  private final RuleRestResponseGenerator ruleRestResponseGenerator = mock();
   private final MockMvc mockMvc = ControllerTester
-    .getMockMvc(new DefaultRuleController(userSession, ruleService, new RuleRestResponseGenerator()));
+    .getMockMvc(new DefaultRuleController(userSession, ruleService, ruleRestResponseGenerator));
 
 
   @Test
@@ -52,5 +57,15 @@ public class DefaultRuleControllerTest {
     mockMvc.perform(post(RULES_ENDPOINT).contentType(MediaType.APPLICATION_JSON_VALUE).content("{}"))
       .andExpectAll(
         status().isOk());
+  }
+
+  @Test
+  public void create_shouldReturnExpectedBody() throws Exception {
+    when(ruleRestResponseGenerator.toRuleRestResponse(any())).thenReturn(RuleRestResponse.Builder.builder().setId("id").build());
+
+    mockMvc.perform(post(RULES_ENDPOINT).contentType(MediaType.APPLICATION_JSON_VALUE).content("{}"))
+      .andExpectAll(
+        status().isOk(),
+        content().json("{id: 'id'}"));
   }
 }

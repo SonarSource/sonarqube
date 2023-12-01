@@ -20,6 +20,7 @@
 package org.sonar.server.v2.config;
 
 import javax.annotation.Nullable;
+import org.sonar.api.resources.Languages;
 import org.sonar.db.DbClient;
 import org.sonar.server.common.group.service.GroupMembershipService;
 import org.sonar.server.common.group.service.GroupService;
@@ -31,9 +32,11 @@ import org.sonar.server.common.management.ManagedInstanceChecker;
 import org.sonar.server.common.platform.LivenessChecker;
 import org.sonar.server.common.platform.LivenessCheckerImpl;
 import org.sonar.server.common.rule.service.RuleService;
+import org.sonar.server.common.text.MacroInterpreter;
 import org.sonar.server.common.user.service.UserService;
 import org.sonar.server.health.HealthChecker;
 import org.sonar.server.platform.NodeInformation;
+import org.sonar.server.rule.RuleDescriptionFormatter;
 import org.sonar.server.user.SystemPasscode;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.v2.api.group.controller.DefaultGroupController;
@@ -100,8 +103,8 @@ public class PlatformLevel4WebConfig {
   }
 
   @Bean
-  public RuleRestResponseGenerator ruleRestResponseGenerator() {
-    return new RuleRestResponseGenerator();
+  public RuleRestResponseGenerator ruleRestResponseGenerator(Languages languages, MacroInterpreter macroInterpreter, RuleDescriptionFormatter ruleDescriptionFormatter) {
+    return new RuleRestResponseGenerator(languages, macroInterpreter, ruleDescriptionFormatter);
   }
 
   @Bean

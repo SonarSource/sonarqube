@@ -17,8 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@ParametersAreNonnullByDefault
-package org.sonar.server.text;
+package org.sonar.server.v2.api.rule.enums;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.Arrays;
+import org.sonar.api.rule.RuleStatus;
 
+public enum RuleStatusRestEnum {
+  BETA(RuleStatus.BETA),
+  DEPRECATED(RuleStatus.DEPRECATED),
+  READY(RuleStatus.READY),
+  REMOVED(RuleStatus.REMOVED);
+
+  private final RuleStatus ruleStatus;
+
+  RuleStatusRestEnum(RuleStatus ruleStatus) {
+    this.ruleStatus = ruleStatus;
+  }
+
+  public static RuleStatusRestEnum from(RuleStatus ruleStatus) {
+    return Arrays.stream(RuleStatusRestEnum.values())
+      .filter(ruleStatusRestEnum -> ruleStatusRestEnum.ruleStatus.equals(ruleStatus))
+      .findFirst()
+      .orElseThrow(() -> new IllegalArgumentException("Unsupported RuleStatus: " + ruleStatus));
+  }
+}

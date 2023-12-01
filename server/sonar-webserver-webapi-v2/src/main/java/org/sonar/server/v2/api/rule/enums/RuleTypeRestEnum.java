@@ -17,27 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.text;
+package org.sonar.server.v2.api.rule.enums;
 
-class RuleMacro implements Macro {
+import java.util.Arrays;
+import org.sonar.api.rules.RuleType;
 
-  private static final String COLON = "%3A";
-  private final String contextPath;
+public enum RuleTypeRestEnum {
+  CODE_SMELL(RuleType.CODE_SMELL),
+  BUG(RuleType.BUG),
+  VULNERABILITY(RuleType.VULNERABILITY),
+  SECURITY_HOTSPOT(RuleType.SECURITY_HOTSPOT),
+  ;
 
-  RuleMacro(String contextPath) {
-    this.contextPath = contextPath;
+  private final RuleType ruleType;
+
+  RuleTypeRestEnum(RuleType ruleType) {
+    this.ruleType = ruleType;
   }
 
-  /**
-   * First parameter is the repository, second one is the rule key. Exemple : {rule:java:ArchitecturalConstraint}
-   */
-  @Override
-  public String getRegex() {
-    return "\\{rule:([a-zA-Z0-9._-]++):([a-zA-Z0-9._-]++)\\}";
-  }
-
-  @Override
-  public String getReplacement() {
-    return "<a href='" + contextPath + "/coding_rules#rule_key=$1" + COLON + "$2'>$2</a>";
+  public static RuleTypeRestEnum from(RuleType ruleType) {
+    return Arrays.stream(RuleTypeRestEnum.values())
+      .filter(ruleTypeRestEnum -> ruleTypeRestEnum.ruleType.equals(ruleType))
+      .findFirst()
+      .orElseThrow(() -> new IllegalArgumentException("Unsupported RuleType: " + ruleType));
   }
 }

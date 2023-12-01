@@ -17,28 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.text;
+@ParametersAreNonnullByDefault
+package org.sonar.server.v2.api.rule.enums;
 
-import org.sonar.api.server.ServerSide;
-import org.sonar.api.platform.Server;
-
-import java.util.List;
-
-@ServerSide
-public class MacroInterpreter {
-  private final List<Macro> macros;
-
-  public MacroInterpreter(Server server) {
-    this.macros = List.of(
-      new RuleMacro(server.getContextPath())
-    );
-  }
-
-  public String interpret(String text) {
-    String textReplaced = text;
-    for (Macro macro : macros) {
-      textReplaced = textReplaced.replaceAll(macro.getRegex(), macro.getReplacement());
-    }
-    return textReplaced;
-  }
-}
+import javax.annotation.ParametersAreNonnullByDefault;

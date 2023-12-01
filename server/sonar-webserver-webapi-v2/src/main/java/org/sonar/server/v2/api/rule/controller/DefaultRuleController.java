@@ -19,6 +19,7 @@
  */
 package org.sonar.server.v2.api.rule.controller;
 
+import org.sonar.server.common.rule.service.RuleInformation;
 import org.sonar.server.common.rule.service.RuleService;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.v2.api.rule.converter.RuleRestResponseGenerator;
@@ -39,8 +40,9 @@ public class DefaultRuleController implements RuleController {
 
   @Override
   public RuleRestResponse create(RuleCreateRestRequest request) {
-    return null;
+
+
+    RuleInformation ruleInformation = ruleService.create(null);
+    return ruleRestResponseGenerator.toRuleRestResponse(ruleInformation);
   }
-
-
 }

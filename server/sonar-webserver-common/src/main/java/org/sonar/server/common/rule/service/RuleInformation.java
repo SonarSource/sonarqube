@@ -19,10 +19,9 @@
  */
 package org.sonar.server.common.rule.service;
 
-public class RuleService {
+import java.util.List;
+import org.sonar.db.rule.RuleDto;
+import org.sonar.db.rule.RuleParamDto;
 
-  public RuleInformation create(CreateRuleRequest request) {
-    return null;
-  }
-
+public record RuleInformation(RuleDto ruleDto, List<RuleParamDto> params) {
 }
