@@ -21,9 +21,7 @@ import * as React from 'react';
 import { Location, useLocation } from 'react-router-dom';
 
 export default function withLocation<P>(
-  WrappedComponent: React.ComponentType<
-    React.PropsWithChildren<React.PropsWithChildren<P & { location: Location }>>
-  >,
+  WrappedComponent: React.ComponentType<React.PropsWithChildren<P & { location: Location }>>,
 ) {
   return function WithLocation(props: Omit<P, 'location'>) {
     const location = useLocation();

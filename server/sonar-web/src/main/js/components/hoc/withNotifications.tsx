@@ -46,9 +46,7 @@ export interface WithNotificationsProps {
 }
 
 export function withNotifications<P>(
-  WrappedComponent: React.ComponentType<
-    React.PropsWithChildren<React.PropsWithChildren<P & WithNotificationsProps>>
-  >,
+  WrappedComponent: React.ComponentType<React.PropsWithChildren<P & WithNotificationsProps>>,
 ) {
   class Wrapper extends React.Component<P, State> {
     mounted = false;

@@ -23,7 +23,7 @@ import { getWrappedDisplayName } from './utils';
 
 export function withCLanguageFeature<P>(
   WrappedComponent: React.ComponentType<
-    React.PropsWithChildren<React.PropsWithChildren<P & { hasCLanguageFeature: boolean }>>
+    React.PropsWithChildren<P & { hasCLanguageFeature: boolean }>
   >,
 ) {
   class Wrapper extends React.Component<Omit<P, 'hasCLanguageFeature'>> {

@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 export function getWrappedDisplayName<P>(
-  WrappedComponent: React.ComponentType<React.PropsWithChildren<React.PropsWithChildren<P>>>,
+  WrappedComponent: React.ComponentType<React.PropsWithChildren<P>>,
   hocName: string,
 ) {
   const wrappedDisplayName = WrappedComponent.displayName ?? WrappedComponent.name ?? 'Component';

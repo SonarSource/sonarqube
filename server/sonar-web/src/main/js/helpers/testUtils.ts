@@ -20,12 +20,10 @@
 import { ComponentClass, FunctionComponent } from 'react';
 
 export type ComponentPropsType<
-  T extends
-    | ComponentClass
-    | FunctionComponent<React.PropsWithChildren<React.PropsWithChildren<any>>>,
+  T extends ComponentClass | FunctionComponent<React.PropsWithChildren<any>>,
 > = T extends ComponentClass<infer P>
   ? P
-  : T extends FunctionComponent<React.PropsWithChildren<React.PropsWithChildren<infer P>>>
+  : T extends FunctionComponent<React.PropsWithChildren<infer P>>
   ? P
   : never;
 

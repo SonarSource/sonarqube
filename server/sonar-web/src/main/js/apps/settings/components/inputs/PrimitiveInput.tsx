@@ -31,9 +31,7 @@ import InputForText from './InputForText';
 
 function withOptions(
   options: string[],
-): React.ComponentType<
-  React.PropsWithChildren<React.PropsWithChildren<DefaultSpecializedInputProps>>
-> {
+): React.ComponentType<React.PropsWithChildren<DefaultSpecializedInputProps>> {
   return function Wrapped(props: DefaultSpecializedInputProps) {
     return <InputForSingleSelectList options={options} {...props} />;
   };
@@ -44,7 +42,7 @@ export default function PrimitiveInput(props: DefaultSpecializedInputProps) {
   const { definition } = setting;
   const typeMapping: {
     [type in SettingType]?: React.ComponentType<
-      React.PropsWithChildren<React.PropsWithChildren<DefaultSpecializedInputProps>>
+      React.PropsWithChildren<DefaultSpecializedInputProps>
     >;
   } = {
     STRING: InputForString,

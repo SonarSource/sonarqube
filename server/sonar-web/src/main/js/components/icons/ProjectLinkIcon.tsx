@@ -43,9 +43,7 @@ export default function ProjectLinkIcon({
   type,
   ...iconProps
 }: IconProps & ProjectLinkIconProps) {
-  const getIcon = (): FC<
-    React.PropsWithChildren<React.PropsWithChildren<IconProps | MIUIIconProps>>
-  > => {
+  const getIcon = (): FC<React.PropsWithChildren<IconProps | MIUIIconProps>> => {
     switch (type) {
       case 'issue':
         return miui ? PulseIcon : BugTrackerIcon;

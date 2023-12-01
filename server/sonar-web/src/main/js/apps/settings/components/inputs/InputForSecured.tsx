@@ -33,9 +33,7 @@ interface State {
 }
 
 interface Props extends DefaultInputProps {
-  input: React.ComponentType<
-    React.PropsWithChildren<React.PropsWithChildren<DefaultSpecializedInputProps>>
-  >;
+  input: React.ComponentType<React.PropsWithChildren<DefaultSpecializedInputProps>>;
 }
 
 export default class InputForSecured extends React.PureComponent<Props, State> {

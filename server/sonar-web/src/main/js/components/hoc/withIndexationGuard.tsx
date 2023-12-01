@@ -25,7 +25,7 @@ export default function withIndexationGuard<P>({
   Component,
   showIndexationMessage,
 }: {
-  Component: React.ComponentType<React.PropsWithChildren<React.PropsWithChildren<P>>>;
+  Component: React.ComponentType<React.PropsWithChildren<P>>;
   showIndexationMessage: (props: P) => boolean;
 }) {
   return function WithIndexationGuard(props: React.PropsWithChildren<P>) {

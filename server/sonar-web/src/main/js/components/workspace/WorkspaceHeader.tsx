@@ -84,7 +84,7 @@ export default class WorkspaceHeader extends React.PureComponent<Props> {
 }
 
 interface WorkspaceHeaderButtonProps {
-  icon: React.FC<React.PropsWithChildren<React.PropsWithChildren<IconProps>>>;
+  icon: React.FC<React.PropsWithChildren<IconProps>>;
   onClick: () => void;
   tooltip: string;
 }

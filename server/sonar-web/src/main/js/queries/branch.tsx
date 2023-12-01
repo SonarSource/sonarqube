@@ -334,9 +334,7 @@ export function withBranchLikes<P extends { component?: Component }>(
       >
     >
   >,
-): React.ComponentType<
-  React.PropsWithChildren<React.PropsWithChildren<Omit<P, 'branchLike' | 'branchLikes'>>>
-> {
+): React.ComponentType<React.PropsWithChildren<Omit<P, 'branchLike' | 'branchLikes'>>> {
   return function WithBranchLike(p: P) {
     const { data, isFetching } = useBranchesQuery(p.component);
     return (
@@ -353,10 +351,8 @@ export function withBranchLikes<P extends { component?: Component }>(
 export function withBranchStatusRefresh<
   P extends { refreshBranchStatus: ReturnType<typeof useRefreshBranchStatus> },
 >(
-  WrappedComponent: React.ComponentType<React.PropsWithChildren<React.PropsWithChildren<P>>>,
-): React.ComponentType<
-  React.PropsWithChildren<React.PropsWithChildren<Omit<P, 'refreshBranchStatus'>>>
-> {
+  WrappedComponent: React.ComponentType<React.PropsWithChildren<P>>,
+): React.ComponentType<React.PropsWithChildren<Omit<P, 'refreshBranchStatus'>>> {
   return function WithBranchStatusRefresh(props: P) {
     const refresh = useRefreshBranchStatus();
 
