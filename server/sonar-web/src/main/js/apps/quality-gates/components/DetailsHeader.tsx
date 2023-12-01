@@ -33,10 +33,10 @@ import {
 import { countBy } from 'lodash';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { setQualityGateAsDefault } from '../../../api/quality-gates';
 import DocumentationLink from '../../../components/common/DocumentationLink';
 import Tooltip from '../../../components/controls/Tooltip';
 import { translate } from '../../../helpers/l10n';
+import { useSetQualityGateAsDefaultMutation } from '../../../queries/quality-gates';
 import { CaycStatus, QualityGate } from '../../../types/types';
 import BuiltInQualityGateBadge from './BuiltInQualityGateBadge';
 import CaycBadgeTooltip from './CaycBadgeTooltip';
@@ -45,20 +45,12 @@ import DeleteQualityGateForm from './DeleteQualityGateForm';
 import RenameQualityGateForm from './RenameQualityGateForm';
 
 interface Props {
-  onSetDefault: () => void;
   qualityGate: QualityGate;
-  refreshItem: () => Promise<void>;
-  refreshList: () => Promise<void>;
 }
 
 const TOOLTIP_MOUSE_LEAVE_DELAY = 0.3;
 
-export default function DetailsHeader({
-  refreshItem,
-  refreshList,
-  onSetDefault,
-  qualityGate,
-}: Readonly<Props>) {
+export default function DetailsHeader({ qualityGate }: Readonly<Props>) {
   const [isRenameFormOpen, setIsRenameFormOpen] = React.useState(false);
   const [isCopyFormOpen, setIsCopyFormOpen] = React.useState(false);
   const [isRemoveFormOpen, setIsRemoveFormOpen] = React.useState(false);
@@ -70,22 +62,13 @@ export default function DetailsHeader({
     actions.setAsDefault,
   ])['true'];
   const canEdit = Boolean(actions?.manageConditions);
-
-  const handleActionRefresh = () => {
-    return Promise.all([refreshItem(), refreshList()]).then(
-      () => {},
-      () => {},
-    );
-  };
+  const { mutateAsync: setQualityGateAsDefault } = useSetQualityGateAsDefaultMutation(
+    qualityGate.name,
+  );
 
   const handleSetAsDefaultClick = () => {
     if (!qualityGate.isDefault) {
-      // Optimistic update
-      onSetDefault();
-      setQualityGateAsDefault({ name: qualityGate.name }).then(
-        handleActionRefresh,
-        handleActionRefresh,
-      );
+      setQualityGateAsDefault({ name: qualityGate.name });
     }
   };
 
@@ -237,23 +220,17 @@ export default function DetailsHeader({
       {isRenameFormOpen && (
         <RenameQualityGateForm
           onClose={() => setIsRenameFormOpen(false)}
-          onRename={handleActionRefresh}
           qualityGate={qualityGate}
         />
       )}
 
       {isCopyFormOpen && (
-        <CopyQualityGateForm
-          onClose={() => setIsCopyFormOpen(false)}
-          onCopy={handleActionRefresh}
-          qualityGate={qualityGate}
-        />
+        <CopyQualityGateForm onClose={() => setIsCopyFormOpen(false)} qualityGate={qualityGate} />
       )}
 
       {isRemoveFormOpen && (
         <DeleteQualityGateForm
           onClose={() => setIsRemoveFormOpen(false)}
-          onDelete={refreshList}
           qualityGate={qualityGate}
         />
       )}

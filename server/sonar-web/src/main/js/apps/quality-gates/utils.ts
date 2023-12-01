@@ -253,64 +253,6 @@ export function getCorrectCaycCondition(condition: Condition) {
   return OPTIMIZED_CAYC_CONDITIONS[conditionMetric];
 }
 
-export function addCondition(qualityGate: QualityGate, condition: Condition): QualityGate {
-  const oldConditions = qualityGate.conditions || [];
-  const conditions = [...oldConditions, condition];
-  if (conditions) {
-    qualityGate.caycStatus = updateCaycCompliantStatus(conditions);
-  }
-  return { ...qualityGate, conditions };
-}
-
-export function deleteCondition(qualityGate: QualityGate, condition: Condition): QualityGate {
-  const conditions =
-    qualityGate.conditions && qualityGate.conditions.filter((candidate) => candidate !== condition);
-  if (conditions) {
-    qualityGate.caycStatus = updateCaycCompliantStatus(conditions);
-  }
-  return { ...qualityGate, conditions };
-}
-
-export function replaceCondition(
-  qualityGate: QualityGate,
-  newCondition: Condition,
-  oldCondition: Condition,
-): QualityGate {
-  const conditions =
-    qualityGate.conditions &&
-    qualityGate.conditions.map((candidate) => {
-      return candidate === oldCondition ? newCondition : candidate;
-    });
-  if (conditions) {
-    qualityGate.caycStatus = updateCaycCompliantStatus(conditions);
-  }
-
-  return { ...qualityGate, conditions };
-}
-
-function updateCaycCompliantStatus(conditions: Condition[]) {
-  const isCompliantOptimized = Object.values(OPTIMIZED_CAYC_CONDITIONS).every((condition) => {
-    const foundCondition = conditions.find((c) => c.metric === condition.metric);
-    return (
-      foundCondition &&
-      !isWeakCondition(condition.metric as OptimizedCaycMetricKeys, foundCondition)
-    );
-  });
-  const isCompliantUnoptimized = Object.values(UNOPTIMIZED_CAYC_CONDITIONS).every((condition) => {
-    const foundCondition = conditions.find((c) => c.metric === condition.metric);
-    return (
-      foundCondition &&
-      !isWeakCondition(condition.metric as UnoptimizedCaycMetricKeys, foundCondition)
-    );
-  });
-
-  if (isCompliantOptimized || isCompliantUnoptimized) {
-    return CaycStatus.Compliant;
-  }
-
-  return CaycStatus.NonCompliant;
-}
-
 export function getPossibleOperators(metric: Metric) {
   if (metric.direction === 1) {
     return 'LT';
@@ -328,8 +270,8 @@ function getNoDiffMetric(metric: Metric, metrics: Dict<Metric>) {
   const regularMetricKey = metric.key.replace(/^new_/, '');
   if (isDiffMetric(metric.key) && metricKeyExists(regularMetricKey, metrics)) {
     return metrics[regularMetricKey];
-  } else if (metric.key === 'new_maintainability_rating') {
-    return metrics['sqale_rating'] || metric;
+  } else if (metric.key === MetricKey.new_maintainability_rating) {
+    return metrics[MetricKey.sqale_rating] || metric;
   }
   return metric;
 }

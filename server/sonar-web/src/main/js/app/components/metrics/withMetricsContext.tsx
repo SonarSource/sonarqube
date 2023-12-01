@@ -45,3 +45,7 @@ export default function withMetricsContext<P>(
     }
   };
 }
+
+export function useMetrics() {
+  return React.useContext(MetricsContext);
+}

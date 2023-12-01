@@ -129,7 +129,7 @@ export class QualityGatesServiceMock {
             id: 'AXJMbIUHPAOIsUIE3eOi',
             metric: 'new_security_hotspots_reviewed',
             op: 'LT',
-            error: '85',
+            error: '100',
             isCaycCondition: true,
           },
           {
@@ -566,6 +566,13 @@ export class QualityGatesServiceMock {
 
   setQualityGateProjectStatus = (status: QualityGateProjectStatus) => {
     this.qualityGateProjectStatus = mockQualityGateProjectStatus(status);
+  };
+
+  setCaycStatusForQualityGate = (name: string, caycStatus: CaycStatus) => {
+    const qg = this.list.find((q) => q.name === name);
+    if (qg) {
+      qg.caycStatus = caycStatus;
+    }
   };
 
   reply<T>(response: T): Promise<T> {

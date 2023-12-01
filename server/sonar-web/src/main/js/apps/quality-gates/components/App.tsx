@@ -29,9 +29,9 @@ import {
   themeColor,
 } from 'design-system';
 import * as React from 'react';
+import { useCallback, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { NavigateFunction, useNavigate, useParams } from 'react-router-dom';
-import { fetchQualityGates } from '../../../api/quality-gates';
+import { useNavigate, useParams } from 'react-router-dom';
 import Suggestions from '../../../components/embed-docs-modal/Suggestions';
 import '../../../components/search-navigator.css';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
@@ -42,140 +42,93 @@ import {
   removeWhitePageClass,
 } from '../../../helpers/pages';
 import { getQualityGateUrl } from '../../../helpers/urls';
+import { useQualityGatesQuery } from '../../../queries/quality-gates';
 import { QualityGate } from '../../../types/types';
 import '../styles.css';
 import Details from './Details';
 import List from './List';
 import ListHeader from './ListHeader';
 
-interface Props {
-  name?: string;
-  navigate: NavigateFunction;
-}
+export default function App() {
+  const { data, isLoading } = useQualityGatesQuery();
+  const { name } = useParams();
+  const navigate = useNavigate();
+  const {
+    qualitygates: qualityGates,
+    actions: { create: canCreate },
+  } = data ?? { qualitygates: [], actions: { create: false } };
 
-interface State {
-  canCreate: boolean;
-  loading: boolean;
-  qualityGates: QualityGate[];
-}
+  const openDefault = useCallback(
+    (qualityGates?: QualityGate[]) => {
+      if (!qualityGates || qualityGates.length === 0) {
+        return;
+      }
+      const defaultQualityGate = qualityGates.find((gate) => Boolean(gate.isDefault));
+      if (!defaultQualityGate) {
+        return;
+      }
+      navigate(getQualityGateUrl(defaultQualityGate.name), { replace: true });
+    },
+    [navigate],
+  );
 
-class App extends React.PureComponent<Props, State> {
-  mounted = false;
-  state: State = { canCreate: false, loading: true, qualityGates: [] };
-
-  componentDidMount() {
-    this.mounted = true;
-    this.fetchQualityGates();
+  useEffect(() => {
     addWhitePageClass();
     addSideBarClass();
-  }
 
-  componentDidUpdate(prevProps: Props) {
-    if (prevProps.name !== undefined && this.props.name === undefined) {
-      this.openDefault(this.state.qualityGates);
+    return () => {
+      removeWhitePageClass();
+      removeSideBarClass();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!name) {
+      openDefault(qualityGates);
     }
-  }
+  }, [name, openDefault, qualityGates]);
 
-  componentWillUnmount() {
-    this.mounted = false;
-    removeWhitePageClass();
-    removeSideBarClass();
-  }
+  return (
+    <LargeCenteredLayout id="quality-gates-page">
+      <PageContentFontWrapper className="sw-body-sm">
+        <Helmet
+          defer={false}
+          titleTemplate={translateWithParameters(
+            'page_title.template.with_category',
+            translate('quality_gates.page'),
+          )}
+        />
+        <div className="sw-grid sw-gap-x-12 sw-gap-y-6 sw-grid-cols-12 sw-w-full">
+          <Suggestions suggestions="quality_gates" />
 
-  fetchQualityGates = () => {
-    return fetchQualityGates().then(
-      ({ actions, qualitygates: qualityGates }) => {
-        if (this.mounted) {
-          this.setState({ canCreate: actions.create, loading: false, qualityGates });
+          <StyledContentWrapper
+            className="sw-col-span-3 sw-px-4 sw-py-6 sw-border-y-0 sw-rounded-0"
+            style={{
+              height: `calc(100vh - ${LAYOUT_GLOBAL_NAV_HEIGHT + LAYOUT_FOOTER_HEIGHT}px)`,
+            }}
+          >
+            <ListHeader canCreate={canCreate} />
+            <Spinner loading={isLoading}>
+              <List qualityGates={qualityGates} currentQualityGate={name} />
+            </Spinner>
+          </StyledContentWrapper>
 
-          if (!this.props.name) {
-            this.openDefault(qualityGates);
-          }
-        }
-      },
-      () => {
-        if (this.mounted) {
-          this.setState({ loading: false });
-        }
-      },
-    );
-  };
-
-  openDefault(qualityGates: QualityGate[]) {
-    const defaultQualityGate = qualityGates.find((gate) => Boolean(gate.isDefault))!;
-    this.props.navigate(getQualityGateUrl(defaultQualityGate.name), { replace: true });
-  }
-
-  handleSetDefault = (qualityGate: QualityGate) => {
-    this.setState(({ qualityGates }) => {
-      return {
-        qualityGates: qualityGates.map((candidate) => {
-          if (candidate.isDefault || candidate.name === qualityGate.name) {
-            return { ...candidate, isDefault: candidate.name === qualityGate.name };
-          }
-          return candidate;
-        }),
-      };
-    });
-  };
-
-  render() {
-    const { name } = this.props;
-    const { canCreate, qualityGates } = this.state;
-
-    return (
-      <LargeCenteredLayout id="quality-gates-page">
-        <PageContentFontWrapper className="sw-body-sm">
-          <Helmet
-            defer={false}
-            titleTemplate={translateWithParameters(
-              'page_title.template.with_category',
-              translate('quality_gates.page'),
-            )}
-          />
-          <div className="sw-grid sw-gap-x-12 sw-gap-y-6 sw-grid-cols-12 sw-w-full">
-            <Suggestions suggestions="quality_gates" />
-
-            <StyledContentWrapper
-              className="sw-col-span-3 sw-px-4 sw-py-6 sw-border-y-0 sw-rounded-0"
+          {name !== undefined && (
+            <div
+              className="sw-col-span-9 sw-overflow-y-auto"
               style={{
                 height: `calc(100vh - ${LAYOUT_GLOBAL_NAV_HEIGHT + LAYOUT_FOOTER_HEIGHT}px)`,
               }}
             >
-              <ListHeader canCreate={canCreate} refreshQualityGates={this.fetchQualityGates} />
-              <Spinner loading={this.state.loading}>
-                <List qualityGates={qualityGates} currentQualityGate={name} />
-              </Spinner>
-            </StyledContentWrapper>
-
-            {name !== undefined && (
-              <div
-                className="sw-col-span-9 sw-overflow-y-auto"
-                style={{
-                  height: `calc(100vh - ${LAYOUT_GLOBAL_NAV_HEIGHT + LAYOUT_FOOTER_HEIGHT}px)`,
-                }}
-              >
-                <StyledContentWrapper className="sw-my-12">
-                  <Details
-                    qualityGateName={name}
-                    onSetDefault={this.handleSetDefault}
-                    refreshQualityGates={this.fetchQualityGates}
-                  />
-                </StyledContentWrapper>
-              </div>
-            )}
-          </div>
-        </PageContentFontWrapper>
-      </LargeCenteredLayout>
-    );
-  }
-}
-
-export default function AppWrapper() {
-  const params = useParams();
-  const navigate = useNavigate();
-
-  return <App name={params['name']} navigate={navigate} />;
+              <StyledContentWrapper className="sw-my-12">
+                <Details qualityGateName={name} />
+              </StyledContentWrapper>
+            </div>
+          )}
+        </div>
+      </PageContentFontWrapper>
+    </LargeCenteredLayout>
+  );
 }
 
 const StyledContentWrapper = withTheme(styled.div`

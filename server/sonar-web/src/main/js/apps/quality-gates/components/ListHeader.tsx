@@ -26,17 +26,12 @@ import CreateQualityGateForm from './CreateQualityGateForm';
 
 interface Props {
   canCreate: boolean;
-  refreshQualityGates: () => Promise<void>;
 }
 
-function CreateQualityGateModal({
-  refreshQualityGates,
-}: Readonly<Pick<Props, 'refreshQualityGates'>>) {
+function CreateQualityGateModal() {
   const renderModal = React.useCallback(
-    ({ onClose }: ModalProps) => (
-      <CreateQualityGateForm onClose={onClose} onCreate={refreshQualityGates} />
-    ),
-    [refreshQualityGates],
+    ({ onClose }: ModalProps) => <CreateQualityGateForm onClose={onClose} />,
+    [],
   );
 
   return (
@@ -52,7 +47,7 @@ function CreateQualityGateModal({
   );
 }
 
-export default function ListHeader({ canCreate, refreshQualityGates }: Readonly<Props>) {
+export default function ListHeader({ canCreate }: Readonly<Props>) {
   return (
     <div className="sw-flex sw-justify-between sw-pb-4">
       <div className="sw-flex sw-justify-between">
@@ -72,7 +67,7 @@ export default function ListHeader({ canCreate, refreshQualityGates }: Readonly<
           <HelperHintIcon />
         </DocumentationTooltip>
       </div>
-      {canCreate && <CreateQualityGateModal refreshQualityGates={refreshQualityGates} />}
+      {canCreate && <CreateQualityGateModal />}
     </div>
   );
 }

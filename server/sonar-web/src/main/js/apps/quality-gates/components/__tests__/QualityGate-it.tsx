@@ -28,6 +28,7 @@ import { mockLoggedInUser } from '../../../../helpers/testMocks';
 import { RenderContext, renderAppRoutes } from '../../../../helpers/testReactTestingUtils';
 import { byRole } from '../../../../helpers/testSelector';
 import { Feature } from '../../../../types/features';
+import { CaycStatus } from '../../../../types/types';
 import { NoticeType } from '../../../../types/users';
 import routes from '../../routes';
 
@@ -140,7 +141,7 @@ it('should be able to copy a quality gate which is CAYC compliant', async () => 
 
   const notDefaultQualityGate = await screen.findByText('Sonar way');
   await user.click(notDefaultQualityGate);
-  await user.click(screen.getByLabelText('menu'));
+  await user.click(await screen.findByLabelText('menu'));
   const copyButton = screen.getByRole('menuitem', { name: 'copy' });
 
   await user.click(copyButton);
@@ -160,7 +161,7 @@ it('should not be able to copy a quality gate which is not CAYC compliant', asyn
 
   const notDefaultQualityGate = await screen.findByText('SonarSource way - CFamily');
   await user.click(notDefaultQualityGate);
-  await user.click(screen.getByLabelText('menu'));
+  await user.click(await screen.findByLabelText('menu'));
   const copyButton = screen.getByRole('menuitem', { name: 'copy' });
 
   expect(copyButton).toBeDisabled();
@@ -189,7 +190,7 @@ it('should not be able to set as default a quality gate which is not CAYC compli
 
   const notDefaultQualityGate = await screen.findByText('SonarSource way - CFamily');
   await user.click(notDefaultQualityGate);
-  await user.click(screen.getByLabelText('menu'));
+  await user.click(await screen.findByLabelText('menu'));
   const setAsDefaultButton = screen.getByRole('menuitem', { name: 'set_as_default' });
   expect(setAsDefaultButton).toBeDisabled();
 });
@@ -201,10 +202,10 @@ it('should be able to set as default a quality gate which is CAYC compliant', as
 
   const notDefaultQualityGate = await screen.findByRole('button', { name: /Sonar way/ });
   await user.click(notDefaultQualityGate);
-  await user.click(screen.getByLabelText('menu'));
+  await user.click(await screen.findByLabelText('menu'));
   const setAsDefaultButton = screen.getByRole('menuitem', { name: 'set_as_default' });
   await user.click(setAsDefaultButton);
-  expect(screen.getByRole('button', { name: /Sonar way default/ })).toBeInTheDocument();
+  expect(await screen.findByRole('button', { name: /Sonar way default/ })).toBeInTheDocument();
 });
 
 it('should be able to add a condition', async () => {
@@ -343,7 +344,7 @@ it('should show warning banner when CAYC condition is not properly set and shoul
 
   await user.click(qualityGate);
 
-  expect(screen.getByText('quality_gates.cayc_missing.banner.title')).toBeInTheDocument();
+  expect(await screen.findByText('quality_gates.cayc_missing.banner.title')).toBeInTheDocument();
   expect(screen.getByText('quality_gates.cayc_missing.banner.description')).toBeInTheDocument();
   expect(
     screen.getByRole('button', { name: 'quality_gates.cayc_condition.review_update' }),
@@ -367,6 +368,8 @@ it('should show warning banner when CAYC condition is not properly set and shoul
     screen.getByRole('button', { name: 'quality_gates.cayc.review_update_modal.confirm_text' }),
   ).toBeInTheDocument();
 
+  qualityGateHandler.setCaycStatusForQualityGate('SonarSource way - CFamily', CaycStatus.Compliant);
+
   await user.click(
     screen.getByRole('button', { name: 'quality_gates.cayc.review_update_modal.confirm_text' }),
   );
@@ -388,7 +391,7 @@ it('should show optimize banner when CAYC condition is not properly set and QG i
 
   await user.click(qualityGate);
 
-  expect(screen.getByText('quality_gates.cayc_optimize.banner.title')).toBeInTheDocument();
+  expect(await screen.findByText('quality_gates.cayc_optimize.banner.title')).toBeInTheDocument();
   expect(screen.getByText('quality_gates.cayc_optimize.banner.description')).toBeInTheDocument();
   expect(
     screen.getByRole('button', { name: 'quality_gates.cayc_condition.review_optimize' }),
@@ -559,7 +562,7 @@ describe('The Project section', () => {
     await user.click(notDefaultQualityGate);
 
     // by default it shows "selected" values
-    expect(screen.getAllByRole('checkbox')).toHaveLength(2);
+    expect(await screen.findAllByRole('checkbox')).toHaveLength(2);
 
     // change tabs to show deselected projects
     await user.click(screen.getByRole('radio', { name: 'quality_gates.projects.without' }));
@@ -579,8 +582,8 @@ describe('The Project section', () => {
 
     await user.click(notDefaultQualityGate);
 
+    expect(await screen.findAllByRole('checkbox')).toHaveLength(2);
     const checkedProjects = screen.getAllByRole('checkbox')[0];
-    expect(screen.getAllByRole('checkbox')).toHaveLength(2);
     await user.click(checkedProjects);
     const reloadButton = screen.getByRole('button', { name: 'reload' });
     expect(reloadButton).toBeInTheDocument();
@@ -610,7 +613,7 @@ describe('The Project section', () => {
 
     await user.click(notDefaultQualityGate);
 
-    const searchInput = screen.getByRole('searchbox', { name: 'search_verb' });
+    const searchInput = await screen.findByRole('searchbox', { name: 'search_verb' });
     expect(searchInput).toBeInTheDocument();
     await user.click(searchInput);
     await user.keyboard('test2{Enter}');
@@ -621,7 +624,7 @@ describe('The Project section', () => {
   });
 
   it('should display show more button if there are multiple pages of data', async () => {
-    (searchProjects as jest.Mock).mockResolvedValueOnce({
+    jest.mocked(searchProjects).mockResolvedValueOnce({
       paging: { pageIndex: 2, pageSize: 3, total: 55 },
       results: [],
     });
@@ -633,7 +636,7 @@ describe('The Project section', () => {
     const notDefaultQualityGate = await screen.findByText('SonarSource way - CFamily');
     await user.click(notDefaultQualityGate);
 
-    expect(screen.getByRole('button', { name: 'show_more' })).toBeInTheDocument();
+    expect(await screen.findByRole('button', { name: 'show_more' })).toBeInTheDocument();
   });
 });
 

@@ -26,14 +26,11 @@ import Condition from './Condition';
 interface Props {
   canEdit: boolean;
   metrics: Dict<Metric>;
-  onRemoveCondition: (Condition: ConditionType) => void;
-  onSaveCondition: (newCondition: ConditionType, oldCondition: ConditionType) => void;
   qualityGate: QualityGate;
-  updatedConditionId?: string;
   conditions: ConditionType[];
   scope: 'new' | 'overall' | 'new-cayc';
-  isCaycModal?: boolean;
   showEdit?: boolean;
+  isCaycModal?: boolean;
 }
 
 function Header() {
@@ -63,9 +60,6 @@ export default function ConditionsTable({
   qualityGate,
   metrics,
   canEdit,
-  onRemoveCondition,
-  onSaveCondition,
-  updatedConditionId,
   scope,
   conditions,
   isCaycModal,
@@ -86,10 +80,7 @@ export default function ConditionsTable({
           condition={condition}
           key={condition.id}
           metric={metrics[condition.metric]}
-          onRemoveCondition={onRemoveCondition}
-          onSaveCondition={onSaveCondition}
           qualityGate={qualityGate}
-          updated={condition.id === updatedConditionId}
           isCaycModal={isCaycModal}
           showEdit={showEdit}
         />

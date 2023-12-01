@@ -21,39 +21,27 @@ import { ButtonPrimary, Link, Modal, SubHeading, Title } from 'design-system';
 import { sortBy } from 'lodash';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { createCondition, updateCondition } from '../../../api/quality-gates';
 import { useDocUrl } from '../../../helpers/docs';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { useFixQualityGateMutation } from '../../../queries/quality-gates';
 import { Condition, Dict, Metric, QualityGate } from '../../../types/types';
-import { getCorrectCaycCondition, getWeakMissingAndNonCaycConditions } from '../utils';
+import { getWeakMissingAndNonCaycConditions } from '../utils';
 import ConditionsTable from './ConditionsTable';
 
 interface Props {
   canEdit: boolean;
   metrics: Dict<Metric>;
-  updatedConditionId?: string;
   conditions: Condition[];
   scope: 'new' | 'overall' | 'new-cayc';
   onClose: () => void;
-  onAddCondition: (condition: Condition) => void;
-  onRemoveCondition: (condition: Condition) => void;
-  onSaveCondition: (newCondition: Condition, oldCondition: Condition) => void;
   lockEditing: () => void;
   qualityGate: QualityGate;
   isOptimizing?: boolean;
 }
 
 export default function CaycReviewUpdateConditionsModal(props: Readonly<Props>) {
-  const {
-    conditions,
-    qualityGate,
-    metrics,
-    onSaveCondition,
-    onAddCondition,
-    lockEditing,
-    onClose,
-    isOptimizing,
-  } = props;
+  const { conditions, qualityGate, metrics, lockEditing, onClose, isOptimizing } = props;
+  const { mutateAsync: fixQualityGate } = useFixQualityGateMutation(qualityGate.name);
 
   const { weakConditions, missingConditions } = getWeakMissingAndNonCaycConditions(conditions);
   const sortedWeakConditions = sortBy(
@@ -68,43 +56,10 @@ export default function CaycReviewUpdateConditionsModal(props: Readonly<Props>) 
 
   const getDocUrl = useDocUrl();
 
-  const updateCaycQualityGate = React.useCallback(() => {
-    const promiseArr: Promise<Condition | undefined | void>[] = [];
-    const { weakConditions, missingConditions } = getWeakMissingAndNonCaycConditions(conditions);
-
-    weakConditions.forEach((condition) => {
-      promiseArr.push(
-        updateCondition({
-          ...getCorrectCaycCondition(condition),
-          id: condition.id,
-        })
-          .then((resultCondition) => {
-            const currentCondition = conditions.find((con) => con.metric === condition.metric);
-            if (currentCondition) {
-              onSaveCondition({ ...resultCondition, isCaycCondition: true }, currentCondition);
-            }
-          })
-          .catch(() => undefined),
-      );
-    });
-
-    missingConditions.forEach((condition) => {
-      promiseArr.push(
-        createCondition({
-          ...getCorrectCaycCondition(condition),
-          gateName: qualityGate.name,
-        })
-          .then((resultCondition) => {
-            onAddCondition({ ...resultCondition, isCaycCondition: true });
-          })
-          .catch(() => undefined),
-      );
-    });
-
-    return Promise.all(promiseArr).then(() => {
-      lockEditing();
-    });
-  }, [conditions, qualityGate, lockEditing, onAddCondition, onSaveCondition]);
+  const updateCaycQualityGate = React.useCallback(async () => {
+    await fixQualityGate({ weakConditions, missingConditions });
+    lockEditing();
+  }, [fixQualityGate, weakConditions, missingConditions, lockEditing]);
 
   const body = (
     <div className="sw-mb-10">

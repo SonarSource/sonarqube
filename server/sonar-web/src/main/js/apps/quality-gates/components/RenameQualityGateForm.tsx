@@ -19,86 +19,69 @@
  */
 import { ButtonPrimary, FormField, InputField, Modal } from 'design-system/lib';
 import * as React from 'react';
-import { renameQualityGate } from '../../../api/quality-gates';
-import { WithRouterProps, withRouter } from '../../../components/hoc/withRouter';
+import { useRouter } from '../../../components/hoc/withRouter';
 import MandatoryFieldsExplanation from '../../../components/ui/MandatoryFieldsExplanation';
 import { translate } from '../../../helpers/l10n';
 import { getQualityGateUrl } from '../../../helpers/urls';
+import { useRenameQualityGateMutation } from '../../../queries/quality-gates';
 import { QualityGate } from '../../../types/types';
 
-interface Props extends WithRouterProps {
+interface Props {
   onClose: () => void;
-  onRename: () => Promise<void>;
   qualityGate: QualityGate;
-}
-
-interface State {
-  name: string;
 }
 
 const FORM_ID = 'rename-quality-gate';
 
-class RenameQualityGateForm extends React.PureComponent<Props, State> {
-  constructor(props: Props) {
-    super(props);
-    this.state = { name: props.qualityGate.name };
-  }
+export default function RenameQualityGateForm({ qualityGate, onClose }: Readonly<Props>) {
+  const [name, setName] = React.useState(qualityGate.name);
+  const { mutateAsync: renameQualityGate } = useRenameQualityGateMutation(qualityGate.name);
+  const router = useRouter();
 
-  handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    this.setState({ name: event.currentTarget.value });
+  const handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setName(event.currentTarget.value);
   };
 
-  handleRename = (event: React.FormEvent) => {
+  const handleRename = async (event: React.FormEvent) => {
     event.preventDefault();
 
-    const { qualityGate, router } = this.props;
-    const { name } = this.state;
-
-    return renameQualityGate({ currentName: qualityGate.name, name }).then(() => {
-      router.push(getQualityGateUrl(name));
-      this.props.onRename();
-    });
+    await renameQualityGate(name);
+    router.push(getQualityGateUrl(name));
   };
 
-  render() {
-    const { qualityGate } = this.props;
-    const { name } = this.state;
-    const confirmDisable = !name || (qualityGate && qualityGate.name === name);
+  const confirmDisable = !name || (qualityGate && qualityGate.name === name);
 
-    return (
-      <Modal
-        headerTitle={translate('quality_gates.rename')}
-        onClose={this.props.onClose}
-        body={
-          <form id={FORM_ID} onSubmit={this.handleRename}>
-            <MandatoryFieldsExplanation />
-            <FormField
-              label={translate('name')}
-              htmlFor="quality-gate-form-name"
-              required
-              className="sw-my-2"
-            >
-              <InputField
-                autoFocus
-                id="quality-gate-form-name"
-                maxLength={100}
-                onChange={this.handleNameChange}
-                size="auto"
-                type="text"
-                value={name}
-              />
-            </FormField>
-          </form>
-        }
-        primaryButton={
-          <ButtonPrimary autoFocus type="submit" disabled={confirmDisable} form={FORM_ID}>
-            {translate('rename')}
-          </ButtonPrimary>
-        }
-        secondaryButtonLabel={translate('cancel')}
-      />
-    );
-  }
+  return (
+    <Modal
+      headerTitle={translate('quality_gates.rename')}
+      onClose={onClose}
+      body={
+        <form id={FORM_ID} onSubmit={handleRename}>
+          <MandatoryFieldsExplanation />
+          <FormField
+            label={translate('name')}
+            htmlFor="quality-gate-form-name"
+            required
+            className="sw-my-2"
+          >
+            <InputField
+              autoFocus
+              id="quality-gate-form-name"
+              maxLength={100}
+              onChange={handleNameChange}
+              size="auto"
+              type="text"
+              value={name}
+            />
+          </FormField>
+        </form>
+      }
+      primaryButton={
+        <ButtonPrimary autoFocus type="submit" disabled={confirmDisable} form={FORM_ID}>
+          {translate('rename')}
+        </ButtonPrimary>
+      }
+      secondaryButtonLabel={translate('cancel')}
+    />
+  );
 }
-
-export default withRouter(RenameQualityGateForm);

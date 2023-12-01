@@ -19,87 +19,69 @@
  */
 import { ButtonPrimary, FormField, InputField, Modal } from 'design-system';
 import * as React from 'react';
-import { copyQualityGate } from '../../../api/quality-gates';
-import { Router, withRouter } from '../../../components/hoc/withRouter';
+import { useRouter } from '../../../components/hoc/withRouter';
 import MandatoryFieldsExplanation from '../../../components/ui/MandatoryFieldsExplanation';
 import { translate } from '../../../helpers/l10n';
 import { getQualityGateUrl } from '../../../helpers/urls';
+import { useCopyQualityGateMutation } from '../../../queries/quality-gates';
 import { QualityGate } from '../../../types/types';
 
 interface Props {
   onClose: () => void;
-  onCopy: () => Promise<void>;
   qualityGate: QualityGate;
-  router: Router;
-}
-
-interface State {
-  name: string;
 }
 
 const FORM_ID = 'rename-quality-gate';
 
-export class CopyQualityGateForm extends React.PureComponent<Props, State> {
-  constructor(props: Props) {
-    super(props);
-    this.state = { name: props.qualityGate.name };
-  }
+export default function CopyQualityGateForm({ qualityGate, onClose }: Readonly<Props>) {
+  const [name, setName] = React.useState(qualityGate.name);
+  const { mutateAsync: copyQualityGate } = useCopyQualityGateMutation(qualityGate.name);
+  const router = useRouter();
 
-  handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    this.setState({ name: event.currentTarget.value });
+  const handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setName(event.currentTarget.value);
   };
 
-  handleCopy = (event: React.FormEvent) => {
+  const handleCopy = async (event: React.FormEvent) => {
     event.preventDefault();
 
-    const { qualityGate } = this.props;
-    const { name } = this.state;
-
-    return copyQualityGate({ sourceName: qualityGate.name, name }).then((newQualityGate) => {
-      this.props.onCopy();
-      this.props.router.push(getQualityGateUrl(newQualityGate.name));
-    });
+    const newQualityGate = await copyQualityGate(name);
+    router.push(getQualityGateUrl(newQualityGate.name));
   };
 
-  render() {
-    const { qualityGate } = this.props;
-    const { name } = this.state;
-    const buttonDisabled = !name || (qualityGate && qualityGate.name === name);
+  const buttonDisabled = !name || (qualityGate && qualityGate.name === name);
 
-    return (
-      <Modal
-        headerTitle={translate('quality_gates.copy')}
-        onClose={this.props.onClose}
-        body={
-          <form id={FORM_ID} onSubmit={this.handleCopy}>
-            <MandatoryFieldsExplanation />
-            <FormField
-              label={translate('name')}
-              htmlFor="quality-gate-form-name"
-              required
-              className="sw-my-2"
-            >
-              <InputField
-                autoFocus
-                id="quality-gate-form-name"
-                maxLength={100}
-                onChange={this.handleNameChange}
-                size="auto"
-                type="text"
-                value={name}
-              />
-            </FormField>
-          </form>
-        }
-        primaryButton={
-          <ButtonPrimary autoFocus type="submit" disabled={buttonDisabled} form={FORM_ID}>
-            {translate('copy')}
-          </ButtonPrimary>
-        }
-        secondaryButtonLabel={translate('cancel')}
-      />
-    );
-  }
+  return (
+    <Modal
+      headerTitle={translate('quality_gates.copy')}
+      onClose={onClose}
+      body={
+        <form id={FORM_ID} onSubmit={handleCopy}>
+          <MandatoryFieldsExplanation />
+          <FormField
+            label={translate('name')}
+            htmlFor="quality-gate-form-name"
+            required
+            className="sw-my-2"
+          >
+            <InputField
+              autoFocus
+              id="quality-gate-form-name"
+              maxLength={100}
+              onChange={handleNameChange}
+              size="auto"
+              type="text"
+              value={name}
+            />
+          </FormField>
+        </form>
+      }
+      primaryButton={
+        <ButtonPrimary autoFocus type="submit" disabled={buttonDisabled} form={FORM_ID}>
+          {translate('copy')}
+        </ButtonPrimary>
+      }
+      secondaryButtonLabel={translate('cancel')}
+    />
+  );
 }
-
-export default withRouter(CopyQualityGateForm);

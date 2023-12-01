@@ -21,21 +21,17 @@ import { FlagMessage, HelperHintIcon, SubTitle } from 'design-system';
 import * as React from 'react';
 import DocumentationTooltip from '../../../components/common/DocumentationTooltip';
 import { translate } from '../../../helpers/l10n';
-import { Condition, QualityGate } from '../../../types/types';
+import { QualityGate } from '../../../types/types';
 import Conditions from './Conditions';
 import Projects from './Projects';
 import QualityGatePermissions from './QualityGatePermissions';
 
 export interface DetailsContentProps {
-  onAddCondition: (condition: Condition) => void;
-  onRemoveCondition: (Condition: Condition) => void;
-  onSaveCondition: (newCondition: Condition, oldCondition: Condition) => void;
   qualityGate: QualityGate;
-  updatedConditionId?: string;
 }
 
 export function DetailsContent(props: DetailsContentProps) {
-  const { qualityGate, updatedConditionId } = props;
+  const { qualityGate } = props;
   const actions = qualityGate.actions || {};
 
   return (
@@ -47,13 +43,7 @@ export function DetailsContent(props: DetailsContentProps) {
           </FlagMessage>
         )}
 
-      <Conditions
-        onAddCondition={props.onAddCondition}
-        onRemoveCondition={props.onRemoveCondition}
-        onSaveCondition={props.onSaveCondition}
-        qualityGate={qualityGate}
-        updatedConditionId={updatedConditionId}
-      />
+      <Conditions qualityGate={qualityGate} />
 
       <div className="sw-mt-10">
         <div className="sw-flex sw-flex-col">

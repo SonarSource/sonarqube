@@ -19,46 +19,37 @@
  */
 import { DangerButtonPrimary, Modal } from 'design-system';
 import * as React from 'react';
-import { deleteQualityGate } from '../../../api/quality-gates';
-import { Router, withRouter } from '../../../components/hoc/withRouter';
+import { useRouter } from '../../../components/hoc/withRouter';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { getQualityGatesUrl } from '../../../helpers/urls';
+import { useDeleteQualityGateMutation } from '../../../queries/quality-gates';
 import { QualityGate } from '../../../types/types';
 
 interface Props {
-  readonly onClose: () => void;
-  onDelete: () => Promise<void>;
+  onClose: () => void;
   qualityGate: QualityGate;
-  router: Router;
 }
 
-export class DeleteQualityGateForm extends React.PureComponent<Props> {
-  onDelete = () => {
-    const { qualityGate } = this.props;
-    return deleteQualityGate({ name: qualityGate.name })
-      .then(this.props.onDelete)
-      .then(() => {
-        this.props.router.push(getQualityGatesUrl());
-      });
+export default function DeleteQualityGateForm({ qualityGate, onClose }: Readonly<Props>) {
+  const { mutateAsync: deleteQualityGate } = useDeleteQualityGateMutation(qualityGate.name);
+  const router = useRouter();
+
+  const onDelete = async () => {
+    await deleteQualityGate();
+    router.push(getQualityGatesUrl());
   };
 
-  render() {
-    const { qualityGate } = this.props;
-
-    return (
-      <Modal
-        headerTitle={translate('quality_gates.delete')}
-        onClose={this.props.onClose}
-        body={translateWithParameters('quality_gates.delete.confirm.message', qualityGate.name)}
-        primaryButton={
-          <DangerButtonPrimary autoFocus type="submit" onClick={this.onDelete}>
-            {translate('delete')}
-          </DangerButtonPrimary>
-        }
-        secondaryButtonLabel={translate('cancel')}
-      />
-    );
-  }
+  return (
+    <Modal
+      headerTitle={translate('quality_gates.delete')}
+      onClose={onClose}
+      body={translateWithParameters('quality_gates.delete.confirm.message', qualityGate.name)}
+      primaryButton={
+        <DangerButtonPrimary autoFocus type="submit" onClick={onDelete}>
+          {translate('delete')}
+        </DangerButtonPrimary>
+      }
+      secondaryButtonLabel={translate('cancel')}
+    />
+  );
 }
-
-export default withRouter(DeleteQualityGateForm);

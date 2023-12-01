@@ -31,23 +31,15 @@ import {
 import { differenceWith, map, uniqBy } from 'lodash';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import withAvailableFeatures, {
-  WithAvailableFeaturesProps,
-} from '../../../app/components/available-features/withAvailableFeatures';
-import withMetricsContext from '../../../app/components/metrics/withMetricsContext';
+import { useAvailableFeatures } from '../../../app/components/available-features/withAvailableFeatures';
+import { useMetrics } from '../../../app/components/metrics/withMetricsContext';
 import DocumentationTooltip from '../../../components/common/DocumentationTooltip';
 import ModalButton, { ModalProps } from '../../../components/controls/ModalButton';
 import { useDocUrl } from '../../../helpers/docs';
 import { getLocalizedMetricName, translate } from '../../../helpers/l10n';
 import { Feature } from '../../../types/features';
 import { MetricKey } from '../../../types/metrics';
-import {
-  CaycStatus,
-  Condition as ConditionType,
-  Dict,
-  Metric,
-  QualityGate,
-} from '../../../types/types';
+import { CaycStatus, Condition as ConditionType, QualityGate } from '../../../types/types';
 import { groupAndSortByPriorityConditions, isQualityGateOptimized } from '../utils';
 import CaYCConditionsSimplificationGuide from './CaYCConditionsSimplificationGuide';
 import CaycCompliantBanner from './CaycCompliantBanner';
@@ -57,13 +49,8 @@ import ConditionModal from './ConditionModal';
 import CaycReviewUpdateConditionsModal from './ConditionReviewAndUpdateModal';
 import ConditionsTable from './ConditionsTable';
 
-interface Props extends WithAvailableFeaturesProps {
-  metrics: Dict<Metric>;
-  onAddCondition: (condition: ConditionType) => void;
-  onRemoveCondition: (Condition: ConditionType) => void;
-  onSaveCondition: (newCondition: ConditionType, oldCondition: ConditionType) => void;
+interface Props {
   qualityGate: QualityGate;
-  updatedConditionId?: string;
 }
 
 const FORBIDDEN_METRIC_TYPES = ['DATA', 'DISTRIB', 'STRING', 'BOOL'];
@@ -74,19 +61,12 @@ const FORBIDDEN_METRICS: string[] = [
   MetricKey.new_security_hotspots,
 ];
 
-function Conditions({
-  qualityGate,
-  metrics,
-  onRemoveCondition,
-  onSaveCondition,
-  onAddCondition,
-  hasFeature,
-  updatedConditionId,
-}: Readonly<Props>) {
+export default function Conditions({ qualityGate }: Readonly<Props>) {
   const [editing, setEditing] = React.useState<boolean>(
     qualityGate.caycStatus === CaycStatus.NonCompliant,
   );
   const { name } = qualityGate;
+  const metrics = useMetrics();
   const canEdit = Boolean(qualityGate.actions?.manageConditions);
   const { conditions = [] } = qualityGate;
   const existingConditions = conditions.filter((condition) => metrics[condition.metric]);
@@ -101,6 +81,7 @@ function Conditions({
       duplicates.push(condition);
     }
   });
+  const { hasFeature } = useAvailableFeatures();
 
   const uniqDuplicates = uniqBy(duplicates, (d) => d.metric).map((condition) => ({
     ...condition,
@@ -130,13 +111,12 @@ function Conditions({
         <ConditionModal
           header={translate('quality_gates.add_condition')}
           metrics={availableMetrics}
-          onAddCondition={onAddCondition}
           onClose={onClose}
           qualityGate={qualityGate}
         />
       );
     },
-    [metrics, qualityGate, onAddCondition],
+    [metrics, qualityGate],
   );
 
   const getDocUrl = useDocUrl();
@@ -153,11 +133,7 @@ function Conditions({
           qualityGate={qualityGate}
           metrics={metrics}
           canEdit={canEdit}
-          onRemoveCondition={onRemoveCondition}
-          onSaveCondition={onSaveCondition}
-          onAddCondition={onAddCondition}
           lockEditing={() => setEditing(false)}
-          updatedConditionId={updatedConditionId}
           conditions={conditions}
           scope="new-cayc"
           onClose={onClose}
@@ -165,15 +141,7 @@ function Conditions({
         />
       );
     },
-    [
-      qualityGate,
-      metrics,
-      updatedConditionId,
-      onAddCondition,
-      onRemoveCondition,
-      onSaveCondition,
-      isOptimizing,
-    ],
+    [qualityGate, metrics, isOptimizing],
   );
 
   return (
@@ -267,9 +235,6 @@ function Conditions({
               qualityGate={qualityGate}
               metrics={metrics}
               canEdit={canEdit}
-              onRemoveCondition={onRemoveCondition}
-              onSaveCondition={onSaveCondition}
-              updatedConditionId={updatedConditionId}
               conditions={newCodeConditions}
               showEdit={editing}
               scope="new"
@@ -293,9 +258,6 @@ function Conditions({
               qualityGate={qualityGate}
               metrics={metrics}
               canEdit={canEdit}
-              onRemoveCondition={onRemoveCondition}
-              onSaveCondition={onSaveCondition}
-              updatedConditionId={updatedConditionId}
               conditions={overallCodeConditions}
               scope="overall"
             />
@@ -338,5 +300,3 @@ function Conditions({
     </div>
   );
 }
-
-export default withMetricsContext(withAvailableFeatures(Conditions));
