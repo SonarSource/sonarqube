@@ -36,7 +36,7 @@ it('should be able to render with hash only', () => {
   setupWithProps({ hash: '7daf6c79d4802916d83f6266e24850af' });
   expect(screen.getByRole('img')).toHaveAttribute(
     'src',
-    'http://example.com/7daf6c79d4802916d83f6266e24850af.jpg?s=48'
+    'http://example.com/7daf6c79d4802916d83f6266e24850af.jpg?s=48',
   );
 });
 
@@ -64,6 +64,6 @@ it('should display organization avatar correctly', () => {
 
 function setupWithProps(props: Partial<FCProps<typeof Avatar>> = {}) {
   return render(
-    <Avatar enableGravatar gravatarServerUrl={gravatarServerUrl} name="foo" {...props} />
+    <Avatar enableGravatar gravatarServerUrl={gravatarServerUrl} name="foo" {...props} />,
   );
 }

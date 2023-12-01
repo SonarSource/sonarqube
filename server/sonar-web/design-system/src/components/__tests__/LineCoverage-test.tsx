@@ -27,7 +27,7 @@ it('should render correctly when covered', () => {
 
 it('should render correctly when uncovered', () => {
   expect(
-    setupWithProps({ lineNumber: 16, coverageStatus: 'uncovered' }).container
+    setupWithProps({ lineNumber: 16, coverageStatus: 'uncovered' }).container,
   ).toMatchSnapshot();
 });
 
@@ -36,7 +36,7 @@ it('should render correctly when partially covered without conditions', () => {
     setupWithProps({
       lineNumber: 16,
       coverageStatus: 'partially-covered',
-    }).container
+    }).container,
   ).toMatchSnapshot();
 });
 
@@ -45,7 +45,7 @@ it('should render correctly when partially covered with 5/10 conditions', () => 
     setupWithProps({
       lineNumber: 16,
       coverageStatus: 'partially-covered',
-    }).container
+    }).container,
   ).toMatchSnapshot();
 });
 

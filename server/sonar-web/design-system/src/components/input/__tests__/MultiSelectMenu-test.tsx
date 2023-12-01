@@ -109,6 +109,6 @@ function renderMultiselect(props: Partial<MultiSelectMenu['props']> = {}) {
       searchInputAriaLabel="search"
       selectedElements={[]}
       {...props}
-    />
+    />,
   );
 }

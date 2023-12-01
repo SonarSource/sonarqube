@@ -70,7 +70,7 @@ export function CodeSnippet(props: Props) {
           'code-snippet-simple-oneline': isSimpleOneLine,
         },
         className,
-        'fs-mask'
+        'fs-mask',
       )}
     >
       {!noCopy && copyButton}

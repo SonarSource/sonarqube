@@ -27,7 +27,7 @@ it('renders correctly', () => {
     <NumberedList>
       <NumberedListItem>First item</NumberedListItem>
       <NumberedListItem>Second item</NumberedListItem>
-    </NumberedList>
+    </NumberedList>,
   );
   expect(screen.getAllByRole('listitem')).toHaveLength(2);
 });

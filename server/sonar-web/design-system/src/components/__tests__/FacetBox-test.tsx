@@ -69,6 +69,6 @@ function renderComponent({ children, ...props }: Partial<FacetBoxProps> = {}) {
   return renderWithContext(
     <FacetBox name="Test FacetBox" {...props}>
       {children}
-    </FacetBox>
+    </FacetBox>,
   );
 }

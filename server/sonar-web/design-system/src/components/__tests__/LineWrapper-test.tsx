@@ -34,7 +34,7 @@ it('should properly setup css grid columns', () => {
   });
   expect(
     setupWithProps({ displayCoverage: false, displaySCM: false, duplicationsCount: 0 }).container
-      .firstChild
+      .firstChild,
   ).toHaveStyle({ '--columns': '44px 26px 1fr' });
 });
 
@@ -45,12 +45,6 @@ it('should set a highlighted background color in css props', () => {
 
 function setupWithProps(props: Partial<FCProps<typeof LineWrapper>> = {}) {
   return render(
-    <LineWrapper
-      displayCoverage
-      displaySCM
-      duplicationsCount={2}
-      highlighted={false}
-      {...props}
-    />
+    <LineWrapper displayCoverage displaySCM duplicationsCount={2} highlighted={false} {...props} />,
   );
 }

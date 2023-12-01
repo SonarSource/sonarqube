@@ -40,6 +40,6 @@ function setupWithProps(props: Partial<FCProps<typeof LineNumber>> = {}) {
       lineNumber={16}
       popup={<div>Popup</div>}
       {...props}
-    />
+    />,
   );
 }

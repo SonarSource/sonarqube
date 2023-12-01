@@ -33,7 +33,7 @@ it('should display three breadcrumbs correctly', () => {
       <HoverLink to="/first">first</HoverLink>
       <HoverLink to="/second">second</HoverLink>
       <HoverLink to="/third">third</HoverLink>
-    </BreadcrumbsFullWidth>
+    </BreadcrumbsFullWidth>,
   );
 
   expect(screen.getAllByRole('link').length).toBe(3);

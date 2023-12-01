@@ -33,7 +33,7 @@ interface Props {
 
 function LineFindingFunc(
   { message, issueKey, selected = true, className, onIssueSelect }: Props,
-  ref: Ref<HTMLButtonElement>
+  ref: Ref<HTMLButtonElement>,
 ) {
   return (
     <LineFindingStyled

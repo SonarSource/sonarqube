@@ -4,6 +4,8 @@
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "scripts": {
+    "format": "prettier --write --list-different \"src/**/*.{ts,tsx}\"",
+    "format-check": "prettier --list-different \"src/**/*.{ts,tsx}\"",
     "build": "yarn lint && yarn ts-check && vite build",
     "build:no-checks": "vite build",
     "build-release": "yarn install --immutable && yarn build",
@@ -11,7 +13,7 @@
     "lint-report-ci": "yarn install --immutable && eslint --ext js,ts,tsx -f json -o eslint-report/eslint-report.json src  || yarn lint",
     "test": "jest",
     "ts-check": "tsc --noEmit",
-    "validate-ci": "yarn install --immutable && yarn ts-check && yarn test --coverage --ci"
+    "validate-ci": "yarn install --immutable && yarn ts-check && yarn format-check && yarn test --coverage --ci"
   },
   "devDependencies": {
     "@babel/core": "7.23.2",
@@ -44,6 +46,7 @@
     "postcss": "8.4.31",
     "postcss-calc": "9.0.1",
     "postcss-custom-properties": "12.1.11",
+    "prettier": "^3.1.0",
     "twin.macro": "3.4.0",
     "typescript": "5.2.2",
     "vite": "4.5.0",

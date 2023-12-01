@@ -58,7 +58,7 @@ export function NavBarTabLink(props: NavBarTabLinkProps) {
           classNames(
             'sw-flex sw-items-center',
             { active: isDefined(active) ? active : isActive },
-            className
+            className,
           )
         }
         {...linkProps}

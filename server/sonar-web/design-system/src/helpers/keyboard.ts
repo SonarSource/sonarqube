@@ -55,7 +55,7 @@ export function isInput(event: KeyboardEvent): boolean {
 }
 
 export function isTextarea(
-  event: KeyboardEvent
+  event: KeyboardEvent,
 ): event is KeyboardEvent & { target: HTMLTextAreaElement } {
   return event.target instanceof HTMLTextAreaElement;
 }

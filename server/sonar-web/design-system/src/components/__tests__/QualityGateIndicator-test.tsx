@@ -44,7 +44,7 @@ it.each([
     setupWithProps({ status, size });
 
     expect(screen.getByRole('status')).toHaveAttribute('width', SIZE_VS_WIDTH[size]);
-  }
+  },
 );
 
 it('should display tooltip', () => {

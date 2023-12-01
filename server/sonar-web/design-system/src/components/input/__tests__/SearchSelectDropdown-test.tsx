@@ -31,7 +31,7 @@ const defaultOptions = [
 
 const loadOptions = (
   query: string,
-  cb: (options: Array<LabelValueSelectOption<string>>) => void
+  cb: (options: Array<LabelValueSelectOption<string>>) => void,
 ) => {
   cb(defaultOptions.filter((o) => o.label.includes(query)));
 };
@@ -94,6 +94,6 @@ function renderSearchSelectDropdown(props: Partial<FCProps<typeof SearchSelectDr
       loadOptions={loadOptions}
       placeholder="search for things"
       {...props}
-    />
+    />,
   );
 }

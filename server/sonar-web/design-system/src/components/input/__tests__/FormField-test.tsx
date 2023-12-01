@@ -36,11 +36,11 @@ it('should render with required and description', () => {
 
 function renderFormField(
   props: Partial<FCProps<typeof FormField>> = {},
-  children: any = <div>Fake input</div>
+  children: any = <div>Fake input</div>,
 ) {
   return render(
     <FormField htmlFor="input" label="Hello" {...props}>
       {children}
-    </FormField>
+    </FormField>,
   );
 }

@@ -37,7 +37,7 @@ export function LineIssuePointer({ issueFindingRef }: Props) {
     if (pointerRef.current && issueFindingRef?.current) {
       setDistance(
         issueFindingRef.current.getBoundingClientRect().top -
-          pointerRef.current.getBoundingClientRect().bottom
+          pointerRef.current.getBoundingClientRect().bottom,
       );
     }
   }, [pointerRef, issueFindingRef]);

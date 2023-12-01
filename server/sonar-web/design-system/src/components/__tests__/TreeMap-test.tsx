@@ -60,6 +60,6 @@ it('should render correctly and forward click event', async () => {
 
 function renderTreeMap(props: Partial<TreeMapProps<unknown>>) {
   return render(
-    <TreeMap height={100} items={[]} onRectangleClick={jest.fn()} width={100} {...props} />
+    <TreeMap height={100} items={[]} onRectangleClick={jest.fn()} width={100} {...props} />,
   );
 }

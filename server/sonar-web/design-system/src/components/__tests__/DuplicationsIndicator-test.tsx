@@ -35,7 +35,7 @@ it.each(['A', 'B', 'C', 'D', 'E', 'F'])(
   (variant: DuplicationLabel) => {
     setupWithProps({ rating: variant });
     expect(screen.getByRole('img', { hidden: true })).toMatchSnapshot();
-  }
+  },
 );
 
 function setupWithProps(props: Partial<FCProps<typeof DuplicationsIndicator>> = {}) {

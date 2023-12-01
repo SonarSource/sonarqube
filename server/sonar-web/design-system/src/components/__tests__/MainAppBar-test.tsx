@@ -49,13 +49,13 @@ it('should render the logo', () => {
 function setupWithProps(
   props: FCProps<typeof MainAppBar> = {
     Logo: () => <img alt="logo" src="http://example.com/logo.png" />,
-  }
+  },
 ) {
   return render(
     <MemoryRouter initialEntries={['/']}>
       <Routes>
         <Route element={<MainAppBar {...props} />} path="/" />
       </Routes>
-    </MemoryRouter>
+    </MemoryRouter>,
   );
 }

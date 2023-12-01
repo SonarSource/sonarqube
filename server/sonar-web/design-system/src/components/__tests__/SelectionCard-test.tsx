@@ -74,6 +74,6 @@ function renderSelectionCard(props: Partial<FCProps<typeof SelectionCard>> = {})
       title="Selection Card"
       titleInfo="info"
       {...props}
-    />
+    />,
   );
 }

@@ -57,6 +57,6 @@ function setupWithProps(props?: Partial<FCProps<typeof RadioButton>>) {
   return render(
     <RadioButton checked={false} onCheck={jest.fn()} value="value" {...props}>
       foo
-    </RadioButton>
+    </RadioButton>,
   );
 }

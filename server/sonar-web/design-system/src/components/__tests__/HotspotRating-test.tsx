@@ -32,7 +32,7 @@ it.each(Object.values(HotspotRatingEnum))(
   (rating) => {
     renderHotspotRating(rating, 'label');
     expect(screen.getByLabelText('label')).toMatchSnapshot();
-  }
+  },
 );
 
 function renderHotspotRating(rating?: HotspotRatingEnum, label?: string) {

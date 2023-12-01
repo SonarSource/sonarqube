@@ -29,13 +29,13 @@ it('should render with close button', async () => {
   expect(
     screen.getByRole('button', {
       name: 'dismiss',
-    })
+    }),
   ).toBeVisible();
 
   await user.click(
     screen.getByRole('button', {
       name: 'dismiss',
-    })
+    }),
   );
 
   expect(onDismiss).toHaveBeenCalledTimes(1);
@@ -45,6 +45,6 @@ function setupWithProps(props: Partial<FCProps<typeof Banner>> = {}) {
   return renderWithContext(
     <Banner {...props} variant="warning">
       <Note className="sw-body-sm">{props.children ?? 'Test Message'}</Note>
-    </Banner>
+    </Banner>,
   );
 }

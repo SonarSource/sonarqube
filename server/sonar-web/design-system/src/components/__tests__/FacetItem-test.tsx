@@ -70,6 +70,6 @@ it('should not add an aria label if the name is not a string', () => {
 
 function renderComponent(props: Partial<FacetItemProps> = {}) {
   return render(
-    <BaseFacetItem name="Test facet item" onClick={jest.fn()} value="Value" {...props} />
+    <BaseFacetItem name="Test facet item" onClick={jest.fn()} value="Value" {...props} />,
   );
 }

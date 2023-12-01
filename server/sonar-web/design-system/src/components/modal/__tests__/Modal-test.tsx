@@ -68,7 +68,7 @@ function setupPredefinedContent(props: Partial<PropsWithSections> = {}) {
       onClose={jest.fn()}
       secondaryButtonLabel="Close"
       {...props}
-    />
+    />,
   );
 }
 
@@ -76,7 +76,7 @@ function setupLooseContent(props: Partial<PropsWithChildren> = {}, children = <d
   return renderWithContext(
     <Modal onClose={jest.fn()} {...props}>
       {children}
-    </Modal>
+    </Modal>,
   );
 }
 
@@ -85,6 +85,6 @@ function setupLooseContentWithMultipleChildren(props: Partial<PropsWithChildren>
     <Modal onClose={jest.fn()} {...props}>
       <div>Hello there!</div>
       <div>How are you?</div>
-    </Modal>
+    </Modal>,
   );
 }

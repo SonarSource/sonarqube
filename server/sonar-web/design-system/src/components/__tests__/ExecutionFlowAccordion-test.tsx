@@ -33,11 +33,11 @@ it('should render correctly expanded', () => {
 
 function renderExecutionFlowAccordion(
   props: Partial<FCProps<typeof ExecutionFlowAccordion>> = {},
-  children?: React.ReactNode
+  children?: React.ReactNode,
 ) {
   return render(
     <ExecutionFlowAccordion header="header" id="id" {...props}>
       {children}
-    </ExecutionFlowAccordion>
+    </ExecutionFlowAccordion>,
   );
 }

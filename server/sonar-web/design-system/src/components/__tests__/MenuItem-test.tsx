@@ -28,7 +28,7 @@ it('should render default', () => {
   render(
     <MainMenuItem>
       <a>Hi</a>
-    </MainMenuItem>
+    </MainMenuItem>,
   );
 
   expect(screen.getByText('Hi')).toHaveStyle({
@@ -41,7 +41,7 @@ it('should render active link', () => {
   render(
     <MainMenuItem>
       <a className="active">Hi</a>
-    </MainMenuItem>
+    </MainMenuItem>,
   );
 
   expect(screen.getByText('Hi')).toHaveStyle({
@@ -54,7 +54,7 @@ it('should render hovered link', () => {
   render(
     <MainMenuItem>
       <a className="hover">Hi</a>
-    </MainMenuItem>
+    </MainMenuItem>,
   );
 
   expect(screen.getByText('Hi')).toHaveStyle({

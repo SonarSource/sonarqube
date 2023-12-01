@@ -39,7 +39,7 @@ export function themeContrast(name: ThemeColors | CSSColor) {
 export function themeBorder(
   name: keyof Theme['borders'] = 'default',
   color?: ThemeColors | CSSColor,
-  opacity?: number
+  opacity?: number,
 ) {
   return function ({ theme }: ThemedProps) {
     const [width, style, ...rgba] = theme.borders[name];
@@ -50,7 +50,7 @@ export function themeBorder(
 export function themeShadow(
   name: keyof Theme['shadows'],
   color?: ThemeColors | CSSColor,
-  opacity?: number
+  opacity?: number,
 ) {
   return function ({ theme }: ThemedProps) {
     const shadows = theme.shadows[name];
@@ -89,7 +89,7 @@ function getColor(
   theme: Theme,
   [r, g, b, a]: number[],
   colorOverride?: ThemeColors | CSSColor,
-  opacityOverride?: number
+  opacityOverride?: number,
 ) {
   // Custom CSS property or rgb(a) color, return it directly
   if (

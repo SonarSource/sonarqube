@@ -46,6 +46,6 @@ function setupWithProps(props: Partial<FCProps<typeof CodeSnippet>> = {}) {
   return renderWithContext(
     <HelmetProvider>
       <CodeSnippet snippet={'foo\nbar'} {...props} />
-    </HelmetProvider>
+    </HelmetProvider>,
   );
 }

@@ -68,38 +68,38 @@ it('check that the html structure and style is correct for a regular table', () 
 
   // Rows should have accessible attributes
   expect(
-    screen.getByRole('row', { name: 'ContentCellHeader NumericalCellHeader CheckboxCellHeader' })
+    screen.getByRole('row', { name: 'ContentCellHeader NumericalCellHeader CheckboxCellHeader' }),
   ).toBeInTheDocument();
   expect(
     screen.getByRole('row', {
       name: 'ContentCell 1 NumericalCell 1 CheckboxCell 1',
-    })
+    }),
   ).toBeInTheDocument();
   expect(
     screen.getByRole('row', {
       name: 'ContentCell 1 NumericalCell 1 CheckboxCell 1',
-    })
+    }),
   ).not.toHaveAttribute('aria-selected');
   expect(
     screen.getByRole('row', {
       selected: true,
       name: 'ContentCell 2 NumericalCell 2 CheckboxCell 2',
-    })
+    }),
   ).toBeInTheDocument();
   expect(
     screen.getByRole('row', {
       name: 'NumericalCell 4 CheckboxCell 4',
-    })
+    }),
   ).toBeInTheDocument();
 
   // Cells should have accessible attributes
   expect(screen.getByRole('cell', { name: 'NumericalCell 4' })).toHaveAttribute(
     'aria-colindex',
-    '2'
+    '2',
   );
   expect(screen.getByRole('cell', { name: 'CheckboxCell 4' })).toHaveAttribute(
     'aria-colindex',
-    '3'
+    '3',
   );
 });
 

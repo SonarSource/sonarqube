@@ -128,7 +128,7 @@ export class TooltipInner extends React.Component<TooltipProps, State> {
             // position (which is no longer correct).
             this.positionTooltip();
           }
-        }
+        },
       );
     }
   }
@@ -195,7 +195,7 @@ export class TooltipInner extends React.Component<TooltipProps, State> {
 
   adjustArrowPosition = (
     placement: PopupPlacement,
-    { leftFix, topFix, height, width }: Measurements
+    { leftFix, topFix, height, width }: Measurements,
   ) => {
     switch (placement) {
       case PopupPlacement.Left:
@@ -223,7 +223,7 @@ export class TooltipInner extends React.Component<TooltipProps, State> {
       const { height, left, leftFix, top, topFix, width } = popupPositioning(
         toggleNode,
         this.tooltipNode,
-        this.getPlacement()
+        this.getPlacement(),
       );
 
       // save width and height (and later set in `render`) to avoid resizing the popup element,
@@ -253,18 +253,21 @@ export class TooltipInner extends React.Component<TooltipProps, State> {
   };
 
   handlePointerEnter = () => {
-    this.mouseEnterTimeout = window.setTimeout(() => {
-      // for some reason even after the `this.mouseEnterTimeout` is cleared, it still triggers
-      // to workaround this issue, check that its value is not `undefined`
-      // (if it's `undefined`, it means the timer has been reset)
-      if (
-        this.mounted &&
-        this.props.visible === undefined &&
-        this.mouseEnterTimeout !== undefined
-      ) {
-        this.setState({ visible: true });
-      }
-    }, (this.props.mouseEnterDelay ?? 0) * MILLISECONDS_IN_A_SECOND);
+    this.mouseEnterTimeout = window.setTimeout(
+      () => {
+        // for some reason even after the `this.mouseEnterTimeout` is cleared, it still triggers
+        // to workaround this issue, check that its value is not `undefined`
+        // (if it's `undefined`, it means the timer has been reset)
+        if (
+          this.mounted &&
+          this.props.visible === undefined &&
+          this.mouseEnterTimeout !== undefined
+        ) {
+          this.setState({ visible: true });
+        }
+      },
+      (this.props.mouseEnterDelay ?? 0) * MILLISECONDS_IN_A_SECOND,
+    );
 
     if (this.props.onShow) {
       this.props.onShow();
@@ -278,11 +281,14 @@ export class TooltipInner extends React.Component<TooltipProps, State> {
     }
 
     if (!this.mouseIn) {
-      this.mouseLeaveTimeout = window.setTimeout(() => {
-        if (this.mounted && this.props.visible === undefined && !this.mouseIn) {
-          this.setState({ visible: false });
-        }
-      }, (this.props.mouseLeaveDelay ?? 0) * MILLISECONDS_IN_A_SECOND);
+      this.mouseLeaveTimeout = window.setTimeout(
+        () => {
+          if (this.mounted && this.props.visible === undefined && !this.mouseIn) {
+            this.setState({ visible: false });
+          }
+        },
+        (this.props.mouseLeaveDelay ?? 0) * MILLISECONDS_IN_A_SECOND,
+      );
 
       if (this.props.onHide) {
         this.props.onHide();

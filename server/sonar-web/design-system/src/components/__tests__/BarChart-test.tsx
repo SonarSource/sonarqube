@@ -58,6 +58,6 @@ function renderChart(overrides: Partial<FCProps<typeof BarChart>> = {}) {
       onBarClick={jest.fn()}
       width={200}
       {...overrides}
-    />
+    />,
   );
 }

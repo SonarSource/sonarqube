@@ -57,7 +57,7 @@ it('should work in tablist mode', () => {
   expect(screen.getAllByRole('tab')).toHaveLength(3);
   expect(screen.getByRole('tab', { name: 'second' })).toHaveAttribute(
     'aria-controls',
-    getTabPanelId(2)
+    getTabPanelId(2),
   );
 });
 

@@ -86,6 +86,6 @@ function renderBubbleChart(props: Partial<FCProps<typeof BubbleChart>> = {}) {
       ]}
       padding={[0, 0, 0, 0]}
       {...props}
-    />
+    />,
   );
 }

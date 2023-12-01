@@ -49,7 +49,7 @@ describe('TooltipInner', () => {
     const onPointerLeave = jest.fn();
     const { user } = setupWithProps(
       { onHide, onShow },
-      <div onPointerEnter={onPointerEnter} onPointerLeave={onPointerLeave} role="note" />
+      <div onPointerEnter={onPointerEnter} onPointerLeave={onPointerLeave} role="note" />,
     );
 
     await user.hover(screen.getByRole('note'));
@@ -93,12 +93,12 @@ describe('TooltipInner', () => {
 
   function setupWithProps(
     props: Partial<TooltipInner['props']> = {},
-    children = <div role="note" />
+    children = <div role="note" />,
   ) {
     return render(
       <TooltipInner mouseLeaveDelay={0} overlay={<span id="overlay" />} {...props}>
         {children}
-      </TooltipInner>
+      </TooltipInner>,
     );
   }
 });
@@ -124,12 +124,12 @@ describe('Tooltip', () => {
 
   function setupWithProps(
     props: Partial<FCProps<typeof Tooltip>> = {},
-    children = <div role="note" />
+    children = <div role="note" />,
   ) {
     return render(
       <Tooltip overlay={<span id="overlay" />} {...props}>
         {children}
-      </Tooltip>
+      </Tooltip>,
     );
   }
 });

@@ -121,7 +121,7 @@ export function BubbleChart<T>(props: BubbleChartProps<T>) {
         k,
       });
     },
-    [padding]
+    [padding],
   );
 
   const boundNode = React.useCallback(
@@ -130,7 +130,7 @@ export function BubbleChart<T>(props: BubbleChartProps<T>) {
       zoomRef.current = zoom().scaleExtent([1, 10]).on('zoom', zoomed);
       select(nodeRef.current).call(zoomRef.current);
     },
-    [zoomed]
+    [zoomed],
   );
 
   const resetZoom = React.useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
@@ -150,7 +150,7 @@ export function BubbleChart<T>(props: BubbleChartProps<T>) {
       const dMaxX = maxX > x2 ? maxX - x2 : 0;
       return [dMinX, availableWidth - dMaxX];
     },
-    [items]
+    [items],
   );
 
   const getYRange = React.useCallback(
@@ -162,7 +162,7 @@ export function BubbleChart<T>(props: BubbleChartProps<T>) {
       const dMaxY = maxY > y1 ? maxY - y1 : 0;
       return [availableHeight - dMaxY, dMinY];
     },
-    [items]
+    [items],
   );
 
   const getTicks = React.useCallback(
@@ -176,7 +176,7 @@ export function BubbleChart<T>(props: BubbleChartProps<T>) {
           : TICKS_COUNT * zoomAmount;
       return scale.ticks(ticksCount);
     },
-    [transform]
+    [transform],
   );
 
   const renderXGrid = React.useCallback(
@@ -202,7 +202,7 @@ export function BubbleChart<T>(props: BubbleChartProps<T>) {
 
       return <g>{lines}</g>;
     },
-    [transform, displayXGrid]
+    [transform, displayXGrid],
   );
 
   const renderYGrid = React.useCallback(
@@ -228,7 +228,7 @@ export function BubbleChart<T>(props: BubbleChartProps<T>) {
 
       return <g>{lines}</g>;
     },
-    [displayYGrid, transform]
+    [displayYGrid, transform],
   );
 
   const renderXTicks = React.useCallback(
@@ -252,7 +252,7 @@ export function BubbleChart<T>(props: BubbleChartProps<T>) {
 
       return <g>{ticks}</g>;
     },
-    [displayXTicks, formatXTick, transform]
+    [displayXTicks, formatXTick, transform],
   );
 
   const renderYTicks = React.useCallback(
@@ -283,7 +283,7 @@ export function BubbleChart<T>(props: BubbleChartProps<T>) {
 
       return <g>{ticks}</g>;
     },
-    [displayYTicks, formatYTick, transform]
+    [displayYTicks, formatYTick, transform],
   );
 
   const renderChart = (width: number) => {
@@ -406,7 +406,7 @@ function Bubble<T>(props: BubbleProps<T>) {
       event.preventDefault();
       onClick?.(data);
     },
-    [data, onClick]
+    [data, onClick],
   );
 
   const circle = (

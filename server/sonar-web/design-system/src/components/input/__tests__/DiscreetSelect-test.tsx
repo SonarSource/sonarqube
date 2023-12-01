@@ -54,6 +54,6 @@ function setupWithProps(props: Partial<FCProps<typeof DiscreetSelect>>) {
       setValue={jest.fn()}
       value="foo"
       {...props}
-    />
+    />,
   );
 }

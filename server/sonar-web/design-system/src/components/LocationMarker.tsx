@@ -34,7 +34,7 @@ interface Props {
 
 function InternalLocationMarker(
   { className, onClick, text, selected }: Props,
-  ref: LegacyRef<HTMLDivElement>
+  ref: LegacyRef<HTMLDivElement>,
 ) {
   return (
     <StyledMarker

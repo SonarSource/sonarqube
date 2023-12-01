@@ -37,7 +37,7 @@ describe('NewNavBarTabs', () => {
     return renderWithRouter(
       <NavBarTabs>
         <NavBarTabLink text="test" to="/summary/new_code" />
-      </NavBarTabs>
+      </NavBarTabs>,
     );
   }
 });

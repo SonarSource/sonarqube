@@ -122,7 +122,7 @@ export function Breadcrumbs(props: Props) {
             overlay={modifiedChildren[index].props.children as React.ReactNode}
           >
             {modifiedChildren[index]}
-          </Tooltip>
+          </Tooltip>,
         );
       } else if (
         isLastBreadcrumb ||

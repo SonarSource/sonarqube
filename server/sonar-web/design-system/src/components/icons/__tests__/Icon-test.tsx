@@ -26,7 +26,7 @@ it('should render custom icon correctly', () => {
   render(
     <CustomIcon>
       <path d="test" />
-    </CustomIcon>
+    </CustomIcon>,
   );
 
   expect(screen.queryByRole('img')).not.toBeInTheDocument();
@@ -37,7 +37,7 @@ it('should not be hidden when aria-label is set', () => {
   render(
     <CustomIcon aria-label="test">
       <path d="test" />
-    </CustomIcon>
+    </CustomIcon>,
   );
 
   expect(screen.getByRole('img')).toBeVisible();

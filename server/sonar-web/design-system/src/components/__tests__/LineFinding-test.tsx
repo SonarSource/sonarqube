@@ -41,6 +41,6 @@ it('should be clickable when onIssueSelect is provided', async () => {
 
 function setupWithProps(props?: Partial<FCProps<typeof LineFinding>>) {
   return render(
-    <LineFinding issueKey="key" message="message" onIssueSelect={jest.fn()} {...props} />
+    <LineFinding issueKey="key" message="message" onIssueSelect={jest.fn()} {...props} />,
   );
 }

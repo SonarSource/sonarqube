@@ -27,7 +27,7 @@ it('renders correctly', () => {
     <UnorderedList>
       <ListItem>First item</ListItem>
       <ListItem>Second item</ListItem>
-    </UnorderedList>
+    </UnorderedList>,
   );
   expect(screen.getAllByRole('listitem')).toHaveLength(2);
 });

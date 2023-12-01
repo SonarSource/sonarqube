@@ -60,7 +60,7 @@ it('should stop propagation when stopPropagation is true', async () => {
   const { user } = setupWithMemoryRouter(
     <button onClick={buttonOnClick} type="button">
       <NavLink stopPropagation to="/second" />
-    </button>
+    </button>,
   );
 
   await user.click(screen.getByRole('link'));
@@ -71,7 +71,7 @@ it('should stop propagation when stopPropagation is true', async () => {
 it('should call onClick when one is passed', async () => {
   const onClick = jest.fn();
   const { user } = setupWithMemoryRouter(
-    <NavLink onClick={onClick} stopPropagation to="/second" />
+    <NavLink onClick={onClick} stopPropagation to="/second" />,
   );
 
   await user.click(screen.getByRole('link'));
@@ -108,6 +108,6 @@ const setupWithMemoryRouter = (component: JSX.Element, initialEntries = ['/initi
         />
         <Route element={<ShowPath />} path="/second" />
       </Routes>
-    </MemoryRouter>
+    </MemoryRouter>,
   );
 };

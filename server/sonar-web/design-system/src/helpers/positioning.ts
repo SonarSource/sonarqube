@@ -80,7 +80,7 @@ const MARGIN_TO_EDGE = 4;
 export function popupPositioning(
   toggleNode: Element,
   popupNode: Element,
-  placement: PopupPlacement = PopupPlacement.Bottom
+  placement: PopupPlacement = PopupPlacement.Bottom,
 ) {
   const toggleRect = toggleNode.getBoundingClientRect();
   const popupRect = popupNode.getBoundingClientRect();
@@ -136,12 +136,12 @@ export function popupPositioning(
 
   const inBoundariesLeft = Math.min(
     Math.max(left, getMinLeftPlacement(toggleRect)),
-    getMaxLeftPlacement(toggleRect, popupRect)
+    getMaxLeftPlacement(toggleRect, popupRect),
   );
 
   const inBoundariesTop = Math.min(
     Math.max(top, getMinTopPlacement(toggleRect)),
-    getMaxTopPlacement(toggleRect, popupRect)
+    getMaxTopPlacement(toggleRect, popupRect),
   );
 
   return {
@@ -157,27 +157,27 @@ export function popupPositioning(
 function getMinLeftPlacement(toggleRect: DOMRect) {
   return Math.min(
     MARGIN_TO_EDGE, // Left edge of the sceen
-    toggleRect.left + toggleRect.width / 2 // Left edge of the screen when scrolled
+    toggleRect.left + toggleRect.width / 2, // Left edge of the screen when scrolled
   );
 }
 
 function getMaxLeftPlacement(toggleRect: DOMRect, popupRect: DOMRect) {
   return Math.max(
     document.documentElement.clientWidth - popupRect.width - MARGIN_TO_EDGE, // Right edge of the screen
-    toggleRect.left + toggleRect.width / 2 - popupRect.width // Right edge of the screen when scrolled
+    toggleRect.left + toggleRect.width / 2 - popupRect.width, // Right edge of the screen when scrolled
   );
 }
 
 function getMinTopPlacement(toggleRect: DOMRect) {
   return Math.min(
     MARGIN_TO_EDGE, // Top edge of the sceen
-    toggleRect.top + toggleRect.height / 2 // Top edge of the screen when scrolled
+    toggleRect.top + toggleRect.height / 2, // Top edge of the screen when scrolled
   );
 }
 
 function getMaxTopPlacement(toggleRect: DOMRect, popupRect: DOMRect) {
   return Math.max(
     document.documentElement.clientHeight - popupRect.height - MARGIN_TO_EDGE, // Bottom edge of the screen
-    toggleRect.top + toggleRect.height / 2 - popupRect.height // Bottom edge of the screen when scrolled
+    toggleRect.top + toggleRect.height / 2 - popupRect.height, // Bottom edge of the screen when scrolled
   );
 }

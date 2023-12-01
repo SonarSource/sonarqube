@@ -45,6 +45,6 @@ it('should toggle favorite', async () => {
 
 function renderFavoriteButton(props: Partial<FCProps<typeof FavoriteButton>> = {}) {
   return render(
-    <FavoriteButton favorite overlay="label-info" toggleFavorite={jest.fn()} {...props} />
+    <FavoriteButton favorite overlay="label-info" toggleFavorite={jest.fn()} {...props} />,
   );
 }

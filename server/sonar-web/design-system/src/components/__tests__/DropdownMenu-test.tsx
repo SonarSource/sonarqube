@@ -57,7 +57,7 @@ it('menu items should work with tooltips', async () => {
       <ItemButton onClick={jest.fn()}>button</ItemButton>
     </Tooltip>,
     {},
-    { delay: null }
+    { delay: null },
   );
 
   expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
@@ -103,6 +103,6 @@ function renderDropdownMenu() {
       <ItemRadioButton checked={false} onCheck={noop} value="radios">
         Radio item
       </ItemRadioButton>
-    </DropdownMenu>
+    </DropdownMenu>,
   );
 }

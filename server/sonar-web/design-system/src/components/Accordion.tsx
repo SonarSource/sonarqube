@@ -78,7 +78,9 @@ const accordionStyle = (props: ThemedProps) => css`
   border: ${themeBorder('default', 'buttonSecondaryBorder')(props)};
   color: ${themeContrast('buttonSecondary')(props)};
   background-color: ${themeColor('buttonSecondary')(props)};
-  transition: background-color 0.2s ease, outline 0.2s ease;
+  transition:
+    background-color 0.2s ease,
+    outline 0.2s ease;
 
   & > button {
     ${tw`sw-body-sm-highlight`}

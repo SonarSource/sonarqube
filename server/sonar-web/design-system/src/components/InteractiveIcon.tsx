@@ -107,7 +107,10 @@ const buttonIconStyle = (props: ThemedProps & { size: InteractiveIconSize }) => 
   text-decoration: none;
   color: var(--color);
   background-color: var(--background);
-  transition: background-color 0.2s ease, outline 0.2s ease, color 0.2s ease;
+  transition:
+    background-color 0.2s ease,
+    outline 0.2s ease,
+    color 0.2s ease;
 
   ${tw`sw-inline-flex sw-items-center sw-justify-center`}
   ${tw`sw-cursor-pointer`}
@@ -158,11 +161,10 @@ export const InteractiveIcon: React.FC<React.PropsWithChildren<InteractiveIconPr
   --focus: ${themeColor('interactiveIconFocus', OPACITY_20_PERCENT)};
 `;
 
-export const DiscreetInteractiveIcon: React.FC<
-  React.PropsWithChildren<InteractiveIconProps>
-> = styled(InteractiveIcon)`
-  --color: ${themeColor('discreetInteractiveIcon')};
-`;
+export const DiscreetInteractiveIcon: React.FC<React.PropsWithChildren<InteractiveIconProps>> =
+  styled(InteractiveIcon)`
+    --color: ${themeColor('discreetInteractiveIcon')};
+  `;
 
 export const DestructiveIcon: React.FC<React.PropsWithChildren<InteractiveIconProps>> = styled(
   InteractiveIconBase,
@@ -174,14 +176,13 @@ export const DestructiveIcon: React.FC<React.PropsWithChildren<InteractiveIconPr
   --focus: ${themeColor('destructiveIconFocus', OPACITY_20_PERCENT)};
 `;
 
-export const DismissProductNewsIcon: React.FC<
-  React.PropsWithChildren<InteractiveIconProps>
-> = styled(InteractiveIcon)`
-  --background: ${themeColor('productNews')};
-  --backgroundHover: ${themeColor('productNewsHover')};
-  --color: ${themeContrast('productNews')};
-  --colorHover: ${themeContrast('productNewsHover')};
-  --focus: ${themeColor('interactiveIconFocus', OPACITY_20_PERCENT)};
+export const DismissProductNewsIcon: React.FC<React.PropsWithChildren<InteractiveIconProps>> =
+  styled(InteractiveIcon)`
+    --background: ${themeColor('productNews')};
+    --backgroundHover: ${themeColor('productNewsHover')};
+    --color: ${themeContrast('productNews')};
+    --colorHover: ${themeContrast('productNewsHover')};
+    --focus: ${themeColor('interactiveIconFocus', OPACITY_20_PERCENT)};
 
-  height: 28px;
-`;
+    height: 28px;
+  `;

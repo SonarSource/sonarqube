@@ -60,7 +60,7 @@ function NavLinkWithRef(props: NavLinkProps, ref: React.ForwardedRef<HTMLAnchorE
         onClick(event);
       }
     },
-    [onClick, blurAfterClick, preventDefault, stopPropagation, disabled]
+    [onClick, blurAfterClick, preventDefault, stopPropagation, disabled],
   );
 
   return (

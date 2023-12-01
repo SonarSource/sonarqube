@@ -34,6 +34,6 @@ function setupWithProps(props: Partial<FCProps<typeof SubnavigationItem>> = {}) 
   return render(
     <SubnavigationItem active={false} onClick={jest.fn()} value="foo" {...props}>
       <button type="button">Foo</button>
-    </SubnavigationItem>
+    </SubnavigationItem>,
   );
 }

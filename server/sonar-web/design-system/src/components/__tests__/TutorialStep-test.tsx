@@ -33,6 +33,6 @@ function renderTutorialStep() {
   return render(
     <TutorialStepList>
       <TutorialStep title="This is title">These are children</TutorialStep>
-    </TutorialStepList>
+    </TutorialStepList>,
   );
 }

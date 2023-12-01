@@ -52,6 +52,6 @@ function setupWithProps(props: Partial<FCProps<typeof InputSearch>> = {}) {
       searchInputAriaLabel=""
       value="foo"
       {...props}
-    />
+    />,
   );
 }

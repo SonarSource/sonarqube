@@ -68,7 +68,7 @@ export function SelectionCard(props: SelectionCardProps) {
           disabled,
           selected,
         },
-        className
+        className,
       )}
       onClick={isActionable && !disabled && !selected ? onClick : undefined}
       role={isActionable ? 'radio' : 'presentation'}

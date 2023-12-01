@@ -32,14 +32,14 @@ type SearchSelectProps<
   V,
   Option extends LabelValueSelectOption<V>,
   IsMulti extends boolean = false,
-  Group extends GroupBase<Option> = GroupBase<Option>
+  Group extends GroupBase<Option> = GroupBase<Option>,
 > = SelectProps<V, Option, IsMulti, Group> & AsyncProps<Option, IsMulti, Group>;
 
 export function SearchSelect<
   V,
   Option extends LabelValueSelectOption<V>,
   IsMulti extends boolean = false,
-  Group extends GroupBase<Option> = GroupBase<Option>
+  Group extends GroupBase<Option> = GroupBase<Option>,
 >({
   size = 'full',
   selectRef,
@@ -57,7 +57,7 @@ export function SearchSelect<
         control: ({ isDisabled }) =>
           classNames(
             'sw-border-0 sw-rounded-2 sw-outline-none sw-shadow-none',
-            isDisabled && 'sw-pointer-events-none sw-cursor-not-allowed'
+            isDisabled && 'sw-pointer-events-none sw-cursor-not-allowed',
           ),
         indicatorsContainer: () => 'sw-hidden',
         input: () => `sw-flex sw-w-full sw-p-0 sw-m-0`,
@@ -85,7 +85,7 @@ export function SearchSelectInput<
   V,
   Option extends LabelValueSelectOption<V>,
   IsMulti extends boolean = false,
-  Group extends GroupBase<Option> = GroupBase<Option>
+  Group extends GroupBase<Option> = GroupBase<Option>,
 >(props: InputProps<Option, IsMulti, Group>) {
   const {
     selectProps: { placeholder, isLoading, inputValue, minLength },

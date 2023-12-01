@@ -29,7 +29,7 @@ it('renders correctly with no code', () => {
 
         <p>There's no code here.</p>
       `}
-    />
+    />,
   );
 
   // eslint-disable-next-line testing-library/no-node-access
@@ -45,7 +45,7 @@ it('renders correctly with code', () => {
         <p>There's some <code>"code"</code> here.</p>
      `}
       language="typescript"
-    />
+    />,
   );
 
   // eslint-disable-next-line testing-library/no-node-access
@@ -61,7 +61,7 @@ it('handles html code snippets', () => {
       htmlAsString={
         '\u003ch4\u003eNoncompliant code example\u003c/h4\u003e\n\u003cpre data-diff-id\u003d"1" data-diff-type\u003d"noncompliant"\u003e\npublic void Method(MyObject myObject)\n{\n    if (myObject is null)\n    {\n        new MyObject(); // Noncompliant\n    }\n\n    if (myObject.IsCorrupted)\n    {\n        new ArgumentException($"{nameof(myObject)} is corrupted"); // Noncompliant\n    }\n\n    // ...\n}\n\u003c/pre\u003e\n\u003ch4\u003eCompliant solution\u003c/h4\u003e\n\u003cpre data-diff-id\u003d"1" data-diff-type\u003d"compliant"\u003e\npublic void Method(MyObject myObject)\n{\n    if (myObject is null)\n    {\n        myObject \u003d new MyObject(); // Compliant\n    }\n\n    if (myObject.IsCorrupted)\n    {\n        throw new ArgumentException($"{nameof(myObject)} is corrupted"); // Compliant\n    }\n\n    // ...\n}\n\u003c/pre\u003e'
       }
-    />
+    />,
   );
 
   expect(container.querySelectorAll('pre')).toHaveLength(2);
