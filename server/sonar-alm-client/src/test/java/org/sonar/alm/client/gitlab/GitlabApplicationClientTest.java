@@ -40,6 +40,7 @@ import org.sonar.alm.client.ConstantTimeoutConfiguration;
 import org.sonar.alm.client.TimeoutConfiguration;
 import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.auth.gitlab.GsonGroup;
+import org.sonar.auth.gitlab.GsonUser;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
@@ -580,6 +581,50 @@ public class GitlabApplicationClientTest {
     when(gsonGroup.getFullPath()).thenReturn(fullPath);
     when(gsonGroup.getDescription()).thenReturn(description);
     return gsonGroup;
+  }
+
+  @Test
+  public void getGroupMembers_whenCallIsInError_rethrows() throws IOException {
+    String token = "token-toto";
+    GitlabToken gitlabToken = new GitlabToken(token);
+    when(gitlabPaginatedHttpClient.get(eq(gitlabUrl), eq(gitlabToken), eq("/groups/42/members"), any())).thenThrow(new IllegalStateException("exception"));
+
+    assertThatIllegalStateException()
+      .isThrownBy(() -> underTest.getGroupMembers(gitlabUrl, token, "42"))
+      .withMessage("exception");
+  }
+
+  @Test
+  public void getGroupMembers_whenCallIsSuccessful_deserializesAndReturnsCorrectlyGroupMembers() throws IOException {
+    ArgumentCaptor<Function<String, List<GsonUser>>> deserializerCaptor = ArgumentCaptor.forClass(Function.class);
+
+    String token = "token-toto";
+    GitlabToken gitlabToken = new GitlabToken(token);
+    List<GsonUser> expectedGroupMembers = expectedGroupMembers();
+    when(gitlabPaginatedHttpClient.get(eq(gitlabUrl), eq(gitlabToken), eq("/groups/42/members"), deserializerCaptor.capture())).thenReturn(expectedGroupMembers);
+
+    Set<GsonUser> actualGroupMembers = underTest.getGroupMembers(gitlabUrl, token, "42");
+    assertThat(actualGroupMembers).containsExactlyInAnyOrderElementsOf(expectedGroupMembers);
+
+    String responseContent = getResponseContent("group-members-full-response.json");
+
+    List<GsonUser> deserializedUsers = deserializerCaptor.getValue().apply(responseContent);
+    assertThat(deserializedUsers).usingRecursiveComparison().isEqualTo(expectedGroupMembers);
+  }
+
+  private static List<GsonUser> expectedGroupMembers() {
+    GsonUser user1 = createGsonUser(12818153L, "aurelien-poscia-sonarsource", "Aurelien");
+    GsonUser user2 = createGsonUser(10941672L, "antoine.vigneau", "Antoine Vigneau");
+    GsonUser user3 = createGsonUser(13569073L, "wojciech.wajerowicz.sonarsource", "Wojciech Wajerowicz");
+    return List.of(user1, user2, user3);
+  }
+
+  private static GsonUser createGsonUser(Long id, String username, String name) {
+    GsonUser gsonUser = mock();
+    when(gsonUser.getId()).thenReturn(id);
+    when(gsonUser.getUsername()).thenReturn(username);
+    when(gsonUser.getName()).thenReturn(name);
+    return gsonUser;
   }
 
   private static String getResponseContent(String path) throws IOException {

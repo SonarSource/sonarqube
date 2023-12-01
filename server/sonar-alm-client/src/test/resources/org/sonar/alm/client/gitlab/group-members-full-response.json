@@ -1,0 +1,59 @@
+[
+  {
+    "access_level": 50,
+    "created_at": "2023-11-28T08:01:20.708Z",
+    "expires_at": null,
+    "id": 12818153,
+    "username": "aurelien-poscia-sonarsource",
+    "name": "Aurelien",
+    "state": "active",
+    "locked": false,
+    "avatar_url": "https://secure.gravatar.com/avatar/33973b7273855e92d004fa52a7217e19?s=80&d=identicon",
+    "web_url": "https://gitlab.com/aurelien-poscia-sonarsource",
+    "membership_state": "active"
+  },
+  {
+    "access_level": 30,
+    "created_at": "2023-11-28T08:02:16.440Z",
+    "created_by": {
+      "id": 12818153,
+      "username": "aurelien-poscia-sonarsource",
+      "name": "Aurelien",
+      "state": "active",
+      "locked": false,
+      "avatar_url": "https://secure.gravatar.com/avatar/33973b7273855e92d004fa52a7217e19?s=80&d=identicon",
+      "web_url": "https://gitlab.com/aurelien-poscia-sonarsource"
+    },
+    "expires_at": null,
+    "id": 10941672,
+    "username": "antoine.vigneau",
+    "name": "Antoine Vigneau",
+    "state": "active",
+    "locked": false,
+    "avatar_url": "https://secure.gravatar.com/avatar/088cbb2cea18d9a9b1983f9c93735aed?s=80&d=identicon",
+    "web_url": "https://gitlab.com/antoine.vigneau",
+    "membership_state": "active"
+  },
+  {
+    "access_level": 30,
+    "created_at": "2023-11-28T08:02:16.532Z",
+    "created_by": {
+      "id": 12818153,
+      "username": "aurelien-poscia-sonarsource",
+      "name": "Aurelien",
+      "state": "active",
+      "locked": false,
+      "avatar_url": "https://secure.gravatar.com/avatar/33973b7273855e92d004fa52a7217e19?s=80&d=identicon",
+      "web_url": "https://gitlab.com/aurelien-poscia-sonarsource"
+    },
+    "expires_at": null,
+    "id": 13569073,
+    "username": "wojciech.wajerowicz.sonarsource",
+    "name": "Wojciech Wajerowicz",
+    "state": "active",
+    "locked": false,
+    "avatar_url": "https://secure.gravatar.com/avatar/48d3b9f2cb2b314c1b0c42c48c8671ad?s=80&d=identicon",
+    "web_url": "https://gitlab.com/wojciech.wajerowicz.sonarsource",
+    "membership_state": "active"
+  }
+]

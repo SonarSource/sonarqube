@@ -45,9 +45,11 @@ import org.slf4j.LoggerFactory;
 import org.sonar.alm.client.TimeoutConfiguration;
 import org.sonar.api.server.ServerSide;
 import org.sonar.auth.gitlab.GsonGroup;
+import org.sonar.auth.gitlab.GsonUser;
 import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.client.OkHttpClientBuilder;
 
+import static java.lang.String.format;
 import static java.net.HttpURLConnection.HTTP_FORBIDDEN;
 import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -57,6 +59,7 @@ public class GitlabApplicationClient {
   private static final Logger LOG = LoggerFactory.getLogger(GitlabApplicationClient.class);
   private static final Gson GSON = new Gson();
   private static final Type GITLAB_GROUP = TypeToken.getParameterized(List.class, GsonGroup.class).getType();
+  private static final Type GITLAB_USER = TypeToken.getParameterized(List.class, GsonUser.class).getType();
 
   protected static final String PRIVATE_TOKEN = "Private-Token";
   protected final OkHttpClient client;
@@ -81,9 +84,9 @@ public class GitlabApplicationClient {
   }
 
   private void checkProjectAccess(@Nullable String gitlabUrl, @Nullable String personalAccessToken, String errorMessage) {
-    String url = String.format("%s/projects", gitlabUrl);
+    String url = format("%s/projects", gitlabUrl);
 
-    LOG.debug(String.format("get projects : [%s]", url));
+    LOG.debug("get projects : [{}]", url);
     Request.Builder builder = new Request.Builder()
       .url(url)
       .get();
@@ -106,13 +109,14 @@ public class GitlabApplicationClient {
   }
 
   private static void logException(String url, IOException e) {
-    LOG.info(String.format("Gitlab API call to [%s] failed with error message : [%s]", url, e.getMessage()), e);
+    String errorMessage = format("Gitlab API call to [%s] failed with error message : [%s]", url, e.getMessage());
+    LOG.info(errorMessage, e);
   }
 
   public void checkToken(String gitlabUrl, String personalAccessToken) {
-    String url = String.format("%s/user", gitlabUrl);
+    String url = format("%s/user", gitlabUrl);
 
-    LOG.debug(String.format("get current user : [%s]", url));
+    LOG.debug("get current user : [{}]", url);
     Request.Builder builder = new Request.Builder()
       .addHeader(PRIVATE_TOKEN, personalAccessToken)
       .url(url)
@@ -133,9 +137,9 @@ public class GitlabApplicationClient {
   }
 
   public void checkWritePermission(String gitlabUrl, String personalAccessToken) {
-    String url = String.format("%s/markdown", gitlabUrl);
+    String url = format("%s/markdown", gitlabUrl);
 
-    LOG.debug(String.format("verify write permission by formating some markdown : [%s]", url));
+    LOG.debug("verify write permission by formating some markdown : [{}]", url);
     Request.Builder builder = new Request.Builder()
       .url(url)
       .addHeader(PRIVATE_TOKEN, personalAccessToken)
@@ -172,7 +176,7 @@ public class GitlabApplicationClient {
   protected static void checkResponseIsSuccessful(Response response, String errorMessage) throws IOException {
     if (!response.isSuccessful()) {
       String body = response.body().string();
-      LOG.error(String.format("Gitlab API call to [%s] failed with %s http code. gitlab response content : [%s]", response.request().url().toString(), response.code(), body));
+      LOG.error("Gitlab API call to [{}] failed with {} http code. gitlab response content : [{}]", response.request().url(), response.code(), body);
       if (isTokenRevoked(response, body)) {
         throw new GitlabServerException(response.code(), "Your GitLab token was revoked");
       } else if (isTokenExpired(response, body)) {
@@ -226,8 +230,8 @@ public class GitlabApplicationClient {
   }
 
   public Project getProject(String gitlabUrl, String pat, Long gitlabProjectId) {
-    String url = String.format("%s/projects/%s", gitlabUrl, gitlabProjectId);
-    LOG.debug(String.format("get project : [%s]", url));
+    String url = format("%s/projects/%s", gitlabUrl, gitlabProjectId);
+    LOG.debug("get project : [{}]", url);
     Request request = new Request.Builder()
       .addHeader(PRIVATE_TOKEN, pat)
       .get()
@@ -237,7 +241,7 @@ public class GitlabApplicationClient {
     try (Response response = client.newCall(request).execute()) {
       checkResponseIsSuccessful(response);
       String body = response.body().string();
-      LOG.trace(String.format("loading project payload result : [%s]", body));
+      LOG.trace("loading project payload result : [{}]", body);
       return new GsonBuilder().create().fromJson(body, Project.class);
     } catch (JsonSyntaxException e) {
       throw new IllegalArgumentException("Could not parse GitLab answer to retrieve a project. Got a non-json payload as result.");
@@ -252,9 +256,9 @@ public class GitlabApplicationClient {
   // As of June 9, 2021 there is no better way to do this check and still support GitLab 11.7.
   //
   public Optional<Project> getReporterLevelAccessProject(String gitlabUrl, String pat, Long gitlabProjectId) {
-    String url = String.format("%s/projects?min_access_level=20&id_after=%s&id_before=%s", gitlabUrl, gitlabProjectId - 1,
+    String url = format("%s/projects?min_access_level=20&id_after=%s&id_before=%s", gitlabUrl, gitlabProjectId - 1,
       gitlabProjectId + 1);
-    LOG.debug(String.format("get project : [%s]", url));
+    LOG.debug("get project : [{}]", url);
     Request request = new Request.Builder()
       .addHeader(PRIVATE_TOKEN, pat)
       .get()
@@ -264,7 +268,7 @@ public class GitlabApplicationClient {
     try (Response response = client.newCall(request).execute()) {
       checkResponseIsSuccessful(response);
       String body = response.body().string();
-      LOG.trace(String.format("loading project payload result : [%s]", body));
+      LOG.trace("loading project payload result : [{}]", body);
 
       List<Project> projects = Project.parseJsonArray(body);
       if (projects.isEmpty()) {
@@ -281,8 +285,8 @@ public class GitlabApplicationClient {
   }
 
   public List<GitLabBranch> getBranches(String gitlabUrl, String pat, Long gitlabProjectId) {
-    String url = String.format("%s/projects/%s/repository/branches", gitlabUrl, gitlabProjectId);
-    LOG.debug(String.format("get branches : [%s]", url));
+    String url = format("%s/projects/%s/repository/branches", gitlabUrl, gitlabProjectId);
+    LOG.debug("get branches : [{}]", url);
     Request request = new Request.Builder()
       .addHeader(PRIVATE_TOKEN, pat)
       .get()
@@ -292,7 +296,7 @@ public class GitlabApplicationClient {
     try (Response response = client.newCall(request).execute()) {
       checkResponseIsSuccessful(response);
       String body = response.body().string();
-      LOG.trace(String.format("loading branches payload result : [%s]", body));
+      LOG.trace("loading branches payload result : [{}]", body);
       return Arrays.asList(new GsonBuilder().create().fromJson(body, GitLabBranch[].class));
     } catch (JsonSyntaxException e) {
       throw new IllegalArgumentException("Could not parse GitLab answer to retrieve project branches. Got a non-json payload as result.");
@@ -304,14 +308,14 @@ public class GitlabApplicationClient {
 
   public ProjectList searchProjects(String gitlabUrl, String personalAccessToken, @Nullable String projectName,
     @Nullable Integer pageNumber, @Nullable Integer pageSize) {
-    String url = String.format("%s/projects?archived=false&simple=true&membership=true&order_by=name&sort=asc&search=%s%s%s",
+    String url = format("%s/projects?archived=false&simple=true&membership=true&order_by=name&sort=asc&search=%s%s%s",
       gitlabUrl,
       projectName == null ? "" : urlEncode(projectName),
-      pageNumber == null ? "" : String.format("&page=%d", pageNumber),
-      pageSize == null ? "" : String.format("&per_page=%d", pageSize)
+      pageNumber == null ? "" : format("&page=%d", pageNumber),
+      pageSize == null ? "" : format("&per_page=%d", pageSize)
     );
 
-    LOG.debug(String.format("get projects : [%s]", url));
+    LOG.debug("get projects : [{}]", url);
     Request request = new Request.Builder()
       .addHeader(PRIVATE_TOKEN, personalAccessToken)
       .url(url)
@@ -349,6 +353,10 @@ public class GitlabApplicationClient {
 
   public Set<GsonGroup> getGroups(String gitlabUrl, String token) {
     return Set.copyOf(executePaginatedQuery(gitlabUrl, token, "/groups", resp -> GSON.fromJson(resp, GITLAB_GROUP)));
+  }
+
+  public Set<GsonUser> getGroupMembers(String gitlabUrl, String token, String groupId) {
+    return Set.copyOf(executePaginatedQuery(gitlabUrl, token, format("/groups/%s/members", groupId), resp -> GSON.fromJson(resp, GITLAB_USER)));
   }
 
   private <E> List<E> executePaginatedQuery(String appUrl, String token, String query, Function<String, List<E>> responseDeserializer) {
