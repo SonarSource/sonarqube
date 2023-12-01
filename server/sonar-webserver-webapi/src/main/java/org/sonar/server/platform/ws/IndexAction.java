@@ -21,6 +21,7 @@ package org.sonar.server.platform.ws;
 
 import java.util.Date;
 import java.util.Locale;
+import java.util.MissingResourceException;
 import org.sonar.api.platform.Server;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -36,6 +37,7 @@ import static java.util.Locale.ENGLISH;
 public class IndexAction implements WsAction {
 
   private static final String LOCALE_PARAM = "locale";
+  private static final String INVALID_LANGUAGE_TAG_MESSAGE = "Locale cannot be parsed as a BCP47 language tag";
   private static final String TS_PARAM = "ts";
   private final DefaultI18n i18n;
   private final Server server;
@@ -71,7 +73,11 @@ public class IndexAction implements WsAction {
     }
     String localeParam = request.mandatoryParam(LOCALE_PARAM);
     Locale locale = Locale.forLanguageTag(localeParam);
-    checkArgument(!locale.getISO3Language().isEmpty(), "Locale cannot be parsed as a BCP47 language tag");
+    try {
+      checkArgument(!locale.getISO3Language().isEmpty(), INVALID_LANGUAGE_TAG_MESSAGE);
+    } catch (MissingResourceException e) {
+      throw new IllegalArgumentException(INVALID_LANGUAGE_TAG_MESSAGE, e);
+    }
 
     try (JsonWriter json = response.newJsonWriter()) {
       json.beginObject();
