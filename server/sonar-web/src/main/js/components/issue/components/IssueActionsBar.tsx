@@ -22,13 +22,11 @@ import { HighlightRing } from 'design-system';
 import * as React from 'react';
 import { IssueActions } from '../../../types/issues';
 import { Issue } from '../../../types/types';
-import SoftwareImpactPillList from '../../shared/SoftwareImpactPillList';
 import IssueAssign from './IssueAssign';
 import { SonarLintBadge } from './IssueBadges';
 import IssueCommentAction from './IssueCommentAction';
-import IssueSeverity from './IssueSeverity';
+import IssueTags from './IssueTags';
 import IssueTransition from './IssueTransition';
-import IssueType from './IssueType';
 
 interface Props {
   issue: Issue;
@@ -36,19 +34,21 @@ interface Props {
   onAssign: (login: string) => void;
   onChange: (issue: Issue) => void;
   togglePopup: (popup: string, show?: boolean) => void;
-  showIssueImpact?: boolean;
   showSonarLintBadge?: boolean;
+  showTags?: boolean;
+  canSetTags?: boolean;
 }
 
-export default function IssueActionsBar(props: Props) {
+export default function IssueActionsBar(props: Readonly<Props>) {
   const {
     issue,
     currentPopup,
     onAssign,
     onChange,
     togglePopup,
-    showIssueImpact,
     showSonarLintBadge,
+    showTags,
+    canSetTags,
   } = props;
 
   const [commentPlaceholder, setCommentPlaceholder] = React.useState('');
@@ -61,6 +61,7 @@ export default function IssueActionsBar(props: Props) {
 
   const canAssign = issue.actions.includes(IssueActions.Assign);
   const canComment = issue.actions.includes(IssueActions.Comment);
+  const tagsPopupOpen = currentPopup === 'edit-tags' && canSetTags;
 
   return (
     <div className="sw-flex sw-gap-3">
@@ -88,9 +89,16 @@ export default function IssueActionsBar(props: Props) {
           />
         </li>
 
-        {showIssueImpact && (
-          <li data-guiding-id="issue-2">
-            <SoftwareImpactPillList className="sw-gap-3" softwareImpacts={issue.impacts} />
+        {showTags && (
+          <li>
+            <IssueTags
+              canSetTags={canSetTags}
+              issue={issue}
+              onChange={props.onChange}
+              open={tagsPopupOpen}
+              togglePopup={props.togglePopup}
+              tagsToDisplay={1}
+            />
           </li>
         )}
 
@@ -99,15 +107,6 @@ export default function IssueActionsBar(props: Props) {
             <SonarLintBadge quickFixAvailable={issue.quickFixAvailable} />
           </li>
         )}
-      </ul>
-      <ul className="sw-flex sw-items-center sw-gap-3 sw-body-sm" data-guiding-id="issue-4">
-        <li>
-          <IssueType issue={issue} />
-        </li>
-
-        <li>
-          <IssueSeverity issue={issue} />
-        </li>
       </ul>
 
       {canComment && (

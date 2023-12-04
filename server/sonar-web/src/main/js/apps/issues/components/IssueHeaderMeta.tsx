@@ -17,83 +17,68 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import styled from '@emotion/styled';
-import { BasicSeparator, LightLabel, themeBorder, Tooltip } from 'design-system';
+import { LightLabel, Note, SeparatorCircleIcon, Tooltip } from 'design-system';
 import React from 'react';
 import DateFromNow from '../../../components/intl/DateFromNow';
-import IssueTags from '../../../components/issue/components/IssueTags';
+import IssueSeverity from '../../../components/issue/components/IssueSeverity';
+import IssueType from '../../../components/issue/components/IssueType';
 import { translate } from '../../../helpers/l10n';
 import { Issue } from '../../../types/types';
 
 interface Props {
   issue: Issue;
-  canSetTags: boolean;
-  onIssueChange: (issue: Issue) => void;
-  tagsPopupOpen?: boolean;
-  togglePopup: (popup: string, show?: boolean) => void;
 }
 
-export default function IssueHeaderMeta(props: Props) {
-  const { issue, canSetTags, tagsPopupOpen } = props;
-
-  const separator = <BasicSeparator className="sw-my-2" />;
-
+export default function IssueHeaderMeta({ issue }: Readonly<Props>) {
   return (
-    <StyledSection className="sw-flex sw-flex-col sw-pl-4 sw-min-w-abs-150 sw-max-w-abs-250">
-      <HotspotHeaderInfo title={translate('issue.tags')}>
-        <IssueTags
-          canSetTags={canSetTags}
-          issue={issue}
-          onChange={props.onIssueChange}
-          open={tagsPopupOpen}
-          togglePopup={props.togglePopup}
-          tagsToDisplay={1}
-        />
-      </HotspotHeaderInfo>
-      {separator}
-
+    <Note className="sw-flex sw-items-center sw-gap-2 sw-text-xs">
       {!!issue.codeVariants?.length && (
         <>
-          <HotspotHeaderInfo title={translate('issue.code_variants')} className="sw-truncate">
-            <Tooltip overlay={issue.codeVariants.join(', ')}>
-              <span>{issue.codeVariants.join(', ')}</span>
+          <div className="sw-flex sw-gap-1">
+            <span>{translate('issue.code_variants')}</span>
+            <Tooltip overlay={issue.codeVariants?.join(', ')}>
+              <span className="sw-font-semibold">
+                <LightLabel>{issue.codeVariants?.join(', ')}</LightLabel>
+              </span>
             </Tooltip>
-          </HotspotHeaderInfo>
-          {separator}
+          </div>
+          <SeparatorCircleIcon />
+        </>
+      )}
+
+      {typeof issue.line === 'number' && (
+        <>
+          <div className="sw-flex sw-gap-1">
+            <span>{translate('issue.line_affected')}</span>
+            <span className="sw-font-semibold">L{issue.line}</span>
+          </div>
+          <SeparatorCircleIcon />
         </>
       )}
 
       {issue.effort && (
         <>
-          <HotspotHeaderInfo title={translate('issue.effort')}>{issue.effort}</HotspotHeaderInfo>
-          {separator}
+          <div className="sw-flex sw-gap-1">
+            <span>{translate('issue.effort')}</span>
+            <span className="sw-font-semibold">{issue.effort}</span>
+          </div>
+          <SeparatorCircleIcon />
         </>
       )}
 
-      <HotspotHeaderInfo title={translate('issue.introduced')}>
-        <DateFromNow date={issue.creationDate} />
-      </HotspotHeaderInfo>
-    </StyledSection>
+      <div className="sw-flex sw-gap-1">
+        <span>{translate('issue.introduced')}</span>
+        <span className="sw-font-semibold">
+          <LightLabel>
+            <DateFromNow date={issue.creationDate} />
+          </LightLabel>
+        </span>
+      </div>
+      <SeparatorCircleIcon />
+
+      <IssueType issue={issue} />
+      <SeparatorCircleIcon data-guiding-id="issue-4" />
+      <IssueSeverity issue={issue} />
+    </Note>
   );
 }
-
-interface IssueHeaderMetaItemProps {
-  children: React.ReactNode;
-  title: string;
-  className?: string;
-}
-
-function HotspotHeaderInfo({ children, title, className }: IssueHeaderMetaItemProps) {
-  return (
-    <div className={className}>
-      <LightLabel as="div" className="sw-body-sm-highlight">
-        {title}
-      </LightLabel>
-      {children}
-    </div>
-  );
-}
-
-const StyledSection = styled.div`
-  border-left: ${themeBorder('default', 'pageBlockBorder')};
-`;

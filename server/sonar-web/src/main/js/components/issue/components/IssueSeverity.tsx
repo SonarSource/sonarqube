@@ -31,7 +31,7 @@ interface Props {
   issue: Pick<Issue, 'severity'>;
 }
 
-export default function IssueSeverity({ issue }: Props) {
+export default function IssueSeverity({ issue }: Readonly<Props>) {
   return (
     <DocumentationTooltip
       content={<DeprecatedFieldTooltip field="severity" />}
@@ -42,7 +42,7 @@ export default function IssueSeverity({ issue }: Props) {
         },
       ]}
     >
-      <TextSubdued className="sw-flex sw-items-center sw-gap-1">
+      <TextSubdued className="sw-flex sw-items-center sw-gap-1/2">
         <IssueSeverityIcon
           fill="iconSeverityDisabled"
           severity={issue.severity as IssueSeverityType}

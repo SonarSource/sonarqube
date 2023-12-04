@@ -289,7 +289,7 @@ export default class RuleDetailsMeta extends React.PureComponent<Props> {
           <div className="sw-flex sw-items-center">
             {!!ruleDetails.impacts.length && (
               <div className="sw-flex sw-items-center sw-flex-1">
-                <Note>{translate('issue.software_qualities.label')}</Note>
+                <Note>{translate('coding_rules.software_qualities.label')}</Note>
                 <SoftwareImpactPillList
                   className="sw-ml-1"
                   softwareImpacts={ruleDetails.impacts}

@@ -122,7 +122,6 @@ export default class IssueView extends React.PureComponent<Props> {
                 onAssign={this.props.onAssign}
                 onChange={this.props.onChange}
                 togglePopup={this.props.togglePopup}
-                showIssueImpact
               />
               <IssueMetaBar issue={issue} />
             </div>

@@ -30,7 +30,7 @@ import { updateIssue } from '../actions';
 import IssueTagsPopup from '../popups/IssueTagsPopup';
 
 interface Props extends ComponentContextShape {
-  canSetTags: boolean;
+  canSetTags?: boolean;
   issue: Pick<Issue, 'key' | 'tags'>;
   onChange: (issue: Issue) => void;
   open?: boolean;

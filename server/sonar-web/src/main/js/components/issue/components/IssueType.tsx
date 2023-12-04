@@ -30,7 +30,7 @@ interface Props {
   issue: Pick<Issue, 'type'>;
 }
 
-export default function IssueType({ issue }: Props) {
+export default function IssueType({ issue }: Readonly<Props>) {
   return (
     <DocumentationTooltip
       content={<DeprecatedFieldTooltip field="type" />}
@@ -41,7 +41,7 @@ export default function IssueType({ issue }: Props) {
         },
       ]}
     >
-      <TextSubdued className="sw-flex sw-items-center sw-gap-1">
+      <TextSubdued className="sw-flex sw-items-center sw-gap-1/2">
         <IssueTypeIcon fill="iconTypeDisabled" type={issue.type} aria-hidden />
         {translate('issue.type', issue.type)}
       </TextSubdued>

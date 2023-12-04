@@ -31,8 +31,6 @@ import * as React from 'react';
 import { setIssueAssignee } from '../../../api/issues';
 import { updateIssue } from '../../../components/issue/actions';
 import IssueActionsBar from '../../../components/issue/components/IssueActionsBar';
-import { CleanCodeAttributePill } from '../../../components/shared/CleanCodeAttributePill';
-import SoftwareImpactPillList from '../../../components/shared/SoftwareImpactPillList';
 import { WorkspaceContext } from '../../../components/workspace/context';
 import { getBranchLikeQuery } from '../../../helpers/branch-like';
 import { isInput, isShortcut } from '../../../helpers/keyboardEventHelpers';
@@ -44,6 +42,7 @@ import { BranchLike } from '../../../types/branch-like';
 import { IssueActions, IssueType } from '../../../types/issues';
 import { Issue, RuleDetails } from '../../../types/types';
 import IssueHeaderMeta from './IssueHeaderMeta';
+import IssueHeaderSide from './IssueHeaderSide';
 import IssueNewStatusAndTransitionGuide from './IssueNewStatusAndTransitionGuide';
 
 interface Props {
@@ -166,53 +165,45 @@ export default class IssueHeader extends React.PureComponent<Props, State> {
 
     return (
       <header className="sw-flex sw-mb-6">
-        <div className="sw-mr-8 sw-flex-1">
-          <CleanCodeAttributePill
-            cleanCodeAttributeCategory={issue.cleanCodeAttributeCategory}
-            cleanCodeAttribute={issue.cleanCodeAttribute}
-          />
+        <div className="sw-mr-8 sw-flex-1 sw-flex sw-flex-col sw-gap-4">
+          <div className="sw-flex sw-flex-col sw-gap-2">
+            <div className="sw-flex sw-items-center">
+              <PageContentFontWrapper className="sw-body-md-highlight" as="h1">
+                <IssueMessageHighlighting
+                  message={issue.message}
+                  messageFormattings={issue.messageFormattings}
+                />
+                <ClipboardIconButton
+                  Icon={LinkIcon}
+                  aria-label={translate('permalink')}
+                  className="sw-ml-1 sw-align-bottom"
+                  copyValue={getPathUrlAsString(issueUrl, false)}
+                  discreet
+                />
+              </PageContentFontWrapper>
+            </div>
 
-          <div className="sw-flex sw-items-center sw-my-2">
-            <PageContentFontWrapper className="sw-body-md-highlight" as="h1">
-              <IssueMessageHighlighting
-                message={issue.message}
-                messageFormattings={issue.messageFormattings}
-              />
-              <ClipboardIconButton
-                Icon={LinkIcon}
-                aria-label={translate('permalink')}
-                className="sw-ml-1 sw-align-bottom"
-                copyValue={getPathUrlAsString(issueUrl, false)}
-                discreet
-              />
-            </PageContentFontWrapper>
-          </div>
-          <div className="sw-flex sw-items-center sw-justify-between sw-mb-4">
-            {this.renderRuleDescription()}
-          </div>
-          <div className="sw-flex sw-items-center">
-            <Note>{translate('issue.software_qualities.label')}</Note>
-            <div data-guiding-id="issue-2">
-              <SoftwareImpactPillList className="sw-ml-1" softwareImpacts={issue.impacts} />
+            <div className="sw-flex sw-items-center sw-justify-between">
+              {this.renderRuleDescription()}
             </div>
           </div>
-          <BasicSeparator className="sw-my-3" />
+
+          <IssueHeaderMeta issue={issue} />
+
+          <BasicSeparator />
+
           <IssueActionsBar
             currentPopup={issuePopupName}
             issue={issue}
             onAssign={this.handleAssignement}
             onChange={this.props.onIssueChange}
             togglePopup={this.handleIssuePopupToggle}
+            canSetTags={canSetTags}
+            showTags
             showSonarLintBadge
           />
         </div>
-        <IssueHeaderMeta
-          issue={issue}
-          canSetTags={canSetTags}
-          onIssueChange={this.props.onIssueChange}
-          tagsPopupOpen={issuePopupName === 'edit-tags' && canSetTags}
-          togglePopup={this.handleIssuePopupToggle}
-        />
+        <IssueHeaderSide issue={issue} />
         <IssueNewStatusAndTransitionGuide
           run
           issues={[issue]}
