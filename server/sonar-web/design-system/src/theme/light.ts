@@ -314,8 +314,8 @@ export const lightTheme = {
     pillWarningBorder: COLORS.yellow[300],
     pillInfo: COLORS.blue[50],
     pillInfoBorder: COLORS.blue[300],
-    pillNeutral: COLORS.blueGrey[50],
-    pillNeutralBorder: 'transparent',
+    pillAccent: COLORS.indigo[50],
+    pillAccentBorder: 'transparent',
 
     // input select
     selectOptionSelected: secondary.light,
@@ -702,7 +702,7 @@ export const lightTheme = {
     pillWarningIcon: COLORS.yellow[700],
     pillInfo: COLORS.blue[800],
     pillInfoIcon: COLORS.blue[700],
-    pillNeutral: COLORS.blueGrey[500],
+    pillAccent: COLORS.indigo[500],
 
     // breadcrumbs
     breadcrumb: secondary.dark,

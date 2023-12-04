@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import classNames from 'classnames';
 import { Pill } from 'design-system';
 import React from 'react';
 import { translate } from '../../helpers/l10n';
@@ -63,8 +62,8 @@ export function CleanCodeAttributePill(props: Readonly<Props>) {
         },
       ]}
     >
-      <Pill variant="neutral" data-guiding-id="issue-1" className={className}>
-        <span className={classNames({ 'sw-font-semibold': !!cleanCodeAttribute })}>
+      <Pill variant="accent" data-guiding-id="issue-1" className={className}>
+        <span className="sw-font-semibold">
           {translate(type, 'clean_code_attribute_category', cleanCodeAttributeCategory)}
         </span>
         {cleanCodeAttribute && (

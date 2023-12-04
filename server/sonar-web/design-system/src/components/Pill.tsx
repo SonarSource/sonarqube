@@ -23,20 +23,20 @@ import tw from 'twin.macro';
 import { themeColor, themeContrast } from '../helpers/theme';
 import { ThemeColors } from '../types/theme';
 
-type PillVariant = 'danger' | 'warning' | 'info' | 'neutral';
+type PillVariant = 'danger' | 'warning' | 'info' | 'accent';
 
 const variantThemeColors: Record<PillVariant, ThemeColors> = {
   danger: 'pillDanger',
   warning: 'pillWarning',
   info: 'pillInfo',
-  neutral: 'pillNeutral',
+  accent: 'pillAccent',
 };
 
 const variantThemeBorderColors: Record<PillVariant, ThemeColors> = {
   danger: 'pillDangerBorder',
   warning: 'pillWarningBorder',
   info: 'pillInfoBorder',
-  neutral: 'pillNeutralBorder',
+  accent: 'pillAccentBorder',
 };
 
 interface PillProps {
@@ -46,7 +46,7 @@ interface PillProps {
   variant: PillVariant;
 }
 
-export function Pill({ children, variant, ...rest }: PillProps) {
+export function Pill({ children, variant, ...rest }: Readonly<PillProps>) {
   return (
     <StyledPill variant={variant} {...rest}>
       {children}
@@ -57,7 +57,7 @@ export function Pill({ children, variant, ...rest }: PillProps) {
 const StyledPill = styled.span<{
   variant: PillVariant;
 }>`
-  ${tw`sw-body-sm`};
+  ${tw`sw-body-xs`};
   ${tw`sw-w-fit`};
   ${tw`sw-inline-block`};
   ${tw`sw-whitespace-nowrap`};
@@ -66,7 +66,7 @@ const StyledPill = styled.span<{
 
   background-color: ${({ variant }) => themeColor(variantThemeColors[variant])};
   color: ${({ variant }) => themeContrast(variantThemeColors[variant])};
-  border-style: ${({ variant }) => (variant === 'neutral' ? 'hidden' : 'solid')};
+  border-style: ${({ variant }) => (variant === 'accent' ? 'hidden' : 'solid')};
   border-color: ${({ variant }) => themeColor(variantThemeBorderColors[variant])};
   border-width: 1px;
 

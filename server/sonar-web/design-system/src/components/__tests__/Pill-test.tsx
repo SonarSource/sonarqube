@@ -22,6 +22,6 @@ import { render } from '../../helpers/testUtils';
 import { Pill } from '../Pill';
 
 it('should render correctly', () => {
-  render(<Pill variant="neutral">23</Pill>);
+  render(<Pill variant="accent">23</Pill>);
   expect(screen.getByText('23')).toBeInTheDocument();
 });
