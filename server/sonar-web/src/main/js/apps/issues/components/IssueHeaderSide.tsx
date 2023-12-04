@@ -31,7 +31,7 @@ interface Props {
 
 export default function IssueHeaderSide({ issue }: Readonly<Props>) {
   return (
-    <StyledSection className="sw-flex sw-flex-col sw-pl-4 sw-w-[200px]">
+    <StyledSection className="sw-flex sw-flex-col sw-pl-4 sw-max-w-[250px]">
       <IssueHeaderInfo title={translate('issue.cct_attribute.label')} className="sw-mb-6">
         <CleanCodeAttributePill
           cleanCodeAttributeCategory={issue.cleanCodeAttributeCategory}

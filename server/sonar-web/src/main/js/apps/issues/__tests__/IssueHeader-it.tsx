@@ -84,7 +84,7 @@ it('renders correctly', async () => {
   expect(byText('issue.effort').get()).toBeInTheDocument();
 
   // SonarLint badge
-  expect(byText('issue.quick_fix_available_with_sonarlint_no_link').get()).toBeInTheDocument();
+  expect(byText('issue.quick_fix').get()).toBeInTheDocument();
 
   // Rule external engine
   expect(byText('eslint').get()).toBeInTheDocument();

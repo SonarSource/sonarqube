@@ -31,21 +31,7 @@ interface Props {
 
 export default function IssueHeaderMeta({ issue }: Readonly<Props>) {
   return (
-    <Note className="sw-flex sw-items-center sw-gap-2 sw-text-xs">
-      {!!issue.codeVariants?.length && (
-        <>
-          <div className="sw-flex sw-gap-1">
-            <span>{translate('issue.code_variants')}</span>
-            <Tooltip overlay={issue.codeVariants?.join(', ')}>
-              <span className="sw-font-semibold">
-                <LightLabel>{issue.codeVariants?.join(', ')}</LightLabel>
-              </span>
-            </Tooltip>
-          </div>
-          <SeparatorCircleIcon />
-        </>
-      )}
-
+    <Note className="sw-flex sw-flex-wrap sw-items-center sw-gap-2 sw-text-xs">
       {typeof issue.line === 'number' && (
         <>
           <div className="sw-flex sw-gap-1">
@@ -75,6 +61,20 @@ export default function IssueHeaderMeta({ issue }: Readonly<Props>) {
         </span>
       </div>
       <SeparatorCircleIcon />
+
+      {!!issue.codeVariants?.length && (
+        <>
+          <div className="sw-flex sw-gap-1">
+            <span>{translate('issue.code_variants')}</span>
+            <Tooltip overlay={issue.codeVariants?.join(', ')}>
+              <span className="sw-font-semibold">
+                <LightLabel>{issue.codeVariants?.join(', ')}</LightLabel>
+              </span>
+            </Tooltip>
+          </div>
+          <SeparatorCircleIcon />
+        </>
+      )}
 
       <IssueType issue={issue} />
       <SeparatorCircleIcon data-guiding-id="issue-4" />

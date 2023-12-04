@@ -178,6 +178,7 @@ function renderFirstLine(
           <>
             <SeparatorCircleIcon className="sw-mx-1" />
             <Tags
+              className="sw-body-sm"
               emptyText={translate('issue.no_tag')}
               ariaTagsListLabel={translate('issue.tags')}
               tooltip={Tooltip}

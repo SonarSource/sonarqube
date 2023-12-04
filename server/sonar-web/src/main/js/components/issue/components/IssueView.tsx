@@ -20,15 +20,18 @@
 
 import styled from '@emotion/styled';
 import classNames from 'classnames';
-import { Checkbox, themeBorder } from 'design-system';
+import { BasicSeparator, Checkbox, themeBorder } from 'design-system';
 import * as React from 'react';
 import { deleteIssueComment, editIssueComment } from '../../../api/issues';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { BranchLike } from '../../../types/branch-like';
+import { IssueActions } from '../../../types/issues';
 import { Issue } from '../../../types/types';
+import SoftwareImpactPillList from '../../shared/SoftwareImpactPillList';
 import { updateIssue } from '../actions';
 import IssueActionsBar from './IssueActionsBar';
 import IssueMetaBar from './IssueMetaBar';
+import IssueTags from './IssueTags';
 import IssueTitleBar from './IssueTitleBar';
 
 interface Props {
@@ -80,6 +83,7 @@ export default class IssueView extends React.PureComponent<Props> {
     const { issue, branchLike, checked, currentPopup, displayWhyIsThisAnIssue } = this.props;
 
     const hasCheckbox = this.props.onCheck != null;
+    const canSetTags = issue.actions.includes(IssueActions.SetTags);
 
     const issueClass = classNames('it__issue-item sw-p-3 sw-mb-4 sw-rounded-1 sw-bg-white', {
       selected: this.props.selected,
@@ -93,9 +97,9 @@ export default class IssueView extends React.PureComponent<Props> {
         aria-label={issue.message}
         ref={(node) => (this.nodeRef = node)}
       >
-        <div className="sw-flex sw-gap-4">
+        <div className="sw-flex sw-gap-3">
           {hasCheckbox && (
-            <span className="sw-mt-7 sw-self-start">
+            <span className="sw-mt-1/2 sw-ml-1 sw-self-start">
               <Checkbox
                 checked={checked ?? false}
                 onCheck={this.handleCheck}
@@ -105,15 +109,27 @@ export default class IssueView extends React.PureComponent<Props> {
             </span>
           )}
 
-          <div className="sw-flex sw-flex-col sw-grow sw-gap-4">
+          <div className="sw-flex sw-flex-col sw-grow sw-gap-3">
             <IssueTitleBar
-              currentPopup={currentPopup}
               branchLike={branchLike}
               displayWhyIsThisAnIssue={displayWhyIsThisAnIssue}
               issue={issue}
-              onChange={this.props.onChange}
-              togglePopup={this.props.togglePopup}
             />
+
+            <div className="sw-mt-1 sw-flex sw-items-start sw-justify-between">
+              <SoftwareImpactPillList data-guiding-id="issue-2" softwareImpacts={issue.impacts} />
+              <div className="sw-grow-0 sw-whitespace-nowrap">
+                <IssueTags
+                  issue={issue}
+                  onChange={this.props.onChange}
+                  togglePopup={this.props.togglePopup}
+                  canSetTags={canSetTags}
+                  open={currentPopup === 'edit-tags' && canSetTags}
+                />
+              </div>
+            </div>
+
+            <BasicSeparator />
 
             <div className="sw-flex sw-gap-2 sw-flex-wrap sw-items-center sw-justify-between">
               <IssueActionsBar

@@ -392,16 +392,16 @@ describe('issue app', () => {
     ).toHaveAttribute('aria-current', 'true');
   });
 
-  it('should show issue tags if applicable', async () => {
+  it('should show sonarlint badge if applicable', async () => {
     const user = userEvent.setup();
     issuesHandler.setIsAdmin(true);
     renderIssueApp();
 
-    // Select an issue with an advanced rule
+    // Select an issue with quick fix available
     await user.click(await ui.issueItemAction7.find());
 
-    await expect(
-      screen.getByText('issue.quick_fix_available_with_sonarlint_no_link'),
-    ).toHaveATooltipWithContent('issue.quick_fix_available_with_sonarlint');
+    await expect(screen.getByText('issue.quick_fix')).toHaveATooltipWithContent(
+      'issue.quick_fix_available_with_sonarlint',
+    );
   });
 });

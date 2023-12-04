@@ -23,10 +23,10 @@ import * as React from 'react';
 import { IssueActions } from '../../../types/issues';
 import { Issue } from '../../../types/types';
 import IssueAssign from './IssueAssign';
-import { SonarLintBadge } from './IssueBadges';
 import IssueCommentAction from './IssueCommentAction';
 import IssueTags from './IssueTags';
 import IssueTransition from './IssueTransition';
+import SonarLintBadge from './SonarLintBadge';
 
 interface Props {
   issue: Issue;
@@ -104,7 +104,7 @@ export default function IssueActionsBar(props: Readonly<Props>) {
 
         {showSonarLintBadge && issue.quickFixAvailable && (
           <li>
-            <SonarLintBadge quickFixAvailable={issue.quickFixAvailable} />
+            <SonarLintBadge />
           </li>
         )}
       </ul>

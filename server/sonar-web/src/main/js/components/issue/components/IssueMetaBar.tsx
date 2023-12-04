@@ -19,6 +19,7 @@
  */
 
 import styled from '@emotion/styled';
+import classNames from 'classnames';
 import { Badge, CommentIcon, SeparatorCircleIcon, themeColor } from 'design-system';
 import * as React from 'react';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
@@ -27,14 +28,16 @@ import { Issue } from '../../../types/types';
 import Tooltip from '../../controls/Tooltip';
 import DateFromNow from '../../intl/DateFromNow';
 import { WorkspaceContext } from '../../workspace/context';
-import IssueBadges from './IssueBadges';
+import IssueSeverity from './IssueSeverity';
+import IssueType from './IssueType';
+import SonarLintBadge from './SonarLintBadge';
 
 interface Props {
   issue: Issue;
   showLine?: boolean;
 }
 
-export default function IssueMetaBar(props: Props) {
+export default function IssueMetaBar(props: Readonly<Props>) {
   const { issue, showLine } = props;
 
   const { externalRulesRepoNames } = React.useContext(WorkspaceContext);
@@ -46,22 +49,32 @@ export default function IssueMetaBar(props: Props) {
   const hasComments = !!issue.comments?.length;
 
   const issueMetaListItemClassNames =
-    'sw-body-sm sw-overflow-hidden sw-whitespace-nowrap sw-max-w-abs-150';
+    'sw-body-xs sw-overflow-hidden sw-whitespace-nowrap sw-max-w-abs-150';
 
   return (
-    <ul className="sw-flex sw-items-center sw-gap-2 sw-body-sm">
-      <li className={issueMetaListItemClassNames}>
-        <IssueBadges quickFixAvailable={issue.quickFixAvailable} />
-      </li>
+    <ul className="sw-flex sw-items-center sw-gap-2 sw-body-xs">
+      {issue.quickFixAvailable && (
+        <>
+          <li className={issueMetaListItemClassNames}>
+            <SonarLintBadge compact />
+          </li>
+          <SeparatorCircleIcon aria-hidden as="li" />
+        </>
+      )}
 
       {ruleEngine && (
-        <li className={issueMetaListItemClassNames}>
-          <Tooltip overlay={translateWithParameters('issue.from_external_rule_engine', ruleEngine)}>
-            <span>
-              <Badge>{ruleEngine}</Badge>
-            </span>
-          </Tooltip>
-        </li>
+        <>
+          <li className={issueMetaListItemClassNames}>
+            <Tooltip
+              overlay={translateWithParameters('issue.from_external_rule_engine', ruleEngine)}
+            >
+              <span>
+                <Badge>{ruleEngine}</Badge>
+              </span>
+            </Tooltip>
+          </li>
+          <SeparatorCircleIcon aria-hidden as="li" />
+        </>
       )}
 
       {!!issue.codeVariants?.length && (
@@ -81,7 +94,9 @@ export default function IssueMetaBar(props: Props) {
 
       {hasComments && (
         <>
-          <IssueMetaListItem className={issueMetaListItemClassNames}>
+          <IssueMetaListItem
+            className={classNames(issueMetaListItemClassNames, 'sw-flex sw-gap-1')}
+          >
             <CommentIcon aria-label={translate('issue.comment.formlink')} />
             {issue.comments?.length}
           </IssueMetaListItem>
@@ -115,6 +130,14 @@ export default function IssueMetaBar(props: Props) {
       <IssueMetaListItem className={issueMetaListItemClassNames}>
         <DateFromNow date={issue.creationDate} />
       </IssueMetaListItem>
+
+      <SeparatorCircleIcon aria-hidden as="li" />
+
+      <IssueType issue={issue} />
+
+      <SeparatorCircleIcon data-guiding-id="issue-4" aria-hidden as="li" />
+
+      <IssueSeverity issue={issue} />
     </ul>
   );
 }

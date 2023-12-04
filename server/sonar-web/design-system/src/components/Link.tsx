@@ -180,6 +180,10 @@ export const HoverLink = styled(StyledBaseLink)`
     --active: ${themeColor('linkTooltipActive')};
     --borderActive: ${themeBorder('default', 'linkBorder')};
   }
+
+  ${ExternalIcon} {
+    color: ${themeColor('linkDiscreet')};
+  }
 `;
 HoverLink.displayName = 'HoverLink';
 

@@ -20,49 +20,30 @@
 import * as React from 'react';
 
 import { BranchLike } from '../../../types/branch-like';
-import { IssueActions } from '../../../types/issues';
 import { Issue } from '../../../types/types';
 import { CleanCodeAttributePill } from '../../shared/CleanCodeAttributePill';
 import IssueMessage from './IssueMessage';
-import IssueTags from './IssueTags';
 
 export interface IssueTitleBarProps {
-  currentPopup?: string;
   branchLike?: BranchLike;
   displayWhyIsThisAnIssue?: boolean;
   issue: Issue;
-  onChange: (issue: Issue) => void;
-  togglePopup: (popup: string, show?: boolean) => void;
 }
 
-export default function IssueTitleBar(props: IssueTitleBarProps) {
-  const { issue, displayWhyIsThisAnIssue, currentPopup } = props;
-  const canSetTags = issue.actions.includes(IssueActions.SetTags);
+export default function IssueTitleBar(props: Readonly<IssueTitleBarProps>) {
+  const { issue, displayWhyIsThisAnIssue, branchLike } = props;
 
   return (
-    <div className="sw-flex sw-items-end">
-      <div className="sw-w-full sw-flex sw-flex-col">
-        <CleanCodeAttributePill
-          className="sw-mb-2"
-          cleanCodeAttributeCategory={issue.cleanCodeAttributeCategory}
-        />
-        <div className="sw-w-fit">
-          <IssueMessage
-            issue={issue}
-            branchLike={props.branchLike}
-            displayWhyIsThisAnIssue={displayWhyIsThisAnIssue}
-          />
-        </div>
-      </div>
-      <div className="js-issue-tags sw-body-sm sw-grow-0 sw-whitespace-nowrap">
-        <IssueTags
-          canSetTags={canSetTags}
+    <div className="sw-mt-1 sw-flex sw-items-start sw-justify-between sw-gap-8">
+      <div className="sw-w-fit">
+        <IssueMessage
           issue={issue}
-          onChange={props.onChange}
-          togglePopup={props.togglePopup}
-          open={currentPopup === 'edit-tags' && canSetTags}
+          branchLike={branchLike}
+          displayWhyIsThisAnIssue={displayWhyIsThisAnIssue}
         />
       </div>
+
+      <CleanCodeAttributePill cleanCodeAttributeCategory={issue.cleanCodeAttributeCategory} />
     </div>
   );
 }

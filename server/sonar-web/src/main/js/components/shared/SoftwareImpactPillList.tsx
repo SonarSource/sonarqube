@@ -28,10 +28,10 @@ interface SoftwareImpact {
   severity: SoftwareImpactSeverity;
 }
 
-interface SoftwareImpactPillListProps
-  extends Pick<Parameters<typeof SoftwareImpactPill>[0], 'type'> {
+interface SoftwareImpactPillListProps extends React.HTMLAttributes<HTMLUListElement> {
   softwareImpacts: Array<SoftwareImpact>;
   className?: string;
+  type?: Parameters<typeof SoftwareImpactPill>[0]['type'];
 }
 
 const severityMap = {
@@ -44,6 +44,7 @@ export default function SoftwareImpactPillList({
   softwareImpacts,
   type,
   className,
+  ...props
 }: Readonly<SoftwareImpactPillListProps>) {
   const getQualityLabel = (quality: SoftwareQuality) => translate('software_quality', quality);
   const sortingFn = (a: SoftwareImpact, b: SoftwareImpact) => {
@@ -54,7 +55,7 @@ export default function SoftwareImpactPillList({
   };
 
   return (
-    <ul className={classNames('sw-flex sw-gap-2', className)}>
+    <ul className={classNames('sw-flex sw-gap-2', className)} {...props}>
       {softwareImpacts
         .slice()
         .sort(sortingFn)

@@ -38,6 +38,7 @@ interface Props {
   overlay?: React.ReactNode;
   popupPlacement?: PopupPlacement;
   tags: string[];
+  tagsClassName?: string;
   tagsToDisplay?: number;
   tooltip?: React.ComponentType<React.PropsWithChildren<{ overlay: React.ReactNode }>>;
 }
@@ -46,6 +47,7 @@ export function Tags({
   allowUpdate = false,
   ariaTagsListLabel,
   className,
+  tagsClassName,
   emptyText,
   menuId = '',
   overlay,
@@ -55,7 +57,7 @@ export function Tags({
   tooltip,
   open,
   onClose,
-}: Props) {
+}: Readonly<Props>) {
   const displayedTags = tags.slice(0, tagsToDisplay);
   const extraTags = tags.slice(tagsToDisplay);
   const Tooltip = tooltip || React.Fragment;
@@ -95,7 +97,10 @@ export function Tags({
         >
           {({ a11yAttrs, onToggleClick, open }) => (
             <WrapperButton
-              className="sw-flex sw-items-center sw-gap-1 sw-p-0 sw-h-auto sw-rounded-0"
+              className={classNames(
+                'sw-flex sw-items-center sw-gap-1 sw-p-0 sw-h-auto sw-rounded-0',
+                tagsClassName,
+              )}
               onClick={onToggleClick}
               {...a11yAttrs}
             >
@@ -115,7 +120,6 @@ const TagLabel = styled.span`
   color: ${themeContrast('tag')};
   background: ${themeColor('tag')};
 
-  ${tw`sw-body-sm`}
   ${tw`sw-box-border`}
   ${tw`sw-truncate`}
   ${tw`sw-rounded-1/2`}
