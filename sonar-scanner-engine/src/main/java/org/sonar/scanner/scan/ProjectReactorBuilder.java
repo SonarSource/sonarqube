@@ -51,7 +51,6 @@ import org.sonar.scanner.issue.ignore.pattern.IssueExclusionPatternInitializer;
 import org.sonar.scanner.issue.ignore.pattern.IssueInclusionPatternInitializer;
 
 import static java.util.Arrays.asList;
-import static java.util.stream.Collectors.toList;
 import static org.sonar.api.config.internal.MultivalueProperty.parseAsCsv;
 
 /**
@@ -110,7 +109,7 @@ public class ProjectReactorBuilder {
    * Properties that must not be passed from the parent project to its children.
    */
   private static final List<String> NON_HERITED_PROPERTIES_FOR_CHILD = Stream.concat(Stream.of(PROPERTY_PROJECT_BASEDIR, CoreProperties.WORKING_DIRECTORY, PROPERTY_MODULES,
-    CoreProperties.PROJECT_DESCRIPTION_PROPERTY), UNSUPPORTED_PROPS_FOR_MODULES.stream()).collect(toList());
+    CoreProperties.PROJECT_DESCRIPTION_PROPERTY), UNSUPPORTED_PROPS_FOR_MODULES.stream()).toList();
 
   private final ScannerProperties scannerProps;
   private final AnalysisWarnings analysisWarnings;

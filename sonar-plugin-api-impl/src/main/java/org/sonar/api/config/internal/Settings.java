@@ -457,7 +457,7 @@ public abstract class Settings extends org.sonar.api.config.Settings {
   public List<String> getKeysStartingWith(String prefix) {
     return getProperties().keySet().stream()
       .filter(key -> StringUtils.startsWith(key, prefix))
-      .collect(Collectors.toList());
+      .toList();
   }
 
 }

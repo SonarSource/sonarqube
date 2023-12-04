@@ -133,8 +133,8 @@ public class ChangedLinesPublisher implements ReportPublisherStep {
 
   @CheckForNull
   private static Map<Path, Set<Integer>> getBranchChangedLinesByScm(ScmProvider scmProvider, String targetScmBranch, Path rootBaseDir, Map<Path, ChangedFile> changedFiles) {
-    if (scmProvider instanceof GitScmProvider) {
-      return ((GitScmProvider) scmProvider).branchChangedLinesWithFileMovementDetection(targetScmBranch, rootBaseDir, changedFiles);
+    if (scmProvider instanceof GitScmProvider gitScmProvider) {
+      return gitScmProvider.branchChangedLinesWithFileMovementDetection(targetScmBranch, rootBaseDir, changedFiles);
     }
 
     return scmProvider.branchChangedLines(targetScmBranch, rootBaseDir, changedFiles.keySet());

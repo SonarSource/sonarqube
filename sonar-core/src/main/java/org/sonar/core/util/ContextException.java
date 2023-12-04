@@ -112,15 +112,15 @@ public class ContextException extends RuntimeException {
   }
 
   public static ContextException of(Throwable t) {
-    if (t instanceof ContextException) {
-      return new ContextException(t.getCause()).addContext((ContextException) t);
+    if (t instanceof ContextException contextException) {
+      return new ContextException(t.getCause()).addContext(contextException);
     }
     return new ContextException(t);
   }
 
   public static ContextException of(String message, Throwable t) {
-    if (t instanceof ContextException) {
-      return new ContextException(message, t.getCause()).addContext((ContextException) t);
+    if (t instanceof ContextException contextException) {
+      return new ContextException(message, t.getCause()).addContext(contextException);
     }
     return new ContextException(message, t);
   }

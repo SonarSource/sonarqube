@@ -22,7 +22,6 @@ package org.sonar.scanner.ci;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.config.Configuration;
@@ -43,10 +42,10 @@ public class CiConfigurationProvider {
 
     List<CiVendor> detectedVendors = Arrays.stream(ciVendors)
       .filter(CiVendor::isDetected)
-      .collect(Collectors.toList());
+      .toList();
 
     if (detectedVendors.size() > 1) {
-      List<String> names = detectedVendors.stream().map(CiVendor::getName).collect(Collectors.toList());
+      List<String> names = detectedVendors.stream().map(CiVendor::getName).toList();
       throw MessageException.of("Multiple CI environments are detected: " + names + ". Please check environment variables or set property " + PROP_DISABLED + " to true.");
     }
 

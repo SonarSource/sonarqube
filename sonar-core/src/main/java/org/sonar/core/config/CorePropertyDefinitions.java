@@ -22,7 +22,6 @@ package org.sonar.core.config;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.PropertyType;
 import org.sonar.api.config.EmailSettings;
@@ -130,7 +129,7 @@ public class CorePropertyDefinitions {
         .name("State of user plugins risk consent")
         .description("Determine whether user is required to accept plugins risk consent")
         .defaultValue(NOT_ACCEPTED.name())
-        .options(Arrays.stream(PluginRiskConsent.values()).map(Enum::name).collect(Collectors.toList()))
+        .options(Arrays.stream(PluginRiskConsent.values()).map(Enum::name).toList())
         .hidden()
         .type(SINGLE_SELECT_LIST)
         .build(),

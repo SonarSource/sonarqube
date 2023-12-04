@@ -87,8 +87,8 @@ public class ScmChangedFilesProvider {
   }
 
   private static Set<ChangedFile> getChangedFilesByScm(ScmProvider scmProvider, String targetBranchName, Path rootBaseDir) {
-    if (scmProvider instanceof GitScmProvider) {
-      return ((GitScmProvider) scmProvider).branchChangedFilesWithFileMovementDetection(targetBranchName, rootBaseDir);
+    if (scmProvider instanceof GitScmProvider gitScmProvider) {
+      return gitScmProvider.branchChangedFilesWithFileMovementDetection(targetBranchName, rootBaseDir);
     }
 
     return toChangedFiles(scmProvider.branchChangedFiles(targetBranchName, rootBaseDir));

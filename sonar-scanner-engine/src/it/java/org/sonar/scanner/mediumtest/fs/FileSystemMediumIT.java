@@ -29,7 +29,6 @@ import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Random;
-import java.util.stream.Collectors;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.SystemUtils;
@@ -1254,7 +1253,7 @@ public class FileSystemMediumIT {
   }
 
   private static void assertAnalysedFiles(AnalysisResult result, String... files) {
-    assertThat(result.inputFiles().stream().map(InputFile::toString).collect(Collectors.toList())).contains(files);
+    assertThat(result.inputFiles().stream().map(InputFile::toString).toList()).contains(files);
   }
 
   private File createDir(File parentDir, String name, boolean isReadable) {

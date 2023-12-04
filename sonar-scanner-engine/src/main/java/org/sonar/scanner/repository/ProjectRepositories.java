@@ -37,8 +37,8 @@ public abstract class ProjectRepositories {
 
   @CheckForNull
   public FileData fileData(String moduleKeyWithBranch, DefaultInputFile inputFile) {
-    if (this instanceof SingleProjectRepository) {
-      return ((SingleProjectRepository) this).fileData(inputFile.getProjectRelativePath());
+    if (this instanceof SingleProjectRepository singleProjectRepository) {
+      return singleProjectRepository.fileData(inputFile.getProjectRelativePath());
     } else {
       return ((MultiModuleProjectRepository) this).fileData(moduleKeyWithBranch, inputFile.getModuleRelativePath());
     }

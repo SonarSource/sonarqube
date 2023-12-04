@@ -21,7 +21,6 @@ package org.sonar.core.issue.tracking;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.scanner.ScannerSide;
@@ -96,6 +95,6 @@ public class Tracker<RAW extends Trackable, BASE extends Trackable> extends Abst
     Collection<BASE> nonClosedIssues = nonClosedTracking.getBaseInput().getIssues();
     Collection<BASE> closeIssues = closedTracking.getBaseInput().getIssues();
     return Stream.concat(nonClosedIssues.stream(), closeIssues.stream())
-      .collect(Collectors.toList());
+      .toList();
   }
 }

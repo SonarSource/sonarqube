@@ -79,7 +79,7 @@ public class DefaultActiveRules implements ActiveRules {
 
   @Override
   public Collection<ActiveRule> findAll() {
-    return activeRulesByRepository.entrySet().stream().flatMap(x -> x.getValue().stream()).collect(Collectors.toList());
+    return activeRulesByRepository.entrySet().stream().flatMap(x -> x.getValue().stream()).toList();
   }
 
   @Override

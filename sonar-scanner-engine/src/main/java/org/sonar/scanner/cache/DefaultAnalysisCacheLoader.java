@@ -22,7 +22,6 @@ package org.sonar.scanner.cache;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import java.util.zip.GZIPInputStream;
 import org.sonar.api.scanner.fs.InputProject;
@@ -103,7 +102,7 @@ public class DefaultAnalysisCacheLoader implements AnalysisCacheLoader {
 
   public SensorCacheData read(InputStream is) {
     Iterable<SensorCacheEntry> it = () -> Protobuf.readStream(is, SensorCacheEntry.parser());
-    return new SensorCacheData(StreamSupport.stream(it.spliterator(), false).collect(Collectors.toList()));
+    return new SensorCacheData(StreamSupport.stream(it.spliterator(), false).toList());
   }
 }
 

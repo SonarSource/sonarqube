@@ -23,7 +23,6 @@ import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.server.ws.LocalConnector;
@@ -132,7 +131,7 @@ public abstract class ValidatingRequest extends Request {
     List<String> values = Arrays.stream(value.split(COMMA_SPLITTER))
       .map(String::trim)
       .filter(s -> !s.isEmpty())
-      .collect(Collectors.toList());
+      .toList();
     return validateValues(values, definition);
   }
 
@@ -146,7 +145,7 @@ public abstract class ValidatingRequest extends Request {
     return values.stream()
       .filter(s -> !s.isEmpty())
       .map(value -> Enum.valueOf(enumClass, value))
-      .collect(Collectors.toList());
+      .toList();
   }
 
   @CheckForNull

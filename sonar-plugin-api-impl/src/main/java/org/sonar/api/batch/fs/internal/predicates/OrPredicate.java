@@ -45,8 +45,8 @@ class OrPredicate extends AbstractFilePredicate implements OperatorPredicate {
         return TruePredicate.TRUE;
       } else if (filePredicate == FalsePredicate.FALSE) {
         continue;
-      } else if (filePredicate instanceof OrPredicate) {
-        result.predicates.addAll(((OrPredicate) filePredicate).predicates);
+      } else if (filePredicate instanceof OrPredicate orPredicate) {
+        result.predicates.addAll(orPredicate.predicates);
       } else {
         result.predicates.add(filePredicate);
       }

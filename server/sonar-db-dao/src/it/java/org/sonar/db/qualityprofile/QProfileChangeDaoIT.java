@@ -22,7 +22,6 @@ package org.sonar.db.qualityprofile;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.junit.Rule;
@@ -102,7 +101,7 @@ public class QProfileChangeDaoIT {
     List<QProfileChangeDto> changes = Stream.generate(QProfileChangeDto::new)
       .peek(dto -> dto.setRulesProfileUuid("rule_profil_uuid").setChangeType("type"))
       .limit(3)
-      .collect(Collectors.toList());
+      .toList();
 
     underTest.bulkInsert(dbSession, changes);
 

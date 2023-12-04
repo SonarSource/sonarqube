@@ -34,7 +34,6 @@ import org.sonar.api.batch.scm.BlameLine;
 import org.sonar.api.utils.DateUtils;
 
 import static com.google.common.base.Preconditions.checkState;
-import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang.StringUtils.trimToNull;
 
 public class XooBlameCommand extends BlameCommand {
@@ -73,7 +72,7 @@ public class XooBlameCommand extends BlameCommand {
       List<CSVRecord> records = csvParser.getRecords();
       return records.stream()
         .map(r -> convertToBlameLine(now, r))
-        .collect(toList());
+        .toList();
     }
   }
 

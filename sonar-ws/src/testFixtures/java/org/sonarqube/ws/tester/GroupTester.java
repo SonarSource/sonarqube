@@ -88,7 +88,7 @@ public class GroupTester {
 
   public GroupTester deleteAllGenerated() {
     List<String> allGroups = session.wsClient().userGroups().search(new SearchRequest()).getGroupsList().stream().map(UserGroups.Group::getName)
-      .collect(Collectors.toList());
+      .toList();
     allGroups.stream()
       .filter(g -> g.matches("Group\\d+$"))
       .forEach(g -> session.wsClient().userGroups().delete(new DeleteRequest().setName(g)));
@@ -97,7 +97,7 @@ public class GroupTester {
 
   public GroupTester delete(UserGroups.Group... groups) {
     List<String> allGroups = session.wsClient().userGroups().search(new SearchRequest()).getGroupsList().stream().map(UserGroups.Group::getName)
-      .collect(Collectors.toList());
+      .toList();
     stream(groups)
       .filter(g -> allGroups.contains(g.getName()))
       .forEach(g -> session.wsClient().userGroups().delete(new DeleteRequest().setName(g.getName())));

@@ -40,11 +40,11 @@ import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.Startable;
 import org.sonar.api.utils.SonarException;
 import org.sonar.api.utils.System2;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.core.platform.PluginRepository;
 
@@ -117,8 +117,8 @@ public class DefaultI18n implements I18n, Startable {
 
   @Override
   public void stop() {
-    if (classloader instanceof Closeable) {
-      IOUtils.closeQuietly((Closeable) classloader);
+    if (classloader instanceof Closeable closeable) {
+      IOUtils.closeQuietly(closeable);
     }
     classloader = null;
     propertyToBundles = null;

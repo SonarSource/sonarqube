@@ -69,8 +69,8 @@ public final class TextSet extends AbstractText {
   @Override
   public Object symbolAt(int index) {
     Object obj = super.symbolAt(index);
-    if (obj instanceof Block) {
-      return ((Block) obj).getBlockHash();
+    if (obj instanceof Block block) {
+      return block.getBlockHash();
     }
     return obj;
   }

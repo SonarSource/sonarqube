@@ -20,7 +20,6 @@
 package org.sonar.scanner.bootstrap;
 
 import java.util.Collection;
-import java.util.stream.Collectors;
 import org.sonar.api.batch.postjob.PostJob;
 import org.sonar.api.batch.postjob.PostJobContext;
 import org.sonar.core.platform.ExtensionContainer;
@@ -43,6 +42,6 @@ public class PostJobExtensionDictionary extends AbstractExtensionDictionary {
     return result.stream()
       .map(j -> new PostJobWrapper(j, postJobContext, postJobOptimizer))
       .filter(PostJobWrapper::shouldExecute)
-      .collect(Collectors.toList());
+      .toList();
   }
 }

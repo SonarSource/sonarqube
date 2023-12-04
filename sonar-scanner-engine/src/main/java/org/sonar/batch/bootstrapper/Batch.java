@@ -82,8 +82,8 @@ public final class Batch {
 
     Throwable y = t;
     do {
-      if (y instanceof MessageException) {
-        return (MessageException) y;
+      if (y instanceof MessageException messageException) {
+        return messageException;
       }
       y = y.getCause();
     } while (y != null);

@@ -24,10 +24,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
-import org.sonar.api.Plugin;
-import org.sonar.api.Startable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.Plugin;
+import org.sonar.api.Startable;
 import org.sonar.core.platform.ExplodedPlugin;
 import org.sonar.core.platform.PluginClassLoader;
 import org.sonar.core.platform.PluginInfo;
@@ -35,7 +35,6 @@ import org.sonar.core.platform.PluginJarExploder;
 import org.sonar.core.platform.PluginRepository;
 import org.sonar.core.plugin.PluginType;
 
-import static java.util.stream.Collectors.toList;
 import static org.sonar.api.utils.Preconditions.checkState;
 
 /**
@@ -113,15 +112,15 @@ public class ScannerPluginRepository implements PluginRepository, Startable {
 
   @Override
   public Collection<PluginInfo> getPluginInfos() {
-    return pluginsByKeys.values().stream().map(ScannerPlugin::getInfo).collect(toList());
+    return pluginsByKeys.values().stream().map(ScannerPlugin::getInfo).toList();
   }
 
   public Collection<PluginInfo> getExternalPluginsInfos() {
-    return pluginsByKeys.values().stream().filter(p -> p.getType() == PluginType.EXTERNAL).map(ScannerPlugin::getInfo).collect(toList());
+    return pluginsByKeys.values().stream().filter(p -> p.getType() == PluginType.EXTERNAL).map(ScannerPlugin::getInfo).toList();
   }
 
   public Collection<PluginInfo> getBundledPluginsInfos() {
-    return pluginsByKeys.values().stream().filter(p -> p.getType() == PluginType.BUNDLED).map(ScannerPlugin::getInfo).collect(toList());
+    return pluginsByKeys.values().stream().filter(p -> p.getType() == PluginType.BUNDLED).map(ScannerPlugin::getInfo).toList();
   }
 
   @Override

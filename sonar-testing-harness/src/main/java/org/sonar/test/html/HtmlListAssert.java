@@ -22,7 +22,6 @@ package org.sonar.test.html;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.assertj.core.api.Assertions;
 import org.jsoup.nodes.Element;
@@ -53,7 +52,7 @@ public class HtmlListAssert extends HtmlBlockAssert<HtmlListAssert> {
       .stream()
       .filter(t -> t.tagName().equals("li"))
       .map(Element::text)
-      .collect(Collectors.toList());
+      .toList();
 
     String[] itemTexts = Stream.concat(
       Stream.of(firstItemText),

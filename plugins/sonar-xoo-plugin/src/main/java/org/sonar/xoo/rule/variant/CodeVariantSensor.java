@@ -23,7 +23,6 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.rule.ActiveRules;
@@ -63,7 +62,7 @@ public abstract class CodeVariantSensor extends AbstractXooRuleSensor {
       String contents = inputFile.contents();
       List<String> identifiedVariants = variants.stream()
         .filter(contents::contains)
-        .collect(Collectors.toList());
+        .toList();
 
       if (!identifiedVariants.isEmpty()) {
         NewIssue newIssue = context.newIssue()

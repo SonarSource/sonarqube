@@ -100,7 +100,7 @@ public class CompositeBlameCommandIT {
       "dummy-git-few-comitters"
       );
 
-    List<BlameAlgorithmEnum> blameStrategies = Arrays.stream(BlameAlgorithmEnum.values()).collect(Collectors.toList());
+    List<BlameAlgorithmEnum> blameStrategies = Arrays.stream(BlameAlgorithmEnum.values()).toList();
     return testCases.stream()
       .flatMap(t -> blameStrategies.stream().map(b -> new Object[]{t, b}))
       .toArray(Object[][]::new);
@@ -128,7 +128,7 @@ public class CompositeBlameCommandIT {
     Path expectedBlameFiles = new File(Utils.class.getResource("expected-blame/" + expectedBlameFolder).toURI()).toPath();
     Map<Path, List<BlameLine>> expectedBlame = new HashMap<>();
 
-    List<Path> filesInExpectedBlameFolder = Files.walk(expectedBlameFiles).filter(Files::isRegularFile).collect(Collectors.toList());
+    List<Path> filesInExpectedBlameFolder = Files.walk(expectedBlameFiles).filter(Files::isRegularFile).toList();
     for (Path expectedFileBlamePath : filesInExpectedBlameFolder) {
       List<BlameLine> blameLines = new ArrayList<>();
       List<String> expectedBlameStrings = Files.readAllLines(expectedFileBlamePath);

@@ -36,8 +36,8 @@ public class OptimizedFilePredicateAdapter extends AbstractFilePredicate {
   }
 
   public static OptimizedFilePredicate create(FilePredicate predicate) {
-    if (predicate instanceof OptimizedFilePredicate) {
-      return (OptimizedFilePredicate) predicate;
+    if (predicate instanceof OptimizedFilePredicate optimizedFilePredicate) {
+      return optimizedFilePredicate;
     } else {
       return new OptimizedFilePredicateAdapter(predicate);
     }

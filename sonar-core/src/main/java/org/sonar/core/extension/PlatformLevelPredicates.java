@@ -49,9 +49,9 @@ public final class PlatformLevelPredicates {
     String baseErrorMsg = "Only level 1, 2, 3 and 4 are supported";
     if (annotatedObject == null) {
       return baseErrorMsg;
-    } else if (annotatedObject instanceof Class) {
+    } else if (annotatedObject instanceof Class classAnnotatedObject) {
       return String.format("Invalid value for annotation %s on class '%s'. %s",
-        PlatformLevel.class.getName(), ((Class) annotatedObject).getName(),
+        PlatformLevel.class.getName(), classAnnotatedObject.getName(),
         baseErrorMsg);
     } else {
       return String.format("Invalid value for annotation %s on object of type %s. %s",

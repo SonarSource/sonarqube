@@ -140,7 +140,7 @@ public class ExternalIssueReportValidator {
   }
 
   private static void mandatoryField(@Nullable Object value, String fieldName, Path reportPath) {
-    if (value == null || (value instanceof String && ((String) value).isEmpty())) {
+    if (value == null || (value instanceof String string && string.isEmpty())) {
       throw new IllegalStateException(String.format("Failed to parse report '%s': missing mandatory field '%s'.", reportPath, fieldName));
     }
   }

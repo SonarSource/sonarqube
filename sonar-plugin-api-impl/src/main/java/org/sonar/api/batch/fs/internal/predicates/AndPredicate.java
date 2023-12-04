@@ -27,8 +27,6 @@ import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem.Index;
 import org.sonar.api.batch.fs.InputFile;
 
-import static java.util.stream.Collectors.toList;
-
 /**
  * @since 4.2
  */
@@ -49,8 +47,8 @@ class AndPredicate extends AbstractFilePredicate implements OperatorPredicate {
         continue;
       } else if (filePredicate == FalsePredicate.FALSE) {
         return FalsePredicate.FALSE;
-      } else if (filePredicate instanceof AndPredicate) {
-        result.predicates.addAll(((AndPredicate) filePredicate).predicates);
+      } else if (filePredicate instanceof AndPredicate andPredicate) {
+        result.predicates.addAll(andPredicate.predicates);
       } else {
         result.predicates.add(OptimizedFilePredicateAdapter.create(filePredicate));
       }
@@ -97,7 +95,7 @@ class AndPredicate extends AbstractFilePredicate implements OperatorPredicate {
 
   @Override
   public List<FilePredicate> operands() {
-    return predicates.stream().map(p -> (FilePredicate) p).collect(toList());
+    return predicates.stream().map(p -> (FilePredicate) p).toList();
   }
 
 }

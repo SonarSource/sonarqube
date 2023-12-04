@@ -22,7 +22,6 @@ package org.sonar.ce.task.projectanalysis.step;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import org.assertj.core.groups.Tuple;
 import org.junit.After;
@@ -427,7 +426,7 @@ public class PersistIssuesStepIT extends BaseStepTest {
           .setResolution(null)
           .setCreatedAt(NOW - 1_000_000_000L)
           .setUpdatedAt(NOW - 1_000_000_000L)))
-      .collect(Collectors.toList());
+      .toList();
 
     CacheAppender issueCacheAppender = protoIssueCache.newAppender();
     issues.forEach(issue -> issueCacheAppender.append(issue.toDefaultIssue()

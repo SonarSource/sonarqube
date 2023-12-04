@@ -24,13 +24,11 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.concurrent.Immutable;
-import org.sonar.api.CoreProperties;
-import org.sonar.api.utils.WildcardPattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
-
-import static java.util.stream.Collectors.toList;
+import org.sonar.api.utils.WildcardPattern;
 
 @Immutable
 public abstract class AbstractCoverageAndDuplicationExclusions {
@@ -45,9 +43,9 @@ public abstract class AbstractCoverageAndDuplicationExclusions {
   public AbstractCoverageAndDuplicationExclusions(Function<String, String[]> configProvider, Function<DefaultInputFile, String> pathExtractor) {
     this.pathExtractor = pathExtractor;
     coverageExclusionConfig = configProvider.apply(CoreProperties.PROJECT_COVERAGE_EXCLUSIONS_PROPERTY);
-    coverageExclusionPatterns = Stream.of(coverageExclusionConfig).map(WildcardPattern::create).collect(toList());
+    coverageExclusionPatterns = Stream.of(coverageExclusionConfig).map(WildcardPattern::create).toList();
     duplicationExclusionConfig = configProvider.apply(CoreProperties.CPD_EXCLUSIONS);
-    duplicationExclusionPatterns = Stream.of(duplicationExclusionConfig).map(WildcardPattern::create).collect(toList());
+    duplicationExclusionPatterns = Stream.of(duplicationExclusionConfig).map(WildcardPattern::create).toList();
   }
 
   public String[] getCoverageExclusionConfig() {

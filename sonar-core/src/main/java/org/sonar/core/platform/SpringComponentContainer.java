@@ -98,8 +98,8 @@ public class SpringComponentContainer implements StartableContainer {
         }
         context.registerBean(componentKeys.ofClass(clazz), clazz);
         declareExtension("", o);
-      } else if (o instanceof Module) {
-        ((Module) o).configure(this);
+      } else if (o instanceof Module module) {
+        module.configure(this);
       } else if (o instanceof Iterable) {
         add(Iterables.toArray((Iterable<?>) o, Object.class));
       } else {

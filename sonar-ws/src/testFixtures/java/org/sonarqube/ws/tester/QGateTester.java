@@ -25,7 +25,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 import org.sonarqube.ws.Projects.CreateWsResponse.Project;
 import org.sonarqube.ws.client.qualitygates.CreateRequest;
 import org.sonarqube.ws.client.qualitygates.DestroyRequest;
@@ -54,7 +53,7 @@ public class QGateTester {
   void deleteAll() {
     List<ListWsResponse.QualityGate> builtInQualityGates = session.wsClient().qualitygates().list(new ListRequest()).getQualitygatesList().stream()
       .filter(ListWsResponse.QualityGate::getIsBuiltIn)
-      .collect(Collectors.toList());
+      .toList();
     if (builtInQualityGates.size() == 1) {
       session.wsClient().qualitygates().setAsDefault(new SetAsDefaultRequest().setName(builtInQualityGates.get(0).getName()));
     }

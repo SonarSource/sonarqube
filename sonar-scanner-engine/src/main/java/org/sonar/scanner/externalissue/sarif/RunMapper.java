@@ -37,7 +37,6 @@ import org.sonar.core.sarif.Run;
 import org.sonar.core.sarif.Tool;
 
 import static java.util.Collections.emptyList;
-import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 import static org.sonar.api.utils.Preconditions.checkArgument;
 import static org.sonar.scanner.externalissue.sarif.RulesSeverityDetector.detectRulesSeverities;
@@ -90,7 +89,7 @@ public class RunMapper {
     return Stream.concat(driverRules.stream(), extensionRules.stream())
       .distinct()
       .map(rule -> ruleMapper.mapRule(rule, driverName, ruleSeveritiesByRuleId.get(rule.getId()), ruleSeveritiesByRuleIdForNewCCT.get(rule.getId())))
-      .collect(toList());
+      .toList();
   }
 
   private static boolean hasExtensions(Tool tool) {
@@ -103,7 +102,7 @@ public class RunMapper {
       .map(result -> toNewExternalIssue(driverName, ruleSeveritiesByRuleId.get(result.getRuleId()), ruleSeveritiesByRuleIdForNewCCT.get(result.getRuleId()), result))
       .filter(Optional::isPresent)
       .map(Optional::get)
-      .collect(toList());
+      .toList();
   }
 
   private Optional<NewExternalIssue> toNewExternalIssue(String driverName, @Nullable String ruleSeverity, @Nullable String ruleSeverityForNewTaxonomy, Result result) {

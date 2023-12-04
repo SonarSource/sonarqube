@@ -41,8 +41,6 @@ import org.sonar.scanner.protocol.output.ScannerReportWriter;
 import org.sonar.scanner.scan.ProjectServerSettings;
 import org.sonar.scanner.scan.filesystem.InputComponentStore;
 
-import static java.util.stream.Collectors.toList;
-
 public class AnalysisContextReportPublisher {
 
   private static final String KEY_VALUE_FORMAT = "  - %s=%s";
@@ -124,7 +122,7 @@ public class AnalysisContextReportPublisher {
   }
 
   private void writeScannerProps(BufferedWriter fileWriter, Map<String, String> props) throws IOException {
-    for (Map.Entry<String, String> prop : props.entrySet().stream().sorted(Comparator.comparing(Map.Entry::getKey)).collect(toList())) {
+    for (Map.Entry<String, String> prop : props.entrySet().stream().sorted(Comparator.comparing(Map.Entry::getKey)).toList()) {
       if (isSystemProp(prop.getKey()) || isEnvVariable(prop.getKey()) || !isSqProp(prop.getKey())) {
         continue;
       }

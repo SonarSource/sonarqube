@@ -33,7 +33,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import org.junit.Before;
 import org.junit.Rule;
@@ -304,7 +303,7 @@ public class TelemetryDataLoaderImplIT {
       .extracting(TelemetryData.QualityGate::uuid, TelemetryData.QualityGate::caycStatus,
         qg -> qg.conditions().stream()
           .map(condition -> tuple(condition.getMetricKey(), condition.getOperator().getDbValue(), condition.getErrorThreshold(), condition.isOnLeakPeriod()))
-          .collect(Collectors.toList()))
+          .toList())
       .containsExactlyInAnyOrder(
         tuple(builtInDefaultQualityGate.getUuid(), "non-compliant", Collections.emptyList()),
         tuple(qualityGate1.getUuid(), "non-compliant", List.of(tuple(vulnerabilitiesDto.getKey(), condition1.getOperator(), condition1.getErrorThreshold(), false))),

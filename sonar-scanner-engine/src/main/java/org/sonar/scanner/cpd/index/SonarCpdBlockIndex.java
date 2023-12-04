@@ -23,7 +23,6 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
-import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.InputFile;
@@ -67,7 +66,7 @@ public class SonarCpdBlockIndex extends AbstractCloneIndex {
         builder.setEndTokenIndex(block.getEndUnit());
         builder.setHash(block.getBlockHash().toHexString());
         return builder.build();
-      }).collect(Collectors.toList()));
+      }).toList());
     }
     for (Block block : blocks) {
       mem.insert(block);

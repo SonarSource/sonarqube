@@ -27,7 +27,6 @@ package org.sonarqube.ws.tester;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.sonarqube.ws.Projects.CreateWsResponse.Project;
 import org.sonarqube.ws.Qualityprofiles;
@@ -60,7 +59,7 @@ public class QProfileTester {
       .filter(qp -> !qp.getIsDefault())
       .filter(qp -> !qp.getIsBuiltIn())
       .filter(qp -> qp.getParentKey() == null || qp.getParentKey().equals(""))
-      .collect(Collectors.toList());
+      .toList();
 
     qualityProfiles.forEach(
       qp -> session.wsClient().qualityprofiles().delete(new DeleteRequest().setQualityProfile(qp.getName()).setLanguage(qp.getLanguage())));

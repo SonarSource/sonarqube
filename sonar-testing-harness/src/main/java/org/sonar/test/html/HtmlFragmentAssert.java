@@ -26,7 +26,6 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
-import static java.util.stream.Collectors.toList;
 import static org.sonar.test.html.HtmlParagraphAssert.verifyIsParagraph;
 
 public class HtmlFragmentAssert extends AbstractAssert<HtmlFragmentAssert, String> {
@@ -45,7 +44,7 @@ public class HtmlFragmentAssert extends AbstractAssert<HtmlFragmentAssert, Strin
     Document document = Jsoup.parseBodyFragment(actual);
     Iterator<Element> blockIt = document.body().children().stream()
       .filter(Element::isBlock)
-      .collect(toList())
+      .toList()
       .iterator();
     Assertions.assertThat(blockIt.hasNext())
       .describedAs("no bloc in fragment")

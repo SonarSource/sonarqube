@@ -137,7 +137,7 @@ abstract class BaseRequest<SELF extends BaseRequest<SELF>> implements WsRequest 
     parameters.setValues(key, values.stream()
       .filter(Objects::nonNull)
       .map(Object::toString)
-      .collect(Collectors.toList()));
+      .toList());
 
     return (T) this;
   }
@@ -203,7 +203,7 @@ abstract class BaseRequest<SELF extends BaseRequest<SELF>> implements WsRequest 
       checkArgument(!isNullOrEmpty(key));
       checkArgument(values != null && !values.isEmpty());
 
-      keyValues.computeIfAbsent(key, k -> new ArrayList<>()).addAll(values.stream().map(Object::toString).filter(Objects::nonNull).collect(Collectors.toList()));
+      keyValues.computeIfAbsent(key, k -> new ArrayList<>()).addAll(values.stream().map(Object::toString).filter(Objects::nonNull).toList());
       return this;
     }
   }

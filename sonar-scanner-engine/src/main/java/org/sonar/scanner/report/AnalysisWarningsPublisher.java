@@ -20,7 +20,6 @@
 package org.sonar.scanner.report;
 
 import java.util.List;
-import java.util.stream.Collectors;
 import org.sonar.scanner.notifications.DefaultAnalysisWarnings;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
@@ -41,7 +40,7 @@ public class AnalysisWarningsPublisher implements ReportPublisherStep {
     }
     writer.writeAnalysisWarnings(warnings.stream()
       .map(AnalysisWarningsPublisher::toProtobufAnalysisWarning)
-      .collect(Collectors.toList()));
+      .toList());
   }
 
   private static ScannerReport.AnalysisWarning toProtobufAnalysisWarning(DefaultAnalysisWarnings.Message message) {

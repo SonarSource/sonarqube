@@ -24,7 +24,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.ThreadSafe;
 import org.apache.commons.lang.StringUtils;
@@ -157,7 +156,7 @@ public class IssuePublisher {
         .setEnd(m.end())
         .setType(ScannerReport.MessageFormattingType.valueOf(m.type().name()))
         .build())
-      .collect(Collectors.toList());
+      .toList();
   }
 
   private static ScannerReport.ExternalIssue createReportExternalIssue(ExternalIssue issue, int componentRef) {

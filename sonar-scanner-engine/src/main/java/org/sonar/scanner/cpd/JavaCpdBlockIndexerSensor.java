@@ -25,7 +25,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -76,7 +75,7 @@ public class JavaCpdBlockIndexerSensor implements ProjectSensor {
         )
       ).spliterator(), false)
       .filter(f -> !((DefaultInputFile) f).isExcludedForDuplication())
-      .collect(Collectors.toList());
+      .toList();
     if (sourceFiles.isEmpty()) {
       return;
     }

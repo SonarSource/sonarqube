@@ -27,8 +27,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 import org.apache.commons.lang.SystemUtils;
-import org.sonar.api.Plugin;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.Plugin;
 import org.sonar.updatecenter.common.Version;
 
 import static java.util.Collections.singleton;
@@ -142,9 +142,9 @@ public class PluginClassLoader {
   public void unload(Collection<Plugin> plugins) {
     for (Plugin plugin : plugins) {
       ClassLoader classLoader = plugin.getClass().getClassLoader();
-      if (classLoader instanceof Closeable && classLoader != classloaderFactory.baseClassLoader()) {
+      if (classLoader instanceof Closeable closeable && classLoader != classloaderFactory.baseClassLoader()) {
         try {
-          ((Closeable) classLoader).close();
+          closeable.close();
         } catch (Exception e) {
           LoggerFactory.getLogger(getClass()).error("Fail to close classloader " + classLoader.toString(), e);
         }

@@ -32,8 +32,8 @@ public class LineReaderIterator extends CloseableIterator<String> {
   private final BufferedReader reader;
 
   public LineReaderIterator(Reader reader) {
-    if (reader instanceof BufferedReader) {
-      this.reader = (BufferedReader) reader;
+    if (reader instanceof BufferedReader bufferedReader) {
+      this.reader = bufferedReader;
     } else {
       this.reader = new BufferedReader(reader);
     }

@@ -77,7 +77,7 @@ public class DefaultProjectRepositoriesLoader implements ProjectRepositoriesLoad
     Throwable t = e;
 
     do {
-      if (t instanceof HttpException && ((HttpException) t).code() == HttpURLConnection.HTTP_NOT_FOUND) {
+      if (t instanceof HttpException httpException && httpException.code() == HttpURLConnection.HTTP_NOT_FOUND) {
         return false;
       }
       t = t.getCause();

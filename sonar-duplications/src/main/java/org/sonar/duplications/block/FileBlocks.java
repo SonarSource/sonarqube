@@ -24,22 +24,6 @@ import java.util.List;
 /**
  * Represents all blocks in a file.
  */
-public final class FileBlocks {
-
-  private final String resourceId;
-  private final List<Block> blocks;
-
-  public FileBlocks(String resourceId, List<Block> blocks) {
-    this.resourceId = resourceId;
-    this.blocks = blocks;
-  }
-
-  public String resourceId() {
-    return resourceId;
-  }
-
-  public List<Block> blocks() {
-    return blocks;
-  }
+public record FileBlocks(String resourceId, List<Block> blocks) {
 
 }

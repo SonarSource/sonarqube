@@ -39,8 +39,8 @@ public class ListContainer implements ExtensionContainer {
   @Override
   public Container add(Object... objects) {
     for (Object o : objects) {
-      if (o instanceof Module) {
-        ((Module) o).configure(this);
+      if (o instanceof Module module) {
+        module.configure(this);
       } else if (o instanceof Iterable) {
         add(Iterables.toArray((Iterable<?>) o, Object.class));
       } else {

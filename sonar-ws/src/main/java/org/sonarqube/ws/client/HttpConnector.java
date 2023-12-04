@@ -21,6 +21,7 @@ package org.sonarqube.ws.client;
 
 import java.io.IOException;
 import java.net.Proxy;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.Nullable;
@@ -109,11 +110,11 @@ public class HttpConnector implements WsConnector {
 
   @Override
   public WsResponse call(WsRequest httpRequest) {
-    if (httpRequest instanceof RequestWithoutPayload) {
-      return executeRequest((RequestWithoutPayload) httpRequest);
+    if (httpRequest instanceof RequestWithoutPayload httpRequestWithoutPayload) {
+      return executeRequest(httpRequestWithoutPayload);
     }
-    if (httpRequest instanceof RequestWithPayload) {
-      return executeRequest((RequestWithPayload) httpRequest);
+    if (httpRequest instanceof RequestWithPayload httpRequestWithPayload) {
+      return executeRequest(httpRequestWithPayload);
     }
     throw new IllegalArgumentException(format("Unsupported implementation: %s", httpRequest.getClass()));
   }
@@ -213,19 +214,15 @@ public class HttpConnector implements WsConnector {
   }
 
   private Response checkRedirect(Response response, RequestWithPayload<?> postRequest) {
-    switch (response.code()) {
-      case HTTP_MOVED_PERM:
-      case HTTP_MOVED_TEMP:
-      case HTTP_TEMP_REDIRECT:
-      case HTTP_PERM_REDIRECT:
-        // OkHttpClient does not follow the redirect with the same HTTP method. A POST is
-        // redirected to a GET. Because of that the redirect must be manually implemented.
-        // See:
-        // https://github.com/square/okhttp/blob/07309c1c7d9e296014268ebd155ebf7ef8679f6c/okhttp/src/main/java/okhttp3/internal/http/RetryAndFollowUpInterceptor.java#L316
-        // https://github.com/square/okhttp/issues/936#issuecomment-266430151
-        return followPostRedirect(response, postRequest);
-      default:
-        return response;
+    if (List.of(HTTP_MOVED_PERM, HTTP_MOVED_TEMP, HTTP_TEMP_REDIRECT, HTTP_PERM_REDIRECT).contains(response.code())) {
+      // OkHttpClient does not follow the redirect with the same HTTP method. A POST is
+      // redirected to a GET. Because of that the redirect must be manually implemented.
+      // See:
+      // https://github.com/square/okhttp/blob/07309c1c7d9e296014268ebd155ebf7ef8679f6c/okhttp/src/main/java/okhttp3/internal/http/RetryAndFollowUpInterceptor.java#L316
+      // https://github.com/square/okhttp/issues/936#issuecomment-266430151
+      return followPostRedirect(response, postRequest);
+    } else {
+      return response;
     }
   }
 

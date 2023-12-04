@@ -25,7 +25,6 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.sonarqube.ws.UserTokens;
 import org.sonarqube.ws.Users;
@@ -179,7 +178,7 @@ public class UserTester {
 
   private Optional<Users.SearchWsResponse.User> queryForUser(String login, Predicate<Users.SearchWsResponse.User> predicate) {
     List<Users.SearchWsResponse.User> users = session.wsClient().users().search(new SearchRequest().setQ(login)).getUsersList().stream()
-      .filter(predicate).collect(Collectors.toList());
+      .filter(predicate).toList();
     if (users.size() == 1) {
       return Optional.of(users.get(0));
     }

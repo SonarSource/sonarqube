@@ -21,7 +21,6 @@ package org.sonar.scanner.sensor;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.sonar.api.scanner.sensor.ProjectSensor;
 import org.sonar.core.platform.SpringComponentContainer;
 import org.sonar.scanner.bootstrap.AbstractExtensionDictionary;
@@ -49,6 +48,6 @@ public class ProjectSensorExtensionDictionary extends AbstractExtensionDictionar
     return result.stream()
       .map(s -> new ProjectSensorWrapper(s, sensorContext, sensorOptimizer, fileSystem, branchConfiguration))
       .filter(ProjectSensorWrapper::shouldExecute)
-      .collect(Collectors.toList());
+      .toList();
   }
 }

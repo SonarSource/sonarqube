@@ -21,7 +21,6 @@ package org.sonar.scanner.repository.language;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.concurrent.Immutable;
 import org.sonar.api.Startable;
@@ -64,7 +63,7 @@ public class DefaultLanguagesRepository implements LanguagesRepository, Startabl
   public Collection<Language> all() {
     return Arrays.stream(languages.all())
       .map(Language::new)
-      .collect(Collectors.toList());
+      .toList();
   }
 
   @Override

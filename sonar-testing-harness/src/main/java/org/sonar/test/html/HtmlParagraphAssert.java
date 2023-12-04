@@ -153,8 +153,7 @@ public class HtmlParagraphAssert extends HtmlBlockAssert<HtmlParagraphAssert> {
         } else {
           currentLine.append(node.toString());
         }
-      } else if (node instanceof Element) {
-        Element element = (Element) node;
+      } else if (node instanceof Element element) {
         if (element.tagName().equals("br")) {
           actualLines.add(currentLine == null ? "" : currentLine.toString());
           currentLine = null;

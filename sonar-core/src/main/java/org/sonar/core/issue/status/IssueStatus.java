@@ -51,16 +51,14 @@ public enum IssueStatus {
     }
 
     switch (status) {
-      case Issue.STATUS_OPEN:
-      case Issue.STATUS_REOPENED:
+      case Issue.STATUS_OPEN, Issue.STATUS_REOPENED:
         return IssueStatus.OPEN;
       case Issue.STATUS_CONFIRMED:
         return IssueStatus.CONFIRMED;
       case Issue.STATUS_CLOSED:
         return IssueStatus.FIXED;
       // Security hotspot should not return issue status as they are deprecated.
-      case Issue.STATUS_REVIEWED:
-      case Issue.STATUS_TO_REVIEW:
+      case Issue.STATUS_REVIEWED, Issue.STATUS_TO_REVIEW:
         return null;
       default:
     }

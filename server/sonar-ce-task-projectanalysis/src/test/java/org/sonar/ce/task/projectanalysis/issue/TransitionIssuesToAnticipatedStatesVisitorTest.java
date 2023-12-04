@@ -21,7 +21,6 @@ package org.sonar.ce.task.projectanalysis.issue;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.junit.Rule;
 import org.junit.Test;
@@ -183,11 +182,11 @@ public class TransitionIssuesToAnticipatedStatesVisitorTest {
   }
 
   private Collection<AnticipatedTransition> getAnticipatedTransitions(String projecKey, String fileName) {
-    return Stream.of(new AnticipatedTransition("atuuid", projecKey, "admin", RuleKey.parse("repo:id"), "issue message", fileName, 1, "abcdefghi", DefaultTransitions.ACCEPT, "doing the transition in an anticipated way")).collect(Collectors.toList());
+    return Stream.of(new AnticipatedTransition("atuuid", projecKey, "admin", RuleKey.parse("repo:id"), "issue message", fileName, 1, "abcdefghi", DefaultTransitions.ACCEPT, "doing the transition in an anticipated way")).toList();
   }
 
   private Collection<AnticipatedTransition> getAnticipatedTransitionsWithEmptyComment(String projecKey, String fileName) {
-    return Stream.of(new AnticipatedTransition("atuuid", projecKey, "admin", RuleKey.parse("repo:id"), "issue message", fileName, 1, "abcdefghi", DefaultTransitions.ACCEPT, null)).collect(Collectors.toList());
+    return Stream.of(new AnticipatedTransition("atuuid", projecKey, "admin", RuleKey.parse("repo:id"), "issue message", fileName, 1, "abcdefghi", DefaultTransitions.ACCEPT, null)).toList();
   }
 
   private Component getComponent(Component.Type type) {
