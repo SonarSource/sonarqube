@@ -483,7 +483,9 @@ it('should render CaYC conditions on a separate table if Sonar way', async () =>
   await user.click(await screen.findByText('Sonar way'));
 
   expect(screen.queryByText('quality_gates.cayc.banner.title')).not.toBeInTheDocument();
-  expect(await screen.findByTestId('quality-gates__conditions-cayc')).toBeInTheDocument();
+  expect(
+    await screen.findByRole('list', { name: 'quality_gates.cayc.condition_simplification_list' }),
+  ).toBeInTheDocument();
 });
 
 it('should display CaYC condition simplification tour for users who didnt dismissed it', async () => {

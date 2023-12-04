@@ -34,7 +34,7 @@ export default function CaYCConditionsSimplificationGuide() {
 
   const steps: SpotlightTourStep[] = [
     {
-      target: '#cayc-hihlight',
+      target: '#cayc-highlight',
       content: (
         <p>{translate('quality_gates.cayc.condition_simplification_tour.page_1.content1')}</p>
       ),

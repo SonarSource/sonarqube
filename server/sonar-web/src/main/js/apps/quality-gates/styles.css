@@ -88,3 +88,8 @@
 .strike-through {
   text-decoration: line-through;
 }
+
+#cayc-highlight.active,
+[data-guiding-id='caycConditionsSimplification'].active {
+  box-shadow: 0px 0px 4px 0px #5d6cd0;
+}

@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import styled from '@emotion/styled';
-import { ContentCell, HelperHintIcon, Highlight, TableRow } from 'design-system';
+import { HelperHintIcon, Highlight } from 'design-system';
 import React from 'react';
 import { FormattedMessage } from 'react-intl';
 import withMetricsContext from '../../../app/components/metrics/withMetricsContext';
@@ -44,17 +44,18 @@ function CaycCondition({ condition, metric, metrics }: Readonly<Props>) {
   };
 
   return (
-    <StyledTableRow>
-      <ContentCell
-        data-guiding-id={
-          condition.metric === MetricKey.new_violations ? 'caycConditionsSimplification' : undefined
-        }
-      >
+    <StyledItem
+      data-guiding-id={
+        condition.metric === MetricKey.new_violations ? 'caycConditionsSimplification' : undefined
+      }
+    >
+      <span>
         <Highlight>{translate(`metric.${metric.key}.description.positive`)}</Highlight>
-      </ContentCell>
+      </span>
 
-      <StyledContentCell>
-        {shouldRenderOperator && (
+      {shouldRenderOperator && (
+        <StyledContentCell>
+          (
           <>
             <FormattedMessage
               id="quality_gates.conditions.cayc.metric"
@@ -72,22 +73,34 @@ function CaycCondition({ condition, metric, metrics }: Readonly<Props>) {
               <HelperHintIcon />
             </DocumentationTooltip>
           </>
-        )}
-      </StyledContentCell>
-    </StyledTableRow>
+          )
+        </StyledContentCell>
+      )}
+    </StyledItem>
   );
 }
 
-const StyledTableRow = styled(TableRow)`
-  &:first-child > td {
-    border-top: 0;
+const StyledItem = styled.li`
+  display: flex;
+  justify-content: space-between;
+  padding: 1rem;
+  flex-wrap: wrap;
+
+  &:not(:last-child) {
+    padding-bottom: 0;
   }
-  &:last-child > td {
-    border-bottom: 0;
+
+  &:not(:last-child):after {
+    content: '';
+    border-bottom: 1px solid rgb(235, 235, 235);
+    display: flex;
+    height: 10px;
+    width: 100%;
+    padding-top: 1rem;
   }
 `;
 
-const StyledContentCell = styled(ContentCell)`
+const StyledContentCell = styled.div`
   white-space: nowrap;
 
   & > div {

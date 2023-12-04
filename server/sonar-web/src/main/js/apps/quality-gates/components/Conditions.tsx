@@ -23,6 +23,7 @@ import {
   FlagMessage,
   HeadingDark,
   HelperHintIcon,
+  HighlightedSection,
   LightPrimary,
   Link,
   Note,
@@ -43,7 +44,7 @@ import { CaycStatus, Condition as ConditionType, QualityGate } from '../../../ty
 import { groupAndSortByPriorityConditions, isQualityGateOptimized } from '../utils';
 import CaYCConditionsSimplificationGuide from './CaYCConditionsSimplificationGuide';
 import CaycCompliantBanner from './CaycCompliantBanner';
-import CaycConditionsTable from './CaycConditionsTable';
+import CaycCondition from './CaycCondition';
 import CaycFixOptimizeBanner from './CaycFixOptimizeBanner';
 import ConditionModal from './ConditionModal';
 import CaycReviewUpdateConditionsModal from './ConditionReviewAndUpdateModal';
@@ -215,7 +216,20 @@ export default function Conditions({ qualityGate }: Readonly<Props>) {
               </DocumentationTooltip>
             </div>
 
-            <CaycConditionsTable metrics={metrics} conditions={caycConditions} />
+            <HighlightedSection className="sw-p-0 sw-my-2 sw-w-3/4" id="cayc-highlight">
+              <ul
+                className="sw-my-2"
+                aria-label={translate('quality_gates.cayc.condition_simplification_list')}
+              >
+                {caycConditions.map((condition) => (
+                  <CaycCondition
+                    key={condition.id}
+                    condition={condition}
+                    metric={metrics[condition.metric]}
+                  />
+                ))}
+              </ul>
+            </HighlightedSection>
 
             {hasFeature(Feature.BranchSupport) && (
               <Note className="sw-mb-2 sw-body-sm">
