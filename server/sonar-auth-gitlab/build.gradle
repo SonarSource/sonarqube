@@ -11,6 +11,7 @@ dependencies {
     api 'com.github.scribejava:scribejava-core'
     api 'com.google.code.gson:gson'
     api project(':server:sonar-auth-common')
+    api project(':server:sonar-server-common')
 
     compileOnlyApi 'com.google.code.findbugs:jsr305'
     compileOnlyApi 'com.squareup.okhttp3:okhttp'

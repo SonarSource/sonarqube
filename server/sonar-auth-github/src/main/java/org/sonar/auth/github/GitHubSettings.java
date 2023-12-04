@@ -30,8 +30,10 @@ import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.server.ServerSide;
+import org.sonar.auth.DevOpsPlatformSettings;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.alm.setting.ALM;
 import org.sonar.server.property.InternalProperties;
 
 import static java.lang.String.format;
@@ -44,7 +46,7 @@ import static org.sonar.api.utils.Preconditions.checkState;
 
 @ServerSide
 @ComputeEngineSide
-public class GitHubSettings {
+public class GitHubSettings implements DevOpsPlatformSettings {
 
   public static final String CLIENT_ID = "sonar.auth.github.clientId.secured";
   public static final String CLIENT_SECRET = "sonar.auth.github.clientSecret.secured";
@@ -159,6 +161,12 @@ public class GitHubSettings {
     return format("%s to enable GitHub provisioning.", prefix);
   }
 
+  @Override
+  public String getDevOpsPlatform() {
+    return ALM.GITHUB.getId();
+  }
+
+  @Override
   public boolean isProvisioningEnabled() {
     return isEnabled() && internalProperties.read(PROVISIONING).map(Boolean::parseBoolean).orElse(false);
   }
@@ -167,6 +175,7 @@ public class GitHubSettings {
     return configuration.get(USER_CONSENT_FOR_PERMISSIONS_REQUIRED_AFTER_UPGRADE).isPresent();
   }
 
+  @Override
   public boolean isProjectVisibilitySynchronizationActivated() {
     return configuration.getBoolean(PROVISION_VISIBILITY).orElse(true);
   }

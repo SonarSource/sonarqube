@@ -26,13 +26,15 @@ import org.sonar.api.PropertyType;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.config.PropertyDefinition;
+import org.sonar.auth.DevOpsPlatformSettings;
+import org.sonar.db.alm.setting.ALM;
 
 import static java.lang.String.valueOf;
 import static org.sonar.api.PropertyType.BOOLEAN;
 import static org.sonar.api.PropertyType.PASSWORD;
 
 @ComputeEngineSide
-public class GitLabSettings {
+public class GitLabSettings implements DevOpsPlatformSettings {
 
   public static final String GITLAB_AUTH_ENABLED = "sonar.auth.gitlab.enabled";
   public static final String GITLAB_AUTH_URL = "sonar.auth.gitlab.url";
@@ -89,8 +91,19 @@ public class GitLabSettings {
     return Set.of(configuration.getStringArray(GITLAB_AUTH_PROVISIONING_GROUPS));
   }
 
+  @Override
+  public String getDevOpsPlatform() {
+    return ALM.GITLAB.getId();
+  }
+
+  @Override
   public boolean isProvisioningEnabled() {
     return isEnabled() && configuration.getBoolean(GITLAB_AUTH_PROVISIONING_ENABLED).orElse(false);
+  }
+
+  @Override
+  public boolean isProjectVisibilitySynchronizationActivated() {
+    return false;
   }
 
   static List<PropertyDefinition> definitions() {
