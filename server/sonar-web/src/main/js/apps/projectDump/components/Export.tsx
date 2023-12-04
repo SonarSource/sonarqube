@@ -136,7 +136,7 @@ export default function Export(props: Readonly<Props>) {
           <div>
             {!task && <div>{translate('project_dump.export_available')}</div>}
 
-            <code tabIndex={0}>{status.exportedDump}</code>
+            <p className="sw-mt-2">{status.exportedDump}</p>
           </div>
         </div>
       </FlagMessage>

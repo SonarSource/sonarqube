@@ -171,9 +171,17 @@ export class ProjectDumpApp extends React.Component<Props, State> {
             <Helmet defer={false} title={translate('project_dump.page')} />
             <Title className="sw-mb-4">{translate('project_dump.page')}</Title>
             <p>
-              {projectImportFeatureEnabled
-                ? translate('project_dump.page.description')
-                : translate('project_dump.page.description_without_import')}
+              {projectImportFeatureEnabled ? (
+                <>
+                  <p>{translate('project_dump.page.description1')}</p>
+                  <p>{translate('project_dump.page.description2')}</p>
+                </>
+              ) : (
+                <>
+                  <p>{translate('project_dump.page.description_without_import1')}</p>
+                  <p>{translate('project_dump.page.description_without_import2')}</p>
+                </>
+              )}
             </p>
           </header>
 

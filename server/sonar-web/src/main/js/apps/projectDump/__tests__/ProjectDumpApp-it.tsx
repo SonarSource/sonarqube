@@ -34,8 +34,8 @@ const handler = new ProjectDumpServiceMock(computeEngineHandler);
 const COMPONENT_KEY = 'test';
 
 const ui = {
-  pageDescriptionWithImport: byText('project_dump.page.description'),
-  pageDescriptionWithoutImport: byText('project_dump.page.description_without_import'),
+  pageDescriptionWithImport: byText('project_dump.page.description1'),
+  pageDescriptionWithoutImport: byText('project_dump.page.description_without_import1'),
 
   disabledImportFeatureMsg: byText('project_dump.import_form_description_disabled'),
 
