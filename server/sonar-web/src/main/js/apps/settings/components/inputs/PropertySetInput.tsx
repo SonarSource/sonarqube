@@ -77,25 +77,27 @@ export default class PropertySetInput extends React.PureComponent<DefaultSpecial
                   name={getUniqueName(definition, field.key)}
                   onChange={(value) => this.handleInputChange(index, field.key, value)}
                   setting={newSetting}
-                  size="auto"
+                  size="full"
                   value={fieldValues[field.key]}
                 />
               </ContentCell>
             );
           })}
         <ActionCell className="sw-border-0">
-          {!isLast && (
-            <DestructiveIcon
-              Icon={TrashIcon}
-              aria-label={translateWithParameters(
-                'settings.definitions.delete_fields',
-                getPropertyName(setting.definition),
-                index,
-              )}
-              className="js-remove-value"
-              onClick={() => this.handleDeleteValue(index)}
-            />
-          )}
+          <div className="sw-w-9">
+            {!isLast && (
+              <DestructiveIcon
+                Icon={TrashIcon}
+                aria-label={translateWithParameters(
+                  'settings.definitions.delete_fields',
+                  getPropertyName(setting.definition),
+                  index,
+                )}
+                className="js-remove-value"
+                onClick={() => this.handleDeleteValue(index)}
+              />
+            )}
+          </div>
         </ActionCell>
       </TableRow>
     );
@@ -106,7 +108,7 @@ export default class PropertySetInput extends React.PureComponent<DefaultSpecial
     const displayedValue = [...this.ensureValue(), ...getEmptyValue(definition)];
 
     const columnWidths = (isCategoryDefinition(definition) ? definition.fields : [])
-      .map(() => 'auto')
+      .map(() => '50%')
       .concat('1px');
 
     return (

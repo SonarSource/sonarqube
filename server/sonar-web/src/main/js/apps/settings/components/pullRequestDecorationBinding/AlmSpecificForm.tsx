@@ -23,7 +23,7 @@ import { FormattedMessage } from 'react-intl';
 import withAvailableFeatures, {
   WithAvailableFeaturesProps,
 } from '../../../../app/components/available-features/withAvailableFeatures';
-import DocLink from '../../../../components/common/DocLink';
+import DocumentationLink from '../../../../components/common/DocumentationLink';
 import MandatoryFieldMarker from '../../../../components/ui/MandatoryFieldMarker';
 import { ALM_DOCUMENTATION_PATHS } from '../../../../helpers/constants';
 import { translate } from '../../../../helpers/l10n';
@@ -297,7 +297,9 @@ export function AlmSpecificForm(props: AlmSpecificFormProps) {
           help: true,
           helpParams: {
             doc_link: (
-              <DocLink to={ALM_DOCUMENTATION_PATHS[alm]}>{translate('learn_more')}</DocLink>
+              <DocumentationLink to={ALM_DOCUMENTATION_PATHS[alm]}>
+                {translate('learn_more')}
+              </DocumentationLink>
             ),
           },
           id: 'monorepo',
