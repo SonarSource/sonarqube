@@ -51,9 +51,6 @@ azure_cloud_environment_template: &AZURE_CLOUD_ENVIRONMENT_VARIABLES
 
 auto_cancellation: $CIRRUS_BRANCH != $BRANCH_MAIN && $CIRRUS_BRANCH !=~ $BRANCH_PATTERN_MAINTENANCE
 
-skip_public_branches_template: &SKIP_PUBLIC_BRANCHES_TEMPLATE
-  skip: $CIRRUS_BRANCH =~ $BRANCH_PATTERN_PUBLIC
-
 cache_dependencies_dependant_task_template:
   &CACHE_DEPENDENCIES_DEPENDANT_TASK_TEMPLATE
   depends_on: cache_dependencies
@@ -61,70 +58,63 @@ cache_dependencies_dependant_task_template:
 build_dependant_task_template: &BUILD_DEPENDANT_TASK_TEMPLATE
   depends_on: build
 
-master_and_nightly_task_template: &MASTER_AND_NIGHTLY_TASK_TEMPLATE
-  only_if: $CIRRUS_BRANCH == $BRANCH_NIGHTLY || $CIRRUS_BRANCH == $BRANCH_MAIN
+master_task_template: &IS_BRANCH_MASTER
+  $CIRRUS_BRANCH == $BRANCH_MAIN
 
-master_or_nightly_or_maintenance_task_template:
-  &MASTER_OR_NIGHTLY_OR_MAINTENANCE_TASK_TEMPLATE
-  only_if: $CIRRUS_BRANCH == $BRANCH_NIGHTLY || $CIRRUS_BRANCH == $BRANCH_MAIN || $CIRRUS_BRANCH =~ $BRANCH_PATTERN_MAINTENANCE
+master_and_nightly_task_template: &IS_BRANCH_MASTER_OR_NIGHTLY
+  $CIRRUS_BRANCH == $BRANCH_NIGHTLY || $CIRRUS_BRANCH == $BRANCH_MAIN
 
-except_nightly_task_template: &EXCEPT_ON_NIGHTLY_TASK_TEMPLATE
-  only_if: $CIRRUS_BRANCH != $BRANCH_NIGHTLY
+master_or_nightly_or_maintenance_task_template: &IS_BRANCH_MASTER_OR_NIGHTLY_OR_MAINTENANCE
+  $CIRRUS_BRANCH == $BRANCH_NIGHTLY || $CIRRUS_BRANCH == $BRANCH_MAIN || $CIRRUS_BRANCH =~ $BRANCH_PATTERN_MAINTENANCE
 
-except_weekly_task_template: &EXCEPT_ON_WEEKLY_TASK_TEMPLATE
-  only_if: $CIRRUS_CRON != $CRON_DATABASE_JOB_NAME
+is_weekly_job: &IS_WEEKLY_JOB
+  $CIRRUS_CRON == $CRON_DATABASE_JOB_NAME
 
-only_on_main_branch_task_template: &ONLY_ON_MAIN_BRANCH_TASK_TEMPLATE
-  only_if: $CIRRUS_BRANCH == $BRANCH_MAIN
+is_old_commit: &IS_OLD_COMMIT
+  $CIRRUS_CRON == $CRON_DATABASE_JOB_NAME || $CIRRUS_BRANCH == $BRANCH_NIGHTLY
 
-database_related_task_template: &DATABASE_RELATED_TASK_TEMPLATE
-  only_if: >-
+is_branch_public: &IS_BRANCH_PUBLIC
+  $CIRRUS_BRANCH =~ $BRANCH_PATTERN_PUBLIC
+
+is_old_commit_or_public_branch: &IS_OLD_COMMIT_OR_BRANCH_PUBLIC
+  $CIRRUS_CRON == $CRON_DATABASE_JOB_NAME || $CIRRUS_BRANCH == $BRANCH_NIGHTLY || $CIRRUS_BRANCH =~ $BRANCH_PATTERN_PUBLIC
+
+database_related_task_template: &IS_DB_TASK_NEEDED >-
     $CIRRUS_BRANCH == $BRANCH_MAIN || $CIRRUS_BRANCH =~ $BRANCH_PATTERN_MAINTENANCE || $CIRRUS_BRANCH == $BRANCH_NIGHTLY ||
     changesInclude('server/sonar-db-dao/**/*Mapper.xml', 'server/sonar-db-migration/**/DbVersion*.java', 'server/sonar-db-dao/**/*Dao.java', 'server/sonar-db-core/src/main/java/org/sonar/db/*.java')
 
-saml_task_template: &SAML_TASK_TEMPLATE
-  only_if: >-
+saml_task_template: &IS_SAML_TASK_NEEDED >-
     $CIRRUS_BRANCH == $BRANCH_MAIN || $CIRRUS_BRANCH =~ $BRANCH_PATTERN_MAINTENANCE || $CIRRUS_BRANCH == $BRANCH_NIGHTLY ||
     changesInclude('server/sonar-auth-saml/src/main/java/**/*.java', 'server/sonar-auth-saml/src/main/resources/**/*', 'server/sonar-db-dao/src/main/**/SAML*.java', 'private/it-core/src/test/java/org/sonarqube/tests/saml/*.java', 'server/sonar-webserver-webapi/src/main/java/org/sonar/server/saml/**/*.java')
 
-ldap_task_template: &LDAP_TASK_TEMPLATE
-  only_if: >-
+ldap_task_template: &IS_LDAP_TASK_NEEDED >-
     $CIRRUS_BRANCH == $BRANCH_MAIN || $CIRRUS_BRANCH =~ $BRANCH_PATTERN_MAINTENANCE || $CIRRUS_BRANCH == $BRANCH_NIGHTLY ||
     changesInclude('server/sonar-auth-ldap/src/main/java/**/*.java', 'server/sonar-webserver-auth/src/main/java/org/sonar/server/authentication/LdapCredentialsAuthentication.java', 'private/it-core/src/test/java/org/sonarqube/tests/ldap/*.java')
 
-github_task_template: &GITHUB_TASK_TEMPLATE
-  only_if: >-
+github_task_template: &IS_GITHUB_TASK_NEEDED >-
     $CIRRUS_BRANCH == $BRANCH_MAIN || $CIRRUS_BRANCH =~ $BRANCH_PATTERN_MAINTENANCE || $CIRRUS_BRANCH == $BRANCH_NIGHTLY ||
     changesInclude('private/core-extension-developer-server/src/main/java/com/sonarsource/branch/pr/github/**/*.java',
     'private/core-extension-developer-server/src/main/java/com/sonarsource/github/**/*.java',
     'private/it-branch/it-tests/src/test/java/com/sonarsource/branch/it/suite/pr/github/**/*.java',
     'private/it-branch/it-tests/src/test/java/com/sonarsource/provisioning/github/*.java',
     'private/it-branch/it-tests/src/test/java/com/sonarsource/onboarding/github/*.java',
-    'private/core-extension-github-provisioning/**/*'
-    )
+    'private/core-extension-github-provisioning/**/*')
 
-skip_master_template: &SKIP_MASTER_TEMPLATE
-  skip: $CIRRUS_BRANCH == $BRANCH_MAIN
-
-gitlab_task_template: &GITLAB_TASK_TEMPLATE
-  only_if: >-
+gitlab_task_template: &IS_GITLAB_TASK_NEEDED >-
     $CIRRUS_BRANCH == $BRANCH_MAIN || $CIRRUS_BRANCH =~ $BRANCH_PATTERN_MAINTENANCE || $CIRRUS_BRANCH == $BRANCH_NIGHTLY ||
     changesInclude('private/core-extension-developer-server/src/main/java/com/sonarsource/branch/pr/gitlab/**/*.java', 
     'private/it-branch/it-tests/src/test/java/com/sonarsource/branch/it/suite/pr/gitlab/**/*.java',
     'private/core-extension-gitlab-vulnerability-report/src/main/**/*.java')
 
-azure_task_template: &AZURE_TASK_TEMPLATE
-  only_if: >-
+azure_task_template: &IS_AZURE_TASK_NEEDED >-
     $CIRRUS_BRANCH == $BRANCH_MAIN || $CIRRUS_BRANCH =~ $BRANCH_PATTERN_MAINTENANCE || $CIRRUS_BRANCH == $BRANCH_NIGHTLY ||
     changesInclude('private/core-extension-developer-server/src/main/java/com/sonarsource/branch/pr/azuredevops/**/*.java', 'private/it-branch/it-tests/src/test/java/com/sonarsource/branch/it/suite/pr/azure/**/*.java')
 
-bitbucket_server_task_template: &BITBUCKET_SERVER_TASK_TEMPLATE
-  only_if: >-
+bitbucket_server_task_template: &IS_BITBUCKET_SERVER_TASK_NEEDED >-
     $CIRRUS_BRANCH == $BRANCH_MAIN || $CIRRUS_BRANCH =~ $BRANCH_PATTERN_MAINTENANCE || $CIRRUS_BRANCH == $BRANCH_NIGHTLY ||
     changesInclude('private/core-extension-developer-server/src/main/java/com/sonarsource/branch/pr/bitbucketserver/**/*.java', 'private/it-branch/it-tests/src/test/java/com/sonarsource/branch/it/suite/pr/bitbucketserver/**/*.java')
 
-bitbucket_cloud_task_template: &BITBUCKET_CLOUD_TASK_TEMPLATE
-  only_if: >-
+bitbucket_cloud_task_template: &IS_BITBUCKET_CLOUD_TASK_NEEDED >-
     $CIRRUS_BRANCH == $BRANCH_MAIN || $CIRRUS_BRANCH =~ $BRANCH_PATTERN_MAINTENANCE || $CIRRUS_BRANCH == $BRANCH_NIGHTLY ||
     changesInclude('private/core-extension-developer-server/src/main/java/com/sonarsource/branch/pr/bitbucket/**/*.java', 'private/it-branch/it-tests/src/test/java/com/sonarsource/branch/it/suite/pr/bitbucketcloud/**/*.java')
 
@@ -300,7 +290,7 @@ junit_report_cache_template: &JUNIT_REPORT_CACHE_TEMPLATE
     fingerprint_script: echo $CIRRUS_BUILD_ID
 
 default_template: &DEFAULT_TEMPLATE
-  <<: *SKIP_PUBLIC_BRANCHES_TEMPLATE
+  skip: *IS_BRANCH_PUBLIC
   clone_script: |
     git init
     git remote add origin https://x-access-token:${CIRRUS_REPO_CLONE_TOKEN}@github.com/${CIRRUS_REPO_FULL_NAME}.git
@@ -338,7 +328,7 @@ publish_task:
   <<: *DEFAULT_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
   <<: *BUILD_DEPENDANT_TASK_TEMPLATE
-  <<: *EXCEPT_ON_WEEKLY_TASK_TEMPLATE
+  skip: *IS_WEEKLY_JOB
   eks_container:
     <<: *CONTAINER_TEMPLATE
     cpu: 4
@@ -356,7 +346,7 @@ yarn_lint_task:
   <<: *YARN_CACHE_TEMPLATE
   <<: *ESLINT_REPORT_CACHE_TEMPLATE
   <<: *CACHE_DEPENDENCIES_DEPENDANT_TASK_TEMPLATE
-  <<: *EXCEPT_ON_WEEKLY_TASK_TEMPLATE
+  skip: *IS_WEEKLY_JOB
   eks_container:
     <<: *CONTAINER_TEMPLATE
     cpu: 3
@@ -370,7 +360,7 @@ yarn_check_task:
   <<: *GRADLE_CACHE_TEMPLATE
   <<: *YARN_CACHE_TEMPLATE
   <<: *CACHE_DEPENDENCIES_DEPENDANT_TASK_TEMPLATE
-  <<: *EXCEPT_ON_WEEKLY_TASK_TEMPLATE
+  skip: *IS_WEEKLY_JOB
   eks_container:
     <<: *CONTAINER_TEMPLATE
     cpu: 3
@@ -386,7 +376,7 @@ yarn_validate_task:
   <<: *YARN_CACHE_TEMPLATE
   <<: *JEST_REPORT_CACHE_TEMPLATE
   <<: *CACHE_DEPENDENCIES_DEPENDANT_TASK_TEMPLATE
-  <<: *EXCEPT_ON_WEEKLY_TASK_TEMPLATE
+  skip: *IS_WEEKLY_JOB
   eks_container:
     <<: *CONTAINER_TEMPLATE
     cpu: 7.5
@@ -400,7 +390,7 @@ junit_task:
   <<: *GRADLE_CACHE_TEMPLATE
   <<: *JUNIT_REPORT_CACHE_TEMPLATE
   <<: *CACHE_DEPENDENCIES_DEPENDANT_TASK_TEMPLATE
-  <<: *EXCEPT_ON_WEEKLY_TASK_TEMPLATE
+  skip: *IS_WEEKLY_JOB
   eks_container:
     <<: *CONTAINER_TEMPLATE
     cpu: 7.5
@@ -410,14 +400,12 @@ junit_task:
   <<: *DEFAULT_ARTIFACTS_TEMPLATE
 
 sq_analysis_task:
-  <<: *SKIP_PUBLIC_BRANCHES_TEMPLATE
-  <<: *EXCEPT_ON_NIGHTLY_TASK_TEMPLATE
+  skip: *IS_OLD_COMMIT_OR_BRANCH_PUBLIC
   <<: *GRADLE_CACHE_TEMPLATE
   <<: *YARN_CACHE_TEMPLATE
   <<: *JEST_REPORT_CACHE_TEMPLATE
   <<: *ESLINT_REPORT_CACHE_TEMPLATE
   <<: *JUNIT_REPORT_CACHE_TEMPLATE
-  <<: *EXCEPT_ON_WEEKLY_TASK_TEMPLATE
   depends_on:
     - yarn_validate
     - yarn_lint
@@ -435,7 +423,7 @@ task: #bitbucket
   <<: *BUILD_DEPENDANT_TASK_TEMPLATE
   <<: *JAR_CACHE_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
-  <<: *BITBUCKET_SERVER_TASK_TEMPLATE
+  only_if: *IS_BITBUCKET_SERVER_TASK_NEEDED
   eks_container:
     <<: *CONTAINER_TEMPLATE
     cpu: 3
@@ -461,7 +449,7 @@ qa_bb_cloud_task:
   <<: *BUILD_DEPENDANT_TASK_TEMPLATE
   <<: *JAR_CACHE_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
-  <<: *BITBUCKET_CLOUD_TASK_TEMPLATE
+  only_if: *IS_BITBUCKET_CLOUD_TASK_NEEDED
   eks_container:
     <<: *CONTAINER_TEMPLATE
     cpu: 2.4
@@ -476,7 +464,7 @@ qa_bb_cloud_task:
 qa_ha_cluster_task:
   <<: *DEFAULT_TEMPLATE
   <<: *BUILD_DEPENDANT_TASK_TEMPLATE
-  <<: *MASTER_OR_NIGHTLY_OR_MAINTENANCE_TASK_TEMPLATE
+  only_if: *IS_BRANCH_MASTER_OR_NIGHTLY_OR_MAINTENANCE
   <<: *JAR_CACHE_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
   eks_container:
@@ -495,7 +483,7 @@ qa_ha_cluster_task:
 qa_ha_elasticsearch_task:
   <<: *DEFAULT_TEMPLATE
   <<: *BUILD_DEPENDANT_TASK_TEMPLATE
-  <<: *MASTER_OR_NIGHTLY_OR_MAINTENANCE_TASK_TEMPLATE
+  only_if: *IS_BRANCH_MASTER_OR_NIGHTLY_OR_MAINTENANCE
   <<: *JAR_CACHE_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
   eks_container:
@@ -514,7 +502,7 @@ qa_ha_elasticsearch_task:
 qa_performance_task:
   <<: *DEFAULT_TEMPLATE
   <<: *BUILD_DEPENDANT_TASK_TEMPLATE
-  <<: *MASTER_AND_NIGHTLY_TASK_TEMPLATE
+  only_if: *IS_BRANCH_MASTER_OR_NIGHTLY
   <<: *JAR_CACHE_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
   eks_container:
@@ -535,7 +523,7 @@ qa_gitlab_task:
   <<: *BUILD_DEPENDANT_TASK_TEMPLATE
   <<: *JAR_CACHE_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
-  <<: *GITLAB_TASK_TEMPLATE
+  only_if: *IS_GITLAB_TASK_NEEDED
   depends_on:
     - build
   env:
@@ -564,7 +552,7 @@ qa_gitlab_cloud_task:
   <<: *BUILD_DEPENDANT_TASK_TEMPLATE
   <<: *JAR_CACHE_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
-  <<: *GITLAB_TASK_TEMPLATE
+  only_if: *IS_GITLAB_TASK_NEEDED
   eks_container:
     <<: *CONTAINER_TEMPLATE
     cpu: 2.4
@@ -583,7 +571,7 @@ qa_azure_task:
   <<: *BUILD_DEPENDANT_TASK_TEMPLATE
   <<: *JAR_CACHE_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
-  <<: *AZURE_TASK_TEMPLATE
+  only_if: *IS_AZURE_TASK_NEEDED
   eks_container:
     <<: *CONTAINER_TEMPLATE
     cpu: 2.4
@@ -598,7 +586,7 @@ qa_azure_task:
 qa_github_task:
   <<: *DEFAULT_TEMPLATE
   <<: *BUILD_DEPENDANT_TASK_TEMPLATE
-  <<: *GITHUB_TASK_TEMPLATE
+  only_if: *IS_GITHUB_TASK_NEEDED
   <<: *JAR_CACHE_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
   eks_container:
@@ -614,7 +602,7 @@ qa_github_task:
 qa_github_provisioning_task:
   <<: *DEFAULT_TEMPLATE
   <<: *BUILD_DEPENDANT_TASK_TEMPLATE
-  <<: *GITHUB_TASK_TEMPLATE
+  only_if: *IS_GITHUB_TASK_NEEDED
   <<: *JAR_CACHE_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
   eks_container:
@@ -630,8 +618,8 @@ qa_github_provisioning_task:
 qa_github_slow_task:
   <<: *DEFAULT_TEMPLATE
   <<: *BUILD_DEPENDANT_TASK_TEMPLATE
-  <<: *GITHUB_TASK_TEMPLATE
-  <<: *SKIP_MASTER_TEMPLATE
+  only_if: *IS_GITHUB_TASK_NEEDED
+  skip: *IS_BRANCH_MASTER
   <<: *JAR_CACHE_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
   eks_container:
@@ -650,7 +638,7 @@ qa_github_slow_task:
 qa_saml_task:
   <<: *DEFAULT_TEMPLATE
   <<: *BUILD_DEPENDANT_TASK_TEMPLATE
-  <<: *SAML_TASK_TEMPLATE
+  only_if: *IS_SAML_TASK_NEEDED
   <<: *JAR_CACHE_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
   eks_container:
@@ -669,7 +657,7 @@ qa_saml_task:
 qa_ldap_task:
   <<: *DEFAULT_TEMPLATE
   <<: *BUILD_DEPENDANT_TASK_TEMPLATE
-  <<: *LDAP_TASK_TEMPLATE
+  only_if: *IS_LDAP_TASK_NEEDED
   <<: *JAR_CACHE_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
   eks_container:
@@ -684,8 +672,7 @@ qa_ldap_task:
 
 promote_task:
   <<: *DEFAULT_TEMPLATE
-  <<: *EXCEPT_ON_NIGHTLY_TASK_TEMPLATE
-  <<: *EXCEPT_ON_WEEKLY_TASK_TEMPLATE
+  skip: *IS_OLD_COMMIT
   depends_on:
     - build
     - sq_analysis
@@ -702,7 +689,8 @@ promote_task:
 
 package_docker_task:
   <<: *DEFAULT_TEMPLATE
-  only_if: $CIRRUS_BRANCH == $BRANCH_MAIN && $CIRRUS_CRON != $CRON_DATABASE_JOB_NAME
+  only_if: *IS_BRANCH_MASTER
+  skip: *IS_OLD_COMMIT
   depends_on: promote
   ec2_instance:
     <<: *VM_TEMPLATE
@@ -718,7 +706,7 @@ package_docker_task:
 sql_mssql_task:
   <<: *DEFAULT_TEMPLATE
   <<: *BUILD_DEPENDANT_TASK_TEMPLATE
-  <<: *DATABASE_RELATED_TASK_TEMPLATE
+  only_if: *IS_DB_TASK_NEEDED
   <<: *GRADLE_CACHE_TEMPLATE
   eks_container:
     <<: *CONTAINER_TEMPLATE
@@ -740,7 +728,7 @@ sql_mssql_task:
 sql_postgres_task:
   <<: *DEFAULT_TEMPLATE
   <<: *BUILD_DEPENDANT_TASK_TEMPLATE
-  <<: *DATABASE_RELATED_TASK_TEMPLATE
+  only_if: *IS_DB_TASK_NEEDED
   <<: *GRADLE_CACHE_TEMPLATE
   eks_container:
     <<: *CONTAINER_TEMPLATE
@@ -755,7 +743,7 @@ sql_postgres_task:
 sql_postgres11_task:
   <<: *DEFAULT_TEMPLATE
   <<: *BUILD_DEPENDANT_TASK_TEMPLATE
-  <<: *DATABASE_RELATED_TASK_TEMPLATE
+  only_if: *IS_DB_TASK_NEEDED
   <<: *GRADLE_CACHE_TEMPLATE
   eks_container:
     <<: *CONTAINER_TEMPLATE
@@ -770,7 +758,7 @@ sql_postgres11_task:
 sql_oracle21_task:
   <<: *DEFAULT_TEMPLATE
   <<: *BUILD_DEPENDANT_TASK_TEMPLATE
-  <<: *DATABASE_RELATED_TASK_TEMPLATE
+  only_if: *IS_DB_TASK_NEEDED
   <<: *GRADLE_CACHE_TEMPLATE
   eks_container:
     <<: *CONTAINER_TEMPLATE
@@ -784,7 +772,7 @@ sql_oracle21_task:
 upgd_mssql_task:
   <<: *DEFAULT_TEMPLATE
   <<: *BUILD_DEPENDANT_TASK_TEMPLATE
-  <<: *DATABASE_RELATED_TASK_TEMPLATE
+  only_if: *IS_DB_TASK_NEEDED
   <<: *JAR_CACHE_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
   eks_container:
@@ -802,7 +790,7 @@ upgd_mssql_task:
 upgd_oracle21_task:
   <<: *DEFAULT_TEMPLATE
   <<: *BUILD_DEPENDANT_TASK_TEMPLATE
-  <<: *DATABASE_RELATED_TASK_TEMPLATE
+  only_if: *IS_DB_TASK_NEEDED
   <<: *JAR_CACHE_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
   eks_container:
@@ -820,7 +808,7 @@ upgd_oracle21_task:
 mend_scan_task:
   <<: *DEFAULT_TEMPLATE
   <<: *BUILD_DEPENDANT_TASK_TEMPLATE
-  <<: *MASTER_OR_NIGHTLY_OR_MAINTENANCE_TASK_TEMPLATE
+  only_if: *IS_BRANCH_MASTER_OR_NIGHTLY_OR_MAINTENANCE
   <<: *YARN_CACHE_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
   timeout_in: 30m
@@ -849,7 +837,7 @@ qa_task:
   <<: *CACHE_DEPENDENCIES_DEPENDANT_TASK_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
   <<: *JAR_CACHE_TEMPLATE
-  <<: *EXCEPT_ON_WEEKLY_TASK_TEMPLATE
+  skip: *IS_WEEKLY_JOB
   eks_container:
     <<: *CONTAINER_TEMPLATE
     cpu: 3
@@ -898,7 +886,7 @@ weekly_postgres_task:
   <<: *CACHE_DEPENDENCIES_DEPENDANT_TASK_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
   <<: *JAR_CACHE_TEMPLATE
-  only_if: $CIRRUS_CRON == $CRON_DATABASE_JOB_NAME
+  only_if: *IS_WEEKLY_JOB
   eks_container:
     <<: *CONTAINER_TEMPLATE
     cpu: 3
@@ -962,7 +950,7 @@ weekly_oracle_task:
   <<: *CACHE_DEPENDENCIES_DEPENDANT_TASK_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
   <<: *JAR_CACHE_TEMPLATE
-  only_if: $CIRRUS_CRON == $CRON_DATABASE_JOB_NAME
+  only_if: *IS_WEEKLY_JOB
   eks_container:
     <<: *CONTAINER_TEMPLATE
     cpu: 3
@@ -1025,7 +1013,7 @@ weekly_mssql_task:
   <<: *CACHE_DEPENDENCIES_DEPENDANT_TASK_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
   <<: *JAR_CACHE_TEMPLATE
-  only_if: $CIRRUS_CRON == $CRON_DATABASE_JOB_NAME
+  only_if: *IS_WEEKLY_JOB
   eks_container:
     <<: *CONTAINER_TEMPLATE
     cpu: 3
