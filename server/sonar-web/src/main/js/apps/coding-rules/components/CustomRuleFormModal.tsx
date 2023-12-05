@@ -307,26 +307,30 @@ export default function CustomRuleFormModal(props: Readonly<Props>) {
 
           {NameField}
           {KeyField}
-
-          <div className="sw-flex sw-justify-between sw-gap-6">
-            <CleanCodeCategoryField
-              value={ccCategory}
-              disabled={submitting}
-              onChange={setCCCategory}
-            />
-            <CleanCodeAttributeField
-              value={ccAttribute}
-              category={ccCategory}
-              disabled={submitting}
-              onChange={setCCAtribute}
-            />
-          </div>
-          <SoftwareQualitiesFields
-            error={hasError}
-            value={impacts}
-            onChange={setImpacts}
-            disabled={submitting}
-          />
+          {/* do not allow to change CCT fields of existing rule */}
+          {!customRule && !reactivating && (
+            <>
+              <div className="sw-flex sw-justify-between sw-gap-6">
+                <CleanCodeCategoryField
+                  value={ccCategory}
+                  disabled={submitting}
+                  onChange={setCCCategory}
+                />
+                <CleanCodeAttributeField
+                  value={ccAttribute}
+                  category={ccCategory}
+                  disabled={submitting}
+                  onChange={setCCAtribute}
+                />
+              </div>
+              <SoftwareQualitiesFields
+                error={hasError}
+                value={impacts}
+                onChange={setImpacts}
+                disabled={submitting}
+              />
+            </>
+          )}
           {StatusField}
           {DescriptionField}
           {templateParams.map(renderParameterField)}
