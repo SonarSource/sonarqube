@@ -109,7 +109,7 @@ export default function DetailsHeader({ qualityGate }: Readonly<Props>) {
                   id="quality_gates.is_built_in.description"
                   values={{
                     link: (
-                      <DocumentationLink to="/user-guide/quality-gates/#recommended-quality-gate">
+                      <DocumentationLink to="/user-guide/quality-gates/#using-sonar-way-the-recommended-quality-gate">
                         {translate('learn_more')}
                       </DocumentationLink>
                     ),
