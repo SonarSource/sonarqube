@@ -31,11 +31,9 @@ import {
 import { sortBy } from 'lodash';
 import * as React from 'react';
 import ConfirmButton from '../../../components/controls/ConfirmButton';
-import IssueSeverityIcon from '../../../components/icon-mappers/IssueSeverityIcon';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { getRuleUrl } from '../../../helpers/urls';
 import { useDeleteRuleMutation, useSearchRulesQuery } from '../../../queries/rules';
-import { IssueSeverity } from '../../../types/issues';
 import { Rule, RuleDetails } from '../../../types/types';
 import CustomRuleButton from './CustomRuleButton';
 
@@ -44,11 +42,11 @@ interface Props {
   ruleDetails: RuleDetails;
 }
 
-const COLUMN_COUNT = 3;
-const COLUMN_COUNT_WITH_EDIT_PERMISSIONS = 4;
+const COLUMN_COUNT = 2;
+const COLUMN_COUNT_WITH_EDIT_PERMISSIONS = 3;
 
 export default function RuleDetailsCustomRules(props: Readonly<Props>) {
-  const { ruleDetails } = props;
+  const { ruleDetails, canChange } = props;
   const rulesSearchParams = {
     f: 'name,severity,params',
     template_key: ruleDetails.key,
@@ -84,13 +82,14 @@ export default function RuleDetailsCustomRules(props: Readonly<Props>) {
           <Table
             className="sw-my-6"
             id="coding-rules-detail-custom-rules"
-            columnCount={props.canChange ? COLUMN_COUNT_WITH_EDIT_PERMISSIONS : COLUMN_COUNT}
+            columnCount={canChange ? COLUMN_COUNT_WITH_EDIT_PERMISSIONS : COLUMN_COUNT}
+            columnWidths={canChange ? ['auto', 'auto', '1%'] : ['auto', 'auto']}
           >
             {sortBy(rules, (rule) => rule.name).map((rule) => (
               <RuleListItem
                 key={rule.key}
                 rule={rule}
-                editable={props.canChange}
+                editable={canChange}
                 onDelete={handleRuleDelete}
               />
             ))}
@@ -116,15 +115,6 @@ function RuleListItem(
         <div>
           <Link to={getRuleUrl(rule.key)}>{rule.name}</Link>
         </div>
-      </ContentCell>
-
-      <ContentCell>
-        <IssueSeverityIcon
-          className="sw-mr-1"
-          severity={rule.severity as IssueSeverity}
-          aria-hidden
-        />
-        {translate('severity', rule.severity)}
       </ContentCell>
 
       <ContentCell>
