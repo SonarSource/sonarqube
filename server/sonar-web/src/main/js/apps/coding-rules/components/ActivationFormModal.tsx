@@ -92,12 +92,15 @@ export default function ActivationFormModal(props: Readonly<Props>) {
     setParams({ ...params, [name]: value });
   };
 
+  const makeScrollable = (rule.params?.length ?? 0) > 1;
+
   return (
     <Modal
       headerTitle={modalHeader}
       onClose={props.onClose}
       loading={submitting}
-      isOverflowVisible
+      isOverflowVisible={!makeScrollable}
+      isScrollable={makeScrollable}
       primaryButton={
         <ButtonPrimary disabled={submitting || activeInAllProfiles} form={FORM_ID} type="submit">
           {isUpdateMode ? translate('save') : translate('coding_rules.activate')}
@@ -105,7 +108,7 @@ export default function ActivationFormModal(props: Readonly<Props>) {
       }
       secondaryButtonLabel={translate('cancel')}
       body={
-        <form id={FORM_ID} onSubmit={handleFormSubmit}>
+        <form className="sw-pb-10" id={FORM_ID} onSubmit={handleFormSubmit}>
           {!isUpdateMode && activeInAllProfiles && (
             <FlagMessage className="sw-mb-2" variant="info">
               {translate('coding_rules.active_in_all_profiles')}
