@@ -22,22 +22,20 @@ import withComponentContext from '../../../app/components/componentContext/withC
 import withMetricsContext from '../../../app/components/metrics/withMetricsContext';
 import { Location, Router, withRouter } from '../../../components/hoc/withRouter';
 import { CodeScope, getCodeUrl, getProjectUrl } from '../../../helpers/urls';
-import { withBranchLikes } from '../../../queries/branch';
+import { useBranchesQuery } from '../../../queries/branch';
 import { BranchLike } from '../../../types/branch-like';
-import { ComponentQualifier } from '../../../types/component';
+import { ComponentQualifier, isPortfolioLike } from '../../../types/component';
 import { Breadcrumb, Component, ComponentMeasure, Dict, Metric } from '../../../types/types';
 import { addComponent, addComponentBreadcrumbs, clearBucket } from '../bucket';
 import '../code.css';
 import { loadMoreChildren, retrieveComponent, retrieveComponentChildren } from '../utils';
 import CodeAppRenderer from './CodeAppRenderer';
 
-interface Props {
-  branchLike?: BranchLike;
-  branchLikes: BranchLike[];
+interface Props extends WithBranchLikesProps {
   component: Component;
   location: Location;
-  router: Router;
   metrics: Dict<Metric>;
+  router: Router;
 }
 
 interface State {
@@ -46,11 +44,11 @@ interface State {
   components?: ComponentMeasure[];
   highlighted?: ComponentMeasure;
   loading: boolean;
+  newCodeSelected: boolean;
   page: number;
   searchResults?: ComponentMeasure[];
   sourceViewer?: ComponentMeasure;
   total: number;
-  newCodeSelected: boolean;
 }
 
 class CodeApp extends React.Component<Props, State> {
@@ -62,9 +60,9 @@ class CodeApp extends React.Component<Props, State> {
     this.state = {
       breadcrumbs: [],
       loading: true,
+      newCodeSelected: true,
       page: 0,
       total: 0,
-      newCodeSelected: true,
     };
   }
 
@@ -92,41 +90,37 @@ class CodeApp extends React.Component<Props, State> {
       this,
       this.props.branchLike,
     ).then((r) => {
-      if (this.mounted) {
-        if (
-          [ComponentQualifier.File, ComponentQualifier.TestFile].includes(
-            r.component.qualifier as ComponentQualifier,
-          )
-        ) {
-          this.setState({
-            breadcrumbs: r.breadcrumbs,
-            components: r.components,
-            loading: false,
-            page: 0,
-            searchResults: undefined,
-            sourceViewer: r.component,
-            total: 0,
-          });
-        } else {
-          this.setState({
-            baseComponent: r.component,
-            breadcrumbs: r.breadcrumbs,
-            components: r.components,
-            loading: false,
-            page: r.page,
-            searchResults: undefined,
-            sourceViewer: undefined,
-            total: r.total,
-          });
-        }
+      if (
+        [ComponentQualifier.File, ComponentQualifier.TestFile].includes(
+          r.component.qualifier as ComponentQualifier,
+        )
+      ) {
+        this.setState({
+          breadcrumbs: r.breadcrumbs,
+          components: r.components,
+          loading: false,
+          page: 0,
+          searchResults: undefined,
+          sourceViewer: r.component,
+          total: 0,
+        });
+      } else {
+        this.setState({
+          baseComponent: r.component,
+          breadcrumbs: r.breadcrumbs,
+          components: r.components,
+          loading: false,
+          page: r.page,
+          searchResults: undefined,
+          sourceViewer: undefined,
+          total: r.total,
+        });
       }
     }, this.stopLoading);
   };
 
   stopLoading = () => {
-    if (this.mounted) {
-      this.setState({ loading: false });
-    }
+    this.setState({ loading: false });
   };
 
   handleComponentChange = () => {
@@ -138,9 +132,7 @@ class CodeApp extends React.Component<Props, State> {
     this.setState({ loading: true });
     retrieveComponentChildren(component.key, component.qualifier, this, branchLike).then(() => {
       addComponent(component);
-      if (this.mounted) {
-        this.handleUpdate();
-      }
+      this.handleUpdate();
     }, this.stopLoading);
   };
 
@@ -156,7 +148,7 @@ class CodeApp extends React.Component<Props, State> {
       this,
       this.props.branchLike,
     ).then((r) => {
-      if (this.mounted && r.components.length) {
+      if (r.components.length) {
         this.setState({
           components: [...components, ...r.components],
           page: r.page,
@@ -231,6 +223,27 @@ class CodeApp extends React.Component<Props, State> {
       />
     );
   }
+}
+
+interface WithBranchLikesProps {
+  branchLikes?: BranchLike[];
+  branchLike?: BranchLike;
+}
+
+function withBranchLikes<P extends { component?: Component }>(
+  WrappedComponent: React.ComponentType<React.PropsWithChildren<P & WithBranchLikesProps>>,
+): React.ComponentType<React.PropsWithChildren<Omit<P, 'branchLike' | 'branchLikes'>>> {
+  return function WithBranchLike(p: P) {
+    const { data, isFetching } = useBranchesQuery(p.component);
+
+    return isPortfolioLike(p.component?.qualifier) || !isFetching ? (
+      <WrappedComponent
+        branchLikes={data?.branchLikes ?? []}
+        branchLike={data?.branchLike}
+        {...p}
+      />
+    ) : null;
+  };
 }
 
 export default withRouter(withComponentContext(withMetricsContext(withBranchLikes(CodeApp))));
