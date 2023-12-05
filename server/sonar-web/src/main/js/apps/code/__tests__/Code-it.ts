@@ -21,6 +21,7 @@ import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { UserEvent } from '@testing-library/user-event/dist/types/setup/setup';
 import { keyBy, times } from 'lodash';
+import BranchesServiceMock from '../../../api/mocks/BranchesServiceMock';
 import ComponentsServiceMock from '../../../api/mocks/ComponentsServiceMock';
 import IssuesServiceMock from '../../../api/mocks/IssuesServiceMock';
 import { isDiffMetric } from '../../../helpers/measures';
@@ -43,16 +44,6 @@ jest.mock('../../../components/SourceViewer/helpers/lines', () => {
   };
 });
 
-jest.mock('../../../api/branches', () => ({
-  deleteBranch: jest.fn(),
-  deletePullRequest: jest.fn(),
-  excludeBranchFromPurge: jest.fn(),
-  getBranches: jest.fn(),
-  getPullRequests: jest.fn(),
-  renameBranch: jest.fn(),
-  setMainBranch: jest.fn(),
-}));
-
 jest.mock('../../../api/quality-gates', () => ({
   getQualityGateProjectStatus: jest.fn(),
 }));
@@ -60,8 +51,9 @@ jest.mock('../../../api/quality-gates', () => ({
 const DEFAULT_LINES_LOADED = 19;
 const originalScrollTo = window.scrollTo;
 
-const issuesHandler = new IssuesServiceMock();
+const branchesHandler = new BranchesServiceMock();
 const componentsHandler = new ComponentsServiceMock();
+const issuesHandler = new IssuesServiceMock();
 
 beforeAll(() => {
   Object.defineProperty(window, 'scrollTo', {
@@ -80,8 +72,9 @@ afterAll(() => {
 });
 
 beforeEach(() => {
-  issuesHandler.reset();
+  branchesHandler.reset();
   componentsHandler.reset();
+  issuesHandler.reset();
 });
 
 it('should allow navigating through the tree', async () => {
