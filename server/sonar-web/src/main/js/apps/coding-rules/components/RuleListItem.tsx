@@ -25,6 +25,7 @@ import {
   InheritanceIcon,
   Link,
   OverridenIcon,
+  SeparatorCircleIcon,
   TextSubdued,
   themeBorder,
 } from 'design-system';
@@ -95,37 +96,37 @@ export default class RuleListItem extends React.PureComponent<Props> {
 
   renderActivation = () => {
     const { activation, selectedProfile } = this.props;
-    if (!activation) {
+    if (!activation || !selectedProfile?.parentName) {
+      return null;
+    }
+
+    if (!['OVERRIDES', 'INHERITED'].includes(activation.inherit)) {
       return null;
     }
 
     return (
       <div className="sw-mr-2 sw-shrink-0">
-        {selectedProfile?.parentName && (
-          <>
-            {activation.inherit === 'OVERRIDES' && (
-              <Tooltip
-                overlay={translateWithParameters(
-                  'coding_rules.overrides',
-                  selectedProfile.name,
-                  selectedProfile.parentName,
-                )}
-              >
-                <OverridenIcon className="sw-ml-1" />
-              </Tooltip>
+        {activation.inherit === 'OVERRIDES' && (
+          <Tooltip
+            overlay={translateWithParameters(
+              'coding_rules.overrides',
+              selectedProfile.name,
+              selectedProfile.parentName,
             )}
-            {activation.inherit === 'INHERITED' && (
-              <Tooltip
-                overlay={translateWithParameters(
-                  'coding_rules.inherits',
-                  selectedProfile.name,
-                  selectedProfile.parentName,
-                )}
-              >
-                <InheritanceIcon className="sw-ml-1" />
-              </Tooltip>
+          >
+            <OverridenIcon className="sw-ml-1" />
+          </Tooltip>
+        )}
+        {activation.inherit === 'INHERITED' && (
+          <Tooltip
+            overlay={translateWithParameters(
+              'coding_rules.inherits',
+              selectedProfile.name,
+              selectedProfile.parentName,
             )}
-          </>
+          >
+            <InheritanceIcon className="sw-ml-1" />
+          </Tooltip>
         )}
       </div>
     );
@@ -209,75 +210,107 @@ export default class RuleListItem extends React.PureComponent<Props> {
         data-rule={rule.key}
         onClick={() => this.props.selectRule(rule.key)}
       >
-        <div className="sw-flex sw-flex-col">
-          <div className="sw-mb-2">
-            {rule.cleanCodeAttributeCategory !== undefined && (
-              <CleanCodeAttributePill
-                cleanCodeAttributeCategory={rule.cleanCodeAttributeCategory}
-                type="rule"
-              />
-            )}
-          </div>
+        <div className="sw-flex sw-flex-col sw-gap-3">
           <div className="sw-flex sw-justify-between sw-items-center">
             <div className="sw-flex sw-items-center">
               {this.renderActivation()}
-              <div>
-                <Link
-                  className="sw-body-sm-highlight"
-                  onClick={this.handleNameClick}
-                  to={getRuleUrl(rule.key)}
-                >
-                  {rule.name}
-                </Link>
-              </div>
-              {rule.isTemplate && (
-                <Tooltip overlay={translate('coding_rules.rule_template.title')}>
-                  <span>
-                    <Badge className="sw-ml-2">{translate('coding_rules.rule_template')}</Badge>
-                  </span>
-                </Tooltip>
-              )}
-              {rule.status !== 'READY' && (
-                <Badge variant="deleted" className="sw-ml-2">
-                  {translate('rules.status', rule.status)}
-                </Badge>
-              )}
-            </div>
-            <div className="sw-flex sw-items-center sw-ml-2">
-              <span>{rule.langName}</span>
-              <SoftwareImpactPillList
-                className="sw-ml-3 sw-gap-3"
-                softwareImpacts={rule.impacts}
-                type="rule"
-              />
 
-              <DocumentationTooltip
-                content={
-                  <div>
-                    <p className="sw-mb-2">{translate('coding_rules.type.deprecation.title')}</p>
-                    <p>{translate('coding_rules.type.deprecation.filter_by')}</p>
-                  </div>
-                }
-                links={[
-                  {
-                    href: '/user-guide/clean-code',
-                    label: translate('learn_more'),
-                  },
-                ]}
+              <Link
+                className="sw-body-sm-highlight"
+                onClick={this.handleNameClick}
+                to={getRuleUrl(rule.key)}
               >
-                <TextSubdued className="sw-ml-3 sw-whitespace-nowrap">
-                  <TypeHelper
-                    className="sw-flex sw-items-center"
-                    iconFill="iconTypeDisabled"
-                    type={rule.type}
-                  />
-                </TextSubdued>
-              </DocumentationTooltip>
-              {allTags.length > 0 && (
-                <TagsList allowUpdate={false} className="sw-ml-3" tags={allTags} />
-              )}
-              {this.renderActions()}
+                {rule.name}
+              </Link>
             </div>
+
+            <div>
+              {rule.cleanCodeAttributeCategory !== undefined && (
+                <CleanCodeAttributePill
+                  cleanCodeAttributeCategory={rule.cleanCodeAttributeCategory}
+                  type="rule"
+                />
+              )}
+            </div>
+          </div>
+
+          <div className="sw-flex sw-items-center">
+            <div className="sw-grow sw-flex sw-gap-2 sw-items-center sw-body-xs">
+              {rule.impacts.length > 0 && (
+                <SoftwareImpactPillList
+                  softwareImpacts={rule.impacts.concat(rule.impacts).concat(rule.impacts)}
+                  type="rule"
+                />
+              )}
+            </div>
+
+            <ul className="sw-flex sw-gap-2 sw-items-center sw-body-xs">
+              <li>{rule.langName}</li>
+
+              <SeparatorCircleIcon aria-hidden as="li" />
+              <li>
+                <DocumentationTooltip
+                  content={
+                    <div>
+                      <p className="sw-mb-2">{translate('coding_rules.type.deprecation.title')}</p>
+                      <p>{translate('coding_rules.type.deprecation.filter_by')}</p>
+                    </div>
+                  }
+                  links={[
+                    {
+                      href: '/user-guide/clean-code',
+                      label: translate('learn_more'),
+                    },
+                  ]}
+                >
+                  <TextSubdued className="sw-whitespace-nowrap">
+                    <TypeHelper
+                      className="sw-flex sw-items-center"
+                      iconFill="iconTypeDisabled"
+                      type={rule.type}
+                    />
+                  </TextSubdued>
+                </DocumentationTooltip>
+              </li>
+
+              {rule.isTemplate && (
+                <>
+                  <SeparatorCircleIcon aria-hidden as="li" />
+                  <li>
+                    <Tooltip overlay={translate('coding_rules.rule_template.title')}>
+                      <span>
+                        <Badge>{translate('coding_rules.rule_template')}</Badge>
+                      </span>
+                    </Tooltip>
+                  </li>
+                </>
+              )}
+
+              {rule.status !== 'READY' && (
+                <>
+                  <SeparatorCircleIcon aria-hidden as="li" />
+                  <li>
+                    <Badge variant="deleted">{translate('rules.status', rule.status)}</Badge>
+                  </li>
+                </>
+              )}
+
+              {allTags.length > 0 && (
+                <>
+                  <SeparatorCircleIcon aria-hidden as="li" />
+                  <li>
+                    <TagsList
+                      allowUpdate={false}
+                      className="sw-body-xs"
+                      tagsClassName="sw-body-xs"
+                      tags={allTags}
+                    />
+                  </li>
+                </>
+              )}
+            </ul>
+
+            <div className="sw-flex sw-items-center">{this.renderActions()}</div>
           </div>
         </div>
       </ListItemStyled>
