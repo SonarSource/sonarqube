@@ -53,3 +53,8 @@ export enum SoftwareQuality {
   Reliability = 'RELIABILITY',
   Maintainability = 'MAINTAINABILITY',
 }
+
+export interface SoftwareImpact {
+  softwareQuality: SoftwareQuality;
+  severity: SoftwareImpactSeverity;
+}

@@ -20,16 +20,15 @@
 import classNames from 'classnames';
 import React from 'react';
 import { translate } from '../../helpers/l10n';
-import { SoftwareImpactSeverity, SoftwareQuality } from '../../types/clean-code-taxonomy';
+import {
+  SoftwareImpact,
+  SoftwareImpactSeverity,
+  SoftwareQuality,
+} from '../../types/clean-code-taxonomy';
 import SoftwareImpactPill from './SoftwareImpactPill';
 
-interface SoftwareImpact {
-  softwareQuality: SoftwareQuality;
-  severity: SoftwareImpactSeverity;
-}
-
 interface SoftwareImpactPillListProps extends React.HTMLAttributes<HTMLUListElement> {
-  softwareImpacts: Array<SoftwareImpact>;
+  softwareImpacts: SoftwareImpact[];
   className?: string;
   type?: Parameters<typeof SoftwareImpactPill>[0]['type'];
 }

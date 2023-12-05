@@ -20,6 +20,7 @@
 import { waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Profile } from '../../api/quality-profiles';
+import { renderAppRoutes } from '../../helpers/testReactTestingUtils';
 import {
   byLabelText,
   byPlaceholderText,
@@ -32,6 +33,8 @@ import {
   CleanCodeAttributeCategory,
   SoftwareQuality,
 } from '../../types/clean-code-taxonomy';
+import { CurrentUser } from '../../types/users';
+import routes from './routes';
 
 const selectors = {
   loading: byLabelText('loading'),
@@ -174,7 +177,17 @@ const selectors = {
   deleteCustomRuleDialog: byRole('dialog', { name: 'coding_rules.delete_rule' }),
   ruleNameTextbox: byRole('textbox', { name: 'name' }),
   keyTextbox: byRole('textbox', { name: 'key' }),
-  typeSelect: byRole('combobox', { name: 'type' }),
+  cleanCodeCategorySelect: byRole('combobox', { name: 'category' }),
+  cleanCodeAttributeSelect: byRole('combobox', { name: 'attribute' }),
+  cleanCodeQualityCheckbox: (quality: SoftwareQuality) =>
+    byRole('group', { name: `coding_rules.custom_rule.software_quality_x.${quality}` }).byRole(
+      'checkbox',
+    ),
+  cleanCodeSeveritySelect: (quality: SoftwareQuality) =>
+    byRole('group', { name: `coding_rules.custom_rule.software_quality_x.${quality}` }).byRole(
+      'combobox',
+      { name: 'severity' },
+    ),
   statusSelect: byRole('combobox', { name: 'coding_rules.filters.status' }),
   descriptionTextbox: byRole('textbox', { name: 'description' }),
   createButton: byRole('button', { name: 'create' }),
@@ -228,4 +241,17 @@ export function getPageObjects() {
     ui,
     user,
   };
+}
+
+export function renderCodingRulesApp(currentUser?: CurrentUser, navigateTo?: string) {
+  renderAppRoutes('coding_rules', routes, {
+    navigateTo,
+    currentUser,
+    languages: {
+      js: { key: 'js', name: 'JavaScript' },
+      java: { key: 'java', name: 'Java' },
+      c: { key: 'c', name: 'C' },
+      py: { key: 'py', name: 'Python' },
+    },
+  });
 }

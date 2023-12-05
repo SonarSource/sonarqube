@@ -104,9 +104,9 @@ export default function ApiSidebar({ apisList, docInfo }: Readonly<Props>) {
         value={search}
       />
 
-      <div className="sw-mt-4">
+      <div className="sw-mt-4 sw-flex sw-items-center">
         <Checkbox checked={showInternal} onCheck={() => setShowInternal((prev) => !prev)}>
-          <span className="sw-ml-2 sw-mb-1">{translate('api_documentation.show_internal')}</span>
+          <span className="sw-ml-2">{translate('api_documentation.show_internal')}</span>
         </Checkbox>
         <HelpTooltip className="sw-ml-2" overlay={translate('api_documentation.internal_tooltip')}>
           <HelperHintIcon aria-label="help-tooltip" />

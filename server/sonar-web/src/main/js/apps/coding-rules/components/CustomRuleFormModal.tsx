@@ -30,18 +30,25 @@ import {
   Modal,
 } from 'design-system';
 import * as React from 'react';
-import { OptionProps, SingleValueProps, components } from 'react-select';
 import FormattingTips from '../../../components/common/FormattingTips';
-import TypeHelper from '../../../components/shared/TypeHelper';
 import MandatoryFieldsExplanation from '../../../components/ui/MandatoryFieldsExplanation';
-import { RULE_STATUSES, RULE_TYPES } from '../../../helpers/constants';
+import { RULE_STATUSES } from '../../../helpers/constants';
 import { csvEscape } from '../../../helpers/csv';
 import { translate } from '../../../helpers/l10n';
 import { sanitizeString } from '../../../helpers/sanitize';
 import { latinize } from '../../../helpers/strings';
 import { useCreateRuleMutation, useUpdateRuleMutation } from '../../../queries/rules';
-import { Dict, RuleDetails, RuleParameter, RuleType, Status } from '../../../types/types';
-import { SeveritySelect } from './SeveritySelect';
+import {
+  CleanCodeAttribute,
+  CleanCodeAttributeCategory,
+  SoftwareImpact,
+} from '../../../types/clean-code-taxonomy';
+import { Dict, RuleDetails, RuleParameter, Status } from '../../../types/types';
+import {
+  CleanCodeAttributeField,
+  CleanCodeCategoryField,
+  SoftwareQualitiesFields,
+} from './CustomRuleFormFieldsCCT';
 
 interface Props {
   customRule?: RuleDetails;
@@ -59,9 +66,14 @@ export default function CustomRuleFormModal(props: Readonly<Props>) {
   const [name, setName] = React.useState(customRule?.name ?? '');
   const [params, setParams] = React.useState(getParams(customRule));
   const [reactivating, setReactivating] = React.useState(false);
-  const [severity, setSeverity] = React.useState(customRule?.severity ?? templateRule.severity);
   const [status, setStatus] = React.useState(customRule?.status ?? templateRule.status);
-  const [type, setType] = React.useState(customRule?.type ?? templateRule.type);
+  const [ccCategory, setCCCategory] = React.useState<CleanCodeAttributeCategory>(
+    templateRule.cleanCodeAttributeCategory ?? CleanCodeAttributeCategory.Consistent,
+  );
+  const [ccAttribute, setCCAtribute] = React.useState<CleanCodeAttribute>(
+    templateRule.cleanCodeAttribute ?? CleanCodeAttribute.Conventional,
+  );
+  const [impacts, setImpacts] = React.useState<SoftwareImpact[]>(templateRule?.impacts ?? []);
   const { mutate: updateRule, isLoading: updatingRule } = useUpdateRuleMutation(props.onClose);
   const { mutate: createRule, isLoading: creatingRule } = useCreateRuleMutation(
     {
@@ -75,6 +87,7 @@ export default function CustomRuleFormModal(props: Readonly<Props>) {
   );
 
   const submitting = updatingRule || creatingRule;
+  const hasError = impacts.length === 0;
 
   const submit = () => {
     const stringifiedParams = Object.keys(params)
@@ -84,7 +97,6 @@ export default function CustomRuleFormModal(props: Readonly<Props>) {
       markdownDescription: description,
       name,
       params: stringifiedParams,
-      severity,
       status,
     };
     return customRule
@@ -94,7 +106,8 @@ export default function CustomRuleFormModal(props: Readonly<Props>) {
           customKey: key,
           preventReactivation: !reactivating,
           templateKey: templateRule.key,
-          type,
+          cleanCodeAttribute: ccAttribute,
+          impacts,
         });
   };
 
@@ -178,51 +191,6 @@ export default function CustomRuleFormModal(props: Readonly<Props>) {
       </FormField>
     ),
     [description, submitting],
-  );
-
-  const TypeField = React.useMemo(() => {
-    const ruleTypeOption: LabelValueSelectOption<RuleType>[] = RULE_TYPES.map((type) => ({
-      label: translate('issue.type', type),
-      value: type,
-    }));
-    return (
-      <FormField
-        ariaLabel={translate('type')}
-        label={translate('type')}
-        htmlFor="coding-rules-custom-rule-type"
-      >
-        <InputSelect
-          inputId="coding-rules-custom-rule-type"
-          isClearable={false}
-          isDisabled={submitting}
-          isSearchable={false}
-          onChange={({ value }: LabelValueSelectOption<RuleType>) => setType(value)}
-          components={{
-            Option: TypeSelectOption,
-            SingleValue: TypeSelectValue,
-          }}
-          options={ruleTypeOption}
-          value={ruleTypeOption.find((t) => t.value === type)}
-        />
-      </FormField>
-    );
-  }, [type, submitting]);
-
-  const SeverityField = React.useMemo(
-    () => (
-      <FormField
-        ariaLabel={translate('severity')}
-        label={translate('severity')}
-        htmlFor="coding-rules-severity-select"
-      >
-        <SeveritySelect
-          isDisabled={submitting}
-          onChange={({ value }: { value: string }) => setSeverity(value)}
-          severity={severity}
-        />
-      </FormField>
-    ),
-    [severity, submitting],
   );
 
   const StatusField = React.useMemo(() => {
@@ -339,42 +307,39 @@ export default function CustomRuleFormModal(props: Readonly<Props>) {
 
           {NameField}
           {KeyField}
-          {/* do not allow to change the type of existing rule */}
-          {!customRule && TypeField}
-          {SeverityField}
+
+          <div className="sw-flex sw-justify-between sw-gap-6">
+            <CleanCodeCategoryField
+              value={ccCategory}
+              disabled={submitting}
+              onChange={setCCCategory}
+            />
+            <CleanCodeAttributeField
+              value={ccAttribute}
+              category={ccCategory}
+              disabled={submitting}
+              onChange={setCCAtribute}
+            />
+          </div>
+          <SoftwareQualitiesFields
+            error={hasError}
+            value={impacts}
+            onChange={setImpacts}
+            disabled={submitting}
+          />
           {StatusField}
           {DescriptionField}
           {templateParams.map(renderParameterField)}
         </form>
       }
       primaryButton={
-        <ButtonPrimary disabled={submitting} type="submit" form={FORM_ID}>
+        <ButtonPrimary disabled={submitting || hasError} type="submit" form={FORM_ID}>
           {buttonText}
         </ButtonPrimary>
       }
       loading={submitting}
       secondaryButtonLabel={translate('cancel')}
     />
-  );
-}
-
-function TypeSelectOption(
-  optionProps: Readonly<OptionProps<LabelValueSelectOption<RuleType>, false>>,
-) {
-  return (
-    <components.Option {...optionProps}>
-      <TypeHelper type={optionProps.data.value} />
-    </components.Option>
-  );
-}
-
-function TypeSelectValue(
-  valueProps: Readonly<SingleValueProps<LabelValueSelectOption<RuleType>, false>>,
-) {
-  return (
-    <components.SingleValue {...valueProps}>
-      <TypeHelper className="display-flex-center" type={valueProps.data.value} />
-    </components.SingleValue>
   );
 }
 

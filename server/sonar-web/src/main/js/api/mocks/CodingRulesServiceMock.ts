@@ -357,7 +357,6 @@ export default class CodingRulesServiceMock {
         : rule.remFnBaseEffort;
     rule.remFnType =
       data.remediation_fn_type !== undefined ? data.remediation_fn_type : rule.remFnType;
-    rule.severity = data.severity !== undefined ? data.severity : rule.severity;
     rule.status = data.status !== undefined ? data.status : rule.status;
     rule.tags = data.tags !== undefined ? data.tags.split(',') : rule.tags;
 
@@ -369,7 +368,7 @@ export default class CodingRulesServiceMock {
       descriptionSections: [
         { key: RuleDescriptionSections.DEFAULT, content: data.markdownDescription },
       ],
-      ...pick(data, ['templateKey', 'severity', 'type', 'name', 'status']),
+      ...pick(data, ['templateKey', 'name', 'status', 'cleanCodeAttribute', 'impacts']),
       key: data.customKey,
       params:
         data.params?.split(';').map((param: string) => {

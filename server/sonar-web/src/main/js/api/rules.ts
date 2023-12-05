@@ -19,9 +19,10 @@
  */
 import { throwGlobalError } from '../helpers/error';
 import { getJSON, post, postJSON } from '../helpers/request';
+import { CleanCodeAttribute, SoftwareImpact } from '../types/clean-code-taxonomy';
 import { GetRulesAppResponse, SearchRulesResponse } from '../types/coding-rules';
 import { SearchRulesQuery } from '../types/rules';
-import { RuleActivation, RuleDetails, RuleType, RulesUpdateRequest } from '../types/types';
+import { RuleActivation, RuleDetails, RulesUpdateRequest } from '../types/types';
 
 export interface CreateRuleData {
   customKey: string;
@@ -29,10 +30,10 @@ export interface CreateRuleData {
   name: string;
   params?: string;
   preventReactivation?: boolean;
-  severity?: string;
   status?: string;
   templateKey: string;
-  type?: RuleType;
+  cleanCodeAttribute: CleanCodeAttribute;
+  impacts: SoftwareImpact[];
 }
 
 export function getRulesApp(): Promise<GetRulesAppResponse> {

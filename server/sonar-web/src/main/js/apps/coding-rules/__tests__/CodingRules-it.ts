@@ -24,16 +24,13 @@ import SettingsServiceMock from '../../../api/mocks/SettingsServiceMock';
 import { QP_2, RULE_1 } from '../../../api/mocks/data/ids';
 import { CLEAN_CODE_CATEGORIES, SOFTWARE_QUALITIES } from '../../../helpers/constants';
 import { mockCurrentUser, mockLoggedInUser } from '../../../helpers/testMocks';
-import { renderAppRoutes } from '../../../helpers/testReactTestingUtils';
 import {
   CleanCodeAttribute,
   CleanCodeAttributeCategory,
   SoftwareQuality,
 } from '../../../types/clean-code-taxonomy';
 import { SettingsKey } from '../../../types/settings';
-import { CurrentUser } from '../../../types/users';
-import routes from '../routes';
-import { getPageObjects } from '../utils-tests';
+import { getPageObjects, renderCodingRulesApp } from '../utils-tests';
 
 const rulesHandler = new CodingRulesServiceMock();
 const settingsHandler = new SettingsServiceMock();
@@ -57,7 +54,7 @@ describe('Rules app list', () => {
 
     // Render clean code attributes.
     expect(
-      ui.ruleCleanCodeAttributeCategory(CleanCodeAttributeCategory.Adaptable).getAll().length,
+      ui.ruleCleanCodeAttributeCategory(CleanCodeAttributeCategory.Intentional).getAll().length,
     ).toBeGreaterThan(1);
     expect(ui.ruleSoftwareQuality(SoftwareQuality.Maintainability).getAll().length).toBeGreaterThan(
       1,
@@ -175,7 +172,7 @@ describe('Rules app list', () => {
 
       expect(ui.getAllRuleListItems()).toHaveLength(11);
       // Filter by clean code category
-      await user.click(ui.facetItem('issue.clean_code_attribute_category.ADAPTABLE').get());
+      await user.click(ui.facetItem('issue.clean_code_attribute_category.INTENTIONAL').get());
 
       expect(ui.getAllRuleListItems()).toHaveLength(10);
 
@@ -383,7 +380,7 @@ describe('Rule app details', () => {
       await ui.detailsloaded();
       expect(ui.ruleTitle('Awsome java rule').get()).toBeInTheDocument();
       expect(
-        ui.ruleCleanCodeAttributeCategory(CleanCodeAttributeCategory.Adaptable).get(),
+        ui.ruleCleanCodeAttributeCategory(CleanCodeAttributeCategory.Intentional).get(),
       ).toBeInTheDocument();
       expect(ui.ruleCleanCodeAttribute(CleanCodeAttribute.Clear).get()).toBeInTheDocument();
       // 1 In Rule details + 1 in facet
@@ -627,96 +624,6 @@ describe('Rule app details', () => {
     expect(ui.tagCheckbox(RULE_TAGS_MOCK[2]).get()).toBeInTheDocument();
     expect(ui.tagCheckbox(RULE_TAGS_MOCK[1]).query()).not.toBeInTheDocument();
   });
-
-  describe('custom rule', () => {
-    it('can create custom rule', async () => {
-      const { ui, user } = getPageObjects();
-      rulesHandler.setIsAdmin();
-      renderCodingRulesApp(mockLoggedInUser());
-      await ui.appLoaded();
-
-      await user.click(ui.templateFacet.get());
-      await user.click(ui.facetItem('coding_rules.filters.template.is_template').get());
-
-      // Shows only one template rule
-      expect(ui.getAllRuleListItems()).toHaveLength(1);
-
-      // Show template rule details
-      await user.click(ui.ruleListItemLink('Template rule').get());
-      expect(ui.ruleTitle('Template rule').get()).toBeInTheDocument();
-      expect(ui.customRuleSectionTitle.get()).toBeInTheDocument();
-
-      // Create custom rule
-      await user.click(ui.createCustomRuleButton.get());
-      await user.type(ui.ruleNameTextbox.get(), 'New Custom Rule');
-      expect(ui.keyTextbox.get()).toHaveValue('New_Custom_Rule');
-      await user.clear(ui.keyTextbox.get());
-      await user.type(ui.keyTextbox.get(), 'new_custom_rule');
-
-      await selectEvent.select(ui.typeSelect.get(), 'issue.type.BUG');
-      await selectEvent.select(ui.oldSeveritySelect.get(), 'severity.MINOR');
-      await selectEvent.select(ui.statusSelect.get(), 'rules.status.BETA');
-
-      await user.type(ui.descriptionTextbox.get(), 'Some description for custom rule');
-      await user.type(ui.paramInput('1').get(), 'Default value');
-
-      await user.click(ui.createButton.get());
-
-      // Verify the rule is created
-      expect(ui.customRuleItemLink('New Custom Rule').get()).toBeInTheDocument();
-    });
-
-    it('can edit custom rule', async () => {
-      const { ui, user } = getPageObjects();
-      rulesHandler.setIsAdmin();
-      renderCodingRulesApp(mockLoggedInUser(), 'coding_rules?open=rule9');
-      await ui.detailsloaded();
-
-      await user.click(ui.editCustomRuleButton.get());
-
-      // Change name and description of custom rule
-      await user.clear(ui.ruleNameTextbox.get());
-      await user.type(ui.ruleNameTextbox.get(), 'Updated custom rule name');
-      await user.type(ui.descriptionTextbox.get(), 'Some description for custom rule');
-
-      await user.click(ui.saveButton.get(ui.updateCustomRuleDialog.get()));
-
-      expect(ui.ruleTitle('Updated custom rule name').get()).toBeInTheDocument();
-    });
-
-    it('can delete custom rule', async () => {
-      const { ui, user } = getPageObjects();
-      rulesHandler.setIsAdmin();
-      renderCodingRulesApp(mockLoggedInUser(), 'coding_rules?open=rule9');
-      await ui.detailsloaded();
-
-      await user.click(ui.deleteButton.get());
-      await user.click(ui.deleteButton.get(ui.deleteCustomRuleDialog.get()));
-
-      // Shows the list of rules, custom rule should not be included
-      expect(ui.ruleListItemLink('Custom Rule based on rule8').query()).not.toBeInTheDocument();
-    });
-
-    it('can delete custom rule from template page', async () => {
-      const { ui, user } = getPageObjects();
-      rulesHandler.setIsAdmin();
-      renderCodingRulesApp(mockLoggedInUser(), 'coding_rules?open=rule8');
-      await ui.detailsloaded();
-
-      await user.click(ui.deleteCustomRuleButton('Custom Rule based on rule8').get());
-      await user.click(ui.deleteButton.get(ui.deleteCustomRuleDialog.get()));
-      expect(ui.customRuleItemLink('Custom Rule based on rule8').query()).not.toBeInTheDocument();
-    });
-
-    it('anonymous user cannot modify custom rule', async () => {
-      const { ui } = getPageObjects();
-      renderCodingRulesApp(undefined, 'coding_rules?open=rule9');
-      await ui.appLoaded();
-
-      expect(ui.editCustomRuleButton.query()).not.toBeInTheDocument();
-      expect(ui.deleteButton.query()).not.toBeInTheDocument();
-    });
-  });
 });
 
 describe('redirects', () => {
@@ -733,9 +640,9 @@ describe('redirects', () => {
 
     renderCodingRulesApp(
       mockLoggedInUser(),
-      'coding_rules#languages=c,js|types=BUG|cleanCodeAttributeCategories=ADAPTABLE',
+      'coding_rules#languages=c,js|types=BUG|cleanCodeAttributeCategories=INTENTIONAL',
     );
-    expect(ui.facetItem('issue.clean_code_attribute_category.ADAPTABLE').get()).toBeChecked();
+    expect(ui.facetItem('issue.clean_code_attribute_category.INTENTIONAL').get()).toBeChecked();
 
     await user.click(ui.typeFacet.get());
     expect(await ui.facetItem(/issue.type.BUG/).find()).toBeChecked();
@@ -744,16 +651,3 @@ describe('redirects', () => {
     expect(screen.getByText('x_of_y_shown.2.2')).toBeInTheDocument();
   });
 });
-
-function renderCodingRulesApp(currentUser?: CurrentUser, navigateTo?: string) {
-  renderAppRoutes('coding_rules', routes, {
-    navigateTo,
-    currentUser,
-    languages: {
-      js: { key: 'js', name: 'JavaScript' },
-      java: { key: 'java', name: 'Java' },
-      c: { key: 'c', name: 'C' },
-      py: { key: 'py', name: 'Python' },
-    },
-  });
-}

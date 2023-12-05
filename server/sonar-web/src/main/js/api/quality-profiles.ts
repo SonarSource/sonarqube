@@ -22,11 +22,7 @@ import { Exporter, ProfileChangelogEvent } from '../apps/quality-profiles/types'
 import { csvEscape } from '../helpers/csv';
 import { throwGlobalError } from '../helpers/error';
 import { RequestData, getJSON, post, postJSON } from '../helpers/request';
-import {
-  CleanCodeAttributeCategory,
-  SoftwareImpactSeverity,
-  SoftwareQuality,
-} from '../types/clean-code-taxonomy';
+import { CleanCodeAttributeCategory, SoftwareImpact } from '../types/clean-code-taxonomy';
 import { Dict, Paging, ProfileInheritanceDetails, UserSelected } from '../types/types';
 
 export interface ProfileActions {
@@ -196,10 +192,7 @@ export interface RuleCompare {
   key: string;
   name: string;
   cleanCodeAttributeCategory?: CleanCodeAttributeCategory;
-  impacts: Array<{
-    softwareQuality: SoftwareQuality;
-    severity: SoftwareImpactSeverity;
-  }>;
+  impacts: SoftwareImpact[];
   left?: { params: Dict<string>; severity: string };
   right?: { params: Dict<string>; severity: string };
 }

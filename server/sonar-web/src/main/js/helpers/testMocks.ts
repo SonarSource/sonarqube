@@ -623,7 +623,7 @@ export function mockRuleActivation(overrides: Partial<RuleActivation> = {}): Rul
 
 export function mockRuleDetails(overrides: Partial<RuleDetails> = {}): RuleDetails {
   return {
-    cleanCodeAttributeCategory: CleanCodeAttributeCategory.Adaptable,
+    cleanCodeAttributeCategory: CleanCodeAttributeCategory.Intentional,
     cleanCodeAttribute: CleanCodeAttribute.Clear,
     key: 'squid:S1337',
     repo: 'squid',

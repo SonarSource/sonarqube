@@ -75,13 +75,11 @@ export function Checkbox({
         onFocus={onFocus}
         type="checkbox"
       />
-      <div>
-        <Spinner loading={loading}>
-          <StyledCheckbox aria-hidden data-clickable="true" title={title}>
-            <CheckboxIcon checked={checked} thirdState={thirdState} />
-          </StyledCheckbox>
-        </Spinner>
-      </div>
+      <Spinner loading={loading}>
+        <StyledCheckbox aria-hidden data-clickable="true" title={title}>
+          <CheckboxIcon checked={checked} thirdState={thirdState} />
+        </StyledCheckbox>
+      </Spinner>
       {!right && children}
     </CheckboxContainer>
   );
@@ -145,33 +143,33 @@ export const AccessibleCheckbox = styled.input`
 
   &:focus,
   &:active {
-    &:not(:disabled) + div > ${StyledCheckbox} {
+    &:not(:disabled) ~ ${StyledCheckbox} {
       outline: ${themeBorder('focus', 'primary')};
     }
   }
 
   &:checked {
-    & + div > ${StyledCheckbox} {
+    & ~ ${StyledCheckbox} {
       background: ${themeColor('primary')};
     }
-    &:disabled + div > ${StyledCheckbox} {
+    &:disabled ~ ${StyledCheckbox} {
       background: ${themeColor('checkboxDisabledChecked')};
     }
   }
 
   &:hover {
-    &:not(:disabled) + div > ${StyledCheckbox} {
+    &:not(:disabled) ~ ${StyledCheckbox} {
       background: ${themeColor('checkboxHover')};
       border: ${themeBorder('default', 'primary')};
     }
 
-    &:checked:not(:disabled) + div > ${StyledCheckbox} {
+    &:checked:not(:disabled) ~ ${StyledCheckbox} {
       background: ${themeColor('checkboxCheckedHover')};
       border: ${themeBorder('default', 'checkboxCheckedHover')};
     }
   }
 
-  &:disabled + div > ${StyledCheckbox} {
+  &:disabled ~ ${StyledCheckbox} {
     background: ${themeColor('checkboxDisabled')};
     color: ${themeColor('checkboxDisabled')};
     border: ${themeBorder('default', 'checkboxDisabledChecked')};

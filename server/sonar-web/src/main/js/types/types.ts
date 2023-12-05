@@ -21,8 +21,7 @@ import { RuleDescriptionSection } from '../apps/coding-rules/rule';
 import {
   CleanCodeAttribute,
   CleanCodeAttributeCategory,
-  SoftwareImpactSeverity,
-  SoftwareQuality,
+  SoftwareImpact,
 } from './clean-code-taxonomy';
 import { ComponentQualifier, Visibility } from './component';
 import { IssueStatus, IssueTransition, MessageFormatting } from './issues';
@@ -262,10 +261,7 @@ export interface Issue {
   branch?: string;
   cleanCodeAttributeCategory: CleanCodeAttributeCategory;
   cleanCodeAttribute: CleanCodeAttribute;
-  impacts: Array<{
-    softwareQuality: SoftwareQuality;
-    severity: SoftwareImpactSeverity;
-  }>;
+  impacts: SoftwareImpact[];
   codeVariants?: string[];
   comments?: IssueComment[];
   component: string;
@@ -544,10 +540,7 @@ export type RawQuery = Dict<any>;
 export interface Rule {
   cleanCodeAttributeCategory?: CleanCodeAttributeCategory;
   cleanCodeAttribute?: CleanCodeAttribute;
-  impacts: Array<{
-    softwareQuality: SoftwareQuality;
-    severity: SoftwareImpactSeverity;
-  }>;
+  impacts: SoftwareImpact[];
   isTemplate?: boolean;
   key: string;
   lang?: string;
@@ -578,7 +571,6 @@ export interface RulesUpdateRequest {
   remediation_fn_base_effort?: string;
   remediation_fn_type?: string;
   remediation_fy_gap_multiplier?: string;
-  severity?: string;
   status?: string;
   tags?: string;
 }

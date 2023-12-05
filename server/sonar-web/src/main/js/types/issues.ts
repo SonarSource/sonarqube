@@ -20,8 +20,7 @@
 import {
   CleanCodeAttribute,
   CleanCodeAttributeCategory,
-  SoftwareImpactSeverity,
-  SoftwareQuality,
+  SoftwareImpact,
 } from './clean-code-taxonomy';
 import { Issue, Paging, TextRange } from './types';
 import { UserBase } from './users';
@@ -127,10 +126,7 @@ export interface RawIssue {
   author?: string;
   cleanCodeAttributeCategory: CleanCodeAttributeCategory;
   cleanCodeAttribute: CleanCodeAttribute;
-  impacts: Array<{
-    softwareQuality: SoftwareQuality;
-    severity: SoftwareImpactSeverity;
-  }>;
+  impacts: SoftwareImpact[];
   codeVariants?: string[];
   comments?: Comment[];
   creationDate: string;

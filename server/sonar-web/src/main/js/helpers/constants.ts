@@ -20,6 +20,7 @@
 import { colors } from '../app/theme';
 import { AlmKeys } from '../types/alm-settings';
 import {
+  CleanCodeAttribute,
   CleanCodeAttributeCategory,
   SoftwareImpactSeverity,
   SoftwareQuality,
@@ -40,6 +41,31 @@ export const SEVERITIES = Object.values(IssueSeverity);
 export const IMPACT_SEVERITIES = Object.values(SoftwareImpactSeverity);
 
 export const CLEAN_CODE_CATEGORIES = Object.values(CleanCodeAttributeCategory);
+
+export const CLEAN_CODE_ATTRIBUTES_BY_CATEGORY = {
+  [CleanCodeAttributeCategory.Consistent]: [
+    CleanCodeAttribute.Conventional,
+    CleanCodeAttribute.Identifiable,
+    CleanCodeAttribute.Formatted,
+  ],
+  [CleanCodeAttributeCategory.Intentional]: [
+    CleanCodeAttribute.Logical,
+    CleanCodeAttribute.Clear,
+    CleanCodeAttribute.Complete,
+    CleanCodeAttribute.Efficient,
+  ],
+  [CleanCodeAttributeCategory.Adaptable]: [
+    CleanCodeAttribute.Focused,
+    CleanCodeAttribute.Distinct,
+    CleanCodeAttribute.Modular,
+    CleanCodeAttribute.Tested,
+  ],
+  [CleanCodeAttributeCategory.Responsible]: [
+    CleanCodeAttribute.Trustworthy,
+    CleanCodeAttribute.Lawful,
+    CleanCodeAttribute.Respectful,
+  ],
+};
 
 export const SOFTWARE_QUALITIES = Object.values(SoftwareQuality);
 
