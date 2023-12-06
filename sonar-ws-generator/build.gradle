@@ -13,7 +13,7 @@ dependencies {
   api 'commons-collections:commons-collections:3.2.2'
   api 'org.apache.velocity:velocity:1.7'
   api 'org.slf4j:log4j-over-slf4j'
-  api 'org.sonarsource.orchestrator:sonar-orchestrator'
+  api 'org.sonarsource.orchestrator:sonar-orchestrator-junit4'
 
   compileOnlyApi 'com.google.code.findbugs:jsr305'
 }

@@ -39,7 +39,7 @@ import static org.sonar.server.authentication.AuthenticationRedirection.redirect
 public class DefaultAdminCredentialsVerifierFilter extends ServletFilter {
   private static final String RESET_PASSWORD_PATH = "/account/reset_password";
   private static final String CHANGE_ADMIN_PASSWORD_PATH = "/admin/change_admin_password";
-  // This property is used by Orchestrator to disable this force redirect. It should never be used in production, which
+  // This property is used by OrchestratorRule to disable this force redirect. It should never be used in production, which
   // is why this is not defined in org.sonar.process.ProcessProperties.
   private static final String SONAR_FORCE_REDIRECT_DEFAULT_ADMIN_CREDENTIALS = "sonar.forceRedirectOnDefaultAdminCredentials";
 

@@ -68,7 +68,7 @@ public class OrchestratorSettingsUtils {
         settings.setProperty(entry.getKey(), interpolatedValue);
       }
     } catch (Exception e) {
-      throw new IllegalStateException("Cannot load Orchestrator properties from:" + url, e);
+      throw new IllegalStateException("Cannot load OrchestratorRule properties from:" + url, e);
     } finally {
       IOUtils.closeQuietly(input);
     }

@@ -19,10 +19,10 @@
  */
 package org.sonarqube.wsgenerator;
 
-import com.sonar.orchestrator.Orchestrator;
-import com.sonar.orchestrator.OrchestratorBuilder;
 import com.sonar.orchestrator.http.HttpCall;
 import com.sonar.orchestrator.http.HttpResponse;
+import com.sonar.orchestrator.junit4.OrchestratorRule;
+import com.sonar.orchestrator.junit4.OrchestratorRuleBuilder;
 import com.sonar.orchestrator.locator.FileLocation;
 import java.io.File;
 
@@ -35,12 +35,12 @@ public class ApiDefinitionDownloader {
   }
 
   public static String downloadApiDefinition() {
-    OrchestratorBuilder builder = Orchestrator.builderEnv()
+    OrchestratorRuleBuilder builder = OrchestratorRule.builderEnv()
       .defaultForceAuthentication();
     builder.setEdition(COMMUNITY);
     builder.setZipFile(FileLocation.byWildcardMavenFilename(new File("../sonar-application/build/distributions"), "sonar-application-*.zip").getFile())
       .setOrchestratorProperty("orchestrator.workspaceDir", "build");
-    Orchestrator orchestrator = builder.setServerProperty("sonar.forceAuthentication", "false")
+    OrchestratorRule orchestrator = builder.setServerProperty("sonar.forceAuthentication", "false")
       .build();
 
     orchestrator.start();

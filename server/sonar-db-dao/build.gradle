@@ -27,7 +27,7 @@ dependencies {
   testImplementation 'org.assertj:assertj-core'
   testImplementation 'org.assertj:assertj-guava'
   testImplementation 'org.mockito:mockito-core'
-  testImplementation 'org.sonarsource.orchestrator:sonar-orchestrator'
+  testImplementation 'org.sonarsource.orchestrator:sonar-orchestrator-junit4'
   testImplementation project(':sonar-testing-harness')
   testImplementation project(':sonar-plugin-api-impl')
 

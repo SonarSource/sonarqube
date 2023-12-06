@@ -178,7 +178,7 @@ public class ProcessProperties {
     SONAR_UPDATECENTER_ACTIVATE("sonar.updatecenter.activate", "true"),
 
     /**
-     * Used by Orchestrator to ask for shutdown of monitor process
+     * Used by OrchestratorRule to ask for shutdown of monitor process
      */
     ENABLE_STOP_COMMAND("sonar.enableStopCommand"),
 

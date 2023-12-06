@@ -343,7 +343,7 @@ subprojects {
       dependency 'org.postgresql:postgresql:42.5.1'
       dependency 'org.reflections:reflections:0.10.2'
       dependency 'org.simpleframework:simple:5.1.6'
-      dependency 'org.sonarsource.orchestrator:sonar-orchestrator:3.40.0.183'
+      dependency 'org.sonarsource.orchestrator:sonar-orchestrator-junit4:4.5.0.1700'
       dependency 'org.sonarsource.update-center:sonar-update-center-common:1.29.0.1000'
       dependency('org.springframework:spring-context:5.3.27') {
         exclude 'commons-logging:commons-logging'
