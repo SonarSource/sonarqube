@@ -81,7 +81,6 @@ export function InputSearch({
     () =>
       debounce((val: string) => {
         onChange(val);
-        setDirty(false);
       }, DEBOUNCE_DELAY),
     [onChange],
   );
