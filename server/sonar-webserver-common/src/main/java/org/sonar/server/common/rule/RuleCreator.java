@@ -228,7 +228,8 @@ public class RuleCreator {
   }
 
   private void setCleanCodeAttributeAndImpacts(NewCustomRule newRule, RuleDto ruleDto, RuleDto templateRuleDto) {
-    int type = newRule.type() == null ? templateRuleDto.getType() : newRule.type().getDbConstant();
+    RuleType ruleType = newRule.type();
+    int type = ruleType == null ? templateRuleDto.getType() : ruleType.getDbConstant();
     String severity = ofNullable(newRule.severity()).orElse(Severity.MAJOR);
 
     if (type == RuleType.SECURITY_HOTSPOT.getDbConstant()) {
