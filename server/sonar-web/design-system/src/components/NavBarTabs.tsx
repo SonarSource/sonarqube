@@ -122,10 +122,9 @@ const NavBarTabLinkWrapper = styled.li`
     content: attr(data-text);
   }
 
-  &:has(a.disabled-link) > a,
-  &:has(a.disabled-link) > a:hover,
-  &:has(a.disabled-link) > a.hover,
-  &:has(a.disabled-link)[aria-expanded='true'] {
+  & > a.disabled-link,
+  & > a.disabled-link:hover,
+  & > a.disabled-link.hover {
     ${tw`sw-cursor-default`};
     border-bottom: ${themeBorder('xsActive', 'transparent', 1)};
     color: ${themeContrast('subnavigationDisabled')};
