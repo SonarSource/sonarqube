@@ -22,8 +22,7 @@ import withComponentContext from '../../../app/components/componentContext/withC
 import withMetricsContext from '../../../app/components/metrics/withMetricsContext';
 import { Location, Router, withRouter } from '../../../components/hoc/withRouter';
 import { CodeScope, getCodeUrl, getProjectUrl } from '../../../helpers/urls';
-import { useBranchesQuery } from '../../../queries/branch';
-import { BranchLike } from '../../../types/branch-like';
+import { WithBranchLikesProps, useBranchesQuery } from '../../../queries/branch';
 import { ComponentQualifier, isPortfolioLike } from '../../../types/component';
 import { Breadcrumb, Component, ComponentMeasure, Dict, Metric } from '../../../types/types';
 import { addComponent, addComponentBreadcrumbs, clearBucket } from '../bucket';
@@ -223,11 +222,6 @@ class CodeApp extends React.Component<Props, State> {
       />
     );
   }
-}
-
-interface WithBranchLikesProps {
-  branchLikes?: BranchLike[];
-  branchLike?: BranchLike;
 }
 
 function withBranchLikes<P extends { component?: Component }>(

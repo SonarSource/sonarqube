@@ -326,11 +326,15 @@ export function useRefreshBranches() {
   };
 }
 
+export interface WithBranchLikesProps {
+  branchLikes?: BranchLike[];
+  branchLike?: BranchLike;
+  isFetchingBranch?: boolean;
+}
+
 export function withBranchLikes<P extends { component?: Component }>(
-  WrappedComponent: React.ComponentType<
-    P & { branchLikes?: BranchLike[]; branchLike?: BranchLike; isFetchingBranch?: boolean }
-  >,
-): React.ComponentType<Omit<P, 'branchLike' | 'branchLikes'>> {
+  WrappedComponent: React.ComponentType<React.PropsWithChildren<P & WithBranchLikesProps>>,
+): React.ComponentType<React.PropsWithChildren<Omit<P, 'branchLike' | 'branchLikes'>>> {
   return function WithBranchLike(p: P) {
     const { data, isFetching } = useBranchesQuery(p.component);
     return (
