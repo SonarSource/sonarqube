@@ -43,8 +43,8 @@ import { Activation } from '../query';
 import CustomRuleButton from './CustomRuleButton';
 import RuleDetailsCustomRules from './RuleDetailsCustomRules';
 import RuleDetailsDescription from './RuleDetailsDescription';
+import RuleDetailsHeader from './RuleDetailsHeader';
 import RuleDetailsIssues from './RuleDetailsIssues';
-import RuleDetailsMeta from './RuleDetailsMeta';
 import RuleDetailsParameters from './RuleDetailsParameters';
 import RuleDetailsProfiles from './RuleDetailsProfiles';
 
@@ -108,7 +108,7 @@ export default function RuleDetails(props: Readonly<Props>) {
       <Spinner loading={loadingRule}>
         {ruleDetails && (
           <>
-            <RuleDetailsMeta
+            <RuleDetailsHeader
               canWrite={canWrite}
               onTagsChange={handleTagsChange}
               referencedRepositories={referencedRepositories}

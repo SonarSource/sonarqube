@@ -237,10 +237,7 @@ export default class RuleListItem extends React.PureComponent<Props> {
           <div className="sw-flex sw-items-center">
             <div className="sw-grow sw-flex sw-gap-2 sw-items-center sw-body-xs">
               {rule.impacts.length > 0 && (
-                <SoftwareImpactPillList
-                  softwareImpacts={rule.impacts.concat(rule.impacts).concat(rule.impacts)}
-                  type="rule"
-                />
+                <SoftwareImpactPillList softwareImpacts={rule.impacts} type="rule" />
               )}
             </div>
 

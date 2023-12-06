@@ -21,7 +21,7 @@ import { fireEvent, screen, within } from '@testing-library/react';
 import selectEvent from 'react-select-event';
 import CodingRulesServiceMock, { RULE_TAGS_MOCK } from '../../../api/mocks/CodingRulesServiceMock';
 import SettingsServiceMock from '../../../api/mocks/SettingsServiceMock';
-import { QP_2 } from '../../../api/mocks/data/ids';
+import { QP_2, RULE_1 } from '../../../api/mocks/data/ids';
 import { CLEAN_CODE_CATEGORIES, SOFTWARE_QUALITIES } from '../../../helpers/constants';
 import { mockCurrentUser, mockLoggedInUser } from '../../../helpers/testMocks';
 import { renderAppRoutes } from '../../../helpers/testReactTestingUtils';
@@ -379,7 +379,7 @@ describe('Rule app details', () => {
   describe('rendering', () => {
     it('shows rule with default description section and params', async () => {
       const { ui } = getPageObjects();
-      renderCodingRulesApp(undefined, 'coding_rules?open=rule1');
+      renderCodingRulesApp(undefined, 'coding_rules?open=' + RULE_1);
       await ui.detailsloaded();
       expect(ui.ruleTitle('Awsome java rule').get()).toBeInTheDocument();
       expect(
