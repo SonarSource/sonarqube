@@ -517,7 +517,7 @@ export class App extends React.PureComponent<Props, State> {
         }
       : {
           ...getBranchLikeQuery(this.props.branchLike),
-          componentKeys: component?.key,
+          components: component?.key,
           s: 'FILE_LINE',
           ...serializeQuery(query),
           ps: `${ISSUES_PAGE_SIZE}`,
@@ -774,7 +774,7 @@ export class App extends React.PureComponent<Props, State> {
 
     const parameters = {
       ...getBranchLikeQuery(this.props.branchLike),
-      componentKeys: component?.key,
+      components: component?.key,
       facets: property,
       s: 'FILE_LINE',
       ...serializeQuery({ ...query, ...changes }),

@@ -42,7 +42,7 @@ function buildSearchQuery(component: string, branchLike: BranchLike | undefined)
   return {
     ...DEFAULT_ISSUES_QUERY,
     additionalFields: '_all',
-    componentKeys: component,
+    components: component,
     s: 'FILE_LINE',
     ...getBranchLikeQuery(branchLike),
   };
