@@ -74,13 +74,22 @@ export function useCreateRuleMutation(
   });
 }
 
-export function useUpdateRuleMutation(onSuccess?: (rule: RuleDetails) => unknown) {
+export function useUpdateRuleMutation(
+  searchQuery?: SearchRulesQuery,
+  onSuccess?: (rule: RuleDetails) => unknown,
+) {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: updateRule,
     onSuccess: (rule) => {
       onSuccess?.(rule);
+      queryClient.setQueryData<SearchRulesResponse>(
+        getRulesQueryKey('search', searchQuery),
+        (oldData) => {
+          return oldData ? { ...oldData, rules: [rule, ...oldData.rules] } : undefined;
+        },
+      );
       queryClient.setQueryData<{ actives?: RuleActivation[]; rule: RuleDetails }>(
         getRulesQueryKey('details', rule.key),
         (oldData) => {

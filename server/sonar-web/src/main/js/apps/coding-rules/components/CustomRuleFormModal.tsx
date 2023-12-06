@@ -74,17 +74,22 @@ export default function CustomRuleFormModal(props: Readonly<Props>) {
     templateRule.cleanCodeAttribute ?? CleanCodeAttribute.Conventional,
   );
   const [impacts, setImpacts] = React.useState<SoftwareImpact[]>(templateRule?.impacts ?? []);
-  const { mutate: updateRule, isLoading: updatingRule } = useUpdateRuleMutation(props.onClose);
+  const customRulesSearchParams = {
+    f: 'name,severity,params',
+    template_key: templateRule.key,
+  };
+  const { mutate: updateRule, isLoading: updatingRule } = useUpdateRuleMutation(
+    customRulesSearchParams,
+    props.onClose,
+  );
   const { mutate: createRule, isLoading: creatingRule } = useCreateRuleMutation(
-    {
-      f: 'name,severity,params',
-      template_key: templateRule.key,
-    },
+    customRulesSearchParams,
     props.onClose,
     (response: Response) => {
       setReactivating(response.status === HttpStatusCode.Conflict);
     },
   );
+  const warningRef = React.useRef<HTMLDivElement>(null);
 
   const submitting = updatingRule || creatingRule;
   const hasError = impacts.length === 0;
@@ -99,17 +104,40 @@ export default function CustomRuleFormModal(props: Readonly<Props>) {
       params: stringifiedParams,
       status,
     };
-    return customRule
-      ? updateRule({ ...ruleData, key: customRule.key })
-      : createRule({
-          ...ruleData,
-          customKey: key,
-          preventReactivation: !reactivating,
-          templateKey: templateRule.key,
-          cleanCodeAttribute: ccAttribute,
-          impacts,
-        });
+
+    if (customRule) {
+      updateRule({
+        ...ruleData,
+        key: customRule.key,
+      });
+    } else if (reactivating) {
+      updateRule({
+        ...ruleData,
+        key: `${templateRule.repo}:${key}`,
+      });
+    } else {
+      createRule({
+        ...ruleData,
+        customKey: key,
+        templateKey: templateRule.key,
+        preventReactivation: true,
+        cleanCodeAttribute: ccAttribute,
+        impacts,
+      });
+    }
   };
+
+  // If key changes, then most likely user did it to create a new rule instead of reactivating one
+  React.useEffect(() => {
+    setReactivating(false);
+  }, [key]);
+
+  // scroll to warning when it appears
+  React.useEffect(() => {
+    if (reactivating) {
+      warningRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [reactivating]);
 
   const NameField = React.useMemo(
     () => (
@@ -298,9 +326,11 @@ export default function CustomRuleFormModal(props: Readonly<Props>) {
           }}
         >
           {reactivating && (
-            <FlagMessage variant="warning" className="sw-mb-6">
-              {translate('coding_rules.reactivate.help')}
-            </FlagMessage>
+            <div ref={warningRef}>
+              <FlagMessage variant="warning" className="sw-mb-6">
+                {translate('coding_rules.reactivate.help')}
+              </FlagMessage>
+            </div>
           )}
 
           <MandatoryFieldsExplanation className="sw-mb-4" />

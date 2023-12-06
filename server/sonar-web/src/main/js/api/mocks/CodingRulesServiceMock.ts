@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { HttpStatusCode } from 'axios';
 import { cloneDeep, countBy, pick, trim } from 'lodash';
 import { RuleDescriptionSections } from '../../apps/coding-rules/rule';
 import { getStandards } from '../../helpers/security-standard';
@@ -30,7 +31,7 @@ import {
 import { RuleRepository, SearchRulesResponse } from '../../types/coding-rules';
 import { ComponentQualifier, Visibility } from '../../types/component';
 import { RawIssuesResponse } from '../../types/issues';
-import { SearchRulesQuery } from '../../types/rules';
+import { RuleStatus, SearchRulesQuery } from '../../types/rules';
 import { SecurityStandard } from '../../types/security';
 import { Dict, Rule, RuleActivation, RuleDetails, RulesUpdateRequest } from '../../types/types';
 import { NoticeType } from '../../types/users';
@@ -174,7 +175,7 @@ export default class CodingRulesServiceMock {
     cwe,
     activation,
   }: FacetFilter) {
-    let filteredRules = this.rules;
+    let filteredRules = this.getRulesFilteredByRemovedStatus();
     if (cleanCodeAttributeCategories) {
       filteredRules = filteredRules.filter(
         (r) =>
@@ -266,12 +267,16 @@ export default class CodingRulesServiceMock {
     this.rulesActivations = mockRulesActivationsInQP();
   }
 
+  getRulesFilteredByRemovedStatus() {
+    return this.rules.filter((r) => r.status !== RuleStatus.Removed);
+  }
+
   allRulesCount() {
-    return this.rules.length;
+    return this.getRulesFilteredByRemovedStatus().length;
   }
 
   allRulesName() {
-    return this.rules.map((r) => r.name);
+    return this.getRulesFilteredByRemovedStatus().map((r) => r.name);
   }
 
   allQualityProfile(language: string) {
@@ -322,12 +327,14 @@ export default class CodingRulesServiceMock {
   };
 
   handleUpdateRule = (data: RulesUpdateRequest): Promise<RuleDetails> => {
-    const rule = this.rules.find((r) => r.key === data.key);
+    // find rule if key is in the list of rules or key is a part of 'repo:key'
+    const rule = this.rules.find((r) => data.key.split(':').some((part) => part === r.key));
     if (rule === undefined) {
       return Promise.reject({
         errors: [{ msg: `No rule has been found for id ${data.key}` }],
       });
     }
+
     const template = this.rules.find((r) => r.key === rule.templateKey);
 
     // Lets not convert the md to html in test.
@@ -337,6 +344,7 @@ export default class CodingRulesServiceMock {
     rule.mdNote = data.markdown_note !== undefined ? data.markdown_note : rule.mdNote;
     rule.htmlNote = data.markdown_note !== undefined ? data.markdown_note : rule.htmlNote;
     rule.name = data.name !== undefined ? data.name : rule.name;
+    rule.status = rule.status === RuleStatus.Removed ? RuleStatus.Ready : rule.status;
     if (template && data.params) {
       rule.params = [];
       data.params.split(';').forEach((param) => {
@@ -376,6 +384,27 @@ export default class CodingRulesServiceMock {
           return { key, defaultValue: value, type: 'TEXT' };
         }) ?? [],
     });
+
+    const rulesFromTemplateWithSameKeys = this.rules.filter(
+      (rule) => rule.templateKey === newRule.templateKey && rule.key === newRule.key,
+    );
+
+    if (rulesFromTemplateWithSameKeys.length > 0) {
+      if (
+        rulesFromTemplateWithSameKeys.find(
+          (rule) => rule.status === RuleStatus.Removed && rule.key === newRule.key,
+        )
+      ) {
+        return Promise.reject({
+          status: HttpStatusCode.Conflict,
+          errors: [{ msg: `Rule with the same was removed before` }],
+        });
+      }
+
+      return Promise.reject({
+        errors: [{ msg: `A rule with key ${newRule.key} already exists` }],
+      });
+    }
 
     this.rules.push(newRule);
 
@@ -469,6 +498,7 @@ export default class CodingRulesServiceMock {
         activation,
       });
     }
+
     const responseRules = filteredRules.slice((currentP - 1) * currentPs, currentP * currentPs);
     return this.reply({
       actives: qprofile ? this.rulesActivations : undefined,
@@ -485,13 +515,13 @@ export default class CodingRulesServiceMock {
   handleBulkActivateRules = () => {
     if (this.applyWithWarning) {
       return this.reply({
-        succeeded: this.rules.length - 1,
+        succeeded: this.getRulesFilteredByRemovedStatus().length - 1,
         failed: 1,
         errors: [{ msg: 'c rule c:S6069 cannot be activated on cpp profile SonarSource' }],
       });
     }
     return this.reply({
-      succeeded: this.rules.length,
+      succeeded: this.getRulesFilteredByRemovedStatus().length,
       failed: 0,
       errors: [],
     });
@@ -499,7 +529,7 @@ export default class CodingRulesServiceMock {
 
   handleBulkDeactivateRules = () => {
     return this.reply({
-      succeeded: this.rules.length,
+      succeeded: this.getRulesFilteredByRemovedStatus().length,
       failed: 0,
     });
   };

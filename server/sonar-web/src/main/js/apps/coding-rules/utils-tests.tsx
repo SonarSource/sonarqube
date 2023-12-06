@@ -191,6 +191,7 @@ const selectors = {
   statusSelect: byRole('combobox', { name: 'coding_rules.filters.status' }),
   descriptionTextbox: byRole('textbox', { name: 'description' }),
   createButton: byRole('button', { name: 'create' }),
+  reactivateButton: byRole('button', { name: 'coding_rules.reactivate' }),
   deleteButton: byRole('button', { name: 'delete' }),
 };
 

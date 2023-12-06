@@ -21,6 +21,7 @@ import selectEvent from 'react-select-event';
 import CodingRulesServiceMock from '../../../api/mocks/CodingRulesServiceMock';
 import SettingsServiceMock from '../../../api/mocks/SettingsServiceMock';
 import { mockLoggedInUser } from '../../../helpers/testMocks';
+import { byText } from '../../../helpers/testSelector';
 import { SoftwareQuality } from '../../../types/clean-code-taxonomy';
 import { getPageObjects, renderCodingRulesApp } from '../utils-tests';
 
@@ -99,6 +100,29 @@ describe('custom rule', () => {
 
     // Verify the rule is created
     expect(ui.customRuleItemLink('New Custom Rule').get()).toBeInTheDocument();
+  });
+
+  it('can reactivate custom rule', async () => {
+    const { ui, user } = getPageObjects();
+    rulesHandler.setIsAdmin();
+    renderCodingRulesApp(mockLoggedInUser(), 'coding_rules?open=rule8');
+    await ui.detailsloaded();
+
+    // Try create custom rule with existing rule with removed status
+    await user.click(ui.createCustomRuleButton.get());
+    await user.type(ui.ruleNameTextbox.get(), 'Reactivate custom Rule');
+    await user.clear(ui.keyTextbox.get());
+    await user.type(ui.keyTextbox.get(), 'rule12');
+    await user.type(ui.descriptionTextbox.get(), 'Some description for custom rule');
+
+    await user.click(ui.createButton.get());
+
+    expect(byText('coding_rules.reactivate.help').get()).toBeInTheDocument();
+
+    // Reactivate rule
+    await user.click(ui.reactivateButton.get());
+    // Verify the rule is reactivated
+    expect(ui.customRuleItemLink('Reactivate custom Rule').get()).toBeInTheDocument();
   });
 
   it('can edit custom rule', async () => {

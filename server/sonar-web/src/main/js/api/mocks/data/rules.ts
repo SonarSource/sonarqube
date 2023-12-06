@@ -25,6 +25,7 @@ import {
   SoftwareImpactSeverity,
   SoftwareQuality,
 } from '../../../types/clean-code-taxonomy';
+import { RuleStatus } from '../../../types/rules';
 import {
   ADVANCED_RULE,
   QP_1,
@@ -34,6 +35,7 @@ import {
   RULE_1,
   RULE_10,
   RULE_11,
+  RULE_12,
   RULE_2,
   RULE_3,
   RULE_4,
@@ -214,7 +216,7 @@ export function mockRuleDetailsList() {
         { key: '1', type: 'TEXT', htmlDesc: 'html description for key 1' },
         { key: '2', type: 'NUMBER', defaultValue: 'default value for key 2' },
       ],
-      templateKey: 'rule8',
+      templateKey: RULE_8,
     }),
     mockRuleDetails({
       createdAt: '2022-12-16T17:26:54+0100',
@@ -241,6 +243,17 @@ export function mockRuleDetailsList() {
       lang: 'java',
       langName: 'Java',
       name: 'Common java rule',
+    }),
+    mockRuleDetails({
+      key: RULE_12,
+      type: 'BUG',
+      severity: 'MINOR',
+      lang: 'py',
+      langName: 'Python',
+      tags: ['awesome'],
+      name: 'Deleted custom rule based on rule8',
+      templateKey: RULE_8,
+      status: RuleStatus.Removed,
     }),
   ];
 }

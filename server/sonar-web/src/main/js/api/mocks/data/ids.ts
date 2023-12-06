@@ -50,6 +50,7 @@ export const RULE_8 = 'rule8';
 export const RULE_9 = 'rule9';
 export const RULE_10 = 'rule10';
 export const RULE_11 = 'rule11';
+export const RULE_12 = 'rule12';
 
 // Quality Profiles.
 export const QP_1 = 'p1';

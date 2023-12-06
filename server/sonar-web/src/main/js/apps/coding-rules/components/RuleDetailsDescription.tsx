@@ -47,7 +47,7 @@ export default function RuleDetailsDescription(props: Readonly<Props>) {
   const [descriptionForm, setDescriptionForm] = React.useState(false);
   const [removeDescriptionModal, setDescriptionModal] = React.useState(false);
 
-  const { mutate: updateRule, isLoading: updatingRule } = useUpdateRuleMutation(() =>
+  const { mutate: updateRule, isLoading: updatingRule } = useUpdateRuleMutation(undefined, () =>
     setDescriptionForm(false),
   );
 
