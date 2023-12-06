@@ -50,6 +50,8 @@ public class DbVersion104 implements DbVersion {
       .add(10_4_006, "Add 'uuid' column to 'groups_users'", AddUuidColumnToGroupsUsers.class)
       .add(10_4_007, "Populate 'uuid' column in 'groups_users'", PopulateGroupsUsersUuid.class)
       .add(10_4_008, "Make 'uuid' column in 'groups_users' table non-nullable", MakeUuidInGroupsUsersNotNullable.class)
-      .add(10_4_009, "Create primary key on 'groups_users.uuid'", CreatePrimaryKeyOnGroupsUsersTable.class);
+      .add(10_4_009, "Create primary key on 'groups_users.uuid'", CreatePrimaryKeyOnGroupsUsersTable.class)
+      .add(10_4_010, "Set nulls in 'clean_code_attribute' column of 'rules' table for security hotspots",
+        RemoveCleanCodeAttributeFromCustomHotspotRules.class);
   }
 }

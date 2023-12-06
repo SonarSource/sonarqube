@@ -50,7 +50,6 @@ import org.sonar.db.rule.RuleParamDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.util.TypeValidations;
-import org.sonarqube.ws.Common;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.Lists.newArrayList;
