@@ -44,7 +44,7 @@ it('should render select input and be able to search and select an option', asyn
   await user.click(screen.getByRole('combobox'));
   expect(screen.getByText('label1')).toBeInTheDocument();
   expect(screen.getByText('different')).toBeInTheDocument();
-  await user.type(screen.getByRole('combobox', { name: 'label' }), 'label');
+  await user.type(screen.getByRole('searchbox', { name: 'label' }), 'label');
   expect(await screen.findByText('label')).toBeInTheDocument();
   expect(screen.queryByText('different')).not.toBeInTheDocument();
   await user.click(screen.getByText('label'));
@@ -60,7 +60,7 @@ it('should handle key navigation', async () => {
   renderSearchSelectDropdown();
   await user.tab();
   await user.keyboard('{Enter}');
-  await user.type(screen.getByRole('combobox', { name: 'label' }), 'label');
+  await user.type(screen.getByRole('searchbox', { name: 'label' }), 'label');
   expect(await screen.findByText('label')).toBeInTheDocument();
   expect(screen.queryByText('different')).not.toBeInTheDocument();
   await user.keyboard('{Escape}');

@@ -39,6 +39,7 @@ interface Props {
   className?: string;
   id?: string;
   innerRef?: React.RefCallback<HTMLInputElement>;
+  inputId?: string;
   loading?: boolean;
   maxLength?: number;
   minLength?: number;
@@ -55,24 +56,27 @@ interface Props {
 
 const DEFAULT_MAX_LENGTH = 100;
 
-export function InputSearch({
-  autoFocus,
-  id,
-  className,
-  innerRef,
-  onBlur,
-  onChange,
-  onFocus,
-  onKeyDown,
-  onMouseDown,
-  placeholder,
-  loading,
-  minLength,
-  maxLength = DEFAULT_MAX_LENGTH,
-  size = 'medium',
-  value: parentValue,
-  searchInputAriaLabel,
-}: PropsWithChildren<Props>) {
+export function InputSearch(props: PropsWithChildren<Props>) {
+  const {
+    autoFocus,
+    id,
+    className,
+    innerRef,
+    inputId,
+    onBlur,
+    onChange,
+    onFocus,
+    onKeyDown,
+    onMouseDown,
+    placeholder,
+    loading,
+    minLength,
+    maxLength = DEFAULT_MAX_LENGTH,
+    size = 'medium',
+    value: parentValue,
+    searchInputAriaLabel,
+  } = props;
+
   const intl = useIntl();
   const input = useRef<null | HTMLElement>(null);
   const [value, setValue] = useState(parentValue ?? '');
@@ -151,6 +155,7 @@ export function InputSearch({
           aria-label={searchInputAriaLabel ?? placeholder}
           autoComplete="off"
           className={inputClassName}
+          id={inputId}
           maxLength={maxLength}
           onBlur={onBlur}
           onChange={handleInputChange}

@@ -169,7 +169,6 @@ export function SearchSelectDropdown<
                 Option: IconOption,
                 ...rest.components,
               }}
-              inputValue={inputValue}
               loadOptions={debouncedLoadOptions.current}
               menuIsOpen
               minLength={minLength}
@@ -177,7 +176,7 @@ export function SearchSelectDropdown<
               onInputChange={handleInputChange}
               placeholder={placeholder}
               selectRef={ref}
-              value={value}
+              size="large"
             />
           </StyledSearchSelectWrapper>
         </SearchHighlighterContext.Provider>

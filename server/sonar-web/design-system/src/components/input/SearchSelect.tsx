@@ -20,13 +20,13 @@
 import classNames from 'classnames';
 import { omit } from 'lodash';
 import React, { RefObject } from 'react';
-import { GroupBase, InputProps, components } from 'react-select';
+import { GroupBase, InputProps } from 'react-select';
 import AsyncSelect, { AsyncProps } from 'react-select/async';
 import Select from 'react-select/dist/declarations/src/Select';
 import { INPUT_SIZES } from '../../helpers';
 import { Key } from '../../helpers/keyboard';
+import { InputSearch } from './InputSearch';
 import { LabelValueSelectOption, SelectProps, selectStyle } from './InputSelect';
-import { SearchSelectControlledInput } from './SearchSelectControlledInput';
 
 type SearchSelectProps<
   V,
@@ -98,26 +98,24 @@ export function SearchSelectInput<
   const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
     const target = event.target as HTMLInputElement;
 
-    if (event.key === Key.Escape && target.value !== '') {
+    if (event.key === Key.Escape.toString() && target.value !== '') {
       event.stopPropagation();
       onChange('');
     }
   };
 
   return (
-    <SearchSelectControlledInput
+    <InputSearch
+      {...omit(props, 'value', 'aria-label', 'id')}
+      autoFocus
+      inputId={props.id}
       loading={isLoading && inputValue.length >= (minLength ?? 0)}
       minLength={minLength}
       onChange={onChange}
+      onKeyDown={handleKeyDown}
+      placeholder={placeholder as string}
+      searchInputAriaLabel={props['aria-label']}
       size="full"
-      value={inputValue}
-    >
-      <components.Input
-        {...props}
-        onKeyDown={handleKeyDown}
-        placeholder={placeholder as string}
-        style={{}}
-      />
-    </SearchSelectControlledInput>
+    />
   );
 }

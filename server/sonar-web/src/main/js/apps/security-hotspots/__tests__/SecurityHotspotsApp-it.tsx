@@ -90,7 +90,7 @@ const ui = {
   hotspotCommentBox: byRole('textbox', { name: 'hotspots.comment.field' }),
   hotspotStatus: byRole('heading', { name: 'status: hotspots.status_option.FIXED' }),
   hotspotTitle: (name: string | RegExp) => byRole('heading', { name }),
-  inputAssignee: byRole('combobox', { name: 'search.search_for_users' }),
+  inputAssignee: byRole('searchbox', { name: 'search.search_for_users' }),
   noHotspotForFilter: byText('hotspots.no_hotspots_for_filters.title'),
   openInIDEButton: byRole('button', { name: 'open_in_ide' }),
   panel: byTestId('security-hotspot-test'),
