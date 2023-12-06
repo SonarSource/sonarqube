@@ -139,9 +139,15 @@ it('should disable links if no analysis has been done', () => {
       analysisDate: undefined,
     },
   });
-  expect(screen.getByRole('link', { name: 'overview.page' })).toBeInTheDocument();
-  expect(screen.queryByRole('link', { name: 'issues.page' })).toHaveClass('disabled-link');
-  expect(screen.queryByRole('link', { name: 'layout.measures' })).toHaveClass('disabled-link');
+
+  expect(screen.queryByRole('link', { name: 'issues.page' })).toHaveAttribute(
+    'aria-disabled',
+    'true',
+  );
+  expect(screen.queryByRole('link', { name: 'layout.measures' })).toHaveAttribute(
+    'aria-disabled',
+    'true',
+  );
   expect(screen.getByRole('link', { name: 'project.info.title' })).toBeInTheDocument();
 });
 
@@ -153,9 +159,18 @@ it('should disable links if application has inaccessible projects', () => {
       canBrowseAllChildProjects: false,
     },
   });
-  expect(screen.queryByRole('link', { name: 'overview.page' })).not.toBeInTheDocument();
-  expect(screen.queryByRole('link', { name: 'issues.page' })).not.toBeInTheDocument();
-  expect(screen.queryByRole('link', { name: 'layout.measures' })).not.toBeInTheDocument();
+  expect(screen.queryByRole('link', { name: 'overview.page' })).toHaveAttribute(
+    'aria-disabled',
+    'true',
+  );
+  expect(screen.queryByRole('link', { name: 'issues.page' })).toHaveAttribute(
+    'aria-disabled',
+    'true',
+  );
+  expect(screen.queryByRole('link', { name: 'layout.measures' })).toHaveAttribute(
+    'aria-disabled',
+    'true',
+  );
   expect(screen.queryByRole('button', { name: 'application.info.title' })).not.toBeInTheDocument();
 });
 

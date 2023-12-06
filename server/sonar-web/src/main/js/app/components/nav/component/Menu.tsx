@@ -26,7 +26,7 @@ import {
   PopupZLevel,
 } from 'design-system';
 import * as React from 'react';
-import Tooltip from '../../../../components/controls/Tooltip';
+import { useLocation } from '../../../../components/hoc/withRouter';
 import { DEFAULT_ISSUES_QUERY } from '../../../../components/shared/utils';
 import { getBranchLikeQuery, isPullRequest } from '../../../../helpers/branch-like';
 import { hasMessage, translate, translateWithParameters } from '../../../../helpers/l10n';
@@ -69,11 +69,13 @@ interface Props extends WithAvailableFeaturesProps {
 
 type Query = BranchParameters & { id: string };
 
-export function Menu(props: Props) {
+export function Menu(props: Readonly<Props>) {
   const { component, isInProgress, isPending } = props;
   const { extensions = [], canBrowseAllChildProjects, qualifier, configuration = {} } = component;
   const { data: { branchLikes, branchLike } = { branchLikes: [] } } = useBranchesQuery(component);
   const isApplicationChildInaccessble = isApplication(qualifier) && !canBrowseAllChildProjects;
+
+  const location = useLocation();
 
   const hasAnalysis = () => {
     const hasBranches = branchLikes.length > 1;
@@ -88,20 +90,15 @@ export function Menu(props: Props) {
     return { id: component.key, ...getBranchLikeQuery(branchLike) };
   };
 
-  const renderLinkWhenInaccessibleChild = (label: React.ReactNode) => {
+  const renderLinkWhenInaccessibleChild = (label: string) => {
     return (
-      <li>
-        <Tooltip
-          overlay={translateWithParameters(
-            'layout.all_project_must_be_accessible',
-            translate('qualifier', qualifier),
-          )}
-        >
-          <a aria-disabled="true" className="disabled-link">
-            {label}
-          </a>
-        </Tooltip>
-      </li>
+      <DisabledTabLink
+        overlay={translateWithParameters(
+          'layout.all_project_must_be_accessible',
+          translate('qualifier', qualifier),
+        )}
+        label={label}
+      />
     );
   };
 
@@ -138,6 +135,17 @@ export function Menu(props: Props) {
       return isGovernanceEnabled ? (
         <NavBarTabLink to={getPortfolioUrl(id)} text={translate('overview.page')} />
       ) : null;
+    }
+
+    const showingTutorial = location.pathname.includes('/tutorials');
+
+    if (showingTutorial) {
+      return (
+        <DisabledTabLink
+          overlay={translate('layout.must_be_configured')}
+          label={translate('overview.page')}
+        />
+      );
     }
 
     if (isApplicationChildInaccessble) {
