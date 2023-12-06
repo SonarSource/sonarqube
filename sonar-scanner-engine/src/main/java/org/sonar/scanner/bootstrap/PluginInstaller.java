@@ -21,15 +21,28 @@ package org.sonar.scanner.bootstrap;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public interface PluginInstaller {
 
   /**
-   * Gets the list of plugins installed on server and downloads them if not
+   * Loads/downloads all plugins that are installed on the server.
+   * @return information about all installed plugins, grouped by key
+   */
+  Map<String, ScannerPlugin> installAllPlugins();
+
+  /**
+   * Gets the list of plugins that are not required for any specific languages and downloads them if not
    * already in local cache.
    * @return information about all installed plugins, grouped by key
    */
-  Map<String, ScannerPlugin> installRemotes();
+  Map<String, ScannerPlugin> installRequiredPlugins();
+
+  /**
+   * Loads/downloads plugins that are required for the given languageKeys.
+   * @return information about any plugins installed by this call, grouped by key
+   */
+  Map<String, ScannerPlugin> installPluginsForLanguages(Set<String> languageKeys);
 
   /**
    * Used only by medium tests.

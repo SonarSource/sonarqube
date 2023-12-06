@@ -105,6 +105,13 @@ public class XooPlugin implements Plugin {
         .onQualifiers(Qualifiers.PROJECT)
         .multiValues(true)
         .build(),
+      PropertyDefinition.builder(Xoo2.FILE_SUFFIXES_KEY)
+        .defaultValue(Xoo2.DEFAULT_FILE_SUFFIXES)
+        .name("File suffixes")
+        .description("Comma-separated list of suffixes for files to analyze. To not filter, leave the list empty.")
+        .subCategory("General")
+        .onQualifiers(Qualifiers.PROJECT)
+        .build(),
       // Used by DuplicationsTest and IssueFilterOnCommonRulesTest. If not declared it is not returned by api/settings
       PropertyDefinition.builder("sonar.cpd.xoo.minimumTokens")
         .onQualifiers(Qualifiers.PROJECT)
