@@ -63,12 +63,13 @@ public class WebServiceEngineTest {
 
   @Test
   public void load_ws_definitions_at_startup() {
-    WebServiceEngine underTest = new WebServiceEngine(new WebService[]{
+    WebServiceEngine underTest = new WebServiceEngine(new WebService[] {
       newWs("api/foo/index", a -> {
       }),
       newWs("api/bar/index", a -> {
       })
-    });
+    },
+      new ActionInterceptor[] {});
     underTest.start();
     try {
       assertThat(underTest.controllers())
@@ -81,7 +82,7 @@ public class WebServiceEngineTest {
 
   @DataProvider
   public static Object[][] responseData() {
-    return new Object[][]{
+    return new Object[][] {
       {"/api/ping", "pong", 200},
       {"api/ping", "pong", 200},
       {"api/ping.json", "pong", 200},
@@ -147,7 +148,7 @@ public class WebServiceEngineTest {
 
   @DataProvider
   public static String[] verbs() {
-    return new String[]{
+    return new String[] {
       "PUT", "DELETE", "HEAD", "PATCH", "CONNECT", "OPTIONS", "TRACE"
     };
   }
@@ -396,8 +397,9 @@ public class WebServiceEngineTest {
   public void fail_when_start_in_not_called() {
     Request request = new TestRequest().setPath("/api/ping");
     DumbResponse response = new DumbResponse();
-    WebServiceEngine underTest = new WebServiceEngine(new WebService[]{newPingWs(a -> {
-    })});
+    WebServiceEngine underTest = new WebServiceEngine(new WebService[] {
+      newPingWs(a -> {
+      })}, new ActionInterceptor[] {});
 
     underTest.execute(request, response);
 
@@ -434,7 +436,7 @@ public class WebServiceEngineTest {
   }
 
   private static Response run(Request request, Response response, WebService... webServices) {
-    WebServiceEngine underTest = new WebServiceEngine(webServices);
+    WebServiceEngine underTest = new WebServiceEngine(webServices, new ActionInterceptor[] {});
     underTest.start();
     try {
       underTest.execute(request, response);

@@ -169,6 +169,7 @@ import org.sonar.server.platform.SystemInfoWriterModule;
 import org.sonar.server.platform.WebCoreExtensionsInstaller;
 import org.sonar.server.platform.db.CheckAnyonePermissionsAtStartup;
 import org.sonar.server.platform.db.CheckLanguageSpecificParamsAtStartup;
+import org.sonar.server.platform.web.ActionDeprecationLoggerInterceptor;
 import org.sonar.server.platform.web.SonarLintConnectionFilter;
 import org.sonar.server.platform.web.WebServiceFilter;
 import org.sonar.server.platform.web.WebServiceReroutingFilter;
@@ -375,6 +376,7 @@ public class PlatformLevel4 extends PlatformLevel {
       new QualityGateWsModule(),
 
       // web services
+      ActionDeprecationLoggerInterceptor.class,
       WebServiceEngine.class,
       new WebServicesWsModule(),
       SonarLintConnectionFilter.class,

@@ -27,6 +27,8 @@ import java.util.Locale;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.catalina.connector.ClientAbortException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.Startable;
 import org.sonar.api.impl.ws.ValidatingRequest;
 import org.sonar.api.server.ServerSide;
@@ -34,8 +36,6 @@ import org.sonar.api.server.ws.LocalConnector;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.server.exceptions.BadConfigurationException;
 import org.sonar.server.exceptions.BadRequestException;
@@ -62,11 +62,13 @@ public class WebServiceEngine implements LocalConnector, Startable {
   private static final Logger LOGGER = LoggerFactory.getLogger(WebServiceEngine.class);
 
   private final WebService[] webServices;
+  private final ActionInterceptor[] actionInterceptors;
 
   private WebService.Context context;
 
-  public WebServiceEngine(WebService[] webServices) {
+  public WebServiceEngine(WebService[] webServices, ActionInterceptor[] actionInterceptors) {
     this.webServices = webServices;
+    this.actionInterceptors = actionInterceptors;
   }
 
   @Override
@@ -100,14 +102,15 @@ public class WebServiceEngine implements LocalConnector, Startable {
   public void execute(Request request, Response response) {
     try {
       ActionExtractor actionExtractor = new ActionExtractor(request.getPath());
-      WebService.Action action = getAction(actionExtractor);
-      checkFound(action, "Unknown url : %s", request.getPath());
+      WebService.Action foundAction = getAction(actionExtractor);
+      WebService.Action action = checkFound(foundAction, "Unknown url : %s", request.getPath());
       if (request instanceof ValidatingRequest validatingRequest) {
         validatingRequest.setAction(action);
         validatingRequest.setLocalConnector(this);
       }
       checkActionExtension(actionExtractor.getExtension());
       verifyRequest(action, request);
+      preAction(action, request);
       action.handler().handle(request, response);
     } catch (IllegalArgumentException e) {
       sendErrors(request, response, e, 400, singletonList(e.getMessage()));
@@ -119,6 +122,12 @@ public class WebServiceEngine implements LocalConnector, Startable {
       sendErrors(request, response, e, e.httpCode(), singletonList(e.getMessage()));
     } catch (Exception e) {
       sendErrors(request, response, e, 500, singletonList("An error has occurred. Please contact your administrator"));
+    }
+  }
+
+  private void preAction(WebService.Action action, Request request) {
+    for (ActionInterceptor interceptor : actionInterceptors) {
+      interceptor.preAction(action, request);
     }
   }
 
