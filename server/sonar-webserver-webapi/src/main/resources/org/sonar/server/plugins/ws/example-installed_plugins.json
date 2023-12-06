@@ -16,7 +16,8 @@
       "hash": "abcdef123456",
       "sonarLintSupported": false,
       "documentationPath": "static/documentation.md",
-      "updatedAt": 123456789
+      "updatedAt": 123456789,
+      "requiredForLanguages": []
     },
     {
       "key": "java",
@@ -34,7 +35,11 @@
       "hash": "abcdef123456",
       "sonarLintSupported": true,
       "documentationPath": "static/documentation.md",
-      "updatedAt": 123456789
+      "updatedAt": 123456789,
+      "requiredForLanguages": [
+        "java",
+        "xml"
+      ]
     },
     {
       "key": "scmsvn",
@@ -51,7 +56,8 @@
       "filename": "sonar-scm-svn-plugin-1.0.jar",
       "hash": "abcdef123456",
       "sonarLintSupported": false,
-      "updatedAt": 123456789
+      "updatedAt": 123456789,
+      "requiredForLanguages": []
     }
   ]
 }

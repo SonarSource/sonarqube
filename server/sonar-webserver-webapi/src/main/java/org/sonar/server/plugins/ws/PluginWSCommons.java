@@ -94,6 +94,7 @@ public class PluginWSCommons {
     ofNullable(pluginInfo.getIssueTrackerUrl()).ifPresent(builder::setIssueTrackerUrl);
     ofNullable(pluginInfo.getImplementationBuild()).ifPresent(builder::setImplementationBuild);
     ofNullable(pluginInfo.getDocumentationPath()).ifPresent(builder::setDocumentationPath);
+    builder.addAllRequiredForLanguages(pluginInfo.getRequiredForLanguages());
 
     return builder.build();
   }
@@ -109,9 +110,9 @@ public class PluginWSCommons {
 
   static List<Require> buildRequires(PluginUpdate pluginUpdate) {
     return pluginUpdate.getRelease().getOutgoingDependencies().stream().map(
-      org.sonar.updatecenter.common.Release::getArtifact)
-      .filter(release -> release instanceof Plugin)
-      .map(artifact -> (Plugin) artifact)
+        org.sonar.updatecenter.common.Release::getArtifact)
+      .filter(Plugin.class::isInstance)
+      .map(Plugin.class::cast)
       .map(artifact -> {
         Require.Builder builder = Require.newBuilder()
           .setKey(artifact.getKey());

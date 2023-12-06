@@ -124,6 +124,7 @@ message PluginDetails {
   optional string documentationPath = 16;
   optional int64 updatedAt = 17;
   optional string type = 18;
+  repeated string requiredForLanguages = 19;
 }
 
 // WS api/plugins/pending

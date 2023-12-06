@@ -30,7 +30,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Optional;
-import java.util.Random;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -39,11 +38,11 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Action;
 import org.sonar.api.utils.System2;
 import org.sonar.core.platform.PluginInfo;
+import org.sonar.core.plugin.PluginType;
 import org.sonar.db.DbTester;
 import org.sonar.db.plugin.PluginDto.Type;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.plugins.PluginFilesAndMd5.FileAndMd5;
-import org.sonar.core.plugin.PluginType;
 import org.sonar.server.plugins.ServerPlugin;
 import org.sonar.server.plugins.ServerPluginRepository;
 import org.sonar.server.plugins.UpdateCenterMatrixFactory;
@@ -86,14 +85,14 @@ public class InstalledActionIT {
   @DataProvider
   public static Object[][] editionBundledLicenseValues() {
     return new Object[][] {
-      {"sonarsource"},
-      {"SonarSource"},
-      {"SonaRSOUrce"},
-      {"SONARSOURCE"},
-      {"commercial"},
-      {"Commercial"},
-      {"COMMERCIAL"},
-      {"COmmERCiaL"},
+      {"sonarsource", "SONARSOURCE"},
+      {"SonarSource", "SONARSOURCE"},
+      {"SonaRSOUrce", "SonarSource"},
+      {"SONARSOURCE", "SonarSource"},
+      {"commercial", "SONARSOURCE"},
+      {"Commercial", "SONARSOURCE"},
+      {"COMMERCIAL", "SonarSource"},
+      {"COmmERCiaL", "SonarSource"},
     };
   }
 
@@ -203,6 +202,7 @@ public class InstalledActionIT {
     assertThat(json.get("organizationUrl")).isNull();
     assertThat(json.get("homepageUrl")).isNull();
     assertThat(json.get("issueTrackerUrl")).isNull();
+    assertThat(json.get("requiredForLanguage")).isNull();
   }
 
   private ServerPlugin newInstalledPlugin(PluginInfo plugin) throws IOException {
@@ -226,6 +226,7 @@ public class InstalledActionIT {
       .setHomepageUrl("homepage_url")
       .setIssueTrackerUrl("issueTracker_url")
       .setImplementationBuild("sou_rev_sha1")
+      .addRequiredForLanguage("bar")
       .setSonarLintSupported(true));
     when(serverPluginRepository.getPlugins()).thenReturn(singletonList(plugin));
     db.pluginDbTester().insertPlugin(
@@ -236,29 +237,31 @@ public class InstalledActionIT {
     String response = tester.newRequest().execute().getInput();
 
     verifyNoMoreInteractions(updateCenterMatrixFactory);
-    assertJson(response).isSimilarTo(
-      "{" +
-        "  \"plugins\":" +
-        "  [" +
-        "    {" +
-        "      \"key\": \"foo\"," +
-        "      \"name\": \"plugName\"," +
-        "      \"description\": \"desc_it\"," +
-        "      \"version\": \"1.0\"," +
-        "      \"license\": \"license_hey\"," +
-        "      \"organizationName\": \"org_name\"," +
-        "      \"organizationUrl\": \"org_url\",\n" +
-        "      \"editionBundled\": false," +
-        "      \"homepageUrl\": \"homepage_url\"," +
-        "      \"issueTrackerUrl\": \"issueTracker_url\"," +
-        "      \"implementationBuild\": \"sou_rev_sha1\"," +
-        "      \"sonarLintSupported\": true," +
-        "      \"filename\": \"" + plugin.getJar().getFile().getName() + "\"," +
-        "      \"hash\": \"" + plugin.getJar().getMd5() + "\"," +
-        "      \"updatedAt\": 100" +
-        "    }" +
-        "  ]" +
-        "}");
+    String expected = String.format("""
+      {
+        "plugins":
+        [
+          {
+            "key": "foo",
+            "name": "plugName",
+            "description": "desc_it",
+            "version": "1.0",
+            "license": "license_hey",
+            "organizationName": "org_name",
+            "organizationUrl": "org_url",
+            "editionBundled": false,
+            "homepageUrl": "homepage_url",
+            "issueTrackerUrl": "issueTracker_url",
+            "implementationBuild": "sou_rev_sha1",
+            "sonarLintSupported": true,
+            "filename": "%s",
+            "hash": "%s",
+            "updatedAt": 100,
+            "requiredForLanguages": ["bar"]
+          }
+        ]
+      }""", plugin.getJar().getFile().getName(), plugin.getJar().getMd5());
+    assertJson(response).isSimilarTo(expected);
   }
 
   @Test
@@ -362,10 +365,8 @@ public class InstalledActionIT {
 
   @Test
   @UseDataProvider("editionBundledLicenseValues")
-  public void commercial_plugins_from_SonarSource_has_flag_editionBundled_true_based_on_jar_info(String license) throws Exception {
+  public void commercial_plugins_from_SonarSource_has_flag_editionBundled_true_based_on_jar_info(String license, String organization) throws Exception {
     String jarFilename = getClass().getSimpleName() + "/" + "some.jar";
-    Random random = new Random();
-    String organization = random.nextBoolean() ? "SonarSource" : "SONARSOURCE";
     String pluginKey = "plugKey";
     File jar = new File(getClass().getResource(jarFilename).toURI());
     when(serverPluginRepository.getPlugins()).thenReturn(asList(

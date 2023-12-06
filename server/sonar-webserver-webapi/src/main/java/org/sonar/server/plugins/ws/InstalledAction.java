@@ -33,12 +33,12 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.core.platform.PluginInfo;
+import org.sonar.core.plugin.PluginType;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.plugin.PluginDto;
 import org.sonar.db.plugin.PluginDto.Type;
-import org.sonar.core.plugin.PluginType;
 import org.sonar.server.plugins.ServerPlugin;
 import org.sonar.server.plugins.ServerPluginRepository;
 import org.sonar.server.plugins.UpdateCenterMatrixFactory;
@@ -84,6 +84,7 @@ public class InstalledAction implements PluginsWsAction {
         "Requires authentication.")
       .setSince("5.2")
       .setChangelog(
+        new Change("10.4", "The response field 'requiredForLanguages' is added for plugins that support it"),
         new Change("9.8", "The 'documentationPath' field is deprecated"),
         new Change("9.7", "Authentication check added"),
         new Change("8.0", "The 'documentationPath' field is added"),
