@@ -99,30 +99,31 @@ export default function CustomRuleFormModal(props: Readonly<Props>) {
       .map((key) => `${key}=${csvEscape(params[key])}`)
       .join(';');
     const ruleData = {
-      markdownDescription: description,
       name,
-      params: stringifiedParams,
       status,
+      markdownDescription: description,
     };
 
     if (customRule) {
       updateRule({
         ...ruleData,
+        params: stringifiedParams,
         key: customRule.key,
       });
     } else if (reactivating) {
       updateRule({
         ...ruleData,
+        params: stringifiedParams,
         key: `${templateRule.repo}:${key}`,
       });
     } else {
       createRule({
         ...ruleData,
-        customKey: key,
+        key: `${templateRule.repo}:${key}`,
         templateKey: templateRule.key,
-        preventReactivation: true,
         cleanCodeAttribute: ccAttribute,
         impacts,
+        parameters: Object.entries(params).map(([key, value]) => ({ key, defaultValue: value })),
       });
     }
   };

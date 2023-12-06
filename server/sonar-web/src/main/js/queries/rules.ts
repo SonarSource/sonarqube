@@ -20,6 +20,7 @@
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { createRule, deleteRule, getRuleDetails, searchRules, updateRule } from '../api/rules';
+import { mapRestRuleToRule } from '../apps/coding-rules/utils';
 import { SearchRulesResponse } from '../types/coding-rules';
 import { SearchRulesQuery } from '../types/rules';
 import { RuleActivation, RuleDetails } from '../types/types';
@@ -63,11 +64,12 @@ export function useCreateRuleMutation(
     mutationFn: createRule,
     onError,
     onSuccess: (rule) => {
-      onSuccess?.(rule);
+      const mappedRule = mapRestRuleToRule(rule);
+      onSuccess?.(mappedRule);
       queryClient.setQueryData<SearchRulesResponse>(
         getRulesQueryKey('search', searchQuery),
         (oldData) => {
-          return oldData ? { ...oldData, rules: [rule, ...oldData.rules] } : undefined;
+          return oldData ? { ...oldData, rules: [mappedRule, ...oldData.rules] } : undefined;
         },
       );
     },

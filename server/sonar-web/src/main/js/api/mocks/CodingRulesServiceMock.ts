@@ -20,12 +20,13 @@
 import { HttpStatusCode } from 'axios';
 import { cloneDeep, countBy, pick, trim } from 'lodash';
 import { RuleDescriptionSections } from '../../apps/coding-rules/rule';
+import { mapRestRuleToRule } from '../../apps/coding-rules/utils';
 import { getStandards } from '../../helpers/security-standard';
 import {
   mockCurrentUser,
   mockPaging,
+  mockRestRuleDetails,
   mockRuleActivation,
-  mockRuleDetails,
   mockRuleRepository,
 } from '../../helpers/testMocks';
 import { RuleRepository, SearchRulesResponse } from '../../types/coding-rules';
@@ -33,7 +34,14 @@ import { ComponentQualifier, Visibility } from '../../types/component';
 import { RawIssuesResponse } from '../../types/issues';
 import { RuleStatus, SearchRulesQuery } from '../../types/rules';
 import { SecurityStandard } from '../../types/security';
-import { Dict, Rule, RuleActivation, RuleDetails, RulesUpdateRequest } from '../../types/types';
+import {
+  Dict,
+  Rule,
+  RuleActivation,
+  RuleDetails,
+  RuleParameter,
+  RulesUpdateRequest,
+} from '../../types/types';
 import { NoticeType } from '../../types/users';
 import { getComponentData } from '../components';
 import { getFacet } from '../issues';
@@ -338,9 +346,9 @@ export default class CodingRulesServiceMock {
     const template = this.rules.find((r) => r.key === rule.templateKey);
 
     // Lets not convert the md to html in test.
-    rule.mdDesc = data.markdown_description !== undefined ? data.markdown_description : rule.mdDesc;
+    rule.mdDesc = data.markdownDescription !== undefined ? data.markdownDescription : rule.mdDesc;
     rule.htmlDesc =
-      data.markdown_description !== undefined ? data.markdown_description : rule.htmlDesc;
+      data.markdownDescription !== undefined ? data.markdownDescription : rule.htmlDesc;
     rule.mdNote = data.markdown_note !== undefined ? data.markdown_note : rule.mdNote;
     rule.htmlNote = data.markdown_note !== undefined ? data.markdown_note : rule.htmlNote;
     rule.name = data.name !== undefined ? data.name : rule.name;
@@ -372,41 +380,30 @@ export default class CodingRulesServiceMock {
   };
 
   handleCreateRule = (data: CreateRuleData) => {
-    const newRule = mockRuleDetails({
+    const newRule = mockRestRuleDetails({
       descriptionSections: [
         { key: RuleDescriptionSections.DEFAULT, content: data.markdownDescription },
       ],
-      ...pick(data, ['templateKey', 'name', 'status', 'cleanCodeAttribute', 'impacts']),
-      key: data.customKey,
-      params:
-        data.params?.split(';').map((param: string) => {
-          const [key, value] = param.split('=');
-          return { key, defaultValue: value, type: 'TEXT' };
-        }) ?? [],
+      ...pick(data, ['templateKey', 'name', 'status', 'cleanCodeAttribute', 'impacts', 'key']),
+      parameters: data.parameters as RuleParameter[],
     });
 
-    const rulesFromTemplateWithSameKeys = this.rules.filter(
-      (rule) => rule.templateKey === newRule.templateKey && rule.key === newRule.key,
+    const ruleFromTemplateWithSameKey = this.rules.find(
+      (rule) => rule.templateKey === newRule.templateKey && newRule.key.split(':')[1] === rule.key,
     );
 
-    if (rulesFromTemplateWithSameKeys.length > 0) {
-      if (
-        rulesFromTemplateWithSameKeys.find(
-          (rule) => rule.status === RuleStatus.Removed && rule.key === newRule.key,
-        )
-      ) {
-        return Promise.reject({
-          status: HttpStatusCode.Conflict,
-          errors: [{ msg: `Rule with the same was removed before` }],
-        });
-      }
-
+    if (ruleFromTemplateWithSameKey?.status === RuleStatus.Removed) {
+      return Promise.reject({
+        status: HttpStatusCode.Conflict,
+        errors: [{ msg: `Rule with the same was removed before` }],
+      });
+    } else if (ruleFromTemplateWithSameKey) {
       return Promise.reject({
         errors: [{ msg: `A rule with key ${newRule.key} already exists` }],
       });
     }
 
-    this.rules.push(newRule);
+    this.rules.push(mapRestRuleToRule(newRule));
 
     return this.reply(newRule);
   };

@@ -554,6 +554,23 @@ export interface Rule {
   type: RuleType;
 }
 
+export interface RestRule {
+  cleanCodeAttributeCategory?: CleanCodeAttributeCategory;
+  cleanCodeAttribute?: CleanCodeAttribute;
+  impacts: SoftwareImpact[];
+  template?: boolean;
+  key: string;
+  language?: string;
+  languageName?: string;
+  name: string;
+  parameters?: RestRuleParameter[];
+  severity: string;
+  status: string;
+  systemTags?: string[];
+  tags?: string[];
+  type: RuleType;
+}
+
 export interface RuleActivation {
   createdAt: string;
   inherit: RuleInheritance;
@@ -564,7 +581,7 @@ export interface RuleActivation {
 
 export interface RulesUpdateRequest {
   key: string;
-  markdown_description?: string;
+  markdownDescription?: string;
   markdown_note?: string;
   name?: string;
   params?: string;
@@ -597,7 +614,33 @@ export interface RuleDetails extends Rule {
   templateKey?: string;
 }
 
+export interface RestRuleDetails extends RestRule {
+  createdAt: string;
+  descriptionSections?: RuleDescriptionSection[];
+  educationPrinciples?: string[];
+  gapDescription?: string;
+  htmlDesc?: string;
+  htmlNote?: string;
+  internalKey?: string;
+  external?: boolean;
+  markdownDescription?: string;
+  markdownNote?: string;
+  remFnBaseEffort?: string;
+  remFnGapMultiplier?: string;
+  remFnType?: string;
+  repositoryKey: string;
+  scope?: RuleScope;
+  templateKey?: string;
+}
+
 export type RuleInheritance = 'NONE' | 'INHERITED' | 'OVERRIDES';
+
+export interface RestRuleParameter {
+  defaultValue?: string;
+  htmlDescription?: string;
+  key: string;
+  type: string;
+}
 
 export interface RuleParameter {
   defaultValue?: string;

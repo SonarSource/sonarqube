@@ -18,18 +18,25 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { throwGlobalError } from '../helpers/error';
-import { getJSON, post, postJSON } from '../helpers/request';
+import { axiosToCatch, getJSON, post, postJSON } from '../helpers/request';
 import { CleanCodeAttribute, SoftwareImpact } from '../types/clean-code-taxonomy';
 import { GetRulesAppResponse, SearchRulesResponse } from '../types/coding-rules';
 import { SearchRulesQuery } from '../types/rules';
-import { RuleActivation, RuleDetails, RulesUpdateRequest } from '../types/types';
+import {
+  RestRuleDetails,
+  RestRuleParameter,
+  RuleActivation,
+  RuleDetails,
+  RulesUpdateRequest,
+} from '../types/types';
+
+const RULES_ENDPOINT = '/api/v2/clean-code-policy/rules';
 
 export interface CreateRuleData {
-  customKey: string;
+  key: string;
   markdownDescription: string;
   name: string;
-  params?: string;
-  preventReactivation?: boolean;
+  parameters?: Partial<RestRuleParameter>[];
   status?: string;
   templateKey: string;
   cleanCodeAttribute: CleanCodeAttribute;
@@ -68,19 +75,15 @@ export function getRuleTags(parameters: { ps?: number; q: string }): Promise<str
   return getJSON('/api/rules/tags', parameters).then((r) => r.tags, throwGlobalError);
 }
 
-export function createRule(data: CreateRuleData): Promise<RuleDetails> {
-  return postJSON('/api/rules/create', data).then(
-    (r) => r.rule,
-    (response) => {
-      // do not show global error if the status code is 409
-      // this case should be handled inside a component
-      if (response && response.status === 409) {
-        return Promise.reject(response);
-      } else {
-        return throwGlobalError(response);
-      }
-    },
-  );
+export function createRule(data: CreateRuleData): Promise<RestRuleDetails> {
+  return axiosToCatch.post<RuleDetails>(RULES_ENDPOINT, data).catch(({ response }) => {
+    // do not show global error if the status code is 409
+    // this case should be handled inside a component
+    if (response && response.status === 409) {
+      return Promise.reject(response);
+    }
+    return throwGlobalError(response);
+  });
 }
 
 export function deleteRule(parameters: { key: string }) {

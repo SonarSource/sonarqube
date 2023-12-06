@@ -17,9 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { omit } from 'lodash';
 import { To } from 'react-router-dom';
 import { CompareResponse } from '../api/quality-profiles';
 import { RuleDescriptionSections } from '../apps/coding-rules/rule';
+import { REST_RULE_KEYS_TO_OLD_KEYS } from '../apps/coding-rules/utils';
 import { Exporter, Profile, ProfileChangelogEvent } from '../apps/quality-profiles/types';
 import { LogsLevels } from '../apps/system/utils';
 import { Location, Router } from '../components/hoc/withRouter';
@@ -59,6 +61,7 @@ import {
   Metric,
   Paging,
   Period,
+  RestRuleDetails,
   Rule,
   RuleActivation,
   RuleDetails,
@@ -656,6 +659,21 @@ export function mockRuleDetails(overrides: Partial<RuleDetails> = {}): RuleDetai
     scope: 'MAIN',
     isExternal: false,
     type: 'BUG',
+    ...overrides,
+  };
+}
+
+export function mockRestRuleDetails(overrides: Partial<RestRuleDetails> = {}): RestRuleDetails {
+  const ruleDetails = mockRuleDetails(overrides);
+  return {
+    ...omit(ruleDetails, Object.values(REST_RULE_KEYS_TO_OLD_KEYS)),
+    ...Object.entries(REST_RULE_KEYS_TO_OLD_KEYS).reduce(
+      (obj, [key, value]: [keyof RestRuleDetails, keyof RuleDetails]) => {
+        obj[key] = ruleDetails[value] as never;
+        return obj;
+      },
+      {} as RestRuleDetails,
+    ),
     ...overrides,
   };
 }
