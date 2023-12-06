@@ -38,12 +38,11 @@ import {
   isCustomGraph,
 } from '../../../components/activity-graph/utils';
 import { Location, Router, withRouter } from '../../../components/hoc/withRouter';
-import { getBranchLikeQuery } from '../../../helpers/branch-like';
+import { getBranchLikeQuery, isSameBranchLike } from '../../../helpers/branch-like';
 import { HIDDEN_METRICS } from '../../../helpers/constants';
 import { parseDate } from '../../../helpers/dates';
 import { serializeStringArray } from '../../../helpers/query';
-import { withBranchLikes } from '../../../queries/branch';
-import { BranchLike } from '../../../types/branch-like';
+import { WithBranchLikesProps, withBranchLikes } from '../../../queries/branch';
 import {
   ComponentQualifier,
   isApplication,
@@ -68,8 +67,7 @@ import {
 } from '../utils';
 import ProjectActivityAppRenderer from './ProjectActivityAppRenderer';
 
-interface Props {
-  branchLike?: BranchLike;
+interface Props extends WithBranchLikesProps {
   component: Component;
   location: Location;
   metrics: Dict<Metric>;
@@ -109,13 +107,26 @@ class ProjectActivityApp extends React.PureComponent<Props, State> {
   componentDidMount() {
     this.mounted = true;
 
-    this.firstLoadData(this.state.query, this.props.component);
+    if (this.isBranchReady()) {
+      this.firstLoadData(this.state.query, this.props.component);
+    }
   }
 
   componentDidUpdate(prevProps: Props) {
-    if (prevProps.location.query !== this.props.location.query) {
-      const query = parseQuery(this.props.location.query);
-      if (query.graph !== this.state.query.graph || customMetricsChanged(this.state.query, query)) {
+    const unparsedQuery = this.props.location.query;
+
+    const hasQueryChanged = prevProps.location.query !== unparsedQuery;
+
+    const hasBranchChanged = !isSameBranchLike(prevProps.branchLike, this.props.branchLike);
+
+    if (this.isBranchReady() && (hasBranchChanged || hasQueryChanged)) {
+      const query = parseQuery(unparsedQuery);
+
+      if (
+        query.graph !== this.state.query.graph ||
+        customMetricsChanged(this.state.query, query) ||
+        hasBranchChanged
+      ) {
         if (this.state.initialized) {
           this.updateGraphData(query.graph || DEFAULT_GRAPH, query.customMetrics);
         } else {
@@ -129,6 +140,10 @@ class ProjectActivityApp extends React.PureComponent<Props, State> {
   componentWillUnmount() {
     this.mounted = false;
   }
+
+  isBranchReady = () =>
+    isPortfolioLike(this.props.component.qualifier) ||
+    (this.props.branchLike !== undefined && !this.props.isFetchingBranch);
 
   handleAddCustomEvent = (analysisKey: string, name: string, category?: string) => {
     return createEvent(analysisKey, name, category).then(({ analysis, ...event }) => {

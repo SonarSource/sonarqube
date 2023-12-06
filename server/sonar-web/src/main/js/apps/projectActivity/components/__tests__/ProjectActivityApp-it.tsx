@@ -26,6 +26,7 @@ import { Route } from 'react-router-dom';
 import ApplicationServiceMock from '../../../../api/mocks/ApplicationServiceMock';
 import { ProjectActivityServiceMock } from '../../../../api/mocks/ProjectActivityServiceMock';
 import { TimeMachineServiceMock } from '../../../../api/mocks/TimeMachineServiceMock';
+import { mockBranchList } from '../../../../api/mocks/data/branches';
 import { parseDate } from '../../../../helpers/dates';
 import { mockComponent } from '../../../../helpers/mocks/component';
 import {
@@ -56,11 +57,22 @@ jest.mock('../../../../helpers/storage', () => ({
   save: jest.fn(),
 }));
 
+jest.mock('../../../../api/branches', () => ({
+  getBranches: () => {
+    isBranchReady = true;
+    return Promise.resolve(mockBranchList());
+  },
+}));
+
 const applicationHandler = new ApplicationServiceMock();
 const projectActivityHandler = new ProjectActivityServiceMock();
 const timeMachineHandler = new TimeMachineServiceMock();
 
+let isBranchReady = false;
+
 beforeEach(() => {
+  isBranchReady = false;
+
   jest.clearAllMocks();
   applicationHandler.reset();
   projectActivityHandler.reset();
@@ -139,7 +151,8 @@ describe('rendering', () => {
           breadcrumbs: [{ key: 'breadcrumb', name: 'breadcrumb', qualifier }],
         }),
       );
-      await ui.appLoaded();
+
+      await ui.appLoaded({ doNotWaitForBranch: true });
 
       expect(ui.newCodeLegend.query()).not.toBeInTheDocument();
     },
@@ -360,7 +373,7 @@ describe('data loading', () => {
       }),
     );
 
-    await ui.appLoaded();
+    await ui.appLoaded({ doNotWaitForBranch: true });
 
     // If it didn't fail, it means we correctly queried for project "foo".
     expect(ui.activityItem.getAll().length).toBe(4);
@@ -548,10 +561,16 @@ function getPageObject() {
     user,
     ui: {
       ...ui,
-      async appLoaded() {
+      async appLoaded({ doNotWaitForBranch }: { doNotWaitForBranch?: boolean } = {}) {
         await waitFor(() => {
           expect(ui.loading.query()).not.toBeInTheDocument();
         });
+
+        if (!doNotWaitForBranch) {
+          await waitFor(() => {
+            expect(isBranchReady).toBe(true);
+          });
+        }
       },
 
       async changeGraphType(type: GraphType) {
@@ -681,7 +700,7 @@ function renderProjectActivityAppContainer(
   }),
 ) {
   return renderAppWithComponentContext(
-    'project/activity',
+    `project/activity?id=${component.key}`,
     () => <Route path="*" element={<ProjectActivityAppContainer />} />,
     {
       metrics: keyBy(

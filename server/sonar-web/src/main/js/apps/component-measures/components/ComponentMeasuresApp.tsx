@@ -40,8 +40,7 @@ import { enhanceMeasure } from '../../../components/measure/utils';
 import '../../../components/search-navigator.css';
 import { getBranchLikeQuery, isPullRequest, isSameBranchLike } from '../../../helpers/branch-like';
 import { translate } from '../../../helpers/l10n';
-import { useBranchesQuery } from '../../../queries/branch';
-import { BranchLike } from '../../../types/branch-like';
+import { WithBranchLikesProps, useBranchesQuery } from '../../../queries/branch';
 import { ComponentQualifier, isPortfolioLike } from '../../../types/component';
 import { MeasurePageView } from '../../../types/measures';
 import { MetricKey } from '../../../types/metrics';
@@ -66,8 +65,7 @@ import MeasureContent from './MeasureContent';
 import MeasureOverviewContainer from './MeasureOverviewContainer';
 import MeasuresEmpty from './MeasuresEmpty';
 
-interface Props {
-  branchLike?: BranchLike;
+interface Props extends WithBranchLikesProps {
   component: ComponentMeasure;
   location: Location;
   router: Router;
