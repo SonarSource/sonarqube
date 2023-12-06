@@ -49,6 +49,10 @@ public enum CleanCodeAttributeRestEnum {
     this.cleanCodeAttribute = cleanCodeAttribute;
   }
 
+  public CleanCodeAttribute getCleanCodeAttribute() {
+    return cleanCodeAttribute;
+  }
+
   @CheckForNull
   public static CleanCodeAttributeRestEnum from(@Nullable CleanCodeAttribute cleanCodeAttribute) {
     if (cleanCodeAttribute == null) {

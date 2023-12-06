@@ -26,7 +26,8 @@ import org.sonar.server.v2.api.rule.enums.CleanCodeAttributeCategoryRestEnum;
 import org.sonar.server.v2.api.rule.enums.CleanCodeAttributeRestEnum;
 import org.sonar.server.v2.api.rule.enums.RuleStatusRestEnum;
 import org.sonar.server.v2.api.rule.enums.RuleTypeRestEnum;
-import org.sonar.server.v2.api.rule.ressource.Parameter;
+import org.sonar.server.v2.api.rule.resource.Impact;
+import org.sonar.server.v2.api.rule.resource.Parameter;
 
 @Schema(accessMode = Schema.AccessMode.READ_ONLY)
 public record RuleRestResponse(
@@ -37,7 +38,7 @@ public record RuleRestResponse(
   @Nullable
   String severity,
   RuleTypeRestEnum type,
-  List<RuleImpactRestResponse> impacts,
+  List<Impact> impacts,
   @Nullable
   CleanCodeAttributeRestEnum cleanCodeAttribute,
   @Nullable
@@ -81,7 +82,7 @@ public record RuleRestResponse(
     private String name;
     private String severity;
     private RuleTypeRestEnum type;
-    private List<RuleImpactRestResponse> impacts;
+    private List<Impact> impacts;
     private CleanCodeAttributeRestEnum cleanCodeAttribute;
     private CleanCodeAttributeCategoryRestEnum cleanCodeAttributeCategory;
     private RuleStatusRestEnum status;
@@ -141,7 +142,7 @@ public record RuleRestResponse(
       return this;
     }
 
-    public Builder setImpacts(List<RuleImpactRestResponse> impacts) {
+    public Builder setImpacts(List<Impact> impacts) {
       this.impacts = impacts;
       return this;
     }

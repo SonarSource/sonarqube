@@ -34,6 +34,10 @@ public enum RuleStatusRestEnum {
     this.ruleStatus = ruleStatus;
   }
 
+  public RuleStatus getRuleStatus() {
+    return ruleStatus;
+  }
+
   public static RuleStatusRestEnum from(RuleStatus ruleStatus) {
     return Arrays.stream(RuleStatusRestEnum.values())
       .filter(ruleStatusRestEnum -> ruleStatusRestEnum.ruleStatus.equals(ruleStatus))

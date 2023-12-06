@@ -35,6 +35,10 @@ public enum SoftwareQualityRestEnum {
     this.softwareQuality = softwareQuality;
   }
 
+  public SoftwareQuality getSoftwareQuality() {
+    return softwareQuality;
+  }
+
   public static SoftwareQualityRestEnum from(SoftwareQuality softwareQuality) {
     return Arrays.stream(SoftwareQualityRestEnum.values())
       .filter(softwareQualityRest -> softwareQualityRest.softwareQuality.equals(softwareQuality))

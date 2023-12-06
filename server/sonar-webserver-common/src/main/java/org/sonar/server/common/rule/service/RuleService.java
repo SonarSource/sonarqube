@@ -19,10 +19,14 @@
  */
 package org.sonar.server.common.rule.service;
 
-import java.util.ArrayList;
+import java.util.List;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.rule.RuleDto;
+import org.sonar.db.rule.RuleParamDto;
 import org.sonar.server.common.rule.RuleCreator;
+
+import static java.util.Collections.singletonList;
 
 public class RuleService {
 
@@ -41,6 +45,8 @@ public class RuleService {
   }
 
   public RuleInformation createCustomRule(NewCustomRule newCustomRule, DbSession dbSession) {
-    return new RuleInformation(ruleCreator.create(dbSession, newCustomRule), new ArrayList<>());
+    RuleDto ruleDto = ruleCreator.create(dbSession, newCustomRule);
+    List<RuleParamDto> ruleParameters = dbClient.ruleDao().selectRuleParamsByRuleUuids(dbSession, singletonList(ruleDto.getUuid()));
+    return new RuleInformation(ruleDto, ruleParameters);
   }
 }

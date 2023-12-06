@@ -42,6 +42,7 @@ import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.server.common.rule.ReactivationException;
 import org.sonar.server.common.rule.service.NewCustomRule;
+import org.sonar.server.common.rule.service.RuleInformation;
 import org.sonar.server.common.rule.service.RuleService;
 import org.sonarqube.ws.Rules;
 
@@ -172,7 +173,8 @@ public class CreateAction implements RulesWsAction {
     try (DbSession dbSession = dbClient.openSession(false)) {
       try {
         NewCustomRule newCustomRule = toNewCustomRule(request);
-        writeResponse(dbSession, request, response, ruleService.createCustomRule(newCustomRule, dbSession).ruleDto());
+        RuleInformation customRule = ruleService.createCustomRule(newCustomRule, dbSession);
+        writeResponse(dbSession, request, response, customRule.ruleDto(), customRule.params());
       } catch (ReactivationException e) {
         response.stream().setStatus(HTTP_CONFLICT);
         writeResponse(dbSession, request, response, e.ruleKey());
@@ -204,25 +206,26 @@ public class CreateAction implements RulesWsAction {
     return newRule;
   }
 
-  private void writeResponse(DbSession dbSession, Request request, Response response, RuleDto rule) {
-    writeProtobuf(createResponse(dbSession, rule), request, response);
+  private void writeResponse(DbSession dbSession, Request request, Response response, RuleDto rule, List<RuleParamDto> params) {
+    writeProtobuf(createResponse(dbSession, rule, params), request, response);
   }
 
   private void writeResponse(DbSession dbSession, Request request, Response response, RuleKey ruleKey) {
     RuleDto rule = dbClient.ruleDao().selectByKey(dbSession, ruleKey)
       .orElseThrow(() -> new IllegalStateException(String.format("Cannot load rule, that has just been created '%s'", ruleKey)));
-    writeProtobuf(createResponse(dbSession, rule), request, response);
+    List<RuleParamDto> ruleParameters = dbClient.ruleDao().selectRuleParamsByRuleUuids(dbSession, singletonList(rule.getUuid()));
+    writeProtobuf(createResponse(dbSession, rule, ruleParameters), request, response);
   }
 
-  private Rules.CreateResponse createResponse(DbSession dbSession, RuleDto rule) {
+  private Rules.CreateResponse createResponse(DbSession dbSession, RuleDto rule, List<RuleParamDto> params) {
     List<RuleDto> templateRules = new ArrayList<>();
     if (rule.isCustomRule()) {
       Optional<RuleDto> templateRule = dbClient.ruleDao().selectByUuid(rule.getTemplateUuid(), dbSession);
       templateRule.ifPresent(templateRules::add);
     }
-    List<RuleParamDto> ruleParameters = dbClient.ruleDao().selectRuleParamsByRuleUuids(dbSession, singletonList(rule.getUuid()));
+
     RulesResponseFormatter.SearchResult searchResult = new RulesResponseFormatter.SearchResult()
-      .setRuleParameters(ruleParameters)
+      .setRuleParameters(params)
       .setTemplateRules(templateRules)
       .setTotal(1L);
     return Rules.CreateResponse.newBuilder()

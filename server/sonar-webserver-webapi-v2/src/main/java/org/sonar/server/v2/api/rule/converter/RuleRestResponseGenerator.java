@@ -47,10 +47,10 @@ import org.sonar.server.v2.api.rule.enums.ImpactSeverityRestEnum;
 import org.sonar.server.v2.api.rule.enums.RuleStatusRestEnum;
 import org.sonar.server.v2.api.rule.enums.RuleTypeRestEnum;
 import org.sonar.server.v2.api.rule.enums.SoftwareQualityRestEnum;
+import org.sonar.server.v2.api.rule.resource.Impact;
+import org.sonar.server.v2.api.rule.resource.Parameter;
 import org.sonar.server.v2.api.rule.response.RuleDescriptionSectionContextRestResponse;
 import org.sonar.server.v2.api.rule.response.RuleDescriptionSectionRestResponse;
-import org.sonar.server.v2.api.rule.response.RuleImpactRestResponse;
-import org.sonar.server.v2.api.rule.ressource.Parameter;
 import org.sonar.server.v2.api.rule.response.RuleRestResponse;
 
 import static java.util.Optional.ofNullable;
@@ -167,9 +167,9 @@ public class RuleRestResponseGenerator {
     return new RuleDescriptionSectionRestResponse(RuleDescriptionSectionDto.DEFAULT_KEY, macroInterpreter.interpret(description), null);
   }
 
-  private static List<RuleImpactRestResponse> toImpactRestResponse(Set<ImpactDto> defaultImpacts) {
+  private static List<Impact> toImpactRestResponse(Set<ImpactDto> defaultImpacts) {
     return defaultImpacts.stream()
-      .map(i -> new RuleImpactRestResponse(SoftwareQualityRestEnum.from(i.getSoftwareQuality()), ImpactSeverityRestEnum.from(i.getSeverity())))
+      .map(i -> new Impact(SoftwareQualityRestEnum.from(i.getSoftwareQuality()), ImpactSeverityRestEnum.from(i.getSeverity())))
       .toList();
   }
 

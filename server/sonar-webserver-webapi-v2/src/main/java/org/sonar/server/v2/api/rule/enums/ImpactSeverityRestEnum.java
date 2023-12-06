@@ -34,6 +34,10 @@ public enum ImpactSeverityRestEnum {
     this.severity = severity;
   }
 
+  public Severity getSeverity() {
+    return severity;
+  }
+
   public static ImpactSeverityRestEnum from(Severity severity) {
     return Arrays.stream(ImpactSeverityRestEnum.values())
       .filter(severityRestResponse -> severityRestResponse.severity.equals(severity))

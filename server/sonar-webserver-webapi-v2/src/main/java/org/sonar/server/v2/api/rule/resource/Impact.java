@@ -17,7 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@ParametersAreNonnullByDefault
-package org.sonar.server.v2.api.rule.ressource;
+package org.sonar.server.v2.api.rule.resource;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import io.swagger.v3.oas.annotations.media.Schema;
+import org.sonar.server.v2.api.rule.enums.ImpactSeverityRestEnum;
+import org.sonar.server.v2.api.rule.enums.SoftwareQualityRestEnum;
+
+@Schema(accessMode = Schema.AccessMode.READ_WRITE)
+public record Impact(
+  SoftwareQualityRestEnum softwareQuality,
+  ImpactSeverityRestEnum severity
+) {
+}

@@ -35,6 +35,10 @@ public enum RuleTypeRestEnum {
     this.ruleType = ruleType;
   }
 
+  public RuleType getRuleType() {
+    return ruleType;
+  }
+
   public static RuleTypeRestEnum from(RuleType ruleType) {
     return Arrays.stream(RuleTypeRestEnum.values())
       .filter(ruleTypeRestEnum -> ruleTypeRestEnum.ruleType.equals(ruleType))

@@ -26,9 +26,10 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import org.sonar.api.rule.RuleStatus;
-import org.sonar.api.rules.CleanCodeAttribute;
-import org.sonar.server.v2.api.rule.ressource.Parameter;
+import org.sonar.server.v2.api.rule.enums.CleanCodeAttributeRestEnum;
+import org.sonar.server.v2.api.rule.enums.RuleStatusRestEnum;
+import org.sonar.server.v2.api.rule.resource.Impact;
+import org.sonar.server.v2.api.rule.resource.Parameter;
 
 public record RuleCreateRestRequest(
 
@@ -53,7 +54,7 @@ public record RuleCreateRestRequest(
 
   @Nullable
   @Schema(description = "Rule status", defaultValue = "READY")
-  RuleStatus status,
+  RuleStatusRestEnum status,
 
   @Nullable
   @Schema(description = "Custom rule parameters")
@@ -61,7 +62,7 @@ public record RuleCreateRestRequest(
 
   @NotNull
   @Schema(description = "Clean code attribute")
-  CleanCodeAttribute cleanCodeAttribute,
+  CleanCodeAttributeRestEnum cleanCodeAttribute,
 
   @Valid
   @NotEmpty

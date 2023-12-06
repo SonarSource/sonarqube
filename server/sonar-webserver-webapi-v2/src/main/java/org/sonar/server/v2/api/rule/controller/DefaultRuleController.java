@@ -28,12 +28,14 @@ import org.sonar.server.common.rule.service.RuleInformation;
 import org.sonar.server.common.rule.service.RuleService;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.v2.api.rule.converter.RuleRestResponseGenerator;
-import org.sonar.server.v2.api.rule.request.Impact;
+import org.sonar.server.v2.api.rule.enums.RuleStatusRestEnum;
 import org.sonar.server.v2.api.rule.request.RuleCreateRestRequest;
+import org.sonar.server.v2.api.rule.resource.Impact;
 import org.sonar.server.v2.api.rule.response.RuleRestResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
+import static java.util.Optional.ofNullable;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER_QUALITY_PROFILES;
 
 public class DefaultRuleController implements RuleController {
@@ -64,8 +66,8 @@ public class DefaultRuleController implements RuleController {
     NewCustomRule newCustomRule = NewCustomRule.createForCustomRule(RuleKey.parse(request.key()), RuleKey.parse(request.templateKey()))
       .setName(request.name())
       .setMarkdownDescription(request.markdownDescription())
-      .setStatus(request.status())
-      .setCleanCodeAttribute(request.cleanCodeAttribute())
+      .setStatus(ofNullable(request.status()).map(RuleStatusRestEnum::getRuleStatus).orElse(null))
+      .setCleanCodeAttribute(request.cleanCodeAttribute().getCleanCodeAttribute())
       .setImpacts(request.impacts().stream().map(DefaultRuleController::toNewCustomRuleImpact).toList())
       .setPreventReactivation(true);
     if (request.parameters() != null) {
@@ -77,6 +79,6 @@ public class DefaultRuleController implements RuleController {
   }
 
   private static NewCustomRule.Impact toNewCustomRuleImpact(Impact impact) {
-    return new NewCustomRule.Impact(impact.softwareQuality(), impact.severity());
+    return new NewCustomRule.Impact(impact.softwareQuality().getSoftwareQuality(), impact.severity().getSeverity());
   }
 }

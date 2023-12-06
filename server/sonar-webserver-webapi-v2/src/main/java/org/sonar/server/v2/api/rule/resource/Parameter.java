@@ -17,15 +17,30 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.v2.api.rule.response;
+package org.sonar.server.v2.api.rule.resource;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import org.sonar.server.v2.api.rule.enums.ImpactSeverityRestEnum;
-import org.sonar.server.v2.api.rule.enums.SoftwareQualityRestEnum;
+import javax.annotation.Nullable;
 
-@Schema(accessMode = Schema.AccessMode.READ_ONLY)
-public record RuleImpactRestResponse(
-  SoftwareQualityRestEnum softwareQuality,
-  ImpactSeverityRestEnum severity
+import static io.swagger.v3.oas.annotations.media.Schema.AccessMode.READ_ONLY;
+import static io.swagger.v3.oas.annotations.media.Schema.AccessMode.READ_WRITE;
+
+public record Parameter(
+
+  @Schema(accessMode = READ_WRITE)
+  String key,
+  @Schema(accessMode = READ_ONLY)
+  String htmlDescription,
+  @Nullable
+  @Schema(accessMode = READ_WRITE)
+  String defaultValue,
+  @Schema(allowableValues = {
+    "STRING",
+    "TEXT",
+    "BOOLEAN",
+    "INTEGER",
+    "FLOAT"
+  }, accessMode = READ_ONLY)
+  String type
 ) {
 }

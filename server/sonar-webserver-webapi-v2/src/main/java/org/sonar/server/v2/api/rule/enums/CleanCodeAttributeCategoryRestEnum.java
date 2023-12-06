@@ -36,6 +36,10 @@ public enum CleanCodeAttributeCategoryRestEnum {
     this.cleanCodeAttributeCategory = cleanCodeAttributeCategory;
   }
 
+  public CleanCodeAttributeCategory getCleanCodeAttributeCategory() {
+    return cleanCodeAttributeCategory;
+  }
+
   @CheckForNull
   public static CleanCodeAttributeCategoryRestEnum from(@Nullable CleanCodeAttributeCategory cleanCodeAttributeCategory) {
     if (cleanCodeAttributeCategory == null) {
