@@ -134,7 +134,7 @@ export default class SecurityHotspotServiceMock {
   handleGetSecurityHotspotList = (
     hotspotKeys: string[],
     data: {
-      projectKey: string;
+      project: string;
       branch?: string;
     },
   ) => {
@@ -190,7 +190,7 @@ export default class SecurityHotspotServiceMock {
   };
 
   handleGetSecurityHotspots = (data: {
-    projectKey: string;
+    project: string;
     p: number;
     ps: number;
     status?: HotspotStatus;

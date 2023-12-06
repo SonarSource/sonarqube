@@ -75,30 +75,28 @@ export function getSecurityHotspots(
     inNewCodePeriod?: boolean;
     onlyMine?: boolean;
     p: number;
-    projectKey: string;
+    project: string;
     ps: number;
     resolution?: HotspotResolution;
     status?: HotspotStatus;
   } & BranchParameters,
   projectIsIndexing = false,
 ): Promise<HotspotSearchResponse> {
-  return getJSON(
-    projectIsIndexing ? HOTSPOTS_LIST_URL : HOTSPOTS_SEARCH_URL,
-    projectIsIndexing ? { ...data, project: data.projectKey } : data,
-  ).catch(throwGlobalError);
+  return getJSON(projectIsIndexing ? HOTSPOTS_LIST_URL : HOTSPOTS_SEARCH_URL, data).catch(
+    throwGlobalError,
+  );
 }
 
 export function getSecurityHotspotList(
   hotspotKeys: string[],
   data: {
-    projectKey: string;
+    project: string;
   } & BranchParameters,
   projectIsIndexing = false,
 ): Promise<HotspotSearchResponse> {
   return getJSON(projectIsIndexing ? HOTSPOTS_LIST_URL : HOTSPOTS_SEARCH_URL, {
     ...data,
     hotspots: hotspotKeys.join(),
-    ...(projectIsIndexing ? { project: data.projectKey } : {}),
   }).catch(throwGlobalError);
 }
 

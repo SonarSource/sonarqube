@@ -366,7 +366,7 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
         ...hotspotFilters,
         inNewCodePeriod: filters.inNewCodePeriod && Boolean(filterByFile), // only add new code period when filtering by file
         p: page,
-        projectKey: component.key,
+        project: component.key,
         ps: PAGE_SIZE,
         status: HotspotStatus.TO_REVIEW, // we're only interested in unresolved hotspots
         ...getBranchLikeQuery(branchLike),
@@ -401,7 +401,7 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
       return getSecurityHotspotList(
         hotspotKeys,
         {
-          projectKey: component.key,
+          project: component.key,
           ...getBranchLikeQuery(branchLike),
         },
         component.needIssueSync,
@@ -432,7 +432,7 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
         inNewCodePeriod: filters.inNewCodePeriod,
         ...(component.needIssueSync ? {} : { onlyMine: filters.assignedToMe }),
         p: page,
-        projectKey: component.key,
+        project: component.key,
         ps: PAGE_SIZE,
         resolution,
         status,
