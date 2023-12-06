@@ -23,6 +23,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.StringReader;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.jar.Attributes;
@@ -51,11 +53,36 @@ public class ScannerPluginInstallerTest {
 
   @Test
   public void download_installed_plugins() throws IOException {
-    WsTestUtil.mockReader(wsClient, "api/plugins/installed", new InputStreamReader(getClass().getResourceAsStream("ScannerPluginInstallerTest/installed-plugins-ws.json")));
+    WsTestUtil.mockReader(wsClient, "api/plugins/installed",
+      new InputStreamReader(getClass().getResourceAsStream("ScannerPluginInstallerTest/installed-plugins-ws.json")));
     enqueueDownload("scmgit", "abc");
     enqueueDownload("java", "def");
 
-    Map<String, ScannerPlugin> result = underTest.installRemotes();
+    Map<String, ScannerPlugin> result = underTest.installRequiredPlugins();
+
+    assertThat(result.keySet()).containsExactlyInAnyOrder("scmgit");
+    ScannerPlugin gitPlugin = result.get("scmgit");
+    assertThat(gitPlugin.getKey()).isEqualTo("scmgit");
+    assertThat(gitPlugin.getInfo().getNonNullJarFile()).exists().isFile();
+    assertThat(gitPlugin.getUpdatedAt()).isEqualTo(100L);
+
+    Map<String, ScannerPlugin> result2 = underTest.installPluginsForLanguages(new HashSet<>(List.of("java")));
+
+    assertThat(result2.keySet()).containsExactlyInAnyOrder("java");
+    ScannerPlugin javaPlugin = result2.get("java");
+    assertThat(javaPlugin.getKey()).isEqualTo("java");
+    assertThat(javaPlugin.getInfo().getNonNullJarFile()).exists().isFile();
+    assertThat(javaPlugin.getUpdatedAt()).isEqualTo(200L);
+  }
+
+  @Test
+  public void download_all_plugins() throws IOException {
+    WsTestUtil.mockReader(wsClient, "api/plugins/installed",
+      new InputStreamReader(getClass().getResourceAsStream("ScannerPluginInstallerTest/installed-plugins-ws.json")));
+    enqueueDownload("scmgit", "abc");
+    enqueueDownload("java", "def");
+
+    Map<String, ScannerPlugin> result = underTest.installAllPlugins();
 
     assertThat(result.keySet()).containsExactlyInAnyOrder("scmgit", "java");
     ScannerPlugin gitPlugin = result.get("scmgit");
@@ -73,7 +100,7 @@ public class ScannerPluginInstallerTest {
   public void fail_if_json_of_installed_plugins_is_not_valid() {
     WsTestUtil.mockReader(wsClient, "api/plugins/installed", new StringReader("not json"));
 
-    assertThatThrownBy(() -> underTest.installRemotes())
+    assertThatThrownBy(() -> underTest.installRequiredPlugins())
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("Fail to parse response of api/plugins/installed");
   }
@@ -87,7 +114,7 @@ public class ScannerPluginInstallerTest {
     enqueueDownload("java", "def");
     enqueueDownload("cobol", "ghi");
 
-    Map<String, ScannerPlugin> result = underTest.installRemotes();
+    Map<String, ScannerPlugin> result = underTest.installRequiredPlugins();
 
     assertThat(result.keySet()).containsExactlyInAnyOrder("java", "cobol");
   }
@@ -101,7 +128,7 @@ public class ScannerPluginInstallerTest {
     enqueueDownload("cobol", "ghi");
     enqueueNotFoundDownload("java", "def");
 
-    assertThatThrownBy(() -> underTest.installRemotes())
+    assertThatThrownBy(() -> underTest.installRequiredPlugins())
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("Fail to download plugin [java]. Not found.");
   }

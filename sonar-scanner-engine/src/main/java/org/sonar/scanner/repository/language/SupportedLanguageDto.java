@@ -17,42 +17,47 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.xoo;
+package org.sonar.scanner.repository.language;
 
-import java.util.Arrays;
-import org.sonar.api.config.Configuration;
-import org.sonar.api.resources.Language;
+public class SupportedLanguageDto implements org.sonar.api.resources.Language {
+  private String key;
+  private String name;
+  private String[] fileSuffixes;
+  private String[] filenamePatterns;
 
-public class Xoo2 implements Language {
-
-  public static final String KEY = "xoo2";
-  public static final String NAME = "Xoo2";
-  public static final String FILE_SUFFIXES_KEY = "sonar.xoo2.file.suffixes";
-  public static final String DEFAULT_FILE_SUFFIXES = ".xoo2";
-
-  private final Configuration configuration;
-
-  public Xoo2(Configuration configuration) {
-    this.configuration = configuration;
+  public SupportedLanguageDto(String key, String name, String[] fileSuffixes, String[] filenamePatterns) {
+    this.key = key;
+    this.name = name;
+    this.fileSuffixes = fileSuffixes;
+    this.filenamePatterns = filenamePatterns;
   }
 
   @Override
   public String getKey() {
-    return KEY;
+    return key;
   }
 
   @Override
   public String getName() {
-    return NAME;
+    return name;
   }
 
   @Override
   public String[] getFileSuffixes() {
-    return Arrays.stream(configuration.getStringArray(FILE_SUFFIXES_KEY)).filter(s -> s != null && !s.trim().isEmpty()).toArray(String[]::new);
+    return fileSuffixes;
+  }
+
+  public void setFileSuffixes(String[] fileSuffixes) {
+    this.fileSuffixes = fileSuffixes;
   }
 
   @Override
-  public boolean publishAllFiles() {
-    return true;
+  public String[] filenamePatterns() {
+    return filenamePatterns;
   }
+
+  public void setFilenamePatterns(String[] filenamePatterns) {
+    this.filenamePatterns = filenamePatterns;
+  }
+
 }

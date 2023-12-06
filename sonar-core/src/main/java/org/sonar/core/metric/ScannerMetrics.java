@@ -19,14 +19,11 @@
  */
 package org.sonar.core.metric;
 
-import com.google.common.collect.ImmutableSet;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.annotation.concurrent.Immutable;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.Metrics;
@@ -61,12 +58,11 @@ import static org.sonar.api.measures.CoreMetrics.TEST_FAILURES;
  * <p/>
  * Scanners should not send other metrics, and the Compute Engine should not allow other metrics.
  */
-@Immutable
 @ComputeEngineSide
 @ScannerSide
 public class ScannerMetrics {
 
-  private static final Set<Metric> ALLOWED_CORE_METRICS = ImmutableSet.of(
+  private static final Set<Metric> ALLOWED_CORE_METRICS = Set.of(
     GENERATED_LINES,
     NCLOC,
     NCLOC_DATA,
@@ -95,7 +91,7 @@ public class ScannerMetrics {
 
     EXECUTABLE_LINES_DATA);
 
-  private final Set<Metric> metrics;
+  private Set<Metric> metrics;
 
   @Autowired(required = false)
   public ScannerMetrics() {
@@ -103,8 +99,9 @@ public class ScannerMetrics {
   }
 
   @Autowired(required = false)
-  public ScannerMetrics(Metrics[] metricsRepositories) {
-    this.metrics = Stream.concat(getPluginMetrics(metricsRepositories), ALLOWED_CORE_METRICS.stream()).collect(Collectors.toSet());
+  public ScannerMetrics(List<Metrics> metricsRepositories) {
+    this.metrics = ALLOWED_CORE_METRICS;
+    addPluginMetrics(metricsRepositories);
   }
 
   /**
@@ -115,8 +112,15 @@ public class ScannerMetrics {
     return metrics;
   }
 
-  private static Stream<Metric> getPluginMetrics(Metrics[] metricsRepositories) {
-    return Arrays.stream(metricsRepositories)
+  /**
+   * Adds the given metrics to the set of allowed metrics
+   */
+  public void addPluginMetrics(List<Metrics> metricsRepositories) {
+    this.metrics = Stream.concat(getPluginMetrics(metricsRepositories.stream()), this.metrics.stream()).collect(Collectors.toSet());
+  }
+
+  private static Stream<Metric> getPluginMetrics(Stream<Metrics> metricsStream) {
+    return metricsStream
       .map(Metrics::getMetrics)
       .filter(Objects::nonNull)
       .flatMap(List::stream);

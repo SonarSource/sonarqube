@@ -56,8 +56,23 @@ public class ScannerMetricsTest {
     assertThat(metrics).isEqualTo(okMetrics.getMetrics());
   }
 
+  @Test
+  public void should_add_new_plugin_metrics() {
+    Metrics fakeMetrics = new FakeMetrics();
+    Metrics fakeMetrics2 = new FakeMetrics2();
+
+    ScannerMetrics underTest = new ScannerMetrics(List.of(fakeMetrics));
+    assertThat(underTest.getMetrics()).hasSize(24);
+    assertThat(underTest.getMetrics()).containsAll(fakeMetrics.getMetrics());
+
+    underTest.addPluginMetrics(List.of( fakeMetrics, fakeMetrics2 ));
+    assertThat(underTest.getMetrics()).hasSize(25);
+    assertThat(underTest.getMetrics()).containsAll(fakeMetrics.getMetrics());
+    assertThat(underTest.getMetrics()).containsAll(fakeMetrics2.getMetrics());
+  }
+
   private static List<Metric> metrics(Metrics... metrics) {
-    return new ArrayList<>(new ScannerMetrics(metrics).getMetrics());
+    return new ArrayList<>(new ScannerMetrics(Arrays.asList(metrics)).getMetrics());
   }
 
   private static class FakeMetrics implements Metrics {
@@ -66,6 +81,14 @@ public class ScannerMetricsTest {
       return Arrays.asList(
         new Metric.Builder("key1", "name1", Metric.ValueType.INT).create(),
         new Metric.Builder("key2", "name2", Metric.ValueType.FLOAT).create());
+    }
+  }
+
+  private static class FakeMetrics2 implements Metrics {
+    @Override
+    public List<Metric> getMetrics() {
+      return Arrays.asList(
+        new Metric.Builder("key3", "name1", Metric.ValueType.INT).create());
     }
   }
 }
