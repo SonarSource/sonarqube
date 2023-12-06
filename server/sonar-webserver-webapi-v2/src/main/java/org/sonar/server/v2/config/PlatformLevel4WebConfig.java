@@ -52,9 +52,11 @@ import org.sonar.server.v2.api.system.controller.LivenessController;
 import org.sonar.server.v2.api.user.controller.DefaultUserController;
 import org.sonar.server.v2.api.user.controller.UserController;
 import org.sonar.server.v2.api.user.converter.UsersSearchRestResponseGenerator;
+import org.sonar.server.v2.common.DeprecatedHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
 @Configuration
 @Import(CommonWebConfig.class)
@@ -112,5 +114,11 @@ public class PlatformLevel4WebConfig {
     return new DefaultRuleController(userSession, ruleService, ruleRestResponseGenerator);
   }
 
+  @Bean
+  public RequestMappingHandlerMapping requestMappingHandlerMapping(UserSession userSession) {
+    RequestMappingHandlerMapping handlerMapping = new RequestMappingHandlerMapping();
+    handlerMapping.setInterceptors(new DeprecatedHandler(userSession));
+    return handlerMapping;
+  }
 
 }

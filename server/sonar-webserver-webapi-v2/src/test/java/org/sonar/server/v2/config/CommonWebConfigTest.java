@@ -27,7 +27,6 @@ import org.springframework.web.util.UrlPathHelper;
 
 import static java.util.Objects.requireNonNull;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CommonWebConfigTest {

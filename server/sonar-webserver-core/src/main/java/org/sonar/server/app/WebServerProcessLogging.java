@@ -36,10 +36,10 @@ import static org.apache.commons.lang.StringUtils.isBlank;
 import static org.sonar.process.ProcessProperties.Property.LOG_JSON_OUTPUT;
 import static org.sonar.process.logging.AbstractLogHelper.PREFIX_LOG_FORMAT;
 import static org.sonar.process.logging.AbstractLogHelper.SUFFIX_LOG_FORMAT;
+import static org.sonar.process.logging.LogbackHelper.DEPRECATION_LOGGER_NAME;
 import static org.sonar.server.authentication.UserSessionInitializer.USER_LOGIN_MDC_KEY;
 import static org.sonar.server.platform.web.logging.EntrypointMDCStorage.ENTRYPOINT_MDC_KEY;
 import static org.sonar.server.platform.web.requestid.RequestIdMDCStorage.HTTP_REQUEST_ID_MDC_KEY;
-import static org.sonar.server.ws.WebServiceEngine.DEPRECATION_LOGGER_NAME;
 
 /**
  * Configure logback for the Web Server process. Logs are written to file "web.log" in SQ's log directory.

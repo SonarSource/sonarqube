@@ -29,6 +29,8 @@ import org.sonar.server.user.ThreadLocalUserSession;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.ActionInterceptor;
 
+import static org.sonar.process.logging.LogbackHelper.DEPRECATION_LOGGER_NAME;
+
 /**
  * Logs deprecation messages for deprecated web service endpoints and parameters for API V1
  * Messages are logged:
@@ -36,7 +38,7 @@ import org.sonar.server.ws.ActionInterceptor;
  * at WARN level for authenticated users using tokens
  */
 public class ActionDeprecationLoggerInterceptor implements ActionInterceptor {
-  private static final Logger LOGGER = LoggerFactory.getLogger("SONAR_DEPRECATION");
+  private static final Logger LOGGER = LoggerFactory.getLogger(DEPRECATION_LOGGER_NAME);
   private final UserSession userSession;
 
   public ActionDeprecationLoggerInterceptor(UserSession userSession) {

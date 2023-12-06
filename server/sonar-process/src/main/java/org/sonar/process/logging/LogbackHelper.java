@@ -65,6 +65,8 @@ public class LogbackHelper extends AbstractLogHelper {
 
   private static final String LOGBACK_LOGGER_NAME_PATTERN = "%logger{20}";
 
+  public static final String DEPRECATION_LOGGER_NAME = "SONAR_DEPRECATION";
+
   public LogbackHelper() {
     super(LOGBACK_LOGGER_NAME_PATTERN);
   }

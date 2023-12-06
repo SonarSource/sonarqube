@@ -18,11 +18,15 @@ dependencies {
     testImplementation 'javax.servlet:javax.servlet-api'
     testImplementation 'org.mockito:mockito-core'
     testImplementation 'org.skyscreamer:jsonassert:1.5.1'
+    testImplementation 'org.sonarsource.api.plugin:sonar-plugin-api-test-fixtures'
+    testImplementation 'com.tngtech.java:junit-dataprovider'
     testImplementation project(':sonar-testing-harness')
 
     testImplementation testFixtures(project(':server:sonar-server-common'))
     testImplementation testFixtures(project(':server:sonar-webserver-auth'))
 
     testFixturesApi 'org.springframework:spring-test'
+
+    testRuntimeOnly 'org.apache.logging.log4j:log4j-core'
 }
 

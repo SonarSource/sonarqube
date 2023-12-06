@@ -19,15 +19,29 @@
  */
 package org.sonar.server.v2.api;
 
+import java.util.List;
 import org.sonar.server.v2.common.RestResponseEntityExceptionHandler;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.servlet.HandlerInterceptor;
+import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
 public class ControllerTester {
   public static MockMvc getMockMvc(Object... controllers) {
+    return getMockMvcWithHandlerInterceptors(null, controllers);
+  }
+
+  public static MockMvc getMockMvcWithHandlerInterceptors(List<HandlerInterceptor> handlerInterceptors, Object... controllers) {
     return MockMvcBuilders
       .standaloneSetup(controllers)
+      .setCustomHandlerMapping(() -> resolveRequestMappingHandlerMapping(handlerInterceptors))
       .setControllerAdvice(new RestResponseEntityExceptionHandler())
       .build();
+  }
+
+  private static RequestMappingHandlerMapping resolveRequestMappingHandlerMapping(List<HandlerInterceptor> handlerInterceptors) {
+    RequestMappingHandlerMapping handlerMapping = new RequestMappingHandlerMapping();
+    handlerMapping.setInterceptors(handlerInterceptors != null ? handlerInterceptors.toArray() : new Object[0]);
+    return handlerMapping;
   }
 }

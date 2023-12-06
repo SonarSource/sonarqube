@@ -61,8 +61,6 @@ public class WebServiceEngine implements LocalConnector, Startable {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(WebServiceEngine.class);
 
-  public static final String DEPRECATION_LOGGER_NAME = "SONAR_DEPRECATION";
-
   private final WebService[] webServices;
   private final ActionInterceptor[] actionInterceptors;
 
