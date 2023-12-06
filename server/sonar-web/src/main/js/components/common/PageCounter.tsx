@@ -23,16 +23,14 @@ import { MetricType } from '../../types/metrics';
 
 export interface PageCounterProps {
   className?: string;
-  current?: number;
   label: string;
   total: number;
 }
 
-export default function PageCounter({ className, current, label, total }: PageCounterProps) {
+export default function PageCounter({ className, label, total }: Readonly<PageCounterProps>) {
   return (
     <div className={className}>
       <strong className="sw-mr-1">
-        {current !== undefined && formatMeasure(current + 1, MetricType.Integer) + ' / '}
         <span data-testid="page-counter-total">{formatMeasure(total, MetricType.Integer)}</span>
       </strong>
       {label}

@@ -25,10 +25,9 @@ import { Paging } from '../../../types/types';
 
 export interface PageActionsProps {
   paging?: Paging;
-  selectedIndex?: number;
 }
 
-export default function PageActions(props: PageActionsProps) {
+export default function PageActions(props: Readonly<PageActionsProps>) {
   return (
     <div className="sw-body-sm sw-flex sw-items-center sw-gap-6 sw-justify-end sw-flex-1">
       <KeyboardHint title={translate('coding_rules.to_select_rules')} command="ArrowUp ArrowDown" />
@@ -37,7 +36,6 @@ export default function PageActions(props: PageActionsProps) {
       {props.paging && (
         <PageCounter
           className="sw-ml-2"
-          current={props.selectedIndex}
           label={translate('coding_rules._rules')}
           total={props.paging.total}
         />

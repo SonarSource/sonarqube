@@ -568,7 +568,6 @@ export class CodingRulesApp extends React.PureComponent<Props, State> {
 
   render() {
     const { paging, rules } = this.state;
-    const selectedIndex = this.getSelectedIndex();
     const query = parseQuery(this.props.location.query);
     const openRule = this.getOpenRule(this.state.rules);
     const usingPermalink = hasRuleKey(this.props.location.query);
@@ -639,9 +638,7 @@ export class CodingRulesApp extends React.PureComponent<Props, State> {
                         size="auto"
                       />
                       {this.renderBulkButton()}
-                      {!usingPermalink && (
-                        <PageActions paging={paging} selectedIndex={selectedIndex} />
-                      )}
+                      {!usingPermalink && <PageActions paging={paging} />}
                     </div>
                   </div>
                 )}
