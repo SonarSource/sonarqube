@@ -44,8 +44,8 @@ import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.rule.DeprecatedRuleKeyDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.server.qualityprofile.builtin.QProfileName;
-import org.sonar.server.rule.NewCustomRule;
-import org.sonar.server.rule.RuleCreator;
+import org.sonar.server.common.rule.service.NewCustomRule;
+import org.sonar.server.common.rule.RuleCreator;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.function.Function.identity;
@@ -202,7 +202,7 @@ public class QProfileBackuperImpl implements QProfileBackuper {
       .toList();
 
     if (!customRulesToCreate.isEmpty()) {
-      return db.ruleDao().selectByKeys(dbSession, ruleCreator.create(dbSession, customRulesToCreate))
+      return db.ruleDao().selectByKeys(dbSession, ruleCreator.create(dbSession, customRulesToCreate).stream().map(RuleDto::getKey).toList())
         .stream()
         .collect(Collectors.toMap(RuleDto::getKey, identity()));
     }
@@ -210,7 +210,7 @@ public class QProfileBackuperImpl implements QProfileBackuper {
   }
 
   private static NewCustomRule importedRuleToNewCustomRule(ImportedRule r) {
-    return NewCustomRule.createForCustomRule(r.getRuleKey().rule(), r.getTemplateKey())
+    return NewCustomRule.createForCustomRule(r.getRuleKey(), r.getTemplateKey())
       .setName(r.getName())
       .setSeverity(r.getSeverity())
       .setStatus(RuleStatus.READY)

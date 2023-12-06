@@ -19,5 +19,53 @@
  */
 package org.sonar.server.v2.api.rule.request;
 
-public record RuleCreateRestRequest() {
+import io.swagger.v3.oas.annotations.media.Schema;
+import java.util.List;
+import javax.annotation.Nullable;
+import javax.validation.Valid;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+import org.sonar.api.rule.RuleStatus;
+import org.sonar.api.rules.CleanCodeAttribute;
+import org.sonar.server.v2.api.rule.ressource.Parameter;
+
+public record RuleCreateRestRequest(
+
+  @NotNull
+  @Size(max = 200)
+  @Schema(description = "Key of the custom rule to create, must include the repository")
+  String key,
+
+  @NotNull
+  @Size(max = 200)
+  @Schema(description = "Key of the rule template to be used to create the custom rule")
+  String templateKey,
+
+  @NotNull
+  @Size(max = 200)
+  @Schema(description = "Rule name")
+  String name,
+
+  @NotNull
+  @Schema(description = "Rule description in markdown format")
+  String markdownDescription,
+
+  @Nullable
+  @Schema(description = "Rule status", defaultValue = "READY")
+  RuleStatus status,
+
+  @Nullable
+  @Schema(description = "Custom rule parameters")
+  List<Parameter> parameters,
+
+  @NotNull
+  @Schema(description = "Clean code attribute")
+  CleanCodeAttribute cleanCodeAttribute,
+
+  @Valid
+  @NotEmpty
+  @Schema(description = "Impacts")
+  List<Impact> impacts
+) {
 }

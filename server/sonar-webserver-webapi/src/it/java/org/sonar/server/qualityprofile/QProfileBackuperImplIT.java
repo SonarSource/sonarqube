@@ -45,7 +45,7 @@ import org.sonar.db.qualityprofile.QualityProfileTesting;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.server.qualityprofile.builtin.QProfileName;
-import org.sonar.server.rule.RuleCreator;
+import org.sonar.server.common.rule.RuleCreator;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -323,7 +323,7 @@ public class QProfileBackuperImplIT {
 
   @Test
   public void restore_custom_rule() {
-    when(ruleCreator.create(any(), anyList())).then(invocation -> Collections.singletonList(db.rules().insert(RuleKey.of("sonarjs", "s001")).getKey()));
+    when(ruleCreator.create(any(), anyList())).then(invocation -> Collections.singletonList(db.rules().insert(RuleKey.of("sonarjs", "s001"))));
 
     Reader backup = new StringReader("<?xml version='1.0' encoding='UTF-8'?>" +
       "<profile>" +

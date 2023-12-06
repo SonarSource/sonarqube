@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.rule;
+package org.sonar.server.common.rule;
 
 import com.google.common.collect.Sets;
 import java.time.Instant;
@@ -27,11 +27,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 import org.assertj.core.api.Fail;
-import org.assertj.core.groups.Tuple;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.impl.utils.TestSystem2;
-import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
@@ -43,10 +41,12 @@ import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.issue.ImpactDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleDto.Format;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.db.rule.RuleTesting;
+import org.sonar.server.common.rule.service.NewCustomRule;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.exceptions.BadRequestException;
@@ -58,13 +58,21 @@ import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.groups.Tuple.tuple;
 import static org.junit.Assert.fail;
+import static org.sonar.api.issue.impact.Severity.HIGH;
+import static org.sonar.api.issue.impact.Severity.LOW;
+import static org.sonar.api.issue.impact.Severity.MEDIUM;
+import static org.sonar.api.issue.impact.SoftwareQuality.MAINTAINABILITY;
+import static org.sonar.api.issue.impact.SoftwareQuality.RELIABILITY;
+import static org.sonar.api.issue.impact.SoftwareQuality.SECURITY;
 import static org.sonar.db.rule.RuleTesting.newCustomRule;
 import static org.sonar.db.rule.RuleTesting.newRule;
 import static org.sonar.server.util.TypeValidationsTesting.newFullTypeValidations;
 
 public class RuleCreatorIT {
 
+  private static final RuleKey CUSTOM_RULE_KEY = RuleKey.parse("java:CUSTOM_RULE");
   private final System2 system2 = new TestSystem2().setNow(Instant.now().toEpochMilli());
 
   @Rule
@@ -85,17 +93,17 @@ public class RuleCreatorIT {
     // insert template rule
     RuleDto templateRule = createTemplateRule();
     // Create custom rule
-    NewCustomRule newRule = NewCustomRule.createForCustomRule("CUSTOM_RULE", templateRule.getKey())
+    NewCustomRule newRule = NewCustomRule.createForCustomRule(CUSTOM_RULE_KEY, templateRule.getKey())
       .setName("My custom")
       .setMarkdownDescription("Some description")
       .setSeverity(Severity.MAJOR)
       .setStatus(RuleStatus.READY)
       .setParameters(Map.of("regex", "a.*"));
-    RuleKey customRuleKey = underTest.create(dbSession, newRule);
+    RuleKey customRuleKey = underTest.create(dbSession, newRule).getKey();
 
     RuleDto rule = dbTester.getDbClient().ruleDao().selectOrFailByKey(dbSession, customRuleKey);
     assertThat(rule).isNotNull();
-    assertThat(rule.getKey()).isEqualTo(RuleKey.of("java", "CUSTOM_RULE"));
+    assertThat(rule.getKey()).isEqualTo(CUSTOM_RULE_KEY);
     assertThat(rule.getPluginKey()).isEqualTo("sonarjava");
     assertThat(rule.getTemplateUuid()).isEqualTo(templateRule.getUuid());
     assertThat(rule.getName()).isEqualTo("My custom");
@@ -130,8 +138,8 @@ public class RuleCreatorIT {
 
   private static void assertCleanCodeInformation(RuleDto rule) {
     assertThat(rule.getCleanCodeAttribute()).isEqualTo(CleanCodeAttribute.CONVENTIONAL);
-    assertThat(rule.getDefaultImpacts()).extracting(i -> i.getSoftwareQuality(), i -> i.getSeverity())
-      .containsExactly(Tuple.tuple(SoftwareQuality.MAINTAINABILITY, org.sonar.api.issue.impact.Severity.MEDIUM));
+    assertThat(rule.getDefaultImpacts()).extracting(ImpactDto::getSoftwareQuality, ImpactDto::getSeverity)
+      .containsExactly(tuple(MAINTAINABILITY, MEDIUM));
   }
 
   private static void assertDefRemediation(RuleDto rule) {
@@ -141,17 +149,96 @@ public class RuleCreatorIT {
   }
 
   @Test
+  public void create_shouldSetCleanCodeAttributeAndImpacts() {
+    // insert template rule
+    RuleDto templateRule = createTemplateRule();
+    // Create custom rule
+    NewCustomRule newRule = NewCustomRule.createForCustomRule(CUSTOM_RULE_KEY, templateRule.getKey())
+      .setName("My custom")
+      .setMarkdownDescription("Some description")
+      .setStatus(RuleStatus.READY)
+      .setCleanCodeAttribute(CleanCodeAttribute.MODULAR)
+      .setImpacts(List.of(
+        new NewCustomRule.Impact(RELIABILITY, HIGH),
+        new NewCustomRule.Impact(SECURITY, LOW)));
+    RuleKey customRuleKey = underTest.create(dbSession, newRule).getKey();
+
+    RuleDto rule = dbTester.getDbClient().ruleDao().selectOrFailByKey(dbSession, customRuleKey);
+    assertThat(rule).isNotNull();
+    assertThat(rule.getKey()).isEqualTo(CUSTOM_RULE_KEY);
+    assertThat(rule.getCleanCodeAttribute()).isEqualTo(CleanCodeAttribute.MODULAR);
+    assertThat(rule.getDefaultImpacts()).extracting(ImpactDto::getSoftwareQuality, ImpactDto::getSeverity)
+      .containsExactlyInAnyOrder(tuple(RELIABILITY, HIGH), tuple(SECURITY, LOW));
+    // Back-mapped from the impact
+    assertThat(rule.getType()).isEqualTo(RuleType.VULNERABILITY.getDbConstant());
+    assertThat(rule.getSeverityString()).isEqualTo(Severity.MINOR);
+  }
+
+  @Test
+  public void create_whenImpactsAndTypeAreSet_shouldFail() {
+    // insert template rule
+    RuleDto templateRule = createTemplateRule();
+    // Create custom rule
+    NewCustomRule newRule = NewCustomRule.createForCustomRule(CUSTOM_RULE_KEY, templateRule.getKey())
+      .setName("My custom")
+      .setMarkdownDescription("Some description")
+      .setStatus(RuleStatus.READY)
+      .setType(RuleType.BUG)
+      .setImpacts(List.of(
+        new NewCustomRule.Impact(RELIABILITY, HIGH),
+        new NewCustomRule.Impact(SECURITY, LOW)));
+
+    assertThatThrownBy(() -> underTest.create(dbSession, newRule))
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("The rule cannot have both impacts and type/severity specified");
+  }
+
+  @Test
+  public void create_whenImpactsAndSeverityAreSet_shouldFail() {
+    // insert template rule
+    RuleDto templateRule = createTemplateRule();
+    // Create custom rule
+    NewCustomRule newRule = NewCustomRule.createForCustomRule(CUSTOM_RULE_KEY, templateRule.getKey())
+      .setName("My custom")
+      .setMarkdownDescription("Some description")
+      .setStatus(RuleStatus.READY)
+      .setSeverity(Severity.CRITICAL)
+      .setImpacts(List.of(
+        new NewCustomRule.Impact(RELIABILITY, HIGH),
+        new NewCustomRule.Impact(SECURITY, LOW)));
+
+    assertThatThrownBy(() -> underTest.create(dbSession, newRule))
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("The rule cannot have both impacts and type/severity specified");
+  }
+
+  @Test
+  public void create_whenRuleAndTemplateHaveDifferentRepo_shouldFail() {
+    // insert template rule
+    RuleDto templateRule = createTemplateRule();
+    // Create custom rule
+    NewCustomRule newRule = NewCustomRule.createForCustomRule(RuleKey.parse("web:CUSTOM_RULE"), templateRule.getKey())
+      .setName("My custom")
+      .setMarkdownDescription("Some description")
+      .setStatus(RuleStatus.READY);
+
+    assertThatThrownBy(() -> underTest.create(dbSession, newRule))
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("Custom and template keys must be in the same repository");
+  }
+
+  @Test
   public void create_custom_rule_with_empty_parameter_value() {
     // insert template rule
     RuleDto templateRule = createTemplateRule();
-    NewCustomRule newRule = NewCustomRule.createForCustomRule("CUSTOM_RULE", templateRule.getKey())
+    NewCustomRule newRule = NewCustomRule.createForCustomRule(CUSTOM_RULE_KEY, templateRule.getKey())
       .setName("My custom")
       .setMarkdownDescription("some description")
       .setSeverity(Severity.MAJOR)
       .setStatus(RuleStatus.READY)
       .setParameters(Map.of("regex", ""));
 
-    RuleKey customRuleKey = underTest.create(dbSession, newRule);
+    RuleKey customRuleKey = underTest.create(dbSession, newRule).getKey();
 
     List<RuleParamDto> params = dbTester.getDbClient().ruleDao().selectRuleParamsByRuleKey(dbSession, customRuleKey);
     assertThat(params).hasSize(1);
@@ -166,7 +253,7 @@ public class RuleCreatorIT {
   public void create_whenTypeIsHotspot_shouldNotComputeDefaultImpact() {
     // insert template rule
     RuleDto templateRule = createTemplateRule();
-    NewCustomRule newRule = NewCustomRule.createForCustomRule("CUSTOM_RULE", templateRule.getKey())
+    NewCustomRule newRule = NewCustomRule.createForCustomRule(CUSTOM_RULE_KEY, templateRule.getKey())
       .setName("My custom")
       .setMarkdownDescription("some description")
       .setSeverity(Severity.MAJOR)
@@ -174,7 +261,7 @@ public class RuleCreatorIT {
       .setStatus(RuleStatus.READY)
       .setParameters(Map.of("regex", ""));
 
-    RuleKey customRuleKey = underTest.create(dbSession, newRule);
+    RuleKey customRuleKey = underTest.create(dbSession, newRule).getKey();
 
     RuleDto rule = dbTester.getDbClient().ruleDao().selectOrFailByKey(dbSession, customRuleKey);
     assertThat(rule.getDefaultImpacts()).isEmpty();
@@ -184,13 +271,13 @@ public class RuleCreatorIT {
   public void create_custom_rule_with_no_parameter_value() {
     // insert template rule
     RuleDto templateRule = createTemplateRuleWithIntArrayParam();
-    NewCustomRule newRule = NewCustomRule.createForCustomRule("CUSTOM_RULE", templateRule.getKey())
+    NewCustomRule newRule = NewCustomRule.createForCustomRule(CUSTOM_RULE_KEY, templateRule.getKey())
       .setName("My custom")
       .setMarkdownDescription("some description")
       .setSeverity(Severity.MAJOR)
       .setStatus(RuleStatus.READY);
 
-    RuleKey customRuleKey = underTest.create(dbSession, newRule);
+    RuleKey customRuleKey = underTest.create(dbSession, newRule).getKey();
 
     List<RuleParamDto> params = dbTester.getDbClient().ruleDao().selectRuleParamsByRuleKey(dbSession, customRuleKey);
     assertThat(params).hasSize(1);
@@ -205,14 +292,14 @@ public class RuleCreatorIT {
   public void create_custom_rule_with_multiple_parameter_values() {
     // insert template rule
     RuleDto templateRule = createTemplateRuleWithIntArrayParam();
-    NewCustomRule newRule = NewCustomRule.createForCustomRule("CUSTOM_RULE", templateRule.getKey())
+    NewCustomRule newRule = NewCustomRule.createForCustomRule(CUSTOM_RULE_KEY, templateRule.getKey())
       .setName("My custom")
       .setMarkdownDescription("some description")
       .setSeverity(Severity.MAJOR)
       .setStatus(RuleStatus.READY)
       .setParameters(Map.of("myIntegers", "1,3"));
 
-    RuleKey customRuleKey = underTest.create(dbSession, newRule);
+    RuleKey customRuleKey = underTest.create(dbSession, newRule).getKey();
 
     List<RuleParamDto> params = dbTester.getDbClient().ruleDao().selectRuleParamsByRuleKey(dbSession, customRuleKey);
     assertThat(params).hasSize(1);
@@ -228,19 +315,22 @@ public class RuleCreatorIT {
     // insert template rule
     RuleDto templateRule = createTemplateRuleWithIntArrayParam();
 
-    NewCustomRule firstRule = NewCustomRule.createForCustomRule("CUSTOM_RULE_1", templateRule.getKey())
+    NewCustomRule firstRule = NewCustomRule.createForCustomRule(RuleKey.parse("java:CUSTOM_RULE_1"), templateRule.getKey())
       .setName("My custom")
       .setMarkdownDescription("some description")
       .setSeverity(Severity.MAJOR)
       .setStatus(RuleStatus.READY);
 
-    NewCustomRule secondRule = NewCustomRule.createForCustomRule("CUSTOM_RULE_2", templateRule.getKey())
+    NewCustomRule secondRule = NewCustomRule.createForCustomRule(RuleKey.parse("java:CUSTOM_RULE_2"), templateRule.getKey())
       .setName("My custom")
       .setMarkdownDescription("some description")
       .setSeverity(Severity.MAJOR)
       .setStatus(RuleStatus.READY);
 
-    List<RuleKey> customRuleKeys = underTest.create(dbSession, Arrays.asList(firstRule, secondRule));
+    List<RuleKey> customRuleKeys = underTest.create(dbSession, Arrays.asList(firstRule, secondRule))
+      .stream()
+      .map(RuleDto::getKey)
+      .toList();
 
     List<RuleDto> rules = dbTester.getDbClient().ruleDao().selectByKeys(dbSession, customRuleKeys);
 
@@ -257,7 +347,7 @@ public class RuleCreatorIT {
     dbTester.rules().insert(rule);
     dbSession.commit();
 
-    NewCustomRule newRule = NewCustomRule.createForCustomRule("CUSTOM_RULE", rule.getKey())
+    NewCustomRule newRule = NewCustomRule.createForCustomRule(CUSTOM_RULE_KEY, rule.getKey())
       .setName("My custom")
       .setMarkdownDescription("some description")
       .setSeverity(Severity.MAJOR)
@@ -278,7 +368,7 @@ public class RuleCreatorIT {
     dbTester.rules().update(rule);
     dbSession.commit();
 
-    NewCustomRule newRule = NewCustomRule.createForCustomRule("CUSTOM_RULE", rule.getKey())
+    NewCustomRule newRule = NewCustomRule.createForCustomRule(CUSTOM_RULE_KEY, rule.getKey())
       .setName("My custom")
       .setMarkdownDescription("Some description")
       .setSeverity(Severity.MAJOR)
@@ -297,7 +387,7 @@ public class RuleCreatorIT {
 
     assertThatThrownBy(() -> {
       // Create custom rule
-      NewCustomRule newRule = NewCustomRule.createForCustomRule("CUSTOM_RULE", templateRule.getKey())
+      NewCustomRule newRule = NewCustomRule.createForCustomRule(CUSTOM_RULE_KEY, templateRule.getKey())
         .setName("My custom")
         .setMarkdownDescription("Some description")
         .setSeverity(Severity.MAJOR)
@@ -315,7 +405,7 @@ public class RuleCreatorIT {
     RuleDto templateRule = createTemplateRuleWithTwoIntParams();
 
     // Create custom rule
-    NewCustomRule newRule = NewCustomRule.createForCustomRule("CUSTOM_RULE", templateRule.getKey())
+    NewCustomRule newRule = NewCustomRule.createForCustomRule(CUSTOM_RULE_KEY, templateRule.getKey())
       .setName("My custom")
       .setMarkdownDescription("Some description")
       .setSeverity(Severity.MAJOR)
@@ -335,7 +425,7 @@ public class RuleCreatorIT {
     RuleDto templateRule = createTemplateRuleWithTwoIntParams();
 
     // Create custom rule
-    NewCustomRule newRule = NewCustomRule.createForCustomRule("CUSTOM_RULE", templateRule.getKey())
+    NewCustomRule newRule = NewCustomRule.createForCustomRule(CUSTOM_RULE_KEY, templateRule.getKey())
       .setName("My custom")
       .setMarkdownDescription("Some description")
       .setSeverity(Severity.MAJOR)
@@ -348,12 +438,10 @@ public class RuleCreatorIT {
 
   @Test
   public void reactivate_custom_rule_if_already_exists_in_removed_status() {
-    String key = "CUSTOM_RULE";
-
     RuleDto templateRule = createTemplateRule();
 
     RuleDto rule = newCustomRule(templateRule, "Old description")
-      .setRuleKey(key)
+      .setRuleKey(CUSTOM_RULE_KEY)
       .setStatus(RuleStatus.REMOVED)
       .setName("Old name")
       .setDescriptionFormat(Format.MARKDOWN)
@@ -363,16 +451,16 @@ public class RuleCreatorIT {
     dbSession.commit();
 
     // Create custom rule with same key, but with different values
-    NewCustomRule newRule = NewCustomRule.createForCustomRule(key, templateRule.getKey())
+    NewCustomRule newRule = NewCustomRule.createForCustomRule(CUSTOM_RULE_KEY, templateRule.getKey())
       .setName("New name")
       .setMarkdownDescription("New description")
       .setSeverity(Severity.MAJOR)
       .setStatus(RuleStatus.READY)
       .setParameters(Map.of("regex", "c.*"));
-    RuleKey customRuleKey = underTest.create(dbSession, newRule);
+    RuleKey customRuleKey = underTest.create(dbSession, newRule).getKey();
 
     RuleDto result = dbTester.getDbClient().ruleDao().selectOrFailByKey(dbSession, customRuleKey);
-    assertThat(result.getKey()).isEqualTo(RuleKey.of("java", key));
+    assertThat(result.getKey()).isEqualTo(CUSTOM_RULE_KEY);
     assertThat(result.getStatus()).isEqualTo(RuleStatus.READY);
 
     // These values should be the same than before
@@ -387,12 +475,10 @@ public class RuleCreatorIT {
 
   @Test
   public void generate_reactivation_exception_when_rule_exists_in_removed_status_and_prevent_reactivation_parameter_is_true() {
-    String key = "CUSTOM_RULE";
-
     RuleDto templateRule = createTemplateRule();
 
     RuleDto rule = newCustomRule(templateRule, "Old description")
-      .setRuleKey(key)
+      .setRuleKey(CUSTOM_RULE_KEY)
       .setStatus(RuleStatus.REMOVED)
       .setName("Old name")
       .setSeverity(Severity.INFO);
@@ -401,7 +487,7 @@ public class RuleCreatorIT {
     dbSession.commit();
 
     // Create custom rule with same key, but with different values
-    NewCustomRule newRule = NewCustomRule.createForCustomRule(key, templateRule.getKey())
+    NewCustomRule newRule = NewCustomRule.createForCustomRule(CUSTOM_RULE_KEY, templateRule.getKey())
       .setName("New name")
       .setMarkdownDescription("some description")
       .setSeverity(Severity.MAJOR)
@@ -424,7 +510,7 @@ public class RuleCreatorIT {
     // insert template rule
     RuleDto templateRule = createTemplateRule();
 
-    NewCustomRule newRule = NewCustomRule.createForCustomRule("*INVALID*", templateRule.getKey())
+    NewCustomRule newRule = NewCustomRule.createForCustomRule(RuleKey.of("java", "*INVALID*"), templateRule.getKey())
       .setName("My custom")
       .setMarkdownDescription("some description")
       .setSeverity(Severity.MAJOR)
@@ -441,7 +527,7 @@ public class RuleCreatorIT {
     // insert template rule
     RuleDto templateRule = createTemplateRule();
     // Create a custom rule
-    AtomicReference<NewCustomRule> newRule = new AtomicReference<>(NewCustomRule.createForCustomRule("CUSTOM_RULE", templateRule.getKey())
+    AtomicReference<NewCustomRule> newRule = new AtomicReference<>(NewCustomRule.createForCustomRule(CUSTOM_RULE_KEY, templateRule.getKey())
       .setName("My custom")
       .setMarkdownDescription("some description")
       .setSeverity(Severity.MAJOR)
@@ -450,7 +536,7 @@ public class RuleCreatorIT {
     underTest.create(dbSession, newRule.get());
 
     // Create another custom rule having same key
-    newRule.set(NewCustomRule.createForCustomRule("CUSTOM_RULE", templateRule.getKey())
+    newRule.set(NewCustomRule.createForCustomRule(CUSTOM_RULE_KEY, templateRule.getKey())
       .setName("My another custom")
       .setMarkdownDescription("some description")
       .setSeverity(Severity.MAJOR)
@@ -467,7 +553,7 @@ public class RuleCreatorIT {
     // insert template rule
     RuleDto templateRule = createTemplateRule();
 
-    NewCustomRule newRule = NewCustomRule.createForCustomRule("CUSTOM_RULE", templateRule.getKey())
+    NewCustomRule newRule = NewCustomRule.createForCustomRule(CUSTOM_RULE_KEY, templateRule.getKey())
       .setMarkdownDescription("some description")
       .setSeverity(Severity.MAJOR)
       .setStatus(RuleStatus.READY)
@@ -484,7 +570,7 @@ public class RuleCreatorIT {
     RuleDto templateRule = createTemplateRule();
 
     assertThatThrownBy(() -> {
-      NewCustomRule newRule = NewCustomRule.createForCustomRule("CUSTOM_RULE", templateRule.getKey())
+      NewCustomRule newRule = NewCustomRule.createForCustomRule(CUSTOM_RULE_KEY, templateRule.getKey())
         .setName("My custom")
         .setSeverity(Severity.MAJOR)
         .setStatus(RuleStatus.READY)
@@ -496,27 +582,11 @@ public class RuleCreatorIT {
   }
 
   @Test
-  public void fail_to_create_custom_rule_when_missing_severity() {
-    // insert template rule
-    RuleDto templateRule = createTemplateRule();
-
-    NewCustomRule newRule = NewCustomRule.createForCustomRule("CUSTOM_RULE", templateRule.getKey())
-      .setName("My custom")
-      .setMarkdownDescription("some description")
-      .setStatus(RuleStatus.READY)
-      .setParameters(Map.of("regex", "a.*"));
-
-    assertThatThrownBy(() -> underTest.create(dbSession, newRule))
-      .isInstanceOf(BadRequestException.class)
-      .hasMessage("The severity is missing");
-  }
-
-  @Test
   public void fail_to_create_custom_rule_when_invalid_severity() {
     // insert template rule
     RuleDto templateRule = createTemplateRule();
 
-    NewCustomRule newRule = NewCustomRule.createForCustomRule("CUSTOM_RULE", templateRule.getKey())
+    NewCustomRule newRule = NewCustomRule.createForCustomRule(CUSTOM_RULE_KEY, templateRule.getKey())
       .setName("My custom")
       .setMarkdownDescription("some description")
       .setSeverity("INVALID")
@@ -529,22 +599,6 @@ public class RuleCreatorIT {
   }
 
   @Test
-  public void fail_to_create_custom_rule_when_missing_status() {
-    // insert template rule
-    RuleDto templateRule = createTemplateRule();
-
-    NewCustomRule newRule = NewCustomRule.createForCustomRule("CUSTOM_RULE", templateRule.getKey())
-      .setName("My custom")
-      .setMarkdownDescription("some description")
-      .setSeverity(Severity.MAJOR)
-      .setParameters(Map.of("regex", "a.*"));
-
-    assertThatThrownBy(() -> underTest.create(dbSession, newRule))
-      .isInstanceOf(BadRequestException.class)
-      .hasMessage("The status is missing");
-  }
-
-  @Test
   public void fail_to_create_custom_rule_when_wrong_rule_template() {
     // insert rule
     RuleDto rule = newRule(RuleKey.of("java", "S001")).setIsTemplate(false);
@@ -552,7 +606,7 @@ public class RuleCreatorIT {
     dbSession.commit();
 
     // Create custom rule with unknown template rule
-    NewCustomRule newRule = NewCustomRule.createForCustomRule("CUSTOM_RULE", rule.getKey())
+    NewCustomRule newRule = NewCustomRule.createForCustomRule(CUSTOM_RULE_KEY, rule.getKey())
       .setName("My custom")
       .setMarkdownDescription("some description")
       .setSeverity(Severity.MAJOR)
@@ -565,16 +619,15 @@ public class RuleCreatorIT {
   }
 
   @Test
+  public void fail_to_create_custom_rule_when_null_custom_key() {
+    assertThatThrownBy(() -> NewCustomRule.createForCustomRule(null, CUSTOM_RULE_KEY))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Custom key should be set");
+  }
+
+  @Test
   public void fail_to_create_custom_rule_when_null_template() {
-    assertThatThrownBy(() -> {
-      // Create custom rule
-      NewCustomRule newRule = NewCustomRule.createForCustomRule("CUSTOM_RULE", null)
-        .setName("My custom")
-        .setMarkdownDescription("Some description")
-        .setSeverity(Severity.MAJOR)
-        .setStatus(RuleStatus.READY);
-      underTest.create(dbSession, newRule);
-    })
+    assertThatThrownBy(() -> NewCustomRule.createForCustomRule(CUSTOM_RULE_KEY, null))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("Template key should be set");
   }
@@ -583,7 +636,7 @@ public class RuleCreatorIT {
   public void fail_to_create_custom_rule_when_unknown_template() {
     assertThatThrownBy(() -> {
       // Create custom rule
-      NewCustomRule newRule = NewCustomRule.createForCustomRule("CUSTOM_RULE", RuleKey.of("java", "S001"))
+      NewCustomRule newRule = NewCustomRule.createForCustomRule(CUSTOM_RULE_KEY, RuleKey.of("java", "S001"))
         .setName("My custom")
         .setMarkdownDescription("Some description")
         .setSeverity(Severity.MAJOR)
@@ -598,14 +651,14 @@ public class RuleCreatorIT {
   public void create_givenSecurityHotspotRule_doNotSetCleanCodeAttribute() {
     RuleDto templateRule = createTemplateRule();
 
-    NewCustomRule newRule = NewCustomRule.createForCustomRule("security_hotspots_rule", templateRule.getKey())
+    NewCustomRule newRule = NewCustomRule.createForCustomRule(RuleKey.parse("java:security_hotspots_rule"), templateRule.getKey())
       .setName("My custom")
       .setMarkdownDescription("some description")
       .setSeverity(Severity.MAJOR)
       .setStatus(RuleStatus.READY)
       .setType(RuleType.SECURITY_HOTSPOT);
 
-    RuleKey customRuleKey = underTest.create(dbSession, newRule);
+    RuleKey customRuleKey = underTest.create(dbSession, newRule).getKey();
 
     RuleDto result = dbTester.getDbClient().ruleDao().selectOrFailByKey(dbSession, customRuleKey);
 

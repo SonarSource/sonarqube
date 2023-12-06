@@ -26,5 +26,6 @@ dependencies {
 
     testImplementation project(':sonar-testing-harness')
     testImplementation testFixtures(project(':server:sonar-db-dao'))
-
+    testImplementation testFixtures(project(':server:sonar-server-common'))
+    testImplementation testFixtures(project(':server:sonar-webserver-api'))
 }

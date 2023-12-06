@@ -26,6 +26,7 @@ import org.sonar.server.v2.api.rule.enums.CleanCodeAttributeCategoryRestEnum;
 import org.sonar.server.v2.api.rule.enums.CleanCodeAttributeRestEnum;
 import org.sonar.server.v2.api.rule.enums.RuleStatusRestEnum;
 import org.sonar.server.v2.api.rule.enums.RuleTypeRestEnum;
+import org.sonar.server.v2.api.rule.ressource.Parameter;
 
 @Schema(accessMode = Schema.AccessMode.READ_ONLY)
 public record RuleRestResponse(
@@ -66,7 +67,7 @@ public record RuleRestResponse(
   String languageKey,
   @Nullable
   String languageName,
-  List<RuleParameterRestResponse> parameters,
+  List<Parameter> parameters,
   String remediationFunctionType,
   String remediationFunctionGapMultiplier,
   String remediationFunctionBaseEffort
@@ -98,7 +99,7 @@ public record RuleRestResponse(
     private List<String> systemTags;
     private String languageKey;
     private String languageName;
-    private List<RuleParameterRestResponse> parameters;
+    private List<Parameter> parameters;
     private String remediationFunctionType;
     private String remediationFunctionGapMultiplier;
     private String remediationFunctionBaseEffort;
@@ -230,7 +231,7 @@ public record RuleRestResponse(
       return this;
     }
 
-    public Builder setParameters(List<RuleParameterRestResponse> parameters) {
+    public Builder setParameters(List<Parameter> parameters) {
       this.parameters = parameters;
       return this;
     }

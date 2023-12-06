@@ -20,6 +20,8 @@
 package org.sonar.server.v2.api.rule.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.extensions.Extension;
+import io.swagger.v3.oas.annotations.extensions.ExtensionProperty;
 import javax.validation.Valid;
 import org.sonar.server.v2.api.rule.request.RuleCreateRestRequest;
 import org.sonar.server.v2.api.rule.response.RuleRestResponse;
@@ -39,10 +41,10 @@ public interface RuleController {
 
   @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.OK)
-  @Operation(summary = "Create a rule", description = """
-      Create a rule
-    """)
-    //TODO Document
+  @Operation(summary = "Custom rule creation", description = """
+      Create a custom rule.
+      Requires the 'Administer Quality Profiles' permission.
+    """,
+    extensions = @Extension(properties = {@ExtensionProperty(name = "internal", value = "true")}))
   RuleRestResponse create(@Valid @RequestBody RuleCreateRestRequest request);
-
 }

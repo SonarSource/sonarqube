@@ -17,30 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.common.rule.service;
+package org.sonar.server.v2.api.rule.ressource;
 
-import java.util.ArrayList;
-import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
-import org.sonar.server.common.rule.RuleCreator;
+import io.swagger.v3.oas.annotations.media.Schema;
+import javax.annotation.Nullable;
 
-public class RuleService {
+import static io.swagger.v3.oas.annotations.media.Schema.AccessMode.*;
 
-  private final DbClient dbClient;
-  private final RuleCreator ruleCreator;
+public record Parameter(
 
-  public RuleService(DbClient dbClient, RuleCreator ruleCreator) {
-    this.dbClient = dbClient;
-    this.ruleCreator = ruleCreator;
-  }
-
-  public RuleInformation createCustomRule(NewCustomRule newCustomRule) {
-    try (DbSession dbSession = dbClient.openSession(false)) {
-      return createCustomRule(newCustomRule, dbSession);
-    }
-  }
-
-  public RuleInformation createCustomRule(NewCustomRule newCustomRule, DbSession dbSession) {
-    return new RuleInformation(ruleCreator.create(dbSession, newCustomRule), new ArrayList<>());
-  }
+  @Schema(accessMode = READ_WRITE)
+  String key,
+  @Schema(accessMode = READ_ONLY)
+  String htmlDescription,
+  @Nullable
+  @Schema(accessMode = READ_WRITE)
+  String defaultValue,
+  @Schema(allowableValues = {
+    "STRING",
+    "TEXT",
+    "BOOLEAN",
+    "INTEGER",
+    "FLOAT"
+  }, accessMode = READ_ONLY)
+  String type
+) {
 }

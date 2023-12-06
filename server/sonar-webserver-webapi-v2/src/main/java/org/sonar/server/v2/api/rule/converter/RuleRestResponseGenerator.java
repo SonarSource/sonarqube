@@ -50,7 +50,7 @@ import org.sonar.server.v2.api.rule.enums.SoftwareQualityRestEnum;
 import org.sonar.server.v2.api.rule.response.RuleDescriptionSectionContextRestResponse;
 import org.sonar.server.v2.api.rule.response.RuleDescriptionSectionRestResponse;
 import org.sonar.server.v2.api.rule.response.RuleImpactRestResponse;
-import org.sonar.server.v2.api.rule.response.RuleParameterRestResponse;
+import org.sonar.server.v2.api.rule.ressource.Parameter;
 import org.sonar.server.v2.api.rule.response.RuleRestResponse;
 
 import static java.util.Optional.ofNullable;
@@ -124,9 +124,9 @@ public class RuleRestResponseGenerator {
       });
   }
 
-  private static List<RuleParameterRestResponse> toRuleParameterResponse(List<RuleParamDto> ruleParamDtos) {
+  private static List<Parameter> toRuleParameterResponse(List<RuleParamDto> ruleParamDtos) {
     return ruleParamDtos.stream()
-      .map(p -> new RuleParameterRestResponse(p.getName(), Markdown.convertToHtml(p.getDescription()), p.getDefaultValue(), p.getType()))
+      .map(p -> new Parameter(p.getName(), Markdown.convertToHtml(p.getDescription()), p.getDefaultValue(), p.getType()))
       .toList();
   }
 

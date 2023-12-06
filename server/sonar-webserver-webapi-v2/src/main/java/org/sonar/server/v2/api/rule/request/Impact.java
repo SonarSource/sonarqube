@@ -17,25 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.v2.api.rule.response;
+package org.sonar.server.v2.api.rule.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
+import org.sonar.api.issue.impact.Severity;
+import org.sonar.api.issue.impact.SoftwareQuality;
 
-public record RuleParameterRestResponse(
+public record Impact(
 
-  String key,
-  @Schema(accessMode = Schema.AccessMode.READ_ONLY)
-  String htmlDescription,
-  @Nullable
-  String defaultValue,
-  @Schema(allowableValues = {
-    "STRING",
-    "TEXT",
-    "BOOLEAN",
-    "INTEGER",
-    "FLOAT"
-  }, accessMode = Schema.AccessMode.READ_ONLY)
-  String type
+  @NotNull
+  @Schema(description = "Software quality")
+  SoftwareQuality softwareQuality,
+
+  @NotNull
+  @Schema(description = "Severity")
+  Severity severity
 ) {
 }

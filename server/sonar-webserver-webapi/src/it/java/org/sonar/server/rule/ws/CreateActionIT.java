@@ -31,11 +31,12 @@ import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbTester;
 import org.sonar.db.rule.RuleDto;
+import org.sonar.server.common.rule.service.RuleService;
 import org.sonar.server.common.text.MacroInterpreter;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.UnauthorizedException;
-import org.sonar.server.rule.RuleCreator;
+import org.sonar.server.common.rule.RuleCreator;
 import org.sonar.server.rule.RuleDescriptionFormatter;
 import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.tester.UserSessionRule;
@@ -72,7 +73,8 @@ public class CreateActionIT {
   private final UuidFactory uuidFactory = new SequenceUuidFactory();
 
   private final WsActionTester ws = new WsActionTester(new CreateAction(db.getDbClient(),
-    new RuleCreator(system2, new RuleIndexer(es.client(), db.getDbClient()), db.getDbClient(), newFullTypeValidations(), uuidFactory),
+    new RuleService(db.getDbClient(),
+      new RuleCreator(system2, new RuleIndexer(es.client(), db.getDbClient()), db.getDbClient(), newFullTypeValidations(), uuidFactory)),
     new RuleMapper(new Languages(), createMacroInterpreter(), new RuleDescriptionFormatter()),
     new RuleWsSupport(db.getDbClient(), userSession)));
 
@@ -107,7 +109,7 @@ public class CreateActionIT {
       .setParam("params", "regex=a.*")
       .execute().getInput();
 
-    String expetedResult = """
+    String expectedResult = """
       {
         "rule": {
           "key": "java:MY_CUSTOM",
@@ -145,7 +147,59 @@ public class CreateActionIT {
       }
       """;
 
-    assertJson(result).isSimilarTo(expetedResult);
+    assertJson(result).isSimilarTo(expectedResult);
+  }
+
+  @Test
+  public void create_shouldSetCleanCodeAttributeAndImpacts() {
+    logInAsQProfileAdministrator();
+    // Template rule
+    RuleDto templateRule = newTemplateRule(RuleKey.of("java", "S001"))
+      .setType(BUG)
+      .setLanguage("js");
+    db.rules().insert(templateRule);
+
+    String result = ws.newRequest()
+      .setParam("customKey", "MY_CUSTOM")
+      .setParam("templateKey", templateRule.getKey().toString())
+      .setParam("name", "My custom rule")
+      .setParam("markdownDescription", "Description")
+      .setParam("status", "BETA")
+      .setParam("cleanCodeAttribute", "MODULAR")
+      .setParam("impacts", "RELIABILITY=HIGH;SECURITY=LOW")
+      .execute().getInput();
+
+    String expectedResult = """
+      {
+        "rule": {
+          "key": "java:MY_CUSTOM",
+          "repo": "java",
+          "name": "My custom rule",
+          "htmlDesc": "Description",
+          "severity": "MINOR",
+          "status": "BETA",
+          "type": "VULNERABILITY",
+          "internalKey": "configKey_S001",
+          "isTemplate": false,
+          "templateKey": "java:S001",
+          "lang": "js",
+          "cleanCodeAttribute": "MODULAR",
+          "cleanCodeAttributeCategory": "ADAPTABLE",
+          "impacts": [
+            {
+              "softwareQuality": "RELIABILITY",
+              "severity": "HIGH"
+            },
+            {
+              "softwareQuality": "SECURITY",
+              "severity": "LOW"
+            }
+          ]
+        }
+      }
+      """;
+
+    assertJson(result).isSimilarTo(expectedResult);
   }
 
   @Test
@@ -242,7 +296,7 @@ public class CreateActionIT {
   }
 
   @Test
-  public void status_set_to_default() {
+  public void severity_set_to_default() {
     logInAsQProfileAdministrator();
 
     RuleDto templateRule = newTemplateRule(RuleKey.of("java", "S001"));

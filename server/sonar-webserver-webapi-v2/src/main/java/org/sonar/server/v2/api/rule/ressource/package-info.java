@@ -17,30 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.common.rule.service;
+@ParametersAreNonnullByDefault
+package org.sonar.server.v2.api.rule.ressource;
 
-import java.util.ArrayList;
-import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
-import org.sonar.server.common.rule.RuleCreator;
-
-public class RuleService {
-
-  private final DbClient dbClient;
-  private final RuleCreator ruleCreator;
-
-  public RuleService(DbClient dbClient, RuleCreator ruleCreator) {
-    this.dbClient = dbClient;
-    this.ruleCreator = ruleCreator;
-  }
-
-  public RuleInformation createCustomRule(NewCustomRule newCustomRule) {
-    try (DbSession dbSession = dbClient.openSession(false)) {
-      return createCustomRule(newCustomRule, dbSession);
-    }
-  }
-
-  public RuleInformation createCustomRule(NewCustomRule newCustomRule, DbSession dbSession) {
-    return new RuleInformation(ruleCreator.create(dbSession, newCustomRule), new ArrayList<>());
-  }
-}
+import javax.annotation.ParametersAreNonnullByDefault;

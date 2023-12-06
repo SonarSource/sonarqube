@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.rule;
+package org.sonar.server.common.rule;
 
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
@@ -27,8 +27,10 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
+import org.apache.commons.lang.StringUtils;
 import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
@@ -47,20 +49,24 @@ import org.sonar.db.rule.RuleDescriptionSectionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleDto.Format;
 import org.sonar.db.rule.RuleParamDto;
+import org.sonar.server.common.rule.service.NewCustomRule;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.util.TypeValidations;
+import org.springframework.util.CollectionUtils;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.Lists.newArrayList;
 import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
+import static java.util.Optional.ofNullable;
 import static org.sonar.db.rule.RuleDescriptionSectionDto.createDefaultRuleDescriptionSection;
 import static org.sonar.server.exceptions.BadRequestException.checkRequest;
 
 @ServerSide
 public class RuleCreator {
   private static final String TEMPLATE_KEY_NOT_EXIST_FORMAT = "The template key doesn't exist: %s";
+  private static final Pattern RULE_KEY_REGEX = Pattern.compile("^[\\w]+$");
 
   private final System2 system2;
   private final RuleIndexer ruleIndexer;
@@ -76,7 +82,7 @@ public class RuleCreator {
     this.uuidFactory = uuidFactory;
   }
 
-  public RuleKey create(DbSession dbSession, NewCustomRule newRule) {
+  public RuleDto create(DbSession dbSession, NewCustomRule newRule) {
     RuleKey templateKey = newRule.templateKey();
     RuleDto templateRule = dbClient.ruleDao().selectByKey(dbSession, templateKey)
       .orElseThrow(() -> new IllegalArgumentException(format(TEMPLATE_KEY_NOT_EXIST_FORMAT, templateKey)));
@@ -84,16 +90,15 @@ public class RuleCreator {
     checkArgument(templateRule.getStatus() != RuleStatus.REMOVED, TEMPLATE_KEY_NOT_EXIST_FORMAT, templateKey.toString());
     validateCustomRule(newRule, dbSession, templateKey);
 
-    RuleKey customRuleKey = RuleKey.of(templateRule.getRepositoryKey(), newRule.ruleKey());
-    Optional<RuleDto> definition = loadRule(dbSession, customRuleKey);
-    String customRuleUuid = definition.map(d -> updateExistingRule(d, newRule, dbSession))
-      .orElseGet(() -> createCustomRule(customRuleKey, newRule, templateRule, dbSession));
+    Optional<RuleDto> definition = loadRule(dbSession, newRule.ruleKey());
+    RuleDto ruleDto = definition.map(d -> updateExistingRule(d, newRule, dbSession))
+      .orElseGet(() -> createCustomRule(newRule, templateRule, dbSession));
 
-    ruleIndexer.commitAndIndex(dbSession, customRuleUuid);
-    return customRuleKey;
+    ruleIndexer.commitAndIndex(dbSession, ruleDto.getUuid());
+    return ruleDto;
   }
 
-  public List<RuleKey> create(DbSession dbSession, List<NewCustomRule> newRules) {
+  public List<RuleDto> create(DbSession dbSession, List<NewCustomRule> newRules) {
     Set<RuleKey> templateKeys = newRules.stream().map(NewCustomRule::templateKey).collect(Collectors.toSet());
     Map<RuleKey, RuleDto> templateRules = dbClient.ruleDao().selectByKeys(dbSession, templateKeys)
       .stream()
@@ -107,39 +112,31 @@ public class RuleCreator {
       checkArgument(ruleDto.getStatus() != RuleStatus.REMOVED, TEMPLATE_KEY_NOT_EXIST_FORMAT, ruleDto.getKey().toString());
     });
 
-    List<String> customRuleUuids = newRules.stream()
+    List<RuleDto> customRules = newRules.stream()
       .map(newCustomRule -> {
         RuleDto templateRule = templateRules.get(newCustomRule.templateKey());
         validateCustomRule(newCustomRule, dbSession, templateRule.getKey());
-        RuleKey customRuleKey = RuleKey.of(templateRule.getRepositoryKey(), newCustomRule.ruleKey());
-        return createCustomRule(customRuleKey, newCustomRule, templateRule, dbSession);
+        return createCustomRule(newCustomRule, templateRule, dbSession);
       })
       .toList();
 
-    ruleIndexer.commitAndIndex(dbSession, customRuleUuids);
-    return newRules.stream()
-      .map(newCustomRule -> {
-        RuleDto templateRule = templateRules.get(newCustomRule.templateKey());
-        return RuleKey.of(templateRule.getRepositoryKey(), newCustomRule.ruleKey());
-      })
-      .toList();
+    ruleIndexer.commitAndIndex(dbSession, customRules.stream().map(RuleDto::getUuid).toList());
+    return customRules;
   }
 
   private void validateCustomRule(NewCustomRule newRule, DbSession dbSession, RuleKey templateKey) {
     List<String> errors = new ArrayList<>();
 
-    validateRuleKey(errors, newRule.ruleKey());
+    validateRuleKey(errors, newRule.ruleKey(), templateKey);
     validateName(errors, newRule);
     validateDescription(errors, newRule);
 
     String severity = newRule.severity();
-    if (Strings.isNullOrEmpty(severity)) {
-      errors.add("The severity is missing");
-    } else if (!Severity.ALL.contains(severity)) {
+    if (severity != null && !Severity.ALL.contains(severity)) {
       errors.add(format("Severity \"%s\" is invalid", severity));
     }
-    if (newRule.status() == null) {
-      errors.add("The status is missing");
+    if (!CollectionUtils.isEmpty(newRule.getImpacts()) && (StringUtils.isNotBlank(newRule.severity()) || newRule.type() != null)) {
+      errors.add("The rule cannot have both impacts and type/severity specified");
     }
 
     for (RuleParamDto ruleParam : dbClient.ruleDao().selectRuleParamsByRuleKey(dbSession, templateKey)) {
@@ -176,9 +173,12 @@ public class RuleCreator {
     }
   }
 
-  private static void validateRuleKey(List<String> errors, String ruleKey) {
-    if (!ruleKey.matches("^[\\w]+$")) {
-      errors.add(format("The rule key \"%s\" is invalid, it should only contain: a-z, 0-9, \"_\"", ruleKey));
+  private static void validateRuleKey(List<String> errors, RuleKey ruleKey, RuleKey templateKey) {
+    if (!ruleKey.repository().equals(templateKey.repository())) {
+      errors.add("Custom and template keys must be in the same repository");
+    }
+    if (!RULE_KEY_REGEX.matcher(ruleKey.rule()).matches()) {
+      errors.add(format("The rule key \"%s\" is invalid, it should only contain: a-z, 0-9, \"_\"", ruleKey.rule()));
     }
   }
 
@@ -186,21 +186,17 @@ public class RuleCreator {
     return dbClient.ruleDao().selectByKey(dbSession, ruleKey);
   }
 
-  private String createCustomRule(RuleKey ruleKey, NewCustomRule newRule, RuleDto templateRuleDto, DbSession dbSession) {
+  private RuleDto createCustomRule(NewCustomRule newRule, RuleDto templateRuleDto, DbSession dbSession) {
     RuleDescriptionSectionDto ruleDescriptionSectionDto = createDefaultRuleDescriptionSection(uuidFactory.create(), requireNonNull(newRule.markdownDescription()));
-    int type = newRule.type() == null ? templateRuleDto.getType() : newRule.type().getDbConstant();
-    String severity = newRule.severity();
 
     RuleDto ruleDto = new RuleDto()
       .setUuid(uuidFactory.create())
-      .setRuleKey(ruleKey)
+      .setRuleKey(newRule.ruleKey())
       .setPluginKey(templateRuleDto.getPluginKey())
       .setTemplateUuid(templateRuleDto.getUuid())
       .setConfigKey(templateRuleDto.getConfigKey())
       .setName(newRule.name())
-      .setSeverity(severity)
-      .setStatus(newRule.status())
-      .setType(type)
+      .setStatus(ofNullable(newRule.status()).orElse(RuleStatus.READY))
       .setLanguage(templateRuleDto.getLanguage())
       .setDefRemediationFunction(templateRuleDto.getDefRemediationFunction())
       .setDefRemediationGapMultiplier(templateRuleDto.getDefRemediationGapMultiplier())
@@ -216,13 +212,7 @@ public class RuleCreator {
       .setDescriptionFormat(Format.MARKDOWN)
       .addRuleDescriptionSectionDto(ruleDescriptionSectionDto);
 
-    if (type != RuleType.SECURITY_HOTSPOT.getDbConstant()) {
-      SoftwareQuality softwareQuality = ImpactMapper.convertToSoftwareQuality(RuleType.valueOf(type));
-      org.sonar.api.issue.impact.Severity impactSeverity = ImpactMapper.convertToImpactSeverity(severity);
-      ruleDto = ruleDto.addDefaultImpact(new ImpactDto().setUuid(uuidFactory.create()).setSoftwareQuality(softwareQuality)
-        .setSeverity(impactSeverity))
-        .setCleanCodeAttribute(CleanCodeAttribute.CONVENTIONAL);
-    }
+    setCleanCodeAttributeAndImpacts(newRule, ruleDto, templateRuleDto);
 
     Set<String> tags = templateRuleDto.getTags();
     if (!tags.isEmpty()) {
@@ -234,7 +224,38 @@ public class RuleCreator {
       String customRuleParamValue = Strings.emptyToNull(newRule.parameter(templateRuleParamDto.getName()));
       createCustomRuleParams(customRuleParamValue, ruleDto, templateRuleParamDto, dbSession);
     }
-    return ruleDto.getUuid();
+    return ruleDto;
+  }
+
+  private void setCleanCodeAttributeAndImpacts(NewCustomRule newRule, RuleDto ruleDto, RuleDto templateRuleDto) {
+    int type = newRule.type() == null ? templateRuleDto.getType() : newRule.type().getDbConstant();
+    String severity = ofNullable(newRule.severity()).orElse(Severity.MAJOR);
+
+    if (type == RuleType.SECURITY_HOTSPOT.getDbConstant()) {
+      ruleDto.setType(type).setSeverity(severity);
+    } else {
+      ruleDto.setCleanCodeAttribute(ofNullable(newRule.getCleanCodeAttribute()).orElse(CleanCodeAttribute.CONVENTIONAL));
+
+      if (!CollectionUtils.isEmpty(newRule.getImpacts())) {
+        newRule.getImpacts().stream()
+          .map(impact -> new ImpactDto(uuidFactory.create(), impact.softwareQuality(), impact.severity()))
+          .forEach(ruleDto::addDefaultImpact);
+        // Back-map old type and severity from the impact
+        Map.Entry<SoftwareQuality, org.sonar.api.issue.impact.Severity> impact = ImpactMapper.getBestImpactForBackmapping(
+          newRule.getImpacts().stream().collect(Collectors.toMap(NewCustomRule.Impact::softwareQuality, NewCustomRule.Impact::severity)));
+        ruleDto.setType(ImpactMapper.convertToRuleType(impact.getKey()).getDbConstant());
+        ruleDto.setSeverity(ImpactMapper.convertToDeprecatedSeverity(impact.getValue()));
+      } else {
+        // Map old type and severity to impact
+        SoftwareQuality softwareQuality = ImpactMapper.convertToSoftwareQuality(RuleType.valueOf(type));
+        org.sonar.api.issue.impact.Severity impactSeverity = ImpactMapper.convertToImpactSeverity(severity);
+        ruleDto.addDefaultImpact(new ImpactDto().setUuid(uuidFactory.create())
+            .setSoftwareQuality(softwareQuality)
+            .setSeverity(impactSeverity))
+          .setType(type)
+          .setSeverity(severity);
+      }
+    }
   }
 
   private void createCustomRuleParams(@Nullable String paramValue, RuleDto ruleDto, RuleParamDto templateRuleParam, DbSession dbSession) {
@@ -246,7 +267,7 @@ public class RuleCreator {
     dbClient.ruleDao().insertRuleParam(dbSession, ruleDto, ruleParamDto);
   }
 
-  private String updateExistingRule(RuleDto ruleDto, NewCustomRule newRule, DbSession dbSession) {
+  private RuleDto updateExistingRule(RuleDto ruleDto, NewCustomRule newRule, DbSession dbSession) {
     if (ruleDto.getStatus().equals(RuleStatus.REMOVED)) {
       if (newRule.isPreventReactivation()) {
         throw new ReactivationException(format("A removed rule with the key '%s' already exists", ruleDto.getKey().rule()), ruleDto.getKey());
@@ -258,7 +279,7 @@ public class RuleCreator {
     } else {
       throw new IllegalArgumentException(format("A rule with the key '%s' already exists", ruleDto.getKey().rule()));
     }
-    return ruleDto.getUuid();
+    return ruleDto;
   }
 
 }
