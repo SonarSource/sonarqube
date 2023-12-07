@@ -74,6 +74,9 @@ except_nightly_task_template: &EXCEPT_ON_NIGHTLY_TASK_TEMPLATE
 except_weekly_task_template: &EXCEPT_ON_WEEKLY_TASK_TEMPLATE
   only_if: $CIRRUS_CRON != $CRON_DATABASE_JOB_NAME
 
+only_on_main_branch_task_template: &ONLY_ON_MAIN_BRANCH_TASK_TEMPLATE
+  only_if: $CIRRUS_BRANCH == $BRANCH_MAIN
+
 database_related_task_template: &DATABASE_RELATED_TASK_TEMPLATE
   only_if: >-
     $CIRRUS_BRANCH == $BRANCH_MAIN || $CIRRUS_BRANCH =~ $BRANCH_PATTERN_MAINTENANCE || $CIRRUS_BRANCH == $BRANCH_NIGHTLY ||
@@ -699,8 +702,8 @@ promote_task:
 
 package_docker_task:
   <<: *DEFAULT_TEMPLATE
+  only_if: $CIRRUS_BRANCH == $BRANCH_MAIN && $CIRRUS_CRON != $CRON_DATABASE_JOB_NAME
   depends_on: promote
-  only_if: $CIRRUS_BRANCH == $BRANCH_MAIN
   ec2_instance:
     <<: *VM_TEMPLATE
   clone_script: |
