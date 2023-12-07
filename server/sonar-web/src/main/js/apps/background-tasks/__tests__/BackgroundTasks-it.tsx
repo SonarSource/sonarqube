@@ -33,6 +33,7 @@ import {
 } from '../../../helpers/testSelector';
 import { EditionKey } from '../../../types/editions';
 import { TaskStatuses, TaskTypes } from '../../../types/tasks';
+import { PAGE_SIZE } from '../constants';
 import routes from '../routes';
 
 const computeEngineServiceMock = new ComputeEngineServiceMock();
@@ -183,19 +184,22 @@ describe('The Global background task page', () => {
     const { ui, user } = getPageObject();
 
     computeEngineServiceMock.clearTasks();
-    computeEngineServiceMock.createTasks(101);
+
+    const TOTAL_TASKS = 101;
+
+    computeEngineServiceMock.createTasks(TOTAL_TASKS);
 
     renderGlobalBackgroundTasksApp();
     await ui.appLoaded();
 
     expect(ui.pageHeading.get()).toBeInTheDocument();
 
-    expect(ui.getAllRows()).toHaveLength(100);
+    expect(ui.getAllRows()).toHaveLength(PAGE_SIZE);
 
     user.click(ui.showMoreButton.get());
 
-    await waitFor(() => {
-      expect(ui.getAllRows()).toHaveLength(101);
+    await waitFor(async () => {
+      expect(await screen.findAllByRole('row')).toHaveLength(TOTAL_TASKS + 1); // 1 extra = header
     });
   });
 
