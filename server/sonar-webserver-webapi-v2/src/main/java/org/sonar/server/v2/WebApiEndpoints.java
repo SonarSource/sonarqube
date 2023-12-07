@@ -36,6 +36,8 @@ public class WebApiEndpoints {
   public static final String CLEAN_CODE_POLICY_DOMAIN = "/clean-code-policy";
   public static final String RULES_ENDPOINT = CLEAN_CODE_POLICY_DOMAIN + "/rules";
 
+  public static final String INTERNAL = "internal";
+
   private WebApiEndpoints() {
   }
 }

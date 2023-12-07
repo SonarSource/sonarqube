@@ -22,17 +22,16 @@ package org.sonar.server.v2.api.model;
 import com.google.common.annotations.VisibleForTesting;
 import io.swagger.v3.oas.annotations.media.Schema;
 import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 import org.jetbrains.annotations.Nullable;
 
 public record RestPage(
-  @Min(0)
+  @PositiveOrZero
   @Max(500)
   @Schema(defaultValue = DEFAULT_PAGE_SIZE, description = "Number of results per page. A value of 0 will only return the pagination information.")
   Integer pageSize,
 
-  @Positive
+  @PositiveOrZero
   @Schema(defaultValue = DEFAULT_PAGE_INDEX, description = "1-based page index")
   Integer pageIndex
 ) {

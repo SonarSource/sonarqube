@@ -102,7 +102,7 @@ public abstract class GenericApplicationHttpClient implements ApplicationHttpCli
   }
 
   @Override
-  public Response post(String appUrl, AccessToken token, String endPoint) throws IOException {
+  public Response post(String appUrl, @Nullable AccessToken token, String endPoint) throws IOException {
     return doPost(appUrl, token, endPoint, new FormBody.Builder().build());
   }
 
