@@ -32,6 +32,7 @@ public class WebApiEndpoints {
   public static final String GROUPS_ENDPOINT = AUTHORIZATIONS_DOMAIN + "/groups";
   public static final String GROUP_MEMBERSHIPS_ENDPOINT = AUTHORIZATIONS_DOMAIN + "/group-memberships";
 
+  public static final String DOP_TRANSLATION_DOMAIN = "/dop-translation";
   public static final String CLEAN_CODE_POLICY_DOMAIN = "/clean-code-policy";
   public static final String RULES_ENDPOINT = CLEAN_CODE_POLICY_DOMAIN + "/rules";
 
