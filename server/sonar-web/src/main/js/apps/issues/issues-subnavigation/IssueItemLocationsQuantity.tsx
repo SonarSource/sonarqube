@@ -20,7 +20,7 @@
 import { ExecutionFlowIcon } from 'design-system';
 import * as React from 'react';
 import { translate } from '../../../helpers/l10n';
-import { Issue } from '../../../types/types';
+import { FlowType, Issue } from '../../../types/types';
 
 interface Props {
   issue: Pick<Issue, 'flows' | 'flowsWithType' | 'secondaryLocations'>;
@@ -50,7 +50,11 @@ function getLocationsText(issue: Props['issue']) {
   } else if (flows.length > 1) {
     return { quantity: flows.length, message: translate('issues.execution_flows') };
   } else if (flowsWithType.length > 1) {
-    return { quantity: flowsWithType.length, message: translate('issues.execution_flows') };
+    const dataFlows = flowsWithType.filter(({ type }) => type === FlowType.DATA);
+    return {
+      quantity: dataFlows.length,
+      message: translate(dataFlows.length > 1 ? 'issues.data_flows' : 'issues.data_flow'),
+    };
   } else if (secondaryLocations.length === 1) {
     return { quantity: secondaryLocations.length, message: translate('issues.location') };
   } else if (secondaryLocations.length > 1) {

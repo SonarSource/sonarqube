@@ -93,8 +93,8 @@ describe('issue app', () => {
     const dataFlowButton = await screen.findByRole('button', {
       name: 'issue.flow.x_steps.2 Backtracking 1',
     });
-    const exectionFlowButton = screen.getByRole('button', {
-      name: 'issue.flow.x_steps.3 issue.full_execution_flow',
+    const exectionFlowButton = screen.getByRole('link', {
+      name: 'issue.show_full_execution_flow.3',
     });
 
     let dataLocation1Button = screen.getByLabelText('Data location 1');

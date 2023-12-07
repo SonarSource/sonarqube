@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { ExecutionFlowAccordion, SubnavigationFlowSeparator } from 'design-system';
-import React, { useCallback, useRef } from 'react';
+import { DiscreetLink, ExecutionFlowAccordion, SubnavigationFlowSeparator } from 'design-system';
+import React, { Fragment, useCallback, useRef } from 'react';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { Flow, FlowType, Issue } from '../../../types/types';
 import { getLocations } from '../utils';
@@ -98,32 +98,56 @@ export default function IssueLocationsNavigator(props: Props) {
       <>
         <div className="sw-flex sw-flex-col sw-gap-4 sw-mt-4">
           {flows.map((flow, index) => (
-            <ExecutionFlowAccordion
-              expanded={index === selectedFlowIndex}
-              header={
-                <span>
-                  <strong>
-                    {flow.locations.length > 1
-                      ? translateWithParameters('issue.flow.x_steps', flow.locations.length)
-                      : translate('issue.flow.1_step')}
-                  </strong>{' '}
-                  {getExecutionFlowLabel(flow, hasFlowsWithType)}
-                </span>
-              }
-              id={`${issue.key}-flow-${index}`}
-              innerRef={(n) => (accordionElement.current = n)}
-              key={`${issue.key}-flow-${index}`}
-              onClick={() => {
-                handleAccordionClick(index);
-              }}
-            >
-              <IssueLocations
-                issue={issue}
-                locations={flow.locations}
-                onLocationSelect={onLocationSelect}
-                selectedLocationIndex={selectedLocationIndex}
-              />
-            </ExecutionFlowAccordion>
+            <Fragment key={`${issue.key}-flow-${index}`}>
+              <ExecutionFlowAccordion
+                expanded={index === selectedFlowIndex}
+                header={
+                  <span>
+                    <strong>
+                      {flow.locations.length > 1
+                        ? translateWithParameters('issue.flow.x_steps', flow.locations.length)
+                        : translate('issue.flow.1_step')}
+                    </strong>{' '}
+                    {getExecutionFlowLabel(flow, hasFlowsWithType)}
+                  </span>
+                }
+                hidden={
+                  index !== selectedFlowIndex &&
+                  flow.type === FlowType.EXECUTION &&
+                  hasFlowsWithType
+                }
+                id={`${issue.key}-flow-${index}`}
+                innerRef={(n) => (accordionElement.current = n)}
+                onClick={() => {
+                  handleAccordionClick(index);
+                }}
+              >
+                <IssueLocations
+                  issue={issue}
+                  locations={flow.locations}
+                  onLocationSelect={onLocationSelect}
+                  selectedLocationIndex={selectedLocationIndex}
+                />
+              </ExecutionFlowAccordion>
+              {index !== selectedFlowIndex &&
+                flow.type === FlowType.EXECUTION &&
+                hasFlowsWithType && (
+                  <div>
+                    <DiscreetLink
+                      onClick={() => {
+                        handleAccordionClick(index);
+                      }}
+                      preventDefault
+                      to="{{}}"
+                    >
+                      {translateWithParameters(
+                        'issue.show_full_execution_flow',
+                        flow.locations.length,
+                      )}
+                    </DiscreetLink>
+                  </div>
+                )}
+            </Fragment>
           ))}
         </div>
         <IssueLocationsNavigatorKeyboardHint showLeftRightHint />
@@ -135,10 +159,8 @@ export default function IssueLocationsNavigator(props: Props) {
 }
 
 function getExecutionFlowLabel(flow: Flow, hasFlowsWithType: boolean) {
-  if (hasFlowsWithType) {
-    return flow.type === FlowType.EXECUTION
-      ? translate('issue.full_execution_flow')
-      : flow.description;
+  if (hasFlowsWithType && flow.type !== FlowType.EXECUTION) {
+    return flow.description;
   }
 
   return translate('issues.execution_flow');

@@ -29,19 +29,21 @@ interface Props {
   children: ReactNode;
   expanded?: boolean;
   header: ReactNode;
+  hidden?: boolean;
   id: string;
   innerRef?: (node: HTMLDivElement) => void;
   onClick?: () => void;
 }
 
 export function ExecutionFlowAccordion(props: Props) {
-  const { children, expanded, header, id, innerRef, onClick } = props;
+  const { children, expanded, header, hidden, id, innerRef, onClick } = props;
 
   return (
-    <Accordion className={classNames({ expanded })} ref={innerRef}>
+    <Accordion className={classNames({ expanded, 'sw-hidden': hidden })} ref={innerRef}>
       <Expander
         aria-controls={`${id}-flow-accordion`}
         aria-expanded={expanded}
+        aria-hidden={hidden}
         id={`${id}-flow-accordion-button`}
         onClick={onClick}
       >
