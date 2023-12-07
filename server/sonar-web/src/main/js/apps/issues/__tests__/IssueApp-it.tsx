@@ -136,7 +136,7 @@ describe('issue app', () => {
 
     // Flow navigation
     await user.keyboard('{Alt>}{ArrowRight}{/Alt}');
-    expect(screen.getByLabelText('Execution location 1')).toHaveAttribute('aria-current', 'true');
+    expect(screen.getByLabelText('Execution location 3')).toHaveAttribute('aria-current', 'true');
     await user.keyboard('{Alt>}{ArrowLeft}{/Alt}');
     expect(screen.getByLabelText('Data location 1')).toHaveAttribute('aria-current', 'true');
   });

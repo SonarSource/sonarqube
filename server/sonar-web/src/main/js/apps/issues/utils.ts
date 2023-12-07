@@ -48,7 +48,7 @@ import {
 } from '../../types/issues';
 import { MetricType } from '../../types/metrics';
 import { SecurityStandard } from '../../types/security';
-import { Dict, Issue, Paging, RawQuery } from '../../types/types';
+import { Dict, Flow, FlowType, Issue, Paging, RawQuery } from '../../types/types';
 import { RestUser } from '../../types/users';
 
 const OWASP_ASVS_4_0 = 'owaspAsvs-4.0';
@@ -291,6 +291,14 @@ export const isMySet = () => {
 export const saveMyIssues = (myIssues: boolean) =>
   save(ISSUES_DEFAULT, myIssues ? LOCALSTORAGE_MY : LOCALSTORAGE_ALL);
 
+export function getTypedFlows(flows: Flow[]) {
+  return flows.map((flow) => ({
+    ...flow,
+    locations:
+      flow.type === FlowType.EXECUTION ? [...(flow.locations ?? [])].reverse() : flow.locations,
+  }));
+}
+
 export function getLocations(
   {
     flows,
@@ -301,9 +309,20 @@ export function getLocations(
 ) {
   if (secondaryLocations.length > 0) {
     return secondaryLocations;
-  } else if (selectedFlowIndex !== undefined) {
-    return flows[selectedFlowIndex] || flowsWithType[selectedFlowIndex]?.locations || [];
   }
+
+  if (selectedFlowIndex !== undefined) {
+    if (flows[selectedFlowIndex] !== undefined) {
+      return flows[selectedFlowIndex];
+    }
+
+    if (flowsWithType[selectedFlowIndex] !== undefined) {
+      return getTypedFlows(flowsWithType)[selectedFlowIndex].locations || [];
+    }
+
+    return [];
+  }
+
   return [];
 }
 

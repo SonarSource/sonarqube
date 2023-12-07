@@ -21,7 +21,7 @@ import { DiscreetLink, ExecutionFlowAccordion, SubnavigationFlowSeparator } from
 import React, { Fragment, useCallback, useRef } from 'react';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { Flow, FlowType, Issue } from '../../../types/types';
-import { getLocations } from '../utils';
+import { getLocations, getTypedFlows } from '../utils';
 import IssueLocations from './IssueLocations';
 import IssueLocationsNavigatorKeyboardHint from './IssueLocationsNavigatorKeyboardHint';
 
@@ -90,7 +90,7 @@ export default function IssueLocationsNavigator(props: Props) {
 
   const hasFlowsWithType = issue.flowsWithType.length > 0;
   const flows = hasFlowsWithType
-    ? issue.flowsWithType
+    ? getTypedFlows(issue.flowsWithType)
     : issue.flows.map((locations) => ({ type: FlowType.EXECUTION, locations }));
 
   if (flows.length > 0) {
