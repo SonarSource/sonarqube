@@ -26,6 +26,7 @@ import org.sonar.server.common.rule.ReactivationException;
 import org.sonar.server.common.rule.service.NewCustomRule;
 import org.sonar.server.common.rule.service.RuleInformation;
 import org.sonar.server.common.rule.service.RuleService;
+import org.sonar.server.exceptions.ServerException;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.v2.api.rule.converter.RuleRestResponseGenerator;
 import org.sonar.server.v2.api.rule.enums.RuleStatusRestEnum;
@@ -33,7 +34,6 @@ import org.sonar.server.v2.api.rule.request.RuleCreateRestRequest;
 import org.sonar.server.v2.api.rule.resource.Impact;
 import org.sonar.server.v2.api.rule.response.RuleRestResponse;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.server.ResponseStatusException;
 
 import static java.util.Optional.ofNullable;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER_QUALITY_PROFILES;
@@ -58,7 +58,7 @@ public class DefaultRuleController implements RuleController {
       RuleInformation ruleInformation = ruleService.createCustomRule(toNewCustomRule(request));
       return ruleRestResponseGenerator.toRuleRestResponse(ruleInformation);
     } catch (ReactivationException e) {
-      throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage(), e);
+      throw new ServerException(HttpStatus.CONFLICT.value(), e.getMessage());
     }
   }
 

@@ -131,6 +131,9 @@ public class RuleCreator {
     validateName(errors, newRule);
     validateDescription(errors, newRule);
 
+    if (newRule.status() == RuleStatus.REMOVED) {
+      errors.add(format("Rule status '%s' is not allowed", RuleStatus.REMOVED));
+    }
     String severity = newRule.severity();
     if (severity != null && !Severity.ALL.contains(severity)) {
       errors.add(format("Severity \"%s\" is invalid", severity));

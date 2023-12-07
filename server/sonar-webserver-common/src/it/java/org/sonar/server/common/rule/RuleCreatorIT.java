@@ -55,6 +55,7 @@ import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.rule.index.RuleQuery;
 
 import static java.util.Collections.singletonList;
+import static java.util.Objects.requireNonNull;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -66,6 +67,8 @@ import static org.sonar.api.issue.impact.Severity.MEDIUM;
 import static org.sonar.api.issue.impact.SoftwareQuality.MAINTAINABILITY;
 import static org.sonar.api.issue.impact.SoftwareQuality.RELIABILITY;
 import static org.sonar.api.issue.impact.SoftwareQuality.SECURITY;
+import static org.sonar.api.server.rule.internal.ImpactMapper.convertToImpactSeverity;
+import static org.sonar.api.server.rule.internal.ImpactMapper.convertToSoftwareQuality;
 import static org.sonar.db.rule.RuleTesting.newCustomRule;
 import static org.sonar.db.rule.RuleTesting.newRule;
 import static org.sonar.server.util.TypeValidationsTesting.newFullTypeValidations;
@@ -175,6 +178,26 @@ public class RuleCreatorIT {
   }
 
   @Test
+  public void create_whenFieldsNotSpecified_shouldSetDefaultValues() {
+    // insert template rule
+    RuleDto templateRule = createTemplateRule();
+    // Create custom rule
+    NewCustomRule newRule = NewCustomRule.createForCustomRule(CUSTOM_RULE_KEY, templateRule.getKey())
+      .setName("My custom")
+      .setMarkdownDescription("Some description");
+    RuleKey customRuleKey = underTest.create(dbSession, newRule).getKey();
+
+    RuleDto rule = dbTester.getDbClient().ruleDao().selectOrFailByKey(dbSession, customRuleKey);
+    assertThat(rule).isNotNull();
+    assertThat(rule.getStatus()).isEqualTo(RuleStatus.READY);
+    assertThat(rule.getSeverityString()).isEqualTo(Severity.MAJOR);
+    assertThat(rule.getCleanCodeAttribute()).isEqualTo(CleanCodeAttribute.CONVENTIONAL);
+    assertThat(rule.getDefaultImpacts()).extracting(ImpactDto::getSoftwareQuality, ImpactDto::getSeverity).containsExactly(tuple(
+      convertToSoftwareQuality(RuleType.valueOf(templateRule.getType())),
+      convertToImpactSeverity(requireNonNull(Severity.MAJOR))));
+  }
+
+  @Test
   public void create_whenImpactsAndTypeAreSet_shouldFail() {
     // insert template rule
     RuleDto templateRule = createTemplateRule();
@@ -225,6 +248,21 @@ public class RuleCreatorIT {
     assertThatThrownBy(() -> underTest.create(dbSession, newRule))
       .isInstanceOf(BadRequestException.class)
       .hasMessage("Custom and template keys must be in the same repository");
+  }
+
+  @Test
+  public void create_whenRuleStatusRemoved_shouldFail() {
+    // insert template rule
+    RuleDto templateRule = createTemplateRule();
+    // Create custom rule
+    NewCustomRule newRule = NewCustomRule.createForCustomRule(CUSTOM_RULE_KEY, templateRule.getKey())
+      .setName("My custom")
+      .setMarkdownDescription("Some description")
+      .setStatus(RuleStatus.REMOVED);
+
+    assertThatThrownBy(() -> underTest.create(dbSession, newRule))
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("Rule status 'REMOVED' is not allowed");
   }
 
   @Test
