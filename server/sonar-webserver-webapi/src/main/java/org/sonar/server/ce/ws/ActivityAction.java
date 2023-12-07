@@ -113,7 +113,8 @@ public class ActivityAction implements CeWsAction {
         new Change("8.8", "field \"logs\" is dropped"),
         new Change("10.0", "Remove deprecated field 'componentId'"),
         new Change("10.1", String.format("The use of module keys in parameter '%s' is removed", PARAM_COMPONENT)),
-        new Change("10.1", "Warnings field will be now be filled (it was always empty in the past).")
+        new Change("10.1", "Warnings field will be now be filled (it was always empty in the past)."),
+        new Change("10.4", "field \"infoMessages\" added to response")
       )
       .setSince("5.2");
 

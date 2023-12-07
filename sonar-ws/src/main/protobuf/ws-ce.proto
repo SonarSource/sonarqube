@@ -136,6 +136,7 @@ message Task {
   optional int32 warningCount = 26;
   repeated string warnings = 27;
   optional string nodeName = 28;
+  repeated string infoMessages = 29;
 }
 
 enum TaskStatus {

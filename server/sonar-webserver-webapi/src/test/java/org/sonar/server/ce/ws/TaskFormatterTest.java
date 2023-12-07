@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.IntStream;
 import javax.annotation.Nullable;
 import org.junit.Rule;
@@ -45,6 +46,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.ce.CeQueueTesting.makeInProgress;
 import static org.sonar.db.dismissmessage.MessageType.INFO;
+import static org.sonar.db.dismissmessage.MessageType.PROJECT_NCD_PAGE_90;
 
 public class TaskFormatterTest {
 
@@ -186,6 +188,7 @@ public class TaskFormatterTest {
     assertThat(wsTask.hasScannerContext()).isFalse();
     assertThat(wsTask.getWarningCount()).isZero();
     assertThat(wsTask.getWarningsList()).isEmpty();
+    assertThat(wsTask.getInfoMessagesList()).isEmpty();
   }
 
   @Test
@@ -200,7 +203,7 @@ public class TaskFormatterTest {
   }
 
   @Test
-  public void formatActivity_filterNonWarnings_andSetMessagesAndCount() {
+  public void formatActivity_filterWarnings_andSetWarningsAndCount() {
     TestActivityDto dto = newActivity("UUID", "COMPONENT_UUID", CeActivityDto.Status.FAILED, null);
     CeTaskMessageDto warning1 = createCeTaskMessageDto(1998, MessageType.GENERIC);
     CeTaskMessageDto warning2 = createCeTaskMessageDto(1999, MessageType.GENERIC);
@@ -214,6 +217,24 @@ public class TaskFormatterTest {
 
     assertThat(wsTask.getWarningCount()).isEqualTo(2);
     assertThat(wsTask.getWarningsList()).hasSameElementsAs(getMessagesText(List.of(warning1, warning2)));
+  }
+
+  @Test
+  public void formatActivity_filterInformation_andSetInformationMessages() {
+    TestActivityDto dto = newActivity("UUID", "COMPONENT_UUID", CeActivityDto.Status.FAILED, null);
+    CeTaskMessageDto nonInfo1 = createCeTaskMessageDto(1998, MessageType.SUGGEST_DEVELOPER_EDITION_UPGRADE);
+    CeTaskMessageDto nonInfo2 = createCeTaskMessageDto(1999, MessageType.GENERIC);
+    CeTaskMessageDto nonInfo3 = createCeTaskMessageDto(2000, MessageType.BRANCH_NCD_90);
+    CeTaskMessageDto info2 = createCeTaskMessageDto(2002, INFO);
+    CeTaskMessageDto info1 = createCeTaskMessageDto(2001, INFO);
+
+    List<CeTaskMessageDto> ceTaskMessageDtos = new ArrayList<>(dto.getCeTaskMessageDtos());
+    ceTaskMessageDtos.addAll(Set.of(nonInfo1, nonInfo2, nonInfo3, info1, info2));
+    dto.setCeTaskMessageDtos(ceTaskMessageDtos);
+
+    Ce.Task wsTask = underTest.formatActivity(db.getSession(), dto, null);
+
+    assertThat(wsTask.getInfoMessagesList()).hasSameElementsAs(getMessagesText(List.of(info1, info2)));
   }
 
   private static List<String> getMessagesText(List<CeTaskMessageDto> ceTaskMessageDtos) {
@@ -282,7 +303,7 @@ public class TaskFormatterTest {
     TestActivityDto testActivityDto = new TestActivityDto(queueDto);
 
     List<CeTaskMessageDto> ceTaskMessageDtos = IntStream.range(0, WARNING_COUNT)
-      .mapToObj(i -> createCeTaskMessageDto(i, INFO))
+      .mapToObj(i -> createCeTaskMessageDto(i, PROJECT_NCD_PAGE_90))
       .toList();
     testActivityDto.setCeTaskMessageDtos(ceTaskMessageDtos);
     return (TestActivityDto) testActivityDto

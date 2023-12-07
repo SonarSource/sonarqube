@@ -19,6 +19,10 @@
       "warnings": [
         "The properties \u0027sonar.login\u0027 and \u0027sonar.password\u0027 are deprecated and will be removed in the future. Please pass a token with the \u0027sonar.token\u0027 property instead.",
         "Missing blame information for 2 files. This may lead to some features not working correctly. Please check the analysis logs and refer to \u003ca href\u003d\"https://docs.sonarsource.com/sonarqube/latest/analyzing-source-code/scm-integration/\" rel\u003d\"noopener noreferrer\" target\u003d\"_blank\"\u003ethe documentation\u003c/a\u003e."
+      ] ,
+      "infoMessages": [
+        "Successfully synchronized 5 users.",
+        "Other information message"
       ]
     },
     {

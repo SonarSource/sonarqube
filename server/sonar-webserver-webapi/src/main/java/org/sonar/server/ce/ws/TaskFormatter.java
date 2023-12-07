@@ -21,6 +21,7 @@ package org.sonar.server.ce.ws;
 
 import com.google.common.collect.Multimap;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -41,6 +42,7 @@ import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.ce.CeTaskCharacteristicDto;
 import org.sonar.db.ce.CeTaskMessageDto;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.dismissmessage.MessageType;
 import org.sonar.db.user.UserDto;
 import org.sonarqube.ws.Ce;
 import org.sonarqube.ws.Common;
@@ -129,6 +131,9 @@ public class TaskFormatter {
     builder.setWarningCount(warnings.size());
     warnings.forEach(builder::addWarnings);
 
+    List<String> infoMessages = extractInfoMessages(activityDto);
+    builder.addAllInfoMessages(infoMessages);
+
     return builder.build();
   }
 
@@ -164,6 +169,14 @@ public class TaskFormatter {
   private static List<String> extractWarningMessages(CeActivityDto dto) {
     return dto.getCeTaskMessageDtos().stream()
       .filter(ceTaskMessageDto -> ceTaskMessageDto.getType().isWarning())
+      .map(CeTaskMessageDto::getMessage)
+      .toList();
+  }
+
+  private static List<String> extractInfoMessages(CeActivityDto activityDto) {
+    return activityDto.getCeTaskMessageDtos().stream()
+      .filter(ceTaskMessageDto -> MessageType.INFO.equals(ceTaskMessageDto.getType()))
+      .sorted(Comparator.comparing(CeTaskMessageDto::getCreatedAt))
       .map(CeTaskMessageDto::getMessage)
       .toList();
   }

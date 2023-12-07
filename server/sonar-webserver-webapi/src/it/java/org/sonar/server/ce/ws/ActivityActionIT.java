@@ -250,9 +250,9 @@ public class ActivityActionIT {
     insertActivity("T1", project1, SUCCESS);
     insertActivity("T2", project2, FAILED);
     insertQueue("T3", project1, IN_PROGRESS);
-    List<String> messagesT1 = insertMessages("T1", 2);
-    List<String> messagesT2 = insertMessages("T2", 1);
-    insertMessages("T3", 5);
+    List<String> messagesT1 = insertMessages(MessageType.GENERIC,"T1", 2);
+    List<String> messagesT2 = insertMessages(MessageType.GENERIC,"T2", 1);
+    insertMessages(MessageType.GENERIC,"T3", 5);
 
     ActivityResponse activityResponse = call(ws.newRequest()
       .setParam(Param.PAGE_SIZE, Integer.toString(10))
@@ -262,13 +262,33 @@ public class ActivityActionIT {
       .containsOnly(tuple("T1", messagesT1.size(), messagesT1), tuple("T2", messagesT2.size(), messagesT2), tuple("T3", 0, emptyList()));
   }
 
-  private List<String> insertMessages(String taskUuid, int messageCount) {
+  @Test
+  public void return_infoMessages() {
+    logInAsSystemAdministrator();
+    ProjectData project1 = db.components().insertPrivateProject();
+    ProjectData project2 = db.components().insertPrivateProject();
+    insertActivity("T1", project1, SUCCESS);
+    insertActivity("T2", project2, FAILED);
+    insertQueue("T3", project1, IN_PROGRESS);
+    List<String> messagesT1 = insertMessages(MessageType.INFO,"T1", 2);
+    List<String> messagesT2 = insertMessages(MessageType.INFO,"T2", 1);
+    insertMessages(MessageType.INFO,"T3", 5);
+
+    ActivityResponse activityResponse = call(ws.newRequest()
+      .setParam(Param.PAGE_SIZE, Integer.toString(10))
+      .setParam(PARAM_STATUS, "SUCCESS,FAILED,CANCELED,IN_PROGRESS,PENDING"));
+    assertThat(activityResponse.getTasksList())
+      .extracting(Task::getId, Task::getInfoMessagesList)
+      .containsOnly(tuple("T1",  messagesT1), tuple("T2",  messagesT2), tuple("T3",  emptyList()));
+  }
+
+  private List<String> insertMessages(MessageType messageType, String taskUuid, int messageCount) {
     List<CeTaskMessageDto> ceTaskMessageDtos = IntStream.range(0, messageCount)
       .mapToObj(i -> new CeTaskMessageDto()
         .setUuid("uuid_" + taskUuid + "_" + i)
         .setTaskUuid(taskUuid)
         .setMessage("m_" + taskUuid + "_" + i)
-        .setType(MessageType.GENERIC)
+        .setType(messageType)
         .setCreatedAt(taskUuid.hashCode() + i))
       .toList();
 
