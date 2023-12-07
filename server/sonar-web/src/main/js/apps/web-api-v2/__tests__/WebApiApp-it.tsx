@@ -162,8 +162,11 @@ it('should navigate between apis', async () => {
   await user.click(ui.queryParameter.byRole('button').getAt(0));
   expect(ui.queryParameter.getAt(0)).not.toHaveTextContent('default: available');
 
-  await user.click(ui.apiSidebarItem.getAt(5));
+  await user.click(ui.apiSidebarItem.getAt(4));
   expect(await screen.findByText('/api/v3/pet/{petId}')).toBeInTheDocument();
+  expect(
+    await screen.findByText('Updates a pet in the store with form data', { selector: 'h1' }),
+  ).toBeInTheDocument();
   expect(ui.queryParameter.getAll()).toHaveLength(2);
   expect(ui.pathParameter.getAll()).toHaveLength(1);
   expect(ui.requestHeader.query()).not.toBeInTheDocument();

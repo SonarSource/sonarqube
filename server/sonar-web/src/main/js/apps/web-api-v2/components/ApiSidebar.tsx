@@ -20,18 +20,22 @@
 import classNames from 'classnames';
 import {
   Badge,
+  BasicSeparator,
   Checkbox,
   HelperHintIcon,
   InputSearch,
   Link,
   SubnavigationAccordion,
   SubnavigationItem,
+  SubnavigationSubheading,
 } from 'design-system';
+import { sortBy } from 'lodash';
 import { OpenAPIV3 } from 'openapi-types';
-import React, { useMemo, useState } from 'react';
+import React, { Fragment, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import HelpTooltip from '../../../components/controls/HelpTooltip';
 import { translate } from '../../../helpers/l10n';
+import { Dict } from '../../../types/types';
 import { URL_DIVIDER, getApiEndpointKey, getMethodClassName } from '../utils';
 
 interface Api {
@@ -43,6 +47,13 @@ interface Props {
   docInfo: OpenAPIV3.InfoObject;
   apisList: Api[];
 }
+
+const METHOD_ORDER: Dict<number> = {
+  post: 0,
+  get: 1,
+  patch: 2,
+  delete: 3,
+};
 
 export default function ApiSidebar({ apisList, docInfo }: Readonly<Props>) {
   const [search, setSearch] = useState('');
@@ -112,38 +123,62 @@ export default function ApiSidebar({ apisList, docInfo }: Readonly<Props>) {
           key={group}
           id={`web-api-${group}`}
         >
-          {apis.map(({ method, name, info }) => (
-            <SubnavigationItem
-              active={name === activeApi[0] && method === activeApi[1]}
-              key={getApiEndpointKey(name, method)}
-              onClick={handleApiClick}
-              value={getApiEndpointKey(name, method)}
-            >
-              <div className="sw-flex sw-gap-2">
-                <Badge className={classNames('sw-self-center', getMethodClassName(method))}>
-                  {method.toUpperCase()}
-                </Badge>
-                <div>{info.summary ?? name}</div>
+          {sortBy(apis, (a) => [a.name, METHOD_ORDER[a.method]]).map(
+            ({ method, name, info }, index, sorted) => {
+              const resourceName = getResourceFromName(name);
+              const previousResourceName =
+                index > 0 ? getResourceFromName(sorted[index - 1].name) : undefined;
+              const isNewResource = resourceName !== previousResourceName;
 
-                {(info['x-internal'] || info.deprecated) && (
-                  <div className="sw-flex sw-flex-col sw-justify-center sw-gap-2">
-                    {info['x-internal'] && (
-                      <Badge variant="new" className="sw-self-center">
-                        {translate('internal')}
+              return (
+                <Fragment key={getApiEndpointKey(name, method)}>
+                  {index > 0 && isNewResource && <BasicSeparator />}
+                  {(index === 0 || isNewResource) && (
+                    <SubnavigationSubheading>{resourceName}</SubnavigationSubheading>
+                  )}
+                  <SubnavigationItem
+                    active={name === activeApi[0] && method === activeApi[1]}
+                    onClick={handleApiClick}
+                    value={getApiEndpointKey(name, method)}
+                  >
+                    <div className="sw-flex sw-gap-2">
+                      <Badge className={classNames('sw-self-center', getMethodClassName(method))}>
+                        {method.toUpperCase()}
                       </Badge>
-                    )}
-                    {info.deprecated && (
-                      <Badge variant="deleted" className="sw-self-center">
-                        {translate('deprecated')}
-                      </Badge>
-                    )}
-                  </div>
-                )}
-              </div>
-            </SubnavigationItem>
-          ))}
+                      <div>{info.summary ?? name}</div>
+
+                      {(info['x-internal'] || info.deprecated) && (
+                        <div className="sw-flex sw-flex-col sw-justify-center sw-gap-2">
+                          {info['x-internal'] && (
+                            <Badge variant="new" className="sw-self-center">
+                              {translate('internal')}
+                            </Badge>
+                          )}
+                          {info.deprecated && (
+                            <Badge variant="deleted" className="sw-self-center">
+                              {translate('deprecated')}
+                            </Badge>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </SubnavigationItem>
+                </Fragment>
+              );
+            },
+          )}
         </SubnavigationAccordion>
       ))}
     </>
   );
+}
+
+function getResourceFromName(name: string) {
+  const parts = name.split('/').slice(2); // remove domain + pre-slash empty string
+
+  if (name.endsWith('}')) {
+    parts.pop(); // remove the resource id
+  }
+
+  return parts.join('/');
 }
