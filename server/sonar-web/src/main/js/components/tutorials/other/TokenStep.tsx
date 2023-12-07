@@ -17,6 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { keyframes } from '@emotion/react';
+import styled from '@emotion/styled';
 import {
   ButtonPrimary,
   ButtonSecondary,
@@ -30,10 +32,11 @@ import {
   LabelValueSelectOption,
   Link,
   Note,
-  RadioButton,
   Spinner,
+  ToggleButton,
   TrashIcon,
 } from 'design-system';
+import { ToggleButtonsOption } from 'design-system/lib/components/ToggleButton';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { SingleValue } from 'react-select';
@@ -202,81 +205,63 @@ export default class TokenStep extends React.PureComponent<Props, State> {
   };
 
   renderGenerateOption = () => {
-    const { loading, selection, tokens, tokenName, tokenExpiration, tokenExpirationOptions } =
-      this.state;
+    const { loading, tokenName, tokenExpiration, tokenExpirationOptions } = this.state;
     return (
-      <div>
-        {tokens !== undefined && tokens.length > 0 ? (
-          <RadioButton
-            checked={selection === TokenUse.GENERATE}
-            onCheck={this.handleModeChange}
-            value={TokenUse.GENERATE}
-          >
-            {translate('onboarding.token.generate', TokenType.Project)}
-          </RadioButton>
-        ) : (
-          translate('onboarding.token.generate', TokenType.Project)
-        )}
-        {selection === TokenUse.GENERATE && (
-          <div className="sw-mt-4">
-            <form className="sw-flex sw-items-center" onSubmit={this.handleTokenGenerate}>
-              <div className="sw-flex sw-flex-col">
-                <HighlightLabel className="sw-mb-2" htmlFor="generate-token-input">
-                  {translate('onboarding.token.name.label')}
-                  <DocumentationTooltip
-                    className="sw-ml-2"
-                    content={translate('onboarding.token.name.help')}
-                    links={[
-                      {
-                        href: '/user-guide/user-account/generating-and-using-tokens/',
-                        label: translate('learn_more'),
-                      },
-                    ]}
-                  >
-                    <HelperHintIcon />
-                  </DocumentationTooltip>
-                </HighlightLabel>
-                <InputField
-                  id="generate-token-input"
-                  autoFocus
-                  onChange={this.handleTokenNameChange}
-                  required
-                  size="large"
-                  type="text"
-                  value={tokenName ?? ''}
-                />
-              </div>
-              <div className="sw-flex sw-flex-col sw-ml-4">
-                <HighlightLabel className="sw-mb-2" htmlFor="token-select-expiration">
-                  {translate('users.tokens.expires_in')}
-                </HighlightLabel>
-                <div className="sw-flex sw-items-center">
-                  <InputSelect
-                    id="token-select-expiration"
-                    className="sw-w-abs-150 sw-mr-4"
-                    isSearchable={false}
-                    onChange={this.handleTokenExpirationChange}
-                    options={tokenExpirationOptions}
-                    size="full"
-                    value={tokenExpirationOptions.find(
-                      (option) => option.value === tokenExpiration,
-                    )}
-                  />
-
-                  <ButtonSecondary
-                    type="submit"
-                    disabled={!tokenName || loading}
-                    icon={<Spinner className="sw-mr-1" loading={loading} />}
-                  >
-                    {translate('onboarding.token.generate')}
-                  </ButtonSecondary>
-                </div>
-              </div>
-            </form>
-            <ProjectTokenScopeInfo className="width-50" />
+      <DivAnimated className="sw-mt-4">
+        <form className="sw-flex sw-items-center" onSubmit={this.handleTokenGenerate}>
+          <div className="sw-flex sw-flex-col">
+            <HighlightLabel className="sw-mb-2" htmlFor="generate-token-input">
+              {translate('onboarding.token.name.label')}
+              <DocumentationTooltip
+                className="sw-ml-2"
+                content={translate('onboarding.token.name.help')}
+                links={[
+                  {
+                    href: '/user-guide/user-account/generating-and-using-tokens/',
+                    label: translate('learn_more'),
+                  },
+                ]}
+              >
+                <HelperHintIcon />
+              </DocumentationTooltip>
+            </HighlightLabel>
+            <InputField
+              id="generate-token-input"
+              autoFocus
+              onChange={this.handleTokenNameChange}
+              required
+              size="large"
+              type="text"
+              value={tokenName ?? ''}
+            />
           </div>
-        )}
-      </div>
+          <div className="sw-flex sw-flex-col sw-ml-4">
+            <HighlightLabel className="sw-mb-2" htmlFor="token-select-expiration">
+              {translate('users.tokens.expires_in')}
+            </HighlightLabel>
+            <div className="sw-flex sw-items-center">
+              <InputSelect
+                id="token-select-expiration"
+                className="sw-w-abs-150 sw-mr-4"
+                isSearchable={false}
+                onChange={this.handleTokenExpirationChange}
+                options={tokenExpirationOptions}
+                size="full"
+                value={tokenExpirationOptions.find((option) => option.value === tokenExpiration)}
+              />
+
+              <ButtonSecondary
+                type="submit"
+                disabled={!tokenName || loading}
+                icon={<Spinner className="sw-mr-1" loading={loading} />}
+              >
+                {translate('onboarding.token.generate')}
+              </ButtonSecondary>
+            </div>
+          </div>
+        </form>
+        <ProjectTokenScopeInfo className="sw-mt-6 sw-w-1/2" />
+      </DivAnimated>
     );
   };
 
@@ -285,14 +270,7 @@ export default class TokenStep extends React.PureComponent<Props, State> {
     const validInput = !existingToken || TOKEN_FORMAT_REGEX.exec(existingToken) != null;
 
     return (
-      <div className="sw-mt-4">
-        <RadioButton
-          checked={this.state.selection === TokenUse.EXISTING}
-          onCheck={this.handleModeChange}
-          value={TokenUse.EXISTING}
-        >
-          {translate('onboarding.token.use_existing_token')}
-        </RadioButton>
+      <DivAnimated className="sw-mt-4">
         {this.state.selection === TokenUse.EXISTING && (
           <div className="sw-flex sw-flex-col sw-mt-4">
             <HighlightLabel className="sw-mb-2" htmlFor="existing-token-input">
@@ -327,13 +305,25 @@ export default class TokenStep extends React.PureComponent<Props, State> {
             )}
           </div>
         )}
-      </div>
+      </DivAnimated>
     );
   };
 
   renderForm = () => {
-    const { loading, token, tokenName, tokens } = this.state;
+    const { loading, selection, token, tokenName, tokens } = this.state;
     const canUseExisting = tokens !== undefined && tokens.length > 0;
+
+    const modeOptions: Array<ToggleButtonsOption<string>> = [
+      {
+        label: translate('onboarding.token.generate', TokenType.Project),
+        value: TokenUse.GENERATE,
+      },
+      {
+        label: translate('onboarding.token.use_existing_token'),
+        value: TokenUse.EXISTING,
+        disabled: !canUseExisting,
+      },
+    ];
 
     return (
       <div className="sw-p-4">
@@ -356,8 +346,15 @@ export default class TokenStep extends React.PureComponent<Props, State> {
           </form>
         ) : (
           <div>
-            {this.renderGenerateOption()}
-            {canUseExisting && this.renderUseExistingOption()}
+            <ToggleButton
+              onChange={this.handleModeChange}
+              options={modeOptions}
+              value={selection}
+            />
+            <div className="sw-ml-4">
+              {selection === TokenUse.GENERATE && this.renderGenerateOption()}
+              {selection === TokenUse.EXISTING && this.renderUseExistingOption()}
+            </div>
           </div>
         )}
 
@@ -424,3 +421,17 @@ export default class TokenStep extends React.PureComponent<Props, State> {
 // using 'as' doesn't dynamically change the allowed props
 // https://github.com/emotion-js/emotion/issues/2266
 const HighlightLabel = Highlight.withComponent('label');
+
+const appearAnimation = keyframes`
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+`;
+
+const DivAnimated = styled.div`
+  animation: 0.3s ease-out ${appearAnimation};
+`;
