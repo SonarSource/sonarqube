@@ -24,6 +24,8 @@ import java.util.function.Function;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import javax.validation.valueextraction.UnwrapByDefault;
+import org.sonar.server.common.NonNullUpdatedValue;
+import org.sonar.server.common.UpdatedValue;
 
 @UnwrapByDefault
 public class UpdateField<T> {
@@ -64,6 +66,13 @@ public class UpdateField<T> {
       return withValue(mappingFunction.apply(value));
     }
     return undefined();
+  }
+
+  public UpdatedValue<T> toUpdatedValue() {
+    return isDefined ? UpdatedValue.withValue(value) : UpdatedValue.undefined();
+  }
+  public NonNullUpdatedValue<T> toNonNullUpdatedValue() {
+    return isDefined ? NonNullUpdatedValue.withValueOrThrow(value) : NonNullUpdatedValue.undefined();
   }
 
   @CheckForNull

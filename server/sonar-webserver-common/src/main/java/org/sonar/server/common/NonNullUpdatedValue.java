@@ -17,16 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.v2.api.controller;
+package org.sonar.server.common;
 
-import javax.validation.Valid;
-import org.sonar.server.v2.api.model.RestPage;
-import org.sonar.server.v2.api.request.RestSearchRequest;
-import org.sonar.server.v2.api.response.RestSearchResponse;
-import org.springdoc.api.annotations.ParameterObject;
+import javax.annotation.Nullable;
 
-public interface Searchable<T, U extends RestSearchRequest> {
+import static org.sonar.api.utils.Preconditions.checkArgument;
 
-  RestSearchResponse<T> searchGitlabConfiguration(@Valid @ParameterObject U searchRequest, @Valid @ParameterObject RestPage restPage);
+public class NonNullUpdatedValue<T> extends UpdatedValue<T> {
+
+  private NonNullUpdatedValue(@Nullable T value, boolean isDefined) {
+    super(value, isDefined);
+  }
+
+  public static <T> NonNullUpdatedValue<T> withValueOrThrow(@Nullable T value) {
+    checkArgument(value != null, "Value must not be null");
+    return new NonNullUpdatedValue<>(value, true);
+  }
+
+  public static <T> NonNullUpdatedValue<T> undefined() {
+    return new NonNullUpdatedValue<>(null, false);
+  }
 
 }
