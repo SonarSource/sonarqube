@@ -50,18 +50,18 @@ public class RemoveCleanCodeAttributeFromCustomHotspotRulesIT {
 
     underTest.execute();
 
-    List<Map<String, Object>> selectResult = db.select("select NAME, CLEAN_CODE_ATTRIBUTE, UPDATED_AT from RULES");
+    List<Map<String, Object>> selectResult = db.select("select name, clean_code_attribute, updated_at from rules");
 
     assertThat(selectResult)
-      .extracting(stringObjectMap -> stringObjectMap.get("NAME"), stringObjectMap -> stringObjectMap.get("CLEAN_CODE_ATTRIBUTE"))
+      .extracting(stringObjectMap -> stringObjectMap.get("name"), stringObjectMap -> stringObjectMap.get("clean_code_attribute"))
       .containsExactlyInAnyOrder(tuple("custom_hotspot_rule", null), tuple("other_rule", "ETHICAL"));
 
     Optional<Object> updatedAtForHotspotRule = selectResult.stream().filter(map -> map.containsValue("custom_hotspot_rule"))
-      .map(map -> map.get("UPDATED_AT")).findFirst();
+      .map(map -> map.get("updated_at")).findFirst();
     assertThat(updatedAtForHotspotRule.get()).isNotEqualTo(0L);
 
     Optional<Object> updatedAtForOtherRule = selectResult.stream().filter(map -> map.containsValue("other_rule"))
-      .map(map -> map.get("UPDATED_AT")).findFirst();
+      .map(map -> map.get("updated_at")).findFirst();
     assertThat(updatedAtForOtherRule).contains(0L);
   }
 
@@ -73,10 +73,10 @@ public class RemoveCleanCodeAttributeFromCustomHotspotRulesIT {
     underTest.execute();
     underTest.execute();
 
-    List<Map<String, Object>> selectResult = db.select("select NAME, CLEAN_CODE_ATTRIBUTE from RULES");
+    List<Map<String, Object>> selectResult = db.select("select name, clean_code_attribute from rules");
 
     assertThat(selectResult)
-      .extracting(stringObjectMap -> stringObjectMap.get("NAME"), stringObjectMap -> stringObjectMap.get("CLEAN_CODE_ATTRIBUTE"))
+      .extracting(stringObjectMap -> stringObjectMap.get("name"), stringObjectMap -> stringObjectMap.get("clean_code_attribute"))
       .containsExactlyInAnyOrder(tuple("custom_hotspot_rule", null), tuple("other_rule", "ETHICAL"));
   }
 
