@@ -19,7 +19,6 @@
  */
 import classNames from 'classnames';
 import * as React from 'react';
-import { useIntl } from 'react-intl';
 import { getLeakValue } from '../../../components/measure/utils';
 import { DEFAULT_ISSUES_QUERY } from '../../../components/shared/utils';
 import { getBranchLikeQuery } from '../../../helpers/branch-like';
@@ -42,13 +41,11 @@ interface Props {
   branchLike?: BranchLike;
   component: Component;
   measures: MeasureEnhanced[];
-  failedConditions: QualityGateStatusConditionEnhanced[];
+  conditions: QualityGateStatusConditionEnhanced[];
 }
 
 export default function MeasuresCardPanel(props: React.PropsWithChildren<Props>) {
-  const { branchLike, component, measures, failedConditions, className } = props;
-
-  const intl = useIntl();
+  const { branchLike, component, measures, conditions, className } = props;
 
   const newViolations = getLeakValue(findMeasure(measures, MetricKey.new_violations)) as string;
   const newSecurityHotspots = getLeakValue(
@@ -66,14 +63,8 @@ export default function MeasuresCardPanel(props: React.PropsWithChildren<Props>)
             ...DEFAULT_ISSUES_QUERY,
           })}
           value={newViolations}
-          failedConditions={failedConditions}
-          failingConditionMetric={MetricKey.new_violations}
-          requireLabel={intl.formatMessage(
-            { id: 'overview.quality_gate.require_fixing' },
-            {
-              count: newViolations,
-            },
-          )}
+          conditions={conditions}
+          conditionMetric={MetricKey.new_violations}
           guidingKeyOnError="overviewZeroNewIssuesSimplification"
         />
 
@@ -88,8 +79,8 @@ export default function MeasuresCardPanel(props: React.PropsWithChildren<Props>)
             branchLike,
             listView: true,
           })}
-          failedConditions={failedConditions}
-          failingConditionMetric={MetricKey.new_coverage}
+          conditions={conditions}
+          conditionMetric={MetricKey.new_coverage}
           newLinesMetric={MetricKey.new_lines_to_cover}
           afterMergeMetric={MetricKey.coverage}
           measures={measures}
@@ -107,14 +98,8 @@ export default function MeasuresCardPanel(props: React.PropsWithChildren<Props>)
             ...getBranchLikeQuery(branchLike),
           })}
           value={newSecurityHotspots}
-          failedConditions={failedConditions}
-          failingConditionMetric={MetricKey.new_security_hotspots_reviewed}
-          requireLabel={intl.formatMessage(
-            { id: 'overview.quality_gate.require_reviewing' },
-            {
-              count: newSecurityHotspots,
-            },
-          )}
+          conditions={conditions}
+          conditionMetric={MetricKey.new_security_hotspots_reviewed}
         />
 
         <MeasuresCardPercent
@@ -128,8 +113,8 @@ export default function MeasuresCardPanel(props: React.PropsWithChildren<Props>)
             branchLike,
             listView: true,
           })}
-          failedConditions={failedConditions}
-          failingConditionMetric={MetricKey.new_duplicated_lines_density}
+          conditions={conditions}
+          conditionMetric={MetricKey.new_duplicated_lines_density}
           newLinesMetric={MetricKey.new_lines}
           afterMergeMetric={MetricKey.duplicated_lines_density}
           measures={measures}

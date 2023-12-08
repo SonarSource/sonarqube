@@ -35,7 +35,7 @@ import { BranchLike } from '../../../types/branch-like';
 import { MetricKey, MetricType } from '../../../types/metrics';
 import { QualityGateStatusConditionEnhanced } from '../../../types/quality-gates';
 import { MeasureEnhanced } from '../../../types/types';
-import { MeasurementType, getMeasurementMetricKey } from '../utils';
+import { MeasurementType, Status, getMeasurementMetricKey } from '../utils';
 import MeasuresCard from './MeasuresCard';
 
 interface Props {
@@ -45,8 +45,8 @@ interface Props {
   label: string;
   url: To;
   measures: MeasureEnhanced[];
-  failedConditions: QualityGateStatusConditionEnhanced[];
-  failingConditionMetric: MetricKey;
+  conditions: QualityGateStatusConditionEnhanced[];
+  conditionMetric: MetricKey;
   newLinesMetric: MetricKey;
   afterMergeMetric: MetricKey;
 }
@@ -61,8 +61,8 @@ export default function MeasuresCardPercent(
     label,
     url,
     measures,
-    failedConditions,
-    failingConditionMetric,
+    conditions,
+    conditionMetric,
     newLinesMetric,
     afterMergeMetric,
   } = props;
@@ -87,27 +87,21 @@ export default function MeasuresCardPercent(
 
   const afterMergeValue = findMeasure(measures, afterMergeMetric)?.value;
 
-  const failedCondition = failedConditions.find(
-    (condition) => condition.metric === failingConditionMetric,
-  );
+  const condition = conditions.find((c) => c.metric === conditionMetric);
+  const conditionFailed = condition?.level === Status.ERROR;
 
-  let errorRequireLabel = '';
-  if (failedCondition) {
-    errorRequireLabel = intl.formatMessage(
+  const requireLabel =
+    condition &&
+    intl.formatMessage(
       { id: 'overview.quality_gate.required_x' },
       {
-        operator: failedCondition.op === 'GT' ? '≤' : '≥',
-        value: formatMeasure(
-          failedCondition.level === 'ERROR' ? failedCondition.error : failedCondition.warning,
-          MetricType.Percent,
-          {
-            decimals: 2,
-            omitExtraDecimalZeros: true,
-          },
-        ),
+        operator: condition.op === 'GT' ? '≤' : '≥',
+        value: formatMeasure(condition.error, MetricType.Percent, {
+          decimals: 2,
+          omitExtraDecimalZeros: true,
+        }),
       },
     );
-  }
 
   return (
     <MeasuresCard
@@ -115,11 +109,18 @@ export default function MeasuresCardPercent(
       metric={metricKey}
       url={url}
       label={label}
-      failed={Boolean(failedCondition)}
+      failed={conditionFailed}
       icon={renderIcon(measurementType, value)}
     >
-      <div className="sw-flex sw-flex-col">
-        <LightLabel className="sw-flex sw-items-center sw-gap-1">
+      <>
+        {requireLabel &&
+          (conditionFailed ? (
+            <TextError className="sw-mt-2 sw-font-regular" text={requireLabel} />
+          ) : (
+            <LightLabel className="sw-mt-2">{requireLabel}</LightLabel>
+          ))}
+
+        <LightLabel className="sw-flex sw-items-center sw-gap-1 sw-mt-4">
           <FormattedMessage
             defaultMessage={translate(newLinesLabel)}
             id={newLinesLabel}
@@ -152,11 +153,7 @@ export default function MeasuresCardPercent(
             />
           </LightLabel>
         )}
-
-        {failedCondition && (
-          <TextError className="sw-mt-2 sw-font-regular" text={errorRequireLabel} />
-        )}
-      </div>
+      </>
     </MeasuresCard>
   );
 }

@@ -18,8 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import styled from '@emotion/styled';
-import classNames from 'classnames';
-import { Card, ContentLink, PageContentFontWrapper, themeColor } from 'design-system';
+import { Badge, Card, ContentLink, themeColor } from 'design-system';
 import * as React from 'react';
 import { To } from 'react-router-dom';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
@@ -41,16 +40,11 @@ export default function MeasuresCard(
   const { failed, children, metric, icon, value, url, label, ...rest } = props;
 
   return (
-    <StyledCard
-      className={classNames(
-        'sw-h-fit sw-p-8 sw-rounded-2 sw-flex sw-justify-between sw-items-center sw-text-base',
-        {
-          failed,
-        },
-      )}
+    <Card
+      className="sw-h-fit sw-p-8 sw-rounded-2 sw-flex sw-justify-between sw-items-center sw-text-base"
       {...rest}
     >
-      <PageContentFontWrapper className="sw-flex sw-flex-col sw-gap-1 sw-justify-between">
+      <div className="sw-flex sw-flex-col sw-gap-1 sw-justify-between">
         <div className="sw-flex sw-items-center sw-gap-2 sw-font-semibold">
           {value ? (
             <ContentLink
@@ -68,21 +62,20 @@ export default function MeasuresCard(
             <StyledNoValue> — </StyledNoValue>
           )}
           {translate(label)}
+          {failed && (
+            <Badge className="sw-mt-1/2" variant="deleted">
+              {translate('overview.measures.failed_badge')}
+            </Badge>
+          )}
         </div>
         {children && <div className="sw-flex sw-flex-col">{children}</div>}
-      </PageContentFontWrapper>
+      </div>
 
       {icon && <div>{icon}</div>}
-    </StyledCard>
+    </Card>
   );
 }
 
 const StyledNoValue = styled.span`
   color: ${themeColor('pageTitle')};
-`;
-
-export const StyledCard = styled(Card)`
-  &.failed {
-    border-color: ${themeColor('qgCardFailed')};
-  }
 `;

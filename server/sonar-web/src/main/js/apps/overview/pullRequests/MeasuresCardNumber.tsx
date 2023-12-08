@@ -17,53 +17,65 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { TextError } from 'design-system';
+import { LightLabel, TextError } from 'design-system';
 import * as React from 'react';
+import { useIntl } from 'react-intl';
 import { To } from 'react-router-dom';
 import { formatMeasure } from '../../../helpers/measures';
 import { MetricKey, MetricType } from '../../../types/metrics';
 import { QualityGateStatusConditionEnhanced } from '../../../types/quality-gates';
+import { Status } from '../utils';
 import MeasuresCard from './MeasuresCard';
 
 interface Props {
-  failedConditions: QualityGateStatusConditionEnhanced[];
+  conditions: QualityGateStatusConditionEnhanced[];
   label: string;
   url: To;
   value: string;
-  failingConditionMetric: MetricKey;
-  requireLabel: string;
+  conditionMetric: MetricKey;
   guidingKeyOnError?: string;
 }
 
 export default function MeasuresCardNumber(
   props: React.PropsWithChildren<Props & React.HTMLAttributes<HTMLDivElement>>,
 ) {
-  const {
-    label,
-    value,
-    failedConditions,
-    url,
-    failingConditionMetric,
-    requireLabel,
-    guidingKeyOnError,
-    ...rest
-  } = props;
+  const { label, value, conditions, url, conditionMetric, guidingKeyOnError, ...rest } = props;
 
-  const failed = Boolean(
-    failedConditions.find((condition) => condition.metric === failingConditionMetric),
-  );
+  const intl = useIntl();
+
+  const condition = conditions.find((condition) => condition.metric === conditionMetric);
+
+  const conditionFailed = condition?.level === Status.ERROR;
+
+  const requireLabel =
+    condition &&
+    intl.formatMessage(
+      { id: 'overview.quality_gate.required_x' },
+      {
+        operator: condition.op === 'GT' ? '≤' : '≥',
+        value: formatMeasure(condition.error, MetricType.Percent, {
+          decimals: 2,
+          omitExtraDecimalZeros: true,
+        }),
+      },
+    );
 
   return (
     <MeasuresCard
       url={url}
       value={formatMeasure(value, MetricType.ShortInteger)}
-      metric={failingConditionMetric}
+      metric={conditionMetric}
       label={label}
-      failed={failed}
-      data-guiding-id={failed ? guidingKeyOnError : undefined}
+      failed={conditionFailed}
+      data-guiding-id={conditionFailed ? guidingKeyOnError : undefined}
       {...rest}
     >
-      {failed && <TextError className="sw-font-regular sw-mt-2" text={requireLabel} />}
+      {requireLabel &&
+        (conditionFailed ? (
+          <TextError className="sw-mt-2 sw-font-regular" text={requireLabel} />
+        ) : (
+          <LightLabel className="sw-mt-2">{requireLabel}</LightLabel>
+        ))}
     </MeasuresCard>
   );
 }

@@ -34,7 +34,7 @@ it('renders failed QG', () => {
 
   // Maintainability rating condition
   const maintainabilityRatingLink = byRole('link', {
-    name: 'overview.failed_condition.x_rating_requiredmetric_domain.Maintainability metric.type.ratingE A',
+    name: 'overview.measures.failed_badge overview.failed_condition.x_rating_requiredmetric_domain.Maintainability metric.type.ratingE A',
   }).get();
   expect(maintainabilityRatingLink).toBeInTheDocument();
   expect(maintainabilityRatingLink).toHaveAttribute(
@@ -44,7 +44,7 @@ it('renders failed QG', () => {
 
   // Security Hotspots rating condition
   const securityHotspotsRatingLink = byRole('link', {
-    name: 'overview.failed_condition.x_rating_requiredmetric_domain.Security Review metric.type.ratingE A',
+    name: 'overview.measures.failed_badge overview.failed_condition.x_rating_requiredmetric_domain.Security Review metric.type.ratingE A',
   }).get();
   expect(securityHotspotsRatingLink).toBeInTheDocument();
   expect(securityHotspotsRatingLink).toHaveAttribute(
@@ -54,7 +54,7 @@ it('renders failed QG', () => {
 
   // New code smells
   const codeSmellsLink = byRole('link', {
-    name: 'overview.failed_condition.x_required 5 Code Smells ≤ 1',
+    name: 'overview.measures.failed_badge overview.failed_condition.x_required 5 Code Smells ≤ 1',
   }).get();
   expect(codeSmellsLink).toBeInTheDocument();
   expect(codeSmellsLink).toHaveAttribute(
@@ -64,7 +64,7 @@ it('renders failed QG', () => {
 
   // Conditions to cover
   const conditionToCoverLink = byRole('link', {
-    name: 'overview.failed_condition.x_required 5 Conditions to cover ≥ 10',
+    name: 'overview.measures.failed_badge overview.failed_condition.x_required 5 Conditions to cover ≥ 10',
   }).get();
   expect(conditionToCoverLink).toBeInTheDocument();
   expect(conditionToCoverLink).toHaveAttribute(

@@ -180,12 +180,12 @@ it('should render correctly for a failed QG', async () => {
 
   expect(
     byRole('link', {
-      name: 'overview.failed_condition.x_required 10.0% duplicated_lines ≤ 1.0%',
+      name: 'overview.measures.failed_badge overview.failed_condition.x_required 10.0% duplicated_lines ≤ 1.0%',
     }).get(),
   ).toBeInTheDocument();
   expect(
     byRole('link', {
-      name: 'overview.failed_condition.x_required 10 new_bugs ≤ 3',
+      name: 'overview.measures.failed_badge overview.failed_condition.x_required 10 new_bugs ≤ 3',
     }).get(),
   ).toBeInTheDocument();
 });

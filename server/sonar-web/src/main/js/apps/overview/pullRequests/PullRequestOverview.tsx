@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { BasicSeparator, CenteredLayout, Spinner } from 'design-system';
+import { BasicSeparator, CenteredLayout, PageContentFontWrapper, Spinner } from 'design-system';
 import { uniq } from 'lodash';
 import * as React from 'react';
 import { useEffect, useState } from 'react';
@@ -29,13 +29,13 @@ import { isDefined } from '../../../helpers/types';
 import { useBranchStatusQuery } from '../../../queries/branch';
 import { PullRequest } from '../../../types/branch-like';
 import { Component, MeasureEnhanced, QualityGate } from '../../../types/types';
-import MeasuresCardPanel from '../branches/MeasuresCardPanel';
 import BranchQualityGate from '../components/BranchQualityGate';
 import IgnoredConditionWarning from '../components/IgnoredConditionWarning';
 import MetaTopBar from '../components/MetaTopBar';
 import ZeroNewIssuesSimplificationGuide from '../components/ZeroNewIssuesSimplificationGuide';
 import '../styles.css';
 import { PR_METRICS, Status } from '../utils';
+import MeasuresCardPanel from './MeasuresCardPanel';
 import SonarLintAd from './SonarLintAd';
 
 interface Props {
@@ -60,11 +60,8 @@ export default function PullRequestOverview(props: Props) {
 
     const metricKeys =
       conditions !== undefined
-        ? // Also load metrics that apply to failing QG conditions.
-          uniq([
-            ...PR_METRICS,
-            ...conditions.filter((c) => c.level !== Status.OK).map((c) => c.metric),
-          ])
+        ? // Also load metrics that apply to QG conditions.
+          uniq([...PR_METRICS, ...conditions.map((c) => c.metric)])
         : PR_METRICS;
 
     getMeasuresWithMetrics(component.key, metricKeys, getBranchLikeQuery(branchLike)).then(
@@ -108,14 +105,17 @@ export default function PullRequestOverview(props: Props) {
     return null;
   }
 
-  const failedConditions = conditions
-    .filter((condition) => condition.level === Status.ERROR)
+  const enhancedConditions = conditions
     .map((c) => enhanceConditionWithMeasure(c, measures))
     .filter(isDefined);
 
+  const failedConditions = enhancedConditions.filter(
+    (condition) => condition.level === Status.ERROR,
+  );
+
   return (
     <CenteredLayout>
-      <div className="it__pr-overview sw-mt-12 sw-mb-8 sw-grid sw-grid-cols-12">
+      <PageContentFontWrapper className="it__pr-overview sw-mt-12 sw-mb-8 sw-grid sw-grid-cols-12 sw-body-sm">
         <div className="sw-col-start-2 sw-col-span-10">
           <MetaTopBar branchLike={branchLike} measures={measures} />
           <BasicSeparator className="sw-my-4" />
@@ -135,7 +135,7 @@ export default function PullRequestOverview(props: Props) {
             className="sw-flex-1"
             branchLike={branchLike}
             component={component}
-            failedConditions={failedConditions}
+            conditions={enhancedConditions}
             measures={measures}
           />
 
@@ -143,7 +143,7 @@ export default function PullRequestOverview(props: Props) {
 
           <SonarLintAd status={status} />
         </div>
-      </div>
+      </PageContentFontWrapper>
     </CenteredLayout>
   );
 }
