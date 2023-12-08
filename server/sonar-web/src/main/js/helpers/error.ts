@@ -35,5 +35,11 @@ export function throwGlobalError(param: Response | any): Promise<Response | any>
       .then(() => Promise.reject(param));
   }
 
+  // Axios response object
+  if (param.data?.message) {
+    addGlobalErrorMessage(param.data?.message);
+    return Promise.reject(param);
+  }
+
   return Promise.reject(param);
 }

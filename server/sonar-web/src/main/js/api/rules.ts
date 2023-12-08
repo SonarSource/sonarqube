@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { HttpStatusCode } from 'axios';
 import { throwGlobalError } from '../helpers/error';
 import { axiosToCatch, getJSON, post, postJSON } from '../helpers/request';
 import { CleanCodeAttribute, SoftwareImpact } from '../types/clean-code-taxonomy';
@@ -79,7 +80,7 @@ export function createRule(data: CreateRuleData): Promise<RestRuleDetails> {
   return axiosToCatch.post<RuleDetails>(RULES_ENDPOINT, data).catch(({ response }) => {
     // do not show global error if the status code is 409
     // this case should be handled inside a component
-    if (response && response.status === 409) {
+    if (response && response.status === HttpStatusCode.Conflict) {
       return Promise.reject(response);
     }
     return throwGlobalError(response);
