@@ -65,9 +65,14 @@ public class CreateAction implements RulesWsAction {
   private static final String PARAM_CLEAN_CODE_ATTRIBUTE = "cleanCodeAttribute";
   public static final String PARAMS = "params";
 
-  public static final String PARAM_PREVENT_REACTIVATION = "preventReactivation";
   static final int KEY_MAXIMUM_LENGTH = 200;
   static final int NAME_MAXIMUM_LENGTH = 200;
+
+  /**
+   * @deprecated since 10.4
+   */
+  @Deprecated(since = "10.4")
+  private static final String PARAM_PREVENT_REACTIVATION = "preventReactivation";
 
   private final DbClient dbClient;
   private final RuleService ruleService;
@@ -96,7 +101,8 @@ public class CreateAction implements RulesWsAction {
         new Change("10.2", "Add 'impacts', 'cleanCodeAttribute', 'cleanCodeAttributeCategory' fields to the response"),
         new Change("10.2", "Fields 'type' and 'severity' are deprecated in the response. Use 'impacts' instead."),
         new Change("10.4", String.format("Add '%s' and '%s' parameters to the request", PARAM_IMPACTS, PARAM_CLEAN_CODE_ATTRIBUTE)),
-        new Change("10.4", String.format("Parameters '%s' and '%s' are deprecated. Use '%s' instead.", PARAM_TYPE, PARAM_SEVERITY, PARAM_IMPACTS)))
+        new Change("10.4", String.format("Parameters '%s' and '%s' are deprecated. Use '%s' instead.", PARAM_TYPE, PARAM_SEVERITY, PARAM_IMPACTS)),
+        new Change("10.4", String.format("Parameter '%s' is deprecated. Use api/rules/update endpoint instead.", PARAM_PREVENT_REACTIVATION)))
       .setHandler(this);
 
     action
@@ -146,6 +152,7 @@ public class CreateAction implements RulesWsAction {
 
     action
       .createParam(PARAM_PREVENT_REACTIVATION)
+      .setDeprecatedSince("10.4")
       .setBooleanPossibleValues()
       .setDefaultValue(false)
       .setDescription("If set to true and if the rule has been deactivated (status 'REMOVED'), a status 409 will be returned");

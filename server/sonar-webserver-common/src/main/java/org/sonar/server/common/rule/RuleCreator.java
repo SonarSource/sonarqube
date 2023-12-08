@@ -91,7 +91,7 @@ public class RuleCreator {
     validateCustomRule(newRule, dbSession, templateKey);
 
     Optional<RuleDto> definition = loadRule(dbSession, newRule.ruleKey());
-    RuleDto ruleDto = definition.map(d -> updateExistingRule(d, newRule, dbSession))
+    RuleDto ruleDto = definition.map(dto -> updateExistingRule(dto, newRule, dbSession))
       .orElseGet(() -> createCustomRule(newRule, templateRule, dbSession));
 
     ruleIndexer.commitAndIndex(dbSession, ruleDto.getUuid());

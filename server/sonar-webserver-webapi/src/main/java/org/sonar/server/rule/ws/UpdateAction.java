@@ -91,7 +91,8 @@ public class UpdateAction implements RulesWsAction {
       .setDescription("Update an existing rule.<br>" +
         "Requires the 'Administer Quality Profiles' permission")
       .setChangelog(
-        new Change("10.2", "The field 'severity' and 'type' in the response have been deprecated, use 'impacts' instead.")
+        new Change("10.2", "The field 'severity' and 'type' in the response have been deprecated, use 'impacts' instead."),
+        new Change("10.4", "Updating a removed rule is now possible.")
       )
       .setSince("4.4")
       .setChangelog(

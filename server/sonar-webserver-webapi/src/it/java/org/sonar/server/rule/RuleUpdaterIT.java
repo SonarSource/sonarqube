@@ -59,6 +59,7 @@ import org.sonar.server.rule.index.RuleQuery;
 import org.sonar.server.tester.UserSessionRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.api.rule.Severity.CRITICAL;
@@ -91,18 +92,19 @@ public class RuleUpdaterIT {
   private final RuleUpdater underTest = new RuleUpdater(db.getDbClient(), ruleIndexer, uuidFactory, system2);
 
   @Test
-  public void do_not_update_rule_with_removed_status() {
+  public void do_update_rule_with_removed_status() {
     db.rules().insert(newRule(RULE_KEY).setStatus(RuleStatus.REMOVED));
     dbSession.commit();
 
-    RuleUpdate update = createForPluginRule(RULE_KEY)
-      .setTags(Sets.newHashSet("java9"));
+    RuleUpdate update = createForCustomRule(RULE_KEY)
+      .setTags(Sets.newHashSet("java9"))
+      .setStatus(RuleStatus.READY);
 
-    assertThatThrownBy(() -> {
-      underTest.update(dbSession, update, userSessionRule);
-    })
-      .isInstanceOf(IllegalArgumentException.class)
-      .hasMessage("Rule with REMOVED status cannot be updated: java:S001");
+    assertThatNoException().isThrownBy(() -> underTest.update(dbSession, update, userSessionRule));
+    RuleDto rule = db.getDbClient().ruleDao().selectOrFailByKey(dbSession, RULE_KEY);
+
+    assertThat(rule.getTags()).containsOnly("java9");
+    assertThat(rule.getStatus()).isEqualTo(RuleStatus.READY);
   }
 
   @Test
