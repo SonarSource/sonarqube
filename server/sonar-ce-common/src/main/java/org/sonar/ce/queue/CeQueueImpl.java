@@ -91,6 +91,11 @@ public class CeQueueImpl implements CeQueue {
     return submit(submission, toSet(options));
   }
 
+  @Override
+  public Optional<CeTask> submit(DbSession dbSession, CeTaskSubmit submission, SubmitOption... options) {
+    return submit(dbSession, submission, toSet(options));
+  }
+
   private Optional<CeTask> submit(CeTaskSubmit submission, Set<SubmitOption> submitOptions) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       Optional<CeTask> ceTask = submit(dbSession, submission, submitOptions);

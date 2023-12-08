@@ -41,6 +41,7 @@ public class GitLabSettingsTest {
   private MapSettings settings;
   private GitLabSettings config;
 
+
   @Before
   public void prepare() {
     settings = new MapSettings(new PropertyDefinitions(System2.INSTANCE, GitLabSettings.definitions()));
@@ -92,13 +93,13 @@ public class GitLabSettingsTest {
 
   @Test
   public void isProvisioningEnabled_whenNotSet_returnsFalse() {
-    enableGithubAuthentication();
+    enableGitlabAuthentication();
     assertThat(config.isProvisioningEnabled()).isFalse();
   }
 
   @Test
   public void isProvisioningEnabled_ifProvisioningDisabled_returnsFalse() {
-    enableGithubAuthentication();
+    enableGitlabAuthentication();
     settings.setProperty(GITLAB_AUTH_PROVISIONING_ENABLED, false);
     assertThat(config.isProvisioningEnabled()).isFalse();
   }
@@ -111,16 +112,15 @@ public class GitLabSettingsTest {
 
   @Test
   public void isProvisioningEnabled_ifProvisioningEnabledAndGithubAuthEnabled_returnsTrue() {
-    enableGithubAuthentication();
+    enableGitlabAuthentication();
     settings.setProperty(GITLAB_AUTH_PROVISIONING_ENABLED, true);
     assertThat(config.isProvisioningEnabled()).isTrue();
   }
 
-  private void enableGithubAuthentication() {
+  private void enableGitlabAuthentication() {
     settings.setProperty(GITLAB_AUTH_ENABLED, true);
     settings.setProperty(GITLAB_AUTH_APPLICATION_ID, "on");
     settings.setProperty(GITLAB_AUTH_SECRET, "on");
   }
 
 }
-

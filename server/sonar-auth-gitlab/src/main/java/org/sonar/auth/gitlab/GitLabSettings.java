@@ -19,6 +19,7 @@
  */
 package org.sonar.auth.gitlab;
 
+import com.google.common.base.Strings;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
@@ -88,7 +89,7 @@ public class GitLabSettings implements DevOpsPlatformSettings {
   }
 
   public String provisioningToken() {
-    return configuration.get(GITLAB_AUTH_PROVISIONING_TOKEN).orElse(null);
+    return configuration.get(GITLAB_AUTH_PROVISIONING_TOKEN).map(Strings::emptyToNull).orElse(null);
   }
 
   public Set<String> provisioningGroups() {

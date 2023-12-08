@@ -32,7 +32,7 @@ import org.sonar.db.ce.CeQueueDto;
  * Queue of pending Compute Engine tasks. Both producer and consumer actions
  * are implemented.
  * <p>
- *   This class is decoupled from the regular task type {@link org.sonar.db.ce.CeTaskTypes#REPORT}.
+ * This class is decoupled from the regular task type {@link org.sonar.db.ce.CeTaskTypes#REPORT}.
  * </p>
  */
 public interface CeQueue {
@@ -60,9 +60,19 @@ public interface CeQueue {
    * This method is equivalent to calling {@code massSubmit(Collections.singletonList(submission))}.
    *
    * @return empty if {@code options} contains {@link SubmitOption#UNIQUE_QUEUE_PER_ENTITY UNIQUE_QUEUE_PER_MAIN_COMPONENT}
-   *         and there's already a queued task, otherwise the created task.
+   * and there's already a queued task, otherwise the created task.
    */
   Optional<CeTask> submit(CeTaskSubmit submission, SubmitOption... options);
+
+  /**
+   * Submits a task to the queue. The task is processed asynchronously.
+   * <p>
+   * This method is equivalent to calling {@code massSubmit(Collections.singletonList(submission))}.
+   *
+   * @return empty if {@code options} contains {@link SubmitOption#UNIQUE_QUEUE_PER_ENTITY UNIQUE_QUEUE_PER_MAIN_COMPONENT}
+   * and there's already a queued task, otherwise the created task.
+   */
+  Optional<CeTask> submit(DbSession dbSession, CeTaskSubmit submission, SubmitOption... options);
 
   /**
    * Submits multiple tasks to the queue at once. All tasks are processed asynchronously.
@@ -93,7 +103,7 @@ public interface CeQueue {
    * exception is thrown if the status is not {@link org.sonar.db.ce.CeQueueDto.Status#IN_PROGRESS}.
    *
    * The {@code dbSession} is committed.
-
+  
    * @throws RuntimeException if the task is concurrently removed from the queue
    */
   void fail(DbSession dbSession, CeQueueDto ceQueueDto, @Nullable String errorType, @Nullable String errorMessage);

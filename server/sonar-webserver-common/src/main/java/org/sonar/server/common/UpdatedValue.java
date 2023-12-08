@@ -19,10 +19,10 @@
  */
 package org.sonar.server.common;
 
+import javax.annotation.Nullable;
 import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import javax.annotation.Nullable;
 
 public class UpdatedValue<T> {
   final T value;
@@ -76,5 +76,13 @@ public class UpdatedValue<T> {
   @Override
   public int hashCode() {
     return Objects.hash(value, isDefined);
+  }
+
+  public T orElse(@Nullable T defaultValue) {
+    if (isDefined) {
+      return value;
+    } else {
+      return defaultValue;
+    }
   }
 }
