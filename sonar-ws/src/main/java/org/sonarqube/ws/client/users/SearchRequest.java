@@ -34,6 +34,7 @@ public class SearchRequest {
   private String ps;
   private String q;
   private Boolean deactivated;
+  private Boolean managed;
 
   /**
    * Example value: "42"
@@ -76,6 +77,15 @@ public class SearchRequest {
 
   public SearchRequest setDeactivated(Boolean deactivated) {
     this.deactivated = deactivated;
+    return this;
+  }
+
+  public Boolean getManaged() {
+    return managed;
+  }
+
+  public SearchRequest setManaged(Boolean managed) {
+    this.managed = managed;
     return this;
   }
 }

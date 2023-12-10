@@ -149,7 +149,8 @@ public class UsersService extends BaseService {
         .setParam("p", request.getP())
         .setParam("ps", request.getPs())
         .setParam("q", request.getQ())
-        .setParam("deactivated", request.getDeactivated()),
+        .setParam("deactivated", request.getDeactivated())
+        .setParam("managed", request.getManaged()),
       SearchWsResponse.parser());
   }
 

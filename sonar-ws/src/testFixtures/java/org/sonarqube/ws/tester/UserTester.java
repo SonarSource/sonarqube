@@ -172,6 +172,10 @@ public class UserTester {
     return queryForUser(name, t -> t.getName().equals(name));
   }
 
+  public List<Users.SearchWsResponse.User> getAllManagedUsers() {
+    return service().search(new SearchRequest().setManaged(true)).getUsersList();
+  }
+
   public void changePassword(String login, String previousPassword, String newPassword) {
     service().changePassword(new ChangePasswordRequest().setLogin(login).setPreviousPassword(previousPassword).setPassword(newPassword));
   }

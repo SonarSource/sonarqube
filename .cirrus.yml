@@ -626,12 +626,22 @@ qa_gitlab_provisioning_task:
   <<: *GITLAB_PROVISIONING_TASK_TEMPLATE
   <<: *JAR_CACHE_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
-  eks_container:
-    <<: *CONTAINER_TEMPLATE
-    cpu: 4
-    memory: 7Gb
   env:
     QA_CATEGORY: GITLAB_PROVISIONING
+  matrix:
+    - name: qa_gitlab_provisioning_latest
+      env:
+        - GITLAB_VERSION: latest
+    - name: qa_gitlab_provisioning_oldest
+      env:
+        - GITLAB_VERSION: 15.6.2-ce.0
+  eks_container:
+    <<: *CONTAINER_TEMPLATE
+    cpu: 2.4
+    memory: 7Gb
+    use_in_memory_disk: true
+    additional_containers:
+      - <<: *GITLAB_CONTAINER_TEMPLATE
   script:
     - ./private/cirrus/cirrus-qa.sh h2
   <<: *DEFAULT_ARTIFACTS_TEMPLATE
