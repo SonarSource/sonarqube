@@ -423,16 +423,15 @@ public class RuleCreatorIT {
     // insert template rule
     RuleDto templateRule = createTemplateRuleWithIntArrayParam();
 
-    assertThatThrownBy(() -> {
-      // Create custom rule
-      NewCustomRule newRule = NewCustomRule.createForCustomRule(CUSTOM_RULE_KEY, templateRule.getKey())
-        .setName("My custom")
-        .setMarkdownDescription("Some description")
-        .setSeverity(Severity.MAJOR)
-        .setStatus(RuleStatus.READY)
-        .setParameters(Map.of("myIntegers", "1,polop,2"));
-      underTest.create(dbSession, newRule);
-    })
+    // Create custom rule
+    NewCustomRule newRule = NewCustomRule.createForCustomRule(CUSTOM_RULE_KEY, templateRule.getKey())
+      .setName("My custom")
+      .setMarkdownDescription("Some description")
+      .setSeverity(Severity.MAJOR)
+      .setStatus(RuleStatus.READY)
+      .setParameters(Map.of("myIntegers", "1,polop,2"));
+
+    assertThatThrownBy(() -> underTest.create(dbSession, newRule))
       .isInstanceOf(BadRequestException.class)
       .hasMessage("Value 'polop' must be an integer.");
   }
@@ -607,14 +606,13 @@ public class RuleCreatorIT {
     // insert template rule
     RuleDto templateRule = createTemplateRule();
 
-    assertThatThrownBy(() -> {
-      NewCustomRule newRule = NewCustomRule.createForCustomRule(CUSTOM_RULE_KEY, templateRule.getKey())
-        .setName("My custom")
-        .setSeverity(Severity.MAJOR)
-        .setStatus(RuleStatus.READY)
-        .setParameters(Map.of("regex", "a.*"));
-      underTest.create(dbSession, newRule);
-    })
+    NewCustomRule newRule = NewCustomRule.createForCustomRule(CUSTOM_RULE_KEY, templateRule.getKey())
+      .setName("My custom")
+      .setSeverity(Severity.MAJOR)
+      .setStatus(RuleStatus.READY)
+      .setParameters(Map.of("regex", "a.*"));
+
+    assertThatThrownBy(() -> underTest.create(dbSession, newRule))
       .isInstanceOf(BadRequestException.class)
       .hasMessage("The description is missing");
   }
@@ -672,15 +670,14 @@ public class RuleCreatorIT {
 
   @Test
   public void fail_to_create_custom_rule_when_unknown_template() {
-    assertThatThrownBy(() -> {
-      // Create custom rule
-      NewCustomRule newRule = NewCustomRule.createForCustomRule(CUSTOM_RULE_KEY, RuleKey.of("java", "S001"))
-        .setName("My custom")
-        .setMarkdownDescription("Some description")
-        .setSeverity(Severity.MAJOR)
-        .setStatus(RuleStatus.READY);
-      underTest.create(dbSession, newRule);
-    })
+    // Create custom rule
+    NewCustomRule newRule = NewCustomRule.createForCustomRule(CUSTOM_RULE_KEY, RuleKey.of("java", "S001"))
+      .setName("My custom")
+      .setMarkdownDescription("Some description")
+      .setSeverity(Severity.MAJOR)
+      .setStatus(RuleStatus.READY);
+
+    assertThatThrownBy(() -> underTest.create(dbSession, newRule))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("The template key doesn't exist: java:S001");
   }
