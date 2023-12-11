@@ -63,6 +63,10 @@ public class GitLabSettings implements DevOpsPlatformSettings {
     return url;
   }
 
+  public String apiUrl() {
+    return url() + "/api/v4";
+  }
+
   public String applicationId() {
     return configuration.get(GITLAB_AUTH_APPLICATION_ID).orElse(null);
   }
@@ -119,7 +123,7 @@ public class GitLabSettings implements DevOpsPlatformSettings {
         .build(),
       PropertyDefinition.builder(GITLAB_AUTH_URL)
         .name("GitLab URL")
-        .description("URL to access GitLab.")
+        .description("Base URL to access GitLab. https://gitlab.com for Gitlab SaaS")
         .category(CATEGORY)
         .subCategory(SUBCATEGORY)
         .defaultValue("https://gitlab.com")

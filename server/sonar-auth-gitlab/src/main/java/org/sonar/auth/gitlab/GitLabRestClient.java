@@ -28,16 +28,14 @@ import org.sonar.auth.OAuthRestClient;
 
 public class GitLabRestClient {
 
-  private static final String API_SUFFIX = "/api/v4";
+  private final GitLabSettings gitLabSettings;
 
-  private final GitLabSettings settings;
-
-  public GitLabRestClient(GitLabSettings settings) {
-    this.settings = settings;
+  public GitLabRestClient(GitLabSettings gitLabSettings) {
+    this.gitLabSettings = gitLabSettings;
   }
 
   GsonUser getUser(OAuth20Service scribe, OAuth2AccessToken accessToken) {
-    try (Response response = OAuthRestClient.executeRequest(settings.url() + API_SUFFIX + "/user", scribe, accessToken)) {
+    try (Response response = OAuthRestClient.executeRequest(gitLabSettings.apiUrl() + "/user", scribe, accessToken)) {
       String responseBody = response.getBody();
       return GsonUser.parse(responseBody);
     } catch (IOException e) {
@@ -46,6 +44,6 @@ public class GitLabRestClient {
   }
 
   List<GsonGroup> getGroups(OAuth20Service scribe, OAuth2AccessToken accessToken) {
-    return OAuthRestClient.executePaginatedRequest(settings.url() + API_SUFFIX + "/groups?min_access_level=10", scribe, accessToken, GsonGroup::parse);
+    return OAuthRestClient.executePaginatedRequest(gitLabSettings.apiUrl() + "/groups?min_access_level=10", scribe, accessToken, GsonGroup::parse);
   }
 }

@@ -50,12 +50,15 @@ public class GitLabSettingsTest {
   @Test
   public void test_settings() {
     assertThat(config.url()).isEqualTo("https://gitlab.com");
+    assertThat(config.apiUrl()).isEqualTo("https://gitlab.com/api/v4");
 
-    settings.setProperty(GITLAB_AUTH_URL, "https://gitlab.com/api/");
-    assertThat(config.url()).isEqualTo("https://gitlab.com/api");
+    settings.setProperty(GITLAB_AUTH_URL, "https://onpremise.gitlab.com/");
+    assertThat(config.url()).isEqualTo("https://onpremise.gitlab.com");
+    assertThat(config.apiUrl()).isEqualTo("https://onpremise.gitlab.com/api/v4");
 
-    settings.setProperty(GITLAB_AUTH_URL, "https://gitlab.com/api");
-    assertThat(config.url()).isEqualTo("https://gitlab.com/api");
+    settings.setProperty(GITLAB_AUTH_URL, "https://onpremise.gitlab.com");
+    assertThat(config.url()).isEqualTo("https://onpremise.gitlab.com");
+    assertThat(config.apiUrl()).isEqualTo("https://onpremise.gitlab.com/api/v4");
 
     assertThat(config.isEnabled()).isFalse();
     settings.setProperty(GITLAB_AUTH_ENABLED, "true");
