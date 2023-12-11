@@ -30,7 +30,7 @@ interface Props {
 }
 
 export default function Details({ qualityGateName }: Readonly<Props>) {
-  const { data: qualityGate, isLoading } = useQualityGateQuery(qualityGateName);
+  const { data: qualityGate, isLoading, isFetching } = useQualityGateQuery(qualityGateName);
 
   return (
     <main className="layout-page-main">
@@ -39,7 +39,7 @@ export default function Details({ qualityGateName }: Readonly<Props>) {
           <>
             <Helmet defer={false} title={qualityGate.name} />
             <DetailsHeader qualityGate={qualityGate} />
-            <DetailsContent qualityGate={qualityGate} />
+            <DetailsContent qualityGate={qualityGate} isFetching={isFetching} />
           </>
         )}
       </Spinner>

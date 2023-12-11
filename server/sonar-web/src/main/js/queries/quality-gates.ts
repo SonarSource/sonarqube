@@ -168,8 +168,16 @@ export function useCreateConditionMutation(gateName: string) {
     mutationFn: (condition: Omit<Condition, 'id'>) => {
       return createCondition({ ...condition, gateName });
     },
-    onSuccess: () => {
+    onSuccess: (_, condition) => {
       queryClient.invalidateQueries([QUALITY_GATES_KEY]);
+      queryClient.setQueryData([QUALITY_GATE_KEY, gateName], (oldData?: QualityGate) => {
+        return oldData?.conditions
+          ? {
+              ...oldData,
+              conditions: [...oldData.conditions, condition],
+            }
+          : undefined;
+      });
       queryClient.invalidateQueries([QUALITY_GATE_KEY, gateName]);
       addGlobalSuccessMessage(translate('quality_gates.condition_added'));
     },

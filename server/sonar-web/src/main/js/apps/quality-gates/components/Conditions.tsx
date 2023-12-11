@@ -27,6 +27,7 @@ import {
   LightPrimary,
   Link,
   Note,
+  Spinner,
   SubHeading,
 } from 'design-system';
 import { differenceWith, map, uniqBy } from 'lodash';
@@ -52,6 +53,7 @@ import ConditionsTable from './ConditionsTable';
 
 interface Props {
   qualityGate: QualityGate;
+  isFetching?: boolean;
 }
 
 const FORBIDDEN_METRIC_TYPES = ['DATA', 'DISTRIB', 'STRING', 'BOOL'];
@@ -62,7 +64,7 @@ const FORBIDDEN_METRICS: string[] = [
   MetricKey.new_security_hotspots,
 ];
 
-export default function Conditions({ qualityGate }: Readonly<Props>) {
+export default function Conditions({ qualityGate, isFetching }: Readonly<Props>) {
   const [editing, setEditing] = React.useState<boolean>(
     qualityGate.caycStatus === CaycStatus.NonCompliant,
   );
@@ -176,6 +178,7 @@ export default function Conditions({ qualityGate }: Readonly<Props>) {
               <HelperHintIcon />
             </DocumentationTooltip>
           )}
+          <Spinner loading={isFetching} className="it__spinner sw-ml-4 sw-mt-1" />
         </div>
         <div>
           {(qualityGate.caycStatus === CaycStatus.NonCompliant || editing) && canEdit && (

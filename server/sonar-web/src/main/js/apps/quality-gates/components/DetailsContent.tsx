@@ -28,11 +28,12 @@ import QualityGatePermissions from './QualityGatePermissions';
 
 export interface DetailsContentProps {
   qualityGate: QualityGate;
+  isFetching?: boolean;
 }
 
 export function DetailsContent(props: DetailsContentProps) {
-  const { qualityGate } = props;
-  const actions = qualityGate.actions || {};
+  const { qualityGate, isFetching } = props;
+  const actions = qualityGate.actions ?? {};
 
   return (
     <div>
@@ -43,7 +44,7 @@ export function DetailsContent(props: DetailsContentProps) {
           </FlagMessage>
         )}
 
-      <Conditions qualityGate={qualityGate} />
+      <Conditions qualityGate={qualityGate} isFetching={isFetching} />
 
       <div className="sw-mt-10">
         <div className="sw-flex sw-flex-col">
