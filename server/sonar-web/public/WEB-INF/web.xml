@@ -62,6 +62,11 @@
     <filter-class>org.sonar.server.platform.web.CspFilter</filter-class>
     <async-supported>true</async-supported>
   </filter>
+    <filter>
+    <filter-name>EndpointPathFilter</filter-name>
+    <filter-class>org.sonar.server.platform.web.EndpointPathFilter</filter-class>
+    <async-supported>true</async-supported>
+  </filter>
 
   <!-- order of execution is important -->
   <filter-mapping>
@@ -74,6 +79,10 @@
   </filter-mapping>
   <filter-mapping>
     <filter-name>RequestUidFilter</filter-name>
+    <url-pattern>/*</url-pattern>
+  </filter-mapping>
+  <filter-mapping>
+    <filter-name>EndpointPathFilter</filter-name>
     <url-pattern>/*</url-pattern>
   </filter-mapping>
   <filter-mapping>

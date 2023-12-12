@@ -187,8 +187,12 @@ public class LogbackHelper extends AbstractLogHelper {
   }
 
   public FileAppender<ILoggingEvent> newFileAppender(LoggerContext ctx, Props props, RootLoggerConfig config, Encoder<ILoggingEvent> encoder) {
-    RollingPolicy rollingPolicy = createRollingPolicy(ctx, props, config.getProcessId().getLogFilenamePrefix());
-    FileAppender<ILoggingEvent> fileAppender = rollingPolicy.createAppender("file_" + config.getProcessId().getLogFilenamePrefix());
+    return newFileAppender(ctx, props, config.getProcessId().getLogFilenamePrefix(), encoder);
+  }
+
+  public FileAppender<ILoggingEvent> newFileAppender(LoggerContext ctx, Props props, String fileNamePrefix, Encoder<ILoggingEvent> encoder) {
+    RollingPolicy rollingPolicy = createRollingPolicy(ctx, props, fileNamePrefix);
+    FileAppender<ILoggingEvent> fileAppender = rollingPolicy.createAppender("file_" + fileNamePrefix);
     fileAppender.setContext(ctx);
     fileAppender.setEncoder(encoder);
     fileAppender.start();
@@ -230,16 +234,23 @@ public class LogbackHelper extends AbstractLogHelper {
   }
 
   public Encoder<ILoggingEvent> createEncoder(Props props, RootLoggerConfig config, LoggerContext context) {
-    if (props.valueAsBoolean(LOG_JSON_OUTPUT.getKey(), Boolean.parseBoolean(LOG_JSON_OUTPUT.getDefaultValue()))) {
-      LayoutWrappingEncoder encoder = new LayoutWrappingEncoder<>();
-      encoder.setLayout(new LogbackJsonLayout(config.getProcessId().getKey(), config.getNodeNameField()));
-      encoder.setContext(context);
-      encoder.start();
-      return encoder;
-    }
+    return props.valueAsBoolean(LOG_JSON_OUTPUT.getKey(), Boolean.parseBoolean(LOG_JSON_OUTPUT.getDefaultValue()))
+      ? createJsonEncoder(context, config)
+      : createPatternLayoutEncoder(context, buildLogPattern(config));
+  }
+
+  public Encoder<ILoggingEvent> createJsonEncoder(LoggerContext context, RootLoggerConfig config) {
+    LayoutWrappingEncoder<ILoggingEvent> encoder = new LayoutWrappingEncoder<>();
+    encoder.setLayout(new LogbackJsonLayout(config.getProcessId().getKey(), config.getNodeNameField()));
+    encoder.setContext(context);
+    encoder.start();
+    return encoder;
+  }
+
+  public PatternLayoutEncoder createPatternLayoutEncoder(LoggerContext context, String pattern) {
     PatternLayoutEncoder encoder = new PatternLayoutEncoder();
     encoder.setContext(context);
-    encoder.setPattern(buildLogPattern(config));
+    encoder.setPattern(pattern);
     encoder.start();
     return encoder;
   }
@@ -299,7 +310,7 @@ public class LogbackHelper extends AbstractLogHelper {
 
   /**
    * Log files are rotated according to time (one file per day, month or year).
-   * See http://logback.qos.ch/manual/appenders.html#TimeBasedRollingPolicy
+   * See <a href="http://logback.qos.ch/manual/appenders.html#TimeBasedRollingPolicy">TimeBasedRollingPolicy</a>
    */
   private static class TimeRollingPolicy extends RollingPolicy {
     private final String datePattern;
@@ -317,7 +328,7 @@ public class LogbackHelper extends AbstractLogHelper {
       String filePath = new File(logsDir, filenamePrefix + ".log").getAbsolutePath();
       appender.setFile(filePath);
 
-      TimeBasedRollingPolicy rollingPolicy = new TimeBasedRollingPolicy();
+      TimeBasedRollingPolicy<ILoggingEvent> rollingPolicy = new TimeBasedRollingPolicy<>();
       rollingPolicy.setContext(context);
       rollingPolicy.setFileNamePattern(StringUtils.replace(filePath, filenamePrefix + ".log", filenamePrefix + ".%d{" + datePattern + "}.log"));
       rollingPolicy.setMaxHistory(maxFiles);
@@ -331,7 +342,7 @@ public class LogbackHelper extends AbstractLogHelper {
 
   /**
    * Log files are rotated according to their size.
-   * See http://logback.qos.ch/manual/appenders.html#FixedWindowRollingPolicy
+   * See <a href="http://logback.qos.ch/manual/appenders.html#FixedWindowRollingPolicy">FixedWindowRollingPolicy</a>
    */
   private static class SizeRollingPolicy extends RollingPolicy {
     private final String size;

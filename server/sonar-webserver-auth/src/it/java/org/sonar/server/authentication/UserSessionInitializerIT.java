@@ -25,6 +25,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.slf4j.MDC;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.server.authentication.BaseIdentityProvider;
 import org.sonar.api.server.http.Cookie;
@@ -213,6 +214,37 @@ public class UserSessionInitializerIT {
 
     assertThat(underTest.initUserSession(request, response)).isTrue();
     verify(response).addHeader("SonarQube-Authentication-Token-Expiration", formatDateTime(expirationTimestamp));
+  }
+
+  @Test
+  public void initUserSession_shouldPutLoginInMDC() {
+    when(threadLocalSession.isLoggedIn()).thenReturn(false);
+    when(authenticator.authenticate(request, response)).thenReturn(new MockUserSession("user"));
+
+    underTest.initUserSession(request, response);
+
+    assertThat(MDC.get("LOGIN")).isEqualTo("user");
+  }
+
+  @Test
+  public void initUserSession_whenSessionLoginIsNull_shouldPutDefaultLoginValueInMDC() {
+    when(threadLocalSession.isLoggedIn()).thenReturn(false);
+    when(authenticator.authenticate(request, response)).thenReturn(new AnonymousMockUserSession());
+
+    underTest.initUserSession(request, response);
+
+    assertThat(MDC.get("LOGIN")).isEqualTo("-");
+  }
+
+  @Test
+  public void removeUserSession_shoudlRemoveMDCLogin() {
+    when(threadLocalSession.isLoggedIn()).thenReturn(false);
+    when(authenticator.authenticate(request, response)).thenReturn(new MockUserSession("user"));
+    underTest.initUserSession(request, response);
+
+    underTest.removeUserSession();
+
+    assertThat(MDC.get("LOGIN")).isNull();
   }
 
   private void assertPathIsIgnored(String path) {

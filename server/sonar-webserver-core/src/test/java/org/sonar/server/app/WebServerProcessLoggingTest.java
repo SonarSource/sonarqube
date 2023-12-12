@@ -59,8 +59,8 @@ public class WebServerProcessLoggingTest {
   public TemporaryFolder temp = new TemporaryFolder();
 
   private File logDir;
-  private Props props = new Props(new Properties());
-  private WebServerProcessLogging underTest = new WebServerProcessLogging();
+  private final Props props = new Props(new Properties());
+  private final WebServerProcessLogging underTest = new WebServerProcessLogging();
 
   @Before
   public void setUp() throws IOException {
@@ -523,6 +523,39 @@ public class WebServerProcessLoggingTest {
     Encoder<ILoggingEvent> encoder = appender.getEncoder();
     assertThat(encoder).isInstanceOf(LayoutWrappingEncoder.class);
     assertThat(((LayoutWrappingEncoder) encoder).getLayout()).isInstanceOf(LogbackJsonLayout.class);
+  }
+
+  @Test
+  public void configure_whenJsonPropFalse_shouldConfigureDeprecatedLoggerWithPatternLayout() {
+    props.set("sonar.log.jsonOutput", "false");
+
+    LoggerContext context = underTest.configure(props);
+
+    Logger logger = context.getLogger("SONAR_DEPRECATION");
+    assertThat(logger.isAdditive()).isFalse();
+    Appender<ILoggingEvent> appender = logger.getAppender("file_deprecation");
+    assertThat(appender).isNotNull()
+      .isInstanceOf(FileAppender.class);
+    FileAppender<ILoggingEvent> fileAppender = (FileAppender<ILoggingEvent>) appender;
+    Encoder<ILoggingEvent> encoder = fileAppender.getEncoder();
+    assertThat(encoder).isInstanceOf(PatternLayoutEncoder.class);
+    PatternLayoutEncoder patternLayoutEncoder = (PatternLayoutEncoder) encoder;
+    assertThat(patternLayoutEncoder.getPattern()).isEqualTo("%d{yyyy.MM.dd HH:mm:ss} %-5level web[%X{HTTP_REQUEST_ID}] %X{LOGIN} %X{ENTRYPOINT} %msg%n");
+  }
+
+  @Test
+  public void configure_whenJsonPropTrue_shouldConfigureDeprecatedLoggerWithJsonLayout() {
+    props.set("sonar.log.jsonOutput", "true");
+
+    LoggerContext context = underTest.configure(props);
+
+    Logger logger = context.getLogger("SONAR_DEPRECATION");
+    assertThat(logger.isAdditive()).isFalse();
+    Appender<ILoggingEvent> appender = logger.getAppender("file_deprecation");
+    assertThat(appender).isNotNull()
+      .isInstanceOf(FileAppender.class);
+    FileAppender<ILoggingEvent> fileAppender = (FileAppender<ILoggingEvent>) appender;
+    assertThat(fileAppender.getEncoder()).isInstanceOf(LayoutWrappingEncoder.class);
   }
 
   private void verifyRootLogLevel(LoggerContext ctx, Level expected) {

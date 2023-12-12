@@ -21,6 +21,7 @@ package org.sonar.server.authentication;
 
 import java.util.Optional;
 import java.util.Set;
+import org.slf4j.MDC;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.impl.ws.StaticResources;
 import org.sonar.api.server.ServerSide;
@@ -51,6 +52,8 @@ public class UserSessionInitializer {
    * in property sonar.web.accessLogs.pattern is "%reqAttribute{LOGIN}"
    */
   private static final String ACCESS_LOG_LOGIN = "LOGIN";
+
+  public static final String USER_LOGIN_MDC_KEY = "LOGIN";
 
   private static final String SQ_AUTHENTICATION_TOKEN_EXPIRATION = "SonarQube-Authentication-Token-Expiration";
 
@@ -97,6 +100,7 @@ public class UserSessionInitializer {
   }
 
   public boolean initUserSession(HttpRequest request, HttpResponse response) {
+    MDC.put(USER_LOGIN_MDC_KEY, "-");
     String path = request.getRequestURI().replaceFirst(request.getContextPath(), "");
     try {
       // Do not set user session when url is excluded
@@ -137,6 +141,7 @@ public class UserSessionInitializer {
     threadLocalSession.set(session);
     checkTokenUserSession(response, session);
     request.setAttribute(ACCESS_LOG_LOGIN, defaultString(session.getLogin(), "-"));
+    MDC.put(USER_LOGIN_MDC_KEY, defaultString(session.getLogin(), "-"));
   }
 
   private static void checkTokenUserSession(HttpResponse response, UserSession session) {
@@ -147,6 +152,7 @@ public class UserSessionInitializer {
   }
 
   public void removeUserSession() {
+    MDC.remove(USER_LOGIN_MDC_KEY);
     threadLocalSession.unload();
   }
 

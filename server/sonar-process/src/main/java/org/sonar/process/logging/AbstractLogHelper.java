@@ -29,8 +29,8 @@ import static java.lang.String.format;
 public abstract class AbstractLogHelper {
   static final Level[] ALLOWED_ROOT_LOG_LEVELS = new Level[] {Level.TRACE, Level.DEBUG, Level.INFO};
 
-  private static final String PREFIX_LOG_FORMAT = "%d{yyyy.MM.dd HH:mm:ss} %-5level ";
-  private static final String SUFFIX_LOG_FORMAT = " %msg%n";
+  public static final String PREFIX_LOG_FORMAT = "%d{yyyy.MM.dd HH:mm:ss} %-5level ";
+  public static final String SUFFIX_LOG_FORMAT = " %msg%n";
   private final String loggerNamePattern;
 
   protected AbstractLogHelper(String loggerNamePattern) {

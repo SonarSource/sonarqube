@@ -59,7 +59,7 @@ public abstract class ServerProcessLogging {
 
   private final ProcessId processId;
   private final String threadIdFieldPattern;
-  private final LogbackHelper helper = new LogbackHelper();
+  protected final LogbackHelper helper = new LogbackHelper();
   private final LogLevelConfig logLevelConfig;
 
   protected ServerProcessLogging(ProcessId processId, String threadIdFieldPattern) {
@@ -122,7 +122,7 @@ public abstract class ServerProcessLogging {
     configureRootLogger(props);
     helper.apply(logLevelConfig, props);
     configureDirectToConsoleLoggers(props, ctx, STARTUP_LOGGER_NAME);
-    extendConfigure();
+    extendConfigure(props);
 
     helper.enableJulChangePropagation(ctx);
 
@@ -135,21 +135,25 @@ public abstract class ServerProcessLogging {
 
   protected abstract void extendLogLevelConfiguration(LogLevelConfig.Builder logLevelConfigBuilder);
 
-  protected abstract void extendConfigure();
+  protected abstract void extendConfigure(Props props);
 
   private void configureRootLogger(Props props) {
-    RootLoggerConfig config = newRootLoggerConfigBuilder()
-      .setProcessId(processId)
-      .setNodeNameField(getNodeNameWhenCluster(props))
-      .setThreadIdFieldPattern(threadIdFieldPattern)
-      .build();
+    RootLoggerConfig config = buildRootLoggerConfig(props);
     Encoder<ILoggingEvent> encoder = helper.createEncoder(props, config, helper.getRootContext());
     helper.configureGlobalFileLog(props, config, encoder);
     helper.configureForSubprocessGobbler(props, encoder);
   }
 
+  protected RootLoggerConfig buildRootLoggerConfig(Props props) {
+    return newRootLoggerConfigBuilder()
+      .setProcessId(processId)
+      .setNodeNameField(getNodeNameWhenCluster(props))
+      .setThreadIdFieldPattern(threadIdFieldPattern)
+      .build();
+  }
+
   @CheckForNull
-  private static String getNodeNameWhenCluster(Props props) {
+  protected static String getNodeNameWhenCluster(Props props) {
     boolean clusterEnabled = props.valueAsBoolean(CLUSTER_ENABLED.getKey(),
       Boolean.parseBoolean(CLUSTER_ENABLED.getDefaultValue()));
     return clusterEnabled ? props.value(CLUSTER_NODE_NAME.getKey(), CLUSTER_NODE_NAME.getDefaultValue()) : null;
