@@ -20,13 +20,13 @@
 import { act, waitFor } from '@testing-library/react';
 import { UserEvent } from '@testing-library/user-event/dist/types/setup/setup';
 import selectEvent from 'react-select-event';
-import { byLabelText, byRole, byText } from '../../helpers/testSelector';
+import { byRole, byText } from '../../helpers/testSelector';
 import { Visibility } from '../../types/component';
 import { Permissions } from '../../types/permissions';
 
 export function getPageObject(user: UserEvent) {
   const ui = {
-    loading: byLabelText('loading'),
+    loading: byText('loading'),
     pageTitle: byRole('heading', {
       name: /permissions.page/,
     }),

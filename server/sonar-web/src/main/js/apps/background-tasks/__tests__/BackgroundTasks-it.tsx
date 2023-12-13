@@ -196,7 +196,7 @@ describe('The Global background task page', () => {
 
     expect(ui.getAllRows()).toHaveLength(PAGE_SIZE);
 
-    user.click(ui.showMoreButton.get());
+    await user.click(ui.showMoreButton.get());
 
     await waitFor(async () => {
       expect(await screen.findAllByRole('row')).toHaveLength(TOTAL_TASKS + 1); // 1 extra = header
@@ -316,7 +316,6 @@ function getPageObject() {
   const user = userEvent.setup();
 
   const selectors = {
-    loading: byLabelText('loading'),
     pageHeading: byRole('heading', { name: 'background_tasks.page' }),
     numberOfWorkers: () => byLabelText(`background_tasks.number_of_workers`),
     onlyLatestAnalysis: byRole('switch', {
@@ -340,9 +339,9 @@ function getPageObject() {
     ...selectors,
 
     async appLoaded() {
-      await waitFor(() => {
-        expect(selectors.loading.query()).not.toBeInTheDocument();
-      });
+      expect(
+        await screen.findByRole('heading', { name: 'background_tasks.page' }),
+      ).toBeInTheDocument();
     },
 
     getAllRows() {

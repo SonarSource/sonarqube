@@ -37,7 +37,7 @@ import { CurrentUser } from '../../types/users';
 import routes from './routes';
 
 const selectors = {
-  loading: byLabelText('loading'),
+  loading: byText('loading'),
 
   // List
   rulesList: byRole('list', { name: 'list_of_rules' }),

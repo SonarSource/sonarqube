@@ -550,7 +550,7 @@ function getPageObject() {
     deleteBtn: byRole('button', { name: 'delete' }),
 
     // Misc.
-    loading: byLabelText('loading'),
+    loading: byText('loading'),
     baseline: byText('project_activity.new_code_period_start'),
     bugsPopupCell: byRole('cell', { name: MetricKey.bugs }),
     monthSelector: byTestId('month-select'),

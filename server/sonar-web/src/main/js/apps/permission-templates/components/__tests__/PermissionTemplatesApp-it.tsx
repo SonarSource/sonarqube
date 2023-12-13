@@ -27,7 +27,7 @@ import { mockPermissionGroup, mockPermissionUser } from '../../../../helpers/moc
 import { PERMISSIONS_ORDER_FOR_PROJECT_TEMPLATE } from '../../../../helpers/permissions';
 import { mockAppState } from '../../../../helpers/testMocks';
 import { renderAppWithAdminContext } from '../../../../helpers/testReactTestingUtils';
-import { byLabelText, byRole, byText } from '../../../../helpers/testSelector';
+import { byRole, byText } from '../../../../helpers/testSelector';
 import { ComponentQualifier } from '../../../../types/component';
 import { Feature } from '../../../../types/features';
 import { Permissions } from '../../../../types/permissions';
@@ -405,7 +405,7 @@ it('should show github warning', async () => {
 
 function getPageObject(user: UserEvent) {
   const ui = {
-    loading: byLabelText('loading'),
+    loading: byText('loading'),
     templateLink: (name: string) => byRole('link', { name }),
     permissionCheckbox: (target: string, permission: Permissions) =>
       byRole('checkbox', {

@@ -25,7 +25,7 @@ import { ProjectsServiceMock } from '../../../../api/mocks/ProjectsServiceMock';
 import { save } from '../../../../helpers/storage';
 import { mockAppState, mockLoggedInUser } from '../../../../helpers/testMocks';
 import { renderAppRoutes } from '../../../../helpers/testReactTestingUtils';
-import { byLabelText, byRole } from '../../../../helpers/testSelector';
+import { byLabelText, byRole, byText } from '../../../../helpers/testSelector';
 import { ComponentQualifier } from '../../../../types/component';
 import { MetricKey } from '../../../../types/metrics';
 import { Dict } from '../../../../types/types';
@@ -122,7 +122,7 @@ function renderProjects(navigateTo?: string) {
 }
 
 const ui = {
-  loading: byLabelText('loading'),
+  loading: byText('loading'),
   myFavoritesToggleOption: byRole('radio', { name: 'my_favorites' }),
   allToggleOption: byRole('radio', { name: 'all' }),
   projects: byRole('row'),
