@@ -19,7 +19,7 @@
  */
 
 import styled from '@emotion/styled';
-import { Badge, ButtonSecondary, themeColor } from 'design-system';
+import { Badge, ButtonSecondary, themeBorder, themeColor } from 'design-system';
 import React from 'react';
 import { useIntl } from 'react-intl';
 import {
@@ -79,14 +79,14 @@ function FailedQGCondition(
   const url = getQGConditionUrl(component.key, condition, branchLike);
 
   return (
-    <ButtonSecondary className="sw-px-2 sw-py-1 sw-rounded-1/2 sw-body-sm" to={url}>
+    <StyledConditionButton className="sw-px-3 sw-py-2 sw-rounded-1 sw-body-sm" to={url}>
       <Badge className="sw-mr-2" variant="deleted">
         {translate('overview.measures.failed_badge')}
       </Badge>
       <SpanDanger>
         <FailedMetric condition={condition} />
       </SpanDanger>
-    </ButtonSecondary>
+    </StyledConditionButton>
   );
 }
 
@@ -126,10 +126,8 @@ function FailedRatingMetric({ condition }: Readonly<FailedMetricProps>) {
           rating: `${intl.formatMessage({
             id: `metric_domain.${domain}`,
           })} ${intl.formatMessage({ id: 'metric.type.RATING' }).toLowerCase()}`,
-          value: formatMeasure(actual, type),
-          threshold: (
-            <strong className="sw-body-sm-highlight sw-ml-1">{formatMeasure(error, type)}</strong>
-          ),
+          value: <strong className="sw-body-sm-highlight">{formatMeasure(actual, type)}</strong>,
+          threshold: formatMeasure(error, type),
         },
       )}
     </>
@@ -162,10 +160,10 @@ function FailedGeneralMetric({ condition }: Readonly<FailedMetricProps>) {
             </>
           ),
           threshold: (
-            <strong className="sw-body-sm-highlight sw-ml-1">
+            <>
               {condition.op === 'GT' ? <>&le;</> : <>&ge;</>}{' '}
               {formatMeasure(error, getShortType(metric.type), measureFormattingOptions)}
-            </strong>
+            </>
           ),
         },
       )}
@@ -214,6 +212,10 @@ function getQGConditionUrl(
     listView: true,
   });
 }
+
+const StyledConditionButton = styled(ButtonSecondary)`
+  --border: ${themeBorder('default')};
+`;
 
 const SpanDanger = styled.span`
   color: ${themeColor('danger')};
