@@ -62,6 +62,7 @@ public class GitlabApplicationClient {
   private static final Type GITLAB_USER = TypeToken.getParameterized(List.class, GsonUser.class).getType();
 
   protected static final String PRIVATE_TOKEN = "Private-Token";
+  private static final String GITLAB_GROUPS_MEMBERS_ENDPOINT = "/groups/%s/members";
   protected final OkHttpClient client;
 
   private final GitlabPaginatedHttpClient gitlabPaginatedHttpClient;
@@ -355,8 +356,16 @@ public class GitlabApplicationClient {
     return Set.copyOf(executePaginatedQuery(gitlabUrl, token, "/groups", resp -> GSON.fromJson(resp, GITLAB_GROUP)));
   }
 
-  public Set<GsonUser> getGroupMembers(String gitlabUrl, String token, String groupId) {
-    return Set.copyOf(executePaginatedQuery(gitlabUrl, token, format("/groups/%s/members", groupId), resp -> GSON.fromJson(resp, GITLAB_USER)));
+  public Set<GsonUser> getDirectGroupMembers(String gitlabUrl, String token, String groupId) {
+    return getMembers(gitlabUrl, token, format(GITLAB_GROUPS_MEMBERS_ENDPOINT, groupId));
+  }
+
+  public Set<GsonUser> getAllGroupMembers(String gitlabUrl, String token, String groupId) {
+    return getMembers(gitlabUrl, token, format(GITLAB_GROUPS_MEMBERS_ENDPOINT + "/all", groupId));
+  }
+
+  private Set<GsonUser> getMembers(String gitlabUrl, String token, String endpoint) {
+    return Set.copyOf(executePaginatedQuery(gitlabUrl, token, endpoint, resp -> GSON.fromJson(resp, GITLAB_USER)));
   }
 
   private <E> List<E> executePaginatedQuery(String appUrl, String token, String query, Function<String, List<E>> responseDeserializer) {

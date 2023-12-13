@@ -584,18 +584,18 @@ public class GitlabApplicationClientTest {
   }
 
   @Test
-  public void getGroupMembers_whenCallIsInError_rethrows() throws IOException {
+  public void getDirectGroupMembers_whenCallIsInError_rethrows() {
     String token = "token-toto";
     GitlabToken gitlabToken = new GitlabToken(token);
     when(gitlabPaginatedHttpClient.get(eq(gitlabUrl), eq(gitlabToken), eq("/groups/42/members"), any())).thenThrow(new IllegalStateException("exception"));
 
     assertThatIllegalStateException()
-      .isThrownBy(() -> underTest.getGroupMembers(gitlabUrl, token, "42"))
+      .isThrownBy(() -> underTest.getDirectGroupMembers(gitlabUrl, token, "42"))
       .withMessage("exception");
   }
 
   @Test
-  public void getGroupMembers_whenCallIsSuccessful_deserializesAndReturnsCorrectlyGroupMembers() throws IOException {
+  public void getDirectGroupMembers_whenCallIsSuccessful_deserializesAndReturnsCorrectlyGroupMembers() throws IOException {
     ArgumentCaptor<Function<String, List<GsonUser>>> deserializerCaptor = ArgumentCaptor.forClass(Function.class);
 
     String token = "token-toto";
@@ -603,7 +603,36 @@ public class GitlabApplicationClientTest {
     List<GsonUser> expectedGroupMembers = expectedGroupMembers();
     when(gitlabPaginatedHttpClient.get(eq(gitlabUrl), eq(gitlabToken), eq("/groups/42/members"), deserializerCaptor.capture())).thenReturn(expectedGroupMembers);
 
-    Set<GsonUser> actualGroupMembers = underTest.getGroupMembers(gitlabUrl, token, "42");
+    Set<GsonUser> actualGroupMembers = underTest.getDirectGroupMembers(gitlabUrl, token, "42");
+    assertThat(actualGroupMembers).containsExactlyInAnyOrderElementsOf(expectedGroupMembers);
+
+    String responseContent = getResponseContent("group-members-full-response.json");
+
+    List<GsonUser> deserializedUsers = deserializerCaptor.getValue().apply(responseContent);
+    assertThat(deserializedUsers).usingRecursiveComparison().isEqualTo(expectedGroupMembers);
+  }
+
+  @Test
+  public void getDirectGroupMembersWithInheritedMembers_whenCallIsInError_rethrows() {
+    String token = "token-toto";
+    GitlabToken gitlabToken = new GitlabToken(token);
+    when(gitlabPaginatedHttpClient.get(eq(gitlabUrl), eq(gitlabToken), eq("/groups/42/members/all"), any())).thenThrow(new IllegalStateException("exception"));
+
+    assertThatIllegalStateException()
+      .isThrownBy(() -> underTest.getAllGroupMembers(gitlabUrl, token, "42"))
+      .withMessage("exception");
+  }
+
+  @Test
+  public void getAllGroupMembers_whenCallIsSuccessful_deserializesAndReturnsCorrectlyGroupMembers() throws IOException {
+    ArgumentCaptor<Function<String, List<GsonUser>>> deserializerCaptor = ArgumentCaptor.forClass(Function.class);
+
+    String token = "token-toto";
+    GitlabToken gitlabToken = new GitlabToken(token);
+    List<GsonUser> expectedGroupMembers = expectedGroupMembers();
+    when(gitlabPaginatedHttpClient.get(eq(gitlabUrl), eq(gitlabToken), eq("/groups/42/members/all"), deserializerCaptor.capture())).thenReturn(expectedGroupMembers);
+
+    Set<GsonUser> actualGroupMembers = underTest.getAllGroupMembers(gitlabUrl, token, "42");
     assertThat(actualGroupMembers).containsExactlyInAnyOrderElementsOf(expectedGroupMembers);
 
     String responseContent = getResponseContent("group-members-full-response.json");
@@ -613,17 +642,18 @@ public class GitlabApplicationClientTest {
   }
 
   private static List<GsonUser> expectedGroupMembers() {
-    GsonUser user1 = createGsonUser(12818153L, "aurelien-poscia-sonarsource", "Aurelien");
-    GsonUser user2 = createGsonUser(10941672L, "antoine.vigneau", "Antoine Vigneau");
-    GsonUser user3 = createGsonUser(13569073L, "wojciech.wajerowicz.sonarsource", "Wojciech Wajerowicz");
+    GsonUser user1 = createGsonUser(12818153, "aurelien-poscia-sonarsource", "Aurelien", 50);
+    GsonUser user2 = createGsonUser(10941672, "antoine.vigneau", "Antoine Vigneau", 30);
+    GsonUser user3 = createGsonUser(13569073, "wojciech.wajerowicz.sonarsource", "Wojciech Wajerowicz", 30);
     return List.of(user1, user2, user3);
   }
 
-  private static GsonUser createGsonUser(Long id, String username, String name) {
+  private static GsonUser createGsonUser(int id, String username, String name, int accessLevel) {
     GsonUser gsonUser = mock();
-    when(gsonUser.getId()).thenReturn(id);
+    when(gsonUser.getId()).thenReturn((long) id);
     when(gsonUser.getUsername()).thenReturn(username);
     when(gsonUser.getName()).thenReturn(name);
+    when(gsonUser.getAccessLevel()).thenReturn(accessLevel);
     return gsonUser;
   }
 

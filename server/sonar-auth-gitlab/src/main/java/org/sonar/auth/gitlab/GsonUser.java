@@ -20,6 +20,7 @@
 package org.sonar.auth.gitlab;
 
 import com.google.gson.Gson;
+import com.google.gson.annotations.SerializedName;
 
 /**
  * Lite representation of JSON response of GET https://gitlab.com/api/v4/user
@@ -29,6 +30,9 @@ public class GsonUser {
   private String username;
   private String name;
   private String email;
+
+  @SerializedName("access_level")
+  private int accessLevel;
 
   public GsonUser() {
     // even if empty constructor is not required for Gson, it is strongly
@@ -50,6 +54,10 @@ public class GsonUser {
 
   public String getEmail() {
     return email;
+  }
+
+  public int getAccessLevel() {
+    return accessLevel;
   }
 
   public static GsonUser parse(String json) {
