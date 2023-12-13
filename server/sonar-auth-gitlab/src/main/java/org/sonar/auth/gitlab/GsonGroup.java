@@ -35,18 +35,15 @@ public class GsonGroup {
   private String id;
   @SerializedName("full_path")
   private String fullPath;
-  @SerializedName("description")
-  private String description;
 
   public GsonGroup() {
     // http://stackoverflow.com/a/18645370/229031
-    this("", "", "");
+    this("", "");
   }
 
-  private GsonGroup(String id, String fullPath, String description) {
+  private GsonGroup(String id, String fullPath) {
     this.id = id;
     this.fullPath = fullPath;
-    this.description = description;
   }
 
   public String getId() {
@@ -57,13 +54,8 @@ public class GsonGroup {
     return fullPath;
   }
 
-  public String getDescription() {
-    return description;
-  }
-
   static List<GsonGroup> parse(String json) {
-    Type collectionType = new TypeToken<Collection<GsonGroup>>() {
-    }.getType();
+    Type collectionType = new TypeToken<Collection<GsonGroup>>() {}.getType();
     Gson gson = new Gson();
     return gson.fromJson(json, collectionType);
   }

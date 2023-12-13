@@ -579,7 +579,6 @@ public class GitlabApplicationClientTest {
     GsonGroup gsonGroup = mock(GsonGroup.class);
     when(gsonGroup.getId()).thenReturn(number);
     when(gsonGroup.getFullPath()).thenReturn(fullPath);
-    when(gsonGroup.getDescription()).thenReturn(description);
     return gsonGroup;
   }
 

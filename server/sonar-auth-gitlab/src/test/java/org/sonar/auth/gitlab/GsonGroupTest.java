@@ -49,6 +49,5 @@ public class GsonGroupTest {
     assertThat(groups.size()).isOne();
     assertThat(groups.get(0).getId()).isEqualTo("123456789");
     assertThat(groups.get(0).getFullPath()).isEqualTo("my-awesome-group/my-project");
-    assertThat(groups.get(0).getDescription()).isEqualTo("toto");
   }
 }
