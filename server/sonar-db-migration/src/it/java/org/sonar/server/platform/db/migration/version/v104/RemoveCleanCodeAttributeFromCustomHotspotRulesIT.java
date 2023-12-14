@@ -45,8 +45,8 @@ public class RemoveCleanCodeAttributeFromCustomHotspotRulesIT {
 
   @Test
   public void execute_whenCustomHotspotRuleExist_shouldRemoveCleanCodeAttributeOnlyFromHotspot() throws SQLException {
-    insertRule("custom_hotspot_rule", "4", "CONVENTIONAL");
-    insertRule("other_rule", "1", "ETHICAL");
+    insertRule("custom_hotspot_rule", 4, "CONVENTIONAL");
+    insertRule("other_rule", 1, "ETHICAL");
 
     underTest.execute();
 
@@ -67,8 +67,8 @@ public class RemoveCleanCodeAttributeFromCustomHotspotRulesIT {
 
   @Test
   public void execute_whenCustomHotspotRuleExist_isReentrant() throws SQLException {
-    insertRule("custom_hotspot_rule", "4", "CONVENTIONAL");
-    insertRule("other_rule", "1", "ETHICAL");
+    insertRule("custom_hotspot_rule", 4, "CONVENTIONAL");
+    insertRule("other_rule", 1, "ETHICAL");
 
     underTest.execute();
     underTest.execute();
@@ -80,7 +80,7 @@ public class RemoveCleanCodeAttributeFromCustomHotspotRulesIT {
       .containsExactlyInAnyOrder(tuple("custom_hotspot_rule", null), tuple("other_rule", "ETHICAL"));
   }
 
-  private void insertRule(String name, String ruleType, String cleanCodeAttribute) {
+  private void insertRule(String name, int ruleType, String cleanCodeAttribute) {
     db.executeInsert("rules",
       "PLUGIN_RULE_KEY", name,
       "PLUGIN_NAME", name,
