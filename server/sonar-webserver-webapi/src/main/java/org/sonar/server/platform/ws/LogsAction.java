@@ -27,8 +27,10 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Comparator;
 import java.util.Optional;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 import org.apache.commons.io.FileUtils;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -37,13 +39,16 @@ import org.sonar.server.log.ServerLogging;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.MediaTypes;
 
+import static java.lang.String.format;
 import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.toList;
 
 public class LogsAction implements SystemWsAction {
-
+  @Deprecated(since = "10.4", forRemoval = true)
   private static final String PROCESS_PROPERTY = "process";
+  private static final String NAME = "name";
   private static final String ACCESS_LOG = "access";
+  private static final String DEPRECATION_LOG = "deprecation";
 
   private final UserSession userSession;
   private final ServerLogging serverLogging;
@@ -57,54 +62,76 @@ public class LogsAction implements SystemWsAction {
   public void define(WebService.NewController controller) {
     var values = stream(ProcessId.values()).map(ProcessId::getKey).collect(toList());
     values.add(ACCESS_LOG);
+    values.add(DEPRECATION_LOG);
     values.sort(String::compareTo);
 
     WebService.NewAction action = controller.createAction("logs")
       .setDescription("Get system logs in plain-text format. Requires system administration permission.")
       .setResponseExample(getClass().getResource("logs-example.log"))
       .setSince("5.2")
+      .setChangelog(
+        new Change("10.4", "Add support for deprecation logs in process property."),
+        new Change("10.4", format("Deprecate property '%s' in favor of '%s'.", PROCESS_PROPERTY, NAME)))
       .setHandler(this);
 
     action
-      .createParam(PROCESS_PROPERTY)
+      .createParam(NAME)
+      .setDeprecatedKey(PROCESS_PROPERTY, "10.4")
       .setPossibleValues(values)
       .setDefaultValue(ProcessId.APP.getKey())
       .setSince("6.2")
-      .setDescription("Process to get logs from");
+      .setDescription("Name of the logs to get");
   }
 
   @Override
   public void handle(Request wsRequest, Response wsResponse) throws Exception {
     userSession.checkIsSystemAdministrator();
 
-    String processKey = wsRequest.mandatoryParam(PROCESS_PROPERTY);
-    String filePrefix = ACCESS_LOG.equals(processKey) ? ACCESS_LOG : ProcessId.fromKey(processKey).getLogFilenamePrefix();
+    String logName = wsRequest.mandatoryParam(NAME);
+    String filePrefix = getFilePrefix(logName);
 
     File logsDir = serverLogging.getLogsDir();
 
-    try (Stream<Path> stream = Files.list(Paths.get(logsDir.getPath()))) {
-      Optional<Path> path = stream
-        .filter(p -> p.getFileName().toString().contains(filePrefix)
-          && p.getFileName().toString().endsWith(".log"))
-        .max(Comparator.comparing(Path::toString));
+    Optional<Path> path = getLogFilePath(filePrefix, logsDir);
 
-      if (!path.isPresent()) {
-        wsResponse.stream().setStatus(HttpURLConnection.HTTP_NOT_FOUND);
-        return;
-      }
-
-      File file = new File(logsDir, path.get().getFileName().toString());
-
-      // filenames are defined in the enum LogProcess. Still to prevent any vulnerability,
-      // path is double-checked to prevent returning any file present on the file system.
-      if (file.exists() && file.getParentFile().equals(logsDir)) {
-        wsResponse.stream().setMediaType(MediaTypes.TXT);
-        FileUtils.copyFile(file, wsResponse.stream().output());
-      } else {
-        wsResponse.stream().setStatus(HttpURLConnection.HTTP_NOT_FOUND);
-      }
-    } catch (IOException e) {
-      throw new RuntimeException("Could not fetch logs", e);
+    if (path.isEmpty()) {
+      wsResponse.stream().setStatus(HttpURLConnection.HTTP_NOT_FOUND);
+      return;
     }
+
+    File file = new File(logsDir, path.get().getFileName().toString());
+
+    // filenames are defined in the enum LogProcess. Still to prevent any vulnerability,
+    // path is double-checked to prevent returning any file present on the file system.
+    if (file.exists() && file.getParentFile().equals(logsDir)) {
+      wsResponse.stream().setMediaType(MediaTypes.TXT);
+      FileUtils.copyFile(file, wsResponse.stream().output());
+    } else {
+      wsResponse.stream().setStatus(HttpURLConnection.HTTP_NOT_FOUND);
+    }
+
+  }
+
+  private static String getFilePrefix(String logName) {
+    return switch (logName) {
+      case ACCESS_LOG -> ACCESS_LOG;
+      case DEPRECATION_LOG -> DEPRECATION_LOG;
+      default -> ProcessId.fromKey(logName).getLogFilenamePrefix();
+    };
+  }
+
+  private static Optional<Path> getLogFilePath(String filePrefix, File logsDir) throws IOException {
+    try (Stream<Path> stream = Files.list(Paths.get(logsDir.getPath()))) {
+      return stream
+        .filter(hasMatchingLogFiles(filePrefix))
+        .max(Comparator.comparing(Path::toString));
+    }
+  }
+
+  private static Predicate<Path> hasMatchingLogFiles(String filePrefix) {
+    return p -> {
+      String stringPath = p.getFileName().toString();
+      return stringPath.startsWith(filePrefix) && stringPath.endsWith(".log");
+    };
   }
 }

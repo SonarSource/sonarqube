@@ -21,6 +21,7 @@ package org.sonar.server.platform.ws;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.Set;
 import org.apache.commons.io.FileUtils;
 import org.junit.Rule;
@@ -29,6 +30,7 @@ import org.junit.rules.TemporaryFolder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.log.ServerLogging;
 import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.MediaTypes;
@@ -46,33 +48,35 @@ public class LogsActionIT {
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
-  private ServerLogging serverLogging = mock(ServerLogging.class);
-  private LogsAction underTest = new LogsAction(userSession, serverLogging);
-  private WsActionTester actionTester = new WsActionTester(underTest);
+  private final ServerLogging serverLogging = mock(ServerLogging.class);
+  private final LogsAction underTest = new LogsAction(userSession, serverLogging);
+  private final WsActionTester actionTester = new WsActionTester(underTest);
 
+  // values are lower-case and alphabetically ordered
   @Test
-  public void values_of_process_parameter_are_names_of_processes() {
-    Set<String> values = actionTester.getDef().param("process").possibleValues();
-    // values are lower-case and alphabetically ordered
-    assertThat(values).containsExactly("access", "app", "ce", "es", "web");
+  public void possibleValues_shouldReturnPossibleLogFileValues() {
+    Set<String> values = actionTester.getDef().param("name").possibleValues();
+    assertThat(values).containsExactly("access", "app", "ce", "deprecation", "es", "web");
   }
 
   @Test
-  public void request_fails_with_ForbiddenException_when_user_is_not_logged_in() {
-    assertThatThrownBy(() -> actionTester.newRequest().execute())
+  public void execute_whenUserNotLoggedIn_shouldFailWithForbiddenException() {
+    TestRequest request = actionTester.newRequest();
+    assertThatThrownBy(request::execute)
       .isInstanceOf(ForbiddenException.class);
   }
 
   @Test
-  public void request_fails_with_ForbiddenException_when_user_is_not_system_administrator() {
+  public void execute_whenUserIsNotSystemAdministrator_shouldFailWithForbiddenException() {
     userSession.logIn();
 
-    assertThatThrownBy(() -> actionTester.newRequest().execute())
+    TestRequest request = actionTester.newRequest();
+    assertThatThrownBy(request::execute)
       .isInstanceOf(ForbiddenException.class);
   }
 
   @Test
-  public void get_app_logs_by_default() throws IOException {
+  public void execute_whenNoLogNameParamProvided_shouldReturnAppLogs() throws IOException {
     logInAsSystemAdministrator();
 
     createAllLogsFiles();
@@ -83,7 +87,20 @@ public class LogsActionIT {
   }
 
   @Test
-  public void return_404_not_found_if_file_does_not_exist() throws IOException {
+  public void execute_whenUsingDeprecatedProcessParameter_shouldReturnCorrectLogs() throws IOException {
+    logInAsSystemAdministrator();
+
+    createAllLogsFiles();
+
+    TestResponse response = actionTester.newRequest()
+      .setParam("process", "deprecation")
+      .execute();
+    assertThat(response.getMediaType()).isEqualTo(MediaTypes.TXT);
+    assertThat(response.getInput()).isEqualTo("{deprecation}");
+  }
+
+  @Test
+  public void execute_whenFileDoesNotExist_shouldReturn404NotFound() throws IOException {
     logInAsSystemAdministrator();
 
     createLogsDir();
@@ -93,14 +110,14 @@ public class LogsActionIT {
   }
 
   @Test
-  public void download_logs() throws IOException {
+  public void execute_whenLogNameProvided_shouldRespondWithLogsAccording() throws IOException {
     logInAsSystemAdministrator();
 
     createAllLogsFiles();
 
-    asList("ce", "es", "web", "access").forEach(process -> {
+    asList("ce", "es", "web", "access", "deprecation").forEach(process -> {
       TestResponse response = actionTester.newRequest()
-        .setParam("process", process)
+        .setParam("name", process)
         .execute();
       assertThat(response.getMediaType()).isEqualTo(MediaTypes.TXT);
       assertThat(response.getInput()).isEqualTo("{" + process + "}");
@@ -108,43 +125,60 @@ public class LogsActionIT {
   }
 
   @Test
-  public void do_not_return_rotated_files() throws IOException {
+  public void execute_whenNumberRollingPolicy_shouldReturnLatestOnly() throws IOException {
     logInAsSystemAdministrator();
 
     File dir = createLogsDir();
-    FileUtils.write(new File(dir, "sonar.1.log"), "{old}");
-    FileUtils.write(new File(dir, "sonar.log"), "{recent}");
+    writeTestLogFile(dir, "sonar.1.log", "{old}");
+    writeTestLogFile(dir, "sonar.log", "{recent}");
 
     TestResponse response = actionTester.newRequest()
-      .setParam("process", "app")
+      .setParam("name", "app")
       .execute();
     assertThat(response.getMediaType()).isEqualTo(MediaTypes.TXT);
     assertThat(response.getInput()).isEqualTo("{recent}");
   }
 
   @Test
-  public void create_latest_created_file() throws IOException {
+  public void execute_whenDateRollingPolicy_shouldReturnLatestLogFile() throws IOException {
     logInAsSystemAdministrator();
 
     File dir = createLogsDir();
-    FileUtils.write(new File(dir, "sonar.20210101.log"), "{old}");
-    FileUtils.write(new File(dir, "sonar.20210201.log"), "{recent}");
+    writeTestLogFile(dir, "sonar.20210101.log", "{old}");
+    writeTestLogFile(dir, "sonar.20210201.log", "{recent}");
 
     TestResponse response = actionTester.newRequest()
-      .setParam("process", "app")
+      .setParam("name", "app")
       .execute();
     assertThat(response.getMediaType()).isEqualTo(MediaTypes.TXT);
     assertThat(response.getInput()).isEqualTo("{recent}");
   }
 
-  private File createAllLogsFiles() throws IOException {
+  private void createAllLogsFiles() throws IOException {
     File dir = createLogsDir();
-    FileUtils.write(new File(dir, "access.log"), "{access}");
-    FileUtils.write(new File(dir, "sonar.log"), "{app}");
-    FileUtils.write(new File(dir, "ce.log"), "{ce}");
-    FileUtils.write(new File(dir, "es.log"), "{es}");
-    FileUtils.write(new File(dir, "web.log"), "{web}");
-    return dir;
+    writeTestLogFile(dir, "access.log", "{access}");
+    writeTestLogFile(dir, "sonar.log", "{app}");
+    writeTestLogFile(dir, "ce.log", "{ce}");
+    writeTestLogFile(dir, "es.log", "{es}");
+    writeTestLogFile(dir, "web.log", "{web}");
+    writeTestLogFile(dir, "deprecation.log", "{deprecation}");
+
+    writeTestLogFile(dir, "fake.access.log", "{fake-access}");
+    writeTestLogFile(dir, "access.19900110.log", "{fake-access}");
+    writeTestLogFile(dir, "fake.sonar.log", "{fake-app}");
+    writeTestLogFile(dir, "sonar.19900110.log", "{date-app}");
+    writeTestLogFile(dir, "fake.ce.log", "{fake-ce}");
+    writeTestLogFile(dir, "ce.19900110.log", "{date-ce}");
+    writeTestLogFile(dir, "fake.es.log", "{fake-es}");
+    writeTestLogFile(dir, "es.19900110.log", "{date-es}");
+    writeTestLogFile(dir, "fake.web.log", "{fake-web}");
+    writeTestLogFile(dir, "web.19900110.log", "{date-web}");
+    writeTestLogFile(dir, "fake.deprecation.log", "{fake-deprecation}");
+    writeTestLogFile(dir, "deprecation.19900110.log", "{date-deprecation}");
+  }
+
+  private static void writeTestLogFile(File dir, String child, String data) throws IOException {
+    FileUtils.write(new File(dir, child), data, Charset.defaultCharset());
   }
 
   private File createLogsDir() throws IOException {
