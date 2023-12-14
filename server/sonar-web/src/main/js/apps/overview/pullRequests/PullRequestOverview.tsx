@@ -20,15 +20,14 @@
 import { BasicSeparator, CenteredLayout, PageContentFontWrapper, Spinner } from 'design-system';
 import { uniq } from 'lodash';
 import * as React from 'react';
-import { useEffect, useState } from 'react';
-import { getMeasuresWithMetrics } from '../../../api/measures';
-import { fetchQualityGate, getGateForProject } from '../../../api/quality-gates';
 import { getBranchLikeQuery } from '../../../helpers/branch-like';
 import { enhanceConditionWithMeasure, enhanceMeasuresWithMetrics } from '../../../helpers/measures';
 import { isDefined } from '../../../helpers/types';
 import { useBranchStatusQuery } from '../../../queries/branch';
+import { useComponentMeasuresWithMetricsQuery } from '../../../queries/component';
+import { useComponentQualityGateQuery } from '../../../queries/quality-gates';
 import { PullRequest } from '../../../types/branch-like';
-import { Component, MeasureEnhanced, QualityGate } from '../../../types/types';
+import { Component } from '../../../types/types';
 import BranchQualityGate from '../components/BranchQualityGate';
 import IgnoredConditionWarning from '../components/IgnoredConditionWarning';
 import MetaTopBar from '../components/MetaTopBar';
@@ -43,53 +42,34 @@ interface Props {
   component: Component;
 }
 
-export default function PullRequestOverview(props: Props) {
+export default function PullRequestOverview(props: Readonly<Props>) {
   const { component, branchLike } = props;
-  const [isLoadingMeasures, setIsLoadingMeasures] = useState(false);
-  const [measures, setMeasures] = useState<MeasureEnhanced[]>([]);
+
   const {
     data: { conditions, ignoredConditions, status } = {},
     isLoading: isLoadingBranchStatusesData,
   } = useBranchStatusQuery(component);
-  const [isLoadingQualityGate, setIsLoadingQualityGate] = useState(false);
-  const [qualityGate, setQualityGate] = useState<QualityGate>();
-  const isLoading = isLoadingBranchStatusesData || isLoadingMeasures || isLoadingQualityGate;
 
-  useEffect(() => {
-    setIsLoadingMeasures(true);
+  const { data: qualityGate, isLoading: isLoadingQualityGate } = useComponentQualityGateQuery(
+    component.key,
+  );
 
-    const metricKeys =
-      conditions !== undefined
-        ? // Also load metrics that apply to QG conditions.
-          uniq([...PR_METRICS, ...conditions.map((c) => c.metric)])
-        : PR_METRICS;
-
-    getMeasuresWithMetrics(component.key, metricKeys, getBranchLikeQuery(branchLike)).then(
-      ({ component, metrics }) => {
-        if (component.measures) {
-          setIsLoadingMeasures(false);
-          setMeasures(enhanceMeasuresWithMetrics(component.measures || [], metrics));
-        }
-      },
-      () => {
-        setIsLoadingMeasures(false);
-      },
+  const { data: componentMeasures, isLoading: isLoadingMeasures } =
+    useComponentMeasuresWithMetricsQuery(
+      component.key,
+      uniq([...PR_METRICS, ...(conditions?.map((c) => c.metric) ?? [])]),
+      getBranchLikeQuery(branchLike),
+      !isLoadingBranchStatusesData,
     );
-  }, [branchLike, component.key, conditions]);
 
-  useEffect(() => {
-    async function fetchQualityGateDate() {
-      setIsLoadingQualityGate(true);
+  const measures = componentMeasures
+    ? enhanceMeasuresWithMetrics(
+        componentMeasures.component.measures ?? [],
+        componentMeasures.metrics,
+      )
+    : [];
 
-      const qualityGate = await getGateForProject({ project: component.key });
-      const qgDetails = await fetchQualityGate({ name: qualityGate.name });
-
-      setQualityGate(qgDetails);
-      setIsLoadingQualityGate(false);
-    }
-
-    fetchQualityGateDate();
-  }, [component.key]);
+  const isLoading = isLoadingBranchStatusesData || isLoadingMeasures || isLoadingQualityGate;
 
   if (isLoading) {
     return (

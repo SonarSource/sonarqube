@@ -281,7 +281,7 @@ export class QualityGatesServiceMock {
     jest.mocked(associateGateWithProject).mockImplementation(this.selectHandler);
     jest.mocked(dissociateGateWithProject).mockImplementation(this.deSelectHandler);
     jest.mocked(setQualityGateAsDefault).mockImplementation(this.setDefaultHandler);
-    (getGateForProject as jest.Mock).mockImplementation(this.projectGateHandler);
+    jest.mocked(getGateForProject).mockImplementation(this.projectGateHandler);
     jest.mocked(getQualityGateProjectStatus).mockImplementation(this.handleQualityGetProjectStatus);
     jest.mocked(getApplicationQualityGate).mockImplementation(this.handleGetApplicationQualityGate);
 
@@ -549,7 +549,16 @@ export class QualityGatesServiceMock {
       return Promise.reject('unknown');
     }
 
-    return this.reply(this.list.find((qg) => qg.name === this.getGateForProjectGateName));
+    const qualityGate = this.list.find((qg) => qg.name === this.getGateForProjectGateName);
+
+    if (!qualityGate) {
+      return Promise.reject('Unable to find quality gate');
+    }
+
+    return this.reply({
+      name: qualityGate.name,
+      isDefault: qualityGate.isDefault,
+    });
   };
 
   handleGetApplicationQualityGate = () => {

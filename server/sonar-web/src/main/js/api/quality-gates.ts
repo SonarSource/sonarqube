@@ -28,7 +28,7 @@ import {
   QualityGateProjectStatus,
   SearchPermissionsParameters,
 } from '../types/quality-gates';
-import { Condition, Paging, QualityGate } from '../types/types';
+import { Condition, Paging, QualityGate, QualityGatePreview } from '../types/types';
 import { UserBase } from '../types/users';
 
 export function fetchQualityGates(): Promise<{
@@ -81,7 +81,7 @@ export function deleteCondition(data: { id: string }): Promise<void> {
   return post('/api/qualitygates/delete_condition', data);
 }
 
-export function getGateForProject(data: { project: string }): Promise<QualityGate> {
+export function getGateForProject(data: { project: string }): Promise<QualityGatePreview> {
   return getJSON('/api/qualitygates/get_by_project', data).then(
     ({ qualityGate }) => ({
       ...qualityGate,

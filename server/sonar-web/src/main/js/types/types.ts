@@ -518,7 +518,12 @@ export enum CaycStatus {
   OverCompliant = 'over-compliant',
 }
 
-export interface QualityGate {
+export interface QualityGatePreview {
+  isDefault?: boolean;
+  name: string;
+}
+
+export interface QualityGate extends QualityGatePreview {
   actions?: {
     associateProjects?: boolean;
     copy?: boolean;
@@ -531,8 +536,6 @@ export interface QualityGate {
   conditions?: Condition[];
   isBuiltIn?: boolean;
   caycStatus?: CaycStatus;
-  isDefault?: boolean;
-  name: string;
 }
 
 export type RawQuery = Dict<any>;

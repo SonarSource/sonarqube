@@ -18,16 +18,57 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { useQuery } from '@tanstack/react-query';
+import { UseQueryResult, useQuery } from '@tanstack/react-query';
 import { getTasksForComponent } from '../api/ce';
+import { getMeasuresWithMetrics } from '../api/measures';
+import { BranchParameters } from '../types/branch-like';
+import { MeasuresAndMetaWithMetrics } from '../types/measures';
 import { Component } from '../types/types';
 
 const TASK_RETRY = 10_000;
 
+type QueryKeyData = {
+  metricKeys: string[];
+  branchParameters: BranchParameters;
+};
+
+function getComponentQueryKey(key: string, type: 'tasks'): string[];
+function getComponentQueryKey(key: string, type: 'measures', data: QueryKeyData): string[];
+function getComponentQueryKey(key: string, type: string, data?: QueryKeyData): string[] {
+  return ['component', key, type, JSON.stringify(data)];
+}
+
+function extractQueryKeyData(queryKey: string[]): { key: string; data?: QueryKeyData } {
+  const [, key, , data] = queryKey;
+  return { key, data: JSON.parse(data ?? 'null') };
+}
+
 export function useTaskForComponentQuery(component: Component) {
   return useQuery({
-    queryKey: ['component', component.key, 'tasks'] as const,
-    queryFn: ({ queryKey: [_, key] }) => getTasksForComponent(key),
+    queryKey: getComponentQueryKey(component.key, 'tasks'),
+    queryFn: ({ queryKey }) => {
+      const { key } = extractQueryKeyData(queryKey);
+      return getTasksForComponent(key);
+    },
     refetchInterval: TASK_RETRY,
+  });
+}
+
+export function useComponentMeasuresWithMetricsQuery(
+  key: string,
+  metricKeys: string[],
+  branchParameters: BranchParameters,
+  enabled = true,
+): UseQueryResult<MeasuresAndMetaWithMetrics> {
+  return useQuery({
+    enabled,
+    queryKey: getComponentQueryKey(key, 'measures', {
+      metricKeys,
+      branchParameters,
+    }),
+    queryFn: ({ queryKey }) => {
+      const { key, data } = extractQueryKeyData(queryKey);
+      return data && getMeasuresWithMetrics(key, data.metricKeys, data.branchParameters);
+    },
   });
 }
