@@ -70,12 +70,14 @@ export default function MeasuresCardNumber(
       data-guiding-id={conditionFailed ? guidingKeyOnError : undefined}
       {...rest}
     >
-      {requireLabel &&
-        (conditionFailed ? (
-          <TextError className="sw-mt-2 sw-font-regular" text={requireLabel} />
-        ) : (
-          <LightLabel className="sw-mt-2">{requireLabel}</LightLabel>
-        ))}
+      <span className="sw-body-xs sw-mt-3">
+        {requireLabel &&
+          (conditionFailed ? (
+            <TextError className="sw-font-regular" text={requireLabel} />
+          ) : (
+            <LightLabel>{requireLabel}</LightLabel>
+          ))}
+      </span>
     </MeasuresCard>
   );
 }

@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import styled from '@emotion/styled';
-import { Badge, Card, ContentLink, themeColor } from 'design-system';
+import { Badge, Card, ContentLink, themeBorder, themeColor } from 'design-system';
 import * as React from 'react';
 import { To } from 'react-router-dom';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
@@ -40,42 +40,40 @@ export default function MeasuresCard(
   const { failed, children, metric, icon, value, url, label, ...rest } = props;
 
   return (
-    <Card
-      className="sw-h-fit sw-p-8 sw-rounded-2 sw-flex sw-justify-between sw-items-center sw-text-base"
-      {...rest}
-    >
-      <div className="sw-flex sw-flex-col sw-gap-1 sw-justify-between">
-        <div className="sw-flex sw-items-center sw-gap-2 sw-font-semibold">
-          {value ? (
-            <ContentLink
-              aria-label={translateWithParameters(
-                'overview.see_more_details_on_x_of_y',
-                value,
-                localizeMetric(metric),
-              )}
-              className="it__overview-measures-value sw-text-lg"
-              to={url}
-            >
-              {value}
-            </ContentLink>
-          ) : (
-            <StyledNoValue> — </StyledNoValue>
-          )}
-          {translate(label)}
-          {failed && (
-            <Badge className="sw-mt-1/2" variant="deleted">
-              {translate('overview.measures.failed_badge')}
-            </Badge>
-          )}
-        </div>
-        {children && <div className="sw-flex sw-flex-col">{children}</div>}
+    <StyledCard className="sw-h-fit sw-p-6 sw-rounded-2 sw-text-base" {...rest}>
+      <ColorBold className="sw-body-sm-highlight">{translate(label)}</ColorBold>
+      {failed && (
+        <Badge className="sw-mt-1/2 sw-px-1 sw-ml-2" variant="deleted">
+          {translate('overview.measures.failed_badge')}
+        </Badge>
+      )}
+      <div className="sw-flex sw-items-center sw-mt-1 sw-justify-between sw-font-semibold">
+        {value ? (
+          <ContentLink
+            aria-label={translateWithParameters(
+              'overview.see_more_details_on_x_of_y',
+              value,
+              localizeMetric(metric),
+            )}
+            className="it__overview-measures-value sw-text-lg"
+            to={url}
+          >
+            {value}
+          </ContentLink>
+        ) : (
+          <ColorBold> — </ColorBold>
+        )}
+        {icon}
       </div>
-
-      {icon && <div>{icon}</div>}
-    </Card>
+      {children && <div className="sw-flex sw-flex-col">{children}</div>}
+    </StyledCard>
   );
 }
 
-const StyledNoValue = styled.span`
+const StyledCard = styled(Card)`
+  border: ${themeBorder('default')};
+`;
+
+const ColorBold = styled.span`
   color: ${themeColor('pageTitle')};
 `;

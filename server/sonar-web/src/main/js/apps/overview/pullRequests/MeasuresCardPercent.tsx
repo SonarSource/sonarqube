@@ -113,46 +113,49 @@ export default function MeasuresCardPercent(
       icon={renderIcon(measurementType, value)}
     >
       <>
-        {requireLabel &&
-          (conditionFailed ? (
-            <TextError className="sw-mt-2 sw-font-regular" text={requireLabel} />
-          ) : (
-            <LightLabel className="sw-mt-2">{requireLabel}</LightLabel>
-          ))}
+        <span className="sw-body-xs sw-mt-3">
+          {requireLabel &&
+            (conditionFailed ? (
+              <TextError className="sw-font-regular" text={requireLabel} />
+            ) : (
+              <LightLabel>{requireLabel}</LightLabel>
+            ))}
+        </span>
 
-        <LightLabel className="sw-flex sw-items-center sw-gap-1 sw-mt-4">
-          <FormattedMessage
-            defaultMessage={translate(newLinesLabel)}
-            id={newLinesLabel}
-            values={{
-              link: (
-                <ContentLink
-                  aria-label={translateWithParameters(
-                    'overview.see_more_details_on_x_y',
-                    newLinesValue ?? '0',
-                    localizeMetric(newLinesMetric),
-                  )}
-                  className="sw-body-md-highlight sw-text-lg"
-                  to={newLinesUrl}
-                >
-                  {formatMeasure(newLinesValue ?? '0', MetricType.ShortInteger)}
-                </ContentLink>
-              ),
-            }}
-          />
-        </LightLabel>
-
-        {afterMergeValue && (
-          <LightLabel className="sw-mt-2">
+        <div className="sw-flex sw-justify-between sw-items-center sw-mt-1">
+          <LightLabel className="sw-flex sw-items-center sw-gap-1 ">
             <FormattedMessage
-              defaultMessage={translate('overview.quality_gate.x_estimated_after_merge')}
-              id="overview.quality_gate.x_estimated_after_merge"
+              defaultMessage={translate(newLinesLabel)}
+              id={newLinesLabel}
               values={{
-                value: <strong>{formatMeasure(afterMergeValue, MetricType.Percent)}</strong>,
+                link: (
+                  <ContentLink
+                    aria-label={translateWithParameters(
+                      'overview.see_more_details_on_x_y',
+                      newLinesValue ?? '0',
+                      localizeMetric(newLinesMetric),
+                    )}
+                    className="sw-body-md-highlight sw-text-lg"
+                    to={newLinesUrl}
+                  >
+                    {formatMeasure(newLinesValue ?? '0', MetricType.ShortInteger)}
+                  </ContentLink>
+                ),
               }}
             />
           </LightLabel>
-        )}
+          <LightLabel className="sw-mt-[1px]">
+            {afterMergeValue && (
+              <FormattedMessage
+                defaultMessage={translate('overview.quality_gate.x_estimated_after_merge')}
+                id="overview.quality_gate.x_estimated_after_merge"
+                values={{
+                  value: <strong>{formatMeasure(afterMergeValue, MetricType.Percent)}</strong>,
+                }}
+              />
+            )}
+          </LightLabel>
+        </div>
       </>
     </MeasuresCard>
   );

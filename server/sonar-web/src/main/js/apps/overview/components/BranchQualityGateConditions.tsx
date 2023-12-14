@@ -80,7 +80,7 @@ function FailedQGCondition(
 
   return (
     <StyledConditionButton className="sw-px-3 sw-py-2 sw-rounded-1 sw-body-sm" to={url}>
-      <Badge className="sw-mr-2" variant="deleted">
+      <Badge className="sw-mr-2 sw-px-1" variant="deleted">
         {translate('overview.measures.failed_badge')}
       </Badge>
       <SpanDanger>

@@ -116,7 +116,7 @@ export default function MeasuresCardPanel(props: React.PropsWithChildren<Props>)
           conditions={conditions}
           conditionMetric={MetricKey.new_duplicated_lines_density}
           newLinesMetric={MetricKey.new_lines}
-          afterMergeMetric={MetricKey.duplicated_lines_density}
+          afterMergeMetric={MetricKey.coverage}
           measures={measures}
         />
       </div>
