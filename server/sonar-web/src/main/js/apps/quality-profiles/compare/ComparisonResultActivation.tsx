@@ -29,6 +29,7 @@ import ActivationFormModal from '../../coding-rules/components/ActivationFormMod
 
 interface Props {
   onDone: () => Promise<void>;
+  organization?: string;
   profile: Profile;
   ruleKey: string;
 }
@@ -52,7 +53,7 @@ export default class ComparisonResultActivation extends React.PureComponent<Prop
 
   handleButtonClick = () => {
     this.setState({ state: 'opening' });
-    getRuleDetails({ key: this.props.ruleKey }).then(
+    getRuleDetails({ key: this.props.ruleKey, organization: this.props.organization }).then(
       ({ rule }) => {
         if (this.mounted) {
           this.setState({ rule, state: 'open' });

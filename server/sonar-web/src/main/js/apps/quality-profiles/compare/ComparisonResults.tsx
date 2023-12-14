@@ -93,6 +93,7 @@ export default class ComparisonResults extends React.PureComponent<Props> {
                 <ComparisonResultActivation
                   key={rule.key}
                   onDone={this.props.refresh}
+                  organization={this.props.organization}
                   profile={this.props.rightProfile}
                   ruleKey={rule.key}
                 >
@@ -130,6 +131,7 @@ export default class ComparisonResults extends React.PureComponent<Props> {
               <ComparisonResultActivation
                 key={rule.key}
                 onDone={this.props.refresh}
+                organization={this.props.organization}
                 profile={this.props.leftProfile}
                 ruleKey={rule.key}
               >
