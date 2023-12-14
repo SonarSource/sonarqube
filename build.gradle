@@ -376,7 +376,6 @@ subprojects {
       dependency('org.codehaus.sonar:sonar-channel:4.2') {
         exclude 'org.slf4j:slf4j-api'
       }
-      dependency 'org.codehaus.sonar:sonar-classloader:1.0'
       dependency 'com.fasterxml.staxmate:staxmate:2.4.1'
       dependencySet(group: 'org.eclipse.jetty', version: '9.4.6.v20170531') {
         entry 'jetty-proxy'
