@@ -53,10 +53,7 @@ export default function MeasuresCardNumber(
       { id: 'overview.quality_gate.required_x' },
       {
         operator: condition.op === 'GT' ? '≤' : '≥',
-        value: formatMeasure(condition.error, MetricType.Percent, {
-          decimals: 2,
-          omitExtraDecimalZeros: true,
-        }),
+        value: formatMeasure(condition.error, MetricType.Integer),
       },
     );
 
