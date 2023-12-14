@@ -23,7 +23,7 @@ import DocLink from '../../../../components/common/DocLink';
 import Modal from '../../../../components/controls/Modal';
 import { Button } from '../../../../components/controls/buttons';
 import { translate } from '../../../../helpers/l10n';
-import { useToggleGithubProvisioningMutation } from '../../../../queries/identity-provider';
+import { useToggleGithubProvisioningMutation } from '../../../../queries/identity-provider/github';
 import { useGetValueQuery, useResetSettingsMutation } from '../../../../queries/settings';
 
 const GITHUB_PERMISSION_USER_CONSENT =

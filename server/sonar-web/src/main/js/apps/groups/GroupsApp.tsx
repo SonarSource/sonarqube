@@ -27,7 +27,7 @@ import SearchBox from '../../components/controls/SearchBox';
 import Suggestions from '../../components/embed-docs-modal/Suggestions';
 import { translate } from '../../helpers/l10n';
 import { useGroupsQueries } from '../../queries/groups';
-import { useIdentityProviderQuery } from '../../queries/identity-provider';
+import { useIdentityProviderQuery } from '../../queries/identity-provider/common';
 import { Provider } from '../../types/types';
 import Header from './components/Header';
 import List from './components/List';

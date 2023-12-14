@@ -22,8 +22,8 @@ import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
 import selectEvent from 'react-select-event';
-import AuthenticationServiceMock from '../../../api/mocks/AuthenticationServiceMock';
 import ComponentsServiceMock from '../../../api/mocks/ComponentsServiceMock';
+import GithubProvisioningServiceMock from '../../../api/mocks/GithubProvisioningServiceMock';
 import SettingsServiceMock from '../../../api/mocks/SettingsServiceMock';
 import SystemServiceMock from '../../../api/mocks/SystemServiceMock';
 import UserTokensMock from '../../../api/mocks/UserTokensMock';
@@ -42,7 +42,7 @@ const tokenHandler = new UserTokensMock();
 const systemHandler = new SystemServiceMock();
 const componentsHandler = new ComponentsServiceMock();
 const settingsHandler = new SettingsServiceMock();
-const authenticationHandler = new AuthenticationServiceMock();
+const githubHandler = new GithubProvisioningServiceMock();
 
 const ui = {
   createUserButton: byRole('button', { name: 'users.create_user' }),
@@ -142,7 +142,7 @@ beforeEach(() => {
   componentsHandler.reset();
   settingsHandler.reset();
   systemHandler.reset();
-  authenticationHandler.reset();
+  githubHandler.reset();
 });
 
 describe('different filters combinations', () => {
@@ -592,11 +592,11 @@ describe('in manage mode', () => {
 
   describe('Github Provisioning', () => {
     beforeEach(() => {
-      authenticationHandler.handleActivateGithubProvisioning();
+      githubHandler.handleActivateGithubProvisioning();
     });
 
     it('should display a success status when the synchronisation is a success', async () => {
-      authenticationHandler.addProvisioningTask({
+      githubHandler.addProvisioningTask({
         status: TaskStatuses.Success,
         executedAt: '2022-02-03T11:45:35+0200',
       });
@@ -605,11 +605,11 @@ describe('in manage mode', () => {
     });
 
     it('should display a success status even when another task is pending', async () => {
-      authenticationHandler.addProvisioningTask({
+      githubHandler.addProvisioningTask({
         status: TaskStatuses.Pending,
         executedAt: '2022-02-03T11:55:35+0200',
       });
-      authenticationHandler.addProvisioningTask({
+      githubHandler.addProvisioningTask({
         status: TaskStatuses.Success,
         executedAt: '2022-02-03T11:45:35+0200',
       });
@@ -619,7 +619,7 @@ describe('in manage mode', () => {
     });
 
     it('should display an error alert when the synchronisation failed', async () => {
-      authenticationHandler.addProvisioningTask({
+      githubHandler.addProvisioningTask({
         status: TaskStatuses.Failed,
         executedAt: '2022-02-03T11:45:35+0200',
         errorMessage: 'Error Message',
@@ -631,11 +631,11 @@ describe('in manage mode', () => {
     });
 
     it('should display an error alert even when another task is in progress', async () => {
-      authenticationHandler.addProvisioningTask({
+      githubHandler.addProvisioningTask({
         status: TaskStatuses.InProgress,
         executedAt: '2022-02-03T11:55:35+0200',
       });
-      authenticationHandler.addProvisioningTask({
+      githubHandler.addProvisioningTask({
         status: TaskStatuses.Failed,
         executedAt: '2022-02-03T11:45:35+0200',
         errorMessage: 'Error Message',
@@ -649,7 +649,7 @@ describe('in manage mode', () => {
 
     it('should display an warning alert', async () => {
       const warningMessage = 'Very long warning about something that user is not interested in';
-      authenticationHandler.addProvisioningTask({
+      githubHandler.addProvisioningTask({
         status: TaskStatuses.Success,
         warnings: [warningMessage],
       });

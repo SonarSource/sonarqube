@@ -32,7 +32,7 @@ import Suggestions from '../../components/embed-docs-modal/Suggestions';
 import Spinner from '../../components/ui/Spinner';
 import { now, toISO8601WithOffsetString } from '../../helpers/dates';
 import { translate } from '../../helpers/l10n';
-import { useIdentityProviderQuery } from '../../queries/identity-provider';
+import { useIdentityProviderQuery } from '../../queries/identity-provider/common';
 import { useUsersQueries } from '../../queries/users';
 import { IdentityProvider, Provider } from '../../types/types';
 import { RestUserDetailed } from '../../types/users';

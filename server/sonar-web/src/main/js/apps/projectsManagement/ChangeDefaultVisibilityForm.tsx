@@ -23,7 +23,7 @@ import Radio from '../../components/controls/Radio';
 import { Button, ResetButtonLink } from '../../components/controls/buttons';
 import { Alert } from '../../components/ui/Alert';
 import { translate } from '../../helpers/l10n';
-import { useGithubProvisioningEnabledQuery } from '../../queries/identity-provider';
+import { useGithubProvisioningEnabledQuery } from '../../queries/identity-provider/github';
 import { Visibility } from '../../types/component';
 
 export interface Props {

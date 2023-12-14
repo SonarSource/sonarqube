@@ -22,7 +22,7 @@ import * as React from 'react';
 import { translate } from '../../helpers/l10n';
 import { isPermissionDefinitionGroup } from '../../helpers/permissions';
 import { getBaseUrl } from '../../helpers/system';
-import { useIdentityProviderQuery } from '../../queries/identity-provider';
+import { useIdentityProviderQuery } from '../../queries/identity-provider/common';
 import { Permissions } from '../../types/permissions';
 import { PermissionDefinitions, PermissionGroup, Provider } from '../../types/types';
 import GroupIcon from '../icons/GroupIcon';

@@ -33,7 +33,7 @@ import {
   convertToPermissionDefinitions,
 } from '../../../../helpers/permissions';
 import { useIsGitHubProjectQuery } from '../../../../queries/devops-integration';
-import { useGithubProvisioningEnabledQuery } from '../../../../queries/identity-provider';
+import { useGithubProvisioningEnabledQuery } from '../../../../queries/identity-provider/github';
 import { ComponentContextShape, Visibility } from '../../../../types/component';
 import { Permissions } from '../../../../types/permissions';
 import { Component, Paging, PermissionGroup, PermissionUser } from '../../../../types/types';

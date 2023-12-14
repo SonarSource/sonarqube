@@ -27,7 +27,7 @@ import QualifierIcon from '../../components/icons/QualifierIcon';
 import DateFormatter from '../../components/intl/DateFormatter';
 import { translate, translateWithParameters } from '../../helpers/l10n';
 import { getComponentOverviewUrl } from '../../helpers/urls';
-import { useGithubProvisioningEnabledQuery } from '../../queries/identity-provider';
+import { useGithubProvisioningEnabledQuery } from '../../queries/identity-provider/github';
 import { ComponentQualifier } from '../../types/component';
 import { LoggedInUser } from '../../types/users';
 import './ProjectRow.css';

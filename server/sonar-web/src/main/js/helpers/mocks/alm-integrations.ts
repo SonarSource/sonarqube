@@ -107,10 +107,11 @@ export function mockGitlabConfiguration(
     id: Math.random().toString(),
     enabled: false,
     url: 'URL',
+    applicationId: '123',
     allowUsersToSignUp: false,
-    synchronizeUserGroups: true,
-    type: ProvisioningType.jit,
-    groups: [],
+    synchronizeGroups: true,
+    synchronizationType: ProvisioningType.jit,
+    provisioningGroups: [],
     ...overrides,
   };
 }

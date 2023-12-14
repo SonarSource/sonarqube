@@ -29,7 +29,7 @@ import { translate } from '../../../../helpers/l10n';
 import {
   useCreateGitLabConfigurationMutation,
   useUpdateGitLabConfigurationMutation,
-} from '../../../../queries/identity-provider';
+} from '../../../../queries/identity-provider/gitlab';
 import { GitLabConfigurationCreateBody, GitlabConfiguration } from '../../../../types/provisioning';
 import { DefinitionV2, SettingType } from '../../../../types/settings';
 import { DOCUMENTATION_LINK_SUFFIXES } from './Authentication';
@@ -64,13 +64,13 @@ export default function GitLabConfigurationForm(props: Readonly<Props>) {
     Record<keyof GitLabConfigurationCreateBody, FormData>
   >({
     applicationId: {
-      value: '',
+      value: data?.applicationId ?? '',
       required: true,
       definition: {
         name: translate('settings.authentication.gitlab.form.applicationId.name'),
         key: 'applicationId',
         description: translate('settings.authentication.gitlab.form.applicationId.description'),
-        secured: true,
+        secured: false,
       },
     },
     url: {
@@ -83,26 +83,24 @@ export default function GitLabConfigurationForm(props: Readonly<Props>) {
         description: translate('settings.authentication.gitlab.form.url.description'),
       },
     },
-    clientSecret: {
+    secret: {
       value: '',
       required: true,
       definition: {
-        name: translate('settings.authentication.gitlab.form.clientSecret.name'),
+        name: translate('settings.authentication.gitlab.form.secret.name'),
         secured: true,
-        key: 'clientSecret',
-        description: translate('settings.authentication.gitlab.form.clientSecret.description'),
+        key: 'secret',
+        description: translate('settings.authentication.gitlab.form.secret.description'),
       },
     },
-    synchronizeUserGroups: {
-      value: data?.synchronizeUserGroups ?? false,
+    synchronizeGroups: {
+      value: data?.synchronizeGroups ?? false,
       required: false,
       definition: {
-        name: translate('settings.authentication.gitlab.form.synchronizeUserGroups.name'),
+        name: translate('settings.authentication.gitlab.form.synchronizeGroups.name'),
         secured: false,
-        key: 'synchronizeUserGroups',
-        description: translate(
-          'settings.authentication.gitlab.form.synchronizeUserGroups.description',
-        ),
+        key: 'synchronizeGroups',
+        description: translate('settings.authentication.gitlab.form.synchronizeGroups.description'),
         type: SettingType.BOOLEAN,
       },
     },

@@ -30,7 +30,7 @@ import {
   convertToPermissionDefinitions,
   isPermissionDefinitionGroup,
 } from '../../../../helpers/permissions';
-import { useGithubRolesMappingQuery } from '../../../../queries/identity-provider';
+import { useGithubRolesMappingQuery } from '../../../../queries/identity-provider/github';
 import { GitHubMapping } from '../../../../types/provisioning';
 
 interface Props {

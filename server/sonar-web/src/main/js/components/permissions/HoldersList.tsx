@@ -24,7 +24,7 @@ import UseQuery from '../../helpers/UseQuery';
 import { translate } from '../../helpers/l10n';
 import { isPermissionDefinitionGroup } from '../../helpers/permissions';
 import { useIsGitHubProjectQuery } from '../../queries/devops-integration';
-import { useGithubProvisioningEnabledQuery } from '../../queries/identity-provider';
+import { useGithubProvisioningEnabledQuery } from '../../queries/identity-provider/github';
 import { Dict, PermissionDefinitions, PermissionGroup, PermissionUser } from '../../types/types';
 import GroupHolder from './GroupHolder';
 import PermissionHeader from './PermissionHeader';

@@ -96,33 +96,34 @@ export interface GitHubMapping {
 export interface GitLabConfigurationCreateBody {
   applicationId: string;
   url: string;
-  clientSecret: string;
-  synchronizeUserGroups: boolean;
+  secret: string;
+  synchronizeGroups: boolean;
 }
 
 export type GitLabConfigurationUpdateBody = {
   applicationId?: string;
   url?: string;
-  clientSecret?: string;
-  synchronizeUserGroups?: boolean;
+  secret?: string;
+  synchronizeGroups?: boolean;
   enabled?: boolean;
-  type?: ProvisioningType;
+  synchronizationType?: ProvisioningType;
   provisioningToken?: string;
-  groups?: string[];
+  provisioningGroups?: string[];
   allowUsersToSignUp?: boolean;
 };
 
 export type GitlabConfiguration = {
   id: string;
   enabled: boolean;
-  synchronizeUserGroups: boolean;
+  applicationId: string;
+  synchronizeGroups: boolean;
   url: string;
-  type: ProvisioningType;
-  groups: string[];
+  synchronizationType: ProvisioningType;
+  provisioningGroups: string[];
   allowUsersToSignUp: boolean;
 };
 
 export enum ProvisioningType {
   jit = 'JIT',
-  auto = 'Auto',
+  auto = 'AUTO_PROVISIONING',
 }

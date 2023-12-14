@@ -25,7 +25,7 @@ import Spinner from '../../components/ui/Spinner';
 import { throwGlobalError } from '../../helpers/error';
 import { translate, translateWithParameters } from '../../helpers/l10n';
 import { getComponentPermissionsUrl } from '../../helpers/urls';
-import { useGithubProvisioningEnabledQuery } from '../../queries/identity-provider';
+import { useGithubProvisioningEnabledQuery } from '../../queries/identity-provider/github';
 import { LoggedInUser } from '../../types/users';
 import ApplyTemplate from '../permissions/project/components/ApplyTemplate';
 import RestoreAccessModal from './RestoreAccessModal';

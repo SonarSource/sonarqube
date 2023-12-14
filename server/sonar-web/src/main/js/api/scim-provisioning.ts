@@ -17,23 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
-import { useGitLabSyncStatusQuery } from '../../queries/identity-provider/gitlab';
-import AlmSynchronisationWarning from './AlmSynchronisationWarning';
-import './SystemAnnouncement.css';
+import { throwGlobalError } from '../helpers/error';
+import { getJSON, post } from '../helpers/request';
 
-interface Props {
-  short?: boolean;
+export function fetchIsScimEnabled(): Promise<boolean> {
+  return getJSON('/api/scim_management/status')
+    .then((r) => r.enabled)
+    .catch(throwGlobalError);
 }
 
-function GitLabSynchronisationWarning({ short }: Readonly<Props>) {
-  const { data } = useGitLabSyncStatusQuery();
-
-  if (!data) {
-    return null;
-  }
-
-  return <AlmSynchronisationWarning short={short} data={data} />;
+export function activateScim(): Promise<void> {
+  return post('/api/scim_management/enable').catch(throwGlobalError);
 }
 
-export default GitLabSynchronisationWarning;
+export function deactivateScim(): Promise<void> {
+  return post('/api/scim_management/disable').catch(throwGlobalError);
+}

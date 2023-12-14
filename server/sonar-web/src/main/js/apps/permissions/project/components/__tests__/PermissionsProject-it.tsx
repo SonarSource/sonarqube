@@ -21,7 +21,7 @@
 import { act, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import AlmSettingsServiceMock from '../../../../../api/mocks/AlmSettingsServiceMock';
-import AuthenticationServiceMock from '../../../../../api/mocks/AuthenticationServiceMock';
+import GithubProvisioningServiceMock from '../../../../../api/mocks/GithubProvisioningServiceMock';
 import PermissionsServiceMock from '../../../../../api/mocks/PermissionsServiceMock';
 import SystemServiceMock from '../../../../../api/mocks/SystemServiceMock';
 import { mockComponent } from '../../../../../helpers/mocks/component';
@@ -47,19 +47,19 @@ import { projectPermissionsRoutes } from '../../../routes';
 import { getPageObject } from '../../../test-utils';
 
 let serviceMock: PermissionsServiceMock;
-let authHandler: AuthenticationServiceMock;
+let githubHandler: GithubProvisioningServiceMock;
 let almHandler: AlmSettingsServiceMock;
 let systemHandler: SystemServiceMock;
 beforeAll(() => {
   serviceMock = new PermissionsServiceMock();
-  authHandler = new AuthenticationServiceMock();
+  githubHandler = new GithubProvisioningServiceMock();
   almHandler = new AlmSettingsServiceMock();
   systemHandler = new SystemServiceMock();
 });
 
 afterEach(() => {
   serviceMock.reset();
-  authHandler.reset();
+  githubHandler.reset();
   almHandler.reset();
 });
 
@@ -248,7 +248,7 @@ describe('GH provisioning', () => {
   it('should not allow to change visibility for GH Project with auto-provisioning', async () => {
     const user = userEvent.setup();
     const ui = getPageObject(user);
-    authHandler.githubProvisioningStatus = true;
+    githubHandler.githubProvisioningStatus = true;
     almHandler.handleSetProjectBinding(AlmKeys.GitHub, {
       almSetting: 'test',
       repository: 'test',
@@ -270,7 +270,7 @@ describe('GH provisioning', () => {
   it('should allow to change visibility for non-GH Project', async () => {
     const user = userEvent.setup();
     const ui = getPageObject(user);
-    authHandler.githubProvisioningStatus = true;
+    githubHandler.githubProvisioningStatus = true;
     almHandler.handleSetProjectBinding(AlmKeys.Azure, {
       almSetting: 'test',
       repository: 'test',
@@ -292,7 +292,7 @@ describe('GH provisioning', () => {
   it('should allow to change visibility for GH Project with disabled auto-provisioning', async () => {
     const user = userEvent.setup();
     const ui = getPageObject(user);
-    authHandler.githubProvisioningStatus = false;
+    githubHandler.githubProvisioningStatus = false;
     almHandler.handleSetProjectBinding(AlmKeys.GitHub, {
       almSetting: 'test',
       repository: 'test',
@@ -314,7 +314,7 @@ describe('GH provisioning', () => {
   it('should have disabled permissions for GH Project', async () => {
     const user = userEvent.setup();
     const ui = getPageObject(user);
-    authHandler.githubProvisioningStatus = true;
+    githubHandler.githubProvisioningStatus = true;
     almHandler.handleSetProjectBinding(AlmKeys.GitHub, {
       almSetting: 'test',
       repository: 'test',
@@ -393,7 +393,7 @@ describe('GH provisioning', () => {
   it('should allow to change permissions for GH Project without auto-provisioning', async () => {
     const user = userEvent.setup();
     const ui = getPageObject(user);
-    authHandler.githubProvisioningStatus = false;
+    githubHandler.githubProvisioningStatus = false;
     almHandler.handleSetProjectBinding(AlmKeys.GitHub, {
       almSetting: 'test',
       repository: 'test',
@@ -422,7 +422,7 @@ describe('GH provisioning', () => {
   it('should allow to change permissions for non-GH Project', async () => {
     const user = userEvent.setup();
     const ui = getPageObject(user);
-    authHandler.githubProvisioningStatus = true;
+    githubHandler.githubProvisioningStatus = true;
     renderPermissionsProjectApp({}, { featureList: [Feature.GithubProvisioning] });
     await ui.appLoaded();
 

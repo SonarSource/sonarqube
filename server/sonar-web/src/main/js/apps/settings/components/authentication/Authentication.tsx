@@ -77,7 +77,7 @@ export function Authentication(props: Props & WithAvailableFeaturesProps) {
 
   const [query, setSearchParams] = useSearchParams();
 
-  const currentTab = (query.get('tab') || SAML) as AuthenticationTabs;
+  const currentTab = (query.get('tab') ?? SAML) as AuthenticationTabs;
 
   const tabs = [
     {
@@ -113,11 +113,10 @@ export function Authentication(props: Props & WithAvailableFeaturesProps) {
     },
   ] as const;
 
-  const [samlDefinitions, githubDefinitions, gitlabDefinitions] = React.useMemo(
+  const [samlDefinitions, githubDefinitions] = React.useMemo(
     () => [
       definitions.filter((def) => def.subCategory === SAML),
       definitions.filter((def) => def.subCategory === AlmKeys.GitHub),
-      definitions.filter((def) => def.subCategory === AlmKeys.GitLab),
     ],
     [definitions],
   );
@@ -175,48 +174,48 @@ export function Authentication(props: Props & WithAvailableFeaturesProps) {
                 aria-labelledby={getTabId(tab.key)}
                 id={getTabPanelId(tab.key)}
               >
-                <div className="big-padded-top big-padded-left big-padded-right">
-                  {tab.key === SAML && <SamlAuthenticationTab definitions={samlDefinitions} />}
+                {currentTab === tab.key && (
+                  <div className="big-padded-top big-padded-left big-padded-right">
+                    {tab.key === SAML && <SamlAuthenticationTab definitions={samlDefinitions} />}
 
-                  {tab.key === AlmKeys.GitHub && (
-                    <GithubAuthenticationTab
-                      currentTab={currentTab}
-                      definitions={githubDefinitions}
-                    />
-                  )}
-
-                  {tab.key === AlmKeys.GitLab && (
-                    <GitLabAuthenticationTab definitions={gitlabDefinitions} />
-                  )}
-
-                  {tab.key === AlmKeys.BitbucketServer && (
-                    <>
-                      <Alert variant="info">
-                        <FormattedMessage
-                          id="settings.authentication.help"
-                          defaultMessage={translate('settings.authentication.help')}
-                          values={{
-                            link: (
-                              <DocLink
-                                to={`/instance-administration/authentication/${
-                                  DOCUMENTATION_LINK_SUFFIXES[tab.key]
-                                }/`}
-                              >
-                                {translate('settings.authentication.help.link')}
-                              </DocLink>
-                            ),
-                          }}
-                        />
-                      </Alert>
-                      <CategoryDefinitionsList
-                        category={AUTHENTICATION_CATEGORY}
-                        definitions={definitions}
-                        subCategory={tab.key}
-                        displaySubCategoryTitle={false}
+                    {tab.key === AlmKeys.GitHub && (
+                      <GithubAuthenticationTab
+                        currentTab={currentTab}
+                        definitions={githubDefinitions}
                       />
-                    </>
-                  )}
-                </div>
+                    )}
+
+                    {tab.key === AlmKeys.GitLab && <GitLabAuthenticationTab />}
+
+                    {tab.key === AlmKeys.BitbucketServer && (
+                      <>
+                        <Alert variant="info">
+                          <FormattedMessage
+                            id="settings.authentication.help"
+                            defaultMessage={translate('settings.authentication.help')}
+                            values={{
+                              link: (
+                                <DocLink
+                                  to={`/instance-administration/authentication/${
+                                    DOCUMENTATION_LINK_SUFFIXES[tab.key]
+                                  }/`}
+                                >
+                                  {translate('settings.authentication.help.link')}
+                                </DocLink>
+                              ),
+                            }}
+                          />
+                        </Alert>
+                        <CategoryDefinitionsList
+                          category={AUTHENTICATION_CATEGORY}
+                          definitions={definitions}
+                          subCategory={tab.key}
+                          displaySubCategoryTitle={false}
+                        />
+                      </>
+                    )}
+                  </div>
+                )}
               </div>
             ))}
           </>

@@ -21,7 +21,7 @@ import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { UserEvent } from '@testing-library/user-event/dist/types/setup/setup';
 import { uniq } from 'lodash';
-import AuthenticationServiceMock from '../../../../api/mocks/AuthenticationServiceMock';
+import GithubProvisioningServiceMock from '../../../../api/mocks/GithubProvisioningServiceMock';
 import PermissionsServiceMock from '../../../../api/mocks/PermissionsServiceMock';
 import { mockPermissionGroup, mockPermissionUser } from '../../../../helpers/mocks/permissions';
 import { PERMISSIONS_ORDER_FOR_PROJECT_TEMPLATE } from '../../../../helpers/permissions';
@@ -35,11 +35,11 @@ import { PermissionGroup, PermissionUser } from '../../../../types/types';
 import routes from '../../routes';
 
 const serviceMock = new PermissionsServiceMock();
-const authServiceMock = new AuthenticationServiceMock();
+const githubHandler = new GithubProvisioningServiceMock();
 
 beforeEach(() => {
   serviceMock.reset();
-  authServiceMock.reset();
+  githubHandler.reset();
 });
 
 describe('rendering', () => {
@@ -394,7 +394,7 @@ it.each([ComponentQualifier.Project, ComponentQualifier.Application, ComponentQu
 it('should show github warning', async () => {
   const user = userEvent.setup();
   const ui = getPageObject(user);
-  authServiceMock.githubProvisioningStatus = true;
+  githubHandler.githubProvisioningStatus = true;
   renderPermissionTemplatesApp(undefined, [Feature.GithubProvisioning]);
 
   expect(await ui.githubWarning.find()).toBeInTheDocument();

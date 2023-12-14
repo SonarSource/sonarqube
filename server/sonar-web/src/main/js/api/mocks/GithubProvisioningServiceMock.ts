@@ -17,37 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { cloneDeep, omit } from 'lodash';
-import { mockGitlabConfiguration } from '../../helpers/mocks/alm-integrations';
+import { cloneDeep } from 'lodash';
 import { mockTask } from '../../helpers/mocks/tasks';
-import { mockPaging } from '../../helpers/testMocks';
 import {
   GitHubConfigurationStatus,
   GitHubMapping,
   GitHubProvisioningStatus,
-  GitlabConfiguration,
 } from '../../types/provisioning';
 import { Task, TaskStatuses, TaskTypes } from '../../types/tasks';
 import {
   activateGithubProvisioning,
-  activateScim,
   addGithubRolesMapping,
   checkConfigurationValidity,
-  createGitLabConfiguration,
   deactivateGithubProvisioning,
-  deactivateScim,
-  deleteGitLabConfiguration,
   deleteGithubRolesMapping,
-  fetchGitLabConfiguration,
-  fetchGitLabConfigurations,
   fetchGithubProvisioningStatus,
   fetchGithubRolesMapping,
-  fetchIsScimEnabled,
-  updateGitLabConfiguration,
   updateGithubRolesMapping,
-} from '../provisioning';
+} from '../github-provisioning';
 
-jest.mock('../provisioning');
+jest.mock('../github-provisioning');
 
 const defaultConfigurationStatus: GitHubConfigurationStatus = {
   application: {
@@ -70,10 +59,6 @@ const defaultConfigurationStatus: GitHubConfigurationStatus = {
     },
   ],
 };
-
-const defaultGitlabConfiguration: GitlabConfiguration[] = [
-  mockGitlabConfiguration({ id: '1', enabled: true }),
-];
 
 const githubMappingMock = (
   id: string,
@@ -113,24 +98,17 @@ const defaultMapping: GitHubMapping[] = [
   ),
 ];
 
-export default class AuthenticationServiceMock {
-  scimStatus: boolean;
+export default class GithubProvisioningServiceMock {
   githubProvisioningStatus: boolean;
   githubConfigurationStatus: GitHubConfigurationStatus;
   githubMapping: GitHubMapping[];
   tasks: Task[];
-  gitlabConfigurations: GitlabConfiguration[];
 
   constructor() {
-    this.scimStatus = false;
     this.githubProvisioningStatus = false;
     this.githubConfigurationStatus = cloneDeep(defaultConfigurationStatus);
     this.githubMapping = cloneDeep(defaultMapping);
     this.tasks = [];
-    this.gitlabConfigurations = cloneDeep(defaultGitlabConfiguration);
-    jest.mocked(activateScim).mockImplementation(this.handleActivateScim);
-    jest.mocked(deactivateScim).mockImplementation(this.handleDeactivateScim);
-    jest.mocked(fetchIsScimEnabled).mockImplementation(this.handleFetchIsScimEnabled);
     jest
       .mocked(activateGithubProvisioning)
       .mockImplementation(this.handleActivateGithubProvisioning);
@@ -147,11 +125,6 @@ export default class AuthenticationServiceMock {
     jest.mocked(updateGithubRolesMapping).mockImplementation(this.handleUpdateGithubRolesMapping);
     jest.mocked(addGithubRolesMapping).mockImplementation(this.handleAddGithubRolesMapping);
     jest.mocked(deleteGithubRolesMapping).mockImplementation(this.handleDeleteGithubRolesMapping);
-    jest.mocked(fetchGitLabConfigurations).mockImplementation(this.handleFetchGitLabConfigurations);
-    jest.mocked(fetchGitLabConfiguration).mockImplementation(this.handleFetchGitLabConfiguration);
-    jest.mocked(createGitLabConfiguration).mockImplementation(this.handleCreateGitLabConfiguration);
-    jest.mocked(updateGitLabConfiguration).mockImplementation(this.handleUpdateGitLabConfiguration);
-    jest.mocked(deleteGitLabConfiguration).mockImplementation(this.handleDeleteGitLabConfiguration);
   }
 
   addProvisioningTask = (overrides: Partial<Omit<Task, 'type'>> = {}) => {
@@ -172,22 +145,7 @@ export default class AuthenticationServiceMock {
   };
 
   enableGithubProvisioning = () => {
-    this.scimStatus = false;
     this.githubProvisioningStatus = true;
-  };
-
-  handleActivateScim = () => {
-    this.scimStatus = true;
-    return Promise.resolve();
-  };
-
-  handleDeactivateScim = () => {
-    this.scimStatus = false;
-    return Promise.resolve();
-  };
-
-  handleFetchIsScimEnabled = () => {
-    return Promise.resolve(this.scimStatus);
   };
 
   handleActivateGithubProvisioning = () => {
@@ -263,52 +221,10 @@ export default class AuthenticationServiceMock {
     this.githubMapping = [...this.githubMapping, githubMappingMock(id, permissions)];
   };
 
-  handleFetchGitLabConfigurations: typeof fetchGitLabConfigurations = () => {
-    return Promise.resolve({
-      configurations: this.gitlabConfigurations,
-      page: mockPaging({ total: this.gitlabConfigurations.length }),
-    });
-  };
-
-  handleFetchGitLabConfiguration: typeof fetchGitLabConfiguration = (id: string) => {
-    const configuration = this.gitlabConfigurations.find((c) => c.id === id);
-    if (!configuration) {
-      return Promise.reject();
-    }
-    return Promise.resolve(configuration);
-  };
-
-  handleCreateGitLabConfiguration: typeof createGitLabConfiguration = (data) => {
-    const newConfig = mockGitlabConfiguration({
-      ...omit(data, 'applicationId', 'clientSecret'),
-      id: '1',
-      enabled: true,
-    });
-    this.gitlabConfigurations = [...this.gitlabConfigurations, newConfig];
-    return Promise.resolve(newConfig);
-  };
-
-  handleUpdateGitLabConfiguration: typeof updateGitLabConfiguration = (id, data) => {
-    const index = this.gitlabConfigurations.findIndex((c) => c.id === id);
-    this.gitlabConfigurations[index] = { ...this.gitlabConfigurations[index], ...data };
-    return Promise.resolve(this.gitlabConfigurations[index]);
-  };
-
-  handleDeleteGitLabConfiguration: typeof deleteGitLabConfiguration = (id) => {
-    this.gitlabConfigurations = this.gitlabConfigurations.filter((c) => c.id !== id);
-    return Promise.resolve();
-  };
-
-  setGitlabConfigurations = (gitlabConfigurations: GitlabConfiguration[]) => {
-    this.gitlabConfigurations = gitlabConfigurations;
-  };
-
   reset = () => {
-    this.scimStatus = false;
     this.githubProvisioningStatus = false;
     this.githubConfigurationStatus = cloneDeep(defaultConfigurationStatus);
     this.githubMapping = cloneDeep(defaultMapping);
     this.tasks = [];
-    this.gitlabConfigurations = cloneDeep(defaultGitlabConfiguration);
   };
 }

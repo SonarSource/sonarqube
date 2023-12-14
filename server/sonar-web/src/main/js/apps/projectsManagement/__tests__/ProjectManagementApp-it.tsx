@@ -20,7 +20,7 @@
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import selectEvent from 'react-select-event';
-import AuthenticationServiceMock from '../../../api/mocks/AuthenticationServiceMock';
+import GithubProvisioningServiceMock from '../../../api/mocks/GithubProvisioningServiceMock';
 import PermissionsServiceMock from '../../../api/mocks/PermissionsServiceMock';
 import ProjectManagementServiceMock from '../../../api/mocks/ProjectsManagementServiceMock';
 import SettingsServiceMock from '../../../api/mocks/SettingsServiceMock';
@@ -41,7 +41,7 @@ let login: string;
 
 const permissionsHandler = new PermissionsServiceMock();
 const settingsHandler = new SettingsServiceMock();
-const authHandler = new AuthenticationServiceMock();
+const githubHandler = new GithubProvisioningServiceMock();
 const handler = new ProjectManagementServiceMock(settingsHandler);
 
 jest.mock('../../../api/navigation', () => ({
@@ -167,7 +167,7 @@ afterEach(() => {
 
   permissionsHandler.reset();
   settingsHandler.reset();
-  authHandler.reset();
+  githubHandler.reset();
   handler.reset();
 });
 
@@ -483,7 +483,7 @@ it('should restore access to admin', async () => {
 
 it('should restore access for github project', async () => {
   const user = userEvent.setup();
-  authHandler.enableGithubProvisioning();
+  githubHandler.enableGithubProvisioning();
   renderProjectManagementApp(
     {},
     { login: 'gooduser2', local: true },
@@ -504,7 +504,7 @@ it('should restore access for github project', async () => {
 
 it('should not allow to restore access on github project for GH user', async () => {
   const user = userEvent.setup();
-  authHandler.githubProvisioningStatus = true;
+  githubHandler.githubProvisioningStatus = true;
   renderProjectManagementApp(
     {},
     { login: 'gooduser2', local: false },
@@ -519,7 +519,7 @@ it('should not allow to restore access on github project for GH user', async () 
 
 it('should show github warning on changing default visibility to admin', async () => {
   const user = userEvent.setup();
-  authHandler.githubProvisioningStatus = true;
+  githubHandler.githubProvisioningStatus = true;
   renderProjectManagementApp({}, {}, { featureList: [Feature.GithubProvisioning] });
   await user.click(ui.editDefaultVisibility.get());
   expect(await ui.changeDefaultVisibilityDialog.find()).toBeInTheDocument();
@@ -546,7 +546,7 @@ it('should not apply permissions for github projects', async () => {
 });
 
 it('should not show local badge for applications and portfolios', async () => {
-  authHandler.enableGithubProvisioning();
+  githubHandler.enableGithubProvisioning();
   renderProjectManagementApp({}, {}, { featureList: [Feature.GithubProvisioning] });
   await waitFor(() => expect(screen.getAllByText('local')).toHaveLength(3));
 

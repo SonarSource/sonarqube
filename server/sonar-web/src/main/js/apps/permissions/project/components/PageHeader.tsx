@@ -22,7 +22,7 @@ import * as React from 'react';
 import GitHubSynchronisationWarning from '../../../../app/components/GitHubSynchronisationWarning';
 import { translate } from '../../../../helpers/l10n';
 import { getBaseUrl } from '../../../../helpers/system';
-import { useGithubProvisioningEnabledQuery } from '../../../../queries/identity-provider';
+import { useGithubProvisioningEnabledQuery } from '../../../../queries/identity-provider/github';
 import { isApplication, isPortfolioLike, isProject } from '../../../../types/component';
 import { Component } from '../../../../types/types';
 import ApplyTemplate from './ApplyTemplate';

@@ -30,7 +30,7 @@ import {
   PERMISSIONS_ORDER_FOR_PROJECT_TEMPLATE,
   convertToPermissionDefinitions,
 } from '../../../helpers/permissions';
-import { useGithubProvisioningEnabledQuery } from '../../../queries/identity-provider';
+import { useGithubProvisioningEnabledQuery } from '../../../queries/identity-provider/github';
 import { Paging, PermissionGroup, PermissionTemplate, PermissionUser } from '../../../types/types';
 import TemplateDetails from './TemplateDetails';
 import TemplateHeader from './TemplateHeader';

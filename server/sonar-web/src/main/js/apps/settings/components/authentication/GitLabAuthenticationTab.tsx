@@ -20,11 +20,6 @@
 import { isEqual, omitBy } from 'lodash';
 import React, { FormEvent, useContext } from 'react';
 import { FormattedMessage } from 'react-intl';
-import {
-  GITLAB_SETTING_ALLOW_SIGNUP,
-  GITLAB_SETTING_GROUPS,
-  GITLAB_SETTING_GROUP_TOKEN,
-} from '../../../../api/provisioning';
 import GitLabSynchronisationWarning from '../../../../app/components/GitLabSynchronisationWarning';
 import { AvailableFeaturesContext } from '../../../../app/components/available-features/AvailableFeaturesContext';
 import DocLink from '../../../../components/common/DocLink';
@@ -37,35 +32,52 @@ import EditIcon from '../../../../components/icons/EditIcon';
 import { Alert } from '../../../../components/ui/Alert';
 import Spinner from '../../../../components/ui/Spinner';
 import { translate } from '../../../../helpers/l10n';
+import { useIdentityProviderQuery } from '../../../../queries/identity-provider/common';
 import {
   useDeleteGitLabConfigurationMutation,
   useGitLabConfigurationsQuery,
-  useIdentityProviderQuery,
   useUpdateGitLabConfigurationMutation,
-} from '../../../../queries/identity-provider';
+} from '../../../../queries/identity-provider/gitlab';
 import { AlmKeys } from '../../../../types/alm-settings';
 import { Feature } from '../../../../types/features';
 import { GitLabConfigurationUpdateBody, ProvisioningType } from '../../../../types/provisioning';
-import { ExtendedSettingDefinition } from '../../../../types/settings';
+import { DefinitionV2, SettingType } from '../../../../types/settings';
 import { Provider } from '../../../../types/types';
 import { DOCUMENTATION_LINK_SUFFIXES } from './Authentication';
 import AuthenticationFormField from './AuthenticationFormField';
 import GitLabConfigurationForm from './GitLabConfigurationForm';
 
-interface GitLabAuthenticationTab {
-  definitions: ExtendedSettingDefinition[];
-}
-
 interface ChangesForm {
-  type?: GitLabConfigurationUpdateBody['type'];
+  synchronizationType?: GitLabConfigurationUpdateBody['synchronizationType'];
   allowUsersToSignUp?: GitLabConfigurationUpdateBody['allowUsersToSignUp'];
   provisioningToken?: GitLabConfigurationUpdateBody['provisioningToken'];
-  groups?: GitLabConfigurationUpdateBody['groups'];
+  provisioningGroups?: GitLabConfigurationUpdateBody['provisioningGroups'];
 }
 
-export default function GitLabAuthenticationTab(props: Readonly<GitLabAuthenticationTab>) {
-  const { definitions } = props;
+const definitions: Record<keyof Omit<ChangesForm, 'synchronizationType'>, DefinitionV2> = {
+  provisioningGroups: {
+    name: translate('settings.authentication.gitlab.form.provisioningGroups.name'),
+    key: 'provisioningGroups',
+    description: translate('settings.authentication.gitlab.form.provisioningGroups.description'),
+    secured: false,
+    multiValues: true,
+  },
+  allowUsersToSignUp: {
+    name: translate('settings.authentication.gitlab.form.allowUsersToSignUp.name'),
+    secured: false,
+    key: 'allowUsersToSignUp',
+    description: translate('settings.authentication.gitlab.form.allowUsersToSignUp.description'),
+    type: SettingType.BOOLEAN,
+  },
+  provisioningToken: {
+    name: translate('settings.authentication.gitlab.form.provisioningToken.name'),
+    secured: true,
+    key: 'provisioningToken',
+    description: translate('settings.authentication.gitlab.form.provisioningToken.description'),
+  },
+};
 
+export default function GitLabAuthenticationTab() {
   const [openForm, setOpenForm] = React.useState(false);
   const [changes, setChanges] = React.useState<ChangesForm | undefined>(undefined);
   const [tokenKey, setTokenKey] = React.useState<number>(0);
@@ -77,7 +89,7 @@ export default function GitLabAuthenticationTab(props: Readonly<GitLabAuthentica
 
   const { data: identityProvider } = useIdentityProviderQuery();
   const { data: list, isLoading: isLoadingList } = useGitLabConfigurationsQuery();
-  const configuration = list?.configurations[0];
+  const configuration = list?.gitlabConfigurations[0];
 
   const { mutate: updateConfig, isLoading: isUpdating } = useUpdateGitLabConfigurationMutation();
   const { mutate: deleteConfig, isLoading: isDeleting } = useDeleteGitLabConfigurationMutation();
@@ -98,7 +110,7 @@ export default function GitLabAuthenticationTab(props: Readonly<GitLabAuthentica
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    if (changes?.type !== undefined) {
+    if (changes?.synchronizationType !== undefined) {
       setShowConfirmProvisioningModal(true);
     } else {
       updateProvisioning();
@@ -123,38 +135,39 @@ export default function GitLabAuthenticationTab(props: Readonly<GitLabAuthentica
 
   const setJIT = () =>
     setChangesWithCheck({
-      type: ProvisioningType.jit,
+      synchronizationType: ProvisioningType.jit,
       provisioningToken: undefined,
-      groups: undefined,
+      provisioningGroups: undefined,
     });
 
   const setAuto = () =>
     setChangesWithCheck({
-      type: ProvisioningType.auto,
+      synchronizationType: ProvisioningType.auto,
       allowUsersToSignUp: undefined,
     });
 
   const hasDifferentProvider =
     identityProvider?.provider !== undefined && identityProvider.provider !== Provider.Gitlab;
-  const allowUsersToSignUpDefinition = definitions.find(
-    (d) => d.key === GITLAB_SETTING_ALLOW_SIGNUP,
-  );
-  const provisioningTokenDefinition = definitions.find((d) => d.key === GITLAB_SETTING_GROUP_TOKEN);
-  const provisioningGroupDefinition = definitions.find((d) => d.key === GITLAB_SETTING_GROUPS);
+  const allowUsersToSignUpDefinition = definitions.allowUsersToSignUp;
+  const provisioningTokenDefinition = definitions.provisioningToken;
+  const provisioningGroupDefinition = definitions.provisioningGroups;
 
-  const provisioningType = changes?.type ?? configuration?.type;
+  const provisioningType = changes?.synchronizationType ?? configuration?.synchronizationType;
   const allowUsersToSignUp = changes?.allowUsersToSignUp ?? configuration?.allowUsersToSignUp;
   const provisioningToken = changes?.provisioningToken;
-  const groups = changes?.groups ?? configuration?.groups;
+  const groups = changes?.provisioningGroups ?? configuration?.provisioningGroups;
 
   const canSave = () => {
     if (!configuration || changes === undefined) {
       return false;
     }
-    const type = changes.type ?? configuration.type;
+    const type = changes.synchronizationType ?? configuration.synchronizationType;
     if (type === ProvisioningType.auto) {
-      const hasConfigGroups = configuration.groups && configuration.groups.length > 0;
-      const hasGroups = changes.groups ? changes.groups.length > 0 : hasConfigGroups;
+      const hasConfigGroups =
+        configuration.provisioningGroups && configuration.provisioningGroups.length > 0;
+      const hasGroups = changes.provisioningGroups
+        ? changes.provisioningGroups.length > 0
+        : hasConfigGroups;
       const hasToken = hasConfigGroups
         ? changes.provisioningToken !== ''
         : !!changes.provisioningToken;
@@ -165,13 +178,18 @@ export default function GitLabAuthenticationTab(props: Readonly<GitLabAuthentica
 
   const setChangesWithCheck = (newChanges: ChangesForm) => {
     const newValue = {
-      type: configuration?.type === newChanges.type ? undefined : newChanges.type,
+      synchronizationType:
+        configuration?.synchronizationType === newChanges.synchronizationType
+          ? undefined
+          : newChanges.synchronizationType,
       allowUsersToSignUp:
         configuration?.allowUsersToSignUp === newChanges.allowUsersToSignUp
           ? undefined
           : newChanges.allowUsersToSignUp,
       provisioningToken: newChanges.provisioningToken,
-      groups: isEqual(configuration?.groups, newChanges.groups) ? undefined : newChanges.groups,
+      provisioningGroups: isEqual(configuration?.provisioningGroups, newChanges.provisioningGroups)
+        ? undefined
+        : newChanges.provisioningGroups,
     };
     if (Object.values(newValue).some((v) => v !== undefined)) {
       setChanges(newValue);
@@ -204,7 +222,7 @@ export default function GitLabAuthenticationTab(props: Readonly<GitLabAuthentica
               <p>{configuration.url}</p>
               <Tooltip
                 overlay={
-                  configuration.type === ProvisioningType.auto
+                  configuration.synchronizationType === ProvisioningType.auto
                     ? translate('settings.authentication.form.disable.tooltip')
                     : null
                 }
@@ -212,7 +230,9 @@ export default function GitLabAuthenticationTab(props: Readonly<GitLabAuthentica
                 <Button
                   className="spacer-top"
                   onClick={toggleEnable}
-                  disabled={isUpdating || configuration.type === ProvisioningType.auto}
+                  disabled={
+                    isUpdating || configuration.synchronizationType === ProvisioningType.auto
+                  }
                 >
                   {configuration.enabled
                     ? translate('settings.authentication.form.disable')
@@ -289,7 +309,7 @@ export default function GitLabAuthenticationTab(props: Readonly<GitLabAuthentica
                               allowUsersToSignUp: value as boolean,
                             })
                           }
-                          isNotSet={configuration.type !== ProvisioningType.auto}
+                          isNotSet={configuration.synchronizationType !== ProvisioningType.auto}
                         />
                       )}
                   </RadioCard>
@@ -334,44 +354,45 @@ export default function GitLabAuthenticationTab(props: Readonly<GitLabAuthentica
                           />
                         </p>
 
-                        {configuration?.type === ProvisioningType.auto && (
+                        {configuration?.synchronizationType === ProvisioningType.auto && (
                           <>
                             <GitLabSynchronisationWarning />
                             <hr className="spacer-top" />
                           </>
                         )}
 
-                        {provisioningType === ProvisioningType.auto &&
-                          provisioningTokenDefinition !== undefined &&
-                          provisioningGroupDefinition !== undefined && (
-                            <>
-                              <AuthenticationFormField
-                                settingValue={provisioningToken}
-                                key={tokenKey}
-                                definition={provisioningTokenDefinition}
-                                mandatory
-                                onFieldChange={(_, value) =>
-                                  setChangesWithCheck({
-                                    ...changes,
-                                    provisioningToken: value as string,
-                                  })
-                                }
-                                isNotSet={
-                                  configuration.type !== ProvisioningType.auto &&
-                                  configuration.groups?.length === 0
-                                }
-                              />
-                              <AuthenticationFormField
-                                settingValue={groups}
-                                definition={provisioningGroupDefinition}
-                                mandatory
-                                onFieldChange={(_, values) =>
-                                  setChangesWithCheck({ ...changes, groups: values as string[] })
-                                }
-                                isNotSet={configuration.type !== ProvisioningType.auto}
-                              />
-                            </>
-                          )}
+                        {provisioningType === ProvisioningType.auto && (
+                          <>
+                            <AuthenticationFormField
+                              settingValue={provisioningToken}
+                              key={tokenKey}
+                              definition={provisioningTokenDefinition}
+                              mandatory
+                              onFieldChange={(_, value) =>
+                                setChangesWithCheck({
+                                  ...changes,
+                                  provisioningToken: value as string,
+                                })
+                              }
+                              isNotSet={
+                                configuration.synchronizationType !== ProvisioningType.auto &&
+                                configuration.provisioningGroups?.length === 0
+                              }
+                            />
+                            <AuthenticationFormField
+                              settingValue={groups}
+                              definition={provisioningGroupDefinition}
+                              mandatory
+                              onFieldChange={(_, values) =>
+                                setChangesWithCheck({
+                                  ...changes,
+                                  provisioningGroups: values as string[],
+                                })
+                              }
+                              isNotSet={configuration.synchronizationType !== ProvisioningType.auto}
+                            />
+                          </>
+                        )}
                       </>
                     ) : (
                       <p>

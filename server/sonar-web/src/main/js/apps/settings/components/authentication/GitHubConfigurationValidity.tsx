@@ -27,7 +27,7 @@ import ClearIcon from '../../../../components/icons/ClearIcon';
 import HelpIcon from '../../../../components/icons/HelpIcon';
 import { Alert, AlertVariant } from '../../../../components/ui/Alert';
 import { translate, translateWithParameters } from '../../../../helpers/l10n';
-import { useCheckGitHubConfigQuery } from '../../../../queries/identity-provider';
+import { useCheckGitHubConfigQuery } from '../../../../queries/identity-provider/github';
 import { GitHubProvisioningStatus } from '../../../../types/provisioning';
 
 const intlPrefix = 'settings.authentication.github.configuration.validation';

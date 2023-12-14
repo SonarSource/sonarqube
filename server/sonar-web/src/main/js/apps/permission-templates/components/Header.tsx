@@ -25,7 +25,7 @@ import { Alert } from '../../../components/ui/Alert';
 import Spinner from '../../../components/ui/Spinner';
 import { throwGlobalError } from '../../../helpers/error';
 import { translate } from '../../../helpers/l10n';
-import { useGithubProvisioningEnabledQuery } from '../../../queries/identity-provider';
+import { useGithubProvisioningEnabledQuery } from '../../../queries/identity-provider/github';
 import { PERMISSION_TEMPLATES_PATH } from '../utils';
 import Form from './Form';
 

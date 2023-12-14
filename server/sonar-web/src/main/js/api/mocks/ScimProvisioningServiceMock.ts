@@ -17,23 +17,35 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
-import { useGitLabSyncStatusQuery } from '../../queries/identity-provider/gitlab';
-import AlmSynchronisationWarning from './AlmSynchronisationWarning';
-import './SystemAnnouncement.css';
+import { activateScim, deactivateScim, fetchIsScimEnabled } from '../scim-provisioning';
 
-interface Props {
-  short?: boolean;
-}
+jest.mock('../scim-provisioning');
 
-function GitLabSynchronisationWarning({ short }: Readonly<Props>) {
-  const { data } = useGitLabSyncStatusQuery();
+export default class ScimProvisioningServiceMock {
+  scimStatus: boolean;
 
-  if (!data) {
-    return null;
+  constructor() {
+    this.scimStatus = false;
+    jest.mocked(activateScim).mockImplementation(this.handleActivateScim);
+    jest.mocked(deactivateScim).mockImplementation(this.handleDeactivateScim);
+    jest.mocked(fetchIsScimEnabled).mockImplementation(this.handleFetchIsScimEnabled);
   }
 
-  return <AlmSynchronisationWarning short={short} data={data} />;
-}
+  handleActivateScim = () => {
+    this.scimStatus = true;
+    return Promise.resolve();
+  };
 
-export default GitLabSynchronisationWarning;
+  handleDeactivateScim = () => {
+    this.scimStatus = false;
+    return Promise.resolve();
+  };
+
+  handleFetchIsScimEnabled = () => {
+    return Promise.resolve(this.scimStatus);
+  };
+
+  reset = () => {
+    this.scimStatus = false;
+  };
+}

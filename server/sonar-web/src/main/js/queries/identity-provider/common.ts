@@ -17,23 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
-import { useGitLabSyncStatusQuery } from '../../queries/identity-provider/gitlab';
-import AlmSynchronisationWarning from './AlmSynchronisationWarning';
-import './SystemAnnouncement.css';
 
-interface Props {
-  short?: boolean;
+import { useQuery } from '@tanstack/react-query';
+import { getSystemInfo } from '../../api/system';
+import { SysInfoCluster } from '../../types/types';
+
+export function useIdentityProviderQuery() {
+  return useQuery(['identity_provider', 'users_and_groups_provider'], async () => {
+    const info = (await getSystemInfo()) as SysInfoCluster;
+    return { provider: info.System['External Users and Groups Provisioning'] };
+  });
 }
-
-function GitLabSynchronisationWarning({ short }: Readonly<Props>) {
-  const { data } = useGitLabSyncStatusQuery();
-
-  if (!data) {
-    return null;
-  }
-
-  return <AlmSynchronisationWarning short={short} data={data} />;
-}
-
-export default GitLabSynchronisationWarning;

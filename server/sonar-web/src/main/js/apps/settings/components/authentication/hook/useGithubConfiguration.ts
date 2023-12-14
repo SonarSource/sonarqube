@@ -24,7 +24,7 @@ import {
   useGithubProvisioningEnabledQuery,
   useGithubRolesMappingMutation,
   useToggleGithubProvisioningMutation,
-} from '../../../../../queries/identity-provider';
+} from '../../../../../queries/identity-provider/github';
 import { useSaveValueMutation, useSaveValuesMutation } from '../../../../../queries/settings';
 import { Feature } from '../../../../../types/features';
 import { GitHubMapping } from '../../../../../types/provisioning';
