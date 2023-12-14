@@ -100,13 +100,13 @@ export default class AssigneeSelection extends React.PureComponent<Props, State>
   };
   handleActualSearch = (query: string) => {
     this.setState({ loading: true, query });
-    searchAssignees({ q: query, organization: this.props.organization  })
+    this.searchAssignees(query, this.props.organization)
       .then((result) => {
         if (this.mounted) {
           this.setState({
             loading: false,
             query,
-            suggestedUsers: (result.users.filter(isUserActive) as UserActive[]).concat(UNASSIGNED),
+            suggestedUsers: (result.results.filter(isUserActive) as UserActive[]).concat(UNASSIGNED),
           });
         }
       })
