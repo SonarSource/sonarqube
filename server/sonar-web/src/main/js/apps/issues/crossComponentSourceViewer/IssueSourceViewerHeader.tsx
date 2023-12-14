@@ -62,13 +62,6 @@ export interface Props {
 }
 
 export function IssueSourceViewerHeader(props: Readonly<Props>) {
-  const { component } = React.useContext(ComponentContext);
-  const { data: branchData, isLoading: isLoadingBranches } = useBranchesQuery(component);
-  const { currentUser } = useCurrentUser();
-  const theme = useTheme();
-
-  const branchLike = branchData?.branchLike;
-
   const {
     className,
     displayProjectName = true,
@@ -81,6 +74,18 @@ export function IssueSourceViewerHeader(props: Readonly<Props>) {
   } = props;
 
   const { measures, path, project, projectName, q } = sourceViewerFile;
+
+  const { component } = React.useContext(ComponentContext);
+  const { data: branchData, isLoading: isLoadingBranches } = useBranchesQuery(
+    component ?? {
+      key: project,
+      qualifier: ComponentQualifier.Project,
+    },
+  );
+  const { currentUser } = useCurrentUser();
+  const theme = useTheme();
+
+  const branchLike = branchData?.branchLike;
 
   const isProjectRoot = q === ComponentQualifier.Project;
 
@@ -163,7 +168,7 @@ export function IssueSourceViewerHeader(props: Readonly<Props>) {
         )}
       </div>
 
-      {!isProjectRoot && isLoggedIn(currentUser) && (
+      {!isProjectRoot && isLoggedIn(currentUser) && !isLoadingBranches && (
         <IssueOpenInIdeButton
           branchName={branchName}
           issueKey={issueKey}

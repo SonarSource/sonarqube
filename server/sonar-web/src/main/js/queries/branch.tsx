@@ -41,7 +41,7 @@ import { searchParamsToQuery } from '../helpers/urls';
 import { BranchLike } from '../types/branch-like';
 import { isApplication, isPortfolioLike, isProject } from '../types/component';
 import { Feature } from '../types/features';
-import { Component } from '../types/types';
+import { Component, LightComponent } from '../types/types';
 
 // This will prevent refresh when navigating from page to page.
 const BRANCHES_STALE_TIME = 30_000;
@@ -52,7 +52,7 @@ enum InnerState {
   Status = 'status',
 }
 
-function useBranchesQueryKey(innerState: InnerState) {
+function useBranchesQueryKey(innerState: InnerState, defaultId?: string) {
   // Currently, we do not have the component in a react-state ready
   // Once we refactor we will be able to fetch it from query state.
   // We will be able to make sure that the component is not a portfolio.
@@ -79,6 +79,8 @@ function useBranchesQueryKey(innerState: InnerState) {
     ] as const;
   } else if (searchParams.has('id')) {
     return ['branches', searchParams.get('id') as string, innerState] as const;
+  } else if (defaultId !== undefined) {
+    return ['branches', defaultId, innerState];
   }
   return ['branches'];
 }
@@ -104,12 +106,12 @@ function getContext(key: ReturnType<typeof useBranchesQueryKey>) {
   return { componentKey, query: {} };
 }
 
-export function useBranchesQuery(component?: Component, refetchInterval?: number) {
+export function useBranchesQuery(component?: LightComponent, refetchInterval?: number) {
   const features = useContext(AvailableFeaturesContext);
-  const key = useBranchesQueryKey(InnerState.Details);
+  const key = useBranchesQueryKey(InnerState.Details, component?.key);
   return useQuery({
     queryKey: key,
-    queryFn: async ({ queryKey: [_, key, prOrBranch, name] }) => {
+    queryFn: async ({ queryKey: [, key, prOrBranch, name] }) => {
       if (component === undefined || key === undefined) {
         return { branchLikes: [] };
       }

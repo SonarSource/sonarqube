@@ -166,7 +166,7 @@ describe('issues app filtering', () => {
     renderProjectIssuesApp();
     await waitOnDataLoaded();
 
-    await user.click(ui.codeVariantsFacet.get());
+    await user.click(await ui.codeVariantsFacet.find());
     await user.click(screen.getByRole('checkbox', { name: /variant 1/ }));
 
     expect(ui.issueItem1.query()).not.toBeInTheDocument();
