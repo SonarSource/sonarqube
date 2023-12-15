@@ -58,7 +58,7 @@ export function HotspotHeader(props: HotspotHeaderProps) {
         <div className="display-flex-end">
           <div className="display-inline-flex-center it__hs-assignee">
             <div className="big-spacer-right">{`${translate('assignee')}: `}</div>
-            <Assignee hotspot={hotspot} onAssigneeChange={props.onUpdateHotspot} />
+            <Assignee hotspot={hotspot} organization={component.organization} onAssigneeChange={props.onUpdateHotspot} />
           </div>
         </div>
       </div>
