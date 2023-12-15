@@ -25,6 +25,7 @@ import {
   MeasuresAndMetaWithPeriod,
   MeasuresForProjects,
 } from '../types/measures';
+import { MetricKey, MetricType } from '../types/metrics';
 import { Measure } from '../types/types';
 
 const COMPONENT_URL = '/api/measures/component';
@@ -35,17 +36,63 @@ export function getMeasures(
   return getJSON(COMPONENT_URL, data).then((r) => r.component.measures, throwGlobalError);
 }
 
-export function getMeasuresWithMetrics(
+export async function getMeasuresWithMetrics(
   component: string,
   metrics: string[],
   branchParameters?: BranchParameters,
 ): Promise<MeasuresAndMetaWithMetrics> {
-  return getJSON(COMPONENT_URL, {
+  // TODO: Remove this mock (SONAR-21259)
+  const mockedMetrics = metrics.filter(
+    (metric) =>
+      metric !== MetricKey.pullrequest_addressed_issues && metric !== MetricKey.new_accepted_issues,
+  );
+  const result = (await getJSON(COMPONENT_URL, {
     additionalFields: 'metrics',
     component,
-    metricKeys: metrics.join(','),
+    metricKeys: mockedMetrics.join(','),
     ...branchParameters,
-  }).catch(throwGlobalError);
+  }).catch(throwGlobalError)) as MeasuresAndMetaWithMetrics;
+  if (metrics.includes(MetricKey.pullrequest_addressed_issues)) {
+    result.metrics.push({
+      key: MetricKey.pullrequest_addressed_issues,
+      name: 'Addressed Issues',
+      description: 'Addressed Issues',
+      domain: 'Reliability',
+      type: MetricType.Integer,
+      higherValuesAreBetter: false,
+      qualitative: true,
+      hidden: false,
+      bestValue: '0',
+    });
+    result.component.measures?.push({
+      metric: MetricKey.pullrequest_addressed_issues,
+      period: {
+        index: 0,
+        value: '11',
+      },
+    });
+  }
+  if (metrics.includes(MetricKey.new_accepted_issues)) {
+    result.metrics.push({
+      key: MetricKey.new_accepted_issues,
+      name: 'Accepted Issues',
+      description: 'Accepted Issues',
+      domain: 'Reliability',
+      type: MetricType.Integer,
+      higherValuesAreBetter: false,
+      qualitative: true,
+      hidden: false,
+      bestValue: '0',
+    });
+    result.component.measures?.push({
+      metric: MetricKey.new_accepted_issues,
+      period: {
+        index: 0,
+        value: '12',
+      },
+    });
+  }
+  return result;
 }
 
 export function getMeasuresWithPeriod(
