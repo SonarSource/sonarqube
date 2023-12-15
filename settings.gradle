@@ -10,31 +10,6 @@ pluginManagement {
   }
 }
 
-plugins {
-  id 'com.gradle.enterprise' version '3.15.1'
-}
-ext.isCiServer = System.getenv().containsKey("CIRRUS_CI")
-
-gradleEnterprise {
-  if (System.getenv().containsKey('GRADLE_ENTERPRISE_URL')) {
-    server = System.env.'GRADLE_ENTERPRISE_URL'
-  }
-  allowUntrustedServer = true // ensure a trusted certificate is configured
-
-  if (isCiServer) {
-    accessKey = System.env.'GRADLE_ENTERPRISE_KEY'
-  }
-
-  buildScan {
-    capture { taskInputFiles = true }
-    uploadInBackground = false
-    publishAlwaysIf( isCiServer )
-  }
-  if (System.getenv().containsKey('CIRRUS_BRANCH')) {
-    buildScan.value 'BranchName', System.env.'CIRRUS_BRANCH'
-  }
-}
-
 rootProject.name = 'sonarqube'
 
 include 'plugins:sonar-xoo-plugin'
@@ -87,6 +62,7 @@ include 'sonar-ws-generator'
 include 'test-monitoring'
 include 'ut-monitoring'
 
+ext.isCiServer = System.getenv().containsKey("CIRRUS_CI")
 
 // use Settings.getRootDir() so that it doesn't matter which directory you are executing from
 File extraSettings = new File(rootDir, 'private/private-settings.gradle')
@@ -97,16 +73,5 @@ if (extraSettings.exists()) {
 buildCache {
   local {
     enabled = !isCiServer
-  }
-
-  remote(HttpBuildCache) {
-    url = System.env.'GRADLE_ENTERPRISE_URL' + '/cache/'
-    allowUntrustedServer = true
-    credentials { creds ->
-      creds.username = System.env.'GRADLE_ENTERPRISE_USERNAME'
-      creds.password = System.env.'GRADLE_ENTERPRISE_PASSWORD'
-    }
-    enabled = true
-    push = isCiServer
   }
 }

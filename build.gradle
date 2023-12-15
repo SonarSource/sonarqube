@@ -49,15 +49,6 @@ allprojects {
       ext.versionWithoutBuildNumber = version
       version = (version.toString().count('.') == 1 ? "${version}.0.${ext.buildNumber}" : "${version}.${ext.buildNumber}").toString()
   }
-  
-  tasks.matching { task -> task instanceof Test || task instanceof BlackBoxTest}.configureEach {
-    retry {
-      if (System.getenv('CI') == "true") {
-        maxRetries = 3
-        failOnPassedAfterRetry = true
-      }
-    }
-  }
 
   task cacheDependencies {
     doLast {
