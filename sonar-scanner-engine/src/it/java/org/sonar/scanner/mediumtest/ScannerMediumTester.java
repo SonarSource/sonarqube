@@ -35,6 +35,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
+import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import javax.annotation.Priority;
@@ -136,11 +137,12 @@ public class ScannerMediumTester extends ExternalResource {
   }
 
   public ScannerMediumTester registerPlugin(String pluginKey, Plugin instance) {
-    return registerPlugin(pluginKey, instance, 1L);
+    pluginInstaller.add(pluginKey, instance);
+    return this;
   }
 
-  public ScannerMediumTester registerPlugin(String pluginKey, Plugin instance, long lastUpdatedAt) {
-    pluginInstaller.add(pluginKey, instance, lastUpdatedAt);
+  public ScannerMediumTester registerOptionalPlugin(String pluginKey, Set<String> requiredForLanguages, Plugin instance) {
+    pluginInstaller.addOptional(pluginKey, requiredForLanguages, instance);
     return this;
   }
 

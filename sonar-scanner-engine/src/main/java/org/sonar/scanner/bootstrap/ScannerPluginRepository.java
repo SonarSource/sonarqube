@@ -36,6 +36,7 @@ import org.sonar.core.platform.PluginInfo;
 import org.sonar.core.platform.PluginJarExploder;
 import org.sonar.core.platform.PluginRepository;
 import org.sonar.core.plugin.PluginType;
+import org.sonar.scanner.mediumtest.LocalPlugin;
 
 import static java.util.stream.Collectors.toMap;
 import static org.sonar.api.utils.Preconditions.checkState;
@@ -79,11 +80,11 @@ public class ScannerPluginRepository implements PluginRepository, Startable {
     pluginInstancesByKeys = new HashMap<>(loader.load(explodedPluginsByKey));
 
     // this part is only used by medium tests
-    for (Object[] localPlugin : installer.installLocals()) {
-      String pluginKey = (String) localPlugin[0];
-      PluginInfo pluginInfo = new PluginInfo(pluginKey);
-      pluginsByKeys.put(pluginKey, new ScannerPlugin(pluginInfo.getKey(), (long) localPlugin[2], PluginType.BUNDLED, pluginInfo));
-      pluginInstancesByKeys.put(pluginKey, (Plugin) localPlugin[1]);
+    for (LocalPlugin localPlugin : installer.installLocals()) {
+      ScannerPlugin scannerPlugin = localPlugin.toScannerPlugin();
+      String pluginKey = localPlugin.pluginKey();
+      pluginsByKeys.put(pluginKey, scannerPlugin);
+      pluginInstancesByKeys.put(pluginKey, localPlugin.pluginInstance());
     }
 
     keysByClassLoader = new HashMap<>();
@@ -106,6 +107,15 @@ public class ScannerPluginRepository implements PluginRepository, Startable {
     Map<String, ExplodedPlugin> explodedPluginsByKey = languagePluginsByKeys.entrySet().stream()
       .collect(toMap(Map.Entry::getKey, e -> pluginJarExploder.explode(e.getValue().getInfo())));
     pluginInstancesByKeys.putAll(new HashMap<>(loader.load(explodedPluginsByKey)));
+
+    // this part is only used by medium tests
+    for (LocalPlugin localPlugin : installer.installOptionalLocals(languageKeys)) {
+      ScannerPlugin scannerPlugin = localPlugin.toScannerPlugin();
+      String pluginKey = localPlugin.pluginKey();
+      languagePluginsByKeys.put(pluginKey, scannerPlugin);
+      pluginsByKeys.put(pluginKey, scannerPlugin);
+      pluginInstancesByKeys.put(pluginKey, localPlugin.pluginInstance());
+    }
 
     keysByClassLoader = new HashMap<>();
     for (Map.Entry<String, Plugin> e : pluginInstancesByKeys.entrySet()) {

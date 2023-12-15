@@ -36,6 +36,7 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.core.plugin.PluginType;
+import org.sonar.scanner.mediumtest.LocalPlugin;
 import org.sonarqube.ws.client.GetRequest;
 
 import static java.lang.String.format;
@@ -137,7 +138,15 @@ public class ScannerPluginInstaller implements PluginInstaller {
    * Returns empty on purpose. This method is used only by medium tests.
    */
   @Override
-  public List<Object[]> installLocals() {
+  public List<LocalPlugin> installLocals() {
+    return Collections.emptyList();
+  }
+
+  /**
+   * Returns empty on purpose. This method is used only by medium tests.
+   */
+  @Override
+  public List<LocalPlugin> installOptionalLocals(Set<String> languageKeys) {
     return Collections.emptyList();
   }
 

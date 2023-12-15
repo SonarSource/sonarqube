@@ -19,14 +19,10 @@
  */
 package org.sonar.scanner.scan.filesystem;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.util.Arrays;
-import java.util.function.BooleanSupplier;
-import javax.annotation.Nullable;
-import org.apache.commons.io.FilenameUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputFile.Type;
@@ -36,11 +32,7 @@ import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.DefaultInputProject;
 import org.sonar.api.batch.fs.internal.SensorStrategy;
-import org.sonar.api.batch.scm.IgnoreCommand;
-import org.sonar.api.notifications.AnalysisWarnings;
 import org.sonar.api.utils.MessageException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.scanner.issue.ignore.scanner.IssueExclusionsLoader;
 import org.sonar.scanner.repository.language.Language;
 import org.sonar.scanner.scan.ScanProperties;
@@ -56,10 +48,7 @@ public class FileIndexer {
 
   private static final Logger LOG = LoggerFactory.getLogger(FileIndexer.class);
 
-  private final AnalysisWarnings analysisWarnings;
   private final ScanProperties properties;
-  private final InputFileFilter[] filters;
-  private final ProjectExclusionFilters projectExclusionFilters;
   private final ProjectCoverageAndDuplicationExclusions projectCoverageAndDuplicationExclusions;
   private final IssueExclusionsLoader issueExclusionsLoader;
   private final MetadataGenerator metadataGenerator;
@@ -71,15 +60,13 @@ public class FileIndexer {
   private final StatusDetection statusDetection;
   private final ScmChangedFiles scmChangedFiles;
 
-  private boolean warnInclusionsAlreadyLogged;
-  private boolean warnExclusionsAlreadyLogged;
-  private boolean warnCoverageExclusionsAlreadyLogged;
-  private boolean warnDuplicationExclusionsAlreadyLogged;
+  private final ModuleRelativePathWarner moduleRelativePathWarner;
+  private final InputFileFilterRepository inputFileFilterRepository;
 
   public FileIndexer(DefaultInputProject project, ScannerComponentIdGenerator scannerComponentIdGenerator, InputComponentStore componentStore,
-    ProjectExclusionFilters projectExclusionFilters, ProjectCoverageAndDuplicationExclusions projectCoverageAndDuplicationExclusions, IssueExclusionsLoader issueExclusionsLoader,
-    MetadataGenerator metadataGenerator, SensorStrategy sensorStrategy, LanguageDetection languageDetection, AnalysisWarnings analysisWarnings, ScanProperties properties,
-    InputFileFilter[] filters, ScmChangedFiles scmChangedFiles, StatusDetection statusDetection) {
+    ProjectCoverageAndDuplicationExclusions projectCoverageAndDuplicationExclusions, IssueExclusionsLoader issueExclusionsLoader,
+    MetadataGenerator metadataGenerator, SensorStrategy sensorStrategy, LanguageDetection languageDetection, ScanProperties properties,
+    ScmChangedFiles scmChangedFiles, StatusDetection statusDetection, ModuleRelativePathWarner moduleRelativePathWarner, InputFileFilterRepository inputFileFilterRepository) {
     this.project = project;
     this.scannerComponentIdGenerator = scannerComponentIdGenerator;
     this.componentStore = componentStore;
@@ -88,55 +75,23 @@ public class FileIndexer {
     this.metadataGenerator = metadataGenerator;
     this.sensorStrategy = sensorStrategy;
     this.langDetection = languageDetection;
-    this.analysisWarnings = analysisWarnings;
     this.properties = properties;
-    this.filters = filters;
-    this.projectExclusionFilters = projectExclusionFilters;
     this.scmChangedFiles = scmChangedFiles;
     this.statusDetection = statusDetection;
+    this.moduleRelativePathWarner = moduleRelativePathWarner;
+    this.inputFileFilterRepository = inputFileFilterRepository;
   }
 
-  void indexFile(DefaultInputModule module, ModuleExclusionFilters moduleExclusionFilters, ModuleCoverageAndDuplicationExclusions moduleCoverageAndDuplicationExclusions,
-    Path sourceFile, Type type, ProgressReport progressReport, ProjectFileIndexer.ExclusionCounter exclusionCounter, @Nullable IgnoreCommand ignoreCommand)
-    throws IOException {
-    // get case of real file without resolving link
-    Path realAbsoluteFile = sourceFile.toRealPath(LinkOption.NOFOLLOW_LINKS).toAbsolutePath().normalize();
-    Path projectRelativePath = project.getBaseDir().relativize(realAbsoluteFile);
-    Path moduleRelativePath = module.getBaseDir().relativize(realAbsoluteFile);
-    boolean included = evaluateInclusionsFilters(moduleExclusionFilters, realAbsoluteFile, projectRelativePath, moduleRelativePath, type);
-    if (!included) {
-      exclusionCounter.increaseByPatternsCount();
-      return;
-    }
-    boolean excluded = evaluateExclusionsFilters(moduleExclusionFilters, realAbsoluteFile, projectRelativePath, moduleRelativePath, type);
-    if (excluded) {
-      exclusionCounter.increaseByPatternsCount();
-      return;
-    }
-    if (!realAbsoluteFile.startsWith(project.getBaseDir())) {
-      LOG.warn("File '{}' is ignored. It is not located in project basedir '{}'.", realAbsoluteFile.toAbsolutePath(), project.getBaseDir());
-      return;
-    }
-    if (!realAbsoluteFile.startsWith(module.getBaseDir())) {
-      LOG.warn("File '{}' is ignored. It is not located in module basedir '{}'.", realAbsoluteFile.toAbsolutePath(), module.getBaseDir());
-      return;
-    }
+  void indexFile(DefaultInputModule module, ModuleCoverageAndDuplicationExclusions moduleCoverageAndDuplicationExclusions, Path sourceFile,
+    Type type, ProgressReport progressReport) {
+    Path projectRelativePath = project.getBaseDir().relativize(sourceFile);
+    Path moduleRelativePath = module.getBaseDir().relativize(sourceFile);
 
-    if (Files.exists(realAbsoluteFile) && isFileSizeBiggerThanLimit(realAbsoluteFile)) {
-      LOG.warn("File '{}' is bigger than {}MB and as consequence is removed from the analysis scope.", realAbsoluteFile.toAbsolutePath(), properties.fileSizeLimit());
-      return;
-    }
-
-    Language language = langDetection.language(realAbsoluteFile, projectRelativePath);
-
-    if (ignoreCommand != null && ignoreCommand.isIgnored(realAbsoluteFile)) {
-      LOG.debug("File '{}' is excluded by the scm ignore settings.", realAbsoluteFile);
-      exclusionCounter.increaseByScmCount();
-      return;
-    }
+    // This should be fast; language should be cached from preprocessing step
+    Language language = langDetection.language(sourceFile, projectRelativePath);
 
     DefaultIndexedFile indexedFile = new DefaultIndexedFile(
-      realAbsoluteFile,
+      sourceFile,
       project.key(),
       projectRelativePath.toString(),
       moduleRelativePath.toString(),
@@ -144,7 +99,7 @@ public class FileIndexer {
       language != null ? language.key() : null,
       scannerComponentIdGenerator.getAsInt(),
       sensorStrategy,
-      scmChangedFiles.getOldRelativeFilePath(realAbsoluteFile)
+      scmChangedFiles.getOldRelativeFilePath(sourceFile)
     );
 
     DefaultInputFile inputFile = new DefaultInputFile(indexedFile, f -> metadataGenerator.setMetadata(module.key(), f, module.getEncoding()),
@@ -159,7 +114,9 @@ public class FileIndexer {
     componentStore.put(module.key(), inputFile);
     issueExclusionsLoader.addMulticriteriaPatterns(inputFile);
     String langStr = inputFile.language() != null ? format("with language '%s'", inputFile.language()) : "with no language";
-    LOG.debug("'{}' indexed {}{}", projectRelativePath, type == Type.TEST ? "as test " : "", langStr);
+    if (LOG.isDebugEnabled()) {
+      LOG.debug("'{}' indexed {}{}", projectRelativePath, type == Type.TEST ? "as test " : "", langStr);
+    }
     evaluateCoverageExclusions(moduleCoverageAndDuplicationExclusions, inputFile);
     evaluateDuplicationExclusions(moduleCoverageAndDuplicationExclusions, inputFile);
     if (properties.preloadFileMetadata()) {
@@ -167,42 +124,6 @@ public class FileIndexer {
     }
     int count = componentStore.inputFiles().size();
     progressReport.message(count + " " + pluralizeFiles(count) + " indexed...  (last one was " + inputFile.getProjectRelativePath() + ")");
-  }
-
-  private boolean evaluateInclusionsFilters(ModuleExclusionFilters moduleExclusionFilters, Path realAbsoluteFile, Path projectRelativePath, Path moduleRelativePath,
-    InputFile.Type type) {
-    if (!Arrays.equals(moduleExclusionFilters.getInclusionsConfig(type), projectExclusionFilters.getInclusionsConfig(type))) {
-      // Module specific configuration
-      return moduleExclusionFilters.isIncluded(realAbsoluteFile, moduleRelativePath, type);
-    }
-    boolean includedByProjectConfiguration = projectExclusionFilters.isIncluded(realAbsoluteFile, projectRelativePath, type);
-    if (includedByProjectConfiguration) {
-      return true;
-    } else if (moduleExclusionFilters.isIncluded(realAbsoluteFile, moduleRelativePath, type)) {
-      warnOnce(
-        type == Type.MAIN ? CoreProperties.PROJECT_INCLUSIONS_PROPERTY : CoreProperties.PROJECT_TEST_INCLUSIONS_PROPERTY,
-        FilenameUtils.normalize(projectRelativePath.toString(), true), () -> warnInclusionsAlreadyLogged, () -> warnInclusionsAlreadyLogged = true);
-      return true;
-    }
-    return false;
-  }
-
-  private boolean evaluateExclusionsFilters(ModuleExclusionFilters moduleExclusionFilters, Path realAbsoluteFile, Path projectRelativePath, Path moduleRelativePath,
-    InputFile.Type type) {
-    if (!Arrays.equals(moduleExclusionFilters.getExclusionsConfig(type), projectExclusionFilters.getExclusionsConfig(type))) {
-      // Module specific configuration
-      return moduleExclusionFilters.isExcluded(realAbsoluteFile, moduleRelativePath, type);
-    }
-    boolean includedByProjectConfiguration = projectExclusionFilters.isExcluded(realAbsoluteFile, projectRelativePath, type);
-    if (includedByProjectConfiguration) {
-      return true;
-    } else if (moduleExclusionFilters.isExcluded(realAbsoluteFile, moduleRelativePath, type)) {
-      warnOnce(
-        type == Type.MAIN ? CoreProperties.PROJECT_EXCLUSIONS_PROPERTY : CoreProperties.PROJECT_TEST_EXCLUSIONS_PROPERTY,
-        FilenameUtils.normalize(projectRelativePath.toString(), true), () -> warnExclusionsAlreadyLogged, () -> warnExclusionsAlreadyLogged = true);
-      return true;
-    }
-    return false;
   }
 
   private void checkIfAlreadyIndexed(DefaultInputFile inputFile) {
@@ -229,8 +150,7 @@ public class FileIndexer {
     if (excludedByProjectConfiguration) {
       return true;
     } else if (moduleCoverageAndDuplicationExclusions.isExcludedForCoverage(inputFile)) {
-      warnOnce(CoreProperties.PROJECT_COVERAGE_EXCLUSIONS_PROPERTY, inputFile.getProjectRelativePath(), () -> warnCoverageExclusionsAlreadyLogged,
-        () -> warnCoverageExclusionsAlreadyLogged = true);
+      moduleRelativePathWarner.warnOnce(CoreProperties.PROJECT_COVERAGE_EXCLUSIONS_PROPERTY, inputFile.getProjectRelativePath());
       return true;
     }
     return false;
@@ -253,26 +173,15 @@ public class FileIndexer {
     if (excludedByProjectConfiguration) {
       return true;
     } else if (moduleCoverageAndDuplicationExclusions.isExcludedForDuplication(inputFile)) {
-      warnOnce(CoreProperties.CPD_EXCLUSIONS, inputFile.getProjectRelativePath(), () -> warnDuplicationExclusionsAlreadyLogged,
-        () -> warnDuplicationExclusionsAlreadyLogged = true);
+      moduleRelativePathWarner.warnOnce(CoreProperties.CPD_EXCLUSIONS, inputFile.getProjectRelativePath());
       return true;
     }
     return false;
   }
 
-  private void warnOnce(String propKey, String filePath, BooleanSupplier alreadyLoggedGetter, Runnable markAsLogged) {
-    if (!alreadyLoggedGetter.getAsBoolean()) {
-      String msg = "Specifying module-relative paths at project level in the property '" + propKey + "' is deprecated. " +
-        "To continue matching files like '" + filePath + "', update this property so that patterns refer to project-relative paths.";
-      LOG.warn(msg);
-      analysisWarnings.addUnique(msg);
-      markAsLogged.run();
-    }
-  }
-
   private boolean accept(InputFile indexedFile) {
     // InputFileFilter extensions. Might trigger generation of metadata
-    for (InputFileFilter filter : filters) {
+    for (InputFileFilter filter : inputFileFilterRepository.getInputFileFilters()) {
       if (!filter.accept(indexedFile)) {
         LOG.debug("'{}' excluded by {}", indexedFile, filter.getClass().getName());
         return false;
@@ -285,7 +194,5 @@ public class FileIndexer {
     return count == 1 ? "file" : "files";
   }
 
-  private boolean isFileSizeBiggerThanLimit(Path filePath) throws IOException {
-    return Files.size(filePath) > properties.fileSizeLimit() * 1024L * 1024L;
-  }
+
 }

@@ -117,7 +117,13 @@ public class ClassloaderBuilder {
       throw new IllegalStateException(String.format("The classloader '%s' already exists in the list of previously created classloaders."
         + " Can not create it twice.", key));
     }
-    ClassRealm realm = AccessController.<PrivilegedAction<ClassRealm>>doPrivileged(() -> new ClassRealm(key, baseClassloader));
+    //TODO: to be checked, the other version of the code is not building
+    ClassRealm realm = AccessController.doPrivileged(new PrivilegedAction<ClassRealm>() {
+      @Override
+      public ClassRealm run() {
+        return new ClassRealm(key, baseClassloader);
+      }
+    });
     realm.setStrategy(LoadingOrder.PARENT_FIRST.strategy);
     newRealmsByKey.put(key, new NewRealm(realm));
     return this;
