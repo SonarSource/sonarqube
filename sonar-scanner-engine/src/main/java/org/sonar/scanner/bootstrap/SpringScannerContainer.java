@@ -112,13 +112,14 @@ import org.sonar.scanner.scan.branch.BranchConfigurationProvider;
 import org.sonar.scanner.scan.branch.BranchType;
 import org.sonar.scanner.scan.branch.ProjectBranchesProvider;
 import org.sonar.scanner.scan.filesystem.DefaultProjectFileSystem;
-import org.sonar.scanner.scan.filesystem.FileIndexer;
+import org.sonar.scanner.scan.filesystem.FilePreprocessor;
 import org.sonar.scanner.scan.filesystem.InputComponentStore;
 import org.sonar.scanner.scan.filesystem.LanguageDetection;
 import org.sonar.scanner.scan.filesystem.MetadataGenerator;
+import org.sonar.scanner.scan.filesystem.ModuleRelativePathWarner;
 import org.sonar.scanner.scan.filesystem.ProjectCoverageAndDuplicationExclusions;
 import org.sonar.scanner.scan.filesystem.ProjectExclusionFilters;
-import org.sonar.scanner.scan.filesystem.ProjectFileIndexer;
+import org.sonar.scanner.scan.filesystem.ProjectFilePreprocessor;
 import org.sonar.scanner.scan.filesystem.ScannerComponentIdGenerator;
 import org.sonar.scanner.scan.filesystem.StatusDetection;
 import org.sonar.scanner.scan.measure.DefaultMetricFinder;
@@ -193,8 +194,9 @@ public class SpringScannerContainer extends SpringComponentContainer {
       LanguageDetection.class,
       MetadataGenerator.class,
       FileMetadata.class,
-      FileIndexer.class,
-      ProjectFileIndexer.class,
+      ModuleRelativePathWarner.class,
+      FilePreprocessor.class,
+      ProjectFilePreprocessor.class,
       ProjectExclusionFilters.class,
 
       // rules
@@ -335,7 +337,7 @@ public class SpringScannerContainer extends SpringComponentContainer {
 
     getComponentByType(DeprecatedPropertiesWarningGenerator.class).execute();
 
-    getComponentByType(ProjectFileIndexer.class).index();
+    getComponentByType(ProjectFilePreprocessor.class).execute();
     new SpringProjectScanContainer(this).execute();
   }
 

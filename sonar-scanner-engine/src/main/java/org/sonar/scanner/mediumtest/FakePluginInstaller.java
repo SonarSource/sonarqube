@@ -36,15 +36,21 @@ import org.sonar.scanner.bootstrap.ScannerPlugin;
 public class FakePluginInstaller implements PluginInstaller {
 
   private final Map<String, ScannerPlugin> pluginsByKeys = new HashMap<>();
-  private final List<Object[]> mediumTestPlugins = new ArrayList<>();
+  private final List<LocalPlugin> mediumTestPlugins = new ArrayList<>();
+  private final List<LocalPlugin> optionalMediumTestPlugins = new ArrayList<>();
 
   public FakePluginInstaller add(String pluginKey, File jarFile, long lastUpdatedAt) {
     pluginsByKeys.put(pluginKey, new ScannerPlugin(pluginKey, lastUpdatedAt, PluginType.BUNDLED, PluginInfo.create(jarFile)));
     return this;
   }
 
-  public FakePluginInstaller add(String pluginKey, Plugin instance, long lastUpdatedAt) {
-    mediumTestPlugins.add(new Object[] {pluginKey, instance, lastUpdatedAt});
+  public FakePluginInstaller add(String pluginKey, Plugin instance) {
+    mediumTestPlugins.add(new LocalPlugin(pluginKey, instance, Set.of()));
+    return this;
+  }
+
+  public FakePluginInstaller addOptional(String pluginKey, Set<String> requiredForLanguages, Plugin instance) {
+    optionalMediumTestPlugins.add(new LocalPlugin(pluginKey, instance, requiredForLanguages));
     return this;
   }
 
@@ -64,7 +70,14 @@ public class FakePluginInstaller implements PluginInstaller {
   }
 
   @Override
-  public List<Object[]> installLocals() {
+  public List<LocalPlugin> installLocals() {
     return mediumTestPlugins;
+  }
+
+  @Override
+  public List<LocalPlugin> installOptionalLocals(Set<String> languageKeys) {
+    return optionalMediumTestPlugins.stream()
+      .filter(plugin -> languageKeys.stream().anyMatch(lang -> plugin.requiredForLanguages().contains(lang)))
+      .toList();
   }
 }
