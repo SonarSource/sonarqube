@@ -46,6 +46,7 @@ import org.sonar.db.event.EventDao;
 import org.sonar.db.issue.AnticipatedTransitionDao;
 import org.sonar.db.issue.IssueChangeDao;
 import org.sonar.db.issue.IssueDao;
+import org.sonar.db.issue.IssueFixedDao;
 import org.sonar.db.measure.LiveMeasureDao;
 import org.sonar.db.measure.MeasureDao;
 import org.sonar.db.metric.MetricDao;
@@ -193,6 +194,7 @@ public class DbClient {
   private final GithubPermissionsMappingDao githubPermissionsMappingDao;
   private final RuleChangeDao ruleChangeDao;
   private final ProjectExportDao projectExportDao;
+  private final IssueFixedDao issueFixedDao;
 
   public DbClient(Database database, MyBatis myBatis, DBSessions dbSessions, Dao... daos) {
     this.database = database;
@@ -285,6 +287,7 @@ public class DbClient {
     anticipatedTransitionDao = getDao(map, AnticipatedTransitionDao.class);
     ruleChangeDao = getDao(map, RuleChangeDao.class);
     projectExportDao = getDao(map, ProjectExportDao.class);
+    issueFixedDao = getDao(map, IssueFixedDao.class);
   }
 
   public DbSession openSession(boolean batch) {
@@ -333,6 +336,10 @@ public class DbClient {
 
   public IssueChangeDao issueChangeDao() {
     return issueChangeDao;
+  }
+
+  public IssueFixedDao issueFixedDao() {
+    return issueFixedDao;
   }
 
   public QualityProfileDao qualityProfileDao() {

@@ -60,6 +60,7 @@ public final class SqTables {
     "internal_component_props",
     "internal_properties",
     "issues",
+    "issues_fixed",
     "issues_impacts",
     "issue_changes",
     "live_measures",

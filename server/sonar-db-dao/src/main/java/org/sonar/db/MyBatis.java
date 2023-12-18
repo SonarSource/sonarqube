@@ -77,6 +77,7 @@ import org.sonar.db.issue.ImpactDto;
 import org.sonar.db.issue.IssueChangeDto;
 import org.sonar.db.issue.IssueChangeMapper;
 import org.sonar.db.issue.IssueDto;
+import org.sonar.db.issue.IssueFixedMapper;
 import org.sonar.db.issue.IssueMapper;
 import org.sonar.db.issue.NewCodeReferenceIssueDto;
 import org.sonar.db.issue.PrIssueDto;
@@ -301,6 +302,7 @@ public class MyBatis {
       IsAliveMapper.class,
       IssueChangeMapper.class,
       IssueMapper.class,
+      IssueFixedMapper.class,
       MeasureMapper.class,
       MetricMapper.class,
       NewCodePeriodMapper.class,
