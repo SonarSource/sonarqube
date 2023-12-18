@@ -47,7 +47,8 @@ public class DirectoryFileVisitor implements FileVisitor<Path> {
   private final InputModuleHierarchy inputModuleHierarchy;
   private final InputFile.Type type;
 
-  DirectoryFileVisitor(FileVisitAction fileVisitAction, DefaultInputModule module, ModuleExclusionFilters moduleExclusionFilters, InputModuleHierarchy inputModuleHierarchy, InputFile.Type type) {
+  DirectoryFileVisitor(FileVisitAction fileVisitAction, DefaultInputModule module, ModuleExclusionFilters moduleExclusionFilters,
+    InputModuleHierarchy inputModuleHierarchy, InputFile.Type type) {
     this.fileVisitAction = fileVisitAction;
     this.module = module;
     this.moduleExclusionFilters = moduleExclusionFilters;

@@ -54,7 +54,6 @@ import static java.util.Collections.singletonList;
 public class ProjectFilePreprocessor {
 
   private static final Logger LOG = LoggerFactory.getLogger(ProjectFilePreprocessor.class);
-  private static final String TELEMETRY_STEP_NAME = "file.preprocessing";
 
   private final AnalysisWarnings analysisWarnings;
   private final IgnoreCommand ignoreCommand;
@@ -113,17 +112,13 @@ public class ProjectFilePreprocessor {
       pluralizeWithCount("preprocessed file", totalFilesPreprocessed)));
 
     int excludedFileByPatternCount = exclusionCounter.getByPatternsCount();
-    if (projectExclusionFilters.hasPattern() || excludedFileByPatternCount > 0) {
-      if (LOG.isInfoEnabled()) {
-        LOG.info("{} ignored because of inclusion/exclusion patterns", pluralizeWithCount("file", excludedFileByPatternCount));
-      }
+    if ((projectExclusionFilters.hasPattern() || excludedFileByPatternCount > 0) && LOG.isInfoEnabled()) {
+      LOG.info("{} ignored because of inclusion/exclusion patterns", pluralizeWithCount("file", excludedFileByPatternCount));
     }
 
     int excludedFileByScmCount = exclusionCounter.getByScmCount();
-    if (useScmExclusion) {
-      if (LOG.isInfoEnabled()) {
-        LOG.info("{} ignored because of scm ignore settings", pluralizeWithCount("file", excludedFileByScmCount));
-      }
+    if (useScmExclusion && LOG.isInfoEnabled()) {
+      LOG.info("{} ignored because of scm ignore settings", pluralizeWithCount("file", excludedFileByScmCount));
     }
   }
 
