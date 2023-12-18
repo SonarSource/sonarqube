@@ -36,6 +36,7 @@ import { useIdentityProviderQuery } from '../../../../queries/identity-provider/
 import {
   useDeleteGitLabConfigurationMutation,
   useGitLabConfigurationsQuery,
+  useSyncWithGitLabNow,
   useUpdateGitLabConfigurationMutation,
 } from '../../../../queries/identity-provider/gitlab';
 import { AlmKeys } from '../../../../types/alm-settings';
@@ -90,6 +91,8 @@ export default function GitLabAuthenticationTab() {
   const { data: identityProvider } = useIdentityProviderQuery();
   const { data: list, isLoading: isLoadingList } = useGitLabConfigurationsQuery();
   const configuration = list?.gitlabConfigurations[0];
+
+  const { canSyncNow, synchronizeNow } = useSyncWithGitLabNow();
 
   const { mutate: updateConfig, isLoading: isUpdating } = useUpdateGitLabConfigurationMutation();
   const { mutate: deleteConfig, isLoading: isDeleting } = useDeleteGitLabConfigurationMutation();
@@ -282,20 +285,15 @@ export default function GitLabAuthenticationTab() {
                       <FormattedMessage id="settings.authentication.gitlab.provisioning_at_login.description" />
                     </p>
                     <p className="spacer-bottom">
-                      <FormattedMessage
-                        id="settings.authentication.gitlab.description.doc"
-                        values={{
-                          documentation: (
-                            <DocLink
-                              to={`/instance-administration/authentication/${
-                                DOCUMENTATION_LINK_SUFFIXES[AlmKeys.GitLab]
-                              }/`}
-                            >
-                              {translate('documentation')}
-                            </DocLink>
-                          ),
-                        }}
-                      />
+                      <DocLink
+                        to={`/instance-administration/authentication/${
+                          DOCUMENTATION_LINK_SUFFIXES[AlmKeys.GitLab]
+                        }/#choosing-the-provisioning-method`}
+                      >
+                        {translate(
+                          `settings.authentication.gitlab.description.${ProvisioningType.jit}.learn_more`,
+                        )}
+                      </DocLink>
                     </p>
                     {provisioningType === ProvisioningType.jit &&
                       allowUsersToSignUpDefinition !== undefined && (
@@ -338,31 +336,33 @@ export default function GitLabAuthenticationTab() {
                           )}
                         </p>
                         <p className="spacer-bottom">
-                          <FormattedMessage
-                            id="settings.authentication.gitlab.description.doc"
-                            values={{
-                              documentation: (
-                                <DocLink
-                                  to={`/instance-administration/authentication/${
-                                    DOCUMENTATION_LINK_SUFFIXES[AlmKeys.GitLab]
-                                  }/`}
-                                >
-                                  {translate('documentation')}
-                                </DocLink>
-                              ),
-                            }}
-                          />
+                          <DocLink
+                            to={`/instance-administration/authentication/${
+                              DOCUMENTATION_LINK_SUFFIXES[AlmKeys.GitLab]
+                            }/#choosing-the-provisioning-method`}
+                          >
+                            {translate(
+                              `settings.authentication.gitlab.description.${ProvisioningType.auto}.learn_more`,
+                            )}
+                          </DocLink>
                         </p>
 
                         {configuration?.synchronizationType === ProvisioningType.auto && (
-                          <>
-                            <GitLabSynchronisationWarning />
-                            <hr className="spacer-top" />
-                          </>
+                          <GitLabSynchronisationWarning />
                         )}
 
                         {provisioningType === ProvisioningType.auto && (
                           <>
+                            <div className="sw-flex sw-flex-1 spacer-bottom">
+                              <Button
+                                className="spacer-top width-30"
+                                onClick={synchronizeNow}
+                                disabled={!canSyncNow}
+                              >
+                                {translate('settings.authentication.github.synchronize_now')}
+                              </Button>
+                            </div>
+                            <hr />
                             <AuthenticationFormField
                               settingValue={provisioningToken}
                               key={tokenKey}

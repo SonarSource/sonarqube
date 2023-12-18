@@ -105,7 +105,7 @@ public class BitbucketSettings {
         .build(),
       PropertyDefinition.builder(ALLOW_USERS_TO_SIGN_UP)
         .name("Allow users to sign up")
-        .description("Allow new users to authenticate. When set to 'false', only existing users will be able to authenticate.")
+        .description("Allow new users to authenticate. When set to disabled, only existing users will be able to authenticate.")
         .category(CATEGORY)
         .subCategory(SUBCATEGORY)
         .type(PropertyType.BOOLEAN)

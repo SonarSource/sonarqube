@@ -30,7 +30,6 @@ import { translateWithParameters } from '../helpers/l10n';
 import { getNextPageParam, getPreviousPageParam } from '../helpers/react-query';
 import { RestUserDetailed } from '../types/users';
 
-const STALE_TIME = 4 * 60 * 1000;
 const DOMAIN = 'group-memberships';
 const GROUP_SUB_DOMAIN = 'users-of-group';
 
@@ -84,7 +83,6 @@ export function useGroupMembersCountQuery(groupId: string) {
   return useQuery({
     queryKey: [DOMAIN, GROUP_SUB_DOMAIN, 'count', groupId],
     queryFn: () => getGroupMemberships({ groupId, pageSize: 0 }).then((r) => r.page.total),
-    staleTime: STALE_TIME,
   });
 }
 

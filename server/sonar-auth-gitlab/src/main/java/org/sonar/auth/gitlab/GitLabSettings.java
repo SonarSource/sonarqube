@@ -147,7 +147,7 @@ public class GitLabSettings implements DevOpsPlatformSettings {
         .build(),
       PropertyDefinition.builder(GITLAB_AUTH_ALLOW_USERS_TO_SIGNUP)
         .name("Allow users to sign up")
-        .description("Allow new users to authenticate. When set to 'false', only existing users will be able to authenticate to the server.")
+        .description("Allow new users to authenticate. When set to disabled, only existing users will be able to authenticate to the server.")
         .category(CATEGORY)
         .subCategory(SUBCATEGORY)
         .type(BOOLEAN)
@@ -158,7 +158,7 @@ public class GitLabSettings implements DevOpsPlatformSettings {
         .deprecatedKey("sonar.auth.gitlab.sync_user_groups")
         .name("Synchronize user groups")
         .description("For each GitLab group they belong to, the user will be associated to a group with the same name (if it exists) in SonarQube." +
-          " If enabled, the GitLab Oauth2 application will need to provide the api scope.")
+          " If enabled, the GitLab OAuth 2 application will need to provide the api scope.")
         .category(CATEGORY)
         .subCategory(SUBCATEGORY)
         .type(PropertyType.BOOLEAN)
@@ -167,7 +167,8 @@ public class GitLabSettings implements DevOpsPlatformSettings {
         .build(),
       PropertyDefinition.builder(GITLAB_AUTH_PROVISIONING_TOKEN)
         .name("Provisioning token")
-        .description("Token used for provisioning users. Both a group or a personal access token can be used as soon as it has visibility on desired groups.")
+        .description("Token used for user provisioning." +
+          " You can either use a group or a personal access token, as long as it has visibility on the groups that need to be imported.")
         .category(CATEGORY)
         .subCategory(SUBCATEGORY)
         .type(PASSWORD)
@@ -175,7 +176,8 @@ public class GitLabSettings implements DevOpsPlatformSettings {
         .build(),
       PropertyDefinition.builder(GITLAB_AUTH_PROVISIONING_GROUPS)
         .name("Groups")
-        .description("Only members of these groups (and sub-groups) will be provisioned. Please enter the group slug as it appears in GitLab URL, for instance `my-gitlab-group`.")
+        .description("Only members of these groups (and sub-groups) will be provisioned." +
+          " Please enter the group slug as it appears in the GitLab URL, for instance `my-gitlab-group`.")
         .multiValues(true)
         .category(CATEGORY)
         .subCategory(SUBCATEGORY)

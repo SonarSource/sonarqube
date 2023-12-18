@@ -59,7 +59,6 @@ export function useUserGroupsCountQuery(login: string) {
   return useQuery({
     queryKey: ['user', login, 'groups', 'total'],
     queryFn: () => getUserGroups({ login, ps: 1 }).then((r) => r.paging.total),
-    staleTime: STALE_TIME,
   });
 }
 

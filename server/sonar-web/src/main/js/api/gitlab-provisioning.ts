@@ -59,3 +59,7 @@ export function updateGitLabConfiguration(
 export function deleteGitLabConfiguration(id: string): Promise<void> {
   return axios.delete(`${GITLAB_CONFIGURATIONS}/${id}`);
 }
+
+export function syncNowGitLabProvisioning(): Promise<void> {
+  return axios.post('/api/v2/dop-translation/gitlab-synchronization-runs');
+}

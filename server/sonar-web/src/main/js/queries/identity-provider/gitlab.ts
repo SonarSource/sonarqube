@@ -24,9 +24,10 @@ import {
   createGitLabConfiguration,
   deleteGitLabConfiguration,
   fetchGitLabConfigurations,
+  syncNowGitLabProvisioning,
   updateGitLabConfiguration,
 } from '../../api/gitlab-provisioning';
-import { AlmSyncStatus } from '../../types/provisioning';
+import { AlmSyncStatus, ProvisioningType } from '../../types/provisioning';
 import { TaskStatuses, TaskTypes } from '../../types/tasks';
 
 export function useGitLabConfigurationsQuery() {
@@ -151,4 +152,24 @@ export function useGitLabSyncStatusQuery() {
       refetchInterval: 10_000,
     },
   );
+}
+
+export function useSyncWithGitLabNow() {
+  const queryClient = useQueryClient();
+  const { data: syncStatus } = useGitLabSyncStatusQuery();
+  const { data: gitlabConfigurations } = useGitLabConfigurationsQuery();
+  const autoProvisioningEnabled = gitlabConfigurations?.gitlabConfigurations.some(
+    (configuration) =>
+      configuration.enabled && configuration.synchronizationType === ProvisioningType.auto,
+  );
+  const mutation = useMutation(syncNowGitLabProvisioning, {
+    onSuccess: () => {
+      queryClient.invalidateQueries(['identity_provider', 'gitlab_sync']);
+    },
+  });
+
+  return {
+    synchronizeNow: mutation.mutate,
+    canSyncNow: autoProvisioningEnabled && !syncStatus?.nextSync && !mutation.isLoading,
+  };
 }

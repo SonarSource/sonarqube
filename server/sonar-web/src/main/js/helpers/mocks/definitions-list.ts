@@ -202,7 +202,7 @@ export const definitions: ExtendedSettingDefinition[] = [
     key: 'sonar.auth.bitbucket.allowUsersToSignUp',
     name: 'Allow users to sign up',
     description:
-      "Allow new users to authenticate. When set to 'false', only existing users will be able to authenticate.",
+      'Allow new users to authenticate. When set to disabled, only existing users will be able to authenticate.',
     type: SettingType.BOOLEAN,
     category: 'authentication',
     subCategory: 'bitbucket',
@@ -214,7 +214,7 @@ export const definitions: ExtendedSettingDefinition[] = [
     key: 'sonar.auth.github.allowUsersToSignUp',
     name: 'Allow users to sign up',
     description:
-      "Allow new users to authenticate. When set to 'false', only existing users will be able to authenticate to the server.",
+      'Allow new users to authenticate. When set to disabled, only existing users will be able to authenticate to the server.',
     type: SettingType.BOOLEAN,
     category: 'authentication',
     subCategory: 'github',
@@ -246,7 +246,7 @@ export const definitions: ExtendedSettingDefinition[] = [
     key: 'sonar.auth.gitlab.allowUsersToSignUp',
     name: 'Allow users to sign up',
     description:
-      "Allow new users to authenticate. When set to 'false', only existing users will be able to authenticate to the server.",
+      'Allow new users to authenticate. When set to disabled, only existing users will be able to authenticate to the server.',
     type: SettingType.BOOLEAN,
     category: 'authentication',
     subCategory: 'gitlab',
@@ -258,7 +258,7 @@ export const definitions: ExtendedSettingDefinition[] = [
     key: 'provisioning.gitlab.token.secured',
     name: 'Provisioning token',
     description:
-      'Token used for provisioning users. Both a group or a personal access token can be used as soon as it has visibility on desired groups.',
+      'Token used for user provisioning. You can either use a group or a personal access token, as long as it has visibility on the groups that need to be imported.',
     type: SettingType.PASSWORD,
     category: 'authentication',
     subCategory: 'gitlab',
@@ -323,7 +323,7 @@ export const definitions: ExtendedSettingDefinition[] = [
     key: 'sonar.auth.gitlab.groupsSync',
     name: 'Synchronize user groups',
     description:
-      'For each GitLab group they belong to, the user will be associated to a group with the same name (if it exists) in SonarQube. If enabled, the GitLab Oauth2 application will need to provide the api scope.',
+      'For each GitLab group they belong to, the user will be associated to a group with the same name (if it exists) in SonarQube. If enabled, the GitLab OAuth 2 application will need to provide the api scope.',
     type: SettingType.BOOLEAN,
     category: 'authentication',
     subCategory: 'gitlab',
