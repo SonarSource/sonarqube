@@ -37,6 +37,11 @@ export const METRICS: string[] = [
   MetricKey.alert_status,
   MetricKey.quality_gate_details, // TODO: still relevant?
 
+  // issues
+  MetricKey.accepted_issues,
+  MetricKey.new_accepted_issues,
+  MetricKey.high_impact_accepted_issues,
+
   // bugs
   MetricKey.bugs,
   MetricKey.new_bugs,
@@ -124,6 +129,11 @@ const MEASURES_VARIATIONS_METRICS = [
   MetricKey.duplicated_lines_density,
   MetricKey.vulnerabilities,
 ];
+
+export enum MeasuresTabs {
+  New = 'new',
+  Overall = 'overall',
+}
 
 export enum MeasurementType {
   Coverage = 'COVERAGE',

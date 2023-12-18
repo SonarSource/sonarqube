@@ -17,7 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Badge, ContentLink } from 'design-system';
+import styled from '@emotion/styled';
+import classNames from 'classnames';
+import { Badge, ContentLink, themeColor } from 'design-system';
 import * as React from 'react';
 import { Path } from 'react-router-dom';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
@@ -35,12 +37,12 @@ interface IssueMeasuresCardInnerProps extends React.HTMLAttributes<HTMLDivElemen
 }
 
 export function IssueMeasuresCardInner(props: Readonly<IssueMeasuresCardInnerProps>) {
-  const { header, metric, icon, value, url, failed, footer, ...rest } = props;
+  const { header, metric, icon, value, url, failed, footer, className, ...rest } = props;
 
   return (
-    <div className="sw-w-1/3 sw-flex sw-flex-col sw-gap-3" {...rest}>
+    <div className={classNames('sw-flex sw-flex-col sw-gap-3', className)} {...rest}>
       <div className="sw-flex sw-flex-col sw-gap-2 sw-font-semibold">
-        <div className="sw-flex sw-items-center sw-gap-2">
+        <ColorBold className="sw-flex sw-items-center sw-gap-2 sw-body-sm-highlight">
           {header}
 
           {failed && (
@@ -48,19 +50,19 @@ export function IssueMeasuresCardInner(props: Readonly<IssueMeasuresCardInnerPro
               {translate('overview.measures.failed_badge')}
             </Badge>
           )}
-        </div>
+        </ColorBold>
         <div className="sw-flex sw-justify-between sw-items-center sw-h-9">
           <div className="sw-h-fit">
             <ContentLink
               aria-label={translateWithParameters(
                 'overview.see_more_details_on_x_of_y',
-                value ?? '0',
+                value || '0',
                 localizeMetric(metric),
               )}
               className="it__overview-measures-value sw-w-fit sw-text-lg"
               to={url}
             >
-              {value ?? '0'}
+              {value || '0'}
             </ContentLink>
           </div>
 
@@ -71,3 +73,7 @@ export function IssueMeasuresCardInner(props: Readonly<IssueMeasuresCardInnerPro
     </div>
   );
 }
+
+const ColorBold = styled.div`
+  color: ${themeColor('pageTitle')};
+`;

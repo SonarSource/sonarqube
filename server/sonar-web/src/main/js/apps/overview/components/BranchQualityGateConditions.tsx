@@ -59,7 +59,7 @@ export default function BranchQualityGateConditions(props: Readonly<Props>) {
   );
 
   return (
-    <ul className="sw-flex sw-items-center sw-gap-2 sw-flex-wrap">
+    <ul className="sw-flex sw-items-center sw-gap-2 sw-flex-wrap sw-mb-4">
       {filteredFailedConditions.map((condition) => (
         <li key={condition.metric}>
           <FailedQGCondition branchLike={branchLike} component={component} condition={condition} />

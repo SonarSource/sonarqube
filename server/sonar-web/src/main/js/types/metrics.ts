@@ -155,6 +155,7 @@ export enum MetricKey {
   violations = 'violations',
   vulnerabilities = 'vulnerabilities',
   accepted_issues = 'accepted_issues',
+  high_impact_accepted_issues = 'high_impact_accepted_issues',
   wont_fix_issues = 'wont_fix_issues',
 }
 

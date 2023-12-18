@@ -20,16 +20,22 @@
 import { LargeCenteredLayout, PageContentFontWrapper } from 'design-system';
 import * as React from 'react';
 import A11ySkipTarget from '../../../components/a11y/A11ySkipTarget';
+import { useLocation } from '../../../components/hoc/withRouter';
 import { parseDate } from '../../../helpers/dates';
+import { isDiffMetric } from '../../../helpers/measures';
+import { CodeScope } from '../../../helpers/urls';
 import { ApplicationPeriod } from '../../../types/application';
 import { Branch } from '../../../types/branch-like';
 import { ComponentQualifier } from '../../../types/component';
 import { Analysis, GraphType, MeasureHistory } from '../../../types/project-activity';
 import { QualityGateStatus } from '../../../types/quality-gates';
 import { Component, MeasureEnhanced, Metric, Period, QualityGate } from '../../../types/types';
+import { MeasuresTabs } from '../utils';
+import AcceptedIssuesPanel from './AcceptedIssuesPanel';
 import ActivityPanel from './ActivityPanel';
 import FirstAnalysisNextStepsNotif from './FirstAnalysisNextStepsNotif';
 import MeasuresPanel from './MeasuresPanel';
+import MeasuresPanelNoNewCode from './MeasuresPanelNoNewCode';
 import NoCodeWarning from './NoCodeWarning';
 import QualityGatePanel from './QualityGatePanel';
 
@@ -64,7 +70,7 @@ export default function BranchOverviewRenderer(props: BranchOverviewRendererProp
     graph,
     loadingHistory,
     loadingStatus,
-    measures,
+    measures = [],
     measuresHistory = [],
     metrics = [],
     onGraphChange,
@@ -74,7 +80,24 @@ export default function BranchOverviewRenderer(props: BranchOverviewRendererProp
     qualityGate,
   } = props;
 
+  const { query } = useLocation();
+  const [tab, selectTab] = React.useState(() => {
+    return query.codeScope === CodeScope.Overall ? MeasuresTabs.Overall : MeasuresTabs.New;
+  });
+
   const leakPeriod = component.qualifier === ComponentQualifier.Application ? appLeak : period;
+  const isNewCodeTab = tab === MeasuresTabs.New;
+  const hasNewCodeMeasures = measures.some((m) => isDiffMetric(m.metric.key));
+
+  React.useEffect(() => {
+    // Open Overall tab by default if there are no new measures.
+    if (loadingStatus === false && !hasNewCodeMeasures && isNewCodeTab) {
+      selectTab(MeasuresTabs.Overall);
+    }
+    // In this case, we explicitly do NOT want to mark tab as a dependency, as
+    // it would prevent the user from selecting it, even if it's empty.
+    /* eslint-disable-next-line react-hooks/exhaustive-deps */
+  }, [loadingStatus, hasNewCodeMeasures]);
 
   return (
     <>
@@ -103,16 +126,36 @@ export default function BranchOverviewRenderer(props: BranchOverviewRendererProp
 
                 <div className="sw-flex-1">
                   <div className="sw-flex sw-flex-col sw-pt-6">
-                    <MeasuresPanel
-                      analyses={analyses}
-                      appLeak={appLeak}
-                      branch={branch}
-                      component={component}
-                      loading={loadingStatus}
-                      measures={measures}
-                      period={period}
-                      qgStatuses={qgStatuses}
-                    />
+                    {!hasNewCodeMeasures && isNewCodeTab && !loadingStatus ? (
+                      <MeasuresPanelNoNewCode
+                        branch={branch}
+                        component={component}
+                        period={period}
+                      />
+                    ) : (
+                      <>
+                        <MeasuresPanel
+                          analyses={analyses}
+                          appLeak={appLeak}
+                          branch={branch}
+                          component={component}
+                          loading={loadingStatus}
+                          measures={measures}
+                          period={period}
+                          qgStatuses={qgStatuses}
+                          isNewCode={isNewCodeTab}
+                          onTabSelect={selectTab}
+                        />
+
+                        <AcceptedIssuesPanel
+                          branch={branch}
+                          component={component}
+                          measures={measures}
+                          isNewCode={isNewCodeTab}
+                          loading={loadingStatus}
+                        />
+                      </>
+                    )}
 
                     <ActivityPanel
                       analyses={analyses}

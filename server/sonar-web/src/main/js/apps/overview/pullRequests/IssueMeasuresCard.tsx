@@ -42,8 +42,8 @@ import { PullRequest } from '../../../types/branch-like';
 import { MetricKey, MetricType } from '../../../types/metrics';
 import { QualityGateStatusConditionEnhanced } from '../../../types/quality-gates';
 import { Component, MeasureEnhanced } from '../../../types/types';
+import { IssueMeasuresCardInner } from '../components/IssueMeasuresCardInner';
 import { getConditionRequiredLabel, Status } from '../utils';
-import { IssueMeasuresCardInner } from './IssueMeasuresCardInner';
 
 interface Props {
   conditions: QualityGateStatusConditionEnhanced[];
@@ -82,6 +82,7 @@ export default function IssueMeasuresCard(
   return (
     <Card className="sw-p-8 sw-rounded-2 sw-flex sw-text-base sw-gap-4" {...rest}>
       <IssueMeasuresCardInner
+        className="sw-w-1/3"
         header={intl.formatMessage({ id: 'overview.pull_request.new_issues' })}
         data-test="overview__measures-new-violations"
         data-guiding-id={issuesConditionFailed ? 'overviewZeroNewIssuesSimplification' : undefined}
@@ -106,6 +107,7 @@ export default function IssueMeasuresCard(
       />
       <StyledCardSeparator />
       <IssueMeasuresCardInner
+        className="sw-w-1/3"
         header={intl.formatMessage({ id: 'overview.pull_request.accepted_issues' })}
         metric={MetricKey.new_accepted_issues}
         value={formatMeasure(acceptedCount, MetricType.ShortInteger)}
@@ -119,6 +121,7 @@ export default function IssueMeasuresCard(
       />
       <StyledCardSeparator />
       <IssueMeasuresCardInner
+        className="sw-w-1/3"
         header={
           <>
             {intl.formatMessage({ id: 'overview.pull_request.fixed_issues' })}

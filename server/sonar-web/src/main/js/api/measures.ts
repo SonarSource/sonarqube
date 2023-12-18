@@ -108,17 +108,41 @@ export function getMeasuresWithPeriod(
   }).catch(throwGlobalError);
 }
 
-export function getMeasuresWithPeriodAndMetrics(
+export async function getMeasuresWithPeriodAndMetrics(
   component: string,
   metrics: string[],
   branchParameters?: BranchParameters,
 ): Promise<MeasuresAndMetaWithPeriod & MeasuresAndMetaWithMetrics> {
-  return getJSON(COMPONENT_URL, {
+  // TODO: Remove this mock (SONAR-21323&SONAR-21275)
+  const mockedMetrics = metrics.filter(
+    (metric) =>
+      metric !== MetricKey.new_accepted_issues && metric !== MetricKey.high_impact_accepted_issues,
+  );
+  const result = await getJSON(COMPONENT_URL, {
     additionalFields: 'period,metrics',
     component,
-    metricKeys: metrics.join(','),
+    metricKeys: mockedMetrics.join(','),
     ...branchParameters,
   }).catch(throwGlobalError);
+  if (metrics.includes(MetricKey.high_impact_accepted_issues)) {
+    result.metrics.push({
+      key: MetricKey.high_impact_accepted_issues,
+      name: 'Accepted Issues with high impact',
+      description: 'Accepted Issues with high impact',
+      domain: 'Reliability',
+      type: MetricType.Integer,
+      higherValuesAreBetter: false,
+      qualitative: true,
+      hidden: false,
+      bestValue: '0',
+    });
+    result.component.measures?.push({
+      metric: MetricKey.high_impact_accepted_issues,
+      value: '3',
+    });
+  }
+
+  return result;
 }
 
 export function getMeasuresForProjects(

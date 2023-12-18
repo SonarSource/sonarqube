@@ -37,6 +37,7 @@ import {
 } from '../../../../helpers/mocks/quality-gates';
 import { mockLoggedInUser, mockPeriod } from '../../../../helpers/testMocks';
 import { renderComponent } from '../../../../helpers/testReactTestingUtils';
+import { byRole } from '../../../../helpers/testSelector';
 import { ComponentQualifier } from '../../../../types/component';
 import { MetricKey, MetricType } from '../../../../types/metrics';
 import {
@@ -218,11 +219,21 @@ describe('project overview', () => {
 
     //Measures panel
     expect(screen.getByText('metric.new_vulnerabilities.name')).toBeInTheDocument();
+    expect(
+      byRole('link', {
+        name: 'overview.see_more_details_on_x_of_y.1.metric.accepted_issues.name',
+      }).get(),
+    ).toBeInTheDocument();
 
     // go to overall
     await user.click(screen.getByText('overview.overall_code'));
 
     expect(screen.getByText('metric.vulnerabilities.name')).toBeInTheDocument();
+    expect(
+      byRole('link', {
+        name: 'overview.see_more_details_on_x_of_y.1.metric.high_impact_accepted_issues.name',
+      }).get(),
+    ).toBeInTheDocument();
   });
 
   it('should show a successful non-compliant QG', async () => {

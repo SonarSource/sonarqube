@@ -39,6 +39,7 @@ export { FlagInfoIcon } from './FlagInfoIcon';
 export { FlagSuccessIcon } from './FlagSuccessIcon';
 export { FlagWarningIcon } from './FlagWarningIcon';
 export { HelperHintIcon } from './HelperHintIcon';
+export { HighImpactCircleIcon } from './HighImpactCircleIcon';
 export { HomeFillIcon } from './HomeFillIcon';
 export { HomeIcon } from './HomeIcon';
 export * from './Icon';
