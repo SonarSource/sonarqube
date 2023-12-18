@@ -63,4 +63,16 @@ public class IssueFixedDaoIT {
     assertThat(underTest.selectByPullRequest(db.getSession(), "PR-1")).containsOnly(fixedIssue1, fixedIssue2);
   }
 
+  @Test
+  public void delete_shouldRemovedExpectedIssuesFixed() {
+    IssueFixedDto fixedIssue1 = new IssueFixedDto("PR-1", "ISSUE-1");
+    IssueFixedDto fixedIssue2 = new IssueFixedDto("PR-1", "ISSUE-2");
+    underTest.insert(db.getSession(), fixedIssue1);
+    underTest.insert(db.getSession(), fixedIssue2);
+
+    underTest.delete(db.getSession(), fixedIssue1);
+
+    assertThat(underTest.selectByPullRequest(db.getSession(), "PR-1")).containsOnly(fixedIssue2);
+  }
+
 }

@@ -100,6 +100,7 @@ import org.sonar.ce.task.projectanalysis.issue.TrackerTargetBranchInputFactory;
 import org.sonar.ce.task.projectanalysis.issue.TransitionIssuesToAnticipatedStatesVisitor;
 import org.sonar.ce.task.projectanalysis.issue.UpdateConflictResolver;
 import org.sonar.ce.task.projectanalysis.issue.filter.IssueFilter;
+import org.sonar.ce.task.projectanalysis.issue.fixedissues.PullRequestFixedIssueRepositoryImpl;
 import org.sonar.ce.task.projectanalysis.language.LanguageRepositoryImpl;
 import org.sonar.ce.task.projectanalysis.locations.flow.FlowGenerator;
 import org.sonar.ce.task.projectanalysis.measure.MeasureComputersHolderImpl;
@@ -240,6 +241,7 @@ public final class ProjectAnalysisTaskContainerPopulator implements ContainerPop
       SourceLineReadersFactory.class,
       QProfileStatusRepositoryImpl.class,
       IssueChangesToDeleteRepository.class,
+      PullRequestFixedIssueRepositoryImpl.class,
 
       // issues
       RuleRepositoryImpl.class,

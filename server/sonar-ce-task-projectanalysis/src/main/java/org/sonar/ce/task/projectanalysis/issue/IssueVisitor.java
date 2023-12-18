@@ -21,6 +21,7 @@ package org.sonar.ce.task.projectanalysis.issue;
 
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.core.issue.DefaultIssue;
+import org.sonar.core.issue.tracking.Input;
 
 public abstract class IssueVisitor {
 
@@ -41,6 +42,13 @@ public abstract class IssueVisitor {
    * are ignored.
    */
   public void onIssue(Component component, DefaultIssue issue) {
+
+  }
+
+  /**
+   * This method is called for all raw issues of a component before tracking is done.
+   */
+  public void onRawIssues(Component component, Input<DefaultIssue> rawIssues) {
 
   }
 

@@ -17,12 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.issue;
+@ParametersAreNonnullByDefault
+package org.sonar.ce.task.projectanalysis.issue.fixedissues;
 
-import java.util.List;
-
-public interface IssueFixedMapper {
-  void insert(IssueFixedDto dto);
-  List<IssueFixedDto> selectByPullRequest(String pullRequestUuid);
-  void delete(IssueFixedDto issueFixed);
-}
+import javax.annotation.ParametersAreNonnullByDefault;

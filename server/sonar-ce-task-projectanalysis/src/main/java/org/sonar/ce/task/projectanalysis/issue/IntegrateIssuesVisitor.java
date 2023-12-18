@@ -86,8 +86,12 @@ public class IntegrateIssuesVisitor extends TypeAwareVisitorAdapter {
   public void visitAny(Component component) {
     try (CacheAppender<DefaultIssue> cacheAppender = protoIssueCache.newAppender()) {
       issueVisitors.beforeComponent(component);
-      List<DefaultIssue> issues = getIssues(component);
+      Input<DefaultIssue> rawInput = rawInputFactory.create(component);
+      List<DefaultIssue> issues = getIssues(rawInput, component);
+
+      issueVisitors.onRawIssues(component, rawInput);
       processIssues(component, issues);
+
       issueVisitors.beforeCaching(component);
       appendIssuesToCache(cacheAppender, issues);
       issueVisitors.afterComponent(component);
@@ -96,21 +100,21 @@ public class IntegrateIssuesVisitor extends TypeAwareVisitorAdapter {
     }
   }
 
-  private List<DefaultIssue> getIssues(Component component) {
+  private List<DefaultIssue> getIssues(Input<DefaultIssue> rawInput, Component component) {
     if (fileStatuses.isDataUnchanged(component)) {
       // we assume there's a previous analysis of the same branch
-      return getIssuesForUnchangedFile(component);
+      return getIssuesForUnchangedFile(rawInput, component);
     } else {
-      return getRawIssues(component);
+      return getRawIssues(rawInput, component);
     }
   }
 
-  private List<DefaultIssue> getIssuesForUnchangedFile(Component component) {
+  private List<DefaultIssue> getIssuesForUnchangedFile(Input<DefaultIssue> rawInput, Component component) {
     Input<DefaultIssue> baseIssues = baseInputFactory.create(component);
     Collection<DefaultIssue> issues = baseIssues.getIssues();
     //In case of plugin update, issue impacts are potentially updated. We want to avoid incremental analysis in this case.
     return hasAnyInvolvedPluginChangedSinceLastAnalysis(issues)
-      ? getRawIssues(component)
+      ? getRawIssues(rawInput, component)
       : new LinkedList<>(issues);
   }
 
@@ -130,8 +134,7 @@ public class IntegrateIssuesVisitor extends TypeAwareVisitorAdapter {
       .toList();
   }
 
-  private List<DefaultIssue> getRawIssues(Component component) {
-    Input<DefaultIssue> rawInput = rawInputFactory.create(component);
+  private List<DefaultIssue> getRawIssues(Input<DefaultIssue> rawInput, Component component) {
     TrackingResult tracking = issueTracking.track(component, rawInput);
     var newOpenIssues = fillNewOpenIssues(component, tracking.newIssues(), rawInput);
     var existingOpenIssues = fillExistingOpenIssues(tracking.issuesToMerge());
@@ -170,9 +173,9 @@ public class IntegrateIssuesVisitor extends TypeAwareVisitorAdapter {
 
   private static List<DefaultIssue> closeIssues(Stream<DefaultIssue> issues) {
     return issues.map(issue ->
-    // TODO should replace flag "beingClosed" by express call to transition "automaticClose"
-    issue.setBeingClosed(true)
-    // TODO manual issues -> was updater.setResolution(newIssue, Issue.RESOLUTION_REMOVED, changeContext);. Is it a problem ?
+        // TODO should replace flag "beingClosed" by express call to transition "automaticClose"
+        issue.setBeingClosed(true)
+      // TODO manual issues -> was updater.setResolution(newIssue, Issue.RESOLUTION_REMOVED, changeContext);. Is it a problem ?
     ).toList();
   }
 

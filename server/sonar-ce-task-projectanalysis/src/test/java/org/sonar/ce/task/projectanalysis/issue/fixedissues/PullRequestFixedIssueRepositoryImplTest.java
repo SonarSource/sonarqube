@@ -17,12 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.issue;
+package org.sonar.ce.task.projectanalysis.issue.fixedissues;
 
-import java.util.List;
+import org.assertj.core.api.Assertions;
+import org.junit.Test;
+import org.sonar.core.issue.DefaultIssue;
 
-public interface IssueFixedMapper {
-  void insert(IssueFixedDto dto);
-  List<IssueFixedDto> selectByPullRequest(String pullRequestUuid);
-  void delete(IssueFixedDto issueFixed);
+public class PullRequestFixedIssueRepositoryImplTest {
+
+  @Test
+  public void getFixedIssues_shouldReturnListOfIssues() {
+    PullRequestFixedIssueRepositoryImpl fixedIssueRepository = new PullRequestFixedIssueRepositoryImpl();
+    fixedIssueRepository.addFixedIssue(new DefaultIssue().setKey("key1"));
+    fixedIssueRepository.addFixedIssue(new DefaultIssue().setKey("key2"));
+
+    Assertions.assertThat(fixedIssueRepository.getFixedIssues()).extracting(DefaultIssue::key)
+      .containsExactly("key1", "key2");
+  }
+
 }

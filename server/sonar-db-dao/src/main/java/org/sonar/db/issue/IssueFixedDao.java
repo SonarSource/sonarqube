@@ -37,4 +37,8 @@ public class IssueFixedDao implements Dao {
   public List<IssueFixedDto> selectByPullRequest(DbSession dbSession, @Param("pullRequestUuid") String pullRequestUuid) {
     return mapper(dbSession).selectByPullRequest(pullRequestUuid);
   }
+
+  public void delete(DbSession dbSession, IssueFixedDto issueFixed) {
+    mapper(dbSession).delete(issueFixed);
+  }
 }

@@ -21,6 +21,7 @@ package org.sonar.ce.task.projectanalysis.issue;
 
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.core.issue.DefaultIssue;
+import org.sonar.core.issue.tracking.Input;
 
 public class IssueVisitors {
 
@@ -53,4 +54,11 @@ public class IssueVisitors {
       visitor.beforeCaching(component);
     }
   }
+
+  public void onRawIssues(Component component, Input<DefaultIssue> rawIssues) {
+    for (IssueVisitor visitor : visitors) {
+      visitor.onRawIssues(component, rawIssues);
+    }
+  }
+
 }

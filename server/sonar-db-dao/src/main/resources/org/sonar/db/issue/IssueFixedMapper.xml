@@ -3,7 +3,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd">
 
 <mapper namespace="org.sonar.db.issue.IssueFixedMapper">
-  <insert id="insert" parameterType="org.sonar.db.issue.IssueFixedDto">
+  <insert id="insert" parameterType="org.sonar.db.issue.IssueFixedDto" useGeneratedKeys="false">
     INSERT INTO issues_fixed (
       pull_request_uuid,
       issue_key
@@ -19,4 +19,9 @@
     FROM issues_fixed
     WHERE pull_request_uuid = #{pullRequestUuid,jdbcType=VARCHAR}
   </select>
+  <delete id="delete" parameterType="org.sonar.db.issue.IssueFixedDto">
+    DELETE FROM issues_fixed
+      WHERE issue_key = #{issueKey,jdbcType=VARCHAR}
+    AND pull_request_uuid = #{pullRequestUuid,jdbcType=VARCHAR}
+  </delete>
 </mapper>
