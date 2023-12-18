@@ -133,7 +133,7 @@ public class FileSystemMediumIT {
         .put("sonar.sources", "src")
         .build())
       .execute())
-        .isInstanceOf(MessageException.class);
+      .isInstanceOf(MessageException.class);
   }
 
   @Test
@@ -695,8 +695,8 @@ public class FileSystemMediumIT {
         .put("sonar.sources", "src,src/sample.xoo")
         .build())
       .execute())
-        .isInstanceOf(MessageException.class)
-        .hasMessage("File src/sample.xoo can't be indexed twice. Please check that inclusion/exclusion patterns produce disjoint sets for main and test files");
+      .isInstanceOf(MessageException.class)
+      .hasMessage("File src/sample.xoo can't be indexed twice. Please check that inclusion/exclusion patterns produce disjoint sets for main and test files");
   }
 
   // SONAR-9574
@@ -714,8 +714,8 @@ public class FileSystemMediumIT {
         .put("module1.sonar.sources", "src")
         .build())
       .execute())
-        .isInstanceOf(MessageException.class)
-        .hasMessage("File module1/src/sample.xoo can't be indexed twice. Please check that inclusion/exclusion patterns produce disjoint sets for main and test files");
+      .isInstanceOf(MessageException.class)
+      .hasMessage("File module1/src/sample.xoo can't be indexed twice. Please check that inclusion/exclusion patterns produce disjoint sets for main and test files");
   }
 
   // SONAR-5330
@@ -870,7 +870,7 @@ public class FileSystemMediumIT {
     File srcDir = new File(baseDir, "src");
     srcDir.mkdir();
 
-    tester.addLanguage("xoo3", "xoo3",false,  ".xoo3");
+    tester.addLanguage("xoo3", "xoo3", false, ".xoo3");
 
     writeFile(srcDir, "sample.xoo3", "Sample xoo\ncontent");
     writeFile(srcDir, "sample2.xoo3", "Sample xoo 2\ncontent");
@@ -1236,7 +1236,7 @@ public class FileSystemMediumIT {
         .build())
       .execute();
 
-    assertAnalysedFiles(result,  "src/srcSubDir/srcSub.xoo");
+    assertAnalysedFiles(result, "src/srcSubDir/srcSub.xoo");
   }
 
   @Test

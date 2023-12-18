@@ -330,10 +330,10 @@ public class SpringScannerContainer extends SpringComponentContainer {
     });
 
     BranchConfiguration branchConfig = getComponentByType(BranchConfiguration.class);
-    if (branchConfig.branchType() == BranchType.PULL_REQUEST) {
+    if (branchConfig.branchType() == BranchType.PULL_REQUEST && LOG.isInfoEnabled()) {
       LOG.info("Pull request {} for merge into {} from {}", branchConfig.pullRequestKey(), pullRequestBaseToDisplayName(branchConfig.targetBranchName()),
         branchConfig.branchName());
-    } else if (branchConfig.branchName() != null) {
+    } else if (branchConfig.branchName() != null && LOG.isInfoEnabled()) {
       LOG.info("Branch name: {}", branchConfig.branchName());
     }
 

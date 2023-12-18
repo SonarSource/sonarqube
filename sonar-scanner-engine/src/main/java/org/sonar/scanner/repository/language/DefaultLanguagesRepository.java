@@ -30,6 +30,7 @@ import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import javax.annotation.concurrent.Immutable;
 import org.sonar.api.Startable;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.resources.Languages;
@@ -40,6 +41,7 @@ import org.sonarqube.ws.client.GetRequest;
  * Languages repository using {@link Languages}
  * @since 4.4
  */
+@Immutable
 public class DefaultLanguagesRepository implements LanguagesRepository, Startable {
   private static final Logger LOG = LoggerFactory.getLogger(DefaultLanguagesRepository.class);
   private static final String LANGUAGES_WS_URL = "/api/languages/list";
@@ -75,9 +77,8 @@ public class DefaultLanguagesRepository implements LanguagesRepository, Startabl
   }
 
   private Language populateFileSuffixesAndPatterns(SupportedLanguageDto lang) {
-    String propertyFragment = PROPERTY_FRAGMENT_MAP.getOrDefault(lang.getKey(), lang.getKey());
-    lang.setFileSuffixes(properties.getStringArray(String.format("sonar.%s.file.suffixes", propertyFragment)));
-    lang.setFilenamePatterns(properties.getStringArray(String.format("sonar.%s.file.patterns", propertyFragment)));
+    lang.setFileSuffixes(getFileSuffixes(lang.getKey()));
+    lang.setFilenamePatterns(getFilenamePatterns(lang.getKey()));
     if (lang.filenamePatterns() == null && lang.getFileSuffixes() == null) {
       LOG.debug("Language '{}' cannot be detected as it has neither suffixes nor patterns.", lang.getName());
     }
@@ -85,7 +86,15 @@ public class DefaultLanguagesRepository implements LanguagesRepository, Startabl
   }
 
   private String[] getFileSuffixes(String languageKey) {
-    String propName = String.format("sonar.%s.file.suffixes", PROPERTY_FRAGMENT_MAP.getOrDefault(languageKey, languageKey));
+    return getPropertyForLanguage("sonar.%s.file.suffixes", languageKey);
+  }
+
+  private String[] getFilenamePatterns(String languageKey) {
+    return getPropertyForLanguage("sonar.%s.file.patterns", languageKey);
+  }
+
+  private String[] getPropertyForLanguage(String propertyPattern, String languageKey) {
+    String propName = String.format(propertyPattern, PROPERTY_FRAGMENT_MAP.getOrDefault(languageKey, languageKey));
     return properties.getStringArray(propName);
   }
 
