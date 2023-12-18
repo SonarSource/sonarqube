@@ -39,19 +39,21 @@ import SystemAnnouncement from './SystemAnnouncement';
 import UpdateNotification from './update-notification/UpdateNotification';
 
 const TEMP_PAGELIST_WITH_NEW_BACKGROUND = [
-  '/dashboard',
-  '/security_hotspots',
-  '/component_measures',
-  '/project/issues',
-  '/project/activity',
+  '/admin/extension/governance/views_console',
   '/code',
-  '/profiles',
-  '/project/extension/securityreport/securityreport',
-  '/projects',
-  '/project/information',
-  '/web_api_v2',
-  '/quality_gates',
   '/coding_rules',
+  '/component_measures',
+  '/dashboard',
+  '/profiles',
+  '/project/activity',
+  '/project/admin/extension/governance/console',
+  '/project/extension/securityreport/securityreport',
+  '/project/information',
+  '/project/issues',
+  '/projects',
+  '/quality_gates',
+  '/security_hotspots',
+  '/web_api_v2',
 ];
 
 const TEMP_PAGELIST_WITH_NEW_BACKGROUND_WHITE = [
