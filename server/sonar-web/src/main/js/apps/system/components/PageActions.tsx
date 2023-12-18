@@ -89,7 +89,7 @@ export default class PageActions extends React.PureComponent<Props, State> {
                 <li>
                   <a
                     download="sonarqube_app.log"
-                    href={logsUrl + '?process=app'}
+                    href={logsUrl + '?name=app'}
                     id="logs-link"
                     rel="noopener noreferrer"
                     target="_blank"
@@ -100,7 +100,7 @@ export default class PageActions extends React.PureComponent<Props, State> {
                 <li>
                   <a
                     download="sonarqube_ce.log"
-                    href={logsUrl + '?process=ce'}
+                    href={logsUrl + '?name=ce'}
                     id="ce-logs-link"
                     rel="noopener noreferrer"
                     target="_blank"
@@ -111,7 +111,7 @@ export default class PageActions extends React.PureComponent<Props, State> {
                 <li>
                   <a
                     download="sonarqube_es.log"
-                    href={logsUrl + '?process=es'}
+                    href={logsUrl + '?name=es'}
                     id="es-logs-link"
                     rel="noopener noreferrer"
                     target="_blank"
@@ -122,7 +122,7 @@ export default class PageActions extends React.PureComponent<Props, State> {
                 <li>
                   <a
                     download="sonarqube_web.log"
-                    href={logsUrl + '?process=web'}
+                    href={logsUrl + '?name=web'}
                     id="web-logs-link"
                     rel="noopener noreferrer"
                     target="_blank"
@@ -133,12 +133,22 @@ export default class PageActions extends React.PureComponent<Props, State> {
                 <li>
                   <a
                     download="sonarqube_access.log"
-                    href={logsUrl + '?process=access'}
+                    href={logsUrl + '?name=access'}
                     id="access-logs-link"
                     rel="noopener noreferrer"
                     target="_blank"
                   >
                     Access Logs
+                  </a>
+                </li>
+                <li>
+                  <a
+                    download="sonarqube_deprecation.log"
+                    href={logsUrl + '?name=deprecation'}
+                    rel="noopener noreferrer"
+                    target="_blank"
+                  >
+                    Deprecation Logs
                   </a>
                 </li>
               </ul>

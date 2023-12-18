@@ -69,11 +69,16 @@ describe('System Info Standalone', () => {
     expect(await ui.pageHeading.find()).toBeInTheDocument();
 
     await user.click(ui.downloadLogsButton.get());
-    ['Main Process', 'Compute Engine', 'Search Engine', 'Web Server', 'Access Logs'].forEach(
-      (link) => {
-        expect(screen.getByRole('link', { name: link })).toBeInTheDocument();
-      },
-    );
+    [
+      'Main Process',
+      'Compute Engine',
+      'Search Engine',
+      'Web Server',
+      'Access Logs',
+      'Deprecation Logs',
+    ].forEach((link) => {
+      expect(screen.getByRole('link', { name: link })).toBeInTheDocument();
+    });
     expect(ui.downloadSystemInfoButton.get()).toBeInTheDocument();
   });
 });
