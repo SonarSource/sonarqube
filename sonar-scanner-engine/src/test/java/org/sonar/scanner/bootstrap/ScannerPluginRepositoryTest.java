@@ -47,6 +47,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.sonar.core.config.ScannerProperties.PLUGIN_LOADING_OPTIMIZATION_KEY;
 
 public class ScannerPluginRepositoryTest {
 
@@ -90,9 +91,8 @@ public class ScannerPluginRepositoryTest {
   }
 
   @Test
-  public void should_install_all_plugins_when_loadall_flag_is_set() {
-    when(properties.getBoolean("sonar.plugins.loadAll")).thenReturn(Optional.of(true));
-
+  public void should_install_all_plugins_when_downloadOnlyRequired_flag_is_false() {
+    when(properties.getBoolean(PLUGIN_LOADING_OPTIMIZATION_KEY)).thenReturn(Optional.of(false));
     underTest.start();
 
     verify(installer).installAllPlugins();
