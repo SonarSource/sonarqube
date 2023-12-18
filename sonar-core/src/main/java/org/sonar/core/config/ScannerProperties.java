@@ -40,6 +40,7 @@ public class ScannerProperties {
   public static final String FILE_SIZE_LIMIT = "sonar.filesize.limit";
   public static final String LINKS_SOURCES_DEV = "sonar.links.scm_dev";
   public static final String DISABLE_PROJECT_AND_ORG_AUTODETECTION = "sonar.keys_autodetection.disabled";
+  public static final String PLUGIN_LOADING_OPTIMIZATION_KEY = "sonar.plugins.downloadOnlyRequired";
 
   private ScannerProperties() {
     // only static stuff
@@ -91,6 +92,14 @@ public class ScannerProperties {
         .description(
           "Allows discarding files from analysis exceeding certain sizes.")
         .hidden()
+        .build(),
+      PropertyDefinition.builder(PLUGIN_LOADING_OPTIMIZATION_KEY)
+        .name("Enable scanner plugin loading optimization")
+        .description("When enabled, scanners will only download plugins required for detected languages.")
+        .category(CoreProperties.CATEGORY_GENERAL)
+        .subCategory("Performance")
+        .type(BOOLEAN)
+        .defaultValue("true")
         .build());
   }
 }
