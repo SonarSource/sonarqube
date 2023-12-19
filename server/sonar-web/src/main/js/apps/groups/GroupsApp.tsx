@@ -21,6 +21,7 @@ import * as React from 'react';
 import { useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import GitHubSynchronisationWarning from '../../app/components/GitHubSynchronisationWarning';
+import GitLabSynchronisationWarning from '../../app/components/GitLabSynchronisationWarning';
 import ListFooter from '../../components/controls/ListFooter';
 import { ManagedFilter } from '../../components/controls/ManagedFilter';
 import SearchBox from '../../components/controls/SearchBox';
@@ -52,6 +53,7 @@ export default function GroupsApp() {
       <main className="page page-limited" id="groups-page">
         <Header manageProvider={manageProvider?.provider} />
         {manageProvider?.provider === Provider.Github && <GitHubSynchronisationWarning short />}
+        {manageProvider?.provider === Provider.Gitlab && <GitLabSynchronisationWarning short />}
 
         <div className="display-flex-justify-start big-spacer-bottom big-spacer-top">
           <ManagedFilter

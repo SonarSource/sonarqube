@@ -54,8 +54,19 @@ export default function ListItem(props: ListItemProps) {
     return isManaged() && !managed;
   };
 
-  const isGithubGroup = () => {
-    return manageProvider === Provider.Github && managed;
+  const renderIdentityProviderIcon = (identityProvider: Provider | undefined) => {
+    if (identityProvider === undefined || identityProvider === Provider.Scim) {
+      return null;
+    }
+
+    return (
+      <img
+        alt={identityProvider}
+        className="spacer-left spacer-right"
+        height={16}
+        src={`${getBaseUrl()}/images/alm/${identityProvider}.svg`}
+      />
+    );
   };
 
   return (
@@ -63,14 +74,7 @@ export default function ListItem(props: ListItemProps) {
       <td className="width-20" headers="list-group-name">
         <b>{name}</b>
         {group.default && <span className="little-spacer-left">({translate('default')})</span>}
-        {isGithubGroup() && (
-          <img
-            alt="github"
-            className="spacer-left spacer-right"
-            height={16}
-            src={`${getBaseUrl()}/images/alm/github.svg`}
-          />
-        )}
+        {managed && renderIdentityProviderIcon(manageProvider)}
         {isGroupLocal() && <span className="little-spacer-left badge">{translate('local')}</span>}
       </td>
 
