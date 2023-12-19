@@ -44,6 +44,9 @@ import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.toList;
 
 public class LogsAction implements SystemWsAction {
+  /**
+   * @deprecated since 10.4, use {@link #NAME} instead.
+   */
   @Deprecated(since = "10.4", forRemoval = true)
   private static final String PROCESS_PROPERTY = "process";
   private static final String NAME = "name";
