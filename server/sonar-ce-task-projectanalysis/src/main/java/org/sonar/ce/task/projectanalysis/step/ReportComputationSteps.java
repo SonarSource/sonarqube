@@ -83,6 +83,9 @@ public class ReportComputationSteps extends AbstractComputationSteps {
 
     PostMeasuresComputationChecksStep.class,
 
+    // Must be executed after visitors execution
+    PullRequestFixedIssuesMeasureStep.class,
+
     QualityGateMeasuresStep.class,
     // Must be executed after computation of language distribution
     ComputeQProfileMeasureStep.class,
