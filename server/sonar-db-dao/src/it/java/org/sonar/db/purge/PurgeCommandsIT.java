@@ -42,18 +42,19 @@ import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.DbTester;
-import org.sonar.db.dismissmessage.MessageType;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.ProjectData;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.dialect.Dialect;
+import org.sonar.db.dismissmessage.MessageType;
 import org.sonar.db.duplication.DuplicationUnitDto;
 import org.sonar.db.entity.EntityDto;
 import org.sonar.db.issue.AnticipatedTransitionDto;
 import org.sonar.db.issue.ImpactDto;
 import org.sonar.db.issue.IssueDto;
+import org.sonar.db.issue.IssueFixedDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.newcodeperiod.NewCodePeriodType;
 import org.sonar.db.permission.GlobalPermission;
@@ -823,6 +824,21 @@ public class PurgeCommandsIT {
 
     assertThat(anticipatedTransitionDtos).hasSize(1);
     assertThat(anticipatedTransitionDtos.get(0).getUuid()).isEqualTo(projectDto.uuid() + "okTransition");
+  }
+
+  @Test
+  public void deleteFixedIssues_shouldDeleteFixedIssuesOnPullRequest() {
+    dbTester.getDbClient().issueFixedDao().insert(dbTester.getSession(), new IssueFixedDto("pull_request_uuid", "issue1"));
+    dbTester.getDbClient().issueFixedDao().insert(dbTester.getSession(), new IssueFixedDto("pull_request_uuid", "issue2"));
+    dbTester.getDbClient().issueFixedDao().insert(dbTester.getSession(), new IssueFixedDto("pull_request_uuid2", "issue3"));
+
+    underTest.deleteIssuesFixed("pull_request_uuid");
+
+    assertThat(dbTester.getDbClient().issueFixedDao().selectByPullRequest(dbTester.getSession(), "pull_request_uuid"))
+      .isEmpty();
+
+    assertThat(dbTester.getDbClient().issueFixedDao().selectByPullRequest(dbTester.getSession(), "pull_request_uuid2"))
+      .hasSize(1);
   }
 
   private AnticipatedTransitionDto getAnticipatedTransitionsDto(String uuid, String projectUuid, Instant creationDate) {

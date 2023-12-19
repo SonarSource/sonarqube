@@ -666,5 +666,8 @@
   <delete id="deleteAnticipatedTransitionsByProjectUuidAndCreationDate">
     delete from anticipated_transitions where project_uuid = #{projectUuid,jdbcType=VARCHAR} and created_at &lt; #{createdAtBefore,jdbcType=BIGINT}
   </delete>
+  <delete id="deleteIssuesFixedByBranchUuid">
+    delete from issues_fixed where pull_request_uuid = #{branchUuid,jdbcType=VARCHAR}
+  </delete>
 </mapper>
 

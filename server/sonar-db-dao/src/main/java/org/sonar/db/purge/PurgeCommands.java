@@ -516,4 +516,11 @@ class PurgeCommands {
     session.commit();
     profiler.stop();
   }
+
+  public void deleteIssuesFixed(String branchUuid) {
+    profiler.start("deleteIssuesFixed (issues_fixed)");
+    purgeMapper.deleteIssuesFixedByBranchUuid(branchUuid);
+    session.commit();
+    profiler.stop();
+  }
 }
