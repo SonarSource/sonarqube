@@ -390,6 +390,7 @@ export const lightTheme = {
     iconStatusResolved: secondary.dark,
     iconNotificationsOn: COLORS.indigo[300],
     iconHelperHint: COLORS.blueGrey[100],
+    iconHelperHintRaised: COLORS.blueGrey[400],
     iconRuleInheritanceOverride: danger.light,
 
     // numbered list
@@ -516,6 +517,9 @@ export const lightTheme = {
 
     // overview
     iconOverviewIssue: COLORS.blueGrey[400],
+    overviewCardWarningIcon: COLORS.yellow[50],
+    overviewCardErrorIcon: COLORS.red[100],
+    overviewCardSuccessIcon: COLORS.green[200],
 
     // graph - chart
     graphPointCircleColor: COLORS.white,
@@ -710,6 +714,11 @@ export const lightTheme = {
     pillInfoIcon: COLORS.blue[700],
     pillAccent: COLORS.indigo[500],
 
+    // project cards
+    overviewCardWarningIcon: COLORS.yellow[700],
+    overviewCardErrorIcon: COLORS.red[500],
+    overviewCardSuccessIcon: COLORS.green[500],
+
     // breadcrumbs
     breadcrumb: secondary.dark,
 
@@ -731,6 +740,7 @@ export const lightTheme = {
     iconSeverityInfo: COLORS.white,
     iconStatusResolved: COLORS.white,
     iconHelperHint: secondary.darker,
+    iconHelperHintRaised: COLORS.white,
 
     // numbered list
     numberedList: COLORS.indigo[800],

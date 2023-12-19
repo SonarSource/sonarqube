@@ -62,6 +62,9 @@ jest.mock('../../../../api/measures', () => {
           mockMeasure({
             metric: MetricKey.new_violations,
           }),
+          mockMeasure({
+            metric: MetricKey.pull_request_fixed_issues,
+          }),
         ],
       },
       metrics: [
@@ -70,6 +73,7 @@ jest.mock('../../../../api/measures', () => {
         mockMetric({ key: MetricKey.new_lines, type: MetricType.ShortInteger }),
         mockMetric({ key: MetricKey.new_bugs, type: MetricType.Integer }),
         mockMetric({ key: MetricKey.new_violations }),
+        mockMetric({ key: MetricKey.pull_request_fixed_issues }),
       ],
     }),
   };
@@ -115,6 +119,36 @@ jest.mock('../../../../api/quality-gates', () => {
     getGateForProject: jest.fn().mockResolvedValue(mockQualityGate({ isBuiltIn: true })),
     fetchQualityGate: jest.fn().mockResolvedValue(mockQualityGate({ isBuiltIn: true })),
   };
+});
+
+it('should render links correctly', async () => {
+  jest.mocked(getQualityGateProjectStatus).mockResolvedValueOnce({
+    status: 'OK',
+    conditions: [],
+    caycStatus: CaycStatus.Compliant,
+    ignoredConditions: false,
+  });
+  renderPullRequestOverview();
+
+  await waitFor(async () => expect(await screen.findByText('metric.level.OK')).toBeInTheDocument());
+  expect(screen.getByLabelText('overview.quality_gate_x.overview.gate.OK')).toBeInTheDocument();
+
+  expect(
+    byRole('link', {
+      name: 'overview.see_more_details_on_x_of_y.1.metric.new_violations.name',
+    }).get(),
+  ).toHaveAttribute(
+    'href',
+    '/project/issues?pullRequest=1001&issueStatuses=OPEN%2CCONFIRMED&id=foo',
+  );
+
+  expect(
+    byRole('link', {
+      name: 'overview.see_more_details_on_x_of_y.1.metric.pull_request_fixed_issues.name',
+    }).get(),
+  ).toHaveAttribute('href', '/project/issues?branch=master&fixedInPullRequest=1001&id=foo');
+
+  expect(screen.getByLabelText('no_data')).toBeInTheDocument();
 });
 
 it('should render correctly for a passed QG', async () => {
@@ -283,7 +317,7 @@ function renderPullRequestOverview(
   renderComponent(
     <CurrentUserContextProvider currentUser={currentUser}>
       <PullRequestOverview
-        branchLike={mockPullRequest()}
+        pullRequest={mockPullRequest()}
         component={mockComponent({
           breadcrumbs: [mockComponent({ key: 'foo' })],
           key: 'foo',

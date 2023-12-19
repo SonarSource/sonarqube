@@ -20,106 +20,95 @@
 import classNames from 'classnames';
 import * as React from 'react';
 import { getLeakValue } from '../../../components/measure/utils';
-import { DEFAULT_ISSUES_QUERY } from '../../../components/shared/utils';
 import { getBranchLikeQuery } from '../../../helpers/branch-like';
 import { findMeasure } from '../../../helpers/measures';
-import {
-  getComponentDrilldownUrl,
-  getComponentIssuesUrl,
-  getComponentSecurityHotspotsUrl,
-} from '../../../helpers/urls';
-import { BranchLike } from '../../../types/branch-like';
+import { getComponentDrilldownUrl, getComponentSecurityHotspotsUrl } from '../../../helpers/urls';
+import { PullRequest } from '../../../types/branch-like';
 import { MetricKey } from '../../../types/metrics';
 import { QualityGateStatusConditionEnhanced } from '../../../types/quality-gates';
 import { Component, MeasureEnhanced } from '../../../types/types';
 import { MeasurementType, getMeasurementMetricKey } from '../utils';
+import IssueMeasuresCard from './IssueMeasuresCard';
 import MeasuresCardNumber from './MeasuresCardNumber';
 import MeasuresCardPercent from './MeasuresCardPercent';
 
 interface Props {
   className?: string;
-  branchLike?: BranchLike;
+  pullRequest: PullRequest;
   component: Component;
   measures: MeasureEnhanced[];
   conditions: QualityGateStatusConditionEnhanced[];
 }
 
 export default function MeasuresCardPanel(props: React.PropsWithChildren<Props>) {
-  const { branchLike, component, measures, conditions, className } = props;
+  const { pullRequest, component, measures, conditions, className } = props;
 
-  const newViolations = getLeakValue(findMeasure(measures, MetricKey.new_violations)) as string;
   const newSecurityHotspots = getLeakValue(
     findMeasure(measures, MetricKey.new_security_hotspots),
   ) as string;
 
   return (
-    <div className={classNames('sw-w-full sw-flex sw-flex-row sw-gap-4 sw-mt-4', className)}>
-      <div className="sw-flex-1 sw-flex sw-flex-col sw-gap-4">
-        <MeasuresCardNumber
-          data-test="overview__measures-new-violations"
-          label={newViolations === '1' ? 'issue' : 'issues'}
-          url={getComponentIssuesUrl(component.key, {
-            ...getBranchLikeQuery(branchLike),
-            ...DEFAULT_ISSUES_QUERY,
-          })}
-          value={newViolations}
-          conditions={conditions}
-          conditionMetric={MetricKey.new_violations}
-          guidingKeyOnError="overviewZeroNewIssuesSimplification"
-        />
+    <>
+      <IssueMeasuresCard
+        conditions={conditions}
+        measures={measures}
+        component={component}
+        pullRequest={pullRequest}
+      />
 
-        <MeasuresCardPercent
-          componentKey={component.key}
-          branchLike={branchLike}
-          measurementType={MeasurementType.Coverage}
-          label="overview.quality_gate.coverage"
-          url={getComponentDrilldownUrl({
-            componentKey: component.key,
-            metric: getMeasurementMetricKey(MeasurementType.Coverage, true),
-            branchLike,
-            listView: true,
-          })}
-          conditions={conditions}
-          conditionMetric={MetricKey.new_coverage}
-          newLinesMetric={MetricKey.new_lines_to_cover}
-          afterMergeMetric={MetricKey.coverage}
-          measures={measures}
-        />
+      <div className={classNames('sw-w-full sw-flex sw-flex-row sw-gap-4 sw-mt-4', className)}>
+        <div className="sw-flex-1 sw-flex sw-flex-col sw-gap-4">
+          <MeasuresCardPercent
+            componentKey={component.key}
+            branchLike={pullRequest}
+            measurementType={MeasurementType.Coverage}
+            label="overview.quality_gate.coverage"
+            url={getComponentDrilldownUrl({
+              componentKey: component.key,
+              metric: getMeasurementMetricKey(MeasurementType.Coverage, true),
+              branchLike: pullRequest,
+              listView: true,
+            })}
+            conditions={conditions}
+            conditionMetric={MetricKey.new_coverage}
+            newLinesMetric={MetricKey.new_lines_to_cover}
+            measures={measures}
+          />
+
+          <MeasuresCardNumber
+            label={
+              newSecurityHotspots === '1'
+                ? 'issue.type.SECURITY_HOTSPOT'
+                : 'issue.type.SECURITY_HOTSPOT.plural'
+            }
+            url={getComponentSecurityHotspotsUrl(component.key, {
+              ...getBranchLikeQuery(pullRequest),
+            })}
+            value={newSecurityHotspots}
+            conditions={conditions}
+            conditionMetric={MetricKey.new_security_hotspots_reviewed}
+          />
+        </div>
+
+        <div className="sw-flex-1 sw-flex sw-flex-col sw-gap-4">
+          <MeasuresCardPercent
+            componentKey={component.key}
+            branchLike={pullRequest}
+            measurementType={MeasurementType.Duplication}
+            label="overview.quality_gate.duplications"
+            url={getComponentDrilldownUrl({
+              componentKey: component.key,
+              metric: getMeasurementMetricKey(MeasurementType.Duplication, true),
+              branchLike: pullRequest,
+              listView: true,
+            })}
+            conditions={conditions}
+            conditionMetric={MetricKey.new_duplicated_lines_density}
+            newLinesMetric={MetricKey.new_lines}
+            measures={measures}
+          />
+        </div>
       </div>
-
-      <div className="sw-flex-1 sw-flex sw-flex-col sw-gap-4">
-        <MeasuresCardNumber
-          label={
-            newSecurityHotspots === '1'
-              ? 'issue.type.SECURITY_HOTSPOT'
-              : 'issue.type.SECURITY_HOTSPOT.plural'
-          }
-          url={getComponentSecurityHotspotsUrl(component.key, {
-            ...getBranchLikeQuery(branchLike),
-          })}
-          value={newSecurityHotspots}
-          conditions={conditions}
-          conditionMetric={MetricKey.new_security_hotspots_reviewed}
-        />
-
-        <MeasuresCardPercent
-          componentKey={component.key}
-          branchLike={branchLike}
-          measurementType={MeasurementType.Duplication}
-          label="overview.quality_gate.duplications"
-          url={getComponentDrilldownUrl({
-            componentKey: component.key,
-            metric: getMeasurementMetricKey(MeasurementType.Duplication, true),
-            branchLike,
-            listView: true,
-          })}
-          conditions={conditions}
-          conditionMetric={MetricKey.new_duplicated_lines_density}
-          newLinesMetric={MetricKey.new_lines}
-          afterMergeMetric={MetricKey.duplicated_lines_density}
-          measures={measures}
-        />
-      </div>
-    </div>
+    </>
   );
 }

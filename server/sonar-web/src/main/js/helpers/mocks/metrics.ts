@@ -21,7 +21,6 @@ import { Dict, Metric } from '../../types/types';
 
 export const DEFAULT_METRICS: Dict<Metric> = {
   new_technical_debt: {
-    id: 'AXJMbIl_PAOIsUIE3guE',
     key: 'new_technical_debt',
     type: 'WORK_DUR',
     name: 'Added Technical Debt',
@@ -32,7 +31,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     hidden: false,
   },
   blocker_violations: {
-    id: 'AXJMbIl_PAOIsUIE3gtt',
     key: 'blocker_violations',
     type: 'INT',
     name: 'Blocker Issues',
@@ -43,7 +41,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     hidden: false,
   },
   bugs: {
-    id: 'AXJMbIl_PAOIsUIE3gt_',
     key: 'bugs',
     type: 'INT',
     name: 'Bugs',
@@ -54,7 +51,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     hidden: false,
   },
   classes: {
-    id: 'AXJMbImPPAOIsUIE3gu5',
     key: 'classes',
     type: 'INT',
     name: 'Classes',
@@ -65,7 +61,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     hidden: false,
   },
   code_smells: {
-    id: 'AXJMbIl_PAOIsUIE3gt9',
     key: 'code_smells',
     type: 'INT',
     name: 'Code Smells',
@@ -76,7 +71,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     hidden: false,
   },
   cognitive_complexity: {
-    id: 'AXJMbIl9PAOIsUIE3gtZ',
     key: 'cognitive_complexity',
     type: 'INT',
     name: 'Cognitive Complexity',
@@ -87,7 +81,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     hidden: false,
   },
   comment_lines: {
-    id: 'AXJMbImPPAOIsUIE3gup',
     key: 'comment_lines',
     type: 'INT',
     name: 'Comment Lines',
@@ -98,7 +91,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     hidden: false,
   },
   comment_lines_data: {
-    id: 'AXJMbImPPAOIsUIE3guV',
     key: 'comment_lines_data',
     type: 'DATA',
     name: 'comment_lines_data',
@@ -108,7 +100,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     hidden: true,
   },
   comment_lines_density: {
-    id: 'AXJMbImPPAOIsUIE3guq',
     key: 'comment_lines_density',
     type: 'PERCENT',
     name: 'Comments (%)',
@@ -120,7 +111,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     decimalScale: 1,
   },
   class_complexity: {
-    id: 'AXJMbImPPAOIsUIE3guw',
     key: 'class_complexity',
     type: 'FLOAT',
     name: 'Complexity / Class',
@@ -132,7 +122,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     decimalScale: 1,
   },
   file_complexity: {
-    id: 'AXJMbImPPAOIsUIE3guu',
     key: 'file_complexity',
     type: 'FLOAT',
     name: 'Complexity / File',
@@ -144,7 +133,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     decimalScale: 1,
   },
   function_complexity: {
-    id: 'AXJMbImPPAOIsUIE3guy',
     key: 'function_complexity',
     type: 'FLOAT',
     name: 'Complexity / Function',
@@ -156,7 +144,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     decimalScale: 1,
   },
   complexity_in_classes: {
-    id: 'AXJMbImPPAOIsUIE3guv',
     key: 'complexity_in_classes',
     type: 'INT',
     name: 'Complexity in Classes',
@@ -167,7 +154,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     hidden: true,
   },
   complexity_in_functions: {
-    id: 'AXJMbImPPAOIsUIE3gux',
     key: 'complexity_in_functions',
     type: 'INT',
     name: 'Complexity in Functions',
@@ -178,7 +164,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     hidden: true,
   },
   branch_coverage: {
-    id: 'AXJMbIl9PAOIsUIE3gs-',
     key: 'branch_coverage',
     type: 'PERCENT',
     name: 'Condition Coverage',
@@ -190,7 +175,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     decimalScale: 1,
   },
   new_branch_coverage: {
-    id: 'AXJMbIl9PAOIsUIE3gs_',
     key: 'new_branch_coverage',
     type: 'PERCENT',
     name: 'Condition Coverage on New Code',
@@ -202,7 +186,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     decimalScale: 1,
   },
   conditions_to_cover: {
-    id: 'AXJMbIl9PAOIsUIE3gqt',
     key: 'conditions_to_cover',
     type: 'INT',
     name: 'Conditions to Cover',
@@ -213,7 +196,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     hidden: false,
   },
   new_conditions_to_cover: {
-    id: 'AXJMbIl9PAOIsUIE3gs7',
     key: 'new_conditions_to_cover',
     type: 'INT',
     name: 'Conditions to Cover on New Code',
@@ -224,7 +206,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     hidden: false,
   },
   confirmed_issues: {
-    id: 'AXJMbIl_PAOIsUIE3gt8',
     key: 'confirmed_issues',
     type: 'INT',
     name: 'Confirmed Issues',
@@ -235,7 +216,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     hidden: false,
   },
   coverage: {
-    id: 'AXJMbIl9PAOIsUIE3gtg',
     key: 'coverage',
     type: 'PERCENT',
     name: 'Coverage',
@@ -247,7 +227,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     decimalScale: 1,
   },
   new_coverage: {
-    id: 'AXJMbIl_PAOIsUIE3gth',
     key: 'new_coverage',
     type: 'PERCENT',
     name: 'Coverage on New Code',
@@ -259,7 +238,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     decimalScale: 1,
   },
   critical_violations: {
-    id: 'AXJMbIl_PAOIsUIE3gtu',
     key: 'critical_violations',
     type: 'INT',
     name: 'Critical Issues',
@@ -270,7 +248,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     hidden: false,
   },
   complexity: {
-    id: 'AXJMbImPPAOIsUIE3gut',
     key: 'complexity',
     type: 'INT',
     name: 'Cyclomatic Complexity',
@@ -281,7 +258,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     hidden: false,
   },
   last_commit_date: {
-    id: 'AXJMbImPPAOIsUIE3gua',
     key: 'last_commit_date',
     type: 'MILLISEC',
     name: 'Date of Last Commit',
@@ -291,7 +267,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     hidden: true,
   },
   development_cost: {
-    id: 'AXJMbIl_PAOIsUIE3guI',
     key: 'development_cost',
     type: 'STRING',
     name: 'Development Cost',
@@ -302,7 +277,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     hidden: true,
   },
   new_development_cost: {
-    id: 'AXJMbIl_PAOIsUIE3guJ',
     key: 'new_development_cost',
     type: 'FLOAT',
     name: 'Development Cost on New Code',
@@ -314,7 +288,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     decimalScale: 1,
   },
   directories: {
-    id: 'AXJMbImPPAOIsUIE3gu9',
     key: 'directories',
     type: 'INT',
     name: 'Directories',
@@ -325,7 +298,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     hidden: false,
   },
   duplicated_blocks: {
-    id: 'AXJMbIl9PAOIsUIE3gsu',
     key: 'duplicated_blocks',
     type: 'INT',
     name: 'Duplicated Blocks',
@@ -336,7 +308,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     hidden: false,
   },
   new_duplicated_blocks: {
-    id: 'AXJMbIl_PAOIsUIE3gto',
     key: 'new_duplicated_blocks',
     type: 'INT',
     name: 'Duplicated Blocks on New Code',
@@ -347,7 +318,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     hidden: false,
   },
   duplicated_files: {
-    id: 'AXJMbImPPAOIsUIE3gvA',
     key: 'duplicated_files',
     type: 'INT',
     name: 'Duplicated Files',
@@ -358,7 +328,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     hidden: false,
   },
   duplicated_lines: {
-    id: 'AXJMbIl9PAOIsUIE3gss',
     key: 'duplicated_lines',
     type: 'INT',
     name: 'Duplicated Lines',
@@ -369,7 +338,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     hidden: false,
   },
   duplicated_lines_density: {
-    id: 'AXJMbIl_PAOIsUIE3gtp',
     key: 'duplicated_lines_density',
     type: 'PERCENT',
     name: 'Duplicated Lines (%)',
@@ -381,7 +349,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     decimalScale: 1,
   },
   new_duplicated_lines_density: {
-    id: 'AXJMbIl_PAOIsUIE3gtq',
     key: 'new_duplicated_lines_density',
     type: 'PERCENT',
     name: 'Duplicated Lines (%) on New Code',
@@ -393,7 +360,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     decimalScale: 1,
   },
   new_duplicated_lines: {
-    id: 'AXJMbIl9PAOIsUIE3gst',
     key: 'new_duplicated_lines',
     type: 'INT',
     name: 'Duplicated Lines on New Code',
@@ -404,7 +370,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     hidden: false,
   },
   duplications_data: {
-    id: 'AXJMbIl_PAOIsUIE3gtr',
     key: 'duplications_data',
     type: 'DATA',
     name: 'Duplication Details',
@@ -415,7 +380,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     hidden: false,
   },
   effort_to_reach_maintainability_rating_a: {
-    id: 'AXJMbIl_PAOIsUIE3guM',
     key: 'effort_to_reach_maintainability_rating_a',
     type: 'WORK_DUR',
     name: 'Effort to Reach Maintainability Rating A',
@@ -426,7 +390,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     hidden: false,
   },
   executable_lines_data: {
-    id: 'AXJMbImPPAOIsUIE3guW',
     key: 'executable_lines_data',
     type: 'DATA',
     name: 'executable_lines_data',
@@ -436,7 +399,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     hidden: true,
   },
   false_positive_issues: {
-    id: 'AXJMbIl_PAOIsUIE3gt4',
     key: 'false_positive_issues',
     type: 'INT',
     name: 'False Positive Issues',
@@ -447,7 +409,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     hidden: false,
   },
   file_complexity_distribution: {
-    id: 'AXJMbIl9PAOIsUIE3gtY',
     key: 'file_complexity_distribution',
     type: 'DISTRIB',
     name: 'File Distribution / Complexity',
@@ -458,7 +419,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     hidden: true,
   },
   files: {
-    id: 'AXJMbImPPAOIsUIE3gu6',
     key: 'files',
     type: 'INT',
     name: 'Files',
@@ -469,7 +429,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     hidden: false,
   },
   function_complexity_distribution: {
-    id: 'AXJMbIl9PAOIsUIE3gtX',
     key: 'function_complexity_distribution',
     type: 'DISTRIB',
     name: 'Function Distribution / Complexity',
@@ -480,7 +439,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     hidden: true,
   },
   functions: {
-    id: 'AXJMbImPPAOIsUIE3gu-',
     key: 'functions',
     type: 'INT',
     name: 'Functions',
@@ -491,7 +449,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     hidden: false,
   },
   generated_lines: {
-    id: 'AXJMbImPPAOIsUIE3gu0',
     key: 'generated_lines',
     type: 'INT',
     name: 'Generated Lines',
@@ -502,7 +459,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     hidden: false,
   },
   generated_ncloc: {
-    id: 'AXJMbImPPAOIsUIE3gu4',
     key: 'generated_ncloc',
     type: 'INT',
     name: 'Generated Lines of Code',
@@ -513,7 +469,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     hidden: false,
   },
   info_violations: {
-    id: 'AXJMbIl_PAOIsUIE3gtx',
     key: 'info_violations',
     type: 'INT',
     name: 'Info Issues',
@@ -524,7 +479,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     hidden: false,
   },
   violations: {
-    id: 'AXJMbImPPAOIsUIE3gul',
     key: 'violations',
     type: 'INT',
     name: 'Issues',
@@ -535,7 +489,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     hidden: false,
   },
   last_change_on_maintainability_rating: {
-    id: 'AXJMbImPPAOIsUIE3gud',
     key: 'last_change_on_maintainability_rating',
     type: 'DATA',
     name: 'Last Change on Maintainability Rating',
@@ -545,7 +498,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     hidden: true,
   },
   last_change_on_releasability_rating: {
-    id: 'AXJMbImPPAOIsUIE3gue',
     key: 'last_change_on_releasability_rating',
     type: 'DATA',
     name: 'Last Change on Releasability Rating',
@@ -555,7 +507,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     hidden: true,
   },
   last_change_on_reliability_rating: {
-    id: 'AXJMbImPPAOIsUIE3guf',
     key: 'last_change_on_reliability_rating',
     type: 'DATA',
     name: 'Last Change on Reliability Rating',
@@ -565,7 +516,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     hidden: true,
   },
   last_change_on_security_rating: {
-    id: 'AXJMbImPPAOIsUIE3gug',
     key: 'last_change_on_security_rating',
     type: 'DATA',
     name: 'Last Change on Security Rating',
@@ -575,7 +525,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     hidden: true,
   },
   last_change_on_security_review_rating: {
-    id: 'AXJMbIl9PAOIsUIE3gs4',
     key: 'last_change_on_security_review_rating',
     type: 'DATA',
     name: 'Last Change on Security Review Rating',
@@ -585,7 +534,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     hidden: true,
   },
   line_coverage: {
-    id: 'AXJMbIl_PAOIsUIE3gtl',
     key: 'line_coverage',
     type: 'PERCENT',
     name: 'Line Coverage',
@@ -597,7 +545,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     decimalScale: 1,
   },
   new_line_coverage: {
-    id: 'AXJMbIl_PAOIsUIE3gtm',
     key: 'new_line_coverage',
     type: 'PERCENT',
     name: 'Line Coverage on New Code',
@@ -609,7 +556,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     decimalScale: 1,
   },
   lines: {
-    id: 'AXJMbImPPAOIsUIE3guz',
     key: 'lines',
     type: 'INT',
     name: 'Lines',
@@ -620,7 +566,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     hidden: false,
   },
   ncloc: {
-    id: 'AXJMbImPPAOIsUIE3gu1',
     key: 'ncloc',
     type: 'INT',
     name: 'Lines of Code',
@@ -631,7 +576,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     hidden: false,
   },
   ncloc_language_distribution: {
-    id: 'AXJMbImPPAOIsUIE3gu3',
     key: 'ncloc_language_distribution',
     type: 'DATA',
     name: 'Lines of Code Per Language',
@@ -642,7 +586,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     hidden: false,
   },
   lines_to_cover: {
-    id: 'AXJMbImPPAOIsUIE3gu_',
     key: 'lines_to_cover',
     type: 'INT',
     name: 'Lines to Cover',
@@ -653,7 +596,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     hidden: false,
   },
   new_lines_to_cover: {
-    id: 'AXJMbIl_PAOIsUIE3gti',
     key: 'new_lines_to_cover',
     type: 'INT',
     name: 'Lines to Cover on New Code',
@@ -664,7 +606,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     hidden: false,
   },
   leak_projects: {
-    id: 'AXJMbImPPAOIsUIE3gvE',
     key: 'leak_projects',
     type: 'DATA',
     name: 'List of technical projects with their leaks',
@@ -673,7 +614,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     hidden: true,
   },
   sqale_rating: {
-    id: 'AXJMbIl_PAOIsUIE3guF',
     key: 'sqale_rating',
     type: 'RATING',
     name: 'Maintainability Rating',
@@ -684,7 +624,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     hidden: false,
   },
   maintainability_rating_distribution: {
-    id: 'AX6QkqP7zEziun0YBqmh',
     key: 'maintainability_rating_distribution',
     type: 'DATA',
     name: 'Maintainability Rating Distribution',
@@ -695,7 +634,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     hidden: true,
   },
   new_maintainability_rating_distribution: {
-    id: 'AX6QkqP8zEziun0YBqml',
     key: 'new_maintainability_rating_distribution',
     type: 'DATA',
     name: 'Maintainability Rating Distribution on New Code',
@@ -706,7 +644,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     hidden: true,
   },
   new_maintainability_rating: {
-    id: 'AXJMbIl_PAOIsUIE3guH',
     key: 'new_maintainability_rating',
     type: 'RATING',
     name: 'Maintainability Rating on New Code',
@@ -717,7 +654,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     hidden: false,
   },
   major_violations: {
-    id: 'AXJMbIl_PAOIsUIE3gtv',
     key: 'major_violations',
     type: 'INT',
     name: 'Major Issues',
@@ -728,7 +664,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     hidden: false,
   },
   minor_violations: {
-    id: 'AXJMbIl_PAOIsUIE3gtw',
     key: 'minor_violations',
     type: 'INT',
     name: 'Minor Issues',
@@ -739,7 +674,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     hidden: false,
   },
   ncloc_data: {
-    id: 'AXJMbImPPAOIsUIE3guU',
     key: 'ncloc_data',
     type: 'DATA',
     name: 'ncloc_data',
@@ -749,7 +683,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     hidden: true,
   },
   new_blocker_violations: {
-    id: 'AXJMbIl_PAOIsUIE3gtz',
     key: 'new_blocker_violations',
     type: 'INT',
     name: 'New Blocker Issues',
@@ -760,7 +693,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     hidden: false,
   },
   new_bugs: {
-    id: 'AXJMbIl_PAOIsUIE3guA',
     key: 'new_bugs',
     type: 'INT',
     name: 'New Bugs',
@@ -771,7 +703,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     hidden: false,
   },
   new_code_smells: {
-    id: 'AXJMbIl_PAOIsUIE3gt-',
     key: 'new_code_smells',
     type: 'INT',
     name: 'New Code Smells',
@@ -782,7 +713,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     hidden: false,
   },
   new_critical_violations: {
-    id: 'AXJMbIl_PAOIsUIE3gt0',
     key: 'new_critical_violations',
     type: 'INT',
     name: 'New Critical Issues',
@@ -793,7 +723,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     hidden: false,
   },
   new_info_violations: {
-    id: 'AXJMbIl_PAOIsUIE3gt3',
     key: 'new_info_violations',
     type: 'INT',
     name: 'New Info Issues',
@@ -804,7 +733,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     hidden: false,
   },
   new_violations: {
-    id: 'AXJMbIl_PAOIsUIE3gty',
     key: 'new_violations',
     type: 'INT',
     name: 'New Issues',
@@ -815,7 +743,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     hidden: false,
   },
   new_lines: {
-    id: 'AXJMbImPPAOIsUIE3gu2',
     key: 'new_lines',
     type: 'INT',
     name: 'New Lines',
@@ -826,7 +753,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     hidden: false,
   },
   new_major_violations: {
-    id: 'AXJMbIl_PAOIsUIE3gt1',
     key: 'new_major_violations',
     type: 'INT',
     name: 'New Major Issues',
@@ -837,7 +763,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     hidden: false,
   },
   new_minor_violations: {
-    id: 'AXJMbIl_PAOIsUIE3gt2',
     key: 'new_minor_violations',
     type: 'INT',
     name: 'New Minor Issues',
@@ -848,7 +773,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     hidden: false,
   },
   new_security_hotspots: {
-    id: 'AXJMbIl9PAOIsUIE3gsw',
     key: 'new_security_hotspots',
     type: 'INT',
     name: 'New Security Hotspots',
@@ -859,7 +783,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     hidden: false,
   },
   new_vulnerabilities: {
-    id: 'AXJMbIl_PAOIsUIE3guC',
     key: 'new_vulnerabilities',
     type: 'INT',
     name: 'New Vulnerabilities',
@@ -870,7 +793,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     hidden: false,
   },
   unanalyzed_c: {
-    id: 'AXTb6RMqLLQlB5osv3xN',
     key: 'unanalyzed_c',
     type: 'INT',
     name: 'Number of unanalyzed c files',
@@ -880,7 +802,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     hidden: true,
   },
   unanalyzed_cpp: {
-    id: 'AXTb6RMtLLQlB5osv3xO',
     key: 'unanalyzed_cpp',
     type: 'INT',
     name: 'Number of unanalyzed c++ files',
@@ -890,7 +811,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     hidden: true,
   },
   open_issues: {
-    id: 'AXJMbIl_PAOIsUIE3gt6',
     key: 'open_issues',
     type: 'INT',
     name: 'Open Issues',
@@ -901,7 +821,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     hidden: false,
   },
   quality_profiles: {
-    id: 'AXJMbImPPAOIsUIE3guZ',
     key: 'quality_profiles',
     type: 'DATA',
     name: 'Profiles',
@@ -912,7 +831,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     hidden: true,
   },
   projects: {
-    id: 'AXJMbImPPAOIsUIE3guo',
     key: 'projects',
     type: 'INT',
     name: 'Project branches',
@@ -923,7 +841,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     hidden: false,
   },
   public_api: {
-    id: 'AXJMbImPPAOIsUIE3gun',
     key: 'public_api',
     type: 'INT',
     name: 'Public API',
@@ -934,7 +851,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     hidden: true,
   },
   public_documented_api_density: {
-    id: 'AXJMbImPPAOIsUIE3gur',
     key: 'public_documented_api_density',
     type: 'PERCENT',
     name: 'Public Documented API (%)',
@@ -946,7 +862,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     decimalScale: 1,
   },
   public_undocumented_api: {
-    id: 'AXJMbImPPAOIsUIE3gus',
     key: 'public_undocumented_api',
     type: 'INT',
     name: 'Public Undocumented API',
@@ -957,7 +872,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     hidden: true,
   },
   quality_gate_details: {
-    id: 'AXJMbImPPAOIsUIE3guY',
     key: 'quality_gate_details',
     type: 'DATA',
     name: 'Quality Gate Details',
@@ -968,7 +882,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     hidden: false,
   },
   alert_status: {
-    id: 'AXJMbImPPAOIsUIE3guX',
     key: 'alert_status',
     type: 'LEVEL',
     name: 'Quality Gate Status',
@@ -979,7 +892,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     hidden: false,
   },
   releasability_rating: {
-    id: 'AXJMbImPPAOIsUIE3guc',
     key: 'releasability_rating',
     type: 'RATING',
     name: 'Releasability rating',
@@ -989,7 +901,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     hidden: false,
   },
   releasability_rating_distribution: {
-    id: 'AX6QkqP7zEziun0YBqmg',
     key: 'releasability_rating_distribution',
     type: 'DATA',
     name: 'Releasability Rating Distribution',
@@ -1000,7 +911,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     hidden: true,
   },
   reliability_rating: {
-    id: 'AXJMbIl_PAOIsUIE3guP',
     key: 'reliability_rating',
     type: 'RATING',
     name: 'Reliability Rating',
@@ -1011,7 +921,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     hidden: false,
   },
   reliability_rating_distribution: {
-    id: 'AX6QkqP7zEziun0YBqmi',
     key: 'reliability_rating_distribution',
     type: 'DATA',
     name: 'Reliability Rating Distribution',
@@ -1022,7 +931,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     hidden: true,
   },
   new_reliability_rating_distribution: {
-    id: 'AX6QkqP8zEziun0YBqmm',
     key: 'new_reliability_rating_distribution',
     type: 'DATA',
     name: 'Reliability Rating Distribution on New Code',
@@ -1033,7 +941,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     hidden: true,
   },
   new_reliability_rating: {
-    id: 'AXJMbIl_PAOIsUIE3guQ',
     key: 'new_reliability_rating',
     type: 'RATING',
     name: 'Reliability Rating on New Code',
@@ -1044,7 +951,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     hidden: false,
   },
   reliability_remediation_effort: {
-    id: 'AXJMbIl_PAOIsUIE3guN',
     key: 'reliability_remediation_effort',
     type: 'WORK_DUR',
     name: 'Reliability Remediation Effort',
@@ -1055,7 +961,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     hidden: false,
   },
   new_reliability_remediation_effort: {
-    id: 'AXJMbIl_PAOIsUIE3guO',
     key: 'new_reliability_remediation_effort',
     type: 'WORK_DUR',
     name: 'Reliability Remediation Effort on New Code',
@@ -1066,7 +971,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     hidden: false,
   },
   reopened_issues: {
-    id: 'AXJMbIl_PAOIsUIE3gt7',
     key: 'reopened_issues',
     type: 'INT',
     name: 'Reopened Issues',
@@ -1077,7 +981,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     hidden: false,
   },
   security_hotspots: {
-    id: 'AXJMbIl9PAOIsUIE3gsv',
     key: 'security_hotspots',
     type: 'INT',
     name: 'Security Hotspots',
@@ -1088,7 +991,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     hidden: false,
   },
   security_hotspots_reviewed: {
-    id: 'AXJMbIl9PAOIsUIE3gs0',
     key: 'security_hotspots_reviewed',
     type: 'PERCENT',
     name: 'Security Hotspots Reviewed',
@@ -1100,7 +1002,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     decimalScale: 1,
   },
   new_security_hotspots_reviewed: {
-    id: 'AXJMbIl9PAOIsUIE3gs1',
     key: 'new_security_hotspots_reviewed',
     type: 'PERCENT',
     name: 'Security Hotspots Reviewed on New Code',
@@ -1112,7 +1013,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     decimalScale: 1,
   },
   security_rating: {
-    id: 'AXJMbIl_PAOIsUIE3guS',
     key: 'security_rating',
     type: 'RATING',
     name: 'Security Rating',
@@ -1123,7 +1023,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     hidden: false,
   },
   security_rating_distribution: {
-    id: 'AX6QkqP7zEziun0YBqmj',
     key: 'security_rating_distribution',
     type: 'DATA',
     name: 'Security Rating Distribution',
@@ -1134,7 +1033,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     hidden: true,
   },
   new_security_rating_distribution: {
-    id: 'AX6QkqP8zEziun0YBqmn',
     key: 'new_security_rating_distribution',
     type: 'DATA',
     name: 'Security Rating Distribution on New Code',
@@ -1145,7 +1043,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     hidden: true,
   },
   new_security_rating: {
-    id: 'AXJMbImPPAOIsUIE3guT',
     key: 'new_security_rating',
     type: 'RATING',
     name: 'Security Rating on New Code',
@@ -1156,7 +1053,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     hidden: false,
   },
   security_remediation_effort: {
-    id: 'AXJMbIl_PAOIsUIE3guG',
     key: 'security_remediation_effort',
     type: 'WORK_DUR',
     name: 'Security Remediation Effort',
@@ -1167,7 +1063,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     hidden: false,
   },
   new_security_remediation_effort: {
-    id: 'AXJMbIl_PAOIsUIE3guR',
     key: 'new_security_remediation_effort',
     type: 'WORK_DUR',
     name: 'Security Remediation Effort on New Code',
@@ -1178,7 +1073,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     hidden: false,
   },
   security_review_rating: {
-    id: 'AXJMbIl9PAOIsUIE3gsx',
     key: 'security_review_rating',
     type: 'RATING',
     name: 'Security Review Rating',
@@ -1189,7 +1083,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     hidden: false,
   },
   security_review_rating_distribution: {
-    id: 'AX6QkqP8zEziun0YBqmk',
     key: 'security_review_rating_distribution',
     type: 'DATA',
     name: 'Security Review Rating Distribution',
@@ -1200,7 +1093,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     hidden: true,
   },
   new_security_review_rating_distribution: {
-    id: 'AX6QkqP8zEziun0YBqmo',
     key: 'new_security_review_rating_distribution',
     type: 'DATA',
     name: 'Security Review Rating Distribution on New Code',
@@ -1211,7 +1103,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     hidden: true,
   },
   new_security_review_rating: {
-    id: 'AXJMbIl9PAOIsUIE3gtA',
     key: 'new_security_review_rating',
     type: 'RATING',
     name: 'Security Review Rating on New Code',
@@ -1222,7 +1113,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     hidden: false,
   },
   security_hotspots_reviewed_status: {
-    id: 'AXJMbIl9PAOIsUIE3gs2',
     key: 'security_hotspots_reviewed_status',
     type: 'INT',
     name: 'Security Review Reviewed Status',
@@ -1233,7 +1123,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     hidden: true,
   },
   new_security_hotspots_reviewed_status: {
-    id: 'AXJMbIl9PAOIsUIE3gtB',
     key: 'new_security_hotspots_reviewed_status',
     type: 'INT',
     name: 'Security Review Reviewed Status on New Code',
@@ -1244,7 +1133,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     hidden: true,
   },
   security_hotspots_to_review_status: {
-    id: 'AXJMbIl9PAOIsUIE3gs3',
     key: 'security_hotspots_to_review_status',
     type: 'INT',
     name: 'Security Review To Review Status',
@@ -1255,7 +1143,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     hidden: true,
   },
   new_security_hotspots_to_review_status: {
-    id: 'AXJMbIl9PAOIsUIE3gs5',
     key: 'new_security_hotspots_to_review_status',
     type: 'INT',
     name: 'Security Review To Review Status on New Code',
@@ -1266,7 +1153,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     hidden: true,
   },
   skipped_tests: {
-    id: 'AXJMbIl9PAOIsUIE3gtd',
     key: 'skipped_tests',
     type: 'INT',
     name: 'Skipped Unit Tests',
@@ -1277,7 +1163,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     hidden: false,
   },
   statements: {
-    id: 'AXJMbImPPAOIsUIE3gum',
     key: 'statements',
     type: 'INT',
     name: 'Statements',
@@ -1288,7 +1173,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     hidden: false,
   },
   sqale_index: {
-    id: 'AXJMbIl_PAOIsUIE3guD',
     key: 'sqale_index',
     type: 'WORK_DUR',
     name: 'Technical Debt',
@@ -1300,7 +1184,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     hidden: false,
   },
   sqale_debt_ratio: {
-    id: 'AXJMbIl_PAOIsUIE3guK',
     key: 'sqale_debt_ratio',
     type: 'PERCENT',
     name: 'Technical Debt Ratio',
@@ -1313,7 +1196,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     decimalScale: 1,
   },
   new_sqale_debt_ratio: {
-    id: 'AXJMbIl_PAOIsUIE3guL',
     key: 'new_sqale_debt_ratio',
     type: 'PERCENT',
     name: 'Technical Debt Ratio on New Code',
@@ -1325,7 +1207,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     decimalScale: 1,
   },
   maintainability_rating_effort: {
-    id: 'AXJMbImPPAOIsUIE3gvD',
     key: 'maintainability_rating_effort',
     type: 'DATA',
     name: 'Total number of projects having worst maintainability rating',
@@ -1335,7 +1216,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     hidden: true,
   },
   reliability_rating_effort: {
-    id: 'AXJMbImPPAOIsUIE3gvC',
     key: 'reliability_rating_effort',
     type: 'DATA',
     name: 'Total number of projects having worst reliability rating',
@@ -1345,7 +1225,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     hidden: true,
   },
   security_rating_effort: {
-    id: 'AXJMbImPPAOIsUIE3gvB',
     key: 'security_rating_effort',
     type: 'DATA',
     name: 'Total number of projects having worst security rating',
@@ -1355,7 +1234,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     hidden: true,
   },
   security_review_rating_effort: {
-    id: 'AXJMbIl9PAOIsUIE3gs6',
     key: 'security_review_rating_effort',
     type: 'DATA',
     name: 'Total number of projects having worst security review rating',
@@ -1365,7 +1243,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     hidden: true,
   },
   releasability_effort: {
-    id: 'AXJMbImPPAOIsUIE3gub',
     key: 'releasability_effort',
     type: 'INT',
     name: 'Total number of projects not production ready',
@@ -1375,7 +1252,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     hidden: true,
   },
   uncovered_conditions: {
-    id: 'AXJMbIl9PAOIsUIE3gs8',
     key: 'uncovered_conditions',
     type: 'INT',
     name: 'Uncovered Conditions',
@@ -1386,7 +1262,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     hidden: false,
   },
   new_uncovered_conditions: {
-    id: 'AXJMbIl9PAOIsUIE3gs9',
     key: 'new_uncovered_conditions',
     type: 'INT',
     name: 'Uncovered Conditions on New Code',
@@ -1397,7 +1272,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     hidden: false,
   },
   uncovered_lines: {
-    id: 'AXJMbIl_PAOIsUIE3gtj',
     key: 'uncovered_lines',
     type: 'INT',
     name: 'Uncovered Lines',
@@ -1408,7 +1282,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     hidden: false,
   },
   new_uncovered_lines: {
-    id: 'AXJMbIl_PAOIsUIE3gtk',
     key: 'new_uncovered_lines',
     type: 'INT',
     name: 'Uncovered Lines on New Code',
@@ -1419,7 +1292,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     hidden: false,
   },
   test_execution_time: {
-    id: 'AXJMbIl9PAOIsUIE3gtb',
     key: 'test_execution_time',
     type: 'MILLISEC',
     name: 'Unit Test Duration',
@@ -1430,7 +1302,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     hidden: false,
   },
   test_errors: {
-    id: 'AXJMbIl9PAOIsUIE3gtc',
     key: 'test_errors',
     type: 'INT',
     name: 'Unit Test Errors',
@@ -1441,7 +1312,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     hidden: false,
   },
   test_failures: {
-    id: 'AXJMbIl9PAOIsUIE3gte',
     key: 'test_failures',
     type: 'INT',
     name: 'Unit Test Failures',
@@ -1452,7 +1322,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     hidden: false,
   },
   tests: {
-    id: 'AXJMbIl9PAOIsUIE3gta',
     key: 'tests',
     type: 'INT',
     name: 'Unit Tests',
@@ -1463,7 +1332,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     hidden: false,
   },
   test_success_density: {
-    id: 'AXJMbIl9PAOIsUIE3gtf',
     key: 'test_success_density',
     type: 'PERCENT',
     name: 'Unit Test Success (%)',
@@ -1475,7 +1343,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     decimalScale: 1,
   },
   vulnerabilities: {
-    id: 'AXJMbIl_PAOIsUIE3guB',
     key: 'vulnerabilities',
     type: 'INT',
     name: 'Vulnerabilities',
@@ -1486,7 +1353,6 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     hidden: false,
   },
   accepted_issues: {
-    id: 'AXJMbIl_PAOIsUIE3ga7',
     key: 'accepted_issues',
     type: 'INT',
     name: 'Accepted Issues',

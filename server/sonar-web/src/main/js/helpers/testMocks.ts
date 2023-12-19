@@ -426,7 +426,6 @@ export function mockMetric(
   const type = overrides.type || MetricType.Percent;
   return {
     ...overrides,
-    id: key,
     key,
     name,
     type,

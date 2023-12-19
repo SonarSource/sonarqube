@@ -18,14 +18,18 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { memoize } from 'lodash';
+import React from 'react';
+import { IntlShape } from 'react-intl';
 import CoverageRating from '../../components/ui/CoverageRating';
 import DuplicationsRating from '../../components/ui/DuplicationsRating';
 import { ISSUETYPE_METRIC_KEYS_MAP } from '../../helpers/issues';
 import { translate } from '../../helpers/l10n';
+import { formatMeasure } from '../../helpers/measures';
 import { parseAsString } from '../../helpers/query';
 import { IssueType } from '../../types/issues';
 import { MetricKey } from '../../types/metrics';
 import { AnalysisMeasuresVariations, MeasureHistory } from '../../types/project-activity';
+import { QualityGateStatusConditionEnhanced } from '../../types/quality-gates';
 import { Dict, RawQuery } from '../../types/types';
 
 export const METRICS: string[] = [
@@ -86,6 +90,7 @@ export const PR_METRICS: string[] = [
   MetricKey.new_coverage,
   MetricKey.new_lines_to_cover,
 
+  MetricKey.new_accepted_issues,
   MetricKey.new_violations,
   MetricKey.duplicated_lines_density,
   MetricKey.new_duplicated_lines_density,
@@ -98,6 +103,8 @@ export const PR_METRICS: string[] = [
   MetricKey.new_security_hotspots,
   MetricKey.new_security_review_rating,
   MetricKey.new_security_rating,
+
+  MetricKey.pull_request_fixed_issues,
 ];
 
 export const HISTORY_METRICS_LIST: string[] = [
@@ -267,4 +274,26 @@ export function getAnalysisVariations(measures: MeasureHistory[], analysesCount:
 
     return variations;
   }, emptyVariations);
+}
+
+export function getConditionRequiredLabel(
+  condition: QualityGateStatusConditionEnhanced,
+  intl: IntlShape,
+  failed = false,
+) {
+  const conditionEl = (
+    <>
+      {condition.op === 'GT' ? '≤' : '≥'}{' '}
+      {formatMeasure(condition.error, condition.measure.metric.type, {
+        decimals: 2,
+        omitExtraDecimalZeros: true,
+      })}
+    </>
+  );
+  return intl.formatMessage(
+    { id: 'overview.quality_gate.required_x' },
+    {
+      requirement: failed ? <b>{conditionEl}</b> : conditionEl,
+    },
+  );
 }

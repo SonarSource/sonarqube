@@ -37,6 +37,7 @@ export interface IconProps extends Omit<Props, 'children'> {
   fill?: ThemeColors | CSSColor;
   height?: number;
   transform?: string;
+  viewBox?: string;
   width?: number;
 }
 

@@ -67,12 +67,21 @@ export function PageTitle({
   );
 }
 
-export function TextError({ text, className }: { className?: string; text: string }) {
-  return (
-    <StyledTextError className={className} title={text}>
-      {text}
-    </StyledTextError>
-  );
+export function TextError({
+  text,
+  className,
+}: Readonly<{
+  className?: string;
+  text: string | React.ReactNode;
+}>) {
+  if (typeof text === 'string') {
+    return (
+      <StyledTextError className={className} title={text}>
+        {text}
+      </StyledTextError>
+    );
+  }
+  return <StyledTextError className={className}>{text}</StyledTextError>;
 }
 
 export function TextSuccess({ text, className }: Readonly<{ className?: string; text: string }>) {

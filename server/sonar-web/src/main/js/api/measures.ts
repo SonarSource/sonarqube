@@ -44,7 +44,7 @@ export async function getMeasuresWithMetrics(
   // TODO: Remove this mock (SONAR-21259)
   const mockedMetrics = metrics.filter(
     (metric) =>
-      metric !== MetricKey.pullrequest_addressed_issues && metric !== MetricKey.new_accepted_issues,
+      metric !== MetricKey.pull_request_fixed_issues && metric !== MetricKey.new_accepted_issues,
   );
   const result = (await getJSON(COMPONENT_URL, {
     additionalFields: 'metrics',
@@ -52,9 +52,9 @@ export async function getMeasuresWithMetrics(
     metricKeys: mockedMetrics.join(','),
     ...branchParameters,
   }).catch(throwGlobalError)) as MeasuresAndMetaWithMetrics;
-  if (metrics.includes(MetricKey.pullrequest_addressed_issues)) {
+  if (metrics.includes(MetricKey.pull_request_fixed_issues)) {
     result.metrics.push({
-      key: MetricKey.pullrequest_addressed_issues,
+      key: MetricKey.pull_request_fixed_issues,
       name: 'Addressed Issues',
       description: 'Addressed Issues',
       domain: 'Reliability',
@@ -65,7 +65,7 @@ export async function getMeasuresWithMetrics(
       bestValue: '0',
     });
     result.component.measures?.push({
-      metric: MetricKey.pullrequest_addressed_issues,
+      metric: MetricKey.pull_request_fixed_issues,
       period: {
         index: 0,
         value: '11',

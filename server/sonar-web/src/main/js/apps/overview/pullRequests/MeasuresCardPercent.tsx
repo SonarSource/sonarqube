@@ -35,7 +35,12 @@ import { BranchLike } from '../../../types/branch-like';
 import { MetricKey, MetricType } from '../../../types/metrics';
 import { QualityGateStatusConditionEnhanced } from '../../../types/quality-gates';
 import { MeasureEnhanced } from '../../../types/types';
-import { MeasurementType, Status, getMeasurementMetricKey } from '../utils';
+import {
+  MeasurementType,
+  Status,
+  getConditionRequiredLabel,
+  getMeasurementMetricKey,
+} from '../utils';
 import MeasuresCard from './MeasuresCard';
 
 interface Props {
@@ -48,7 +53,6 @@ interface Props {
   conditions: QualityGateStatusConditionEnhanced[];
   conditionMetric: MetricKey;
   newLinesMetric: MetricKey;
-  afterMergeMetric: MetricKey;
 }
 
 export default function MeasuresCardPercent(
@@ -64,7 +68,6 @@ export default function MeasuresCardPercent(
     conditions,
     conditionMetric,
     newLinesMetric,
-    afterMergeMetric,
   } = props;
 
   const intl = useIntl();
@@ -85,23 +88,8 @@ export default function MeasuresCardPercent(
     listView: true,
   });
 
-  const afterMergeValue = findMeasure(measures, afterMergeMetric)?.value;
-
   const condition = conditions.find((c) => c.metric === conditionMetric);
   const conditionFailed = condition?.level === Status.ERROR;
-
-  const requireLabel =
-    condition &&
-    intl.formatMessage(
-      { id: 'overview.quality_gate.required_x' },
-      {
-        operator: condition.op === 'GT' ? '≤' : '≥',
-        value: formatMeasure(condition.error, MetricType.Percent, {
-          decimals: 2,
-          omitExtraDecimalZeros: true,
-        }),
-      },
-    );
 
   return (
     <MeasuresCard
@@ -114,15 +102,18 @@ export default function MeasuresCardPercent(
     >
       <>
         <span className="sw-body-xs sw-mt-3">
-          {requireLabel &&
+          {condition &&
             (conditionFailed ? (
-              <TextError className="sw-font-regular" text={requireLabel} />
+              <TextError
+                className="sw-font-regular sw-inline"
+                text={getConditionRequiredLabel(condition, intl, true)}
+              />
             ) : (
-              <LightLabel>{requireLabel}</LightLabel>
+              <LightLabel>{getConditionRequiredLabel(condition, intl)}</LightLabel>
             ))}
         </span>
 
-        <div className="sw-flex sw-justify-between sw-items-center sw-mt-1">
+        <div className="sw-flex sw-body-sm sw-justify-between sw-items-center sw-mt-1">
           <LightLabel className="sw-flex sw-items-center sw-gap-1 ">
             <FormattedMessage
               defaultMessage={translate(newLinesLabel)}
@@ -143,17 +134,6 @@ export default function MeasuresCardPercent(
                 ),
               }}
             />
-          </LightLabel>
-          <LightLabel className="sw-mt-[1px]">
-            {afterMergeValue && (
-              <FormattedMessage
-                defaultMessage={translate('overview.quality_gate.x_estimated_after_merge')}
-                id="overview.quality_gate.x_estimated_after_merge"
-                values={{
-                  value: <strong>{formatMeasure(afterMergeValue, MetricType.Percent)}</strong>,
-                }}
-              />
-            )}
           </LightLabel>
         </div>
       </>

@@ -64,34 +64,30 @@ exports[`sortMeasures should sort based on the config 1`] = `
 [
   {
     "metric": {
-      "id": "3",
       "key": "new_bugs",
-      "name": "new_bugs",
+      "name": "New bugs",
       "type": "INT",
     },
   },
   {
     "metric": {
-      "id": "2",
       "key": "new_reliability_remediation_effort",
-      "name": "bugs",
+      "name": "Bugs",
       "type": "INT",
     },
   },
   "overall_category",
   {
     "metric": {
-      "id": "4",
       "key": "bugs",
-      "name": "bugs",
+      "name": "Bugs",
       "type": "INT",
     },
   },
   {
     "metric": {
-      "id": "1",
       "key": "reliability_remediation_effort",
-      "name": "new_bugs",
+      "name": "New bugs",
       "type": "INT",
     },
   },

@@ -38,12 +38,12 @@ import MeasuresCardPanel from './MeasuresCardPanel';
 import SonarLintAd from './SonarLintAd';
 
 interface Props {
-  branchLike: PullRequest;
+  pullRequest: PullRequest;
   component: Component;
 }
 
-export default function PullRequestOverview(props: Readonly<Props>) {
-  const { component, branchLike } = props;
+export default function PullRequestOverview(props: Readonly<Readonly<Props>>) {
+  const { component, pullRequest } = props;
 
   const {
     data: { conditions, ignoredConditions, status } = {},
@@ -58,7 +58,7 @@ export default function PullRequestOverview(props: Readonly<Props>) {
     useComponentMeasuresWithMetricsQuery(
       component.key,
       uniq([...PR_METRICS, ...(conditions?.map((c) => c.metric) ?? [])]),
-      getBranchLikeQuery(branchLike),
+      getBranchLikeQuery(pullRequest),
       !isLoadingBranchStatusesData,
     );
 
@@ -97,14 +97,14 @@ export default function PullRequestOverview(props: Readonly<Props>) {
     <CenteredLayout>
       <PageContentFontWrapper className="it__pr-overview sw-mt-12 sw-mb-8 sw-grid sw-grid-cols-12 sw-body-sm">
         <div className="sw-col-start-2 sw-col-span-10">
-          <MetaTopBar branchLike={branchLike} measures={measures} />
+          <MetaTopBar branchLike={pullRequest} measures={measures} />
           <BasicSeparator className="sw-my-4" />
 
           {ignoredConditions && <IgnoredConditionWarning />}
 
           {status && (
             <BranchQualityGate
-              branchLike={branchLike}
+              branchLike={pullRequest}
               component={component}
               status={status}
               failedConditions={failedConditions}
@@ -113,7 +113,7 @@ export default function PullRequestOverview(props: Readonly<Props>) {
 
           <MeasuresCardPanel
             className="sw-flex-1"
-            branchLike={branchLike}
+            pullRequest={pullRequest}
             component={component}
             conditions={enhancedConditions}
             measures={measures}

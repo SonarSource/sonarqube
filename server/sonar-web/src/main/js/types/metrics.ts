@@ -117,7 +117,7 @@ export enum MetricKey {
   public_api = 'public_api',
   public_documented_api_density = 'public_documented_api_density',
   public_undocumented_api = 'public_undocumented_api',
-  pullrequest_addressed_issues = 'pullrequest_addressed_issues',
+  pull_request_fixed_issues = 'pull_request_fixed_issues',
   quality_gate_details = 'quality_gate_details',
   quality_profiles = 'quality_profiles',
   releasability_effort = 'releasability_effort',

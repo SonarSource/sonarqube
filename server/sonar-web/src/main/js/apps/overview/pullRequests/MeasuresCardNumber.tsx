@@ -24,7 +24,7 @@ import { To } from 'react-router-dom';
 import { formatMeasure } from '../../../helpers/measures';
 import { MetricKey, MetricType } from '../../../types/metrics';
 import { QualityGateStatusConditionEnhanced } from '../../../types/quality-gates';
-import { Status } from '../utils';
+import { Status, getConditionRequiredLabel } from '../utils';
 import MeasuresCard from './MeasuresCard';
 
 interface Props {
@@ -33,29 +33,18 @@ interface Props {
   url: To;
   value: string;
   conditionMetric: MetricKey;
-  guidingKeyOnError?: string;
 }
 
 export default function MeasuresCardNumber(
   props: React.PropsWithChildren<Props & React.HTMLAttributes<HTMLDivElement>>,
 ) {
-  const { label, value, conditions, url, conditionMetric, guidingKeyOnError, ...rest } = props;
+  const { label, value, conditions, url, conditionMetric, ...rest } = props;
 
   const intl = useIntl();
 
   const condition = conditions.find((condition) => condition.metric === conditionMetric);
 
   const conditionFailed = condition?.level === Status.ERROR;
-
-  const requireLabel =
-    condition &&
-    intl.formatMessage(
-      { id: 'overview.quality_gate.required_x' },
-      {
-        operator: condition.op === 'GT' ? '≤' : '≥',
-        value: formatMeasure(condition.error, MetricType.Integer),
-      },
-    );
 
   return (
     <MeasuresCard
@@ -64,15 +53,17 @@ export default function MeasuresCardNumber(
       metric={conditionMetric}
       label={label}
       failed={conditionFailed}
-      data-guiding-id={conditionFailed ? guidingKeyOnError : undefined}
       {...rest}
     >
       <span className="sw-body-xs sw-mt-3">
-        {requireLabel &&
+        {condition &&
           (conditionFailed ? (
-            <TextError className="sw-font-regular" text={requireLabel} />
+            <TextError
+              className="sw-font-regular sw-inline"
+              text={getConditionRequiredLabel(condition, intl, true)}
+            />
           ) : (
-            <LightLabel>{requireLabel}</LightLabel>
+            <LightLabel>{getConditionRequiredLabel(condition, intl)}</LightLabel>
           ))}
       </span>
     </MeasuresCard>
