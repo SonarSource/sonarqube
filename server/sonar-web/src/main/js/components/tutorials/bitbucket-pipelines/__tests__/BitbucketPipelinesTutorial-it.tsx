@@ -40,8 +40,6 @@ import BitbucketPipelinesTutorial, {
   BitbucketPipelinesTutorialProps,
 } from '../BitbucketPipelinesTutorial';
 
-jest.mock('../../../../api/user-tokens');
-
 jest.mock('../../../../api/settings', () => ({
   getAllValues: jest.fn().mockResolvedValue([]),
 }));

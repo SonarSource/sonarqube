@@ -28,8 +28,6 @@ import { renderApp } from '../../../helpers/testReactTestingUtils';
 import { CurrentUser } from '../../../types/users';
 import SonarLintConnection from '../SonarLintConnection';
 
-jest.mock('../../../api/user-tokens');
-
 jest.mock('../../../helpers/handleRequiredAuthentication', () => ({
   __esModule: true,
   default: jest.fn(),

@@ -34,8 +34,6 @@ import {
 import { GradleBuildDSL, TutorialModes } from '../../types';
 import GitLabCITutorial, { GitLabCITutorialProps } from '../GitLabCITutorial';
 
-jest.mock('../../../../api/user-tokens');
-
 jest.mock('../../../../api/settings', () => ({
   getAllValues: jest.fn().mockResolvedValue([]),
 }));

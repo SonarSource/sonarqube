@@ -38,8 +38,6 @@ import {
 import { GradleBuildDSL, TutorialModes } from '../../types';
 import GitHubActionTutorial, { GitHubActionTutorialProps } from '../GitHubActionTutorial';
 
-jest.mock('../../../../api/user-tokens');
-
 jest.mock('../../../../api/settings', () => ({
   getAllValues: jest.fn().mockResolvedValue([]),
 }));

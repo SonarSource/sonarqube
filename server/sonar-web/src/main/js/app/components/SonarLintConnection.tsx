@@ -17,23 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { useSearchParams } from 'react-router-dom';
-import { generateToken, getTokens } from '../../api/user-tokens';
 import Link from '../../components/common/Link';
 import { Button } from '../../components/controls/buttons';
 import { ClipboardButton } from '../../components/controls/clipboard';
 import { whenLoggedIn } from '../../components/hoc/whenLoggedIn';
 import CheckIcon from '../../components/icons/CheckIcon';
 import { translate, translateWithParameters } from '../../helpers/l10n';
-import { portIsValid, sendUserToken } from '../../helpers/sonarlint';
-import {
-  computeTokenExpirationDate,
-  getAvailableExpirationOptions,
-  getNextTokenName,
-} from '../../helpers/tokens';
-import { NewUserToken, TokenExpiration } from '../../types/token';
+import { generateSonarLintUserToken, portIsValid, sendUserToken } from '../../helpers/sonarlint';
+import { NewUserToken } from '../../types/token';
 import { LoggedInUser } from '../../types/users';
 import './SonarLintConnection.css';
 
@@ -48,22 +43,7 @@ interface Props {
   currentUser: LoggedInUser;
 }
 
-const TOKEN_PREFIX = 'SonarLint';
-
-const getNextAvailableTokenName = async (login: string, tokenNameBase: string) => {
-  const tokens = await getTokens(login);
-
-  return getNextTokenName(tokenNameBase, tokens);
-};
-
-async function computeExpirationDate() {
-  const options = await getAvailableExpirationOptions();
-  const maxOption = options[options.length - 1];
-
-  return computeTokenExpirationDate(maxOption.value || TokenExpiration.OneYear);
-}
-
-export function SonarLintConnection({ currentUser }: Props) {
+export function SonarLintConnection({ currentUser }: Readonly<Props>) {
   const [searchParams] = useSearchParams();
   const [status, setStatus] = React.useState(Status.request);
   const [newToken, setNewToken] = React.useState<NewUserToken | undefined>(undefined);
@@ -74,11 +54,7 @@ export function SonarLintConnection({ currentUser }: Props) {
   const { login } = currentUser;
 
   const authorize = React.useCallback(async () => {
-    const newTokenName = await getNextAvailableTokenName(login, `${TOKEN_PREFIX}-${ideName}`);
-    const expirationDate = await computeExpirationDate();
-    const token = await generateToken({ name: newTokenName, login, expirationDate }).catch(
-      () => undefined,
-    );
+    const token = await generateSonarLintUserToken({ ideName, login }).catch(() => undefined);
 
     if (!token) {
       setStatus(Status.tokenError);

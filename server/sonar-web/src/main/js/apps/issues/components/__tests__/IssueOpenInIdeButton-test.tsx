@@ -23,15 +23,20 @@ import userEvent from '@testing-library/user-event';
 import { addGlobalErrorMessage, addGlobalSuccessMessage } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
+import UserTokensMock from '../../../../api/mocks/UserTokensMock';
 import DocumentationLink from '../../../../components/common/DocumentationLink';
 import {
   openIssue as openSonarLintIssue,
   probeSonarLintServers,
 } from '../../../../helpers/sonarlint';
 import { renderComponent } from '../../../../helpers/testReactTestingUtils';
+import { Ide } from '../../../../types/sonarlint';
 import { IssueOpenInIdeButton, Props } from '../IssueOpenInIdeButton';
 
 jest.mock('../../../../helpers/sonarlint', () => ({
+  generateSonarLintUserToken: jest
+    .fn()
+    .mockResolvedValue({ name: 'token name', token: 'token value' }),
   openIssue: jest.fn().mockResolvedValue(undefined),
   probeSonarLintServers: jest.fn(),
 }));
@@ -42,12 +47,23 @@ jest.mock('design-system', () => ({
   addGlobalSuccessMessage: jest.fn(),
 }));
 
-const MOCK_IDES = [
+const MOCK_IDES: Ide[] = [
   { description: 'IDE description', ideName: 'Some IDE', port: 1234 },
-  { description: '', ideName: 'Some other IDE', port: 42000 },
+  { description: '', ideName: 'Some other IDE', needsToken: true, port: 42000 },
 ];
+
 const MOCK_ISSUE_KEY = 'issue-key';
 const MOCK_PROJECT_KEY = 'project-key';
+
+let tokenMock: UserTokensMock;
+
+beforeAll(() => {
+  tokenMock = new UserTokensMock();
+});
+
+afterEach(() => {
+  tokenMock.reset();
+});
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -113,13 +129,16 @@ it('handles button click with one ide found', async () => {
 
   expect(probeSonarLintServers).toHaveBeenCalledWith();
 
-  expect(openSonarLintIssue).toHaveBeenCalledWith(
-    MOCK_IDES[0].port,
-    MOCK_PROJECT_KEY,
-    MOCK_ISSUE_KEY,
-    undefined,
-    undefined,
-  );
+  expect(openSonarLintIssue).toHaveBeenCalledWith({
+    branchName: undefined,
+    calledPort: MOCK_IDES[0].port,
+    issueKey: MOCK_ISSUE_KEY,
+    login: 'login-1',
+    projectKey: MOCK_PROJECT_KEY,
+    pullRequestID: undefined,
+    tokenName: undefined,
+    tokenValue: undefined,
+  });
 
   expect(addGlobalSuccessMessage).toHaveBeenCalledWith('issues.open_in_ide.success');
 
@@ -159,13 +178,16 @@ it('handles button click with several ides found', async () => {
     await user.click(secondIde);
   });
 
-  expect(openSonarLintIssue).toHaveBeenCalledWith(
-    MOCK_IDES[1].port,
-    MOCK_PROJECT_KEY,
-    MOCK_ISSUE_KEY,
-    undefined,
-    undefined,
-  );
+  expect(openSonarLintIssue).toHaveBeenCalledWith({
+    branchName: undefined,
+    calledPort: MOCK_IDES[1].port,
+    issueKey: MOCK_ISSUE_KEY,
+    login: 'login-1',
+    projectKey: MOCK_PROJECT_KEY,
+    pullRequestID: undefined,
+    tokenName: 'token name',
+    tokenValue: 'token value',
+  });
 
   expect(addGlobalSuccessMessage).toHaveBeenCalledWith('issues.open_in_ide.success');
 
@@ -174,6 +196,11 @@ it('handles button click with several ides found', async () => {
 
 function renderComponentIssueOpenInIdeButton(props: Partial<Props> = {}) {
   return renderComponent(
-    <IssueOpenInIdeButton issueKey={MOCK_ISSUE_KEY} projectKey={MOCK_PROJECT_KEY} {...props} />,
+    <IssueOpenInIdeButton
+      issueKey={MOCK_ISSUE_KEY}
+      login="login-1"
+      projectKey={MOCK_PROJECT_KEY}
+      {...props}
+    />,
   );
 }

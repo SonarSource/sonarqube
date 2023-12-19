@@ -38,8 +38,6 @@ import { SettingsKey } from '../../../types/settings';
 import TutorialSelection from '../TutorialSelection';
 import { TutorialModes } from '../types';
 
-jest.mock('../../../api/user-tokens');
-
 jest.mock('../../../helpers/urls', () => ({
   ...jest.requireActual('../../../helpers/urls'),
   getHostUrl: jest.fn().mockReturnValue('http://host.url'),

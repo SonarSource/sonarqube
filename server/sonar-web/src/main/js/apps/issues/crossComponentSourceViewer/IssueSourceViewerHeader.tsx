@@ -172,6 +172,7 @@ export function IssueSourceViewerHeader(props: Readonly<Props>) {
         <IssueOpenInIdeButton
           branchName={branchName}
           issueKey={issueKey}
+          login={currentUser.login}
           projectKey={project}
           pullRequestID={pullRequestID}
         />

@@ -36,8 +36,6 @@ import {
 import { GradleBuildDSL } from '../../types';
 import JenkinsTutorial, { JenkinsTutorialProps } from '../JenkinsTutorial';
 
-jest.mock('../../../../api/user-tokens');
-
 jest.mock('../../../../api/settings', () => ({
   getAllValues: jest.fn().mockResolvedValue([]),
 }));

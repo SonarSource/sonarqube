@@ -46,7 +46,7 @@ describe('buildPortRange', () => {
 });
 
 describe('probeSonarLintServers', () => {
-  const sonarLintResponse = { ideName: 'BlueJ IDE', description: 'Hello World' };
+  const sonarLintResponse = { description: 'Hello World', ideName: 'BlueJ IDE', needsToken: true };
 
   window.fetch = jest.fn((input: string) => {
     const calledPort = new URL(input).port;
@@ -96,7 +96,10 @@ describe('openHotspot', () => {
 describe('openIssue', () => {
   it('should send the correct request to the IDE to open an issue', async () => {
     let branchName: string | undefined = undefined;
+    let login: string | undefined = undefined;
     let pullRequestID: string | undefined = undefined;
+    let tokenName: string | undefined = undefined;
+    let tokenValue: string | undefined = undefined;
     const issueKey = 'my-issue-key';
     const resp = new Response();
 
@@ -111,6 +114,12 @@ describe('openIssue', () => {
         expect(calledUrl.searchParams.get('branch') ?? undefined).toStrictEqual(branchName);
         // eslint-disable-next-line jest/no-conditional-in-test
         expect(calledUrl.searchParams.get('pullRequest') ?? undefined).toStrictEqual(pullRequestID);
+        // eslint-disable-next-line jest/no-conditional-in-test
+        expect(calledUrl.searchParams.get('login') ?? undefined).toStrictEqual(login);
+        // eslint-disable-next-line jest/no-conditional-in-test
+        expect(calledUrl.searchParams.get('tokenName') ?? undefined).toStrictEqual(tokenName);
+        // eslint-disable-next-line jest/no-conditional-in-test
+        expect(calledUrl.searchParams.get('tokenValue') ?? undefined).toStrictEqual(tokenValue);
       } catch (error) {
         return Promise.reject(error);
       }
@@ -118,27 +127,32 @@ describe('openIssue', () => {
       return Promise.resolve(resp);
     });
 
-    let result = await openIssue(SONARLINT_PORT_START, PROJECT_KEY, issueKey);
+    type OpenIssueParams = Parameters<typeof openIssue>[0];
+    type PartialOpenIssueParams = Partial<OpenIssueParams>;
+    let params: PartialOpenIssueParams = {};
 
-    expect(result).toBe(resp);
+    const testWith = async (args: PartialOpenIssueParams) => {
+      params = { ...params, ...args };
+      const result = await openIssue(params as OpenIssueParams);
+      expect(result).toBe(resp);
+    };
+
+    await testWith({
+      calledPort: SONARLINT_PORT_START,
+      issueKey,
+      projectKey: PROJECT_KEY,
+    });
 
     branchName = 'branch-1';
-
-    result = await openIssue(SONARLINT_PORT_START, PROJECT_KEY, issueKey, branchName);
-
-    expect(result).toBe(resp);
+    await testWith({ branchName });
 
     pullRequestID = 'pr-1';
+    await testWith({ pullRequestID });
 
-    result = await openIssue(
-      SONARLINT_PORT_START,
-      PROJECT_KEY,
-      issueKey,
-      branchName,
-      pullRequestID,
-    );
-
-    expect(result).toBe(resp);
+    login = 'login-1';
+    tokenName = 'token-name';
+    tokenValue = 'token-value';
+    await testWith({ login, tokenName, tokenValue });
   });
 });
 

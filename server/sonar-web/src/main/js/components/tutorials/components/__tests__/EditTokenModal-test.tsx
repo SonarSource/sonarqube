@@ -31,8 +31,6 @@ import { Permissions } from '../../../../types/permissions';
 import { TokenType } from '../../../../types/token';
 import EditTokenModal from '../EditTokenModal';
 
-jest.mock('../../../../api/user-tokens');
-
 jest.mock('../../../../api/settings', () => ({
   getAllValues: jest.fn().mockResolvedValue([]),
 }));

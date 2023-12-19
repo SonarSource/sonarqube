@@ -33,8 +33,6 @@ import {
 } from '../../test-utils';
 import OtherTutorial from '../OtherTutorial';
 
-jest.mock('../../../../api/user-tokens');
-
 jest.mock('../../../../api/settings', () => ({
   getAllValues: jest.fn().mockResolvedValue([]),
 }));

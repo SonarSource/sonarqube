@@ -18,10 +18,17 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+import { generateToken, getTokens } from '../api/user-tokens';
 import { getHostUrl } from '../helpers/urls';
 import { Ide } from '../types/sonarlint';
-import { NewUserToken } from '../types/token';
+import { NewUserToken, TokenExpiration } from '../types/token';
+import { UserBase } from '../types/users';
 import { checkStatus, isSuccessStatus } from './request';
+import {
+  computeTokenExpirationDate,
+  getAvailableExpirationOptions,
+  getNextTokenName,
+} from './tokens';
 
 export const SONARLINT_PORT_START = 64120;
 export const SONARLINT_PORT_RANGE = 11;
@@ -33,9 +40,9 @@ export async function probeSonarLintServers(): Promise<Array<Ide>> {
     fetch(buildSonarLintEndpoint(p, '/status'))
       .then((r) => r.json())
       .then((json) => {
-        const { ideName, description } = json;
+        const { description, ideName, needsToken } = json;
 
-        return { port: p, ideName, description } as Ide;
+        return { description, ideName, needsToken, port: p } as Ide;
       })
       .catch(() => undefined),
   );
@@ -55,13 +62,57 @@ export function openHotspot(calledPort: number, projectKey: string, hotspotKey: 
   return fetch(showUrl.toString()).then((response: Response) => checkStatus(response, true));
 }
 
-export function openIssue(
-  calledPort: number,
-  projectKey: string,
-  issueKey: string,
-  branchName?: string,
-  pullRequestID?: string,
-) {
+const computeSonarLintTokenExpirationDate = async () => {
+  const options = await getAvailableExpirationOptions();
+  const maxOption = options[options.length - 1];
+
+  return computeTokenExpirationDate(maxOption.value || TokenExpiration.OneYear);
+};
+
+const getNextAvailableSonarLintTokenName = async ({
+  ideName,
+  login,
+}: {
+  ideName: string;
+  login: string;
+}) => {
+  const tokens = await getTokens(login);
+
+  return getNextTokenName(`SonarLint-${ideName}`, tokens);
+};
+
+export const generateSonarLintUserToken = async ({
+  ideName,
+  login,
+}: {
+  ideName: string;
+  login: UserBase['login'];
+}) => {
+  const name = await getNextAvailableSonarLintTokenName({ ideName, login });
+  const expirationDate = await computeSonarLintTokenExpirationDate();
+
+  return generateToken({ expirationDate, login, name });
+};
+
+export function openIssue({
+  branchName,
+  calledPort,
+  issueKey,
+  login,
+  projectKey,
+  pullRequestID,
+  tokenName,
+  tokenValue,
+}: {
+  branchName?: string;
+  calledPort: number;
+  issueKey: string;
+  login?: string;
+  projectKey: string;
+  pullRequestID?: string;
+  tokenName?: string;
+  tokenValue?: string;
+}) {
   const showUrl = new URL(buildSonarLintEndpoint(calledPort, '/issues/show'));
 
   showUrl.searchParams.set('server', getHostUrl());
@@ -74,6 +125,12 @@ export function openIssue(
 
   if (pullRequestID !== undefined) {
     showUrl.searchParams.set('pullRequest', pullRequestID);
+  }
+
+  if (login !== undefined && tokenName !== undefined && tokenValue !== undefined) {
+    showUrl.searchParams.set('login', login);
+    showUrl.searchParams.set('tokenName', tokenName);
+    showUrl.searchParams.set('tokenValue', tokenValue);
   }
 
   return fetch(showUrl.toString()).then((response: Response) => checkStatus(response, true));

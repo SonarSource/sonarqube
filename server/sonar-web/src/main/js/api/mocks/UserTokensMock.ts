@@ -22,6 +22,8 @@ import { mockUserToken } from '../../helpers/mocks/token';
 import { NewUserToken, TokenType, UserToken } from '../../types/token';
 import { generateToken, getTokens, revokeToken } from '../user-tokens';
 
+jest.mock('../../api/user-tokens');
+
 const defaultTokens = [
   mockUserToken({
     name: 'local-scanner',

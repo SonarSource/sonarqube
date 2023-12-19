@@ -37,8 +37,6 @@ import { TaskStatuses } from '../../../types/tasks';
 import { ChangePasswordResults, CurrentUser } from '../../../types/users';
 import UsersApp from '../UsersApp';
 
-jest.mock('../../../api/user-tokens');
-
 const userHandler = new UsersServiceMock();
 const tokenHandler = new UserTokensMock();
 const systemHandler = new SystemServiceMock();

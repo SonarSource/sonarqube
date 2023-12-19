@@ -31,8 +31,6 @@ import { getCopyToClipboardValue, getTutorialBuildButtons } from '../../test-uti
 import { OSs } from '../../types';
 import AzurePipelinesTutorial, { AzurePipelinesTutorialProps } from '../AzurePipelinesTutorial';
 
-jest.mock('../../../../api/user-tokens');
-
 jest.mock('../../../../api/settings', () => ({
   getAllValues: jest.fn().mockResolvedValue([]),
 }));

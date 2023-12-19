@@ -32,19 +32,25 @@ import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import DocumentationLink from '../../../components/common/DocumentationLink';
 import { translate } from '../../../helpers/l10n';
-import { openIssue as openSonarLintIssue, probeSonarLintServers } from '../../../helpers/sonarlint';
+import {
+  generateSonarLintUserToken,
+  openIssue as openSonarLintIssue,
+  probeSonarLintServers,
+} from '../../../helpers/sonarlint';
 import { Ide } from '../../../types/sonarlint';
+import { UserBase } from '../../../types/users';
 
 export interface Props {
   branchName?: string;
   issueKey: string;
+  login: UserBase['login'];
   projectKey: string;
   pullRequestID?: string;
 }
 
 interface State {
+  disabled?: boolean;
   ides: Ide[];
-  mounted: boolean;
 }
 
 const showError = () =>
@@ -63,36 +69,53 @@ const showError = () =>
 
 const showSuccess = () => addGlobalSuccessMessage(translate('issues.open_in_ide.success'));
 
+const DELAY_AFTER_TOKEN_CREATION = 3000;
+
 export function IssueOpenInIdeButton({
   branchName,
   issueKey,
+  login,
   projectKey,
   pullRequestID,
 }: Readonly<Props>) {
-  const [state, setState] = React.useState<State>({ ides: [], mounted: false });
-
-  React.useEffect(() => {
-    setState({ ...state, mounted: true });
-
-    return () => {
-      setState({ ...state, mounted: false });
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  const [state, setState] = React.useState<State>({ disabled: false, ides: [] });
 
   const cleanState = () => {
-    if (state.mounted) {
-      setState({ ...state, ides: [] });
-    }
+    setState({ ...state, ides: [] });
   };
 
-  const openIssue = (ide: Ide) => {
-    setState({ ...state, ides: [] });
+  const openIssue = async (ide: Ide) => {
+    setState({ ...state, disabled: true, ides: [] }); // close the dropdown, disable the button
 
-    return openSonarLintIssue(ide.port, projectKey, issueKey, branchName, pullRequestID)
-      .then(showSuccess)
-      .catch(showError)
-      .finally(cleanState);
+    let token: { name?: string; token?: string } = {};
+
+    try {
+      if (ide.needsToken) {
+        token = await generateSonarLintUserToken({ ideName: ide.ideName, login });
+      }
+
+      await openSonarLintIssue({
+        branchName,
+        calledPort: ide.port,
+        issueKey,
+        login,
+        projectKey,
+        pullRequestID,
+        tokenName: token.name,
+        tokenValue: token.token,
+      });
+
+      showSuccess();
+    } catch (e) {
+      showError();
+    }
+
+    setTimeout(
+      () => {
+        setState({ ...state, disabled: false });
+      },
+      ide.needsToken ? DELAY_AFTER_TOKEN_CREATION : 0,
+    );
   };
 
   const onClick = async () => {
@@ -104,7 +127,7 @@ export function IssueOpenInIdeButton({
       showError();
     } else if (ides.length === 1) {
       openIssue(ides[0]);
-    } else if (state.mounted) {
+    } else {
       setState({ ...state, ides });
     }
   };
@@ -138,7 +161,11 @@ export function IssueOpenInIdeButton({
         placement={PopupPlacement.BottomLeft}
         zLevel={PopupZLevel.Global}
       >
-        <ButtonSecondary className="sw-whitespace-nowrap" onClick={onClick}>
+        <ButtonSecondary
+          className="sw-whitespace-nowrap"
+          disabled={state.disabled}
+          onClick={onClick}
+        >
           {translate('open_in_ide')}
         </ButtonSecondary>
       </DropdownToggler>
