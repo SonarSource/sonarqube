@@ -26,7 +26,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.slf4j.event.Level;
 import org.sonar.api.config.Configuration;
-import org.sonar.api.resources.Languages;
 import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.scanner.WsTestUtil;
 import org.sonar.scanner.bootstrap.DefaultScannerWsClient;
@@ -43,8 +42,10 @@ public class DefaultLanguagesRepositoryTest {
 
   private final DefaultScannerWsClient wsClient = mock(DefaultScannerWsClient.class);
   private final Configuration properties = mock(Configuration.class);
-  private final Languages languages = mock(Languages.class);
-  private final DefaultLanguagesRepository underTest = new DefaultLanguagesRepository(wsClient, properties);
+  private final LanguagesLoader languagesLoader = new DefaultLanguagesLoader(wsClient, properties);
+
+
+  private final DefaultLanguagesRepository underTest = new DefaultLanguagesRepository(languagesLoader);
 
   private static final String[] JAVA_SUFFIXES = new String[] { ".java", ".jav" };
   private static final String[] XOO_SUFFIXES = new String[] { ".xoo" };
@@ -66,7 +67,6 @@ public class DefaultLanguagesRepositoryTest {
     when(properties.getStringArray("sonar.python.file.suffixes")).thenReturn(PYTHON_SUFFIXES);
 
     underTest.start();
-    underTest.stop();
 
     assertThat(underTest.all()).hasSize(3);
     assertThat(underTest.get("java")).isNotNull();
@@ -107,7 +107,6 @@ public class DefaultLanguagesRepositoryTest {
       new InputStreamReader(getClass().getResourceAsStream("DefaultLanguageRepositoryTest/languages-ws.json")));
 
     underTest.start();
-    underTest.stop();
 
     assertThat(underTest.get("java").isPublishAllFiles()).isTrue();
     assertThat(underTest.get("xoo").isPublishAllFiles()).isTrue();
@@ -122,7 +121,6 @@ public class DefaultLanguagesRepositoryTest {
     when(properties.getStringArray("sonar.java.file.suffixes")).thenReturn(JAVA_SUFFIXES);
 
     underTest.start();
-    underTest.stop();
 
     assertThat(underTest.get("java"))
       .extracting("key", "name", "fileSuffixes", "publishAllFiles")
