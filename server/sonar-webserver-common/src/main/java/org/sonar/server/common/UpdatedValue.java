@@ -19,6 +19,7 @@
  */
 package org.sonar.server.common;
 
+import java.util.StringJoiner;
 import javax.annotation.Nullable;
 import java.util.Objects;
 import java.util.function.Consumer;
@@ -84,5 +85,12 @@ public class UpdatedValue<T> {
     } else {
       return defaultValue;
     }
+  }
+
+  @Override
+  public String toString() {
+    return new StringJoiner(", ", UpdatedValue.class.getSimpleName() + "[", "]")
+      .add(String.valueOf(value))
+      .toString();
   }
 }
