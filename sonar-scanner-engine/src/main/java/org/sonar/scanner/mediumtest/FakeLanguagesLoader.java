@@ -19,43 +19,31 @@
  */
 package org.sonar.scanner.mediumtest;
 
-import java.util.Collection;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.Priority;
-import org.jetbrains.annotations.Nullable;
 import org.sonar.api.resources.Languages;
 import org.sonar.scanner.repository.language.Language;
-import org.sonar.scanner.repository.language.LanguagesRepository;
+import org.sonar.scanner.repository.language.LanguagesLoader;
 import org.sonar.scanner.repository.language.SupportedLanguageDto;
 
 @Priority(1)
-public class FakeLanguagesRepository implements LanguagesRepository {
+public class FakeLanguagesLoader implements LanguagesLoader {
 
   private final Map<String, Language> languageMap = new HashMap<>();
 
-  public FakeLanguagesRepository() {
+  public FakeLanguagesLoader() {
     languageMap.put("xoo", new Language(new FakeLanguage("xoo", "xoo", new String[] { ".xoo" }, new String[0], true)));
   }
 
-  public FakeLanguagesRepository(Languages languages) {
+  public FakeLanguagesLoader(Languages languages) {
     for (org.sonar.api.resources.Language language : languages.all()) {
       languageMap.put(language.getKey(), new Language(new FakeLanguage(language.getKey(), language.getName(), language.getFileSuffixes(), language.filenamePatterns(), true)));
     }
   }
-
-  @Nullable
   @Override
-  public Language get(String languageKey) {
-    return languageMap.get(languageKey);
-  }
-
-  @Override
-  public Collection<Language> all() {
-    return languageMap.values().stream()
-      // sorted for test consistency
-      .sorted(Comparator.comparing(Language::key)).toList();
+  public Map<String, Language> load() {
+    return languageMap;
   }
 
   public void addLanguage(String key, String name, String[] suffixes, String[] filenamePatterns) {
