@@ -52,7 +52,12 @@ import IssueTabViewer from '../../../components/rules/IssueTabViewer';
 import '../../../components/search-navigator.css';
 import { DEFAULT_ISSUES_QUERY } from '../../../components/shared/utils';
 import Spinner from '../../../components/ui/Spinner';
-import { fillBranchLike, getBranchLikeQuery, isSameBranchLike } from '../../../helpers/branch-like';
+import {
+  fillBranchLike,
+  getBranchLikeQuery,
+  isPullRequest,
+  isSameBranchLike,
+} from '../../../helpers/branch-like';
 import handleRequiredAuthentication from '../../../helpers/handleRequiredAuthentication';
 import { parseIssueFromResponse } from '../../../helpers/issues';
 import { isInput, isShortcut } from '../../../helpers/keyboardEventHelpers';
@@ -104,6 +109,7 @@ import IssueGuide from './IssueGuide';
 import IssueNewStatusAndTransitionGuide from './IssueNewStatusAndTransitionGuide';
 import IssueReviewHistoryAndComments from './IssueReviewHistoryAndComments';
 import IssuesList from './IssuesList';
+import IssuesListTitle from './IssuesListTitle';
 import IssuesSourceViewer from './IssuesSourceViewer';
 import NoIssues from './NoIssues';
 import NoMyIssues from './NoMyIssues';
@@ -112,6 +118,7 @@ import { PSEUDO_SHADOW_HEIGHT } from './StyledHeader';
 
 interface Props extends WithIndexationContextProps {
   branchLike?: BranchLike;
+  branchLikes?: BranchLike[];
   component?: Component;
   currentUser: CurrentUser;
   isFetchingBranch?: boolean;
@@ -1128,8 +1135,8 @@ export class App extends React.PureComponent<Props, State> {
   }
 
   renderList() {
-    const { branchLike, component, currentUser } = this.props;
-    const { issues, loading, loadingMore, openIssue, paging } = this.state;
+    const { branchLike, component, currentUser, branchLikes } = this.props;
+    const { issues, loading, loadingMore, openIssue, paging, query } = this.state;
     const selectedIndex = this.getSelectedIndex();
     const selectedIssue = selectedIndex !== undefined ? issues[selectedIndex] : undefined;
 
@@ -1151,7 +1158,11 @@ export class App extends React.PureComponent<Props, State> {
 
     return (
       <div>
-        <h2 className="sw-sr-only">{translate('list_of_issues')}</h2>
+        <IssuesListTitle
+          fixedInPullRequest={query.fixedInPullRequest}
+          pullRequests={branchLikes?.filter(isPullRequest) ?? []}
+          component={component}
+        />
 
         {issues.length > 0 && (
           <IssuesList

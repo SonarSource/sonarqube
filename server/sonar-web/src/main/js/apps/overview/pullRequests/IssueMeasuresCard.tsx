@@ -71,7 +71,7 @@ export default function IssueMeasuresCard(
   });
   const fixedUrl = getComponentIssuesUrl(component.key, {
     branch: pullRequest.target,
-    fixedInPR: pullRequest.key,
+    fixedInPullRequest: pullRequest.key,
   });
   const acceptedUrl = getComponentIssuesUrl(component.key, {
     ...getBranchLikeQuery(pullRequest),

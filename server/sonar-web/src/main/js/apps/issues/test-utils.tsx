@@ -32,6 +32,7 @@ import {
   SoftwareImpactSeverity,
   SoftwareQuality,
 } from '../../types/clean-code-taxonomy';
+import { Feature } from '../../types/features';
 import { Component } from '../../types/types';
 import { NoticeType } from '../../types/users';
 import IssuesApp from './components/IssuesApp';
@@ -54,6 +55,8 @@ export const ui = {
   issueItemAction8: byRole('link', { name: 'Issue on page 2' }),
 
   issueItems: byRole('region'),
+
+  fixedIssuesHeading: byRole('heading', { level: 2, name: 'issues.fixed_issues' }),
 
   issueItem1: byRole('region', { name: 'Issue with no location message' }),
   issueItem2: byRole('region', { name: 'FlowIssue' }),
@@ -186,7 +189,7 @@ export function renderProjectIssuesApp(
         {projectIssuesRoutes()}
       </Route>
     ),
-    { navigateTo, currentUser },
+    { navigateTo, currentUser, featureList: [Feature.BranchSupport] },
     { component: mockComponent(overrides) },
   );
 }

@@ -66,6 +66,12 @@ describe('issues app', () => {
 
       expect(screen.getByText('issues.not_all_issue_show')).toBeInTheDocument();
     });
+
+    it('should show fixed issues message', async () => {
+      renderProjectIssuesApp('project/issues?id=my-project&fixedInPullRequest=01');
+
+      expect(await ui.fixedIssuesHeading.find()).toBeInTheDocument();
+    });
   });
 
   describe('navigation', () => {

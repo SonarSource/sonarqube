@@ -66,6 +66,7 @@ export interface Query {
   cwe: string[];
   directories: string[];
   files: string[];
+  fixedInPullRequest: string;
   impactSeverities: SoftwareImpactSeverity[];
   impactSoftwareQualities: SoftwareQuality[];
   issues: string[];
@@ -134,6 +135,7 @@ export function parseQuery(query: RawQuery): Query {
     tags: parseAsArray(query.tags, parseAsString),
     types: parseAsArray(query.types, parseAsString),
     codeVariants: parseAsArray(query.codeVariants, parseAsString),
+    fixedInPullRequest: parseAsString(query.fixedInPullRequest),
   };
 }
 
@@ -222,6 +224,7 @@ export function serializeQuery(query: Query): RawQuery {
     cwe: serializeStringArray(query.cwe),
     directories: serializeStringArray(query.directories),
     files: serializeStringArray(query.files),
+    fixedInPullRequest: serializeString(query.fixedInPullRequest),
     issues: serializeStringArray(query.issues),
     languages: serializeStringArray(query.languages),
     owaspTop10: serializeStringArray(query.owaspTop10),

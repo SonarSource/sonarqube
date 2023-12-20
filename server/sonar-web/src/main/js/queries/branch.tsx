@@ -109,6 +109,7 @@ function getContext(key: ReturnType<typeof useBranchesQueryKey>) {
 export function useBranchesQuery(component?: LightComponent, refetchInterval?: number) {
   const features = useContext(AvailableFeaturesContext);
   const key = useBranchesQueryKey(InnerState.Details, component?.key);
+
   return useQuery({
     queryKey: key,
     queryFn: async ({ queryKey: [, key, prOrBranch, name] }) => {

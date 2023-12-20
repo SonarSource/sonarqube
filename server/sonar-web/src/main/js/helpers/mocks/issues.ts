@@ -66,6 +66,7 @@ export function mockQuery(overrides: Partial<Query> = {}): Query {
     cwe: [],
     directories: [],
     files: [],
+    fixedInPullRequest: '',
     issues: [],
     languages: [],
     owaspTop10: [],

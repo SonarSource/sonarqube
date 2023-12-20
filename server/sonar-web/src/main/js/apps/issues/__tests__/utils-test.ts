@@ -72,6 +72,7 @@ describe('serialize/deserialize', () => {
         issueStatuses: [IssueStatus.Accepted, IssueStatus.Confirmed],
         tags: ['a', 'b'],
         types: ['a', 'b'],
+        fixedInPullRequest: '',
       }),
     ).toStrictEqual({
       assignees: 'a,b',
@@ -152,6 +153,7 @@ describe('serialize/deserialize', () => {
       issueStatuses: [],
       tags: [],
       types: [],
+      fixedInPullRequest: '',
     });
   });
 
