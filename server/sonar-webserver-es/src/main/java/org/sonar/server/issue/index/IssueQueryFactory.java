@@ -53,7 +53,9 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
+import org.sonar.db.issue.IssueFixedDto;
 import org.sonar.db.permission.GlobalPermission;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.server.issue.SearchRequest;
 import org.sonar.server.issue.index.IssueQuery.PeriodStart;
@@ -79,6 +81,7 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_COMPONENTS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_COMPONENT_UUIDS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_CREATED_AFTER;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_CREATED_IN_LAST;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_FIXED_IN_PULL_REQUEST;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_IN_NEW_CODE_PERIOD;
 
 /**
@@ -99,7 +102,8 @@ public class IssueQueryFactory {
     .map(Enum::name)
     .collect(Collectors.toSet());
   private static final ComponentDto UNKNOWN_COMPONENT = new ComponentDto().setUuid(UNKNOWN).setBranchUuid(UNKNOWN);
-  private static final Set<String> QUALIFIERS_WITHOUT_LEAK_PERIOD = new HashSet<>(Arrays.asList(Qualifiers.APP, Qualifiers.VIEW, Qualifiers.SUBVIEW));
+  private static final Set<String> QUALIFIERS_WITHOUT_LEAK_PERIOD = new HashSet<>(Arrays.asList(Qualifiers.APP, Qualifiers.VIEW,
+    Qualifiers.SUBVIEW));
   private final DbClient dbClient;
   private final Clock clock;
   private final UserSession userSession;
@@ -116,13 +120,14 @@ public class IssueQueryFactory {
 
       Collection<RuleDto> ruleDtos = ruleKeysToRuleId(dbSession, request.getRules());
       Collection<String> ruleUuids = ruleDtos.stream().map(RuleDto::getUuid).collect(Collectors.toSet());
+      Collection<String> issueKeys = collectIssueKeys(dbSession, request);
 
       if (request.getRules() != null && request.getRules().stream().collect(Collectors.toSet()).size() != ruleDtos.size()) {
         ruleUuids.add("non-existing-uuid");
       }
 
       IssueQuery.Builder builder = IssueQuery.builder()
-        .issueKeys(request.getIssues())
+        .issueKeys(issueKeys)
         .severities(request.getSeverities())
         .cleanCodeAttributesCategories(request.getCleanCodeAttributesCategories())
         .impactSoftwareQualities(request.getImpactSoftwareQualities())
@@ -169,6 +174,49 @@ public class IssueQueryFactory {
     }
   }
 
+  private Collection<String> collectIssueKeys(DbSession dbSession, SearchRequest request) {
+    Collection<String> issueKeys = null;
+    if (request.getFixedInPullRequest() != null) {
+      issueKeys = getIssuesFixedByPullRequest(dbSession, request);
+    }
+    if (request.getIssues() != null && !request.getIssues().isEmpty()) {
+      if (issueKeys == null) {
+        issueKeys = new ArrayList<>();
+      }
+      issueKeys.addAll(request.getIssues());
+    }
+
+    return issueKeys;
+  }
+
+  private Collection<String> getIssuesFixedByPullRequest(DbSession dbSession, SearchRequest request) {
+    String fixedInPullRequest = request.getFixedInPullRequest();
+    List<String> componentKeys = request.getComponentKeys();
+    if (componentKeys == null || componentKeys.size() != 1) {
+      throw new IllegalArgumentException("Exactly one project needs to be provided in the " +
+        "'" + PARAM_COMPONENTS + "' param when used together with '" + PARAM_FIXED_IN_PULL_REQUEST + "' param");
+    }
+    String projectKey = componentKeys.get(0);
+    ProjectDto projectDto = dbClient.projectDao().selectProjectByKey(dbSession, projectKey)
+      .orElseThrow(() -> new IllegalArgumentException("Project with key '" + projectKey + "' does not exist"));
+    BranchDto pullRequest = dbClient.branchDao().selectByPullRequestKey(dbSession, projectDto.getUuid(), fixedInPullRequest)
+      .orElseThrow(() -> new IllegalArgumentException("Pull request with key '" + fixedInPullRequest + "' does not exist for a project " +
+        projectKey));
+
+    if (request.getBranch() != null) {
+      BranchDto targetBranch = dbClient.branchDao().selectByBranchKey(dbSession, projectDto.getUuid(), request.getBranch())
+        .orElseThrow(() -> new IllegalArgumentException("Branch with key '" + request.getBranch() + "' does not exist"));
+      if (!Objects.equals(targetBranch.getUuid(), pullRequest.getMergeBranchUuid())) {
+        throw new IllegalArgumentException("Pull request with key '" + fixedInPullRequest + "' does not target branch '" + request.getBranch() + "'");
+      }
+    }
+    return dbClient.issueFixedDao().selectByPullRequest(dbSession, pullRequest.getUuid())
+      .stream()
+      .map(IssueFixedDto::issueKey)
+      .collect(Collectors.toSet());
+  }
+
+
   private static Optional<ZoneId> parseTimeZone(@Nullable String timeZone) {
     if (timeZone == null) {
       return Optional.empty();
@@ -181,7 +229,8 @@ public class IssueQueryFactory {
     }
   }
 
-  private void setCreatedAfterFromDates(IssueQuery.Builder builder, @Nullable Date createdAfter, @Nullable String createdInLast, boolean createdAfterInclusive) {
+  private void setCreatedAfterFromDates(IssueQuery.Builder builder, @Nullable Date createdAfter, @Nullable String createdInLast,
+    boolean createdAfterInclusive) {
     Date actualCreatedAfter = createdAfter;
     if (createdInLast != null) {
       actualCreatedAfter = Date.from(
@@ -192,16 +241,19 @@ public class IssueQueryFactory {
     builder.createdAfter(actualCreatedAfter, createdAfterInclusive);
   }
 
-  private void setCreatedAfterFromRequest(DbSession dbSession, IssueQuery.Builder builder, SearchRequest request, List<ComponentDto> componentUuids, ZoneId timeZone) {
+  private void setCreatedAfterFromRequest(DbSession dbSession, IssueQuery.Builder builder, SearchRequest request,
+    List<ComponentDto> componentUuids, ZoneId timeZone) {
     Date createdAfter = parseStartingDateOrDateTime(request.getCreatedAfter(), timeZone);
     String createdInLast = request.getCreatedInLast();
 
     if (notInNewCodePeriod(request)) {
-      checkArgument(createdAfter == null || createdInLast == null, format("Parameters %s and %s cannot be set simultaneously", PARAM_CREATED_AFTER, PARAM_CREATED_IN_LAST));
+      checkArgument(createdAfter == null || createdInLast == null, format("Parameters %s and %s cannot be set simultaneously",
+        PARAM_CREATED_AFTER, PARAM_CREATED_IN_LAST));
       setCreatedAfterFromDates(builder, createdAfter, createdInLast, true);
     } else {
       // If the filter is on leak period
-      checkArgument(createdAfter == null, "Parameters '%s' and '%s' cannot be set simultaneously", PARAM_CREATED_AFTER, PARAM_IN_NEW_CODE_PERIOD);
+      checkArgument(createdAfter == null, "Parameters '%s' and '%s' cannot be set simultaneously", PARAM_CREATED_AFTER,
+        PARAM_IN_NEW_CODE_PERIOD);
       checkArgument(createdInLast == null,
         format("Parameters '%s' and '%s' cannot be set simultaneously", PARAM_CREATED_IN_LAST, PARAM_IN_NEW_CODE_PERIOD));
 
@@ -306,7 +358,8 @@ public class IssueQueryFactory {
       .collect(Collectors.toSet());
   }
 
-  private void addComponentsBasedOnQualifier(IssueQuery.Builder builder, DbSession dbSession, List<ComponentDto> components, SearchRequest request) {
+  private void addComponentsBasedOnQualifier(IssueQuery.Builder builder, DbSession dbSession, List<ComponentDto> components,
+    SearchRequest request) {
     if (components.isEmpty()) {
       return;
     }
@@ -369,7 +422,8 @@ public class IssueQueryFactory {
     builder.viewUuids(filteredViewUuids);
   }
 
-  private void addApplications(IssueQuery.Builder builder, DbSession dbSession, List<ComponentDto> appBranchComponents, SearchRequest request) {
+  private void addApplications(IssueQuery.Builder builder, DbSession dbSession, List<ComponentDto> appBranchComponents,
+    SearchRequest request) {
     Set<String> authorizedAppBranchUuids = appBranchComponents.stream()
       .filter(app -> userSession.hasComponentPermission(USER, app) && userSession.hasChildProjectsPermission(USER, app))
       .map(ComponentDto::uuid)
@@ -379,7 +433,8 @@ public class IssueQueryFactory {
     addCreatedAfterByProjects(builder, dbSession, request, authorizedAppBranchUuids);
   }
 
-  private void addCreatedAfterByProjects(IssueQuery.Builder builder, DbSession dbSession, SearchRequest request, Set<String> appBranchUuids) {
+  private void addCreatedAfterByProjects(IssueQuery.Builder builder, DbSession dbSession, SearchRequest request,
+    Set<String> appBranchUuids) {
     if (notInNewCodePeriod(request) || request.getPullRequest() != null) {
       return;
     }
@@ -415,7 +470,8 @@ public class IssueQueryFactory {
     builder.directories(paths);
   }
 
-  private List<ComponentDto> getComponentsFromKeys(DbSession dbSession, Collection<String> componentKeys, @Nullable String branch, @Nullable String pullRequest) {
+  private List<ComponentDto> getComponentsFromKeys(DbSession dbSession, Collection<String> componentKeys, @Nullable String branch,
+    @Nullable String pullRequest) {
     List<ComponentDto> componentDtos = dbClient.componentDao().selectByKeys(dbSession, componentKeys, branch, pullRequest);
     if (!componentKeys.isEmpty() && componentDtos.isEmpty()) {
       return singletonList(UNKNOWN_COMPONENT);

@@ -75,6 +75,7 @@ public class SearchRequest {
   private String timeZone;
   private Integer owaspAsvsLevel;
   private List<String> codeVariants;
+  private String fixedInPullRequest;
 
   public SearchRequest() {
     // nothing to do here
@@ -551,6 +552,16 @@ public class SearchRequest {
 
   public SearchRequest setCleanCodeAttributesCategories(@Nullable List<String> cleanCodeAttributesCategories) {
     this.cleanCodeAttributesCategories = cleanCodeAttributesCategories;
+    return this;
+  }
+
+  @CheckForNull
+  public String getFixedInPullRequest() {
+    return fixedInPullRequest;
+  }
+
+  public SearchRequest setFixedInPullRequest(@Nullable String fixedInPullRequest) {
+    this.fixedInPullRequest = fixedInPullRequest;
     return this;
   }
 }

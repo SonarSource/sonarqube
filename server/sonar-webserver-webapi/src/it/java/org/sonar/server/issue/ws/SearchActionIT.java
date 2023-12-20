@@ -54,6 +54,7 @@ import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ProjectData;
@@ -61,6 +62,7 @@ import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.issue.ImpactDto;
 import org.sonar.db.issue.IssueChangeDto;
 import org.sonar.db.issue.IssueDto;
+import org.sonar.db.issue.IssueFixedDto;
 import org.sonar.db.permission.GroupPermissionDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.protobuf.DbCommons;
@@ -1921,10 +1923,10 @@ public class SearchActionIT {
 
   @Test
   public void fail_if_trying_to_filter_issues_by_hotspots() {
-    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
-    ComponentDto file = db.components().insertComponent(newFileDto(project));
+    ComponentDto mainBranch = db.components().insertPublicProject().getMainBranchComponent();
+    ComponentDto file = db.components().insertComponent(newFileDto(mainBranch));
     RuleDto hotspotRule = newHotspotRule();
-    db.issues().insertHotspot(hotspotRule, project, file);
+    db.issues().insertHotspot(hotspotRule, mainBranch, file);
     insertIssues(i -> i.setType(RuleType.BUG), i -> i.setType(RuleType.VULNERABILITY),
       i -> i.setType(RuleType.CODE_SMELL));
     indexPermissionsAndIssues();
@@ -2082,7 +2084,7 @@ public class SearchActionIT {
       "createdBefore", "createdInLast", "directories", "facets", "files", "issues", "scopes", "languages", "onComponentOnly",
       "p", "projects", "ps", "resolutions", "resolved", "rules", "s", "severities", "statuses", "tags", "types", "pciDss-3.2", "pciDss-4.0", "owaspAsvs-4.0",
       "owaspAsvsLevel", "owaspTop10", "owaspTop10-2021", "sansTop25", "cwe", "sonarsourceSecurity", "timeZone", "inNewCodePeriod", "codeVariants",
-      "cleanCodeAttributeCategories", "impactSeverities", "impactSoftwareQualities", "issueStatuses");
+      "cleanCodeAttributeCategories", "impactSeverities", "impactSoftwareQualities", "issueStatuses", "fixedInPullRequest");
 
     WebService.Param branch = def.param(PARAM_BRANCH);
     assertThat(branch.isInternal()).isFalse();
@@ -2145,6 +2147,167 @@ public class SearchActionIT {
       .extracting(Issue::getRuleDescriptionContextKey).containsExactly("spring");
   }
 
+  @Test
+  public void search_whenFixedInPullRequestSetAndNoComponentsSet_throwException() {
+    TestRequest request = ws.newRequest()
+      .setParam("fixedInPullRequest", "1000");
+
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Exactly one project needs to be provided in the 'components' param when used together with 'fixedInPullRequest' param");
+  }
+
+  @Test
+  public void search_whenFixedInPullRequestSetAndWrongBranchIsSet_throwException() {
+    String pullRequestId = "1000";
+    String pullRequestUuid = "pullRequestUuid";
+    userSession.logIn(db.users().insertUser());
+    ProjectData project = db.components().insertPublicProject();
+    db.getDbClient().branchDao().insert(session, new BranchDto()
+      .setUuid(pullRequestUuid)
+      .setProjectUuid(project.projectUuid())
+      .setKey(pullRequestId)
+      .setIsMain(false)
+      .setBranchType(BranchType.PULL_REQUEST)
+      .setMergeBranchUuid(project.mainBranchUuid()));
+    db.getDbClient().branchDao().insert(session, new BranchDto()
+      .setUuid("wrongBranchUuid")
+      .setProjectUuid(project.projectUuid())
+      .setKey("wrongBranch")
+      .setIsMain(false)
+      .setBranchType(BranchType.BRANCH)
+      .setMergeBranchUuid("wrongTargetBranchUuid"));
+
+    session.commit();
+    TestRequest request = ws.newRequest().setParam("fixedInPullRequest", pullRequestId).setParam("components", project.projectKey())
+      .setParam("branch", "wrongBranch");
+
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Pull request with key '1000' does not target branch 'wrongBranch'");
+  }
+
+  @Test
+  public void search_whenFixedInPullRequestSetAndProjectDoesNotExist_throwException() {
+    String pullRequestId = "1000";
+    String pullRequestUuid = "pullRequestUuid";
+    userSession.logIn(db.users().insertUser());
+    ProjectData project = db.components().insertPublicProject();
+    db.getDbClient().branchDao().insert(session, new BranchDto()
+      .setUuid(pullRequestUuid)
+      .setProjectUuid(project.projectUuid())
+      .setKey(pullRequestId)
+      .setIsMain(false)
+      .setBranchType(BranchType.PULL_REQUEST)
+      .setMergeBranchUuid(project.mainBranchUuid()));
+
+    session.commit();
+    TestRequest request = ws.newRequest().setParam("fixedInPullRequest", pullRequestId).setParam("components", "nonExistingProjectKey");
+
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Project with key 'nonExistingProjectKey' does not exist");
+  }
+
+  @Test
+  public void search_whenWrongFixedInPullRequestSet_throwException() {
+    String pullRequestId = "wrongPullRequest";
+    String pullRequestUuid = "pullRequestUuid";
+    userSession.logIn(db.users().insertUser());
+    ProjectData project = db.components().insertPublicProject();
+    db.getDbClient().branchDao().insert(session, new BranchDto()
+      .setUuid(pullRequestUuid)
+      .setProjectUuid(project.projectUuid())
+      .setKey("pullRequestId")
+      .setIsMain(false)
+      .setBranchType(BranchType.PULL_REQUEST)
+      .setMergeBranchUuid(project.mainBranchUuid()));
+
+    session.commit();
+    TestRequest request = ws.newRequest().setParam("fixedInPullRequest", pullRequestId).setParam("components", project.projectKey());
+
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Pull request with key 'wrongPullRequest' does not exist for a project " + project.projectKey());
+  }
+
+  @Test
+  public void search_whenFixedInPullRequestSetAndNonExistingBranchIsSet_throwException() {
+    String pullRequestId = "1000";
+    String pullRequestUuid = "pullRequestUuid";
+    userSession.logIn(db.users().insertUser());
+    ProjectData project = db.components().insertPublicProject();
+    db.getDbClient().branchDao().insert(session, new BranchDto()
+      .setUuid(pullRequestUuid)
+      .setProjectUuid(project.projectUuid())
+      .setKey(pullRequestId)
+      .setIsMain(false)
+      .setBranchType(BranchType.PULL_REQUEST)
+      .setMergeBranchUuid(project.mainBranchUuid()));
+
+    session.commit();
+    TestRequest request = ws.newRequest().setParam("fixedInPullRequest", pullRequestId).setParam("components", project.projectKey())
+      .setParam("branch", "nonExistingBranch");
+
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Branch with key 'nonExistingBranch' does not exist");
+  }
+
+  @Test
+  public void search_whenFixedInPullRequestSetAndComponentsIsSetButNoIssueFixedInPR_returnZeroIssues() {
+    String pullRequestId = "1000";
+    String pullRequestUuid = "pullRequestUuid";
+    String issueKey = "issueKey";
+    userSession.logIn(db.users().insertUser());
+    ProjectData project = db.components().insertPublicProject();
+    db.getDbClient().branchDao().insert(session, new BranchDto()
+      .setUuid(pullRequestUuid)
+      .setProjectUuid(project.projectUuid())
+      .setKey(pullRequestId)
+      .setIsMain(false)
+      .setBranchType(BranchType.PULL_REQUEST)
+      .setMergeBranchUuid(project.mainBranchUuid()));
+
+    TestRequest request = ws.newRequest().setParam("components", project.projectKey()).setParam("fixedInPullRequest", pullRequestId);
+    insertIssues(project.getMainBranchComponent(), i -> i.setKee(issueKey));
+    session.commit();
+    indexPermissionsAndIssues();
+
+    SearchWsResponse response = request.executeProtobuf(SearchWsResponse.class);
+
+    List<Issue> issuesList = response.getIssuesList();
+    assertThat(issuesList).isEmpty();
+  }
+
+  @Test
+  public void search_whenFixedInPullRequestSetAndComponentsIsSet_returnOneIssueFixedInPR() {
+    String pullRequestId = "1000";
+    String pullRequestUuid = "pullRequestUuid";
+    String issueKey = "issueKey";
+    userSession.logIn(db.users().insertUser());
+    ProjectData project = db.components().insertPublicProject();
+    db.getDbClient().branchDao().insert(session, new BranchDto()
+      .setUuid(pullRequestUuid)
+      .setProjectUuid(project.projectUuid())
+      .setKey(pullRequestId)
+      .setIsMain(false)
+      .setBranchType(BranchType.PULL_REQUEST)
+      .setMergeBranchUuid(project.mainBranchUuid()));
+
+    TestRequest request = ws.newRequest().setParam("components", project.projectKey()).setParam("fixedInPullRequest", pullRequestId);
+    insertIssues(project.getMainBranchComponent(), i -> i.setKee(issueKey));
+    db.getDbClient().issueFixedDao().insert(session, new IssueFixedDto(pullRequestUuid, issueKey));
+    session.commit();
+    indexPermissionsAndIssues();
+
+    SearchWsResponse response = request.executeProtobuf(SearchWsResponse.class);
+
+    List<Issue> issuesList = response.getIssuesList();
+    assertThat(issuesList).hasSize(1);
+    assertThat(issuesList.get(0).getKey()).isEqualTo(issueKey);
+  }
+
   private RuleDto newIssueRule() {
     RuleDto rule = newRule(XOO_X1, createDefaultRuleDescriptionSection(uuidFactory.create(), "Rule desc"))
       .setLanguage("xoo")
@@ -2200,10 +2363,20 @@ public class SearchActionIT {
     UserDto john = db.users().insertUser();
     userSession.logIn(john);
     RuleDto rule = db.rules().insertIssueRule();
-    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
-    ComponentDto file = db.components().insertComponent(newFileDto(project));
+    ComponentDto branch = db.components().insertPublicProject().getMainBranchComponent();
+    ComponentDto file = db.components().insertComponent(newFileDto(branch));
     for (Consumer<IssueDto> populator : populators) {
-      db.issues().insertIssue(rule, project, file, populator);
+      db.issues().insertIssue(rule, branch, file, populator);
+    }
+  }
+
+  private void insertIssues(ComponentDto branch, Consumer<IssueDto>... populators) {
+    UserDto john = db.users().insertUser();
+    userSession.logIn(john);
+    RuleDto rule = db.rules().insertIssueRule();
+    ComponentDto file = db.components().insertComponent(newFileDto(branch));
+    for (Consumer<IssueDto> populator : populators) {
+      db.issues().insertIssue(rule, branch, file, populator);
     }
   }
 

@@ -153,7 +153,7 @@ public class IssueQueryTest {
   }
 
   @Test
-  public void collection_params_should_not_be_null_but_empty() {
+  public void collection_params_should_not_be_null_but_empty_except_issue_keys() {
     IssueQuery query = IssueQuery.builder()
       .issueKeys(null)
       .projectUuids(null)
@@ -171,7 +171,7 @@ public class IssueQueryTest {
       .cwe(null)
       .createdAfterByProjectUuids(null)
       .build();
-    assertThat(query.issueKeys()).isEmpty();
+    assertThat(query.issueKeys()).isNull();
     assertThat(query.projectUuids()).isEmpty();
     assertThat(query.componentUuids()).isEmpty();
     assertThat(query.statuses()).isEmpty();
@@ -191,7 +191,6 @@ public class IssueQueryTest {
   @Test
   public void test_default_query() {
     IssueQuery query = IssueQuery.builder().build();
-    assertThat(query.issueKeys()).isEmpty();
     assertThat(query.projectUuids()).isEmpty();
     assertThat(query.componentUuids()).isEmpty();
     assertThat(query.statuses()).isEmpty();
@@ -202,6 +201,7 @@ public class IssueQueryTest {
     assertThat(query.languages()).isEmpty();
     assertThat(query.tags()).isEmpty();
     assertThat(query.types()).isEmpty();
+    assertThat(query.issueKeys()).isNull();
     assertThat(query.branchUuid()).isNull();
     assertThat(query.assigned()).isNull();
     assertThat(query.createdAfter()).isNull();

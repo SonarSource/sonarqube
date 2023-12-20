@@ -136,6 +136,64 @@ public class IssueQueryFactoryTest {
   }
 
   @Test
+  public void getIssuesFixedByPullRequest_returnIssuesFixedByThePullRequest() {
+    String ruleAdHocName = "New Name";
+    UserDto user = db.users().insertUser(u -> u.setLogin("joanna"));
+    ProjectData projectData = db.components().insertPrivateProject();
+    ComponentDto project = projectData.getMainBranchComponent();
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
+
+    RuleDto rule1 = ruleDbTester.insert(r -> r.setAdHocName(ruleAdHocName));
+    RuleDto rule2 = ruleDbTester.insert(r -> r.setAdHocName(ruleAdHocName));
+    newRule(RuleKey.of("findbugs", "NullReference"));
+    SearchRequest request = new SearchRequest()
+      .setIssues(asList("anIssueKey"))
+      .setSeverities(asList("MAJOR", "MINOR"))
+      .setStatuses(asList("CLOSED"))
+      .setResolutions(asList("FALSE-POSITIVE"))
+      .setResolved(true)
+      .setProjectKeys(asList(project.getKey()))
+      .setDirectories(asList("aDirPath"))
+      .setFiles(asList(file.uuid()))
+      .setAssigneesUuid(asList(user.getUuid()))
+      .setScopes(asList("MAIN", "TEST"))
+      .setLanguages(asList("xoo"))
+      .setTags(asList("tag1", "tag2"))
+      .setAssigned(true)
+      .setCreatedAfter("2013-04-16T09:08:24+0200")
+      .setCreatedBefore("2013-04-17T09:08:24+0200")
+      .setRules(asList(rule1.getKey().toString(), rule2.getKey().toString()))
+      .setSort("CREATION_DATE")
+      .setAsc(true)
+      .setCodeVariants(asList("variant1", "variant2"));
+
+    IssueQuery query = underTest.create(request);
+
+    assertThat(query.issueKeys()).containsOnly("anIssueKey");
+    assertThat(query.severities()).containsOnly("MAJOR", "MINOR");
+    assertThat(query.statuses()).containsOnly("CLOSED");
+    assertThat(query.resolutions()).containsOnly("FALSE-POSITIVE");
+    assertThat(query.resolved()).isTrue();
+    assertThat(query.projectUuids()).containsOnly(projectData.projectUuid());
+    assertThat(query.files()).containsOnly(file.uuid());
+    assertThat(query.assignees()).containsOnly(user.getUuid());
+    assertThat(query.scopes()).containsOnly("TEST", "MAIN");
+    assertThat(query.languages()).containsOnly("xoo");
+    assertThat(query.tags()).containsOnly("tag1", "tag2");
+    assertThat(query.onComponentOnly()).isFalse();
+    assertThat(query.assigned()).isTrue();
+    assertThat(query.rules()).hasSize(2);
+    assertThat(query.ruleUuids()).hasSize(2);
+    assertThat(query.directories()).containsOnly("aDirPath");
+    assertThat(query.createdAfter().date()).isEqualTo(parseDateTime("2013-04-16T09:08:24+0200"));
+    assertThat(query.createdAfter().inclusive()).isTrue();
+    assertThat(query.createdBefore()).isEqualTo(parseDateTime("2013-04-17T09:08:24+0200"));
+    assertThat(query.sort()).isEqualTo(IssueQuery.SORT_BY_CREATION_DATE);
+    assertThat(query.asc()).isTrue();
+    assertThat(query.codeVariants()).containsOnly("variant1", "variant2");
+  }
+
+  @Test
   public void create_with_rule_key_that_does_not_exist_in_the_db() {
     db.users().insertUser(u -> u.setLogin("joanna"));
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();

@@ -77,13 +77,6 @@ public class BranchDao implements Dao {
     return mapper(dbSession).selectByBranchKeys(branchKeyByProjectUuid);
   }
 
-  public List<BranchDto> selectByPullRequestKeys(DbSession dbSession, Map<String, String> prKeyByProjectUuid) {
-    if (prKeyByProjectUuid.isEmpty()) {
-      return emptyList();
-    }
-    return mapper(dbSession).selectByPullRequestKeys(prKeyByProjectUuid);
-  }
-
   public Optional<BranchDto> selectByPullRequestKey(DbSession dbSession, String projectUuid, String key) {
     return selectByKey(dbSession, projectUuid, key, BranchType.PULL_REQUEST);
   }

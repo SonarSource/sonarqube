@@ -465,7 +465,7 @@ public class IssueIndex {
     }
 
     // Field Filters
-    filters.addFilter(FIELD_ISSUE_KEY, new SimpleFieldFilterScope(FIELD_ISSUE_KEY), createTermsFilter(FIELD_ISSUE_KEY, query.issueKeys()));
+    filters.addFilter(FIELD_ISSUE_KEY, new SimpleFieldFilterScope(FIELD_ISSUE_KEY), createTermsFilterForNullableCollection(FIELD_ISSUE_KEY, query.issueKeys()));
     filters.addFilter(FIELD_ISSUE_ASSIGNEE_UUID, ASSIGNEES.getFilterScope(), createTermsFilter(FIELD_ISSUE_ASSIGNEE_UUID, query.assignees()));
     filters.addFilter(FIELD_ISSUE_SCOPE, SCOPES.getFilterScope(), createTermsFilter(FIELD_ISSUE_SCOPE, query.scopes()));
     filters.addFilter(FIELD_ISSUE_LANGUAGE, LANGUAGES.getFilterScope(), createTermsFilter(FIELD_ISSUE_LANGUAGE, query.languages()));
@@ -741,9 +741,22 @@ public class IssueIndex {
     return FACET_MODE_EFFORT.equals(query.facetMode());
   }
 
+  /**
+   * This method is for creating a filter that passes null to the elasticsearch query whenever empty or null collection is passed.
+   * This means that filter will not filter anything, all the documents (issues) will be returned in this case.
+   */
   @CheckForNull
   private static QueryBuilder createTermsFilter(String field, Collection<?> values) {
     return values.isEmpty() ? null : termsQuery(field, values);
+  }
+
+  /**
+   * This method is for creating a filter that passes null to the elasticsearch query only when null collection is passed.
+   * This ensures that whenever we pass empty collection to the filter, it will filter out all the documents (issues).
+   */
+  @CheckForNull
+  private static QueryBuilder createTermsFilterForNullableCollection(String field, @Nullable Collection<?> values) {
+    return values != null ? termsQuery(field, values) : null;
   }
 
   @CheckForNull

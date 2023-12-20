@@ -105,7 +105,7 @@ public class IssueQuery {
   private final Collection<String> cleanCodeAttributesCategories;
 
   private IssueQuery(Builder builder) {
-    this.issueKeys = defaultCollection(builder.issueKeys);
+    this.issueKeys = nullableDefaultCollection(builder.issueKeys);
     this.severities = defaultCollection(builder.severities);
     this.impactSeverities = defaultCollection(builder.impactSeverities);
     this.impactSoftwareQualities = defaultCollection(builder.impactSoftwareQualities);
@@ -677,6 +677,10 @@ public class IssueQuery {
 
   private static <T> Collection<T> defaultCollection(@Nullable Collection<T> c) {
     return c == null ? Collections.emptyList() : Collections.unmodifiableCollection(c);
+  }
+
+  private static <T> Collection<T> nullableDefaultCollection(@Nullable Collection<T> c) {
+    return c == null ? null : Collections.unmodifiableCollection(c);
   }
 
   private static <K, V> Map<K, V> defaultMap(@Nullable Map<K, V> map) {

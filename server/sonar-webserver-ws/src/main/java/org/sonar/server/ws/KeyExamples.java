@@ -23,13 +23,9 @@ public class KeyExamples {
   public static final String KEY_APPLICATION_EXAMPLE_001 = "my_app";
 
   public static final String KEY_FILE_EXAMPLE_001 = "my_project:/src/foo/Bar.php";
-  public static final String KEY_FILE_EXAMPLE_002 = "another_project:/src/foo/Foo.php";
   public static final String KEY_PROJECT_EXAMPLE_001 = "my_project";
   public static final String KEY_PROJECT_EXAMPLE_002 = "another_project";
   public static final String KEY_PROJECT_EXAMPLE_003 = "third_project";
-
-  public static final String KEY_ORG_EXAMPLE_001 = "my-org";
-  public static final String KEY_ORG_EXAMPLE_002 = "foo-company";
 
   public static final String KEY_BRANCH_EXAMPLE_001 = "feature/my_branch";
   public static final String KEY_PULL_REQUEST_EXAMPLE_001 = "5461";
