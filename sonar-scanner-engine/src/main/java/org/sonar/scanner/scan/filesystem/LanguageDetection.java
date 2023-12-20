@@ -22,6 +22,7 @@ package org.sonar.scanner.scan.filesystem;
 import java.nio.file.Path;
 import java.text.MessageFormat;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -56,7 +57,7 @@ public class LanguageDetection {
   private final List<Language> languagesToConsider;
   private final Map<String, Language> languageCacheByPath;
 
-  public LanguageDetection(Configuration settings, LanguagesRepository languages, Map<String, Language> languageCache) {
+  public LanguageDetection(Configuration settings, LanguagesRepository languages) {
     Map<Language, PathPattern[]> patternsByLanguageBuilder = new LinkedHashMap<>();
     for (Language language : languages.all()) {
       String[] filePatterns = settings.getStringArray(getFileLangPatternPropKey(language.key()));
@@ -71,7 +72,7 @@ public class LanguageDetection {
 
     languagesToConsider = List.copyOf(patternsByLanguageBuilder.keySet());
     patternsByLanguage = unmodifiableMap(patternsByLanguageBuilder);
-    languageCacheByPath = languageCache;
+    languageCacheByPath = new HashMap<>();
   }
 
   private static PathPattern[] getLanguagePatterns(Language language) {
