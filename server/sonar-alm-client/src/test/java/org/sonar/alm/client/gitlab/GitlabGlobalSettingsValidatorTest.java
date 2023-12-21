@@ -25,15 +25,22 @@ import org.sonar.api.config.internal.Encryption;
 import org.sonar.api.config.internal.Settings;
 import org.sonar.db.alm.setting.AlmSettingDto;
 
+import static org.assertj.core.api.Assertions.assertThatException;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.sonar.alm.client.gitlab.GitlabGlobalSettingsValidator.ValidationMode.AUTH_ONLY;
+import static org.sonar.alm.client.gitlab.GitlabGlobalSettingsValidator.ValidationMode.COMPLETE;
 
 public class GitlabGlobalSettingsValidatorTest {
   private static final Encryption encryption = mock(Encryption.class);
   private static final Settings settings = mock(Settings.class);
+  private static final String GITLAB_API_URL = "https://gitlab.com/api";
+  private static final String ACCESS_TOKEN = "access-token";
+  private static final String ENCRYPTED_TOKEN = "encrypted-token";
 
   private final GitlabApplicationClient gitlabHttpClient = mock(GitlabApplicationClient.class);
 
@@ -41,6 +48,8 @@ public class GitlabGlobalSettingsValidatorTest {
 
   @BeforeClass
   public static void setUp() {
+    when(encryption.isEncrypted(ENCRYPTED_TOKEN)).thenReturn(true);
+    when(encryption.decrypt(ENCRYPTED_TOKEN)).thenReturn(ACCESS_TOKEN);
     when(settings.getEncryption()).thenReturn(encryption);
   }
 
@@ -48,33 +57,30 @@ public class GitlabGlobalSettingsValidatorTest {
   public void validate_success() {
     String token = "personal-access-token";
     AlmSettingDto almSettingDto = new AlmSettingDto()
-      .setUrl("https://gitlab.com/api")
+      .setUrl(GITLAB_API_URL)
       .setPersonalAccessToken("personal-access-token");
     when(encryption.isEncrypted(token)).thenReturn(false);
 
     underTest.validate(almSettingDto);
-    verify(gitlabHttpClient, times(1)).checkUrl(almSettingDto.getUrl());
-    verify(gitlabHttpClient, times(1)).checkToken(almSettingDto.getUrl(), almSettingDto.getDecryptedPersonalAccessToken(encryption));
-    verify(gitlabHttpClient, times(1)).checkReadPermission(almSettingDto.getUrl(), almSettingDto.getDecryptedPersonalAccessToken(encryption));
-    verify(gitlabHttpClient, times(1)).checkWritePermission(almSettingDto.getUrl(), almSettingDto.getDecryptedPersonalAccessToken(encryption));
+    verify(gitlabHttpClient).checkUrl(almSettingDto.getUrl());
+    verify(gitlabHttpClient).checkToken(almSettingDto.getUrl(), almSettingDto.getDecryptedPersonalAccessToken(encryption));
+    verify(gitlabHttpClient).checkReadPermission(almSettingDto.getUrl(),
+      almSettingDto.getDecryptedPersonalAccessToken(encryption));
+    verify(gitlabHttpClient).checkWritePermission(almSettingDto.getUrl(), almSettingDto.getDecryptedPersonalAccessToken(encryption));
   }
 
   @Test
   public void validate_success_with_encrypted_token() {
-    String encryptedToken = "personal-access-token";
-    String decryptedToken = "decrypted-token";
     AlmSettingDto almSettingDto = new AlmSettingDto()
-      .setUrl("https://gitlab.com/api")
-      .setPersonalAccessToken(encryptedToken);
-    when(encryption.isEncrypted(encryptedToken)).thenReturn(true);
-    when(encryption.decrypt(encryptedToken)).thenReturn(decryptedToken);
+      .setUrl(GITLAB_API_URL)
+      .setPersonalAccessToken(ENCRYPTED_TOKEN);
 
     underTest.validate(almSettingDto);
 
-    verify(gitlabHttpClient, times(1)).checkUrl(almSettingDto.getUrl());
-    verify(gitlabHttpClient, times(1)).checkToken(almSettingDto.getUrl(), decryptedToken);
-    verify(gitlabHttpClient, times(1)).checkReadPermission(almSettingDto.getUrl(), decryptedToken);
-    verify(gitlabHttpClient, times(1)).checkWritePermission(almSettingDto.getUrl(), decryptedToken);
+    verify(gitlabHttpClient).checkUrl(almSettingDto.getUrl());
+    verify(gitlabHttpClient).checkToken(almSettingDto.getUrl(), ACCESS_TOKEN);
+    verify(gitlabHttpClient).checkReadPermission(almSettingDto.getUrl(), ACCESS_TOKEN);
+    verify(gitlabHttpClient).checkWritePermission(almSettingDto.getUrl(), ACCESS_TOKEN);
   }
 
   @Test
@@ -85,18 +91,74 @@ public class GitlabGlobalSettingsValidatorTest {
 
     assertThatThrownBy(() -> underTest.validate(almSettingDto))
       .isInstanceOf(IllegalArgumentException.class)
-      .hasMessage("Your Gitlab global configuration is incomplete.");
+      .hasMessage("Your Gitlab global configuration is incomplete. The GitLab URL must be set.");
   }
 
   @Test
   public void validate_fail_pat_not_set() {
     AlmSettingDto almSettingDto = new AlmSettingDto()
-      .setUrl("https://gitlab.com/api")
+      .setUrl(GITLAB_API_URL)
       .setPersonalAccessToken(null);
 
     assertThatThrownBy(() -> underTest.validate(almSettingDto))
       .isInstanceOf(IllegalArgumentException.class)
-      .hasMessage("Your Gitlab global configuration is incomplete.");
+      .hasMessage("Your Gitlab global configuration is incomplete. The GitLab access token must be set.");
+  }
+
+  @Test
+  public void validate_forAuthOnlyWhenUrlIsNull_throwsException() {
+    assertThatIllegalArgumentException()
+      .isThrownBy(() -> underTest.validate(AUTH_ONLY, null, null))
+      .withMessage("Your Gitlab global configuration is incomplete. The GitLab URL must be set.");
+  }
+
+  @Test
+  public void validate_forAuthOnly_onlyValidatesUrl() {
+    underTest.validate(AUTH_ONLY, GITLAB_API_URL, null);
+    verify(gitlabHttpClient).checkUrl(GITLAB_API_URL);
+  }
+
+  @Test
+  public void validate_whenCompleteMode_validatesUrl() {
+    assertThatIllegalArgumentException()
+      .isThrownBy(() -> underTest.validate(COMPLETE, null, null))
+      .withMessage("Your Gitlab global configuration is incomplete. The GitLab URL must be set.");
+  }
+
+  @Test
+  public void validate_whenCompleteMode_validatesTokenNotNull() {
+    assertThatIllegalArgumentException()
+      .isThrownBy(() -> underTest.validate(COMPLETE, GITLAB_API_URL, null))
+      .withMessage("Your Gitlab global configuration is incomplete. The GitLab access token must be set.");
+  }
+
+  @Test
+  public void validate_whenCompleteMode_validatesToken() {
+    underTest.validate(COMPLETE, GITLAB_API_URL, ACCESS_TOKEN);
+
+    verify(gitlabHttpClient).checkUrl(GITLAB_API_URL);
+    verify(gitlabHttpClient).checkToken(GITLAB_API_URL, ACCESS_TOKEN);
+    verify(gitlabHttpClient).checkReadPermission(GITLAB_API_URL, ACCESS_TOKEN);
+    verify(gitlabHttpClient).checkWritePermission(GITLAB_API_URL, ACCESS_TOKEN);
+  }
+  @Test
+  public void validate_whenCompleteModeAndTokenIsEncrypted_decryptAndValidatesToken() {
+    underTest.validate(COMPLETE, GITLAB_API_URL, ENCRYPTED_TOKEN);
+
+    verify(gitlabHttpClient).checkUrl(GITLAB_API_URL);
+    verify(gitlabHttpClient).checkToken(GITLAB_API_URL, ACCESS_TOKEN);
+    verify(gitlabHttpClient).checkReadPermission(GITLAB_API_URL, ACCESS_TOKEN);
+    verify(gitlabHttpClient).checkWritePermission(GITLAB_API_URL, ACCESS_TOKEN);
+  }
+
+  @Test
+  public void validate_whenCompleteModeAndError_reThrowsError() {
+    IllegalStateException exception = new IllegalStateException("bla");
+    doThrow(exception).when(gitlabHttpClient).checkReadPermission(GITLAB_API_URL, ACCESS_TOKEN);
+
+    assertThatException()
+      .isThrownBy(() -> underTest.validate(COMPLETE, GITLAB_API_URL, ACCESS_TOKEN))
+      .isEqualTo(exception);
   }
 
 }

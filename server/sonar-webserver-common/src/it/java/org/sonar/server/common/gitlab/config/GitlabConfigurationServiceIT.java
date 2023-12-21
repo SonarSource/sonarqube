@@ -22,6 +22,7 @@ package org.sonar.server.common.gitlab.config;
 import com.google.common.base.Strings;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import javax.annotation.Nullable;
 import org.junit.Before;
@@ -30,6 +31,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.sonar.alm.client.gitlab.GitlabGlobalSettingsValidator;
 import org.sonar.auth.gitlab.GitLabIdentityProvider;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -43,12 +45,15 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.clearInvocations;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
+import static org.sonar.alm.client.gitlab.GitlabGlobalSettingsValidator.ValidationMode.AUTH_ONLY;
+import static org.sonar.alm.client.gitlab.GitlabGlobalSettingsValidator.ValidationMode.COMPLETE;
 import static org.sonar.auth.gitlab.GitLabSettings.GITLAB_AUTH_ALLOW_USERS_TO_SIGNUP;
 import static org.sonar.auth.gitlab.GitLabSettings.GITLAB_AUTH_APPLICATION_ID;
 import static org.sonar.auth.gitlab.GitLabSettings.GITLAB_AUTH_ENABLED;
@@ -61,6 +66,8 @@ import static org.sonar.auth.gitlab.GitLabSettings.GITLAB_AUTH_URL;
 import static org.sonar.server.common.NonNullUpdatedValue.withValueOrThrow;
 import static org.sonar.server.common.UpdatedValue.withValue;
 import static org.sonar.server.common.gitlab.config.GitlabConfigurationService.UNIQUE_GITLAB_CONFIGURATION_ID;
+import static org.sonar.server.common.gitlab.config.ProvisioningType.AUTO_PROVISIONING;
+import static org.sonar.server.common.gitlab.config.ProvisioningType.JIT;
 import static org.sonar.server.common.gitlab.config.UpdateGitlabConfigurationRequest.builder;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -72,14 +79,18 @@ public class GitlabConfigurationServiceIT {
   @Mock
   private ManagedInstanceService managedInstanceService;
 
+  @Mock
+  private GitlabGlobalSettingsValidator gitlabGlobalSettingsValidator;
+
   private GitlabConfigurationService gitlabConfigurationService;
 
   @Before
   public void setUp() {
     when(managedInstanceService.getProviderName()).thenReturn("gitlab");
     gitlabConfigurationService = new GitlabConfigurationService(
+      dbTester.getDbClient(),
       managedInstanceService,
-      dbTester.getDbClient());
+      gitlabGlobalSettingsValidator);
   }
 
   @Test
@@ -99,7 +110,7 @@ public class GitlabConfigurationServiceIT {
 
   @Test
   public void getConfiguration_whenConfigurationSet_returnsConfig() {
-    gitlabConfigurationService.createConfiguration(buildGitlabConfiguration(SynchronizationType.AUTO_PROVISIONING));
+    gitlabConfigurationService.createConfiguration(buildGitlabConfiguration(AUTO_PROVISIONING));
 
     GitlabConfiguration configuration = gitlabConfigurationService.getConfiguration("gitlab-configuration");
 
@@ -119,7 +130,7 @@ public class GitlabConfigurationServiceIT {
     assertThat(configuration.url()).isEmpty();
     assertThat(configuration.secret()).isEmpty();
     assertThat(configuration.synchronizeGroups()).isFalse();
-    assertThat(configuration.synchronizationType()).isEqualTo(SynchronizationType.JIT);
+    assertThat(configuration.provisioningType()).isEqualTo(JIT);
     assertThat(configuration.allowUsersToSignUp()).isFalse();
     assertThat(configuration.provisioningToken()).isNull();
     assertThat(configuration.provisioningGroups()).isEmpty();
@@ -127,7 +138,7 @@ public class GitlabConfigurationServiceIT {
 
   @Test
   public void updateConfiguration_whenIdIsNotGitlabConfiguration_throwsException() {
-    gitlabConfigurationService.createConfiguration(buildGitlabConfiguration(SynchronizationType.AUTO_PROVISIONING));
+    gitlabConfigurationService.createConfiguration(buildGitlabConfiguration(AUTO_PROVISIONING));
     UpdateGitlabConfigurationRequest updateGitlabConfigurationRequest = builder().gitlabConfigurationId("not-gitlab-configuration").build();
     assertThatExceptionOfType(NotFoundException.class)
       .isThrownBy(() -> gitlabConfigurationService.updateConfiguration(updateGitlabConfigurationRequest))
@@ -144,7 +155,7 @@ public class GitlabConfigurationServiceIT {
 
   @Test
   public void updateConfiguration_whenAllUpdateFieldDefined_updatesEverything() {
-    gitlabConfigurationService.createConfiguration(buildGitlabConfiguration(SynchronizationType.JIT));
+    gitlabConfigurationService.createConfiguration(buildGitlabConfiguration(JIT));
 
     UpdateGitlabConfigurationRequest updateRequest = builder()
       .gitlabConfigurationId(UNIQUE_GITLAB_CONFIGURATION_ID)
@@ -153,7 +164,7 @@ public class GitlabConfigurationServiceIT {
       .url(withValueOrThrow("url"))
       .secret(withValueOrThrow("secret"))
       .synchronizeGroups(withValueOrThrow(true))
-      .synchronizationType(withValueOrThrow(SynchronizationType.AUTO_PROVISIONING))
+      .provisioningType(withValueOrThrow(AUTO_PROVISIONING))
       .allowUserToSignUp(withValueOrThrow(true))
       .provisioningToken(withValueOrThrow("provisioningToken"))
       .provisioningGroups(withValueOrThrow(new LinkedHashSet<>(List.of("group1", "group2", "group3"))))
@@ -177,7 +188,7 @@ public class GitlabConfigurationServiceIT {
 
   @Test
   public void updateConfiguration_whenAllUpdateFieldDefinedAndSetToFalse_updatesEverything() {
-    gitlabConfigurationService.createConfiguration(buildGitlabConfiguration(SynchronizationType.AUTO_PROVISIONING));
+    gitlabConfigurationService.createConfiguration(buildGitlabConfiguration(AUTO_PROVISIONING));
     verify(managedInstanceService).queueSynchronisationTask();
     clearInvocations(managedInstanceService);
 
@@ -185,7 +196,7 @@ public class GitlabConfigurationServiceIT {
       .gitlabConfigurationId(UNIQUE_GITLAB_CONFIGURATION_ID)
       .enabled(withValueOrThrow(false))
       .synchronizeGroups(withValueOrThrow(false))
-      .synchronizationType(withValueOrThrow(SynchronizationType.JIT))
+      .provisioningType(withValueOrThrow(JIT))
       .allowUserToSignUp(withValueOrThrow(false))
       .build();
 
@@ -206,14 +217,14 @@ public class GitlabConfigurationServiceIT {
     dbTester.getDbClient().externalGroupDao().insert(dbSession, new ExternalGroupDto("34", "34", GitLabIdentityProvider.KEY));
     dbSession.commit();
 
-    gitlabConfigurationService.createConfiguration(buildGitlabConfiguration(SynchronizationType.AUTO_PROVISIONING));
+    gitlabConfigurationService.createConfiguration(buildGitlabConfiguration(AUTO_PROVISIONING));
     verify(managedInstanceService).queueSynchronisationTask();
     reset(managedInstanceService);
 
     UpdateGitlabConfigurationRequest updateRequest = builder()
       .gitlabConfigurationId(UNIQUE_GITLAB_CONFIGURATION_ID)
       .provisioningToken(withValue(null))
-      .synchronizationType(withValueOrThrow(SynchronizationType.JIT))
+      .provisioningType(withValueOrThrow(JIT))
       .build();
 
     gitlabConfigurationService.updateConfiguration(updateRequest);
@@ -224,7 +235,7 @@ public class GitlabConfigurationServiceIT {
 
   @Test
   public void updateConfiguration_whenSwitchingToAutoProvisioningAndTheConfigIsNotEnabled_shouldThrow() {
-    gitlabConfigurationService.createConfiguration(buildGitlabConfiguration(SynchronizationType.JIT));
+    gitlabConfigurationService.createConfiguration(buildGitlabConfiguration(JIT));
 
     UpdateGitlabConfigurationRequest disableRequest = builder()
       .gitlabConfigurationId(UNIQUE_GITLAB_CONFIGURATION_ID)
@@ -235,7 +246,7 @@ public class GitlabConfigurationServiceIT {
 
     UpdateGitlabConfigurationRequest updateRequest = builder()
       .gitlabConfigurationId(UNIQUE_GITLAB_CONFIGURATION_ID)
-      .synchronizationType(withValueOrThrow(SynchronizationType.AUTO_PROVISIONING))
+      .provisioningType(withValueOrThrow(AUTO_PROVISIONING))
       .build();
 
     assertThatThrownBy(() -> gitlabConfigurationService.updateConfiguration(updateRequest))
@@ -246,7 +257,7 @@ public class GitlabConfigurationServiceIT {
 
   @Test
   public void updateConfiguration_whenSwitchingToAutoProvisioningAndProvisioningTokenIsNotDefined_shouldThrow() {
-    gitlabConfigurationService.createConfiguration(buildGitlabConfiguration(SynchronizationType.JIT));
+    gitlabConfigurationService.createConfiguration(buildGitlabConfiguration(JIT));
 
     UpdateGitlabConfigurationRequest removeTokenRequest = builder()
       .gitlabConfigurationId(UNIQUE_GITLAB_CONFIGURATION_ID)
@@ -257,7 +268,7 @@ public class GitlabConfigurationServiceIT {
 
     UpdateGitlabConfigurationRequest updateRequest = builder()
       .gitlabConfigurationId(UNIQUE_GITLAB_CONFIGURATION_ID)
-      .synchronizationType(withValueOrThrow(SynchronizationType.AUTO_PROVISIONING))
+      .provisioningType(withValueOrThrow(AUTO_PROVISIONING))
       .build();
 
     assertThatThrownBy(() -> gitlabConfigurationService.updateConfiguration(updateRequest))
@@ -274,7 +285,7 @@ public class GitlabConfigurationServiceIT {
     assertThat(configuration.url()).isEqualTo("url");
     assertThat(configuration.secret()).isEqualTo("secret");
     assertThat(configuration.synchronizeGroups()).isTrue();
-    assertThat(configuration.synchronizationType()).isEqualTo(SynchronizationType.AUTO_PROVISIONING);
+    assertThat(configuration.provisioningType()).isEqualTo(AUTO_PROVISIONING);
     assertThat(configuration.allowUsersToSignUp()).isTrue();
     assertThat(configuration.provisioningToken()).isEqualTo("provisioningToken");
     assertThat(configuration.provisioningGroups()).containsExactlyInAnyOrder("group1", "group2", "group3");
@@ -282,7 +293,7 @@ public class GitlabConfigurationServiceIT {
 
   @Test
   public void createConfiguration_whenConfigurationAlreadyExists_shouldThrow() {
-    GitlabConfiguration gitlabConfiguration = buildGitlabConfiguration(SynchronizationType.AUTO_PROVISIONING);
+    GitlabConfiguration gitlabConfiguration = buildGitlabConfiguration(AUTO_PROVISIONING);
     gitlabConfigurationService.createConfiguration(gitlabConfiguration);
 
     assertThatThrownBy(() -> gitlabConfigurationService.createConfiguration(gitlabConfiguration))
@@ -292,11 +303,11 @@ public class GitlabConfigurationServiceIT {
 
   @Test
   public void createConfiguration_whenAutoProvisioning_shouldCreateCorrectConfigurationAndScheduleSync() {
-    GitlabConfiguration configuration = buildGitlabConfiguration(SynchronizationType.AUTO_PROVISIONING);
+    GitlabConfiguration configuration = buildGitlabConfiguration(AUTO_PROVISIONING);
 
     GitlabConfiguration createdConfiguration = gitlabConfigurationService.createConfiguration(configuration);
 
-    assertThat(createdConfiguration).isEqualTo(configuration);
+    assertConfigurationIsCorrect(configuration, createdConfiguration);
 
     verifyCommonSettings(configuration);
 
@@ -313,7 +324,7 @@ public class GitlabConfigurationServiceIT {
       "url",
       "secret",
       true,
-      SynchronizationType.AUTO_PROVISIONING,
+      AUTO_PROVISIONING,
       true,
       null,
       Set.of("group1", "group2", "group3"));
@@ -326,7 +337,7 @@ public class GitlabConfigurationServiceIT {
 
   @Test
   public void createConfiguration_whenInstanceIsExternallyManaged_shouldThrow() {
-    GitlabConfiguration configuration = buildGitlabConfiguration(SynchronizationType.AUTO_PROVISIONING);
+    GitlabConfiguration configuration = buildGitlabConfiguration(AUTO_PROVISIONING);
 
     when(managedInstanceService.isInstanceExternallyManaged()).thenReturn(true);
     when(managedInstanceService.getProviderName()).thenReturn("not-gitlab");
@@ -339,11 +350,11 @@ public class GitlabConfigurationServiceIT {
 
   @Test
   public void createConfiguration_whenJitProvisioning_shouldCreateCorrectConfiguration() {
-    GitlabConfiguration configuration = buildGitlabConfiguration(SynchronizationType.JIT);
+    GitlabConfiguration configuration = buildGitlabConfiguration(JIT);
 
     GitlabConfiguration createdConfiguration = gitlabConfigurationService.createConfiguration(configuration);
 
-    assertThat(createdConfiguration).isEqualTo(configuration);
+    assertConfigurationIsCorrect(configuration, createdConfiguration);
 
     verifyCommonSettings(configuration);
     verifyNoInteractions(managedInstanceService);
@@ -359,14 +370,14 @@ public class GitlabConfigurationServiceIT {
       "url",
       "secret",
       true,
-      SynchronizationType.JIT,
+      JIT,
       true,
       null,
       Set.of("group1", "group2", "group3"));
 
     GitlabConfiguration createdConfiguration = gitlabConfigurationService.createConfiguration(configuration);
 
-    assertThat(createdConfiguration).isEqualTo(configuration);
+    assertConfigurationIsCorrect(configuration, createdConfiguration);
 
     verifyCommonSettings(configuration);
     verifyNoInteractions(managedInstanceService);
@@ -383,7 +394,7 @@ public class GitlabConfigurationServiceIT {
     verifySettingWasSet(GITLAB_AUTH_PROVISIONING_TOKEN, Strings.nullToEmpty(configuration.provisioningToken()));
     verifySettingWasSet(GITLAB_AUTH_PROVISIONING_GROUPS, String.join(",", configuration.provisioningGroups()));
     verifySettingWasSet(GITLAB_AUTH_PROVISIONING_ENABLED,
-      String.valueOf(configuration.synchronizationType().equals(SynchronizationType.AUTO_PROVISIONING)));
+      String.valueOf(configuration.provisioningType().equals(AUTO_PROVISIONING)));
   }
 
   private void verifySettingWasSet(String setting, @Nullable String value) {
@@ -410,7 +421,7 @@ public class GitlabConfigurationServiceIT {
     dbTester.getDbClient().externalGroupDao().insert(dbSession, new ExternalGroupDto("12", "12", GitLabIdentityProvider.KEY));
     dbTester.getDbClient().externalGroupDao().insert(dbSession, new ExternalGroupDto("34", "34", GitLabIdentityProvider.KEY));
     dbSession.commit();
-    gitlabConfigurationService.createConfiguration(buildGitlabConfiguration(SynchronizationType.AUTO_PROVISIONING));
+    gitlabConfigurationService.createConfiguration(buildGitlabConfiguration(AUTO_PROVISIONING));
     gitlabConfigurationService.deleteConfiguration("gitlab-configuration");
 
     assertPropertyIsDeleted(GITLAB_AUTH_ENABLED);
@@ -432,7 +443,7 @@ public class GitlabConfigurationServiceIT {
 
   @Test
   public void triggerRun_whenConfigIsCorrect_shouldTriggerSync() {
-    gitlabConfigurationService.createConfiguration(buildGitlabConfiguration(SynchronizationType.AUTO_PROVISIONING));
+    gitlabConfigurationService.createConfiguration(buildGitlabConfiguration(AUTO_PROVISIONING));
     reset(managedInstanceService);
 
     gitlabConfigurationService.triggerRun();
@@ -442,7 +453,7 @@ public class GitlabConfigurationServiceIT {
 
   @Test
   public void triggerRun_whenConfigIsForJit_shouldThrow() {
-    gitlabConfigurationService.createConfiguration(buildGitlabConfiguration(SynchronizationType.JIT));
+    gitlabConfigurationService.createConfiguration(buildGitlabConfiguration(JIT));
 
     assertThatIllegalStateException()
       .isThrownBy(() -> gitlabConfigurationService.triggerRun())
@@ -451,7 +462,7 @@ public class GitlabConfigurationServiceIT {
 
   @Test
   public void triggerRun_whenConfigIsDisabled_shouldThrow() {
-    GitlabConfiguration gitlabConfiguration = buildGitlabConfiguration(SynchronizationType.AUTO_PROVISIONING);
+    GitlabConfiguration gitlabConfiguration = buildGitlabConfiguration(AUTO_PROVISIONING);
     gitlabConfigurationService.createConfiguration(gitlabConfiguration);
     gitlabConfigurationService.updateConfiguration(builder().gitlabConfigurationId(UNIQUE_GITLAB_CONFIGURATION_ID).enabled(withValueOrThrow(false)).build());
 
@@ -462,7 +473,7 @@ public class GitlabConfigurationServiceIT {
 
   @Test
   public void triggerRun_whenProvisioningTokenIsNotSet_shouldThrow() {
-    GitlabConfiguration gitlabConfiguration = buildGitlabConfiguration(SynchronizationType.AUTO_PROVISIONING);
+    GitlabConfiguration gitlabConfiguration = buildGitlabConfiguration(AUTO_PROVISIONING);
     gitlabConfigurationService.createConfiguration(gitlabConfiguration);
     gitlabConfigurationService.updateConfiguration(builder().gitlabConfigurationId(UNIQUE_GITLAB_CONFIGURATION_ID).provisioningToken(withValue(null)).build());
 
@@ -471,17 +482,74 @@ public class GitlabConfigurationServiceIT {
       .withMessage("Provisioning token must be set to enable GitLab provisioning.");
   }
 
-  private static GitlabConfiguration buildGitlabConfiguration(SynchronizationType synchronizationType) {
-    return new GitlabConfiguration(
-      UNIQUE_GITLAB_CONFIGURATION_ID,
-      true,
-      "applicationId",
-      "url",
-      "secret",
-      true,
-      synchronizationType,
-      true,
-      "provisioningToken",
-      Set.of("group1", "group2", "group3"));
+  @Test
+  public void validate_whenConfigurationIsDisabled_shouldNotValidate() {
+    GitlabConfiguration gitlabConfiguration = buildGitlabConfiguration(AUTO_PROVISIONING);
+    when(gitlabConfiguration.enabled()).thenReturn(false);
+
+    gitlabConfigurationService.validate(gitlabConfiguration);
+
+    verifyNoInteractions(gitlabGlobalSettingsValidator);
+  }
+
+  @Test
+  public void validate_whenConfigurationIsValidAndJIT_returnEmptyOptional() {
+    GitlabConfiguration gitlabConfiguration = buildGitlabConfiguration(JIT);
+    when(gitlabConfiguration.enabled()).thenReturn(true);
+
+    gitlabConfigurationService.validate(gitlabConfiguration);
+
+    verify(gitlabGlobalSettingsValidator).validate(AUTH_ONLY, gitlabConfiguration.url() + "/api/v4", gitlabConfiguration.provisioningToken());
+  }
+
+  @Test
+  public void validate_whenConfigurationIsValidAndAutoProvisioning_returnEmptyOptional() {
+    GitlabConfiguration gitlabConfiguration = buildGitlabConfiguration(AUTO_PROVISIONING);
+    when(gitlabConfiguration.enabled()).thenReturn(true);
+
+    gitlabConfigurationService.validate(gitlabConfiguration);
+
+    verify(gitlabGlobalSettingsValidator).validate(COMPLETE, gitlabConfiguration.url() + "/api/v4", gitlabConfiguration.provisioningToken());
+  }
+
+  @Test
+  public void validate_whenConfigurationIsInValid_returnsExceptionMessage() {
+    GitlabConfiguration gitlabConfiguration = buildGitlabConfiguration(AUTO_PROVISIONING);
+    when(gitlabConfiguration.enabled()).thenReturn(true);
+
+    Exception exception = new IllegalStateException("Invalid configuration");
+    when(gitlabConfigurationService.validate(gitlabConfiguration)).thenThrow(exception);
+
+    Optional<String> message =  gitlabConfigurationService.validate(gitlabConfiguration);
+
+    assertThat(message).contains("Invalid configuration");
+  }
+
+  private static GitlabConfiguration buildGitlabConfiguration(ProvisioningType provisioningType) {
+    GitlabConfiguration gitlabConfiguration = mock();
+    when(gitlabConfiguration.id()).thenReturn("gitlab-configuration");
+    when(gitlabConfiguration.enabled()).thenReturn(true);
+    when(gitlabConfiguration.applicationId()).thenReturn("applicationId");
+    when(gitlabConfiguration.url()).thenReturn("url");
+    when(gitlabConfiguration.secret()).thenReturn("secret");
+    when(gitlabConfiguration.synchronizeGroups()).thenReturn(true);
+    when(gitlabConfiguration.provisioningType()).thenReturn(provisioningType);
+    when(gitlabConfiguration.allowUsersToSignUp()).thenReturn(true);
+    when(gitlabConfiguration.provisioningToken()).thenReturn("provisioningToken");
+    when(gitlabConfiguration.provisioningGroups()).thenReturn(new LinkedHashSet<>(Set.of("group1", "group2", "group3")));
+    return gitlabConfiguration;
+  }
+
+  private static void assertConfigurationIsCorrect(GitlabConfiguration expectedConfiguration, GitlabConfiguration actualConfiguration) {
+    assertThat(actualConfiguration.id()).isEqualTo(expectedConfiguration.id());
+    assertThat(actualConfiguration.enabled()).isEqualTo(expectedConfiguration.enabled());
+    assertThat(actualConfiguration.applicationId()).isEqualTo(expectedConfiguration.applicationId());
+    assertThat(actualConfiguration.url()).isEqualTo(expectedConfiguration.url());
+    assertThat(actualConfiguration.secret()).isEqualTo(expectedConfiguration.secret());
+    assertThat(actualConfiguration.synchronizeGroups()).isEqualTo(expectedConfiguration.synchronizeGroups());
+    assertThat(actualConfiguration.provisioningType()).isEqualTo(expectedConfiguration.provisioningType());
+    assertThat(actualConfiguration.allowUsersToSignUp()).isEqualTo(expectedConfiguration.allowUsersToSignUp());
+    assertThat(actualConfiguration.provisioningToken()).isEqualTo(expectedConfiguration.provisioningToken());
+    assertThat(actualConfiguration.provisioningGroups()).containsExactlyInAnyOrderElementsOf(expectedConfiguration.provisioningGroups());
   }
 }

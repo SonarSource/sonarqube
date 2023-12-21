@@ -24,13 +24,13 @@ import com.google.gson.GsonBuilder;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.server.common.NonNullUpdatedValue;
 import org.sonar.server.common.UpdatedValue;
 import org.sonar.server.common.gitlab.config.GitlabConfiguration;
 import org.sonar.server.common.gitlab.config.GitlabConfigurationService;
-import org.sonar.server.common.gitlab.config.SynchronizationType;
 import org.sonar.server.common.gitlab.config.UpdateGitlabConfigurationRequest;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
@@ -48,8 +48,8 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.sonar.server.common.gitlab.config.SynchronizationType.AUTO_PROVISIONING;
-import static org.sonar.server.common.gitlab.config.SynchronizationType.JIT;
+import static org.sonar.server.common.gitlab.config.ProvisioningType.AUTO_PROVISIONING;
+import static org.sonar.server.common.gitlab.config.ProvisioningType.JIT;
 import static org.sonar.server.v2.WebApiEndpoints.GITLAB_CONFIGURATION_ENDPOINT;
 import static org.sonar.server.v2.WebApiEndpoints.JSON_MERGE_PATCH_CONTENT_TYPE;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -79,9 +79,10 @@ public class DefaultGitlabConfigurationControllerTest {
     GITLAB_CONFIGURATION.applicationId(),
     GITLAB_CONFIGURATION.url(),
     GITLAB_CONFIGURATION.synchronizeGroups(),
-    SynchronizationType.valueOf(GITLAB_CONFIGURATION.synchronizationType().name()),
+    org.sonar.server.v2.api.gitlab.config.resource.ProvisioningType.valueOf(GITLAB_CONFIGURATION.provisioningType().name()),
     GITLAB_CONFIGURATION.allowUsersToSignUp(),
-    List.of("provisioning-group1", "provisioning-group2"));
+    List.of("provisioning-group1", "provisioning-group2"),
+    "error-message");
   private static final String EXPECTED_CONFIGURATION = """
     {
       "id": "existing-id",
@@ -89,12 +90,13 @@ public class DefaultGitlabConfigurationControllerTest {
       "applicationId": "application-id",
       "url": "www.url.com",
       "synchronizeGroups": true,
-      "synchronizationType": "AUTO_PROVISIONING",
+      "provisioningType": "AUTO_PROVISIONING",
       "allowUsersToSignUp": true,
       "provisioningGroups": [
         "provisioning-group2",
         "provisioning-group1"
-      ]
+      ],
+      "errorMessage": "error-message"
     }
     """;
 
@@ -102,6 +104,11 @@ public class DefaultGitlabConfigurationControllerTest {
   public UserSessionRule userSession = UserSessionRule.standalone();
   private final GitlabConfigurationService gitlabConfigurationService = mock();
   private final MockMvc mockMvc = ControllerTester.getMockMvc(new DefaultGitlabConfigurationController(userSession, gitlabConfigurationService));
+
+  @Before
+  public void setUp() {
+    when(gitlabConfigurationService.validate(any())).thenReturn(Optional.of("error-message"));
+  }
 
   @Test
   public void fetchConfiguration_whenUserIsNotAdministrator_shouldReturnForbidden() throws Exception {
@@ -193,7 +200,7 @@ public class DefaultGitlabConfigurationControllerTest {
             "url": "www.url.com",
             "secret": "newSecret",
             "synchronizeGroups": true,
-            "synchronizationType": "AUTO_PROVISIONING",
+            "provisioningType": "AUTO_PROVISIONING",
             "allowUsersToSignUp": true,
             "provisioningToken": "token",
             "provisioningGroups": [
@@ -231,7 +238,7 @@ public class DefaultGitlabConfigurationControllerTest {
     String payload = """
       {
             "enabled": false,
-            "synchronizationType": "JIT",
+            "provisioningType": "JIT",
             "allowUsersToSignUp": false,
             "provisioningToken": null
       }
@@ -271,7 +278,7 @@ public class DefaultGitlabConfigurationControllerTest {
                "url": "www.url.com",
                "secret": "123",
                "synchronizeGroups": true,
-               "synchronizationType": "AUTO_PROVISIONING",
+               "provisioningType": "AUTO_PROVISIONING",
                "allowUsersToSignUp": true,
                "provisioningGroups": [
                  "provisioning-group2",
@@ -299,7 +306,7 @@ public class DefaultGitlabConfigurationControllerTest {
               "secret": "123",
               "url": "www.url.com",
               "synchronizeGroups": true,
-              "synchronizationType": "AUTO_PROVISIONING",
+              "provisioningType": "AUTO_PROVISIONING",
               "allowUsersToSignUp": true,
               "provisioningGroups": [
                 "provisioning-group2",
@@ -317,7 +324,7 @@ public class DefaultGitlabConfigurationControllerTest {
             "applicationId": "application-id",
             "url": "www.url.com",
             "synchronizeGroups": true,
-            "synchronizationType": "AUTO_PROVISIONING",
+            "provisioningType": "AUTO_PROVISIONING",
             "allowUsersToSignUp": true,
             "provisioningGroups": [
               "provisioning-group2",
@@ -342,7 +349,7 @@ public class DefaultGitlabConfigurationControllerTest {
               "secret": "123",
               "url": "www.url.com",
               "synchronizeGroups": true,
-              "synchronizationType": "AUTO_PROVISIONING"
+              "provisioningType": "AUTO_PROVISIONING"
             }
 
           """))
@@ -355,7 +362,7 @@ public class DefaultGitlabConfigurationControllerTest {
             "applicationId": "application-id",
             "url": "www.url.com",
             "synchronizeGroups": true,
-            "synchronizationType": "AUTO_PROVISIONING",
+            "provisioningType": "AUTO_PROVISIONING",
             "allowUsersToSignUp": true,
             "provisioningGroups": [
               "provisioning-group2",
@@ -379,7 +386,7 @@ public class DefaultGitlabConfigurationControllerTest {
             "applicationId": "application-id",
             "url": "www.url.com",
             "synchronizeGroups": true,
-            "synchronizationType": "AUTO_PROVISIONING",
+            "provisioningType": "AUTO_PROVISIONING",
             "allowUsersToSignUp": true,
             "provisioningGroups": [
               "provisioning-group2",

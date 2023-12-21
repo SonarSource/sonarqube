@@ -17,31 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.common.gitlab.config;
+package org.sonar.server.v2.api.gitlab.config.resource;
 
-import java.util.Set;
-import javax.annotation.Nullable;
-
-public record GitlabConfiguration(
-  String id,
-
-  boolean enabled,
-
-  String applicationId,
-
-  String url,
-
-  String secret,
-
-  boolean synchronizeGroups,
-
-  ProvisioningType provisioningType,
-
-  boolean allowUsersToSignUp,
-
-  @Nullable
-  String provisioningToken,
-
-  Set<String> provisioningGroups
-) {
+public enum ProvisioningType {
+  JIT, AUTO_PROVISIONING
 }

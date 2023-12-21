@@ -23,7 +23,7 @@ import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;
 import javax.validation.constraints.Size;
-import org.sonar.server.common.gitlab.config.SynchronizationType;
+import org.sonar.server.v2.api.gitlab.config.resource.ProvisioningType;
 import org.sonar.server.v2.common.model.UpdateField;
 
 public class GitlabConfigurationUpdateRestRequest {
@@ -33,7 +33,7 @@ public class GitlabConfigurationUpdateRestRequest {
   private UpdateField<String> url = UpdateField.undefined();
   private UpdateField<String> secret = UpdateField.undefined();
   private UpdateField<Boolean> synchronizeGroups = UpdateField.undefined();
-  private UpdateField<SynchronizationType> synchronizationType = UpdateField.undefined();
+  private UpdateField<ProvisioningType> provisioningType = UpdateField.undefined();
   private UpdateField<Boolean> allowUsersToSignUp = UpdateField.undefined();
   private UpdateField<String> provisioningToken = UpdateField.undefined();
   private UpdateField<List<String>> provisioningGroups = UpdateField.undefined();
@@ -83,13 +83,13 @@ public class GitlabConfigurationUpdateRestRequest {
     this.synchronizeGroups = UpdateField.withValue(synchronizeGroups);
   }
 
-  @Schema(implementation = SynchronizationType.class, description = "Type of synchronization")
-  public UpdateField<SynchronizationType> getSynchronizationType() {
-    return synchronizationType;
+  @Schema(implementation = ProvisioningType.class, description = "Type of synchronization")
+  public UpdateField<ProvisioningType> getProvisioningType() {
+    return provisioningType;
   }
 
-  public void setSynchronizationType(SynchronizationType synchronizationType) {
-    this.synchronizationType = UpdateField.withValue(synchronizationType);
+  public void setProvisioningType(ProvisioningType provisioningType) {
+    this.provisioningType = UpdateField.withValue(provisioningType);
   }
 
   @Schema(implementation = Boolean.class, description = "Allow user to sign up")

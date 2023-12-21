@@ -82,6 +82,7 @@ import org.sonar.server.branch.ws.BranchWsModule;
 import org.sonar.server.ce.CeModule;
 import org.sonar.server.ce.projectdump.ProjectExportWsModule;
 import org.sonar.server.ce.ws.CeWsModule;
+import org.sonar.server.common.gitlab.config.GitlabConfigurationService;
 import org.sonar.server.common.group.service.GroupMembershipService;
 import org.sonar.server.common.group.service.GroupService;
 import org.sonar.server.common.rule.service.RuleService;
@@ -401,6 +402,7 @@ public class PlatformLevel4 extends PlatformLevel {
       new LdapModule(),
       new SamlModule(),
       new SamlValidationModule(),
+      GitlabConfigurationService.class,
       GroupService.class,
       GroupMembershipService.class,
       DefaultAdminCredentialsVerifierImpl.class,

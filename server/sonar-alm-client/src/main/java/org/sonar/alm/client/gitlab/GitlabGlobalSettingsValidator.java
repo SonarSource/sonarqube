@@ -19,14 +19,19 @@
  */
 package org.sonar.alm.client.gitlab;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.sonar.api.config.internal.Encryption;
 import org.sonar.api.config.internal.Settings;
 import org.sonar.api.server.ServerSide;
 import org.sonar.db.alm.setting.AlmSettingDto;
 
+import static com.google.common.base.Strings.isNullOrEmpty;
+
 @ServerSide
 public class GitlabGlobalSettingsValidator {
 
+  public enum ValidationMode {COMPLETE, AUTH_ONLY}
   private final Encryption encryption;
   private final GitlabApplicationClient gitlabApplicationClient;
 
@@ -38,15 +43,32 @@ public class GitlabGlobalSettingsValidator {
   public void validate(AlmSettingDto almSettingDto) {
     String gitlabUrl = almSettingDto.getUrl();
     String accessToken = almSettingDto.getDecryptedPersonalAccessToken(encryption);
-
-    if (gitlabUrl == null || accessToken == null) {
-      throw new IllegalArgumentException("Your Gitlab global configuration is incomplete.");
-    }
-
-    gitlabApplicationClient.checkUrl(gitlabUrl);
-    gitlabApplicationClient.checkToken(gitlabUrl, accessToken);
-    gitlabApplicationClient.checkReadPermission(gitlabUrl, accessToken);
-    gitlabApplicationClient.checkWritePermission(gitlabUrl, accessToken);
+    validate(ValidationMode.COMPLETE, gitlabUrl, accessToken);
   }
 
+  public void validate(ValidationMode validationMode, @Nullable String gitlabApiUrl, @Nullable String accessToken) {
+    if (gitlabApiUrl == null) {
+      throw new IllegalArgumentException("Your Gitlab global configuration is incomplete. The GitLab URL must be set.");
+    }
+    gitlabApplicationClient.checkUrl(gitlabApiUrl);
+    if (ValidationMode.AUTH_ONLY.equals(validationMode)) {
+      return;
+    }
+
+    String decryptedToken = getDecryptedToken(accessToken);
+    if (decryptedToken == null) {
+      throw new IllegalArgumentException("Your Gitlab global configuration is incomplete. The GitLab access token must be set.");
+    }
+    gitlabApplicationClient.checkToken(gitlabApiUrl, decryptedToken);
+    gitlabApplicationClient.checkReadPermission(gitlabApiUrl, decryptedToken);
+    gitlabApplicationClient.checkWritePermission(gitlabApiUrl, decryptedToken);
+  }
+
+  @CheckForNull
+  public String getDecryptedToken(@Nullable String token) {
+    if (!isNullOrEmpty(token) && encryption.isEncrypted(token)) {
+      return encryption.decrypt(token);
+    }
+    return token;
+  }
 }

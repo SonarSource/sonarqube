@@ -30,7 +30,7 @@ public record UpdateGitlabConfigurationRequest(
   NonNullUpdatedValue<String> url,
   NonNullUpdatedValue<String> secret,
   NonNullUpdatedValue<Boolean> synchronizeGroups,
-  NonNullUpdatedValue<SynchronizationType> synchronizationType,
+  NonNullUpdatedValue<ProvisioningType> provisioningType,
   NonNullUpdatedValue<Boolean> allowUsersToSignUp,
   UpdatedValue<String> provisioningToken,
   NonNullUpdatedValue<Set<String>> provisioningGroups
@@ -47,7 +47,7 @@ public record UpdateGitlabConfigurationRequest(
     private NonNullUpdatedValue<String> url = NonNullUpdatedValue.undefined();
     private NonNullUpdatedValue<String> secret = NonNullUpdatedValue.undefined();
     private NonNullUpdatedValue<Boolean> synchronizeGroups = NonNullUpdatedValue.undefined();
-    private NonNullUpdatedValue<SynchronizationType> synchronizationType = NonNullUpdatedValue.undefined();
+    private NonNullUpdatedValue<ProvisioningType> provisioningType = NonNullUpdatedValue.undefined();
     private NonNullUpdatedValue<Boolean> allowUserToSignUp = NonNullUpdatedValue.undefined();
     private UpdatedValue<String> provisioningToken = UpdatedValue.undefined();
     private NonNullUpdatedValue<Set<String>> provisioningGroups = NonNullUpdatedValue.undefined();
@@ -85,8 +85,8 @@ public record UpdateGitlabConfigurationRequest(
       return this;
     }
 
-    public Builder synchronizationType(NonNullUpdatedValue<SynchronizationType> synchronizationType) {
-      this.synchronizationType = synchronizationType;
+    public Builder provisioningType(NonNullUpdatedValue<ProvisioningType> provisioningType) {
+      this.provisioningType = provisioningType;
       return this;
     }
 
@@ -106,7 +106,7 @@ public record UpdateGitlabConfigurationRequest(
     }
 
     public UpdateGitlabConfigurationRequest build() {
-      return new UpdateGitlabConfigurationRequest(gitlabConfigurationId, enabled, applicationId, url, secret, synchronizeGroups, synchronizationType, allowUserToSignUp,
+      return new UpdateGitlabConfigurationRequest(gitlabConfigurationId, enabled, applicationId, url, secret, synchronizeGroups, provisioningType, allowUserToSignUp,
         provisioningToken, provisioningGroups);
     }
   }

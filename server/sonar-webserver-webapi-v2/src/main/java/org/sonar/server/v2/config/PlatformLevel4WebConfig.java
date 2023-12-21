@@ -36,7 +36,6 @@ import org.sonar.server.common.rule.service.RuleService;
 import org.sonar.server.common.text.MacroInterpreter;
 import org.sonar.server.common.user.service.UserService;
 import org.sonar.server.health.HealthChecker;
-import org.sonar.server.management.ManagedInstanceService;
 import org.sonar.server.platform.NodeInformation;
 import org.sonar.server.rule.RuleDescriptionFormatter;
 import org.sonar.server.user.SystemPasscode;
@@ -123,11 +122,6 @@ public class PlatformLevel4WebConfig {
     RequestMappingHandlerMapping handlerMapping = new RequestMappingHandlerMapping();
     handlerMapping.setInterceptors(new DeprecatedHandler(userSession));
     return handlerMapping;
-  }
-
-  @Bean
-  public GitlabConfigurationService gitlabConfigurationService(ManagedInstanceService managedInstanceService, DbClient dbClient) {
-    return new GitlabConfigurationService( managedInstanceService, dbClient);
   }
 
   @Bean

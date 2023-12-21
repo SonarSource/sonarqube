@@ -26,7 +26,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
-import org.sonar.api.utils.Preconditions;
+import org.sonar.alm.client.gitlab.GitlabGlobalSettingsValidator;
+import org.sonar.api.server.ServerSide;
 import org.sonar.auth.gitlab.GitLabIdentityProvider;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -38,6 +39,8 @@ import org.sonar.server.management.ManagedInstanceService;
 
 import static java.lang.String.format;
 import static org.apache.commons.lang.StringUtils.isNotBlank;
+import static org.sonar.alm.client.gitlab.GitlabGlobalSettingsValidator.ValidationMode.AUTH_ONLY;
+import static org.sonar.alm.client.gitlab.GitlabGlobalSettingsValidator.ValidationMode.COMPLETE;
 import static org.sonar.api.utils.Preconditions.checkState;
 import static org.sonar.auth.gitlab.GitLabSettings.GITLAB_AUTH_ALLOW_USERS_TO_SIGNUP;
 import static org.sonar.auth.gitlab.GitLabSettings.GITLAB_AUTH_APPLICATION_ID;
@@ -48,9 +51,11 @@ import static org.sonar.auth.gitlab.GitLabSettings.GITLAB_AUTH_PROVISIONING_TOKE
 import static org.sonar.auth.gitlab.GitLabSettings.GITLAB_AUTH_SECRET;
 import static org.sonar.auth.gitlab.GitLabSettings.GITLAB_AUTH_SYNC_USER_GROUPS;
 import static org.sonar.auth.gitlab.GitLabSettings.GITLAB_AUTH_URL;
-import static org.sonar.server.common.gitlab.config.SynchronizationType.AUTO_PROVISIONING;
+import static org.sonar.server.common.gitlab.config.ProvisioningType.AUTO_PROVISIONING;
+import static org.sonar.server.common.gitlab.config.ProvisioningType.JIT;
 import static org.sonar.server.exceptions.NotFoundException.checkFound;
 
+@ServerSide
 public class GitlabConfigurationService {
 
   private static final List<String> GITLAB_CONFIGURATION_PROPERTIES = List.of(
@@ -65,17 +70,20 @@ public class GitlabConfigurationService {
     GITLAB_AUTH_PROVISIONING_GROUPS);
 
   public static final String UNIQUE_GITLAB_CONFIGURATION_ID = "gitlab-configuration";
-  private final ManagedInstanceService managedInstanceService;
   private final DbClient dbClient;
+  private final ManagedInstanceService managedInstanceService;
+  private final GitlabGlobalSettingsValidator gitlabGlobalSettingsValidator;
 
-  public GitlabConfigurationService(ManagedInstanceService managedInstanceService, DbClient dbClient) {
-    this.managedInstanceService = managedInstanceService;
+  public GitlabConfigurationService(DbClient dbClient,
+    ManagedInstanceService managedInstanceService, GitlabGlobalSettingsValidator gitlabGlobalSettingsValidator) {
     this.dbClient = dbClient;
+    this.managedInstanceService = managedInstanceService;
+    this.gitlabGlobalSettingsValidator = gitlabGlobalSettingsValidator;
   }
 
   public GitlabConfiguration updateConfiguration(UpdateGitlabConfigurationRequest updateRequest) {
     UpdatedValue<Boolean> provisioningEnabled =
-      updateRequest.synchronizationType().map(GitlabConfigurationService::shouldEnableAutoProvisioning);
+      updateRequest.provisioningType().map(GitlabConfigurationService::shouldEnableAutoProvisioning);
     try (DbSession dbSession = dbClient.openSession(true)) {
       throwIfConfigurationDoesntExist(dbSession);
       GitlabConfiguration currentConfiguration = getConfiguration(updateRequest.gitlabConfigurationId(), dbSession);
@@ -89,8 +97,8 @@ public class GitlabConfigurationService {
       setIfDefined(dbSession, GITLAB_AUTH_PROVISIONING_TOKEN, updateRequest.provisioningToken());
       setIfDefined(dbSession, GITLAB_AUTH_PROVISIONING_GROUPS, updateRequest.provisioningGroups().map(groups -> String.join(",", groups)));
       boolean shouldTriggerProvisioning =
-        provisioningEnabled.orElse(false) && !currentConfiguration.synchronizationType().equals(AUTO_PROVISIONING);
-      deleteExternalGroupsWhenDisablingAutoProvisioning(dbSession, currentConfiguration, updateRequest.synchronizationType());
+        provisioningEnabled.orElse(false) && !currentConfiguration.provisioningType().equals(AUTO_PROVISIONING);
+      deleteExternalGroupsWhenDisablingAutoProvisioning(dbSession, currentConfiguration, updateRequest.provisioningType());
       GitlabConfiguration updatedConfiguration = getConfiguration(UNIQUE_GITLAB_CONFIGURATION_ID, dbSession);
       if (shouldTriggerProvisioning) {
         triggerRun(updatedConfiguration);
@@ -109,9 +117,10 @@ public class GitlabConfigurationService {
   private void deleteExternalGroupsWhenDisablingAutoProvisioning(
     DbSession dbSession,
     GitlabConfiguration currentConfiguration,
-    UpdatedValue<SynchronizationType> synchronizationTypeFromUpdate) {
-    boolean disableAutoProvisioning = synchronizationTypeFromUpdate.map(synchronizationType -> synchronizationType.equals(SynchronizationType.JIT)).orElse(false)
-      && currentConfiguration.synchronizationType().equals(AUTO_PROVISIONING);
+    UpdatedValue<ProvisioningType> provisioningTypeFromUpdate) {
+    boolean disableAutoProvisioning =
+      provisioningTypeFromUpdate.map(provisioningType -> provisioningType.equals(JIT)).orElse(false)
+        && currentConfiguration.provisioningType().equals(AUTO_PROVISIONING);
     if (disableAutoProvisioning) {
       dbClient.externalGroupDao().deleteByExternalIdentityProvider(dbSession, GitLabIdentityProvider.KEY);
     }
@@ -169,14 +178,14 @@ public class GitlabConfigurationService {
     checkFound(dbClient.propertiesDao().selectGlobalProperty(dbSession, GITLAB_AUTH_ENABLED), "GitLab configuration doesn't exist.");
   }
 
-  private static SynchronizationType toSynchronizationType(boolean provisioningEnabled) {
-    return provisioningEnabled ? AUTO_PROVISIONING : SynchronizationType.JIT;
+  private static ProvisioningType toProvisioningType(boolean provisioningEnabled) {
+    return provisioningEnabled ? AUTO_PROVISIONING : JIT;
   }
 
   public GitlabConfiguration createConfiguration(GitlabConfiguration configuration) {
     throwIfConfigurationAlreadyExists();
 
-    boolean enableAutoProvisioning = shouldEnableAutoProvisioning(configuration.synchronizationType());
+    boolean enableAutoProvisioning = shouldEnableAutoProvisioning(configuration.provisioningType());
     try (DbSession dbSession = dbClient.openSession(false)) {
       setProperty(dbSession, GITLAB_AUTH_ENABLED, String.valueOf(configuration.enabled()));
       setProperty(dbSession, GITLAB_AUTH_APPLICATION_ID, configuration.applicationId());
@@ -203,8 +212,8 @@ public class GitlabConfigurationService {
     });
   }
 
-  private static boolean shouldEnableAutoProvisioning(SynchronizationType synchronizationType) {
-    return AUTO_PROVISIONING.equals(synchronizationType);
+  private static boolean shouldEnableAutoProvisioning(ProvisioningType provisioningType) {
+    return AUTO_PROVISIONING.equals(provisioningType);
   }
 
   private void setProperty(DbSession dbSession, String propertyName, @Nullable String value) {
@@ -221,7 +230,7 @@ public class GitlabConfigurationService {
       getStringPropertyOrEmpty(dbSession, GITLAB_AUTH_URL),
       getStringPropertyOrEmpty(dbSession, GITLAB_AUTH_SECRET),
       getBooleanOrFalse(dbSession, GITLAB_AUTH_SYNC_USER_GROUPS),
-      toSynchronizationType(getBooleanOrFalse(dbSession, GITLAB_AUTH_PROVISIONING_ENABLED)),
+      toProvisioningType(getBooleanOrFalse(dbSession, GITLAB_AUTH_PROVISIONING_ENABLED)),
       getBooleanOrFalse(dbSession, GITLAB_AUTH_ALLOW_USERS_TO_SIGNUP),
       getStringPropertyOrNull(dbSession, GITLAB_AUTH_PROVISIONING_TOKEN),
       getProvisioningGroups(dbSession)
@@ -244,13 +253,12 @@ public class GitlabConfigurationService {
   private void triggerRun(GitlabConfiguration gitlabConfiguration) {
     throwIfConfigIncompleteOrInstanceAlreadyManaged(gitlabConfiguration);
     managedInstanceService.queueSynchronisationTask();
-
   }
 
   private void throwIfConfigIncompleteOrInstanceAlreadyManaged(GitlabConfiguration configuration) {
     checkInstanceNotManagedByAnotherProvider();
-    Preconditions.checkState(AUTO_PROVISIONING.equals(configuration.synchronizationType()), "Auto provisioning must be activated");
-    Preconditions.checkState(configuration.enabled(), getErrorMessage("GitLab authentication must be turned on"));
+    checkState(AUTO_PROVISIONING.equals(configuration.provisioningType()), "Auto provisioning must be activated");
+    checkState(configuration.enabled(), getErrorMessage("GitLab authentication must be turned on"));
     checkState(isNotBlank(configuration.provisioningToken()), getErrorMessage("Provisioning token must be set"));
   }
 
@@ -266,5 +274,26 @@ public class GitlabConfigurationService {
 
   private static String getErrorMessage(String prefix) {
     return format("%s to enable GitLab provisioning.", prefix);
+  }
+
+  public Optional<String> validate(GitlabConfiguration gitlabConfiguration) {
+    if (!gitlabConfiguration.enabled()) {
+      return Optional.empty();
+    }
+    String url = (gitlabConfiguration.url() + "/api/v4").replace("//", "/");
+    try {
+      gitlabGlobalSettingsValidator.validate(
+        toValidationMode(gitlabConfiguration.provisioningType()),
+        url,
+        gitlabConfiguration.provisioningToken()
+      );
+    } catch (Exception e) {
+      return Optional.of(e.getMessage());
+    }
+    return Optional.empty();
+  }
+
+  private static GitlabGlobalSettingsValidator.ValidationMode toValidationMode(ProvisioningType provisioningType) {
+    return AUTO_PROVISIONING.equals(provisioningType) ? COMPLETE : AUTH_ONLY;
   }
 }

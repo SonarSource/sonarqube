@@ -21,7 +21,7 @@ package org.sonar.server.v2.api.gitlab.config.resource;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;
-import org.sonar.server.common.gitlab.config.SynchronizationType;
+import javax.annotation.Nullable;
 
 public record GitlabConfigurationResource(
 
@@ -38,11 +38,16 @@ public record GitlabConfigurationResource(
 
   boolean synchronizeGroups,
 
-  SynchronizationType synchronizationType,
+  ProvisioningType provisioningType,
 
   boolean allowUsersToSignUp,
 
   @Schema(description = "Root Gitlab groups to provision")
-  List<String> provisioningGroups
+  List<String> provisioningGroups,
+
+  @Schema(accessMode = Schema.AccessMode.READ_ONLY, description = "In case the GitLab configuration is incorrect, error message")
+  @Nullable
+  String errorMessage
 ) {
 }
+

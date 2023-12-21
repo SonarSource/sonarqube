@@ -1,32 +1,33 @@
 sonar {
-    properties {
-        property 'sonar.projectName', "${projectTitle} :: WebServer :: Common"
-    }
+  properties {
+    property 'sonar.projectName', "${projectTitle} :: WebServer :: Common"
+  }
 }
 
 dependencies {
-    // please keep the list grouped by configuration and ordered by name
-    api 'com.google.guava:guava'
+  // please keep the list grouped by configuration and ordered by name
+  api 'com.google.guava:guava'
 
-    api project(':server:sonar-db-dao')
-    api project(':server:sonar-webserver-auth')
-    api project(':server:sonar-webserver-ws')
+  api project(':server:sonar-db-dao')
+  api project(':server:sonar-webserver-auth')
+  api project(':server:sonar-webserver-ws')
   implementation project(path: ':server:sonar-auth-gitlab')
+  implementation project(path: ':server:sonar-alm-client')
 
   compileOnlyApi 'com.google.code.findbugs:jsr305'
-    compileOnlyApi 'javax.servlet:javax.servlet-api'
+  compileOnlyApi 'javax.servlet:javax.servlet-api'
 
-    testImplementation 'org.apache.logging.log4j:log4j-api'
-    testImplementation 'org.apache.logging.log4j:log4j-core'
-    testImplementation 'com.google.code.findbugs:jsr305'
-    testImplementation 'com.tngtech.java:junit-dataprovider'
+  testImplementation 'org.apache.logging.log4j:log4j-api'
+  testImplementation 'org.apache.logging.log4j:log4j-core'
+  testImplementation 'com.google.code.findbugs:jsr305'
+  testImplementation 'com.tngtech.java:junit-dataprovider'
 
-    testImplementation 'junit:junit'
-    testImplementation 'org.assertj:assertj-core'
-    testImplementation 'org.mockito:mockito-core'
+  testImplementation 'junit:junit'
+  testImplementation 'org.assertj:assertj-core'
+  testImplementation 'org.mockito:mockito-core'
 
-    testImplementation project(':sonar-testing-harness')
-    testImplementation testFixtures(project(':server:sonar-db-dao'))
-    testImplementation testFixtures(project(':server:sonar-server-common'))
-    testImplementation testFixtures(project(':server:sonar-webserver-api'))
+  testImplementation project(':sonar-testing-harness')
+  testImplementation testFixtures(project(':server:sonar-db-dao'))
+  testImplementation testFixtures(project(':server:sonar-server-common'))
+  testImplementation testFixtures(project(':server:sonar-webserver-api'))
 }

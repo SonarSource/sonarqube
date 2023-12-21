@@ -19,29 +19,7 @@
  */
 package org.sonar.server.common.gitlab.config;
 
-import java.util.Set;
-import javax.annotation.Nullable;
-
-public record GitlabConfiguration(
-  String id,
-
-  boolean enabled,
-
-  String applicationId,
-
-  String url,
-
-  String secret,
-
-  boolean synchronizeGroups,
-
-  ProvisioningType provisioningType,
-
-  boolean allowUsersToSignUp,
-
-  @Nullable
-  String provisioningToken,
-
-  Set<String> provisioningGroups
-) {
+public enum ProvisioningType {
+  JIT,
+  AUTO_PROVISIONING
 }

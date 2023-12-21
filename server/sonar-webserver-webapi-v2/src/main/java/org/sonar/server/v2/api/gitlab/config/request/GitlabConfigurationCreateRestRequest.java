@@ -25,7 +25,7 @@ import java.util.List;
 import javax.annotation.Nullable;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
-import org.sonar.server.common.gitlab.config.SynchronizationType;
+import org.sonar.server.v2.api.gitlab.config.resource.ProvisioningType;
 
 public record GitlabConfigurationCreateRestRequest(
 
@@ -49,7 +49,8 @@ public record GitlabConfigurationCreateRestRequest(
 
   @NotNull
   @Schema(description = "Type of synchronization")
-  SynchronizationType synchronizationType,
+  ProvisioningType provisioningType,
+
   @Nullable
   @Schema(accessMode = Schema.AccessMode.WRITE_ONLY,  description = "Gitlab token for provisioning")
   String provisioningToken,

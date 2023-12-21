@@ -21,10 +21,11 @@ package org.sonar.server.v2.api.gitlab.config.controller;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import org.sonar.server.common.gitlab.config.GitlabConfiguration;
 import org.sonar.server.common.gitlab.config.GitlabConfigurationService;
-import org.sonar.server.common.gitlab.config.SynchronizationType;
+import org.sonar.server.common.gitlab.config.ProvisioningType;
 import org.sonar.server.common.gitlab.config.UpdateGitlabConfigurationRequest;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.v2.api.gitlab.config.request.GitlabConfigurationCreateRestRequest;
@@ -57,7 +58,7 @@ public class DefaultGitlabConfigurationController implements GitlabConfiguration
 
     List<GitlabConfigurationResource> gitlabConfigurationResources = gitlabConfigurationService.findConfigurations()
       .stream()
-      .map(DefaultGitlabConfigurationController::toGitLabConfigurationResource)
+      .map(this::toGitLabConfigurationResource)
       .toList();
 
     PageRestResponse pageRestResponse = new PageRestResponse(1, 1000, gitlabConfigurationResources.size());
@@ -80,7 +81,7 @@ public class DefaultGitlabConfigurationController implements GitlabConfiguration
       createRestRequest.url(),
       createRestRequest.secret(),
       createRestRequest.synchronizeGroups(),
-      toSynchronizationType(createRestRequest.synchronizationType()),
+      toProvisioningType(createRestRequest.provisioningType()),
       createRestRequest.allowUsersToSignUp() != null && createRestRequest.allowUsersToSignUp(),
       createRestRequest.provisioningToken(),
       createRestRequest.provisioningGroups() == null ? Set.of() : Set.copyOf(createRestRequest.provisioningGroups()));
@@ -106,7 +107,7 @@ public class DefaultGitlabConfigurationController implements GitlabConfiguration
       .url(updateRequest.getUrl().toNonNullUpdatedValue())
       .secret(updateRequest.getSecret().toNonNullUpdatedValue())
       .synchronizeGroups(updateRequest.getSynchronizeGroups().toNonNullUpdatedValue())
-      .synchronizationType(updateRequest.getSynchronizationType().map(DefaultGitlabConfigurationController::toSynchronizationType).toNonNullUpdatedValue())
+      .provisioningType(updateRequest.getProvisioningType().map(DefaultGitlabConfigurationController::toProvisioningType).toNonNullUpdatedValue())
       .allowUserToSignUp(updateRequest.getAllowUsersToSignUp().toNonNullUpdatedValue())
       .provisioningToken(updateRequest.getProvisioningToken().toUpdatedValue())
       .provisioningGroups(updateRequest.getProvisioningGroups().map(DefaultGitlabConfigurationController::getGroups).toNonNullUpdatedValue())
@@ -117,24 +118,27 @@ public class DefaultGitlabConfigurationController implements GitlabConfiguration
     return new HashSet<>(groups);
   }
 
-  private static GitlabConfigurationResource toGitLabConfigurationResource(GitlabConfiguration configuration) {
+  private GitlabConfigurationResource toGitLabConfigurationResource(GitlabConfiguration configuration) {
+    Optional<String> configurationError = gitlabConfigurationService.validate(configuration);
     return new GitlabConfigurationResource(
       configuration.id(),
       configuration.enabled(),
       configuration.applicationId(),
       configuration.url(),
       configuration.synchronizeGroups(),
-      toRestSynchronizationType(configuration),
+      toRestProvisioningType(configuration),
       configuration.allowUsersToSignUp(),
-      sortGroups(configuration.provisioningGroups()));
+      sortGroups(configuration.provisioningGroups()),
+      configurationError.orElse(null)
+    );
   }
 
-  private static SynchronizationType toRestSynchronizationType(GitlabConfiguration configuration) {
-    return SynchronizationType.valueOf(configuration.synchronizationType().name());
+  private static org.sonar.server.v2.api.gitlab.config.resource.ProvisioningType toRestProvisioningType(GitlabConfiguration configuration) {
+    return org.sonar.server.v2.api.gitlab.config.resource.ProvisioningType.valueOf(configuration.provisioningType().name());
   }
 
-  private static SynchronizationType toSynchronizationType(SynchronizationType synchronizationType) {
-    return SynchronizationType.valueOf(synchronizationType.name());
+  private static ProvisioningType toProvisioningType(org.sonar.server.v2.api.gitlab.config.resource.ProvisioningType provisioningType) {
+    return ProvisioningType.valueOf(provisioningType.name());
   }
 
   private static List<String> sortGroups(Set<String> groups) {
