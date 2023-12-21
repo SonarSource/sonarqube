@@ -55,25 +55,21 @@ function CaycCondition({ condition, metric, metrics }: Readonly<Props>) {
 
       {shouldRenderOperator && (
         <StyledContentCell>
-          (
-          <>
-            <FormattedMessage
-              id="quality_gates.conditions.cayc.metric"
-              defaultMessage={translate('quality_gates.conditions.cayc.metric')}
-              values={{
-                metric: getLocalizedMetricNameNoDiffMetric(metric, metrics),
-                operator: renderOperator(),
-                value: <Highlight>&nbsp;{formatMeasure(condition.error, metric.type)}</Highlight>,
-              }}
-            />
-            <DocumentationTooltip
-              className="sw-ml-2"
-              content={translate('quality_gates.conditions.cayc.threshold.hint')}
-            >
-              <HelperHintIcon />
-            </DocumentationTooltip>
-          </>
-          )
+          <FormattedMessage
+            id="quality_gates.conditions.cayc.metric"
+            defaultMessage={translate('quality_gates.conditions.cayc.metric')}
+            values={{
+              metric: getLocalizedMetricNameNoDiffMetric(metric, metrics),
+              operator: renderOperator(),
+              value: <Highlight>&nbsp;{formatMeasure(condition.error, metric.type)}</Highlight>,
+            }}
+          />
+          <DocumentationTooltip
+            className="sw-ml-2 sw-align-text-top"
+            content={translate('quality_gates.conditions.cayc.threshold.hint')}
+          >
+            <HelperHintIcon />
+          </DocumentationTooltip>
         </StyledContentCell>
       )}
     </StyledItem>
