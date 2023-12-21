@@ -47,15 +47,16 @@ import { Provider } from '../../../../types/types';
 import { DOCUMENTATION_LINK_SUFFIXES } from './Authentication';
 import AuthenticationFormField from './AuthenticationFormField';
 import GitLabConfigurationForm from './GitLabConfigurationForm';
+import GitLabConfigurationValidity from './GitLabConfigurationValidity';
 
 interface ChangesForm {
-  synchronizationType?: GitLabConfigurationUpdateBody['synchronizationType'];
+  provisioningType?: GitLabConfigurationUpdateBody['provisioningType'];
   allowUsersToSignUp?: GitLabConfigurationUpdateBody['allowUsersToSignUp'];
   provisioningToken?: GitLabConfigurationUpdateBody['provisioningToken'];
   provisioningGroups?: GitLabConfigurationUpdateBody['provisioningGroups'];
 }
 
-const definitions: Record<keyof Omit<ChangesForm, 'synchronizationType'>, DefinitionV2> = {
+const definitions: Record<keyof Omit<ChangesForm, 'provisioningType'>, DefinitionV2> = {
   provisioningGroups: {
     name: translate('settings.authentication.gitlab.form.provisioningGroups.name'),
     key: 'provisioningGroups',
@@ -89,7 +90,12 @@ export default function GitLabAuthenticationTab() {
   );
 
   const { data: identityProvider } = useIdentityProviderQuery();
-  const { data: list, isLoading: isLoadingList } = useGitLabConfigurationsQuery();
+  const {
+    data: list,
+    isLoading: isLoadingList,
+    isFetching,
+    refetch,
+  } = useGitLabConfigurationsQuery();
   const configuration = list?.gitlabConfigurations[0];
 
   const { canSyncNow, synchronizeNow } = useSyncWithGitLabNow();
@@ -113,7 +119,7 @@ export default function GitLabAuthenticationTab() {
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    if (changes?.synchronizationType !== undefined) {
+    if (changes?.provisioningType !== undefined) {
       setShowConfirmProvisioningModal(true);
     } else {
       updateProvisioning();
@@ -138,14 +144,14 @@ export default function GitLabAuthenticationTab() {
 
   const setJIT = () =>
     setChangesWithCheck({
-      synchronizationType: ProvisioningType.jit,
+      provisioningType: ProvisioningType.jit,
       provisioningToken: undefined,
       provisioningGroups: undefined,
     });
 
   const setAuto = () =>
     setChangesWithCheck({
-      synchronizationType: ProvisioningType.auto,
+      provisioningType: ProvisioningType.auto,
       allowUsersToSignUp: undefined,
     });
 
@@ -155,16 +161,16 @@ export default function GitLabAuthenticationTab() {
   const provisioningTokenDefinition = definitions.provisioningToken;
   const provisioningGroupDefinition = definitions.provisioningGroups;
 
-  const provisioningType = changes?.synchronizationType ?? configuration?.synchronizationType;
+  const provisioningType = changes?.provisioningType ?? configuration?.provisioningType;
   const allowUsersToSignUp = changes?.allowUsersToSignUp ?? configuration?.allowUsersToSignUp;
   const provisioningToken = changes?.provisioningToken;
   const groups = changes?.provisioningGroups ?? configuration?.provisioningGroups;
 
   const canSave = () => {
-    if (!configuration || changes === undefined) {
+    if (!configuration || changes === undefined || isUpdating) {
       return false;
     }
-    const type = changes.synchronizationType ?? configuration.synchronizationType;
+    const type = changes.provisioningType ?? configuration.provisioningType;
     if (type === ProvisioningType.auto) {
       const hasConfigGroups =
         configuration.provisioningGroups && configuration.provisioningGroups.length > 0;
@@ -181,10 +187,10 @@ export default function GitLabAuthenticationTab() {
 
   const setChangesWithCheck = (newChanges: ChangesForm) => {
     const newValue = {
-      synchronizationType:
-        configuration?.synchronizationType === newChanges.synchronizationType
+      provisioningType:
+        configuration?.provisioningType === newChanges.provisioningType
           ? undefined
-          : newChanges.synchronizationType,
+          : newChanges.provisioningType,
       allowUsersToSignUp:
         configuration?.allowUsersToSignUp === newChanges.allowUsersToSignUp
           ? undefined
@@ -214,6 +220,13 @@ export default function GitLabAuthenticationTab() {
             </div>
           )}
         </div>
+        {!isLoadingList && configuration?.enabled && (
+          <GitLabConfigurationValidity
+            configuration={configuration}
+            loading={isFetching}
+            onRecheck={refetch}
+          />
+        )}
         {!configuration && (
           <div className="big-padded text-center huge-spacer-bottom authentication-no-config">
             {translate('settings.authentication.gitlab.form.not_configured')}
@@ -225,7 +238,7 @@ export default function GitLabAuthenticationTab() {
               <p>{configuration.url}</p>
               <Tooltip
                 overlay={
-                  configuration.synchronizationType === ProvisioningType.auto
+                  configuration.provisioningType === ProvisioningType.auto
                     ? translate('settings.authentication.form.disable.tooltip')
                     : null
                 }
@@ -233,9 +246,7 @@ export default function GitLabAuthenticationTab() {
                 <Button
                   className="spacer-top"
                   onClick={toggleEnable}
-                  disabled={
-                    isUpdating || configuration.synchronizationType === ProvisioningType.auto
-                  }
+                  disabled={isUpdating || configuration.provisioningType === ProvisioningType.auto}
                 >
                   {configuration.enabled
                     ? translate('settings.authentication.form.disable')
@@ -307,7 +318,7 @@ export default function GitLabAuthenticationTab() {
                               allowUsersToSignUp: value as boolean,
                             })
                           }
-                          isNotSet={configuration.synchronizationType !== ProvisioningType.auto}
+                          isNotSet={configuration.provisioningType !== ProvisioningType.auto}
                         />
                       )}
                   </RadioCard>
@@ -347,7 +358,7 @@ export default function GitLabAuthenticationTab() {
                           </DocLink>
                         </p>
 
-                        {configuration?.synchronizationType === ProvisioningType.auto && (
+                        {configuration?.provisioningType === ProvisioningType.auto && (
                           <GitLabSynchronisationWarning />
                         )}
 
@@ -375,7 +386,7 @@ export default function GitLabAuthenticationTab() {
                                 })
                               }
                               isNotSet={
-                                configuration.synchronizationType !== ProvisioningType.auto &&
+                                configuration.provisioningType !== ProvisioningType.auto &&
                                 configuration.provisioningGroups?.length === 0
                               }
                             />
@@ -389,7 +400,7 @@ export default function GitLabAuthenticationTab() {
                                   provisioningGroups: values as string[],
                                 })
                               }
-                              isNotSet={configuration.synchronizationType !== ProvisioningType.auto}
+                              isNotSet={configuration.provisioningType !== ProvisioningType.auto}
                             />
                           </>
                         )}
@@ -435,6 +446,7 @@ export default function GitLabAuthenticationTab() {
                   {canSave() &&
                     translate('settings.authentication.gitlab.configuration.unsaved_changes')}
                 </Alert>
+                <Spinner loading={isUpdating} />
               </div>
             )}
             {showConfirmProvisioningModal && provisioningType && (

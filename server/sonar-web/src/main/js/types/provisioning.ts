@@ -106,7 +106,7 @@ export type GitLabConfigurationUpdateBody = {
   secret?: string;
   synchronizeGroups?: boolean;
   enabled?: boolean;
-  synchronizationType?: ProvisioningType;
+  provisioningType?: ProvisioningType;
   provisioningToken?: string;
   provisioningGroups?: string[];
   allowUsersToSignUp?: boolean;
@@ -118,9 +118,10 @@ export type GitlabConfiguration = {
   applicationId: string;
   synchronizeGroups: boolean;
   url: string;
-  synchronizationType: ProvisioningType;
+  provisioningType: ProvisioningType;
   provisioningGroups: string[];
   allowUsersToSignUp: boolean;
+  errorMessage?: string;
 };
 
 export enum ProvisioningType {

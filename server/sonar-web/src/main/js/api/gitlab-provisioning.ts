@@ -43,7 +43,7 @@ export function createGitLabConfiguration(
 ): Promise<GitlabConfiguration> {
   return axios.post(GITLAB_CONFIGURATIONS, {
     ...data,
-    synchronizationType: ProvisioningType.jit,
+    provisioningType: ProvisioningType.jit,
     allowUsersToSignUp: false,
     enabled: true,
   });

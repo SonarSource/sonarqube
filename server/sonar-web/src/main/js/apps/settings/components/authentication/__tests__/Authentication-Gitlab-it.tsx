@@ -125,6 +125,10 @@ const ui = {
   gitlabProvisioningInProgress: glContainer.byText(/synchronization_in_progress/),
   gitlabProvisioningSuccess: glContainer.byText(/synchronization_successful/),
   gitlabProvisioningAlert: glContainer.byText(/synchronization_failed/),
+  gitlabConfigurationStatus: glContainer.byRole('status'),
+  testConfiguration: glContainer.byRole('button', {
+    name: 'settings.authentication.gitlab.configuration.test',
+  }),
 };
 
 it('should create a Gitlab configuration and disable it', async () => {
@@ -227,7 +231,7 @@ it('should change from auto provisioning to JIT with proper validation', async (
     mockGitlabConfiguration({
       allowUsersToSignUp: false,
       enabled: true,
-      synchronizationType: ProvisioningType.auto,
+      provisioningType: ProvisioningType.auto,
       provisioningGroups: ['D12'],
     }),
   ]);
@@ -264,7 +268,7 @@ it('should be able to allow user to sign up for JIT with proper validation', asy
     mockGitlabConfiguration({
       allowUsersToSignUp: false,
       enabled: true,
-      synchronizationType: ProvisioningType.jit,
+      provisioningType: ProvisioningType.jit,
     }),
   ]);
   const user = userEvent.setup();
@@ -296,7 +300,7 @@ it('should be able to edit groups and token for Auto provisioning with proper va
     mockGitlabConfiguration({
       allowUsersToSignUp: false,
       enabled: true,
-      synchronizationType: ProvisioningType.auto,
+      provisioningType: ProvisioningType.auto,
       provisioningGroups: ['Cypress Hill', 'Public Enemy'],
     }),
   ]);
@@ -346,7 +350,7 @@ it('should be able to reset Auto Provisioning changes', async () => {
     mockGitlabConfiguration({
       allowUsersToSignUp: false,
       enabled: true,
-      synchronizationType: ProvisioningType.auto,
+      provisioningType: ProvisioningType.auto,
       provisioningGroups: ['Cypress Hill', 'Public Enemy'],
     }),
   ]);
@@ -382,7 +386,7 @@ describe('Gitlab Provisioning', () => {
     handler.setGitlabConfigurations([
       mockGitlabConfiguration({
         enabled: true,
-        synchronizationType: ProvisioningType.auto,
+        provisioningType: ProvisioningType.auto,
         provisioningGroups: ['Test'],
       }),
     ]);
@@ -465,6 +469,29 @@ describe('Gitlab Provisioning', () => {
 
     expect(await ui.syncWarning.find()).toBeInTheDocument();
     expect(ui.syncSummary.get()).toBeInTheDocument();
+  });
+
+  it('should show configuration validity', async () => {
+    const user = userEvent.setup();
+    renderAuthentication([Feature.GitlabProvisioning]);
+
+    expect(await ui.gitlabConfigurationStatus.find()).toBeInTheDocument();
+    expect(ui.gitlabConfigurationStatus.get()).toHaveTextContent(
+      'settings.authentication.gitlab.configuration.valid.AUTO_PROVISIONING',
+    );
+    await user.click(ui.jitProvisioningRadioButton.get());
+    await user.click(ui.saveProvisioning.get());
+    await user.click(ui.confirmProvisioningChange.get());
+    expect(ui.gitlabConfigurationStatus.get()).toHaveTextContent(
+      'settings.authentication.gitlab.configuration.valid.JIT',
+    );
+    handler.setGitlabConfigurations([
+      mockGitlabConfiguration({ ...handler.gitlabConfigurations[0], errorMessage: 'ERROR' }),
+    ]);
+    await user.click(ui.testConfiguration.get());
+    expect(ui.gitlabConfigurationStatus.get()).toHaveTextContent('ERROR');
+    await user.click(ui.disableConfigButton.get());
+    expect(ui.gitlabConfigurationStatus.query()).not.toBeInTheDocument();
   });
 });
 

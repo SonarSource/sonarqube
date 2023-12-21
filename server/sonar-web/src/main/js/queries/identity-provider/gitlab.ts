@@ -27,6 +27,8 @@ import {
   syncNowGitLabProvisioning,
   updateGitLabConfiguration,
 } from '../../api/gitlab-provisioning';
+import { addGlobalSuccessMessage } from '../../helpers/globalMessages';
+import { translate } from '../../helpers/l10n';
 import { AlmSyncStatus, ProvisioningType } from '../../types/provisioning';
 import { TaskStatuses, TaskTypes } from '../../types/tasks';
 
@@ -72,6 +74,7 @@ export function useUpdateGitLabConfigurationMutation() {
           total: 1,
         },
       });
+      addGlobalSuccessMessage(translate('settings.authentication.form.settings.save_success'));
     },
   });
 }
@@ -160,7 +163,7 @@ export function useSyncWithGitLabNow() {
   const { data: gitlabConfigurations } = useGitLabConfigurationsQuery();
   const autoProvisioningEnabled = gitlabConfigurations?.gitlabConfigurations.some(
     (configuration) =>
-      configuration.enabled && configuration.synchronizationType === ProvisioningType.auto,
+      configuration.enabled && configuration.provisioningType === ProvisioningType.auto,
   );
   const mutation = useMutation(syncNowGitLabProvisioning, {
     onSuccess: () => {
