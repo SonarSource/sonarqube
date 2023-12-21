@@ -24,9 +24,14 @@ import { dismissNotice } from '../../../api/users';
 import { CurrentUserContext } from '../../../app/components/current-user/CurrentUserContext';
 import DocumentationLink from '../../../components/common/DocumentationLink';
 import { translate } from '../../../helpers/l10n';
+import { QualityGate } from '../../../types/types';
 import { NoticeType } from '../../../types/users';
 
-export default function CaYCConditionsSimplificationGuide() {
+interface Props {
+  readonly qualityGate: QualityGate;
+}
+
+export default function CaYCConditionsSimplificationGuide({ qualityGate }: Props) {
   const { currentUser, updateDismissedNotices } = React.useContext(CurrentUserContext);
   const shouldRun =
     currentUser.isLoggedIn &&
@@ -78,8 +83,13 @@ export default function CaYCConditionsSimplificationGuide() {
     }
   };
 
+  if (!qualityGate.isBuiltIn) {
+    return null;
+  }
+
   return (
     <SpotlightTour
+      debug
       continuous
       run={shouldRun}
       closeLabel={translate('dismiss')}

@@ -149,7 +149,7 @@ export default function Conditions({ qualityGate, isFetching }: Readonly<Props>)
 
   return (
     <div>
-      <CaYCConditionsSimplificationGuide />
+      <CaYCConditionsSimplificationGuide qualityGate={qualityGate} />
 
       {isCompliantCustomQualityGate && !isOptimizing && <CaycCompliantBanner />}
       {isCompliantCustomQualityGate && isOptimizing && canEdit && (
