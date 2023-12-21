@@ -78,10 +78,8 @@ function TooltipComponent({
   width?: number;
 }) {
   const [timeStamp, setTimeStamp] = React.useState(0);
-  const ref = React.useRef<HTMLDivElement | null>(null);
-  const setRef = React.useCallback((node: HTMLDivElement) => {
-    ref.current = node;
-  }, []);
+  const [ref, setRef] = React.useState<HTMLDivElement | null>(null);
+
   const placement = step.placement ?? DEFAULT_PLACEMENT;
   const intl = useIntl();
 
@@ -95,13 +93,6 @@ function TooltipComponent({
       target?.classList.remove('active');
     };
   }, [step]);
-
-  const rect = ref.current?.parentElement?.getBoundingClientRect();
-  const targetElement =
-    typeof step.target === 'string'
-      ? document.querySelector<HTMLElement>(step.target)
-      : step.target;
-  const targetRect = targetElement?.getBoundingClientRect();
 
   React.useEffect(() => {
     const updateScroll = (event: Event) => {
@@ -119,10 +110,12 @@ function TooltipComponent({
     };
   }, []);
 
-  const arrowPosition = React.useMemo(
-    () => findAnchor(rect ?? defultRect, targetRect ?? defultRect, PULSE_SIZE),
-    [rect, targetRect, timeStamp],
-  );
+  const rect = ref?.parentElement?.getBoundingClientRect();
+  const targetElement =
+    typeof step.target === 'string'
+      ? document.querySelector<HTMLElement>(step.target)
+      : step.target;
+  const targetRect = targetElement?.getBoundingClientRect();
 
   /**
    * Preventing click events from bubbling to avoid closing other popups, in cases when the guide
@@ -131,6 +124,11 @@ function TooltipComponent({
   function handleClick(e: React.MouseEvent) {
     e.stopPropagation();
   }
+
+  const arrowPosition = React.useMemo(
+    () => findAnchor(rect ?? defultRect, targetRect ?? defultRect, PULSE_SIZE),
+    [rect, targetRect, timeStamp],
+  );
 
   return (
     <StyledPopupWrapper
