@@ -19,7 +19,7 @@
  */
 import classNames from 'classnames';
 import { difference } from 'lodash';
-import { PureComponent } from 'react';
+import React, { PureComponent } from 'react';
 import { Key } from '../../helpers/keyboard';
 import { ItemDivider, ItemHeader } from '../DropdownMenu';
 import { InputSearch } from './InputSearch';
@@ -32,6 +32,7 @@ interface Props {
   createElementLabel: string;
   disableMessage?: string;
   elements: string[];
+  elementsDisabled?: string[];
   footerNode?: React.ReactNode;
   headerNode?: React.ReactNode;
   inputId?: string;
@@ -271,6 +272,7 @@ export class MultiSelectMenu extends PureComponent<Props, State> {
       inputId,
       noResultsLabel,
       searchInputAriaLabel,
+      elementsDisabled,
     } = this.props;
     const { renderLabel } = this.props as PropsWithDefault;
 
@@ -334,6 +336,18 @@ export class MultiSelectMenu extends PureComponent<Props, State> {
                 renderLabel={renderLabel}
               />
             ))}
+          {elementsDisabled?.map((element) => (
+            <MultiSelectMenuOption
+              active={activeElement === element}
+              createElementLabel={createElementLabel}
+              disabled
+              element={element}
+              key={element}
+              onHover={this.handleElementHover}
+              onSelectChange={this.handleSelectChange}
+              renderLabel={renderLabel}
+            />
+          ))}
           {showNewElement && (
             <MultiSelectMenuOption
               active={activeElement === query}
@@ -345,9 +359,10 @@ export class MultiSelectMenu extends PureComponent<Props, State> {
               onSelectChange={this.handleSelectChange}
             />
           )}
-          {!showNewElement && selectedElements.length < 1 && unselectedElements.length < 1 && (
-            <li className="sw-ml-2">{noResultsLabel}</li>
-          )}
+          {!showNewElement &&
+            selectedElements.length < 1 &&
+            unselectedElements.length < 1 &&
+            (elementsDisabled ?? []).length < 1 && <li className="sw-ml-2">{noResultsLabel}</li>}
         </ul>
         {hasFooter && <ItemDivider className="sw-mt-2" />}
         <div className="sw-px-3">{footerNode}</div>
