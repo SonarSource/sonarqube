@@ -44,5 +44,9 @@
     where not exists (select 1 from metrics m where m.enabled=${_true} and m.uuid = metric_uuid)
   </delete>
 
+  <update id="deleteQualityGateConditionsByQualityGateUuid" parameterType="String">
+    delete from quality_gate_conditions where qgate_uuid=#{uuid}
+  </update>
+
 </mapper>
 

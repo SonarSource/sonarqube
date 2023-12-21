@@ -100,12 +100,15 @@ public class DestroyAction implements QualityGatesWsAction {
       logger.debug("Delete Project-qGate association:: organization: {}, qGate: {}", organization.getKey(),
               qualityGate.getName());
       dbClient.projectQgateAssociationDao().deleteByQGateUuid(dbSession, qualityGate.getUuid());
-      logger.debug("Delete qGate group permissions:: organizattion: {}, qGate: {}", organization.getKey(),
+      logger.debug("Delete qGate group permissions:: organization: {}, qGate: {}", organization.getKey(),
               qualityGate.getName());
       dbClient.qualityGateGroupPermissionsDao().deleteByQualityGate(dbSession, qualityGate);
-      logger.debug("Delete qGate user permissions:: organizattion: {}, qGate: {}", organization.getKey(),
+      logger.debug("Delete qGate user permissions:: organization: {}, qGate: {}", organization.getKey(),
               qualityGate.getName());
       dbClient.qualityGateUserPermissionDao().deleteByQualityGate(dbSession, qualityGate);
+      logger.debug("Delete qGate conditions:: organization: {}, qGate: {}", organization.getKey(),
+              qualityGate.getName());
+      dbClient.gateConditionDao().deleteQGateCondition(qualityGate, dbSession);
       dbClient.qualityGateDao().delete(qualityGate, dbSession);
       dbSession.commit();
       logger.info("Deleted Quality Gate:: organization: {}, qGate: {}", organization.getKey(), qualityGate.getName());

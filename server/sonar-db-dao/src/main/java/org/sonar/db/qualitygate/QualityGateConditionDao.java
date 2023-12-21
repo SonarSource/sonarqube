@@ -53,4 +53,8 @@ public class QualityGateConditionDao implements Dao {
   private static QualityGateConditionMapper mapper(DbSession session) {
     return session.getMapper(QualityGateConditionMapper.class);
   }
+
+  public void deleteQGateCondition(QualityGateDto qGate, DbSession session) {
+    mapper(session).deleteQualityGateConditionsByQualityGateUuid(qGate.getUuid());
+  }
 }

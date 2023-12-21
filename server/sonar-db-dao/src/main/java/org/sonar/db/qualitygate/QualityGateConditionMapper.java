@@ -34,4 +34,6 @@ public interface QualityGateConditionMapper {
   void delete(String uuid);
 
   void deleteConditionsWithInvalidMetrics();
+
+  void deleteQualityGateConditionsByQualityGateUuid(String uuid);
 }

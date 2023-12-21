@@ -42,6 +42,8 @@ public interface QualityGateMapper {
 
   void update(QualityGateDto qGate);
 
+  void deleteOrgQualityGatesByQualityGateUuid(String uuid);
+
   void ensureOneBuiltInQualityGate(String builtInQualityName);
 
   void selectQualityGateFindings(String qualityGateUuid, ResultHandler<QualityGateFindingDto> handler);
