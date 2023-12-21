@@ -321,6 +321,29 @@ public class MeasureUpdateFormulaFactoryImplTest {
   }
 
   @Test
+  public void test_high_impact_accepted_issues() {
+    withNoIssues()
+      .assertThatValueIs(CoreMetrics.HIGH_IMPACT_ACCEPTED_ISSUES, 0);
+
+    with(
+      newGroup(RuleType.CODE_SMELL).setStatus(Issue.STATUS_RESOLVED).setResolution(Issue.RESOLUTION_FALSE_POSITIVE)
+        .setHasHighImpactSeverity(true).setCount(3),
+      newGroup(RuleType.CODE_SMELL).setStatus(Issue.STATUS_RESOLVED).setResolution(Issue.RESOLUTION_WONT_FIX)
+        .setHasHighImpactSeverity(true).setCount(4),
+      newGroup(RuleType.CODE_SMELL).setStatus(Issue.STATUS_RESOLVED).setResolution(Issue.RESOLUTION_WONT_FIX)
+        .setHasHighImpactSeverity(false).setCount(5),
+      newGroup(RuleType.BUG).setStatus(Issue.STATUS_RESOLVED).setResolution(Issue.RESOLUTION_FALSE_POSITIVE)
+        .setHasHighImpactSeverity(true).setCount(30),
+      newGroup(RuleType.BUG).setStatus(Issue.STATUS_RESOLVED).setResolution(Issue.RESOLUTION_WONT_FIX)
+        .setHasHighImpactSeverity(true).setCount(40),
+      newGroup(RuleType.BUG).setStatus(Issue.STATUS_RESOLVED).setResolution(Issue.RESOLUTION_WONT_FIX)
+        .setHasHighImpactSeverity(false).setCount(50),
+      // exclude security hotspot
+      newGroup(RuleType.SECURITY_HOTSPOT).setResolution(Issue.RESOLUTION_WONT_FIX).setHasHighImpactSeverity(true).setCount(40))
+      .assertThatValueIs(CoreMetrics.HIGH_IMPACT_ACCEPTED_ISSUES, 4 + 40);
+  }
+
+  @Test
   public void test_technical_debt() {
     withNoIssues().assertThatValueIs(CoreMetrics.TECHNICAL_DEBT, 0);
 
@@ -675,6 +698,22 @@ public class MeasureUpdateFormulaFactoryImplTest {
       newGroup(RuleType.CODE_SMELL).setSeverity(Severity.INFO).setInLeak(false).setCount(11),
       newGroup(RuleType.BUG).setSeverity(Severity.INFO).setInLeak(false).setCount(13))
       .assertThatLeakValueIs(CoreMetrics.NEW_INFO_VIOLATIONS, 3 + 5 + 7);
+  }
+
+  @Test
+  public void test_new_accepted_issues() {
+    withNoIssues()
+      .assertThatLeakValueIs(CoreMetrics.NEW_ACCEPTED_ISSUES, 0);
+
+    with(
+      newGroup(RuleType.CODE_SMELL).setResolution(Issue.RESOLUTION_FALSE_POSITIVE).setInLeak(true).setCount(3),
+      newGroup(RuleType.CODE_SMELL).setResolution(Issue.RESOLUTION_WONT_FIX).setInLeak(true).setCount(4),
+      newGroup(RuleType.BUG).setResolution(Issue.RESOLUTION_FALSE_POSITIVE).setInLeak(true).setCount(30),
+      newGroup(RuleType.BUG).setResolution(Issue.RESOLUTION_WONT_FIX).setInLeak(true).setCount(40),
+      // not in leak
+      newGroup(RuleType.CODE_SMELL).setResolution(Issue.RESOLUTION_WONT_FIX).setInLeak(false).setCount(5),
+      newGroup(RuleType.BUG).setResolution(Issue.RESOLUTION_WONT_FIX).setInLeak(false).setCount(50))
+      .assertThatLeakValueIs(CoreMetrics.NEW_ACCEPTED_ISSUES, 4 + 40);
   }
 
   @Test

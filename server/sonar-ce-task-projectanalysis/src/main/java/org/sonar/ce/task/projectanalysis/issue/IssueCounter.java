@@ -26,6 +26,7 @@ import com.google.common.collect.Multiset;
 import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.Nullable;
+import org.sonar.api.issue.impact.Severity;
 import org.sonar.api.rules.RuleType;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.measure.Measure;
@@ -45,9 +46,11 @@ import static org.sonar.api.measures.CoreMetrics.CODE_SMELLS_KEY;
 import static org.sonar.api.measures.CoreMetrics.CONFIRMED_ISSUES_KEY;
 import static org.sonar.api.measures.CoreMetrics.CRITICAL_VIOLATIONS_KEY;
 import static org.sonar.api.measures.CoreMetrics.FALSE_POSITIVE_ISSUES_KEY;
+import static org.sonar.api.measures.CoreMetrics.HIGH_IMPACT_ACCEPTED_ISSUES_KEY;
 import static org.sonar.api.measures.CoreMetrics.INFO_VIOLATIONS_KEY;
 import static org.sonar.api.measures.CoreMetrics.MAJOR_VIOLATIONS_KEY;
 import static org.sonar.api.measures.CoreMetrics.MINOR_VIOLATIONS_KEY;
+import static org.sonar.api.measures.CoreMetrics.NEW_ACCEPTED_ISSUES_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_BLOCKER_VIOLATIONS_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_BUGS_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_CODE_SMELLS_KEY;
@@ -169,6 +172,7 @@ public class IssueCounter extends IssueVisitor {
     addMeasure(component, CONFIRMED_ISSUES_KEY, currentCounters.counter().confirmed);
     addMeasure(component, FALSE_POSITIVE_ISSUES_KEY, currentCounters.counter().falsePositives);
     addMeasure(component, ACCEPTED_ISSUES_KEY, currentCounters.counter().accepted);
+    addMeasure(component, HIGH_IMPACT_ACCEPTED_ISSUES_KEY, currentCounters.counter().highImpactAccepted);
   }
 
   private void addMeasuresByType(Component component) {
@@ -209,6 +213,8 @@ public class IssueCounter extends IssueVisitor {
       measureRepository.add(component, metric, Measure.newMeasureBuilder()
         .create(bag.count(type)));
     }
+
+    addMeasure(component, NEW_ACCEPTED_ISSUES_KEY, currentCounters.counterForPeriod().accepted);
   }
 
   /**
@@ -221,6 +227,7 @@ public class IssueCounter extends IssueVisitor {
     private int confirmed = 0;
     private int falsePositives = 0;
     private int accepted = 0;
+    private int highImpactAccepted = 0;
     private final Multiset<String> severityBag = HashMultiset.create();
     private final EnumMultiset<RuleType> typeBag = EnumMultiset.create(RuleType.class);
 
@@ -231,6 +238,7 @@ public class IssueCounter extends IssueVisitor {
       confirmed += counter.confirmed;
       falsePositives += counter.falsePositives;
       accepted += counter.accepted;
+      highImpactAccepted += counter.highImpactAccepted;
       severityBag.addAll(counter.severityBag);
       typeBag.addAll(counter.typeBag);
     }
@@ -250,6 +258,9 @@ public class IssueCounter extends IssueVisitor {
         falsePositives++;
       } else if (IssueStatus.ACCEPTED.equals(issue.getIssueStatus())) {
         accepted++;
+        if (issue.impacts().values().stream().anyMatch(severity -> severity == Severity.HIGH)) {
+          highImpactAccepted++;
+        }
       }
       switch (issue.status()) {
         case STATUS_OPEN:

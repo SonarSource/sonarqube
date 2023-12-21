@@ -458,61 +458,82 @@
   </select>
 
   <select id="selectIssueGroupsByComponent" resultType="org.sonar.db.issue.IssueGroupDto" parameterType="map">
-    select i.issue_type as ruleType, i.severity as severity, i.resolution as resolution, i.status as status, sum(i.effort) as effort, count(i.issue_type) as "count",
-    <if test="leakPeriodBeginningDate &gt;= 0">
-      (i.issue_creation_date &gt; #{leakPeriodBeginningDate,jdbcType=BIGINT}) as inLeak
-    </if>
-    <if test="leakPeriodBeginningDate &lt; 0">
-      CASE WHEN n.uuid is null THEN false ELSE true END as inLeak
-    </if>
+    <include refid="withHighImpactSeverityIssues"/>
+    select
+      i.issue_type as ruleType,
+      i.severity as severity,
+      exists(select 1 from high_impact_severity_issues hisi where hisi.kee = i.kee) as hasHighImpactSeverity,
+      i.resolution as resolution,
+      i.status as status, sum(i.effort) as effort,
+      count(i.issue_type) as "count",
+      <if test="leakPeriodBeginningDate &gt;= 0">
+        (i.issue_creation_date &gt; #{leakPeriodBeginningDate,jdbcType=BIGINT}) as inLeak
+      </if>
+      <if test="leakPeriodBeginningDate &lt; 0">
+        CASE WHEN n.uuid is null THEN false ELSE true END as inLeak
+      </if>
     from issues i
     <if test="leakPeriodBeginningDate &lt; 0">
       left join new_code_reference_issues n on n.issue_key = i.kee
     </if>
-    where i.status !='CLOSED'
+    where i.status &lt;&gt; 'CLOSED'
     and i.component_uuid = #{component.uuid,jdbcType=VARCHAR}
-    group by i.issue_type, i.severity, i.resolution, i.status, inLeak
+    group by i.issue_type, i.severity, hasHighImpactSeverity, i.resolution, i.status, inLeak
   </select>
 
-  <select id="selectIssueGroupsByComponent" resultType="org.sonar.db.issue.IssueGroupDto" parameterType="map" databaseId="oracle">
-    select i2.issue_type as ruleType, i2.severity as severity, i2.resolution as resolution, i2.status as status, sum(i2.effort) as effort, count(i2.issue_type) as "count", i2.inLeak as inLeak
-    from (
-      select i.issue_type, i.severity, i.resolution, i.status, i.effort,
-      <if test="leakPeriodBeginningDate &gt;= 0">
-        case when i.issue_creation_date &gt; #{leakPeriodBeginningDate,jdbcType=BIGINT} then 1 else 0 end as inLeak
-      </if>
-      <if test="leakPeriodBeginningDate &lt; 0">
-        case when n.uuid is null then 0 else 1 end as inLeak
-      </if>
+  <sql id="withHighImpactSeverityIssues">
+    with high_impact_severity_issues as (
+      select distinct kee
       from issues i
-      <if test="leakPeriodBeginningDate &lt; 0">
-        left join new_code_reference_issues n on n.issue_key = i.kee
-      </if>
-      where i.status !='CLOSED'
+      inner join issues_impacts ii on ii.issue_key = i.kee
+      where i.status &lt;&gt; 'CLOSED'
       and i.component_uuid = #{component.uuid,jdbcType=VARCHAR}
-    ) i2
-    group by i2.issue_type, i2.severity, i2.resolution, i2.status, i2.inLeak
+      and ii.severity = 'HIGH'
+    )
+  </sql>
+
+  <select id="selectIssueGroupsByComponent" resultType="org.sonar.db.issue.IssueGroupDto" parameterType="map" databaseId="oracle">
+    <include refid="selectIssueGroupsByComponentVendorSpecific"/>
   </select>
 
   <select id="selectIssueGroupsByComponent" resultType="org.sonar.db.issue.IssueGroupDto" parameterType="map" databaseId="mssql">
-    select i2.issue_type as ruleType, i2.severity as severity, i2.resolution as resolution, i2.status as status, sum(i2.effort) as effort, count(i2.issue_type) as "count", i2.inLeak as inLeak
+    <include refid="selectIssueGroupsByComponentVendorSpecific"/>
+  </select>
+
+  <sql id="selectIssueGroupsByComponentVendorSpecific">
+    <include refid="withHighImpactSeverityIssues"/>
+    select
+      i2.issue_type as ruleType,
+      i2.severity as severity,
+      i2.hasHighImpactSeverity as hasHighImpactSeverity,
+      i2.resolution as resolution,
+      i2.status as status,
+      sum(i2.effort) as effort,
+      count(i2.issue_type) as "count",
+      i2.inLeak as inLeak
     from (
-      select i.issue_type, i.severity, i.resolution, i.status, i.effort,
-      <if test="leakPeriodBeginningDate &gt;= 0">
-      case when i.issue_creation_date &gt; #{leakPeriodBeginningDate,jdbcType=BIGINT} then 1 else 0 end as inLeak
-      </if>
-      <if test="leakPeriodBeginningDate &lt; 0">
-        case when n.uuid is null then 0 else 1 end as inLeak
-      </if>
+      select
+        i.issue_type,
+        i.severity,
+        case when exists(select 1 from high_impact_severity_issues hisi where hisi.kee = i.kee) then 1 else 0 end as hasHighImpactSeverity,
+        i.resolution,
+        i.status,
+        i.effort,
+        <if test="leakPeriodBeginningDate &gt;= 0">
+          case when i.issue_creation_date &gt; #{leakPeriodBeginningDate,jdbcType=BIGINT} then 1 else 0 end as inLeak
+        </if>
+        <if test="leakPeriodBeginningDate &lt; 0">
+          case when n.uuid is null then 0 else 1 end as inLeak
+        </if>
       from issues i
       <if test="leakPeriodBeginningDate &lt; 0">
         left join new_code_reference_issues n on n.issue_key = i.kee
       </if>
-      where i.status !='CLOSED'
+      where i.status &lt;&gt; 'CLOSED'
       and i.component_uuid = #{component.uuid,jdbcType=VARCHAR}
     ) i2
-    group by i2.issue_type, i2.severity, i2.resolution, i2.status, i2.inLeak
-  </select>
+    group by i2.issue_type, i2.severity, i2.hasHighImpactSeverity, i2.resolution, i2.status, i2.inLeak
+  </sql>
 
   <select id="selectIssueKeysByComponentUuid" parameterType="string" resultType="string">
     select

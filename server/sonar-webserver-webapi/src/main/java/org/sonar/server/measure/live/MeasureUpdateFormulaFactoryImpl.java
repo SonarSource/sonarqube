@@ -81,6 +81,9 @@ public class MeasureUpdateFormulaFactoryImpl implements MeasureUpdateFormulaFact
     new MeasureUpdateFormula(CoreMetrics.ACCEPTED_ISSUES, false, new AddChildren(),
       (context, issues) -> context.setValue(issues.countByResolution(Issue.RESOLUTION_WONT_FIX, false))),
 
+    new MeasureUpdateFormula(CoreMetrics.HIGH_IMPACT_ACCEPTED_ISSUES, false, new AddChildren(),
+      (context, issues) -> context.setValue(issues.countHighImpactAccepted(false))),
+
     new MeasureUpdateFormula(CoreMetrics.OPEN_ISSUES, false, new AddChildren(),
       (context, issues) -> context.setValue(issues.countByStatus(Issue.STATUS_OPEN, false))),
 
@@ -173,6 +176,9 @@ public class MeasureUpdateFormulaFactoryImpl implements MeasureUpdateFormulaFact
 
     new MeasureUpdateFormula(CoreMetrics.NEW_INFO_VIOLATIONS, true, new AddChildren(),
       (context, issues) -> context.setValue(issues.countUnresolvedBySeverity(Severity.INFO, true))),
+
+    new MeasureUpdateFormula(CoreMetrics.NEW_ACCEPTED_ISSUES, true, new AddChildren(),
+      (context, issues) -> context.setValue(issues.countByResolution(Issue.RESOLUTION_WONT_FIX, true))),
 
     new MeasureUpdateFormula(CoreMetrics.NEW_TECHNICAL_DEBT, true, new AddChildren(),
       (context, issues) -> context.setValue(issues.sumEffortOfUnresolved(RuleType.CODE_SMELL, true))),

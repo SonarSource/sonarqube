@@ -27,6 +27,7 @@ import java.util.Optional;
 import javax.annotation.Nullable;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.RuleType;
+import org.sonar.core.issue.status.IssueStatus;
 import org.sonar.db.issue.IssueGroupDto;
 import org.sonar.db.rule.SeverityUtil;
 
@@ -42,47 +43,59 @@ class IssueCounter {
   private final Map<String, Count> byStatus = new HashMap<>();
   private final Map<String, Count> hotspotsByStatus = new HashMap<>();
   private final Count unresolved = new Count();
+  private final Count highImpactAccepted = new Count();
 
   IssueCounter(Collection<IssueGroupDto> groups) {
     for (IssueGroupDto group : groups) {
-      RuleType ruleType = RuleType.valueOf(group.getRuleType());
-      if (ruleType.equals(SECURITY_HOTSPOT)) {
-        if (group.getResolution() == null) {
-          unresolvedByType
-            .computeIfAbsent(SECURITY_HOTSPOT, k -> new Count())
-            .add(group);
-        }
-        if (group.getStatus() != null) {
-          hotspotsByStatus
-            .computeIfAbsent(group.getStatus(), k -> new Count())
-            .add(group);
-        }
-        continue;
-      }
-      if (group.getResolution() == null) {
-        highestSeverityOfUnresolved
-          .computeIfAbsent(ruleType, k -> new HighestSeverity())
-          .add(group);
-        effortOfUnresolved
-          .computeIfAbsent(ruleType, k -> new Effort())
-          .add(group);
-        unresolvedBySeverity
-          .computeIfAbsent(group.getSeverity(), k -> new Count())
-          .add(group);
-        unresolvedByType
-          .computeIfAbsent(ruleType, k -> new Count())
-          .add(group);
-        unresolved.add(group);
+      if (RuleType.valueOf(group.getRuleType()).equals(SECURITY_HOTSPOT)) {
+        processHotspotGroup(group);
       } else {
-        byResolution
-          .computeIfAbsent(group.getResolution(), k -> new Count())
-          .add(group);
+        processGroup(group);
       }
-      if (group.getStatus() != null) {
-        byStatus
-          .computeIfAbsent(group.getStatus(), k -> new Count())
-          .add(group);
+    }
+  }
+
+  private void processHotspotGroup(IssueGroupDto group) {
+    if (group.getResolution() == null) {
+      unresolvedByType
+        .computeIfAbsent(SECURITY_HOTSPOT, k -> new Count())
+        .add(group);
+    }
+    if (group.getStatus() != null) {
+      hotspotsByStatus
+        .computeIfAbsent(group.getStatus(), k -> new Count())
+        .add(group);
+    }
+  }
+
+  private void processGroup(IssueGroupDto group) {
+    if (group.getResolution() == null) {
+      RuleType ruleType = RuleType.valueOf(group.getRuleType());
+      highestSeverityOfUnresolved
+        .computeIfAbsent(ruleType, k -> new HighestSeverity())
+        .add(group);
+      effortOfUnresolved
+        .computeIfAbsent(ruleType, k -> new Effort())
+        .add(group);
+      unresolvedBySeverity
+        .computeIfAbsent(group.getSeverity(), k -> new Count())
+        .add(group);
+      unresolvedByType
+        .computeIfAbsent(ruleType, k -> new Count())
+        .add(group);
+      unresolved.add(group);
+    } else {
+      byResolution
+        .computeIfAbsent(group.getResolution(), k -> new Count())
+        .add(group);
+      if (IssueStatus.ACCEPTED.equals(IssueStatus.of(group.getStatus(), group.getResolution())) && group.hasHighImpactSeverity()) {
+        highImpactAccepted.add(group);
       }
+    }
+    if (group.getStatus() != null) {
+      byStatus
+        .computeIfAbsent(group.getStatus(), k -> new Count())
+        .add(group);
     }
   }
 
@@ -117,6 +130,10 @@ class IssueCounter {
 
   public long countUnresolved(boolean onlyInLeak) {
     return value(unresolved, onlyInLeak);
+  }
+
+  public long countHighImpactAccepted(boolean onlyInLeak) {
+    return value(highImpactAccepted, onlyInLeak);
   }
 
   public long countHotspotsByStatus(String status, boolean onlyInLeak) {

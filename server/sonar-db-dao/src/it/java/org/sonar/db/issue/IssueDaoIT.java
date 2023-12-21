@@ -30,6 +30,7 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.apache.ibatis.cursor.Cursor;
+import org.jetbrains.annotations.NotNull;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -39,7 +40,6 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactoryFast;
-import org.sonar.core.util.Uuids;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.Pagination;
@@ -465,17 +465,22 @@ public class IssueDaoIT {
     ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(project));
     RuleDto rule = db.rules().insert();
     db.issues().insert(rule, project, file,
-      i -> i.setStatus("RESOLVED").setResolution("FALSE-POSITIVE").setSeverity("MAJOR").setType(RuleType.BUG).setIssueCreationTime(1_500L));
+      i -> i.setStatus("RESOLVED").setResolution("FALSE-POSITIVE").setSeverity("MAJOR").setType(RuleType.BUG).setIssueCreationTime(1_500L)
+        .replaceAllImpacts(List.of(createImpact(SECURITY, HIGH), createImpact(MAINTAINABILITY, LOW))));
     db.issues().insert(rule, project, file,
-      i -> i.setStatus("OPEN").setResolution(null).setSeverity("CRITICAL").setType(RuleType.BUG).setIssueCreationTime(1_600L));
+      i -> i.setStatus("OPEN").setResolution(null).setSeverity("CRITICAL").setType(RuleType.BUG).setIssueCreationTime(1_600L)
+        .replaceAllImpacts(List.of(createImpact(SECURITY, HIGH), createImpact(MAINTAINABILITY, HIGH))));
     IssueDto criticalBug2 = db.issues().insert(rule, project, file,
-      i -> i.setStatus("OPEN").setResolution(null).setSeverity("CRITICAL").setType(RuleType.BUG).setIssueCreationTime(1_700L));
+      i -> i.setStatus("OPEN").setResolution(null).setSeverity("CRITICAL").setType(RuleType.BUG).setIssueCreationTime(1_700L)
+        .replaceAllImpacts(List.of(createImpact(SECURITY, MEDIUM), createImpact(MAINTAINABILITY, LOW))));
     // closed issues are ignored
     db.issues().insert(rule, project, file,
-      i -> i.setStatus("CLOSED").setResolution("REMOVED").setSeverity("CRITICAL").setType(RuleType.BUG).setIssueCreationTime(1_700L));
+      i -> i.setStatus("CLOSED").setResolution("REMOVED").setSeverity("CRITICAL").setType(RuleType.BUG).setIssueCreationTime(1_700L)
+        .replaceAllImpacts(List.of(createImpact(SECURITY, HIGH))));
 
     Collection<IssueGroupDto> result = underTest.selectIssueGroupsByComponent(db.getSession(), file, 1_000L);
 
+    assertThat(result).hasSize(3);
     assertThat(result.stream().mapToLong(IssueGroupDto::getCount).sum()).isEqualTo(3);
 
     assertThat(result.stream().filter(g -> g.getRuleType() == RuleType.BUG.getDbConstant()).mapToLong(IssueGroupDto::getCount).sum()).isEqualTo(3);
@@ -485,6 +490,7 @@ public class IssueDaoIT {
     assertThat(result.stream().filter(g -> g.getSeverity().equals("CRITICAL")).mapToLong(IssueGroupDto::getCount).sum()).isEqualTo(2);
     assertThat(result.stream().filter(g -> g.getSeverity().equals("MAJOR")).mapToLong(IssueGroupDto::getCount).sum()).isOne();
     assertThat(result.stream().filter(g -> g.getSeverity().equals("MINOR")).mapToLong(IssueGroupDto::getCount).sum()).isZero();
+    assertThat(result.stream().filter(IssueGroupDto::hasHighImpactSeverity).mapToLong(IssueGroupDto::getCount).sum()).isEqualTo(2);
 
     assertThat(result.stream().filter(g -> g.getStatus().equals("OPEN")).mapToLong(IssueGroupDto::getCount).sum()).isEqualTo(2);
     assertThat(result.stream().filter(g -> g.getStatus().equals("RESOLVED")).mapToLong(IssueGroupDto::getCount).sum()).isOne();
@@ -507,6 +513,11 @@ public class IssueDaoIT {
     assertThat(result.stream().filter(g -> !g.isInLeak()).mapToLong(IssueGroupDto::getCount).sum()).isEqualTo(3);
   }
 
+  @NotNull
+  private static ImpactDto createImpact(SoftwareQuality softwareQuality, Severity high) {
+    return new ImpactDto().setUuid(UuidFactoryFast.getInstance().create()).setSoftwareQuality(softwareQuality).setSeverity(high);
+  }
+
   @Test
   public void selectGroupsOfComponentTreeOnLeak_on_file_new_code_reference_branch() {
     ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
@@ -514,6 +525,8 @@ public class IssueDaoIT {
     RuleDto rule = db.rules().insert();
     IssueDto fpBug = db.issues().insert(rule, project, file,
       i -> i.setStatus("RESOLVED").setResolution("FALSE-POSITIVE").setSeverity("MAJOR").setType(RuleType.BUG));
+    IssueDto acceptedBug = db.issues().insert(rule, project, file,
+      i -> i.setStatus("RESOLVED").setResolution("WONTFIX").setSeverity("MAJOR").setType(RuleType.BUG));
     IssueDto criticalBug1 = db.issues().insert(rule, project, file,
       i -> i.setStatus("OPEN").setResolution(null).setSeverity("CRITICAL").setType(RuleType.BUG));
     IssueDto criticalBug2 = db.issues().insert(rule, project, file,
@@ -524,29 +537,31 @@ public class IssueDaoIT {
 
     // two issues part of new code period on reference branch
     db.issues().insertNewCodeReferenceIssue(fpBug);
+    db.issues().insertNewCodeReferenceIssue(acceptedBug);
     db.issues().insertNewCodeReferenceIssue(criticalBug1);
     db.issues().insertNewCodeReferenceIssue(criticalBug2);
 
     Collection<IssueGroupDto> result = underTest.selectIssueGroupsByComponent(db.getSession(), file, -1);
 
-    assertThat(result.stream().mapToLong(IssueGroupDto::getCount).sum()).isEqualTo(4);
+    assertThat(result.stream().mapToLong(IssueGroupDto::getCount).sum()).isEqualTo(5);
 
-    assertThat(result.stream().filter(g -> g.getRuleType() == RuleType.BUG.getDbConstant()).mapToLong(IssueGroupDto::getCount).sum()).isEqualTo(4);
+    assertThat(result.stream().filter(g -> g.getRuleType() == RuleType.BUG.getDbConstant()).mapToLong(IssueGroupDto::getCount).sum()).isEqualTo(5);
     assertThat(result.stream().filter(g -> g.getRuleType() == RuleType.CODE_SMELL.getDbConstant()).mapToLong(IssueGroupDto::getCount).sum()).isZero();
     assertThat(result.stream().filter(g -> g.getRuleType() == RuleType.VULNERABILITY.getDbConstant()).mapToLong(IssueGroupDto::getCount).sum()).isZero();
 
     assertThat(result.stream().filter(g -> g.getSeverity().equals("CRITICAL")).mapToLong(IssueGroupDto::getCount).sum()).isEqualTo(3);
-    assertThat(result.stream().filter(g -> g.getSeverity().equals("MAJOR")).mapToLong(IssueGroupDto::getCount).sum()).isOne();
+    assertThat(result.stream().filter(g -> g.getSeverity().equals("MAJOR")).mapToLong(IssueGroupDto::getCount).sum()).isEqualTo(2);
     assertThat(result.stream().filter(g -> g.getSeverity().equals("MINOR")).mapToLong(IssueGroupDto::getCount).sum()).isZero();
 
     assertThat(result.stream().filter(g -> g.getStatus().equals("OPEN")).mapToLong(IssueGroupDto::getCount).sum()).isEqualTo(3);
-    assertThat(result.stream().filter(g -> g.getStatus().equals("RESOLVED")).mapToLong(IssueGroupDto::getCount).sum()).isOne();
+    assertThat(result.stream().filter(g -> g.getStatus().equals("RESOLVED")).mapToLong(IssueGroupDto::getCount).sum()).isEqualTo(2);
     assertThat(result.stream().filter(g -> g.getStatus().equals("CLOSED")).mapToLong(IssueGroupDto::getCount).sum()).isZero();
 
     assertThat(result.stream().filter(g -> "FALSE-POSITIVE".equals(g.getResolution())).mapToLong(IssueGroupDto::getCount).sum()).isOne();
+    assertThat(result.stream().filter(g -> "WONTFIX".equals(g.getResolution())).mapToLong(IssueGroupDto::getCount).sum()).isOne();
     assertThat(result.stream().filter(g -> g.getResolution() == null).mapToLong(IssueGroupDto::getCount).sum()).isEqualTo(3);
 
-    assertThat(result.stream().filter(IssueGroupDto::isInLeak).mapToLong(IssueGroupDto::getCount).sum()).isEqualTo(3);
+    assertThat(result.stream().filter(IssueGroupDto::isInLeak).mapToLong(IssueGroupDto::getCount).sum()).isEqualTo(4);
     assertThat(result.stream().filter(g -> !g.isInLeak()).mapToLong(IssueGroupDto::getCount).sum()).isOne();
   }
 
@@ -903,7 +918,7 @@ public class IssueDaoIT {
     prepareTables();
     IssueDto issueDto = underTest.selectOrFailByKey(db.getSession(), ISSUE_KEY1)
       .setSelectedAt(1_400_000_000_000L)
-      .replaceAllImpacts(List.of(new ImpactDto().setUuid(Uuids.createFast()).setSoftwareQuality(RELIABILITY).setSeverity(LOW)));
+      .replaceAllImpacts(List.of(createImpact(RELIABILITY, LOW)));
 
     underTest.updateIfBeforeSelectedDate(db.getSession(), issueDto);
 

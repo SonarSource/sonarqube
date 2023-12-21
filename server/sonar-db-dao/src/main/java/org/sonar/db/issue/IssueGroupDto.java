@@ -25,6 +25,7 @@ import javax.annotation.Nullable;
 public class IssueGroupDto {
   private int ruleType;
   private String severity;
+  private boolean hasHighImpactSeverity;
   @Nullable
   private String resolution;
   private String status;
@@ -32,12 +33,20 @@ public class IssueGroupDto {
   private long count;
   private boolean inLeak;
 
+  public IssueGroupDto() {
+    // nothing to do
+  }
+
   public int getRuleType() {
     return ruleType;
   }
 
   public String getSeverity() {
     return severity;
+  }
+
+  public boolean hasHighImpactSeverity() {
+    return hasHighImpactSeverity;
   }
 
   @CheckForNull
@@ -68,6 +77,11 @@ public class IssueGroupDto {
 
   public IssueGroupDto setSeverity(String severity) {
     this.severity = severity;
+    return this;
+  }
+
+  public IssueGroupDto setHasHighImpactSeverity(boolean hasHighImpactSeverity) {
+    this.hasHighImpactSeverity = hasHighImpactSeverity;
     return this;
   }
 
