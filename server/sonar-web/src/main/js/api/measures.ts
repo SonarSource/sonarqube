@@ -25,7 +25,6 @@ import {
   MeasuresAndMetaWithPeriod,
   MeasuresForProjects,
 } from '../types/measures';
-import { MetricKey, MetricType } from '../types/metrics';
 import { Measure } from '../types/types';
 
 const COMPONENT_URL = '/api/measures/component';
@@ -36,63 +35,17 @@ export function getMeasures(
   return getJSON(COMPONENT_URL, data).then((r) => r.component.measures, throwGlobalError);
 }
 
-export async function getMeasuresWithMetrics(
+export function getMeasuresWithMetrics(
   component: string,
   metrics: string[],
   branchParameters?: BranchParameters,
 ): Promise<MeasuresAndMetaWithMetrics> {
-  // TODO: Remove this mock (SONAR-21259)
-  const mockedMetrics = metrics.filter(
-    (metric) =>
-      metric !== MetricKey.pull_request_fixed_issues && metric !== MetricKey.new_accepted_issues,
-  );
-  const result = (await getJSON(COMPONENT_URL, {
+  return getJSON(COMPONENT_URL, {
     additionalFields: 'metrics',
     component,
-    metricKeys: mockedMetrics.join(','),
+    metricKeys: metrics.join(','),
     ...branchParameters,
-  }).catch(throwGlobalError)) as MeasuresAndMetaWithMetrics;
-  if (metrics.includes(MetricKey.pull_request_fixed_issues)) {
-    result.metrics.push({
-      key: MetricKey.pull_request_fixed_issues,
-      name: 'Addressed Issues',
-      description: 'Addressed Issues',
-      domain: 'Reliability',
-      type: MetricType.Integer,
-      higherValuesAreBetter: false,
-      qualitative: true,
-      hidden: false,
-      bestValue: '0',
-    });
-    result.component.measures?.push({
-      metric: MetricKey.pull_request_fixed_issues,
-      period: {
-        index: 0,
-        value: '11',
-      },
-    });
-  }
-  if (metrics.includes(MetricKey.new_accepted_issues)) {
-    result.metrics.push({
-      key: MetricKey.new_accepted_issues,
-      name: 'Accepted Issues',
-      description: 'Accepted Issues',
-      domain: 'Reliability',
-      type: MetricType.Integer,
-      higherValuesAreBetter: false,
-      qualitative: true,
-      hidden: false,
-      bestValue: '0',
-    });
-    result.component.measures?.push({
-      metric: MetricKey.new_accepted_issues,
-      period: {
-        index: 0,
-        value: '12',
-      },
-    });
-  }
-  return result;
+  }).catch(throwGlobalError);
 }
 
 export function getMeasuresWithPeriod(
@@ -108,41 +61,17 @@ export function getMeasuresWithPeriod(
   }).catch(throwGlobalError);
 }
 
-export async function getMeasuresWithPeriodAndMetrics(
+export function getMeasuresWithPeriodAndMetrics(
   component: string,
   metrics: string[],
   branchParameters?: BranchParameters,
 ): Promise<MeasuresAndMetaWithPeriod & MeasuresAndMetaWithMetrics> {
-  // TODO: Remove this mock (SONAR-21323&SONAR-21275)
-  const mockedMetrics = metrics.filter(
-    (metric) =>
-      metric !== MetricKey.new_accepted_issues && metric !== MetricKey.high_impact_accepted_issues,
-  );
-  const result = await getJSON(COMPONENT_URL, {
+  return getJSON(COMPONENT_URL, {
     additionalFields: 'period,metrics',
     component,
-    metricKeys: mockedMetrics.join(','),
+    metricKeys: metrics.join(','),
     ...branchParameters,
   }).catch(throwGlobalError);
-  if (metrics.includes(MetricKey.high_impact_accepted_issues)) {
-    result.metrics.push({
-      key: MetricKey.high_impact_accepted_issues,
-      name: 'Accepted Issues with high impact',
-      description: 'Accepted Issues with high impact',
-      domain: 'Reliability',
-      type: MetricType.Integer,
-      higherValuesAreBetter: false,
-      qualitative: true,
-      hidden: false,
-      bestValue: '0',
-    });
-    result.component.measures?.push({
-      metric: MetricKey.high_impact_accepted_issues,
-      value: '3',
-    });
-  }
-
-  return result;
 }
 
 export function getMeasuresForProjects(
