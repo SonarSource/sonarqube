@@ -19,12 +19,15 @@
  */
 import styled from '@emotion/styled';
 import classNames from 'classnames';
-import { Badge, ContentLink, themeColor } from 'design-system';
+import { Badge, ContentLink, LightLabel, NoDataIcon, themeColor } from 'design-system';
 import * as React from 'react';
 import { Path } from 'react-router-dom';
+import Tooltip from '../../../components/controls/Tooltip';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { localizeMetric } from '../../../helpers/measures';
 import { MetricKey } from '../../../types/metrics';
+
+const NO_DATA_ICON_SIZE = 36;
 
 interface IssueMeasuresCardInnerProps extends React.HTMLAttributes<HTMLDivElement> {
   metric: MetricKey;
@@ -33,11 +36,25 @@ interface IssueMeasuresCardInnerProps extends React.HTMLAttributes<HTMLDivElemen
   url: Path;
   failed?: boolean;
   icon?: React.ReactNode;
+  linkDisabled?: boolean;
   footer?: React.ReactNode;
+  noDataIconClassName?: string;
 }
 
 export function IssueMeasuresCardInner(props: Readonly<IssueMeasuresCardInnerProps>) {
-  const { header, metric, icon, value, url, failed, footer, className, ...rest } = props;
+  const {
+    header,
+    metric,
+    icon,
+    value,
+    url,
+    failed,
+    footer,
+    className,
+    noDataIconClassName,
+    linkDisabled,
+    ...rest
+  } = props;
 
   return (
     <div className={classNames('sw-flex sw-flex-col sw-gap-3', className)} {...rest}>
@@ -53,20 +70,34 @@ export function IssueMeasuresCardInner(props: Readonly<IssueMeasuresCardInnerPro
         </ColorBold>
         <div className="sw-flex sw-justify-between sw-items-center sw-h-9">
           <div className="sw-h-fit">
-            <ContentLink
-              aria-label={translateWithParameters(
-                'overview.see_more_details_on_x_of_y',
-                value || '0',
-                localizeMetric(metric),
-              )}
-              className="it__overview-measures-value sw-w-fit sw-text-lg"
-              to={url}
-            >
-              {value || '0'}
-            </ContentLink>
+            {value ? (
+              <ContentLink
+                disabled={linkDisabled}
+                aria-label={translateWithParameters(
+                  'overview.see_more_details_on_x_of_y',
+                  value,
+                  localizeMetric(metric),
+                )}
+                className="it__overview-measures-value sw-w-fit sw-text-lg"
+                to={url}
+              >
+                {value}
+              </ContentLink>
+            ) : (
+              <Tooltip overlay={translate('no_data')}>
+                <LightLabel aria-label={translate('no_data')}> — </LightLabel>
+              </Tooltip>
+            )}
           </div>
-
-          {icon}
+          {value ? (
+            icon
+          ) : (
+            <NoDataIcon
+              className={noDataIconClassName}
+              width={NO_DATA_ICON_SIZE}
+              height={NO_DATA_ICON_SIZE}
+            />
+          )}
         </div>
       </div>
       {footer}

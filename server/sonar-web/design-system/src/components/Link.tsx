@@ -218,6 +218,15 @@ DiscreetLink.displayName = 'DiscreetLink';
 export const ContentLink = styled(HoverLink)`
   --color: ${themeColor('pageTitle')};
   --border: ${themeBorder('default', 'contentLinkBorder')};
+
+  ${({ disabled }) => (disabled ? tw`sw-cursor-default` : '')};
+
+  ${({ disabled, theme }) =>
+    disabled
+      ? `--active: ${themeColor('pageTitle')({ theme })};
+         --border: none;
+         --borderActive: none;`
+      : ''}
 `;
 ContentLink.displayName = 'ContentLink';
 

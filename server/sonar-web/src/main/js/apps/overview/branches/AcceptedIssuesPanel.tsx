@@ -92,21 +92,21 @@ function AcceptedIssuesPanel(props: Readonly<AcceptedIssuesPanelProps>) {
           <Card className="sw-flex sw-gap-4">
             <IssueMeasuresCardInner
               className={classNames({ 'sw-w-1/2': !isNewCode, 'sw-w-full': isNewCode })}
+              noDataIconClassName="sw--translate-y-3"
               metric={MetricKey.accepted_issues}
               value={formatMeasure(acceptedCount, MetricType.ShortInteger)}
               header={intl.formatMessage({
                 id: isNewCode ? 'overview.accepted_issues' : 'overview.accepted_issues.total',
               })}
               url={acceptedIssuesUrl}
-              icon={
-                <SnoozeCircleIcon className="sw--translate-y-3" neutral={acceptedCount === '0'} />
-              }
+              icon={<SnoozeCircleIcon className="sw--translate-y-3" />}
             />
             {!isNewCode && (
               <>
                 <StyledCardSeparator />
                 <IssueMeasuresCardInner
                   className="sw-w-1/2"
+                  noDataIconClassName="sw--translate-y-3"
                   metric={MetricKey.high_impact_accepted_issues}
                   value={formatMeasure(acceptedWithHighImpactCount, MetricType.ShortInteger)}
                   header={intl.formatMessage({

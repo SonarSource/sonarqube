@@ -111,6 +111,7 @@ export default function IssueMeasuresCard(
         header={intl.formatMessage({ id: 'overview.pull_request.accepted_issues' })}
         metric={MetricKey.new_accepted_issues}
         value={formatMeasure(acceptedCount, MetricType.ShortInteger)}
+        linkDisabled={component.needIssueSync}
         url={acceptedUrl}
         icon={acceptedCount !== '0' && <SnoozeCircleIcon />}
         footer={
@@ -144,6 +145,7 @@ export default function IssueMeasuresCard(
         }
         metric={MetricKey.pull_request_fixed_issues}
         value={formatMeasure(fixedCount, MetricType.ShortInteger)}
+        linkDisabled={component.needIssueSync}
         url={fixedUrl}
         icon={fixedCount !== '0' && <TrendDownCircleIcon />}
         footer={

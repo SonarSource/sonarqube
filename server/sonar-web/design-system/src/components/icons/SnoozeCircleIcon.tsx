@@ -21,7 +21,7 @@ import { useTheme } from '@emotion/react';
 import { themeColor, themeContrast } from '../../helpers';
 import { CustomIcon, IconProps } from './Icon';
 
-export function SnoozeCircleIcon(props: Readonly<{ neutral?: boolean } & IconProps>) {
+export function SnoozeCircleIcon(props: Readonly<IconProps>) {
   const theme = useTheme();
 
   const bgColor = themeColor('overviewCardWarningIcon')({ theme });
