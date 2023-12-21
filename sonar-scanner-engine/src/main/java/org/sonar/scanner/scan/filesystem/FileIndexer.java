@@ -32,6 +32,7 @@ import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.DefaultInputProject;
 import org.sonar.api.batch.fs.internal.SensorStrategy;
+import org.sonar.api.resources.Languages;
 import org.sonar.api.utils.MessageException;
 import org.sonar.scanner.issue.ignore.scanner.IssueExclusionsLoader;
 import org.sonar.scanner.repository.language.Language;
@@ -59,14 +60,15 @@ public class FileIndexer {
   private final LanguageDetection langDetection;
   private final StatusDetection statusDetection;
   private final ScmChangedFiles scmChangedFiles;
-
   private final ModuleRelativePathWarner moduleRelativePathWarner;
   private final InputFileFilterRepository inputFileFilterRepository;
+  private final Languages languages;
 
   public FileIndexer(DefaultInputProject project, ScannerComponentIdGenerator scannerComponentIdGenerator, InputComponentStore componentStore,
     ProjectCoverageAndDuplicationExclusions projectCoverageAndDuplicationExclusions, IssueExclusionsLoader issueExclusionsLoader,
     MetadataGenerator metadataGenerator, SensorStrategy sensorStrategy, LanguageDetection languageDetection, ScanProperties properties,
-    ScmChangedFiles scmChangedFiles, StatusDetection statusDetection, ModuleRelativePathWarner moduleRelativePathWarner, InputFileFilterRepository inputFileFilterRepository) {
+    ScmChangedFiles scmChangedFiles, StatusDetection statusDetection, ModuleRelativePathWarner moduleRelativePathWarner,
+    InputFileFilterRepository inputFileFilterRepository, Languages languages) {
     this.project = project;
     this.scannerComponentIdGenerator = scannerComponentIdGenerator;
     this.componentStore = componentStore;
@@ -80,6 +82,7 @@ public class FileIndexer {
     this.statusDetection = statusDetection;
     this.moduleRelativePathWarner = moduleRelativePathWarner;
     this.inputFileFilterRepository = inputFileFilterRepository;
+    this.languages = languages;
   }
 
   void indexFile(DefaultInputModule module, ModuleCoverageAndDuplicationExclusions moduleCoverageAndDuplicationExclusions, Path sourceFile,
@@ -104,7 +107,7 @@ public class FileIndexer {
 
     DefaultInputFile inputFile = new DefaultInputFile(indexedFile, f -> metadataGenerator.setMetadata(module.key(), f, module.getEncoding()),
       f -> f.setStatus(statusDetection.findStatusFromScm(f)));
-    if (language != null && language.isPublishAllFiles()) {
+    if (language != null && isPublishAllFiles(language.key())) {
       inputFile.setPublished(true);
     }
     if (!accept(inputFile)) {
@@ -124,6 +127,13 @@ public class FileIndexer {
     }
     int count = componentStore.inputFiles().size();
     progressReport.message(count + " " + pluralizeFiles(count) + " indexed...  (last one was " + inputFile.getProjectRelativePath() + ")");
+  }
+
+  private boolean isPublishAllFiles(String languageKey) {
+    if (languages.get(languageKey) != null) {
+      return languages.get(languageKey).publishAllFiles();
+    }
+    return false;
   }
 
   private void checkIfAlreadyIndexed(DefaultInputFile inputFile) {
