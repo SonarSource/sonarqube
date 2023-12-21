@@ -22,20 +22,28 @@ import tw from 'twin.macro';
 import { getProp, themeColor, themeContrast } from '../helpers/theme';
 import { MetricsLabel } from '../types/measures';
 
+type sizeType = 'xs' | 'sm' | 'md' | 'xl';
 interface Props extends React.AriaAttributes {
   className?: string;
   label: string;
   rating?: MetricsLabel;
-  size?: 'xs' | 'sm' | 'md';
+  size?: sizeType;
 }
 
 const SIZE_MAPPING = {
   xs: '1rem',
   sm: '1.5rem',
   md: '2rem',
+  xl: '4rem',
 };
 
-export function MetricsRatingBadge({ className, size = 'sm', label, rating, ...ariaAttrs }: Props) {
+export function MetricsRatingBadge({
+  className,
+  size = 'sm',
+  label,
+  rating,
+  ...ariaAttrs
+}: Readonly<Props>) {
   if (!rating) {
     return (
       <StyledNoRatingBadge
@@ -70,11 +78,22 @@ const StyledNoRatingBadge = styled.div<{ size: string }>`
   height: ${getProp('size')};
 `;
 
+const getFontSize = (size: string) => {
+  switch (size) {
+    case '2rem':
+      return '0.875rem';
+    case '4rem':
+      return '1.5rem';
+    default:
+      return '0.75rem';
+  }
+};
+
 const MetricsRatingBadgeStyled = styled.div<{ rating: MetricsLabel; size: string }>`
   width: ${getProp('size')};
   height: ${getProp('size')};
   color: ${({ rating }) => themeContrast(`rating.${rating}`)};
-  font-size: ${({ size }) => (size === '2rem' ? '0.875rem' : '0.75rem')};
+  font-size: ${({ size }) => getFontSize(size)};
   background-color: ${({ rating }) => themeColor(`rating.${rating}`)};
 
   display: inline-flex;

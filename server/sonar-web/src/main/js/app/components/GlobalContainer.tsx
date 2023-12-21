@@ -44,6 +44,7 @@ const TEMP_PAGELIST_WITH_NEW_BACKGROUND = [
   '/coding_rules',
   '/component_measures',
   '/dashboard',
+  '/portfolios',
   '/profiles',
   '/project/activity',
   '/project/admin/extension/governance/console',
