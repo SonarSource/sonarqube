@@ -147,6 +147,7 @@ public class GitHubSettings implements DevOpsPlatformSettings {
   private void removeExternalGroupsForGithub() {
     try (DbSession dbSession = dbClient.openSession(false)) {
       dbClient.externalGroupDao().deleteByExternalIdentityProvider(dbSession, GitHubIdentityProvider.KEY);
+      dbClient.githubOrganizationGroupDao().deleteAll(dbSession);
       dbSession.commit();
     }
   }

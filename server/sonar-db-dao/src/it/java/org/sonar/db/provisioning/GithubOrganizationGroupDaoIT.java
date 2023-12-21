@@ -84,8 +84,7 @@ public class GithubOrganizationGroupDaoIT {
     assertThat(all).hasSize(2)
       .containsExactlyInAnyOrder(
         new GithubOrganizationGroupDto(githubOrganizationGroupDto.groupUuid(), githubOrganizationGroupDto.organizationName(), groupDto.getName()),
-        new GithubOrganizationGroupDto(githubOrganizationGroupDto2.groupUuid(), githubOrganizationGroupDto2.organizationName(), groupDto2.getName())
-      );
+        new GithubOrganizationGroupDto(githubOrganizationGroupDto2.groupUuid(), githubOrganizationGroupDto2.organizationName(), groupDto2.getName()));
   }
 
   @Test
@@ -101,6 +100,21 @@ public class GithubOrganizationGroupDaoIT {
 
     assertThat(underTest.selectByGroupUuid(dbSession, githubOrganizationGroupDto.groupUuid())).isEmpty();
     assertThat(underTest.selectByGroupUuid(dbSession, githubOrganizationGroupDto2.groupUuid())).isPresent();
+  }
+
+  @Test
+  public void deleteAll_shouldDeleteEverything() {
+    GroupDto groupDto = insertGroup(GROUP_UUID);
+    GithubOrganizationGroupDto githubOrganizationGroupDto = createGithubOrganizationGroupDto(groupDto.getUuid(), ORG_NAME);
+    underTest.insert(dbSession, githubOrganizationGroupDto);
+
+    GroupDto groupDto2 = insertGroup(GROUP_UUID + "2");
+    GithubOrganizationGroupDto githubOrganizationGroupDto2 = createGithubOrganizationGroupDto(groupDto2.getUuid(), ORG_NAME + "2");
+    underTest.insert(dbSession, githubOrganizationGroupDto2);
+
+    underTest.deleteAll(dbSession);
+
+    assertThat(underTest.findAll(dbSession)).isEmpty();
   }
 
   private GroupDto insertGroup(String groupUuid) {

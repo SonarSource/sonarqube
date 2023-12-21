@@ -33,4 +33,6 @@ public interface GithubOrganizationGroupMapper {
 
   void deleteByGroupUuid(@Param("groupUuid") String groupUuid);
 
+  void deleteAll();
+
 }

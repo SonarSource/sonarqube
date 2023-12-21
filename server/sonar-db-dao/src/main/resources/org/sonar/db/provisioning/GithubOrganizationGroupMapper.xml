@@ -40,4 +40,8 @@
     delete from github_orgs_groups where group_uuid = #{groupUuid, jdbcType=VARCHAR}
   </delete>
 
+  <delete id="deleteAll" >
+    delete from github_orgs_groups
+  </delete>
+
 </mapper>

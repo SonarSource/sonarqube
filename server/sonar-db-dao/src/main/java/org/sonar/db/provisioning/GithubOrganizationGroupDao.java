@@ -29,15 +29,23 @@ public class GithubOrganizationGroupDao implements Dao {
   public Set<GithubOrganizationGroupDto> findAll(DbSession dbSession) {
     return mapper(dbSession).selectAll();
   }
+
   public void insert(DbSession dbSession, GithubOrganizationGroupDto githubOrganizationGroupDto) {
     mapper(dbSession).insert(githubOrganizationGroupDto);
   }
+
   public Optional<GithubOrganizationGroupDto> selectByGroupUuid(DbSession dbSession, String groupUuid) {
     return mapper(dbSession).selectByGroupUuid(groupUuid);
   }
+
   public void deleteByGroupUuid(DbSession dbSession, String groupUuid) {
     mapper(dbSession).deleteByGroupUuid(groupUuid);
   }
+
+  public void deleteAll(DbSession dbSession) {
+    mapper(dbSession).deleteAll();
+  }
+
   private static GithubOrganizationGroupMapper mapper(DbSession session) {
     return session.getMapper(GithubOrganizationGroupMapper.class);
   }

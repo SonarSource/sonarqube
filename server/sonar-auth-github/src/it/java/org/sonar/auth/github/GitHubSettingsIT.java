@@ -28,6 +28,7 @@ import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
+import org.sonar.db.provisioning.GithubOrganizationGroupDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.server.property.InternalProperties;
 
@@ -36,10 +37,10 @@ import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.sonar.auth.github.GitHubSettings.USER_CONSENT_FOR_PERMISSIONS_REQUIRED_AFTER_UPGRADE;
 import static org.sonar.auth.github.GitHubSettings.PROVISION_VISIBILITY;
+import static org.sonar.auth.github.GitHubSettings.USER_CONSENT_FOR_PERMISSIONS_REQUIRED_AFTER_UPGRADE;
 
-public class GitHubSettingsTest {
+public class GitHubSettingsIT {
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 
@@ -124,6 +125,7 @@ public class GitHubSettingsTest {
     settings.setProperty(PROVISION_VISIBILITY, "false");
     assertThat(underTest.isProjectVisibilitySynchronizationActivated()).isFalse();
   }
+
   @Test
   public void isProjectVisibilitySynchronizationActivated_whenPropertyIsSetToTrue_returnsTrue() {
     settings.setProperty(PROVISION_VISIBILITY, "true");
@@ -169,20 +171,26 @@ public class GitHubSettingsTest {
 
   @Test
   public void setProvisioning_whenPassedFalse_delegatesToInternalPropertiesWriteAndCleansUpExternalGroups() {
-    GroupDto groupDto = createGithubManagedGroup();
+    createGithubManagedGroup();
+    createGitHubOrganizationGroup();
 
     underTest.setProvisioning(false);
 
     verify(internalProperties).write(GitHubSettings.PROVISIONING, Boolean.FALSE.toString());
-    assertThat(db.getDbClient().externalGroupDao().selectByGroupUuid(db.getSession(), groupDto.getUuid())).isEmpty();
+    assertThat(db.getDbClient().externalGroupDao().selectByIdentityProvider(db.getSession(), GitHubIdentityProvider.KEY)).isEmpty();
+    assertThat(db.getDbClient().githubOrganizationGroupDao().findAll(db.getSession())).isEmpty();
   }
 
-  private GroupDto createGithubManagedGroup() {
+  private void createGithubManagedGroup() {
     GroupDto groupDto = db.users().insertGroup();
     db.users().markGroupAsGithubManaged(groupDto.getUuid());
-    return groupDto;
   }
 
+  private void createGitHubOrganizationGroup() {
+    GroupDto groupDto = db.users().insertGroup();
+    db.getDbClient().githubOrganizationGroupDao().insert(db.getSession(), new GithubOrganizationGroupDto(groupDto.getUuid(), "org1"));
+    db.commit();
+  }
 
   @Test
   public void return_client_id() {
