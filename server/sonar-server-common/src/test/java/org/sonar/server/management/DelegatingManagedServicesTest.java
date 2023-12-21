@@ -211,6 +211,23 @@ public class DelegatingManagedServicesTest {
       true));
   }
 
+  @Test
+  public void queueSynchronisationTask_whenManagedNoInstanceServices_doesNotFail() {
+    assertThatNoException().isThrownBy(NO_MANAGED_SERVICES::queueSynchronisationTask);
+  }
+
+  @Test
+  public void queueSynchronisationTask_whenManagedInstanceServices_shouldDelegatesToRightService() {
+    NeverManagedInstanceService neverManagedInstanceService = spy(new NeverManagedInstanceService());
+    AlwaysManagedInstanceService alwaysManagedInstanceService = spy(new AlwaysManagedInstanceService());
+    Set<ManagedInstanceService> delegates = Set.of(neverManagedInstanceService, alwaysManagedInstanceService);
+    DelegatingManagedServices managedInstanceService = new DelegatingManagedServices(delegates);
+
+    managedInstanceService.queueSynchronisationTask();
+    verify(neverManagedInstanceService, never()).queueSynchronisationTask();
+    verify(alwaysManagedInstanceService).queueSynchronisationTask();
+  }
+
   private ManagedInstanceService getManagedInstanceService(Set<String> userUuids, Map<String, Boolean> uuidToManaged) {
     ManagedInstanceService anotherManagedInstanceService = mock(ManagedInstanceService.class);
     when(anotherManagedInstanceService.isInstanceExternallyManaged()).thenReturn(true);
@@ -333,6 +350,11 @@ public class DelegatingManagedServicesTest {
     }
 
     @Override
+    public void queueSynchronisationTask() {
+
+    }
+
+    @Override
     public Map<String, Boolean> getProjectUuidToManaged(DbSession dbSession, Set<String> projectUuids) {
       return null;
     }
@@ -393,6 +415,11 @@ public class DelegatingManagedServicesTest {
     @Override
     public boolean isGroupManaged(DbSession dbSession, String groupUuid) {
       return true;
+    }
+
+    @Override
+    public void queueSynchronisationTask() {
+
     }
 
     @Override

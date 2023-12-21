@@ -22,6 +22,7 @@ package org.sonar.server.v2.config;
 import javax.annotation.Nullable;
 import org.sonar.api.resources.Languages;
 import org.sonar.db.DbClient;
+import org.sonar.server.common.gitlab.config.GitlabConfigurationService;
 import org.sonar.server.common.group.service.GroupMembershipService;
 import org.sonar.server.common.group.service.GroupService;
 import org.sonar.server.common.health.CeStatusNodeCheck;
@@ -35,10 +36,13 @@ import org.sonar.server.common.rule.service.RuleService;
 import org.sonar.server.common.text.MacroInterpreter;
 import org.sonar.server.common.user.service.UserService;
 import org.sonar.server.health.HealthChecker;
+import org.sonar.server.management.ManagedInstanceService;
 import org.sonar.server.platform.NodeInformation;
 import org.sonar.server.rule.RuleDescriptionFormatter;
 import org.sonar.server.user.SystemPasscode;
 import org.sonar.server.user.UserSession;
+import org.sonar.server.v2.api.gitlab.config.controller.DefaultGitlabConfigurationController;
+import org.sonar.server.v2.api.gitlab.config.controller.GitlabConfigurationController;
 import org.sonar.server.v2.api.group.controller.DefaultGroupController;
 import org.sonar.server.v2.api.group.controller.GroupController;
 import org.sonar.server.v2.api.membership.controller.DefaultGroupMembershipController;
@@ -119,6 +123,16 @@ public class PlatformLevel4WebConfig {
     RequestMappingHandlerMapping handlerMapping = new RequestMappingHandlerMapping();
     handlerMapping.setInterceptors(new DeprecatedHandler(userSession));
     return handlerMapping;
+  }
+
+  @Bean
+  public GitlabConfigurationService gitlabConfigurationService(ManagedInstanceService managedInstanceService, DbClient dbClient) {
+    return new GitlabConfigurationService( managedInstanceService, dbClient);
+  }
+
+  @Bean
+  public GitlabConfigurationController gitlabConfigurationController(UserSession userSession, GitlabConfigurationService gitlabConfigurationService) {
+    return new DefaultGitlabConfigurationController(userSession, gitlabConfigurationService);
   }
 
 }

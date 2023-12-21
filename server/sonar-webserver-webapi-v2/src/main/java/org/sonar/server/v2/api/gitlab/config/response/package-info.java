@@ -17,32 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.management;
+@ParametersAreNonnullByDefault
+package org.sonar.server.v2.api.gitlab.config.response;
 
-import java.util.Map;
-import java.util.Set;
-import org.sonar.db.DbSession;
-
-public interface ManagedInstanceService {
-
-  int DELEGATING_INSTANCE_PRIORITY = 1;
-
-  boolean isInstanceExternallyManaged();
-
-  String getProviderName();
-
-  Map<String, Boolean> getUserUuidToManaged(DbSession dbSession, Set<String> userUuids);
-
-  Map<String, Boolean> getGroupUuidToManaged(DbSession dbSession, Set<String> groupUuids);
-
-  String getManagedUsersSqlFilter(boolean filterByManaged);
-
-  String getManagedGroupsSqlFilter(boolean filterByManaged);
-
-  boolean isUserManaged(DbSession dbSession, String userUuid);
-
-  boolean isGroupManaged(DbSession dbSession, String groupUuid);
-
-  void queueSynchronisationTask();
-
-}
+import javax.annotation.ParametersAreNonnullByDefault;

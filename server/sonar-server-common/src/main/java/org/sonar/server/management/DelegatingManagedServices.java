@@ -96,6 +96,12 @@ public class DelegatingManagedServices implements ManagedInstanceService, Manage
       .orElse(false);
   }
 
+  @Override
+  public void queueSynchronisationTask() {
+    findManagedInstanceService()
+      .ifPresent(ManagedInstanceService::queueSynchronisationTask);
+  }
+
   private Optional<ManagedInstanceService> findManagedInstanceService() {
     Set<ManagedInstanceService> managedInstanceServices = delegates.stream()
       .filter(ManagedInstanceService::isInstanceExternallyManaged)

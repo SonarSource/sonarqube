@@ -11,8 +11,9 @@ dependencies {
     api project(':server:sonar-db-dao')
     api project(':server:sonar-webserver-auth')
     api project(':server:sonar-webserver-ws')
+  implementation project(path: ':server:sonar-auth-gitlab')
 
-    compileOnlyApi 'com.google.code.findbugs:jsr305'
+  compileOnlyApi 'com.google.code.findbugs:jsr305'
     compileOnlyApi 'javax.servlet:javax.servlet-api'
 
     testImplementation 'org.apache.logging.log4j:log4j-api'

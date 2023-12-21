@@ -17,32 +17,31 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.management;
+package org.sonar.server.common.gitlab.config;
 
-import java.util.Map;
 import java.util.Set;
-import org.sonar.db.DbSession;
+import javax.annotation.Nullable;
 
-public interface ManagedInstanceService {
+public record GitlabConfiguration(
+  String id,
 
-  int DELEGATING_INSTANCE_PRIORITY = 1;
+  boolean enabled,
 
-  boolean isInstanceExternallyManaged();
+  String applicationId,
 
-  String getProviderName();
+  String url,
 
-  Map<String, Boolean> getUserUuidToManaged(DbSession dbSession, Set<String> userUuids);
+  String secret,
 
-  Map<String, Boolean> getGroupUuidToManaged(DbSession dbSession, Set<String> groupUuids);
+  boolean synchronizeGroups,
 
-  String getManagedUsersSqlFilter(boolean filterByManaged);
+  SynchronizationType synchronizationType,
 
-  String getManagedGroupsSqlFilter(boolean filterByManaged);
+  boolean allowUsersToSignUp,
 
-  boolean isUserManaged(DbSession dbSession, String userUuid);
+  @Nullable
+  String provisioningToken,
 
-  boolean isGroupManaged(DbSession dbSession, String groupUuid);
-
-  void queueSynchronisationTask();
-
+  Set<String> provisioningGroups
+) {
 }

@@ -17,32 +17,32 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.management;
+package org.sonar.server.v2.api.gitlab.config.resource;
 
-import java.util.Map;
-import java.util.Set;
-import org.sonar.db.DbSession;
+import io.swagger.v3.oas.annotations.media.Schema;
+import java.util.List;
+import org.sonar.server.common.gitlab.config.SynchronizationType;
 
-public interface ManagedInstanceService {
+public record GitlabConfigurationResource(
 
-  int DELEGATING_INSTANCE_PRIORITY = 1;
+  @Schema(accessMode = Schema.AccessMode.READ_ONLY)
+  String id,
 
-  boolean isInstanceExternallyManaged();
+  boolean enabled,
 
-  String getProviderName();
+  @Schema(implementation = String.class, description = "Gitlab Application id")
+  String applicationId,
 
-  Map<String, Boolean> getUserUuidToManaged(DbSession dbSession, Set<String> userUuids);
+  @Schema(description = "Url of Gitlab instance for authentication (for instance https://gitlab.com/api/v4)")
+  String url,
 
-  Map<String, Boolean> getGroupUuidToManaged(DbSession dbSession, Set<String> groupUuids);
+  boolean synchronizeGroups,
 
-  String getManagedUsersSqlFilter(boolean filterByManaged);
+  SynchronizationType synchronizationType,
 
-  String getManagedGroupsSqlFilter(boolean filterByManaged);
+  boolean allowUsersToSignUp,
 
-  boolean isUserManaged(DbSession dbSession, String userUuid);
-
-  boolean isGroupManaged(DbSession dbSession, String groupUuid);
-
-  void queueSynchronisationTask();
-
+  @Schema(description = "Root Gitlab groups to provision")
+  List<String> provisioningGroups
+) {
 }
