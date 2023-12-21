@@ -52,6 +52,9 @@ public class IssueTrackingDelegatorTest {
   @Mock
   private Input<DefaultIssue> rawInput;
 
+  @Mock
+  private Input<DefaultIssue> targetInput;
+
   private IssueTrackingDelegator underTest;
 
   @Before
@@ -60,14 +63,14 @@ public class IssueTrackingDelegatorTest {
     underTest = new IssueTrackingDelegator(prBranchTracker, mergeBranchTracker, tracker, analysisMetadataHolder);
     when(tracker.track(component, rawInput)).thenReturn(trackingResult);
     when(mergeBranchTracker.track(component, rawInput)).thenReturn(trackingResult);
-    when(prBranchTracker.track(component, rawInput)).thenReturn(trackingResult);
+    when(prBranchTracker.track(component, rawInput, targetInput)).thenReturn(trackingResult);
   }
 
   @Test
   public void delegate_regular_tracker() {
     when(analysisMetadataHolder.getBranch()).thenReturn(mock(Branch.class));
 
-    underTest.track(component, rawInput);
+    underTest.track(component, rawInput, targetInput);
 
     verify(tracker).track(component, rawInput);
     verifyNoInteractions(prBranchTracker);
@@ -82,7 +85,7 @@ public class IssueTrackingDelegatorTest {
     when(analysisMetadataHolder.getBranch()).thenReturn(branch);
     when(analysisMetadataHolder.isFirstAnalysis()).thenReturn(true);
 
-    underTest.track(component, rawInput);
+    underTest.track(component, rawInput, targetInput);
 
     verify(mergeBranchTracker).track(component, rawInput);
     verifyNoInteractions(tracker);
@@ -97,9 +100,9 @@ public class IssueTrackingDelegatorTest {
     when(analysisMetadataHolder.getBranch()).thenReturn(mock(Branch.class));
     when(analysisMetadataHolder.isPullRequest()).thenReturn(true);
 
-    underTest.track(component, rawInput);
+    underTest.track(component, rawInput, targetInput);
 
-    verify(prBranchTracker).track(component, rawInput);
+    verify(prBranchTracker).track(component, rawInput, targetInput);
     verifyNoInteractions(tracker);
     verifyNoInteractions(mergeBranchTracker);
   }

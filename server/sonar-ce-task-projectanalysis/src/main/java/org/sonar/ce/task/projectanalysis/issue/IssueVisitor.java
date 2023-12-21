@@ -19,6 +19,7 @@
  */
 package org.sonar.ce.task.projectanalysis.issue;
 
+import javax.annotation.Nullable;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.tracking.Input;
@@ -48,7 +49,7 @@ public abstract class IssueVisitor {
   /**
    * This method is called for all raw issues of a component before tracking is done.
    */
-  public void onRawIssues(Component component, Input<DefaultIssue> rawIssues) {
+  public void onRawIssues(Component component, Input<DefaultIssue> rawIssues, @Nullable Input<DefaultIssue> baseIssues) {
 
   }
 

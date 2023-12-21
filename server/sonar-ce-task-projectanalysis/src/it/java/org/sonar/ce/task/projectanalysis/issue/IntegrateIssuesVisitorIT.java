@@ -55,6 +55,7 @@ import org.sonar.ce.task.projectanalysis.source.SourceLinesHashRepository;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.FieldDiffs;
 import org.sonar.core.issue.IssueChangeContext;
+import org.sonar.core.issue.tracking.Input;
 import org.sonar.core.issue.tracking.Tracker;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
@@ -157,14 +158,14 @@ public class IntegrateIssuesVisitorIT {
     ClosedIssuesInputFactory closedIssuesInputFactory = new ClosedIssuesInputFactory(issuesLoader, dbClient, movedFilesRepository);
     TrackerExecution tracker = new TrackerExecution(baseInputFactory, closedIssuesInputFactory, new Tracker<>(), issuesLoader, analysisMetadataHolder);
     ReferenceBranchTrackerExecution mergeBranchTracker = new ReferenceBranchTrackerExecution(mergeInputFactory, new Tracker<>());
-    PullRequestTrackerExecution prBranchTracker = new PullRequestTrackerExecution(baseInputFactory, targetInputFactory, new Tracker<>(), newLinesRepository);
+    PullRequestTrackerExecution prBranchTracker = new PullRequestTrackerExecution(baseInputFactory, new Tracker<>(), newLinesRepository);
     IssueTrackingDelegator trackingDelegator = new IssueTrackingDelegator(prBranchTracker, mergeBranchTracker, tracker, analysisMetadataHolder);
     treeRootHolder.setRoot(PROJECT);
     protoIssueCache = new ProtoIssueCache(temp.newFile(), System2.INSTANCE);
     when(issueFilter.accept(any(DefaultIssue.class), eq(FILE))).thenReturn(true);
     when(issueChangeContext.date()).thenReturn(new Date());
     underTest = new IntegrateIssuesVisitor(protoIssueCache, rawInputFactory, baseInputFactory, issueLifecycle, issueVisitors, trackingDelegator, issueStatusCopier,
-      referenceBranchComponentUuids, mock(PullRequestSourceBranchMerger.class), fileStatuses, analysisMetadataHolder);
+      referenceBranchComponentUuids, mock(PullRequestSourceBranchMerger.class), fileStatuses, analysisMetadataHolder, targetInputFactory);
   }
 
   @Test
@@ -227,6 +228,28 @@ public class IntegrateIssuesVisitorIT {
     verify(issueVisitor).afterComponent(FILE);
     verify(issueVisitor).onIssue(eq(FILE), defaultIssueCaptor.capture());
     assertThat(defaultIssueCaptor.getValue().ruleKey().rule()).isEqualTo("x1");
+  }
+
+  @Test
+  public void visitAny_whenIsPullRequest_shouldCallExpectedVisitorsRawIssues() {
+    when(analysisMetadataHolder.isPullRequest()).thenReturn(true);
+    when(targetBranchComponentUuids.hasTargetBranchAnalysis()).thenReturn(true);
+
+    ruleRepositoryRule.add(RuleTesting.XOO_X1);
+    ScannerReport.Issue reportIssue = getReportIssue(RuleTesting.XOO_X1);
+    reportReader.putIssues(FILE_REF, singletonList(reportIssue));
+
+    IssueDto otherBranchIssueDto = addBaseIssueOnBranch(RuleTesting.XOO_X1);
+    when(targetBranchComponentUuids.getTargetBranchComponentUuid(FILE.getKey())).thenReturn(otherBranchIssueDto.getComponentUuid());
+
+    underTest.visitAny(FILE);
+
+    ArgumentCaptor<Input<DefaultIssue>> targetInputCaptor = ArgumentCaptor.forClass(Input.class);
+    ArgumentCaptor<Input<DefaultIssue>> rawInputCaptor = ArgumentCaptor.forClass(Input.class);
+    verify(issueVisitor).onRawIssues(eq(FILE), rawInputCaptor.capture(), targetInputCaptor.capture());
+    assertThat(rawInputCaptor.getValue().getIssues()).extracting(i -> i.ruleKey().rule()).containsExactly("x1");
+    assertThat(targetInputCaptor.getValue().getIssues()).extracting(DefaultIssue::key).containsExactly(otherBranchIssueDto.getKee());
+
   }
 
   @Test
@@ -334,7 +357,7 @@ public class IntegrateIssuesVisitorIT {
     dbTester.getSession().commit();
   }
 
-  private void addBaseIssueOnBranch(RuleKey ruleKey) {
+  private IssueDto addBaseIssueOnBranch(RuleKey ruleKey) {
     ComponentDto project = ComponentTesting.newPrivateProjectDto(PROJECT_UUID_ON_BRANCH).setKey(PROJECT_KEY);
     ComponentDto file = ComponentTesting.newFileDto(project, null, FILE_UUID_ON_BRANCH).setKey(FILE_KEY);
     dbTester.components().insertComponents(project, file);
@@ -349,6 +372,7 @@ public class IntegrateIssuesVisitorIT {
       .setChecksum(null);
     dbTester.getDbClient().issueDao().insert(dbTester.getSession(), issue);
     dbTester.getSession().commit();
+    return issue;
   }
 
   @NotNull

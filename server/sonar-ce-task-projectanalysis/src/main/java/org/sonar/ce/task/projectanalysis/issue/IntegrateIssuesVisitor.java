@@ -26,6 +26,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.ce.task.projectanalysis.analysis.Analysis;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
@@ -54,6 +56,8 @@ public class IntegrateIssuesVisitor extends TypeAwareVisitorAdapter {
   private final PullRequestSourceBranchMerger pullRequestSourceBranchMerger;
   private final FileStatuses fileStatuses;
   private final AnalysisMetadataHolder analysisMetadataHolder;
+  private final TrackerTargetBranchInputFactory targetInputFactory;
+
 
   public IntegrateIssuesVisitor(
     ProtoIssueCache protoIssueCache,
@@ -66,7 +70,9 @@ public class IntegrateIssuesVisitor extends TypeAwareVisitorAdapter {
     ReferenceBranchComponentUuids referenceBranchComponentUuids,
     PullRequestSourceBranchMerger pullRequestSourceBranchMerger,
     FileStatuses fileStatuses,
-    AnalysisMetadataHolder analysisMetadataHolder) {
+    AnalysisMetadataHolder analysisMetadataHolder,
+    TrackerTargetBranchInputFactory targetInputFactory
+  ) {
 
     super(CrawlerDepthLimit.FILE, POST_ORDER);
     this.protoIssueCache = protoIssueCache;
@@ -80,6 +86,7 @@ public class IntegrateIssuesVisitor extends TypeAwareVisitorAdapter {
     this.pullRequestSourceBranchMerger = pullRequestSourceBranchMerger;
     this.fileStatuses = fileStatuses;
     this.analysisMetadataHolder = analysisMetadataHolder;
+    this.targetInputFactory = targetInputFactory;
   }
 
   @Override
@@ -87,9 +94,10 @@ public class IntegrateIssuesVisitor extends TypeAwareVisitorAdapter {
     try (CacheAppender<DefaultIssue> cacheAppender = protoIssueCache.newAppender()) {
       issueVisitors.beforeComponent(component);
       Input<DefaultIssue> rawInput = rawInputFactory.create(component);
-      List<DefaultIssue> issues = getIssues(rawInput, component);
+      Input<DefaultIssue> targetInput = createTargetInputIfExist(component);
+      List<DefaultIssue> issues = getIssues(rawInput, targetInput, component);
 
-      issueVisitors.onRawIssues(component, rawInput);
+      issueVisitors.onRawIssues(component, rawInput, targetInput);
       processIssues(component, issues);
 
       issueVisitors.beforeCaching(component);
@@ -100,21 +108,29 @@ public class IntegrateIssuesVisitor extends TypeAwareVisitorAdapter {
     }
   }
 
-  private List<DefaultIssue> getIssues(Input<DefaultIssue> rawInput, Component component) {
+  @CheckForNull
+  private Input<DefaultIssue> createTargetInputIfExist(Component component) {
+    if (targetInputFactory.hasTargetBranchAnalysis()) {
+      return targetInputFactory.createForTargetBranch(component);
+    }
+    return null;
+  }
+
+  private List<DefaultIssue> getIssues(Input<DefaultIssue> rawInput, @Nullable Input<DefaultIssue> targetInput, Component component) {
     if (fileStatuses.isDataUnchanged(component)) {
       // we assume there's a previous analysis of the same branch
-      return getIssuesForUnchangedFile(rawInput, component);
+      return getIssuesForUnchangedFile(rawInput, targetInput, component);
     } else {
-      return getRawIssues(rawInput, component);
+      return getRawIssues(rawInput, targetInput, component);
     }
   }
 
-  private List<DefaultIssue> getIssuesForUnchangedFile(Input<DefaultIssue> rawInput, Component component) {
+  private List<DefaultIssue> getIssuesForUnchangedFile(Input<DefaultIssue> rawInput, @Nullable Input<DefaultIssue> targetInput, Component component) {
     Input<DefaultIssue> baseIssues = baseInputFactory.create(component);
     Collection<DefaultIssue> issues = baseIssues.getIssues();
     //In case of plugin update, issue impacts are potentially updated. We want to avoid incremental analysis in this case.
     return hasAnyInvolvedPluginChangedSinceLastAnalysis(issues)
-      ? getRawIssues(rawInput, component)
+      ? getRawIssues(rawInput, targetInput, component)
       : new LinkedList<>(issues);
   }
 
@@ -134,8 +150,8 @@ public class IntegrateIssuesVisitor extends TypeAwareVisitorAdapter {
       .toList();
   }
 
-  private List<DefaultIssue> getRawIssues(Input<DefaultIssue> rawInput, Component component) {
-    TrackingResult tracking = issueTracking.track(component, rawInput);
+  private List<DefaultIssue> getRawIssues(Input<DefaultIssue> rawInput, @Nullable Input<DefaultIssue> targetInput, Component component) {
+    TrackingResult tracking = issueTracking.track(component, rawInput, targetInput);
     var newOpenIssues = fillNewOpenIssues(component, tracking.newIssues(), rawInput);
     var existingOpenIssues = fillExistingOpenIssues(tracking.issuesToMerge());
     var closedIssues = closeIssues(tracking.issuesToClose());

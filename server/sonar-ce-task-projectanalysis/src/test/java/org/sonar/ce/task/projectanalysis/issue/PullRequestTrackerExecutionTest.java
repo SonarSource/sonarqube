@@ -65,15 +65,13 @@ public class PullRequestTrackerExecutionTest {
 
   private PullRequestTrackerExecution underTest;
 
-  private TrackerTargetBranchInputFactory targetFactory = mock(TrackerTargetBranchInputFactory.class);
 
   @Before
   public void setUp() {
     when(baseFactory.create(FILE)).thenReturn(createInput(baseIssues));
-    when(targetFactory.createForTargetBranch(FILE)).thenReturn(createInput(targetIssues));
 
     Tracker<DefaultIssue, DefaultIssue> tracker = new Tracker<>();
-    underTest = new PullRequestTrackerExecution(baseFactory, targetFactory, tracker, newLinesRepository);
+    underTest = new PullRequestTrackerExecution(baseFactory, tracker, newLinesRepository);
   }
 
   @Test
@@ -84,7 +82,7 @@ public class PullRequestTrackerExecutionTest {
 
     when(newLinesRepository.getNewLines(FILE)).thenReturn(Optional.of(new HashSet<>(Arrays.asList(1, 3))));
 
-    Tracking<DefaultIssue, DefaultIssue> tracking = underTest.track(FILE, createInput(rawIssues));
+    Tracking<DefaultIssue, DefaultIssue> tracking = underTest.track(FILE, createInput(rawIssues), createInput(targetIssues));
 
     assertThat(tracking.getUnmatchedBases()).isEmpty();
     assertThat(tracking.getMatchedRaws()).isEmpty();
@@ -120,7 +118,7 @@ public class PullRequestTrackerExecutionTest {
 
     when(newLinesRepository.getNewLines(FILE)).thenReturn(Optional.of(new HashSet<>(Arrays.asList(7, 10))));
 
-    Tracking<DefaultIssue, DefaultIssue> tracking = underTest.track(FILE, createInput(rawIssues));
+    Tracking<DefaultIssue, DefaultIssue> tracking = underTest.track(FILE, createInput(rawIssues), createInput(targetIssues));
 
     assertThat(tracking.getUnmatchedBases()).isEmpty();
     assertThat(tracking.getMatchedRaws()).isEmpty();
@@ -135,7 +133,6 @@ public class PullRequestTrackerExecutionTest {
     rawIssues.add(createIssue(2, RuleTesting.XOO_X2));
     rawIssues.add(createIssue(3, RuleTesting.XOO_X3));
 
-    when(targetFactory.hasTargetBranchAnalysis()).thenReturn(true);
     DefaultIssue resolvedIssue = createIssue(1, RuleTesting.XOO_X1).setStatus(Issue.STATUS_RESOLVED).setResolution(Issue.RESOLUTION_FALSE_POSITIVE);
     // will cause rawIssue0 to be ignored
     targetIssues.add(resolvedIssue);
@@ -146,7 +143,7 @@ public class PullRequestTrackerExecutionTest {
     // should be matched
     baseIssues.add(rawIssues.get(1));
 
-    Tracking<DefaultIssue, DefaultIssue> tracking = underTest.track(FILE, createInput(rawIssues));
+    Tracking<DefaultIssue, DefaultIssue> tracking = underTest.track(FILE, createInput(rawIssues), createInput(targetIssues));
     assertThat(tracking.getMatchedRaws()).isEqualTo(Collections.singletonMap(rawIssues.get(1), rawIssues.get(1)));
     assertThat(tracking.getUnmatchedRaws()).containsOnly(rawIssues.get(2));
   }
@@ -160,7 +157,7 @@ public class PullRequestTrackerExecutionTest {
     rawIssues.add(createIssue(3, RuleTesting.XOO_X3));
     baseIssues.add(rawIssues.get(0));
 
-    Tracking<DefaultIssue, DefaultIssue> tracking = underTest.track(FILE, createInput(rawIssues));
+    Tracking<DefaultIssue, DefaultIssue> tracking = underTest.track(FILE, createInput(rawIssues), createInput(targetIssues));
     assertThat(tracking.getMatchedRaws()).isEqualTo(Collections.singletonMap(rawIssues.get(0), rawIssues.get(0)));
     assertThat(tracking.getUnmatchedRaws()).containsOnly(rawIssues.get(2));
   }
