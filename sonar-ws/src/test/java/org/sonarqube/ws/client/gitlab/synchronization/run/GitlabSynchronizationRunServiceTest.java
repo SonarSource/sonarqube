@@ -17,41 +17,30 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.alm.client.gitlab;
+package org.sonarqube.ws.client.gitlab.synchronization.run;
 
-import com.google.gson.Gson;
-import com.google.gson.annotations.SerializedName;
-import com.google.gson.reflect.TypeToken;
-import java.util.Collection;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+import org.sonarqube.ws.client.WsConnector;
 
-public class GsonId {
-  private static final TypeToken<Collection<GsonId>> COLLECTION_TYPE_TOKEN = new TypeToken<>() {
-  };
+import static org.assertj.core.api.Assertions.assertThatNoException;
+import static org.mockito.Answers.RETURNS_DEEP_STUBS;
 
-  @SerializedName("id")
-  private final long id;
+@RunWith(MockitoJUnitRunner.class)
+public class GitlabSynchronizationRunServiceTest {
 
-  public GsonId() {
-    // http://stackoverflow.com/a/18645370/229031
-    this(0);
-  }
+  @Mock(answer = RETURNS_DEEP_STUBS)
+  private WsConnector wsConnector;
 
-  public GsonId(long id) {
-    this.id = id;
-  }
+  @InjectMocks
+  private GitlabSynchronizationRunService gitlabSynchronizationRunService;
 
-  public long getId() {
-    return id;
-  }
-
-  public static GsonId parseOne(String json) {
-    Gson gson = new Gson();
-    return gson.fromJson(json, GsonId.class);
-  }
-
-  public static Collection<GsonId> parseCollection(String json) {
-    Gson gson = new Gson();
-    return gson.fromJson(json, COLLECTION_TYPE_TOKEN);
+  @Test
+  public void triggerRun_whenTriggered_shouldNotFail() {
+    assertThatNoException().isThrownBy(() ->gitlabSynchronizationRunService.triggerRun());
   }
 
 }

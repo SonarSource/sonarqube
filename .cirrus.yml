@@ -106,8 +106,7 @@ gitlab_task_template: &IS_GITLAB_TASK_NEEDED >-
     'private/it-branch/it-tests/src/test/java/com/sonarsource/branch/it/suite/pr/gitlab/**/*.java',
     'private/core-extension-gitlab-vulnerability-report/src/main/**/*.java')
 
-gitlab_provisioning_task_template: &GITLAB_PROVISIONING_TASK_TEMPLATE
-  only_if: >-
+gitlab_provisioning_task_template: &IS_GITLAB_PROVISIONING_TASK_NEEDED >-
     $CIRRUS_BRANCH == $BRANCH_MAIN || $CIRRUS_BRANCH =~ $BRANCH_PATTERN_MAINTENANCE || $CIRRUS_BRANCH == $BRANCH_NIGHTLY ||
     changesInclude('private/core-extension-gitlab-provisioning/**/*.java')
 
@@ -623,9 +622,9 @@ qa_github_provisioning_task:
 qa_gitlab_provisioning_task:
   <<: *DEFAULT_TEMPLATE
   <<: *BUILD_DEPENDANT_TASK_TEMPLATE
-  <<: *GITLAB_PROVISIONING_TASK_TEMPLATE
   <<: *JAR_CACHE_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
+  only_if: *IS_GITLAB_PROVISIONING_TASK_NEEDED
   env:
     QA_CATEGORY: GITLAB_PROVISIONING
   matrix:

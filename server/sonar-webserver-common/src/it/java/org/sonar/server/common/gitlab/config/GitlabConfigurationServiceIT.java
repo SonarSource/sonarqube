@@ -39,6 +39,7 @@ import org.sonar.db.user.ExternalGroupDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.management.ManagedInstanceService;
+import org.sonar.server.setting.ThreadLocalSettings;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -82,6 +83,9 @@ public class GitlabConfigurationServiceIT {
   @Mock
   private GitlabGlobalSettingsValidator gitlabGlobalSettingsValidator;
 
+  @Mock
+  private ThreadLocalSettings threadLocalSettings;
+
   private GitlabConfigurationService gitlabConfigurationService;
 
   @Before
@@ -90,7 +94,8 @@ public class GitlabConfigurationServiceIT {
     gitlabConfigurationService = new GitlabConfigurationService(
       dbTester.getDbClient(),
       managedInstanceService,
-      gitlabGlobalSettingsValidator);
+      gitlabGlobalSettingsValidator,
+      threadLocalSettings);
   }
 
   @Test

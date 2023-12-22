@@ -22,6 +22,7 @@ package org.sonarqube.ws.client;
 import java.io.File;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 import okhttp3.Request;
 import okhttp3.RequestBody;
@@ -32,6 +33,7 @@ import okhttp3.RequestBody;
 public abstract class RequestWithPayload<T extends RequestWithPayload<T>> extends BaseRequest<RequestWithPayload<T>> {
 
   private String body;
+  private String contentType = null;
   private final Map<String, Part> parts = new LinkedHashMap<>();
 
   protected RequestWithPayload(String path) {
@@ -49,6 +51,15 @@ public abstract class RequestWithPayload<T extends RequestWithPayload<T>> extend
 
   public boolean hasBody() {
     return this.body != null;
+  }
+
+  public T setContentType(String contentType) {
+    this.contentType = contentType;
+    return (T) this;
+  }
+
+  public Optional<String> getContentType() {
+    return Optional.ofNullable(contentType);
   }
 
   public T setPart(String name, Part part) {

@@ -19,39 +19,45 @@
  */
 package org.sonar.alm.client.gitlab;
 
-import com.google.gson.Gson;
-import com.google.gson.annotations.SerializedName;
-import com.google.gson.reflect.TypeToken;
 import java.util.Collection;
+import org.junit.Test;
 
-public class GsonId {
-  private static final TypeToken<Collection<GsonId>> COLLECTION_TYPE_TOKEN = new TypeToken<>() {
-  };
+import static java.util.stream.Collectors.toSet;
+import static org.assertj.core.api.Assertions.assertThat;
 
-  @SerializedName("id")
-  private final long id;
+public class GsonIdTest {
 
-  public GsonId() {
-    // http://stackoverflow.com/a/18645370/229031
-    this(0);
+  @Test
+  public void parseOne_whenSingleId_deserializesCorrectly() {
+    GsonId gsonId = GsonId.parseOne("""
+      {
+        "blu": "blue",
+        "id": "123",
+        "bla": "bli"
+      }
+      """);
+
+    assertThat(gsonId.getId()).isEqualTo(123);
   }
 
-  public GsonId(long id) {
-    this.id = id;
-  }
+  @Test
+  public void parseCollection_whenMultipleIds_deserializeCorrectly() {
+    Collection<GsonId> gsonId = GsonId.parseCollection("""
+      [
+      {
+        "blu": "blue",
+        "id": "123",
+        "bla": "bli"
+      },
+              
+      {
+        "id": "456",
+        "bla": "bli"
+      }
+      ]
+      """);
 
-  public long getId() {
-    return id;
-  }
-
-  public static GsonId parseOne(String json) {
-    Gson gson = new Gson();
-    return gson.fromJson(json, GsonId.class);
-  }
-
-  public static Collection<GsonId> parseCollection(String json) {
-    Gson gson = new Gson();
-    return gson.fromJson(json, COLLECTION_TYPE_TOKEN);
+    assertThat(gsonId.stream().map(GsonId::getId).collect(toSet())).containsExactlyInAnyOrder(123L, 456L);
   }
 
 }

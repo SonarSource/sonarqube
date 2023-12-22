@@ -36,6 +36,7 @@ import org.sonar.server.common.UpdatedValue;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.management.ManagedInstanceService;
+import org.sonar.server.setting.ThreadLocalSettings;
 
 import static java.lang.String.format;
 import static org.apache.commons.lang.StringUtils.isNotBlank;
@@ -73,12 +74,14 @@ public class GitlabConfigurationService {
   private final DbClient dbClient;
   private final ManagedInstanceService managedInstanceService;
   private final GitlabGlobalSettingsValidator gitlabGlobalSettingsValidator;
+  private final ThreadLocalSettings threadLocalSettings;
 
   public GitlabConfigurationService(DbClient dbClient,
-    ManagedInstanceService managedInstanceService, GitlabGlobalSettingsValidator gitlabGlobalSettingsValidator) {
+    ManagedInstanceService managedInstanceService, GitlabGlobalSettingsValidator gitlabGlobalSettingsValidator, ThreadLocalSettings threadLocalSettings) {
     this.dbClient = dbClient;
     this.managedInstanceService = managedInstanceService;
     this.gitlabGlobalSettingsValidator = gitlabGlobalSettingsValidator;
+    this.threadLocalSettings = threadLocalSettings;
   }
 
   public GitlabConfiguration updateConfiguration(UpdateGitlabConfigurationRequest updateRequest) {
@@ -112,6 +115,7 @@ public class GitlabConfigurationService {
     value
       .map(definedValue -> new PropertyDto().setKey(propertyName).setValue(definedValue))
       .applyIfDefined(property -> dbClient.propertiesDao().saveProperty(dbSession, property));
+    threadLocalSettings.setProperty(propertyName, value.orElse(null));
   }
 
   private void deleteExternalGroupsWhenDisablingAutoProvisioning(

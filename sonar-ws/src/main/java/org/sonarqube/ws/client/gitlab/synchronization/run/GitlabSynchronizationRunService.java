@@ -17,41 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.alm.client.gitlab;
+package org.sonarqube.ws.client.gitlab.synchronization.run;
 
-import com.google.gson.Gson;
-import com.google.gson.annotations.SerializedName;
-import com.google.gson.reflect.TypeToken;
-import java.util.Collection;
+import org.sonarqube.ws.client.BaseService;
+import org.sonarqube.ws.client.PostRequest;
+import org.sonarqube.ws.client.WsConnector;
 
-public class GsonId {
-  private static final TypeToken<Collection<GsonId>> COLLECTION_TYPE_TOKEN = new TypeToken<>() {
-  };
+public class GitlabSynchronizationRunService extends BaseService {
 
-  @SerializedName("id")
-  private final long id;
-
-  public GsonId() {
-    // http://stackoverflow.com/a/18645370/229031
-    this(0);
+  public GitlabSynchronizationRunService(WsConnector wsConnector) {
+    super(wsConnector, "api/v2/dop-translation/gitlab-synchronization-runs");
   }
 
-  public GsonId(long id) {
-    this.id = id;
-  }
-
-  public long getId() {
-    return id;
-  }
-
-  public static GsonId parseOne(String json) {
-    Gson gson = new Gson();
-    return gson.fromJson(json, GsonId.class);
-  }
-
-  public static Collection<GsonId> parseCollection(String json) {
-    Gson gson = new Gson();
-    return gson.fromJson(json, COLLECTION_TYPE_TOKEN);
+  public void triggerRun() {
+    call(
+      new PostRequest(path())
+    );
   }
 
 }

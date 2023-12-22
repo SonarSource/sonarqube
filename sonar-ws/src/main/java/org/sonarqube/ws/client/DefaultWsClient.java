@@ -36,6 +36,8 @@ import org.sonarqube.ws.client.emails.EmailsService;
 import org.sonarqube.ws.client.favorites.FavoritesService;
 import org.sonarqube.ws.client.github.provisioning.permissions.GithubPermissionsService;
 import org.sonarqube.ws.client.githubprovisioning.GithubProvisioningService;
+import org.sonarqube.ws.client.gitlab.configuration.GitlabConfigurationService;
+import org.sonarqube.ws.client.gitlab.synchronization.run.GitlabSynchronizationRunService;
 import org.sonarqube.ws.client.governancereports.GovernanceReportsService;
 import org.sonarqube.ws.client.hotspots.HotspotsService;
 import org.sonarqube.ws.client.issues.IssuesService;
@@ -144,6 +146,9 @@ class DefaultWsClient implements WsClient {
   private final SonarLintServerPushService sonarLintPushService;
   private final GithubProvisioningService githubProvisioningService;
   private final GithubPermissionsService githubPermissionsService;
+  private final GitlabConfigurationService gitlabConfigurationService;
+
+  private final GitlabSynchronizationRunService gitlabSynchronizationRunService;
 
   DefaultWsClient(WsConnector wsConnector) {
     this.wsConnector = wsConnector;
@@ -204,6 +209,8 @@ class DefaultWsClient implements WsClient {
     this.regulatoryReportsService = new RegulatoryReportsService(wsConnector);
     this.githubProvisioningService = new GithubProvisioningService(wsConnector);
     this.githubPermissionsService = new GithubPermissionsService(wsConnector);
+    this.gitlabConfigurationService = new GitlabConfigurationService(wsConnector);
+    this.gitlabSynchronizationRunService = new GitlabSynchronizationRunService(wsConnector);
   }
 
   @Override
@@ -285,6 +292,16 @@ class DefaultWsClient implements WsClient {
   @Override
   public GithubPermissionsService githubPermissionsService() {
     return githubPermissionsService;
+  }
+
+  @Override
+  public GitlabConfigurationService gitlabConfigurationService() {
+    return gitlabConfigurationService;
+  }
+
+  @Override
+  public GitlabSynchronizationRunService gitlabSynchronizationRunService() {
+    return gitlabSynchronizationRunService;
   }
 
   @Override

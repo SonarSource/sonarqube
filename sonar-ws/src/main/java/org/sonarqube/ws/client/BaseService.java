@@ -31,6 +31,7 @@ import static org.sonarqube.ws.WsUtils.checkArgument;
 import static org.sonarqube.ws.WsUtils.isNullOrEmpty;
 
 public abstract class BaseService {
+  protected static final String APPLICATION_MERGE_PATCH_JSON = "application/merge-patch+json";
 
   private final WsConnector wsConnector;
   protected final String controller;
@@ -62,6 +63,10 @@ public abstract class BaseService {
     } catch (Exception e) {
       throw new IllegalStateException("Fail to parse protobuf response of " + response.requestUrl(), e);
     }
+  }
+
+  protected String path() {
+    return controller;
   }
 
   protected String path(String action) {
