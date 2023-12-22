@@ -24,8 +24,6 @@ import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.io.File;
 import java.nio.file.Paths;
-import java.util.HashMap;
-import java.util.Map;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -40,11 +38,7 @@ import org.sonar.scanner.repository.language.LanguagesRepository;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.endsWith;
 import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 
 @RunWith(DataProviderRunner.class)
 public class LanguageDetectionTest {
@@ -78,7 +72,7 @@ public class LanguageDetectionTest {
   @Test
   public void detectLanguageKey_shouldDetectByFileExtension() {
     LanguagesRepository languages = new FakeLanguagesRepository(new Languages(new MockLanguage("java", "java", "jav"), new MockLanguage("cobol", "cbl", "cob")));
-    LanguageDetection detection = new LanguageDetection(settings.asConfig(), languages, new HashMap<>());
+    LanguageDetection detection = new LanguageDetection(settings.asConfig(), languages);
 
     assertThat(detectLanguageKey(detection, "Foo.java")).isEqualTo("java");
     assertThat(detectLanguageKey(detection, "src/Foo.java")).isEqualTo("java");
@@ -100,7 +94,7 @@ public class LanguageDetectionTest {
       new MockLanguage("docker", new String[0], new String[] {"*.dockerfile", "*.Dockerfile", "Dockerfile", "Dockerfile.*"}),
       new MockLanguage("terraform", new String[] {"tf"}, new String[] {".tf"}),
       new MockLanguage("java", new String[0], new String[] {"**/*Test.java"})));
-    LanguageDetection detection = new LanguageDetection(settings.asConfig(), languages, new HashMap<>());
+    LanguageDetection detection = new LanguageDetection(settings.asConfig(), languages);
     assertThat(detectLanguageKey(detection, fileName)).isEqualTo(expectedLanguageKey);
   }
 
@@ -123,7 +117,7 @@ public class LanguageDetectionTest {
 
   @Test
   public void detectLanguageKey_shouldNotFailIfNoLanguage() {
-    LanguageDetection detection = spy(new LanguageDetection(settings.asConfig(), new FakeLanguagesRepository(new Languages()), new HashMap<>()));
+    LanguageDetection detection = spy(new LanguageDetection(settings.asConfig(), new FakeLanguagesRepository(new Languages())));
     assertThat(detectLanguageKey(detection, "Foo.java")).isNull();
   }
 
@@ -131,14 +125,14 @@ public class LanguageDetectionTest {
   public void detectLanguageKey_shouldAllowPluginsToDeclareFileExtensionTwiceForCaseSensitivity() {
     LanguagesRepository languages = new FakeLanguagesRepository(new Languages(new MockLanguage("abap", "abap", "ABAP")));
 
-    LanguageDetection detection = new LanguageDetection(settings.asConfig(), languages, new HashMap<>());
+    LanguageDetection detection = new LanguageDetection(settings.asConfig(), languages);
     assertThat(detectLanguageKey(detection, "abc.abap")).isEqualTo("abap");
   }
 
   @Test
   public void detectLanguageKey_shouldFailIfConflictingLanguageSuffix() {
     LanguagesRepository languages = new FakeLanguagesRepository(new Languages(new MockLanguage("xml", "xhtml"), new MockLanguage("web", "xhtml")));
-    LanguageDetection detection = new LanguageDetection(settings.asConfig(), languages, new HashMap<>());
+    LanguageDetection detection = new LanguageDetection(settings.asConfig(), languages);
     assertThatThrownBy(() -> detectLanguageKey(detection, "abc.xhtml"))
       .isInstanceOf(MessageException.class)
       .hasMessageContaining("Language of file 'abc.xhtml' can not be decided as the file matches patterns of both ")
@@ -152,7 +146,7 @@ public class LanguageDetectionTest {
 
     settings.setProperty("sonar.lang.patterns.xml", "xml/**");
     settings.setProperty("sonar.lang.patterns.web", "web/**");
-    LanguageDetection detection = new LanguageDetection(settings.asConfig(), languages, new HashMap<>());
+    LanguageDetection detection = new LanguageDetection(settings.asConfig(), languages);
     assertThat(detectLanguageKey(detection, "xml/abc.xhtml")).isEqualTo("xml");
     assertThat(detectLanguageKey(detection, "web/abc.xhtml")).isEqualTo("web");
   }
@@ -163,7 +157,7 @@ public class LanguageDetectionTest {
     settings.setProperty("sonar.lang.patterns.abap", "*.abap,*.txt");
     settings.setProperty("sonar.lang.patterns.cobol", "*.cobol,*.txt");
 
-    LanguageDetection detection = new LanguageDetection(settings.asConfig(), languages, new HashMap<>());
+    LanguageDetection detection = new LanguageDetection(settings.asConfig(), languages);
 
     assertThat(detectLanguageKey(detection, "abc.abap")).isEqualTo("abap");
     assertThat(detectLanguageKey(detection, "abc.cobol")).isEqualTo("cobol");
@@ -172,19 +166,6 @@ public class LanguageDetectionTest {
       .hasMessageContaining("Language of file 'abc.txt' can not be decided as the file matches patterns of both ")
       .hasMessageContaining("sonar.lang.patterns.abap : *.abap,*.txt")
       .hasMessageContaining("sonar.lang.patterns.cobol : *.cobol,*.txt");
-  }
-
-  @Test
-  public void should_cache_detected_language_by_file_path() {
-    Map<String, org.sonar.scanner.repository.language.Language> languageCacheSpy = spy(new HashMap<>());
-    LanguagesRepository languages = new FakeLanguagesRepository(new Languages(
-      new MockLanguage("java", "java", "jav"), new MockLanguage("cobol", "cbl", "cob")));
-    LanguageDetection detection = new LanguageDetection(settings.asConfig(), languages, languageCacheSpy);
-
-    assertThat(detectLanguageKey(detection, "Foo.java")).isEqualTo("java");
-    assertThat(detectLanguageKey(detection, "Foo.java")).isEqualTo("java");
-    verify(languageCacheSpy, times(1)).put(endsWith("/Foo.java"), any(org.sonar.scanner.repository.language.Language.class));
-    verify(languageCacheSpy, times(2)).get(endsWith("/Foo.java"));
   }
 
   private String detectLanguageKey(LanguageDetection detection, String path) {

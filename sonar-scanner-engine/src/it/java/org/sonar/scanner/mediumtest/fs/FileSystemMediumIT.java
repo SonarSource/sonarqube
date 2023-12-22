@@ -29,7 +29,6 @@ import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Random;
-import java.util.Set;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.SystemUtils;
@@ -40,10 +39,8 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.slf4j.event.Level;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.Plugin;
 import org.sonar.api.SonarEdition;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.fs.InputFileFilter;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.api.utils.MessageException;
@@ -77,7 +74,6 @@ public class FileSystemMediumIT {
   public ScannerMediumTester tester = new ScannerMediumTester()
     .setEdition(SonarEdition.COMMUNITY)
     .registerPlugin("xoo", new XooPlugin())
-    .registerOptionalPlugin("optional-xoo", Set.of("xoo"), new OptionalXooPlugin())
     .addDefaultQProfile("xoo", "Sonar Way")
     .addDefaultQProfile("xoo2", "Sonar Way");
 
@@ -1185,7 +1181,7 @@ public class FileSystemMediumIT {
 
     assertThatThrownBy(result::execute)
       .isExactlyInstanceOf(IllegalStateException.class)
-      .hasMessageEndingWith(format("Failed to preprocess files"));
+      .hasMessageEndingWith(format("Failed to index files"));
   }
 
   @Test
@@ -1256,42 +1252,7 @@ public class FileSystemMediumIT {
 
     assertThatThrownBy(result::execute)
       .isExactlyInstanceOf(IllegalStateException.class)
-      .hasMessageEndingWith(format("Failed to preprocess files"));
-  }
-
-  @Test
-  public void should_load_input_file_filters_for_required_and_optional_plugins() throws IOException {
-    File projectDir = new File("test-resources/mediumtest/xoo/sample-with-input-file-filters");
-    AnalysisResult result = tester
-      .newAnalysis(new File(projectDir, "sonar-project.properties"))
-      .execute();
-
-    assertThat(result.inputFiles()).hasSize(1);
-
-    assertThat(logTester.logs()).contains("'xources/hello/xoo_exclude2.xoo' excluded by org.sonar.scanner.mediumtest.fs" +
-      ".FileSystemMediumIT$OptionalXooPlugin$OptionalXooFileFilter");
-    assertThat(logTester.logs()).contains("'xources/hello/xoo_exclude.xoo' excluded by org.sonar.xoo.extensions.XooExcludeFileFilter");
-    assertThat(logTester.logs()).contains("'xources/hello/HelloJava.xoo' indexed with language 'xoo'");
-
-    assertThat(result.inputFile("xources/hello/xoo_exclude.xoo")).isNull();
-    assertThat(result.inputFile("xources/hello/xoo_exclude2.xoo")).isNull();
-    assertThat(result.inputFile("xources/hello/HelloJava.xoo")).isNotNull();
-  }
-
-  public static class OptionalXooPlugin implements Plugin {
-
-    @Override
-    public void define(Context context) {
-      context.addExtension(OptionalXooFileFilter.class);
-    }
-
-    public static class OptionalXooFileFilter implements InputFileFilter {
-
-      @Override
-      public boolean accept(InputFile f) {
-        return !f.filename().endsWith("_exclude2.xoo");
-      }
-    }
+      .hasMessageEndingWith(format("Failed to index files"));
   }
 
   private static void assertAnalysedFiles(AnalysisResult result, String... files) {

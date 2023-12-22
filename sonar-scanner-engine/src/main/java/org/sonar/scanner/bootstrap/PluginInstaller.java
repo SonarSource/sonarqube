@@ -22,7 +22,6 @@ package org.sonar.scanner.bootstrap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.sonar.scanner.mediumtest.LocalPlugin;
 
 public interface PluginInstaller {
 
@@ -46,14 +45,8 @@ public interface PluginInstaller {
   Map<String, ScannerPlugin> installPluginsForLanguages(Set<String> languageKeys);
 
   /**
-   * Used only by medium tests. Installs required plugins (phase 1)
+   * Used only by medium tests.
    * @see org.sonar.scanner.mediumtest.ScannerMediumTester
    */
-  List<LocalPlugin> installLocals();
-
-  /**
-   * Used only by medium tests. Installs optional plugins (phase 2)
-   * @see org.sonar.scanner.mediumtest.ScannerMediumTester
-   */
-  List<LocalPlugin> installOptionalLocals(Set<String> languageKeys);
+  List<Object[]> installLocals();
 }

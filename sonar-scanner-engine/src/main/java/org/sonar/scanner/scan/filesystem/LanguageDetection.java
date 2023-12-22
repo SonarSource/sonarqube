@@ -25,7 +25,6 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.CheckForNull;
@@ -54,9 +53,8 @@ public class LanguageDetection {
    */
   private final Map<Language, PathPattern[]> patternsByLanguage;
   private final List<Language> languagesToConsider;
-  private final Map<String, Language> languageCacheByPath;
 
-  public LanguageDetection(Configuration settings, LanguagesRepository languages, Map<String, Language> languageCache) {
+  public LanguageDetection(Configuration settings, LanguagesRepository languages) {
     Map<Language, PathPattern[]> patternsByLanguageBuilder = new LinkedHashMap<>();
     for (Language language : languages.all()) {
       String[] filePatterns = settings.getStringArray(getFileLangPatternPropKey(language.key()));
@@ -71,7 +69,6 @@ public class LanguageDetection {
 
     languagesToConsider = List.copyOf(patternsByLanguageBuilder.keySet());
     patternsByLanguage = unmodifiableMap(patternsByLanguageBuilder);
-    languageCacheByPath = languageCache;
   }
 
   private static PathPattern[] getLanguagePatterns(Language language) {
@@ -92,16 +89,11 @@ public class LanguageDetection {
 
   @CheckForNull
   Language language(Path absolutePath, Path relativePath) {
-    Language detectedLanguage = languageCacheByPath.get(absolutePath.toString());
-    if (detectedLanguage != null) {
-      return detectedLanguage;
-    }
-
+    Language detectedLanguage = null;
     for (Language language : languagesToConsider) {
       if (isCandidateForLanguage(absolutePath, relativePath, language)) {
         if (detectedLanguage == null) {
           detectedLanguage = language;
-          languageCacheByPath.put(absolutePath.toString(), language);
         } else {
           // Language was already forced by another pattern
           throw MessageException.of(MessageFormat.format("Language of file ''{0}'' can not be decided as the file matches patterns of both {1} and {2}",
@@ -111,10 +103,6 @@ public class LanguageDetection {
     }
 
     return detectedLanguage;
-  }
-
-  public Set<String> getDetectedLanguages() {
-    return languageCacheByPath.values().stream().map(Language::key).collect(Collectors.toSet());
   }
 
   private boolean isCandidateForLanguage(Path absolutePath, Path relativePath, Language language) {

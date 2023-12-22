@@ -49,10 +49,7 @@ import org.sonar.scanner.qualitygate.QualityGateCheck;
 import org.sonar.scanner.report.ContextPropertiesPublisher;
 import org.sonar.scanner.report.ReportPublisher;
 import org.sonar.scanner.rule.QProfileVerifier;
-import org.sonar.scanner.scan.filesystem.FileIndexer;
-import org.sonar.scanner.scan.filesystem.InputFileFilterRepository;
-import org.sonar.scanner.scan.filesystem.LanguageDetection;
-import org.sonar.scanner.scan.filesystem.ProjectFileIndexer;
+import org.sonar.scanner.scan.filesystem.InputComponentStore;
 import org.sonar.scanner.scm.ScmPublisher;
 import org.sonar.scanner.sensor.ProjectSensorExtensionDictionary;
 import org.sonar.scanner.sensor.ProjectSensorsExecutor;
@@ -72,7 +69,7 @@ public class SpringProjectScanContainer extends SpringComponentContainer {
 
   @Override
   protected void doBeforeStart() {
-    Set<String> languages = getParentComponentByType(LanguageDetection.class).getDetectedLanguages();
+    Set<String> languages = getParentComponentByType(InputComponentStore.class).languages();
     installPluginsForLanguages(languages);
     addScannerComponents();
   }
@@ -117,12 +114,7 @@ public class SpringProjectScanContainer extends SpringComponentContainer {
       ProjectSensorExtensionDictionary.class,
       ProjectSensorsExecutor.class,
 
-      AnalysisObservers.class,
-
-      // file system
-      InputFileFilterRepository.class,
-      FileIndexer.class,
-      ProjectFileIndexer.class);
+      AnalysisObservers.class);
   }
 
   static ExtensionMatcher getScannerProjectExtensionsFilter() {
@@ -138,7 +130,6 @@ public class SpringProjectScanContainer extends SpringComponentContainer {
   protected void doAfterStart() {
     getParentComponentByType(ScannerMetrics.class).addPluginMetrics(getComponentsByType(Metrics.class));
     getComponentByType(ProjectLock.class).tryLock();
-    getComponentByType(ProjectFileIndexer.class).index();
     GlobalAnalysisMode analysisMode = getComponentByType(GlobalAnalysisMode.class);
     InputModuleHierarchy tree = getComponentByType(InputModuleHierarchy.class);
     ScanProperties properties = getComponentByType(ScanProperties.class);

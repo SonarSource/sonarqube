@@ -27,7 +27,6 @@ import org.sonar.api.resources.Qualifiers;
 import org.sonar.xoo.coverage.ItCoverageSensor;
 import org.sonar.xoo.coverage.OverallCoverageSensor;
 import org.sonar.xoo.coverage.UtCoverageSensor;
-import org.sonar.xoo.extensions.XooExcludeFileFilter;
 import org.sonar.xoo.extensions.XooIssueFilter;
 import org.sonar.xoo.extensions.XooPostJob;
 import org.sonar.xoo.extensions.XooProjectBuilder;
@@ -205,8 +204,7 @@ public class XooPlugin implements Plugin {
       XooIssueFilter.class,
       XooIgnoreCommand.class,
       SignificantCodeSensor.class,
-      IssueWithCodeVariantsSensor.class,
-      XooExcludeFileFilter.class);
+      IssueWithCodeVariantsSensor.class);
 
     if (context.getRuntime().getProduct() != SonarProduct.SONARLINT) {
       context.addExtension(MeasureSensor.class);
