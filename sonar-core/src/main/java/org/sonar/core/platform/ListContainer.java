@@ -102,16 +102,6 @@ public class ListContainer implements ExtensionContainer {
   }
 
   @Override
-  public <T> T getParentComponentByType(Class<T> type) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public <T> List<T> getParentComponentsByType(Class<T> type) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
   public ExtensionContainer getParent() {
     throw new UnsupportedOperationException();
   }

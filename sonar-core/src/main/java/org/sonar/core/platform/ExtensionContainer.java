@@ -19,7 +19,6 @@
  */
 package org.sonar.core.platform;
 
-import java.util.List;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -36,10 +35,6 @@ public interface ExtensionContainer extends Container {
   void addWebApiV2ConfigurationClass(Class<?> clazz);
 
   Set<Class<?>> getWebApiV2ConfigurationClasses();
-
-  <T> T getParentComponentByType(Class<T> type);
-
-  <T> List<T> getParentComponentsByType(Class<T> type);
 
   @CheckForNull
   ExtensionContainer getParent();

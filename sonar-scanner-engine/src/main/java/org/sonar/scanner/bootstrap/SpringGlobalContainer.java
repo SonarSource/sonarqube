@@ -54,8 +54,9 @@ import org.sonar.scanner.repository.DefaultMetricsRepositoryLoader;
 import org.sonar.scanner.repository.DefaultNewCodePeriodLoader;
 import org.sonar.scanner.repository.MetricsRepositoryProvider;
 import org.sonar.scanner.repository.settings.DefaultGlobalSettingsLoader;
+import org.sonar.scanner.scan.SpringProjectScanContainer;
 
-@Priority(4)
+@Priority(3)
 public class SpringGlobalContainer extends SpringComponentContainer {
   private static final Logger LOG = LoggerFactory.getLogger(SpringGlobalContainer.class);
   private final Map<String, String> scannerProperties;
@@ -119,7 +120,7 @@ public class SpringGlobalContainer extends SpringComponentContainer {
 
   @Override
   protected void doAfterStart() {
-    installRequiredPlugins();
+    installPlugins();
     loadCoreExtensions();
 
     long startTime = System.currentTimeMillis();
@@ -135,12 +136,12 @@ public class SpringGlobalContainer extends SpringComponentContainer {
       throw MessageException.of("The preview mode, along with the 'sonar.analysis.mode' parameter, is no more supported. You should stop using this parameter.");
     }
     getComponentByType(RuntimeJavaVersion.class).checkJavaVersion();
-    new SpringScannerContainer(this).execute();
+    new SpringProjectScanContainer(this).execute();
 
     LOG.info("Analysis total time: {}", formatTime(System.currentTimeMillis() - startTime));
   }
 
-  private void installRequiredPlugins() {
+  private void installPlugins() {
     PluginRepository pluginRepository = getComponentByType(PluginRepository.class);
     for (PluginInfo pluginInfo : pluginRepository.getPluginInfos()) {
       Plugin instance = pluginRepository.getPluginInstance(pluginInfo.getKey());

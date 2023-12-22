@@ -4,17 +4,13 @@
       "key": "scmgit",
       "hash": "abc",
       "type": "BUNDLED",
-      "updatedAt": 100,
-      "requiredForLanguages": []
+      "updatedAt": 100
     },
     {
       "key": "java",
       "hash": "def",
       "type": "EXTERNAL",
-      "updatedAt": 200,
-      "requiredForLanguages": [
-        "java"
-      ]
+      "updatedAt": 200
     }
   ]
 }

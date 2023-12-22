@@ -105,7 +105,6 @@ public class ScannerMediumTester extends ExternalResource {
   private final FakeActiveRulesLoader activeRules = new FakeActiveRulesLoader();
   private final FakeSonarRuntime sonarRuntime = new FakeSonarRuntime();
   private final CeTaskReportDataHolder reportMetadataHolder = new CeTaskReportDataHolderExt();
-  private final FakeLanguagesRepository languagesRepository = new FakeLanguagesRepository();
   private LogOutput logOutput = null;
 
   private static void createWorkingDirs() throws IOException {
@@ -283,14 +282,6 @@ public class ScannerMediumTester extends ExternalResource {
     return builder;
   }
 
-  public void addLanguage(String key, String name, String... suffixes) {
-    languagesRepository.addLanguage(key, name, suffixes, new String[0]);
-  }
-
-  public void addLanguage(String key, String name, boolean publishAllFiles, String... suffixes) {
-    languagesRepository.addLanguage(key, name, suffixes, new String[0], publishAllFiles);
-  }
-
   public static class AnalysisBuilder {
     private final Map<String, String> taskProperties = new HashMap<>();
     private final ScannerMediumTester tester;
@@ -322,8 +313,7 @@ public class ScannerMediumTester extends ExternalResource {
           tester.analysisCacheLoader,
           tester.sonarRuntime,
           tester.reportMetadataHolder,
-          result,
-          tester.languagesRepository);
+          result);
       if (tester.logOutput != null) {
         builder.setLogOutput(tester.logOutput);
       } else {

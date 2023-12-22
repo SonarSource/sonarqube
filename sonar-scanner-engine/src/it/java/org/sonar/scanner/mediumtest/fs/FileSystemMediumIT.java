@@ -866,8 +866,6 @@ public class FileSystemMediumIT {
     File srcDir = new File(baseDir, "src");
     srcDir.mkdir();
 
-    tester.addLanguage("xoo3", "xoo3",false,  ".xoo3");
-
     writeFile(srcDir, "sample.xoo3", "Sample xoo\ncontent");
     writeFile(srcDir, "sample2.xoo3", "Sample xoo 2\ncontent");
 
@@ -899,7 +897,6 @@ public class FileSystemMediumIT {
 
     assertThat(result.inputFiles()).hasSize(2);
 
-    tester.addLanguage("xoo2", "xoo2", ".xoo");
     AnalysisBuilder analysisBuilder = tester.newAnalysis()
       .properties(builder
         .put("sonar.lang.patterns.xoo2", "**/*.xoo")

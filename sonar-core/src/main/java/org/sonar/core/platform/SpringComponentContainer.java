@@ -60,10 +60,6 @@ public class SpringComponentContainer implements StartableContainer {
     this(parent, parent.propertyDefinitions, emptyList(), new LazyUnlessStartableStrategy());
   }
 
-  protected SpringComponentContainer(SpringComponentContainer parent, List<?> externalExtensions) {
-    this(parent, parent.propertyDefinitions, externalExtensions, new LazyUnlessStartableStrategy());
-  }
-
   protected SpringComponentContainer(SpringComponentContainer parent, SpringInitStrategy initStrategy) {
     this(parent, parent.propertyDefinitions, emptyList(), initStrategy);
   }
@@ -83,15 +79,6 @@ public class SpringComponentContainer implements StartableContainer {
     add(new StartableBeanPostProcessor());
     add(externalExtensions);
     add(propertyDefs);
-  }
-
-  //TODO: To be removed, added for moving on with the non matching LanguagesRepository beans
-  public void addIfMissing(Object object, Class<?> objectType) {
-    try {
-      getParentComponentByType(objectType);
-    } catch (IllegalStateException e) {
-      add(object);
-    }
   }
 
   /**
@@ -131,24 +118,6 @@ public class SpringComponentContainer implements StartableContainer {
   @Override
   public Set<Class<?>> getWebApiV2ConfigurationClasses() {
     return Set.copyOf(webConfigurationClasses);
-  }
-
-  @Override
-  public <T> T getParentComponentByType(Class<T> type) {
-    if (parent == null) {
-      throw new IllegalStateException("No parent container");
-    } else {
-      return parent.getComponentByType(type);
-    }
-  }
-
-  @Override
-  public <T> List<T> getParentComponentsByType(Class<T> type) {
-    if (parent == null) {
-      throw new IllegalStateException("No parent container");
-    } else {
-      return parent.getComponentsByType(type);
-    }
   }
 
   private <T> void registerInstance(T instance) {

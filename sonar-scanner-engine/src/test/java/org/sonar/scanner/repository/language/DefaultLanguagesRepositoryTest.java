@@ -19,128 +19,100 @@
  */
 package org.sonar.scanner.repository.language;
 
-import java.io.InputStreamReader;
-import java.io.StringReader;
-import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.slf4j.event.Level;
-import org.sonar.api.config.Configuration;
+import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
-import org.sonar.api.testfixtures.log.LogTester;
-import org.sonar.scanner.WsTestUtil;
-import org.sonar.scanner.bootstrap.DefaultScannerWsClient;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.AssertionsForClassTypes.catchThrowableOfType;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class DefaultLanguagesRepositoryTest {
-
-  @Rule
-  public LogTester logTester = new LogTester();
-
-  private final DefaultScannerWsClient wsClient = mock(DefaultScannerWsClient.class);
-  private final Configuration properties = mock(Configuration.class);
   private final Languages languages = mock(Languages.class);
-  private final DefaultLanguagesRepository underTest = new DefaultLanguagesRepository(wsClient, properties);
-
-  private static final String[] JAVA_SUFFIXES = new String[] { ".java", ".jav" };
-  private static final String[] XOO_SUFFIXES = new String[] { ".xoo" };
-  private static final String[] XOO_PATTERNS = new String[] { "Xoofile" };
-  private static final String[] PYTHON_SUFFIXES = new String[] { ".py" };
-
-  @Before
-  public void setup() {
-    logTester.setLevel(Level.DEBUG);
-  }
+  private final DefaultLanguagesRepository underTest = new DefaultLanguagesRepository(languages);
 
   @Test
-  public void should_load_languages_from_ws() {
-    WsTestUtil.mockReader(wsClient, "/api/languages/list",
-      new InputStreamReader(getClass().getResourceAsStream("DefaultLanguageRepositoryTest/languages-ws.json")));
-
-    when(properties.getStringArray("sonar.java.file.suffixes")).thenReturn(JAVA_SUFFIXES);
-    when(properties.getStringArray("sonar.xoo.file.suffixes")).thenReturn(XOO_SUFFIXES);
-    when(properties.getStringArray("sonar.python.file.suffixes")).thenReturn(PYTHON_SUFFIXES);
-
-    underTest.start();
-    underTest.stop();
-
-    assertThat(underTest.all()).hasSize(3);
-    assertThat(underTest.get("java")).isNotNull();
-    assertThat(underTest.get("java").fileSuffixes()).containsExactlyInAnyOrder(JAVA_SUFFIXES);
-    assertThat(underTest.get("java").isPublishAllFiles()).isTrue();
-    assertThat(underTest.get("xoo")).isNotNull();
-    assertThat(underTest.get("xoo").fileSuffixes()).containsExactlyInAnyOrder(XOO_SUFFIXES);
-    assertThat(underTest.get("xoo").isPublishAllFiles()).isTrue();
-    assertThat(underTest.get("python")).isNotNull();
-    assertThat(underTest.get("python").fileSuffixes()).containsExactlyInAnyOrder(PYTHON_SUFFIXES);
-    assertThat(underTest.get("python").isPublishAllFiles()).isTrue();
-  }
-
-  @Test
-  public void should_throw_error_on_invalid_ws_response() {
-    WsTestUtil.mockReader(wsClient, "api/languages/list", new StringReader("not json"));
-
-    IllegalStateException e = catchThrowableOfType(underTest::start, IllegalStateException.class);
-
-    assertThat(e).hasMessage("Fail to parse response of /api/languages/list");
-  }
-
-  @Test
-  public void should_return_null_when_language_not_found() {
-    WsTestUtil.mockReader(wsClient, "/api/languages/list",
-      new InputStreamReader(getClass().getResourceAsStream("DefaultLanguageRepositoryTest/languages-ws.json")));
-
-    when(properties.getStringArray("sonar.java.file.suffixes")).thenReturn(JAVA_SUFFIXES);
-    when(properties.getStringArray("sonar.xoo.file.suffixes")).thenReturn(XOO_SUFFIXES);
-    when(properties.getStringArray("sonar.python.file.suffixes")).thenReturn(PYTHON_SUFFIXES);
-
-    assertThat(underTest.get("k1")).isNull();
+  public void returns_all_languages() {
+    when(languages.all()).thenReturn(new Language[] {new TestLanguage("k1", true), new TestLanguage("k2", false)});
+    assertThat(underTest.all())
+      .extracting("key", "name", "fileSuffixes", "publishAllFiles")
+      .containsOnly(
+        tuple("k1", "name k1", new String[] {"k1"}, true),
+        tuple("k2", "name k2", new String[] {"k2"}, false)
+      );
   }
 
   @Test
   public void publishAllFiles_by_default() {
-    WsTestUtil.mockReader(wsClient, "/api/languages/list",
-      new InputStreamReader(getClass().getResourceAsStream("DefaultLanguageRepositoryTest/languages-ws.json")));
-
-    underTest.start();
-    underTest.stop();
-
-    assertThat(underTest.get("java").isPublishAllFiles()).isTrue();
-    assertThat(underTest.get("xoo").isPublishAllFiles()).isTrue();
-    assertThat(underTest.get("python").isPublishAllFiles()).isTrue();
+    when(languages.all()).thenReturn(new Language[] {new TestLanguage2("k1"), new TestLanguage2("k2")});
+    assertThat(underTest.all())
+      .extracting("key", "name", "fileSuffixes", "publishAllFiles")
+      .containsOnly(
+        tuple("k1", "name k1", new String[] {"k1"}, true),
+        tuple("k2", "name k2", new String[] {"k2"}, true)
+      );
   }
 
   @Test
   public void get_find_language_by_key() {
-    WsTestUtil.mockReader(wsClient, "/api/languages/list",
-      new InputStreamReader(getClass().getResourceAsStream("DefaultLanguageRepositoryTest/languages-ws.json")));
-
-    when(properties.getStringArray("sonar.java.file.suffixes")).thenReturn(JAVA_SUFFIXES);
-
-    underTest.start();
-    underTest.stop();
-
-    assertThat(underTest.get("java"))
+    when(languages.get("k1")).thenReturn(new TestLanguage2("k1"));
+    assertThat(underTest.get("k1"))
       .extracting("key", "name", "fileSuffixes", "publishAllFiles")
-      .containsOnly("java", "Java", JAVA_SUFFIXES, true);
+      .containsOnly("k1", "name k1", new String[] {"k1"}, true);
   }
 
+  private static class TestLanguage implements Language {
+    private final String key;
+    private final boolean publishAllFiles;
 
-  @Test
-  public void should_log_if_language_has_no_suffixes_or_patterns() {
-    WsTestUtil.mockReader(wsClient, "/api/languages/list",
-      new InputStreamReader(getClass().getResourceAsStream("DefaultLanguageRepositoryTest/languages-ws.json")));
+    public TestLanguage(String key, boolean publishAllFiles) {
+      this.key = key;
+      this.publishAllFiles = publishAllFiles;
+    }
 
-    when(properties.getStringArray("sonar.java.file.suffixes")).thenReturn(JAVA_SUFFIXES);
-    when(properties.getStringArray("sonar.xoo.file.patterns")).thenReturn(XOO_PATTERNS);
+    @Override
+    public String getKey() {
+      return key;
+    }
 
-    underTest.start();
+    @Override
+    public String getName() {
+      return "name " + key;
+    }
 
-    assertThat(logTester.logs(Level.DEBUG)).contains("Language 'Python' cannot be detected as it has neither suffixes nor patterns.");
+    @Override
+    public String[] getFileSuffixes() {
+      return new String[] {key};
+    }
+
+    @Override
+    public boolean publishAllFiles() {
+      return publishAllFiles;
+    }
+  }
+
+  private static class TestLanguage2 implements Language {
+    private final String key;
+
+    public TestLanguage2(String key) {
+      this.key = key;
+    }
+
+    @Override
+    public String getKey() {
+      return key;
+    }
+
+    @Override
+    public String getName() {
+      return "name " + key;
+    }
+
+    @Override
+    public String[] getFileSuffixes() {
+      return new String[] {key};
+    }
   }
 
 }

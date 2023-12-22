@@ -74,9 +74,7 @@ public abstract class AbstractSettingsLoader {
   static Map<String, String> toMap(List<Settings.Setting> settingsList) {
     Map<String, String> result = new LinkedHashMap<>();
     for (Settings.Setting s : settingsList) {
-      // we need the "*.file.suffixes" and "*.file.patterns" properties for language detection
-      // see DefaultLanguagesRepository.populateFileSuffixesAndPatterns()
-      if (!s.getInherited() || s.getKey().endsWith(".file.suffixes") || s.getKey().endsWith(".file.patterns")) {
+      if (!s.getInherited()) {
         switch (s.getValueOneOfCase()) {
           case VALUE:
             result.put(s.getKey(), s.getValue());

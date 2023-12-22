@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import javax.annotation.Priority;
 import org.sonar.api.Plugin;
 import org.sonar.core.platform.PluginInfo;
@@ -49,17 +48,7 @@ public class FakePluginInstaller implements PluginInstaller {
   }
 
   @Override
-  public Map<String, ScannerPlugin> installAllPlugins() {
-    return pluginsByKeys;
-  }
-
-  @Override
-  public Map<String, ScannerPlugin> installRequiredPlugins() {
-    return pluginsByKeys;
-  }
-
-  @Override
-  public Map<String, ScannerPlugin> installPluginsForLanguages(Set<String> languageKeys) {
+  public Map<String, ScannerPlugin> installRemotes() {
     return pluginsByKeys;
   }
 

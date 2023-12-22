@@ -22,14 +22,11 @@ package org.sonar.scanner.bootstrap;
 import com.google.gson.Gson;
 import java.io.File;
 import java.io.Reader;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
-import java.util.function.Predicate;
 import javax.annotation.Nullable;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
@@ -51,58 +48,21 @@ public class ScannerPluginInstaller implements PluginInstaller {
   private final PluginFiles pluginFiles;
   private final DefaultScannerWsClient wsClient;
 
-  private List<InstalledPlugin> availablePlugins;
-
   public ScannerPluginInstaller(PluginFiles pluginFiles, DefaultScannerWsClient wsClient) {
     this.pluginFiles = pluginFiles;
     this.wsClient = wsClient;
   }
 
   @Override
-  public Map<String, ScannerPlugin> installAllPlugins() {
-    LOG.info("Loading all plugins");
-    return installPlugins(p -> true).installedPluginsByKey;
-  }
-
-  @Override
-  public Map<String, ScannerPlugin> installRequiredPlugins() {
-    LOG.info("Loading required plugins");
-    InstallResult result = installPlugins(p -> p.getRequiredForLanguages() == null || p.getRequiredForLanguages().isEmpty());
-
-    LOG.debug("Plugins not loaded because they are optional: {}", result.skippedPlugins);
-
-    return result.installedPluginsByKey;
-  }
-
-  @Override
-  public Map<String, ScannerPlugin> installPluginsForLanguages(Set<String> languageKeys) {
-    LOG.info("Loading plugins for detected languages");
-    LOG.debug("Detected languages: {}", languageKeys);
-    InstallResult result = installPlugins(
-      p -> p.getRequiredForLanguages() != null && !Collections.disjoint(p.getRequiredForLanguages(), languageKeys)
-    );
-
-    List<InstalledPlugin> skippedLanguagePlugins = result.skippedPlugins.stream()
-      .filter(p -> p.getRequiredForLanguages() != null && !p.getRequiredForLanguages().isEmpty()).toList();
-    LOG.debug("Optional language-specific plugins not loaded: {}", skippedLanguagePlugins);
-
-    return result.installedPluginsByKey;
-  }
-
-  private InstallResult installPlugins(Predicate<InstalledPlugin> pluginFilter) {
-    if (this.availablePlugins == null) {
-      this.availablePlugins = listInstalledPlugins();
-    }
-
+  public Map<String, ScannerPlugin> installRemotes() {
     Profiler profiler = Profiler.create(LOG).startInfo("Load/download plugins");
     try {
-      InstallResult result = new InstallResult();
-      Loaded loaded = loadPlugins(result, pluginFilter);
+      Map<String, ScannerPlugin> result = new HashMap<>();
+      Loaded loaded = loadPlugins(result);
       if (!loaded.ok) {
         // retry once, a plugin may have been uninstalled during downloads
-        this.availablePlugins = listInstalledPlugins();
-        result.installedPluginsByKey.clear();
-        loaded = loadPlugins(result, pluginFilter);
+        result.clear();
+        loaded = loadPlugins(result);
         if (!loaded.ok) {
           throw new IllegalStateException(format("Fail to download plugin [%s]. Not found.", loaded.notFoundPlugin));
         }
@@ -113,23 +73,16 @@ public class ScannerPluginInstaller implements PluginInstaller {
     }
   }
 
-  private Loaded loadPlugins(InstallResult result, Predicate<InstalledPlugin> pluginFilter) {
-    List<InstalledPlugin> pluginsToInstall = availablePlugins.stream()
-      .filter(pluginFilter).toList();
-
-    for (InstalledPlugin plugin : pluginsToInstall) {
+  private Loaded loadPlugins(Map<String, ScannerPlugin> result) {
+    for (InstalledPlugin plugin : listInstalledPlugins()) {
       Optional<File> jarFile = pluginFiles.get(plugin);
       if (jarFile.isEmpty()) {
         return new Loaded(false, plugin.key);
       }
 
       PluginInfo info = PluginInfo.create(jarFile.get());
-      result.installedPluginsByKey.put(info.getKey(), new ScannerPlugin(plugin.key, plugin.updatedAt, PluginType.valueOf(plugin.type), info));
+      result.put(info.getKey(), new ScannerPlugin(plugin.key, plugin.updatedAt, PluginType.valueOf(plugin.type), info));
     }
-
-    result.skippedPlugins = availablePlugins.stream()
-      .filter(Predicate.not(pluginFilter)).toList();
-
     return new Loaded(true, null);
   }
 
@@ -144,7 +97,7 @@ public class ScannerPluginInstaller implements PluginInstaller {
   /**
    * Gets information about the plugins installed on server (filename, checksum)
    */
-  private List<InstalledPlugin> listInstalledPlugins() {
+  private InstalledPlugin[] listInstalledPlugins() {
     Profiler profiler = Profiler.create(LOG).startInfo("Load plugins index");
     GetRequest getRequest = new GetRequest(PLUGINS_WS_URL);
     InstalledPlugins installedPlugins;
@@ -158,13 +111,8 @@ public class ScannerPluginInstaller implements PluginInstaller {
     return installedPlugins.plugins;
   }
 
-  private static class InstallResult {
-    Map<String, ScannerPlugin> installedPluginsByKey = new HashMap<>();
-    List<InstalledPlugin> skippedPlugins = new ArrayList<>();
-  }
-
   private static class InstalledPlugins {
-    List<InstalledPlugin> plugins;
+    InstalledPlugin[] plugins;
 
     public InstalledPlugins() {
       // http://stackoverflow.com/a/18645370/229031
@@ -176,21 +124,10 @@ public class ScannerPluginInstaller implements PluginInstaller {
     String hash;
     long updatedAt;
     String type;
-    private Set<String> requiredForLanguages;
 
     public InstalledPlugin() {
       // http://stackoverflow.com/a/18645370/229031
     }
-
-    public Set<String> getRequiredForLanguages() {
-      return requiredForLanguages;
-    }
-
-    @Override
-    public String toString() {
-      return key;
-    }
-
   }
 
   private static class Loaded {
