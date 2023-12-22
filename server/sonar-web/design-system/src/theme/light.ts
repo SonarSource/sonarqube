@@ -433,6 +433,13 @@ export const lightTheme = {
     'rating.D': COLORS.orange[200],
     'rating.E': COLORS.red[200],
 
+    // rating donut outside circle indicators
+    'ratingDonut.A': COLORS.green[400],
+    'ratingDonut.B': COLORS.yellowGreen[400],
+    'ratingDonut.C': COLORS.yellow[400],
+    'ratingDonut.D': COLORS.orange[400],
+    'ratingDonut.E': COLORS.red[400],
+
     // date picker
     datePicker: COLORS.white,
     datePickerIcon: secondary.default,
