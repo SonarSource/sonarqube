@@ -49,12 +49,8 @@ public class ProjectBuildersExecutor {
   }
 
   public void execute(ProjectReactor reactor) {
-    executeProjectBuilders(projectBuilders, reactor, "Execute project builders");
-  }
-
-  public void executeProjectBuilders(ProjectBuilder[] projectBuilders, ProjectReactor reactor, String profilerMessage) {
     if (projectBuilders.length > 0) {
-      Profiler profiler = Profiler.create(LOG).startInfo(profilerMessage);
+      Profiler profiler = Profiler.create(LOG).startInfo("Execute project builders");
       ProjectBuilderContext context = new ProjectBuilderContext(reactor, globalConfig);
 
       for (ProjectBuilder projectBuilder : projectBuilders) {

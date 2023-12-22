@@ -25,8 +25,6 @@ import javax.annotation.Priority;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.Plugin;
-import org.sonar.api.batch.bootstrap.ProjectBuilder;
-import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.measures.Metrics;
 import org.sonar.api.resources.Languages;
@@ -140,12 +138,6 @@ public class SpringProjectScanContainer extends SpringComponentContainer {
   protected void doAfterStart() {
     getParentComponentByType(ScannerMetrics.class).addPluginMetrics(getComponentsByType(Metrics.class));
     getComponentByType(ProjectLock.class).tryLock();
-
-    // NOTE: ProjectBuilders executed here will have any changes they make to the ProjectReactor discarded.
-    ProjectBuilder[] phase2ProjectBuilders = getComponentsByType(ProjectBuilder.class).toArray(new ProjectBuilder[0]);
-    getComponentByType(ProjectBuildersExecutor.class).executeProjectBuilders(phase2ProjectBuilders, getComponentByType(ProjectReactor.class),
-      "Executing phase 2 project builders");
-
     getComponentByType(ProjectFileIndexer.class).index();
     GlobalAnalysisMode analysisMode = getComponentByType(GlobalAnalysisMode.class);
     InputModuleHierarchy tree = getComponentByType(InputModuleHierarchy.class);
