@@ -19,13 +19,23 @@
  */
 package org.sonar.scanner.repository.language;
 
+import com.google.gson.Gson;
+import java.io.Reader;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import javax.annotation.concurrent.Immutable;
 import org.sonar.api.Startable;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.resources.Languages;
+import org.sonar.scanner.bootstrap.DefaultScannerWsClient;
+import org.sonarqube.ws.client.GetRequest;
 
 /**
  * Languages repository using {@link Languages}
@@ -33,17 +43,59 @@ import org.sonar.api.resources.Languages;
  */
 @Immutable
 public class DefaultLanguagesRepository implements LanguagesRepository, Startable {
+  private static final Logger LOG = LoggerFactory.getLogger(DefaultLanguagesRepository.class);
+  private static final String LANGUAGES_WS_URL = "/api/languages/list";
+  private static final Map<String, String> PROPERTY_FRAGMENT_MAP = Map.of(
+    "js", "javascript",
+    "ts", "typescript",
+    "py", "python",
+    "web", "html"
+  );
 
   private final Map<String, Language> languages = new HashMap<>();
-  private final LanguagesLoader languagesLoader;
+  private final DefaultScannerWsClient wsClient;
+  private final Configuration properties;
 
-  public DefaultLanguagesRepository(LanguagesLoader languagesLoader) {
-    this.languagesLoader = languagesLoader;
+  public DefaultLanguagesRepository(DefaultScannerWsClient wsClient, Configuration properties) {
+    this.wsClient = wsClient;
+    this.properties = properties;
   }
 
   @Override
   public void start() {
-    languages.putAll(languagesLoader.load());
+    GetRequest getRequest = new GetRequest(LANGUAGES_WS_URL);
+    LanguagesWSResponse response;
+    try (Reader reader = wsClient.call(getRequest).contentReader()) {
+      response = new Gson().fromJson(reader, LanguagesWSResponse.class);
+    } catch (Exception e) {
+      throw new IllegalStateException("Fail to parse response of " + LANGUAGES_WS_URL, e);
+    }
+
+    languages.putAll(response.languages.stream()
+      .map(this::populateFileSuffixesAndPatterns)
+      .collect(Collectors.toMap(Language::key, Function.identity())));
+  }
+
+  private Language populateFileSuffixesAndPatterns(SupportedLanguageDto lang) {
+    lang.setFileSuffixes(getFileSuffixes(lang.getKey()));
+    lang.setFilenamePatterns(getFilenamePatterns(lang.getKey()));
+    if (lang.filenamePatterns() == null && lang.getFileSuffixes() == null) {
+      LOG.debug("Language '{}' cannot be detected as it has neither suffixes nor patterns.", lang.getName());
+    }
+    return new Language(lang);
+  }
+
+  private String[] getFileSuffixes(String languageKey) {
+    return getPropertyForLanguage("sonar.%s.file.suffixes", languageKey);
+  }
+
+  private String[] getFilenamePatterns(String languageKey) {
+    return getPropertyForLanguage("sonar.%s.file.patterns", languageKey);
+  }
+
+  private String[] getPropertyForLanguage(String propertyPattern, String languageKey) {
+    String propName = String.format(propertyPattern, PROPERTY_FRAGMENT_MAP.getOrDefault(languageKey, languageKey));
+    return properties.getStringArray(propName);
   }
 
   /**
@@ -68,5 +120,8 @@ public class DefaultLanguagesRepository implements LanguagesRepository, Startabl
     // nothing to do
   }
 
+  private static class LanguagesWSResponse {
+    List<SupportedLanguageDto> languages;
+  }
 
 }

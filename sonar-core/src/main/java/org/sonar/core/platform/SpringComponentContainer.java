@@ -85,6 +85,15 @@ public class SpringComponentContainer implements StartableContainer {
     add(propertyDefs);
   }
 
+  //TODO: To be removed, added for moving on with the non matching LanguagesRepository beans
+  public void addIfMissing(Object object, Class<?> objectType) {
+    try {
+      getParentComponentByType(objectType);
+    } catch (IllegalStateException e) {
+      add(object);
+    }
+  }
+
   /**
    * Beans need to have a unique name, otherwise they'll override each other.
    * The strategy is:

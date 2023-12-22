@@ -85,8 +85,8 @@ import org.sonar.scanner.repository.DefaultQualityProfileLoader;
 import org.sonar.scanner.repository.ProjectRepositoriesProvider;
 import org.sonar.scanner.repository.QualityProfilesProvider;
 import org.sonar.scanner.repository.ReferenceBranchSupplier;
-import org.sonar.scanner.repository.language.DefaultLanguagesLoader;
 import org.sonar.scanner.repository.language.DefaultLanguagesRepository;
+import org.sonar.scanner.repository.language.LanguagesRepository;
 import org.sonar.scanner.repository.settings.DefaultProjectSettingsLoader;
 import org.sonar.scanner.rule.ActiveRulesProvider;
 import org.sonar.scanner.rule.DefaultActiveRulesLoader;
@@ -302,9 +302,10 @@ public class SpringScannerContainer extends SpringComponentContainer {
     add(DefaultProjectSettingsLoader.class,
       DefaultActiveRulesLoader.class,
       DefaultQualityProfileLoader.class,
-      DefaultProjectRepositoriesLoader.class,
-      DefaultLanguagesLoader.class,
-      DefaultLanguagesRepository.class);
+      DefaultProjectRepositoriesLoader.class);
+
+    addIfMissing(DefaultLanguagesRepository.class, LanguagesRepository.class);
+
   }
 
   static ExtensionMatcher getScannerProjectExtensionsFilter() {
