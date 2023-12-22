@@ -33,12 +33,12 @@ public class FakeLanguagesLoader implements LanguagesLoader {
   private final Map<String, Language> languageMap = new HashMap<>();
 
   public FakeLanguagesLoader() {
-    languageMap.put("xoo", new Language(new SupportedLanguageDto("xoo", "xoo", new String[] { ".xoo" }, new String[0])));
+    languageMap.put("xoo", new Language(new FakeLanguage("xoo", "xoo", new String[] { ".xoo" }, new String[0], true)));
   }
 
   public FakeLanguagesLoader(Languages languages) {
     for (org.sonar.api.resources.Language language : languages.all()) {
-      languageMap.put(language.getKey(), new Language(new SupportedLanguageDto(language.getKey(), language.getName(), language.getFileSuffixes(), language.filenamePatterns())));
+      languageMap.put(language.getKey(), new Language(new FakeLanguage(language.getKey(), language.getName(), language.getFileSuffixes(), language.filenamePatterns(), true)));
     }
   }
   @Override
@@ -47,7 +47,25 @@ public class FakeLanguagesLoader implements LanguagesLoader {
   }
 
   public void addLanguage(String key, String name, String[] suffixes, String[] filenamePatterns) {
-    languageMap.put(key, new Language(new SupportedLanguageDto(key, name, suffixes, filenamePatterns)));
+    languageMap.put(key, new Language(new FakeLanguage(key, name, suffixes, filenamePatterns, true)));
   }
 
+  public void addLanguage(String key, String name, String[] suffixes, String[] filenamePatterns, boolean publishAllFiles) {
+    languageMap.put(key, new Language(new FakeLanguage(key, name, suffixes, filenamePatterns, publishAllFiles)));
+  }
+
+  private static class FakeLanguage extends SupportedLanguageDto {
+
+    private final boolean publishAllFiles;
+
+    public FakeLanguage(String key, String name, String[] fileSuffixes, String[] filenamePatterns, boolean publishAllFiles) {
+      super(key, name, fileSuffixes, filenamePatterns);
+      this.publishAllFiles = publishAllFiles;
+    }
+
+    @Override
+    public boolean publishAllFiles() {
+      return publishAllFiles;
+    }
+  }
 }
