@@ -41,6 +41,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -179,18 +180,19 @@ public class IssueQueryFactory {
     if (request.getFixedInPullRequest() != null) {
       issueKeys = getIssuesFixedByPullRequest(dbSession, request);
     }
-    if (request.getIssues() != null && !request.getIssues().isEmpty()) {
+    List<String> requestIssues = request.getIssues();
+    if (requestIssues != null && !requestIssues.isEmpty()) {
       if (issueKeys == null) {
         issueKeys = new ArrayList<>();
       }
-      issueKeys.addAll(request.getIssues());
+      issueKeys.addAll(requestIssues);
     }
-
     return issueKeys;
   }
 
   private Collection<String> getIssuesFixedByPullRequest(DbSession dbSession, SearchRequest request) {
     String fixedInPullRequest = request.getFixedInPullRequest();
+    checkArgument(StringUtils.isNotBlank(fixedInPullRequest), "Parameter '%s' is empty", PARAM_FIXED_IN_PULL_REQUEST);
     List<String> componentKeys = request.getComponentKeys();
     if (componentKeys == null || componentKeys.size() != 1) {
       throw new IllegalArgumentException("Exactly one project needs to be provided in the " +
@@ -200,14 +202,15 @@ public class IssueQueryFactory {
     ProjectDto projectDto = dbClient.projectDao().selectProjectByKey(dbSession, projectKey)
       .orElseThrow(() -> new IllegalArgumentException("Project with key '" + projectKey + "' does not exist"));
     BranchDto pullRequest = dbClient.branchDao().selectByPullRequestKey(dbSession, projectDto.getUuid(), fixedInPullRequest)
-      .orElseThrow(() -> new IllegalArgumentException("Pull request with key '" + fixedInPullRequest + "' does not exist for a project " +
+      .orElseThrow(() -> new IllegalArgumentException("Pull request with key '" + fixedInPullRequest + "' does not exist for project " +
         projectKey));
 
-    if (request.getBranch() != null) {
-      BranchDto targetBranch = dbClient.branchDao().selectByBranchKey(dbSession, projectDto.getUuid(), request.getBranch())
-        .orElseThrow(() -> new IllegalArgumentException("Branch with key '" + request.getBranch() + "' does not exist"));
+    String branch = request.getBranch();
+    if (branch != null) {
+      BranchDto targetBranch = dbClient.branchDao().selectByBranchKey(dbSession, projectDto.getUuid(), branch)
+        .orElseThrow(() -> new IllegalArgumentException("Branch with key '" + branch + "' does not exist"));
       if (!Objects.equals(targetBranch.getUuid(), pullRequest.getMergeBranchUuid())) {
-        throw new IllegalArgumentException("Pull request with key '" + fixedInPullRequest + "' does not target branch '" + request.getBranch() + "'");
+        throw new IllegalArgumentException("Pull request with key '" + fixedInPullRequest + "' does not target branch '" + branch + "'");
       }
     }
     return dbClient.issueFixedDao().selectByPullRequest(dbSession, pullRequest.getUuid())
@@ -215,7 +218,6 @@ public class IssueQueryFactory {
       .map(IssueFixedDto::issueKey)
       .collect(Collectors.toSet());
   }
-
 
   private static Optional<ZoneId> parseTimeZone(@Nullable String timeZone) {
     if (timeZone == null) {

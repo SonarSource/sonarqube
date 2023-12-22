@@ -2228,7 +2228,7 @@ public class SearchActionIT {
 
     assertThatThrownBy(request::execute)
       .isInstanceOf(IllegalArgumentException.class)
-      .hasMessage("Pull request with key 'wrongPullRequest' does not exist for a project " + project.projectKey());
+      .hasMessage("Pull request with key 'wrongPullRequest' does not exist for project " + project.projectKey());
   }
 
   @Test
