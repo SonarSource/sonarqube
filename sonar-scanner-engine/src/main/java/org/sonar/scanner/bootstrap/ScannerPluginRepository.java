@@ -40,7 +40,6 @@ import org.sonar.scanner.mediumtest.LocalPlugin;
 
 import static java.util.stream.Collectors.toMap;
 import static org.sonar.api.utils.Preconditions.checkState;
-import static org.sonar.core.config.ScannerProperties.PLUGIN_LOADING_OPTIMIZATION_KEY;
 
 /**
  * Orchestrates the installation and loading of plugins
@@ -57,7 +56,7 @@ public class ScannerPluginRepository implements PluginRepository, Startable {
   private Map<String, Plugin> pluginInstancesByKeys;
   private Map<String, ScannerPlugin> pluginsByKeys;
   private Map<ClassLoader, String> keysByClassLoader;
-  private boolean shouldLoadOnlyRequiredPluginsOnStart;
+  private boolean shouldLoadAllPluginsOnStart;
 
   public ScannerPluginRepository(PluginInstaller installer, PluginJarExploder pluginJarExploder, PluginClassLoader loader, Configuration properties) {
     this.installer = installer;
@@ -68,9 +67,9 @@ public class ScannerPluginRepository implements PluginRepository, Startable {
 
   @Override
   public void start() {
-    shouldLoadOnlyRequiredPluginsOnStart = properties.getBoolean(PLUGIN_LOADING_OPTIMIZATION_KEY).orElse(true);
-    if (!shouldLoadOnlyRequiredPluginsOnStart) {
-      LOG.warn("{} is false, so ALL available plugins will be downloaded", PLUGIN_LOADING_OPTIMIZATION_KEY);
+    shouldLoadAllPluginsOnStart = properties.getBoolean("sonar.plugins.loadAll").orElse(false);
+    if (shouldLoadAllPluginsOnStart) {
+      LOG.warn("sonar.plugins.loadAll is true, so ALL available plugins will be downloaded");
       pluginsByKeys = new HashMap<>(installer.installAllPlugins());
     } else {
       pluginsByKeys = new HashMap<>(installer.installRequiredPlugins());
@@ -97,7 +96,7 @@ public class ScannerPluginRepository implements PluginRepository, Startable {
   }
 
   public Collection<PluginInfo> installPluginsForLanguages(Set<String> languageKeys) {
-    if (!shouldLoadOnlyRequiredPluginsOnStart) {
+    if (shouldLoadAllPluginsOnStart) {
       return Collections.emptySet();
     }
 
