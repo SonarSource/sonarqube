@@ -23,7 +23,6 @@ import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.io.File;
-import java.lang.reflect.Field;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
@@ -80,7 +79,7 @@ public class LanguageDetectionTest {
   public void detectLanguageKey_shouldDetectByFileExtension() {
     DefaultLanguagesRepository languages = new DefaultLanguagesRepository(new FakeLanguagesLoader(new Languages(new MockLanguage("java", "java", "jav"), new MockLanguage("cobol", "cbl", "cob"))));
     languages.start();
-    LanguageDetection detection = new LanguageDetection(settings.asConfig(), languages);
+    LanguageDetection detection = new LanguageDetection(settings.asConfig(), languages, new HashMap<>());
 
     assertThat(detectLanguageKey(detection, "Foo.java")).isEqualTo("java");
     assertThat(detectLanguageKey(detection, "src/Foo.java")).isEqualTo("java");
@@ -103,7 +102,7 @@ public class LanguageDetectionTest {
       new MockLanguage("terraform", new String[] {"tf"}, new String[] {".tf"}),
       new MockLanguage("java", new String[0], new String[] {"**/*Test.java"}))));
     languages.start();
-    LanguageDetection detection = new LanguageDetection(settings.asConfig(), languages);
+    LanguageDetection detection = new LanguageDetection(settings.asConfig(), languages, new HashMap<>());
     assertThat(detectLanguageKey(detection, fileName)).isEqualTo(expectedLanguageKey);
   }
 
@@ -126,7 +125,7 @@ public class LanguageDetectionTest {
 
   @Test
   public void detectLanguageKey_shouldNotFailIfNoLanguage() {
-    LanguageDetection detection = spy(new LanguageDetection(settings.asConfig(), new DefaultLanguagesRepository(new FakeLanguagesLoader(new Languages()))));
+    LanguageDetection detection = spy(new LanguageDetection(settings.asConfig(), new DefaultLanguagesRepository(new FakeLanguagesLoader(new Languages())), new HashMap<>()));
     assertThat(detectLanguageKey(detection, "Foo.java")).isNull();
   }
 
@@ -135,7 +134,7 @@ public class LanguageDetectionTest {
     DefaultLanguagesRepository languages = new DefaultLanguagesRepository(new FakeLanguagesLoader(new Languages(new MockLanguage("abap", "abap", "ABAP"))));
     languages.start();
 
-    LanguageDetection detection = new LanguageDetection(settings.asConfig(), languages);
+    LanguageDetection detection = new LanguageDetection(settings.asConfig(), languages, new HashMap<>());
     assertThat(detectLanguageKey(detection, "abc.abap")).isEqualTo("abap");
   }
 
@@ -143,7 +142,7 @@ public class LanguageDetectionTest {
   public void detectLanguageKey_shouldFailIfConflictingLanguageSuffix() {
     DefaultLanguagesRepository languages = new DefaultLanguagesRepository(new FakeLanguagesLoader(new Languages(new MockLanguage("xml", "xhtml"), new MockLanguage("web", "xhtml"))));
     languages.start();
-    LanguageDetection detection = new LanguageDetection(settings.asConfig(), languages);
+    LanguageDetection detection = new LanguageDetection(settings.asConfig(), languages, new HashMap<>());
     assertThatThrownBy(() -> detectLanguageKey(detection, "abc.xhtml"))
       .isInstanceOf(MessageException.class)
       .hasMessageContaining("Language of file 'abc.xhtml' can not be decided as the file matches patterns of both ")
@@ -158,7 +157,7 @@ public class LanguageDetectionTest {
 
     settings.setProperty("sonar.lang.patterns.xml", "xml/**");
     settings.setProperty("sonar.lang.patterns.web", "web/**");
-    LanguageDetection detection = new LanguageDetection(settings.asConfig(), languages);
+    LanguageDetection detection = new LanguageDetection(settings.asConfig(), languages, new HashMap<>());
     assertThat(detectLanguageKey(detection, "xml/abc.xhtml")).isEqualTo("xml");
     assertThat(detectLanguageKey(detection, "web/abc.xhtml")).isEqualTo("web");
   }
@@ -170,7 +169,7 @@ public class LanguageDetectionTest {
     settings.setProperty("sonar.lang.patterns.abap", "*.abap,*.txt");
     settings.setProperty("sonar.lang.patterns.cobol", "*.cobol,*.txt");
 
-    LanguageDetection detection = new LanguageDetection(settings.asConfig(), languages);
+    LanguageDetection detection = new LanguageDetection(settings.asConfig(), languages, new HashMap<>());
 
     assertThat(detectLanguageKey(detection, "abc.abap")).isEqualTo("abap");
     assertThat(detectLanguageKey(detection, "abc.cobol")).isEqualTo("cobol");
@@ -183,31 +182,16 @@ public class LanguageDetectionTest {
 
   @Test
   public void should_cache_detected_language_by_file_path() {
+    Map<String, org.sonar.scanner.repository.language.Language> languageCacheSpy = spy(new HashMap<>());
     DefaultLanguagesRepository languages = new DefaultLanguagesRepository(new FakeLanguagesLoader(new Languages(
       new MockLanguage("java", "java", "jav"), new MockLanguage("cobol", "cbl", "cob"))));
     languages.start();
-
-    LanguageDetection detection = new LanguageDetection(settings.asConfig(), languages);
-
-    var languageCacheSpy = spyInternalLanguageCache(detection);
+    LanguageDetection detection = new LanguageDetection(settings.asConfig(), languages, languageCacheSpy);
 
     assertThat(detectLanguageKey(detection, "Foo.java")).isEqualTo("java");
     assertThat(detectLanguageKey(detection, "Foo.java")).isEqualTo("java");
     verify(languageCacheSpy, times(1)).put(endsWith("/Foo.java"), any(org.sonar.scanner.repository.language.Language.class));
     verify(languageCacheSpy, times(2)).get(endsWith("/Foo.java"));
-  }
-
-  private static Map<String, org.sonar.scanner.repository.language.Language> spyInternalLanguageCache(LanguageDetection detection) {
-    Map<String, org.sonar.scanner.repository.language.Language> languageCacheSpy = spy(new HashMap<>());
-    Field field;
-    try {
-      field = LanguageDetection.class.getDeclaredField("languageCacheByPath");
-      field.setAccessible(true);
-      field.set(detection, languageCacheSpy);
-    } catch (NoSuchFieldException | IllegalAccessException e) {
-      throw new RuntimeException(e);
-    }
-    return languageCacheSpy;
   }
 
   private String detectLanguageKey(LanguageDetection detection, String path) {
