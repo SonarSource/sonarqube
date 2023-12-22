@@ -24,10 +24,9 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.scanner.ScannerSide;
+import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
 import org.sonar.classloader.ClassloaderBuilder;
 import org.sonar.classloader.Mask;
@@ -54,41 +53,35 @@ public class PluginClassloaderFactory {
   /**
    * Creates as many classloaders as requested by the input parameter.
    */
-  public Map<PluginClassLoaderDef, ClassLoader> create(Map<PluginClassLoaderDef, ClassLoader> previouslyCreatedClassloaders,
-    Collection<PluginClassLoaderDef> newDefs) {
+  public Map<PluginClassLoaderDef, ClassLoader> create(Collection<PluginClassLoaderDef> defs) {
     ClassLoader baseClassLoader = baseClassLoader();
 
-    Collection<PluginClassLoaderDef> allDefs = new HashSet<>();
-    allDefs.addAll(newDefs);
-    allDefs.addAll(previouslyCreatedClassloaders.keySet());
-
-    ClassloaderBuilder builder = new ClassloaderBuilder(previouslyCreatedClassloaders.values());
+    ClassloaderBuilder builder = new ClassloaderBuilder();
     builder.newClassloader(API_CLASSLOADER_KEY, baseClassLoader);
     builder.setMask(API_CLASSLOADER_KEY, apiMask());
 
-    for (PluginClassLoaderDef def : newDefs) {
+    for (PluginClassLoaderDef def : defs) {
       builder.newClassloader(def.getBasePluginKey());
-      builder.setParent(def.getBasePluginKey(), API_CLASSLOADER_KEY, Mask.ALL);
+      builder.setParent(def.getBasePluginKey(), API_CLASSLOADER_KEY, new Mask());
       builder.setLoadingOrder(def.getBasePluginKey(), def.isSelfFirstStrategy() ? SELF_FIRST : PARENT_FIRST);
       for (File jar : def.getFiles()) {
         builder.addURL(def.getBasePluginKey(), fileToUrl(jar));
       }
-      exportResources(def, builder, allDefs);
+      exportResources(def, builder, defs);
     }
 
-    return build(newDefs, builder);
+    return build(defs, builder);
   }
 
   /**
    * A plugin can export some resources to other plugins
    */
-  private static void exportResources(PluginClassLoaderDef newDef, ClassloaderBuilder builder,
-    Collection<PluginClassLoaderDef> allPlugins) {
+  private static void exportResources(PluginClassLoaderDef def, ClassloaderBuilder builder, Collection<PluginClassLoaderDef> allPlugins) {
     // export the resources to all other plugins
-    builder.setExportMask(newDef.getBasePluginKey(), newDef.getExportMask().build());
+    builder.setExportMask(def.getBasePluginKey(), def.getExportMask());
     for (PluginClassLoaderDef other : allPlugins) {
-      if (!other.getBasePluginKey().equals(newDef.getBasePluginKey())) {
-        builder.addSibling(newDef.getBasePluginKey(), other.getBasePluginKey(), Mask.ALL);
+      if (!other.getBasePluginKey().equals(def.getBasePluginKey())) {
+        builder.addSibling(def.getBasePluginKey(), other.getBasePluginKey(), new Mask());
       }
     }
   }
@@ -128,30 +121,29 @@ public class PluginClassloaderFactory {
    * a transitive dependency of sonar-plugin-api</p>
    */
   private static Mask apiMask() {
-    return Mask.builder()
-      .include("org/sonar/api/",
-        "org/sonar/check/",
-        "org/codehaus/stax2/",
-        "org/codehaus/staxmate/",
-        "com/ctc/wstx/",
-        "org/slf4j/",
+    return new Mask()
+      .addInclusion("org/sonar/api/")
+      .addInclusion("org/sonar/check/")
+      .addInclusion("org/codehaus/stax2/")
+      .addInclusion("org/codehaus/staxmate/")
+      .addInclusion("com/ctc/wstx/")
+      .addInclusion("org/slf4j/")
 
-        // SLF4J bridges. Do not let plugins re-initialize and configure their logging system
-        "org/apache/commons/logging/",
-        "org/apache/log4j/",
-        "ch/qos/logback/",
+      // SLF4J bridges. Do not let plugins re-initialize and configure their logging system
+      .addInclusion("org/apache/commons/logging/")
+      .addInclusion("org/apache/log4j/")
+      .addInclusion("ch/qos/logback/")
 
-        // Exposed by org.sonar.api.server.authentication.IdentityProvider
-        "javax/servlet/",
+      // Exposed by org.sonar.api.server.authentication.IdentityProvider
+      .addInclusion("javax/servlet/")
 
-        // required for some internal SonarSource plugins (billing, orchestrator, ...)
-        "org/sonar/server/platform/",
+      // required for some internal SonarSource plugins (billing, orchestrator, ...)
+      .addInclusion("org/sonar/server/platform/")
 
-        // required for commercial plugins at SonarSource
-        "com/sonarsource/plugins/license/api/")
+      // required for commercial plugins at SonarSource
+      .addInclusion("com/sonarsource/plugins/license/api/")
 
       // API exclusions
-      .exclude("org/sonar/api/internal/")
-      .build();
+      .addExclusion("org/sonar/api/internal/");
   }
 }

@@ -33,12 +33,12 @@ import org.sonar.classloader.Mask;
 /**
  * Temporary information about the classLoader to be created for a plugin (or a group of plugins).
  */
-public class PluginClassLoaderDef {
+class PluginClassLoaderDef {
 
   private final String basePluginKey;
   private final Map<String, String> mainClassesByPluginKey = new HashMap<>();
   private final List<File> files = new ArrayList<>();
-  private final Mask.Builder mask = Mask.builder();
+  private final Mask mask = new Mask();
   private boolean selfFirstStrategy = false;
 
   PluginClassLoaderDef(String basePluginKey) {
@@ -58,7 +58,7 @@ public class PluginClassLoaderDef {
     this.files.addAll(f);
   }
 
-  Mask.Builder getExportMask() {
+  Mask getExportMask() {
     return mask;
   }
 

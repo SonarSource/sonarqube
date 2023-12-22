@@ -17,6 +17,7 @@ dependencies {
   api 'commons-lang:commons-lang'
   api 'javax.annotation:javax.annotation-api'
   api 'javax.inject:javax.inject'
+  api 'org.codehaus.sonar:sonar-classloader'
   api 'org.slf4j:slf4j-api'
   api 'org.sonarsource.api.plugin:sonar-plugin-api'
   api 'org.sonarsource.update-center:sonar-update-center-common'
