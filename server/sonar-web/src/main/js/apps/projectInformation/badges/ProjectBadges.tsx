@@ -55,18 +55,18 @@ export default function ProjectBadges(props: ProjectBadgesProps) {
     component: { key: project, qualifier, configuration },
   } = props;
   const [selectedType, setSelectedType] = useState(BadgeType.measure);
-  const [metricOptions, setMetricOptions] = useState(MetricKey.alert_status);
-  const [formatOption, setFormatOption] = useState<BadgeFormats>('md');
+  const [selectedMetric, setSelectedMetric] = useState(MetricKey.alert_status);
+  const [selectedFormat, setSelectedFormat] = useState<BadgeFormats>('md');
   const {
     data: token,
     isLoading: isLoadingToken,
     isFetching: isFetchingToken,
   } = useBadgeTokenQuery(project);
-  const { data: metricsOptions, isLoading: isLoadingMetrics } = useBadgeMetricsQuery();
+  const { data: metricOptions, isLoading: isLoadingMetrics } = useBadgeMetricsQuery();
   const { mutate: renewToken, isLoading: isRenewing } = useRenewBagdeTokenMutation();
   const isLoading = isLoadingMetrics || isLoadingToken || isRenewing;
 
-  const handleSelectBadge = (selectedType: BadgeType) => {
+  const handleSelectType = (selectedType: BadgeType) => {
     setSelectedType(selectedType);
   };
 
@@ -83,8 +83,8 @@ export default function ProjectBadges(props: ProjectBadgesProps) {
 
   const fullBadgeOptions: BadgeOptions = {
     project,
-    metric: metricOptions,
-    format: formatOption,
+    metric: selectedMetric,
+    format: selectedFormat,
     ...getBranchLikeQuery(branchLike),
   };
   const canRenew = configuration?.showSettings;
@@ -98,7 +98,7 @@ export default function ProjectBadges(props: ProjectBadgesProps) {
         <div className="sw-flex sw-space-x-4 sw-mb-4">
           <IllustratedSelectionCard
             className="sw-w-abs-300 it__badge-button"
-            onClick={() => handleSelectBadge(BadgeType.measure)}
+            onClick={() => handleSelectType(BadgeType.measure)}
             selected={BadgeType.measure === selectedType}
             image={
               <img
@@ -110,7 +110,7 @@ export default function ProjectBadges(props: ProjectBadgesProps) {
           />
           <IllustratedSelectionCard
             className="sw-w-abs-300 it__badge-button"
-            onClick={() => handleSelectBadge(BadgeType.qualityGate)}
+            onClick={() => handleSelectType(BadgeType.qualityGate)}
             selected={BadgeType.qualityGate === selectedType}
             image={
               <img
@@ -134,13 +134,13 @@ export default function ProjectBadges(props: ProjectBadgesProps) {
           <InputSelect
             className="sw-w-abs-300"
             inputId="badge-param-customize"
-            options={metricsOptions}
-            onChange={(value) => {
-              if (value) {
-                setMetricOptions(value.value);
+            options={metricOptions}
+            onChange={(option) => {
+              if (option) {
+                setSelectedMetric(option.value);
               }
             }}
-            value={metricsOptions.find((m) => m.value === metricOptions)}
+            value={metricOptions.find((m) => m.value === selectedMetric)}
           />
         </FormField>
       )}
@@ -154,10 +154,10 @@ export default function ProjectBadges(props: ProjectBadgesProps) {
             options={formatOptions}
             onChange={(value: BadgeFormats) => {
               if (value) {
-                setFormatOption(value);
+                setSelectedFormat(value);
               }
             }}
-            value={formatOption}
+            value={selectedFormat}
           />
         </div>
       </FormField>

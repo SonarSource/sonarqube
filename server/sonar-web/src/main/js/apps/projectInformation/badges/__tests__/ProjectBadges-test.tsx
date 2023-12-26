@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
 import selectEvent from 'react-select-event';
@@ -26,7 +26,6 @@ import { mockBranch } from '../../../../helpers/mocks/branch-like';
 import { mockComponent } from '../../../../helpers/mocks/component';
 import { renderComponent } from '../../../../helpers/testReactTestingUtils';
 import { Location } from '../../../../helpers/urls';
-import { ComponentQualifier } from '../../../../types/component';
 import { MetricKey } from '../../../../types/metrics';
 import ProjectBadges, { ProjectBadgesProps } from '../ProjectBadges';
 import { BadgeType } from '../utils';
@@ -43,38 +42,29 @@ jest.mock('../../../../api/project-badges', () => ({
 }));
 
 jest.mock('../../../../api/web-api', () => ({
-  fetchWebApi: () =>
-    Promise.resolve([
-      {
-        path: 'api/project_badges',
-        actions: [
-          {
-            key: 'measure',
-            // eslint-disable-next-line local-rules/use-metrickey-enum
-            params: [{ key: 'metric', possibleValues: ['alert_status', 'coverage'] }],
-          },
-        ],
-      },
-    ]),
+  fetchWebApi: jest.fn().mockResolvedValue([
+    {
+      path: 'api/project_badges',
+      actions: [
+        {
+          key: 'measure',
+          // eslint-disable-next-line local-rules/use-metrickey-enum
+          params: [{ key: 'metric', possibleValues: ['alert_status', 'coverage'] }],
+        },
+      ],
+    },
+  ]),
 }));
 
 it('should renew token', async () => {
   const user = userEvent.setup();
   jest.mocked(getProjectBadgesToken).mockResolvedValueOnce('foo').mockResolvedValueOnce('bar');
-  renderProjectBadges({
-    component: mockComponent({ configuration: { showSettings: true } }),
-  });
-
-  await waitFor(() =>
-    expect(screen.getByAltText(`overview.badges.${BadgeType.qualityGate}.alt`)).toHaveAttribute(
-      'src',
-      'host/api/project_badges/quality_gate?branch=branch-6.7&project=my-project&token=foo',
-    ),
-  );
+  renderProjectBadges();
+  await appLoaded();
 
   expect(screen.getByAltText(`overview.badges.${BadgeType.measure}.alt`)).toHaveAttribute(
     'src',
-    'host/api/project_badges/measure?branch=branch-6.7&project=my-project&metric=alert_status&token=foo',
+    `host/api/project_badges/measure?branch=branch-6.7&project=my-project&metric=${MetricKey.alert_status}&token=foo`,
   );
 
   await user.click(screen.getByText('overview.badges.renew'));
@@ -88,32 +78,37 @@ it('should renew token', async () => {
 
   expect(screen.getByAltText(`overview.badges.${BadgeType.measure}.alt`)).toHaveAttribute(
     'src',
-    'host/api/project_badges/measure?branch=branch-6.7&project=my-project&metric=alert_status&token=bar',
+    `host/api/project_badges/measure?branch=branch-6.7&project=my-project&metric=${MetricKey.alert_status}&token=bar`,
   );
 });
 
 it('should update params', async () => {
-  renderProjectBadges({
-    component: mockComponent({ configuration: { showSettings: true } }),
-  });
-
-  expect(
-    await screen.findByText(
-      '[![alert_status](host/api/project_badges/measure?branch=branch-6.7&project=my-project&metric=alert_status&token=foo)](/dashboard)',
-    ),
-  ).toBeInTheDocument();
-
-  await selectEvent.select(screen.getByLabelText('overview.badges.format'), [
-    'overview.badges.options.formats.url',
-  ]);
+  renderProjectBadges();
+  await appLoaded();
 
   expect(
     screen.getByText(
-      'host/api/project_badges/measure?branch=branch-6.7&project=my-project&metric=alert_status&token=foo',
+      `[![${MetricKey.alert_status}](host/api/project_badges/measure?branch=branch-6.7&project=my-project&metric=${MetricKey.alert_status}&token=foo)](/dashboard)`,
     ),
   ).toBeInTheDocument();
 
-  await selectEvent.select(screen.getByLabelText('overview.badges.metric'), MetricKey.coverage);
+  await act(async () => {
+    await selectEvent.select(
+      screen.getByLabelText('overview.badges.format'),
+      'overview.badges.options.formats.url',
+    );
+  });
+
+  expect(
+    screen.getByText(
+      `host/api/project_badges/measure?branch=branch-6.7&project=my-project&metric=${MetricKey.alert_status}&token=foo`,
+    ),
+  ).toBeInTheDocument();
+
+  await act(async () => {
+    await selectEvent.openMenu(screen.getByLabelText('overview.badges.metric'));
+  });
+  fireEvent.click(screen.getByText(MetricKey.coverage));
 
   expect(
     screen.getByText(
@@ -122,11 +117,15 @@ it('should update params', async () => {
   ).toBeInTheDocument();
 });
 
+async function appLoaded() {
+  await waitFor(() => expect(screen.queryByLabelText(`loading`)).not.toBeInTheDocument());
+}
+
 function renderProjectBadges(props: Partial<ProjectBadgesProps> = {}) {
   return renderComponent(
     <ProjectBadges
       branchLike={mockBranch()}
-      component={mockComponent({ key: 'foo', qualifier: ComponentQualifier.Project })}
+      component={mockComponent({ configuration: { showSettings: true } })}
       {...props}
     />,
   );
