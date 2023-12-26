@@ -33,8 +33,10 @@ import { isEmpty } from 'lodash';
 import * as React from 'react';
 import { useState } from 'react';
 import { getBranchLikeQuery } from '../../../helpers/branch-like';
-import { translate } from '../../../helpers/l10n';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { localizeMetric } from '../../../helpers/measures';
 import {
+  DEPRECATED_METRIC_KEYS,
   useBadgeMetricsQuery,
   useBadgeTokenQuery,
   useRenewBagdeTokenMutation,
@@ -130,19 +132,31 @@ export default function ProjectBadges(props: ProjectBadgesProps) {
       </Spinner>
 
       {BadgeType.measure === selectedType && (
-        <FormField htmlFor="badge-param-customize" label={translate('overview.badges.metric')}>
-          <InputSelect
-            className="sw-w-abs-300"
-            inputId="badge-param-customize"
-            options={metricOptions}
-            onChange={(option) => {
-              if (option) {
-                setSelectedMetric(option.value);
-              }
-            }}
-            value={metricOptions.find((m) => m.value === selectedMetric)}
-          />
-        </FormField>
+        <>
+          <FormField htmlFor="badge-param-customize" label={translate('overview.badges.metric')}>
+            <InputSelect
+              className="sw-w-abs-300"
+              inputId="badge-param-customize"
+              options={metricOptions}
+              onChange={(option) => {
+                if (option) {
+                  setSelectedMetric(option.value);
+                }
+              }}
+              value={metricOptions.find((m) => m.value === selectedMetric)}
+            />
+          </FormField>
+
+          {DEPRECATED_METRIC_KEYS.includes(selectedMetric) && (
+            <FlagMessage className="sw-mb-4" variant="warning">
+              {translateWithParameters(
+                'overview.badges.deprecated_badge_x_y',
+                localizeMetric(selectedMetric),
+                translate('qualifier', qualifier),
+              )}
+            </FlagMessage>
+          )}
+        </>
       )}
 
       <BasicSeparator className="sw-mb-4" />

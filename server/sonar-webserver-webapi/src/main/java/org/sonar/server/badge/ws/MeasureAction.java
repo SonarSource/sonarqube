@@ -28,6 +28,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -94,6 +95,8 @@ public class MeasureAction implements ProjectBadgesWsAction {
     .put(VULNERABILITIES_KEY, "vulnerabilities")
     .build();
 
+  private static final String[] DEPRECATED_METRIC_KEYS = {BUGS_KEY, CODE_SMELLS_KEY, SECURITY_HOTSPOTS_KEY, VULNERABILITIES_KEY};
+
   private static final Map<Level, String> QUALITY_GATE_MESSAGE_BY_STATUS = new EnumMap<>(Map.of(
     OK, "passed",
     ERROR, "failed"));
@@ -126,6 +129,7 @@ public class MeasureAction implements ProjectBadgesWsAction {
       .setDescription("Generate badge for project's measure as an SVG.<br/>" +
         "Requires 'Browse' permission on the specified project.")
       .setSince("7.1")
+      .setChangelog(new Change("10.4", String.format("The following metric keys are now deprecated: %s", String.join(", ", DEPRECATED_METRIC_KEYS))))
       .setResponseExample(Resources.getResource(getClass(), "measure-example.svg"));
     support.addProjectAndBranchParams(action);
     action.createParam(PARAM_METRIC)

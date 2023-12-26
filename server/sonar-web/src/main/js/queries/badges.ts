@@ -19,10 +19,9 @@
  */
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useContext } from 'react';
 import { getProjectBadgesToken, renewProjectBadgesToken } from '../api/project-badges';
-import { MetricsContext } from '../app/components/metrics/MetricsContext';
-import { getLocalizedMetricName } from '../helpers/l10n';
+import { translate } from '../helpers/l10n';
+import { localizeMetric } from '../helpers/measures';
 import { MetricKey } from '../types/metrics';
 import { useWebApiQuery } from './web-api';
 
@@ -38,8 +37,15 @@ export function useRenewBagdeTokenMutation() {
   });
 }
 
+// The same list of deprecated metric keys is maintained on the backend at org.sonar.server.badge.ws.MeasureAction.
+export const DEPRECATED_METRIC_KEYS = [
+  MetricKey.bugs,
+  MetricKey.code_smells,
+  MetricKey.security_hotspots,
+  MetricKey.vulnerabilities,
+];
+
 export function useBadgeMetricsQuery() {
-  const metrics = useContext(MetricsContext);
   const { data: webservices = [], ...rest } = useWebApiQuery();
   const domain = webservices.find((d) => d.path === 'api/project_badges');
   const ws = domain?.actions.find((w) => w.key === 'measure');
@@ -47,11 +53,13 @@ export function useBadgeMetricsQuery() {
   if (param?.possibleValues) {
     return {
       ...rest,
-      data: param.possibleValues.map((key) => {
-        const metric = metrics[key];
+      data: param.possibleValues.map((key: MetricKey) => {
+        const label = localizeMetric(key);
         return {
-          value: key as MetricKey,
-          label: metric ? getLocalizedMetricName(metric) : key,
+          value: key,
+          label: DEPRECATED_METRIC_KEYS.includes(key)
+            ? `${label} (${translate('deprecated')})`
+            : label,
         };
       }),
     };

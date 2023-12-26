@@ -26,6 +26,7 @@ import { mockBranch } from '../../../../helpers/mocks/branch-like';
 import { mockComponent } from '../../../../helpers/mocks/component';
 import { renderComponent } from '../../../../helpers/testReactTestingUtils';
 import { Location } from '../../../../helpers/urls';
+import { ComponentQualifier } from '../../../../types/component';
 import { MetricKey } from '../../../../types/metrics';
 import ProjectBadges, { ProjectBadgesProps } from '../ProjectBadges';
 import { BadgeType } from '../utils';
@@ -49,7 +50,7 @@ jest.mock('../../../../api/web-api', () => ({
         {
           key: 'measure',
           // eslint-disable-next-line local-rules/use-metrickey-enum
-          params: [{ key: 'metric', possibleValues: ['alert_status', 'coverage'] }],
+          params: [{ key: 'metric', possibleValues: ['alert_status', 'coverage', 'bugs'] }],
         },
       ],
     },
@@ -108,11 +109,51 @@ it('should update params', async () => {
   await act(async () => {
     await selectEvent.openMenu(screen.getByLabelText('overview.badges.metric'));
   });
-  fireEvent.click(screen.getByText(MetricKey.coverage));
+  fireEvent.click(screen.getByText(`metric.${MetricKey.coverage}.name`));
 
   expect(
     screen.getByText(
       `host/api/project_badges/measure?branch=branch-6.7&project=my-project&metric=${MetricKey.coverage}&token=foo`,
+    ),
+  ).toBeInTheDocument();
+
+  fireEvent.click(
+    screen.getByRole('button', {
+      name: `overview.badges.${BadgeType.qualityGate}.alt overview.badges.${BadgeType.qualityGate}.description.${ComponentQualifier.Project}`,
+    }),
+  );
+
+  expect(
+    screen.getByText(
+      `host/api/project_badges/quality_gate?branch=branch-6.7&project=my-project&token=foo`,
+    ),
+  ).toBeInTheDocument();
+
+  fireEvent.click(
+    screen.getByRole('button', {
+      name: `overview.badges.${BadgeType.measure}.alt overview.badges.${BadgeType.measure}.description.${ComponentQualifier.Project}`,
+    }),
+  );
+
+  expect(
+    screen.getByText(
+      `host/api/project_badges/measure?branch=branch-6.7&project=my-project&metric=${MetricKey.coverage}&token=foo`,
+    ),
+  ).toBeInTheDocument();
+});
+
+it('should warn about deprecated metrics', async () => {
+  renderProjectBadges();
+  await appLoaded();
+
+  await act(async () => {
+    await selectEvent.openMenu(screen.getByLabelText('overview.badges.metric'));
+  });
+  fireEvent.click(screen.getByText(`metric.${MetricKey.bugs}.name (deprecated)`));
+
+  expect(
+    screen.getByText(
+      `overview.badges.deprecated_badge_x_y.metric.${MetricKey.bugs}.name.qualifier.${ComponentQualifier.Project}`,
     ),
   ).toBeInTheDocument();
 });
