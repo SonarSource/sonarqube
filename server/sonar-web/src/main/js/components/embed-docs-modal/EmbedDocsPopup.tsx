@@ -77,7 +77,7 @@ class EmbedDocsPopup extends React.PureComponent<Props & CurrentUserContextInter
 
   // get zohoApiKey
   return getApiKeyForZoho(payLoad).then((response: any) => {
-     const encodedFullName = encodeURI(payLoad.fullName);
+     const encodedFullName = encodeURIComponent(payLoad.fullName);
      const zohoUrl = `https://support.autorabit.com/support/RemoteAuth?operation=${payLoad.operation}&email=${payLoad.email}&fullname=${encodedFullName}&loginname=${payLoad.loginName}&utype=${payLoad.utype}&ts=${response.ts}&apikey=${response.apiKey}`;
      this.setState({ zohoUrl });
     })
