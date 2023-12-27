@@ -92,6 +92,7 @@ public class UpdateAction implements RulesWsAction {
         "Requires the 'Administer Quality Profiles' permission")
       .setChangelog(
         new Change("10.2", "The field 'severity' and 'type' in the response have been deprecated, use 'impacts' instead."),
+        new Change("10.4", String.format("The parameter '%s' is deprecated.", PARAM_SEVERITY)),
         new Change("10.4", "Updating a removed rule is now possible.")
       )
       .setSince("4.4")
@@ -145,6 +146,7 @@ public class UpdateAction implements RulesWsAction {
     action
       .createParam(PARAM_SEVERITY)
       .setDescription("Rule severity (Only when updating a custom rule)")
+      .setDeprecatedSince("10.4")
       .setPossibleValues(Severity.ALL);
 
     action
