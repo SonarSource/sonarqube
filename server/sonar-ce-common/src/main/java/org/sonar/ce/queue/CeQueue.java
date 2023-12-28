@@ -73,27 +73,26 @@ public interface CeQueue {
   List<CeTask> massSubmit(Collection<CeTaskSubmit> submissions, SubmitOption... options);
 
   /**
-   * Cancels a task in status {@link org.sonar.db.ce.CeQueueDto.Status#PENDING}. An unchecked
-   * exception is thrown if the status is not {@link org.sonar.db.ce.CeQueueDto.Status#PENDING}.
+   * Cancels a task in compute engine queue.
    */
   void cancel(DbSession dbSession, CeQueueDto ceQueueDto);
 
   /**
-   * Removes all the tasks from the queue, except the tasks with status
-   * {@link org.sonar.db.ce.CeQueueDto.Status#IN_PROGRESS} are ignored. They are marked
-   * as {@link org.sonar.db.ce.CeActivityDto.Status#CANCELED} in past activity.
+   * Removes all the tasks from the queue. They are marked
+   * as {@link org.sonar.db.ce.CeActivityDto.Status#CANCELED} in past activity. The tasks with
+   * status {@link org.sonar.db.ce.CeQueueDto.Status#IN_PROGRESS} are removed only if explicitly mentioned.
    * This method can be called at runtime, even if workers are being executed.
    *
    * @return the number of canceled tasks
    */
-  int cancelAll();
+  int cancelAll(boolean includeInProgress);
 
   /**
    * Mark a task in status {@link org.sonar.db.ce.CeQueueDto.Status#IN_PROGRESS} as failed. An unchecked
    * exception is thrown if the status is not {@link org.sonar.db.ce.CeQueueDto.Status#IN_PROGRESS}.
-   *
+   * <p>
    * The {@code dbSession} is committed.
-
+   *
    * @throws RuntimeException if the task is concurrently removed from the queue
    */
   void fail(DbSession dbSession, CeQueueDto ceQueueDto, @Nullable String errorType, @Nullable String errorMessage);

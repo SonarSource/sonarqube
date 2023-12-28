@@ -52,13 +52,13 @@ public class CancelAction implements CeWsAction {
   @Override
   public void define(WebService.NewController controller) {
     WebService.NewAction action = controller.createAction("cancel")
-      .setDescription("Cancels a pending task.<br/>" +
-        "In-progress tasks cannot be canceled.<br/>" +
-        "Requires one of the following permissions:" +
-        "<ul>" +
-        "<li>'Administer System'</li>" +
-        "<li>'Administer' rights on the project related to the task</li>" +
-        "</ul>")
+            .setDescription("Cancels a task.<br/>" +
+                    "Cancelling In-progress tasks can lead to data integrity problems.<br/>" +
+                    "Requires one of the following permissions:" +
+                    "<ul>" +
+                    "<li>'Administer System'</li>" +
+                    "<li>'Administer' rights on the project related to the task</li>" +
+                    "</ul>")
       .setInternal(true)
       .setPost(true)
       .setSince("5.2")

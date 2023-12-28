@@ -537,7 +537,7 @@ public class InternalCeQueueImplTest {
     CeTask pendingTask2 = submit(CeTaskTypes.REPORT, newProjectDto("PROJECT_3"));
     underTest.peek(WORKER_UUID_2, true);
 
-    int canceledCount = underTest.cancelAll();
+    int canceledCount = underTest.cancelAll(false);
     assertThat(canceledCount).isEqualTo(2);
 
     Optional<CeActivityDto> history = db.getDbClient().ceActivityDao().selectByUuid(db.getSession(), pendingTask1.getUuid());
@@ -546,6 +546,24 @@ public class InternalCeQueueImplTest {
     assertThat(history.get().getStatus()).isEqualTo(CeActivityDto.Status.CANCELED);
     history = db.getDbClient().ceActivityDao().selectByUuid(db.getSession(), inProgressTask.getUuid());
     assertThat(history).isEmpty();
+  }
+
+  @Test
+  public void cancelAll_pendings_and_in_progress() {
+    CeTask inProgressTask = submit(CeTaskTypes.REPORT, newProjectDto("PROJECT_1"));
+    CeTask pendingTask1 = submit(CeTaskTypes.REPORT, newProjectDto("PROJECT_2"));
+    CeTask pendingTask2 = submit(CeTaskTypes.REPORT, newProjectDto("PROJECT_3"));
+    underTest.peek(WORKER_UUID_2, true);
+
+    int canceledCount = underTest.cancelAll(false);
+    assertThat(canceledCount).isEqualTo(3);
+
+    Optional<CeActivityDto> history = db.getDbClient().ceActivityDao().selectByUuid(db.getSession(), pendingTask1.getUuid());
+    assertThat(history.get().getStatus()).isEqualTo(CeActivityDto.Status.CANCELED);
+    history = db.getDbClient().ceActivityDao().selectByUuid(db.getSession(), pendingTask2.getUuid());
+    assertThat(history.get().getStatus()).isEqualTo(CeActivityDto.Status.CANCELED);
+    history = db.getDbClient().ceActivityDao().selectByUuid(db.getSession(), inProgressTask.getUuid());
+    assertThat(history.get().getStatus()).isEqualTo(CeActivityDto.Status.CANCELED);
   }
 
   @Test

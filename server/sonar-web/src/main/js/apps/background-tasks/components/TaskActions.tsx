@@ -22,7 +22,7 @@ import AnalysisWarningsModal from '../../../components/common/AnalysisWarningsMo
 import ActionsDropdown, { ActionsDropdownItem } from '../../../components/controls/ActionsDropdown';
 import ConfirmModal from '../../../components/controls/ConfirmModal';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
-import { Task, TaskStatuses } from '../../../types/tasks';
+import { Task, TaskStatuses, TaskTypes } from '../../../types/tasks';
 import ScannerContext from './ScannerContext';
 import Stacktrace from './Stacktrace';
 
@@ -92,7 +92,8 @@ export default class TaskActions extends React.PureComponent<Props, State> {
     const { component, task } = this.props;
 
     const canFilter = component === undefined && task.componentName;
-    const canCancel = task.status === TaskStatuses.Pending;
+    const canCancel = task.status === TaskStatuses.Pending || (task.status === TaskStatuses.InProgress && task.type ===
+     TaskTypes.Report);
     const canShowStacktrace = task.errorMessage !== undefined;
     const canShowWarnings = task.warningCount !== undefined && task.warningCount > 0;
     const hasActions =

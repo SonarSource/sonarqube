@@ -437,15 +437,34 @@ public class CeQueueImplTest {
 
     db.getDbClient().ceQueueDao().tryToPeek(session, inProgressTask.getUuid(), WORKER_UUID);
 
-    int canceledCount = underTest.cancelAll();
+    int canceledCount = underTest.cancelAll(false);
     assertThat(canceledCount).isEqualTo(2);
 
-    Optional<CeActivityDto> ceActivityInProgress = findCeActivityDtoInDb(pendingTask1);
-    assertThat(ceActivityInProgress.get().getStatus()).isEqualTo(CeActivityDto.Status.CANCELED);
-    Optional<CeActivityDto> ceActivityPending1 = findCeActivityDtoInDb(pendingTask2);
+    Optional<CeActivityDto> ceActivityPending1 = findCeActivityDtoInDb(pendingTask1);
     assertThat(ceActivityPending1.get().getStatus()).isEqualTo(CeActivityDto.Status.CANCELED);
-    Optional<CeActivityDto> ceActivityPending2 = findCeActivityDtoInDb(inProgressTask);
-    assertThat(ceActivityPending2).isNotPresent();
+    Optional<CeActivityDto> ceActivityPending2 = findCeActivityDtoInDb(pendingTask2);
+    assertThat(ceActivityPending2.get().getStatus()).isEqualTo(CeActivityDto.Status.CANCELED);
+    Optional<CeActivityDto> ceActivityInProgress = findCeActivityDtoInDb(inProgressTask);
+    assertThat(ceActivityInProgress).isNotPresent();
+  }
+
+  @Test
+  public void cancelAll_pendings_and_in_progress() {
+    CeTask inProgressTask = submit(CeTaskTypes.REPORT, newComponent(randomAlphabetic(12)));
+    CeTask pendingTask1 = submit(CeTaskTypes.REPORT, newComponent(randomAlphabetic(12)));
+    CeTask pendingTask2 = submit(CeTaskTypes.REPORT, newComponent(randomAlphabetic(12)));
+
+    db.getDbClient().ceQueueDao().tryToPeek(session, inProgressTask.getUuid(), WORKER_UUID);
+
+    int canceledCount = underTest.cancelAll(true);
+    assertThat(canceledCount).isEqualTo(3);
+
+    Optional<CeActivityDto> ceActivityPending1 = findCeActivityDtoInDb(pendingTask1);
+    assertThat(ceActivityPending1.get().getStatus()).isEqualTo(CeActivityDto.Status.CANCELED);
+    Optional<CeActivityDto> ceActivityPending2 = findCeActivityDtoInDb(pendingTask2);
+    assertThat(ceActivityPending2.get().getStatus()).isEqualTo(CeActivityDto.Status.CANCELED);
+    Optional<CeActivityDto> ceActivityInProgress = findCeActivityDtoInDb(inProgressTask);
+    assertThat(ceActivityInProgress.get().getStatus()).isEqualTo(CeActivityDto.Status.CANCELED);
   }
 
   @Test

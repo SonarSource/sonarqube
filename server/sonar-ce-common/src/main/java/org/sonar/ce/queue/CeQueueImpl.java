@@ -37,6 +37,7 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.System2;
+import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.ce.task.CeTask;
 import org.sonar.core.util.UuidFactory;
@@ -70,6 +71,8 @@ public class CeQueueImpl implements CeQueue {
   private final DbClient dbClient;
   private final UuidFactory uuidFactory;
   protected final NodeInformation nodeInformation;
+
+  private static final Logger LOGGER = Loggers.get(CeQueueImpl.class);
 
   public CeQueueImpl(System2 system2, DbClient dbClient, UuidFactory uuidFactory, NodeInformation nodeInformation) {
     this.system2 = system2;
@@ -240,7 +243,9 @@ public class CeQueueImpl implements CeQueue {
 
   @Override
   public void cancel(DbSession dbSession, CeQueueDto ceQueueDto) {
-    checkState(PENDING.equals(ceQueueDto.getStatus()), "Task is in progress and can't be canceled [uuid=%s]", ceQueueDto.getUuid());
+    if (IN_PROGRESS.equals(ceQueueDto.getStatus())) {
+      LOGGER.debug("An in progress task is being canceled [uuid={}].", ceQueueDto.getUuid());
+    }
     cancelImpl(dbSession, ceQueueDto);
   }
 
@@ -286,19 +291,14 @@ public class CeQueueImpl implements CeQueue {
     if (deletedTasks == 1) {
       dbSession.commit();
     } else {
-      Loggers.get(CeQueueImpl.class).debug(
-        "Remove rolled back because task in queue with uuid {} and status {} could not be deleted",
-        taskUuid, expectedQueueDtoStatus);
+      LOGGER.debug("Remove rolled back because task in queue with uuid {} and status {} could not be deleted",
+              taskUuid, expectedQueueDtoStatus);
       dbSession.rollback();
     }
   }
 
   @Override
-  public int cancelAll() {
-    return cancelAll(false);
-  }
-
-  int cancelAll(boolean includeInProgress) {
+  public int cancelAll(boolean includeInProgress) {
     int count = 0;
     try (DbSession dbSession = dbClient.openSession(false)) {
       for (CeQueueDto queueDto : dbClient.ceQueueDao().selectAllInAscOrder(dbSession)) {

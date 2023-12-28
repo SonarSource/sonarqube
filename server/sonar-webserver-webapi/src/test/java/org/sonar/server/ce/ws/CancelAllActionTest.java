@@ -40,6 +40,7 @@ public class CancelAllActionTest {
   private CeQueue queue = mock(CeQueue.class);
   private CancelAllAction underTest = new CancelAllAction(userSession, queue);
   private WsActionTester tester = new WsActionTester(underTest);
+  private static final String INCLUDE_IN_PROGRESS_TASKS = "includeInProgressTasks";
 
   @Test
   public void cancel_all_pending_tasks() {
@@ -47,7 +48,16 @@ public class CancelAllActionTest {
 
     call();
 
-    verify(queue).cancelAll();
+    verify(queue).cancelAll(false);
+  }
+
+  @Test
+  public void cancel_all_tasks() {
+    userSession.logIn().setSystemAdministrator();
+
+    call();
+
+    verify(queue).cancelAll(true);
   }
 
   @Test
@@ -63,6 +73,6 @@ public class CancelAllActionTest {
   }
 
   private void call() {
-    tester.newRequest().execute();
+    tester.newRequest().setParam(INCLUDE_IN_PROGRESS_TASKS, "false").execute();
   }
 }

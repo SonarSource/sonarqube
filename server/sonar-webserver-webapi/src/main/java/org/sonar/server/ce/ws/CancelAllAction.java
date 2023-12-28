@@ -23,10 +23,12 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.ce.queue.CeQueue;
+import org.sonar.core.util.Uuids;
 import org.sonar.server.user.UserSession;
 
 public class CancelAllAction implements CeWsAction {
 
+  public static final String INCLUDE_IN_PROGRESS_TASKS = "includeInProgressTasks";
   private final UserSession userSession;
   private final CeQueue queue;
 
@@ -37,18 +39,28 @@ public class CancelAllAction implements CeWsAction {
 
   @Override
   public void define(WebService.NewController controller) {
-    controller.createAction("cancel_all")
-      .setDescription("Cancels all pending tasks. Requires system administration permission. In-progress tasks are not canceled.")
-      .setInternal(true)
-      .setPost(true)
-      .setSince("5.2")
-      .setHandler(this);
+    WebService.NewAction action = controller.createAction("cancel_all")
+            .setDescription(
+                    "Cancels all pending tasks. Requires system administration permission. In-progress tasks are not "
+                            + "canceled by default.")
+            .setInternal(true)
+            .setPost(true)
+            .setSince("5.2")
+            .setHandler(this);
+
+    action
+            .createParam(INCLUDE_IN_PROGRESS_TASKS)
+            .setSince("23.2.8")
+            .setDescription("Cancel in-progress tasks.")
+            .setBooleanPossibleValues()
+            .setDefaultValue("false");
   }
 
   @Override
   public void handle(Request wsRequest, Response wsResponse) {
+    boolean includeInProgressTasks = wsRequest.mandatoryParamAsBoolean(INCLUDE_IN_PROGRESS_TASKS);
     userSession.checkIsSystemAdministrator();
-    queue.cancelAll();
+    queue.cancelAll(includeInProgressTasks);
     wsResponse.noContent();
   }
 }
