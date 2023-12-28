@@ -17,12 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import styled from '@emotion/styled';
 import { formatDistance } from 'date-fns';
+import { CheckIcon, FlagMessage, FlagWarningIcon, Link, themeColor } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import Link from '../../components/common/Link';
-import CheckIcon from '../../components/icons/CheckIcon';
-import WarningIcon from '../../components/icons/WarningIcon';
 import { Alert } from '../../components/ui/Alert';
 import { translate, translateWithParameters } from '../../helpers/l10n';
 import { AlmSyncStatus } from '../../types/provisioning';
@@ -50,13 +49,13 @@ function LastSyncAlert({ info, short }: Readonly<LastSyncProps>) {
   if (short) {
     return status === TaskStatuses.Success ? (
       <div>
-        <span className="authentication-enabled spacer-left">
+        <IconWrapper className="sw-ml-2">
           {warningMessage ? (
-            <WarningIcon className="spacer-right" />
+            <FlagWarningIcon className="sw-mr-2" />
           ) : (
-            <CheckIcon className="spacer-right" />
+            <CheckIcon width={32} height={32} className="sw-mr-2" />
           )}
-        </span>
+        </IconWrapper>
         <i>
           {warningMessage ? (
             <FormattedMessage
@@ -67,7 +66,7 @@ function LastSyncAlert({ info, short }: Readonly<LastSyncProps>) {
               values={{
                 date: formattedDate,
                 details: (
-                  <Link to="/admin/settings?category=authentication&tab=github">
+                  <Link className="sw-ml-2" to="/admin/settings?category=authentication&tab=github">
                     {translate('settings.authentication.github.synchronization_details_link')}
                   </Link>
                 ),
@@ -82,19 +81,19 @@ function LastSyncAlert({ info, short }: Readonly<LastSyncProps>) {
         </i>
       </div>
     ) : (
-      <Alert variant="error">
+      <FlagMessage variant="error">
         <FormattedMessage
           id="settings.authentication.github.synchronization_failed_short"
           defaultMessage={translate('settings.authentication.github.synchronization_failed_short')}
           values={{
             details: (
-              <Link to="/admin/settings?category=authentication&tab=github">
+              <Link className="sw-ml-2" to="/admin/settings?category=authentication&tab=github">
                 {translate('settings.authentication.github.synchronization_details_link')}
               </Link>
             ),
           }}
         />
-      </Alert>
+      </FlagMessage>
     );
   }
 
@@ -165,3 +164,7 @@ export default function AlmSynchronisationWarning({
     </>
   );
 }
+
+const IconWrapper = styled.span`
+  color: ${themeColor('iconSuccess')};
+`;

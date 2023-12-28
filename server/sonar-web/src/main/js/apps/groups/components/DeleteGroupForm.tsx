@@ -17,10 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { DangerButtonPrimary, Modal } from 'design-system';
 import * as React from 'react';
-import SimpleModal from '../../../components/controls/SimpleModal';
-import { ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
-import Spinner from '../../../components/ui/Spinner';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { useDeleteGroupMutation } from '../../../queries/groups';
 import { Group } from '../../../types/types';
@@ -30,10 +28,10 @@ interface Props {
   onClose: () => void;
 }
 
-export default function DeleteGroupForm(props: Props) {
+export default function DeleteGroupForm(props: Readonly<Props>) {
   const { group } = props;
 
-  const { mutate: deleteGroup } = useDeleteGroupMutation();
+  const { mutate: deleteGroup, isLoading } = useDeleteGroupMutation();
 
   const onSubmit = () => {
     deleteGroup(group.id, {
@@ -41,30 +39,17 @@ export default function DeleteGroupForm(props: Props) {
     });
   };
 
-  const header = translate('groups.delete_group');
   return (
-    <SimpleModal header={header} onClose={props.onClose} onSubmit={onSubmit}>
-      {({ onCloseClick, onFormSubmit, submitting }) => (
-        <form onSubmit={onFormSubmit}>
-          <header className="modal-head">
-            <h2>{header}</h2>
-          </header>
-
-          <div className="modal-body">
-            {translateWithParameters('groups.delete_group.confirmation', group.name)}
-          </div>
-
-          <footer className="modal-foot">
-            <Spinner className="spacer-right" loading={submitting} />
-            <SubmitButton className="button-red" disabled={submitting}>
-              {translate('delete')}
-            </SubmitButton>
-            <ResetButtonLink disabled={submitting} onClick={onCloseClick}>
-              {translate('cancel')}
-            </ResetButtonLink>
-          </footer>
-        </form>
-      )}
-    </SimpleModal>
+    <Modal
+      headerTitle={translate('groups.delete_group')}
+      onClose={props.onClose}
+      body={translateWithParameters('groups.delete_group.confirmation', group.name)}
+      primaryButton={
+        <DangerButtonPrimary autoFocus type="submit" onClick={onSubmit} disabled={isLoading}>
+          {translate('delete')}
+        </DangerButtonPrimary>
+      }
+      secondaryButtonLabel={translate('cancel')}
+    />
   );
 }

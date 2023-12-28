@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { ContentCell, NumericalCell, Table, TableRow } from 'design-system';
 import { sortBy } from 'lodash';
 import * as React from 'react';
 import { translate } from '../../../helpers/l10n';
@@ -28,30 +29,25 @@ interface Props {
   manageProvider: Provider | undefined;
 }
 
-export default function List(props: Props) {
+function Header() {
+  return (
+    <TableRow>
+      <ContentCell>{translate('user_groups.page.group_header')}</ContentCell>
+      <NumericalCell>{translate('members')}</NumericalCell>
+      <ContentCell>{translate('description')}</ContentCell>
+      <NumericalCell>{translate('actions')}</NumericalCell>
+    </TableRow>
+  );
+}
+
+export default function List(props: Readonly<Props>) {
   const { groups, manageProvider } = props;
 
   return (
-    <div className="boxed-group boxed-group-inner">
-      <table className="data zebra zebra-hover" id="groups-list">
-        <thead>
-          <tr>
-            <th id="list-group-name">{translate('user_groups.page.group_header')}</th>
-            <th id="list-group-member" className="nowrap width-10">
-              {translate('members')}
-            </th>
-            <th id="list-group-description" className="nowrap">
-              {translate('description')}
-            </th>
-            <th id="list-group-actions">{translate('actions')}</th>
-          </tr>
-        </thead>
-        <tbody>
-          {sortBy(groups, (group) => group.name.toLowerCase()).map((group) => (
-            <ListItem group={group} key={group.name} manageProvider={manageProvider} />
-          ))}
-        </tbody>
-      </table>
-    </div>
+    <Table columnCount={4} header={<Header />} id="groups-list">
+      {sortBy(groups, (group) => group.name.toLowerCase()).map((group) => (
+        <ListItem group={group} key={group.name} manageProvider={manageProvider} />
+      ))}
+    </Table>
   );
 }

@@ -77,6 +77,7 @@ const TEMP_PAGELIST_WITH_NEW_BACKGROUND_WHITE = [
   '/admin/permission_templates',
   '/project/background_tasks',
   '/admin/background_tasks',
+  '/admin/groups',
 ];
 
 export default function GlobalContainer() {

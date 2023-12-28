@@ -47,18 +47,19 @@ const ui = {
   allFilter: byRole('radio', { name: 'all' }),
   selectedFilter: byRole('radio', { name: 'selected' }),
   unselectedFilter: byRole('radio', { name: 'unselected' }),
-  localAndManagedFilter: byRole('button', { name: 'all' }),
-  managedFilter: byRole('button', { name: 'managed' }),
-  localFilter: byRole('button', { name: 'local' }),
+  localAndManagedFilter: byRole('radio', { name: 'all' }),
+  managedFilter: byRole('radio', { name: 'managed' }),
+  localFilter: byRole('radio', { name: 'local' }),
   searchInput: byRole('searchbox', { name: 'search.search_by_name' }),
-  updateButton: byRole('button', { name: 'update_details' }),
+  updateButton: byRole('menuitem', { name: 'update_details' }),
   updateDialog: byRole('dialog', { name: 'groups.update_group' }),
   updateDialogButton: byRole('button', { name: 'update_verb' }),
-  deleteButton: byRole('button', { name: 'delete' }),
+  deleteButton: byRole('menuitem', { name: 'delete' }),
+  deleteIconButton: byRole('button', { name: /delete_x/ }),
   deleteDialog: byRole('dialog', { name: 'groups.delete_group' }),
   deleteDialogButton: byRole('button', { name: 'delete' }),
   showMore: byRole('button', { name: 'show_more' }),
-  nameInput: byRole('textbox', { name: 'name field_required' }),
+  nameInput: byRole('textbox', { name: 'name required' }),
   descriptionInput: byRole('textbox', { name: 'description' }),
   createGroupDialogButton: byRole('button', { name: 'create' }),
   editGroupDialogButton: byRole('button', { name: 'groups.create_group' }),
@@ -287,11 +288,10 @@ describe('in manage mode', () => {
     expect(await ui.localGroupRowWithLocalBadge.find()).toBeInTheDocument();
 
     await user.click(await ui.localFilter.find());
-    await user.click(await ui.localEditButton.find());
+    expect(ui.localEditButton.query()).not.toBeInTheDocument();
+    expect(await ui.localGroupRowWithLocalBadge.by(ui.deleteIconButton).find()).toBeInTheDocument();
 
-    expect(ui.updateButton.query()).not.toBeInTheDocument();
-
-    await user.click(await ui.deleteButton.find());
+    await user.click(ui.localGroupRowWithLocalBadge.by(ui.deleteIconButton).get());
 
     expect(await ui.deleteDialog.find()).toBeInTheDocument();
 

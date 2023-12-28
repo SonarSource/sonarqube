@@ -17,13 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Spinner } from 'design-system';
+import {
+  ActionsDropdown,
+  Badge,
+  ContentCell,
+  DestructiveIcon,
+  ItemButton,
+  ItemDangerButton,
+  ItemDivider,
+  NumericalCell,
+  PopupZLevel,
+  Spinner,
+  TableRow,
+  TrashIcon,
+} from 'design-system';
 import * as React from 'react';
 import { useState } from 'react';
-import ActionsDropdown, {
-  ActionsDropdownDivider,
-  ActionsDropdownItem,
-} from '../../../components/controls/ActionsDropdown';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { getBaseUrl } from '../../../helpers/system';
 import { useGroupMembersCountQuery } from '../../../queries/group-memberships';
@@ -37,7 +46,7 @@ export interface ListItemProps {
   manageProvider: Provider | undefined;
 }
 
-export default function ListItem(props: ListItemProps) {
+export default function ListItem(props: Readonly<ListItemProps>) {
   const { manageProvider, group } = props;
   const { name, managed, description } = group;
 
@@ -62,7 +71,7 @@ export default function ListItem(props: ListItemProps) {
     return (
       <img
         alt={identityProvider}
-        className="spacer-left spacer-right"
+        className="sw-ml-2 sw-mr-2"
         height={16}
         src={`${getBaseUrl()}/images/alm/${identityProvider}.svg`}
       />
@@ -70,49 +79,53 @@ export default function ListItem(props: ListItemProps) {
   };
 
   return (
-    <tr data-id={name}>
-      <td className="width-20" headers="list-group-name">
-        <b>{name}</b>
-        {group.default && <span className="little-spacer-left">({translate('default')})</span>}
+    <TableRow data-id={name}>
+      <ContentCell>
+        <div className="sw-body-sm-highlight">{name}</div>
+        {group.default && <span className="sw-ml-1">({translate('default')})</span>}
         {managed && renderIdentityProviderIcon(manageProvider)}
-        {isGroupLocal() && <span className="little-spacer-left badge">{translate('local')}</span>}
-      </td>
+        {isGroupLocal() && <Badge className="sw-ml-1">{translate('local')}</Badge>}
+      </ContentCell>
 
-      <td className="group-members display-flex-justify-end" headers="list-group-member">
-        <Spinner loading={isLoading}>
-          <span>{membersCount}</span>
-        </Spinner>
+      <NumericalCell>
+        <Spinner loading={isLoading}>{membersCount}</Spinner>
         <Members group={group} onEdit={refetch} isManaged={isManaged()} />
-      </td>
+      </NumericalCell>
 
-      <td className="width-40" headers="list-group-description">
-        <span className="js-group-description">{description}</span>
-      </td>
+      <ContentCell>{description}</ContentCell>
 
-      <td className="thin nowrap text-right" headers="list-group-actions">
+      <NumericalCell>
         {!group.default && (!isManaged() || isGroupLocal()) && (
-          <ActionsDropdown label={translateWithParameters('groups.edit', group.name)}>
-            {!isManaged() && (
-              <>
-                <ActionsDropdownItem
-                  className="js-group-update"
-                  onClick={() => setGroupToEdit(group)}
-                >
-                  {translate('update_details')}
-                </ActionsDropdownItem>
-                <ActionsDropdownDivider />
-              </>
-            )}
-            {(!isManaged() || isGroupLocal()) && (
-              <ActionsDropdownItem
-                className="js-group-delete"
-                destructive
+          <>
+            {isManaged() && isGroupLocal() && (
+              <DestructiveIcon
+                Icon={TrashIcon}
+                className="sw-ml-2"
+                aria-label={translateWithParameters('delete_x', name)}
                 onClick={() => setGroupToDelete(group)}
-              >
-                {translate('delete')}
-              </ActionsDropdownItem>
+                size="small"
+              />
             )}
-          </ActionsDropdown>
+            {!isManaged() && (
+              <ActionsDropdown
+                allowResizing
+                id={`group-actions-${group.name}`}
+                ariaLabel={translateWithParameters('groups.edit', group.name)}
+                zLevel={PopupZLevel.Global}
+              >
+                <ItemButton onClick={() => setGroupToEdit(group)}>
+                  {translate('update_details')}
+                </ItemButton>
+                <ItemDivider />
+                <ItemDangerButton
+                  className="it__quality-profiles__delete"
+                  onClick={() => setGroupToDelete(group)}
+                >
+                  {translate('delete')}
+                </ItemDangerButton>
+              </ActionsDropdown>
+            )}
+          </>
         )}
         {groupToDelete && (
           <DeleteGroupForm group={groupToDelete} onClose={() => setGroupToDelete(undefined)} />
@@ -120,7 +133,7 @@ export default function ListItem(props: ListItemProps) {
         {groupToEdit && (
           <GroupForm create={false} group={groupToEdit} onClose={() => setGroupToEdit(undefined)} />
         )}
-      </td>
-    </tr>
+      </NumericalCell>
+    </TableRow>
   );
 }

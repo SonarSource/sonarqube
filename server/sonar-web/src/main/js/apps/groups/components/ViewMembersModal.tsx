@@ -17,12 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Spinner } from 'design-system';
+import { Badge, InputSearch, Modal, Spinner, TextMuted } from 'design-system';
 import * as React from 'react';
 import ListFooter from '../../../components/controls/ListFooter';
-import Modal from '../../../components/controls/Modal';
-import SearchBox from '../../../components/controls/SearchBox';
-import { ResetButtonLink } from '../../../components/controls/buttons';
 import { translate } from '../../../helpers/l10n';
 import { useGroupMembersQuery } from '../../../queries/group-memberships';
 import { Group } from '../../../types/types';
@@ -47,56 +44,47 @@ export default function ViewMembersModal(props: Readonly<Props>) {
   const modalHeader = translate('users.list');
   return (
     <Modal
-      className="group-menbers-modal"
-      contentLabel={modalHeader}
-      onRequestClose={props.onClose}
-    >
-      <header className="modal-head">
-        <h2>{modalHeader}</h2>
-      </header>
-
-      <div className="modal-body modal-container">
-        <SearchBox
-          className="view-search-box"
-          loading={isLoading}
-          onChange={setQuery}
-          placeholder={translate('search_verb')}
-          value={query}
-        />
-        <div className="select-list-list-container spacer-top sw-overflow-auto">
-          <Spinner loading={isLoading}>
-            <ul className="menu">
-              {users.map((user) => (
-                <li key={user.login} className="display-flex-center">
-                  <span className="little-spacer-left width-100">
-                    <span className="select-list-list-item display-flex-center display-flex-space-between">
-                      <span className="spacer-right">
-                        {user.name}
-                        <br />
-                        <span className="note">{user.login}</span>
-                      </span>
-                      {!user.managed && isManaged && (
-                        <span className="badge">{translate('local')}</span>
-                      )}
-                    </span>
-                  </span>
-                </li>
-              ))}
-            </ul>
-          </Spinner>
-        </div>
-        {data !== undefined && (
-          <ListFooter
-            count={users.length}
-            loadMore={fetchNextPage}
-            total={data?.pages[0].page.total}
+      headerTitle={modalHeader}
+      body={
+        <>
+          <InputSearch
+            className="sw-w-full sw-top-0 sw-sticky"
+            loading={isLoading}
+            onChange={setQuery}
+            placeholder={translate('search_verb')}
+            value={query}
           />
-        )}
-      </div>
-
-      <footer className="modal-foot">
-        <ResetButtonLink onClick={props.onClose}>{translate('done')}</ResetButtonLink>
-      </footer>
-    </Modal>
+          <div className="sw-mt-6">
+            <Spinner loading={isLoading}>
+              <ul>
+                {users.map((user) => (
+                  <li key={user.login} className="sw-flex sw-items-center">
+                    <span className="sw-ml-1 sw-w-full">
+                      <span className="sw-flex sw-justify-between sw-items-center">
+                        <span className="sw-mr-2">
+                          {user.name}
+                          <br />
+                          <TextMuted text={user.login} />
+                        </span>
+                        {!user.managed && isManaged && <Badge>{translate('local')}</Badge>}
+                      </span>
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </Spinner>
+            {data !== undefined && (
+              <ListFooter
+                count={users.length}
+                loadMore={fetchNextPage}
+                total={data?.pages[0].page.total}
+                useMIUIButtons
+              />
+            )}
+          </div>
+        </>
+      }
+      onClose={props.onClose}
+    />
   );
 }

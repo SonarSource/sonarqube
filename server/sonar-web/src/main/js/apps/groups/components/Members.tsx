@@ -17,9 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { InteractiveIcon, MenuIcon, PencilIcon } from 'design-system';
 import * as React from 'react';
-import { ButtonIcon } from '../../../components/controls/buttons';
-import BulletListIcon from '../../../components/icons/BulletListIcon';
 import { translateWithParameters } from '../../../helpers/l10n';
 import { Group } from '../../../types/types';
 import EditMembersModal from './EditMembersModal';
@@ -42,21 +41,24 @@ export default function Members(props: Readonly<Props>) {
     }
   };
 
+  const isReadonly = isManaged || group.default;
+
+  const title = translateWithParameters(
+    isReadonly ? 'groups.users.view' : 'groups.users.edit',
+    group.name,
+  );
+
   return (
     <>
-      <ButtonIcon
-        aria-label={translateWithParameters(
-          isManaged || group.default ? 'groups.users.view' : 'groups.users.edit',
-          group.name,
-        )}
-        className="button-small little-spacer-left little-padded"
+      <InteractiveIcon
+        Icon={isReadonly ? MenuIcon : PencilIcon}
+        className="sw-ml-2"
+        aria-label={title}
         onClick={() => setOpenModal(true)}
-        title={translateWithParameters('groups.users.edit', group.name)}
-      >
-        <BulletListIcon />
-      </ButtonIcon>
+        size="small"
+      />
       {openModal &&
-        (isManaged || group.default ? (
+        (isReadonly ? (
           <ViewMembersModal isManaged={isManaged} group={group} onClose={handleModalClose} />
         ) : (
           <EditMembersModal group={group} onClose={handleModalClose} />

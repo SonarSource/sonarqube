@@ -17,14 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Modal, TextMuted } from 'design-system';
 import { find } from 'lodash';
 import * as React from 'react';
-import Modal from '../../../components/controls/Modal';
 import SelectList, {
   SelectListFilter,
   SelectListSearchParams,
 } from '../../../components/controls/SelectList';
-import { ResetButtonLink } from '../../../components/controls/buttons';
 import { translate } from '../../../helpers/l10n';
 import {
   useAddGroupMembershipMutation,
@@ -90,10 +89,10 @@ export default function EditMembersModal(props: Readonly<Props>) {
     }
 
     return (
-      <div className="select-list-list-item">
+      <div>
         {user.name}
         <br />
-        <span className="note">{user.login}</span>
+        <TextMuted text={user.login} />
       </div>
     );
   };
@@ -111,15 +110,8 @@ export default function EditMembersModal(props: Readonly<Props>) {
 
   return (
     <Modal
-      className="group-menbers-modal"
-      contentLabel={modalHeader}
-      onRequestClose={props.onClose}
-    >
-      <header className="modal-head">
-        <h2>{modalHeader}</h2>
-      </header>
-
-      <div className="modal-body modal-container">
+      headerTitle={modalHeader}
+      body={
         <SelectList
           elements={users.map((user) => user.id)}
           elementsTotalCount={data?.pages[0].page.total}
@@ -134,11 +126,9 @@ export default function EditMembersModal(props: Readonly<Props>) {
           withPaging
           loading={isLoading}
         />
-      </div>
-
-      <footer className="modal-foot">
-        <ResetButtonLink onClick={props.onClose}>{translate('done')}</ResetButtonLink>
-      </footer>
-    </Modal>
+      }
+      secondaryButtonLabel={translate('done')}
+      onClose={props.onClose}
+    />
   );
 }
