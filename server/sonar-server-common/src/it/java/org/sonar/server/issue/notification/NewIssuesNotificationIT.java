@@ -25,7 +25,6 @@ import java.util.stream.IntStream;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.DateUtils;
-import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.Durations;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
@@ -48,9 +47,8 @@ import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.server.issue.notification.NewIssuesStatistics.Metric.ASSIGNEE;
 import static org.sonar.server.issue.notification.NewIssuesStatistics.Metric.COMPONENT;
-import static org.sonar.server.issue.notification.NewIssuesStatistics.Metric.EFFORT;
+import static org.sonar.server.issue.notification.NewIssuesStatistics.Metric.ISSUE;
 import static org.sonar.server.issue.notification.NewIssuesStatistics.Metric.RULE;
-import static org.sonar.server.issue.notification.NewIssuesStatistics.Metric.RULE_TYPE;
 import static org.sonar.server.issue.notification.NewIssuesStatistics.Metric.TAG;
 
 public class NewIssuesNotificationIT {
@@ -158,8 +156,7 @@ public class NewIssuesNotificationIT {
 
     underTest.setStatistics(project.longName(), stats);
 
-    assertThat(underTest.getFieldValue(RULE_TYPE + ".BUG.count")).isEqualTo("5");
-    assertThat(underTest.getFieldValue(RULE_TYPE + ".CODE_SMELL.count")).isEqualTo("3");
+    assertThat(underTest.getFieldValue(ISSUE + ".count")).isEqualTo("8");
     assertThat(underTest.getFieldValue(ASSIGNEE + ".1.label")).isEqualTo(maynard.getName());
     assertThat(underTest.getFieldValue(ASSIGNEE + ".1.count")).isEqualTo("5");
     assertThat(underTest.getFieldValue(ASSIGNEE + ".2.label")).isEqualTo(keenan.getName());
@@ -200,8 +197,7 @@ public class NewIssuesNotificationIT {
 
     underTest.setStatistics(project.longName(), stats);
 
-    assertThat(underTest.getFieldValue(RULE_TYPE + ".BUG.count")).isEqualTo("0");
-    assertThat(underTest.getFieldValue(RULE_TYPE + ".CODE_SMELL.count")).isEqualTo("0");
+    assertThat(underTest.getFieldValue(ISSUE + ".count")).isEqualTo("0");
     assertThat(underTest.getFieldValue(ASSIGNEE + ".1.label")).isNull();
     assertThat(underTest.getFieldValue(ASSIGNEE + ".1.count")).isNull();
     assertThat(underTest.getFieldValue(ASSIGNEE + ".2.label")).isNull();
@@ -243,8 +239,7 @@ public class NewIssuesNotificationIT {
 
     underTest.setStatistics(project.longName(), stats);
 
-    assertThat(underTest.getFieldValue(RULE_TYPE + ".BUG.count")).isEqualTo("0");
-    assertThat(underTest.getFieldValue(RULE_TYPE + ".CODE_SMELL.count")).isEqualTo("3");
+    assertThat(underTest.getFieldValue(ISSUE + ".count")).isEqualTo("3");
     assertThat(underTest.getFieldValue(ASSIGNEE + ".1.label")).isEqualTo(keenan.getName());
     assertThat(underTest.getFieldValue(ASSIGNEE + ".1.count")).isEqualTo("3");
     assertThat(underTest.getFieldValue(ASSIGNEE + ".2.label")).isNull();
@@ -423,13 +418,6 @@ public class NewIssuesNotificationIT {
     assertThat(underTest.getFieldValue(RULE + ".5.count")).isEqualTo("6");
     assertThat(underTest.getFieldValue(RULE + ".6.label")).isNull();
     assertThat(underTest.getFieldValue(RULE + ".6.count")).isNull();
-  }
-
-  @Test
-  public void set_debt() {
-    underTest.setDebt(Duration.create(55));
-
-    assertThat(underTest.getFieldValue(EFFORT + ".count")).isEqualTo("55min");
   }
 
   @Test

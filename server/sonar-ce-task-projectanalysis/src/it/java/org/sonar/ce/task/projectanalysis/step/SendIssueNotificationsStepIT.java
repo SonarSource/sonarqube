@@ -62,7 +62,6 @@ import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.user.UserDto;
-import org.sonar.server.issue.notification.DistributedMetricStatsInt;
 import org.sonar.server.issue.notification.IssuesChangesNotification;
 import org.sonar.server.issue.notification.MyNewIssuesNotification;
 import org.sonar.server.issue.notification.NewIssuesNotification;
@@ -194,7 +193,6 @@ public class SendIssueNotificationsStepIT extends BaseStepTest {
     verify(newIssuesNotificationMock).setProject(PROJECT.getKey(), PROJECT.getName(), null, null);
     verify(newIssuesNotificationMock).setAnalysisDate(new Date(ANALYSE_DATE));
     verify(newIssuesNotificationMock).setStatistics(eq(PROJECT.getName()), any());
-    verify(newIssuesNotificationMock).setDebt(ISSUE_DURATION);
     verifyStatistics(context, 1, 0, 0);
   }
 
@@ -224,13 +222,11 @@ public class SendIssueNotificationsStepIT extends BaseStepTest {
     verify(notificationService).deliver(newIssuesNotificationMock);
     ArgumentCaptor<NewIssuesStatistics.Stats> statsCaptor = forClass(NewIssuesStatistics.Stats.class);
     verify(newIssuesNotificationMock).setStatistics(eq(PROJECT.getName()), statsCaptor.capture());
-    verify(newIssuesNotificationMock).setDebt(expectedEffort);
     NewIssuesStatistics.Stats stats = statsCaptor.getValue();
     assertThat(stats.hasIssues()).isTrue();
     // just checking all issues have been added to the stats
-    DistributedMetricStatsInt severity = stats.getDistributedMetricStats(NewIssuesStatistics.Metric.RULE_TYPE);
-    assertThat(severity.getOnCurrentAnalysis()).isEqualTo(efforts.length);
-    assertThat(severity.getTotal()).isEqualTo(backDatedEfforts.length + efforts.length);
+    assertThat(stats.getIssueCount().getOnCurrentAnalysis()).isEqualTo(efforts.length);
+    assertThat(stats.getIssueCount().getTotal()).isEqualTo(backDatedEfforts.length + efforts.length);
     verifyStatistics(context, 1, 0, 0);
   }
 
@@ -268,7 +264,6 @@ public class SendIssueNotificationsStepIT extends BaseStepTest {
     verify(newIssuesNotificationMock).setProject(branch.getKey(), branch.longName(), BRANCH_NAME, null);
     verify(newIssuesNotificationMock).setAnalysisDate(new Date(ANALYSE_DATE));
     verify(newIssuesNotificationMock).setStatistics(eq(branch.longName()), any(NewIssuesStatistics.Stats.class));
-    verify(newIssuesNotificationMock).setDebt(ISSUE_DURATION);
     verifyStatistics(context, 1, 0, 0);
   }
 
@@ -333,7 +328,6 @@ public class SendIssueNotificationsStepIT extends BaseStepTest {
     verify(myNewIssuesNotificationMock).setProject(PROJECT.getKey(), PROJECT.getName(), null, null);
     verify(myNewIssuesNotificationMock).setAnalysisDate(new Date(ANALYSE_DATE));
     verify(myNewIssuesNotificationMock).setStatistics(eq(PROJECT.getName()), any(NewIssuesStatistics.Stats.class));
-    verify(myNewIssuesNotificationMock).setDebt(ISSUE_DURATION);
     verifyStatistics(context, 1, 1, 0);
   }
 
@@ -400,14 +394,12 @@ public class SendIssueNotificationsStepIT extends BaseStepTest {
     MyNewIssuesNotification myNewIssuesNotificationMock = myNewIssuesNotificationMocksByUsersName.get("perceval");
     ArgumentCaptor<NewIssuesStatistics.Stats> statsCaptor = forClass(NewIssuesStatistics.Stats.class);
     verify(myNewIssuesNotificationMock).setStatistics(eq(PROJECT.getName()), statsCaptor.capture());
-    verify(myNewIssuesNotificationMock).setDebt(expectedEffort);
 
     NewIssuesStatistics.Stats stats = statsCaptor.getValue();
     assertThat(stats.hasIssues()).isTrue();
     // just checking all issues have been added to the stats
-    DistributedMetricStatsInt severity = stats.getDistributedMetricStats(NewIssuesStatistics.Metric.RULE_TYPE);
-    assertThat(severity.getOnCurrentAnalysis()).isEqualTo(assigned.length);
-    assertThat(severity.getTotal()).isEqualTo(assigned.length);
+    assertThat(stats.getIssueCount().getOnCurrentAnalysis()).isEqualTo(assigned.length);
+    assertThat(stats.getIssueCount().getTotal()).isEqualTo(assigned.length);
 
     verifyStatistics(context, 1, 2, 0);
   }
@@ -451,13 +443,11 @@ public class SendIssueNotificationsStepIT extends BaseStepTest {
     verify(myNewIssuesNotificationMock).setAssignee(any(UserDto.class));
     ArgumentCaptor<NewIssuesStatistics.Stats> statsCaptor = forClass(NewIssuesStatistics.Stats.class);
     verify(myNewIssuesNotificationMock).setStatistics(eq(PROJECT.getName()), statsCaptor.capture());
-    verify(myNewIssuesNotificationMock).setDebt(expectedEffort);
     NewIssuesStatistics.Stats stats = statsCaptor.getValue();
     assertThat(stats.hasIssues()).isTrue();
     // just checking all issues have been added to the stats
-    DistributedMetricStatsInt severity = stats.getDistributedMetricStats(NewIssuesStatistics.Metric.RULE_TYPE);
-    assertThat(severity.getOnCurrentAnalysis()).isEqualTo(efforts.length);
-    assertThat(severity.getTotal()).isEqualTo(backDatedEfforts.length + efforts.length);
+    assertThat(stats.getIssueCount().getOnCurrentAnalysis()).isEqualTo(efforts.length);
+    assertThat(stats.getIssueCount().getTotal()).isEqualTo(backDatedEfforts.length + efforts.length);
 
     verifyStatistics(context, 1, 1, 0);
   }
@@ -668,7 +658,6 @@ public class SendIssueNotificationsStepIT extends BaseStepTest {
     when(notification.setProjectVersion(any())).thenReturn(notification);
     when(notification.setAnalysisDate(any())).thenReturn(notification);
     when(notification.setStatistics(any(), any())).thenReturn(notification);
-    when(notification.setDebt(any())).thenReturn(notification);
     return notification;
   }
 
@@ -679,7 +668,6 @@ public class SendIssueNotificationsStepIT extends BaseStepTest {
     when(notification.setProjectVersion(any())).thenReturn(notification);
     when(notification.setAnalysisDate(any())).thenReturn(notification);
     when(notification.setStatistics(any(), any())).thenReturn(notification);
-    when(notification.setDebt(any())).thenReturn(notification);
     return notification;
   }
 

@@ -23,7 +23,6 @@ import java.util.Date;
 import org.sonar.api.config.EmailSettings;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.utils.DateUtils;
-import org.sonar.core.i18n.I18n;
 import org.sonar.server.issue.notification.NewIssuesStatistics.Metric;
 
 /**
@@ -31,8 +30,8 @@ import org.sonar.server.issue.notification.NewIssuesStatistics.Metric;
  */
 public class MyNewIssuesEmailTemplate extends AbstractNewIssuesEmailTemplate {
 
-  public MyNewIssuesEmailTemplate(EmailSettings settings, I18n i18n) {
-    super(settings, i18n);
+  public MyNewIssuesEmailTemplate(EmailSettings settings) {
+    super(settings);
   }
 
   @Override
@@ -47,10 +46,10 @@ public class MyNewIssuesEmailTemplate extends AbstractNewIssuesEmailTemplate {
 
   @Override
   protected String subject(Notification notification, String fullProjectName) {
-    int issueCount = Integer.parseInt(notification.getFieldValue(Metric.RULE_TYPE + COUNT));
+    String issueCount = notification.getFieldValue(Metric.ISSUE + COUNT);
     return String.format("You have %s new issue%s on project %s",
       issueCount,
-      issueCount > 1 ? "s" : "",
+      "1".equals(issueCount) ? "" : "s",
       fullProjectName);
   }
 

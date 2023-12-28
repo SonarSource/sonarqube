@@ -34,7 +34,6 @@ import javax.annotation.CheckForNull;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.rules.RuleType;
-import org.sonar.api.utils.Duration;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.analysis.Branch;
 import org.sonar.ce.task.projectanalysis.component.Component;
@@ -176,8 +175,7 @@ public class SendIssueNotificationsStep implements ComputationStep {
       .setProject(project.getKey(), project.getName(), getBranchName(), getPullRequest())
       .setProjectVersion(project.getProjectAttributes().getProjectVersion())
       .setAnalysisDate(new Date(analysisDate))
-      .setStatistics(project.getName(), globalStatistics)
-      .setDebt(Duration.create(globalStatistics.effort().getOnCurrentAnalysis()));
+      .setStatistics(project.getName(), globalStatistics);
     notificationStatistics.newIssuesDeliveries += service.deliverEmails(singleton(notification));
     notificationStatistics.newIssues++;
 
@@ -201,8 +199,7 @@ public class SendIssueNotificationsStep implements ComputationStep {
           .setProject(project.getKey(), project.getName(), getBranchName(), getPullRequest())
           .setProjectVersion(project.getProjectAttributes().getProjectVersion())
           .setAnalysisDate(new Date(analysisDate))
-          .setStatistics(project.getName(), assigneeStatistics)
-          .setDebt(Duration.create(assigneeStatistics.effort().getOnCurrentAnalysis()));
+          .setStatistics(project.getName(), assigneeStatistics);
 
         return myNewIssuesNotification;
       })

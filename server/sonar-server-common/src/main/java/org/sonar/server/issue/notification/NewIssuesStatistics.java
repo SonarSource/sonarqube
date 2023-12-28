@@ -24,13 +24,11 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.Predicate;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.utils.Duration;
 import org.sonar.core.issue.DefaultIssue;
 
 import static org.sonar.server.issue.notification.NewIssuesStatistics.Metric.ASSIGNEE;
 import static org.sonar.server.issue.notification.NewIssuesStatistics.Metric.COMPONENT;
 import static org.sonar.server.issue.notification.NewIssuesStatistics.Metric.RULE;
-import static org.sonar.server.issue.notification.NewIssuesStatistics.Metric.RULE_TYPE;
 import static org.sonar.server.issue.notification.NewIssuesStatistics.Metric.TAG;
 
 public class NewIssuesStatistics {
@@ -68,7 +66,7 @@ public class NewIssuesStatistics {
   }
 
   public enum Metric {
-    RULE_TYPE(true), TAG(true), COMPONENT(true), ASSIGNEE(true), EFFORT(false), RULE(true);
+    ISSUE(false), TAG(true), COMPONENT(true), ASSIGNEE(true), RULE(true);
     private final boolean isComputedByDistribution;
 
     Metric(boolean isComputedByDistribution) {
@@ -91,7 +89,7 @@ public class NewIssuesStatistics {
   public static class Stats {
     private final Predicate<DefaultIssue> onCurrentAnalysisPredicate;
     private final Map<Metric, DistributedMetricStatsInt> distributions = new EnumMap<>(Metric.class);
-    private MetricStatsLong effortStats = new MetricStatsLong();
+    private final MetricStatsInt issueCount = new MetricStatsInt();
 
     public Stats(Predicate<DefaultIssue> onCurrentAnalysisPredicate) {
       this.onCurrentAnalysisPredicate = onCurrentAnalysisPredicate;
@@ -104,7 +102,7 @@ public class NewIssuesStatistics {
 
     public void add(DefaultIssue issue) {
       boolean onCurrentAnalysis = onCurrentAnalysisPredicate.test(issue);
-      distributions.get(RULE_TYPE).increment(issue.type().name(), onCurrentAnalysis);
+      issueCount.increment(onCurrentAnalysis);
       String componentUuid = issue.componentUuid();
       if (componentUuid != null) {
         distributions.get(COMPONENT).increment(componentUuid, onCurrentAnalysis);
@@ -120,33 +118,29 @@ public class NewIssuesStatistics {
       for (String tag : issue.tags()) {
         distributions.get(TAG).increment(tag, onCurrentAnalysis);
       }
-      Duration effort = issue.effort();
-      if (effort != null) {
-        effortStats.add(effort.toMinutes(), onCurrentAnalysis);
-      }
     }
 
     public DistributedMetricStatsInt getDistributedMetricStats(Metric metric) {
       return distributions.get(metric);
     }
 
-    public MetricStatsLong effort() {
-      return effortStats;
+    public MetricStatsInt getIssueCount() {
+      return issueCount;
     }
 
     public boolean hasIssues() {
-      return getDistributedMetricStats(RULE_TYPE).getTotal() > 0;
+      return getIssueCount().getTotal() > 0;
     }
 
     public boolean hasIssuesOnCurrentAnalysis() {
-      return getDistributedMetricStats(RULE_TYPE).getOnCurrentAnalysis() > 0;
+      return getIssueCount().getOnCurrentAnalysis() > 0;
     }
 
     @Override
     public String toString() {
       return "Stats{" +
         "distributions=" + distributions +
-        ", effortStats=" + effortStats +
+        ", issueCount=" + issueCount +
         '}';
     }
   }

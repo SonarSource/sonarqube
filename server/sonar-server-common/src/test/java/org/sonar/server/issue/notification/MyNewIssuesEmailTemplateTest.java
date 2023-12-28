@@ -23,34 +23,26 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.EmailSettings;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.platform.Server;
-import org.sonar.server.l18n.I18nRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.server.issue.notification.NewIssuesStatistics.Metric.COMPONENT;
-import static org.sonar.server.issue.notification.NewIssuesStatistics.Metric.EFFORT;
+import static org.sonar.server.issue.notification.NewIssuesStatistics.Metric.ISSUE;
 import static org.sonar.server.issue.notification.NewIssuesStatistics.Metric.RULE;
-import static org.sonar.server.issue.notification.NewIssuesStatistics.Metric.RULE_TYPE;
 import static org.sonar.server.issue.notification.NewIssuesStatistics.Metric.TAG;
 
 public class MyNewIssuesEmailTemplateTest {
 
-  @Rule
-  public I18nRule i18n = new I18nRule()
-    .put("issue.type.BUG", "Bug")
-    .put("issue.type.CODE_SMELL", "Code Smell")
-    .put("issue.type.VULNERABILITY", "Vulnerability");
   private MapSettings settings = new MapSettings();
 
   private Server server = mock(Server.class);
-  private MyNewIssuesEmailTemplate underTest = new MyNewIssuesEmailTemplate(new EmailSettings(settings.asConfig(), server), i18n);
+  private MyNewIssuesEmailTemplate underTest = new MyNewIssuesEmailTemplate(new EmailSettings(settings.asConfig(), server));
 
   @Before
   public void setUp() {
@@ -74,27 +66,24 @@ public class MyNewIssuesEmailTemplateTest {
     EmailMessage message = underTest.format(notification);
 
     // TODO datetime to be completed when test is isolated from JVM timezone
-    assertThat(message.getMessage()).startsWith(
-      "Project: Struts\n" +
-        "\n" +
-        "32 new issues (new debt: 1d3h)\n" +
-        "\n" +
-        "    Type\n" +
-        "        Bug: 1    Vulnerability: 3    Code Smell: 0\n" +
-        "\n" +
-        "    Rules\n" +
-        "        Rule the Universe (Clojure): 42\n" +
-        "        Rule the World (Java): 5\n" +
-        "\n" +
-        "    Tags\n" +
-        "        oscar: 3\n" +
-        "        cesar: 10\n" +
-        "\n" +
-        "    Most impacted files\n" +
-        "        /path/to/file: 3\n" +
-        "        /path/to/directory: 7\n" +
-        "\n" +
-        "More details at: http://nemo.sonarsource.org/project/issues?id=org.apache%3Astruts&assignees=lo.gin&createdAt=2010-05-18");
+    assertThat(message.getMessage()).startsWith("""
+      Project: Struts
+      
+      32 new issues
+      
+          Rules
+              Rule the Universe (Clojure): 42
+              Rule the World (Java): 5
+      
+          Tags
+              oscar: 3
+              cesar: 10
+      
+          Most impacted files
+              /path/to/file: 3
+              /path/to/directory: 7
+      
+      More details at: http://nemo.sonarsource.org/project/issues?id=org.apache%3Astruts&assignees=lo.gin&createdAt=2010-05-18""");
   }
 
   @Test
@@ -133,16 +122,13 @@ public class MyNewIssuesEmailTemplateTest {
     EmailMessage message = underTest.format(notification);
 
     // TODO datetime to be completed when test is isolated from JVM timezone
-    assertThat(message.getMessage())
-      .startsWith("Project: Struts\n" +
-        "Version: 52.0\n" +
-        "\n" +
-        "32 new issues (new debt: 1d3h)\n" +
-        "\n" +
-        "    Type\n" +
-        "        Bug: 1    Vulnerability: 3    Code Smell: 0\n" +
-        "\n" +
-        "More details at: http://nemo.sonarsource.org/project/issues?id=org.apache%3Astruts&assignees=lo.gin&createdAt=2010-05-18");
+    assertThat(message.getMessage()).startsWith("""
+      Project: Struts
+      Version: 52.0
+      
+      32 new issues
+      
+      More details at: http://nemo.sonarsource.org/project/issues?id=org.apache%3Astruts&assignees=lo.gin&createdAt=2010-05-18""");
   }
 
   @Test
@@ -154,17 +140,14 @@ public class MyNewIssuesEmailTemplateTest {
     EmailMessage message = underTest.format(notification);
 
     // TODO datetime to be completed when test is isolated from JVM timezone
-    assertThat(message.getMessage())
-      .startsWith("Project: Struts\n" +
-        "Branch: feature1\n" +
-        "Version: 52.0\n" +
-        "\n" +
-        "32 new issues (new debt: 1d3h)\n" +
-        "\n" +
-        "    Type\n" +
-        "        Bug: 1    Vulnerability: 3    Code Smell: 0\n" +
-        "\n" +
-        "More details at: http://nemo.sonarsource.org/project/issues?id=org.apache%3Astruts&assignees=lo.gin&branch=feature1&createdAt=2010-05-18");
+    assertThat(message.getMessage()).startsWith("""
+      Project: Struts
+      Branch: feature1
+      Version: 52.0
+      
+      32 new issues
+      
+      More details at: http://nemo.sonarsource.org/project/issues?id=org.apache%3Astruts&assignees=lo.gin&branch=feature1&createdAt=2010-05-18""");
   }
 
   @Test
@@ -176,7 +159,7 @@ public class MyNewIssuesEmailTemplateTest {
     assertThat(message.getSubject())
       .isEqualTo("You have 1 new issue on project Struts");
     assertThat(message.getMessage())
-      .contains("1 new issue (new debt: 1d3h)\n");
+      .contains("1 new issue\n");
   }
 
   @Test
@@ -187,22 +170,19 @@ public class MyNewIssuesEmailTemplateTest {
     EmailMessage message = underTest.format(notification);
 
     // TODO datetime to be completed when test is isolated from JVM timezone
-    assertThat(message.getMessage())
-      .startsWith("Project: Struts\n" +
-        "Branch: feature1\n" +
-        "\n" +
-        "32 new issues (new debt: 1d3h)\n" +
-        "\n" +
-        "    Type\n" +
-        "        Bug: 1    Vulnerability: 3    Code Smell: 0\n" +
-        "\n" +
-        "More details at: http://nemo.sonarsource.org/project/issues?id=org.apache%3Astruts&assignees=lo.gin&branch=feature1&createdAt=2010-05-18");
+    assertThat(message.getMessage()).startsWith("""
+      Project: Struts
+      Branch: feature1
+      
+      32 new issues
+      
+      More details at: http://nemo.sonarsource.org/project/issues?id=org.apache%3Astruts&assignees=lo.gin&branch=feature1&createdAt=2010-05-18""");
   }
 
   @Test
   public void do_not_add_footer_when_properties_missing() {
     Notification notification = new Notification(MyNewIssuesNotification.MY_NEW_ISSUES_NOTIF_TYPE)
-      .setFieldValue(RULE_TYPE + ".count", "32")
+      .setFieldValue(ISSUE + ".count", "32")
       .setFieldValue("projectName", "Struts");
 
     EmailMessage message = underTest.format(notification);
@@ -215,11 +195,7 @@ public class MyNewIssuesEmailTemplateTest {
       .setFieldValue("projectKey", "org.apache:struts")
       .setFieldValue("projectDate", "2010-05-18T14:50:45+0000")
       .setFieldValue("assignee", "lo.gin")
-      .setFieldValue(EFFORT + ".count", "1d3h")
-      .setFieldValue(RULE_TYPE + ".count", String.valueOf(count))
-      .setFieldValue(RULE_TYPE + ".BUG.count", "1")
-      .setFieldValue(RULE_TYPE + ".VULNERABILITY.count", "3")
-      .setFieldValue(RULE_TYPE + ".CODE_SMELL.count", "0");
+      .setFieldValue(ISSUE + ".count", String.valueOf(count));
   }
 
   private void addTags(Notification notification) {
