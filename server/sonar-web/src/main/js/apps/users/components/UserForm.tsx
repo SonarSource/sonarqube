@@ -18,11 +18,16 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { AxiosError, AxiosResponse } from 'axios';
+import {
+  ButtonPrimary,
+  ButtonSecondary,
+  FlagMessage,
+  FormField,
+  InputField,
+  Modal,
+  Spinner,
+} from 'design-system';
 import * as React from 'react';
-import SimpleModal from '../../../components/controls/SimpleModal';
-import { Button, ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
-import { Alert } from '../../../components/ui/Alert';
-import MandatoryFieldMarker from '../../../components/ui/MandatoryFieldMarker';
 import MandatoryFieldsExplanation from '../../../components/ui/MandatoryFieldsExplanation';
 import { addGlobalErrorMessage } from '../../../helpers/globalMessages';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
@@ -43,8 +48,8 @@ const INTERNAL_SERVER_ERROR = 500;
 export default function UserForm(props: Props) {
   const { user, isInstanceManaged } = props;
 
-  const { mutate: createUser } = usePostUserMutation();
-  const { mutate: updateUser } = useUpdateUserMutation();
+  const { mutate: createUser, isLoading: isLoadingCreate } = usePostUserMutation();
+  const { mutate: updateUser, isLoading: isLoadingUserUpdate } = useUpdateUserMutation();
 
   const [email, setEmail] = React.useState<string>(user?.email ?? '');
   const [login, setLogin] = React.useState<string>(user?.login ?? '');
@@ -64,7 +69,18 @@ export default function UserForm(props: Props) {
     }
   };
 
-  const handleCreateUser = () => {
+  React.useEffect(() => {
+    document.getElementById('it__error-message')?.scrollIntoView({
+      block: 'start',
+    });
+  }, [error]);
+
+  const handleClose = () => {
+    props.onClose();
+  };
+
+  const handleCreateUser = (e: React.SyntheticEvent<HTMLFormElement>) => {
+    e.preventDefault();
     createUser(
       {
         email: email || undefined,
@@ -77,9 +93,9 @@ export default function UserForm(props: Props) {
     );
   };
 
-  const handleUpdateUser = () => {
+  const handleUpdateUser = (e: React.SyntheticEvent<HTMLFormElement>) => {
+    e.preventDefault();
     const { user } = props;
-
     updateUser(
       {
         id: user?.id!,
@@ -115,127 +131,130 @@ export default function UserForm(props: Props) {
   const header = user ? translate('users.update_user') : translate('users.create_user');
 
   return (
-    <SimpleModal
-      header={header}
-      onClose={props.onClose}
-      onSubmit={user ? handleUpdateUser : handleCreateUser}
-      size="small"
-    >
-      {({ onCloseClick, onFormSubmit, submitting }) => (
-        <form autoComplete="off" id="user-form" onSubmit={onFormSubmit}>
-          <header className="modal-head">
-            <h2>{header}</h2>
-          </header>
+    <Modal
+      headerTitle={header}
+      onClose={handleClose}
+      body={
+        <form
+          autoComplete="off"
+          id="user-form"
+          onSubmit={user ? handleUpdateUser : handleCreateUser}
+        >
+          {error && (
+            <FlagMessage id="it__error-message" className="sw-mb-4" variant="error">
+              {error}
+            </FlagMessage>
+          )}
 
-          <div className="modal-body modal-container">
-            {error && <Alert variant="error">{error}</Alert>}
-
-            {!error && user && !user.local && (
-              <Alert variant="warning">{translate('users.cannot_update_delegated_user')}</Alert>
-            )}
-
-            <MandatoryFieldsExplanation className="modal-field" />
-
-            {!user && (
-              <div className="modal-field">
-                <label htmlFor="create-user-login">
-                  {translate('login')}
-                  <MandatoryFieldMarker />
-                </label>
-                <input
-                  autoComplete="off"
-                  autoFocus
-                  id="create-user-login"
-                  maxLength={255}
-                  minLength={3}
-                  name="login"
-                  onChange={(e) => setLogin(e.currentTarget.value)}
-                  required={!isInstanceManaged}
-                  type="text"
-                  value={login}
-                />
-                <p className="note">{translateWithParameters('users.minimum_x_characters', 3)}</p>
-              </div>
-            )}
-            <div className="modal-field">
-              <label htmlFor="create-user-name">
-                {translate('name')}
-                {!isInstanceManaged && <MandatoryFieldMarker />}
-              </label>
-              <input
-                autoComplete="off"
-                autoFocus={!!user}
-                disabled={(user && !user.local) || isInstanceManaged}
-                id="create-user-name"
-                maxLength={200}
-                name="name"
-                onChange={(e) => setName(e.currentTarget.value)}
-                required={!isInstanceManaged}
-                type="text"
-                value={name}
-              />
-            </div>
-            <div className="modal-field">
-              <label htmlFor="create-user-email">{translate('users.email')}</label>
-              <input
-                autoComplete="off"
-                disabled={(user && !user.local) || isInstanceManaged}
-                id="create-user-email"
-                maxLength={100}
-                name="email"
-                onChange={(e) => setEmail(e.currentTarget.value)}
-                type="email"
-                value={email}
-              />
-            </div>
-            {!user && (
-              <div className="modal-field">
-                <label htmlFor="create-user-password">
-                  {translate('password')}
-                  <MandatoryFieldMarker />
-                </label>
-                <input
-                  autoComplete="off"
-                  id="create-user-password"
-                  name="password"
-                  onChange={(e) => setPassword(e.currentTarget.value)}
-                  required
-                  type="password"
-                  value={password}
-                />
-              </div>
-            )}
-            <div className="modal-field">
-              <fieldset>
-                <legend>{translate('my_profile.scm_accounts')}</legend>
-                {scmAccounts.map((scm, idx) => (
-                  <UserScmAccountInput
-                    idx={idx}
-                    key={idx}
-                    onChange={handleUpdateScmAccount}
-                    onRemove={handleRemoveScmAccount}
-                    scmAccount={scm}
-                  />
-                ))}
-                <div className="spacer-bottom">
-                  <Button className="js-scm-account-add" onClick={handleAddScmAccount}>
-                    {translate('add_verb')}
-                  </Button>
-                </div>
-              </fieldset>
-              <p className="note">{translate('user.login_or_email_used_as_scm_account')}</p>
-            </div>
+          {!error && user && !user.local && (
+            <FlagMessage variant="warning">
+              {translate('users.cannot_update_delegated_user')}
+            </FlagMessage>
+          )}
+          <div className="sw-mb-4">
+            <MandatoryFieldsExplanation />
           </div>
 
-          <footer className="modal-foot">
-            {submitting && <i className="spinner spacer-right" />}
-            <SubmitButton disabled={submitting}>
-              {user ? translate('update_verb') : translate('create')}
-            </SubmitButton>
-            <ResetButtonLink onClick={onCloseClick}>{translate('cancel')}</ResetButtonLink>
-          </footer>
+          {!user && (
+            <FormField
+              description={translateWithParameters('users.minimum_x_characters', 3)}
+              label={translate('login')}
+              htmlFor="create-user-login"
+              required={!isInstanceManaged}
+            >
+              <InputField
+                autoComplete="off"
+                maxLength={255}
+                minLength={3}
+                size="full"
+                id="create-user-login"
+                name="login"
+                onChange={(e) => setLogin(e.currentTarget.value)}
+                type="text"
+                value={login}
+              />
+            </FormField>
+          )}
+
+          <FormField
+            label={translate('name')}
+            htmlFor="create-user-name"
+            required={!isInstanceManaged}
+          >
+            <InputField
+              autoComplete="off"
+              disabled={(user && !user.local) || isInstanceManaged}
+              size="full"
+              maxLength={200}
+              id="create-user-name"
+              name="name"
+              onChange={(e) => setName(e.currentTarget.value)}
+              type="text"
+              value={name}
+            />
+          </FormField>
+
+          <FormField label={translate('users.email')} htmlFor="create-user-email">
+            <InputField
+              autoComplete="off"
+              disabled={(user && !user.local) || isInstanceManaged}
+              size="full"
+              maxLength={100}
+              id="create-user-email"
+              name="email"
+              onChange={(e) => setEmail(e.currentTarget.value)}
+              type="email"
+              value={email}
+            />
+          </FormField>
+
+          {!user && (
+            <FormField required label={translate('password')} htmlFor="create-user-password">
+              <InputField
+                autoComplete="off"
+                size="full"
+                id="create-user-password"
+                name="password"
+                onChange={(e) => setPassword(e.currentTarget.value)}
+                type="password"
+                value={password}
+              />
+            </FormField>
+          )}
+          <FormField
+            description={translate('user.login_or_email_used_as_scm_account')}
+            label={translate('my_profile.scm_accounts')}
+          >
+            {scmAccounts.map((scm, idx) => (
+              <UserScmAccountInput
+                idx={idx}
+                key={idx}
+                onChange={handleUpdateScmAccount}
+                onRemove={handleRemoveScmAccount}
+                scmAccount={scm}
+              />
+            ))}
+            <div>
+              <ButtonSecondary className="it__scm-account-add" onClick={handleAddScmAccount}>
+                {translate('add_verb')}
+              </ButtonSecondary>
+            </div>
+          </FormField>
         </form>
-      )}
-    </SimpleModal>
+      }
+      primaryButton={
+        <>
+          <Spinner loading={isLoadingCreate || isLoadingUserUpdate} />
+          <ButtonPrimary
+            disabled={isLoadingCreate || isLoadingUserUpdate}
+            type="submit"
+            form="user-form"
+          >
+            {user ? translate('update_verb') : translate('create')}
+          </ButtonPrimary>
+        </>
+      }
+      secondaryButtonLabel={translate('cancel')}
+    />
   );
 }

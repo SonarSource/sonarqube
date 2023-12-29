@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { DestructiveIcon, InputField, TrashIcon } from 'design-system';
 import * as React from 'react';
-import { DeleteButton } from '../../../components/controls/buttons';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 
 export interface Props {
@@ -36,8 +36,10 @@ export default function UserScmAccountInput(props: Props) {
     : translate('users.create_user.scm_account_new');
 
   return (
-    <div className="js-scm-account display-flex-row spacer-bottom">
-      <input
+    <div className="it__scm-account sw-flex sw-mb-2">
+      <InputField
+        className="sw-mr-1"
+        size="full"
         maxLength={255}
         onChange={(event) => {
           props.onChange(idx, event.currentTarget.value);
@@ -46,11 +48,11 @@ export default function UserScmAccountInput(props: Props) {
         aria-label={inputAriaLabel}
         value={scmAccount}
       />
-      <DeleteButton
+      <DestructiveIcon
+        Icon={TrashIcon}
         aria-label={translateWithParameters('remove_x', inputAriaLabel)}
-        onClick={() => {
-          props.onRemove(idx);
-        }}
+        onClick={() => props.onRemove(idx)}
+        stopPropagation={false}
       />
     </div>
   );

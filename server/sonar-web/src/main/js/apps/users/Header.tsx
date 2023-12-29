@@ -17,11 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { ButtonPrimary, FlagMessage, Link, Title } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import DocLink from '../../components/common/DocLink';
-import { Button } from '../../components/controls/buttons';
-import { Alert } from '../../components/ui/Alert';
+import { useDocUrl } from '../../helpers/docs';
 import { translate } from '../../helpers/l10n';
 import UserForm from './components/UserForm';
 
@@ -30,41 +29,46 @@ interface Props {
 }
 
 export default function Header(props: Props) {
+  const getDocUrl = useDocUrl();
   const [openUserForm, setOpenUserForm] = React.useState(false);
 
   const { manageProvider } = props;
   return (
-    <div className="page-header null-spacer-bottom">
-      <h2 className="page-title">{translate('users.page')}</h2>
+    <div>
+      <div className="sw-flex sw-justify-between">
+        <Title>{translate('users.page')}</Title>
 
-      <div className="page-actions">
-        <Button
+        <ButtonPrimary
           id="users-create"
           disabled={manageProvider !== undefined}
           onClick={() => setOpenUserForm(true)}
         >
           {translate('users.create_user')}
-        </Button>
+        </ButtonPrimary>
+      </div>
+      <div>
+        {manageProvider === undefined ? (
+          <span>{translate('users.page.description')}</span>
+        ) : (
+          <FlagMessage className="sw-max-w-3/4" variant="info">
+            <span>
+              <FormattedMessage
+                defaultMessage={translate('users.page.managed_description')}
+                id="users.page.managed_description"
+                values={{
+                  provider: manageProvider,
+                  link: (
+                    <Link to={getDocUrl('/instance-administration/authentication/overview/')}>
+                      {translate('documentation')}
+                    </Link>
+                  ),
+                }}
+              />
+            </span>
+          </FlagMessage>
+        )}
       </div>
 
-      {manageProvider === undefined ? (
-        <p className="page-description">{translate('users.page.description')}</p>
-      ) : (
-        <Alert className="page-description max-width-100" variant="info">
-          <FormattedMessage
-            defaultMessage={translate('users.page.managed_description')}
-            id="users.page.managed_description"
-            values={{
-              provider: manageProvider,
-              link: (
-                <DocLink to="/instance-administration/authentication/overview/">
-                  {translate('documentation')}
-                </DocLink>
-              ),
-            }}
-          />
-        </Alert>
-      )}
       {openUserForm && (
         <UserForm onClose={() => setOpenUserForm(false)} isInstanceManaged={false} />
       )}

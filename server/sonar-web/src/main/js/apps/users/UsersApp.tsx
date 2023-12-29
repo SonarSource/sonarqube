@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { subDays, subSeconds } from 'date-fns';
+import { HelperHintIcon, InputSearch, InputSelect, StyledPageTitle } from 'design-system';
 import React, { useEffect, useMemo, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { getIdentityProviders } from '../../api/users';
@@ -26,8 +27,7 @@ import GitLabSynchronisationWarning from '../../app/components/GitLabSynchronisa
 import HelpTooltip from '../../components/controls/HelpTooltip';
 import ListFooter from '../../components/controls/ListFooter';
 import { ManagedFilter } from '../../components/controls/ManagedFilter';
-import SearchBox from '../../components/controls/SearchBox';
-import Select, { LabelValueSelectOption } from '../../components/controls/Select';
+import { LabelValueSelectOption } from '../../components/controls/Select';
 import Suggestions from '../../components/embed-docs-modal/Suggestions';
 import Spinner from '../../components/ui/Spinner';
 import { now, toISO8601WithOffsetString } from '../../helpers/dates';
@@ -102,17 +102,21 @@ export default function UsersApp() {
           managed={managed}
           setManaged={(m) => setManaged(m)}
         />
-        <SearchBox
+        <InputSearch
           id="users-search"
           minLength={2}
           onChange={(search: string) => setSearch(search)}
           placeholder={translate('search.search_by_login_or_name')}
           value={search}
         />
-        <div className="sw-ml-4">
-          <Select
+        <div className="sw-flex sw-items-center sw-ml-4">
+          <StyledPageTitle as="label" className="sw-body-sm-highlight sw-mr-2">
+            {translate('users.filter.by')}
+          </StyledPageTitle>
+          <InputSelect
+            className="sw-body-sm"
+            size="medium"
             id="users-activity-filter"
-            className="input-large"
             isDisabled={isLoading}
             onChange={(userActivity: LabelValueSelectOption<UserActivity>) =>
               setUsersActivity(userActivity.value)
@@ -131,7 +135,9 @@ export default function UsersApp() {
                 <p>{translate('users.activity_filter.helptext.sonarlint')}</p>
               </>
             }
-          />
+          >
+            <HelperHintIcon />
+          </HelpTooltip>
         </div>
       </div>
       <Spinner loading={isLoading}>
