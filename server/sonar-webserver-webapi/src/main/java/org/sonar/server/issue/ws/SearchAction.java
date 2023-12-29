@@ -215,6 +215,7 @@ public class SearchAction implements IssuesWsAction {
         new Change("10.4", format("Parameter '%s' is deprecated.", PARAM_SEVERITIES)),
         new Change("10.4", format(NEW_FACET_ADDED_MESSAGE, PARAM_ISSUE_STATUSES)),
         new Change("10.4", format("Facets '%s' and '%s' are deprecated in favor of '%s'", PARAM_RESOLUTIONS, PARAM_STATUSES, PARAM_ISSUE_STATUSES)),
+        new Change("10.4", "Response fields 'severity' and 'type' are deprecated, use 'impacts' instead."),
         new Change("10.4", "Response field 'issueStatus' added"),
         new Change("10.4", "Response fields 'status' and 'resolutions' are deprecated, in favor of 'issueStatus'"),
         new Change("10.4", format("Possible value '%s' for 'issueStatus' field is deprecated.", IssueStatus.CONFIRMED)),
