@@ -2,7 +2,6 @@
   "issue": {
     "key": "AVibidgv1LF0E-ru2DVv",
     "rule": "squid:S2301",
-    "severity": "MAJOR",
     "cleanCodeAttribute": "CLEAR",
     "cleanCodeAttributeCategory": "INTENTIONAL",
     "impacts": [
@@ -21,8 +20,7 @@
       "endOffset": 39
     },
     "flows": [],
-    "status": "CONFIRMED",
-    "issueStatus": "CONFIRMED",
+    "issueStatus": "ACCEPTED",
     "message": "Provide multiple methods instead of using \"modal\" to determine which action to take.",
     "effort": "15min",
     "debt": "15min",
@@ -56,7 +54,6 @@
     ],
     "creationDate": "2016-11-25T13:50:24+0100",
     "updateDate": "2017-01-09T13:51:12+0100",
-    "type": "CODE_SMELL",
     "ruleDescriptionContextKey": "spring"
   },
   "components": [
