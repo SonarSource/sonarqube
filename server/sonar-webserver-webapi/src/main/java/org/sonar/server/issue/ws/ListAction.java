@@ -47,6 +47,7 @@ import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Issues;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
+import static java.lang.String.format;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.sonar.api.server.ws.WebService.Param.PAGE;
@@ -96,6 +97,7 @@ public class ListAction implements IssuesWsAction {
                       "<br>Requires the 'Browse' permission on the specified project. ")
       .setSince("10.2")
       .setChangelog(
+        new Change("10.4", format("Parameter '%s' is deprecated.", PARAM_TYPES)),
         new Change("10.4", "The response fields 'severity' and 'type' are deprecated. Please use 'impacts' instead."),
         new Change("10.4", "The response fields 'status' and 'resolution' are deprecated. Please use 'issueStatus' instead."),
         new Change("10.4", "Add 'issueStatus' field to the response.")
@@ -123,6 +125,7 @@ public class ListAction implements IssuesWsAction {
     action.createParam(PARAM_TYPES)
       .setDescription("Comma-separated list of issue types")
       .setExampleValue("BUG, VULNERABILITY")
+      .setDeprecatedSince("10.4")
       .setPossibleValues(RuleType.BUG.name(), RuleType.VULNERABILITY.name(), RuleType.CODE_SMELL.name());
 
     action.createParam(PARAM_IN_NEW_CODE_PERIOD)

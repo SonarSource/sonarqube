@@ -212,7 +212,8 @@ public class SearchAction implements IssuesWsAction {
         new Change("10.4", "Possible value '%s' for 'transition' response field has been added".formatted(DefaultTransitions.ACCEPT)),
         new Change("10.4", format(NEW_PARAM_ADDED_MESSAGE, PARAM_ISSUE_STATUSES)),
         new Change("10.4", format("Parameters '%s' and '%s' are deprecated in favor of '%s'.", PARAM_RESOLUTIONS, PARAM_STATUSES, PARAM_ISSUE_STATUSES)),
-        new Change("10.4", format("Parameter '%s' is deprecated.", PARAM_SEVERITIES)),
+        new Change("10.4", format("Parameters '%s' and '%s' are deprecated, use '%s' and '%s' instead.", PARAM_SEVERITIES, PARAM_TYPES,
+          PARAM_IMPACT_SEVERITIES, PARAM_IMPACT_SOFTWARE_QUALITIES)),
         new Change("10.4", format(NEW_FACET_ADDED_MESSAGE, PARAM_ISSUE_STATUSES)),
         new Change("10.4", format("Facets '%s' and '%s' are deprecated in favor of '%s'", PARAM_RESOLUTIONS, PARAM_STATUSES, PARAM_ISSUE_STATUSES)),
         new Change("10.4", "Response fields 'severity' and 'type' are deprecated, use 'impacts' instead."),
@@ -326,6 +327,7 @@ public class SearchAction implements IssuesWsAction {
     action.createParam(PARAM_TYPES)
       .setDescription("Comma-separated list of types.")
       .setSince("5.5")
+      .setDeprecatedSince("10.4")
       .setPossibleValues(ALL_RULE_TYPES_EXCEPT_SECURITY_HOTSPOTS)
       .setExampleValue(format("%s,%s", RuleType.CODE_SMELL, RuleType.BUG));
     action.createParam(PARAM_OWASP_ASVS_LEVEL)
