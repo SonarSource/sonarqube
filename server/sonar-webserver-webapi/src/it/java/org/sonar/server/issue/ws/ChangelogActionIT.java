@@ -286,12 +286,15 @@ public class ChangelogActionIT {
     userSession.logIn("john")
       .addProjectPermission(USER, project, file);
     db.issues().insertFieldDiffs(issueDto, new FieldDiffs()
-      .setUserUuid(user.getUuid())
-      .setDiff("severity", "MAJOR", "BLOCKER")
-      .setWebhookSource("github")
-      .setExternalUser("toto")
-      .setCreationDate(new Date())
-      .setCreationDate(DateUtils.parseDateTime("2014-03-04T23:03:44+0100")));
+        .setUserUuid(user.getUuid())
+        .setDiff("issueStatus", "OPEN", "ACCEPTED")
+        .setWebhookSource("github")
+        .setExternalUser("ext-user")
+        .setCreationDate(DateUtils.parseDateTime("2014-03-04T23:03:44+0100")),
+      new FieldDiffs()
+        .setDiff("from_branch", "branch-123", "main")
+        .setDiff("assignee", null, "assignee123")
+        .setCreationDate(DateUtils.parseDateTime("2014-03-04T23:05:44+0100")));
 
     String result = tester.newRequest().setParam("issue", issueDto.getKey()).execute().getInput();
 
