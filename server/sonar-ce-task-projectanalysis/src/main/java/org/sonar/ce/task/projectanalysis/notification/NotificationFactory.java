@@ -28,7 +28,6 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.utils.Durations;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.analysis.Branch;
 import org.sonar.ce.task.projectanalysis.component.Component;
@@ -62,27 +61,25 @@ public class NotificationFactory {
   private final TreeRootHolder treeRootHolder;
   private final AnalysisMetadataHolder analysisMetadataHolder;
   private final RuleRepository ruleRepository;
-  private final Durations durations;
   private final IssuesChangesNotificationSerializer issuesChangesSerializer;
   private Map<String, Component> componentsByUuid;
 
   public NotificationFactory(TreeRootHolder treeRootHolder, AnalysisMetadataHolder analysisMetadataHolder,
-    RuleRepository ruleRepository, Durations durations, IssuesChangesNotificationSerializer issuesChangesSerializer) {
+    RuleRepository ruleRepository, IssuesChangesNotificationSerializer issuesChangesSerializer) {
     this.treeRootHolder = treeRootHolder;
     this.analysisMetadataHolder = analysisMetadataHolder;
     this.ruleRepository = ruleRepository;
-    this.durations = durations;
     this.issuesChangesSerializer = issuesChangesSerializer;
   }
 
   public MyNewIssuesNotification newMyNewIssuesNotification(Map<String, UserDto> assigneesByUuid) {
     verifyAssigneesByUuid(assigneesByUuid);
-    return new MyNewIssuesNotification(durations, new DetailsSupplierImpl(assigneesByUuid));
+    return new MyNewIssuesNotification(new DetailsSupplierImpl(assigneesByUuid));
   }
 
   public NewIssuesNotification newNewIssuesNotification(Map<String, UserDto> assigneesByUuid) {
     verifyAssigneesByUuid(assigneesByUuid);
-    return new NewIssuesNotification(durations, new DetailsSupplierImpl(assigneesByUuid));
+    return new NewIssuesNotification(new DetailsSupplierImpl(assigneesByUuid));
   }
 
   public IssuesChangesNotification newIssuesChangesNotification(Set<DefaultIssue> issues, Map<String, UserDto> assigneesByUuid) {

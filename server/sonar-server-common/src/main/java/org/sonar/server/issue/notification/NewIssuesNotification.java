@@ -30,7 +30,6 @@ import javax.annotation.Nullable;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.DateUtils;
-import org.sonar.api.utils.Durations;
 import org.sonar.server.issue.notification.NewIssuesStatistics.Metric;
 
 import static java.util.Objects.requireNonNull;
@@ -51,15 +50,13 @@ public class NewIssuesNotification extends Notification {
   private static final String DOT = ".";
 
   private final transient DetailsSupplier detailsSupplier;
-  private final transient Durations durations;
 
-  public NewIssuesNotification(Durations durations, DetailsSupplier detailsSupplier) {
-    this(TYPE, durations, detailsSupplier);
+  public NewIssuesNotification(DetailsSupplier detailsSupplier) {
+    this(TYPE, detailsSupplier);
   }
 
-  protected NewIssuesNotification(String type, Durations durations, DetailsSupplier detailsSupplier) {
+  protected NewIssuesNotification(String type, DetailsSupplier detailsSupplier) {
     super(type);
-    this.durations = durations;
     this.detailsSupplier = detailsSupplier;
   }
 

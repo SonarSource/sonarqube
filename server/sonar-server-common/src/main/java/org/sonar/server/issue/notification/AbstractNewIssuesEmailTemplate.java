@@ -22,7 +22,6 @@ package org.sonar.server.issue.notification;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.Date;
-import java.util.Locale;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.config.EmailSettings;
@@ -193,9 +192,4 @@ public abstract class AbstractNewIssuesEmailTemplate implements EmailTemplate {
         .append(NEW_LINE);
     }
   }
-
-  private static Locale getLocale() {
-    return Locale.ENGLISH;
-  }
-
 }

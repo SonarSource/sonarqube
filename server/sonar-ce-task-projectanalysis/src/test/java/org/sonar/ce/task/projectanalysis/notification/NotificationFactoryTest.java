@@ -82,9 +82,8 @@ public class NotificationFactoryTest {
   @Rule
   public AnalysisMetadataHolderRule analysisMetadata = new AnalysisMetadataHolderRule();
 
-  private Durations durations = new Durations();
   private IssuesChangesNotificationSerializer issuesChangesSerializer = mock(IssuesChangesNotificationSerializer.class);
-  private NotificationFactory underTest = new NotificationFactory(treeRootHolder, analysisMetadata, ruleRepository, durations, issuesChangesSerializer);
+  private NotificationFactory underTest = new NotificationFactory(treeRootHolder, analysisMetadata, ruleRepository, issuesChangesSerializer);
 
   @Test
   public void newMyNewIssuesNotification_throws_NPE_if_assigneesByUuid_is_null() {
@@ -98,20 +97,6 @@ public class NotificationFactoryTest {
     assertThatThrownBy(() -> underTest.newNewIssuesNotification(null))
       .isInstanceOf(NullPointerException.class)
       .hasMessage("assigneesByUuid can't be null");
-  }
-
-  @Test
-  public void newMyNewIssuesNotification_returns_MyNewIssuesNotification_object_with_the_constructor_Durations() {
-    MyNewIssuesNotification notification = underTest.newMyNewIssuesNotification(emptyMap());
-
-    assertThat(readDurationsField(notification)).isSameAs(durations);
-  }
-
-  @Test
-  public void newNewIssuesNotification_returns_NewIssuesNotification_object_with_the_constructor_Durations() {
-    NewIssuesNotification notification = underTest.newNewIssuesNotification(emptyMap());
-
-    assertThat(readDurationsField(notification)).isSameAs(durations);
   }
 
   @Test

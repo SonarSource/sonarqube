@@ -25,7 +25,6 @@ import java.util.stream.IntStream;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.DateUtils;
-import org.sonar.api.utils.Durations;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueDto;
@@ -57,7 +56,7 @@ public class NewIssuesNotificationIT {
   public DbTester db = DbTester.create();
 
   private DetailsSupplier detailsSupplier = mock(DetailsSupplier.class);
-  private NewIssuesNotification underTest = new NewIssuesNotification(new Durations(), detailsSupplier);
+  private NewIssuesNotification underTest = new NewIssuesNotification(detailsSupplier);
 
   @Test
   public void set_project_without_branch() {

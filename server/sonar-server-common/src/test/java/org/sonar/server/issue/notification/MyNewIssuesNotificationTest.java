@@ -20,7 +20,6 @@
 package org.sonar.server.issue.notification;
 
 import org.junit.Test;
-import org.sonar.api.utils.Durations;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserTesting;
 import org.sonar.server.issue.notification.NewIssuesNotification.DetailsSupplier;
@@ -31,7 +30,7 @@ import static org.sonar.server.issue.notification.AbstractNewIssuesEmailTemplate
 
 public class MyNewIssuesNotificationTest {
 
-  private MyNewIssuesNotification underTest = new MyNewIssuesNotification(mock(Durations.class), mock(DetailsSupplier.class));
+  private MyNewIssuesNotification underTest = new MyNewIssuesNotification(mock(DetailsSupplier.class));
 
   @Test
   public void set_assignee() {
