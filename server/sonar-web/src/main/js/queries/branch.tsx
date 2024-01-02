@@ -38,7 +38,7 @@ import { useLocation } from '../components/hoc/withRouter';
 import { isBranch, isPullRequest } from '../helpers/branch-like';
 import { extractStatusConditionsFromProjectStatus } from '../helpers/qualityGates';
 import { searchParamsToQuery } from '../helpers/urls';
-import { BranchLike } from '../types/branch-like';
+import { Branch, BranchLike } from '../types/branch-like';
 import { isApplication, isPortfolioLike, isProject } from '../types/component';
 import { Feature } from '../types/features';
 import { Component, LightComponent } from '../types/types';
@@ -77,6 +77,14 @@ function useBranchesQueryKey(innerState: InnerState, defaultId?: string) {
       searchParams.get('branch') as string,
       innerState,
     ] as const;
+  } else if (searchParams.has('fixedInPullRequest') && searchParams.has('id')) {
+    return [
+      'branches',
+      searchParams.get('id') as string,
+      'fixedInPullRequest',
+      searchParams.get('fixedInPullRequest') as string,
+      innerState,
+    ] as const;
   } else if (searchParams.has('id')) {
     return ['branches', searchParams.get('id') as string, innerState] as const;
   } else if (defaultId !== undefined) {
@@ -95,13 +103,16 @@ function useMutateBranchQueryKey() {
   return ['branches'];
 }
 
-function getContext(key: ReturnType<typeof useBranchesQueryKey>) {
+function getContext(key: ReturnType<typeof useBranchesQueryKey>, branchLike?: BranchLike) {
   const [_b, componentKey, prOrBranch, branchKey] = key;
   if (prOrBranch === 'pull-request') {
     return { componentKey, query: { pullRequest: branchKey } };
   }
   if (prOrBranch === 'branch') {
     return { componentKey, query: { branch: branchKey } };
+  }
+  if (prOrBranch === 'fixedInPullRequest') {
+    return { componentKey, query: { branch: (branchLike as Branch)?.name } };
   }
   return { componentKey, query: {} };
 }
@@ -125,12 +136,17 @@ export function useBranchesQuery(component?: LightComponent, refetchInterval?: n
           ? [getBranches(key), getPullRequests(key)]
           : [getBranches(key)];
       const branchLikes = await Promise.all(branchLikesPromise).then(flatten<BranchLike>);
-      const branchLike =
-        prOrBranch === 'pull-request'
-          ? branchLikes.find((b) => isPullRequest(b) && b.key === name)
-          : branchLikes.find(
-              (b) => isBranch(b) && (prOrBranch === 'branch' ? b.name === name : b.isMain),
-            );
+
+      let branchLike = branchLikes.find((b) => isBranch(b) && b.isMain);
+
+      if (prOrBranch === 'pull-request') {
+        branchLike = branchLikes.find((b) => isPullRequest(b) && b.key === name);
+      } else if (prOrBranch === 'branch') {
+        branchLike = branchLikes.find((b) => isBranch(b) && b.name === name);
+      } else if (prOrBranch === 'fixedInPullRequest') {
+        const targetBranch = branchLikes.filter(isPullRequest).find((b) => b.key === name)?.target;
+        branchLike = branchLikes.find((b) => isBranch(b) && b.name === targetBranch);
+      }
 
       return { branchLikes, branchLike };
     },
@@ -142,11 +158,12 @@ export function useBranchesQuery(component?: LightComponent, refetchInterval?: n
 }
 
 export function useBranchStatusQuery(component: Component) {
+  const branchQuery = useBranchesQuery(component);
   const key = useBranchesQueryKey(InnerState.Status);
   return useQuery({
     queryKey: key,
     queryFn: async ({ queryKey }) => {
-      const { query } = getContext(queryKey);
+      const { query } = getContext(queryKey, branchQuery.data?.branchLike);
       if (!isProject(component.qualifier)) {
         return {};
       }
@@ -178,7 +195,7 @@ export function useBranchWarningQuery(component: Component) {
   return useQuery({
     queryKey: key,
     queryFn: async ({ queryKey }) => {
-      const { query, componentKey } = getContext(queryKey);
+      const { query, componentKey } = getContext(queryKey, branchLike);
       const { component: branchStatus } = await getAnalysisStatus({
         component: componentKey,
         ...query,

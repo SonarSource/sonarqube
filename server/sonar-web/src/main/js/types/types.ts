@@ -79,6 +79,7 @@ export interface Component extends LightComponent {
   alm?: { key: string; url: string };
   analysisDate?: string;
   breadcrumbs: Breadcrumb[];
+  branch?: string;
   canBrowseAllChildProjects?: boolean;
   configuration?: ComponentConfiguration;
   description?: string;

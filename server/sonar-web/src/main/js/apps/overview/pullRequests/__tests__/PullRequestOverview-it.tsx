@@ -146,7 +146,7 @@ it('should render links correctly', async () => {
     byRole('link', {
       name: 'overview.see_more_details_on_x_of_y.1.metric.pull_request_fixed_issues.name',
     }).get(),
-  ).toHaveAttribute('href', '/project/issues?branch=master&fixedInPullRequest=1001&id=foo');
+  ).toHaveAttribute('href', '/project/issues?fixedInPullRequest=1001&id=foo');
 
   expect(screen.getByLabelText('no_data')).toBeInTheDocument();
 });

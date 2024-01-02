@@ -26,14 +26,17 @@ import { getTasksForComponent } from '../../../api/ce';
 import { getComponentData } from '../../../api/components';
 import { getComponentNavigation } from '../../../api/navigation';
 import { mockProjectAlmBindingConfigurationErrors } from '../../../helpers/mocks/alm-settings';
+import { mockBranch, mockPullRequest } from '../../../helpers/mocks/branch-like';
 import { mockComponent } from '../../../helpers/mocks/component';
+import { mockTask } from '../../../helpers/mocks/tasks';
 import { HttpStatus } from '../../../helpers/request';
 import { renderAppRoutes, renderComponent } from '../../../helpers/testReactTestingUtils';
 import { byRole, byText } from '../../../helpers/testSelector';
 import { ComponentQualifier } from '../../../types/component';
 import { TaskStatuses, TaskTypes } from '../../../types/tasks';
 import handleRequiredAuthorization from '../../utils/handleRequiredAuthorization';
-import ComponentContainer, { Props } from '../ComponentContainer';
+import ComponentContainer, { isSameBranch } from '../ComponentContainer';
+import { WithAvailableFeaturesProps } from '../available-features/withAvailableFeatures';
 import { ComponentContext } from '../componentContext/ComponentContext';
 
 jest.mock('../../../api/ce', () => ({
@@ -53,6 +56,11 @@ jest.mock('../../../api/navigation', () => ({
   }),
 }));
 
+jest.mock('../../../api/branches', () => ({
+  getBranches: jest.fn().mockResolvedValue([mockBranch()]),
+  getPullRequests: jest.fn().mockResolvedValue([mockPullRequest({ target: 'dropped-branch' })]),
+}));
+
 jest.mock('../../../api/alm-settings', () => ({
   validateProjectAlmBinding: jest.fn().mockResolvedValue(undefined),
 }));
@@ -64,7 +72,9 @@ jest.mock('../../utils/handleRequiredAuthorization', () => ({
 
 const ui = {
   projectTitle: byRole('link', { name: 'Project' }),
+  projectText: byText('project'),
   portfolioTitle: byRole('link', { name: 'portfolio' }),
+  portfolioText: byText('portfolio'),
   overviewPageLink: byRole('link', { name: 'overview.page' }),
   issuesPageLink: byRole('link', { name: 'issues.page' }),
   hotspotsPageLink: byRole('link', { name: 'layout.security_hotspots' }),
@@ -145,6 +155,15 @@ it('should show component not found if it does not exist', async () => {
 
   expect(await ui.dashboardNotFound.find()).toBeInTheDocument();
   expect(ui.goBackToHomePageLink.get()).toBeInTheDocument();
+});
+
+it('should show component not found if target branch is not found for fixing pull request', async () => {
+  renderComponentContainer(
+    { hasFeature: jest.fn().mockReturnValue(true) },
+    '?id=foo&fixedInPullRequest=1001',
+  );
+
+  expect(await ui.dashboardNotFound.find()).toBeInTheDocument();
 });
 
 describe('getTasksForComponent', () => {
@@ -300,17 +319,6 @@ describe('getTasksForComponent', () => {
   });
 });
 
-it('should redirect if the user has no access', async () => {
-  jest
-    .mocked(getComponentNavigation)
-    .mockRejectedValueOnce(new Response(null, { status: HttpStatus.Forbidden }));
-
-  renderComponentContainer();
-  await waitFor(() => {
-    expect(handleRequiredAuthorization).toHaveBeenCalled();
-  });
-});
-
 describe('should correctly validate the project binding depending on the context', () => {
   const COMPONENT = mockComponent({
     breadcrumbs: [{ key: 'foo', name: 'Foo', qualifier: ComponentQualifier.Project }],
@@ -362,6 +370,54 @@ describe('should correctly validate the project binding depending on the context
   });
 });
 
+describe('redirects', () => {
+  it('should redirect if the user has no access', async () => {
+    jest
+      .mocked(getComponentNavigation)
+      .mockRejectedValueOnce(new Response(null, { status: HttpStatus.Forbidden }));
+
+    renderComponentContainer();
+    await waitFor(() => {
+      expect(handleRequiredAuthorization).toHaveBeenCalled();
+    });
+  });
+
+  it('should redirect to portfolio when using dashboard path', async () => {
+    renderComponentContainer(
+      { hasFeature: jest.fn().mockReturnValue(true) },
+      'dashboard?id=foo',
+      '/dashboard',
+    );
+
+    expect(await ui.portfolioText.find()).toBeInTheDocument();
+  });
+
+  it('should redirect to project from tutorial when component is loaded', async () => {
+    const component = mockComponent({
+      breadcrumbs: [{ key: 'project', name: 'Project', qualifier: ComponentQualifier.Project }],
+      key: 'project-key',
+    });
+
+    jest
+      .mocked(getComponentNavigation)
+      .mockResolvedValueOnce({} as unknown as Awaited<ReturnType<typeof getComponentNavigation>>);
+
+    jest
+      .mocked(getComponentData)
+      .mockResolvedValueOnce({ component } as unknown as Awaited<
+        ReturnType<typeof getComponentData>
+      >);
+
+    renderComponentContainer(
+      { hasFeature: jest.fn().mockReturnValue(true) },
+      'tutorials?id=project-key',
+      '/tutorials',
+    );
+
+    expect(await ui.projectText.find()).toBeInTheDocument();
+  });
+});
+
 it.each([
   [ComponentQualifier.Application],
   [ComponentQualifier.Portfolio],
@@ -390,7 +446,13 @@ it.each([
   },
 );
 
-function renderComponentContainerAsComponent(props: Partial<Props> = {}) {
+it('isSameBranch util returns expected result', () => {
+  expect(isSameBranch(mockTask())).toBe(true);
+  expect(isSameBranch(mockTask({ branch: 'branch' }), 'branch')).toBe(true);
+  expect(isSameBranch(mockTask({ pullRequest: 'pr' }), undefined, 'pr')).toBe(true);
+});
+
+function renderComponentContainerAsComponent(props: Partial<WithAvailableFeaturesProps> = {}) {
   return renderComponent(
     <>
       <div id="component-nav-portal" />
@@ -400,16 +462,22 @@ function renderComponentContainerAsComponent(props: Partial<Props> = {}) {
   );
 }
 
-function renderComponentContainer(props: Partial<Props> = {}) {
+function renderComponentContainer(
+  props: Partial<WithAvailableFeaturesProps> = {},
+  navigateTo = '?id=foo',
+  path = '/',
+) {
   renderAppRoutes(
-    '/',
+    path,
     () => (
       <Route element={<ComponentContainer {...props} />}>
         <Route path="*" element={<TestComponent />} />
+        <Route path="portfolio" element={<div>portfolio</div>} />
+        <Route path="dashboard" element={<div>project</div>} />
       </Route>
     ),
     {
-      navigateTo: '?id=foo',
+      navigateTo,
     },
   );
 }

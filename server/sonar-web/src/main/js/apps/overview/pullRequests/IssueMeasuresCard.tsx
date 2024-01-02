@@ -70,7 +70,6 @@ export default function IssueMeasuresCard(
     ...DEFAULT_ISSUES_QUERY,
   });
   const fixedUrl = getComponentIssuesUrl(component.key, {
-    branch: pullRequest.target,
     fixedInPullRequest: pullRequest.key,
   });
   const acceptedUrl = getComponentIssuesUrl(component.key, {
