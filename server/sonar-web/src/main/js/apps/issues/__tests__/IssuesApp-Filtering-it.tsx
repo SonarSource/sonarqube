@@ -207,13 +207,13 @@ describe('issues app filtering', () => {
 
     await user.click(monthSelector);
 
-    await user.click(within(ui.dateInputMonthSelect.get()).getByText('Jan'));
+    await user.click(within(ui.dateInputMonthSelect.get()).getAllByText('Jan').slice(-1)[0]);
 
     const yearSelector = within(ui.dateInputYearSelect.get()).getByRole('combobox');
 
     await user.click(yearSelector);
 
-    await user.click(within(ui.dateInputYearSelect.get()).getAllByText('2023')[-1]);
+    await user.click(within(ui.dateInputYearSelect.get()).getAllByText('2023').slice(-1)[0]);
 
     await user.click(screen.getByText('1', { selector: 'button' }));
     await user.click(screen.getByText('10'));
