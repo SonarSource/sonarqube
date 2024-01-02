@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2024 SonarSource SA
+ * Copyright (C) 2009-2023 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,24 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { OpenAPIV3 } from 'openapi-types';
+import { Dispatch, SetStateAction, createContext } from 'react';
 
-export type ExcludeReferences<T> = T extends OpenAPIV3.ReferenceObject
-  ? never
-  : T extends object
-  ? { [K in keyof T]: ExcludeReferences<T[K]> }
-  : T;
+const ApiFilterContext = createContext<{
+  showInternal: boolean;
+  setShowInternal: Dispatch<SetStateAction<boolean>>;
+}>({
+  showInternal: false,
+  setShowInternal: () => {},
+});
 
-export type DereferenceRecursive<T> = T extends object
-  ? T extends OpenAPIV3.ReferenceObject
-    ? ExcludeReferences<T>
-    : T extends Array<infer U>
-    ? Array<DereferenceRecursive<U>>
-    : {
-        [K in keyof T]: DereferenceRecursive<T[K]>;
-      }
-  : T;
-
-export interface InternalExtension {
-  'x-internal'?: 'true';
-}
+export default ApiFilterContext;

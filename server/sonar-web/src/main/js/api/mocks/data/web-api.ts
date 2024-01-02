@@ -18,8 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { OpenAPIV3 } from 'openapi-types';
+import { InternalExtension } from '../../../apps/web-api-v2/types';
 
-export const openApiTestData: OpenAPIV3.Document<{ 'x-internal'?: 'true' }> = {
+export const openApiTestData: OpenAPIV3.Document<InternalExtension> = {
   openapi: '3.0.2',
   info: {
     title: 'Swagger Petstore - OpenAPI 3.0',
@@ -394,6 +395,55 @@ export const openApiTestData: OpenAPIV3.Document<{ 'x-internal'?: 'true' }> = {
         responses: {
           '400': { description: 'Invalid ID supplied' },
           '404': { description: 'Order not found' },
+        },
+      },
+    },
+    '/test': {
+      get: {
+        summary: 'Test internal query params',
+        description: 'For tests only',
+        parameters: [
+          {
+            name: 'visible',
+            in: 'query',
+            description: 'parameter visible to anyone',
+            schema: { type: 'integer', format: 'int64' },
+          },
+          {
+            name: 'hidden',
+            in: 'query',
+            description: 'parameter is internal',
+            schema: { type: 'integer', format: 'int64' },
+            'x-internal': 'true',
+          } as OpenAPIV3.ParameterObject & InternalExtension,
+        ],
+        responses: {
+          default: {
+            description: 'successful operation',
+          },
+        },
+      },
+      post: {
+        summary: 'Test internal query params',
+        description: 'For tests only',
+        requestBody: {
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  visible: { type: 'string' },
+                  hidden: { type: 'string', 'x-internal': 'true' } as OpenAPIV3.SchemaObject &
+                    InternalExtension,
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          default: {
+            description: 'successful operation',
+          },
         },
       },
     },

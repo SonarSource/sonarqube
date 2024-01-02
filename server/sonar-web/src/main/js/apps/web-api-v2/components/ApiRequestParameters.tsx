@@ -20,17 +20,19 @@
 import { Accordion, Badge, TextMuted } from 'design-system';
 import { isEmpty } from 'lodash';
 import { OpenAPIV3 } from 'openapi-types';
-import React from 'react';
+import React, { useContext } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { translate } from '../../../helpers/l10n';
-import { ExcludeReferences } from '../types';
+import { ExcludeReferences, InternalExtension } from '../types';
+import ApiFilterContext from './ApiFilterContext';
 
 interface Props {
-  content?: Exclude<ExcludeReferences<OpenAPIV3.ResponseObject>['content'], undefined>;
+  content?: ExcludeReferences<OpenAPIV3.ResponseObject>['content'];
 }
 
 export default function ApiRequestBodyParameters({ content }: Readonly<Props>) {
   const [openParameters, setOpenParameters] = React.useState<string[]>([]);
+  const { showInternal } = useContext(ApiFilterContext);
 
   const toggleParameter = (parameter: string) => {
     if (openParameters.includes(parameter)) {
@@ -63,60 +65,72 @@ export default function ApiRequestBodyParameters({ content }: Readonly<Props>) {
 
   return (
     <ul aria-labelledby="api_documentation.v2.request_subheader.request_body">
-      {orderedKeys.map((key) => {
-        return (
-          <Accordion
-            className="sw-mt-2 sw-mb-4"
-            key={key}
-            header={
-              <div>
-                {key}{' '}
-                {schema.required?.includes(key) && (
-                  <Badge className="sw-ml-2">{translate('required')}</Badge>
-                )}
-                {parameters[key].deprecated && (
-                  <Badge variant="deleted" className="sw-ml-2">
-                    {translate('deprecated')}
-                  </Badge>
-                )}
-              </div>
-            }
-            data={key}
-            onClick={() => toggleParameter(key)}
-            open={openParameters.includes(key)}
-          >
-            <div>{parameters[key].description}</div>
-            {parameters[key].enum && (
-              <div className="sw-mt-2">
-                <FormattedMessage
-                  id="api_documentation.v2.enum_description"
-                  values={{
-                    values: <i>{parameters[key].enum?.join(', ')}</i>,
-                  }}
+      {orderedKeys
+        .filter((key) => showInternal || !(parameters[key] as InternalExtension)['x-internal'])
+        .map((key) => {
+          return (
+            <Accordion
+              className="sw-mt-2 sw-mb-4"
+              key={key}
+              header={
+                <div>
+                  {key}{' '}
+                  {schema.required?.includes(key) && (
+                    <Badge className="sw-ml-2">{translate('required')}</Badge>
+                  )}
+                  {parameters[key].deprecated && (
+                    <Badge variant="deleted" className="sw-ml-2">
+                      {translate('deprecated')}
+                    </Badge>
+                  )}
+                  {parameters[key].deprecated && (
+                    <Badge variant="deleted" className="sw-ml-2">
+                      {translate('deprecated')}
+                    </Badge>
+                  )}
+                  {(parameters[key] as InternalExtension)['x-internal'] && (
+                    <Badge variant="new" className="sw-ml-2">
+                      {translate('internal')}
+                    </Badge>
+                  )}
+                </div>
+              }
+              data={key}
+              onClick={() => toggleParameter(key)}
+              open={openParameters.includes(key)}
+            >
+              <div>{parameters[key].description}</div>
+              {parameters[key].enum && (
+                <div className="sw-mt-2">
+                  <FormattedMessage
+                    id="api_documentation.v2.enum_description"
+                    values={{
+                      values: <i>{parameters[key].enum?.join(', ')}</i>,
+                    }}
+                  />
+                </div>
+              )}
+              {parameters[key].maxLength && (
+                <TextMuted
+                  className="sw-mt-2 sw-block"
+                  text={`${translate('max')}: ${parameters[key].maxLength}`}
                 />
-              </div>
-            )}
-            {parameters[key].maxLength && (
-              <TextMuted
-                className="sw-mt-2 sw-block"
-                text={`${translate('max')}: ${parameters[key].maxLength}`}
-              />
-            )}
-            {typeof parameters[key].minLength === 'number' && (
-              <TextMuted
-                className="sw-mt-2 sw-block"
-                text={`${translate('min')}: ${parameters[key].minLength}`}
-              />
-            )}
-            {parameters[key].default !== undefined && (
-              <TextMuted
-                className="sw-mt-2 sw-block"
-                text={`${translate('default')}: ${parameters[key].default}`}
-              />
-            )}
-          </Accordion>
-        );
-      })}
+              )}
+              {typeof parameters[key].minLength === 'number' && (
+                <TextMuted
+                  className="sw-mt-2 sw-block"
+                  text={`${translate('min')}: ${parameters[key].minLength}`}
+                />
+              )}
+              {parameters[key].default !== undefined && (
+                <TextMuted
+                  className="sw-mt-2 sw-block"
+                  text={`${translate('default')}: ${parameters[key].default}`}
+                />
+              )}
+            </Accordion>
+          );
+        })}
     </ul>
   );
 }

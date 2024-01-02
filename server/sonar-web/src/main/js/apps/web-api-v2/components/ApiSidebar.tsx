@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import classNames from 'classnames';
 import {
   Badge,
   BasicSeparator,
@@ -31,17 +30,20 @@ import {
 } from 'design-system';
 import { sortBy } from 'lodash';
 import { OpenAPIV3 } from 'openapi-types';
-import React, { Fragment, useMemo, useState } from 'react';
+import React, { Fragment, useContext, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import HelpTooltip from '../../../components/controls/HelpTooltip';
 import { translate } from '../../../helpers/l10n';
 import { Dict } from '../../../types/types';
-import { URL_DIVIDER, getApiEndpointKey, getMethodClassName } from '../utils';
+import { InternalExtension } from '../types';
+import { URL_DIVIDER, getApiEndpointKey } from '../utils';
+import ApiFilterContext from './ApiFilterContext';
+import RestMethodPill from './RestMethodPill';
 
 interface Api {
   name: string;
   method: string;
-  info: OpenAPIV3.OperationObject<{ 'x-internal'?: 'true' }>;
+  info: OpenAPIV3.OperationObject<InternalExtension>;
 }
 interface Props {
   docInfo: OpenAPIV3.InfoObject;
@@ -57,9 +59,9 @@ const METHOD_ORDER: Dict<number> = {
 
 export default function ApiSidebar({ apisList, docInfo }: Readonly<Props>) {
   const [search, setSearch] = useState('');
-  const [showInternal, setShowInternal] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+  const { showInternal, setShowInternal } = useContext(ApiFilterContext);
   const activeApi = location.hash.replace('#', '').split(URL_DIVIDER);
 
   const handleApiClick = (value: string) => {
@@ -106,9 +108,12 @@ export default function ApiSidebar({ apisList, docInfo }: Readonly<Props>) {
 
       <div className="sw-mt-4 sw-flex sw-items-center">
         <Checkbox checked={showInternal} onCheck={() => setShowInternal((prev) => !prev)}>
-          <span className="sw-ml-2">{translate('api_documentation.show_internal')}</span>
+          <span className="sw-ml-2">{translate('api_documentation.show_internal_v2')}</span>
         </Checkbox>
-        <HelpTooltip className="sw-ml-2" overlay={translate('api_documentation.internal_tooltip')}>
+        <HelpTooltip
+          className="sw-ml-2"
+          overlay={translate('api_documentation.internal_tooltip_v2')}
+        >
           <HelperHintIcon aria-label="help-tooltip" />
         </HelpTooltip>
       </div>
@@ -141,11 +146,11 @@ export default function ApiSidebar({ apisList, docInfo }: Readonly<Props>) {
                     onClick={handleApiClick}
                     value={getApiEndpointKey(name, method)}
                   >
-                    <div className="sw-flex sw-gap-2">
-                      <Badge className={classNames('sw-self-center', getMethodClassName(method))}>
-                        {method.toUpperCase()}
-                      </Badge>
-                      <div>{info.summary ?? name}</div>
+                    <div className="sw-flex sw-gap-2 sw-w-full sw-justify-between">
+                      <div className="sw-flex sw-gap-2">
+                        <RestMethodPill method={method} />
+                        <div>{info.summary ?? name}</div>
+                      </div>
 
                       {(info['x-internal'] || info.deprecated) && (
                         <div className="sw-flex sw-flex-col sw-justify-center sw-gap-2">

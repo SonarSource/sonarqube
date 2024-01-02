@@ -31,10 +31,13 @@ const ui = {
   search: byRole('searchbox'),
   title: byRole('link', { name: 'Swagger Petstore - OpenAPI 3.0 1.0.17' }),
   searchClear: byRole('button', { name: 'clear' }),
-  showInternal: byRole('checkbox', { name: 'api_documentation.show_internal' }),
+  showInternal: byRole('checkbox', { name: 'api_documentation.show_internal_v2' }),
   apiScopePet: byRole('button', { name: 'pet' }),
   apiScopeStore: byRole('button', { name: 'store' }),
   apiScopeUser: byRole('button', { name: 'user' }),
+  apiScopeTest: byRole('button', { name: 'test' }),
+  publicButton: byRole('button', { name: /visible/ }),
+  internalButton: byRole('button', { name: /hidden/ }),
   apiSidebarItem: byTestId('js-subnavigation-item'),
   requestBody: byText('api_documentation.v2.request_subheader.request_body'),
   queryParameter: byRole('list', { name: 'api_documentation.v2.request_subheader.query' }).byRole(
@@ -86,7 +89,7 @@ it('should search apis', async () => {
   expect(ui.apiSidebarItem.getAll().length).toBeGreaterThan(3);
 });
 
-it('should show internal', async () => {
+it('should show internal endpoints', async () => {
   const user = userEvent.setup();
   renderWebApiApp();
   expect(await ui.apiScopeStore.find()).toBeInTheDocument();
@@ -99,9 +102,41 @@ it('should show internal', async () => {
     .getAll()
     .find((el) => el.textContent?.includes('internal'));
   expect(internalItem).toBeInTheDocument();
-  await user.click(internalItem!);
+  await user.click(internalItem as HTMLElement);
 
-  expect(await screen.findByText('/api/v3/store/inventory')).toHaveTextContent(/internal/);
+  expect(await byRole('heading', { name: /\/api\/v3\/store\/inventory/ }).find()).toHaveTextContent(
+    /internal/,
+  );
+});
+
+it('should show internal parameters', async () => {
+  const user = userEvent.setup();
+  renderWebApiApp();
+  expect(await ui.apiScopeTest.find()).toBeInTheDocument();
+  await user.click(ui.apiScopeTest.get());
+  expect(ui.apiSidebarItem.getAll()).toHaveLength(2);
+
+  await user.click(
+    ui.apiSidebarItem.getAll().find((el) => el.textContent?.includes('GET')) as HTMLElement,
+  );
+  expect(await ui.publicButton.find()).toBeInTheDocument();
+  expect(ui.internalButton.query()).not.toBeInTheDocument();
+  await user.click(ui.showInternal.get());
+  expect(ui.publicButton.get()).toBeInTheDocument();
+  expect(ui.publicButton.get()).not.toHaveTextContent('internal');
+  expect(ui.internalButton.get()).toBeInTheDocument();
+  expect(ui.internalButton.get()).toHaveTextContent('internal');
+
+  await user.click(
+    ui.apiSidebarItem.getAll().find((el) => el.textContent?.includes('POST')) as HTMLElement,
+  );
+  expect(ui.publicButton.get()).toBeInTheDocument();
+  expect(ui.publicButton.get()).not.toHaveTextContent('internal');
+  expect(ui.internalButton.get()).toBeInTheDocument();
+  expect(ui.internalButton.get()).toHaveTextContent('internal');
+  await user.click(ui.showInternal.get());
+  expect(await ui.publicButton.find()).toBeInTheDocument();
+  expect(ui.internalButton.query()).not.toBeInTheDocument();
 });
 
 it('should navigate between apis', async () => {

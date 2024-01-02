@@ -20,11 +20,12 @@
 import { Accordion, Badge, SubHeading, SubTitle, TextMuted } from 'design-system';
 import { groupBy } from 'lodash';
 import { OpenAPIV3 } from 'openapi-types';
-import React from 'react';
+import React, { useContext } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { translate } from '../../../helpers/l10n';
-import { ExcludeReferences } from '../types';
+import { ExcludeReferences, InternalExtension } from '../types';
 import { mapOpenAPISchema } from '../utils';
+import ApiFilterContext from './ApiFilterContext';
 import ApiRequestBodyParameters from './ApiRequestParameters';
 import ApiResponseSchema from './ApiResponseSchema';
 
@@ -32,8 +33,9 @@ interface Props {
   data: ExcludeReferences<OpenAPIV3.OperationObject>;
 }
 
-export default function ApiParameters({ data }: Props) {
+export default function ApiParameters({ data }: Readonly<Props>) {
   const [openParameters, setOpenParameters] = React.useState<string[]>([]);
+  const { showInternal } = useContext(ApiFilterContext);
 
   const toggleParameter = (name: string) => {
     if (openParameters.includes(name)) {
@@ -54,85 +56,97 @@ export default function ApiParameters({ data }: Props) {
   return (
     <>
       <SubTitle>{translate('api_documentation.v2.parameter_header')}</SubTitle>
-      {Object.entries(groupBy(data.parameters, (p) => p.in)).map(([group, parameters]) => (
-        <div key={group}>
-          <SubHeading id={`api-parameters-${group}`}>
-            {translate(`api_documentation.v2.request_subheader.${group}`)}
-          </SubHeading>
-          <ul aria-labelledby={`api-parameters-${group}`}>
-            {parameters.map((parameter) => {
-              return (
-                <Accordion
-                  className="sw-mt-2 sw-mb-4"
-                  key={parameter.name}
-                  header={
-                    <div>
-                      {parameter.name}{' '}
-                      {parameter.schema && (
+      {Object.entries(groupBy(data.parameters, (p) => p.in)).map(
+        ([group, parameters]: [
+          string,
+          ExcludeReferences<Array<OpenAPIV3.ParameterObject & InternalExtension>>,
+        ]) => (
+          <div key={group}>
+            <SubHeading id={`api-parameters-${group}`}>
+              {translate(`api_documentation.v2.request_subheader.${group}`)}
+            </SubHeading>
+            <ul aria-labelledby={`api-parameters-${group}`}>
+              {parameters
+                .filter((parameter) => showInternal || !parameter['x-internal'])
+                .map((parameter) => {
+                  return (
+                    <Accordion
+                      className="sw-mt-2 sw-mb-4"
+                      key={parameter.name}
+                      header={
+                        <div>
+                          {parameter.name}{' '}
+                          {parameter.schema && (
+                            <TextMuted
+                              className="sw-inline sw-ml-2"
+                              text={getSchemaType(parameter.schema)}
+                            />
+                          )}
+                          {parameter.required && (
+                            <Badge className="sw-ml-2">{translate('required')}</Badge>
+                          )}
+                          {parameter.deprecated && (
+                            <Badge variant="deleted" className="sw-ml-2">
+                              {translate('deprecated')}
+                            </Badge>
+                          )}
+                          {parameter['x-internal'] && (
+                            <Badge variant="new" className="sw-ml-2">
+                              {translate('internal')}
+                            </Badge>
+                          )}
+                        </div>
+                      }
+                      data={parameter.name}
+                      onClick={toggleParameter}
+                      open={openParameters.includes(parameter.name)}
+                    >
+                      <div>{parameter.description}</div>
+                      {parameter.schema?.enum && (
+                        <div className="sw-mt-2">
+                          <FormattedMessage
+                            id="api_documentation.v2.enum_description"
+                            values={{
+                              values: (
+                                <div className="sw-body-sm-highlight">
+                                  {parameter.schema.enum.join(', ')}
+                                </div>
+                              ),
+                            }}
+                          />
+                        </div>
+                      )}
+                      {parameter.schema?.maximum && (
                         <TextMuted
-                          className="sw-inline sw-ml-2"
-                          text={getSchemaType(parameter.schema)}
+                          className="sw-mt-2 sw-block"
+                          text={`${translate('max')}: ${parameter.schema?.maximum}`}
                         />
                       )}
-                      {parameter.required && (
-                        <Badge className="sw-ml-2">{translate('required')}</Badge>
+                      {typeof parameter.schema?.minimum === 'number' && (
+                        <TextMuted
+                          className="sw-mt-2 sw-block"
+                          text={`${translate('min')}: ${parameter.schema?.minimum}`}
+                        />
                       )}
-                      {parameter.deprecated && (
-                        <Badge variant="deleted" className="sw-ml-2">
-                          {translate('deprecated')}
-                        </Badge>
+                      {parameter.example !== undefined && (
+                        <TextMuted
+                          className="sw-mt-2 sw-block"
+                          text={`${translate('example')}: ${parameter.example}`}
+                        />
                       )}
-                    </div>
-                  }
-                  data={parameter.name}
-                  onClick={toggleParameter}
-                  open={openParameters.includes(parameter.name)}
-                >
-                  <div>{parameter.description}</div>
-                  {parameter.schema?.enum && (
-                    <div className="sw-mt-2">
-                      <FormattedMessage
-                        id="api_documentation.v2.enum_description"
-                        values={{
-                          values: (
-                            <div className="sw-body-sm-highlight">
-                              {parameter.schema.enum.join(', ')}
-                            </div>
-                          ),
-                        }}
-                      />
-                    </div>
-                  )}
-                  {parameter.schema?.maximum && (
-                    <TextMuted
-                      className="sw-mt-2 sw-block"
-                      text={`${translate('max')}: ${parameter.schema?.maximum}`}
-                    />
-                  )}
-                  {typeof parameter.schema?.minimum === 'number' && (
-                    <TextMuted
-                      className="sw-mt-2 sw-block"
-                      text={`${translate('min')}: ${parameter.schema?.minimum}`}
-                    />
-                  )}
-                  {parameter.example !== undefined && (
-                    <TextMuted
-                      className="sw-mt-2 sw-block"
-                      text={`${translate('example')}: ${parameter.example}`}
-                    />
-                  )}
-                  {parameter.schema?.default !== undefined && (
-                    <TextMuted
-                      className="sw-mt-2 sw-block"
-                      text={`${translate('default')}: ${parameter.schema?.default}`}
-                    />
-                  )}
-                </Accordion>
-              );
-            })}
-          </ul>
-        </div>
-      ))}
+                      {parameter.schema?.default !== undefined && (
+                        <TextMuted
+                          className="sw-mt-2 sw-block"
+                          text={`${translate('default')}: ${parameter.schema?.default}`}
+                        />
+                      )}
+                    </Accordion>
+                  );
+                })}
+            </ul>
+          </div>
+        ),
+      )}
       {!requestBody && !data.parameters?.length && <TextMuted text={translate('no_data')} />}
       {requestBody && (
         <div>

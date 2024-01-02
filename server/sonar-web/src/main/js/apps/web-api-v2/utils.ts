@@ -72,23 +72,6 @@ export const dereferenceSchema = (
   return dereferenceRecursive(document) as ExcludeReferences<OpenAPIV3.Document>;
 };
 
-export const getMethodClassName = (method: string): string => {
-  switch (method.toLowerCase()) {
-    case 'get':
-      return 'sw-bg-green-200';
-    case 'delete':
-      return 'sw-bg-red-200';
-    case 'post':
-      return 'sw-bg-blue-200';
-    case 'put':
-      return 'sw-bg-purple-200';
-    case 'patch':
-      return 'sw-bg-yellow-200';
-    default:
-      return 'sw-bg-gray-200';
-  }
-};
-
 export const getResponseCodeClassName = (code: string): string => {
   switch (code[0]) {
     case '1':

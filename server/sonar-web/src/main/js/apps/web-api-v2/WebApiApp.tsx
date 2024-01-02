@@ -20,16 +20,18 @@
 import styled from '@emotion/styled';
 import { LargeCenteredLayout, PageContentFontWrapper, Spinner, Title } from 'design-system';
 import { omit } from 'lodash';
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useLocation } from 'react-router-dom';
 import { translate } from '../../helpers/l10n';
 import { useOpenAPI } from '../../queries/web-api';
+import ApiFilterContext from './components/ApiFilterContext';
 import ApiInformation from './components/ApiInformation';
 import ApiSidebar from './components/ApiSidebar';
 import { URL_DIVIDER, dereferenceSchema } from './utils';
 
 export default function WebApiApp() {
+  const [showInternal, setShowInternal] = useState(false);
   const { data, isLoading } = useOpenAPI();
   const location = useLocation();
   const activeApi = location.hash.replace('#', '').split(URL_DIVIDER);
@@ -53,51 +55,61 @@ export default function WebApiApp() {
     activeApi.length > 1 &&
     apis.find((api) => api.name === activeApi[0] && api.method === activeApi[1]);
 
+  const contextValue = useMemo(
+    () => ({
+      showInternal,
+      setShowInternal,
+    }),
+    [showInternal],
+  );
+
   return (
-    <LargeCenteredLayout>
-      <PageContentFontWrapper className="sw-body-sm">
-        <Helmet defer={false} title={translate('api_documentation.page')} />
-        <Spinner loading={isLoading}>
-          {data && (
-            <div className="sw-w-full sw-flex">
-              <NavContainer aria-label={translate('api_documentation.page')} className="sw--mx-2">
-                <div className="sw-w-[300px] lg:sw-w-[390px] sw-mx-2">
-                  <ApiSidebar
-                    docInfo={data.info}
-                    apisList={apis.map(({ name, method, info }) => ({
-                      method,
-                      name,
-                      info,
-                    }))}
-                  />
-                </div>
-              </NavContainer>
-              <main
-                className="sw-relative sw-ml-12 sw-flex-1 sw-overflow-y-auto sw-py-6"
-                style={{ height: 'calc(100vh - 160px)' }}
-              >
-                <Spinner loading={isLoading}>
-                  {!activeData && (
-                    <>
-                      <Title>{translate('about')}</Title>
-                      <p>{data.info.description}</p>
-                    </>
-                  )}
-                  {data && activeData && (
-                    <ApiInformation
-                      apiUrl={data.servers?.[0]?.url ?? ''}
-                      name={activeData.name}
-                      data={activeData.info}
-                      method={activeData.method}
+    <ApiFilterContext.Provider value={contextValue}>
+      <LargeCenteredLayout>
+        <PageContentFontWrapper className="sw-body-sm">
+          <Helmet defer={false} title={translate('api_documentation.page')} />
+          <Spinner loading={isLoading}>
+            {data && (
+              <div className="sw-w-full sw-flex">
+                <NavContainer aria-label={translate('api_documentation.page')} className="sw--mx-2">
+                  <div className="sw-w-[300px] lg:sw-w-[390px] sw-mx-2">
+                    <ApiSidebar
+                      docInfo={data.info}
+                      apisList={apis.map(({ name, method, info }) => ({
+                        method,
+                        name,
+                        info,
+                      }))}
                     />
-                  )}
-                </Spinner>
-              </main>
-            </div>
-          )}
-        </Spinner>
-      </PageContentFontWrapper>
-    </LargeCenteredLayout>
+                  </div>
+                </NavContainer>
+                <main
+                  className="sw-relative sw-ml-12 sw-flex-1 sw-overflow-y-auto sw-py-6"
+                  style={{ height: 'calc(100vh - 160px)' }}
+                >
+                  <Spinner loading={isLoading}>
+                    {!activeData && (
+                      <>
+                        <Title>{translate('about')}</Title>
+                        <p>{data.info.description}</p>
+                      </>
+                    )}
+                    {data && activeData && (
+                      <ApiInformation
+                        apiUrl={data.servers?.[0]?.url ?? ''}
+                        name={activeData.name}
+                        data={activeData.info}
+                        method={activeData.method}
+                      />
+                    )}
+                  </Spinner>
+                </main>
+              </div>
+            )}
+          </Spinner>
+        </PageContentFontWrapper>
+      </LargeCenteredLayout>
+    </ApiFilterContext.Provider>
   );
 }
 

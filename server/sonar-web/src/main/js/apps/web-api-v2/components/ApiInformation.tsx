@@ -17,18 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import classNames from 'classnames';
 import { Badge, SubHeading, Title } from 'design-system';
 import { OpenAPIV3 } from 'openapi-types';
 import React from 'react';
 import { translate } from '../../../helpers/l10n';
-import { ExcludeReferences } from '../types';
-import { getApiEndpointKey, getMethodClassName } from '../utils';
+import { ExcludeReferences, InternalExtension } from '../types';
+import { getApiEndpointKey } from '../utils';
 import ApiParameters from './ApiParameters';
 import ApiResponses from './ApiResponses';
+import RestMethodPill from './RestMethodPill';
 
 interface Props {
-  data: ExcludeReferences<OpenAPIV3.OperationObject<{ 'x-internal'?: 'true' }>>;
+  data: ExcludeReferences<OpenAPIV3.OperationObject<InternalExtension>>;
   apiUrl: string;
   name: string;
   method: string;
@@ -39,10 +39,8 @@ export default function ApiInformation({ name, data, method, apiUrl }: Readonly<
     <>
       {data.summary && <Title>{data.summary}</Title>}
       <SubHeading>
-        <Badge className={classNames('sw-align-middle sw-mr-4', getMethodClassName(method))}>
-          {method}
-        </Badge>
-        {apiUrl.replace(/.*(?=\/api)/, '') + name}
+        <RestMethodPill method={method} />
+        <span className="sw-ml-4">{apiUrl.replace(/.*(?=\/api)/, '') + name}</span>
         {data['x-internal'] && (
           <Badge variant="new" className="sw-ml-3">
             {translate('internal')}
