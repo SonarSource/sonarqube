@@ -110,7 +110,7 @@ function AcceptedIssuesPanel(props: Readonly<AcceptedIssuesPanelProps>) {
                   metric={MetricKey.high_impact_accepted_issues}
                   value={formatMeasure(acceptedWithHighImpactCount, MetricType.ShortInteger)}
                   header={intl.formatMessage({
-                    id: `metric.${MetricKey.high_impact_accepted_issues}.name`,
+                    id: 'overview.high_impact_accepted_issues',
                   })}
                   url={acceptedIssuesWithHighImpactUrl}
                   icon={<HighImpactCircleIcon className="sw--translate-y-3" />}
