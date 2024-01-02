@@ -32,7 +32,13 @@ interface Props {
 export default function TypeHelper(props: Props) {
   return (
     <span className={props.className}>
-      <IssueTypeIcon className="sw-mr-1" type={props.type} fill={props.iconFill} />
+      <IssueTypeIcon
+        className="sw-mr-1"
+        type={props.type}
+        fill={props.iconFill}
+        height={12}
+        width={12}
+      />
       {translate('issue.type', props.type)}
     </span>
   );

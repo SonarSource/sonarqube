@@ -241,7 +241,7 @@ export default class RuleListItem extends React.PureComponent<Props> {
               )}
             </div>
 
-            <ul className="sw-flex sw-gap-2 sw-items-center sw-body-xs">
+            <TextSubdued as="ul" className="sw-flex sw-gap-1 sw-items-center sw-body-xs">
               <li>{rule.langName}</li>
 
               <SeparatorCircleIcon aria-hidden as="li" />
@@ -260,13 +260,11 @@ export default class RuleListItem extends React.PureComponent<Props> {
                     },
                   ]}
                 >
-                  <TextSubdued className="sw-whitespace-nowrap">
-                    <TypeHelper
-                      className="sw-flex sw-items-center"
-                      iconFill="iconTypeDisabled"
-                      type={rule.type}
-                    />
-                  </TextSubdued>
+                  <TypeHelper
+                    className="sw-flex sw-items-center"
+                    iconFill="iconTypeDisabled"
+                    type={rule.type}
+                  />
                 </DocumentationTooltip>
               </li>
 
@@ -305,7 +303,7 @@ export default class RuleListItem extends React.PureComponent<Props> {
                   </li>
                 </>
               )}
-            </ul>
+            </TextSubdued>
 
             <div className="sw-flex sw-items-center">{this.renderActions()}</div>
           </div>

@@ -52,7 +52,7 @@ export default function IssueMetaBar(props: Readonly<Props>) {
     'sw-body-xs sw-overflow-hidden sw-whitespace-nowrap sw-max-w-abs-150';
 
   return (
-    <ul className="sw-flex sw-items-center sw-gap-2 sw-body-xs">
+    <ul className="sw-flex sw-items-center sw-gap-1 sw-body-xs">
       {issue.quickFixAvailable && (
         <>
           <li className={issueMetaListItemClassNames}>
@@ -133,11 +133,11 @@ export default function IssueMetaBar(props: Readonly<Props>) {
 
       <SeparatorCircleIcon aria-hidden as="li" />
 
-      <IssueType issue={issue} />
+      <IssueType issue={issue} height={12} width={12} />
 
       <SeparatorCircleIcon data-guiding-id="issue-4" aria-hidden as="li" />
 
-      <IssueSeverity issue={issue} />
+      <IssueSeverity issue={issue} height={12} width={12} />
     </ul>
   );
 }

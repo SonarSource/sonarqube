@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { TextSubdued } from 'design-system';
+import { IconProps, TextSubdued } from 'design-system';
 import * as React from 'react';
 import { translate } from '../../../helpers/l10n';
 import { Issue } from '../../../types/types';
@@ -26,11 +26,11 @@ import DocumentationTooltip from '../../common/DocumentationTooltip';
 import IssueTypeIcon from '../../icon-mappers/IssueTypeIcon';
 import { DeprecatedFieldTooltip } from './DeprecatedFieldTooltip';
 
-interface Props {
+interface Props extends IconProps {
   issue: Pick<Issue, 'type'>;
 }
 
-export default function IssueType({ issue }: Readonly<Props>) {
+export default function IssueType({ issue, ...iconProps }: Readonly<Props>) {
   return (
     <DocumentationTooltip
       content={<DeprecatedFieldTooltip field="type" />}
@@ -42,7 +42,7 @@ export default function IssueType({ issue }: Readonly<Props>) {
       ]}
     >
       <TextSubdued className="sw-flex sw-items-center sw-gap-1/2">
-        <IssueTypeIcon fill="iconTypeDisabled" type={issue.type} aria-hidden />
+        <IssueTypeIcon fill="iconTypeDisabled" type={issue.type} aria-hidden {...iconProps} />
         {translate('issue.type', issue.type)}
       </TextSubdued>
     </DocumentationTooltip>

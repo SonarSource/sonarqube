@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { TextSubdued } from 'design-system';
+import { IconProps, TextSubdued } from 'design-system';
 import * as React from 'react';
 import { translate } from '../../../helpers/l10n';
 import { IssueSeverity as IssueSeverityType } from '../../../types/issues';
@@ -27,11 +27,11 @@ import DocumentationTooltip from '../../common/DocumentationTooltip';
 import IssueSeverityIcon from '../../icon-mappers/IssueSeverityIcon';
 import { DeprecatedFieldTooltip } from './DeprecatedFieldTooltip';
 
-interface Props {
+interface Props extends IconProps {
   issue: Pick<Issue, 'severity'>;
 }
 
-export default function IssueSeverity({ issue }: Readonly<Props>) {
+export default function IssueSeverity({ issue, ...iconProps }: Readonly<Props>) {
   return (
     <DocumentationTooltip
       content={<DeprecatedFieldTooltip field="severity" />}
@@ -47,6 +47,7 @@ export default function IssueSeverity({ issue }: Readonly<Props>) {
           fill="iconSeverityDisabled"
           severity={issue.severity as IssueSeverityType}
           aria-hidden
+          {...iconProps}
         />
         {translate('severity', issue.severity)}
       </TextSubdued>
