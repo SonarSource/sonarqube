@@ -235,5 +235,5 @@ it('should map open api response schema', () => {
       type: 'string',
       enum: ['GREEN', 'YELLOW', 'RED'],
     }),
-  ).toStrictEqual(['GREEN', 'YELLOW', 'RED']);
+  ).toStrictEqual('Enum (string): GREEN, YELLOW, RED');
 });

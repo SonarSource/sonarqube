@@ -34,7 +34,7 @@ interface Props {
   noCopy?: boolean;
   render?: string;
   snippet: string | Array<string | undefined>;
-  wrap?: boolean;
+  wrap?: boolean | 'words';
 }
 
 // keep this "useless" concatenation for the readability reason

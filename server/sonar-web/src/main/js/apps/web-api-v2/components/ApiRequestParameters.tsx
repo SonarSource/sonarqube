@@ -22,6 +22,7 @@ import { Accordion, Badge, TextMuted } from 'design-system';
 import { isEmpty } from 'lodash';
 import { OpenAPIV3 } from 'openapi-types';
 import React from 'react';
+import { FormattedMessage } from 'react-intl';
 import { translate } from '../../../helpers/l10n';
 import { ExcludeReferences } from '../types';
 
@@ -86,6 +87,16 @@ export default function ApiRequestBodyParameters({ content }: Readonly<Props>) {
             open={openParameters.includes(key)}
           >
             <div>{parameters[key].description}</div>
+            {parameters[key].enum && (
+              <div className="sw-mt-2">
+                <FormattedMessage
+                  id="api_documentation.v2.enum_description"
+                  values={{
+                    values: <i>{parameters[key].enum?.join(', ')}</i>,
+                  }}
+                />
+              </div>
+            )}
             {parameters[key].maxLength && (
               <TextMuted
                 className="sw-mt-2 sw-block"

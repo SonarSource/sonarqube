@@ -43,7 +43,7 @@ interface Props {
   className?: string;
   htmlAsString: string;
   language?: string;
-  wrap?: boolean;
+  wrap?: boolean | 'words';
 }
 
 const CODE_REGEXP = '<(code|pre)\\b([^>]*?)>(.+?)<\\/\\1>';
@@ -93,7 +93,11 @@ export function CodeSyntaxHighlighter(props: Props) {
 
   return (
     <StyledSpan
-      className={classNames(`hljs ${className ?? ''}`, { 'code-wrap': wrap })}
+      className={classNames(
+        `hljs ${className ?? ''}`,
+        { 'code-wrap': wrap },
+        { 'wrap-words': wrap === 'words' },
+      )}
       // Safe: value is escaped by highlight.js
       // eslint-disable-next-line react/no-danger
       dangerouslySetInnerHTML={{ __html: highlightedHtmlAsString }}
@@ -153,6 +157,11 @@ const StyledSpan = styled.span`
   &.code-wrap {
     ${tw`sw-whitespace-pre-wrap`}
     ${tw`sw-break-all`}
+
+    &.wrap-words {
+      word-break: normal;
+      ${tw`sw-break-words`}
+    }
   }
 
   mark {

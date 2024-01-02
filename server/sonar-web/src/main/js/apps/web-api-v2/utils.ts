@@ -36,8 +36,8 @@ export const mapOpenAPISchema = (
   if (schema.type === 'array') {
     return [mapOpenAPISchema(schema.items)];
   }
-  if (schema.type === 'string' && schema.enum) {
-    return schema.enum as ConvertedSchema;
+  if (schema.enum) {
+    return `Enum (${schema.type}): ${(schema.enum as ConvertedSchema[]).join(', ')}`;
   }
   if (schema.format) {
     return `${schema.type} (${schema.format})`;

@@ -22,6 +22,7 @@ import { Accordion, Badge, SubHeading, SubTitle, TextMuted } from 'design-system
 import { groupBy } from 'lodash';
 import { OpenAPIV3 } from 'openapi-types';
 import React from 'react';
+import { FormattedMessage } from 'react-intl';
 import { translate } from '../../../helpers/l10n';
 import { ExcludeReferences } from '../types';
 import { mapOpenAPISchema } from '../utils';
@@ -89,6 +90,20 @@ export default function ApiParameters({ data }: Props) {
                   open={openParameters.includes(parameter.name)}
                 >
                   <div>{parameter.description}</div>
+                  {parameter.schema?.enum && (
+                    <div className="sw-mt-2">
+                      <FormattedMessage
+                        id="api_documentation.v2.enum_description"
+                        values={{
+                          values: (
+                            <div className="sw-body-sm-highlight">
+                              {parameter.schema.enum.join(', ')}
+                            </div>
+                          ),
+                        }}
+                      />
+                    </div>
+                  )}
                   {parameter.schema?.maximum && (
                     <TextMuted
                       className="sw-mt-2 sw-block"

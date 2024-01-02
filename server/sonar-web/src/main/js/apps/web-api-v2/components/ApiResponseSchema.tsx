@@ -29,7 +29,7 @@ interface Props extends Omit<HtmlHTMLAttributes<HTMLDivElement>, 'content'> {
   content?: Exclude<ExcludeReferences<OpenAPIV3.ResponseObject>['content'], undefined>;
 }
 
-export default function ApiResponseSchema(props: Props) {
+export default function ApiResponseSchema(props: Readonly<Props>) {
   const { content, ...other } = props;
   const schema =
     content &&
@@ -43,7 +43,7 @@ export default function ApiResponseSchema(props: Props) {
       language="json"
       className="sw-p-6"
       snippet={JSON.stringify(mapOpenAPISchema(schema), null, 2)}
-      wrap
+      wrap="words"
       {...other}
     />
   );

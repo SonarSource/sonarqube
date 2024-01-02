@@ -155,7 +155,9 @@ it('should navigate between apis', async () => {
   expect(ui.requestHeader.query()).not.toBeInTheDocument();
   expect(ui.requestBody.query()).not.toBeInTheDocument();
   expect(ui.queryParameter.getAll()).toHaveLength(1);
-  expect(ui.queryParameter.getAt(0)).toHaveTextContent('status ["available","pending","sold"]');
+  expect(ui.queryParameter.getAt(0)).toHaveTextContent(
+    'status Enum (string): available, pending, sold',
+  );
   expect(ui.queryParameter.getAt(0)).not.toHaveTextContent('default: available');
   await user.click(ui.queryParameter.byRole('button').getAt(0));
   expect(ui.queryParameter.getAt(0)).toHaveTextContent('default: available');
