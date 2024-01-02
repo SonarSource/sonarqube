@@ -17,12 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import {
+  Avatar,
+  ContentCell,
+  InteractiveIcon,
+  MenuIcon,
+  Spinner,
+  TableRow,
+  Tooltip,
+} from 'design-system';
 import * as React from 'react';
-import { ButtonIcon } from '../../../components/controls/buttons';
-import BulletListIcon from '../../../components/icons/BulletListIcon';
 import DateFromNow from '../../../components/intl/DateFromNow';
-import LegacyAvatar from '../../../components/ui/LegacyAvatar';
-import Spinner from '../../../components/ui/Spinner';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { useUserGroupsCountQuery, useUserTokensQuery } from '../../../queries/users';
 import { IdentityProvider, Provider } from '../../../types/types';
@@ -56,61 +61,63 @@ export default function UserListItem(props: UserListItemProps) {
   const { data: groupsCount, isLoading: groupsAreLoading } = useUserGroupsCountQuery(login);
 
   return (
-    <tr>
-      <td className="thin text-middle">
+    <TableRow>
+      <ContentCell>
         <div className="sw-flex sw-items-center">
-          <LegacyAvatar className="sw-shrink-0 sw-mr-4" hash={avatar} name={name} size={36} />
+          <Avatar className="sw-shrink-0 sw-mr-4" hash={avatar} name={name} size="md" />
           <UserListItemIdentity
             identityProvider={identityProvider}
             user={user}
             manageProvider={manageProvider}
           />
         </div>
-      </td>
-      <td className="thin text-middle">
+      </ContentCell>
+      <ContentCell>
         <UserScmAccounts scmAccounts={scmAccounts || []} />
-      </td>
-      <td className="thin nowrap text-middle">
+      </ContentCell>
+      <ContentCell>
         <DateFromNow date={sonarQubeLastConnectionDate ?? ''} hourPrecision />
-      </td>
-      <td className="thin nowrap text-middle">
+      </ContentCell>
+      <ContentCell>
         <DateFromNow date={sonarLintLastConnectionDate ?? ''} hourPrecision />
-      </td>
-      <td className="thin nowrap text-middle">
+      </ContentCell>
+      <ContentCell>
         <Spinner loading={groupsAreLoading}>
           {groupsCount}
           {manageProvider === undefined && (
-            <ButtonIcon
-              aria-label={translateWithParameters('users.update_users_groups', user.login)}
-              className="js-user-groups spacer-left button-small"
-              onClick={() => setOpenGroupForm(true)}
-              tooltip={translate('users.update_groups')}
-            >
-              <BulletListIcon />
-            </ButtonIcon>
+            <Tooltip overlay={translate('users.update_groups')}>
+              <InteractiveIcon
+                Icon={MenuIcon}
+                className="it__user-groups sw-ml-2"
+                aria-label={translateWithParameters('users.update_users_groups', user.login)}
+                onClick={() => setOpenGroupForm(true)}
+                size="small"
+              />
+            </Tooltip>
           )}
         </Spinner>
-      </td>
-      <td className="thin nowrap text-middle">
+      </ContentCell>
+      <ContentCell>
         <Spinner loading={tokensAreLoading}>
           {tokens?.length}
-          <ButtonIcon
-            className="js-user-tokens spacer-left button-small"
-            onClick={() => setOpenTokenForm(true)}
-            tooltip={translateWithParameters('users.update_tokens')}
-            aria-label={translateWithParameters('users.update_tokens_for_x', name ?? login)}
-          >
-            <BulletListIcon />
-          </ButtonIcon>
+          <Tooltip overlay={translateWithParameters('users.update_tokens')}>
+            <InteractiveIcon
+              Icon={MenuIcon}
+              className="it__user-tokens sw-ml-2"
+              aria-label={translateWithParameters('users.update_tokens_for_x', name ?? login)}
+              onClick={() => setOpenTokenForm(true)}
+              size="small"
+            />
+          </Tooltip>
         </Spinner>
-      </td>
+      </ContentCell>
 
-      <td className="thin nowrap text-right text-middle">
+      <ContentCell>
         <UserActions user={user} manageProvider={manageProvider} />
-      </td>
+      </ContentCell>
 
       {openTokenForm && <TokensFormModal onClose={() => setOpenTokenForm(false)} user={user} />}
       {openGroupForm && <GroupsForm onClose={() => setOpenGroupForm(false)} user={user} />}
-    </tr>
+    </TableRow>
   );
 }

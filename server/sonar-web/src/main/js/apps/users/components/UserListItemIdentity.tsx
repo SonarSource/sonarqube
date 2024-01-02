@@ -17,7 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { getTextColor } from 'design-system';
+
+import { Badge, Note, getTextColor } from 'design-system';
 import * as React from 'react';
 import { colors } from '../../../app/theme';
 import { translate } from '../../../helpers/l10n';
@@ -34,17 +35,15 @@ export interface Props {
 export default function UserListItemIdentity({ identityProvider, user, manageProvider }: Props) {
   return (
     <div>
-      <div>
-        <strong className="js-user-name">{user.name}</strong>
-        <span className="js-user-login note little-spacer-left">{user.login}</span>
+      <div className="sw-flex sw-flex-col">
+        <strong className="it__user-name sw-body-sm-highlight">{user.name}</strong>
+        <Note className="it__user-login">{user.login}</Note>
       </div>
-      {user.email && <div className="js-user-email little-spacer-top">{user.email}</div>}
+      {user.email && <div className="it__user-email sw-mt-1">{user.email}</div>}
       {!user.local && user.externalProvider !== 'sonarqube' && (
         <ExternalProvider identityProvider={identityProvider} user={user} />
       )}
-      {!user.managed && manageProvider !== undefined && (
-        <span className="badge">{translate('local')}</span>
-      )}
+      {!user.managed && manageProvider !== undefined && <Badge>{translate('local')}</Badge>}
     </div>
   );
 }
@@ -52,7 +51,7 @@ export default function UserListItemIdentity({ identityProvider, user, managePro
 export function ExternalProvider({ identityProvider, user }: Omit<Props, 'manageProvider'>) {
   if (!identityProvider) {
     return (
-      <div className="js-user-identity-provider little-spacer-top">
+      <div className="it__user-identity-provider sw-mt-1">
         <span>
           {user.externalProvider}: {user.externalLogin}
         </span>
@@ -61,9 +60,8 @@ export function ExternalProvider({ identityProvider, user }: Omit<Props, 'manage
   }
 
   return (
-    <div className="js-user-identity-provider little-spacer-top">
+    <div className="it__user-identity-provider sw-mt-1">
       <div
-        className="identity-provider"
         style={{
           backgroundColor: identityProvider.backgroundColor,
           color: getTextColor(identityProvider.backgroundColor, colors.secondFontColor),
@@ -71,7 +69,7 @@ export function ExternalProvider({ identityProvider, user }: Omit<Props, 'manage
       >
         <img
           alt={identityProvider.name}
-          className="little-spacer-right"
+          className="sw-mr-1"
           height="14"
           src={getBaseUrl() + identityProvider.iconPath}
           width="14"

@@ -147,6 +147,7 @@ export default function UsersApp() {
         loadMore={fetchNextPage}
         ready={!isLoading}
         total={data?.pages[0].page.total}
+        useMIUIButtons
       />
     </main>
   );

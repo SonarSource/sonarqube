@@ -52,7 +52,7 @@ const ui = {
   aliceUpdateGroupButton: byRole('button', { name: 'users.update_users_groups.alice.merveille' }),
   aliceUpdateButton: byRole('button', { name: 'users.manage_user.alice.merveille' }),
   denisUpdateButton: byRole('button', { name: 'users.manage_user.denis.villeneuve' }),
-  alicedDeactivateButton: byRole('button', { name: 'users.deactivate' }),
+  alicedDeactivateButton: byRole('menuitem', { name: 'users.deactivate' }),
   bobUpdateGroupButton: byRole('button', { name: 'users.update_users_groups.bob.marley' }),
   bobUpdateButton: byRole('button', { name: 'users.manage_user.bob.marley' }),
   scmAddButton: byRole('button', { name: 'add_verb' }),
@@ -70,31 +70,34 @@ const ui = {
       name: `remove_x.users.create_user.scm_account_${value ? `x.${value}` : 'new'}`,
     }),
   userRows: byRole('row', {
-    name: (accessibleName) => /^[A-Z]+ /.test(accessibleName),
+    name: (accessibleName) => /^[A-Z]+[a-z]*/.test(accessibleName),
   }),
   aliceRow: byRole('row', {
-    name: (accessibleName) => accessibleName.startsWith('AM Alice Merveille alice.merveille '),
+    name: (accessibleName) =>
+      accessibleName.startsWith('Alice Merveille Alice Merveille alice.merveille '),
   }),
   aliceRowWithLocalBadge: byRole('row', {
     name: (accessibleName) =>
       accessibleName.startsWith(
-        'AM Alice Merveille alice.merveille alice.merveille@wonderland.com local ',
+        'Alice Merveille Alice Merveille alice.merveille alice.merveille@wonderland.com local ',
       ),
   }),
   bobRow: byRole('row', {
-    name: (accessibleName) => accessibleName.startsWith('BM Bob Marley bob.marley '),
+    name: (accessibleName) => accessibleName.startsWith('Bob Marley Bob Marley bob.marley '),
   }),
   charlieRow: byRole('row', {
-    name: (accessibleName) => accessibleName.startsWith('CC Charlie Cox charlie.cox'),
+    name: (accessibleName) => accessibleName.startsWith('Charlie Cox Charlie Cox charlie.cox'),
   }),
   denisRow: byRole('row', {
-    name: (accessibleName) => accessibleName.startsWith('DV Denis Villeneuve denis.villeneuve '),
+    name: (accessibleName) =>
+      accessibleName.startsWith('Denis Villeneuve Denis Villeneuve denis.villeneuve '),
   }),
   evaRow: byRole('row', {
-    name: (accessibleName) => accessibleName.startsWith('EG Eva Green eva.green '),
+    name: (accessibleName) => accessibleName.startsWith('Eva Green Eva Green eva.green '),
   }),
   franckRow: byRole('row', {
-    name: (accessibleName) => accessibleName.startsWith('FG Franck Grillo franck.grillo '),
+    name: (accessibleName) =>
+      accessibleName.startsWith('Franck Grillo Franck Grillo franck.grillo '),
   }),
   jackRow: byRole('row', { name: /Jack/ }),
 
@@ -338,7 +341,7 @@ describe('in non managed mode', () => {
     renderUsersApp();
 
     await user.click(await ui.aliceUpdateButton.find());
-    await user.click(await ui.aliceRow.byRole('button', { name: 'update_details' }).find());
+    await user.click(await ui.aliceRow.byRole('menuitem', { name: 'update_details' }).find());
     expect(await ui.dialogUpdateUser.find()).toBeInTheDocument();
 
     expect(ui.userNameInput.get()).toHaveValue('Alice Merveille');
@@ -357,7 +360,7 @@ describe('in non managed mode', () => {
     renderUsersApp();
 
     await user.click(await ui.aliceUpdateButton.find());
-    await user.click(await ui.aliceRow.byRole('button', { name: 'users.deactivate' }).find());
+    await user.click(await ui.aliceRow.byRole('menuitem', { name: 'users.deactivate' }).find());
     expect(await ui.dialogDeactivateUser.find()).toBeInTheDocument();
     expect(ui.deleteUserAlert.query()).not.toBeInTheDocument();
     await user.click(ui.deleteUserCheckbox.get());
@@ -375,7 +378,7 @@ describe('in non managed mode', () => {
 
     await user.click(await ui.aliceUpdateButton.find());
     await user.click(
-      await ui.aliceRow.byRole('button', { name: 'my_profile.password.title' }).find(),
+      await ui.aliceRow.byRole('menuitem', { name: 'my_profile.password.title' }).find(),
     );
     expect(await ui.dialogPasswords.find()).toBeInTheDocument();
 
@@ -427,7 +430,7 @@ describe('in non managed mode', () => {
     renderUsersApp([], currentUser);
 
     await user.click(await ui.denisUpdateButton.find());
-    await user.click(await ui.denisRow.byRole('button', { name: 'update_details' }).find());
+    await user.click(await ui.denisRow.byRole('menuitem', { name: 'update_details' }).find());
     expect(await ui.dialogUpdateUser.find()).toBeInTheDocument();
 
     expect(ui.userNameInput.get()).toHaveValue('Denis Villeneuve');
@@ -447,7 +450,7 @@ describe('in non managed mode', () => {
 
     expect(await ui.aliceRow.byText('alice.merveille@wonderland.com').find()).toBeInTheDocument();
     await user.click(await ui.aliceUpdateButton.find());
-    await user.click(await ui.aliceRow.byRole('button', { name: 'update_details' }).find());
+    await user.click(await ui.aliceRow.byRole('menuitem', { name: 'update_details' }).find());
     expect(await ui.dialogUpdateUser.find()).toBeInTheDocument();
 
     expect(ui.emailInput.get()).toHaveValue('alice.merveille@wonderland.com');
@@ -498,7 +501,7 @@ describe('in manage mode', () => {
       ui.bobRow.byRole('button', { name: 'my_profile.password.title' }).query(),
     ).not.toBeInTheDocument();
 
-    await user.click(ui.bobRow.byRole('button', { name: 'update_scm' }).get());
+    await user.click(ui.bobRow.byRole('menuitem', { name: 'update_scm' }).get());
 
     expect(ui.userNameInput.get()).toBeDisabled();
     expect(ui.emailInput.get()).toBeDisabled();
@@ -691,7 +694,7 @@ it('accessibility', async () => {
 
   // user update dialog should be accessible
   await user.click(await ui.aliceUpdateButton.find());
-  await user.click(await ui.aliceRow.byRole('button', { name: 'update_details' }).find());
+  await user.click(await ui.aliceRow.byRole('menuitem', { name: 'update_details' }).find());
   expect(await ui.dialogUpdateUser.find()).toBeInTheDocument();
   await expect(await ui.dialogUpdateUser.find()).toHaveNoA11yViolations();
   await user.click(ui.cancelButton.get());
@@ -711,7 +714,7 @@ it('accessibility', async () => {
   // user password dialog should be accessible
   await user.click(await ui.aliceUpdateButton.find());
   await user.click(
-    await ui.aliceRow.byRole('button', { name: 'my_profile.password.title' }).find(),
+    await ui.aliceRow.byRole('menuitem', { name: 'my_profile.password.title' }).find(),
   );
   expect(await ui.dialogPasswords.find()).toBeInTheDocument();
   await expect(await ui.dialogPasswords.find()).toHaveNoA11yViolations();

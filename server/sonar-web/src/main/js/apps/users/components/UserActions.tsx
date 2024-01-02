@@ -17,11 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import {
+  ActionsDropdown,
+  ItemButton,
+  ItemDangerButton,
+  ItemDivider,
+  PopupZLevel,
+} from 'design-system';
 import * as React from 'react';
-import ActionsDropdown, {
-  ActionsDropdownDivider,
-  ActionsDropdownItem,
-} from '../../../components/controls/ActionsDropdown';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { Provider } from '../../../types/types';
 import { RestUserDetailed, isUserActive } from '../../../types/users';
@@ -45,28 +49,29 @@ export default function UserActions(props: Props) {
 
   return (
     <>
-      <ActionsDropdown label={translateWithParameters('users.manage_user', user.login)}>
-        <ActionsDropdownItem className="js-user-update" onClick={() => setOpenForm('update')}>
+      <ActionsDropdown
+        id={`user-settings-action-dropdown-${user.login}`}
+        toggleClassName="it__user-actions-toggle"
+        allowResizing
+        ariaLabel={translateWithParameters('users.manage_user', user.login)}
+        zLevel={PopupZLevel.Global}
+      >
+        <ItemButton className="it__user-update" onClick={() => setOpenForm('update')}>
           {isInstanceManaged ? translate('update_scm') : translate('update_details')}
-        </ActionsDropdownItem>
+        </ItemButton>
         {!isInstanceManaged && user.local && (
-          <ActionsDropdownItem
-            className="js-user-change-password"
-            onClick={() => setOpenForm('password')}
-          >
+          <ItemButton className="it__user-change-password" onClick={() => setOpenForm('password')}>
             {translate('my_profile.password.title')}
-          </ActionsDropdownItem>
+          </ItemButton>
         )}
-
-        {isUserActive(user) && !isInstanceManaged && <ActionsDropdownDivider />}
+        {isUserActive(user) && !isInstanceManaged && <ItemDivider />}
         {isUserActive(user) && (!isInstanceManaged || isUserLocal) && (
-          <ActionsDropdownItem
-            className="js-user-deactivate"
-            destructive
+          <ItemDangerButton
+            className="it__user-deactivate"
             onClick={() => setOpenForm('deactivate')}
           >
             {translate('users.deactivate')}
-          </ActionsDropdownItem>
+          </ItemDangerButton>
         )}
       </ActionsDropdown>
       {openForm === 'deactivate' && isUserActive(user) && (

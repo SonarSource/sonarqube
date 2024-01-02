@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Link } from 'design-system';
 import * as React from 'react';
 import { translateWithParameters } from '../../../helpers/l10n';
 
@@ -42,24 +43,24 @@ export default class UserScmAccounts extends React.PureComponent<Props, State> {
     const { scmAccounts } = this.props;
     const limit = scmAccounts.length > SCM_LIMIT ? SCM_LIMIT - 1 : SCM_LIMIT;
     return (
-      <ul className="js-scm-accounts">
-        {scmAccounts.slice(0, limit).map((scmAccount, idx) => (
-          <li className="little-spacer-bottom" key={idx}>
+      <ul className="it__scm-accounts">
+        {scmAccounts.slice(0, limit).map((scmAccount) => (
+          <li className="sw-mb-1" key={scmAccount}>
             {scmAccount}
           </li>
         ))}
         {scmAccounts.length > SCM_LIMIT &&
           (this.state.showMore ? (
-            scmAccounts.slice(limit).map((scmAccount, idx) => (
-              <li className="little-spacer-bottom" key={idx + limit}>
+            scmAccounts.slice(limit).map((scmAccount) => (
+              <li className="sw-mb-1" key={scmAccount}>
                 {scmAccount}
               </li>
             ))
           ) : (
-            <li className="little-spacer-bottom">
-              <a className="js-user-more-scm" href="#" onClick={this.toggleShowMore}>
+            <li className="sw-mb-1">
+              <Link to="#" onClick={this.toggleShowMore}>
                 {translateWithParameters('more_x', scmAccounts.length - limit)}
-              </a>
+              </Link>
             </li>
           ))}
       </ul>
