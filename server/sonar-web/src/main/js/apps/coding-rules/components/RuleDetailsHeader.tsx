@@ -57,7 +57,7 @@ export default function RuleDetailsMeta(props: Readonly<Props>) {
           />
         </PageContentFontWrapper>
 
-        <div className="sw-flex sw-flex-col sw-gap-2">
+        <div className="sw-flex sw-flex-wrap sw-gap-2">
           {hasTypeData && (
             <RuleDetailsHeaderMeta
               ruleDetails={ruleDetails}

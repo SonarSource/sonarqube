@@ -62,7 +62,13 @@ export default function RuleDetailsHeaderActions(props: Readonly<Props>) {
           className="it__coding-rules-detail-property sw-flex sw-items-center sw-gap-1"
           data-meta="type"
         >
-          <IssueTypeIcon fill="iconTypeDisabled" type={ruleDetails.type} aria-hidden />
+          <IssueTypeIcon
+            fill="iconTypeDisabled"
+            type={ruleDetails.type}
+            aria-hidden
+            width={12}
+            height={12}
+          />
           {translate('issue.type', ruleDetails.type)}
         </TextSubdued>
       </DocumentationTooltip>
@@ -91,6 +97,8 @@ export default function RuleDetailsHeaderActions(props: Readonly<Props>) {
             fill="iconSeverityDisabled"
             severity={ruleDetails.severity as IssueSeverity}
             aria-hidden
+            width={12}
+            height={12}
           />
           {translate('severity', ruleDetails.severity)}
         </TextSubdued>
