@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,5 +17,4 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
 export const SHOW_STATUS_DIALOG_STORAGE_KEY = 'show_hotspot_success_status_dialog';

@@ -87,7 +87,7 @@ task "yarn_check-ci"(type: Exec) {
   commandLine osAdaptiveCommand(['npm', 'run', 'check-ci'])
 }
 
-def sources = fileTree(dir: "src") + fileTree(dir: "scripts") + fileTree(dir: "config") + fileTree(dir: "__mocks__")
+def sources = fileTree(dir: "src/main/js") + fileTree(dir: "scripts") + fileTree(dir: "config") + fileTree(dir: "eslint-local-rules") + fileTree(dir: "__mocks__") + fileTree(dir: "design-system/config") + fileTree(dir: "design-system/src") + files("file:tailwind.config.js") + files("file:jest.config.js") + files("file:tailwind.base.config.js") + files("file:tailwind.config.js") + files("file:tailwind.utilities.js")
 
 task licenseCheckWeb(type: com.hierynomus.gradle.license.tasks.LicenseCheck) {
   source = sources

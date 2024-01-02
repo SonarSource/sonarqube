@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2023 SonarSource SA
+ * Copyright (C) 2009-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { addUserToGroup, removeUserFromGroup } from '../api/legacy-group-membership';
 import { generateToken, getTokens, revokeToken } from '../api/user-tokens';
