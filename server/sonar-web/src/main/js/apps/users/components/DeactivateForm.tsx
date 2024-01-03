@@ -17,13 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import {
+  Checkbox,
+  DangerButtonPrimary,
+  FlagMessage,
+  LightPrimary,
+  Link,
+  Modal,
+} from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import DocLink from '../../../components/common/DocLink';
-import Checkbox from '../../../components/controls/Checkbox';
-import Modal from '../../../components/controls/Modal';
-import { ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
-import { Alert } from '../../../components/ui/Alert';
+import { useDocUrl } from '../../../helpers/docs';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { useDeactivateUserMutation } from '../../../queries/users';
 import { RestUserDetailed } from '../../../types/users';
@@ -32,6 +36,8 @@ export interface Props {
   onClose: () => void;
   user: RestUserDetailed;
 }
+
+const DEACTIVATE_FORM_ID = 'deactivate-user-form';
 
 export default function DeactivateForm(props: Props) {
   const { user } = props;
@@ -50,50 +56,45 @@ export default function DeactivateForm(props: Props) {
   };
 
   const header = translate('users.deactivate_user');
+  const docUrl = useDocUrl('/instance-administration/authentication/overview/');
+
   return (
-    <Modal contentLabel={header} onRequestClose={props.onClose}>
-      <form autoComplete="off" id="deactivate-user-form" onSubmit={handleDeactivate}>
-        <header className="modal-head">
-          <h2>{header}</h2>
-        </header>
-        <div className="modal-body display-flex-column">
+    <Modal
+      headerTitle={header}
+      body={
+        <form autoComplete="off" id={DEACTIVATE_FORM_ID} onSubmit={handleDeactivate}>
           {translateWithParameters('users.deactivate_user.confirmation', user.name, user.login)}
           <Checkbox
             id="delete-user"
-            className="big-spacer-top"
+            className="sw-flex sw-items-center sw-mt-4"
             checked={anonymize}
             onCheck={(checked) => setAnonymize(checked)}
           >
-            <label className="little-spacer-left" htmlFor="delete-user">
-              {translate('users.delete_user')}
-            </label>
+            <LightPrimary className="sw-ml-3">{translate('users.delete_user')}</LightPrimary>
           </Checkbox>
           {anonymize && (
-            <Alert variant="warning" className="big-spacer-top">
-              <FormattedMessage
-                defaultMessage={translate('users.delete_user.help')}
-                id="delete-user-warning"
-                values={{
-                  link: (
-                    <DocLink to="/instance-administration/authentication/overview/">
-                      {translate('users.delete_user.help.link')}
-                    </DocLink>
-                  ),
-                }}
-              />
-            </Alert>
+            <FlagMessage variant="warning" className="sw-mt-2">
+              <span>
+                <FormattedMessage
+                  defaultMessage={translate('users.delete_user.help')}
+                  id="delete-user-warning"
+                  values={{
+                    link: <Link to={docUrl}>{translate('users.delete_user.help.link')}</Link>,
+                  }}
+                />
+              </span>
+            </FlagMessage>
           )}
-        </div>
-        <footer className="modal-foot">
-          {isLoading && <i className="spinner spacer-right" />}
-          <SubmitButton className="js-confirm button-red" disabled={isLoading}>
-            {translate('users.deactivate')}
-          </SubmitButton>
-          <ResetButtonLink className="js-modal-close" onClick={props.onClose}>
-            {translate('cancel')}
-          </ResetButtonLink>
-        </footer>
-      </form>
-    </Modal>
+        </form>
+      }
+      onClose={props.onClose}
+      loading={isLoading}
+      primaryButton={
+        <DangerButtonPrimary form={DEACTIVATE_FORM_ID} disabled={isLoading} type="submit">
+          {translate('users.deactivate')}
+        </DangerButtonPrimary>
+      }
+      secondaryButtonLabel={translate('cancel')}
+    />
   );
 }

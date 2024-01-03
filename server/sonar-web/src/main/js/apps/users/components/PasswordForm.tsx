@@ -17,14 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { ButtonPrimary, FlagMessage, FormField, InputField, Modal } from 'design-system';
 import * as React from 'react';
 import { changePassword } from '../../../api/users';
 import { CurrentUserContext } from '../../../app/components/current-user/CurrentUserContext';
-import Modal from '../../../components/controls/Modal';
-import { ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
-import { Alert } from '../../../components/ui/Alert';
-import MandatoryFieldMarker from '../../../components/ui/MandatoryFieldMarker';
-import MandatoryFieldsExplanation from '../../../components/ui/MandatoryFieldsExplanation';
 import { addGlobalSuccessMessage } from '../../../helpers/globalMessages';
 import { translate } from '../../../helpers/l10n';
 import { ChangePasswordResults, RestUserDetailed, isLoggedIn } from '../../../types/users';
@@ -33,6 +29,8 @@ interface Props {
   onClose: () => void;
   user: RestUserDetailed;
 }
+
+const PASSWORD_FORM_ID = 'user-password-form';
 
 export default function PasswordForm(props: Props) {
   const { user } = props;
@@ -76,75 +74,87 @@ export default function PasswordForm(props: Props) {
   const header = translate('my_profile.password.title');
 
   return (
-    <Modal contentLabel={header} onRequestClose={props.onClose} size="small">
-      <form autoComplete="off" id="user-password-form" onSubmit={handleChangePassword}>
-        <header className="modal-head">
-          <h2>{header}</h2>
-        </header>
-        <div className="modal-body">
-          {errorTranslationKey && <Alert variant="error">{translate(errorTranslationKey)}</Alert>}
-
-          <MandatoryFieldsExplanation className="modal-field" />
+    <Modal
+      headerTitle={header}
+      body={
+        <form
+          autoComplete="off"
+          id={PASSWORD_FORM_ID}
+          className="sw-mb-2"
+          onSubmit={handleChangePassword}
+        >
+          {errorTranslationKey && (
+            <FlagMessage variant="error" className="sw-mb-4">
+              {translate(errorTranslationKey)}
+            </FlagMessage>
+          )}
 
           {isCurrentUser && (
-            <div className="modal-field">
-              <label htmlFor="old-user-password">
-                {translate('my_profile.password.old')}
-                <MandatoryFieldMarker />
-              </label>
-              {/* keep this fake field to hack browser autofill */}
-              <input className="hidden" aria-hidden name="old-password-fake" type="password" />
-              <input
+            <FormField
+              htmlFor="old-user-password"
+              label={translate('my_profile.password.old')}
+              required
+            >
+              <InputField
+                autoFocus
                 id="old-user-password"
+                maxLength={255}
                 name="old-password"
                 onChange={(event) => setOldPassword(event.currentTarget.value)}
                 required
+                size="full"
                 type="password"
                 value={oldPassword}
               />
-            </div>
+              <input className="hidden" aria-hidden name="old-password-fake" type="password" />
+            </FormField>
           )}
-          <div className="modal-field">
-            <label htmlFor="user-password">
-              {translate('my_profile.password.new')}
-              <MandatoryFieldMarker />
-            </label>
-            {/* keep this fake field to hack browser autofill */}
-            <input className="hidden" aria-hidden name="password-fake" type="password" />
-            <input
+          <FormField htmlFor="user-password" label={translate('my_profile.password.new')} required>
+            <InputField
+              autoFocus
               id="user-password"
               name="password"
               onChange={(event) => setNewPassword(event.currentTarget.value)}
               required
               type="password"
               value={newPassword}
+              maxLength={255}
+              size="full"
             />
-          </div>
-          <div className="modal-field">
-            <label htmlFor="confirm-user-password">
-              {translate('my_profile.password.confirm')}
-              <MandatoryFieldMarker />
-            </label>
-            {/* keep this fake field to hack browser autofill */}
-            <input className="hidden" aria-hidden name="confirm-password-fake" type="password" />
-            <input
+            <input className="hidden" aria-hidden name="password-fake" type="password" />
+          </FormField>
+          <FormField
+            htmlFor="confirm-user-password"
+            label={translate('my_profile.password.confirm')}
+            required
+          >
+            <InputField
+              autoFocus
               id="confirm-user-password"
               name="confirm-password"
               onChange={(event) => setConfirmPassword(event.currentTarget.value)}
               required
               type="password"
               value={confirmPassword}
+              maxLength={255}
+              size="full"
             />
-          </div>
-        </div>
-        <footer className="modal-foot">
-          {submitting && <i className="spinner spacer-right" />}
-          <SubmitButton disabled={submitting || !newPassword || newPassword !== confirmPassword}>
-            {translate('change_verb')}
-          </SubmitButton>
-          <ResetButtonLink onClick={props.onClose}>{translate('cancel')}</ResetButtonLink>
-        </footer>
-      </form>
-    </Modal>
+            <input className="hidden" aria-hidden name="confirm-password-fake" type="password" />
+          </FormField>
+        </form>
+      }
+      onClose={props.onClose}
+      loading={submitting}
+      primaryButton={
+        <ButtonPrimary
+          form={PASSWORD_FORM_ID}
+          disabled={submitting || !newPassword || newPassword !== confirmPassword}
+          type="submit"
+        >
+          {translate('change_verb')}
+        </ButtonPrimary>
+      }
+      secondaryButtonLabel={translate('cancel')}
+    />
   );
 }

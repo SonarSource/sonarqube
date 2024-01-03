@@ -17,15 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { LightPrimary, Modal, Note } from 'design-system';
 import { find, without } from 'lodash';
 import * as React from 'react';
 import { UserGroup, getUserGroups } from '../../../api/users';
-import Modal from '../../../components/controls/Modal';
 import SelectList, {
   SelectListFilter,
   SelectListSearchParams,
 } from '../../../components/controls/SelectList';
-import { ResetButtonLink } from '../../../components/controls/buttons';
 import { translate } from '../../../helpers/l10n';
 import { useAddUserToGroupMutation, useRemoveUserToGroupMutation } from '../../../queries/users';
 import { RestUserDetailed } from '../../../types/users';
@@ -88,14 +88,14 @@ export default function GroupsForm(props: Props) {
   const renderElement = (name: string): React.ReactNode => {
     const group = find(groups, { name });
     return (
-      <div className="select-list-list-item">
+      <div>
         {group === undefined ? (
           name
         ) : (
           <>
-            {group.name}
+            <LightPrimary>{group.name}</LightPrimary>
             <br />
-            <span className="note">{group.description}</span>
+            <Note>{group.description}</Note>
           </>
         )}
       </div>
@@ -105,30 +105,28 @@ export default function GroupsForm(props: Props) {
   const header = translate('users.update_groups');
 
   return (
-    <Modal contentLabel={header} onRequestClose={props.onClose}>
-      <div className="modal-head">
-        <h2>{header}</h2>
-      </div>
-
-      <div className="modal-body modal-container">
-        <SelectList
-          elements={groups.map((group) => group.name)}
-          elementsTotalCount={groupsTotalCount}
-          needToReload={
-            needToReload && lastSearchParams && lastSearchParams.filter !== SelectListFilter.All
-          }
-          onSearch={fetchUsers}
-          onSelect={handleSelect}
-          onUnselect={handleUnselect}
-          renderElement={renderElement}
-          selectedElements={selectedGroups}
-          withPaging
-        />
-      </div>
-
-      <footer className="modal-foot">
-        <ResetButtonLink onClick={props.onClose}>{translate('done')}</ResetButtonLink>
-      </footer>
-    </Modal>
+    <Modal
+      headerTitle={header}
+      body={
+        <div className="sw-pt-1">
+          <SelectList
+            elements={groups.map((group) => group.name)}
+            elementsTotalCount={groupsTotalCount}
+            needToReload={
+              needToReload && lastSearchParams && lastSearchParams.filter !== SelectListFilter.All
+            }
+            onSearch={fetchUsers}
+            onSelect={handleSelect}
+            onUnselect={handleUnselect}
+            renderElement={renderElement}
+            selectedElements={selectedGroups}
+            withPaging
+          />
+        </div>
+      }
+      onClose={props.onClose}
+      primaryButton={null}
+      secondaryButtonLabel={translate('done')}
+    />
   );
 }
