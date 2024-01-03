@@ -2,8 +2,6 @@ import groovy.json.JsonOutput
 import groovy.text.SimpleTemplateEngine
 import org.sonar.build.BlackBoxTest
 
-import static org.gradle.api.JavaVersion.VERSION_17
-
 plugins {
   // Ordered alphabetically
   id 'com.github.hierynomus.license' version '0.16.1'
@@ -15,10 +13,6 @@ plugins {
   id 'io.spring.dependency-management' version '1.1.3'
   id "org.cyclonedx.bom" version "1.7.4" apply false
   id 'org.sonarqube' version '4.4.1.3373'
-}
-
-if (!JavaVersion.current().isCompatibleWith(VERSION_17)) {
-  throw new GradleException("JDK 17+ is required to perform this build. It's currently " + System.getProperty("java.home") + ".")
 }
 
 /**
@@ -186,6 +180,12 @@ subprojects {
   apply plugin: 'java-library'
   apply plugin: 'idea'
   apply plugin: 'signing'
+
+  java {
+    toolchain {
+      languageVersion = JavaLanguageVersion.of(17)
+    }
+  }
 
   // do not deploy to Artifactory by default
   artifactoryPublish.skip = true

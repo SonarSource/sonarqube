@@ -7,6 +7,7 @@ pluginManagement {
   plugins {
     id 'com.bmuschko.docker-remote-api' version '7.3.0'
     id 'org.ajoberstar.grgit' version '4.1.1'
+    id 'org.gradle.toolchains.foojay-resolver-convention' version '0.7.0'
   }
 }
 
