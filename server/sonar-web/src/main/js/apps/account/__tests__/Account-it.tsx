@@ -316,7 +316,7 @@ describe('security page', () => {
       expect(
         await screen.findByText(`users.tokens.new_token_created.${newTokenName}`),
       ).toBeInTheDocument();
-      expect(screen.getByRole('button', { name: 'copy_to_clipboard' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Copy to clipboard' })).toBeInTheDocument();
 
       const lastTokenCreated = tokenMock.getLastToken();
       // eslint-disable-next-line jest/no-conditional-in-test

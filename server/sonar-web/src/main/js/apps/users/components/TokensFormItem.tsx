@@ -17,12 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import styled from '@emotion/styled';
 import classNames from 'classnames';
+import {
+  ContentCell,
+  DangerButtonSecondary,
+  FlagWarningIcon,
+  TableRow,
+  themeColor,
+} from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import ConfirmButton from '../../../components/controls/ConfirmButton';
-import { Button } from '../../../components/controls/buttons';
-import WarningIcon from '../../../components/icons/WarningIcon';
 import DateFormatter from '../../../components/intl/DateFormatter';
 import DateFromNow from '../../../components/intl/DateFromNow';
 import Spinner from '../../../components/ui/Spinner';
@@ -38,7 +45,7 @@ interface Props {
   token: UserToken;
 }
 
-export default function TokensFormItem(props: Props) {
+export default function TokensFormItem(props: Readonly<Props>) {
   const { token, deleteConfirmation, login } = props;
   const [showConfirmation, setShowConfirmation] = React.useState(false);
   const { mutateAsync, isLoading } = useRevokeTokenMutation();
@@ -55,45 +62,70 @@ export default function TokensFormItem(props: Props) {
     }
   };
 
+  const className = classNames('sw-mr-2', {
+    'sw-text-gray-400': token.isExpired,
+  });
+
   return (
-    <tr className={classNames({ 'text-muted-2': token.isExpired })}>
-      <td title={token.name} className="hide-overflow nowrap">
-        {token.name}
-        {token.isExpired && (
-          <div className="spacer-top text-warning">
-            <WarningIcon className="little-spacer-right" />
-            {translate('my_account.tokens.expired')}
-          </div>
-        )}
-      </td>
-      <td title={translate('users.tokens', token.type)} className="hide-overflow thin">
+    <TableRow>
+      <ContentCell
+        className={classNames('sw-flex-col sw-items-center sw-w-64', className)}
+        title={token.name}
+      >
+        <div className="sw-w-full sw-truncate">
+          {token.name}
+
+          {token.isExpired && (
+            <StyledSpan tokenIsExpired>
+              <div className="sw-mt-1">
+                <FlagWarningIcon className="sw-mr-1" />
+
+                {translate('my_account.tokens.expired')}
+              </div>
+            </StyledSpan>
+          )}
+        </div>
+      </ContentCell>
+
+      <ContentCell className={className} title={translate('users.tokens', token.type)}>
         {translate('users.tokens', token.type, 'short')}
-      </td>
-      <td title={token.project?.name} className="hide-overflow">
-        {token.project?.name}
-      </td>
-      <td className="thin nowrap">
+      </ContentCell>
+
+      <ContentCell className={classNames('sw-w-32', className)} title={token.project?.name}>
+        <div className="sw-w-full sw-truncate">{token.project?.name}</div>
+      </ContentCell>
+
+      <ContentCell className={className}>
         <DateFromNow date={token.lastConnectionDate} hourPrecision />
-      </td>
-      <td className="thin nowrap text-right">
+      </ContentCell>
+
+      <ContentCell className={className}>
         <DateFormatter date={token.createdAt} long />
-      </td>
-      <td className={classNames('thin nowrap text-right', { 'text-warning': token.isExpired })}>
-        {token.expirationDate ? <DateFormatter date={token.expirationDate} long /> : '–'}
-      </td>
-      <td className="thin nowrap text-right">
+      </ContentCell>
+
+      <ContentCell className={className}>
+        {token.expirationDate ? (
+          <StyledSpan tokenIsExpired={token.isExpired}>
+            <DateFormatter date={token.expirationDate} long />
+          </StyledSpan>
+        ) : (
+          '–'
+        )}
+      </ContentCell>
+
+      <ContentCell>
         {token.isExpired && (
-          <Button
-            className="button-red input-small"
+          <DangerButtonSecondary
             disabled={isLoading}
             onClick={handleRevoke}
             aria-label={translateWithParameters('users.tokens.remove_label', token.name)}
           >
-            <Spinner className="little-spacer-right" loading={isLoading}>
+            <Spinner className="sw-mr-1" loading={isLoading}>
               {translate('remove')}
             </Spinner>
-          </Button>
+          </DangerButtonSecondary>
         )}
+
         {!token.isExpired && deleteConfirmation === 'modal' && (
           <ConfirmButton
             confirmButtonText={translate('yes')}
@@ -109,33 +141,40 @@ export default function TokensFormItem(props: Props) {
             onConfirm={handleRevoke}
           >
             {({ onClick }) => (
-              <Button
-                className="button-red input-small"
+              <DangerButtonSecondary
                 disabled={isLoading}
                 onClick={onClick}
                 aria-label={translateWithParameters('users.tokens.revoke_label', token.name)}
               >
                 {translate('users.tokens.revoke')}
-              </Button>
+              </DangerButtonSecondary>
             )}
           </ConfirmButton>
         )}
+
         {!token.isExpired && deleteConfirmation === 'inline' && (
-          <Button
-            className="button-red input-small"
-            disabled={isLoading}
+          <DangerButtonSecondary
             aria-label={
               showConfirmation
                 ? translate('users.tokens.sure')
                 : translateWithParameters('users.tokens.revoke_label', token.name)
             }
+            disabled={isLoading}
             onClick={handleClick}
           >
-            <Spinner className="little-spacer-right" loading={isLoading} />
+            <Spinner className="sw-mr-1" loading={isLoading} />
+
             {showConfirmation ? translate('users.tokens.sure') : translate('users.tokens.revoke')}
-          </Button>
+          </DangerButtonSecondary>
         )}
-      </td>
-    </tr>
+      </ContentCell>
+    </TableRow>
   );
 }
+
+const StyledSpan = styled.span<{
+  tokenIsExpired?: boolean;
+}>`
+  color: ${({ tokenIsExpired }) =>
+    tokenIsExpired ? themeColor('iconWarning') : themeColor('pageContent')};
+`;

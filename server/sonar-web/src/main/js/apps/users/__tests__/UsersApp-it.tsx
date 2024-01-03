@@ -58,6 +58,7 @@ const ui = {
   scmAddButton: byRole('button', { name: 'add_verb' }),
   createUserDialogButton: byRole('button', { name: 'create' }),
   cancelButton: byRole('button', { name: 'cancel' }),
+  closeButton: byRole('button', { name: 'close' }),
   reloadButton: byRole('button', { name: 'reload' }),
   doneButton: byRole('button', { name: 'done' }),
   changeButton: byRole('button', { name: 'change_verb' }),
@@ -107,7 +108,7 @@ const ui = {
   unselectedFilter: byRole('radio', { name: 'unselected' }),
 
   getGroups: () => within(ui.dialogGroups.get()).getAllByRole('checkbox'),
-  dialogTokens: byRole('dialog', { name: 'users.tokens' }),
+  dialogTokens: byRole('dialog', { name: /users.user_X_tokens/ }),
   dialogPasswords: byRole('dialog', { name: 'my_profile.password.title' }),
   dialogUpdateUser: byRole('dialog', { name: 'users.update_user' }),
   dialogCreateUser: byRole('dialog', { name: 'users.create_user' }),
@@ -136,6 +137,7 @@ const ui = {
   githubProvisioningSuccess: byText(/synchronization_successful/),
   githubProvisioningWarning: byText(/synchronization_successful.with_warning/),
   githubProvisioningAlert: byText(/synchronization_failed_short/),
+  expiresInSelector: byRole('combobox', { name: 'users.tokens.expires_in' }),
 };
 
 beforeEach(() => {
@@ -568,27 +570,38 @@ describe('in manage mode', () => {
 
     const getTokensList = () => ui.dialogTokens.byRole('row').getAll();
 
-    expect(getTokensList()).toHaveLength(3);
+    expect(getTokensList()).toHaveLength(3); // header + 2 mocked tokens
 
     await user.type(ui.tokenNameInput.get(), 'test');
     await user.click(ui.generateButton.get());
 
-    // Not deleted because there is already token with name test
+    // Not created because there is already a token with the name "test"
     expect(screen.queryByText('users.tokens.new_token_created.test')).not.toBeInTheDocument();
-    expect(getTokensList()).toHaveLength(3);
+    expect(getTokensList()).toHaveLength(3); // header + 2 mocked tokens
 
     expect(ui.sureButton.query()).not.toBeInTheDocument();
     await user.click(ui.revokeButton('test').get());
     expect(await ui.sureButton.find()).toBeInTheDocument();
     await user.click(ui.sureButton.get());
 
-    expect(getTokensList()).toHaveLength(2);
+    expect(getTokensList()).toHaveLength(2); // header + "local-scanner" token
+    expect(screen.queryByText('users.no_tokens')).not.toBeInTheDocument();
 
+    expect(ui.sureButton.query()).not.toBeInTheDocument();
+    await user.click(ui.revokeButton('local-scanner').get());
+    expect(await ui.sureButton.find()).toBeInTheDocument();
+    await user.click(ui.sureButton.get());
+
+    expect(getTokensList()).toHaveLength(2); // header + "No tokens"
+    expect(await screen.findByText('users.no_tokens')).toBeInTheDocument();
+
+    await selectEvent.select(ui.expiresInSelector.get(), 'users.tokens.expiration.0');
     await user.click(ui.generateButton.get());
-    expect(getTokensList()).toHaveLength(3);
+    expect(getTokensList()).toHaveLength(2); // header + "test" token
+    expect(screen.queryByText('users.no_tokens')).not.toBeInTheDocument();
     expect(await screen.findByText('users.tokens.new_token_created.test')).toBeInTheDocument();
 
-    await user.click(ui.doneButton.get());
+    await user.click(ui.closeButton.get());
     expect(ui.dialogTokens.query()).not.toBeInTheDocument();
   });
 
@@ -700,16 +713,17 @@ it('accessibility', async () => {
   await user.click(ui.cancelButton.get());
 
   // user tokens dialog should be accessible
-  user.click(
+  await user.click(
     await ui.aliceRow
       .byRole('button', {
         name: 'users.update_tokens_for_x.Alice Merveille',
       })
       .find(),
   );
+
   expect(await ui.dialogTokens.find()).toBeInTheDocument();
   await expect(await ui.dialogTokens.find()).toHaveNoA11yViolations();
-  await user.click(ui.doneButton.get());
+  await user.click(ui.closeButton.get());
 
   // user password dialog should be accessible
   await user.click(await ui.aliceUpdateButton.find());
