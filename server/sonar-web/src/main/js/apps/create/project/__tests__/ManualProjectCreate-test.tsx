@@ -27,11 +27,9 @@ import ManualProjectCreate from '../manual/ManualProjectCreate';
 
 const ui = {
   nextButton: byRole('button', { name: 'next' }),
+  cancelButton: byRole('button', { name: 'cancel' }),
+  closeButton: byRole('button', { name: 'clear' }),
 };
-
-jest.mock('../../../../api/project-management', () => ({
-  setupManualProjectCreation: jest.fn(),
-}));
 
 jest.mock('../../../../api/components', () => ({
   doesComponentExists: jest
@@ -162,8 +160,13 @@ it('should handle component exists failure', async () => {
   ).toHaveValue('test');
 });
 
-function renderManualProjectCreate(props: Partial<ManualProjectCreate['props']> = {}) {
+function renderManualProjectCreate(props: Partial<Parameters<typeof ManualProjectCreate>[0]> = {}) {
   renderComponent(
-    <ManualProjectCreate branchesEnabled={false} onProjectSetupDone={jest.fn()} {...props} />,
+    <ManualProjectCreate
+      branchesEnabled={false}
+      onProjectSetupDone={jest.fn()}
+      onClose={jest.fn()}
+      {...props}
+    />,
   );
 }

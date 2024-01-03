@@ -20,18 +20,22 @@
 import classNames from 'classnames';
 import {
   ButtonPrimary,
+  ButtonSecondary,
+  CloseIcon,
   FlagErrorIcon,
   FlagMessage,
   FlagSuccessIcon,
   FormField,
   InputField,
+  InteractiveIcon,
   Link,
   Note,
+  TextError,
   Title,
 } from 'design-system';
 import { debounce, isEmpty } from 'lodash';
 import * as React from 'react';
-import { FormattedMessage } from 'react-intl';
+import { FormattedMessage, useIntl } from 'react-intl';
 import { doesComponentExists } from '../../../../api/components';
 import { getValue } from '../../../../api/settings';
 import { useDocUrl } from '../../../../helpers/docs';
@@ -46,6 +50,7 @@ import { CreateProjectModes } from '../types';
 interface Props {
   branchesEnabled: boolean;
   onProjectSetupDone: (importProjects: ImportProjectParam) => void;
+  onClose: () => void;
 }
 
 interface State {
@@ -53,7 +58,7 @@ interface State {
   projectNameError?: boolean;
   projectNameTouched: boolean;
   projectKey: string;
-  projectKeyError?: boolean;
+  projectKeyError?: 'DUPLICATE_KEY' | 'WRONG_FORMAT';
   projectKeyTouched: boolean;
   validatingProjectKey: boolean;
   mainBranchName: string;
@@ -65,60 +70,96 @@ const DEBOUNCE_DELAY = 250;
 
 type ValidState = State & Required<Pick<State, 'projectKey' | 'projectName'>>;
 
-export default class ManualProjectCreate extends React.PureComponent<Props, State> {
-  mounted = false;
+export default function ManualProjectCreate(props: Readonly<Props>) {
+  const [project, setProject] = React.useState<State>({
+    projectKey: '',
+    projectName: '',
+    projectKeyTouched: false,
+    projectNameTouched: false,
+    mainBranchName: 'main',
+    mainBranchNameTouched: false,
+    validatingProjectKey: false,
+  });
+  const intl = useIntl();
+  const docUrl = useDocUrl();
 
-  constructor(props: Props) {
-    super(props);
-    this.state = {
-      projectKey: '',
-      projectName: '',
-      projectKeyTouched: false,
-      projectNameTouched: false,
-      mainBranchName: 'main',
-      mainBranchNameTouched: false,
-      validatingProjectKey: false,
-    };
-    this.checkFreeKey = debounce(this.checkFreeKey, DEBOUNCE_DELAY);
-  }
+  const checkFreeKey = React.useCallback(
+    debounce((key: string) => {
+      setProject((prevProject) => ({ ...prevProject, validatingProjectKey: true }));
 
-  componentDidMount() {
-    this.mounted = true;
-    this.fetchMainBranchName();
-  }
-
-  componentWillUnmount() {
-    this.mounted = false;
-  }
-
-  fetchMainBranchName = async () => {
-    const mainBranchName = await getValue({ key: GlobalSettingKeys.MainBranchName });
-
-    if (this.mounted && mainBranchName.value !== undefined) {
-      this.setState({ mainBranchName: mainBranchName.value });
-    }
-  };
-
-  checkFreeKey = (key: string) => {
-    this.setState({ validatingProjectKey: true });
-
-    doesComponentExists({ component: key })
-      .then((alreadyExist) => {
-        if (this.mounted && key === this.state.projectKey) {
-          this.setState({
-            projectKeyError: alreadyExist ? true : undefined,
-            validatingProjectKey: false,
+      doesComponentExists({ component: key })
+        .then((alreadyExist) => {
+          setProject((prevProject) => {
+            if (key === prevProject.projectKey) {
+              return {
+                ...prevProject,
+                projectKeyError: alreadyExist ? 'DUPLICATE_KEY' : undefined,
+                validatingProjectKey: false,
+              };
+            }
+            return prevProject;
           });
-        }
-      })
-      .catch(() => {
-        if (this.mounted && key === this.state.projectKey) {
-          this.setState({ projectKeyError: undefined, validatingProjectKey: false });
-        }
-      });
-  };
+        })
+        .catch(() => {
+          setProject((prevProject) => {
+            if (key === prevProject.projectKey) {
+              return {
+                ...prevProject,
+                projectKeyError: undefined,
+                validatingProjectKey: false,
+              };
+            }
+            return prevProject;
+          });
+        });
+    }, DEBOUNCE_DELAY),
+    [],
+  );
 
-  canSubmit(state: State): state is ValidState {
+  const handleProjectKeyChange = React.useCallback(
+    (projectKey: string, fromUI = false) => {
+      const projectKeyError = validateKey(projectKey);
+
+      setProject((prevProject) => ({
+        ...prevProject,
+        projectKey,
+        projectKeyError,
+        projectKeyTouched: fromUI,
+      }));
+
+      if (projectKeyError === undefined) {
+        checkFreeKey(projectKey);
+      }
+    },
+    [checkFreeKey],
+  );
+
+  React.useEffect(() => {
+    async function fetchMainBranchName() {
+      const { value: mainBranchName } = await getValue({ key: GlobalSettingKeys.MainBranchName });
+
+      if (mainBranchName !== undefined) {
+        setProject((prevProject) => ({
+          ...prevProject,
+          mainBranchName,
+        }));
+      }
+    }
+
+    fetchMainBranchName();
+  }, []);
+
+  React.useEffect(() => {
+    if (!project.projectKeyTouched) {
+      const sanitizedProjectKey = project.projectName
+        .trim()
+        .replace(PROJECT_KEY_INVALID_CHARACTERS, '-');
+
+      handleProjectKeyChange(sanitizedProjectKey);
+    }
+  }, [project.projectName, project.projectKeyTouched, handleProjectKeyChange]);
+
+  const canSubmit = (state: State): state is ValidState => {
     const { projectKey, projectKeyError, projectName, projectNameError, mainBranchName } = state;
     return Boolean(
       projectKeyError === undefined &&
@@ -127,13 +168,13 @@ export default class ManualProjectCreate extends React.PureComponent<Props, Stat
         !isEmpty(projectName) &&
         !isEmpty(mainBranchName),
     );
-  }
+  };
 
-  handleFormSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleFormSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const { projectKey, projectName, mainBranchName } = this.state;
-    if (this.canSubmit(this.state)) {
-      this.props.onProjectSetupDone({
+    const { projectKey, projectName, mainBranchName } = project;
+    if (canSubmit(project)) {
+      props.onProjectSetupDone({
         creationMode: CreateProjectModes.Manual,
         projects: [
           {
@@ -146,100 +187,97 @@ export default class ManualProjectCreate extends React.PureComponent<Props, Stat
     }
   };
 
-  handleProjectKeyChange = (projectKey: string, fromUI = false) => {
-    const projectKeyError = this.validateKey(projectKey);
-
-    this.setState({
-      projectKey,
-      projectKeyError,
-      projectKeyTouched: fromUI,
+  const handleProjectNameChange = (projectName: string, fromUI = false) => {
+    setProject({
+      ...project,
+      projectName,
+      projectNameError: validateName(projectName),
+      projectNameTouched: fromUI,
     });
-
-    if (projectKeyError === undefined) {
-      this.checkFreeKey(projectKey);
-    }
   };
 
-  handleProjectNameChange = (projectName: string, fromUI = false) => {
-    this.setState(
-      {
-        projectName,
-        projectNameError: this.validateName(projectName),
-        projectNameTouched: fromUI,
-      },
-      () => {
-        if (!this.state.projectKeyTouched) {
-          const sanitizedProjectKey = this.state.projectName
-            .trim()
-            .replace(PROJECT_KEY_INVALID_CHARACTERS, '-');
-          this.handleProjectKeyChange(sanitizedProjectKey);
-        }
-      },
-    );
-  };
-
-  handleBranchNameChange = (mainBranchName: string, fromUI = false) => {
-    this.setState({
+  const handleBranchNameChange = (mainBranchName: string, fromUI = false) => {
+    setProject({
+      ...project,
       mainBranchName,
-      mainBranchNameError: this.validateMainBranchName(mainBranchName),
+      mainBranchNameError: validateMainBranchName(mainBranchName),
       mainBranchNameTouched: fromUI,
     });
   };
 
-  validateKey = (projectKey: string) => {
+  const validateKey = (projectKey: string) => {
     const result = validateProjectKey(projectKey);
-    return result === ProjectKeyValidationResult.Valid ? undefined : true;
+    if (result !== ProjectKeyValidationResult.Valid) {
+      return 'WRONG_FORMAT';
+    }
+    return undefined;
   };
 
-  validateName = (projectName: string) => {
+  const validateName = (projectName: string) => {
     if (isEmpty(projectName)) {
       return true;
     }
     return undefined;
   };
 
-  validateMainBranchName = (mainBranchName: string) => {
+  const validateMainBranchName = (mainBranchName: string) => {
     if (isEmpty(mainBranchName)) {
       return true;
     }
     return undefined;
   };
 
-  render() {
-    const {
-      projectKey,
-      projectKeyError,
-      projectKeyTouched,
-      projectName,
-      projectNameError,
-      projectNameTouched,
-      validatingProjectKey,
-      mainBranchName,
-      mainBranchNameError,
-      mainBranchNameTouched,
-    } = this.state;
-    const { branchesEnabled } = this.props;
+  const {
+    projectKey,
+    projectKeyError,
+    projectKeyTouched,
+    projectName,
+    projectNameError,
+    projectNameTouched,
+    validatingProjectKey,
+    mainBranchName,
+    mainBranchNameError,
+    mainBranchNameTouched,
+  } = project;
+  const { branchesEnabled } = props;
 
-    const touched = Boolean(projectKeyTouched || projectNameTouched);
-    const projectNameIsInvalid = projectNameTouched && projectNameError !== undefined;
-    const projectNameIsValid = projectNameTouched && projectNameError === undefined;
-    const projectKeyIsInvalid = touched && projectKeyError !== undefined;
-    const projectKeyIsValid = touched && !validatingProjectKey && projectKeyError === undefined;
-    const mainBranchNameIsValid = mainBranchNameTouched && mainBranchNameError === undefined;
-    const mainBranchNameIsInvalid = mainBranchNameTouched && mainBranchNameError !== undefined;
+  const touched = Boolean(projectKeyTouched || projectNameTouched);
+  const projectNameIsInvalid = projectNameTouched && projectNameError !== undefined;
+  const projectNameIsValid = projectNameTouched && projectNameError === undefined;
+  const projectKeyIsInvalid = touched && projectKeyError !== undefined;
+  const projectKeyIsValid = touched && !validatingProjectKey && projectKeyError === undefined;
+  const mainBranchNameIsValid = mainBranchNameTouched && mainBranchNameError === undefined;
+  const mainBranchNameIsInvalid = mainBranchNameTouched && mainBranchNameError !== undefined;
 
-    return (
-      <div className="sw-max-w-[50%]">
-        <Title>{translate('onboarding.create_project.manual.title')}</Title>
-        {branchesEnabled && (
-          <FlagMessage className="sw-my-4" variant="info">
-            {translate('onboarding.create_project.pr_decoration.information')}
-          </FlagMessage>
-        )}
+  return (
+    <section
+      aria-label={translate('onboarding.create_project.manual.title')}
+      className="sw-body-sm"
+    >
+      <div className="sw-flex sw-justify-between">
+        <FormattedMessage
+          id="onboarding.create_project.manual.step1"
+          defaultMessage={translate('onboarding.create_project.manual.step1')}
+        />
+        <InteractiveIcon
+          Icon={CloseIcon}
+          aria-label={intl.formatMessage({ id: 'clear' })}
+          currentColor
+          onClick={props.onClose}
+          size="small"
+        />
+      </div>
+      <Title>{translate('onboarding.create_project.manual.title')}</Title>
+      {branchesEnabled && (
+        <FlagMessage className="sw-my-4" variant="info">
+          {translate('onboarding.create_project.pr_decoration.information')}
+        </FlagMessage>
+      )}
+      <div className="sw-max-w-[50%] sw-mt-2">
         <form
           id="create-project-manual"
           className="sw-flex-col sw-body-sm"
-          onSubmit={this.handleFormSubmit}
+          onSubmit={handleFormSubmit}
         >
           <FormField
             htmlFor="project-name"
@@ -255,7 +293,7 @@ export default class ManualProjectCreate extends React.PureComponent<Props, Stat
                 id="project-name"
                 maxLength={PROJECT_NAME_MAX_LEN}
                 minLength={1}
-                onChange={(e) => this.handleProjectNameChange(e.currentTarget.value, true)}
+                onChange={(e) => handleProjectNameChange(e.currentTarget.value, true)}
                 type="text"
                 value={projectName}
                 autoFocus
@@ -284,7 +322,7 @@ export default class ManualProjectCreate extends React.PureComponent<Props, Stat
                 size="large"
                 id="project-key"
                 minLength={1}
-                onChange={(e) => this.handleProjectKeyChange(e.currentTarget.value, true)}
+                onChange={(e) => handleProjectKeyChange(e.currentTarget.value, true)}
                 type="text"
                 value={projectKey}
                 isInvalid={projectKeyIsInvalid}
@@ -294,8 +332,16 @@ export default class ManualProjectCreate extends React.PureComponent<Props, Stat
               {projectKeyIsInvalid && <FlagErrorIcon className="sw-ml-2" />}
               {projectKeyIsValid && <FlagSuccessIcon className="sw-ml-2" />}
             </div>
-            <Note className="sw-mt-2">
-              {translate('onboarding.create_project.project_key.description')}
+            <Note className="sw-flex-col sw-mt-2">
+              {projectKeyError === 'DUPLICATE_KEY' && (
+                <TextError
+                  text={translate('onboarding.create_project.project_key.duplicate_key')}
+                />
+              )}
+              {!isEmpty(projectKey) && projectKeyError === 'WRONG_FORMAT' && (
+                <TextError text={translate('onboarding.create_project.project_key.wrong_format')} />
+              )}
+              <p>{translate('onboarding.create_project.project_key.description')}</p>
             </Note>
           </FormField>
 
@@ -312,7 +358,7 @@ export default class ManualProjectCreate extends React.PureComponent<Props, Stat
                 size="large"
                 id="main-branch-name"
                 minLength={1}
-                onChange={(e) => this.handleBranchNameChange(e.currentTarget.value, true)}
+                onChange={(e) => handleBranchNameChange(e.currentTarget.value, true)}
                 type="text"
                 value={mainBranchName}
                 isInvalid={mainBranchNameIsInvalid}
@@ -323,37 +369,28 @@ export default class ManualProjectCreate extends React.PureComponent<Props, Stat
               {mainBranchNameIsValid && <FlagSuccessIcon className="sw-ml-2" />}
             </div>
             <Note className="sw-mt-2">
-              <FormattedMessageWithDocLink />
+              <FormattedMessage
+                id="onboarding.create_project.main_branch_name.description"
+                defaultMessage={translate('onboarding.create_project.main_branch_name.description')}
+                values={{
+                  learn_more: (
+                    <Link to={docUrl('/analyzing-source-code/branches/branch-analysis')}>
+                      {translate('learn_more')}
+                    </Link>
+                  ),
+                }}
+              />
             </Note>
           </FormField>
 
-          <ButtonPrimary
-            type="submit"
-            className="sw-mt-4 sw-mb-4"
-            disabled={!this.canSubmit(this.state)}
-          >
+          <ButtonSecondary className="sw-mt-4 sw-mr-4" onClick={props.onClose} type="button">
+            {intl.formatMessage({ id: 'cancel' })}
+          </ButtonSecondary>
+          <ButtonPrimary className="sw-mt-4" type="submit" disabled={!canSubmit(project)}>
             {translate('next')}
           </ButtonPrimary>
         </form>
       </div>
-    );
-  }
-}
-
-function FormattedMessageWithDocLink() {
-  const docUrl = useDocUrl();
-
-  return (
-    <FormattedMessage
-      id="onboarding.create_project.main_branch_name.description"
-      defaultMessage={translate('onboarding.create_project.main_branch_name.description')}
-      values={{
-        learn_more: (
-          <Link to={docUrl('/analyzing-source-code/branches/branch-analysis')}>
-            {translate('learn_more')}
-          </Link>
-        ),
-      }}
-    />
+    </section>
   );
 }

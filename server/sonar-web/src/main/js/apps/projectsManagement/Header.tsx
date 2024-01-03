@@ -19,6 +19,7 @@
  */
 import * as React from 'react';
 import { useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Button, EditButton } from '../../components/controls/buttons';
 import { translate } from '../../helpers/l10n';
 import { Visibility } from '../../types/component';
@@ -27,12 +28,13 @@ import ChangeDefaultVisibilityForm from './ChangeDefaultVisibilityForm';
 export interface Props {
   defaultProjectVisibility?: Visibility;
   hasProvisionPermission?: boolean;
-  onProjectCreate: () => void;
   onChangeDefaultProjectVisibility: (visibility: Visibility) => void;
 }
 
 export default function Header(props: Readonly<Props>) {
   const [visibilityForm, setVisibilityForm] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const { defaultProjectVisibility, hasProvisionPermission } = props;
 
@@ -56,7 +58,14 @@ export default function Header(props: Readonly<Props>) {
         </span>
 
         {hasProvisionPermission && (
-          <Button id="create-project" onClick={props.onProjectCreate}>
+          <Button
+            id="create-project"
+            onClick={() =>
+              navigate('/projects/create?mode=manual', {
+                state: { from: location.pathname },
+              })
+            }
+          >
             {translate('qualifiers.create.TRK')}
           </Button>
         )}

@@ -101,7 +101,15 @@ const ui = {
   createProject: byRole('button', {
     name: 'qualifiers.create.TRK',
   }),
-
+  manualProjectHeader: byText('onboarding.create_project.manual.title'),
+  displayNameField: byRole('textbox', {
+    name: /onboarding.create_project.display_name/,
+  }),
+  projectNextButton: byRole('button', { name: 'next' }),
+  newCodeDefinitionHeader: byText('onboarding.create_x_project.new_code_definition.title1'),
+  projectCreateButton: byRole('button', {
+    name: 'onboarding.create_project.new_code_definition.create_x_projects1',
+  }),
   visibilityFilter: byRole('combobox', { name: 'projects_management.filter_by_visibility' }),
   qualifierFilter: byRole('combobox', { name: 'projects_management.filter_by_component' }),
   analysisDateFilter: byPlaceholderText('last_analysis_before'),
@@ -402,39 +410,14 @@ it('should load more and change the filter without caching old pages', async () 
 });
 
 it('should create project', async () => {
-  settingsHandler.set(GlobalSettingKeys.MainBranchName, 'main');
   const user = userEvent.setup();
+  settingsHandler.set(GlobalSettingKeys.MainBranchName, 'main');
   renderProjectManagementApp({}, { permissions: { global: [Permissions.ProjectCreation] } });
   await waitFor(() => expect(ui.row.getAll()).toHaveLength(5));
-  await user.click(await ui.createProject.find());
-  expect(ui.createDialog.get()).toBeInTheDocument();
-  expect(ui.createDialog.by(ui.privateVisibility).get()).not.toBeChecked();
-  await user.click(ui.createDialog.by(ui.privateVisibility).get());
-  expect(ui.createDialog.by(ui.privateVisibility).get()).not.toBeChecked();
-  await user.click(ui.createDialog.by(ui.cancel).get());
 
-  expect(await ui.defaultVisibility.find()).toBeInTheDocument();
-  expect(ui.defaultVisibility.get()).toHaveTextContent('—');
-  await user.click(ui.editDefaultVisibility.get());
-  expect(await ui.changeDefaultVisibilityDialog.find()).toBeInTheDocument();
-  expect(ui.defaultVisibilityWarning.get()).not.toHaveTextContent('.github');
-  await user.click(ui.changeDefaultVisibilityDialog.by(ui.visibilityPublicRadio).get());
-  await user.click(ui.changeDefaultVisibilityDialog.by(ui.submitDefaultVisibilityChange).get());
-  expect(ui.changeDefaultVisibilityDialog.query()).not.toBeInTheDocument();
-  expect(ui.defaultVisibility.get()).toHaveTextContent('visibility.public');
+  await user.click(ui.createProject.get());
 
-  await user.click(await ui.createProject.find());
-  expect(ui.createDialog.get()).toBeInTheDocument();
-  await user.click(ui.createDialog.by(ui.privateVisibility).get());
-  expect(ui.createDialog.by(ui.privateVisibility).get()).toBeChecked();
-  await user.type(ui.createDialog.by(ui.displayNameInput).get(), 'a Test');
-  await user.type(ui.createDialog.by(ui.projectKeyInput).get(), 'test');
-  expect(ui.createDialog.by(ui.mainBranchNameInput).get()).toHaveValue('main');
-  await user.click(ui.createDialog.by(ui.create).get());
-  expect(ui.createDialog.by(ui.successMsg).get()).toBeInTheDocument();
-  await user.click(ui.createDialog.by(ui.close).get());
-  expect(ui.row.getAll()).toHaveLength(6);
-  expect(ui.row.getAll()[1]).toHaveTextContent('qualifier.TRKa Testvisibility.privatetest—');
+  expect(byText('/projects/create?mode=manual').get()).toBeInTheDocument();
 });
 
 it('should edit permissions of single project', async () => {

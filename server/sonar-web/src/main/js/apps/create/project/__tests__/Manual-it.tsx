@@ -19,16 +19,20 @@
  */
 import userEvent from '@testing-library/user-event';
 import { UserEvent } from '@testing-library/user-event/dist/types/setup/setup';
-import * as React from 'react';
 import AlmSettingsServiceMock from '../../../../api/mocks/AlmSettingsServiceMock';
 import NewCodeDefinitionServiceMock from '../../../../api/mocks/NewCodeDefinitionServiceMock';
+import { ProjectsServiceMock } from '../../../../api/mocks/ProjectsServiceMock';
 import { getNewCodeDefinition } from '../../../../api/newCodeDefinition';
 import { mockProject } from '../../../../helpers/mocks/projects';
-import { renderApp } from '../../../../helpers/testReactTestingUtils';
+import { mockAppState, mockCurrentUser } from '../../../../helpers/testMocks';
+import { renderAppRoutes } from '../../../../helpers/testReactTestingUtils';
 import { byRole, byText } from '../../../../helpers/testSelector';
 import { NewCodeDefinitionType } from '../../../../types/new-code-definition';
-import CreateProjectPage, { CreateProjectPageProps } from '../CreateProjectPage';
+import { Permissions } from '../../../../types/permissions';
+import routes from '../../../projects/routes';
 
+jest.mock('../../../../api/measures');
+jest.mock('../../../../api/favorites');
 jest.mock('../../../../api/alm-settings');
 jest.mock('../../../../api/newCodeDefinition');
 jest.mock('../../../../api/project-management', () => ({
@@ -36,6 +40,8 @@ jest.mock('../../../../api/project-management', () => ({
 }));
 jest.mock('../../../../api/components', () => ({
   ...jest.requireActual('../../../../api/components'),
+  searchProjects: jest.fn(),
+  getScannableProjects: jest.fn(),
   doesComponentExists: jest
     .fn()
     .mockImplementation(({ component }) => Promise.resolve(component === 'exists')),
@@ -51,11 +57,18 @@ const ui = {
     name: /onboarding.create_project.display_name/,
   }),
   projectNextButton: byRole('button', { name: 'next' }),
+  newCodeDefinitionSection: byRole('region', {
+    name: 'onboarding.create_project.new_code_definition.title',
+  }),
   newCodeDefinitionHeader: byText('onboarding.create_x_project.new_code_definition.title1'),
   inheritGlobalNcdRadio: byRole('radio', { name: 'new_code_definition.global_setting' }),
   projectCreateButton: byRole('button', {
     name: 'onboarding.create_project.new_code_definition.create_x_projects1',
   }),
+  cancelButton: byRole('button', { name: 'cancel' }),
+  closeButton: byRole('button', { name: 'clear' }),
+  createProjectsButton: byRole('button', { name: 'projects.add' }),
+  createLocalProject: byRole('menuitem', { name: 'my_account.add_project.manual' }),
   overrideNcdRadio: byRole('radio', { name: 'new_code_definition.specific_setting' }),
   ncdOptionPreviousVersionRadio: byRole('radio', {
     name: /new_code_definition.previous_version/,
@@ -71,6 +84,7 @@ const ui = {
   }),
   ncdOptionDaysInputError: byText('new_code_definition.number_days.invalid.1.90'),
   projectDashboardText: byText('/dashboard?id=foo'),
+  projectsPageTitle: byRole('heading', { name: 'projects.page' }),
 };
 
 async function fillFormAndNext(displayName: string, user: UserEvent) {
@@ -85,6 +99,7 @@ async function fillFormAndNext(displayName: string, user: UserEvent) {
 
 let almSettingsHandler: AlmSettingsServiceMock;
 let newCodePeriodHandler: NewCodeDefinitionServiceMock;
+let projectHandler: ProjectsServiceMock;
 
 const original = window.location;
 
@@ -95,12 +110,14 @@ beforeAll(() => {
   });
   almSettingsHandler = new AlmSettingsServiceMock();
   newCodePeriodHandler = new NewCodeDefinitionServiceMock();
+  projectHandler = new ProjectsServiceMock();
 });
 
 beforeEach(() => {
   jest.clearAllMocks();
   almSettingsHandler.reset();
   newCodePeriodHandler.reset();
+  projectHandler.reset();
 });
 
 afterAll(() => {
@@ -175,8 +192,48 @@ it('the project onboarding page should be displayed when the project is created'
   expect(await ui.projectDashboardText.find()).toBeInTheDocument();
 });
 
-function renderCreateProject(props: Partial<CreateProjectPageProps> = {}) {
-  renderApp('project/create', <CreateProjectPage {...props} />, {
-    navigateTo: 'project/create?mode=manual',
+it('validate the provate key field', async () => {
+  const user = userEvent.setup();
+  renderCreateProject();
+  expect(ui.manualProjectHeader.get()).toBeInTheDocument();
+
+  await user.click(ui.displayNameField.get());
+  await user.keyboard('exists');
+
+  expect(ui.projectNextButton.get()).toBeDisabled();
+  await user.click(ui.projectNextButton.get());
+});
+
+it('should navigate back to the Projects page when clicking cancel or close', async () => {
+  newCodePeriodHandler.setNewCodePeriod({ type: NewCodeDefinitionType.NumberOfDays });
+  const user = userEvent.setup();
+  renderCreateProject();
+
+  await user.click(ui.cancelButton.get());
+  expect(await ui.projectsPageTitle.find()).toBeInTheDocument();
+
+  await user.click(ui.createProjectsButton.get());
+  await user.click(await ui.createLocalProject.find());
+
+  await user.click(ui.closeButton.get());
+  expect(await ui.projectsPageTitle.find()).toBeInTheDocument();
+
+  await user.click(ui.createProjectsButton.get());
+  await user.click(await ui.createLocalProject.find());
+
+  expect(await ui.manualProjectHeader.find()).toBeInTheDocument();
+  await fillFormAndNext('testing', user);
+  expect(ui.newCodeDefinitionHeader.get()).toBeInTheDocument();
+
+  await user.click(await ui.newCodeDefinitionSection.byRole('button', { name: 'clear' }).find());
+  expect(await ui.projectsPageTitle.find()).toBeInTheDocument();
+});
+
+function renderCreateProject() {
+  renderAppRoutes('projects/create?mode=manual', routes, {
+    currentUser: mockCurrentUser({
+      permissions: { global: [Permissions.ProjectCreation] },
+    }),
+    appState: mockAppState({ canAdmin: true }),
   });
 }

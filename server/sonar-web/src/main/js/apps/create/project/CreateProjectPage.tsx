@@ -58,6 +58,7 @@ interface State {
   loading: boolean;
   creatingAlmDefinition?: AlmKeys;
   importProjects?: ImportProjectParam;
+  redirectTo: string;
 }
 
 const PROJECT_MODE_FOR_ALM_KEY = {
@@ -125,6 +126,7 @@ export class CreateProjectPage extends React.PureComponent<CreateProjectPageProp
     githubSettings: [],
     gitlabSettings: [],
     loading: true,
+    redirectTo: this.props.location.state?.from || '/projects',
   };
 
   componentDidMount() {
@@ -228,6 +230,7 @@ export class CreateProjectPage extends React.PureComponent<CreateProjectPageProp
       githubSettings,
       gitlabSettings,
       loading,
+      redirectTo,
     } = this.state;
     const branchSupportEnabled = this.props.hasFeature(Feature.BranchSupport);
 
@@ -297,6 +300,7 @@ export class CreateProjectPage extends React.PureComponent<CreateProjectPageProp
           <ManualProjectCreate
             branchesEnabled={branchSupportEnabled}
             onProjectSetupDone={this.handleProjectSetupDone}
+            onClose={() => this.props.router.push({ pathname: redirectTo })}
           />
         );
       }
@@ -321,7 +325,7 @@ export class CreateProjectPage extends React.PureComponent<CreateProjectPageProp
 
   render() {
     const { location } = this.props;
-    const { creatingAlmDefinition, importProjects } = this.state;
+    const { creatingAlmDefinition, importProjects, redirectTo } = this.state;
     const mode: CreateProjectModes | undefined = location.query?.mode;
     const isProjectSetupDone = location.query?.setncd === 'true';
     const gridLayoutStyle = mode ? 'sw-col-start-2 sw-col-span-10' : 'sw-col-span-12';
@@ -342,7 +346,11 @@ export class CreateProjectPage extends React.PureComponent<CreateProjectPageProp
             {this.renderProjectCreation(mode)}
           </div>
           {importProjects !== undefined && isProjectSetupDone && (
-            <NewCodeDefinitionSelection importProjects={importProjects} />
+            <NewCodeDefinitionSelection
+              importProjects={importProjects}
+              onClose={() => this.props.router.push({ pathname: redirectTo })}
+              redirectTo={redirectTo}
+            />
           )}
 
           {creatingAlmDefinition && (

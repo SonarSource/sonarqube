@@ -37,7 +37,6 @@ import { Visibility } from '../../types/component';
 import { Permissions } from '../../types/permissions';
 import { SettingsKey } from '../../types/settings';
 import { LoggedInUser } from '../../types/users';
-import CreateProjectForm from './CreateProjectForm';
 import Header from './Header';
 import Projects from './Projects';
 import Search from './Search';
@@ -48,7 +47,6 @@ export interface Props {
 
 interface State {
   analyzedBefore?: Date;
-  createProjectForm: boolean;
   defaultProjectVisibility?: Visibility;
   page: number;
   projects: Project[];
@@ -70,7 +68,6 @@ class ProjectManagementApp extends React.PureComponent<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = {
-      createProjectForm: false,
       ready: false,
       projects: [],
       provisioned: false,
@@ -201,14 +198,6 @@ class ProjectManagementApp extends React.PureComponent<Props, State> {
     this.setState({ selection: [] });
   };
 
-  openCreateProjectForm = () => {
-    this.setState({ createProjectForm: true });
-  };
-
-  closeCreateProjectForm = () => {
-    this.setState({ createProjectForm: false });
-  };
-
   render() {
     const { currentUser } = this.props;
     const { defaultProjectVisibility } = this.state;
@@ -221,7 +210,6 @@ class ProjectManagementApp extends React.PureComponent<Props, State> {
           defaultProjectVisibility={defaultProjectVisibility}
           hasProvisionPermission={hasGlobalPermission(currentUser, Permissions.ProjectCreation)}
           onChangeDefaultProjectVisibility={this.handleDefaultProjectVisibilityChange}
-          onProjectCreate={this.openCreateProjectForm}
         />
 
         <Search
@@ -259,14 +247,6 @@ class ProjectManagementApp extends React.PureComponent<Props, State> {
           ready={this.state.ready}
           total={this.state.total}
         />
-
-        {this.state.createProjectForm && (
-          <CreateProjectForm
-            defaultProjectVisibility={defaultProjectVisibility}
-            onClose={this.closeCreateProjectForm}
-            onProjectCreated={this.requestProjects}
-          />
-        )}
       </main>
     );
   }

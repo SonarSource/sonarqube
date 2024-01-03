@@ -83,20 +83,6 @@ export function createProject(data: {
   return postJSON('/api/projects/create', data).catch(throwGlobalError);
 }
 
-export function setupManualProjectCreation(data: {
-  name: string;
-  project: string;
-  mainBranch: string;
-  visibility?: Visibility;
-}) {
-  return (newCodeDefinitionType?: string, newCodeDefinitionValue?: string) =>
-    createProject({
-      ...data,
-      newCodeDefinitionType,
-      newCodeDefinitionValue,
-    });
-}
-
 export function changeProjectDefaultVisibility(
   projectVisibility: Visibility,
 ): Promise<void | Response> {

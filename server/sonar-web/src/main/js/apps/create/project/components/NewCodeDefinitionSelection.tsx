@@ -17,7 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { ButtonPrimary, ButtonSecondary, FlagMessage, Link, Spinner, Title } from 'design-system';
+import {
+  ButtonPrimary,
+  ButtonSecondary,
+  CloseIcon,
+  FlagMessage,
+  InteractiveIcon,
+  Link,
+  Spinner,
+  Title,
+  addGlobalErrorMessage,
+  addGlobalSuccessMessage,
+} from 'design-system';
 import { omit } from 'lodash';
 import * as React from 'react';
 import { useEffect } from 'react';
@@ -25,7 +36,6 @@ import { FormattedMessage, useIntl } from 'react-intl';
 import { useNavigate, unstable_usePrompt as usePrompt } from 'react-router-dom';
 import NewCodeDefinitionSelector from '../../../../components/new-code-definition/NewCodeDefinitionSelector';
 import { useDocUrl } from '../../../../helpers/docs';
-import { addGlobalErrorMessage, addGlobalSuccessMessage } from '../../../../helpers/globalMessages';
 import { translate } from '../../../../helpers/l10n';
 import { getProjectUrl, queryToSearch } from '../../../../helpers/urls';
 import {
@@ -42,10 +52,12 @@ const listener = (event: BeforeUnloadEvent) => {
 
 interface Props {
   importProjects: ImportProjectParam;
+  onClose: () => void;
+  redirectTo: string;
 }
 
 export default function NewCodeDefinitionSelection(props: Props) {
-  const { importProjects } = props;
+  const { importProjects, redirectTo, onClose } = props;
 
   const [selectedDefinition, selectDefinition] = React.useState<NewCodeDefinitiondWithCompliance>();
   const [failedImports, setFailedImports] = React.useState<number>(0);
@@ -64,6 +76,21 @@ export default function NewCodeDefinitionSelection(props: Props) {
   const isMultipleProjects = projectCount > 1;
 
   useEffect(() => {
+    const redirect = (projectCount: number) => {
+      if (projectCount === 1 && data) {
+        if (redirectTo === '/projects') {
+          navigate(getProjectUrl(data.project.key));
+        } else {
+          onClose();
+        }
+      } else {
+        navigate({
+          pathname: '/projects',
+          search: queryToSearch({ sort: '-creation_date' }),
+        });
+      }
+    };
+
     if (mutateCount > 0 || isIdle) {
       return;
     }
@@ -80,30 +107,43 @@ export default function NewCodeDefinitionSelection(props: Props) {
     }
 
     if (projectCount > failedImports) {
-      addGlobalSuccessMessage(
-        intl.formatMessage(
-          { id: 'onboarding.create_project.success' },
-          {
-            count: projectCount - failedImports,
-          },
-        ),
-      );
-
-      if (projectCount === 1) {
-        if (data) {
-          navigate(getProjectUrl(data.project.key));
-        }
-      } else {
-        navigate({
-          pathname: '/projects',
-          search: queryToSearch({ sort: '-creation_date' }),
-        });
+      if (redirectTo === '/projects') {
+        addGlobalSuccessMessage(
+          intl.formatMessage(
+            { id: 'onboarding.create_project.success' },
+            {
+              count: projectCount - failedImports,
+            },
+          ),
+        );
+      } else if (data) {
+        addGlobalSuccessMessage(
+          <FormattedMessage
+            defaultMessage={translate('onboarding.create_project.success.admin')}
+            id="onboarding.create_project.success.admin"
+            values={{
+              project_link: <Link to={getProjectUrl(data.project.key)}>{data.project.name}</Link>,
+            }}
+          />,
+        );
       }
+      redirect(projectCount);
     }
 
     reset();
     setFailedImports(0);
-  }, [data, projectCount, failedImports, mutateCount, reset, intl, navigate, isIdle]);
+  }, [
+    data,
+    projectCount,
+    failedImports,
+    mutateCount,
+    reset,
+    intl,
+    navigate,
+    isIdle,
+    redirectTo,
+    onClose,
+  ]);
 
   React.useEffect(() => {
     if (isImporting) {
@@ -133,7 +173,24 @@ export default function NewCodeDefinitionSelection(props: Props) {
   };
 
   return (
-    <div id="project-ncd-selection" className="sw-body-sm">
+    <section
+      aria-label={translate('onboarding.create_project.new_code_definition.title')}
+      id="project-ncd-selection"
+      className="sw-body-sm"
+    >
+      <div className="sw-flex sw-justify-between">
+        <FormattedMessage
+          id="onboarding.create_project.manual.step2"
+          defaultMessage={translate('onboarding.create_project.manual.step2')}
+        />
+        <InteractiveIcon
+          Icon={CloseIcon}
+          aria-label={intl.formatMessage({ id: 'clear' })}
+          currentColor
+          onClick={onClose}
+          size="small"
+        />
+      </div>
       <Title>
         <FormattedMessage
           defaultMessage={translate('onboarding.create_x_project.new_code_definition.title')}
@@ -199,6 +256,6 @@ export default function NewCodeDefinitionSelection(props: Props) {
           </FlagMessage>
         )}
       </div>
-    </div>
+    </section>
   );
 }
