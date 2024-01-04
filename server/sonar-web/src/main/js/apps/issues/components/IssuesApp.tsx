@@ -864,11 +864,13 @@ export class App extends React.PureComponent<Props, State> {
     const { openFacets } = this.state;
     // The idea is once issue is handle by a react-query we would update only
     // the facet affected by the issue change. Right now it is too complexe to do so.
-    Object.entries(openFacets).forEach(([facet, isOpen]) => {
-      if (isOpen) {
-        this.fetchFacet(facet);
-      }
-    });
+    Object.entries(openFacets)
+      .filter(([facet]) => facet !== STANDARDS)
+      .forEach(([facet, isOpen]) => {
+        if (isOpen) {
+          this.fetchFacet(facet);
+        }
+      });
     this.setState((state) => ({
       issues: state.issues.map((candidate) => (candidate.key === issue.key ? issue : candidate)),
     }));
