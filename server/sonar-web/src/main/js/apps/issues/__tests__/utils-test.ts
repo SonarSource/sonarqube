@@ -154,6 +154,7 @@ describe('serialize/deserialize', () => {
       tags: [],
       types: [],
       fixedInPullRequest: '',
+      resolved: undefined,
     });
   });
 

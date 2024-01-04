@@ -26,6 +26,7 @@ import Tooltip from '../../../components/controls/Tooltip';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { localizeMetric } from '../../../helpers/measures';
 import { MetricKey } from '../../../types/metrics';
+import { OverviewDisabledLinkTooltip } from './OverviewDisabledLinkTooltip';
 
 const NO_DATA_ICON_SIZE = 36;
 
@@ -71,18 +72,23 @@ export function IssueMeasuresCardInner(props: Readonly<IssueMeasuresCardInnerPro
         <div className="sw-flex sw-justify-between sw-items-center sw-h-9">
           <div className="sw-h-fit">
             {value ? (
-              <ContentLink
-                disabled={linkDisabled}
-                aria-label={translateWithParameters(
-                  'overview.see_more_details_on_x_of_y',
-                  value,
-                  localizeMetric(metric),
-                )}
-                className="it__overview-measures-value sw-w-fit sw-text-lg"
-                to={url}
+              <Tooltip
+                classNameSpace={linkDisabled ? 'tooltip' : 'sw-hidden'}
+                overlay={<OverviewDisabledLinkTooltip />}
               >
-                {value}
-              </ContentLink>
+                <ContentLink
+                  disabled={linkDisabled}
+                  aria-label={translateWithParameters(
+                    'overview.see_more_details_on_x_of_y',
+                    value,
+                    localizeMetric(metric),
+                  )}
+                  className="it__overview-measures-value sw-w-fit sw-text-lg"
+                  to={url}
+                >
+                  {value}
+                </ContentLink>
+              </Tooltip>
             ) : (
               <Tooltip overlay={translate('no_data')}>
                 <LightLabel aria-label={translate('no_data')}> — </LightLabel>

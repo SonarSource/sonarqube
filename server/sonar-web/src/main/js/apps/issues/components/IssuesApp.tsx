@@ -167,7 +167,7 @@ export class App extends React.PureComponent<Props, State> {
 
   constructor(props: Props) {
     super(props);
-    const query = parseQuery(props.location.query);
+    const query = parseQuery(props.location.query, props.component?.needIssueSync);
     this.bulkButtonRef = React.createRef();
 
     this.state = {
@@ -207,12 +207,13 @@ export class App extends React.PureComponent<Props, State> {
   static getDerivedStateFromProps(props: Props, state: State) {
     const {
       location: { query },
+      component: { needIssueSync } = {},
     } = props;
 
     return {
       myIssues: areMyIssuesSelected(query),
       openIssue: getOpenIssue(props, state.issues),
-      query: parseQuery(query),
+      query: parseQuery(query, needIssueSync),
     };
   }
 

@@ -29,6 +29,7 @@ import {
   parseAsString,
   queriesEqual,
   serializeDateShort,
+  serializeOptionalBoolean,
   serializeString,
   serializeStringArray,
 } from '../../helpers/query';
@@ -87,6 +88,7 @@ export interface Query {
   issueStatuses: IssueStatus[];
   tags: string[];
   types: string[];
+  resolved?: boolean;
 }
 
 export const STANDARDS = 'standards';
@@ -95,7 +97,7 @@ export const STANDARDS = 'standards';
 const parseAsSort = (sort: string) => (sort === 'CREATION_DATE' ? 'CREATION_DATE' : '');
 const ISSUES_DEFAULT = 'sonarqube.issues.default';
 
-export function parseQuery(query: RawQuery): Query {
+export function parseQuery(query: RawQuery, needIssueSync = false): Query {
   return {
     assigned: parseAsBoolean(query.assigned),
     assignees: parseAsArray(query.assignees, parseAsString),
@@ -136,6 +138,9 @@ export function parseQuery(query: RawQuery): Query {
     types: parseAsArray(query.types, parseAsString),
     codeVariants: parseAsArray(query.codeVariants, parseAsString),
     fixedInPullRequest: parseAsString(query.fixedInPullRequest),
+    // While reindexing, we need to use resolved param for issues/list endpoint
+    // False is used to show unresolved issues only
+    resolved: needIssueSync ? false : undefined,
   };
 }
 
@@ -246,6 +251,7 @@ export function serializeQuery(query: Query): RawQuery {
     tags: serializeStringArray(query.tags),
     types: serializeStringArray(query.types),
     codeVariants: serializeStringArray(query.codeVariants),
+    resolved: serializeOptionalBoolean(query.resolved),
   };
 
   return cleanQuery(filter);

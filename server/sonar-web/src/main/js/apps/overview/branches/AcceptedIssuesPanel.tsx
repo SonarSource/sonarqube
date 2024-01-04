@@ -91,6 +91,7 @@ function AcceptedIssuesPanel(props: Readonly<AcceptedIssuesPanelProps>) {
         >
           <Card className="sw-flex sw-gap-4">
             <IssueMeasuresCardInner
+              linkDisabled={component.needIssueSync}
               className={classNames({ 'sw-w-1/2': !isNewCode, 'sw-w-full': isNewCode })}
               noDataIconClassName="sw--translate-y-3"
               metric={MetricKey.accepted_issues}
@@ -105,6 +106,7 @@ function AcceptedIssuesPanel(props: Readonly<AcceptedIssuesPanelProps>) {
               <>
                 <StyledCardSeparator />
                 <IssueMeasuresCardInner
+                  linkDisabled={component.needIssueSync}
                   className="sw-w-1/2"
                   noDataIconClassName="sw--translate-y-3"
                   metric={MetricKey.high_impact_accepted_issues}
