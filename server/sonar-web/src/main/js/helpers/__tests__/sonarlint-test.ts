@@ -95,7 +95,6 @@ describe('openHotspot', () => {
 describe('openIssue', () => {
   it('should send the correct request to the IDE to open an issue', async () => {
     let branchName: string | undefined = undefined;
-    let login: string | undefined = undefined;
     let pullRequestID: string | undefined = undefined;
     let tokenName: string | undefined = undefined;
     let tokenValue: string | undefined = undefined;
@@ -113,8 +112,6 @@ describe('openIssue', () => {
         expect(calledUrl.searchParams.get('branch') ?? undefined).toStrictEqual(branchName);
         // eslint-disable-next-line jest/no-conditional-in-test
         expect(calledUrl.searchParams.get('pullRequest') ?? undefined).toStrictEqual(pullRequestID);
-        // eslint-disable-next-line jest/no-conditional-in-test
-        expect(calledUrl.searchParams.get('login') ?? undefined).toStrictEqual(login);
         // eslint-disable-next-line jest/no-conditional-in-test
         expect(calledUrl.searchParams.get('tokenName') ?? undefined).toStrictEqual(tokenName);
         // eslint-disable-next-line jest/no-conditional-in-test
@@ -148,10 +145,9 @@ describe('openIssue', () => {
     pullRequestID = 'pr-1';
     await testWith({ pullRequestID });
 
-    login = 'login-1';
     tokenName = 'token-name';
     tokenValue = 'token-value';
-    await testWith({ login, tokenName, tokenValue });
+    await testWith({ tokenName, tokenValue });
   });
 });
 

@@ -97,7 +97,6 @@ export function IssueOpenInIdeButton({
         branchName,
         calledPort: ide.port,
         issueKey,
-        login,
         projectKey,
         pullRequestID,
         tokenName: token.name,

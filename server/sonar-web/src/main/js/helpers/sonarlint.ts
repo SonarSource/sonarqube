@@ -97,7 +97,6 @@ export function openIssue({
   branchName,
   calledPort,
   issueKey,
-  login,
   projectKey,
   pullRequestID,
   tokenName,
@@ -106,7 +105,6 @@ export function openIssue({
   branchName?: string;
   calledPort: number;
   issueKey: string;
-  login?: string;
   projectKey: string;
   pullRequestID?: string;
   tokenName?: string;
@@ -126,8 +124,7 @@ export function openIssue({
     showUrl.searchParams.set('pullRequest', pullRequestID);
   }
 
-  if (login !== undefined && tokenName !== undefined && tokenValue !== undefined) {
-    showUrl.searchParams.set('login', login);
+  if (tokenName !== undefined && tokenValue !== undefined) {
     showUrl.searchParams.set('tokenName', tokenName);
     showUrl.searchParams.set('tokenValue', tokenValue);
   }
