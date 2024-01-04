@@ -23,6 +23,7 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.ConsoleAppender;
 import ch.qos.logback.core.FileAppender;
 import ch.qos.logback.core.encoder.Encoder;
 import org.sonar.process.ProcessId;
@@ -80,10 +81,12 @@ public class WebServerProcessLogging extends ServerProcessLogging {
       : helper.createPatternLayoutEncoder(context, buildDepractedLogPatrern(config));
 
     FileAppender<ILoggingEvent> appender = helper.newFileAppender(context, props, DEPRECATION_LOG_FILE_PREFIX, encoder);
+    ConsoleAppender<ILoggingEvent> consoleAppender = helper.newConsoleAppender(context, "CONSOLE", encoder);
 
     Logger deprecated = context.getLogger(DEPRECATION_LOGGER_NAME);
     deprecated.setAdditive(false);
     deprecated.addAppender(appender);
+    deprecated.addAppender(consoleAppender);
   }
 
   private static String buildDepractedLogPatrern(RootLoggerConfig config) {

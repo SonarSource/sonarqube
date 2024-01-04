@@ -558,6 +558,15 @@ public class WebServerProcessLoggingTest {
     assertThat(fileAppender.getEncoder()).isInstanceOf(LayoutWrappingEncoder.class);
   }
 
+  @Test
+  public void configure_shouldConfigureDeprecatedLoggerWithConsoleAppender() {
+    LoggerContext ctx = underTest.configure(props);
+
+    Logger root = ctx.getLogger("SONAR_DEPRECATION");
+    Appender<ILoggingEvent> appender = root.getAppender("CONSOLE");
+    assertThat(appender).isNotNull();
+  }
+
   private void verifyRootLogLevel(LoggerContext ctx, Level expected) {
     Logger rootLogger = ctx.getLogger(ROOT_LOGGER_NAME);
     assertThat(rootLogger.getLevel()).isEqualTo(expected);
