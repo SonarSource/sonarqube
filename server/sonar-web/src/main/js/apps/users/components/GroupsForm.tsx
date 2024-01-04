@@ -90,7 +90,7 @@ export default function GroupsForm(props: Props) {
     return (
       <div>
         {group === undefined ? (
-          name
+          <LightPrimary>{name}</LightPrimary>
         ) : (
           <>
             <LightPrimary>{group.name}</LightPrimary>

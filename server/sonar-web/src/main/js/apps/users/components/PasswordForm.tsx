@@ -98,7 +98,6 @@ export default function PasswordForm(props: Props) {
               <InputField
                 autoFocus
                 id="old-user-password"
-                maxLength={255}
                 name="old-password"
                 onChange={(event) => setOldPassword(event.currentTarget.value)}
                 required
@@ -118,7 +117,6 @@ export default function PasswordForm(props: Props) {
               required
               type="password"
               value={newPassword}
-              maxLength={255}
               size="full"
             />
             <input className="hidden" aria-hidden name="password-fake" type="password" />
@@ -136,7 +134,6 @@ export default function PasswordForm(props: Props) {
               required
               type="password"
               value={confirmPassword}
-              maxLength={255}
               size="full"
             />
             <input className="hidden" aria-hidden name="confirm-password-fake" type="password" />

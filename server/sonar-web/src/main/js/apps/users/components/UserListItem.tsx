@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import {
+  ActionCell,
   Avatar,
   ContentCell,
   InteractiveIcon,
@@ -112,9 +113,9 @@ export default function UserListItem(props: UserListItemProps) {
         </Spinner>
       </ContentCell>
 
-      <ContentCell>
+      <ActionCell>
         <UserActions user={user} manageProvider={manageProvider} />
-      </ContentCell>
+      </ActionCell>
 
       {openTokenForm && <TokensFormModal onClose={() => setOpenTokenForm(false)} user={user} />}
       {openGroupForm && <GroupsForm onClose={() => setOpenGroupForm(false)} user={user} />}
