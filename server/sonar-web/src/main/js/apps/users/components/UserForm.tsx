@@ -147,7 +147,7 @@ export default function UserForm(props: Props) {
           )}
 
           {!error && user && !user.local && (
-            <FlagMessage variant="warning">
+            <FlagMessage className="sw-mb-4" variant="warning">
               {translate('users.cannot_update_delegated_user')}
             </FlagMessage>
           )}
@@ -163,6 +163,7 @@ export default function UserForm(props: Props) {
               required={!isInstanceManaged}
             >
               <InputField
+                autoFocus
                 autoComplete="off"
                 maxLength={255}
                 minLength={3}
@@ -182,6 +183,7 @@ export default function UserForm(props: Props) {
             required={!isInstanceManaged}
           >
             <InputField
+              autoFocus={!!user}
               autoComplete="off"
               disabled={(user && !user.local) || isInstanceManaged}
               size="full"

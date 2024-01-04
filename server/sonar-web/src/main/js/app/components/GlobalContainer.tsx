@@ -78,6 +78,7 @@ const TEMP_PAGELIST_WITH_NEW_BACKGROUND_WHITE = [
   '/project/background_tasks',
   '/admin/background_tasks',
   '/admin/groups',
+  '/admin/users',
 ];
 
 export default function GlobalContainer() {

@@ -18,7 +18,15 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { subDays, subSeconds } from 'date-fns';
-import { HelperHintIcon, InputSearch, InputSelect, StyledPageTitle } from 'design-system';
+import {
+  HelperHintIcon,
+  InputSearch,
+  InputSelect,
+  LargeCenteredLayout,
+  PageContentFontWrapper,
+  Spinner,
+  StyledPageTitle,
+} from 'design-system';
 import React, { useEffect, useMemo, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { getIdentityProviders } from '../../api/users';
@@ -29,7 +37,6 @@ import ListFooter from '../../components/controls/ListFooter';
 import { ManagedFilter } from '../../components/controls/ManagedFilter';
 import { LabelValueSelectOption } from '../../components/controls/Select';
 import Suggestions from '../../components/embed-docs-modal/Suggestions';
-import Spinner from '../../components/ui/Spinner';
 import { now, toISO8601WithOffsetString } from '../../helpers/dates';
 import { translate } from '../../helpers/l10n';
 import { useIdentityProviderQuery } from '../../queries/identity-provider/common';
@@ -89,72 +96,76 @@ export default function UsersApp() {
   }, []);
 
   return (
-    <main className="page page-limited" id="users-page">
-      <Suggestions suggestions="users" />
-      <Helmet defer={false} title={translate('users.page')} />
-      <Header manageProvider={manageProvider?.provider} />
-      {manageProvider?.provider === Provider.Github && <GitHubSynchronisationWarning short />}
-      {manageProvider?.provider === Provider.Gitlab && <GitLabSynchronisationWarning short />}
-      <div className="display-flex-justify-start big-spacer-bottom big-spacer-top">
-        <ManagedFilter
-          manageProvider={manageProvider?.provider}
-          loading={isLoading}
-          managed={managed}
-          setManaged={(m) => setManaged(m)}
-        />
-        <InputSearch
-          id="users-search"
-          minLength={2}
-          onChange={(search: string) => setSearch(search)}
-          placeholder={translate('search.search_by_login_or_name')}
-          value={search}
-        />
-        <div className="sw-flex sw-items-center sw-ml-4">
-          <StyledPageTitle as="label" className="sw-body-sm-highlight sw-mr-2">
-            {translate('users.filter.by')}
-          </StyledPageTitle>
-          <InputSelect
-            className="sw-body-sm"
-            size="medium"
-            id="users-activity-filter"
-            isDisabled={isLoading}
-            onChange={(userActivity: LabelValueSelectOption<UserActivity>) =>
-              setUsersActivity(userActivity.value)
-            }
-            options={USERS_ACTIVITY_OPTIONS}
-            isSearchable={false}
-            placeholder={translate('users.activity_filter.placeholder')}
-            aria-label={translate('users.activity_filter.label')}
-            value={USERS_ACTIVITY_OPTIONS.find((option) => option.value === usersActivity) ?? null}
+    <LargeCenteredLayout as="main" id="users-page">
+      <PageContentFontWrapper className="sw-my-8 sw-body-sm">
+        <Suggestions suggestions="users" />
+        <Helmet defer={false} title={translate('users.page')} />
+        <Header manageProvider={manageProvider?.provider} />
+        {manageProvider?.provider === Provider.Github && <GitHubSynchronisationWarning short />}
+        {manageProvider?.provider === Provider.Gitlab && <GitLabSynchronisationWarning short />}
+        <div className="sw-flex sw-my-4">
+          <ManagedFilter
+            manageProvider={manageProvider?.provider}
+            loading={isLoading}
+            managed={managed}
+            setManaged={(m) => setManaged(m)}
           />
-          <HelpTooltip
-            className="sw-ml-1"
-            overlay={
-              <>
-                <p>{translate('users.activity_filter.helptext.sonarqube')}</p>
-                <p>{translate('users.activity_filter.helptext.sonarlint')}</p>
-              </>
-            }
-          >
-            <HelperHintIcon />
-          </HelpTooltip>
+          <InputSearch
+            id="users-search"
+            minLength={2}
+            onChange={(search: string) => setSearch(search)}
+            placeholder={translate('search.search_by_login_or_name')}
+            value={search}
+          />
+          <div className="sw-flex sw-items-center sw-ml-4">
+            <StyledPageTitle as="label" className="sw-body-sm-highlight sw-mr-2">
+              {translate('users.filter.by')}
+            </StyledPageTitle>
+            <InputSelect
+              className="sw-body-sm"
+              size="medium"
+              id="users-activity-filter"
+              isDisabled={isLoading}
+              onChange={(userActivity: LabelValueSelectOption<UserActivity>) =>
+                setUsersActivity(userActivity.value)
+              }
+              options={USERS_ACTIVITY_OPTIONS}
+              isSearchable={false}
+              placeholder={translate('users.activity_filter.placeholder')}
+              aria-label={translate('users.activity_filter.label')}
+              value={
+                USERS_ACTIVITY_OPTIONS.find((option) => option.value === usersActivity) ?? null
+              }
+            />
+            <HelpTooltip
+              className="sw-ml-1"
+              overlay={
+                <>
+                  <p>{translate('users.activity_filter.helptext.sonarqube')}</p>
+                  <p>{translate('users.activity_filter.helptext.sonarlint')}</p>
+                </>
+              }
+            >
+              <HelperHintIcon />
+            </HelpTooltip>
+          </div>
         </div>
-      </div>
-      <Spinner loading={isLoading}>
-        <UsersList
-          identityProviders={identityProviders}
-          users={users}
-          manageProvider={manageProvider?.provider}
-        />
-      </Spinner>
+        <Spinner loading={isLoading}>
+          <UsersList
+            identityProviders={identityProviders}
+            users={users}
+            manageProvider={manageProvider?.provider}
+          />
+        </Spinner>
 
-      <ListFooter
-        count={users.length}
-        loadMore={fetchNextPage}
-        ready={!isLoading}
-        total={data?.pages[0].page.total}
-        useMIUIButtons
-      />
-    </main>
+        <ListFooter
+          count={users.length}
+          loadMore={fetchNextPage}
+          ready={!isLoading}
+          total={data?.pages[0].page.total}
+          useMIUIButtons
+        />
+      </PageContentFontWrapper>
+    </LargeCenteredLayout>
   );
 }
