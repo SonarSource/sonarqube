@@ -104,6 +104,23 @@ public class ManagedInstanceCheckerTest {
   }
 
   @Test
+  public void throwIfGroupIsManaged_whenGroupIsManaged_shouldThrow() {
+    GroupDto groupDto = mockManagedGroup();
+
+    String groupUuid = groupDto.getUuid();
+    assertThatThrownBy(() -> managedInstanceChecker.throwIfGroupIsManaged(dbSession, groupUuid))
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage(INSTANCE_EXCEPTION_MESSAGE);
+  }
+
+  @Test
+  public void throwIfGroupIsManaged_whenGroupIsNotManaged_shouldNotThrow() {
+    GroupDto groupDto = mockNotManagedGroup();
+
+    assertThatNoException().isThrownBy(() -> managedInstanceChecker.throwIfGroupIsManaged(dbSession, groupDto.getUuid()));
+  }
+
+  @Test
   public void throwIfUserAndProjectAreManaged_whenUserAndProjectAreManaged_shouldThrow() {
     ProjectDto projectDto = mockManagedProject();
     UserDto userDto = mockManagedUser();

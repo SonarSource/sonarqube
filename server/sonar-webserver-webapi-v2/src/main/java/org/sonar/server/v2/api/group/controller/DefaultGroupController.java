@@ -80,8 +80,8 @@ public class DefaultGroupController implements GroupController {
 
   @Override
   public void deleteGroup(String id) {
-    throwIfNotAllowedToModifyGroups();
     try (DbSession session = dbClient.openSession(false)) {
+      throwIfNotAllowedToDeleteGroup(id, session);
       GroupInformation group = findGroupInformationOrThrow(id, session);
       groupService.delete(session, group.groupDto());
       session.commit();
@@ -106,6 +106,11 @@ public class DefaultGroupController implements GroupController {
   private GroupInformation findGroupInformationOrThrow(String id, DbSession session) {
     return groupService.findGroupByUuid(session, id)
       .orElseThrow(() -> new NotFoundException(String.format(GROUP_NOT_FOUND_MESSAGE, id)));
+  }
+
+  private void throwIfNotAllowedToDeleteGroup(String id, DbSession session) {
+    userSession.checkIsSystemAdministrator();
+    managedInstanceChecker.throwIfGroupIsManaged(session, id);
   }
 
   @Override

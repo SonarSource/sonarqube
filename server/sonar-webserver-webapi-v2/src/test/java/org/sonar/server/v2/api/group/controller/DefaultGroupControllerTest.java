@@ -174,9 +174,9 @@ public class DefaultGroupControllerTest {
   }
 
   @Test
-  public void deleteGroup_whenInstanceIsManaged_shouldReturnException() throws Exception {
+  public void deleteGroup_whenInstanceAndGroupAreManaged_shouldReturnException() throws Exception {
     userSession.logIn().setSystemAdministrator();
-    doThrow(BadRequestException.create("the instance is managed")).when(managedInstanceChecker).throwIfInstanceIsManaged();
+    doThrow(BadRequestException.create("the instance is managed")).when(managedInstanceChecker).throwIfGroupIsManaged(any(), eq(GROUP_UUID));
     mockMvc.perform(
       delete(GROUPS_ENDPOINT + "/" + GROUP_UUID))
       .andExpectAll(

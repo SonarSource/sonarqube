@@ -49,6 +49,10 @@ public class ManagedInstanceChecker {
     BadRequestException.checkRequest(!managedInstanceService.isUserManaged(dbSession, userUuid), INSTANCE_EXCEPTION_MESSAGE);
   }
 
+  public void throwIfGroupIsManaged(DbSession dbSession, String groupUuid) {
+    BadRequestException.checkRequest(!managedInstanceService.isGroupManaged(dbSession, groupUuid), INSTANCE_EXCEPTION_MESSAGE);
+  }
+
   public void throwIfUserAndProjectAreManaged(DbSession dbSession, String userUuid, String projectUuid) {
     boolean isUserManaged = managedInstanceService.isUserManaged(dbSession, userUuid);
     boolean isProjectManaged = managedProjectService.isProjectManaged(dbSession, projectUuid);
