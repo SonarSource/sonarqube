@@ -28,7 +28,7 @@ import MainSonarQubeBar from './nav/global/MainSonarQubeBar';
  */
 export default function SimpleContainer({ children }: { children?: React.ReactNode }) {
   return (
-    <div className="global-container">
+    <div className="global-container new-background">
       <div className="page-wrapper" id="container">
         <MainSonarQubeBar />
         {children !== undefined ? children : <Outlet />}
