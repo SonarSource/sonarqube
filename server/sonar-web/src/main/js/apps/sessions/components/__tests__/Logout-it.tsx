@@ -78,7 +78,7 @@ it('should behave correctly', async () => {
 });
 
 it('should correctly handle a failing log out', async () => {
-  (logOut as jest.Mock).mockRejectedValueOnce(false);
+  jest.mocked(logOut).mockRejectedValueOnce(false);
   renderLogout();
 
   await waitFor(() => {

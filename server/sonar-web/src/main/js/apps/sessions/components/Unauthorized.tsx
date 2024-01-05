@@ -17,32 +17,33 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Card, CenteredLayout, Link, PageContentFontWrapper } from 'design-system';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
-import Link from '../../../components/common/Link';
 import { getCookie } from '../../../helpers/cookies';
 import { translate } from '../../../helpers/l10n';
 
 export default function Unauthorized() {
   const message = decodeURIComponent(getCookie('AUTHENTICATION-ERROR') || '');
   return (
-    <div className="page-wrapper-simple" id="bd">
+    <CenteredLayout id="bd">
       <Helmet defer={false} title={translate('unauthorized.page')} />
-      <div className="page-simple" id="nonav">
-        <div className="text-center">
+      <PageContentFontWrapper className="sw-body-md sw-flex sw-justify-center" id="nonav">
+        <Card className="sw-w-abs-500 sw-my-14 sw-text-center">
           <p id="unauthorized">{translate('unauthorized.message')}</p>
 
           {Boolean(message) && (
-            <p className="spacer-top">
-              {translate('unauthorized.reason')} {message}
+            <p className="sw-mt-4">
+              {translate('unauthorized.reason')}
+              <br /> {message}
             </p>
           )}
 
-          <div className="big-spacer-top">
+          <div className="sw-mt-8">
             <Link to="/">{translate('layout.home')}</Link>
           </div>
-        </div>
-      </div>
-    </div>
+        </Card>
+      </PageContentFontWrapper>
+    </CenteredLayout>
   );
 }

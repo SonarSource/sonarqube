@@ -78,7 +78,7 @@ public class BitbucketIdentityProvider implements OAuth2IdentityProvider {
   @Override
   public Display getDisplay() {
     return Display.builder()
-      .setIconPath("/images/alm/bitbucket-white.svg")
+      .setIconPath("/images/alm/bitbucket.svg")
       .setBackgroundColor("#0052cc")
       .build();
   }

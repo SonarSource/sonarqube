@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { CenteredLayout, PageContentFontWrapper } from 'design-system';
 import * as React from 'react';
 import { logOut } from '../../../api/auth';
 import RecentHistory from '../../../app/components/RecentHistory';
@@ -24,8 +25,8 @@ import { addGlobalErrorMessage } from '../../../helpers/globalMessages';
 import { translate } from '../../../helpers/l10n';
 import { getBaseUrl } from '../../../helpers/system';
 
-export default class Logout extends React.PureComponent {
-  componentDidMount() {
+export default function Logout() {
+  React.useEffect(() => {
     logOut()
       .then(() => {
         RecentHistory.clear();
@@ -34,13 +35,13 @@ export default class Logout extends React.PureComponent {
       .catch(() => {
         addGlobalErrorMessage(translate('login.logout_failed'));
       });
-  }
+  }, []);
 
-  render() {
-    return (
-      <div className="page page-limited">
-        <div className="text-center">{translate('logging_out')}</div>
-      </div>
-    );
-  }
+  return (
+    <CenteredLayout>
+      <PageContentFontWrapper className="sw-body-md sw-mt-14 sw-text-center">
+        {translate('logging_out')}
+      </PageContentFontWrapper>
+    </CenteredLayout>
+  );
 }

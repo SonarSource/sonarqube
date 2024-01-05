@@ -28,11 +28,16 @@ interface ThirdPartyProps extends Omit<ButtonProps, 'Icon'> {
   name: string;
 }
 
-export function ThirdPartyButton({ children, iconPath, name, ...buttonProps }: ThirdPartyProps) {
+export function ThirdPartyButton({
+  children,
+  iconPath,
+  name,
+  ...buttonProps
+}: Readonly<ThirdPartyProps>) {
   const size = 16;
   return (
     <ThirdPartyButtonStyled {...buttonProps}>
-      <img alt={name} className="sw-mr-1" height={size} src={iconPath} width={size} />
+      <img alt={name} className="sw-mr-2" height={size} src={iconPath} width={size} />
       {children}
     </ThirdPartyButtonStyled>
   );

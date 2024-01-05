@@ -145,7 +145,7 @@ jest.mock('../../../api/users', () => ({
       {
         key: 'github',
         name: 'GitHub',
-        iconPath: '/images/alm/github-white.svg',
+        iconPath: '/images/alm/github.svg',
         backgroundColor: '#444444',
       },
     ],

@@ -42,7 +42,7 @@ public class BitbucketIdentityProviderTest {
   public void check_fields() {
     assertThat(underTest.getKey()).isEqualTo("bitbucket");
     assertThat(underTest.getName()).isEqualTo("Bitbucket");
-    assertThat(underTest.getDisplay().getIconPath()).isEqualTo("/images/alm/bitbucket-white.svg");
+    assertThat(underTest.getDisplay().getIconPath()).isEqualTo("/images/alm/bitbucket.svg");
     assertThat(underTest.getDisplay().getBackgroundColor()).isEqualTo("#0052cc");
   }
 

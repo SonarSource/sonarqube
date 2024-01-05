@@ -78,7 +78,7 @@ import { CurrentUser, LoggedInUser, RestUserDetailed, User } from '../types/user
 export function mockAlmApplication(overrides: Partial<AlmApplication> = {}): AlmApplication {
   return {
     backgroundColor: '#444444',
-    iconPath: '/images/sonarcloud/github-white.svg',
+    iconPath: '/images/alm/github.svg',
     installationUrl: 'https://github.com/apps/greg-sonarcloud/installations/new',
     key: 'github',
     name: 'GitHub',
