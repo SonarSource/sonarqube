@@ -17,20 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import classNames from 'classnames';
+import {
+  Dropdown,
+  ItemNavLink,
+  LightLabel,
+  NavBarTabLink,
+  NavBarTabs,
+  PopupZLevel,
+  TopBar,
+} from 'design-system';
 import * as React from 'react';
-import { Location, NavLink } from 'react-router-dom';
-import Dropdown from '../../../../components/controls/Dropdown';
+import { Location } from 'react-router-dom';
 import withLocation from '../../../../components/hoc/withLocation';
-import DropdownIcon from '../../../../components/icons/DropdownIcon';
-import ContextNavBar from '../../../../components/ui/ContextNavBar';
-import NavBarTabs from '../../../../components/ui/NavBarTabs';
 import { translate } from '../../../../helpers/l10n';
 import { getBaseUrl } from '../../../../helpers/system';
 import { AdminPageExtension } from '../../../../types/extension';
 import { PendingPluginResult } from '../../../../types/plugins';
 import { Extension, SysStatus } from '../../../../types/types';
-import { rawSizes } from '../../../theme';
 import PendingPluginsActionNotif from './PendingPluginsActionNotif';
 import SystemRestartNotif from './SystemRestartNotif';
 
@@ -42,8 +45,6 @@ interface Props {
   pendingPlugins: PendingPluginResult;
   systemStatus: SysStatus;
 }
-
-const ALERT_HEIGHT = 30;
 
 export class SettingsNav extends React.PureComponent<Props> {
   static defaultProps = {
@@ -87,9 +88,9 @@ export class SettingsNav extends React.PureComponent<Props> {
 
   renderExtension = ({ key, name }: Extension) => {
     return (
-      <li key={key}>
-        <NavLink to={`/admin/extension/${key}`}>{name}</NavLink>
-      </li>
+      <ItemNavLink key={key} to={`/admin/extension/${key}`}>
+        {name}
+      </ItemNavLink>
     );
   };
 
@@ -99,50 +100,46 @@ export class SettingsNav extends React.PureComponent<Props> {
     );
     return (
       <Dropdown
+        id="settings-navigation-configuration-dropdown"
         overlay={
-          <ul className="menu dropdown-menu">
-            <li>
-              <NavLink end to="/admin/settings">
-                {translate('settings.page')}
-              </NavLink>
-            </li>
-            <li>
-              <NavLink end to="/admin/settings/encryption">
-                {translate('property.category.security.encryption')}
-              </NavLink>
-            </li>
-            <li>
-              <NavLink end to="/admin/webhooks">
-                {translate('webhooks.page')}
-              </NavLink>
-            </li>
+          <>
+            <ItemNavLink end to="/admin/settings">
+              {translate('settings.page')}
+            </ItemNavLink>
+
+            <ItemNavLink end to="/admin/settings/encryption">
+              {translate('property.category.security.encryption')}
+            </ItemNavLink>
+
+            <ItemNavLink end to="/admin/webhooks">
+              {translate('webhooks.page')}
+            </ItemNavLink>
+
             {extensionsWithoutSupport.map(this.renderExtension)}
-          </ul>
+          </>
         }
-        tagName="li"
+        size="auto"
+        zLevel={PopupZLevel.Global}
       >
         {({ onToggleClick, open }) => (
-          <a
+          <NavBarTabLink
             aria-expanded={open}
             aria-haspopup="menu"
-            role="button"
-            className={classNames('dropdown-toggle', {
-              active:
-                open ||
-                (!this.isSecurityActive() &&
-                  !this.isProjectsActive() &&
-                  !this.isSystemActive() &&
-                  !this.isSomethingActive(['/admin/extension/license/support']) &&
-                  !this.isMarketplace() &&
-                  !this.isAudit()),
-            })}
-            href="#"
+            active={
+              open ||
+              (!this.isSecurityActive() &&
+                !this.isProjectsActive() &&
+                !this.isSystemActive() &&
+                !this.isSomethingActive(['/admin/extension/license/support']) &&
+                !this.isMarketplace() &&
+                !this.isAudit())
+            }
+            to={{}}
             id="settings-navigation-configuration"
             onClick={onToggleClick}
-          >
-            {translate('sidebar.project_settings')}
-            <DropdownIcon className="little-spacer-left" />
-          </a>
+            text={translate('sidebar.project_settings')}
+            withChevron
+          />
         )}
       </Dropdown>
     );
@@ -151,34 +148,31 @@ export class SettingsNav extends React.PureComponent<Props> {
   renderProjectsTab() {
     return (
       <Dropdown
+        id="settings-navigation-projects-dropdown"
         overlay={
-          <ul className="menu dropdown-menu">
-            <li>
-              <NavLink end to="/admin/projects_management">
-                {translate('management')}
-              </NavLink>
-            </li>
-            <li>
-              <NavLink end to="/admin/background_tasks">
-                {translate('background_tasks.page')}
-              </NavLink>
-            </li>
-          </ul>
+          <>
+            <ItemNavLink end to="/admin/projects_management">
+              {translate('management')}
+            </ItemNavLink>
+
+            <ItemNavLink end to="/admin/background_tasks">
+              {translate('background_tasks.page')}
+            </ItemNavLink>
+          </>
         }
-        tagName="li"
+        size="auto"
+        zLevel={PopupZLevel.Global}
       >
         {({ onToggleClick, open }) => (
-          <a
+          <NavBarTabLink
             aria-expanded={open}
             aria-haspopup="menu"
-            role="button"
-            className={classNames('dropdown-toggle', { active: open || this.isProjectsActive() })}
-            href="#"
+            active={open || this.isProjectsActive()}
+            to={{}}
             onClick={onToggleClick}
-          >
-            {translate('sidebar.projects')}
-            <DropdownIcon className="little-spacer-left" />
-          </a>
+            text={translate('sidebar.projects')}
+            withChevron
+          />
         )}
       </Dropdown>
     );
@@ -187,44 +181,35 @@ export class SettingsNav extends React.PureComponent<Props> {
   renderSecurityTab() {
     return (
       <Dropdown
+        id="settings-navigation-security-dropdown"
         overlay={
-          <ul className="menu dropdown-menu">
-            <li>
-              <NavLink end to="/admin/users">
-                {translate('users.page')}
-              </NavLink>
-            </li>
-            <li>
-              <NavLink end to="/admin/groups">
-                {translate('user_groups.page')}
-              </NavLink>
-            </li>
-            <li>
-              <NavLink end to="/admin/permissions">
-                {translate('global_permissions.page')}
-              </NavLink>
-            </li>
-            <li>
-              <NavLink end to="/admin/permission_templates">
-                {translate('permission_templates')}
-              </NavLink>
-            </li>
-          </ul>
+          <>
+            <ItemNavLink to="/admin/users">{translate('users.page')}</ItemNavLink>
+
+            <ItemNavLink to="/admin/groups">{translate('user_groups.page')}</ItemNavLink>
+
+            <ItemNavLink to="/admin/permissions">
+              {translate('global_permissions.page')}
+            </ItemNavLink>
+
+            <ItemNavLink to="/admin/permission_templates">
+              {translate('permission_templates')}
+            </ItemNavLink>
+          </>
         }
-        tagName="li"
+        size="auto"
+        zLevel={PopupZLevel.Global}
       >
         {({ onToggleClick, open }) => (
-          <a
+          <NavBarTabLink
             aria-expanded={open}
             aria-haspopup="menu"
-            role="button"
-            className={classNames('dropdown-toggle', { active: open || this.isSecurityActive() })}
-            href="#"
+            active={open || this.isSecurityActive()}
+            to={{}}
             onClick={onToggleClick}
-          >
-            {translate('sidebar.security')}
-            <DropdownIcon className="little-spacer-left" />
-          </a>
+            text={translate('sidebar.security')}
+            withChevron
+          />
         )}
       </Dropdown>
     );
@@ -240,7 +225,6 @@ export class SettingsNav extends React.PureComponent<Props> {
       pendingPlugins.installing.length +
       pendingPlugins.removing.length +
       pendingPlugins.updating.length;
-    const contextNavHeight = rawSizes.contextNavHeightRaw;
     let notifComponent;
     if (this.props.systemStatus === 'RESTARTING') {
       notifComponent = <SystemRestartNotif />;
@@ -256,50 +240,40 @@ export class SettingsNav extends React.PureComponent<Props> {
     }
 
     return (
-      <ContextNavBar
-        height={notifComponent ? contextNavHeight + ALERT_HEIGHT : contextNavHeight}
-        id="context-navigation"
-        label={translate('settings')}
-        notif={notifComponent}
-      >
-        <div className="navbar-context-header">
-          <h1>{translate('layout.settings')}</h1>
-        </div>
+      <>
+        <TopBar id="context-navigation" aria-label={translate('settings')}>
+          <LightLabel as="h1">{translate('layout.settings')}</LightLabel>
 
-        <NavBarTabs>
-          {this.renderConfigurationTab()}
-          {this.renderSecurityTab()}
-          {this.renderProjectsTab()}
+          <NavBarTabs className="it__navbar-tabs sw-mt-4">
+            {this.renderConfigurationTab()}
+            {this.renderSecurityTab()}
+            {this.renderProjectsTab()}
 
-          <li>
-            <NavLink end to="/admin/system">
-              {translate('sidebar.system')}
-            </NavLink>
-          </li>
+            <NavBarTabLink end to="/admin/system" text={translate('sidebar.system')} />
 
-          <li>
-            <NavLink end to="/admin/marketplace">
-              {translate('marketplace.page')}
-            </NavLink>
-          </li>
+            <NavBarTabLink end to="/admin/marketplace" text={translate('marketplace.page')} />
 
-          {hasGovernanceExtension && (
-            <li>
-              <NavLink end to="/admin/audit">
-                {translate('audit_logs.page')}
-              </NavLink>
-            </li>
-          )}
+            {hasGovernanceExtension && (
+              <NavBarTabLink end to="/admin/audit" text={translate('audit_logs.page')} />
+            )}
 
-          {hasSupportExtension && (
-            <li>
-              <NavLink end to="/admin/extension/license/support">
-                {translate('support')}
-              </NavLink>
-            </li>
-          )}
-        </NavBarTabs>
-      </ContextNavBar>
+            {hasSupportExtension && (
+              <NavBarTabLink
+                end
+                to="/admin/extension/license/support"
+                text={translate('support')}
+              />
+            )}
+          </NavBarTabs>
+        </TopBar>
+        {notifComponent}
+        <PendingPluginsActionNotif
+          fetchSystemStatus={this.props.fetchSystemStatus}
+          pending={pendingPlugins}
+          refreshPending={this.props.fetchPendingPlugins}
+          systemStatus={this.props.systemStatus}
+        />
+      </>
     );
   }
 }

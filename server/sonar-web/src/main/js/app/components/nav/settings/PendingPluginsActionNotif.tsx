@@ -17,13 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { ButtonSecondary, FlagMessage } from 'design-system/lib';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { cancelPendingPlugins } from '../../../../api/plugins';
 import InstanceMessage from '../../../../components/common/InstanceMessage';
 import RestartButton from '../../../../components/common/RestartButton';
-import { Button } from '../../../../components/controls/buttons';
-import { Alert } from '../../../../components/ui/Alert';
 import { translate } from '../../../../helpers/l10n';
 import { PendingPluginResult } from '../../../../types/plugins';
 import { SysStatus } from '../../../../types/types';
@@ -48,9 +47,9 @@ export default class PendingPluginsActionNotif extends React.PureComponent<Props
     }
 
     return (
-      <Alert className="js-pending" display="banner" variant="info">
-        <div className="display-flex-center">
-          <span className="little-spacer-right">
+      <FlagMessage className="sw-w-full" variant="info">
+        <div className="sw-flex sw-items-center">
+          <span className="sw-mr-1">
             <InstanceMessage message={translate('marketplace.instance_needs_to_be_restarted_to')} />
           </span>
           {[
@@ -71,15 +70,15 @@ export default class PendingPluginsActionNotif extends React.PureComponent<Props
             ))}
 
           <RestartButton
-            className="spacer-left"
+            className="sw-ml-2"
             fetchSystemStatus={this.props.fetchSystemStatus}
             systemStatus={this.props.systemStatus}
           />
-          <Button className="spacer-left js-cancel-all" onClick={this.handleRevert}>
+          <ButtonSecondary className="sw-ml-2" onClick={this.handleRevert}>
             {translate('marketplace.revert')}
-          </Button>
+          </ButtonSecondary>
         </div>
-      </Alert>
+      </FlagMessage>
     );
   }
 }

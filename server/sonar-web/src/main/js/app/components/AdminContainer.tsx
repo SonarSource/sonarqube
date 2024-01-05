@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { createPortal } from 'react-dom';
 import { Helmet } from 'react-helmet-async';
 import { Outlet } from 'react-router-dom';
 import { getSettingsNavigation } from '../../api/navigation';
@@ -45,6 +46,7 @@ interface State {
 
 export class AdminContainer extends React.PureComponent<AdminContainerProps, State> {
   mounted = false;
+  portalAnchor: Element | null = null;
   state: State = {
     pendingPlugins: defaultPendingPlugins,
     systemStatus: defaultSystemStatus,
@@ -53,6 +55,7 @@ export class AdminContainer extends React.PureComponent<AdminContainerProps, Sta
 
   componentDidMount() {
     this.mounted = true;
+    this.portalAnchor = document.getElementById('component-nav-portal');
     if (!this.props.appState.canAdmin) {
       handleRequiredAuthorization();
     } else {
@@ -130,13 +133,18 @@ export class AdminContainer extends React.PureComponent<AdminContainerProps, Sta
             translate('layout.settings'),
           )}
         />
-        <SettingsNav
-          extensions={adminPages}
-          fetchPendingPlugins={this.fetchPendingPlugins}
-          fetchSystemStatus={this.fetchSystemStatus}
-          pendingPlugins={pendingPlugins}
-          systemStatus={systemStatus}
-        />
+        {this.portalAnchor &&
+          createPortal(
+            <SettingsNav
+              extensions={adminPages}
+              fetchPendingPlugins={this.fetchPendingPlugins}
+              fetchSystemStatus={this.fetchSystemStatus}
+              pendingPlugins={pendingPlugins}
+              systemStatus={systemStatus}
+            />,
+            this.portalAnchor,
+          )}
+
         <AdminContext.Provider
           value={{
             fetchSystemStatus: this.fetchSystemStatus,

@@ -123,6 +123,7 @@ function TestChildComponent() {
 
   return (
     <div>
+      <div id="component-nav-portal" />
       <ul aria-label="pages">
         {adminPages.map((page) => (
           <li key={page.key}>{page.name}</li>
