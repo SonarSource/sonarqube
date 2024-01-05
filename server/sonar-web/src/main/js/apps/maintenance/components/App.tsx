@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import styled from '@emotion/styled';
-import { ButtonPrimary, Link, Title, themeBorder } from 'design-system';
+import { ButtonPrimary, Card, Link, Note, Spinner, Title } from 'design-system';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { FormattedMessage } from 'react-intl';
@@ -138,7 +138,7 @@ export default class App extends React.PureComponent<Props, State> {
       <>
         <Helmet defaultTitle={translate('maintenance.page')} defer={false} />
         <div className="page-wrapper-simple" id="bd">
-          <MaintenanceContainer className="sw-body-sm sw-p-10" id="nonav">
+          <Card className="sw-body-sm sw-p-10 sw-w-abs-400" id="nonav">
             {status === 'OFFLINE' && (
               <>
                 <MaintenanceTitle className="text-danger">
@@ -175,7 +175,7 @@ export default class App extends React.PureComponent<Props, State> {
                   <InstanceMessage message={translate('maintenance.is_starting')} />
                 </MaintenanceTitle>
                 <MaintenanceSpinner>
-                  <i className="spinner" />
+                  <Spinner />
                 </MaintenanceSpinner>
               </>
             )}
@@ -276,13 +276,13 @@ export default class App extends React.PureComponent<Props, State> {
                     {translate('background_tasks.table.started')}{' '}
                     <DateFromNow date={this.state.startedAt} />
                     <br />
-                    <small className="text-muted">
+                    <Note>
                       <TimeFormatter date={this.state.startedAt} long />
-                    </small>
+                    </Note>
                   </MaintenanceText>
                 )}
                 <MaintenanceSpinner>
-                  <i className="spinner" />
+                  <Spinner />
                 </MaintenanceSpinner>
               </>
             )}
@@ -306,17 +306,12 @@ export default class App extends React.PureComponent<Props, State> {
                 <MaintenanceText>{translate('maintenance.upgrade_failed.text')}</MaintenanceText>
               </>
             )}
-          </MaintenanceContainer>
+          </Card>
         </div>
       </>
     );
   }
 }
-
-const MaintenanceContainer = styled.div`
-  border: ${themeBorder('default')};
-  width: 400px;
-`;
 
 const MaintenanceTitle = styled(Title)`
   text-align: center;
