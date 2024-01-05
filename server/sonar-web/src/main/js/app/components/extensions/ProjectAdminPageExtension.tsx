@@ -31,16 +31,13 @@ export default function ProjectAdminPageExtension() {
   // We keep that for compatibility but ideally should advocate to use tanstack query
   const onBranchesChange = useRefreshBranches();
 
-  const extension =
-    component &&
-    component.configuration &&
-    (component.configuration.extensions || []).find(
-      (p) => p.key === `${pluginKey}/${extensionKey}`,
-    );
+  const extension = component?.configuration?.extensions?.find(
+    (p) => p.key === `${pluginKey}/${extensionKey}`,
+  );
 
   return extension ? (
     <Extension extension={extension} options={{ component, onComponentChange, onBranchesChange }} />
   ) : (
-    <NotFound withContainer={false} />
+    <NotFound />
   );
 }

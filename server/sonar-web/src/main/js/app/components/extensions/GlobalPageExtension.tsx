@@ -20,8 +20,8 @@
 import * as React from 'react';
 import { useParams } from 'react-router-dom';
 import { AppState } from '../../../types/appstate';
-import withAppStateContext from '../app-state/withAppStateContext';
 import NotFound from '../NotFound';
+import withAppStateContext from '../app-state/withAppStateContext';
 import Extension from './Extension';
 
 export interface GlobalPageExtensionProps {
@@ -44,8 +44,8 @@ function GlobalPageExtension(props: GlobalPageExtensionProps) {
       ? `${params.pluginKey}/${params.extensionKey}`
       : `${pluginKey}/${extensionKey}`;
 
-  const extension = (globalPages || []).find((p) => p.key === fullKey);
-  return extension ? <Extension extension={extension} /> : <NotFound withContainer={false} />;
+  const extension = globalPages?.find((p) => p.key === fullKey);
+  return extension ? <Extension extension={extension} /> : <NotFound />;
 }
 
 export default withAppStateContext(GlobalPageExtension);

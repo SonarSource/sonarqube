@@ -239,8 +239,11 @@ const router = createBrowserRouter(
             path="admin/plugin_risk_consent"
             element={<PluginRiskConsent />}
           />
-          <Route path="not_found" element={<NotFound />} />
-          <Route path="*" element={<NotFound />} />
+
+          <Route element={<SimpleContainer />}>
+            <Route path="not_found" element={<NotFound />} />
+            <Route path="*" element={<NotFound />} />
+          </Route>
         </Route>
       </Route>
     </>,

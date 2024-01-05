@@ -27,6 +27,6 @@ export default function GlobalAdminPageExtension() {
   const { pluginKey, extensionKey } = useParams();
   const { adminPages } = useOutletContext<AdminPagesContext>();
 
-  const extension = (adminPages || []).find((p) => p.key === `${pluginKey}/${extensionKey}`);
-  return extension ? <Extension extension={extension} /> : <NotFound withContainer={false} />;
+  const extension = adminPages?.find((p) => p.key === `${pluginKey}/${extensionKey}`);
+  return extension ? <Extension extension={extension} /> : <NotFound />;
 }

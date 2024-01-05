@@ -46,10 +46,10 @@ export default function ProjectPageExtension({ params }: ProjectPageExtensionPro
       ? `${params.pluginKey}/${params.extensionKey}`
       : `${pluginKey}/${extensionKey}`;
 
-  const extension = component.extensions && component.extensions.find((p) => p.key === fullKey);
+  const extension = component.extensions?.find((p) => p.key === fullKey);
   return extension ? (
     <Extension extension={extension} options={{ branchLike, component }} />
   ) : (
-    <NotFound withContainer={false} />
+    <NotFound />
   );
 }
