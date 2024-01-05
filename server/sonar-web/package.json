@@ -14,7 +14,7 @@
     "@react-spring/rafz": "9.7.3",
     "@react-spring/web": "9.7.3",
     "@tanstack/react-query": "4.33.0",
-    "axios": "1.6.0",
+    "axios": "1.6.4",
     "classnames": "2.3.2",
     "clipboard": "2.0.11",
     "core-js": "3.33.2",
