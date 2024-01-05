@@ -117,22 +117,30 @@ public class IssueIndexer implements EventIndexer, AnalysisIndexer, NeedAuthoriz
 
   public void indexAllIssues() {
     try (IssueIterator issues = issueIteratorFactory.createForAll()) {
-      doIndex(issues, Set.of());
+      doIndex(issues);
     }
   }
 
   @Override
   public void indexOnAnalysis(String branchUuid) {
     try (IssueIterator issues = issueIteratorFactory.createForBranch(branchUuid)) {
-      doIndex(issues, Set.of());
+      doIndex(issues);
     }
   }
 
   @Override
-  public void indexOnAnalysis(String branchUuid, Set<String> unchangedComponentUuids) {
-    try (IssueIterator issues = issueIteratorFactory.createForBranch(branchUuid)) {
-      doIndex(issues, unchangedComponentUuids);
+  public void indexOnAnalysis(String branchUuid, Collection<String> diffToIndex) {
+    if (diffToIndex.isEmpty()) {
+      return;
     }
+    try (IssueIterator issues = issueIteratorFactory.createForIssueKeys(diffToIndex)) {
+      doIndex(issues);
+    }
+  }
+
+  @Override
+  public boolean supportDiffIndexing() {
+    return true;
   }
 
   public void indexProject(String projectUuid) {
@@ -162,7 +170,7 @@ public class IssueIndexer implements EventIndexer, AnalysisIndexer, NeedAuthoriz
         emptyList();
 
       case DELETION, SWITCH_OF_MAIN_BRANCH -> {
-        //switch of main branch requires to reindex the project issues
+        // switch of main branch requires to reindex the project issues
         List<EsQueueDto> items = createBranchRecoveryItems(branchUuids);
         yield dbClient.esQueueDao().insert(dbSession, items);
       }
@@ -304,23 +312,17 @@ public class IssueIndexer implements EventIndexer, AnalysisIndexer, NeedAuthoriz
 
   @VisibleForTesting
   protected void index(Iterator<IssueDoc> issues) {
-    doIndex(issues, Set.of());
+    doIndex(issues);
   }
 
-  private void doIndex(Iterator<IssueDoc> issues, Set<String> unchangedComponentUuids) {
+  private void doIndex(Iterator<IssueDoc> issues) {
     BulkIndexer bulk = createBulkIndexer(IndexingListener.FAIL_ON_ERROR);
     bulk.start();
     while (issues.hasNext()) {
       IssueDoc issue = issues.next();
-      if (shouldReindexIssue(issue, unchangedComponentUuids)) {
-        bulk.add(newIndexRequest(issue));
-      }
+      bulk.add(newIndexRequest(issue));
     }
     bulk.stop();
-  }
-
-  private static boolean shouldReindexIssue(IssueDoc issue, Set<String> unchangedComponentUuids) {
-    return issue.getFields().get(IssueIndexDefinition.FIELD_ISSUE_COMPONENT_UUID) == null || !unchangedComponentUuids.contains(issue.componentUuid());
   }
 
   private static IndexRequest newIndexRequest(IssueDoc issue) {

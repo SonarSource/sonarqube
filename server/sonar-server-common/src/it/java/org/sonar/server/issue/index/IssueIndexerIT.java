@@ -609,7 +609,7 @@ public class IssueIndexerIT {
   }
 
   @Test
-  public void indexOnAnalysis_whenChangedComponents_shouldReindexOnlyChangedComponents() {
+  public void indexOnAnalysis_whenDiffProvided_shouldReindexOnlyIssueDifference() {
     RuleDto rule = db.rules().insert();
     ComponentDto mainBranchComponent = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto changedComponent1 = db.components().insertComponent(newFileDto(mainBranchComponent));
@@ -621,22 +621,22 @@ public class IssueIndexerIT {
     db.issues().insert(rule, mainBranchComponent, unchangedComponent);
     db.issues().insert(rule, mainBranchComponent, unchangedComponent);
 
-    underTest.indexOnAnalysis(mainBranchComponent.uuid(), Set.of(unchangedComponent.uuid()));
+    underTest.indexOnAnalysis(mainBranchComponent.uuid(), Set.of(changedIssue1.getKee(), changedIssue2.getKee(), changedIssue3.getKee()));
 
     assertThatIndexHasOnly(changedIssue1, changedIssue2, changedIssue3);
   }
 
   @Test
-  public void indexOnAnalysis_whenEmptyUnchangedComponents_shouldReindexEverything() {
+  public void indexOnAnalysis_whenEmptyDiffToIndex_shouldSkipIndexing() {
     RuleDto rule = db.rules().insert();
     ComponentDto mainBranchComponent = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto changedComponent = db.components().insertComponent(newFileDto(mainBranchComponent));
-    IssueDto changedIssue1 = db.issues().insert(rule, mainBranchComponent, changedComponent);
-    IssueDto changedIssue2 = db.issues().insert(rule, mainBranchComponent, changedComponent);
+    db.issues().insert(rule, mainBranchComponent, changedComponent);
+    db.issues().insert(rule, mainBranchComponent, changedComponent);
 
     underTest.indexOnAnalysis(mainBranchComponent.uuid(), Set.of());
 
-    assertThatIndexHasOnly(changedIssue1, changedIssue2);
+    assertThatIndexHasSize(0);
   }
 
   @Test
@@ -648,6 +648,11 @@ public class IssueIndexerIT {
     underTest.indexOnAnalysis(mainBranchComponent.uuid(), Set.of());
 
     assertThat(es.getDocuments(TYPE_ISSUE)).isEmpty();
+  }
+
+  @Test
+  public void supportDiffIndex_shouldReturnTrue() {
+    assertThat(underTest.supportDiffIndexing()).isTrue();
   }
 
   private void addIssueToIndex(String projectUuid, String branchUuid, String issueKey) {

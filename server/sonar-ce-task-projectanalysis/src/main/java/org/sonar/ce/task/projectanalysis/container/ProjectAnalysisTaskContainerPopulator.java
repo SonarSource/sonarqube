@@ -52,7 +52,9 @@ import org.sonar.ce.task.projectanalysis.filemove.ScoreMatrixDumperImpl;
 import org.sonar.ce.task.projectanalysis.filemove.SourceSimilarityImpl;
 import org.sonar.ce.task.projectanalysis.filesystem.ComputationTempFolderProvider;
 import org.sonar.ce.task.projectanalysis.issue.AnticipatedTransitionRepositoryImpl;
+import org.sonar.ce.task.projectanalysis.index.IndexDiffResolverImpl;
 import org.sonar.ce.task.projectanalysis.issue.BaseIssuesLoader;
+import org.sonar.ce.task.projectanalysis.issue.ChangedIssuesRepository;
 import org.sonar.ce.task.projectanalysis.issue.CloseIssuesOnRemovedComponentsVisitor;
 import org.sonar.ce.task.projectanalysis.issue.ClosedIssuesInputFactory;
 import org.sonar.ce.task.projectanalysis.issue.ComponentIssuesLoader;
@@ -194,6 +196,7 @@ public final class ProjectAnalysisTaskContainerPopulator implements ContainerPop
       new ComputationTempFolderProvider(),
 
       FileStatusesImpl.class,
+      IndexDiffResolverImpl.class,
       new MetricModule(),
 
       // holders
@@ -271,6 +274,7 @@ public final class ProjectAnalysisTaskContainerPopulator implements ContainerPop
       IssuesRepositoryVisitor.class,
       RemoveProcessedComponentsVisitor.class,
       IssueOnReferenceBranchVisitor.class,
+      ChangedIssuesRepository.class,
 
       // visitors : order is important, measure computers must be executed at the end in order to access to every measures / issues
       AnalysisFromSonarQube94Visitor.class,

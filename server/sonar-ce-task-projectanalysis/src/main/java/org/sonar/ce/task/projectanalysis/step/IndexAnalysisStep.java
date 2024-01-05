@@ -19,48 +19,59 @@
  */
 package org.sonar.ce.task.projectanalysis.step;
 
-import java.util.Set;
-import java.util.function.Consumer;
+import java.util.Collection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.ce.task.projectanalysis.component.FileStatuses;
+import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolder;
+import org.sonar.ce.task.projectanalysis.index.IndexDiffResolver;
 import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.ce.CeActivityDto;
+import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.server.es.AnalysisIndexer;
 
 public class IndexAnalysisStep implements ComputationStep {
-
   private static final Logger LOGGER = LoggerFactory.getLogger(IndexAnalysisStep.class);
-
   private final TreeRootHolder treeRootHolder;
-  private final FileStatuses fileStatuses;
+  private final IndexDiffResolver indexDiffResolver;
   private final AnalysisIndexer[] indexers;
   private final DbClient dbClient;
 
-  public IndexAnalysisStep(TreeRootHolder treeRootHolder, FileStatuses fileStatuses, DbClient dbClient, AnalysisIndexer... indexers) {
+  public IndexAnalysisStep(TreeRootHolder treeRootHolder, IndexDiffResolver indexDiffResolver, DbClient dbClient, AnalysisIndexer... indexers) {
     this.treeRootHolder = treeRootHolder;
-    this.fileStatuses = fileStatuses;
+    this.indexDiffResolver = indexDiffResolver;
     this.indexers = indexers;
     this.dbClient = dbClient;
   }
 
   @Override
   public void execute(ComputationStep.Context context) {
-    String branchUuid = treeRootHolder.getRoot().getUuid();
-    Consumer<AnalysisIndexer> analysisIndexerConsumer = getAnalysisIndexerConsumer(branchUuid);
+    Component root = treeRootHolder.getRoot();
+    String branchUuid = root.getUuid();
+
     for (AnalysisIndexer indexer : indexers) {
       LOGGER.debug("Call {}", indexer);
-      analysisIndexerConsumer.accept(indexer);
+      if (isDiffIndexingSupported(root, indexer) && hasPreviousAnalysisSucceeded(branchUuid) && !isBranchNeedIssueSync(branchUuid)) {
+        Collection<String> diffSet = indexDiffResolver.resolve(indexer.getClass());
+        indexer.indexOnAnalysis(branchUuid, diffSet);
+      } else {
+        indexer.indexOnAnalysis(branchUuid);
+      }
     }
   }
 
-  private Consumer<AnalysisIndexer> getAnalysisIndexerConsumer(String branchUuid) {
-    Set<String> fileUuidsMarkedAsUnchanged = fileStatuses.getFileUuidsMarkedAsUnchanged();
-    return isBranchNeedIssueSync(branchUuid)
-      ? (indexer -> indexer.indexOnAnalysis(branchUuid))
-      : (indexer -> indexer.indexOnAnalysis(branchUuid, fileUuidsMarkedAsUnchanged));
+  private boolean hasPreviousAnalysisSucceeded(String branchUuid) {
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      return dbClient.ceActivityDao().selectLastByComponentUuidAndTaskType(dbSession, branchUuid, CeTaskTypes.REPORT)
+        .filter(activityDto -> CeActivityDto.Status.SUCCESS.equals(activityDto.getStatus()))
+        .isPresent();
+    }
+  }
+
+  private static boolean isDiffIndexingSupported(Component root, AnalysisIndexer indexer) {
+    return Component.Type.PROJECT.equals(root.getType()) && indexer.supportDiffIndexing();
   }
 
   private boolean isBranchNeedIssueSync(String branchUuid) {

@@ -17,14 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.ce.task.projectanalysis.component;
+package org.sonar.ce.task.projectanalysis.issue;
 
-public interface FileStatuses {
-  /**
-   * A file is unchanged compared to the last analysis if it was detected as unchanged by the scanner and
-   * it's confirmed to be unchanged by the CE, by comparing file hashes.
-   */
-  boolean isUnchanged(Component component);
+import org.junit.Test;
 
-  boolean isDataUnchanged(Component component);
+import static org.assertj.core.api.Assertions.assertThat;
+
+public class ChangedIssuesRepositoryTest {
+
+  private final ChangedIssuesRepository underTest = new ChangedIssuesRepository();
+
+  @Test
+  public void addIssueKey_shouldAddKeysToRepository() {
+    underTest.addIssueKey("key1");
+    underTest.addIssueKey("key2");
+    underTest.addIssueKey("key3");
+
+    assertThat(underTest.getChangedIssuesKeys())
+      .containsExactlyInAnyOrder("key1", "key2", "key3");
+  }
+
 }

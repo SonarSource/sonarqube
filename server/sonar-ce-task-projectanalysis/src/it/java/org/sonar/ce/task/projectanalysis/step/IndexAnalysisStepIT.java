@@ -19,20 +19,25 @@
  */
 package org.sonar.ce.task.projectanalysis.step;
 
+import java.util.Optional;
 import java.util.Set;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.ce.task.projectanalysis.batch.BatchReportReaderRule;
 import org.sonar.ce.task.projectanalysis.component.Component;
-import org.sonar.ce.task.projectanalysis.component.FileStatuses;
 import org.sonar.ce.task.projectanalysis.component.ReportComponent;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.ce.task.projectanalysis.component.ViewsComponent;
+import org.sonar.ce.task.projectanalysis.index.IndexDiffResolver;
 import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.ce.task.step.TestComputationStepContext;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.ce.CeActivityDao;
+import org.sonar.db.ce.CeActivityDto;
+import org.sonar.db.ce.CeQueueDto;
+import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.db.component.BranchDao;
 import org.sonar.server.es.AnalysisIndexer;
 
@@ -53,11 +58,12 @@ public class IndexAnalysisStepIT extends BaseStepTest {
   public BatchReportReaderRule reportReader = new BatchReportReaderRule();
 
   private final DbClient dbClient = mock(DbClient.class);
-  private final FileStatuses fileStatuses = mock(FileStatuses.class);
+  private final IndexDiffResolver indexDiffResolver = mock(IndexDiffResolver.class);
   private final AnalysisIndexer analysisIndexer = mock(AnalysisIndexer.class);
   private final DbSession dbSession = mock(DbSession.class);
   private final BranchDao branchDao = mock(BranchDao.class);
-  private final IndexAnalysisStep underTest = new IndexAnalysisStep(treeRootHolder, fileStatuses, dbClient, analysisIndexer);
+  private final CeActivityDao ceActivityDao = mock(CeActivityDao.class);
+  private final IndexAnalysisStep underTest = new IndexAnalysisStep(treeRootHolder, indexDiffResolver, dbClient, analysisIndexer);
 
   private TestComputationStepContext testComputationStepContext;
 
@@ -67,6 +73,7 @@ public class IndexAnalysisStepIT extends BaseStepTest {
 
     when(dbClient.openSession(false)).thenReturn(dbSession);
     when(dbClient.branchDao()).thenReturn(branchDao);
+    when(dbClient.ceActivityDao()).thenReturn(ceActivityDao);
   }
 
   @Test
@@ -76,29 +83,17 @@ public class IndexAnalysisStepIT extends BaseStepTest {
 
     underTest.execute(testComputationStepContext);
 
-    verify(analysisIndexer).indexOnAnalysis(PROJECT_UUID, Set.of());
+    verify(analysisIndexer).indexOnAnalysis(PROJECT_UUID);
   }
 
   @Test
-  public void call_indexByProjectUuid_of_indexer_for_view() {
+  public void execute_indexByProjectUuid_of_indexer_for_view() {
     Component view = ViewsComponent.builder(VIEW, PROJECT_KEY).setUuid(PROJECT_UUID).build();
     treeRootHolder.setRoot(view);
 
     underTest.execute(testComputationStepContext);
 
-    verify(analysisIndexer).indexOnAnalysis(PROJECT_UUID, Set.of());
-  }
-
-  @Test
-  public void execute_whenMarkAsUnchangedFlagActivated_shouldCallIndexOnAnalysisWithChangedComponents() {
-    Component project = ReportComponent.builder(PROJECT, 1).setUuid(PROJECT_UUID).setKey(PROJECT_KEY).build();
-    treeRootHolder.setRoot(project);
-    Set<String> anyUuids = Set.of("any-uuid");
-    when(fileStatuses.getFileUuidsMarkedAsUnchanged()).thenReturn(anyUuids);
-
-    underTest.execute(testComputationStepContext);
-
-    verify(analysisIndexer).indexOnAnalysis(PROJECT_UUID, anyUuids);
+    verify(analysisIndexer).indexOnAnalysis(PROJECT_UUID);
   }
 
   @Test
@@ -106,6 +101,48 @@ public class IndexAnalysisStepIT extends BaseStepTest {
     Component project = ReportComponent.builder(PROJECT, 1).setUuid(PROJECT_UUID).setKey(PROJECT_KEY).build();
     treeRootHolder.setRoot(project);
     when(branchDao.isBranchNeedIssueSync(dbSession, PROJECT_UUID)).thenReturn(true);
+
+    underTest.execute(testComputationStepContext);
+
+    verify(analysisIndexer).indexOnAnalysis(PROJECT_UUID);
+  }
+
+  @Test
+  public void execute_whenConditionsForDiffMet_shouldReindexDifferenceOnly() {
+    Component project = ReportComponent.builder(PROJECT, 1).setUuid(PROJECT_UUID).setKey(PROJECT_KEY).build();
+    treeRootHolder.setRoot(project);
+    when(ceActivityDao.selectLastByComponentUuidAndTaskType(dbSession, PROJECT_UUID, CeTaskTypes.REPORT))
+      .thenReturn(Optional.of(new CeActivityDto(new CeQueueDto()).setStatus(org.sonar.db.ce.CeActivityDto.Status.SUCCESS)));
+    when(analysisIndexer.supportDiffIndexing()).thenReturn(true);
+    when(indexDiffResolver.resolve(analysisIndexer.getClass())).thenReturn(Set.of("foo", "bar"));
+
+    underTest.execute(testComputationStepContext);
+
+    verify(analysisIndexer).indexOnAnalysis(PROJECT_UUID, Set.of("foo", "bar"));
+  }
+
+  @Test
+  public void execute_whenFailedCETask_shouldReindexFully() {
+    Component project = ReportComponent.builder(PROJECT, 1).setUuid(PROJECT_UUID).setKey(PROJECT_KEY).build();
+    treeRootHolder.setRoot(project);
+    when(ceActivityDao.selectLastByComponentUuidAndTaskType(dbSession, PROJECT_UUID, CeTaskTypes.REPORT))
+      .thenReturn(Optional.of(new CeActivityDto(new CeQueueDto()).setStatus(CeActivityDto.Status.FAILED)));
+    when(analysisIndexer.supportDiffIndexing()).thenReturn(true);
+    when(indexDiffResolver.resolve(analysisIndexer.getClass())).thenReturn(Set.of("foo", "bar"));
+
+    underTest.execute(testComputationStepContext);
+
+    verify(analysisIndexer).indexOnAnalysis(PROJECT_UUID);
+  }
+
+  @Test
+  public void execute_whenNoCETask_shouldReindexFully() {
+    Component project = ReportComponent.builder(PROJECT, 1).setUuid(PROJECT_UUID).setKey(PROJECT_KEY).build();
+    treeRootHolder.setRoot(project);
+    when(ceActivityDao.selectLastByComponentUuidAndTaskType(dbSession, PROJECT_UUID, CeTaskTypes.REPORT))
+      .thenReturn(Optional.empty());
+    when(analysisIndexer.supportDiffIndexing()).thenReturn(true);
+    when(indexDiffResolver.resolve(analysisIndexer.getClass())).thenReturn(Set.of("foo", "bar"));
 
     underTest.execute(testComputationStepContext);
 

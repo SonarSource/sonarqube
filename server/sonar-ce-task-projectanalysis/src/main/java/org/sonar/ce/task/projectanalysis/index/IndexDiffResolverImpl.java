@@ -17,31 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.ce.task.projectanalysis.component;
+package org.sonar.ce.task.projectanalysis.index;
 
-import org.junit.Test;
-import org.mockito.Mockito;
+import java.util.Collection;
+import org.sonar.ce.task.projectanalysis.issue.ChangedIssuesRepository;
+import org.sonar.server.es.AnalysisIndexer;
+import org.sonar.server.issue.index.IssueIndexer;
 
-import static org.assertj.core.api.Assertions.assertThat;
+public class IndexDiffResolverImpl implements IndexDiffResolver {
+  private final ChangedIssuesRepository changedIssuesRepository;
 
-public class NopFileStatusesTest {
-
-  private final NopFileStatuses nopFileStatuses = new NopFileStatuses();
-
-  private final Component component = Mockito.mock(Component.class);
-
-  @Test
-  public void isUnchanged() {
-    assertThat(nopFileStatuses.isUnchanged(component)).isFalse();
+  public IndexDiffResolverImpl(ChangedIssuesRepository changedIssuesRepository) {
+    this.changedIssuesRepository = changedIssuesRepository;
   }
 
-  @Test
-  public void isDataUnchanged() {
-    assertThat(nopFileStatuses.isDataUnchanged(component)).isFalse();
-  }
-
-  @Test
-  public void getFileUuidsMarkedAsUnchanged() {
-    assertThat(nopFileStatuses.getFileUuidsMarkedAsUnchanged()).isEmpty();
+  @Override
+  public Collection<String> resolve(Class<? extends AnalysisIndexer> clazz) {
+    if (clazz.isAssignableFrom(IssueIndexer.class)) {
+      return changedIssuesRepository.getChangedIssuesKeys();
+    }
+    throw new UnsupportedOperationException("Unsupported indexer: " + clazz);
   }
 }

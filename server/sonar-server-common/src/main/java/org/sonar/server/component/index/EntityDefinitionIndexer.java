@@ -84,11 +84,6 @@ public class EntityDefinitionIndexer implements EventIndexer, AnalysisIndexer, N
 
   @Override
   public void indexOnAnalysis(String branchUuid) {
-    indexOnAnalysis(branchUuid, Set.of());
-  }
-
-  @Override
-  public void indexOnAnalysis(String branchUuid, Set<String> unchangedComponentUuids) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       Optional<BranchDto> branchDto = dbClient.branchDao().selectByUuid(dbSession, branchUuid);
 

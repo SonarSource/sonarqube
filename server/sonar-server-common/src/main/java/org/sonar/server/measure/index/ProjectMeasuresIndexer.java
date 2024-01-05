@@ -92,11 +92,6 @@ public class ProjectMeasuresIndexer implements EventIndexer, AnalysisIndexer, Ne
 
   @Override
   public void indexOnAnalysis(String branchUuid) {
-    indexOnAnalysis(branchUuid, Set.of());
-  }
-
-  @Override
-  public void indexOnAnalysis(String branchUuid, Set<String> unchangedComponentUuids) {
     doIndex(Size.REGULAR, branchUuid);
   }
 

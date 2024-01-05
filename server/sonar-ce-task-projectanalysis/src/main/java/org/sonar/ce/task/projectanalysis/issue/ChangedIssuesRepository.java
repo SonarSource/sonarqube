@@ -17,29 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.ce.task.projectanalysis.component;
+package org.sonar.ce.task.projectanalysis.issue;
 
-
+import java.util.HashSet;
 import java.util.Set;
 
-/**
- * No operation implementation of {@link FileStatuses}
- */
-public final class NopFileStatuses implements FileStatuses {
+public class ChangedIssuesRepository {
+  private final Set<String> changedIssuesKeys = new HashSet<>();
 
-
-  @Override
-  public boolean isUnchanged(Component component) {
-    return false;
+  public void addIssueKey(String issueKey) {
+    changedIssuesKeys.add(issueKey);
   }
 
-  @Override
-  public boolean isDataUnchanged(Component component) {
-    return false;
-  }
-
-  @Override
-  public Set<String> getFileUuidsMarkedAsUnchanged() {
-    return Set.of();
+  public Set<String> getChangedIssuesKeys() {
+    return changedIssuesKeys;
   }
 }

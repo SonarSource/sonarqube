@@ -29,7 +29,6 @@ import org.sonar.ce.task.projectanalysis.source.SourceHashRepository;
 import org.sonar.db.source.FileHashesDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -172,33 +171,6 @@ public class FileStatusesImplTest {
     assertThat(fileStatuses.isDataUnchanged(file2)).isFalse();
 
     verify(previousSourceHashRepository).getDbFile(file1);
-  }
-
-  @Test
-  public void getFileUuidsMarkedAsUnchanged_whenNotInitialized_shouldFail() {
-    assertThatThrownBy(fileStatuses::getFileUuidsMarkedAsUnchanged)
-      .isInstanceOf(IllegalStateException.class)
-      .hasMessage("Not initialized");
-  }
-
-  @Test
-  public void getFileUuidsMarkedAsUnchanged_shouldReturnMarkAsUnchangedFileUuids() {
-    Component file1 = ReportComponent.builder(Component.Type.FILE, 2, "FILE1_KEY").setStatus(Component.Status.SAME)
-      .setFileAttributes(new FileAttributes(false, null, 10, true, null)).build();
-    Component file2 = ReportComponent.builder(Component.Type.FILE, 3, "FILE2_KEY").setStatus(Component.Status.SAME).build();
-    addDbFileHash(file1, "hash1");
-    addDbFileHash(file2, "hash2");
-    addReportFileHash(file1, "hash1");
-    addReportFileHash(file2, "hash2");
-    Component project = ReportComponent.builder(Component.Type.PROJECT, 1)
-      .setUuid(PROJECT_UUID)
-      .setKey(PROJECT_KEY)
-      .addChildren(file1, file2)
-      .build();
-    treeRootHolder.setRoot(project);
-    fileStatuses.initialize();
-
-    assertThat(fileStatuses.getFileUuidsMarkedAsUnchanged()).contains(file1.getUuid());
   }
 
   private void addDbFileHash(Component file, String hash) {

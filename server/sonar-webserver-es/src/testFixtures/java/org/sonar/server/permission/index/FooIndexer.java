@@ -20,7 +20,6 @@
 package org.sonar.server.permission.index;
 
 import java.util.Optional;
-import java.util.Set;
 import org.elasticsearch.action.index.IndexRequest;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -50,24 +49,17 @@ public class FooIndexer implements AnalysisIndexer, NeedAuthorizationIndexer {
 
   @Override
   public void indexOnAnalysis(String branchUuid) {
-    indexOnAnalysis(branchUuid, Set.of());
-  }
-
-  @Override
-  public void indexOnAnalysis(String branchUuid, Set<String> unchangedComponentUuids) {
-    try(DbSession dbSession = dbClient.openSession(true)){
+    try (DbSession dbSession = dbClient.openSession(true)) {
       Optional<BranchDto> branchDto = dbClient.branchDao().selectByUuid(dbSession, branchUuid);
       if (branchDto.isEmpty()) {
         //For portfolio, adding branchUuid directly
         addToIndex(branchUuid, "bar");
         addToIndex(branchUuid, "baz");
-      }else{
+      } else {
         addToIndex(branchDto.get().getProjectUuid(), "bar");
         addToIndex(branchDto.get().getProjectUuid(), "baz");
       }
     }
-
-
   }
 
   private void addToIndex(String projectUuid, String name) {

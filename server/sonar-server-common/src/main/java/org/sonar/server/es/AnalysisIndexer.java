@@ -19,7 +19,7 @@
  */
 package org.sonar.server.es;
 
-import java.util.Set;
+import java.util.Collection;
 
 /**
  * Indexers that should be called when a project branch is analyzed
@@ -33,11 +33,22 @@ public interface AnalysisIndexer {
   void indexOnAnalysis(String branchUuid);
 
   /**
-   * This method is called when an analysis must be indexed.
+   * This method is called when {@link #supportDiffIndexing()} is true.
    *
-   * @param branchUuid UUID of a project or application branch
-   * @param unchangedComponentUuids UUIDs of components that didn't change in this analysis.
-   *                                Indexers can be optimized by not re-indexing data related to these components.
+   * @param diffToIndex Diff of uuids of indexed entities (issue keys, project uuids, etc.)
    */
-  void indexOnAnalysis(String branchUuid, Set<String> unchangedComponentUuids);
+  default void indexOnAnalysis(String branchUuid, Collection<String> diffToIndex) {
+    if (!supportDiffIndexing()) {
+      throw new IllegalStateException("Diff indexing is not supported by this indexer " + getClass().getName());
+    }
+  }
+
+  /**
+   * This method indicates if the indexer supports diff indexing during analysis.
+   *
+   * @return true if it is supported, false otherwise
+   */
+  default boolean supportDiffIndexing() {
+    return false;
+  }
 }

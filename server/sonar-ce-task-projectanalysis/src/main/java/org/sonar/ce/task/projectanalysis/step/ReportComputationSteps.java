@@ -114,6 +114,7 @@ public class ReportComputationSteps extends AbstractComputationSteps {
 
     UpdateQualityProfilesLastUsedDateStep.class,
     PurgeDatastoresStep.class,
+    LoadChangedIssuesStep.class,
     IndexAnalysisStep.class,
     UpdateNeedIssueSyncStep.class,
     ProjectNclocComputationStep.class,
