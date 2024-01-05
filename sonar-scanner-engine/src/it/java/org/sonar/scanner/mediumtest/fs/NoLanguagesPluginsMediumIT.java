@@ -22,12 +22,15 @@ package org.sonar.scanner.mediumtest.fs;
 import java.io.File;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.FileFilterUtils;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.slf4j.event.Level;
+import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.scanner.mediumtest.ScannerMediumTester;
 
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class NoLanguagesPluginsMediumIT {
   @Rule
@@ -36,15 +39,23 @@ public class NoLanguagesPluginsMediumIT {
   @Rule
   public ScannerMediumTester tester = new ScannerMediumTester();
 
+  @Rule
+  public LogTester logger = new LogTester();
+
+  @Before
+  public void before() {
+    logger.clear();
+  }
+
   @Test
   public void testNoLanguagePluginsInstalled() throws Exception {
     File projectDir = copyProject("test-resources/mediumtest/xoo/sample");
 
-    assertThatThrownBy(() -> tester
-      .newAnalysis(new File(projectDir, "sonar-project.properties"))
-      .execute())
-      .isInstanceOf(IllegalStateException.class)
-      .hasMessage("No language plugins are installed.");
+    tester.
+      newAnalysis(new File(projectDir, "sonar-project.properties"))
+      .execute();
+
+    assertThat(logger.logs(Level.WARN)).contains("No language plugins are installed.");
   }
 
   private File copyProject(String path) throws Exception {

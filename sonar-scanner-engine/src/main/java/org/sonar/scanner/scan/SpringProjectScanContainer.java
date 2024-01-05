@@ -149,7 +149,7 @@ public class SpringProjectScanContainer extends SpringComponentContainer {
     ScanProperties properties = getComponentByType(ScanProperties.class);
 
     if (getComponentByType(Languages.class).all().length == 0) {
-      throw new IllegalStateException("No language plugins are installed.");
+      LOG.warn("No language plugins are installed.");
     }
 
     // Log detected languages and their profiles after FS is indexed and languages detected
