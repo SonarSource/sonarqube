@@ -17,10 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { DangerButtonPrimary, Modal, Spinner } from 'design-system';
 import * as React from 'react';
-import SimpleModal from '../../../components/controls/SimpleModal';
-import { ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
-import Spinner from '../../../components/ui/Spinner';
+import { useState } from 'react';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { PermissionTemplate } from '../../../types/types';
 
@@ -31,34 +30,31 @@ interface Props {
 }
 
 export default function DeleteForm({ onClose, onSubmit, permissionTemplate: t }: Props) {
+  const [submitting, setSubmitting] = useState(false);
   const header = translate('permission_template.delete_confirm_title');
 
+  const handleClick = React.useCallback(() => {
+    setSubmitting(true);
+    onSubmit();
+  }, [onSubmit]);
+
   return (
-    <SimpleModal header={header} onClose={onClose} onSubmit={onSubmit}>
-      {({ onCloseClick, onFormSubmit, submitting }) => (
-        <form onSubmit={onFormSubmit}>
-          <div className="modal-head">
-            <h2>{header}</h2>
-          </div>
-
-          <div className="modal-body">
-            {translateWithParameters(
-              'permission_template.do_you_want_to_delete_template_xxx',
-              t.name,
-            )}
-          </div>
-
-          <div className="modal-foot">
-            <Spinner className="spacer-right" loading={submitting} />
-            <SubmitButton className="button-red" disabled={submitting}>
-              {translate('delete')}
-            </SubmitButton>
-            <ResetButtonLink disabled={submitting} onClick={onCloseClick}>
-              {translate('cancel')}
-            </ResetButtonLink>
-          </div>
-        </form>
+    <Modal
+      onClose={onClose}
+      headerTitle={header}
+      secondaryButtonLabel={translate('cancel')}
+      body={translateWithParameters(
+        'permission_template.do_you_want_to_delete_template_xxx',
+        t.name,
       )}
-    </SimpleModal>
+      primaryButton={
+        <>
+          <Spinner loading={submitting} />
+          <DangerButtonPrimary onClick={handleClick} disabled={submitting}>
+            {translate('delete')}
+          </DangerButtonPrimary>
+        </>
+      }
+    />
   );
 }

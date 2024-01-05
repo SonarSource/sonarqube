@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Table } from 'design-system';
 import * as React from 'react';
 import { Permission, PermissionTemplate } from '../../../types/types';
 import ListHeader from './ListHeader';
@@ -35,11 +36,12 @@ export default function List(props: Props) {
   ));
 
   return (
-    <div className="boxed-group boxed-group-inner">
-      <table className="data zebra permissions-table" id="permission-templates">
-        <ListHeader permissions={props.permissions} />
-        <tbody>{permissionTemplates}</tbody>
-      </table>
-    </div>
+    <Table
+      columnCount={8}
+      header={<ListHeader permissions={props.permissions} />}
+      id="permission-templates"
+    >
+      {permissionTemplates}
+    </Table>
   );
 }

@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { LargeCenteredLayout, PageContentFontWrapper } from 'design-system';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { translate } from '../../../helpers/l10n';
@@ -34,19 +35,21 @@ interface Props {
 
 export default function Home(props: Props) {
   return (
-    <div className="page page-limited">
-      <Helmet defer={false} title={translate('permission_templates.page')} />
+    <LargeCenteredLayout id="users-page">
+      <PageContentFontWrapper className="sw-my-8 sw-body-sm">
+        <Helmet defer={false} title={translate('permission_templates.page')} />
 
-      <Header ready={props.ready} refresh={props.refresh} />
+        <Header ready={props.ready} refresh={props.refresh} />
 
-      <main>
-        <List
-          permissionTemplates={props.permissionTemplates}
-          permissions={props.permissions}
-          refresh={props.refresh}
-          topQualifiers={props.topQualifiers}
-        />
-      </main>
-    </div>
+        <main>
+          <List
+            permissionTemplates={props.permissionTemplates}
+            permissions={props.permissions}
+            refresh={props.refresh}
+            topQualifiers={props.topQualifiers}
+          />
+        </main>
+      </PageContentFontWrapper>
+    </LargeCenteredLayout>
   );
 }

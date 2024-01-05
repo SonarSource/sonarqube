@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { ContentCell, TableRow } from 'design-system';
 import * as React from 'react';
 import { PermissionTemplate } from '../../../types/types';
 import ActionsCell from './ActionsCell';
@@ -35,18 +36,18 @@ export default function ListItem(props: Props) {
   ));
 
   return (
-    <tr data-id={props.template.id} data-name={props.template.name}>
+    <TableRow data-id={props.template.id} data-name={props.template.name}>
       <NameCell template={props.template} />
 
       {permissions}
 
-      <td className="nowrap thin text-right little-padded-left little-padded-right">
+      <ContentCell>
         <ActionsCell
           permissionTemplate={props.template}
           refresh={props.refresh}
           topQualifiers={props.topQualifiers}
         />
-      </td>
-    </tr>
+      </ContentCell>
+    </TableRow>
   );
 }

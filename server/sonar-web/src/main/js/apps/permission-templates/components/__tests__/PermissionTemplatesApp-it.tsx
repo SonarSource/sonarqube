@@ -430,7 +430,7 @@ function getPageObject(user: UserEvent) {
         name:
           qualifier === ComponentQualifier.Project
             ? 'permission_templates.set_default'
-            : `permission_templates.set_default_for qualifier.${qualifier} qualifiers.${qualifier}`,
+            : `permission_templates.set_default_for qualifiers.${qualifier}`,
       }),
   };
 

@@ -26,7 +26,6 @@ import {
   updatePermissionTemplate,
 } from '../../../api/permissions';
 import { Router, withRouter } from '../../../components/hoc/withRouter';
-import QualifierIcon from '../../../components/icons/QualifierIcon';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { queryToSearch } from '../../../helpers/urls';
 import { PermissionTemplate } from '../../../types/types';
@@ -146,8 +145,7 @@ class ActionsCell extends React.PureComponent<Props, State> {
       this.renderSetDefaultLink(
         qualifier,
         <span>
-          {translate('permission_templates.set_default_for')}{' '}
-          <QualifierIcon qualifier={qualifier} /> {translate('qualifiers', qualifier)}
+          {translate('permission_templates.set_default_for')} {translate('qualifiers', qualifier)}
         </span>,
       ),
     );
@@ -159,6 +157,7 @@ class ActionsCell extends React.PureComponent<Props, State> {
     return (
       <>
         <ActionsDropdown
+          allowResizing
           id={`permission-template-actions-${t.id}`}
           zLevel={PopupZLevel.Global}
           toggleClassName="it__permission-actions"

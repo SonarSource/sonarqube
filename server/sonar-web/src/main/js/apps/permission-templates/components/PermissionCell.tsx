@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { ContentCell, HelperHintIcon } from 'design-system';
 import * as React from 'react';
 import HelpTooltip from '../../../components/controls/HelpTooltip';
 import { translate } from '../../../helpers/l10n';
@@ -32,19 +33,21 @@ interface Props {
 
 export default function PermissionCell({ permission: p }: Props) {
   return (
-    <td className="permission-column little-padded-left little-padded-right">
-      <div className="permission-column-inner">
+    <ContentCell className="sw-px-2">
+      <div>
         <ul>
           {p.withProjectCreator && (
-            <li className="little-spacer-bottom display-flex-center">
+            <li className="sw-mb-2">
               {translate('permission_templates.project_creators')}
               <HelpTooltip
-                className="little-spacer-left"
+                className="sw-ml-2"
                 overlay={translate('permission_templates.project_creators.explanation')}
-              />
+              >
+                <HelperHintIcon className="sw-ml-2" />
+              </HelpTooltip>
             </li>
           )}
-          <li className="little-spacer-bottom">
+          <li className="sw-mb-2">
             <strong>{p.usersCount}</strong>
             {'  user(s)'}
           </li>
@@ -54,6 +57,6 @@ export default function PermissionCell({ permission: p }: Props) {
           </li>
         </ul>
       </div>
-    </td>
+    </ContentCell>
   );
 }

@@ -14,7 +14,7 @@ exports[`rendering should render the list of templates: Permission Template 1: u
 
 exports[`rendering should render the list of templates: Permission Template 2: admin 1`] = `"0  user(s)0 group(s)"`;
 
-exports[`rendering should render the list of templates: Permission Template 2: codeviewer 1`] = `"permission_templates.project_creatorspermission_templates.project_creators.explanation0  user(s)0 group(s)"`;
+exports[`rendering should render the list of templates: Permission Template 2: codeviewer 1`] = `"permission_templates.project_creators0  user(s)0 group(s)"`;
 
 exports[`rendering should render the list of templates: Permission Template 2: issueadmin 1`] = `"0  user(s)0 group(s)"`;
 
@@ -22,4 +22,4 @@ exports[`rendering should render the list of templates: Permission Template 2: s
 
 exports[`rendering should render the list of templates: Permission Template 2: securityhotspotadmin 1`] = `"0  user(s)0 group(s)"`;
 
-exports[`rendering should render the list of templates: Permission Template 2: user 1`] = `"permission_templates.project_creatorspermission_templates.project_creators.explanation0  user(s)0 group(s)"`;
+exports[`rendering should render the list of templates: Permission Template 2: user 1`] = `"permission_templates.project_creators0  user(s)0 group(s)"`;

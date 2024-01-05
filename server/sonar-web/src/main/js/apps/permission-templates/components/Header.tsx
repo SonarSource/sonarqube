@@ -17,11 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { ButtonPrimary, FlagMessage, Title } from 'design-system';
 import React, { useState } from 'react';
 import { createPermissionTemplate } from '../../../api/permissions';
-import { Button } from '../../../components/controls/buttons';
 import { Router, withRouter } from '../../../components/hoc/withRouter';
-import { Alert } from '../../../components/ui/Alert';
 import Spinner from '../../../components/ui/Spinner';
 import { throwGlobalError } from '../../../helpers/error';
 import { translate } from '../../../helpers/l10n';
@@ -58,33 +57,33 @@ function Header(props: Props) {
   };
 
   return (
-    <>
-      <header className="page-header" id="project-permissions-header">
-        <h1 className="page-title">{translate('permission_templates.page')}</h1>
+    <header>
+      <div id="project-permissions-header">
+        <div className="sw-flex sw-justify-between">
+          <Title>{translate('permission_templates.page')}</Title>
+          <Spinner loading={!ready} />
 
-        <Spinner loading={!ready} />
-
-        <div className="page-actions">
-          <Button onClick={() => setCreateModal(true)}>{translate('create')}</Button>
-
-          {createModal && (
-            <Form
-              confirmButtonText={translate('create')}
-              header={translate('permission_template.new_template')}
-              onClose={() => setCreateModal(false)}
-              onSubmit={handleCreateModalSubmit}
-            />
-          )}
+          <ButtonPrimary onClick={() => setCreateModal(true)}>{translate('create')}</ButtonPrimary>
         </div>
-
-        <p className="page-description">{translate('permission_templates.page.description')}</p>
-      </header>
+        <div className="sw-mb-4">{translate('permission_templates.page.description')}</div>
+      </div>
       {gitHubProvisioningStatus && (
-        <Alert variant="warning" className="sw-w-fit">
-          {translate('permission_templates.github_warning')}
-        </Alert>
+        <span>
+          <FlagMessage variant="warning" className="sw-w-fit sw-mb-4">
+            {translate('permission_templates.github_warning')}
+          </FlagMessage>
+        </span>
       )}
-    </>
+
+      {createModal && (
+        <Form
+          confirmButtonText={translate('create')}
+          header={translate('permission_template.new_template')}
+          onClose={() => setCreateModal(false)}
+          onSubmit={handleCreateModalSubmit}
+        />
+      )}
+    </header>
   );
 }
 
