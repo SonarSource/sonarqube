@@ -24,12 +24,14 @@ import {
   componentsHandler,
   issuesHandler,
   renderProjectIssuesApp,
+  usersHandler,
   waitOnDataLoaded,
 } from '../test-utils';
 
 beforeEach(() => {
   issuesHandler.reset();
   componentsHandler.reset();
+  usersHandler.reset();
   window.scrollTo = jest.fn();
   window.HTMLElement.prototype.scrollTo = jest.fn();
 });

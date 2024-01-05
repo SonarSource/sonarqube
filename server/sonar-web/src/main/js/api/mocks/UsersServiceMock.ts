@@ -20,15 +20,21 @@
 import { isAfter, isBefore } from 'date-fns';
 import { cloneDeep, isEmpty, isUndefined, omitBy } from 'lodash';
 import { HttpStatus } from '../../helpers/request';
-import { mockIdentityProvider, mockRestUser } from '../../helpers/testMocks';
+import { mockIdentityProvider, mockLoggedInUser, mockRestUser } from '../../helpers/testMocks';
 import { IdentityProvider } from '../../types/types';
-import { ChangePasswordResults, RestUserDetailed } from '../../types/users';
+import {
+  ChangePasswordResults,
+  LoggedInUser,
+  NoticeType,
+  RestUserDetailed,
+} from '../../types/users';
 import { addUserToGroup, removeUserFromGroup } from '../legacy-group-membership';
 import {
   UserGroup,
   changePassword,
   deleteUser,
   dismissNotice,
+  getCurrentUser,
   getIdentityProviders,
   getUserGroups,
   getUsers,
@@ -131,6 +137,7 @@ const DEFAULT_PASSWORD = 'test';
 export default class UsersServiceMock {
   isManaged = true;
   users = cloneDeep(DEFAULT_USERS);
+  currentUser = mockLoggedInUser();
   groups = cloneDeep(DEFAULT_GROUPS);
   password = DEFAULT_PASSWORD;
   groupMembershipsServiceMock?: GroupMembershipsServiceMock = undefined;
@@ -145,7 +152,8 @@ export default class UsersServiceMock {
     jest.mocked(removeUserFromGroup).mockImplementation(this.handleRemoveUserFromGroup);
     jest.mocked(changePassword).mockImplementation(this.handleChangePassword);
     jest.mocked(deleteUser).mockImplementation(this.handleDeactivateUser);
-    jest.mocked(dismissNotice).mockResolvedValue({});
+    jest.mocked(dismissNotice).mockImplementation(this.handleDismissNotification);
+    jest.mocked(getCurrentUser).mockImplementation(this.handleGetCurrentUser);
   }
 
   getFilteredRestUsers = (filterParams: Parameters<typeof getUsers>[0]) => {
@@ -178,7 +186,7 @@ export default class UsersServiceMock {
         return false;
       }
 
-      if (q && (!user.login.includes(q) || (user.name && !user.name.includes(q)))) {
+      if (q && !user.login.includes(q) && !user.name?.includes(q) && !user.email?.includes(q)) {
         return false;
       }
 
@@ -354,11 +362,28 @@ export default class UsersServiceMock {
     return this.reply(undefined);
   };
 
+  handleDismissNotification: typeof dismissNotice = (noticeType: NoticeType) => {
+    if (Object.values(NoticeType).includes(noticeType)) {
+      return this.reply(true);
+    }
+
+    return Promise.reject();
+  };
+
+  setCurrentUser = (user: LoggedInUser) => {
+    this.currentUser = user;
+  };
+
+  handleGetCurrentUser: typeof getCurrentUser = () => {
+    return this.reply(this.currentUser);
+  };
+
   reset = () => {
     this.isManaged = true;
     this.users = cloneDeep(DEFAULT_USERS);
     this.groups = cloneDeep(DEFAULT_GROUPS);
     this.password = DEFAULT_PASSWORD;
+    this.currentUser = mockLoggedInUser();
   };
 
   reply<T>(response: T): Promise<T> {

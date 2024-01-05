@@ -31,6 +31,7 @@ import {
   renderIssueApp,
   renderProjectIssuesApp,
   ui,
+  usersHandler,
 } from '../test-utils';
 
 jest.mock('../sidebar/Sidebar', () => {
@@ -48,6 +49,7 @@ beforeEach(() => {
   issuesHandler.reset();
   componentsHandler.reset();
   branchHandler.reset();
+  usersHandler.reset();
   window.scrollTo = jest.fn();
   window.HTMLElement.prototype.scrollTo = jest.fn();
 });
@@ -221,7 +223,7 @@ describe('issues app', () => {
         dismissedNotices: { [NoticeType.ISSUE_GUIDE]: true },
       });
       issuesHandler.setIsAdmin(true);
-      issuesHandler.setCurrentUser(currentUser);
+      usersHandler.setCurrentUser(currentUser);
       renderIssueApp(currentUser);
 
       // Check that the bulk button has correct behavior
@@ -250,7 +252,7 @@ describe('issues app', () => {
         dismissedNotices: { [NoticeType.ISSUE_GUIDE]: true },
       });
       issuesHandler.setIsAdmin(true);
-      issuesHandler.setCurrentUser(currentUser);
+      usersHandler.setCurrentUser(currentUser);
       renderIssueApp(currentUser);
 
       // Check that we bulk change the selected issue

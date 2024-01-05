@@ -320,6 +320,7 @@ export function mockIssuesList(baseComponentKey = PARENT_COMPONENT_KEY): IssueDa
         status: IssueDeprecatedStatus.Open,
         issueStatus: IssueStatus.Open,
         ruleDescriptionContextKey: 'spring',
+        author: 'bob.marley@test.com',
       }),
       snippets: keyBy(
         [
@@ -347,6 +348,7 @@ export function mockIssuesList(baseComponentKey = PARENT_COMPONENT_KEY): IssueDa
         resolution: IssueResolution.Fixed,
         status: IssueDeprecatedStatus.Confirmed,
         issueStatus: IssueStatus.Confirmed,
+        author: 'unknownemail@test.com',
       }),
       snippets: keyBy(
         [

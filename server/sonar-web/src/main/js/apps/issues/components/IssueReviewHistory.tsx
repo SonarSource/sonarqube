@@ -39,7 +39,7 @@ import { sanitizeUserInput } from '../../../helpers/sanitize';
 import { ReviewHistoryType } from '../../../types/security-hotspots';
 import { Issue, IssueChangelog } from '../../../types/types';
 import HotspotCommentModal from '../../security-hotspots/components/HotspotCommentModal';
-import { getIssueReviewHistory } from '../crossComponentSourceViewer/utils';
+import { useGetIssueReviewHistory } from '../crossComponentSourceViewer/utils';
 
 export interface HotspotReviewHistoryProps {
   issue: Issue;
@@ -50,7 +50,7 @@ export interface HotspotReviewHistoryProps {
 export default function IssueReviewHistory(props: HotspotReviewHistoryProps) {
   const { issue } = props;
   const [changeLog, setChangeLog] = React.useState<IssueChangelog[]>([]);
-  const history = getIssueReviewHistory(issue, changeLog);
+  const history = useGetIssueReviewHistory(issue, changeLog);
   const [editCommentKey, setEditCommentKey] = React.useState('');
   const [deleteCommentKey, setDeleteCommentKey] = React.useState('');
 

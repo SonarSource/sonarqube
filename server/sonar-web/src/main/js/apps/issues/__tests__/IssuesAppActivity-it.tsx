@@ -20,7 +20,15 @@
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
-import { branchHandler, componentsHandler, issuesHandler, renderIssueApp, ui } from '../test-utils';
+import { mockRestUser } from '../../../helpers/testMocks';
+import {
+  branchHandler,
+  componentsHandler,
+  issuesHandler,
+  renderIssueApp,
+  ui,
+  usersHandler,
+} from '../test-utils';
 
 jest.mock('../sidebar/Sidebar', () => {
   const fakeSidebar = () => {
@@ -49,6 +57,14 @@ beforeEach(() => {
   issuesHandler.reset();
   componentsHandler.reset();
   branchHandler.reset();
+  usersHandler.reset();
+  usersHandler.users = [
+    mockRestUser({
+      login: 'bob.marley',
+      email: 'bob.marley@test.com',
+      name: 'Bob Marley',
+    }),
+  ];
   window.scrollTo = jest.fn();
   window.HTMLElement.prototype.scrollTo = jest.fn();
 });
@@ -103,7 +119,7 @@ it('should be able to show changelog', async () => {
 
   await user.click(ui.issueActivityTab.get());
 
-  expect(screen.getByText('issue.activity.review_history.created')).toBeInTheDocument();
+  expect(screen.getByText(/issue.activity.review_history.created/)).toHaveTextContent('Bob Marley');
   expect(
     screen.getByText(
       'issue.changelog.changed_to.issue.changelog.field.assign.darth.vader (issue.changelog.was.luke.skywalker)',
@@ -124,4 +140,18 @@ it('should be able to show changelog', async () => {
       'issue.changelog.changed_to.issue.changelog.field.status.RESOLVED (issue.changelog.was.REOPENED)',
     ),
   ).not.toBeInTheDocument();
+});
+
+it('should show author email if there is no user with that email', async () => {
+  const user = userEvent.setup();
+  issuesHandler.setIsAdmin(true);
+  renderIssueApp();
+
+  await user.click(await ui.issueItemAction6.find());
+
+  await user.click(ui.issueActivityTab.get());
+
+  expect(screen.getByText(/issue.activity.review_history.created/)).toHaveTextContent(
+    'unknownemail@test.com',
+  );
 });

@@ -23,6 +23,7 @@ import { omit, pick } from 'lodash';
 import * as React from 'react';
 import { Route } from 'react-router-dom';
 import IssuesServiceMock from '../../../api/mocks/IssuesServiceMock';
+import UsersServiceMock from '../../../api/mocks/UsersServiceMock';
 import { KeyboardKeys } from '../../../helpers/keycodes';
 import { mockIssue, mockLoggedInUser, mockRawIssue } from '../../../helpers/testMocks';
 import { renderAppRoutes } from '../../../helpers/testReactTestingUtils';
@@ -35,16 +36,20 @@ import {
   IssueTransition,
   IssueType,
 } from '../../../types/issues';
+import { RestUserDetailed } from '../../../types/users';
 import Issue from '../Issue';
 
 jest.mock('../../../helpers/preferences', () => ({
   getKeyboardShortcutEnabled: jest.fn(() => true),
 }));
 
-const issuesHandler = new IssuesServiceMock();
+const usersHandler = new UsersServiceMock();
+const issuesHandler = new IssuesServiceMock(usersHandler);
 
 beforeEach(() => {
   issuesHandler.reset();
+  usersHandler.reset();
+  usersHandler.users = [mockLoggedInUser() as unknown as RestUserDetailed];
 });
 
 describe('rendering', () => {
@@ -147,7 +152,7 @@ it('should correctly handle keyboard shortcuts', async () => {
     transitions: [IssueTransition.Confirm, IssueTransition.UnConfirm],
   });
   issuesHandler.setIssueList([{ issue, snippets: {} }]);
-  issuesHandler.setCurrentUser(mockLoggedInUser({ login: 'leia', name: 'Organa' }));
+  usersHandler.setCurrentUser(mockLoggedInUser({ login: 'leia', name: 'Organa' }));
   renderIssue({
     onCheck,
     selected: true,

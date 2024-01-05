@@ -31,6 +31,7 @@ import {
   renderIssueApp,
   renderProjectIssuesApp,
   ui,
+  usersHandler,
   waitOnDataLoaded,
 } from '../test-utils';
 
@@ -56,6 +57,7 @@ beforeEach(() => {
   issuesHandler.reset();
   componentsHandler.reset();
   branchHandler.reset();
+  usersHandler.reset();
   window.scrollTo = jest.fn();
   window.HTMLElement.prototype.scrollTo = jest.fn();
 });
@@ -192,7 +194,7 @@ describe('issues app filtering', () => {
   it('should allow to set creation date', async () => {
     const user = userEvent.setup();
     const currentUser = mockLoggedInUser({ dismissedNotices: { [NoticeType.ISSUE_GUIDE]: true } });
-    issuesHandler.setCurrentUser(currentUser);
+    usersHandler.setCurrentUser(currentUser);
 
     renderIssueApp(currentUser);
 
@@ -229,7 +231,7 @@ describe('issues app filtering', () => {
   it('should allow to only show my issues', async () => {
     const user = userEvent.setup();
     const currentUser = mockLoggedInUser({ dismissedNotices: { [NoticeType.ISSUE_GUIDE]: true } });
-    issuesHandler.setCurrentUser(currentUser);
+    usersHandler.setCurrentUser(currentUser);
     renderIssueApp(currentUser);
     await waitOnDataLoaded();
 

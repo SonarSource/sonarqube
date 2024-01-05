@@ -28,6 +28,7 @@ import {
   renderIssueApp,
   renderProjectIssuesApp,
   ui,
+  usersHandler,
 } from '../test-utils';
 
 jest.mock('../sidebar/Sidebar', () => {
@@ -57,6 +58,7 @@ beforeEach(() => {
   issuesHandler.reset();
   componentsHandler.reset();
   branchHandler.reset();
+  usersHandler.reset();
   window.scrollTo = jest.fn();
   window.HTMLElement.prototype.scrollTo = jest.fn();
 });

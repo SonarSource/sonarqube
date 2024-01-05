@@ -20,7 +20,6 @@
 import { act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
-import IssuesServiceMock from '../../../api/mocks/IssuesServiceMock';
 import CurrentUserContextProvider from '../../../app/components/current-user/CurrentUserContextProvider';
 import IssueTransitionComponent from '../../../components/issue/components/IssueTransition';
 import { mockCurrentUser, mockIssue } from '../../../helpers/testMocks';
@@ -29,9 +28,7 @@ import { IssueTransition } from '../../../types/issues';
 import { Issue } from '../../../types/types';
 import { NoticeType } from '../../../types/users';
 import IssueNewStatusAndTransitionGuide from '../components/IssueNewStatusAndTransitionGuide';
-import { ui } from '../test-utils';
-
-const issuesHandler = new IssuesServiceMock();
+import { issuesHandler, ui } from '../test-utils';
 
 beforeEach(() => {
   issuesHandler.reset();

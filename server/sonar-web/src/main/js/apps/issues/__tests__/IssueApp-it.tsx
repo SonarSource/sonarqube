@@ -21,7 +21,9 @@ import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
 import { TabKeys } from '../../../components/rules/RuleTabViewer';
+import { mockLoggedInUser } from '../../../helpers/testMocks';
 import { byRole } from '../../../helpers/testSelector';
+import { RestUserDetailed } from '../../../types/users';
 import {
   branchHandler,
   componentsHandler,
@@ -29,6 +31,7 @@ import {
   renderIssueApp,
   renderProjectIssuesApp,
   ui,
+  usersHandler,
 } from '../test-utils';
 
 jest.mock('../sidebar/Sidebar', () => {
@@ -58,6 +61,8 @@ beforeEach(() => {
   issuesHandler.reset();
   componentsHandler.reset();
   branchHandler.reset();
+  usersHandler.reset();
+  usersHandler.users = [mockLoggedInUser() as unknown as RestUserDetailed];
   window.scrollTo = jest.fn();
   window.HTMLElement.prototype.scrollTo = jest.fn();
 });

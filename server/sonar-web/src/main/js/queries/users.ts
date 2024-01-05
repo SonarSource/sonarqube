@@ -37,12 +37,14 @@ const STALE_TIME = 4 * 60 * 1000;
 
 export function useUsersQueries<U extends RestUserBase>(
   getParams: Omit<Parameters<typeof getUsers>[0], 'pageSize' | 'pageIndex'>,
+  enabled = true,
 ) {
   return useInfiniteQuery({
     queryKey: ['user', 'list', getParams],
     queryFn: ({ pageParam = 1 }) => getUsers<U>({ ...getParams, pageIndex: pageParam }),
     getNextPageParam,
     getPreviousPageParam,
+    enabled,
   });
 }
 

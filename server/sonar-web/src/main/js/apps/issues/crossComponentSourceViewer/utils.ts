@@ -20,6 +20,7 @@
 import { sortBy } from 'lodash';
 import { decorateWithUnderlineFlags } from '../../../helpers/code-viewer';
 import { isDefined } from '../../../helpers/types';
+import { useUsersQueries } from '../../../queries/users';
 import { ComponentQualifier } from '../../../types/component';
 import { ReviewHistoryElement, ReviewHistoryType } from '../../../types/security-hotspots';
 import {
@@ -33,6 +34,7 @@ import {
   SnippetsByComponent,
   SourceLine,
 } from '../../../types/types';
+import { RestUser } from '../../../types/users';
 
 const LINES_ABOVE = 5;
 const LINES_BELOW = 5;
@@ -235,20 +237,23 @@ export function inSnippet(line: number, snippet: SourceLine[]) {
   return line >= snippet[0].line && line <= snippet[snippet.length - 1].line;
 }
 
-export function getIssueReviewHistory(
+export function useGetIssueReviewHistory(
   issue: Issue,
   changelog: IssueChangelog[],
 ): ReviewHistoryElement[] {
   const history: ReviewHistoryElement[] = [];
+
+  const { data } = useUsersQueries<RestUser>({ q: issue.author ?? '' }, !!issue.author);
+  const author = data?.pages[0]?.users[0] ?? null;
 
   if (issue.creationDate) {
     history.push({
       type: ReviewHistoryType.Creation,
       date: issue.creationDate,
       user: {
-        active: issue.assigneeActive,
-        avatar: issue.assigneeAvatar,
-        name: issue.assigneeName || issue.assigneeLogin,
+        active: true,
+        avatar: author?.avatar,
+        name: author?.name ?? author?.login ?? issue.author,
       },
     });
   }

@@ -23,6 +23,7 @@ import { Outlet, Route } from 'react-router-dom';
 import BranchesServiceMock from '../../api/mocks/BranchesServiceMock';
 import ComponentsServiceMock from '../../api/mocks/ComponentsServiceMock';
 import IssuesServiceMock from '../../api/mocks/IssuesServiceMock';
+import UsersServiceMock from '../../api/mocks/UsersServiceMock';
 import { mockComponent } from '../../helpers/mocks/component';
 import { mockCurrentUser } from '../../helpers/testMocks';
 import { renderApp, renderAppWithComponentContext } from '../../helpers/testReactTestingUtils';
@@ -38,7 +39,8 @@ import { NoticeType } from '../../types/users';
 import IssuesApp from './components/IssuesApp';
 import { projectIssuesRoutes } from './routes';
 
-export const issuesHandler = new IssuesServiceMock();
+export const usersHandler = new UsersServiceMock();
+export const issuesHandler = new IssuesServiceMock(usersHandler);
 export const componentsHandler = new ComponentsServiceMock();
 export const branchHandler = new BranchesServiceMock();
 

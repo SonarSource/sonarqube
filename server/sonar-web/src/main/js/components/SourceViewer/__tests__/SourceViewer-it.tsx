@@ -22,9 +22,11 @@ import userEvent from '@testing-library/user-event';
 import * as React from 'react';
 import ComponentsServiceMock from '../../../api/mocks/ComponentsServiceMock';
 import IssuesServiceMock from '../../../api/mocks/IssuesServiceMock';
+import UsersServiceMock from '../../../api/mocks/UsersServiceMock';
 import { HttpStatus } from '../../../helpers/request';
-import { mockIssue } from '../../../helpers/testMocks';
+import { mockIssue, mockLoggedInUser } from '../../../helpers/testMocks';
 import { renderComponent } from '../../../helpers/testReactTestingUtils';
+import { RestUserDetailed } from '../../../types/users';
 import SourceViewer, { Props } from '../SourceViewer';
 import loadIssues from '../helpers/loadIssues';
 
@@ -33,7 +35,6 @@ jest.mock('../../../api/issues');
 // The following 2 mocks are needed, because IssuesServiceMock mocks more than it should.
 // This should be removed once IssuesServiceMock is cleaned up.
 jest.mock('../../../api/rules');
-jest.mock('../../../api/users');
 
 jest.mock('../helpers/loadIssues', () => ({
   __esModule: true,
@@ -50,11 +51,14 @@ jest.mock('../helpers/lines', () => {
 
 const componentsHandler = new ComponentsServiceMock();
 const issuesHandler = new IssuesServiceMock();
+const usersHandler = new UsersServiceMock();
 const message = 'First Issue';
 
 beforeEach(() => {
   issuesHandler.reset();
   componentsHandler.reset();
+  usersHandler.reset();
+  usersHandler.users = [mockLoggedInUser() as unknown as RestUserDetailed];
 });
 
 it('should show a permalink on line number', async () => {

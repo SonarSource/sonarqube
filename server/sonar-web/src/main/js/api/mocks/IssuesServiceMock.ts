@@ -47,7 +47,6 @@ import {
 import { SearchRulesQuery } from '../../types/rules';
 import { Standards } from '../../types/security';
 import { Dict, Rule, RuleActivation, RuleDetails, SnippetsByComponent } from '../../types/types';
-import { LoggedInUser, NoticeType, RestUser } from '../../types/users';
 import {
   addIssueComment,
   bulkChangeIssues,
@@ -57,8 +56,8 @@ import {
   getIssueFlowSnippets,
   listIssues,
   searchIssueAuthors,
-  searchIssueTags,
   searchIssues,
+  searchIssueTags,
   setIssueAssignee,
   setIssueSeverity,
   setIssueTags,
@@ -66,15 +65,14 @@ import {
   setIssueType,
 } from '../issues';
 import { getRuleDetails, searchRules } from '../rules';
-import { dismissNotice, getCurrentUser, getUsers } from '../users';
 import { IssueData, mockIssuesList } from './data/issues';
 import { mockRuleList } from './data/rules';
+import UsersServiceMock from './UsersServiceMock';
 
 jest.mock('../../api/issues');
 // The following 2 mocks are needed, because IssuesServiceMock mocks more than it should.
 // This should be removed once IssuesServiceMock is cleaned up.
 jest.mock('../../api/rules');
-jest.mock('../../api/users');
 
 function mockReferenceComponent(override?: Partial<ReferencedComponent>) {
   return {
@@ -101,14 +99,14 @@ function generateReferenceComponentsForIssues(issueData: IssueData[]) {
 
 export default class IssuesServiceMock {
   isAdmin = false;
-  currentUser: LoggedInUser;
   standards?: Standards;
+  usersServiceMock?: UsersServiceMock;
   defaultList: IssueData[];
   rulesList: Rule[];
   list: IssueData[];
 
-  constructor() {
-    this.currentUser = mockLoggedInUser();
+  constructor(usersServiceMock?: UsersServiceMock) {
+    this.usersServiceMock = usersServiceMock;
     this.defaultList = mockIssuesList();
     this.rulesList = mockRuleList();
 
@@ -117,9 +115,7 @@ export default class IssuesServiceMock {
     jest.mocked(addIssueComment).mockImplementation(this.handleAddComment);
     jest.mocked(bulkChangeIssues).mockImplementation(this.handleBulkChangeIssues);
     jest.mocked(deleteIssueComment).mockImplementation(this.handleDeleteComment);
-    jest.mocked(dismissNotice).mockImplementation(this.handleDismissNotification);
     jest.mocked(editIssueComment).mockImplementation(this.handleEditComment);
-    jest.mocked(getCurrentUser).mockImplementation(this.handleGetCurrentUser);
     jest.mocked(getIssueChangelog).mockImplementation(this.handleGetIssueChangelog);
     jest.mocked(getIssueFlowSnippets).mockImplementation(this.handleGetIssueFlowSnippets);
     jest.mocked(getRuleDetails).mockImplementation(this.handleGetRuleDetails);
@@ -128,7 +124,6 @@ export default class IssuesServiceMock {
     jest.mocked(searchIssues).mockImplementation(this.handleSearchIssues);
     jest.mocked(searchIssueTags).mockImplementation(this.handleSearchIssueTags);
     jest.mocked(searchRules).mockImplementation(this.handleSearchRules);
-    jest.mocked(getUsers).mockImplementation(this.handleGetUsers);
     jest.mocked(setIssueAssignee).mockImplementation(this.handleSetIssueAssignee);
     jest.mocked(setIssueSeverity).mockImplementation(this.handleSetIssueSeverity);
     jest.mocked(setIssueTags).mockImplementation(this.handleSetIssueTags);
@@ -138,11 +133,6 @@ export default class IssuesServiceMock {
 
   reset = () => {
     this.list = cloneDeep(this.defaultList);
-    this.currentUser = mockLoggedInUser();
-  };
-
-  setCurrentUser = (user: LoggedInUser) => {
-    this.currentUser = user;
   };
 
   setIssueList = (list: IssueData[]) => {
@@ -496,24 +486,6 @@ export default class IssuesServiceMock {
     });
   };
 
-  handleGetCurrentUser = () => {
-    return this.reply(this.currentUser);
-  };
-
-  handleDismissNotification = (noticeType: NoticeType) => {
-    if (
-      [
-        NoticeType.EDUCATION_PRINCIPLES,
-        NoticeType.ISSUE_GUIDE,
-        NoticeType.ISSUE_NEW_STATUS_AND_TRANSITION_GUIDE,
-      ].includes(noticeType)
-    ) {
-      return this.reply(true);
-    }
-
-    return Promise.reject();
-  };
-
   handleSetIssueType = (data: { issue: string; type: IssueType }) => {
     return this.getActionsResponse({ type: data.type }, data.issue);
   };
@@ -524,7 +496,10 @@ export default class IssuesServiceMock {
 
   handleSetIssueAssignee = (data: { issue: string; assignee?: string }) => {
     return this.getActionsResponse(
-      { assignee: data.assignee === '_me' ? this.currentUser.login : data.assignee },
+      {
+        assignee:
+          data.assignee === '_me' ? this.usersServiceMock?.currentUser.login : data.assignee,
+      },
       data.issue,
     );
   };
@@ -626,13 +601,6 @@ export default class IssuesServiceMock {
       },
       issue.key,
     );
-  };
-
-  handleGetUsers = () => {
-    return this.reply({
-      page: mockPaging(),
-      users: [mockLoggedInUser() as unknown as RestUser],
-    });
   };
 
   handleSearchIssueAuthors = () => {
