@@ -197,10 +197,10 @@ public class IssuesAction implements BatchWsAction {
       if (tokenUserSession instanceof TokenUserSession) {
         UserTokenDto userToken = ((TokenUserSession) tokenUserSession).getUserToken();
         if (TokenType.PROJECT_ANALYSIS_TOKEN.name().equals(userToken.getType())) {
-          LOGGER.info("Batch Issues API is accessed by project token");
+          LOGGER.debug("Batch Issues API is accessed by project token");
           if (userToken.getProjectKey().equals(baseComponent.getKey()) || baseComponent.getKey()
                   .startsWith(userToken.getProjectKey() + ":")) {
-            LOGGER.info("Batch Issues API is called for a file or project same as that of the token used.");
+            LOGGER.debug("Batch Issues API is called for a file or project same as that of the token used.");
             return;
           }
         }
