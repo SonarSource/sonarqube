@@ -26,19 +26,28 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
+import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueDto;
+import org.sonar.db.user.TokenType;
 import org.sonar.db.user.UserDto;
+import org.sonar.db.user.UserTokenDto;
 import org.sonar.scanner.protocol.input.ScannerInput;
 import org.sonar.server.component.ComponentFinder;
+import org.sonar.server.platform.ws.RestartAction;
+import org.sonar.server.user.ThreadLocalUserSession;
+import org.sonar.server.user.TokenUserSession;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.MediaTypes;
 
@@ -52,6 +61,7 @@ import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 
 public class IssuesAction implements BatchWsAction {
 
+  private static final Logger LOGGER = Loggers.get(IssuesAction.class);
   private static final String PARAM_KEY = "key";
   private static final String PARAM_BRANCH = "branch";
   private static final Splitter MODULE_PATH_SPLITTER = Splitter.on('.').trimResults().omitEmptyStrings();
@@ -94,7 +104,7 @@ public class IssuesAction implements BatchWsAction {
   public void handle(Request request, Response response) throws Exception {
     try (DbSession dbSession = dbClient.openSession(false)) {
       ComponentDto component = loadComponent(dbSession, request);
-      userSession.checkComponentPermission(USER, component);
+      checkPermissions(component);
       Map<String, String> keysByUUid = keysByUUid(dbSession, component);
 
       ScannerInput.ServerIssue.Builder responseBuilder = ScannerInput.ServerIssue.newBuilder();
@@ -180,4 +190,23 @@ public class IssuesAction implements BatchWsAction {
     String branch = request.param(PARAM_BRANCH);
     return componentFinder.getByKeyAndOptionalBranchOrPullRequest(dbSession, componentKey, branch, null);
   }
+
+  private void checkPermissions(ComponentDto baseComponent) {
+    if (userSession instanceof ThreadLocalUserSession) {
+      UserSession tokenUserSession = ((ThreadLocalUserSession) userSession).get();
+      if (tokenUserSession instanceof TokenUserSession) {
+        UserTokenDto userToken = ((TokenUserSession) tokenUserSession).getUserToken();
+        if (TokenType.PROJECT_ANALYSIS_TOKEN.name().equals(userToken.getType())) {
+          LOGGER.info("Batch Issues API is accessed by project token");
+          if (userToken.getProjectKey().equals(baseComponent.getKey()) || baseComponent.getKey()
+                  .startsWith(userToken.getProjectKey() + ":")) {
+            LOGGER.info("Batch Issues API is called for a file or project same as that of the token used.");
+            return;
+          }
+        }
+      }
+    }
+    userSession.checkComponentPermission(USER, baseComponent);
+  }
+
 }
