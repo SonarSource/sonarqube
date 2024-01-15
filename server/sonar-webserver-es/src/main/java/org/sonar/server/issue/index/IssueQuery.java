@@ -31,9 +31,6 @@ import javax.annotation.Nullable;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.sonar.db.rule.RuleDto;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static org.sonar.server.es.SearchOptions.MAX_PAGE_SIZE;
-
 /**
  * @since 3.6
  */
@@ -628,9 +625,6 @@ public class IssueQuery {
     }
 
     public IssueQuery build() {
-      if (issueKeys != null) {
-        checkArgument(issueKeys.size() <= MAX_PAGE_SIZE, "Number of issue keys must be less than " + MAX_PAGE_SIZE + " (got " + issueKeys.size() + ")");
-      }
       return new IssueQuery(this);
     }
 

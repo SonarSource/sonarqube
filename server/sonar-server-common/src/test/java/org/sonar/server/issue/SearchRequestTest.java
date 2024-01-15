@@ -25,6 +25,7 @@ import org.junit.Test;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class SearchRequestTest {
 
@@ -103,5 +104,14 @@ public class SearchRequestTest {
     SearchRequest underTest = new SearchRequest().setScopes(null);
 
     assertThat(underTest.getScopes()).isNull();
+  }
+
+  @Test
+  public void setIssues_whenSizeOfTheListIsGreaterThan500_throwException() {
+    List<String> issues = asList(new String[501]);
+    SearchRequest underTest = new SearchRequest();
+    assertThatThrownBy(() -> underTest.setIssues(issues))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Number of issue keys must be less than 500 (got 501)");
   }
 }

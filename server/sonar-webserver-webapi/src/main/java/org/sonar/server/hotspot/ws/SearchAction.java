@@ -84,6 +84,7 @@ import static org.sonar.api.utils.DateUtils.longToDate;
 import static org.sonar.api.utils.Paging.forPageIndex;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.db.newcodeperiod.NewCodePeriodType.REFERENCE_BRANCH;
+import static org.sonar.server.es.SearchOptions.MAX_PAGE_SIZE;
 import static org.sonar.server.security.SecurityStandards.SANS_TOP_25_INSECURE_INTERACTION;
 import static org.sonar.server.security.SecurityStandards.SANS_TOP_25_POROUS_DEFENSES;
 import static org.sonar.server.security.SecurityStandards.SANS_TOP_25_RISKY_RESOURCE;
@@ -386,8 +387,10 @@ public class SearchAction implements HotspotsWsAction {
       addMainBranchFilter(projectOrAppAndBranch.getBranch(), builder);
     }
 
-    if (!wsRequest.getHotspotKeys().isEmpty()) {
-      builder.issueKeys(wsRequest.getHotspotKeys());
+    Set<String> hotspotKeys = wsRequest.getHotspotKeys();
+    if (!hotspotKeys.isEmpty()) {
+      checkArgument(hotspotKeys.size() <= MAX_PAGE_SIZE, "Number of issue keys must be less than " + MAX_PAGE_SIZE + " (got " + hotspotKeys.size() + ")");
+      builder.issueKeys(hotspotKeys);
     }
 
     if (!wsRequest.getFiles().isEmpty()) {

@@ -26,6 +26,9 @@ import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static org.sonar.server.es.SearchOptions.MAX_PAGE_SIZE;
+
 public class SearchRequest {
   private List<String> additionalFields;
   private Boolean asc;
@@ -227,6 +230,9 @@ public class SearchRequest {
   }
 
   public SearchRequest setIssues(@Nullable List<String> issues) {
+    if (issues != null) {
+      checkArgument(issues.size() <= MAX_PAGE_SIZE, "Number of issue keys must be less than " + MAX_PAGE_SIZE + " (got " + issues.size() + ")");
+    }
     this.issues = issues;
     return this;
   }

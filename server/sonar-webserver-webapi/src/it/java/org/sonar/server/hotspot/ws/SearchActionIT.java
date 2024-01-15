@@ -1714,6 +1714,20 @@ public class SearchActionIT {
   }
 
   @Test
+  public void search_whenMoreThan500KeysPassed_throwException() {
+    ProjectData projectData = dbTester.components().insertPublicProject();
+    ComponentDto project = projectData.getMainBranchComponent();
+    userSessionRule.registerProjects(projectData.getProjectDto());
+
+    assertThatThrownBy(() -> newRequest(project).setParam(PARAM_HOTSPOTS, String.join(",", IntStream.range(0, 600).mapToObj(i -> "" + i)
+      .collect(toSet())))
+      .execute())
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Number of issue keys must be less than 500 (got 600)");
+
+  }
+
+  @Test
   public void returns_hotspots_with_specified_files() {
     ProjectData projectData = dbTester.components().insertPublicProject();
     ComponentDto project = projectData.getMainBranchComponent();
