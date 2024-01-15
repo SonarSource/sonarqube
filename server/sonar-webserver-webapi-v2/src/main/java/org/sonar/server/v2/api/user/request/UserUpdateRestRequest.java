@@ -28,9 +28,20 @@ import org.sonar.server.v2.common.model.UpdateField;
 
 public class UserUpdateRestRequest {
 
+  private UpdateField<String> login = UpdateField.undefined();
   private UpdateField<String> name = UpdateField.undefined();
   private UpdateField<String> email = UpdateField.undefined();
   private UpdateField<List<String>> scmAccounts = UpdateField.undefined();
+
+  @Size(min = 2, max = 100)
+  @Schema(description = "User login")
+  public UpdateField<String> getLogin() {
+    return login;
+  }
+
+  public void setLogin(String login) {
+    this.login = UpdateField.withValue(login);
+  }
 
   @Size(max = 200)
   @Schema(description = "User first name and last name", implementation = String.class)

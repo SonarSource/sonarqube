@@ -462,28 +462,6 @@ public class DefaultUserControllerTest {
     assertThat(userUpdate.scmAccounts()).isNull();
   }
 
-  private UpdateUser performPatchCallAndVerifyResponse(String payload) throws Exception {
-    userSession.logIn().setSystemAdministrator();
-    UserInformation userInformation = generateUserSearchResult("1", true, true, false, 1, 2);
-
-    when(userService.updateUser(eq("userUuid"), any())).thenReturn(userInformation);
-    when(responseGenerator.toRestUser(userInformation)).thenReturn(toRestUser(userInformation));
-
-    MvcResult mvcResult = mockMvc.perform(patch(USER_ENDPOINT + "/userUuid")
-      .contentType(JSON_MERGE_PATCH_CONTENT_TYPE)
-      .content(payload))
-      .andExpect(
-        status().isOk())
-      .andReturn();
-
-    UserRestResponseForAdmins responseUser = gson.fromJson(mvcResult.getResponse().getContentAsString(), UserRestResponseForAdmins.class);
-    assertThat(responseUser).isEqualTo(toRestUser(userInformation));
-
-    ArgumentCaptor<UpdateUser> updateUserCaptor = ArgumentCaptor.forClass(UpdateUser.class);
-    verify(userService).updateUser(eq("userUuid"), updateUserCaptor.capture());
-    return updateUserCaptor.getValue();
-  }
-
   @Test
   public void updateUser_whenNameIsProvided_shouldUpdateUserAndReturnUpdatedValue() throws Exception {
     UpdateUser userUpdate = performPatchCallAndVerifyResponse("{\"name\":\"new name\"}");
@@ -505,20 +483,6 @@ public class DefaultUserControllerTest {
     performPatchCallAndExpectBadRequest("{\"email\":\"notavalidemail\"}", "Value notavalidemail for field email was rejected. Error: must be a well-formed email address.");
   }
 
-  private void performPatchCallAndExpectBadRequest(String payload, String expectedMessage) throws Exception {
-    userSession.logIn().setSystemAdministrator();
-
-    MvcResult mvcResult = mockMvc.perform(patch(USER_ENDPOINT + "/userLogin")
-      .contentType(JSON_MERGE_PATCH_CONTENT_TYPE)
-      .content(payload))
-      .andExpect(
-        status().isBadRequest())
-      .andReturn();
-
-    RestError error = gson.fromJson(mvcResult.getResponse().getContentAsString(), RestError.class);
-    assertThat(error.message()).isEqualTo(expectedMessage);
-  }
-
   @Test
   public void updateUser_whenEmailIsEmpty_shouldReturnBadRequest() throws Exception {
     performPatchCallAndExpectBadRequest("{\"email\":\"\"}", "Value  for field email was rejected. Error: size must be between 1 and 100.");
@@ -532,4 +496,50 @@ public class DefaultUserControllerTest {
     performPatchCallAndExpectBadRequest(payload, message);
   }
 
+  @Test
+  public void updateUser_whenLoginIsProvided_shouldUpdateLogin() throws Exception {
+    UpdateUser userUpdate = performPatchCallAndVerifyResponse("{\"login\":\"newLogin\"}");
+    assertThat(userUpdate.login()).isEqualTo("newLogin");
+  }
+
+  @Test
+  public void updateUser_whenLoginIsEmpty_shouldReturnBadRequest() throws Exception {
+    performPatchCallAndExpectBadRequest("{\"login\":\"\"}", "Value  for field login was rejected. Error: size must be between 2 and 100.");
+  }
+
+  private void performPatchCallAndExpectBadRequest(String payload, String expectedMessage) throws Exception {
+    userSession.logIn().setSystemAdministrator();
+
+    MvcResult mvcResult = mockMvc.perform(patch(USER_ENDPOINT + "/userLogin")
+        .contentType(JSON_MERGE_PATCH_CONTENT_TYPE)
+        .content(payload))
+      .andExpect(
+        status().isBadRequest())
+      .andReturn();
+
+    RestError error = gson.fromJson(mvcResult.getResponse().getContentAsString(), RestError.class);
+    assertThat(error.message()).isEqualTo(expectedMessage);
+  }
+
+  private UpdateUser performPatchCallAndVerifyResponse(String payload) throws Exception {
+    userSession.logIn().setSystemAdministrator();
+    UserInformation userInformation = generateUserSearchResult("1", true, true, false, 1, 2);
+
+    when(userService.updateUser(eq("userUuid"), any())).thenReturn(userInformation);
+    when(responseGenerator.toRestUser(userInformation)).thenReturn(toRestUser(userInformation));
+
+    MvcResult mvcResult = mockMvc.perform(patch(USER_ENDPOINT + "/userUuid")
+        .contentType(JSON_MERGE_PATCH_CONTENT_TYPE)
+        .content(payload))
+      .andExpect(
+        status().isOk())
+      .andReturn();
+
+    UserRestResponseForAdmins responseUser = gson.fromJson(mvcResult.getResponse().getContentAsString(), UserRestResponseForAdmins.class);
+    assertThat(responseUser).isEqualTo(toRestUser(userInformation));
+
+    ArgumentCaptor<UpdateUser> updateUserCaptor = ArgumentCaptor.forClass(UpdateUser.class);
+    verify(userService).updateUser(eq("userUuid"), updateUserCaptor.capture());
+    return updateUserCaptor.getValue();
+  }
 }

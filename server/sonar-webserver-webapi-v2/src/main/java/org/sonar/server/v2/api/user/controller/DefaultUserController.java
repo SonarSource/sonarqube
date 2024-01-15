@@ -124,6 +124,7 @@ public class DefaultUserController implements UserController {
 
   private static UpdateUser toUpdateUser(UserUpdateRestRequest updateRequest) {
     UpdateUser update = new UpdateUser();
+    updateRequest.getLogin().applyIfDefined(update::setLogin);
     updateRequest.getName().applyIfDefined(update::setName);
     updateRequest.getEmail().applyIfDefined(update::setEmail);
     updateRequest.getScmAccounts().applyIfDefined(update::setScmAccounts);
