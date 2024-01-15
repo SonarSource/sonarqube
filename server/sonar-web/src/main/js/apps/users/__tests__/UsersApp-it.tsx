@@ -45,9 +45,9 @@ const githubHandler = new GithubProvisioningServiceMock();
 
 const ui = {
   createUserButton: byRole('button', { name: 'users.create_user' }),
-  localAndManagedFilter: byRole('button', { name: 'all' }),
-  managedFilter: byRole('button', { name: 'managed' }),
-  localFilter: byRole('button', { name: 'local' }),
+  localAndManagedFilter: byRole('radio', { name: 'all' }),
+  managedFilter: byRole('radio', { name: 'managed' }),
+  localFilter: byRole('radio', { name: 'local' }),
   showMore: byRole('button', { name: 'show_more' }),
   aliceUpdateGroupButton: byRole('button', { name: 'users.update_users_groups.alice.merveille' }),
   aliceUpdateButton: byRole('button', { name: 'users.manage_user.alice.merveille' }),

@@ -61,7 +61,8 @@ export function ExternalProvider({ identityProvider, user }: Omit<Props, 'manage
 
   return (
     <div className="it__user-identity-provider sw-mt-1">
-      <div
+      <span
+        className="sw-inline-flex sw-items-center sw-px-1"
         style={{
           backgroundColor: identityProvider.backgroundColor,
           color: getTextColor(identityProvider.backgroundColor, colors.secondFontColor),
@@ -75,7 +76,7 @@ export function ExternalProvider({ identityProvider, user }: Omit<Props, 'manage
           width="14"
         />
         {user.externalLogin}
-      </div>
+      </span>
     </div>
   );
 }

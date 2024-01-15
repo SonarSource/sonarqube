@@ -61,7 +61,6 @@ export default function GroupsApp() {
               loading={isLoading}
               managed={managed}
               setManaged={setManaged}
-              miui
             />
             <InputSearch
               minLength={2}

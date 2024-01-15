@@ -21,18 +21,16 @@ import { ToggleButton } from 'design-system';
 import * as React from 'react';
 import { translate } from '../../helpers/l10n';
 import { Provider } from '../../types/types';
-import ButtonToggle from './ButtonToggle';
 
 interface ManagedFilterProps {
   manageProvider: Provider | undefined;
   loading: boolean;
   managed: boolean | undefined;
-  miui?: boolean;
   setManaged: (managed: boolean | undefined) => void;
 }
 
 export function ManagedFilter(props: Readonly<ManagedFilterProps>) {
-  const { manageProvider, loading, managed, miui } = props;
+  const { manageProvider, loading, managed } = props;
 
   if (manageProvider === undefined) {
     return null;
@@ -40,41 +38,22 @@ export function ManagedFilter(props: Readonly<ManagedFilterProps>) {
 
   return (
     <div className="sw-mr-4">
-      {miui ? (
-        <ToggleButton
-          value={managed ?? 'all'}
-          disabled={loading}
-          options={[
-            { label: translate('all'), value: 'all' },
-            { label: translate('managed'), value: true },
-            { label: translate('local'), value: false },
-          ]}
-          onChange={(filterOption) => {
-            if (filterOption === 'all') {
-              props.setManaged(undefined);
-            } else {
-              props.setManaged(filterOption);
-            }
-          }}
-        />
-      ) : (
-        <ButtonToggle
-          value={managed ?? 'all'}
-          disabled={loading}
-          options={[
-            { label: translate('all'), value: 'all' },
-            { label: translate('managed'), value: true },
-            { label: translate('local'), value: false },
-          ]}
-          onCheck={(filterOption) => {
-            if (filterOption === 'all') {
-              props.setManaged(undefined);
-            } else {
-              props.setManaged(filterOption as boolean);
-            }
-          }}
-        />
-      )}
+      <ToggleButton
+        value={managed ?? 'all'}
+        disabled={loading}
+        options={[
+          { label: translate('all'), value: 'all' },
+          { label: translate('managed'), value: true },
+          { label: translate('local'), value: false },
+        ]}
+        onChange={(filterOption) => {
+          if (filterOption === 'all') {
+            props.setManaged(undefined);
+          } else {
+            props.setManaged(filterOption);
+          }
+        }}
+      />
     </div>
   );
 }
