@@ -33,6 +33,7 @@ import org.sonar.db.audit.NoOpAuditPersister;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.authentication.CredentialsLocalAuthentication;
+import org.sonar.server.authentication.IdentityProviderRepository;
 import org.sonar.server.common.avatar.AvatarResolverImpl;
 import org.sonar.server.common.management.ManagedInstanceChecker;
 import org.sonar.server.common.user.UserDeactivator;
@@ -77,8 +78,9 @@ public class CreateActionIT {
 
   private final ManagedInstanceChecker managedInstanceChecker = mock(ManagedInstanceChecker.class);
   private final ManagedInstanceService managedInstanceService = mock(ManagedInstanceService.class);
+  private final IdentityProviderRepository identityProviderRepository = mock();
   private final UserService userService = new UserService(db.getDbClient(), new AvatarResolverImpl(), managedInstanceService, managedInstanceChecker, mock(UserDeactivator.class),
-    new UserUpdater(mock(NewUserNotifier.class), db.getDbClient(), new DefaultGroupFinder(db.getDbClient()), settings.asConfig(), new NoOpAuditPersister(), localAuthentication));
+    new UserUpdater(mock(NewUserNotifier.class), db.getDbClient(), new DefaultGroupFinder(db.getDbClient()), settings.asConfig(), new NoOpAuditPersister(), localAuthentication), identityProviderRepository);
   private final WsActionTester tester = new WsActionTester(new CreateAction(userSessionRule, managedInstanceChecker, userService));
 
   @Before

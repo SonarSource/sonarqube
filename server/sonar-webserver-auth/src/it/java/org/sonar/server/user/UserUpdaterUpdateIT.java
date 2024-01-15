@@ -69,7 +69,8 @@ public class UserUpdaterUpdateIT {
   private final NewUserNotifier newUserNotifier = mock(NewUserNotifier.class);
   private final DbSession session = db.getSession();
   private final MapSettings settings = new MapSettings().setProperty("sonar.internal.pbkdf2.iterations", "1");
-  private final CredentialsLocalAuthentication localAuthentication = new CredentialsLocalAuthentication(db.getDbClient(), settings.asConfig());
+  private final CredentialsLocalAuthentication localAuthentication = new CredentialsLocalAuthentication(db.getDbClient(),
+    settings.asConfig());
   private final AuditPersister auditPersister = mock(AuditPersister.class);
   private final UserUpdater underTest = new UserUpdater(newUserNotifier, dbClient,
     new DefaultGroupFinder(dbClient), settings.asConfig(), auditPersister, localAuthentication);
@@ -105,7 +106,9 @@ public class UserUpdaterUpdateIT {
     underTest.updateAndCommit(session, user, new UpdateUser()
       .setName("Marius2")
       .setEmail("marius2@email.com")
-      .setExternalIdentity(new ExternalIdentity("github", "john", "ABCD")), u -> {
+      .setExternalIdentityProvider("github")
+      .setExternalIdentityProviderId("ABCD")
+      .setExternalIdentityProviderLogin("john"), u -> {
     });
 
     UserDto dto = dbClient.userDao().selectByLogin(session, DEFAULT_LOGIN);
@@ -123,7 +126,9 @@ public class UserUpdaterUpdateIT {
     underTest.updateAndCommit(session, user, new UpdateUser()
       .setName("Marius2")
       .setEmail("marius2@email.com")
-      .setExternalIdentity(new ExternalIdentity("github", "john", "ABCD")), u -> {
+      .setExternalIdentityProvider("github")
+      .setExternalIdentityProviderId("ABCD")
+      .setExternalIdentityProviderLogin("john"), u -> {
     });
 
     UserDto dto = dbClient.userDao().selectByLogin(session, DEFAULT_LOGIN);
@@ -220,7 +225,8 @@ public class UserUpdaterUpdateIT {
       .setLogin("new_login"), u -> {
     });
 
-    assertThat(db.getDbClient().propertiesDao().selectByQuery(PropertyQuery.builder().setKey(DEFAULT_ISSUE_ASSIGNEE).build(), db.getSession()))
+    assertThat(db.getDbClient().propertiesDao().selectByQuery(PropertyQuery.builder().setKey(DEFAULT_ISSUE_ASSIGNEE).build(),
+      db.getSession()))
       .extracting(PropertyDto::getValue, PropertyDto::getEntityUuid)
       .containsOnly(
         tuple("new_login", null),
@@ -376,9 +382,11 @@ public class UserUpdaterUpdateIT {
       .setExternalLogin("john.smith")
       .setExternalIdentityProvider("github"));
     createDefaultGroup();
-
-    underTest.updateAndCommit(session, user, new UpdateUser().setExternalIdentity(new ExternalIdentity("github", "john.smith", "ABCD")), u -> {
-    });
+    UpdateUser updateUser = new UpdateUser()
+      .setExternalIdentityProvider("github")
+      .setExternalIdentityProviderId("ABCD")
+      .setExternalIdentityProviderLogin("john.smith");
+    underTest.updateAndCommit(session, user, updateUser, u -> {});
 
     assertThat(dbClient.userDao().selectByLogin(session, DEFAULT_LOGIN))
       .extracting(UserDto::getExternalId)
@@ -393,8 +401,8 @@ public class UserUpdaterUpdateIT {
       .setExternalIdentityProvider("github"));
     createDefaultGroup();
 
-    underTest.updateAndCommit(session, user, new UpdateUser().setExternalIdentity(new ExternalIdentity("github", "john.smith", "ABCD")), u -> {
-    });
+    UpdateUser updateUser = new UpdateUser().setExternalIdentityProviderLogin("john.smith");
+    underTest.updateAndCommit(session, user, updateUser, u -> {});
 
     assertThat(dbClient.userDao().selectByLogin(session, DEFAULT_LOGIN))
       .extracting(UserDto::getExternalLogin, UserDto::getExternalIdentityProvider)
@@ -409,7 +417,8 @@ public class UserUpdaterUpdateIT {
       .setExternalIdentityProvider("github"));
     createDefaultGroup();
 
-    underTest.updateAndCommit(session, user, new UpdateUser().setExternalIdentity(new ExternalIdentity("bitbucket", "john", "ABCD")), u -> {
+    UpdateUser updateUser = new UpdateUser().setExternalIdentityProvider("bitbucket");
+    underTest.updateAndCommit(session, user, updateUser, u -> {
     });
 
     assertThat(dbClient.userDao().selectByLogin(session, DEFAULT_LOGIN))
@@ -425,11 +434,14 @@ public class UserUpdaterUpdateIT {
     createDefaultGroup();
 
     underTest.updateAndCommit(session, user, new UpdateUser()
-      .setName(user.getName())
-      .setEmail(user.getEmail())
-      .setScmAccounts(user.getSortedScmAccounts())
-      .setExternalIdentity(new ExternalIdentity(user.getExternalIdentityProvider(), user.getExternalLogin(), user.getExternalId())), u -> {
-    });
+        .setName(user.getName())
+        .setEmail(user.getEmail())
+        .setScmAccounts(user.getSortedScmAccounts())
+        .setExternalIdentityProvider(user.getExternalIdentityProvider())
+        .setExternalIdentityProviderId(user.getExternalId())
+        .setExternalIdentityProviderLogin(user.getExternalLogin())
+      , u -> {
+      });
 
     assertThat(dbClient.userDao().selectByLogin(session, DEFAULT_LOGIN).getUpdatedAt()).isEqualTo(user.getUpdatedAt());
   }
@@ -442,11 +454,14 @@ public class UserUpdaterUpdateIT {
     createDefaultGroup();
 
     underTest.updateAndCommit(session, user, new UpdateUser()
-      .setName(user.getName())
-      .setEmail(user.getEmail())
-      .setScmAccounts(asList("ma2", "ma1"))
-      .setExternalIdentity(new ExternalIdentity(user.getExternalIdentityProvider(), user.getExternalLogin(), user.getExternalId())), u -> {
-    });
+        .setName(user.getName())
+        .setEmail(user.getEmail())
+        .setScmAccounts(asList("ma2", "ma1"))
+        .setExternalIdentityProvider(user.getExternalIdentityProvider())
+        .setExternalIdentityProviderId(user.getExternalId())
+        .setExternalIdentityProviderLogin(user.getExternalLogin())
+      , u -> {
+      });
 
     assertThat(dbClient.userDao().selectByLogin(session, DEFAULT_LOGIN).getUpdatedAt()).isEqualTo(user.getUpdatedAt());
   }
@@ -500,7 +515,8 @@ public class UserUpdaterUpdateIT {
 
     // User is already associate to the default group
     Multimap<String, String> groups = dbClient.groupMembershipDao().selectGroupsByLogins(session, asList(DEFAULT_LOGIN));
-    assertThat(groups.get(DEFAULT_LOGIN).stream().anyMatch(g -> g.equals(defaultGroup.getName()))).as("Current user groups : %s", groups.get(defaultGroup.getName())).isTrue();
+    assertThat(groups.get(DEFAULT_LOGIN).stream().anyMatch(g -> g.equals(defaultGroup.getName()))).as("Current user groups : %s",
+      groups.get(defaultGroup.getName())).isTrue();
 
     underTest.updateAndCommit(session, user, new UpdateUser()
       .setName("Marius2")
@@ -608,14 +624,13 @@ public class UserUpdaterUpdateIT {
   public void fail_to_update_user_when_external_id_and_external_provider_already_exists() {
     createDefaultGroup();
     UserDto user = db.users().insertUser(u -> u.setActive(false));
-    UserDto existingUser = db.users().insertUser(u -> u.setExternalId("existing_external_id").setExternalIdentityProvider("existing_external_provider"));
+    UserDto existingUser = db.users().insertUser(u -> u.setExternalId("existing_external_id").setExternalIdentityProvider(
+      "existing_external_provider"));
 
     UpdateUser updateUser = new UpdateUser()
-      .setExternalIdentity(
-        new ExternalIdentity(
-          existingUser.getExternalIdentityProvider(),
-          existingUser.getExternalLogin(),
-          existingUser.getExternalId()));
+      .setExternalIdentityProvider(existingUser.getExternalIdentityProvider())
+      .setExternalIdentityProviderId(existingUser.getExternalId())
+      .setExternalIdentityProviderLogin(existingUser.getExternalLogin());
 
     assertThatThrownBy(() -> underTest.updateAndCommit(session, user, updateUser, EMPTY_USER_CONSUMER))
       .isInstanceOf(IllegalArgumentException.class)

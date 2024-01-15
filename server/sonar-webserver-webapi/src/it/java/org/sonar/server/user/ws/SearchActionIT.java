@@ -36,6 +36,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.scim.ScimUserDao;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.authentication.IdentityProviderRepository;
 import org.sonar.server.common.avatar.AvatarResolverImpl;
 import org.sonar.server.common.management.ManagedInstanceChecker;
 import org.sonar.server.common.user.UserDeactivator;
@@ -84,7 +85,8 @@ public class SearchActionIT {
     managedInstanceService,
     mock(ManagedInstanceChecker.class),
     mock(UserDeactivator.class),
-    mock(UserUpdater.class));
+    mock(UserUpdater.class),
+    mock(IdentityProviderRepository.class));
 
   private final SearchWsReponseGenerator searchWsReponseGenerator = new SearchWsReponseGenerator(userSession);
 

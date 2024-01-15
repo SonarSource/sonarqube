@@ -44,6 +44,7 @@ import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.SessionTokenDto;
 import org.sonar.db.user.UserDismissedMessageDto;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.authentication.IdentityProviderRepository;
 import org.sonar.server.common.avatar.AvatarResolver;
 import org.sonar.server.common.management.ManagedInstanceChecker;
 import org.sonar.server.common.user.UserAnonymizer;
@@ -85,9 +86,9 @@ public class DeactivateActionIT {
   private final UserAnonymizer userAnonymizer = new UserAnonymizer(db.getDbClient(), () -> "anonymized");
   private final UserDeactivator userDeactivator = new UserDeactivator(dbClient, userAnonymizer);
   private final ManagedInstanceChecker managedInstanceChecker = mock(ManagedInstanceChecker.class);
-
+  private final IdentityProviderRepository identityProviderRepository = mock();
   private final UserService userService = new UserService(dbClient, mock(AvatarResolver.class), mock(ManagedInstanceService.class), managedInstanceChecker, userDeactivator,
-    mock(UserUpdater.class));
+    mock(UserUpdater.class), identityProviderRepository);
   private final WsActionTester ws = new WsActionTester(new DeactivateAction(dbClient, userSession, new UserJsonWriter(userSession), userService));
 
   @Test

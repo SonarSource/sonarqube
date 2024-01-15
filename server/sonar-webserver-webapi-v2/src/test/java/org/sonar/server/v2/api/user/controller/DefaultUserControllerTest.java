@@ -503,6 +503,17 @@ public class DefaultUserControllerTest {
   }
 
   @Test
+  public void updateUser_whenExternalProviderIsProvided_shouldUpdate() throws Exception {
+    UpdateUser userUpdate = performPatchCallAndVerifyResponse("{\"externalProvider\":\"newExternalProvider\"}");
+    assertThat(userUpdate.externalIdentityProvider()).isEqualTo("newExternalProvider");
+  }
+  @Test
+  public void updateUser_whenExternalProviderLoginIsProvided_shouldUpdate() throws Exception {
+    UpdateUser userUpdate = performPatchCallAndVerifyResponse("{\"externalLogin\":\"newExternalProviderLogin\"}");
+    assertThat(userUpdate.externalIdentityProviderLogin()).isEqualTo("newExternalProviderLogin");
+  }
+
+  @Test
   public void updateUser_whenLoginIsEmpty_shouldReturnBadRequest() throws Exception {
     performPatchCallAndExpectBadRequest("{\"login\":\"\"}", "Value  for field login was rejected. Error: size must be between 2 and 100.");
   }
@@ -523,6 +534,8 @@ public class DefaultUserControllerTest {
 
   private UpdateUser performPatchCallAndVerifyResponse(String payload) throws Exception {
     userSession.logIn().setSystemAdministrator();
+    UserInformation mock = mock();
+    when(userService.fetchUser("userUuid")).thenReturn(mock);
     UserInformation userInformation = generateUserSearchResult("1", true, true, false, 1, 2);
 
     when(userService.updateUser(eq("userUuid"), any())).thenReturn(userInformation);

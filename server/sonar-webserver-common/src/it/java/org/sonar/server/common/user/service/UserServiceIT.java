@@ -31,6 +31,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.internal.MapSettings;
+import org.sonar.api.server.authentication.IdentityProvider;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.util.UuidFactory;
@@ -54,6 +55,7 @@ import org.sonar.db.user.SessionTokenDto;
 import org.sonar.db.user.UserDismissedMessageDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.authentication.CredentialsLocalAuthentication;
+import org.sonar.server.authentication.IdentityProviderRepository;
 import org.sonar.server.common.SearchResults;
 import org.sonar.server.common.avatar.AvatarResolverImpl;
 import org.sonar.server.common.management.ManagedInstanceChecker;
@@ -105,7 +107,8 @@ public class UserServiceIT {
   private final UserUpdater userUpdater = new UserUpdater(mock(NewUserNotifier.class), db.getDbClient(), new DefaultGroupFinder(db.getDbClient()),
     settings.asConfig(), new NoOpAuditPersister(), localAuthentication);
 
-  private final UserService userService = new UserService(db.getDbClient(), new AvatarResolverImpl(), managedInstanceService, managedInstanceChecker, userDeactivator, userUpdater);
+  private final IdentityProviderRepository identityProviderRepository = mock();
+  private final UserService userService = new UserService(db.getDbClient(), new AvatarResolverImpl(), managedInstanceService, managedInstanceChecker, userDeactivator, userUpdater, identityProviderRepository);
 
   @Before
   public void setUp() {
@@ -804,6 +807,39 @@ public class UserServiceIT {
     assertThat(updatedUser.getSortedScmAccounts()).containsExactly("account1", "account2");
   }
 
+  @Test
+  public void updateUser_whenUserExistsAndExternalProviderIllegal_shouldThrow() {
+    UpdateUser updateUser = new UpdateUser();
+    updateUser.setExternalIdentityProvider("illegal");
+
+    assertThatThrownBy(() -> userService.updateUser("login", updateUser))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Value of 'externalProvider' (illegal) must be one of: [] or [LDAP, LDAP_{serverKey}]");
+
+  }
+
+  @Test
+  public void updateUser_whenUserExistsAndExternalIdentityChanged_shouldChange() {
+    UserDto user = db.users().insertUser();
+    IdentityProvider mockProvider1 = mock();
+    IdentityProvider mockProvider2 = mock();
+    when(identityProviderRepository.getAllEnabledAndSorted()).thenReturn(List.of(mockProvider1, mockProvider2));
+    when(mockProvider2.getKey()).thenReturn("valid_provider");
+
+    UpdateUser updateUser = new UpdateUser();
+    updateUser.setExternalIdentityProvider("valid_provider");
+    updateUser.setExternalIdentityProviderId("prov_id");
+    updateUser.setExternalIdentityProviderLogin("prov_login");
+
+    userService.updateUser(user.getUuid(), updateUser);
+
+    UserDto updatedUser = db.users().selectUserByLogin(user.getLogin()).orElseThrow();
+
+    assertThat(updatedUser.getExternalIdentityProvider()).isEqualTo("valid_provider");
+    assertThat(updatedUser.getExternalId()).isEqualTo("prov_id");
+    assertThat(updatedUser.getExternalLogin()).isEqualTo("prov_login");
+  }
+
   private void assertUserWithFilter(Function<UsersSearchRequest.Builder, UsersSearchRequest.Builder> query, String userLogin, boolean isExpectedToBeThere) {
 
     UsersSearchRequest.Builder builder = getBuilderWithDefaultsPageSize();
@@ -941,7 +977,7 @@ public class UserServiceIT {
 
   @Test
   public void createUser_whenDeactivatedUserExists_shouldReactivate() {
-    db.users().insertUser(newUserDto("john", "John", "john@email.com").setActive(false));
+    db.users().insertUser(newUserDto("john", "John", "john@email.com").setActive(false).setLocal(true));
 
     UserCreateRequest userCreateRequest = UserCreateRequest.builder()
       .setLogin("john")

@@ -28,10 +28,12 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.sonar.api.server.authentication.IdentityProvider;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserQuery;
+import org.sonar.server.authentication.IdentityProviderRepository;
 import org.sonar.server.common.SearchResults;
 import org.sonar.server.common.avatar.AvatarResolver;
 import org.sonar.server.common.management.ManagedInstanceChecker;
@@ -47,6 +49,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Strings.emptyToNull;
 import static java.util.Comparator.comparing;
 import static java.util.Objects.requireNonNull;
+import static org.sonar.auth.ldap.LdapRealm.LDAP_SECURITY_REALM;
 import static org.sonar.server.exceptions.NotFoundException.checkFound;
 import static org.sonar.server.user.ExternalIdentity.SQ_AUTHORITY;
 
@@ -59,6 +62,7 @@ public class UserService {
   private final ManagedInstanceChecker managedInstanceChecker;
   private final UserDeactivator userDeactivator;
   private final UserUpdater userUpdater;
+  private final IdentityProviderRepository identityProviderRepository;
 
   public UserService(
     DbClient dbClient,
@@ -66,13 +70,15 @@ public class UserService {
     ManagedInstanceService managedInstanceService,
     ManagedInstanceChecker managedInstanceChecker,
     UserDeactivator userDeactivator,
-    UserUpdater userUpdater) {
+    UserUpdater userUpdater,
+    IdentityProviderRepository identityProviderRepository) {
     this.dbClient = dbClient;
     this.avatarResolver = avatarResolver;
     this.managedInstanceService = managedInstanceService;
     this.managedInstanceChecker = managedInstanceChecker;
     this.userDeactivator = userDeactivator;
     this.userUpdater = userUpdater;
+    this.identityProviderRepository = identityProviderRepository;
   }
 
   public SearchResults<UserInformation> findUsers(UsersSearchRequest request) {
@@ -215,6 +221,7 @@ public class UserService {
 
   public UserInformation updateUser(String uuid, UpdateUser updateUser) {
     try (DbSession dbSession = dbClient.openSession(false)) {
+      throwIfInvalidChangeOfExternalProvider(updateUser);
       UserDto userDto = findUserOrThrow(uuid, dbSession);
       userUpdater.updateAndCommit(dbSession, userDto, updateUser, u -> {
       });
@@ -234,6 +241,29 @@ public class UserService {
 
   private UserDto findUserOrThrow(String uuid, DbSession dbSession) {
     return checkFound(dbClient.userDao().selectByUuid(dbSession, uuid), USER_NOT_FOUND_MESSAGE, uuid);
+  }
+
+  private void throwIfInvalidChangeOfExternalProvider(UpdateUser updateUser) {
+    Optional.ofNullable(updateUser.externalIdentityProvider()).ifPresent(this::assertProviderIsSupported);
+  }
+
+  private void assertProviderIsSupported(String newExternalProvider) {
+    List<String> allowedIdentityProviders = getAvailableIdentityProviders();
+
+    boolean isAllowedProvider = allowedIdentityProviders.contains(newExternalProvider) || isLdapIdentityProvider(newExternalProvider);
+    checkArgument(isAllowedProvider, "Value of 'externalProvider' (%s) must be one of: [%s] or [%s]", newExternalProvider,
+      String.join(", ", allowedIdentityProviders), String.join(", ", "LDAP", "LDAP_{serverKey}"));
+  }
+
+  private List<String> getAvailableIdentityProviders() {
+    return identityProviderRepository.getAllEnabledAndSorted()
+      .stream()
+      .map(IdentityProvider::getKey)
+      .toList();
+  }
+
+  private static boolean isLdapIdentityProvider(String identityProviderKey) {
+    return identityProviderKey.startsWith(LDAP_SECURITY_REALM);
   }
 
 }

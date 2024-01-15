@@ -188,10 +188,9 @@ public class UserRegistrarImpl implements UserRegistrar {
     UpdateUser update = new UpdateUser()
       .setEmail(authenticatorParameters.getUserIdentity().getEmail())
       .setName(authenticatorParameters.getUserIdentity().getName())
-      .setExternalIdentity(new ExternalIdentity(
-        authenticatorParameters.getProvider().getKey(),
-        authenticatorParameters.getUserIdentity().getProviderLogin(),
-        authenticatorParameters.getUserIdentity().getProviderId()));
+      .setExternalIdentityProvider(authenticatorParameters.getProvider().getKey())
+      .setExternalIdentityProviderId(authenticatorParameters.getUserIdentity().getProviderId())
+      .setExternalIdentityProviderLogin(authenticatorParameters.getUserIdentity().getProviderLogin());
     Optional<UserDto> otherUserToIndex = detectEmailUpdate(dbSession, authenticatorParameters, userDto.getUuid());
     userUpdater.updateAndCommit(dbSession, userDto, update, beforeCommit(dbSession, authenticatorParameters), toArray(otherUserToIndex));
     return userDto;

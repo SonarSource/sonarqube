@@ -21,6 +21,7 @@ package org.sonar.server.common.user.service;
 
 import java.util.List;
 import java.util.Optional;
+import javax.annotation.Nullable;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Strings.isNullOrEmpty;
@@ -82,7 +83,7 @@ public class UserCreateRequest {
       // enforce factory method use
     }
 
-    public Builder setEmail(String email) {
+    public Builder setEmail(@Nullable String email) {
       this.email = email;
       return this;
     }
@@ -102,12 +103,12 @@ public class UserCreateRequest {
       return this;
     }
 
-    public Builder setPassword(String password) {
+    public Builder setPassword(@Nullable String password) {
       this.password = password;
       return this;
     }
 
-    public Builder setScmAccounts(List<String> scmAccounts) {
+    public Builder setScmAccounts(@Nullable List<String> scmAccounts) {
       this.scmAccounts = scmAccounts;
       return this;
     }

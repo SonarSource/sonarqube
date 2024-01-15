@@ -22,6 +22,7 @@ package org.sonar.server.v2.api.user.request;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;
+import javax.annotation.Nullable;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.Size;
 import org.sonar.server.v2.common.model.UpdateField;
@@ -32,6 +33,8 @@ public class UserUpdateRestRequest {
   private UpdateField<String> name = UpdateField.undefined();
   private UpdateField<String> email = UpdateField.undefined();
   private UpdateField<List<String>> scmAccounts = UpdateField.undefined();
+  private UpdateField<String> externalProvider = UpdateField.undefined();
+  private UpdateField<String> externalLogin = UpdateField.undefined();
 
   @Size(min = 2, max = 100)
   @Schema(description = "User login")
@@ -71,5 +74,28 @@ public class UserUpdateRestRequest {
 
   public void setScmAccounts(List<String> scmAccounts) {
     this.scmAccounts = UpdateField.withValue(scmAccounts);
+  }
+
+  @Schema(implementation = String.class, description = "New external provider. Only authentication system installed are available. " +
+    "Use 'LDAP' identity provider for single server LDAP setup. " +
+    "Use 'LDAP_{serverKey}' identity provider for multiple LDAP servers setup. " +
+    "Warning: when this information has been updated for a user, the user will only be able to authenticate via the new identity provider. " +
+    "It is not possible to migrate external user to local one.")
+  public UpdateField<String> getExternalProvider() {
+    return externalProvider;
+  }
+
+  public void setExternalProvider(@Nullable String externalProvider) {
+    this.externalProvider = UpdateField.withValue(externalProvider);
+  }
+
+  @Size(min = 1, max = 255)
+  @Schema(implementation = String.class, description = "New external login, usually the login used in the authentication system. If not provided previous identity will be used.")
+  public UpdateField<String> getExternalLogin() {
+    return externalLogin;
+  }
+
+  public void setExternalLogin(@Nullable String externalLogin) {
+    this.externalLogin = UpdateField.withValue(externalLogin);
   }
 }

@@ -32,10 +32,10 @@ import org.sonar.server.user.UpdateUser;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.v2.api.model.RestPage;
 import org.sonar.server.v2.api.user.converter.UsersSearchRestResponseGenerator;
-import org.sonar.server.v2.api.user.response.UserRestResponse;
 import org.sonar.server.v2.api.user.request.UserCreateRestRequest;
 import org.sonar.server.v2.api.user.request.UserUpdateRestRequest;
 import org.sonar.server.v2.api.user.request.UsersSearchRestRequest;
+import org.sonar.server.v2.api.user.response.UserRestResponse;
 import org.sonar.server.v2.api.user.response.UsersSearchRestResponse;
 
 import static org.sonar.server.common.PaginationInformation.forPageIndex;
@@ -128,6 +128,8 @@ public class DefaultUserController implements UserController {
     updateRequest.getName().applyIfDefined(update::setName);
     updateRequest.getEmail().applyIfDefined(update::setEmail);
     updateRequest.getScmAccounts().applyIfDefined(update::setScmAccounts);
+    updateRequest.getExternalProvider().applyIfDefined(update::setExternalIdentityProvider);
+    updateRequest.getExternalLogin().applyIfDefined(update::setExternalIdentityProviderLogin);
     return update;
   }
 
