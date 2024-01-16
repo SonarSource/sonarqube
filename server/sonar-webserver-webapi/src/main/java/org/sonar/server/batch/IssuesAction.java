@@ -19,6 +19,14 @@
  */
 package org.sonar.server.batch;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static java.lang.String.format;
+import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.toMap;
+import static org.sonar.api.web.UserRole.USER;
+import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
+import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
+
 import com.google.common.base.Splitter;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -26,7 +34,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.ws.Change;
@@ -35,7 +42,6 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
@@ -45,19 +51,10 @@ import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserTokenDto;
 import org.sonar.scanner.protocol.input.ScannerInput;
 import org.sonar.server.component.ComponentFinder;
-import org.sonar.server.platform.ws.RestartAction;
 import org.sonar.server.user.ThreadLocalUserSession;
 import org.sonar.server.user.TokenUserSession;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.MediaTypes;
-
-import static com.google.common.base.Preconditions.checkArgument;
-import static java.lang.String.format;
-import static java.util.Optional.ofNullable;
-import static java.util.stream.Collectors.toMap;
-import static org.sonar.api.web.UserRole.USER;
-import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
-import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 
 public class IssuesAction implements BatchWsAction {
 
