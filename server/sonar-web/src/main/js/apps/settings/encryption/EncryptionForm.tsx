@@ -17,135 +17,124 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import {
+  ButtonPrimary,
+  ButtonSecondary,
+  ClipboardIconButton,
+  CodeSnippet,
+  InputTextArea,
+  Spinner,
+} from 'design-system';
 import * as React from 'react';
+import { useCallback, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { encryptValue } from '../../../api/settings';
-import DocLink from '../../../components/common/DocLink';
-import { SubmitButton } from '../../../components/controls/buttons';
-import { ClipboardButton } from '../../../components/controls/clipboard';
-import Spinner from '../../../components/ui/Spinner';
+import DocumentationLink from '../../../components/common/DocumentationLink';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {
   generateSecretKey: () => Promise<void>;
 }
 
-interface State {
-  encryptedValue?: string;
-  encrypting: boolean;
-  generating: boolean;
-  value: string;
-}
+export default function EncryptionForm({ generateSecretKey }: Readonly<Props>) {
+  const [encrypting, setEncrypting] = useState(false);
+  const [generating, setGenerating] = useState(false);
+  const [encryptedValue, setEncryptedValue] = useState('');
+  const [value, setValue] = useState('');
 
-export default class EncryptionForm extends React.PureComponent<Props, State> {
-  mounted = false;
-  state: State = { encrypting: false, generating: false, value: '' };
+  const handleChange = useCallback((event: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setValue(event.currentTarget.value);
+  }, []);
 
-  componentDidMount() {
-    this.mounted = true;
-  }
+  const handleEncrypt = useCallback(
+    (event: React.FormEvent) => {
+      event.preventDefault();
+      setEncrypting(true);
+      encryptValue(value).then(
+        ({ encryptedValue }) => {
+          setEncryptedValue(encryptedValue);
+          setEncrypting(false);
+        },
+        () => {
+          setEncrypting(false);
+        },
+      );
+    },
+    [value],
+  );
 
-  componentWillUnmount() {
-    this.mounted = false;
-  }
+  const handleGenerateSecretKey = useCallback(
+    (event: React.FormEvent) => {
+      event.preventDefault();
+      setGenerating(true);
+      generateSecretKey().then(
+        () => setGenerating(false),
+        () => setGenerating(false),
+      );
+    },
+    [generateSecretKey],
+  );
 
-  handleChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
-    this.setState({ value: event.currentTarget.value });
-  };
+  return (
+    <div id="encryption-form-container">
+      <div className="sw-mb-2">{translate('encryption.form_intro')}</div>
+      <form id="encryption-form" onSubmit={handleEncrypt}>
+        <InputTextArea
+          autoFocus
+          size="large"
+          id="encryption-form-value"
+          onChange={handleChange}
+          required
+          rows={5}
+          value={value}
+        />
+        <div>
+          <ButtonSecondary className="sw-my-2" type="submit" disabled={encrypting || generating}>
+            {translate('encryption.encrypt')}
+          </ButtonSecondary>
+          <Spinner loading={encrypting} />
+        </div>
+      </form>
 
-  handleEncrypt = (event: React.FormEvent) => {
-    event.preventDefault();
-    this.setState({ encrypting: true });
-    encryptValue(this.state.value).then(
-      ({ encryptedValue }) => {
-        if (this.mounted) {
-          this.setState({ encryptedValue, encrypting: false });
-        }
-      },
-      () => {
-        if (this.mounted) {
-          this.setState({ encrypting: false });
-        }
-      },
-    );
-  };
+      {encryptedValue && (
+        <div className="sw-my-2">
+          <label>{translate('encryption.encrypted_value')}</label>
+          <div className="sw-flex">
+            <CodeSnippet
+              className="it__encrypted-value sw-max-w-full sw-break-words sw-p-1"
+              isOneLine
+              noCopy
+              snippet={encryptedValue}
+            />
+            <ClipboardIconButton
+              aria-label={translate('copy_to_clipboard')}
+              className="sw-ml-4"
+              copyValue={encryptedValue}
+            />
+          </div>
+        </div>
+      )}
 
-  handleGenerateSecretKey = (event: React.FormEvent) => {
-    event.preventDefault();
-    this.setState({ generating: true });
-    this.props.generateSecretKey().then(this.stopGenerating, this.stopGenerating);
-  };
-
-  stopGenerating = () => {
-    if (this.mounted) {
-      this.setState({ generating: false });
-    }
-  };
-
-  render() {
-    const { encryptedValue, encrypting, generating } = this.state;
-    return (
-      <div id="encryption-form-container">
-        <div className="spacer-bottom">{translate('encryption.form_intro')}</div>
-        <form className="big-spacer-bottom" id="encryption-form" onSubmit={this.handleEncrypt}>
-          <textarea
-            autoFocus
-            className="abs-width-600"
-            id="encryption-form-value"
-            onChange={this.handleChange}
-            required
-            rows={5}
-            value={this.state.value}
+      <form id="encryption-new-key-form" onSubmit={handleGenerateSecretKey}>
+        <p className="sw-my-2">
+          <FormattedMessage
+            defaultMessage={translate('encryption.form_note')}
+            id="encryption.form_note"
+            values={{
+              moreInformationLink: (
+                <DocumentationLink to="/instance-administration/security/">
+                  {translate('more_information')}
+                </DocumentationLink>
+              ),
+            }}
           />
-          <div className="spacer-top">
-            <SubmitButton disabled={encrypting || generating}>
-              {translate('encryption.encrypt')}
-            </SubmitButton>
-            <Spinner className="spacer-left" loading={encrypting} />
-          </div>
-        </form>
+        </p>
 
-        {encryptedValue && (
-          <div>
-            <label className="little-spacer-right" htmlFor="encrypted-value">
-              {translate('encryption.encrypted_value')}
-            </label>
-            <input
-              className="input-clear input-code input-super-large"
-              id="encrypted-value"
-              readOnly
-              type="text"
-              value={encryptedValue}
-            />
-            <ClipboardButton className="little-spacer-left" copyValue={encryptedValue} />
-          </div>
-        )}
-
-        <form
-          className="huge-spacer-top bordered-top"
-          id="encryption-new-key-form"
-          onSubmit={this.handleGenerateSecretKey}
-        >
-          <p className="big-spacer-top spacer-bottom">
-            <FormattedMessage
-              defaultMessage={translate('encryption.form_note')}
-              id="encryption.form_note"
-              values={{
-                moreInformationLink: (
-                  <DocLink to="/instance-administration/security/">
-                    {translate('more_information')}
-                  </DocLink>
-                ),
-              }}
-            />
-          </p>
-
-          <SubmitButton disabled={generating || encrypting}>
-            {translate('encryption.generate_new_secret_key')}{' '}
-          </SubmitButton>
-          <Spinner className="spacer-left" loading={generating} />
-        </form>
-      </div>
-    );
-  }
+        <ButtonPrimary type="submit" disabled={generating || encrypting}>
+          {translate('encryption.generate_new_secret_key')}{' '}
+        </ButtonPrimary>
+        <Spinner loading={generating} />
+      </form>
+    </div>
+  );
 }

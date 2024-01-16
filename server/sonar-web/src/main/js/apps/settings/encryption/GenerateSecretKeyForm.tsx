@@ -17,11 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import {
+  ButtonPrimary,
+  ClipboardIconButton,
+  CodeSnippet,
+  ListItem,
+  SubHeading,
+  UnorderedList,
+} from 'design-system';
 import * as React from 'react';
+import { useCallback, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
-import DocLink from '../../../components/common/DocLink';
-import { SubmitButton } from '../../../components/controls/buttons';
-import { ClipboardButton } from '../../../components/controls/clipboard';
+import DocumentationLink from '../../../components/common/DocumentationLink';
 import Spinner from '../../../components/ui/Spinner';
 import { translate } from '../../../helpers/l10n';
 
@@ -30,105 +37,89 @@ interface Props {
   secretKey?: string;
 }
 
-interface State {
-  submitting: boolean;
-}
+export default function GenerateSecretKeyForm({ secretKey, generateSecretKey }: Readonly<Props>) {
+  const [submitting, setSubmitting] = useState(false);
 
-export default class GenerateSecretKeyForm extends React.PureComponent<Props, State> {
-  mounted = false;
-  state: State = { submitting: false };
+  const handleSubmit = useCallback(
+    (event: React.FormEvent<HTMLFormElement>) => {
+      event.preventDefault();
+      setSubmitting(true);
+      generateSecretKey().then(
+        () => setSubmitting(false),
+        () => setSubmitting(false),
+      );
+    },
+    [generateSecretKey],
+  );
 
-  componentDidMount() {
-    this.mounted = true;
-  }
-
-  componentWillUnmount() {
-    this.mounted = false;
-  }
-
-  handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    this.setState({ submitting: true });
-    this.props.generateSecretKey().then(this.stopSubmitting, this.stopSubmitting);
-  };
-
-  stopSubmitting = () => {
-    if (this.mounted) {
-      this.setState({ submitting: false });
-    }
-  };
-
-  render() {
-    const { secretKey } = this.props;
-    const { submitting } = this.state;
-    return (
-      <div id="generate-secret-key-form-container">
-        {secretKey ? (
-          <>
-            <div className="big-spacer-bottom">
-              <h3 className="spacer-bottom" id="secret-key-title">
-                {translate('encryption.secret_key')}
-              </h3>
-              <input
-                aria-labelledby="secret-key-title"
-                className="input-clear input-code input-large"
-                id="secret-key"
-                readOnly
-                type="text"
-                value={secretKey}
+  return (
+    <div id="generate-secret-key-form-container">
+      {secretKey ? (
+        <>
+          <div className="sw-mb-4">
+            <SubHeading id="secret-key-title">{translate('encryption.secret_key')}</SubHeading>
+            <div className="sw-flex">
+              <CodeSnippet className="it__secret-key sw-p-1" isOneLine noCopy snippet={secretKey} />
+              <ClipboardIconButton
+                aria-label={translate('copy_to_clipboard')}
+                className="sw-ml-2"
+                copyValue={secretKey}
               />
-              <ClipboardButton className="little-spacer-left" copyValue={secretKey} />
             </div>
-            <h3 className="spacer-bottom">{translate('encryption.how_to_use')}</h3>
-            <div className="markdown">
-              <ul>
-                <li>
-                  <FormattedMessage
-                    defaultMessage={translate('encryption.how_to_use.content1')}
-                    id="encryption.how_to_use.content1"
-                    values={{
-                      secret_file: <code>~/.sonar/sonar-secret.txt</code>,
-                      property: <code>sonar.secretKeyPath</code>,
-                      propreties_file: <code>conf/sonar.properties</code>,
-                    }}
-                  />
-                </li>
-                <li>{translate('encryption.how_to_use.content2')}</li>
-                <li>
-                  <FormattedMessage
-                    defaultMessage={translate('encryption.how_to_use.content3')}
-                    id="encryption.how_to_use.content3"
-                    values={{
-                      property: <code>sonar.secretKeyPath</code>,
-                    }}
-                  />
-                </li>
-                <li>{translate('encryption.how_to_use.content4')}</li>
-              </ul>
-            </div>
-          </>
-        ) : (
-          <form id="generate-secret-key-form" onSubmit={this.handleSubmit}>
-            <p className="spacer-bottom">
-              <FormattedMessage
-                defaultMessage={translate('encryption.secret_key_description')}
-                id="encryption.secret_key_description"
-                values={{
-                  moreInformationLink: (
-                    <DocLink to="/instance-administration/security/">
-                      {translate('more_information')}
-                    </DocLink>
-                  ),
-                }}
-              />
-            </p>
-            <SubmitButton disabled={submitting}>
-              {translate('encryption.generate_secret_key')}
-            </SubmitButton>
-            <Spinner className="spacer-left" loading={submitting} />
-          </form>
-        )}
-      </div>
-    );
-  }
+          </div>
+          <SubHeading className="sw-mb-2">{translate('encryption.how_to_use')}</SubHeading>
+          <div>
+            <UnorderedList ticks>
+              <ListItem>
+                <FormattedMessage
+                  defaultMessage={translate('encryption.how_to_use.content1')}
+                  id="encryption.how_to_use.content1"
+                  values={{
+                    secret_file: (
+                      <CodeSnippet isOneLine noCopy snippet="~/.sonar/sonar-secret.txt" />
+                    ),
+                    property: <CodeSnippet isOneLine noCopy snippet="sonar.secretKeyPath" />,
+                    propreties_file: (
+                      <CodeSnippet isOneLine noCopy snippet="conf/sonar.properties" />
+                    ),
+                  }}
+                />
+              </ListItem>
+              <ListItem>{translate('encryption.how_to_use.content2')}</ListItem>
+              <ListItem>
+                <FormattedMessage
+                  defaultMessage={translate('encryption.how_to_use.content3')}
+                  id="encryption.how_to_use.content3"
+                  values={{
+                    property: <CodeSnippet isOneLine noCopy snippet="sonar.secretKeyPath" />,
+                  }}
+                />
+              </ListItem>
+              <ListItem>{translate('encryption.how_to_use.content4')}</ListItem>
+            </UnorderedList>
+          </div>
+        </>
+      ) : (
+        <form id="generate-secret-key-form" onSubmit={handleSubmit}>
+          <p>
+            <FormattedMessage
+              defaultMessage={translate('encryption.secret_key_description')}
+              id="encryption.secret_key_description"
+              values={{
+                moreInformationLink: (
+                  <DocumentationLink to="/instance-administration/security/">
+                    {translate('more_information')}
+                  </DocumentationLink>
+                ),
+              }}
+            />
+          </p>
+          <ButtonPrimary className="sw-mt-4" type="submit" disabled={submitting}>
+            {translate('encryption.generate_secret_key')}
+          </ButtonPrimary>
+          <Spinner loading={submitting} />
+        </form>
+      )}
+    </div>
+  );
 }
