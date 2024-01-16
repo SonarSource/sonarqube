@@ -71,11 +71,13 @@ public class UsersAction implements UserGroupsWsAction {
         "Requires the following permission: 'Administer System'.")
       .setHandler(this)
       .setSince("5.2")
+      .setDeprecatedSince("10.4")
       .setResponseExample(getClass().getResource("users-example.json"))
       .addSelectionModeParam()
       .addSearchQuery("freddy", "names", "logins")
       .addPagingParams(25)
       .setChangelog(
+        new Change("10.4", "Deprecated. Use GET /api/v2/authorizations/group-memberships instead"),
         new Change("10.0", "Field 'managed' added to the payload."),
         new Change("10.0", "Parameter 'id' is removed. Use 'name' instead."),
         new Change("9.8", "response fields 'total', 's', 'ps' have been deprecated, please use 'paging' object instead."),

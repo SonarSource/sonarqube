@@ -66,7 +66,9 @@ public class RemoveUserAction implements UserGroupsWsAction {
       .setHandler(this)
       .setPost(true)
       .setSince("5.2")
+      .setDeprecatedSince("10.4")
       .setChangelog(
+        new Change("10.4", "Deprecated. Use DELETE /api/v2/authorizations/group-memberships instead"),
         new Change("10.0", "Parameter 'id' is removed. Use 'name' instead."),
         new Change("8.4", "Parameter 'id' is deprecated. Format changes from integer to string. Use 'name' instead."));
 
