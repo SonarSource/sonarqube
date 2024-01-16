@@ -373,8 +373,7 @@ public class UserUpdater {
     return true;
   }
 
-  private boolean validateScmAccounts(DbSession dbSession, List<String> scmAccounts, @Nullable String login, @Nullable String email,
-    @Nullable UserDto existingUser,
+  private boolean validateScmAccounts(DbSession dbSession, List<String> scmAccounts, @Nullable String login, @Nullable String email, @Nullable UserDto existingUser,
     List<String> messages) {
     boolean isValid = true;
     for (String scmAccount : scmAccounts) {
@@ -391,8 +390,7 @@ public class UserUpdater {
           matchingUsersWithoutExistingUser.add(getNameOrLogin(matchingUser) + " (" + matchingUser.getLogin() + ")");
         }
         if (!matchingUsersWithoutExistingUser.isEmpty()) {
-          messages.add(format("The scm account '%s' is already used by user(s) : '%s'", scmAccount,
-            Joiner.on(", ").join(matchingUsersWithoutExistingUser)));
+          messages.add(format("The scm account '%s' is already used by user(s) : '%s'", scmAccount, Joiner.on(", ").join(matchingUsersWithoutExistingUser)));
           isValid = false;
         }
       }

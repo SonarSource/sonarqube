@@ -95,7 +95,6 @@ export default function ApiSidebar({ apisList, docInfo }: Readonly<Props>) {
       <h1 className="sw-mb-2">
         <Link to="." className="sw-text-[unset] sw-border-none">
           {docInfo.title}
-          <Badge className="sw-align-middle sw-ml-2">{docInfo.version}</Badge>
         </Link>
       </h1>
 

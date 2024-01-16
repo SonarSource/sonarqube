@@ -29,7 +29,7 @@ const handler = new WebApiServiceMock();
 
 const ui = {
   search: byRole('searchbox'),
-  title: byRole('link', { name: 'Swagger Petstore - OpenAPI 3.0 1.0.17' }),
+  title: byRole('link', { name: 'Swagger Petstore - OpenAPI 3.0' }),
   searchClear: byRole('button', { name: 'clear' }),
   showInternal: byRole('checkbox', { name: 'api_documentation.show_internal_v2' }),
   apiScopePet: byRole('button', { name: 'pet' }),
