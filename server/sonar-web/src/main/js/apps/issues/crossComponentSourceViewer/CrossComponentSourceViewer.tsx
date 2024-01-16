@@ -223,8 +223,7 @@ export default class CrossComponentSourceViewer extends React.PureComponent<Prop
         {locationsByComponent.map((snippetGroup, i) => {
           return (
             <SourceViewerContext.Provider
-              // eslint-disable-next-line react/no-array-index-key
-              key={`${issue.key}-${this.props.selectedFlowIndex || 0}-${i}`}
+              key={`${issue.key}-${this.props.selectedFlowIndex}-${snippetGroup.component.key}`}
               value={{ branchLike: this.props.branchLike, file: snippetGroup.component }}
             >
               <ComponentSourceSnippetGroupViewer
