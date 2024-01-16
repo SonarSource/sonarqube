@@ -42,6 +42,7 @@ import static org.sonar.api.CoreProperties.CORE_FORCE_AUTHENTICATION_PROPERTY;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.api.web.ServletFilter.UrlPattern.Builder.staticResourcePatterns;
 import static org.sonar.server.authentication.AuthenticationError.handleAuthenticationError;
+import static org.sonar.server.authentication.AuthenticationRedirection.redirectTo;
 
 @ServerSide
 public class UserSessionInitializer {
@@ -117,8 +118,9 @@ public class UserSessionInitializer {
         handleAuthenticationError(e, request, response);
         return false;
       }
-      // Web pages should redirect to the index.html file
-      return true;
+      // Web pages should redirect to Login Page
+      redirectTo(response, request.getContextPath() + "/sessions/new?return_to="+path);
+      return false;
     }
   }
 
