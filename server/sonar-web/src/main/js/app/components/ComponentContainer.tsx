@@ -208,8 +208,8 @@ function ComponentContainer({ hasFeature }: Readonly<WithAvailableFeaturesProps>
      * Links should be fixed to not rely on this redirect, but:
      * This is a fail-safe in case there are still some faulty links remaining.
      */
-    if (pathname.includes('dashboard') && isPortfolioLike(component?.qualifier)) {
-      router.replace(getPortfolioUrl(component?.key as string));
+    if (pathname.includes('dashboard') && component && isPortfolioLike(component.qualifier)) {
+      router.replace(getPortfolioUrl(component.key));
       return;
     }
     // Redirect from tutorials to to dashboard
