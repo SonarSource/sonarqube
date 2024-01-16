@@ -19,6 +19,14 @@
  */
 package org.sonar.server.batch;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static java.lang.String.format;
+import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.toMap;
+import static org.sonar.api.web.UserRole.USER;
+import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
+import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
+
 import com.google.common.base.Splitter;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -32,26 +40,25 @@ import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueDto;
+import org.sonar.db.user.TokenType;
 import org.sonar.db.user.UserDto;
+import org.sonar.db.user.UserTokenDto;
 import org.sonar.scanner.protocol.input.ScannerInput;
 import org.sonar.server.component.ComponentFinder;
+import org.sonar.server.user.ThreadLocalUserSession;
+import org.sonar.server.user.TokenUserSession;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.MediaTypes;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static java.lang.String.format;
-import static java.util.Optional.ofNullable;
-import static java.util.stream.Collectors.toMap;
-import static org.sonar.api.web.UserRole.USER;
-import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
-import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
-
 public class IssuesAction implements BatchWsAction {
 
+  private static final Logger LOGGER = Loggers.get(IssuesAction.class);
   private static final String PARAM_KEY = "key";
   private static final String PARAM_BRANCH = "branch";
   private static final Splitter MODULE_PATH_SPLITTER = Splitter.on('.').trimResults().omitEmptyStrings();
@@ -94,7 +101,7 @@ public class IssuesAction implements BatchWsAction {
   public void handle(Request request, Response response) throws Exception {
     try (DbSession dbSession = dbClient.openSession(false)) {
       ComponentDto component = loadComponent(dbSession, request);
-      userSession.checkComponentPermission(USER, component);
+      checkPermissions(component);
       Map<String, String> keysByUUid = keysByUUid(dbSession, component);
 
       ScannerInput.ServerIssue.Builder responseBuilder = ScannerInput.ServerIssue.newBuilder();
@@ -180,4 +187,27 @@ public class IssuesAction implements BatchWsAction {
     String branch = request.param(PARAM_BRANCH);
     return componentFinder.getByKeyAndOptionalBranchOrPullRequest(dbSession, componentKey, branch, null);
   }
+
+  private void checkPermissions(ComponentDto baseComponent) {
+    if (userSession instanceof ThreadLocalUserSession) {
+      UserSession tokenUserSession = ((ThreadLocalUserSession) userSession).get();
+      if (tokenUserSession instanceof TokenUserSession) {
+        UserTokenDto userToken = ((TokenUserSession) tokenUserSession).getUserToken();
+        if (TokenType.PROJECT_ANALYSIS_TOKEN.name().equals(userToken.getType())) {
+          LOGGER.debug("Batch Issues API is accessed by project token. Project key: {}, Token name: {}."
+                  , userToken.getProjectKey(), userToken.getName());
+          // Key parameter (base component) can be either project or file key.
+          if (userToken.getProjectKey().equals(baseComponent.getKey()) || baseComponent.getKey()
+                  .startsWith(userToken.getProjectKey() + ":")) // File key consists of the form project-key:file-path.
+          {
+            LOGGER.debug("Batch Issues API is called for a file or project same as that of the token used."
+                    + " Project key: {}, Token name: {}.", userToken.getProjectKey(), userToken.getName());
+            return;
+          }
+        }
+      }
+    }
+    userSession.checkComponentPermission(USER, baseComponent);
+  }
+
 }
