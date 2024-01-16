@@ -36,9 +36,11 @@ public record GitlabConfigurationCreateRestRequest(
   @NotEmpty
   @Schema(description = "Gitlab Application id")
   String applicationId,
+
   @NotEmpty
   @Schema(description = "Url of Gitlab instance for authentication (for instance https://gitlab.com)")
   String url,
+
   @NotEmpty
   @Schema(accessMode = Schema.AccessMode.WRITE_ONLY,  description = "Secret of the application")
   String secret,
@@ -46,6 +48,10 @@ public record GitlabConfigurationCreateRestRequest(
   @NotNull
   @Schema(description = "Set whether to synchronize groups")
   Boolean synchronizeGroups,
+
+  @NotEmpty
+  @ArraySchema(arraySchema = @Schema(description = "GitLab groups allowed to authenticate and provisioned (for Auto-Provisioning only). Subgroups will automatically be included"))
+  List<String> allowedGroups,
 
   @NotNull
   @Schema(description = "Type of synchronization")
@@ -57,10 +63,6 @@ public record GitlabConfigurationCreateRestRequest(
 
   @Schema(description = "Allow user to sign up")
   @Nullable
-  Boolean allowUsersToSignUp,
-
-  @ArraySchema(arraySchema = @Schema(description = "Root GitLab groups to provision."))
-  @Nullable
-  List<String> provisioningGroups
+  Boolean allowUsersToSignUp
 ) {
 }

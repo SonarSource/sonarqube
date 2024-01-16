@@ -38,12 +38,12 @@ public record GitlabConfigurationResource(
 
   boolean synchronizeGroups,
 
-  ProvisioningType provisioningType,
+  @Schema(description = "Root Gitlab groups allowed to authenticate and provisioned")
+  List<String> allowedGroups,
 
   boolean allowUsersToSignUp,
 
-  @Schema(description = "Root Gitlab groups to provision")
-  List<String> provisioningGroups,
+  ProvisioningType provisioningType,
 
   @Schema(accessMode = Schema.AccessMode.READ_ONLY, description = "In case the GitLab configuration is incorrect, error message")
   @Nullable

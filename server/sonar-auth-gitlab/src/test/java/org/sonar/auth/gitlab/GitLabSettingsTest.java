@@ -26,11 +26,11 @@ import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.utils.System2;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.auth.gitlab.GitLabSettings.GITLAB_AUTH_ALLOWED_GROUPS;
 import static org.sonar.auth.gitlab.GitLabSettings.GITLAB_AUTH_ALLOW_USERS_TO_SIGNUP;
 import static org.sonar.auth.gitlab.GitLabSettings.GITLAB_AUTH_APPLICATION_ID;
 import static org.sonar.auth.gitlab.GitLabSettings.GITLAB_AUTH_ENABLED;
 import static org.sonar.auth.gitlab.GitLabSettings.GITLAB_AUTH_PROVISIONING_ENABLED;
-import static org.sonar.auth.gitlab.GitLabSettings.GITLAB_AUTH_PROVISIONING_GROUPS;
 import static org.sonar.auth.gitlab.GitLabSettings.GITLAB_AUTH_PROVISIONING_TOKEN;
 import static org.sonar.auth.gitlab.GitLabSettings.GITLAB_AUTH_SECRET;
 import static org.sonar.auth.gitlab.GitLabSettings.GITLAB_AUTH_SYNC_USER_GROUPS;
@@ -83,8 +83,8 @@ public class GitLabSettingsTest {
     settings.setProperty(GITLAB_AUTH_PROVISIONING_TOKEN, "token");
     assertThat(config.provisioningToken()).isEqualTo("token");
 
-    settings.setProperty(GITLAB_AUTH_PROVISIONING_GROUPS, new String[] {"Group1", "Group2"});
-    assertThat(config.provisioningGroups()).containsExactlyInAnyOrder("Group1", "Group2");
+    settings.setProperty(GITLAB_AUTH_ALLOWED_GROUPS, new String[] {"Group1", "Group2"});
+    assertThat(config.allowedGroups()).containsExactlyInAnyOrder("Group1", "Group2");
 
     assertThat(config.isProvisioningEnabled()).isFalse();
     settings.setProperty(GITLAB_AUTH_PROVISIONING_ENABLED, true);

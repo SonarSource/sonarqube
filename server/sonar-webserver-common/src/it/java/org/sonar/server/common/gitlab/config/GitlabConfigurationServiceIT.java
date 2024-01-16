@@ -55,11 +55,11 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.alm.client.gitlab.GitlabGlobalSettingsValidator.ValidationMode.AUTH_ONLY;
 import static org.sonar.alm.client.gitlab.GitlabGlobalSettingsValidator.ValidationMode.COMPLETE;
+import static org.sonar.auth.gitlab.GitLabSettings.GITLAB_AUTH_ALLOWED_GROUPS;
 import static org.sonar.auth.gitlab.GitLabSettings.GITLAB_AUTH_ALLOW_USERS_TO_SIGNUP;
 import static org.sonar.auth.gitlab.GitLabSettings.GITLAB_AUTH_APPLICATION_ID;
 import static org.sonar.auth.gitlab.GitLabSettings.GITLAB_AUTH_ENABLED;
 import static org.sonar.auth.gitlab.GitLabSettings.GITLAB_AUTH_PROVISIONING_ENABLED;
-import static org.sonar.auth.gitlab.GitLabSettings.GITLAB_AUTH_PROVISIONING_GROUPS;
 import static org.sonar.auth.gitlab.GitLabSettings.GITLAB_AUTH_PROVISIONING_TOKEN;
 import static org.sonar.auth.gitlab.GitLabSettings.GITLAB_AUTH_SECRET;
 import static org.sonar.auth.gitlab.GitLabSettings.GITLAB_AUTH_SYNC_USER_GROUPS;
@@ -125,7 +125,7 @@ public class GitlabConfigurationServiceIT {
   @Test
   public void getConfiguration_whenConfigurationSetAndEmpty_returnsConfig() {
     dbTester.properties().insertProperty(GITLAB_AUTH_ENABLED, "true", null);
-    dbTester.properties().insertProperty(GITLAB_AUTH_PROVISIONING_GROUPS, "", null);
+    dbTester.properties().insertProperty(GITLAB_AUTH_ALLOWED_GROUPS, "", null);
 
     GitlabConfiguration configuration = gitlabConfigurationService.getConfiguration("gitlab-configuration");
 
@@ -135,10 +135,10 @@ public class GitlabConfigurationServiceIT {
     assertThat(configuration.url()).isEmpty();
     assertThat(configuration.secret()).isEmpty();
     assertThat(configuration.synchronizeGroups()).isFalse();
+    assertThat(configuration.allowedGroups()).isEmpty();
     assertThat(configuration.provisioningType()).isEqualTo(JIT);
     assertThat(configuration.allowUsersToSignUp()).isFalse();
     assertThat(configuration.provisioningToken()).isNull();
-    assertThat(configuration.provisioningGroups()).isEmpty();
   }
 
   @Test
@@ -169,10 +169,10 @@ public class GitlabConfigurationServiceIT {
       .url(withValueOrThrow("url"))
       .secret(withValueOrThrow("secret"))
       .synchronizeGroups(withValueOrThrow(true))
+      .allowedGroups(withValueOrThrow(new LinkedHashSet<>(List.of("group1", "group2", "group3"))))
       .provisioningType(withValueOrThrow(AUTO_PROVISIONING))
       .allowUserToSignUp(withValueOrThrow(true))
       .provisioningToken(withValueOrThrow("provisioningToken"))
-      .provisioningGroups(withValueOrThrow(new LinkedHashSet<>(List.of("group1", "group2", "group3"))))
       .build();
 
     GitlabConfiguration gitlabConfiguration = gitlabConfigurationService.updateConfiguration(updateRequest);
@@ -182,10 +182,10 @@ public class GitlabConfigurationServiceIT {
     verifySettingWasSet(GITLAB_AUTH_URL, "url");
     verifySettingWasSet(GITLAB_AUTH_SECRET, "secret");
     verifySettingWasSet(GITLAB_AUTH_SYNC_USER_GROUPS, "true");
+    verifySettingWasSet(GITLAB_AUTH_ALLOWED_GROUPS, "group1,group2,group3");
     verifySettingWasSet(GITLAB_AUTH_PROVISIONING_ENABLED, "true");
     verifySettingWasSet(GITLAB_AUTH_ALLOW_USERS_TO_SIGNUP, "true");
     verifySettingWasSet(GITLAB_AUTH_PROVISIONING_TOKEN, "provisioningToken");
-    verifySettingWasSet(GITLAB_AUTH_PROVISIONING_GROUPS, "group1,group2,group3");
     verify(managedInstanceService).queueSynchronisationTask();
 
     assertConfigurationFields(gitlabConfiguration);
@@ -290,10 +290,10 @@ public class GitlabConfigurationServiceIT {
     assertThat(configuration.url()).isEqualTo("url");
     assertThat(configuration.secret()).isEqualTo("secret");
     assertThat(configuration.synchronizeGroups()).isTrue();
+    assertThat(configuration.allowedGroups()).containsExactlyInAnyOrder("group1", "group2", "group3");
     assertThat(configuration.provisioningType()).isEqualTo(AUTO_PROVISIONING);
     assertThat(configuration.allowUsersToSignUp()).isTrue();
     assertThat(configuration.provisioningToken()).isEqualTo("provisioningToken");
-    assertThat(configuration.provisioningGroups()).containsExactlyInAnyOrder("group1", "group2", "group3");
   }
 
   @Test
@@ -329,10 +329,11 @@ public class GitlabConfigurationServiceIT {
       "url",
       "secret",
       true,
-      AUTO_PROVISIONING,
+      Set.of("group1", "group2", "group3"),
       true,
-      null,
-      Set.of("group1", "group2", "group3"));
+      AUTO_PROVISIONING,
+      null
+    );
 
     assertThatThrownBy(() -> gitlabConfigurationService.createConfiguration(configuration))
       .isInstanceOf(IllegalStateException.class)
@@ -375,10 +376,11 @@ public class GitlabConfigurationServiceIT {
       "url",
       "secret",
       true,
-      JIT,
+      Set.of("group1", "group2", "group3"),
       true,
-      null,
-      Set.of("group1", "group2", "group3"));
+      JIT,
+      null
+    );
 
     GitlabConfiguration createdConfiguration = gitlabConfigurationService.createConfiguration(configuration);
 
@@ -395,11 +397,10 @@ public class GitlabConfigurationServiceIT {
     verifySettingWasSet(GITLAB_AUTH_URL, configuration.url());
     verifySettingWasSet(GITLAB_AUTH_SECRET, configuration.secret());
     verifySettingWasSet(GITLAB_AUTH_SYNC_USER_GROUPS, String.valueOf(configuration.synchronizeGroups()));
+    verifySettingWasSet(GITLAB_AUTH_ALLOWED_GROUPS, String.join(",", configuration.allowedGroups()));
     verifySettingWasSet(GITLAB_AUTH_ALLOW_USERS_TO_SIGNUP, String.valueOf(configuration.allowUsersToSignUp()));
     verifySettingWasSet(GITLAB_AUTH_PROVISIONING_TOKEN, Strings.nullToEmpty(configuration.provisioningToken()));
-    verifySettingWasSet(GITLAB_AUTH_PROVISIONING_GROUPS, String.join(",", configuration.provisioningGroups()));
-    verifySettingWasSet(GITLAB_AUTH_PROVISIONING_ENABLED,
-      String.valueOf(configuration.provisioningType().equals(AUTO_PROVISIONING)));
+    verifySettingWasSet(GITLAB_AUTH_PROVISIONING_ENABLED, String.valueOf(configuration.provisioningType().equals(AUTO_PROVISIONING)));
   }
 
   private void verifySettingWasSet(String setting, @Nullable String value) {
@@ -434,10 +435,10 @@ public class GitlabConfigurationServiceIT {
     assertPropertyIsDeleted(GITLAB_AUTH_URL);
     assertPropertyIsDeleted(GITLAB_AUTH_SECRET);
     assertPropertyIsDeleted(GITLAB_AUTH_SYNC_USER_GROUPS);
+    assertPropertyIsDeleted(GITLAB_AUTH_ALLOWED_GROUPS);
     assertPropertyIsDeleted(GITLAB_AUTH_PROVISIONING_ENABLED);
     assertPropertyIsDeleted(GITLAB_AUTH_ALLOW_USERS_TO_SIGNUP);
     assertPropertyIsDeleted(GITLAB_AUTH_PROVISIONING_TOKEN);
-    assertPropertyIsDeleted(GITLAB_AUTH_PROVISIONING_GROUPS);
 
     assertThat(dbTester.getDbClient().externalGroupDao().selectByIdentityProvider(dbTester.getSession(), GitLabIdentityProvider.KEY)).isEmpty();
   }
@@ -538,10 +539,10 @@ public class GitlabConfigurationServiceIT {
     when(gitlabConfiguration.url()).thenReturn("url");
     when(gitlabConfiguration.secret()).thenReturn("secret");
     when(gitlabConfiguration.synchronizeGroups()).thenReturn(true);
+    when(gitlabConfiguration.allowedGroups()).thenReturn(new LinkedHashSet<>(Set.of("group1", "group2", "group3")));
     when(gitlabConfiguration.provisioningType()).thenReturn(provisioningType);
     when(gitlabConfiguration.allowUsersToSignUp()).thenReturn(true);
     when(gitlabConfiguration.provisioningToken()).thenReturn("provisioningToken");
-    when(gitlabConfiguration.provisioningGroups()).thenReturn(new LinkedHashSet<>(Set.of("group1", "group2", "group3")));
     return gitlabConfiguration;
   }
 
@@ -552,9 +553,9 @@ public class GitlabConfigurationServiceIT {
     assertThat(actualConfiguration.url()).isEqualTo(expectedConfiguration.url());
     assertThat(actualConfiguration.secret()).isEqualTo(expectedConfiguration.secret());
     assertThat(actualConfiguration.synchronizeGroups()).isEqualTo(expectedConfiguration.synchronizeGroups());
+    assertThat(actualConfiguration.allowedGroups()).containsExactlyInAnyOrderElementsOf(expectedConfiguration.allowedGroups());
     assertThat(actualConfiguration.provisioningType()).isEqualTo(expectedConfiguration.provisioningType());
     assertThat(actualConfiguration.allowUsersToSignUp()).isEqualTo(expectedConfiguration.allowUsersToSignUp());
     assertThat(actualConfiguration.provisioningToken()).isEqualTo(expectedConfiguration.provisioningToken());
-    assertThat(actualConfiguration.provisioningGroups()).containsExactlyInAnyOrderElementsOf(expectedConfiguration.provisioningGroups());
   }
 }

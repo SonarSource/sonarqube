@@ -81,10 +81,11 @@ public class DefaultGitlabConfigurationController implements GitlabConfiguration
       createRestRequest.url(),
       createRestRequest.secret(),
       createRestRequest.synchronizeGroups(),
-      toProvisioningType(createRestRequest.provisioningType()),
+      Set.copyOf(createRestRequest.allowedGroups()),
       createRestRequest.allowUsersToSignUp() != null && createRestRequest.allowUsersToSignUp(),
-      createRestRequest.provisioningToken(),
-      createRestRequest.provisioningGroups() == null ? Set.of() : Set.copyOf(createRestRequest.provisioningGroups()));
+      toProvisioningType(createRestRequest.provisioningType()),
+      createRestRequest.provisioningToken()
+    );
   }
 
   private GitlabConfigurationResource getGitlabConfigurationResource(String id) {
@@ -107,10 +108,10 @@ public class DefaultGitlabConfigurationController implements GitlabConfiguration
       .url(updateRequest.getUrl().toNonNullUpdatedValue())
       .secret(updateRequest.getSecret().toNonNullUpdatedValue())
       .synchronizeGroups(updateRequest.getSynchronizeGroups().toNonNullUpdatedValue())
+      .allowedGroups(updateRequest.getAllowedGroups().map(DefaultGitlabConfigurationController::getGroups).toNonNullUpdatedValue())
       .provisioningType(updateRequest.getProvisioningType().map(DefaultGitlabConfigurationController::toProvisioningType).toNonNullUpdatedValue())
       .allowUserToSignUp(updateRequest.getAllowUsersToSignUp().toNonNullUpdatedValue())
       .provisioningToken(updateRequest.getProvisioningToken().toUpdatedValue())
-      .provisioningGroups(updateRequest.getProvisioningGroups().map(DefaultGitlabConfigurationController::getGroups).toNonNullUpdatedValue())
       .build();
   }
 
@@ -126,9 +127,9 @@ public class DefaultGitlabConfigurationController implements GitlabConfiguration
       configuration.applicationId(),
       configuration.url(),
       configuration.synchronizeGroups(),
-      toRestProvisioningType(configuration),
+      sortGroups(configuration.allowedGroups()),
       configuration.allowUsersToSignUp(),
-      sortGroups(configuration.provisioningGroups()),
+      toRestProvisioningType(configuration),
       configurationError.orElse(null)
     );
   }

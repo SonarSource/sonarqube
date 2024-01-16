@@ -45,11 +45,11 @@ public class GitlabConfigurationService extends BaseService {
           "provisioningType": "%s",
           "allowUsersToSignUp": "%s",
           "provisioningToken": "%s",
-          "provisioningGroups": ["%s"]
+          "allowedGroups": ["%s"]
         }
         """, gitlabConfiguration.enabled(), gitlabConfiguration.applicationId(), gitlabConfiguration.url(), gitlabConfiguration.secret(),
       gitlabConfiguration.synchronizeGroups(), gitlabConfiguration.provisioningType(), gitlabConfiguration.allowUsersToSignUp(),
-      gitlabConfiguration.provisioningToken(), gitlabConfiguration.singleProvisioningGroup());
+      gitlabConfiguration.provisioningToken(), gitlabConfiguration.singleAllowedGroup());
     WsResponse response = call(
       new PostRequest(path()).setBody(body)
     );

@@ -69,20 +69,23 @@ public class DefaultGitlabConfigurationControllerTest {
     "www.url.com",
     "secret",
     true,
-    AUTO_PROVISIONING,
+    Set.of("group1", "group2"),
     true,
-    "provisioning-token",
-    Set.of("provisioning-group2", "provisioning-group1"));
+    AUTO_PROVISIONING,
+    "provisioning-token"
+  );
+
   private static final GitlabConfigurationResource EXPECTED_GITLAB_CONF_RESOURCE = new GitlabConfigurationResource(
     GITLAB_CONFIGURATION.id(),
     GITLAB_CONFIGURATION.enabled(),
     GITLAB_CONFIGURATION.applicationId(),
     GITLAB_CONFIGURATION.url(),
     GITLAB_CONFIGURATION.synchronizeGroups(),
-    org.sonar.server.v2.api.gitlab.config.resource.ProvisioningType.valueOf(GITLAB_CONFIGURATION.provisioningType().name()),
+    List.of("group1", "group2"),
     GITLAB_CONFIGURATION.allowUsersToSignUp(),
-    List.of("provisioning-group1", "provisioning-group2"),
+    org.sonar.server.v2.api.gitlab.config.resource.ProvisioningType.valueOf(GITLAB_CONFIGURATION.provisioningType().name()),
     "error-message");
+
   private static final String EXPECTED_CONFIGURATION = """
     {
       "id": "existing-id",
@@ -90,12 +93,12 @@ public class DefaultGitlabConfigurationControllerTest {
       "applicationId": "application-id",
       "url": "www.url.com",
       "synchronizeGroups": true,
+      "allowedGroups": [
+        "group1",
+        "group2"
+      ],
       "provisioningType": "AUTO_PROVISIONING",
       "allowUsersToSignUp": true,
-      "provisioningGroups": [
-        "provisioning-group2",
-        "provisioning-group1"
-      ],
       "errorMessage": "error-message"
     }
     """;
@@ -200,13 +203,13 @@ public class DefaultGitlabConfigurationControllerTest {
             "url": "www.url.com",
             "secret": "newSecret",
             "synchronizeGroups": true,
+            "allowedGroups": [
+              "group1",
+              "group2"
+            ],
             "provisioningType": "AUTO_PROVISIONING",
             "allowUsersToSignUp": true,
-            "provisioningToken": "token",
-            "provisioningGroups": [
-              "provisioning-group2",
-              "provisioning-group1"
-            ]
+            "provisioningToken": "token"
       }
       """;
 
@@ -224,10 +227,11 @@ public class DefaultGitlabConfigurationControllerTest {
       NonNullUpdatedValue.withValueOrThrow("www.url.com"),
       NonNullUpdatedValue.withValueOrThrow("newSecret"),
       NonNullUpdatedValue.withValueOrThrow(true),
-      NonNullUpdatedValue.withValueOrThrow(AUTO_PROVISIONING),
+      NonNullUpdatedValue.withValueOrThrow(Set.of("group1", "group2")),
       NonNullUpdatedValue.withValueOrThrow(true),
       UpdatedValue.withValue("token"),
-      NonNullUpdatedValue.withValueOrThrow(Set.of("provisioning-group2", "provisioning-group1"))));
+      NonNullUpdatedValue.withValueOrThrow(AUTO_PROVISIONING)
+    ));
   }
 
   @Test
@@ -258,10 +262,8 @@ public class DefaultGitlabConfigurationControllerTest {
       NonNullUpdatedValue.undefined(),
       NonNullUpdatedValue.undefined(),
       NonNullUpdatedValue.undefined(),
-      NonNullUpdatedValue.withValueOrThrow(JIT),
-      NonNullUpdatedValue.withValueOrThrow(false),
-      UpdatedValue.withValue(null),
-      NonNullUpdatedValue.undefined()));
+      NonNullUpdatedValue.undefined(), NonNullUpdatedValue.withValueOrThrow(false), UpdatedValue.withValue(null), NonNullUpdatedValue.withValueOrThrow(JIT)
+    ));
   }
 
   @Test
@@ -278,12 +280,12 @@ public class DefaultGitlabConfigurationControllerTest {
                "url": "www.url.com",
                "secret": "123",
                "synchronizeGroups": true,
+               "allowedGroups": [
+                  "group1",
+                  "group2"
+                ],
                "provisioningType": "AUTO_PROVISIONING",
-               "allowUsersToSignUp": true,
-               "provisioningGroups": [
-                 "provisioning-group2",
-                 "provisioning-group1"
-               ]
+               "allowUsersToSignUp": true
              }
           """))
       .andExpectAll(
@@ -306,12 +308,12 @@ public class DefaultGitlabConfigurationControllerTest {
               "secret": "123",
               "url": "www.url.com",
               "synchronizeGroups": true,
+              "allowedGroups": [
+                "group1",
+                "group2"
+              ],
               "provisioningType": "AUTO_PROVISIONING",
-              "allowUsersToSignUp": true,
-              "provisioningGroups": [
-                "provisioning-group2",
-                "provisioning-group1"
-              ]
+              "allowUsersToSignUp": true
             }
 
           """))
@@ -324,12 +326,12 @@ public class DefaultGitlabConfigurationControllerTest {
             "applicationId": "application-id",
             "url": "www.url.com",
             "synchronizeGroups": true,
+            "allowedGroups": [
+              "group1",
+              "group2"
+            ],
             "provisioningType": "AUTO_PROVISIONING",
-            "allowUsersToSignUp": true,
-            "provisioningGroups": [
-              "provisioning-group2",
-              "provisioning-group1"
-            ]
+            "allowUsersToSignUp": true
           }
           """));
 
@@ -349,6 +351,10 @@ public class DefaultGitlabConfigurationControllerTest {
               "secret": "123",
               "url": "www.url.com",
               "synchronizeGroups": true,
+              "allowedGroups": [
+                "group1",
+                "group2"
+              ],
               "provisioningType": "AUTO_PROVISIONING"
             }
 
@@ -362,12 +368,12 @@ public class DefaultGitlabConfigurationControllerTest {
             "applicationId": "application-id",
             "url": "www.url.com",
             "synchronizeGroups": true,
+            "allowedGroups": [
+              "group1",
+              "group2"
+            ],
             "provisioningType": "AUTO_PROVISIONING",
-            "allowUsersToSignUp": true,
-            "provisioningGroups": [
-              "provisioning-group2",
-              "provisioning-group1"
-            ]
+            "allowUsersToSignUp": true
           }
           """));
 
@@ -386,12 +392,12 @@ public class DefaultGitlabConfigurationControllerTest {
             "applicationId": "application-id",
             "url": "www.url.com",
             "synchronizeGroups": true,
+            "allowedGroups": [
+              "group1",
+              "group2"
+            ],
             "provisioningType": "AUTO_PROVISIONING",
-            "allowUsersToSignUp": true,
-            "provisioningGroups": [
-              "provisioning-group2",
-              "provisioning-group1"
-            ]
+            "allowUsersToSignUp": true
           }
           """))
       .andExpectAll(

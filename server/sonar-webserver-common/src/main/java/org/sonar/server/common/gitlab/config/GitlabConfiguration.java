@@ -35,13 +35,14 @@ public record GitlabConfiguration(
 
   boolean synchronizeGroups,
 
-  ProvisioningType provisioningType,
+  Set<String> allowedGroups,
 
   boolean allowUsersToSignUp,
 
-  @Nullable
-  String provisioningToken,
+  ProvisioningType provisioningType,
 
-  Set<String> provisioningGroups
+  @Nullable
+  String provisioningToken
+
 ) {
 }

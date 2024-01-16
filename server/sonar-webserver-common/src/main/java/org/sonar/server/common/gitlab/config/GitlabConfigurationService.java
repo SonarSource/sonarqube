@@ -43,11 +43,11 @@ import static org.apache.commons.lang.StringUtils.isNotBlank;
 import static org.sonar.alm.client.gitlab.GitlabGlobalSettingsValidator.ValidationMode.AUTH_ONLY;
 import static org.sonar.alm.client.gitlab.GitlabGlobalSettingsValidator.ValidationMode.COMPLETE;
 import static org.sonar.api.utils.Preconditions.checkState;
+import static org.sonar.auth.gitlab.GitLabSettings.GITLAB_AUTH_ALLOWED_GROUPS;
 import static org.sonar.auth.gitlab.GitLabSettings.GITLAB_AUTH_ALLOW_USERS_TO_SIGNUP;
 import static org.sonar.auth.gitlab.GitLabSettings.GITLAB_AUTH_APPLICATION_ID;
 import static org.sonar.auth.gitlab.GitLabSettings.GITLAB_AUTH_ENABLED;
 import static org.sonar.auth.gitlab.GitLabSettings.GITLAB_AUTH_PROVISIONING_ENABLED;
-import static org.sonar.auth.gitlab.GitLabSettings.GITLAB_AUTH_PROVISIONING_GROUPS;
 import static org.sonar.auth.gitlab.GitLabSettings.GITLAB_AUTH_PROVISIONING_TOKEN;
 import static org.sonar.auth.gitlab.GitLabSettings.GITLAB_AUTH_SECRET;
 import static org.sonar.auth.gitlab.GitLabSettings.GITLAB_AUTH_SYNC_USER_GROUPS;
@@ -65,10 +65,10 @@ public class GitlabConfigurationService {
     GITLAB_AUTH_URL,
     GITLAB_AUTH_SECRET,
     GITLAB_AUTH_SYNC_USER_GROUPS,
+    GITLAB_AUTH_ALLOWED_GROUPS,
     GITLAB_AUTH_PROVISIONING_ENABLED,
     GITLAB_AUTH_ALLOW_USERS_TO_SIGNUP,
-    GITLAB_AUTH_PROVISIONING_TOKEN,
-    GITLAB_AUTH_PROVISIONING_GROUPS);
+    GITLAB_AUTH_PROVISIONING_TOKEN);
 
   public static final String UNIQUE_GITLAB_CONFIGURATION_ID = "gitlab-configuration";
   private final DbClient dbClient;
@@ -95,10 +95,10 @@ public class GitlabConfigurationService {
       setIfDefined(dbSession, GITLAB_AUTH_URL, updateRequest.url());
       setIfDefined(dbSession, GITLAB_AUTH_SECRET, updateRequest.secret());
       setIfDefined(dbSession, GITLAB_AUTH_SYNC_USER_GROUPS, updateRequest.synchronizeGroups().map(String::valueOf));
+      setIfDefined(dbSession, GITLAB_AUTH_ALLOWED_GROUPS, updateRequest.allowedGroups().map(groups -> String.join(",", groups)));
       setIfDefined(dbSession, GITLAB_AUTH_PROVISIONING_ENABLED, provisioningEnabled.map(String::valueOf));
       setIfDefined(dbSession, GITLAB_AUTH_ALLOW_USERS_TO_SIGNUP, updateRequest.allowUsersToSignUp().map(String::valueOf));
       setIfDefined(dbSession, GITLAB_AUTH_PROVISIONING_TOKEN, updateRequest.provisioningToken());
-      setIfDefined(dbSession, GITLAB_AUTH_PROVISIONING_GROUPS, updateRequest.provisioningGroups().map(groups -> String.join(",", groups)));
       boolean shouldTriggerProvisioning =
         provisioningEnabled.orElse(false) && !currentConfiguration.provisioningType().equals(AUTO_PROVISIONING);
       deleteExternalGroupsWhenDisablingAutoProvisioning(dbSession, currentConfiguration, updateRequest.provisioningType());
@@ -196,10 +196,10 @@ public class GitlabConfigurationService {
       setProperty(dbSession, GITLAB_AUTH_URL, configuration.url());
       setProperty(dbSession, GITLAB_AUTH_SECRET, configuration.secret());
       setProperty(dbSession, GITLAB_AUTH_SYNC_USER_GROUPS, String.valueOf(configuration.synchronizeGroups()));
+      setProperty(dbSession, GITLAB_AUTH_ALLOWED_GROUPS, String.join(",", configuration.allowedGroups()));
       setProperty(dbSession, GITLAB_AUTH_PROVISIONING_ENABLED, String.valueOf(enableAutoProvisioning));
       setProperty(dbSession, GITLAB_AUTH_ALLOW_USERS_TO_SIGNUP, String.valueOf(configuration.allowUsersToSignUp()));
       setProperty(dbSession, GITLAB_AUTH_PROVISIONING_TOKEN, configuration.provisioningToken());
-      setProperty(dbSession, GITLAB_AUTH_PROVISIONING_GROUPS, String.join(",", configuration.provisioningGroups()));
       if (enableAutoProvisioning) {
         triggerRun(configuration);
       }
@@ -234,15 +234,15 @@ public class GitlabConfigurationService {
       getStringPropertyOrEmpty(dbSession, GITLAB_AUTH_URL),
       getStringPropertyOrEmpty(dbSession, GITLAB_AUTH_SECRET),
       getBooleanOrFalse(dbSession, GITLAB_AUTH_SYNC_USER_GROUPS),
-      toProvisioningType(getBooleanOrFalse(dbSession, GITLAB_AUTH_PROVISIONING_ENABLED)),
+      getAllowedGroups(dbSession),
       getBooleanOrFalse(dbSession, GITLAB_AUTH_ALLOW_USERS_TO_SIGNUP),
-      getStringPropertyOrNull(dbSession, GITLAB_AUTH_PROVISIONING_TOKEN),
-      getProvisioningGroups(dbSession)
+      toProvisioningType(getBooleanOrFalse(dbSession, GITLAB_AUTH_PROVISIONING_ENABLED)),
+      getStringPropertyOrNull(dbSession, GITLAB_AUTH_PROVISIONING_TOKEN)
     );
   }
 
-  private Set<String> getProvisioningGroups(DbSession dbSession) {
-    return Optional.ofNullable(dbClient.propertiesDao().selectGlobalProperty(dbSession, GITLAB_AUTH_PROVISIONING_GROUPS))
+  private Set<String> getAllowedGroups(DbSession dbSession) {
+    return Optional.ofNullable(dbClient.propertiesDao().selectGlobalProperty(dbSession, GITLAB_AUTH_ALLOWED_GROUPS))
       .map(dto -> Arrays.stream(dto.getValue().split(","))
         .filter(s -> !s.isEmpty())
         .collect(Collectors.toSet())

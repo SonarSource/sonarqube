@@ -21,5 +21,5 @@ package org.sonarqube.ws.client.gitlab.configuration;
 
 public record GitlabConfiguration(boolean enabled, String applicationId, String url, String secret, boolean synchronizeGroups,
                                   String provisioningType, boolean allowUsersToSignUp, String provisioningToken,
-                                  String singleProvisioningGroup) {
+                                  String singleAllowedGroup) {
 }

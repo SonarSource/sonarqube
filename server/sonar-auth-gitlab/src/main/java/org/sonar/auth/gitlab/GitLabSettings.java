@@ -42,9 +42,9 @@ public class GitLabSettings implements DevOpsPlatformSettings {
   public static final String GITLAB_AUTH_APPLICATION_ID = "sonar.auth.gitlab.applicationId.secured";
   public static final String GITLAB_AUTH_SECRET = "sonar.auth.gitlab.secret.secured";
   public static final String GITLAB_AUTH_ALLOW_USERS_TO_SIGNUP = "sonar.auth.gitlab.allowUsersToSignUp";
+  public static final String GITLAB_AUTH_ALLOWED_GROUPS = "sonar.auth.gitlab.allowedGroups";
   public static final String GITLAB_AUTH_SYNC_USER_GROUPS = "sonar.auth.gitlab.groupsSync";
   public static final String GITLAB_AUTH_PROVISIONING_TOKEN = "provisioning.gitlab.token.secured";
-  public static final String GITLAB_AUTH_PROVISIONING_GROUPS = "provisioning.gitlab.groups";
   public static final String GITLAB_AUTH_PROVISIONING_ENABLED = "provisioning.gitlab.enabled";
 
   private static final String CATEGORY = "authentication";
@@ -84,16 +84,16 @@ public class GitLabSettings implements DevOpsPlatformSettings {
     return configuration.getBoolean(GITLAB_AUTH_ALLOW_USERS_TO_SIGNUP).orElse(false);
   }
 
+  public Set<String> allowedGroups() {
+    return Set.of(configuration.getStringArray(GITLAB_AUTH_ALLOWED_GROUPS));
+  }
+
   public boolean syncUserGroups() {
     return configuration.getBoolean(GITLAB_AUTH_SYNC_USER_GROUPS).orElse(false);
   }
 
   public String provisioningToken() {
     return configuration.get(GITLAB_AUTH_PROVISIONING_TOKEN).map(Strings::emptyToNull).orElse(null);
-  }
-
-  public Set<String> provisioningGroups() {
-    return Set.of(configuration.getStringArray(GITLAB_AUTH_PROVISIONING_GROUPS));
   }
 
   @Override
@@ -154,6 +154,16 @@ public class GitLabSettings implements DevOpsPlatformSettings {
         .defaultValue(valueOf(true))
         .index(5)
         .build(),
+      PropertyDefinition.builder(GITLAB_AUTH_ALLOWED_GROUPS)
+        .name("Groups allowed")
+        .description("Only members of these groups (and sub-groups) will be allowed to authenticate. " +
+          "Please enter the group slug as it appears in the GitLab URL, for instance `my-gitlab-group`. " +
+          "If you use Auto-provisioning, only members of these groups (and sub-groups) will be provisioned")
+        .multiValues(true)
+        .category(CATEGORY)
+        .subCategory(SUBCATEGORY)
+        .index(6)
+        .build(),
       PropertyDefinition.builder(GITLAB_AUTH_SYNC_USER_GROUPS)
         .deprecatedKey("sonar.auth.gitlab.sync_user_groups")
         .name("Synchronize user groups")
@@ -163,7 +173,7 @@ public class GitLabSettings implements DevOpsPlatformSettings {
         .subCategory(SUBCATEGORY)
         .type(PropertyType.BOOLEAN)
         .defaultValue(valueOf(false))
-        .index(6)
+        .index(7)
         .build(),
       PropertyDefinition.builder(GITLAB_AUTH_PROVISIONING_TOKEN)
         .name("Provisioning token")
@@ -172,15 +182,6 @@ public class GitLabSettings implements DevOpsPlatformSettings {
         .category(CATEGORY)
         .subCategory(SUBCATEGORY)
         .type(PASSWORD)
-        .index(7)
-        .build(),
-      PropertyDefinition.builder(GITLAB_AUTH_PROVISIONING_GROUPS)
-        .name("Groups")
-        .description("Only members of these groups (and sub-groups) will be provisioned." +
-          " Please enter the group slug as it appears in the GitLab URL, for instance `my-gitlab-group`.")
-        .multiValues(true)
-        .category(CATEGORY)
-        .subCategory(SUBCATEGORY)
         .index(8)
         .build(),
       PropertyDefinition.builder(GITLAB_AUTH_PROVISIONING_ENABLED)

@@ -30,10 +30,10 @@ public record UpdateGitlabConfigurationRequest(
   NonNullUpdatedValue<String> url,
   NonNullUpdatedValue<String> secret,
   NonNullUpdatedValue<Boolean> synchronizeGroups,
-  NonNullUpdatedValue<ProvisioningType> provisioningType,
+  NonNullUpdatedValue<Set<String>> allowedGroups,
   NonNullUpdatedValue<Boolean> allowUsersToSignUp,
   UpdatedValue<String> provisioningToken,
-  NonNullUpdatedValue<Set<String>> provisioningGroups
+  NonNullUpdatedValue<ProvisioningType> provisioningType
 ) {
 
   public static Builder builder() {
@@ -47,10 +47,10 @@ public record UpdateGitlabConfigurationRequest(
     private NonNullUpdatedValue<String> url = NonNullUpdatedValue.undefined();
     private NonNullUpdatedValue<String> secret = NonNullUpdatedValue.undefined();
     private NonNullUpdatedValue<Boolean> synchronizeGroups = NonNullUpdatedValue.undefined();
+    private NonNullUpdatedValue<Set<String>> allowedGroups = NonNullUpdatedValue.undefined();
     private NonNullUpdatedValue<ProvisioningType> provisioningType = NonNullUpdatedValue.undefined();
     private NonNullUpdatedValue<Boolean> allowUserToSignUp = NonNullUpdatedValue.undefined();
     private UpdatedValue<String> provisioningToken = UpdatedValue.undefined();
-    private NonNullUpdatedValue<Set<String>> provisioningGroups = NonNullUpdatedValue.undefined();
 
     private Builder() {
     }
@@ -85,6 +85,11 @@ public record UpdateGitlabConfigurationRequest(
       return this;
     }
 
+    public Builder allowedGroups(NonNullUpdatedValue<Set<String>> allowedGroups) {
+      this.allowedGroups = allowedGroups;
+      return this;
+    }
+
     public Builder provisioningType(NonNullUpdatedValue<ProvisioningType> provisioningType) {
       this.provisioningType = provisioningType;
       return this;
@@ -100,14 +105,10 @@ public record UpdateGitlabConfigurationRequest(
       return this;
     }
 
-    public Builder provisioningGroups(NonNullUpdatedValue<Set<String>> provisioningGroups) {
-      this.provisioningGroups = provisioningGroups;
-      return this;
-    }
-
     public UpdateGitlabConfigurationRequest build() {
-      return new UpdateGitlabConfigurationRequest(gitlabConfigurationId, enabled, applicationId, url, secret, synchronizeGroups, provisioningType, allowUserToSignUp,
-        provisioningToken, provisioningGroups);
+      return new UpdateGitlabConfigurationRequest(gitlabConfigurationId, enabled, applicationId, url, secret, synchronizeGroups, allowedGroups, allowUserToSignUp,
+        provisioningToken, provisioningType
+      );
     }
   }
 }

@@ -33,10 +33,10 @@ public class GitlabConfigurationUpdateRestRequest {
   private UpdateField<String> url = UpdateField.undefined();
   private UpdateField<String> secret = UpdateField.undefined();
   private UpdateField<Boolean> synchronizeGroups = UpdateField.undefined();
+  private UpdateField<List<String>> allowedGroups = UpdateField.undefined();
   private UpdateField<ProvisioningType> provisioningType = UpdateField.undefined();
   private UpdateField<Boolean> allowUsersToSignUp = UpdateField.undefined();
   private UpdateField<String> provisioningToken = UpdateField.undefined();
-  private UpdateField<List<String>> provisioningGroups = UpdateField.undefined();
 
   @Schema(implementation = Boolean.class, description = "Enable Gitlab authentication")
   public UpdateField<Boolean> getEnabled() {
@@ -83,6 +83,15 @@ public class GitlabConfigurationUpdateRestRequest {
     this.synchronizeGroups = UpdateField.withValue(synchronizeGroups);
   }
 
+  @ArraySchema(arraySchema = @Schema(description = "Root Gitlab groups allowed to authenticate and provisioned"), schema = @Schema(implementation = String.class))
+  public UpdateField<List<String>> getAllowedGroups() {
+    return allowedGroups;
+  }
+
+  public void setAllowedGroups(List<String> allowedGroups) {
+    this.allowedGroups = UpdateField.withValue(allowedGroups);
+  }
+
   @Schema(implementation = ProvisioningType.class, description = "Type of synchronization")
   public UpdateField<ProvisioningType> getProvisioningType() {
     return provisioningType;
@@ -109,14 +118,5 @@ public class GitlabConfigurationUpdateRestRequest {
 
   public void setProvisioningToken(String provisioningToken) {
     this.provisioningToken = UpdateField.withValue(provisioningToken);
-  }
-
-  @ArraySchema(arraySchema = @Schema(description = "Root gitlab groups to provision."), schema = @Schema(implementation = String.class))
-  public UpdateField<List<String>> getProvisioningGroups() {
-    return provisioningGroups;
-  }
-
-  public void setProvisioningGroups(List<String> provisioningGroups) {
-    this.provisioningGroups = UpdateField.withValue(provisioningGroups);
   }
 }
