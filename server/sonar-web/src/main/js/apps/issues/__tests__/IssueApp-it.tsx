@@ -301,12 +301,6 @@ describe('issue app', () => {
     expect(screen.getByText('issue.transition.confirm')).toBeInTheDocument();
     expect(screen.getByText('issue.transition.resolve')).toBeInTheDocument();
 
-    // Open comment popup on key press 'c'
-    await user.keyboard('c');
-
-    expect(screen.getByText('issue.comment.formlink')).toBeInTheDocument();
-    await user.keyboard('{Escape}');
-
     // Open tags popup on key press 't'
     await user.keyboard('t');
 

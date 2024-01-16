@@ -17,10 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import * as React from 'react';
 import Link from '../../components/common/Link';
-import { Button } from '../../components/controls/buttons';
 import Modal from '../../components/controls/Modal';
+import { Button } from '../../components/controls/buttons';
 import { isInput } from '../../helpers/keyboardEventHelpers';
 import { KeyboardKeys } from '../../helpers/keycodes';
 import { translate } from '../../helpers/l10n';
@@ -55,7 +56,6 @@ const CATEGORIES: { left: Shortcuts; right: Shortcuts } = {
         { keys: ['a'], action: 'assign' },
         { keys: ['m'], action: 'assign_to_me' },
         { keys: ['i'], action: 'severity' },
-        { keys: ['c'], action: 'comment' },
         { keys: ['ctrl', '+', 'enter'], action: 'submit_comment' },
         { keys: ['t'], action: 'tags' },
       ],

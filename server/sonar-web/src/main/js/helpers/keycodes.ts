@@ -39,7 +39,6 @@ export enum KeyboardKeys {
   KeyA = 'a',
   KeyM = 'm',
   KeyI = 'i',
-  KeyC = 'c',
   KeyT = 't',
   KeyS = 's',
   KeyQuestionMark = '?',

@@ -162,10 +162,6 @@ it('should correctly handle keyboard shortcuts', async () => {
   expect(ui.setAssigneeBtn(/Organa/).get()).toBeInTheDocument();
   await ui.pressDismissShortcut();
 
-  await ui.pressCommentShortcut();
-  expect(ui.commentTextInput.get()).toBeInTheDocument();
-  await ui.pressDismissShortcut();
-
   await ui.pressTagsShortcut();
   expect(ui.tagsSearchInput.get()).toBeInTheDocument();
   await ui.pressDismissShortcut();
@@ -353,11 +349,6 @@ function getPageObject() {
     async pressSeverityShortcut() {
       await act(async () => {
         await user.keyboard(`{${KeyboardKeys.KeyI}}`);
-      });
-    },
-    async pressCommentShortcut() {
-      await act(async () => {
-        await user.keyboard(`{${KeyboardKeys.KeyC}}`);
       });
     },
     async pressTagsShortcut() {

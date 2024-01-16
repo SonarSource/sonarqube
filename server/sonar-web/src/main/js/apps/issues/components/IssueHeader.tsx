@@ -109,9 +109,6 @@ export default class IssueHeader extends React.PureComponent<Props, State> {
     } else if (event.key === KeyboardKeys.KeyM && this.props.issue.actions.includes('assign')) {
       event.preventDefault();
       return this.handleAssignement('_me');
-    } else if (event.key === KeyboardKeys.KeyC) {
-      event.preventDefault();
-      return this.handleIssuePopupToggle('comment');
     } else if (event.key === KeyboardKeys.KeyT) {
       event.preventDefault();
       return this.handleIssuePopupToggle('edit-tags');

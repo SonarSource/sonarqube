@@ -92,9 +92,6 @@ export default function Issue(props: Props) {
       } else if (event.key === KeyboardKeys.KeyI) {
         event.preventDefault();
         return togglePopup('set-severity');
-      } else if (event.key === KeyboardKeys.KeyC) {
-        event.preventDefault();
-        return togglePopup('comment');
       } else if (event.key === KeyboardKeys.KeyT) {
         event.preventDefault();
         return togglePopup('edit-tags');
