@@ -71,6 +71,7 @@ public class AddUserActionIT {
     assertThat(wsDef.since()).isEqualTo("5.2");
     assertThat(wsDef.isPost()).isTrue();
     assertThat(wsDef.changelog()).extracting(Change::getVersion, Change::getDescription).containsOnly(
+      tuple("10.4", "Deprecated. Use POST /api/v2/authorizations/group-memberships instead"),
       tuple("10.0", "Parameter 'id' is removed. Use 'name' instead."),
       tuple("8.4", "Parameter 'id' is deprecated. Format changes from integer to string. Use 'name' instead."));
   }

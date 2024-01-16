@@ -71,6 +71,7 @@ public class UsersActionIT {
     assertThat(wsDef.since()).isEqualTo("5.2");
     assertThat(wsDef.isPost()).isFalse();
     assertThat(wsDef.changelog()).extracting(Change::getVersion, Change::getDescription).containsOnly(
+      tuple("10.4", "Deprecated. Use GET /api/v2/authorizations/group-memberships instead"),
       tuple("10.0", "Field 'managed' added to the payload."),
       tuple("10.0", "Parameter 'id' is removed. Use 'name' instead."),
       tuple("9.8", "response fields 'total', 's', 'ps' have been deprecated, please use 'paging' object instead."),

@@ -77,10 +77,12 @@ public class SearchAction implements UserGroupsWsAction {
       .setHandler(this)
       .setResponseExample(getClass().getResource("search-example.json"))
       .setSince("5.2")
+      .setDeprecatedSince("10.4")
       .addFieldsParam(ALL_FIELDS)
       .addPagingParams(100, MAX_PAGE_SIZE)
       .addSearchQuery("sonar-users", "names")
       .setChangelog(
+        new Change("10.4", "Deprecated. Use GET /api/v2/authorizations/groups instead"),
         new Change("10.0", "Field 'id' in the response has been removed"),
         new Change("10.0", "New parameter 'managed' to optionally search by managed status"),
         new Change("10.0", "Response includes 'managed' field."),

@@ -85,6 +85,7 @@ public class SearchActionIT {
     assertThat(action.responseExampleAsString()).isNotEmpty();
     assertThat(action.params()).hasSize(5);
     assertThat(action.changelog()).extracting(Change::getVersion, Change::getDescription).containsOnly(
+      tuple("10.4", "Deprecated. Use GET /api/v2/authorizations/groups instead"),
       tuple("10.0", "Field 'id' in the response has been removed"),
       tuple("10.0", "New parameter 'managed' to optionally search by managed status"),
       tuple("10.0", "Response includes 'managed' field."),

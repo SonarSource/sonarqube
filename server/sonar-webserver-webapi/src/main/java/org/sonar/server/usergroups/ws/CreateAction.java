@@ -64,7 +64,9 @@ public class CreateAction implements UserGroupsWsAction {
       .setPost(true)
       .setResponseExample(getClass().getResource("create-example.json"))
       .setSince("5.2")
+      .setDeprecatedSince("10.4")
       .setChangelog(
+        new Change("10.4", "Deprecated. Use POST /api/v2/authorizations/groups instead"),
         new Change("8.4", "Field 'id' format in the response changes from integer to string."));
 
     action.createParam(PARAM_GROUP_NAME)

@@ -69,7 +69,9 @@ public class UpdateAction implements UserGroupsWsAction {
       .setPost(true)
       .setResponseExample(getClass().getResource("update.example.json"))
       .setSince("5.2")
+      .setDeprecatedSince("10.4")
       .setChangelog(
+        new Change("10.4", "Deprecated. Use PATCH /api/v2/authorizations/groups instead"),
         new Change("10.0", "Parameter 'id' is removed in favor of 'currentName'"),
         new Change("8.5", "Parameter 'id' deprecated in favor of 'currentName'"),
         new Change("8.4", "Parameter 'id' format changes from integer to string"),

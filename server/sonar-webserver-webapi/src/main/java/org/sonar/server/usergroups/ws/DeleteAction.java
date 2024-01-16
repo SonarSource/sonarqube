@@ -61,8 +61,10 @@ public class DeleteAction implements UserGroupsWsAction {
         "Requires the following permission: 'Administer System'.", PARAM_GROUP_NAME))
       .setHandler(this)
       .setSince("5.2")
+      .setDeprecatedSince("10.4")
       .setPost(true)
       .setChangelog(
+        new Change("10.4", "Deprecated. Use DELETE /api/v2/authorizations/groups instead"),
         new Change("10.0", "Parameter 'id' is removed. Use 'name' instead."),
         new Change("8.4", "Parameter 'id' is deprecated. Format changes from integer to string. Use 'name' instead."));
 
