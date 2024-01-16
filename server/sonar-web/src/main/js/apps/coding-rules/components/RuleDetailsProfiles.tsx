@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import styled from '@emotion/styled';
 import {
   ActionCell,
@@ -112,16 +113,16 @@ export default function RuleDetailsProfiles(props: Readonly<Props>) {
               <ConfirmButton
                 confirmButtonText={translate('yes')}
                 confirmData={profile.key}
+                isDestructive
                 modalBody={translateWithParameters(
                   'coding_rules.revert_to_parent_definition.confirm',
                   profile.parentName,
                 )}
-                isDestructive
                 modalHeader={translate('coding_rules.revert_to_parent_definition')}
                 onConfirm={handleRevert}
               >
                 {({ onClick }) => (
-                  <DangerButtonSecondary className="sw-ml-2" onClick={onClick}>
+                  <DangerButtonSecondary className="sw-ml-2 sw-whitespace-nowrap" onClick={onClick}>
                     {translate('coding_rules.revert_to_parent_definition')}
                   </DangerButtonSecondary>
                 )}
@@ -138,7 +139,7 @@ export default function RuleDetailsProfiles(props: Readonly<Props>) {
               >
                 {({ onClick }) => (
                   <DangerButtonSecondary
-                    className="sw-ml-2"
+                    className="sw-ml-2 sw-whitespace-nowrap"
                     aria-label={translateWithParameters(
                       'coding_rules.deactivate_in_quality_profile_x',
                       profile.name,
@@ -167,13 +168,15 @@ export default function RuleDetailsProfiles(props: Readonly<Props>) {
 
     const inheritedProfileSection = profile.parentName
       ? (activation.inherit === 'OVERRIDES' || activation.inherit === 'INHERITED') && (
-          <Note as="div" className="sw-flex sw-items-center sw-mt-2">
+          <Note as="div" className="sw-flex sw-items-center sw-w-full">
             <InheritanceIcon
               fill={activation.inherit === 'OVERRIDES' ? 'destructiveIconFocus' : 'currentColor'}
             />
+
             <DiscreetLink
-              className="sw-ml-1"
               aria-label={`${translate('quality_profiles.parent')} ${profile.parentName}`}
+              className="sw-ml-1 sw-truncate"
+              title={profile.parentName}
               to={getQualityProfileUrl(profile.parentName, profile.language)}
             >
               {profile.parentName}
@@ -184,19 +187,24 @@ export default function RuleDetailsProfiles(props: Readonly<Props>) {
 
     return (
       <TableRowInteractive key={profile.key}>
-        <ContentCell className="coding-rules-detail-quality-profile-name">
-          <div className="sw-flex sw-flex-col">
-            <div>
-              <Link
-                aria-label={profile.name}
-                to={getQualityProfileUrl(profile.name, profile.language)}
-              >
-                {profile.name}
-              </Link>
-              {profile.isBuiltIn && <BuiltInQualityProfileBadge className="sw-ml-2" />}
-            </div>
-            {inheritedProfileSection}
+        <ContentCell className="sw-flex sw-flex-col sw-gap-2 sw-w-64">
+          <div
+            className="sw-truncate sw-w-full"
+            title={`${profile.name}${
+              profile.isBuiltIn ? ` (${translate('quality_profiles.built_in')})` : ''
+            }`}
+          >
+            <Link
+              aria-label={profile.name}
+              to={getQualityProfileUrl(profile.name, profile.language)}
+            >
+              {profile.name}
+            </Link>
+
+            {profile.isBuiltIn && <BuiltInQualityProfileBadge className="sw-ml-2" />}
           </div>
+
+          {inheritedProfileSection}
         </ContentCell>
 
         {!ruleDetails.templateKey && (
@@ -208,13 +216,17 @@ export default function RuleDetailsProfiles(props: Readonly<Props>) {
               return (
                 <StyledParameter className="sw-my-4" key={param.key}>
                   <span className="key">{param.key}</span>
+
                   <span className="sep sw-mr-1">: </span>
+
                   <span className="value" title={param.value}>
                     {param.value}
                   </span>
+
                   {parentActivation && param.value !== originalValue && (
                     <div className="sw-flex sw-ml-4">
                       {translate('coding_rules.original')}
+
                       <span className="value sw-ml-1" title={originalValue}>
                         {originalValue}
                       </span>
@@ -225,6 +237,7 @@ export default function RuleDetailsProfiles(props: Readonly<Props>) {
             })}
           </CellComponent>
         )}
+
         {renderRowActions(activation, profile)}
       </TableRowInteractive>
     );

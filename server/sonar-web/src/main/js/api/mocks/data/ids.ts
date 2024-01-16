@@ -57,6 +57,7 @@ export const QP_2 = 'p2';
 export const QP_3 = 'p3';
 export const QP_4 = 'p4';
 export const QP_5 = 'p5';
+export const QP_6 = 'p6';
 
 // Issues.
 export const ISSUE_0 = 'issue0';

@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { mockQualityProfile } from '../../../helpers/testMocks';
-import { QP_1, QP_2, QP_3, QP_4, QP_5 } from './ids';
+import { QP_1, QP_2, QP_3, QP_4, QP_5, QP_6 } from './ids';
 
 export function mockQualityProfilesList() {
   return [
@@ -45,6 +45,13 @@ export function mockQualityProfilesList() {
       isInherited: true,
       parentKey: QP_4,
       parentName: 'QP FooBarBaz',
+    }),
+    mockQualityProfile({
+      key: QP_6,
+      isBuiltIn: true,
+      name: 'QP Qux',
+      language: 'java',
+      languageName: 'Java',
     }),
   ];
 }
