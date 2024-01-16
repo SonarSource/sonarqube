@@ -78,7 +78,9 @@ public class UpdateIdentityProviderAction implements UsersWsAction {
       .setSince("8.7")
       .setInternal(false)
       .setPost(true)
-      .setHandler(this);
+      .setHandler(this)
+      .setDeprecatedSince("10.4")
+      .setChangelog(new Change("10.4", "Deprecated. Use PATCH api/v2/users-management/users/{id} instead"));
 
     action.createParam(PARAM_LOGIN)
       .setDescription("User login")

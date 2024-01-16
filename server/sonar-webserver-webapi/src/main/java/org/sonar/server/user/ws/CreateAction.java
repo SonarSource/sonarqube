@@ -77,7 +77,9 @@ public class CreateAction implements UsersWsAction {
         new Change("6.3", "The 'infos' message is no more returned when a user is reactivated"))
       .setPost(true)
       .setResponseExample(getClass().getResource("create-example.json"))
-      .setHandler(this);
+      .setHandler(this)
+      .setDeprecatedSince("10.4")
+      .setChangelog(new Change("10.4", "Deprecated. Use POST api/v2/users-management/users instead"));;
 
     action.createParam(PARAM_LOGIN)
       .setRequired(true)

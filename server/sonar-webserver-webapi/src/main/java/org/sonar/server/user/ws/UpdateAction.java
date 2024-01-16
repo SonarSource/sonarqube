@@ -80,10 +80,12 @@ public class UpdateAction implements UsersWsAction {
         "Requires Administer System permission")
       .setSince("3.7")
       .setChangelog(
+        new Change("10.4", "Deprecated. Use PATCH api/v2/users-management/users/{id} instead"),
         new Change("5.2", "User's password can only be changed using the 'change_password' action."))
       .setPost(true)
       .setHandler(this)
-      .setResponseExample(getClass().getResource("update-example.json"));
+      .setResponseExample(getClass().getResource("update-example.json"))
+      .setDeprecatedSince("10.4");
 
     action.createParam(PARAM_LOGIN)
       .setRequired(true)

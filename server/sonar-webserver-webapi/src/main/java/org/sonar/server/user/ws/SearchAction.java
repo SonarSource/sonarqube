@@ -80,6 +80,7 @@ public class SearchAction implements UsersWsAction {
         "Field 'lastConnectionDate' is only updated every hour, so it may not be accurate, for instance when a user authenticates many times in less than one hour.")
       .setSince("3.6")
       .setChangelog(
+        new Change("10.4", "Deprecated. Use GET api/v2/users-management/users instead"),
         new Change("10.3", "New optional parameters " + EXTERNAL_IDENTITY + " to find a user by its IdP login"),
         new Change("10.1", "New optional parameters " + SONAR_LINT_LAST_CONNECTION_DATE_FROM +
           " and " + SONAR_LINT_LAST_CONNECTION_DATE_TO + " to filter users by SonarLint last connection date. Only available with Administer System permission."),
@@ -96,7 +97,8 @@ public class SearchAction implements UsersWsAction {
         new Change("6.4", "Avatar has been added to the response"),
         new Change("6.4", "Email is only returned when user has Administer System permission"))
       .setHandler(this)
-      .setResponseExample(getClass().getResource("search-example.json"));
+      .setResponseExample(getClass().getResource("search-example.json"))
+      .setDeprecatedSince("10.4");
 
     action.addPagingParams(50, SearchOptions.MAX_PAGE_SIZE);
 

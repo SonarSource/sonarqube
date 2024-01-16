@@ -19,6 +19,7 @@
  */
 package org.sonar.server.user.ws;
 
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -50,7 +51,9 @@ public class AnonymizeAction implements UsersWsAction {
       .setDescription("Anonymize a deactivated user. Requires Administer System permission")
       .setSince("9.7")
       .setPost(true)
-      .setHandler(this);
+      .setHandler(this)
+      .setDeprecatedSince("10.4")
+      .setChangelog(new Change("10.4", "Deprecated. Use DELETE api/v2/users-management/users/{id}?anonymize=true instead"));
 
     action.createParam(PARAM_LOGIN)
       .setDescription("User login")

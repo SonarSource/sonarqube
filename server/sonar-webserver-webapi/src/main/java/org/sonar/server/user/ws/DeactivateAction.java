@@ -21,6 +21,7 @@ package org.sonar.server.user.ws;
 
 import java.util.HashSet;
 import java.util.Set;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -60,7 +61,9 @@ public class DeactivateAction implements UsersWsAction {
       .setSince("3.7")
       .setPost(true)
       .setResponseExample(getClass().getResource("deactivate-example.json"))
-      .setHandler(this);
+      .setHandler(this)
+      .setDeprecatedSince("10.4")
+      .setChangelog(new Change("10.4", "Deprecated. Use DELETE api/v2/users-management/users/{id} instead"));
 
     action.createParam(PARAM_LOGIN)
       .setDescription("User login")

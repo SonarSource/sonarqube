@@ -19,14 +19,15 @@
  */
 package org.sonar.server.user.ws;
 
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.user.UserDto;
-import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.common.management.ManagedInstanceChecker;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UpdateUser;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.user.UserUpdater;
@@ -60,7 +61,9 @@ public class UpdateLoginAction implements UsersWsAction {
         "Requires Administer System permission")
       .setSince("7.6")
       .setPost(true)
-      .setHandler(this);
+      .setHandler(this)
+      .setDeprecatedSince("10.4")
+      .setChangelog(new Change("10.4", "Deprecated. Use PATCH api/v2/users-management/users/{id} instead"));
 
     action.createParam(PARAM_LOGIN)
       .setRequired(true)

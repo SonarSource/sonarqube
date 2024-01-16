@@ -77,9 +77,12 @@ public class GroupsAction implements UsersWsAction {
       .addSelectionModeParam()
       .addSearchQuery("users", "group names")
       .addPagingParams(25)
-      .setChangelog(new Change("6.4", "Paging response fields moved to a Paging object"),
+      .setChangelog(
+        new Change("10.4", "Deprecated. Use GET api/v2/authorizations/groups-memberships?userId={} instead"),
+        new Change("6.4", "Paging response fields moved to a Paging object"),
         new Change("6.4", "'default' response field has been added"))
-      .setSince("5.2");
+      .setSince("5.2")
+      .setDeprecatedSince("10.4");
 
     action.createParam(PARAM_LOGIN)
       .setDescription("A user login")
