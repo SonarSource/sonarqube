@@ -21,6 +21,7 @@ package org.sonar.auth.github;
 
 import java.util.List;
 import org.sonar.api.config.PropertyDefinition;
+import org.sonar.auth.github.scribe.ScribeServiceBuilder;
 import org.sonar.core.platform.Module;
 
 import static org.sonar.auth.github.GitHubSettings.definitions;
@@ -30,8 +31,8 @@ public class GitHubModule extends Module {
     GitHubIdentityProvider.class,
     GitHubRestClient.class,
     UserIdentityFactoryImpl.class,
-    ScribeGitHubApi.class
-  );
+    ScribeGitHubApi.class,
+    ScribeServiceBuilder.class);
 
   @Override
   protected void configureModule() {

@@ -17,15 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.alm.client.github.api;
+package org.sonar.auth.github.scribe;
 
-import com.google.gson.annotations.SerializedName;
-import org.sonar.auth.github.GsonRepositoryPermissions;
+import com.github.scribejava.core.builder.ServiceBuilder;
+import com.github.scribejava.core.oauth.OAuth20Service;
+import org.sonar.auth.github.ScribeGitHubApi;
 
-public record GsonRepositoryTeam(
-  @SerializedName("name") String name,
-  @SerializedName("id") Integer id,
-  @SerializedName("slug") String slug,
-  @SerializedName("permission") String permission,
-  @SerializedName("permissions") GsonRepositoryPermissions permissions) {
+public class ScribeServiceBuilder {
+
+
+  public OAuth20Service buildScribeService(String clientId, String clientSecret, String callbackUrl,  ScribeGitHubApi scribeApi) {
+    return new ServiceBuilder(clientId)
+      .apiSecret(clientSecret)
+      .callback(callbackUrl)
+      .build(scribeApi);
+  }
 }

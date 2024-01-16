@@ -27,9 +27,11 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.sonar.alm.client.github.GithubApplicationClient;
-import org.sonar.alm.client.github.GithubBinding.GsonApp;
-import org.sonar.alm.client.github.GithubBinding.Permissions;
+import org.sonar.auth.github.GithubAppConfiguration;
+import org.sonar.auth.github.GithubAppInstallation;
+import org.sonar.auth.github.client.GithubApplicationClient;
+import org.sonar.auth.github.GithubBinding.GsonApp;
+import org.sonar.auth.github.GithubBinding.Permissions;
 import org.sonar.auth.github.GitHubSettings;
 import org.sonarqube.ws.client.HttpException;
 

@@ -21,8 +21,8 @@ package org.sonar.server.almintegration.ws.github;
 
 import java.util.Optional;
 import javax.inject.Inject;
-import org.sonar.alm.client.github.security.AccessToken;
-import org.sonar.alm.client.github.security.UserAccessToken;
+import org.sonar.auth.github.security.AccessToken;
+import org.sonar.auth.github.security.UserAccessToken;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;

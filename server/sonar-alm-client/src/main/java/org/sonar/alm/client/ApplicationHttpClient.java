@@ -21,7 +21,7 @@ package org.sonar.alm.client;
 
 import java.io.IOException;
 import java.util.Optional;
-import org.sonar.alm.client.github.security.AccessToken;
+import org.sonar.auth.github.security.AccessToken;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
 

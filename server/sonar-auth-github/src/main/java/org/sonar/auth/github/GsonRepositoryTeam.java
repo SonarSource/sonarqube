@@ -17,12 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.alm.client;
+package org.sonar.auth.github;
 
-import java.util.List;
-import java.util.function.Function;
-import org.sonar.auth.github.security.AccessToken;
+import com.google.gson.annotations.SerializedName;
+import org.sonar.auth.github.GsonRepositoryPermissions;
 
-public interface PaginatedHttpClient {
-  <E> List<E> get(String appUrl, AccessToken token, String query, Function<String, List<E>> responseDeserializer);
+public record GsonRepositoryTeam(
+  @SerializedName("name") String name,
+  @SerializedName("id") Integer id,
+  @SerializedName("slug") String slug,
+  @SerializedName("permission") String permission,
+  @SerializedName("permissions") GsonRepositoryPermissions permissions) {
 }

@@ -39,20 +39,23 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.alm.client.ApplicationHttpClient;
 import org.sonar.alm.client.ApplicationHttpClient.GetResponse;
-import org.sonar.alm.client.github.GithubBinding.GsonGithubRepository;
-import org.sonar.alm.client.github.GithubBinding.GsonInstallations;
-import org.sonar.alm.client.github.GithubBinding.GsonRepositorySearch;
-import org.sonar.alm.client.github.api.GsonRepositoryCollaborator;
-import org.sonar.alm.client.github.api.GsonRepositoryTeam;
-import org.sonar.alm.client.github.config.GithubAppConfiguration;
-import org.sonar.alm.client.github.config.GithubAppInstallation;
-import org.sonar.alm.client.github.security.AccessToken;
+import org.sonar.auth.github.AppInstallationToken;
+import org.sonar.auth.github.GithubBinding;
+import org.sonar.auth.github.GithubBinding.GsonGithubRepository;
+import org.sonar.auth.github.GithubBinding.GsonInstallations;
+import org.sonar.auth.github.GithubBinding.GsonRepositorySearch;
+import org.sonar.auth.github.GsonRepositoryCollaborator;
+import org.sonar.auth.github.GsonRepositoryTeam;
+import org.sonar.auth.github.GithubAppConfiguration;
+import org.sonar.auth.github.GithubAppInstallation;
+import org.sonar.auth.github.security.AccessToken;
 import org.sonar.alm.client.github.security.AppToken;
 import org.sonar.alm.client.github.security.GithubAppSecurity;
-import org.sonar.alm.client.github.security.UserAccessToken;
+import org.sonar.auth.github.security.UserAccessToken;
 import org.sonar.alm.client.gitlab.GsonApp;
 import org.sonar.api.internal.apachecommons.lang.StringUtils;
 import org.sonar.auth.github.GitHubSettings;
+import org.sonar.auth.github.client.GithubApplicationClient;
 import org.sonar.server.exceptions.ServerException;
 import org.sonarqube.ws.client.HttpException;
 
@@ -193,11 +196,11 @@ public class GithubApplicationClientImpl implements GithubApplicationClient {
         return organizations;
       }
 
-      organizations.setTotal(gsonInstallations.get().totalCount);
-      if (gsonInstallations.get().installations != null) {
-        organizations.setOrganizations(gsonInstallations.get().installations.stream()
-          .map(gsonInstallation -> new Organization(gsonInstallation.account.id, gsonInstallation.account.login, null, null, null, null, null,
-            gsonInstallation.targetType))
+      organizations.setTotal(gsonInstallations.get().getTotalCount());
+      if (gsonInstallations.get().getInstallations() != null) {
+        organizations.setOrganizations(gsonInstallations.get().getInstallations().stream()
+          .map(gsonInstallation -> new Organization(gsonInstallation.getAccount().getId(), gsonInstallation.getAccount().getLogin(), null, null, null, null, null,
+            gsonInstallation.getTargetType()))
           .toList());
       }
 
@@ -267,10 +270,10 @@ public class GithubApplicationClientImpl implements GithubApplicationClient {
         return repositories;
       }
 
-      repositories.setTotal(gsonRepositories.get().totalCount);
+      repositories.setTotal(gsonRepositories.get().getTotalCount());
 
-      if (gsonRepositories.get().items != null) {
-        repositories.setRepositories(gsonRepositories.get().items.stream()
+      if (gsonRepositories.get().getItems() != null) {
+        repositories.setRepositories(gsonRepositories.get().getItems().stream()
           .map(GsonGithubRepository::toRepository)
           .toList());
       }

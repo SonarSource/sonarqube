@@ -26,7 +26,7 @@ import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.alm.client.ApplicationHttpClient.GetResponse;
-import org.sonar.alm.client.github.security.AccessToken;
+import org.sonar.auth.github.security.AccessToken;
 
 import static java.lang.String.format;
 

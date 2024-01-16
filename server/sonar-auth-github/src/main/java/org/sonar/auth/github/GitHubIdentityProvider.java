@@ -23,15 +23,21 @@ import com.github.scribejava.core.builder.ServiceBuilder;
 import com.github.scribejava.core.model.OAuth2AccessToken;
 import com.github.scribejava.core.oauth.OAuth20Service;
 import java.io.IOException;
+import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import org.sonar.api.server.authentication.Display;
 import org.sonar.api.server.authentication.OAuth2IdentityProvider;
 import org.sonar.api.server.authentication.UnauthorizedException;
 import org.sonar.api.server.authentication.UserIdentity;
 import org.sonar.api.server.http.HttpRequest;
+import org.sonar.auth.github.client.GithubApplicationClient;
+import org.sonar.auth.github.scribe.ScribeServiceBuilder;
 
 import static com.google.common.base.Preconditions.checkState;
+import static java.lang.Long.parseLong;
 import static java.lang.String.format;
+import static org.sonar.auth.github.GitHubSettings.DEFAULT_API_URL;
 
 public class GitHubIdentityProvider implements OAuth2IdentityProvider {
 
@@ -41,12 +47,17 @@ public class GitHubIdentityProvider implements OAuth2IdentityProvider {
   private final UserIdentityFactory userIdentityFactory;
   private final ScribeGitHubApi scribeApi;
   private final GitHubRestClient gitHubRestClient;
+  private final GithubApplicationClient githubAppClient;
+  private final ScribeServiceBuilder scribeServiceBuilder;
 
-  public GitHubIdentityProvider(GitHubSettings settings, UserIdentityFactory userIdentityFactory, ScribeGitHubApi scribeApi, GitHubRestClient gitHubRestClient) {
+  public GitHubIdentityProvider(GitHubSettings settings, UserIdentityFactory userIdentityFactory, ScribeGitHubApi scribeApi, GitHubRestClient gitHubRestClient,
+    GithubApplicationClient githubAppClient, ScribeServiceBuilder scribeServiceBuilder) {
     this.settings = settings;
     this.userIdentityFactory = userIdentityFactory;
     this.scribeApi = scribeApi;
     this.gitHubRestClient = gitHubRestClient;
+    this.githubAppClient = githubAppClient;
+    this.scribeServiceBuilder = scribeServiceBuilder;
   }
 
   @Override
@@ -107,7 +118,8 @@ public class GitHubIdentityProvider implements OAuth2IdentityProvider {
     context.verifyCsrfState();
 
     HttpRequest request = context.getHttpRequest();
-    OAuth20Service scribe = newScribeBuilder(context).build(scribeApi);
+    OAuth20Service scribe = scribeServiceBuilder.buildScribeService(settings.clientId(), settings.clientSecret(), context.getCallbackUrl(), scribeApi);
+
     String code = request.getParameter("code");
     OAuth2AccessToken accessToken = scribe.getAccessToken(code);
 
@@ -128,18 +140,25 @@ public class GitHubIdentityProvider implements OAuth2IdentityProvider {
     context.redirectToRequestedPage();
   }
 
-  boolean isOrganizationMembershipRequired() {
-    return !settings.getOrganizations().isEmpty();
-  }
-
   private void check(OAuth20Service scribe, OAuth2AccessToken accessToken, GsonUser user) throws InterruptedException, ExecutionException, IOException {
-    if (isUnauthorized(scribe, accessToken, user.getLogin())) {
-      throw new UnauthorizedException(format("'%s' must be a member of at least one organization: '%s'", user.getLogin(), String.join("', '", settings.getOrganizations())));
+    if (!isUserAuthorized(scribe, accessToken, user.getLogin())) {
+      String message = settings.getOrganizations().isEmpty()
+        ? format("'%s' must be a member of at least one organization which has installed the SonarQube GitHub app", user.getLogin())
+        : format("'%s' must be a member of at least one organization: '%s'", user.getLogin(), String.join("', '", settings.getOrganizations().stream().sorted().toList()));
+      throw new UnauthorizedException(message);
     }
   }
 
-  private boolean isUnauthorized(OAuth20Service scribe, OAuth2AccessToken accessToken, String login) throws IOException, ExecutionException, InterruptedException {
-    return isOrganizationMembershipRequired() && !isOrganizationsMember(scribe, accessToken, login);
+  private boolean isUserAuthorized(OAuth20Service scribe, OAuth2AccessToken accessToken, String login) throws IOException, ExecutionException, InterruptedException {
+    if (isOrganizationMembershipRequired()) {
+      return isOrganizationsMember(scribe, accessToken, login);
+    } else {
+      return isMemberOfInstallationOrganization(scribe, accessToken, login);
+    }
+  }
+
+  private boolean isOrganizationMembershipRequired() {
+    return !settings.getOrganizations().isEmpty();
   }
 
   private boolean isOrganizationsMember(OAuth20Service scribe, OAuth2AccessToken accessToken, String login) throws IOException, ExecutionException, InterruptedException {
@@ -149,6 +168,27 @@ public class GitHubIdentityProvider implements OAuth2IdentityProvider {
       }
     }
     return false;
+  }
+
+  private boolean isMemberOfInstallationOrganization(OAuth20Service scribe, OAuth2AccessToken accessToken, String login)
+    throws IOException, ExecutionException, InterruptedException {
+    GithubAppConfiguration githubAppConfiguration = githubAppConfiguration();
+    List<GithubAppInstallation> githubAppInstallations = githubAppClient.getWhitelistedGithubAppInstallations(githubAppConfiguration);
+    for (GithubAppInstallation installation : githubAppInstallations) {
+      if (gitHubRestClient.isOrganizationMember(scribe, accessToken, installation.organizationName(), login)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private GithubAppConfiguration githubAppConfiguration() {
+    String apiEndpoint = Optional.ofNullable(settings.apiURL()).orElse(DEFAULT_API_URL);
+    try {
+      return new GithubAppConfiguration(parseLong(settings.appId()), settings.privateKey(), apiEndpoint);
+    } catch (NumberFormatException numberFormatException) {
+      throw new IllegalStateException("Github configuration is not complete. Please check your configuration under the Authentication > GitHub tab");
+    }
   }
 
   private ServiceBuilder newScribeBuilder(OAuth2IdentityProvider.OAuth2Context context) {

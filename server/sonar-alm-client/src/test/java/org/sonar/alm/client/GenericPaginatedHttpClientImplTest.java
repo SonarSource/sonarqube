@@ -33,7 +33,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.slf4j.event.Level;
-import org.sonar.alm.client.github.security.AccessToken;
+import org.sonar.auth.github.security.AccessToken;
 import org.sonar.api.testfixtures.log.LogTester;
 
 import static org.assertj.core.api.Assertions.assertThat;

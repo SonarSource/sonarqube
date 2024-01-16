@@ -18,6 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 @ParametersAreNonnullByDefault
-package org.sonar.alm.client.github.api;
+package org.sonar.auth.github.client;
 
 import javax.annotation.ParametersAreNonnullByDefault;

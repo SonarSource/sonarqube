@@ -17,12 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.alm.client;
+package org.sonar.auth.github;
 
-import java.util.List;
-import java.util.function.Function;
-import org.sonar.auth.github.security.AccessToken;
-
-public interface PaginatedHttpClient {
-  <E> List<E> get(String appUrl, AccessToken token, String query, Function<String, List<E>> responseDeserializer);
-}
+public record GithubAppInstallation(String installationId, String organizationName, GithubBinding.Permissions permissions, boolean isSuspended) {}

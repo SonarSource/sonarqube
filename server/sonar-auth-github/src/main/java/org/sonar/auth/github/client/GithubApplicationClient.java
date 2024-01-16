@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.alm.client.github;
+package org.sonar.auth.github.client;
 
 import com.google.gson.annotations.SerializedName;
 import java.util.List;
@@ -26,13 +26,15 @@ import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
-import org.sonar.alm.client.github.api.GsonRepositoryCollaborator;
-import org.sonar.alm.client.github.api.GsonRepositoryTeam;
-import org.sonar.alm.client.github.config.GithubAppConfiguration;
-import org.sonar.alm.client.github.config.GithubAppInstallation;
-import org.sonar.alm.client.github.security.AccessToken;
-import org.sonar.alm.client.github.security.UserAccessToken;
 import org.sonar.api.server.ServerSide;
+import org.sonar.auth.github.AppInstallationToken;
+import org.sonar.auth.github.GithubAppConfiguration;
+import org.sonar.auth.github.GithubAppInstallation;
+import org.sonar.auth.github.GithubBinding;
+import org.sonar.auth.github.GsonRepositoryCollaborator;
+import org.sonar.auth.github.GsonRepositoryTeam;
+import org.sonar.auth.github.security.AccessToken;
+import org.sonar.auth.github.security.UserAccessToken;
 
 @ServerSide
 public interface GithubApplicationClient {
@@ -105,7 +107,7 @@ public interface GithubApplicationClient {
     private List<Repository> repositories;
 
     public Repositories() {
-      //nothing to do
+      // nothing to do
     }
 
     public int getTotal() {
@@ -204,7 +206,7 @@ public interface GithubApplicationClient {
     private List<Organization> organizations;
 
     public Organizations() {
-      //nothing to do
+      // nothing to do
     }
 
     public int getTotal() {

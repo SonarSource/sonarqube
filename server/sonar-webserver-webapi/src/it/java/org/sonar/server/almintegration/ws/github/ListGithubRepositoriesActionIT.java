@@ -22,7 +22,7 @@ package org.sonar.server.almintegration.ws.github;
 import java.util.stream.Stream;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.alm.client.github.GithubApplicationClient;
+import org.sonar.auth.github.client.GithubApplicationClient;
 import org.sonar.alm.client.github.GithubApplicationClientImpl;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;

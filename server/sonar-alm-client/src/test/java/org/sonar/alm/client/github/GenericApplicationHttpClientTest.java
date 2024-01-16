@@ -41,8 +41,8 @@ import org.sonar.alm.client.GenericApplicationHttpClient;
 import org.sonar.alm.client.TimeoutConfiguration;
 import org.sonar.alm.client.ApplicationHttpClient.GetResponse;
 import org.sonar.alm.client.ApplicationHttpClient.Response;
-import org.sonar.alm.client.github.security.AccessToken;
-import org.sonar.alm.client.github.security.UserAccessToken;
+import org.sonar.auth.github.security.AccessToken;
+import org.sonar.auth.github.security.UserAccessToken;
 import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 

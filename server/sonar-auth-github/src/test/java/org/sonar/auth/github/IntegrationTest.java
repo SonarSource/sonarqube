@@ -22,6 +22,7 @@ package org.sonar.auth.github;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicBoolean;
 import javax.servlet.http.HttpServletRequest;
@@ -40,6 +41,8 @@ import org.sonar.api.server.authentication.UserIdentity;
 import org.sonar.api.server.http.HttpRequest;
 import org.sonar.api.server.http.HttpResponse;
 import org.sonar.api.utils.System2;
+import org.sonar.auth.github.client.GithubApplicationClient;
+import org.sonar.auth.github.scribe.ScribeServiceBuilder;
 import org.sonar.db.DbTester;
 import org.sonar.server.http.JavaxHttpRequest;
 import org.sonar.server.property.InternalProperties;
@@ -47,7 +50,9 @@ import org.sonar.server.property.InternalPropertiesImpl;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.fail;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -69,9 +74,13 @@ public class IntegrationTest {
   private ScribeGitHubApi scribeApi = new ScribeGitHubApi(gitHubSettings);
   private GitHubRestClient gitHubRestClient = new GitHubRestClient(gitHubSettings);
 
+  private GithubApplicationClient githubAppClient = mock();
+
+  private ScribeServiceBuilder scribeServiceBuilder = new ScribeServiceBuilder();
+
   private String gitHubUrl;
 
-  private GitHubIdentityProvider underTest = new GitHubIdentityProvider(gitHubSettings, userIdentityFactory, scribeApi, gitHubRestClient);
+  private GitHubIdentityProvider underTest = new GitHubIdentityProvider(gitHubSettings, userIdentityFactory, scribeApi, gitHubRestClient, githubAppClient, scribeServiceBuilder);
 
   @Before
   public void enable() {
@@ -81,6 +90,8 @@ public class IntegrationTest {
     settings.setProperty("sonar.auth.github.enabled", true);
     settings.setProperty("sonar.auth.github.apiUrl", gitHubUrl);
     settings.setProperty("sonar.auth.github.webUrl", gitHubUrl);
+    settings.setProperty("sonar.auth.github.appId", "1");
+    settings.setProperty("sonar.auth.github.privateKey.secured", "private_key");
   }
 
   /**
@@ -115,9 +126,15 @@ public class IntegrationTest {
     github.enqueue(newSuccessfulAccessTokenResponse());
     // response of api.github.com/user
     github.enqueue(new MockResponse().setBody("{\"id\":\"ABCD\", \"login\":\"octocat\", \"name\":\"monalisa octocat\",\"email\":\"octocat@github.com\"}"));
+    // response of api.github.com/orgs/first_org/members/user
+    github.enqueue(new MockResponse().setResponseCode(404));
+    // response of api.github.com/orgs/second_org/members/user
+    github.enqueue(new MockResponse().setResponseCode(204));
 
     HttpServletRequest request = newRequest("the-verifier-code");
     DumbCallbackContext callbackContext = new DumbCallbackContext(request);
+    mockInstallations();
+
     underTest.callback(callbackContext);
 
     assertThat(callbackContext.csrfStateVerified.get()).isTrue();
@@ -146,6 +163,8 @@ public class IntegrationTest {
     github.enqueue(newSuccessfulAccessTokenResponse());
     // response of api.github.com/user
     github.enqueue(new MockResponse().setBody("{\"id\":\"ABCD\", \"login\":\"octocat\", \"name\":\"monalisa octocat\",\"email\":null}"));
+    // response of api.github.com/orgs/first_org/members/user
+    github.enqueue(new MockResponse().setResponseCode(204));
     // response of api.github.com/user/emails
     github.enqueue(new MockResponse().setBody(
       "[\n" +
@@ -163,6 +182,8 @@ public class IntegrationTest {
 
     HttpServletRequest request = newRequest("the-verifier-code");
     DumbCallbackContext callbackContext = new DumbCallbackContext(request);
+    mockInstallations();
+
     underTest.callback(callbackContext);
 
     assertThat(callbackContext.csrfStateVerified.get()).isTrue();
@@ -178,11 +199,16 @@ public class IntegrationTest {
     github.enqueue(newSuccessfulAccessTokenResponse());
     // response of api.github.com/user
     github.enqueue(new MockResponse().setBody("{\"id\":\"ABCD\", \"login\":\"octocat\", \"name\":\"monalisa octocat\",\"email\":null}"));
+    // response of api.github.com/orgs/first_org/members/user
+    github.enqueue(new MockResponse().setResponseCode(204));
     // response of api.github.com/user/emails
     github.enqueue(new MockResponse().setBody("[]"));
 
+
     HttpServletRequest request = newRequest("the-verifier-code");
     DumbCallbackContext callbackContext = new DumbCallbackContext(request);
+    mockInstallations();
+
     underTest.callback(callbackContext);
 
     assertThat(callbackContext.csrfStateVerified.get()).isTrue();
@@ -215,6 +241,8 @@ public class IntegrationTest {
     github.enqueue(newSuccessfulAccessTokenResponse());
     // response of api.github.com/user
     github.enqueue(new MockResponse().setBody("{\"id\":\"ABCD\", \"login\":\"octocat\", \"name\":\"monalisa octocat\",\"email\":\"octocat@github.com\"}"));
+    // response of api.github.com/orgs/first_org/members/user
+    github.enqueue(new MockResponse().setResponseCode(204));
     // response of api.github.com/user/teams
     github.enqueue(new MockResponse().setBody("[\n" +
       "  {\n" +
@@ -227,6 +255,8 @@ public class IntegrationTest {
 
     HttpServletRequest request = newRequest("the-verifier-code");
     DumbCallbackContext callbackContext = new DumbCallbackContext(request);
+    mockInstallations();
+
     underTest.callback(callbackContext);
 
     assertThat(callbackContext.userIdentity.getGroups()).containsOnly("SonarSource/developers");
@@ -239,6 +269,8 @@ public class IntegrationTest {
     github.enqueue(newSuccessfulAccessTokenResponse());
     // response of api.github.com/user
     github.enqueue(new MockResponse().setBody("{\"id\":\"ABCD\", \"login\":\"octocat\", \"name\":\"monalisa octocat\",\"email\":\"octocat@github.com\"}"));
+    // response of api.github.com/orgs/first_org/members/user
+    github.enqueue(new MockResponse().setResponseCode(204));
     // responses of api.github.com/user/teams
     github.enqueue(new MockResponse()
       .setHeader("Link", "<" + gitHubUrl + "/user/teams?per_page=100&page=2>; rel=\"next\", <" + gitHubUrl + "/user/teams?per_page=100&page=2>; rel=\"last\"")
@@ -263,6 +295,8 @@ public class IntegrationTest {
 
     HttpServletRequest request = newRequest("the-verifier-code");
     DumbCallbackContext callbackContext = new DumbCallbackContext(request);
+    mockInstallations();
+
     underTest.callback(callbackContext);
 
     assertThat(new TreeSet<>(callbackContext.userIdentity.getGroups())).containsOnly("SonarQubeCommunity/sonarsource-developers", "SonarSource/developers");
@@ -316,12 +350,9 @@ public class IntegrationTest {
 
     HttpServletRequest request = newRequest("the-verifier-code");
     DumbCallbackContext callbackContext = new DumbCallbackContext(request);
-    try {
-      underTest.callback(callbackContext);
-      fail("exception expected");
-    } catch (UnauthorizedException e) {
-      assertThat(e.getMessage()).contains("'octocat' must be a member of at least one organization:", "'first_org'", "'second_org'");
-    }
+    assertThatThrownBy(() -> underTest.callback(callbackContext))
+      .isInstanceOf(UnauthorizedException.class)
+      .hasMessage("'octocat' must be a member of at least one organization: 'first_org', 'second_org'");
   }
 
   @Test
@@ -376,6 +407,12 @@ public class IntegrationTest {
     HttpServletRequest request = mock(HttpServletRequest.class);
     when(request.getParameter("code")).thenReturn(verifierCode);
     return request;
+  }
+
+  private void mockInstallations() {
+    when(githubAppClient.getWhitelistedGithubAppInstallations(any())).thenReturn(List.of(
+      new GithubAppInstallation("1", "first_org", new GithubBinding.Permissions(), false),
+      new GithubAppInstallation("2", "second_org", new GithubBinding.Permissions(), false)));
   }
 
   private static class DumbCallbackContext implements OAuth2IdentityProvider.CallbackContext {

@@ -45,13 +45,13 @@ public class GitHubRestClient {
     this.settings = settings;
   }
 
-  GsonUser getUser(OAuth20Service scribe, OAuth2AccessToken accessToken) throws IOException {
+  public GsonUser getUser(OAuth20Service scribe, OAuth2AccessToken accessToken) throws IOException {
     String responseBody = executeRequest(settings.apiURL() + "user", scribe, accessToken).getBody();
     LOGGER.trace("User response received : {}", responseBody);
     return GsonUser.parse(responseBody);
   }
 
-  String getEmail(OAuth20Service scribe, OAuth2AccessToken accessToken) throws IOException {
+  public String getEmail(OAuth20Service scribe, OAuth2AccessToken accessToken) throws IOException {
     String responseBody = executeRequest(settings.apiURL() + "user/emails", scribe, accessToken).getBody();
     LOGGER.trace("Emails response received : {}", responseBody);
     List<GsonEmail> emails = GsonEmail.parse(responseBody);
@@ -62,7 +62,7 @@ public class GitHubRestClient {
       .orElse(null);
   }
 
-  List<GsonTeam> getTeams(OAuth20Service scribe, OAuth2AccessToken accessToken) {
+  public List<GsonTeam> getTeams(OAuth20Service scribe, OAuth2AccessToken accessToken) {
     return executePaginatedRequest(settings.apiURL() + "user/teams", scribe, accessToken, GsonTeam::parse);
   }
 
@@ -74,7 +74,7 @@ public class GitHubRestClient {
    *
    * @see <a href="https://developer.github.com/v3/orgs/members/#response-if-requester-is-an-organization-member-and-user-is-a-member">GitHub members API</a>
    */
-  boolean isOrganizationMember(OAuth20Service scribe, OAuth2AccessToken accessToken, String organization, String login)
+  public boolean isOrganizationMember(OAuth20Service scribe, OAuth2AccessToken accessToken, String organization, String login)
     throws IOException, ExecutionException, InterruptedException {
     String requestUrl = settings.apiURL() + format("orgs/%s/members/%s", organization, login);
     OAuthRequest request = new OAuthRequest(Verb.GET, requestUrl);

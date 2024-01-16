@@ -27,7 +27,7 @@ import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.alm.client.github.GithubApplicationClient;
+import org.sonar.auth.github.client.GithubApplicationClient;
 import org.sonar.alm.client.github.GithubGlobalSettingsValidator;
 import org.sonar.api.utils.System2;
 import org.sonar.auth.github.GitHubSettings;

@@ -17,10 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.alm.client.github;
+package org.sonar.auth.github;
 
 import javax.annotation.concurrent.Immutable;
-import org.sonar.alm.client.github.security.AccessToken;
+import org.sonar.auth.github.security.AccessToken;
 
 import static java.util.Objects.requireNonNull;
 

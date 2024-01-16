@@ -28,7 +28,7 @@ import java.time.ZoneId;
 import java.util.Random;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.sonar.alm.client.github.config.GithubAppConfiguration;
+import org.sonar.auth.github.GithubAppConfiguration;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;

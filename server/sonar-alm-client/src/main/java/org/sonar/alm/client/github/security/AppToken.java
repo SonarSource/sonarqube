@@ -20,6 +20,7 @@
 package org.sonar.alm.client.github.security;
 
 import javax.annotation.concurrent.Immutable;
+import org.sonar.auth.github.security.AccessToken;
 
 import static java.util.Objects.requireNonNull;
 

@@ -21,11 +21,11 @@ package org.sonar.server.almintegration.ws.github;
 
 import java.util.List;
 import java.util.Optional;
-import org.sonar.alm.client.github.GithubApplicationClient;
-import org.sonar.alm.client.github.GithubApplicationClient.Organization;
+import org.sonar.auth.github.client.GithubApplicationClient;
+import org.sonar.auth.github.client.GithubApplicationClient.Organization;
 import org.sonar.alm.client.github.GithubApplicationClientImpl;
-import org.sonar.alm.client.github.security.AccessToken;
-import org.sonar.alm.client.github.security.UserAccessToken;
+import org.sonar.auth.github.security.AccessToken;
+import org.sonar.auth.github.security.UserAccessToken;
 import org.sonar.api.config.internal.Encryption;
 import org.sonar.api.config.internal.Settings;
 import org.sonar.api.server.ws.Request;

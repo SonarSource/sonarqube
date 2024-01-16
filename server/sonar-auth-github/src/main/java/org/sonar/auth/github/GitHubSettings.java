@@ -81,11 +81,11 @@ public class GitHubSettings implements DevOpsPlatformSettings {
     this.dbClient = dbClient;
   }
 
-  String clientId() {
+  public String clientId() {
     return configuration.get(CLIENT_ID).orElse("");
   }
 
-  String clientSecret() {
+  public String clientSecret() {
     return configuration.get(CLIENT_SECRET).orElse("");
   }
 
@@ -101,11 +101,11 @@ public class GitHubSettings implements DevOpsPlatformSettings {
     return configuration.getBoolean(ENABLED).orElse(false) && !clientId().isEmpty() && !clientSecret().isEmpty();
   }
 
-  boolean allowUsersToSignUp() {
+  public boolean allowUsersToSignUp() {
     return configuration.getBoolean(ALLOW_USERS_TO_SIGN_UP).orElse(false);
   }
 
-  boolean syncGroups() {
+  public boolean syncGroups() {
     return configuration.getBoolean(GROUPS_SYNC).orElse(false);
   }
 

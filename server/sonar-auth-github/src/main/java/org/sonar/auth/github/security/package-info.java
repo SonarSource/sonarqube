@@ -17,13 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.alm.client.github.api;
+@ParametersAreNonnullByDefault
+package org.sonar.auth.github.security;
 
-import com.google.gson.annotations.SerializedName;
-import org.sonar.auth.github.GsonRepositoryPermissions;
-
-public record GsonRepositoryCollaborator(@SerializedName("login") String name,
-  @SerializedName("id") Integer id,
-  @SerializedName("role_name") String roleName,
-  @SerializedName("permissions") GsonRepositoryPermissions permissions) {
-}
+import javax.annotation.ParametersAreNonnullByDefault;

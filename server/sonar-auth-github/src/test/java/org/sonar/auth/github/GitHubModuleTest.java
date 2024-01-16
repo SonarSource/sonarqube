@@ -30,7 +30,7 @@ public class GitHubModuleTest {
   public void verify_count_of_added_components() {
     ListContainer container = new ListContainer();
     new GitHubModule().configure(container);
-    assertThat(container.getAddedObjects()).hasSize(15);
+    assertThat(container.getAddedObjects()).hasSize(16);
   }
 
 }

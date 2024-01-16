@@ -37,7 +37,7 @@ import okhttp3.ResponseBody;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.alm.client.github.security.AccessToken;
+import org.sonar.auth.github.security.AccessToken;
 import org.sonarqube.ws.client.OkHttpClientBuilder;
 
 import static com.google.common.base.Preconditions.checkArgument;

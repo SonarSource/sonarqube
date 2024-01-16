@@ -17,28 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.alm.client.github.security;
+@ParametersAreNonnullByDefault
+package org.sonar.auth.github.scribe;
 
-public class UserAccessToken implements AccessToken {
-
-  private final String token;
-
-  public UserAccessToken(String token) {
-    this.token = token;
-  }
-
-  @Override
-  public String getValue() {
-    return token;
-  }
-
-  @Override
-  public String getAuthorizationHeaderPrefix() {
-    return "token";
-  }
-
-  @Override
-  public String toString() {
-    return getValue();
-  }
-}
+import javax.annotation.ParametersAreNonnullByDefault;

@@ -17,14 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.alm.client.github;
+package org.sonar.auth.github;
 
 import com.google.gson.annotations.SerializedName;
 import java.util.List;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
-import static org.sonar.alm.client.github.GithubApplicationClient.Repository;
+import static org.sonar.auth.github.client.GithubApplicationClient.Repository;
 
 public class GithubBinding {
 
@@ -70,6 +70,14 @@ public class GithubBinding {
       // even if empty constructor is not required for Gson, it is strongly
       // recommended:
       // http://stackoverflow.com/a/18645370/229031
+    }
+
+    public int getTotalCount() {
+      return totalCount;
+    }
+
+    public List<GsonInstallation> getInstallations() {
+      return installations;
     }
   }
 
@@ -131,6 +139,10 @@ public class GithubBinding {
         // even if empty constructor is not required for Gson, it is strongly
         // recommended:
         // http://stackoverflow.com/a/18645370/229031
+      }
+
+      public long getId() {
+        return id;
       }
 
       public String getLogin() {
@@ -282,6 +294,14 @@ public class GithubBinding {
       // recommended:
       // http://stackoverflow.com/a/18645370/229031
     }
+    public int getTotalCount() {
+      return totalCount;
+    }
+
+    public List<GsonGithubRepository> getItems() {
+      return items;
+    }
+
   }
 
   public static class GsonGithubRepository {

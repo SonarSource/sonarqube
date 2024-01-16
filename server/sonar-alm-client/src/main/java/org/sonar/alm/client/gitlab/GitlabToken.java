@@ -20,7 +20,7 @@
 package org.sonar.alm.client.gitlab;
 
 import java.util.Objects;
-import org.sonar.alm.client.github.security.AccessToken;
+import org.sonar.auth.github.security.AccessToken;
 
 public class GitlabToken implements AccessToken {
   private final String token;

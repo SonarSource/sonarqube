@@ -17,12 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.alm.client;
+package org.sonar.auth.github.security;
 
-import java.util.List;
-import java.util.function.Function;
-import org.sonar.auth.github.security.AccessToken;
+public class UserAccessToken implements AccessToken {
 
-public interface PaginatedHttpClient {
-  <E> List<E> get(String appUrl, AccessToken token, String query, Function<String, List<E>> responseDeserializer);
+  private final String token;
+
+  public UserAccessToken(String token) {
+    this.token = token;
+  }
+
+  @Override
+  public String getValue() {
+    return token;
+  }
+
+  @Override
+  public String getAuthorizationHeaderPrefix() {
+    return "token";
+  }
+
+  @Override
+  public String toString() {
+    return getValue();
+  }
 }
