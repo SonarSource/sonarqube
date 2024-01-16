@@ -622,6 +622,10 @@ export const lightTheme = {
 
     // Keyboard hint
     keyboardHintKey: COLORS.blueGrey[100],
+
+    // progressBar
+    progressBarForeground: COLORS.indigo[500],
+    progressBarBackground: COLORS.indigo[100],
   },
 
   // contrast colors to be used for text when using a color background with the same name

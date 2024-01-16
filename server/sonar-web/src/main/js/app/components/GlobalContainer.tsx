@@ -40,6 +40,7 @@ import UpdateNotification from './update-notification/UpdateNotification';
 
 const TEMP_PAGELIST_WITH_NEW_BACKGROUND = [
   '/admin/extension/governance/views_console',
+  '/admin/extension/license',
   '/code',
   '/coding_rules',
   '/component_measures',
