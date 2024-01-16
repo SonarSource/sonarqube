@@ -4,7 +4,7 @@
 
 SonarQube provides the capability to not only show the health of an application but also to highlight issues newly introduced. With a Quality Gate in place, you can [achieve Clean Code](https://www.sonarsource.com/solutions/clean-code/) and therefore improve code quality systematically.
 
-## Links
+## Links for fun
 
 - [Website](https://www.sonarsource.com/products/sonarqube)
 - [Download](https://www.sonarsource.com/products/sonarqube/downloads)
