@@ -93,6 +93,7 @@ export default class WorkspaceComponentViewer extends React.PureComponent<Props>
             aroundLine={component.line}
             branchLike={component.branchLike}
             component={component.key}
+            hidePinOption
             highlightedLine={component.line}
             onLoaded={this.handleLoaded}
           />

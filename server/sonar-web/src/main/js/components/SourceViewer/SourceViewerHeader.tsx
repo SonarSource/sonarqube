@@ -63,6 +63,7 @@ import type { WorkspaceContextShape } from '../workspace/context';
 interface Props {
   branchLike: BranchLike | undefined;
   componentMeasures?: Measure[];
+  hidePinOption?: boolean;
   openComponent: WorkspaceContextShape['openComponent'];
   showMeasures?: boolean;
   sourceViewerFile: SourceViewerFile;
@@ -215,9 +216,11 @@ export default class SourceViewerHeader extends React.PureComponent<Props> {
                 {translate('component_viewer.new_window')}
               </ItemLink>
 
-              <ItemButton className="it__js-workspace" onClick={this.openInWorkspace}>
-                {translate('component_viewer.open_in_workspace')}
-              </ItemButton>
+              {!this.props.hidePinOption && (
+                <ItemButton className="it__js-workspace" onClick={this.openInWorkspace}>
+                  {translate('component_viewer.open_in_workspace')}
+                </ItemButton>
+              )}
 
               <ItemLink isExternal to={rawSourcesLink}>
                 {translate('component_viewer.show_raw_source')}

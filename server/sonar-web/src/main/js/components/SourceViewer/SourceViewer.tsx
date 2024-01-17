@@ -72,6 +72,7 @@ export interface Props {
   displayAllIssues?: boolean;
   displayLocationMarkers?: boolean;
   hideHeader?: boolean;
+  hidePinOption?: boolean;
   highlightedLine?: number;
   highlightedLocationMessage?: { index: number; text: string | undefined };
   // `undefined` elements mean they are located in a different file,
@@ -570,6 +571,7 @@ export class SourceViewerClass extends React.PureComponent<Props, State> {
           <SourceViewerHeader
             branchLike={this.props.branchLike}
             componentMeasures={this.props.componentMeasures}
+            hidePinOption={this.props.hidePinOption}
             openComponent={openComponent}
             showMeasures={this.props.showMeasures}
             sourceViewerFile={sourceViewerFile}
