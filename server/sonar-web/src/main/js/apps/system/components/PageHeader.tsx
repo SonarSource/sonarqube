@@ -17,10 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Card, ClipboardButton, FlagMessage, Spinner, Title } from 'design-system';
 import * as React from 'react';
 import withAppStateContext from '../../../app/components/app-state/withAppStateContext';
-import { ClipboardButton } from '../../../components/controls/clipboard';
-import { Alert } from '../../../components/ui/Alert';
 import { toShortISO8601String } from '../../../helpers/dates';
 import { translate } from '../../../helpers/l10n';
 import { AppState } from '../../../types/appstate';
@@ -36,63 +35,58 @@ export interface Props {
   version?: string;
 }
 
-function PageHeader(props: Props) {
+function PageHeader(props: Readonly<Props>) {
   const { isCluster, loading, logLevel, serverId, version, appState } = props;
   return (
-    <header className="page-header">
-      <h1 className="page-title">{translate('system_info.page')}</h1>
-      <PageActions
-        canDownloadLogs={!isCluster}
-        cluster={isCluster}
-        logLevel={logLevel}
-        onLogLevelChange={props.onLogLevelChange}
-        serverId={serverId}
-      />
-      {loading && (
-        <div className="page-actions">
-          <i className="spinner" />
+    <header className="sw-mt-8">
+      <div className="sw-flex sw-items-start sw-justify-between">
+        <Title>{translate('system_info.page')}</Title>
+
+        <div className="sw-flex sw-items-center">
+          <Spinner className="sw-mr-4 sw-mt-1" loading={loading} />
+
+          <PageActions
+            canDownloadLogs={!isCluster}
+            cluster={isCluster}
+            logLevel={logLevel}
+            onLogLevelChange={props.onLogLevelChange}
+            serverId={serverId}
+          />
         </div>
-      )}
+      </div>
+
       {serverId && version && (
-        <div className="system-info-copy-paste-id-info boxed-group ">
+        <Card className="sw-max-w-1/2 sw-mb-8">
           {!appState.productionDatabase && (
-            <Alert className="width-100" variant="warning">
+            <FlagMessage className="sw-mb-2" variant="warning">
               {translate('system.not_production_database_warning')}
-            </Alert>
+            </FlagMessage>
           )}
-          <div className="display-flex-center">
-            <div className="flex-1">
-              <table className="width-100">
-                <tbody>
-                  <tr>
-                    <th>
-                      <strong>{translate('system.server_id')}</strong>
-                    </th>
-                    <td>
-                      <code>{serverId}</code>
-                    </td>
-                  </tr>
-                  <tr>
-                    <th>
-                      <strong>{translate('system.version')}</strong>
-                    </th>
-                    <td>{version}</td>
-                  </tr>
-                </tbody>
-              </table>
+          <div className="sw-flex sw-items-center sw-justify-between">
+            <div>
+              <div className="sw-flex sw-items-center">
+                <strong className="sw-w-32">{translate('system.server_id')}</strong>
+                <span className="sw-code">{serverId}</span>
+              </div>
+              <div className="sw-flex sw-items-center">
+                <strong className="sw-w-32">{translate('system.version')}</strong>
+                <span>{version}</span>
+              </div>
             </div>
             <ClipboardButton
-              className="flex-0"
+              className="sw-ml-4"
               copyValue={`SonarQube ID information
 Server ID: ${serverId}
 Version: ${version}
 Date: ${toShortISO8601String(Date.now())}
 `}
             >
-              {translate('system.copy_id_info')}
+              <span className="sw-ml-1 sw-whitespace-nowrap">
+                {translate('system.copy_id_info')}
+              </span>
             </ClipboardButton>
           </div>
-        </div>
+        </Card>
       )}
     </header>
   );

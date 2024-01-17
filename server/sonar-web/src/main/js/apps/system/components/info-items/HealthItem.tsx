@@ -26,32 +26,28 @@ import { HealthTypes } from '../../../../types/types';
 import HealthCauseItem from './HealthCauseItem';
 
 interface Props {
-  biggerHealth?: boolean;
   name?: string;
   className?: string;
   health: HealthTypes;
   healthCauses?: string[];
 }
 
-export default function HealthItem({ biggerHealth, className, name, health, healthCauses }: Props) {
+export default function HealthItem({ className, name, health, healthCauses }: Readonly<Props>) {
   const hasHealthCauses = healthCauses && healthCauses.length > 0 && health !== HealthTypes.GREEN;
 
-  const statusIndicator = (
-    <StatusIndicator color={health.toLowerCase()} size={biggerHealth ? 'big' : undefined} />
-  );
+  const statusIndicator = <StatusIndicator color={health} />;
   return (
-    <div className={classNames('system-info-health-info', className)}>
+    <div className={classNames('sw-flex sw-items-center', className)}>
       {hasHealthCauses &&
-        healthCauses.map((cause, idx) => (
-          <HealthCauseItem className="spacer-right" health={health} healthCause={cause} key={idx} />
+        healthCauses.map((cause) => (
+          <HealthCauseItem className="sw-mr-2" health={health} healthCause={cause} key={cause} />
         ))}
-      {name ? (
-        <Tooltip overlay={translateWithParameters('system.current_health_of_x', name)}>
-          <span>{statusIndicator}</span>
-        </Tooltip>
-      ) : (
-        statusIndicator
-      )}
+
+      <Tooltip
+        overlay={name ? translateWithParameters('system.current_health_of_x', name) : undefined}
+      >
+        <span>{statusIndicator}</span>
+      </Tooltip>
     </div>
   );
 }

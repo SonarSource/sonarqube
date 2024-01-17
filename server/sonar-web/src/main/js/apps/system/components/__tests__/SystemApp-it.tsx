@@ -76,8 +76,8 @@ describe('System Info Standalone', () => {
       'Web Server',
       'Access Logs',
       'Deprecation Logs',
-    ].forEach((link) => {
-      expect(screen.getByRole('link', { name: link })).toBeInTheDocument();
+    ].forEach((name) => {
+      expect(screen.getByRole('menuitem', { name })).toBeInTheDocument();
     });
     expect(ui.downloadSystemInfoButton.get()).toBeInTheDocument();
   });
@@ -122,7 +122,7 @@ function getPageObjects() {
     pageHeading: byRole('heading', { name: 'system_info.page' }),
     downloadLogsButton: byRole('button', { name: 'system.download_logs' }),
     downloadSystemInfoButton: byRole('link', { name: 'system.download_system_info' }),
-    copyIdInformation: byRole('button', { name: 'copy_to_clipboard' }),
+    copyIdInformation: byRole('button', { name: 'system.copy_id_info' }),
     sectionButton: (name: string) => byRole('button', { name }),
     changeLogLevelButton: byRole('button', { name: 'system.logs_level.change' }),
     logLevelsRadioButton: (name: LogsLevels) => byRole('radio', { name }),

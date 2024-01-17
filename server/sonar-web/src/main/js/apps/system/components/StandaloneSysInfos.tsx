@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { UnorderedList } from 'design-system';
 import { map } from 'lodash';
 import * as React from 'react';
 import { SysInfoStandalone } from '../../../types/types';
@@ -35,12 +36,16 @@ interface Props {
   toggleCard: (toggledCard: string) => void;
 }
 
-export default function StandAloneSysInfos({ expandedCards, sysInfoData, toggleCard }: Props) {
-  const mainCardName = 'System';
+const mainCardName = 'System';
+
+export default function StandAloneSysInfos({
+  expandedCards,
+  sysInfoData,
+  toggleCard,
+}: Readonly<Props>) {
   return (
-    <ul>
+    <UnorderedList className="sw-flex sw-flex-col sw-gap-4">
       <HealthCard
-        biggerHealth
         health={getHealth(sysInfoData)}
         healthCauses={getHealthCauses(sysInfoData)}
         name={mainCardName}
@@ -57,6 +62,6 @@ export default function StandAloneSysInfos({ expandedCards, sysInfoData, toggleC
           sysInfoData={ignoreInfoFields(section)}
         />
       ))}
-    </ul>
+    </UnorderedList>
   );
 }

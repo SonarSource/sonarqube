@@ -17,10 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Variant } from 'design-system';
 import { groupBy, isEmpty, mapValues } from 'lodash';
 import * as React from 'react';
 import { getSystemUpgrades } from '../../../api/system';
-import { Alert, AlertVariant } from '../../../components/ui/Alert';
+import { Alert } from '../../../components/ui/Alert';
 import DismissableAlert from '../../../components/ui/DismissableAlert';
 import SystemUpgradeButton from '../../../components/upgrade/SystemUpgradeButton';
 import { UpdateUseCase, sortUpgrades } from '../../../components/upgrade/utils';
@@ -41,7 +42,7 @@ type GroupedSystemUpdate = {
   [x: string]: Dict<SystemUpgrade[]>;
 };
 
-const MAP_VARIANT: Dict<AlertVariant> = {
+const MAP_VARIANT: Dict<Variant> = {
   [UpdateUseCase.NewMinorVersion]: 'info',
   [UpdateUseCase.NewPatch]: 'warning',
   [UpdateUseCase.PreLTS]: 'warning',

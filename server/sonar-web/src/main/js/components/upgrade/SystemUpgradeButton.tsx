@@ -30,38 +30,32 @@ interface Props {
   updateUseCase?: UpdateUseCase;
 }
 
-interface State {
-  openSystemUpgradeForm: boolean;
-}
+export default function SystemUpgradeButton(props: Readonly<Props>) {
+  const { latestLTS, systemUpgrades, updateUseCase } = props;
 
-export default class SystemUpgradeButton extends React.PureComponent<Props, State> {
-  state: State = { openSystemUpgradeForm: false };
+  const [isSystemUpgradeFormOpen, setSystemUpgradeFormOpen] = React.useState(false);
 
-  handleOpenSystemUpgradeForm = () => {
-    this.setState({ openSystemUpgradeForm: true });
-  };
+  const openSystemUpgradeForm = React.useCallback(() => {
+    setSystemUpgradeFormOpen(true);
+  }, [setSystemUpgradeFormOpen]);
 
-  handleCloseSystemUpgradeForm = () => {
-    this.setState({ openSystemUpgradeForm: false });
-  };
+  const closeSystemUpgradeForm = React.useCallback(() => {
+    setSystemUpgradeFormOpen(false);
+  }, [setSystemUpgradeFormOpen]);
 
-  render() {
-    const { latestLTS, systemUpgrades, updateUseCase } = this.props;
-    const { openSystemUpgradeForm } = this.state;
-    return (
-      <>
-        <Button className="spacer-left" onClick={this.handleOpenSystemUpgradeForm}>
-          {translate('learn_more')}
-        </Button>
-        {openSystemUpgradeForm && (
-          <SystemUpgradeForm
-            onClose={this.handleCloseSystemUpgradeForm}
-            systemUpgrades={groupUpgrades(sortUpgrades(systemUpgrades))}
-            latestLTS={latestLTS}
-            updateUseCase={updateUseCase}
-          />
-        )}
-      </>
-    );
-  }
+  return (
+    <>
+      <Button className="sw-ml-2" onClick={openSystemUpgradeForm}>
+        {translate('learn_more')}
+      </Button>
+      {isSystemUpgradeFormOpen && (
+        <SystemUpgradeForm
+          onClose={closeSystemUpgradeForm}
+          systemUpgrades={groupUpgrades(sortUpgrades(systemUpgrades))}
+          latestLTS={latestLTS}
+          updateUseCase={updateUseCase}
+        />
+      )}
+    </>
+  );
 }

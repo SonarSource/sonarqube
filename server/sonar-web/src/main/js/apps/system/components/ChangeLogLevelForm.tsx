@@ -17,11 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { ButtonPrimary, FlagMessage, Modal, RadioButton } from 'design-system';
 import * as React from 'react';
 import { setLogLevel } from '../../../api/system';
-import { ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
-import Modal from '../../../components/controls/Modal';
-import { Alert } from '../../../components/ui/Alert';
 import { translate } from '../../../helpers/l10n';
 import { LOGS_LEVELS } from '../utils';
 
@@ -37,6 +35,7 @@ interface State {
   updating: boolean;
 }
 
+const FORM_ID = 'set-log-level-form';
 export default class ChangeLogLevelForm extends React.PureComponent<Props, State> {
   constructor(props: Props) {
     super(props);
@@ -55,55 +54,50 @@ export default class ChangeLogLevelForm extends React.PureComponent<Props, State
     }
   };
 
-  handleLevelChange = (event: React.ChangeEvent<HTMLInputElement>) =>
-    this.setState({ newLevel: event.currentTarget.value });
+  handleLevelChange = (value: string) => this.setState({ newLevel: value });
 
   render() {
     const { updating, newLevel } = this.state;
     const header = translate('system.set_log_level');
     return (
-      <Modal contentLabel={header} onRequestClose={this.props.onClose}>
-        <form id="set-log-level-form" onSubmit={this.handleFormSubmit}>
-          <div className="modal-head">
-            <h2>{header}</h2>
-          </div>
-          <div className="modal-body">
+      <Modal
+        headerTitle={header}
+        onClose={this.props.onClose}
+        body={
+          <form id={FORM_ID} onSubmit={this.handleFormSubmit}>
             {LOGS_LEVELS.map((level) => (
-              <p className="spacer-bottom" key={level}>
-                <input
-                  checked={level === newLevel}
-                  className="spacer-right text-middle"
-                  id={`loglevel-${level}`}
-                  name="system.log_levels"
-                  onChange={this.handleLevelChange}
-                  type="radio"
-                  value={level}
-                />
+              <RadioButton
+                key={level}
+                checked={level === newLevel}
+                className="sw-mb-2"
+                id={`loglevel-${level}`}
+                name="system.log_levels"
+                onCheck={this.handleLevelChange}
+                value={level}
+              >
                 <label className="text-middle" htmlFor={`loglevel-${level}`}>
                   {level}
                 </label>
-              </p>
+              </RadioButton>
             ))}
-            <Alert className="spacer-top" variant="info">
+            <FlagMessage className="sw-mt-2" variant="info">
               {this.props.infoMsg}
-            </Alert>
+            </FlagMessage>
             {newLevel !== 'INFO' && (
-              <Alert className="spacer-top" variant="warning">
+              <FlagMessage className="sw-mt-2" variant="warning">
                 {translate('system.log_level.warning')}
-              </Alert>
+              </FlagMessage>
             )}
-          </div>
-          <div className="modal-foot">
-            {updating && <i className="spinner spacer-right" />}
-            <SubmitButton disabled={updating} id="set-log-level-submit">
-              {translate('save')}
-            </SubmitButton>
-            <ResetButtonLink id="set-log-level-cancel" onClick={this.props.onClose}>
-              {translate('cancel')}
-            </ResetButtonLink>
-          </div>
-        </form>
-      </Modal>
+          </form>
+        }
+        primaryButton={
+          <ButtonPrimary disabled={updating} id="set-log-level-submit" type="submit" form={FORM_ID}>
+            {translate('save')}
+          </ButtonPrimary>
+        }
+        secondaryButtonLabel={translate('cancel')}
+        loading={updating}
+      />
     );
   }
 }

@@ -87,7 +87,7 @@ export * from './TutorialStepList';
 export * from './avatar/Avatar';
 export * from './avatar/GenericAvatar';
 export * from './buttons';
-export { ClipboardIconButton } from './clipboard';
+export { ClipboardButton, ClipboardIconButton } from './clipboard';
 export * from './code-line/LineCoverage';
 export * from './code-line/LineFinding';
 export * from './code-line/LineIssuesIndicatorIcon';

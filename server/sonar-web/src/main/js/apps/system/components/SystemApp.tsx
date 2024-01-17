@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { LargeCenteredLayout, PageContentFontWrapper } from 'design-system';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { getSystemInfo } from '../../../api/system';
@@ -27,13 +28,13 @@ import { translate } from '../../../helpers/l10n';
 import { SysInfoCluster, SysInfoStandalone } from '../../../types/types';
 import '../styles.css';
 import {
+  Query,
   getClusterVersion,
   getServerId,
   getSystemLogsLevel,
   getVersion,
   isCluster,
   parseQuery,
-  Query,
   serializeQuery,
 } from '../utils';
 import ClusterSysInfos from './ClusterSysInfos';
@@ -123,26 +124,28 @@ class SystemApp extends React.PureComponent<Props, State> {
   render() {
     const { loading, sysInfoData } = this.state;
     return (
-      <main className="page page-limited">
+      <LargeCenteredLayout as="main">
         <Suggestions suggestions="system_info" />
         <Helmet defer={false} title={translate('system_info.page')} />
-        <div className="page-notifs">
-          <UpdateNotification dismissable={false} />
-        </div>
-        {sysInfoData && (
-          <PageHeader
-            isCluster={isCluster(sysInfoData)}
-            loading={loading}
-            logLevel={getSystemLogsLevel(sysInfoData)}
-            onLogLevelChange={this.fetchSysInfo}
-            serverId={getServerId(sysInfoData)}
-            version={
-              isCluster(sysInfoData) ? getClusterVersion(sysInfoData) : getVersion(sysInfoData)
-            }
-          />
-        )}
-        {this.renderSysInfo()}
-      </main>
+        <PageContentFontWrapper className="sw-body-sm sw-pb-8">
+          <div>
+            <UpdateNotification dismissable={false} />
+          </div>
+          {sysInfoData && (
+            <PageHeader
+              isCluster={isCluster(sysInfoData)}
+              loading={loading}
+              logLevel={getSystemLogsLevel(sysInfoData)}
+              onLogLevelChange={this.fetchSysInfo}
+              serverId={getServerId(sysInfoData)}
+              version={
+                isCluster(sysInfoData) ? getClusterVersion(sysInfoData) : getVersion(sysInfoData)
+              }
+            />
+          )}
+          {this.renderSysInfo()}
+        </PageContentFontWrapper>
+      </LargeCenteredLayout>
     );
   }
 }

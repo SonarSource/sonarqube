@@ -17,33 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import classNames from 'classnames';
+import { CheckIcon, FlagErrorIcon, FlagWarningIcon } from 'design-system';
 import * as React from 'react';
 import { translate } from '../../helpers/l10n';
+import { HealthTypes } from '../../types/types';
 import './StatusIndicator.css';
 
 export interface StatusIndicatorProps {
-  className?: string;
-  color?: string;
-  size?: string;
+  color: HealthTypes;
 }
 
-export default function StatusIndicator({ className, color, size }: StatusIndicatorProps) {
+const ICON_MAP = {
+  [HealthTypes.GREEN]: CheckIcon,
+  [HealthTypes.YELLOW]: FlagWarningIcon,
+  [HealthTypes.RED]: FlagErrorIcon,
+};
+
+export default function StatusIndicator({ color }: Readonly<StatusIndicatorProps>) {
+  const Icon = ICON_MAP[color];
+
   return (
     <>
-      {color ? translate('system.current_health', color) : undefined}
-      <i
-        className={classNames(
-          'spacer-left',
-          'status-indicator',
-          color,
-          {
-            'small-status-indicator': size === 'small',
-            'big-status-indicator': size === 'big',
-          },
-          className,
-        )}
-      />
+      {translate('system.current_health', color.toLowerCase())}
+      <Icon aria-hidden className="sw-ml-2" />
     </>
   );
 }

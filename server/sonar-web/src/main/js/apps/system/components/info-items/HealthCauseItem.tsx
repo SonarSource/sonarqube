@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import classNames from 'classnames';
+import { FlagMessage } from 'design-system';
 import * as React from 'react';
-import { Alert } from '../../../../components/ui/Alert';
 import { HealthTypes } from '../../../../types/types';
 
 interface Props {
@@ -28,14 +28,13 @@ interface Props {
   healthCause: string;
 }
 
-export default function HealthCauseItem({ className, health, healthCause }: Props) {
+export default function HealthCauseItem({ className, health, healthCause }: Readonly<Props>) {
   return (
-    <Alert
-      className={classNames('boxed-group-accordion-alert', className)}
-      display="inline"
+    <FlagMessage
+      className={classNames('-sw-my-2', className)}
       variant={health === HealthTypes.RED ? 'error' : 'warning'}
     >
       {healthCause}
-    </Alert>
+    </FlagMessage>
   );
 }

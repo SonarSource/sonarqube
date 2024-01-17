@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { ContentCell, Table, TableRow } from 'design-system';
 import { map } from 'lodash';
 import * as React from 'react';
 import { translate } from '../../../../helpers/l10n';
@@ -29,32 +30,32 @@ export interface Props {
   value: SysInfoValue;
 }
 
-export default function SysInfoItem({ name, value }: Props) {
+const COLUMNS = [0, 'auto'];
+
+export default function SysInfoItem({ name, value }: Readonly<Props>) {
   if (name === HEALTH_FIELD || name === STATE_FIELD) {
-    return <HealthItem className="no-margin" health={value as HealthTypes} />;
+    return <HealthItem health={value as HealthTypes} />;
   }
   if (value instanceof Array) {
-    return <code>{JSON.stringify(value)}</code>;
+    return <span className="sw-code">{JSON.stringify(value)}</span>;
   }
   switch (typeof value) {
     case 'boolean':
       return <>{translate(value ? 'yes' : 'no')}</>;
     case 'object':
       return (
-        <table className="data">
-          <tbody>
-            {map(value, (v, n) => (
-              <tr key={n}>
-                <td className="thin nowrap">{n}</td>
-                <td>
-                  <SysInfoItem name={n} value={v} />
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <Table columnCount={COLUMNS.length} columnWidths={COLUMNS}>
+          {map(value, (v, n) => (
+            <TableRow key={n}>
+              <ContentCell className="sw-whitespace-nowrap">{n}</ContentCell>
+              <ContentCell>
+                <SysInfoItem name={n} value={v} />
+              </ContentCell>
+            </TableRow>
+          ))}
+        </Table>
       );
     default:
-      return <code>{value}</code>;
+      return <span className="sw-code">{value}</span>;
   }
 }
