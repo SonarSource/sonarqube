@@ -85,12 +85,12 @@ export default class Stacktrace extends React.PureComponent<Props, State> {
             {stacktrace ? (
               <div>
                 <h4 className="sw-mb-2">{translate('background_tasks.error_stacktrace')}</h4>
-                <pre className="js-task-stacktrace">{stacktrace}</pre>
+                <pre className="it__task-stacktrace sw-whitespace-pre-wrap">{stacktrace}</pre>
               </div>
             ) : (
               <div>
                 <h4 className="sw-mb-2">{translate('background_tasks.error_message')}</h4>
-                <pre className="js-task-error-message">{task.errorMessage}</pre>
+                <pre className="sw-whitespace-pre-wrap">{task.errorMessage}</pre>
               </div>
             )}
           </Spinner>
