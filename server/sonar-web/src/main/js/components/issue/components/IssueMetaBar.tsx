@@ -52,6 +52,16 @@ export default function IssueMetaBar(props: Readonly<Props>) {
 
   return (
     <ul className="sw-flex sw-items-center sw-gap-1 sw-body-xs">
+      {issue.line && (
+        <>
+          <IssueMetaListItem className={issueMetaListItemClassNames}>
+            L{issue.line}
+          </IssueMetaListItem>
+
+          <SeparatorCircleIcon aria-hidden as="li" />
+        </>
+      )}
+
       {issue.quickFixAvailable && (
         <>
           <li className={issueMetaListItemClassNames}>
