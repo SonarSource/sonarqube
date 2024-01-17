@@ -644,7 +644,7 @@ export class App extends React.PureComponent<Props, State> {
   };
 
   fetchMoreIssues = async () => {
-    const { paging } = this.state;
+    const { paging, issues } = this.state;
 
     if (!paging) {
       throw new Error('Paging is not defined');
@@ -658,7 +658,7 @@ export class App extends React.PureComponent<Props, State> {
       // In some cases, we can get an issue that we already have in the list as the first issue
       // When this happens, we filter it out
       // @see this.fetchIssuesUntil
-      const firstIssueKey = response.issues[0]?.key;
+      const firstIssueKey = issues[0]?.key;
       response.issues = response.issues.filter((issue) => issue.key !== firstIssueKey);
 
       if (this.mounted) {
