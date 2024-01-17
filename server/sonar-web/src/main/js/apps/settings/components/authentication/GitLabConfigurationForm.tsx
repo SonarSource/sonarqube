@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { keyBy } from 'lodash';
+import { isArray, keyBy } from 'lodash';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import DocLink from '../../../../components/common/DocLink';
@@ -46,7 +46,7 @@ interface ErrorValue {
 }
 
 interface FormData {
-  value: string | boolean;
+  value: string | boolean | string[];
   required: boolean;
   definition: DefinitionV2;
 }
@@ -104,6 +104,19 @@ export default function GitLabConfigurationForm(props: Readonly<Props>) {
         type: SettingType.BOOLEAN,
       },
     },
+    provisioningGroups: {
+      value: data?.provisioningGroups ?? [],
+      required: true,
+      definition: {
+        name: translate('settings.authentication.gitlab.form.provisioningGroups.name'),
+        secured: false,
+        key: 'provisioningGroups',
+        description: translate(
+          'settings.authentication.gitlab.form.provisioningGroups.description',
+        ),
+        multiValues: true,
+      },
+    },
   });
 
   const headerLabel = translate(
@@ -111,9 +124,13 @@ export default function GitLabConfigurationForm(props: Readonly<Props>) {
     isCreate ? 'create' : 'edit',
   );
 
-  const canBeSaved = Object.values(formData).every(
-    (v) => (!isCreate && v.definition.secured) || !v.required || v.value !== '',
-  );
+  const canBeSaved = Object.values(formData).every(({ definition, required, value }) => {
+    return (
+      (!isCreate && definition.secured) ||
+      !required ||
+      (isArray(value) ? value.some((val) => val !== '') : value !== '')
+    );
+  });
 
   const handleSubmit = (event: React.SyntheticEvent<HTMLFormElement>) => {
     event.preventDefault();

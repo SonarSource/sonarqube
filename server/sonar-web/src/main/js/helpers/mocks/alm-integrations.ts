@@ -111,7 +111,7 @@ export function mockGitlabConfiguration(
     allowUsersToSignUp: false,
     synchronizeGroups: true,
     provisioningType: ProvisioningType.jit,
-    provisioningGroups: [],
+    provisioningGroups: ['Cypress Hill'],
     ...overrides,
   };
 }

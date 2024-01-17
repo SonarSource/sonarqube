@@ -102,9 +102,10 @@ const ui = {
   autoProvisioningUpdateTokenButton: byRole('button', {
     name: 'settings.almintegration.form.secret.update_field',
   }),
-  autoProvisioningGroupsInput: byRole('textbox', {
+  groups: byRole('textbox', {
     name: 'property.provisioningGroups.name',
   }),
+  deleteGroupButton: byRole('button', { name: /delete_value/ }),
   removeProvisioniongGroup: byRole('button', {
     name: /settings.definition.delete_value.property.provisioningGroups.name./,
   }),
@@ -131,7 +132,7 @@ const ui = {
   }),
 };
 
-it('should create a Gitlab configuration and disable it', async () => {
+it('should create a Gitlab configuration and disable it with proper validation', async () => {
   handler.setGitlabConfigurations([]);
   renderAuthentication();
   const user = userEvent.setup();
@@ -142,8 +143,12 @@ it('should create a Gitlab configuration and disable it', async () => {
   await user.click(ui.createConfigButton.get());
   expect(await ui.createDialog.find()).toBeInTheDocument();
   await user.type(ui.applicationId.get(), '123');
+  expect(ui.saveConfigButton.get()).toBeDisabled();
   await user.type(ui.url.get(), 'https://company.ui.com');
   await user.type(ui.secret.get(), '123');
+  expect(ui.saveConfigButton.get()).toBeDisabled();
+  await user.type(ui.groups.get(), 'NWA');
+  expect(ui.saveConfigButton.get()).toBeEnabled();
   await user.click(ui.synchronizeGroups.get());
   await user.click(ui.saveConfigButton.get());
 
@@ -157,7 +162,7 @@ it('should create a Gitlab configuration and disable it', async () => {
   expect(ui.disableConfigButton.query()).not.toBeInTheDocument();
 });
 
-it('should edit/delete configuration', async () => {
+it('should edit a configuration with proper validation and delete it', async () => {
   const user = userEvent.setup();
   renderAuthentication();
 
@@ -172,13 +177,33 @@ it('should edit/delete configuration', async () => {
   expect(ui.url.get()).toHaveValue('URL');
   expect(ui.applicationId.get()).toBeInTheDocument();
   expect(ui.secret.query()).not.toBeInTheDocument();
+  expect(ui.groups.get()).toHaveValue('Cypress Hill');
   expect(ui.synchronizeGroups.get()).toBeChecked();
+
+  expect(ui.applicationId.get()).toBeInTheDocument();
+  await user.clear(ui.applicationId.get());
+  expect(ui.saveConfigButton.get()).toBeDisabled();
+  await user.type(ui.applicationId.get(), '456');
+  expect(ui.saveConfigButton.get()).toBeEnabled();
+
+  expect(ui.url.get()).toBeInTheDocument();
   await user.clear(ui.url.get());
-  await user.type(ui.url.get(), 'https://company.ui.com');
+  expect(ui.saveConfigButton.get()).toBeDisabled();
+  await user.type(ui.url.get(), 'www.internet.com');
+  expect(ui.saveConfigButton.get()).toBeEnabled();
+
+  expect(ui.groups.get()).toHaveValue('Cypress Hill');
+  await user.click(ui.groups.get());
+  await user.click(ui.deleteGroupButton.get());
+  expect(ui.groups.get()).not.toHaveValue('Cypress Hill');
+  expect(ui.saveConfigButton.get()).toBeDisabled();
+  await user.click(ui.groups.get());
+  await user.type(ui.groups.get(), 'Run DMC');
+  expect(ui.saveConfigButton.get()).toBeEnabled();
   await user.click(ui.saveConfigButton.get());
 
   expect(glContainer.get()).not.toHaveTextContent('URL');
-  expect(glContainer.get()).toHaveTextContent('https://company.ui.com');
+  expect(glContainer.get()).toHaveTextContent('www.internet.com');
 
   expect(ui.disableConfigButton.get()).toBeInTheDocument();
   await user.click(ui.disableConfigButton.get());
@@ -187,43 +212,6 @@ it('should edit/delete configuration', async () => {
   await user.click(ui.deleteConfigButton.get());
   expect(await ui.noGitlabConfiguration.find()).toBeInTheDocument();
   expect(ui.editConfigButton.query()).not.toBeInTheDocument();
-});
-
-it('should change from just-in-time to Auto Provisioning with proper validation', async () => {
-  const user = userEvent.setup();
-  renderAuthentication([Feature.GitlabProvisioning]);
-
-  expect(await ui.editConfigButton.find()).toBeInTheDocument();
-  expect(ui.jitProvisioningRadioButton.get()).toBeChecked();
-
-  user.click(ui.autoProvisioningRadioButton.get());
-  expect(await ui.autoProvisioningRadioButton.find()).toBeEnabled();
-  expect(ui.saveProvisioning.get()).toBeDisabled();
-
-  await user.type(ui.autoProvisioningToken.get(), 'JRR Tolkien');
-  expect(await ui.saveProvisioning.find()).toBeDisabled();
-
-  await user.type(ui.autoProvisioningGroupsInput.get(), 'NWA');
-  user.click(ui.autoProvisioningRadioButton.get());
-  expect(await ui.saveProvisioning.find()).toBeEnabled();
-
-  await user.click(ui.removeProvisioniongGroup.get());
-  expect(await ui.saveProvisioning.find()).toBeDisabled();
-  await user.type(ui.autoProvisioningGroupsInput.get(), 'Wu-Tang Clan');
-  expect(await ui.saveProvisioning.find()).toBeEnabled();
-
-  await user.clear(ui.autoProvisioningToken.get());
-  expect(await ui.saveProvisioning.find()).toBeDisabled();
-  await user.type(ui.autoProvisioningToken.get(), 'tiktoken');
-  expect(await ui.saveProvisioning.find()).toBeEnabled();
-
-  await user.click(ui.saveProvisioning.get());
-  expect(ui.confirmAutoProvisioningDialog.get()).toBeInTheDocument();
-  await user.click(ui.confirmProvisioningChange.get());
-  expect(ui.confirmAutoProvisioningDialog.query()).not.toBeInTheDocument();
-
-  expect(ui.autoProvisioningRadioButton.get()).toBeChecked();
-  expect(await ui.saveProvisioning.find()).toBeDisabled();
 });
 
 it('should change from auto provisioning to JIT with proper validation', async () => {
@@ -242,7 +230,6 @@ it('should change from auto provisioning to JIT with proper validation', async (
 
   expect(ui.jitProvisioningRadioButton.get()).not.toBeChecked();
   expect(ui.autoProvisioningRadioButton.get()).toBeChecked();
-  expect(ui.autoProvisioningGroupsInput.get()).toHaveValue('D12');
 
   expect(ui.autoProvisioningToken.query()).not.toBeInTheDocument();
   expect(ui.autoProvisioningUpdateTokenButton.get()).toBeInTheDocument();
@@ -295,7 +282,7 @@ it('should be able to allow user to sign up for JIT with proper validation', asy
   expect(await ui.saveProvisioning.find()).toBeDisabled();
 });
 
-it('should be able to edit groups and token for Auto provisioning with proper validation', async () => {
+it('should be able to edit token for Auto provisioning with proper validation', async () => {
   handler.setGitlabConfigurations([
     mockGitlabConfiguration({
       allowUsersToSignUp: false,
@@ -309,39 +296,13 @@ it('should be able to edit groups and token for Auto provisioning with proper va
 
   expect(await ui.autoProvisioningRadioButton.find()).toBeChecked();
   expect(ui.autoProvisioningUpdateTokenButton.get()).toBeInTheDocument();
-  expect(ui.autoProvisioningGroupsInput.get()).toHaveValue('Cypress Hill');
 
   expect(ui.saveProvisioning.get()).toBeDisabled();
 
   // Changing the Provisioning token should enable save
   await user.click(ui.autoProvisioningUpdateTokenButton.get());
-  await user.type(ui.autoProvisioningGroupsInput.get(), 'Tok Token!');
-  expect(ui.saveProvisioning.get()).toBeEnabled();
+  expect(ui.saveProvisioning.get()).toBeDisabled();
   await user.click(ui.cancelProvisioningChanges.get());
-  expect(ui.saveProvisioning.get()).toBeDisabled();
-
-  // Adding a group should enable save
-  await user.click(ui.autoProvisioningGroupsInput.get());
-  await user.tab();
-  await user.tab();
-  await user.tab();
-  await user.tab();
-  await user.keyboard('Run DMC');
-  expect(ui.saveProvisioning.get()).toBeEnabled();
-  await user.tab();
-  await user.keyboard('{Enter}');
-  expect(ui.saveProvisioning.get()).toBeDisabled();
-
-  // Removing a group should enable save
-  await user.click(ui.autoProvisioningGroupsInput.get());
-  await user.tab();
-  await user.keyboard('{Enter}');
-  expect(ui.saveProvisioning.get()).toBeEnabled();
-
-  // Removing all groups should disable save
-  await user.click(ui.autoProvisioningGroupsInput.get());
-  await user.tab();
-  await user.keyboard('{Enter}');
   expect(ui.saveProvisioning.get()).toBeDisabled();
 });
 
@@ -359,22 +320,11 @@ it('should be able to reset Auto Provisioning changes', async () => {
 
   expect(await ui.autoProvisioningRadioButton.find()).toBeChecked();
 
-  // Cancel doesn't fully work yet as the AuthenticationFormField needs to be worked on
-  await user.click(ui.autoProvisioningGroupsInput.get());
-  await user.tab();
-  await user.tab();
-  await user.tab();
-  await user.tab();
-  await user.keyboard('A Tribe Called Quest');
-  await user.click(ui.autoProvisioningGroupsInput.get());
-  await user.tab();
-  await user.keyboard('{Enter}');
   await user.click(ui.autoProvisioningUpdateTokenButton.get());
-  await user.type(ui.autoProvisioningGroupsInput.get(), 'ToToken!');
+  await user.type(ui.autoProvisioningToken.get(), 'ToToken!');
   expect(ui.saveProvisioning.get()).toBeEnabled();
   await user.click(ui.cancelProvisioningChanges.get());
-  // expect(ui.autoProvisioningUpdateTokenButton.get()).toBeInTheDocument();
-  expect(ui.autoProvisioningGroupsInput.get()).toHaveValue('Cypress Hill');
+  expect(ui.saveProvisioning.get()).toBeDisabled();
 });
 
 describe('Gitlab Provisioning', () => {
