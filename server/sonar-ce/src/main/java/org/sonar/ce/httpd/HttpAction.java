@@ -26,7 +26,7 @@ import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpRequestHandler;
 
 /**
- * A Http action of the CE's HTTP server handles a request for a specified path.
+ * An Http action of the CE's HTTP server handles a request for a specified path.
  */
 public interface HttpAction extends HttpRequestHandler {
   /**

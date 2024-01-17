@@ -47,7 +47,7 @@ public class LogOAuthWarningTest {
 
     underTest.start();
 
-    assertThat(logTester.logs(Level.WARN)).containsOnly("For security reasons, OAuth authentication should use HTTPS. You should set the property 'Administration > Configuration > Server base URL' to a HTTPS URL.");
+    assertThat(logTester.logs(Level.WARN)).containsOnly("For security reasons, OAuth authentication should use HTTPS. You should set the property 'Administration > Configuration > Server base URL' to an HTTPS URL.");
 
     underTest.stop();
   }

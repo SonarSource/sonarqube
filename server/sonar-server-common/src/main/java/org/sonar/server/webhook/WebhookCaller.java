@@ -22,7 +22,7 @@ package org.sonar.server.webhook;
 public interface WebhookCaller {
 
   /**
-   * Call webhook by sending a HTTP(S) POST request containing
+   * Call webhook by sending an HTTP(S) POST request containing
    * the JSON payload.
    * <br/>
    * Errors are silently ignored. They don't generate logs or

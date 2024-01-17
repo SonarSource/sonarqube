@@ -105,7 +105,7 @@ public class ValidationAction extends HttpFilter implements SamlAction {
       .setPost(true)
       .setHandler(ServletFilterHandler.INSTANCE)
       .setDescription("Handle the callback of a SAML assertion from the identity Provider and produces " +
-        "a HTML page with all information available in the assertion.")
+        "an HTML page with all information available in the assertion.")
       .setSince("9.7");
     action.createParam("SAMLResponse")
       .setDescription("SAML assertion value")

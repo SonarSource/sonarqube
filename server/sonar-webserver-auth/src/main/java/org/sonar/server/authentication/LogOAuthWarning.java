@@ -53,7 +53,7 @@ public class LogOAuthWarning implements Startable {
     String publicRootUrl = server.getPublicRootUrl();
     if (StringUtils.startsWithIgnoreCase(publicRootUrl, "http:")) {
       LoggerFactory.getLogger(getClass()).warn(
-        "For security reasons, OAuth authentication should use HTTPS. You should set the property 'Administration > Configuration > Server base URL' to a HTTPS URL.");
+        "For security reasons, OAuth authentication should use HTTPS. You should set the property 'Administration > Configuration > Server base URL' to an HTTPS URL.");
     }
   }
 

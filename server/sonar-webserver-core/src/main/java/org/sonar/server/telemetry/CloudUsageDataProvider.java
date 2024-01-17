@@ -135,7 +135,7 @@ public class CloudUsageDataProvider {
   }
 
   /**
-   * Create a http client to call the Kubernetes API.
+   * Create an http client to call the Kubernetes API.
    * This is based on the client creation in the official Kubernetes Java client.
    */
   private void initHttpClient() {
