@@ -17,13 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { subDays } from 'date-fns';
+import {
+  DateRangePicker,
+  LargeCenteredLayout,
+  Link,
+  PageContentFontWrapper,
+  PopupZLevel,
+  RadioButton,
+  Title,
+} from 'design-system';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { FormattedMessage } from 'react-intl';
-import Link from '../../../components/common/Link';
-import DateRangeInput from '../../../components/controls/DateRangeInput';
-import Radio from '../../../components/controls/Radio';
 import Suggestions from '../../../components/embed-docs-modal/Suggestions';
 import { now } from '../../../helpers/dates';
 import { translate } from '../../../helpers/l10n';
@@ -72,68 +79,74 @@ export default function AuditAppRenderer(props: AuditAppRendererProps) {
   const { dateRange, downloadStarted, housekeepingPolicy, selection } = props;
 
   return (
-    <main className="page page-limited" id="marketplace-page">
-      <Suggestions suggestions="audit-logs" />
-      <Helmet title={translate('audit_logs.page')} />
+    <LargeCenteredLayout as="main" id="audit-logs-page">
+      <PageContentFontWrapper className="sw-body-sm sw-my-8">
+        <Suggestions suggestions="audit-logs" />
+        <Helmet title={translate('audit_logs.page')} />
 
-      <header className="page-header">
-        <h2 className="page-title">{translate('audit_logs.page')}</h2>
-      </header>
+        <Title>{translate('audit_logs.page')}</Title>
 
-      <p className="big-spacer-bottom">
-        {translate('audit_logs.page.description.1')}
-        <br />
-        <FormattedMessage
-          id="audit_logs.page.description.2"
-          defaultMessage={translate('audit_logs.page.description.2')}
-          values={{
-            housekeeping: translate('audit_logs.housekeeping_policy', housekeepingPolicy),
-            link: (
-              <Link
-                to={{
-                  pathname: '/admin/settings',
-                  search: queryToSearch({ category: 'housekeeping' }),
-                  hash: '#auditLogs',
-                }}
-              >
-                {translate('audit_logs.page.description.link')}
-              </Link>
-            ),
-          }}
+        <p className="sw-mb-4">
+          {translate('audit_logs.page.description.1')}
+          <br />
+          <FormattedMessage
+            id="audit_logs.page.description.2"
+            defaultMessage={translate('audit_logs.page.description.2')}
+            values={{
+              housekeeping: translate('audit_logs.housekeeping_policy', housekeepingPolicy),
+              link: (
+                <Link
+                  to={{
+                    pathname: '/admin/settings',
+                    search: queryToSearch({ category: 'housekeeping' }),
+                    hash: '#auditLogs',
+                  }}
+                >
+                  {translate('audit_logs.page.description.link')}
+                </Link>
+              ),
+            }}
+          />
+        </p>
+
+        <div className="sw-mb-6">
+          <h3 className="sw-mb-4">{translate('audit_logs.download')}</h3>
+
+          <ul>
+            {getRangeOptions(housekeepingPolicy).map((option) => (
+              <li key={option} className="sw-mb-2">
+                <RadioButton
+                  checked={selection === option}
+                  onCheck={props.handleOptionSelection}
+                  value={option}
+                >
+                  {translate('audit_logs.range_option', option)}
+                </RadioButton>
+              </li>
+            ))}
+          </ul>
+
+          <DateRangePicker
+            className="sw-w-abs-350 sw-mt-4"
+            clearButtonLabel={translate('clear')}
+            fromLabel={translate('start_date')}
+            onChange={props.handleDateSelection}
+            separatorText={translate('to_')}
+            toLabel={translate('end_date')}
+            value={dateRange}
+            minDate={subDays(now(), HOUSEKEEPING_POLICY_VALUES[housekeepingPolicy])}
+            maxDate={now()}
+            zLevel={PopupZLevel.Content}
+          />
+        </div>
+
+        <DownloadButton
+          dateRange={dateRange}
+          downloadStarted={downloadStarted}
+          onStartDownload={props.handleStartDownload}
+          selection={selection}
         />
-      </p>
-
-      <div className="huge-spacer-bottom">
-        <h3 className="big-spacer-bottom">{translate('audit_logs.download')}</h3>
-
-        <ul>
-          {getRangeOptions(housekeepingPolicy).map((option) => (
-            <li key={option} className="spacer-bottom">
-              <Radio
-                checked={selection === option}
-                onCheck={props.handleOptionSelection}
-                value={option}
-              >
-                {translate('audit_logs.range_option', option)}
-              </Radio>
-            </li>
-          ))}
-        </ul>
-
-        <DateRangeInput
-          onChange={props.handleDateSelection}
-          minDate={subDays(now(), HOUSEKEEPING_POLICY_VALUES[housekeepingPolicy])}
-          maxDate={now()}
-          value={dateRange}
-        />
-      </div>
-
-      <DownloadButton
-        dateRange={dateRange}
-        downloadStarted={downloadStarted}
-        onStartDownload={props.handleStartDownload}
-        selection={selection}
-      />
-    </main>
+      </PageContentFontWrapper>
+    </LargeCenteredLayout>
   );
 }

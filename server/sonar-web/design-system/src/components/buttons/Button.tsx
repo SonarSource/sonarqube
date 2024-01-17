@@ -149,6 +149,21 @@ export const buttonStyle = (props: ThemedProps) => css`
 
 const BaseButtonLink = styled(BaseLink)`
   ${buttonStyle}
+
+  /*
+    Workaround to apply disable style to button-link
+    as link does not have disabled attribute, using props instead 
+  */
+
+  ${({ disabled, theme }) =>
+    disabled
+      ? `&, &:hover, &:focus, &:active {
+        color: ${themeContrast('buttonDisabled')({ theme })};
+        background-color: ${themeColor('buttonDisabled')({ theme })};
+        border: ${themeBorder('default', 'buttonDisabledBorder')({ theme })};
+        cursor: not-allowed;
+      }`
+      : undefined};
 `;
 
 const BaseButton = styled.button`

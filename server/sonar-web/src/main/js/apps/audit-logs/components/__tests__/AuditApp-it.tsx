@@ -17,14 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { getDate, getMonth, getYear, subDays } from 'date-fns';
 import SettingsServiceMock from '../../../../api/mocks/SettingsServiceMock';
 import { now } from '../../../../helpers/dates';
-import { getMonthName } from '../../../../helpers/l10n';
+import { getShortMonthName } from '../../../../helpers/l10n';
 import { renderAppWithAdminContext } from '../../../../helpers/testReactTestingUtils';
-import { byPlaceholderText, byRole, byText } from '../../../../helpers/testSelector';
+import { byPlaceholderText, byRole, byTestId, byText } from '../../../../helpers/testSelector';
 import { AdminPageExtension } from '../../../../types/extension';
 import { SettingsKey } from '../../../../types/settings';
 import routes from '../../routes';
@@ -64,8 +63,8 @@ const ui = {
   downloadSentenceStart: byText('audit_logs.download_start.sentence.1'),
   startDateInput: byPlaceholderText('start_date'),
   endDateInput: byPlaceholderText('end_date'),
-  dateInputMonthSelect: byRole('combobox', { name: 'Month:' }),
-  dateInputYearSelect: byRole('combobox', { name: 'Year:' }),
+  dateInputMonthSelect: byTestId('month-select'),
+  dateInputYearSelect: byTestId('year-select'),
 };
 
 let handler: SettingsServiceMock;
@@ -113,15 +112,39 @@ it('should handle download button click', async () => {
   await user.click(ui.customRadio.get());
   expect(ui.downloadButton.get()).toHaveAttribute('aria-disabled', 'true');
   await user.click(ui.startDateInput.get());
+  const monthSelector = ui.dateInputMonthSelect.byRole('combobox').get();
+  await user.click(monthSelector);
+  await user.click(
+    ui.dateInputMonthSelect
+      .byText(getShortMonthName(getMonth(startDay)))
+      .getAll()
+      .slice(-1)[0],
+  );
 
-  await user.selectOptions(ui.dateInputMonthSelect.get(), getMonthName(getMonth(startDay)));
-  await user.selectOptions(ui.dateInputYearSelect.get(), getYear(startDay).toString());
-  await user.click(screen.getByText(getDate(startDay)));
+  const yearSelector = ui.dateInputYearSelect.byRole('combobox').get();
+  await user.click(yearSelector);
+  await user.click(
+    ui.dateInputYearSelect.byText(getYear(startDay).toString()).getAll().slice(-1)[0],
+  );
+
+  await user.click(byText(getDate(startDay), { selector: 'button' }).get());
+
   await user.click(ui.endDateInput.get());
 
-  await user.selectOptions(ui.dateInputMonthSelect.get(), getMonthName(getMonth(endDate)));
-  await user.selectOptions(ui.dateInputYearSelect.get(), getYear(endDate).toString());
-  await user.click(screen.getByText(getDate(endDate)));
+  await user.click(monthSelector);
+  await user.click(
+    ui.dateInputMonthSelect
+      .byText(getShortMonthName(getMonth(endDate)))
+      .getAll()
+      .slice(-1)[0],
+  );
+
+  await user.click(yearSelector);
+  await user.click(
+    ui.dateInputYearSelect.byText(getYear(endDate).toString()).getAll().slice(-1)[0],
+  );
+
+  await user.click(byText(getDate(endDate), { selector: 'button' }).get());
 
   expect(await ui.downloadButton.find()).toHaveAttribute('aria-disabled', 'false');
   await user.click(downloadButton);
