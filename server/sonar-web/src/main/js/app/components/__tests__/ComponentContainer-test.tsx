@@ -391,31 +391,6 @@ describe('redirects', () => {
 
     expect(await ui.portfolioText.find()).toBeInTheDocument();
   });
-
-  it('should redirect to project from tutorial when component is loaded', async () => {
-    const component = mockComponent({
-      breadcrumbs: [{ key: 'project', name: 'Project', qualifier: ComponentQualifier.Project }],
-      key: 'project-key',
-    });
-
-    jest
-      .mocked(getComponentNavigation)
-      .mockResolvedValueOnce({} as unknown as Awaited<ReturnType<typeof getComponentNavigation>>);
-
-    jest
-      .mocked(getComponentData)
-      .mockResolvedValueOnce({ component } as unknown as Awaited<
-        ReturnType<typeof getComponentData>
-      >);
-
-    renderComponentContainer(
-      { hasFeature: jest.fn().mockReturnValue(true) },
-      'tutorials?id=project-key',
-      '/tutorials',
-    );
-
-    expect(await ui.projectText.find()).toBeInTheDocument();
-  });
 });
 
 it.each([

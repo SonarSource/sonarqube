@@ -30,7 +30,7 @@ import { getComponentNavigation } from '../../api/navigation';
 import { useLocation, useRouter } from '../../components/hoc/withRouter';
 import { translateWithParameters } from '../../helpers/l10n';
 import { HttpStatus } from '../../helpers/request';
-import { getPortfolioUrl, getProjectUrl } from '../../helpers/urls';
+import { getPortfolioUrl } from '../../helpers/urls';
 import { useBranchesQuery } from '../../queries/branch';
 import { ProjectAlmBindingConfigurationErrors } from '../../types/alm-settings';
 import { Branch } from '../../types/branch-like';
@@ -98,22 +98,25 @@ function ComponentContainer({ hasFeature }: Readonly<WithAvailableFeaturesProps>
     [key, branch, pullRequest],
   );
 
-  const fetchStatus = React.useCallback(async (componentKey: string) => {
-    try {
-      const { current, queue } = await getTasksForComponent(componentKey);
-      const newCurrentTask = getCurrentTask(current);
-      const pendingTasks = getPendingTasksForBranchLike(queue);
-      const newTasksInProgress = getInProgressTasks(pendingTasks);
+  const fetchStatus = React.useCallback(
+    async (componentKey: string) => {
+      try {
+        const { current, queue } = await getTasksForComponent(componentKey);
+        const newCurrentTask = getCurrentTask(current, branch, pullRequest);
+        const pendingTasks = getPendingTasksForBranchLike(queue, branch, pullRequest);
+        const newTasksInProgress = getInProgressTasks(pendingTasks);
 
-      const isPending = pendingTasks.some((task) => task.status === TaskStatuses.Pending);
+        const isPending = pendingTasks.some((task) => task.status === TaskStatuses.Pending);
 
-      setPending(isPending);
-      setCurrentTask(newCurrentTask);
-      setTasksInProgress(newTasksInProgress);
-    } catch {
-      // noop
-    }
-  }, []);
+        setPending(isPending);
+        setCurrentTask(newCurrentTask);
+        setTasksInProgress(newTasksInProgress);
+      } catch {
+        // noop
+      }
+    },
+    [branch, pullRequest],
+  );
 
   const fetchProjectBindingErrors = React.useCallback(
     async (component: Component) => {
@@ -189,8 +192,14 @@ function ComponentContainer({ hasFeature }: Readonly<WithAvailableFeaturesProps>
 
     oldCurrentTask.current = currentTask;
     oldTasksInProgress.current = tasks;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tasksInProgress, currentTask]);
+  }, [tasksInProgress, currentTask, component, fetchComponent, fetchStatus]);
+
+  // Refetch component when a new branch is analyzed
+  React.useEffect(() => {
+    if (branchLike?.analysisDate && !component?.analysisDate) {
+      fetchComponent();
+    }
+  }, [branchLike, component, fetchComponent]);
 
   // Refetch component when target branch for fixing pull request is fetched
   React.useEffect(() => {
@@ -210,11 +219,6 @@ function ComponentContainer({ hasFeature }: Readonly<WithAvailableFeaturesProps>
      */
     if (pathname.includes('dashboard') && component && isPortfolioLike(component.qualifier)) {
       router.replace(getPortfolioUrl(component.key));
-      return;
-    }
-    // Redirect from tutorials to to dashboard
-    if (component && !component.analysisDate && pathname.includes('tutorials')) {
-      router.replace(getProjectUrl(key));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [component]);
@@ -313,16 +317,20 @@ export function isSameBranch(
   return branch === task.branch;
 }
 
-function getCurrentTask(current?: Task) {
+function getCurrentTask(current?: Task, branch?: string, pullRequest?: string) {
   if (!current || !isReportRelatedTask(current)) {
     return undefined;
   }
 
-  return current.status === TaskStatuses.Failed || isSameBranch(current) ? current : undefined;
+  return current.status === TaskStatuses.Failed || isSameBranch(current, branch, pullRequest)
+    ? current
+    : undefined;
 }
 
-function getPendingTasksForBranchLike(pendingTasks: Task[]) {
-  return pendingTasks.filter((task) => isReportRelatedTask(task) && isSameBranch(task));
+function getPendingTasksForBranchLike(pendingTasks: Task[], branch?: string, pullRequest?: string) {
+  return pendingTasks.filter(
+    (task) => isReportRelatedTask(task) && isSameBranch(task, branch, pullRequest),
+  );
 }
 
 function getInProgressTasks(pendingTasks: Task[]) {
