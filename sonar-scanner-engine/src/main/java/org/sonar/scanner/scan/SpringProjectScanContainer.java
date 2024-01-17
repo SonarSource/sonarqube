@@ -91,6 +91,9 @@ public class SpringProjectScanContainer extends SpringComponentContainer {
 
   private void addScannerComponents() {
     add(
+      ProjectConfigurationProvider.class,
+
+      ScanProperties.class,
 
       ResourceTypes.class,
 
@@ -99,7 +102,6 @@ public class SpringProjectScanContainer extends SpringComponentContainer {
 
       // rules
       QProfileVerifier.class,
-
 
       ScannerProperties.class,
 
