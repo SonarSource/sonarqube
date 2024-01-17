@@ -38,6 +38,7 @@ import MeasuresPanel from './MeasuresPanel';
 import MeasuresPanelNoNewCode from './MeasuresPanelNoNewCode';
 import NoCodeWarning from './NoCodeWarning';
 import QualityGatePanel from './QualityGatePanel';
+import { TabsPanel } from './TabsPanel';
 
 export interface BranchOverviewRendererProps {
   analyses?: Analysis[];
@@ -126,36 +127,42 @@ export default function BranchOverviewRenderer(props: BranchOverviewRendererProp
 
                 <div className="sw-flex-1">
                   <div className="sw-flex sw-flex-col sw-pt-6">
-                    {!hasNewCodeMeasures && isNewCodeTab && !loadingStatus ? (
-                      <MeasuresPanelNoNewCode
-                        branch={branch}
-                        component={component}
-                        period={period}
-                      />
-                    ) : (
-                      <>
-                        <MeasuresPanel
-                          analyses={analyses}
-                          appLeak={appLeak}
+                    <TabsPanel
+                      analyses={analyses}
+                      appLeak={appLeak}
+                      branch={branch}
+                      component={component}
+                      loading={loadingStatus}
+                      period={period}
+                      qgStatuses={qgStatuses}
+                      isNewCode={isNewCodeTab}
+                      onTabSelect={selectTab}
+                    >
+                      {!hasNewCodeMeasures && isNewCodeTab ? (
+                        <MeasuresPanelNoNewCode
                           branch={branch}
                           component={component}
-                          loading={loadingStatus}
-                          measures={measures}
                           period={period}
-                          qgStatuses={qgStatuses}
-                          isNewCode={isNewCodeTab}
-                          onTabSelect={selectTab}
                         />
+                      ) : (
+                        <>
+                          <MeasuresPanel
+                            branch={branch}
+                            component={component}
+                            measures={measures}
+                            isNewCode={isNewCodeTab}
+                          />
 
-                        <AcceptedIssuesPanel
-                          branch={branch}
-                          component={component}
-                          measures={measures}
-                          isNewCode={isNewCodeTab}
-                          loading={loadingStatus}
-                        />
-                      </>
-                    )}
+                          <AcceptedIssuesPanel
+                            branch={branch}
+                            component={component}
+                            measures={measures}
+                            isNewCode={isNewCodeTab}
+                            loading={loadingStatus}
+                          />
+                        </>
+                      )}
+                    </TabsPanel>
 
                     <ActivityPanel
                       analyses={analyses}
