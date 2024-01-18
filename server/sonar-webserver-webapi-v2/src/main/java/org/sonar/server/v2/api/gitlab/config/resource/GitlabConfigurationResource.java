@@ -45,6 +45,9 @@ public record GitlabConfigurationResource(
 
   ProvisioningType provisioningType,
 
+  @Schema(accessMode = Schema.AccessMode.READ_ONLY, description = "Whether or not the provisioningToken is defined")
+  boolean isProvisioningTokenSet,
+
   @Schema(accessMode = Schema.AccessMode.READ_ONLY, description = "In case the GitLab configuration is incorrect, error message")
   @Nullable
   String errorMessage

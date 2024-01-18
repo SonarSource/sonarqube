@@ -23,6 +23,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import org.apache.commons.lang.StringUtils;
 import org.sonar.server.common.gitlab.config.GitlabConfiguration;
 import org.sonar.server.common.gitlab.config.GitlabConfigurationService;
 import org.sonar.server.common.gitlab.config.ProvisioningType;
@@ -130,6 +131,7 @@ public class DefaultGitlabConfigurationController implements GitlabConfiguration
       sortGroups(configuration.allowedGroups()),
       configuration.allowUsersToSignUp(),
       toRestProvisioningType(configuration),
+      StringUtils.isNotEmpty(configuration.provisioningToken()),
       configurationError.orElse(null)
     );
   }

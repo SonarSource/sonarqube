@@ -61,8 +61,8 @@ public record GitlabConfigurationCreateRestRequest(
   @Schema(accessMode = Schema.AccessMode.WRITE_ONLY,  description = "Gitlab token for provisioning")
   String provisioningToken,
 
-  @Schema(description = "Allow user to sign up")
   @Nullable
+  @Schema(description = "Allow user to sign up")
   Boolean allowUsersToSignUp
 ) {
 }

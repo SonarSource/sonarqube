@@ -84,6 +84,7 @@ public class DefaultGitlabConfigurationControllerTest {
     List.of("group1", "group2"),
     GITLAB_CONFIGURATION.allowUsersToSignUp(),
     org.sonar.server.v2.api.gitlab.config.resource.ProvisioningType.valueOf(GITLAB_CONFIGURATION.provisioningType().name()),
+    !GITLAB_CONFIGURATION.provisioningToken().isEmpty(),
     "error-message");
 
   private static final String EXPECTED_CONFIGURATION = """
@@ -99,7 +100,8 @@ public class DefaultGitlabConfigurationControllerTest {
       ],
       "provisioningType": "AUTO_PROVISIONING",
       "allowUsersToSignUp": true,
-      "errorMessage": "error-message"
+      "errorMessage": "error-message",
+      "isProvisioningTokenSet": true
     }
     """;
 
@@ -262,7 +264,10 @@ public class DefaultGitlabConfigurationControllerTest {
       NonNullUpdatedValue.undefined(),
       NonNullUpdatedValue.undefined(),
       NonNullUpdatedValue.undefined(),
-      NonNullUpdatedValue.undefined(), NonNullUpdatedValue.withValueOrThrow(false), UpdatedValue.withValue(null), NonNullUpdatedValue.withValueOrThrow(JIT)
+      NonNullUpdatedValue.undefined(),
+      NonNullUpdatedValue.withValueOrThrow(false),
+      UpdatedValue.withValue(null),
+      NonNullUpdatedValue.withValueOrThrow(JIT)
     ));
   }
 
@@ -313,6 +318,7 @@ public class DefaultGitlabConfigurationControllerTest {
                 "group2"
               ],
               "provisioningType": "AUTO_PROVISIONING",
+              "provisioningToken": "token",
               "allowUsersToSignUp": true
             }
 
@@ -331,7 +337,8 @@ public class DefaultGitlabConfigurationControllerTest {
               "group2"
             ],
             "provisioningType": "AUTO_PROVISIONING",
-            "allowUsersToSignUp": true
+            "allowUsersToSignUp": true,
+            "isProvisioningTokenSet": true
           }
           """));
 
@@ -339,7 +346,18 @@ public class DefaultGitlabConfigurationControllerTest {
   @Test
   public void create_whenConfigCreatedWithoutOptionalParams_returnsIt() throws Exception {
     userSession.logIn().setSystemAdministrator();
-    when(gitlabConfigurationService.createConfiguration(any())).thenReturn(GITLAB_CONFIGURATION);
+    when(gitlabConfigurationService.createConfiguration(any())).thenReturn(new GitlabConfiguration(
+      "existing-id",
+      true,
+      "application-id",
+      "www.url.com",
+      "secret",
+      true,
+      Set.of("group1", "group2"),
+      false,
+      AUTO_PROVISIONING,
+      null
+    ));
 
     mockMvc.perform(
       post(GITLAB_CONFIGURATION_ENDPOINT)
@@ -373,7 +391,8 @@ public class DefaultGitlabConfigurationControllerTest {
               "group2"
             ],
             "provisioningType": "AUTO_PROVISIONING",
-            "allowUsersToSignUp": true
+            "allowUsersToSignUp": false,
+            "isProvisioningTokenSet": false
           }
           """));
 
