@@ -107,7 +107,9 @@ export class RuleTabViewer extends React.PureComponent<RuleTabViewerProps, State
       !isEqual(prevProps.ruleDetails, ruleDetails) ||
       !isEqual(prevProps.currentUser, currentUser)
     ) {
-      this.setState((pState) => this.computeState(pState, prevProps.ruleDetails !== ruleDetails));
+      this.setState((pState) =>
+        this.computeState(pState, prevProps.ruleDetails.key !== ruleDetails.key),
+      );
     }
 
     if (selectedTab?.value === TabKeys.MoreInfo) {
