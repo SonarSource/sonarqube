@@ -30,7 +30,7 @@ import { getComponentNavigation } from '../../api/navigation';
 import { useLocation, useRouter } from '../../components/hoc/withRouter';
 import { translateWithParameters } from '../../helpers/l10n';
 import { HttpStatus } from '../../helpers/request';
-import { getPortfolioUrl } from '../../helpers/urls';
+import { getPortfolioUrl, getProjectUrl, getPullRequestUrl } from '../../helpers/urls';
 import { useBranchesQuery } from '../../queries/branch';
 import { ProjectAlmBindingConfigurationErrors } from '../../types/alm-settings';
 import { Branch } from '../../types/branch-like';
@@ -65,10 +65,12 @@ function ComponentContainer({ hasFeature }: Readonly<WithAvailableFeaturesProps>
   const [projectBindingErrors, setProjectBindingErrors] =
     React.useState<ProjectAlmBindingConfigurationErrors>();
   const [loading, setLoading] = React.useState(true);
-  const [isPending, setPending] = React.useState(false);
+  const [isPending, setIsPending] = React.useState(false);
   const { data: { branchLike } = {}, isFetching } = useBranchesQuery(
     fixedInPullRequest ? component : undefined,
   );
+
+  const isInTutorials = pathname.includes('tutorials');
 
   const fetchComponent = React.useCallback(
     async (branchName?: string) => {
@@ -102,20 +104,25 @@ function ComponentContainer({ hasFeature }: Readonly<WithAvailableFeaturesProps>
     async (componentKey: string) => {
       try {
         const { current, queue } = await getTasksForComponent(componentKey);
-        const newCurrentTask = getCurrentTask(current, branch, pullRequest);
-        const pendingTasks = getPendingTasksForBranchLike(queue, branch, pullRequest);
+        const newCurrentTask = getCurrentTask(current, branch, pullRequest, isInTutorials);
+        const pendingTasks = getReportRelatedPendingTasks(
+          queue,
+          branch,
+          pullRequest,
+          isInTutorials,
+        );
         const newTasksInProgress = getInProgressTasks(pendingTasks);
 
         const isPending = pendingTasks.some((task) => task.status === TaskStatuses.Pending);
 
-        setPending(isPending);
+        setIsPending(isPending);
         setCurrentTask(newCurrentTask);
         setTasksInProgress(newTasksInProgress);
       } catch {
         // noop
       }
     },
-    [branch, pullRequest],
+    [branch, isInTutorials, pullRequest],
   );
 
   const fetchProjectBindingErrors = React.useCallback(
@@ -163,7 +170,7 @@ function ComponentContainer({ hasFeature }: Readonly<WithAvailableFeaturesProps>
   }, [component, fetchStatus, fetchProjectBindingErrors]);
 
   // Refetch status when tasks in progress/current task have changed
-  // Or refetch component based on computeShouldFetchComponent
+  // Or refetch component based on computeHasUpdatedTasks
   React.useEffect(() => {
     // Stop here if tasks are not fetched yet
     if (!tasksInProgress) {
@@ -171,7 +178,7 @@ function ComponentContainer({ hasFeature }: Readonly<WithAvailableFeaturesProps>
     }
 
     const tasks = tasksInProgress ?? [];
-    const shouldFetchComponent = computeShouldFetchComponent(
+    const hasUpdatedTasks = computeHasUpdatedTasks(
       oldTasksInProgress.current,
       tasks,
       oldCurrentTask.current,
@@ -179,20 +186,38 @@ function ComponentContainer({ hasFeature }: Readonly<WithAvailableFeaturesProps>
       component,
     );
 
-    if (needsAnotherCheck(shouldFetchComponent, component, tasks)) {
-      // Refresh the status as long as there is tasks in progress or no analysis
+    if (isInTutorials && hasUpdatedTasks) {
+      const { branch: branchName, pullRequest: pullRequestKey } = currentTask ?? tasks[0];
+      const url =
+        pullRequestKey !== undefined
+          ? getPullRequestUrl(key, pullRequestKey)
+          : getProjectUrl(key, branchName);
+      router.replace(url);
+    }
+
+    if (needsAnotherCheck(hasUpdatedTasks, component, tasks)) {
+      // Refresh the status as long as there are tasks in progress or no analysis
       window.clearTimeout(watchStatusTimer.current);
 
       watchStatusTimer.current = window.setTimeout(() => {
         fetchStatus(component?.key ?? '');
       }, FETCH_STATUS_WAIT_TIME);
-    } else if (shouldFetchComponent) {
+    } else if (hasUpdatedTasks) {
       fetchComponent();
     }
 
     oldCurrentTask.current = currentTask;
     oldTasksInProgress.current = tasks;
-  }, [tasksInProgress, currentTask, component, fetchComponent, fetchStatus]);
+  }, [
+    component,
+    currentTask,
+    fetchComponent,
+    fetchStatus,
+    isInTutorials,
+    key,
+    router,
+    tasksInProgress,
+  ]);
 
   // Refetch component when a new branch is analyzed
   React.useEffect(() => {
@@ -292,12 +317,12 @@ function addQualifier(component: Component) {
 }
 
 function needsAnotherCheck(
-  shouldFetchComponent: boolean,
+  hasUpdatedTasks: boolean,
   component: Component | undefined,
   newTasksInProgress: Task[],
 ) {
   return (
-    !shouldFetchComponent && component && (newTasksInProgress.length > 0 || !component.analysisDate)
+    !hasUpdatedTasks && component && (newTasksInProgress.length > 0 || !component.analysisDate)
   );
 }
 
@@ -317,19 +342,33 @@ export function isSameBranch(
   return branch === task.branch;
 }
 
-function getCurrentTask(current?: Task, branch?: string, pullRequest?: string) {
+function getCurrentTask(
+  current?: Task,
+  branch?: string,
+  pullRequest?: string,
+  canBeDifferentBranchLike = false,
+) {
   if (!current || !isReportRelatedTask(current)) {
     return undefined;
   }
 
-  return current.status === TaskStatuses.Failed || isSameBranch(current, branch, pullRequest)
+  return current.status === TaskStatuses.Failed ||
+    canBeDifferentBranchLike ||
+    isSameBranch(current, branch, pullRequest)
     ? current
     : undefined;
 }
 
-function getPendingTasksForBranchLike(pendingTasks: Task[], branch?: string, pullRequest?: string) {
+function getReportRelatedPendingTasks(
+  pendingTasks: Task[],
+  branch?: string,
+  pullRequest?: string,
+  canBeDifferentBranchLike = false,
+) {
   return pendingTasks.filter(
-    (task) => isReportRelatedTask(task) && isSameBranch(task, branch, pullRequest),
+    (task) =>
+      isReportRelatedTask(task) &&
+      (canBeDifferentBranchLike || isSameBranch(task, branch, pullRequest)),
   );
 }
 
@@ -341,7 +380,7 @@ function isReportRelatedTask(task: Task) {
   return [TaskTypes.AppRefresh, TaskTypes.Report, TaskTypes.ViewRefresh].includes(task.type);
 }
 
-function computeShouldFetchComponent(
+function computeHasUpdatedTasks(
   tasksInProgress: Task[] | undefined,
   newTasksInProgress: Task[],
   currentTask: Task | undefined,

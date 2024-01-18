@@ -25,6 +25,7 @@ import { validateProjectAlmBinding } from '../../../api/alm-settings';
 import { getTasksForComponent } from '../../../api/ce';
 import { getComponentData } from '../../../api/components';
 import { getComponentNavigation } from '../../../api/navigation';
+import * as withRouter from '../../../components/hoc/withRouter';
 import { mockProjectAlmBindingConfigurationErrors } from '../../../helpers/mocks/alm-settings';
 import { mockBranch, mockPullRequest } from '../../../helpers/mocks/branch-like';
 import { mockComponent } from '../../../helpers/mocks/component';
@@ -32,7 +33,8 @@ import { mockTask } from '../../../helpers/mocks/tasks';
 import { HttpStatus } from '../../../helpers/request';
 import { renderAppRoutes, renderComponent } from '../../../helpers/testReactTestingUtils';
 import { byRole, byText } from '../../../helpers/testSelector';
-import { ComponentQualifier } from '../../../types/component';
+import { getProjectUrl, getPullRequestUrl } from '../../../helpers/urls';
+import { ComponentQualifier, Visibility } from '../../../types/component';
 import { TaskStatuses, TaskTypes } from '../../../types/tasks';
 import handleRequiredAuthorization from '../../utils/handleRequiredAuthorization';
 import ComponentContainer, { isSameBranch } from '../ComponentContainer';
@@ -68,6 +70,11 @@ jest.mock('../../../api/alm-settings', () => ({
 jest.mock('../../utils/handleRequiredAuthorization', () => ({
   __esModule: true,
   default: jest.fn(),
+}));
+
+jest.mock('../../../components/hoc/withRouter', () => ({
+  __esModule: true,
+  ...jest.requireActual('../../../components/hoc/withRouter'),
 }));
 
 const ui = {
@@ -425,6 +432,141 @@ it('isSameBranch util returns expected result', () => {
   expect(isSameBranch(mockTask())).toBe(true);
   expect(isSameBranch(mockTask({ branch: 'branch' }), 'branch')).toBe(true);
   expect(isSameBranch(mockTask({ pullRequest: 'pr' }), undefined, 'pr')).toBe(true);
+});
+
+describe('tutorials', () => {
+  beforeEach(() => {
+    jest.useFakeTimers({ advanceTimers: true });
+  });
+  afterEach(() => {
+    jest.runOnlyPendingTimers();
+    jest.useRealTimers();
+  });
+
+  it('should redirect to project main branch dashboard from tutorials when receiving new related scan report', async () => {
+    const componentKey = 'foo-component';
+    jest.mocked(getComponentData).mockResolvedValue({
+      ancestors: [],
+      component: {
+        key: componentKey,
+        name: 'component name',
+        qualifier: ComponentQualifier.Project,
+        visibility: Visibility.Public,
+      },
+    });
+    jest
+      .mocked(getTasksForComponent)
+      .mockResolvedValueOnce({ queue: [] })
+      .mockResolvedValue({
+        queue: [{ status: TaskStatuses.InProgress, type: TaskTypes.Report }],
+      } as unknown as Awaited<ReturnType<typeof getTasksForComponent>>);
+
+    const mockedReplace = jest.fn();
+    jest.spyOn(withRouter, 'useRouter').mockReturnValue({
+      replace: mockedReplace,
+      push: jest.fn(),
+    });
+
+    renderComponentContainer(
+      { hasFeature: jest.fn().mockReturnValue(true) },
+      `tutorials?id=${componentKey}`,
+      '/',
+    );
+
+    await waitFor(() => expect(getTasksForComponent).toHaveBeenCalledTimes(1));
+
+    act(() => jest.runOnlyPendingTimers());
+
+    expect(mockedReplace).not.toHaveBeenCalled();
+    await waitFor(() => expect(getTasksForComponent).toHaveBeenCalledTimes(2));
+    await waitFor(() => expect(mockedReplace).toHaveBeenCalledWith(getProjectUrl(componentKey)));
+  });
+
+  it('should redirect to project branch dashboard from tutorials when receiving new related scan report', async () => {
+    const componentKey = 'foo-component';
+    const branchName = 'fooBranch';
+    jest.mocked(getComponentData).mockResolvedValue({
+      ancestors: [],
+      component: {
+        key: componentKey,
+        name: 'component name',
+        qualifier: ComponentQualifier.Project,
+        visibility: Visibility.Public,
+      },
+    });
+    jest
+      .mocked(getTasksForComponent)
+      .mockResolvedValueOnce({ queue: [] })
+      .mockResolvedValue({
+        queue: [{ branch: branchName, status: TaskStatuses.InProgress, type: TaskTypes.Report }],
+      } as unknown as Awaited<ReturnType<typeof getTasksForComponent>>);
+
+    const mockedReplace = jest.fn();
+    jest.spyOn(withRouter, 'useRouter').mockReturnValue({
+      replace: mockedReplace,
+      push: jest.fn(),
+    });
+
+    renderComponentContainer(
+      { hasFeature: jest.fn().mockReturnValue(true) },
+      `tutorials?id=${componentKey}`,
+      '/',
+    );
+
+    await waitFor(() => expect(getTasksForComponent).toHaveBeenCalledTimes(1));
+
+    act(() => jest.runOnlyPendingTimers());
+
+    expect(mockedReplace).not.toHaveBeenCalled();
+    await waitFor(() => expect(getTasksForComponent).toHaveBeenCalledTimes(2));
+    await waitFor(() =>
+      expect(mockedReplace).toHaveBeenCalledWith(getProjectUrl(componentKey, branchName)),
+    );
+  });
+
+  it('should redirect to project pull request dashboard from tutorials when receiving new related scan report', async () => {
+    const componentKey = 'foo-component';
+    const pullRequestKey = 'fooPR';
+    jest.mocked(getComponentData).mockResolvedValue({
+      ancestors: [],
+      component: {
+        key: componentKey,
+        name: 'component name',
+        qualifier: ComponentQualifier.Project,
+        visibility: Visibility.Public,
+      },
+    });
+    jest
+      .mocked(getTasksForComponent)
+      .mockResolvedValueOnce({ queue: [] })
+      .mockResolvedValue({
+        queue: [
+          { pullRequest: pullRequestKey, status: TaskStatuses.InProgress, type: TaskTypes.Report },
+        ],
+      } as unknown as Awaited<ReturnType<typeof getTasksForComponent>>);
+
+    const mockedReplace = jest.fn();
+    jest.spyOn(withRouter, 'useRouter').mockReturnValue({
+      replace: mockedReplace,
+      push: jest.fn(),
+    });
+
+    renderComponentContainer(
+      { hasFeature: jest.fn().mockReturnValue(true) },
+      `tutorials?id=${componentKey}`,
+      '/',
+    );
+
+    await waitFor(() => expect(getTasksForComponent).toHaveBeenCalledTimes(1));
+
+    act(() => jest.runOnlyPendingTimers());
+
+    expect(mockedReplace).not.toHaveBeenCalled();
+    await waitFor(() => expect(getTasksForComponent).toHaveBeenCalledTimes(2));
+    await waitFor(() =>
+      expect(mockedReplace).toHaveBeenCalledWith(getPullRequestUrl(componentKey, pullRequestKey)),
+    );
+  });
 });
 
 function renderComponentContainerAsComponent(props: Partial<WithAvailableFeaturesProps> = {}) {

@@ -28,14 +28,13 @@ import {
   Title,
 } from 'design-system';
 import * as React from 'react';
-import { useNavigate } from 'react-router-dom';
-import { getBranchLikeQuery, isMainBranch } from '../../helpers/branch-like';
+import { isMainBranch } from '../../helpers/branch-like';
 import { translate } from '../../helpers/l10n';
 import { getBaseUrl } from '../../helpers/system';
 import { getProjectTutorialLocation } from '../../helpers/urls';
 import { useBranchesQuery } from '../../queries/branch';
 import { AlmKeys, AlmSettingsInstance, ProjectAlmBindingResponse } from '../../types/alm-settings';
-import { BranchLike, MainBranch } from '../../types/branch-like';
+import { MainBranch } from '../../types/branch-like';
 import { Component } from '../../types/types';
 import { LoggedInUser } from '../../types/users';
 import { Alert } from '../ui/Alert';
@@ -82,8 +81,6 @@ function renderAlm(mode: TutorialModes, project: string, icon?: React.ReactNode)
   );
 }
 
-const CHECKING_NEW_BRANCH = 5_000;
-
 export default function TutorialSelectionRenderer(props: TutorialSelectionRendererProps) {
   const {
     almBinding,
@@ -97,24 +94,7 @@ export default function TutorialSelectionRenderer(props: TutorialSelectionRender
     willRefreshAutomatically,
   } = props;
 
-  const { data: { branchLikes } = { branchLikes: [] as BranchLike[] } } = useBranchesQuery(
-    component,
-    CHECKING_NEW_BRANCH,
-  );
-
-  const navigate = useNavigate();
-
-  const firstAnalysedBranch = branchLikes.find((b) => b.analysisDate !== undefined);
-
-  if (firstAnalysedBranch) {
-    navigate({
-      pathname: '/dashboard',
-      search: new URLSearchParams({
-        id: component.key,
-        ...getBranchLikeQuery(firstAnalysedBranch),
-      }).toString(),
-    });
-  }
+  const { data: { branchLikes } = { branchLikes: [] } } = useBranchesQuery(component);
 
   const mainBranchName =
     (branchLikes.find((b) => isMainBranch(b)) as MainBranch | undefined)?.name ||
