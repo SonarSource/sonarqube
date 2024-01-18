@@ -30,6 +30,7 @@ import java.util.Set;
 import org.apache.commons.lang.time.DateUtils;
 import org.junit.Test;
 import org.sonar.api.issue.Issue;
+import org.sonar.api.issue.IssueStatus;
 import org.sonar.api.issue.impact.Severity;
 import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rules.CleanCodeAttribute;
@@ -38,7 +39,6 @@ import org.sonar.api.utils.Duration;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.FieldDiffs;
 import org.sonar.core.issue.IssueChangeContext;
-import org.sonar.core.issue.status.IssueStatus;
 import org.sonar.db.protobuf.DbCommons;
 import org.sonar.db.protobuf.DbIssues;
 import org.sonar.db.protobuf.DbIssues.MessageFormattingType;
@@ -439,11 +439,11 @@ public class IssueFieldsSetterTest {
     issue.setResolution(null);
     issue.setStatus(Issue.STATUS_OPEN);
 
-    IssueStatus issueStatus = issue.getIssueStatus();
+    IssueStatus issueStatus = issue.issueStatus();
 
     underTest.setResolution(issue, Issue.RESOLUTION_WONT_FIX, context);
     underTest.setStatus(issue, Issue.STATUS_RESOLVED, context);
-    underTest.setIssueStatus(issue, issueStatus, issue.getIssueStatus(), context);
+    underTest.setIssueStatus(issue, issueStatus, issue.issueStatus(), context);
 
     FieldDiffs.Diff diff = issue.currentChange().diffs().get(IssueFieldsSetter.ISSUE_STATUS);
     assertThat(diff.oldValue()).isEqualTo(IssueStatus.OPEN);
@@ -455,8 +455,8 @@ public class IssueFieldsSetterTest {
     issue.setResolution(null);
     issue.setStatus(Issue.STATUS_OPEN);
 
-    IssueStatus issueStatus = issue.getIssueStatus();
-    underTest.setIssueStatus(issue, issueStatus, issue.getIssueStatus(), context);
+    IssueStatus issueStatus = issue.issueStatus();
+    underTest.setIssueStatus(issue, issueStatus, issue.issueStatus(), context);
 
     assertThat(issue.currentChange()).isNull();
   }
@@ -466,11 +466,11 @@ public class IssueFieldsSetterTest {
     issue.setResolution(null);
     issue.setStatus(Issue.STATUS_TO_REVIEW);
 
-    IssueStatus issueStatus = issue.getIssueStatus();
+    IssueStatus issueStatus = issue.issueStatus();
 
     issue.setResolution(Issue.RESOLUTION_SAFE);
     issue.setStatus(Issue.STATUS_REVIEWED);
-    underTest.setIssueStatus(issue, issueStatus, issue.getIssueStatus(), context);
+    underTest.setIssueStatus(issue, issueStatus, issue.issueStatus(), context);
 
     assertThat(issue.currentChange()).isNull();
   }

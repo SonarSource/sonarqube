@@ -338,7 +338,7 @@ public class BulkChangeAction implements IssuesWsAction {
     Optional<UserDto> assignee = Optional.ofNullable(issue.assignee()).map(userDtoByUuid::get);
     return new ChangedIssue.Builder(issue.key())
       .setNewStatus(issue.status())
-      .setNewIssueStatus(issue.getIssueStatus())
+      .setNewIssueStatus(issue.issueStatus())
       .setOldIssueStatus(oldIssueDto.getIssueStatus())
       .setAssignee(assignee.map(u -> new User(u.getUuid(), u.getLogin(), u.getName())).orElse(null))
       .setRule(new IssuesChangesNotificationBuilder.Rule(ruleDefinitionDto.getKey(), RuleType.valueOfNullable(ruleDefinitionDto.getType()), ruleDefinitionDto.getName()))

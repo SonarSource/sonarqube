@@ -33,7 +33,7 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.sonar.api.issue.Issue;
-import org.sonar.core.issue.status.IssueStatus;
+import org.sonar.api.issue.IssueStatus;
 import org.sonar.server.issue.notification.FPOrAcceptedNotification.FpPrAccepted;
 import org.sonar.server.issue.notification.IssuesChangesNotificationBuilder.Change;
 import org.sonar.server.issue.notification.IssuesChangesNotificationBuilder.ChangedIssue;

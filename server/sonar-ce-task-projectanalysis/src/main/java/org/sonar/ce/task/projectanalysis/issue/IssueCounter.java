@@ -26,6 +26,7 @@ import com.google.common.collect.Multiset;
 import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.Nullable;
+import org.sonar.api.issue.IssueStatus;
 import org.sonar.api.issue.impact.Severity;
 import org.sonar.api.rules.RuleType;
 import org.sonar.ce.task.projectanalysis.component.Component;
@@ -34,7 +35,6 @@ import org.sonar.ce.task.projectanalysis.measure.MeasureRepository;
 import org.sonar.ce.task.projectanalysis.metric.Metric;
 import org.sonar.ce.task.projectanalysis.metric.MetricRepository;
 import org.sonar.core.issue.DefaultIssue;
-import org.sonar.core.issue.status.IssueStatus;
 
 import static org.sonar.api.issue.Issue.STATUS_CONFIRMED;
 import static org.sonar.api.issue.Issue.STATUS_OPEN;
@@ -254,9 +254,9 @@ public class IssueCounter extends IssueVisitor {
         unresolved++;
         typeBag.add(issue.type());
         severityBag.add(issue.severity());
-      } else if (IssueStatus.FALSE_POSITIVE.equals(issue.getIssueStatus())) {
+      } else if (IssueStatus.FALSE_POSITIVE.equals(issue.issueStatus())) {
         falsePositives++;
-      } else if (IssueStatus.ACCEPTED.equals(issue.getIssueStatus())) {
+      } else if (IssueStatus.ACCEPTED.equals(issue.issueStatus())) {
         accepted++;
         if (issue.impacts().values().stream().anyMatch(severity -> severity == Severity.HIGH)) {
           highImpactAccepted++;

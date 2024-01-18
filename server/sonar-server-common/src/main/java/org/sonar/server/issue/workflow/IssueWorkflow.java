@@ -24,12 +24,12 @@ import org.sonar.api.Startable;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.issue.DefaultTransitions;
 import org.sonar.api.issue.Issue;
+import org.sonar.api.issue.IssueStatus;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
-import org.sonar.core.issue.status.IssueStatus;
 import org.sonar.server.issue.IssueFieldsSetter;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -352,10 +352,10 @@ public class IssueWorkflow implements Startable {
   public boolean doManualTransition(DefaultIssue issue, String transitionKey, IssueChangeContext issueChangeContext) {
     Transition transition = stateOf(issue).transition(transitionKey);
     if (transition.supports(issue) && !transition.automatic()) {
-      IssueStatus previousIssueStatus = issue.getIssueStatus();
+      IssueStatus previousIssueStatus = issue.issueStatus();
       functionExecutor.execute(transition.functions(), issue, issueChangeContext);
       updater.setStatus(issue, transition.to(), issueChangeContext);
-      updater.setIssueStatus(issue, previousIssueStatus, issue.getIssueStatus(), issueChangeContext);
+      updater.setIssueStatus(issue, previousIssueStatus, issue.issueStatus(), issueChangeContext);
       return true;
     }
     return false;
@@ -371,10 +371,10 @@ public class IssueWorkflow implements Startable {
   public void doAutomaticTransition(DefaultIssue issue, IssueChangeContext issueChangeContext) {
     Transition transition = stateOf(issue).outAutomaticTransition(issue);
     if (transition != null) {
-      IssueStatus previousIssueStatus = issue.getIssueStatus();
+      IssueStatus previousIssueStatus = issue.issueStatus();
       functionExecutor.execute(transition.functions(), issue, issueChangeContext);
       updater.setStatus(issue, transition.to(), issueChangeContext);
-      updater.setIssueStatus(issue, previousIssueStatus, issue.getIssueStatus(), issueChangeContext);
+      updater.setIssueStatus(issue, previousIssueStatus, issue.issueStatus(), issueChangeContext);
     }
   }
 

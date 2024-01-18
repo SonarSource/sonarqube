@@ -25,9 +25,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import javax.annotation.Nullable;
+import org.sonar.api.issue.IssueStatus;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.RuleType;
-import org.sonar.core.issue.status.IssueStatus;
 import org.sonar.db.issue.IssueGroupDto;
 import org.sonar.db.rule.SeverityUtil;
 

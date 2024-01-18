@@ -24,10 +24,10 @@ import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.junit.Test;
 import org.sonar.api.issue.Issue;
+import org.sonar.api.issue.IssueStatus;
 import org.sonar.api.issue.impact.Severity;
 import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.utils.Duration;
-import org.sonar.core.issue.status.IssueStatus;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -309,7 +309,7 @@ public class DefaultIssueTest {
     issue.setStatus(Issue.STATUS_RESOLVED);
     issue.setResolution(Issue.RESOLUTION_FIXED);
 
-    assertThat(issue.getIssueStatus()).isEqualTo(IssueStatus.FIXED);
+    assertThat(issue.issueStatus()).isEqualTo(IssueStatus.FIXED);
   }
 
   @Test

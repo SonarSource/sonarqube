@@ -157,7 +157,7 @@ public class IssueUpdaterIT {
     assertThat(changedIssue.getKey()).isEqualTo(issue.key());
     assertThat(changedIssue.getNewStatus()).isEqualTo(issue.status());
     assertThat(changedIssue.getOldIssueStatus()).contains(originalIssueDto.getIssueStatus());
-    assertThat(changedIssue.getNewIssueStatus()).contains(issue.getIssueStatus());
+    assertThat(changedIssue.getNewIssueStatus()).contains(issue.issueStatus());
     assertThat(changedIssue.getAssignee()).contains(userOf(assignee));
     assertThat(changedIssue.getRule()).isEqualTo(ruleOf(rule));
     assertThat(changedIssue.getProject()).isEqualTo(projectOf(project));

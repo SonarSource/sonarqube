@@ -31,6 +31,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.sonar.api.ce.ComputeEngineSide;
+import org.sonar.api.issue.IssueStatus;
 import org.sonar.api.issue.impact.Severity;
 import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rules.CleanCodeAttribute;
@@ -41,7 +42,6 @@ import org.sonar.api.utils.Duration;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.DefaultIssueComment;
 import org.sonar.core.issue.IssueChangeContext;
-import org.sonar.core.issue.status.IssueStatus;
 import org.sonar.db.protobuf.DbIssues;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserIdDto;
@@ -263,7 +263,7 @@ public class IssueFieldsSetter {
   public boolean setIssueStatus(DefaultIssue issue, @Nullable IssueStatus previousIssueStatus, @Nullable IssueStatus newIssueStatus, IssueChangeContext context) {
     if (!Objects.equals(newIssueStatus, previousIssueStatus)) {
       //Currently, issue status is not persisted in database, but is considered as an issue change
-      issue.setFieldChange(context, ISSUE_STATUS, previousIssueStatus, issue.getIssueStatus());
+      issue.setFieldChange(context, ISSUE_STATUS, previousIssueStatus, issue.issueStatus());
       return true;
     }
     return false;
