@@ -33,6 +33,7 @@ import ProjectCard from './project-card/ProjectCard';
 
 const PROJECT_CARD_HEIGHT = 181;
 const PROJECT_CARD_MARGIN = 20;
+const PROJECT_LIST_FOOTER_HEIGHT = 90;
 
 interface Props {
   cardType?: string;
@@ -100,7 +101,11 @@ export default class ProjectsList extends React.PureComponent<Props> {
             height={height}
             overscanRowCount={2}
             rowCount={this.props.projects.length + 1}
-            rowHeight={PROJECT_CARD_HEIGHT + PROJECT_CARD_MARGIN}
+            rowHeight={({ index }) =>
+              index === this.props.projects.length
+                ? PROJECT_LIST_FOOTER_HEIGHT
+                : PROJECT_CARD_HEIGHT + PROJECT_CARD_MARGIN
+            }
             rowRenderer={this.renderRow}
             style={{ outline: 'none' }}
             tabIndex={-1}
