@@ -93,17 +93,22 @@ ldap_task_template: &IS_LDAP_TASK_NEEDED >-
 
 github_task_template: &IS_GITHUB_TASK_NEEDED >-
     $CIRRUS_BRANCH == $BRANCH_MAIN || $CIRRUS_BRANCH =~ $BRANCH_PATTERN_MAINTENANCE || $CIRRUS_BRANCH == $BRANCH_NIGHTLY ||
-    changesInclude('private/core-extension-developer-server/src/main/java/com/sonarsource/branch/pr/github/**/*.java',
-    'private/core-extension-developer-server/src/main/java/com/sonarsource/github/**/*.java',
+    changesInclude(
+    'private/core-extension-developer-server/src/main/java/com/sonarsource/branch/pr/github/**/*.java',
+    'private/core-extension-developer-server/src/main/java/com/sonarsource/branch/pr/github/*.java',
     'private/it-branch/it-tests/src/test/java/com/sonarsource/branch/it/suite/pr/github/**/*.java',
+    'private/it-branch/it-tests/src/test/java/com/sonarsource/branch/it/suite/pr/github/*.java',
     'private/it-branch/it-tests/src/test/java/com/sonarsource/provisioning/github/*.java',
     'private/it-branch/it-tests/src/test/java/com/sonarsource/onboarding/github/*.java',
     'private/core-extension-github-provisioning/**/*')
 
 gitlab_task_template: &IS_GITLAB_TASK_NEEDED >-
     $CIRRUS_BRANCH == $BRANCH_MAIN || $CIRRUS_BRANCH =~ $BRANCH_PATTERN_MAINTENANCE || $CIRRUS_BRANCH == $BRANCH_NIGHTLY ||
-    changesInclude('private/core-extension-developer-server/src/main/java/com/sonarsource/branch/pr/gitlab/**/*.java', 
+    changesInclude(
+    'private/core-extension-developer-server/src/main/java/com/sonarsource/branch/pr/gitlab/**/*.java',
+    'private/core-extension-developer-server/src/main/java/com/sonarsource/branch/pr/gitlab/*.java',
     'private/it-branch/it-tests/src/test/java/com/sonarsource/branch/it/suite/pr/gitlab/**/*.java',
+    'private/it-branch/it-tests/src/test/java/com/sonarsource/branch/it/suite/pr/gitlab/*.java',
     'private/core-extension-gitlab-vulnerability-report/src/main/**/*.java')
 
 gitlab_provisioning_task_template: &IS_GITLAB_PROVISIONING_TASK_NEEDED >-
@@ -112,15 +117,27 @@ gitlab_provisioning_task_template: &IS_GITLAB_PROVISIONING_TASK_NEEDED >-
 
 azure_task_template: &IS_AZURE_TASK_NEEDED >-
     $CIRRUS_BRANCH == $BRANCH_MAIN || $CIRRUS_BRANCH =~ $BRANCH_PATTERN_MAINTENANCE || $CIRRUS_BRANCH == $BRANCH_NIGHTLY ||
-    changesInclude('private/core-extension-developer-server/src/main/java/com/sonarsource/branch/pr/azuredevops/**/*.java', 'private/it-branch/it-tests/src/test/java/com/sonarsource/branch/it/suite/pr/azure/**/*.java')
+    changesInclude(
+    'private/core-extension-developer-server/src/main/java/com/sonarsource/branch/pr/azuredevops/**/*.java',
+    'private/core-extension-developer-server/src/main/java/com/sonarsource/branch/pr/azuredevops/*.java',
+    'private/it-branch/it-tests/src/test/java/com/sonarsource/branch/it/suite/pr/azure/**/*.java',
+    'private/it-branch/it-tests/src/test/java/com/sonarsource/branch/it/suite/pr/azure/*.java')
 
 bitbucket_server_task_template: &IS_BITBUCKET_SERVER_TASK_NEEDED >-
     $CIRRUS_BRANCH == $BRANCH_MAIN || $CIRRUS_BRANCH =~ $BRANCH_PATTERN_MAINTENANCE || $CIRRUS_BRANCH == $BRANCH_NIGHTLY ||
-    changesInclude('private/core-extension-developer-server/src/main/java/com/sonarsource/branch/pr/bitbucketserver/**/*.java', 'private/it-branch/it-tests/src/test/java/com/sonarsource/branch/it/suite/pr/bitbucketserver/**/*.java')
+    changesInclude(
+    'private/core-extension-developer-server/src/main/java/com/sonarsource/branch/pr/bitbucketserver/**/*.java',
+    'private/core-extension-developer-server/src/main/java/com/sonarsource/branch/pr/bitbucketserver/*.java',
+    'private/it-branch/it-tests/src/test/java/com/sonarsource/branch/it/suite/pr/bitbucketserver/**/*.java',
+    'private/it-branch/it-tests/src/test/java/com/sonarsource/branch/it/suite/pr/bitbucketserver/*.java')
 
 bitbucket_cloud_task_template: &IS_BITBUCKET_CLOUD_TASK_NEEDED >-
     $CIRRUS_BRANCH == $BRANCH_MAIN || $CIRRUS_BRANCH =~ $BRANCH_PATTERN_MAINTENANCE || $CIRRUS_BRANCH == $BRANCH_NIGHTLY ||
-    changesInclude('private/core-extension-developer-server/src/main/java/com/sonarsource/branch/pr/bitbucket/**/*.java', 'private/it-branch/it-tests/src/test/java/com/sonarsource/branch/it/suite/pr/bitbucketcloud/**/*.java')
+    changesInclude(
+    'private/core-extension-developer-server/src/main/java/com/sonarsource/branch/pr/bitbucket/**/*.java',
+    'private/core-extension-developer-server/src/main/java/com/sonarsource/branch/pr/bitbucket/*.java',
+    'private/it-branch/it-tests/src/test/java/com/sonarsource/branch/it/suite/pr/bitbucketcloud/**/*.java',
+    'private/it-branch/it-tests/src/test/java/com/sonarsource/branch/it/suite/pr/bitbucketcloud/*.java')
 
 docker_build_container_template: &CONTAINER_TEMPLATE
   region: eu-central-1
