@@ -18,12 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import classNames from 'classnames';
-import { InputSearch, ToggleButton } from 'design-system';
+import { InputSearch, Spinner, ToggleButton } from 'design-system';
 import { isEmpty, omit } from 'lodash';
 import * as React from 'react';
 import { getTree } from '../../../api/components';
 import { Location, Router, withRouter } from '../../../components/hoc/withRouter';
-import Spinner from '../../../components/ui/Spinner';
 import { getBranchLikeQuery } from '../../../helpers/branch-like';
 import { KeyboardKeys } from '../../../helpers/keycodes';
 import { translate } from '../../../helpers/l10n';

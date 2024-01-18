@@ -17,11 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { ButtonPrimary, FlagMessage, Title } from 'design-system';
+import { ButtonPrimary, FlagMessage, Spinner, Title } from 'design-system';
 import React, { useState } from 'react';
 import { createPermissionTemplate } from '../../../api/permissions';
 import { Router, withRouter } from '../../../components/hoc/withRouter';
-import Spinner from '../../../components/ui/Spinner';
 import { throwGlobalError } from '../../../helpers/error';
 import { translate } from '../../../helpers/l10n';
 import { useGithubProvisioningEnabledQuery } from '../../../queries/identity-provider/github';
@@ -60,8 +59,10 @@ function Header(props: Props) {
     <header>
       <div id="project-permissions-header">
         <div className="sw-flex sw-justify-between">
-          <Title>{translate('permission_templates.page')}</Title>
-          <Spinner loading={!ready} />
+          <div className="sw-flex sw-gap-3">
+            <Title>{translate('permission_templates.page')}</Title>
+            <Spinner className="sw-mt-2" loading={!ready} />
+          </div>
 
           <ButtonPrimary onClick={() => setCreateModal(true)}>{translate('create')}</ButtonPrimary>
         </div>

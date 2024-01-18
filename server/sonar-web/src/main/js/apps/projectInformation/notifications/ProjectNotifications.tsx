@@ -17,13 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Checkbox, FlagMessage, SubTitle } from 'design-system';
+import { Checkbox, FlagMessage, Spinner, SubTitle } from 'design-system';
 import * as React from 'react';
 import {
   WithNotificationsProps,
   withNotifications,
 } from '../../../components/hoc/withNotifications';
-import Spinner from '../../../components/ui/Spinner';
 import { hasMessage, translate, translateWithParameters } from '../../../helpers/l10n';
 import { NotificationProjectType } from '../../../types/notifications';
 import { Component } from '../../../types/types';
@@ -79,7 +78,7 @@ export function ProjectNotifications(props: WithNotificationsProps & Props) {
         {translate('notification.dispatcher.information')}
       </FlagMessage>
 
-      <Spinner loading={loading}>
+      <Spinner className="sw-mt-6" loading={loading}>
         <h3 id="notifications-update-title" className="sw-mt-6">
           {translate('project_information.project_notifications.title')}
         </h3>

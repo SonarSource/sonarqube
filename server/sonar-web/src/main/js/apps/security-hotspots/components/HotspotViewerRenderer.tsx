@@ -19,13 +19,13 @@
  */
 import * as React from 'react';
 import withCurrentUserContext from '../../../app/components/current-user/withCurrentUserContext';
-import Spinner from '../../../components/ui/Spinner';
 import { fillBranchLike } from '../../../helpers/branch-like';
 import { Standards } from '../../../types/security';
 import { Hotspot, HotspotStatusOption } from '../../../types/security-hotspots';
 import { Component } from '../../../types/types';
 import { HotspotHeader } from './HotspotHeader';
 
+import { Spinner } from 'design-system';
 import { CurrentUser } from '../../../types/users';
 import { RuleDescriptionSection } from '../../coding-rules/rule';
 import HotspotReviewHistoryAndComments from './HotspotReviewHistoryAndComments';

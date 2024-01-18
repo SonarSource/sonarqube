@@ -21,6 +21,7 @@ import styled from '@emotion/styled';
 import {
   LargeCenteredLayout,
   PageContentFontWrapper,
+  Spinner,
   themeBorder,
   themeColor,
 } from 'design-system';
@@ -36,7 +37,6 @@ import ScreenPositionHelper from '../../../components/common/ScreenPositionHelpe
 import Suggestions from '../../../components/embed-docs-modal/Suggestions';
 import { Location, Router, withRouter } from '../../../components/hoc/withRouter';
 import '../../../components/search-navigator.css';
-import Spinner from '../../../components/ui/Spinner';
 import handleRequiredAuthentication from '../../../helpers/handleRequiredAuthentication';
 import { translate } from '../../../helpers/l10n';
 import { addSideBarClass, removeSideBarClass } from '../../../helpers/pages';

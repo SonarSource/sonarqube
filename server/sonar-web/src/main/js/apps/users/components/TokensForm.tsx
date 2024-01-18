@@ -24,6 +24,7 @@ import {
   GreySeparator,
   InputField,
   InputSelect,
+  Spinner,
   Table,
   TableRow,
 } from 'design-system';
@@ -32,7 +33,6 @@ import * as React from 'react';
 import { getScannableProjects } from '../../../api/components';
 import withCurrentUserContext from '../../../app/components/current-user/withCurrentUserContext';
 import { LabelValueSelectOption } from '../../../components/controls/Select';
-import Spinner from '../../../components/ui/Spinner';
 import { translate } from '../../../helpers/l10n';
 import {
   EXPIRATION_OPTIONS,
@@ -181,14 +181,6 @@ export function TokensForm(props: Readonly<Props>) {
     setNewTokenExpiration(newTokenExpiration?.value as TokenExpiration);
   };
 
-  const customSpinner = (
-    <tr>
-      <td>
-        <i className="spinner" />
-      </td>
-    </tr>
-  );
-
   const tableHeader = (
     <TableRow>
       <ContentCell>{translate('name')}</ContentCell>
@@ -299,7 +291,7 @@ export function TokensForm(props: Readonly<Props>) {
         header={tableHeader}
         noHeaderTopBorder
       >
-        <Spinner customSpinner={customSpinner} loading={!!loading}>
+        <Spinner loading={loading}>
           {tokens && tokens.length <= 0 ? (
             <TableRow>
               <ContentCell className="sw-body-lg" colSpan={7}>

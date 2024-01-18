@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import classNames from 'classnames';
+import { Spinner } from 'design-system';
 import React, { useCallback, useEffect } from 'react';
 import { FormattedMessage } from 'react-intl';
 import DocLink from '../../../components/common/DocLink';
@@ -25,7 +26,6 @@ import { ResetButtonLink, SubmitButton } from '../../../components/controls/butt
 import NewCodeDefinitionDaysOption from '../../../components/new-code-definition/NewCodeDefinitionDaysOption';
 import NewCodeDefinitionPreviousVersionOption from '../../../components/new-code-definition/NewCodeDefinitionPreviousVersionOption';
 import { NewCodeDefinitionLevels } from '../../../components/new-code-definition/utils';
-import Spinner from '../../../components/ui/Spinner';
 import { translate } from '../../../helpers/l10n';
 import {
   getNumberOfDaysDefaultValue,

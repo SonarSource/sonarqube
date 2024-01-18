@@ -28,6 +28,7 @@ import {
   ItemDivider,
   ItemHeader,
   PopupZLevel,
+  Spinner,
 } from 'design-system';
 import * as React from 'react';
 import withComponentContext from '../../../app/components/componentContext/withComponentContext';
@@ -35,7 +36,6 @@ import withCurrentUserContext from '../../../app/components/current-user/withCur
 import HelpTooltip from '../../../components/controls/HelpTooltip';
 import Tooltip from '../../../components/controls/Tooltip';
 import Measure from '../../../components/measure/Measure';
-import Spinner from '../../../components/ui/Spinner';
 import { PopupPlacement } from '../../../components/ui/popups';
 import { isBranch } from '../../../helpers/branch-like';
 import { translate } from '../../../helpers/l10n';

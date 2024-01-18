@@ -24,6 +24,7 @@ import {
   ContentCell,
   DangerButtonSecondary,
   FlagWarningIcon,
+  Spinner,
   TableRow,
   themeColor,
 } from 'design-system';
@@ -32,7 +33,6 @@ import { FormattedMessage } from 'react-intl';
 import ConfirmButton from '../../../components/controls/ConfirmButton';
 import DateFormatter from '../../../components/intl/DateFormatter';
 import DateFromNow from '../../../components/intl/DateFromNow';
-import Spinner from '../../../components/ui/Spinner';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { useRevokeTokenMutation } from '../../../queries/users';
 import { UserToken } from '../../../types/token';

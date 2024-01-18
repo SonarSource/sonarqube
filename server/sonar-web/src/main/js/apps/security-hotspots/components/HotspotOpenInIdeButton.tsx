@@ -24,9 +24,9 @@ import {
   ItemButton,
   PopupPlacement,
   PopupZLevel,
+  Spinner,
 } from 'design-system';
 import * as React from 'react';
-import Spinner from '../../../components/ui/Spinner';
 import { addGlobalErrorMessage, addGlobalSuccessMessage } from '../../../helpers/globalMessages';
 import { translate } from '../../../helpers/l10n';
 import { openHotspot, probeSonarLintServers } from '../../../helpers/sonarlint';

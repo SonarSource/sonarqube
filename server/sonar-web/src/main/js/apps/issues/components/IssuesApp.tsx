@@ -26,6 +26,7 @@ import {
   LAYOUT_FOOTER_HEIGHT,
   LargeCenteredLayout,
   PageContentFontWrapper,
+  Spinner,
   ToggleButton,
   themeBorder,
   themeColor,
@@ -51,7 +52,6 @@ import { Location, Router, withRouter } from '../../../components/hoc/withRouter
 import IssueTabViewer from '../../../components/rules/IssueTabViewer';
 import '../../../components/search-navigator.css';
 import { DEFAULT_ISSUES_QUERY } from '../../../components/shared/utils';
-import Spinner from '../../../components/ui/Spinner';
 import {
   fillBranchLike,
   getBranchLikeQuery,

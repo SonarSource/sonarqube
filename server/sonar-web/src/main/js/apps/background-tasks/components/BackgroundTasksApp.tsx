@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { LargeCenteredLayout, PageContentFontWrapper } from 'design-system';
+import { LargeCenteredLayout, PageContentFontWrapper, Spinner } from 'design-system';
 import { debounce } from 'lodash';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
@@ -32,7 +32,6 @@ import withComponentContext from '../../../app/components/componentContext/withC
 import ListFooter from '../../../components/controls/ListFooter';
 import Suggestions from '../../../components/embed-docs-modal/Suggestions';
 import { Location, Router, withRouter } from '../../../components/hoc/withRouter';
-import Spinner from '../../../components/ui/Spinner';
 import { toShortISO8601String } from '../../../helpers/dates';
 import { translate } from '../../../helpers/l10n';
 import { parseAsDate } from '../../../helpers/query';

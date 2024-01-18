@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Spinner } from 'design-system';
 import { findLastIndex, keyBy } from 'lodash';
 import * as React from 'react';
 import { getComponentForSourceViewer, getDuplications, getSources } from '../../../api/components';
@@ -33,7 +34,6 @@ import {
   issuesByComponentAndLine,
 } from '../../../components/SourceViewer/helpers/indexing';
 import { Alert } from '../../../components/ui/Alert';
-import Spinner from '../../../components/ui/Spinner';
 import { WorkspaceContext } from '../../../components/workspace/context';
 import { getBranchLikeQuery } from '../../../helpers/branch-like';
 import { throwGlobalError } from '../../../helpers/error';

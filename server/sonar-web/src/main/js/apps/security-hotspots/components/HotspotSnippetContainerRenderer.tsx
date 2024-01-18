@@ -19,9 +19,8 @@
  */
 import { withTheme } from '@emotion/react';
 import styled from '@emotion/styled';
-import { themeColor } from 'design-system';
+import { Spinner, themeColor } from 'design-system';
 import * as React from 'react';
-import Spinner from '../../../components/ui/Spinner';
 import { translate } from '../../../helpers/l10n';
 import { Hotspot } from '../../../types/security-hotspots';
 import {
