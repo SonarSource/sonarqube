@@ -108,7 +108,7 @@ export default class IssueView extends React.PureComponent<Props> {
             </span>
           )}
 
-          <div className="sw-flex sw-flex-col sw-grow sw-gap-3">
+          <div className="sw-flex sw-flex-col sw-grow sw-gap-3 sw-min-w-0">
             <IssueTitleBar
               branchLike={branchLike}
               displayWhyIsThisAnIssue={displayWhyIsThisAnIssue}
@@ -130,7 +130,7 @@ export default class IssueView extends React.PureComponent<Props> {
 
             <BasicSeparator />
 
-            <div className="sw-flex sw-gap-2 sw-flex-wrap sw-items-center sw-justify-between">
+            <div className="sw-flex sw-gap-2 sw-flex-nowrap sw-items-center sw-justify-between">
               <IssueActionsBar
                 currentPopup={currentPopup}
                 issue={issue}

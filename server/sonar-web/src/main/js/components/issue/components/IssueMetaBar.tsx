@@ -51,7 +51,7 @@ export default function IssueMetaBar(props: Readonly<Props>) {
     'sw-body-xs sw-overflow-hidden sw-whitespace-nowrap sw-max-w-abs-150';
 
   return (
-    <ul className="sw-flex sw-items-center sw-gap-1 sw-body-xs">
+    <ul className="sw-flex sw-items-center sw-gap-1 sw-body-xs sw-whitespace-nowrap">
       {issue.line && (
         <>
           <IssueMetaListItem className={issueMetaListItemClassNames}>

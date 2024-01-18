@@ -63,8 +63,8 @@ export default function IssueActionsBar(props: Readonly<Props>) {
   const tagsPopupOpen = currentPopup === 'edit-tags' && canSetTags;
 
   return (
-    <div className="sw-flex sw-gap-3">
-      <ul className="it__issue-header-actions sw-flex sw-items-center sw-gap-3 sw-body-sm">
+    <div className="sw-flex sw-gap-3 sw-min-w-0">
+      <ul className="it__issue-header-actions sw-flex sw-items-center sw-gap-3 sw-body-sm sw-min-w-0">
         <HighlightRing
           as="li"
           className="sw-relative"
@@ -78,7 +78,7 @@ export default function IssueActionsBar(props: Readonly<Props>) {
           />
         </HighlightRing>
 
-        <li>
+        <li className="sw-min-w-0">
           <IssueAssign
             isOpen={currentPopup === 'assign'}
             togglePopup={togglePopup}

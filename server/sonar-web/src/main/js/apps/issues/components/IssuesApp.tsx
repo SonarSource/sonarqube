@@ -1340,7 +1340,7 @@ export class App extends React.PureComponent<Props, State> {
 
               {this.renderSide(openIssue)}
 
-              <main className="sw-relative sw-ml-12 sw-flex-1">{this.renderPage()}</main>
+              <main className="sw-relative sw-ml-12 sw-flex-1 sw-min-w-0">{this.renderPage()}</main>
             </div>
           </PageContentFontWrapper>
         </LargeCenteredLayout>
