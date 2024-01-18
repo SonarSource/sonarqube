@@ -490,7 +490,7 @@ qa_ha_cluster_task:
   <<: *GRADLE_CACHE_TEMPLATE
   eks_container:
     <<: *CONTAINER_TEMPLATE
-    cpu: 2.4
+    cpu: 3
     memory: 10Gb
     additional_containers:
       - <<: *POSTGRES_ADDITIONAL_CONTAINER_TEMPLATE
