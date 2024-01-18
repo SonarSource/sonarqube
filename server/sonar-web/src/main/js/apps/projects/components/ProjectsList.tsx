@@ -17,6 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { Spinner } from 'design-system';
 import * as React from 'react';
 import { AutoSizer } from 'react-virtualized/dist/commonjs/AutoSizer';
 import { List, ListRowProps } from 'react-virtualized/dist/commonjs/List';
@@ -93,7 +95,9 @@ export default class ProjectsList extends React.PureComponent<Props> {
   };
 
   renderList() {
-    return (
+    return this.props.loading ? (
+      <Spinner />
+    ) : (
       <AutoSizer>
         {({ height, width }) => (
           <List
