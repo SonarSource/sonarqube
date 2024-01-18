@@ -20,7 +20,6 @@
 package org.sonar.auth.github;
 
 import com.google.gson.annotations.SerializedName;
-import org.sonar.auth.github.GsonRepositoryPermissions;
 
 public record GsonRepositoryCollaborator(@SerializedName("login") String name,
   @SerializedName("id") Integer id,
