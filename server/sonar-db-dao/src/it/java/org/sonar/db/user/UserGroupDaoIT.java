@@ -32,6 +32,9 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.core.util.SequenceUuidFactory.UUID_1;
+import static org.sonar.core.util.SequenceUuidFactory.UUID_2;
+import static org.sonar.core.util.SequenceUuidFactory.UUID_3;
 
 @RunWith(DataProviderRunner.class)
 public class UserGroupDaoIT {
@@ -129,40 +132,40 @@ public class UserGroupDaoIT {
     return new Object[][] {
       {new UserGroupQuery(null, null, null),
         List.of(
-          new UserGroupDto().setUuid("3").setGroupUuid("group_a").setUserUuid("1"),
-          new UserGroupDto().setUuid("4").setGroupUuid("group_a").setUserUuid("2"),
-          new UserGroupDto().setUuid("5").setGroupUuid("group_b").setUserUuid("1"),
-          new UserGroupDto().setUuid("6").setGroupUuid("group_b").setUserUuid("2")
+          new UserGroupDto().setUuid("3").setGroupUuid("group_a").setUserUuid(UUID_1),
+          new UserGroupDto().setUuid("4").setGroupUuid("group_a").setUserUuid(UUID_2),
+          new UserGroupDto().setUuid("5").setGroupUuid("group_b").setUserUuid(UUID_1),
+          new UserGroupDto().setUuid("6").setGroupUuid("group_b").setUserUuid(UUID_2)
         )},
-      {new UserGroupQuery("3", null, null),
+      {new UserGroupQuery(UUID_3, null, null),
         List.of(
-          new UserGroupDto().setUuid("3").setGroupUuid("group_a").setUserUuid("1")
+          new UserGroupDto().setUuid(UUID_3).setGroupUuid("group_a").setUserUuid(UUID_1)
         )},
-      {new UserGroupQuery("3", "group_a", "1"),
+      {new UserGroupQuery(UUID_3, "group_a", UUID_1),
         List.of(
-          new UserGroupDto().setUuid("3").setGroupUuid("group_a").setUserUuid("1")
+          new UserGroupDto().setUuid(UUID_3).setGroupUuid("group_a").setUserUuid(UUID_1)
         )},
-      {new UserGroupQuery("3", "group_b", "1"),
+      {new UserGroupQuery(UUID_3, "group_b", UUID_1),
         List.of()},
       {new UserGroupQuery(null,"group_b", null),
         List.of(
-          new UserGroupDto().setUuid("5").setGroupUuid("group_b").setUserUuid("1"),
-          new UserGroupDto().setUuid("6").setGroupUuid("group_b").setUserUuid("2")
+          new UserGroupDto().setUuid("5").setGroupUuid("group_b").setUserUuid(UUID_1),
+          new UserGroupDto().setUuid("6").setGroupUuid("group_b").setUserUuid(UUID_2)
         )},
-      {new UserGroupQuery(null,null, "2"),
+      {new UserGroupQuery(null,null, UUID_2),
         List.of(
-          new UserGroupDto().setUuid("4").setGroupUuid("group_a").setUserUuid("2"),
-          new UserGroupDto().setUuid("6").setGroupUuid("group_b").setUserUuid("2")
+          new UserGroupDto().setUuid("4").setGroupUuid("group_a").setUserUuid(UUID_2),
+          new UserGroupDto().setUuid("6").setGroupUuid("group_b").setUserUuid(UUID_2)
         )},
-      {new UserGroupQuery(null,"group_a", "2"),
+      {new UserGroupQuery(null,"group_a", UUID_2),
         List.of(
-          new UserGroupDto().setUuid("4").setGroupUuid("group_a").setUserUuid("2")
+          new UserGroupDto().setUuid("4").setGroupUuid("group_a").setUserUuid(UUID_2)
         )},
       {new UserGroupQuery(null,"group_c", null),
         List.of()},
-      {new UserGroupQuery(null,"group_c", "2"),
+      {new UserGroupQuery(null,"group_c", UUID_2),
         List.of()},
-      {new UserGroupQuery(null,"group_a", "3"),
+      {new UserGroupQuery(null,"group_a", UUID_3),
         List.of()}
     };
   }
@@ -174,7 +177,7 @@ public class UserGroupDaoIT {
 
     List<UserGroupDto> userGroupDtos = underTest.selectByQuery(dbTester.getSession(), userQuery, 1, 100);
 
-    assertThat(userGroupDtos).usingRecursiveFieldByFieldElementComparator().isEqualTo(expectedUserGroupDtos);
+    assertThat(userGroupDtos).usingRecursiveFieldByFieldElementComparatorIgnoringFields("uuid").isEqualTo(expectedUserGroupDtos);
     assertThat(underTest.countByQuery(dbTester.getSession(), userQuery)).isEqualTo(expectedUserGroupDtos.size());
   }
 

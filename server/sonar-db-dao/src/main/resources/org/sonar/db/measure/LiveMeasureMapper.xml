@@ -91,7 +91,7 @@
        pb.kee as branchName,
        pb.branch_type as branchType,
        lm.value as ncloc,
-       row_number() over (partition by pb.project_uuid order by lm.value desc, pb.uuid asc) row_number
+       row_number() over (partition by pb.project_uuid order by lm.value desc, pb.is_main desc, pb.uuid asc) row_number
        from live_measures lm
           inner join project_branches pb on pb.uuid = lm.component_uuid
           inner join projects p on p.uuid = pb.project_uuid
@@ -109,7 +109,7 @@
     SELECT loc_grouped_branches.uuid, loc_grouped_branches.project_uuid
       FROM (
        SELECT b.uuid, b.project_uuid, ROW_NUMBER() OVER (PARTITION BY
-       b.project_uuid ORDER BY lm.value desc, b.uuid asc) row_number
+       b.project_uuid ORDER BY lm.value desc, b.is_main desc, b.uuid asc) row_number
        from live_measures lm
           inner join project_branches b on b.uuid = lm.component_uuid
           inner join projects p on p.uuid = b.project_uuid

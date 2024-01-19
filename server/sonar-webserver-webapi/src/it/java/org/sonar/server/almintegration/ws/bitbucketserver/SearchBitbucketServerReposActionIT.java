@@ -86,7 +86,7 @@ public class SearchBitbucketServerReposActionIT {
       dto.setAlmSettingUuid(almSetting.getUuid());
       dto.setUserUuid(user.getUuid());
     });
-    ProjectDto projectDto = db.components().insertPrivateProject().getProjectDto();
+    ProjectDto projectDto = db.components().insertPrivateProject(dto -> dto.setKey("proj_key_1").setName("proj_name_1")).getProjectDto();
     db.almSettings().insertBitbucketProjectAlmSetting(almSetting, projectDto, s -> s.setAlmRepo("projectKey2"), s -> s.setAlmSlug("repo-slug-2"));
 
     AlmIntegrations.SearchBitbucketserverReposWsResponse response = ws.newRequest()
@@ -135,9 +135,9 @@ public class SearchBitbucketServerReposActionIT {
       dto.setAlmSettingUuid(almSetting.getUuid());
       dto.setUserUuid(user.getUuid());
     });
-    ProjectDto projectDto = db.components().insertPrivateProject().getProjectDto();
+    ProjectDto projectDto = db.components().insertPrivateProject(dto -> dto.setName("proj_1").setKey("proj_key_1")).getProjectDto();
     db.almSettings().insertBitbucketProjectAlmSetting(almSetting, projectDto, s -> s.setAlmRepo("projectKey2"), s -> s.setAlmSlug("repo-slug-2"));
-    db.almSettings().insertBitbucketProjectAlmSetting(almSetting, db.components().insertPrivateProject().getProjectDto(), s -> s.setAlmRepo("projectKey2"), s -> s.setAlmSlug("repo-slug-2"));
+    db.almSettings().insertBitbucketProjectAlmSetting(almSetting, db.components().insertPrivateProject(dto -> dto.setName("proj_2").setKey("proj_key_2")).getProjectDto(), s -> s.setAlmRepo("projectKey2"), s -> s.setAlmSlug("repo-slug-2"));
 
     AlmIntegrations.SearchBitbucketserverReposWsResponse response = ws.newRequest()
       .setParam("almSetting", almSetting.getKey())

@@ -17,17 +17,43 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.web.requestid;
+package org.sonar.server.platform.serverid;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class RequestIdConfigurationTest {
-  private RequestIdConfiguration underTest = new RequestIdConfiguration(50);
+public class ServerIdGeneratorTest {
+  private final ServerIdGenerator underTest = new ServerIdGenerator();
 
   @Test
-  public void getUidGeneratorRenewalCount_returns_value_provided_from_constructor() {
-    assertThat(underTest.getUidGeneratorRenewalCount()).isEqualTo(50);
+  public void generate_concurrent_test() throws InterruptedException {
+    int rounds = 500;
+    List<String> ids1 = new ArrayList<>(rounds);
+    List<String> ids2 = new ArrayList<>(rounds);
+    Thread t1 = new Thread(() -> {
+      for (int i = 0; i < rounds; i++) {
+        ids1.add(underTest.generate());
+      }
+    });
+    Thread t2 = new Thread(() -> {
+      for (int i = 0; i < rounds; i++) {
+        ids2.add(underTest.generate());
+      }
+    });
+    t1.start();
+    t2.start();
+    t1.join();
+    t2.join();
+
+    Set<String> ids = new HashSet<>(rounds * 2);
+    ids.addAll(ids1);
+    ids.addAll(ids2);
+    assertThat(ids).hasSize(rounds * 2);
   }
+
 }

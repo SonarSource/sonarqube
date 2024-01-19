@@ -57,8 +57,8 @@ public class RoleDaoIT {
   public void setUp() {
     user1 = db.users().insertUser();
     user2 = db.users().insertUser();
-    project1 = db.components().insertPrivateProject().getProjectDto();
-    project2 = db.components().insertPrivateProject().getProjectDto();
+    project1 = db.components().insertPrivateProject(project -> project.setName("project1")).getProjectDto();
+    project2 = db.components().insertPrivateProject(project -> project.setName("project2")).getProjectDto();
   }
 
   @Test
@@ -111,7 +111,7 @@ public class RoleDaoIT {
 
     List<String> result = underTest.selectEntityUuidsByPermissionAndUserUuidAndQualifier(dbSession, UserRole.ADMIN, user1.getUuid(), PROJECT_QUALIFIER);
 
-    assertThat(result).containsExactly(project1.getUuid(), project2.getUuid());
+    assertThat(result).containsExactlyInAnyOrder(project1.getUuid(), project2.getUuid());
   }
 
   @Test

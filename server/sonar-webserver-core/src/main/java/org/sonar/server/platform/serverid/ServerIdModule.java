@@ -28,8 +28,8 @@ public class ServerIdModule extends Module {
       ServerIdFactoryImpl.class,
       JdbcUrlSanitizer.class,
       ServerIdChecksum.class,
-      ServerIdManager.class
-
+      ServerIdManager.class,
+      ServerIdGenerator.class
     );
   }
 }

@@ -124,16 +124,16 @@ public class SearchGitlabReposActionIT {
       dto.setUserUuid(user.getUuid());
       dto.setPersonalAccessToken("some-pat");
     });
-    ProjectDto projectDto1 = db.components().insertPrivateProject().getProjectDto();
+    ProjectDto projectDto1 = db.components().insertPrivateProject(dto -> dto.setKey("proj_key_1").setName("proj_name_1")).getProjectDto();
     db.almSettings().insertGitlabProjectAlmSetting(almSetting, projectDto1);
 
-    ProjectDto projectDto2 = db.components().insertPrivateProject().getProjectDto();
+    ProjectDto projectDto2 = db.components().insertPrivateProject(dto -> dto.setKey("proj_key_2").setName("proj_name_2")).getProjectDto();
     db.almSettings().insertGitlabProjectAlmSetting(almSetting, projectDto2, projectAlmSettingDto -> projectAlmSettingDto.setAlmRepo("2"));
 
-    ProjectDto projectDto3 = db.components().insertPrivateProject().getProjectDto();
+    ProjectDto projectDto3 = db.components().insertPrivateProject(dto -> dto.setKey("proj_key_3").setName("proj_name_3")).getProjectDto();
     db.almSettings().insertGitlabProjectAlmSetting(almSetting, projectDto3, projectAlmSettingDto -> projectAlmSettingDto.setAlmRepo("3"));
 
-    ProjectDto projectDto4 = db.components().insertPrivateProject().getProjectDto();
+    ProjectDto projectDto4 = db.components().insertPrivateProject(dto -> dto.setKey("proj_key_4").setName("proj_name_4")).getProjectDto();
     db.almSettings().insertGitlabProjectAlmSetting(almSetting, projectDto4, projectAlmSettingDto -> projectAlmSettingDto.setAlmRepo("3"));
 
     AlmIntegrations.SearchGitlabReposWsResponse response = ws.newRequest()

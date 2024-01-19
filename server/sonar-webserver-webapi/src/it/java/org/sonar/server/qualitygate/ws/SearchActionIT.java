@@ -167,9 +167,9 @@ public class SearchActionIT {
   @Test
   public void test_paging() {
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
-    ProjectDto project1 = db.components().insertPublicProject().getProjectDto();
-    ProjectDto project2 = db.components().insertPublicProject().getProjectDto();
-    ProjectDto project3 = db.components().insertPublicProject().getProjectDto();
+    ProjectDto project1 = db.components().insertPublicProject(dto -> dto.setName("proj_1")).getProjectDto();
+    ProjectDto project2 = db.components().insertPublicProject(dto -> dto.setName("proj_2")).getProjectDto();
+    ProjectDto project3 = db.components().insertPublicProject(dto -> dto.setName("proj_3")).getProjectDto();
     db.qualityGates().associateProjectToQualityGate(project1, qualityGate);
 
     // Return partial result on first page

@@ -815,15 +815,15 @@ public class PurgeCommandsIT {
     Instant okCreationDate = Instant.now().minus(29, ChronoUnit.DAYS);
     Instant oldCreationDate = Instant.now().minus(31, ChronoUnit.DAYS);
 
-    dbTester.getDbClient().anticipatedTransitionDao().insert(dbTester.getSession(), getAnticipatedTransitionsDto(projectDto.uuid() + "okTransition", projectDto.uuid(), okCreationDate));
-    dbTester.getDbClient().anticipatedTransitionDao().insert(dbTester.getSession(), getAnticipatedTransitionsDto(projectDto.uuid() + "oldTransition", projectDto.uuid(), oldCreationDate));
+    dbTester.getDbClient().anticipatedTransitionDao().insert(dbTester.getSession(), getAnticipatedTransitionsDto(projectDto.uuid() + "ok", projectDto.uuid(), okCreationDate));
+    dbTester.getDbClient().anticipatedTransitionDao().insert(dbTester.getSession(), getAnticipatedTransitionsDto(projectDto.uuid() + "old", projectDto.uuid(), oldCreationDate));
 
     underTest.deleteAnticipatedTransitions(projectDto.uuid(), Instant.now().minus(30, ChronoUnit.DAYS).toEpochMilli());
 
     List<AnticipatedTransitionDto> anticipatedTransitionDtos = dbTester.getDbClient().anticipatedTransitionDao().selectByProjectUuid(dbTester.getSession(), projectDto.uuid());
 
     assertThat(anticipatedTransitionDtos).hasSize(1);
-    assertThat(anticipatedTransitionDtos.get(0).getUuid()).isEqualTo(projectDto.uuid() + "okTransition");
+    assertThat(anticipatedTransitionDtos.get(0).getUuid()).isEqualTo(projectDto.uuid() + "ok");
   }
 
   @Test

@@ -30,13 +30,12 @@ import org.junit.runner.RunWith;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.core.platform.ServerId;
-import org.sonar.core.util.UuidFactory;
-import org.sonar.core.util.Uuids;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 import static org.sonar.core.platform.ServerId.DATABASE_ID_LENGTH;
 import static org.sonar.core.platform.ServerId.NOT_UUID_DATASET_ID_LENGTH;
@@ -48,12 +47,11 @@ import static org.sonar.server.platform.serverid.ServerIdFactoryImpl.crc32Hex;
 public class ServerIdFactoryImplTest {
   private static final ServerId A_SERVERID = ServerId.of(randomAlphabetic(DATABASE_ID_LENGTH), randomAlphabetic(UUID_DATASET_ID_LENGTH));
 
-
   private MapSettings settings = new MapSettings();
   private Configuration config = settings.asConfig();
-  private UuidFactory uuidFactory = mock(UuidFactory.class);
+  private ServerIdGenerator serverIdGenerator = spy(new ServerIdGenerator());
   private JdbcUrlSanitizer jdbcUrlSanitizer = mock(JdbcUrlSanitizer.class);
-  private ServerIdFactoryImpl underTest = new ServerIdFactoryImpl(config, uuidFactory, jdbcUrlSanitizer);
+  private ServerIdFactoryImpl underTest = new ServerIdFactoryImpl(config, serverIdGenerator, jdbcUrlSanitizer);
 
   @Test
   public void create_from_scratch_fails_with_ISE_if_JDBC_property_not_set() {
@@ -63,10 +61,12 @@ public class ServerIdFactoryImplTest {
   @Test
   public void create_from_scratch_creates_ServerId_from_JDBC_URL_and_new_uuid() {
     String jdbcUrl = "jdbc";
-    String uuid = Uuids.create();
     String sanitizedJdbcUrl = "sanitized_jdbc";
+
+    String uuid = serverIdGenerator.generate();
+    when(serverIdGenerator.generate()).thenReturn(uuid);
+
     settings.setProperty(JDBC_URL.getKey(), jdbcUrl);
-    when(uuidFactory.create()).thenReturn(uuid);
     when(jdbcUrlSanitizer.sanitize(jdbcUrl)).thenReturn(sanitizedJdbcUrl);
 
     ServerId serverId = underTest.create();
@@ -86,7 +86,7 @@ public class ServerIdFactoryImplTest {
     String jdbcUrl = "jdbc";
     String sanitizedJdbcUrl = "sanitized_jdbc";
     settings.setProperty(JDBC_URL.getKey(), jdbcUrl);
-    when(uuidFactory.create()).thenThrow(new IllegalStateException("UuidFactory.create() should not be called"));
+    when(serverIdGenerator.generate()).thenThrow(new IllegalStateException("generate should not be called"));
     when(jdbcUrlSanitizer.sanitize(jdbcUrl)).thenReturn(sanitizedJdbcUrl);
 
     ServerId serverId = underTest.create(currentServerId);

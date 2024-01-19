@@ -19,9 +19,6 @@
  */
 package org.sonar.db.notification;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.IntStream;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
@@ -30,10 +27,15 @@ import org.sonar.api.notifications.Notification;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.IntStream;
+
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.core.util.SequenceUuidFactory.*;
 import static org.sonar.db.notification.NotificationQueueDto.toNotificationQueueDto;
 
 public class NotificationQueueDaoIT {
@@ -101,7 +103,7 @@ public class NotificationQueueDaoIT {
 
     assertThat(dao.selectOldest(3))
       .extracting(NotificationQueueDto::getUuid)
-      .containsExactlyElementsOf(Arrays.asList("1", "2", "3"));
+      .containsExactlyElementsOf(List.of(UUID_1, UUID_2, UUID_3));
   }
 
   private List<String> selectAllUuid() {

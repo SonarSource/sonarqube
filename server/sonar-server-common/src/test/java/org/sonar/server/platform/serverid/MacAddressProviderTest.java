@@ -17,19 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.web.requestid;
+package org.sonar.server.platform.serverid;
 
-public class RequestIdConfiguration {
-  /**
-   * @see RequestIdGeneratorImpl#mustRenewUuidGenerator(long)
-   */
-  private final long uuidGeneratorRenewalCount;
+import org.junit.Test;
 
-  public RequestIdConfiguration(long uuidGeneratorRenewalCount) {
-    this.uuidGeneratorRenewalCount = uuidGeneratorRenewalCount;
+import static org.assertj.core.api.Assertions.assertThat;
+
+public class MacAddressProviderTest {
+
+  @Test
+  public void getSecureMungedAddress() {
+    byte[] address = MacAddressProvider.getSecureMungedAddress();
+    assertThat(address)
+      .isNotEmpty()
+      .hasSize(6);
   }
 
-  public long getUidGeneratorRenewalCount() {
-    return uuidGeneratorRenewalCount;
+  @Test
+  public void constructDummyMulticastAddress() {
+    byte[] address = MacAddressProvider.constructDummyMulticastAddress();
+    assertThat(address)
+      .isNotEmpty()
+      .hasSize(6);
   }
 }

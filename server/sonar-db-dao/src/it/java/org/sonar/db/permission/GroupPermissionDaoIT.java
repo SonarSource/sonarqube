@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import org.junit.Rule;
@@ -453,8 +454,10 @@ public class GroupPermissionDaoIT {
     db.users().insertEntityPermissionOnAnyone("perm1", project1);
     db.users().insertEntityPermissionOnAnyone("perm1", project2);
     db.users().insertEntityPermissionOnAnyone("perm1", project3);
+
+    TreeSet<String> sortedProjectKeys = new TreeSet<>(Set.of(project1.getKey(), project2.getKey(), project3.getKey()));
     assertThat(underTest.selectProjectKeysWithAnyonePermissions(dbSession, 3))
-      .containsExactly(project1.getKey(), project2.getKey(), project3.getKey());
+      .containsExactlyElementsOf(sortedProjectKeys);
   }
 
   @Test

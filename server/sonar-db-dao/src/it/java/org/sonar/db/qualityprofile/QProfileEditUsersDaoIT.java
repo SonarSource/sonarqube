@@ -20,7 +20,7 @@
 package org.sonar.db.qualityprofile;
 
 import java.sql.SQLException;
-import java.util.List;
+import java.util.Map;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -34,6 +34,8 @@ import org.sonar.db.user.SearchUserMembershipDto;
 import org.sonar.db.user.UserDto;
 
 import static java.util.Arrays.asList;
+import static java.util.function.Function.identity;
+import static java.util.stream.Collectors.toMap;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.assertj.core.api.Assertions.tuple;
@@ -302,17 +304,16 @@ public class QProfileEditUsersDaoIT {
 
     verify(auditPersister, times(2)).deleteQualityProfileEditor(eq(db.getSession()), newValueCaptor.capture());
 
-    List<UserEditorNewValue> newValues = newValueCaptor.getAllValues();
-    assertThat(newValues.get(0))
-      .extracting(UserEditorNewValue::getQualityProfileName, UserEditorNewValue::getQualityProfileUuid,
-        UserEditorNewValue::getUserLogin, UserEditorNewValue::getUserUuid)
-      .containsExactly(profile1.getName(), profile1.getKee(), null, null);
-    assertThat(newValues.get(0).toString()).contains("\"qualityProfileName\"").doesNotContain("\"groupName\"");
-    assertThat(newValues.get(1))
-      .extracting(UserEditorNewValue::getQualityProfileName, UserEditorNewValue::getQualityProfileUuid,
-        UserEditorNewValue::getUserLogin, UserEditorNewValue::getUserUuid)
-      .containsExactly(profile2.getName(), profile2.getKee(), null, null);
-    assertThat(newValues.get(1).toString()).contains("\"qualityProfileName\"").doesNotContain("\"groupName\"");
+    Map<String, UserEditorNewValue> newValues = newValueCaptor.getAllValues().stream()
+      .collect(toMap(UserEditorNewValue::getQualityProfileName, identity()));
+    assertThat(newValues.get(profile1.getName()))
+      .extracting(UserEditorNewValue::getQualityProfileUuid, UserEditorNewValue::getUserLogin, UserEditorNewValue::getUserUuid)
+      .containsExactly(profile1.getKee(), null, null);
+    assertThat(newValues.get(profile1.getName()).toString()).contains("\"qualityProfileName\"").doesNotContain("\"groupName\"");
+    assertThat(newValues.get(profile2.getName()))
+      .extracting(UserEditorNewValue::getQualityProfileUuid, UserEditorNewValue::getUserLogin, UserEditorNewValue::getUserUuid)
+      .containsExactly(profile2.getKee(), null, null);
+    assertThat(newValues.get(profile2.getName()).toString()).contains("\"qualityProfileName\"").doesNotContain("\"groupName\"");
 
     assertThat(underTest.exists(db.getSession(), profile1, user1)).isFalse();
     assertThat(underTest.exists(db.getSession(), profile2, user2)).isFalse();

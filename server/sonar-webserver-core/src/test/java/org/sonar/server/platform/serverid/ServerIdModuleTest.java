@@ -31,6 +31,6 @@ public class ServerIdModuleTest {
   public void verify_count_of_added_components() {
     ListContainer container = new ListContainer();
     underTest.configure(container);
-    assertThat(container.getAddedObjects()).hasSize(4);
+    assertThat(container.getAddedObjects()).hasSize(5);
   }
 }

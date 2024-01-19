@@ -19,8 +19,11 @@
  */
 package org.sonar.db.pushevent;
 
+import java.util.Comparator;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.impl.utils.TestSystem2;
@@ -69,7 +72,8 @@ public class PushEventDaoIT {
 
     assertThat(underTest.selectByUuid(session, generatedUuid.getUuid()))
       .extracting(PushEventDto::getUuid, PushEventDto::getProjectUuid, PushEventDto::getPayload, PushEventDto::getCreatedAt)
-      .containsExactly(eventDtoSecond.getUuid(), eventDtoSecond.getProjectUuid(), eventDtoSecond.getPayload(), eventDtoSecond.getCreatedAt());
+      .containsExactly(eventDtoSecond.getUuid(), eventDtoSecond.getProjectUuid(), eventDtoSecond.getPayload(),
+        eventDtoSecond.getCreatedAt());
 
   }
 
@@ -147,7 +151,12 @@ public class PushEventDaoIT {
     var eventDto7 = generatePushEvent("proj2");
 
     events = underTest.selectChunkByProjectUuids(session, Set.of("proj1", "proj2"), eventDto4.getCreatedAt(), eventDto4.getUuid(), 10);
-    assertThat(events).extracting(PushEventDto::getUuid).containsExactly(eventDto5.getUuid(), eventDto6.getUuid(), eventDto7.getUuid());
+    List<String> sortedUuids = Stream.of(eventDto5, eventDto6, eventDto7)
+      .sorted(Comparator.comparing(PushEventDto::getCreatedAt).thenComparing(PushEventDto::getUuid))
+      .map(PushEventDto::getUuid)
+      .toList();
+
+    assertThat(events).extracting(PushEventDto::getUuid).containsExactlyElementsOf(sortedUuids);
   }
 
   @Test

@@ -35,6 +35,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.sonar.core.util.SequenceUuidFactory.UUID_1;
 import static org.sonar.db.almsettings.AlmSettingsTesting.newGithubAlmSettingDto;
 
 public class AlmSettingDaoWithPersisterIT {
@@ -71,7 +72,8 @@ public class AlmSettingDaoWithPersisterIT {
       .extracting("devOpsPlatformSettingUuid", "key")
       .containsExactly(almSettingDto.getUuid(), almSettingDto.getKey());
     assertThat(newValue)
-      .hasToString("{\"devOpsPlatformSettingUuid\": \"1\", \"key\": \"key\", \"devOpsPlatformName\": \"id1\", \"url\": \"url\", \"appId\": \"id1\", \"clientId\": \"cid1\" }");
+      .hasToString("{\"devOpsPlatformSettingUuid\": \"" + UUID_1 + "\", \"key\": \"key\", " +
+        "\"devOpsPlatformName\": \"id1\", \"url\": \"url\", \"appId\": \"id1\", \"clientId\": \"cid1\" }");
 
     almSettingDto.setPrivateKey("updated private key");
     almSettingDto.setAppId("updated app id");
@@ -89,8 +91,10 @@ public class AlmSettingDaoWithPersisterIT {
     newValue = newValueCaptor.getValue();
     assertThat(newValue)
       .extracting("devOpsPlatformSettingUuid", "key", "appId", "devOpsPlatformName", "url", "clientId")
-      .containsExactly(almSettingDto.getUuid(), almSettingDto.getKey(), almSettingDto.getAppId(), almSettingDto.getAppId(), almSettingDto.getUrl(), almSettingDto.getClientId());
-    assertThat(newValue).hasToString("{\"devOpsPlatformSettingUuid\": \"1\", \"key\": \"updated key\", \"devOpsPlatformName\": \"updated app id\", "
+      .containsExactly(almSettingDto.getUuid(), almSettingDto.getKey(), almSettingDto.getAppId(), almSettingDto.getAppId(),
+        almSettingDto.getUrl(), almSettingDto.getClientId());
+    assertThat(newValue).hasToString("{\"devOpsPlatformSettingUuid\": \"" + UUID_1 + "\", " +
+      "\"key\": \"updated key\", \"devOpsPlatformName\": \"updated app id\", "
       + "\"url\": \"updated url\", \"appId\": \"updated app id\", \"clientId\": \"cid1\" }");
   }
 

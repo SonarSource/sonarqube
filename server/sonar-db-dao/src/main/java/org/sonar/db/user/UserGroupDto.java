@@ -73,4 +73,5 @@ public class UserGroupDto {
   public int hashCode() {
     return Objects.hash(userUuid, groupUuid);
   }
+
 }

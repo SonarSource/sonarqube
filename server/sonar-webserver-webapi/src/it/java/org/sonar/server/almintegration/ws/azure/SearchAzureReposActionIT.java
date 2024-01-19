@@ -64,6 +64,7 @@ public class SearchAzureReposActionIT {
   private final AzureDevOpsHttpClient azureDevOpsHttpClient = mock(AzureDevOpsHttpClient.class);
   private final Encryption encryption = mock(Encryption.class);
   private final WsActionTester ws = new WsActionTester(new SearchAzureReposAction(db.getDbClient(), userSession, azureDevOpsHttpClient));
+  private int projectId = 0;
 
   @Before
   public void before() {
@@ -334,7 +335,8 @@ public class SearchAzureReposActionIT {
   }
 
   private ProjectDto insertProject(AlmSettingDto almSetting, String repoName, String projectName) {
-    ProjectDto projectDto1 = db.components().insertPrivateProject().getProjectDto();
+    ProjectDto projectDto1 =
+      db.components().insertPrivateProject(dto -> dto.setKey("key_" + projectId).setName("name" + projectId++)).getProjectDto();
     db.almSettings().insertAzureProjectAlmSetting(almSetting, projectDto1, projectAlmSettingDto -> projectAlmSettingDto.setAlmRepo(repoName),
       projectAlmSettingDto -> projectAlmSettingDto.setAlmSlug(projectName));
     return projectDto1;

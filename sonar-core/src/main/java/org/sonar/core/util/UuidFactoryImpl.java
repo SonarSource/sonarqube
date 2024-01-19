@@ -19,7 +19,7 @@
  */
 package org.sonar.core.util;
 
-import org.apache.commons.codec.binary.Base64;
+import java.util.UUID;
 
 /**
  */
@@ -31,11 +31,9 @@ public enum UuidFactoryImpl implements UuidFactory {
    */
   INSTANCE;
 
-  private final UuidGenerator uuidGenerator = new UuidGeneratorImpl();
-
   @Override
   public String create() {
-    return Base64.encodeBase64URLSafeString(uuidGenerator.generate());
+    return UUID.randomUUID().toString();
   }
 
 }

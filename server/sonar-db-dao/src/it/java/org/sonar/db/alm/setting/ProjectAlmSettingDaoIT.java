@@ -126,7 +126,7 @@ public class ProjectAlmSettingDaoIT {
 
   private ProjectAlmSettingDto createAlmProject(AlmSettingDto almSettingsDto) {
     ProjectDto project = db.components().insertPrivateProject().getProjectDto();
-    when(uuidFactory.create()).thenReturn(project.getUuid() + "_forSetting");
+    when(uuidFactory.create()).thenReturn(project.getUuid() + "_set");
     ProjectAlmSettingDto githubProjectAlmSettingDto = newGithubProjectAlmSettingDto(almSettingsDto, project);
     underTest.insertOrUpdate(dbSession, githubProjectAlmSettingDto, almSettingsDto.getKey(), project.getName(), project.getKey());
     return githubProjectAlmSettingDto;

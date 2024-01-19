@@ -26,25 +26,24 @@ import java.util.zip.CRC32;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.config.Configuration;
 import org.sonar.core.platform.ServerId;
-import org.sonar.core.util.UuidFactory;
 
 import static org.sonar.process.ProcessProperties.Property.JDBC_URL;
 
 public class ServerIdFactoryImpl implements ServerIdFactory {
 
   private final Configuration config;
-  private final UuidFactory uuidFactory;
+  private final ServerIdGenerator serverIdGenerator;
   private final JdbcUrlSanitizer jdbcUrlSanitizer;
 
-  public ServerIdFactoryImpl(Configuration config, UuidFactory uuidFactory, JdbcUrlSanitizer jdbcUrlSanitizer) {
+  public ServerIdFactoryImpl(Configuration config, ServerIdGenerator serverIdGenerator, JdbcUrlSanitizer jdbcUrlSanitizer) {
     this.config = config;
-    this.uuidFactory = uuidFactory;
+    this.serverIdGenerator = serverIdGenerator;
     this.jdbcUrlSanitizer = jdbcUrlSanitizer;
   }
 
   @Override
   public ServerId create() {
-    return ServerId.of(computeDatabaseId(), uuidFactory.create());
+    return ServerId.of(computeDatabaseId(), serverIdGenerator.generate());
   }
 
   @Override

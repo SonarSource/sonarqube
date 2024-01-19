@@ -49,6 +49,7 @@ import org.sonar.server.ws.WsActionTester;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
+import static org.sonar.core.util.SequenceUuidFactory.UUID_1;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER_QUALITY_PROFILES;
 import static org.sonar.test.JsonAssert.assertJson;
 
@@ -116,9 +117,8 @@ public class CopyActionIT {
       .setParam("toName", "target-name")
       .execute();
 
-    String generatedUuid = "1";
     assertJson(response.getInput()).isSimilarTo("{" +
-      "  \"key\": \"" + generatedUuid + "\"," +
+      "  \"key\": \"" + UUID_1 + "\"," +
       "  \"name\": \"target-name\"," +
       "  \"language\": \"lang1\"," +
       "  \"languageName\": \"Lang1\"," +
@@ -126,13 +126,13 @@ public class CopyActionIT {
       "  \"isInherited\": false" +
       "}");
     QProfileDto loadedProfile = db.getDbClient().qualityProfileDao().selectByNameAndLanguage(db.getSession(), "target-name", sourceProfile.getLanguage());
-    assertThat(loadedProfile.getKee()).isEqualTo(generatedUuid);
+    assertThat(loadedProfile.getKee()).isEqualTo(UUID_1);
     assertThat(loadedProfile.getParentKee()).isNull();
 
     assertThat(backuper.copiedProfile.getKee()).isEqualTo(sourceProfile.getKee());
     assertThat(backuper.toProfile.getLanguage()).isEqualTo(sourceProfile.getLanguage());
     assertThat(backuper.toProfile.getName()).isEqualTo("target-name");
-    assertThat(backuper.toProfile.getKee()).isEqualTo(generatedUuid);
+    assertThat(backuper.toProfile.getKee()).isEqualTo(UUID_1);
     assertThat(backuper.toProfile.getParentKee()).isNull();
   }
 
@@ -176,9 +176,8 @@ public class CopyActionIT {
       .setParam("toName", "target-name")
       .execute();
 
-    String generatedUuid = "1";
     assertJson(response.getInput()).isSimilarTo("{" +
-      "  \"key\": \"" + generatedUuid + "\"," +
+      "  \"key\": \"" + UUID_1 + "\"," +
       "  \"name\": \"target-name\"," +
       "  \"language\": \"lang1\"," +
       "  \"languageName\": \"Lang1\"," +
@@ -186,13 +185,13 @@ public class CopyActionIT {
       "  \"isInherited\": true" +
       "}");
     QProfileDto loadedProfile = db.getDbClient().qualityProfileDao().selectByNameAndLanguage(db.getSession(), "target-name", sourceProfile.getLanguage());
-    assertThat(loadedProfile.getKee()).isEqualTo(generatedUuid);
+    assertThat(loadedProfile.getKee()).isEqualTo(UUID_1);
     assertThat(loadedProfile.getParentKee()).isEqualTo(parentProfile.getKee());
 
     assertThat(backuper.copiedProfile.getKee()).isEqualTo(sourceProfile.getKee());
     assertThat(backuper.toProfile.getLanguage()).isEqualTo(sourceProfile.getLanguage());
     assertThat(backuper.toProfile.getName()).isEqualTo("target-name");
-    assertThat(backuper.toProfile.getKee()).isEqualTo(generatedUuid);
+    assertThat(backuper.toProfile.getKee()).isEqualTo(UUID_1);
     assertThat(backuper.toProfile.getParentKee()).isEqualTo(parentProfile.getKee());
   }
 

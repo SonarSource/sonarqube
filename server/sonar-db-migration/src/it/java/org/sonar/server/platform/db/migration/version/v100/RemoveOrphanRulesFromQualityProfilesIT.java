@@ -35,6 +35,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.core.util.SequenceUuidFactory.UUID_1;
 
 public class RemoveOrphanRulesFromQualityProfilesIT {
 
@@ -121,7 +122,7 @@ public class RemoveOrphanRulesFromQualityProfilesIT {
   private void assertQualityProfileChanges() {
     assertThat(db.select("SELECT * from qprofile_changes"))
       .extracting(r -> r.get("KEE"), r -> r.get("RULES_PROFILE_UUID"), r -> r.get("CHANGE_TYPE"), r -> r.get("USER_UUID"), r -> r.get("CHANGE_DATA"), r -> r.get("CREATED_AT"))
-      .containsExactly(tuple("1", "uuid-profile-1", "DEACTIVATED", null, "ruleUuid=uuid-rule-2", 1L));
+      .containsExactly(tuple(UUID_1, "uuid-profile-1", "DEACTIVATED", null, "ruleUuid=uuid-rule-2", 1L));
   }
 
 

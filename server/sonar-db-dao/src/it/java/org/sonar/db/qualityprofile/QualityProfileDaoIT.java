@@ -699,7 +699,7 @@ public class QualityProfileDaoIT {
     db.qualityProfiles().associateWithProject(project2, jsProfile);
 
     assertThat(underTest.selectQProfilesByProjectUuid(dbSession, project1.getUuid()))
-      .containsExactly(javaProfile, cProfile);
+      .containsExactlyInAnyOrder(javaProfile, cProfile);
 
     assertThat(underTest.selectQProfilesByProjectUuid(dbSession, project2.getUuid()))
       .containsExactly(jsProfile);

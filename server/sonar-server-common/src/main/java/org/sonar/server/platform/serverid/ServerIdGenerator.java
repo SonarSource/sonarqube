@@ -17,27 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.util;
+package org.sonar.server.platform.serverid;
 
 import java.security.SecureRandom;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
+import org.apache.commons.codec.binary.Base64;
 
-public final class UuidGeneratorImpl implements UuidGenerator {
+public final class ServerIdGenerator {
 
-  private final FullNewUuidGenerator fullNewUuidGenerator = new FullNewUuidGenerator();
+  private final FullNewIdGenerator fullNewIdGenerator = new FullNewIdGenerator();
 
-  @Override
-  public byte[] generate() {
-    return fullNewUuidGenerator.get();
+  public String generate() {
+    return Base64.encodeBase64URLSafeString(fullNewIdGenerator.get());
   }
 
-  @Override
-  public WithFixedBase withFixedBase() {
-    return new FixedBasedUuidGenerator();
-  }
-
-  private static class UuidGeneratorBase {
+  private static class IdGeneratorBase {
     // We only use bottom 3 bytes for the sequence number. Paranoia: init with random int so that if JVM/OS/machine goes down, clock slips
     // backwards, and JVM comes back up, we are less likely to be on the same sequenceNumber at the same time:
     private final AtomicInteger sequenceNumber = new AtomicInteger(new SecureRandom().nextInt());
@@ -80,7 +75,9 @@ public final class UuidGeneratorImpl implements UuidGenerator {
       return sequenceNumber.incrementAndGet() & 0xffffff;
     }
 
-    /** Puts the lower numberOfLongBytes from l into the array, starting index pos. */
+    /**
+     * Puts the lower numberOfLongBytes from l into the array, starting index pos.
+     */
     private static void putLong(byte[] array, long l, int pos, int numberOfLongBytes) {
       for (int i = 0; i < numberOfLongBytes; ++i) {
         array[pos + numberOfLongBytes - i - 1] = (byte) (l >>> (i * 8));
@@ -88,7 +85,7 @@ public final class UuidGeneratorImpl implements UuidGenerator {
     }
   }
 
-  private static final class FullNewUuidGenerator extends UuidGeneratorBase implements Supplier<byte[]> {
+  private static final class FullNewIdGenerator extends IdGeneratorBase implements Supplier<byte[]> {
 
     @Override
     public byte[] get() {
@@ -99,19 +96,4 @@ public final class UuidGeneratorImpl implements UuidGenerator {
     }
   }
 
-  private static class FixedBasedUuidGenerator extends UuidGeneratorBase implements WithFixedBase {
-    private final byte[] base = new byte[15];
-
-    FixedBasedUuidGenerator() {
-      int sequenceId = getSequenceId();
-      initBase(base, sequenceId);
-    }
-
-    @Override
-    public byte[] generate(int increment) {
-      byte[] buffer = new byte[15];
-      System.arraycopy(base, 0, buffer, 0, buffer.length);
-      return super.generate(buffer, increment);
-    }
-  }
 }

@@ -34,7 +34,6 @@ import org.sonar.ce.task.projectexport.component.MutableComponentRepository;
 import org.sonar.ce.task.projectexport.steps.DumpElement;
 import org.sonar.ce.task.projectexport.steps.FakeDumpWriter;
 import org.sonar.ce.task.step.TestComputationStepContext;
-import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -63,6 +62,7 @@ public class ExportLineHashesStepIT {
   private final DbSession dbSession = dbClient.openSession(false);
   private final FakeDumpWriter dumpWriter = new FakeDumpWriter();
   private final MutableComponentRepository componentRepository = new ComponentRepositoryImpl();
+  private int fileId = 0;
   private final ExportLineHashesStep underTest = new ExportLineHashesStep(dbClient, dumpWriter, componentRepository);
 
   @Before
@@ -188,7 +188,7 @@ public class ExportLineHashesStepIT {
 
   private FileSourceDto createDto(String fileUuid, String componentUuid, String hashes) {
     FileSourceDto fileSourceDto = new FileSourceDto()
-      .setUuid(Uuids.createFast())
+      .setUuid("file_uuid_" + fileId++)
       .setFileUuid(fileUuid)
       .setProjectUuid(componentUuid);
     fileSourceDto.setRawLineHashes(hashes);

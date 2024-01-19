@@ -87,10 +87,10 @@ public class LoadFileHashesAndStatusStepIT {
     assertThat(previousFileHashesRepository.getMap()).hasSize(2);
     assertThat(previousFileHashesRepository.getDbFile(reportFile1).get())
       .extracting(FileHashesDto::getSrcHash, FileHashesDto::getRevision, FileHashesDto::getDataHash)
-      .containsOnly("srcHash" + dbFile1.getKey(), "revision" + dbFile1.getKey(), "dataHash" + dbFile1.getKey());
+      .containsOnly("SH" + dbFile1.getKey(), "revision" + dbFile1.getKey(), "DH" + dbFile1.getKey());
     assertThat(previousFileHashesRepository.getDbFile(reportFile2).get())
       .extracting(FileHashesDto::getSrcHash, FileHashesDto::getRevision, FileHashesDto::getDataHash)
-      .containsOnly("srcHash" + dbFile2.getKey(), "revision" + dbFile2.getKey(), "dataHash" + dbFile2.getKey());
+      .containsOnly("SH" + dbFile2.getKey(), "revision" + dbFile2.getKey(), "DH" + dbFile2.getKey());
     assertThat(previousFileHashesRepository.getDbFile(reportFile3)).isEmpty();
   }
 
@@ -118,9 +118,9 @@ public class LoadFileHashesAndStatusStepIT {
   private void insertFileSources(ComponentDto... files) {
     for (ComponentDto file : files) {
       db.fileSources().insertFileSource(file, f -> f
-        .setSrcHash("srcHash" + file.getKey())
+        .setSrcHash("SH" + file.getKey())
         .setRevision("revision" + file.getKey())
-        .setDataHash("dataHash" + file.getKey()));
+        .setDataHash("DH" + file.getKey()));
     }
   }
 }

@@ -31,6 +31,6 @@ public class HttpRequestIdModuleTest {
   public void count_components_in_module() {
     ListContainer container = new ListContainer();
     underTest.configure(container);
-    assertThat(container.getAddedObjects()).hasSize(3);
+    assertThat(container.getAddedObjects()).hasSize(1);
   }
 }

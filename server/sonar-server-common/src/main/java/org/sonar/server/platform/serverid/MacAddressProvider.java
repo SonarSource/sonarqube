@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.util;
+package org.sonar.server.platform.serverid;
 
 import com.google.common.annotations.VisibleForTesting;
 import java.net.NetworkInterface;
@@ -28,6 +28,7 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.core.util.UuidFactoryImpl;
 
 /**
  * Used by {@link UuidFactoryImpl}. Heavily inspired by https://github.com/elastic/elasticsearch/blob/master/core/src/main/java/org/elasticsearch/common/MacAddressProvider.java

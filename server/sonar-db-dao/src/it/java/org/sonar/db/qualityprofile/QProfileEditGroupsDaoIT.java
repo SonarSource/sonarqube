@@ -19,7 +19,7 @@
  */
 package org.sonar.db.qualityprofile;
 
-import java.util.List;
+import java.util.Map;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -35,6 +35,8 @@ import org.sonar.db.user.SearchGroupMembershipDto;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
+import static java.util.function.Function.identity;
+import static java.util.stream.Collectors.toMap;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.assertj.core.api.Assertions.tuple;
@@ -282,17 +284,19 @@ public class QProfileEditGroupsDaoIT {
 
     verify(auditPersister, times(2)).deleteQualityProfileEditor(eq(db.getSession()), newValueCaptor.capture());
 
-    List<GroupEditorNewValue> newValues = newValueCaptor.getAllValues();
-    assertThat(newValues.get(0))
+    Map<String, GroupEditorNewValue> newValues = newValueCaptor.getAllValues().stream()
+      .collect(toMap(GroupEditorNewValue::getQualityProfileName, identity()));
+
+    assertThat(newValues.get(profile1.getName()))
       .extracting(GroupEditorNewValue::getQualityProfileName, GroupEditorNewValue::getQualityProfileUuid,
         GroupEditorNewValue::getGroupName, GroupEditorNewValue::getGroupUuid)
       .containsExactly(profile1.getName(), profile1.getKee(), null, null);
-    assertThat(newValues.get(0).toString()).contains("\"qualityProfileName\"").doesNotContain("\"groupName\"");
-    assertThat(newValues.get(1))
+    assertThat(newValues.get(profile1.getName()).toString()).contains("\"qualityProfileName\"").doesNotContain("\"groupName\"");
+    assertThat(newValues.get(profile2.getName()))
       .extracting(GroupEditorNewValue::getQualityProfileName, GroupEditorNewValue::getQualityProfileUuid,
         GroupEditorNewValue::getGroupName, GroupEditorNewValue::getGroupUuid)
       .containsExactly(profile2.getName(), profile2.getKee(), null, null);
-    assertThat(newValues.get(1).toString()).contains("\"qualityProfileName\"").doesNotContain("\"groupName\"");
+    assertThat(newValues.get(profile2.getName()).toString()).contains("\"qualityProfileName\"").doesNotContain("\"groupName\"");
 
     assertThat(underTest.exists(db.getSession(), profile1, group1)).isFalse();
     assertThat(underTest.exists(db.getSession(), profile2, group2)).isFalse();

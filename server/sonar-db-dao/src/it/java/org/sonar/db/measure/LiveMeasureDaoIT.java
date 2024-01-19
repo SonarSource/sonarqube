@@ -44,6 +44,8 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
+import static java.util.function.Function.identity;
+import static java.util.stream.Collectors.toMap;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
 import static org.sonar.api.measures.Metric.ValueType.DATA;
@@ -60,6 +62,8 @@ public class LiveMeasureDaoIT {
 
   private final LiveMeasureDao underTest = db.getDbClient().liveMeasureDao();
   private MetricDto metric;
+
+  private int branchId = 0;
 
   @Before
   public void setUp() {
@@ -398,14 +402,17 @@ public class LiveMeasureDaoIT {
     MetricDto ncloc = metrics.get("ncloc");
     setupProjectsWithLoc(ncloc, metrics.get("ncloc_language_distribution"), metrics.get("lines"));
 
-    List<LargestBranchNclocDto> results = underTest.getLargestBranchNclocPerProject(db.getSession(), ncloc.getUuid());
+    Map<String, LargestBranchNclocDto> results = underTest.getLargestBranchNclocPerProject(db.getSession(), ncloc.getUuid())
+      .stream()
+      .collect(toMap(largestBranchNclocDto -> largestBranchNclocDto.getProjectKey() + " " + largestBranchNclocDto.getBranchName(),
+        identity(), (a, b) -> a));
 
     assertThat(results).hasSize(5);
-    assertLocForProject(results.get(0), "projectWithTieOnBranchSize", DEFAULT_MAIN_BRANCH_NAME, 250);
-    assertLocForProject(results.get(1), "projectWithTieOnOtherBranches", "tieBranch1", 230);
-    assertLocForProject(results.get(2), "projectWithBranchBiggerThanMaster", "notMasterBranch", 200);
-    assertLocForProject(results.get(3), "simpleProject", DEFAULT_MAIN_BRANCH_NAME, 10);
-    assertLocForProject(results.get(4), "projectWithLinesButNoLoc", DEFAULT_MAIN_BRANCH_NAME, 0);
+    assertLocForProject(results.get("projectWithTieOnBranchSize main"), DEFAULT_MAIN_BRANCH_NAME, 250);
+    assertLocForProject(results.get("projectWithTieOnOtherBranches tieBranch1"), "tieBranch1", 230);
+    assertLocForProject(results.get("projectWithBranchBiggerThanMaster notMasterBranch"), "notMasterBranch", 200);
+    assertLocForProject(results.get("simpleProject main"), DEFAULT_MAIN_BRANCH_NAME, 10);
+    assertLocForProject(results.get("projectWithLinesButNoLoc main"), DEFAULT_MAIN_BRANCH_NAME, 0);
   }
 
   @Test
@@ -417,10 +424,16 @@ public class LiveMeasureDaoIT {
 
     List<ProjectLocDistributionDto> results = underTest.selectLargestBranchesLocDistribution(db.getSession(), ncloc.getUuid(), nclocLanguageDistribution.getUuid());
 
+    String firstBranchOfProjectUuid = db.getDbClient().branchDao().selectByProjectUuid(db.getSession(), "projectWithTieOnOtherBranches").stream()
+      .filter(branchDto -> !branchDto.isMain())
+      .map(BranchDto::getUuid)
+      .sorted()
+      .findFirst().orElseThrow();
+
     assertThat(results)
       .containsExactlyInAnyOrder(
         new ProjectLocDistributionDto("projectWithTieOnBranchSize", getMainBranchUuid("projectWithTieOnBranchSize"), "java=250;js=0"),
-        new ProjectLocDistributionDto("projectWithTieOnOtherBranches", getBranchUuid("projectWithTieOnOtherBranches", "tieBranch1"), "java=230;js=0"),
+        new ProjectLocDistributionDto("projectWithTieOnOtherBranches", firstBranchOfProjectUuid, "java=230;js=0"),
         new ProjectLocDistributionDto("projectWithBranchBiggerThanMaster", getBranchUuid("projectWithBranchBiggerThanMaster", "notMasterBranch"), "java=100;js=100"),
         new ProjectLocDistributionDto("simpleProject", getMainBranchUuid("simpleProject"), "java=10;js=0"),
         new ProjectLocDistributionDto("projectWithLinesButNoLoc", getMainBranchUuid("projectWithLinesButNoLoc"), "java=0;js=0"));
@@ -775,13 +788,13 @@ public class LiveMeasureDaoIT {
 
   private BranchDto addBranchToProjectWithMeasure(ProjectData project, String branchKey, MetricDto metric, double metricValue) {
     BranchDto branch = db.components()
-      .insertProjectBranch(project.getProjectDto(), b -> b.setBranchType(BranchType.BRANCH).setKey(branchKey));
+      .insertProjectBranch(project.getProjectDto(), b -> b.setBranchType(BranchType.BRANCH).setKey(branchKey),
+        branchDto -> branchDto.setUuid("uuid_" + branchId++));
     addMeasureToBranch(branch, metric, metricValue, true);
     return branch;
   }
 
-  private void assertLocForProject(LargestBranchNclocDto result, String projectKey, String branchKey, long linesOfCode) {
-    assertThat(result.getProjectKey()).isEqualTo(projectKey);
+  private void assertLocForProject(LargestBranchNclocDto result, String branchKey, long linesOfCode) {
     assertThat(result.getBranchName()).isEqualTo(branchKey);
     assertThat(result.getLoc()).isEqualTo(linesOfCode);
   }
