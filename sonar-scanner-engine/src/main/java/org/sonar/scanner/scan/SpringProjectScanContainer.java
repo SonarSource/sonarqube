@@ -56,6 +56,7 @@ import org.sonar.scanner.scan.filesystem.InputFileFilterRepository;
 import org.sonar.scanner.scan.filesystem.LanguageDetection;
 import org.sonar.scanner.scan.filesystem.ProjectFileIndexer;
 import org.sonar.scanner.scm.ScmPublisher;
+import org.sonar.scanner.sensor.ProjectSensorContext;
 import org.sonar.scanner.sensor.ProjectSensorExtensionDictionary;
 import org.sonar.scanner.sensor.ProjectSensorOptimizer;
 import org.sonar.scanner.sensor.ProjectSensorsExecutor;
@@ -118,6 +119,7 @@ public class SpringProjectScanContainer extends SpringComponentContainer {
 
       // Sensors
       SensorStrategy.class,
+      ProjectSensorContext.class,
       ProjectSensorExtensionDictionary.class,
       ProjectSensorsExecutor.class,
       ProjectSensorOptimizer.class,
