@@ -103,11 +103,11 @@ const ui = {
     name: 'settings.almintegration.form.secret.update_field',
   }),
   groups: byRole('textbox', {
-    name: 'property.provisioningGroups.name',
+    name: 'property.allowedGroups.name',
   }),
   deleteGroupButton: byRole('button', { name: /delete_value/ }),
   removeProvisioniongGroup: byRole('button', {
-    name: /settings.definition.delete_value.property.provisioningGroups.name./,
+    name: /settings.definition.delete_value.property.allowedGroups.name./,
   }),
   saveProvisioning: glContainer.byRole('button', { name: 'save' }),
   cancelProvisioningChanges: glContainer.byRole('button', { name: 'cancel' }),
@@ -214,13 +214,50 @@ it('should edit a configuration with proper validation and delete it', async () 
   expect(ui.editConfigButton.query()).not.toBeInTheDocument();
 });
 
+it('should change from just-in-time to Auto Provisioning if auto was never set', async () => {
+  const user = userEvent.setup();
+  renderAuthentication([Feature.GitlabProvisioning]);
+
+  expect(await ui.editConfigButton.find()).toBeInTheDocument();
+  expect(ui.jitProvisioningRadioButton.get()).toBeChecked();
+
+  user.click(ui.autoProvisioningRadioButton.get());
+  expect(await ui.autoProvisioningRadioButton.find()).toBeEnabled();
+  expect(ui.saveProvisioning.get()).toBeDisabled();
+
+  await user.type(ui.autoProvisioningToken.get(), 'JRR Tolkien');
+  expect(await ui.saveProvisioning.find()).toBeEnabled();
+});
+
+it('should change from just-in-time to Auto Provisioning if auto was set before', async () => {
+  handler.setGitlabConfigurations([
+    mockGitlabConfiguration({
+      allowUsersToSignUp: false,
+      enabled: true,
+      provisioningType: ProvisioningType.jit,
+      allowedGroups: ['D12'],
+      isProvisioningTokenSet: true,
+    }),
+  ]);
+  const user = userEvent.setup();
+  renderAuthentication([Feature.GitlabProvisioning]);
+
+  expect(await ui.editConfigButton.find()).toBeInTheDocument();
+  expect(ui.jitProvisioningRadioButton.get()).toBeChecked();
+
+  user.click(ui.autoProvisioningRadioButton.get());
+  expect(await ui.autoProvisioningRadioButton.find()).toBeEnabled();
+  expect(ui.saveProvisioning.get()).toBeEnabled();
+});
+
 it('should change from auto provisioning to JIT with proper validation', async () => {
   handler.setGitlabConfigurations([
     mockGitlabConfiguration({
       allowUsersToSignUp: false,
       enabled: true,
       provisioningType: ProvisioningType.auto,
-      provisioningGroups: ['D12'],
+      allowedGroups: ['D12'],
+      isProvisioningTokenSet: true,
     }),
   ]);
   const user = userEvent.setup();
@@ -288,7 +325,8 @@ it('should be able to edit token for Auto provisioning with proper validation', 
       allowUsersToSignUp: false,
       enabled: true,
       provisioningType: ProvisioningType.auto,
-      provisioningGroups: ['Cypress Hill', 'Public Enemy'],
+      allowedGroups: ['Cypress Hill', 'Public Enemy'],
+      isProvisioningTokenSet: true,
     }),
   ]);
   const user = userEvent.setup();
@@ -312,7 +350,8 @@ it('should be able to reset Auto Provisioning changes', async () => {
       allowUsersToSignUp: false,
       enabled: true,
       provisioningType: ProvisioningType.auto,
-      provisioningGroups: ['Cypress Hill', 'Public Enemy'],
+      allowedGroups: ['Cypress Hill', 'Public Enemy'],
+      isProvisioningTokenSet: true,
     }),
   ]);
   const user = userEvent.setup();
@@ -337,7 +376,7 @@ describe('Gitlab Provisioning', () => {
       mockGitlabConfiguration({
         enabled: true,
         provisioningType: ProvisioningType.auto,
-        provisioningGroups: ['Test'],
+        allowedGroups: ['Test'],
       }),
     ]);
   });

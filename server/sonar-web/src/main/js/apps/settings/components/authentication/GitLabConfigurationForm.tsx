@@ -104,16 +104,14 @@ export default function GitLabConfigurationForm(props: Readonly<Props>) {
         type: SettingType.BOOLEAN,
       },
     },
-    provisioningGroups: {
-      value: data?.provisioningGroups ?? [],
+    allowedGroups: {
+      value: data?.allowedGroups ?? [],
       required: true,
       definition: {
-        name: translate('settings.authentication.gitlab.form.provisioningGroups.name'),
+        name: translate('settings.authentication.gitlab.form.allowedGroups.name'),
         secured: false,
-        key: 'provisioningGroups',
-        description: translate(
-          'settings.authentication.gitlab.form.provisioningGroups.description',
-        ),
+        key: 'allowedGroups',
+        description: translate('settings.authentication.gitlab.form.allowedGroups.description'),
         multiValues: true,
       },
     },

@@ -97,7 +97,7 @@ export interface GitLabConfigurationCreateBody {
   url: string;
   secret: string;
   synchronizeGroups: boolean;
-  provisioningGroups: string[];
+  allowedGroups: string[];
 }
 
 export type GitLabConfigurationUpdateBody = {
@@ -108,7 +108,7 @@ export type GitLabConfigurationUpdateBody = {
   enabled?: boolean;
   provisioningType?: ProvisioningType;
   provisioningToken?: string;
-  provisioningGroups?: string[];
+  allowedGroups?: string[];
   allowUsersToSignUp?: boolean;
 };
 
@@ -119,9 +119,10 @@ export type GitlabConfiguration = {
   synchronizeGroups: boolean;
   url: string;
   provisioningType: ProvisioningType;
-  provisioningGroups: string[];
+  allowedGroups: string[];
   allowUsersToSignUp: boolean;
   errorMessage?: string;
+  isProvisioningTokenSet: boolean;
 };
 
 export enum ProvisioningType {

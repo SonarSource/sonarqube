@@ -161,12 +161,7 @@ export default function GitLabAuthenticationTab() {
     }
     const type = changes.provisioningType ?? configuration.provisioningType;
     if (type === ProvisioningType.auto) {
-      const hasConfigGroups =
-        configuration.provisioningGroups && configuration.provisioningGroups.length > 0;
-      const hasToken = hasConfigGroups
-        ? changes.provisioningToken !== ''
-        : !!changes.provisioningToken;
-      return hasToken;
+      return configuration.isProvisioningTokenSet || !!changes.provisioningToken;
     }
     return true;
   };
@@ -371,7 +366,7 @@ export default function GitLabAuthenticationTab() {
                                     provisioningToken: value as string,
                                   })
                                 }
-                                isNotSet={configuration.provisioningType !== ProvisioningType.auto}
+                                isNotSet={!configuration.isProvisioningTokenSet}
                               />
                             </>
                           )}
