@@ -94,8 +94,8 @@ public class ScannerProperties {
         .hidden()
         .build(),
       PropertyDefinition.builder(PLUGIN_LOADING_OPTIMIZATION_KEY)
-        .name("Enable scanner plugin loading optimization")
-        .description("When enabled, scanners will only download plugins required for detected languages.")
+        .name("Analyzers loading optimization")
+        .description("When enabled, scanners will only download analyzers required for detected languages.")
         .category(CoreProperties.CATEGORY_GENERAL)
         .subCategory("Performance")
         .type(BOOLEAN)
