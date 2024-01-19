@@ -421,7 +421,7 @@ public class CeActivityDaoIT {
     assertThat(underTest.selectByUuid(db.getSession(), "TASK_2").get().getIsLast()).isTrue();
     assertThat(underTest.selectByUuid(db.getSession(), "TASK_3").get().getIsLast()).isTrue();
 
-    // inserting a cancelled task does not change the last task
+    // inserting a canceled task does not change the last task
     insert("TASK_4", REPORT, ENTITY_1, CANCELED);
     assertThat(underTest.selectByUuid(db.getSession(), "TASK_1").get().getIsLast()).isFalse();
     assertThat(underTest.selectByUuid(db.getSession(), "TASK_2").get().getIsLast()).isTrue();
