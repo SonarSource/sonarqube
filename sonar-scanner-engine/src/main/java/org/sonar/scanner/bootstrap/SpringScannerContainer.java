@@ -24,7 +24,6 @@ import javax.annotation.Priority;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.internal.FileMetadata;
-import org.sonar.api.batch.fs.internal.SensorStrategy;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.sensor.issue.internal.DefaultNoSonarFilter;
 import org.sonar.api.scan.filesystem.PathResolver;
@@ -131,7 +130,6 @@ import org.sonar.scanner.scm.ScmRevisionImpl;
 import org.sonar.scanner.sensor.DefaultSensorStorage;
 import org.sonar.scanner.sensor.ExecutingSensorContext;
 import org.sonar.scanner.sensor.ProjectSensorContext;
-import org.sonar.scanner.sensor.ProjectSensorOptimizer;
 import org.sonar.scanner.sensor.UnchangedFilesHandler;
 import org.sonar.scm.git.GitScmSupport;
 import org.sonar.scm.svn.SvnScmSupport;
@@ -224,8 +222,6 @@ public class SpringScannerContainer extends SpringComponentContainer {
       // context
       ContextPropertiesCache.class,
 
-      SensorStrategy.class,
-
       MutableProjectSettings.class,
       SonarGlobalPropertiesFilter.class,
       ProjectConfigurationProvider.class,
@@ -270,7 +266,6 @@ public class SpringScannerContainer extends SpringComponentContainer {
       DefaultSensorStorage.class,
       DefaultFileLinesContextFactory.class,
       ProjectSensorContext.class,
-      ProjectSensorOptimizer.class,
       ExecutingSensorContext.class,
 
       UnchangedFilesHandler.class,

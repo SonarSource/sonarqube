@@ -28,6 +28,7 @@ import org.sonar.api.Plugin;
 import org.sonar.api.batch.bootstrap.ProjectBuilder;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
+import org.sonar.api.batch.fs.internal.SensorStrategy;
 import org.sonar.api.measures.Metrics;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.resources.ResourceTypes;
@@ -56,6 +57,7 @@ import org.sonar.scanner.scan.filesystem.LanguageDetection;
 import org.sonar.scanner.scan.filesystem.ProjectFileIndexer;
 import org.sonar.scanner.scm.ScmPublisher;
 import org.sonar.scanner.sensor.ProjectSensorExtensionDictionary;
+import org.sonar.scanner.sensor.ProjectSensorOptimizer;
 import org.sonar.scanner.sensor.ProjectSensorsExecutor;
 
 import static org.sonar.api.batch.InstantiationStrategy.PER_BATCH;
@@ -115,8 +117,10 @@ public class SpringProjectScanContainer extends SpringComponentContainer {
       PostJobExtensionDictionary.class,
 
       // Sensors
+      SensorStrategy.class,
       ProjectSensorExtensionDictionary.class,
       ProjectSensorsExecutor.class,
+      ProjectSensorOptimizer.class,
 
       AnalysisObservers.class,
 
