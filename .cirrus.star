@@ -8,5 +8,5 @@ def main(ctx):
         doc = fs.read("private/.cirrus.yml")
     else:
         features = yaml.dumps(load_features(ctx, features=["build_number"]))
-        doc = fs.read(".cirrus-public.yml")
+        doc = fs.read(".cirrus/.cirrus.yml")
     return features + doc
