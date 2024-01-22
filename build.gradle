@@ -106,10 +106,6 @@ allprojects {
     }
     ivy {
           if (artifactoryUsername && artifactoryPassword) {
-              credentials {
-                  username artifactoryUsername
-                  password artifactoryPassword
-              }
               url "${artifactoryUrl}/sonarsource-bucket"
               authentication {
                 header(HttpHeaderAuthentication)

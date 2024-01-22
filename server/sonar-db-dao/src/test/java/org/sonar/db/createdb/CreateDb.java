@@ -44,6 +44,7 @@ public class CreateDb {
   private static void createDb(Consumer<Configuration> execute) {
     Configuration configuration = Configuration.builder()
       .addSystemProperties()
+      .addEnvVariables()
       .setProperty("orchestrator.keepDatabase", "false")
       .build();
 
