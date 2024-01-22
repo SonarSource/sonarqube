@@ -20,13 +20,13 @@
 import { differenceInDays } from 'date-fns';
 import * as React from 'react';
 import { showLicense } from '../../api/editions';
-import LicensePromptModal from '../../apps/marketplace/components/LicensePromptModal';
 import { parseDate, toShortISO8601String } from '../../helpers/dates';
 import { hasMessage } from '../../helpers/l10n';
 import { get, save } from '../../helpers/storage';
 import { AppState } from '../../types/appstate';
 import { EditionKey } from '../../types/editions';
 import { CurrentUser, isLoggedIn } from '../../types/users';
+import LicensePromptModal from './LicensePromptModal';
 import withAppStateContext from './app-state/withAppStateContext';
 import withCurrentUserContext from './current-user/withCurrentUserContext';
 

@@ -19,16 +19,16 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import Link from '../../../components/common/Link';
-import { ResetButtonLink } from '../../../components/controls/buttons';
-import Modal from '../../../components/controls/Modal';
-import { translate } from '../../../helpers/l10n';
+import Link from '../../components/common/Link';
+import Modal from '../../components/controls/Modal';
+import { ResetButtonLink } from '../../components/controls/buttons';
+import { translate } from '../../helpers/l10n';
 
 interface Props {
   onClose: () => void;
 }
 
-export default function LicensePromptModal({ onClose }: Props) {
+export default function LicensePromptModal({ onClose }: Readonly<Props>) {
   const header = translate('license.prompt.title');
   return (
     <Modal contentLabel={header} onRequestClose={onClose}>

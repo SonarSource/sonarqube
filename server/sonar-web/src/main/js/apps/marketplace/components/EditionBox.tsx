@@ -17,135 +17,123 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { SubHeading, UnorderedList } from 'design-system';
 import * as React from 'react';
-import Link from '../../../components/common/Link';
-import { getEditionUrl } from '../../../helpers/editions';
-import { translate } from '../../../helpers/l10n';
 import { getBaseUrl } from '../../../helpers/system';
 import { Edition, EditionKey } from '../../../types/editions';
 
 interface Props {
-  currentEdition?: EditionKey;
   edition: Edition;
-  ncloc?: number;
-  serverId?: string;
 }
 
-export default function EditionBox({ edition, ncloc, serverId, currentEdition }: Props) {
-  return (
-    <div className="boxed-group boxed-group-inner marketplace-edition">
-      {edition.key === EditionKey.datacenter && (
-        <div className="markdown">
-          <div className="markdown-content">
-            <div>
-              <h3 id="data-center-edition">
-                <img
-                  alt="SonarQube logo"
-                  className="max-width-100 little-spacer-right"
-                  src={`${getBaseUrl()}/images/embed-doc/sq-icon.svg`}
-                />
-                Data Center Edition
-              </h3>
-              <p>
-                <em>Designed for High Availability and Scalability</em>
-              </p>
-              <p>Enterprise Edition functionality plus:</p>
-              <ul>
-                <li>Component redundancy</li>
-                <li>Data resiliency</li>
-                <li>Horizontal scalability</li>
-              </ul>
-            </div>
-          </div>
+export default function EditionBox({ edition }: Readonly<Props>) {
+  switch (edition.key) {
+    case EditionKey.datacenter:
+      return (
+        <div>
+          <SubHeading as="h2" id="data-center-edition">
+            <img
+              alt="SonarQube logo"
+              className="sw-mr-2"
+              width={16}
+              src={`${getBaseUrl()}/images/embed-doc/sq-icon.svg`}
+            />
+            <span>Data Center Edition</span>
+          </SubHeading>
+          <p className="sw-mt-4">
+            <em>Designed for High Availability and Scalability</em>
+          </p>
+          <p className="sw-mt-4">Enterprise Edition functionality plus:</p>
+          <UnorderedList className="sw-ml-8" ticks>
+            <li>Component redundancy</li>
+            <li>Data resiliency</li>
+            <li>Horizontal scalability</li>
+          </UnorderedList>
         </div>
-      )}
-      {edition.key === EditionKey.developer && (
-        <div className="markdown">
-          <div className="markdown-content">
-            <div>
-              <h3 id="developer-edition">
-                <img
-                  alt="SonarQube logo"
-                  className="max-width-100 little-spacer-right"
-                  src={`${getBaseUrl()}/images/embed-doc/sq-icon.svg`}
-                />
-                Developer Edition
-              </h3>
-              <p>
-                <em>Built for Developers by Developers</em>
-              </p>
-              <p>Community Edition functionality plus:</p>
-              <ul>
-                <li>
-                  PR / MR decoration &amp; Quality Gate
-                  <img
-                    alt="GitHub"
-                    className="little-spacer-left max-width-100"
-                    src={`${getBaseUrl()}/images/alm/github.svg`}
-                  />
-                  <img
-                    alt="GitLab"
-                    className="little-spacer-left max-width-100"
-                    src={`${getBaseUrl()}/images/alm/gitlab.svg`}
-                  />
-                  <img
-                    alt="Azure DevOps"
-                    className="little-spacer-left max-width-100"
-                    src={`${getBaseUrl()}/images/alm/azure.svg`}
-                  />
-                  <img
-                    alt="Bitbucket"
-                    className="little-spacer-left max-width-100"
-                    src={`${getBaseUrl()}/images/alm/bitbucket.svg`}
-                  />
-                </li>
-                <li>
-                  Taint analysis / Injection flaw detection for Java, C#, PHP, Python, JS &amp; TS
-                </li>
-                <li>Branch analysis</li>
-                <li>Project aggregation</li>
-                <li>Additional languages: C, C++, Obj-C, PL/SQL, ABAP, TSQL &amp; Swift</li>
-              </ul>
-            </div>
-          </div>
+      );
+
+    case EditionKey.enterprise:
+      return (
+        <div>
+          <SubHeading as="h2" id="enterprise-edition">
+            <img
+              alt="SonarQube logo"
+              className="sw-mr-2"
+              width={16}
+              src={`${getBaseUrl()}/images/embed-doc/sq-icon.svg`}
+            />
+            <span>Enterprise Edition</span>
+          </SubHeading>
+          <p className="sw-mt-4">
+            <em>Designed to Meet Enterprise Requirements</em>
+          </p>
+          <p className="sw-mt-4">Developer Edition functionality plus:</p>
+          <UnorderedList className="sw-ml-8" ticks>
+            <li>Faster analysis with parallel processing</li>
+            <li>OWASP/CWE security reports</li>
+            <li>Portfolio management</li>
+            <li>Executive reporting</li>
+            <li>Project transfer</li>
+            <li>Additional languages: Apex, COBOL, PL/I, RPG &amp; VB6</li>
+          </UnorderedList>
         </div>
-      )}
-      {edition.key === EditionKey.enterprise && (
-        <div className="markdown">
-          <div className="markdown-content">
-            <div>
-              <h3 id="enterprise-edition">
-                <img
-                  alt="SonarQube logo"
-                  className="max-width-100 little-spacer-right"
-                  src={`${getBaseUrl()}/images/embed-doc/sq-icon.svg`}
-                />{' '}
-                Enterprise Edition
-              </h3>
-              <p>
-                <em>Designed to Meet Enterprise Requirements</em>
-              </p>
-              <p>Developer Edition functionality plus:</p>
-              <ul>
-                <li>Faster analysis with parallel processing</li>
-                <li>OWASP/CWE security reports</li>
-                <li>Portfolio management</li>
-                <li>Executive reporting</li>
-                <li>Project transfer</li>
-                <li>Additional languages: Apex, COBOL, PL/I, RPG &amp; VB6</li>
-              </ul>
-            </div>
-          </div>
+      );
+
+    case EditionKey.developer:
+      return (
+        <div>
+          <SubHeading as="h2" id="developer-edition">
+            <img
+              alt="SonarQube logo"
+              className="sw-mr-2"
+              width={16}
+              src={`${getBaseUrl()}/images/embed-doc/sq-icon.svg`}
+            />
+            <span>Developer Edition</span>
+          </SubHeading>
+          <p className="sw-mt-4">
+            <em>Built for Developers by Developers</em>
+          </p>
+          <p className="sw-mt-4">Community Edition functionality plus:</p>
+          <UnorderedList className="sw-ml-8" ticks>
+            <li>
+              <span>PR / MR decoration &amp; Quality Gate</span>
+              <img
+                alt="GitHub"
+                className="sw-ml-2"
+                src={`${getBaseUrl()}/images/alm/github.svg`}
+                width={16}
+              />
+              <img
+                alt="GitLab"
+                className="sw-ml-2"
+                src={`${getBaseUrl()}/images/alm/gitlab.svg`}
+                width={16}
+              />
+              <img
+                alt="Azure DevOps"
+                className="sw-ml-2"
+                src={`${getBaseUrl()}/images/alm/azure.svg`}
+                width={16}
+              />
+              <img
+                alt="Bitbucket"
+                className="sw-ml-2"
+                src={`${getBaseUrl()}/images/alm/bitbucket.svg`}
+                width={16}
+              />
+            </li>
+            <li>
+              Taint analysis / Injection flaw detection for Java, C#, PHP, Python, JS &amp; TS
+            </li>
+            <li>Branch analysis</li>
+            <li>Project aggregation</li>
+            <li>Additional languages: C, C++, Obj-C, PL/SQL, ABAP, TSQL &amp; Swift</li>
+          </UnorderedList>
         </div>
-      )}
-      <div className="marketplace-edition-action spacer-top">
-        <Link
-          to={getEditionUrl(edition, { ncloc, serverId, sourceEdition: currentEdition })}
-          target="_blank"
-        >
-          {translate('marketplace.request_free_trial')}
-        </Link>
-      </div>
-    </div>
-  );
+      );
+
+    default:
+      return null;
+  }
 }

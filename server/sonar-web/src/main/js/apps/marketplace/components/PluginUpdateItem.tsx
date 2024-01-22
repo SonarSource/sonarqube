@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Badge, ListItem } from 'design-system';
 import * as React from 'react';
 import Tooltip from '../../../components/controls/Tooltip';
 import { translate } from '../../../helpers/l10n';
@@ -29,15 +30,17 @@ interface Props {
   release: Release;
 }
 
-export default function PluginUpdateItem({ release, update, pluginName }: Props) {
+export default function PluginUpdateItem({ release, update, pluginName }: Readonly<Props>) {
   return (
-    <li className="display-flex-row little-spacer-bottom" key={release.version}>
-      <div className="pull-left spacer-right">
+    <ListItem className="sw-flex sw-items-center" key={release.version}>
+      <div className="sw-mr-2">
         {update.status === 'COMPATIBLE' ? (
-          <span className="js-update-version badge badge-success">{release.version}</span>
+          <Badge variant="new">{release.version}</Badge>
         ) : (
           <Tooltip overlay={translate('marketplace.update_status', update.status)}>
-            <span className="js-update-version badge badge-warning">{release.version}</span>
+            <span>
+              <Badge>{release.version}</Badge>
+            </span>
           </Tooltip>
         )}
       </div>
@@ -45,6 +48,6 @@ export default function PluginUpdateItem({ release, update, pluginName }: Props)
         {release.description}
         <PluginChangeLogButton pluginName={pluginName} release={release} update={update} />
       </div>
-    </li>
+    </ListItem>
   );
 }

@@ -56,7 +56,7 @@ export default class SearchBox extends React.PureComponent<Props, State> {
 
   constructor(props: Props) {
     super(props);
-    this.state = { value: props.value || '' };
+    this.state = { value: props.value ?? '' };
     this.debouncedOnChange = debounce(this.props.onChange, DEBOUNCE_DELAY);
   }
 

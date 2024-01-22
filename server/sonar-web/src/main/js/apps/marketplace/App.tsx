@@ -17,23 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import {
+  BasicSeparator,
+  FlagMessage,
+  LargeCenteredLayout,
+  PageContentFontWrapper,
+  Spinner,
+  SubTitle,
+} from 'design-system';
 import { sortBy, uniqBy } from 'lodash';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { FormattedMessage } from 'react-intl';
 import { getAvailablePlugins, getInstalledPlugins } from '../../api/plugins';
 import { getValue, setSimpleSettingValue } from '../../api/settings';
-import DocLink from '../../components/common/DocLink';
+import DocumentationLink from '../../components/common/DocumentationLink';
+import ListFooter from '../../components/controls/ListFooter';
 import Suggestions from '../../components/embed-docs-modal/Suggestions';
 import { Location, Router, withRouter } from '../../components/hoc/withRouter';
-import { Alert } from '../../components/ui/Alert';
-import Spinner from '../../components/ui/Spinner';
 import { translate } from '../../helpers/l10n';
 import { EditionKey } from '../../types/editions';
 import { PendingPluginResult, Plugin, RiskConsent } from '../../types/plugins';
 import { SettingsKey } from '../../types/settings';
 import EditionBoxes from './EditionBoxes';
-import Footer from './Footer';
 import Header from './Header';
 import PluginsList from './PluginsList';
 import Search from './Search';
@@ -158,60 +164,73 @@ class App extends React.PureComponent<Props, State> {
       riskConsent === RiskConsent.Accepted;
 
     return (
-      <main className="page page-limited" id="marketplace-page">
-        <Suggestions suggestions="marketplace" />
-        <Helmet title={translate('marketplace.page')} />
-        <Header currentEdition={currentEdition} />
-        <EditionBoxes currentEdition={currentEdition} />
-        <header className="page-header">
-          <h2 className="page-title">{translate('marketplace.page.plugins')}</h2>
-          <div className="page-description">
-            <p>{translate('marketplace.page.plugins.description')}</p>
-            {currentEdition !== EditionKey.community && (
-              <Alert className="spacer-top" variant="info">
-                <FormattedMessage
-                  id="marketplace.page.plugins.description2"
-                  defaultMessage={translate('marketplace.page.plugins.description2')}
-                  values={{
-                    link: (
-                      <DocLink to="/instance-administration/marketplace/">
-                        {translate('marketplace.page.plugins.description2.link')}
-                      </DocLink>
-                    ),
-                  }}
-                />
-              </Alert>
-            )}
+      <LargeCenteredLayout as="main" id="marketplace-page">
+        <PageContentFontWrapper className="sw-body-sm sw-py-8">
+          <Suggestions suggestions="marketplace" />
+          <Helmet title={translate('marketplace.page')} />
+          <Header currentEdition={currentEdition} />
+          <EditionBoxes currentEdition={currentEdition} />
+
+          <BasicSeparator className="sw-my-6" />
+
+          <div>
+            <SubTitle>{translate('marketplace.page.plugins')}</SubTitle>
+            <div className="sw-mt-2 sw-max-w-abs-600 ">
+              <p>{translate('marketplace.page.plugins.description')}</p>
+              {currentEdition !== EditionKey.community && (
+                <FlagMessage className="sw-mt-2" variant="info">
+                  <p>
+                    <FormattedMessage
+                      id="marketplace.page.plugins.description2"
+                      defaultMessage={translate('marketplace.page.plugins.description2')}
+                      values={{
+                        link: (
+                          <DocumentationLink to="/instance-administration/marketplace/">
+                            {translate('marketplace.page.plugins.description2.link')}
+                          </DocumentationLink>
+                        ),
+                      }}
+                    />
+                  </p>
+                </FlagMessage>
+              )}
+            </div>
           </div>
-        </header>
 
-        <PluginRiskConsentBox
-          acknowledgeRisk={this.acknowledgeRisk}
-          currentEdition={currentEdition}
-          riskConsent={riskConsent}
-        />
+          <PluginRiskConsentBox
+            acknowledgeRisk={this.acknowledgeRisk}
+            currentEdition={currentEdition}
+            riskConsent={riskConsent}
+          />
 
-        <Search
-          query={query}
-          updateCenterActive={this.props.updateCenterActive}
-          updateQuery={this.updateQuery}
-        />
-        <Spinner loading={loadingPlugins}>
-          {filteredPlugins.length === 0 &&
-            translate('marketplace.plugin_list.no_plugins', query.filter)}
-          {filteredPlugins.length > 0 && (
-            <>
-              <PluginsList
-                pending={pendingPlugins}
-                plugins={filteredPlugins}
-                readOnly={!allowActions}
-                refreshPending={this.props.fetchPendingPlugins}
-              />
-              <Footer total={filteredPlugins.length} />
-            </>
-          )}
-        </Spinner>
-      </main>
+          <Search
+            query={query}
+            updateCenterActive={this.props.updateCenterActive}
+            updateQuery={this.updateQuery}
+          />
+          <div className="sw-mt-4">
+            <Spinner loading={loadingPlugins}>
+              {filteredPlugins.length === 0 &&
+                translate('marketplace.plugin_list.no_plugins', query.filter)}
+              {filteredPlugins.length > 0 && (
+                <>
+                  <PluginsList
+                    pending={pendingPlugins}
+                    plugins={filteredPlugins}
+                    readOnly={!allowActions}
+                    refreshPending={this.props.fetchPendingPlugins}
+                  />
+                  <ListFooter
+                    useMIUIButtons
+                    count={filteredPlugins.length}
+                    total={plugins.length}
+                  />
+                </>
+              )}
+            </Spinner>
+          </div>
+        </PageContentFontWrapper>
+      </LargeCenteredLayout>
     );
   }
 }

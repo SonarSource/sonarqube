@@ -42,10 +42,10 @@ const ui = {
   deTitle: byRole('heading', { name: 'SonarQube logo Developer Edition' }),
   eeTitle: byRole('heading', { name: 'SonarQube logo Enterprise Edition' }),
   dceTitle: byRole('heading', { name: 'SonarQube logo Data Center Edition' }),
-  pluginRow: byRole('list', { name: 'marketplace.page.plugins' }).byRole('table'),
-  filterAll: byRole('button', { name: 'marketplace.all' }),
-  filterInstalled: byRole('button', { name: 'marketplace.installed' }),
-  filterWithUpdates: byRole('button', { name: 'marketplace.updates_only' }),
+  pluginRow: byRole('table', { name: 'marketplace.page.plugins' }).byRole('row'),
+  filterAll: byRole('radio', { name: 'marketplace.all' }),
+  filterInstalled: byRole('radio', { name: 'marketplace.installed' }),
+  filterWithUpdates: byRole('radio', { name: 'marketplace.updates_only' }),
   search: byRole('searchbox', { name: 'marketplace.search' }),
   clearSearch: byRole('button', { name: 'clear' }),
   noPluginsText: byText('marketplace.plugin_list.no_plugins', { exact: false }),
@@ -115,7 +115,7 @@ it('should install, uninstall, update', async () => {
   expect(ui.updateButton.query()).not.toBeInTheDocument();
   expect(ui.riskConsentMessage.get()).toBeInTheDocument();
   expect(ui.riskConsentButton.get()).toBeInTheDocument();
-  await act(() => user.click(ui.riskConsentButton.get()));
+  await user.click(ui.riskConsentButton.get());
   expect(ui.riskConsentMessage.query()).not.toBeInTheDocument();
 
   expect(rows[0]).toHaveTextContent('ATest_install');
@@ -123,7 +123,7 @@ it('should install, uninstall, update', async () => {
   expect(ui.installButton.query(rows[0])).not.toBeInTheDocument();
   expect(ui.updateButton.query(rows[0])).not.toBeInTheDocument();
   expect(ui.uninstallPending.query(rows[0])).not.toBeInTheDocument();
-  await act(() => user.click(ui.uninstallButton.get(rows[0])));
+  await user.click(ui.uninstallButton.get(rows[0]));
   expect(await ui.uninstallPending.find(rows[0])).toBeInTheDocument();
   expect(ui.uninstallButton.query(rows[0])).not.toBeInTheDocument();
 

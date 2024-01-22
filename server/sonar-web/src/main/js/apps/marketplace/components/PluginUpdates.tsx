@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { ListItem, UnorderedList } from 'design-system';
 import * as React from 'react';
 import { translate } from '../../../helpers/l10n';
 import { Update } from '../../../types/plugins';
@@ -27,14 +28,14 @@ export interface PluginUpdatesProps {
   updates?: Update[];
 }
 
-export default function PluginUpdates({ pluginName, updates }: PluginUpdatesProps) {
+export default function PluginUpdates({ pluginName, updates }: Readonly<PluginUpdatesProps>) {
   if (!updates || updates.length <= 0) {
     return null;
   }
   return (
-    <li className="spacer-top">
-      <strong>{translate('marketplace.updates')}:</strong>
-      <ul className="little-spacer-top">
+    <ListItem>
+      <strong className="sw-body-sm-highlight">{translate('marketplace.updates')}:</strong>
+      <UnorderedList className="sw-mt-2">
         {updates.map((update) =>
           update.release ? (
             <PluginUpdateItem
@@ -45,7 +46,7 @@ export default function PluginUpdates({ pluginName, updates }: PluginUpdatesProp
             />
           ) : null,
         )}
-      </ul>
-    </li>
+      </UnorderedList>
+    </ListItem>
   );
 }

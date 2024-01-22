@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Link, ListItem } from 'design-system';
 import * as React from 'react';
 import { translate } from '../../../helpers/l10n';
 import { Plugin } from '../../../types/plugins';
@@ -25,38 +26,22 @@ interface Props {
   plugin: Plugin;
 }
 
-export default function PluginUrls({ plugin }: Props) {
+export default function PluginUrls({ plugin }: Readonly<Props>) {
   if (!plugin.homepageUrl && !plugin.issueTrackerUrl) {
     return null;
   }
   return (
-    <li className="little-spacer-bottom">
-      <ul className="list-inline">
-        {plugin.homepageUrl && (
-          <li>
-            <a
-              className="js-plugin-homepage"
-              href={plugin.homepageUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              {translate('marketplace.homepage')}
-            </a>
-          </li>
-        )}
-        {plugin.issueTrackerUrl && (
-          <li>
-            <a
-              className="js-plugin-issues"
-              href={plugin.issueTrackerUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              {translate('marketplace.issue_tracker')}
-            </a>
-          </li>
-        )}
-      </ul>
-    </li>
+    <ListItem className="sw-flex sw-flex-wrap sw-gap-4">
+      {plugin.homepageUrl && (
+        <Link className="sw-whitespace-nowrap" to={plugin.homepageUrl}>
+          {translate('marketplace.homepage')}
+        </Link>
+      )}
+      {plugin.issueTrackerUrl && (
+        <Link className="sw-whitespace-nowrap" to={plugin.issueTrackerUrl}>
+          {translate('marketplace.issue_tracker')}
+        </Link>
+      )}
+    </ListItem>
   );
 }

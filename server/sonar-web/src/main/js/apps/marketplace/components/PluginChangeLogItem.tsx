@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Badge, Link, ListItem, Note } from 'design-system';
 import * as React from 'react';
 import Tooltip from '../../../components/controls/Tooltip';
 import DateFormatter from '../../../components/intl/DateFormatter';
@@ -30,34 +31,27 @@ interface Props {
 
 export default function PluginChangeLogItem({ release, update }: Props) {
   return (
-    <li className="big-spacer-bottom">
-      <div className="little-spacer-bottom">
+    <ListItem>
+      <div className="sw-mb-2">
         {update.status === 'COMPATIBLE' || !update.status ? (
-          <span className="js-plugin-changelog-version badge badge-success spacer-right">
+          <Badge variant="new" className="sw-mr-4">
             {release.version}
-          </span>
+          </Badge>
         ) : (
           <Tooltip overlay={translate('marketplace.update_status', update.status)}>
-            <span className="js-plugin-changelog-version badge badge-warning spacer-right">
-              {release.version}
+            <span>
+              <Badge className="sw-mr-4">{release.version}</Badge>
             </span>
           </Tooltip>
         )}
-        <span className="js-plugin-changelog-date note spacer-right">
+        <Note className="sw-mr-4">
           <DateFormatter date={release.date} />
-        </span>
+        </Note>
         {release.changeLogUrl && (
-          <a
-            className="js-plugin-changelog-link"
-            href={release.changeLogUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            {translate('marketplace.release_notes')}
-          </a>
+          <Link to={release.changeLogUrl}>{translate('marketplace.release_notes')}</Link>
         )}
       </div>
-      <div className="js-plugin-changelog-description">{release.description}</div>
-    </li>
+      <p>{release.description}</p>
+    </ListItem>
   );
 }

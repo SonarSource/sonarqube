@@ -17,13 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import {
+  ButtonSecondary,
+  CheckIcon,
+  Checkbox,
+  DangerButtonSecondary,
+  Link,
+  Spinner,
+} from 'design-system';
 import * as React from 'react';
 import { installPlugin, uninstallPlugin, updatePlugin } from '../../../api/plugins';
-import Link from '../../../components/common/Link';
-import Checkbox from '../../../components/controls/Checkbox';
 import Tooltip from '../../../components/controls/Tooltip';
-import { Button } from '../../../components/controls/buttons';
-import CheckIcon from '../../../components/icons/CheckIcon';
 import { translate } from '../../../helpers/l10n';
 import { Plugin, isAvailablePlugin, isInstalledPlugin } from '../../../types/plugins';
 import PluginUpdateButton from './PluginUpdateButton';
@@ -122,61 +126,48 @@ export default class PluginActions extends React.PureComponent<Props, State> {
     return (
       <div className="it__js-actions">
         {isAvailablePlugin(plugin) && plugin.termsAndConditionsUrl && (
-          <div className="little-spacer-bottom">
+          <div className="sw-flex sw-items-center sw-flex-wrap sw-mb-2">
             <Checkbox
               checked={this.state.acceptTerms}
-              className="js-terms"
               id={'plugin-terms-' + plugin.key}
               onCheck={this.handleTermsCheck}
             >
-              <label className="little-spacer-left" htmlFor={'plugin-terms-' + plugin.key}>
-                {translate('marketplace.i_accept_the')}
-              </label>
+              <span className="sw-ml-2">{translate('marketplace.i_accept_the')}</span>
             </Checkbox>
-            <a
-              className="js-plugin-terms nowrap little-spacer-left"
-              href={plugin.termsAndConditionsUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
+            <Link className="sw-whitespace-nowrap sw-ml-1" to={plugin.termsAndConditionsUrl}>
               {translate('marketplace.terms_and_conditions')}
-            </a>
+            </Link>
           </div>
         )}
-        {loading && <i className="spinner spacer-right little-spacer-top little-spacer-bottom" />}
+        <Spinner className="sw-my-2" loading={loading} />
         {isInstalledPlugin(plugin) && (
           <>
-            {plugin.updates &&
-              plugin.updates.map((update, idx) => (
+            {plugin.updates?.map((update, idx) => (
+              <div className="sw-inline-block sw-mr-2 sw-mb-2" key={idx}>
                 <PluginUpdateButton
                   disabled={loading}
-                  key={idx}
                   onClick={this.handleUpdate}
                   update={update}
                 />
-              ))}
+              </div>
+            ))}
             <Tooltip overlay={translate('marketplace.requires_restart')}>
-              <Button
-                className="js-uninstall button-red little-spacer-left"
-                disabled={loading}
-                onClick={this.handleUninstall}
-              >
+              <DangerButtonSecondary disabled={loading} onClick={this.handleUninstall}>
                 {translate('marketplace.uninstall')}
-              </Button>
+              </DangerButtonSecondary>
             </Tooltip>
           </>
         )}
         {isAvailablePlugin(plugin) && (
           <Tooltip overlay={translate('marketplace.requires_restart')}>
-            <Button
-              className="js-install"
+            <ButtonSecondary
               disabled={
                 loading || (plugin.termsAndConditionsUrl != null && !this.state.acceptTerms)
               }
               onClick={this.handleInstall}
             >
               {translate('marketplace.install')}
-            </Button>
+            </ButtonSecondary>
           </Tooltip>
         )}
       </div>

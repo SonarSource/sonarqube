@@ -17,6 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import styled from '@emotion/styled';
+import { ContentCell, ListItem, UnorderedList } from 'design-system';
 import * as React from 'react';
 import { translate } from '../../../helpers/l10n';
 import { InstalledPlugin } from '../../../types/plugins';
@@ -34,33 +36,46 @@ interface Props {
   status?: string;
 }
 
-export default function PluginInstalled({ plugin, readOnly, refreshPending, status }: Props) {
+export default function PluginInstalled({
+  plugin,
+  readOnly,
+  refreshPending,
+  status,
+}: Readonly<Props>) {
   return (
-    <tr>
+    <>
       <PluginDescription plugin={plugin} />
-      <td className="text-top big-spacer-right">
-        <ul>
-          <li className="little-spacer-bottom">
-            <strong className="js-plugin-installed-version little-spacer-right">
-              {plugin.version}
-            </strong>
+      <ContentCell>
+        <StyledUnorderedList>
+          <ListItem className="sw-mt-0">
+            <strong className="sw-mr-1 sw-body-sm-highlight">{plugin.version}</strong>
             {translate('marketplace._installed')}
-          </li>
+          </ListItem>
           <PluginUpdates pluginName={plugin.name} updates={plugin.updates} />
-        </ul>
-      </td>
+        </StyledUnorderedList>
+      </ContentCell>
 
-      <td className="text-top width-20">
-        <ul>
+      <ContentCell>
+        <StyledUnorderedList>
           <PluginUrls plugin={plugin} />
           <PluginLicense license={plugin.license} />
           <PluginOrganization plugin={plugin} />
-        </ul>
-      </td>
+        </StyledUnorderedList>
+      </ContentCell>
 
       {!readOnly && (
-        <PluginStatus plugin={plugin} refreshPending={refreshPending} status={status} />
+        <ContentCell>
+          <PluginStatus plugin={plugin} refreshPending={refreshPending} status={status} />
+        </ContentCell>
       )}
-    </tr>
+    </>
   );
 }
+
+const StyledUnorderedList = styled(UnorderedList)`
+  margin-top: 0;
+
+  & li:first {
+    margin-top: 0;
+  }
+`;

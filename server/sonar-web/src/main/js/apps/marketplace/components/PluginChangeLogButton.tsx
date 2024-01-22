@@ -17,11 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { ButtonSecondary, DropdownToggler } from 'design-system';
 import * as React from 'react';
-import { ButtonLink } from '../../../components/controls/buttons';
-import Dropdown from '../../../components/controls/Dropdown';
-import EllipsisIcon from '../../../components/icons/EllipsisIcon';
-import { translateWithParameters } from '../../../helpers/l10n';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { Release, Update } from '../../../types/plugins';
 import PluginChangeLog from './PluginChangeLog';
 
@@ -31,22 +29,27 @@ interface Props {
   update: Update;
 }
 
-export default function PluginChangeLogButton({ pluginName, release, update }: Props) {
+export default function PluginChangeLogButton({ pluginName, release, update }: Readonly<Props>) {
+  const [open, setOpen] = React.useState(false);
+
   return (
-    <Dropdown
-      className="display-inline-block little-spacer-left"
+    <DropdownToggler
+      allowResizing
+      onRequestClose={() => setOpen(false)}
+      open={open}
+      id={`plugin-changelog-${pluginName}`}
       overlay={<PluginChangeLog release={release} update={update} />}
     >
-      <ButtonLink
-        className="js-changelog"
+      <ButtonSecondary
         aria-label={translateWithParameters(
           'marketplace.show_plugin_changelog',
           pluginName,
           release.version,
         )}
+        onClick={() => setOpen((open) => !open)}
       >
-        <EllipsisIcon />
-      </ButtonLink>
-    </Dropdown>
+        {translate('see_changelog')}
+      </ButtonSecondary>
+    </DropdownToggler>
   );
 }
