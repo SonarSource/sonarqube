@@ -30,6 +30,7 @@ import org.junit.rules.TemporaryFolder;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.platform.ServerFileSystem;
 
+import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
@@ -39,7 +40,6 @@ public class BatchIndexTest {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
-
 
   private File jar;
 
@@ -102,5 +102,16 @@ public class BatchIndexTest {
     })
       .isInstanceOf(NotFoundException.class)
       .hasMessage("Bad filename: other.jar");
+  }
+
+  @Test
+  public void start_whenBatchDirDoesntExist_shouldThrow() throws IOException {
+    File homeDir = temp.newFolder();
+    when(fs.getHomeDir()).thenReturn(homeDir);
+
+    BatchIndex batchIndex = new BatchIndex(fs);
+    assertThatThrownBy(batchIndex::start)
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage(format("%s/lib/scanner folder not found", homeDir.getAbsolutePath()));
   }
 }

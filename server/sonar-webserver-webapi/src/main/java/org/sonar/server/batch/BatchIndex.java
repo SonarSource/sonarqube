@@ -35,6 +35,8 @@ import org.sonar.api.server.ServerSide;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.platform.ServerFileSystem;
 
+import static java.lang.String.format;
+
 /**
  * Scanner Engine JAR file(s) to be downloaded by sonar-scanner-api. There is currently only one JAR (see assembly.xml)
  * but let's keep possibility to pass several files for possible future evolutions.
@@ -66,6 +68,8 @@ public class BatchIndex implements Startable {
           }
         }
       }
+    } else {
+      throw new IllegalStateException(format("%s folder not found", batchDir.getAbsolutePath()));
     }
     this.index = sb.toString();
   }
