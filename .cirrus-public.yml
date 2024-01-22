@@ -1,0 +1,29 @@
+only_if: $CIRRUS_TAG == "" && ($CIRRUS_PR != "" || $CIRRUS_BRANCH == $CIRRUS_DEFAULT_BRANCH || $CIRRUS_BRANCH =~ "branch-.*" || $CIRRUS_BUILD_SOURCE == 'api' )
+
+env:
+  CIRRUS_SHELL: bash
+  CIRRUS_CLONE_DEPTH: 0
+
+build_task:
+  skip: $CIRRUS_BRANCH == "public_master" || $CIRRUS_BRANCH =~ "dogfood/.*"
+  container:
+    dockerfile: .cirrus/Dockerfile
+    cpu: 8
+    memory: 20Gb
+  env:
+    SONAR_HOST_URL: https://next.sonarqube.com/sonarqube
+    SONAR_TOKEN: ENCRYPTED[!b6fd814826c51e64ee61b0b6f3ae621551f6413383f7170f73580e2e141ac78c4b134b506f6288c74faa0dd564c05a29!]
+    GRADLE_USER_HOME: ${CIRRUS_WORKING_DIR}/.gradle
+  gradle_cache:
+    folder: ${GRADLE_USER_HOME}/caches
+    fingerprint_script: find -type f \( -name "*.gradle*" -or -name "gradle*.properties" \) | sort | xargs cat
+    populate_script: mkdir -p ${GRADLE_USER_HOME}/caches
+  sonar_cache:
+    folder: ${HOME}/.sonar
+  build_script: .cirrus/build.sh
+  cleanup_gradle_script: |
+    rm -rf "${GRADLE_USER_HOME}"/caches/7.*/
+    rm -rf "${GRADLE_USER_HOME}"/daemon/
+    rm -rf "${GRADLE_USER_HOME}"/caches/transforms-*
+    rm -rf "${GRADLE_USER_HOME}"/caches/journal-*
+    /usr/bin/find "${GRADLE_USER_HOME}"/caches/ -name "*.lock" -type f -delete

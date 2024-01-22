@@ -1,4 +1,4 @@
-# SonarQube [![Build Status](https://app.travis-ci.com/SonarSource/sonarqube.svg?branch=master)](https://app.travis-ci.com/SonarSource/sonarqube) [![Quality Gate Status](https://next.sonarqube.com/sonarqube/api/project_badges/measure?project=sonarqube&metric=alert_status&token=d95182127dd5583f57578d769b511660601a8547)](https://next.sonarqube.com/sonarqube/dashboard?id=sonarqube)
+# SonarQube [![Build Status](https://api.cirrus-ci.com/github/SonarSource/sonarqube.svg?branch=master)](https://cirrus-ci.com/github/SonarSource/sonarqube) [![Quality Gate Status](https://next.sonarqube.com/sonarqube/api/project_badges/measure?project=sonarqube&metric=alert_status&token=d95182127dd5583f57578d769b511660601a8547)](https://next.sonarqube.com/sonarqube/dashboard?id=sonarqube)
 
 ## Continuous Inspection
 
