@@ -25,16 +25,16 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.sonar.auth.github.AppInstallationToken;
-import org.sonar.auth.github.client.GithubApplicationClient;
 import org.sonar.alm.client.github.GithubApplicationClientImpl;
-import org.sonar.auth.github.GsonRepositoryCollaborator;
+import org.sonar.alm.client.github.GithubPermissionConverter;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
+import org.sonar.auth.github.AppInstallationToken;
 import org.sonar.auth.github.GitHubSettings;
-import org.sonar.alm.client.github.GithubPermissionConverter;
+import org.sonar.auth.github.GsonRepositoryCollaborator;
 import org.sonar.auth.github.GsonRepositoryPermissions;
+import org.sonar.auth.github.client.GithubApplicationClient;
 import org.sonar.core.i18n.I18n;
 import org.sonar.core.platform.EditionProvider;
 import org.sonar.core.platform.PlatformEditionProvider;
@@ -53,11 +53,11 @@ import org.sonar.db.user.UserDto;
 import org.sonar.server.almintegration.ws.ImportHelper;
 import org.sonar.server.almintegration.ws.ProjectKeyGenerator;
 import org.sonar.server.almsettings.ws.GithubProjectCreatorFactory;
-import org.sonar.server.project.ws.ProjectCreator;
 import org.sonar.server.component.ComponentUpdater;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.es.IndexersImpl;
 import org.sonar.server.es.TestIndexers;
+import org.sonar.server.exceptions.BadConfigurationException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.favorite.FavoriteUpdater;
@@ -76,11 +76,13 @@ import org.sonar.server.permission.index.PermissionIndexer;
 import org.sonar.server.project.DefaultBranchNameResolver;
 import org.sonar.server.project.ProjectDefaultVisibility;
 import org.sonar.server.project.Visibility;
+import org.sonar.server.project.ws.ProjectCreator;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.Projects;
 
+import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNoException;
@@ -422,6 +424,27 @@ public class ImportGithubProjectActionIT {
     assertThatThrownBy(request::execute)
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("Parameter almSetting is required as there are multiple DevOps Platform configurations.");
+  }
+
+  @Test
+  public void importProject_whenProvisioningIsEnabledButConfigDoesNotAllowAccessToRepo_shouldThrow() {
+    AlmSettingDto githubAlmSetting = setupUserWithPatAndAlmSettings();
+
+    when(gitHubSettings.isProvisioningEnabled()).thenReturn(true);
+    mockGithubDevOpsAppInteractions();
+    mockGithubAuthAppInteractions();
+
+    when(appClient.getInstallationId(any(), any())).thenReturn(Optional.empty());
+
+    TestRequest request = ws.newRequest()
+      .setParam(PARAM_ALM_SETTING, githubAlmSetting.getKey())
+      .setParam(PARAM_REPOSITORY_KEY, "octocat/" + PROJECT_KEY_NAME);
+
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(BadConfigurationException.class)
+      .hasMessage(format("GitHub auto-provisioning is activated. However the repo %s is not in the scope of the authentication application. "
+          + "The permissions can't be checked, and the project can not be created.",
+        "octocat/" + PROJECT_KEY_NAME));
   }
 
   @Test

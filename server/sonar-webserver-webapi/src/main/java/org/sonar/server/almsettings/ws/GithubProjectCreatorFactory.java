@@ -23,19 +23,20 @@ import java.util.Map;
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.auth.github.AppInstallationToken;
-import org.sonar.auth.github.client.GithubApplicationClient;
 import org.sonar.alm.client.github.GithubGlobalSettingsValidator;
 import org.sonar.alm.client.github.GithubPermissionConverter;
-import org.sonar.auth.github.GithubAppConfiguration;
-import org.sonar.auth.github.security.AccessToken;
 import org.sonar.api.server.ServerSide;
+import org.sonar.auth.github.AppInstallationToken;
 import org.sonar.auth.github.GitHubSettings;
+import org.sonar.auth.github.GithubAppConfiguration;
+import org.sonar.auth.github.client.GithubApplicationClient;
+import org.sonar.auth.github.security.AccessToken;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.alm.setting.ALM;
 import org.sonar.db.alm.setting.AlmSettingDto;
 import org.sonar.server.almintegration.ws.ProjectKeyGenerator;
+import org.sonar.server.exceptions.BadConfigurationException;
 import org.sonar.server.management.ManagedProjectService;
 import org.sonar.server.permission.PermissionService;
 import org.sonar.server.permission.PermissionUpdater;
@@ -132,7 +133,8 @@ public class GithubProjectCreatorFactory implements DevOpsProjectCreatorFactory 
     if (gitHubSettings.isProvisioningEnabled()) {
       GithubAppConfiguration githubAppConfiguration = new GithubAppConfiguration(Long.parseLong(gitHubSettings.appId()), gitHubSettings.privateKey(), gitHubSettings.apiURL());
       long installationId = findInstallationIdToAccessRepo(githubAppConfiguration, devOpsProjectDescriptor.projectIdentifier())
-        .orElseThrow(() -> new IllegalStateException(format("GitHub auto-provisioning is activated. However the repo %s is not in the scope of the authentication application. "
+        .orElseThrow(() -> new BadConfigurationException("PROJECT",
+          format("GitHub auto-provisioning is activated. However the repo %s is not in the scope of the authentication application. "
           + "The permissions can't be checked, and the project can not be created.",
           devOpsProjectDescriptor.projectIdentifier())));
       return Optional.of(generateAppInstallationToken(githubAppConfiguration, installationId));

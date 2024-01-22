@@ -28,16 +28,17 @@ import org.mockito.Answers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.sonar.auth.github.AppInstallationToken;
-import org.sonar.auth.github.client.GithubApplicationClient;
 import org.sonar.alm.client.github.GithubGlobalSettingsValidator;
 import org.sonar.alm.client.github.GithubPermissionConverter;
+import org.sonar.auth.github.AppInstallationToken;
 import org.sonar.auth.github.GitHubSettings;
+import org.sonar.auth.github.client.GithubApplicationClient;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.alm.setting.ALM;
 import org.sonar.db.alm.setting.AlmSettingDto;
 import org.sonar.server.almintegration.ws.ProjectKeyGenerator;
+import org.sonar.server.exceptions.BadConfigurationException;
 import org.sonar.server.management.ManagedProjectService;
 import org.sonar.server.permission.PermissionService;
 import org.sonar.server.permission.PermissionUpdater;
@@ -46,9 +47,11 @@ import org.sonar.server.project.ProjectDefaultVisibility;
 import org.sonar.server.project.ws.ProjectCreator;
 import org.sonar.server.user.UserSession;
 
+import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -163,10 +166,7 @@ public class GithubProjectCreatorFactoryTest {
     mockSuccessfulGithubInteraction();
 
     when(projectDefaultVisibility.get(any()).isPrivate()).thenReturn(true);
-    when(gitHubSettings.isProvisioningEnabled()).thenReturn(true);
-    when(gitHubSettings.appId()).thenReturn("4324");
-    when(gitHubSettings.privateKey()).thenReturn("privateKey");
-    when(gitHubSettings.apiURL()).thenReturn(GITHUB_API_URL);
+    mockValidGitHubSettings();
 
     long authAppInstallationId = 32;
     when(githubApplicationClient.getInstallationId(any(), eq(GITHUB_REPO_FULL_NAME))).thenReturn(Optional.of(authAppInstallationId));
@@ -202,6 +202,28 @@ public class GithubProjectCreatorFactoryTest {
 
     GithubProjectCreator expectedGithubProjectCreator = getExpectedGithubProjectCreator(mockAlmSettingDto, false);
     assertThat(devOpsProjectCreator).usingRecursiveComparison().isEqualTo(expectedGithubProjectCreator);
+  }
+
+  @Test
+  public void getDevOpsProjectCreatorFromImport_whenGitHubConfigDoesNotAllowAccessToRepo_shouldThrow() {
+    AlmSettingDto mockAlmSettingDto = mockAlmSettingDto(false);
+
+    mockValidGitHubSettings();
+
+    when(githubApplicationClient.getInstallationId(any(), eq(GITHUB_REPO_FULL_NAME))).thenReturn(Optional.empty());
+
+    assertThatThrownBy(() -> githubProjectCreatorFactory.getDevOpsProjectCreator(mockAlmSettingDto, appInstallationToken, GITHUB_PROJECT_DESCRIPTOR))
+      .isInstanceOf(BadConfigurationException.class)
+      .hasMessage(format("GitHub auto-provisioning is activated. However the repo %s is not in the scope of the authentication application. "
+          + "The permissions can't be checked, and the project can not be created.",
+        GITHUB_REPO_FULL_NAME));
+  }
+
+  private void mockValidGitHubSettings() {
+    when(gitHubSettings.appId()).thenReturn("4324");
+    when(gitHubSettings.privateKey()).thenReturn("privateKey");
+    when(gitHubSettings.apiURL()).thenReturn(GITHUB_API_URL);
+    when(gitHubSettings.isProvisioningEnabled()).thenReturn(true);
   }
 
   private void mockSuccessfulGithubInteraction() {
