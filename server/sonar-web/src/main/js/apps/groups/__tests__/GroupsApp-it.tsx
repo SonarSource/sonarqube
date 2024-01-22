@@ -25,7 +25,7 @@ import GroupMembershipsServiceMock from '../../../api/mocks/GroupMembersipsServi
 import GroupsServiceMock from '../../../api/mocks/GroupsServiceMock';
 import SystemServiceMock from '../../../api/mocks/SystemServiceMock';
 import UsersServiceMock from '../../../api/mocks/UsersServiceMock';
-import { mockGroupMembership, mockRestUser } from '../../../helpers/testMocks';
+import { mockGroup, mockGroupMembership, mockRestUser } from '../../../helpers/testMocks';
 import { renderApp } from '../../../helpers/testReactTestingUtils';
 import { byRole, byText } from '../../../helpers/testSelector';
 import { Feature } from '../../../types/features';
@@ -257,14 +257,17 @@ describe('in non managed mode', () => {
 
   it('should be able load more group', async () => {
     const user = userEvent.setup();
+    handler.groups = new Array(15)
+      .fill(null)
+      .map((_, index) => mockGroup({ id: index.toString(), name: `group${index}` }));
     renderGroupsApp();
 
-    expect(await ui.localGroupRow.find()).toBeInTheDocument();
-    expect(await screen.findAllByRole('row')).toHaveLength(3);
+    expect(await ui.showMore.find()).toBeInTheDocument();
+    expect(await screen.findAllByRole('row')).toHaveLength(11);
 
     await user.click(await ui.showMore.find());
 
-    expect(await screen.findAllByRole('row')).toHaveLength(5);
+    expect(await screen.findAllByRole('row')).toHaveLength(16);
   });
 });
 

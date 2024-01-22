@@ -19,15 +19,18 @@
  */
 
 import { LightPrimary, Modal, Note } from 'design-system';
-import { find, without } from 'lodash';
+import { find } from 'lodash';
 import * as React from 'react';
-import { UserGroup, getUserGroups } from '../../../api/users';
 import SelectList, {
   SelectListFilter,
   SelectListSearchParams,
 } from '../../../components/controls/SelectList';
 import { translate } from '../../../helpers/l10n';
-import { useAddUserToGroupMutation, useRemoveUserToGroupMutation } from '../../../queries/users';
+import {
+  useAddGroupMembershipMutation,
+  useRemoveGroupMembershipMutation,
+  useUserGroupsQuery,
+} from '../../../queries/group-memberships';
 import { RestUserDetailed } from '../../../types/users';
 
 interface Props {
@@ -37,60 +40,58 @@ interface Props {
 
 export default function GroupsForm(props: Props) {
   const { user } = props;
-  const [needToReload, setNeedToReload] = React.useState<boolean>(false);
-  const [lastSearchParams, setLastSearchParams] = React.useState<
-    SelectListSearchParams | undefined
-  >(undefined);
-  const [groups, setGroups] = React.useState<UserGroup[]>([]);
-  const [groupsTotalCount, setGroupsTotalCount] = React.useState<number | undefined>(undefined);
-  const [selectedGroups, setSelectedGroups] = React.useState<string[]>([]);
-  const { mutateAsync: addUserToGroup } = useAddUserToGroupMutation();
-  const { mutateAsync: removeUserFromGroup } = useRemoveUserToGroupMutation();
+  const [query, setQuery] = React.useState<string>('');
+  const [filter, setFilter] = React.useState<SelectListFilter>(SelectListFilter.Selected);
+  const [changedGroups, setChangedGroups] = React.useState<Map<string, boolean>>(new Map());
+  const {
+    data: groups,
+    isLoading,
+    refetch,
+  } = useUserGroupsQuery({
+    q: query,
+    filter,
+    userId: user.id,
+  });
+  const { mutateAsync: addUserToGroup } = useAddGroupMembershipMutation();
+  const { mutateAsync: removeUserFromGroup } = useRemoveGroupMembershipMutation();
 
-  const fetchUsers = (searchParams: SelectListSearchParams) =>
-    getUserGroups({
-      login: user.login,
-      p: searchParams.page,
-      ps: searchParams.pageSize,
-      q: searchParams.query !== '' ? searchParams.query : undefined,
-      selected: searchParams.filter,
-    }).then((data) => {
-      const more = searchParams.page != null && searchParams.page > 1;
-      const allGroups = more ? [...groups, ...data.groups] : data.groups;
-      const newSeletedGroups = data.groups.filter((gp) => gp.selected).map((gp) => gp.name);
-      const allSelectedGroups = more ? [...selectedGroups, ...newSeletedGroups] : newSeletedGroups;
+  const onSearch = (searchParams: SelectListSearchParams) => {
+    if (query === searchParams.query && filter === searchParams.filter) {
+      refetch();
+    } else {
+      setQuery(searchParams.query);
+      setFilter(searchParams.filter);
+    }
 
-      setLastSearchParams(searchParams);
-      setNeedToReload(false);
-      setGroups(allGroups);
-      setGroupsTotalCount(data.paging.total);
-      setSelectedGroups(allSelectedGroups);
-    });
+    setChangedGroups(new Map());
+  };
 
-  const handleSelect = (name: string) =>
+  const handleSelect = (groupId: string) =>
     addUserToGroup({
-      name,
-      login: user.login,
+      userId: user.id,
+      groupId,
     }).then(() => {
-      setNeedToReload(true);
-      setSelectedGroups([...selectedGroups, name]);
+      const newChangedGroups = new Map(changedGroups);
+      newChangedGroups.set(groupId, true);
+      setChangedGroups(newChangedGroups);
     });
 
-  const handleUnselect = (name: string) =>
+  const handleUnselect = (groupId: string) =>
     removeUserFromGroup({
-      name,
-      login: user.login,
+      groupId,
+      userId: user.id,
     }).then(() => {
-      setNeedToReload(true);
-      setSelectedGroups(without(selectedGroups, name));
+      const newChangedGroups = new Map(changedGroups);
+      newChangedGroups.set(groupId, false);
+      setChangedGroups(newChangedGroups);
     });
 
-  const renderElement = (name: string): React.ReactNode => {
-    const group = find(groups, { name });
+  const renderElement = (groupId: string): React.ReactNode => {
+    const group = find(groups, { id: groupId });
     return (
       <div>
         {group === undefined ? (
-          <LightPrimary>{name}</LightPrimary>
+          <LightPrimary>{groupId}</LightPrimary>
         ) : (
           <>
             <LightPrimary>{group.name}</LightPrimary>
@@ -110,17 +111,19 @@ export default function GroupsForm(props: Props) {
       body={
         <div className="sw-pt-1">
           <SelectList
-            elements={groups.map((group) => group.name)}
-            elementsTotalCount={groupsTotalCount}
-            needToReload={
-              needToReload && lastSearchParams && lastSearchParams.filter !== SelectListFilter.All
-            }
-            onSearch={fetchUsers}
+            elements={groups?.map((group) => group.id.toString()) ?? []}
+            elementsTotalCount={groups?.length}
+            needToReload={changedGroups.size > 0 && filter !== SelectListFilter.All}
+            onSearch={onSearch}
             onSelect={handleSelect}
             onUnselect={handleUnselect}
             renderElement={renderElement}
-            selectedElements={selectedGroups}
-            withPaging
+            selectedElements={
+              groups
+                ?.filter((g) => (changedGroups.has(g.id) ? changedGroups.get(g.id) : g.selected))
+                .map((g) => g.id) ?? []
+            }
+            loading={isLoading}
           />
         </div>
       }

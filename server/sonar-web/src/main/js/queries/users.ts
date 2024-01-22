@@ -18,16 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { addUserToGroup, removeUserFromGroup } from '../api/legacy-group-membership';
 import { generateToken, getTokens, revokeToken } from '../api/user-tokens';
-import {
-  deleteUser,
-  dismissNotice,
-  getUserGroups,
-  getUsers,
-  postUser,
-  updateUser,
-} from '../api/users';
+import { deleteUser, dismissNotice, getUsers, postUser, updateUser } from '../api/users';
 import { useCurrentUser } from '../app/components/current-user/CurrentUserContext';
 import { getNextPageParam, getPreviousPageParam } from '../helpers/react-query';
 import { UserToken } from '../types/token';
@@ -53,13 +45,6 @@ export function useUserTokensQuery(login: string) {
     queryKey: ['user', login, 'tokens'],
     queryFn: () => getTokens(login),
     staleTime: STALE_TIME,
-  });
-}
-
-export function useUserGroupsCountQuery(login: string) {
-  return useQuery({
-    queryKey: ['user', login, 'groups', 'total'],
-    queryFn: () => getUserGroups({ login, ps: 1 }).then((r) => r.paging.total),
   });
 }
 
@@ -131,30 +116,6 @@ export function useRevokeTokenMutation() {
     onSuccess(_, data) {
       queryClient.setQueryData<UserToken[]>(['user', data.login, 'tokens'], (oldData) =>
         oldData ? oldData.filter((token) => token.name !== data.name) : undefined,
-      );
-    },
-  });
-}
-
-export function useAddUserToGroupMutation() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: (data: Parameters<typeof addUserToGroup>[0]) => addUserToGroup(data),
-    onSuccess(_, data) {
-      queryClient.setQueryData<number>(['user', data.login, 'groups', 'total'], (oldData) =>
-        oldData !== undefined ? oldData + 1 : undefined,
-      );
-    },
-  });
-}
-
-export function useRemoveUserToGroupMutation() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: (data: Parameters<typeof removeUserFromGroup>[0]) => removeUserFromGroup(data),
-    onSuccess(_, data) {
-      queryClient.setQueryData<number>(['user', data.login, 'groups', 'total'], (oldData) =>
-        oldData !== undefined ? oldData - 1 : undefined,
       );
     },
   });

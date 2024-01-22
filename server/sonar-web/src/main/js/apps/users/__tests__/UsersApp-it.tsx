@@ -17,17 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { screen, waitFor, within } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
 import selectEvent from 'react-select-event';
 import ComponentsServiceMock from '../../../api/mocks/ComponentsServiceMock';
 import GithubProvisioningServiceMock from '../../../api/mocks/GithubProvisioningServiceMock';
+import GroupMembershipsServiceMock from '../../../api/mocks/GroupMembersipsServiceMock';
+import GroupsServiceMock from '../../../api/mocks/GroupsServiceMock';
 import SettingsServiceMock from '../../../api/mocks/SettingsServiceMock';
 import SystemServiceMock from '../../../api/mocks/SystemServiceMock';
 import UserTokensMock from '../../../api/mocks/UserTokensMock';
 import UsersServiceMock from '../../../api/mocks/UsersServiceMock';
-import { mockCurrentUser, mockLoggedInUser, mockRestUser } from '../../../helpers/testMocks';
+import {
+  mockCurrentUser,
+  mockGroup,
+  mockGroupMembership,
+  mockLoggedInUser,
+  mockRestUser,
+} from '../../../helpers/testMocks';
 import { renderApp } from '../../../helpers/testReactTestingUtils';
 import { byLabelText, byRole, byText } from '../../../helpers/testSelector';
 import { Feature } from '../../../types/features';
@@ -42,6 +50,8 @@ const systemHandler = new SystemServiceMock();
 const componentsHandler = new ComponentsServiceMock();
 const settingsHandler = new SettingsServiceMock();
 const githubHandler = new GithubProvisioningServiceMock();
+const membershipHandler = new GroupMembershipsServiceMock();
+const groupsHandler = new GroupsServiceMock();
 
 const ui = {
   createUserButton: byRole('button', { name: 'users.create_user' }),
@@ -107,7 +117,7 @@ const ui = {
   selectedFilter: byRole('radio', { name: 'selected' }),
   unselectedFilter: byRole('radio', { name: 'unselected' }),
 
-  getGroups: () => within(ui.dialogGroups.get()).getAllByRole('checkbox'),
+  groups: byRole('dialog', { name: 'users.update_groups' }).byRole('checkbox'),
   dialogTokens: byRole('dialog', { name: /users.user_X_tokens/ }),
   dialogPasswords: byRole('dialog', { name: 'my_profile.password.title' }),
   dialogUpdateUser: byRole('dialog', { name: 'users.update_user' }),
@@ -147,6 +157,8 @@ beforeEach(() => {
   settingsHandler.reset();
   systemHandler.reset();
   githubHandler.reset();
+  membershipHandler.reset();
+  groupsHandler.reset();
 });
 
 describe('different filters combinations', () => {
@@ -297,24 +309,38 @@ describe('in non managed mode', () => {
 
   it('should be able to edit the groups of a user', async () => {
     const user = userEvent.setup();
+    groupsHandler.groups = new Array(105).fill(null).map((_, index) =>
+      mockGroup({
+        id: index.toString(),
+        name: `group${index}`,
+        // eslint-disable-next-line jest/no-conditional-in-test
+        description: index === 0 ? 'description99' : undefined,
+      }),
+    );
+    membershipHandler.memberships = [
+      mockGroupMembership({ userId: '2', groupId: '1' }),
+      mockGroupMembership({ userId: '2', groupId: '2' }),
+      mockGroupMembership({ userId: '2', groupId: '3' }),
+    ];
     renderUsersApp();
     expect(await ui.aliceRow.byText('3').find()).toBeInTheDocument();
 
     await user.click(await ui.aliceUpdateGroupButton.find());
     expect(await ui.dialogGroups.find()).toBeInTheDocument();
 
-    expect(ui.getGroups()).toHaveLength(3);
+    expect(await ui.groups.findAll()).toHaveLength(3);
 
     await user.click(await ui.allFilter.find());
-    expect(ui.getGroups()).toHaveLength(4);
+    expect(ui.groups.getAll()).toHaveLength(105);
 
     await user.click(ui.unselectedFilter.get());
+    expect(ui.groups.getAll()).toHaveLength(102);
     expect(ui.reloadButton.query()).not.toBeInTheDocument();
-    await user.click(ui.getGroups()[0]);
+    await user.click(ui.groups.getAt(0));
     expect(await ui.reloadButton.find()).toBeInTheDocument();
 
     await user.click(ui.selectedFilter.get());
-    expect(ui.getGroups()).toHaveLength(4);
+    expect(ui.groups.getAll()).toHaveLength(4);
 
     await user.click(ui.doneButton.get());
     expect(ui.dialogGroups.query()).not.toBeInTheDocument();
@@ -324,14 +350,14 @@ describe('in non managed mode', () => {
 
     await user.click(ui.selectedFilter.get());
 
-    await user.click(ui.getGroups()[1]);
+    await user.click(ui.groups.getAt(1));
     expect(await ui.reloadButton.find()).toBeInTheDocument();
     await user.click(ui.reloadButton.get());
-    expect(ui.getGroups()).toHaveLength(3);
+    expect(ui.groups.getAll()).toHaveLength(3);
 
-    await user.type(ui.dialogGroups.byRole('searchbox').get(), '4');
+    await user.type(ui.dialogGroups.byRole('searchbox').get(), '99');
 
-    expect(ui.getGroups()).toHaveLength(1);
+    expect(ui.groups.getAll()).toHaveLength(2);
 
     await user.click(ui.doneButton.get());
     expect(ui.dialogGroups.query()).not.toBeInTheDocument();

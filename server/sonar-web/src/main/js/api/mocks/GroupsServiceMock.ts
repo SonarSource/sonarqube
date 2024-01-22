@@ -18,12 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { cloneDeep } from 'lodash';
-import {
-  mockGroup,
-  mockIdentityProvider,
-  mockPaging,
-  mockUserGroupMember,
-} from '../../helpers/testMocks';
+import { mockGroup, mockIdentityProvider } from '../../helpers/testMocks';
 import { Group, IdentityProvider, Paging, Provider } from '../../types/types';
 import { createGroup, deleteGroup, getUsersGroups, updateGroup } from '../user_groups';
 
@@ -31,26 +26,14 @@ jest.mock('../user_groups');
 
 export default class GroupsServiceMock {
   provider: Provider | undefined;
-  paging: Paging;
   groups: Group[];
   readOnlyGroups = [
     mockGroup({ name: 'managed-group', managed: true, id: '1' }),
     mockGroup({ name: 'local-group', managed: false, id: '2' }),
   ];
 
-  defaultUsers = [
-    mockUserGroupMember({ name: 'alice', login: 'alice.dev' }),
-    mockUserGroupMember({ name: 'bob', login: 'bob.dev' }),
-    mockUserGroupMember({ selected: false }),
-  ];
-
   constructor() {
     this.groups = cloneDeep(this.readOnlyGroups);
-    this.paging = mockPaging({
-      pageIndex: 1,
-      pageSize: 2,
-      total: 200,
-    });
 
     jest.mocked(getUsersGroups).mockImplementation((p) => this.handleSearchUsersGroups(p));
     jest.mocked(createGroup).mockImplementation((g) => this.handleCreateGroup(g));
@@ -60,10 +43,6 @@ export default class GroupsServiceMock {
 
   reset() {
     this.groups = cloneDeep(this.readOnlyGroups);
-  }
-
-  setPaging(paging: Partial<Paging>) {
-    this.paging = { ...this.paging, ...paging };
   }
 
   handleCreateGroup = (group: { name: string; description?: string }): Promise<Group> => {
@@ -106,26 +85,18 @@ export default class GroupsServiceMock {
   handleSearchUsersGroups = (
     params: Parameters<typeof getUsersGroups>[0],
   ): Promise<{ groups: Group[]; page: Paging }> => {
-    const { paging: page } = this;
-    if (params.pageIndex !== undefined && params.pageIndex !== page.pageIndex) {
-      this.setPaging({ pageIndex: page.pageIndex++ });
-      const groups = [
-        mockGroup({ name: `local-group ${this.groups.length + 4}` }),
-        mockGroup({ name: `local-group ${this.groups.length + 5}` }),
-      ];
-
-      return this.reply({ page, groups });
-    }
-    if (params.managed === undefined) {
-      return this.reply({
-        page,
-        groups: this.groups.filter((g) => (params?.q ? g.name.includes(params.q) : true)),
-      });
-    }
-    const groups = this.groups.filter((group) => group.managed === params.managed);
+    const pageIndex = params.pageIndex ?? 1;
+    const pageSize = params.pageSize ?? 10;
+    const groups = this.groups
+      .filter((g) => !params.q || g.name.includes(params.q))
+      .filter((g) => params.managed === undefined || g.managed === params.managed);
     return this.reply({
-      page,
-      groups: groups.filter((g) => (params?.q ? g.name.includes(params.q) : true)),
+      page: {
+        pageIndex,
+        pageSize,
+        total: groups.length,
+      },
+      groups: groups.slice((pageIndex - 1) * pageSize, pageIndex * pageSize),
     });
   };
 

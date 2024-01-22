@@ -24,7 +24,7 @@ const GROUPS_ENDPOINT = '/api/v2/authorizations/groups';
 
 export function getUsersGroups(params: {
   q?: string;
-  managed: boolean | undefined;
+  managed?: boolean;
   pageIndex?: number;
   pageSize?: number;
 }): Promise<{ groups: Group[]; page: Paging }> {

@@ -55,24 +55,6 @@ export function changePassword(data: {
   });
 }
 
-export interface UserGroup {
-  default: boolean;
-  description: string;
-  id: number;
-  name: string;
-  selected: boolean;
-}
-
-export function getUserGroups(data: {
-  login: string;
-  p?: number;
-  ps?: number;
-  q?: string;
-  selected?: string;
-}): Promise<{ paging: Paging; groups: UserGroup[] }> {
-  return getJSON('/api/users/groups', data);
-}
-
 export function getIdentityProviders(): Promise<{ identityProviders: IdentityProvider[] }> {
   return getJSON('/api/users/identity_providers').catch(throwGlobalError);
 }

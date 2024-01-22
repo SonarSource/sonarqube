@@ -28,9 +28,11 @@ import { SelectListFilter } from '../components/controls/SelectList';
 import { translateWithParameters } from '../helpers/l10n';
 import { getNextPageParam, getPreviousPageParam } from '../helpers/react-query';
 import { RestUserDetailed } from '../types/users';
+import { useGroupsQueries } from './groups';
 
 const DOMAIN = 'group-memberships';
 const GROUP_SUB_DOMAIN = 'users-of-group';
+const USER_SUB_DOMAIN = 'groups-of-user';
 
 export function useGroupMembersQuery(params: {
   filter?: SelectListFilter;
@@ -78,10 +80,76 @@ export function useGroupMembersQuery(params: {
   });
 }
 
+export function useUserGroupsQuery(params: {
+  filter?: SelectListFilter;
+  q?: string;
+  userId: string;
+}) {
+  const { q, filter, userId } = params;
+  const {
+    data: groupsPages,
+    isLoading: loadingGroups,
+    fetchNextPage: fetchNextPageGroups,
+    hasNextPage: hasNextPageGroups,
+  } = useGroupsQueries({});
+  const {
+    data: membershipsPages,
+    isLoading: loadingMemberships,
+    fetchNextPage: fetchNextPageMemberships,
+    hasNextPage: hasNextPageMemberships,
+  } = useInfiniteQuery({
+    queryKey: [DOMAIN, USER_SUB_DOMAIN, 'memberships', userId],
+    queryFn: ({ pageParam = 1 }) =>
+      getGroupMemberships({ userId, pageSize: 100, pageIndex: pageParam }),
+    getNextPageParam,
+    getPreviousPageParam,
+  });
+  if (hasNextPageGroups) {
+    fetchNextPageGroups();
+  }
+  if (hasNextPageMemberships) {
+    fetchNextPageMemberships();
+  }
+  return useQuery({
+    queryKey: [DOMAIN, USER_SUB_DOMAIN, params],
+    queryFn: () => {
+      const memberships =
+        membershipsPages?.pages.flatMap((page) => page.groupMemberships).flat() ?? [];
+      const groups = (groupsPages?.pages.flatMap((page) => page.groups).flat() ?? [])
+        .filter(
+          (group) =>
+            q === undefined ||
+            group.name.toLowerCase().includes(q.toLowerCase()) ||
+            group.description?.toLowerCase().includes(q.toLowerCase()),
+        )
+        .map((group) => ({
+          ...group,
+          selected: memberships.some((membership) => membership.groupId === group.id),
+        }));
+      switch (filter) {
+        case SelectListFilter.All:
+          return groups;
+        case SelectListFilter.Unselected:
+          return groups.filter((group) => !group.selected);
+        default:
+          return groups.filter((group) => group.selected);
+      }
+    },
+    enabled: !loadingGroups && !hasNextPageGroups && !loadingMemberships && !hasNextPageMemberships,
+  });
+}
+
 export function useGroupMembersCountQuery(groupId: string) {
   return useQuery({
     queryKey: [DOMAIN, GROUP_SUB_DOMAIN, 'count', groupId],
     queryFn: () => getGroupMemberships({ groupId, pageSize: 0 }).then((r) => r.page.total),
+  });
+}
+
+export function useUserGroupsCountQuery(userId: string) {
+  return useQuery({
+    queryKey: [DOMAIN, USER_SUB_DOMAIN, 'count', userId],
+    queryFn: () => getGroupMemberships({ userId, pageSize: 0 }).then((r) => r.page.total),
   });
 }
 
@@ -95,6 +163,11 @@ export function useAddGroupMembershipMutation() {
         [DOMAIN, GROUP_SUB_DOMAIN, 'count', data.groupId],
         (oldData) => (oldData !== undefined ? oldData + 1 : undefined),
       );
+      queryClient.setQueryData<number>(
+        [DOMAIN, USER_SUB_DOMAIN, 'count', data.userId],
+        (oldData) => (oldData !== undefined ? oldData + 1 : undefined),
+      );
+      queryClient.invalidateQueries([DOMAIN, USER_SUB_DOMAIN, 'memberships', data.userId]);
     },
   });
 }
@@ -117,6 +190,11 @@ export function useRemoveGroupMembershipMutation() {
         [DOMAIN, GROUP_SUB_DOMAIN, 'count', data.groupId],
         (oldData) => (oldData !== undefined ? oldData - 1 : undefined),
       );
+      queryClient.setQueryData<number>(
+        [DOMAIN, USER_SUB_DOMAIN, 'count', data.userId],
+        (oldData) => (oldData !== undefined ? oldData - 1 : undefined),
+      );
+      queryClient.invalidateQueries([DOMAIN, USER_SUB_DOMAIN, 'memberships', data.userId]);
     },
   });
 }

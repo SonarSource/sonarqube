@@ -30,7 +30,8 @@ import {
 import * as React from 'react';
 import DateFromNow from '../../../components/intl/DateFromNow';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
-import { useUserGroupsCountQuery, useUserTokensQuery } from '../../../queries/users';
+import { useUserGroupsCountQuery } from '../../../queries/group-memberships';
+import { useUserTokensQuery } from '../../../queries/users';
 import { IdentityProvider, Provider } from '../../../types/types';
 import { RestUserDetailed } from '../../../types/users';
 import GroupsForm from './GroupsForm';
@@ -45,9 +46,10 @@ export interface UserListItemProps {
   manageProvider: Provider | undefined;
 }
 
-export default function UserListItem(props: UserListItemProps) {
+export default function UserListItem(props: Readonly<UserListItemProps>) {
   const { identityProvider, user, manageProvider } = props;
   const {
+    id,
     name,
     login,
     avatar,
@@ -59,7 +61,7 @@ export default function UserListItem(props: UserListItemProps) {
   const [openTokenForm, setOpenTokenForm] = React.useState(false);
   const [openGroupForm, setOpenGroupForm] = React.useState(false);
   const { data: tokens, isLoading: tokensAreLoading } = useUserTokensQuery(login);
-  const { data: groupsCount, isLoading: groupsAreLoading } = useUserGroupsCountQuery(login);
+  const { data: groupsCount, isLoading: groupsAreLoading } = useUserGroupsCountQuery(id);
 
   return (
     <TableRow>

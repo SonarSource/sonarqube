@@ -28,15 +28,12 @@ import {
   NoticeType,
   RestUserDetailed,
 } from '../../types/users';
-import { addUserToGroup, removeUserFromGroup } from '../legacy-group-membership';
 import {
-  UserGroup,
   changePassword,
   deleteUser,
   dismissNotice,
   getCurrentUser,
   getIdentityProviders,
-  getUserGroups,
   getUsers,
   postUser,
   updateUser,
@@ -44,7 +41,6 @@ import {
 import GroupMembershipsServiceMock from './GroupMembersipsServiceMock';
 
 jest.mock('../users');
-jest.mock('../legacy-group-membership');
 
 const DEFAULT_USERS = [
   mockRestUser({
@@ -101,44 +97,12 @@ const DEFAULT_USERS = [
   }),
 ];
 
-const DEFAULT_GROUPS: UserGroup[] = [
-  {
-    id: 1001,
-    name: 'test1',
-    description: 'test1',
-    selected: true,
-    default: true,
-  },
-  {
-    id: 1002,
-    name: 'test2',
-    description: 'test2',
-    selected: true,
-    default: false,
-  },
-  {
-    id: 1003,
-    name: 'test3',
-    description: 'test3',
-    selected: true,
-    default: false,
-  },
-  {
-    id: 1004,
-    name: 'test4',
-    description: 'test4',
-    selected: false,
-    default: false,
-  },
-];
-
 const DEFAULT_PASSWORD = 'test';
 
 export default class UsersServiceMock {
   isManaged = true;
   users = cloneDeep(DEFAULT_USERS);
   currentUser = mockLoggedInUser();
-  groups = cloneDeep(DEFAULT_GROUPS);
   password = DEFAULT_PASSWORD;
   groupMembershipsServiceMock?: GroupMembershipsServiceMock = undefined;
   constructor(groupMembershipsServiceMock?: GroupMembershipsServiceMock) {
@@ -147,9 +111,6 @@ export default class UsersServiceMock {
     jest.mocked(getUsers).mockImplementation(this.handleGetUsers);
     jest.mocked(postUser).mockImplementation(this.handlePostUser);
     jest.mocked(updateUser).mockImplementation(this.handleUpdateUser);
-    jest.mocked(getUserGroups).mockImplementation(this.handleGetUserGroups);
-    jest.mocked(addUserToGroup).mockImplementation(this.handleAddUserToGroup);
-    jest.mocked(removeUserFromGroup).mockImplementation(this.handleRemoveUserFromGroup);
     jest.mocked(changePassword).mockImplementation(this.handleChangePassword);
     jest.mocked(deleteUser).mockImplementation(this.handleDeactivateUser);
     jest.mocked(dismissNotice).mockImplementation(this.handleDismissNotification);
@@ -294,56 +255,6 @@ export default class UsersServiceMock {
     });
   };
 
-  handleGetUserGroups: typeof getUserGroups = (data) => {
-    if (data.login !== 'alice.merveille') {
-      return this.reply({
-        paging: { pageIndex: 1, pageSize: 10, total: 0 },
-        groups: [],
-      });
-    }
-    const filteredGroups = this.groups
-      .filter((g) => g.name.includes(data.q ?? ''))
-      .filter((g) => {
-        switch (data.selected) {
-          case 'all':
-            return true;
-          case 'deselected':
-            return !g.selected;
-          default:
-            return g.selected;
-        }
-      });
-
-    return this.reply({
-      paging: { pageIndex: 1, pageSize: 10, total: filteredGroups.length },
-      groups: filteredGroups,
-    });
-  };
-
-  handleAddUserToGroup: typeof addUserToGroup = ({ name }) => {
-    this.groups = this.groups.map((g) => (g.name === name ? { ...g, selected: true } : g));
-    return this.reply({});
-  };
-
-  handleRemoveUserFromGroup: typeof removeUserFromGroup = ({ name }) => {
-    let isDefault = false;
-    this.groups = this.groups.map((g) => {
-      if (g.name === name) {
-        if (g.default) {
-          isDefault = true;
-          return g;
-        }
-        return { ...g, selected: false };
-      }
-      return g;
-    });
-    return isDefault
-      ? Promise.reject({
-          errors: [{ msg: 'Cannot remove Default group' }],
-        })
-      : this.reply({});
-  };
-
   handleChangePassword: typeof changePassword = (data) => {
     if (data.previousPassword !== this.password) {
       return Promise.reject(ChangePasswordResults.OldPasswordIncorrect);
@@ -381,7 +292,6 @@ export default class UsersServiceMock {
   reset = () => {
     this.isManaged = true;
     this.users = cloneDeep(DEFAULT_USERS);
-    this.groups = cloneDeep(DEFAULT_GROUPS);
     this.password = DEFAULT_PASSWORD;
     this.currentUser = mockLoggedInUser();
   };
