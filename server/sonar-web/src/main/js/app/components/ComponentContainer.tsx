@@ -258,12 +258,13 @@ function ComponentContainer({ hasFeature }: Readonly<WithAvailableFeaturesProps>
   const componentProviderProps = React.useMemo(
     () => ({
       component,
+      currentTask,
       isInProgress,
       isPending,
       onComponentChange: handleComponentChange,
       fetchComponent,
     }),
-    [component, isInProgress, isPending, handleComponentChange, fetchComponent],
+    [component, currentTask, isInProgress, isPending, handleComponentChange, fetchComponent],
   );
 
   // Show not found component when, after loading:
@@ -289,7 +290,6 @@ function ComponentContainer({ hasFeature }: Readonly<WithAvailableFeaturesProps>
         createPortal(
           <ComponentNav
             component={component}
-            currentTask={currentTask}
             isInProgress={isInProgress}
             isPending={isPending}
             projectBindingErrors={projectBindingErrors}

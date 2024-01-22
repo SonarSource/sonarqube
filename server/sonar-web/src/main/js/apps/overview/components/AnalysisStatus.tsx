@@ -17,24 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import classNames from 'classnames';
 import { FlagMessage, Link, Spinner } from 'design-system';
 import * as React from 'react';
-import { translate } from '../../../../helpers/l10n';
-import { useBranchWarningQuery } from '../../../../queries/branch';
-import { Task, TaskStatuses } from '../../../../types/tasks';
-import { Component } from '../../../../types/types';
+import { useComponent } from '../../../app/components/componentContext/withComponentContext';
+import { translate } from '../../../helpers/l10n';
+import { useBranchWarningQuery } from '../../../queries/branch';
+import { TaskStatuses } from '../../../types/tasks';
+import { Component } from '../../../types/types';
 import { AnalysisErrorModal } from './AnalysisErrorModal';
 import AnalysisWarningsModal from './AnalysisWarningsModal';
 
 export interface HeaderMetaProps {
-  currentTask?: Task;
   component: Component;
-  isInProgress?: boolean;
-  isPending?: boolean;
+  className?: string;
 }
 
 export function AnalysisStatus(props: HeaderMetaProps) {
-  const { component, currentTask, isInProgress, isPending } = props;
+  const { className, component } = props;
+  const { currentTask, isPending, isInProgress } = useComponent();
   const { data: warnings, isLoading } = useBranchWarningQuery(component);
 
   const [modalIsVisible, setDisplayModal] = React.useState(false);
@@ -47,7 +48,7 @@ export function AnalysisStatus(props: HeaderMetaProps) {
 
   if (isInProgress || isPending) {
     return (
-      <div className="sw-flex sw-items-center">
+      <div data-test="analysis-status" className={classNames('sw-flex sw-items-center', className)}>
         <Spinner />
         <span className="sw-ml-1">
           {isInProgress
@@ -61,7 +62,7 @@ export function AnalysisStatus(props: HeaderMetaProps) {
   if (currentTask?.status === TaskStatuses.Failed) {
     return (
       <>
-        <FlagMessage variant="error">
+        <FlagMessage data-test="analysis-status" variant="error" className={className}>
           <span>{translate('project_navigation.analysis_status.failed')}</span>
           <Link className="sw-ml-1" blurAfterClick onClick={openModal} preventDefault to={{}}>
             {translate('project_navigation.analysis_status.details_link')}
@@ -81,7 +82,7 @@ export function AnalysisStatus(props: HeaderMetaProps) {
   if (!isLoading && warnings && warnings.length > 0) {
     return (
       <>
-        <FlagMessage variant="warning">
+        <FlagMessage data-test="analysis-status" variant="warning" className={className}>
           <span>{translate('project_navigation.analysis_status.warnings')}</span>
           <Link className="sw-ml-1" blurAfterClick onClick={openModal} preventDefault to={{}}>
             {translate('project_navigation.analysis_status.details_link')}

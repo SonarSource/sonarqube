@@ -19,36 +19,31 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { isPullRequest } from '../../../../../helpers/branch-like';
 import { translate, translateWithParameters } from '../../../../../helpers/l10n';
-import { BranchLike } from '../../../../../types/branch-like';
+import { PullRequest } from '../../../../../types/branch-like';
 
 export interface CurrentBranchLikeMergeInformationProps {
-  currentBranchLike: BranchLike;
+  pullRequest: PullRequest;
 }
 
-export function CurrentBranchLikeMergeInformation(props: CurrentBranchLikeMergeInformationProps) {
-  const { currentBranchLike } = props;
-
-  if (!isPullRequest(currentBranchLike)) {
-    return null;
-  }
-
+export function CurrentBranchLikeMergeInformation({
+  pullRequest,
+}: Readonly<CurrentBranchLikeMergeInformationProps>) {
   return (
     <span
-      className="sw-text-ellipsis sw-whitespace-nowrap sw-overflow-hidden sw-mx-1 sw-flex-shrink sw-min-w-0"
+      className="sw-w-[400px] sw-text-ellipsis sw-whitespace-nowrap sw-overflow-hidden sw-flex-shrink sw-min-w-0"
       title={translateWithParameters(
         'branch_like_navigation.for_merge_into_x_from_y.title',
-        currentBranchLike.target,
-        currentBranchLike.branch,
+        pullRequest.target,
+        pullRequest.branch,
       )}
     >
       <FormattedMessage
         defaultMessage={translate('branch_like_navigation.for_merge_into_x_from_y')}
         id="branch_like_navigation.for_merge_into_x_from_y"
         values={{
-          target: <strong>{currentBranchLike.target}</strong>,
-          branch: <strong>{currentBranchLike.branch}</strong>,
+          target: <strong>{pullRequest.target}</strong>,
+          branch: <strong>{pullRequest.branch}</strong>,
         }}
       />
     </span>

@@ -28,6 +28,7 @@ import {
   Title,
 } from 'design-system';
 import * as React from 'react';
+import { AnalysisStatus } from '../../apps/overview/components/AnalysisStatus';
 import { isMainBranch } from '../../helpers/branch-like';
 import { translate } from '../../helpers/l10n';
 import { getBaseUrl } from '../../helpers/system';
@@ -129,12 +130,15 @@ export default function TutorialSelectionRenderer(props: TutorialSelectionRender
 
   return (
     <div className="sw-body-sm">
+      <AnalysisStatus component={component} className="sw-mb-4 sw-w-max" />
+
       {selectedTutorial === undefined && (
         <div className="sw-flex sw-flex-col">
           <Title className="sw-mb-6 sw-heading-lg">
             {translate('onboarding.tutorial.page.title')}
           </Title>
           <LightPrimary>{translate('onboarding.tutorial.page.description')}</LightPrimary>
+
           <SubTitle className="sw-mt-12 sw-mb-4 sw-heading-md">
             {translate('onboarding.tutorial.choose_method')}
           </SubTitle>

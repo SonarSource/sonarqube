@@ -210,8 +210,12 @@ describe('project overview', () => {
     );
     renderBranchOverview();
 
+    // Meta info
+    expect(await screen.findByText('master')).toBeInTheDocument();
+    expect(screen.getByText('version-1.0')).toBeInTheDocument();
+
     // QG panel
-    expect(await screen.findByText('metric.level.OK')).toBeInTheDocument();
+    expect(screen.getByText('metric.level.OK')).toBeInTheDocument();
     expect(screen.getByText('overview.passed.clean_code')).toBeInTheDocument();
     expect(
       screen.queryByText('overview.quality_gate.conditions.cayc.warning'),
@@ -540,6 +544,7 @@ function renderBranchOverview(props: Partial<BranchOverview['props']> = {}) {
           breadcrumbs: [mockComponent({ key: 'foo' })],
           key: 'foo',
           name: 'Foo',
+          version: 'version-1.0',
         })}
         {...props}
       />

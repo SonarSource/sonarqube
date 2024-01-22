@@ -103,7 +103,11 @@ export function renderAppWithAdminContext(
 export function renderComponent(
   component: React.ReactElement,
   pathname = '/',
-  { appState = mockAppState(), featureList = [] }: RenderContext = {},
+  {
+    appState = mockAppState(),
+    featureList = [],
+    currentUser = mockCurrentUser(),
+  }: RenderContext = {},
 ) {
   function Wrapper({ children }: { children: React.ReactElement }) {
     const queryClient = new QueryClient();
@@ -113,13 +117,15 @@ export function renderComponent(
         <QueryClientProvider client={queryClient}>
           <HelmetProvider>
             <AvailableFeaturesContext.Provider value={featureList}>
-              <AppStateContextProvider appState={appState}>
-                <MemoryRouter initialEntries={[pathname]}>
-                  <Routes>
-                    <Route path="*" element={children} />
-                  </Routes>
-                </MemoryRouter>
-              </AppStateContextProvider>
+              <CurrentUserContextProvider currentUser={currentUser}>
+                <AppStateContextProvider appState={appState}>
+                  <MemoryRouter initialEntries={[pathname]}>
+                    <Routes>
+                      <Route path="*" element={children} />
+                    </Routes>
+                  </MemoryRouter>
+                </AppStateContextProvider>
+              </CurrentUserContextProvider>
             </AvailableFeaturesContext.Provider>
           </HelmetProvider>
         </QueryClientProvider>

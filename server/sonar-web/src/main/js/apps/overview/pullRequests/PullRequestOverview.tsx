@@ -28,13 +28,14 @@ import { useComponentMeasuresWithMetricsQuery } from '../../../queries/component
 import { useComponentQualityGateQuery } from '../../../queries/quality-gates';
 import { PullRequest } from '../../../types/branch-like';
 import { Component } from '../../../types/types';
+import { AnalysisStatus } from '../components/AnalysisStatus';
 import BranchQualityGate from '../components/BranchQualityGate';
 import IgnoredConditionWarning from '../components/IgnoredConditionWarning';
-import MetaTopBar from '../components/MetaTopBar';
 import ZeroNewIssuesSimplificationGuide from '../components/ZeroNewIssuesSimplificationGuide';
 import '../styles.css';
 import { PR_METRICS, Status } from '../utils';
 import MeasuresCardPanel from './MeasuresCardPanel';
+import PullRequestMetaTopBar from './PullRequestMetaTopBar';
 import SonarLintAd from './SonarLintAd';
 
 interface Props {
@@ -97,8 +98,10 @@ export default function PullRequestOverview(props: Readonly<Readonly<Props>>) {
     <CenteredLayout>
       <PageContentFontWrapper className="it__pr-overview sw-mt-12 sw-mb-8 sw-grid sw-grid-cols-12 sw-body-sm">
         <div className="sw-col-start-2 sw-col-span-10">
-          <MetaTopBar branchLike={pullRequest} measures={measures} />
+          <PullRequestMetaTopBar pullRequest={pullRequest} measures={measures} />
           <BasicSeparator className="sw-my-4" />
+
+          <AnalysisStatus className="sw-mb-4" component={component} />
 
           {ignoredConditions && <IgnoredConditionWarning />}
 

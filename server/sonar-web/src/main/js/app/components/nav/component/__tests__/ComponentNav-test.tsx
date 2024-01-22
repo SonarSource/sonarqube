@@ -21,32 +21,9 @@ import { screen } from '@testing-library/react';
 import React from 'react';
 import { mockProjectAlmBindingConfigurationErrors } from '../../../../../helpers/mocks/alm-settings';
 import { mockComponent } from '../../../../../helpers/mocks/component';
-import { mockTask } from '../../../../../helpers/mocks/tasks';
 import { renderApp } from '../../../../../helpers/testReactTestingUtils';
 import { ComponentQualifier } from '../../../../../types/component';
-import { TaskStatuses } from '../../../../../types/tasks';
 import ComponentNav, { ComponentNavProps } from '../ComponentNav';
-
-it('renders correctly when there is a background task in progress', () => {
-  renderComponentNav({ isInProgress: true });
-  expect(
-    screen.getByText('project_navigation.analysis_status.in_progress', { exact: false }),
-  ).toBeInTheDocument();
-});
-
-it('renders correctly when there is a background task pending', () => {
-  renderComponentNav({ isPending: true });
-  expect(
-    screen.getByText('project_navigation.analysis_status.pending', { exact: false }),
-  ).toBeInTheDocument();
-});
-
-it('renders correctly when there is a failing background task', () => {
-  renderComponentNav({ currentTask: mockTask({ status: TaskStatuses.Failed }) });
-  expect(
-    screen.getByText('project_navigation.analysis_status.failed', { exact: false }),
-  ).toBeInTheDocument();
-});
 
 it('renders correctly when the project binding is incorrect', () => {
   renderComponentNav({

@@ -21,13 +21,13 @@ import { Link } from 'design-system';
 import React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { useLocation } from 'react-router-dom';
-import { isBranch, isMainBranch, isPullRequest } from '../../../../helpers/branch-like';
-import { hasMessage, translate } from '../../../../helpers/l10n';
-import { getComponentBackgroundTaskUrl } from '../../../../helpers/urls';
-import { useBranchesQuery } from '../../../../queries/branch';
-import { BranchLike } from '../../../../types/branch-like';
-import { Task } from '../../../../types/tasks';
-import { Component } from '../../../../types/types';
+import { isBranch, isMainBranch, isPullRequest } from '../../../helpers/branch-like';
+import { hasMessage, translate } from '../../../helpers/l10n';
+import { getComponentBackgroundTaskUrl } from '../../../helpers/urls';
+import { useBranchesQuery } from '../../../queries/branch';
+import { BranchLike } from '../../../types/branch-like';
+import { Task } from '../../../types/tasks';
+import { Component } from '../../../types/types';
 
 interface Props {
   component: Component;

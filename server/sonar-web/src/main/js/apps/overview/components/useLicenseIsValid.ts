@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React, { useEffect } from 'react';
-import { isValidLicense } from '../../../../api/editions';
+import { isValidLicense } from '../../../api/editions';
 
 export function useLicenseIsValid(): [boolean, boolean] {
   const [licenseIsValid, setLicenseIsValid] = React.useState(false);

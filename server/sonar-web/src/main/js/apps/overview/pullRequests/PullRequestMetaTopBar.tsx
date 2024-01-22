@@ -17,56 +17,57 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { SeparatorCircleIcon } from 'design-system';
 import React from 'react';
 import { useIntl } from 'react-intl';
+import CurrentBranchLikeMergeInformation from '../../../app/components/nav/component/branch-like/CurrentBranchLikeMergeInformation';
 import DateFromNow from '../../../components/intl/DateFromNow';
 import { getLeakValue } from '../../../components/measure/utils';
-import { isPullRequest } from '../../../helpers/branch-like';
 import { findMeasure, formatMeasure } from '../../../helpers/measures';
-import { BranchLike } from '../../../types/branch-like';
+import { PullRequest } from '../../../types/branch-like';
 import { MetricKey, MetricType } from '../../../types/metrics';
 import { MeasureEnhanced } from '../../../types/types';
 
 interface Props {
-  branchLike: BranchLike;
+  pullRequest: PullRequest;
   measures: MeasureEnhanced[];
 }
 
-export default function MetaTopBar({ branchLike, measures }: Readonly<Props>) {
+export default function PullRequestMetaTopBar({ pullRequest, measures }: Readonly<Props>) {
   const intl = useIntl();
-  const isPR = isPullRequest(branchLike);
 
   const leftSection = (
     <div>
-      {isPR ? (
-        <>
-          <strong className="sw-body-sm-highlight sw-mr-1">
-            {formatMeasure(
-              getLeakValue(findMeasure(measures, MetricKey.new_lines)),
-              MetricType.ShortInteger,
-            ) ?? '0'}
-          </strong>
-          {intl.formatMessage({ id: 'metric.new_lines.name' })}
-        </>
-      ) : null}
+      <strong className="sw-body-sm-highlight sw-mr-1">
+        {formatMeasure(
+          getLeakValue(findMeasure(measures, MetricKey.new_lines)),
+          MetricType.ShortInteger,
+        ) || '0'}
+      </strong>
+      {intl.formatMessage({ id: 'metric.new_lines.name' })}
     </div>
   );
   const rightSection = (
-    <div>
-      {branchLike.analysisDate
-        ? intl.formatMessage(
+    <div className="sw-flex sw-items-center sw-gap-2">
+      <CurrentBranchLikeMergeInformation pullRequest={pullRequest} />
+
+      {pullRequest.analysisDate && (
+        <>
+          <SeparatorCircleIcon />
+          {intl.formatMessage(
             {
               id: 'overview.last_analysis_x',
             },
             {
               date: (
                 <strong className="sw-body-sm-highlight">
-                  <DateFromNow date={branchLike.analysisDate} />
+                  <DateFromNow date={pullRequest.analysisDate} />
                 </strong>
               ),
             },
-          )
-        : null}
+          )}
+        </>
+      )}
     </div>
   );
 

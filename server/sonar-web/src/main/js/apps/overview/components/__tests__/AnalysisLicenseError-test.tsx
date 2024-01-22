@@ -19,13 +19,13 @@
  */
 import { screen } from '@testing-library/react';
 import * as React from 'react';
-import { isValidLicense } from '../../../../../api/editions';
-import { mockTask } from '../../../../../helpers/mocks/tasks';
-import { mockAppState } from '../../../../../helpers/testMocks';
-import { renderApp } from '../../../../../helpers/testReactTestingUtils';
+import { isValidLicense } from '../../../../api/editions';
+import { mockTask } from '../../../../helpers/mocks/tasks';
+import { mockAppState } from '../../../../helpers/testMocks';
+import { renderApp } from '../../../../helpers/testReactTestingUtils';
 import { AnalysisLicenseError } from '../AnalysisLicenseError';
 
-jest.mock('../../../../../api/editions', () => ({
+jest.mock('../../../../api/editions', () => ({
   isValidLicense: jest.fn().mockResolvedValue({ isValidLicense: true }),
 }));
 

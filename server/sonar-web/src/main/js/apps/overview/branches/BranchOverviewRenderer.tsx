@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { LargeCenteredLayout, PageContentFontWrapper } from 'design-system';
+import { BasicSeparator, LargeCenteredLayout, PageContentFontWrapper } from 'design-system';
 import * as React from 'react';
 import A11ySkipTarget from '../../../components/a11y/A11ySkipTarget';
 import { useLocation } from '../../../components/hoc/withRouter';
@@ -30,9 +30,11 @@ import { ComponentQualifier } from '../../../types/component';
 import { Analysis, GraphType, MeasureHistory } from '../../../types/project-activity';
 import { QualityGateStatus } from '../../../types/quality-gates';
 import { Component, MeasureEnhanced, Metric, Period, QualityGate } from '../../../types/types';
+import { AnalysisStatus } from '../components/AnalysisStatus';
 import { MeasuresTabs } from '../utils';
 import AcceptedIssuesPanel from './AcceptedIssuesPanel';
 import ActivityPanel from './ActivityPanel';
+import BranchMetaTopBar from './BranchMetaTopBar';
 import FirstAnalysisNextStepsNotif from './FirstAnalysisNextStepsNotif';
 import MeasuresPanel from './MeasuresPanel';
 import MeasuresPanelNoNewCode from './MeasuresPanelNoNewCode';
@@ -115,66 +117,74 @@ export default function BranchOverviewRenderer(props: BranchOverviewRendererProp
             {projectIsEmpty ? (
               <NoCodeWarning branchLike={branch} component={component} measures={measures} />
             ) : (
-              <div className="sw-flex">
-                <div className="sw-w-1/3 sw-mr-12 sw-pt-6">
-                  <QualityGatePanel
-                    component={component}
-                    loading={loadingStatus}
-                    qgStatuses={qgStatuses}
-                    qualityGate={qualityGate}
-                  />
-                </div>
-
-                <div className="sw-flex-1">
-                  <div className="sw-flex sw-flex-col sw-pt-6">
-                    <TabsPanel
-                      analyses={analyses}
-                      appLeak={appLeak}
-                      branch={branch}
+              <div>
+                {branch && (
+                  <>
+                    <BranchMetaTopBar branch={branch} component={component} measures={measures} />
+                    <BasicSeparator />
+                  </>
+                )}
+                <AnalysisStatus className="sw-mt-6" component={component} />
+                <div className="sw-flex">
+                  <div className="sw-w-1/3 sw-mr-12 sw-pt-6">
+                    <QualityGatePanel
                       component={component}
                       loading={loadingStatus}
-                      period={period}
                       qgStatuses={qgStatuses}
-                      isNewCode={isNewCodeTab}
-                      onTabSelect={selectTab}
-                    >
-                      {!hasNewCodeMeasures && isNewCodeTab ? (
-                        <MeasuresPanelNoNewCode
-                          branch={branch}
-                          component={component}
-                          period={period}
-                        />
-                      ) : (
-                        <>
-                          <MeasuresPanel
-                            branch={branch}
-                            component={component}
-                            measures={measures}
-                            isNewCode={isNewCodeTab}
-                          />
-
-                          <AcceptedIssuesPanel
-                            branch={branch}
-                            component={component}
-                            measures={measures}
-                            isNewCode={isNewCodeTab}
-                            loading={loadingStatus}
-                          />
-                        </>
-                      )}
-                    </TabsPanel>
-
-                    <ActivityPanel
-                      analyses={analyses}
-                      branchLike={branch}
-                      component={component}
-                      graph={graph}
-                      leakPeriodDate={leakPeriod && parseDate(leakPeriod.date)}
-                      loading={loadingHistory}
-                      measuresHistory={measuresHistory}
-                      metrics={metrics}
-                      onGraphChange={onGraphChange}
+                      qualityGate={qualityGate}
                     />
+                  </div>
+
+                  <div className="sw-flex-1">
+                    <div className="sw-flex sw-flex-col sw-pt-6">
+                      <TabsPanel
+                        analyses={analyses}
+                        appLeak={appLeak}
+                        component={component}
+                        loading={loadingStatus}
+                        period={period}
+                        qgStatuses={qgStatuses}
+                        isNewCode={isNewCodeTab}
+                        onTabSelect={selectTab}
+                      >
+                        {!hasNewCodeMeasures && isNewCodeTab ? (
+                          <MeasuresPanelNoNewCode
+                            branch={branch}
+                            component={component}
+                            period={period}
+                          />
+                        ) : (
+                          <>
+                            <MeasuresPanel
+                              branch={branch}
+                              component={component}
+                              measures={measures}
+                              isNewCode={isNewCodeTab}
+                            />
+
+                            <AcceptedIssuesPanel
+                              branch={branch}
+                              component={component}
+                              measures={measures}
+                              isNewCode={isNewCodeTab}
+                              loading={loadingStatus}
+                            />
+                          </>
+                        )}
+                      </TabsPanel>
+
+                      <ActivityPanel
+                        analyses={analyses}
+                        branchLike={branch}
+                        component={component}
+                        graph={graph}
+                        leakPeriodDate={leakPeriod && parseDate(leakPeriod.date)}
+                        loading={loadingHistory}
+                        measuresHistory={measuresHistory}
+                        metrics={metrics}
+                        onGraphChange={onGraphChange}
+                      />
+                    </div>
                   </div>
                 </div>
               </div>

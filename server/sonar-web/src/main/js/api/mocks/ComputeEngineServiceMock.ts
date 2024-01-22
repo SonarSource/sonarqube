@@ -23,11 +23,18 @@ import { PAGE_SIZE } from '../../apps/background-tasks/constants';
 import { parseDate } from '../../helpers/dates';
 import { mockTask } from '../../helpers/mocks/tasks';
 import { isDefined } from '../../helpers/types';
-import { ActivityRequestParameters, Task, TaskStatuses, TaskTypes } from '../../types/tasks';
+import {
+  ActivityRequestParameters,
+  Task,
+  TaskStatuses,
+  TaskTypes,
+  TaskWarning,
+} from '../../types/tasks';
 import {
   cancelAllTasks,
   cancelTask,
   getActivity,
+  getAnalysisStatus,
   getStatus,
   getTask,
   getTasksForComponent,
@@ -63,6 +70,7 @@ jest.mock('../ce');
 
 export default class ComputeEngineServiceMock {
   tasks: Task[];
+  taskWarnings: TaskWarning[] = [];
   workers = { ...DEFAULT_WORKERS };
 
   constructor() {
@@ -75,6 +83,7 @@ export default class ComputeEngineServiceMock {
     jest.mocked(getWorkers).mockImplementation(this.handleGetWorkers);
     jest.mocked(setWorkerCount).mockImplementation(this.handleSetWorkerCount);
     jest.mocked(getTasksForComponent).mockImplementation(this.handleGetTaskForComponent);
+    jest.mocked(getAnalysisStatus).mockImplementation(this.handleAnalysisStatus);
 
     this.tasks = cloneDeep(DEFAULT_TASKS);
   }
@@ -87,6 +96,22 @@ export default class ComputeEngineServiceMock {
     });
 
     return Promise.resolve();
+  };
+
+  setTaskWarnings = (taskWarnings: TaskWarning[] = []) => {
+    this.taskWarnings = taskWarnings;
+  };
+
+  handleAnalysisStatus = (data: { component: string; branch?: string; pullRequest?: string }) => {
+    return Promise.resolve({
+      component: {
+        key: data.component,
+        name: data.component,
+        branch: data.branch,
+        pullRequest: data.pullRequest,
+        warnings: this.taskWarnings,
+      },
+    });
   };
 
   handleCancelTask = (id: string) => {
@@ -217,6 +242,7 @@ export default class ComputeEngineServiceMock {
 
   reset() {
     this.tasks = cloneDeep(DEFAULT_TASKS);
+    this.taskWarnings = [];
     this.workers = { ...DEFAULT_WORKERS };
   }
 

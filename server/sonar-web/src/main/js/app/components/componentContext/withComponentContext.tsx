@@ -39,3 +39,7 @@ export default function withComponentContext<P extends Partial<ComponentContextS
     }
   };
 }
+
+export function useComponent() {
+  return React.useContext(ComponentContext);
+}

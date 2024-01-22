@@ -19,14 +19,14 @@
  */
 import { screen } from '@testing-library/react';
 import * as React from 'react';
-import { AnalysisWarningsModal } from '../../../app/components/nav/component/AnalysisWarningsModal';
-import { mockComponent } from '../../../helpers/mocks/component';
-import { mockTaskWarning } from '../../../helpers/mocks/tasks';
-import { mockCurrentUser } from '../../../helpers/testMocks';
-import { renderComponent } from '../../../helpers/testReactTestingUtils';
-import { ComponentPropsType } from '../../../helpers/testUtils';
+import { mockComponent } from '../../../../helpers/mocks/component';
+import { mockTaskWarning } from '../../../../helpers/mocks/tasks';
+import { mockCurrentUser } from '../../../../helpers/testMocks';
+import { renderComponent } from '../../../../helpers/testReactTestingUtils';
+import { ComponentPropsType } from '../../../../helpers/testUtils';
+import { AnalysisWarningsModal } from '../AnalysisWarningsModal';
 
-jest.mock('../../../api/ce', () => ({
+jest.mock('../../../../api/ce', () => ({
   dismissAnalysisWarning: jest.fn().mockResolvedValue(null),
   getTask: jest.fn().mockResolvedValue({
     warnings: ['message foo', 'message-bar', 'multiline message\nsecondline\n  third line'],

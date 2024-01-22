@@ -26,7 +26,6 @@ import { ProjectAlmBindingConfigurationErrors } from '../../../../types/alm-sett
 import { Branch } from '../../../../types/branch-like';
 import { ComponentQualifier } from '../../../../types/component';
 import { Feature } from '../../../../types/features';
-import { Task } from '../../../../types/tasks';
 import { Component } from '../../../../types/types';
 import RecentHistory from '../../RecentHistory';
 import withAvailableFeatures, {
@@ -34,28 +33,19 @@ import withAvailableFeatures, {
 } from '../../available-features/withAvailableFeatures';
 import ComponentNavProjectBindingErrorNotif from './ComponentNavProjectBindingErrorNotif';
 import Header from './Header';
-import HeaderMeta from './HeaderMeta';
 import Menu from './Menu';
 
 export interface ComponentNavProps extends WithAvailableFeaturesProps {
   branchLike?: Branch;
   component: Component;
-  currentTask?: Task;
   isInProgress?: boolean;
   isPending?: boolean;
   projectBindingErrors?: ProjectAlmBindingConfigurationErrors;
 }
 
 function ComponentNav(props: Readonly<ComponentNavProps>) {
-  const {
-    branchLike,
-    component,
-    currentTask,
-    hasFeature,
-    isInProgress,
-    isPending,
-    projectBindingErrors,
-  } = props;
+  const { branchLike, component, hasFeature, isInProgress, isPending, projectBindingErrors } =
+    props;
 
   React.useEffect(() => {
     const { breadcrumbs, key, name } = component;
@@ -76,12 +66,6 @@ function ComponentNav(props: Readonly<ComponentNavProps>) {
       <TopBar id="context-navigation" aria-label={translate('qualifier', component.qualifier)}>
         <div className="sw-min-h-10 sw-flex sw-justify-between">
           <Header component={component} />
-          <HeaderMeta
-            component={component}
-            currentTask={currentTask}
-            isInProgress={isInProgress}
-            isPending={isPending}
-          />
         </div>
         <Menu component={component} isInProgress={isInProgress} isPending={isPending} />
       </TopBar>

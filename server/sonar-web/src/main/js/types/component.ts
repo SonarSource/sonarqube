@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Task } from './tasks';
 import { Component, LightComponent } from './types';
 
 export enum Visibility {
@@ -96,6 +97,7 @@ export function isView(
 
 export interface ComponentContextShape {
   component?: Component;
+  currentTask?: Task;
   isInProgress?: boolean;
   isPending?: boolean;
   onComponentChange: (changes: Partial<Component>) => void;

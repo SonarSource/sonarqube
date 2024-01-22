@@ -17,12 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { DiscreetInteractiveIcon, HomeFillIcon, HomeIcon } from 'design-system';
-import * as React from 'react';
+import { ButtonSecondary, DiscreetInteractiveIcon, HomeFillIcon, HomeIcon } from 'design-system';
+import React from 'react';
+import { useIntl } from 'react-intl';
 import { setHomePage } from '../../api/users';
 import { CurrentUserContextInterface } from '../../app/components/current-user/CurrentUserContext';
 import withCurrentUserContext from '../../app/components/current-user/withCurrentUserContext';
-import { translate } from '../../helpers/l10n';
 import { isSameHomePage } from '../../helpers/users';
 import { HomePage, isLoggedIn } from '../../types/users';
 import Tooltip from './Tooltip';
@@ -31,55 +31,62 @@ interface Props
   extends Pick<CurrentUserContextInterface, 'currentUser' | 'updateCurrentUserHomepage'> {
   className?: string;
   currentPage: HomePage;
+  type?: 'button' | 'icon';
 }
 
 export const DEFAULT_HOMEPAGE: HomePage = { type: 'PROJECTS' };
 
-export class HomePageSelect extends React.PureComponent<Props> {
-  async setCurrentUserHomepage(homepage: HomePage) {
-    const { currentUser } = this.props;
+export function HomePageSelect(props: Readonly<Props>) {
+  const { currentPage, className, type = 'icon', currentUser, updateCurrentUserHomepage } = props;
+  const intl = useIntl();
 
+  if (!isLoggedIn(currentUser)) {
+    return null;
+  }
+
+  const isChecked =
+    currentUser.homepage !== undefined && isSameHomePage(currentUser.homepage, currentPage);
+  const isDefault = isChecked && isSameHomePage(currentPage, DEFAULT_HOMEPAGE);
+
+  const setCurrentUserHomepage = async (homepage: HomePage) => {
     if (isLoggedIn(currentUser)) {
       await setHomePage(homepage);
 
-      this.props.updateCurrentUserHomepage(homepage);
+      updateCurrentUserHomepage(homepage);
     }
-  }
-
-  handleClick = () => {
-    this.setCurrentUserHomepage(this.props.currentPage);
   };
 
-  handleReset = () => {
-    this.setCurrentUserHomepage(DEFAULT_HOMEPAGE);
-  };
+  const tooltip = isChecked
+    ? intl.formatMessage({ id: isDefault ? 'homepage.current.is_default' : 'homepage.current' })
+    : intl.formatMessage({ id: 'homepage.check' });
 
-  render() {
-    const { className, currentPage, currentUser } = this.props;
+  const handleClick = () => setCurrentUserHomepage?.(isChecked ? DEFAULT_HOMEPAGE : currentPage);
 
-    if (!isLoggedIn(currentUser)) {
-      return null;
-    }
+  const Icon = isChecked ? HomeFillIcon : HomeIcon;
 
-    const { homepage } = currentUser;
-    const isChecked = homepage !== undefined && isSameHomePage(homepage, currentPage);
-    const isDefault = isChecked && isSameHomePage(currentPage, DEFAULT_HOMEPAGE);
-    const tooltip = isChecked
-      ? translate(isDefault ? 'homepage.current.is_default' : 'homepage.current')
-      : translate('homepage.check');
-
-    return (
-      <Tooltip overlay={tooltip}>
+  return (
+    <Tooltip overlay={tooltip}>
+      {type === 'icon' ? (
         <DiscreetInteractiveIcon
           aria-label={tooltip}
           className={className}
           disabled={isDefault}
-          Icon={isChecked ? HomeFillIcon : HomeIcon}
-          onClick={isChecked ? this.handleReset : this.handleClick}
+          Icon={Icon}
+          onClick={handleClick}
         />
-      </Tooltip>
-    );
-  }
+      ) : (
+        <ButtonSecondary
+          aria-label={tooltip}
+          icon={<Icon />}
+          className={className}
+          disabled={isDefault}
+          onClick={handleClick}
+        >
+          {intl.formatMessage({ id: 'overview.set_as_homepage' })}
+        </ButtonSecondary>
+      )}
+    </Tooltip>
+  );
 }
 
 export default withCurrentUserContext(HomePageSelect);

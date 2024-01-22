@@ -23,6 +23,7 @@ import * as React from 'react';
 import { setHomePage } from '../../../api/users';
 import { mockLoggedInUser } from '../../../helpers/testMocks';
 import { renderComponent } from '../../../helpers/testReactTestingUtils';
+import { FCProps } from '../../../types/misc';
 import { DEFAULT_HOMEPAGE, HomePageSelect } from '../HomePageSelect';
 
 jest.mock('../../../api/users', () => ({
@@ -56,7 +57,7 @@ it('renders correctly if user is on the homepage', async () => {
   expect(button).toHaveFocus();
 });
 
-function renderHomePageSelect(props: Partial<HomePageSelect['props']> = {}) {
+function renderHomePageSelect(props: Partial<FCProps<typeof HomePageSelect>> = {}) {
   return renderComponent(
     <HomePageSelect
       currentPage={{ type: 'MY_PROJECTS' }}

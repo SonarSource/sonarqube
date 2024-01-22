@@ -29,11 +29,9 @@ import {
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import DocLink from '../../../components/common/DocLink';
-import ComponentReportActions from '../../../components/controls/ComponentReportActions';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { isDiffMetric } from '../../../helpers/measures';
 import { ApplicationPeriod } from '../../../types/application';
-import { Branch } from '../../../types/branch-like';
 import { ComponentQualifier } from '../../../types/component';
 import { Analysis, ProjectAnalysisEventCategory } from '../../../types/project-activity';
 import { QualityGateStatus } from '../../../types/quality-gates';
@@ -45,7 +43,6 @@ import { LeakPeriodInfo } from './LeakPeriodInfo';
 export interface MeasuresPanelProps {
   analyses?: Analysis[];
   appLeak?: ApplicationPeriod;
-  branch?: Branch;
   component: Component;
   loading?: boolean;
   period?: Period;
@@ -60,7 +57,6 @@ export function TabsPanel(props: React.PropsWithChildren<MeasuresPanelProps>) {
   const {
     analyses,
     appLeak,
-    branch,
     component,
     loading,
     period,
@@ -128,9 +124,6 @@ export function TabsPanel(props: React.PropsWithChildren<MeasuresPanelProps>) {
 
   return (
     <div data-test="overview__measures-panel">
-      <div className="sw-float-right -sw-mt-6">
-        <ComponentReportActions component={component} branch={branch} />
-      </div>
       <div className="sw-flex sw-mb-4">
         <PageTitle as="h2" text={translate('overview.measures')} />
       </div>

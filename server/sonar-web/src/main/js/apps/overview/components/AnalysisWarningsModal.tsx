@@ -19,13 +19,13 @@
  */
 import { DangerButtonSecondary, FlagMessage, HtmlFormatter, Modal, Spinner } from 'design-system';
 import * as React from 'react';
-import { translate } from '../../../../helpers/l10n';
-import { sanitizeStringRestricted } from '../../../../helpers/sanitize';
-import { useDismissBranchWarningMutation } from '../../../../queries/branch';
-import { TaskWarning } from '../../../../types/tasks';
-import { Component } from '../../../../types/types';
-import { CurrentUser } from '../../../../types/users';
-import withCurrentUserContext from '../../current-user/withCurrentUserContext';
+import withCurrentUserContext from '../../../app/components/current-user/withCurrentUserContext';
+import { translate } from '../../../helpers/l10n';
+import { sanitizeStringRestricted } from '../../../helpers/sanitize';
+import { useDismissBranchWarningMutation } from '../../../queries/branch';
+import { TaskWarning } from '../../../types/tasks';
+import { Component } from '../../../types/types';
+import { CurrentUser } from '../../../types/users';
 
 interface Props {
   component: Component;
