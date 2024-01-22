@@ -54,7 +54,7 @@ import { Analysis, GraphType, MeasureHistory } from '../../../types/project-acti
 import { QualityGateStatus, QualityGateStatusCondition } from '../../../types/quality-gates';
 import { Component, MeasureEnhanced, Metric, Period, QualityGate } from '../../../types/types';
 import '../styles.css';
-import { HISTORY_METRICS_LIST, METRICS } from '../utils';
+import { BRANCH_OVERVIEW_METRICS, HISTORY_METRICS_LIST } from '../utils';
 import BranchOverviewRenderer from './BranchOverviewRenderer';
 
 interface Props {
@@ -236,8 +236,8 @@ export default class BranchOverview extends React.PureComponent<Props, State> {
     // render them.
     const metricKeys =
       projectStatus.conditions !== undefined
-        ? uniq([...METRICS, ...projectStatus.conditions.map((c) => c.metricKey)])
-        : METRICS;
+        ? uniq([...BRANCH_OVERVIEW_METRICS, ...projectStatus.conditions.map((c) => c.metricKey)])
+        : BRANCH_OVERVIEW_METRICS;
 
     this.loadMeasuresAndMeta(key, branch, metricKeys).then(
       ({ measures, metrics, period }) => {
@@ -289,7 +289,7 @@ export default class BranchOverview extends React.PureComponent<Props, State> {
   ) => {
     return getMeasuresWithPeriodAndMetrics(
       componentKey,
-      metricKeys.length > 0 ? metricKeys : METRICS,
+      metricKeys.length > 0 ? metricKeys : BRANCH_OVERVIEW_METRICS,
       getBranchLikeQuery(branchLike),
     ).then(({ component: { measures }, metrics, period }) => {
       return {

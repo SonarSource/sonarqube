@@ -32,7 +32,7 @@ import { AnalysisMeasuresVariations, MeasureHistory } from '../../types/project-
 import { QualityGateStatusConditionEnhanced } from '../../types/quality-gates';
 import { Dict, RawQuery } from '../../types/types';
 
-export const METRICS: string[] = [
+export const BRANCH_OVERVIEW_METRICS: string[] = [
   // quality gate
   MetricKey.alert_status,
   MetricKey.quality_gate_details, // TODO: still relevant?
@@ -42,6 +42,9 @@ export const METRICS: string[] = [
   MetricKey.accepted_issues,
   MetricKey.new_accepted_issues,
   MetricKey.high_impact_accepted_issues,
+  MetricKey.maintainability_issues,
+  MetricKey.reliability_issues,
+  MetricKey.security_issues,
 
   // bugs
   MetricKey.bugs,
