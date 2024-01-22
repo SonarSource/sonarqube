@@ -68,17 +68,31 @@ allprojects {
       // On local box, please add artifactoryUsername and artifactoryPassword to ~/.gradle/gradle.properties
       def artifactoryUsername = System.env.'ARTIFACTORY_PRIVATE_USERNAME' ?: (project.hasProperty('artifactoryUsername') ? project.getProperty('artifactoryUsername') : '')
       def artifactoryPassword = System.env.'ARTIFACTORY_PRIVATE_PASSWORD' ?: (project.hasProperty('artifactoryPassword') ? project.getProperty('artifactoryPassword') : '')
-      if (artifactoryUsername && artifactoryPassword) {
-        credentials {
-          username artifactoryUsername
-          password artifactoryPassword
-        }
-      } else {
+      if (!artifactoryUsername || ! artifactoryPassword) {
+
         // Workaround for artifactory
         // https://www.jfrog.com/jira/browse/RTFACT-13797
         repository = 'public'
       }
       url "https://repox.jfrog.io/repox/${repository}"
+    }
+    ivy {
+          if (artifactoryUsername && artifactoryPassword) {
+              url "${artifactoryUrl}/sonarsource-bucket"
+
+              patternLayout {
+                artifact '/[organisation]/[module]/[module]-[revision].[ext]'
+              }
+          } else {
+              // For public build
+              url "https://artifacts.elastic.co/downloads/"
+
+              patternLayout {
+                artifact '/[organisation]/[module]-[revision].[ext]'
+              }
+          }
+
+          metadataSources { artifact() }
     }
   }
 
