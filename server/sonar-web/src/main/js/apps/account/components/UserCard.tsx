@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Avatar } from 'design-system';
 import * as React from 'react';
-import LegacyAvatar from '../../../components/ui/LegacyAvatar';
 import { LoggedInUser } from '../../../types/users';
 
 interface Props {
@@ -27,13 +27,9 @@ interface Props {
 
 export default function UserCard({ user }: Props) {
   return (
-    <div className="account-user">
-      <div className="pull-left account-user-avatar" id="avatar">
-        <LegacyAvatar hash={user.avatar} name={user.name} size={60} />
-      </div>
-      <h1 className="pull-left" id="name">
-        {user.name}
-      </h1>
-    </div>
+    <>
+      <Avatar hash={user.avatar} name={user.name} size="md" />
+      <span className="sw-heading-md fs-mask">{user.name}</span>
+    </>
   );
 }

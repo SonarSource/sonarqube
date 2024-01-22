@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { LargeCenteredLayout, PageContentFontWrapper, TopBar } from 'design-system';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Outlet } from 'react-router-dom';
@@ -34,26 +35,30 @@ export default function Account() {
   const title = translate('my_account.page');
   return (
     <div id="account-page">
-      <Suggestions suggestions="account" />
-      <Helmet
-        defaultTitle={title}
-        defer={false}
-        titleTemplate={translateWithParameters(
-          'page_title.template.with_category',
-          translate('my_account.page'),
-        )}
-      />
-      <A11ySkipTarget anchor="account_main" />
-      <header className="account-header">
-        <div className="account-container clearfix">
-          <UserCard user={currentUser} />
+      <header>
+        <TopBar>
+          <div className="sw-flex sw-items-center sw-gap-2 sw-pb-4">
+            <UserCard user={currentUser} />
+          </div>
           <Nav />
-        </div>
+        </TopBar>
       </header>
 
-      <main>
-        <Outlet />
-      </main>
+      <LargeCenteredLayout as="main">
+        <PageContentFontWrapper className="sw-body-sm sw-py-8">
+          <Suggestions suggestions="account" />
+          <Helmet
+            defaultTitle={title}
+            defer={false}
+            titleTemplate={translateWithParameters(
+              'page_title.template.with_category',
+              translate('my_account.page'),
+            )}
+          />
+          <A11ySkipTarget anchor="account_main" />
+          <Outlet />
+        </PageContentFontWrapper>
+      </LargeCenteredLayout>
     </div>
   );
 }

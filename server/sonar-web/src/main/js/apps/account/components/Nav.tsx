@@ -17,30 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { NavBarTabLink, NavBarTabs } from 'design-system';
 import * as React from 'react';
-import { NavLink } from 'react-router-dom';
-import NavBarTabs from '../../../components/ui/NavBarTabs';
 import { translate } from '../../../helpers/l10n';
 
 export default function Nav() {
   return (
-    <nav className="account-nav">
-      <NavBarTabs>
-        <li>
-          <NavLink end to="/account">
-            {translate('my_account.profile')}
-          </NavLink>
-        </li>
-        <li>
-          <NavLink to="/account/security">{translate('my_account.security')}</NavLink>
-        </li>
-        <li>
-          <NavLink to="/account/notifications">{translate('my_account.notifications')}</NavLink>
-        </li>
-        <li>
-          <NavLink to="/account/projects">{translate('my_account.projects')}</NavLink>
-        </li>
-      </NavBarTabs>
-    </nav>
+    <NavBarTabs className="it__account-nav">
+      <NavBarTabLink end to="/account" text={translate('my_account.profile')} />
+      <NavBarTabLink to="/account/security" text={translate('my_account.security')} />
+      <NavBarTabLink to="/account/notifications" text={translate('my_account.notifications')} />
+      <NavBarTabLink to="/account/projects" text={translate('my_account.projects')} />
+    </NavBarTabs>
   );
 }
