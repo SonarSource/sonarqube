@@ -20,3 +20,4 @@ def main(ctx):
             )
         doc = fs.read(".cirrus/.cirrus.yml")
     return features + doc
+
