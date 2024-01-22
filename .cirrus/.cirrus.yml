@@ -6,6 +6,7 @@ env:
   CIRRUS_CLONE_DEPTH: 0
   GRADLE_USER_HOME: ${CIRRUS_WORKING_DIR}/.gradle
   FETCH_DEPTH: --depth=1
+  CI_BUILD_NUMBER: $GITHUB_CHECK_SUITE_ID
 
 default_artifact_template: &DEFAULT_ARTIFACTS_TEMPLATE
   on_failure:
