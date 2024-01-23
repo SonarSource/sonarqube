@@ -96,21 +96,23 @@ export default class UserExternalIdentity extends React.PureComponent<
     }
 
     return (
-      <div
-        className="identity-provider"
-        style={{
-          backgroundColor: identityProvider.backgroundColor,
-          color: getTextColor(identityProvider.backgroundColor, colors.secondFontColor),
-        }}
-      >
-        <img
-          alt={identityProvider.name}
-          className="little-spacer-right"
-          height="14"
-          src={getBaseUrl() + identityProvider.iconPath}
-          width="14"
-        />{' '}
-        {user.externalIdentity}
+      <div className="sw-mt-1 sw-ml-2">
+        <span
+          className="sw-inline-flex sw-items-center sw-px-1"
+          style={{
+            backgroundColor: identityProvider.backgroundColor,
+            color: getTextColor(identityProvider.backgroundColor, colors.secondFontColor),
+          }}
+        >
+          <img
+            alt={identityProvider.name}
+            className="sw-mr-1"
+            height="14"
+            src={getBaseUrl() + identityProvider.iconPath}
+            width="14"
+          />
+          {user.externalIdentity}
+        </span>
       </div>
     );
   }

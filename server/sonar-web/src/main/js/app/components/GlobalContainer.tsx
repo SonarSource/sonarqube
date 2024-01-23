@@ -58,6 +58,7 @@ const TEMP_PAGELIST_WITH_NEW_BACKGROUND = [
   '/security_hotspots',
   '/web_api_v2',
   '/portfolio',
+  '/account',
 ];
 
 const TEMP_PAGELIST_WITH_NEW_BACKGROUND_WHITE = [

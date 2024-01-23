@@ -176,7 +176,7 @@ it('should render the top menu', () => {
 
   expect(screen.getByText(name)).toBeInTheDocument();
 
-  expect(screen.getByText('my_account.profile')).toBeInTheDocument();
+  expect(screen.getByRole('heading', { name: 'my_account.profile' })).toBeInTheDocument();
   expect(screen.getByText('my_account.security')).toBeInTheDocument();
   expect(screen.getByText('my_account.notifications')).toBeInTheDocument();
   expect(screen.getByText('my_account.projects')).toBeInTheDocument();

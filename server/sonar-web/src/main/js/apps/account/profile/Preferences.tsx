@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { SubHeading, Switch } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import Toggle from '../../../components/controls/Toggle';
 import { translate } from '../../../helpers/l10n';
 import {
   getKeyboardShortcutEnabled,
@@ -40,43 +40,36 @@ export function Preferences() {
   );
 
   return (
-    <div className="boxed-group">
-      <div className="boxed-group-inner">
-        <h2 className="big-spacer-bottom">{translate('my_account.preferences')}</h2>
-        <ul>
-          <li>
-            <div className="text-bold spacer-bottom">
-              {translate('my_account.preferences.keyboard_shortcuts')}
-            </div>
-            <div className="display-flex-row">
-              <div className="width-50 big-padded-right">
-                <FormattedMessage
-                  id="my_account.preferences.keyboard_shortcuts.description"
-                  defaultMessage={translate(
-                    'my_account.preferences.keyboard_shortcuts.description',
-                  )}
-                  values={{
-                    questionMark: (
-                      <span className="markdown">
-                        <code>?</code>
-                      </span>
-                    ),
-                  }}
-                />
-              </div>
-              <Toggle
-                ariaLabel={
-                  shortcutsPreferenceValue
-                    ? translate('my_account.preferences.keyboard_shortcuts.enabled')
-                    : translate('my_account.preferences.keyboard_shortcuts.disabled')
-                }
-                onChange={handleToggleKeyboardShortcut}
-                value={shortcutsPreferenceValue}
+    <>
+      <SubHeading as="h2">{translate('my_account.preferences')}</SubHeading>
+      <ul>
+        <li>
+          <div>{translate('my_account.preferences.keyboard_shortcuts')}</div>
+          <div className="sw-flex sw-flex-row">
+            <div className="sw-max-w-3/4">
+              <FormattedMessage
+                id="my_account.preferences.keyboard_shortcuts.description"
+                defaultMessage={translate('my_account.preferences.keyboard_shortcuts.description')}
+                values={{
+                  questionMark: (
+                    <span className="markdown">
+                      <code>?</code>
+                    </span>
+                  ),
+                }}
               />
             </div>
-          </li>
-        </ul>
-      </div>
-    </div>
+            <Switch
+              labels={{
+                on: translate('my_account.preferences.keyboard_shortcuts.enabled'),
+                off: translate('my_account.preferences.keyboard_shortcuts.disabled'),
+              }}
+              onChange={handleToggleKeyboardShortcut}
+              value={shortcutsPreferenceValue}
+            />
+          </div>
+        </li>
+      </ul>
+    </>
   );
 }
