@@ -17,10 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { ButtonPrimary, InteractiveIcon, PencilIcon, Title } from 'design-system';
 import * as React from 'react';
 import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Button, EditButton } from '../../components/controls/buttons';
 import { translate } from '../../helpers/l10n';
 import { Visibility } from '../../types/component';
 import ChangeDefaultVisibilityForm from './ChangeDefaultVisibilityForm';
@@ -39,39 +39,41 @@ export default function Header(props: Readonly<Props>) {
   const { defaultProjectVisibility, hasProvisionPermission } = props;
 
   return (
-    <header className="page-header">
-      <h1 className="page-title">{translate('projects_management')}</h1>
+    <header className="sw-mb-5">
+      <div className="sw-flex sw-items-center sw-justify-between">
+        <Title className="sw-m-0">{translate('projects_management')}</Title>
+        <div className="sw-flex sw-items-center it__page-actions">
+          <div className="sw-mr-2">
+            <span className="sw-mr-1">
+              {translate('settings.projects.default_visibility_of_new_projects')}{' '}
+              <strong className="sw-body-sm-highlight">
+                {defaultProjectVisibility ? translate('visibility', defaultProjectVisibility) : '—'}
+              </strong>
+            </span>
+            <InteractiveIcon
+              className="it__change-visibility"
+              Icon={PencilIcon}
+              onClick={() => setVisibilityForm(true)}
+              aria-label={translate('settings.projects.change_visibility_form.label')}
+            />
+          </div>
 
-      <div className="page-actions">
-        <span className="big-spacer-right">
-          <span className="text-middle">
-            {translate('settings.projects.default_visibility_of_new_projects')}{' '}
-            <strong>
-              {defaultProjectVisibility ? translate('visibility', defaultProjectVisibility) : '—'}
-            </strong>
-          </span>
-          <EditButton
-            className="js-change-visibility spacer-left button-small"
-            onClick={() => setVisibilityForm(true)}
-            aria-label={translate('settings.projects.change_visibility_form.label')}
-          />
-        </span>
-
-        {hasProvisionPermission && (
-          <Button
-            id="create-project"
-            onClick={() =>
-              navigate('/projects/create?mode=manual', {
-                state: { from: location.pathname },
-              })
-            }
-          >
-            {translate('qualifiers.create.TRK')}
-          </Button>
-        )}
+          {hasProvisionPermission && (
+            <ButtonPrimary
+              id="create-project"
+              onClick={() =>
+                navigate('/projects/create?mode=manual', {
+                  state: { from: location.pathname },
+                })
+              }
+            >
+              {translate('qualifiers.create.TRK')}
+            </ButtonPrimary>
+          )}
+        </div>
       </div>
 
-      <p className="page-description">{translate('projects_management.page.description')}</p>
+      <p className="sw-mt-4">{translate('projects_management.page.description')}</p>
 
       {visibilityForm && (
         <ChangeDefaultVisibilityForm

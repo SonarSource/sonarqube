@@ -17,14 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import {
+  ButtonPrimary,
+  FlagMessage,
+  FormField,
+  InputSelect,
+  LabelValueSelectOption,
+  Modal,
+  Spinner,
+} from 'design-system';
 import * as React from 'react';
 import { bulkApplyTemplate, getPermissionTemplates } from '../../api/permissions';
 import { Project } from '../../api/project-management';
-import Modal from '../../components/controls/Modal';
-import Select from '../../components/controls/Select';
-import { ResetButtonLink, SubmitButton } from '../../components/controls/buttons';
-import { Alert } from '../../components/ui/Alert';
-import MandatoryFieldMarker from '../../components/ui/MandatoryFieldMarker';
 import MandatoryFieldsExplanation from '../../components/ui/MandatoryFieldsExplanation';
 import { toISO8601WithOffsetString } from '../../helpers/dates';
 import { addGlobalErrorMessageFromAPI } from '../../helpers/globalMessages';
@@ -48,6 +52,8 @@ interface State {
   permissionTemplates?: PermissionTemplate[];
   submitting: boolean;
 }
+
+const FORM_ID = 'bulk-apply-template-form';
 
 export default class BulkApplyTemplateModal extends React.PureComponent<Props, State> {
   mounted = false;
@@ -83,7 +89,8 @@ export default class BulkApplyTemplateModal extends React.PureComponent<Props, S
     );
   }
 
-  handleConfirmClick = () => {
+  handleConfirmClick = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
     const { analyzedBefore } = this.props;
     const { permissionTemplate } = this.state;
     if (permissionTemplate) {
@@ -118,7 +125,7 @@ export default class BulkApplyTemplateModal extends React.PureComponent<Props, S
     }
   };
 
-  handlePermissionTemplateChange = ({ value }: { value: string }) => {
+  handlePermissionTemplateChange = ({ value }: LabelValueSelectOption<string>) => {
     this.setState({ permissionTemplate: value });
   };
 
@@ -132,15 +139,15 @@ export default class BulkApplyTemplateModal extends React.PureComponent<Props, S
 
     if (isSelectionOnlyManaged) {
       return (
-        <Alert variant="error">
+        <FlagMessage variant="error" className="sw-my-2">
           {translate(
             'permission_templates.bulk_apply_permission_template.apply_to_only_github_projects',
           )}
-        </Alert>
+        </FlagMessage>
       );
     } else if (isSelectionOnlyLocal) {
       return (
-        <Alert variant="warning">
+        <FlagMessage variant="warning" className="sw-my-2">
           {this.props.selection.length
             ? translateWithParameters(
                 'permission_templates.bulk_apply_permission_template.apply_to_selected',
@@ -150,11 +157,11 @@ export default class BulkApplyTemplateModal extends React.PureComponent<Props, S
                 'permission_templates.bulk_apply_permission_template.apply_to_all',
                 this.props.total,
               )}
-        </Alert>
+        </FlagMessage>
       );
     }
     return (
-      <Alert variant="warning">
+      <FlagMessage variant="warning" className="sw-my-2">
         {translateWithParameters(
           'permission_templates.bulk_apply_permission_template.apply_to_selected',
           localProjects.length,
@@ -164,7 +171,7 @@ export default class BulkApplyTemplateModal extends React.PureComponent<Props, S
           'permission_templates.bulk_apply_permission_template.apply_to_github_projects',
           managedProjects.length,
         )}
-      </Alert>
+      </FlagMessage>
     );
   };
 
@@ -174,20 +181,17 @@ export default class BulkApplyTemplateModal extends React.PureComponent<Props, S
         ? this.state.permissionTemplates.map((t) => ({ label: t.name, value: t.id }))
         : [];
     return (
-      <div className="modal-field">
-        <label htmlFor="bulk-apply-template-input">
-          {translate('template')}
-          <MandatoryFieldMarker />
-        </label>
-        <Select
+      <FormField htmlFor="bulk-apply-template-input" label={translate('template')} required>
+        <InputSelect
           id="bulk-apply-template"
           inputId="bulk-apply-template-input"
           isDisabled={this.state.submitting || isSelectionOnlyManaged}
           onChange={this.handlePermissionTemplateChange}
           options={options}
           value={options.find((option) => option.value === this.state.permissionTemplate)}
+          size="auto"
         />
-      </div>
+      </FormField>
     );
   };
 
@@ -196,44 +200,49 @@ export default class BulkApplyTemplateModal extends React.PureComponent<Props, S
     const header = translate('permission_templates.bulk_apply_permission_template');
 
     const isSelectionOnlyManaged = this.props.selection.every((s) => s.managed === true);
+    const body = (
+      <form id={FORM_ID} onSubmit={this.handleConfirmClick}>
+        {done && (
+          <FlagMessage variant="success">
+            {translate('projects_role.apply_template.success')}
+          </FlagMessage>
+        )}
 
+        <Spinner loading={loading} />
+
+        {!loading && !done && permissionTemplates && (
+          <>
+            <MandatoryFieldsExplanation className="sw-mb-2" />
+            {this.renderWarning()}
+            {this.renderSelect(isSelectionOnlyManaged)}
+          </>
+        )}
+      </form>
+    );
     return (
-      <Modal contentLabel={header} onRequestClose={this.props.onClose} size="small">
-        <header className="modal-head">
-          <h2>{header}</h2>
-        </header>
-
-        <div className="modal-body">
-          {done && (
-            <Alert variant="success">{translate('projects_role.apply_template.success')}</Alert>
-          )}
-
-          {loading && <i className="spinner" />}
-
-          {!loading && !done && permissionTemplates && (
-            <>
-              <MandatoryFieldsExplanation className="spacer-bottom" />
-              {this.renderWarning()}
-              {this.renderSelect(isSelectionOnlyManaged)}
-            </>
-          )}
-        </div>
-
-        <footer className="modal-foot">
-          {submitting && <i className="spinner spacer-right" />}
-          {!loading && !done && permissionTemplates && (
-            <SubmitButton
+      <Modal
+        isScrollable={false}
+        isOverflowVisible
+        headerTitle={header}
+        onClose={this.props.onClose}
+        loading={submitting}
+        body={body}
+        primaryButton={
+          !loading &&
+          !done &&
+          permissionTemplates && (
+            <ButtonPrimary
+              autoFocus
               disabled={submitting || isSelectionOnlyManaged}
-              onClick={this.handleConfirmClick}
+              form={FORM_ID}
+              type="submit"
             >
               {translate('apply')}
-            </SubmitButton>
-          )}
-          <ResetButtonLink onClick={this.props.onClose}>
-            {done ? translate('close') : translate('cancel')}
-          </ResetButtonLink>
-        </footer>
-      </Modal>
+            </ButtonPrimary>
+          )
+        }
+        secondaryButtonLabel={done ? translate('close') : translate('cancel')}
+      />
     );
   }
 }

@@ -17,20 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { ActionCell, Badge, Checkbox, ContentCell, HoverLink, Note, TableRow } from 'design-system';
 import * as React from 'react';
 import { Project } from '../../api/project-management';
-import Link from '../../components/common/Link';
 import PrivacyBadgeContainer from '../../components/common/PrivacyBadgeContainer';
-import Checkbox from '../../components/controls/Checkbox';
 import Tooltip from '../../components/controls/Tooltip';
-import QualifierIcon from '../../components/icons/QualifierIcon';
 import DateFormatter from '../../components/intl/DateFormatter';
 import { translate, translateWithParameters } from '../../helpers/l10n';
 import { getComponentOverviewUrl } from '../../helpers/urls';
 import { useGithubProvisioningEnabledQuery } from '../../queries/identity-provider/github';
 import { ComponentQualifier } from '../../types/component';
 import { LoggedInUser } from '../../types/users';
-import './ProjectRow.css';
 import ProjectRowActions from './ProjectRowActions';
 
 interface Props {
@@ -49,52 +46,42 @@ export default function ProjectRow(props: Props) {
   };
 
   return (
-    <tr data-project-key={project.key}>
-      <td className="thin">
+    <TableRow data-project-key={project.key}>
+      <ContentCell>
         <Checkbox
           label={translateWithParameters('projects_management.select_project', project.name)}
           checked={selected}
           onCheck={handleProjectCheck}
         />
-      </td>
-
-      <td className="nowrap hide-overflow project-row-text-cell">
-        <Link
-          className="link-no-underline"
-          to={getComponentOverviewUrl(project.key, project.qualifier)}
-        >
-          <QualifierIcon className="little-spacer-right" qualifier={project.qualifier} />
-
+      </ContentCell>
+      <ContentCell className="it__project-row-text-cell">
+        <HoverLink to={getComponentOverviewUrl(project.key, project.qualifier)}>
           <Tooltip overlay={project.name} placement="left">
             <span>{project.name}</span>
           </Tooltip>
-        </Link>
+        </HoverLink>
         {project.qualifier === ComponentQualifier.Project &&
           githubProvisioningEnabled &&
-          !project.managed && <span className="badge sw-ml-1">{translate('local')}</span>}
-      </td>
-
-      <td className="thin nowrap">
+          !project.managed && <Badge className="sw-ml-1">{translate('local')}</Badge>}
+      </ContentCell>
+      <ContentCell>
         <PrivacyBadgeContainer qualifier={project.qualifier} visibility={project.visibility} />
-      </td>
-
-      <td className="nowrap hide-overflow project-row-text-cell">
+      </ContentCell>
+      <ContentCell className="it__project-row-text-cell">
         <Tooltip overlay={project.key} placement="left">
-          <span className="note">{project.key}</span>
+          <Note>{project.key}</Note>
         </Tooltip>
-      </td>
-
-      <td className="thin nowrap text-right">
+      </ContentCell>
+      <ContentCell>
         {project.lastAnalysisDate ? (
           <DateFormatter date={project.lastAnalysisDate} />
         ) : (
-          <span className="note">—</span>
+          <Note>—</Note>
         )}
-      </td>
-
-      <td className="thin nowrap">
+      </ContentCell>
+      <ActionCell>
         <ProjectRowActions currentUser={currentUser} project={project} />
-      </td>
-    </tr>
+      </ActionCell>
+    </TableRow>
   );
 }

@@ -17,11 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { DangerButtonPrimary, FlagMessage, Modal } from 'design-system';
 import * as React from 'react';
 import { Project, bulkDeleteProjects } from '../../api/project-management';
-import Modal from '../../components/controls/Modal';
-import { ResetButtonLink, SubmitButton } from '../../components/controls/buttons';
-import { Alert } from '../../components/ui/Alert';
 import { toISO8601WithOffsetString } from '../../helpers/dates';
 import { translate, translateWithParameters } from '../../helpers/l10n';
 
@@ -80,42 +78,43 @@ export default class DeleteModal extends React.PureComponent<Props, State> {
   };
 
   renderWarning = () => (
-    <Alert variant="warning">
+    <FlagMessage variant="warning">
       {this.props.selection.length
         ? translateWithParameters(
             'projects_management.delete_selected_warning',
             this.props.selection.length,
           )
         : translateWithParameters('projects_management.delete_all_warning', this.props.total)}
-    </Alert>
+    </FlagMessage>
   );
 
   render() {
     const header = translate('qualifiers.delete', this.props.qualifier);
 
     return (
-      <Modal contentLabel={header} onRequestClose={this.props.onClose}>
-        <header className="modal-head">
-          <h2>{header}</h2>
-        </header>
-
-        <div className="modal-body">
-          {this.renderWarning()}
-          {translate('qualifiers.delete_confirm', this.props.qualifier)}
-        </div>
-
-        <footer className="modal-foot">
-          {this.state.loading && <i className="spinner spacer-right" />}
-          <SubmitButton
-            className="button-red"
+      <Modal
+        headerTitle={header}
+        onClose={this.props.onClose}
+        body={
+          <>
+            {this.renderWarning()}
+            <p className="sw-mt-2">
+              {translate('qualifiers.delete_confirm', this.props.qualifier)}
+            </p>
+          </>
+        }
+        primaryButton={
+          <DangerButtonPrimary
+            autoFocus
             disabled={this.state.loading}
             onClick={this.handleConfirmClick}
+            type="submit"
           >
             {translate('delete')}
-          </SubmitButton>
-          <ResetButtonLink onClick={this.props.onClose}>{translate('cancel')}</ResetButtonLink>
-        </footer>
-      </Modal>
+          </DangerButtonPrimary>
+        }
+        secondaryButtonLabel={translate('cancel')}
+      />
     );
   }
 }

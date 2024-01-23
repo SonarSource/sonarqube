@@ -75,10 +75,10 @@ const ui = {
   }),
   projectActions: (projectName: string) =>
     byRole('button', { name: `projects_management.show_actions_for_x.${projectName}` }),
-  editPermissions: byRole('link', { name: 'edit_permissions' }),
-  showPermissions: byRole('link', { name: 'show_permissions' }),
-  applyPermissionTemplate: byRole('button', { name: 'projects_role.apply_template' }),
-  restoreAccess: byRole('button', { name: 'global_permissions.restore_access' }),
+  editPermissions: byRole('menuitem', { name: 'edit_permissions' }),
+  showPermissions: byRole('menuitem', { name: 'show_permissions' }),
+  applyPermissionTemplate: byRole('menuitem', { name: 'projects_role.apply_template' }),
+  restoreAccess: byRole('menuitem', { name: 'global_permissions.restore_access' }),
   editPermissionsPage: byText('/project_roles?id=project1'),
 
   apply: byRole('button', { name: 'apply' }),
@@ -114,7 +114,7 @@ const ui = {
   qualifierFilter: byRole('combobox', { name: 'projects_management.filter_by_component' }),
   analysisDateFilter: byPlaceholderText('last_analysis_before'),
   provisionedFilter: byRole('checkbox', {
-    name: 'provisioning.only_provisioned help',
+    name: 'provisioning.only_provisioned',
   }),
   searchFilter: byRole('searchbox', { name: 'search.search_by_name_or_key' }),
 
@@ -291,7 +291,7 @@ describe('Bulk permission templates', () => {
         .get(),
     ).toBeInTheDocument();
     await selectEvent.select(
-      ui.bulkApplyDialog.by(ui.selectTemplate('field_required')).get(),
+      ui.bulkApplyDialog.by(ui.selectTemplate('required')).get(),
       'Permission Template 2',
     );
     await user.click(ui.bulkApplyDialog.by(ui.apply).get());

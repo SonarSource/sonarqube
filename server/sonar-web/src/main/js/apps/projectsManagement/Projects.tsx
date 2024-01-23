@@ -17,7 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import classNames from 'classnames';
+import { ActionCell, ContentCell, Table, TableRow } from 'design-system';
 import * as React from 'react';
 import { Project } from '../../api/project-management';
 import { translate } from '../../helpers/l10n';
@@ -44,34 +46,33 @@ export default function Projects(props: Readonly<Props>) {
     }
   };
 
+  const header = (
+    <TableRow>
+      <ContentCell>&nbsp;</ContentCell>
+      <ContentCell>{translate('name')}</ContentCell>
+      <ContentCell>{translate('visibility')}</ContentCell>
+      <ContentCell>{translate('key')}</ContentCell>
+      <ContentCell>{translate('last_analysis')}</ContentCell>
+      <ActionCell>{translate('actions')}</ActionCell>
+    </TableRow>
+  );
+
   return (
-    <div className="boxed-group boxed-group-inner">
-      <table
-        className={classNames('data', 'zebra', { 'new-loading': !ready })}
-        id="projects-management-page-projects"
-      >
-        <thead>
-          <tr>
-            <th />
-            <th>{translate('name')}</th>
-            <th />
-            <th>{translate('key')}</th>
-            <th className="thin nowrap text-right">{translate('last_analysis')}</th>
-            <th />
-          </tr>
-        </thead>
-        <tbody>
-          {projects.map((project) => (
-            <ProjectRow
-              currentUser={currentUser}
-              key={project.key}
-              onProjectCheck={onProjectCheck}
-              project={project}
-              selected={selection.some((s) => s.key === project.key)}
-            />
-          ))}
-        </tbody>
-      </table>
-    </div>
+    <Table
+      columnCount={6}
+      header={header}
+      id="projects-management-page-projects"
+      className={classNames({ 'sw-opacity-50 sw-transition sw-duration-75 sw-ease-in': !ready })}
+    >
+      {projects.map((project) => (
+        <ProjectRow
+          currentUser={currentUser}
+          key={project.key}
+          onProjectCheck={onProjectCheck}
+          project={project}
+          selected={selection.some((s) => s.key === project.key)}
+        />
+      ))}
+    </Table>
   );
 }

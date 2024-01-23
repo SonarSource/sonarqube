@@ -85,6 +85,7 @@ const TEMP_PAGELIST_WITH_NEW_BACKGROUND_WHITE = [
   '/admin/settings/encryption',
   '/admin/extension/license/support',
   '/admin/audit',
+  '/admin/projects_management',
 ];
 
 export default function GlobalContainer() {

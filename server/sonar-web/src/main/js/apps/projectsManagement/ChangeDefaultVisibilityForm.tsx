@@ -17,11 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { ButtonPrimary, FlagMessage, Modal, RadioButton, TextSubdued } from 'design-system';
 import React, { useState } from 'react';
-import Modal from '../../components/controls/Modal';
-import Radio from '../../components/controls/Radio';
-import { Button, ResetButtonLink } from '../../components/controls/buttons';
-import { Alert } from '../../components/ui/Alert';
 import { translate } from '../../helpers/l10n';
 import { useGithubProvisioningEnabledQuery } from '../../queries/identity-provider/github';
 import { Visibility } from '../../types/component';
@@ -32,11 +29,14 @@ export interface Props {
   onConfirm: (visiblity: Visibility) => void;
 }
 
+const FORM_ID = 'change-default-visibility-form';
+
 export default function ChangeDefaultVisibilityForm(props: Props) {
   const [visibility, setVisibility] = useState(props.defaultVisibility);
   const { data: githubProbivisioningEnabled } = useGithubProvisioningEnabledQuery();
 
-  const handleConfirmClick = () => {
+  const handleConfirmClick = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
     props.onConfirm(visibility);
     props.onClose();
   };
@@ -47,47 +47,47 @@ export default function ChangeDefaultVisibilityForm(props: Props) {
 
   const header = translate('settings.projects.change_visibility_form.header');
 
+  const body = (
+    <form id={FORM_ID} onSubmit={handleConfirmClick}>
+      {Object.values(Visibility).map((visibilityValue) => (
+        <div className="sw-mb-4" key={visibilityValue}>
+          <RadioButton
+            value={visibilityValue}
+            checked={visibility === visibilityValue}
+            onCheck={handleVisibilityChange}
+          >
+            <div>
+              {translate('visibility', visibilityValue)}
+              <TextSubdued as="p" className="sw-mt-2">
+                {translate('visibility', visibilityValue, 'description.short')}
+              </TextSubdued>
+            </div>
+          </RadioButton>
+        </div>
+      ))}
+      <FlagMessage variant="warning">
+        {translate(
+          `settings.projects.change_visibility_form.warning${
+            githubProbivisioningEnabled ? '.github' : ''
+          }`,
+        )}
+      </FlagMessage>
+    </form>
+  );
+
   return (
-    <Modal contentLabel={header} onRequestClose={props.onClose}>
-      <header className="modal-head">
-        <h2>{header}</h2>
-      </header>
-
-      <div className="modal-body">
-        {Object.values(Visibility).map((visibilityValue) => (
-          <div className="big-spacer-bottom" key={visibilityValue}>
-            <Radio
-              value={visibilityValue}
-              checked={visibility === visibilityValue}
-              onCheck={handleVisibilityChange}
-            >
-              <div>
-                {translate('visibility', visibilityValue)}
-                <p className="text-muted spacer-top">
-                  {translate('visibility', visibilityValue, 'description.short')}
-                </p>
-              </div>
-            </Radio>
-          </div>
-        ))}
-
-        <Alert variant="warning">
-          {translate(
-            `settings.projects.change_visibility_form.warning${
-              githubProbivisioningEnabled ? '.github' : ''
-            }`,
-          )}
-        </Alert>
-      </div>
-
-      <footer className="modal-foot">
-        <Button className="js-confirm" type="submit" onClick={handleConfirmClick}>
+    <Modal
+      isScrollable={false}
+      isOverflowVisible
+      headerTitle={header}
+      onClose={props.onClose}
+      body={body}
+      primaryButton={
+        <ButtonPrimary form={FORM_ID} autoFocus type="submit">
           {translate('settings.projects.change_visibility_form.submit')}
-        </Button>
-        <ResetButtonLink className="js-modal-close" onClick={props.onClose}>
-          {translate('cancel')}
-        </ResetButtonLink>
-      </footer>
-    </Modal>
+        </ButtonPrimary>
+      }
+      secondaryButtonLabel={translate('cancel')}
+    />
   );
 }

@@ -27,7 +27,6 @@ import {
 } from 'design-system';
 import * as React from 'react';
 import { applyTemplateToProject, getPermissionTemplates } from '../../../../api/permissions';
-import MandatoryFieldsExplanation from '../../../../components/ui/MandatoryFieldsExplanation';
 import { translate, translateWithParameters } from '../../../../helpers/l10n';
 import { PermissionTemplate } from '../../../../types/types';
 
@@ -136,25 +135,22 @@ export default class ApplyTemplate extends React.PureComponent<Props, State> {
               )}
 
               {!this.state.done && !this.state.loading && (
-                <>
-                  <MandatoryFieldsExplanation className="sw-mb-4" />
-                  <FormField
-                    label={translate('template')}
-                    required
-                    htmlFor="project-permissions-template-input"
-                  >
-                    {this.state.permissionTemplates && (
-                      <InputSelect
-                        size="full"
-                        id="project-permissions-template"
-                        inputId="project-permissions-template-input"
-                        onChange={this.handlePermissionTemplateChange}
-                        options={options}
-                        value={options.filter((o) => o.value === this.state.permissionTemplate)}
-                      />
-                    )}
-                  </FormField>
-                </>
+                <FormField
+                  label={translate('template')}
+                  required
+                  htmlFor="project-permissions-template-input"
+                >
+                  {this.state.permissionTemplates && (
+                    <InputSelect
+                      size="full"
+                      id="project-permissions-template"
+                      inputId="project-permissions-template-input"
+                      onChange={this.handlePermissionTemplateChange}
+                      options={options}
+                      value={options.filter((o) => o.value === this.state.permissionTemplate)}
+                    />
+                  )}
+                </FormField>
               )}
             </div>
           </form>

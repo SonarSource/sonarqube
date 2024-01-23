@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { LargeCenteredLayout, PageContentFontWrapper } from 'design-system';
 import { debounce, uniq } from 'lodash';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
@@ -202,52 +203,55 @@ class ProjectManagementApp extends React.PureComponent<Props, State> {
     const { currentUser } = this.props;
     const { defaultProjectVisibility } = this.state;
     return (
-      <main className="page page-limited" id="projects-management-page">
-        <Suggestions suggestions="projects_management" />
-        <Helmet defer={false} title={translate('projects_management')} />
+      <LargeCenteredLayout as="main" id="projects-management-page">
+        <PageContentFontWrapper className="sw-body-sm sw-my-8">
+          <Suggestions suggestions="projects_management" />
+          <Helmet defer={false} title={translate('projects_management')} />
 
-        <Header
-          defaultProjectVisibility={defaultProjectVisibility}
-          hasProvisionPermission={hasGlobalPermission(currentUser, Permissions.ProjectCreation)}
-          onChangeDefaultProjectVisibility={this.handleDefaultProjectVisibilityChange}
-        />
+          <Header
+            defaultProjectVisibility={defaultProjectVisibility}
+            hasProvisionPermission={hasGlobalPermission(currentUser, Permissions.ProjectCreation)}
+            onChangeDefaultProjectVisibility={this.handleDefaultProjectVisibilityChange}
+          />
 
-        <Search
-          analyzedBefore={this.state.analyzedBefore}
-          onAllDeselected={this.onAllDeselected}
-          onAllSelected={this.onAllSelected}
-          onDateChanged={this.handleDateChanged}
-          onDeleteProjects={this.requestProjects}
-          onProvisionedChanged={this.onProvisionedChanged}
-          onQualifierChanged={this.onQualifierChanged}
-          onSearch={this.onSearch}
-          onVisibilityChanged={this.onVisibilityChanged}
-          projects={this.state.projects}
-          provisioned={this.state.provisioned}
-          qualifiers={this.state.qualifiers}
-          query={this.state.query}
-          ready={this.state.ready}
-          selection={this.state.selection}
-          total={this.state.total}
-          visibility={this.state.visibility}
-        />
+          <Search
+            analyzedBefore={this.state.analyzedBefore}
+            onAllDeselected={this.onAllDeselected}
+            onAllSelected={this.onAllSelected}
+            onDateChanged={this.handleDateChanged}
+            onDeleteProjects={this.requestProjects}
+            onProvisionedChanged={this.onProvisionedChanged}
+            onQualifierChanged={this.onQualifierChanged}
+            onSearch={this.onSearch}
+            onVisibilityChanged={this.onVisibilityChanged}
+            projects={this.state.projects}
+            provisioned={this.state.provisioned}
+            qualifiers={this.state.qualifiers}
+            query={this.state.query}
+            ready={this.state.ready}
+            selection={this.state.selection}
+            total={this.state.total}
+            visibility={this.state.visibility}
+          />
 
-        <Projects
-          currentUser={this.props.currentUser}
-          onProjectDeselected={this.onProjectDeselected}
-          onProjectSelected={this.onProjectSelected}
-          projects={this.state.projects}
-          ready={this.state.ready}
-          selection={this.state.selection}
-        />
+          <Projects
+            currentUser={this.props.currentUser}
+            onProjectDeselected={this.onProjectDeselected}
+            onProjectSelected={this.onProjectSelected}
+            projects={this.state.projects}
+            ready={this.state.ready}
+            selection={this.state.selection}
+          />
 
-        <ListFooter
-          count={this.state.projects.length}
-          loadMore={this.loadMore}
-          ready={this.state.ready}
-          total={this.state.total}
-        />
-      </main>
+          <ListFooter
+            count={this.state.projects.length}
+            loadMore={this.loadMore}
+            ready={this.state.ready}
+            total={this.state.total}
+            useMIUIButtons
+          />
+        </PageContentFontWrapper>
+      </LargeCenteredLayout>
     );
   }
 }

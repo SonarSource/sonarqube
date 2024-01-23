@@ -23,6 +23,7 @@
 import 'core-js/stable';
 /*                                                                                              */
 import axios from 'axios';
+import 'react-day-picker/dist/style.css';
 import { getAvailableFeatures } from '../api/features';
 import { getGlobalNavigation } from '../api/navigation';
 import { getCurrentUser } from '../api/users';

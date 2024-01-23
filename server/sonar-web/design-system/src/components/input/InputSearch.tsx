@@ -75,7 +75,6 @@ export function InputSearch(props: PropsWithChildren<Props>) {
     value: parentValue,
     searchInputAriaLabel,
   } = props;
-
   const intl = useIntl();
   const input = useRef<null | HTMLElement>(null);
   const [value, setValue] = useState(parentValue ?? '');
@@ -84,6 +83,7 @@ export function InputSearch(props: PropsWithChildren<Props>) {
     () =>
       debounce((val: string) => {
         onChange(val);
+        setDirty(false);
       }, DEBOUNCE_DELAY),
     [onChange],
   );

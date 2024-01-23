@@ -17,18 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import {
+  ButtonSecondary,
+  Checkbox,
+  DangerButtonPrimary,
+  DatePicker,
+  HelperHintIcon,
+  InputSearch,
+  InputSelect,
+  Spinner,
+} from 'design-system';
 import { sortBy } from 'lodash';
 import * as React from 'react';
-import { components, OptionProps, SingleValueProps } from 'react-select';
+import { OptionProps, SingleValueProps, components } from 'react-select';
 import { Project } from '../../api/project-management';
 import withAppStateContext from '../../app/components/app-state/withAppStateContext';
-import { Button } from '../../components/controls/buttons';
-import Checkbox from '../../components/controls/Checkbox';
-import DateInput from '../../components/controls/DateInput';
 import HelpTooltip from '../../components/controls/HelpTooltip';
-import SearchBox from '../../components/controls/SearchBox';
-import Select, { LabelValueSelectOption } from '../../components/controls/Select';
-import QualifierIcon from '../../components/icons/QualifierIcon';
+import { LabelValueSelectOption } from '../../components/controls/Select';
 import { translate } from '../../helpers/l10n';
 import { AppState } from '../../types/appstate';
 import { Visibility } from '../../types/component';
@@ -129,6 +135,7 @@ class Search extends React.PureComponent<Props, State> {
     const checked = isAllChecked || thirdState;
     return (
       <Checkbox
+        className="it__projects-selection"
         checked={checked}
         id="projects-selection"
         onCheck={this.onCheck}
@@ -138,12 +145,7 @@ class Search extends React.PureComponent<Props, State> {
     );
   };
 
-  renderQualifierOption = (option: LabelValueSelectOption) => (
-    <div className="display-flex-center">
-      <QualifierIcon className="little-spacer-right" qualifier={option.value} />
-      {option.label}
-    </div>
-  );
+  renderQualifierOption = (option: LabelValueSelectOption) => <div>{option.label}</div>;
 
   renderQualifierFilter = () => {
     const options = this.getQualifierOptions();
@@ -151,8 +153,8 @@ class Search extends React.PureComponent<Props, State> {
       return null;
     }
     return (
-      <Select
-        className="input-medium it__project-qualifier-select"
+      <InputSelect
+        className="it__project-qualifier-select"
         isDisabled={!this.props.ready}
         name="projects-qualifier"
         onChange={this.handleQualifierChange}
@@ -175,8 +177,7 @@ class Search extends React.PureComponent<Props, State> {
       { value: Visibility.Private, label: translate('visibility.private') },
     ];
     return (
-      <Select
-        className="input-small"
+      <InputSelect
         isDisabled={!this.props.ready}
         name="projects-visibility"
         onChange={this.handleVisibilityChange}
@@ -190,64 +191,69 @@ class Search extends React.PureComponent<Props, State> {
 
   renderTypeFilter = () =>
     this.props.qualifiers === 'TRK' ? (
-      <div>
+      <div className="sw-flex sw-items-center">
         <Checkbox
           checked={this.props.provisioned}
-          className="link-checkbox-control"
           id="projects-provisioned"
           onCheck={this.props.onProvisionedChanged}
         >
-          <span className="text-middle little-spacer-left">
-            {translate('provisioning.only_provisioned')}
-          </span>
+          <span className="sw-ml-1">{translate('provisioning.only_provisioned')}</span>
           <HelpTooltip
-            className="spacer-left"
+            className="sw-ml-2"
             overlay={translate('provisioning.only_provisioned.tooltip')}
-          />
+          >
+            <HelperHintIcon />
+          </HelpTooltip>
         </Checkbox>
       </div>
     ) : null;
 
   renderDateFilter = () => {
     return (
-      <DateInput
-        inputClassName="input-medium"
+      <DatePicker
+        clearButtonLabel={translate('clear')}
         name="analyzed-before"
         onChange={this.props.onDateChanged}
         placeholder={translate('last_analysis_before')}
         value={this.props.analyzedBefore}
+        showClearButton
+        alignRight
+        size="auto"
       />
     );
   };
 
   render() {
     return (
-      <div className="big-spacer-bottom">
-        <div className="projects-management-search">
-          <div>{this.props.ready ? this.renderCheckbox() : <i className="spinner" />}</div>
+      <div className="sw-mb-4">
+        <div className="sw-flex sw-justify-start sw-items-center sw-flex-wrap sw-gap-2 sw-p-2">
+          <Spinner loading={!this.props.ready} className="sw-ml-2">
+            {this.renderCheckbox()}
+          </Spinner>
           {this.renderQualifierFilter()}
           {this.renderDateFilter()}
           {this.renderVisibilityFilter()}
           {this.renderTypeFilter()}
-          <div className="flex-grow">
-            <SearchBox
+          <div className="sw-flex-grow">
+            <InputSearch
               minLength={3}
               onChange={this.props.onSearch}
               placeholder={translate('search.search_by_name_or_key')}
               value={this.props.query}
+              size="auto"
             />
           </div>
-          <div className="bulk-actions">
-            <Button
-              className="js-bulk-apply-permission-template"
+          <div>
+            <ButtonSecondary
+              className="it__bulk-apply-permission-template"
               disabled={this.props.selection.length === 0}
               onClick={this.handleBulkApplyTemplateClick}
             >
               {translate('permission_templates.bulk_apply_permission_template')}
-            </Button>
+            </ButtonSecondary>
             {this.props.qualifiers === 'TRK' && (
-              <Button
-                className="js-delete spacer-left button-red"
+              <DangerButtonPrimary
+                className="sw-ml-2"
                 disabled={this.props.selection.length === 0}
                 onClick={this.handleDeleteClick}
                 title={
@@ -257,7 +263,7 @@ class Search extends React.PureComponent<Props, State> {
                 }
               >
                 {translate('delete')}
-              </Button>
+              </DangerButtonPrimary>
             )}
           </div>
         </div>
