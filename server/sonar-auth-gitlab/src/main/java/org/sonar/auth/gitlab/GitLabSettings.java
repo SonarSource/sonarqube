@@ -21,6 +21,7 @@ package org.sonar.auth.gitlab;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 import org.sonar.api.PropertyType;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.config.PropertyDefinition;
@@ -36,6 +37,7 @@ public class GitLabSettings {
   public static final String GITLAB_AUTH_APPLICATION_ID = "sonar.auth.gitlab.applicationId.secured";
   public static final String GITLAB_AUTH_SECRET = "sonar.auth.gitlab.secret.secured";
   public static final String GITLAB_AUTH_ALLOW_USERS_TO_SIGNUP = "sonar.auth.gitlab.allowUsersToSignUp";
+  public static final String GITLAB_AUTH_ALLOWED_GROUPS = "sonar.auth.gitlab.allowedGroups";
   public static final String GITLAB_AUTH_SYNC_USER_GROUPS = "sonar.auth.gitlab.groupsSync";
 
   private static final String CATEGORY = "authentication";
@@ -69,6 +71,10 @@ public class GitLabSettings {
 
   public boolean allowUsersToSignUp() {
     return configuration.getBoolean(GITLAB_AUTH_ALLOW_USERS_TO_SIGNUP).orElse(false);
+  }
+
+  public Set<String> allowedGroups() {
+    return Set.of(configuration.getStringArray(GITLAB_AUTH_ALLOWED_GROUPS));
   }
 
   public boolean syncUserGroups() {
@@ -118,6 +124,16 @@ public class GitLabSettings {
         .defaultValue(valueOf(true))
         .index(5)
         .build(),
+      PropertyDefinition.builder(GITLAB_AUTH_ALLOWED_GROUPS)
+        .name("Allowed groups")
+        .description("Only members of these groups (and sub-groups) will be allowed to authenticate. " +
+          "Please enter the group slug as it appears in the GitLab URL, for instance `my-gitlab-group`. " +
+          "⚠ if not set, any GitLab user will be able to authenticate to the server.")
+        .multiValues(true)
+        .category(CATEGORY)
+        .subCategory(SUBCATEGORY)
+        .index(6)
+        .build(),
       PropertyDefinition.builder(GITLAB_AUTH_SYNC_USER_GROUPS)
         .deprecatedKey("sonar.auth.gitlab.sync_user_groups")
         .name("Synchronize user groups")
@@ -127,7 +143,7 @@ public class GitLabSettings {
         .subCategory(SUBCATEGORY)
         .type(PropertyType.BOOLEAN)
         .defaultValue(valueOf(false))
-        .index(6)
+        .index(7)
         .build());
   }
 }

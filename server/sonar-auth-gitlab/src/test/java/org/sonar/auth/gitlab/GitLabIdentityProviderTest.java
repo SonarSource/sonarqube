@@ -85,7 +85,7 @@ public class GitLabIdentityProviderTest {
 
     gitLabIdentityProvider.init(initContext);
 
-    verify(initContext).redirectTo("http://server/oauth/authorize?response_type=code&client_id=123&redirect_uri=http%3A%2F%2Fserver%2Fcallback&scope=read_user");
+    verify(initContext).redirectTo("http://server/oauth/authorize?response_type=code&client_id=123&redirect_uri=http%3A%2F%2Fserver%2Fcallback&scope=api");
   }
 
   @Test

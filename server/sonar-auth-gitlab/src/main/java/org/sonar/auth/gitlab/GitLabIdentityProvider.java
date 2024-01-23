@@ -33,6 +33,7 @@ import java.util.stream.Stream;
 import javax.servlet.http.HttpServletRequest;
 import org.sonar.api.server.authentication.Display;
 import org.sonar.api.server.authentication.OAuth2IdentityProvider;
+import org.sonar.api.server.authentication.UnauthorizedException;
 import org.sonar.api.server.authentication.UserIdentity;
 
 import static com.google.common.base.Preconditions.checkState;
@@ -83,16 +84,16 @@ public class GitLabIdentityProvider implements OAuth2IdentityProvider {
   @Override
   public void init(InitContext context) {
     String state = context.generateCsrfState();
-    OAuth20Service scribe = newScribeBuilder(context, gitLabSettings.syncUserGroups()).build(scribeApi);
+    OAuth20Service scribe = newScribeBuilder(context).build(scribeApi);
     String url = scribe.getAuthorizationUrl(state);
     context.redirectTo(url);
   }
 
-  private ServiceBuilderOAuth20 newScribeBuilder(OAuth2Context context, boolean syncUserGroups) {
+  private ServiceBuilderOAuth20 newScribeBuilder(OAuth2Context context) {
     checkState(isEnabled(), "GitLab authentication is disabled");
     return new ServiceBuilder(gitLabSettings.applicationId())
       .apiSecret(gitLabSettings.secret())
-      .defaultScope(syncUserGroups ? API_SCOPE : READ_USER_SCOPE)
+      .defaultScope(API_SCOPE)
       .callback(context.getCallbackUrl());
   }
 
@@ -110,7 +111,7 @@ public class GitLabIdentityProvider implements OAuth2IdentityProvider {
 
   private void onCallback(CallbackContext context) throws InterruptedException, ExecutionException, IOException {
     HttpServletRequest request = context.getRequest();
-    OAuth20Service scribe = newScribeBuilder(context, gitLabSettings.syncUserGroups()).build(scribeApi);
+    OAuth20Service scribe = newScribeBuilder(context).build(scribeApi);
     String code = request.getParameter(OAuthConstants.CODE);
     OAuth2AccessToken accessToken = scribe.getAccessToken(code);
 
@@ -122,12 +123,32 @@ public class GitLabIdentityProvider implements OAuth2IdentityProvider {
       .setName(user.getName())
       .setEmail(user.getEmail());
 
+
+    Set<String> userGroups = getGroups(scribe, accessToken);
+
+    if (!gitLabSettings.allowedGroups().isEmpty()) {
+      validateUserInAllowedGroups(userGroups, gitLabSettings.allowedGroups());
+    }
+
     if (gitLabSettings.syncUserGroups()) {
-      builder.setGroups(getGroups(scribe, accessToken));
+      builder.setGroups(userGroups);
     }
 
     context.authenticate(builder.build());
     context.redirectToRequestedPage();
+  }
+
+  private static void validateUserInAllowedGroups(Set<String> userGroups, Set<String> allowedGroups) {
+    boolean allowedUser = userGroups.stream()
+      .anyMatch(userGroup -> isAllowedGroup(userGroup, allowedGroups));
+
+    if (!allowedUser) {
+      throw new UnauthorizedException("You are not allowed to authenticate");
+    }
+  }
+
+  private static boolean isAllowedGroup(String group, Set<String> allowedGroups) {
+    return allowedGroups.stream().anyMatch(group::startsWith);
   }
 
   private Set<String> getGroups(OAuth20Service scribe, OAuth2AccessToken accessToken) {
