@@ -58,9 +58,8 @@ public class GsonEmail {
   }
 
   public static List<GsonEmail> parse(String json) {
-    Type collectionType = new TypeToken<Collection<GsonEmail>>() {
-    }.getType();
     Gson gson = new Gson();
-    return gson.fromJson(json, collectionType);
+    return gson.fromJson(json, new TypeToken<List<GsonEmail>>() {
+    });
   }
 }

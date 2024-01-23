@@ -53,8 +53,8 @@ public class OAuth2AuthenticationParametersImpl implements OAuth2AuthenticationP
    */
   private static final String RETURN_TO_PARAMETER = "return_to";
 
-  private static final Type JSON_MAP_TYPE = new TypeToken<HashMap<String, String>>() {
-  }.getType();
+  private static final TypeToken<HashMap<String, String>> JSON_MAP_TYPE = new TypeToken<>() {
+  };
 
   @Override
   public void init(HttpRequest request, HttpResponse response) {

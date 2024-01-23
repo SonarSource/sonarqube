@@ -54,7 +54,8 @@ public class GenericPaginatedHttpClientImplTest {
 
   private static final String ENDPOINT = "/test-endpoint";
 
-  private static final Type STRING_LIST_TYPE = TypeToken.getParameterized(List.class, String.class).getType();
+  private static final TypeToken<List<String>> STRING_LIST_TYPE = new TypeToken<>() {
+  };
 
   private Gson gson = new Gson();
 

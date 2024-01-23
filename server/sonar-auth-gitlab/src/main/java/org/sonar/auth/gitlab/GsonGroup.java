@@ -55,9 +55,9 @@ public class GsonGroup {
   }
 
   static List<GsonGroup> parse(String json) {
-    Type collectionType = new TypeToken<Collection<GsonGroup>>() {}.getType();
     Gson gson = new Gson();
-    return gson.fromJson(json, collectionType);
+    return gson.fromJson(json, new TypeToken<List<GsonGroup>>() {
+    });
   }
 
 }

@@ -1358,7 +1358,7 @@ public class SearchActionIT {
       .setParam("asc", "false")
       .execute();
 
-    JsonElement parse = new JsonParser().parse(response.getInput());
+    JsonElement parse = JsonParser.parseString(response.getInput());
 
     assertThat(parse.getAsJsonObject().get("issues").getAsJsonArray())
       .extracting(o -> o.getAsJsonObject().get("key").getAsString())

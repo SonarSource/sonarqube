@@ -305,8 +305,8 @@ public class SetAction implements SettingsWsAction {
   }
 
   private static Map<String, String> readOneFieldValues(String json, String key) {
-    Type type = new TypeToken<Map<String, String>>() {
-    }.getType();
+    TypeToken<Map<String, String>> type = new TypeToken<>() {
+    };
     Gson gson = GsonHelper.create();
     try {
       return gson.fromJson(json, type);

@@ -75,7 +75,7 @@ public class Project {
   public static List<Project> parseJsonArray(String json) {
     Gson gson = new Gson();
     return gson.fromJson(json, new TypeToken<LinkedList<Project>>() {
-    }.getType());
+    });
   }
 
   public long getId() {
