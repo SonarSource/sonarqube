@@ -308,7 +308,7 @@ describe('project overview', () => {
     renderBranchOverview();
 
     expect(await screen.findByText('metric.level.ERROR')).toBeInTheDocument();
-    expect(screen.getAllByText('overview.X_conditions_failed.2')).toHaveLength(2);
+    expect(screen.getAllByText(/overview.X_conditions_failed/)).toHaveLength(2);
   });
 
   it('should correctly show a project as empty', async () => {

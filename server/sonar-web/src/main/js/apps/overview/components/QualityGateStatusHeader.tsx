@@ -17,9 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { QualityGateIndicator, TextError, TextMuted } from 'design-system';
+import { QualityGateIndicator, TextError } from 'design-system';
 import React from 'react';
-import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { useIntl } from 'react-intl';
+import { translate } from '../../../helpers/l10n';
 import { Status } from '../../../types/types';
 
 interface Props {
@@ -29,26 +30,22 @@ interface Props {
 
 export default function QualityGateStatusHeader(props: Props) {
   const { status, failedConditionCount } = props;
+  const intl = useIntl();
 
   return (
     <div className="sw-flex sw-items-center sw-mb-4">
       <QualityGateIndicator status={status} className="sw-mr-2" size="xl" />
       <div className="sw-flex sw-flex-col">
-        <div>
-          <TextMuted text={translate('overview.quality_gate')} />
-        </div>
-        <div>
-          <span className="sw-heading-lg">{translate('metric.level', status)}</span>
-        </div>
-      </div>
-      <div className="sw-flex sw-flex-1 sw-justify-end">
+        <span className="sw-heading-lg">{translate('metric.level', status)}</span>
         {failedConditionCount > 0 && (
           <TextError
-            text={
-              failedConditionCount === 1
-                ? translate('overview.1_condition_failed')
-                : translateWithParameters('overview.X_conditions_failed', failedConditionCount)
-            }
+            className="sw-font-regular"
+            text={intl.formatMessage(
+              { id: 'overview.X_conditions_failed' },
+              {
+                conditions: <strong>{failedConditionCount}</strong>,
+              },
+            )}
           />
         )}
       </div>

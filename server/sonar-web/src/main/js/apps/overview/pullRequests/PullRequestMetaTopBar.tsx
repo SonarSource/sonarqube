@@ -21,12 +21,12 @@ import { SeparatorCircleIcon } from 'design-system';
 import React from 'react';
 import { useIntl } from 'react-intl';
 import CurrentBranchLikeMergeInformation from '../../../app/components/nav/component/branch-like/CurrentBranchLikeMergeInformation';
-import DateFromNow from '../../../components/intl/DateFromNow';
 import { getLeakValue } from '../../../components/measure/utils';
 import { findMeasure, formatMeasure } from '../../../helpers/measures';
 import { PullRequest } from '../../../types/branch-like';
 import { MetricKey, MetricType } from '../../../types/metrics';
 import { MeasureEnhanced } from '../../../types/types';
+import LastAnalysisLabel from '../components/LastAnalysisLabel';
 
 interface Props {
   pullRequest: PullRequest;
@@ -54,18 +54,7 @@ export default function PullRequestMetaTopBar({ pullRequest, measures }: Readonl
       {pullRequest.analysisDate && (
         <>
           <SeparatorCircleIcon />
-          {intl.formatMessage(
-            {
-              id: 'overview.last_analysis_x',
-            },
-            {
-              date: (
-                <strong className="sw-body-sm-highlight">
-                  <DateFromNow date={pullRequest.analysisDate} />
-                </strong>
-              ),
-            },
-          )}
+          <LastAnalysisLabel analysisDate={pullRequest.analysisDate} />
         </>
       )}
     </div>

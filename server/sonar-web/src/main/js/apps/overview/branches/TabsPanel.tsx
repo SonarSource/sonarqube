@@ -20,6 +20,7 @@
 import { isBefore, sub } from 'date-fns';
 import {
   ButtonLink,
+  CardSeparator,
   FlagMessage,
   LightLabel,
   PageTitle,
@@ -27,15 +28,17 @@ import {
   ToggleButton,
 } from 'design-system';
 import * as React from 'react';
-import { FormattedMessage } from 'react-intl';
+import { FormattedMessage, useIntl } from 'react-intl';
 import DocLink from '../../../components/common/DocLink';
-import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { translate } from '../../../helpers/l10n';
 import { isDiffMetric } from '../../../helpers/measures';
 import { ApplicationPeriod } from '../../../types/application';
+import { Branch } from '../../../types/branch-like';
 import { ComponentQualifier } from '../../../types/component';
 import { Analysis, ProjectAnalysisEventCategory } from '../../../types/project-activity';
 import { QualityGateStatus } from '../../../types/quality-gates';
 import { Component, Period } from '../../../types/types';
+import LastAnalysisLabel from '../components/LastAnalysisLabel';
 import { MeasuresTabs } from '../utils';
 import { MAX_ANALYSES_NB } from './ActivityPanel';
 import { LeakPeriodInfo } from './LeakPeriodInfo';
@@ -46,6 +49,7 @@ export interface MeasuresPanelProps {
   component: Component;
   loading?: boolean;
   period?: Period;
+  branch?: Branch;
   qgStatuses?: QualityGateStatus[];
   isNewCode: boolean;
   onTabSelect: (tab: MeasuresTabs) => void;
@@ -62,9 +66,10 @@ export function TabsPanel(props: React.PropsWithChildren<MeasuresPanelProps>) {
     period,
     qgStatuses = [],
     isNewCode,
+    branch,
     children,
   } = props;
-
+  const intl = useIntl();
   const isApp = component.qualifier === ComponentQualifier.Application;
   const leakPeriod = isApp ? appLeak : period;
 
@@ -124,9 +129,11 @@ export function TabsPanel(props: React.PropsWithChildren<MeasuresPanelProps>) {
 
   return (
     <div data-test="overview__measures-panel">
-      <div className="sw-flex sw-mb-4">
+      <div className="sw-flex sw-justify-between sw-items-center sw-mb-4">
         <PageTitle as="h2" text={translate('overview.measures')} />
+        <LastAnalysisLabel analysisDate={branch?.analysisDate} />
       </div>
+      <CardSeparator className="sw--mx-6 sw-mb-3" />
 
       {loading ? (
         <div>
@@ -160,9 +167,10 @@ export function TabsPanel(props: React.PropsWithChildren<MeasuresPanelProps>) {
             />
             {failingConditions > 0 && (
               <LightLabel className="sw-body-sm-highlight sw-ml-8">
-                {failingConditions === 1
-                  ? translate('overview.1_condition_failed')
-                  : translateWithParameters('overview.X_conditions_failed', failingConditions)}
+                {intl.formatMessage(
+                  { id: 'overview.X_conditions_failed' },
+                  { conditions: failingConditions },
+                )}
               </LightLabel>
             )}
           </div>

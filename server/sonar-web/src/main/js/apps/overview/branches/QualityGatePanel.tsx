@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { BasicSeparator, Card, Spinner } from 'design-system';
-import { flatMap } from 'lodash';
 import * as React from 'react';
 import { ComponentQualifier, isApplication } from '../../../types/component';
 import { QualityGateStatus } from '../../../types/quality-gates';
@@ -27,7 +26,6 @@ import IgnoredConditionWarning from '../components/IgnoredConditionWarning';
 import QualityGateStatusHeader from '../components/QualityGateStatusHeader';
 import QualityGateStatusPassedView from '../components/QualityGateStatusPassedView';
 import { QualityGateStatusTitle } from '../components/QualityGateStatusTitle';
-import SonarLintPromotion from '../components/SonarLintPromotion';
 import ApplicationNonCaycProjectWarning from './ApplicationNonCaycProjectWarning';
 import CleanAsYouCodeWarning from './CleanAsYouCodeWarning';
 import QualityGatePanelSection from './QualityGatePanelSection';
@@ -71,41 +69,33 @@ export function QualityGatePanel(props: QualityGatePanelProps) {
   return (
     <div data-test="overview__quality-gate-panel">
       <QualityGateStatusTitle />
-      <Card>
-        <div>
-          {loading ? (
-            <div className="sw-p-6">
-              <Spinner loading={loading} />
+      <div className="sw-pt-5">
+        <Spinner loading={loading}>
+          <QualityGateStatusHeader
+            status={overallLevel}
+            failedConditionCount={overallFailedConditionsCount}
+          />
+          {success && <QualityGateStatusPassedView />}
+
+          {showIgnoredConditionWarning && <IgnoredConditionWarning />}
+
+          {!success && <BasicSeparator />}
+
+          {overallFailedConditionsCount > 0 && (
+            <div data-test="overview__quality-gate-conditions">
+              {failedQgStatuses.map((qgStatus, qgStatusIdx) => (
+                <QualityGatePanelSection
+                  isApplication={isApp}
+                  isLastStatus={qgStatusIdx === failedQgStatuses.length - 1}
+                  key={qgStatus.key}
+                  qgStatus={qgStatus}
+                  qualityGate={qualityGate}
+                />
+              ))}
             </div>
-          ) : (
-            <>
-              <QualityGateStatusHeader
-                status={overallLevel}
-                failedConditionCount={overallFailedConditionsCount}
-              />
-              {success && <QualityGateStatusPassedView />}
-
-              {showIgnoredConditionWarning && <IgnoredConditionWarning />}
-
-              {!success && <BasicSeparator />}
-
-              {overallFailedConditionsCount > 0 && (
-                <div data-test="overview__quality-gate-conditions">
-                  {failedQgStatuses.map((qgStatus, qgStatusIdx) => (
-                    <QualityGatePanelSection
-                      isApplication={isApp}
-                      isLastStatus={qgStatusIdx === failedQgStatuses.length - 1}
-                      key={qgStatus.key}
-                      qgStatus={qgStatus}
-                      qualityGate={qualityGate}
-                    />
-                  ))}
-                </div>
-              )}
-            </>
           )}
-        </div>
-      </Card>
+        </Spinner>
+      </div>
 
       {nonCaycProjectsInApp.length > 0 && (
         <ApplicationNonCaycProjectWarning projects={nonCaycProjectsInApp} />
@@ -119,10 +109,6 @@ export function QualityGatePanel(props: QualityGatePanelProps) {
             <CleanAsYouCodeWarning component={component} />
           </Card>
         )}
-
-      <SonarLintPromotion
-        qgConditions={flatMap(qgStatuses, (qgStatus) => qgStatus.failedConditions)}
-      />
     </div>
   );
 }

@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { BasicSeparator, LargeCenteredLayout, PageContentFontWrapper } from 'design-system';
+import { BasicSeparator, Card, LargeCenteredLayout, PageContentFontWrapper } from 'design-system';
 import * as React from 'react';
 import A11ySkipTarget from '../../../components/a11y/A11ySkipTarget';
 import { useLocation } from '../../../components/hoc/withRouter';
@@ -31,6 +31,7 @@ import { Analysis, GraphType, MeasureHistory } from '../../../types/project-acti
 import { QualityGateStatus } from '../../../types/quality-gates';
 import { Component, MeasureEnhanced, Metric, Period, QualityGate } from '../../../types/types';
 import { AnalysisStatus } from '../components/AnalysisStatus';
+import SonarLintPromotion from '../components/SonarLintPromotion';
 import { MeasuresTabs } from '../utils';
 import AcceptedIssuesPanel from './AcceptedIssuesPanel';
 import ActivityPanel from './ActivityPanel';
@@ -125,24 +126,30 @@ export default function BranchOverviewRenderer(props: BranchOverviewRendererProp
                   </>
                 )}
                 <AnalysisStatus className="sw-mt-6" component={component} />
-                <div className="sw-flex">
-                  <div className="sw-w-1/3 sw-mr-12 sw-pt-6">
-                    <QualityGatePanel
-                      component={component}
-                      loading={loadingStatus}
-                      qgStatuses={qgStatuses}
-                      qualityGate={qualityGate}
+                <div className="sw-flex sw-mt-6">
+                  <div className="sw-w-1/4 sw-mr-3">
+                    <Card className=" sw-h-max">
+                      <QualityGatePanel
+                        component={component}
+                        loading={loadingStatus}
+                        qgStatuses={qgStatuses}
+                        qualityGate={qualityGate}
+                      />
+                    </Card>
+                    <SonarLintPromotion
+                      qgConditions={qgStatuses?.flatMap((qg) => qg.failedConditions)}
                     />
                   </div>
 
-                  <div className="sw-flex-1">
-                    <div className="sw-flex sw-flex-col sw-pt-6">
+                  <Card className="sw-flex-1 sw-pt-4">
+                    <div className="sw-flex sw-flex-col">
                       <TabsPanel
                         analyses={analyses}
                         appLeak={appLeak}
                         component={component}
                         loading={loadingStatus}
                         period={period}
+                        branch={branch}
                         qgStatuses={qgStatuses}
                         isNewCode={isNewCodeTab}
                         onTabSelect={selectTab}
@@ -185,7 +192,7 @@ export default function BranchOverviewRenderer(props: BranchOverviewRendererProp
                         onGraphChange={onGraphChange}
                       />
                     </div>
-                  </div>
+                  </Card>
                 </div>
               </div>
             )}
