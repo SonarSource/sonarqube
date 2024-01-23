@@ -40,6 +40,7 @@ public class RatioBasedRateLimitCheckerTest {
   @Rule
   public LogTester logTester = new LogTester();
   private static final long MILLIS_BEFORE_RESET = 100L;
+  public static final int TIME_UNTIL_RESET = 2;
   RatioBasedRateLimitChecker ratioBasedRateLimitChecker = new RatioBasedRateLimitChecker();
 
   @DataProvider
@@ -62,7 +63,7 @@ public class RatioBasedRateLimitCheckerTest {
     ApplicationHttpClient.RateLimit record = mock();
     when(record.limit()).thenReturn(limit);
     when(record.remaining()).thenReturn(remaining);
-    when(record.reset()).thenReturn(System.currentTimeMillis() / 1000 + 1);
+    when(record.reset()).thenReturn(System.currentTimeMillis() / 1000 + TIME_UNTIL_RESET);
 
     long start = System.currentTimeMillis();
     boolean result = ratioBasedRateLimitChecker.checkRateLimit(record);
