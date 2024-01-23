@@ -127,7 +127,7 @@ public class ReportSubmitterIT {
     new FavoriteUpdater(db.getDbClient()), projectIndexers, new SequenceUuidFactory(), defaultBranchNameResolver, mock(PermissionUpdater.class), permissionService);
   private final ManagedProjectService managedProjectService = mock();
   private final ManagedInstanceService managedInstanceService = mock();
-  private final ProjectCreator projectCreator = new ProjectCreator(userSession, projectDefaultVisibility, managedInstanceService, componentUpdater);
+  private final ProjectCreator projectCreator = new ProjectCreator(userSession, projectDefaultVisibility, componentUpdater);
   private final GithubProjectCreatorFactory githubProjectCreatorFactory = new GithubProjectCreatorFactory(db.getDbClient(), githubGlobalSettingsValidator,
     githubApplicationClient, projectKeyGenerator, userSession, projectCreator, gitHubSettings, null, permissionUpdater, permissionService,
     managedProjectService);
@@ -288,15 +288,33 @@ public class ReportSubmitterIT {
     UserDto user = db.users().insertUser();
     userSession.logIn(user).addPermission(PROVISION_PROJECTS).addPermission(SCAN);
 
-    when(managedInstanceService.isInstanceExternallyManaged()).thenReturn(true);
+    when(gitHubSettings.isProvisioningEnabled()).thenReturn(true);
     mockSuccessfulPrepareSubmitCall();
 
-    DevOpsProjectCreator devOpsProjectCreator = mockAlmSettingDtoAndDevOpsProjectCreator(CHARACTERISTICS);
+    DevOpsProjectCreator devOpsProjectCreator = mockAlmSettingDtoAndDevOpsProjectCreator(CHARACTERISTICS, false);
     doReturn(true).when(devOpsProjectCreator).isScanAllowedUsingPermissionsFromDevopsPlatform();
 
     underTest.submit(PROJECT_KEY, PROJECT_NAME, CHARACTERISTICS, IOUtils.toInputStream("{binary}", UTF_8));
 
-    assertProjectWasCreatedWithBinding();
+    assertProjectWasCreatedWithBinding(true);
+    verify(permissionTemplateService, never()).applyDefaultToNewComponent(any(), any(), any());
+  }
+
+  @Test
+  public void submit_whenReportIsForANewProjectWithValidAlmSettingsAutoProvisioningOnAndProjectVisibilitySyncAndPermOnGh_createsProjectWithBinding() {
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user).addPermission(PROVISION_PROJECTS).addPermission(SCAN);
+
+    when(gitHubSettings.isProvisioningEnabled()).thenReturn(true);
+    when(gitHubSettings.isProjectVisibilitySynchronizationActivated()).thenReturn(true);
+    mockSuccessfulPrepareSubmitCall();
+
+    DevOpsProjectCreator devOpsProjectCreator = mockAlmSettingDtoAndDevOpsProjectCreator(CHARACTERISTICS, false);
+    doReturn(true).when(devOpsProjectCreator).isScanAllowedUsingPermissionsFromDevopsPlatform();
+
+    underTest.submit(PROJECT_KEY, PROJECT_NAME, CHARACTERISTICS, IOUtils.toInputStream("{binary}", UTF_8));
+
+    assertProjectWasCreatedWithBinding(false);
     verify(permissionTemplateService, never()).applyDefaultToNewComponent(any(), any(), any());
   }
 
@@ -304,15 +322,15 @@ public class ReportSubmitterIT {
   public void submit_whenReportIsForANewProjectWithValidAlmSettingsAutoProvisioningOnNoPermOnGhAndGlobalScanPerm_createsProjectWithBinding() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user).addPermission(GlobalPermission.SCAN).addPermission(PROVISION_PROJECTS);
-    when(managedInstanceService.isInstanceExternallyManaged()).thenReturn(true);
+    when(gitHubSettings.isProvisioningEnabled()).thenReturn(true);
     mockSuccessfulPrepareSubmitCall();
 
-    DevOpsProjectCreator devOpsProjectCreator = mockAlmSettingDtoAndDevOpsProjectCreator(CHARACTERISTICS);
+    DevOpsProjectCreator devOpsProjectCreator = mockAlmSettingDtoAndDevOpsProjectCreator(CHARACTERISTICS, false);
     doReturn(true).when(devOpsProjectCreator).isScanAllowedUsingPermissionsFromDevopsPlatform();
 
     underTest.submit(PROJECT_KEY, PROJECT_NAME, CHARACTERISTICS, IOUtils.toInputStream("{binary}", UTF_8));
 
-    assertProjectWasCreatedWithBinding();
+    assertProjectWasCreatedWithBinding(true);
     verify(permissionTemplateService, never()).applyDefaultToNewComponent(any(), any(), any());
   }
 
@@ -346,19 +364,20 @@ public class ReportSubmitterIT {
     userSession.addPermission(GlobalPermission.SCAN).addPermission(PROVISION_PROJECTS);
     mockSuccessfulPrepareSubmitCall();
 
-    mockAlmSettingDtoAndDevOpsProjectCreator(CHARACTERISTICS);
+    mockAlmSettingDtoAndDevOpsProjectCreator(CHARACTERISTICS, true);
 
     when(permissionTemplateService.wouldUserHaveScanPermissionWithDefaultTemplate(any(DbSession.class), any(), eq(PROJECT_KEY))).thenReturn(true);
 
     underTest.submit(PROJECT_KEY, PROJECT_NAME, CHARACTERISTICS, IOUtils.toInputStream("{binary}", UTF_8));
 
-    assertProjectWasCreatedWithBinding();
+    assertProjectWasCreatedWithBinding(false);
   }
 
-  private void assertProjectWasCreatedWithBinding() {
+  private void assertProjectWasCreatedWithBinding(boolean isPrivate) {
     ProjectDto projectDto = db.getDbClient().projectDao().selectProjectByKey(db.getSession(), PROJECT_KEY).orElseThrow();
     assertThat(projectDto.getCreationMethod()).isEqualTo(CreationMethod.SCANNER_API_DEVOPS_AUTO_CONFIG);
     assertThat(projectDto.getName()).isEqualTo("repoName");
+    assertThat(projectDto.isPrivate()).isEqualTo(isPrivate);
 
     BranchDto branchDto = db.getDbClient().branchDao().selectByBranchKey(db.getSession(), projectDto.getUuid(), "defaultBranch").orElseThrow();
     assertThat(branchDto.isMain()).isTrue();
@@ -366,27 +385,28 @@ public class ReportSubmitterIT {
     assertThat(db.getDbClient().projectAlmSettingDao().selectByProject(db.getSession(), projectDto.getUuid())).isPresent();
   }
 
-  private DevOpsProjectCreator mockAlmSettingDtoAndDevOpsProjectCreator(Map<String, String> characteristics) {
+  private DevOpsProjectCreator mockAlmSettingDtoAndDevOpsProjectCreator(Map<String, String> characteristics, boolean isPrivate) {
     AlmSettingDto almSettingDto = mock(AlmSettingDto.class);
     when(almSettingDto.getAlm()).thenReturn(ALM.GITHUB);
     when(almSettingDto.getUrl()).thenReturn("https://www.toto.com");
     when(almSettingDto.getUuid()).thenReturn("uuid_gh_1");
 
-    mockGithubRepository();
+    mockGithubRepository(isPrivate);
 
     DevOpsProjectDescriptor projectDescriptor = new DevOpsProjectDescriptor(ALM.GITHUB, "apiUrl", "orga/repo");
     GithubProjectCreationParameters githubProjectCreationParameters = new GithubProjectCreationParameters(projectDescriptor, almSettingDto, userSession, mock(), null);
     DevOpsProjectCreator devOpsProjectCreator = spy(new GithubProjectCreator(db.getDbClient(), githubApplicationClient, null, projectKeyGenerator,
-      permissionUpdater, permissionService, managedProjectService, projectCreator, githubProjectCreationParameters));
+      permissionUpdater, permissionService, managedProjectService, projectCreator, githubProjectCreationParameters, gitHubSettings));
     doReturn(Optional.of(devOpsProjectCreator)).when(devOpsProjectCreatorFactorySpy).getDevOpsProjectCreator(any(), eq(characteristics));
     return devOpsProjectCreator;
   }
 
-  private void mockGithubRepository() {
+  private void mockGithubRepository(boolean isPrivate) {
     GithubApplicationClient.Repository repository = mock(GithubApplicationClient.Repository.class);
     when(repository.getDefaultBranch()).thenReturn("defaultBranch");
     when(repository.getFullName()).thenReturn("orga/repoName");
     when(repository.getName()).thenReturn("repoName");
+    when(repository.isPrivate()).thenReturn(isPrivate);
     when(githubApplicationClient.getRepository(any(), any(), any())).thenReturn(Optional.of(repository));
   }
 

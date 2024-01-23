@@ -62,7 +62,6 @@ public class GithubProjectCreatorFactory implements DevOpsProjectCreatorFactory 
   private final GithubPermissionConverter githubPermissionConverter;
   private final PermissionUpdater<UserPermissionChange> permissionUpdater;
   private final PermissionService permissionService;
-
   private final ManagedProjectService managedProjectService;
 
   public GithubProjectCreatorFactory(DbClient dbClient, GithubGlobalSettingsValidator githubGlobalSettingsValidator,
@@ -115,7 +114,7 @@ public class GithubProjectCreatorFactory implements DevOpsProjectCreatorFactory 
     GithubProjectCreationParameters githubProjectCreationParameters = new GithubProjectCreationParameters(devOpsProjectDescriptor, almSettingDto, userSession, appInstallationToken,
       authAppInstallationToken.orElse(null));
     return new GithubProjectCreator(dbClient, githubApplicationClient, githubPermissionConverter, projectKeyGenerator, permissionUpdater, permissionService,
-      managedProjectService, projectCreator, githubProjectCreationParameters);
+      managedProjectService, projectCreator, githubProjectCreationParameters, gitHubSettings);
   }
 
   public DevOpsProjectCreator getDevOpsProjectCreator(AlmSettingDto almSettingDto, AccessToken accessToken,
@@ -125,7 +124,7 @@ public class GithubProjectCreatorFactory implements DevOpsProjectCreatorFactory 
     GithubProjectCreationParameters githubProjectCreationParameters = new GithubProjectCreationParameters(devOpsProjectDescriptor, almSettingDto, userSession, accessToken,
       authAppInstallationToken.orElse(null));
     return new GithubProjectCreator(dbClient, githubApplicationClient, githubPermissionConverter, projectKeyGenerator, permissionUpdater, permissionService,
-      managedProjectService, projectCreator, githubProjectCreationParameters
+      managedProjectService, projectCreator, githubProjectCreationParameters, gitHubSettings
     );
   }
 

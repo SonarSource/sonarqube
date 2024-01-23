@@ -27,7 +27,6 @@ import org.sonar.server.component.ComponentCreationData;
 import org.sonar.server.component.ComponentCreationParameters;
 import org.sonar.server.component.ComponentUpdater;
 import org.sonar.server.component.NewComponent;
-import org.sonar.server.management.ManagedInstanceService;
 import org.sonar.server.project.ProjectDefaultVisibility;
 import org.sonar.server.user.UserSession;
 
@@ -39,19 +38,16 @@ public class ProjectCreator {
 
   private final UserSession userSession;
   private final ProjectDefaultVisibility projectDefaultVisibility;
-  private final ManagedInstanceService managedInstanceService;
   private final ComponentUpdater componentUpdater;
 
-  public ProjectCreator(UserSession userSession, ProjectDefaultVisibility projectDefaultVisibility, ManagedInstanceService managedInstanceService,
-    ComponentUpdater componentUpdater) {
+  public ProjectCreator(UserSession userSession, ProjectDefaultVisibility projectDefaultVisibility, ComponentUpdater componentUpdater) {
     this.userSession = userSession;
     this.projectDefaultVisibility = projectDefaultVisibility;
-    this.managedInstanceService = managedInstanceService;
     this.componentUpdater = componentUpdater;
   }
 
   public ComponentCreationData createProject(DbSession dbSession, String projectKey, String projectName, @Nullable String mainBranchName, CreationMethod creationMethod,
-    @Nullable Boolean isPrivate) {
+    @Nullable Boolean isPrivate, boolean isManaged) {
     boolean visibility = isPrivate != null ? isPrivate : projectDefaultVisibility.get(dbSession).isPrivate();
     NewComponent projectComponent = newComponentBuilder()
       .setKey(projectKey)
@@ -64,13 +60,13 @@ public class ProjectCreator {
       .userLogin(userSession.getLogin())
       .userUuid(userSession.getUuid())
       .mainBranchName(mainBranchName)
-      .isManaged(managedInstanceService.isInstanceExternallyManaged() && !creationMethod.isLocal())
+      .isManaged(isManaged)
       .creationMethod(creationMethod)
       .build();
     return componentUpdater.createWithoutCommit(dbSession, componentCreationParameters);
   }
 
   public ComponentCreationData createProject(DbSession dbSession, String projectKey, String projectName, @Nullable String mainBranchName, CreationMethod creationMethod) {
-    return createProject(dbSession, projectKey, projectName, mainBranchName, creationMethod, projectDefaultVisibility.get(dbSession).isPrivate());
+    return createProject(dbSession, projectKey, projectName, mainBranchName, creationMethod, projectDefaultVisibility.get(dbSession).isPrivate(), false);
   }
 }

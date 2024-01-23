@@ -237,7 +237,7 @@ public class GithubProjectCreatorFactoryTest {
     GithubProjectCreationParameters githubProjectCreationParameters = new GithubProjectCreationParameters(devOpsProjectDescriptor, almSettingDto, userSession, appInstallationToken,
       authAppInstallToken);
     return new GithubProjectCreator(dbClient, githubApplicationClient, githubPermissionConverter, projectKeyGenerator, permissionUpdater, permissionService,
-      managedProjectService, projectCreator, githubProjectCreationParameters);
+      managedProjectService, projectCreator, githubProjectCreationParameters, gitHubSettings);
   }
 
   private AlmSettingDto mockAlmSettingDto(boolean repoAccess) {

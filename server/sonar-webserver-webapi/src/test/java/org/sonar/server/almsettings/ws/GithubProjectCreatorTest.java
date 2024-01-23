@@ -31,15 +31,16 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.sonar.auth.github.AppInstallationToken;
-import org.sonar.auth.github.client.GithubApplicationClient;
-import org.sonar.auth.github.GsonRepositoryCollaborator;
-import org.sonar.auth.github.GsonRepositoryTeam;
-import org.sonar.auth.github.security.AccessToken;
+import org.sonar.alm.client.github.GithubPermissionConverter;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.web.UserRole;
-import org.sonar.alm.client.github.GithubPermissionConverter;
+import org.sonar.auth.github.AppInstallationToken;
+import org.sonar.auth.github.GitHubSettings;
+import org.sonar.auth.github.GsonRepositoryCollaborator;
 import org.sonar.auth.github.GsonRepositoryPermissions;
+import org.sonar.auth.github.GsonRepositoryTeam;
+import org.sonar.auth.github.client.GithubApplicationClient;
+import org.sonar.auth.github.security.AccessToken;
 import org.sonar.db.DbClient;
 import org.sonar.db.alm.setting.ALM;
 import org.sonar.db.alm.setting.AlmSettingDto;
@@ -55,13 +56,13 @@ import org.sonar.server.component.ComponentCreationData;
 import org.sonar.server.component.ComponentCreationParameters;
 import org.sonar.server.component.ComponentUpdater;
 import org.sonar.server.component.NewComponent;
-import org.sonar.server.management.ManagedInstanceService;
 import org.sonar.server.management.ManagedProjectService;
 import org.sonar.server.permission.PermissionService;
 import org.sonar.server.permission.PermissionServiceImpl;
 import org.sonar.server.permission.PermissionUpdater;
 import org.sonar.server.permission.UserPermissionChange;
 import org.sonar.server.project.ProjectDefaultVisibility;
+import org.sonar.server.project.Visibility;
 import org.sonar.server.project.ws.ProjectCreator;
 import org.sonar.server.user.UserSession;
 
@@ -115,11 +116,9 @@ public class GithubProjectCreatorTest {
   private PermissionUpdater<UserPermissionChange> permissionUpdater;
   @Mock
   private ManagedProjectService managedProjectService;
-  @Mock
-  private ManagedInstanceService managedInstanceService;
-
   @Mock(answer = Answers.RETURNS_DEEP_STUBS)
   private ProjectDefaultVisibility projectDefaultVisibility;
+  private GitHubSettings gitHubSettings = mock();
   private ProjectCreator projectCreator;
 
   private GithubProjectCreator githubProjectCreator;
@@ -143,9 +142,9 @@ public class GithubProjectCreatorTest {
     when(githubProjectCreationParameters.authAppInstallationToken()).thenReturn(authAppInstallationToken);
     when(githubProjectCreationParameters.almSettingDto()).thenReturn(almSettingDto);
 
-    projectCreator = new ProjectCreator(userSession, projectDefaultVisibility, managedInstanceService, componentUpdater);
+    projectCreator = new ProjectCreator(userSession, projectDefaultVisibility, componentUpdater);
     githubProjectCreator = new GithubProjectCreator(dbClient, githubApplicationClient, githubPermissionConverter, projectKeyGenerator,
-      permissionUpdater, permissionService, managedProjectService, projectCreator, githubProjectCreationParameters);
+      permissionUpdater, permissionService, managedProjectService, projectCreator, githubProjectCreationParameters,gitHubSettings);
 
   }
 
@@ -267,7 +266,7 @@ public class GithubProjectCreatorTest {
   @Test
   public void createProjectAndBindToDevOpsPlatform_whenRepoNotFound_throws() {
     assertThatIllegalStateException().isThrownBy(
-        () -> githubProjectCreator.createProjectAndBindToDevOpsPlatform(mock(), SCANNER_API_DEVOPS_AUTO_CONFIG, null))
+      () -> githubProjectCreator.createProjectAndBindToDevOpsPlatform(mock(), SCANNER_API_DEVOPS_AUTO_CONFIG, null))
       .withMessage("Impossible to find the repository 'orga2/repo1' on GitHub, using the devops config " + ALM_SETTING_KEY);
   }
 
@@ -279,6 +278,7 @@ public class GithubProjectCreatorTest {
     ComponentCreationData componentCreationData = mockProjectCreation("generated_orga2/repo1");
     ProjectAlmSettingDao projectAlmSettingDao = mock();
     when(dbClient.projectAlmSettingDao()).thenReturn(projectAlmSettingDao);
+    when(projectDefaultVisibility.get(any())).thenReturn(Visibility.PRIVATE);
 
     // when
     ComponentCreationData actualComponentCreationData = githubProjectCreator.createProjectAndBindToDevOpsPlatform(dbClient.openSession(true),
@@ -305,7 +305,8 @@ public class GithubProjectCreatorTest {
     ComponentCreationData componentCreationData = mockProjectCreation("generated_orga2/repo1");
     ProjectAlmSettingDao projectAlmSettingDao = mock();
     when(dbClient.projectAlmSettingDao()).thenReturn(projectAlmSettingDao);
-    when(managedProjectService.isProjectVisibilitySynchronizationActivated()).thenReturn(true);
+    when(gitHubSettings.isProvisioningEnabled()).thenReturn(true);
+    when(gitHubSettings.isProjectVisibilitySynchronizationActivated()).thenReturn(true);
 
     // when
     ComponentCreationData actualComponentCreationData = githubProjectCreator.createProjectAndBindToDevOpsPlatform(dbClient.openSession(true),
@@ -326,7 +327,8 @@ public class GithubProjectCreatorTest {
     ComponentCreationData componentCreationData = mockProjectCreation("generated_orga2/repo1");
     ProjectAlmSettingDao projectAlmSettingDao = mock();
     when(dbClient.projectAlmSettingDao()).thenReturn(projectAlmSettingDao);
-    when(managedProjectService.isProjectVisibilitySynchronizationActivated()).thenReturn(false);
+    when(gitHubSettings.isProvisioningEnabled()).thenReturn(true);
+    when(gitHubSettings.isProjectVisibilitySynchronizationActivated()).thenReturn(false);
 
     // when
     ComponentCreationData actualComponentCreationData = githubProjectCreator.createProjectAndBindToDevOpsPlatform(dbClient.openSession(true),
@@ -348,6 +350,7 @@ public class GithubProjectCreatorTest {
     ComponentCreationData componentCreationData = mockProjectCreation(projectKey);
     ProjectAlmSettingDao projectAlmSettingDao = mock();
     when(dbClient.projectAlmSettingDao()).thenReturn(projectAlmSettingDao);
+    when(projectDefaultVisibility.get(any())).thenReturn(Visibility.PRIVATE);
 
     // when
     ComponentCreationData actualComponentCreationData = githubProjectCreator.createProjectAndBindToDevOpsPlatform(dbClient.openSession(true), ALM_IMPORT_API, projectKey);
@@ -372,7 +375,6 @@ public class GithubProjectCreatorTest {
   public void createProjectAndBindToDevOpsPlatformFromApi_whenRepoFoundOnGitHubAutoProvisioningOnAndRepoPrivate_successfullyCreatesProject() {
     // given
     when(projectDefaultVisibility.get(any()).isPrivate()).thenReturn(true);
-    when(managedInstanceService.isInstanceExternallyManaged()).thenReturn(true);
 
     String projectKey = "customProjectKey";
     mockGitHubRepository();
@@ -380,6 +382,7 @@ public class GithubProjectCreatorTest {
     ComponentCreationData componentCreationData = mockProjectCreation(projectKey);
     ProjectAlmSettingDao projectAlmSettingDao = mock();
     when(dbClient.projectAlmSettingDao()).thenReturn(projectAlmSettingDao);
+    when(gitHubSettings.isProvisioningEnabled()).thenReturn(true);
 
     // when
     ComponentCreationData actualComponentCreationData = githubProjectCreator.createProjectAndBindToDevOpsPlatform(dbClient.openSession(true), ALM_IMPORT_API, projectKey);
@@ -416,7 +419,7 @@ public class GithubProjectCreatorTest {
   }
 
   private void mockPublicGithubRepository() {
-    GithubApplicationClient.Repository repository =mockGitHubRepository();
+    GithubApplicationClient.Repository repository = mockGitHubRepository();
     when(repository.isPrivate()).thenReturn(false);
   }
 
@@ -429,10 +432,8 @@ public class GithubProjectCreatorTest {
     when(githubApplicationClient.getRepository(DEVOPS_PROJECT_DESCRIPTOR.url(), devOpsAppInstallationToken, DEVOPS_PROJECT_DESCRIPTOR.projectIdentifier())).thenReturn(
       Optional.of(repository));
     when(projectKeyGenerator.generateUniqueProjectKey(repository.getFullName())).thenReturn("generated_" + DEVOPS_PROJECT_DESCRIPTOR.projectIdentifier());
-    return  repository;
+    return repository;
   }
-
-
 
   private ComponentCreationData mockProjectCreation(String projectKey) {
     ComponentCreationData componentCreationData = mock();

@@ -61,7 +61,6 @@ import org.sonar.server.exceptions.BadConfigurationException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.favorite.FavoriteUpdater;
-import org.sonar.server.management.ManagedInstanceService;
 import org.sonar.server.management.ManagedProjectService;
 import org.sonar.server.newcodeperiod.NewCodeDefinitionResolver;
 import org.sonar.server.permission.GroupPermissionChanger;
@@ -137,11 +136,10 @@ public class ImportGithubProjectActionIT {
   private final NewCodeDefinitionResolver newCodeDefinitionResolver = new NewCodeDefinitionResolver(db.getDbClient(), editionProvider);
 
   private final ManagedProjectService managedProjectService = mock(ManagedProjectService.class);
-  private final ManagedInstanceService managedInstanceService = mock(ManagedInstanceService.class);
 
   private final GithubPermissionConverter githubPermissionConverter = mock();
 
-  private final ProjectCreator projectCreator = new ProjectCreator(userSession, projectDefaultVisibility, managedInstanceService, componentUpdater);
+  private final ProjectCreator projectCreator = new ProjectCreator(userSession, projectDefaultVisibility, componentUpdater);
 
   private final GithubProjectCreatorFactory gitHubProjectCreatorFactory = new GithubProjectCreatorFactory(db.getDbClient(),
     null, appClient, projectKeyGenerator, userSession, projectCreator, gitHubSettings, githubPermissionConverter, userPermissionUpdater, permissionService,
@@ -151,7 +149,7 @@ public class ImportGithubProjectActionIT {
 
   @Before
   public void before() {
-    when(projectDefaultVisibility.get(any())).thenReturn(Visibility.PRIVATE);
+    when(projectDefaultVisibility.get(any())).thenReturn(Visibility.PUBLIC);
     when(defaultBranchNameResolver.getEffectiveMainBranchName()).thenReturn(DEFAULT_MAIN_BRANCH_NAME);
   }
 
@@ -160,6 +158,8 @@ public class ImportGithubProjectActionIT {
     AlmSettingDto githubAlmSetting = setupUserWithPatAndAlmSettings();
 
     GithubApplicationClient.Repository repository = mockGithubDevOpsAppInteractions();
+    mockGithubAuthAppInteractions();
+    when(gitHubSettings.isProvisioningEnabled()).thenReturn(true);
 
     Projects.CreateWsResponse response = callWebService(githubAlmSetting);
 
@@ -308,7 +308,7 @@ public class ImportGithubProjectActionIT {
   }
 
   @Test
-  public void importProject_whenGithubProvisioningIsDisabled_shouldApplyPermissionTemplate() {
+  public void importProject_whenGithubProvisioningIsDisabled_shouldApplyPermissionTemplateAndSetDefaultVisibility() {
     AlmSettingDto githubAlmSetting = setupUserWithPatAndAlmSettings();
 
     mockGithubDevOpsAppInteractions();
@@ -321,8 +321,9 @@ public class ImportGithubProjectActionIT {
 
     ArgumentCaptor<EntityDto> projectDtoArgumentCaptor = ArgumentCaptor.forClass(EntityDto.class);
     verify(permissionTemplateService).applyDefaultToNewComponent(any(DbSession.class), projectDtoArgumentCaptor.capture(), eq(userSession.getUuid()));
-    String projectKey = projectDtoArgumentCaptor.getValue().getKey();
-    assertThat(projectKey).isEqualTo(GENERATED_PROJECT_KEY);
+    EntityDto capturedProjectDto = projectDtoArgumentCaptor.getValue();
+    assertThat(capturedProjectDto.getKey()).isEqualTo(GENERATED_PROJECT_KEY);
+    assertThat(capturedProjectDto.isPrivate()).isFalse();
 
   }
 
@@ -330,7 +331,7 @@ public class ImportGithubProjectActionIT {
   public void importProject_whenGithubProvisioningIsEnabled_shouldNotApplyPermissionTemplate() {
     AlmSettingDto githubAlmSetting = setupUserWithPatAndAlmSettings();
 
-    when(managedInstanceService.isInstanceExternallyManaged()).thenReturn(true);
+    when(gitHubSettings.isProvisioningEnabled()).thenReturn(true);
     mockGithubDevOpsAppInteractions();
     mockGithubAuthAppInteractions();
 
@@ -443,7 +444,7 @@ public class ImportGithubProjectActionIT {
     assertThatThrownBy(request::execute)
       .isInstanceOf(BadConfigurationException.class)
       .hasMessage(format("GitHub auto-provisioning is activated. However the repo %s is not in the scope of the authentication application. "
-          + "The permissions can't be checked, and the project can not be created.",
+        + "The permissions can't be checked, and the project can not be created.",
         "octocat/" + PROJECT_KEY_NAME));
   }
 

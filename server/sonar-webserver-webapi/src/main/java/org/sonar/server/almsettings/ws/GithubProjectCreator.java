@@ -24,10 +24,12 @@ import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.auth.github.AppInstallationToken;
+import org.sonar.auth.github.GitHubSettings;
 import org.sonar.auth.github.client.GithubApplicationClient;
 import org.sonar.alm.client.github.GithubPermissionConverter;
 import org.sonar.auth.github.GsonRepositoryCollaborator;
 import org.sonar.auth.github.GsonRepositoryTeam;
+import org.sonar.auth.github.client.GithubApplicationClient.Repository;
 import org.sonar.auth.github.security.AccessToken;
 import org.sonar.api.web.UserRole;
 import org.sonar.auth.github.GsonRepositoryPermissions;
@@ -70,13 +72,14 @@ public class GithubProjectCreator implements DevOpsProjectCreator {
   private final UserSession userSession;
   private final AlmSettingDto almSettingDto;
   private final AccessToken devOpsAppInstallationToken;
+  private final GitHubSettings gitHubSettings;
 
   @CheckForNull
   private final AppInstallationToken authAppInstallationToken;
 
   public GithubProjectCreator(DbClient dbClient, GithubApplicationClient githubApplicationClient, GithubPermissionConverter githubPermissionConverter,
     ProjectKeyGenerator projectKeyGenerator, PermissionUpdater<UserPermissionChange> permissionUpdater, PermissionService permissionService,
-    ManagedProjectService managedProjectService, ProjectCreator projectCreator, GithubProjectCreationParameters githubProjectCreationParameters) {
+    ManagedProjectService managedProjectService, ProjectCreator projectCreator, GithubProjectCreationParameters githubProjectCreationParameters, GitHubSettings gitHubSettings) {
 
     this.dbClient = dbClient;
     this.githubApplicationClient = githubApplicationClient;
@@ -92,6 +95,7 @@ public class GithubProjectCreator implements DevOpsProjectCreator {
     devOpsProjectDescriptor = githubProjectCreationParameters.devOpsProjectDescriptor();
     devOpsAppInstallationToken = githubProjectCreationParameters.devOpsAppInstallationToken();
     authAppInstallationToken = githubProjectCreationParameters.authAppInstallationToken();
+    this.gitHubSettings = gitHubSettings;
   }
 
   @Override
@@ -154,7 +158,7 @@ public class GithubProjectCreator implements DevOpsProjectCreator {
   @Override
   public ComponentCreationData createProjectAndBindToDevOpsPlatform(DbSession dbSession, CreationMethod creationMethod, @Nullable String projectKey) {
     String url = requireNonNull(almSettingDto.getUrl(), "DevOps Platform url cannot be null");
-    GithubApplicationClient.Repository repository = githubApplicationClient.getRepository(url, devOpsAppInstallationToken, devOpsProjectDescriptor.projectIdentifier())
+    Repository repository = githubApplicationClient.getRepository(url, devOpsAppInstallationToken, devOpsProjectDescriptor.projectIdentifier())
       .orElseThrow(() -> new IllegalStateException(
         String.format("Impossible to find the repository '%s' on GitHub, using the devops config %s", devOpsProjectDescriptor.projectIdentifier(), almSettingDto.getKey())));
 
@@ -162,24 +166,33 @@ public class GithubProjectCreator implements DevOpsProjectCreator {
   }
 
   private ComponentCreationData createProjectAndBindToDevOpsPlatform(DbSession dbSession, @Nullable String projectKey, AlmSettingDto almSettingDto,
-    GithubApplicationClient.Repository repository, CreationMethod creationMethod) {
+    Repository repository, CreationMethod creationMethod) {
     String key = Optional.ofNullable(projectKey).orElse(getUniqueProjectKey(repository));
 
-    boolean isPrivate;
-    if (managedProjectService.isProjectVisibilitySynchronizationActivated()) {
-      isPrivate = repository.isPrivate();
-    } else {
-      isPrivate = true;
-    }
+    boolean isManaged = gitHubSettings.isProvisioningEnabled();
 
-    ComponentCreationData componentCreationData = projectCreator.createProject(dbSession, key, repository.getName(), repository.getDefaultBranch(), creationMethod, isPrivate);
+    ComponentCreationData componentCreationData = projectCreator.createProject(dbSession, key, repository.getName(), repository.getDefaultBranch(), creationMethod,
+      shouldProjectBePrivate(repository), isManaged);
     ProjectDto projectDto = Optional.ofNullable(componentCreationData.projectDto()).orElseThrow();
     createProjectAlmSettingDto(dbSession, repository, projectDto, almSettingDto);
     addScanPermissionToCurrentUser(dbSession, projectDto);
 
     BranchDto mainBranchDto = Optional.ofNullable(componentCreationData.mainBranchDto()).orElseThrow();
-    syncProjectPermissionsWithGithub(projectDto, mainBranchDto);
+    if (gitHubSettings.isProvisioningEnabled()) {
+      syncProjectPermissionsWithGithub(projectDto, mainBranchDto);
+    }
     return componentCreationData;
+  }
+
+  @CheckForNull
+  private Boolean shouldProjectBePrivate(Repository repository) {
+    if (gitHubSettings.isProvisioningEnabled() && gitHubSettings.isProjectVisibilitySynchronizationActivated()) {
+      return repository.isPrivate();
+    } else if (gitHubSettings.isProvisioningEnabled()) {
+      return true;
+    } else {
+      return null;
+    }
   }
 
   private void addScanPermissionToCurrentUser(DbSession dbSession, ProjectDto projectDto) {
@@ -193,11 +206,11 @@ public class GithubProjectCreator implements DevOpsProjectCreator {
     managedProjectService.queuePermissionSyncTask(userUuid, mainBranchDto.getUuid(), projectDto.getUuid());
   }
 
-  private String getUniqueProjectKey(GithubApplicationClient.Repository repository) {
+  private String getUniqueProjectKey(Repository repository) {
     return projectKeyGenerator.generateUniqueProjectKey(repository.getFullName());
   }
 
-  private void createProjectAlmSettingDto(DbSession dbSession, GithubApplicationClient.Repository repo, ProjectDto projectDto, AlmSettingDto almSettingDto) {
+  private void createProjectAlmSettingDto(DbSession dbSession, Repository repo, ProjectDto projectDto, AlmSettingDto almSettingDto) {
     ProjectAlmSettingDto projectAlmSettingDto = new ProjectAlmSettingDto()
       .setAlmSettingUuid(almSettingDto.getUuid())
       .setAlmRepo(repo.getFullName())
