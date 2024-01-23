@@ -19,7 +19,6 @@
  */
 package org.sonar.server.measure.ws;
 
-import com.google.common.collect.ImmutableSet;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -66,7 +65,7 @@ import static org.sonar.server.ws.WsUtils.writeProtobuf;
 public class SearchAction implements MeasuresWsAction {
 
   private static final int MAX_NB_PROJECTS = 100;
-  private static final Set<String> ALLOWED_QUALIFIERS = ImmutableSet.of(PROJECT, APP, VIEW, SUBVIEW);
+  private static final List<String> ALLOWED_QUALIFIERS = List.of(PROJECT, APP, VIEW, SUBVIEW);
 
   private final UserSession userSession;
   private final DbClient dbClient;
@@ -88,6 +87,7 @@ public class SearchAction implements MeasuresWsAction {
       .setResponseExample(getClass().getResource("search-example.json"))
       .setHandler(this)
       .setChangelog(
+        new Change("10.4", "Added new accepted values for the 'metricKeys' param: 'maintainability_issues', 'reliability_issues', 'security_issues'"),
         new Change("10.4", "The metrics 'open_issues', 'reopened_issues' and 'confirmed_issues' are now deprecated in the response. Consume 'violations' instead."),
         new Change("10.4", "The use of 'open_issues', 'reopened_issues' and 'confirmed_issues' values in 'metricKeys' param are now deprecated. Use 'violations' instead."),
         new Change("10.4", "The metric 'wont_fix_issues' is now deprecated in the response. Consume 'accepted_issues' instead."),

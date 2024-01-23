@@ -19,9 +19,13 @@
  */
 package org.sonar.ce.task.projectanalysis.issue;
 
+import com.google.gson.Gson;
+import java.lang.constant.Constable;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.assertj.core.data.MapEntry;
 import org.junit.Rule;
@@ -32,6 +36,7 @@ import org.sonar.api.rules.RuleType;
 import org.sonar.ce.task.projectanalysis.batch.BatchReportReaderRule;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolderRule;
+import org.sonar.ce.task.projectanalysis.measure.Measure;
 import org.sonar.ce.task.projectanalysis.measure.MeasureRepoEntry;
 import org.sonar.ce.task.projectanalysis.measure.MeasureRepositoryRule;
 import org.sonar.ce.task.projectanalysis.metric.MetricRepositoryRule;
@@ -53,6 +58,7 @@ import static org.sonar.api.issue.Issue.STATUS_CONFIRMED;
 import static org.sonar.api.issue.Issue.STATUS_OPEN;
 import static org.sonar.api.issue.Issue.STATUS_RESOLVED;
 import static org.sonar.api.issue.impact.Severity.HIGH;
+import static org.sonar.api.issue.impact.Severity.LOW;
 import static org.sonar.api.issue.impact.Severity.MEDIUM;
 import static org.sonar.api.measures.CoreMetrics.ACCEPTED_ISSUES;
 import static org.sonar.api.measures.CoreMetrics.ACCEPTED_ISSUES_KEY;
@@ -71,6 +77,7 @@ import static org.sonar.api.measures.CoreMetrics.FALSE_POSITIVE_ISSUES_KEY;
 import static org.sonar.api.measures.CoreMetrics.HIGH_IMPACT_ACCEPTED_ISSUES;
 import static org.sonar.api.measures.CoreMetrics.HIGH_IMPACT_ACCEPTED_ISSUES_KEY;
 import static org.sonar.api.measures.CoreMetrics.INFO_VIOLATIONS;
+import static org.sonar.api.measures.CoreMetrics.MAINTAINABILITY_ISSUES;
 import static org.sonar.api.measures.CoreMetrics.MAJOR_VIOLATIONS;
 import static org.sonar.api.measures.CoreMetrics.MAJOR_VIOLATIONS_KEY;
 import static org.sonar.api.measures.CoreMetrics.MINOR_VIOLATIONS;
@@ -96,9 +103,11 @@ import static org.sonar.api.measures.CoreMetrics.NEW_VULNERABILITIES;
 import static org.sonar.api.measures.CoreMetrics.NEW_VULNERABILITIES_KEY;
 import static org.sonar.api.measures.CoreMetrics.OPEN_ISSUES;
 import static org.sonar.api.measures.CoreMetrics.OPEN_ISSUES_KEY;
+import static org.sonar.api.measures.CoreMetrics.RELIABILITY_ISSUES;
 import static org.sonar.api.measures.CoreMetrics.REOPENED_ISSUES;
 import static org.sonar.api.measures.CoreMetrics.SECURITY_HOTSPOTS;
 import static org.sonar.api.measures.CoreMetrics.SECURITY_HOTSPOTS_KEY;
+import static org.sonar.api.measures.CoreMetrics.SECURITY_ISSUES;
 import static org.sonar.api.measures.CoreMetrics.VIOLATIONS;
 import static org.sonar.api.measures.CoreMetrics.VIOLATIONS_KEY;
 import static org.sonar.api.measures.CoreMetrics.VULNERABILITIES;
@@ -110,6 +119,7 @@ import static org.sonar.api.rules.RuleType.BUG;
 import static org.sonar.api.rules.RuleType.CODE_SMELL;
 import static org.sonar.api.rules.RuleType.SECURITY_HOTSPOT;
 import static org.sonar.ce.task.projectanalysis.component.ReportComponent.builder;
+import static org.sonar.ce.task.projectanalysis.issue.IssueCounter.IMPACT_TO_METRIC_KEY;
 import static org.sonar.ce.task.projectanalysis.measure.Measure.newMeasureBuilder;
 import static org.sonar.ce.task.projectanalysis.measure.MeasureRepoEntry.entryOf;
 
@@ -154,7 +164,10 @@ public class IssueCounterTest {
     .add(NEW_VULNERABILITIES)
     .add(NEW_SECURITY_HOTSPOTS)
     .add(NEW_ACCEPTED_ISSUES)
-    .add(HIGH_IMPACT_ACCEPTED_ISSUES);
+    .add(HIGH_IMPACT_ACCEPTED_ISSUES)
+    .add(RELIABILITY_ISSUES)
+    .add(MAINTAINABILITY_ISSUES)
+    .add(SECURITY_ISSUES);
 
   @Rule
   public MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create(treeRootHolder, metricRepository);
@@ -295,9 +308,9 @@ public class IssueCounterTest {
     underTest.beforeComponent(PROJECT);
     underTest.afterComponent(PROJECT);
 
-    assertValues(FILE1, entry(NEW_VIOLATIONS_KEY, 2), entry(NEW_CRITICAL_VIOLATIONS_KEY, 2), entry(NEW_BLOCKER_VIOLATIONS_KEY, 0), entry(NEW_MAJOR_VIOLATIONS_KEY, 0),
+    assertIntValue(FILE1, entry(NEW_VIOLATIONS_KEY, 2), entry(NEW_CRITICAL_VIOLATIONS_KEY, 2), entry(NEW_BLOCKER_VIOLATIONS_KEY, 0), entry(NEW_MAJOR_VIOLATIONS_KEY, 0),
       entry(NEW_CODE_SMELLS_KEY, 1), entry(NEW_BUGS_KEY, 1), entry(NEW_VULNERABILITIES_KEY, 0), entry(NEW_SECURITY_HOTSPOTS_KEY, 1));
-    assertValues(PROJECT, entry(NEW_VIOLATIONS_KEY, 2), entry(NEW_CRITICAL_VIOLATIONS_KEY, 2), entry(NEW_BLOCKER_VIOLATIONS_KEY, 0), entry(NEW_MAJOR_VIOLATIONS_KEY, 0),
+    assertIntValue(PROJECT, entry(NEW_VIOLATIONS_KEY, 2), entry(NEW_CRITICAL_VIOLATIONS_KEY, 2), entry(NEW_BLOCKER_VIOLATIONS_KEY, 0), entry(NEW_MAJOR_VIOLATIONS_KEY, 0),
       entry(NEW_CODE_SMELLS_KEY, 1), entry(NEW_BUGS_KEY, 1), entry(NEW_VULNERABILITIES_KEY, 0), entry(NEW_SECURITY_HOTSPOTS_KEY, 1));
   }
 
@@ -320,8 +333,48 @@ public class IssueCounterTest {
     underTest.beforeComponent(PROJECT);
     underTest.afterComponent(PROJECT);
 
-    assertValues(FILE1, entry(NEW_VIOLATIONS_KEY, 1), entry(NEW_ACCEPTED_ISSUES_KEY, 2), entry(NEW_SECURITY_HOTSPOTS_KEY, 1));
-    assertValues(PROJECT, entry(NEW_VIOLATIONS_KEY, 1), entry(NEW_ACCEPTED_ISSUES_KEY, 2), entry(NEW_SECURITY_HOTSPOTS_KEY, 1));
+    assertIntValue(FILE1, entry(NEW_VIOLATIONS_KEY, 1), entry(NEW_ACCEPTED_ISSUES_KEY, 2), entry(NEW_SECURITY_HOTSPOTS_KEY, 1));
+    assertIntValue(PROJECT, entry(NEW_VIOLATIONS_KEY, 1), entry(NEW_ACCEPTED_ISSUES_KEY, 2), entry(NEW_SECURITY_HOTSPOTS_KEY, 1));
+  }
+
+  @Test
+  public void count_impacts() {
+    when(newIssueClassifier.isEnabled()).thenReturn(true);
+
+    underTest.beforeComponent(FILE1);
+    underTest.onIssue(FILE1, createIssue(RESOLUTION_WONT_FIX, STATUS_OPEN, SoftwareQuality.MAINTAINABILITY,  HIGH));
+    underTest.onIssue(FILE1, createIssue(RESOLUTION_WONT_FIX, STATUS_OPEN, SoftwareQuality.MAINTAINABILITY, MEDIUM));
+
+    underTest.onIssue(FILE1, createNewIssue(RESOLUTION_WONT_FIX, STATUS_OPEN, SoftwareQuality.MAINTAINABILITY, HIGH));
+    underTest.onIssue(FILE1, createNewIssue(RESOLUTION_WONT_FIX, STATUS_RESOLVED, SoftwareQuality.MAINTAINABILITY, HIGH));
+    underTest.onIssue(FILE1, createNewIssue(RESOLUTION_WONT_FIX, STATUS_OPEN, SoftwareQuality.MAINTAINABILITY, MEDIUM));
+
+    underTest.onIssue(FILE1, createIssue(RESOLUTION_WONT_FIX, STATUS_OPEN, SoftwareQuality.SECURITY,  HIGH));
+    underTest.onIssue(FILE1, createIssue(RESOLUTION_WONT_FIX, STATUS_OPEN, SoftwareQuality.SECURITY, MEDIUM));
+
+    underTest.onIssue(FILE1, createNewSecurityHotspot());
+    underTest.afterComponent(FILE1);
+
+    underTest.beforeComponent(PROJECT);
+    underTest.afterComponent(PROJECT);
+
+    Set<Map.Entry<String, Measure>> entries = measureRepository.getRawMeasures(FILE1).entrySet();
+
+    assertSoftwareQualityMeasures(SoftwareQuality.MAINTAINABILITY, Map.of(HIGH, 2, MEDIUM, 2, LOW, 0, "total", 4), entries);
+    assertSoftwareQualityMeasures(SoftwareQuality.SECURITY, Map.of(HIGH, 1, MEDIUM, 1, LOW, 0, "total", 2), entries);
+    assertSoftwareQualityMeasures(SoftwareQuality.RELIABILITY, Map.of(HIGH, 0, MEDIUM, 0, LOW, 0, "total", 0), entries);
+  }
+
+  private void assertSoftwareQualityMeasures(SoftwareQuality softwareQuality, Map<? extends Constable, Integer> expectedRaw,
+    Set<Map.Entry<String, Measure>> actualRaw) {
+    Map<String, Long> expectedMap = expectedRaw.entrySet().stream().collect(Collectors.toMap(k -> k.getKey().toString(), v -> v.getValue().longValue()));
+
+    Map.Entry<String, Measure> softwareQualityMap = actualRaw.stream()
+      .filter(e -> e.getKey().equals(IMPACT_TO_METRIC_KEY.get(softwareQuality.name())))
+      .findFirst()
+      .get();
+
+    assertThat(softwareQualityMap.getValue().getData()).isEqualTo(new Gson().toJson(expectedMap));
   }
 
   @Test
@@ -345,9 +398,9 @@ public class IssueCounterTest {
     underTest.beforeComponent(PROJECT);
     underTest.afterComponent(PROJECT);
 
-    assertValues(FILE1, entry(VIOLATIONS_KEY, 2), entry(NEW_VIOLATIONS_KEY, 1), entry(NEW_ACCEPTED_ISSUES_KEY, 3),
+    assertIntValue(FILE1, entry(VIOLATIONS_KEY, 2), entry(NEW_VIOLATIONS_KEY, 1), entry(NEW_ACCEPTED_ISSUES_KEY, 3),
       entry(HIGH_IMPACT_ACCEPTED_ISSUES_KEY, 3));
-    assertValues(PROJECT, entry(VIOLATIONS_KEY, 2), entry(NEW_VIOLATIONS_KEY, 1), entry(NEW_ACCEPTED_ISSUES_KEY, 3),
+    assertIntValue(PROJECT, entry(VIOLATIONS_KEY, 2), entry(NEW_VIOLATIONS_KEY, 1), entry(NEW_ACCEPTED_ISSUES_KEY, 3),
       entry(HIGH_IMPACT_ACCEPTED_ISSUES_KEY, 3));
   }
 
@@ -400,22 +453,23 @@ public class IssueCounterTest {
     underTest.beforeComponent(PROJECT);
     underTest.afterComponent(PROJECT);
 
-    assertValues(FILE1, entry(NEW_VIOLATIONS_KEY, 0), entry(NEW_CRITICAL_VIOLATIONS_KEY, 0), entry(NEW_BLOCKER_VIOLATIONS_KEY, 0), entry(NEW_MAJOR_VIOLATIONS_KEY, 0),
+    assertIntValue(FILE1, entry(NEW_VIOLATIONS_KEY, 0), entry(NEW_CRITICAL_VIOLATIONS_KEY, 0), entry(NEW_BLOCKER_VIOLATIONS_KEY, 0), entry(NEW_MAJOR_VIOLATIONS_KEY, 0),
       entry(NEW_VULNERABILITIES_KEY, 0));
-    assertValues(PROJECT, entry(NEW_VIOLATIONS_KEY, 0), entry(NEW_CRITICAL_VIOLATIONS_KEY, 0), entry(NEW_BLOCKER_VIOLATIONS_KEY, 0), entry(NEW_MAJOR_VIOLATIONS_KEY, 0),
+    assertIntValue(PROJECT, entry(NEW_VIOLATIONS_KEY, 0), entry(NEW_CRITICAL_VIOLATIONS_KEY, 0), entry(NEW_BLOCKER_VIOLATIONS_KEY, 0), entry(NEW_MAJOR_VIOLATIONS_KEY, 0),
       entry(NEW_VULNERABILITIES_KEY, 0));
   }
 
   @SafeVarargs
-  private final void assertValues(Component componentRef, MapEntry<String, Integer>... entries) {
+  private void assertIntValue(Component componentRef, MapEntry<String, Integer>... entries) {
     assertThat(measureRepository.getRawMeasures(componentRef).entrySet()
       .stream()
+      .filter(e -> e.getValue().getValueType() == Measure.ValueType.INT)
       .map(e -> entry(e.getKey(), e.getValue().getIntValue())))
       .contains(entries);
   }
 
   @SafeVarargs
-  private final void assertMeasures(Component componentRef, Map.Entry<String, Integer>... entries) {
+  private void assertMeasures(Component componentRef, Map.Entry<String, Integer>... entries) {
     List<MeasureRepoEntry> expected = stream(entries)
       .map(e -> entryOf(e.getKey(), newMeasureBuilder().create(e.getValue())))
       .toList();
@@ -429,6 +483,10 @@ public class IssueCounterTest {
   }
 
   private DefaultIssue createNewIssue(@Nullable String resolution, String status, Severity impactSeverity) {
+    return createNewIssue(resolution, status, SoftwareQuality.MAINTAINABILITY, impactSeverity);
+  }
+
+  private DefaultIssue createNewIssue(@Nullable String resolution, String status, SoftwareQuality softwareQuality, Severity impactSeverity) {
     DefaultIssue issue = createNewIssue(resolution, status, MAJOR, CODE_SMELL);
     issue.addImpact(SoftwareQuality.MAINTAINABILITY, impactSeverity);
     return issue;
@@ -445,8 +503,12 @@ public class IssueCounterTest {
   }
 
   private static DefaultIssue createIssue(@Nullable String resolution, String status, Severity impactSeverity) {
+    return createIssue(resolution, status, SoftwareQuality.MAINTAINABILITY, impactSeverity);
+  }
+
+  private static DefaultIssue createIssue(@Nullable String resolution, String status, SoftwareQuality softwareQuality, Severity impactSeverity) {
     DefaultIssue issue = createIssue(resolution, status, MAJOR, CODE_SMELL);
-    issue.addImpact(SoftwareQuality.MAINTAINABILITY, impactSeverity);
+    issue.addImpact(softwareQuality, impactSeverity);
     return issue;
   }
 

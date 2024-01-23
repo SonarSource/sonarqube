@@ -19,6 +19,8 @@
  */
 package org.sonar.server.measure.ws;
 
+import com.google.gson.Gson;
+import java.util.Map;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
@@ -46,6 +48,7 @@ import static java.lang.Double.parseDouble;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
+import static org.sonar.api.measures.CoreMetrics.RELIABILITY_ISSUES;
 import static org.sonar.api.measures.Metric.ValueType.INT;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
 import static org.sonar.api.web.UserRole.USER;
@@ -59,6 +62,9 @@ import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_COMPONENT
 import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_METRIC_KEYS;
 import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_PULL_REQUEST;
 import static org.sonar.test.JsonAssert.assertJson;
+import static org.sonarqube.ws.Common.ImpactSeverity.HIGH;
+import static org.sonarqube.ws.Common.ImpactSeverity.LOW;
+import static org.sonarqube.ws.Common.ImpactSeverity.MEDIUM;
 
 public class ComponentActionIT {
 
@@ -324,7 +330,6 @@ public class ComponentActionIT {
     ProjectData projectData = db.components().insertPrivateProject(p -> p.setEnabled(false));
     ComponentDto mainBranch = projectData.getMainBranchComponent();
     userSession.addProjectPermission(USER, projectData.getProjectDto());
-    userSession.addProjectPermission(USER, projectData.getProjectDto());
     MetricDto metric = db.measures().insertMetric(m -> m.setValueType("INT"));
 
     assertThatThrownBy(() -> {
@@ -354,6 +359,33 @@ public class ComponentActionIT {
     })
       .isInstanceOf(NotFoundException.class)
       .hasMessage(String.format("Component '%s' on branch '%s' not found", file.getKey(), "another_branch"));
+  }
+
+  @Test
+  public void should_return_data_type_measure() {
+    ProjectData projectData = db.components().insertPrivateProject(p -> p.setKey("MY_PROJECT").setName("My Project"));
+    userSession.addProjectPermission(USER, projectData.getProjectDto()).registerBranches(projectData.getMainBranchDto());
+    ComponentDto mainBranch = projectData.getMainBranchComponent();
+    SnapshotDto analysis = db.components().insertSnapshot(mainBranch, s -> s.setPeriodDate(parseDateTime("2016-01-11T10:49:50+0100").getTime())
+      .setPeriodMode("previous_version")
+      .setPeriodParam("1.0-SNAPSHOT"));
+
+    MetricDto metric = db.measures().insertMetric(m -> m.setValueType("DATA")
+      .setShortName(RELIABILITY_ISSUES.getName())
+      .setKey(RELIABILITY_ISSUES.getKey())
+      .setBestValue(null)
+      .setWorstValue(null));
+
+    Map<String, Long> reliabilityIssuesMap = Map.of(HIGH.name(), 1L, MEDIUM.name(), 2L, LOW.name(), 3L, "total", 6L);
+    String expectedJson = new Gson().toJson(reliabilityIssuesMap);
+    db.measures().insertLiveMeasure(mainBranch, metric, m -> m.setData(expectedJson));
+
+    db.commit();
+
+    ComponentWsResponse response = newRequest(projectData.projectKey(), RELIABILITY_ISSUES.getKey());
+    String json = response.getComponent().getMeasures(0).getValue();
+
+    assertThat(json).isEqualTo(expectedJson);
   }
 
   @Test
