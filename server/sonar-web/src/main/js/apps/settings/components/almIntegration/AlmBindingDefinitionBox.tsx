@@ -17,17 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import {
+  BasicSeparator,
+  ButtonSecondary,
+  DangerButtonSecondary,
+  FlagErrorIcon,
+  FlagMessage,
+  FlagSuccessIcon,
+  HelperHintIcon,
+  Spinner,
+} from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import DocLink from '../../../../components/common/DocLink';
-import { Button } from '../../../../components/controls/buttons';
+import DocumentationLink from '../../../../components/common/DocumentationLink';
 import HelpTooltip from '../../../../components/controls/HelpTooltip';
 import Tooltip from '../../../../components/controls/Tooltip';
-import AlertErrorIcon from '../../../../components/icons/AlertErrorIcon';
-import AlertSuccessIcon from '../../../../components/icons/AlertSuccessIcon';
-import DeleteIcon from '../../../../components/icons/DeleteIcon';
-import EditIcon from '../../../../components/icons/EditIcon';
-import { Alert } from '../../../../components/ui/Alert';
 import { ALM_DOCUMENTATION_PATHS, IMPORT_COMPATIBLE_ALMS } from '../../../../helpers/constants';
 import { getEdition, getEditionUrl } from '../../../../helpers/editions';
 import { translate, translateWithParameters } from '../../../../helpers/l10n';
@@ -56,25 +60,23 @@ const DEFAULT_STATUS: AlmSettingsBindingStatus = {
 };
 
 const STATUS_ICON = {
-  [AlmSettingsBindingStatusType.Failure]: <AlertErrorIcon className="spacer-left" />,
-  [AlmSettingsBindingStatusType.Success]: <AlertSuccessIcon className="spacer-left" />,
+  [AlmSettingsBindingStatusType.Failure]: <FlagErrorIcon className="sw-ml-1" />,
+  [AlmSettingsBindingStatusType.Success]: <FlagSuccessIcon className="sw-ml-1" />,
+  [AlmSettingsBindingStatusType.Validating]: <div className="sw-ml-1 sw-inline-block sw-w-4" />,
 };
 
-function getPRDecorationFeatureStatus(
-  branchesEnabled: boolean,
-  type: AlmSettingsBindingStatusType.Success | AlmSettingsBindingStatusType.Failure,
-) {
+function getPRDecorationFeatureStatus(branchesEnabled: boolean, type: keyof typeof STATUS_ICON) {
   if (branchesEnabled) {
     return STATUS_ICON[type];
   }
 
   return (
-    <div className="display-inline-flex-center">
-      <strong className="spacer-left">
+    <div className="sw-inline-flex sw-items-center">
+      <strong className="sw-ml-2">
         {translate('settings.almintegration.feature.pr_decoration.disabled')}
       </strong>
       <HelpTooltip
-        className="little-spacer-left"
+        className="sw-ml-1"
         overlay={
           <FormattedMessage
             id="settings.almintegration.feature.pr_decoration.disabled.no_branches"
@@ -98,7 +100,9 @@ function getPRDecorationFeatureStatus(
             }}
           />
         }
-      />
+      >
+        <HelperHintIcon />
+      </HelpTooltip>
     </div>
   );
 }
@@ -106,23 +110,23 @@ function getPRDecorationFeatureStatus(
 function getImportFeatureStatus(
   alm: AlmKeys,
   definition: AlmBindingDefinitionBase,
-  type: AlmSettingsBindingStatusType.Success | AlmSettingsBindingStatusType.Failure,
+  type: keyof typeof STATUS_ICON,
 ) {
-  if (!definition.url && alm !== AlmKeys.BitbucketCloud) {
-    return (
-      <div className="display-inline-flex-center">
-        <strong className="spacer-left">
-          {translate('settings.almintegration.feature.alm_repo_import.disabled')}
-        </strong>
-        <HelpTooltip
-          className="little-spacer-left"
-          overlay={translate('settings.almintegration.feature.alm_repo_import.disabled.no_url')}
-        />
-      </div>
-    );
+  if (definition.url !== undefined || alm === AlmKeys.BitbucketCloud) {
+    return STATUS_ICON[type];
   }
 
-  return STATUS_ICON[type];
+  return (
+    <div className="sw-inline-flex sw-items-center">
+      <strong className="sw-ml-2">
+        {translate('settings.almintegration.feature.alm_repo_import.disabled')}
+      </strong>
+      <HelpTooltip
+        className="sw-ml-1"
+        overlay={translate('settings.almintegration.feature.alm_repo_import.disabled.no_url')}
+      />
+    </div>
+  );
 }
 
 function getPrDecoFeatureDescription(alm: AlmKeys) {
@@ -142,9 +146,10 @@ export default function AlmBindingDefinitionBox(props: AlmBindingDefinitionBoxPr
   const { alm, branchesEnabled, definition, status = DEFAULT_STATUS } = props;
 
   return (
-    <div className="boxed-group-inner bordered spacer-top spacer-bottom it__alm-binding-definition">
-      <div className="actions pull-right">
-        <Button
+    <div className="it__alm-binding-definition sw-pb-10">
+      <BasicSeparator className="sw-mb-6" />
+      <div className="sw-float-right">
+        <ButtonSecondary
           aria-label={translateWithParameters(
             'settings.almintegration.edit_configuration',
             definition.key,
@@ -153,110 +158,114 @@ export default function AlmBindingDefinitionBox(props: AlmBindingDefinitionBoxPr
             props.onEdit(definition.key);
           }}
         >
-          <EditIcon className="spacer-right" />
           {translate('edit')}
-        </Button>
-        <Button
+        </ButtonSecondary>
+        <DangerButtonSecondary
           aria-label={translateWithParameters(
             'settings.almintegration.delete_configuration',
             definition.key,
           )}
-          className="button-red spacer-left"
+          className="sw-ml-2"
           onClick={() => {
             props.onDelete(definition.key);
           }}
         >
-          <DeleteIcon className="spacer-right" />
           {translate('delete')}
-        </Button>
+        </DangerButtonSecondary>
       </div>
 
-      <div className="big-spacer-bottom">
+      <div className="sw-mb-4">
         <h3>{definition.key}</h3>
         {definition.url && <span>{definition.url}</span>}
       </div>
 
-      {status.type === AlmSettingsBindingStatusType.Validating ? (
-        <>
-          <i className="spinner spacer-right" />
-          {translate('settings.almintegration.checking_configuration')}
-        </>
-      ) : (
-        <>
-          {status.type !== AlmSettingsBindingStatusType.Warning && (
-            <div className="display-flex-row spacer-bottom">
-              <div className="huge-spacer-right">
-                <Tooltip overlay={getPrDecoFeatureDescription(alm)}>
-                  <span>{translate('settings.almintegration.feature.status_reporting.title')}</span>
-                </Tooltip>
-                {getPRDecorationFeatureStatus(branchesEnabled, status.type)}
-              </div>
-              {IMPORT_COMPATIBLE_ALMS.includes(alm) && (
-                <div>
-                  <Tooltip
-                    overlay={translate(
-                      'settings.almintegration.feature.alm_repo_import.description',
-                    )}
-                  >
-                    <span>
-                      {translate('settings.almintegration.feature.alm_repo_import.title')}
-                    </span>
-                  </Tooltip>
-                  {getImportFeatureStatus(alm, definition, status.type)}
-                </div>
-              )}
+      {status.type !== AlmSettingsBindingStatusType.Warning && (
+        <div className="sw-flex sw-mb-3">
+          <div className="sw-mr-10">
+            <Tooltip overlay={getPrDecoFeatureDescription(alm)}>
+              <span>{translate('settings.almintegration.feature.status_reporting.title')}</span>
+            </Tooltip>
+            {getPRDecorationFeatureStatus(branchesEnabled, status.type)}
+          </div>
+          {IMPORT_COMPATIBLE_ALMS.includes(alm) && (
+            <div>
+              <Tooltip
+                overlay={translate('settings.almintegration.feature.alm_repo_import.description')}
+              >
+                <span>{translate('settings.almintegration.feature.alm_repo_import.title')}</span>
+              </Tooltip>
+              {getImportFeatureStatus(alm, definition, status.type)}
             </div>
           )}
+        </div>
+      )}
 
-          <div className="width-50">
-            {status.type === AlmSettingsBindingStatusType.Warning && (
-              <Alert variant="warning">
-                {translate('settings.almintegration.could_not_validate')}
-              </Alert>
-            )}
+      {status.type === AlmSettingsBindingStatusType.Warning && (
+        <div className="sw-mb-3">
+          <FlagMessage variant="warning">
+            {translate('settings.almintegration.could_not_validate')}
+          </FlagMessage>
+        </div>
+      )}
 
-            {status.type === AlmSettingsBindingStatusType.Failure && (
-              <Alert variant="error">{status.failureMessage}</Alert>
-            )}
+      {status.type === AlmSettingsBindingStatusType.Failure && (
+        <div className="sw-mb-3">
+          <FlagMessage variant="error">{status.failureMessage}</FlagMessage>
+        </div>
+      )}
 
-            {status.type === AlmSettingsBindingStatusType.Success && status.alertSuccess && (
-              <>
-                <Alert variant="success">
-                  {translate('settings.almintegration.configuration_valid')}
-                </Alert>
-                {alm === AlmKeys.GitHub && (
-                  <Alert variant="warning">
-                    <FormattedMessage
-                      id="settings.almintegration.github.additional_permission"
-                      defaultMessage={translate(
-                        'settings.almintegration.github.additional_permission',
-                      )}
-                      values={{
-                        link: (
-                          <DocLink to={ALM_DOCUMENTATION_PATHS[AlmKeys.GitHub]}>
-                            {translate('learn_more')}
-                          </DocLink>
-                        ),
-                      }}
-                    />
-                  </Alert>
-                )}
-              </>
-            )}
+      {status.type === AlmSettingsBindingStatusType.Success && status.alertSuccess && (
+        <>
+          <div className="sw-mb-3">
+            <FlagMessage variant="success">
+              {translate('settings.almintegration.configuration_valid')}
+            </FlagMessage>
           </div>
-
-          <Button
-            aria-label={translateWithParameters(
-              'settings.almintegration.check_configuration_x',
-              definition.key,
-            )}
-            className="big-spacer-top"
-            onClick={() => props.onCheck(definition.key)}
-          >
-            {translate('settings.almintegration.check_configuration')}
-          </Button>
+          {alm === AlmKeys.GitHub && (
+            <div className="sw-mb-3">
+              <FlagMessage variant="warning">
+                <p>
+                  <FormattedMessage
+                    id="settings.almintegration.github.additional_permission"
+                    defaultMessage={translate(
+                      'settings.almintegration.github.additional_permission',
+                    )}
+                    values={{
+                      link: (
+                        <DocumentationLink to={ALM_DOCUMENTATION_PATHS[AlmKeys.GitHub]}>
+                          {translate('learn_more')}
+                        </DocumentationLink>
+                      ),
+                    }}
+                  />
+                </p>
+              </FlagMessage>
+            </div>
+          )}
         </>
       )}
+
+      <div className="sw-flex sw-items-center">
+        <ButtonSecondary
+          aria-label={translateWithParameters(
+            'settings.almintegration.check_configuration_x',
+            definition.key,
+          )}
+          onClick={() => props.onCheck(definition.key)}
+        >
+          {translate('settings.almintegration.check_configuration')}
+        </ButtonSecondary>
+        <Spinner
+          ariaLabel={translate('settings.almintegration.checking_configuration')}
+          className="sw-ml-3"
+          loading={status.type === AlmSettingsBindingStatusType.Validating}
+        />
+        {status.type === AlmSettingsBindingStatusType.Validating && (
+          <span className="sw-ml-2">
+            {translate('settings.almintegration.checking_configuration')}
+          </span>
+        )}
+      </div>
     </div>
   );
 }

@@ -17,13 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { ButtonPrimary, FlagMessage, Link, Spinner, getTabId, getTabPanelId } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import Link from '../../../../components/common/Link';
-import { getTabId, getTabPanelId } from '../../../../components/controls/BoxedTabs';
-import { Button } from '../../../../components/controls/buttons';
-import { Alert } from '../../../../components/ui/Alert';
-import Spinner from '../../../../components/ui/Spinner';
 import { translate } from '../../../../helpers/l10n';
 import {
   AlmBindingDefinition,
@@ -78,27 +74,22 @@ export default function AlmTabRenderer(props: Readonly<AlmTabRendererProps>) {
   const preventCreation = loadingProjectCount || (!multipleAlmEnabled && definitions.length > 0);
 
   return (
-    <div
-      className="bordered"
-      role="tabpanel"
-      id={getTabPanelId(almTab)}
-      aria-labelledby={getTabId(almTab)}
-    >
-      <div className="big-padded">
+    <div role="tabpanel" id={getTabPanelId(almTab)} aria-labelledby={getTabId(almTab)}>
+      <div>
         <Spinner loading={loadingAlmDefinitions}>
           {definitions.length === 0 && (
-            <p className="spacer-top">{translate('settings.almintegration.empty', almTab)}</p>
+            <p className="sw-mt-2">{translate('settings.almintegration.empty', almTab)}</p>
           )}
 
-          <div className={definitions.length > 0 ? 'spacer-bottom text-right' : 'big-spacer-top'}>
+          <div className={definitions.length > 0 ? 'sw-mb-5' : 'sw-my-3'}>
             <CreationTooltip alm={almTab} preventCreation={preventCreation}>
-              <Button
+              <ButtonPrimary
                 data-test="settings__alm-create"
                 disabled={preventCreation}
                 onClick={props.onCreate}
               >
                 {translate('settings.almintegration.create')}
-              </Button>
+              </ButtonPrimary>
             </CreationTooltip>
           </div>
           {definitions.map((def) => (
@@ -125,24 +116,26 @@ export default function AlmTabRenderer(props: Readonly<AlmTabRendererProps>) {
         </Spinner>
       </div>
       {AUTHENTICATION_AVAILABLE_PLATFORMS.includes(almTab) && (
-        <Alert variant="info" className="spacer">
-          <FormattedMessage
-            id="settings.almintegration.tabs.authentication-moved"
-            defaultMessage={translate('settings.almintegration.tabs.authentication_moved')}
-            values={{
-              link: (
-                <Link
-                  to={{
-                    pathname: '/admin/settings',
-                    search: `category=authentication&tab=${almTab}`,
-                  }}
-                >
-                  {translate('property.category.authentication')}
-                </Link>
-              ),
-            }}
-          />
-        </Alert>
+        <FlagMessage className="sw-mt-2" variant="info">
+          <p>
+            <FormattedMessage
+              id="settings.almintegration.tabs.authentication-moved"
+              defaultMessage={translate('settings.almintegration.tabs.authentication_moved')}
+              values={{
+                link: (
+                  <Link
+                    to={{
+                      pathname: '/admin/settings',
+                      search: `category=authentication&tab=${almTab}`,
+                    }}
+                  >
+                    {translate('property.category.authentication')}
+                  </Link>
+                ),
+              }}
+            />
+          </p>
+        </FlagMessage>
       )}
     </div>
   );

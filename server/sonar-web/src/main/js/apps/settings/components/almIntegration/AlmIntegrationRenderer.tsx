@@ -17,11 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { FlagMessage, Link, SubTitle, ToggleButton } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import Link from '../../../../components/common/Link';
-import BoxedTabs from '../../../../components/controls/BoxedTabs';
-import { Alert } from '../../../../components/ui/Alert';
 import { translate } from '../../../../helpers/l10n';
 import { getBaseUrl } from '../../../../helpers/system';
 import { useGetValuesQuery } from '../../../../queries/settings';
@@ -56,60 +54,60 @@ export interface AlmIntegrationRendererProps {
 
 const tabs = [
   {
-    key: AlmKeys.GitHub,
     label: (
       <>
         <img
           alt="github"
-          className="spacer-right"
+          className="sw-mr-2"
           height={16}
           src={`${getBaseUrl()}/images/alm/github.svg`}
         />
         {translate('settings.almintegration.tab.github')}
       </>
     ),
+    value: AlmKeys.GitHub,
   },
   {
-    key: AlmKeys.BitbucketServer,
     label: (
       <>
         <img
           alt="bitbucket"
-          className="spacer-right"
+          className="sw-mr-2"
           height={16}
           src={`${getBaseUrl()}/images/alm/bitbucket.svg`}
         />
         {translate('settings.almintegration.tab.bitbucket')}
       </>
     ),
+    value: AlmKeys.BitbucketServer,
   },
   {
-    key: AlmKeys.Azure,
     label: (
       <>
         <img
           alt="azure"
-          className="spacer-right"
+          className="sw-mr-2"
           height={16}
           src={`${getBaseUrl()}/images/alm/azure.svg`}
         />
         {translate('settings.almintegration.tab.azure')}
       </>
     ),
+    value: AlmKeys.Azure,
   },
   {
-    key: AlmKeys.GitLab,
     label: (
       <>
         <img
           alt="gitlab"
-          className="spacer-right"
+          className="sw-mr-2"
           height={16}
           src={`${getBaseUrl()}/images/alm/gitlab.svg`}
         />
         {translate('settings.almintegration.tab.gitlab')}
       </>
     ),
+    value: AlmKeys.GitLab,
   },
 ];
 
@@ -138,31 +136,38 @@ export default function AlmIntegrationRenderer(props: AlmIntegrationRendererProp
 
   return (
     <>
-      <header className="page-header">
-        <h1 className="page-title">{translate('settings.almintegration.title')}</h1>
+      <header className="sw-mb-5">
+        <SubTitle>{translate('settings.almintegration.title')}</SubTitle>
       </header>
 
       {!hasServerBaseUrl && !isLoading && branchesEnabled && (
-        <Alert variant="warning">
-          <FormattedMessage
-            id="settings.almintegration.empty.server_base_url"
-            defaultMessage={translate('settings.almintegration.empty.server_base_url')}
-            values={{
-              serverBaseUrl: (
-                <Link to="/admin/settings?category=general#sonar.core.serverBaseURL">
-                  {translate('settings.almintegration.empty.server_base_url.setting_link')}
-                </Link>
-              ),
-            }}
-          />
-        </Alert>
+        <FlagMessage variant="warning">
+          <p>
+            <FormattedMessage
+              id="settings.almintegration.empty.server_base_url"
+              defaultMessage={translate('settings.almintegration.empty.server_base_url')}
+              values={{
+                serverBaseUrl: (
+                  <Link to="/admin/settings?category=general#sonar.core.serverBaseURL">
+                    {translate('settings.almintegration.empty.server_base_url.setting_link')}
+                  </Link>
+                ),
+              }}
+            />
+          </p>
+        </FlagMessage>
       )}
 
-      <div className="markdown small big-spacer-top big-spacer-bottom">
-        {translate('settings.almintegration.description')}
-      </div>
+      <div className="sw-my-4">{translate('settings.almintegration.description')}</div>
 
-      <BoxedTabs onSelect={props.onSelectAlmTab} selected={currentAlmTab} tabs={tabs} />
+      <div className="sw-mb-6">
+        <ToggleButton
+          onChange={props.onSelectAlmTab}
+          options={tabs}
+          role="tablist"
+          value={currentAlmTab}
+        />
+      </div>
 
       <AlmTab
         almTab={currentAlmTab}
