@@ -155,7 +155,7 @@ public class GitLabSettings implements DevOpsPlatformSettings {
         .index(5)
         .build(),
       PropertyDefinition.builder(GITLAB_AUTH_ALLOWED_GROUPS)
-        .name("Groups allowed")
+        .name("Allowed groups")
         .description("Only members of these groups (and sub-groups) will be allowed to authenticate. " +
           "Please enter the group slug as it appears in the GitLab URL, for instance `my-gitlab-group`. " +
           "If you use Auto-provisioning, only members of these groups (and sub-groups) will be provisioned")
