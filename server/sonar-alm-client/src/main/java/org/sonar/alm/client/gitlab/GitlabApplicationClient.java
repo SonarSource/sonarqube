@@ -58,8 +58,10 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 public class GitlabApplicationClient {
   private static final Logger LOG = LoggerFactory.getLogger(GitlabApplicationClient.class);
   private static final Gson GSON = new Gson();
-  private static final Type GITLAB_GROUP = TypeToken.getParameterized(List.class, GsonGroup.class).getType();
-  private static final Type GITLAB_USER = TypeToken.getParameterized(List.class, GsonUser.class).getType();
+  private static final TypeToken<List<GsonGroup>> GITLAB_GROUP = new TypeToken<>() {
+  };
+  private static final TypeToken<List<GsonUser>> GITLAB_USER = new TypeToken<>() {
+  };
 
   protected static final String PRIVATE_TOKEN = "Private-Token";
   private static final String GITLAB_GROUPS_MEMBERS_ENDPOINT = "/groups/%s/members";

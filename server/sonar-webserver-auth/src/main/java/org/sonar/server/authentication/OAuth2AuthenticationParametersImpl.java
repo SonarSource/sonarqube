@@ -20,11 +20,10 @@
 package org.sonar.server.authentication;
 
 import com.google.common.base.Strings;
-import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 import java.io.UnsupportedEncodingException;
-import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -53,8 +52,8 @@ public class OAuth2AuthenticationParametersImpl implements OAuth2AuthenticationP
    */
   private static final String RETURN_TO_PARAMETER = "return_to";
 
-  private static final Type JSON_MAP_TYPE = new TypeToken<HashMap<String, String>>() {
-  }.getType();
+  private static final TypeToken<Map<String, String>> JSON_MAP_TYPE = new TypeToken<>() {
+  };
 
   @Override
   public void init(HttpRequest request, HttpResponse response) {

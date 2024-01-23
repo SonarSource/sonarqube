@@ -48,7 +48,7 @@ public class QPMeasureData {
   }
 
   public static QPMeasureData fromJson(String json) {
-    return new QPMeasureData(StreamSupport.stream(new JsonParser().parse(json).getAsJsonArray().spliterator(), false)
+    return new QPMeasureData(StreamSupport.stream(JsonParser.parseString(json).getAsJsonArray().spliterator(), false)
       .map(jsonElement -> {
         JsonObject jsonProfile = jsonElement.getAsJsonObject();
         return new QualityProfile(

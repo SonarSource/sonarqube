@@ -24,7 +24,6 @@ import com.google.common.collect.ListMultimap;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
-import java.lang.reflect.Type;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -70,6 +69,8 @@ public class SetAction implements SettingsWsAction {
   private static final Collector<CharSequence, ?, String> COMMA_JOINER = Collectors.joining(",");
   private static final String MSG_NO_EMPTY_VALUE = "A non empty value must be provided";
   private static final int VALUE_MAXIMUM_LENGTH = 4000;
+  private static final TypeToken<Map<String, String>> MAP_TYPE_TOKEN = new TypeToken<>() {
+  };
 
   private final PropertyDefinitions propertyDefinitions;
   private final DbClient dbClient;
@@ -305,11 +306,9 @@ public class SetAction implements SettingsWsAction {
   }
 
   private static Map<String, String> readOneFieldValues(String json, String key) {
-    Type type = new TypeToken<Map<String, String>>() {
-    }.getType();
     Gson gson = GsonHelper.create();
     try {
-      return gson.fromJson(json, type);
+      return gson.fromJson(json, MAP_TYPE_TOKEN);
     } catch (JsonSyntaxException e) {
       throw BadRequestException.create(format("JSON '%s' does not respect expected format for setting '%s'. Ex: {\"field1\":\"value1\", \"field2\":\"value2\"}", json, key));
     }

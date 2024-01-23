@@ -565,8 +565,7 @@ public class TreeActionIT {
     db.components().insertSnapshot(projectData.getMainBranchComponent());
 
     Date now = new Date();
-    JsonParser jsonParser = new JsonParser();
-    JsonElement jsonTree = jsonParser.parseString(IOUtils.toString(getClass().getResource("tree-example.json"), UTF_8));
+    JsonElement jsonTree = JsonParser.parseString(IOUtils.toString(getClass().getResource("tree-example.json"), UTF_8));
     JsonArray components = jsonTree.getAsJsonObject().getAsJsonArray("components");
     for (int i = 0; i < components.size(); i++) {
       JsonElement componentAsJsonElement = components.get(i);

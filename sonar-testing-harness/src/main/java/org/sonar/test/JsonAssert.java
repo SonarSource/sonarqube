@@ -123,7 +123,7 @@ public class JsonAssert {
   }
 
   private static String pretty(String json) {
-    JsonElement gson = new JsonParser().parse(json);
+    JsonElement gson = JsonParser.parseString(json);
     return new GsonBuilder().setPrettyPrinting().serializeNulls().create().toJson(gson);
   }
 }

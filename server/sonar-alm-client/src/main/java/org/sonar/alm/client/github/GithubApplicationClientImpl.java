@@ -73,9 +73,12 @@ public class GithubApplicationClientImpl implements GithubApplicationClient {
   protected static final String WRITE_PERMISSION_NAME = "write";
   protected static final String READ_PERMISSION_NAME = "read";
   protected static final String FAILED_TO_REQUEST_BEGIN_MSG = "Failed to request ";
-  private static final Type REPOSITORY_TEAM_LIST_TYPE = TypeToken.getParameterized(List.class, GsonRepositoryTeam.class).getType();
-  private static final Type REPOSITORY_COLLABORATORS_LIST_TYPE = TypeToken.getParameterized(List.class, GsonRepositoryCollaborator.class).getType();
-  private static final Type ORGANIZATION_LIST_TYPE = TypeToken.getParameterized(List.class, GithubBinding.GsonInstallation.class).getType();
+  private static final TypeToken<List<GsonRepositoryTeam>> REPOSITORY_TEAM_LIST_TYPE = new TypeToken<>() {
+  };
+  private static final TypeToken<List<GsonRepositoryCollaborator>> REPOSITORY_COLLABORATORS_LIST_TYPE = new TypeToken<>() {
+  };
+  private static final TypeToken<List<GithubBinding.GsonInstallation>> ORGANIZATION_LIST_TYPE = new TypeToken<>() {
+  };
   protected final GithubApplicationHttpClient githubApplicationHttpClient;
   protected final GithubAppSecurity appSecurity;
   private final GitHubSettings gitHubSettings;
