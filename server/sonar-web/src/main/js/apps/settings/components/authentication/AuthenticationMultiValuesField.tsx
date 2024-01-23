@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { DestructiveIcon, InputField, TrashIcon } from 'design-system';
 import * as React from 'react';
-import { DeleteButton } from '../../../../components/controls/buttons';
 import { translateWithParameters } from '../../../../helpers/l10n';
 import { DefinitionV2, ExtendedSettingDefinition } from '../../../../types/settings';
 import { getPropertyName } from '../../utils';
@@ -52,10 +52,10 @@ export default function AuthenticationMultiValueField(props: Props) {
         {displayValue.map((value, index) => {
           const isNotLast = index !== displayValue.length - 1;
           return (
-            <li className="spacer-bottom" key={index}>
-              <input
-                className="width-80"
+            <li className="sw-flex sw-mb-2" key={index}>
+              <InputField
                 id={definition.key}
+                size="large"
                 maxLength={4000}
                 name={definition.key}
                 onChange={(e) => handleSingleInputChange(index, e.currentTarget.value)}
@@ -64,8 +64,9 @@ export default function AuthenticationMultiValueField(props: Props) {
               />
 
               {isNotLast && (
-                <div className="display-inline-block spacer-left">
-                  <DeleteButton
+                <div className="sw-ml-2">
+                  <DestructiveIcon
+                    Icon={TrashIcon}
                     className="js-remove-value"
                     aria-label={translateWithParameters(
                       'settings.definition.delete_value',

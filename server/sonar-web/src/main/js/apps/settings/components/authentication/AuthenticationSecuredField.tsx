@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { ButtonSecondary, InputField, InputTextArea } from 'design-system';
 import React, { useEffect } from 'react';
-import { ButtonLink } from '../../../../components/controls/buttons';
 import { translate } from '../../../../helpers/l10n';
 import { DefinitionV2, ExtendedSettingDefinition, SettingType } from '../../../../types/settings';
 import { isSecuredDefinition } from '../../utils';
@@ -45,8 +45,8 @@ export default function AuthenticationSecuredField(props: SamlToggleFieldProps) 
     <>
       {!showSecretField &&
         (definition.type === SettingType.TEXT ? (
-          <textarea
-            className="width-100"
+          <InputTextArea
+            size="full"
             id={definition.key}
             maxLength={4000}
             onChange={(e) => props.onFieldChange(definition.key, e.currentTarget.value)}
@@ -55,8 +55,8 @@ export default function AuthenticationSecuredField(props: SamlToggleFieldProps) 
             value={settingValue ?? ''}
           />
         ) : (
-          <input
-            className="width-100"
+          <InputField
+            size="full"
             id={definition.key}
             maxLength={4000}
             name={definition.key}
@@ -66,15 +66,15 @@ export default function AuthenticationSecuredField(props: SamlToggleFieldProps) 
           />
         ))}
       {showSecretField && (
-        <div>
-          <p>{translate('settings.almintegration.form.secret.field')}</p>
-          <ButtonLink
+        <div className="sw-flex sw-items-center">
+          <p className="sw-mr-2">{translate('settings.almintegration.form.secret.field')}</p>
+          <ButtonSecondary
             onClick={() => {
               setShowSecretField(false);
             }}
           >
             {translate('settings.almintegration.form.secret.update_field')}
-          </ButtonLink>
+          </ButtonSecondary>
         </div>
       )}
     </>

@@ -17,9 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Switch } from 'design-system';
 import React from 'react';
-import Toggle from '../../../../components/controls/Toggle';
 import { DefinitionV2, ExtendedSettingDefinition } from '../../../../types/settings';
+import { getPropertyName } from '../../utils';
 
 interface SamlToggleFieldProps {
   onChange: (value: boolean) => void;
@@ -30,10 +31,11 @@ interface SamlToggleFieldProps {
 export default function AuthenticationToggleField(props: SamlToggleFieldProps) {
   const { settingValue, definition } = props;
 
+  const label = getPropertyName(definition);
+
   return (
-    <Toggle
-      ariaLabel={definition.key}
-      name={definition.key}
+    <Switch
+      labels={{ on: label, off: label }}
       onChange={props.onChange}
       value={settingValue ?? ''}
     />

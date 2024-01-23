@@ -17,14 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { ButtonPrimary, FlagMessage, Modal, Spinner } from 'design-system';
 import { isArray, keyBy } from 'lodash';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import DocLink from '../../../../components/common/DocLink';
-import Modal from '../../../../components/controls/Modal';
-import { ResetButtonLink, SubmitButton } from '../../../../components/controls/buttons';
-import { Alert } from '../../../../components/ui/Alert';
-import Spinner from '../../../../components/ui/Spinner';
+import DocumentationLink from '../../../../components/common/DocumentationLink';
 import { translate } from '../../../../helpers/l10n';
 import {
   useCreateGitLabConfigurationMutation,
@@ -117,10 +115,7 @@ export default function GitLabConfigurationForm(props: Readonly<Props>) {
     },
   });
 
-  const headerLabel = translate(
-    'settings.authentication.gitlab.form',
-    isCreate ? 'create' : 'edit',
-  );
+  const header = translate('settings.authentication.gitlab.form', isCreate ? 'create' : 'edit');
 
   const canBeSaved = Object.values(formData).every(({ definition, required, value }) => {
     return (
@@ -159,62 +154,59 @@ export default function GitLabConfigurationForm(props: Readonly<Props>) {
     }
   };
 
+  const FORM_ID = 'gitlab-configuration-form';
+
+  const formBody = (
+    <form id={FORM_ID} onSubmit={handleSubmit}>
+      <FlagMessage variant="info" className="sw-w-full sw-mb-8">
+        <span>
+          <FormattedMessage
+            id="settings.authentication.help"
+            values={{
+              link: (
+                <DocumentationLink
+                  to={`/instance-administration/authentication/${DOCUMENTATION_LINK_SUFFIXES.gitlab}/`}
+                >
+                  {translate('settings.authentication.help.link')}
+                </DocumentationLink>
+              ),
+            }}
+          />
+        </span>
+      </FlagMessage>
+      {Object.entries(formData).map(
+        ([key, { value, required, definition }]: [
+          key: keyof GitLabConfigurationCreateBody,
+          FormData,
+        ]) => (
+          <div key={key} className="sw-mb-8">
+            <AuthenticationFormField
+              settingValue={value}
+              definition={definition}
+              mandatory={required}
+              onFieldChange={(_, value) => {
+                setFormData((prev) => ({ ...prev, [key]: { ...prev[key], value } }));
+              }}
+              isNotSet={isCreate}
+              error={errors[key]?.message}
+            />
+          </div>
+        ),
+      )}
+    </form>
+  );
+
   return (
     <Modal
-      contentLabel={headerLabel}
-      onRequestClose={props.onClose}
-      shouldCloseOnOverlayClick={false}
-      shouldCloseOnEsc
-      size="medium"
-    >
-      <form onSubmit={handleSubmit}>
-        <div className="modal-head">
-          <h2>{headerLabel}</h2>
-        </div>
-        <div className="modal-body modal-container">
-          <Alert variant="info">
-            <FormattedMessage
-              id="settings.authentication.help"
-              values={{
-                link: (
-                  <DocLink
-                    to={`/instance-administration/authentication/${DOCUMENTATION_LINK_SUFFIXES.gitlab}/`}
-                  >
-                    {translate('settings.authentication.help.link')}
-                  </DocLink>
-                ),
-              }}
-            />
-          </Alert>
-          {Object.entries(formData).map(
-            ([key, { value, required, definition }]: [
-              key: keyof GitLabConfigurationCreateBody,
-              FormData,
-            ]) => (
-              <div key={key}>
-                <AuthenticationFormField
-                  settingValue={value}
-                  definition={definition}
-                  mandatory={required}
-                  onFieldChange={(_, value) => {
-                    setFormData((prev) => ({ ...prev, [key]: { ...prev[key], value } }));
-                  }}
-                  isNotSet={isCreate}
-                  error={errors[key]?.message}
-                />
-              </div>
-            ),
-          )}
-        </div>
-
-        <div className="modal-foot">
-          <SubmitButton disabled={!canBeSaved}>
-            {translate('settings.almintegration.form.save')}
-            <Spinner className="spacer-left" loading={createLoading || updateLoading} />
-          </SubmitButton>
-          <ResetButtonLink onClick={props.onClose}>{translate('cancel')}</ResetButtonLink>
-        </div>
-      </form>
-    </Modal>
+      headerTitle={header}
+      onClose={props.onClose}
+      body={formBody}
+      primaryButton={
+        <ButtonPrimary form={FORM_ID} type="submit" disabled={!canBeSaved}>
+          {translate('settings.almintegration.form.save')}
+          <Spinner className="sw-ml-2" loading={createLoading || updateLoading} />
+        </ButtonPrimary>
+      }
+    />
   );
 }

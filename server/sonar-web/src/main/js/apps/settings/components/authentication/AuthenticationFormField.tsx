@@ -17,16 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import styled from '@emotion/styled';
+import { FormField, Highlight, InputField, Note, RequiredIcon } from 'design-system';
 import React from 'react';
+import { useIntl } from 'react-intl';
 import ValidationInput, {
   ValidationInputErrorPlacement,
 } from '../../../../components/controls/ValidationInput';
 import { DefinitionV2, ExtendedSettingDefinition, SettingType } from '../../../../types/settings';
 import { getPropertyDescription, getPropertyName, isSecuredDefinition } from '../../utils';
-import AuthenticationFormFieldWrapper from './AuthenticationFormFieldWrapper';
 import AuthenticationMultiValueField from './AuthenticationMultiValuesField';
 import AuthenticationSecuredField from './AuthenticationSecuredField';
-import AuthenticationToggleField from './AuthenticationToggleField';
+import AuthenticationToggleFormField from './AuthenticationToggleField';
 
 interface Props {
   settingValue?: string | boolean | string[];
@@ -40,15 +42,44 @@ interface Props {
 export default function AuthenticationFormField(props: Readonly<Props>) {
   const { mandatory = false, definition, settingValue, isNotSet, error } = props;
 
+  const intl = useIntl();
+
   const name = getPropertyName(definition);
   const description = getPropertyDescription(definition);
 
+  if (!isSecuredDefinition(definition) && definition.type === SettingType.BOOLEAN) {
+    return (
+      <>
+        <div className="sw-flex">
+          <Highlight className="sw-mb-4 sw-mr-4 sw-flex sw-items-center sw-gap-2">
+            <StyledLabel aria-label={name} htmlFor={definition.key}>
+              {name}
+              {mandatory && (
+                <RequiredIcon
+                  aria-label={intl.formatMessage({ id: 'required' })}
+                  className="sw-ml-1"
+                />
+              )}
+            </StyledLabel>
+          </Highlight>
+          <AuthenticationToggleFormField
+            definition={definition}
+            settingValue={settingValue as string | boolean}
+            onChange={(value) => props.onFieldChange(definition.key, value)}
+          />
+        </div>
+        {description && <Note className="sw-mt-2">{description}</Note>}
+      </>
+    );
+  }
+
   return (
-    <AuthenticationFormFieldWrapper
-      title={name}
-      defKey={definition.key}
-      mandatory={mandatory}
+    <FormField
+      htmlFor={definition.key}
+      ariaLabel={name}
+      label={name}
       description={description}
+      required={mandatory}
     >
       {definition.multiValues && (
         <AuthenticationMultiValueField
@@ -65,13 +96,6 @@ export default function AuthenticationFormField(props: Readonly<Props>) {
           isNotSet={isNotSet}
         />
       )}
-      {!isSecuredDefinition(definition) && definition.type === SettingType.BOOLEAN && (
-        <AuthenticationToggleField
-          definition={definition}
-          settingValue={settingValue as string | boolean}
-          onChange={(value) => props.onFieldChange(definition.key, value)}
-        />
-      )}
       {!isSecuredDefinition(definition) &&
         definition.type === undefined &&
         !definition.multiValues && (
@@ -81,8 +105,8 @@ export default function AuthenticationFormField(props: Readonly<Props>) {
             isValid={false}
             isInvalid={Boolean(error)}
           >
-            <input
-              className="width-100"
+            <InputField
+              size="full"
               id={definition.key}
               maxLength={4000}
               name={definition.key}
@@ -92,6 +116,12 @@ export default function AuthenticationFormField(props: Readonly<Props>) {
             />
           </ValidationInput>
         )}
-    </AuthenticationFormFieldWrapper>
+    </FormField>
   );
 }
+
+// This is needed to prevent the target input/button from being focused
+// when clicking/hovering on the label. More info https://stackoverflow.com/questions/9098581/why-is-hover-for-input-triggered-on-corresponding-label-in-css
+const StyledLabel = styled.label`
+  pointer-events: none;
+`;

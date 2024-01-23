@@ -17,14 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { ButtonPrimary, FlagMessage, Modal, Spinner } from 'design-system';
 import { keyBy } from 'lodash';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import DocLink from '../../../../components/common/DocLink';
-import Modal from '../../../../components/controls/Modal';
-import { ResetButtonLink, SubmitButton } from '../../../../components/controls/buttons';
-import { Alert } from '../../../../components/ui/Alert';
-import Spinner from '../../../../components/ui/Spinner';
+import DocumentationLink from '../../../../components/common/DocumentationLink';
 import { translate } from '../../../../helpers/l10n';
 import { useSaveValuesMutation } from '../../../../queries/settings';
 import { Dict } from '../../../../types/types';
@@ -64,7 +61,7 @@ export default function ConfigurationForm(props: Props) {
 
   const { mutateAsync: changeConfig } = useSaveValuesMutation();
 
-  const headerLabel = translate('settings.authentication.form', create ? 'create' : 'edit', tab);
+  const header = translate('settings.authentication.form', create ? 'create' : 'edit', tab);
 
   const handleSubmit = async (event: React.SyntheticEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -88,71 +85,68 @@ export default function ConfigurationForm(props: Props) {
     }
   };
 
+  const helpMessage = hasLegacyConfiguration ? `legacy_help.${tab}` : 'help';
+
+  const FORM_ID = 'configuration-form';
+
+  const formBody = (
+    <form id={FORM_ID} onSubmit={handleSubmit}>
+      <Spinner loading={loading} ariaLabel={translate('settings.authentication.form.loading')}>
+        <FlagMessage
+          className="sw-w-full sw-mb-8"
+          variant={hasLegacyConfiguration ? 'warning' : 'info'}
+        >
+          <span>
+            <FormattedMessage
+              id={`settings.authentication.${helpMessage}`}
+              defaultMessage={translate(`settings.authentication.${helpMessage}`)}
+              values={{
+                link: (
+                  <DocumentationLink
+                    to={`/instance-administration/authentication/${DOCUMENTATION_LINK_SUFFIXES[tab]}/`}
+                  >
+                    {translate('settings.authentication.help.link')}
+                  </DocumentationLink>
+                ),
+              }}
+            />
+          </span>
+        </FlagMessage>
+        {Object.values(values).map((val) => {
+          if (excludedField.includes(val.key)) {
+            return null;
+          }
+
+          const isSet = hasLegacyConfiguration ? false : !val.isNotSet;
+          return (
+            <div key={val.key} className="sw-mb-8">
+              <AuthenticationFormField
+                settingValue={values[val.key]?.newValue ?? values[val.key]?.value}
+                definition={val.definition}
+                mandatory={val.mandatory}
+                onFieldChange={setNewValue}
+                isNotSet={!isSet}
+                error={errors[val.key]?.message}
+              />
+            </div>
+          );
+        })}
+      </Spinner>
+    </form>
+  );
+
   return (
     <Modal
-      contentLabel={headerLabel}
-      onRequestClose={props.onClose}
-      shouldCloseOnOverlayClick={false}
-      shouldCloseOnEsc
-      size="medium"
-    >
-      <form onSubmit={handleSubmit}>
-        <div className="modal-head">
-          <h2>{headerLabel}</h2>
-        </div>
-        <div className="modal-body modal-container">
-          <Spinner loading={loading} ariaLabel={translate('settings.authentication.form.loading')}>
-            <Alert variant={hasLegacyConfiguration ? 'warning' : 'info'}>
-              <FormattedMessage
-                id={`settings.authentication.${
-                  hasLegacyConfiguration ? `legacy_help.${tab}` : 'help'
-                }`}
-                defaultMessage={translate(
-                  `settings.authentication.${
-                    hasLegacyConfiguration ? `legacy_help.${tab}` : 'help'
-                  }`,
-                )}
-                values={{
-                  link: (
-                    <DocLink
-                      to={`/instance-administration/authentication/${DOCUMENTATION_LINK_SUFFIXES[tab]}/`}
-                    >
-                      {translate('settings.authentication.help.link')}
-                    </DocLink>
-                  ),
-                }}
-              />
-            </Alert>
-            {Object.values(values).map((val) => {
-              if (excludedField.includes(val.key)) {
-                return null;
-              }
-
-              const isSet = hasLegacyConfiguration ? false : !val.isNotSet;
-              return (
-                <div key={val.key}>
-                  <AuthenticationFormField
-                    settingValue={values[val.key]?.newValue ?? values[val.key]?.value}
-                    definition={val.definition}
-                    mandatory={val.mandatory}
-                    onFieldChange={setNewValue}
-                    isNotSet={!isSet}
-                    error={errors[val.key]?.message}
-                  />
-                </div>
-              );
-            })}
-          </Spinner>
-        </div>
-
-        <div className="modal-foot">
-          <SubmitButton disabled={!canBeSave}>
-            {translate('settings.almintegration.form.save')}
-            <Spinner className="spacer-left" loading={loading} />
-          </SubmitButton>
-          <ResetButtonLink onClick={props.onClose}>{translate('cancel')}</ResetButtonLink>
-        </div>
-      </form>
-    </Modal>
+      headerTitle={header}
+      isScrollable
+      onClose={props.onClose}
+      body={formBody}
+      primaryButton={
+        <ButtonPrimary form={FORM_ID} type="submit" autoFocus disabled={!canBeSave}>
+          {translate('settings.almintegration.form.save')}
+          <Spinner className="sw-ml-2" loading={loading} />
+        </ButtonPrimary>
+      }
+    />
   );
 }

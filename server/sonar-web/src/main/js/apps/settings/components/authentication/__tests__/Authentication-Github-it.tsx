@@ -81,7 +81,7 @@ const ui = {
   githubApiUrl: byRole('textbox', { name: 'property.sonar.auth.github.apiUrl.name' }),
   githubWebUrl: byRole('textbox', { name: 'property.sonar.auth.github.webUrl.name' }),
   allowUsersToSignUp: byRole('switch', {
-    name: 'sonar.auth.github.allowUsersToSignUp',
+    name: 'property.sonar.auth.github.allowUsersToSignUp.name',
   }),
   organizations: byRole('textbox', {
     name: 'property.sonar.auth.github.organizations.name',

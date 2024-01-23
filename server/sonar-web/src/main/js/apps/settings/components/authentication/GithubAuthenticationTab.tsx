@@ -247,7 +247,7 @@ export default function GithubAuthenticationTab(props: GithubAuthenticationProps
                                 return null;
                               }
                               return (
-                                <div key={val.key}>
+                                <div key={val.key} className="sw-mb-8">
                                   <AuthenticationFormField
                                     settingValue={
                                       values[val.key]?.newValue ?? values[val.key]?.value
