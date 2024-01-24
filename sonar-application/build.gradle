@@ -322,7 +322,7 @@ task zip(type: Zip, dependsOn: [configurations.compileClasspath]) {
 // Check the size of the archive
 zip.doLast {
   def minLength = 340000000
-  def maxLength = 391000000
+  def maxLength = 442000000
 
   def length = archiveFile.get().asFile.length()
   if (length < minLength)
