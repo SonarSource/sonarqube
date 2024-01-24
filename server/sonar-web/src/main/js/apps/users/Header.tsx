@@ -50,7 +50,7 @@ export default function Header(props: Props) {
         {manageProvider === undefined ? (
           <span>{translate('users.page.description')}</span>
         ) : (
-          <FlagMessage className="sw-max-w-3/4" variant="info">
+          <FlagMessage className="sw-max-w-3/4 sw-mb-4" variant="info">
             <span>
               <FormattedMessage
                 defaultMessage={translate('users.page.managed_description')}

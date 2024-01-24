@@ -351,7 +351,7 @@ export default class Template extends React.PureComponent<Props, State> {
             <UseQuery query={useGithubProvisioningEnabledQuery}>
               {({ data: githubProvisioningStatus }) =>
                 githubProvisioningStatus ? (
-                  <FlagMessage variant="warning" className="sw-w-fit">
+                  <FlagMessage variant="warning" className="sw-w-fit sw-mb-4">
                     {translate('permission_templates.github_warning')}
                   </FlagMessage>
                 ) : null

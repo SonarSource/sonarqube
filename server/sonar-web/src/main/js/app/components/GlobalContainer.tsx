@@ -82,6 +82,7 @@ const TEMP_PAGELIST_WITH_NEW_BACKGROUND_WHITE = [
   '/admin/marketplace',
   '/admin/system',
   '/admin/users',
+  '/admin/settings',
   '/admin/settings/encryption',
   '/admin/extension/license/support',
   '/admin/audit',
