@@ -17,7 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { BasicSeparator, Card, LargeCenteredLayout, PageContentFontWrapper } from 'design-system';
+import {
+  BasicSeparator,
+  LargeCenteredLayout,
+  LightGreyCard,
+  PageContentFontWrapper,
+} from 'design-system';
 import * as React from 'react';
 import A11ySkipTarget from '../../../components/a11y/A11ySkipTarget';
 import { useLocation } from '../../../components/hoc/withRouter';
@@ -37,8 +42,9 @@ import AcceptedIssuesPanel from './AcceptedIssuesPanel';
 import ActivityPanel from './ActivityPanel';
 import BranchMetaTopBar from './BranchMetaTopBar';
 import FirstAnalysisNextStepsNotif from './FirstAnalysisNextStepsNotif';
-import MeasuresPanel from './MeasuresPanel';
+import { MeasuresPanel } from './MeasuresPanel';
 import MeasuresPanelNoNewCode from './MeasuresPanelNoNewCode';
+import NewCodeMeasuresPanel from './NewCodeMeasuresPanel';
 import NoCodeWarning from './NoCodeWarning';
 import QualityGatePanel from './QualityGatePanel';
 import { TabsPanel } from './TabsPanel';
@@ -128,20 +134,20 @@ export default function BranchOverviewRenderer(props: BranchOverviewRendererProp
                 <AnalysisStatus className="sw-mt-6" component={component} />
                 <div className="sw-flex sw-mt-6">
                   <div className="sw-w-1/4 sw-mr-3">
-                    <Card className=" sw-h-max">
+                    <LightGreyCard className="sw-h-max">
                       <QualityGatePanel
                         component={component}
                         loading={loadingStatus}
                         qgStatuses={qgStatuses}
                         qualityGate={qualityGate}
                       />
-                    </Card>
+                    </LightGreyCard>
                     <SonarLintPromotion
                       qgConditions={qgStatuses?.flatMap((qg) => qg.failedConditions)}
                     />
                   </div>
 
-                  <Card className="sw-flex-1 sw-pt-4">
+                  <LightGreyCard className="sw-flex-1">
                     <div className="sw-flex sw-flex-col">
                       <TabsPanel
                         analyses={analyses}
@@ -154,13 +160,24 @@ export default function BranchOverviewRenderer(props: BranchOverviewRendererProp
                         isNewCode={isNewCodeTab}
                         onTabSelect={selectTab}
                       >
-                        {!hasNewCodeMeasures && isNewCodeTab ? (
+                        {!hasNewCodeMeasures && isNewCodeTab && (
                           <MeasuresPanelNoNewCode
                             branch={branch}
                             component={component}
                             period={period}
                           />
-                        ) : (
+                        )}
+
+                        {hasNewCodeMeasures && isNewCodeTab && (
+                          <NewCodeMeasuresPanel
+                            qgStatuses={qgStatuses}
+                            branch={branch}
+                            component={component}
+                            measures={measures}
+                          />
+                        )}
+
+                        {!isNewCodeTab && (
                           <>
                             <MeasuresPanel
                               branch={branch}
@@ -192,7 +209,7 @@ export default function BranchOverviewRenderer(props: BranchOverviewRendererProp
                         onGraphChange={onGraphChange}
                       />
                     </div>
-                  </Card>
+                  </LightGreyCard>
                 </div>
               </div>
             )}

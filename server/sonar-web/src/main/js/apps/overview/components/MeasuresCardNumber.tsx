@@ -33,12 +33,13 @@ interface Props {
   url: To;
   value: string;
   conditionMetric: MetricKey;
+  showRequired?: boolean;
 }
 
 export default function MeasuresCardNumber(
   props: React.PropsWithChildren<Props & React.HTMLAttributes<HTMLDivElement>>,
 ) {
-  const { label, value, conditions, url, conditionMetric, ...rest } = props;
+  const { label, value, conditions, url, conditionMetric, showRequired = false, ...rest } = props;
 
   const intl = useIntl();
 
@@ -56,7 +57,8 @@ export default function MeasuresCardNumber(
       {...rest}
     >
       <span className="sw-body-xs sw-mt-3">
-        {condition &&
+        {showRequired &&
+          condition &&
           (conditionFailed ? (
             <TextError
               className="sw-font-regular sw-inline"

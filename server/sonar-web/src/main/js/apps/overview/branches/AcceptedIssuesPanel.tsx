@@ -99,7 +99,14 @@ function AcceptedIssuesPanel(props: Readonly<AcceptedIssuesPanelProps>) {
                 id: isNewCode ? 'overview.accepted_issues' : 'overview.accepted_issues.total',
               })}
               url={acceptedIssuesUrl}
-              icon={<SnoozeCircleIcon className="sw--translate-y-3" />}
+              icon={
+                <SnoozeCircleIcon
+                  color={
+                    acceptedCount === '0' ? 'overviewCardDefaultIcon' : 'overviewCardWarningIcon'
+                  }
+                  className="sw--translate-y-3"
+                />
+              }
             />
             {!isNewCode && (
               <>

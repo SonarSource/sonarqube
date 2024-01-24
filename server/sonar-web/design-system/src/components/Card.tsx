@@ -26,16 +26,22 @@ interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
   children: React.ReactNode;
 }
 
-export function Card(props: CardProps) {
+export function Card(props: Readonly<CardProps>) {
   const { children, ...rest } = props;
 
   return <CardStyled {...rest}>{children}</CardStyled>;
 }
 
-export function GreyCard(props: CardProps) {
+export function GreyCard(props: Readonly<CardProps>) {
   const { children, ...rest } = props;
 
   return <GreyCardStyled {...rest}>{children}</GreyCardStyled>;
+}
+
+export function LightGreyCard(props: Readonly<CardProps>) {
+  const { children, ...rest } = props;
+
+  return <LightGreyCardStyled {...rest}>{children}</LightGreyCardStyled>;
 }
 
 export const CardWithPrimaryBackground = styled(Card)`
@@ -52,4 +58,8 @@ const CardStyled = styled.div`
 
 const GreyCardStyled = styled(CardStyled)`
   border: ${themeBorder('default', 'almCardBorder')};
+`;
+
+const LightGreyCardStyled = styled(CardStyled)`
+  border: ${themeBorder('default')};
 `;

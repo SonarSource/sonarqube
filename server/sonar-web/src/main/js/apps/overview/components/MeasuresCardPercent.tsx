@@ -52,7 +52,9 @@ interface Props {
   measures: MeasureEnhanced[];
   conditions: QualityGateStatusConditionEnhanced[];
   conditionMetric: MetricKey;
-  newLinesMetric: MetricKey;
+  linesMetric: MetricKey;
+  useDiffMetric?: boolean;
+  showRequired?: boolean;
 }
 
 export default function MeasuresCardPercent(
@@ -67,23 +69,26 @@ export default function MeasuresCardPercent(
     measures,
     conditions,
     conditionMetric,
-    newLinesMetric,
+    linesMetric,
+    useDiffMetric = false,
+    showRequired = false,
   } = props;
 
   const intl = useIntl();
 
-  const metricKey = getMeasurementMetricKey(measurementType, true);
+  const metricKey = getMeasurementMetricKey(measurementType, useDiffMetric);
+  const value = useDiffMetric
+    ? getLeakValue(findMeasure(measures, metricKey))
+    : findMeasure(measures, metricKey)?.value;
 
-  const value = getLeakValue(findMeasure(measures, metricKey));
-
-  const newLinesValue = getLeakValue(findMeasure(measures, newLinesMetric));
-  const newLinesLabel =
+  const linesValue = getLeakValue(findMeasure(measures, linesMetric));
+  const linesLabel =
     measurementType === MeasurementType.Coverage
       ? 'overview.quality_gate.on_x_new_lines_to_cover'
       : 'overview.quality_gate.on_x_new_lines';
-  const newLinesUrl = getComponentDrilldownUrl({
+  const linesUrl = getComponentDrilldownUrl({
     componentKey,
-    metric: newLinesMetric,
+    metric: linesMetric,
     branchLike,
     listView: true,
   });
@@ -102,7 +107,8 @@ export default function MeasuresCardPercent(
     >
       <>
         <span className="sw-body-xs sw-mt-3">
-          {condition &&
+          {showRequired &&
+            condition &&
             (conditionFailed ? (
               <TextError
                 className="sw-font-regular sw-inline"
@@ -116,20 +122,20 @@ export default function MeasuresCardPercent(
         <div className="sw-flex sw-body-sm sw-justify-between sw-items-center sw-mt-1">
           <LightLabel className="sw-flex sw-items-center sw-gap-1 ">
             <FormattedMessage
-              defaultMessage={translate(newLinesLabel)}
-              id={newLinesLabel}
+              defaultMessage={translate(linesLabel)}
+              id={linesLabel}
               values={{
                 link: (
                   <ContentLink
                     aria-label={translateWithParameters(
                       'overview.see_more_details_on_x_y',
-                      newLinesValue ?? '0',
-                      localizeMetric(newLinesMetric),
+                      linesValue ?? '0',
+                      localizeMetric(linesMetric),
                     )}
                     className="sw-body-md-highlight sw-text-lg"
-                    to={newLinesUrl}
+                    to={linesUrl}
                   >
-                    {formatMeasure(newLinesValue ?? '0', MetricType.ShortInteger)}
+                    {formatMeasure(linesValue ?? '0', MetricType.ShortInteger)}
                   </ContentLink>
                 ),
               }}

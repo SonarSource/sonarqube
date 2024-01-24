@@ -516,6 +516,7 @@ export const lightTheme = {
     projectCardBorder: COLORS.blueGrey[100],
 
     // overview
+    overviewCardDefaultIcon: secondary.light,
     iconOverviewIssue: COLORS.blueGrey[400],
     overviewCardWarningIcon: COLORS.yellow[50],
     overviewCardErrorIcon: COLORS.red[100],
@@ -719,6 +720,7 @@ export const lightTheme = {
     pillAccent: COLORS.indigo[500],
 
     // project cards
+    overviewCardDefaultIcon: COLORS.blueGrey[500],
     overviewCardWarningIcon: COLORS.yellow[700],
     overviewCardErrorIcon: COLORS.red[500],
     overviewCardSuccessIcon: COLORS.green[500],

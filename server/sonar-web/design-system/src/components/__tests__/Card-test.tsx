@@ -19,7 +19,7 @@
  */
 import { screen } from '@testing-library/react';
 import { render } from '../../helpers/testUtils';
-import { Card, GreyCard } from '../Card';
+import { Card, GreyCard, LightGreyCard } from '../Card';
 
 it('renders card correctly', () => {
   render(<Card>Hello</Card>);
@@ -30,24 +30,16 @@ it('renders card correctly', () => {
   });
 });
 
-it('renders card correctly with classNames', () => {
-  render(
-    <Card className="sw-bg-black sw-border-8" role="tabpanel">
-      Hello
-    </Card>,
-  );
-  const cardContent = screen.getByText('Hello');
-  expect(cardContent).toHaveClass('sw-bg-black sw-border-8');
-  expect(cardContent).toHaveAttribute('role', 'tabpanel');
-});
-
-it('renders grey card correctly with classNames', () => {
-  render(
-    <GreyCard className="sw-bg-black sw-border-8" role="tabpanel">
-      Hello
-    </GreyCard>,
-  );
-  const cardContent = screen.getByText('Hello');
-  expect(cardContent).toHaveClass('sw-bg-black sw-border-8');
-  expect(cardContent).toHaveAttribute('role', 'tabpanel');
-});
+it.each([Card, GreyCard, LightGreyCard])(
+  'renders %p correctly with classNames',
+  (CardComponent) => {
+    render(
+      <CardComponent className="sw-bg-black sw-border-8" role="tabpanel">
+        Hello
+      </CardComponent>,
+    );
+    const cardContent = screen.getByText('Hello');
+    expect(cardContent).toHaveClass('sw-bg-black sw-border-8');
+    expect(cardContent).toHaveAttribute('role', 'tabpanel');
+  },
+);

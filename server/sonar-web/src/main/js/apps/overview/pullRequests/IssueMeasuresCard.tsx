@@ -19,17 +19,17 @@
  */
 import styled from '@emotion/styled';
 import {
-  Card,
   HelperHintIcon,
+  LightGreyCard,
   LightLabel,
   PopupPlacement,
   SnoozeCircleIcon,
   TextError,
   TextSubdued,
-  themeColor,
   Tooltip,
   TrendDownCircleIcon,
   TrendUpCircleIcon,
+  themeColor,
 } from 'design-system';
 import * as React from 'react';
 import { useIntl } from 'react-intl';
@@ -43,7 +43,7 @@ import { MetricKey, MetricType } from '../../../types/metrics';
 import { QualityGateStatusConditionEnhanced } from '../../../types/quality-gates';
 import { Component, MeasureEnhanced } from '../../../types/types';
 import { IssueMeasuresCardInner } from '../components/IssueMeasuresCardInner';
-import { getConditionRequiredLabel, Status } from '../utils';
+import { Status, getConditionRequiredLabel } from '../utils';
 
 interface Props {
   conditions: QualityGateStatusConditionEnhanced[];
@@ -79,10 +79,10 @@ export default function IssueMeasuresCard(
   });
 
   return (
-    <Card className="sw-p-8 sw-rounded-2 sw-flex sw-text-base sw-gap-4" {...rest}>
+    <LightGreyCard className="sw-p-8 sw-rounded-2 sw-flex sw-text-base sw-gap-4" {...rest}>
       <IssueMeasuresCardInner
         className="sw-w-1/3"
-        header={intl.formatMessage({ id: 'overview.pull_request.new_issues' })}
+        header={intl.formatMessage({ id: 'overview.new_issues' })}
         data-test={`overview__measures-${MetricKey.new_violations}`}
         data-guiding-id={issuesConditionFailed ? 'overviewZeroNewIssuesSimplification' : undefined}
         metric={MetricKey.new_violations}
@@ -107,16 +107,20 @@ export default function IssueMeasuresCard(
       <StyledCardSeparator />
       <IssueMeasuresCardInner
         className="sw-w-1/3"
-        header={intl.formatMessage({ id: 'overview.pull_request.accepted_issues' })}
+        header={intl.formatMessage({ id: 'overview.accepted_issues' })}
         data-test={`overview__measures-${MetricKey.new_accepted_issues}`}
         metric={MetricKey.new_accepted_issues}
         value={formatMeasure(acceptedCount, MetricType.ShortInteger)}
         linkDisabled={component.needIssueSync}
         url={acceptedUrl}
-        icon={acceptedCount !== '0' && <SnoozeCircleIcon />}
+        icon={
+          <SnoozeCircleIcon
+            color={acceptedCount === '0' ? 'overviewCardDefaultIcon' : 'overviewCardWarningIcon'}
+          />
+        }
         footer={
           <TextSubdued className="sw-body-xs">
-            {intl.formatMessage({ id: 'overview.pull_request.accepted_issues.help' })}
+            {intl.formatMessage({ id: 'overview.accepted_issues.help' })}
           </TextSubdued>
         }
       />
@@ -155,7 +159,7 @@ export default function IssueMeasuresCard(
           </TextSubdued>
         }
       />
-    </Card>
+    </LightGreyCard>
   );
 }
 

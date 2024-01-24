@@ -19,8 +19,8 @@
  */
 import { isBefore, sub } from 'date-fns';
 import {
+  BasicSeparator,
   ButtonLink,
-  CardSeparator,
   FlagMessage,
   LightLabel,
   PageTitle,
@@ -133,7 +133,7 @@ export function TabsPanel(props: React.PropsWithChildren<MeasuresPanelProps>) {
         <PageTitle as="h2" text={translate('overview.measures')} />
         <LastAnalysisLabel analysisDate={branch?.analysisDate} />
       </div>
-      <CardSeparator className="sw--mx-6 sw-mb-3" />
+      <BasicSeparator className="sw--mx-6 sw-mb-3" />
 
       {loading ? (
         <div>

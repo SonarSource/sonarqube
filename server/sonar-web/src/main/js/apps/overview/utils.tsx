@@ -38,6 +38,7 @@ export const METRICS: string[] = [
   MetricKey.quality_gate_details, // TODO: still relevant?
 
   // issues
+  MetricKey.new_violations,
   MetricKey.accepted_issues,
   MetricKey.new_accepted_issues,
   MetricKey.high_impact_accepted_issues,

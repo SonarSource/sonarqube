@@ -27,10 +27,10 @@ import { PullRequest } from '../../../types/branch-like';
 import { MetricKey } from '../../../types/metrics';
 import { QualityGateStatusConditionEnhanced } from '../../../types/quality-gates';
 import { Component, MeasureEnhanced } from '../../../types/types';
+import MeasuresCardNumber from '../components/MeasuresCardNumber';
+import MeasuresCardPercent from '../components/MeasuresCardPercent';
 import { MeasurementType, getMeasurementMetricKey } from '../utils';
 import IssueMeasuresCard from './IssueMeasuresCard';
-import MeasuresCardNumber from './MeasuresCardNumber';
-import MeasuresCardPercent from './MeasuresCardPercent';
 
 interface Props {
   className?: string;
@@ -71,8 +71,10 @@ export default function MeasuresCardPanel(props: React.PropsWithChildren<Props>)
             })}
             conditions={conditions}
             conditionMetric={MetricKey.new_coverage}
-            newLinesMetric={MetricKey.new_lines_to_cover}
+            linesMetric={MetricKey.new_lines_to_cover}
             measures={measures}
+            showRequired
+            useDiffMetric
           />
 
           <MeasuresCardNumber
@@ -87,6 +89,7 @@ export default function MeasuresCardPanel(props: React.PropsWithChildren<Props>)
             value={newSecurityHotspots}
             conditions={conditions}
             conditionMetric={MetricKey.new_security_hotspots_reviewed}
+            showRequired
           />
         </div>
 
@@ -104,8 +107,10 @@ export default function MeasuresCardPanel(props: React.PropsWithChildren<Props>)
             })}
             conditions={conditions}
             conditionMetric={MetricKey.new_duplicated_lines_density}
-            newLinesMetric={MetricKey.new_lines}
+            linesMetric={MetricKey.new_lines}
             measures={measures}
+            useDiffMetric
+            showRequired
           />
         </div>
       </div>

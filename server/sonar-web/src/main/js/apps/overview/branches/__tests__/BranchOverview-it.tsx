@@ -222,10 +222,10 @@ describe('project overview', () => {
     ).not.toBeInTheDocument();
 
     //Measures panel
-    expect(screen.getByText('metric.new_vulnerabilities.name')).toBeInTheDocument();
+    expect(screen.getByText('overview.new_issues')).toBeInTheDocument();
     expect(
       byRole('link', {
-        name: 'overview.see_more_details_on_x_of_y.1.metric.accepted_issues.name',
+        name: 'overview.see_more_details_on_x_of_y.1.metric.new_accepted_issues.name',
       }).get(),
     ).toBeInTheDocument();
 
@@ -294,6 +294,30 @@ describe('project overview', () => {
             status: 'ERROR',
           },
           {
+            actualValue: '10',
+            comparator: 'PT',
+            errorThreshold: '85',
+            metricKey: MetricKey.new_coverage,
+            periodIndex: 0,
+            status: 'ERROR',
+          },
+          {
+            actualValue: '5',
+            comparator: 'GT',
+            errorThreshold: '2.0',
+            metricKey: MetricKey.new_security_hotspots_reviewed,
+            periodIndex: 0,
+            status: 'ERROR',
+          },
+          {
+            actualValue: '5',
+            comparator: 'GT',
+            errorThreshold: '2.0',
+            metricKey: MetricKey.new_violations,
+            periodIndex: 0,
+            status: 'ERROR',
+          },
+          {
             actualValue: '2',
             comparator: 'GT',
             errorThreshold: '1.0',
@@ -309,6 +333,7 @@ describe('project overview', () => {
 
     expect(await screen.findByText('metric.level.ERROR')).toBeInTheDocument();
     expect(screen.getAllByText(/overview.X_conditions_failed/)).toHaveLength(2);
+    expect(screen.getAllByText(/overview.quality_gate.required_x/)).toHaveLength(3);
   });
 
   it('should correctly show a project as empty', async () => {
