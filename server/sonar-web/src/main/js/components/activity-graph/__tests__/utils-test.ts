@@ -93,9 +93,7 @@ describe('getDisplayedHistoryMetrics', () => {
   const customMetrics = ['foo', 'bar'];
   it('should return only displayed metrics on the graph', () => {
     expect(utils.getDisplayedHistoryMetrics(utils.DEFAULT_GRAPH, [])).toEqual([
-      MetricKey.bugs,
-      MetricKey.code_smells,
-      MetricKey.vulnerabilities,
+      MetricKey.violations,
     ]);
     expect(utils.getDisplayedHistoryMetrics(GraphType.coverage, customMetrics)).toEqual([
       MetricKey.lines_to_cover,
@@ -113,9 +111,7 @@ describe('getHistoryMetrics', () => {
   const customMetrics = ['foo', 'bar'];
   it('should return all metrics', () => {
     expect(utils.getHistoryMetrics(utils.DEFAULT_GRAPH, [])).toEqual([
-      MetricKey.bugs,
-      MetricKey.code_smells,
-      MetricKey.vulnerabilities,
+      MetricKey.violations,
       MetricKey.reliability_rating,
       MetricKey.security_rating,
       MetricKey.sqale_rating,

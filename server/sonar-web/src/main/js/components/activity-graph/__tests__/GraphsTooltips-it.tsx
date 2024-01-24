@@ -34,14 +34,7 @@ import { GraphsTooltips, Props } from '../GraphsTooltips';
 import { generateSeries, getDisplayedHistoryMetrics } from '../utils';
 
 it.each([
-  [
-    GraphType.issues,
-    [
-      [MetricKey.bugs, 1, 3],
-      [MetricKey.code_smells, 0, 1],
-      [MetricKey.vulnerabilities, 2, 5],
-    ],
-  ],
+  [GraphType.issues, [[MetricKey.violations, 1]]],
   [
     GraphType.coverage,
     [
@@ -79,12 +72,8 @@ function renderGraphsTooltips(props: Partial<Props> = {}) {
 
   (
     [
+      [MetricKey.violations, '1'],
       [MetricKey.bugs, '1'],
-      [MetricKey.reliability_rating, '3'],
-      [MetricKey.code_smells, '0'],
-      [MetricKey.sqale_rating, '1'],
-      [MetricKey.vulnerabilities, '2'],
-      [MetricKey.security_rating, '5'],
       [MetricKey.lines_to_cover, '10'],
       [MetricKey.uncovered_lines, '8'],
       [MetricKey.coverage, '75'],

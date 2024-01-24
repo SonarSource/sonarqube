@@ -28,7 +28,7 @@ import { Dict, Metric } from '../../types/types';
 export const DEFAULT_GRAPH = GraphType.issues;
 
 const GRAPHS_METRICS_DISPLAYED: Dict<string[]> = {
-  [GraphType.issues]: [MetricKey.bugs, MetricKey.code_smells, MetricKey.vulnerabilities],
+  [GraphType.issues]: [MetricKey.violations],
   [GraphType.coverage]: [MetricKey.lines_to_cover, MetricKey.uncovered_lines],
   [GraphType.duplications]: [MetricKey.ncloc, MetricKey.duplicated_lines],
 };

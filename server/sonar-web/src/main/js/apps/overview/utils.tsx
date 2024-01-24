@@ -114,9 +114,7 @@ export const PR_METRICS: string[] = [
 ];
 
 export const HISTORY_METRICS_LIST: string[] = [
-  MetricKey.bugs,
-  MetricKey.vulnerabilities,
-  MetricKey.sqale_index,
+  MetricKey.violations,
   MetricKey.duplicated_lines_density,
   MetricKey.ncloc,
   MetricKey.coverage,

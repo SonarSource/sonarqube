@@ -79,6 +79,7 @@ beforeEach(() => {
 
   timeMachineHandler.setMeasureHistory(
     [
+      MetricKey.violations,
       MetricKey.bugs,
       MetricKey.reliability_rating,
       MetricKey.code_smells,
@@ -467,11 +468,11 @@ describe('graph interactions', () => {
     renderProjectActivityAppContainer();
     await ui.appLoaded();
 
-    expect(ui.bugsPopupCell.query()).not.toBeInTheDocument();
+    expect(ui.issuesPopupCell.query()).not.toBeInTheDocument();
 
     await ui.showDetails('1.1.0.1');
 
-    expect(ui.bugsPopupCell.get()).toBeInTheDocument();
+    expect(ui.issuesPopupCell.get()).toBeInTheDocument();
   });
 
   it('should correctly handle customizing the graph', async () => {
@@ -551,7 +552,7 @@ function getPageObject() {
     // Misc.
     loading: byText('loading'),
     baseline: byText('project_activity.new_code_period_start'),
-    bugsPopupCell: byRole('cell', { name: MetricKey.bugs }),
+    issuesPopupCell: byRole('cell', { name: `metric.${MetricKey.violations}.name` }),
     monthSelector: byTestId('month-select'),
     yearSelector: byTestId('year-select'),
   };

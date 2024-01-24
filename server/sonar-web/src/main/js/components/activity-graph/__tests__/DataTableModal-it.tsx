@@ -106,7 +106,7 @@ function renderDataTableModal(props: Partial<DataTableModalProps> = {}) {
 function mockSeries(n = 10) {
   const measuresHistory: MeasureHistory[] = [];
   const metrics: Metric[] = [];
-  [MetricKey.bugs, MetricKey.code_smells, MetricKey.vulnerabilities].forEach((metric) => {
+  [MetricKey.violations].forEach((metric) => {
     const history = times(n, (i) => {
       const date = parseDate('2016-01-01T00:00:00+0200');
       date.setDate(date.getDate() + 365 * i);

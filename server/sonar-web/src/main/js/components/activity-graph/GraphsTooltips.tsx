@@ -27,8 +27,6 @@ import GraphsTooltipsContent from './GraphsTooltipsContent';
 import GraphsTooltipsContentCoverage from './GraphsTooltipsContentCoverage';
 import GraphsTooltipsContentDuplication from './GraphsTooltipsContentDuplication';
 import GraphsTooltipsContentEvents from './GraphsTooltipsContentEvents';
-import GraphsTooltipsContentIssues from './GraphsTooltipsContentIssues';
-import { DEFAULT_GRAPH } from './utils';
 
 interface PropsWithoutTheme {
   events: AnalysisEvent[];
@@ -50,27 +48,13 @@ const TOOLTIP_LEFT_FLIP_THRESHOLD = 50;
 
 export class GraphsTooltipsClass extends React.PureComponent<Props> {
   renderContent() {
-    const { tooltipIdx, series, graph, measuresHistory } = this.props;
+    const { tooltipIdx, series } = this.props;
 
     return series.map((serie, idx) => {
       const point = serie.data[tooltipIdx];
 
       if (!point || (!point.y && point.y !== 0)) {
         return null;
-      }
-
-      if (graph === DEFAULT_GRAPH) {
-        return (
-          <GraphsTooltipsContentIssues
-            index={idx}
-            key={serie.name}
-            measuresHistory={measuresHistory}
-            name={serie.name}
-            tooltipIdx={tooltipIdx}
-            translatedName={serie.translatedName}
-            value={this.props.formatValue(point.y)}
-          />
-        );
       }
 
       return (

@@ -50,8 +50,8 @@ describe('rendering', () => {
     renderActivityGraph();
 
     // Static legend items, which aren't interactive.
-    expect(ui.legendRemoveMetricBtn(MetricKey.bugs).query()).not.toBeInTheDocument();
-    expect(ui.getLegendItem(MetricKey.bugs)).toBeInTheDocument();
+    expect(ui.legendRemoveMetricBtn(MetricKey.violations).query()).not.toBeInTheDocument();
+    expect(ui.getLegendItem(MetricKey.violations)).toBeInTheDocument();
 
     // Switch to custom graph.
     await ui.changeGraphType(GraphType.custom);
@@ -81,7 +81,7 @@ describe('data table modal', () => {
 
     await ui.openDataTable();
     expect(ui.dataTable.get()).toBeInTheDocument();
-    expect(ui.dataTableColHeaders.getAll()).toHaveLength(5);
+    expect(ui.dataTableColHeaders.getAll()).toHaveLength(3);
     expect(ui.dataTableRows.getAll()).toHaveLength(HISTORY_COUNT + 1);
 
     // Change graph type and dates, check table updates correctly.
@@ -103,7 +103,7 @@ describe('data table modal', () => {
 
     await ui.openDataTable();
     expect(ui.dataTable.get()).toBeInTheDocument();
-    expect(ui.dataTableColHeaders.getAll()).toHaveLength(5);
+    expect(ui.dataTableColHeaders.getAll()).toHaveLength(3);
     expect(ui.dataTableRows.getAll()).toHaveLength(2);
   });
 });
@@ -247,6 +247,7 @@ function renderActivityGraph(
     const measuresHistory: MeasureHistory[] = [];
     const metrics: Metric[] = [];
     [
+      MetricKey.violations,
       MetricKey.bugs,
       MetricKey.code_smells,
       MetricKey.confirmed_issues,
