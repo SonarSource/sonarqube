@@ -377,6 +377,8 @@ subprojects {
           exclude 'org.eclipse.jdt.core.compiler:ecj'
         }
       }
+      //transitive dependency of SVNKit, to be re-assessed when updating SVNKit
+      dependency 'org.apache.sshd:sshd-core:2.12.0'
       dependency 'org.assertj:assertj-core:3.24.2'
       dependency 'org.assertj:assertj-guava:3.24.2'
       dependency('org.codehaus.sonar:sonar-channel:4.2') {
