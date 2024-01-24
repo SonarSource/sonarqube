@@ -346,6 +346,8 @@ subprojects {
       }
       dependency 'org.assertj:assertj-core:3.23.1'
       dependency 'org.assertj:assertj-guava:3.5.0'
+      //transitive dependency of SVNKit, to be re-assessed when updating SVNKit
+      dependency 'org.apache.sshd:sshd-core:2.12.0'
       dependency('org.codehaus.sonar:sonar-channel:4.2') {
         exclude 'org.slf4j:slf4j-api'
       }
