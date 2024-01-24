@@ -34,6 +34,10 @@ export const BlueGreySeparator = styled(BasicSeparator)`
   background-color: ${themeColor('popupBorder')};
 `;
 
+export const CardSeparator = styled(BasicSeparator)`
+  background-color: ${themeColor('projectCardBorder')};
+`;
+
 export const GreySeparator = styled(BasicSeparator)`
   background-color: ${themeColor('subnavigationBorder')};
 `;

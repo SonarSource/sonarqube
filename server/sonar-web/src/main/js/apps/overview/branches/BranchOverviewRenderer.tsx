@@ -41,6 +41,7 @@ import { MeasuresTabs } from '../utils';
 import AcceptedIssuesPanel from './AcceptedIssuesPanel';
 import ActivityPanel from './ActivityPanel';
 import BranchMetaTopBar from './BranchMetaTopBar';
+import BranchOverallCodePanel from './BranchOverallCodePanel';
 import FirstAnalysisNextStepsNotif from './FirstAnalysisNextStepsNotif';
 import { MeasuresPanel } from './MeasuresPanel';
 import MeasuresPanelNoNewCode from './MeasuresPanelNoNewCode';
@@ -179,6 +180,10 @@ export default function BranchOverviewRenderer(props: BranchOverviewRendererProp
 
                         {!isNewCodeTab && (
                           <>
+                            {!isNewCodeTab && (
+                              <BranchOverallCodePanel component={component} measures={measures} />
+                            )}
+
                             <MeasuresPanel
                               branch={branch}
                               component={component}

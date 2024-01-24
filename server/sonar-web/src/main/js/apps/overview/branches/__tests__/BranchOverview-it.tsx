@@ -37,7 +37,7 @@ import {
 } from '../../../../helpers/mocks/quality-gates';
 import { mockLoggedInUser, mockPeriod } from '../../../../helpers/testMocks';
 import { renderComponent } from '../../../../helpers/testReactTestingUtils';
-import { byRole } from '../../../../helpers/testSelector';
+import { byLabelText, byRole } from '../../../../helpers/testSelector';
 import { ComponentQualifier } from '../../../../types/component';
 import { MetricKey, MetricType } from '../../../../types/metrics';
 import {
@@ -64,16 +64,58 @@ jest.mock('../../../../api/measures', () => {
           type = MetricType.Percent;
         } else if (/_rating$/.test(key)) {
           type = MetricType.Rating;
+        } else if (
+          [
+            MetricKey.reliability_issues,
+            MetricKey.security_issues,
+            MetricKey.maintainability_issues,
+          ].includes(key as MetricKey)
+        ) {
+          type = MetricType.Data;
         } else {
           type = MetricType.Integer;
         }
         metrics.push(mockMetric({ key, id: key, name: key, type }));
-        measures.push(
-          mockMeasure({
-            metric: key,
-            ...(isDiffMetric(key) ? { leak: '1' } : { period: undefined }),
-          }),
-        );
+
+        const measure = mockMeasure({
+          metric: key,
+          ...(isDiffMetric(key) ? { leak: '1' } : { period: undefined }),
+        });
+
+        // Mock software quality measures
+        if (type === MetricType.Data) {
+          if (key === MetricKey.reliability_issues) {
+            measure.value = JSON.stringify({
+              total: 3,
+              high: 0,
+              medium: 2,
+              low: 1,
+            });
+          } else if (key === MetricKey.maintainability_issues) {
+            measure.value = JSON.stringify({
+              total: 2,
+              high: 0,
+              medium: 0,
+              low: 1,
+            });
+          } else {
+            measure.value = JSON.stringify({
+              total: 0,
+              high: 0,
+              medium: 0,
+              low: 0,
+            });
+          }
+        }
+        // Mock software quality rating
+        if (key === MetricKey.reliability_rating) {
+          measure.value = '3';
+        } else if (key === MetricKey.security_rating) {
+          measure.value = '2';
+        } else if (key.endsWith('_rating') || key === MetricKey.sqale_rating) {
+          measure.value = '1';
+        }
+        measures.push(measure);
       });
       return Promise.resolve({
         component: {
@@ -221,7 +263,7 @@ describe('project overview', () => {
       screen.queryByText('overview.quality_gate.conditions.cayc.warning'),
     ).not.toBeInTheDocument();
 
-    //Measures panel
+    // Measures panel
     expect(screen.getByText('overview.new_issues')).toBeInTheDocument();
     expect(
       byRole('link', {
@@ -229,7 +271,7 @@ describe('project overview', () => {
       }).get(),
     ).toBeInTheDocument();
 
-    // go to overall
+    // Go to overall
     await user.click(screen.getByText('overview.overall_code'));
 
     expect(screen.getByText('metric.vulnerabilities.name')).toBeInTheDocument();
@@ -238,6 +280,36 @@ describe('project overview', () => {
         name: 'overview.see_more_details_on_x_of_y.1.metric.high_impact_accepted_issues.name',
       }).get(),
     ).toBeInTheDocument();
+
+    // Software breakdown links should be correct
+    expect(
+      byRole('link', {
+        name: 'overview.measures.software_impact.see_list_of_x_open_issues.3.software_quality.RELIABILITY',
+      }).get(),
+    ).toHaveAttribute(
+      'href',
+      '/project/issues?issueStatuses=OPEN%2CCONFIRMED&impactSoftwareQualities=RELIABILITY&id=foo',
+    );
+    expect(
+      byRole('link', {
+        name: 'overview.measures.software_impact.severity.see_x_open_issues.2.software_quality.RELIABILITY.overview.measures.software_impact.severity.MEDIUM.tooltip',
+      }).get(),
+    ).toHaveAttribute(
+      'href',
+      '/project/issues?issueStatuses=OPEN%2CCONFIRMED&impactSoftwareQualities=RELIABILITY&impactSeverities=MEDIUM&id=foo',
+    );
+
+    // Active severity card should be the one with the highest severity
+    expect(
+      byRole('link', {
+        name: 'overview.measures.software_impact.severity.see_x_open_issues.2.software_quality.RELIABILITY.overview.measures.software_impact.severity.MEDIUM.tooltip',
+      }).get(),
+    ).toHaveClass('active', 'MEDIUM');
+
+    // Ratings should be correct and rendered
+    expect(byLabelText('metric.has_rating_X.C').get()).toBeInTheDocument();
+    expect(byLabelText('metric.has_rating_X.B').get()).toBeInTheDocument();
+    expect(byLabelText('metric.has_rating_X.A').getAll()).toHaveLength(2);
   });
 
   it('should show a successful non-compliant QG', async () => {

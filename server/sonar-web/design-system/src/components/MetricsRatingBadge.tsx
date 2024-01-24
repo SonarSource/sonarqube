@@ -22,7 +22,7 @@ import tw from 'twin.macro';
 import { getProp, themeColor, themeContrast } from '../helpers/theme';
 import { MetricsLabel } from '../types/measures';
 
-type sizeType = 'xs' | 'sm' | 'md' | 'xl';
+type sizeType = keyof typeof SIZE_MAPPING;
 interface Props extends React.AriaAttributes {
   className?: string;
   label: string;
@@ -34,6 +34,7 @@ const SIZE_MAPPING = {
   xs: '1rem',
   sm: '1.5rem',
   md: '2rem',
+  lg: '2.8rem',
   xl: '4rem',
 };
 
@@ -95,6 +96,7 @@ const MetricsRatingBadgeStyled = styled.div<{ rating: MetricsLabel; size: string
   color: ${({ rating }) => themeContrast(`rating.${rating}`)};
   font-size: ${({ size }) => getFontSize(size)};
   background-color: ${({ rating }) => themeColor(`rating.${rating}`)};
+  user-select: none;
 
   display: inline-flex;
   align-items: center;

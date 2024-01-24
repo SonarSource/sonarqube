@@ -57,3 +57,10 @@ export interface SoftwareImpact {
   softwareQuality: SoftwareQuality;
   severity: SoftwareImpactSeverity;
 }
+
+export interface SoftwareImpactMeasureData {
+  total: number;
+  high: number;
+  medium: number;
+  low: number;
+}

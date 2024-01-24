@@ -338,6 +338,7 @@ export const lightTheme = {
 
     // links
     linkDefault: primary.default,
+    linkNaked: COLORS.blueGrey[700],
     linkActive: COLORS.indigo[600],
     linkDiscreet: 'currentColor',
     linkTooltipDefault: COLORS.indigo[200],
@@ -528,6 +529,12 @@ export const lightTheme = {
     overviewCardWarningIcon: COLORS.yellow[50],
     overviewCardErrorIcon: COLORS.red[100],
     overviewCardSuccessIcon: COLORS.green[200],
+
+    // overview software impact breakdown
+    overviewSoftwareImpactSeverityNeutral: COLORS.blueGrey[50],
+    overviewSoftwareImpactSeverityHigh: COLORS.red[100],
+    overviewSoftwareImpactSeverityMedium: COLORS.yellow[100],
+    overviewSoftwareImpactSeverityLow: COLORS.blue[100],
 
     // graph - chart
     graphPointCircleColor: COLORS.white,

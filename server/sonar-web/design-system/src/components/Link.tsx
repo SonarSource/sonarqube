@@ -150,6 +150,12 @@ const StyledBaseLink = styled(BaseLink)`
     `};
 `;
 
+export const NakedLink = styled(BaseLink)`
+  border-bottom: none;
+  font-weight: 600;
+  color: ${themeColor('linkNaked')};
+`;
+
 export const DrilldownLink = styled(StyledBaseLink)`
   ${tw`sw-heading-lg`}
   ${tw`sw-tracking-tight`}

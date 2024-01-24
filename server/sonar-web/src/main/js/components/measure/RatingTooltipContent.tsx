@@ -38,7 +38,7 @@ export interface RatingTooltipContentProps {
   value: number | string;
 }
 
-export function RatingTooltipContent(props: RatingTooltipContentProps) {
+export function RatingTooltipContent(props: Readonly<RatingTooltipContentProps>) {
   const {
     appState: { settings },
     metricKey,
@@ -56,7 +56,7 @@ export function RatingTooltipContent(props: RatingTooltipContentProps) {
   const rating = Number(value);
   const ratingLetter = formatMeasure(value, MetricType.Rating);
 
-  if (finalMetricKey !== 'sqale_rating' && finalMetricKey !== 'maintainability_rating') {
+  if (finalMetricKey !== MetricKey.sqale_rating && finalMetricKey !== 'maintainability_rating') {
     return <>{translate('metric', finalMetricKey, 'tooltip', ratingLetter)}</>;
   }
 

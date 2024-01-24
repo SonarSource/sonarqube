@@ -26,6 +26,11 @@ import { ISSUETYPE_METRIC_KEYS_MAP } from '../../helpers/issues';
 import { translate } from '../../helpers/l10n';
 import { formatMeasure } from '../../helpers/measures';
 import { parseAsString } from '../../helpers/query';
+import {
+  SoftwareImpactMeasureData,
+  SoftwareImpactSeverity,
+  SoftwareQuality,
+} from '../../types/clean-code-taxonomy';
 import { IssueType } from '../../types/issues';
 import { MetricKey } from '../../types/metrics';
 import { AnalysisMeasuresVariations, MeasureHistory } from '../../types/project-activity';
@@ -200,6 +205,19 @@ export const METRICS_REPORTED_IN_OVERVIEW_CARDS = [
   MetricKey.new_duplicated_lines_density,
   MetricKey.duplicated_lines_density,
 ];
+
+export function softwareQualityToMeasure(softwareQuality: SoftwareQuality): MetricKey {
+  return (softwareQuality.toLowerCase() + '_issues') as MetricKey;
+}
+
+// Extract the number of issues for a given severity in the software impact measure
+export function getSoftwareImpactSeverityValue(
+  severity: SoftwareImpactSeverity,
+  softwareImpactMeasure?: SoftwareImpactMeasureData,
+) {
+  const key = severity.toLowerCase() as keyof SoftwareImpactMeasureData;
+  return softwareImpactMeasure ? softwareImpactMeasure[key]?.toString() : '';
+}
 
 export function getIssueRatingName(type: IssueType) {
   return translate('metric_domain', ISSUETYPE_METRIC_KEYS_MAP[type].ratingName);
