@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.internal.FileMetadata;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.sensor.issue.internal.DefaultNoSonarFilter;
+import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.api.utils.MessageException;
 import org.sonar.core.extension.CoreExtensionsInstaller;
@@ -150,8 +151,21 @@ public class SpringScannerContainer extends SpringComponentContainer {
 
   @Override
   protected void doBeforeStart() {
+    addSuffixesDeprecatedProperties();
     addScannerExtensions();
     addComponents();
+  }
+
+  private void addSuffixesDeprecatedProperties() {
+    add(
+    /* This is needed to support properly the deprecated sonar.rpg.suffixes property when the download optimization feature is enabled.
+       The value of the property is needed at the preprocessing stage, but being defined by an optional analyzer means that at preprocessing
+       it won't be properly available. This will be removed in SQ 11.0 together with the drop of the property from the rpg analyzer.
+       See SONAR-21514 */
+      PropertyDefinition.builder("sonar.rpg.file.suffixes")
+        .deprecatedKey("sonar.rpg.suffixes")
+        .multiValues(true)
+        .build());
   }
 
   private void addScannerExtensions() {
