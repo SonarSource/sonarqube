@@ -30,35 +30,36 @@ interface Props {
   total?: number;
 }
 
-export default function Projects(props: Props) {
+export default function Projects(props: Readonly<Props>) {
   const { projects } = props;
 
   return (
     <div id="account-projects">
-      {projects.length === 0 ? (
-        <div className="js-no-results">{translate('my_account.projects.no_results')}</div>
-      ) : (
-        <p>{translate('my_account.projects.description')}</p>
-      )}
+      <div className="sw-mt-8">
+        {projects.length === 0
+          ? translate('my_account.projects.no_results')
+          : translate('my_account.projects.description')}
+      </div>
 
       {projects.length > 0 && (
-        <ul className="account-projects-list">
-          {projects.map((project) => (
-            <li key={project.key}>
-              <ProjectCard project={project} />
-            </li>
-          ))}
-        </ul>
-      )}
+        <>
+          <ul className="sw-mt-4 sw-flex sw-flex-col sw-gap-4">
+            {projects.map((project) => (
+              <li key={project.key}>
+                <ProjectCard project={project} />
+              </li>
+            ))}
+          </ul>
 
-      {projects.length > 0 && (
-        <ListFooter
-          count={projects.length}
-          loadMore={props.loadMore}
-          loading={props.loading}
-          ready={!props.loading}
-          total={props.total || 0}
-        />
+          <ListFooter
+            count={projects.length}
+            loadMore={props.loadMore}
+            loading={props.loading}
+            ready={!props.loading}
+            total={props.total ?? 0}
+            useMIUIButtons
+          />
+        </>
       )}
     </div>
   );

@@ -27,7 +27,7 @@ interface Props {
   links: ProjectLink[];
 }
 
-export default function MetaLinks({ links }: Props) {
+export default function MetaLinks({ links }: Readonly<Props>) {
   const orderedLinks = orderLinks(links);
 
   return (
@@ -35,7 +35,7 @@ export default function MetaLinks({ links }: Props) {
       <h3 id="external-links">{translate('overview.external_links')}</h3>
       <ul className="project-info-list" aria-labelledby="external-links">
         {orderedLinks.map((link) => (
-          <MetaLink miui key={link.id} link={link} />
+          <MetaLink key={link.id} link={link} />
         ))}
       </ul>
     </>

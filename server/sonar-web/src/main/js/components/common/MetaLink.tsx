@@ -17,23 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import styled from '@emotion/styled';
 import { CloseIcon, InputField, InteractiveIcon, Link } from 'design-system';
 import React, { useState } from 'react';
 import isValidUri from '../../app/utils/isValidUri';
 import { translate } from '../../helpers/l10n';
 import { getLinkName } from '../../helpers/projectLinks';
 import { ProjectLink } from '../../types/types';
-import { ClearButton } from '../controls/buttons';
 import ProjectLinkIcon from '../icons/ProjectLinkIcon';
 
 interface Props {
   iconOnly?: boolean;
   link: ProjectLink;
-  // TODO Remove this prop when all links are migrated to the new design
-  miui?: boolean;
 }
 
-export default function MetaLink({ iconOnly, link, miui }: Props) {
+export default function MetaLink({ iconOnly, link }: Readonly<Props>) {
   const [expanded, setExpanded] = useState(false);
 
   const handleClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
@@ -51,29 +49,20 @@ export default function MetaLink({ iconOnly, link, miui }: Props) {
 
   const linkTitle = getLinkName(link);
   const isValid = isValidUri(link.url);
-  return miui ? (
+  return (
     <li>
-      <Link
-        isExternal
+      <StyledLink
         to={link.url}
         preventDefault={!isValid}
         onClick={isValid ? undefined : handleClick}
-        rel="nofollow noreferrer noopener"
-        target="_blank"
-        icon={<ProjectLinkIcon miui className="little-spacer-right" type={link.type} />}
+        icon={<ProjectLinkIcon miui type={link.type} />}
       >
         {!iconOnly && linkTitle}
-      </Link>
+      </StyledLink>
 
       {expanded && (
-        <div className="little-spacer-top display-flex-center">
-          <InputField
-            className="overview-key width-80"
-            onClick={handleSelect}
-            readOnly
-            type="text"
-            value={link.url}
-          />
+        <div className="sw-mt-1 sw-flex sw-items-center">
+          <InputField onClick={handleSelect} readOnly type="text" value={link.url} size="large" />
           <InteractiveIcon
             Icon={CloseIcon}
             aria-label={translate('hide')}
@@ -83,31 +72,21 @@ export default function MetaLink({ iconOnly, link, miui }: Props) {
         </div>
       )}
     </li>
-  ) : (
-    <li>
-      <a
-        className="link-no-underline"
-        href={isValid ? link.url : undefined}
-        onClick={isValid ? undefined : handleClick}
-        rel="nofollow noreferrer noopener"
-        target="_blank"
-        title={linkTitle}
-      >
-        <ProjectLinkIcon className="little-spacer-right" type={link.type} />
-        {!iconOnly && linkTitle}
-      </a>
-      {expanded && (
-        <div className="little-spacer-top display-flex-center">
-          <input
-            className="overview-key width-80"
-            onClick={handleSelect}
-            readOnly
-            type="text"
-            value={link.url}
-          />
-          <ClearButton className="little-spacer-left" onClick={handleCollapse} />
-        </div>
-      )}
-    </li>
   );
 }
+
+/*
+ * Override the spacing to make it smaller
+ * 1rem = 16px for the icon width
+ * +
+ * 0.5 rem = margin '2'
+ */
+const StyledLink = styled(Link)`
+  margin-left: 1.5rem;
+
+  & > svg,
+  & > img {
+    margin-right: 0.5rem;
+    margin-left: -1.5rem;
+  }
+`;

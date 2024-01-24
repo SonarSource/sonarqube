@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { LargeCenteredLayout, PageContentFontWrapper, Spinner } from 'design-system';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { getMyProjects } from '../../../api/components';
@@ -62,27 +63,22 @@ export default class ProjectsContainer extends React.PureComponent<{}, State> {
   };
 
   render() {
-    const helmet = <Helmet title={translate('my_account.projects')} />;
-
-    if (this.state.projects == null) {
-      return (
-        <div className="text-center">
-          {helmet}
-          <i className="spinner spacer" />
-        </div>
-      );
-    }
+    const { loading, projects = [], total } = this.state;
 
     return (
-      <div className="account-body account-container">
-        {helmet}
-        <Projects
-          loadMore={this.loadMore}
-          loading={this.state.loading}
-          projects={this.state.projects}
-          total={this.state.total}
-        />
-      </div>
+      <LargeCenteredLayout as="main">
+        <PageContentFontWrapper className="sw-body-sm sw-py-8">
+          <Helmet title={translate('my_account.projects')} />
+          <Spinner loading={loading && projects.length === 0}>
+            <Projects
+              loadMore={this.loadMore}
+              loading={loading}
+              projects={projects}
+              total={total}
+            />
+          </Spinner>
+        </PageContentFontWrapper>
+      </LargeCenteredLayout>
     );
   }
 }
