@@ -17,6 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { Title } from 'design-system';
 import * as React from 'react';
 import InstanceMessage from '../../../components/common/InstanceMessage';
 import { translate } from '../../../helpers/l10n';
@@ -26,17 +28,18 @@ interface Props {
   login: string;
 }
 
-export default function Tokens({ login }: Props) {
+export default function Tokens({ login }: Readonly<Props>) {
   return (
-    <div className="boxed-group">
-      <h2>{translate('users.tokens')}</h2>
-      <div className="boxed-group-inner">
-        <div className="big-spacer-bottom big-spacer-right markdown">
+    <>
+      <Title>{translate('my_account.security')}</Title>
+
+      <div>
+        <div className="sw-body-md sw-mb-4 sw-mr-4">
           <InstanceMessage message={translate('my_account.tokens_description')} />
         </div>
 
         <TokensForm deleteConfirmation="modal" login={login} displayTokenTypeInput />
       </div>
-    </div>
+    </>
   );
 }

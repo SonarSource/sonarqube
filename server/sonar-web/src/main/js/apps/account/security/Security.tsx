@@ -17,6 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { PageTitle, SubHeading } from 'design-system';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useCurrentLoginUser } from '../../../app/components/current-user/CurrentUserContext';
@@ -27,15 +29,21 @@ import Tokens from './Tokens';
 export default function Security() {
   const currentUser = useCurrentLoginUser();
   return (
-    <div className="account-body account-container">
+    <>
       <Helmet defer={false} title={translate('my_account.security')} />
+
       <Tokens login={currentUser.login} />
+
       {currentUser.local && (
-        <section className="boxed-group">
-          <h2 className="spacer-bottom">{translate('my_profile.password.title')}</h2>
-          <ResetPasswordForm className="boxed-group-inner" user={currentUser} />
-        </section>
+        <SubHeading as="section">
+          <PageTitle
+            className="sw-heading-md sw-my-6"
+            text={translate('my_profile.password.title')}
+          />
+
+          <ResetPasswordForm user={currentUser} />
+        </SubHeading>
       )}
-    </div>
+    </>
   );
 }

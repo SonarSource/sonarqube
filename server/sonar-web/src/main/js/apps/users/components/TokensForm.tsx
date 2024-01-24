@@ -25,6 +25,7 @@ import {
   InputField,
   InputSelect,
   Spinner,
+  SubHeading,
   Table,
   TableRow,
 } from 'design-system';
@@ -194,7 +195,9 @@ export function TokensForm(props: Readonly<Props>) {
 
   return (
     <>
-      <h3 className="sw-mb-2">{translate('users.tokens.generate')}</h3>
+      <GreySeparator className="sw-mb-4 sw-mt-6" />
+
+      <SubHeading as="h2">{translate('users.tokens.generate')}</SubHeading>
 
       <form autoComplete="off" className="sw-flex sw-items-center" onSubmit={handleGenerateToken}>
         <div className="sw-flex sw-flex-col sw-mr-2">
@@ -284,14 +287,14 @@ export function TokensForm(props: Readonly<Props>) {
 
       <GreySeparator className="sw-mb-4 sw-mt-6" />
 
-      <Table
-        className="sw-min-h-40 sw-w-full"
-        columnCount={COLUMN_WIDTHS.length}
-        columnWidths={COLUMN_WIDTHS}
-        header={tableHeader}
-        noHeaderTopBorder
-      >
-        <Spinner loading={loading}>
+      <Spinner loading={loading}>
+        <Table
+          className="sw-min-h-40 sw-w-full"
+          columnCount={COLUMN_WIDTHS.length}
+          columnWidths={COLUMN_WIDTHS}
+          header={tableHeader}
+          noHeaderTopBorder
+        >
           {tokens && tokens.length <= 0 ? (
             <TableRow>
               <ContentCell className="sw-body-lg" colSpan={7}>
@@ -308,8 +311,8 @@ export function TokensForm(props: Readonly<Props>) {
               />
             ))
           )}
-        </Spinner>
-      </Table>
+        </Table>
+      </Spinner>
     </>
   );
 }

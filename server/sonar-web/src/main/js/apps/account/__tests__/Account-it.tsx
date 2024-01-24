@@ -20,6 +20,8 @@
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { UserEvent } from '@testing-library/user-event/dist/types/setup/setup';
+import React from 'react';
+import { Outlet, Route } from 'react-router-dom';
 import selectEvent from 'react-select-event';
 import { getMyProjects, getScannableProjects } from '../../../api/components';
 import NotificationsMock from '../../../api/mocks/NotificationsMock';
@@ -176,7 +178,7 @@ it('should render the top menu', () => {
 
   expect(screen.getByText(name)).toBeInTheDocument();
 
-  expect(screen.getByRole('heading', { name: 'my_account.profile' })).toBeInTheDocument();
+  expect(screen.getByText('my_account.profile')).toBeInTheDocument();
   expect(screen.getByText('my_account.security')).toBeInTheDocument();
   expect(screen.getByText('my_account.notifications')).toBeInTheDocument();
   expect(screen.getByText('my_account.projects')).toBeInTheDocument();
@@ -271,7 +273,7 @@ describe('security page', () => {
         securityPagePath,
       );
 
-      expect(await screen.findByText('users.tokens')).toBeInTheDocument();
+      expect(await screen.findByText('users.tokens.generate')).toBeInTheDocument();
       await waitFor(() => expect(screen.getAllByRole('row')).toHaveLength(3)); // 2 tokens + header
 
       // Add the token
@@ -372,7 +374,7 @@ describe('security page', () => {
       securityPagePath,
     );
 
-    expect(await screen.findByText('users.tokens')).toBeInTheDocument();
+    expect(await screen.findByText('users.tokens.generate')).toBeInTheDocument();
 
     // expired token is flagged as such
     const expiredTokenRow = await screen.findByRole('row', { name: /expired token/ });
@@ -667,5 +669,22 @@ function getProjectBlock(projectName: string) {
 }
 
 function renderAccountApp(currentUser: CurrentUser, navigateTo?: string) {
-  renderAppRoutes('account', routes, { currentUser, navigateTo });
+  renderAppRoutes(
+    'account',
+    () => (
+      <Route
+        path="/"
+        element={
+          <>
+            <div id="component-nav-portal" />
+
+            <Outlet />
+          </>
+        }
+      >
+        {routes()}
+      </Route>
+    ),
+    { currentUser, navigateTo },
+  );
 }

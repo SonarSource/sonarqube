@@ -17,140 +17,130 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { ButtonPrimary, FlagMessage, FormField, InputField } from 'design-system';
 import * as React from 'react';
 import { changePassword } from '../../api/users';
-import { SubmitButton } from '../../components/controls/buttons';
-import { Alert } from '../../components/ui/Alert';
-import MandatoryFieldMarker from '../../components/ui/MandatoryFieldMarker';
 import MandatoryFieldsExplanation from '../../components/ui/MandatoryFieldsExplanation';
 import { translate } from '../../helpers/l10n';
 import { ChangePasswordResults, LoggedInUser } from '../../types/users';
 
 interface Props {
   className?: string;
-  user: LoggedInUser;
   onPasswordChange?: () => void;
+  user: LoggedInUser;
 }
 
-interface State {
-  errors?: string[];
-  success: boolean;
-}
+export default function ResetPasswordForm({
+  className,
+  onPasswordChange,
+  user: { login },
+}: Readonly<Props>) {
+  const [error, setError] = React.useState<string | undefined>(undefined);
+  const [oldPassword, setOldPassword] = React.useState('');
+  const [password, setPassword] = React.useState('');
+  const [passwordConfirmation, setPasswordConfirmation] = React.useState('');
+  const [success, setSuccess] = React.useState(false);
 
-export default class ResetPasswordForm extends React.Component<Props, State> {
-  oldPassword: HTMLInputElement | null = null;
-  password: HTMLInputElement | null = null;
-  passwordConfirmation: HTMLInputElement | null = null;
-  state: State = {
-    success: false,
+  const handleSuccessfulChange = () => {
+    setOldPassword('');
+    setPassword('');
+    setPasswordConfirmation('');
+    setSuccess(true);
+
+    onPasswordChange?.();
   };
 
-  handleSuccessfulChange = () => {
-    if (!this.oldPassword || !this.password || !this.passwordConfirmation) {
-      return;
-    }
-    this.oldPassword.value = '';
-    this.password.value = '';
-    this.passwordConfirmation.value = '';
-    this.setState({ success: true, errors: undefined });
-    if (this.props.onPasswordChange) {
-      this.props.onPasswordChange();
-    }
-  };
-
-  setErrors = (errors: string[]) => {
-    this.setState({ success: false, errors });
-  };
-
-  handleChangePassword = (event: React.FormEvent) => {
+  const handleChangePassword = (event: React.FormEvent) => {
     event.preventDefault();
-    if (!this.oldPassword || !this.password || !this.passwordConfirmation) {
-      return;
-    }
-    const { user } = this.props;
-    const previousPassword = this.oldPassword.value;
-    const password = this.password.value;
-    const passwordConfirmation = this.passwordConfirmation.value;
+
+    setError(undefined);
+    setSuccess(false);
 
     if (password !== passwordConfirmation) {
-      this.password.focus();
-      this.setErrors([translate('user.password_doesnt_match_confirmation')]);
+      setError(translate('user.password_doesnt_match_confirmation'));
     } else {
-      changePassword({ login: user.login, password, previousPassword })
-        .then(this.handleSuccessfulChange)
+      changePassword({ login, password, previousPassword: oldPassword })
+        .then(handleSuccessfulChange)
         .catch((result: ChangePasswordResults) => {
           if (result === ChangePasswordResults.OldPasswordIncorrect) {
-            this.setErrors([translate('user.old_password_incorrect')]);
+            setError(translate('user.old_password_incorrect'));
           } else if (result === ChangePasswordResults.NewPasswordSameAsOld) {
-            this.setErrors([translate('user.new_password_same_as_old')]);
+            setError(translate('user.new_password_same_as_old'));
           }
         });
     }
   };
 
-  render() {
-    const { className } = this.props;
-    const { success, errors } = this.state;
+  return (
+    <form className={className} onSubmit={handleChangePassword}>
+      {success && (
+        <div className="sw-pb-4">
+          <FlagMessage variant="success">{translate('my_profile.password.changed')}</FlagMessage>
+        </div>
+      )}
 
-    return (
-      <form className={className} onSubmit={this.handleChangePassword}>
-        {success && <Alert variant="success">{translate('my_profile.password.changed')}</Alert>}
+      {error !== undefined && (
+        <div className="sw-pb-4">
+          <FlagMessage variant="error">{error}</FlagMessage>
+        </div>
+      )}
 
-        {errors &&
-          errors.map((e) => (
-            <Alert key={e} variant="error">
-              {e}
-            </Alert>
-          ))}
+      <MandatoryFieldsExplanation className="sw-block sw-clear-both sw-pb-4" />
 
-        <MandatoryFieldsExplanation className="form-field" />
-
-        <div className="form-field">
-          <label htmlFor="old_password">
-            {translate('my_profile.password.old')}
-            <MandatoryFieldMarker />
-          </label>
-          <input
+      <div className="sw-pb-4">
+        <FormField htmlFor="old_password" label={translate('my_profile.password.old')} required>
+          <InputField
             autoComplete="off"
             id="old_password"
             name="old_password"
-            ref={(elem) => (this.oldPassword = elem)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setOldPassword(e.target.value)}
             required
             type="password"
+            value={oldPassword}
           />
-        </div>
-        <div className="form-field">
-          <label htmlFor="password">
-            {translate('my_profile.password.new')}
-            <MandatoryFieldMarker />
-          </label>
-          <input
+        </FormField>
+      </div>
+
+      <div className="sw-pb-4">
+        <FormField htmlFor="password" label={translate('my_profile.password.new')} required>
+          <InputField
             autoComplete="off"
             id="password"
             name="password"
-            ref={(elem) => (this.password = elem)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
             required
             type="password"
+            value={password}
           />
-        </div>
-        <div className="form-field">
-          <label htmlFor="password_confirmation">
-            {translate('my_profile.password.confirm')}
-            <MandatoryFieldMarker />
-          </label>
-          <input
+        </FormField>
+      </div>
+
+      <div className="sw-pb-4">
+        <FormField
+          htmlFor="password_confirmation"
+          label={translate('my_profile.password.confirm')}
+          required
+        >
+          <InputField
             autoComplete="off"
             id="password_confirmation"
             name="password_confirmation"
-            ref={(elem) => (this.passwordConfirmation = elem)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              setPasswordConfirmation(e.target.value)
+            }
             required
             type="password"
+            value={passwordConfirmation}
           />
-        </div>
-        <div className="form-field">
-          <SubmitButton id="change-password">{translate('update_verb')}</SubmitButton>
-        </div>
-      </form>
-    );
-  }
+        </FormField>
+      </div>
+
+      <div className="sw-py-3">
+        <ButtonPrimary id="change-password" type="submit">
+          {translate('update_verb')}
+        </ButtonPrimary>
+      </div>
+    </form>
+  );
 }

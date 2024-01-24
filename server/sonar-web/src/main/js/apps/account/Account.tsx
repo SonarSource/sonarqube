@@ -17,8 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { LargeCenteredLayout, PageContentFontWrapper, TopBar } from 'design-system';
 import * as React from 'react';
+import { createPortal } from 'react-dom';
 import { Helmet } from 'react-helmet-async';
 import { Outlet } from 'react-router-dom';
 import { useCurrentLoginUser } from '../../app/components/current-user/CurrentUserContext';
@@ -31,22 +33,35 @@ import UserCard from './components/UserCard';
 
 export default function Account() {
   const currentUser = useCurrentLoginUser();
+  const [portalAnchor, setPortalAnchor] = React.useState<Element | null>(null);
+
+  // Set portal anchor on mount
+  React.useEffect(() => {
+    setPortalAnchor(document.getElementById('component-nav-portal'));
+  }, []);
 
   const title = translate('my_account.page');
+
   return (
     <div id="account-page">
-      <header>
-        <TopBar>
-          <div className="sw-flex sw-items-center sw-gap-2 sw-pb-4">
-            <UserCard user={currentUser} />
-          </div>
-          <Nav />
-        </TopBar>
-      </header>
+      {portalAnchor &&
+        createPortal(
+          <header>
+            <TopBar>
+              <div className="sw-flex sw-items-center sw-gap-2 sw-pb-4">
+                <UserCard user={currentUser} />
+              </div>
+
+              <Nav />
+            </TopBar>
+          </header>,
+          portalAnchor,
+        )}
 
       <LargeCenteredLayout as="main">
         <PageContentFontWrapper className="sw-body-sm sw-py-8">
           <Suggestions suggestions="account" />
+
           <Helmet
             defaultTitle={title}
             defer={false}
@@ -55,7 +70,9 @@ export default function Account() {
               translate('my_account.page'),
             )}
           />
+
           <A11ySkipTarget anchor="account_main" />
+
           <Outlet />
         </PageContentFontWrapper>
       </LargeCenteredLayout>
