@@ -98,9 +98,6 @@ class IssueCounter {
       byResolution
         .computeIfAbsent(group.getResolution(), k -> new Count())
         .add(group);
-      if (IssueStatus.ACCEPTED.equals(IssueStatus.of(group.getStatus(), group.getResolution())) && group.hasHighImpactSeverity()) {
-        highImpactAccepted.add(group);
-      }
     }
     if (group.getStatus() != null) {
       byStatus
@@ -110,11 +107,17 @@ class IssueCounter {
   }
 
   private void processImpactGroup(IssueImpactGroupDto group) {
-    if (group.getSoftwareQuality() != null && group.getSeverity() != null) {
+    IssueStatus issueStatus = IssueStatus.of(group.getStatus(), group.getResolution());
+
+    if (IssueStatus.OPEN == issueStatus || IssueStatus.CONFIRMED == issueStatus) {
       bySoftwareQualityAndSeverity
         .computeIfAbsent(group.getSoftwareQuality(), k -> new EnumMap<>(Severity.class))
         .computeIfAbsent(group.getSeverity(), k -> new Count())
         .add(group);
+    }
+
+    if (Severity.HIGH == group.getSeverity() && IssueStatus.ACCEPTED == issueStatus) {
+      highImpactAccepted.add(group);
     }
   }
 

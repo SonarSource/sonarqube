@@ -19,17 +19,38 @@
  */
 package org.sonar.db.issue;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.sonar.api.issue.impact.Severity;
 import org.sonar.api.issue.impact.SoftwareQuality;
 
 public class IssueImpactGroupDto {
 
+  private String status;
+  private String resolution;
   private SoftwareQuality softwareQuality;
   private Severity severity;
   private long count;
 
   public IssueImpactGroupDto() {
     // nothing to do
+  }
+
+  public String getStatus() {
+    return status;
+  }
+
+  public void setStatus(String status) {
+    this.status = status;
+  }
+
+  @CheckForNull
+  public String getResolution() {
+    return resolution;
+  }
+
+  public void setResolution(@Nullable String resolution) {
+    this.resolution = resolution;
   }
 
   public SoftwareQuality getSoftwareQuality() {

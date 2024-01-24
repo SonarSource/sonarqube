@@ -458,11 +458,9 @@
   </select>
 
   <select id="selectIssueGroupsByComponent" resultType="org.sonar.db.issue.IssueGroupDto" parameterType="map">
-    <include refid="withHighImpactSeverityIssues"/>
     select
       i.issue_type as ruleType,
       i.severity as severity,
-      exists(select 1 from high_impact_severity_issues hisi where hisi.kee = i.kee) as hasHighImpactSeverity,
       i.resolution as resolution,
       i.status as status, sum(i.effort) as effort,
       count(i.issue_type) as "count",
@@ -478,19 +476,8 @@
     </if>
     where i.status &lt;&gt; 'CLOSED'
     and i.component_uuid = #{component.uuid,jdbcType=VARCHAR}
-    group by i.issue_type, i.severity, hasHighImpactSeverity, i.resolution, i.status, inLeak
+    group by i.issue_type, i.severity, i.resolution, i.status, inLeak
   </select>
-
-  <sql id="withHighImpactSeverityIssues">
-    with high_impact_severity_issues as (
-      select distinct kee
-      from issues i
-      inner join issues_impacts ii on ii.issue_key = i.kee
-      where i.status &lt;&gt; 'CLOSED'
-      and i.component_uuid = #{component.uuid,jdbcType=VARCHAR}
-      and ii.severity = 'HIGH'
-    )
-  </sql>
 
   <select id="selectIssueGroupsByComponent" resultType="org.sonar.db.issue.IssueGroupDto" parameterType="map" databaseId="oracle">
     <include refid="selectIssueGroupsByComponentVendorSpecific"/>
@@ -501,11 +488,9 @@
   </select>
 
   <sql id="selectIssueGroupsByComponentVendorSpecific">
-    <include refid="withHighImpactSeverityIssues"/>
     select
       i2.issue_type as ruleType,
       i2.severity as severity,
-      i2.hasHighImpactSeverity as hasHighImpactSeverity,
       i2.resolution as resolution,
       i2.status as status,
       sum(i2.effort) as effort,
@@ -515,7 +500,6 @@
       select
         i.issue_type,
         i.severity,
-        case when exists(select 1 from high_impact_severity_issues hisi where hisi.kee = i.kee) then 1 else 0 end as hasHighImpactSeverity,
         i.resolution,
         i.status,
         i.effort,
@@ -532,21 +516,22 @@
       where i.status &lt;&gt; 'CLOSED'
       and i.component_uuid = #{component.uuid,jdbcType=VARCHAR}
     ) i2
-    group by i2.issue_type, i2.severity, i2.hasHighImpactSeverity, i2.resolution, i2.status, i2.inLeak
+    group by i2.issue_type, i2.severity, i2.resolution, i2.status, i2.inLeak
   </sql>
 
   <select id="selectIssueImpactGroupsByComponent" resultType="org.sonar.db.issue.IssueImpactGroupDto" parameterType="map">
     select
+    i.status as status,
+    i.resolution as resolution,
     ii.software_quality as softwareQuality,
     ii.severity as severity,
     count(i.kee) as "count"
     from issues i
-    left join issues_impacts ii on i.kee = ii.issue_key
-    where 1=1
-    and i.status in ('OPEN', 'REOPENED', 'CONFIRMED')
-    and i.issue_type != 4
+    inner join issues_impacts ii on i.kee = ii.issue_key
+    where i.status &lt;&gt; 'CLOSED'
+    and (i.resolution is null or i.resolution = 'WONTFIX')
     and i.component_uuid = #{component.uuid,jdbcType=VARCHAR}
-    group by ii.software_quality, ii.severity
+    group by i.status, i.resolution, ii.software_quality, ii.severity
   </select>
 
   <select id="selectIssueKeysByComponentUuid" parameterType="string" resultType="string">

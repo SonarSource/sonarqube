@@ -333,29 +333,6 @@ public class MeasureUpdateFormulaFactoryImplTest {
   }
 
   @Test
-  public void test_high_impact_accepted_issues() {
-    withNoIssues()
-      .assertThatValueIs(CoreMetrics.HIGH_IMPACT_ACCEPTED_ISSUES, 0);
-
-    with(
-      newGroup(RuleType.CODE_SMELL).setStatus(Issue.STATUS_RESOLVED).setResolution(Issue.RESOLUTION_FALSE_POSITIVE)
-        .setHasHighImpactSeverity(true).setCount(3),
-      newGroup(RuleType.CODE_SMELL).setStatus(Issue.STATUS_RESOLVED).setResolution(Issue.RESOLUTION_WONT_FIX)
-        .setHasHighImpactSeverity(true).setCount(4),
-      newGroup(RuleType.CODE_SMELL).setStatus(Issue.STATUS_RESOLVED).setResolution(Issue.RESOLUTION_WONT_FIX)
-        .setHasHighImpactSeverity(false).setCount(5),
-      newGroup(RuleType.BUG).setStatus(Issue.STATUS_RESOLVED).setResolution(Issue.RESOLUTION_FALSE_POSITIVE)
-        .setHasHighImpactSeverity(true).setCount(30),
-      newGroup(RuleType.BUG).setStatus(Issue.STATUS_RESOLVED).setResolution(Issue.RESOLUTION_WONT_FIX)
-        .setHasHighImpactSeverity(true).setCount(40),
-      newGroup(RuleType.BUG).setStatus(Issue.STATUS_RESOLVED).setResolution(Issue.RESOLUTION_WONT_FIX)
-        .setHasHighImpactSeverity(false).setCount(50),
-      // exclude security hotspot
-      newGroup(RuleType.SECURITY_HOTSPOT).setResolution(Issue.RESOLUTION_WONT_FIX).setHasHighImpactSeverity(true).setCount(40))
-      .assertThatValueIs(CoreMetrics.HIGH_IMPACT_ACCEPTED_ISSUES, 4 + 40);
-  }
-
-  @Test
   public void test_technical_debt() {
     withNoIssues().assertThatValueIs(CoreMetrics.TECHNICAL_DEBT, 0);
 
@@ -932,6 +909,24 @@ public class MeasureUpdateFormulaFactoryImplTest {
   }
 
   @Test
+  public void compute_shouldComputeHighImpactAcceptedIssues() {
+    withNoIssues()
+      .assertThatValueIs(CoreMetrics.HIGH_IMPACT_ACCEPTED_ISSUES, 0);
+
+    with(
+      newImpactGroup(RELIABILITY, HIGH, 3),
+      newImpactGroup(RELIABILITY, MEDIUM, 4),
+      newImpactGroup(RELIABILITY, LOW, 1),
+      newImpactGroup(SECURITY, HIGH, 3),
+      newImpactGroup(SECURITY, HIGH, Issue.STATUS_RESOLVED, Issue.RESOLUTION_WONT_FIX, 4),
+      newImpactGroup(SECURITY, MEDIUM, Issue.STATUS_RESOLVED, Issue.RESOLUTION_WONT_FIX, 5),
+      newImpactGroup(SECURITY, LOW, Issue.STATUS_RESOLVED, Issue.RESOLUTION_WONT_FIX, 6),
+      newImpactGroup(SECURITY, HIGH, Issue.STATUS_RESOLVED, Issue.RESOLUTION_FALSE_POSITIVE, 7),
+      newImpactGroup(RELIABILITY, HIGH, Issue.STATUS_RESOLVED, Issue.RESOLUTION_WONT_FIX, 8))
+      .assertThatValueIs(CoreMetrics.HIGH_IMPACT_ACCEPTED_ISSUES, 4 + 8);
+  }
+
+  @Test
   public void computeHierarchy_shouldComputeImpactMeasures() {
     new HierarchyTester(CoreMetrics.RELIABILITY_ISSUES)
       .withValue(impactMeasureToJson(6, 1, 2, 3))
@@ -1086,12 +1081,19 @@ public class MeasureUpdateFormulaFactoryImplTest {
     return dto;
   }
 
-  private static IssueImpactGroupDto newImpactGroup(SoftwareQuality softwareQuality, org.sonar.api.issue.impact.Severity severity, long count) {
+  private static IssueImpactGroupDto newImpactGroup(SoftwareQuality softwareQuality, org.sonar.api.issue.impact.Severity severity,
+                                                    String status, @Nullable String resolution, long count) {
     IssueImpactGroupDto dto = new IssueImpactGroupDto();
     dto.setSoftwareQuality(softwareQuality);
     dto.setSeverity(severity);
+    dto.setStatus(status);
+    dto.setResolution(resolution);
     dto.setCount(count);
     return dto;
+  }
+
+  private static IssueImpactGroupDto newImpactGroup(SoftwareQuality softwareQuality, org.sonar.api.issue.impact.Severity severity, long count) {
+    return newImpactGroup(softwareQuality, severity, Issue.STATUS_OPEN, null, count);
   }
 
   private static IssueGroupDto newResolvedGroup(RuleType ruleType) {
