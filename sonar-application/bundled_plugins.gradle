@@ -5,7 +5,7 @@ dependencies {
     bundledPlugin 'org.sonarsource.html:sonar-html-plugin'
     bundledPlugin 'org.sonarsource.java:sonar-java-plugin'
     bundledPlugin 'org.sonarsource.jacoco:sonar-jacoco-plugin'
-    bundledPlugin 'org.sonarsource.javascript:sonar-javascript-plugin'
+    bundledPlugin (group: 'org.sonarsource.javascript', name: 'sonar-javascript-plugin', classifier:'multi')
     bundledPlugin 'org.sonarsource.php:sonar-php-plugin'
     bundledPlugin 'org.sonarsource.plugins.cayc:sonar-cayc-plugin'
     bundledPlugin 'org.sonarsource.python:sonar-python-plugin'
