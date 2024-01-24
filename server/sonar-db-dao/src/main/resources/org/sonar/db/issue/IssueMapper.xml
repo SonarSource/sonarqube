@@ -535,6 +535,20 @@
     group by i2.issue_type, i2.severity, i2.hasHighImpactSeverity, i2.resolution, i2.status, i2.inLeak
   </sql>
 
+  <select id="selectIssueImpactGroupsByComponent" resultType="org.sonar.db.issue.IssueImpactGroupDto" parameterType="map">
+    select
+    ii.software_quality as softwareQuality,
+    ii.severity as severity,
+    count(i.kee) as "count"
+    from issues i
+    left join issues_impacts ii on i.kee = ii.issue_key
+    where 1=1
+    and i.status in ('OPEN', 'REOPENED', 'CONFIRMED')
+    and i.issue_type != 4
+    and i.component_uuid = #{component.uuid,jdbcType=VARCHAR}
+    group by ii.software_quality, ii.severity
+  </select>
+
   <select id="selectIssueKeysByComponentUuid" parameterType="string" resultType="string">
     select
       i.kee

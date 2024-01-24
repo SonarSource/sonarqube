@@ -79,6 +79,8 @@ class MeasureUpdateFormula {
   interface Context {
     List<Double> getChildrenValues();
 
+    List<String> getChildrenTextValues();
+
     long getChildrenHotspotsReviewed();
 
     long getChildrenHotspotsToReview();
@@ -104,5 +106,7 @@ class MeasureUpdateFormula {
     void setValue(double value);
 
     void setValue(Rating value);
+
+    void setValue(String value);
   }
 }

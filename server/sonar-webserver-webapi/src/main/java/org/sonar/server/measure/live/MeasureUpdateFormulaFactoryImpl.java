@@ -19,12 +19,20 @@
  */
 package org.sonar.server.measure.live;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
+import java.lang.reflect.Type;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.Set;
 import java.util.function.BiConsumer;
+import java.util.stream.Collectors;
 import org.sonar.api.issue.Issue;
+import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.rule.Severity;
@@ -56,6 +64,15 @@ public class MeasureUpdateFormulaFactoryImpl implements MeasureUpdateFormulaFact
 
     new MeasureUpdateFormula(CoreMetrics.SECURITY_HOTSPOTS, false, new AddChildren(),
       (context, issues) -> context.setValue(issues.countUnresolvedByType(RuleType.SECURITY_HOTSPOT, false))),
+
+    new MeasureUpdateFormula(CoreMetrics.RELIABILITY_ISSUES, false, new ImpactAddChildren(),
+      (context, issues) -> context.setValue(issues.getBySoftwareQuality(SoftwareQuality.RELIABILITY))),
+
+    new MeasureUpdateFormula(CoreMetrics.MAINTAINABILITY_ISSUES, false, new ImpactAddChildren(),
+      (context, issues) -> context.setValue(issues.getBySoftwareQuality(SoftwareQuality.MAINTAINABILITY))),
+
+    new MeasureUpdateFormula(CoreMetrics.SECURITY_ISSUES, false, new ImpactAddChildren(),
+      (context, issues) -> context.setValue(issues.getBySoftwareQuality(SoftwareQuality.SECURITY))),
 
     new MeasureUpdateFormula(CoreMetrics.VIOLATIONS, false, new AddChildren(),
       (context, issues) -> context.setValue(issues.countUnresolved(false))),
@@ -238,6 +255,9 @@ public class MeasureUpdateFormulaFactoryImpl implements MeasureUpdateFormulaFact
 
   private static final Set<Metric> FORMULA_METRICS = MeasureUpdateFormulaFactory.extractMetrics(FORMULAS);
 
+  private static final Gson GSON = new GsonBuilder().create();
+  private static final Type MAP_TYPE = new TypeToken<Map<String, Long>>() {}.getType();
+
   private static double debtDensity(MeasureUpdateFormula.Context context) {
     double debt = Math.max(context.getValue(CoreMetrics.TECHNICAL_DEBT).orElse(0.0D), 0.0D);
     Optional<Double> devCost = context.getText(CoreMetrics.DEVELOPMENT_COST).map(Double::parseDouble);
@@ -279,6 +299,28 @@ public class MeasureUpdateFormulaFactoryImpl implements MeasureUpdateFormulaFact
         int currentRating = context.getValue(formula.getMetric()).map(Double::intValue).orElse(Rating.A.getIndex());
         context.setValue(Rating.valueOf(Math.max(currentRating, max.getAsInt())));
       }
+    }
+  }
+
+  private static class ImpactAddChildren implements BiConsumer<MeasureUpdateFormula.Context, MeasureUpdateFormula> {
+    @Override
+    public void accept(MeasureUpdateFormula.Context context, MeasureUpdateFormula formula) {
+      List<Map<String, Long>> measures = context.getChildrenTextValues().stream()
+        .map(ImpactAddChildren::toMap)
+        .collect(Collectors.toList());
+      context.getText(formula.getMetric()).ifPresent(value -> measures.add(toMap(value)));
+
+      Map<String, Long> newValue = new HashMap<>();
+      newValue.put("total", measures.stream().mapToLong(map -> map.get("total")).sum());
+      for (org.sonar.api.issue.impact.Severity severity : org.sonar.api.issue.impact.Severity.values()) {
+        newValue.put(severity.name(), measures.stream().mapToLong(map -> map.get(severity.name())).sum());
+      }
+
+      context.setValue(GSON.toJson(newValue));
+    }
+
+    private static Map<String, Long> toMap(String value) {
+      return GSON.fromJson(value, MAP_TYPE);
     }
   }
 

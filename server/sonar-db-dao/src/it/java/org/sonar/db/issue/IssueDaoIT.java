@@ -34,6 +34,7 @@ import org.jetbrains.annotations.NotNull;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.impact.Severity;
 import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.RuleKey;
@@ -563,6 +564,44 @@ public class IssueDaoIT {
 
     assertThat(result.stream().filter(IssueGroupDto::isInLeak).mapToLong(IssueGroupDto::getCount).sum()).isEqualTo(4);
     assertThat(result.stream().filter(g -> !g.isInLeak()).mapToLong(IssueGroupDto::getCount).sum()).isOne();
+  }
+
+  @Test
+  public void selectIssueImpactGroupsByComponent_shouldReturnImpactGroups() {
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
+    ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(project));
+    RuleDto rule = db.rules().insert();
+    db.issues().insert(rule, project, file,
+      i -> i.replaceAllImpacts(List.of(createImpact(SECURITY, HIGH), createImpact(MAINTAINABILITY, LOW))));
+    db.issues().insert(rule, project, file,
+      i -> i.replaceAllImpacts(List.of(createImpact(SECURITY, HIGH), createImpact(MAINTAINABILITY, HIGH))));
+    db.issues().insert(rule, project, file,
+      i -> i.replaceAllImpacts(List.of(createImpact(SECURITY, HIGH))));
+    // closed issues are ignored
+    db.issues().insert(rule, project, file,
+      i -> i.setStatus(Issue.STATUS_CLOSED).replaceAllImpacts(List.of(createImpact(SECURITY, HIGH))));
+
+    Collection<IssueImpactGroupDto> result = underTest.selectIssueImpactGroupsByComponent(db.getSession(), file);
+
+    assertThat(result).hasSize(3);
+    assertThat(result.stream().mapToLong(IssueImpactGroupDto::getCount).sum()).isEqualTo(5);
+
+    assertThat(result.stream().filter(g -> MAINTAINABILITY == g.getSoftwareQuality()).mapToLong(IssueImpactGroupDto::getCount).sum()).isEqualTo(2);
+    assertThat(result.stream().filter(g -> SECURITY == g.getSoftwareQuality()).mapToLong(IssueImpactGroupDto::getCount).sum()).isEqualTo(3);
+    assertThat(result.stream().filter(g -> SECURITY == g.getSoftwareQuality() && HIGH == g.getSeverity()).mapToLong(IssueImpactGroupDto::getCount).sum()).isEqualTo(3);
+    assertThat(result.stream().filter(g -> HIGH == g.getSeverity()).mapToLong(IssueImpactGroupDto::getCount).sum()).isEqualTo(4);
+    assertThat(result.stream().filter(g -> LOW == g.getSeverity()).mapToLong(IssueImpactGroupDto::getCount).sum()).isEqualTo(1);
+    assertThat(result.stream().noneMatch(g -> RELIABILITY == g.getSoftwareQuality())).isTrue();
+  }
+
+  @Test
+  public void selectIssueImpactGroupsByComponent_whenComponentWithNoIssues_shouldReturnEmpty() {
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
+    ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(project));
+
+    Collection<IssueImpactGroupDto> groups = underTest.selectIssueImpactGroupsByComponent(db.getSession(), file);
+
+    assertThat(groups).isEmpty();
   }
 
   @Test

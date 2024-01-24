@@ -88,7 +88,8 @@ public class LiveMeasureTreeUpdaterImpl implements LiveMeasureTreeUpdater {
     FormulaContextImpl context = new FormulaContextImpl(matrix, components, debtRatingGrid);
 
     components.getSortedTree().forEach(c -> {
-      IssueCounter issueCounter = new IssueCounter(dbClient.issueDao().selectIssueGroupsByComponent(dbSession, c, beginningOfLeak));
+      IssueCounter issueCounter = new IssueCounter(dbClient.issueDao().selectIssueGroupsByComponent(dbSession, c, beginningOfLeak),
+        dbClient.issueDao().selectIssueImpactGroupsByComponent(dbSession, c));
       for (MeasureUpdateFormula formula : formulaFactory.getFormulas()) {
         // use formulas when the leak period is defined, it's a PR, or the formula is not about the leak period
         if (useLeakFormulas || !formula.isOnLeak()) {
@@ -145,6 +146,15 @@ public class LiveMeasureTreeUpdaterImpl implements LiveMeasureTreeUpdater {
       return children.stream()
         .flatMap(c -> matrix.getMeasure(c, currentFormula.getMetric().getKey()).stream())
         .map(LiveMeasureDto::getValue)
+        .filter(Objects::nonNull)
+        .toList();
+    }
+
+    public List<String> getChildrenTextValues() {
+      List<ComponentDto> children = componentIndex.getChildren(currentComponent);
+      return children.stream()
+        .flatMap(c -> matrix.getMeasure(c, currentFormula.getMetric().getKey()).stream())
+        .map(LiveMeasureDto::getTextValue)
         .filter(Objects::nonNull)
         .toList();
     }
@@ -240,6 +250,12 @@ public class LiveMeasureTreeUpdaterImpl implements LiveMeasureTreeUpdater {
 
     @Override
     public void setValue(Rating value) {
+      String metricKey = currentFormula.getMetric().getKey();
+      matrix.setValue(currentComponent, metricKey, value);
+    }
+
+    @Override
+    public void setValue(String value) {
       String metricKey = currentFormula.getMetric().getKey();
       matrix.setValue(currentComponent, metricKey, value);
     }
