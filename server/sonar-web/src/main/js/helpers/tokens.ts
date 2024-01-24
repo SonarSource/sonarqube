@@ -20,7 +20,7 @@
 import { getAllValues } from '../api/settings';
 import { SettingsKey } from '../types/settings';
 import { TokenExpiration, UserToken } from '../types/token';
-import { now, toShortNotSoISOString } from './dates';
+import { now } from './dates';
 import { translate } from './l10n';
 
 export const EXPIRATION_OPTIONS = [
@@ -65,9 +65,13 @@ export async function getAvailableExpirationOptions() {
 }
 
 export function computeTokenExpirationDate(days: number) {
+  return computeTokenExpirationDateByHours(days*24);
+}
+
+export function computeTokenExpirationDateByHours(hours: number) {
   const expirationDate = now();
-  expirationDate.setDate(expirationDate.getDate() + days);
-  return toShortNotSoISOString(expirationDate);
+  expirationDate.setHours(expirationDate.getHours() + hours);
+  return expirationDate.toISOString();
 }
 
 export function getNextTokenName(tokenNameBase: string, tokens: UserToken[]) {

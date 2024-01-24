@@ -19,20 +19,24 @@
  */
 package org.sonar.server.usertoken.ws;
 
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.List;
 import org.jetbrains.annotations.Nullable;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.server.ws.Request;
+import org.sonar.core.config.CorePropertyDefinitions;
 import org.sonar.core.config.MaxTokenLifetimeOption;
 import org.sonar.db.DbSession;
 import org.sonar.db.user.TokenType;
 
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+
 import static com.google.common.base.Preconditions.checkArgument;
 import static org.sonar.api.SonarEdition.COMMUNITY;
 import static org.sonar.api.SonarEdition.DEVELOPER;
+import static org.sonar.core.config.CorePropertyDefinitions.CODESCAN_WHITE_LABEL_PRODUCT;
 import static org.sonar.core.config.MaxTokenLifetimeOption.NO_EXPIRATION;
 import static org.sonar.core.config.TokenExpirationConstants.MAX_ALLOWED_TOKEN_LIFETIME;
 import static org.sonar.db.user.TokenType.GLOBAL_ANALYSIS_TOKEN;
@@ -44,6 +48,7 @@ public final class GenerateActionValidation {
 
   private final Configuration configuration;
   private final SonarRuntime sonarRuntime;
+  private static final String KEY_AMAZON_WHITE_LABEL_PRODUCT = "AMAZON";
 
   public GenerateActionValidation(Configuration configuration, SonarRuntime sonarRuntime) {
     this.configuration = configuration;
@@ -74,7 +79,7 @@ public final class GenerateActionValidation {
    *
    * @param expirationDate The expiration date
    */
-  void validateExpirationDate(@Nullable LocalDate expirationDate) {
+  void validateExpirationDate(@Nullable LocalDateTime expirationDate) {
     MaxTokenLifetimeOption maxTokenLifetime = getMaxTokenLifetimeOption();
     if (expirationDate != null) {
       validateMinExpirationDate(expirationDate);
@@ -84,36 +89,42 @@ public final class GenerateActionValidation {
     }
   }
 
-  static void validateMaxExpirationDate(MaxTokenLifetimeOption maxTokenLifetime, LocalDate expirationDate) {
+  void validateMaxExpirationDate(MaxTokenLifetimeOption maxTokenLifetime, LocalDateTime expirationDate) {
     maxTokenLifetime.getDays()
-      .ifPresent(days -> compareExpirationDateToMaxAllowedLifetime(expirationDate, LocalDate.now().plusDays(days)));
+      .ifPresent(days -> compareExpirationDateToMaxAllowedLifetime(expirationDate, LocalDateTime.now(ZoneOffset.UTC).plusDays(days)));
   }
 
-  static void validateMaxExpirationDate(MaxTokenLifetimeOption maxTokenLifetime) {
+  void validateMaxExpirationDate(MaxTokenLifetimeOption maxTokenLifetime) {
     maxTokenLifetime.getDays()
       .ifPresent(days -> {
         throw new IllegalArgumentException(
           String.format("Tokens expiring after %s are not allowed. Please use an expiration date.",
-            LocalDate.now().plusDays(days).format(DateTimeFormatter.ISO_DATE)));
+            LocalDateTime.now().plusDays(days).format(DateTimeFormatter.ISO_DATE_TIME)));
       });
   }
 
-  static void compareExpirationDateToMaxAllowedLifetime(LocalDate expirationDate, LocalDate maxExpirationDate) {
+  void compareExpirationDateToMaxAllowedLifetime(LocalDateTime expirationDate, LocalDateTime maxExpirationDate) {
     if (expirationDate.isAfter(maxExpirationDate)) {
       throw new IllegalArgumentException(
         String.format("Tokens expiring after %s are not allowed. Please use a valid expiration date.",
-          maxExpirationDate.format(DateTimeFormatter.ISO_DATE)));
+          maxExpirationDate.format(DateTimeFormatter.ISO_DATE_TIME)));
     }
   }
 
-  static void validateMinExpirationDate(LocalDate localDate) {
-    if (localDate.isBefore(LocalDate.now().plusDays(1))) {
+  void validateMinExpirationDate(LocalDateTime expiredTokenDateTime) {
+    int minExpirationTimeInHours = isAmazonWhiteLabelProduct() ? 8 : 24;
+    LocalDateTime minExpirationDateTime = LocalDateTime.now(ZoneOffset.UTC)
+      .plusHours(minExpirationTimeInHours)
+      .minusMinutes(1);
+
+    if(expiredTokenDateTime.isBefore(minExpirationDateTime)) {
       throw new IllegalArgumentException(
-        String.format("The minimum value for parameter %s is %s.", PARAM_EXPIRATION_DATE, LocalDate.now().plusDays(1).format(DateTimeFormatter.ISO_DATE)));
+        String.format("The minimum value for parameter %s is %s.", PARAM_EXPIRATION_DATE,
+            LocalDateTime.now().plusHours(minExpirationTimeInHours).format(DateTimeFormatter.ISO_DATE_TIME)));
     }
   }
 
-  static void validateParametersCombination(UserTokenSupport userTokenSupport, DbSession dbSession, Request request, TokenType tokenType) {
+  void validateParametersCombination(UserTokenSupport userTokenSupport, DbSession dbSession, Request request, TokenType tokenType) {
     if (PROJECT_ANALYSIS_TOKEN.equals(tokenType)) {
       validateProjectAnalysisParameters(userTokenSupport, dbSession, request);
     } else if (GLOBAL_ANALYSIS_TOKEN.equals(tokenType)) {
@@ -121,7 +132,7 @@ public final class GenerateActionValidation {
     }
   }
 
-  private static void validateProjectAnalysisParameters(UserTokenSupport userTokenSupport, DbSession dbSession, Request request) {
+  private void validateProjectAnalysisParameters(UserTokenSupport userTokenSupport, DbSession dbSession, Request request) {
     checkArgument(userTokenSupport.sameLoginAsConnectedUser(request), "A Project Analysis Token cannot be generated for another user.");
     checkArgument(request.param(PARAM_PROJECT_KEY) != null, "A projectKey is needed when creating Project Analysis Token");
     userTokenSupport.validateProjectScanPermission(dbSession, request.param(PARAM_PROJECT_KEY));
@@ -132,4 +143,9 @@ public final class GenerateActionValidation {
     userTokenSupport.validateGlobalScanPermission();
   }
 
+  public boolean isAmazonWhiteLabelProduct() {
+    return configuration.get(CODESCAN_WHITE_LABEL_PRODUCT)
+      .map(KEY_AMAZON_WHITE_LABEL_PRODUCT::equals)
+      .orElse(false);
+  }
 }

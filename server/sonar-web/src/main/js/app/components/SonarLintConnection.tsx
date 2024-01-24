@@ -30,12 +30,16 @@ import { translate, translateWithParameters } from '../../helpers/l10n';
 import { portIsValid, sendUserToken } from '../../helpers/sonarlint';
 import {
   computeTokenExpirationDate,
+  computeTokenExpirationDateByHours,
   getAvailableExpirationOptions,
   getNextTokenName,
 } from '../../helpers/tokens';
 import { NewUserToken, TokenExpiration } from '../../types/token';
 import { LoggedInUser } from '../../types/users';
 import './SonarLintConnection.css';
+import withAppStateContext from './app-state/withAppStateContext';
+import { AppState } from '../../types/appstate';
+import { isDeploymentForAmazon} from '../../helpers/urls';
 
 enum Status {
   request,
@@ -46,9 +50,10 @@ enum Status {
 
 interface Props {
   currentUser: LoggedInUser;
+  appState: AppState
 }
 
-const TOKEN_PREFIX = 'SonarLint';
+const TOKEN_PREFIX = 'CodeScan';
 
 const getNextAvailableTokenName = async (login: string, tokenNameBase: string) => {
   const tokens = await getTokens(login);
@@ -56,14 +61,12 @@ const getNextAvailableTokenName = async (login: string, tokenNameBase: string) =
   return getNextTokenName(tokenNameBase, tokens);
 };
 
-async function computeExpirationDate() {
-  const options = await getAvailableExpirationOptions();
-  const maxOption = options[options.length - 1];
-
-  return computeTokenExpirationDate(maxOption.value || TokenExpiration.OneYear);
+async function computeExpirationDate(whiteLabel: string) {
+  return isDeploymentForAmazon(whiteLabel) ? computeTokenExpirationDateByHours(8) : computeTokenExpirationDate(1);
 }
 
-export function SonarLintConnection({ currentUser }: Props) {
+export function SonarLintConnection({ appState, currentUser }: Props) {
+  const { whiteLabel } = appState;
   const [searchParams] = useSearchParams();
   const [status, setStatus] = React.useState(Status.request);
   const [newToken, setNewToken] = React.useState<NewUserToken | undefined>(undefined);
@@ -75,7 +78,7 @@ export function SonarLintConnection({ currentUser }: Props) {
 
   const authorize = React.useCallback(async () => {
     const newTokenName = await getNextAvailableTokenName(login, `${TOKEN_PREFIX}-${ideName}`);
-    const expirationDate = await computeExpirationDate();
+    const expirationDate = await computeExpirationDate(whiteLabel);
     const token = await generateToken({ name: newTokenName, login, expirationDate }).catch(
       () => undefined
     );
@@ -109,12 +112,6 @@ export function SonarLintConnection({ currentUser }: Props) {
               <h1 className="big-spacer-top big-spacer-bottom">
                 {translate('sonarlint-connection.request.title')}
               </h1>
-              <img
-                alt=""
-                aria-hidden={true}
-                className="big-spacer-top big-spacer-bottom"
-                src="/images/SonarLint-connection-request.png"
-              />
               <p className="big big-spacer-top big-spacer-bottom">
                 {translateWithParameters('sonarlint-connection.request.description', ideName)}
               </p>
@@ -225,4 +222,4 @@ export function SonarLintConnection({ currentUser }: Props) {
   );
 }
 
-export default whenLoggedIn(SonarLintConnection);
+export default whenLoggedIn(withAppStateContext(SonarLintConnection));

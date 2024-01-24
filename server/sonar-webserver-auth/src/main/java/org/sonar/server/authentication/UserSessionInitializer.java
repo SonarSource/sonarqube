@@ -19,10 +19,7 @@
  */
 package org.sonar.server.authentication;
 
-import java.util.Optional;
-import java.util.Set;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.MDC;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.server.ServerSide;
@@ -35,7 +32,14 @@ import org.sonar.server.user.ThreadLocalUserSession;
 import org.sonar.server.user.TokenUserSession;
 import org.sonar.server.user.UserSession;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.Optional;
+import java.util.Set;
+
 import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
+import static java.net.URLEncoder.encode;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.apache.commons.lang.StringUtils.defaultString;
 import static org.sonar.api.CoreProperties.CORE_FORCE_AUTHENTICATION_DEFAULT_VALUE;
 import static org.sonar.api.CoreProperties.CORE_FORCE_AUTHENTICATION_PROPERTY;
@@ -118,8 +122,15 @@ public class UserSessionInitializer {
         handleAuthenticationError(e, request, response);
         return false;
       }
+
+      String returnUrl = "/sessions/new?return_to="+path;
+
+      if(!StringUtils.isEmpty(request.getQueryString())) {
+        returnUrl = returnUrl + encode("?" + request.getQueryString(), UTF_8);
+      }
+
       // Web pages should redirect to Login Page
-      redirectTo(response, request.getContextPath() + "/sessions/new?return_to="+path);
+      redirectTo(response, request.getContextPath() + returnUrl);
       return false;
     }
   }

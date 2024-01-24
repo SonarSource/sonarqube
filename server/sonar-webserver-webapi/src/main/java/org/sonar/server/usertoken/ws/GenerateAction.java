@@ -19,11 +19,6 @@
  */
 package org.sonar.server.usertoken.ws;
 
-import java.time.LocalDate;
-import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
-import java.util.Optional;
 import org.jetbrains.annotations.Nullable;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
@@ -43,19 +38,17 @@ import org.sonar.server.usertoken.TokenGenerator;
 import org.sonarqube.ws.UserTokens;
 import org.sonarqube.ws.UserTokens.GenerateWsResponse;
 
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.util.Optional;
+
 import static java.net.HttpURLConnection.HTTP_INTERNAL_ERROR;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
-import static org.sonar.db.user.TokenType.GLOBAL_ANALYSIS_TOKEN;
-import static org.sonar.db.user.TokenType.PROJECT_ANALYSIS_TOKEN;
-import static org.sonar.db.user.TokenType.USER_TOKEN;
+import static org.sonar.db.user.TokenType.*;
 import static org.sonar.server.exceptions.BadRequestException.checkRequest;
-import static org.sonar.server.usertoken.ws.GenerateActionValidation.validateParametersCombination;
-import static org.sonar.server.usertoken.ws.UserTokenSupport.ACTION_GENERATE;
-import static org.sonar.server.usertoken.ws.UserTokenSupport.PARAM_EXPIRATION_DATE;
-import static org.sonar.server.usertoken.ws.UserTokenSupport.PARAM_LOGIN;
-import static org.sonar.server.usertoken.ws.UserTokenSupport.PARAM_NAME;
-import static org.sonar.server.usertoken.ws.UserTokenSupport.PARAM_PROJECT_KEY;
-import static org.sonar.server.usertoken.ws.UserTokenSupport.PARAM_TYPE;
+import static org.sonar.server.usertoken.ws.UserTokenSupport.*;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class GenerateAction implements UserTokensWsAction {
@@ -144,7 +137,7 @@ public class GenerateAction implements UserTokensWsAction {
   }
 
   private UserTokenDto getUserTokenDtoFromRequest(Request request) {
-    LocalDate expirationDate = getExpirationDateFromRequest(request);
+    LocalDateTime expirationDate = getExpirationDateFromRequest(request);
     validation.validateExpirationDate(expirationDate);
 
     UserTokenDto userTokenDtoFromRequest = new UserTokenDto()
@@ -152,22 +145,22 @@ public class GenerateAction implements UserTokensWsAction {
       .setCreatedAt(system.now())
       .setType(getTokenTypeFromRequest(request).name());
     if (expirationDate != null) {
-      userTokenDtoFromRequest.setExpirationDate(expirationDate.atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli());
+      userTokenDtoFromRequest.setExpirationDate(expirationDate.toInstant(ZoneOffset.UTC).toEpochMilli());
     }
     getProjectKeyFromRequest(request).ifPresent(userTokenDtoFromRequest::setProjectKey);
     return userTokenDtoFromRequest;
   }
 
   @Nullable
-  private static LocalDate getExpirationDateFromRequest(Request request) {
+  private static LocalDateTime getExpirationDateFromRequest(Request request) {
     String expirationDateString = request.param(PARAM_EXPIRATION_DATE);
 
     if (expirationDateString != null) {
       try {
-        return LocalDate.parse(expirationDateString, DateTimeFormatter.ISO_DATE);
+        return LocalDateTime.parse(expirationDateString, DateTimeFormatter.ISO_DATE_TIME);
       } catch (DateTimeParseException e) {
-        throw new IllegalArgumentException(String.format("Supplied date format for parameter %s is wrong. Please supply date in the ISO 8601 " +
-          "date format (YYYY-MM-DD)", PARAM_EXPIRATION_DATE));
+        throw new IllegalArgumentException(String.format("Supplied datetime format for parameter %s is wrong. Please supply date in the ISO 8601 " +
+          "datetime format (YYYY-MM-DDThh:mm:ssZ)", PARAM_EXPIRATION_DATE));
       }
     }
 
@@ -176,7 +169,7 @@ public class GenerateAction implements UserTokensWsAction {
 
   private String generateToken(Request request, DbSession dbSession) {
     TokenType tokenType = getTokenTypeFromRequest(request);
-    validateParametersCombination(userTokenSupport, dbSession, request, tokenType);
+    validation.validateParametersCombination(userTokenSupport, dbSession, request, tokenType);
     return tokenGenerator.generate(tokenType);
   }
 

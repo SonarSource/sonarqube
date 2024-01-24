@@ -24,7 +24,7 @@ import { revokeToken } from '../../../api/user-tokens';
 import { Button } from '../../../components/controls/buttons';
 import ConfirmButton from '../../../components/controls/ConfirmButton';
 import WarningIcon from '../../../components/icons/WarningIcon';
-import DateFormatter from '../../../components/intl/DateFormatter';
+import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
 import DateFromNow from '../../../components/intl/DateFromNow';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';
 import { translate } from '../../../helpers/l10n';
@@ -104,10 +104,10 @@ export default class TokensFormItem extends React.PureComponent<Props, State> {
           <DateFromNow date={token.lastConnectionDate} hourPrecision={true} />
         </td>
         <td className="thin nowrap text-right">
-          <DateFormatter date={token.createdAt} long={true} />
+          <DateTimeFormatter date={token.createdAt} short={true} />
         </td>
         <td className={classNames('thin nowrap text-right', { 'text-warning': token.isExpired })}>
-          {token.expirationDate ? <DateFormatter date={token.expirationDate} long={true} /> : '–'}
+          {token.expirationDate ? <DateTimeFormatter date={token.expirationDate} short={true} /> : '–'}
         </td>
         <td className="thin nowrap text-right">
           {deleteConfirmation === 'modal' ? (

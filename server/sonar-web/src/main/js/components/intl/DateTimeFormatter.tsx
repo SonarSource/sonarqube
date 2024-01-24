@@ -25,9 +25,19 @@ import { ParsableDate } from '../../types/dates';
 interface Props {
   children?: (formattedDate: string) => React.ReactNode;
   date: ParsableDate;
+  short?: boolean;
 }
 
 export const formatterOption: FormatDateOptions = {
+  year: 'numeric',
+  month: 'short',
+  day: 'numeric',
+  hour: 'numeric',
+  minute: 'numeric',
+  hour12: false
+};
+
+export const longFormatterOption: FormatDateOptions = {
   year: 'numeric',
   month: 'long',
   day: 'numeric',
@@ -35,9 +45,9 @@ export const formatterOption: FormatDateOptions = {
   minute: 'numeric',
 };
 
-export default function DateTimeFormatter({ children, date }: Props) {
+export default function DateTimeFormatter({ children, date, short }: Props) {
   return (
-    <FormattedDate value={parseDate(date)} {...formatterOption}>
+    <FormattedDate value={parseDate(date)} {...(short ? formatterOption : longFormatterOption)}>
       {children}
     </FormattedDate>
   );
