@@ -65,13 +65,13 @@ public class MeasureUpdateFormulaFactoryImpl implements MeasureUpdateFormulaFact
     new MeasureUpdateFormula(CoreMetrics.SECURITY_HOTSPOTS, false, new AddChildren(),
       (context, issues) -> context.setValue(issues.countUnresolvedByType(RuleType.SECURITY_HOTSPOT, false))),
 
-    new MeasureUpdateFormula(CoreMetrics.RELIABILITY_ISSUES, false, new ImpactAddChildren(),
+    new MeasureUpdateFormula(CoreMetrics.RELIABILITY_ISSUES, false, true, new ImpactAddChildren(),
       (context, issues) -> context.setValue(issues.getBySoftwareQuality(SoftwareQuality.RELIABILITY))),
 
-    new MeasureUpdateFormula(CoreMetrics.MAINTAINABILITY_ISSUES, false, new ImpactAddChildren(),
+    new MeasureUpdateFormula(CoreMetrics.MAINTAINABILITY_ISSUES, false, true, new ImpactAddChildren(),
       (context, issues) -> context.setValue(issues.getBySoftwareQuality(SoftwareQuality.MAINTAINABILITY))),
 
-    new MeasureUpdateFormula(CoreMetrics.SECURITY_ISSUES, false, new ImpactAddChildren(),
+    new MeasureUpdateFormula(CoreMetrics.SECURITY_ISSUES, false, true, new ImpactAddChildren(),
       (context, issues) -> context.setValue(issues.getBySoftwareQuality(SoftwareQuality.SECURITY))),
 
     new MeasureUpdateFormula(CoreMetrics.VIOLATIONS, false, new AddChildren(),
@@ -98,7 +98,7 @@ public class MeasureUpdateFormulaFactoryImpl implements MeasureUpdateFormulaFact
     new MeasureUpdateFormula(CoreMetrics.ACCEPTED_ISSUES, false, new AddChildren(),
       (context, issues) -> context.setValue(issues.countByResolution(Issue.RESOLUTION_WONT_FIX, false))),
 
-    new MeasureUpdateFormula(CoreMetrics.HIGH_IMPACT_ACCEPTED_ISSUES, false, new AddChildren(),
+    new MeasureUpdateFormula(CoreMetrics.HIGH_IMPACT_ACCEPTED_ISSUES, false, true, new AddChildren(),
       (context, issues) -> context.setValue(issues.countHighImpactAccepted(false))),
 
     new MeasureUpdateFormula(CoreMetrics.OPEN_ISSUES, false, new AddChildren(),
@@ -119,17 +119,17 @@ public class MeasureUpdateFormulaFactoryImpl implements MeasureUpdateFormulaFact
     new MeasureUpdateFormula(CoreMetrics.SECURITY_REMEDIATION_EFFORT, false, new AddChildren(),
       (context, issues) -> context.setValue(issues.sumEffortOfUnresolved(RuleType.VULNERABILITY, false))),
 
-    new MeasureUpdateFormula(CoreMetrics.SQALE_DEBT_RATIO, false,
+    new MeasureUpdateFormula(CoreMetrics.SQALE_DEBT_RATIO, false, false,
       (context, formula) -> context.setValue(100.0 * debtDensity(context)),
       (context, issues) -> context.setValue(100.0 * debtDensity(context)),
       asList(CoreMetrics.TECHNICAL_DEBT, CoreMetrics.DEVELOPMENT_COST)),
 
-    new MeasureUpdateFormula(CoreMetrics.SQALE_RATING, false,
+    new MeasureUpdateFormula(CoreMetrics.SQALE_RATING, false, false,
       (context, issues) -> context.setValue(context.getDebtRatingGrid().getRatingForDensity(debtDensity(context))),
       (context, issues) -> context.setValue(context.getDebtRatingGrid().getRatingForDensity(debtDensity(context))),
       asList(CoreMetrics.TECHNICAL_DEBT, CoreMetrics.DEVELOPMENT_COST)),
 
-    new MeasureUpdateFormula(CoreMetrics.EFFORT_TO_REACH_MAINTAINABILITY_RATING_A, false,
+    new MeasureUpdateFormula(CoreMetrics.EFFORT_TO_REACH_MAINTAINABILITY_RATING_A, false, false,
       (context, formula) -> context.setValue(effortToReachMaintainabilityRatingA(context)),
       (context, issues) -> context.setValue(effortToReachMaintainabilityRatingA(context)), asList(CoreMetrics.TECHNICAL_DEBT, CoreMetrics.DEVELOPMENT_COST)),
 
@@ -194,7 +194,7 @@ public class MeasureUpdateFormulaFactoryImpl implements MeasureUpdateFormulaFact
     new MeasureUpdateFormula(CoreMetrics.NEW_INFO_VIOLATIONS, true, new AddChildren(),
       (context, issues) -> context.setValue(issues.countUnresolvedBySeverity(Severity.INFO, true))),
 
-    new MeasureUpdateFormula(CoreMetrics.NEW_ACCEPTED_ISSUES, true, new AddChildren(),
+    new MeasureUpdateFormula(CoreMetrics.NEW_ACCEPTED_ISSUES, true, true, new AddChildren(),
       (context, issues) -> context.setValue(issues.countByResolution(Issue.RESOLUTION_WONT_FIX, true))),
 
     new MeasureUpdateFormula(CoreMetrics.NEW_TECHNICAL_DEBT, true, new AddChildren(),
@@ -243,12 +243,12 @@ public class MeasureUpdateFormulaFactoryImpl implements MeasureUpdateFormulaFact
         context.setValue(computeRating(percent.orElse(null)));
       }),
 
-    new MeasureUpdateFormula(CoreMetrics.NEW_SQALE_DEBT_RATIO, true,
+    new MeasureUpdateFormula(CoreMetrics.NEW_SQALE_DEBT_RATIO, true, false,
       (context, formula) -> context.setValue(100.0D * newDebtDensity(context)),
       (context, issues) -> context.setValue(100.0D * newDebtDensity(context)),
       asList(CoreMetrics.NEW_TECHNICAL_DEBT, CoreMetrics.NEW_DEVELOPMENT_COST)),
 
-    new MeasureUpdateFormula(CoreMetrics.NEW_MAINTAINABILITY_RATING, true,
+    new MeasureUpdateFormula(CoreMetrics.NEW_MAINTAINABILITY_RATING, true, false,
       (context, formula) -> context.setValue(context.getDebtRatingGrid().getRatingForDensity(newDebtDensity(context))),
       (context, issues) -> context.setValue(context.getDebtRatingGrid().getRatingForDensity(newDebtDensity(context))),
       asList(CoreMetrics.NEW_TECHNICAL_DEBT, CoreMetrics.NEW_DEVELOPMENT_COST)));

@@ -70,7 +70,7 @@ public class LiveMeasureTreeUpdaterImpl implements LiveMeasureTreeUpdater {
     FormulaContextImpl context = new FormulaContextImpl(matrix, components, debtRatingGrid);
     components.getSortedTree().forEach(c -> {
       for (MeasureUpdateFormula formula : formulaFactory.getFormulas()) {
-        if (useLeakFormulas || !formula.isOnLeak()) {
+        if (shouldComputeMetric(formula, useLeakFormulas, components.getBranch(), matrix)) {
           context.change(c, formula);
           try {
             formula.computeHierarchy(context);
@@ -91,8 +91,7 @@ public class LiveMeasureTreeUpdaterImpl implements LiveMeasureTreeUpdater {
       IssueCounter issueCounter = new IssueCounter(dbClient.issueDao().selectIssueGroupsByComponent(dbSession, c, beginningOfLeak),
         dbClient.issueDao().selectIssueImpactGroupsByComponent(dbSession, c));
       for (MeasureUpdateFormula formula : formulaFactory.getFormulas()) {
-        // use formulas when the leak period is defined, it's a PR, or the formula is not about the leak period
-        if (useLeakFormulas || !formula.isOnLeak()) {
+        if (shouldComputeMetric(formula, useLeakFormulas, components.getBranch(), matrix)) {
           context.change(c, formula);
           try {
             formula.compute(context, issueCounter);
@@ -103,6 +102,15 @@ public class LiveMeasureTreeUpdaterImpl implements LiveMeasureTreeUpdater {
         }
       }
     });
+  }
+
+  private static boolean shouldComputeMetric(MeasureUpdateFormula formula, boolean useLeakFormulas, ComponentDto branchComponent,
+                                      MeasureMatrix matrix) {
+    // Use formula when the leak period is defined, it's a PR, or the formula is not about the leak period
+    return (useLeakFormulas || !formula.isOnLeak())
+           // Some metrics should only be computed if the metric has been computed on the branch before (during analysis).
+           // Otherwise, the computed measure would only apply to the touched components and be incomplete.
+           && (!formula.isOnlyIfComputedOnBranch() || matrix.getMeasure(branchComponent, formula.getMetric().getKey()).isPresent());
   }
 
   private static long getBeginningOfLeakPeriod(SnapshotDto lastAnalysis, BranchDto branch) {

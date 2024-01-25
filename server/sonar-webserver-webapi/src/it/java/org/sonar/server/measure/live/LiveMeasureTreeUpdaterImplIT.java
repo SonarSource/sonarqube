@@ -247,10 +247,43 @@ public class LiveMeasureTreeUpdaterImplIT {
     assertThat(context.getChildrenHotspotsReviewed()).isEqualTo(10);
   }
 
+  @Test
+  public void update_whenFormulaIsOnlyIfComputedOnBranchAndMetricNotComputedOnBranch_shouldNotCompute() {
+    snapshot = db.components().insertSnapshot(project);
+    treeUpdater = new LiveMeasureTreeUpdaterImpl(db.getDbClient(), new AggregateValuesFormula());
+
+    componentIndex.load(db.getSession(), List.of(file1));
+    List<LiveMeasureDto> initialValues =
+      List.of(new LiveMeasureDto().setComponentUuid(file1.uuid()).setValue(1d).setMetricUuid(metricDto.getUuid()));
+    matrix = new MeasureMatrix(List.of(project, dir, file1, file2), List.of(metricDto), initialValues);
+    treeUpdater.update(db.getSession(), snapshot, config, componentIndex, branch, matrix);
+
+    assertThat(matrix.getChanged()).isEmpty();
+    assertThat(matrix.getMeasure(project, metric.getKey())).isEmpty();
+  }
+
+  @Test
+  public void update_whenFormulaIsNotOnlyIfComputedOnBranchAndMetricNotComputedOnBranch_shouldCompute() {
+    snapshot = db.components().insertSnapshot(project);
+    treeUpdater = new LiveMeasureTreeUpdaterImpl(db.getDbClient(), new SetValuesFormula());
+
+    componentIndex.load(db.getSession(), List.of(file1));
+    List<LiveMeasureDto> initialValues =
+      List.of(new LiveMeasureDto().setComponentUuid(file1.uuid()).setValue(1d).setMetricUuid(metricDto.getUuid()));
+    matrix = new MeasureMatrix(List.of(project, dir, file1, file2), List.of(metricDto), initialValues);
+    treeUpdater.update(db.getSession(), snapshot, config, componentIndex, branch, matrix);
+
+    assertThat(matrix.getChanged()).extracting(LiveMeasureDto::getComponentUuid).containsOnly(project.uuid(), dir.uuid());
+    assertThat(matrix.getMeasure(project, metric.getKey()).get().getValue()).isEqualTo(1d);
+    assertThat(matrix.getMeasure(dir, metric.getKey()).get().getValue()).isEqualTo(1d);
+    assertThat(matrix.getMeasure(file1, metric.getKey()).get().getValue()).isEqualTo(1d);
+    assertThat(matrix.getMeasure(file2, metric.getKey())).isEmpty();
+  }
+
   private class AggregateValuesFormula implements MeasureUpdateFormulaFactory {
     @Override
     public List<MeasureUpdateFormula> getFormulas() {
-      return List.of(new MeasureUpdateFormula(metric, false, new MeasureUpdateFormulaFactoryImpl.AddChildren(), (c, i) -> {
+      return List.of(new MeasureUpdateFormula(metric, false, true, new MeasureUpdateFormulaFactoryImpl.AddChildren(), (c, i) -> {
       }));
     }
 
@@ -263,7 +296,7 @@ public class LiveMeasureTreeUpdaterImplIT {
   private class SetValuesFormula implements MeasureUpdateFormulaFactory {
     @Override
     public List<MeasureUpdateFormula> getFormulas() {
-      return List.of(new MeasureUpdateFormula(metric, false, (c, m) -> {
+      return List.of(new MeasureUpdateFormula(metric, false, false, (c, m) -> {
       }, (c, i) -> c.setValue(1d)));
     }
 
