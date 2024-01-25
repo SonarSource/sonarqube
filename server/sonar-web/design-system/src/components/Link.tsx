@@ -154,6 +154,12 @@ export const NakedLink = styled(BaseLink)`
   border-bottom: none;
   font-weight: 600;
   color: ${themeColor('linkNaked')};
+
+  &:hover,
+  &:focus,
+  &:active {
+    color: ${themeColor('linkActive')};
+  }
 `;
 
 export const DrilldownLink = styled(StyledBaseLink)`

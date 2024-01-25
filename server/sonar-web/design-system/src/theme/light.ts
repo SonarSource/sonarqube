@@ -522,6 +522,7 @@ export const lightTheme = {
     // project
     projectCardBackground: COLORS.white,
     projectCardBorder: COLORS.blueGrey[100],
+    projectLightGreyCardBorder: COLORS.grey[50],
 
     // overview
     overviewCardDefaultIcon: secondary.light,
@@ -531,7 +532,7 @@ export const lightTheme = {
     overviewCardSuccessIcon: COLORS.green[200],
 
     // overview software impact breakdown
-    overviewSoftwareImpactSeverityNeutral: COLORS.blueGrey[50],
+    overviewSoftwareImpactSeverityNeutral: [247, 249, 252],
     overviewSoftwareImpactSeverityHigh: COLORS.red[100],
     overviewSoftwareImpactSeverityMedium: COLORS.yellow[100],
     overviewSoftwareImpactSeverityLow: COLORS.blue[100],

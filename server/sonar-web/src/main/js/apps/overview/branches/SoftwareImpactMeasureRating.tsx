@@ -17,12 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import styled from '@emotion/styled';
-import { BasicSeparator, MetricsRatingBadge, Tooltip, themeColor } from 'design-system';
+import { MetricsRatingBadge, Tooltip } from 'design-system';
 import * as React from 'react';
 import { useIntl } from 'react-intl';
 import { formatRating } from '../../../helpers/measures';
-import { SoftwareImpactSeverity, SoftwareQuality } from '../../../types/clean-code-taxonomy';
+import { SoftwareQuality } from '../../../types/clean-code-taxonomy';
+import SoftwareImpactRatingTooltip from './SoftwareImpactRatingTooltip';
 
 export interface SoftwareImpactMeasureRatingProps {
   softwareQuality: SoftwareQuality;
@@ -36,66 +36,13 @@ export function SoftwareImpactMeasureRating(props: Readonly<SoftwareImpactMeasur
 
   const rating = formatRating(value);
 
-  function ratingToWorseSeverity(rating: string): SoftwareImpactSeverity {
-    switch (rating) {
-      case 'B':
-        return SoftwareImpactSeverity.Low;
-      case 'C':
-        return SoftwareImpactSeverity.Medium;
-      case 'D':
-      case 'E':
-        return SoftwareImpactSeverity.High;
-      default:
-        return SoftwareImpactSeverity.Low;
-    }
-  }
-
-  function getTooltipContent() {
-    if (!rating || rating === 'A') {
-      return null;
-    }
-
-    const softwareQualityLabel = intl.formatMessage({
-      id: `software_quality.${softwareQuality}`,
-    });
-    const severityLabel = intl.formatMessage({
-      id: `overview.measures.software_impact.severity.${ratingToWorseSeverity(
-        rating,
-      )}.improve_tooltip`,
-    });
-
-    return (
-      <div className="sw-flex sw-flex-col sw-gap-1">
-        <span className="sw-font-semibold">
-          {intl.formatMessage({
-            id: 'overview.measures.software_impact.improve_rating_tooltip.title',
-          })}
-        </span>
-
-        <span>
-          {intl.formatMessage(
-            {
-              id: 'overview.measures.software_impact.improve_rating_tooltip.content.1',
-            },
-            {
-              softwareQuality: softwareQualityLabel,
-              ratingLabel: rating,
-              severity: severityLabel,
-            },
-          )}
-        </span>
-
-        <span className="sw-mt-4">
-          {intl.formatMessage({
-            id: 'overview.measures.software_impact.improve_rating_tooltip.content.2',
-          })}
-        </span>
-      </div>
-    );
-  }
-
   return (
-    <Tooltip overlay={getTooltipContent()}>
+    <Tooltip
+      overlay={SoftwareImpactRatingTooltip({
+        rating,
+        softwareQuality,
+      })}
+    >
       <MetricsRatingBadge
         size="lg"
         className="sw-text-sm"
@@ -110,9 +57,5 @@ export function SoftwareImpactMeasureRating(props: Readonly<SoftwareImpactMeasur
     </Tooltip>
   );
 }
-
-export const StyledSeparator = styled(BasicSeparator)`
-  background-color: ${themeColor('projectCardBorder')};
-`;
 
 export default SoftwareImpactMeasureRating;

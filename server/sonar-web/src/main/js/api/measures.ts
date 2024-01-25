@@ -96,15 +96,12 @@ export async function getMeasuresWithPeriodAndMetrics(
     });
     result.component.measures?.push({
       metric: MetricKey.maintainability_issues,
-      period: {
-        index: 0,
-        value: JSON.stringify({
-          total: 3,
-          high: 1,
-          medium: 1,
-          low: 1,
-        }),
-      },
+      value: JSON.stringify({
+        total: 3,
+        high: 1,
+        medium: 1,
+        low: 1,
+      }),
     });
   }
   if (metrics.includes(MetricKey.reliability_issues)) {
@@ -121,15 +118,12 @@ export async function getMeasuresWithPeriodAndMetrics(
     });
     result.component.measures?.push({
       metric: MetricKey.reliability_issues,
-      period: {
-        index: 0,
-        value: JSON.stringify({
-          total: 2,
-          high: 0,
-          medium: 1,
-          low: 1,
-        }),
-      },
+      value: JSON.stringify({
+        total: 2,
+        high: 0,
+        medium: 1,
+        low: 1,
+      }),
     });
   }
   if (metrics.includes(MetricKey.security_issues)) {
@@ -146,15 +140,12 @@ export async function getMeasuresWithPeriodAndMetrics(
     });
     result.component.measures?.push({
       metric: MetricKey.security_issues,
-      period: {
-        index: 0,
-        value: JSON.stringify({
-          total: 1,
-          high: 0,
-          medium: 0,
-          low: 1,
-        }),
-      },
+      value: JSON.stringify({
+        total: 1,
+        high: 0,
+        medium: 0,
+        low: 1,
+      }),
     });
   }
   return result;

@@ -17,8 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import styled from '@emotion/styled';
-import { Card, CardSeparator, NakedLink, TextBold, TextSubdued, themeBorder } from 'design-system';
+import { BasicSeparator, LightGreyCard, NakedLink, TextBold, TextSubdued } from 'design-system';
 import * as React from 'react';
 import { useIntl } from 'react-intl';
 import { DEFAULT_ISSUES_QUERY } from '../../../components/shared/utils';
@@ -78,9 +77,9 @@ export function SoftwareImpactMeasureCard(props: Readonly<SoftwareImpactBreakdow
     : null;
 
   return (
-    <StyledCard className="sw-w-1/3 sw-rounded-2 sw-p-4 sw-flex-col">
+    <LightGreyCard className="sw-w-1/3 sw-rounded-2 sw-p-4 sw-flex-col">
       <TextBold name={intl.formatMessage({ id: `software_quality.${softwareQuality}` })} />
-      <CardSeparator className="sw--mx-4" />
+      <BasicSeparator className="sw--mx-4" />
       <div className="sw-flex sw-flex-col sw-gap-3">
         <div className="sw-flex sw-gap-1 sw-items-end">
           <NakedLink
@@ -127,12 +126,8 @@ export function SoftwareImpactMeasureCard(props: Readonly<SoftwareImpactBreakdow
           ))}
         </div>
       </div>
-    </StyledCard>
+    </LightGreyCard>
   );
 }
-
-const StyledCard = styled(Card)`
-  border: ${themeBorder('default')};
-`;
 
 export default SoftwareImpactMeasureCard;
