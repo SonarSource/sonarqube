@@ -28,7 +28,7 @@ import SystemServiceMock from '../../../../../api/mocks/SystemServiceMock';
 import { AvailableFeaturesContext } from '../../../../../app/components/available-features/AvailableFeaturesContext';
 import { definitions } from '../../../../../helpers/mocks/definitions-list';
 import { renderComponent } from '../../../../../helpers/testReactTestingUtils';
-import { byRole, byText } from '../../../../../helpers/testSelector';
+import { byLabelText, byRole, byText } from '../../../../../helpers/testSelector';
 import { AlmKeys } from '../../../../../types/alm-settings';
 import { Feature } from '../../../../../types/features';
 import { GitHubProvisioningStatus } from '../../../../../types/provisioning';
@@ -162,7 +162,7 @@ const ui = {
     name: /github.configuration.validation.valid.short/,
   }),
   checkConfigButton: ghContainer.byRole('button', {
-    name: 'settings.authentication.github.configuration.validation.test',
+    name: 'settings.authentication.configuration.test',
   }),
   viewConfigValidityDetailsButton: ghContainer.byRole('button', {
     name: 'settings.authentication.github.configuration.validation.details',
@@ -179,8 +179,9 @@ const ui = {
   consentDialog: byRole('dialog', {
     name: 'settings.authentication.github.confirm_auto_provisioning.header',
   }),
-  getConfigDetailsTitle: () => within(ui.configDetailsDialog.get()).getByRole('heading'),
-  getOrgs: () => within(ui.configDetailsDialog.get()).getAllByRole('listitem'),
+  getConfigDetailsTitle: () => ui.configDetailsDialog.byRole('heading').get(),
+  getOrgs: () => ui.configDetailsDialog.byRole('listitem').getAll(),
+  getIconForOrg: (text: string, org: HTMLElement) => byLabelText(text).get(org),
   fillForm: async (user: UserEvent) => {
     await user.type(await ui.clientId.find(), 'Awsome GITHUB config');
     await user.type(ui.clientSecret.get(), 'Client shut');
@@ -423,15 +424,20 @@ describe('Github tab', () => {
       expect(ui.configurationValiditySuccess.get()).toHaveTextContent('2');
 
       await user.click(ui.viewConfigValidityDetailsButton.get());
-      expect(ui.getConfigDetailsTitle()).toHaveTextContent(
-        'settings.authentication.github.configuration.validation.details.valid_label',
-      );
-      expect(ui.getOrgs()[0]).toHaveTextContent(
-        'settings.authentication.github.configuration.validation.details.valid_labelorg1',
-      );
-      expect(ui.getOrgs()[1]).toHaveTextContent(
-        'settings.authentication.github.configuration.validation.details.valid_labelorg2',
-      );
+      expect(ui.getConfigDetailsTitle()).toBeInTheDocument();
+      expect(ui.getOrgs()).toHaveLength(3);
+      expect(
+        ui.getIconForOrg(
+          'settings.authentication.github.configuration.validation.details.valid_label',
+          ui.getOrgs()[0],
+        ),
+      ).toBeInTheDocument();
+      expect(
+        ui.getIconForOrg(
+          'settings.authentication.github.configuration.validation.details.valid_label',
+          ui.getOrgs()[1],
+        ),
+      ).toBeInTheDocument();
     });
 
     it('should display that config is invalid for autoprovisioning if some apps are suspended but valid for jit', async () => {
@@ -461,12 +467,19 @@ describe('Github tab', () => {
       expect(ui.configurationValidityWarning.get()).toHaveTextContent(errorMessage);
 
       await user.click(ui.viewConfigValidityDetailsButton.get());
-      expect(ui.getConfigDetailsTitle()).toHaveTextContent(
-        'settings.authentication.github.configuration.validation.details.valid_label',
-      );
-      expect(ui.getOrgs()[0]).toHaveTextContent(
-        'settings.authentication.github.configuration.validation.details.invalid_labelorg1 - Installation suspended',
-      );
+      expect(ui.getConfigDetailsTitle()).toBeInTheDocument();
+      expect(
+        ui.configDetailsDialog
+          .byText('settings.authentication.github.configuration.validation.valid.short')
+          .get(),
+      ).toBeInTheDocument();
+      expect(ui.getOrgs()[0]).toHaveTextContent('org1 - Installation suspended');
+      expect(
+        ui.getIconForOrg(
+          'settings.authentication.github.configuration.validation.details.invalid_label',
+          ui.getOrgs()[0],
+        ),
+      ).toBeInTheDocument();
 
       await user.click(ui.configDetailsDialog.byRole('button', { name: 'close' }).get());
 
@@ -495,12 +508,19 @@ describe('Github tab', () => {
       expect(ui.configurationValiditySuccess.get()).toHaveTextContent('1');
 
       await user.click(ui.viewConfigValidityDetailsButton.get());
-      expect(ui.getConfigDetailsTitle()).toHaveTextContent(
-        'settings.authentication.github.configuration.validation.details.valid_label',
-      );
-      expect(ui.getOrgs()[0]).toHaveTextContent(
-        'settings.authentication.github.configuration.validation.details.valid_labelorg1',
-      );
+      expect(ui.getConfigDetailsTitle()).toBeInTheDocument();
+      expect(
+        ui.configDetailsDialog
+          .byText('settings.authentication.github.configuration.validation.valid.short')
+          .get(),
+      ).toBeInTheDocument();
+      expect(ui.getOrgs()[0]).toHaveTextContent('org1');
+      expect(
+        ui.getIconForOrg(
+          'settings.authentication.github.configuration.validation.details.valid_label',
+          ui.getOrgs()[0],
+        ),
+      ).toBeInTheDocument();
       expect(ui.getOrgs()[1]).toHaveTextContent(
         'settings.authentication.github.configuration.validation.details.org_not_found.organization1',
       );
@@ -529,9 +549,12 @@ describe('Github tab', () => {
       expect(ui.configurationValidityError.get()).toHaveTextContent(errorMessage);
 
       await user.click(ui.viewConfigValidityDetailsButton.get());
-      expect(ui.getConfigDetailsTitle()).toHaveTextContent(
-        'settings.authentication.github.configuration.validation.details.invalid_label',
-      );
+      expect(ui.getConfigDetailsTitle()).toBeInTheDocument();
+      expect(
+        ui.configDetailsDialog
+          .byText(/settings.authentication.github.configuration.validation.invalid/)
+          .get(),
+      ).toBeInTheDocument();
       expect(ui.configDetailsDialog.get()).toHaveTextContent(errorMessage);
     });
 
@@ -557,9 +580,12 @@ describe('Github tab', () => {
       expect(ui.configurationValiditySuccess.get()).not.toHaveTextContent(errorMessage);
 
       await user.click(ui.viewConfigValidityDetailsButton.get());
-      expect(ui.getConfigDetailsTitle()).toHaveTextContent(
-        'settings.authentication.github.configuration.validation.details.valid_label',
-      );
+      expect(ui.getConfigDetailsTitle()).toBeInTheDocument();
+      expect(
+        ui.configDetailsDialog
+          .byText('settings.authentication.github.configuration.validation.valid.short')
+          .get(),
+      ).toBeInTheDocument();
       await user.click(ui.configDetailsDialog.byRole('button', { name: 'close' }).get());
 
       await user.click(ui.githubProvisioningButton.get());
@@ -568,9 +594,11 @@ describe('Github tab', () => {
       expect(ui.configurationValidityError.get()).toHaveTextContent(errorMessage);
 
       await user.click(ui.viewConfigValidityDetailsButton.get());
-      expect(ui.getConfigDetailsTitle()).toHaveTextContent(
-        'settings.authentication.github.configuration.validation.details.invalid_label',
-      );
+      expect(
+        ui.configDetailsDialog
+          .byText(/settings.authentication.github.configuration.validation.invalid/)
+          .get(),
+      ).toBeInTheDocument();
     });
 
     it('should display that config is invalid because of orgs', async () => {
@@ -598,12 +626,20 @@ describe('Github tab', () => {
 
       await user.click(ui.viewConfigValidityDetailsButton.get());
 
-      expect(ui.getOrgs()[0]).toHaveTextContent(
-        'settings.authentication.github.configuration.validation.details.valid_labelorg1',
-      );
-      expect(ui.getOrgs()[1]).toHaveTextContent(
-        'settings.authentication.github.configuration.validation.details.invalid_labelorg2 - Test error',
-      );
+      expect(ui.getOrgs()[0]).toHaveTextContent('org1');
+      expect(
+        ui.getIconForOrg(
+          'settings.authentication.github.configuration.validation.details.valid_label',
+          ui.getOrgs()[0],
+        ),
+      ).toBeInTheDocument();
+      expect(ui.getOrgs()[1]).toHaveTextContent('org2 - Test error');
+      expect(
+        ui.getIconForOrg(
+          'settings.authentication.github.configuration.validation.details.invalid_label',
+          ui.getOrgs()[1],
+        ),
+      ).toBeInTheDocument();
 
       await user.click(ui.configDetailsDialog.byRole('button', { name: 'close' }).get());
 
@@ -614,9 +650,15 @@ describe('Github tab', () => {
         `settings.authentication.github.configuration.validation.invalid_org.org2.${errorMessage}`,
       );
       await user.click(ui.viewConfigValidityDetailsButton.get());
-      expect(ui.getOrgs()[1]).toHaveTextContent(
-        `settings.authentication.github.configuration.validation.details.invalid_labelorg2 - ${errorMessage}`,
-      );
+
+      expect(
+        ui.configDetailsDialog
+          .byLabelText(
+            'settings.authentication.github.configuration.validation.details.invalid_label',
+          )
+          .getAll(),
+      ).toHaveLength(1);
+      expect(ui.getOrgs()[1]).toHaveTextContent(`org2 - ${errorMessage}`);
     });
 
     it('should update provisioning validity after clicking Test Configuration', async () => {

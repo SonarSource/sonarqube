@@ -17,11 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import React from 'react';
-import { Button } from '../../../../components/controls/buttons';
-import { Alert } from '../../../../components/ui/Alert';
 import { translate } from '../../../../helpers/l10n';
 import { GitlabConfiguration } from '../../../../types/provisioning';
+import TestConfiguration from './TestConfiguration';
 
 const intlPrefix = 'settings.authentication.gitlab.configuration';
 
@@ -33,33 +33,18 @@ interface Props {
 
 export default function GitLabConfigurationValidity(props: Readonly<Props>) {
   const { configuration, loading } = props;
-  const message = loading
-    ? translate(`${intlPrefix}.validity_check_loading`)
-    : configuration?.errorMessage ??
-      translate(`${intlPrefix}.valid.${configuration?.provisioningType}`);
+  const message =
+    configuration?.errorMessage ??
+    translate(`${intlPrefix}.valid.${configuration?.provisioningType}`);
   const variant = configuration?.errorMessage ? 'error' : 'success';
 
   return (
-    <Alert
-      title={message}
-      variant={loading ? 'loading' : variant}
-      aria-live="polite"
-      role="status"
-      aria-atomic
-      aria-busy={loading}
-    >
-      <div className="sw-flex sw-justify-between sw-items-center">
-        <div>{message}</div>
-        <div className="sw-flex">
-          <Button
-            onClick={props.onRecheck}
-            disabled={loading}
-            className="sw-whitespace-nowrap sw-text-center"
-          >
-            {translate(`${intlPrefix}.test`)}
-          </Button>
-        </div>
-      </div>
-    </Alert>
+    <TestConfiguration
+      loading={loading}
+      onTestConf={props.onRecheck}
+      flagMessageVariant={variant}
+      flagMessageContent={message}
+      flagMessageTitle={message}
+    />
   );
 }

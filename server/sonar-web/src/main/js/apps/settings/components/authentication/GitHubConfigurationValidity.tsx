@@ -17,28 +17,30 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { TextMuted } from 'design-system';
+import {
+  ButtonLink,
+  FlagErrorIcon,
+  FlagMessage,
+  FlagSuccessIcon,
+  HelperHintIcon,
+  Modal,
+  TextMuted,
+  UnorderedList,
+  Variant,
+} from 'design-system';
 import React, { useEffect, useState } from 'react';
-import theme, { colors } from '../../../../app/theme';
-import Modal from '../../../../components/controls/Modal';
-import { Button } from '../../../../components/controls/buttons';
-import CheckIcon from '../../../../components/icons/CheckIcon';
-import ClearIcon from '../../../../components/icons/ClearIcon';
-import HelpIcon from '../../../../components/icons/HelpIcon';
-import { Alert, AlertVariant } from '../../../../components/ui/Alert';
 import { translate, translateWithParameters } from '../../../../helpers/l10n';
 import { useCheckGitHubConfigQuery } from '../../../../queries/identity-provider/github';
 import { GitHubProvisioningStatus } from '../../../../types/provisioning';
+import TestConfiguration from './TestConfiguration';
 
 const intlPrefix = 'settings.authentication.github.configuration.validation';
 
 function ValidityIcon({ valid }: { valid: boolean }) {
-  const color = valid ? theme.colors.success500 : theme.colors.error500;
-
   return valid ? (
-    <CheckIcon fill={color} label={translate(`${intlPrefix}.details.valid_label`)} />
+    <FlagSuccessIcon aria-label={translate(`${intlPrefix}.details.valid_label`)} />
   ) : (
-    <ClearIcon fill={color} label={translate(`${intlPrefix}.details.invalid_label`)} />
+    <FlagErrorIcon aria-label={translate(`${intlPrefix}.details.invalid_label`)} />
   );
 }
 
@@ -53,7 +55,7 @@ export default function GitHubConfigurationValidity({
 }: Props) {
   const [openDetails, setOpenDetails] = useState(false);
   const [messages, setMessages] = useState<string[]>([]);
-  const [alertVariant, setAlertVariant] = useState<AlertVariant>('loading');
+  const [alertVariant, setAlertVariant] = useState<Variant>('info');
   const { data, isFetching, refetch } = useCheckGitHubConfigQuery(true);
   const modalHeader = translate(`${intlPrefix}.details.title`);
 
@@ -67,12 +69,6 @@ export default function GitHubConfigurationValidity({
   });
 
   useEffect(() => {
-    if (isFetching) {
-      setMessages([translate(`${intlPrefix}.loading`)]);
-      setAlertVariant('loading');
-      return;
-    }
-
     const invalidOrgs =
       isValidApp && data
         ? data.installations.filter(
@@ -116,78 +112,81 @@ export default function GitHubConfigurationValidity({
     }
   }, [isFetching, isValidApp, isAutoProvisioning, applicationField, data]);
 
+  const message = (
+    <div className="sw-flex sw-items-center">
+      <div>
+        {messages.map((msg) => (
+          <p key={msg}>{msg}</p>
+        ))}
+      </div>
+      <div>
+        <ButtonLink
+          onClick={() => setOpenDetails(true)}
+          disabled={isFetching}
+          className="sw-mx-2 sw-whitespace-nowrap sw-text-center"
+        >
+          {translate(`${intlPrefix}.details`)}
+        </ButtonLink>
+      </div>
+    </div>
+  );
+
   return (
     <>
-      <Alert
-        title={messages[0]}
-        variant={alertVariant}
-        aria-live="polite"
-        role="status"
-        aria-atomic
-        aria-busy={isFetching}
-      >
-        <div className="sw-flex sw-justify-between sw-items-center">
-          <div>
-            {messages.map((msg) => (
-              <div key={msg}>{msg}</div>
-            ))}
-          </div>
-          <div className="sw-flex">
-            <Button
-              onClick={() => setOpenDetails(true)}
-              disabled={isFetching}
-              className="sw-mr-2 sw-whitespace-nowrap sw-text-center"
-            >
-              {translate(`${intlPrefix}.details`)}
-            </Button>
-            <Button
-              onClick={() => refetch()}
-              disabled={isFetching}
-              className="sw-whitespace-nowrap sw-text-center"
-            >
-              {translate(`${intlPrefix}.test`)}
-            </Button>
-          </div>
-        </div>
-      </Alert>
+      <TestConfiguration
+        loading={isFetching}
+        onTestConf={() => refetch()}
+        flagMessageVariant={alertVariant}
+        flagMessageContent={message}
+        flagMessageTitle={messages[0]}
+      />
+
       {openDetails && (
-        <Modal size="small" contentLabel={modalHeader} onRequestClose={() => setOpenDetails(false)}>
-          <header className="modal-head">
-            <h2>
-              {modalHeader} <ValidityIcon valid={isValidApp} />
-            </h2>
-          </header>
-          <div className="modal-body modal-container">
-            {!isValidApp && (
-              <Alert variant="error">{data?.application[applicationField].errorMessage}</Alert>
-            )}
-            <ul className="sw-pl-5">
-              {data?.installations.map((inst) => (
-                <li key={inst.organization}>
-                  <ValidityIcon
-                    valid={inst[applicationField].status === GitHubProvisioningStatus.Success}
-                  />
-                  <span className="sw-ml-2">{inst.organization}</span>
-                  {inst[applicationField].status === GitHubProvisioningStatus.Failed && (
-                    <span> - {inst[applicationField].errorMessage}</span>
+        <Modal
+          headerTitle={modalHeader}
+          onClose={() => setOpenDetails(false)}
+          body={
+            <>
+              {isValidApp ? (
+                <FlagMessage variant="success" className="sw-w-full sw-mb-2">
+                  {translate(`${intlPrefix}.valid.short`)}
+                </FlagMessage>
+              ) : (
+                <FlagMessage variant="error" className="sw-w-full sw-mb-2">
+                  {translateWithParameters(
+                    `${intlPrefix}.invalid`,
+                    data?.application[applicationField].errorMessage ?? '',
                   )}
-                </li>
-              ))}
-              {failedOrgs.map((fo) => (
-                <li key={fo}>
-                  <HelpIcon fillInner={colors.gray60} fill={colors.white} role="img" />
-                  <TextMuted
-                    className="sw-ml-2"
-                    text={translateWithParameters(`${intlPrefix}.details.org_not_found`, fo)}
-                  />
-                </li>
-              ))}
-            </ul>
-          </div>
-          <footer className="modal-foot">
-            <Button onClick={() => setOpenDetails(false)}>{translate('close')}</Button>
-          </footer>
-        </Modal>
+                </FlagMessage>
+              )}
+              <UnorderedList className="sw-pl-5 sw-m-0">
+                {data?.installations.map((inst) => (
+                  <li key={inst.organization} className="sw-flex sw-items-center">
+                    <ValidityIcon
+                      valid={inst[applicationField].status === GitHubProvisioningStatus.Success}
+                    />
+                    <div>
+                      <span className="sw-ml-2">{inst.organization}</span>
+                      {inst[applicationField].status === GitHubProvisioningStatus.Failed && (
+                        <span> - {inst[applicationField].errorMessage}</span>
+                      )}
+                    </div>
+                  </li>
+                ))}
+                {failedOrgs.map((fo) => (
+                  <li key={fo} className="sw-flex sw-items-center">
+                    <HelperHintIcon />
+                    <TextMuted
+                      className="sw-ml-2"
+                      text={translateWithParameters(`${intlPrefix}.details.org_not_found`, fo)}
+                    />
+                  </li>
+                ))}
+              </UnorderedList>
+            </>
+          }
+          secondaryButtonLabel={translate('close')}
+        />
       )}
     </>
   );

@@ -128,7 +128,7 @@ const ui = {
   gitlabProvisioningAlert: glContainer.byText(/synchronization_failed/),
   gitlabConfigurationStatus: glContainer.byRole('status'),
   testConfiguration: glContainer.byRole('button', {
-    name: 'settings.authentication.gitlab.configuration.test',
+    name: 'settings.authentication.configuration.test',
   }),
 };
 
@@ -464,21 +464,20 @@ describe('Gitlab Provisioning', () => {
     const user = userEvent.setup();
     renderAuthentication([Feature.GitlabProvisioning]);
 
-    expect(await ui.gitlabConfigurationStatus.find()).toBeInTheDocument();
-    expect(ui.gitlabConfigurationStatus.get()).toHaveTextContent(
+    expect((await ui.gitlabConfigurationStatus.findAll())[1]).toHaveTextContent(
       'settings.authentication.gitlab.configuration.valid.AUTO_PROVISIONING',
     );
     await user.click(ui.jitProvisioningRadioButton.get());
     await user.click(ui.saveProvisioning.get());
     await user.click(ui.confirmProvisioningChange.get());
-    expect(ui.gitlabConfigurationStatus.get()).toHaveTextContent(
+    expect(ui.gitlabConfigurationStatus.getAll()[1]).toHaveTextContent(
       'settings.authentication.gitlab.configuration.valid.JIT',
     );
     handler.setGitlabConfigurations([
       mockGitlabConfiguration({ ...handler.gitlabConfigurations[0], errorMessage: 'ERROR' }),
     ]);
     await user.click(ui.testConfiguration.get());
-    expect(ui.gitlabConfigurationStatus.get()).toHaveTextContent('ERROR');
+    expect(ui.gitlabConfigurationStatus.getAll()[1]).toHaveTextContent('ERROR');
     await user.click(ui.disableConfigButton.get());
     expect(ui.gitlabConfigurationStatus.query()).not.toBeInTheDocument();
   });
