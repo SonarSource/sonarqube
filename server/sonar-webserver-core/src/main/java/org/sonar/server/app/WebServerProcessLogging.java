@@ -26,18 +26,22 @@ import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.ConsoleAppender;
 import ch.qos.logback.core.FileAppender;
 import ch.qos.logback.core.encoder.Encoder;
-import org.sonar.process.ProcessId;
+import java.util.Collection;
+import java.util.List;
 import org.sonar.process.Props;
 import org.sonar.process.logging.LogDomain;
 import org.sonar.process.logging.LogLevelConfig;
 import org.sonar.process.logging.RootLoggerConfig;
 import org.sonar.server.log.ServerProcessLogging;
 
+import static org.apache.commons.lang.StringUtils.EMPTY;
 import static org.apache.commons.lang.StringUtils.isBlank;
+import static org.sonar.process.ProcessId.WEB_SERVER;
 import static org.sonar.process.ProcessProperties.Property.LOG_JSON_OUTPUT;
 import static org.sonar.process.logging.AbstractLogHelper.PREFIX_LOG_FORMAT;
 import static org.sonar.process.logging.AbstractLogHelper.SUFFIX_LOG_FORMAT;
 import static org.sonar.process.logging.LogbackHelper.DEPRECATION_LOGGER_NAME;
+import static org.sonar.process.logging.RootLoggerConfig.newRootLoggerConfigBuilder;
 import static org.sonar.server.authentication.UserSessionInitializer.USER_LOGIN_MDC_KEY;
 import static org.sonar.server.platform.web.logging.EntrypointMDCStorage.ENTRYPOINT_MDC_KEY;
 import static org.sonar.server.platform.web.requestid.RequestIdMDCStorage.HTTP_REQUEST_ID_MDC_KEY;
@@ -49,16 +53,18 @@ public class WebServerProcessLogging extends ServerProcessLogging {
 
   private static final String DEPRECATION_LOG_FILE_PREFIX = "deprecation";
 
+  private static final String ENABLE_LOGIN_PROPERTY = "sonar.deprecationLogs.loginEnabled";
+
   public WebServerProcessLogging() {
-    super(ProcessId.WEB_SERVER, "%X{" + HTTP_REQUEST_ID_MDC_KEY + "}");
+    super(WEB_SERVER, "%X{" + HTTP_REQUEST_ID_MDC_KEY + "}");
   }
 
   @Override
   protected void extendLogLevelConfiguration(LogLevelConfig.Builder logLevelConfigBuilder) {
-    logLevelConfigBuilder.levelByDomain("sql", ProcessId.WEB_SERVER, LogDomain.SQL);
-    logLevelConfigBuilder.levelByDomain("es", ProcessId.WEB_SERVER, LogDomain.ES);
-    logLevelConfigBuilder.levelByDomain("auth.event", ProcessId.WEB_SERVER, LogDomain.AUTH_EVENT);
-    JMX_RMI_LOGGER_NAMES.forEach(loggerName -> logLevelConfigBuilder.levelByDomain(loggerName, ProcessId.WEB_SERVER, LogDomain.JMX));
+    logLevelConfigBuilder.levelByDomain("sql", WEB_SERVER, LogDomain.SQL);
+    logLevelConfigBuilder.levelByDomain("es", WEB_SERVER, LogDomain.ES);
+    logLevelConfigBuilder.levelByDomain("auth.event", WEB_SERVER, LogDomain.AUTH_EVENT);
+    JMX_RMI_LOGGER_NAMES.forEach(loggerName -> logLevelConfigBuilder.levelByDomain(loggerName, WEB_SERVER, LogDomain.JMX));
 
     logLevelConfigBuilder.offUnlessTrace("org.apache.catalina.core.ContainerBase");
     logLevelConfigBuilder.offUnlessTrace("org.apache.catalina.core.StandardContext");
@@ -72,10 +78,25 @@ public class WebServerProcessLogging extends ServerProcessLogging {
     configureDeprecatedApiLogger(props);
   }
 
+  @Override
+  protected RootLoggerConfig buildRootLoggerConfig(Props props) {
+    return getRootLoggerConfigBuilder(props, List.of(USER_LOGIN_MDC_KEY)).build();
+  }
+
+  private static RootLoggerConfig.Builder getRootLoggerConfigBuilder(Props props, Collection<String> excludedFields) {
+    return newRootLoggerConfigBuilder()
+      .setProcessId(WEB_SERVER)
+      .setNodeNameField(getNodeNameWhenCluster(props))
+      .setThreadIdFieldPattern("%X{" + HTTP_REQUEST_ID_MDC_KEY + "}")
+      .setExcludedFields(excludedFields.stream().toList());
+  }
+
   private void configureDeprecatedApiLogger(Props props) {
     LoggerContext context = helper.getRootContext();
 
-    RootLoggerConfig config = buildRootLoggerConfig(props);
+    boolean isLoginEnabled = props.valueAsBoolean(ENABLE_LOGIN_PROPERTY, false);
+    RootLoggerConfig config = getRootLoggerConfigBuilder(props, isLoginEnabled ? List.of() : List.of(USER_LOGIN_MDC_KEY)).build();
+
     Encoder<ILoggingEvent> encoder = props.valueAsBoolean(LOG_JSON_OUTPUT.getKey(), Boolean.parseBoolean(LOG_JSON_OUTPUT.getDefaultValue()))
       ? helper.createJsonEncoder(context, config)
       : helper.createPatternLayoutEncoder(context, buildDepractedLogPatrern(config));
@@ -90,11 +111,12 @@ public class WebServerProcessLogging extends ServerProcessLogging {
   }
 
   private static String buildDepractedLogPatrern(RootLoggerConfig config) {
+    String userLoginPattern = " %X{" + USER_LOGIN_MDC_KEY + "}";
     return PREFIX_LOG_FORMAT
       + (isBlank(config.getNodeNameField()) ? "" : (config.getNodeNameField() + " "))
       + config.getProcessId().getKey()
       + "[" + config.getThreadIdFieldPattern() + "]"
-      + " %X{" + USER_LOGIN_MDC_KEY + "}"
+      + (config.getExcludedFields().contains(USER_LOGIN_MDC_KEY) ? EMPTY : userLoginPattern)
       + " %X{" + ENTRYPOINT_MDC_KEY + "}"
       + SUFFIX_LOG_FORMAT;
   }

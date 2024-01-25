@@ -243,7 +243,7 @@ public class LogbackHelper extends AbstractLogHelper {
 
   public Encoder<ILoggingEvent> createJsonEncoder(LoggerContext context, RootLoggerConfig config) {
     LayoutWrappingEncoder<ILoggingEvent> encoder = new LayoutWrappingEncoder<>();
-    encoder.setLayout(new LogbackJsonLayout(config.getProcessId().getKey(), config.getNodeNameField()));
+    encoder.setLayout(new LogbackJsonLayout(config.getProcessId().getKey(), config.getNodeNameField(), config.getExcludedFields()));
     encoder.setContext(context);
     encoder.start();
     return encoder;

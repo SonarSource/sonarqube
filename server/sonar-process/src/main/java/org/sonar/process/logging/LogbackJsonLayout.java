@@ -30,6 +30,7 @@ import java.io.StringWriter;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -52,10 +53,16 @@ public class LogbackJsonLayout extends LayoutBase<ILoggingEvent> {
 
   private final String processKey;
   private final String nodeName;
+  private final List<String> exclusions;
 
   public LogbackJsonLayout(String processKey, String nodeName) {
+    this(processKey, nodeName, List.of());
+  }
+
+  public LogbackJsonLayout(String processKey, String nodeName, List<String> exclusions) {
     this.processKey = requireNonNull(processKey);
     this.nodeName = nodeName;
+    this.exclusions = exclusions;
   }
 
   String getProcessKey() {
@@ -72,7 +79,7 @@ public class LogbackJsonLayout extends LayoutBase<ILoggingEvent> {
       }
       json.name("process").value(processKey);
       for (Map.Entry<String, String> entry : event.getMDCPropertyMap().entrySet()) {
-        if (entry.getValue() != null) {
+        if (entry.getValue() != null && !exclusions.contains(entry.getKey())) {
           json.name(entry.getKey()).value(entry.getValue());
         }
       }

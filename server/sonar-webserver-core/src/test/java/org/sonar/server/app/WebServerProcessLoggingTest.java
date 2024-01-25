@@ -32,10 +32,14 @@ import ch.qos.logback.core.encoder.Encoder;
 import ch.qos.logback.core.encoder.LayoutWrappingEncoder;
 import ch.qos.logback.core.joran.spi.JoranException;
 import com.google.common.collect.ImmutableList;
+import com.tngtech.java.junit.dataprovider.DataProvider;
+import com.tngtech.java.junit.dataprovider.DataProviderRunner;
+import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.stream.Stream;
 import org.junit.AfterClass;
@@ -43,6 +47,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.junit.runner.RunWith;
 import org.sonar.process.Props;
 import org.sonar.process.logging.LogbackHelper;
 import org.sonar.process.logging.LogbackJsonLayout;
@@ -53,6 +58,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.slf4j.Logger.ROOT_LOGGER_NAME;
 import static org.sonar.process.ProcessProperties.Property.PATH_LOGS;
 
+@RunWith(DataProviderRunner.class)
 public class WebServerProcessLoggingTest {
 
   @Rule
@@ -525,9 +531,20 @@ public class WebServerProcessLoggingTest {
     assertThat(((LayoutWrappingEncoder) encoder).getLayout()).isInstanceOf(LogbackJsonLayout.class);
   }
 
+  @DataProvider
+  public static Object[][] configuration() {
+    return new Object[][] {
+      {Map.of("sonar.deprecationLogs.loginEnabled", "true"), "%d{yyyy.MM.dd HH:mm:ss} %-5level web[%X{HTTP_REQUEST_ID}] %X{LOGIN} %X{ENTRYPOINT} %msg%n"},
+      {Map.of("sonar.deprecationLogs.loginEnabled", "false"), "%d{yyyy.MM.dd HH:mm:ss} %-5level web[%X{HTTP_REQUEST_ID}] %X{ENTRYPOINT} %msg%n"},
+      {Map.of(), "%d{yyyy.MM.dd HH:mm:ss} %-5level web[%X{HTTP_REQUEST_ID}] %X{ENTRYPOINT} %msg%n"},
+    };
+  }
+
   @Test
-  public void configure_whenJsonPropFalse_shouldConfigureDeprecatedLoggerWithPatternLayout() {
+  @UseDataProvider("configuration")
+  public void configure_whenJsonPropFalse_shouldConfigureDeprecatedLoggerWithPatternLayout(Map<String, String> additionalProps, String expectedPattern) {
     props.set("sonar.log.jsonOutput", "false");
+    additionalProps.forEach(props::set);
 
     LoggerContext context = underTest.configure(props);
 
@@ -540,7 +557,7 @@ public class WebServerProcessLoggingTest {
     Encoder<ILoggingEvent> encoder = fileAppender.getEncoder();
     assertThat(encoder).isInstanceOf(PatternLayoutEncoder.class);
     PatternLayoutEncoder patternLayoutEncoder = (PatternLayoutEncoder) encoder;
-    assertThat(patternLayoutEncoder.getPattern()).isEqualTo("%d{yyyy.MM.dd HH:mm:ss} %-5level web[%X{HTTP_REQUEST_ID}] %X{LOGIN} %X{ENTRYPOINT} %msg%n");
+    assertThat(patternLayoutEncoder.getPattern()).isEqualTo(expectedPattern);
   }
 
   @Test

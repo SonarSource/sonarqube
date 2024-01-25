@@ -24,6 +24,7 @@ import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.LoggingEvent;
 import com.google.gson.Gson;
 import java.time.Instant;
+import java.util.List;
 import org.junit.Test;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -146,6 +147,22 @@ public class LogbackJsonLayoutTest {
 
       JsonLog json = new Gson().fromJson(log, JsonLog.class);
       assertThat(json.fromMdc).isEqualTo("foo");
+    } finally {
+      MDC.clear();
+    }
+  }
+
+  @Test
+  public void doLayout_whenMDC_shouldNotContainExcludedFields() {
+    try {
+      LogbackJsonLayout logbackJsonLayout = new LogbackJsonLayout("web", "", List.of("fromMdc"));
+      LoggingEvent event = new LoggingEvent("org.foundation.Caller", (Logger) LoggerFactory.getLogger("the.logger"), Level.WARN, "the message", null, new Object[0]);
+      MDC.put("fromMdc", "foo");
+
+      String log = logbackJsonLayout.doLayout(event);
+
+      JsonLog json = new Gson().fromJson(log, JsonLog.class);
+      assertThat(json.fromMdc).isNull();
     } finally {
       MDC.clear();
     }

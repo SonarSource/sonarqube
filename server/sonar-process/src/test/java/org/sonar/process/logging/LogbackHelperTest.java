@@ -582,8 +582,8 @@ public class LogbackHelperTest {
 
   @Test
   public void createJsonEncoder_shouldStartJsonEncoder() {
-    RootLoggerConfig config = newRootLoggerConfigBuilder().setProcessId(WEB_SERVER).build();
-    LogbackJsonLayout expectedJsonLayout = new LogbackJsonLayout(config.getProcessId().getKey(), config.getNodeNameField());
+    RootLoggerConfig config = newRootLoggerConfigBuilder().setProcessId(WEB_SERVER).setExcludedFields(List.of("LOGIN")).build();
+    LogbackJsonLayout expectedJsonLayout = new LogbackJsonLayout(config.getProcessId().getKey(), config.getNodeNameField(), List.of("LOGIN"));
 
     Encoder<ILoggingEvent> result = underTest.createJsonEncoder(underTest.getRootContext(), config);
 
