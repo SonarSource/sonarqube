@@ -73,28 +73,21 @@ allprojects {
       throw new GradleException('Invalid artifactoryUrl')
     }
 
-    if (artifactoryPassword) {
-      if (artifactoryUrl == '') {
-        throw new GradleException('Invalid artifactoryUrl')
-      }
-      maven {
-        authentication {
-          header(HttpHeaderAuthentication)
-        }
-        credentials(HttpHeaderCredentials) {
-          name = "Authorization"
-          value = "Bearer $artifactoryPassword"
+    maven {
+        if (artifactoryPassword) {
+          authentication {
+            header(HttpHeaderAuthentication)
+          }
+          credentials(HttpHeaderCredentials) {
+            name = "Authorization"
+            value = "Bearer $artifactoryPassword"
+          }
+        } else {
+            // Workaround for artifactory
+            // https://www.jfrog.com/jira/browse/RTFACT-13797
+            repository = 'public'
         }
         url "${artifactoryUrl}/${repository}"
-      }
-    } else {
-      mavenCentral()
-      maven {
-        url 'https://jitpack.io'
-      }
-      maven {
-        url 'https://maven.codelibs.org/'
-      }
     }
     ivy {
           if (artifactoryUsername && artifactoryPassword) {
@@ -548,10 +541,10 @@ subprojects {
         pom {
           name = 'SonarQube'
           description = project.description
-          url = 'http://www.sonarqube.org/'
+          url = 'https://www.sonarsource.com/products/sonarqube'
           organization {
             name = 'SonarSource'
-            url = 'http://www.sonarsource.com'
+            url = 'https://www.sonarsource.com'
           }
           licenses {
             license {
