@@ -32,7 +32,7 @@ export default function BranchOverallCodePanel(props: Readonly<BranchOverallCode
   const { component, measures } = props;
 
   return (
-    <div className="sw-flex sw-gap-4">
+    <div className="sw-flex sw-gap-4 sw-mt-4">
       <SoftwareImpactMeasureCard
         component={component}
         softwareQuality={SoftwareQuality.Security}

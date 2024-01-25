@@ -32,7 +32,7 @@ import { Component } from '../../../types/types';
 export interface SoftwareImpactMeasureBreakdownCardProps {
   softwareQuality: SoftwareQuality;
   component: Component;
-  value: string;
+  value?: string;
   severity: SoftwareImpactSeverity;
   active?: boolean;
 }
@@ -50,48 +50,56 @@ export function SoftwareImpactMeasureBreakdownCard(
     impactSeverities: severity,
   });
 
+  const cardClasses = classNames(
+    'sw-w-1/3 sw-p-2 sw-rounded-1 sw-text-xs sw-font-semibold sw-select-none sw-flex sw-gap-1 sw-justify-center sw-items-center',
+    severity,
+    {
+      active,
+    },
+  );
+
+  if (!value) {
+    return <StyledBreakdownCard className={cardClasses}>-</StyledBreakdownCard>;
+  }
+
   return (
     <Tooltip
       overlay={intl.formatMessage({
         id: `overview.measures.software_impact.severity.${severity}.tooltip`,
       })}
     >
-      <StyledBreakdownCard
-        aria-label={intl.formatMessage(
-          {
-            id: 'overview.measures.software_impact.severity.see_x_open_issues',
-          },
-          {
-            count: formatMeasure(value, MetricType.ShortInteger),
-            softwareQuality: intl.formatMessage({
-              id: `software_quality.${softwareQuality}`,
-            }),
-            severity: intl.formatMessage({
-              id: `overview.measures.software_impact.severity.${severity}.tooltip`,
-            }),
-          },
-        )}
-        to={url}
-        className={classNames(
-          'sw-w-1/3 sw-p-2 sw-rounded-1 sw-text-xs sw-font-semibold sw-select-none sw-flex sw-gap-1 sw-justify-center sw-items-center',
-          severity,
-          {
-            active,
-          },
-        )}
-      >
-        <span>{formatMeasure(value, MetricType.ShortInteger)}</span>
-        <span>
-          {intl.formatMessage({
-            id: `overview.measures.software_impact.severity.${severity}`,
-          })}
-        </span>
+      <StyledBreakdownCard className={cardClasses}>
+        <DiscreetLinkBox
+          className="sw-flex sw-gap-1 sw-justify-center sw-items-center"
+          aria-label={intl.formatMessage(
+            {
+              id: 'overview.measures.software_impact.severity.see_x_open_issues',
+            },
+            {
+              count: formatMeasure(value, MetricType.ShortInteger),
+              softwareQuality: intl.formatMessage({
+                id: `software_quality.${softwareQuality}`,
+              }),
+              severity: intl.formatMessage({
+                id: `overview.measures.software_impact.severity.${severity}.tooltip`,
+              }),
+            },
+          )}
+          to={url}
+        >
+          <span>{formatMeasure(value, MetricType.ShortInteger)}</span>
+          <span>
+            {intl.formatMessage({
+              id: `overview.measures.software_impact.severity.${severity}`,
+            })}
+          </span>
+        </DiscreetLinkBox>
       </StyledBreakdownCard>
     </Tooltip>
   );
 }
 
-const StyledBreakdownCard = styled(DiscreetLinkBox)`
+const StyledBreakdownCard = styled.div`
   background-color: ${themeColor('overviewSoftwareImpactSeverityNeutral')};
 
   &.active.HIGH {

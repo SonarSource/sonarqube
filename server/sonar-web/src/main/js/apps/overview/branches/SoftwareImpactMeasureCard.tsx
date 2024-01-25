@@ -17,7 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { BasicSeparator, LightGreyCard, NakedLink, TextBold, TextSubdued } from 'design-system';
+import styled from '@emotion/styled';
+import classNames from 'classnames';
+import {
+  BasicSeparator,
+  LightGreyCard,
+  NakedLink,
+  TextBold,
+  TextSubdued,
+  themeColor,
+} from 'design-system';
 import * as React from 'react';
 import { useIntl } from 'react-intl';
 import { DEFAULT_ISSUES_QUERY } from '../../../components/shared/utils';
@@ -51,11 +60,6 @@ export function SoftwareImpactMeasureCard(props: Readonly<SoftwareImpactBreakdow
   const measureRaw = measures.find((m) => m.metric.key === metricKey);
   const measure = JSON.parse(measureRaw?.value ?? 'null') as SoftwareImpactMeasureData | null;
 
-  // Hide this card if there is no measure
-  if (!measure) {
-    return null;
-  }
-
   // Find rating measure
   const ratingMeasure = measures.find((m) => m.metric.key === ratingMetricKey);
   const ratingLabel = ratingMeasure?.value ? formatRating(ratingMeasure.value) : undefined;
@@ -66,39 +70,47 @@ export function SoftwareImpactMeasureCard(props: Readonly<SoftwareImpactBreakdow
   });
 
   // We highlight the highest severity breakdown card with non-zero count if the rating is not A
-  const issuesBySeverity = {
-    [SoftwareImpactSeverity.High]: measure.high,
-    [SoftwareImpactSeverity.Medium]: measure.medium,
-    [SoftwareImpactSeverity.Low]: measure.low,
-  };
-  const shouldHighlightSeverity = measure && (!ratingLabel || ratingLabel !== 'A');
-  const highlightedSeverity = shouldHighlightSeverity
-    ? Object.entries(issuesBySeverity).find(([_, issuesCount]) => issuesCount > 0)?.[0]
-    : null;
+  let highlightedSeverity: SoftwareImpactSeverity | undefined;
+  if (measure && (!ratingLabel || ratingLabel !== 'A')) {
+    const issuesBySeverity: [SoftwareImpactSeverity, number][] = [
+      [SoftwareImpactSeverity.High, measure.high],
+      [SoftwareImpactSeverity.Medium, measure.medium],
+      [SoftwareImpactSeverity.Low, measure.low],
+    ];
+    highlightedSeverity = issuesBySeverity.find(([_, issuesCount]) => issuesCount > 0)?.[0];
+  }
 
   return (
-    <LightGreyCard className="sw-w-1/3 sw-rounded-2 sw-p-4 sw-flex-col">
+    <LightGreyCard className="sw-w-1/3 sw-overflow-hidden sw-rounded-2 sw-p-4 sw-flex-col">
       <TextBold name={intl.formatMessage({ id: `software_quality.${softwareQuality}` })} />
       <BasicSeparator className="sw--mx-4" />
       <div className="sw-flex sw-flex-col sw-gap-3">
-        <div className="sw-flex sw-gap-1 sw-items-end">
-          <NakedLink
-            aria-label={intl.formatMessage(
-              {
-                id: `overview.measures.software_impact.see_list_of_x_open_issues`,
-              },
-              {
-                count: measure.total,
-                softwareQuality: intl.formatMessage({
-                  id: `software_quality.${softwareQuality}`,
-                }),
-              },
-            )}
-            className="sw-text-xl"
-            to={totalLinkHref}
-          >
-            {formatMeasure(measure.total, MetricType.ShortInteger)}
-          </NakedLink>
+        <div
+          className={classNames('sw-flex sw-gap-1 sw-items-end', {
+            'sw-opacity-60': !measure,
+          })}
+        >
+          {measure ? (
+            <NakedLink
+              aria-label={intl.formatMessage(
+                {
+                  id: `overview.measures.software_impact.see_list_of_x_open_issues`,
+                },
+                {
+                  count: measure.total,
+                  softwareQuality: intl.formatMessage({
+                    id: `software_quality.${softwareQuality}`,
+                  }),
+                },
+              )}
+              className="sw-text-xl"
+              to={totalLinkHref}
+            >
+              {formatMeasure(measure.total, MetricType.ShortInteger)}
+            </NakedLink>
+          ) : (
+            <StyledDash className="sw-self-center sw-font-bold" name="-" />
+          )}
           <TextSubdued className="sw-body-sm sw-mb-2">
             {intl.formatMessage({ id: 'overview.measures.software_impact.total_open_issues' })}
           </TextSubdued>
@@ -119,15 +131,36 @@ export function SoftwareImpactMeasureCard(props: Readonly<SoftwareImpactBreakdow
               key={severity}
               component={component}
               softwareQuality={softwareQuality}
-              value={getSoftwareImpactSeverityValue(severity, measure)}
+              value={measure ? getSoftwareImpactSeverityValue(severity, measure) : undefined}
               severity={severity}
               active={highlightedSeverity === severity}
             />
           ))}
         </div>
       </div>
+      {!measure && (
+        <>
+          <BasicSeparator className="sw--mx-4 sw-mb-0 sw-mt-3" />
+          <StyledInfoSection className="sw--ml-4 sw--mr-4 sw--mb-4 sw-text-xs sw-p-4 sw-flex sw-gap-1 sw-flex-wrap">
+            <span>{intl.formatMessage({ id: 'overview.project.no_data' })}</span>
+            <span>
+              {intl.formatMessage({
+                id: `overview.run_analysis_to_compute.${component.qualifier}`,
+              })}
+            </span>
+          </StyledInfoSection>
+        </>
+      )}
     </LightGreyCard>
   );
 }
+
+const StyledDash = styled(TextBold)`
+  font-size: 36px;
+`;
+
+const StyledInfoSection = styled.div`
+  background-color: ${themeColor('overviewSoftwareImpactSeverityNeutral')};
+`;
 
 export default SoftwareImpactMeasureCard;

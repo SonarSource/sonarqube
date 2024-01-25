@@ -19,11 +19,13 @@
  */
 import {
   BasicSeparator,
+  FlagMessage,
   LargeCenteredLayout,
   LightGreyCard,
   PageContentFontWrapper,
 } from 'design-system';
 import * as React from 'react';
+import { useIntl } from 'react-intl';
 import A11ySkipTarget from '../../../components/a11y/A11ySkipTarget';
 import { useLocation } from '../../../components/hoc/withRouter';
 import { parseDate } from '../../../helpers/dates';
@@ -31,7 +33,8 @@ import { isDiffMetric } from '../../../helpers/measures';
 import { CodeScope } from '../../../helpers/urls';
 import { ApplicationPeriod } from '../../../types/application';
 import { Branch } from '../../../types/branch-like';
-import { ComponentQualifier } from '../../../types/component';
+import { ComponentQualifier, isApplication } from '../../../types/component';
+import { MetricKey } from '../../../types/metrics';
 import { Analysis, GraphType, MeasureHistory } from '../../../types/project-activity';
 import { QualityGateStatus } from '../../../types/quality-gates';
 import { Component, MeasureEnhanced, Metric, Period, QualityGate } from '../../../types/types';
@@ -95,6 +98,15 @@ export default function BranchOverviewRenderer(props: BranchOverviewRendererProp
   const [tab, selectTab] = React.useState(() => {
     return query.codeScope === CodeScope.Overall ? MeasuresTabs.Overall : MeasuresTabs.New;
   });
+  const intl = useIntl();
+
+  // Check if any potentially missing uncomputed measure is not present
+  const isMissingMeasures = [
+    MetricKey.new_accepted_issues,
+    MetricKey.security_issues,
+    MetricKey.maintainability_issues,
+    MetricKey.reliability_issues,
+  ].some((key) => !measures.find((measure) => measure.metric.key === key));
 
   const leakPeriod = component.qualifier === ComponentQualifier.Application ? appLeak : period;
   const isNewCodeTab = tab === MeasuresTabs.New;
@@ -169,6 +181,20 @@ export default function BranchOverviewRenderer(props: BranchOverviewRendererProp
                           />
                         )}
 
+                        {hasNewCodeMeasures &&
+                          isMissingMeasures &&
+                          isApplication(component.qualifier) && (
+                            <FlagMessage variant="warning" className="sw-my-4">
+                              {intl.formatMessage({
+                                id: 'overview.missing_project_data.APP',
+                              })}
+                            </FlagMessage>
+                          )}
+
+                        {!isNewCodeTab && (
+                          <BranchOverallCodePanel component={component} measures={measures} />
+                        )}
+
                         {hasNewCodeMeasures && isNewCodeTab && (
                           <NewCodeMeasuresPanel
                             qgStatuses={qgStatuses}
@@ -178,28 +204,20 @@ export default function BranchOverviewRenderer(props: BranchOverviewRendererProp
                           />
                         )}
 
-                        {!isNewCodeTab && (
-                          <>
-                            {!isNewCodeTab && (
-                              <BranchOverallCodePanel component={component} measures={measures} />
-                            )}
+                        <MeasuresPanel
+                          branch={branch}
+                          component={component}
+                          measures={measures}
+                          isNewCode={isNewCodeTab}
+                        />
 
-                            <MeasuresPanel
-                              branch={branch}
-                              component={component}
-                              measures={measures}
-                              isNewCode={isNewCodeTab}
-                            />
-
-                            <AcceptedIssuesPanel
-                              branch={branch}
-                              component={component}
-                              measures={measures}
-                              isNewCode={isNewCodeTab}
-                              loading={loadingStatus}
-                            />
-                          </>
-                        )}
+                        <AcceptedIssuesPanel
+                          branch={branch}
+                          component={component}
+                          measures={measures}
+                          isNewCode={isNewCodeTab}
+                          loading={loadingStatus}
+                        />
                       </TabsPanel>
 
                       <ActivityPanel

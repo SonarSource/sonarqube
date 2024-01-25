@@ -63,7 +63,3 @@ const LightGreyCardStyled = styled(CardStyled)`
 const GreyCardStyled = styled(CardStyled)`
   border: ${themeBorder('default', 'almCardBorder')};
 `;
-
-const LightGreyCardStyled = styled(CardStyled)`
-  border: ${themeBorder('default')};
-`;
