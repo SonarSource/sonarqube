@@ -17,7 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { BasicSeparator, Card, PageTitle, Spinner } from 'design-system';
+import styled from '@emotion/styled';
+import { BasicSeparator, Card, Spinner, TextSubdued, themeColor } from 'design-system';
 import * as React from 'react';
 import GraphsHeader from '../../../components/activity-graph/GraphsHeader';
 import GraphsHistory from '../../../components/activity-graph/GraphsHistory';
@@ -112,7 +113,12 @@ export function ActivityPanel(props: ActivityPanelProps) {
 
   return (
     <div className="sw-mt-8">
-      <PageTitle as="h2" text={translate('overview.activity')} />
+      <StyledPanelTitle
+        as="h2"
+        className="sw-w-full sw-flex sw-gap-1/2 sw-items-center sw-uppercase sw-font-semibold sw-text-xs"
+      >
+        {translate('overview.activity')}
+      </StyledPanelTitle>
 
       <Card className="overview-panel sw-mt-4" data-test="overview__activity-panel">
         <GraphsHeader graph={graph} metrics={metrics} onUpdateGraph={props.onGraphChange} />
@@ -163,5 +169,24 @@ export function ActivityPanel(props: ActivityPanelProps) {
     </div>
   );
 }
+
+const StyledPanelTitle = styled(TextSubdued)`
+  &:before,
+  &:after {
+    display: inline-block;
+    height: 1px;
+    background-color: ${themeColor('border')};
+    content: '';
+    vertical-align: middle;
+  }
+
+  &:before {
+    width: 3em;
+  }
+
+  &:after {
+    flex-grow: 1;
+  }
+`;
 
 export default React.memo(ActivityPanel);
