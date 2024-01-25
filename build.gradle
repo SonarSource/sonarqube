@@ -88,7 +88,15 @@ allprojects {
     }
 
     maven {
-        if (!artifactoryUsername || !artifactoryPassword) {
+        if (artifactoryPassword) {
+          authentication {
+            header(HttpHeaderAuthentication)
+          }
+          credentials(HttpHeaderCredentials) {
+            name = "Authorization"
+            value = "Bearer $artifactoryPassword"
+          }
+        } else {
             // Workaround for artifactory
             // https://www.jfrog.com/jira/browse/RTFACT-13797
             repository = 'public'
@@ -98,6 +106,13 @@ allprojects {
     ivy {
           if (artifactoryUsername && artifactoryPassword) {
               url "${artifactoryUrl}/sonarsource-bucket"
+              authentication {
+                header(HttpHeaderAuthentication)
+              }
+              credentials(HttpHeaderCredentials) {
+                name = "Authorization"
+                value = "Bearer $artifactoryPassword"
+              }
 
               patternLayout {
                 artifact '/[organisation]/[module]/[module]-[revision].[ext]'
