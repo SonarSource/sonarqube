@@ -23,6 +23,7 @@ import {
   Card,
   HighImpactCircleIcon,
   LightLabel,
+  NoDataIcon,
   PageTitle,
   SnoozeCircleIcon,
   Spinner,
@@ -90,9 +91,8 @@ function AcceptedIssuesPanel(props: Readonly<AcceptedIssuesPanelProps>) {
         >
           <Card className="sw-flex sw-gap-4">
             <IssueMeasuresCardInner
-              linkDisabled={component.needIssueSync}
+              disabled={component.needIssueSync}
               className={classNames({ 'sw-w-1/2': !isNewCode, 'sw-w-full': isNewCode })}
-              noDataIconClassName="sw--translate-y-3"
               metric={MetricKey.accepted_issues}
               value={formatMeasure(acceptedCount, MetricType.ShortInteger)}
               header={intl.formatMessage({
@@ -112,16 +112,21 @@ function AcceptedIssuesPanel(props: Readonly<AcceptedIssuesPanelProps>) {
               <>
                 <StyledCardSeparator />
                 <IssueMeasuresCardInner
-                  linkDisabled={component.needIssueSync}
+                  disabled={Boolean(component.needIssueSync) || !acceptedWithHighImpactCount}
                   className="sw-w-1/2"
-                  noDataIconClassName="sw--translate-y-3"
                   metric={MetricKey.high_impact_accepted_issues}
                   value={formatMeasure(acceptedWithHighImpactCount, MetricType.ShortInteger)}
                   header={intl.formatMessage({
                     id: 'overview.high_impact_accepted_issues',
                   })}
                   url={acceptedIssuesWithHighImpactUrl}
-                  icon={<HighImpactCircleIcon className="sw--translate-y-3" />}
+                  icon={
+                    acceptedWithHighImpactCount ? (
+                      <HighImpactCircleIcon className="sw--translate-y-3" />
+                    ) : (
+                      <NoDataIcon className="sw--translate-y-3" width={36} height={36} />
+                    )
+                  }
                 />
               </>
             )}

@@ -19,7 +19,7 @@
  */
 import styled from '@emotion/styled';
 import classNames from 'classnames';
-import { Badge, ContentLink, LightLabel, NoDataIcon, themeColor } from 'design-system';
+import { Badge, ContentLink, themeColor } from 'design-system';
 import * as React from 'react';
 import { Path } from 'react-router-dom';
 import Tooltip from '../../../components/controls/Tooltip';
@@ -28,8 +28,6 @@ import { localizeMetric } from '../../../helpers/measures';
 import { MetricKey } from '../../../types/metrics';
 import { OverviewDisabledLinkTooltip } from './OverviewDisabledLinkTooltip';
 
-const NO_DATA_ICON_SIZE = 36;
-
 interface IssueMeasuresCardInnerProps extends React.HTMLAttributes<HTMLDivElement> {
   metric: MetricKey;
   value?: string;
@@ -37,29 +35,20 @@ interface IssueMeasuresCardInnerProps extends React.HTMLAttributes<HTMLDivElemen
   url: Path;
   failed?: boolean;
   icon?: React.ReactNode;
-  linkDisabled?: boolean;
+  disabled?: boolean;
   footer?: React.ReactNode;
-  noDataIconClassName?: string;
 }
 
 export function IssueMeasuresCardInner(props: Readonly<IssueMeasuresCardInnerProps>) {
-  const {
-    header,
-    metric,
-    icon,
-    value,
-    url,
-    failed,
-    footer,
-    className,
-    noDataIconClassName,
-    linkDisabled,
-    ...rest
-  } = props;
+  const { header, metric, icon, value, url, failed, footer, className, disabled, ...rest } = props;
 
   return (
     <div className={classNames('sw-flex sw-flex-col sw-gap-3', className)} {...rest}>
-      <div className="sw-flex sw-flex-col sw-gap-2 sw-font-semibold">
+      <div
+        className={classNames('sw-flex sw-flex-col sw-gap-2 sw-font-semibold', {
+          'sw-opacity-60': disabled,
+        })}
+      >
         <ColorBold className="sw-flex sw-items-center sw-gap-2 sw-body-sm-highlight">
           {header}
 
@@ -71,39 +60,29 @@ export function IssueMeasuresCardInner(props: Readonly<IssueMeasuresCardInnerPro
         </ColorBold>
         <div className="sw-flex sw-justify-between sw-items-center sw-h-9">
           <div className="sw-h-fit">
-            {value ? (
-              <Tooltip
-                classNameSpace={linkDisabled ? 'tooltip' : 'sw-hidden'}
-                overlay={<OverviewDisabledLinkTooltip />}
+            <Tooltip
+              classNameSpace={disabled ? 'tooltip' : 'sw-hidden'}
+              overlay={value && <OverviewDisabledLinkTooltip />}
+            >
+              <ContentLink
+                disabled={disabled || !value}
+                aria-label={
+                  value
+                    ? translateWithParameters(
+                        'overview.see_more_details_on_x_of_y',
+                        value,
+                        localizeMetric(metric),
+                      )
+                    : translate('no_data')
+                }
+                className="it__overview-measures-value sw-w-fit sw-text-lg"
+                to={url}
               >
-                <ContentLink
-                  disabled={linkDisabled}
-                  aria-label={translateWithParameters(
-                    'overview.see_more_details_on_x_of_y',
-                    value,
-                    localizeMetric(metric),
-                  )}
-                  className="it__overview-measures-value sw-w-fit sw-text-lg"
-                  to={url}
-                >
-                  {value}
-                </ContentLink>
-              </Tooltip>
-            ) : (
-              <Tooltip overlay={translate('no_data')}>
-                <LightLabel aria-label={translate('no_data')}> — </LightLabel>
-              </Tooltip>
-            )}
+                {value ? value : '-'}
+              </ContentLink>
+            </Tooltip>
           </div>
-          {value ? (
-            icon
-          ) : (
-            <NoDataIcon
-              className={noDataIconClassName}
-              width={NO_DATA_ICON_SIZE}
-              height={NO_DATA_ICON_SIZE}
-            />
-          )}
+          {icon}
         </div>
       </div>
       {footer}

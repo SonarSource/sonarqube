@@ -111,12 +111,14 @@ export default function IssueMeasuresCard(
         data-test={`overview__measures-${MetricKey.new_accepted_issues}`}
         metric={MetricKey.new_accepted_issues}
         value={formatMeasure(acceptedCount, MetricType.ShortInteger)}
-        linkDisabled={component.needIssueSync}
+        disabled={component.needIssueSync}
         url={acceptedUrl}
         icon={
-          <SnoozeCircleIcon
-            color={acceptedCount === '0' ? 'overviewCardDefaultIcon' : 'overviewCardWarningIcon'}
-          />
+          acceptedCount && (
+            <SnoozeCircleIcon
+              color={acceptedCount === '0' ? 'overviewCardDefaultIcon' : 'overviewCardWarningIcon'}
+            />
+          )
         }
         footer={
           <TextSubdued className="sw-body-xs">
@@ -150,9 +152,9 @@ export default function IssueMeasuresCard(
         data-test={`overview__measures-${MetricKey.pull_request_fixed_issues}`}
         metric={MetricKey.pull_request_fixed_issues}
         value={formatMeasure(fixedCount, MetricType.ShortInteger)}
-        linkDisabled={component.needIssueSync}
+        disabled={component.needIssueSync}
         url={fixedUrl}
-        icon={fixedCount !== '0' && <TrendDownCircleIcon />}
+        icon={fixedCount && fixedCount !== '0' && <TrendDownCircleIcon />}
         footer={
           <TextSubdued className="sw-body-xs">
             {intl.formatMessage({ id: 'overview.pull_request.fixed_issues.help' })}

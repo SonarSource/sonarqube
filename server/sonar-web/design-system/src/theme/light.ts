@@ -522,7 +522,7 @@ export const lightTheme = {
     // project
     projectCardBackground: COLORS.white,
     projectCardBorder: COLORS.blueGrey[100],
-    projectLightGreyCardBorder: COLORS.grey[50],
+    projectCardInfo: COLORS.blueGrey[35],
 
     // overview
     overviewCardDefaultIcon: secondary.light,

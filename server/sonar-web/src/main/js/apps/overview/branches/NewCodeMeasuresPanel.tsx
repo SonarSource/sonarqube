@@ -92,12 +92,32 @@ export default function NewCodeMeasuresPanel(props: Readonly<Props>) {
     );
   }
 
+  let acceptedIssuesFooter = null;
+  if (!newAcceptedIssues) {
+    acceptedIssuesFooter = (
+      <StyledInfoMessage className="sw-rounded-2 sw-text-xs sw-p-4 sw-flex sw-gap-1 sw-flex-wrap">
+        <span>{intl.formatMessage({ id: 'overview.project.no_data' })}</span>
+        <span>
+          {intl.formatMessage({
+            id: `overview.run_analysis_to_compute.${component.qualifier}`,
+          })}
+        </span>
+      </StyledInfoMessage>
+    );
+  } else {
+    acceptedIssuesFooter = (
+      <TextSubdued className="sw-body-xs">
+        {intl.formatMessage({ id: 'overview.accepted_issues.help' })}
+      </TextSubdued>
+    );
+  }
+
   return (
     <div className="sw-mt-6" id={getTabPanelId(MeasuresTabs.New)}>
       <LightGreyCard className="sw-flex sw-rounded-2 sw-gap-4">
         <IssueMeasuresCardInner
           data-test="overview__measures-new_issues"
-          linkDisabled={component.needIssueSync}
+          disabled={component.needIssueSync}
           className="sw-w-1/2"
           metric={MetricKey.new_violations}
           value={formatMeasure(newIssues, MetricType.ShortInteger)}
@@ -116,7 +136,7 @@ export default function NewCodeMeasuresPanel(props: Readonly<Props>) {
         <StyledCardSeparator />
         <IssueMeasuresCardInner
           data-test="overview__measures-accepted_issues"
-          linkDisabled={component.needIssueSync}
+          disabled={Boolean(component.needIssueSync) || !newAcceptedIssues}
           className="sw-w-1/2"
           metric={MetricKey.new_accepted_issues}
           value={formatMeasure(newAcceptedIssues, MetricType.ShortInteger)}
@@ -128,11 +148,7 @@ export default function NewCodeMeasuresPanel(props: Readonly<Props>) {
             issueStatuses: IssueStatus.Accepted,
             inNewCodePeriod: 'true',
           })}
-          footer={
-            <TextSubdued className="sw-body-xs">
-              {intl.formatMessage({ id: 'overview.accepted_issues.help' })}
-            </TextSubdued>
-          }
+          footer={acceptedIssuesFooter}
           icon={
             <SnoozeCircleIcon
               color={
@@ -203,4 +219,8 @@ export default function NewCodeMeasuresPanel(props: Readonly<Props>) {
 const StyledCardSeparator = styled.div`
   width: 1px;
   background-color: ${themeColor('projectCardBorder')};
+`;
+
+const StyledInfoMessage = styled.div`
+  background-color: ${themeColor('projectCardInfo')};
 `;
