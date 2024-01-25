@@ -45,10 +45,10 @@ export class FavoriteFilter extends React.PureComponent<Props> {
   onFavoriteChange = (favorite: boolean) => {
     if (favorite) {
       this.handleSaveFavorite();
-      this.props.router.push(FAVORITE_PATHNAME);
+      this.props.router.push({ pathname: FAVORITE_PATHNAME, query: this.props.location.query });
     } else {
       this.handleSaveAll();
-      this.props.router.push(ALL_PATHNAME);
+      this.props.router.push({ pathname: ALL_PATHNAME, query: this.props.location.query });
     }
   };
 
