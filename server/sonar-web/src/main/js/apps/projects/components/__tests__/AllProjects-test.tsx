@@ -92,7 +92,9 @@ it('changes sort and perspective', async () => {
   await user.click(screen.getByText('projects.view.new_code'));
 
   // each project should show "new bugs" instead of "bugs"
-  expect(await screen.findAllByLabelText(MetricKey.new_bugs)).toHaveLength(20);
+  expect(await screen.findAllByText(`metric.${MetricKey.new_violations}.description`)).toHaveLength(
+    20,
+  );
 
   expect(save).toHaveBeenCalledWith(LS_PROJECTS_VIEW, 'leak');
   // sort should also be updated

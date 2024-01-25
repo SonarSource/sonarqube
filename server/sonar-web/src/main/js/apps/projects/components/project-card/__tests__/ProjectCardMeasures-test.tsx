@@ -33,7 +33,7 @@ jest.mock('date-fns', () => ({
 describe('Overall measures', () => {
   it('should be rendered properly', () => {
     renderProjectCardMeasures();
-    expect(screen.getByTitle('metric.bugs.name')).toBeInTheDocument();
+    expect(screen.getByTitle('metric.security_issues.short_name')).toBeInTheDocument();
   });
 
   it("should be not be rendered if there's no line of code", () => {
@@ -54,6 +54,7 @@ describe('New code measures', () => {
   it('should be rendered properly', () => {
     renderProjectCardMeasures({}, { isNewCode: true });
     expect(screen.getByLabelText(MetricKey.new_security_hotspots_reviewed)).toBeInTheDocument();
+    expect(screen.getByTitle('metric.new_violations.description')).toBeInTheDocument();
   });
 });
 
@@ -67,6 +68,9 @@ function renderProjectCardMeasures(
     [MetricKey.code_smells]: '132',
     [MetricKey.coverage]: '88.3',
     [MetricKey.duplicated_lines_density]: '9.8',
+    [MetricKey.maintainability_issues]: JSON.stringify({ total: 10 }),
+    [MetricKey.reliability_issues]: JSON.stringify({ total: 10 }),
+    [MetricKey.security_issues]: JSON.stringify({ total: 10 }),
     [MetricKey.ncloc]: '2053',
     [MetricKey.reliability_rating]: '1.0',
     [MetricKey.security_rating]: '1.0',
@@ -80,6 +84,7 @@ function renderProjectCardMeasures(
     [MetricKey.new_code_smells]: '0',
     [MetricKey.new_coverage]: '26.55',
     [MetricKey.new_duplicated_lines_density]: '0.55',
+    [MetricKey.new_violations]: '10',
     [MetricKey.new_lines]: '87',
     ...measuresOverride,
   };

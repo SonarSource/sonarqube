@@ -42,6 +42,28 @@ export interface ProjectCardMeasuresProps {
   componentQualifier: ComponentQualifier;
 }
 
+function renderNewIssues(props: ProjectCardMeasuresProps) {
+  const { measures, isNewCode } = props;
+
+  if (!isNewCode) {
+    return null;
+  }
+
+  return (
+    <ProjectCardMeasure
+      metricKey={MetricKey.new_violations}
+      label={translate(`metric.${MetricKey.new_violations}.description`)}
+    >
+      <Measure
+        metricKey={MetricKey.new_violations}
+        metricType={MetricType.ShortInteger}
+        value={measures[MetricKey.new_violations]}
+        className="sw-ml-2 sw-body-md-highlight"
+      />
+    </ProjectCardMeasure>
+  );
+}
+
 function renderCoverage(props: ProjectCardMeasuresProps) {
   const { measures, isNewCode } = props;
   const coverageMetric = isNewCode ? MetricKey.new_coverage : MetricKey.coverage;
@@ -93,20 +115,32 @@ function renderDuplication(props: ProjectCardMeasuresProps) {
 function renderRatings(props: ProjectCardMeasuresProps) {
   const { isNewCode, measures } = props;
 
+  const measuresByCodeLeak = isNewCode
+    ? []
+    : [
+        {
+          iconLabel: translate(`metric.${MetricKey.security_issues}.short_name`),
+          noShrink: true,
+          metricKey: MetricKey.security_issues,
+          metricRatingKey: MetricKey.security_rating,
+          metricType: MetricType.ShortInteger,
+        },
+        {
+          iconLabel: translate(`metric.${MetricKey.reliability_issues}.short_name`),
+          metricKey: MetricKey.reliability_issues,
+          metricRatingKey: MetricKey.reliability_rating,
+          metricType: MetricType.ShortInteger,
+        },
+        {
+          iconLabel: translate(`metric.${MetricKey.maintainability_issues}.short_name`),
+          metricKey: MetricKey.maintainability_issues,
+          metricRatingKey: MetricKey.sqale_rating,
+          metricType: MetricType.ShortInteger,
+        },
+      ];
+
   const measureList = [
-    {
-      iconLabel: translate('metric.bugs.name'),
-      noShrink: true,
-      metricKey: isNewCode ? MetricKey.new_bugs : MetricKey.bugs,
-      metricRatingKey: isNewCode ? MetricKey.new_reliability_rating : MetricKey.reliability_rating,
-      metricType: MetricType.ShortInteger,
-    },
-    {
-      iconLabel: translate('metric.vulnerabilities.name'),
-      metricKey: isNewCode ? MetricKey.new_vulnerabilities : MetricKey.vulnerabilities,
-      metricRatingKey: isNewCode ? MetricKey.new_security_rating : MetricKey.security_rating,
-      metricType: MetricType.ShortInteger,
-    },
+    ...measuresByCodeLeak,
     {
       iconKey: 'security_hotspots',
       iconLabel: translate('projects.security_hotspots_reviewed'),
@@ -118,17 +152,20 @@ function renderRatings(props: ProjectCardMeasuresProps) {
         : MetricKey.security_review_rating,
       metricType: MetricType.Percent,
     },
-    {
-      iconLabel: translate('metric.code_smells.name'),
-      metricKey: isNewCode ? MetricKey.new_code_smells : MetricKey.code_smells,
-      metricRatingKey: isNewCode ? MetricKey.new_maintainability_rating : MetricKey.sqale_rating,
-      metricType: MetricType.ShortInteger,
-    },
   ];
 
   return measureList.map((measure) => {
     const { iconLabel, metricKey, metricRatingKey, metricType } = measure;
     const value = formatRating(measures[metricRatingKey]);
+
+    const measureValue =
+      [
+        MetricKey.security_issues,
+        MetricKey.reliability_issues,
+        MetricKey.maintainability_issues,
+      ].includes(metricKey) && measures[metricKey]
+        ? JSON.parse(measures[metricKey] as string)?.total
+        : measures[metricKey];
 
     return (
       <ProjectCardMeasure key={metricKey} metricKey={metricKey} label={iconLabel}>
@@ -136,7 +173,7 @@ function renderRatings(props: ProjectCardMeasuresProps) {
         <Measure
           metricKey={metricKey}
           metricType={metricType}
-          value={measures[metricKey]}
+          value={measureValue}
           className="sw-ml-2 sw-body-md-highlight"
         />
       </ProjectCardMeasure>
@@ -160,6 +197,7 @@ export default function ProjectCardMeasures(props: ProjectCardMeasuresProps) {
   }
 
   const measureList = [
+    renderNewIssues(props),
     ...renderRatings(props),
     renderCoverage(props),
     renderDuplication(props),

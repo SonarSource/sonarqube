@@ -151,12 +151,42 @@ export async function getMeasuresWithPeriodAndMetrics(
   return result;
 }
 
-export function getMeasuresForProjects(
+export async function getMeasuresForProjects(
   projectKeys: string[],
   metricKeys: string[],
 ): Promise<MeasuresForProjects[]> {
-  return getJSON('/api/measures/search', {
+  // TODO: Remove this mock (SONAR-21488)
+  const mockedMetrics = metricKeys.filter(
+    (metric) =>
+      ![
+        MetricKey.maintainability_issues,
+        MetricKey.reliability_issues,
+        MetricKey.security_issues,
+      ].includes(metric as MetricKey),
+  );
+
+  const result = await getJSON('/api/measures/search', {
     projectKeys: projectKeys.join(),
-    metricKeys: metricKeys.join(),
+    metricKeys: mockedMetrics.join(),
   }).then((r) => r.measures);
+
+  [
+    MetricKey.maintainability_issues,
+    MetricKey.reliability_issues,
+    MetricKey.security_issues,
+  ].forEach((metric) => {
+    if (metricKeys.includes(metric)) {
+      projectKeys.forEach((projectKey) => {
+        result.push({
+          component: projectKey,
+          metric,
+          value: JSON.stringify({
+            total: 2,
+          }),
+        });
+      });
+    }
+  });
+
+  return result;
 }
