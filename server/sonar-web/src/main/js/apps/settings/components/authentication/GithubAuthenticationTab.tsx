@@ -17,18 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { ButtonSecondary, FlagMessage, Highlight, Note, Spinner } from 'design-system';
 import React, { FormEvent, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
 import GitHubSynchronisationWarning from '../../../../app/components/GitHubSynchronisationWarning';
-import DocLink from '../../../../components/common/DocLink';
+import DocumentationLink from '../../../../components/common/DocumentationLink';
 import ConfirmModal from '../../../../components/controls/ConfirmModal';
-import RadioCard from '../../../../components/controls/RadioCard';
-import Tooltip from '../../../../components/controls/Tooltip';
-import { Button, ResetButtonLink, SubmitButton } from '../../../../components/controls/buttons';
-import DeleteIcon from '../../../../components/icons/DeleteIcon';
-import EditIcon from '../../../../components/icons/EditIcon';
-import { Alert } from '../../../../components/ui/Alert';
-import Spinner from '../../../../components/ui/Spinner';
 import { translate, translateWithParameters } from '../../../../helpers/l10n';
 import { useIdentityProviderQuery } from '../../../../queries/identity-provider/common';
 import {
@@ -36,15 +30,18 @@ import {
   useSyncWithGitHubNow,
 } from '../../../../queries/identity-provider/github';
 import { AlmKeys } from '../../../../types/alm-settings';
+import { ProvisioningType } from '../../../../types/provisioning';
 import { ExtendedSettingDefinition } from '../../../../types/settings';
 import { Provider } from '../../../../types/types';
 import { AuthenticationTabs, DOCUMENTATION_LINK_SUFFIXES } from './Authentication';
 import AuthenticationFormField from './AuthenticationFormField';
-import AuthenticationFormFieldWrapper from './AuthenticationFormFieldWrapper';
 import AutoProvisioningConsent from './AutoProvisionningConsent';
+import ConfigurationDetails from './ConfigurationDetails';
 import ConfigurationForm from './ConfigurationForm';
 import GitHubConfigurationValidity from './GitHubConfigurationValidity';
 import GitHubMappingModal from './GitHubMappingModal';
+import ProvisioningSection from './ProvisioningSection';
+import TabHeader from './TabHeader';
 import useGithubConfiguration, {
   GITHUB_ADDITIONAL_FIELDS,
   GITHUB_JIT_FIELDS,
@@ -112,325 +109,220 @@ export default function GithubAuthenticationTab(props: GithubAuthenticationProps
     }
   };
 
+  const handleProvisioningTypeChange = (type: ProvisioningType) => {
+    setProvisioningType(type === ProvisioningType.auto);
+  };
+
   return (
     <Spinner loading={isLoading}>
-      <div className="authentication-configuration">
-        <div className="spacer-bottom display-flex-space-between display-flex-center">
-          <h4>{translate('settings.authentication.github.configuration')}</h4>
-
-          {!hasConfiguration && (
-            <div>
-              <Button onClick={handleCreateConfiguration}>
-                {translate('settings.authentication.form.create')}
-              </Button>
-            </div>
-          )}
-        </div>
-        {enabled && !hasLegacyConfiguration && (
-          <GitHubConfigurationValidity
-            selectedOrganizations={
-              (values['sonar.auth.github.organizations']?.value as string[]) ?? []
-            }
-            isAutoProvisioning={!!(newGithubProvisioningStatus ?? githubProvisioningStatus)}
-          />
-        )}
+      <div>
+        <TabHeader
+          title={translate('settings.authentication.github.configuration')}
+          showCreate={!hasConfiguration}
+          onCreate={handleCreateConfiguration}
+          configurationValidity={
+            <>
+              {enabled && !hasLegacyConfiguration && (
+                <GitHubConfigurationValidity
+                  selectedOrganizations={
+                    (values['sonar.auth.github.organizations']?.value as string[]) ?? []
+                  }
+                  isAutoProvisioning={!!(newGithubProvisioningStatus ?? githubProvisioningStatus)}
+                />
+              )}
+            </>
+          }
+        />
         {!hasConfiguration && !hasLegacyConfiguration && (
-          <div className="big-padded text-center huge-spacer-bottom authentication-no-config">
-            {translate('settings.authentication.github.form.not_configured')}
-          </div>
+          <div>{translate('settings.authentication.github.form.not_configured')}</div>
         )}
         {!hasConfiguration && hasLegacyConfiguration && (
-          <div className="big-padded">
-            <Alert variant="warning">
+          <FlagMessage variant="warning">
+            <div>
               <FormattedMessage
                 id="settings.authentication.github.form.legacy_configured"
                 defaultMessage={translate('settings.authentication.github.form.legacy_configured')}
                 values={{
                   documentation: (
-                    <DocLink to="/instance-administration/authentication/github">
+                    <DocumentationLink to="/instance-administration/authentication/github">
                       {translate('settings.authentication.github.form.legacy_configured.link')}
-                    </DocLink>
+                    </DocumentationLink>
                   ),
                 }}
               />
-            </Alert>
-          </div>
+            </div>
+          </FlagMessage>
         )}
         {hasConfiguration && (
           <>
-            <div className="spacer-bottom big-padded bordered display-flex-space-between">
-              <div>
-                <h5>{translateWithParameters('settings.authentication.github.appid_x', appId)}</h5>
-                <p>{url}</p>
-                <Tooltip
-                  overlay={
-                    githubProvisioningStatus
-                      ? translate('settings.authentication.form.disable.tooltip')
-                      : null
-                  }
-                >
-                  <Button
-                    className="spacer-top"
-                    onClick={toggleEnable}
-                    disabled={githubProvisioningStatus}
-                  >
-                    {enabled
-                      ? translate('settings.authentication.form.disable')
-                      : translate('settings.authentication.form.enable')}
-                  </Button>
-                </Tooltip>
-              </div>
-              <div>
-                <Button className="spacer-right" onClick={handleCreateConfiguration}>
-                  <EditIcon />
-                  {translate('settings.authentication.form.edit')}
-                </Button>
-                <Tooltip
-                  overlay={
-                    enabled || isDeleting
-                      ? translate('settings.authentication.form.delete.tooltip')
-                      : null
-                  }
-                >
-                  <Button
-                    className="button-red"
-                    disabled={enabled || isDeleting}
-                    onClick={deleteConfiguration}
-                  >
-                    <DeleteIcon />
-                    {translate('settings.authentication.form.delete')}
-                  </Button>
-                </Tooltip>
-              </div>
-            </div>
-            <div className="spacer-bottom big-padded bordered display-flex-space-between">
-              <form onSubmit={handleSubmit}>
-                <fieldset className="display-flex-column big-spacer-bottom">
-                  <label className="h5">
-                    {translate('settings.authentication.form.provisioning')}
-                  </label>
+            <ConfigurationDetails
+              title={translateWithParameters('settings.authentication.github.appid_x', appId)}
+              url={url}
+              canDisable={!githubProvisioningStatus}
+              enabled={enabled}
+              isDeleting={isDeleting}
+              onEdit={handleCreateConfiguration}
+              onDelete={deleteConfiguration}
+              onToggle={toggleEnable}
+            />
 
-                  {enabled ? (
-                    <div className="display-flex-column spacer-top">
-                      <RadioCard
-                        className="sw-min-h-0"
-                        label={translate('settings.authentication.form.provisioning_at_login')}
-                        title={translate('settings.authentication.form.provisioning_at_login')}
-                        selected={!(newGithubProvisioningStatus ?? githubProvisioningStatus)}
-                        onClick={() => setProvisioningType(false)}
+            <ProvisioningSection
+              provisioningType={
+                newGithubProvisioningStatus ?? githubProvisioningStatus
+                  ? ProvisioningType.auto
+                  : ProvisioningType.jit
+              }
+              onChangeProvisioningType={handleProvisioningTypeChange}
+              disabledConfigText={translate('settings.authentication.github.enable_first')}
+              enabled={enabled}
+              hasUnsavedChanges={!!hasGithubProvisioningConfigChange}
+              onSave={handleSubmit}
+              onCancel={() => {
+                setProvisioningType(undefined);
+                resetJitSetting();
+              }}
+              jitTitle={translate('settings.authentication.form.provisioning_at_login')}
+              jitDescription={
+                <FormattedMessage
+                  id="settings.authentication.github.form.provisioning_at_login.description"
+                  values={{
+                    documentation: (
+                      <DocumentationLink
+                        to={`/instance-administration/authentication/${
+                          DOCUMENTATION_LINK_SUFFIXES[AlmKeys.GitHub]
+                        }/`}
                       >
-                        <p className="spacer-bottom">
-                          <FormattedMessage id="settings.authentication.github.form.provisioning_at_login.description" />
-                        </p>
-                        <p className="spacer-bottom">
-                          <FormattedMessage
-                            id="settings.authentication.github.form.description.doc"
-                            values={{
-                              documentation: (
-                                <DocLink
-                                  to={`/instance-administration/authentication/${
-                                    DOCUMENTATION_LINK_SUFFIXES[AlmKeys.GitHub]
-                                  }/`}
-                                >
-                                  {translate('documentation')}
-                                </DocLink>
-                              ),
-                            }}
-                          />
-                        </p>
-
-                        {!(newGithubProvisioningStatus ?? githubProvisioningStatus) && (
-                          <>
-                            <hr />
-                            {Object.values(values).map((val) => {
-                              if (!GITHUB_JIT_FIELDS.includes(val.key)) {
-                                return null;
-                              }
-                              return (
-                                <div key={val.key} className="sw-mb-8">
-                                  <AuthenticationFormField
-                                    settingValue={
-                                      values[val.key]?.newValue ?? values[val.key]?.value
-                                    }
-                                    definition={val.definition}
-                                    mandatory={val.mandatory}
-                                    onFieldChange={setNewValue}
-                                    isNotSet={val.isNotSet}
-                                  />
-                                </div>
-                              );
-                            })}
-                          </>
-                        )}
-                      </RadioCard>
-                      <RadioCard
-                        className="spacer-top sw-min-h-0"
-                        label={translate(
-                          'settings.authentication.github.form.provisioning_with_github',
-                        )}
-                        title={translate(
-                          'settings.authentication.github.form.provisioning_with_github',
-                        )}
-                        selected={newGithubProvisioningStatus ?? githubProvisioningStatus}
-                        onClick={() => setProvisioningType(true)}
-                        disabled={!hasGithubProvisioning || hasDifferentProvider}
-                      >
-                        {hasGithubProvisioning ? (
-                          <>
-                            {hasDifferentProvider && (
-                              <p className="spacer-bottom text-bold ">
-                                {translate(
-                                  'settings.authentication.form.other_provisioning_enabled',
-                                )}
-                              </p>
-                            )}
-                            <p className="spacer-bottom">
-                              {translate(
-                                'settings.authentication.github.form.provisioning_with_github.description',
-                              )}
-                            </p>
-                            <p className="spacer-bottom">
-                              <FormattedMessage
-                                id="settings.authentication.github.form.description.doc"
-                                values={{
-                                  documentation: (
-                                    <DocLink
-                                      to={`/instance-administration/authentication/${
-                                        DOCUMENTATION_LINK_SUFFIXES[AlmKeys.GitHub]
-                                      }/`}
-                                    >
-                                      {translate('documentation')}
-                                    </DocLink>
-                                  ),
-                                }}
-                              />
-                            </p>
-
-                            {githubProvisioningStatus && <GitHubSynchronisationWarning />}
-                            {(newGithubProvisioningStatus ?? githubProvisioningStatus) && (
-                              <>
-                                <div className="sw-flex sw-flex-1 spacer-bottom">
-                                  <Button
-                                    className="spacer-top width-30"
-                                    onClick={synchronizeNow}
-                                    disabled={!canSyncNow}
-                                  >
-                                    {translate('settings.authentication.github.synchronize_now')}
-                                  </Button>
-                                </div>
-                                <hr />
-                                {Object.values(values).map((val) => {
-                                  if (!GITHUB_PROVISIONING_FIELDS.includes(val.key)) {
-                                    return null;
-                                  }
-                                  return (
-                                    <div key={val.key}>
-                                      <AuthenticationFormField
-                                        settingValue={
-                                          values[val.key]?.newValue ?? values[val.key]?.value
-                                        }
-                                        definition={val.definition}
-                                        mandatory={val.mandatory}
-                                        onFieldChange={setNewValue}
-                                        isNotSet={val.isNotSet}
-                                      />
-                                    </div>
-                                  );
-                                })}
-                                <AuthenticationFormFieldWrapper
-                                  title={translate(
-                                    'settings.authentication.github.configuration.roles_mapping.title',
-                                  )}
-                                  description={translate(
-                                    'settings.authentication.github.configuration.roles_mapping.description',
-                                  )}
-                                >
-                                  <Button
-                                    className="spacer-top"
-                                    onClick={() => setShowMappingModal(true)}
-                                  >
-                                    {translate(
-                                      'settings.authentication.github.configuration.roles_mapping.button_label',
-                                    )}
-                                  </Button>
-                                </AuthenticationFormFieldWrapper>
-                              </>
-                            )}
-                          </>
-                        ) : (
-                          <p>
-                            <FormattedMessage
-                              id="settings.authentication.github.form.provisioning.disabled"
-                              defaultMessage={translate(
-                                'settings.authentication.github.form.provisioning.disabled',
-                              )}
-                              values={{
-                                documentation: (
-                                  // Documentation page not ready yet.
-                                  <DocLink to="/instance-administration/authentication/github">
-                                    {translate('documentation')}
-                                  </DocLink>
-                                ),
-                              }}
-                            />
-                          </p>
-                        )}
-                      </RadioCard>
-                    </div>
-                  ) : (
-                    <Alert className="big-spacer-top" variant="info">
-                      {translate('settings.authentication.github.enable_first')}
-                    </Alert>
-                  )}
-                </fieldset>
-                {enabled && (
-                  <div className="sw-flex sw-gap-2 sw-h-8 sw-items-center">
-                    <SubmitButton disabled={!hasGithubProvisioningConfigChange}>
-                      {translate('save')}
-                    </SubmitButton>
-                    <ResetButtonLink
-                      onClick={() => {
-                        setProvisioningType(undefined);
-                        resetJitSetting();
-                      }}
-                      disabled={!hasGithubProvisioningConfigChange}
-                    >
-                      {translate('cancel')}
-                    </ResetButtonLink>
-                    <Alert variant="warning" className="sw-mb-0">
-                      {hasGithubProvisioningConfigChange &&
-                        translate('settings.authentication.github.configuration.unsaved_changes')}
-                    </Alert>
-                  </div>
-                )}
-                {showConfirmProvisioningModal && (
-                  <ConfirmModal
-                    onConfirm={() => changeProvisioning()}
-                    header={translate(
-                      'settings.authentication.github.confirm',
-                      newGithubProvisioningStatus ? 'auto' : 'jit',
-                    )}
-                    onClose={() => setShowConfirmProvisioningModal(false)}
-                    confirmButtonText={translate(
-                      'settings.authentication.github.provisioning_change.confirm_changes',
-                    )}
-                  >
-                    {translate(
-                      'settings.authentication.github.confirm',
-                      newGithubProvisioningStatus ? 'auto' : 'jit',
-                      'description',
-                    )}
-                  </ConfirmModal>
-                )}
-              </form>
-              {showMappingModal && (
-                <GitHubMappingModal
-                  mapping={rolesMapping}
-                  setMapping={setRolesMapping}
-                  onClose={() => setShowMappingModal(false)}
+                        {translate('learn_more')}
+                      </DocumentationLink>
+                    ),
+                  }}
                 />
-              )}
-            </div>
+              }
+              jitSettings={
+                <>
+                  {Object.values(values).map((val) => {
+                    if (!GITHUB_JIT_FIELDS.includes(val.key)) {
+                      return null;
+                    }
+                    return (
+                      <AuthenticationFormField
+                        key={val.key}
+                        settingValue={values[val.key]?.newValue ?? values[val.key]?.value}
+                        definition={val.definition}
+                        mandatory={val.mandatory}
+                        onFieldChange={setNewValue}
+                        isNotSet={val.isNotSet}
+                      />
+                    );
+                  })}
+                </>
+              }
+              autoTitle={translate('settings.authentication.github.form.provisioning_with_github')}
+              hasDifferentProvider={hasDifferentProvider}
+              hasFeatureEnabled={hasGithubProvisioning}
+              autoFeatureDisabledText={
+                <FormattedMessage
+                  id="settings.authentication.github.form.provisioning.disabled"
+                  defaultMessage={translate(
+                    'settings.authentication.github.form.provisioning.disabled',
+                  )}
+                  values={{
+                    documentation: (
+                      <DocumentationLink to="/instance-administration/authentication/github">
+                        {translate('documentation')}
+                      </DocumentationLink>
+                    ),
+                  }}
+                />
+              }
+              autoDescription={
+                <FormattedMessage
+                  id="settings.authentication.github.form.provisioning_with_github.description"
+                  values={{
+                    documentation: (
+                      <DocumentationLink
+                        to={`/instance-administration/authentication/${
+                          DOCUMENTATION_LINK_SUFFIXES[AlmKeys.GitHub]
+                        }/`}
+                      >
+                        {translate('learn_more')}
+                      </DocumentationLink>
+                    ),
+                  }}
+                />
+              }
+              synchronizationDetails={<GitHubSynchronisationWarning />}
+              onSyncNow={synchronizeNow}
+              canSync={canSyncNow}
+              autoSettings={
+                <>
+                  {Object.values(values).map((val) => {
+                    if (!GITHUB_PROVISIONING_FIELDS.includes(val.key)) {
+                      return null;
+                    }
+                    return (
+                      <div key={val.key}>
+                        <AuthenticationFormField
+                          settingValue={values[val.key]?.newValue ?? values[val.key]?.value}
+                          definition={val.definition}
+                          mandatory={val.mandatory}
+                          onFieldChange={setNewValue}
+                          isNotSet={val.isNotSet}
+                        />
+                      </div>
+                    );
+                  })}
+                  <div className="sw-mt-6">
+                    <div className="sw-flex">
+                      <Highlight className="sw-mb-4 sw-mr-4 sw-flex sw-items-center sw-gap-2">
+                        {translate(
+                          'settings.authentication.github.configuration.roles_mapping.title',
+                        )}
+                      </Highlight>
+                      <ButtonSecondary
+                        className="sw--mt-2"
+                        onClick={() => setShowMappingModal(true)}
+                      >
+                        {translate(
+                          'settings.authentication.github.configuration.roles_mapping.button_label',
+                        )}
+                      </ButtonSecondary>
+                    </div>
+                    <Note className="sw-mt-2">
+                      {translate(
+                        'settings.authentication.github.configuration.roles_mapping.description',
+                      )}
+                    </Note>
+                  </div>
+                </>
+              }
+            />
+            {showConfirmProvisioningModal && (
+              <ConfirmModal
+                onConfirm={() => changeProvisioning()}
+                header={translate(
+                  'settings.authentication.github.confirm',
+                  newGithubProvisioningStatus ? 'auto' : 'jit',
+                )}
+                onClose={() => setShowConfirmProvisioningModal(false)}
+                confirmButtonText={translate(
+                  'settings.authentication.github.provisioning_change.confirm_changes',
+                )}
+              >
+                {translate(
+                  'settings.authentication.github.confirm',
+                  newGithubProvisioningStatus ? 'auto' : 'jit',
+                  'description',
+                )}
+              </ConfirmModal>
+            )}
+            {showMappingModal && (
+              <GitHubMappingModal
+                mapping={rolesMapping}
+                setMapping={setRolesMapping}
+                onClose={() => setShowMappingModal(false)}
+              />
+            )}
           </>
         )}
 

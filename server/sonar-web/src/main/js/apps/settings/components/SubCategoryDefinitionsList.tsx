@@ -35,6 +35,7 @@ export interface SubCategoryDefinitionsListProps {
   settings: Array<SettingDefinitionAndValue>;
   subCategory?: string;
   displaySubCategoryTitle?: boolean;
+  noPadding?: boolean;
 }
 
 class SubCategoryDefinitionsList extends React.PureComponent<SubCategoryDefinitionsListProps> {
@@ -65,7 +66,13 @@ class SubCategoryDefinitionsList extends React.PureComponent<SubCategoryDefiniti
   };
 
   render() {
-    const { displaySubCategoryTitle = true, settings, subCategory, component } = this.props;
+    const {
+      displaySubCategoryTitle = true,
+      settings,
+      subCategory,
+      component,
+      noPadding,
+    } = this.props;
     const bySubCategory = groupBy(settings, (setting) => setting.definition.subCategory);
     const subCategories = Object.keys(bySubCategory).map((key) => ({
       key,
@@ -81,7 +88,7 @@ class SubCategoryDefinitionsList extends React.PureComponent<SubCategoryDefiniti
     return (
       <ul>
         {filteredSubCategories.map((subCategory, index) => (
-          <li className="sw-p-6" key={subCategory.key}>
+          <li className={noPadding ? '' : 'sw-p-6'} key={subCategory.key}>
             {displaySubCategoryTitle && (
               <SubTitle
                 as="h3"

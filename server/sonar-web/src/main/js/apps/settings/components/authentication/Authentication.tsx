@@ -18,17 +18,15 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import classNames from 'classnames';
+import { FlagMessage, Link, SubTitle, ToggleButton } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { useSearchParams } from 'react-router-dom';
 import withAvailableFeatures, {
   WithAvailableFeaturesProps,
 } from '../../../../app/components/available-features/withAvailableFeatures';
-import DocLink from '../../../../components/common/DocLink';
-import Link from '../../../../components/common/Link';
-import ScreenPositionHelper from '../../../../components/common/ScreenPositionHelper';
-import BoxedTabs, { getTabId, getTabPanelId } from '../../../../components/controls/BoxedTabs';
-import { Alert } from '../../../../components/ui/Alert';
+import DocumentationLink from '../../../../components/common/DocumentationLink';
+import { getTabId, getTabPanelId } from '../../../../components/controls/BoxedTabs';
 import { translate } from '../../../../helpers/l10n';
 import { getBaseUrl } from '../../../../helpers/system';
 import { searchParamsToQuery } from '../../../../helpers/urls';
@@ -44,9 +42,6 @@ import SamlAuthenticationTab, { SAML } from './SamlAuthenticationTab';
 interface Props {
   definitions: ExtendedSettingDefinition[];
 }
-
-// We substract the footer height with padding (80) and the main layout padding (20)
-const HEIGHT_ADJUSTMENT = 100;
 
 export type AuthenticationTabs =
   | typeof SAML
@@ -81,11 +76,11 @@ export function Authentication(props: Props & WithAvailableFeaturesProps) {
 
   const tabs = [
     {
-      key: SAML,
+      value: SAML,
       label: 'SAML',
     },
     {
-      key: AlmKeys.GitHub,
+      value: AlmKeys.GitHub,
       label: (
         <>
           {renderDevOpsIcon(AlmKeys.GitHub)}
@@ -94,7 +89,7 @@ export function Authentication(props: Props & WithAvailableFeaturesProps) {
       ),
     },
     {
-      key: AlmKeys.BitbucketServer,
+      value: AlmKeys.BitbucketServer,
       label: (
         <>
           {renderDevOpsIcon(AlmKeys.BitbucketServer)}
@@ -103,7 +98,7 @@ export function Authentication(props: Props & WithAvailableFeaturesProps) {
       ),
     },
     {
-      key: AlmKeys.GitLab,
+      value: AlmKeys.GitLab,
       label: (
         <>
           {renderDevOpsIcon(AlmKeys.GitLab)}
@@ -123,104 +118,92 @@ export function Authentication(props: Props & WithAvailableFeaturesProps) {
 
   return (
     <>
-      <header className="page-header">
-        <h3 className="page-title h2">{translate('settings.authentication.title')}</h3>
-      </header>
+      <SubTitle as="h3">{translate('settings.authentication.title')}</SubTitle>
 
       {props.hasFeature(Feature.LoginMessage) && (
-        <Alert variant="info">
-          <FormattedMessage
-            id="settings.authentication.custom_message_information"
-            defaultMessage={translate('settings.authentication.custom_message_information')}
-            values={{
-              link: (
-                <Link to="/admin/settings?category=general#sonar.login.message">
-                  {translate('settings.authentication.custom_message_information.link')}
-                </Link>
-              ),
-            }}
-          />
-        </Alert>
+        <FlagMessage variant="info">
+          <div>
+            <FormattedMessage
+              id="settings.authentication.custom_message_information"
+              defaultMessage={translate('settings.authentication.custom_message_information')}
+              values={{
+                link: (
+                  <Link to="/admin/settings?category=general#sonar.login.message">
+                    {translate('settings.authentication.custom_message_information.link')}
+                  </Link>
+                ),
+              }}
+            />
+          </div>
+        </FlagMessage>
       )}
 
-      <div className="big-spacer-top huge-spacer-bottom">
+      <div className="sw-my-6">
         <p>{translate('settings.authentication.description')}</p>
       </div>
 
-      <BoxedTabs
-        onSelect={(tab: AuthenticationTabs) => {
+      <ToggleButton
+        role="tablist"
+        onChange={(tab: AuthenticationTabs) => {
           setSearchParams({ ...searchParamsToQuery(query), tab });
         }}
-        selected={currentTab}
-        tabs={tabs}
+        value={currentTab}
+        options={tabs}
       />
-      {/* Adding a key to force re-rendering of the tab container, so that it resets the scroll position */}
-      <ScreenPositionHelper>
-        {({ top }) => (
-          <>
-            {tabs.map((tab) => (
-              <div
-                style={{
-                  maxHeight:
-                    tab.key === AlmKeys.BitbucketServer
-                      ? `calc(100vh - ${top + HEIGHT_ADJUSTMENT}px)`
-                      : '',
-                }}
-                className={classNames('bordered overflow-y-auto tabbed-definitions', {
-                  hidden: currentTab !== tab.key,
-                })}
-                key={tab.key}
-                role="tabpanel"
-                aria-labelledby={getTabId(tab.key)}
-                id={getTabPanelId(tab.key)}
-              >
-                {currentTab === tab.key && (
-                  <div className="big-padded-top big-padded-left big-padded-right">
-                    {tab.key === SAML && <SamlAuthenticationTab definitions={samlDefinitions} />}
+      {tabs.map((tab) => (
+        <div
+          className={classNames('sw-overflow-y-auto', {
+            hidden: currentTab !== tab.value,
+          })}
+          key={tab.value}
+          role="tabpanel"
+          aria-labelledby={getTabId(tab.value)}
+          id={getTabPanelId(tab.value)}
+        >
+          {currentTab === tab.value && (
+            <div className="sw-mt-6">
+              {tab.value === SAML && <SamlAuthenticationTab definitions={samlDefinitions} />}
 
-                    {tab.key === AlmKeys.GitHub && (
-                      <GithubAuthenticationTab
-                        currentTab={currentTab}
-                        definitions={githubDefinitions}
+              {tab.value === AlmKeys.GitHub && (
+                <GithubAuthenticationTab currentTab={currentTab} definitions={githubDefinitions} />
+              )}
+
+              {tab.value === AlmKeys.GitLab && <GitLabAuthenticationTab />}
+
+              {tab.value === AlmKeys.BitbucketServer && (
+                <>
+                  <FlagMessage variant="info">
+                    <div>
+                      <FormattedMessage
+                        id="settings.authentication.help"
+                        defaultMessage={translate('settings.authentication.help')}
+                        values={{
+                          link: (
+                            <DocumentationLink
+                              to={`/instance-administration/authentication/${
+                                DOCUMENTATION_LINK_SUFFIXES[tab.value]
+                              }/`}
+                            >
+                              {translate('settings.authentication.help.link')}
+                            </DocumentationLink>
+                          ),
+                        }}
                       />
-                    )}
-
-                    {tab.key === AlmKeys.GitLab && <GitLabAuthenticationTab />}
-
-                    {tab.key === AlmKeys.BitbucketServer && (
-                      <>
-                        <Alert variant="info">
-                          <FormattedMessage
-                            id="settings.authentication.help"
-                            defaultMessage={translate('settings.authentication.help')}
-                            values={{
-                              link: (
-                                <DocLink
-                                  to={`/instance-administration/authentication/${
-                                    DOCUMENTATION_LINK_SUFFIXES[tab.key]
-                                  }/`}
-                                >
-                                  {translate('settings.authentication.help.link')}
-                                </DocLink>
-                              ),
-                            }}
-                          />
-                        </Alert>
-                        <CategoryDefinitionsList
-                          category={AUTHENTICATION_CATEGORY}
-                          definitions={definitions}
-                          subCategory={tab.key}
-                          displaySubCategoryTitle={false}
-                        />
-                      </>
-                    )}
-                  </div>
-                )}
-              </div>
-            ))}
-          </>
-        )}
-      </ScreenPositionHelper>
+                    </div>
+                  </FlagMessage>
+                  <CategoryDefinitionsList
+                    category={AUTHENTICATION_CATEGORY}
+                    definitions={definitions}
+                    subCategory={tab.value}
+                    displaySubCategoryTitle={false}
+                    noPadding
+                  />
+                </>
+              )}
+            </div>
+          )}
+        </div>
+      ))}
     </>
   );
 }

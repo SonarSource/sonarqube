@@ -90,10 +90,10 @@ const ui = {
   }),
   saveConfigButton: byRole('button', { name: 'settings.almintegration.form.save' }),
   jitProvisioningRadioButton: glContainer.byRole('radio', {
-    name: 'settings.authentication.gitlab.provisioning_at_login',
+    name: /settings.authentication.gitlab.provisioning_at_login/,
   }),
   autoProvisioningRadioButton: glContainer.byRole('radio', {
-    name: 'settings.authentication.gitlab.form.provisioning_with_gitlab',
+    name: /settings.authentication.gitlab.form.provisioning_with_gitlab/,
   }),
   jitAllowUsersToSignUpToggle: byRole('switch', { name: 'property.allowUsersToSignUp.name' }),
   autoProvisioningToken: byRole('textbox', {
@@ -122,11 +122,19 @@ const ui = {
   }),
   syncSummary: glContainer.byText(/Test summary/),
   syncWarning: glContainer.byText(/Warning/),
-  gitlabProvisioningPending: glContainer.byText(/synchronization_pending/),
-  gitlabProvisioningInProgress: glContainer.byText(/synchronization_in_progress/),
+  gitlabProvisioningPending: glContainer
+    .byRole('list')
+    .byRole('status')
+    .byText(/synchronization_pending/),
+  gitlabProvisioningInProgress: glContainer
+    .byRole('list')
+    .byRole('status')
+    .byText(/synchronization_in_progress/),
   gitlabProvisioningSuccess: glContainer.byText(/synchronization_successful/),
   gitlabProvisioningAlert: glContainer.byText(/synchronization_failed/),
-  gitlabConfigurationStatus: glContainer.byRole('status'),
+  gitlabConfigurationStatus: glContainer.byRole('status', {
+    name: /settings.authentication.gitlab.configuration/,
+  }),
   testConfiguration: glContainer.byRole('button', {
     name: 'settings.authentication.configuration.test',
   }),
@@ -424,7 +432,7 @@ describe('Gitlab Provisioning', () => {
     });
     renderAuthentication([Feature.GitlabProvisioning]);
     expect(await ui.gitlabProvisioningAlert.find()).toBeInTheDocument();
-    expect(ui.autoProvisioningRadioButton.get()).toHaveTextContent("T'es mauvais Jacques");
+    expect(glContainer.get()).toHaveTextContent("T'es mauvais Jacques");
     expect(ui.gitlabProvisioningSuccess.query()).not.toBeInTheDocument();
   });
 
@@ -442,7 +450,7 @@ describe('Gitlab Provisioning', () => {
     });
     renderAuthentication([Feature.GitlabProvisioning]);
     expect(await ui.gitlabProvisioningAlert.find()).toBeInTheDocument();
-    expect(ui.autoProvisioningRadioButton.get()).toHaveTextContent("T'es mauvais Jacques");
+    expect(glContainer.get()).toHaveTextContent("T'es mauvais Jacques");
     expect(ui.gitlabProvisioningSuccess.query()).not.toBeInTheDocument();
     expect(ui.gitlabProvisioningInProgress.get()).toBeInTheDocument();
   });
@@ -464,20 +472,20 @@ describe('Gitlab Provisioning', () => {
     const user = userEvent.setup();
     renderAuthentication([Feature.GitlabProvisioning]);
 
-    expect((await ui.gitlabConfigurationStatus.findAll())[1]).toHaveTextContent(
+    expect(await ui.gitlabConfigurationStatus.find()).toHaveTextContent(
       'settings.authentication.gitlab.configuration.valid.AUTO_PROVISIONING',
     );
     await user.click(ui.jitProvisioningRadioButton.get());
     await user.click(ui.saveProvisioning.get());
     await user.click(ui.confirmProvisioningChange.get());
-    expect(ui.gitlabConfigurationStatus.getAll()[1]).toHaveTextContent(
+    expect(ui.gitlabConfigurationStatus.get()).toHaveTextContent(
       'settings.authentication.gitlab.configuration.valid.JIT',
     );
     handler.setGitlabConfigurations([
       mockGitlabConfiguration({ ...handler.gitlabConfigurations[0], errorMessage: 'ERROR' }),
     ]);
     await user.click(ui.testConfiguration.get());
-    expect(ui.gitlabConfigurationStatus.getAll()[1]).toHaveTextContent('ERROR');
+    expect(glContainer.get()).toHaveTextContent('ERROR');
     await user.click(ui.disableConfigButton.get());
     expect(ui.gitlabConfigurationStatus.query()).not.toBeInTheDocument();
   });

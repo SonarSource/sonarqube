@@ -96,10 +96,10 @@ const ui = {
   }),
   enableFirstMessage: byText('settings.authentication.saml.enable_first'),
   jitProvisioningButton: byRole('radio', {
-    name: 'settings.authentication.saml.form.provisioning_at_login',
+    name: /settings.authentication.saml.form.provisioning_at_login/,
   }),
   scimProvisioningButton: byRole('radio', {
-    name: 'settings.authentication.saml.form.provisioning_with_scim',
+    name: /settings.authentication.saml.form.provisioning_with_scim/,
   }),
   fillForm: async (user: UserEvent) => {
     await user.clear(ui.providerName.get());

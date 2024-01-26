@@ -71,10 +71,12 @@ export function FlagMessage(props: Props & React.HTMLAttributes<HTMLDivElement>)
       className={classNames('alert', className)}
       {...domProps}
     >
-      <div className="flag-inner">
-        <div className="flag-icon">{variantInfo.icon}</div>
-        <div className="flag-content">{props.children}</div>
-      </div>
+      {props.children && (
+        <div className="flag-inner">
+          <div className="flag-icon">{variantInfo.icon}</div>
+          <div className="flag-content">{props.children}</div>
+        </div>
+      )}
     </StyledFlag>
   );
 }
@@ -116,6 +118,10 @@ export const StyledFlag = styled.div<{
   ${tw`sw-box-border`}
   border: ${({ borderColor }) => themeBorder('default', borderColor)};
   background-color: ${themeColor('flagMessageBackground')};
+
+  :empty {
+    display: none;
+  }
 
   & > .flag-inner {
     ${tw`sw-flex sw-items-stretch`}

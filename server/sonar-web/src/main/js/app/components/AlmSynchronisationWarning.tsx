@@ -19,10 +19,9 @@
  */
 import styled from '@emotion/styled';
 import { formatDistance } from 'date-fns';
-import { CheckIcon, FlagMessage, FlagWarningIcon, Link, themeColor } from 'design-system';
+import { CheckIcon, FlagMessage, FlagWarningIcon, Link, Spinner, themeColor } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { Alert } from '../../components/ui/Alert';
 import { translate, translateWithParameters } from '../../helpers/l10n';
 import { AlmSyncStatus } from '../../types/provisioning';
 import { TaskStatuses } from '../../types/tasks';
@@ -82,53 +81,59 @@ function LastSyncAlert({ info, short }: Readonly<LastSyncProps>) {
       </div>
     ) : (
       <FlagMessage variant="error">
-        <FormattedMessage
-          id="settings.authentication.github.synchronization_failed_short"
-          defaultMessage={translate('settings.authentication.github.synchronization_failed_short')}
-          values={{
-            details: (
-              <Link className="sw-ml-2" to="/admin/settings?category=authentication&tab=github">
-                {translate('settings.authentication.github.synchronization_details_link')}
-              </Link>
-            ),
-          }}
-        />
+        <div>
+          <FormattedMessage
+            id="settings.authentication.github.synchronization_failed_short"
+            defaultMessage={translate(
+              'settings.authentication.github.synchronization_failed_short',
+            )}
+            values={{
+              details: (
+                <Link className="sw-ml-2" to="/admin/settings?category=authentication&tab=github">
+                  {translate('settings.authentication.github.synchronization_details_link')}
+                </Link>
+              ),
+            }}
+          />
+        </div>
       </FlagMessage>
     );
   }
 
   return (
     <>
-      <Alert
+      <FlagMessage
         variant={status === TaskStatuses.Success ? 'success' : 'error'}
         role="alert"
         aria-live="assertive"
       >
-        {status === TaskStatuses.Success ? (
-          <>
-            {translateWithParameters(
-              'settings.authentication.github.synchronization_successful',
-              formattedDate,
-            )}
-            <br />
-            {summary ?? ''}
-          </>
-        ) : (
-          <React.Fragment key={`synch-alert-${finishedAt}`}>
-            <div>
+        <div>
+          {status === TaskStatuses.Success ? (
+            <>
               {translateWithParameters(
-                'settings.authentication.github.synchronization_failed',
+                'settings.authentication.github.synchronization_successful',
                 formattedDate,
               )}
-            </div>
-            <br />
-            {errorMessage ?? ''}
-          </React.Fragment>
-        )}
-      </Alert>
-      <Alert variant="warning" role="alert" aria-live="assertive">
+              <br />
+              {summary ?? ''}
+            </>
+          ) : (
+            <React.Fragment key={`synch-alert-${finishedAt}`}>
+              <div>
+                {translateWithParameters(
+                  'settings.authentication.github.synchronization_failed',
+                  formattedDate,
+                )}
+              </div>
+              <br />
+              {errorMessage ?? ''}
+            </React.Fragment>
+          )}
+        </div>
+      </FlagMessage>
+      <FlagMessage variant="warning" role="alert" aria-live="assertive">
         {warningMessage}
-      </Alert>
+      </FlagMessage>
     </>
   );
 }
@@ -137,28 +142,21 @@ export default function AlmSynchronisationWarning({
   short,
   data,
 }: Readonly<SynchronisationWarningProps>) {
+  const loadingLabel =
+    data.nextSync &&
+    translate(
+      data.nextSync.status === TaskStatuses.Pending
+        ? 'settings.authentication.github.synchronization_pending'
+        : 'settings.authentication.github.synchronization_in_progress',
+    );
   return (
     <>
-      <Alert
-        variant="loading"
-        className="spacer-bottom"
-        aria-atomic
-        role="alert"
-        aria-live="assertive"
-        aria-label={
-          data.nextSync === undefined
-            ? translate('settings.authentication.github.synchronization_finish')
-            : ''
-        }
-      >
-        {!short &&
-          data?.nextSync &&
-          translate(
-            data.nextSync.status === TaskStatuses.Pending
-              ? 'settings.authentication.github.synchronization_pending'
-              : 'settings.authentication.github.synchronization_in_progress',
-          )}
-      </Alert>
+      {!short && (
+        <div className={data.nextSync ? 'sw-flex sw-gap-2 sw-mb-4' : ''}>
+          <Spinner loading={!!data.nextSync} ariaLabel={loadingLabel} />
+          <div>{data.nextSync && loadingLabel}</div>
+        </div>
+      )}
 
       <LastSyncAlert short={short} info={data.lastSync} />
     </>

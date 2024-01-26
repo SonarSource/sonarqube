@@ -17,21 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Spinner } from 'design-system';
 import { omitBy } from 'lodash';
 import React, { FormEvent, useContext } from 'react';
 import { FormattedMessage } from 'react-intl';
 import GitLabSynchronisationWarning from '../../../../app/components/GitLabSynchronisationWarning';
 import { AvailableFeaturesContext } from '../../../../app/components/available-features/AvailableFeaturesContext';
-import DocLink from '../../../../components/common/DocLink';
+import DocumentationLink from '../../../../components/common/DocumentationLink';
 import ConfirmModal from '../../../../components/controls/ConfirmModal';
-import RadioCard from '../../../../components/controls/RadioCard';
-import Tooltip from '../../../../components/controls/Tooltip';
-import { Button, ResetButtonLink, SubmitButton } from '../../../../components/controls/buttons';
-import DeleteIcon from '../../../../components/icons/DeleteIcon';
-import EditIcon from '../../../../components/icons/EditIcon';
-import { Alert } from '../../../../components/ui/Alert';
-import Spinner from '../../../../components/ui/Spinner';
-import { translate } from '../../../../helpers/l10n';
+import { translate, translateWithParameters } from '../../../../helpers/l10n';
 import { useIdentityProviderQuery } from '../../../../queries/identity-provider/common';
 import {
   useDeleteGitLabConfigurationMutation,
@@ -46,8 +40,11 @@ import { DefinitionV2, SettingType } from '../../../../types/settings';
 import { Provider } from '../../../../types/types';
 import { DOCUMENTATION_LINK_SUFFIXES } from './Authentication';
 import AuthenticationFormField from './AuthenticationFormField';
+import ConfigurationDetails from './ConfigurationDetails';
 import GitLabConfigurationForm from './GitLabConfigurationForm';
 import GitLabConfigurationValidity from './GitLabConfigurationValidity';
+import ProvisioningSection from './ProvisioningSection';
+import TabHeader from './TabHeader';
 
 interface ChangesForm {
   provisioningType?: GitLabConfigurationUpdateBody['provisioningType'];
@@ -187,254 +184,154 @@ export default function GitLabAuthenticationTab() {
 
   return (
     <Spinner loading={isLoadingList}>
-      <div className="authentication-configuration">
-        <div className="spacer-bottom display-flex-space-between display-flex-center">
-          <h4>{translate('settings.authentication.gitlab.configuration')}</h4>
-          {!configuration && (
-            <div>
-              <Button onClick={() => setOpenForm(true)}>
-                {translate('settings.authentication.form.create')}
-              </Button>
-            </div>
-          )}
-        </div>
-        {!isLoadingList && configuration?.enabled && (
-          <GitLabConfigurationValidity
-            configuration={configuration}
-            loading={isFetching}
-            onRecheck={refetch}
-          />
-        )}
+      <div>
+        <TabHeader
+          title={translate('settings.authentication.gitlab.configuration')}
+          showCreate={!configuration}
+          onCreate={() => setOpenForm(true)}
+          configurationValidity={
+            <>
+              {!isLoadingList && configuration?.enabled && (
+                <GitLabConfigurationValidity
+                  configuration={configuration}
+                  loading={isFetching}
+                  onRecheck={refetch}
+                />
+              )}
+            </>
+          }
+        />
         {!configuration && (
-          <div className="big-padded text-center huge-spacer-bottom authentication-no-config">
-            {translate('settings.authentication.gitlab.form.not_configured')}
-          </div>
+          <div>{translate('settings.authentication.gitlab.form.not_configured')}</div>
         )}
         {configuration && (
-          <div className="spacer-bottom big-padded bordered display-flex-space-between">
-            <div>
-              <p>{configuration.url}</p>
-              <Tooltip
-                overlay={
-                  configuration.provisioningType === ProvisioningType.auto
-                    ? translate('settings.authentication.form.disable.tooltip')
-                    : null
-                }
-              >
-                <Button
-                  className="spacer-top"
-                  onClick={toggleEnable}
-                  disabled={isUpdating || configuration.provisioningType === ProvisioningType.auto}
-                >
-                  {configuration.enabled
-                    ? translate('settings.authentication.form.disable')
-                    : translate('settings.authentication.form.enable')}
-                </Button>
-              </Tooltip>
-            </div>
-            <div>
-              <Button className="spacer-right" onClick={() => setOpenForm(true)}>
-                <EditIcon />
-                {translate('settings.authentication.form.edit')}
-              </Button>
-              <Tooltip
-                overlay={
-                  configuration.enabled
-                    ? translate('settings.authentication.form.delete.tooltip')
-                    : null
-                }
-              >
-                <Button
-                  className="button-red"
-                  disabled={configuration.enabled || isDeleting}
-                  onClick={deleteConfiguration}
-                >
-                  <DeleteIcon />
-                  {translate('settings.authentication.form.delete')}
-                </Button>
-              </Tooltip>
-            </div>
-          </div>
-        )}
-        {configuration && (
-          <div className="spacer-bottom big-padded bordered">
-            <form onSubmit={handleSubmit}>
-              <fieldset className="display-flex-column big-spacer-bottom">
-                <label className="h5">
-                  {translate('settings.authentication.form.provisioning')}
-                </label>
-
-                {configuration.enabled ? (
-                  <div className="display-flex-column spacer-top">
-                    <RadioCard
-                      className="sw-min-h-0"
-                      label={translate('settings.authentication.gitlab.provisioning_at_login')}
-                      title={translate('settings.authentication.gitlab.provisioning_at_login')}
-                      selected={provisioningType === ProvisioningType.jit}
-                      onClick={setJIT}
-                    >
-                      <p className="spacer-bottom">
-                        <FormattedMessage id="settings.authentication.gitlab.provisioning_at_login.description" />
-                      </p>
-                      <p className="spacer-bottom">
-                        <DocLink
-                          to={`/instance-administration/authentication/${
-                            DOCUMENTATION_LINK_SUFFIXES[AlmKeys.GitLab]
-                          }/#choosing-the-provisioning-method`}
-                        >
-                          {translate(
-                            `settings.authentication.gitlab.description.${ProvisioningType.jit}.learn_more`,
-                          )}
-                        </DocLink>
-                      </p>
-                      {provisioningType === ProvisioningType.jit &&
-                        allowUsersToSignUpDefinition !== undefined && (
-                          <AuthenticationFormField
-                            settingValue={allowUsersToSignUp}
-                            definition={allowUsersToSignUpDefinition}
-                            mandatory
-                            onFieldChange={(_, value) =>
-                              setChangesWithCheck({
-                                ...changes,
-                                allowUsersToSignUp: value as boolean,
-                              })
-                            }
-                            isNotSet={configuration.provisioningType !== ProvisioningType.auto}
-                          />
-                        )}
-                    </RadioCard>
-                    <RadioCard
-                      className="spacer-top sw-min-h-0"
-                      label={translate(
-                        'settings.authentication.gitlab.form.provisioning_with_gitlab',
-                      )}
-                      title={translate(
-                        'settings.authentication.gitlab.form.provisioning_with_gitlab',
-                      )}
-                      selected={provisioningType === ProvisioningType.auto}
-                      onClick={setAuto}
-                      disabled={!hasGitlabProvisioningFeature || hasDifferentProvider}
-                    >
-                      {hasGitlabProvisioningFeature ? (
-                        <>
-                          {hasDifferentProvider && (
-                            <p className="spacer-bottom text-bold ">
-                              {translate('settings.authentication.form.other_provisioning_enabled')}
-                            </p>
-                          )}
-                          <p className="spacer-bottom">
-                            {translate(
-                              'settings.authentication.gitlab.form.provisioning_with_gitlab.description',
-                            )}
-                          </p>
-                          <p className="spacer-bottom">
-                            <DocLink
-                              to={`/instance-administration/authentication/${
-                                DOCUMENTATION_LINK_SUFFIXES[AlmKeys.GitLab]
-                              }/#choosing-the-provisioning-method`}
-                            >
-                              {translate(
-                                `settings.authentication.gitlab.description.${ProvisioningType.auto}.learn_more`,
-                              )}
-                            </DocLink>
-                          </p>
-
-                          {configuration.provisioningType === ProvisioningType.auto && (
-                            <GitLabSynchronisationWarning />
-                          )}
-
-                          {provisioningType === ProvisioningType.auto && (
-                            <>
-                              <div className="sw-flex sw-flex-1 spacer-bottom">
-                                <Button
-                                  className="spacer-top width-30"
-                                  onClick={synchronizeNow}
-                                  disabled={!canSyncNow}
-                                >
-                                  {translate('settings.authentication.github.synchronize_now')}
-                                </Button>
-                              </div>
-                              <hr />
-                              <AuthenticationFormField
-                                settingValue={provisioningToken}
-                                key={tokenKey}
-                                definition={provisioningTokenDefinition}
-                                mandatory
-                                onFieldChange={(_, value) =>
-                                  setChangesWithCheck({
-                                    ...changes,
-                                    provisioningToken: value as string,
-                                  })
-                                }
-                                isNotSet={!configuration.isProvisioningTokenSet}
-                              />
-                            </>
-                          )}
-                        </>
-                      ) : (
-                        <p>
-                          <FormattedMessage
-                            id="settings.authentication.gitlab.form.provisioning.disabled"
-                            defaultMessage={translate(
-                              'settings.authentication.gitlab.form.provisioning.disabled',
-                            )}
-                            values={{
-                              documentation: (
-                                <DocLink to="/instance-administration/authentication/gitlab">
-                                  {translate('documentation')}
-                                </DocLink>
-                              ),
-                            }}
-                          />
-                        </p>
-                      )}
-                    </RadioCard>
-                  </div>
-                ) : (
-                  <Alert className="big-spacer-top" variant="info">
-                    {translate('settings.authentication.gitlab.enable_first')}
-                  </Alert>
-                )}
-              </fieldset>
-              {configuration.enabled && (
-                <div className="sw-flex sw-gap-2 sw-h-8 sw-items-center">
-                  <SubmitButton disabled={!canSave()}>{translate('save')}</SubmitButton>
-                  <ResetButtonLink
-                    onClick={() => {
-                      setChanges(undefined);
-                      setTokenKey(tokenKey + 1);
-                    }}
-                    disabled={false}
-                  >
-                    {translate('cancel')}
-                  </ResetButtonLink>
-                  <Alert variant="warning" className="sw-mb-0">
-                    {canSave() &&
-                      translate('settings.authentication.gitlab.configuration.unsaved_changes')}
-                  </Alert>
-                  <Spinner loading={isUpdating} />
-                </div>
+          <>
+            <ConfigurationDetails
+              title={translateWithParameters(
+                'settings.authentication.gitlab.applicationId.name',
+                configuration.applicationId,
               )}
-              {showConfirmProvisioningModal && provisioningType && (
-                <ConfirmModal
-                  onConfirm={updateProvisioning}
-                  header={translate('settings.authentication.gitlab.confirm', provisioningType)}
-                  onClose={() => setShowConfirmProvisioningModal(false)}
-                  confirmButtonText={translate(
-                    'settings.authentication.gitlab.provisioning_change.confirm_changes',
+              url={configuration.url}
+              canDisable={!isUpdating && configuration.provisioningType !== ProvisioningType.auto}
+              enabled={configuration.enabled}
+              isDeleting={isDeleting}
+              onEdit={() => setOpenForm(true)}
+              onDelete={deleteConfiguration}
+              onToggle={toggleEnable}
+            />
+            <ProvisioningSection
+              provisioningType={provisioningType ?? ProvisioningType.jit}
+              onChangeProvisioningType={(val: ProvisioningType) =>
+                val === ProvisioningType.auto ? setAuto() : setJIT()
+              }
+              disabledConfigText={translate('settings.authentication.gitlab.enable_first')}
+              enabled={configuration.enabled}
+              hasUnsavedChanges={changes !== undefined}
+              canSave={canSave()}
+              onSave={handleSubmit}
+              onCancel={() => {
+                setChanges(undefined);
+                setTokenKey(tokenKey + 1);
+              }}
+              jitTitle={translate('settings.authentication.gitlab.provisioning_at_login')}
+              jitDescription={
+                <FormattedMessage
+                  id="settings.authentication.gitlab.provisioning_at_login.description"
+                  values={{
+                    documentation: (
+                      <DocumentationLink
+                        to={`/instance-administration/authentication/${
+                          DOCUMENTATION_LINK_SUFFIXES[AlmKeys.GitLab]
+                        }/#choosing-the-provisioning-method`}
+                      >
+                        {translate(`learn_more`)}
+                      </DocumentationLink>
+                    ),
+                  }}
+                />
+              }
+              jitSettings={
+                <AuthenticationFormField
+                  settingValue={allowUsersToSignUp}
+                  definition={allowUsersToSignUpDefinition}
+                  mandatory
+                  onFieldChange={(_, value) =>
+                    setChangesWithCheck({
+                      ...changes,
+                      allowUsersToSignUp: value as boolean,
+                    })
+                  }
+                  isNotSet={configuration.provisioningType !== ProvisioningType.auto}
+                />
+              }
+              autoTitle={translate('settings.authentication.gitlab.form.provisioning_with_gitlab')}
+              hasDifferentProvider={hasDifferentProvider}
+              hasFeatureEnabled={hasGitlabProvisioningFeature}
+              autoFeatureDisabledText={
+                <FormattedMessage
+                  id="settings.authentication.gitlab.form.provisioning.disabled"
+                  defaultMessage={translate(
+                    'settings.authentication.gitlab.form.provisioning.disabled',
                   )}
-                >
-                  {translate(
-                    'settings.authentication.gitlab.confirm',
-                    provisioningType,
-                    'description',
-                  )}
-                </ConfirmModal>
-              )}
-            </form>
-          </div>
+                  values={{
+                    documentation: (
+                      <DocumentationLink to="/instance-administration/authentication/gitlab">
+                        {translate('documentation')}
+                      </DocumentationLink>
+                    ),
+                  }}
+                />
+              }
+              autoDescription={
+                <FormattedMessage
+                  id="settings.authentication.gitlab.form.provisioning_with_gitlab.description"
+                  values={{
+                    documentation: (
+                      <DocumentationLink
+                        to={`/instance-administration/authentication/${
+                          DOCUMENTATION_LINK_SUFFIXES[AlmKeys.GitLab]
+                        }/#choosing-the-provisioning-method`}
+                      >
+                        {translate(`learn_more`)}
+                      </DocumentationLink>
+                    ),
+                  }}
+                />
+              }
+              onSyncNow={synchronizeNow}
+              canSync={canSyncNow}
+              synchronizationDetails={<GitLabSynchronisationWarning />}
+              autoSettings={
+                <AuthenticationFormField
+                  settingValue={provisioningToken}
+                  key={tokenKey}
+                  definition={provisioningTokenDefinition}
+                  mandatory
+                  onFieldChange={(_, value) =>
+                    setChangesWithCheck({
+                      ...changes,
+                      provisioningToken: value as string,
+                    })
+                  }
+                  isNotSet={!configuration.isProvisioningTokenSet}
+                />
+              }
+            />
+          </>
         )}
       </div>
+      {showConfirmProvisioningModal && provisioningType && (
+        <ConfirmModal
+          onConfirm={updateProvisioning}
+          header={translate('settings.authentication.gitlab.confirm', provisioningType)}
+          onClose={() => setShowConfirmProvisioningModal(false)}
+          confirmButtonText={translate(
+            'settings.authentication.gitlab.provisioning_change.confirm_changes',
+          )}
+        >
+          {translate('settings.authentication.gitlab.confirm', provisioningType, 'description')}
+        </ConfirmModal>
+      )}
       {openForm && (
         <GitLabConfigurationForm data={configuration ?? null} onClose={() => setOpenForm(false)} />
       )}

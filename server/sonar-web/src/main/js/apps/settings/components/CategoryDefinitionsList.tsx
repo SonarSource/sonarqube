@@ -34,6 +34,7 @@ interface Props {
   definitions: ExtendedSettingDefinition[];
   subCategory?: string;
   displaySubCategoryTitle?: boolean;
+  noPadding?: boolean;
 }
 
 interface State {
@@ -87,7 +88,7 @@ export default class CategoryDefinitionsList extends React.PureComponent<Props, 
   }
 
   render() {
-    const { category, component, subCategory, displaySubCategoryTitle } = this.props;
+    const { category, component, subCategory, displaySubCategoryTitle, noPadding } = this.props;
     const { settings } = this.state;
 
     return (
@@ -97,6 +98,7 @@ export default class CategoryDefinitionsList extends React.PureComponent<Props, 
         settings={settings}
         subCategory={subCategory}
         displaySubCategoryTitle={displaySubCategoryTitle}
+        noPadding={noPadding}
       />
     );
   }

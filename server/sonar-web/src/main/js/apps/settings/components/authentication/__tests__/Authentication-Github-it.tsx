@@ -138,13 +138,19 @@ const ui = {
     }),
   enableFirstMessage: ghContainer.byText('settings.authentication.github.enable_first'),
   jitProvisioningButton: ghContainer.byRole('radio', {
-    name: 'settings.authentication.form.provisioning_at_login',
+    name: /settings.authentication.form.provisioning_at_login/,
   }),
   githubProvisioningButton: ghContainer.byRole('radio', {
-    name: 'settings.authentication.github.form.provisioning_with_github',
+    name: /settings.authentication.github.form.provisioning_with_github/,
   }),
-  githubProvisioningPending: ghContainer.byText(/synchronization_pending/),
-  githubProvisioningInProgress: ghContainer.byText(/synchronization_in_progress/),
+  githubProvisioningPending: ghContainer
+    .byRole('list')
+    .byRole('status')
+    .byText(/synchronization_pending/),
+  githubProvisioningInProgress: ghContainer
+    .byRole('list')
+    .byRole('status')
+    .byText(/synchronization_in_progress/),
   githubProvisioningSuccess: ghContainer.byText(/synchronization_successful/),
   githubProvisioningAlert: ghContainer.byText(/synchronization_failed/),
   configurationValidityLoading: ghContainer.byRole('status', {
@@ -369,7 +375,7 @@ describe('Github tab', () => {
       renderAuthentication([Feature.GithubProvisioning]);
       await ui.enableProvisioning(user);
       expect(ui.githubProvisioningAlert.get()).toBeInTheDocument();
-      expect(ui.githubProvisioningButton.get()).toHaveTextContent("T'es mauvais Jacques");
+      expect(ghContainer.get()).toHaveTextContent("T'es mauvais Jacques");
       expect(ui.githubProvisioningSuccess.query()).not.toBeInTheDocument();
     });
 
@@ -386,7 +392,7 @@ describe('Github tab', () => {
       renderAuthentication([Feature.GithubProvisioning]);
       await ui.enableProvisioning(user);
       expect(ui.githubProvisioningAlert.get()).toBeInTheDocument();
-      expect(ui.githubProvisioningButton.get()).toHaveTextContent("T'es mauvais Jacques");
+      expect(ghContainer.get()).toHaveTextContent("T'es mauvais Jacques");
       expect(ui.githubProvisioningSuccess.query()).not.toBeInTheDocument();
       expect(ui.githubProvisioningInProgress.get()).toBeInTheDocument();
     });

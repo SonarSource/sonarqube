@@ -66,13 +66,13 @@ it('should render tabs and allow navigation', async () => {
 
   expect(screen.getAllByRole('tab')).toHaveLength(4);
 
-  expect(screen.getByRole('tab', { name: 'SAML' })).toHaveAttribute('aria-selected', 'true');
+  expect(screen.getByRole('tab', { name: 'SAML' })).toHaveAttribute('aria-current', 'true');
 
   await user.click(screen.getByRole('tab', { name: 'github GitHub' }));
 
-  expect(screen.getByRole('tab', { name: 'SAML' })).toHaveAttribute('aria-selected', 'false');
+  expect(screen.getByRole('tab', { name: 'SAML' })).toHaveAttribute('aria-current', 'false');
   expect(screen.getByRole('tab', { name: 'github GitHub' })).toHaveAttribute(
-    'aria-selected',
+    'aria-current',
     'true',
   );
 });
