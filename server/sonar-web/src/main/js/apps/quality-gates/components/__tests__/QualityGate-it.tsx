@@ -134,7 +134,7 @@ it('should be able to create a quality gate then delete it', async () => {
   });
 });
 
-it('should be able to copy a quality gate which is CAYC compliant', async () => {
+it('should be able to copy a quality gate which is CaYC compliant', async () => {
   const user = userEvent.setup();
   qualityGateHandler.setIsAdmin(true);
   renderQualityGateApp();
@@ -154,7 +154,7 @@ it('should be able to copy a quality gate which is CAYC compliant', async () => 
   expect(await screen.findByRole('button', { name: /.* bis/ })).toBeInTheDocument();
 });
 
-it('should not be able to copy a quality gate which is not CAYC compliant', async () => {
+it('should not be able to copy a quality gate which is not CaYC compliant', async () => {
   const user = userEvent.setup();
   qualityGateHandler.setIsAdmin(true);
   renderQualityGateApp();
@@ -183,7 +183,7 @@ it('should be able to rename a quality gate', async () => {
   expect(await screen.findByRole('button', { name: /New Name.*/ })).toBeInTheDocument();
 });
 
-it('should not be able to set as default a quality gate which is not CAYC compliant', async () => {
+it('should not be able to set as default a quality gate which is not CaYC compliant', async () => {
   const user = userEvent.setup();
   qualityGateHandler.setIsAdmin(true);
   renderQualityGateApp();
@@ -195,7 +195,7 @@ it('should not be able to set as default a quality gate which is not CAYC compli
   expect(setAsDefaultButton).toBeDisabled();
 });
 
-it('should be able to set as default a quality gate which is CAYC compliant', async () => {
+it('should be able to set as default a quality gate which is CaYC compliant', async () => {
   const user = userEvent.setup();
   qualityGateHandler.setIsAdmin(true);
   renderQualityGateApp();
@@ -335,7 +335,7 @@ it('should explain condition on branch', async () => {
   ).toBeInTheDocument();
 });
 
-it('should show warning banner when CAYC condition is not properly set and should be able to update them', async () => {
+it('should show warning banner when CaYC condition is not properly set and should be able to update them', async () => {
   const user = userEvent.setup();
   qualityGateHandler.setIsAdmin(true);
   renderQualityGateApp();
@@ -382,7 +382,7 @@ it('should show warning banner when CAYC condition is not properly set and shoul
   expect(overallConditionsWrapper.getByText('Complexity / Function')).toBeInTheDocument();
 });
 
-it('should show optimize banner when CAYC condition is not properly set and QG is compliant and should be able to update them', async () => {
+it('should show optimize banner when CaYC condition is not properly set and QG is compliant and should be able to update them', async () => {
   const user = userEvent.setup();
   qualityGateHandler.setIsAdmin(true);
   renderQualityGateApp();
@@ -420,7 +420,7 @@ it('should show optimize banner when CAYC condition is not properly set and QG i
   );
 });
 
-it('should not warn user when quality gate is not CAYC compliant and user has no permission to edit it', async () => {
+it('should not warn user when quality gate is not CaYC compliant and user has no permission to edit it', async () => {
   const user = userEvent.setup();
   renderQualityGateApp();
 
@@ -446,7 +446,7 @@ it('should not show optimize banner when quality gate is compliant but non-CaYC 
   expect(screen.queryByText('quality_gates.cayc.tooltip.message')).not.toBeInTheDocument();
 });
 
-it('should warn user when quality gate is not CAYC compliant and user has permission to edit it', async () => {
+it('should warn user when quality gate is not CaYC compliant and user has permission to edit it', async () => {
   const user = userEvent.setup();
   qualityGateHandler.setIsAdmin(true);
   renderQualityGateApp();

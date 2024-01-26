@@ -464,7 +464,7 @@ describe('Rule app details', () => {
       expect(ui.caycNotificationButton.query()).not.toBeInTheDocument();
     });
 
-    it('should show CAYC notification for rule advanced section and removes it when user scrolls to the principles', async () => {
+    it('should show CaYC notification for rule advanced section and removes it when user scrolls to the principles', async () => {
       const { ui, user } = getPageObjects();
       renderCodingRulesApp(mockLoggedInUser(), 'coding_rules?open=rule10');
       await ui.detailsloaded();

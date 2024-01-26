@@ -206,7 +206,7 @@ export class QualityGatesServiceMock {
         caycStatus: CaycStatus.Compliant,
       }),
       mockQualityGate({
-        name: 'Over Compliant CAYC QG',
+        name: 'Over Compliant CaYC QG',
         conditions: [
           { id: 'deprecatedoc', metric: 'function_complexity', op: 'LT', error: '1' },
           { id: 'AXJMbIUHPAOIsUIE3eOFoc', metric: 'new_coverage', op: 'LT', error: '80' },

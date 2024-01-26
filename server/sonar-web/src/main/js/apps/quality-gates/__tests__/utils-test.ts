@@ -85,7 +85,7 @@ describe('groupAndSortByPriorityConditions', () => {
     MetricKey.new_duplicated_lines_density,
   ];
 
-  it('should return grouped conditions by overall/new code and sort them by CAYC order', () => {
+  it('should return grouped conditions by overall/new code and sort them by CaYC order', () => {
     const result = groupAndSortByPriorityConditions(conditions, METRICS, true);
     const conditionsMap = ({ metric }: Condition) => metric;
 
