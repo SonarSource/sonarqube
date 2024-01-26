@@ -29,6 +29,7 @@ import {
 } from 'design-system';
 import React from 'react';
 import { useIntl } from 'react-intl';
+import { getTabPanelId } from '../../../components/controls/BoxedTabs';
 import { getLeakValue } from '../../../components/measure/utils';
 import { DEFAULT_ISSUES_QUERY } from '../../../components/shared/utils';
 import { getBranchLikeQuery } from '../../../helpers/branch-like';
@@ -49,6 +50,7 @@ import MeasuresCardNumber from '../components/MeasuresCardNumber';
 import MeasuresCardPercent from '../components/MeasuresCardPercent';
 import {
   MeasurementType,
+  MeasuresTabs,
   Status,
   getConditionRequiredLabel,
   getMeasurementMetricKey,
@@ -91,7 +93,7 @@ export default function NewCodeMeasuresPanel(props: Readonly<Props>) {
   }
 
   return (
-    <div className="sw-mt-6">
+    <div className="sw-mt-6" id={getTabPanelId(MeasuresTabs.New)}>
       <LightGreyCard className="sw-flex sw-rounded-2 sw-gap-4">
         <IssueMeasuresCardInner
           data-test="overview__measures-new_issues"

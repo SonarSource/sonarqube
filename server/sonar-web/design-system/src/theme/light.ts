@@ -305,6 +305,8 @@ export const lightTheme = {
     badgeDefault: COLORS.blueGrey[100],
     badgeDeleted: COLORS.red[100],
     badgeCounter: COLORS.blueGrey[100],
+    badgeCounterFailed: COLORS.red[50],
+    badgeCounterFailedBorder: COLORS.red[200],
 
     // pills
     pillDanger: COLORS.red[50],
@@ -324,6 +326,11 @@ export const lightTheme = {
 
     // tab
     tabBorder: primary.light,
+
+    // tabs
+    tab: COLORS.blueGrey[400],
+    tabSelected: primary.default,
+    tabHover: COLORS.blueGrey[25],
 
     //table
     tableRowHover: COLORS.indigo[25],
@@ -709,6 +716,7 @@ export const lightTheme = {
     badgeDefault: COLORS.blueGrey[700],
     badgeDeleted: COLORS.red[900],
     badgeCounter: secondary.darker,
+    badgeCounterFailed: danger.dark,
 
     // pills
     pillDanger: COLORS.red[800],

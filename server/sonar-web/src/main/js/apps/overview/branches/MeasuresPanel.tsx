@@ -19,13 +19,14 @@
  */
 import { Card, CoverageIndicator, DuplicationsIndicator } from 'design-system';
 import * as React from 'react';
+import { getTabPanelId } from '../../../components/controls/BoxedTabs';
 import { duplicationRatingConverter } from '../../../components/measure/utils';
 import { findMeasure } from '../../../helpers/measures';
 import { Branch } from '../../../types/branch-like';
 import { IssueType } from '../../../types/issues';
 import { MetricKey } from '../../../types/metrics';
 import { Component, MeasureEnhanced } from '../../../types/types';
-import { MeasurementType } from '../utils';
+import { MeasurementType, MeasuresTabs } from '../utils';
 import MeasuresPanelIssueMeasure from './MeasuresPanelIssueMeasure';
 import MeasuresPanelPercentMeasure from './MeasuresPanelPercentMeasure';
 
@@ -40,7 +41,10 @@ export function MeasuresPanel(props: MeasuresPanelProps) {
   const { branch, component, measures, isNewCode } = props;
 
   return (
-    <div className="sw-grid sw-grid-cols-2 sw-gap-4 sw-mt-4">
+    <div
+      className="sw-grid sw-grid-cols-2 sw-gap-4 sw-mt-6"
+      id={getTabPanelId(MeasuresTabs.Overall)}
+    >
       {[IssueType.Bug, IssueType.CodeSmell, IssueType.Vulnerability, IssueType.SecurityHotspot].map(
         (type: IssueType) => (
           <Card key={type} className="sw-p-8">

@@ -21,6 +21,7 @@ import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import DocLink from '../../../components/common/DocLink';
 import Link from '../../../components/common/Link';
+import { getTabPanelId } from '../../../components/controls/BoxedTabs';
 import { getBranchLikeQuery } from '../../../helpers/branch-like';
 import { translate } from '../../../helpers/l10n';
 import { getBaseUrl } from '../../../helpers/system';
@@ -29,6 +30,7 @@ import { Branch } from '../../../types/branch-like';
 import { ComponentQualifier } from '../../../types/component';
 import { NewCodeDefinitionType } from '../../../types/new-code-definition';
 import { Component, Period } from '../../../types/types';
+import { MeasuresTabs } from '../utils';
 
 export interface MeasuresPanelNoNewCodeProps {
   branch?: Branch;
@@ -60,7 +62,11 @@ export default function MeasuresPanelNoNewCode(props: MeasuresPanelNoNewCodeProp
   const showSettingsLink = !!(component.configuration && component.configuration.showSettings);
 
   return (
-    <div className="display-flex-center display-flex-justify-center" style={{ height: 500 }}>
+    <div
+      className="display-flex-center display-flex-justify-center"
+      id={getTabPanelId(MeasuresTabs.New)}
+      style={{ height: 500 }}
+    >
       <img
         alt="" /* Make screen readers ignore this image; it's purely eye candy. */
         className="spacer-right"

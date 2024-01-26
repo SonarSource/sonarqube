@@ -19,16 +19,17 @@
  */
 import styled from '@emotion/styled';
 import tw from 'twin.macro';
-import { themeColor, themeContrast } from '../helpers/theme';
+import { themeBorder, themeColor, themeContrast } from '../helpers/theme';
 import { ThemeColors } from '../types/theme';
 
-type BadgeVariant = 'default' | 'new' | 'deleted' | 'counter';
+type BadgeVariant = 'default' | 'new' | 'deleted' | 'counter' | 'counterFailed';
 
 const variantList: Record<BadgeVariant, ThemeColors> = {
   default: 'badgeDefault',
   new: 'badgeNew',
   deleted: 'badgeDeleted',
   counter: 'badgeCounter',
+  counterFailed: 'badgeCounterFailed',
 };
 
 interface BadgeProps {
@@ -45,13 +46,13 @@ export function Badge({ className, children, title, variant = 'default' }: Badge
     role: 'status',
     title,
   };
-  if (variant === 'counter') {
-    return <StyledCounter {...commonProps}>{children}</StyledCounter>;
-  }
+
+  const Component = ['counter', 'counterFailed'].includes(variant) ? StyledCounter : StyledBadge;
+
   return (
-    <StyledBadge variantInfo={variantList[variant]} {...commonProps}>
+    <Component variantInfo={variantList[variant]} {...commonProps}>
       {children}
-    </StyledBadge>
+    </Component>
   );
 }
 
@@ -80,17 +81,25 @@ const StyledBadge = styled.span<{
   }
 `;
 
-const StyledCounter = styled.span`
+const StyledCounter = styled.span<{
+  variantInfo: ThemeColors;
+}>`
+  ${tw`sw-min-w-5 sw-min-h-5`};
   ${tw`sw-text-[0.75rem]`};
   ${tw`sw-font-regular`};
-  ${tw`sw-px-2`};
+  ${tw`sw-box-border sw-px-[5px]`};
   ${tw`sw-inline-flex`};
   ${tw`sw-leading-[1.125rem]`};
   ${tw`sw-items-center sw-justify-center`};
   ${tw`sw-rounded-pill`};
 
-  color: ${themeContrast('badgeCounter')};
-  background-color: ${themeColor('badgeCounter')};
+  color: ${({ variantInfo }) => themeContrast(variantInfo)};
+  background-color: ${({ variantInfo }) => themeColor(variantInfo)};
+  border: ${({ variantInfo }) =>
+    themeBorder(
+      'default',
+      variantInfo === 'badgeCounterFailed' ? 'badgeCounterFailedBorder' : 'transparent',
+    )};
 
   &:empty {
     ${tw`sw-hidden`}

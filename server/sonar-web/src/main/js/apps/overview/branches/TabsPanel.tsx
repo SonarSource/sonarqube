@@ -25,10 +25,10 @@ import {
   LightLabel,
   PageTitle,
   Spinner,
-  ToggleButton,
+  Tabs,
 } from 'design-system';
 import * as React from 'react';
-import { FormattedMessage, useIntl } from 'react-intl';
+import { FormattedMessage } from 'react-intl';
 import DocLink from '../../../components/common/DocLink';
 import { translate } from '../../../helpers/l10n';
 import { isDiffMetric } from '../../../helpers/measures';
@@ -69,13 +69,11 @@ export function TabsPanel(props: React.PropsWithChildren<MeasuresPanelProps>) {
     branch,
     children,
   } = props;
-  const intl = useIntl();
   const isApp = component.qualifier === ComponentQualifier.Application;
   const leakPeriod = isApp ? appLeak : period;
 
   const { failingConditionsOnNewCode, failingConditionsOnOverallCode } =
     countFailingConditions(qgStatuses);
-  const failingConditions = failingConditionsOnNewCode + failingConditionsOnOverallCode;
 
   const recentSqUpgradeEvent = React.useMemo(() => {
     if (!analyses || analyses.length === 0) {
@@ -160,28 +158,19 @@ export function TabsPanel(props: React.PropsWithChildren<MeasuresPanelProps>) {
             </div>
           )}
           <div className="sw-flex sw-items-center">
-            <ToggleButton
+            <Tabs
               onChange={props.onTabSelect}
               options={tabs}
               value={isNewCode ? MeasuresTabs.New : MeasuresTabs.Overall}
-            />
-            {failingConditions > 0 && (
-              <LightLabel className="sw-body-sm-highlight sw-ml-8">
-                {intl.formatMessage(
-                  { id: 'overview.X_conditions_failed' },
-                  { conditions: failingConditions },
-                )}
-              </LightLabel>
-            )}
+            >
+              {isNewCode && leakPeriod && (
+                <LightLabel className="sw-body-sm sw-flex sw-items-center">
+                  <span className="sw-mr-1">{translate('overview.new_code')}:</span>
+                  <LeakPeriodInfo leakPeriod={leakPeriod} />
+                </LightLabel>
+              )}
+            </Tabs>
           </div>
-          {isNewCode && leakPeriod ? (
-            <LightLabel className="sw-body-sm sw-flex sw-items-center sw-mt-4">
-              <span className="sw-mr-1">{translate('overview.new_code')}:</span>
-              <LeakPeriodInfo leakPeriod={leakPeriod} />
-            </LightLabel>
-          ) : (
-            <div className="sw-h-4 sw-pt-1 sw-mt-4" />
-          )}
 
           {component.qualifier === ComponentQualifier.Application && component.needIssueSync && (
             <FlagMessage className="sw-mt-4" variant="info">

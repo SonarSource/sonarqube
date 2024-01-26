@@ -332,7 +332,7 @@ describe('project overview', () => {
     renderBranchOverview();
 
     expect(await screen.findByText('metric.level.ERROR')).toBeInTheDocument();
-    expect(screen.getAllByText(/overview.X_conditions_failed/)).toHaveLength(2);
+    expect(screen.getByText(/overview.X_conditions_failed/)).toBeInTheDocument();
     expect(screen.getAllByText(/overview.quality_gate.required_x/)).toHaveLength(3);
   });
 
