@@ -119,7 +119,7 @@
     "test": "jest",
     "test-eslint-local-rules": "jest -c eslint-local-rules/jest.config.js",
     "format": "prettier --write --list-different \"src/main/js/**/*.{js,ts,tsx,css}\"",
-    "format-check": "prettier --list-different \"src/main/js/**/*.{js,ts,tsx,css}\"",
+    "format-check": "prettier --check \"src/main/js/**/*.{js,ts,tsx,css}\"",
     "lint": "eslint --ext js,ts,tsx --quiet src/main/js",
     "lint-report": "eslint --ext js,ts,tsx -f json -o eslint-report/eslint-report.json src/main/js",
     "lint-report-ci": "yarn install --immutable && eslint --ext js,ts,tsx --config .eslintrc-ci -f json -o eslint-report/eslint-report.json src/main/js  || yarn lint",

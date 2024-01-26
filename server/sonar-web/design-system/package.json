@@ -5,7 +5,7 @@
   "types": "lib/index.d.ts",
   "scripts": {
     "format": "prettier --write --list-different \"src/**/*.{ts,tsx}\"",
-    "format-check": "prettier --list-different \"src/**/*.{ts,tsx}\"",
+    "format-check": "prettier --check \"src/**/*.{ts,tsx}\"",
     "build": "yarn lint && yarn ts-check && vite build",
     "build:no-checks": "vite build",
     "build-release": "yarn install --immutable && yarn build",
