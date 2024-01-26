@@ -61,8 +61,9 @@ public abstract class SumFormula<T extends SumCounter<U, T>, U extends Number> i
     @Override
     public Optional<Measure> createMeasure(IntSumCounter counter, CreateMeasureContext context) {
       Optional<Integer> valueOptional = counter.getValue();
-      if (shouldCreateMeasure(context, valueOptional)) {
-        return Optional.of(Measure.newMeasureBuilder().create(valueOptional.get()));
+      Integer value = valueOptional.orElse(null);
+      if (shouldCreateMeasure(context, value)) {
+        return Optional.of(Measure.newMeasureBuilder().create(value));
       }
       return Optional.empty();
     }
@@ -89,15 +90,17 @@ public abstract class SumFormula<T extends SumCounter<U, T>, U extends Number> i
     @Override
     public Optional<Measure> createMeasure(LongSumCounter counter, CreateMeasureContext context) {
       Optional<Long> valueOptional = counter.getValue();
-      if (shouldCreateMeasure(context, valueOptional)) {
-        return Optional.of(Measure.newMeasureBuilder().create(valueOptional.get()));
+      Long value = valueOptional.orElse(null);
+      if (shouldCreateMeasure(context, value)) {
+
+        return Optional.of(Measure.newMeasureBuilder().create(value));
       }
       return Optional.empty();
     }
   }
 
-  private static <T extends Number> boolean shouldCreateMeasure(CreateMeasureContext context, Optional<T> value) {
-    return value.isPresent() && CrawlerDepthLimit.LEAVES.isDeeperThan(context.getComponent().getType());
+  protected static <T extends Number> boolean shouldCreateMeasure(CreateMeasureContext context, @Nullable T value) {
+    return value != null && CrawlerDepthLimit.LEAVES.isDeeperThan(context.getComponent().getType());
   }
 
   @Override

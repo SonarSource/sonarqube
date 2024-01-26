@@ -31,12 +31,14 @@ public class ProjectViewAttributes {
   private final String originalKey;
   @CheckForNull
   private final Long analysisDate;
+  private final boolean hasNewCodePeriod;
   private final String branchName;
 
-  public ProjectViewAttributes(String uuid, String originalKey, @Nullable Long analysisDate, @Nullable String branchName) {
+  public ProjectViewAttributes(String uuid, String originalKey, @Nullable Long analysisDate, boolean hasNewCodePeriod, @Nullable String branchName) {
     this.uuid = requireNonNull(uuid, "uuid can't be null");
     this.originalKey = requireNonNull(originalKey, "originalKey can't be null");
     this.analysisDate = analysisDate;
+    this.hasNewCodePeriod = hasNewCodePeriod;
     this.branchName = branchName;
   }
 
@@ -57,12 +59,17 @@ public class ProjectViewAttributes {
     return originalKey;
   }
 
+  public boolean hasNewCodePeriod() {
+    return hasNewCodePeriod;
+  }
+
   @Override
   public String toString() {
     return "ProjectViewAttributes{" +
-      ", uuid='" + uuid + '\'' +
-      ", branchName='" + branchName + '\'' +
-      ", analysisDate=" + analysisDate +
-      '}';
+           ", uuid='" + uuid + '\'' +
+           ", branchName='" + branchName + '\'' +
+           ", hasNewCodePeriod=" + branchName +
+           ", analysisDate=" + analysisDate +
+           '}';
   }
 }
