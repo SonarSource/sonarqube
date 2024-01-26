@@ -81,7 +81,10 @@ export function SoftwareImpactMeasureCard(props: Readonly<SoftwareImpactBreakdow
   }
 
   return (
-    <LightGreyCard className="sw-w-1/3 sw-overflow-hidden sw-rounded-2 sw-p-4 sw-flex-col">
+    <LightGreyCard
+      data-testid={`software-impact-card-${softwareQuality}`}
+      className="sw-w-1/3 sw-overflow-hidden sw-rounded-2 sw-p-4 sw-flex-col"
+    >
       <TextBold name={intl.formatMessage({ id: `software_quality.${softwareQuality}` })} />
       <BasicSeparator className="sw--mx-4" />
       <div className="sw-flex sw-flex-col sw-gap-3">

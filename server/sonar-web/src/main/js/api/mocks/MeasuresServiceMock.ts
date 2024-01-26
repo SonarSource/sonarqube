@@ -18,13 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { cloneDeep } from 'lodash';
-import { mockPeriod } from '../../helpers/testMocks';
+import { mockMetric, mockPeriod } from '../../helpers/testMocks';
 import { BranchParameters } from '../../types/branch-like';
-import { Period } from '../../types/types';
-import { getMeasures, getMeasuresWithPeriod } from '../measures';
+import { MetricKey } from '../../types/metrics';
+import { Metric, Period } from '../../types/types';
+import { getMeasures, getMeasuresWithPeriod, getMeasuresWithPeriodAndMetrics } from '../measures';
 import { ComponentTree, mockFullComponentTree } from './data/components';
 import { mockIssuesList } from './data/issues';
-import { MeasureRecords, mockFullMeasureData } from './data/measures';
+import { MeasureRecords, getMetricTypeFromKey, mockFullMeasureData } from './data/measures';
 
 jest.mock('../measures');
 
@@ -51,10 +52,17 @@ export class MeasuresServiceMock {
 
     jest.mocked(getMeasures).mockImplementation(this.handleGetMeasures);
     jest.mocked(getMeasuresWithPeriod).mockImplementation(this.handleGetMeasuresWithPeriod);
+    jest
+      .mocked(getMeasuresWithPeriodAndMetrics)
+      .mockImplementation(this.handleGetMeasuresWithPeriodAndMetrics);
   }
 
   registerComponentMeasures = (measures: MeasureRecords) => {
     this.#measures = measures;
+  };
+
+  deleteComponentMeasure = (componentKey: string, measureKey: MetricKey) => {
+    delete this.#measures[componentKey][measureKey];
   };
 
   getComponentMeasures = () => {
@@ -113,6 +121,28 @@ export class MeasuresServiceMock {
         measures,
       },
       period: this.#period,
+    });
+  };
+
+  handleGetMeasuresWithPeriodAndMetrics = (componentKey: string, metricKeys: string[]) => {
+    const { component } = this.findComponentTree(componentKey);
+    const measures = this.filterMeasures(component.key, metricKeys);
+
+    const metrics: Metric[] = measures.map((measure) =>
+      mockMetric({
+        key: measure.metric,
+        name: measure.metric,
+        type: getMetricTypeFromKey(measure.metric),
+      }),
+    );
+
+    return this.reply({
+      component: {
+        ...component,
+        measures,
+      },
+      period: this.#period,
+      metrics,
     });
   };
 

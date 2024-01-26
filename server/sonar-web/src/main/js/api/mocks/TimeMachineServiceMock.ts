@@ -23,7 +23,9 @@ import { mockHistoryItem, mockMeasureHistory } from '../../helpers/mocks/project
 import { BranchParameters } from '../../types/branch-like';
 import { MetricKey } from '../../types/metrics';
 import { MeasureHistory } from '../../types/project-activity';
-import { getAllTimeMachineData, getTimeMachineData, TimeMachineResponse } from '../time-machine';
+import { TimeMachineResponse, getAllTimeMachineData, getTimeMachineData } from '../time-machine';
+
+jest.mock('../time-machine');
 
 const PAGE_SIZE = 10;
 const DEFAULT_PAGE = 0;

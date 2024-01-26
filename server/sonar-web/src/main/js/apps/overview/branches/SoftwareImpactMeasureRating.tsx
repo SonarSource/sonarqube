@@ -49,9 +49,12 @@ export function SoftwareImpactMeasureRating(props: Readonly<SoftwareImpactMeasur
         rating={rating}
         label={intl.formatMessage(
           {
-            id: 'metric.has_rating_X',
+            id: 'overview.project.software_impact.has_rating',
           },
-          { 0: value },
+          {
+            softwareQuality: intl.formatMessage({ id: `software_quality.${softwareQuality}` }),
+            rating,
+          },
         )}
       />
     </Tooltip>

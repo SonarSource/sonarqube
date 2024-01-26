@@ -565,7 +565,7 @@ export class QualityGatesServiceMock {
     return this.reply(this.applicationQualityGate);
   };
 
-  setApplicationQualityGateStatus = (status: QualityGateApplicationStatus) => {
+  setApplicationQualityGateStatus = (status: Partial<QualityGateApplicationStatus>) => {
     this.applicationQualityGate = mockQualityGateApplicationStatus(status);
   };
 
@@ -573,7 +573,7 @@ export class QualityGatesServiceMock {
     return this.reply(this.qualityGateProjectStatus);
   };
 
-  setQualityGateProjectStatus = (status: QualityGateProjectStatus) => {
+  setQualityGateProjectStatus = (status: Partial<QualityGateProjectStatus>) => {
     this.qualityGateProjectStatus = mockQualityGateProjectStatus(status);
   };
 

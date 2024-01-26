@@ -30,6 +30,8 @@ import {
   getProjectActivity,
 } from '../projectActivity';
 
+jest.mock('../projectActivity');
+
 const PAGE_SIZE = 10;
 const DEFAULT_PAGE = 1;
 const UNKNOWN_PROJECT = 'unknown';

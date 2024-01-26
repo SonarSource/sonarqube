@@ -18,234 +18,112 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { screen, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
 import * as React from 'react';
-import { getMeasuresWithPeriodAndMetrics } from '../../../../api/measures';
 import AlmSettingsServiceMock from '../../../../api/mocks/AlmSettingsServiceMock';
+import ApplicationServiceMock from '../../../../api/mocks/ApplicationServiceMock';
+import BranchesServiceMock from '../../../../api/mocks/BranchesServiceMock';
+import { MeasuresServiceMock } from '../../../../api/mocks/MeasuresServiceMock';
+import { ProjectActivityServiceMock } from '../../../../api/mocks/ProjectActivityServiceMock';
 import { QualityGatesServiceMock } from '../../../../api/mocks/QualityGatesServiceMock';
+import { TimeMachineServiceMock } from '../../../../api/mocks/TimeMachineServiceMock';
+import { PARENT_COMPONENT_KEY } from '../../../../api/mocks/data/ids';
 import { getProjectActivity } from '../../../../api/projectActivity';
 import { getQualityGateProjectStatus } from '../../../../api/quality-gates';
 import CurrentUserContextProvider from '../../../../app/components/current-user/CurrentUserContextProvider';
-import { getActivityGraph, saveActivityGraph } from '../../../../components/activity-graph/utils';
-import { isDiffMetric } from '../../../../helpers/measures';
+import { parseDate } from '../../../../helpers/dates';
 import { mockMainBranch } from '../../../../helpers/mocks/branch-like';
 import { mockComponent } from '../../../../helpers/mocks/component';
 import { mockAnalysis, mockAnalysisEvent } from '../../../../helpers/mocks/project-activity';
-import {
-  mockQualityGateApplicationStatus,
-  mockQualityGateProjectStatus,
-} from '../../../../helpers/mocks/quality-gates';
-import { mockLoggedInUser, mockPeriod } from '../../../../helpers/testMocks';
+import { mockQualityGateProjectStatus } from '../../../../helpers/mocks/quality-gates';
+import { mockLoggedInUser, mockMeasure, mockPaging } from '../../../../helpers/testMocks';
 import { renderComponent } from '../../../../helpers/testReactTestingUtils';
-import { byLabelText, byRole } from '../../../../helpers/testSelector';
+import { byRole, byText } from '../../../../helpers/testSelector';
+import { SoftwareQuality } from '../../../../types/clean-code-taxonomy';
 import { ComponentQualifier } from '../../../../types/component';
-import { MetricKey, MetricType } from '../../../../types/metrics';
-import {
-  Analysis,
-  GraphType,
-  ProjectAnalysisEventCategory,
-} from '../../../../types/project-activity';
-import { CaycStatus, Measure, Metric, Paging } from '../../../../types/types';
-import BranchOverview, { BRANCH_OVERVIEW_ACTIVITY_GRAPH, NO_CI_DETECTED } from '../BranchOverview';
-
-jest.mock('../../../../api/measures', () => {
-  const { mockMeasure, mockMetric } = jest.requireActual('../../../../helpers/testMocks');
-  return {
-    getMeasuresWithPeriodAndMetrics: jest.fn((_, metricKeys: string[]) => {
-      const metrics: Metric[] = [];
-      const measures: Measure[] = [];
-      metricKeys.forEach((key) => {
-        if (key === 'unknown_metric') {
-          return;
-        }
-
-        let type;
-        if (/(coverage|duplication)$/.test(key)) {
-          type = MetricType.Percent;
-        } else if (/_rating$/.test(key)) {
-          type = MetricType.Rating;
-        } else if (
-          [
-            MetricKey.reliability_issues,
-            MetricKey.security_issues,
-            MetricKey.maintainability_issues,
-          ].includes(key as MetricKey)
-        ) {
-          type = MetricType.Data;
-        } else {
-          type = MetricType.Integer;
-        }
-        metrics.push(mockMetric({ key, id: key, name: key, type }));
-
-        const measure = mockMeasure({
-          metric: key,
-          ...(isDiffMetric(key) ? { leak: '1' } : { period: undefined }),
-        });
-
-        // Mock software quality measures
-        if (type === MetricType.Data) {
-          if (key === MetricKey.reliability_issues) {
-            measure.value = JSON.stringify({
-              total: 3,
-              high: 0,
-              medium: 2,
-              low: 1,
-            });
-          } else if (key === MetricKey.maintainability_issues) {
-            measure.value = JSON.stringify({
-              total: 2,
-              high: 0,
-              medium: 0,
-              low: 1,
-            });
-          } else {
-            measure.value = JSON.stringify({
-              total: 0,
-              high: 0,
-              medium: 0,
-              low: 0,
-            });
-          }
-        }
-        // Mock software quality rating
-        if (key === MetricKey.reliability_rating) {
-          measure.value = '3';
-        } else if (key === MetricKey.security_rating) {
-          measure.value = '2';
-        } else if (key.endsWith('_rating') || key === MetricKey.sqale_rating) {
-          measure.value = '1';
-        }
-        measures.push(measure);
-      });
-      return Promise.resolve({
-        component: {
-          measures,
-          name: 'foo',
-        },
-        metrics,
-      });
-    }),
-  };
-});
-
-jest.mock('../../../../api/time-machine', () => {
-  const { MetricKey } = jest.requireActual('../../../../types/metrics');
-  return {
-    getAllTimeMachineData: jest.fn().mockResolvedValue({
-      measures: [
-        { metric: MetricKey.bugs, history: [{ date: '2019-01-05', value: '2.0' }] },
-        { metric: MetricKey.vulnerabilities, history: [{ date: '2019-01-05', value: '0' }] },
-        { metric: MetricKey.sqale_index, history: [{ date: '2019-01-01', value: '1.0' }] },
-        {
-          metric: MetricKey.duplicated_lines_density,
-          history: [{ date: '2019-01-02', value: '1.0' }],
-        },
-        { metric: MetricKey.ncloc, history: [{ date: '2019-01-03', value: '10000' }] },
-        { metric: MetricKey.coverage, history: [{ date: '2019-01-04', value: '95.5' }] },
-      ],
-    }),
-  };
-});
-
-jest.mock('../../../../api/projectActivity', () => {
-  const { mockAnalysis } = jest.requireActual('../../../../helpers/mocks/project-activity');
-  return {
-    getProjectActivity: jest.fn().mockResolvedValue({
-      analyses: [
-        mockAnalysis({ detectedCI: 'Cirrus CI' }),
-        mockAnalysis(),
-        mockAnalysis(),
-        mockAnalysis(),
-        mockAnalysis(),
-      ],
-    }),
-  };
-});
-
-jest.mock('../../../../api/application', () => ({
-  getApplicationDetails: jest.fn().mockResolvedValue({
-    branches: [],
-    key: 'key-1',
-    name: 'app',
-    projects: [
-      {
-        branch: 'foo',
-        key: 'KEY-P1',
-        name: 'P1',
-      },
-    ],
-    visibility: 'Private',
-  }),
-  getApplicationLeak: jest.fn().mockResolvedValue([
-    {
-      date: '2017-01-05',
-      project: 'foo',
-      projectName: 'Foo',
-    },
-  ]),
-}));
-
-jest.mock('../../../../components/activity-graph/utils', () => {
-  const { MetricKey } = jest.requireActual('../../../../types/metrics');
-  const { GraphType } = jest.requireActual('../../../../types/project-activity');
-  const original = jest.requireActual('../../../../components/activity-graph/utils');
-  return {
-    ...original,
-    getActivityGraph: jest.fn(() => ({ graph: GraphType.coverage })),
-    saveActivityGraph: jest.fn(),
-    getHistoryMetrics: jest.fn(() => [MetricKey.lines_to_cover, MetricKey.uncovered_lines]),
-  };
-});
+import { MetricKey } from '../../../../types/metrics';
+import { ProjectAnalysisEventCategory } from '../../../../types/project-activity';
+import { CaycStatus } from '../../../../types/types';
+import BranchOverview, { NO_CI_DETECTED } from '../BranchOverview';
+import { getPageObjects } from '../test-utils';
 
 const almHandler = new AlmSettingsServiceMock();
-let qualityGatesMock: QualityGatesServiceMock;
+let branchesHandler: BranchesServiceMock;
+let measuresHandler: MeasuresServiceMock;
+let applicationHandler: ApplicationServiceMock;
+let projectActivityHandler: ProjectActivityServiceMock;
+let timeMarchineHandler: TimeMachineServiceMock;
+let qualityGatesHandler: QualityGatesServiceMock;
 
 beforeAll(() => {
-  qualityGatesMock = new QualityGatesServiceMock();
-  qualityGatesMock.setQualityGateProjectStatus(
-    mockQualityGateProjectStatus({
-      status: 'ERROR',
-      conditions: [
-        {
-          actualValue: '2',
-          comparator: 'GT',
-          errorThreshold: '1',
-          metricKey: MetricKey.new_reliability_rating,
-          periodIndex: 1,
-          status: 'ERROR',
-        },
-        {
-          actualValue: '5',
-          comparator: 'GT',
-          errorThreshold: '2.0',
-          metricKey: MetricKey.bugs,
-          periodIndex: 0,
-          status: 'ERROR',
-        },
-        {
-          actualValue: '2',
-          comparator: 'GT',
-          errorThreshold: '1.0',
-          metricKey: 'unknown_metric',
-          periodIndex: 0,
-          status: 'ERROR',
-        },
-      ],
-    }),
-  );
-  qualityGatesMock.setApplicationQualityGateStatus(mockQualityGateApplicationStatus());
+  branchesHandler = new BranchesServiceMock();
+  measuresHandler = new MeasuresServiceMock();
+  applicationHandler = new ApplicationServiceMock();
+  projectActivityHandler = new ProjectActivityServiceMock();
+  projectActivityHandler.setAnalysesList([
+    mockAnalysis({ key: 'a1', detectedCI: 'Cirrus CI' }),
+    mockAnalysis({ key: 'a2' }),
+    mockAnalysis({ key: 'a3' }),
+    mockAnalysis({ key: 'a4' }),
+    mockAnalysis({ key: 'a5' }),
+  ]);
+  timeMarchineHandler = new TimeMachineServiceMock();
+  timeMarchineHandler.setMeasureHistory([
+    { metric: MetricKey.bugs, history: [{ date: parseDate('2019-01-05'), value: '2.0' }] },
+    { metric: MetricKey.vulnerabilities, history: [{ date: parseDate('2019-01-05'), value: '0' }] },
+    { metric: MetricKey.sqale_index, history: [{ date: parseDate('2019-01-01'), value: '1.0' }] },
+    {
+      metric: MetricKey.duplicated_lines_density,
+      history: [{ date: parseDate('2019-01-02'), value: '1.0' }],
+    },
+    { metric: MetricKey.ncloc, history: [{ date: parseDate('2019-01-03'), value: '10000' }] },
+    { metric: MetricKey.coverage, history: [{ date: parseDate('2019-01-04'), value: '95.5' }] },
+  ]);
+  qualityGatesHandler = new QualityGatesServiceMock();
+  qualityGatesHandler.setQualityGateProjectStatus({
+    status: 'ERROR',
+    conditions: [
+      {
+        actualValue: '2',
+        comparator: 'GT',
+        errorThreshold: '1',
+        metricKey: MetricKey.new_reliability_rating,
+        periodIndex: 1,
+        status: 'ERROR',
+      },
+      {
+        actualValue: '5',
+        comparator: 'GT',
+        errorThreshold: '2.0',
+        metricKey: MetricKey.bugs,
+        periodIndex: 0,
+        status: 'ERROR',
+      },
+      {
+        actualValue: '2',
+        comparator: 'GT',
+        errorThreshold: '1.0',
+        metricKey: 'unknown_metric',
+        periodIndex: 0,
+        status: 'ERROR',
+      },
+    ],
+  });
 });
 
 afterEach(() => {
   jest.clearAllMocks();
-  qualityGatesMock.reset();
+  branchesHandler.reset();
+  measuresHandler.reset();
+  applicationHandler.reset();
+  projectActivityHandler.reset();
+  timeMarchineHandler.reset();
+  qualityGatesHandler.reset();
   almHandler.reset();
 });
 
 describe('project overview', () => {
-  it('should show a successful QG', async () => {
-    const user = userEvent.setup();
-    qualityGatesMock.setQualityGateProjectStatus(
+  it('should render a successful quality gate', async () => {
+    qualityGatesHandler.setQualityGateProjectStatus(
       mockQualityGateProjectStatus({
         status: 'OK',
       }),
@@ -270,46 +148,6 @@ describe('project overview', () => {
         name: 'overview.see_more_details_on_x_of_y.1.metric.new_accepted_issues.name',
       }).get(),
     ).toBeInTheDocument();
-
-    // Go to overall
-    await user.click(screen.getByText('overview.overall_code'));
-
-    expect(screen.getByText('metric.vulnerabilities.name')).toBeInTheDocument();
-    expect(
-      byRole('link', {
-        name: 'overview.see_more_details_on_x_of_y.1.metric.high_impact_accepted_issues.name',
-      }).get(),
-    ).toBeInTheDocument();
-
-    // Software breakdown links should be correct
-    expect(
-      byRole('link', {
-        name: 'overview.measures.software_impact.see_list_of_x_open_issues.3.software_quality.RELIABILITY',
-      }).get(),
-    ).toHaveAttribute(
-      'href',
-      '/project/issues?issueStatuses=OPEN%2CCONFIRMED&impactSoftwareQualities=RELIABILITY&id=foo',
-    );
-    expect(
-      byRole('link', {
-        name: 'overview.measures.software_impact.severity.see_x_open_issues.2.software_quality.RELIABILITY.overview.measures.software_impact.severity.MEDIUM.tooltip',
-      }).get(),
-    ).toHaveAttribute(
-      'href',
-      '/project/issues?issueStatuses=OPEN%2CCONFIRMED&impactSoftwareQualities=RELIABILITY&impactSeverities=MEDIUM&id=foo',
-    );
-
-    // Active severity card should be the one with the highest severity
-    expect(
-      byRole('link', {
-        name: 'overview.measures.software_impact.severity.see_x_open_issues.2.software_quality.RELIABILITY.overview.measures.software_impact.severity.MEDIUM.tooltip',
-      }).get(),
-    ).toHaveClass('active', 'MEDIUM');
-
-    // Ratings should be correct and rendered
-    expect(byLabelText('metric.has_rating_X.C').get()).toBeInTheDocument();
-    expect(byLabelText('metric.has_rating_X.B').get()).toBeInTheDocument();
-    expect(byLabelText('metric.has_rating_X.A').getAll()).toHaveLength(2);
   });
 
   it('should show a successful non-compliant QG', async () => {
@@ -333,8 +171,8 @@ describe('project overview', () => {
       .mockResolvedValueOnce(
         mockQualityGateProjectStatus({ status: 'OK', caycStatus: CaycStatus.NonCompliant }),
       );
-    qualityGatesMock.setIsAdmin(true);
-    qualityGatesMock.setGetGateForProjectName('Non Cayc QG');
+    qualityGatesHandler.setIsAdmin(true);
+    qualityGatesHandler.setGetGateForProjectName('Non Cayc QG');
 
     renderBranchOverview();
 
@@ -345,7 +183,7 @@ describe('project overview', () => {
   });
 
   it('should show a failed QG', async () => {
-    qualityGatesMock.setQualityGateProjectStatus(
+    qualityGatesHandler.setQualityGateProjectStatus(
       mockQualityGateProjectStatus({
         status: 'ERROR',
         conditions: [
@@ -409,32 +247,160 @@ describe('project overview', () => {
   });
 
   it('should correctly show a project as empty', async () => {
-    jest.mocked(getMeasuresWithPeriodAndMetrics).mockResolvedValueOnce({
-      component: { key: '', name: '', qualifier: ComponentQualifier.Project, measures: [] },
-      metrics: [],
-      period: mockPeriod(),
-    });
+    measuresHandler.registerComponentMeasures({});
 
     renderBranchOverview();
 
     expect(await screen.findByText('overview.project.main_branch_empty')).toBeInTheDocument();
   });
+
+  // eslint-disable-next-line jest/expect-expect
+  it('should render software impact measure cards', async () => {
+    const { user, ui } = getPageObjects();
+    renderBranchOverview();
+
+    await user.click(await ui.overallCodeButton.find());
+
+    ui.expectSoftwareImpactMeasureCard(
+      SoftwareQuality.Security,
+      'B',
+      {
+        total: 1,
+        high: 0,
+        medium: 1,
+        low: 0,
+      },
+      [false, true, false],
+    );
+    ui.expectSoftwareImpactMeasureCard(
+      SoftwareQuality.Reliability,
+      'A',
+      {
+        total: 3,
+        high: 0,
+        medium: 2,
+        low: 1,
+      },
+      [false, false, false],
+    );
+    ui.expectSoftwareImpactMeasureCard(
+      SoftwareQuality.Maintainability,
+      'E',
+      {
+        total: 2,
+        high: 0,
+        medium: 0,
+        low: 1,
+      },
+      [false, false, true],
+    );
+  });
+
+  it('should render missing software impact measure cards', async () => {
+    // Make as if reliability_issues was not computed
+    measuresHandler.deleteComponentMeasure('foo', MetricKey.maintainability_issues);
+
+    const { user, ui } = getPageObjects();
+    renderBranchOverview();
+
+    await user.click(await ui.overallCodeButton.find());
+
+    expect(await ui.softwareImpactMeasureCard(SoftwareQuality.Security).find()).toBeInTheDocument();
+
+    ui.expectSoftwareImpactMeasureCard(
+      SoftwareQuality.Security,
+      'B',
+      {
+        total: 1,
+        high: 0,
+        medium: 1,
+        low: 0,
+      },
+      [false, true, false],
+    );
+    ui.expectSoftwareImpactMeasureCard(
+      SoftwareQuality.Reliability,
+      'A',
+      {
+        total: 3,
+        high: 0,
+        medium: 2,
+        low: 1,
+      },
+      [false, false, false],
+    );
+
+    // Maintainability is not computed
+    ui.expectSoftwareImpactMeasureCard(SoftwareQuality.Maintainability, 'E');
+    expect(
+      byText('overview.project.no_data').get(
+        ui.softwareImpactMeasureCard(SoftwareQuality.Maintainability).get(),
+      ),
+    ).toBeInTheDocument();
+    expect(
+      byText('overview.run_analysis_to_compute.TRK').get(
+        ui.softwareImpactMeasureCard(SoftwareQuality.Maintainability).get(),
+      ),
+    ).toBeInTheDocument();
+    ui.expectSoftwareImpactMeasureCard(SoftwareQuality.Maintainability, 'E', undefined, [
+      false,
+      false,
+      false,
+    ]);
+  });
 });
 
 describe('application overview', () => {
   const component = mockComponent({
-    breadcrumbs: [mockComponent({ key: 'foo', qualifier: ComponentQualifier.Application })],
+    key: PARENT_COMPONENT_KEY,
+    name: 'FooApp',
     qualifier: ComponentQualifier.Application,
+    breadcrumbs: [
+      {
+        key: PARENT_COMPONENT_KEY,
+        name: 'FooApp',
+        qualifier: ComponentQualifier.Application,
+      },
+    ],
   });
 
-  it('should show failed conditions for every project', async () => {
-    renderBranchOverview({ component });
-    expect(await screen.findByText('Foo')).toBeInTheDocument();
-    expect(screen.getByText('Bar')).toBeInTheDocument();
-  });
-
-  it("should show projects that don't have a compliant quality gate", async () => {
-    const appStatus = mockQualityGateApplicationStatus({
+  beforeEach(() => {
+    // We mock this application structure:
+    // App (foo)
+    // -- Project 1 (1) - QG OK
+    // -- Project 2 (2) - QG OK
+    // -- Project 3 (3) - QG OK
+    // -- Project 4 (4) - 1 failed condition on new code (new_violations)
+    const components = Array.from({ length: 4 }).map((_, i) =>
+      mockComponent({
+        key: (i + 1).toString(),
+        name: (i + 1).toString(),
+        breadcrumbs: [
+          ...component.breadcrumbs,
+          {
+            key: (i + 1).toString(),
+            name: (i + 1).toString(),
+            qualifier: ComponentQualifier.Project,
+          },
+        ],
+      }),
+    );
+    measuresHandler.setComponents({
+      component,
+      ancestors: [],
+      children: components.map((component) => ({
+        component,
+        ancestors: [component],
+        children: [],
+      })),
+    });
+    const componentMeasures = measuresHandler.getComponentMeasures();
+    componentMeasures['4'] = {
+      [MetricKey.new_violations]: mockMeasure({
+        metric: MetricKey.new_violations,
+      }),
+    };
+    qualityGatesHandler.setApplicationQualityGateStatus({
       projects: [
         {
           key: '1',
@@ -445,25 +411,25 @@ describe('application overview', () => {
         },
         {
           key: '2',
-          name: 'second',
+          name: 'second project',
           conditions: [],
           caycStatus: CaycStatus.Compliant,
           status: 'OK',
         },
         {
           key: '3',
-          name: 'number 3',
+          name: 'third project',
           conditions: [],
           caycStatus: CaycStatus.NonCompliant,
           status: 'OK',
         },
         {
           key: '4',
-          name: 'four',
+          name: 'fourth project',
           conditions: [
             {
               comparator: 'GT',
-              metric: MetricKey.bugs,
+              metric: MetricKey.new_violations,
               status: 'ERROR',
               value: '3',
               errorThreshold: '0',
@@ -474,28 +440,54 @@ describe('application overview', () => {
         },
       ],
     });
-    qualityGatesMock.setApplicationQualityGateStatus(appStatus);
+  });
 
+  it('should show failed conditions for child projects', async () => {
+    renderBranchOverview({ component });
+
+    expect(await screen.findByText('metric.level.ERROR')).toBeInTheDocument();
+    expect(
+      byRole('button', {
+        name: 'overview.quality_gate.hide_project_conditions_x.fourth project',
+      }).get(),
+    ).toBeInTheDocument();
+    expect(byText('quality_gates.conditions.new_code_1').get()).toBeInTheDocument();
+    expect(byText('1 metric.new_violations.name').get()).toBeInTheDocument();
+  });
+
+  it("should show projects that don't have a compliant quality gate", async () => {
     renderBranchOverview({ component });
     expect(
       await screen.findByText('overview.quality_gate.application.non_cayc.projects_x.3'),
     ).toBeInTheDocument();
     expect(screen.getByText('first project')).toBeInTheDocument();
-    expect(screen.queryByText('second')).not.toBeInTheDocument();
-    expect(screen.getByText('number 3')).toBeInTheDocument();
+    expect(screen.queryByText('second project')).not.toBeInTheDocument();
+    expect(screen.getByText('third project')).toBeInTheDocument();
   });
 
   it('should correctly show an app as empty', async () => {
-    jest.mocked(getMeasuresWithPeriodAndMetrics).mockResolvedValueOnce({
-      component: { key: '', name: '', qualifier: ComponentQualifier.Application, measures: [] },
-      metrics: [],
-      period: mockPeriod(),
-    });
+    measuresHandler.registerComponentMeasures({});
 
     renderBranchOverview({ component });
 
     expect(await screen.findByText('portfolio.app.empty')).toBeInTheDocument();
   });
+
+  it.each([
+    ['new_accepted_issues', MetricKey.new_accepted_issues],
+    ['security_issues', MetricKey.security_issues],
+    ['reliability_issues', MetricKey.reliability_issues],
+    ['maintainability_issues', MetricKey.maintainability_issues],
+  ])(
+    'should ask to reanalyze all projects if a project is not computed',
+    async (missingMetricKey) => {
+      measuresHandler.deleteComponentMeasure('foo', missingMetricKey as MetricKey);
+
+      renderBranchOverview({ component });
+
+      expect(await screen.findByText('overview.missing_project_data.APP')).toBeInTheDocument();
+    },
+  );
 });
 
 it.each([
@@ -506,7 +498,7 @@ it.each([
 ])(
   "should correctly flag a project that wasn't analyzed using a CI (%s)",
   async (_, analyses, expected) => {
-    (getProjectActivity as jest.Mock).mockResolvedValueOnce({ analyses });
+    jest.mocked(getProjectActivity).mockResolvedValueOnce({ analyses, paging: mockPaging() });
 
     renderBranchOverview();
 
@@ -541,18 +533,23 @@ it.each([
     'upgrade event too far down in the list',
     [
       mockAnalysis({
+        key: 'a1',
         date: '2023-04-13T08:10:30+0200',
       }),
       mockAnalysis({
+        key: 'a2',
         date: '2023-04-13T09:10:30+0200',
       }),
       mockAnalysis({
+        key: 'a3',
         date: '2023-04-13T10:10:30+0200',
       }),
       mockAnalysis({
+        key: 'a4',
         date: '2023-04-13T11:10:30+0200',
       }),
       mockAnalysis({
+        key: 'a5',
         date: '2023-04-13T12:10:30+0200',
         events: [mockAnalysisEvent({ category: ProjectAnalysisEventCategory.SqUpgrade })],
       }),
@@ -592,11 +589,15 @@ it.each([
 
     jest.mocked(getProjectActivity).mockResolvedValueOnce({
       analyses,
-    } as { analyses: Analysis[]; paging: Paging });
+      paging: mockPaging(),
+    });
 
+    const { user, ui } = getPageObjects();
     renderBranchOverview();
 
-    await screen.findByText('overview.quality_gate.status');
+    await user.click(await ui.overallCodeButton.find());
+
+    expect(await byText('overview.quality_gate.status').find()).toBeInTheDocument();
 
     await waitFor(() =>
       expect(
@@ -607,30 +608,6 @@ it.each([
     jest.useRealTimers();
   },
 );
-
-it('should correctly handle graph type storage', async () => {
-  renderBranchOverview();
-
-  expect(getActivityGraph).toHaveBeenCalledWith(BRANCH_OVERVIEW_ACTIVITY_GRAPH, 'foo');
-
-  const dropdownButton = await screen.findByLabelText('project_activity.graphs.choose_type');
-
-  await userEvent.click(dropdownButton);
-
-  const issuesItem = await screen.findByRole('menuitem', {
-    name: `project_activity.graphs.${GraphType.issues}`,
-  });
-
-  expect(issuesItem).toBeInTheDocument();
-
-  await userEvent.click(issuesItem);
-
-  expect(saveActivityGraph).toHaveBeenCalledWith(
-    BRANCH_OVERVIEW_ACTIVITY_GRAPH,
-    'foo',
-    GraphType.issues,
-  );
-});
 
 function renderBranchOverview(props: Partial<BranchOverview['props']> = {}) {
   return renderComponent(

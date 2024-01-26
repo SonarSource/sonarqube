@@ -18,13 +18,15 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { cloneDeep } from 'lodash';
-import { getApplicationLeak } from '../application';
+import { Visibility } from '../../types/component';
+import { getApplicationDetails, getApplicationLeak } from '../application';
 
 jest.mock('../application');
 
 export default class ApplicationServiceMock {
   constructor() {
     jest.mocked(getApplicationLeak).mockImplementation(this.handleGetApplicationLeak);
+    jest.mocked(getApplicationDetails).mockImplementation(this.handleGetApplicationDetails);
   }
 
   handleGetApplicationLeak = () => {
@@ -40,6 +42,23 @@ export default class ApplicationServiceMock {
         date: '2021-11-09T13:59:13+0100',
       },
     ]);
+  };
+
+  handleGetApplicationDetails = () => {
+    return this.reply({
+      branches: [],
+      key: 'key-1',
+      name: 'app',
+      projects: [
+        {
+          branch: 'foo',
+          key: 'KEY-P1',
+          name: 'P1',
+          isMain: true,
+        },
+      ],
+      visibility: Visibility.Private,
+    });
   };
 
   reset = () => {};

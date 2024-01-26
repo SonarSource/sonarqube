@@ -50,6 +50,7 @@ export function SoftwareImpactMeasureBreakdownCard(
     impactSeverities: severity,
   });
 
+  const testId = `software-impact-${softwareQuality}-severity-${severity}`;
   const cardClasses = classNames(
     'sw-w-1/3 sw-p-2 sw-rounded-1 sw-text-xs sw-font-semibold sw-select-none sw-flex sw-gap-1 sw-justify-center sw-items-center',
     severity,
@@ -59,7 +60,11 @@ export function SoftwareImpactMeasureBreakdownCard(
   );
 
   if (!value) {
-    return <StyledBreakdownCard className={cardClasses}>-</StyledBreakdownCard>;
+    return (
+      <StyledBreakdownCard data-testid={testId} className={cardClasses}>
+        -
+      </StyledBreakdownCard>
+    );
   }
 
   return (
@@ -68,9 +73,9 @@ export function SoftwareImpactMeasureBreakdownCard(
         id: `overview.measures.software_impact.severity.${severity}.tooltip`,
       })}
     >
-      <StyledBreakdownCard className={cardClasses}>
+      <StyledBreakdownCard data-testid={testId} className={cardClasses}>
         <DiscreetLinkBox
-          className="sw-flex sw-gap-1 sw-justify-center sw-items-center"
+          className={classNames('sw-flex sw-gap-1 sw-justify-center sw-items-center', { active })}
           aria-label={intl.formatMessage(
             {
               id: 'overview.measures.software_impact.severity.see_x_open_issues',
