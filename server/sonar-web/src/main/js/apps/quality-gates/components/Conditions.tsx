@@ -42,11 +42,11 @@ import { Feature } from '../../../types/features';
 import { MetricKey } from '../../../types/metrics';
 import { CaycStatus, Condition as ConditionType, QualityGate } from '../../../types/types';
 import { groupAndSortByPriorityConditions, isQualityGateOptimized } from '../utils';
+import AddConditionModal from './AddConditionModal';
 import CaYCConditionsSimplificationGuide from './CaYCConditionsSimplificationGuide';
 import CaycCompliantBanner from './CaycCompliantBanner';
 import CaycCondition from './CaycCondition';
 import CaycFixOptimizeBanner from './CaycFixOptimizeBanner';
-import ConditionModal from './ConditionModal';
 import CaycReviewUpdateConditionsModal from './ConditionReviewAndUpdateModal';
 import ConditionsTable from './ConditionsTable';
 
@@ -110,12 +110,7 @@ export default function Conditions({ qualityGate, isFetching }: Readonly<Props>)
         (metric, condition) => metric.key === condition.metric,
       );
       return (
-        <ConditionModal
-          header={translate('quality_gates.add_condition')}
-          metrics={availableMetrics}
-          onClose={onClose}
-          qualityGate={qualityGate}
-        />
+        <AddConditionModal metrics={availableMetrics} onClose={onClose} qualityGate={qualityGate} />
       );
     },
     [metrics, qualityGate],

@@ -19,7 +19,7 @@
  */
 import { InputSelect, Note } from 'design-system';
 import * as React from 'react';
-import { translate } from '../../../helpers/l10n';
+import { getOperatorLabel } from '../../../helpers/qualityGates';
 import { Metric } from '../../../types/types';
 import { getPossibleOperators } from '../utils';
 
@@ -34,18 +34,12 @@ export default class ConditionOperator extends React.PureComponent<Props> {
     this.props.onOperatorChange(value);
   };
 
-  getLabel(op: string, metric: Metric) {
-    return metric.type === 'RATING'
-      ? translate('quality_gates.operator', op, 'rating')
-      : translate('quality_gates.operator', op);
-  }
-
   render() {
     const operators = getPossibleOperators(this.props.metric);
 
     if (Array.isArray(operators)) {
       const operatorOptions = operators.map((op) => {
-        const label = this.getLabel(op, this.props.metric);
+        const label = getOperatorLabel(op, this.props.metric);
         return { label, value: op };
       });
 
@@ -64,6 +58,6 @@ export default class ConditionOperator extends React.PureComponent<Props> {
       );
     }
 
-    return <Note className="sw-w-abs-150">{this.getLabel(operators, this.props.metric)}</Note>;
+    return <Note className="sw-w-abs-150">{getOperatorLabel(operators, this.props.metric)}</Note>;
   }
 }

@@ -21,10 +21,7 @@ import { ButtonPrimary, FormField, Modal, RadioButton } from 'design-system';
 import * as React from 'react';
 import { getLocalizedMetricName, translate } from '../../../helpers/l10n';
 import { isDiffMetric } from '../../../helpers/measures';
-import {
-  useCreateConditionMutation,
-  useUpdateConditionMutation,
-} from '../../../queries/quality-gates';
+import { useCreateConditionMutation } from '../../../queries/quality-gates';
 import { Condition, Metric, QualityGate } from '../../../types/types';
 import { getPossibleOperators } from '../utils';
 import ConditionOperator from './ConditionOperator';
@@ -32,32 +29,19 @@ import MetricSelect from './MetricSelect';
 import ThresholdInput from './ThresholdInput';
 
 interface Props {
-  condition?: Condition;
-  metric?: Metric;
-  metrics?: Metric[];
-  header: string;
+  metrics: Metric[];
   onClose: () => void;
   qualityGate: QualityGate;
 }
 
 const ADD_CONDITION_MODAL_ID = 'add-condition-modal';
 
-export default function ConditionModal({
-  condition,
-  metric,
-  metrics,
-  header,
-  onClose,
-  qualityGate,
-}: Readonly<Props>) {
-  const [errorThreshold, setErrorThreshold] = React.useState(condition ? condition.error : '');
+export default function AddConditionModal({ metrics, onClose, qualityGate }: Readonly<Props>) {
+  const [errorThreshold, setErrorThreshold] = React.useState('');
   const [scope, setScope] = React.useState<'new' | 'overall'>('new');
-  const [selectedMetric, setSelectedMetric] = React.useState<Metric | undefined>(metric);
-  const [selectedOperator, setSelectedOperator] = React.useState<string | undefined>(
-    condition ? condition.op : undefined,
-  );
+  const [selectedMetric, setSelectedMetric] = React.useState<Metric | undefined>();
+  const [selectedOperator, setSelectedOperator] = React.useState<string | undefined>();
   const { mutateAsync: createCondition } = useCreateConditionMutation(qualityGate.name);
-  const { mutateAsync: updateCondition } = useUpdateConditionMutation(qualityGate.name);
 
   const getSinglePossibleOperator = (metric: Metric) => {
     const operators = getPossibleOperators(metric);
@@ -73,10 +57,7 @@ export default function ConditionModal({
         op: getSinglePossibleOperator(selectedMetric) ?? selectedOperator,
         error: errorThreshold,
       };
-      const submitPromise = condition
-        ? updateCondition({ id: condition.id, ...newCondition })
-        : createCondition(newCondition);
-      await submitPromise;
+      await createCondition(newCondition);
       onClose();
     }
   };
@@ -84,7 +65,7 @@ export default function ConditionModal({
   const handleScopeChange = (scope: 'new' | 'overall') => {
     let correspondingMetric;
 
-    if (selectedMetric && metrics) {
+    if (selectedMetric) {
       const correspondingMetricKey =
         scope === 'new' ? `new_${selectedMetric.key}` : selectedMetric.key.replace(/^new_/, '');
       correspondingMetric = metrics.find((m) => m.key === correspondingMetricKey);
@@ -110,42 +91,34 @@ export default function ConditionModal({
 
   const renderBody = () => {
     return (
-      <form id={ADD_CONDITION_MODAL_ID} onSubmit={handleFormSubmit}>
-        {metric === undefined && (
-          <FormField label={translate('quality_gates.conditions.where')}>
-            <div className="sw-flex sw-gap-4">
-              <RadioButton checked={scope === 'new'} onCheck={handleScopeChange} value="new">
-                <span data-test="quality-gates__condition-scope-new">
-                  {translate('quality_gates.conditions.new_code')}
-                </span>
-              </RadioButton>
-              <RadioButton
-                checked={scope === 'overall'}
-                onCheck={handleScopeChange}
-                value="overall"
-              >
-                <span data-test="quality-gates__condition-scope-overall">
-                  {translate('quality_gates.conditions.overall_code')}
-                </span>
-              </RadioButton>
-            </div>
-          </FormField>
-        )}
+      <form onSubmit={handleFormSubmit} id={ADD_CONDITION_MODAL_ID}>
+        <FormField label={translate('quality_gates.conditions.where')}>
+          <div className="sw-flex sw-gap-4">
+            <RadioButton checked={scope === 'new'} onCheck={handleScopeChange} value="new">
+              <span data-test="quality-gates__condition-scope-new">
+                {translate('quality_gates.conditions.new_code')}
+              </span>
+            </RadioButton>
+            <RadioButton checked={scope === 'overall'} onCheck={handleScopeChange} value="overall">
+              <span data-test="quality-gates__condition-scope-overall">
+                {translate('quality_gates.conditions.overall_code')}
+              </span>
+            </RadioButton>
+          </div>
+        </FormField>
 
         <FormField
-          description={metric && getLocalizedMetricName(metric)}
+          description={selectedMetric && getLocalizedMetricName(selectedMetric)}
           htmlFor="condition-metric"
           label={translate('quality_gates.conditions.fails_when')}
         >
-          {metrics && (
-            <MetricSelect
-              metric={selectedMetric}
-              metricsArray={metrics.filter((m) =>
-                scope === 'new' ? isDiffMetric(m.key) : !isDiffMetric(m.key),
-              )}
-              onMetricChange={handleMetricChange}
-            />
-          )}
+          <MetricSelect
+            metric={selectedMetric}
+            metricsArray={metrics.filter((m) =>
+              scope === 'new' ? isDiffMetric(m.key) : !isDiffMetric(m.key),
+            )}
+            onMetricChange={handleMetricChange}
+          />
         </FormField>
 
         {selectedMetric && (
@@ -182,7 +155,7 @@ export default function ConditionModal({
     <Modal
       isScrollable={false}
       isOverflowVisible
-      headerTitle={header}
+      headerTitle={translate('quality_gates.add_condition')}
       onClose={onClose}
       body={renderBody()}
       primaryButton={
@@ -193,7 +166,7 @@ export default function ConditionModal({
           form={ADD_CONDITION_MODAL_ID}
           type="submit"
         >
-          {header}
+          {translate('quality_gates.add_condition')}
         </ButtonPrimary>
       }
       secondaryButtonLabel={translate('close')}

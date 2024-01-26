@@ -33,12 +33,12 @@ import {
 import * as React from 'react';
 import { useMetrics } from '../../../app/components/metrics/withMetricsContext';
 import { getLocalizedMetricName, translate, translateWithParameters } from '../../../helpers/l10n';
+import { getOperatorLabel } from '../../../helpers/qualityGates';
 import { useDeleteConditionMutation } from '../../../queries/quality-gates';
-import { MetricType } from '../../../types/metrics';
 import { CaycStatus, Condition as ConditionType, Metric, QualityGate } from '../../../types/types';
 import { getLocalizedMetricNameNoDiffMetric, isConditionWithFixedValue } from '../utils';
-import ConditionModal from './ConditionModal';
 import ConditionValue from './ConditionValue';
+import EditConditionModal from './EditConditionModal';
 
 export enum ConditionChange {
   Added = 'added',
@@ -67,6 +67,7 @@ export default function ConditionComponent({
   const [modal, setModal] = React.useState(false);
   const { mutateAsync: deleteCondition } = useDeleteConditionMutation(qualityGate.name);
   const metrics = useMetrics();
+  const { op = 'GT' } = condition;
 
   const handleOpenUpdate = () => {
     setModal(true);
@@ -84,13 +85,6 @@ export default function ConditionComponent({
     setDeleteFormOpen(false);
   };
 
-  const renderOperator = () => {
-    const { op = 'GT' } = condition;
-    return metric.type === MetricType.Rating
-      ? translate('quality_gates.operator', op, 'rating')
-      : translate('quality_gates.operator', op);
-  };
-
   const isCaycCompliantAndOverCompliant = qualityGate.caycStatus !== CaycStatus.NonCompliant;
 
   return (
@@ -100,7 +94,7 @@ export default function ConditionComponent({
         {metric.hidden && <TextError className="sw-ml-1" text={translate('deprecated')} />}
       </ContentCell>
 
-      <ContentCell className="sw-whitespace-nowrap">{renderOperator()}</ContentCell>
+      <ContentCell className="sw-whitespace-nowrap">{getOperatorLabel(op, metric)}</ContentCell>
 
       <NumericalCell className="sw-whitespace-nowrap">
         <ConditionValue
@@ -126,7 +120,7 @@ export default function ConditionComponent({
                   size="small"
                 />
                 {modal && (
-                  <ConditionModal
+                  <EditConditionModal
                     condition={condition}
                     header={translate('quality_gates.update_condition')}
                     metric={metric}

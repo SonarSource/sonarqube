@@ -30,6 +30,7 @@ import {
 import { getBranchLikeQuery } from '../../../helpers/branch-like';
 import { translate } from '../../../helpers/l10n';
 import { formatMeasure, isDiffMetric, localizeMetric } from '../../../helpers/measures';
+import { getOperatorLabel } from '../../../helpers/qualityGates';
 import {
   getComponentDrilldownUrl,
   getComponentIssuesUrl,
@@ -155,11 +156,7 @@ export default class QualityGateCondition extends React.PureComponent<Props> {
     const threshold = (condition.level === 'ERROR' ? condition.error : condition.warning) as string;
     const actual = (condition.period ? measure.period?.value : measure.value) as string;
 
-    let operator = translate('quality_gates.operator', condition.op);
-
-    if (metric.type === MetricType.Rating) {
-      operator = translate('quality_gates.operator', condition.op, 'rating');
-    }
+    const operator = getOperatorLabel(condition.op, metric);
 
     return this.wrapWithLink(
       <div className="sw-flex sw-items-center sw-p-2">

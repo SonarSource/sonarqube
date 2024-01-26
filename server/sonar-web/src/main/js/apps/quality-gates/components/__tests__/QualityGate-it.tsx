@@ -26,7 +26,7 @@ import { searchProjects, searchUsers } from '../../../../api/quality-gates';
 import { dismissNotice } from '../../../../api/users';
 import { mockLoggedInUser } from '../../../../helpers/testMocks';
 import { RenderContext, renderAppRoutes } from '../../../../helpers/testReactTestingUtils';
-import { byRole } from '../../../../helpers/testSelector';
+import { byRole, byTestId } from '../../../../helpers/testSelector';
 import { Feature } from '../../../../types/features';
 import { CaycStatus } from '../../../../types/types';
 import { NoticeType } from '../../../../types/users';
@@ -218,49 +218,52 @@ it('should be able to add a condition', async () => {
   // On new code
   await user.click(await screen.findByText('quality_gates.add_condition'));
 
-  let dialog = within(screen.getByRole('dialog'));
+  const dialog = byRole('dialog');
 
-  await user.click(dialog.getByRole('radio', { name: 'quality_gates.conditions.new_code' }));
-  await selectEvent.select(dialog.getByRole('combobox'), ['Issues']);
-  await user.click(dialog.getByRole('textbox', { name: 'quality_gates.conditions.value' }));
+  await user.click(dialog.byRole('radio', { name: 'quality_gates.conditions.new_code' }).get());
+
+  await selectEvent.select(dialog.byRole('combobox').get(), 'Issues');
+  await user.click(
+    await dialog.byRole('textbox', { name: 'quality_gates.conditions.value' }).find(),
+  );
   await user.keyboard('12');
-  await user.click(dialog.getByRole('button', { name: 'quality_gates.add_condition' }));
-  const newConditions = within(await screen.findByTestId('quality-gates__conditions-new'));
-  expect(await newConditions.findByRole('cell', { name: 'Issues' })).toBeInTheDocument();
-  expect(await newConditions.findByRole('cell', { name: '12' })).toBeInTheDocument();
+  await user.click(dialog.byRole('button', { name: 'quality_gates.add_condition' }).get());
+  const newConditions = byTestId('quality-gates__conditions-new');
+  expect(await newConditions.byRole('cell', { name: 'Issues' }).find()).toBeInTheDocument();
+  expect(await newConditions.byRole('cell', { name: '12' }).find()).toBeInTheDocument();
 
   // On overall code
   await user.click(await screen.findByText('quality_gates.add_condition'));
 
-  dialog = within(screen.getByRole('dialog'));
-  await selectEvent.select(dialog.getByRole('combobox'), ['Info Issues']);
-  await user.click(dialog.getByRole('radio', { name: 'quality_gates.conditions.overall_code' }));
-  await user.click(dialog.getByLabelText('quality_gates.conditions.operator'));
+  await selectEvent.select(dialog.byRole('combobox').get(), ['Info Issues']);
+  await user.click(dialog.byRole('radio', { name: 'quality_gates.conditions.overall_code' }).get());
+  await user.click(dialog.byLabelText('quality_gates.conditions.operator').get());
 
-  await user.click(dialog.getByText('quality_gates.operator.LT'));
-  await user.click(dialog.getByRole('textbox', { name: 'quality_gates.conditions.value' }));
+  await user.click(dialog.byText('quality_gates.operator.LT').get());
+  await user.click(dialog.byRole('textbox', { name: 'quality_gates.conditions.value' }).get());
   await user.keyboard('42');
-  await user.click(dialog.getByRole('button', { name: 'quality_gates.add_condition' }));
+  await user.click(dialog.byRole('button', { name: 'quality_gates.add_condition' }).get());
 
-  const overallConditions = within(await screen.findByTestId('quality-gates__conditions-overall'));
+  const overallConditions = byTestId('quality-gates__conditions-overall');
 
-  expect(await overallConditions.findByRole('cell', { name: 'Info Issues' })).toBeInTheDocument();
-  expect(await overallConditions.findByRole('cell', { name: '42' })).toBeInTheDocument();
+  expect(
+    await overallConditions.byRole('cell', { name: 'Info Issues' }).find(),
+  ).toBeInTheDocument();
+  expect(await overallConditions.byRole('cell', { name: '42' }).find()).toBeInTheDocument();
 
   // Select a rating
   await user.click(await screen.findByText('quality_gates.add_condition'));
 
-  dialog = within(screen.getByRole('dialog'));
-  await user.click(dialog.getByRole('radio', { name: 'quality_gates.conditions.overall_code' }));
-  await selectEvent.select(dialog.getByRole('combobox'), ['Maintainability Rating']);
-  await user.click(dialog.getByLabelText('quality_gates.conditions.value'));
-  await user.click(dialog.getByText('B'));
-  await user.click(dialog.getByRole('button', { name: 'quality_gates.add_condition' }));
+  await user.click(dialog.byRole('radio', { name: 'quality_gates.conditions.overall_code' }).get());
+  await selectEvent.select(dialog.byRole('combobox').get(), ['Maintainability Rating']);
+  await user.click(dialog.byLabelText('quality_gates.conditions.value').get());
+  await user.click(dialog.byText('B').get());
+  await user.click(dialog.byRole('button', { name: 'quality_gates.add_condition' }).get());
 
   expect(
-    await overallConditions.findByRole('cell', { name: 'Maintainability Rating' }),
+    await overallConditions.byRole('cell', { name: 'Maintainability Rating' }).find(),
   ).toBeInTheDocument();
-  expect(await overallConditions.findByRole('cell', { name: 'B' })).toBeInTheDocument();
+  expect(await overallConditions.byRole('cell', { name: 'B' }).find()).toBeInTheDocument();
 });
 
 it('should be able to edit a condition', async () => {

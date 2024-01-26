@@ -17,12 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { MetricKey } from '../types/metrics';
+import { MetricKey, MetricType } from '../types/metrics';
 import {
   QualityGateApplicationStatusChildProject,
   QualityGateProjectStatus,
   QualityGateStatusCondition,
 } from '../types/quality-gates';
+import { Metric } from '../types/types';
+import { translate } from './l10n';
+
+export function getOperatorLabel(op: string, metric: Metric) {
+  return metric.type === MetricType.Rating
+    ? translate('quality_gates.operator', op, 'rating')
+    : translate('quality_gates.operator', op);
+}
 
 export function extractStatusConditionsFromProjectStatus(
   projectStatus: QualityGateProjectStatus,
