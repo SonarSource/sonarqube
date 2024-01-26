@@ -36,6 +36,11 @@ import { TaskStatuses, TaskTypes } from '../../../types/tasks';
 import { PAGE_SIZE } from '../constants';
 import routes from '../routes';
 
+jest.mock('../constants', () => ({
+  ...jest.requireActual('../constants'),
+  PAGE_SIZE: 9,
+}));
+
 const computeEngineServiceMock = new ComputeEngineServiceMock();
 
 beforeAll(() => {
@@ -185,7 +190,7 @@ describe('The Global background task page', () => {
 
     computeEngineServiceMock.clearTasks();
 
-    const TOTAL_TASKS = 101;
+    const TOTAL_TASKS = 10;
 
     computeEngineServiceMock.createTasks(TOTAL_TASKS);
 
