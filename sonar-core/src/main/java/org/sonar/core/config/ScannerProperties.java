@@ -99,7 +99,7 @@ public class ScannerProperties {
         .category(CoreProperties.CATEGORY_GENERAL)
         .subCategory("Performance")
         .type(BOOLEAN)
-        .defaultValue("true")
+        .defaultValue("false")
         .build());
   }
 }
