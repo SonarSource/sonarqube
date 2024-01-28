@@ -54,7 +54,7 @@ import { Analysis, GraphType, MeasureHistory } from '../../../types/project-acti
 import { QualityGateStatus, QualityGateStatusCondition } from '../../../types/quality-gates';
 import { Component, MeasureEnhanced, Metric, Period, QualityGate } from '../../../types/types';
 import '../styles.css';
-import { BRANCH_OVERVIEW_METRICS, HISTORY_METRICS_LIST } from '../utils';
+import { BRANCH_OVERVIEW_METRICS, HISTORY_METRICS_LIST, Status } from '../utils';
 import BranchOverviewRenderer from './BranchOverviewRenderer';
 
 interface Props {
@@ -187,12 +187,14 @@ export default class BranchOverview extends React.PureComponent<Props, State> {
       (results) => {
         if (this.mounted) {
           const qgStatuses = results
-            .map(({ measures = [], project, projectBranchLike }) => {
+            .map(({ measures = [], project, projectBranchLike }): QualityGateStatus => {
               const { key, name, status, caycStatus } = project;
               const conditions = extractStatusConditionsFromApplicationStatusChildProject(project);
-              const failedConditions = this.getFailedConditions(conditions, measures);
+              const enhancedConditions = this.getEnhancedConditions(conditions, measures);
+              const failedConditions = enhancedConditions.filter((c) => c.level !== Status.OK);
 
               return {
+                conditions: enhancedConditions,
                 failedConditions,
                 caycStatus,
                 key,
@@ -244,11 +246,13 @@ export default class BranchOverview extends React.PureComponent<Props, State> {
         if (this.mounted && measures) {
           const { ignoredConditions, caycStatus, status } = projectStatus;
           const conditions = extractStatusConditionsFromProjectStatus(projectStatus);
-          const failedConditions = this.getFailedConditions(conditions, measures);
+          const enhancedConditions = this.getEnhancedConditions(conditions, measures);
+          const failedConditions = enhancedConditions.filter((c) => c.level !== Status.OK);
 
-          const qgStatus = {
+          const qgStatus: QualityGateStatus = {
             ignoredConditions,
             caycStatus,
+            conditions: enhancedConditions,
             failedConditions,
             key,
             name,
@@ -362,10 +366,12 @@ export default class BranchOverview extends React.PureComponent<Props, State> {
     );
   };
 
-  getFailedConditions = (conditions: QualityGateStatusCondition[], measures: MeasureEnhanced[]) => {
+  getEnhancedConditions = (
+    conditions: QualityGateStatusCondition[],
+    measures: MeasureEnhanced[],
+  ) => {
     return (
       conditions
-        .filter((c) => c.level !== 'OK')
         // Enhance them with Metric information, which will be needed
         // to render the conditions properly.
         .map((c) => enhanceConditionWithMeasure(c, measures))

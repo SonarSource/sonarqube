@@ -35,7 +35,7 @@ export function DuplicationsIndicator({ size = 'sm', rating }: Props) {
   const sizePX = SIZE_TO_PX_MAPPING[size];
 
   if (rating === undefined) {
-    return <NoDataIcon height={sizePX} width={sizePX} />;
+    return <NoDataIcon size={size} />;
   }
 
   const primaryColor = themeColor(`duplicationsIndicator.${rating}`)({ theme });

@@ -64,6 +64,7 @@ export interface QualityGateApplicationStatusChildProject {
 }
 
 export interface QualityGateStatus {
+  conditions: QualityGateStatusConditionEnhanced[];
   failedConditions: QualityGateStatusConditionEnhanced[];
   ignoredConditions?: boolean;
   caycStatus: CaycStatus;

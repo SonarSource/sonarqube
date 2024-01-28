@@ -19,7 +19,7 @@
  */
 import styled from '@emotion/styled';
 import classNames from 'classnames';
-import { Badge, ContentLink, themeColor } from 'design-system';
+import { Badge, ContentLink, NoDataIcon, themeColor } from 'design-system';
 import * as React from 'react';
 import { Path } from 'react-router-dom';
 import Tooltip from '../../../components/controls/Tooltip';
@@ -82,7 +82,7 @@ export function IssueMeasuresCardInner(props: Readonly<IssueMeasuresCardInnerPro
               </ContentLink>
             </Tooltip>
           </div>
-          {icon}
+          {value ? icon : <NoDataIcon size="md" />}
         </div>
       </div>
       {footer}

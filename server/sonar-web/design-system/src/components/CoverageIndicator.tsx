@@ -38,7 +38,7 @@ export function CoverageIndicator({ size = 'sm', value }: CoverageIndicatorProps
   const thickness = SIZE_TO_THICKNESS_MAPPING[size];
 
   if (value === undefined) {
-    return <NoDataIcon height={width} width={width} />;
+    return <NoDataIcon size={size} />;
   }
 
   const themeRed = themeColor('coverageRed')({ theme });

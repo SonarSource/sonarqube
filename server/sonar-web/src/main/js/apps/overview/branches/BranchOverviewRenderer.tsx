@@ -41,15 +41,13 @@ import { Component, MeasureEnhanced, Metric, Period, QualityGate } from '../../.
 import { AnalysisStatus } from '../components/AnalysisStatus';
 import SonarLintPromotion from '../components/SonarLintPromotion';
 import { MeasuresTabs } from '../utils';
-import AcceptedIssuesPanel from './AcceptedIssuesPanel';
 import ActivityPanel from './ActivityPanel';
 import BranchMetaTopBar from './BranchMetaTopBar';
-import BranchOverallCodePanel from './BranchOverallCodePanel';
 import FirstAnalysisNextStepsNotif from './FirstAnalysisNextStepsNotif';
-import { MeasuresPanel } from './MeasuresPanel';
 import MeasuresPanelNoNewCode from './MeasuresPanelNoNewCode';
 import NewCodeMeasuresPanel from './NewCodeMeasuresPanel';
 import NoCodeWarning from './NoCodeWarning';
+import OverallCodeMeasuresPanel from './OverallCodeMeasuresPanel';
 import QualityGatePanel from './QualityGatePanel';
 import { TabsPanel } from './TabsPanel';
 
@@ -173,14 +171,6 @@ export default function BranchOverviewRenderer(props: BranchOverviewRendererProp
                         isNewCode={isNewCodeTab}
                         onTabSelect={selectTab}
                       >
-                        {!hasNewCodeMeasures && isNewCodeTab && (
-                          <MeasuresPanelNoNewCode
-                            branch={branch}
-                            component={component}
-                            period={period}
-                          />
-                        )}
-
                         {hasNewCodeMeasures &&
                           isMissingMeasures &&
                           isApplication(component.qualifier) && (
@@ -191,11 +181,15 @@ export default function BranchOverviewRenderer(props: BranchOverviewRendererProp
                             </FlagMessage>
                           )}
 
-                        {!isNewCodeTab && (
-                          <BranchOverallCodePanel component={component} measures={measures} />
+                        {isNewCodeTab && !hasNewCodeMeasures && (
+                          <MeasuresPanelNoNewCode
+                            branch={branch}
+                            component={component}
+                            period={period}
+                          />
                         )}
 
-                        {hasNewCodeMeasures && isNewCodeTab && (
+                        {isNewCodeTab && hasNewCodeMeasures && (
                           <NewCodeMeasuresPanel
                             qgStatuses={qgStatuses}
                             branch={branch}
@@ -204,20 +198,14 @@ export default function BranchOverviewRenderer(props: BranchOverviewRendererProp
                           />
                         )}
 
-                        <MeasuresPanel
-                          branch={branch}
-                          component={component}
-                          measures={measures}
-                          isNewCode={isNewCodeTab}
-                        />
-
-                        <AcceptedIssuesPanel
-                          branch={branch}
-                          component={component}
-                          measures={measures}
-                          isNewCode={isNewCodeTab}
-                          loading={loadingStatus}
-                        />
+                        {!isNewCodeTab && (
+                          <OverallCodeMeasuresPanel
+                            branch={branch}
+                            qgStatuses={qgStatuses}
+                            component={component}
+                            measures={measures}
+                          />
+                        )}
                       </TabsPanel>
 
                       <ActivityPanel

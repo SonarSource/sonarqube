@@ -80,8 +80,9 @@ export default function MeasuresCardPercent(
   const value = useDiffMetric
     ? getLeakValue(findMeasure(measures, metricKey))
     : findMeasure(measures, metricKey)?.value;
-
-  const linesValue = getLeakValue(findMeasure(measures, linesMetric));
+  const linesValue = useDiffMetric
+    ? getLeakValue(findMeasure(measures, linesMetric))
+    : findMeasure(measures, linesMetric)?.value;
   const linesLabel =
     measurementType === MeasurementType.Coverage
       ? 'overview.quality_gate.on_x_new_lines_to_cover'
@@ -105,44 +106,42 @@ export default function MeasuresCardPercent(
       failed={conditionFailed}
       icon={renderIcon(measurementType, value)}
     >
-      <>
-        <span className="sw-body-xs sw-mt-3">
-          {showRequired &&
-            condition &&
-            (conditionFailed ? (
-              <TextError
-                className="sw-font-regular sw-inline"
-                text={getConditionRequiredLabel(condition, intl, true)}
-              />
-            ) : (
-              <LightLabel>{getConditionRequiredLabel(condition, intl)}</LightLabel>
-            ))}
-        </span>
-
-        <div className="sw-flex sw-body-sm sw-justify-between sw-items-center sw-mt-1">
-          <LightLabel className="sw-flex sw-items-center sw-gap-1 ">
-            <FormattedMessage
-              defaultMessage={translate(linesLabel)}
-              id={linesLabel}
-              values={{
-                link: (
-                  <ContentLink
-                    aria-label={translateWithParameters(
-                      'overview.see_more_details_on_x_y',
-                      linesValue ?? '0',
-                      localizeMetric(linesMetric),
-                    )}
-                    className="sw-body-md-highlight sw-text-lg"
-                    to={linesUrl}
-                  >
-                    {formatMeasure(linesValue ?? '0', MetricType.ShortInteger)}
-                  </ContentLink>
-                ),
-              }}
+      <span className="sw-body-xs sw-mt-3">
+        {showRequired &&
+          condition &&
+          (conditionFailed ? (
+            <TextError
+              className="sw-font-regular sw-inline"
+              text={getConditionRequiredLabel(condition, intl, true)}
             />
-          </LightLabel>
-        </div>
-      </>
+          ) : (
+            <LightLabel>{getConditionRequiredLabel(condition, intl)}</LightLabel>
+          ))}
+      </span>
+
+      <div className="sw-flex sw-body-sm sw-justify-between sw-items-center sw-mt-1">
+        <LightLabel className="sw-flex sw-items-center sw-gap-1 ">
+          <FormattedMessage
+            defaultMessage={translate(linesLabel)}
+            id={linesLabel}
+            values={{
+              link: (
+                <ContentLink
+                  aria-label={translateWithParameters(
+                    'overview.see_more_details_on_x_y',
+                    linesValue ?? '0',
+                    localizeMetric(linesMetric),
+                  )}
+                  className="sw-body-md-highlight sw-text-lg"
+                  to={linesUrl}
+                >
+                  {formatMeasure(linesValue ?? '0', MetricType.ShortInteger)}
+                </ContentLink>
+              ),
+            }}
+          />
+        </LightLabel>
+      </div>
     </MeasuresCard>
   );
 }

@@ -39,10 +39,12 @@ export function mockQualityGate(overrides: Partial<QualityGate> = {}): QualityGa
 export function mockQualityGateStatus(
   overrides: Partial<QualityGateStatus> = {},
 ): QualityGateStatus {
+  const condition = mockQualityGateStatusConditionEnhanced();
   return {
     ignoredConditions: false,
     caycStatus: CaycStatus.Compliant,
-    failedConditions: [mockQualityGateStatusConditionEnhanced()],
+    conditions: [condition],
+    failedConditions: [condition],
     key: 'foo',
     name: 'Foo',
     status: 'ERROR',

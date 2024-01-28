@@ -25,13 +25,13 @@ import { formatMeasure } from '../../../helpers/measures';
 import { MetricKey, MetricType } from '../../../types/metrics';
 import { QualityGateStatusConditionEnhanced } from '../../../types/quality-gates';
 import { Status, getConditionRequiredLabel } from '../utils';
-import MeasuresCard from './MeasuresCard';
+import MeasuresCard, { MeasuresCardProps } from './MeasuresCard';
 
-interface Props {
+interface Props extends MeasuresCardProps {
   conditions: QualityGateStatusConditionEnhanced[];
   label: string;
   url: To;
-  value: string;
+  value?: string;
   conditionMetric: MetricKey;
   showRequired?: boolean;
 }
@@ -51,7 +51,6 @@ export default function MeasuresCardNumber(
     <MeasuresCard
       url={url}
       value={formatMeasure(value, MetricType.ShortInteger)}
-      metric={conditionMetric}
       label={label}
       failed={conditionFailed}
       {...rest}

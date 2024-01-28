@@ -87,6 +87,7 @@ export default function MeasuresCardPanel(props: React.PropsWithChildren<Props>)
               ...getBranchLikeQuery(pullRequest),
             })}
             value={newSecurityHotspots}
+            metric={MetricKey.new_security_hotspots}
             conditions={conditions}
             conditionMetric={MetricKey.new_security_hotspots_reviewed}
             showRequired

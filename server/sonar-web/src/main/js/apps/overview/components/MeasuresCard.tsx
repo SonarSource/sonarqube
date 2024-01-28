@@ -25,9 +25,9 @@ import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { localizeMetric } from '../../../helpers/measures';
 import { MetricKey } from '../../../types/metrics';
 
-interface Props {
+export interface MeasuresCardProps {
   url: To;
-  value: string;
+  value?: string;
   metric: MetricKey;
   label: string;
   failed?: boolean;
@@ -35,7 +35,7 @@ interface Props {
 }
 
 export default function MeasuresCard(
-  props: React.PropsWithChildren<Props & React.HTMLAttributes<HTMLDivElement>>,
+  props: React.PropsWithChildren<MeasuresCardProps & React.HTMLAttributes<HTMLDivElement>>,
 ) {
   const { failed, children, metric, icon, value, url, label, ...rest } = props;
 
