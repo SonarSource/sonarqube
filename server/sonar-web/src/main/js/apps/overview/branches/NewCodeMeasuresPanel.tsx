@@ -107,7 +107,7 @@ export default function NewCodeMeasuresPanel(props: Readonly<Props>) {
           url={getComponentIssuesUrl(component.key, {
             ...getBranchLikeQuery(branch),
             ...DEFAULT_ISSUES_QUERY,
-            isNewCodePeriod: 'true',
+            inNewCodePeriod: 'true',
           })}
           failed={issuesConditionFailed}
           icon={issuesConditionFailed && <TrendUpCircleIcon />}
@@ -126,7 +126,7 @@ export default function NewCodeMeasuresPanel(props: Readonly<Props>) {
           url={getComponentIssuesUrl(component.key, {
             ...getBranchLikeQuery(branch),
             issueStatuses: IssueStatus.Accepted,
-            isNewCodePeriod: 'true',
+            inNewCodePeriod: 'true',
           })}
           footer={
             <TextSubdued className="sw-body-xs">
