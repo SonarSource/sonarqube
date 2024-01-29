@@ -32,8 +32,11 @@ import org.sonar.api.web.HttpFilter;
 import org.sonar.api.web.UrlPattern;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.authentication.BasicAuthentication;
+import org.sonar.server.authentication.HttpHeadersAuthentication;
 import org.sonar.server.authentication.JwtHttpHandler;
+import org.sonar.server.authentication.UserAuthResult;
 import org.sonar.server.authentication.event.AuthenticationException;
+import org.sonar.server.usertoken.UserTokenAuthentication;
 import org.sonar.server.ws.ServletFilterHandler;
 import org.sonarqube.ws.MediaTypes;
 
@@ -49,11 +52,17 @@ public class ValidateAction extends HttpFilter implements AuthenticationWsAction
   private final Configuration config;
   private final JwtHttpHandler jwtHttpHandler;
   private final BasicAuthentication basicAuthentication;
+  private final HttpHeadersAuthentication httpHeadersAuthentication;
+  private final UserTokenAuthentication userTokenAuthentication;
 
-  public ValidateAction(Configuration config, BasicAuthentication basicAuthentication, JwtHttpHandler jwtHttpHandler) {
+  public ValidateAction(Configuration config, BasicAuthentication basicAuthentication, JwtHttpHandler jwtHttpHandler, HttpHeadersAuthentication httpHeadersAuthentication,
+    UserTokenAuthentication userTokenAuthentication) {
+
     this.config = config;
     this.basicAuthentication = basicAuthentication;
     this.jwtHttpHandler = jwtHttpHandler;
+    this.httpHeadersAuthentication = httpHeadersAuthentication;
+    this.userTokenAuthentication = userTokenAuthentication;
   }
 
   @Override
@@ -84,15 +93,11 @@ public class ValidateAction extends HttpFilter implements AuthenticationWsAction
 
   private boolean authenticate(HttpRequest request, HttpResponse response) {
     try {
-      Optional<UserDto> user = jwtHttpHandler.validateToken(request, response);
-      if (user.isPresent()) {
-        return true;
-      }
-      user = basicAuthentication.authenticate(request);
-      if (user.isPresent()) {
-        return true;
-      }
-      return !config.getBoolean(CORE_FORCE_AUTHENTICATION_PROPERTY).orElse(CORE_FORCE_AUTHENTICATION_DEFAULT_VALUE);
+      Optional<UserDto> user = httpHeadersAuthentication.authenticate(request, response)
+        .or(() -> jwtHttpHandler.validateToken(request, response))
+        .or(() -> basicAuthentication.authenticate(request))
+        .or(() -> userTokenAuthentication.authenticate(request).map(UserAuthResult::getUserDto));
+      return user.isPresent() || !config.getBoolean(CORE_FORCE_AUTHENTICATION_PROPERTY).orElse(CORE_FORCE_AUTHENTICATION_DEFAULT_VALUE);
     } catch (AuthenticationException e) {
       return false;
     }
