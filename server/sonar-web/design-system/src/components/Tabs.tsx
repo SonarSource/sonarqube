@@ -82,6 +82,7 @@ export function Tabs<T extends TabValueType>(props: PropsWithChildren<TabsProps<
 
 const TabsContainer = styled.div`
   ${tw`sw-w-full`};
+  ${tw`sw-pl-4`};
   ${tw`sw-flex sw-justify-between`};
   border-bottom: ${themeBorder('default')};
 `;

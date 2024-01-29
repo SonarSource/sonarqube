@@ -157,14 +157,14 @@ export function TabsPanel(props: React.PropsWithChildren<MeasuresPanelProps>) {
               </FlagMessage>
             </div>
           )}
-          <div className="sw-flex sw-items-center">
+          <div className="sw-flex sw-items-center sw--mx-6">
             <Tabs
               onChange={props.onTabSelect}
               options={tabs}
               value={isNewCode ? MeasuresTabs.New : MeasuresTabs.Overall}
             >
               {isNewCode && leakPeriod && (
-                <LightLabel className="sw-body-sm sw-flex sw-items-center">
+                <LightLabel className="sw-body-sm sw-flex sw-items-center sw-mr-6">
                   <span className="sw-mr-1">{translate('overview.new_code')}:</span>
                   <LeakPeriodInfo leakPeriod={leakPeriod} />
                 </LightLabel>
