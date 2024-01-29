@@ -51,17 +51,17 @@ export function SoftwareImpactMeasureBreakdownCard(
   });
 
   const testId = `software-impact-${softwareQuality}-severity-${severity}`;
-  const cardClasses = classNames(
-    'sw-w-1/3 sw-p-2 sw-rounded-1 sw-text-xs sw-font-semibold sw-select-none sw-flex sw-gap-1 sw-justify-center sw-items-center',
-    severity,
-    {
-      active,
-    },
-  );
+  const cardClasses =
+    'sw-w-1/3 sw-p-2 sw-rounded-1 sw-text-xs sw-font-semibold sw-select-none sw-flex sw-gap-1 sw-justify-center sw-items-center';
 
   if (!value) {
     return (
-      <StyledBreakdownCard data-testid={testId} className={cardClasses}>
+      <StyledBreakdownCard
+        data-testid={testId}
+        className={classNames(cardClasses, severity, {
+          active,
+        })}
+      >
         -
       </StyledBreakdownCard>
     );
@@ -73,33 +73,34 @@ export function SoftwareImpactMeasureBreakdownCard(
         id: `overview.measures.software_impact.severity.${severity}.tooltip`,
       })}
     >
-      <StyledBreakdownCard data-testid={testId} className={cardClasses}>
-        <DiscreetLinkBox
-          className={classNames('sw-flex sw-gap-1 sw-justify-center sw-items-center', { active })}
-          aria-label={intl.formatMessage(
-            {
-              id: 'overview.measures.software_impact.severity.see_x_open_issues',
-            },
-            {
-              count: formatMeasure(value, MetricType.ShortInteger),
-              softwareQuality: intl.formatMessage({
-                id: `software_quality.${softwareQuality}`,
-              }),
-              severity: intl.formatMessage({
-                id: `overview.measures.software_impact.severity.${severity}.tooltip`,
-              }),
-            },
-          )}
-          to={url}
-        >
-          <span>{formatMeasure(value, MetricType.ShortInteger)}</span>
-          <span>
-            {intl.formatMessage({
-              id: `overview.measures.software_impact.severity.${severity}`,
-            })}
-          </span>
-        </DiscreetLinkBox>
-      </StyledBreakdownCard>
+      <StyledBreakdownLinkCard
+        data-testid={testId}
+        className={classNames(cardClasses, severity, {
+          active,
+        })}
+        aria-label={intl.formatMessage(
+          {
+            id: 'overview.measures.software_impact.severity.see_x_open_issues',
+          },
+          {
+            count: formatMeasure(value, MetricType.ShortInteger),
+            softwareQuality: intl.formatMessage({
+              id: `software_quality.${softwareQuality}`,
+            }),
+            severity: intl.formatMessage({
+              id: `overview.measures.software_impact.severity.${severity}.tooltip`,
+            }),
+          },
+        )}
+        to={url}
+      >
+        <span>{formatMeasure(value, MetricType.ShortInteger)}</span>
+        <span>
+          {intl.formatMessage({
+            id: `overview.measures.software_impact.severity.${severity}`,
+          })}
+        </span>
+      </StyledBreakdownLinkCard>
     </Tooltip>
   );
 }
@@ -117,5 +118,6 @@ const StyledBreakdownCard = styled.div`
     background-color: ${themeColor('overviewSoftwareImpactSeverityLow')};
   }
 `;
+const StyledBreakdownLinkCard = StyledBreakdownCard.withComponent(DiscreetLinkBox);
 
 export default SoftwareImpactMeasureBreakdownCard;
