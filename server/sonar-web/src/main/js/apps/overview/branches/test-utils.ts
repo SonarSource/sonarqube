@@ -28,7 +28,7 @@ import {
 export const getPageObjects = () => {
   const user = userEvent.setup();
   const selectors = {
-    overallCodeButton: byRole('radio', { name: /overview.overall_code/ }),
+    overallCodeButton: byRole('tab', { name: /overview.overall_code/ }),
     softwareImpactMeasureCard: (softwareQuality: SoftwareQuality) =>
       byTestId(`software-impact-card-${softwareQuality}`),
   };
