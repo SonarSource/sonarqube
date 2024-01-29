@@ -83,26 +83,25 @@ allprojects {
     def artifactoryPassword = System.env.'ARTIFACTORY_PRIVATE_PASSWORD' ?: (project.hasProperty('artifactoryPassword') ? project.getProperty('artifactoryPassword') : '')
     def artifactoryUrl = System.getenv('ARTIFACTORY_URL') ?: (project.hasProperty('artifactoryUrl') ? project.getProperty('artifactoryUrl') : '')
 
-    if (artifactoryUrl == '') {
-      throw new GradleException('Invalid artifactoryUrl')
-    }
-
-    maven {
-        if (artifactoryPassword) {
-          authentication {
-            header(HttpHeaderAuthentication)
-          }
-          credentials(HttpHeaderCredentials) {
-            name = "Authorization"
-            value = "Bearer $artifactoryPassword"
-          }
-          url "${artifactoryUrl}/${repository}"
-        } else {
+    if (artifactoryPassword) {
+      if (artifactoryUrl == '') {
+        throw new GradleException('Invalid artifactoryUrl')
+      }
+      maven {
+        authentication {
+          header(HttpHeaderAuthentication)
+        }
+        credentials(HttpHeaderCredentials) {
+          name = "Authorization"
+          value = "Bearer $artifactoryPassword"
+        }
+        url "${artifactoryUrl}/${repository}"
+      }
+    } else {
+        mavenCentral()
+        maven {
           url 'https://jitpack.io'
         }
-    }
-    if (!artifactoryPassword) {
-      mavenCentral()
     }
     ivy {
           if (artifactoryUsername && artifactoryPassword) {
