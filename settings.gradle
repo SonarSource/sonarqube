@@ -1,6 +1,6 @@
 pluginManagement {
   repositories {
-    def artifactoryPassword = System.env.'ARTIFACTORY_PRIVATE_PASSWORD' ?: (project.hasProperty('artifactoryPassword') ? project.getProperty('artifactoryPassword') : '')
+    def artifactoryPassword = System.env.'ARTIFACTORY_PRIVATE_PASSWORD'
 
     maven {
       if (artifactoryPassword) {
@@ -10,7 +10,7 @@ pluginManagement {
         }
         credentials(HttpHeaderCredentials) {
           name = "Authorization"
-          value = "Bearer $System.env.ARTIFACTORY_PRIVATE_PASSWORD"
+          value = "Bearer $artifactoryPassword"
         }
       } else {
         url 'https://plugins.gradle.org/m2/'
