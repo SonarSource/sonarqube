@@ -50,7 +50,7 @@ export function SoftwareImpactMeasureBreakdownCard(
     impactSeverities: severity,
   });
 
-  const testId = `software-impact-${softwareQuality}-severity-${severity}`;
+  const testId = `overview__software-impact-${softwareQuality}-severity-${severity}`;
   const cardClasses =
     'sw-w-1/3 sw-p-2 sw-rounded-1 sw-text-xs sw-font-semibold sw-select-none sw-flex sw-gap-1 sw-justify-center sw-items-center';
 

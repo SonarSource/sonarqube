@@ -107,7 +107,7 @@ export default function NewCodeMeasuresPanel(props: Readonly<Props>) {
     <div className="sw-mt-6" id={getTabPanelId(MeasuresTabs.New)}>
       <LightGreyCard className="sw-flex sw-rounded-2 sw-gap-4">
         <IssueMeasuresCardInner
-          data-test="overview__measures-new_issues"
+          data-testid="overview__measures-new_issues"
           disabled={component.needIssueSync}
           className="sw-w-1/2"
           metric={MetricKey.new_violations}
@@ -126,7 +126,7 @@ export default function NewCodeMeasuresPanel(props: Readonly<Props>) {
         />
         <StyledCardSeparator />
         <IssueMeasuresCardInner
-          data-test="overview__measures-accepted_issues"
+          data-testid="overview__measures-accepted_issues"
           disabled={Boolean(component.needIssueSync) || !newAcceptedIssues}
           className="sw-w-1/2"
           metric={MetricKey.new_accepted_issues}

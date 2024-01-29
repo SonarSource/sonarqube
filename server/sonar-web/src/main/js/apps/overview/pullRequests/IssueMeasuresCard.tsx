@@ -83,7 +83,7 @@ export default function IssueMeasuresCard(
       <IssueMeasuresCardInner
         className="sw-w-1/3"
         header={intl.formatMessage({ id: 'overview.new_issues' })}
-        data-test={`overview__measures-${MetricKey.new_violations}`}
+        data-testid={`overview__measures-${MetricKey.new_violations}`}
         data-guiding-id={issuesConditionFailed ? 'overviewZeroNewIssuesSimplification' : undefined}
         metric={MetricKey.new_violations}
         value={formatMeasure(issuesCount, MetricType.ShortInteger)}
@@ -108,7 +108,7 @@ export default function IssueMeasuresCard(
       <IssueMeasuresCardInner
         className="sw-w-1/3"
         header={intl.formatMessage({ id: 'overview.accepted_issues' })}
-        data-test={`overview__measures-${MetricKey.new_accepted_issues}`}
+        data-testid={`overview__measures-${MetricKey.new_accepted_issues}`}
         metric={MetricKey.new_accepted_issues}
         value={formatMeasure(acceptedCount, MetricType.ShortInteger)}
         disabled={component.needIssueSync}
@@ -149,7 +149,7 @@ export default function IssueMeasuresCard(
             </Tooltip>
           </>
         }
-        data-test={`overview__measures-${MetricKey.pull_request_fixed_issues}`}
+        data-testid={`overview__measures-${MetricKey.pull_request_fixed_issues}`}
         metric={MetricKey.pull_request_fixed_issues}
         value={formatMeasure(fixedCount, MetricType.ShortInteger)}
         disabled={component.needIssueSync}

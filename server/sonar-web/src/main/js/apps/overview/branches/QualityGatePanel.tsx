@@ -67,7 +67,7 @@ export function QualityGatePanel(props: QualityGatePanelProps) {
     qgStatuses.some((p) => Boolean(p.ignoredConditions));
 
   return (
-    <div data-test="overview__quality-gate-panel">
+    <div data-testid="overview__quality-gate-panel">
       <QualityGateStatusTitle />
       <div className="sw-pt-5">
         <Spinner loading={loading}>

@@ -130,7 +130,7 @@ export function TabsPanel(props: React.PropsWithChildren<MeasuresPanelProps>) {
   ];
 
   return (
-    <div data-test="overview__measures-panel">
+    <div data-testid="overview__measures-panel">
       <div className="sw-flex sw-justify-between sw-items-center sw-mb-4">
         <PageTitle as="h2" text={translate('overview.measures')} />
         <LastAnalysisLabel analysisDate={branch?.analysisDate} />

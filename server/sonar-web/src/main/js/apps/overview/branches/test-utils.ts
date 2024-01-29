@@ -30,7 +30,7 @@ export const getPageObjects = () => {
   const selectors = {
     overallCodeButton: byRole('tab', { name: /overview.overall_code/ }),
     softwareImpactMeasureCard: (softwareQuality: SoftwareQuality) =>
-      byTestId(`software-impact-card-${softwareQuality}`),
+      byTestId(`overview__software-impact-card-${softwareQuality}`),
   };
   const ui = {
     ...selectors,
@@ -94,9 +94,9 @@ export const getPageObjects = () => {
       severity: SoftwareImpactSeverity,
       active: boolean,
     ) => {
-      const link = byTestId(`software-impact-${softwareQuality}-severity-${severity}`).get(
-        ui.softwareImpactMeasureCard(softwareQuality).get(),
-      );
+      const link = byTestId(
+        `overview__software-impact-${softwareQuality}-severity-${severity}`,
+      ).get(ui.softwareImpactMeasureCard(softwareQuality).get());
       if (active) {
         expect(link).toHaveClass('active');
       } else {

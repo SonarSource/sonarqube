@@ -81,7 +81,7 @@ export function SoftwareImpactMeasureCard(props: Readonly<SoftwareImpactBreakdow
 
   return (
     <LightGreyCard
-      data-testid={`software-impact-card-${softwareQuality}`}
+      data-testid={`overview__software-impact-card-${softwareQuality}`}
       className="sw-w-1/3 sw-overflow-hidden sw-rounded-2 sw-p-4 sw-flex-col"
     >
       <TextBold name={intl.formatMessage({ id: `software_quality.${softwareQuality}` })} />
@@ -94,6 +94,7 @@ export function SoftwareImpactMeasureCard(props: Readonly<SoftwareImpactBreakdow
         >
           {measure ? (
             <NakedLink
+              data-testid={`overview__software-impact-${softwareQuality}`}
               aria-label={intl.formatMessage(
                 {
                   id: `overview.measures.software_impact.see_list_of_x_open_issues`,
