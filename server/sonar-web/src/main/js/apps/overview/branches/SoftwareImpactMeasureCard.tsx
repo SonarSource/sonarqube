@@ -39,7 +39,7 @@ import {
 } from '../../../types/clean-code-taxonomy';
 import { MetricKey, MetricType } from '../../../types/metrics';
 import { Component, MeasureEnhanced } from '../../../types/types';
-import { getSoftwareImpactSeverityValue, softwareQualityToMeasure } from '../utils';
+import { softwareQualityToMeasure } from '../utils';
 import SoftwareImpactMeasureBreakdownCard from './SoftwareImpactMeasureBreakdownCard';
 import SoftwareImpactMeasureRating from './SoftwareImpactMeasureRating';
 
@@ -58,7 +58,7 @@ export function SoftwareImpactMeasureCard(props: Readonly<SoftwareImpactBreakdow
   // Find measure for this software quality
   const metricKey = softwareQualityToMeasure(softwareQuality);
   const measureRaw = measures.find((m) => m.metric.key === metricKey);
-  const measure = JSON.parse(measureRaw?.value ?? 'null') as SoftwareImpactMeasureData | null;
+  const measure = JSON.parse(measureRaw?.value ?? 'null') as SoftwareImpactMeasureData;
 
   // Find rating measure
   const ratingMeasure = measures.find((m) => m.metric.key === ratingMetricKey);
@@ -72,12 +72,11 @@ export function SoftwareImpactMeasureCard(props: Readonly<SoftwareImpactBreakdow
   // We highlight the highest severity breakdown card with non-zero count if the rating is not A
   let highlightedSeverity: SoftwareImpactSeverity | undefined;
   if (measure && (!ratingLabel || ratingLabel !== 'A')) {
-    const issuesBySeverity: [SoftwareImpactSeverity, number][] = [
-      [SoftwareImpactSeverity.High, measure.high],
-      [SoftwareImpactSeverity.Medium, measure.medium],
-      [SoftwareImpactSeverity.Low, measure.low],
-    ];
-    highlightedSeverity = issuesBySeverity.find(([_, issuesCount]) => issuesCount > 0)?.[0];
+    highlightedSeverity = [
+      SoftwareImpactSeverity.High,
+      SoftwareImpactSeverity.Medium,
+      SoftwareImpactSeverity.Low,
+    ].find((severity) => measure[severity] > 0);
   }
 
   return (
@@ -134,7 +133,7 @@ export function SoftwareImpactMeasureCard(props: Readonly<SoftwareImpactBreakdow
               key={severity}
               component={component}
               softwareQuality={softwareQuality}
-              value={measure ? getSoftwareImpactSeverityValue(severity, measure) : undefined}
+              value={measure?.[severity]?.toString()}
               severity={severity}
               active={highlightedSeverity === severity}
             />

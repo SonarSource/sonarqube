@@ -20,6 +20,7 @@
 import { keyBy } from 'lodash';
 import { isDiffMetric } from '../../../helpers/measures';
 import { mockMeasure } from '../../../helpers/testMocks';
+import { SoftwareImpactSeverity } from '../../../types/clean-code-taxonomy';
 import { IssueDeprecatedStatus, IssueType, RawIssue } from '../../../types/issues';
 import { MetricKey, MetricType } from '../../../types/metrics';
 import { Measure } from '../../../types/types';
@@ -61,9 +62,9 @@ function mockComponentMeasure(tree: ComponentTree, issueList: IssueData[], metri
         metric: metricKey,
         value: JSON.stringify({
           total: 1,
-          high: 0,
-          medium: 1,
-          low: 0,
+          [SoftwareImpactSeverity.High]: 0,
+          [SoftwareImpactSeverity.Medium]: 1,
+          [SoftwareImpactSeverity.Low]: 0,
         }),
       });
 
@@ -72,9 +73,9 @@ function mockComponentMeasure(tree: ComponentTree, issueList: IssueData[], metri
         metric: metricKey,
         value: JSON.stringify({
           total: 3,
-          high: 0,
-          medium: 2,
-          low: 1,
+          [SoftwareImpactSeverity.High]: 0,
+          [SoftwareImpactSeverity.Medium]: 2,
+          [SoftwareImpactSeverity.Low]: 1,
         }),
       });
 
@@ -83,9 +84,9 @@ function mockComponentMeasure(tree: ComponentTree, issueList: IssueData[], metri
         metric: metricKey,
         value: JSON.stringify({
           total: 2,
-          high: 0,
-          medium: 0,
-          low: 1,
+          [SoftwareImpactSeverity.High]: 0,
+          [SoftwareImpactSeverity.Medium]: 0,
+          [SoftwareImpactSeverity.Low]: 1,
         }),
       });
   }

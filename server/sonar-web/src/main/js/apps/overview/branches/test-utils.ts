@@ -51,17 +51,23 @@ export const getPageObjects = () => {
         ).toBeInTheDocument();
         expect(
           byRole('link', {
-            name: `overview.measures.software_impact.severity.see_x_open_issues.${data.high}.software_quality.${softwareQuality}.overview.measures.software_impact.severity.HIGH.tooltip`,
+            name: `overview.measures.software_impact.severity.see_x_open_issues.${
+              data[SoftwareImpactSeverity.High]
+            }.software_quality.${softwareQuality}.overview.measures.software_impact.severity.HIGH.tooltip`,
           }).get(),
         ).toBeInTheDocument();
         expect(
           byRole('link', {
-            name: `overview.measures.software_impact.severity.see_x_open_issues.${data.medium}.software_quality.${softwareQuality}.overview.measures.software_impact.severity.MEDIUM.tooltip`,
+            name: `overview.measures.software_impact.severity.see_x_open_issues.${
+              data[SoftwareImpactSeverity.Medium]
+            }.software_quality.${softwareQuality}.overview.measures.software_impact.severity.MEDIUM.tooltip`,
           }).get(),
         ).toBeInTheDocument();
         expect(
           byRole('link', {
-            name: `overview.measures.software_impact.severity.see_x_open_issues.${data.low}.software_quality.${softwareQuality}.overview.measures.software_impact.severity.LOW.tooltip`,
+            name: `overview.measures.software_impact.severity.see_x_open_issues.${
+              data[SoftwareImpactSeverity.Low]
+            }.software_quality.${softwareQuality}.overview.measures.software_impact.severity.LOW.tooltip`,
           }).get(),
         ).toBeInTheDocument();
       }

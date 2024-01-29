@@ -60,7 +60,7 @@ export interface SoftwareImpact {
 
 export interface SoftwareImpactMeasureData {
   total: number;
-  high: number;
-  medium: number;
-  low: number;
+  [SoftwareImpactSeverity.High]: number;
+  [SoftwareImpactSeverity.Medium]: number;
+  [SoftwareImpactSeverity.Low]: number;
 }

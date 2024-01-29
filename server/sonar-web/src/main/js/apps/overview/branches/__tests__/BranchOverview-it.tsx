@@ -38,7 +38,7 @@ import { mockQualityGateProjectStatus } from '../../../../helpers/mocks/quality-
 import { mockLoggedInUser, mockMeasure, mockPaging } from '../../../../helpers/testMocks';
 import { renderComponent } from '../../../../helpers/testReactTestingUtils';
 import { byRole, byText } from '../../../../helpers/testSelector';
-import { SoftwareQuality } from '../../../../types/clean-code-taxonomy';
+import { SoftwareImpactSeverity, SoftwareQuality } from '../../../../types/clean-code-taxonomy';
 import { ComponentQualifier } from '../../../../types/component';
 import { MetricKey } from '../../../../types/metrics';
 import { ProjectAnalysisEventCategory } from '../../../../types/project-activity';
@@ -266,9 +266,9 @@ describe('project overview', () => {
       'B',
       {
         total: 1,
-        high: 0,
-        medium: 1,
-        low: 0,
+        [SoftwareImpactSeverity.High]: 0,
+        [SoftwareImpactSeverity.Medium]: 1,
+        [SoftwareImpactSeverity.Low]: 0,
       },
       [false, true, false],
     );
@@ -277,9 +277,9 @@ describe('project overview', () => {
       'A',
       {
         total: 3,
-        high: 0,
-        medium: 2,
-        low: 1,
+        [SoftwareImpactSeverity.High]: 0,
+        [SoftwareImpactSeverity.Medium]: 2,
+        [SoftwareImpactSeverity.Low]: 1,
       },
       [false, false, false],
     );
@@ -288,9 +288,9 @@ describe('project overview', () => {
       'E',
       {
         total: 2,
-        high: 0,
-        medium: 0,
-        low: 1,
+        [SoftwareImpactSeverity.High]: 0,
+        [SoftwareImpactSeverity.Medium]: 0,
+        [SoftwareImpactSeverity.Low]: 1,
       },
       [false, false, true],
     );
@@ -312,9 +312,9 @@ describe('project overview', () => {
       'B',
       {
         total: 1,
-        high: 0,
-        medium: 1,
-        low: 0,
+        [SoftwareImpactSeverity.High]: 0,
+        [SoftwareImpactSeverity.Medium]: 1,
+        [SoftwareImpactSeverity.Low]: 0,
       },
       [false, true, false],
     );
@@ -323,9 +323,9 @@ describe('project overview', () => {
       'A',
       {
         total: 3,
-        high: 0,
-        medium: 2,
-        low: 1,
+        [SoftwareImpactSeverity.High]: 0,
+        [SoftwareImpactSeverity.Medium]: 2,
+        [SoftwareImpactSeverity.Low]: 1,
       },
       [false, false, false],
     );
