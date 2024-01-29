@@ -69,22 +69,28 @@ allprojects {
     def artifactoryPassword = System.env.'ARTIFACTORY_PRIVATE_PASSWORD' ?: (project.hasProperty('artifactoryPassword') ? project.getProperty('artifactoryPassword') : '')
     def artifactoryUrl = System.getenv('ARTIFACTORY_URL') ?: (project.hasProperty('artifactoryUrl') ? project.getProperty('artifactoryUrl') : '')
 
-    if (artifactoryUrl == '') {
-      throw new GradleException('Invalid artifactoryUrl')
-    }
-
-    maven {
-        if (artifactoryUsername && artifactoryPassword) {
-            credentials {
-                username artifactoryUsername
-                password artifactoryPassword
-            }
-        } else {
-            // Workaround for artifactory
-            // https://www.jfrog.com/jira/browse/RTFACT-13797
-            repository = 'public'
+    if (artifactoryPassword) {
+      if (artifactoryUrl == '') {
+        throw new GradleException('Invalid artifactoryUrl')
+      }
+      maven {
+        authentication {
+          header(HttpHeaderAuthentication)
+        }
+        credentials(HttpHeaderCredentials) {
+          name = "Authorization"
+          value = "Bearer $artifactoryPassword"
         }
         url "${artifactoryUrl}/${repository}"
+      }
+    } else {
+      mavenCentral()
+      maven {
+        url 'https://jitpack.io'
+      }
+      maven {
+        url 'https://maven.codelibs.org/'
+      }
     }
     ivy {
           if (artifactoryUsername && artifactoryPassword) {
@@ -632,4 +638,3 @@ tasks.named('sonarqube') {
     outputFile.append(JsonOutput.toJson([category: "Analysis", suite: "Standalone", operation: "total", duration: taskDuration]) + '\n')
   }
 }
-
