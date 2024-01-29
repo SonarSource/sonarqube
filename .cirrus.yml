@@ -10,6 +10,9 @@ env:
   ARTIFACTORY_URL: "https://repox.jfrog.io/repox"
   ARTIFACTORY_DEPLOY_REPO: "sonarsource-public-qa"
   ARTIFACTORY_DEPLOY_REPO_PRIVATE: "sonarsource-private-qa"
+  #NPM config
+  NPM_CONFIG_registry: https://repox.jfrog.io/artifactory/api/npm/npm
+  NPM_CONFIG_//repox.jfrog.io/artifactory/api/npm/:_authToken: VAULT[development/artifactory/token/${CIRRUS_REPO_OWNER}-${CIRRUS_REPO_NAME}-private-reader access_token]
   # download licenses for testing commercial editions
   GITHUB_TOKEN: VAULT[development/github/token/licenses-ro token]
   # notifications to burgr
