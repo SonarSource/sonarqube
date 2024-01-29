@@ -532,7 +532,7 @@ export const lightTheme = {
     overviewCardSuccessIcon: COLORS.green[200],
 
     // overview software impact breakdown
-    overviewSoftwareImpactSeverityNeutral: [247, 249, 252],
+    overviewSoftwareImpactSeverityNeutral: COLORS.blueGrey[35],
     overviewSoftwareImpactSeverityHigh: COLORS.red[100],
     overviewSoftwareImpactSeverityMedium: COLORS.yellow[100],
     overviewSoftwareImpactSeverityLow: COLORS.blue[100],

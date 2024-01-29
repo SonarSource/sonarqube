@@ -39,7 +39,6 @@ import { Analysis, GraphType, MeasureHistory } from '../../../types/project-acti
 import { QualityGateStatus } from '../../../types/quality-gates';
 import { Component, MeasureEnhanced, Metric, Period, QualityGate } from '../../../types/types';
 import { AnalysisStatus } from '../components/AnalysisStatus';
-import SonarLintPromotion from '../components/SonarLintPromotion';
 import { MeasuresTabs } from '../utils';
 import ActivityPanel from './ActivityPanel';
 import BranchMetaTopBar from './BranchMetaTopBar';
@@ -49,6 +48,7 @@ import NewCodeMeasuresPanel from './NewCodeMeasuresPanel';
 import NoCodeWarning from './NoCodeWarning';
 import OverallCodeMeasuresPanel from './OverallCodeMeasuresPanel';
 import QualityGatePanel from './QualityGatePanel';
+import SonarLintPromotion from './SonarLintPromotion';
 import { TabsPanel } from './TabsPanel';
 
 export interface BranchOverviewRendererProps {

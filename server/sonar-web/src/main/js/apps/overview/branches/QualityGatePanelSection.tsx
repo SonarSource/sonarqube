@@ -27,8 +27,8 @@ import {
   QualityGateStatusConditionEnhanced,
 } from '../../../types/quality-gates';
 import { QualityGate } from '../../../types/types';
-import QualityGateConditions from '../components/QualityGateConditions';
 import ZeroNewIssuesSimplificationGuide from '../components/ZeroNewIssuesSimplificationGuide';
+import QualityGateConditions from './QualityGateConditions';
 
 export interface QualityGatePanelSectionProps {
   branchLike?: BranchLike;

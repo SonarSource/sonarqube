@@ -40,7 +40,7 @@ export interface QualityGateConditionsProps {
 
 const MAX_CONDITIONS = 5;
 
-export function QualityGateConditions(props: QualityGateConditionsProps) {
+export function QualityGateConditions(props: Readonly<QualityGateConditionsProps>) {
   const { branchLike, collapsible, component, failedConditions, isBuiltInQualityGate } = props;
   const [collapsed, toggleCollapsed] = React.useState(Boolean(collapsible));
 
