@@ -148,7 +148,24 @@ class ChainDispatch extends QuerySelector {
     container?: HTMLElement,
     waitForOptions?: waitForOptions,
   ) {
-    return this.dispatchQuery.find<T>(await this.innerQuery.find(container, waitForOptions));
+    let inside: HTMLElement;
+    try {
+      inside = await this.innerQuery.find(container, waitForOptions);
+    } catch (e) {
+      const elements = this.innerQuery.getAll(container);
+      const all = (
+        await Promise.all(
+          elements.map((e) => this.dispatchQuery.findAll<T>(e, waitForOptions).catch(() => null)),
+        )
+      )
+        .flat()
+        .filter((e) => e !== null);
+      if (all.length !== 1) {
+        throw e;
+      }
+      return all[0] as T;
+    }
+    return this.dispatchQuery.find<T>(inside, waitForOptions);
   }
 
   async findAll<T extends HTMLElement = HTMLElement>(
@@ -159,7 +176,18 @@ class ChainDispatch extends QuerySelector {
   }
 
   get<T extends HTMLElement = HTMLElement>(container?: HTMLElement) {
-    return this.dispatchQuery.get<T>(this.innerQuery.get(container));
+    let inside: HTMLElement;
+    try {
+      inside = this.innerQuery.get(container);
+    } catch (e) {
+      const elements = this.innerQuery.getAll(container);
+      const all = elements.map((e) => this.dispatchQuery.query<T>(e)).filter((e) => e !== null);
+      if (all.length !== 1) {
+        throw e;
+      }
+      return all[0] as T;
+    }
+    return this.dispatchQuery.get<T>(inside);
   }
 
   getAll<T extends HTMLElement = HTMLElement>(container?: HTMLElement) {
@@ -171,9 +199,19 @@ class ChainDispatch extends QuerySelector {
   }
 
   query<T extends HTMLElement = HTMLElement>(container?: HTMLElement) {
-    const innerContainer = this.innerQuery.query(container);
-    if (innerContainer) {
-      return this.dispatchQuery.query<T>(innerContainer);
+    let inside: HTMLElement | null;
+    try {
+      inside = this.innerQuery.query(container);
+    } catch (e) {
+      const elements = this.innerQuery.queryAll(container);
+      const all = elements?.map((e) => this.dispatchQuery.query<T>(e)).filter((e) => e !== null);
+      if (all?.length !== 1) {
+        throw e;
+      }
+      return all[0];
+    }
+    if (inside) {
+      return this.dispatchQuery.query<T>(inside);
     }
     return null;
   }
