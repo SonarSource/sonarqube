@@ -73,21 +73,28 @@ allprojects {
       throw new GradleException('Invalid artifactoryUrl')
     }
 
-    maven {
-        if (artifactoryPassword) {
-          authentication {
-            header(HttpHeaderAuthentication)
-          }
-          credentials(HttpHeaderCredentials) {
-            name = "Authorization"
-            value = "Bearer $artifactoryPassword"
-          }
-        } else {
-            // Workaround for artifactory
-            // https://www.jfrog.com/jira/browse/RTFACT-13797
-            repository = 'public'
+    if (artifactoryPassword) {
+      if (artifactoryUrl == '') {
+        throw new GradleException('Invalid artifactoryUrl')
+      }
+      maven {
+        authentication {
+          header(HttpHeaderAuthentication)
+        }
+        credentials(HttpHeaderCredentials) {
+          name = "Authorization"
+          value = "Bearer $artifactoryPassword"
         }
         url "${artifactoryUrl}/${repository}"
+      }
+    } else {
+      mavenCentral()
+      maven {
+        url 'https://jitpack.io'
+      }
+      maven {
+        url 'https://maven.codelibs.org/'
+      }
     }
     ivy {
           if (artifactoryUsername && artifactoryPassword) {
