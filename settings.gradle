@@ -1,13 +1,19 @@
 pluginManagement {
   repositories {
+    def artifactoryPassword = System.env.'ARTIFACTORY_PRIVATE_PASSWORD'
+
     maven {
-      url 'https://repox.jfrog.io/repox/plugins.gradle.org/'
-      authentication {
-        header(HttpHeaderAuthentication)
-      }
-      credentials(HttpHeaderCredentials) {
-        name = "Authorization"
-        value = "Bearer $System.env.ARTIFACTORY_PRIVATE_PASSWORD"
+      if (artifactoryPassword) {
+        url 'https://repox.jfrog.io/repox/plugins.gradle.org/'
+        authentication {
+          header(HttpHeaderAuthentication)
+        }
+        credentials(HttpHeaderCredentials) {
+          name = "Authorization"
+          value = "Bearer $artifactoryPassword"
+        }
+      } else {
+        url 'https://plugins.gradle.org/m2/'
       }
     }
   }
