@@ -96,12 +96,10 @@ allprojects {
             name = "Authorization"
             value = "Bearer $artifactoryPassword"
           }
+          url "${artifactoryUrl}/${repository}"
         } else {
-            // Workaround for artifactory
-            // https://www.jfrog.com/jira/browse/RTFACT-13797
-            repository = 'public'
+          url 'http://repo1.maven.org/maven2'
         }
-        url "${artifactoryUrl}/${repository}"
     }
     ivy {
           if (artifactoryUsername && artifactoryPassword) {
