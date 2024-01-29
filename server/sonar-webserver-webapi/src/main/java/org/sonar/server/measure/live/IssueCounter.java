@@ -19,8 +19,6 @@
  */
 package org.sonar.server.measure.live;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import java.util.Collection;
 import java.util.EnumMap;
 import java.util.HashMap;
@@ -34,6 +32,7 @@ import org.sonar.api.rules.RuleType;
 import org.sonar.db.issue.IssueGroupDto;
 import org.sonar.db.issue.IssueImpactGroupDto;
 import org.sonar.db.rule.SeverityUtil;
+import org.sonar.server.measure.ImpactMeasureBuilder;
 
 import static org.sonar.api.rule.Severity.INFO;
 import static org.sonar.api.rules.RuleType.SECURITY_HOTSPOT;
@@ -50,7 +49,6 @@ class IssueCounter {
   private final Count unresolved = new Count();
   private final Count highImpactAccepted = new Count();
   private final Map<SoftwareQuality, Map<Severity, Count>> bySoftwareQualityAndSeverity = new EnumMap<>(SoftwareQuality.class);
-  private final Gson gson = new GsonBuilder().create();
 
   IssueCounter(Collection<IssueGroupDto> groups, Collection<IssueImpactGroupDto> impactGroups) {
     for (IssueGroupDto group : groups) {
@@ -172,20 +170,18 @@ class IssueCounter {
   public String getBySoftwareQuality(SoftwareQuality softwareQuality) {
     Map<Severity, Count> severityToCount = bySoftwareQualityAndSeverity.get(softwareQuality);
 
-    Map<String, Long> impactMap = new HashMap<>();
+    ImpactMeasureBuilder impactMeasureBuilder;
     if (severityToCount != null) {
-      impactMap.put("total", severityToCount.values().stream().mapToLong(count -> count.absolute).sum());
+      impactMeasureBuilder = ImpactMeasureBuilder.newInstance();
       for (Severity severity : Severity.values()) {
-        impactMap.put(severity.name(), Optional.ofNullable(severityToCount.get(severity)).map(count -> count.absolute).orElse(0L));
+        impactMeasureBuilder = impactMeasureBuilder.setSeverity(severity, Optional.ofNullable(severityToCount.get(severity)).map(count -> count.absolute).orElse(0L));
       }
+      impactMeasureBuilder = impactMeasureBuilder.setTotal(severityToCount.values().stream().mapToLong(count -> count.absolute).sum());
     } else {
-      impactMap.put("total", 0L);
-      for (Severity severity : Severity.values()) {
-        impactMap.put(severity.name(), 0L);
-      }
+      impactMeasureBuilder = ImpactMeasureBuilder.createEmpty();
     }
 
-    return gson.toJson(impactMap);
+    return impactMeasureBuilder.buildAsString();
   }
 
   private static class Count {

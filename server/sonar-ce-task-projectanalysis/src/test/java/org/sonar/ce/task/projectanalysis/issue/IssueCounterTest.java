@@ -20,12 +20,11 @@
 package org.sonar.ce.task.projectanalysis.issue;
 
 import com.google.gson.Gson;
-import java.lang.constant.Constable;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.assertj.core.data.MapEntry;
 import org.junit.Rule;
@@ -42,6 +41,7 @@ import org.sonar.ce.task.projectanalysis.measure.MeasureRepositoryRule;
 import org.sonar.ce.task.projectanalysis.metric.MetricRepositoryRule;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.db.rule.RuleTesting;
+import org.sonar.server.measure.ImpactMeasureBuilder;
 
 import static java.util.Arrays.stream;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -360,14 +360,22 @@ public class IssueCounterTest {
 
     Set<Map.Entry<String, Measure>> entries = measureRepository.getRawMeasures(FILE1).entrySet();
 
-    assertSoftwareQualityMeasures(SoftwareQuality.MAINTAINABILITY, Map.of(HIGH, 2, MEDIUM, 2, LOW, 0, "total", 4), entries);
-    assertSoftwareQualityMeasures(SoftwareQuality.SECURITY, Map.of(HIGH, 1, MEDIUM, 1, LOW, 0, "total", 2), entries);
-    assertSoftwareQualityMeasures(SoftwareQuality.RELIABILITY, Map.of(HIGH, 0, MEDIUM, 0, LOW, 0, "total", 0), entries);
+    assertSoftwareQualityMeasures(SoftwareQuality.MAINTAINABILITY, getImpactMeasure(4, 2, 2, 0), entries);
+    assertSoftwareQualityMeasures(SoftwareQuality.SECURITY, getImpactMeasure(2, 1, 1, 0), entries);
+    assertSoftwareQualityMeasures(SoftwareQuality.RELIABILITY, getImpactMeasure(0, 0, 0, 0), entries);
   }
 
-  private void assertSoftwareQualityMeasures(SoftwareQuality softwareQuality, Map<? extends Constable, Integer> expectedRaw,
+  private static Map<String, Long> getImpactMeasure(long total, long high, long medium, long low) {
+    Map<String, Long> map = new LinkedHashMap<>();
+    map.put(LOW.name(), low);
+    map.put(MEDIUM.name(), medium);
+    map.put(HIGH.name(), high);
+    map.put(ImpactMeasureBuilder.TOTAL_KEY, total);
+    return map;
+  }
+
+  private void assertSoftwareQualityMeasures(SoftwareQuality softwareQuality, Map<? extends String, Long> expectedMap,
     Set<Map.Entry<String, Measure>> actualRaw) {
-    Map<String, Long> expectedMap = expectedRaw.entrySet().stream().collect(Collectors.toMap(k -> k.getKey().toString(), v -> v.getValue().longValue()));
 
     Map.Entry<String, Measure> softwareQualityMap = actualRaw.stream()
       .filter(e -> e.getKey().equals(IMPACT_TO_METRIC_KEY.get(softwareQuality.name())))

@@ -21,6 +21,7 @@ package org.sonar.ce.task.projectanalysis.formula;
 
 import java.util.Optional;
 import org.sonar.ce.task.projectanalysis.measure.Measure;
+import org.sonar.server.measure.ImpactMeasureBuilder;
 
 import static java.util.Objects.requireNonNull;
 
@@ -56,14 +57,14 @@ public class ImpactSumFormula implements Formula<ImpactSumFormula.ImpactCounter>
 
     private boolean initialized = false;
     private boolean hasEmptyValue = false;
-    private final MeasureImpactBuilder measureImpactBuilder = new MeasureImpactBuilder();
+    private final ImpactMeasureBuilder measureImpactBuilder = ImpactMeasureBuilder.createEmpty();
 
     @Override
     public void aggregate(ImpactSumFormula.ImpactCounter counter) {
       Optional<String> value = counter.getValue();
       if (value.isPresent()) {
         initialized = true;
-        measureImpactBuilder.add(value.get());
+        measureImpactBuilder.add(ImpactMeasureBuilder.fromString(value.get()));
       } else {
         hasEmptyValue = true;
       }
@@ -75,7 +76,7 @@ public class ImpactSumFormula implements Formula<ImpactSumFormula.ImpactCounter>
       String data = measureOptional.map(Measure::getData).orElse(null);
       if (data != null) {
         initialized = true;
-        measureImpactBuilder.add(data);
+        measureImpactBuilder.add(ImpactMeasureBuilder.fromString(data));
       } else {
         hasEmptyValue = true;
       }
@@ -83,7 +84,7 @@ public class ImpactSumFormula implements Formula<ImpactSumFormula.ImpactCounter>
 
     public Optional<String> getValue() {
       if (initialized && !hasEmptyValue) {
-        return Optional.ofNullable(measureImpactBuilder.build());
+        return Optional.ofNullable(measureImpactBuilder.buildAsString());
       }
       return Optional.empty();
     }

@@ -20,7 +20,7 @@
 package org.sonar.ce.task.projectanalysis.formula;
 
 import com.google.gson.Gson;
-import java.util.Map;
+import java.util.LinkedHashMap;
 import java.util.Optional;
 import javax.annotation.Nullable;
 import org.junit.Test;
@@ -131,7 +131,12 @@ public class ImpactSumFormulaTest {
 
 
   public String newImpactJson(Integer total, Integer high, Integer medium, Integer low) {
-    return gson.toJson(Map.of("total", total, Severity.HIGH.name(), high, Severity.MEDIUM.name(), medium, Severity.LOW.name(), low));
+    LinkedHashMap<Object, Object> map = new LinkedHashMap<>();
+    map.put(Severity.LOW.name(), low);
+    map.put(Severity.MEDIUM.name(), medium);
+    map.put(Severity.HIGH.name(), high);
+    map.put("total", total);
+    return gson.toJson(map);
   }
 
   private void addMeasure(String metricKey, @Nullable String value) {

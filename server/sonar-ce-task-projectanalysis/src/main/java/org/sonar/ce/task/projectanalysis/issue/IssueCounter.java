@@ -23,7 +23,6 @@ import com.google.common.collect.EnumMultiset;
 import com.google.common.collect.HashMultiset;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Multiset;
-import com.google.gson.Gson;
 import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.Nullable;
@@ -37,6 +36,7 @@ import org.sonar.ce.task.projectanalysis.measure.MeasureRepository;
 import org.sonar.ce.task.projectanalysis.metric.Metric;
 import org.sonar.ce.task.projectanalysis.metric.MetricRepository;
 import org.sonar.core.issue.DefaultIssue;
+import org.sonar.server.measure.ImpactMeasureBuilder;
 
 import static org.sonar.api.issue.Issue.STATUS_CONFIRMED;
 import static org.sonar.api.issue.Issue.STATUS_OPEN;
@@ -126,8 +126,6 @@ public class IssueCounter extends IssueVisitor {
     .put(SECURITY_HOTSPOT, NEW_SECURITY_HOTSPOTS_KEY)
     .build();
 
-  private static final Gson gson = new Gson();
-
   private final MetricRepository metricRepository;
   private final MeasureRepository measureRepository;
   private final NewIssueClassifier newIssueClassifier;
@@ -191,7 +189,7 @@ public class IssueCounter extends IssueVisitor {
 
   private void addMeasuresByImpact(Component component) {
     for (Map.Entry<String, Map<String, Long>> impactEntry : currentCounters.counter().impactsBag.entrySet()) {
-      String json = gson.toJson(impactEntry.getValue());
+      String json = ImpactMeasureBuilder.fromMap(impactEntry.getValue()).buildAsString();
       addMeasure(component, IMPACT_TO_METRIC_KEY.get(impactEntry.getKey()), json);
     }
   }
@@ -267,12 +265,7 @@ public class IssueCounter extends IssueVisitor {
 
     private void initImpactsBag() {
       for (SoftwareQuality quality : SoftwareQuality.values()) {
-        Map<String, Long> severityMap = new HashMap<>();
-        for (Severity severity : Severity.values()) {
-          severityMap.put(severity.name(), 0L);
-        }
-        severityMap.put("total", 0L);
-        impactsBag.put(quality.name(), severityMap);
+        impactsBag.put(quality.name(), ImpactMeasureBuilder.createEmpty().buildAsMap());
       }
     }
 
@@ -336,7 +329,7 @@ public class IssueCounter extends IssueVisitor {
         for (Map.Entry<SoftwareQuality, Severity> impact : issue.impacts().entrySet()) {
           impactsBag.compute(impact.getKey().name(), (key, value) -> {
             value.compute(impact.getValue().name(), (severity, count) -> count == null ? 1 : count + 1);
-            value.compute("total", (total, count) -> count == null ? 1 : count + 1);
+            value.compute(ImpactMeasureBuilder.TOTAL_KEY, (total, count) -> count == null ? 1 : count + 1);
             return value;
           });
         }
