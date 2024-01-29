@@ -102,6 +102,9 @@ allprojects {
         maven {
           url 'https://jitpack.io'
         }
+        maven {
+          url 'https://maven.codelibs.org/'
+        }
     }
     ivy {
           if (artifactoryUsername && artifactoryPassword) {
