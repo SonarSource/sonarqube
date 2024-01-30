@@ -29,20 +29,22 @@ import { useSaveValueMutation, useSaveValuesMutation } from '../../../../../quer
 import { Feature } from '../../../../../types/features';
 import { GitHubMapping } from '../../../../../types/provisioning';
 import { ExtendedSettingDefinition } from '../../../../../types/settings';
-import useConfiguration from './useConfiguration';
+import useConfiguration, { SettingValue } from './useConfiguration';
 
 export const GITHUB_ENABLED_FIELD = 'sonar.auth.github.enabled';
 export const GITHUB_APP_ID_FIELD = 'sonar.auth.github.appId';
 export const GITHUB_API_URL_FIELD = 'sonar.auth.github.apiUrl';
 export const GITHUB_CLIENT_ID_FIELD = 'sonar.auth.github.clientId.secured';
-export const GITHUB_JIT_FIELDS = ['sonar.auth.github.allowUsersToSignUp'];
+export const GITHUB_ALLOW_TO_SIGN_UP_FIELD = 'sonar.auth.github.allowUsersToSignUp';
+export const GITHUB_ORGANIZATIONS_LIST = 'sonar.auth.github.organizations';
+export const GITHUB_JIT_FIELDS = [GITHUB_ALLOW_TO_SIGN_UP_FIELD];
 export const GITHUB_PROVISIONING_FIELDS = ['provisioning.github.project.visibility.enabled'];
 
 export const GITHUB_ADDITIONAL_FIELDS = [...GITHUB_JIT_FIELDS, ...GITHUB_PROVISIONING_FIELDS];
 export const OPTIONAL_FIELDS = [
   GITHUB_ENABLED_FIELD,
   ...GITHUB_ADDITIONAL_FIELDS,
-  'sonar.auth.github.organizations',
+  GITHUB_ORGANIZATIONS_LIST,
   'sonar.auth.github.groupsSync',
 ];
 
@@ -54,6 +56,16 @@ export interface SamlSettingValue {
   newValue?: string | boolean;
   definition: ExtendedSettingDefinition;
 }
+
+export const isOrganizationListEmpty = (values: Record<string, SettingValue>) =>
+  values[GITHUB_ORGANIZATIONS_LIST]?.newValue
+    ? (values[GITHUB_ORGANIZATIONS_LIST]?.newValue as string[]).length === 0
+    : !values[GITHUB_ORGANIZATIONS_LIST]?.value ||
+      values[GITHUB_ORGANIZATIONS_LIST]?.value.length === 0;
+export const isAllowToSignUpEnabled = (values: Record<string, SettingValue>) =>
+  values[GITHUB_ALLOW_TO_SIGN_UP_FIELD]?.value === 'true'
+    ? values[GITHUB_ALLOW_TO_SIGN_UP_FIELD]?.newValue === undefined
+    : values[GITHUB_ALLOW_TO_SIGN_UP_FIELD]?.newValue === true;
 
 export default function useGithubConfiguration(definitions: ExtendedSettingDefinition[]) {
   const config = useConfiguration(definitions, OPTIONAL_FIELDS);

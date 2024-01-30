@@ -22,7 +22,6 @@ import React, { FormEvent, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
 import GitHubSynchronisationWarning from '../../../../app/components/GitHubSynchronisationWarning';
 import DocumentationLink from '../../../../components/common/DocumentationLink';
-import ConfirmModal from '../../../../components/controls/ConfirmModal';
 import { translate, translateWithParameters } from '../../../../helpers/l10n';
 import { useIdentityProviderQuery } from '../../../../queries/identity-provider/common';
 import {
@@ -39,6 +38,7 @@ import AutoProvisioningConsent from './AutoProvisionningConsent';
 import ConfigurationDetails from './ConfigurationDetails';
 import ConfigurationForm from './ConfigurationForm';
 import GitHubConfigurationValidity from './GitHubConfigurationValidity';
+import GitHubConfirmModal from './GitHubConfirmModal';
 import GitHubMappingModal from './GitHubMappingModal';
 import ProvisioningSection from './ProvisioningSection';
 import TabHeader from './TabHeader';
@@ -46,6 +46,8 @@ import useGithubConfiguration, {
   GITHUB_ADDITIONAL_FIELDS,
   GITHUB_JIT_FIELDS,
   GITHUB_PROVISIONING_FIELDS,
+  isAllowToSignUpEnabled,
+  isOrganizationListEmpty,
 } from './hook/useGithubConfiguration';
 
 interface GithubAuthenticationProps {
@@ -87,6 +89,11 @@ export default function GithubAuthenticationTab(props: GithubAuthenticationProps
     deleteMutation: { isLoading: isDeleting, mutate: deleteConfiguration },
   } = useGithubConfiguration(definitions);
 
+  const provisioningStatus =
+    newGithubProvisioningStatus ?? githubProvisioningStatus
+      ? ProvisioningType.auto
+      : ProvisioningType.jit;
+
   const hasDifferentProvider = data?.provider !== undefined && data.provider !== Provider.Github;
   const { canSyncNow, synchronizeNow } = useSyncWithGitHubNow();
   const { refetch } = useCheckGitHubConfigQuery(enabled);
@@ -102,7 +109,11 @@ export default function GithubAuthenticationTab(props: GithubAuthenticationProps
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    if (hasGithubProvisioningTypeChange) {
+    if (
+      hasGithubProvisioningTypeChange ||
+      (isOrganizationListEmpty(values) &&
+        (isAllowToSignUpEnabled(values) || provisioningStatus === ProvisioningType.auto))
+    ) {
       setShowConfirmProvisioningModal(true);
     } else {
       applyAdditionalOptions();
@@ -298,23 +309,13 @@ export default function GithubAuthenticationTab(props: GithubAuthenticationProps
               }
             />
             {showConfirmProvisioningModal && (
-              <ConfirmModal
+              <GitHubConfirmModal
                 onConfirm={() => changeProvisioning()}
-                header={translate(
-                  'settings.authentication.github.confirm',
-                  newGithubProvisioningStatus ? 'auto' : 'jit',
-                )}
                 onClose={() => setShowConfirmProvisioningModal(false)}
-                confirmButtonText={translate(
-                  'settings.authentication.github.provisioning_change.confirm_changes',
-                )}
-              >
-                {translate(
-                  'settings.authentication.github.confirm',
-                  newGithubProvisioningStatus ? 'auto' : 'jit',
-                  'description',
-                )}
-              </ConfirmModal>
+                values={values}
+                hasGithubProvisioningTypeChange={hasGithubProvisioningTypeChange}
+                provisioningStatus={provisioningStatus}
+              />
             )}
             {showMappingModal && (
               <GitHubMappingModal
@@ -337,6 +338,7 @@ export default function GithubAuthenticationTab(props: GithubAuthenticationProps
             onClose={handleCloseConfiguration}
             create={!hasConfiguration}
             hasLegacyConfiguration={hasLegacyConfiguration}
+            provisioningStatus={provisioningStatus}
           />
         )}
 

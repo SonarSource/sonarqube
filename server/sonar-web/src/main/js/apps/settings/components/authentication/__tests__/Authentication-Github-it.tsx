@@ -64,6 +64,7 @@ const ui = {
   textbox1: byRole('textbox', { name: 'test1' }),
   textbox2: byRole('textbox', { name: 'test2' }),
   tab: byRole('tab', { name: 'github GitHub' }),
+  cancelDialogButton: byRole('dialog').byRole('button', { name: 'cancel' }),
   noGithubConfiguration: byText('settings.authentication.github.form.not_configured'),
   createConfigButton: ghContainer.byRole('button', {
     name: 'settings.authentication.form.create',
@@ -82,6 +83,9 @@ const ui = {
   githubWebUrl: byRole('textbox', { name: 'property.sonar.auth.github.webUrl.name' }),
   allowUsersToSignUp: byRole('switch', {
     name: 'property.sonar.auth.github.allowUsersToSignUp.name',
+  }),
+  projectVisibility: byRole('switch', {
+    name: 'property.provisioning.github.project.visibility.enabled.name',
   }),
   organizations: byRole('textbox', {
     name: 'property.sonar.auth.github.organizations.name',
@@ -137,6 +141,9 @@ const ui = {
       name: `settings.definition.delete_value.property.sonar.auth.github.organizations.name.${org}`,
     }),
   enableFirstMessage: ghContainer.byText('settings.authentication.github.enable_first'),
+  insecureConfigWarning: byRole('dialog').byText(
+    'settings.authentication.github.provisioning_change.insecure_config',
+  ),
   jitProvisioningButton: ghContainer.byRole('radio', {
     name: /settings.authentication.form.provisioning_at_login/,
   }),
@@ -838,6 +845,7 @@ describe('Github tab', () => {
       expect(await ui.saveGithubProvisioning.find()).toBeEnabled();
 
       await user.click(ui.saveGithubProvisioning.get());
+      await user.click(ui.confirmProvisioningButton.get());
 
       // Clean local mapping state
       await user.click(ui.jitProvisioningButton.get());
@@ -917,6 +925,8 @@ describe('Github tab', () => {
       expect(await ui.saveGithubProvisioning.find()).toBeEnabled();
       await user.click(ui.saveGithubProvisioning.get());
 
+      await user.click(ui.confirmProvisioningButton.get());
+
       // Clean local mapping state
       await user.click(ui.jitProvisioningButton.get());
       await user.click(ui.githubProvisioningButton.get());
@@ -944,6 +954,60 @@ describe('Github tab', () => {
       expect(custom3Checkboxes[4]).not.toBeChecked();
       expect(custom3Checkboxes[5]).not.toBeChecked();
       await user.click(ui.mappingDialogClose.get());
+    });
+
+    it('should should show insecure config warning', async () => {
+      const user = userEvent.setup();
+      settingsHandler.presetGithubAutoProvisioning();
+      renderAuthentication([Feature.GithubProvisioning]);
+      await user.click(await ui.tab.find());
+
+      expect(ui.allowUsersToSignUp.get()).toBeChecked();
+      await user.click(ui.allowUsersToSignUp.get());
+      await user.click(ui.saveGithubProvisioning.get());
+
+      expect(ui.insecureConfigWarning.query()).not.toBeInTheDocument();
+
+      await user.click(ui.allowUsersToSignUp.get());
+      await user.click(ui.saveGithubProvisioning.get());
+
+      expect(ui.insecureConfigWarning.get()).toBeInTheDocument();
+      await user.click(ui.confirmProvisioningButton.get());
+
+      await user.click(ui.githubProvisioningButton.get());
+      await user.click(ui.saveGithubProvisioning.get());
+
+      expect(ui.insecureConfigWarning.get()).toBeInTheDocument();
+      await user.click(ui.confirmProvisioningButton.get());
+
+      await user.click(ui.projectVisibility.get());
+      await user.click(ui.saveGithubProvisioning.get());
+
+      expect(ui.insecureConfigWarning.get()).toBeInTheDocument();
+      await user.click(ui.confirmProvisioningButton.get());
+
+      await user.click(ui.editConfigButton.get());
+      await user.click(ui.saveConfigButton.get());
+
+      expect(ui.insecureConfigWarning.get()).toBeInTheDocument();
+      await user.click(ui.cancelDialogButton.get());
+      await user.type(ui.organizations.get(), '123');
+      await user.click(ui.saveConfigButton.get());
+      expect(ui.insecureConfigWarning.query()).not.toBeInTheDocument();
+
+      await user.click(ui.projectVisibility.get());
+      await user.click(ui.saveGithubProvisioning.get());
+      expect(ui.insecureConfigWarning.query()).not.toBeInTheDocument();
+
+      await user.click(ui.jitProvisioningButton.get());
+      await user.click(ui.saveGithubProvisioning.get());
+      expect(ui.confirmProvisioningButton.get()).toBeInTheDocument();
+      expect(ui.insecureConfigWarning.query()).not.toBeInTheDocument();
+      await user.click(ui.confirmProvisioningButton.get());
+
+      await user.click(ui.allowUsersToSignUp.get());
+      await user.click(ui.saveGithubProvisioning.get());
+      expect(ui.insecureConfigWarning.query()).not.toBeInTheDocument();
     });
   });
 });

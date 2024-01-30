@@ -24,10 +24,14 @@ import { FormattedMessage } from 'react-intl';
 import DocumentationLink from '../../../../components/common/DocumentationLink';
 import { translate } from '../../../../helpers/l10n';
 import { useSaveValuesMutation } from '../../../../queries/settings';
+import { AlmKeys } from '../../../../types/alm-settings';
+import { ProvisioningType } from '../../../../types/provisioning';
 import { Dict } from '../../../../types/types';
 import { AuthenticationTabs, DOCUMENTATION_LINK_SUFFIXES } from './Authentication';
 import AuthenticationFormField from './AuthenticationFormField';
+import GitHubConfirmModal from './GitHubConfirmModal';
 import { SettingValue } from './hook/useConfiguration';
+import { isAllowToSignUpEnabled, isOrganizationListEmpty } from './hook/useGithubConfiguration';
 
 interface Props {
   create: boolean;
@@ -39,6 +43,7 @@ interface Props {
   tab: AuthenticationTabs;
   excludedField: string[];
   hasLegacyConfiguration?: boolean;
+  provisioningStatus?: ProvisioningType;
 }
 
 interface ErrorValue {
@@ -46,7 +51,7 @@ interface ErrorValue {
   message: string;
 }
 
-export default function ConfigurationForm(props: Props) {
+export default function ConfigurationForm(props: Readonly<Props>) {
   const {
     create,
     loading,
@@ -56,8 +61,10 @@ export default function ConfigurationForm(props: Props) {
     tab,
     excludedField,
     hasLegacyConfiguration,
+    provisioningStatus,
   } = props;
   const [errors, setErrors] = React.useState<Dict<ErrorValue>>({});
+  const [showConfirmModal, setShowConfirmModal] = React.useState(false);
 
   const { mutateAsync: changeConfig } = useSaveValuesMutation();
 
@@ -67,21 +74,33 @@ export default function ConfigurationForm(props: Props) {
     event.preventDefault();
 
     if (canBeSave) {
-      const data = await changeConfig(Object.values(values));
-      const errors = data
-        .filter(({ success }) => !success)
-        .map(({ key }) => ({ key, message: translate('default_save_field_error_message') }));
-
-      setErrors(keyBy(errors, 'key'));
-
-      if (errors.length === 0) {
-        props.onClose();
+      if (
+        tab === AlmKeys.GitHub &&
+        isOrganizationListEmpty(values) &&
+        (provisioningStatus === ProvisioningType.auto || isAllowToSignUpEnabled(values))
+      ) {
+        setShowConfirmModal(true);
+      } else {
+        await onSave();
       }
     } else {
       const errors = Object.values(values)
         .filter((v) => v.newValue === undefined && v.value === undefined && v.mandatory)
         .map((v) => ({ key: v.key, message: translate('field_required') }));
       setErrors(keyBy(errors, 'key'));
+    }
+  };
+
+  const onSave = async () => {
+    const data = await changeConfig(Object.values(values));
+    const errors = data
+      .filter(({ success }) => !success)
+      .map(({ key }) => ({ key, message: translate('default_save_field_error_message') }));
+
+    setErrors(keyBy(errors, 'key'));
+
+    if (errors.length === 0) {
+      props.onClose();
     }
   };
 
@@ -136,17 +155,27 @@ export default function ConfigurationForm(props: Props) {
   );
 
   return (
-    <Modal
-      headerTitle={header}
-      isScrollable
-      onClose={props.onClose}
-      body={formBody}
-      primaryButton={
-        <ButtonPrimary form={FORM_ID} type="submit" autoFocus disabled={!canBeSave}>
-          {translate('settings.almintegration.form.save')}
-          <Spinner className="sw-ml-2" loading={loading} />
-        </ButtonPrimary>
-      }
-    />
+    <>
+      <Modal
+        headerTitle={header}
+        isScrollable
+        onClose={props.onClose}
+        body={formBody}
+        primaryButton={
+          <ButtonPrimary form={FORM_ID} type="submit" autoFocus disabled={!canBeSave}>
+            {translate('settings.almintegration.form.save')}
+            <Spinner className="sw-ml-2" loading={loading} />
+          </ButtonPrimary>
+        }
+      />
+      {showConfirmModal && (
+        <GitHubConfirmModal
+          onConfirm={onSave}
+          onClose={() => setShowConfirmModal(false)}
+          values={values}
+          provisioningStatus={provisioningStatus ?? ProvisioningType.jit}
+        />
+      )}
+    </>
   );
 }
