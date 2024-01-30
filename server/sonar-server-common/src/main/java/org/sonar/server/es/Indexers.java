@@ -42,22 +42,22 @@ public interface Indexers {
   }
 
   /**
-   * Re-index data based on the event. It commits the DB session once any indexation request was written in the same session,
-   * ensuring consistency between the DB and the indexes. Therefore, DB data changes that cause the indexation event should
+   * Re-index data based on the event. It commits the DB session once any indexing request was written in the same session,
+   * ensuring consistency between the DB and the indexes. Therefore, DB data changes that cause the indexing event should
    * be done using the same DB session and the session should be uncommitted.
    */
   void commitAndIndexOnEntityEvent(DbSession dbSession, Collection<String> entityUuids, EntityEvent cause);
 
   /**
-   * Re-index data based on the event. It commits the DB session once any indexation request was written in the same session,
-   * ensuring consistency between the DB and the indexes. Therefore, DB data changes that cause the indexation event should
+   * Re-index data based on the event. It commits the DB session once any indexing request was written in the same session,
+   * ensuring consistency between the DB and the indexes. Therefore, DB data changes that cause the indexing event should
    * be done using the same DB session and the session should be uncommitted.
    */
   void commitAndIndexOnBranchEvent(DbSession dbSession, Collection<String> branchUuids, BranchEvent cause);
 
   /**
-   * Re-index data based on the event. It commits the DB session once any indexation request was written in the same session,
-   * ensuring consistency between the DB and the indexes. Therefore, DB data changes that cause the indexation event should
+   * Re-index data based on the event. It commits the DB session once any indexing request was written in the same session,
+   * ensuring consistency between the DB and the indexes. Therefore, DB data changes that cause the indexing event should
    * be done using the same DB session and the session should be uncommitted.
    */
   default void commitAndIndexEntities(DbSession dbSession, Collection<? extends EntityDto> entities, EntityEvent cause) {
@@ -68,8 +68,8 @@ public interface Indexers {
   }
 
   /**
-   * Re-index data based on the event. It commits the DB session once any indexation request was written in the same session,
-   * ensuring consistency between the DB and the indexes. Therefore, DB data changes that cause the indexation event should
+   * Re-index data based on the event. It commits the DB session once any indexing request was written in the same session,
+   * ensuring consistency between the DB and the indexes. Therefore, DB data changes that cause the indexing event should
    * be done using the same DB session and the session should be uncommitted.
    */
   default void commitAndIndexBranches(DbSession dbSession, Collection<BranchDto> branches, BranchEvent cause) {

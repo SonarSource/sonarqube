@@ -230,7 +230,7 @@ public class IssueIndexerIT {
     String projectUuid = issue.getProjectUuid();
     assertThatThrownBy(() -> underTest.indexOnAnalysis(projectUuid))
       .isInstanceOf(IllegalStateException.class)
-      .hasMessage("Unrecoverable indexation failures: 1 errors among 1 requests. Check Elasticsearch logs for further details.");
+      .hasMessage("Unrecoverable indexing failures: 1 errors among 1 requests. Check Elasticsearch logs for further details.");
     assertThatIndexHasSize(0);
     assertThatEsQueueTableHasSize(0);
     es.unlockWrites(TYPE_ISSUE);
@@ -478,7 +478,7 @@ public class IssueIndexerIT {
     List<String> issues = List.of("Issue1");
     assertThatThrownBy(() -> underTest.deleteByKeys("P1", issues))
       .isInstanceOf(IllegalStateException.class)
-      .hasMessage("Unrecoverable indexation failures: 1 errors among 1 requests. Check Elasticsearch logs for further details.");
+      .hasMessage("Unrecoverable indexing failures: 1 errors among 1 requests. Check Elasticsearch logs for further details.");
     assertThatIndexHasOnly("Issue1");
     assertThatEsQueueTableHasSize(0);
     es.unlockWrites(TYPE_ISSUE);

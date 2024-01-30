@@ -64,7 +64,7 @@ public class LoadChangedIssuesStep implements ComputationStep {
 
   @Override
   public String getDescription() {
-    return "Load changed issues for indexation";
+    return "Load changed issues for indexing";
   }
 
 }

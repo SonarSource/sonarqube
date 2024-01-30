@@ -63,7 +63,7 @@ public class AsyncIssueIndexingImpl implements AsyncIssueIndexing {
 
     try (DbSession dbSession = dbClient.openSession(false)) {
 
-      // remove already existing indexation task, if any
+      // remove already existing indexing task, if any
       removeExistingIndexationTasks(dbSession);
 
       dbClient.branchDao().updateAllNeedIssueSync(dbSession);
@@ -99,7 +99,7 @@ public class AsyncIssueIndexingImpl implements AsyncIssueIndexing {
   public void triggerForProject(String projectUuid) {
     try (DbSession dbSession = dbClient.openSession(false)) {
 
-      // remove already existing indexation task, if any
+      // remove already existing indexing task, if any
       removeExistingIndexationTasksForProject(dbSession, projectUuid);
 
       dbClient.branchDao().updateAllNeedIssueSyncForProject(dbSession, projectUuid);
@@ -162,14 +162,18 @@ public class AsyncIssueIndexingImpl implements AsyncIssueIndexing {
   }
 
   private void removeIndexationTasks(DbSession dbSession, Set<String> ceQueueUuids, Set<String> ceActivityUuids) {
-    LOG.info(String.format("%s pending indexation task found to be deleted...", ceQueueUuids.size()));
+    LOG.atInfo().setMessage("{} pending indexing task found to be deleted...")
+      .addArgument(ceQueueUuids.size())
+      .log();
     for (String uuid : ceQueueUuids) {
       dbClient.ceQueueDao().deleteByUuid(dbSession, uuid);
     }
 
-    LOG.info(String.format("%s completed indexation task found to be deleted...", ceQueueUuids.size()));
+    LOG.atInfo().setMessage("{} completed indexing task found to be deleted...")
+      .addArgument(ceQueueUuids.size())
+      .log();
     dbClient.ceActivityDao().deleteByUuids(dbSession, ceActivityUuids);
-    LOG.info("Indexation task deletion complete.");
+    LOG.info("Indexing task deletion complete.");
 
     LOG.info("Deleting tasks characteristics...");
     Set<String> tasksUuid = Stream.concat(ceQueueUuids.stream(), ceActivityUuids.stream()).collect(Collectors.toSet());

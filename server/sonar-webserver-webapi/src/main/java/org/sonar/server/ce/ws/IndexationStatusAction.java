@@ -43,7 +43,7 @@ public class IndexationStatusAction implements CeWsAction {
   @Override
   public void define(WebService.NewController controller) {
     controller.createAction("indexation_status")
-      .setDescription("Returns the count of projects with completed issue indexation.")
+      .setDescription("Returns the count of projects with completed issue indexing.")
       .setResponseExample(getClass().getResource("indexation_status-example.json"))
       .setChangelog(new Change("10.2", "Project count is returned instead of branch percentage."))
       .setHandler(this)

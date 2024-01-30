@@ -90,7 +90,7 @@ public class SearchEventsAction implements DevelopersWsAction {
     WebService.NewAction action = controller.createAction("search_events")
       .setDescription("Search for events.<br/>" +
         "Requires authentication."
-        + "<br/>When issue indexation is in progress returns 503 service unavailable HTTP code.")
+        + "<br/>When issue indexing is in progress returns 503 service unavailable HTTP code.")
       .setSince("1.0")
       .setInternal(true)
       .setHandler(this)

@@ -91,7 +91,7 @@ public class ListAction implements IssuesWsAction {
       .createAction(ACTION_LIST)
       .setHandler(this)
       .setInternal(true)
-      .setDescription("List issues. This endpoint is used in degraded mode, when issue indexation is running." +
+      .setDescription("List issues. This endpoint is used in degraded mode, when issue indexing is running." +
                       "<br>Either 'project' or 'component' parameter is required." +
                       "<br>Total number of issues will be always equal to a page size, as this counting all issues is not supported. " +
                       "<br>Requires the 'Browse' permission on the specified project. ")

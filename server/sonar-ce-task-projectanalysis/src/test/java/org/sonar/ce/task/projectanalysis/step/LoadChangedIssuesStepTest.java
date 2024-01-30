@@ -64,7 +64,7 @@ public class LoadChangedIssuesStepTest {
 
   @Test
   public void getDescription_shouldReturnDescription() {
-    assertThat(underTest.getDescription()).isEqualTo("Load changed issues for indexation");
+    assertThat(underTest.getDescription()).isEqualTo("Load changed issues for indexing");
   }
 
   @Test

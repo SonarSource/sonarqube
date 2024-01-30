@@ -159,9 +159,9 @@ public class AsyncIssueIndexingImplTest {
 
     assertThat(logTester.logs(Level.INFO))
       .contains(
-        "1 pending indexation task found to be deleted...",
-        "1 completed indexation task found to be deleted...",
-        "Indexation task deletion complete.",
+        "1 pending indexing task found to be deleted...",
+        "1 completed indexing task found to be deleted...",
+        "Indexing task deletion complete.",
         "Deleting tasks characteristics...",
         "Tasks characteristics deletion complete.");
   }
@@ -197,7 +197,7 @@ public class AsyncIssueIndexingImplTest {
     assertThat(dbClient.ceActivityDao().selectByTaskType(dbTester.getSession(), REPORT)).hasSize(1);
     assertThat(dbClient.ceTaskCharacteristicsDao().selectByTaskUuids(dbTester.getSession(), new HashSet<>(List.of("uuid_2")))).isEmpty();
 
-    // verify that the canceled tasks on anotherProject is still here, and was not removed by the project reindexation
+    // verify that the canceled tasks on anotherProject is still here, and was not removed by the project reindexing
     assertThat(dbClient.ceActivityDao().selectByTaskType(dbTester.getSession(), BRANCH_ISSUE_SYNC))
       .hasSize(1)
       .extracting(CeActivityDto::getEntityUuid)
@@ -205,9 +205,9 @@ public class AsyncIssueIndexingImplTest {
 
     assertThat(logTester.logs(Level.INFO))
       .contains(
-        "2 pending indexation task found to be deleted...",
-        "2 completed indexation task found to be deleted...",
-        "Indexation task deletion complete.",
+        "2 pending indexing task found to be deleted...",
+        "2 completed indexing task found to be deleted...",
+        "Indexing task deletion complete.",
         "Deleting tasks characteristics...",
         "Tasks characteristics deletion complete.",
         "Tasks characteristics deletion complete.",

@@ -97,7 +97,7 @@ public class PermissionIndexerTest {
     indexOnStartup();
     assertThat(es.countDocuments(INDEX_TYPE_FOO_AUTH)).isEqualTo(2);
 
-    // Simulate a indexation issue
+    // Simulate an indexing issue
     db.getDbClient().purgeDao().deleteProject(db.getSession(), project1.getUuid(), PROJECT, project1.getName(), project1.getKey());
     underTest.prepareForRecoveryOnEntityEvent(db.getSession(), asList(project1.getUuid()), EntityEvent.DELETION);
     assertThat(db.countRowsOfTable(db.getSession(), "es_queue")).isOne();

@@ -84,7 +84,7 @@ public class ProjectFileIndexer {
   }
 
   public void index() {
-    progressReport = new ProgressReport("Report about progress of file indexation", TimeUnit.SECONDS.toMillis(10));
+    progressReport = new ProgressReport("Report about progress of file indexing", TimeUnit.SECONDS.toMillis(10));
     progressReport.start("Indexing files...");
     LOG.info("Project configuration:");
     projectExclusionFilters.log("  ");

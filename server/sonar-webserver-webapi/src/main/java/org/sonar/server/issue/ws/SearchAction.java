@@ -209,7 +209,7 @@ public class SearchAction implements IssuesWsAction {
       .setHandler(this)
       .setDescription("Search for issues.<br>Requires the 'Browse' permission on the specified project(s). <br>"
         + "For applications, it also requires 'Browse' permission on its child projects."
-        + "<br/>When issue indexation is in progress returns 503 service unavailable HTTP code.")
+        + "<br/>When issue indexing is in progress returns 503 service unavailable HTTP code.")
       .setSince("3.6")
       .setChangelog(
         new Change("10.4", "Added new param '%s'".formatted(PARAM_FIXED_IN_PULL_REQUEST)),

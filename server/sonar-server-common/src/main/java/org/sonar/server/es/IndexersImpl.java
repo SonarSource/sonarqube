@@ -41,11 +41,11 @@ public class IndexersImpl implements Indexers {
   }
 
   /**
-   * Asks all indexers to queue an indexation request in the DB to index the specified entities, if needed (according to
+   * Asks all indexers to queue an indexing request in the DB to index the specified entities, if needed (according to
    * "cause" parameter), then call all indexers to index the requests.
-   * The idea is that the indexation requests are committed into the DB at the same time as the data that caused those requests
+   * The idea is that the indexing requests are committed into the DB at the same time as the data that caused those requests
    * to be created, for consistency.
-   * If the indexation fails, the indexation requests will still be in the DB and can be processed again later.
+   * If the indexing fails, the indexing requests will still be in the DB and can be processed again later.
    */
   @Override
   public void commitAndIndexOnEntityEvent(DbSession dbSession, Collection<String> entityUuids, EntityEvent cause) {
@@ -53,11 +53,11 @@ public class IndexersImpl implements Indexers {
   }
 
   /**
-   * Asks all indexers to queue an indexation request in the DB to index the specified branches, if needed (according to
+   * Asks all indexers to queue an indexing request in the DB to index the specified branches, if needed (according to
    * "cause" parameter), then call all indexers to index the requests.
-   * The idea is that the indexation requests are committed into the DB at the same time as the data that caused those requests
+   * The idea is that the indexing requests are committed into the DB at the same time as the data that caused those requests
    * to be created, for consistency.
-   * If the indexation fails, the indexation requests will still be in the DB and can be processed again later.
+   * If the indexing fails, the indexing requests will still be in the DB and can be processed again later.
    */
   @Override
   public void commitAndIndexOnBranchEvent(DbSession dbSession, Collection<String> branchUuids, BranchEvent cause) {

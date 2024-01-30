@@ -40,7 +40,7 @@ public interface InternalCeQueue extends CeQueue {
    * The task status is changed to {@link org.sonar.db.ce.CeQueueDto.Status#IN_PROGRESS}.
    * Does not return anything if workers are paused or being paused (see {@link #getWorkersPauseStatus()}.
    *
-   * @param excludeIndexationJob change the underlying request to exclude indexation tasks.
+   * @param excludeIndexationJob change the underlying request to exclude indexing tasks.
    *
    * <p>Only a single task can be peeked by project.</p>
    *

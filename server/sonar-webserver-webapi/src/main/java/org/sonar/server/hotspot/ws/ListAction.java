@@ -97,7 +97,7 @@ public class ListAction implements HotspotsWsAction {
       .createAction("list")
       .setHandler(this)
       .setInternal(true)
-      .setDescription("List Security Hotpots. This endpoint is used in degraded mode, when issue indexation is running." +
+      .setDescription("List Security Hotpots. This endpoint is used in degraded mode, when issue indexing is running." +
         "<br>Total number of Security Hotspots will be always equal to a page size, as counting all issues is not supported. " +
         "<br>Requires the 'Browse' permission on the specified project. ")
       .setSince("10.2");

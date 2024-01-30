@@ -48,7 +48,7 @@ public final class IgnoreOrphanBranchStep implements ComputationStep {
       Optional<ComponentDto> componentDto = dbClient.componentDao().selectByUuid(dbSession, componentUuid);
       Optional<EntityDto> entityDto = dbClient.entityDao().selectByUuid(dbSession, entityUuid);
       if (componentDto.isEmpty() || entityDto.isEmpty()) {
-        LOG.info("reindexation task has been trigger on an orphan branch. removing any exclude_from_purge flag, and skip the indexation");
+        LOG.info("reindexing task has been trigger on an orphan branch. removing any exclude_from_purge flag, and skip the indexing");
         dbClient.branchDao().updateExcludeFromPurge(dbSession, componentUuid, false);
         dbClient.branchDao().updateNeedIssueSync(dbSession, componentUuid, false);
         dbSession.commit();

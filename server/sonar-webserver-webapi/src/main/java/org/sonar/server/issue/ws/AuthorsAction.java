@@ -72,7 +72,7 @@ public class AuthorsAction implements IssuesWsAction {
       .setSince("5.1")
       .setDescription("Search SCM accounts which match a given query.<br/>" +
                       "Requires authentication."
-                      + "<br/>When issue indexation is in progress returns 503 service unavailable HTTP code.")
+                      + "<br/>When issue indexing is in progress returns 503 service unavailable HTTP code.")
       .setResponseExample(Resources.getResource(this.getClass(), "authors-example.json"))
       .setChangelog(new Change("7.4", "The maximum size of 'ps' is set to 100"))
       .setHandler(this);

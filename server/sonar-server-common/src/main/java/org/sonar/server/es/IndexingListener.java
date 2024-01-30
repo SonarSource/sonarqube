@@ -39,7 +39,7 @@ public interface IndexingListener {
     public void onFinish(IndexingResult result) {
       if (result.getFailures() > 0) {
         throw new IllegalStateException(
-          format("Unrecoverable indexation failures: %d errors among %d requests. Check Elasticsearch logs for further details.",
+          format("Unrecoverable indexing failures: %d errors among %d requests. Check Elasticsearch logs for further details.",
             result.getFailures(),
             result.getTotal()));
       }

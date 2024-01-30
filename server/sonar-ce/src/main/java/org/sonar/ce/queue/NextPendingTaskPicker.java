@@ -54,8 +54,8 @@ public class NextPendingTaskPicker {
   }
 
   Optional<CeQueueDto> findPendingTask(String workerUuid, DbSession dbSession, boolean prioritizeAnalysisAndRefresh) {
-    // try to find tasks including indexation job & excluding app/portfolio and if no match, try the opposite
-    // when prioritizeAnalysisAndRefresh is false, search first excluding indexation jobs and including app/portfolio, then the opposite
+    // try to find tasks including indexing job & excluding app/portfolio and if no match, try the opposite
+    // when prioritizeAnalysisAndRefresh is false, search first excluding indexing jobs and including app/portfolio, then the opposite
     Optional<CeTaskDtoLight> eligibleForPeek = ceQueueDao.selectEligibleForPeek(dbSession, prioritizeAnalysisAndRefresh, !prioritizeAnalysisAndRefresh);
     Optional<CeTaskDtoLight> eligibleForPeekInParallel = eligibleForPeekInParallel(dbSession);
 

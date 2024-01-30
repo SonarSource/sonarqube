@@ -355,7 +355,7 @@ describe('issues app when reindexing', () => {
     expect(ui.issueStatusFacet.query()).not.toBeInTheDocument();
     expect(ui.tagFacet.query()).not.toBeInTheDocument();
 
-    // Indexation message
+    // Indexing message
     expect(screen.getByText(/indexation\.filters_unavailable/)).toBeInTheDocument();
   });
 });

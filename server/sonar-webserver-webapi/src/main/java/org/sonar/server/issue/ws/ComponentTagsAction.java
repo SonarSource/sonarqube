@@ -69,7 +69,7 @@ public class ComponentTagsAction implements IssuesWsAction {
       .setSince("5.1")
       .setInternal(true)
       .setDescription("List tags for the issues under a given component (including issues on the descendants of the component)"
-          + "<br/>When issue indexation is in progress returns 503 service unavailable HTTP code.")
+          + "<br/>When issue indexing is in progress returns 503 service unavailable HTTP code.")
       .setResponseExample(Resources.getResource(getClass(), "component-tags-example.json"));
 
     action.createParam(PARAM_COMPONENT_UUID)
