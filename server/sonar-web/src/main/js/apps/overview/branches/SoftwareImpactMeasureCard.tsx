@@ -29,6 +29,7 @@ import {
 } from 'design-system';
 import * as React from 'react';
 import { useIntl } from 'react-intl';
+import Tooltip from '../../../components/controls/Tooltip';
 import { DEFAULT_ISSUES_QUERY } from '../../../components/shared/utils';
 import { formatMeasure } from '../../../helpers/measures';
 import { getComponentIssuesUrl } from '../../../helpers/urls';
@@ -39,6 +40,7 @@ import {
 } from '../../../types/clean-code-taxonomy';
 import { MetricKey, MetricType } from '../../../types/metrics';
 import { Component, MeasureEnhanced } from '../../../types/types';
+import { OverviewDisabledLinkTooltip } from '../components/OverviewDisabledLinkTooltip';
 import { softwareQualityToMeasure } from '../utils';
 import SoftwareImpactMeasureBreakdownCard from './SoftwareImpactMeasureBreakdownCard';
 import SoftwareImpactMeasureRating from './SoftwareImpactMeasureRating';
@@ -59,6 +61,8 @@ export function SoftwareImpactMeasureCard(props: Readonly<SoftwareImpactBreakdow
   const metricKey = softwareQualityToMeasure(softwareQuality);
   const measureRaw = measures.find((m) => m.metric.key === metricKey);
   const measure = JSON.parse(measureRaw?.value ?? 'null') as SoftwareImpactMeasureData;
+
+  const renderDisabled = !measure || component.needIssueSync;
 
   // Find rating measure
   const ratingMeasure = measures.find((m) => m.metric.key === ratingMetricKey);
@@ -85,28 +89,31 @@ export function SoftwareImpactMeasureCard(props: Readonly<SoftwareImpactBreakdow
       <div className="sw-flex sw-flex-col sw-gap-3">
         <div
           className={classNames('sw-flex sw-gap-1 sw-items-end', {
-            'sw-opacity-60': !measure,
+            'sw-opacity-60': renderDisabled,
           })}
         >
           {measure ? (
-            <NakedLink
-              data-testid={`overview__software-impact-${softwareQuality}`}
-              aria-label={intl.formatMessage(
-                {
-                  id: `overview.measures.software_impact.see_list_of_x_open_issues`,
-                },
-                {
-                  count: measure.total,
-                  softwareQuality: intl.formatMessage({
-                    id: `software_quality.${softwareQuality}`,
-                  }),
-                },
-              )}
-              className="sw-text-xl"
-              to={totalLinkHref}
-            >
-              {formatMeasure(measure.total, MetricType.ShortInteger)}
-            </NakedLink>
+            <Tooltip overlay={component.needIssueSync ? <OverviewDisabledLinkTooltip /> : null}>
+              <NakedLink
+                data-testid={`overview__software-impact-${softwareQuality}`}
+                aria-label={intl.formatMessage(
+                  {
+                    id: `overview.measures.software_impact.see_list_of_x_open_issues`,
+                  },
+                  {
+                    count: measure.total,
+                    softwareQuality: intl.formatMessage({
+                      id: `software_quality.${softwareQuality}`,
+                    }),
+                  },
+                )}
+                className="sw-text-xl"
+                to={totalLinkHref}
+                disabled={component.needIssueSync}
+              >
+                {formatMeasure(measure.total, MetricType.ShortInteger)}
+              </NakedLink>
+            </Tooltip>
           ) : (
             <StyledDash className="sw-self-center sw-font-bold" name="-" />
           )}

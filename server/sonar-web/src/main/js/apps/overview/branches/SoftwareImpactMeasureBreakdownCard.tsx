@@ -92,6 +92,7 @@ export function SoftwareImpactMeasureBreakdownCard(
             }),
           },
         )}
+        disabled={component.needIssueSync}
         to={url}
       >
         <span>{formatMeasure(value, MetricType.ShortInteger)}</span>

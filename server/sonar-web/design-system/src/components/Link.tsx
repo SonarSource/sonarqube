@@ -155,11 +155,14 @@ export const NakedLink = styled(BaseLink)`
   font-weight: 600;
   color: ${themeColor('linkNaked')};
 
-  &:hover,
-  &:focus,
-  &:active {
-    color: ${themeColor('linkActive')};
-  }
+  ${({ disabled, theme }) =>
+    disabled
+      ? tw`sw-cursor-default`
+      : `&:hover,
+         &:focus,
+         &:active {
+           color: ${themeColor('linkActive')({ theme })};
+         }`};
 `;
 
 export const DrilldownLink = styled(StyledBaseLink)`
@@ -219,6 +222,8 @@ export const DiscreetLinkBox = styled(StyledBaseLink)`
     background-color: none;
     display: block;
   }
+
+  ${({ disabled }) => (disabled ? tw`sw-cursor-default` : '')};
 `;
 LinkBox.displayName = 'DiscreetLinkBox';
 

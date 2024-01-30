@@ -348,6 +348,41 @@ describe('project overview', () => {
       false,
     ]);
   });
+
+  it('should disable software impact measure card links during reindexing', async () => {
+    const { user, ui } = getPageObjects();
+    renderBranchOverview({
+      component: mockComponent({
+        breadcrumbs: [mockComponent({ key: 'foo' })],
+        key: 'foo',
+        needIssueSync: true,
+      }),
+    });
+
+    await user.click(await ui.overallCodeButton.find());
+
+    expect(await ui.softwareImpactMeasureCard(SoftwareQuality.Security).find()).toBeInTheDocument();
+
+    ui.expectSoftwareImpactMeasureCard(
+      SoftwareQuality.Security,
+      'B',
+      {
+        total: 1,
+        [SoftwareImpactSeverity.High]: 0,
+        [SoftwareImpactSeverity.Medium]: 1,
+        [SoftwareImpactSeverity.Low]: 0,
+      },
+      [false, true, false],
+    );
+
+    await expect(
+      byRole('link', {
+        name: `overview.measures.software_impact.see_list_of_x_open_issues.${1}.software_quality.${
+          SoftwareQuality.Security
+        }`,
+      }).get(),
+    ).toHaveATooltipWithContent('indexation.in_progress');
+  });
 });
 
 describe('application overview', () => {

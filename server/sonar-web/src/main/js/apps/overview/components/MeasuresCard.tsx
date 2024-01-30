@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import styled from '@emotion/styled';
-import { Badge, Card, ContentLink, themeBorder, themeColor } from 'design-system';
+import { Badge, Card, ContentLink, Tooltip, themeBorder, themeColor } from 'design-system';
 import * as React from 'react';
 import { To } from 'react-router-dom';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
@@ -32,12 +32,14 @@ export interface MeasuresCardProps {
   label: string;
   failed?: boolean;
   icon?: React.ReactElement;
+  disabled?: boolean;
+  tooltip?: React.ReactNode | null;
 }
 
 export default function MeasuresCard(
   props: React.PropsWithChildren<MeasuresCardProps & React.HTMLAttributes<HTMLDivElement>>,
 ) {
-  const { failed, children, metric, icon, value, url, label, ...rest } = props;
+  const { failed, children, metric, icon, value, url, label, disabled, tooltip, ...rest } = props;
 
   return (
     <StyledCard className="sw-h-fit sw-p-6 sw-rounded-2 sw-text-base" {...rest}>
@@ -49,17 +51,20 @@ export default function MeasuresCard(
       )}
       <div className="sw-flex sw-items-center sw-mt-1 sw-justify-between sw-font-semibold">
         {value ? (
-          <ContentLink
-            aria-label={translateWithParameters(
-              'overview.see_more_details_on_x_of_y',
-              value,
-              localizeMetric(metric),
-            )}
-            className="it__overview-measures-value sw-text-lg"
-            to={url}
-          >
-            {value}
-          </ContentLink>
+          <Tooltip overlay={tooltip}>
+            <ContentLink
+              aria-label={translateWithParameters(
+                'overview.see_more_details_on_x_of_y',
+                value,
+                localizeMetric(metric),
+              )}
+              className="it__overview-measures-value sw-text-lg"
+              to={url}
+              disabled={disabled}
+            >
+              {value}
+            </ContentLink>
+          </Tooltip>
         ) : (
           <ColorBold> — </ColorBold>
         )}
