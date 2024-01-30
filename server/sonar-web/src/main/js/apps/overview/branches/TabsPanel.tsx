@@ -75,7 +75,7 @@ export function TabsPanel(props: React.PropsWithChildren<MeasuresPanelProps>) {
   const { failingConditionsOnNewCode, failingConditionsOnOverallCode } =
     countFailingConditions(qgStatuses);
 
-  const recentSqUpgradeEvent = React.useMemo(() => {
+  const recentSqUpgrade = React.useMemo(() => {
     if (!analyses || analyses.length === 0) {
       return undefined;
     }
@@ -96,7 +96,7 @@ export function TabsPanel(props: React.PropsWithChildren<MeasuresPanelProps>) {
           hasQpUpdateEvent || event.category === ProjectAnalysisEventCategory.QualityProfile;
 
         if (sqUpgradeEvent !== undefined && hasQpUpdateEvent) {
-          return sqUpgradeEvent;
+          return { analysis, event: sqUpgradeEvent };
         }
       }
     }
@@ -105,11 +105,15 @@ export function TabsPanel(props: React.PropsWithChildren<MeasuresPanelProps>) {
   }, [analyses]);
 
   const scrollToLatestSqUpgradeEvent = () => {
-    document.querySelector(`#${recentSqUpgradeEvent?.key}`)?.scrollIntoView({
-      behavior: 'smooth',
-      block: 'center',
-      inline: 'center',
-    });
+    if (recentSqUpgrade) {
+      document
+        .querySelector(`[data-analysis-key="${recentSqUpgrade.analysis.key}"]`)
+        ?.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center',
+          inline: 'center',
+        });
+    }
   };
 
   const tabs = [
@@ -139,7 +143,7 @@ export function TabsPanel(props: React.PropsWithChildren<MeasuresPanelProps>) {
         </div>
       ) : (
         <>
-          {recentSqUpgradeEvent && (
+          {recentSqUpgrade && (
             <div>
               <FlagMessage className="sw-mb-4" variant="info">
                 <FormattedMessage
@@ -151,7 +155,7 @@ export function TabsPanel(props: React.PropsWithChildren<MeasuresPanelProps>) {
                         <FormattedMessage id="overview.quality_profiles_update_after_sq_upgrade.link" />
                       </ButtonLink>
                     ),
-                    sqVersion: recentSqUpgradeEvent.name,
+                    sqVersion: recentSqUpgrade.event.name,
                   }}
                 />
               </FlagMessage>

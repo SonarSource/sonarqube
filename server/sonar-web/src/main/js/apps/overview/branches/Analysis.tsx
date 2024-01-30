@@ -72,7 +72,7 @@ export function Analysis(props: Readonly<AnalysisProps>) {
   );
 
   return (
-    <div className="sw-body-sm">
+    <div data-analysis-key={analysis.key} className="sw-body-sm">
       <div className="sw-flex sw-justify-between sw-mb-1">
         <div className="sw-body-sm-highlight">
           <DateTimeFormatter date={analysis.date} />
