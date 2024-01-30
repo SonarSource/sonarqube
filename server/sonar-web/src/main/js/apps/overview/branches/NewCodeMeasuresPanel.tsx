@@ -171,7 +171,7 @@ export default function NewCodeMeasuresPanel(props: Readonly<Props>) {
           label="overview.quality_gate.duplications"
           url={getComponentDrilldownUrl({
             componentKey: component.key,
-            metric: getMeasurementMetricKey(MeasurementType.Coverage, true),
+            metric: getMeasurementMetricKey(MeasurementType.Duplication, true),
             branchLike: branch,
             listView: true,
           })}
