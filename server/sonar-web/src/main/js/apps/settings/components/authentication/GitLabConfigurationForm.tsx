@@ -202,10 +202,12 @@ export default function GitLabConfigurationForm(props: Readonly<Props>) {
       onClose={props.onClose}
       body={formBody}
       primaryButton={
-        <ButtonPrimary form={FORM_ID} type="submit" disabled={!canBeSaved}>
-          {translate('settings.almintegration.form.save')}
-          <Spinner className="sw-ml-2" loading={createLoading || updateLoading} />
-        </ButtonPrimary>
+        <>
+          <Spinner loading={createLoading || updateLoading} />
+          <ButtonPrimary form={FORM_ID} type="submit" disabled={!canBeSaved}>
+            {translate('settings.almintegration.form.save')}
+          </ButtonPrimary>
+        </>
       }
     />
   );

@@ -70,7 +70,7 @@ function PermissionRow(props: Readonly<PermissionCellProps>) {
   return (
     <TableRowInteractive>
       <ContentCell scope="row" className="sw-whitespace-nowrap">
-        <div className="sw-flex sw-max-w-[150px] sw-items-center">
+        <div className="sw-flex sw-max-w-[330px] sw-items-center">
           <b
             className={mapping.isBaseRole ? 'sw-capitalize' : 'sw-truncate'}
             title={mapping.githubRole}

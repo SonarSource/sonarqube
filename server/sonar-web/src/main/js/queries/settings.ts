@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { addGlobalSuccessMessage } from 'design-system';
 import { getValue, getValues, resetSettingValue, setSettingValue } from '../api/settings';
-import { addGlobalSuccessMessage } from '../helpers/globalMessages';
 import { translate } from '../helpers/l10n';
 import { ExtendedSettingDefinition } from '../types/settings';
 

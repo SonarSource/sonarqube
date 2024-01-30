@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { addGlobalSuccessMessage } from 'design-system';
 import { getActivity } from '../../api/ce';
 import {
   createGitLabConfiguration,
@@ -26,7 +27,6 @@ import {
   syncNowGitLabProvisioning,
   updateGitLabConfiguration,
 } from '../../api/gitlab-provisioning';
-import { addGlobalSuccessMessage } from '../../helpers/globalMessages';
 import { translate } from '../../helpers/l10n';
 import { AlmSyncStatus, ProvisioningType } from '../../types/provisioning';
 import { TaskStatuses, TaskTypes } from '../../types/tasks';

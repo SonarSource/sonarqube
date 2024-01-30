@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { addGlobalSuccessMessage } from 'design-system';
 import { isEqual, keyBy, partition, pick, unionBy } from 'lodash';
 import { useContext } from 'react';
 import {
@@ -32,7 +33,6 @@ import {
   updateGithubRolesMapping,
 } from '../../api/github-provisioning';
 import { AvailableFeaturesContext } from '../../app/components/available-features/AvailableFeaturesContext';
-import { addGlobalSuccessMessage } from '../../helpers/globalMessages';
 import { translate } from '../../helpers/l10n';
 import { mapReactQueryResult } from '../../helpers/react-query';
 import { Feature } from '../../types/features';
