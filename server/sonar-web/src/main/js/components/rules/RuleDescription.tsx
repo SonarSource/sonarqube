@@ -226,4 +226,8 @@ const StyledHtmlFormatter = styled(HtmlFormatter)`
   .code-difference-scrollable .code-removed {
     background-color: ${themeColor('codeLineUncoveredUnderline')};
   }
+
+  a:has(code) {
+    padding-bottom: 0.125rem;
+  }
 `;
