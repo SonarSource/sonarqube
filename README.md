@@ -73,3 +73,5 @@ Then open the root file `build.gradle` as a project in IntelliJ or Eclipse.
 Copyright 2008-2024 SonarSource.
 
 Licensed under the [GNU Lesser General Public License, Version 3.0](https://www.gnu.org/licenses/lgpl.txt)
+
+Some changes.
