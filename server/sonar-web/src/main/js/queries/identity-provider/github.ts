@@ -118,7 +118,7 @@ export function useGithubRolesMappingMutation() {
       const [maybeChangedRoles, newRoles] = partition(mapping, (m) => state[m.id]);
       const changedRoles = maybeChangedRoles.filter((item) => !isEqual(item, state[item.id]));
       const deletedRoles = Object.values(state).filter(
-        (m) => !m.isBaseRole && !mapping.some((cm) => m.id === cm.id),
+        (m) => !m.baseRole && !mapping.some((cm) => m.id === cm.id),
       );
 
       return {

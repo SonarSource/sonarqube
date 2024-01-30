@@ -72,12 +72,12 @@ function PermissionRow(props: Readonly<PermissionCellProps>) {
       <ContentCell scope="row" className="sw-whitespace-nowrap">
         <div className="sw-flex sw-max-w-[330px] sw-items-center">
           <b
-            className={mapping.isBaseRole ? 'sw-capitalize' : 'sw-truncate'}
+            className={mapping.baseRole ? 'sw-capitalize' : 'sw-truncate'}
             title={mapping.githubRole}
           >
             {mapping.githubRole}
           </b>
-          {!mapping.isBaseRole && (
+          {!mapping.baseRole && (
             <DestructiveIcon
               className="sw-ml-1"
               aria-label={translateWithParameters(
@@ -133,9 +133,7 @@ export default function GitHubMappingModal({ mapping, setMapping, onClose }: Rea
     const value = customRoleInput.trim();
     if (
       !list?.some((el) =>
-        el.isBaseRole
-          ? el.githubRole.toLowerCase() === value.toLowerCase()
-          : el.githubRole === value,
+        el.baseRole ? el.githubRole.toLowerCase() === value.toLowerCase() : el.githubRole === value,
       )
     ) {
       setMapping([
@@ -153,7 +151,7 @@ export default function GitHubMappingModal({ mapping, setMapping, onClose }: Rea
   };
 
   const haveEmptyCustomRoles = !!mapping?.some(
-    (el) => !el.isBaseRole && !Object.values(el.permissions).some(Boolean),
+    (el) => !el.baseRole && !Object.values(el.permissions).some(Boolean),
   );
 
   const formBody = (
@@ -179,7 +177,7 @@ export default function GitHubMappingModal({ mapping, setMapping, onClose }: Rea
         }
       >
         {list
-          ?.filter((r) => r.isBaseRole)
+          ?.filter((r) => r.baseRole)
           .map((mapping) => (
             <PermissionRow key={mapping.id} mapping={mapping} setMapping={setMapping} list={list} />
           ))}
@@ -226,7 +224,7 @@ export default function GitHubMappingModal({ mapping, setMapping, onClose }: Rea
         </TableRow>
 
         {list
-          ?.filter((r) => !r.isBaseRole)
+          ?.filter((r) => !r.baseRole)
           .map((mapping) => (
             <PermissionRow key={mapping.id} mapping={mapping} setMapping={setMapping} list={list} />
           ))}

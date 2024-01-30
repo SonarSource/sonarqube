@@ -63,11 +63,11 @@ const defaultConfigurationStatus: GitHubConfigurationStatus = {
 const githubMappingMock = (
   id: string,
   permissions: (keyof GitHubMapping['permissions'])[],
-  isBaseRole = false,
+  baseRole = false,
 ) => ({
   id,
   githubRole: id,
-  isBaseRole,
+  baseRole,
   permissions: {
     user: permissions.includes('user'),
     codeViewer: permissions.includes('codeViewer'),
