@@ -17,49 +17,74 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { FlagMessage, GreySeparator, Spinner, Title } from 'design-system';
 import { partition } from 'lodash';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import {
-  withNotifications,
   WithNotificationsProps,
+  withNotifications,
 } from '../../../components/hoc/withNotifications';
-import { Alert } from '../../../components/ui/Alert';
-import Spinner from '../../../components/ui/Spinner';
 import { translate } from '../../../helpers/l10n';
 import GlobalNotifications from './GlobalNotifications';
 import Projects from './Projects';
 
-export function Notifications(props: WithNotificationsProps) {
-  const {
-    addNotification,
-    channels,
-    globalTypes,
-    loading,
-    notifications,
-    perProjectTypes,
-    removeNotification,
-  } = props;
-
+export function Notifications({
+  addNotification,
+  channels,
+  globalTypes,
+  loading,
+  notifications,
+  perProjectTypes,
+  removeNotification,
+}: Readonly<WithNotificationsProps>) {
   const [globalNotifications, projectNotifications] = partition(notifications, (n) => !n.project);
 
+  const emailOnly = channels.length === 1 && channels[0] === 'EmailNotificationChannel';
+
+  const header = emailOnly ? undefined : (
+    <tr>
+      <th className="sw-body-sm-highlight">{translate('events')}</th>
+
+      {channels.map((channel) => (
+        <th className="sw-body-sm-highlight sw-text-right" key={channel}>
+          {translate('notification.channel', channel)}
+        </th>
+      ))}
+    </tr>
+  );
+
   return (
-    <div className="account-body account-container">
+    <div className="it__account-body">
       <Helmet defer={false} title={translate('my_account.notifications')} />
-      <Alert variant="info">{translate('notification.dispatcher.information')}</Alert>
+
+      <Title>{translate('my_account.notifications')}</Title>
+
+      <FlagMessage className="sw-my-2" variant="info">
+        {translate('notification.dispatcher.information')}
+      </FlagMessage>
+
       <Spinner loading={loading}>
         {notifications && (
           <>
+            <GreySeparator className="sw-mb-4 sw-mt-6" />
+
             <GlobalNotifications
               addNotification={addNotification}
               channels={channels}
+              header={header}
               notifications={globalNotifications}
               removeNotification={removeNotification}
               types={globalTypes}
             />
+
+            <GreySeparator className="sw-mb-4 sw-mt-6" />
+
             <Projects
               addNotification={addNotification}
               channels={channels}
+              header={header}
               notifications={projectNotifications}
               removeNotification={removeNotification}
               types={perProjectTypes}

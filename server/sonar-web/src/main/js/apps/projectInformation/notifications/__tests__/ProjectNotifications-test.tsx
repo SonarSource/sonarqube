@@ -49,44 +49,42 @@ it('should render correctly', async () => {
   const user = userEvent.setup();
   renderProjectNotifications();
 
-  expect(
-    await screen.findByText('project_information.project_notifications.title'),
-  ).toBeInTheDocument();
+  expect(await screen.findByText('notifications.send_email')).toBeInTheDocument();
   expect(
     screen.getByLabelText(
-      'notification.dispatcher.descrption_x.notification.dispatcher.NewAlerts.project',
+      'notification.dispatcher.description_x.notification.dispatcher.NewAlerts.project',
     ),
   ).toBeChecked();
 
   expect(
     screen.getByLabelText(
-      'notification.dispatcher.descrption_x.notification.dispatcher.NewIssues.project',
+      'notification.dispatcher.description_x.notification.dispatcher.NewIssues.project',
     ),
   ).not.toBeChecked();
 
   // Toggle New Alerts
   await user.click(
     screen.getByLabelText(
-      'notification.dispatcher.descrption_x.notification.dispatcher.NewAlerts.project',
+      'notification.dispatcher.description_x.notification.dispatcher.NewAlerts.project',
     ),
   );
 
   expect(
     screen.getByLabelText(
-      'notification.dispatcher.descrption_x.notification.dispatcher.NewAlerts.project',
+      'notification.dispatcher.description_x.notification.dispatcher.NewAlerts.project',
     ),
   ).not.toBeChecked();
 
   // Toggle New Issues
   await user.click(
     screen.getByLabelText(
-      'notification.dispatcher.descrption_x.notification.dispatcher.NewIssues.project',
+      'notification.dispatcher.description_x.notification.dispatcher.NewIssues.project',
     ),
   );
 
   expect(
     screen.getByLabelText(
-      'notification.dispatcher.descrption_x.notification.dispatcher.NewIssues.project',
+      'notification.dispatcher.description_x.notification.dispatcher.NewIssues.project',
     ),
   ).toBeChecked();
 });

@@ -178,10 +178,15 @@ it('should render the top menu', () => {
 
   expect(screen.getByText(name)).toBeInTheDocument();
 
-  expect(screen.getByText('my_account.profile')).toBeInTheDocument();
-  expect(screen.getByText('my_account.security')).toBeInTheDocument();
-  expect(screen.getByText('my_account.notifications')).toBeInTheDocument();
-  expect(screen.getByText('my_account.projects')).toBeInTheDocument();
+  const topMenuNavigationItems = [
+    'my_account.profile',
+    'my_account.security',
+    'my_account.notifications',
+    'my_account.projects',
+  ];
+  topMenuNavigationItems.forEach((itemName) => {
+    expect(byRole('navigation').byRole('link', { name: itemName }).get()).toBeInTheDocument();
+  });
 });
 
 describe('profile page', () => {
@@ -477,10 +482,10 @@ describe('notifications page', () => {
     addButton: byRole('button', { name: 'my_profile.per_project_notifications.add' }),
     addModalButton: byRole('button', { name: 'add_verb' }),
     searchInput: byRole('searchbox', { name: 'search.placeholder' }),
-    sonarQubeProject: byRole('heading', { name: 'SonarQube' }),
+    sonarQubeProject: byRole('link', { name: 'SonarQube' }),
     checkbox: (type: NotificationProjectType) =>
       byRole('checkbox', {
-        name: `notification.dispatcher.descrption_x.notification.dispatcher.${type}.project`,
+        name: `notification.dispatcher.description_x.notification.dispatcher.${type}.project`,
       }),
   };
 
@@ -489,7 +494,7 @@ describe('notifications page', () => {
     noNotificationForProject: byText('my_account.no_project_notifications'),
     checkbox: (type: NotificationGlobalType) =>
       byRole('checkbox', {
-        name: `notification.dispatcher.descrption_x.notification.dispatcher.${type}`,
+        name: `notification.dispatcher.description_x.notification.dispatcher.${type}`,
       }),
   };
 
@@ -536,7 +541,8 @@ describe('notifications page', () => {
 
     await user.click(await projectUI.addButton.find());
     expect(projectUI.addModalButton.get()).toBeDisabled();
-    await user.type(projectUI.searchInput.get(), 'sonar');
+
+    await user.keyboard('sonar');
     // navigate within the two results, choose the first:
     await user.keyboard('[ArrowDown][ArrowDown][ArrowUp][Enter]');
     await user.click(projectUI.addModalButton.get());
@@ -558,10 +564,10 @@ describe('notifications page', () => {
 
     renderAccountApp(mockLoggedInUser(), notificationsPagePath);
 
-    await user.click(
-      await screen.findByRole('button', { name: 'my_profile.per_project_notifications.add' }),
-    );
-    expect(screen.getByLabelText('search.placeholder', { selector: 'input' })).toBeInTheDocument();
+    await user.click(await projectUI.addButton.find());
+
+    expect(screen.getByLabelText('my_account.set_notifications_for.title')).toBeInTheDocument();
+
     await user.keyboard('sonarqube');
 
     await user.click(screen.getByText('SonarQube'));
@@ -574,11 +580,11 @@ describe('notifications page', () => {
     await user.click(screen.getByRole('searchbox'));
     await user.keyboard('bla');
 
-    expect(screen.queryByRole('heading', { name: 'SonarQube' })).not.toBeInTheDocument();
+    expect(projectUI.sonarQubeProject.query()).not.toBeInTheDocument();
 
     await user.keyboard('[Backspace>3/]');
 
-    expect(await screen.findByRole('heading', { name: 'SonarQube' })).toBeInTheDocument();
+    expect(await projectUI.sonarQubeProject.find()).toBeInTheDocument();
   });
 });
 

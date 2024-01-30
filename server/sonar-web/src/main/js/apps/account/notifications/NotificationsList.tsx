@@ -17,8 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { CellComponent, Checkbox, TableRowInteractive } from 'design-system';
 import * as React from 'react';
-import Checkbox from '../../../components/controls/Checkbox';
 import { hasMessage, translate, translateWithParameters } from '../../../helpers/l10n';
 import {
   Notification,
@@ -27,63 +28,66 @@ import {
 } from '../../../types/notifications';
 
 interface Props {
-  onAdd: (n: Notification) => void;
-  onRemove: (n: Notification) => void;
   channels: string[];
   checkboxId: (type: string, channel: string) => string;
+  notifications: Notification[];
+  onAdd: (n: Notification) => void;
+  onRemove: (n: Notification) => void;
   project?: boolean;
   types: (NotificationGlobalType | NotificationProjectType)[];
-  notifications: Notification[];
 }
 
-export default class NotificationsList extends React.PureComponent<Props> {
-  isEnabled(type: string, channel: string) {
-    return !!this.props.notifications.find(
+export default function NotificationsList({
+  channels,
+  checkboxId,
+  notifications,
+  onAdd,
+  onRemove,
+  project,
+  types,
+}: Readonly<Props>) {
+  const isEnabled = (type: string, channel: string) =>
+    !!notifications.find(
       (notification) => notification.type === type && notification.channel === channel,
     );
-  }
 
-  handleCheck(type: string, channel: string, checked: boolean) {
+  const handleCheck = (type: string, channel: string, checked: boolean) => {
     if (checked) {
-      this.props.onAdd({ type, channel });
+      onAdd({ type, channel });
     } else {
-      this.props.onRemove({ type, channel });
+      onRemove({ type, channel });
     }
-  }
+  };
 
-  getDispatcherLabel(dispatcher: string) {
+  const getDispatcherLabel = (dispatcher: string) => {
     const globalMessageKey = ['notification.dispatcher', dispatcher];
     const projectMessageKey = [...globalMessageKey, 'project'];
-    const shouldUseProjectMessage = this.props.project && hasMessage(...projectMessageKey);
+    const shouldUseProjectMessage = project && hasMessage(...projectMessageKey);
+
     return shouldUseProjectMessage
       ? translate(...projectMessageKey)
       : translate(...globalMessageKey);
-  }
+  };
 
-  render() {
-    const { channels, checkboxId, types } = this.props;
+  return types.map((type) => (
+    <TableRowInteractive className="sw-h-9" key={type}>
+      <CellComponent className="sw-py-0 sw-border-0">{getDispatcherLabel(type)}</CellComponent>
 
-    return (
-      <tbody>
-        {types.map((type) => (
-          <tr key={type}>
-            <td>{this.getDispatcherLabel(type)}</td>
-            {channels.map((channel) => (
-              <td className="text-center" key={channel}>
-                <Checkbox
-                  label={translateWithParameters(
-                    'notification.dispatcher.descrption_x',
-                    this.getDispatcherLabel(type),
-                  )}
-                  checked={this.isEnabled(type, channel)}
-                  id={checkboxId(type, channel)}
-                  onCheck={(checked) => this.handleCheck(type, channel, checked)}
-                />
-              </td>
-            ))}
-          </tr>
-        ))}
-      </tbody>
-    );
-  }
+      {channels.map((channel) => (
+        <CellComponent className="sw-py-0 sw-border-0" key={channel}>
+          <div className="sw-justify-end sw-flex sw-items-center">
+            <Checkbox
+              checked={isEnabled(type, channel)}
+              id={checkboxId(type, channel)}
+              label={translateWithParameters(
+                'notification.dispatcher.description_x',
+                getDispatcherLabel(type),
+              )}
+              onCheck={(checked) => handleCheck(type, channel, checked)}
+            />
+          </div>
+        </CellComponent>
+      ))}
+    </TableRowInteractive>
+  ));
 }

@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { PageTitle, SubHeading } from 'design-system';
+import { PageTitle } from 'design-system';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useCurrentLoginUser } from '../../../app/components/current-user/CurrentUserContext';
@@ -35,14 +35,14 @@ export default function Security() {
       <Tokens login={currentUser.login} />
 
       {currentUser.local && (
-        <SubHeading as="section">
+        <>
           <PageTitle
             className="sw-heading-md sw-my-6"
             text={translate('my_profile.password.title')}
           />
 
           <ResetPasswordForm user={currentUser} />
-        </SubHeading>
+        </>
       )}
     </>
   );

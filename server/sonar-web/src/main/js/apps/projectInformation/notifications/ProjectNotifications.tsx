@@ -80,7 +80,7 @@ export function ProjectNotifications(props: WithNotificationsProps & Props) {
 
       <Spinner className="sw-mt-6" loading={loading}>
         <h3 id="notifications-update-title" className="sw-mt-6">
-          {translate('project_information.project_notifications.title')}
+          {translate('notifications.send_email')}
         </h3>
         <ul className="sw-list-none sw-mt-4 sw-pl-0">
           {perProjectTypes.map((type) => (
@@ -89,7 +89,7 @@ export function ProjectNotifications(props: WithNotificationsProps & Props) {
                 right
                 className="sw-flex sw-justify-between"
                 label={translateWithParameters(
-                  'notification.dispatcher.descrption_x',
+                  'notification.dispatcher.description_x',
                   getDispatcherLabel(type),
                 )}
                 checked={isEnabled(type, emailChannel)}
