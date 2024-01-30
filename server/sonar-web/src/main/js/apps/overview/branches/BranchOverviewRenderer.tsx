@@ -98,17 +98,16 @@ export default function BranchOverviewRenderer(props: BranchOverviewRendererProp
   });
   const intl = useIntl();
 
-  // Check if any potentially missing uncomputed measure is not present
-  const isMissingMeasures = [
-    MetricKey.new_accepted_issues,
-    MetricKey.security_issues,
-    MetricKey.maintainability_issues,
-    MetricKey.reliability_issues,
-  ].some((key) => !measures.find((measure) => measure.metric.key === key));
-
   const leakPeriod = component.qualifier === ComponentQualifier.Application ? appLeak : period;
   const isNewCodeTab = tab === MeasuresTabs.New;
   const hasNewCodeMeasures = measures.some((m) => isDiffMetric(m.metric.key));
+
+  // Check if any potentially missing uncomputed measure is not present
+  const isMissingMeasures = (
+    isNewCodeTab
+      ? [MetricKey.new_accepted_issues]
+      : [MetricKey.security_issues, MetricKey.maintainability_issues, MetricKey.reliability_issues]
+  ).some((key) => !measures.find((measure) => measure.metric.key === key));
 
   React.useEffect(() => {
     // Open Overall tab by default if there are no new measures.
@@ -119,6 +118,15 @@ export default function BranchOverviewRenderer(props: BranchOverviewRendererProp
     // it would prevent the user from selecting it, even if it's empty.
     /* eslint-disable-next-line react-hooks/exhaustive-deps */
   }, [loadingStatus, hasNewCodeMeasures]);
+
+  const appReanalysisWarning =
+    isMissingMeasures && isApplication(component.qualifier) ? (
+      <FlagMessage variant="warning" className="sw-my-4">
+        {intl.formatMessage({
+          id: 'overview.missing_project_data.APP',
+        })}
+      </FlagMessage>
+    ) : null;
 
   return (
     <>
@@ -171,40 +179,38 @@ export default function BranchOverviewRenderer(props: BranchOverviewRendererProp
                         isNewCode={isNewCodeTab}
                         onTabSelect={selectTab}
                       >
-                        {hasNewCodeMeasures &&
-                          isMissingMeasures &&
-                          isApplication(component.qualifier) && (
-                            <FlagMessage variant="warning" className="sw-my-4">
-                              {intl.formatMessage({
-                                id: 'overview.missing_project_data.APP',
-                              })}
-                            </FlagMessage>
-                          )}
-
-                        {isNewCodeTab && !hasNewCodeMeasures && (
-                          <MeasuresPanelNoNewCode
-                            branch={branch}
-                            component={component}
-                            period={period}
-                          />
-                        )}
-
-                        {isNewCodeTab && hasNewCodeMeasures && (
-                          <NewCodeMeasuresPanel
-                            qgStatuses={qgStatuses}
-                            branch={branch}
-                            component={component}
-                            measures={measures}
-                          />
+                        {isNewCodeTab && (
+                          <>
+                            {hasNewCodeMeasures ? (
+                              <>
+                                {appReanalysisWarning}
+                                <NewCodeMeasuresPanel
+                                  qgStatuses={qgStatuses}
+                                  branch={branch}
+                                  component={component}
+                                  measures={measures}
+                                />
+                              </>
+                            ) : (
+                              <MeasuresPanelNoNewCode
+                                branch={branch}
+                                component={component}
+                                period={period}
+                              />
+                            )}
+                          </>
                         )}
 
                         {!isNewCodeTab && (
-                          <OverallCodeMeasuresPanel
-                            branch={branch}
-                            qgStatuses={qgStatuses}
-                            component={component}
-                            measures={measures}
-                          />
+                          <>
+                            {appReanalysisWarning}
+                            <OverallCodeMeasuresPanel
+                              branch={branch}
+                              qgStatuses={qgStatuses}
+                              component={component}
+                              measures={measures}
+                            />
+                          </>
                         )}
                       </TabsPanel>
 

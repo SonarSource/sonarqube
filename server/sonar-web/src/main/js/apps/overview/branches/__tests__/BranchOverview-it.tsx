@@ -473,17 +473,29 @@ describe('application overview', () => {
     expect(await screen.findByText('portfolio.app.empty')).toBeInTheDocument();
   });
 
-  it.each([
-    ['new_accepted_issues', MetricKey.new_accepted_issues],
-    ['security_issues', MetricKey.security_issues],
-    ['reliability_issues', MetricKey.reliability_issues],
-    ['maintainability_issues', MetricKey.maintainability_issues],
-  ])(
-    'should ask to reanalyze all projects if a project is not computed',
+  it.each([['new_accepted_issues', MetricKey.new_accepted_issues]])(
+    'should ask to reanalyze all projects if a project is not computed for %s',
     async (missingMetricKey) => {
       measuresHandler.deleteComponentMeasure('foo', missingMetricKey as MetricKey);
 
       renderBranchOverview({ component });
+
+      expect(await screen.findByText('overview.missing_project_data.APP')).toBeInTheDocument();
+    },
+  );
+
+  it.each([
+    ['security_issues', MetricKey.security_issues],
+    ['reliability_issues', MetricKey.reliability_issues],
+    ['maintainability_issues', MetricKey.maintainability_issues],
+  ])(
+    'should ask to reanalyze all projects if a project is not computed for %s',
+    async (missingMetricKey) => {
+      const { ui, user } = getPageObjects();
+
+      measuresHandler.deleteComponentMeasure('foo', missingMetricKey as MetricKey);
+      renderBranchOverview({ component });
+      await user.click(await ui.overallCodeButton.find());
 
       expect(await screen.findByText('overview.missing_project_data.APP')).toBeInTheDocument();
     },
