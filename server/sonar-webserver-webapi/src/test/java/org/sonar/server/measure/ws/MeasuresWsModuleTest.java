@@ -31,4 +31,12 @@ public class MeasuresWsModuleTest {
     new MeasuresWsModule().configure(container);
     assertThat(container.getAddedObjects()).hasSize(5);
   }
+
+  @Test
+  public void getDeprecatedMetricsInSonarQube104_shouldReturnExactString() {
+    String actual = MeasuresWsModule.getDeprecatedMetricsInSonarQube104();
+
+    assertThat(actual).isEqualTo("'bugs', 'new_bugs', 'vulnerabilities', 'new_vulnerabilities', 'security_hotspots', " +
+      "'new_security_hotspots', 'security_hotspots_reviewed', 'new_security_hotspots_reviewed', 'code_smells', 'new_code_smells'");
+  }
 }
