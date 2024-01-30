@@ -38,7 +38,7 @@ export function Notifications({
   notifications,
   perProjectTypes,
   removeNotification,
-}: Readonly<WithNotificationsProps>) {
+}: WithNotificationsProps) {
   const [globalNotifications, projectNotifications] = partition(notifications, (n) => !n.project);
 
   const emailOnly = channels.length === 1 && channels[0] === 'EmailNotificationChannel';
