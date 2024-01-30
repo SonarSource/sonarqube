@@ -194,6 +194,30 @@ public class DefaultGitlabConfigurationControllerTest {
   }
 
   @Test
+  public void updateConfiguration_whenAllowedGroupsIsNull_shouldReturnBadRequest() throws Exception {
+    userSession.logIn().setSystemAdministrator();
+
+    mockMvc.perform(patch(GITLAB_CONFIGURATION_ENDPOINT + "/existing-id")
+      .contentType(JSON_MERGE_PATCH_CONTENT_TYPE)
+      .content("""
+        {
+          "enabled": true,
+          "applicationId": "application-id",
+          "secret": "123",
+          "url": "www.url.com",
+          "synchronizeGroups": true,
+          "allowedGroups": null,
+          "provisioningType": "AUTO_PROVISIONING",
+          "allowUsersToSignUp": true
+        }
+        """))
+      .andExpectAll(
+        status().isBadRequest(),
+        content().json("{\"message\":\"allowedGroups must not be null\"}"));
+
+  }
+
+  @Test
   public void updateConfiguration_whenAllFieldsUpdated_performUpdates() throws Exception {
     userSession.logIn().setSystemAdministrator();
     when(gitlabConfigurationService.updateConfiguration(any())).thenReturn(GITLAB_CONFIGURATION);
@@ -395,6 +419,30 @@ public class DefaultGitlabConfigurationControllerTest {
             "isProvisioningTokenSet": false
           }
           """));
+
+  }
+
+  @Test
+  public void create_whenAllowedGroupsIsNull_shouldReturnBadRequest() throws Exception {
+    userSession.logIn().setSystemAdministrator();
+    mockMvc.perform(
+        post(GITLAB_CONFIGURATION_ENDPOINT)
+          .contentType(MediaType.APPLICATION_JSON_VALUE)
+          .content("""
+            {
+              "enabled": true,
+              "applicationId": "application-id",
+              "secret": "123",
+              "url": "www.url.com",
+              "synchronizeGroups": true,
+              "allowedGroups": null,
+              "provisioningType": "JIT"
+            }
+
+          """))
+      .andExpectAll(
+        status().isBadRequest(),
+        content().json("{\"message\":\"Value {} for field allowedGroups was rejected. Error: must not be null.\"}"));
 
   }
 

@@ -23,6 +23,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.server.common.gitlab.config.GitlabConfiguration;
 import org.sonar.server.common.gitlab.config.GitlabConfigurationService;
@@ -35,6 +36,7 @@ import org.sonar.server.v2.api.gitlab.config.resource.GitlabConfigurationResourc
 import org.sonar.server.v2.api.gitlab.config.response.GitlabConfigurationSearchRestResponse;
 import org.sonar.server.v2.api.response.PageRestResponse;
 
+import static org.sonar.api.utils.Preconditions.checkArgument;
 import static org.sonar.server.common.gitlab.config.GitlabConfigurationService.UNIQUE_GITLAB_CONFIGURATION_ID;
 
 public class DefaultGitlabConfigurationController implements GitlabConfigurationController {
@@ -73,7 +75,6 @@ public class DefaultGitlabConfigurationController implements GitlabConfiguration
     return toGitLabConfigurationResource(createdConfiguration);
   }
 
-
   private static GitlabConfiguration toGitlabConfiguration(GitlabConfigurationCreateRestRequest createRestRequest) {
     return new GitlabConfiguration(
       UNIQUE_GITLAB_CONFIGURATION_ID,
@@ -85,8 +86,7 @@ public class DefaultGitlabConfigurationController implements GitlabConfiguration
       Set.copyOf(createRestRequest.allowedGroups()),
       createRestRequest.allowUsersToSignUp() != null && createRestRequest.allowUsersToSignUp(),
       toProvisioningType(createRestRequest.provisioningType()),
-      createRestRequest.provisioningToken()
-    );
+      createRestRequest.provisioningToken());
   }
 
   private GitlabConfigurationResource getGitlabConfigurationResource(String id) {
@@ -116,7 +116,8 @@ public class DefaultGitlabConfigurationController implements GitlabConfiguration
       .build();
   }
 
-  private static Set<String> getGroups(List<String> groups) {
+  private static Set<String> getGroups(@Nullable List<String> groups) {
+    checkArgument(groups != null, "allowedGroups must not be null");
     return new HashSet<>(groups);
   }
 
@@ -132,8 +133,7 @@ public class DefaultGitlabConfigurationController implements GitlabConfiguration
       configuration.allowUsersToSignUp(),
       toRestProvisioningType(configuration),
       StringUtils.isNotEmpty(configuration.provisioningToken()),
-      configurationError.orElse(null)
-    );
+      configurationError.orElse(null));
   }
 
   private static org.sonar.server.v2.api.gitlab.config.resource.ProvisioningType toRestProvisioningType(GitlabConfiguration configuration) {

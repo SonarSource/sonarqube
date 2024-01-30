@@ -49,8 +49,13 @@ public record GitlabConfigurationCreateRestRequest(
   @Schema(description = "Set whether to synchronize groups")
   Boolean synchronizeGroups,
 
-  @NotEmpty
-  @ArraySchema(arraySchema = @Schema(description = "GitLab groups allowed to authenticate and provisioned (for Auto-Provisioning only). Subgroups will automatically be included"))
+  @NotNull
+  @ArraySchema(arraySchema = @Schema(description = """
+    GitLab groups allowed to authenticate.
+    Subgroups will automatically be included.
+    When Auto-provisioning is enabled, members of these groups will be automatically provisioned in SonarQube.
+    This field is required to be non-empty for Auto-provisioning.
+    """))
   List<String> allowedGroups,
 
   @NotNull

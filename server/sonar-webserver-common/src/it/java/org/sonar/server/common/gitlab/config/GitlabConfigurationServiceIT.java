@@ -159,6 +159,19 @@ public class GitlabConfigurationServiceIT {
   }
 
   @Test
+  public void updateConfiguration_whenAllowedGroupsIsEmptyAndAutoProvisioningIsEnabled_throwsException() {
+    gitlabConfigurationService.createConfiguration(buildGitlabConfiguration(AUTO_PROVISIONING));
+    UpdateGitlabConfigurationRequest updateGitlabConfigurationRequest = builder()
+      .gitlabConfigurationId(UNIQUE_GITLAB_CONFIGURATION_ID)
+      .allowedGroups(withValueOrThrow(new LinkedHashSet<>()))
+      .build();
+
+    assertThatThrownBy(() -> gitlabConfigurationService.updateConfiguration(updateGitlabConfigurationRequest))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("allowedGroups cannot be empty when Auto-provisioning is enabled.");
+  }
+
+  @Test
   public void updateConfiguration_whenAllUpdateFieldDefined_updatesEverything() {
     gitlabConfigurationService.createConfiguration(buildGitlabConfiguration(JIT));
 
@@ -307,6 +320,25 @@ public class GitlabConfigurationServiceIT {
   }
 
   @Test
+  public void createConfiguration_whenAllowedGroupsIsEmptyAndAutoProvisioningIsEnabled_shouldReturnBadRequest() {
+    GitlabConfiguration configuration = new GitlabConfiguration(
+      UNIQUE_GITLAB_CONFIGURATION_ID,
+      true,
+      "applicationId",
+      "url",
+      "secret",
+      true,
+      Set.of(),
+      true,
+      AUTO_PROVISIONING,
+      "provisioningToken");
+
+    assertThatThrownBy(() -> gitlabConfigurationService.createConfiguration(configuration))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("allowedGroups cannot be empty when Auto-provisioning is enabled.");
+  }
+
+  @Test
   public void createConfiguration_whenAutoProvisioning_shouldCreateCorrectConfigurationAndScheduleSync() {
     GitlabConfiguration configuration = buildGitlabConfiguration(AUTO_PROVISIONING);
 
@@ -332,8 +364,7 @@ public class GitlabConfigurationServiceIT {
       Set.of("group1", "group2", "group3"),
       true,
       AUTO_PROVISIONING,
-      null
-    );
+      null);
 
     assertThatThrownBy(() -> gitlabConfigurationService.createConfiguration(configuration))
       .isInstanceOf(IllegalStateException.class)
@@ -379,8 +410,7 @@ public class GitlabConfigurationServiceIT {
       Set.of("group1", "group2", "group3"),
       true,
       JIT,
-      null
-    );
+      null);
 
     GitlabConfiguration createdConfiguration = gitlabConfigurationService.createConfiguration(configuration);
 
@@ -526,7 +556,7 @@ public class GitlabConfigurationServiceIT {
     Exception exception = new IllegalStateException("Invalid configuration");
     when(gitlabConfigurationService.validate(gitlabConfiguration)).thenThrow(exception);
 
-    Optional<String> message =  gitlabConfigurationService.validate(gitlabConfiguration);
+    Optional<String> message = gitlabConfigurationService.validate(gitlabConfiguration);
 
     assertThat(message).contains("Invalid configuration");
   }
