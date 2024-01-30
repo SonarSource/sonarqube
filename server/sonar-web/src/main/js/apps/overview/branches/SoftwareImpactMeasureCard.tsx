@@ -30,7 +30,7 @@ import {
 import * as React from 'react';
 import { useIntl } from 'react-intl';
 import { DEFAULT_ISSUES_QUERY } from '../../../components/shared/utils';
-import { formatMeasure, formatRating } from '../../../helpers/measures';
+import { formatMeasure } from '../../../helpers/measures';
 import { getComponentIssuesUrl } from '../../../helpers/urls';
 import {
   SoftwareImpactMeasureData,
@@ -62,22 +62,18 @@ export function SoftwareImpactMeasureCard(props: Readonly<SoftwareImpactBreakdow
 
   // Find rating measure
   const ratingMeasure = measures.find((m) => m.metric.key === ratingMetricKey);
-  const ratingLabel = ratingMeasure?.value ? formatRating(ratingMeasure.value) : undefined;
 
   const totalLinkHref = getComponentIssuesUrl(component.key, {
     ...DEFAULT_ISSUES_QUERY,
     impactSoftwareQualities: softwareQuality,
   });
 
-  // We highlight the highest severity breakdown card with non-zero count if the rating is not A
-  let highlightedSeverity: SoftwareImpactSeverity | undefined;
-  if (measure && (!ratingLabel || ratingLabel !== 'A')) {
-    highlightedSeverity = [
-      SoftwareImpactSeverity.High,
-      SoftwareImpactSeverity.Medium,
-      SoftwareImpactSeverity.Low,
-    ].find((severity) => measure[severity] > 0);
-  }
+  // We highlight the highest severity breakdown card with non-zero count
+  const highlightedSeverity =
+    measure &&
+    [SoftwareImpactSeverity.High, SoftwareImpactSeverity.Medium, SoftwareImpactSeverity.Low].find(
+      (severity) => measure[severity] > 0,
+    );
 
   return (
     <LightGreyCard

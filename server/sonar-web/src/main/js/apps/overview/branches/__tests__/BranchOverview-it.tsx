@@ -281,7 +281,7 @@ describe('project overview', () => {
         [SoftwareImpactSeverity.Medium]: 2,
         [SoftwareImpactSeverity.Low]: 1,
       },
-      [false, false, false],
+      [false, true, false],
     );
     ui.expectSoftwareImpactMeasureCard(
       SoftwareQuality.Maintainability,
@@ -327,7 +327,7 @@ describe('project overview', () => {
         [SoftwareImpactSeverity.Medium]: 2,
         [SoftwareImpactSeverity.Low]: 1,
       },
-      [false, false, false],
+      [false, true, false],
     );
 
     // Maintainability is not computed
