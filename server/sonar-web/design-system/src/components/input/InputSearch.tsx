@@ -78,12 +78,10 @@ export function InputSearch(props: PropsWithChildren<Props>) {
   const intl = useIntl();
   const input = useRef<null | HTMLElement>(null);
   const [value, setValue] = useState(parentValue ?? '');
-  const [dirty, setDirty] = useState(false);
   const debouncedOnChange = useMemo(
     () =>
       debounce((val: string) => {
         onChange(val);
-        setDirty(false);
       }, DEBOUNCE_DELAY),
     [onChange],
   );
@@ -95,7 +93,9 @@ export function InputSearch(props: PropsWithChildren<Props>) {
   });
 
   useEffect(() => {
-    if (parentValue !== undefined && !dirty) {
+    // initially letting parentValue control the value of the input
+    // later the value is controlled by the local value state
+    if (parentValue === '' || (parentValue !== undefined && value === '')) {
       setValue(parentValue);
     }
   }, [parentValue]); // eslint-disable-line
@@ -115,7 +115,6 @@ export function InputSearch(props: PropsWithChildren<Props>) {
   const handleInputChange = (event: React.SyntheticEvent<HTMLInputElement>) => {
     const eventValue = event.currentTarget.value;
     setValue(eventValue);
-    setDirty(true);
     changeValue(eventValue);
   };
 
