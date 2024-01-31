@@ -187,9 +187,14 @@ export function CellComponent(props: CellComponentProps) {
   return <CellComponentStyled as={containerType} {...props} />;
 }
 
-export function ContentCell({ children, className, ...props }: CellComponentProps) {
+export function ContentCell({
+  children,
+  cellClassName,
+  className,
+  ...props
+}: CellComponentProps & { cellClassName?: string }) {
   return (
-    <CellComponent {...props}>
+    <CellComponent className={cellClassName} {...props}>
       <div
         className={classNames('sw-text-left sw-justify-start sw-flex sw-items-center', className)}
       >

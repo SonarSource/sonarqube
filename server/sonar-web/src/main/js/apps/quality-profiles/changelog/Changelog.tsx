@@ -85,7 +85,8 @@ export default function Changelog(props: Props) {
     return (
       <TableRowInteractive key={index}>
         <ContentCell
-          className={classNames('sw-align-top', { 'sw-border-transparent': !shouldDisplayDate })}
+          cellClassName={classNames({ 'sw-border-transparent': !shouldDisplayDate })}
+          className={classNames('sw-align-top')}
         >
           {shouldDisplayDate && (
             <div>
@@ -110,17 +111,15 @@ export default function Changelog(props: Props) {
         </ContentCell>
 
         <ContentCell
-          className={classNames('sw-whitespace-nowrap sw-align-top sw-max-w-[120px]', {
-            'sw-border-transparent': !shouldDisplayDate,
-          })}
+          cellClassName={classNames({ 'sw-border-transparent': !shouldDisplayDate })}
+          className={classNames('sw-whitespace-nowrap sw-align-top sw-max-w-[120px]')}
         >
           {shouldDisplayAuthor && (event.authorName ? event.authorName : <Note>System</Note>)}
         </ContentCell>
 
         <ContentCell
-          className={classNames('sw-whitespace-nowrap sw-align-top', {
-            'sw-border-transparent': !shouldDisplayDate,
-          })}
+          cellClassName={classNames({ 'sw-border-transparent': !shouldDisplayDate })}
+          className={classNames('sw-whitespace-nowrap sw-align-top')}
         >
           {shouldDisplayAction &&
             intl.formatMessage({ id: `quality_profiles.changelog.${event.action}` })}
@@ -143,9 +142,8 @@ export default function Changelog(props: Props) {
         </CellComponent>
 
         <ContentCell
-          className={classNames('sw-align-top sw-max-w-[400px]', {
-            'sw-border-transparent': !shouldDisplayDate,
-          })}
+          cellClassName={classNames({ 'sw-border-transparent': !shouldDisplayDate })}
+          className={classNames('sw-align-top sw-max-w-[400px]')}
         >
           {event.params && <ChangesList changes={event.params} />}
         </ContentCell>
