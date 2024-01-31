@@ -82,6 +82,13 @@ public abstract class IssueChangesEmailTemplate implements EmailTemplate {
   }
 
   /**
+   * Used to build the subject for the email
+   */
+  protected static String toSubject(Project project) {
+    return project.getProjectName() + project.getBranchName().map(branchName -> " (" + branchName + ")").orElse("");
+  }
+
+  /**
    * Adds "projectName" or "projectName, branchName" if branchName is non null
    */
   protected static void toString(StringBuilder sb, Project project) {
