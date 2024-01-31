@@ -25,11 +25,13 @@ import java.util.Optional;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.mockito.Mockito;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.ReportComponent;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolderRule;
+import org.sonar.ce.task.projectanalysis.issue.TrackerTargetBranchInputFactory;
 import org.sonar.ce.task.projectanalysis.issue.fixedissues.PullRequestFixedIssueRepository;
 import org.sonar.ce.task.projectanalysis.measure.Measure;
 import org.sonar.ce.task.projectanalysis.measure.MeasureAssert;
@@ -55,13 +57,16 @@ public class PullRequestFixedIssuesMeasureStepTest {
   private final PullRequestFixedIssueRepository pullRequestFixedIssueRepository = mock(PullRequestFixedIssueRepository.class);
   private final AnalysisMetadataHolder analysisMetadataHolder = mock(AnalysisMetadataHolder.class);
 
+  private final TrackerTargetBranchInputFactory targetBranchInputFactory = mock(TrackerTargetBranchInputFactory.class);
+
   private final PullRequestFixedIssuesMeasureStep underTest = new PullRequestFixedIssuesMeasureStep(treeRootHolder, metricRepository,
-    measureRepository, pullRequestFixedIssueRepository, analysisMetadataHolder);
+    measureRepository, pullRequestFixedIssueRepository, analysisMetadataHolder, targetBranchInputFactory);
 
   @Before
   public void setUp() throws Exception {
     treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, ROOT_REF).build());
     metricRepository.add(CoreMetrics.PULL_REQUEST_FIXED_ISSUES);
+    Mockito.when(targetBranchInputFactory.hasTargetBranchAnalysis()).thenReturn(true);
   }
 
   @Test
@@ -79,6 +84,16 @@ public class PullRequestFixedIssuesMeasureStepTest {
   @Test
   public void execute_whenComponentIsNotPullRequest_shouldNotCreateMeasure() {
     when(analysisMetadataHolder.isPullRequest()).thenReturn(false);
+
+    underTest.execute(new TestComputationStepContext());
+
+    assertThat(measureRepository.getAddedRawMeasures(ROOT_REF)).isEmpty();
+  }
+
+  @Test
+  public void execute_whenPRHasNoTargetBranchAnalysis_shouldNotCreateMeasure() {
+    when(analysisMetadataHolder.isPullRequest()).thenReturn(true);
+    when(targetBranchInputFactory.hasTargetBranchAnalysis()).thenReturn(false);
 
     underTest.execute(new TestComputationStepContext());
 

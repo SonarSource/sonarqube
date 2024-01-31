@@ -22,6 +22,7 @@ package org.sonar.ce.task.projectanalysis.step;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolder;
+import org.sonar.ce.task.projectanalysis.issue.TrackerTargetBranchInputFactory;
 import org.sonar.ce.task.projectanalysis.issue.fixedissues.PullRequestFixedIssueRepository;
 import org.sonar.ce.task.projectanalysis.measure.Measure;
 import org.sonar.ce.task.projectanalysis.measure.MeasureRepository;
@@ -39,21 +40,24 @@ public class PullRequestFixedIssuesMeasureStep implements ComputationStep {
   private final MeasureRepository measureRepository;
   private final PullRequestFixedIssueRepository pullRequestFixedIssueRepository;
   private final AnalysisMetadataHolder analysisMetadataHolder;
+  private final TrackerTargetBranchInputFactory targetInputFactory;
 
   public PullRequestFixedIssuesMeasureStep(TreeRootHolder treeRootHolder, MetricRepository metricRepository,
-                                           MeasureRepository measureRepository,
-                                           PullRequestFixedIssueRepository pullRequestFixedIssueRepository,
-                                           AnalysisMetadataHolder analysisMetadataHolder) {
+    MeasureRepository measureRepository,
+    PullRequestFixedIssueRepository pullRequestFixedIssueRepository,
+    AnalysisMetadataHolder analysisMetadataHolder,
+    TrackerTargetBranchInputFactory targetInputFactory) {
     this.treeRootHolder = treeRootHolder;
     this.metricRepository = metricRepository;
     this.measureRepository = measureRepository;
     this.pullRequestFixedIssueRepository = pullRequestFixedIssueRepository;
     this.analysisMetadataHolder = analysisMetadataHolder;
+    this.targetInputFactory = targetInputFactory;
   }
 
   @Override
   public void execute(Context context) {
-    if (analysisMetadataHolder.isPullRequest()) {
+    if (analysisMetadataHolder.isPullRequest() && targetInputFactory.hasTargetBranchAnalysis()) {
       int fixedIssuesCount = pullRequestFixedIssueRepository.getFixedIssues().size();
       measureRepository.add(treeRootHolder.getRoot(), metricRepository.getByKey(CoreMetrics.PULL_REQUEST_FIXED_ISSUES_KEY),
         Measure.newMeasureBuilder().create(fixedIssuesCount));
