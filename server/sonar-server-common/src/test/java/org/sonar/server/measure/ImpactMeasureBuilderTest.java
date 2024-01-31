@@ -121,7 +121,8 @@ public class ImpactMeasureBuilderTest {
   @Test
   public void add_whenOtherMapHasMissingField_shouldThrowException() {
     ImpactMeasureBuilder impactMeasureBuilder = ImpactMeasureBuilder.newInstance();
-    assertThatThrownBy(() -> impactMeasureBuilder.add(ImpactMeasureBuilder.newInstance()))
+    ImpactMeasureBuilder otherBuilder = ImpactMeasureBuilder.newInstance();
+    assertThatThrownBy(() -> impactMeasureBuilder.add(otherBuilder))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("Map must contain a total key");
   }
