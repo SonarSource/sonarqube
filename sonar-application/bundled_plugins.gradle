@@ -14,7 +14,6 @@ dependencies {
     bundledPlugin "org.sonarsource.slang:sonar-ruby-plugin"
     bundledPlugin "org.sonarsource.slang:sonar-scala-plugin"
     bundledPlugin 'org.sonarsource.xml:sonar-xml-plugin'
-    bundledPlugin 'org.sonarsource.config:sonar-config-plugin'
     bundledPlugin 'org.sonarsource.iac:sonar-iac-plugin'
     bundledPlugin 'org.sonarsource.text:sonar-text-plugin'
 }
