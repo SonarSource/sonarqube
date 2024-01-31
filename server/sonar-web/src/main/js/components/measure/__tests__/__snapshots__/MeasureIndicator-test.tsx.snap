@@ -25,3 +25,83 @@ exports[`renders correctly for coverage 1`] = `
   </g>
 </svg>
 `;
+
+exports[`renders correctly for failed quality gate 1`] = `
+<body>
+  <div>
+    <div
+      aria-label="overview.quality_gate_x.ERROR"
+      class="sw-flex sw-justify-center sw-items-center"
+    >
+      <svg
+        class="sw-mr-2"
+        fill="none"
+        height="1rem"
+        role="status"
+        width="1rem"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <rect
+          fill="rgb(254,205,202)"
+          height="1rem"
+          rx="2"
+          width="1rem"
+        />
+        <path
+          d="m10.227 5 .871.871-5.227 5.227L5 10.227z"
+          fill="rgb(128,27,20)"
+        />
+        <path
+          d="m11.098 10.227-.871.87L5 5.872 5.87 5z"
+          fill="rgb(128,27,20)"
+        />
+      </svg>
+    </div>
+    <span
+      class=""
+    >
+      ERROR
+    </span>
+  </div>
+</body>
+`;
+
+exports[`renders correctly for passed quality gate 1`] = `
+<body>
+  <div>
+    <div
+      aria-label="overview.quality_gate_x.OK"
+      class="sw-flex sw-justify-center sw-items-center"
+    >
+      <svg
+        class="sw-mr-2"
+        fill="none"
+        height="1.5rem"
+        role="status"
+        width="1.5rem"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <rect
+          fill="rgb(209,250,223)"
+          height="1.5rem"
+          rx="2"
+          width="1.5rem"
+        />
+        <path
+          d="m16.95 7.5 1.308 1.307-7.84 7.84-1.308-1.306z"
+          fill="rgb(5,96,58)"
+        />
+        <path
+          d="m11.79 15.34-1.307 1.307-4.484-4.483 1.307-1.306z"
+          fill="rgb(5,96,58)"
+        />
+      </svg>
+    </div>
+    <span
+      class="sw-body-md"
+    >
+      OK
+    </span>
+  </div>
+</body>
+`;

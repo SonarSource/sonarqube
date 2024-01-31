@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import classNames from 'classnames';
-import { Highlight, Link, MetricsLabel, MetricsRatingBadge } from 'design-system';
+import { Link, MetricsLabel, MetricsRatingBadge } from 'design-system';
 import * as React from 'react';
 import LanguageDistribution from '../../../components/charts/LanguageDistribution';
 import Tooltip from '../../../components/controls/Tooltip';
@@ -58,36 +58,39 @@ export default function MeasureHeader(props: Props) {
       <div className="sw-flex sw-items-center sw-justify-between sw-gap-4">
         <div className="it__measure-details-metric sw-flex sw-items-center sw-gap-1">
           <strong className="sw-body-md-highlight">{getLocalizedMetricName(metric)}</strong>
-          <Measure
-            className={classNames('it__measure-details-value sw-body-md')}
-            metricKey={metric.key}
-            metricType={metric.type}
-            value={measureValue}
-            ratingComponent={
-              <MetricsRatingBadge
-                label={
-                  measureValue
-                    ? translateWithParameters(
-                        'metric.has_rating_X',
-                        formatMeasure(measureValue, MetricType.Rating),
-                      )
-                    : translate('metric.no_rating')
-                }
-                rating={formatMeasure(measureValue, MetricType.Rating) as MetricsLabel}
-              />
-            }
-          />
+
+          <div className="sw-flex sw-items-center sw-ml-2">
+            <Measure
+              className={classNames('it__measure-details-value sw-body-md')}
+              metricKey={metric.key}
+              metricType={metric.type}
+              value={measureValue}
+              ratingComponent={
+                <MetricsRatingBadge
+                  label={
+                    measureValue
+                      ? translateWithParameters(
+                          'metric.has_rating_X',
+                          formatMeasure(measureValue, MetricType.Rating),
+                        )
+                      : translate('metric.no_rating')
+                  }
+                  rating={formatMeasure(measureValue, MetricType.Rating) as MetricsLabel}
+                />
+              }
+            />
+          </div>
 
           {!isDiff && hasHistory && (
             <Tooltip overlay={translate('component_measures.show_metric_history')}>
-              <Highlight>
+              <span className="sw-ml-4">
                 <Link
-                  className="it__show-history-link  sw-font-semibold sw-ml-4"
+                  className="it__show-history-link sw-font-semibold"
                   to={getMeasureHistoryUrl(component.key, metric.key, branchLike)}
                 >
                   {translate('component_measures.see_metric_history')}
                 </Link>
-              </Highlight>
+              </span>
             </Tooltip>
           )}
         </div>

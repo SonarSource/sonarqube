@@ -17,12 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { QualityGateIndicator } from 'design-system';
 import * as React from 'react';
 import Tooltip from '../../components/controls/Tooltip';
-import Level from '../../components/ui/Level';
 import Rating from '../../components/ui/Rating';
+import { translateWithParameters } from '../../helpers/l10n';
 import { formatMeasure } from '../../helpers/measures';
 import { MetricType } from '../../types/metrics';
+import { Status } from '../../types/types';
 import RatingTooltipContent from './RatingTooltipContent';
 
 interface Props {
@@ -49,7 +51,20 @@ export default function Measure({
   }
 
   if (metricType === MetricType.Level) {
-    return <Level className={className} level={value?.toString()} small={small} />;
+    const formatted = formatMeasure(value, MetricType.Level);
+    const ariaLabel = translateWithParameters('overview.quality_gate_x', formatted);
+
+    return (
+      <>
+        <QualityGateIndicator
+          status={(value as Status) ?? 'NONE'}
+          className="sw-mr-2"
+          ariaLabel={ariaLabel}
+          size={small ? 'sm' : 'md'}
+        />
+        <span className={small ? '' : 'sw-body-md'}>{formatted}</span>
+      </>
+    );
   }
 
   if (metricType !== MetricType.Rating) {

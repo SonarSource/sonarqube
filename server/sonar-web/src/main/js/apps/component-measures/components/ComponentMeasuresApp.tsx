@@ -280,7 +280,7 @@ class ComponentMeasuresApp extends React.PureComponent<Props, State> {
       <LargeCenteredLayout id="component-measures" className="sw-pt-8">
         <Suggestions suggestions="component_measures" />
         <Helmet defer={false} title={translate('layout.measures')} />
-        <PageContentFontWrapper>
+        <PageContentFontWrapper className="sw-body-sm">
           <Spinner className="my-10 sw-flex sw-content-center" loading={this.state.loading} />
 
           {measures.length > 0 ? (

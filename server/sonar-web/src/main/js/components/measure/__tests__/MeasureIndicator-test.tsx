@@ -19,6 +19,7 @@
  */
 import { render, screen } from '@testing-library/react';
 import * as React from 'react';
+import { Status } from '../../../apps/overview/utils';
 import { MetricKey, MetricType } from '../../../types/metrics';
 import MeasureIndicator from '../MeasureIndicator';
 
@@ -31,4 +32,27 @@ it('renders correctly for coverage', () => {
     />,
   );
   expect(screen.getByRole('img')).toMatchSnapshot();
+});
+
+it('renders correctly for failed quality gate', () => {
+  const wrapper = render(
+    <MeasureIndicator
+      metricKey={MetricKey.alert_status}
+      metricType={MetricType.Level}
+      small
+      value={Status.ERROR}
+    />,
+  );
+  expect(wrapper.baseElement).toMatchSnapshot();
+});
+
+it('renders correctly for passed quality gate', () => {
+  const wrapper = render(
+    <MeasureIndicator
+      metricKey={MetricKey.alert_status}
+      metricType={MetricType.Level}
+      value={Status.OK}
+    />,
+  );
+  expect(wrapper.baseElement).toMatchSnapshot();
 });

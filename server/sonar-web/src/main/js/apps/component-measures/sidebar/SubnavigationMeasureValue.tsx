@@ -53,6 +53,7 @@ export default function SubnavigationMeasureValue({ measure }: Props) {
         }
         metricKey={measure.metric.key}
         metricType={measure.metric.type}
+        small
         value={value}
       />
     </Note>
