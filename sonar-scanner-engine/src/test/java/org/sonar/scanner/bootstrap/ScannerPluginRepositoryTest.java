@@ -69,6 +69,7 @@ public class ScannerPluginRepositoryTest {
       .thenReturn(ImmutableMap.of("squid", squidInstance))
       .thenReturn(ImmutableMap.of("java", javaInstance));
 
+    when(properties.getBoolean(PLUGIN_LOADING_OPTIMIZATION_KEY)).thenReturn(Optional.of(true));
     when(installer.installRequiredPlugins()).thenReturn(globalPlugins);
     when(installer.installPluginsForLanguages(anySet())).thenReturn(languagePlugins);
 

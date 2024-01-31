@@ -46,6 +46,7 @@ import org.sonar.xoo.rule.XooRulesDefinition;
 import static java.util.Collections.emptySet;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
+import static org.sonar.core.config.ScannerProperties.PLUGIN_LOADING_OPTIMIZATION_KEY;
 
 public class IssuesMediumIT {
 
@@ -284,6 +285,7 @@ public class IssuesMediumIT {
         .put("sonar.issue.ignore.multicriteria", "1")
         .put("sonar.issue.ignore.multicriteria.1.ruleKey", "*")
         .put("sonar.issue.ignore.multicriteria.1.resourceKey", "*")
+        .put(PLUGIN_LOADING_OPTIMIZATION_KEY, "true")
         .build())
       .execute();
 
@@ -299,6 +301,7 @@ public class IssuesMediumIT {
         .put("moduleA.sonar.issue.ignore.multicriteria", "1")
         .put("moduleA.sonar.issue.ignore.multicriteria.1.ruleKey", "*")
         .put("moduleA.sonar.issue.ignore.multicriteria.1.resourceKey", "*")
+        .put(PLUGIN_LOADING_OPTIMIZATION_KEY, "true")
         .build())
       .execute();
 
@@ -326,6 +329,7 @@ public class IssuesMediumIT {
         .put("moduleA.sonar.issue.ignore.multicriteria", "1")
         .put("moduleA.sonar.issue.ignore.multicriteria.1.ruleKey", "*")
         .put("moduleA.sonar.issue.ignore.multicriteria.1.resourceKey", "*")
+        .put(PLUGIN_LOADING_OPTIMIZATION_KEY, "true")
         .build())
       .execute();
 

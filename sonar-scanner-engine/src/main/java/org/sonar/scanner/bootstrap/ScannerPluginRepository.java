@@ -68,7 +68,7 @@ public class ScannerPluginRepository implements PluginRepository, Startable {
 
   @Override
   public void start() {
-    shouldLoadOnlyRequiredPluginsOnStart = properties.getBoolean(PLUGIN_LOADING_OPTIMIZATION_KEY).orElse(true);
+    shouldLoadOnlyRequiredPluginsOnStart = properties.getBoolean(PLUGIN_LOADING_OPTIMIZATION_KEY).orElse(false);
     if (!shouldLoadOnlyRequiredPluginsOnStart) {
       LOG.warn("{} is false, so ALL available plugins will be downloaded", PLUGIN_LOADING_OPTIMIZATION_KEY);
       pluginsByKeys = new HashMap<>(installer.installAllPlugins());

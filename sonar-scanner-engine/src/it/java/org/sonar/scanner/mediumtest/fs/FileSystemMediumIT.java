@@ -28,6 +28,7 @@ import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import org.apache.commons.io.FileUtils;
@@ -64,6 +65,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.junit.Assume.assumeFalse;
 import static org.junit.Assume.assumeTrue;
+import static org.sonar.core.config.ScannerProperties.PLUGIN_LOADING_OPTIMIZATION_KEY;
 
 public class FileSystemMediumIT {
 
@@ -1264,6 +1266,7 @@ public class FileSystemMediumIT {
     File projectDir = new File("test-resources/mediumtest/xoo/sample-with-input-file-filters");
     AnalysisResult result = tester
       .newAnalysis(new File(projectDir, "sonar-project.properties"))
+      .properties(Map.of(PLUGIN_LOADING_OPTIMIZATION_KEY, "true"))
       .execute();
 
     assertThat(result.inputFiles()).hasSize(1);
