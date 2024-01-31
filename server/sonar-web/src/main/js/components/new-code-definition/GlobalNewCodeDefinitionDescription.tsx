@@ -17,6 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { TextSubdued } from 'design-system';
 import * as React from 'react';
 import { translate, translateWithParameters } from '../../helpers/l10n';
 import { NewCodeDefinition, NewCodeDefinitionType } from '../../types/new-code-definition';
@@ -29,11 +31,13 @@ export default function GlobalNewCodeDefinitionDescription({ globalNcd }: Readon
   let setting: string;
   let description: string;
   let useCase: string;
+
   if (globalNcd.type === NewCodeDefinitionType.NumberOfDays) {
     setting = `${translate('new_code_definition.number_days')} (${translateWithParameters(
       'duration.days',
       globalNcd.value ?? '?',
     )})`;
+
     description = translate('new_code_definition.number_days.description');
     useCase = translate('new_code_definition.number_days.usecase');
   } else {
@@ -44,9 +48,17 @@ export default function GlobalNewCodeDefinitionDescription({ globalNcd }: Readon
 
   return (
     <div className="sw-flex sw-flex-col sw-gap-2 sw-max-w-[800px]">
-      <strong className="sw-font-bold">{setting}</strong>
-      <span>{description}</span>
-      <span>{useCase}</span>
+      <TextSubdued>
+        <strong className="sw-font-bold">{setting}</strong>
+      </TextSubdued>
+
+      <TextSubdued>
+        <span>{description}</span>
+      </TextSubdued>
+
+      <TextSubdued>
+        <span>{useCase}</span>
+      </TextSubdued>
     </div>
   );
 }

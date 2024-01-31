@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { ButtonPrimary, ButtonSecondary, FlagMessage, RadioButton, Spinner } from 'design-system';
 import { noop } from 'lodash';
 import * as React from 'react';
@@ -34,26 +35,26 @@ import NewCodeDefinitionSettingReferenceBranch from './NewCodeDefinitionSettingR
 export interface ProjectBaselineSelectorProps {
   analysis?: string;
   branch?: Branch;
-  branchList: Branch[];
   branchesEnabled?: boolean;
+  branchList: Branch[];
   component: string;
-  newCodeDefinitionType?: NewCodeDefinitionType;
-  newCodeDefinitionValue?: string;
-  previousNonCompliantValue?: string;
-  projectNcdUpdatedAt?: number;
   days: string;
   globalNewCodeDefinition: NewCodeDefinition;
   isChanged: boolean;
+  newCodeDefinitionType?: NewCodeDefinitionType;
+  newCodeDefinitionValue?: string;
   onCancel: () => void;
   onSelectDays: (value: string) => void;
   onSelectReferenceBranch: (value: string) => void;
   onSelectSetting: (value: NewCodeDefinitionType) => void;
   onSubmit: (e: React.SyntheticEvent<HTMLFormElement>) => void;
   onToggleSpecificSetting: (selection: boolean) => void;
+  overrideGlobalNewCodeDefinition: boolean;
+  previousNonCompliantValue?: string;
+  projectNcdUpdatedAt?: number;
   referenceBranch?: string;
   saving: boolean;
   selectedNewCodeDefinitionType?: NewCodeDefinitionType;
-  overrideGlobalNewCodeDefinition: boolean;
 }
 
 function branchToOption(b: Branch) {
@@ -66,17 +67,17 @@ export default function ProjectNewCodeDefinitionSelector(
   const {
     analysis,
     branch,
-    branchList,
     branchesEnabled,
+    branchList,
     component,
-    newCodeDefinitionType,
-    newCodeDefinitionValue,
-    previousNonCompliantValue,
-    projectNcdUpdatedAt,
     days,
     globalNewCodeDefinition,
     isChanged,
+    newCodeDefinitionType,
+    newCodeDefinitionValue,
     overrideGlobalNewCodeDefinition,
+    previousNonCompliantValue,
+    projectNcdUpdatedAt,
     referenceBranch,
     saving,
     selectedNewCodeDefinitionType,
@@ -105,7 +106,7 @@ export default function ProjectNewCodeDefinitionSelector(
           <span>{translate('project_baseline.global_setting')}</span>
         </RadioButton>
 
-        <div className="sw-ml-4">
+        <div className="sw-ml-6">
           <GlobalNewCodeDefinitionDescription globalNcd={globalNewCodeDefinition} />
         </div>
 
@@ -128,26 +129,28 @@ export default function ProjectNewCodeDefinitionSelector(
             selectedNewCodeDefinitionType === NewCodeDefinitionType.PreviousVersion
           }
         />
+
         <NewCodeDefinitionDaysOption
-          days={days}
           currentDaysValue={
             newCodeDefinitionType === NewCodeDefinitionType.NumberOfDays
               ? newCodeDefinitionValue
               : undefined
           }
-          previousNonCompliantValue={previousNonCompliantValue}
-          updatedAt={projectNcdUpdatedAt}
+          days={days}
           disabled={!overrideGlobalNewCodeDefinition}
           isChanged={isChanged}
           isValid={isValid}
           onChangeDays={props.onSelectDays}
           onSelect={props.onSelectSetting}
+          previousNonCompliantValue={previousNonCompliantValue}
           selected={
             overrideGlobalNewCodeDefinition &&
             selectedNewCodeDefinitionType === NewCodeDefinitionType.NumberOfDays
           }
           settingLevel={NewCodeDefinitionLevels.Project}
+          updatedAt={projectNcdUpdatedAt}
         />
+
         {branchesEnabled && (
           <NewCodeDefinitionSettingReferenceBranch
             branchList={branchList.map(branchToOption)}
@@ -162,12 +165,13 @@ export default function ProjectNewCodeDefinitionSelector(
             settingLevel={NewCodeDefinitionLevels.Project}
           />
         )}
+
         {!branchesEnabled && newCodeDefinitionType === NewCodeDefinitionType.SpecificAnalysis && (
           <NewCodeDefinitionSettingAnalysis
-            onSelect={noop}
             analysis={analysis ?? ''}
             branch={branch.name}
             component={component}
+            onSelect={noop}
             selected={
               overrideGlobalNewCodeDefinition &&
               selectedNewCodeDefinitionType === NewCodeDefinitionType.SpecificAnalysis
@@ -175,16 +179,19 @@ export default function ProjectNewCodeDefinitionSelector(
           />
         )}
       </div>
+
       <div className="sw-mt-4">
         {isChanged && (
           <FlagMessage variant="info" className="sw-mb-4">
             {translate('baseline.next_analysis_notice')}
           </FlagMessage>
         )}
+
         <div className="sw-flex sw-items-center">
           <ButtonPrimary type="submit" disabled={!isValid || !isChanged || saving}>
             {translate('save')}
           </ButtonPrimary>
+
           <ButtonSecondary
             className="sw-ml-2"
             disabled={saving || !isChanged}
@@ -192,6 +199,7 @@ export default function ProjectNewCodeDefinitionSelector(
           >
             {translate('cancel')}
           </ButtonSecondary>
+
           <Spinner className="sw-ml-2" loading={saving} />
         </div>
       </div>

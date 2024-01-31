@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { HeadingDark, LargeCenteredLayout, PageContentFontWrapper, Spinner } from 'design-system';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
@@ -61,6 +62,7 @@ function ProjectNewCodeDefinitionApp(props: Readonly<ProjectNewCodeDefinitionApp
   const [numberOfDays, setNumberOfDays] = useState(getNumberOfDaysDefaultValue());
   const [referenceBranch, setReferenceBranch] = useState<string | undefined>(undefined);
   const [specificAnalysis, setSpecificAnalysis] = useState<string | undefined>(undefined);
+
   const [selectedNewCodeDefinitionType, setSelectedNewCodeDefinitionType] =
     useState<NewCodeDefinitionType>(DEFAULT_NEW_CODE_DEFINITION_TYPE);
 
@@ -68,6 +70,7 @@ function ProjectNewCodeDefinitionApp(props: Readonly<ProjectNewCodeDefinitionApp
     data: globalNewCodeDefinition = { type: DEFAULT_NEW_CODE_DEFINITION_TYPE },
     isLoading: isGlobalNCDLoading,
   } = useNewCodeDefinitionQuery();
+
   const { data: projectNewCodeDefinition, isLoading: isProjectNCDLoading } =
     useNewCodeDefinitionQuery({
       branchName: hasFeature(Feature.BranchSupport) ? undefined : branchLike?.name,
@@ -78,10 +81,12 @@ function ProjectNewCodeDefinitionApp(props: Readonly<ProjectNewCodeDefinitionApp
   const branchList = useMemo(() => {
     return sortBranches(branchLikes.filter(isBranch));
   }, [branchLikes]);
+
   const isFormTouched = useMemo(() => {
     if (isSpecificNewCodeDefinition === undefined) {
       return false;
     }
+
     if (isSpecificNewCodeDefinition !== !projectNewCodeDefinition?.inherited) {
       return true;
     }
@@ -97,10 +102,13 @@ function ProjectNewCodeDefinitionApp(props: Readonly<ProjectNewCodeDefinitionApp
     switch (selectedNewCodeDefinitionType) {
       case NewCodeDefinitionType.NumberOfDays:
         return numberOfDays !== String(projectNewCodeDefinition?.value);
+
       case NewCodeDefinitionType.ReferenceBranch:
         return referenceBranch !== projectNewCodeDefinition?.value;
+
       case NewCodeDefinitionType.SpecificAnalysis:
         return specificAnalysis !== projectNewCodeDefinition?.value;
+
       default:
         return false;
     }
@@ -121,15 +129,19 @@ function ProjectNewCodeDefinitionApp(props: Readonly<ProjectNewCodeDefinitionApp
     setIsSpecificNewCodeDefinition(
       projectNewCodeDefinition === undefined ? undefined : !projectNewCodeDefinition.inherited,
     );
+
     setSelectedNewCodeDefinitionType(
       projectNewCodeDefinition?.type ?? DEFAULT_NEW_CODE_DEFINITION_TYPE,
     );
+
     setNumberOfDays(getNumberOfDaysDefaultValue(globalNewCodeDefinition, projectNewCodeDefinition));
+
     setReferenceBranch(
       projectNewCodeDefinition?.type === NewCodeDefinitionType.ReferenceBranch
         ? projectNewCodeDefinition.value
         : defaultReferenceBranch,
     );
+
     setSpecificAnalysis(
       projectNewCodeDefinition?.type === NewCodeDefinitionType.SpecificAnalysis
         ? projectNewCodeDefinition.value
@@ -180,19 +192,16 @@ function ProjectNewCodeDefinitionApp(props: Readonly<ProjectNewCodeDefinitionApp
   return (
     <LargeCenteredLayout id="new-code-rules-page">
       <Suggestions suggestions="project_baseline" />
+
       <Helmet defer={false} title={translate('project_baseline.page')} />
+
       <PageContentFontWrapper className="sw-my-8 sw-body-sm">
         <AppHeader canAdmin={!!appState.canAdmin} />
+
         <Spinner loading={isLoading} />
 
         {!isLoading && (
           <div className="it__project-baseline">
-            {branchSupportEnabled && (
-              <HeadingDark as="h3" className="sw-mt-4">
-                {translate('project_baseline.default_setting')}
-              </HeadingDark>
-            )}
-
             {globalNewCodeDefinition && isSpecificNewCodeDefinition !== undefined && (
               <ProjectNewCodeDefinitionSelector
                 analysis={specificAnalysis}
@@ -225,6 +234,7 @@ function ProjectNewCodeDefinitionApp(props: Readonly<ProjectNewCodeDefinitionApp
                 <HeadingDark as="h3" className="sw-mb-4">
                   {translate('project_baseline.configure_branches')}
                 </HeadingDark>
+
                 <BranchList
                   branchList={branchList}
                   component={component}

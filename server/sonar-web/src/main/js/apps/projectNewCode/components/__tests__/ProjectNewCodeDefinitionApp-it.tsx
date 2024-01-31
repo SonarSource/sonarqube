@@ -66,8 +66,6 @@ it('renders correctly without branch support feature', async () => {
   // User is not admin
   expect(ui.generalSettingsLink.query()).not.toBeInTheDocument();
 
-  // Specific branch setting is not rendered without feature branch
-  expect(ui.branchListHeading.query()).not.toBeInTheDocument();
   expect(ui.referenceBranchRadio.query()).not.toBeInTheDocument();
 });
 
@@ -85,8 +83,6 @@ it('renders correctly with branch support feature', async () => {
   // User is admin
   expect(ui.generalSettingsLink.get()).toBeInTheDocument();
 
-  // Specific branch setting is rendered with feature support branch
-  expect(ui.branchListHeading.get()).toBeInTheDocument();
   expect(ui.referenceBranchRadio.get()).toBeInTheDocument();
 });
 
@@ -381,7 +377,6 @@ function getPageObjects() {
   const ui = {
     pageHeading: byRole('heading', { name: 'project_baseline.page' }),
     branchTableHeading: byText('branch_list.branch'),
-    branchListHeading: byRole('heading', { name: 'project_baseline.default_setting' }),
     generalSettingsLink: byRole('link', { name: 'project_baseline.page.description2.link' }),
     generalSettingRadio: byRole('radio', { name: 'project_baseline.global_setting' }),
     specificSettingRadio: byRole('radio', { name: 'project_baseline.specific_setting' }),
