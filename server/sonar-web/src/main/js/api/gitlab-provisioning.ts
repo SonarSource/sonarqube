@@ -44,6 +44,7 @@ export function createGitLabConfiguration(
   return axios.post(GITLAB_CONFIGURATIONS, {
     ...data,
     provisioningType: ProvisioningType.jit,
+    allowedGroups: [],
     allowUsersToSignUp: false,
     enabled: true,
   });

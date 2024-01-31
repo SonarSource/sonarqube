@@ -97,7 +97,6 @@ export interface GitLabConfigurationCreateBody {
   url: string;
   secret: string;
   synchronizeGroups: boolean;
-  allowedGroups: string[];
 }
 
 export type GitLabConfigurationUpdateBody = {

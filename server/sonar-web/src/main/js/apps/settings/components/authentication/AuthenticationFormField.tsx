@@ -37,10 +37,11 @@ interface Props {
   onFieldChange: (key: string, value: string | boolean | string[]) => void;
   isNotSet: boolean;
   error?: string;
+  className?: string;
 }
 
 export default function AuthenticationFormField(props: Readonly<Props>) {
-  const { mandatory = false, definition, settingValue, isNotSet, error } = props;
+  const { mandatory = false, definition, settingValue, isNotSet, error, className } = props;
 
   const intl = useIntl();
 
@@ -75,6 +76,7 @@ export default function AuthenticationFormField(props: Readonly<Props>) {
 
   return (
     <FormField
+      className={className}
       htmlFor={definition.key}
       ariaLabel={name}
       label={name}

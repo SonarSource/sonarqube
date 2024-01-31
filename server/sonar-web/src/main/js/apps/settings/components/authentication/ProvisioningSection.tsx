@@ -23,6 +23,7 @@ import {
   ButtonSecondary,
   FlagMessage,
   RadioButton,
+  Spinner,
   SubHeading,
 } from 'design-system';
 import React, { FormEvent, ReactElement } from 'react';
@@ -30,6 +31,7 @@ import { translate } from '../../../../helpers/l10n';
 import { ProvisioningType } from '../../../../types/provisioning';
 
 interface Props {
+  isLoading?: boolean;
   provisioningType: ProvisioningType;
   onChangeProvisioningType: (val: ProvisioningType) => void;
   disabledConfigText: string;
@@ -54,6 +56,7 @@ interface Props {
 
 export default function ProvisioningSection(props: Readonly<Props>) {
   const {
+    isLoading,
     provisioningType,
     jitTitle,
     jitDescription,
@@ -151,8 +154,10 @@ export default function ProvisioningSection(props: Readonly<Props>) {
               <ButtonSecondary onClick={onCancel} disabled={!hasUnsavedChanges}>
                 {translate('cancel')}
               </ButtonSecondary>
+              <Spinner loading={!!isLoading} />
               <FlagMessage variant="warning" className="sw-mb-0">
                 {hasUnsavedChanges &&
+                  !isLoading &&
                   translate('settings.authentication.github.configuration.unsaved_changes')}
               </FlagMessage>
             </div>

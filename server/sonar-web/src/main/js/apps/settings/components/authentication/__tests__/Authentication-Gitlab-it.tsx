@@ -154,8 +154,6 @@ it('should create a Gitlab configuration and disable it with proper validation',
   expect(ui.saveConfigButton.get()).toBeDisabled();
   await user.type(ui.url.get(), 'https://company.ui.com');
   await user.type(ui.secret.get(), '123');
-  expect(ui.saveConfigButton.get()).toBeDisabled();
-  await user.type(ui.groups.get(), 'NWA');
   expect(ui.saveConfigButton.get()).toBeEnabled();
   await user.click(ui.synchronizeGroups.get());
   await user.click(ui.saveConfigButton.get());
@@ -185,7 +183,6 @@ it('should edit a configuration with proper validation and delete it', async () 
   expect(ui.url.get()).toHaveValue('URL');
   expect(ui.applicationId.get()).toBeInTheDocument();
   expect(ui.secret.query()).not.toBeInTheDocument();
-  expect(ui.groups.get()).toHaveValue('Cypress Hill');
   expect(ui.synchronizeGroups.get()).toBeChecked();
 
   expect(ui.applicationId.get()).toBeInTheDocument();
@@ -198,15 +195,6 @@ it('should edit a configuration with proper validation and delete it', async () 
   await user.clear(ui.url.get());
   expect(ui.saveConfigButton.get()).toBeDisabled();
   await user.type(ui.url.get(), 'www.internet.com');
-  expect(ui.saveConfigButton.get()).toBeEnabled();
-
-  expect(ui.groups.get()).toHaveValue('Cypress Hill');
-  await user.click(ui.groups.get());
-  await user.click(ui.deleteGroupButton.get());
-  expect(ui.groups.get()).not.toHaveValue('Cypress Hill');
-  expect(ui.saveConfigButton.get()).toBeDisabled();
-  await user.click(ui.groups.get());
-  await user.type(ui.groups.get(), 'Run DMC');
   expect(ui.saveConfigButton.get()).toBeEnabled();
   await user.click(ui.saveConfigButton.get());
 
@@ -222,18 +210,68 @@ it('should edit a configuration with proper validation and delete it', async () 
   expect(ui.editConfigButton.query()).not.toBeInTheDocument();
 });
 
-it('should change from just-in-time to Auto Provisioning if auto was never set', async () => {
+it('should be able to save just-in-time with no organizations', async () => {
   const user = userEvent.setup();
+  renderAuthentication([Feature.GitlabProvisioning]);
+
+  expect(await ui.jitProvisioningRadioButton.find()).toBeChecked();
+
+  expect(ui.groups.get()).toHaveValue('Cypress Hill');
+  expect(await ui.saveProvisioning.find()).toBeDisabled();
+  await user.click(ui.deleteGroupButton.get());
+  expect(await ui.saveProvisioning.find()).toBeEnabled();
+});
+
+it('should not be able to save Auto provisioning with no organizations', async () => {
+  const user = userEvent.setup();
+  handler.setGitlabConfigurations([
+    mockGitlabConfiguration({
+      allowUsersToSignUp: false,
+      enabled: true,
+      provisioningType: ProvisioningType.auto,
+      allowedGroups: ['D12'],
+      isProvisioningTokenSet: true,
+    }),
+  ]);
+  renderAuthentication([Feature.GitlabProvisioning]);
+
+  expect(await ui.autoProvisioningRadioButton.find()).toBeChecked();
+
+  expect(ui.groups.get()).toHaveValue('D12');
+  expect(ui.saveProvisioning.get()).toBeDisabled();
+  await user.click(ui.deleteGroupButton.get());
+  expect(await ui.saveProvisioning.find()).toBeDisabled();
+});
+
+it('should change from just-in-time to Auto Provisioning if auto was never set before', async () => {
+  const user = userEvent.setup();
+  handler.setGitlabConfigurations([
+    mockGitlabConfiguration({
+      allowUsersToSignUp: false,
+      enabled: true,
+      provisioningType: ProvisioningType.jit,
+      allowedGroups: [],
+      isProvisioningTokenSet: false,
+    }),
+  ]);
   renderAuthentication([Feature.GitlabProvisioning]);
 
   expect(await ui.editConfigButton.find()).toBeInTheDocument();
   expect(ui.jitProvisioningRadioButton.get()).toBeChecked();
 
-  user.click(ui.autoProvisioningRadioButton.get());
+  await user.click(ui.autoProvisioningRadioButton.get());
   expect(await ui.autoProvisioningRadioButton.find()).toBeEnabled();
   expect(ui.saveProvisioning.get()).toBeDisabled();
 
   await user.type(ui.autoProvisioningToken.get(), 'JRR Tolkien');
+  expect(await ui.saveProvisioning.find()).toBeDisabled();
+
+  await user.type(ui.groups.get(), 'Run DMC');
+  expect(await ui.saveProvisioning.find()).toBeEnabled();
+  await user.click(ui.deleteGroupButton.get());
+  expect(await ui.saveProvisioning.find()).toBeDisabled();
+
+  await user.type(ui.groups.get(), 'Public Enemy');
   expect(await ui.saveProvisioning.find()).toBeEnabled();
 });
 
@@ -255,6 +293,13 @@ it('should change from just-in-time to Auto Provisioning if auto was set before'
 
   user.click(ui.autoProvisioningRadioButton.get());
   expect(await ui.autoProvisioningRadioButton.find()).toBeEnabled();
+  expect(await ui.saveProvisioning.find()).toBeEnabled();
+
+  expect(ui.groups.get()).toHaveValue('D12');
+  await user.click(ui.deleteGroupButton.get());
+  expect(await ui.saveProvisioning.find()).toBeDisabled();
+  await user.type(ui.groups.get(), 'Wu Tang Clan');
+
   expect(ui.saveProvisioning.get()).toBeEnabled();
 });
 

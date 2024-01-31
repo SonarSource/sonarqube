@@ -19,7 +19,7 @@
  */
 
 import { ButtonPrimary, FlagMessage, Modal, Spinner } from 'design-system';
-import { isArray, keyBy } from 'lodash';
+import { keyBy } from 'lodash';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import DocumentationLink from '../../../../components/common/DocumentationLink';
@@ -102,27 +102,12 @@ export default function GitLabConfigurationForm(props: Readonly<Props>) {
         type: SettingType.BOOLEAN,
       },
     },
-    allowedGroups: {
-      value: data?.allowedGroups ?? [],
-      required: true,
-      definition: {
-        name: translate('settings.authentication.gitlab.form.allowedGroups.name'),
-        secured: false,
-        key: 'allowedGroups',
-        description: translate('settings.authentication.gitlab.form.allowedGroups.description'),
-        multiValues: true,
-      },
-    },
   });
 
   const header = translate('settings.authentication.gitlab.form', isCreate ? 'create' : 'edit');
 
   const canBeSaved = Object.values(formData).every(({ definition, required, value }) => {
-    return (
-      (!isCreate && definition.secured) ||
-      !required ||
-      (isArray(value) ? value.some((val) => val !== '') : value !== '')
-    );
+    return (!isCreate && definition.secured) || !required || value !== '';
   });
 
   const handleSubmit = (event: React.SyntheticEvent<HTMLFormElement>) => {
