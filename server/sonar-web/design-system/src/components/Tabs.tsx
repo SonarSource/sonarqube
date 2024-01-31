@@ -111,7 +111,6 @@ const TabButton = styled(BareButton)<{ selected: boolean }>`
     background: ${themeColor('tabHover')};
   }
 
-  &:focus,
   &:active {
     outline: ${themeBorder('xsActive', 'tabSelected', OPACITY_20_PERCENT)};
     z-index: 1;
