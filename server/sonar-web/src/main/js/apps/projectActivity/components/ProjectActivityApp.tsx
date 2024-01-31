@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import * as React from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { getApplicationLeak } from '../../../api/application';
@@ -38,7 +39,7 @@ import {
   isCustomGraph,
 } from '../../../components/activity-graph/utils';
 import { Location, Router, withRouter } from '../../../components/hoc/withRouter';
-import { getBranchLikeQuery, isSameBranchLike } from '../../../helpers/branch-like';
+import { getBranchLikeQuery } from '../../../helpers/branch-like';
 import { HIDDEN_METRICS } from '../../../helpers/constants';
 import { parseDate } from '../../../helpers/dates';
 import { serializeStringArray } from '../../../helpers/query';
@@ -94,6 +95,7 @@ class ProjectActivityApp extends React.PureComponent<Props, State> {
 
   constructor(props: Props) {
     super(props);
+
     this.state = {
       analyses: [],
       analysesLoading: false,
@@ -117,15 +119,15 @@ class ProjectActivityApp extends React.PureComponent<Props, State> {
 
     const hasQueryChanged = prevProps.location.query !== unparsedQuery;
 
-    const hasBranchChanged = !isSameBranchLike(prevProps.branchLike, this.props.branchLike);
+    const wasBranchJustFetched = !!prevProps.isFetchingBranch && !this.props.isFetchingBranch;
 
-    if (this.isBranchReady() && (hasBranchChanged || hasQueryChanged)) {
+    if (this.isBranchReady() && (hasQueryChanged || wasBranchJustFetched)) {
       const query = parseQuery(unparsedQuery);
 
       if (
         query.graph !== this.state.query.graph ||
         customMetricsChanged(this.state.query, query) ||
-        hasBranchChanged
+        wasBranchJustFetched
       ) {
         if (this.state.initialized) {
           this.updateGraphData(query.graph || DEFAULT_GRAPH, query.customMetrics);
@@ -133,6 +135,7 @@ class ProjectActivityApp extends React.PureComponent<Props, State> {
           this.firstLoadData(query, this.props.component);
         }
       }
+
       this.setState({ query });
     }
   }
@@ -172,6 +175,7 @@ class ProjectActivityApp extends React.PureComponent<Props, State> {
           this.state.query.graph || DEFAULT_GRAPH,
           this.state.query.customMetrics,
         );
+
         this.setState(actions.deleteAnalysis(analysis));
       }
     });
@@ -199,11 +203,13 @@ class ProjectActivityApp extends React.PureComponent<Props, State> {
       ps,
       ...getBranchLikeQuery(this.props.branchLike),
     };
+
     return getProjectActivity({ ...additional, ...parameters }).then(({ analyses, paging }) => ({
       analyses: analyses.map((analysis) => ({
         ...analysis,
         date: parseDate(analysis.date),
       })) as ParsedAnalysis[],
+
       paging,
     }));
   };
@@ -212,6 +218,7 @@ class ProjectActivityApp extends React.PureComponent<Props, State> {
     if (metrics.length <= 0) {
       return Promise.resolve([]);
     }
+
     return getAllTimeMachineData({
       component: this.props.component.key,
       metrics: metrics.join(),
@@ -219,6 +226,7 @@ class ProjectActivityApp extends React.PureComponent<Props, State> {
     }).then(({ measures }) =>
       measures.map((measure) => ({
         metric: measure.metric,
+
         history: measure.history.map((analysis) => ({
           date: parseDate(analysis.date),
           value: analysis.value,
@@ -229,6 +237,7 @@ class ProjectActivityApp extends React.PureComponent<Props, State> {
 
   fetchAllActivities = (topLevelComponent: string) => {
     this.setState({ analysesLoading: true });
+
     this.loadAllActivities(topLevelComponent).then(
       ({ analyses }) => {
         if (this.mounted) {
@@ -256,7 +265,9 @@ class ProjectActivityApp extends React.PureComponent<Props, State> {
     ) {
       return Promise.resolve(prevResult);
     }
+
     const nextPage = prevResult ? prevResult.paging.pageIndex + 1 : 1;
+
     return this.fetchActivity(
       project,
       [
@@ -269,6 +280,7 @@ class ProjectActivityApp extends React.PureComponent<Props, State> {
       if (!prevResult) {
         return this.loadAllActivities(project, result);
       }
+
       return this.loadAllActivities(project, {
         analyses: prevResult.analyses.concat(result.analyses),
         paging: result.paging,
@@ -278,6 +290,7 @@ class ProjectActivityApp extends React.PureComponent<Props, State> {
 
   getTopLevelComponent = (component: Component) => {
     let current = component.breadcrumbs.length - 1;
+
     while (
       current > 0 &&
       !(
@@ -290,6 +303,7 @@ class ProjectActivityApp extends React.PureComponent<Props, State> {
     ) {
       current--;
     }
+
     return component.breadcrumbs[current].key;
   };
 
@@ -314,6 +328,7 @@ class ProjectActivityApp extends React.PureComponent<Props, State> {
   async firstLoadData(query: Query, component: Component) {
     const graphMetrics = getHistoryMetrics(query.graph || DEFAULT_GRAPH, query.customMetrics);
     const topLevelComponent = this.getTopLevelComponent(component);
+
     try {
       const [{ analyses }, measuresHistory, leaks] = await Promise.all([
         this.fetchActivity(
@@ -326,7 +341,9 @@ class ProjectActivityApp extends React.PureComponent<Props, State> {
           ACTIVITY_PAGE_SIZE_FIRST_BATCH,
           serializeQuery(query),
         ),
+
         this.fetchMeasuresHistory(graphMetrics),
+
         component.qualifier === ComponentQualifier.Application
           ? // eslint-disable-next-line local-rules/no-api-imports
             getApplicationLeak(component.key)
@@ -335,6 +352,7 @@ class ProjectActivityApp extends React.PureComponent<Props, State> {
 
       if (this.mounted) {
         let leakPeriodDate;
+
         if (isApplication(component.qualifier) && leaks?.length) {
           [leakPeriodDate] = leaks
             .map((leak) => parseDate(leak.date))
@@ -363,6 +381,7 @@ class ProjectActivityApp extends React.PureComponent<Props, State> {
   updateGraphData = (graph: GraphType, customMetrics: string[]) => {
     const graphMetrics = getHistoryMetrics(graph, customMetrics);
     this.setState({ graphLoading: true });
+
     this.fetchMeasuresHistory(graphMetrics).then(
       (measuresHistory) => {
         if (this.mounted) {
@@ -382,6 +401,7 @@ class ProjectActivityApp extends React.PureComponent<Props, State> {
       ...this.state.query,
       ...newQuery,
     });
+
     this.props.router.push({
       pathname: this.props.location.pathname,
       query: {
@@ -394,6 +414,7 @@ class ProjectActivityApp extends React.PureComponent<Props, State> {
 
   render() {
     const metrics = this.filterMetrics();
+
     return (
       <ProjectActivityAppRenderer
         onAddCustomEvent={this.handleAddCustomEvent}
@@ -418,11 +439,13 @@ class ProjectActivityApp extends React.PureComponent<Props, State> {
 
 const isFiltered = (searchParams: URLSearchParams) => {
   let filtered = false;
+
   searchParams.forEach((value, key) => {
     if (key !== 'id' && value !== '') {
       filtered = true;
     }
   });
+
   return filtered;
 };
 
@@ -442,9 +465,11 @@ function RedirectWrapper(props: Props) {
     if (shouldRedirect) {
       const query = parseQuery(searchParams);
       const newQuery = { ...query, graph };
+
       if (isCustomGraph(newQuery.graph)) {
         searchParams.set('custom_metrics', customGraphs.join(','));
       }
+
       searchParams.set('graph', graph);
       setSearchParams(searchParams, { replace: true });
     }

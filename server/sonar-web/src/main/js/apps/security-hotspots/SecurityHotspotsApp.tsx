@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { flatMap, range } from 'lodash';
 import * as React from 'react';
 import { getMeasures } from '../../api/measures';
@@ -26,7 +27,7 @@ import withCurrentUserContext from '../../app/components/current-user/withCurren
 import withIndexationGuard from '../../components/hoc/withIndexationGuard';
 import { Location, Router, withRouter } from '../../components/hoc/withRouter';
 import { getLeakValue } from '../../components/measure/utils';
-import { getBranchLikeQuery, isPullRequest, isSameBranchLike } from '../../helpers/branch-like';
+import { getBranchLikeQuery, isPullRequest } from '../../helpers/branch-like';
 import { isInput } from '../../helpers/keyboardEventHelpers';
 import { KeyboardKeys } from '../../helpers/keycodes';
 import { getStandards } from '../../helpers/security-standard';
@@ -89,6 +90,7 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
         ...this.constructFiltersFromProps(props),
         status: HotspotStatusFilter.TO_REVIEW,
       },
+
       hotspots: [],
       hotspotsPageIndex: 1,
       hotspotsTotal: 0,
@@ -96,6 +98,7 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
       loadingMeasure: false,
       loadingMore: false,
       selectedHotspot: undefined,
+
       standards: {
         [SecurityStandard.CWE]: {},
         [SecurityStandard.OWASP_ASVS_4_0]: {},
@@ -119,8 +122,10 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
   }
 
   componentDidUpdate(previous: Props) {
+    const wasBranchJustFetched = !!previous.isFetchingBranch && !this.props.isFetchingBranch;
+
     if (
-      !isSameBranchLike(this.props.branchLike, previous.branchLike) ||
+      wasBranchJustFetched ||
       this.props.component.key !== previous.component.key ||
       this.props.location.query.hotspots !== previous.location.query.hotspots ||
       SECURITY_STANDARDS.some((s) => this.props.location.query[s] !== previous.location.query[s]) ||
@@ -130,7 +135,7 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
     }
 
     if (
-      !isSameBranchLike(this.props.branchLike, previous.branchLike) ||
+      wasBranchJustFetched ||
       isLoggedIn(this.props.currentUser) !== isLoggedIn(previous.currentUser) ||
       this.props.location.query.assignedToMe !== previous.location.query.assignedToMe ||
       this.props.location.query.inNewCodePeriod !== previous.location.query.inNewCodePeriod
@@ -337,6 +342,7 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
           category: string;
         }
       | undefined;
+
     filterByCWE: string | undefined;
     filterByFile: string | undefined;
     page: number;
