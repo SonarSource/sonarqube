@@ -169,7 +169,7 @@ describe('issue app', () => {
     expect(listItem.getByText('issue.transition.accept')).toBeInTheDocument();
     expect(listItem.getByText('issue.transition.confirm')).toBeInTheDocument();
 
-    await user.click(listItem.getByText('issue.transition.confirm'));
+    await user.click(listItem.getByText('issue.transition.accept'));
 
     expect(listItem.getByRole('textbox')).toBeInTheDocument();
 
@@ -178,19 +178,16 @@ describe('issue app', () => {
 
     expect(
       listItem.getByLabelText(
-        'issue.transition.status_x_click_to_change.issue.issue_status.CONFIRMED',
+        'issue.transition.status_x_click_to_change.issue.issue_status.ACCEPTED',
       ),
     ).toBeInTheDocument();
 
     // Change status again
-    await user.click(listItem.getByText('issue.issue_status.CONFIRMED'));
-    await user.click(listItem.getByText('issue.transition.accept'));
-    await user.click(listItem.getByText('resolve'));
+    await user.click(listItem.getByText('issue.issue_status.ACCEPTED'));
+    await user.click(listItem.getByText('issue.transition.reopen'));
 
     expect(
-      listItem.getByLabelText(
-        'issue.transition.status_x_click_to_change.issue.issue_status.ACCEPTED',
-      ),
+      listItem.getByLabelText('issue.transition.status_x_click_to_change.issue.issue_status.OPEN'),
     ).toBeInTheDocument();
 
     expect(

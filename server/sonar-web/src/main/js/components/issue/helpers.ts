@@ -28,10 +28,5 @@ export function isTransitionHidden(transition: IssueTransition) {
 }
 
 export function transitionRequiresComment(transition: IssueTransition) {
-  return [
-    IssueTransition.Accept,
-    IssueTransition.Confirm,
-    IssueTransition.FalsePositive,
-    IssueTransition.Resolve,
-  ].includes(transition);
+  return [IssueTransition.Accept, IssueTransition.FalsePositive].includes(transition);
 }
