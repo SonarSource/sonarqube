@@ -105,24 +105,6 @@ export class AllProjects extends React.PureComponent<Props, State> {
     removeSideBarClass();
   }
 
-  fetchProjects = (query: Query) => {
-    const { isFavorite } = this.props;
-
-    this.setState({ loading: true, query });
-
-    fetchProjects({ isFavorite, query }).then((response) => {
-      if (this.mounted) {
-        this.setState({
-          facets: response.facets,
-          loading: false,
-          pageIndex: 1,
-          projects: response.projects,
-          total: response.total,
-        });
-      }
-    }, this.stopLoading);
-  };
-
   fetchMoreProjects = () => {
     const { isFavorite } = this.props;
     const { pageIndex, projects, query } = this.state;
@@ -192,9 +174,26 @@ export class AllProjects extends React.PureComponent<Props, State> {
   };
 
   handleQueryChange() {
-    const query = parseUrlQuery(this.props.location.query);
+    const { isFavorite } = this.props;
 
-    this.fetchProjects(query);
+    const queryRaw = this.props.location.query;
+    const query = parseUrlQuery(queryRaw);
+
+    this.setState({ loading: true, query });
+
+    fetchProjects({ isFavorite, query }).then((response) => {
+      // We ignore the request if the query changed since the time it was initiated
+      // If that happened, another query will be initiated anyway
+      if (this.mounted && queryRaw === this.props.location.query) {
+        this.setState({
+          facets: response.facets,
+          loading: false,
+          pageIndex: 1,
+          projects: response.projects,
+          total: response.total,
+        });
+      }
+    }, this.stopLoading);
   }
 
   handleSortChange = (sort: string, desc: boolean) => {
