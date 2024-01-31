@@ -30,21 +30,21 @@ import javax.annotation.Generated;
 @Generated("sonar-ws-generator")
 public class CreateRequest {
 
-  private String branch;
+  private String mainBranch;
   private String name;
   private String project;
   private String visibility;
 
   /**
-   * Example value: "branch-5.0"
+   * Example value: "master"
    */
-  public CreateRequest setBranch(String branch) {
-    this.branch = branch;
+  public CreateRequest setMainBranch(String mainBranch) {
+    this.mainBranch = mainBranch;
     return this;
   }
 
-  public String getBranch() {
-    return branch;
+  public String getMainBranch() {
+    return mainBranch;
   }
 
   /**

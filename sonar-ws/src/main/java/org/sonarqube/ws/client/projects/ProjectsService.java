@@ -71,7 +71,7 @@ public class ProjectsService extends BaseService {
   public CreateWsResponse create(CreateRequest request) {
     return call(
       new PostRequest(path("create"))
-        .setParam("branch", request.getBranch())
+        .setParam("mainBranch", request.getMainBranch())
         .setParam("name", request.getName())
         .setParam("project", request.getProject())
         .setParam("visibility", request.getVisibility()),
