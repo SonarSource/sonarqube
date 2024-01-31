@@ -89,6 +89,10 @@ allprojects {
          password = System.env.'ARTIFACTORY_PWD' ?: (project.hasProperty('artifactoryPassword') ? project.getProperty('artifactoryPassword') : '')
       }
     }
+    mavenCentral()
+    maven {
+      url 'https://jitpack.io'
+    }
   }
 
   task allDependencies {

@@ -1,7 +1,8 @@
 pluginManagement {
   repositories {
     maven {
-      url 'https://repox.jfrog.io/repox/plugins.gradle.org/'
+      //url 'https://repox.jfrog.io/repox/plugins.gradle.org/'
+      url 'https://plugins.gradle.org/m2/'
     }
   }
   plugins {
