@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import styled from '@emotion/styled';
-import { Spinner, SubnavigationHeading, themeBorder } from 'design-system';
+import { Spinner, SubnavigationHeading, themeShadow } from 'design-system';
 import * as React from 'react';
 import { Paging } from '../../../types/types';
 import IssuesCounter from '../components/IssuesCounter';
@@ -32,14 +32,12 @@ export default function SubnavigationIssuesListHeader(props: Props) {
   const { loading, paging } = props;
 
   return (
-    <StyledHeader>
+    <StyledHeader className="sw-z-normal">
       <Spinner loading={loading}>{paging && <IssuesCounter total={paging.total} />}</Spinner>
     </StyledHeader>
   );
 }
 
 const StyledHeader = styled(SubnavigationHeading)`
-  position: sticky;
-  top: 0;
-  border-bottom: ${themeBorder('default', 'filterbarBorder')};
+  box-shadow: ${themeShadow('scrolling')};
 `;

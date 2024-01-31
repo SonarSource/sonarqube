@@ -881,6 +881,7 @@ export const lightTheme = {
       [15, 20, 24, -4, ...COLORS.blueGrey[700], 0.1],
       [0, 8, 8, -4, ...COLORS.blueGrey[700], 0.06],
     ],
+    scrolling: [[0, 0, 8, 0, ...COLORS.blueGrey[700], 0.2]],
   },
 
   // predefined borders

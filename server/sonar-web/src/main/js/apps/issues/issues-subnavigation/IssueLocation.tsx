@@ -40,7 +40,7 @@ export default function IssueLocation(props: Props) {
   useEffect(() => {
     if (selected && node.current) {
       node.current.scrollIntoView({
-        block: 'center',
+        block: 'nearest',
         behavior: 'smooth',
       });
     }

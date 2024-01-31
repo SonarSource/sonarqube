@@ -106,7 +106,7 @@ export default function ListFooter(props: ListFooterProps) {
       ref={rootNode}
       className={classNames(
         'list-footer', // .list-footer is only used by Selenium tests; we should find a way to remove it.
-        'sw-body-sm sw-mt-4 sw-flex sw-items-center sw-justify-center',
+        'sw-body-sm sw-flex sw-items-center sw-justify-center',
         { 'sw-opacity-50 sw-duration-500 sw-ease-in-out': !ready },
         className,
       )}
@@ -133,4 +133,6 @@ export default function ListFooter(props: ListFooterProps) {
 
 const StyledDiv = styled.div`
   color: ${themeColor('pageContentLight')};
+
+  margin-top: 1rem /* 16px */;
 `;

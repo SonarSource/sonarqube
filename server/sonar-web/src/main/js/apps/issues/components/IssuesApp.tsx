@@ -1095,7 +1095,7 @@ export class App extends React.PureComponent<Props, State> {
               className="issues-nav-bar sw-overflow-y-auto issue-filters-list"
               style={{ height: `calc((100vh - ${top}px) - 60px)` }} // 60px (footer)
             >
-              <div className="sw-w-[300px] lg:sw-w-[390px]">
+              <div className="sw-w-[300px] lg:sw-w-[390px] sw-h-full">
                 <A11ySkipTarget
                   anchor="issues_sidebar"
                   label={
@@ -1107,7 +1107,7 @@ export class App extends React.PureComponent<Props, State> {
                 />
 
                 {openIssue ? (
-                  <div>
+                  <div className="sw-h-full">
                     {warning && <div className="sw-py-4">{warning}</div>}
 
                     <SubnavigationIssuesList

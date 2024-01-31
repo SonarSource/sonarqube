@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import styled from '@emotion/styled';
-import { themeBorder, themeColor } from 'design-system';
+import { themeBorder, themeColor, themeShadow } from 'design-system';
 import * as React from 'react';
 import ListFooter from '../../../components/controls/ListFooter';
 import { Issue, Paging } from '../../../types/types';
@@ -54,7 +54,7 @@ export default function SubnavigationIssuesList(props: Props) {
   return (
     <StyledWrapper>
       <SubnavigationIssuesListHeader loading={loading} paging={paging} />
-      <StyledList>
+      <StyledList className="sw-overflow-auto sw-flex-auto">
         {issues.map((issue, index) => {
           const previousIssue = index > 0 ? issues[index - 1] : undefined;
           const displayComponentName =
@@ -82,7 +82,7 @@ export default function SubnavigationIssuesList(props: Props) {
         })}
       </StyledList>
       {paging && paging.total > 0 && (
-        <ListFooter
+        <StyledFooter
           className="sw-my-0 sw-py-4"
           count={issues.length}
           loadMore={props.fetchMoreIssues}
@@ -103,4 +103,11 @@ const StyledList = styled.ul`
 
 const StyledWrapper = styled.div`
   background-color: ${themeColor('filterbar')};
+  height: inherit;
+  display: flex;
+  flex-direction: column;
+`;
+
+const StyledFooter = styled(ListFooter)`
+  box-shadow: ${themeShadow('scrolling')};
 `;
