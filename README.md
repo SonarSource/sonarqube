@@ -9,7 +9,7 @@ SonarQube provides the capability to not only show the health of an application 
 - [Website](https://www.sonarsource.com/products/sonarqube)
 - [Download](https://www.sonarsource.com/products/sonarqube/downloads)
 - [Documentation](https://docs.sonarsource.com/sonarqube)
-- [Twitter](https://twitter.com/SonarQube)
+- [X](https://twitter.com/SonarQube)
 - [SonarSource](https://www.sonarsource.com), author of SonarQube
 - [Issue tracking](https://jira.sonarsource.com/browse/SONAR/), read-only. Only SonarSourcers can create tickets.
 - [Responsible Disclosure](https://community.sonarsource.com/t/responsible-vulnerability-disclosure/9317)

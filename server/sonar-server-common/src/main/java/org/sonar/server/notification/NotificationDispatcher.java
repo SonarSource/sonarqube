@@ -33,7 +33,7 @@ import org.sonar.api.server.ServerSide;
  * For example:
  * <ul>
  * <li>notify me by email when someone comments an issue reported by me</li>
- * <li>notify me by twitter when someone comments an issue assigned to me</li>
+ * <li>notify me by X when someone comments an issue assigned to me</li>
  * <li>notify me by Jabber when someone mentions me in an issue comment</li>
  * <li>send me by SMS when there are system notifications (like password reset, account creation, ...)</li>
  * </ul> 

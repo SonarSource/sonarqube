@@ -107,9 +107,9 @@ export function EmbedDocsPopup() {
         text={translate('docs.roadmap')}
       />
       <IconLink
-        icon="embed-doc/twitter-icon.svg"
+        icon="embed-doc/x-icon-black.svg"
         link="https://twitter.com/SonarQube"
-        text="Twitter"
+        text="X @SonarQube"
       />
     </>
   );
