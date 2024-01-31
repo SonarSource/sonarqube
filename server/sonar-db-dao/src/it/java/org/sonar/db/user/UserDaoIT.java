@@ -96,6 +96,7 @@ public class UserDaoIT {
     String user1 = db.users().insertUser(user -> user.setLogin("user1").setEmail("toto@tata.com")).getUuid();
     String user2 = db.users().insertUser(user -> user.setLogin("user2")).getUuid();
     String user3 = db.users().insertUser(user -> user.setLogin("user3").setScmAccounts(List.of("scmuser3", "scmuser3bis"))).getUuid();
+    String user4 =  db.users().insertUser(user -> user.setLogin("user4").setEmail("UPPERCASE@tata.com")).getUuid();
     db.users().insertUser();
     db.users().insertUser(user -> user.setLogin("inactive_user1").setActive(false));
     db.users().insertUser(user -> user.setLogin("inactive_user2").setActive(false).setScmAccounts(List.of("inactive_user2")));
@@ -108,6 +109,8 @@ public class UserDaoIT {
       .extracting(UserIdDto::getUuid, UserIdDto::getLogin).containsExactly(new Tuple(user3, "user3"));
     assertThat(underTest.selectActiveUsersByScmAccountOrLoginOrEmail(session, "inactive_user1")).isEmpty();
     assertThat(underTest.selectActiveUsersByScmAccountOrLoginOrEmail(session, "inactive_user2")).isEmpty();
+    assertThat(underTest.selectActiveUsersByScmAccountOrLoginOrEmail(session, "uppercase@tata.com"))
+      .extracting(UserIdDto::getUuid, UserIdDto::getLogin).containsExactly(new Tuple(user4, "user4"));
   }
 
   @Test

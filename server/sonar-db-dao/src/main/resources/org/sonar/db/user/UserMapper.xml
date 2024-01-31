@@ -364,7 +364,7 @@
       union
       select uuid, login
       from users u
-      where active=${_true} and (login=#{scmAccount,jdbcType=VARCHAR} or email=#{scmAccount,jdbcType=VARCHAR} )
+      where active=${_true} and (login=#{scmAccount,jdbcType=VARCHAR} or lower(email)=lower(#{scmAccount,jdbcType=VARCHAR}) )
     </select>
 
 </mapper>
