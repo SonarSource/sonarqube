@@ -252,6 +252,18 @@ export function getAnalysisVariations(measures: MeasureHistory[], analysesCount:
   }, emptyVariations);
 }
 
+export function getConditionRequiredTranslateId(metric: MetricKey) {
+  if (
+    [MetricKey.security_hotspots_reviewed, MetricKey.new_security_hotspots_reviewed].includes(
+      metric,
+    )
+  ) {
+    return 'overview.quality_gate.required_x_reviewed';
+  }
+
+  return 'overview.quality_gate.required_x';
+}
+
 export function getConditionRequiredLabel(
   condition: QualityGateStatusConditionEnhanced,
   intl: IntlShape,
@@ -271,20 +283,16 @@ export function getConditionRequiredLabel(
     operator = '=';
   }
 
-  const conditionEl = (
-    <>
-      {operator}{' '}
-      {formatMeasure(condition.error, condition.measure.metric.type, {
-        decimals: 2,
-        omitExtraDecimalZeros: true,
-      })}
-    </>
-  );
+  const conditionEl = formatMeasure(condition.error, condition.measure.metric.type, {
+    decimals: 2,
+    omitExtraDecimalZeros: true,
+  });
 
   return intl.formatMessage(
-    { id: 'overview.quality_gate.required_x' },
+    { id: getConditionRequiredTranslateId(condition.metric) },
 
     {
+      operator,
       requirement: failed ? <b>{conditionEl}</b> : conditionEl,
     },
   );

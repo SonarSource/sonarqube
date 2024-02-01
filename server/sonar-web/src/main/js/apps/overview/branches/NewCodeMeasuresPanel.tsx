@@ -62,7 +62,7 @@ export default function NewCodeMeasuresPanel(props: Readonly<Props>) {
   const failedConditions = qgStatuses?.flatMap((qg) => qg.failedConditions) ?? [];
 
   const newIssues = getLeakValue(findMeasure(measures, MetricKey.new_violations));
-  const newIssuesCondition = failedConditions.find((c) => c.metric === MetricKey.new_violations);
+  const newIssuesCondition = conditions.find((c) => c.metric === MetricKey.new_violations);
   const issuesConditionFailed = newIssuesCondition?.level === Status.ERROR;
   const newAcceptedIssues = getLeakValue(findMeasure(measures, MetricKey.new_accepted_issues));
   const newSecurityHotspots = getLeakValue(
