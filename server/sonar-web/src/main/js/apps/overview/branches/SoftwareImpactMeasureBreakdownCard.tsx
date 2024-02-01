@@ -19,7 +19,7 @@
  */
 import styled from '@emotion/styled';
 import classNames from 'classnames';
-import { DiscreetLinkBox, Tooltip, themeColor } from 'design-system';
+import { DiscreetLinkBox, Tooltip, themeColor, themeContrast } from 'design-system';
 import * as React from 'react';
 import { useIntl } from 'react-intl';
 import { DEFAULT_ISSUES_QUERY } from '../../../components/shared/utils';
@@ -52,7 +52,7 @@ export function SoftwareImpactMeasureBreakdownCard(
 
   const testId = `overview__software-impact-${softwareQuality}-severity-${severity}`;
   const cardClasses =
-    'sw-w-1/3 sw-p-2 sw-rounded-1 sw-text-xs sw-font-semibold sw-select-none sw-flex sw-gap-1 sw-justify-center sw-items-center';
+    'sw-w-1/3 sw-px-2 sw-py-1 sw-rounded-1 sw-text-xs sw-font-semibold sw-select-none sw-flex sw-gap-1 sw-justify-center sw-items-center';
 
   if (!value) {
     return (
@@ -111,12 +111,15 @@ const StyledBreakdownCard = styled.div`
 
   &.active.HIGH {
     background-color: ${themeColor('overviewSoftwareImpactSeverityHigh')};
+    color: ${themeContrast('overviewSoftwareImpactSeverityHigh')};
   }
   &.active.MEDIUM {
     background-color: ${themeColor('overviewSoftwareImpactSeverityMedium')};
+    color: ${themeContrast('overviewSoftwareImpactSeverityMedium')};
   }
   &.active.LOW {
     background-color: ${themeColor('overviewSoftwareImpactSeverityLow')};
+    color: ${themeContrast('overviewSoftwareImpactSeverityLow')};
   }
 `;
 const StyledBreakdownLinkCard = StyledBreakdownCard.withComponent(DiscreetLinkBox);

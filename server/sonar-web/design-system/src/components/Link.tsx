@@ -152,6 +152,8 @@ const StyledBaseLink = styled(BaseLink)`
 
 export const NakedLink = styled(BaseLink)`
   border-bottom: none;
+  padding-bottom: 1px;
+
   font-weight: 600;
   color: ${themeColor('linkNaked')};
 

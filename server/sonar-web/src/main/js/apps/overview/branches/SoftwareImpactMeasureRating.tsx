@@ -44,7 +44,7 @@ export function SoftwareImpactMeasureRating(props: Readonly<SoftwareImpactMeasur
       })}
     >
       <MetricsRatingBadge
-        size="lg"
+        size="md"
         className="sw-text-sm"
         rating={rating}
         label={intl.formatMessage(

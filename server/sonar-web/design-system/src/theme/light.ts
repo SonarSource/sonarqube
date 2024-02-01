@@ -833,6 +833,12 @@ export const lightTheme = {
     // page
     pageBlock: secondary.darker,
 
+    // overview software impact breakdown
+    overviewSoftwareImpactSeverityNeutral: COLORS.blueGrey[500],
+    overviewSoftwareImpactSeverityHigh: COLORS.red[700],
+    overviewSoftwareImpactSeverityMedium: COLORS.yellow[800],
+    overviewSoftwareImpactSeverityLow: COLORS.blue[800],
+
     // graph - chart
     graphZoomHandleColor: COLORS.white,
 

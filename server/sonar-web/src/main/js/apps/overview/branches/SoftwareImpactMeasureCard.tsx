@@ -79,6 +79,12 @@ export function SoftwareImpactMeasureCard(props: Readonly<SoftwareImpactBreakdow
       (severity) => measure[severity] > 0,
     );
 
+  const countTooltipOverlay = component.needIssueSync ? (
+    <OverviewDisabledLinkTooltip />
+  ) : (
+    intl.formatMessage({ id: 'overview.measures.software_impact.count_tooltip' })
+  );
+
   return (
     <LightGreyCard
       data-testid={`overview__software-impact-card-${softwareQuality}`}
@@ -88,12 +94,12 @@ export function SoftwareImpactMeasureCard(props: Readonly<SoftwareImpactBreakdow
       <BasicSeparator className="sw--mx-4" />
       <div className="sw-flex sw-flex-col sw-gap-3">
         <div
-          className={classNames('sw-flex sw-gap-1 sw-items-end', {
+          className={classNames('sw-flex sw-gap-1 sw-items-center sw-h-8 sw-mt-2', {
             'sw-opacity-60': renderDisabled,
           })}
         >
           {measure ? (
-            <Tooltip overlay={component.needIssueSync ? <OverviewDisabledLinkTooltip /> : null}>
+            <Tooltip overlay={countTooltipOverlay}>
               <NakedLink
                 data-testid={`overview__software-impact-${softwareQuality}`}
                 aria-label={intl.formatMessage(
@@ -107,7 +113,7 @@ export function SoftwareImpactMeasureCard(props: Readonly<SoftwareImpactBreakdow
                     }),
                   },
                 )}
-                className="sw-text-xl"
+                className="sw-text-lg"
                 to={totalLinkHref}
                 disabled={component.needIssueSync}
               >
@@ -115,16 +121,18 @@ export function SoftwareImpactMeasureCard(props: Readonly<SoftwareImpactBreakdow
               </NakedLink>
             </Tooltip>
           ) : (
-            <StyledDash className="sw-self-center sw-font-bold" name="-" />
+            <StyledDash className="sw-font-bold" name="-" />
           )}
-          <TextSubdued className="sw-body-sm sw-mb-2">
+          <TextSubdued className="sw-self-end sw-body-sm sw-pb-1">
             {intl.formatMessage({ id: 'overview.measures.software_impact.total_open_issues' })}
           </TextSubdued>
           <div className="sw-flex-grow sw-flex sw-justify-end">
-            <SoftwareImpactMeasureRating
-              softwareQuality={softwareQuality}
-              value={ratingMeasure?.value}
-            />
+            {measure && (
+              <SoftwareImpactMeasureRating
+                softwareQuality={softwareQuality}
+                value={ratingMeasure?.value}
+              />
+            )}
           </div>
         </div>
         <div className="sw-flex sw-gap-2">

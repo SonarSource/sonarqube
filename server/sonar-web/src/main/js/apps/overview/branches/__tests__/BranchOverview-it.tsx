@@ -331,7 +331,7 @@ describe('project overview', () => {
     );
 
     // Maintainability is not computed
-    ui.expectSoftwareImpactMeasureCard(SoftwareQuality.Maintainability, 'E');
+    ui.expectSoftwareImpactMeasureCard(SoftwareQuality.Maintainability);
     expect(
       byText('overview.project.no_data').get(
         ui.softwareImpactMeasureCard(SoftwareQuality.Maintainability).get(),
@@ -342,7 +342,7 @@ describe('project overview', () => {
         ui.softwareImpactMeasureCard(SoftwareQuality.Maintainability).get(),
       ),
     ).toBeInTheDocument();
-    ui.expectSoftwareImpactMeasureCard(SoftwareQuality.Maintainability, 'E', undefined, [
+    ui.expectSoftwareImpactMeasureCard(SoftwareQuality.Maintainability, undefined, undefined, [
       false,
       false,
       false,

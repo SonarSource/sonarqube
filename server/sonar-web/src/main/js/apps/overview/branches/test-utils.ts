@@ -36,13 +36,15 @@ export const getPageObjects = () => {
     ...selectors,
     expectSoftwareImpactMeasureCard: (
       softwareQuality: SoftwareQuality,
-      rating: string,
+      rating?: string,
       data?: SoftwareImpactMeasureData,
       severitiesActiveState?: boolean[],
     ) => {
-      expect(
-        byText(rating, { exact: true }).get(ui.softwareImpactMeasureCard(softwareQuality).get()),
-      ).toBeInTheDocument();
+      if (typeof rating === 'string') {
+        expect(
+          byText(rating, { exact: true }).get(ui.softwareImpactMeasureCard(softwareQuality).get()),
+        ).toBeInTheDocument();
+      }
       if (data) {
         expect(
           byRole('link', {
