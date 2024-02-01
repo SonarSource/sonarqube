@@ -45,7 +45,9 @@ afterEach(() => {
   settingsMock.reset();
 });
 
-beforeEach(jest.clearAllMocks);
+beforeEach(() => {
+  jest.clearAllMocks();
+});
 
 const ui = {
   categoryLink: (category: string) => byRole('link', { name: category }),

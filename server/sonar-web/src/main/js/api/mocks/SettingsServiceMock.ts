@@ -29,6 +29,7 @@ import {
   SettingValue,
   SettingsKey,
 } from '../../types/settings';
+import { Dict } from '../../types/types';
 import {
   checkSecretKey,
   encryptValue,
@@ -159,7 +160,16 @@ export default class SettingsServiceMock {
 
   handleGetValue = (data: { key: string; component?: string } & BranchParameters) => {
     const setting = this.#settingValues.find((s) => s.key === data.key) as SettingValue;
-    return this.reply(setting ?? {});
+    const definition = this.#definitions.find(
+      (d) => d.key === data.key,
+    ) as ExtendedSettingDefinition;
+    if (!setting && definition?.defaultValue !== undefined) {
+      const fields = definition.multiValues
+        ? { values: definition.defaultValue?.split(',') }
+        : { value: definition.defaultValue };
+      return this.reply({ key: data.key, ...fields });
+    }
+    return this.reply(setting ?? undefined);
   };
 
   handleGetValues = (data: { keys: string[]; component?: string } & BranchParameters) => {
@@ -215,11 +225,26 @@ export default class SettingsServiceMock {
         (s) => s.key !== 'sonar.auth.github.userConsentForPermissionProvisioningRequired',
       );
     } else if (definition.type === SettingType.PROPERTY_SET) {
-      setting.fieldValues = [];
+      const fieldValues: Dict<string>[] = [];
+      if (setting) {
+        setting.fieldValues = fieldValues;
+      } else {
+        this.#settingValues.push({ key: data.keys, fieldValues });
+      }
     } else if (definition.multiValues === true) {
-      setting.values = definition.defaultValue?.split(',') ?? [];
-    } else if (setting) {
-      setting.value = definition.defaultValue ?? '';
+      const values = definition.defaultValue?.split(',') ?? [];
+      if (setting) {
+        setting.values = values;
+      } else {
+        this.#settingValues.push({ key: data.keys, values });
+      }
+    } else {
+      const value = definition.defaultValue ?? '';
+      if (setting) {
+        setting.value = value;
+      } else {
+        this.#settingValues.push({ key: data.keys, value });
+      }
     }
 
     return this.reply(undefined);
@@ -244,6 +269,10 @@ export default class SettingsServiceMock {
 
   setDefinition = (definition: ExtendedSettingDefinition) => {
     this.#definitions.push(definition);
+  };
+
+  setDefinitions = (definitions: ExtendedSettingDefinition[]) => {
+    this.#definitions = definitions;
   };
 
   handleCheckSecretKey = () => {

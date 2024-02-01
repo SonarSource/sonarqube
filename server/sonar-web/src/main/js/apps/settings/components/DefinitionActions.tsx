@@ -24,7 +24,7 @@ import { Setting } from '../../../types/settings';
 import { getDefaultValue, getPropertyName, isEmptyValue } from '../utils';
 
 type Props = {
-  changedValue?: string;
+  changedValue?: string | string[] | boolean;
   hasError: boolean;
   hasValueChanged: boolean;
   isDefault: boolean;

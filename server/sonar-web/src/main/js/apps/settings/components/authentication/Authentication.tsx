@@ -25,7 +25,6 @@ import { useSearchParams } from 'react-router-dom';
 import withAvailableFeatures, {
   WithAvailableFeaturesProps,
 } from '../../../../app/components/available-features/withAvailableFeatures';
-import DocumentationLink from '../../../../components/common/DocumentationLink';
 import { getTabId, getTabPanelId } from '../../../../components/controls/BoxedTabs';
 import { translate } from '../../../../helpers/l10n';
 import { getBaseUrl } from '../../../../helpers/system';
@@ -33,8 +32,7 @@ import { searchParamsToQuery } from '../../../../helpers/urls';
 import { AlmKeys } from '../../../../types/alm-settings';
 import { Feature } from '../../../../types/features';
 import { ExtendedSettingDefinition } from '../../../../types/settings';
-import { AUTHENTICATION_CATEGORY } from '../../constants';
-import CategoryDefinitionsList from '../CategoryDefinitionsList';
+import BitbucketAuthenticationTab from './BitbucketAuthenticationTab';
 import GitLabAuthenticationTab from './GitLabAuthenticationTab';
 import GithubAuthenticationTab from './GithubAuthenticationTab';
 import SamlAuthenticationTab, { SAML } from './SamlAuthenticationTab';
@@ -108,10 +106,11 @@ export function Authentication(props: Props & WithAvailableFeaturesProps) {
     },
   ] as const;
 
-  const [samlDefinitions, githubDefinitions] = React.useMemo(
+  const [samlDefinitions, githubDefinitions, bitbucketDefinitions] = React.useMemo(
     () => [
       definitions.filter((def) => def.subCategory === SAML),
       definitions.filter((def) => def.subCategory === AlmKeys.GitHub),
+      definitions.filter((def) => def.subCategory === AlmKeys.BitbucketServer),
     ],
     [definitions],
   );
@@ -171,34 +170,7 @@ export function Authentication(props: Props & WithAvailableFeaturesProps) {
               {tab.value === AlmKeys.GitLab && <GitLabAuthenticationTab />}
 
               {tab.value === AlmKeys.BitbucketServer && (
-                <>
-                  <FlagMessage variant="info">
-                    <div>
-                      <FormattedMessage
-                        id="settings.authentication.help"
-                        defaultMessage={translate('settings.authentication.help')}
-                        values={{
-                          link: (
-                            <DocumentationLink
-                              to={`/instance-administration/authentication/${
-                                DOCUMENTATION_LINK_SUFFIXES[tab.value]
-                              }/`}
-                            >
-                              {translate('settings.authentication.help.link')}
-                            </DocumentationLink>
-                          ),
-                        }}
-                      />
-                    </div>
-                  </FlagMessage>
-                  <CategoryDefinitionsList
-                    category={AUTHENTICATION_CATEGORY}
-                    definitions={definitions}
-                    subCategory={tab.value}
-                    displaySubCategoryTitle={false}
-                    noPadding
-                  />
-                </>
+                <BitbucketAuthenticationTab definitions={bitbucketDefinitions} />
               )}
             </div>
           )}

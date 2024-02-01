@@ -37,7 +37,7 @@ export default function AutoProvisioningConsent() {
   const header = translate('settings.authentication.github.confirm_auto_provisioning.header');
 
   const removeConsentFlag = () => {
-    resetSettingsMutation.mutate([GITHUB_PERMISSION_USER_CONSENT]);
+    resetSettingsMutation.mutate({ keys: [GITHUB_PERMISSION_USER_CONSENT] });
   };
 
   const switchToJIT = async () => {

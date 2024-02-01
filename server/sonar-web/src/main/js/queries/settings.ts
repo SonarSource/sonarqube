@@ -31,18 +31,22 @@ export function useGetValuesQuery(keys: string[]) {
   });
 }
 
-export function useGetValueQuery(key: string) {
+export function useGetValueQuery(key: string, component?: string) {
   return useQuery(['settings', 'details', key] as const, ({ queryKey: [_a, _b, key] }) => {
-    return getValue({ key }).then((v) => v ?? null);
+    return getValue({ key, component }).then((v) => v ?? null);
   });
 }
 
 export function useResetSettingsMutation() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (keys: string[]) => resetSettingValue({ keys: keys.join(',') }),
-    onSuccess: () => {
-      queryClient.invalidateQueries(['settings']);
+    mutationFn: ({ keys, component }: { keys: string[]; component?: string }) =>
+      resetSettingValue({ keys: keys.join(','), component }),
+    onSuccess: (_, { keys }) => {
+      keys.forEach((key) => {
+        queryClient.invalidateQueries(['settings', 'details', key]);
+      });
+      queryClient.invalidateQueries(['settings', 'values']);
     },
   });
 }
@@ -75,7 +79,10 @@ export function useSaveValuesMutation() {
     },
     onSuccess: (data) => {
       if (data.length > 0) {
-        queryClient.invalidateQueries(['settings']);
+        data.forEach(({ key }) => {
+          queryClient.invalidateQueries(['settings', 'details', key]);
+        });
+        queryClient.invalidateQueries(['settings', 'values']);
         addGlobalSuccessMessage(translate('settings.authentication.form.settings.save_success'));
       }
     },
@@ -85,21 +92,23 @@ export function useSaveValuesMutation() {
 export function useSaveValueMutation() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async ({
+    mutationFn: ({
       newValue,
       definition,
+      component,
     }: {
       newValue: SettingValue;
       definition: ExtendedSettingDefinition;
+      component?: string;
     }) => {
       if (isDefaultValue(newValue, definition)) {
-        await resetSettingValue({ keys: definition.key });
-      } else {
-        await setSettingValue(definition, newValue);
+        return resetSettingValue({ keys: definition.key, component });
       }
+      return setSettingValue(definition, newValue, component);
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries(['settings']);
+    onSuccess: (_, { definition }) => {
+      queryClient.invalidateQueries(['settings', 'details', definition.key]);
+      queryClient.invalidateQueries(['settings', 'values']);
       addGlobalSuccessMessage(translate('settings.authentication.form.settings.save_success'));
     },
   });

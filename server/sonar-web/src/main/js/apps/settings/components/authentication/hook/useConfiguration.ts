@@ -113,7 +113,7 @@ export default function useConfiguration(
   const deleteMutation = update(
     useResetSettingsMutation(),
     'mutate',
-    (mutate) => () => mutate(Object.keys(values)),
+    (mutate) => () => mutate({ keys: Object.keys(values) }),
   ) as Omit<UseMutationResult<void, unknown, void, unknown>, 'mutateAsync'>;
 
   const isValueChange = useCallback(
