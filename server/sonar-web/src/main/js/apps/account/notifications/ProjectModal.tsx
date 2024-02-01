@@ -137,7 +137,7 @@ export default class ProjectModal extends React.PureComponent<Props, State> {
 
     this.setState({ loading: true, query, selectedProject: undefined });
 
-    getSuggestions(query, undefined, ComponentQualifier.Project).then(
+    getSuggestions(query).then(
       (r) => {
         if (this.mounted) {
           let suggestions = undefined;
