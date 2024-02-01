@@ -446,8 +446,8 @@ public class PropertiesDaoIT {
     insertProperty("global.two", "two", null, null, null, null, null);
 
     List<PropertyDto> properties = underTest.selectGlobalProperties(db.getSession());
-    assertThat(properties.size())
-      .isEqualTo(2);
+    assertThat(properties)
+      .hasSize(2);
 
     assertThat(findByKey(properties, "global.one"))
       .extracting(PropertyDto::getKey, PropertyDto::getEntityUuid, PropertyDto::getUserUuid, PropertyDto::getValue)
@@ -535,6 +535,10 @@ public class PropertiesDaoIT {
     assertThat(property)
       .extracting(PropertyDto::getKey, PropertyDto::getEntityUuid, PropertyDto::getUserUuid, PropertyDto::getValue)
       .containsExactly("project.one", "uuid10", null, "one");
+
+    assertThat(underTest.selectProjectProperty("uuid10", "project.one"))
+      .isPresent()
+      .contains(property);
   }
 
   @Test

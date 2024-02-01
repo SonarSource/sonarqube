@@ -19,12 +19,14 @@
  */
 package org.sonar.ce.task.projectanalysis.measure;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 import org.sonar.ce.task.log.CeTaskMessages;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
 import org.sonar.ce.task.projectanalysis.analysis.Branch;
+import org.sonar.ce.task.projectanalysis.component.ConfigurationRepository;
 import org.sonar.ce.task.projectanalysis.measure.PreMeasuresComputationCheck.Context;
 import org.sonar.ce.task.step.TestComputationStepContext;
 import org.sonar.db.component.BranchType;
@@ -44,6 +46,12 @@ public class PreMeasuresComputationChecksStepTest {
 
   public AnalysisMetadataHolderRule analysisMetadataHolder = mock();
   public CeTaskMessages ceTaskMessages = mock();
+  public ConfigurationRepository configurationRepository = mock();
+
+  @Before
+  public void setup() {
+
+  }
 
   @Test
   public void execute_extensions() throws PreMeasuresComputationCheckException {
@@ -114,9 +122,9 @@ public class PreMeasuresComputationChecksStepTest {
 
   private PreMeasuresComputationChecksStep newStep(PreMeasuresComputationCheck... preMeasuresComputationChecks) {
     if (preMeasuresComputationChecks.length == 0) {
-      return new PreMeasuresComputationChecksStep(analysisMetadataHolder, ceTaskMessages);
+      return new PreMeasuresComputationChecksStep(analysisMetadataHolder, ceTaskMessages, configurationRepository);
     }
-    return new PreMeasuresComputationChecksStep(analysisMetadataHolder, ceTaskMessages, preMeasuresComputationChecks);
+    return new PreMeasuresComputationChecksStep(analysisMetadataHolder, ceTaskMessages, configurationRepository, preMeasuresComputationChecks);
   }
 
   private void mockBranch(String branchName) {

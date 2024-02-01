@@ -27,6 +27,7 @@ import java.sql.SQLException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -134,6 +135,12 @@ public class PropertiesDao implements Dao {
   @CheckForNull
   public PropertyDto selectProjectProperty(DbSession dbSession, String projectUuid, String propertyKey) {
     return getMapper(dbSession).selectByKey(new PropertyDto().setKey(propertyKey).setEntityUuid(projectUuid));
+  }
+
+  public Optional<PropertyDto> selectProjectProperty(String projectUuid, String propertyKey) {
+    try (DbSession session = mybatis.openSession(false)) {
+      return Optional.ofNullable(selectProjectProperty(session, projectUuid, propertyKey));
+    }
   }
 
   public List<PropertyDto> selectByQuery(PropertyQuery query, DbSession session) {
