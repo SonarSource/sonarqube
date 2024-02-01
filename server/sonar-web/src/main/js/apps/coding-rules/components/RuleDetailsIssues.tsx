@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { ContentCell, Link, Spinner, SubHeadingHighlight, Table, TableRow } from 'design-system';
+import { ContentCell, Link, Spinner, SubTitle, Table, TableRow } from 'design-system';
 import { keyBy } from 'lodash';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
@@ -182,10 +182,10 @@ export class RuleDetailsIssues extends React.PureComponent<Props, State> {
     return (
       <div className="sw-mb-8">
         <Spinner loading={loading}>
-          <SubHeadingHighlight as="h2">
+          <SubTitle>
             {translate('coding_rules.issues')}
             {this.renderTotal()}
-          </SubHeadingHighlight>
+          </SubTitle>
 
           {projects.length > 0 ? (
             <>

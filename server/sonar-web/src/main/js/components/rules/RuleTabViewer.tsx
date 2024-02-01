@@ -33,7 +33,6 @@ import { getTabId, getTabPanelId } from '../controls/BoxedTabs';
 import withLocation from '../hoc/withLocation';
 import MoreInfoRuleDescription from './MoreInfoRuleDescription';
 import RuleDescription from './RuleDescription';
-import './style.css';
 
 interface RuleTabViewerProps extends CurrentUserContextInterface {
   ruleDetails: RuleDetails;

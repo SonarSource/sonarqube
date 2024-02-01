@@ -37,7 +37,6 @@ import ScreenPositionHelper from '../common/ScreenPositionHelper';
 import withLocation from '../hoc/withLocation';
 import MoreInfoRuleDescription from './MoreInfoRuleDescription';
 import RuleDescription from './RuleDescription';
-import './style.css';
 
 interface IssueTabViewerProps extends CurrentUserContextInterface {
   ruleDetails: RuleDetails;

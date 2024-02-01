@@ -17,16 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import styled from '@emotion/styled';
+import { FlagMessage, SubTitle, themeBorder, themeColor } from 'design-system';
 import * as React from 'react';
 import { RuleDescriptionSection } from '../../apps/coding-rules/rule';
 import { translate } from '../../helpers/l10n';
 import { Dict } from '../../types/types';
 import { ButtonLink } from '../controls/buttons';
-import { Alert } from '../ui/Alert';
 import RuleDescription from './RuleDescription';
 import DefenseInDepth from './educationPrinciples/DefenseInDepth';
 import NeverTrustUserInput from './educationPrinciples/NeverTrustUserInput';
-import './style.css';
 
 interface Props {
   displayEducationalPrinciplesNotification?: boolean;
@@ -62,7 +62,7 @@ export default class MoreInfoRuleDescription extends React.PureComponent<Props, 
     return (
       <div className="sw-my-6 rule-desc">
         {displayEducationalPrinciplesNotification && (
-          <Alert variant="info">
+          <FlagMessage variant="info">
             <p className="little-spacer-bottom little-spacer-top">
               {translate('coding_rules.more_info.notification_message')}
             </p>
@@ -74,21 +74,21 @@ export default class MoreInfoRuleDescription extends React.PureComponent<Props, 
             >
               {translate('coding_rules.more_info.scroll_message')}
             </ButtonLink>
-          </Alert>
+          </FlagMessage>
         )}
 
         {sections.length > 0 && (
           <>
-            <h2>{translate('coding_rules.more_info.resources.title')}</h2>
+            <SubTitle>{translate('coding_rules.more_info.resources.title')}</SubTitle>
             <RuleDescription language={language} sections={sections} />
           </>
         )}
 
         {educationPrinciples.length > 0 && (
           <>
-            <h2 ref={educationPrinciplesRef}>
+            <SubTitle ref={educationPrinciplesRef}>
               {translate('coding_rules.more_info.education_principles.title')}
-            </h2>
+            </SubTitle>
 
             {educationPrinciples.map((key) => {
               const Concept = EDUCATION_PRINCIPLES_MAP[key];
@@ -98,9 +98,9 @@ export default class MoreInfoRuleDescription extends React.PureComponent<Props, 
               }
 
               return (
-                <div key={key} className="education-principles big-spacer-top big-padded">
+                <StyledEducationPrinciples key={key} className="sw-mt-4 sw-p-4 sw-rounded-1">
                   <Concept />
-                </div>
+                </StyledEducationPrinciples>
               );
             })}
           </>
@@ -109,3 +109,12 @@ export default class MoreInfoRuleDescription extends React.PureComponent<Props, 
     );
   }
 }
+
+const StyledEducationPrinciples = styled.div`
+  background-color: ${themeColor('educationPrincipleBackground')};
+  border: ${themeBorder('default', 'educationPrincipleBorder')};
+
+  & h3:first-child {
+    margin-top: 0px;
+  }
+`;

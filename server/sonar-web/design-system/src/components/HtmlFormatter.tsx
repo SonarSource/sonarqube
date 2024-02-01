@@ -53,16 +53,16 @@ export const HtmlFormatter = styled.div`
 
   h2,
   h3 {
-    color: ${themeColor('pageTitle')};
-    ${tw`sw-heading-md`}
+    color: ${themeColor('pageContentDark')};
+    ${tw`sw-body-md-highlight`}
     ${tw`sw-my-6`}
   }
 
   h4,
   h5,
   h6 {
-    color: ${themeColor('pageContent')};
-    ${tw`sw-body-md-highlight`}
+    color: ${themeColor('pageContentDark')};
+    ${tw`sw-body-sm-highlight`}
     ${tw`sw-mt-6 sw-mb-2`}
   }
 

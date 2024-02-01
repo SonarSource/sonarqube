@@ -17,12 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import {
-  ClipboardIconButton,
-  IssueMessageHighlighting,
-  LinkIcon,
-  PageContentFontWrapper,
-} from 'design-system';
+import { ClipboardIconButton, IssueMessageHighlighting, LinkIcon, Title } from 'design-system';
 import * as React from 'react';
 import { translate } from '../../../helpers/l10n';
 import { getPathUrlAsString, getRuleUrl } from '../../../helpers/urls';
@@ -46,7 +41,7 @@ export default function RuleDetailsMeta(props: Readonly<Props>) {
   return (
     <header className="sw-flex sw-mb-6">
       <div className="sw-mr-8 sw-grow sw-flex sw-flex-col sw-gap-4">
-        <PageContentFontWrapper className="sw-heading-md" as="h1">
+        <Title className="sw-mb-0">
           <IssueMessageHighlighting message={ruleDetails.name} />
           <ClipboardIconButton
             Icon={LinkIcon}
@@ -55,7 +50,7 @@ export default function RuleDetailsMeta(props: Readonly<Props>) {
             copyValue={getPathUrlAsString(ruleUrl, ruleDetails.isExternal)}
             discreet
           />
-        </PageContentFontWrapper>
+        </Title>
 
         <div className="sw-flex sw-flex-wrap sw-gap-2">
           {hasTypeData && (

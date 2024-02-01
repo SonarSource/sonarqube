@@ -28,7 +28,7 @@ import {
   InheritanceIcon,
   Link,
   Note,
-  SubHeadingHighlight,
+  SubTitle,
   Table,
   TableRowInteractive,
 } from 'design-system';
@@ -244,9 +244,9 @@ export default function RuleDetailsProfiles(props: Readonly<Props>) {
   };
   return (
     <div className="js-rule-profiles sw-mb-8">
-      <SubHeadingHighlight as="h2" id={PROFILES_HEADING_ID}>
+      <SubTitle id={PROFILES_HEADING_ID}>
         <FormattedMessage id="coding_rules.quality_profiles" />
-      </SubHeadingHighlight>
+      </SubTitle>
 
       {canActivate && (
         <ActivationButton

@@ -642,6 +642,10 @@ export const lightTheme = {
     // progressBar
     progressBarForeground: COLORS.indigo[500],
     progressBarBackground: COLORS.indigo[100],
+
+    //education principles
+    educationPrincipleBackground: COLORS.indigo[25],
+    educationPrincipleBorder: COLORS.indigo[300],
   },
 
   // contrast colors to be used for text when using a color background with the same name
