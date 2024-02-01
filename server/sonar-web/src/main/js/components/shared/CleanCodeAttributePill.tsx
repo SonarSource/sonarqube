@@ -57,7 +57,7 @@ export function CleanCodeAttributePill(props: Readonly<Props>) {
       }
       links={[
         {
-          href: '/user-guide/clean-code',
+          href: '/user-guide/clean-code/introduction',
           label: translate('learn_more'),
         },
       ]}

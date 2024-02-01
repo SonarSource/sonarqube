@@ -127,7 +127,7 @@ export default function IssueGuide({ run }: Props) {
           defaultMessage={translate('guiding.issue_list.5.content')}
           values={{
             link: (
-              <DocLink to="/user-guide/clean-code" className="sw-capitalize">
+              <DocLink to="/user-guide/clean-code/introduction" className="sw-capitalize">
                 {translate('documentation')}
               </DocLink>
             ),

@@ -117,7 +117,10 @@ export default function ActivationFormModal(props: Readonly<Props>) {
 
           <FlagMessage className="sw-mb-4" variant="info">
             {translate('coding_rules.severity_deprecated')}
-            <DocLink className="sw-ml-2 sw-whitespace-nowrap" to="/user-guide/clean-code/">
+            <DocLink
+              className="sw-ml-2 sw-whitespace-nowrap"
+              to="/user-guide/clean-code/introduction/"
+            >
               {translate('learn_more')}
             </DocLink>
           </FlagMessage>

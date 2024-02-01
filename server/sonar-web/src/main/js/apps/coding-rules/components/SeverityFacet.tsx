@@ -59,7 +59,7 @@ export default function SeverityFacet(props: BasicProps) {
           }
           links={[
             {
-              href: '/user-guide/clean-code',
+              href: '/user-guide/clean-code/introduction',
               label: translate('learn_more'),
             },
           ]}
