@@ -262,7 +262,7 @@ subprojects {
       dependency 'org.sonarsource.slang:sonar-go-plugin:1.15.0.4655'
       dependency 'org.sonarsource.slang:sonar-ruby-plugin:1.15.0.4655'
       dependency 'org.sonarsource.slang:sonar-scala-plugin:1.15.0.4655'
-      dependency 'com.sonarsource.swift:sonar-swift-plugin:4.11.0.6055'
+      dependency 'com.sonarsource.swift:sonar-swift-plugin:4.12.0.7262'
       dependency 'com.sonarsource.tsql:sonar-tsql-plugin:1.12.0.7020'
       dependency 'org.sonarsource.dotnet:sonar-csharp-plugin:9.19.0.84025'
       dependency 'org.sonarsource.dotnet:sonar-vbnet-plugin:9.19.0.84025'
