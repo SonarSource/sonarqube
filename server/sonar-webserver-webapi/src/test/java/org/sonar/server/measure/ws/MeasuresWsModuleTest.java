@@ -36,7 +36,7 @@ public class MeasuresWsModuleTest {
   public void getDeprecatedMetricsInSonarQube104_shouldReturnExactString() {
     String actual = MeasuresWsModule.getDeprecatedMetricsInSonarQube104();
 
-    assertThat(actual).isEqualTo("'bugs', 'new_bugs', 'vulnerabilities', 'new_vulnerabilities', 'security_hotspots', " +
-      "'new_security_hotspots', 'security_hotspots_reviewed', 'new_security_hotspots_reviewed', 'code_smells', 'new_code_smells'");
+    assertThat(actual).isEqualTo("'bugs', 'new_bugs', 'vulnerabilities', 'new_vulnerabilities', 'code_smells', 'new_code_smells', " +
+      "'high_impact_accepted_issues'");
   }
 }

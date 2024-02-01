@@ -41,7 +41,6 @@ public class MeasuresWsModule extends Module {
 
   public static String getDeprecatedMetricsInSonarQube104() {
     return "'" + String.join("', '","bugs", "new_bugs", "vulnerabilities", "new_vulnerabilities",
-      "security_hotspots", "new_security_hotspots", "security_hotspots_reviewed", "new_security_hotspots_reviewed",
-      "code_smells", "new_code_smells") + "'";
+      "code_smells", "new_code_smells", "high_impact_accepted_issues") + "'";
   }
 }
