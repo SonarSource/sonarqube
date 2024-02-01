@@ -76,7 +76,7 @@
     <include refid="userTokensColumns"/>
     FROM user_tokens t
     LEFT JOIN projects p on t.project_key = p.kee
-    WHERE t.user_uuid=#{userUuid, jdbcType=VARCHAR}
+    WHERE t.user_uuid=#{userUuid, jdbcType=VARCHAR} order by t.created_at desc
   </select>
   
   <select id="countTokensByUserUuids" parameterType="map" resultType="UserTokenCount">
