@@ -22,7 +22,6 @@ package org.sonar.server.rule.registration;
 import java.util.HashMap;
 import java.util.Map;
 import org.jetbrains.annotations.Nullable;
-import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.issue.impact.Severity;
 import org.sonar.api.issue.impact.SoftwareQuality;
@@ -32,7 +31,6 @@ import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactory;
-import org.sonar.db.DbClient;
 import org.sonar.db.issue.ImpactDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.server.rule.RuleDescriptionSectionsGeneratorResolver;
@@ -45,24 +43,19 @@ import static org.sonar.api.rule.Severity.MAJOR;
 
 public class NewRuleCreatorTest {
 
-  private final DbClient dbClient = mock();
   private final RuleDescriptionSectionsGeneratorResolver ruleDescriptionSectionsGeneratorResolver = mock();
   private final UuidFactory uuidFactory = mock();
   private final System2 system2 = mock();
   private final RulesRegistrationContext context = mock();
 
-  private final NewRuleCreator underTest = new NewRuleCreator(dbClient, ruleDescriptionSectionsGeneratorResolver, uuidFactory, system2);
+  private final NewRuleCreator underTest = new NewRuleCreator(ruleDescriptionSectionsGeneratorResolver, uuidFactory, system2);
 
-  @Before
-  public void before() {
-    when(dbClient.ruleDao()).thenReturn(mock());
-  }
 
   @Test
   public void from_whenRuleDefinitionDoesntHaveCleanCodeAttribute_shouldAlwaysSetCleanCodeAttribute() {
     RulesDefinition.Rule ruleDef = getDefaultRule();
 
-    RuleDto newRuleDto = underTest.createNewRule(context, ruleDef, mock());
+    RuleDto newRuleDto = underTest.createNewRule(context, ruleDef);
 
     assertThat(newRuleDto.getCleanCodeAttribute()).isEqualTo(CleanCodeAttribute.CONVENTIONAL);
   }
@@ -71,7 +64,7 @@ public class NewRuleCreatorTest {
   public void from_whenRuleDefinitionDoesHaveCleanCodeAttribute_shouldReturnThisAttribute() {
     RulesDefinition.Rule ruleDef = getDefaultRule(CleanCodeAttribute.TESTED, RuleType.CODE_SMELL);
 
-    RuleDto newRuleDto = underTest.createNewRule(context, ruleDef, mock());
+    RuleDto newRuleDto = underTest.createNewRule(context, ruleDef);
 
     assertThat(newRuleDto.getCleanCodeAttribute()).isEqualTo(CleanCodeAttribute.TESTED);
   }
@@ -80,7 +73,7 @@ public class NewRuleCreatorTest {
   public void createNewRule_whenRuleDefinitionDoesHaveCleanCodeAttributeAndIsSecurityHotspot_shouldReturnNull() {
     RulesDefinition.Rule ruleDef = getDefaultRule(CleanCodeAttribute.TESTED, RuleType.SECURITY_HOTSPOT);
 
-    RuleDto newRuleDto = underTest.createNewRule(context, ruleDef, mock());
+    RuleDto newRuleDto = underTest.createNewRule(context, ruleDef);
     assertThat(newRuleDto.getCleanCodeAttribute()).isNull();
     assertThat(newRuleDto.getDefaultImpacts()).isEmpty();
   }
@@ -92,7 +85,7 @@ public class NewRuleCreatorTest {
     singleImpact.put(SoftwareQuality.RELIABILITY, Severity.LOW);
     when(ruleDef.defaultImpacts()).thenReturn(singleImpact);
 
-    RuleDto newRuleDto = underTest.createNewRule(context, ruleDef, mock());
+    RuleDto newRuleDto = underTest.createNewRule(context, ruleDef);
 
     assertThat(newRuleDto.getDefaultImpacts()).extracting(ImpactDto::getSoftwareQuality, ImpactDto::getSeverity)
       .containsOnly(tuple(SoftwareQuality.RELIABILITY, Severity.LOW));

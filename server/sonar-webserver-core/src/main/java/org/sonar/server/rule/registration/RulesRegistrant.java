@@ -21,6 +21,7 @@ package org.sonar.server.rule.registration;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -42,7 +43,9 @@ import org.sonar.api.utils.log.Profiler;
 import org.sonar.core.platform.SonarQubeVersion;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.issue.ImpactDto;
 import org.sonar.db.qualityprofile.QProfileChangeDto;
+import org.sonar.db.rule.RuleDescriptionSectionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleRepositoryDto;
 import org.sonar.server.es.metadata.MetadataIndex;
@@ -169,7 +172,7 @@ public class RulesRegistrant implements Startable {
 
     for (RulesDefinition.Rule ruleDef : ruleDefs) {
       RuleKey ruleKey = RuleKey.of(ruleDef.repository().key(), ruleDef.key());
-      RuleDto ruleDto = context.getDbRuleFor(ruleDef).orElseGet(() -> newRuleCreator.createNewRule(context, ruleDef, session));
+      RuleDto ruleDto = context.getDbRuleFor(ruleDef).orElseGet(() -> newRuleCreator.createNewRule(context, ruleDef));
       dtos.put(ruleDef, ruleDto);
 
       // we must detect renaming __before__ we modify the DTO
@@ -182,10 +185,52 @@ public class RulesRegistrant implements Startable {
         processRuleUpdates(context, pluginRuleUpdates, ruleDef, ruleDto);
       }
 
+      if (!context.isUpdated(ruleDto) && !context.isRenamed(ruleDto) && !context.isCreated(ruleDto)) {
+        context.unchanged(ruleDto);
+      }
+    }
+
+    persistRules(context, session, dtos);
+    return pluginRuleUpdates;
+  }
+
+  private void persistRules(RulesRegistrationContext context, DbSession session, Map<RulesDefinition.Rule, RuleDto> dtos) {
+    Map<String, Set<String>> systemTags = new HashMap<>();
+    Map<String, Set<String>> tags = new HashMap<>();
+    Map<String, Set<RuleDescriptionSectionDto>> sections = new HashMap<>();
+    Map<String, Set<ImpactDto>> impacts = new HashMap<>();
+
+    for (Map.Entry<RulesDefinition.Rule, RuleDto> entry : dtos.entrySet()) {
+      RulesDefinition.Rule ruleDef = entry.getKey();
+      if (context.getDbRuleFor(ruleDef).isEmpty()) {
+        RuleDto ruleDto = entry.getValue();
+        dbClient.ruleDao().insertShallow(session, ruleDto);
+        systemTags.put(ruleDto.getUuid(), ruleDto.getSystemTags());
+        tags.put(ruleDto.getUuid(), ruleDto.getTags());
+        sections.put(ruleDto.getUuid(), ruleDto.getRuleDescriptionSectionDtos());
+        impacts.put(ruleDto.getUuid(), ruleDto.getDefaultImpacts());
+      }
+    }
+
+    for (Map.Entry<String, Set<String>> entry : systemTags.entrySet()) {
+      dbClient.ruleDao().insertRuleTag(session, entry.getKey(), entry.getValue(), true);
+    }
+
+    for (Map.Entry<String, Set<String>> entry : tags.entrySet()) {
+      dbClient.ruleDao().insertRuleTag(session, entry.getKey(), entry.getValue(), false);
+    }
+
+    for (Map.Entry<String, Set<RuleDescriptionSectionDto>> entry : sections.entrySet()) {
+      dbClient.ruleDao().insertRuleDescriptionSections(session, entry.getKey(), entry.getValue());
+    }
+
+    for (Map.Entry<String, Set<ImpactDto>> entry : impacts.entrySet()) {
+      dbClient.ruleDao().insertRuleDefaultImpacts(session, entry.getKey(), entry.getValue());
+    }
+
+    for (RuleDto ruleDto : dtos.values()) {
       if (context.isUpdated(ruleDto) || context.isRenamed(ruleDto)) {
         update(session, ruleDto);
-      } else if (!context.isCreated(ruleDto)) {
-        context.unchanged(ruleDto);
       }
     }
 
@@ -193,7 +238,6 @@ public class RulesRegistrant implements Startable {
       startupRuleUpdater.mergeParams(context, e.getKey(), e.getValue(), session);
       startupRuleUpdater.updateDeprecatedKeys(context, e.getKey(), e.getValue(), session);
     }
-    return pluginRuleUpdates;
   }
 
   private void processRuleUpdates(RulesRegistrationContext context, Set<PluginRuleUpdate> pluginRuleUpdates, RulesDefinition.Rule ruleDef, RuleDto ruleDto) {
@@ -324,8 +368,8 @@ public class RulesRegistrant implements Startable {
 
   private static Set<String> getExistingAndRenamedRepositories(RulesRegistrationContext recorder, Collection<RulesDefinition.Repository> context) {
     return Stream.concat(
-        context.stream().map(RulesDefinition.ExtendedRepository::key),
-        recorder.getRenamed().map(Map.Entry::getValue).map(RuleKey::repository))
+      context.stream().map(RulesDefinition.ExtendedRepository::key),
+      recorder.getRenamed().map(Map.Entry::getValue).map(RuleKey::repository))
       .collect(Collectors.toSet());
   }
 

@@ -70,6 +70,7 @@ import static org.sonar.api.rule.RuleStatus.READY;
 import static org.sonar.api.rule.RuleStatus.REMOVED;
 import static org.sonar.db.Pagination.forPage;
 import static org.sonar.db.rule.RuleListQuery.RuleListQueryBuilder.newRuleListQueryBuilder;
+import static org.sonar.db.rule.RuleTesting.newRule;
 
 public class RuleDaoIT {
   private static final String UNKNOWN_RULE_UUID = "unknown-uuid";
@@ -93,6 +94,72 @@ public class RuleDaoIT {
       .containsExactlyInAnyOrder(
         tuple(MAINTAINABILITY, org.sonar.api.issue.impact.Severity.HIGH),
         tuple(SECURITY, org.sonar.api.issue.impact.Severity.LOW));
+  }
+
+  @Test
+  public void insertShallow_shouldNotInsertChildEntities() {
+    RuleDto ruleDto = newRule();
+
+    assertThat(ruleDto.getDefaultImpacts()).isNotEmpty();
+    assertThat(ruleDto.getRuleDescriptionSectionDtos()).isNotEmpty();
+    assertThat(ruleDto.getTags()).isNotEmpty();
+
+    underTest.insertShallow(db.getSession(), ruleDto);
+
+    RuleDto actualRule = underTest.selectByKey(db.getSession(), ruleDto.getKey()).get();
+
+    assertThat(actualRule.getDefaultImpacts()).isEmpty();
+    assertThat(actualRule.getRuleDescriptionSectionDtos()).isEmpty();
+    assertThat(actualRule.getTags()).isEmpty();
+  }
+
+  @Test
+  public void insertRuleDescriptionSections() {
+    RuleDto ruleDto = newRule();
+    underTest.insertShallow(db.getSession(), ruleDto);
+
+    RuleDescriptionSectionDto sectionDto = RuleDescriptionSectionDto.createDefaultRuleDescriptionSection("description-uuid", "content");
+    underTest.insertRuleDescriptionSections(db.getSession(), ruleDto.getUuid(), Set.of(sectionDto));
+
+    RuleDto actualRule = underTest.selectByKey(db.getSession(), ruleDto.getKey()).get();
+
+    assertThat(actualRule.getRuleDescriptionSectionDtos()).extracting(RuleDescriptionSectionDto::getUuid)
+      .containsExactlyInAnyOrder("description-uuid");
+  }
+
+  @Test
+  public void insertRuleDefaultImpacts() {
+    RuleDto ruleDto = newRule();
+    underTest.insertShallow(db.getSession(), ruleDto);
+
+    ImpactDto impact1 = new ImpactDto("uuid1", MAINTAINABILITY, org.sonar.api.issue.impact.Severity.HIGH);
+    ImpactDto impact2 = new ImpactDto("uuid2", SECURITY, org.sonar.api.issue.impact.Severity.LOW);
+
+    underTest.insertRuleDefaultImpacts(db.getSession(), ruleDto.getUuid(), Set.of(impact1, impact2));
+
+    RuleDto actualRule = underTest.selectByKey(db.getSession(), ruleDto.getKey()).get();
+
+    assertThat(actualRule.getDefaultImpacts())
+      .extracting(ImpactDto::getUuid, ImpactDto::getSoftwareQuality, ImpactDto::getSeverity)
+      .containsExactlyInAnyOrder(tuple("uuid1", MAINTAINABILITY, org.sonar.api.issue.impact.Severity.HIGH),
+        tuple("uuid2", SECURITY, org.sonar.api.issue.impact.Severity.LOW));
+  }
+
+  @Test
+  public void insertRuleTag() {
+    RuleDto ruleDto = newRule();
+    underTest.insertShallow(db.getSession(), ruleDto);
+
+    underTest.insertRuleTag(db.getSession(), ruleDto.getUuid(), Set.of("tag1"), true);
+    underTest.insertRuleTag(db.getSession(), ruleDto.getUuid(), Set.of("tag2"), false);
+
+    RuleDto actualRule = underTest.selectByKey(db.getSession(), ruleDto.getKey()).get();
+
+    assertThat(actualRule.getSystemTags())
+      .containsExactlyInAnyOrder("tag1");
+
+    assertThat(actualRule.getTags())
+      .containsExactlyInAnyOrder("tag2");
   }
 
   @Test

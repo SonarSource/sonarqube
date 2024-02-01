@@ -161,7 +161,7 @@ public class RulesRegistrantIT {
 
   private final RulesKeyVerifier rulesKeyVerifier = new RulesKeyVerifier();
   private final StartupRuleUpdater startupRuleUpdater = new StartupRuleUpdater(dbClient, system, uuidFactory, resolver);
-  private final NewRuleCreator newRuleCreator = new NewRuleCreator(dbClient, resolver, uuidFactory, system);
+  private final NewRuleCreator newRuleCreator = new NewRuleCreator(resolver, uuidFactory, system);
   private final QualityProfileChangesUpdater qualityProfileChangesUpdater = mock();
 
   @Before

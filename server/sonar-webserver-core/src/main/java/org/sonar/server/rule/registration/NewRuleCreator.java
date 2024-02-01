@@ -27,8 +27,6 @@ import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactory;
-import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
 import org.sonar.db.issue.ImpactDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.server.rule.RuleDescriptionSectionsGeneratorResolver;
@@ -37,23 +35,19 @@ import static org.apache.commons.lang.StringUtils.isNotEmpty;
 
 public class NewRuleCreator {
 
-  private final DbClient dbClient;
   private final RuleDescriptionSectionsGeneratorResolver ruleDescriptionSectionsGeneratorResolver;
   private final UuidFactory uuidFactory;
   private final System2 system2;
 
-  public NewRuleCreator(DbClient dbClient, RuleDescriptionSectionsGeneratorResolver ruleDescriptionSectionsGeneratorResolver, UuidFactory uuidFactory, System2 system2) {
-    this.dbClient = dbClient;
+  public NewRuleCreator(RuleDescriptionSectionsGeneratorResolver ruleDescriptionSectionsGeneratorResolver, UuidFactory uuidFactory, System2 system2) {
     this.ruleDescriptionSectionsGeneratorResolver = ruleDescriptionSectionsGeneratorResolver;
     this.uuidFactory = uuidFactory;
     this.system2 = system2;
   }
 
-  RuleDto createNewRule(RulesRegistrationContext context, RulesDefinition.Rule ruleDef, DbSession session) {
+  RuleDto createNewRule(RulesRegistrationContext context, RulesDefinition.Rule ruleDef) {
     RuleDto newRule = createRuleWithSimpleFields(ruleDef, uuidFactory.create(), system2.now());
     ruleDescriptionSectionsGeneratorResolver.generateFor(ruleDef).forEach(newRule::addRuleDescriptionSectionDto);
-
-    dbClient.ruleDao().insert(session, newRule);
     context.created(newRule);
     return newRule;
   }

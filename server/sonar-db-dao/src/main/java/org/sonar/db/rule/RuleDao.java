@@ -37,6 +37,7 @@ import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 import org.sonar.db.Pagination;
 import org.sonar.db.RowNotFoundException;
+import org.sonar.db.issue.ImpactDto;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static java.util.Collections.emptyList;
@@ -112,6 +113,11 @@ public class RuleDao implements Dao {
     updateRuleTags(ruleDto, mapper);
   }
 
+  public void insertShallow(DbSession session, RuleDto ruleDto) {
+    checkNotNull(ruleDto.getUuid(), "RuleDto has no 'uuid'.");
+    mapper(session).insertRule(ruleDto);
+  }
+
   public void update(DbSession session, RuleDto ruleDto) {
     RuleMapper mapper = mapper(session);
     mapper.updateRule(ruleDto);
@@ -135,6 +141,11 @@ public class RuleDao implements Dao {
       .forEach(section -> mapper.insertRuleDescriptionSection(ruleDto.getUuid(), section));
   }
 
+  public void insertRuleDescriptionSections(DbSession session, String ruleUuid, Set<RuleDescriptionSectionDto> sections) {
+    sections
+      .forEach(section -> mapper(session).insertRuleDescriptionSection(ruleUuid, section));
+  }
+
   private static void updateRuleDefaultImpacts(RuleDto ruleDto, RuleMapper mapper) {
     mapper.deleteRuleDefaultImpacts(ruleDto.getUuid());
     insertRuleDefaultImpacts(ruleDto, mapper);
@@ -150,11 +161,22 @@ public class RuleDao implements Dao {
       .forEach(impact -> mapper.insertRuleDefaultImpact(ruleDto.getUuid(), impact));
   }
 
+  public void insertRuleDefaultImpacts(DbSession session, String ruleUuid, Set<ImpactDto> impacts) {
+    impacts
+      .forEach(impact -> mapper(session).insertRuleDefaultImpact(ruleUuid, impact));
+  }
+
   private static void insertRuleTags(RuleDto ruleDto, RuleMapper mapper) {
     ruleDto.getSystemTags()
       .forEach(tag -> mapper.insertRuleTag(ruleDto.getUuid(), tag, true));
     ruleDto.getTags()
       .forEach(tag -> mapper.insertRuleTag(ruleDto.getUuid(), tag, false));
+  }
+
+  public void insertRuleTag(DbSession dbSession, String ruleUuid, Set<String> tags, boolean isSystemTag) {
+    for (String tag : tags) {
+      mapper(dbSession).insertRuleTag(ruleUuid, tag, isSystemTag);
+    }
   }
 
   public void selectIndexingRulesByKeys(DbSession dbSession, Collection<String> ruleUuids, Consumer<RuleForIndexingDto> consumer) {
