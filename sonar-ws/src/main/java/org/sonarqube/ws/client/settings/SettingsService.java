@@ -64,7 +64,7 @@ public class SettingsService extends BaseService {
    */
   public EncryptWsResponse encrypt(EncryptRequest request) {
     return call(
-      new GetRequest(path("encrypt"))
+      new PostRequest(path("encrypt"))
         .setParam("value", request.getValue()),
       EncryptWsResponse.parser());
   }
