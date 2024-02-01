@@ -21,6 +21,7 @@ package org.sonar.server.setting.ws;
 
 import org.sonar.api.config.internal.Encryption;
 import org.sonar.api.config.internal.Settings;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -46,9 +47,11 @@ public class EncryptAction implements SettingsWsAction {
       .setDescription("Encrypt a setting value.<br>" +
         "Requires 'Administer System' permission.")
       .setSince("6.1")
+      .setPost(true)
       .setHandler(this)
       .setInternal(true)
-      .setResponseExample(getClass().getResource("encrypt-example.json"));
+      .setResponseExample(getClass().getResource("encrypt-example.json"))
+      .setChangelog(new Change("10.4", "Move from GET to POST."));
 
     action.createParam(PARAM_VALUE)
       .setRequired(true)

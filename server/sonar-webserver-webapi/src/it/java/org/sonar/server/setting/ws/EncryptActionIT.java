@@ -76,7 +76,7 @@ public class EncryptActionIT {
     WebService.Action definition = ws.getDef();
 
     assertThat(definition.key()).isEqualTo("encrypt");
-    assertThat(definition.isPost()).isFalse();
+    assertThat(definition.isPost()).isTrue();
     assertThat(definition.isInternal()).isTrue();
     assertThat(definition.responseExampleAsString()).isNotEmpty();
     assertThat(definition.params()).hasSize(1);
