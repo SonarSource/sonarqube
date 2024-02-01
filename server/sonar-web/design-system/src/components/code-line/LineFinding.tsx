@@ -57,18 +57,18 @@ export const LineFinding = forwardRef<HTMLElement, Props>(LineFindingFunc);
 const LineFindingStyled = styled(BareButton)<{ selected: boolean }>`
   ${tw`sw-flex sw-gap-2 sw-items-center`}
   ${tw`sw-my-3 sw-mx-1`}
-  ${tw`sw-p-3`}
-  ${tw`sw-body-md-highlight`}
   ${tw`sw-rounded-1`}
+  ${tw`sw-px-3`}
   ${tw`sw-w-full`}
   ${tw`sw-box-border`}
+  ${(props) => (props.selected ? tw`sw-py-3` : tw`sw-py-2`)};
+  ${(props) => (props.selected ? tw`sw-body-md-highlight` : tw`sw-body-sm`)};
 
   border: ${(props) =>
     props.selected
       ? themeBorder('default', 'issueBoxSelectedBorder')
       : themeBorder('default', 'issueBoxBorder')};
   color: ${themeContrast('pageBlock')};
-  font-weight: ${(props) => (props.selected ? 600 : 400)};
   word-break: break-word;
   background-color: ${themeColor('pageBlock')};
 
