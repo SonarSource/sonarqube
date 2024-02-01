@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import { useIntl } from 'react-intl';
 import { SoftwareImpactSeverity, SoftwareQuality } from '../../../types/clean-code-taxonomy';
 
@@ -55,33 +54,16 @@ export function SoftwareImpactRatingTooltip(props: Readonly<SoftwareImpactRating
     )}.improve_tooltip`,
   });
 
-  return (
-    <div className="sw-flex sw-flex-col sw-gap-1">
-      <span className="sw-font-semibold">
-        {intl.formatMessage({
-          id: 'overview.measures.software_impact.improve_rating_tooltip.title',
-        })}
-      </span>
-
-      <span>
-        {intl.formatMessage(
-          {
-            id: 'overview.measures.software_impact.improve_rating_tooltip.content.1',
-          },
-          {
-            softwareQuality: softwareQualityLabel,
-            ratingLabel: rating,
-            severity: severityLabel,
-          },
-        )}
-      </span>
-
-      <span className="sw-mt-4">
-        {intl.formatMessage({
-          id: 'overview.measures.software_impact.improve_rating_tooltip.content.2',
-        })}
-      </span>
-    </div>
+  return intl.formatMessage(
+    {
+      id: 'overview.measures.software_impact.improve_rating_tooltip',
+    },
+    {
+      softwareQuality: softwareQualityLabel,
+      _softwareQuality: softwareQualityLabel.toLowerCase(),
+      ratingLabel: rating,
+      severity: severityLabel,
+    },
   );
 }
 
