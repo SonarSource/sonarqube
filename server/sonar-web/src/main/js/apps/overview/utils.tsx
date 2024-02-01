@@ -26,7 +26,7 @@ import { formatMeasure } from '../../helpers/measures';
 import { parseAsString } from '../../helpers/query';
 import { SoftwareQuality } from '../../types/clean-code-taxonomy';
 import { IssueType } from '../../types/issues';
-import { MetricKey } from '../../types/metrics';
+import { MetricKey, MetricType } from '../../types/metrics';
 import { AnalysisMeasuresVariations, MeasureHistory } from '../../types/project-activity';
 import { QualityGateStatusConditionEnhanced } from '../../types/quality-gates';
 import { Dict, RawQuery } from '../../types/types';
@@ -257,17 +257,33 @@ export function getConditionRequiredLabel(
   intl: IntlShape,
   failed = false,
 ) {
+  let operator = condition.op === 'GT' ? '≤' : '≥';
+
+  if (operator === '≤' && condition.error === '0') {
+    operator = '=';
+  }
+
+  if (
+    operator === '≥' &&
+    condition.error === '100' &&
+    condition.measure.metric.type === MetricType.Percent
+  ) {
+    operator = '=';
+  }
+
   const conditionEl = (
     <>
-      {condition.op === 'GT' ? '≤' : '≥'}{' '}
+      {operator}{' '}
       {formatMeasure(condition.error, condition.measure.metric.type, {
         decimals: 2,
         omitExtraDecimalZeros: true,
       })}
     </>
   );
+
   return intl.formatMessage(
     { id: 'overview.quality_gate.required_x' },
+
     {
       requirement: failed ? <b>{conditionEl}</b> : conditionEl,
     },
