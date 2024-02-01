@@ -61,7 +61,6 @@ export default function NewCodeMeasuresPanel(props: Readonly<Props>) {
   const isApp = isApplication(component.qualifier);
 
   const conditions = qgStatuses?.flatMap((qg) => qg.conditions) ?? [];
-  const failedConditions = qgStatuses?.flatMap((qg) => qg.failedConditions) ?? [];
 
   const newIssues = getLeakValue(findMeasure(measures, MetricKey.new_violations));
   const newIssuesCondition = conditions.find((c) => c.metric === MetricKey.new_violations);
@@ -160,7 +159,7 @@ export default function NewCodeMeasuresPanel(props: Readonly<Props>) {
         branch={branch}
         component={component}
         measures={measures}
-        failedConditions={failedConditions}
+        conditions={conditions}
       />
 
       <MeasuresCardNumber

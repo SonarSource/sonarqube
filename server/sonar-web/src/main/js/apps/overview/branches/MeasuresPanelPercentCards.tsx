@@ -32,14 +32,14 @@ interface Props {
   branch?: BranchLike;
   component: Component;
   measures: MeasureEnhanced[];
-  failedConditions: QualityGateStatusConditionEnhanced[];
+  conditions: QualityGateStatusConditionEnhanced[];
 }
 
 /**
  * Renders Coverage and Duplication cards for the Overview page.
  */
 export default function MeasuresPanelPercentCards(props: Readonly<Props>) {
-  const { useDiffMetric, branch, component, measures, failedConditions } = props;
+  const { useDiffMetric, branch, component, measures, conditions } = props;
 
   const isApp = isApplication(component.qualifier);
 
@@ -48,7 +48,7 @@ export default function MeasuresPanelPercentCards(props: Readonly<Props>) {
       <MeasuresCardPercent
         branchLike={branch}
         componentKey={component.key}
-        conditions={failedConditions}
+        conditions={conditions}
         measures={measures}
         measurementType={MeasurementType.Coverage}
         label="overview.quality_gate.coverage"
@@ -67,7 +67,7 @@ export default function MeasuresPanelPercentCards(props: Readonly<Props>) {
       <MeasuresCardPercent
         branchLike={branch}
         componentKey={component.key}
-        conditions={failedConditions}
+        conditions={conditions}
         measures={measures}
         measurementType={MeasurementType.Duplication}
         label="overview.quality_gate.duplications"

@@ -57,7 +57,6 @@ export default function OverallCodeMeasuresPanel(props: Readonly<OverallCodeMeas
 
   const isApp = isApplication(component.qualifier);
   const conditions = qgStatuses?.flatMap((qg) => qg.conditions) ?? [];
-  const failedConditions = qgStatuses?.flatMap((qg) => qg.failedConditions) ?? [];
   const acceptedIssues = findMeasure(measures, MetricKey.accepted_issues)?.value;
   const securityHotspots = findMeasure(measures, MetricKey.security_hotspots)?.value;
   const securityRating = findMeasure(measures, MetricKey.security_review_rating)?.value;
@@ -114,7 +113,7 @@ export default function OverallCodeMeasuresPanel(props: Readonly<OverallCodeMeas
           branch={branch}
           component={component}
           measures={measures}
-          failedConditions={failedConditions}
+          conditions={conditions}
         />
 
         <MeasuresCardNumber
