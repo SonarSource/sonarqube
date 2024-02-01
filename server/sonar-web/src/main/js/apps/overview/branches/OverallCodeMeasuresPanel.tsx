@@ -60,7 +60,7 @@ export default function OverallCodeMeasuresPanel(props: Readonly<OverallCodeMeas
   const failedConditions = qgStatuses?.flatMap((qg) => qg.failedConditions) ?? [];
   const acceptedIssues = findMeasure(measures, MetricKey.accepted_issues)?.value;
   const securityHotspots = findMeasure(measures, MetricKey.security_hotspots)?.value;
-  const securityRating = findMeasure(measures, MetricKey.security_rating)?.value;
+  const securityRating = findMeasure(measures, MetricKey.security_review_rating)?.value;
 
   return (
     <div id={getTabPanelId(MeasuresTabs.Overall)} className="sw-mt-6">
@@ -110,6 +110,13 @@ export default function OverallCodeMeasuresPanel(props: Readonly<OverallCodeMeas
           </TextSubdued>
         </MeasuresCard>
 
+        <MeasuresPanelPercentCards
+          branch={branch}
+          component={component}
+          measures={measures}
+          failedConditions={failedConditions}
+        />
+
         <MeasuresCardNumber
           label={
             securityHotspots === '1'
@@ -137,13 +144,6 @@ export default function OverallCodeMeasuresPanel(props: Readonly<OverallCodeMeas
           }
         />
       </div>
-
-      <MeasuresPanelPercentCards
-        branch={branch}
-        component={component}
-        measures={measures}
-        failedConditions={failedConditions}
-      />
     </div>
   );
 }

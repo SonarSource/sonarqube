@@ -21,6 +21,8 @@ import styled from '@emotion/styled';
 import {
   LightGreyCard,
   LightLabel,
+  MetricsRatingBadge,
+  NoDataIcon,
   SnoozeCircleIcon,
   TextError,
   TextSubdued,
@@ -33,7 +35,7 @@ import { getTabPanelId } from '../../../components/controls/BoxedTabs';
 import { getLeakValue } from '../../../components/measure/utils';
 import { DEFAULT_ISSUES_QUERY } from '../../../components/shared/utils';
 import { getBranchLikeQuery } from '../../../helpers/branch-like';
-import { findMeasure, formatMeasure } from '../../../helpers/measures';
+import { findMeasure, formatMeasure, formatRating } from '../../../helpers/measures';
 import { getComponentIssuesUrl, getComponentSecurityHotspotsUrl } from '../../../helpers/urls';
 import { Branch } from '../../../types/branch-like';
 import { isApplication } from '../../../types/component';
@@ -68,6 +70,9 @@ export default function NewCodeMeasuresPanel(props: Readonly<Props>) {
   const newSecurityHotspots = getLeakValue(
     findMeasure(measures, MetricKey.new_security_hotspots),
   ) as string;
+  const newSecurityReviewRating = getLeakValue(
+    findMeasure(measures, MetricKey.new_security_review_rating),
+  );
 
   let issuesFooter;
   if (newIssuesCondition && !isApp) {
@@ -104,8 +109,8 @@ export default function NewCodeMeasuresPanel(props: Readonly<Props>) {
   }
 
   return (
-    <div className="sw-mt-6" id={getTabPanelId(MeasuresTabs.New)}>
-      <LightGreyCard className="sw-flex sw-rounded-2 sw-gap-4">
+    <div className="sw-grid sw-grid-cols-2 sw-gap-4 sw-mt-6" id={getTabPanelId(MeasuresTabs.New)}>
+      <LightGreyCard className="sw-flex sw-col-span-2 sw-rounded-2 sw-gap-4">
         <IssueMeasuresCardInner
           data-testid="overview__measures-new_issues"
           disabled={component.needIssueSync}
@@ -158,23 +163,32 @@ export default function NewCodeMeasuresPanel(props: Readonly<Props>) {
         failedConditions={failedConditions}
       />
 
-      <div className="sw-grid sw-grid-cols-2 sw-gap-4 sw-mt-4">
-        <MeasuresCardNumber
-          label={
-            newSecurityHotspots === '1'
-              ? 'issue.type.SECURITY_HOTSPOT'
-              : 'issue.type.SECURITY_HOTSPOT.plural'
-          }
-          url={getComponentSecurityHotspotsUrl(component.key, {
-            ...getBranchLikeQuery(branch),
-          })}
-          value={newSecurityHotspots}
-          metric={MetricKey.new_security_hotspots}
-          conditions={conditions}
-          conditionMetric={MetricKey.new_security_hotspots_reviewed}
-          showRequired={!isApp}
-        />
-      </div>
+      <MeasuresCardNumber
+        label={
+          newSecurityHotspots === '1'
+            ? 'issue.type.SECURITY_HOTSPOT'
+            : 'issue.type.SECURITY_HOTSPOT.plural'
+        }
+        url={getComponentSecurityHotspotsUrl(component.key, {
+          ...getBranchLikeQuery(branch),
+        })}
+        value={newSecurityHotspots}
+        metric={MetricKey.new_security_hotspots}
+        conditions={conditions}
+        conditionMetric={MetricKey.new_security_hotspots_reviewed}
+        showRequired={!isApp}
+        icon={
+          newSecurityReviewRating ? (
+            <MetricsRatingBadge
+              label={newSecurityReviewRating}
+              rating={formatRating(newSecurityReviewRating)}
+              size="md"
+            />
+          ) : (
+            <NoDataIcon size="md" />
+          )
+        }
+      />
     </div>
   );
 }

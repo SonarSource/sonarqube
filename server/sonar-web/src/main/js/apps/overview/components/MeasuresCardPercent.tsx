@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import classNames from 'classnames';
 import {
   ContentLink,
   CoverageIndicator,
@@ -97,6 +98,8 @@ export default function MeasuresCardPercent(
   const condition = conditions.find((c) => c.metric === conditionMetric);
   const conditionFailed = condition?.level === Status.ERROR;
 
+  const shouldRenderRequiredLabel = showRequired && condition;
+
   return (
     <MeasuresCard
       value={formatMeasure(value, MetricType.Percent)}
@@ -106,21 +109,25 @@ export default function MeasuresCardPercent(
       failed={conditionFailed}
       icon={renderIcon(measurementType, value)}
     >
-      <span className="sw-body-xs sw-mt-3">
-        {showRequired &&
-          condition &&
-          (conditionFailed ? (
+      {shouldRenderRequiredLabel && (
+        <span className="sw-body-xs sw-mt-3">
+          {conditionFailed ? (
             <TextError
               className="sw-font-regular sw-inline"
               text={getConditionRequiredLabel(condition, intl, true)}
             />
           ) : (
             <LightLabel>{getConditionRequiredLabel(condition, intl)}</LightLabel>
-          ))}
-      </span>
-
-      <div className="sw-flex sw-body-sm sw-justify-between sw-items-center sw-mt-1">
-        <LightLabel className="sw-flex sw-items-center sw-gap-1 ">
+          )}
+        </span>
+      )}
+      <div
+        className={classNames('sw-flex sw-body-xs sw-justify-between sw-items-center', {
+          'sw-mt-1': shouldRenderRequiredLabel,
+          'sw-mt-3': !shouldRenderRequiredLabel,
+        })}
+      >
+        <LightLabel className="sw-flex sw-gap-1">
           <FormattedMessage
             defaultMessage={translate(linesLabel)}
             id={linesLabel}
@@ -132,7 +139,7 @@ export default function MeasuresCardPercent(
                     linesValue ?? '0',
                     localizeMetric(linesMetric),
                   )}
-                  className="sw-body-md-highlight sw-text-lg"
+                  className="sw-body-sm-highlight sw--mt-[3px]"
                   to={linesUrl}
                 >
                   {formatMeasure(linesValue ?? '0', MetricType.ShortInteger)}

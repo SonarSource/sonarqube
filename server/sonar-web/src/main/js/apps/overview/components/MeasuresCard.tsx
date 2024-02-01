@@ -42,7 +42,7 @@ export default function MeasuresCard(
   const { failed, children, metric, icon, value, url, label, disabled, tooltip, ...rest } = props;
 
   return (
-    <StyledCard className="sw-h-fit sw-p-6 sw-rounded-2 sw-text-base" {...rest}>
+    <StyledCard className="sw-p-6 sw-rounded-2 sw-text-base" {...rest}>
       <ColorBold className="sw-body-sm-highlight">{translate(label)}</ColorBold>
       {failed && (
         <Badge className="sw-mt-1/2 sw-px-1 sw-ml-2" variant="deleted">

@@ -44,7 +44,6 @@ export default function MeasuresCardNumber(
   const intl = useIntl();
 
   const condition = conditions.find((condition) => condition.metric === conditionMetric);
-
   const conditionFailed = condition?.level === Status.ERROR;
 
   return (

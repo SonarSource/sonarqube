@@ -44,7 +44,7 @@ export default function MeasuresPanelPercentCards(props: Readonly<Props>) {
   const isApp = isApplication(component.qualifier);
 
   return (
-    <div className="sw-grid sw-grid-cols-2 sw-gap-4 sw-mt-4">
+    <>
       <MeasuresCardPercent
         branchLike={branch}
         componentKey={component.key}
@@ -86,6 +86,6 @@ export default function MeasuresPanelPercentCards(props: Readonly<Props>) {
         useDiffMetric={useDiffMetric}
         showRequired={!isApp}
       />
-    </div>
+    </>
   );
 }
