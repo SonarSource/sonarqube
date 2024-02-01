@@ -146,8 +146,8 @@ export class DatePicker extends React.PureComponent<Props, State> {
     }
 
     return (
-      <FocusOutHandler onFocusOut={this.closeCalendar}>
-        <OutsideClickHandler onClickOutside={this.closeCalendar}>
+      <OutsideClickHandler onClickOutside={this.closeCalendar}>
+        <FocusOutHandler onFocusOut={this.closeCalendar}>
           <EscKeydownHandler onKeydown={this.closeCalendar}>
             <Popup
               allowResizing
@@ -219,8 +219,8 @@ export class DatePicker extends React.PureComponent<Props, State> {
               </span>
             </Popup>
           </EscKeydownHandler>
-        </OutsideClickHandler>
-      </FocusOutHandler>
+        </FocusOutHandler>
+      </OutsideClickHandler>
     );
   }
 }
