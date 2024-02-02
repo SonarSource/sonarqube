@@ -80,7 +80,11 @@ const ui = {
   textbox1: byRole('textbox', { name: 'test1' }),
   textbox2: byRole('textbox', { name: 'test2' }),
   githubTab: byRole('tab', { name: 'github GitHub' }),
+  gitlabTab: byRole('tab', { name: 'gitlab GitLab' }),
+  bitbucketTab: byRole('tab', { name: 'bitbucket Bitbucket' }),
   githubOrganizationWarning: byText('settings.authentication.github.organization.warning'),
+  gitlabOrganizationWarning: byText('settings.authentication.gitlab.organization.warning'),
+  bitbucketOrganizationWarning: byText('settings.authentication.bitbucket.organization.warning'),
 };
 
 it('should render tabs and allow navigation', async () => {
@@ -220,9 +224,18 @@ describe('GitHub tab', () => {
         key: 'sonar.auth.github.enabled',
         category: 'authentication',
         subCategory: 'github',
-        name: '"Enabled"',
+        name: 'Enabled',
         description:
           'Enable GitHub users to login. Value is ignored if client ID and secret are not defined.',
+        type: SettingType.BOOLEAN,
+      }),
+      mockDefinition({
+        key: 'sonar.auth.github.allowUsersToSignUp',
+        category: 'authentication',
+        subCategory: 'github',
+        name: 'Allow users to sign-up',
+        description:
+          'Allow new users to authenticate. When set to false, only existing users will be able to authenticate to the server.',
         type: SettingType.BOOLEAN,
       }),
       mockDefinition({
@@ -243,6 +256,94 @@ describe('GitHub tab', () => {
 
     await user.click(await ui.githubTab.find());
     expect(ui.githubOrganizationWarning.get()).toBeInTheDocument();
+  });
+});
+
+describe('GitLab tab', () => {
+  it('should display a warning if gitlab authentication is enabled but no organizations are whitelisted', async () => {
+    const user = userEvent.setup();
+
+    const definitions = [
+      mockDefinition({
+        key: 'sonar.auth.gitlab.enabled',
+        category: 'authentication',
+        subCategory: 'gitlab',
+        name: '"Enabled"',
+        description:
+          'Enable gitlab users to login. Value is ignored if client ID and secret are not defined.',
+        type: SettingType.BOOLEAN,
+      }),
+      mockDefinition({
+        key: 'sonar.auth.gitlab.allowUsersToSignUp',
+        category: 'authentication',
+        subCategory: 'gitlab',
+        name: 'Allow users to sign-up',
+        description:
+          'Allow new users to authenticate. When set to false, only existing users will be able to authenticate to the server.',
+        type: SettingType.BOOLEAN,
+      }),
+      mockDefinition({
+        key: 'sonar.auth.gitlab.allowedGroups',
+        category: 'authentication',
+        subCategory: 'gitlab',
+        name: 'Allowed Groups',
+        description:
+          'Only members of these groups will be able to authenticate to the server. If a user is a member of any of the group listed they will be authenticated.',
+        type: SettingType.BOOLEAN,
+        fields: [],
+        multiValues: true,
+        options: [],
+      }),
+    ];
+
+    renderAuthentication(definitions);
+
+    await user.click(await ui.gitlabTab.find());
+    expect(ui.gitlabOrganizationWarning.get()).toBeInTheDocument();
+  });
+});
+
+describe('bitbucket tab', () => {
+  it('should display a warning if bitbucket authentication is enabled but no organizations are whitelisted', async () => {
+    const user = userEvent.setup();
+
+    const definitions = [
+      mockDefinition({
+        key: 'sonar.auth.bitbucket.enabled',
+        category: 'authentication',
+        subCategory: 'bitbucket',
+        name: '"Enabled"',
+        description:
+          'Enable bitbucket users to login. Value is ignored if client ID and secret are not defined.',
+        type: SettingType.BOOLEAN,
+      }),
+      mockDefinition({
+        key: 'sonar.auth.bitbucket.allowUsersToSignUp',
+        category: 'authentication',
+        subCategory: 'bitbucket',
+        name: 'Allow users to sign-up',
+        description:
+          'Allow new users to authenticate. When set to false, only existing users will be able to authenticate to the server.',
+        type: SettingType.BOOLEAN,
+      }),
+      mockDefinition({
+        key: 'sonar.auth.bitbucket.organizations',
+        category: 'authentication',
+        subCategory: 'bitbucket',
+        name: 'Organizations',
+        description:
+          'Only members of these organizations will be able to authenticate to the server. If a user is a member of any of the organizations listed they will be authenticated.',
+        type: SettingType.BOOLEAN,
+        fields: [],
+        multiValues: true,
+        options: [],
+      }),
+    ];
+
+    renderAuthentication(definitions);
+
+    await user.click(await ui.bitbucketTab.find());
+    expect(ui.bitbucketOrganizationWarning.get()).toBeInTheDocument();
   });
 });
 

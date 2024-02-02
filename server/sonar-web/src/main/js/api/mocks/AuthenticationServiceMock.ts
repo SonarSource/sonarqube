@@ -31,6 +31,11 @@ export default class AuthenticationServiceMock {
     mockSettingValue({ key: 'sonar.auth.saml.certificate.secured' }),
     mockSettingValue({ key: 'sonar.auth.saml.enabled', value: 'false' }),
     mockSettingValue({ key: 'sonar.auth.github.enabled', value: 'true' }),
+    mockSettingValue({ key: 'sonar.auth.github.allowUsersToSignUp', value: 'true' }),
+    mockSettingValue({ key: 'sonar.auth.gitlab.enabled', value: 'true' }),
+    mockSettingValue({ key: 'sonar.auth.gitlab.allowUsersToSignUp', value: 'true' }),
+    mockSettingValue({ key: 'sonar.auth.bitbucket.enabled', value: 'true' }),
+    mockSettingValue({ key: 'sonar.auth.bitbucket.allowUsersToSignUp', value: 'true' }),
   ];
 
   constructor() {

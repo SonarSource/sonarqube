@@ -42,12 +42,12 @@ interface Props {
 
 interface State {
   settings: SettingDefinitionAndValue[];
-  displayGithubOrganizationWarning: boolean;
+  displaySecurityWarning: boolean;
 }
 
 export default class CategoryDefinitionsList extends React.PureComponent<Props, State> {
   mounted = false;
-  state: State = { settings: [], displayGithubOrganizationWarning: false };
+  state: State = { settings: [], displaySecurityWarning: false };
 
   componentDidMount() {
     this.mounted = true;
@@ -65,17 +65,37 @@ export default class CategoryDefinitionsList extends React.PureComponent<Props, 
     this.mounted = false;
   }
 
-  shouldDisplayGithubWarning = (settings: SettingDefinitionAndValue[]) => {
+  shouldDisplaySecurityWarning = (settings: SettingDefinitionAndValue[]) => {
     const { category, subCategory } = this.props;
-    if (category !== 'authentication' || subCategory !== 'github') {
+    if (category !== 'authentication' || subCategory === 'saml') {
       return false;
     }
-    const isGithubEnabled = settings.find((s) => s.definition.key === 'sonar.auth.github.enabled');
-    const organizationsSetting = settings.find(
-      (s) => s.definition.key === 'sonar.auth.github.organizations'
+    const isEnabled = settings.find(
+      (s) => s.definition.key === `sonar.auth.${subCategory}.enabled`
     );
+    const isAllowUsersToSignUpEnabled = settings.find(
+      (s) => s.definition.key === `sonar.auth.${subCategory}.allowUsersToSignUp`
+    );
+    let organizationsSetting;
+    if (subCategory === 'github') {
+      organizationsSetting = settings.find(
+        (s) => s.definition.key === `sonar.auth.${subCategory}.organizations`
+      );
+    }
+    if (subCategory === 'bitbucket') {
+      organizationsSetting = settings.find(
+        (s) => s.definition.key === `sonar.auth.${subCategory}.workspaces`
+      );
+    }
+    if (subCategory === 'gitlab') {
+      organizationsSetting = settings.find(
+        (s) => s.definition.key === `sonar.auth.${subCategory}.allowedGroups`
+      );
+    }
+
     if (
-      isGithubEnabled?.settingValue?.value === 'true' &&
+      isEnabled?.settingValue?.value === 'true' &&
+      isAllowUsersToSignUpEnabled?.settingValue?.value === 'true' &&
       organizationsSetting?.settingValue === undefined
     ) {
       return true;
@@ -106,26 +126,32 @@ export default class CategoryDefinitionsList extends React.PureComponent<Props, 
       };
     });
 
-    const displayGithubOrganizationWarning = this.shouldDisplayGithubWarning(settings);
+    const displaySecurityWarning = this.shouldDisplaySecurityWarning(settings);
 
-    this.setState({ settings, displayGithubOrganizationWarning });
+    this.setState({ settings, displaySecurityWarning });
   };
 
   render() {
     const { category, component, subCategory, displaySubCategoryTitle } = this.props;
-    const { settings, displayGithubOrganizationWarning } = this.state;
+    const { settings, displaySecurityWarning } = this.state;
 
     return (
       <>
-        {displayGithubOrganizationWarning && (
+        {displaySecurityWarning && (
           <Alert variant="error">
             <FormattedMessage
-              id="settings.authentication.github.organization.warning"
-              defaultMessage={translate('settings.authentication.github.organization.warning')}
+              id={`settings.authentication.${subCategory}.organization.warning`}
+              defaultMessage={translate(
+                `settings.authentication.${subCategory}.organization.warning`
+              )}
               values={{
                 learn_more: (
-                  <DocLink to="/instance-administration/authentication/github/#setting-your-authentication-settings-in-sonarqube">
-                    {translate('settings.authentication.github.organization.warning.learn_more')}
+                  <DocLink
+                    to={`/instance-administration/authentication/${
+                      subCategory === 'bitbucket' ? 'bitbucket-cloud' : subCategory
+                    }/#setting-your-authentication-settings-in-sonarqube`}
+                  >
+                    {translate('learn_more')}
                   </DocLink>
                 ),
               }}
