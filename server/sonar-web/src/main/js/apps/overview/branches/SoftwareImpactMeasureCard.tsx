@@ -127,12 +127,10 @@ export function SoftwareImpactMeasureCard(props: Readonly<SoftwareImpactBreakdow
             {intl.formatMessage({ id: 'overview.measures.software_impact.total_open_issues' })}
           </TextSubdued>
           <div className="sw-flex-grow sw-flex sw-justify-end">
-            {measure && (
-              <SoftwareImpactMeasureRating
-                softwareQuality={softwareQuality}
-                value={ratingMeasure?.value}
-              />
-            )}
+            <SoftwareImpactMeasureRating
+              softwareQuality={softwareQuality}
+              value={ratingMeasure?.value}
+            />
           </div>
         </div>
         <div className="sw-flex sw-gap-2">
