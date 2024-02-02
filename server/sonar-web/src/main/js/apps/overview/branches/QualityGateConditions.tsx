@@ -25,6 +25,7 @@ import { BranchLike } from '../../../types/branch-like';
 import { MetricKey } from '../../../types/metrics';
 import { QualityGateStatusConditionEnhanced } from '../../../types/quality-gates';
 import { Component } from '../../../types/types';
+import { CAYC_CONDITION_ORDER_PRIORITIES } from '../../quality-gates/utils';
 import QualityGateCondition from './QualityGateCondition';
 import QualityGateSimplifiedCondition from './QualityGateSimplifiedCondition';
 
@@ -54,9 +55,10 @@ export function QualityGateConditions(props: Readonly<QualityGateConditionsProps
     [isBuiltInQualityGate],
   );
 
-  const sortedConditions = sortBy(failedConditions, (condition) =>
-    LEVEL_ORDER.indexOf(condition.level),
-  );
+  const sortedConditions = sortBy(failedConditions, [
+    (condition) => CAYC_CONDITION_ORDER_PRIORITIES[condition.metric],
+    (condition) => LEVEL_ORDER.indexOf(condition.level),
+  ]);
 
   let renderConditions;
   let renderCollapsed;

@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { sortBy } from 'lodash';
 import { getLocalizedMetricName } from '../../helpers/l10n';
 import { isDiffMetric } from '../../helpers/measures';
 import { MetricKey } from '../../types/metrics';
@@ -122,14 +123,12 @@ const ALL_CAYC_CONDITIONS: Record<
   ...UNOPTIMIZED_CAYC_CONDITIONS,
 };
 
-const CAYC_CONDITION_ORDER_PRIORITIES: Dict<number> = [
-  MetricKey.new_violations,
-  MetricKey.new_security_hotspots_reviewed,
-  MetricKey.new_coverage,
-  MetricKey.new_duplicated_lines_density,
-]
-  .reverse()
-  .reduce((acc, key, i) => ({ ...acc, [key.toString()]: i + 1 }), {} as Dict<number>);
+export const CAYC_CONDITION_ORDER_PRIORITIES: Dict<number> = {
+  [MetricKey.new_violations]: 1,
+  [MetricKey.new_security_hotspots_reviewed]: 2,
+  [MetricKey.new_coverage]: 3,
+  [MetricKey.new_duplicated_lines_density]: 4,
+};
 
 const CAYC_CONDITIONS_WITHOUT_FIXED_VALUE: AllCaycMetricKeys[] = [
   MetricKey.new_duplicated_lines_density,
@@ -226,21 +225,17 @@ export function groupAndSortByPriorityConditions(
 ): GroupedByMetricConditions {
   const groupedConditions = groupConditionsByMetric(conditions, isBuiltInQG);
 
-  function sortFn(a: Condition, b: Condition) {
-    const priorityA = CAYC_CONDITION_ORDER_PRIORITIES[a.metric] ?? 0;
-    const priorityB = CAYC_CONDITION_ORDER_PRIORITIES[b.metric] ?? 0;
-    const diff = priorityB - priorityA;
-    if (diff !== 0) {
-      return diff;
-    }
-    return metrics[a.metric].name.localeCompare(metrics[b.metric].name, undefined, {
-      sensitivity: 'base',
-    });
-  }
+  const sortFns = [
+    (condition: Condition) => CAYC_CONDITION_ORDER_PRIORITIES[condition.metric],
+    (condition: Condition) => metrics[condition.metric]?.name,
+  ];
 
-  groupedConditions.newCodeConditions.sort(sortFn);
-  groupedConditions.overallCodeConditions.sort(sortFn);
-  groupedConditions.caycConditions.sort(sortFn);
+  groupedConditions.newCodeConditions = sortBy(groupedConditions.newCodeConditions, sortFns);
+  groupedConditions.overallCodeConditions = sortBy(
+    groupedConditions.overallCodeConditions,
+    sortFns,
+  );
+  groupedConditions.caycConditions = sortBy(groupedConditions.caycConditions, sortFns);
 
   return groupedConditions;
 }
