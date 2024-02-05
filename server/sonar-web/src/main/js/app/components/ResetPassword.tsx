@@ -17,6 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import {
+  FlagMessage,
+  LargeCenteredLayout,
+  PageContentFontWrapper,
+  SubHeading,
+  Title,
+} from 'design-system';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import ResetPasswordForm from '../../components/common/ResetPasswordForm';
@@ -29,29 +36,29 @@ export interface ResetPasswordProps {
   currentUser: LoggedInUser;
 }
 
-export function ResetPassword({ currentUser }: ResetPasswordProps) {
+export function ResetPassword({ currentUser }: Readonly<ResetPasswordProps>) {
   return (
-    <div className="page-wrapper-simple">
-      <Helmet defer={false} title={translate('my_account.reset_password.page')} />
-      <div className="page-simple">
-        <h1 className="text-center huge">{translate('my_account.reset_password')}</h1>
-        <p className="text-center huge-spacer-top huge-spacer-bottom">
-          {translate('my_account.reset_password.explain')}
-        </p>
-
-        <div className="text-center">
-          <h2 className="big-spacer-bottom big">{translate('my_profile.password.title')}</h2>
-
-          <ResetPasswordForm
-            user={currentUser}
-            onPasswordChange={() => {
-              // Force a refresh for the backend to handle additional redirects.
-              window.location.href = `${getBaseUrl()}/`;
-            }}
-          />
+    <LargeCenteredLayout>
+      <PageContentFontWrapper className="sw-body-sm">
+        <Helmet defer={false} title={translate('my_account.reset_password.page')} />
+        <div className="sw-flex sw-justify-center sw-mt-10">
+          <div>
+            <Title>{translate('my_account.reset_password')}</Title>
+            <FlagMessage variant="warning" className="sw-mb-4">
+              {translate('my_account.reset_password.explain')}
+            </FlagMessage>
+            <SubHeading>{translate('my_profile.password.title')}</SubHeading>
+            <ResetPasswordForm
+              user={currentUser}
+              onPasswordChange={() => {
+                // Force a refresh for the backend to handle additional redirects.
+                window.location.href = `${getBaseUrl()}/`;
+              }}
+            />
+          </div>
         </div>
-      </div>
-    </div>
+      </PageContentFontWrapper>
+    </LargeCenteredLayout>
   );
 }
 

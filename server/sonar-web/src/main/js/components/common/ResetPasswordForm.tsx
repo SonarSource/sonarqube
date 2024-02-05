@@ -91,6 +91,7 @@ export default function ResetPasswordForm({
       <div className="sw-pb-4">
         <FormField htmlFor="old_password" label={translate('my_profile.password.old')} required>
           <InputField
+            size="large"
             autoComplete="off"
             id="old_password"
             name="old_password"
@@ -105,6 +106,7 @@ export default function ResetPasswordForm({
       <div className="sw-pb-4">
         <FormField htmlFor="password" label={translate('my_profile.password.new')} required>
           <InputField
+            size="large"
             autoComplete="off"
             id="password"
             name="password"
@@ -123,6 +125,7 @@ export default function ResetPasswordForm({
           required
         >
           <InputField
+            size="large"
             autoComplete="off"
             id="password_confirmation"
             name="password_confirmation"
