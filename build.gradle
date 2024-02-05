@@ -409,7 +409,7 @@ subprojects {
       }
       dependency "org.springframework:spring-test:${springVersion}"
       dependency 'org.mybatis:mybatis:3.5.14'
-      dependencySet(group: 'org.slf4j', version: '2.0.9') {
+      dependencySet(group: 'org.slf4j', version: '2.0.11') {
         entry 'jcl-over-slf4j'
         entry 'jul-to-slf4j'
         entry 'log4j-over-slf4j'
