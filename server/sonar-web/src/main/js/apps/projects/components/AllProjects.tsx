@@ -19,6 +19,7 @@
  */
 import styled from '@emotion/styled';
 import {
+  LAYOUT_FOOTER_HEIGHT,
   LargeCenteredLayout,
   PageContentFontWrapper,
   Spinner,
@@ -235,7 +236,7 @@ export class AllProjects extends React.PureComponent<Props, State> {
           <section
             aria-label={translate('filters')}
             className="sw-overflow-y-auto project-filters-list"
-            style={{ height: `calc((100vh - ${top}px) - 60px)` }} // 60 for the footer
+            style={{ height: `calc((100vh - ${top}px) - ${LAYOUT_FOOTER_HEIGHT}px)` }}
           >
             <div className="sw-w-[300px] lg:sw-w-[390px]">
               <A11ySkipTarget

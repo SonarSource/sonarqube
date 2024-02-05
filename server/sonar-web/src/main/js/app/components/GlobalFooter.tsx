@@ -17,12 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { LargeCenteredLayout } from 'design-system';
+import styled from '@emotion/styled';
+import {
+  DiscreetLink,
+  FlagMessage,
+  LAYOUT_VIEWPORT_MIN_WIDTH,
+  PageContentFontWrapper,
+  themeBorder,
+  themeColor,
+} from 'design-system';
 import * as React from 'react';
-import DocLink from '../../components/common/DocLink';
 import InstanceMessage from '../../components/common/InstanceMessage';
-import Link from '../../components/common/Link';
-import { Alert } from '../../components/ui/Alert';
+import { useDocUrl } from '../../helpers/docs';
 import { getEdition } from '../../helpers/editions';
 import { translate, translateWithParameters } from '../../helpers/l10n';
 import GlobalFooterBranding from './GlobalFooterBranding';
@@ -36,62 +42,66 @@ export default function GlobalFooter({ hideLoggedInInfo }: GlobalFooterProps) {
   const appState = React.useContext(AppStateContext);
   const currentEdition = appState?.edition && getEdition(appState.edition);
 
+  const docUrl = useDocUrl();
+
   return (
-    <div className="page-footer page-container" id="footer">
-      <LargeCenteredLayout className=" sw-flex sw-flex-col sw-items-center">
+    <StyledFooter className="sw-p-6" id="footer">
+      <PageContentFontWrapper className="sw-body-sm sw-h-full sw-flex sw-flex-col sw-items-stretch">
         {appState?.productionDatabase === false && (
-          <Alert display="inline" id="evaluation_warning" variant="warning">
-            <p className="big">{translate('footer.production_database_warning')}</p>
+          <FlagMessage className="sw-mb-4" id="evaluation_warning" variant="warning">
             <p>
+              <span className="sw-body-md-highlight">
+                {translate('footer.production_database_warning')}
+              </span>
+              <br />
               <InstanceMessage message={translate('footer.production_database_explanation')} />
             </p>
-          </Alert>
+          </FlagMessage>
         )}
 
-        <GlobalFooterBranding />
+        <div className="sw-flex sw-justify-between sw-items-center">
+          <GlobalFooterBranding />
 
-        <ul className="page-footer-menu">
-          {!hideLoggedInInfo && currentEdition && (
-            <li className="page-footer-menu-item">{currentEdition.name}</li>
-          )}
-          {!hideLoggedInInfo && appState?.version && (
-            <li className="page-footer-menu-item">
-              {translateWithParameters('footer.version_x', appState.version)}
+          <ul className="sw-flex sw-items-center sw-gap-3 sw-ml-4">
+            {!hideLoggedInInfo && currentEdition && <li>{currentEdition.name}</li>}
+            {!hideLoggedInInfo && appState?.version && (
+              <li className="sw-code">
+                {translateWithParameters('footer.version_x', appState.version)}
+              </li>
+            )}
+            <li>
+              <DiscreetLink to="https://www.gnu.org/licenses/lgpl-3.0.txt">
+                {translate('footer.license')}
+              </DiscreetLink>
             </li>
-          )}
-          <li className="page-footer-menu-item">
-            <a
-              href="https://www.gnu.org/licenses/lgpl-3.0.txt"
-              rel="noopener noreferrer"
-              target="_blank"
-            >
-              {translate('footer.license')}
-            </a>
-          </li>
-          <li className="page-footer-menu-item">
-            <a
-              href="https://community.sonarsource.com/c/help/sq"
-              rel="noopener noreferrer"
-              target="_blank"
-            >
-              {translate('footer.community')}
-            </a>
-          </li>
-          <li className="page-footer-menu-item">
-            <DocLink to="/">{translate('footer.documentation')}</DocLink>
-          </li>
-          <li className="page-footer-menu-item">
-            <DocLink to="/instance-administration/plugin-version-matrix/">
-              {translate('footer.plugins')}
-            </DocLink>
-          </li>
-          {!hideLoggedInInfo && (
-            <li className="page-footer-menu-item">
-              <Link to="/web_api">{translate('footer.web_api')}</Link>
+            <li>
+              <DiscreetLink to="https://community.sonarsource.com/c/help/sq">
+                {translate('footer.community')}
+              </DiscreetLink>
             </li>
-          )}
-        </ul>
-      </LargeCenteredLayout>
-    </div>
+            <li>
+              <DiscreetLink to={docUrl('/')}>{translate('footer.documentation')}</DiscreetLink>
+            </li>
+            <li>
+              <DiscreetLink to={docUrl('/instance-administration/plugin-version-matrix/')}>
+                {translate('footer.plugins')}
+              </DiscreetLink>
+            </li>
+            {!hideLoggedInInfo && (
+              <li>
+                <DiscreetLink to="/web_api">{translate('footer.web_api')}</DiscreetLink>
+              </li>
+            )}
+          </ul>
+        </div>
+      </PageContentFontWrapper>
+    </StyledFooter>
   );
 }
+
+const StyledFooter = styled.div`
+  box-sizing: border-box;
+  min-width: ${LAYOUT_VIEWPORT_MIN_WIDTH}px;
+  border-top: ${themeBorder('default')};
+  background-color: ${themeColor('backgroundSecondary')};
+`;

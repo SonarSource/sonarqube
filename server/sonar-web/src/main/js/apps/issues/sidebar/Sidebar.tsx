@@ -382,17 +382,19 @@ export class SidebarClass extends React.PureComponent<Props> {
 
                 <BasicSeparator className="sw-my-4" />
 
-                <AuthorFacet
-                  author={query.author}
-                  component={component}
-                  fetching={this.props.loadingFacets.author === true}
-                  loadSearchResultCount={this.props.loadSearchResultCount}
-                  onChange={this.props.onFilterChange}
-                  onToggle={this.props.onFacetToggle}
-                  open={!!openFacets.author}
-                  query={query}
-                  stats={facets.author}
-                />
+                <div className="sw-mb-4">
+                  <AuthorFacet
+                    author={query.author}
+                    component={component}
+                    fetching={this.props.loadingFacets.author === true}
+                    loadSearchResultCount={this.props.loadSearchResultCount}
+                    onChange={this.props.onFilterChange}
+                    onToggle={this.props.onFacetToggle}
+                    open={!!openFacets.author}
+                    query={query}
+                    stats={facets.author}
+                  />
+                </div>
               </>
             )}
           </>
