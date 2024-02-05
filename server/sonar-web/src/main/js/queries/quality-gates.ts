@@ -80,7 +80,7 @@ export function useCreateQualityGateMutation() {
       return createQualityGate({ name });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(getQualityGateQueryKey());
+      queryClient.invalidateQueries({ queryKey: getQualityGateQueryKey() });
     },
   });
 }
@@ -93,8 +93,8 @@ export function useSetQualityGateAsDefaultMutation(gateName: string) {
       return setQualityGateAsDefault({ name: qualityGate.name });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(getQualityGateQueryKey());
-      queryClient.invalidateQueries(getQualityGateQueryKey('name', gateName));
+      queryClient.invalidateQueries({ queryKey: getQualityGateQueryKey() });
+      queryClient.invalidateQueries({ queryKey: getQualityGateQueryKey('name', gateName) });
     },
   });
 }
@@ -107,8 +107,8 @@ export function useRenameQualityGateMutation(currentName: string) {
       return renameQualityGate({ currentName, name: newName });
     },
     onSuccess: (_, newName: string) => {
-      queryClient.invalidateQueries(getQualityGateQueryKey());
-      queryClient.invalidateQueries(getQualityGateQueryKey('name', newName));
+      queryClient.invalidateQueries({ queryKey: getQualityGateQueryKey() });
+      queryClient.invalidateQueries({ queryKey: getQualityGateQueryKey('name', newName) });
     },
   });
 }
@@ -121,7 +121,7 @@ export function useCopyQualityGateMutation(sourceName: string) {
       return copyQualityGate({ sourceName, name: newName });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(getQualityGateQueryKey());
+      queryClient.invalidateQueries({ queryKey: getQualityGateQueryKey() });
     },
   });
 }
@@ -134,7 +134,7 @@ export function useDeleteQualityGateMutation(name: string) {
       return deleteQualityGate({ name });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(getQualityGateQueryKey());
+      queryClient.invalidateQueries({ queryKey: getQualityGateQueryKey() });
     },
   });
 }
@@ -169,8 +169,8 @@ export function useFixQualityGateMutation(gateName: string) {
       return Promise.all(promiseArr);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(getQualityGateQueryKey());
-      queryClient.invalidateQueries(getQualityGateQueryKey('name', gateName));
+      queryClient.invalidateQueries({ queryKey: getQualityGateQueryKey() });
+      queryClient.invalidateQueries({ queryKey: getQualityGateQueryKey('name', gateName) });
       addGlobalSuccessMessage(translate('quality_gates.conditions_updated'));
     },
   });
@@ -184,7 +184,7 @@ export function useCreateConditionMutation(gateName: string) {
       return createCondition({ ...condition, gateName });
     },
     onSuccess: (_, condition) => {
-      queryClient.invalidateQueries(getQualityGateQueryKey());
+      queryClient.invalidateQueries({ queryKey: getQualityGateQueryKey() });
       queryClient.setQueryData(
         getQualityGateQueryKey('name', gateName),
         (oldData?: QualityGate) => {
@@ -196,7 +196,7 @@ export function useCreateConditionMutation(gateName: string) {
             : undefined;
         },
       );
-      queryClient.invalidateQueries(getQualityGateQueryKey('name', gateName));
+      queryClient.invalidateQueries({ queryKey: getQualityGateQueryKey('name', gateName) });
       addGlobalSuccessMessage(translate('quality_gates.condition_added'));
     },
   });
@@ -210,8 +210,8 @@ export function useUpdateConditionMutation(gateName: string) {
       return updateCondition(condition);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(getQualityGateQueryKey());
-      queryClient.invalidateQueries(getQualityGateQueryKey('name', gateName));
+      queryClient.invalidateQueries({ queryKey: getQualityGateQueryKey() });
+      queryClient.invalidateQueries({ queryKey: getQualityGateQueryKey('name', gateName) });
       addGlobalSuccessMessage(translate('quality_gates.condition_updated'));
     },
   });
@@ -227,8 +227,8 @@ export function useDeleteConditionMutation(gateName: string) {
       });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(getQualityGateQueryKey());
-      queryClient.invalidateQueries(getQualityGateQueryKey('name', gateName));
+      queryClient.invalidateQueries({ queryKey: getQualityGateQueryKey() });
+      queryClient.invalidateQueries({ queryKey: getQualityGateQueryKey('name', gateName) });
       addGlobalSuccessMessage(translate('quality_gates.condition_deleted'));
     },
   });

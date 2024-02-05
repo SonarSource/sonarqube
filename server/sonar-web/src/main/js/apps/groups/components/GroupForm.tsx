@@ -43,8 +43,8 @@ export default function GroupForm(props: Props) {
   const [name, setName] = useState<string>(create ? '' : group.name);
   const [description, setDescription] = useState<string>(create ? '' : group.description ?? '');
 
-  const { mutate: createGroup, isLoading: isCreating } = useCreateGroupMutation();
-  const { mutate: updateGroup, isLoading: isUpdating } = useUpdateGroupMutation();
+  const { mutate: createGroup, isPending: isCreating } = useCreateGroupMutation();
+  const { mutate: updateGroup, isPending: isUpdating } = useUpdateGroupMutation();
 
   const handleCreateGroup = () => {
     createGroup({ name, description }, { onSuccess: props.onClose });

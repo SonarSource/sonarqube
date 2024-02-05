@@ -31,7 +31,7 @@ interface Props {
 export default function DeleteGroupForm(props: Readonly<Props>) {
   const { group } = props;
 
-  const { mutate: deleteGroup, isLoading } = useDeleteGroupMutation();
+  const { mutate: deleteGroup, isPending } = useDeleteGroupMutation();
 
   const onSubmit = () => {
     deleteGroup(group.id, {
@@ -45,7 +45,7 @@ export default function DeleteGroupForm(props: Readonly<Props>) {
       onClose={props.onClose}
       body={translateWithParameters('groups.delete_group.confirmation', group.name)}
       primaryButton={
-        <DangerButtonPrimary autoFocus type="submit" onClick={onSubmit} disabled={isLoading}>
+        <DangerButtonPrimary autoFocus type="submit" onClick={onSubmit} disabled={isPending}>
           {translate('delete')}
         </DangerButtonPrimary>
       }

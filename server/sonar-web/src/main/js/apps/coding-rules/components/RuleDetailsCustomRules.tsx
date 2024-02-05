@@ -52,7 +52,7 @@ export default function RuleDetailsCustomRules(props: Readonly<Props>) {
     template_key: ruleDetails.key,
   };
   const { isLoading: loadingRules, data } = useSearchRulesQuery(rulesSearchParams);
-  const { mutate: deleteRules, isLoading: deletingRule } = useDeleteRuleMutation(rulesSearchParams);
+  const { mutate: deleteRules, isPending: deletingRule } = useDeleteRuleMutation(rulesSearchParams);
 
   const loading = loadingRules || deletingRule;
   const rules = data?.rules ?? [];

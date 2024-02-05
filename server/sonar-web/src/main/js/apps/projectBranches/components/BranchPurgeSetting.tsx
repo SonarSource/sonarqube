@@ -34,7 +34,7 @@ interface Props {
 
 export default function BranchPurgeSetting(props: Props) {
   const { branch, component } = props;
-  const { mutate: excludeFromPurge, isLoading } = useExcludeFromPurgeMutation();
+  const { mutate: excludeFromPurge, isPending } = useExcludeFromPurgeMutation();
 
   useEffect(() => {
     excludeFromPurge({ component, key: branch.name, exclude: branch.excludedFromPurge });
@@ -45,7 +45,7 @@ export default function BranchPurgeSetting(props: Props) {
   };
 
   const isTheMainBranch = isMainBranch(branch);
-  const disabled = isTheMainBranch || isLoading;
+  const disabled = isTheMainBranch || isPending;
 
   return (
     <>
@@ -58,7 +58,7 @@ export default function BranchPurgeSetting(props: Props) {
           off: translate('off'),
         }}
       />
-      <Spinner loading={isLoading} className="sw-ml-1" />
+      <Spinner loading={isPending} className="sw-ml-1" />
       {isTheMainBranch && (
         <HelpTooltip
           className="sw-ml-1"

@@ -86,7 +86,7 @@ export default function GithubAuthenticationTab(props: GithubAuthenticationProps
     setRolesMapping,
     applyAdditionalOptions,
     hasLegacyConfiguration,
-    deleteMutation: { isLoading: isDeleting, mutate: deleteConfiguration },
+    deleteMutation: { isPending: isDeleting, mutate: deleteConfiguration },
   } = useGithubConfiguration(definitions);
 
   const provisioningStatus =

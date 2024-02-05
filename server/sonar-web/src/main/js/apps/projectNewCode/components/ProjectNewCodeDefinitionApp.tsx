@@ -73,7 +73,7 @@ function ProjectNewCodeDefinitionApp(props: Readonly<ProjectNewCodeDefinitionApp
       branchName: hasFeature(Feature.BranchSupport) ? undefined : branchLike?.name,
       projectKey: component.key,
     });
-  const { isLoading: isSaving, mutate: postNewCodeDefinition } = useNewCodeDefinitionMutation();
+  const { isPending: isSaving, mutate: postNewCodeDefinition } = useNewCodeDefinitionMutation();
 
   const branchList = useMemo(() => {
     return sortBranches(branchLikes.filter(isBranch));

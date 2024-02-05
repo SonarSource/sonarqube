@@ -68,7 +68,7 @@ export default function SamlAuthenticationTab(props: SamlAuthenticationProps) {
     newScimStatus,
     setNewScimStatus,
     setNewGroupSetting,
-    deleteMutation: { isLoading: isDeleting, mutate: deleteConfiguration },
+    deleteMutation: { isPending: isDeleting, mutate: deleteConfiguration },
   } = useSamlConfiguration(definitions);
   const toggleScim = useToggleScimMutation();
 

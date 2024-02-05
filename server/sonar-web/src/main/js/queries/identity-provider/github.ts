@@ -52,7 +52,9 @@ export function useToggleGithubProvisioningMutation() {
 }
 
 export const useCheckGitHubConfigQuery = (githubEnabled: boolean) => {
-  return useQuery(['identity_provider', 'github_check'], checkConfigurationValidity, {
+  return useQuery({
+    queryKey: ['identity_provider', 'github_check'],
+    queryFn: checkConfigurationValidity,
     enabled: githubEnabled,
   });
 };
@@ -65,7 +67,9 @@ export function useGitHubSyncStatusQuery(options: GithubSyncStatusOptions = {}) 
   const hasGithubProvisioning = useContext(AvailableFeaturesContext).includes(
     Feature.GithubProvisioning,
   );
-  return useQuery(['identity_provider', 'github_sync', 'status'], fetchGithubProvisioningStatus, {
+  return useQuery({
+    queryKey: ['identity_provider', 'github_sync', 'status'],
+    queryFn: fetchGithubProvisioningStatus,
     enabled: hasGithubProvisioning,
     refetchInterval: options.noRefetch ? undefined : 10_000,
   });
@@ -80,15 +84,16 @@ export function useGithubProvisioningEnabledQuery() {
 export function useSyncWithGitHubNow() {
   const queryClient = useQueryClient();
   const { data } = useGitHubSyncStatusQuery();
-  const mutation = useMutation(syncNowGithubProvisioning, {
+  const mutation = useMutation({
+    mutationFn: syncNowGithubProvisioning,
     onSuccess: () => {
-      queryClient.invalidateQueries(['identity_provider', 'github_sync']);
+      queryClient.invalidateQueries({ queryKey: ['identity_provider', 'github_sync'] });
     },
   });
 
   return {
     synchronizeNow: mutation.mutate,
-    canSyncNow: data?.enabled && !data.nextSync && !mutation.isLoading,
+    canSyncNow: data?.enabled && !data.nextSync && !mutation.isPending,
   };
 }
 
@@ -96,7 +101,9 @@ export function useSyncWithGitHubNow() {
 const defaultRoleOrder = ['admin', 'maintain', 'write', 'triage', 'read'];
 
 export function useGithubRolesMappingQuery() {
-  return useQuery(['identity_provider', 'github_mapping'], fetchGithubRolesMapping, {
+  return useQuery({
+    queryKey: ['identity_provider', 'github_mapping'],
+    queryFn: fetchGithubRolesMapping,
     staleTime: MAPPING_STALE_TIME,
     select: (data) =>
       [...data].sort((a, b) => {

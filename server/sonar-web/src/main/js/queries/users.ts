@@ -33,10 +33,11 @@ export function useUsersQueries<U extends RestUserBase>(
 ) {
   return useInfiniteQuery({
     queryKey: ['user', 'list', getParams],
-    queryFn: ({ pageParam = 1 }) => getUsers<U>({ ...getParams, pageIndex: pageParam }),
+    queryFn: ({ pageParam }) => getUsers<U>({ ...getParams, pageIndex: pageParam }),
     getNextPageParam,
     getPreviousPageParam,
     enabled,
+    initialPageParam: 1,
   });
 }
 

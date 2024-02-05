@@ -37,7 +37,7 @@ const FORM_ID = 'branch-setasmain-form';
 
 export default function SetAsMainBranchModal(props: SetAsMainBranchModalProps) {
   const { branch, component, onClose, onSetAsMain } = props;
-  const { mutate: setMainBranch, isLoading } = useSetMainBranchMutation();
+  const { mutate: setMainBranch, isPending } = useSetMainBranchMutation();
 
   const handleSubmit = React.useCallback(
     (e: React.SyntheticEvent<HTMLFormElement>) => {
@@ -55,7 +55,7 @@ export default function SetAsMainBranchModal(props: SetAsMainBranchModalProps) {
           values={{ branch: <span className="sw-break-all">{branch.name}</span> }}
         />
       }
-      loading={isLoading}
+      loading={isPending}
       onClose={onClose}
       body={
         <form id={FORM_ID} onSubmit={handleSubmit}>
@@ -83,7 +83,7 @@ export default function SetAsMainBranchModal(props: SetAsMainBranchModalProps) {
         </form>
       }
       primaryButton={
-        <ButtonPrimary disabled={isLoading} type="submit" form={FORM_ID}>
+        <ButtonPrimary disabled={isPending} type="submit" form={FORM_ID}>
           <FormattedMessage id="project_branch_pull_request.branch.set_main" />
         </ButtonPrimary>
       }

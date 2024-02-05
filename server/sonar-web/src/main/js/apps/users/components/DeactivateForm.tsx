@@ -43,7 +43,7 @@ export default function DeactivateForm(props: Props) {
   const { user } = props;
   const [anonymize, setAnonymize] = React.useState(false);
 
-  const { mutate: deactivateUser, isLoading } = useDeactivateUserMutation();
+  const { mutate: deactivateUser, isPending } = useDeactivateUserMutation();
 
   const handleDeactivate = (event: React.SyntheticEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -88,9 +88,9 @@ export default function DeactivateForm(props: Props) {
         </form>
       }
       onClose={props.onClose}
-      loading={isLoading}
+      loading={isPending}
       primaryButton={
-        <DangerButtonPrimary form={DEACTIVATE_FORM_ID} disabled={isLoading} type="submit">
+        <DangerButtonPrimary form={DEACTIVATE_FORM_ID} disabled={isPending} type="submit">
           {translate('users.deactivate')}
         </DangerButtonPrimary>
       }

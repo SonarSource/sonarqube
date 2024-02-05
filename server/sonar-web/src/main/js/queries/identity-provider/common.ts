@@ -22,8 +22,11 @@ import { getSystemInfo } from '../../api/system';
 import { SysInfoCluster } from '../../types/types';
 
 export function useIdentityProviderQuery() {
-  return useQuery(['identity_provider', 'users_and_groups_provider'], async () => {
-    const info = (await getSystemInfo()) as SysInfoCluster;
-    return { provider: info.System['External Users and Groups Provisioning'] };
+  return useQuery({
+    queryKey: ['identity_provider', 'users_and_groups_provider'],
+    queryFn: async () => {
+      const info = (await getSystemInfo()) as SysInfoCluster;
+      return { provider: info.System['External Users and Groups Provisioning'] };
+    },
   });
 }

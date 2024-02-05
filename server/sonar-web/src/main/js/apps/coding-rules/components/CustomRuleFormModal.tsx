@@ -78,11 +78,11 @@ export default function CustomRuleFormModal(props: Readonly<Props>) {
     f: 'name,severity,params',
     template_key: templateRule.key,
   };
-  const { mutate: updateRule, isLoading: updatingRule } = useUpdateRuleMutation(
+  const { mutate: updateRule, isPending: updatingRule } = useUpdateRuleMutation(
     customRulesSearchParams,
     props.onClose,
   );
-  const { mutate: createRule, isLoading: creatingRule } = useCreateRuleMutation(
+  const { mutate: createRule, isPending: creatingRule } = useCreateRuleMutation(
     customRulesSearchParams,
     props.onClose,
     (response: Response) => {

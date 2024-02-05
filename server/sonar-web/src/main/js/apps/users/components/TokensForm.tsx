@@ -73,7 +73,7 @@ export function TokensForm(props: Readonly<Props>) {
   const [tokenExpirationOptions, setTokenExpirationOptions] =
     React.useState<{ value: TokenExpiration; label: string }[]>(EXPIRATION_OPTIONS);
 
-  const { mutateAsync: generate, isLoading: generating } = useGenerateTokenMutation();
+  const { mutateAsync: generate, isPending: generating } = useGenerateTokenMutation();
 
   const tokenTypeOptions = React.useMemo(() => {
     const value = [{ label: translate('users.tokens', TokenType.User), value: TokenType.User }];

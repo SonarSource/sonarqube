@@ -40,36 +40,39 @@ function useProjectKeyFromLocation() {
 
 export function useProjectBindingQuery<T = ProjectAlmBindingResponse>(
   project?: string,
-  options?: UseQueryOptions<
-    ProjectAlmBindingResponse,
-    unknown,
-    T,
-    ['devops_integration', string, 'binding']
+  options?: Omit<
+    UseQueryOptions<
+      ProjectAlmBindingResponse | null,
+      Error,
+      T,
+      ['devops_integration', string, 'binding']
+    >,
+    'queryKey' | 'queryFn'
   >,
 ) {
   const keyFromUrl = useProjectKeyFromLocation();
 
   const projectKey = project ?? keyFromUrl;
 
-  return useQuery(
-    ['devops_integration', projectKey, 'binding'],
-    ({ queryKey: [_, key] }) =>
+  return useQuery({
+    queryKey: ['devops_integration', projectKey, 'binding'],
+    queryFn: ({ queryKey: [_, key] }) =>
       getProjectAlmBinding(key).catch((e: Response) => {
         if (e.status === HttpStatus.NotFound) {
           return null;
         }
-        throw e;
+        return e;
       }),
-    {
-      staleTime: 60_000,
-      retry: false,
-      ...options,
-    },
-  );
+    staleTime: 60_000,
+    retry: false,
+    ...options,
+  });
 }
 
 export function useIsGitHubProjectQuery(project?: string) {
-  return useProjectBindingQuery(project, { select: (data) => data?.alm === AlmKeys.GitHub });
+  return useProjectBindingQuery<boolean>(project, {
+    select: (data) => data?.alm === AlmKeys.GitHub,
+  });
 }
 
 export function useDeleteProjectAlmBindingMutation(project?: string) {
@@ -78,7 +81,9 @@ export function useDeleteProjectAlmBindingMutation(project?: string) {
   return useMutation({
     mutationFn: () => deleteProjectAlmBinding(project ?? keyFromUrl),
     onSuccess: () => {
-      client.invalidateQueries(['devops_integration', project ?? keyFromUrl, 'binding']);
+      client.invalidateQueries({
+        queryKey: ['devops_integration', project ?? keyFromUrl, 'binding'],
+      });
     },
   });
 }
@@ -153,7 +158,7 @@ export function useSetProjectBindingMutation() {
   return useMutation({
     mutationFn: (data: SetBindingParams) => getSetProjectBindingFn(data),
     onSuccess: (_, variables) => {
-      client.invalidateQueries(['devops_integration', variables.project, 'binding']);
+      client.invalidateQueries({ queryKey: ['devops_integration', variables.project, 'binding'] });
     },
   });
 }

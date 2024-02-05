@@ -48,8 +48,8 @@ const INTERNAL_SERVER_ERROR = 500;
 export default function UserForm(props: Props) {
   const { user, isInstanceManaged } = props;
 
-  const { mutate: createUser, isLoading: isLoadingCreate } = usePostUserMutation();
-  const { mutate: updateUser, isLoading: isLoadingUserUpdate } = useUpdateUserMutation();
+  const { mutate: createUser, isPending: isLoadingCreate } = usePostUserMutation();
+  const { mutate: updateUser, isPending: isLoadingUserUpdate } = useUpdateUserMutation();
 
   const [email, setEmail] = React.useState<string>(user?.email ?? '');
   const [login, setLogin] = React.useState<string>(user?.login ?? '');

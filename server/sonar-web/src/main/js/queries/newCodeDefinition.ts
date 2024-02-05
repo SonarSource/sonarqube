@@ -36,11 +36,13 @@ export function useNewCodeDefinitionQuery(params?: {
   enabled?: boolean;
   projectKey?: string;
 }) {
-  return useQuery(
-    getNewCodeDefinitionQueryKey(params?.projectKey, params?.branchName),
-    () => getNewCodeDefinition({ branch: params?.branchName, project: params?.projectKey }),
-    { enabled: params?.enabled ?? true, refetchOnWindowFocus: false },
-  );
+  return useQuery({
+    queryKey: getNewCodeDefinitionQueryKey(params?.projectKey, params?.branchName),
+    queryFn: () =>
+      getNewCodeDefinition({ branch: params?.branchName, project: params?.projectKey }),
+    enabled: params?.enabled ?? true,
+    refetchOnWindowFocus: false,
+  });
 }
 
 export function useNewCodeDefinitionMutation() {

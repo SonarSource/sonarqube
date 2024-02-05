@@ -28,6 +28,7 @@ import { translate } from '../../../helpers/l10n';
 import {
   useAddGroupMembershipMutation,
   useGroupMembersQuery,
+  useRemoveGroupMembersQueryFromCache,
   useRemoveGroupMembershipMutation,
 } from '../../../queries/group-memberships';
 import { Group } from '../../../types/types';
@@ -46,16 +47,12 @@ export default function EditMembersModal(props: Readonly<Props>) {
   const [filter, setFilter] = React.useState<SelectListFilter>(SelectListFilter.Selected);
   const { mutateAsync: addUserToGroup } = useAddGroupMembershipMutation();
   const { mutateAsync: removeUserFromGroup } = useRemoveGroupMembershipMutation();
-  const {
-    data,
-    isLoading,
-    fetchNextPage,
-    remove: emptyQueryCache,
-  } = useGroupMembersQuery({
+  const { data, isLoading, fetchNextPage } = useGroupMembersQuery({
     q: query,
     groupId: group.id,
     filter,
   });
+  const emptyQueryCache = useRemoveGroupMembersQueryFromCache();
 
   const users: (RestUserBase & { selected?: boolean })[] =
     data?.pages.flatMap((page) => page.users) ?? [];

@@ -114,7 +114,7 @@ function PermissionRow(props: Readonly<PermissionCellProps>) {
 }
 
 export default function GitHubMappingModal({ mapping, setMapping, onClose }: Readonly<Props>) {
-  const { data: roles, isLoading } = useGithubRolesMappingQuery();
+  const { data: roles, isPending } = useGithubRolesMappingQuery();
   const permissions = convertToPermissionDefinitions(
     PERMISSIONS_ORDER_FOR_PROJECT_TEMPLATE,
     'projects_role',
@@ -234,7 +234,7 @@ export default function GitHubMappingModal({ mapping, setMapping, onClose }: Rea
           'settings.authentication.github.configuration.roles_mapping.dialog.custom_roles_description',
         )}
       </FlagMessage>
-      <Spinner loading={isLoading} />
+      <Spinner loading={isPending} />
     </div>
   );
 

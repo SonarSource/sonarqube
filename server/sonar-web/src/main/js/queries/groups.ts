@@ -26,9 +26,10 @@ export function useGroupsQueries(
 ) {
   return useInfiniteQuery({
     queryKey: ['group', 'list', getParams],
-    queryFn: ({ pageParam = 1 }) => getUsersGroups({ ...getParams, pageIndex: pageParam }),
+    queryFn: ({ pageParam }) => getUsersGroups({ ...getParams, pageIndex: pageParam }),
     getNextPageParam,
     getPreviousPageParam,
+    initialPageParam: 1,
   });
 }
 

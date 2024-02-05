@@ -37,7 +37,7 @@ interface Props {
 export function AnalysisWarningsModal(props: Props) {
   const { component, currentUser, warnings } = props;
 
-  const { mutate, isLoading, variables } = useDismissBranchWarningMutation();
+  const { mutate, isPending, variables } = useDismissBranchWarningMutation();
 
   const handleDismissMessage = (messageKey: string) => {
     mutate({ component, key: messageKey });
@@ -63,7 +63,7 @@ export function AnalysisWarningsModal(props: Props) {
             {dismissable && currentUser.isLoggedIn && (
               <div className="sw-mt-4">
                 <DangerButtonSecondary
-                  disabled={Boolean(isLoading)}
+                  disabled={Boolean(isPending)}
                   onClick={() => {
                     handleDismissMessage(key);
                   }}
@@ -71,7 +71,7 @@ export function AnalysisWarningsModal(props: Props) {
                   {translate('dismiss_permanently')}
                 </DangerButtonSecondary>
 
-                <Spinner className="sw-ml-2" loading={isLoading && variables?.key === key} />
+                <Spinner className="sw-ml-2" loading={isPending && variables?.key === key} />
               </div>
             )}
           </div>

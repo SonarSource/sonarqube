@@ -103,8 +103,8 @@ export default function GitLabAuthenticationTab() {
 
   const { canSyncNow, synchronizeNow } = useSyncWithGitLabNow();
 
-  const { mutate: updateConfig, isLoading: isUpdating } = useUpdateGitLabConfigurationMutation();
-  const { mutate: deleteConfig, isLoading: isDeleting } = useDeleteGitLabConfigurationMutation();
+  const { mutate: updateConfig, isPending: isUpdating } = useUpdateGitLabConfigurationMutation();
+  const { mutate: deleteConfig, isPending: isDeleting } = useDeleteGitLabConfigurationMutation();
 
   const definitions = getDefinitions(
     changes?.provisioningType ?? configuration?.provisioningType ?? ProvisioningType.jit,

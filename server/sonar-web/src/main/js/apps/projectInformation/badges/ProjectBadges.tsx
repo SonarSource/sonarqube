@@ -65,7 +65,7 @@ export default function ProjectBadges(props: ProjectBadgesProps) {
     isFetching: isFetchingToken,
   } = useBadgeTokenQuery(project);
   const { data: metricOptions, isLoading: isLoadingMetrics } = useBadgeMetricsQuery();
-  const { mutate: renewToken, isLoading: isRenewing } = useRenewBagdeTokenMutation();
+  const { mutate: renewToken, isPending: isRenewing } = useRenewBagdeTokenMutation();
   const isLoading = isLoadingMetrics || isLoadingToken || isRenewing;
 
   const handleSelectType = (selectedType: BadgeType) => {

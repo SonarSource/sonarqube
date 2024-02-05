@@ -55,8 +55,8 @@ export default function GitLabConfigurationForm(props: Readonly<Props>) {
   const { data } = props;
   const isCreate = data === null;
   const [errors, setErrors] = React.useState<Record<string, ErrorValue>>({});
-  const { mutate: createConfig, isLoading: createLoading } = useCreateGitLabConfigurationMutation();
-  const { mutate: updateConfig, isLoading: updateLoading } = useUpdateGitLabConfigurationMutation();
+  const { mutate: createConfig, isPending: createLoading } = useCreateGitLabConfigurationMutation();
+  const { mutate: updateConfig, isPending: updateLoading } = useUpdateGitLabConfigurationMutation();
 
   const [formData, setFormData] = React.useState<
     Record<keyof GitLabConfigurationCreateBody, FormData>

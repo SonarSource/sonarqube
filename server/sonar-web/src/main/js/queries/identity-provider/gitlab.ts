@@ -32,7 +32,10 @@ import { AlmSyncStatus, ProvisioningType } from '../../types/provisioning';
 import { TaskStatuses, TaskTypes } from '../../types/tasks';
 
 export function useGitLabConfigurationsQuery() {
-  return useQuery(['identity_provider', 'gitlab_config', 'list'], fetchGitLabConfigurations);
+  return useQuery({
+    queryKey: ['identity_provider', 'gitlab_config', 'list'],
+    queryFn: fetchGitLabConfigurations,
+  });
 }
 
 export function useCreateGitLabConfigurationMutation() {
@@ -141,19 +144,17 @@ export function useGitLabSyncStatusQuery() {
     return { status: nextSync.status as TaskStatuses.Pending | TaskStatuses.InProgress };
   };
 
-  return useQuery(
-    ['identity_provider', 'gitlab_sync', 'status'],
-    async () => {
+  return useQuery({
+    queryKey: ['identity_provider', 'gitlab_sync', 'status'],
+    queryFn: async () => {
       const [lastSync, nextSync] = await Promise.all([getLastSync(), getNextSync()]);
       return {
         lastSync,
         nextSync,
       } as AlmSyncStatus;
     },
-    {
-      refetchInterval: 10_000,
-    },
-  );
+    refetchInterval: 10_000,
+  });
 }
 
 export function useSyncWithGitLabNow() {
@@ -164,14 +165,15 @@ export function useSyncWithGitLabNow() {
     (configuration) =>
       configuration.enabled && configuration.provisioningType === ProvisioningType.auto,
   );
-  const mutation = useMutation(syncNowGitLabProvisioning, {
+  const mutation = useMutation({
+    mutationFn: syncNowGitLabProvisioning,
     onSuccess: () => {
-      queryClient.invalidateQueries(['identity_provider', 'gitlab_sync']);
+      queryClient.invalidateQueries({ queryKey: ['identity_provider', 'gitlab_sync'] });
     },
   });
 
   return {
     synchronizeNow: mutation.mutate,
-    canSyncNow: autoProvisioningEnabled && !syncStatus?.nextSync && !mutation.isLoading,
+    canSyncNow: autoProvisioningEnabled && !syncStatus?.nextSync && !mutation.isPending,
   };
 }

@@ -57,7 +57,7 @@ const FORM_ID = 'rule-activation-modal-form';
 
 export default function ActivationFormModal(props: Readonly<Props>) {
   const { activation, rule, profiles, modalHeader } = props;
-  const { mutate: activateRule, isLoading: submitting } = useActivateRuleMutation((data) => {
+  const { mutate: activateRule, isPending: submitting } = useActivateRuleMutation((data) => {
     props.onDone?.(data.severity as string);
     props.onClose();
   });

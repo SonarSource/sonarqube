@@ -41,8 +41,8 @@ export function useGroupMembersQuery(params: {
   pageIndex?: number;
 }) {
   return useInfiniteQuery({
-    queryKey: [DOMAIN, GROUP_SUB_DOMAIN, params],
-    queryFn: async ({ pageParam = 1 }) => {
+    queryKey: [DOMAIN, GROUP_SUB_DOMAIN, 'list', params],
+    queryFn: async ({ pageParam }) => {
       if (params.filter === SelectListFilter.All) {
         const result = await getUsers<RestUserDetailed>({
           q: params.q ?? '',
@@ -77,7 +77,15 @@ export function useGroupMembersQuery(params: {
     },
     getNextPageParam,
     getPreviousPageParam,
+    initialPageParam: 1,
   });
+}
+
+export function useRemoveGroupMembersQueryFromCache() {
+  const queryClient = useQueryClient();
+  return () => {
+    queryClient.removeQueries({ queryKey: [DOMAIN, GROUP_SUB_DOMAIN, 'list'] });
+  };
 }
 
 export function useUserGroupsQuery(params: {
@@ -88,21 +96,22 @@ export function useUserGroupsQuery(params: {
   const { q, filter, userId } = params;
   const {
     data: groupsPages,
-    isLoading: loadingGroups,
+    isPending: loadingGroups,
     fetchNextPage: fetchNextPageGroups,
     hasNextPage: hasNextPageGroups,
   } = useGroupsQueries({});
   const {
     data: membershipsPages,
-    isLoading: loadingMemberships,
+    isPending: loadingMemberships,
     fetchNextPage: fetchNextPageMemberships,
     hasNextPage: hasNextPageMemberships,
   } = useInfiniteQuery({
     queryKey: [DOMAIN, USER_SUB_DOMAIN, 'memberships', userId],
-    queryFn: ({ pageParam = 1 }) =>
+    queryFn: ({ pageParam }) =>
       getGroupMemberships({ userId, pageSize: 100, pageIndex: pageParam }),
     getNextPageParam,
     getPreviousPageParam,
+    initialPageParam: 1,
   });
   if (hasNextPageGroups) {
     fetchNextPageGroups();
@@ -167,7 +176,9 @@ export function useAddGroupMembershipMutation() {
         [DOMAIN, USER_SUB_DOMAIN, 'count', data.userId],
         (oldData) => (oldData !== undefined ? oldData + 1 : undefined),
       );
-      queryClient.invalidateQueries([DOMAIN, USER_SUB_DOMAIN, 'memberships', data.userId]);
+      queryClient.invalidateQueries({
+        queryKey: [DOMAIN, USER_SUB_DOMAIN, 'memberships', data.userId],
+      });
     },
   });
 }
@@ -194,7 +205,9 @@ export function useRemoveGroupMembershipMutation() {
         [DOMAIN, USER_SUB_DOMAIN, 'count', data.userId],
         (oldData) => (oldData !== undefined ? oldData - 1 : undefined),
       );
-      queryClient.invalidateQueries([DOMAIN, USER_SUB_DOMAIN, 'memberships', data.userId]);
+      queryClient.invalidateQueries({
+        queryKey: [DOMAIN, USER_SUB_DOMAIN, 'memberships', data.userId],
+      });
     },
   });
 }

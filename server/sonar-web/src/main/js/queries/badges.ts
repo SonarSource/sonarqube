@@ -67,7 +67,8 @@ export function useBadgeMetricsQuery() {
 }
 
 export function useBadgeTokenQuery(componentKey: string) {
-  return useQuery(['badges-token', componentKey] as const, ({ queryKey: [_, key] }) =>
-    getProjectBadgesToken(key),
-  );
+  return useQuery({
+    queryKey: ['badges-token', componentKey] as const,
+    queryFn: ({ queryKey: [_, key] }) => getProjectBadgesToken(key),
+  });
 }

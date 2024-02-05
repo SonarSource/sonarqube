@@ -48,7 +48,7 @@ interface Props {
 export default function TokensFormItem(props: Readonly<Props>) {
   const { token, deleteConfirmation, login } = props;
   const [showConfirmation, setShowConfirmation] = React.useState(false);
-  const { mutateAsync, isLoading } = useRevokeTokenMutation();
+  const { mutateAsync, isPending } = useRevokeTokenMutation();
 
   const handleRevoke = () => mutateAsync({ login, name: token.name });
 
@@ -116,11 +116,11 @@ export default function TokensFormItem(props: Readonly<Props>) {
       <ContentCell>
         {token.isExpired && (
           <DangerButtonSecondary
-            disabled={isLoading}
+            disabled={isPending}
             onClick={handleRevoke}
             aria-label={translateWithParameters('users.tokens.remove_label', token.name)}
           >
-            <Spinner className="sw-mr-1" loading={isLoading}>
+            <Spinner className="sw-mr-1" loading={isPending}>
               {translate('remove')}
             </Spinner>
           </DangerButtonSecondary>
@@ -142,7 +142,7 @@ export default function TokensFormItem(props: Readonly<Props>) {
           >
             {({ onClick }) => (
               <DangerButtonSecondary
-                disabled={isLoading}
+                disabled={isPending}
                 onClick={onClick}
                 aria-label={translateWithParameters('users.tokens.revoke_label', token.name)}
               >
@@ -159,10 +159,10 @@ export default function TokensFormItem(props: Readonly<Props>) {
                 ? translate('users.tokens.sure')
                 : translateWithParameters('users.tokens.revoke_label', token.name)
             }
-            disabled={isLoading}
+            disabled={isPending}
             onClick={handleClick}
           >
-            <Spinner className="sw-mr-1" loading={isLoading} />
+            <Spinner className="sw-mr-1" loading={isPending} />
 
             {showConfirmation ? translate('users.tokens.sure') : translate('users.tokens.revoke')}
           </DangerButtonSecondary>

@@ -44,7 +44,7 @@ export default function NewCodeDefinition() {
   >(undefined);
 
   const { data: newCodeDefinition, isLoading } = useNewCodeDefinitionQuery();
-  const { isLoading: isSaving, mutate: postNewCodeDefinition } = useNewCodeDefinitionMutation();
+  const { isPending: isSaving, mutate: postNewCodeDefinition } = useNewCodeDefinitionMutation();
 
   const resetNewCodeDefinition = useCallback(() => {
     setSelectedNewCodeDefinitionType(newCodeDefinition?.type);

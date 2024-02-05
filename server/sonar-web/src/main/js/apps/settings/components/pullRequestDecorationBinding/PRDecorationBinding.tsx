@@ -80,10 +80,10 @@ export function PRDecorationBinding(props: Props) {
   const [successfullyUpdated, setSuccessfullyUpdated] = React.useState(false);
   const [checkingConfiguration, setCheckingConfiguration] = React.useState(false);
   const { data: originalData } = useProjectBindingQuery(component.key);
-  const { mutateAsync: deleteMutation, isLoading: isDeleting } = useDeleteProjectAlmBindingMutation(
+  const { mutateAsync: deleteMutation, isPending: isDeleting } = useDeleteProjectAlmBindingMutation(
     component.key,
   );
-  const { mutateAsync: updateMutation, isLoading: isUpdating } = useSetProjectBindingMutation();
+  const { mutateAsync: updateMutation, isPending: isUpdating } = useSetProjectBindingMutation();
 
   const isConfigured = !!originalData;
   const updating = isDeleting || isUpdating;

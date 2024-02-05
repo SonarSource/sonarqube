@@ -36,10 +36,10 @@ export default function ProfilePermissionForm(props: Readonly<Props>) {
   const { profile } = props;
   const [selected, setSelected] = React.useState<UserSelected | Group>();
 
-  const { mutate: addUser, isLoading: addingUser } = useAddUserMutation(() =>
+  const { mutate: addUser, isPending: addingUser } = useAddUserMutation(() =>
     props.onUserAdd(selected as UserSelected),
   );
-  const { mutate: addGroup, isLoading: addingGroup } = useAddGroupMutation(() =>
+  const { mutate: addGroup, isPending: addingGroup } = useAddGroupMutation(() =>
     props.onGroupAdd(selected as Group),
   );
 

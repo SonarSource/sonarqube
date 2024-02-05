@@ -26,14 +26,20 @@ import { ExtendedSettingDefinition } from '../types/settings';
 type SettingValue = string | boolean | string[];
 
 export function useGetValuesQuery(keys: string[]) {
-  return useQuery(['settings', 'values', keys] as const, ({ queryKey: [_a, _b, keys] }) => {
-    return getValues({ keys });
+  return useQuery({
+    queryKey: ['settings', 'values', keys] as const,
+    queryFn: ({ queryKey: [_a, _b, keys] }) => {
+      return getValues({ keys });
+    },
   });
 }
 
 export function useGetValueQuery(key: string, component?: string) {
-  return useQuery(['settings', 'details', key] as const, ({ queryKey: [_a, _b, key] }) => {
-    return getValue({ key, component }).then((v) => v ?? null);
+  return useQuery({
+    queryKey: ['settings', 'details', key] as const,
+    queryFn: ({ queryKey: [_a, _b, key] }) => {
+      return getValue({ key, component }).then((v) => v ?? null);
+    },
   });
 }
 
@@ -44,9 +50,9 @@ export function useResetSettingsMutation() {
       resetSettingValue({ keys: keys.join(','), component }),
     onSuccess: (_, { keys }) => {
       keys.forEach((key) => {
-        queryClient.invalidateQueries(['settings', 'details', key]);
+        queryClient.invalidateQueries({ queryKey: ['settings', 'details', key] });
       });
-      queryClient.invalidateQueries(['settings', 'values']);
+      queryClient.invalidateQueries({ queryKey: ['settings', 'values'] });
     },
   });
 }
@@ -80,9 +86,9 @@ export function useSaveValuesMutation() {
     onSuccess: (data) => {
       if (data.length > 0) {
         data.forEach(({ key }) => {
-          queryClient.invalidateQueries(['settings', 'details', key]);
+          queryClient.invalidateQueries({ queryKey: ['settings', 'details', key] });
         });
-        queryClient.invalidateQueries(['settings', 'values']);
+        queryClient.invalidateQueries({ queryKey: ['settings', 'values'] });
         addGlobalSuccessMessage(translate('settings.authentication.form.settings.save_success'));
       }
     },
@@ -107,8 +113,8 @@ export function useSaveValueMutation() {
       return setSettingValue(definition, newValue, component);
     },
     onSuccess: (_, { definition }) => {
-      queryClient.invalidateQueries(['settings', 'details', definition.key]);
-      queryClient.invalidateQueries(['settings', 'values']);
+      queryClient.invalidateQueries({ queryKey: ['settings', 'details', definition.key] });
+      queryClient.invalidateQueries({ queryKey: ['settings', 'values'] });
       addGlobalSuccessMessage(translate('settings.authentication.form.settings.save_success'));
     },
   });

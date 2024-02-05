@@ -26,11 +26,14 @@ import { Feature } from '../../types/features';
 export function useScimStatusQuery() {
   const hasScim = useContext(AvailableFeaturesContext).includes(Feature.Scim);
 
-  return useQuery(['identity_provider', 'scim_status'], () => {
-    if (!hasScim) {
-      return false;
-    }
-    return fetchIsScimEnabled();
+  return useQuery({
+    queryKey: ['identity_provider', 'scim_status'],
+    queryFn: () => {
+      if (!hasScim) {
+        return false;
+      }
+      return fetchIsScimEnabled();
+    },
   });
 }
 

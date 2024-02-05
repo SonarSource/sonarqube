@@ -38,7 +38,7 @@ export default function RenameBranchModal(props: Props) {
   const { branch, component, onClose } = props;
   const [name, setName] = useState<string>();
 
-  const { mutate: renameMainBranch, isLoading } = useRenameMainBranchMutation();
+  const { mutate: renameMainBranch, isPending } = useRenameMainBranchMutation();
 
   const handleSubmit = React.useCallback(
     (event: React.SyntheticEvent<HTMLFormElement>) => {
@@ -57,7 +57,7 @@ export default function RenameBranchModal(props: Props) {
   }, []);
 
   const header = translate('project_branch_pull_request.branch.rename');
-  const submitDisabled = isLoading || !name || name === branch.name;
+  const submitDisabled = isPending || !name || name === branch.name;
 
   return (
     <Modal
@@ -79,7 +79,7 @@ export default function RenameBranchModal(props: Props) {
           </FormField>
         </form>
       }
-      loading={isLoading}
+      loading={isPending}
       primaryButton={
         <ButtonPrimary disabled={submitDisabled} type="submit" form={FORM_ID}>
           <FormattedMessage id="rename" />

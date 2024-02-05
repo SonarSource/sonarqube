@@ -21,9 +21,14 @@ import { useQuery } from '@tanstack/react-query';
 import { fetchOpenAPI, fetchWebApi } from '../api/web-api';
 
 export function useWebApiQuery() {
-  return useQuery(['web-api'], () => fetchWebApi(false));
+  return useQuery({ queryKey: ['web-api'], queryFn: () => fetchWebApi(false) });
 }
 
 export const useOpenAPI = () => {
-  return useQuery(['open_api'], fetchOpenAPI, { staleTime: Infinity, cacheTime: Infinity });
+  return useQuery({
+    queryKey: ['open_api'],
+    queryFn: fetchOpenAPI,
+    staleTime: Infinity,
+    gcTime: Infinity,
+  });
 };

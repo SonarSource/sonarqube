@@ -35,7 +35,7 @@ const FORM_ID = 'confirm-branch-delete-form';
 
 export default function DeleteBranchModal(props: Props) {
   const { branchLike, component, onClose } = props;
-  const { mutate: deleteBranch, isLoading } = useDeletBranchMutation();
+  const { mutate: deleteBranch, isPending } = useDeletBranchMutation();
 
   const handleSubmit = React.useCallback(
     (event: React.SyntheticEvent<HTMLFormElement>) => {
@@ -73,7 +73,7 @@ export default function DeleteBranchModal(props: Props) {
           />
         </form>
       }
-      loading={isLoading}
+      loading={isPending}
       primaryButton={
         <DangerButtonPrimary type="submit" form={FORM_ID}>
           <FormattedMessage id="delete" />
