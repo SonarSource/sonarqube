@@ -449,8 +449,8 @@ export default class IssuesServiceMock {
         if (!item.issue.codeVariants) {
           return false;
         }
-        return item.issue.codeVariants.some(
-          (codeVariant) => query.codeVariants?.split(',').includes(codeVariant),
+        return item.issue.codeVariants.some((codeVariant) =>
+          query.codeVariants?.split(',').includes(codeVariant),
         );
       })
       .filter((item) => {
@@ -591,8 +591,9 @@ export default class IssuesServiceMock {
   };
 
   handleDeleteComment = (data: { comment: string }) => {
-    const issue = this.list.find((i) => i.issue.comments?.some((c) => c.key === data.comment))
-      ?.issue;
+    const issue = this.list.find((i) =>
+      i.issue.comments?.some((c) => c.key === data.comment),
+    )?.issue;
     if (!issue) {
       throw new Error(`Couldn't find issue for comment ${data.comment}`);
     }

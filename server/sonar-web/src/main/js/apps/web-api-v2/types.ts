@@ -22,17 +22,17 @@ import { OpenAPIV3 } from 'openapi-types';
 export type ExcludeReferences<T> = T extends OpenAPIV3.ReferenceObject
   ? never
   : T extends object
-  ? { [K in keyof T]: ExcludeReferences<T[K]> }
-  : T;
+    ? { [K in keyof T]: ExcludeReferences<T[K]> }
+    : T;
 
 export type DereferenceRecursive<T> = T extends object
   ? T extends OpenAPIV3.ReferenceObject
     ? ExcludeReferences<T>
     : T extends Array<infer U>
-    ? Array<DereferenceRecursive<U>>
-    : {
-        [K in keyof T]: DereferenceRecursive<T[K]>;
-      }
+      ? Array<DereferenceRecursive<U>>
+      : {
+          [K in keyof T]: DereferenceRecursive<T[K]>;
+        }
   : T;
 
 export interface InternalExtension {

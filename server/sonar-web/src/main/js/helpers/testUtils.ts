@@ -21,11 +21,12 @@ import { ComponentClass, FunctionComponent } from 'react';
 
 export type ComponentPropsType<
   T extends ComponentClass | FunctionComponent<React.PropsWithChildren<any>>,
-> = T extends ComponentClass<infer P>
-  ? P
-  : T extends FunctionComponent<React.PropsWithChildren<infer P>>
-  ? P
-  : never;
+> =
+  T extends ComponentClass<infer P>
+    ? P
+    : T extends FunctionComponent<React.PropsWithChildren<infer P>>
+      ? P
+      : never;
 
 export function mockIntersectionObserver(): Function {
   let callback: Function;

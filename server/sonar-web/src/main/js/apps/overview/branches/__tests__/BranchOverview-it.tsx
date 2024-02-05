@@ -377,9 +377,7 @@ describe('project overview', () => {
 
     await expect(
       byRole('link', {
-        name: `overview.measures.software_impact.see_list_of_x_open_issues.${1}.software_quality.${
-          SoftwareQuality.Security
-        }`,
+        name: `overview.measures.software_impact.see_list_of_x_open_issues.${1}.software_quality.${SoftwareQuality.Security}`,
       }).get(),
     ).toHaveATooltipWithContent('indexation.in_progress');
   });

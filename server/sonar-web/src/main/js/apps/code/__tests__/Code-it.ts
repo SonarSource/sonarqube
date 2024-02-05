@@ -385,8 +385,8 @@ function getPageObject(user: UserEvent) {
     overallCodeBtn: byRole('radio', { name: 'projects.view.overall_code' }),
     measureRow: (name: string | RegExp) => byLabelText(name),
     measureValueCell: (row: QuerySelector, name: string, value: string) => {
-      const i = Array.from(screen.getAllByRole('columnheader')).findIndex(
-        (c) => c.textContent?.includes(name),
+      const i = Array.from(screen.getAllByRole('columnheader')).findIndex((c) =>
+        c.textContent?.includes(name),
       );
       if (i < 0) {
         // eslint-disable-next-line testing-library/no-debugging-utils
