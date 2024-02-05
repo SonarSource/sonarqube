@@ -445,7 +445,7 @@ public class WebServerProcessLoggingTest {
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("log level ERROR in property sonar.log.level.web.jmx is not a supported value (allowed levels are [TRACE, DEBUG, INFO])");
   }
-
+  
   @Test
   public void configure_defines_hardcoded_levels() {
     LoggerContext context = underTest.configure(props);
@@ -530,7 +530,18 @@ public class WebServerProcessLoggingTest {
     assertThat(encoder).isInstanceOf(LayoutWrappingEncoder.class);
     assertThat(((LayoutWrappingEncoder) encoder).getLayout()).isInstanceOf(LogbackJsonLayout.class);
   }
+  
+  @Test
+  public void custom_logger_level_configuration() {
+      props.set("sonar.log.level", "DEBUG");
+      props.set("sonar.log.level.web", "TRACE");
+      LoggerContext context = underTest.configure(props);
+      Logger customLogger = context.getLogger("customLogger");
+      customLogger.setLevel(Level.TRACE);
+      assertThat(customLogger.getLevel()).isEqualTo(Level.TRACE);
+  }
 
+  
   @DataProvider
   public static Object[][] configuration() {
     return new Object[][] {
