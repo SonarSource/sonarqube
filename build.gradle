@@ -210,6 +210,7 @@ subprojects {
   ext {
     protobufVersion = '3.24.2'
     springVersion = '5.3.28'
+    elasticSearchVersion = '7.17.17'
   }
 
   sonar {
@@ -392,13 +393,13 @@ subprojects {
         entry 'jetty-server'
         entry 'jetty-servlet'
       }
-      dependency('org.elasticsearch.client:elasticsearch-rest-high-level-client:7.17.15') {
+      dependency("org.elasticsearch.client:elasticsearch-rest-high-level-client:${elasticSearchVersion}") {
         exclude 'org.apache.logging.log4j:log4j-core'
       }
-      dependency 'org.elasticsearch.plugin:transport-netty4-client:7.17.14'
+      dependency "org.elasticsearch.plugin:transport-netty4-client:${elasticSearchVersion}"
       dependency 'org.elasticsearch:mocksocket:1.2'
-      dependency 'org.codelibs.elasticsearch.module:analysis-common:7.17.9'
-      dependency 'org.codelibs.elasticsearch.module:reindex:7.17.9'
+      dependency "org.codelibs.elasticsearch.module:analysis-common:${elasticSearchVersion}"
+      dependency "org.codelibs.elasticsearch.module:reindex:${elasticSearchVersion}"
       dependency 'org.eclipse.jgit:org.eclipse.jgit:6.8.0.202311291450-r'
       dependency 'org.tmatesoft.svnkit:svnkit:1.10.11'
       dependency 'org.hamcrest:hamcrest-all:1.3'
