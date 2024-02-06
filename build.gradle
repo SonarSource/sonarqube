@@ -334,7 +334,7 @@ subprojects {
       }
       dependency 'com.onelogin:java-saml:2.9.0'
       dependency 'com.oracle.database.jdbc:ojdbc11:23.3.0.23.09'
-      dependency 'org.aspectj:aspectjtools:1.9.20.1'
+      dependency 'org.aspectj:aspectjtools:1.9.21'
       // If this gets updated the dependency on okio 3.5.0 should be reviewed
       dependencySet(group: 'com.squareup.okhttp3', version: '4.12.0') {
         entry 'okhttp'
