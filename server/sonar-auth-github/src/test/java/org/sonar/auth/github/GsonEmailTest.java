@@ -53,7 +53,7 @@ public class GsonEmailTest {
   }
 
   @Test
-  public void parse() {
+  public void parse_emails() {
     List<GsonEmail> underTestEmails = GsonEmail.parse(
       "[\n" +
         "  {\n" +
