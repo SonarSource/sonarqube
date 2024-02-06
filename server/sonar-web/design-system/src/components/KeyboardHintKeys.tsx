@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import styled from '@emotion/styled';
+import classNames from 'classnames';
 import tw from 'twin.macro';
 import { themeColor, themeContrast } from '../helpers';
 import { Key } from '../helpers/keyboard';
@@ -35,6 +36,8 @@ export const mappedKeys = {
   [Key.Click]: 'click',
 };
 
+const NON_KEY_SYMBOLS = ['+', ' '];
+
 export function KeyboardHintKeys({ command }: { command: string }) {
   const keys = command
     .trim()
@@ -42,11 +45,19 @@ export function KeyboardHintKeys({ command }: { command: string }) {
     .map((key, index) => {
       const uniqueKey = `${key}-${index}`;
 
-      if (!(Object.keys(mappedKeys).includes(key) || Object.values(mappedKeys).includes(key))) {
+      if (NON_KEY_SYMBOLS.includes(key)) {
         return <span key={uniqueKey}>{key}</span>;
       }
 
-      return <KeyBox key={uniqueKey}>{mappedKeys[key as keyof typeof mappedKeys] || key}</KeyBox>;
+      const isNonMappedKey = !(
+        Object.keys(mappedKeys).includes(key) || Object.values(mappedKeys).includes(key)
+      );
+
+      return (
+        <KeyBox className={classNames({ 'sw-px-1': isNonMappedKey })} key={uniqueKey}>
+          {Object.keys(mappedKeys).includes(key) ? mappedKeys[key as keyof typeof mappedKeys] : key}
+        </KeyBox>
+      );
     });
 
   return <div className="sw-flex sw-gap-1">{keys}</div>;

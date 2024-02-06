@@ -19,6 +19,7 @@
  */
 export * from './colors';
 export * from './constants';
+export * from './keyboard';
 export * from './positioning';
 export * from './tabs';
 export * from './theme';

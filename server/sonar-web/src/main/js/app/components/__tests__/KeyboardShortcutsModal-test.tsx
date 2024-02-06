@@ -69,7 +69,7 @@ function renderKeyboardShortcutsModal() {
 }
 
 const ui = {
-  modalTitle: byRole('heading', { name: 'keyboard_shortcuts.title' }),
+  modalTitle: byRole('heading', { name: 'keyboard_shortcuts_modal.title' }),
   closeButton: byRole('button', { name: 'close' }),
 
   textInput: byRole('textbox'),

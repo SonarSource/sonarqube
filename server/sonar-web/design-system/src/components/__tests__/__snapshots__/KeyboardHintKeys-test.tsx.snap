@@ -26,7 +26,7 @@ exports[`should render Alt 1`] = `
     class="sw-flex sw-gap-1"
   >
     <span
-      class="emotion-0 emotion-1"
+      class=" emotion-0 emotion-1"
     >
       Alt
     </span>
@@ -60,7 +60,7 @@ exports[`should render ArrowDown 1`] = `
     class="sw-flex sw-gap-1"
   >
     <span
-      class="emotion-0 emotion-1"
+      class=" emotion-0 emotion-1"
     >
       <svg
         aria-hidden="true"
@@ -108,7 +108,7 @@ exports[`should render ArrowLeft 1`] = `
     class="sw-flex sw-gap-1"
   >
     <span
-      class="emotion-0 emotion-1"
+      class=" emotion-0 emotion-1"
     >
       <svg
         aria-hidden="true"
@@ -156,7 +156,7 @@ exports[`should render ArrowRight 1`] = `
     class="sw-flex sw-gap-1"
   >
     <span
-      class="emotion-0 emotion-1"
+      class=" emotion-0 emotion-1"
     >
       <svg
         aria-hidden="true"
@@ -204,7 +204,7 @@ exports[`should render ArrowUp 1`] = `
     class="sw-flex sw-gap-1"
   >
     <span
-      class="emotion-0 emotion-1"
+      class=" emotion-0 emotion-1"
     >
       <svg
         aria-hidden="true"
@@ -252,7 +252,7 @@ exports[`should render Click 1`] = `
     class="sw-flex sw-gap-1"
   >
     <span
-      class="emotion-0 emotion-1"
+      class=" emotion-0 emotion-1"
     >
       click
     </span>
@@ -286,7 +286,7 @@ exports[`should render Command 1`] = `
     class="sw-flex sw-gap-1"
   >
     <span
-      class="emotion-0 emotion-1"
+      class=" emotion-0 emotion-1"
     >
       ⌘
     </span>
@@ -320,7 +320,7 @@ exports[`should render Control 1`] = `
     class="sw-flex sw-gap-1"
   >
     <span
-      class="emotion-0 emotion-1"
+      class=" emotion-0 emotion-1"
     >
       Ctrl
     </span>
@@ -354,7 +354,7 @@ exports[`should render Option 1`] = `
     class="sw-flex sw-gap-1"
   >
     <span
-      class="emotion-0 emotion-1"
+      class=" emotion-0 emotion-1"
     >
       ⌥
     </span>
@@ -388,7 +388,7 @@ exports[`should render a default text if no keys match 1`] = `
     class="sw-flex sw-gap-1"
   >
     <span
-      class="emotion-0 emotion-1"
+      class=" emotion-0 emotion-1"
     >
       Ctrl
     </span>
@@ -396,7 +396,7 @@ exports[`should render a default text if no keys match 1`] = `
       +
     </span>
     <span
-      class="emotion-0 emotion-1"
+      class=" emotion-0 emotion-1"
     >
       click
     </span>
@@ -429,11 +429,13 @@ exports[`should render multiple keys 1`] = `
   <div
     class="sw-flex sw-gap-1"
   >
-    <span>
+    <span
+      class="sw-px-1 emotion-0 emotion-1"
+    >
       Use
     </span>
     <span
-      class="emotion-0 emotion-1"
+      class=" emotion-0 emotion-1"
     >
       Ctrl
     </span>
@@ -441,7 +443,7 @@ exports[`should render multiple keys 1`] = `
       +
     </span>
     <span
-      class="emotion-0 emotion-1"
+      class=" emotion-0 emotion-1"
     >
       <svg
         aria-hidden="true"
@@ -460,7 +462,7 @@ exports[`should render multiple keys 1`] = `
       </svg>
     </span>
     <span
-      class="emotion-0 emotion-1"
+      class=" emotion-0 emotion-1"
     >
       <svg
         aria-hidden="true"
@@ -508,7 +510,7 @@ exports[`should render multiple keys with non-key symbols 1`] = `
     class="sw-flex sw-gap-1"
   >
     <span
-      class="emotion-0 emotion-1"
+      class=" emotion-0 emotion-1"
     >
       Ctrl
     </span>
@@ -516,7 +518,7 @@ exports[`should render multiple keys with non-key symbols 1`] = `
       +
     </span>
     <span
-      class="emotion-0 emotion-1"
+      class=" emotion-0 emotion-1"
     >
       <svg
         aria-hidden="true"
@@ -535,7 +537,7 @@ exports[`should render multiple keys with non-key symbols 1`] = `
       </svg>
     </span>
     <span
-      class="emotion-0 emotion-1"
+      class=" emotion-0 emotion-1"
     >
       <svg
         aria-hidden="true"
