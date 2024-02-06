@@ -62,11 +62,11 @@ public class GsonEmailTest {
         "    \"primary\": false\n" +
         "  }" +
         "]");
-    assertThat(underTest).hasSize(2);
+    assertThat(underTestEmails).hasSize(2);
 
-    assertThat(underTest.get(0).getEmail()).isEqualTo("mridhula@github.com");
-    assertThat(underTest.get(0).isVerified()).isTrue();
-    assertThat(underTest.get(0).isPrimary()).isFalse();
+    assertThat(underTestEmails.get(0).getEmail()).isEqualTo("mridhula@github.com");
+    assertThat(underTestEmails.get(0).isVerified()).isTrue();
+    assertThat(underTestEmails.get(0).isPrimary()).isFalse();
 
   }
   @Test
