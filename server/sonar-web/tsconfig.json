@@ -6,5 +6,8 @@
       "*": ["./src/main/js/@types/*"]
     }
   },
+  "parserOptions": {
+    "project": true,
+  },
   "include": ["./src/main/js/**/*"],
 }

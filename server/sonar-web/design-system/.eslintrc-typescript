@@ -1,13 +1,20 @@
 {
   "extends": [
-    "plugin:@typescript-eslint/recommended",
-    "plugin:@typescript-eslint/recommended-requiring-type-checking",
+    "plugin:@typescript-eslint/recommended-type-checked",
+    "plugin:@typescript-eslint/stylistic-type-checked",
     "plugin:@typescript-eslint/strict"
   ],
-  "parserOptions": { "project": "./tsconfig.json" },
+  "parserOptions": {
+    "project": "./tsconfig.json"
+  },
   "rules": {
     "@typescript-eslint/adjacent-overload-signatures": "warn",
-    "@typescript-eslint/array-type": ["warn", { "default": "array-simple" }],
+    "@typescript-eslint/array-type": [
+      "warn",
+      {
+        "default": "array-simple"
+      }
+    ],
     "@typescript-eslint/await-thenable": "off",
     "@typescript-eslint/ban-ts-comment": "warn",
     "@typescript-eslint/ban-types": "warn",
@@ -37,6 +44,7 @@
     "@typescript-eslint/no-unsafe-argument": "warn",
     "@typescript-eslint/no-unsafe-assignment": "warn",
     "@typescript-eslint/no-unsafe-call": "warn",
+    "@typescript-eslint/no-unsafe-enum-comparison": "warn",
     "@typescript-eslint/no-unsafe-member-access": "warn",
     "@typescript-eslint/no-unsafe-return": "warn",
     "@typescript-eslint/no-unused-vars": "off",
@@ -44,6 +52,7 @@
     "@typescript-eslint/non-nullable-type-assertion-style": "off",
     "@typescript-eslint/prefer-as-const": "warn",
     "@typescript-eslint/prefer-namespace-keyword": "warn",
+    "@typescript-eslint/prefer-nullish-coalescing": "warn",
     "@typescript-eslint/require-await": "warn",
     "@typescript-eslint/restrict-plus-operands": "warn",
     "@typescript-eslint/restrict-template-expressions": "warn",

@@ -33,7 +33,7 @@
     "@types/react-highlight-words": "0.16.6",
     "@types/react-modal": "3.16.2",
     "@types/react-virtualized": "9.21.26",
-    "@typescript-eslint/parser": "5.59.11",
+    "@typescript-eslint/parser": "6.21.0",
     "@vitejs/plugin-react": "4.1.1",
     "autoprefixer": "10.4.16",
     "eslint": "8.52.0",

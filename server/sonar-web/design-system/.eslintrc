@@ -1,6 +1,7 @@
 {
   "extends": ["sonarqube", "./.eslintrc-typescript"],
   "plugins": ["header", "typescript-sort-keys", "eslint-plugin-local-rules"],
+  "root": true,
   "rules": {
     // Custom SonarCloud config that differs from eslint-config-sonarqube
     "camelcase": "off",

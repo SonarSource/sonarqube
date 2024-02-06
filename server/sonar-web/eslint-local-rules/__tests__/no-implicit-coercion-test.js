@@ -17,11 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-const { RuleTester } = require('eslint');
-const noImplicitCoercion = require('../no-implicit-coercion');
+import { RuleTester } from '@typescript-eslint/rule-tester';
+import noImplicitCoercion from '../no-implicit-coercion';
 
 const ruleTester = new RuleTester({
   parserOptions: {
+    project: './tsconfig.json',
+    tsconfigRootDir: __dirname + '/../test-config',
     ecmaFeatures: {
       jsx: true,
     },

@@ -2,6 +2,10 @@
   "extends": "sonarqube",
   "plugins": ["eslint-plugin-local-rules"],
   "ignorePatterns": ["eslint-local-rules/**/*"],
+  "root": true,
+  "parserOptions": {
+    "project": "./tsconfig.json"
+  },
   "rules": {
     "camelcase": "off",
     "promise/no-return-wrap": "warn",
