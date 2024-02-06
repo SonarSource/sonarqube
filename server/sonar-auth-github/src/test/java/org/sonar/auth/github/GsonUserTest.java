@@ -66,4 +66,16 @@ public class GsonUserTest {
     assertThat(underTest.getLogin()).isEqualTo("octocat");
     assertThat(underTest.getEmail()).isNull();
   }
+  @Test
+  public void id_can_be_null() {
+    GsonUser underTest = GsonUser.parse("{login:octocat}");
+    assertThat(underTest.getLogin()).isEqualTo("octocat");
+    assertThat(underTest.getEmail()).isNull();
+  }
+  @Test
+  public void login_can_be_null() {
+    GsonUser underTest = GsonUser.parse("{id:octocat}");
+    assertThat(underTest.getLogin()).isEqualTo("octocat");
+    assertThat(underTest.getEmail()).isNull();
+  }
 }
