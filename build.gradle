@@ -364,7 +364,7 @@ subprojects {
       dependency 'org.apache.commons:commons-collections4:4.4'
       dependency 'org.apache.commons:commons-csv:1.10.0'
       dependency 'org.apache.commons:commons-email:1.5'
-      dependency 'com.zaxxer:HikariCP:5.0.1'
+      dependency 'com.zaxxer:HikariCP:5.1.0'
       dependency('org.apache.httpcomponents:httpclient:4.5.14') {
         exclude 'commons-logging:commons-logging'
       }
