@@ -358,7 +358,7 @@ subprojects {
       dependency 'junit:junit:4.13.2'
       dependency 'org.xmlunit:xmlunit-core:2.9.1'
       dependency 'org.xmlunit:xmlunit-matchers:2.9.1'
-      dependency 'org.lz4:lz4-java:1.4.0'
+      dependency 'org.lz4:lz4-java:1.8.0'
       dependency 'net.lightbody.bmp:littleproxy:1.1.0-beta-bmp-17'
       dependency 'org.awaitility:awaitility:4.2.0'
       dependency 'org.apache.commons:commons-collections4:4.4'
