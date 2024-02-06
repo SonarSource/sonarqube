@@ -43,7 +43,30 @@ public class GsonTeamTest {
     assertThat(underTest.get(0).getId()).isEqualTo("developers");
     assertThat(underTest.get(0).getOrganizationId()).isEqualTo("SonarSource");
   }
+  @Test
+  public void parse_o_team_two() {
+    List<GsonTeam> underTest = GsonTeam.parse(
+      "[\n" +
+        "  {\n" +
+        "    \"name\": \"Developers\",\n" +
+        "    \"slug\": \"SonarDevelopers\",\n" +
+        "    \"organization\": {\n" +
+        "      \"login\": \"SonarSource\"\n" +
+        "    }\n" +
+        "  },\n" +
+        "  {\n" +
+        "    \"login\": \"SonarSourceUci\",\n" +
+        "    \"slug\": \"SonarSourceUci\",\n" +     
+        "    \"organization\": {\n" +
+        "      \"login\": \"SonarQubeUci\"\n" +
+        "    }\n" +
+        "  }\n" +
+        "]");
+    assertThat(underTest).hasSize(2);
 
+    assertThat(underTest.get(1).getOrganizationId()).isEqualTo("SonarSource");
+    assertThat(underTest.get(1).getOrganizationId()).isEqualTo("SonarQubeUci");
+  }
   @Test
   public void parse_two_teams() {
     List<GsonTeam> underTest = GsonTeam.parse(
