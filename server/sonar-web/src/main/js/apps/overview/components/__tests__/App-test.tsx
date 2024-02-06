@@ -19,17 +19,29 @@
  */
 import { screen, waitFor } from '@testing-library/react';
 import * as React from 'react';
+import { getScannableProjects } from '../../../../api/components';
 import BranchesServiceMock from '../../../../api/mocks/BranchesServiceMock';
 import ComputeEngineServiceMock from '../../../../api/mocks/ComputeEngineServiceMock';
 import CurrentUserContextProvider from '../../../../app/components/current-user/CurrentUserContextProvider';
-import { mockBranch } from '../../../../helpers/mocks/branch-like';
+import { mockBranch, mockMainBranch } from '../../../../helpers/mocks/branch-like';
 import { mockComponent } from '../../../../helpers/mocks/component';
 import { mockTask } from '../../../../helpers/mocks/tasks';
-import { mockCurrentUser } from '../../../../helpers/testMocks';
+import { mockCurrentUser, mockLoggedInUser } from '../../../../helpers/testMocks';
 import { renderComponent } from '../../../../helpers/testReactTestingUtils';
+import { getProjectTutorialLocation } from '../../../../helpers/urls';
 import { ComponentQualifier } from '../../../../types/component';
 import { TaskStatuses, TaskTypes } from '../../../../types/tasks';
 import { App } from '../App';
+
+jest.mock('../../../../api/components', () => ({
+  ...jest.requireActual('../../../../api/components'),
+  getScannableProjects: jest.fn().mockResolvedValue({ projects: [] }),
+}));
+
+jest.mock('../../../../helpers/urls', () => ({
+  ...jest.requireActual('../../../../helpers/urls'),
+  getProjectTutorialLocation: jest.fn().mockResolvedValue({ pathname: '/tutorial' }),
+}));
 
 const handlerBranches = new BranchesServiceMock();
 const handlerCe = new ComputeEngineServiceMock();
@@ -55,6 +67,23 @@ it('should render Empty Overview on main branch with no analysis', async () => {
   expect(
     await screen.findByText('provisioning.no_analysis_on_main_branch.main'),
   ).toBeInTheDocument();
+});
+
+it('should redirect to tutorial when the user can scan a project that has no analysis yet', async () => {
+  handlerBranches.emptyBranchesAndPullRequest();
+  handlerBranches.addBranch(mockMainBranch());
+
+  jest
+    .mocked(getScannableProjects)
+    .mockResolvedValueOnce({ projects: [{ key: 'my-project', name: 'MyProject' }] });
+
+  renderApp({}, mockLoggedInUser());
+
+  await appLoaded();
+
+  await waitFor(() => {
+    expect(getProjectTutorialLocation).toHaveBeenCalled();
+  });
 });
 
 it('should render Empty Overview on main branch with multiple branches with bad configuration', async () => {

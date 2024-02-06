@@ -17,8 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import {
   Breadcrumbs,
+  FlagMessage,
   GreyCard,
   HoverLink,
   LightLabel,
@@ -38,7 +40,6 @@ import { AlmKeys, AlmSettingsInstance, ProjectAlmBindingResponse } from '../../t
 import { MainBranch } from '../../types/branch-like';
 import { Component } from '../../types/types';
 import { LoggedInUser } from '../../types/users';
-import { Alert } from '../ui/Alert';
 import AzurePipelinesTutorial from './azure-pipelines/AzurePipelinesTutorial';
 import BitbucketPipelinesTutorial from './bitbucket-pipelines/BitbucketPipelinesTutorial';
 import GitHubActionTutorial from './github-action/GitHubActionTutorial';
@@ -73,6 +74,7 @@ function renderAlm(mode: TutorialModes, project: string, icon?: React.ReactNode)
           {translate('onboarding.mode.help.manual')}
         </LightLabel>
       )}
+
       {mode === TutorialModes.OtherCI && (
         <LightLabel as="p" className="sw-mt-3">
           {translate('onboarding.mode.help.otherci')}
@@ -106,7 +108,11 @@ export default function TutorialSelectionRenderer(props: TutorialSelectionRender
   }
 
   if (!currentUserCanScanProject) {
-    return <Alert variant="warning">{translate('onboarding.tutorial.no_scan_rights')}</Alert>;
+    return (
+      <FlagMessage className="sw-w-full" variant="warning">
+        {translate('onboarding.tutorial.no_scan_rights')}
+      </FlagMessage>
+    );
   }
 
   let showGitHubActions = true;
@@ -120,6 +126,7 @@ export default function TutorialSelectionRenderer(props: TutorialSelectionRender
     showGitLabCICD = projectBinding.alm === AlmKeys.GitLab;
     showBitbucketPipelines = projectBinding.alm === AlmKeys.BitbucketCloud;
     showAzurePipelines = [AlmKeys.Azure, AlmKeys.GitHub].includes(projectBinding.alm);
+
     showJenkins = [
       AlmKeys.BitbucketCloud,
       AlmKeys.BitbucketServer,
@@ -137,6 +144,7 @@ export default function TutorialSelectionRenderer(props: TutorialSelectionRender
           <Title className="sw-mb-6 sw-heading-lg">
             {translate('onboarding.tutorial.page.title')}
           </Title>
+
           <LightPrimary>{translate('onboarding.tutorial.page.description')}</LightPrimary>
 
           <SubTitle className="sw-mt-12 sw-mb-4 sw-heading-md">
@@ -200,6 +208,7 @@ export default function TutorialSelectionRenderer(props: TutorialSelectionRender
               )}
 
             {renderAlm(TutorialModes.OtherCI, component.key)}
+
             {renderAlm(TutorialModes.Local, component.key)}
           </div>
         </div>
@@ -210,6 +219,7 @@ export default function TutorialSelectionRenderer(props: TutorialSelectionRender
           <HoverLink to={getProjectTutorialLocation(component.key)}>
             {translate('onboarding.tutorial.breadcrumbs.home')}
           </HoverLink>
+
           <HoverLink to={getProjectTutorialLocation(component.key, selectedTutorial)}>
             {translate('onboarding.tutorial.breadcrumbs', selectedTutorial)}
           </HoverLink>
