@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { toast, ToastPosition } from 'react-toastify';
+import { toast } from 'react-toastify';
 import { FlagErrorIcon, FlagSuccessIcon } from '../../icons';
 import {
   addGlobalErrorMessage,
@@ -30,17 +30,13 @@ jest.mock('react-toastify', () => ({
 }));
 
 it('should call react-toastify with the right args', () => {
-  const POSITION = { TOP_LEFT: 'top-left', TOP_RIGHT: 'top-right' };
-
-  toast.POSITION = POSITION as typeof toast.POSITION;
-
-  addGlobalErrorMessage(<span>error</span>, { position: POSITION.TOP_LEFT as ToastPosition });
+  addGlobalErrorMessage(<span>error</span>, { position: 'top-left' });
 
   expect(toast).toHaveBeenCalledWith(
     <div className="fs-mask sw-body-sm sw-p-3 sw-pb-4" data-test="global-message__ERROR">
       <span>error</span>
     </div>,
-    { icon: <FlagErrorIcon />, type: 'error', position: POSITION.TOP_LEFT },
+    { icon: <FlagErrorIcon />, type: 'error', position: 'top-left' },
   );
 
   addGlobalSuccessMessage('it worked');

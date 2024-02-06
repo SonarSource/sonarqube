@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import styled from '@emotion/styled';
-import { Slide, ToastContainer, ToastContainerProps, toast } from 'react-toastify';
+import { Slide, ToastContainer, ToastContainerProps } from 'react-toastify';
 import tw from 'twin.macro';
 import { TOAST_AUTOCLOSE_DELAY } from '../../helpers/constants';
 import { themeBorder, themeColor } from '../../helpers/theme';
@@ -45,7 +45,7 @@ export function ToastMessageContainer() {
         newestOnTop={false}
         pauseOnFocusLoss
         pauseOnHover
-        position={toast.POSITION.TOP_RIGHT}
+        position="top-right"
         rtl={false}
         transition={Slide}
       />

@@ -43,7 +43,7 @@ it('should render the ToastMessageContainer', () => {
       newestOnTop: false,
       pauseOnFocusLoss: true,
       pauseOnHover: true,
-      position: 'mock top right',
+      position: 'top-right',
       rtl: false,
       transition: 'mock slide',
     },
