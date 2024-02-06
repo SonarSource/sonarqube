@@ -38,11 +38,10 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.sonar.server.plugins.UpdateCenterClient.*;
 
 public class UpdateCenterClientTest {
 
-  private static final String BASE_URL = "https://update.sonarsource.org";
-  private static final String DEFAULT_CACHE_TTL = "3600000";
   private UriReader reader = mock(UriReader.class);
   private MapSettings settings = new MapSettings();
   private UpdateCenterClient underTest;
@@ -50,17 +49,17 @@ public class UpdateCenterClientTest {
   @Before
   public void startServer() throws Exception {
     reader = mock(UriReader.class);
-    settings.setProperty(UpdateCenterClient.URL_PROPERTY, BASE_URL);
+    settings.setProperty(URL_PROPERTY, URL_DEFAULT_VALUE);
     settings.setProperty(ProcessProperties.Property.SONAR_UPDATECENTER_ACTIVATE.getKey(), true);
-    settings.setProperty(UpdateCenterClient.CACHE_TTL_PROPERTY, DEFAULT_CACHE_TTL);
+    settings.setProperty(CACHE_TTL_PROPERTY, CACHE_TTL_DEFAULT_VALUE);
     underTest = new UpdateCenterClient(reader, settings.asConfig());
   }
 
   @Test
   public void downloadUpdateCenter() throws URISyntaxException {
-    when(reader.readString(new URI(BASE_URL), StandardCharsets.UTF_8)).thenReturn("publicVersions=2.2,2.3");
+    when(reader.readString(new URI(URL_DEFAULT_VALUE), StandardCharsets.UTF_8)).thenReturn("publicVersions=2.2,2.3");
     UpdateCenter plugins = underTest.getUpdateCenter().get();
-    verify(reader, times(1)).readString(new URI(BASE_URL), StandardCharsets.UTF_8);
+    verify(reader, times(1)).readString(new URI(URL_DEFAULT_VALUE), StandardCharsets.UTF_8);
     assertThat(plugins.getSonar().getVersions()).containsOnly(Version.create("2.2"), Version.create("2.3"));
     assertThat(underTest.getLastRefreshDate()).isNotNull();
   }
@@ -78,22 +77,22 @@ public class UpdateCenterClientTest {
 
   @Test
   public void cache_data() throws Exception {
-    when(reader.readString(new URI(BASE_URL), StandardCharsets.UTF_8)).thenReturn("sonar.versions=2.2,2.3");
+    when(reader.readString(new URI(URL_DEFAULT_VALUE), StandardCharsets.UTF_8)).thenReturn("sonar.versions=2.2,2.3");
 
     underTest.getUpdateCenter();
     underTest.getUpdateCenter();
 
-    verify(reader, times(1)).readString(new URI(BASE_URL), StandardCharsets.UTF_8);
+    verify(reader, times(1)).readString(new URI(URL_DEFAULT_VALUE), StandardCharsets.UTF_8);
   }
 
   @Test
   public void forceRefresh() throws Exception {
-    when(reader.readString(new URI(BASE_URL), StandardCharsets.UTF_8)).thenReturn("sonar.versions=2.2,2.3");
+    when(reader.readString(new URI(URL_DEFAULT_VALUE), StandardCharsets.UTF_8)).thenReturn("sonar.versions=2.2,2.3");
 
     underTest.getUpdateCenter();
     underTest.getUpdateCenter(true);
 
-    verify(reader, times(2)).readString(new URI(BASE_URL), StandardCharsets.UTF_8);
+    verify(reader, times(2)).readString(new URI(URL_DEFAULT_VALUE), StandardCharsets.UTF_8);
   }
 
   @Test

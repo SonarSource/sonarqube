@@ -38,21 +38,21 @@ import org.sonar.updatecenter.common.UpdateCenterDeserializer;
 import org.sonar.updatecenter.common.UpdateCenterDeserializer.Mode;
 
 /**
- * HTTP client to load data from the remote update center hosted at https://update.sonarsource.org.
+ * HTTP client to load data from the remote update center hosted at https://downloads.sonarsource.com/?prefix=sonarqube/update
  *
  * @since 2.4
  */
 @Properties({
   @Property(
     key = UpdateCenterClient.URL_PROPERTY,
-    defaultValue = "https://update.sonarsource.org/update-center.properties",
+    defaultValue = UpdateCenterClient.URL_DEFAULT_VALUE,
     name = "Update Center URL",
     category = "Update Center",
     // hidden from UI
     global = false),
   @Property(
     key = UpdateCenterClient.CACHE_TTL_PROPERTY,
-    defaultValue = "3600000",
+    defaultValue = UpdateCenterClient.CACHE_TTL_DEFAULT_VALUE,
     name = "Update Center cache time-to-live in milliseconds",
     category = "Update Center",
     // hidden from UI
@@ -61,8 +61,10 @@ import org.sonar.updatecenter.common.UpdateCenterDeserializer.Mode;
 public class UpdateCenterClient {
 
   private static final Logger LOG = LoggerFactory.getLogger(UpdateCenterClient.class);
-  public static final String URL_PROPERTY = "sonar.updatecenter.url";
-  public static final String CACHE_TTL_PROPERTY = "sonar.updatecenter.cache.ttl";
+  static final String URL_PROPERTY = "sonar.updatecenter.url";
+  static final String URL_DEFAULT_VALUE = "https://downloads.sonarsource.com/sonarqube/update/update-center.properties";
+  static final String CACHE_TTL_PROPERTY = "sonar.updatecenter.cache.ttl";
+  static final String CACHE_TTL_DEFAULT_VALUE = "3600000";
 
   private final long periodInMilliseconds;
 
