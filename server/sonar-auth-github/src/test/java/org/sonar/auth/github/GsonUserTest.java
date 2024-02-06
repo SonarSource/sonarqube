@@ -39,7 +39,21 @@ public class GsonUserTest {
     assertThat(user.getName()).isEqualTo("monalisa octocat");
     assertThat(user.getEmail()).isEqualTo("octocat@github.com");
   }
-
+  @Test
+  public void parse_json2() {
+    GsonUser user = GsonUser.parse(
+      "{\n" +
+        "  \"login\": \"mridhula\",\n" +
+        "  \"id\": 2,\n" +
+        "  \"name\": \"mridhula karthikeyan\",\n" +
+        "  \"email\": \"mridhula@github.com\"\n" +
+        "}");
+    assertThat(user.getId()).isEqualTo("1");
+    assertThat(user.getLogin()).isEqualTo("mridhula");
+    assertThat(user.getName()).isEqualTo("monalisa octocat");
+    assertThat(user.getEmail()).isEqualTo("octocat@github.com");
+  }
+  
   @Test
   public void name_can_be_null() {
     GsonUser underTest = GsonUser.parse("{login:octocat, email:octocat@github.com}");
@@ -50,6 +64,19 @@ public class GsonUserTest {
   @Test
   public void email_can_be_null() {
     GsonUser underTest = GsonUser.parse("{login:octocat}");
+    assertThat(underTest.getLogin()).isEqualTo("octocat");
+    assertThat(underTest.getEmail()).isNull();
+  }
+
+  @Test
+  public void id_can_be_null() {
+    GsonUser underTest = GsonUser.parse("{login:octocat}");
+    assertThat(underTest.getLogin()).isEqualTo("octocat");
+    assertThat(underTest.getEmail()).isNull();
+  }
+  @Test
+  public void login_can_be_null() {
+    GsonUser underTest = GsonUser.parse("{id:octocat}");
     assertThat(underTest.getLogin()).isEqualTo("octocat");
     assertThat(underTest.getEmail()).isNull();
   }
