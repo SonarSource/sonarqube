@@ -310,7 +310,7 @@ subprojects {
       dependency('com.googlecode.json-simple:json-simple:1.1.1') {
         exclude 'junit:junit'
       }
-      dependency 'com.squareup.okio:okio:3.6.0'
+      dependency 'com.squareup.okio:okio:3.7.0'
       dependency 'io.prometheus:simpleclient:0.16.0'
       dependency 'io.prometheus:simpleclient_common:0.16.0'
       dependency 'io.prometheus:simpleclient_servlet:0.16.0'
