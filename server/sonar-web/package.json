@@ -137,5 +137,5 @@
   "browser": {
     "path": "path-browserify"
   },
-  "packageManager": "yarn@3.6.3"
+  "packageManager": "yarn@4.1.0"
 }
