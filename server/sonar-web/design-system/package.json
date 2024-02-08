@@ -19,7 +19,7 @@
     "@babel/core": "7.23.9",
     "@babel/plugin-transform-react-jsx": "7.22.15",
     "@babel/preset-env": "7.23.9",
-    "@babel/preset-typescript": "7.23.2",
+    "@babel/preset-typescript": "7.23.3",
     "@emotion/babel-plugin": "11.11.0",
     "@emotion/babel-plugin-jsx-pragmatic": "0.2.1",
     "@testing-library/dom": "9.3.3",
