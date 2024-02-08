@@ -19,6 +19,8 @@
  */
 package org.sonar.server.email;
 
+import java.net.MalformedURLException;
+import java.time.Duration;
 import org.apache.commons.mail.Email;
 import org.apache.commons.mail.EmailException;
 import org.apache.commons.mail.HtmlEmail;
@@ -26,14 +28,14 @@ import org.apache.commons.mail.MultiPartEmail;
 import org.sonar.api.config.EmailSettings;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.time.temporal.ChronoUnit.SECONDS;
 import static org.apache.commons.lang.StringUtils.equalsIgnoreCase;
 import static org.apache.commons.lang.StringUtils.isBlank;
 import static org.apache.commons.lang.StringUtils.isNotBlank;
-import java.net.MalformedURLException;
 
 public abstract class EmailSender<T extends BasicEmail> {
 
-  protected static final int SOCKET_TIMEOUT = 30_000;
+  private static final Duration SOCKET_TIMEOUT = Duration.of(30, SECONDS);
 
   protected final EmailSettings emailSettings;
 
@@ -56,7 +58,7 @@ public abstract class EmailSender<T extends BasicEmail> {
     }
   }
 
-  public HtmlEmail createEmail(T report)  throws MalformedURLException, EmailException {
+  public HtmlEmail createEmail(T report) throws MalformedURLException, EmailException {
     HtmlEmail email = new HtmlEmail();
 
     setEmailSettings(email);

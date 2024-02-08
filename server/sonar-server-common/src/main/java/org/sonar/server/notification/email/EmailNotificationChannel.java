@@ -21,6 +21,7 @@ package org.sonar.server.notification.email;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.time.Duration;
 import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -43,6 +44,7 @@ import org.sonar.server.issue.notification.EmailMessage;
 import org.sonar.server.issue.notification.EmailTemplate;
 import org.sonar.server.notification.NotificationChannel;
 
+import static java.time.temporal.ChronoUnit.SECONDS;
 import static java.util.Objects.requireNonNull;
 
 /**
@@ -60,10 +62,10 @@ public class EmailNotificationChannel extends NotificationChannel {
   private static final Logger LOG = LoggerFactory.getLogger(EmailNotificationChannel.class);
 
   /**
-   * @see org.apache.commons.mail.Email#setSocketConnectionTimeout(int)
-   * @see org.apache.commons.mail.Email#setSocketTimeout(int)
+   * @see org.apache.commons.mail.Email#setSocketConnectionTimeout(Duration)
+   * @see org.apache.commons.mail.Email#setSocketTimeout(Duration)
    */
-  private static final int SOCKET_TIMEOUT = 30_000;
+  private static final Duration SOCKET_TIMEOUT = Duration.of(30, SECONDS);
 
   private static final Pattern PATTERN_LINE_BREAK = Pattern.compile("[\n\r]");
 
