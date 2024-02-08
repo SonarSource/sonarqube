@@ -8,7 +8,7 @@
     "design-system"
   ],
   "dependencies": {
-    "@emotion/react": "11.11.1",
+    "@emotion/react": "11.11.3",
     "@emotion/styled": "11.11.0",
     "@primer/octicons-react": "19.8.0",
     "@react-spring/rafz": "9.7.3",
