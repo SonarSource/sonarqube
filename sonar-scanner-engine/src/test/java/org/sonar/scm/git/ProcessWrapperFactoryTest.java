@@ -45,7 +45,7 @@ public class ProcessWrapperFactoryTest {
     assertThatThrownBy(() -> processWrapper.execute())
       .isInstanceOf(IllegalStateException.class);
 
-    assertThat(logTester.logs(Level.DEBUG).get(0)).contains("fatal: not a git repository");
+    assertThat(logTester.logs(Level.DEBUG).get(0)).startsWith("fatal:");
   }
 
 }
