@@ -16,7 +16,7 @@
     "validate-ci": "yarn install --immutable && yarn ts-check && yarn format-check && yarn test --coverage --ci"
   },
   "devDependencies": {
-    "@babel/core": "7.23.2",
+    "@babel/core": "7.23.9",
     "@babel/plugin-transform-react-jsx": "7.22.15",
     "@babel/preset-env": "7.23.2",
     "@babel/preset-typescript": "7.23.2",
