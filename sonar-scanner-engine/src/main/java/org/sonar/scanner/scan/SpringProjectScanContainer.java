@@ -44,6 +44,8 @@ import org.sonar.scanner.bootstrap.PostJobExtensionDictionary;
 import org.sonar.scanner.bootstrap.ScannerPluginRepository;
 import org.sonar.scanner.cpd.CpdExecutor;
 import org.sonar.scanner.fs.InputModuleHierarchy;
+import org.sonar.scanner.issue.IssueFilterExtensionDictionary;
+import org.sonar.scanner.issue.IssueFilters;
 import org.sonar.scanner.mediumtest.AnalysisObservers;
 import org.sonar.scanner.postjob.DefaultPostJobContext;
 import org.sonar.scanner.postjob.PostJobOptimizer;
@@ -124,6 +126,9 @@ public class SpringProjectScanContainer extends SpringComponentContainer {
       ProjectSensorsExecutor.class,
       ProjectSensorOptimizer.class,
 
+      // Issue filters
+      IssueFilterExtensionDictionary.class,
+
       AnalysisObservers.class,
 
       // file system
@@ -144,6 +149,8 @@ public class SpringProjectScanContainer extends SpringComponentContainer {
   @Override
   protected void doAfterStart() {
     getParentComponentByType(ScannerMetrics.class).addPluginMetrics(getComponentsByType(Metrics.class));
+    getParentComponentByType(IssueFilters.class).registerFilters(getComponentByType(IssueFilterExtensionDictionary.class).selectIssueFilters());
+
     getComponentByType(ProjectLock.class).tryLock();
 
     // NOTE: ProjectBuilders executed here will have any changes they make to the ProjectReactor discarded.

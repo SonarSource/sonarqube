@@ -19,6 +19,7 @@
  */
 package org.sonar.scanner.issue;
 
+import java.util.List;
 import org.junit.Test;
 import org.sonar.api.scan.issue.filter.FilterableIssue;
 import org.sonar.api.scan.issue.filter.IssueFilter;
@@ -33,7 +34,7 @@ public class DefaultIssueFilterChainTest {
 
   @Test
   public void should_accept_when_no_filter() {
-    assertThat(new DefaultIssueFilterChain().accept(issue)).isTrue();
+    assertThat(new DefaultIssueFilterChain(List.of()).accept(issue)).isTrue();
   }
 
   static class PassingFilter implements IssueFilter {
@@ -68,28 +69,28 @@ public class DefaultIssueFilterChainTest {
 
   @Test
   public void should_accept_if_all_filters_pass() {
-    assertThat(new DefaultIssueFilterChain(
+    assertThat(new DefaultIssueFilterChain(List.of(
       new PassingFilter(),
       new PassingFilter(),
-      new PassingFilter()
+      new PassingFilter())
       ).accept(issue)).isTrue();
   }
 
   @Test
   public void should_accept_and_not_go_further_if_filter_accepts() {
-    assertThat(new DefaultIssueFilterChain(
+    assertThat(new DefaultIssueFilterChain(List.of(
       new PassingFilter(),
       new AcceptingFilter(),
-      new FailingFilter()
+      new FailingFilter())
       ).accept(issue)).isTrue();
   }
 
   @Test
   public void should_refuse_and_not_go_further_if_filter_refuses() {
-    assertThat(new DefaultIssueFilterChain(
+    assertThat(new DefaultIssueFilterChain(List.of(
       new PassingFilter(),
       new RefusingFilter(),
-      new FailingFilter()
+      new FailingFilter())
       ).accept(issue)).isFalse();
   }
 }

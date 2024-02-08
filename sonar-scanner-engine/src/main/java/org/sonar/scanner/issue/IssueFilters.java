@@ -19,6 +19,7 @@
  */
 package org.sonar.scanner.issue;
 
+import java.util.List;
 import org.sonar.api.batch.fs.InputComponent;
 import org.sonar.api.batch.fs.internal.DefaultInputProject;
 import org.sonar.api.scan.issue.filter.FilterableIssue;
@@ -32,23 +33,24 @@ import org.springframework.beans.factory.annotation.Autowired;
  */
 @Deprecated
 public class IssueFilters {
-  private final IssueFilterChain filterChain;
+  private IssueFilterChain filterChain;
   private final DefaultInputProject project;
 
   @Autowired(required = false)
-  public IssueFilters(DefaultInputProject project, IssueFilter[] exclusionFilters) {
-    this.project = project;
-    this.filterChain = new DefaultIssueFilterChain(exclusionFilters);
-  }
-
-  @Autowired(required = false)
   public IssueFilters(DefaultInputProject project) {
-    this(project, new IssueFilter[0]);
+    this.project = project;
   }
 
   public boolean accept(InputComponent component, ScannerReport.Issue rawIssue) {
+    if (filterChain == null) {
+      throw new IllegalStateException("Issue filters must be registered before this class can be used");
+    }
     FilterableIssue fIssue = new DefaultFilterableIssue(project, rawIssue, component);
     return filterChain.accept(fIssue);
+  }
+
+  public void registerFilters(List<IssueFilter> exclusionFilters) {
+    this.filterChain = new DefaultIssueFilterChain(exclusionFilters);
   }
 
 }

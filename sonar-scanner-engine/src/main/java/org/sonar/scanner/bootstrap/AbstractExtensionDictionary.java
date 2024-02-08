@@ -85,7 +85,7 @@ public abstract class AbstractExtensionDictionary {
     }
   }
 
-  protected <T> Collection<T> sort(Collection<T> extensions) {
+  protected <T> List<T> sort(Collection<T> extensions) {
     DirectAcyclicGraph dag = new DirectAcyclicGraph();
 
     for (T extension : extensions) {
@@ -98,9 +98,9 @@ public abstract class AbstractExtensionDictionary {
       }
       completePhaseDependencies(dag, extension);
     }
-    List<?> sortedList = dag.sort();
+    List<T> sortedList = dag.sort();
 
-    return (Collection<T>) sortedList.stream()
+    return sortedList.stream()
       .filter(extensions::contains)
       .toList();
   }

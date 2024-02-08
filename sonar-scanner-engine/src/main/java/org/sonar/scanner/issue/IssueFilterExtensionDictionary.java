@@ -19,28 +19,19 @@
  */
 package org.sonar.scanner.issue;
 
-import java.util.Collections;
 import java.util.List;
-import javax.annotation.concurrent.ThreadSafe;
-import org.sonar.api.scan.issue.filter.FilterableIssue;
 import org.sonar.api.scan.issue.filter.IssueFilter;
-import org.sonar.api.scan.issue.filter.IssueFilterChain;
+import org.sonar.core.platform.SpringComponentContainer;
+import org.sonar.scanner.bootstrap.AbstractExtensionDictionary;
 
-@ThreadSafe
-public class DefaultIssueFilterChain implements IssueFilterChain {
-  private final List<IssueFilter> filters;
+public class IssueFilterExtensionDictionary extends AbstractExtensionDictionary {
 
-  public DefaultIssueFilterChain(List<IssueFilter> filters) {
-    this.filters = filters;
+
+  public IssueFilterExtensionDictionary(SpringComponentContainer componentContainer) {
+    super(componentContainer);
   }
 
-  @Override
-  public boolean accept(FilterableIssue issue) {
-    if (filters.isEmpty()) {
-      return true;
-    } else {
-      return filters.get(0).accept(issue, new DefaultIssueFilterChain(filters.subList(1, filters.size())));
-    }
+  public List<IssueFilter> selectIssueFilters() {
+    return sort(getFilteredExtensions(IssueFilter.class, null));
   }
-
 }

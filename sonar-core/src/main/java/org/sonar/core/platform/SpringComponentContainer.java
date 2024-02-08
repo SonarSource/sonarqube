@@ -183,6 +183,9 @@ public class SpringComponentContainer implements StartableContainer {
     }
   }
 
+  /**
+   * Lookup all beans of a given type but only in this container, not in its parents.
+   */
   @Override
   public <T> List<T> getComponentsByType(Class<T> type) {
     try {
