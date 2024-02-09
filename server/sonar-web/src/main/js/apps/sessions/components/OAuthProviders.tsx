@@ -65,7 +65,7 @@ function OAuthProvider({ format, identityProvider, returnTo }: ItemProps) {
         name={identityProvider.name}
         url={
           identityProvider.key === 'saml2'
-            ? '/sessions/sso'
+            ? `/sessions/sso?return_to=${encodeURIComponent(returnTo)}`
             : `${getBaseUrl()}/sessions/init/${identityProvider.key}?return_to=${encodeURIComponent(returnTo)}`
         }
       >
