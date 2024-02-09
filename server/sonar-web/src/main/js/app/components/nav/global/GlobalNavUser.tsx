@@ -75,6 +75,7 @@ export class GlobalNavUser extends React.PureComponent<Props, State> {
     if (isLoggedIn(currentUser) && hasOrganizations && !pendoInitialized && isCodescan) {
       const script = document.createElement('script');
       const orgKeys = this.props.userOrganizations.map(o => o.kee).join(',');
+      const host = window.location.hostname;
 
       script.innerHTML =
           "  pendo.initialize({\n" +
@@ -82,7 +83,8 @@ export class GlobalNavUser extends React.PureComponent<Props, State> {
           "          id: '" + (currentUser.email ? currentUser.email : currentUser.login) + "'\n" +
           "        },\n" +
           "        account: {\n" +
-          "          id: '" + orgKeys + "'\n" +
+          "          id: '" + orgKeys + "',\n" +
+          "          instance: '" + host + "'\n" +
           "        }\n" +
           "      });";
 
