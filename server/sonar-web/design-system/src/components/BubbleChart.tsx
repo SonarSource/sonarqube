@@ -128,6 +128,7 @@ export function BubbleChart<T>(props: BubbleChartProps<T>) {
     (node: SVGSVGElement) => {
       nodeRef.current = node;
       zoomRef.current = zoom().scaleExtent([1, 10]).on('zoom', zoomed);
+      // @ts-expect-error Type instantiation is excessively deep and possibly infinite.
       select(nodeRef.current).call(zoomRef.current);
     },
     [zoomed],
