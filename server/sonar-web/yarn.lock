@@ -3308,6 +3308,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@highlightjs/cdn-assets@npm:^11.9.0":
+  version: 11.9.0
+  resolution: "@highlightjs/cdn-assets@npm:11.9.0"
+  checksum: 10/4a6507210ec88169fe6567ae19371316f043585ed168117be183c7d75e3d8a65c81f506a775bed4cc9e4f9784255b1287a3983899946b8b744be2e3100d4c9e7
+  languageName: node
+  linkType: hard
+
 "@humanwhocodes/config-array@npm:^0.11.13":
   version: 0.11.13
   resolution: "@humanwhocodes/config-array@npm:0.11.13"
@@ -5289,7 +5296,7 @@ __metadata:
     lunr: "npm:2.3.9"
     openapi-types: "npm:12.1.3"
     path-browserify: "npm:1.0.1"
-    postcss: "npm:8.4.33"
+    postcss: "npm:8.4.35"
     postcss-calc: "npm:9.0.1"
     postcss-custom-properties: "npm:12.1.11"
     prettier: "npm:3.2.5"
@@ -7065,12 +7072,12 @@ __metadata:
     eslint-plugin-local-rules: "npm:2.0.1"
     eslint-plugin-typescript-sort-keys: "npm:3.1.0"
     highlight.js: "npm:11.9.0"
-    highlightjs-apex: "npm:1.3.1"
+    highlightjs-apex: "npm:1.3.5"
     highlightjs-cobol: "npm:0.3.3"
     highlightjs-sap-abap: "npm:0.3.0"
     history: "npm:5.3.0"
     jest: "npm:29.7.0"
-    postcss: "npm:8.4.33"
+    postcss: "npm:8.4.35"
     postcss-calc: "npm:9.0.1"
     postcss-custom-properties: "npm:12.1.11"
     prettier: "npm:^3.1.0"
@@ -8971,12 +8978,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"highlightjs-apex@npm:1.3.1":
-  version: 1.3.1
-  resolution: "highlightjs-apex@npm:1.3.1"
+"highlightjs-apex@npm:1.3.5":
+  version: 1.3.5
+  resolution: "highlightjs-apex@npm:1.3.5"
   dependencies:
-    highlight.js: "npm:11.9.0"
-  checksum: 10/dab4a5263cb7bcaa97f50b3933ff5f435ee80928e935467fe81974618d5f36c3ca78279d9f1bbc218f5098faba64c8868f80f4d8117b2be45861dfdd40490691
+    "@highlightjs/cdn-assets": "npm:^11.9.0"
+  checksum: 10/8f8619ebd904e08a3797afa5b51d729c8a967f83acc5f5c681d78c03f51d3d555925de5bb5a3b096ea171d31b0e8c4419c9262cbd5840b2f95301aa46743f2ee
   languageName: node
   linkType: hard
 
@@ -11863,14 +11870,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"postcss@npm:8.4.33":
-  version: 8.4.33
-  resolution: "postcss@npm:8.4.33"
+"postcss@npm:8.4.35":
+  version: 8.4.35
+  resolution: "postcss@npm:8.4.35"
   dependencies:
     nanoid: "npm:^3.3.7"
     picocolors: "npm:^1.0.0"
     source-map-js: "npm:^1.0.2"
-  checksum: 10/e22a4594c255f26117f38419fb494d7ecab0f596cd409f7aadc8a6173abf180ed7ea970cd13fd366ab12b5840be901d2a09b25197700c2ebcb5a8077326bf519
+  checksum: 10/93a7ce50cd6188f5f486a9ca98950ad27c19dfed996c45c414fa242944497e4d084a8760d3537f078630226f2bd3c6ab84b813b488740f4432e7c7039cd73a20
   languageName: node
   linkType: hard
 
