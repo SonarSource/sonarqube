@@ -57,6 +57,7 @@ public class MigrationTestDb implements TestDb {
 
   private static void createDatabase(Settings settings) {
     Configuration configuration = Configuration.builder()
+      .addEnvVariables()
       .addProperties(settings.getProperties())
       .build();
 
