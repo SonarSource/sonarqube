@@ -23,6 +23,8 @@ import { translate } from '../../../helpers/l10n';
 import { getBaseUrl } from '../../../helpers/system';
 import './Login.css';
 import './LoginForm.css';
+import { getReturnUrl } from '../../../helpers/urls';
+import { useLocation } from '../../../components/hoc/withRouter';
 
 export default function SamlLogin() {
 
@@ -35,7 +37,9 @@ export default function SamlLogin() {
   return (
       <div className="login-page" id="login_form">
         <h1 className="login-title text-center">Sign in Using SSO</h1>
-        <form className="login-form" action={`/_codescan/saml2/login/${email}`} method="POST">
+        <form className="login-form" action={
+            `/_codescan/saml2/login/${email}?return_to=${encodeURIComponent(getReturnUrl(useLocation()))}`
+         } method="POST">
           <div className="big-spacer-bottom">
             <input
                 autoFocus={true}
