@@ -79,7 +79,7 @@
     "@typescript-eslint/rule-tester": "6.21.0",
     "autoprefixer": "10.4.17",
     "chalk": "4.1.2",
-    "chokidar": "3.5.3",
+    "chokidar": "3.6.0",
     "design-system": "1.0.0",
     "esbuild": "0.19.5",
     "eslint": "8.52.0",
