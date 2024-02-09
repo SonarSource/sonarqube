@@ -43,7 +43,7 @@ export default class InputForSingleSelectList extends React.PureComponent<Props>
         onChange={this.handleInputChange}
         aria-label={getPropertyName(setting.definition)}
         options={options}
-        value={options.find((option) => option.value === value)}
+        value={options.find((option) => option.value === value) ?? null}
       />
     );
   }

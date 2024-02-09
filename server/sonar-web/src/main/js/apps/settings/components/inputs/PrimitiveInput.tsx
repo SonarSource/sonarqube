@@ -44,18 +44,21 @@ export default function PrimitiveInput(props: DefaultSpecializedInputProps) {
     [type in SettingType]?: React.ComponentType<
       React.PropsWithChildren<DefaultSpecializedInputProps>
     >;
-  } = {
-    STRING: InputForString,
-    TEXT: InputForText,
-    JSON: InputForJSON,
-    PASSWORD: InputForPassword,
-    BOOLEAN: InputForBoolean,
-    INTEGER: InputForNumber,
-    LONG: InputForNumber,
-    FLOAT: InputForNumber,
-    SINGLE_SELECT_LIST: withOptions(definition.options),
-    FORMATTED_TEXT: InputForFormattedText,
-  };
+  } = React.useMemo(
+    () => ({
+      STRING: InputForString,
+      TEXT: InputForText,
+      JSON: InputForJSON,
+      PASSWORD: InputForPassword,
+      BOOLEAN: InputForBoolean,
+      INTEGER: InputForNumber,
+      LONG: InputForNumber,
+      FLOAT: InputForNumber,
+      SINGLE_SELECT_LIST: withOptions(definition.options),
+      FORMATTED_TEXT: InputForFormattedText,
+    }),
+    [definition.options],
+  );
 
   const InputComponent = (definition.type && typeMapping[definition.type]) || InputForString;
 

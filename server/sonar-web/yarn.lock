@@ -12,10 +12,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@adobe/css-tools@npm:^4.3.1":
-  version: 4.3.1
-  resolution: "@adobe/css-tools@npm:4.3.1"
-  checksum: 10/039a42ffdd41ecf3abcaf09c9fef0ffd634ccbe81c04002fc989e74564eba99bb19169a8f48dadf6442aa2c5c9f0925a7b27ec5c36a1ed1a3515fe77d6930996
+"@adobe/css-tools@npm:^4.3.2":
+  version: 4.3.3
+  resolution: "@adobe/css-tools@npm:4.3.3"
+  checksum: 10/0e77057efb4e18182560855503066b75edca98671be327d3f8a7ae89ec3da6821e693114b55225909fca00d7e7ed8422f3d79d71fe95dd4d5df1f2026a9fda02
   languageName: node
   linkType: hard
 
@@ -4190,9 +4190,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@testing-library/dom@npm:9.3.3, @testing-library/dom@npm:^9.0.0":
-  version: 9.3.3
-  resolution: "@testing-library/dom@npm:9.3.3"
+"@testing-library/dom@npm:9.3.4, @testing-library/dom@npm:>=7, @testing-library/dom@npm:^9.0.0":
+  version: 9.3.4
+  resolution: "@testing-library/dom@npm:9.3.4"
   dependencies:
     "@babel/code-frame": "npm:^7.10.4"
     "@babel/runtime": "npm:^7.12.5"
@@ -4202,45 +4202,32 @@ __metadata:
     dom-accessibility-api: "npm:^0.5.9"
     lz-string: "npm:^1.5.0"
     pretty-format: "npm:^27.0.2"
-  checksum: 10/1ebd1672226600049ce16509d6964bdad8ee71b10f7e68f98126e00638c08ebefb6b7c729a0f2a41cffc77902c3081a95fc2bc1a097cae442ed4a5c481f348b7
+  checksum: 10/510da752ea76f4a10a0a4e3a77917b0302cf03effe576cd3534cab7e796533ee2b0e9fb6fb11b911a1ebd7c70a0bb6f235bf4f816c9b82b95b8fe0cddfd10975
   languageName: node
   linkType: hard
 
-"@testing-library/dom@npm:>=7":
-  version: 8.12.0
-  resolution: "@testing-library/dom@npm:8.12.0"
+"@testing-library/jest-dom@npm:6.4.2":
+  version: 6.4.2
+  resolution: "@testing-library/jest-dom@npm:6.4.2"
   dependencies:
-    "@babel/code-frame": "npm:^7.10.4"
-    "@babel/runtime": "npm:^7.12.5"
-    "@types/aria-query": "npm:^4.2.0"
-    aria-query: "npm:^5.0.0"
-    chalk: "npm:^4.1.0"
-    dom-accessibility-api: "npm:^0.5.9"
-    lz-string: "npm:^1.4.4"
-    pretty-format: "npm:^27.0.2"
-  checksum: 10/a05d4e280452804a2ddce4e29131f185ce82617e97fcf6888efa4efabd87a44b0371ef9457d1faf21a170fe8df62f5c7227151a591a78c131816e1bef1e46180
-  languageName: node
-  linkType: hard
-
-"@testing-library/jest-dom@npm:6.1.4":
-  version: 6.1.4
-  resolution: "@testing-library/jest-dom@npm:6.1.4"
-  dependencies:
-    "@adobe/css-tools": "npm:^4.3.1"
+    "@adobe/css-tools": "npm:^4.3.2"
     "@babel/runtime": "npm:^7.9.2"
     aria-query: "npm:^5.0.0"
     chalk: "npm:^3.0.0"
     css.escape: "npm:^1.5.1"
-    dom-accessibility-api: "npm:^0.5.6"
+    dom-accessibility-api: "npm:^0.6.3"
     lodash: "npm:^4.17.15"
     redent: "npm:^3.0.0"
   peerDependencies:
     "@jest/globals": ">= 28"
+    "@types/bun": "*"
     "@types/jest": ">= 28"
     jest: ">= 28"
     vitest: ">= 0.32"
   peerDependenciesMeta:
     "@jest/globals":
+      optional: true
+    "@types/bun":
       optional: true
     "@types/jest":
       optional: true
@@ -4248,13 +4235,13 @@ __metadata:
       optional: true
     vitest:
       optional: true
-  checksum: 10/e5a0cdb96eec509c0c85f2b7a0d08fc1c9f6c10aa49bba0d738bf4bb114c3472b92ace5067aedfaaf848ae13b38ba9296047c219aa24b66c87aa16de33341fdb
+  checksum: 10/7ee1e51caffad032734a4a43a00bf72d49080cf1bbf53021b443e91c7fa3762a66f55ce68f1c6643590fe66fbc4df92142659b8cf17c92166a3fb22691987e0d
   languageName: node
   linkType: hard
 
-"@testing-library/react@npm:14.1.0":
-  version: 14.1.0
-  resolution: "@testing-library/react@npm:14.1.0"
+"@testing-library/react@npm:14.2.1":
+  version: 14.2.1
+  resolution: "@testing-library/react@npm:14.2.1"
   dependencies:
     "@babel/runtime": "npm:^7.12.5"
     "@testing-library/dom": "npm:^9.0.0"
@@ -4262,16 +4249,16 @@ __metadata:
   peerDependencies:
     react: ^18.0.0
     react-dom: ^18.0.0
-  checksum: 10/d181f13cc684515dfe7ca0a961c75e5f506ffde897e5c96628bab71ddc264e67d1477ad7ad0615a1add1f82a6437143843c33c05292783ff0dc72d1a009c512f
+  checksum: 10/e02b2f32ae79665a79fc4d8ee053fd3832bfcd4753aa1dba05cdece1a9f59c72a0fae91e0a9387597dcb686d631a722729f2878e38dc95e6f23b291ad8d09b6c
   languageName: node
   linkType: hard
 
-"@testing-library/user-event@npm:14.5.1":
-  version: 14.5.1
-  resolution: "@testing-library/user-event@npm:14.5.1"
+"@testing-library/user-event@npm:14.5.2":
+  version: 14.5.2
+  resolution: "@testing-library/user-event@npm:14.5.2"
   peerDependencies:
     "@testing-library/dom": ">=7.21.4"
-  checksum: 10/696e1328c230b0a7063a41d82b5350c6be926696106809a4d79d446d190ff56bebb850fe564ff0952cb74ae81e59a6f10534a88ecbb3792083271a249e04e728
+  checksum: 10/49821459d81c6bc435d97128d6386ca24f1e4b3ba8e46cb5a96fe3643efa6e002d88c1b02b7f2ec58da593e805c59b78d7fdf0db565c1f02ba782f63ee984040
   languageName: node
   linkType: hard
 
@@ -4293,13 +4280,6 @@ __metadata:
   version: 1.0.38
   resolution: "@types/argparse@npm:1.0.38"
   checksum: 10/26ed7e3f1e3595efdb883a852f5205f971b798e4c28b7e30a32c5298eee596e8b45834ce831f014d250b9730819ab05acff5b31229666d3af4ba465b4697d0eb
-  languageName: node
-  linkType: hard
-
-"@types/aria-query@npm:^4.2.0":
-  version: 4.2.2
-  resolution: "@types/aria-query@npm:4.2.2"
-  checksum: 10/3ab0476e1d90a83350f75b7df57edf955c142d4e270fb0d41ab1cf0f1d032ce26dc78d2a12fb4f4c317dba39f0776fb262f5bcff2a9796605f40ba853c407c11
   languageName: node
   linkType: hard
 
@@ -5233,9 +5213,10 @@ __metadata:
     "@swc/core": "npm:1.4.0"
     "@swc/jest": "npm:0.2.36"
     "@tanstack/react-query": "npm:5.18.1"
-    "@testing-library/jest-dom": "npm:6.1.4"
-    "@testing-library/react": "npm:14.1.0"
-    "@testing-library/user-event": "npm:14.5.1"
+    "@testing-library/dom": "npm:9.3.4"
+    "@testing-library/jest-dom": "npm:6.4.2"
+    "@testing-library/react": "npm:14.2.1"
+    "@testing-library/user-event": "npm:14.5.2"
     "@types/cheerio": "npm:0.22.35"
     "@types/classnames": "npm:2.3.1"
     "@types/d3-array": "npm:3.2.1"
@@ -6929,10 +6910,10 @@ __metadata:
     "@babel/preset-typescript": "npm:7.23.3"
     "@emotion/babel-plugin": "npm:11.11.0"
     "@emotion/babel-plugin-jsx-pragmatic": "npm:0.2.1"
-    "@testing-library/dom": "npm:9.3.3"
-    "@testing-library/jest-dom": "npm:6.1.4"
-    "@testing-library/react": "npm:14.1.0"
-    "@testing-library/user-event": "npm:14.5.1"
+    "@testing-library/dom": "npm:9.3.4"
+    "@testing-library/jest-dom": "npm:6.4.2"
+    "@testing-library/react": "npm:14.2.1"
+    "@testing-library/user-event": "npm:14.5.2"
     "@types/d3-array": "npm:3.2.1"
     "@types/d3-zoom": "npm:3.0.8"
     "@types/lodash": "npm:4.14.202"
@@ -7076,10 +7057,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"dom-accessibility-api@npm:^0.5.6, dom-accessibility-api@npm:^0.5.9":
+"dom-accessibility-api@npm:^0.5.9":
   version: 0.5.11
   resolution: "dom-accessibility-api@npm:0.5.11"
   checksum: 10/b5b47e0c9bebe78b4f16247bad8445ccbb53472098c5759224488a9d0586b1da4b123de1941d2110ec72ff00217800332a350771d662f7f40ae1d958e1fd3946
+  languageName: node
+  linkType: hard
+
+"dom-accessibility-api@npm:^0.6.3":
+  version: 0.6.3
+  resolution: "dom-accessibility-api@npm:0.6.3"
+  checksum: 10/83d3371f8226487fbad36e160d44f1d9017fb26d46faba6a06fcad15f34633fc827b8c3e99d49f71d5f3253d866e2131826866fd0a3c86626f8eccfc361881ff
   languageName: node
   linkType: hard
 
@@ -10624,15 +10612,6 @@ __metadata:
   version: 2.3.9
   resolution: "lunr@npm:2.3.9"
   checksum: 10/f2f6db34c046f5a767782fe2454e6dd69c75ba3c5cf5c1cb9cacca2313a99c2ba78ff8fa67dac866fb7c4ffd5f22e06684793f5f15ba14bddb598b94513d54bf
-  languageName: node
-  linkType: hard
-
-"lz-string@npm:^1.4.4":
-  version: 1.4.4
-  resolution: "lz-string@npm:1.4.4"
-  bin:
-    lz-string: bin/bin.js
-  checksum: 10/da3abc3c15b3f91ab0fba0fe8ea3bb53d3c758d5c50d88d97b759e52d9b5224f8b05edc0e6423bfd448e6bcbe30f79236b7f2e6e7f8a321be62ae77b88092581
   languageName: node
   linkType: hard
 
