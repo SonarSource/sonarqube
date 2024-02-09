@@ -5271,7 +5271,7 @@ __metadata:
     eslint-plugin-jest: "npm:27.6.3"
     eslint-plugin-jest-dom: "npm:5.1.0"
     eslint-plugin-jsx-a11y: "npm:6.8.0"
-    eslint-plugin-local-rules: "npm:2.0.0"
+    eslint-plugin-local-rules: "npm:2.0.1"
     eslint-plugin-promise: "npm:6.1.1"
     eslint-plugin-react: "npm:7.33.2"
     eslint-plugin-react-hooks: "npm:4.6.0"
@@ -7062,7 +7062,7 @@ __metadata:
     eslint: "npm:8.56.0"
     eslint-plugin-header: "npm:3.1.1"
     eslint-plugin-import: "npm:2.29.1"
-    eslint-plugin-local-rules: "npm:2.0.0"
+    eslint-plugin-local-rules: "npm:2.0.1"
     eslint-plugin-typescript-sort-keys: "npm:3.1.0"
     highlight.js: "npm:11.9.0"
     highlightjs-apex: "npm:1.3.1"
@@ -7952,10 +7952,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-plugin-local-rules@npm:2.0.0":
-  version: 2.0.0
-  resolution: "eslint-plugin-local-rules@npm:2.0.0"
-  checksum: 10/597a052a93de1fe9e9bfc7187db43f8ed66ceaf0e12bb759a931fe02607da42a70d1e1029bef2ee6ac221ad205ab63c18827e375ae5e88061bf7f24325479c11
+"eslint-plugin-local-rules@npm:2.0.1":
+  version: 2.0.1
+  resolution: "eslint-plugin-local-rules@npm:2.0.1"
+  checksum: 10/1572a0282a30b516455976436b535bfcae0d0e5bdc4daf2f36e5f1156f9a5248f61e535b78795da5f6788ccc1b8994b95b9764f4ef457bf0dc102648d909b7b5
   languageName: node
   linkType: hard
 
