@@ -76,5 +76,41 @@ public class LdapUserMappingTest {
       .isInstanceOf(LdapException.class)
       .hasMessage("The property 'ldap.user.baseDn' property is empty while it is mandatory.");
   }
+  
+  @Test
+  public void ldapUserMapping_withEmptyRealNameAttribute() {
+    MapSettings mapSettings = new MapSettings().setProperty("ldap.user.baseDn", "cn=users")
+      .setProperty("ldap.user.request", "(&(objectClass=inetOrgPerson)(uid={0}))")
+      .setProperty("ldap.user.realNameAttribute", "");
+
+    LdapUserMapping userMapping = new LdapUserMapping(mapSettings.asConfig(), "ldap");
+    assertThat(userMapping.getRealNameAttribute()).isEmpty();
+  }
+
+  @Test
+  public void ldapUserMapping_shouldThrowException_whenBaseDnIsNull() {
+    Configuration config = new MapSettings().setProperty("ldap.userObjectClass", "user")
+      .setProperty("ldap.loginAttribute", "sAMAccountName")
+      .asConfig();
+
+    assertThatThrownBy(() -> new LdapUserMapping(config, "ldap"))
+      .isInstanceOf(LdapException.class)
+      .hasMessage("The property 'ldap.user.baseDn' property is empty while it is mandatory.");
+  }
+  
+  @Test
+  public void ldapUserMapping_withCustomAttributes() {
+    MapSettings mapSettings = new MapSettings()
+      .setProperty("ldap.user.baseDn", "cn=users")
+      .setProperty("ldap.user.request", "(&(objectClass=inetOrgPerson)(uid={0}))")
+      .setProperty("ldap.user.realNameAttribute", "givenName")
+      .setProperty("ldap.user.emailAttribute", "userEmail");
+
+    LdapUserMapping userMapping = new LdapUserMapping(mapSettings.asConfig(), "ldap");
+    assertThat(userMapping.getBaseDn()).isEqualTo("cn=users");
+    assertThat(userMapping.getRequest()).isEqualTo("(&(objectClass=inetOrgPerson)(uid={0}))");
+    assertThat(userMapping.getRealNameAttribute()).isEqualTo("givenName");
+    assertThat(userMapping.getEmailAttribute()).isEqualTo("userEmail");
+  }
 
 }
