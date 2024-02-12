@@ -51,7 +51,23 @@ public class GsonEmailTest {
     assertThat(underTest.get(1).isVerified()).isFalse();
     assertThat(underTest.get(1).isPrimary()).isFalse();
   }
+  @Test
+  public void parse_emails() {
+    List<GsonEmail> underTestEmails = GsonEmail.parse(
+      "[\n" +
+        "  {\n" +
+        "    \"email\": \"mridhula@github.com\",\n" +
+        "    \"verified\": true,\n" +
+        "    \"primary\": false\n" +
+        "  }" +
+        "]");
+    assertThat(underTestEmails).hasSize(2);
 
+    assertThat(underTestEmails.get(0).getEmail()).isEqualTo("mridhula@github.com");
+    assertThat(underTestEmails.get(0).isVerified()).isTrue();
+    assertThat(underTestEmails.get(0).isPrimary()).isFalse();
+
+  }
   @Test
   public void should_have_no_arg_constructor() {
     assertThat(new GsonEmail().getEmail()).isEmpty();
