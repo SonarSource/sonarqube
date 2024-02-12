@@ -7115,7 +7115,7 @@ __metadata:
     postcss-custom-properties: "npm:12.1.11"
     prettier: "npm:^3.1.0"
     react-toastify: "npm:10.0.4"
-    twin.macro: "npm:3.4.0"
+    twin.macro: "npm:3.4.1"
     typescript: "npm:5.3.3"
     vite: "npm:4.5.0"
     vite-plugin-dts: "npm:3.6.3"
@@ -11886,13 +11886,23 @@ __metadata:
   languageName: node
   linkType: hard
 
-"postcss-selector-parser@npm:^6.0.10, postcss-selector-parser@npm:^6.0.11":
+"postcss-selector-parser@npm:^6.0.11":
   version: 6.0.11
   resolution: "postcss-selector-parser@npm:6.0.11"
   dependencies:
     cssesc: "npm:^3.0.0"
     util-deprecate: "npm:^1.0.2"
   checksum: 10/14d2c77e533a7b0688f35c909c07f74a9f3cc8d7aea19fd4042093c2df96d6d1ca0d41fcf0ecea28e8560e09913e8a58e5d95a6504cea31c71e23acb80927bab
+  languageName: node
+  linkType: hard
+
+"postcss-selector-parser@npm:^6.0.13":
+  version: 6.0.15
+  resolution: "postcss-selector-parser@npm:6.0.15"
+  dependencies:
+    cssesc: "npm:^3.0.0"
+    util-deprecate: "npm:^1.0.2"
+  checksum: 10/cea591e1d9bce60eea724428863187228e27ddaebd98e5ecb4ee6d4c9a4b68e8157fd44c916b3fef1691d19ad16aa416bb7279b5eab260c32340ae630a34e200
   languageName: node
   linkType: hard
 
@@ -13887,19 +13897,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"twin.macro@npm:3.4.0":
-  version: 3.4.0
-  resolution: "twin.macro@npm:3.4.0"
+"twin.macro@npm:3.4.1":
+  version: 3.4.1
+  resolution: "twin.macro@npm:3.4.1"
   dependencies:
-    "@babel/template": "npm:^7.18.10"
+    "@babel/template": "npm:^7.22.15"
     babel-plugin-macros: "npm:^3.1.0"
     chalk: "npm:4.1.2"
     lodash.get: "npm:^4.4.2"
     lodash.merge: "npm:^4.6.2"
-    postcss-selector-parser: "npm:^6.0.10"
+    postcss-selector-parser: "npm:^6.0.13"
   peerDependencies:
     tailwindcss: ">=3.3.1"
-  checksum: 10/041a48b50b4be1f4f355f6d03cc884fa95ce6e96f1ad99856597e675bbafc9231e4ed8c4ef06c22471f628b4c91635dcc0e277c9807c4a90eefaeb3d04a41425
+  checksum: 10/8d4c99665c9e4316c29eb2b2642d9ecb5835c0c092c406d02e6eebb11d08a7976a47cc0fa36bb64bb8813244c2c950db1c7baef166212af47cc7519ccc244a4a
   languageName: node
   linkType: hard
 
