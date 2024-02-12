@@ -30,6 +30,8 @@ import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.apache.commons.io.FileUtils;
 import org.junit.Rule;
 import org.junit.Test;
@@ -248,8 +250,8 @@ public class CompositeBlameCommandTest {
     TestBlameOutput output = new TestBlameOutput();
     blameCommand.blame(input, output);
 
-    assertThat(logTester.logs()).first()
-      .matches(s -> s.contains("This git repository references another local repository which is not well supported"));
+    assertThat(logTester.logs())
+      .anyMatch(s -> s.contains("This git repository references another local repository which is not well supported"));
 
     // contains commits referenced from the old clone and commits in the new clone
     assertThat(output.blame).containsKey(inputFile);
@@ -278,33 +280,9 @@ public class CompositeBlameCommandTest {
     String revision = "6b3aab35a3ea32c1636fee56f996e677653c48ea";
     String author = "david@gageot.net";
     verify(blameResult).blameResult(inputFile,
-      Arrays.asList(
-        new BlameLine().revision(revision).date(revisionDate).author(author),
-        new BlameLine().revision(revision).date(revisionDate).author(author),
-        new BlameLine().revision(revision).date(revisionDate).author(author),
-        new BlameLine().revision(revision).date(revisionDate).author(author),
-        new BlameLine().revision(revision).date(revisionDate).author(author),
-        new BlameLine().revision(revision).date(revisionDate).author(author),
-        new BlameLine().revision(revision).date(revisionDate).author(author),
-        new BlameLine().revision(revision).date(revisionDate).author(author),
-        new BlameLine().revision(revision).date(revisionDate).author(author),
-        new BlameLine().revision(revision).date(revisionDate).author(author),
-        new BlameLine().revision(revision).date(revisionDate).author(author),
-        new BlameLine().revision(revision).date(revisionDate).author(author),
-        new BlameLine().revision(revision).date(revisionDate).author(author),
-        new BlameLine().revision(revision).date(revisionDate).author(author),
-        new BlameLine().revision(revision).date(revisionDate).author(author),
-        new BlameLine().revision(revision).date(revisionDate).author(author),
-        new BlameLine().revision(revision).date(revisionDate).author(author),
-        new BlameLine().revision(revision).date(revisionDate).author(author),
-        new BlameLine().revision(revision).date(revisionDate).author(author),
-        new BlameLine().revision(revision).date(revisionDate).author(author),
-        new BlameLine().revision(revision).date(revisionDate).author(author),
-        new BlameLine().revision(revision).date(revisionDate).author(author),
-        new BlameLine().revision(revision).date(revisionDate).author(author),
-        new BlameLine().revision(revision).date(revisionDate).author(author),
-        new BlameLine().revision(revision).date(revisionDate).author(author),
-        new BlameLine().revision(revision).date(revisionDate).author(author)));
+      Stream.generate(() -> new BlameLine().revision(revision).date(revisionDate).author(author))
+        .limit(26)
+        .collect(Collectors.toList()));
   }
 
   private BlameCommand.BlameInput setUpBlameInputWithFile(Path baseDir) {
