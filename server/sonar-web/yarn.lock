@@ -3203,13 +3203,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@formatjs/ecma402-abstract@npm:1.17.2":
-  version: 1.17.2
-  resolution: "@formatjs/ecma402-abstract@npm:1.17.2"
+"@formatjs/ecma402-abstract@npm:1.18.2":
+  version: 1.18.2
+  resolution: "@formatjs/ecma402-abstract@npm:1.18.2"
   dependencies:
-    "@formatjs/intl-localematcher": "npm:0.4.2"
+    "@formatjs/intl-localematcher": "npm:0.5.4"
     tslib: "npm:^2.4.0"
-  checksum: 10/780c351ac05ef223b3c885d15ff0287ce6a18d04636ef629472582a5afd47aaab5567bebc84a340bf120abfbe994f1d43130be17820f0cfac2cc5d0d5bb2d1fb
+  checksum: 10/e761653887e4446188daa023f4cb7245790ed65eb56cef4821225467e63f271f1addff386cfcbb4eb73eb67704b1f3a2b35ea4082fcadd4d05cfa0b3be3d5577
   languageName: node
   linkType: hard
 
@@ -3222,75 +3222,75 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@formatjs/icu-messageformat-parser@npm:2.7.0":
-  version: 2.7.0
-  resolution: "@formatjs/icu-messageformat-parser@npm:2.7.0"
+"@formatjs/icu-messageformat-parser@npm:2.7.6":
+  version: 2.7.6
+  resolution: "@formatjs/icu-messageformat-parser@npm:2.7.6"
   dependencies:
-    "@formatjs/ecma402-abstract": "npm:1.17.2"
-    "@formatjs/icu-skeleton-parser": "npm:1.6.2"
+    "@formatjs/ecma402-abstract": "npm:1.18.2"
+    "@formatjs/icu-skeleton-parser": "npm:1.8.0"
     tslib: "npm:^2.4.0"
-  checksum: 10/38ede8e6e6baf699a9d216201e2d476d47c611aaf26ec78724ceb7a952976c175352b3988aa07be71891e159fe5b36f50f760bddef16fee64082dd626523b9f2
+  checksum: 10/5baf9c1cf4b3f70d95bbac602b0695fcf67c6e2ff098e39dd53bdad0a16d192b9b5fe74dbdbeb76404bbdcdc95628d2623d24f786736074751fef13490cb6237
   languageName: node
   linkType: hard
 
-"@formatjs/icu-skeleton-parser@npm:1.6.2":
-  version: 1.6.2
-  resolution: "@formatjs/icu-skeleton-parser@npm:1.6.2"
+"@formatjs/icu-skeleton-parser@npm:1.8.0":
+  version: 1.8.0
+  resolution: "@formatjs/icu-skeleton-parser@npm:1.8.0"
   dependencies:
-    "@formatjs/ecma402-abstract": "npm:1.17.2"
+    "@formatjs/ecma402-abstract": "npm:1.18.2"
     tslib: "npm:^2.4.0"
-  checksum: 10/cca4eed6b82cabdf8c375120b3e70432aa3d29f9b689752ca6b7a1e1d1d60f8a3e717167b435872c3de88854e4cb8bcab2cc5ede80c0a20bd18d8e2b9a4bae25
+  checksum: 10/8cd96d9075d1d369e4746dfaea6e3f478d21ed0672f4b777c4ee53b2660ef8c9a081976e6a8c73bba889eddc7edc52dba6eeea5fd62a8c03aa73e266b3cd89e9
   languageName: node
   linkType: hard
 
-"@formatjs/intl-displaynames@npm:6.6.1":
-  version: 6.6.1
-  resolution: "@formatjs/intl-displaynames@npm:6.6.1"
+"@formatjs/intl-displaynames@npm:6.6.6":
+  version: 6.6.6
+  resolution: "@formatjs/intl-displaynames@npm:6.6.6"
   dependencies:
-    "@formatjs/ecma402-abstract": "npm:1.17.2"
-    "@formatjs/intl-localematcher": "npm:0.4.2"
+    "@formatjs/ecma402-abstract": "npm:1.18.2"
+    "@formatjs/intl-localematcher": "npm:0.5.4"
     tslib: "npm:^2.4.0"
-  checksum: 10/5002cb9fcb31c8c35c61f559ab4f5e3d6e7097357c569ede4802f32fe0594e7826093b50e21106826261c3df685c1ef37fe8c90447999b7b666977b4dc337ffe
+  checksum: 10/b3c4ed7e7e432d20c76740f55b20f838a25cd8015a2d29051e30baeecac068491c4b0ae4e7cf18ec8e3d4f7e71df8dc56c8b0a33848fff8bcd6826a2a26093ea
   languageName: node
   linkType: hard
 
-"@formatjs/intl-listformat@npm:7.5.0":
-  version: 7.5.0
-  resolution: "@formatjs/intl-listformat@npm:7.5.0"
+"@formatjs/intl-listformat@npm:7.5.5":
+  version: 7.5.5
+  resolution: "@formatjs/intl-listformat@npm:7.5.5"
   dependencies:
-    "@formatjs/ecma402-abstract": "npm:1.17.2"
-    "@formatjs/intl-localematcher": "npm:0.4.2"
+    "@formatjs/ecma402-abstract": "npm:1.18.2"
+    "@formatjs/intl-localematcher": "npm:0.5.4"
     tslib: "npm:^2.4.0"
-  checksum: 10/7f23981dbaf7f7e37a91fc12c714fd2de679999c78560ae8e6f1ef43d0e811bf44b8a01b97c53b11225d280472d09f0aed0331f7217f2e682722b4c5a12ff564
+  checksum: 10/78907a10213a887c1943112b84b7c84a18401f036ebc5eb9baef30401cee1361beeba194237c4a4a7aa2bff4eba50c0e4bf3d7577d2ae99edc8c6afe6a5f363d
   languageName: node
   linkType: hard
 
-"@formatjs/intl-localematcher@npm:0.4.2":
-  version: 0.4.2
-  resolution: "@formatjs/intl-localematcher@npm:0.4.2"
+"@formatjs/intl-localematcher@npm:0.5.4":
+  version: 0.5.4
+  resolution: "@formatjs/intl-localematcher@npm:0.5.4"
   dependencies:
     tslib: "npm:^2.4.0"
-  checksum: 10/c0bdd5dedbbaae733035fbaa3672dd3e1452c9be6e4091c9b40f37c94a0d38a3216dc3d68b06a6b88c1507c681f02499ac16c3f76c2f566e3c603626f5ca801f
+  checksum: 10/780cb29b42e1ea87f2eb5db268577fcdc53da52d9f096871f3a1bb78603b4ba81d208ea0b0b9bc21548797c941ce435321f62d2522795b83b740f90b0ceb5778
   languageName: node
   linkType: hard
 
-"@formatjs/intl@npm:2.9.5":
-  version: 2.9.5
-  resolution: "@formatjs/intl@npm:2.9.5"
+"@formatjs/intl@npm:2.10.0":
+  version: 2.10.0
+  resolution: "@formatjs/intl@npm:2.10.0"
   dependencies:
-    "@formatjs/ecma402-abstract": "npm:1.17.2"
+    "@formatjs/ecma402-abstract": "npm:1.18.2"
     "@formatjs/fast-memoize": "npm:2.2.0"
-    "@formatjs/icu-messageformat-parser": "npm:2.7.0"
-    "@formatjs/intl-displaynames": "npm:6.6.1"
-    "@formatjs/intl-listformat": "npm:7.5.0"
-    intl-messageformat: "npm:10.5.4"
+    "@formatjs/icu-messageformat-parser": "npm:2.7.6"
+    "@formatjs/intl-displaynames": "npm:6.6.6"
+    "@formatjs/intl-listformat": "npm:7.5.5"
+    intl-messageformat: "npm:10.5.11"
     tslib: "npm:^2.4.0"
   peerDependencies:
-    typescript: 5
+    typescript: ^4.7 || 5
   peerDependenciesMeta:
     typescript:
       optional: true
-  checksum: 10/2b8c3206cbb6f8860aa6b2f9ffbc052a7a8d9706c4d2ea2dfdb8b246ed9317f3ce8b57ec81e5be47473b0c61a46af8dd6700c396a42af4f75d4078409ee6b05b
+  checksum: 10/7f7ad539349f802f3affd10d3cdccdbf8f4f9807a27964eb343baa27f447c9cb8e4e300a0675177b1d9ac0bcd25a94f9997973d6c6b335a18b820dd9df7d6be6
   languageName: node
   linkType: hard
 
@@ -3305,6 +3305,32 @@ __metadata:
   version: 0.1.2
   resolution: "@gilbarbara/deep-equal@npm:0.1.2"
   checksum: 10/78d4e76d36cbee639c008a63be52c1ac803212ff2560e55f68d2b8b2a6ac5e746c1976854cf101483ca18a9911aed2349da147b7756be43e75efb95e3f24468b
+  languageName: node
+  linkType: hard
+
+"@gilbarbara/deep-equal@npm:^0.3.1":
+  version: 0.3.1
+  resolution: "@gilbarbara/deep-equal@npm:0.3.1"
+  checksum: 10/3ab47262ec3ec8bdcdf8057a0fe7a3fcbc2c035e9d9ff4cf691deef55cae49e38e3a86b0308c232f8148292982daa4aed84ed4cd4a5bb26f5cac2a6ae1b5965b
+  languageName: node
+  linkType: hard
+
+"@gilbarbara/helpers@npm:^0.9.0":
+  version: 0.9.2
+  resolution: "@gilbarbara/helpers@npm:0.9.2"
+  dependencies:
+    "@gilbarbara/types": "npm:^0.2.2"
+    is-lite: "npm:^1.2.1"
+  checksum: 10/17a111aea44ce5368413042974d8d890f48244becb50bb51c9ba75f7c0dd6d3e918d2d2fbba445a9188993c2ab11a2ba72ed0a477219621a37a80b2998751bb9
+  languageName: node
+  linkType: hard
+
+"@gilbarbara/types@npm:^0.2.2":
+  version: 0.2.2
+  resolution: "@gilbarbara/types@npm:0.2.2"
+  dependencies:
+    type-fest: "npm:^4.1.0"
+  checksum: 10/fb71d2e577a48b68b2205146c4cc6180d4e1d175df8b37de47e7581feaeb68ff32918dade9ddb94627755f0d8270727ef7209a9b238bc3af79dc83493b14da5a
   languageName: node
   linkType: hard
 
@@ -3932,10 +3958,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@remix-run/router@npm:1.6.2":
-  version: 1.6.2
-  resolution: "@remix-run/router@npm:1.6.2"
-  checksum: 10/c261c3b52f08d7fcacce9c66d68dba3b6f0c8263ea15f69f9f1c89734685cdfe4f383c879324acade68cb331d48e3deca9ec00734abe08d9694e529096907f40
+"@remix-run/router@npm:1.15.0":
+  version: 1.15.0
+  resolution: "@remix-run/router@npm:1.15.0"
+  checksum: 10/5cadae0c90874966ebd6b1b202284a337da32a68fc95af502859cd6158d3c254fbb4f76fa1844c837205dbc8a8120223360b9287a3d6aa0c747d02767c4c072c
   languageName: node
   linkType: hard
 
@@ -5301,15 +5327,15 @@ __metadata:
     postcss-custom-properties: "npm:12.1.11"
     prettier: "npm:3.2.5"
     react: "npm:18.2.0"
-    react-day-picker: "npm:8.9.1"
+    react-day-picker: "npm:8.10.0"
     react-dom: "npm:18.2.0"
     react-draggable: "npm:4.4.6"
     react-helmet-async: "npm:2.0.4"
     react-highlight-words: "npm:0.20.0"
-    react-intl: "npm:6.5.1"
-    react-joyride: "npm:2.5.5"
+    react-intl: "npm:6.6.2"
+    react-joyride: "npm:2.7.2"
     react-modal: "npm:3.16.1"
-    react-router-dom: "npm:6.11.2"
+    react-router-dom: "npm:6.22.0"
     react-select: "npm:5.7.7"
     react-select-event: "npm:5.5.1"
     react-virtualized: "npm:9.22.5"
@@ -6902,6 +6928,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"deep-diff@npm:^1.0.2":
+  version: 1.0.2
+  resolution: "deep-diff@npm:1.0.2"
+  checksum: 10/3e496111b5506e7399e8a5441b713b033ade3b9d60faff96a4c47189e460a889de50dab99afdb1dcddebf701a0b6a6bb7743f5090b7a620da12e3391c940f8f3
+  languageName: node
+  linkType: hard
+
 "deep-equal@npm:^2.0.5":
   version: 2.2.0
   resolution: "deep-equal@npm:2.2.0"
@@ -7102,14 +7135,14 @@ __metadata:
     date-fns: 3.3.1
     lodash: 4.17.21
     react: 18.2.0
-    react-day-picker: 8.9.1
+    react-day-picker: 8.10.0
     react-dom: 18.2.0
     react-helmet-async: 2.0.4
     react-highlight-words: 0.20.0
-    react-intl: 6.5.1
-    react-joyride: 2.5.5
+    react-intl: 6.6.2
+    react-joyride: 2.7.2
     react-modal: 3.16.1
-    react-router-dom: 6.11.2
+    react-router-dom: 6.22.0
     react-select: 5.7.7
     react-virtualized: 9.22.5
     tailwindcss: 3.3.5
@@ -8241,7 +8274,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"exenv@npm:^1.2.0, exenv@npm:^1.2.2":
+"exenv@npm:^1.2.0":
   version: 1.2.2
   resolution: "exenv@npm:1.2.2"
   checksum: 10/6840185e421394bcb143debb866d31d19c3e4a4bca87d2f319d68d61afff353b3c678f2eb389e3b98ab9aecbec19f6bebbdc4193984378af0a3366c498a7efc8
@@ -9273,15 +9306,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"intl-messageformat@npm:10.5.4":
-  version: 10.5.4
-  resolution: "intl-messageformat@npm:10.5.4"
+"intl-messageformat@npm:10.5.11":
+  version: 10.5.11
+  resolution: "intl-messageformat@npm:10.5.11"
   dependencies:
-    "@formatjs/ecma402-abstract": "npm:1.17.2"
+    "@formatjs/ecma402-abstract": "npm:1.18.2"
     "@formatjs/fast-memoize": "npm:2.2.0"
-    "@formatjs/icu-messageformat-parser": "npm:2.7.0"
+    "@formatjs/icu-messageformat-parser": "npm:2.7.6"
     tslib: "npm:^2.4.0"
-  checksum: 10/5a4322bd907b2eb30445e5acbd5b5b933806d32de0f7746a7b56cf3f4e3883512aa58ee284f9f04dc2f3b6b7b846735e1230d1a5d07875b1a0dc36df9cff36fd
+  checksum: 10/2146f4d3e2c4bcf2c4fa343e4ee070fe1124d3821caa2fa0e7112a68fdefbedbbda6a3778f3ba04e38bbce3db33511ca9eecbb0a7e06013e6699255c153813ce
   languageName: node
   linkType: hard
 
@@ -9572,10 +9605,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"is-lite@npm:^0.9.2":
-  version: 0.9.2
-  resolution: "is-lite@npm:0.9.2"
-  checksum: 10/db171f07480212ab41110ca770a696313c4d11b0d6084ed61584bcd7f57f14a16608aae4d9f52153a89994cb9b7ab3a765f23cc6e4cf6ce91098df19cc730278
+"is-lite@npm:^1.2.0, is-lite@npm:^1.2.1":
+  version: 1.2.1
+  resolution: "is-lite@npm:1.2.1"
+  checksum: 10/32b9b6a1bb7e5cadabb6e4e52355feb4b2fab214c570c1d785937168120d0ff291250954f314a2b3981a36f6c7117f1615e9eaac451ec3ad640e8d5467dc9669
   languageName: node
   linkType: hard
 
@@ -12088,13 +12121,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-day-picker@npm:8.9.1":
-  version: 8.9.1
-  resolution: "react-day-picker@npm:8.9.1"
+"react-day-picker@npm:8.10.0":
+  version: 8.10.0
+  resolution: "react-day-picker@npm:8.10.0"
   peerDependencies:
-    date-fns: ^2.28.0
+    date-fns: ^2.28.0 || ^3.0.0
     react: ^16.8.0 || ^17.0.0 || ^18.0.0
-  checksum: 10/b7f7165b64359509d99953016d883b4cde4fda8f71accec7f78635859716f21a85878c2cabe10adbd2f90af1d782ba5af8255d22c3395a5422704e3bc4e07ab6
+  checksum: 10/974496ce004762d521923fc533f6ad6ff8d1f24368220753106617eb199aeb9658b4b7734e12a3fe8a5057840464a3d2d08b4b7f9a84ec77a59c50cc647f6dbc
   languageName: node
   linkType: hard
 
@@ -12137,21 +12170,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-floater@npm:^0.7.6":
-  version: 0.7.6
-  resolution: "react-floater@npm:0.7.6"
+"react-floater@npm:^0.7.9":
+  version: 0.7.9
+  resolution: "react-floater@npm:0.7.9"
   dependencies:
-    deepmerge: "npm:^4.2.2"
-    exenv: "npm:^1.2.2"
+    deepmerge: "npm:^4.3.1"
     is-lite: "npm:^0.8.2"
     popper.js: "npm:^1.16.0"
     prop-types: "npm:^15.8.1"
-    react-proptype-conditional-require: "npm:^1.0.4"
     tree-changes: "npm:^0.9.1"
   peerDependencies:
     react: 15 - 18
     react-dom: 15 - 18
-  checksum: 10/8f0c172a92b73e5b0475c682996c9d50074e8a40b7737048e28d2875fb7dd5f47c23c43aa28f8ab73b7427d3eab7a8d0ea708a9cee76face7ebd48a7e717b548
+  checksum: 10/2c91055985f16bc73e5f0daebf6d859ecdfde903f8588c4b772eb58f0aeebbf7d9527a974a753fb85659c919c866f8ea4570eadef5ce6ac267fdee51aed5a776
   languageName: node
   linkType: hard
 
@@ -12182,27 +12213,37 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-intl@npm:6.5.1":
-  version: 6.5.1
-  resolution: "react-intl@npm:6.5.1"
+"react-innertext@npm:^1.1.5":
+  version: 1.1.5
+  resolution: "react-innertext@npm:1.1.5"
+  peerDependencies:
+    "@types/react": ">=0.0.0 <=99"
+    react: ">=0.0.0 <=99"
+  checksum: 10/01c9c8a5a471f03965b9d69c8bee02d420fd3a607b678004f0bdee098c9bccb3e2eae8460c90b1d180d2a8d544a3ddb09b8c2a11e5aa8b3a077733e2d9c25c2c
+  languageName: node
+  linkType: hard
+
+"react-intl@npm:6.6.2":
+  version: 6.6.2
+  resolution: "react-intl@npm:6.6.2"
   dependencies:
-    "@formatjs/ecma402-abstract": "npm:1.17.2"
-    "@formatjs/icu-messageformat-parser": "npm:2.7.0"
-    "@formatjs/intl": "npm:2.9.5"
-    "@formatjs/intl-displaynames": "npm:6.6.1"
-    "@formatjs/intl-listformat": "npm:7.5.0"
+    "@formatjs/ecma402-abstract": "npm:1.18.2"
+    "@formatjs/icu-messageformat-parser": "npm:2.7.6"
+    "@formatjs/intl": "npm:2.10.0"
+    "@formatjs/intl-displaynames": "npm:6.6.6"
+    "@formatjs/intl-listformat": "npm:7.5.5"
     "@types/hoist-non-react-statics": "npm:^3.3.1"
     "@types/react": "npm:16 || 17 || 18"
     hoist-non-react-statics: "npm:^3.3.2"
-    intl-messageformat: "npm:10.5.4"
+    intl-messageformat: "npm:10.5.11"
     tslib: "npm:^2.4.0"
   peerDependencies:
     react: ^16.6.0 || 17 || 18
-    typescript: 5
+    typescript: ^4.7 || 5
   peerDependenciesMeta:
     typescript:
       optional: true
-  checksum: 10/c8a3ff07bc888ba71c9ede8bafa3fcd30a0e4e4560387eec836759f7750cc766fc2968e4aed09dedd0b8fd68b50f702b1438982c6c21997b5857c937a973aac9
+  checksum: 10/3ad78749a55ca3f812c37b2a941945f9e3e2995236d34ff97651f618bc71334ce7cae066341dbd0032729d3f60a96d1f768d291d43e24c7ecde1d68c1a77945c
   languageName: node
   linkType: hard
 
@@ -12234,23 +12275,26 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-joyride@npm:2.5.5":
-  version: 2.5.5
-  resolution: "react-joyride@npm:2.5.5"
+"react-joyride@npm:2.7.2":
+  version: 2.7.2
+  resolution: "react-joyride@npm:2.7.2"
   dependencies:
+    "@gilbarbara/deep-equal": "npm:^0.3.1"
+    "@gilbarbara/helpers": "npm:^0.9.0"
+    deep-diff: "npm:^1.0.2"
     deepmerge: "npm:^4.3.1"
-    exenv: "npm:^1.2.2"
-    is-lite: "npm:^0.9.2"
-    prop-types: "npm:^15.8.1"
-    react-floater: "npm:^0.7.6"
+    is-lite: "npm:^1.2.0"
+    react-floater: "npm:^0.7.9"
+    react-innertext: "npm:^1.1.5"
     react-is: "npm:^16.13.1"
     scroll: "npm:^3.0.1"
     scrollparent: "npm:^2.1.0"
-    tree-changes: "npm:^0.9.2"
+    tree-changes: "npm:^0.11.2"
+    type-fest: "npm:^4.8.3"
   peerDependencies:
     react: 15 - 18
     react-dom: 15 - 18
-  checksum: 10/da825185e9bf3f7812f586c967dda3e28e83e4ede42921464a5e52abc27b0f634b865dd2d0045150bf44b681ef60a31543a6c21a16eb1b72ff5d78c65ecfb693
+  checksum: 10/1eb93d7edcfd662bc9a942b62430b5e92bf396002586d2c807dab5b5d599805209ee854ea1adb48d9a7855aada8dba6872be76ff6f2448820a42ca4c0be1661a
   languageName: node
   linkType: hard
 
@@ -12276,13 +12320,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-proptype-conditional-require@npm:^1.0.4":
-  version: 1.0.4
-  resolution: "react-proptype-conditional-require@npm:1.0.4"
-  checksum: 10/78f82d15b2c77c14fd8fbcbbed279850df3a856984aacd519ee6c2162e034b114b8ac47c00157b84ef7c98c0711d933a0177d9d54555629cf381f54341bb0e8f
-  languageName: node
-  linkType: hard
-
 "react-refresh@npm:^0.14.0":
   version: 0.14.0
   resolution: "react-refresh@npm:0.14.0"
@@ -12290,27 +12327,27 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-router-dom@npm:6.11.2":
-  version: 6.11.2
-  resolution: "react-router-dom@npm:6.11.2"
+"react-router-dom@npm:6.22.0":
+  version: 6.22.0
+  resolution: "react-router-dom@npm:6.22.0"
   dependencies:
-    "@remix-run/router": "npm:1.6.2"
-    react-router: "npm:6.11.2"
+    "@remix-run/router": "npm:1.15.0"
+    react-router: "npm:6.22.0"
   peerDependencies:
     react: ">=16.8"
     react-dom: ">=16.8"
-  checksum: 10/85575793cbdb84b05e9c33fef6f81e6b09e9f2606d2ba03392f83689dbb240212e5b22634b95049fc19364e9b44d45a519387d1bff4eba8a163548aa3376bc0f
+  checksum: 10/32ba0386d400354094116fa7dd98f1d23bc7cf683b0f4509694be5f730d4957fcb8cc73e35946576fc3f48b4d36743422f1b9bcdc37ad77f04bde0bde5d9102e
   languageName: node
   linkType: hard
 
-"react-router@npm:6.11.2":
-  version: 6.11.2
-  resolution: "react-router@npm:6.11.2"
+"react-router@npm:6.22.0":
+  version: 6.22.0
+  resolution: "react-router@npm:6.22.0"
   dependencies:
-    "@remix-run/router": "npm:1.6.2"
+    "@remix-run/router": "npm:1.15.0"
   peerDependencies:
     react: ">=16.8"
-  checksum: 10/a40d1ea78e3b5b3167ed6cbaf74b2e60592fd1822b9f94a2499933bf699130a81f669bc06bdf34f38489a96d31510848c21254a48e49038b18ecbf42993eaa34
+  checksum: 10/627c25533667da0c8008587208e0d5633409173969fd579de706cde355465f6d1245e2b1a7ca2adeb96201f2858932b59ce3402482786cd20c4bf278562976dd
   languageName: node
   linkType: hard
 
@@ -13699,7 +13736,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tree-changes@npm:^0.9.1, tree-changes@npm:^0.9.2":
+"tree-changes@npm:^0.11.2":
+  version: 0.11.2
+  resolution: "tree-changes@npm:0.11.2"
+  dependencies:
+    "@gilbarbara/deep-equal": "npm:^0.3.1"
+    is-lite: "npm:^1.2.0"
+  checksum: 10/e8dfb86a7339a7b10ec7bd9a4b6c0503cd6142f8466a76f12823d98017f7ee5239a3dd10952e5ad4e056aaecf82fc79473d84d012f2f0cca316d2ef236e30476
+  languageName: node
+  linkType: hard
+
+"tree-changes@npm:^0.9.1":
   version: 0.9.3
   resolution: "tree-changes@npm:0.9.3"
   dependencies:
@@ -13892,6 +13939,13 @@ __metadata:
   version: 0.20.2
   resolution: "type-fest@npm:0.20.2"
   checksum: 10/8907e16284b2d6cfa4f4817e93520121941baba36b39219ea36acfe64c86b9dbc10c9941af450bd60832c8f43464974d51c0957f9858bc66b952b66b6914cbb9
+  languageName: node
+  linkType: hard
+
+"type-fest@npm:^4.1.0, type-fest@npm:^4.8.3":
+  version: 4.10.2
+  resolution: "type-fest@npm:4.10.2"
+  checksum: 10/2b1ad1270d9fabeeb506ba831d513caeb05bfc852e5e012511d785ce9dc68d773fe0a42bddf857a362c7f3406244809c5b8a698b743bb7617d4a8c470672087f
   languageName: node
   linkType: hard
 

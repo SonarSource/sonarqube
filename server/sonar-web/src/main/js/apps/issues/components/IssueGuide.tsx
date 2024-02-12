@@ -28,7 +28,7 @@ import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { NoticeType } from '../../../types/users';
 
 interface Props {
-  run?: boolean;
+  run: boolean;
 }
 
 const PLACEMENT_RIGHT = 'right';
