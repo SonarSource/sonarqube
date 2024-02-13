@@ -143,6 +143,16 @@ public class GithubAppConfigurationTest {
     return new GithubAppConfiguration(applicationId, randomAlphabetic(6), randomAlphabetic(6));
   }
 
+  @Test
+  public void hashcode_displays_complete_configuration() {
+    long id = 25;
+    String privateKey = randomAlphabetic(10);
+    String apiEndpoint = randomAlphabetic(8);
+    GithubAppConfiguration underTest = new GithubAppConfiguration(id, privateKey, apiEndpoint);
+    assertThat(underTest)
+      .hasToString(String.format("GithubAppConfiguration{id=%s, privateKey='***(10)***', apiEndpoint='%s'}", 25, apiEndpoint));
+  }
+  
   private static Object[][] generateNullCombination(Object[] objects) {
     Object[][] firstPossibleValues = new Object[][] {
       {null},
