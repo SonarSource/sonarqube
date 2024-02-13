@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { RenderOptions, render as rtlRender } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { RenderOptions, RenderResult, render as rtlRender } from '@testing-library/react';
+import userEvent, { UserEvent } from '@testing-library/user-event';
 import { Options as UserEventsOptions } from '@testing-library/user-event/dist/types/options';
 import { InitialEntry } from 'history';
 import { identity, kebabCase } from 'lodash';
@@ -27,11 +27,13 @@ import { HelmetProvider } from 'react-helmet-async';
 import { IntlProvider, ReactIntlErrorCode } from 'react-intl';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 
+type RenderResultWithUser = RenderResult & { user: UserEvent };
+
 export function render(
   ui: React.ReactElement,
   options?: RenderOptions,
   userEventOptions?: UserEventsOptions,
-) {
+): RenderResultWithUser {
   return { ...rtlRender(ui, options), user: userEvent.setup(userEventOptions) };
 }
 
