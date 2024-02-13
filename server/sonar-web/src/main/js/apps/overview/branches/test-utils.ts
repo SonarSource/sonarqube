@@ -39,6 +39,7 @@ export const getPageObjects = () => {
       rating?: string,
       data?: SoftwareImpactMeasureData,
       severitiesActiveState?: boolean[],
+      branch = 'master',
     ) => {
       if (typeof rating === 'string') {
         expect(
@@ -46,18 +47,26 @@ export const getPageObjects = () => {
         ).toBeInTheDocument();
       }
       if (data) {
+        const branchQuery = branch ? `&branch=${branch}` : '';
+
         expect(
           byRole('link', {
             name: `overview.measures.software_impact.see_list_of_x_open_issues.${data.total}.software_quality.${softwareQuality}`,
           }).get(),
-        ).toBeInTheDocument();
+        ).toHaveAttribute(
+          'href',
+          `/project/issues?issueStatuses=OPEN%2CCONFIRMED&impactSoftwareQualities=${softwareQuality}${branchQuery}&id=foo`,
+        );
         expect(
           byRole('link', {
             name: `overview.measures.software_impact.severity.see_x_open_issues.${
               data[SoftwareImpactSeverity.High]
             }.software_quality.${softwareQuality}.overview.measures.software_impact.severity.HIGH.tooltip`,
           }).get(),
-        ).toBeInTheDocument();
+        ).toHaveAttribute(
+          'href',
+          `/project/issues?issueStatuses=OPEN%2CCONFIRMED&impactSoftwareQualities=${softwareQuality}&impactSeverities=${SoftwareImpactSeverity.High}${branchQuery}&id=foo`,
+        );
         expect(
           byRole('link', {
             name: `overview.measures.software_impact.severity.see_x_open_issues.${

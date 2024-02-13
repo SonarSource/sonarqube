@@ -302,6 +302,27 @@ describe('project overview', () => {
     );
   });
 
+  // eslint-disable-next-line jest/expect-expect
+  it('should render overall tab without branch specified', async () => {
+    const { user, ui } = getPageObjects();
+    renderBranchOverview({ branch: undefined });
+
+    await user.click(await ui.overallCodeButton.find());
+
+    ui.expectSoftwareImpactMeasureCard(
+      SoftwareQuality.Maintainability,
+      'E',
+      {
+        total: 2,
+        [SoftwareImpactSeverity.High]: 0,
+        [SoftwareImpactSeverity.Medium]: 0,
+        [SoftwareImpactSeverity.Low]: 1,
+      },
+      [false, false, true],
+      '',
+    );
+  });
+
   it('should render missing software impact measure cards', async () => {
     // Make as if reliability_issues was not computed
     measuresHandler.deleteComponentMeasure('foo', MetricKey.maintainability_issues);

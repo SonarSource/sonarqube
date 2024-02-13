@@ -33,6 +33,7 @@ import Tooltip from '../../../components/controls/Tooltip';
 import { DEFAULT_ISSUES_QUERY } from '../../../components/shared/utils';
 import { formatMeasure } from '../../../helpers/measures';
 import { getComponentIssuesUrl } from '../../../helpers/urls';
+import { Branch } from '../../../types/branch-like';
 import {
   SoftwareImpactMeasureData,
   SoftwareImpactSeverity,
@@ -50,10 +51,11 @@ export interface SoftwareImpactBreakdownCardProps {
   softwareQuality: SoftwareQuality;
   ratingMetricKey: MetricKey;
   measures: MeasureEnhanced[];
+  branch?: Branch;
 }
 
 export function SoftwareImpactMeasureCard(props: Readonly<SoftwareImpactBreakdownCardProps>) {
-  const { component, softwareQuality, ratingMetricKey, measures } = props;
+  const { component, softwareQuality, ratingMetricKey, measures, branch } = props;
 
   const intl = useIntl();
 
@@ -70,6 +72,7 @@ export function SoftwareImpactMeasureCard(props: Readonly<SoftwareImpactBreakdow
   const totalLinkHref = getComponentIssuesUrl(component.key, {
     ...DEFAULT_ISSUES_QUERY,
     impactSoftwareQualities: softwareQuality,
+    branch: branch?.name,
   });
 
   // We highlight the highest severity breakdown card with non-zero count
@@ -140,6 +143,7 @@ export function SoftwareImpactMeasureCard(props: Readonly<SoftwareImpactBreakdow
             SoftwareImpactSeverity.Low,
           ].map((severity) => (
             <SoftwareImpactMeasureBreakdownCard
+              branch={branch}
               key={severity}
               component={component}
               softwareQuality={softwareQuality}

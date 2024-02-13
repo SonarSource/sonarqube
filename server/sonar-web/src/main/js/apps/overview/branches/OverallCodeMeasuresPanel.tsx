@@ -29,7 +29,7 @@ import { useIntl } from 'react-intl';
 import { getBranchLikeQuery } from '../../../helpers/branch-like';
 import { findMeasure, formatMeasure, formatRating } from '../../../helpers/measures';
 import { getComponentIssuesUrl, getComponentSecurityHotspotsUrl } from '../../../helpers/urls';
-import { BranchLike } from '../../../types/branch-like';
+import { Branch } from '../../../types/branch-like';
 import { SoftwareQuality } from '../../../types/clean-code-taxonomy';
 import { isApplication } from '../../../types/component';
 import { IssueStatus } from '../../../types/issues';
@@ -44,7 +44,7 @@ import MeasuresPanelPercentCards from './MeasuresPanelPercentCards';
 import SoftwareImpactMeasureCard from './SoftwareImpactMeasureCard';
 
 export interface OverallCodeMeasuresPanelProps {
-  branch?: BranchLike;
+  branch?: Branch;
   component: Component;
   measures: MeasureEnhanced[];
   qgStatuses?: QualityGateStatus[];
@@ -65,18 +65,21 @@ export default function OverallCodeMeasuresPanel(props: Readonly<OverallCodeMeas
     <div id={getTabPanelId(MeasuresTabs.Overall)} className="sw-mt-6">
       <div className="sw-flex sw-gap-4">
         <SoftwareImpactMeasureCard
+          branch={branch}
           component={component}
           softwareQuality={SoftwareQuality.Security}
           ratingMetricKey={MetricKey.security_rating}
           measures={measures}
         />
         <SoftwareImpactMeasureCard
+          branch={branch}
           component={component}
           softwareQuality={SoftwareQuality.Reliability}
           ratingMetricKey={MetricKey.reliability_rating}
           measures={measures}
         />
         <SoftwareImpactMeasureCard
+          branch={branch}
           component={component}
           softwareQuality={SoftwareQuality.Maintainability}
           ratingMetricKey={MetricKey.sqale_rating}

@@ -25,12 +25,14 @@ import { useIntl } from 'react-intl';
 import { DEFAULT_ISSUES_QUERY } from '../../../components/shared/utils';
 import { formatMeasure } from '../../../helpers/measures';
 import { getComponentIssuesUrl } from '../../../helpers/urls';
+import { Branch } from '../../../types/branch-like';
 import { SoftwareImpactSeverity, SoftwareQuality } from '../../../types/clean-code-taxonomy';
 import { MetricType } from '../../../types/metrics';
 import { Component } from '../../../types/types';
 
 export interface SoftwareImpactMeasureBreakdownCardProps {
   softwareQuality: SoftwareQuality;
+  branch?: Branch;
   component: Component;
   value?: string;
   severity: SoftwareImpactSeverity;
@@ -40,7 +42,7 @@ export interface SoftwareImpactMeasureBreakdownCardProps {
 export function SoftwareImpactMeasureBreakdownCard(
   props: Readonly<SoftwareImpactMeasureBreakdownCardProps>,
 ) {
-  const { softwareQuality, component, value, severity, active } = props;
+  const { softwareQuality, component, value, severity, active, branch } = props;
 
   const intl = useIntl();
 
@@ -48,6 +50,7 @@ export function SoftwareImpactMeasureBreakdownCard(
     ...DEFAULT_ISSUES_QUERY,
     impactSoftwareQualities: softwareQuality,
     impactSeverities: severity,
+    branch: branch?.name,
   });
 
   const testId = `overview__software-impact-${softwareQuality}-severity-${severity}`;
