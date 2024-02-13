@@ -47,4 +47,15 @@ public class AppInstallationTokenTest {
 
     assertThat(foo).hasSameHashCodeAs(new AppInstallationToken("foo"));
   }
+
+  @Test
+  public void test_equals_newCode() {
+    AppInstallationToken foo = new AppInstallationToken("hello");
+
+    assertThat(foo.equals(foo)).isTrue();
+    assertThat(foo.equals(null)).isFalse();
+    assertThat(foo.equals(new AppInstallationToken("hello"))).isTrue();
+    assertThat(foo.equals(new AppInstallationToken("hi"))).isFalse();
+    assertThat(foo).hasSameHashCodeAs(new AppInstallationToken("hello"));
+  }
 }
