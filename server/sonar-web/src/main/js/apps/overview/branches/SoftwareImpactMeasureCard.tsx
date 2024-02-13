@@ -96,39 +96,42 @@ export function SoftwareImpactMeasureCard(props: Readonly<SoftwareImpactBreakdow
       <TextBold name={intl.formatMessage({ id: `software_quality.${softwareQuality}` })} />
       <BasicSeparator className="sw--mx-4" />
       <div className="sw-flex sw-flex-col sw-gap-3">
-        <div
-          className={classNames('sw-flex sw-gap-1 sw-items-center sw-h-8 sw-mt-2', {
-            'sw-opacity-60': renderDisabled,
-          })}
-        >
-          {measure ? (
-            <Tooltip overlay={countTooltipOverlay}>
-              <NakedLink
-                data-testid={`overview__software-impact-${softwareQuality}`}
-                aria-label={intl.formatMessage(
-                  {
-                    id: `overview.measures.software_impact.see_list_of_x_open_issues`,
-                  },
-                  {
-                    count: measure.total,
-                    softwareQuality: intl.formatMessage({
-                      id: `software_quality.${softwareQuality}`,
-                    }),
-                  },
-                )}
-                className="sw-text-lg"
-                to={totalLinkHref}
-                disabled={component.needIssueSync}
-              >
-                {formatMeasure(measure.total, MetricType.ShortInteger)}
-              </NakedLink>
-            </Tooltip>
-          ) : (
-            <StyledDash className="sw-font-bold" name="-" />
-          )}
-          <TextSubdued className="sw-self-end sw-body-sm sw-pb-1">
-            {intl.formatMessage({ id: 'overview.measures.software_impact.total_open_issues' })}
-          </TextSubdued>
+        <div className="sw-flex sw-mt-2">
+          <div
+            className={classNames('sw-flex sw-gap-1 sw-items-center', {
+              'sw-opacity-60': renderDisabled,
+            })}
+          >
+            {measure ? (
+              <Tooltip overlay={countTooltipOverlay}>
+                <NakedLink
+                  data-testid={`overview__software-impact-${softwareQuality}`}
+                  aria-label={intl.formatMessage(
+                    {
+                      id: `overview.measures.software_impact.see_list_of_x_open_issues`,
+                    },
+                    {
+                      count: measure.total,
+                      softwareQuality: intl.formatMessage({
+                        id: `software_quality.${softwareQuality}`,
+                      }),
+                    },
+                  )}
+                  className="sw-text-lg"
+                  to={totalLinkHref}
+                  disabled={component.needIssueSync}
+                >
+                  {formatMeasure(measure.total, MetricType.ShortInteger)}
+                </NakedLink>
+              </Tooltip>
+            ) : (
+              <StyledDash className="sw-font-bold" name="-" />
+            )}
+            <TextSubdued className="sw-self-end sw-body-sm sw-pb-1">
+              {intl.formatMessage({ id: 'overview.measures.software_impact.total_open_issues' })}
+            </TextSubdued>
+          </div>
+
           <div className="sw-flex-grow sw-flex sw-justify-end">
             <SoftwareImpactMeasureRating
               softwareQuality={softwareQuality}
@@ -158,7 +161,6 @@ export function SoftwareImpactMeasureCard(props: Readonly<SoftwareImpactBreakdow
         <>
           <BasicSeparator className="sw--mx-4 sw-mb-0 sw-mt-3" />
           <StyledInfoSection className="sw--ml-4 sw--mr-4 sw--mb-4 sw-text-xs sw-p-4 sw-flex sw-gap-1 sw-flex-wrap">
-            <span>{intl.formatMessage({ id: 'overview.project.no_data' })}</span>
             <span>
               {intl.formatMessage({
                 id: `overview.run_analysis_to_compute.${component.qualifier}`,

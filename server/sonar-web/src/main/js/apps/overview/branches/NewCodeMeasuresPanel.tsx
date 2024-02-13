@@ -91,7 +91,6 @@ export default function NewCodeMeasuresPanel(props: Readonly<Props>) {
   if (!newAcceptedIssues) {
     acceptedIssuesFooter = (
       <StyledInfoMessage className="sw-rounded-2 sw-text-xs sw-p-4 sw-flex sw-gap-1 sw-flex-wrap">
-        <span>{intl.formatMessage({ id: 'overview.project.no_data' })}</span>
         <span>
           {intl.formatMessage({
             id: `overview.run_analysis_to_compute.${component.qualifier}`,

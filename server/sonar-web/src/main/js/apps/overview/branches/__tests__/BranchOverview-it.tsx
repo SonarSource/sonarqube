@@ -360,11 +360,6 @@ describe('project overview', () => {
     // Maintainability is not computed
     ui.expectSoftwareImpactMeasureCard(SoftwareQuality.Maintainability);
     expect(
-      byText('overview.project.no_data').get(
-        ui.softwareImpactMeasureCard(SoftwareQuality.Maintainability).get(),
-      ),
-    ).toBeInTheDocument();
-    expect(
       byText('overview.run_analysis_to_compute.TRK').get(
         ui.softwareImpactMeasureCard(SoftwareQuality.Maintainability).get(),
       ),
