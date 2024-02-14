@@ -58,7 +58,6 @@
 
   <sql id="selectJoinedTablesColumns">
     <!-- rule default impacts -->
-    rdi.uuid as "rdi_uuid",
     rdi.rule_uuid as "rdi_ruleUuid",
     rdi.software_quality as "rdi_softwareQuality",
     rdi.severity as "rdi_severity",
@@ -103,8 +102,7 @@
         </constructor>
       </association>
     </collection>
-    <collection property="defaultImpacts" column="rdi_uuid" notNullColumn="rdi_uuid" javaType="java.util.Set" ofType="Impact">
-     <id property="uuid" column="rdi_uuid"/>
+    <collection property="defaultImpacts" column="rdi_softwareQuality" notNullColumn="rdi_softwareQuality" javaType="java.util.Set" ofType="Impact">
      <result property="softwareQuality" column="rdi_softwareQuality"/>
      <result property="severity" column="rdi_severity"/>
     </collection>
@@ -382,9 +380,8 @@
   </insert>
 
   <insert id="insertRuleDefaultImpact" parameterType="Map" useGeneratedKeys="false">
-    INSERT INTO rules_default_impacts (uuid, rule_uuid, software_quality, severity)
+    INSERT INTO rules_default_impacts (rule_uuid, software_quality, severity)
     VALUES (
-    #{dto.uuid,jdbcType=VARCHAR},
     #{ruleUuid,jdbcType=VARCHAR},
     #{dto.softwareQuality,jdbcType=VARCHAR},
     #{dto.severity,jdbcType=VARCHAR})

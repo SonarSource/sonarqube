@@ -503,11 +503,9 @@ public class IssueMapperIT {
       .setStatus(Issue.STATUS_CLOSED)
       .setIssueCloseTime(issueCloseTime)
       .addImpact(new ImpactDto()
-        .setUuid(UuidFactoryFast.getInstance().create())
         .setSeverity(Severity.HIGH)
         .setSoftwareQuality(SoftwareQuality.MAINTAINABILITY))
       .addImpact(new ImpactDto()
-        .setUuid(UuidFactoryFast.getInstance().create())
         .setSeverity(Severity.LOW)
         .setSoftwareQuality(SoftwareQuality.SECURITY));
     Arrays.asList(consumers).forEach(c -> c.accept(res));

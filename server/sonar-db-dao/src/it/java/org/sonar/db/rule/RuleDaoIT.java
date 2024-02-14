@@ -132,17 +132,17 @@ public class RuleDaoIT {
     RuleDto ruleDto = newRule();
     underTest.insertShallow(db.getSession(), ruleDto);
 
-    ImpactDto impact1 = new ImpactDto("uuid1", MAINTAINABILITY, org.sonar.api.issue.impact.Severity.HIGH);
-    ImpactDto impact2 = new ImpactDto("uuid2", SECURITY, org.sonar.api.issue.impact.Severity.LOW);
+    ImpactDto impact1 = new ImpactDto(MAINTAINABILITY, org.sonar.api.issue.impact.Severity.HIGH);
+    ImpactDto impact2 = new ImpactDto(SECURITY, org.sonar.api.issue.impact.Severity.LOW);
 
     underTest.insertRuleDefaultImpacts(db.getSession(), ruleDto.getUuid(), Set.of(impact1, impact2));
 
     RuleDto actualRule = underTest.selectByKey(db.getSession(), ruleDto.getKey()).get();
 
     assertThat(actualRule.getDefaultImpacts())
-      .extracting(ImpactDto::getUuid, ImpactDto::getSoftwareQuality, ImpactDto::getSeverity)
-      .containsExactlyInAnyOrder(tuple("uuid1", MAINTAINABILITY, org.sonar.api.issue.impact.Severity.HIGH),
-        tuple("uuid2", SECURITY, org.sonar.api.issue.impact.Severity.LOW));
+      .extracting(ImpactDto::getSoftwareQuality, ImpactDto::getSeverity)
+      .containsExactlyInAnyOrder(tuple(MAINTAINABILITY, org.sonar.api.issue.impact.Severity.HIGH),
+        tuple(SECURITY, org.sonar.api.issue.impact.Severity.LOW));
   }
 
   @Test
@@ -1359,7 +1359,6 @@ public class RuleDaoIT {
 
   private static ImpactDto newRuleDefaultImpact(SoftwareQuality softwareQuality, org.sonar.api.issue.impact.Severity severity) {
     return new ImpactDto()
-      .setUuid(UuidFactoryFast.getInstance().create())
       .setSoftwareQuality(softwareQuality)
       .setSeverity(severity);
   }

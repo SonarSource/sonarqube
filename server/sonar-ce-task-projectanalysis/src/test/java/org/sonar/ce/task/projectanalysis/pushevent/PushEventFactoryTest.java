@@ -43,7 +43,6 @@ import org.sonar.ce.task.projectanalysis.issue.RuleRepository;
 import org.sonar.ce.task.projectanalysis.locations.flow.FlowGenerator;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.FieldDiffs;
-import org.sonar.core.util.Uuids;
 import org.sonar.db.issue.ImpactDto;
 import org.sonar.db.protobuf.DbCommons;
 import org.sonar.db.protobuf.DbIssues;
@@ -412,8 +411,8 @@ public class PushEventFactoryTest {
     ruleDto.setRuleKey(RuleKey.of("javasecurity", "S123"));
     ruleDto.setSecurityStandards(Set.of("owasp-a1"));
     ruleDto.setCleanCodeAttribute(CleanCodeAttribute.CONVENTIONAL);
-    ruleDto.addDefaultImpact(new ImpactDto().setUuid(Uuids.createFast()).setSoftwareQuality(SoftwareQuality.MAINTAINABILITY).setSeverity(Severity.MEDIUM));
-    ruleDto.addDefaultImpact(new ImpactDto().setUuid(Uuids.createFast()).setSoftwareQuality(SoftwareQuality.RELIABILITY).setSeverity(Severity.HIGH));
+    ruleDto.addDefaultImpact(new ImpactDto().setSoftwareQuality(SoftwareQuality.MAINTAINABILITY).setSeverity(Severity.MEDIUM));
+    ruleDto.addDefaultImpact(new ImpactDto().setSoftwareQuality(SoftwareQuality.RELIABILITY).setSeverity(Severity.HIGH));
     return new org.sonar.ce.task.projectanalysis.issue.RuleImpl(ruleDto);
   }
 }

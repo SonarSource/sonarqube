@@ -73,7 +73,6 @@
         r.ad_hoc_severity as "adHocSeverity",
         r.ad_hoc_type as "adHocType",
         r.clean_code_attribute as "cleanCodeAttribute",
-        rdi.uuid as "rdi_uuid",
         rdi.rule_uuid as "rdi_ruleUuid",
         rdi.software_quality as "rdi_softwareQuality",
         rdi.severity as "rdi_severity",
@@ -132,8 +131,6 @@
           i.code_variants as codeVariantsString,
           ii.software_quality as ii_softwareQuality,
           ii.severity as ii_severity,
-          ii.uuid as ii_uuid,
-          rdi.uuid as rdi_uuid,
           rdi.software_quality as rdi_softwareQuality,
           rdi.severity as rdi_severity
         from issues i

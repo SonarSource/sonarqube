@@ -582,7 +582,7 @@ public class PurgeCommandsIT {
     int count = 5;
     IntStream.range(0, count).forEach(i -> {
       IssueDto issue = dbTester.issues().insertIssue(t -> t.setRule(rule).setProject(projectOrView).setComponent(projectOrView)
-        .addImpact(new ImpactDto().setUuid(UuidFactoryFast.getInstance().create())
+        .addImpact(new ImpactDto()
           .setSoftwareQuality(SoftwareQuality.SECURITY)
           .setSeverity(Severity.HIGH)));
       issueKeys.add("'" + issue.getKey() + "'");
@@ -590,7 +590,7 @@ public class PurgeCommandsIT {
 
     underTest.deleteIssues(projectOrView.uuid());
 
-    assertThat(dbTester.countSql("select count(uuid) from issues_impacts where issue_key in (" +
+    assertThat(dbTester.countSql("select count(software_quality) from issues_impacts where issue_key in (" +
       String.join(", ", issueKeys) + ")")).isZero();
   }
 

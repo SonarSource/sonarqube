@@ -97,7 +97,7 @@ public class RuleTesting {
       .setDescriptionFormat(RuleDto.Format.HTML)
       .setType(CODE_SMELL)
       .setCleanCodeAttribute(CleanCodeAttribute.CLEAR)
-      .addDefaultImpact(new ImpactDto().setUuid(uuidFactory.create())
+      .addDefaultImpact(new ImpactDto()
         .setSoftwareQuality(SoftwareQuality.MAINTAINABILITY)
         .setSeverity(org.sonar.api.issue.impact.Severity.HIGH))
       .setStatus(RuleStatus.READY)

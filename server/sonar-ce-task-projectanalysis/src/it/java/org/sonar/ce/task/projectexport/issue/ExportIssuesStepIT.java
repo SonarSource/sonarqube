@@ -232,7 +232,7 @@ public class ExportIssuesStepIT {
       .setRuleDescriptionContextKey("test_rule_description_context_key")
       .setIssueCreationTime(963L)
       .setIssueUpdateTime(852L)
-      .addImpact(new ImpactDto().setSoftwareQuality(SoftwareQuality.MAINTAINABILITY).setSeverity(Severity.HIGH).setUuid("uuid"))
+      .addImpact(new ImpactDto().setSoftwareQuality(SoftwareQuality.MAINTAINABILITY).setSeverity(Severity.HIGH))
       .setIssueCloseTime(741L)
       .setCodeVariants(List.of("v1", "v2"));
 
@@ -281,8 +281,8 @@ public class ExportIssuesStepIT {
     IssueDto issueDto = createBaseIssueDto(readyRuleDto, SOME_PROJECT_UUID);
     IssueDto issueDto2 = createBaseIssueDto(readyRuleDto, SOME_PROJECT_UUID);
     issueDto2
-      .addImpact(new ImpactDto().setSoftwareQuality(SoftwareQuality.MAINTAINABILITY).setSeverity(Severity.HIGH).setUuid("uuid1"))
-      .addImpact(new ImpactDto().setSoftwareQuality(SoftwareQuality.RELIABILITY).setSeverity(Severity.LOW).setUuid("uuid2"));
+      .addImpact(new ImpactDto().setSoftwareQuality(SoftwareQuality.MAINTAINABILITY).setSeverity(Severity.HIGH))
+      .addImpact(new ImpactDto().setSoftwareQuality(SoftwareQuality.RELIABILITY).setSeverity(Severity.LOW));
 
     insertIssue(issueDto);
     insertIssue(issueDto2);

@@ -27,7 +27,6 @@ import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
 import org.sonar.api.issue.impact.Severity;
 import org.sonar.api.issue.impact.SoftwareQuality;
-import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.api.rules.RuleType;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.issue.ImpactDto;
@@ -241,6 +240,6 @@ public class RuleDtoTest {
   }
 
   public static ImpactDto newImpactDto(SoftwareQuality softwareQuality, Severity severity) {
-    return new ImpactDto(UuidFactoryFast.getInstance().create(), softwareQuality, severity);
+    return new ImpactDto(softwareQuality, severity);
   }
 }

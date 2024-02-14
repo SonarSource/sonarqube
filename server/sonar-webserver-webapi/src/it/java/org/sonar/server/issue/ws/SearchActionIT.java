@@ -686,13 +686,13 @@ public class SearchActionIT {
       c -> c.setKey("PROJECT_KEY").setName("NAME_PROJECT_ID").setLongName("LONG_NAME_PROJECT_ID").setLanguage("java")).getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project, null, "FILE_ID").setKey("FILE_KEY").setLanguage("java"));
     IssueDto issue1 = db.issues().insertIssue(rule, project, file, i -> i
-      .addImpact(new ImpactDto(uuidFactory.create(), SoftwareQuality.SECURITY, org.sonar.api.issue.impact.Severity.HIGH))
-      .addImpact(new ImpactDto(uuidFactory.create(), SoftwareQuality.RELIABILITY, org.sonar.api.issue.impact.Severity.HIGH)));
+      .addImpact(new ImpactDto(SoftwareQuality.SECURITY, org.sonar.api.issue.impact.Severity.HIGH))
+      .addImpact(new ImpactDto(SoftwareQuality.RELIABILITY, org.sonar.api.issue.impact.Severity.HIGH)));
     IssueDto issue2 = db.issues().insertIssue(rule, project, file, i -> i
-      .addImpact(new ImpactDto(uuidFactory.create(), SoftwareQuality.RELIABILITY, org.sonar.api.issue.impact.Severity.HIGH)));
+      .addImpact(new ImpactDto(SoftwareQuality.RELIABILITY, org.sonar.api.issue.impact.Severity.HIGH)));
     IssueDto issue3 = db.issues().insertIssue(rule, project, file, i -> i
-      .addImpact(new ImpactDto(uuidFactory.create(), SoftwareQuality.SECURITY, org.sonar.api.issue.impact.Severity.MEDIUM))
-      .addImpact(new ImpactDto(uuidFactory.create(), SoftwareQuality.RELIABILITY, org.sonar.api.issue.impact.Severity.LOW)));
+      .addImpact(new ImpactDto(SoftwareQuality.SECURITY, org.sonar.api.issue.impact.Severity.MEDIUM))
+      .addImpact(new ImpactDto(SoftwareQuality.RELIABILITY, org.sonar.api.issue.impact.Severity.LOW)));
     indexPermissionsAndIssues();
 
     SearchWsResponse response = ws.newRequest()
@@ -722,13 +722,13 @@ public class SearchActionIT {
     ComponentDto file = db.components().insertComponent(newFileDto(project, null, "FILE_ID").setKey("FILE_KEY").setLanguage("java"));
 
     IssueDto issue1 = db.issues().insertIssue(rule, project, file, i -> i
-      .addImpact(new ImpactDto().setSoftwareQuality(SoftwareQuality.SECURITY).setSeverity(org.sonar.api.issue.impact.Severity.HIGH).setUuid(uuidFactory.create()))
-      .addImpact(new ImpactDto().setSoftwareQuality(SoftwareQuality.RELIABILITY).setSeverity(org.sonar.api.issue.impact.Severity.HIGH).setUuid(uuidFactory.create())));
+      .addImpact(new ImpactDto().setSoftwareQuality(SoftwareQuality.SECURITY).setSeverity(org.sonar.api.issue.impact.Severity.HIGH))
+      .addImpact(new ImpactDto().setSoftwareQuality(SoftwareQuality.RELIABILITY).setSeverity(org.sonar.api.issue.impact.Severity.HIGH)));
     IssueDto issue2 = db.issues().insertIssue(rule, project, file, i -> i
-      .addImpact(new ImpactDto().setSoftwareQuality(SoftwareQuality.RELIABILITY).setSeverity(org.sonar.api.issue.impact.Severity.HIGH).setUuid(uuidFactory.create())));
+      .addImpact(new ImpactDto().setSoftwareQuality(SoftwareQuality.RELIABILITY).setSeverity(org.sonar.api.issue.impact.Severity.HIGH)));
     IssueDto issue3 = db.issues().insertIssue(rule, project, file, i -> i
-      .addImpact(new ImpactDto().setSoftwareQuality(SoftwareQuality.SECURITY).setSeverity(org.sonar.api.issue.impact.Severity.MEDIUM).setUuid(uuidFactory.create()))
-      .addImpact(new ImpactDto().setSoftwareQuality(SoftwareQuality.RELIABILITY).setSeverity(org.sonar.api.issue.impact.Severity.LOW).setUuid(uuidFactory.create())));
+      .addImpact(new ImpactDto().setSoftwareQuality(SoftwareQuality.SECURITY).setSeverity(org.sonar.api.issue.impact.Severity.MEDIUM))
+      .addImpact(new ImpactDto().setSoftwareQuality(SoftwareQuality.RELIABILITY).setSeverity(org.sonar.api.issue.impact.Severity.LOW)));
     indexPermissionsAndIssues();
     Map<Common.SoftwareQuality, Common.ImpactSeverity> expectedImpacts = Map.of(Common.SoftwareQuality.SECURITY, Common.ImpactSeverity.MEDIUM,
       Common.SoftwareQuality.RELIABILITY, Common.ImpactSeverity.LOW,
@@ -769,14 +769,14 @@ public class SearchActionIT {
       c -> c.setKey("PROJECT_KEY").setName("NAME_PROJECT_ID").setLongName("LONG_NAME_PROJECT_ID").setLanguage("java")).getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project, null, "FILE_ID").setKey("FILE_KEY").setLanguage("java"));
     IssueDto issue1 = db.issues().insertIssue(rule, project, file, i -> i.replaceAllImpacts(List.of(
-      new ImpactDto(uuidFactory.create(), SoftwareQuality.SECURITY, org.sonar.api.issue.impact.Severity.HIGH),
-      new ImpactDto(uuidFactory.create(), SoftwareQuality.RELIABILITY, org.sonar.api.issue.impact.Severity.HIGH))));
+      new ImpactDto(SoftwareQuality.SECURITY, org.sonar.api.issue.impact.Severity.HIGH),
+      new ImpactDto(SoftwareQuality.RELIABILITY, org.sonar.api.issue.impact.Severity.HIGH))));
     IssueDto issue2 = db.issues().insertIssue(rule, project, file, i -> i.replaceAllImpacts(List.of(
-      new ImpactDto(uuidFactory.create(), SoftwareQuality.RELIABILITY, org.sonar.api.issue.impact.Severity.HIGH))));
+      new ImpactDto(SoftwareQuality.RELIABILITY, org.sonar.api.issue.impact.Severity.HIGH))));
     IssueDto issue3 = db.issues().insertIssue(rule, project, file, i -> i.replaceAllImpacts(List.of(
-      new ImpactDto(uuidFactory.create(), SoftwareQuality.MAINTAINABILITY, org.sonar.api.issue.impact.Severity.LOW),
-      new ImpactDto(uuidFactory.create(), SoftwareQuality.SECURITY, org.sonar.api.issue.impact.Severity.MEDIUM),
-      new ImpactDto(uuidFactory.create(), SoftwareQuality.RELIABILITY, org.sonar.api.issue.impact.Severity.LOW))));
+      new ImpactDto(SoftwareQuality.MAINTAINABILITY, org.sonar.api.issue.impact.Severity.LOW),
+      new ImpactDto(SoftwareQuality.SECURITY, org.sonar.api.issue.impact.Severity.MEDIUM),
+      new ImpactDto(SoftwareQuality.RELIABILITY, org.sonar.api.issue.impact.Severity.LOW))));
     indexPermissionsAndIssues();
 
     SearchWsResponse response = ws.newRequest()
@@ -805,14 +805,14 @@ public class SearchActionIT {
       c -> c.setKey("PROJECT_KEY").setName("NAME_PROJECT_ID").setLongName("LONG_NAME_PROJECT_ID").setLanguage("java")).getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project, null, "FILE_ID").setKey("FILE_KEY").setLanguage("java"));
     IssueDto issue1 = db.issues().insertIssue(rule, project, file, i -> i.replaceAllImpacts(List.of(
-      new ImpactDto(uuidFactory.create(), SoftwareQuality.SECURITY, org.sonar.api.issue.impact.Severity.HIGH),
-      new ImpactDto(uuidFactory.create(), SoftwareQuality.RELIABILITY, org.sonar.api.issue.impact.Severity.HIGH))));
+      new ImpactDto(SoftwareQuality.SECURITY, org.sonar.api.issue.impact.Severity.HIGH),
+      new ImpactDto(SoftwareQuality.RELIABILITY, org.sonar.api.issue.impact.Severity.HIGH))));
     db.issues().insertIssue(rule, project, file, i -> i.replaceAllImpacts(List.of(
-      new ImpactDto(uuidFactory.create(), SoftwareQuality.RELIABILITY, org.sonar.api.issue.impact.Severity.HIGH))));
+      new ImpactDto(SoftwareQuality.RELIABILITY, org.sonar.api.issue.impact.Severity.HIGH))));
     IssueDto issue3 = db.issues().insertIssue(rule, project, file, i -> i.replaceAllImpacts(List.of(
-      new ImpactDto(uuidFactory.create(), SoftwareQuality.MAINTAINABILITY, org.sonar.api.issue.impact.Severity.LOW),
-      new ImpactDto(uuidFactory.create(), SoftwareQuality.SECURITY, org.sonar.api.issue.impact.Severity.MEDIUM),
-      new ImpactDto(uuidFactory.create(), SoftwareQuality.RELIABILITY, org.sonar.api.issue.impact.Severity.LOW))));
+      new ImpactDto(SoftwareQuality.MAINTAINABILITY, org.sonar.api.issue.impact.Severity.LOW),
+      new ImpactDto(SoftwareQuality.SECURITY, org.sonar.api.issue.impact.Severity.MEDIUM),
+      new ImpactDto(SoftwareQuality.RELIABILITY, org.sonar.api.issue.impact.Severity.LOW))));
     indexPermissionsAndIssues();
 
     SearchWsResponse response = ws.newRequest()

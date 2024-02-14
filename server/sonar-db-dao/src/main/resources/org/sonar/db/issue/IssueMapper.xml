@@ -114,12 +114,10 @@
   </sql>
 
   <sql id="issueImpactsColumns">
-    ii.uuid as "ii_uuid",
     ii.software_quality as "ii_softwareQuality",
     ii.severity as "ii_severity",
   </sql>
   <sql id="ruleDefaultImpactsColumns">
-    rdi.uuid as "rdi_uuid",
     rdi.software_quality as "rdi_softwareQuality",
     rdi.severity as "rdi_severity",
   </sql>
@@ -127,15 +125,13 @@
   <resultMap id="issueResultMap" type="Issue" autoMapping="true">
     <id property="kee" column="kee"/>
 
-    <collection property="impacts" column="ii_uuid" notNullColumn="ii_uuid"
+    <collection property="impacts" column="ii_softwareQuality" notNullColumn="ii_softwareQuality"
                 javaType="java.util.Set" ofType="Impact">
-      <id property="uuid" column="ii_uuid"/>
       <result property="softwareQuality" column="ii_softwareQuality"/>
       <result property="severity" column="ii_severity"/>
     </collection>
-    <collection property="ruleDefaultImpacts" column="rdi_uuid" notNullColumn="rdi_uuid"
+    <collection property="ruleDefaultImpacts" column="rdi_softwareQuality" notNullColumn="rdi_softwareQuality"
                     javaType="java.util.Set" ofType="Impact">
-      <id property="uuid" column="rdi_uuid"/>
       <result property="softwareQuality" column="rdi_softwareQuality"/>
       <result property="severity" column="rdi_severity"/>
     </collection>
@@ -180,9 +176,8 @@
   </insert>
 
   <insert id="insertIssueImpact" parameterType="map" useGeneratedKeys="false">
-    INSERT INTO issues_impacts (uuid, issue_key, software_quality, severity)
+    INSERT INTO issues_impacts (issue_key, software_quality, severity)
     VALUES (
-    #{dto.uuid,jdbcType=VARCHAR},
     #{issueKey,jdbcType=VARCHAR},
     #{dto.softwareQuality,jdbcType=VARCHAR},
     #{dto.severity,jdbcType=VARCHAR})
@@ -326,15 +321,13 @@
   <resultMap id="indexedIssueResultMap" type="org.sonar.db.issue.IndexedIssueDto" autoMapping="true">
     <id property="issueKey" column="issueKey"/>
 
-    <collection property="impacts" column="ii_uuid" notNullColumn="ii_uuid"
+    <collection property="impacts" column="ii_softwareQuality" notNullColumn="ii_softwareQuality"
                 javaType="java.util.Set" ofType="Impact">
-      <id property="uuid" column="ii_uuid"/>
       <result property="softwareQuality" column="ii_softwareQuality"/>
       <result property="severity" column="ii_severity"/>
     </collection>
-    <collection property="ruleDefaultImpacts" column="rdi_uuid" notNullColumn="rdi_uuid"
+    <collection property="ruleDefaultImpacts" column="rdi_softwareQuality" notNullColumn="rdi_softwareQuality"
                 javaType="java.util.Set" ofType="Impact">
-      <id property="uuid" column="rdi_uuid"/>
       <result property="softwareQuality" column="rdi_softwareQuality"/>
       <result property="severity" column="rdi_severity"/>
     </collection>

@@ -807,7 +807,7 @@ public class RuleIndexIT {
 
   @Test
   public void search_by_software_quality() {
-    ImpactDto impactDto = new ImpactDto().setSoftwareQuality(SoftwareQuality.SECURITY).setSeverity(Severity.HIGH).setUuid("uuid");
+    ImpactDto impactDto = new ImpactDto().setSoftwareQuality(SoftwareQuality.SECURITY).setSeverity(Severity.HIGH);
     RuleDto phpRule = createRule(setRepositoryKey("php"), setImpacts(List.of(impactDto)));
     index();
 
@@ -822,7 +822,7 @@ public class RuleIndexIT {
 
   @Test
   public void search_by_severity() {
-    ImpactDto impactDto = new ImpactDto().setSoftwareQuality(SoftwareQuality.SECURITY).setSeverity(Severity.HIGH).setUuid("uuid");
+    ImpactDto impactDto = new ImpactDto().setSoftwareQuality(SoftwareQuality.SECURITY).setSeverity(Severity.HIGH);
     RuleDto phpRule = createRule(setRepositoryKey("php"), setImpacts(List.of(impactDto)));
     index();
 
@@ -867,8 +867,8 @@ public class RuleIndexIT {
 
   @Test
   public void search_should_support_software_quality_facet() {
-    ImpactDto impactDto = new ImpactDto().setSoftwareQuality(SoftwareQuality.SECURITY).setSeverity(Severity.HIGH).setUuid("uuid");
-    ImpactDto impactDto2 = new ImpactDto().setSoftwareQuality(SoftwareQuality.MAINTAINABILITY).setSeverity(Severity.LOW).setUuid("uuid2");
+    ImpactDto impactDto = new ImpactDto().setSoftwareQuality(SoftwareQuality.SECURITY).setSeverity(Severity.HIGH);
+    ImpactDto impactDto2 = new ImpactDto().setSoftwareQuality(SoftwareQuality.MAINTAINABILITY).setSeverity(Severity.LOW);
     createRule(setRepositoryKey("php"), setImpacts(List.of(impactDto)));
     createRule(setRepositoryKey("php"), setImpacts(List.of(impactDto2)));
     index();
@@ -887,8 +887,8 @@ public class RuleIndexIT {
 
   @Test
   public void search_should_support_software_quality_facet_with_filtering() {
-    ImpactDto impactDto = new ImpactDto().setSoftwareQuality(SoftwareQuality.SECURITY).setSeverity(Severity.HIGH).setUuid("uuid");
-    ImpactDto impactDto2 = new ImpactDto().setSoftwareQuality(SoftwareQuality.MAINTAINABILITY).setSeverity(Severity.LOW).setUuid("uuid2");
+    ImpactDto impactDto = new ImpactDto().setSoftwareQuality(SoftwareQuality.SECURITY).setSeverity(Severity.HIGH);
+    ImpactDto impactDto2 = new ImpactDto().setSoftwareQuality(SoftwareQuality.MAINTAINABILITY).setSeverity(Severity.LOW);
     createRule(setRepositoryKey("php"), setImpacts(List.of(impactDto)));
     createRule(setRepositoryKey("php"), setImpacts(List.of(impactDto2)));
     index();
@@ -907,9 +907,9 @@ public class RuleIndexIT {
 
   @Test
   public void search_whenFilteringOnSeverityAndSoftwareQuality_shouldReturnFacet() {
-    ImpactDto impactDto = new ImpactDto().setSoftwareQuality(SoftwareQuality.MAINTAINABILITY).setSeverity(Severity.HIGH).setUuid("uuid");
-    ImpactDto impactDto2 = new ImpactDto().setSoftwareQuality(SoftwareQuality.MAINTAINABILITY).setSeverity(Severity.LOW).setUuid("uuid2");
-    ImpactDto impactDto3 = new ImpactDto().setSoftwareQuality(SoftwareQuality.RELIABILITY).setSeverity(Severity.LOW).setUuid("uuid3");
+    ImpactDto impactDto = new ImpactDto().setSoftwareQuality(SoftwareQuality.MAINTAINABILITY).setSeverity(Severity.HIGH);
+    ImpactDto impactDto2 = new ImpactDto().setSoftwareQuality(SoftwareQuality.MAINTAINABILITY).setSeverity(Severity.LOW);
+    ImpactDto impactDto3 = new ImpactDto().setSoftwareQuality(SoftwareQuality.RELIABILITY).setSeverity(Severity.LOW);
     createRule(setRepositoryKey("php"), setImpacts(List.of(impactDto)));
     createRule(setRepositoryKey("php"), setImpacts(List.of(impactDto2, impactDto3)));
     index();
@@ -936,8 +936,8 @@ public class RuleIndexIT {
 
   @Test
   public void search_should_support_severity_facet() {
-    ImpactDto impactDto = new ImpactDto().setSoftwareQuality(SoftwareQuality.SECURITY).setSeverity(Severity.HIGH).setUuid("uuid");
-    ImpactDto impactDto2 = new ImpactDto().setSoftwareQuality(SoftwareQuality.MAINTAINABILITY).setSeverity(Severity.LOW).setUuid("uuid2");
+    ImpactDto impactDto = new ImpactDto().setSoftwareQuality(SoftwareQuality.SECURITY).setSeverity(Severity.HIGH);
+    ImpactDto impactDto2 = new ImpactDto().setSoftwareQuality(SoftwareQuality.MAINTAINABILITY).setSeverity(Severity.LOW);
     createRule(setRepositoryKey("php"), setImpacts(List.of(impactDto)));
     createRule(setRepositoryKey("php"), setImpacts(List.of(impactDto2)));
     index();
@@ -952,8 +952,8 @@ public class RuleIndexIT {
 
   @Test
   public void search_should_support_severity_facet_with_filters() {
-    ImpactDto impactDto = new ImpactDto().setSoftwareQuality(SoftwareQuality.SECURITY).setSeverity(Severity.HIGH).setUuid("uuid");
-    ImpactDto impactDto2 = new ImpactDto().setSoftwareQuality(SoftwareQuality.MAINTAINABILITY).setSeverity(Severity.LOW).setUuid("uuid2");
+    ImpactDto impactDto = new ImpactDto().setSoftwareQuality(SoftwareQuality.SECURITY).setSeverity(Severity.HIGH);
+    ImpactDto impactDto2 = new ImpactDto().setSoftwareQuality(SoftwareQuality.MAINTAINABILITY).setSeverity(Severity.LOW);
     createRule(setRepositoryKey("php"), setImpacts(List.of(impactDto)));
     createRule(setRepositoryKey("php"), setImpacts(List.of(impactDto2)));
     index();
@@ -968,8 +968,8 @@ public class RuleIndexIT {
 
   @Test
   public void search_should_support_software_quality_and_severity_facets_with_filtering() {
-    ImpactDto impactDto = new ImpactDto().setSoftwareQuality(SoftwareQuality.SECURITY).setSeverity(Severity.HIGH).setUuid("uuid");
-    ImpactDto impactDto2 = new ImpactDto().setSoftwareQuality(SoftwareQuality.MAINTAINABILITY).setSeverity(Severity.LOW).setUuid("uuid2");
+    ImpactDto impactDto = new ImpactDto().setSoftwareQuality(SoftwareQuality.SECURITY).setSeverity(Severity.HIGH);
+    ImpactDto impactDto2 = new ImpactDto().setSoftwareQuality(SoftwareQuality.MAINTAINABILITY).setSeverity(Severity.LOW);
     createRule(setRepositoryKey("php"), setImpacts(List.of(impactDto)));
     createRule(setRepositoryKey("php"), setImpacts(List.of(impactDto2)));
     index();

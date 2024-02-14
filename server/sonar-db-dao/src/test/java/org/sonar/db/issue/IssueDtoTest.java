@@ -37,7 +37,6 @@ import org.sonar.api.rules.CleanCodeAttribute;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.Duration;
 import org.sonar.core.issue.DefaultIssue;
-import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.protobuf.DbIssues;
 import org.sonar.db.rule.RuleDto;
 
@@ -402,7 +401,6 @@ public class IssueDtoTest {
 
   public static ImpactDto newImpactDto(SoftwareQuality softwareQuality, Severity severity) {
     return new ImpactDto()
-      .setUuid(UuidFactoryFast.getInstance().create())
       .setSoftwareQuality(softwareQuality)
       .setSeverity(severity);
   }

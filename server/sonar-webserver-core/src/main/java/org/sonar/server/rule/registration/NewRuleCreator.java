@@ -79,7 +79,7 @@ public class NewRuleCreator {
       ruleDto.setCleanCodeAttribute(cleanCodeAttribute != null ? cleanCodeAttribute : CleanCodeAttribute.defaultCleanCodeAttribute());
       ruleDto.replaceAllDefaultImpacts(ruleDef.defaultImpacts().entrySet()
         .stream()
-        .map(e -> new ImpactDto().setUuid(uuidFactory.create()).setSoftwareQuality(e.getKey()).setSeverity(e.getValue()))
+        .map(e -> new ImpactDto().setSoftwareQuality(e.getKey()).setSeverity(e.getValue()))
         .collect(Collectors.toSet()));
     }
 

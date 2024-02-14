@@ -203,7 +203,7 @@ public class StartupRuleUpdater {
     if (!Objects.equals(impactsFromDb, impactsFromPlugin)) {
       dto.replaceAllDefaultImpacts(impactsFromPlugin.entrySet()
         .stream()
-        .map(e -> new ImpactDto().setUuid(uuidFactory.create()).setSoftwareQuality(e.getKey()).setSeverity(e.getValue()))
+        .map(e -> new ImpactDto().setSoftwareQuality(e.getKey()).setSeverity(e.getValue()))
         .collect(Collectors.toSet()));
       ruleChange.addImpactsChange(removeDuplicatedImpacts(impactsFromDb, impactsFromPlugin), removeDuplicatedImpacts(impactsFromPlugin, impactsFromDb));
 

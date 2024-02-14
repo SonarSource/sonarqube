@@ -75,6 +75,21 @@ public class PopulateDefaultImpactsInRulesIT {
   }
 
   @Test
+  public void execute_shouldNotBeExecuted_whenImpactsTableHasAlreadyRecords() throws SQLException {
+    insertRuleWithType("uuid", RuleType.CODE_SMELL, Severity.MAJOR);
+    insertRuleWithType("uuid2", RuleType.CODE_SMELL, Severity.MAJOR);
+    insertImpact("uuid", SoftwareQuality.SECURITY, org.sonar.api.issue.impact.Severity.HIGH);
+
+    underTest.execute();
+
+    assertThat(db.select("select software_quality, severity from rules_default_impacts"))
+      .hasSize(1)
+      .extracting(stringObjectMap -> stringObjectMap.get("software_quality"),
+        stringObjectMap -> stringObjectMap.get("severity"))
+      .containsExactly(tuple(SoftwareQuality.SECURITY.name(), org.sonar.api.issue.impact.Severity.HIGH.name()));
+  }
+
+  @Test
   public void execute_whenAdhocRulesHasTypeAndSeverity_shouldCreateImpact() throws SQLException {
     insertRuleWithAdHocType("uuid", RuleType.CODE_SMELL, Severity.MAJOR);
     underTest.execute();
@@ -172,7 +187,7 @@ public class PopulateDefaultImpactsInRulesIT {
   private void insertRule(String uuid, @Nullable RuleType ruleType, @Nullable Severity severity, @Nullable RuleType adHocType, @Nullable Severity adHocseverity, boolean isAdhoc) {
     db.executeInsert(TABLE_NAME,
       "UUID", uuid,
-      "PLUGIN_RULE_KEY", "key",
+      "PLUGIN_RULE_KEY", "key" + uuid,
       "PLUGIN_NAME", "name",
       "SCOPE", "1",
       "RULE_TYPE", ruleType != null ? ruleType.getDbConstant() : null,
@@ -187,7 +202,7 @@ public class PopulateDefaultImpactsInRulesIT {
   private void insertInvalidRule(String uuid) {
     db.executeInsert(TABLE_NAME,
       "UUID", uuid,
-      "PLUGIN_RULE_KEY", "key",
+      "PLUGIN_RULE_KEY", "key" + uuid,
       "PLUGIN_NAME", "name",
       "SCOPE", "1",
       "RULE_TYPE", 100,
@@ -202,7 +217,7 @@ public class PopulateDefaultImpactsInRulesIT {
   private void insertPlaceholderAdhocRule(String uuid) {
     db.executeInsert(TABLE_NAME,
       "UUID", uuid,
-      "PLUGIN_RULE_KEY", "key",
+      "PLUGIN_RULE_KEY", "key" + uuid,
       "PLUGIN_NAME", "name",
       "SCOPE", "1",
       "IS_TEMPLATE", false,

@@ -242,7 +242,7 @@ public class RuleCreator {
 
       if (!CollectionUtils.isEmpty(newRule.getImpacts())) {
         newRule.getImpacts().stream()
-          .map(impact -> new ImpactDto(uuidFactory.create(), impact.softwareQuality(), impact.severity()))
+          .map(impact -> new ImpactDto(impact.softwareQuality(), impact.severity()))
           .forEach(ruleDto::addDefaultImpact);
         // Back-map old type and severity from the impact
         Map.Entry<SoftwareQuality, org.sonar.api.issue.impact.Severity> impact = ImpactMapper.getBestImpactForBackmapping(
@@ -253,7 +253,7 @@ public class RuleCreator {
         // Map old type and severity to impact
         SoftwareQuality softwareQuality = ImpactMapper.convertToSoftwareQuality(RuleType.valueOf(type));
         org.sonar.api.issue.impact.Severity impactSeverity = ImpactMapper.convertToImpactSeverity(severity);
-        ruleDto.addDefaultImpact(new ImpactDto().setUuid(uuidFactory.create())
+        ruleDto.addDefaultImpact(new ImpactDto()
             .setSoftwareQuality(softwareQuality)
             .setSeverity(impactSeverity))
           .setType(type)

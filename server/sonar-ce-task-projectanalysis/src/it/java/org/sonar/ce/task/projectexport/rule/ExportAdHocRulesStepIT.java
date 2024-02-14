@@ -43,7 +43,6 @@ import org.sonar.ce.task.projectexport.steps.DumpElement;
 import org.sonar.ce.task.projectexport.steps.FakeDumpWriter;
 import org.sonar.ce.task.projectexport.steps.ProjectHolder;
 import org.sonar.ce.task.step.TestComputationStepContext;
-import org.sonar.core.util.Uuids;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.BranchType;
@@ -207,8 +206,8 @@ public class ExportAdHocRulesStepIT {
       .setIsExternal(false)
       .setIsAdHoc(true)
       .setCleanCodeAttribute(CleanCodeAttribute.CONVENTIONAL)
-      .addDefaultImpact(new ImpactDto().setUuid(Uuids.createFast()).setSoftwareQuality(SoftwareQuality.MAINTAINABILITY).setSeverity(org.sonar.api.issue.impact.Severity.MEDIUM))
-      .addDefaultImpact(new ImpactDto().setUuid(Uuids.createFast()).setSoftwareQuality(SoftwareQuality.RELIABILITY).setSeverity(org.sonar.api.issue.impact.Severity.HIGH))
+      .addDefaultImpact(new ImpactDto().setSoftwareQuality(SoftwareQuality.MAINTAINABILITY).setSeverity(org.sonar.api.issue.impact.Severity.MEDIUM))
+      .addDefaultImpact(new ImpactDto().setSoftwareQuality(SoftwareQuality.RELIABILITY).setSeverity(org.sonar.api.issue.impact.Severity.HIGH))
       .setRuleKey(ruleKey)
       .setScope(RuleDto.Scope.ALL)
       .setStatus(RuleStatus.READY);
@@ -260,8 +259,8 @@ public class ExportAdHocRulesStepIT {
       .setIsExternal(false)
       .setIsAdHoc(true)
       .setCleanCodeAttribute(CleanCodeAttribute.CONVENTIONAL)
-      .addDefaultImpact(new ImpactDto().setUuid(Uuids.createFast()).setSoftwareQuality(SoftwareQuality.MAINTAINABILITY).setSeverity(org.sonar.api.issue.impact.Severity.MEDIUM))
-      .addDefaultImpact(new ImpactDto().setUuid(Uuids.createFast()).setSoftwareQuality(SoftwareQuality.RELIABILITY).setSeverity(org.sonar.api.issue.impact.Severity.HIGH))
+      .addDefaultImpact(new ImpactDto().setSoftwareQuality(SoftwareQuality.MAINTAINABILITY).setSeverity(org.sonar.api.issue.impact.Severity.MEDIUM))
+      .addDefaultImpact(new ImpactDto().setSoftwareQuality(SoftwareQuality.RELIABILITY).setSeverity(org.sonar.api.issue.impact.Severity.HIGH))
       .setAdHocName("ad_hoc_rule" + RandomStringUtils.randomAlphabetic(10))
       .setAdHocType(RuleType.VULNERABILITY)
       .setAdHocSeverity(Severity.CRITICAL)

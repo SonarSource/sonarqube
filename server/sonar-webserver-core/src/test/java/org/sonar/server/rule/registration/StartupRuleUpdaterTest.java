@@ -34,8 +34,8 @@ import org.sonar.db.DbClient;
 import org.sonar.db.issue.ImpactDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.server.rule.RuleDescriptionSectionsGeneratorResolver;
+
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -58,7 +58,7 @@ public class StartupRuleUpdaterTest {
 
     RuleDto rule = getDefaultRuleDto();
     when(rule.getCleanCodeAttribute()).thenReturn(CleanCodeAttribute.COMPLETE);
-    Set<ImpactDto> oldImpacts = Set.of(new ImpactDto("uuid", SoftwareQuality.RELIABILITY, Severity.LOW));
+    Set<ImpactDto> oldImpacts = Set.of(new ImpactDto(SoftwareQuality.RELIABILITY, Severity.LOW));
     when(rule.getDefaultImpacts()).thenReturn(oldImpacts);
 
     StartupRuleUpdater.RuleChange changesAndUpdateRule = underTest.findChangesAndUpdateRule(ruleDef, rule);
@@ -79,9 +79,8 @@ public class StartupRuleUpdaterTest {
 
     RuleDto rule = getDefaultRuleDto();
     when(rule.getCleanCodeAttribute()).thenReturn(CleanCodeAttribute.COMPLETE);
-    Set<ImpactDto> oldImpacts = Set.of(new ImpactDto("uuid",
-        SoftwareQuality.RELIABILITY, Severity.LOW),
-      new ImpactDto("uuid2", SoftwareQuality.SECURITY, Severity.HIGH));
+    Set<ImpactDto> oldImpacts = Set.of(new ImpactDto(SoftwareQuality.RELIABILITY, Severity.LOW),
+      new ImpactDto(SoftwareQuality.SECURITY, Severity.HIGH));
     when(rule.getDefaultImpacts()).thenReturn(oldImpacts);
 
     StartupRuleUpdater.RuleChange changesAndUpdateRule = underTest.findChangesAndUpdateRule(ruleDef, rule);
@@ -100,8 +99,7 @@ public class StartupRuleUpdaterTest {
 
     RuleDto rule = getDefaultRuleDto();
     when(rule.getCleanCodeAttribute()).thenReturn(CleanCodeAttribute.COMPLETE);
-    Set<ImpactDto> oldImpacts = Set.of(new ImpactDto("uuid",
-        SoftwareQuality.MAINTAINABILITY, Severity.LOW));
+    Set<ImpactDto> oldImpacts = Set.of(new ImpactDto(SoftwareQuality.MAINTAINABILITY, Severity.LOW));
     when(rule.getDefaultImpacts()).thenReturn(oldImpacts);
 
     StartupRuleUpdater.RuleChange changesAndUpdateRule = underTest.findChangesAndUpdateRule(ruleDef, rule);

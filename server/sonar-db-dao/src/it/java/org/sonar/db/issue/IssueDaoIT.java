@@ -19,6 +19,7 @@
  */
 package org.sonar.db.issue;
 
+import java.sql.SQLException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -40,7 +41,6 @@ import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.System2;
-import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.Pagination;
@@ -213,13 +213,15 @@ public class IssueDaoIT {
   }
 
   @Test
-  public void scrollIndexationIssues_shouldReturnDto() {
+  public void scrollIndexationIssues_shouldReturnDto() throws SQLException {
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     RuleDto rule = db.rules().insert(r -> r.setRepositoryKey("java").setLanguage("java")
-      .addDefaultImpact(new ImpactDto()
-        .setUuid(UuidFactoryFast.getInstance().create())
-        .setSoftwareQuality(RELIABILITY)
-        .setSeverity(MEDIUM)));
+      .replaceAllDefaultImpacts(List.of(new ImpactDto()
+          .setSoftwareQuality(MAINTAINABILITY)
+          .setSeverity(MEDIUM),
+        new ImpactDto()
+          .setSoftwareQuality(RELIABILITY)
+          .setSeverity(LOW))));
 
     ComponentDto branchA = db.components().insertProjectBranch(project, b -> b.setKey("branchA"));
     ComponentDto fileA = db.components().insertComponent(newFileDto(branchA));
@@ -235,8 +237,8 @@ public class IssueDaoIT {
       assertThat(next.getRuleDefaultImpacts()).hasSize(2)
         .extracting(ImpactDto::getSoftwareQuality, ImpactDto::getSeverity)
         .containsExactlyInAnyOrder(
-          tuple(RELIABILITY, MEDIUM),
-          tuple(MAINTAINABILITY, HIGH));
+          tuple(RELIABILITY, LOW),
+          tuple(MAINTAINABILITY, MEDIUM));
       assertThat(next.getImpacts())
         .extracting(ImpactDto::getSoftwareQuality, ImpactDto::getSeverity)
         .containsExactlyInAnyOrder(
@@ -596,7 +598,7 @@ public class IssueDaoIT {
 
   @NotNull
   private static ImpactDto createImpact(SoftwareQuality softwareQuality, Severity high) {
-    return new ImpactDto().setUuid(UuidFactoryFast.getInstance().create()).setSoftwareQuality(softwareQuality).setSeverity(high);
+    return new ImpactDto().setSoftwareQuality(softwareQuality).setSeverity(high);
   }
 
   @Test
@@ -660,11 +662,9 @@ public class IssueDaoIT {
   @Test
   public void insert_shouldInsertBatchIssuesWithImpacts() {
     ImpactDto impact1 = new ImpactDto()
-      .setUuid(UuidFactoryFast.getInstance().create())
       .setSoftwareQuality(MAINTAINABILITY)
       .setSeverity(HIGH);
     ImpactDto impact2 = new ImpactDto()
-      .setUuid(UuidFactoryFast.getInstance().create())
       .setSoftwareQuality(SECURITY)
       .setSeverity(LOW);
     IssueDto issue1 = createIssueWithKey(ISSUE_KEY1)
@@ -686,11 +686,9 @@ public class IssueDaoIT {
   @Test
   public void deleteIssueImpacts_shouldDeleteOnlyImpactsOfIssue() {
     ImpactDto impact1 = new ImpactDto()
-      .setUuid(UuidFactoryFast.getInstance().create())
       .setSoftwareQuality(MAINTAINABILITY)
       .setSeverity(HIGH);
     ImpactDto impact2 = new ImpactDto()
-      .setUuid(UuidFactoryFast.getInstance().create())
       .setSoftwareQuality(SECURITY)
       .setSeverity(LOW);
     IssueDto issue1 = createIssueWithKey(ISSUE_KEY1)
@@ -709,11 +707,9 @@ public class IssueDaoIT {
   @Test
   public void updateWithoutIssueImpacts_shouldNotReplaceIssueImpacts() {
     ImpactDto impact1 = new ImpactDto()
-      .setUuid(UuidFactoryFast.getInstance().create())
       .setSoftwareQuality(MAINTAINABILITY)
       .setSeverity(HIGH);
     ImpactDto impact2 = new ImpactDto()
-      .setUuid(UuidFactoryFast.getInstance().create())
       .setSoftwareQuality(SECURITY)
       .setSeverity(LOW);
     IssueDto issue1 = createIssueWithKey(ISSUE_KEY1)
@@ -728,9 +724,9 @@ public class IssueDaoIT {
     Optional<IssueDto> issueDto = underTest.selectByKey(db.getSession(), ISSUE_KEY1);
     assertThat(issueDto).isPresent()
       .get()
-      .satisfies(i -> assertThat(i.getResolution()).isEqualTo(RESOLUTION_FALSE_POSITIVE) )
+      .satisfies(i -> assertThat(i.getResolution()).isEqualTo(RESOLUTION_FALSE_POSITIVE))
       .extracting(IssueDto::getImpacts)
-      .satisfies(impactDtos -> assertThat(impactDtos).extracting(ImpactDto::getSoftwareQuality,ImpactDto::getSeverity)
+      .satisfies(impactDtos -> assertThat(impactDtos).extracting(ImpactDto::getSoftwareQuality, ImpactDto::getSeverity)
         .containsExactlyInAnyOrder(tuple(MAINTAINABILITY, HIGH), tuple(SECURITY, LOW)));
   }
 
@@ -1031,7 +1027,6 @@ public class IssueDaoIT {
 
   private static ImpactDto newIssueImpact(SoftwareQuality softwareQuality, Severity severity) {
     return new ImpactDto()
-      .setUuid(UuidFactoryFast.getInstance().create())
       .setSoftwareQuality(softwareQuality)
       .setSeverity(severity);
   }

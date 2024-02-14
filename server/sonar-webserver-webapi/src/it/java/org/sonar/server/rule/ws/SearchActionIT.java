@@ -50,7 +50,6 @@ import org.sonar.api.utils.Version;
 import org.sonar.core.platform.SonarQubeVersion;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.core.util.UuidFactoryFast;
-import org.sonar.core.util.Uuids;
 import org.sonar.db.DbTester;
 import org.sonar.db.issue.ImpactDto;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
@@ -482,9 +481,9 @@ public class SearchActionIT {
   @Test
   public void execute_whenFacetIsSoftwareQuality_shouldReturnCorrectMatch() {
     db.rules().insert(
-      r -> r.replaceAllDefaultImpacts(List.of(new ImpactDto().setUuid(Uuids.createFast()).setSoftwareQuality(SoftwareQuality.MAINTAINABILITY).setSeverity(Severity.HIGH))));
+      r -> r.replaceAllDefaultImpacts(List.of(new ImpactDto().setSoftwareQuality(SoftwareQuality.MAINTAINABILITY).setSeverity(Severity.HIGH))));
     db.rules().insert(
-      r -> r.replaceAllDefaultImpacts(List.of(new ImpactDto().setUuid(Uuids.createFast()).setSoftwareQuality(SoftwareQuality.RELIABILITY).setSeverity(Severity.MEDIUM))));
+      r -> r.replaceAllDefaultImpacts(List.of(new ImpactDto().setSoftwareQuality(SoftwareQuality.RELIABILITY).setSeverity(Severity.MEDIUM))));
     indexRules();
 
     SearchResponse result = ws.newRequest()
@@ -498,9 +497,9 @@ public class SearchActionIT {
   @Test
   public void execute_whenFacetIsImpactSeverity_shouldReturnCorrectMatch() {
     db.rules().insert(
-      r -> r.replaceAllDefaultImpacts(List.of(new ImpactDto().setUuid(Uuids.createFast()).setSoftwareQuality(SoftwareQuality.MAINTAINABILITY).setSeverity(Severity.HIGH))));
+      r -> r.replaceAllDefaultImpacts(List.of(new ImpactDto().setSoftwareQuality(SoftwareQuality.MAINTAINABILITY).setSeverity(Severity.HIGH))));
     db.rules().insert(
-      r -> r.replaceAllDefaultImpacts(List.of(new ImpactDto().setUuid(Uuids.createFast()).setSoftwareQuality(SoftwareQuality.RELIABILITY).setSeverity(Severity.MEDIUM))));
+      r -> r.replaceAllDefaultImpacts(List.of(new ImpactDto().setSoftwareQuality(SoftwareQuality.RELIABILITY).setSeverity(Severity.MEDIUM))));
     indexRules();
 
     SearchResponse result = ws.newRequest()
@@ -515,7 +514,7 @@ public class SearchActionIT {
   public void execute_whenFacetIsCleanCodeAttributeCategories_shouldReturnCorrectMatch() {
     db.rules().insert(
       r -> r.setCleanCodeAttribute(CleanCodeAttribute.COMPLETE)
-        .replaceAllDefaultImpacts(List.of(new ImpactDto().setUuid(Uuids.createFast()).setSoftwareQuality(SoftwareQuality.RELIABILITY).setSeverity(Severity.HIGH))));
+        .replaceAllDefaultImpacts(List.of(new ImpactDto().setSoftwareQuality(SoftwareQuality.RELIABILITY).setSeverity(Severity.HIGH))));
     db.rules().insert(
       r -> r.setCleanCodeAttribute(CleanCodeAttribute.CONVENTIONAL));
     indexRules();

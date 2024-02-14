@@ -452,7 +452,7 @@ public class ChangelogActionIT {
 
     system2.setNow(DateUtils.parseDateTime("2015-02-23T17:58:39+0100").getTime());
     RuleDto rule1 = db.rules().insert(RuleKey.of("java", "S2438"), r -> r.setName("\"Threads\" should not be used where \"Runnables\" are expected")
-      .addDefaultImpact(new ImpactDto(Uuids.createFast(), SECURITY, LOW)));
+      .addDefaultImpact(new ImpactDto(SECURITY, LOW)));
     UserDto user1 = db.users().insertUser(u -> u.setLogin("anakin.skywalker").setName("Anakin Skywalker"));
     insertChange(c -> c.setRulesProfileUuid(profileUuid)
       .setUserUuid(user1.getUuid())

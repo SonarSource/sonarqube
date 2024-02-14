@@ -30,7 +30,6 @@ import org.sonar.api.rules.CleanCodeAttribute;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactory;
-import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.issue.ImpactDto;
@@ -116,7 +115,7 @@ public class AdHocRuleCreator {
   }
 
   private static ImpactDto createImpactDto(SoftwareQuality softwareQuality, Severity severity) {
-    return new ImpactDto().setUuid(Uuids.create()).setSoftwareQuality(softwareQuality).setSeverity(severity);
+    return new ImpactDto().setSoftwareQuality(softwareQuality).setSeverity(severity);
   }
 
   private RuleDto findOrCreateRuleDto(DbSession dbSession, NewAdHocRule adHoc, RuleDao dao, long now) {

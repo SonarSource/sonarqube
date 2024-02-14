@@ -233,7 +233,7 @@ public class CompareActionIT {
       .setScope(Scope.MAIN)
       .setStatus(RuleStatus.READY)
       .setCleanCodeAttribute(CleanCodeAttribute.EFFICIENT)
-      .addDefaultImpact(new ImpactDto(Uuids.createFast(), SoftwareQuality.RELIABILITY, HIGH));
+      .addDefaultImpact(new ImpactDto(SoftwareQuality.RELIABILITY, HIGH));
     RuleDto ruleDto = rule;
     dbClient.ruleDao().insert(session, ruleDto);
     return ruleDto;

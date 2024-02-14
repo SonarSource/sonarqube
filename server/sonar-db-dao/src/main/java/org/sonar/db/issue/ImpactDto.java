@@ -25,7 +25,6 @@ import org.sonar.api.issue.impact.Severity;
 import org.sonar.api.issue.impact.SoftwareQuality;
 
 public class ImpactDto implements Serializable {
-  private String uuid;
   private SoftwareQuality softwareQuality;
   private Severity severity;
 
@@ -33,19 +32,9 @@ public class ImpactDto implements Serializable {
     // nothing to do
   }
 
-  public ImpactDto(String uuid, SoftwareQuality softwareQuality, Severity severity) {
-    this.uuid = uuid;
+  public ImpactDto(SoftwareQuality softwareQuality, Severity severity) {
     this.softwareQuality = softwareQuality;
     this.severity = severity;
-  }
-
-  public String getUuid() {
-    return uuid;
-  }
-
-  public ImpactDto setUuid(String uuid) {
-    this.uuid = uuid;
-    return this;
   }
 
   public SoftwareQuality getSoftwareQuality() {
@@ -77,14 +66,13 @@ public class ImpactDto implements Serializable {
     }
 
     ImpactDto impactDto = (ImpactDto) o;
-    return Objects.equals(uuid, impactDto.uuid)
-      && Objects.equals(softwareQuality, impactDto.softwareQuality)
+    return Objects.equals(softwareQuality, impactDto.softwareQuality)
       && Objects.equals(severity, impactDto.severity);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(uuid, softwareQuality, severity);
+    return Objects.hash(softwareQuality, severity);
   }
 
 }

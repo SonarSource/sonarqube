@@ -38,7 +38,6 @@ import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.debt.internal.DefaultDebtRemediationFunction;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactoryFast;
-import org.sonar.core.util.Uuids;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.issue.ImpactDto;
@@ -344,7 +343,7 @@ public class RuleUpdaterIT {
     RuleDto customRule = newCustomRule(templateRule, "Old description")
       .setName("Old name")
       .setType(RuleType.CODE_SMELL)
-      .replaceAllDefaultImpacts(List.of(new ImpactDto().setUuid(Uuids.createFast())
+      .replaceAllDefaultImpacts(List.of(new ImpactDto()
         .setSoftwareQuality(SoftwareQuality.MAINTAINABILITY)
         .setSeverity(org.sonar.api.issue.impact.Severity.LOW)))
       .setSeverity(Severity.MINOR)

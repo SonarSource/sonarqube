@@ -70,7 +70,7 @@ public class IssueTesting {
       .setResolution(null)
       .setSeverity(Severity.ALL.get(nextInt(Severity.ALL.size())))
       //TODO map to correct impact. Will be fixed with persistence of impacts on issues
-      .addImpact(new ImpactDto().setUuid(Uuids.createFast()).setSoftwareQuality(SoftwareQuality.MAINTAINABILITY).setSeverity(org.sonar.api.issue.impact.Severity.HIGH))
+      .addImpact(new ImpactDto().setSoftwareQuality(SoftwareQuality.MAINTAINABILITY).setSeverity(org.sonar.api.issue.impact.Severity.HIGH))
       .setEffort((long) RandomUtils.nextInt(10))
       .setAssigneeUuid("assignee-uuid_" + randomAlphabetic(26))
       .setAuthorLogin("author_" + randomAlphabetic(5))

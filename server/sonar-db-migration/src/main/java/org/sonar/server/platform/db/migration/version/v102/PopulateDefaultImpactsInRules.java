@@ -30,11 +30,15 @@ import org.sonar.core.util.Uuids;
 import org.sonar.db.Database;
 import org.sonar.server.platform.db.migration.step.DataChange;
 import org.sonar.server.platform.db.migration.step.MassUpdate;
+import org.sonar.server.platform.db.migration.step.Select;
 
 public class PopulateDefaultImpactsInRules extends DataChange {
 
   private static final Logger LOG = LoggerFactory.getLogger(PopulateDefaultImpactsInRules.class);
 
+  private static final String SELECT_COUNT_QUERY = """
+    SELECT COUNT(*) FROM rules_default_impacts
+    """;
   private static final String SELECT_QUERY = """
     SELECT r.uuid, rule_type, priority, ad_hoc_type, ad_hoc_severity, is_ad_hoc
     FROM rules r
@@ -53,6 +57,9 @@ public class PopulateDefaultImpactsInRules extends DataChange {
 
   @Override
   protected void execute(Context context) throws SQLException {
+    if (hasImpactsRecords(context)) {
+      return;
+    }
     MassUpdate massUpdate = context.prepareMassUpdate();
     massUpdate.select(SELECT_QUERY);
     massUpdate.update(INSERT_QUERY);
@@ -104,5 +111,10 @@ public class PopulateDefaultImpactsInRules extends DataChange {
         .setString(4, impactSeverity.name());
       return true;
     });
+  }
+
+  private static boolean hasImpactsRecords(Context context) throws SQLException {
+    Long recordNumber = context.prepareSelect(SELECT_COUNT_QUERY).get(Select.LONG_READER);
+    return recordNumber != null && recordNumber > 0;
   }
 }
