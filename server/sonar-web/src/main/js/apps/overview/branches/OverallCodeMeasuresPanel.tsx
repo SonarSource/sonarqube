@@ -104,7 +104,7 @@ export default function OverallCodeMeasuresPanel(props: Readonly<OverallCodeMeas
         >
           <TextSubdued className="sw-body-xs sw-mt-3">
             {intl.formatMessage({
-              id: 'overview.accepted_issues.help_verbose',
+              id: 'overview.accepted_issues.help',
             })}
           </TextSubdued>
         </MeasuresCard>

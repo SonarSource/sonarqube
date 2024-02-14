@@ -128,6 +128,7 @@ describe('project overview', () => {
         status: 'OK',
       }),
     );
+    const { user } = getPageObjects();
     renderBranchOverview();
 
     // Meta info
@@ -148,6 +149,11 @@ describe('project overview', () => {
         name: 'overview.see_more_details_on_x_of_y.1.metric.new_accepted_issues.name',
       }).get(),
     ).toBeInTheDocument();
+    expect(byText('overview.accepted_issues.help').get()).toBeVisible();
+
+    await user.click(byRole('tab', { name: 'overview.overall_code' }).get());
+
+    expect(byText('overview.accepted_issues.help').get()).toBeVisible();
   });
 
   it('should show a successful non-compliant QG', async () => {
