@@ -36,7 +36,11 @@ import { getLeakValue } from '../../../components/measure/utils';
 import { DEFAULT_ISSUES_QUERY } from '../../../components/shared/utils';
 import { getBranchLikeQuery } from '../../../helpers/branch-like';
 import { findMeasure, formatMeasure, formatRating } from '../../../helpers/measures';
-import { getComponentIssuesUrl, getComponentSecurityHotspotsUrl } from '../../../helpers/urls';
+import {
+  CodeScope,
+  getComponentIssuesUrl,
+  getComponentSecurityHotspotsUrl,
+} from '../../../helpers/urls';
 import { Branch } from '../../../types/branch-like';
 import { isApplication } from '../../../types/component';
 import { IssueStatus } from '../../../types/issues';
@@ -45,7 +49,7 @@ import { QualityGateStatus } from '../../../types/quality-gates';
 import { Component, MeasureEnhanced } from '../../../types/types';
 import { IssueMeasuresCardInner } from '../components/IssueMeasuresCardInner';
 import MeasuresCardNumber from '../components/MeasuresCardNumber';
-import { MeasuresTabs, Status, getConditionRequiredLabel } from '../utils';
+import { Status, getConditionRequiredLabel } from '../utils';
 import MeasuresPanelPercentCards from './MeasuresPanelPercentCards';
 
 interface Props {
@@ -107,7 +111,7 @@ export default function NewCodeMeasuresPanel(props: Readonly<Props>) {
   }
 
   return (
-    <div className="sw-grid sw-grid-cols-2 sw-gap-4 sw-mt-6" id={getTabPanelId(MeasuresTabs.New)}>
+    <div className="sw-grid sw-grid-cols-2 sw-gap-4 sw-mt-6" id={getTabPanelId(CodeScope.New)}>
       <LightGreyCard className="sw-flex sw-col-span-2 sw-rounded-2 sw-gap-4">
         <IssueMeasuresCardInner
           data-testid="overview__measures-new_issues"

@@ -32,6 +32,7 @@ import { FormattedMessage } from 'react-intl';
 import DocLink from '../../../components/common/DocLink';
 import { translate } from '../../../helpers/l10n';
 import { isDiffMetric } from '../../../helpers/measures';
+import { CodeScope } from '../../../helpers/urls';
 import { ApplicationPeriod } from '../../../types/application';
 import { Branch } from '../../../types/branch-like';
 import { ComponentQualifier } from '../../../types/component';
@@ -39,7 +40,6 @@ import { Analysis, ProjectAnalysisEventCategory } from '../../../types/project-a
 import { QualityGateStatus } from '../../../types/quality-gates';
 import { Component, Period } from '../../../types/types';
 import LastAnalysisLabel from '../components/LastAnalysisLabel';
-import { MeasuresTabs } from '../utils';
 import { MAX_ANALYSES_NB } from './ActivityPanel';
 import { LeakPeriodInfo } from './LeakPeriodInfo';
 
@@ -52,7 +52,7 @@ export interface MeasuresPanelProps {
   branch?: Branch;
   qgStatuses?: QualityGateStatus[];
   isNewCode: boolean;
-  onTabSelect: (tab: MeasuresTabs) => void;
+  onTabSelect: (tab: CodeScope) => void;
 }
 
 const SQ_UPGRADE_NOTIFICATION_TIMEOUT = { weeks: 3 };
@@ -118,12 +118,12 @@ export function TabsPanel(props: React.PropsWithChildren<MeasuresPanelProps>) {
 
   const tabs = [
     {
-      value: MeasuresTabs.New,
+      value: CodeScope.New,
       label: translate('overview.new_code'),
       counter: failingConditionsOnNewCode,
     },
     {
-      value: MeasuresTabs.Overall,
+      value: CodeScope.Overall,
       label: translate('overview.overall_code'),
       counter: failingConditionsOnOverallCode,
     },
@@ -165,7 +165,7 @@ export function TabsPanel(props: React.PropsWithChildren<MeasuresPanelProps>) {
             <Tabs
               onChange={props.onTabSelect}
               options={tabs}
-              value={isNewCode ? MeasuresTabs.New : MeasuresTabs.Overall}
+              value={isNewCode ? CodeScope.New : CodeScope.Overall}
             >
               {isNewCode && leakPeriod && (
                 <LightLabel className="sw-body-sm sw-flex sw-items-center sw-mr-6">

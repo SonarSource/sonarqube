@@ -25,12 +25,11 @@ import { getTabPanelId } from '../../../components/controls/BoxedTabs';
 import { getBranchLikeQuery } from '../../../helpers/branch-like';
 import { translate } from '../../../helpers/l10n';
 import { getBaseUrl } from '../../../helpers/system';
-import { queryToSearch } from '../../../helpers/urls';
+import { CodeScope, queryToSearch } from '../../../helpers/urls';
 import { Branch } from '../../../types/branch-like';
 import { ComponentQualifier } from '../../../types/component';
 import { NewCodeDefinitionType } from '../../../types/new-code-definition';
 import { Component, Period } from '../../../types/types';
-import { MeasuresTabs } from '../utils';
 
 export interface MeasuresPanelNoNewCodeProps {
   branch?: Branch;
@@ -64,7 +63,7 @@ export default function MeasuresPanelNoNewCode(props: MeasuresPanelNoNewCodeProp
   return (
     <div
       className="display-flex-center display-flex-justify-center"
-      id={getTabPanelId(MeasuresTabs.New)}
+      id={getTabPanelId(CodeScope.New)}
       style={{ height: 500 }}
     >
       <img

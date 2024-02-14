@@ -131,11 +131,6 @@ const MEASURES_VARIATIONS_METRICS = [
   MetricKey.vulnerabilities,
 ];
 
-export enum MeasuresTabs {
-  New = 'new',
-  Overall = 'overall',
-}
-
 export enum MeasurementType {
   Coverage = 'COVERAGE',
   Duplication = 'DUPLICATION',

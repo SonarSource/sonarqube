@@ -28,7 +28,11 @@ import * as React from 'react';
 import { useIntl } from 'react-intl';
 import { getBranchLikeQuery } from '../../../helpers/branch-like';
 import { findMeasure, formatMeasure, formatRating } from '../../../helpers/measures';
-import { getComponentIssuesUrl, getComponentSecurityHotspotsUrl } from '../../../helpers/urls';
+import {
+  CodeScope,
+  getComponentIssuesUrl,
+  getComponentSecurityHotspotsUrl,
+} from '../../../helpers/urls';
 import { Branch } from '../../../types/branch-like';
 import { SoftwareQuality } from '../../../types/clean-code-taxonomy';
 import { isApplication } from '../../../types/component';
@@ -39,7 +43,6 @@ import { Component, MeasureEnhanced } from '../../../types/types';
 import MeasuresCard from '../components/MeasuresCard';
 import MeasuresCardNumber from '../components/MeasuresCardNumber';
 import { OverviewDisabledLinkTooltip } from '../components/OverviewDisabledLinkTooltip';
-import { MeasuresTabs } from '../utils';
 import MeasuresPanelPercentCards from './MeasuresPanelPercentCards';
 import SoftwareImpactMeasureCard from './SoftwareImpactMeasureCard';
 
@@ -62,7 +65,7 @@ export default function OverallCodeMeasuresPanel(props: Readonly<OverallCodeMeas
   const securityRating = findMeasure(measures, MetricKey.security_review_rating)?.value;
 
   return (
-    <div id={getTabPanelId(MeasuresTabs.Overall)} className="sw-mt-6">
+    <div id={getTabPanelId(CodeScope.Overall)} className="sw-mt-6">
       <div className="sw-flex sw-gap-4">
         <SoftwareImpactMeasureCard
           branch={branch}

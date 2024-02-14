@@ -20,7 +20,7 @@
 import { BasicSeparator, FacetItem } from 'design-system';
 import * as React from 'react';
 import { translate } from '../../../helpers/l10n';
-import { MeasuresTabs } from '../../overview/utils';
+import { CodeScope } from '../../../helpers/urls';
 import { Query } from '../utils';
 import { FacetItemsList } from './FacetItemsList';
 
@@ -56,7 +56,7 @@ export function PeriodFilter(props: PeriodFilterProps) {
         className="it__search-navigator-facet"
         name={translate('issues.new_code')}
         onClick={handleClick}
-        value={newCodeSelected ? MeasuresTabs.New : MeasuresTabs.Overall}
+        value={newCodeSelected ? CodeScope.New : CodeScope.Overall}
       />
 
       <BasicSeparator className="sw-mb-5 sw-mt-4" />

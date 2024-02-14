@@ -27,7 +27,7 @@ import {
 import * as React from 'react';
 import { useIntl } from 'react-intl';
 import A11ySkipTarget from '../../../components/a11y/A11ySkipTarget';
-import { useLocation } from '../../../components/hoc/withRouter';
+import { useLocation, useRouter } from '../../../components/hoc/withRouter';
 import { parseDate } from '../../../helpers/dates';
 import { isDiffMetric } from '../../../helpers/measures';
 import { CodeScope } from '../../../helpers/urls';
@@ -39,7 +39,6 @@ import { Analysis, GraphType, MeasureHistory } from '../../../types/project-acti
 import { QualityGateStatus } from '../../../types/quality-gates';
 import { Component, MeasureEnhanced, Metric, Period, QualityGate } from '../../../types/types';
 import { AnalysisStatus } from '../components/AnalysisStatus';
-import { MeasuresTabs } from '../utils';
 import ActivityPanel from './ActivityPanel';
 import BranchMetaTopBar from './BranchMetaTopBar';
 import FirstAnalysisNextStepsNotif from './FirstAnalysisNextStepsNotif';
@@ -93,13 +92,12 @@ export default function BranchOverviewRenderer(props: BranchOverviewRendererProp
   } = props;
 
   const { query } = useLocation();
-  const [tab, selectTab] = React.useState(() => {
-    return query.codeScope === CodeScope.Overall ? MeasuresTabs.Overall : MeasuresTabs.New;
-  });
-  const intl = useIntl();
+  const router = useRouter();
 
+  const intl = useIntl();
+  const tab = query.codeScope === CodeScope.Overall ? CodeScope.Overall : CodeScope.New;
   const leakPeriod = component.qualifier === ComponentQualifier.Application ? appLeak : period;
-  const isNewCodeTab = tab === MeasuresTabs.New;
+  const isNewCodeTab = tab === CodeScope.New;
   const hasNewCodeMeasures = measures.some((m) => isDiffMetric(m.metric.key));
 
   // Check if any potentially missing uncomputed measure is not present
@@ -109,10 +107,14 @@ export default function BranchOverviewRenderer(props: BranchOverviewRendererProp
       : [MetricKey.security_issues, MetricKey.maintainability_issues, MetricKey.reliability_issues]
   ).some((key) => !measures.find((measure) => measure.metric.key === key));
 
+  const selectTab = (tab: CodeScope) => {
+    router.replace({ query: { ...query, codeScope: tab } });
+  };
+
   React.useEffect(() => {
     // Open Overall tab by default if there are no new measures.
     if (loadingStatus === false && !hasNewCodeMeasures && isNewCodeTab) {
-      selectTab(MeasuresTabs.Overall);
+      selectTab(CodeScope.Overall);
     }
     // In this case, we explicitly do NOT want to mark tab as a dependency, as
     // it would prevent the user from selecting it, even if it's empty.
