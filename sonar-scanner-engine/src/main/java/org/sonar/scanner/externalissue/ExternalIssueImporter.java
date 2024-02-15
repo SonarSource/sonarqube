@@ -44,6 +44,8 @@ import org.sonar.scanner.externalissue.ExternalIssueReport.Issue;
 import org.sonar.scanner.externalissue.ExternalIssueReport.Location;
 import org.sonar.scanner.externalissue.ExternalIssueReport.Rule;
 
+import static java.lang.String.format;
+
 public class ExternalIssueImporter {
   private static final Logger LOG = LoggerFactory.getLogger(ExternalIssueImporter.class);
   private static final int MAX_UNKNOWN_FILE_PATHS_TO_PRINT = 5;
@@ -197,6 +199,7 @@ public class ExternalIssueImporter {
     if (location.textRange != null) {
       if (location.textRange.startColumn != null) {
         TextPointer start = file.newPointer(location.textRange.startLine, location.textRange.startColumn);
+        checkStartColumnOnEmptyLine(file, start);
         int endLine = (location.textRange.endLine != null) ? location.textRange.endLine : location.textRange.startLine;
         int endColumn;
 
@@ -209,6 +212,12 @@ public class ExternalIssueImporter {
       }
     }
     return newLocation;
+  }
+
+  private static void checkStartColumnOnEmptyLine(InputFile file, TextPointer startPointer) {
+    if (file.selectLine(startPointer.line()).end().lineOffset() == 0) {
+      throw new IllegalArgumentException(format("A 'startColumn' %s cannot be provided when the line is empty", startPointer));
+    }
   }
 
   @CheckForNull

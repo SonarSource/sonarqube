@@ -71,7 +71,7 @@ public class ExternalIssueImporterTest {
     context = SensorContextTester.create(baseDir);
     sourceFile = new TestInputFileBuilder("foo", "src/Foo.java")
       .setModuleBaseDir(baseDir.toPath())
-      .initMetadata("the first line\nthe second line")
+      .initMetadata("the first line\nthe second line\n\n")
       .setCharset(UTF_8)
       .setLanguage("java")
       .build();
@@ -171,6 +171,18 @@ public class ExternalIssueImporterTest {
     assertThat(got.start().lineOffset()).isEqualTo(3);
     assertThat(got.end().line()).isEqualTo(input.endLine);
     assertThat(got.end().lineOffset()).isEqualTo(sourceFile.selectLine(input.endLine).end().lineOffset());
+  }
+
+  @Test
+  public void execute_whenNewFormatWithStartColumnOnEmptyLine_shouldThrowException() {
+    ExternalIssueReport.TextRange input = new ExternalIssueReport.TextRange();
+    input.startLine = 3;
+    input.startColumn = 0;
+
+    ExternalIssueReport.Issue issue = newIssue(input);
+    assertThatThrownBy(() -> runOn(issue))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("A 'startColumn' [line=3, lineOffset=0] cannot be provided when the line is empty");
   }
 
   @Test
@@ -303,6 +315,19 @@ public class ExternalIssueImporterTest {
     assertThat(got.end().line()).isEqualTo(input.endLine);
     assertThat(got.end().lineOffset()).isEqualTo(sourceFile.selectLine(input.endLine).end().lineOffset());
   }
+
+  @Test
+  public void execute_whenDeprecatedFormatWithStartColumnOnEmptyLine_shouldThrowException() {
+    ExternalIssueReport.TextRange input = new ExternalIssueReport.TextRange();
+    input.startLine = 3;
+    input.startColumn = 0;
+
+    ExternalIssueReport.Issue issue = newIssue(input);
+    assertThatThrownBy(() -> runOnDeprecatedFormat(issue))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("A 'startColumn' [line=3, lineOffset=0] cannot be provided when the line is empty");
+  }
+
 
   private static ExternalIssueReport.Rule createRule() {
     return createRule(RULE_ATTRIBUTE.name(), SECURITY.name(), HIGH.name());
