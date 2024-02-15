@@ -325,7 +325,7 @@ export default class IssuesServiceMock {
             issueStatuses: ISSUE_STATUSES,
             types: ISSUE_TYPES,
             scopes: SOURCE_SCOPES.map(({ scope }) => scope),
-            projects: ['org.project1', 'org.project2'],
+            projects: ['org.project1', 'org.sonarsource.javascript:javascript'],
             impactSoftwareQualities: Object.values(SoftwareQuality),
             impactSeverities: Object.values(SoftwareImpactSeverity),
             cleanCodeAttributeCategories: cleanCodeCategories,

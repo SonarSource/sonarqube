@@ -385,7 +385,7 @@ export function mockIssuesList(baseComponentKey = PARENT_COMPONENT_KEY): IssueDa
         quickFixAvailable: true,
         tags: ['unused'],
         codeVariants: ['variant 1', 'variant 2'],
-        project: 'org.project2',
+        project: 'org.sonarsource.javascript:javascript',
         assignee: 'email1@sonarsource.com',
         author: 'email3@sonarsource.com',
         issueStatus: IssueStatus.Confirmed,

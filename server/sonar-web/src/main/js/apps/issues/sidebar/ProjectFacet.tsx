@@ -17,12 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { ProjectIcon } from 'design-system';
+import { ProjectIcon, Spinner } from 'design-system';
 import { omit } from 'lodash';
 import * as React from 'react';
 import { getTree, searchProjects } from '../../../api/components';
 import { translate } from '../../../helpers/l10n';
 import { highlightTerm } from '../../../helpers/search';
+import { useProjectQuery } from '../../../queries/projects';
 import { ComponentQualifier } from '../../../types/component';
 import { Facet, ReferencedComponent } from '../../../types/issues';
 import { MetricKey } from '../../../types/metrics';
@@ -48,13 +49,23 @@ interface SearchedProject {
   name: string;
 }
 
-export class ProjectFacet extends React.PureComponent<Props> {
-  handleSearch = (
+export function ProjectFacet(props: Readonly<Props>) {
+  const {
+    component,
+    fetching,
+    onChange,
+    onToggle,
+    open,
+    projects,
+    query,
+    referencedComponents,
+    stats,
+  } = props;
+
+  const handleSearch = (
     query: string,
     page = 1,
   ): Promise<{ results: SearchedProject[]; paging: Paging }> => {
-    const { component } = this.props;
-
     if (
       component &&
       [
@@ -91,29 +102,27 @@ export class ProjectFacet extends React.PureComponent<Props> {
     }));
   };
 
-  getProjectName = (project: string) => {
-    const { referencedComponents } = this.props;
-
+  const getProjectName = (project: string) => {
     return referencedComponents[project] ? referencedComponents[project].name : project;
   };
 
-  loadSearchResultCount = (projects: SearchedProject[]) => {
-    return this.props.loadSearchResultCount(MetricKey.projects, {
+  const loadSearchResultCount = (projects: SearchedProject[]) => {
+    return props.loadSearchResultCount(MetricKey.projects, {
       projects: projects.map((project) => project.key),
     });
   };
 
-  renderFacetItem = (projectKey: string) => {
+  const renderFacetItem = (projectKey: string) => {
+    const projectName = getProjectName(projectKey);
     return (
-      <span>
-        <ProjectIcon className="sw-mr-1" />
-
-        {this.getProjectName(projectKey)}
-      </span>
+      <ProjectItem
+        projectKey={projectKey}
+        projectName={projectName === projectKey ? undefined : projectName}
+      />
     );
   };
 
-  renderSearchResult = (project: Pick<SearchedProject, 'name'>, term: string) => (
+  const renderSearchResult = (project: Pick<SearchedProject, 'name'>, term: string) => (
     <>
       <ProjectIcon className="sw-mr-1" />
 
@@ -121,27 +130,52 @@ export class ProjectFacet extends React.PureComponent<Props> {
     </>
   );
 
-  render() {
-    return (
-      <ListStyleFacet<SearchedProject>
-        facetHeader={translate('issues.facet.projects')}
-        fetching={this.props.fetching}
-        getFacetItemText={this.getProjectName}
-        getSearchResultKey={(project) => project.key}
-        getSearchResultText={(project) => project.name}
-        loadSearchResultCount={this.loadSearchResultCount}
-        onChange={this.props.onChange}
-        onSearch={this.handleSearch}
-        onToggle={this.props.onToggle}
-        open={this.props.open}
-        property={MetricKey.projects}
-        query={omit(this.props.query, MetricKey.projects)}
-        renderFacetItem={this.renderFacetItem}
-        renderSearchResult={this.renderSearchResult}
-        searchPlaceholder={translate('search.search_for_projects')}
-        stats={this.props.stats}
-        values={this.props.projects}
-      />
-    );
-  }
+  return (
+    <ListStyleFacet<SearchedProject>
+      facetHeader={translate('issues.facet.projects')}
+      fetching={fetching}
+      getFacetItemText={getProjectName}
+      getSearchResultKey={(project) => project.key}
+      getSearchResultText={(project) => project.name}
+      loadSearchResultCount={loadSearchResultCount}
+      onChange={onChange}
+      onSearch={handleSearch}
+      onToggle={onToggle}
+      open={open}
+      property={MetricKey.projects}
+      query={omit(query, MetricKey.projects)}
+      renderFacetItem={renderFacetItem}
+      renderSearchResult={renderSearchResult}
+      searchPlaceholder={translate('search.search_for_projects')}
+      stats={stats}
+      values={projects}
+    />
+  );
+}
+
+function ProjectItem({
+  projectKey,
+  projectName,
+}: Readonly<{
+  projectKey: string;
+  projectName?: string;
+}>) {
+  const { data, isLoading } = useProjectQuery(projectKey, {
+    enabled: projectName === undefined,
+    select: (data) => data.components.find((el) => el.key === projectKey),
+  });
+
+  const label = projectName ?? (isLoading ? '' : data?.name ?? projectKey);
+
+  return (
+    <div className="sw-flex sw-items-center">
+      <ProjectIcon className="sw-mr-1" />
+
+      <Spinner loading={projectName === undefined && isLoading} />
+
+      <span className="sw-min-w-0 sw-truncate" title={label}>
+        {label}
+      </span>
+    </div>
+  );
 }

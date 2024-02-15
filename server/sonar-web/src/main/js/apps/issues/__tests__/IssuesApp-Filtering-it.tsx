@@ -115,7 +115,12 @@ describe('issues app filtering', () => {
 
     // Project
     await user.click(ui.projectFacet.get());
-    await user.click(screen.getByRole('checkbox', { name: 'org.project2' }));
+    expect(
+      screen.getByRole('checkbox', { name: 'org.sonarsource.javascript:javascript' }),
+    ).toHaveTextContent('SonarJS');
+    await user.click(
+      screen.getByRole('checkbox', { name: 'org.sonarsource.javascript:javascript' }),
+    );
 
     // Assignee
     await user.click(ui.assigneeFacet.get());

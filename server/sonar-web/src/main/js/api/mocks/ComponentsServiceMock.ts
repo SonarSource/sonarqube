@@ -46,6 +46,7 @@ import {
   getDuplications,
   getSources,
   getTree,
+  searchProjects,
   setApplicationTags,
   setProjectTags,
 } from '../components';
@@ -57,6 +58,7 @@ import {
 } from './data/components';
 import { mockIssuesList } from './data/issues';
 import { MeasureRecords, mockFullMeasureData } from './data/measures';
+import { mockProjects } from './data/projects';
 import { listAllComponent, listChildComponent, listLeavesComponent } from './data/utils';
 
 jest.mock('../components');
@@ -64,11 +66,13 @@ jest.mock('../components');
 export default class ComponentsServiceMock {
   failLoadingComponentStatus: HttpStatus | undefined = undefined;
   defaultComponents: ComponentTree[];
+  defaultProjects: ComponentRaw[];
   components: ComponentTree[];
   defaultSourceFiles: SourceFile[];
   sourceFiles: SourceFile[];
   defaultMeasures: MeasureRecords;
   measures: MeasureRecords;
+  projects: ComponentRaw[];
 
   constructor(components?: ComponentTree[], sourceFiles?: SourceFile[], measures?: MeasureRecords) {
     this.defaultComponents = components || [mockFullComponentTree()];
@@ -80,10 +84,12 @@ export default class ComponentsServiceMock {
         (acc, tree) => ({ ...acc, ...mockFullMeasureData(tree, issueList) }),
         {},
       );
+    this.defaultProjects = mockProjects();
 
     this.components = cloneDeep(this.defaultComponents);
     this.sourceFiles = cloneDeep(this.defaultSourceFiles);
     this.measures = cloneDeep(this.defaultMeasures);
+    this.projects = cloneDeep(this.defaultProjects);
 
     jest.mocked(getComponentTree).mockImplementation(this.handleGetComponentTree);
     jest.mocked(getChildren).mockImplementation(this.handleGetChildren);
@@ -99,7 +105,32 @@ export default class ComponentsServiceMock {
     jest.mocked(getBreadcrumbs).mockImplementation(this.handleGetBreadcrumbs);
     jest.mocked(setProjectTags).mockImplementation(this.handleSetProjectTags);
     jest.mocked(setApplicationTags).mockImplementation(this.handleSetApplicationTags);
+    jest.mocked(searchProjects).mockImplementation(this.handleSearchProjects);
   }
+
+  handleSearchProjects: typeof searchProjects = (data) => {
+    const pageIndex = data.p ?? 1;
+    const pageSize = data.ps ?? 100;
+
+    const components = this.projects
+      .filter((c) => {
+        if (data.filter && data.filter.startsWith('query')) {
+          const query = data.filter.split('query=')[1];
+          return c.key.includes(query) || c.name.includes(query);
+        }
+      })
+      .map((c) => c);
+
+    return this.reply({
+      components: components.slice((pageIndex - 1) * pageSize, pageIndex * pageSize),
+      facets: [],
+      paging: {
+        pageSize,
+        pageIndex,
+        total: components.length,
+      },
+    });
+  };
 
   findComponentTree = (key: string, from?: ComponentTree) => {
     let tree: ComponentTree | undefined;
