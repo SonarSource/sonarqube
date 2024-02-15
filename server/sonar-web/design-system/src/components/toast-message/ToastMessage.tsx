@@ -17,7 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import styled from '@emotion/styled';
+import * as React from 'react';
 import { Slide, ToastContainer, ToastContainerProps } from 'react-toastify';
 import tw from 'twin.macro';
 import { TOAST_AUTOCLOSE_DELAY } from '../../helpers/constants';
@@ -33,7 +35,11 @@ function WrappedToastContainer(
 
 export function ToastMessageContainer() {
   return (
-    <>
+    // Below: using <></> won't work in extenstions ('React' is not defined). This is because the
+    // name 'React' would already have been minified to something else when <> is resolved to
+    // React.Fragment
+    // eslint-disable-next-line react/jsx-fragments
+    <React.Fragment>
       <ToastMessageGlobalStyles />
 
       <StyledToastContainer
@@ -49,7 +55,7 @@ export function ToastMessageContainer() {
         rtl={false}
         transition={Slide}
       />
-    </>
+    </React.Fragment>
   );
 }
 
