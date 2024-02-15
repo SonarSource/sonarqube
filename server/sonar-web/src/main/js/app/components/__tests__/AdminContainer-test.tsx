@@ -88,6 +88,9 @@ it('should render nav and provide context to children', async () => {
 
   expect(byText('DOWN').get()).toBeInTheDocument();
 
+  // Renders plugins notification
+  expect(ui.pluginsNotification.get()).toBeInTheDocument();
+
   // Trigger a status update
   jest.mocked(getSystemStatus).mockResolvedValueOnce({ id: '', version: '', status: 'RESTARTING' });
   jest.mocked(waitSystemUPStatus).mockResolvedValueOnce({ id: '', version: '', status: 'UP' });
@@ -160,6 +163,7 @@ function TestChildComponent() {
 const ui = {
   navHeader: byRole('heading', { name: 'layout.settings' }),
   pagesList: byLabelText('pages'),
+  pluginsNotification: byText('marketplace.instance_needs_to_be_restarted_to'),
   pluginsInstallingList: byLabelText('plugins - installing'),
   pluginsUpdatingList: byLabelText('plugins - updating'),
   pluginsRemovingList: byLabelText('plugins - removing'),

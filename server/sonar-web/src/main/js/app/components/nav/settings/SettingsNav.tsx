@@ -267,12 +267,6 @@ export class SettingsNav extends React.PureComponent<Props> {
           </NavBarTabs>
         </TopBar>
         {notifComponent}
-        <PendingPluginsActionNotif
-          fetchSystemStatus={this.props.fetchSystemStatus}
-          pending={pendingPlugins}
-          refreshPending={this.props.fetchPendingPlugins}
-          systemStatus={this.props.systemStatus}
-        />
       </>
     );
   }
