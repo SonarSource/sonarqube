@@ -122,7 +122,7 @@ public class WebHooksImpl implements WebHooks {
   private static void log(WebhookDelivery delivery) {
     Optional<String> error = delivery.getErrorMessage();
     if (error.isPresent()) {
-      LOGGER.debug("Failed to send webhook '{}' | url={} | message={}",
+      LOGGER.warn("Failed to send webhook '{}' | url={} | message={}",
         delivery.getWebhook().getName(), delivery.getWebhook().getUrl(), error.get());
     } else {
       LOGGER.debug("Sent webhook '{}' | url={} | time={}ms | status={}",

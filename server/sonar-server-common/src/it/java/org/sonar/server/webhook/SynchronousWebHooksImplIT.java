@@ -42,6 +42,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.slf4j.event.Level.DEBUG;
+import static org.slf4j.event.Level.WARN;
 import static org.sonar.db.DbTester.create;
 import static org.sonar.db.webhook.WebhookTesting.newGlobalWebhook;
 import static org.sonar.db.webhook.WebhookTesting.newWebhook;
@@ -128,7 +129,7 @@ public class SynchronousWebHooksImplIT {
 
     assertThat(caller.countSent()).isEqualTo(2);
     assertThat(logTester.logs(DEBUG)).contains("Sent webhook 'First' | url=http://url1 | time=1234ms | status=200");
-    assertThat(logTester.logs(DEBUG)).contains("Failed to send webhook 'Second' | url=http://url2 | message=Fail to connect");
+    assertThat(logTester.logs(WARN)).contains("Failed to send webhook 'Second' | url=http://url2 | message=Fail to connect");
     verify(deliveryStorage, times(2)).persist(any(WebhookDelivery.class));
     verify(deliveryStorage).purge();
     verifyLogStatistics(2, 0);
@@ -173,12 +174,14 @@ public class SynchronousWebHooksImplIT {
 
     assertThat(caller.countSent()).isEqualTo(5);
     List<String> debugLogs = logTester.logs(DEBUG);
+    List<String> warnLogs = logTester.logs(WARN);
     assertThat(debugLogs)
       .contains("Sent webhook '1First' | url=http://url1 | time=1234ms | status=200")
-      .contains("Failed to send webhook '2Second' | url=http://url2 | message=Fail to connect 1")
-      .contains("Failed to send webhook '3Third' | url=http://url3 | message=Fail to connect 2")
       .contains("Sent webhook '4Fourth' | url=http://url4 | time=5678ms | status=200")
       .contains("Sent webhook '5Fifth' | url=http://url5 | time=9256ms | status=200");
+    assertThat(warnLogs)
+      .contains("Failed to send webhook '2Second' | url=http://url2 | message=Fail to connect 1")
+      .contains("Failed to send webhook '3Third' | url=http://url3 | message=Fail to connect 2");
     verify(deliveryStorage, times(5)).persist(any(WebhookDelivery.class));
     verify(deliveryStorage).purge();
     verifyLogStatistics(3, 2);
