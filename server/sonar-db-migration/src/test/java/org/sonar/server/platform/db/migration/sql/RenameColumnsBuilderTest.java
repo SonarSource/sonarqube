@@ -23,11 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang.text.StrSubstitutor;
-import org.junit.experimental.theories.DataPoints;
-import org.junit.experimental.theories.FromDataPoints;
-import org.junit.experimental.theories.Theories;
-import org.junit.experimental.theories.Theory;
-import org.junit.runner.RunWith;
+import org.junit.Test;
 import org.sonar.db.dialect.Dialect;
 import org.sonar.db.dialect.H2;
 import org.sonar.db.dialect.MsSql;
@@ -47,19 +43,16 @@ import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-@RunWith(Theories.class)
 public class RenameColumnsBuilderTest {
   private static final String NEW_COLUMN_NAME = "new_" + randomAlphabetic(6).toLowerCase();
 
-  @DataPoints("database")
-  public static final DatabaseAndResult[] DATABASES = {
+  private static final DatabaseAndResult[] DATABASES = {
     new DatabaseAndResult(new H2(), "ALTER TABLE ${table_name} ALTER COLUMN ${old_column_name} RENAME TO ${new_column_name}"),
     new DatabaseAndResult(new PostgreSql(), "ALTER TABLE ${table_name} RENAME COLUMN ${old_column_name} TO ${new_column_name}"),
     new DatabaseAndResult(new MsSql(), "EXEC sp_rename '${table_name}.${old_column_name}', '${new_column_name}', 'COLUMN'"),
     new DatabaseAndResult(new Oracle(), "ALTER TABLE ${table_name} RENAME COLUMN ${old_column_name} TO ${new_column_name}")
   };
 
-  @DataPoints("columnDef")
   public static final ColumnDef[] COLUMN_DEFS = {
     BigIntegerColumnDef.newBigIntegerColumnDefBuilder().setColumnName(NEW_COLUMN_NAME).setIsNullable(false).build(),
     BigIntegerColumnDef.newBigIntegerColumnDefBuilder().setColumnName(NEW_COLUMN_NAME).setIsNullable(true).build(),
@@ -79,7 +72,6 @@ public class RenameColumnsBuilderTest {
     VarcharColumnDef.newVarcharColumnDefBuilder().setColumnName(NEW_COLUMN_NAME).setIsNullable(true).setLimit(10).build(),
   };
 
-  @DataPoints("illegalColumnName")
   public static final String[] ILLEGAL_COLUMN_NAME = {
     "",
     "AA",
@@ -89,15 +81,23 @@ public class RenameColumnsBuilderTest {
     "\uD801\uDC8B\uD801\uDC8C\uD801\uDC8D"
   };
 
-  @Theory
-  public void checkSQL_results(
-    @FromDataPoints("database") DatabaseAndResult database,
-    @FromDataPoints("columnDef") ColumnDef columnDef) {
+  @Test
+  public void run_checkSQL_results() {
+    for (DatabaseAndResult database : DATABASES) {
+      for (ColumnDef columnDef : COLUMN_DEFS) {
+        checkSQL_results(database, columnDef);
+      }
+    }
+  }
+
+  private void checkSQL_results(
+    DatabaseAndResult database,
+    ColumnDef columnDef) {
 
     String oldColumnName = "old_" + randomAlphabetic(6).toLowerCase();
     String tableName = "table_" + randomAlphabetic(6).toLowerCase();
 
-    List<String> result = new RenameColumnsBuilder(database.getDialect(), tableName)
+    List<String> result = new RenameColumnsBuilder(database.dialect(), tableName)
       .renameColumn(oldColumnName, columnDef)
       .build();
 
@@ -105,54 +105,58 @@ public class RenameColumnsBuilderTest {
     parameters.put("table_name", tableName);
     parameters.put("old_column_name", oldColumnName);
     parameters.put("new_column_name", NEW_COLUMN_NAME);
-    parameters.put("column_def", columnDef.generateSqlType(database.getDialect()));
-    String expectedResult = StrSubstitutor.replace(database.getTemplateSql(), parameters);
+    parameters.put("column_def", columnDef.generateSqlType(database.dialect()));
+    String expectedResult = StrSubstitutor.replace(database.templateSql(), parameters);
     assertThat(result).containsExactlyInAnyOrder(expectedResult);
   }
 
-  @Theory
-  public void when_old_column_is_same_as_new_column_ISA_is_thrown(
-    @FromDataPoints("database") DatabaseAndResult database,
-    @FromDataPoints("columnDef") ColumnDef columnDef) {
+  @Test
+  public void run_when_old_column_is_same_as_new_column_ISA_is_thrown() {
+    for (DatabaseAndResult database : DATABASES) {
+      for (ColumnDef columnDef : COLUMN_DEFS) {
+        when_old_column_is_same_as_new_column_ISA_is_thrown(database, columnDef);
+      }
+    }
+  }
+
+  private void when_old_column_is_same_as_new_column_ISA_is_thrown(
+    DatabaseAndResult database,
+    ColumnDef columnDef) {
 
     String tableName = "table_" + randomAlphabetic(6).toLowerCase();
 
-    assertThatThrownBy(() -> new RenameColumnsBuilder(database.getDialect(), tableName)
-      .renameColumn(NEW_COLUMN_NAME, columnDef)
-      .build())
+    RenameColumnsBuilder renameColumnsBuilder = new RenameColumnsBuilder(database.dialect(), tableName)
+      .renameColumn(NEW_COLUMN_NAME, columnDef);
+    assertThatThrownBy(renameColumnsBuilder::build)
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessageContaining("Column names must be different");
   }
 
-  @Theory
-  public void when_new_column_contains_illegal_character_ISA_is_thrown(
-    @FromDataPoints("database") DatabaseAndResult database,
-    @FromDataPoints("columnDef") ColumnDef columnDef,
-    @FromDataPoints("illegalColumnName") String illegalColumnName) {
+  @Test
+  public void run_when_new_column_contains_illegal_character_ISA_is_thrown() {
+    for (DatabaseAndResult database : DATABASES) {
+      for (ColumnDef columnDef : COLUMN_DEFS) {
+        for (String illegalColumnName : ILLEGAL_COLUMN_NAME) {
+          when_new_column_contains_illegal_character_ISA_is_thrown(database, columnDef, illegalColumnName);
+        }
+      }
+    }
+  }
+
+  private void when_new_column_contains_illegal_character_ISA_is_thrown(
+    DatabaseAndResult database,
+    ColumnDef columnDef,
+    String illegalColumnName) {
 
     String tableName = "table_" + randomAlphabetic(6).toLowerCase();
 
-    assertThatThrownBy(() -> new RenameColumnsBuilder(database.getDialect(), tableName)
-      .renameColumn(illegalColumnName, columnDef)
-      .build())
+    RenameColumnsBuilder renameColumnsBuilder = new RenameColumnsBuilder(database.dialect(), tableName)
+      .renameColumn(illegalColumnName, columnDef);
+
+    assertThatThrownBy(renameColumnsBuilder::build)
       .isInstanceOf(IllegalArgumentException.class);
   }
 
-  private static class DatabaseAndResult {
-    private final Dialect dialect;
-    private final String templateSql;
-
-    private DatabaseAndResult(Dialect dialect, String templateSql) {
-      this.dialect = dialect;
-      this.templateSql = templateSql;
-    }
-
-    public Dialect getDialect() {
-      return dialect;
-    }
-
-    public String getTemplateSql() {
-      return templateSql;
-    }
+  private record DatabaseAndResult(Dialect dialect, String templateSql) {
   }
 }

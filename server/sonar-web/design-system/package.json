@@ -13,7 +13,7 @@
     "lint-report-ci": "yarn install --immutable && eslint --ext js,ts,tsx -f json -o eslint-report/eslint-report.json src  || yarn lint",
     "test": "jest",
     "ts-check": "tsc --noEmit",
-    "validate-ci": "yarn install --immutable && yarn ts-check && yarn format-check && yarn test --coverage --ci"
+    "validate-ci": "yarn install --immutable && yarn ts-check && yarn format-check && NODE_OPTIONS=\"-r dd-trace/ci/init\" yarn test --coverage --ci"
   },
   "devDependencies": {
     "@babel/core": "7.23.9",
@@ -36,6 +36,7 @@
     "@typescript-eslint/parser": "6.21.0",
     "@vitejs/plugin-react": "4.2.1",
     "autoprefixer": "10.4.17",
+    "dd-trace": "4.25.0",
     "eslint": "8.56.0",
     "eslint-plugin-header": "3.1.1",
     "eslint-plugin-import": "2.29.1",
