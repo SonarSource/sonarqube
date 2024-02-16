@@ -71,6 +71,7 @@ import static org.assertj.core.groups.Tuple.tuple;
 import static org.sonar.api.issue.Issue.RESOLUTION_FIXED;
 import static org.sonar.api.issue.Issue.RESOLUTION_WONT_FIX;
 import static org.sonar.api.issue.Issue.STATUS_CLOSED;
+import static org.sonar.api.issue.Issue.STATUS_CONFIRMED;
 import static org.sonar.api.issue.Issue.STATUS_OPEN;
 import static org.sonar.api.issue.Issue.STATUS_RESOLVED;
 import static org.sonar.api.measures.CoreMetrics.ANALYSIS_FROM_SONARQUBE_9_4_KEY;
@@ -692,6 +693,28 @@ public class ListActionIT {
       .extracting(Issue::getKey)
       .containsExactlyInAnyOrderElementsOf(afterNewCodePeriod)
       .doesNotContainAnyElementsOf(beforeNewCodePeriod);
+  }
+
+  @Test
+  public void whenListIssuesWithoutTypesParam_shouldNotReturnSecurityHotspots() {
+    UserDto user = db.users().insertUser();
+
+    ProjectData projectData = db.components().insertPublicProject();
+    ComponentDto project = projectData.getMainBranchComponent();
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
+
+    RuleDto rule = db.rules().insertHotspotRule();
+    db.issues().insertHotspot(rule, project, file, t -> t.setStatus(STATUS_CONFIRMED));
+
+    userSession
+      .logIn(user)
+      .registerProjects(projectData.getProjectDto());
+
+    Issues.ListWsResponse response = ws.newRequest()
+      .setParam("component", file.getKey())
+      .setParam("branch", projectData.getMainBranchDto().getKey())
+      .executeProtobuf(Issues.ListWsResponse.class);
+    assertThat(response.getIssuesList()).isEmpty();
   }
 
   @Test
