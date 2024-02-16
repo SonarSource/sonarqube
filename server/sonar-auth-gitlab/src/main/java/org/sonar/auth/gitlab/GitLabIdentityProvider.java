@@ -42,6 +42,7 @@ import static java.util.stream.Collectors.toSet;
 public class GitLabIdentityProvider implements OAuth2IdentityProvider {
 
   public static final String API_SCOPE = "api";
+  public static final String READ_USER_SCOPE = "read_user";
   public static final String KEY = "gitlab";
   private final GitLabSettings gitLabSettings;
   private final ScribeGitLabOauth2Api scribeApi;
@@ -84,16 +85,16 @@ public class GitLabIdentityProvider implements OAuth2IdentityProvider {
   @Override
   public void init(InitContext context) {
     String state = context.generateCsrfState();
-    OAuth20Service scribe = newScribeBuilder(context).build(scribeApi);
+    OAuth20Service scribe = newScribeBuilder(context, gitLabSettings.syncUserGroups()).build(scribeApi);
     String url = scribe.getAuthorizationUrl(state);
     context.redirectTo(url);
   }
 
-  private ServiceBuilderOAuth20 newScribeBuilder(OAuth2Context context) {
+  private ServiceBuilderOAuth20 newScribeBuilder(OAuth2Context context, boolean syncUserGroups) {
     checkState(isEnabled(), "GitLab authentication is disabled");
     return new ServiceBuilder(gitLabSettings.applicationId())
       .apiSecret(gitLabSettings.secret())
-      .defaultScope(API_SCOPE)
+      .defaultScope(syncUserGroups ? API_SCOPE : READ_USER_SCOPE)
       .callback(context.getCallbackUrl());
   }
 
@@ -111,7 +112,7 @@ public class GitLabIdentityProvider implements OAuth2IdentityProvider {
 
   private void onCallback(CallbackContext context) throws InterruptedException, ExecutionException, IOException {
     HttpRequest request = context.getHttpRequest();
-    OAuth20Service scribe = newScribeBuilder(context).build(scribeApi);
+    OAuth20Service scribe = newScribeBuilder(context, gitLabSettings.syncUserGroups()).build(scribeApi);
     String code = request.getParameter(OAuthConstants.CODE);
     OAuth2AccessToken accessToken = scribe.getAccessToken(code);
 
