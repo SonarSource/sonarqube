@@ -230,7 +230,7 @@ public class RuleCreator {
     return ruleDto;
   }
 
-  private void setCleanCodeAttributeAndImpacts(NewCustomRule newRule, RuleDto ruleDto, RuleDto templateRuleDto) {
+  private static void setCleanCodeAttributeAndImpacts(NewCustomRule newRule, RuleDto ruleDto, RuleDto templateRuleDto) {
     RuleType ruleType = newRule.type();
     int type = ruleType == null ? templateRuleDto.getType() : ruleType.getDbConstant();
     String severity = ofNullable(newRule.severity()).orElse(Severity.MAJOR);

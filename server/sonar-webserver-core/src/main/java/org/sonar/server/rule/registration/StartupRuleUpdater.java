@@ -161,7 +161,7 @@ public class StartupRuleUpdater {
       changed = true;
     }
     changed |= mergeCleanCodeAttribute(def, dto, ruleChange);
-    changed |= mergeImpacts(def, dto, uuidFactory, ruleChange);
+    changed |= mergeImpacts(def, dto, ruleChange);
     if (dto.isAdHoc()) {
       dto.setIsAdHoc(false);
       changed = true;
@@ -188,7 +188,7 @@ public class StartupRuleUpdater {
     return changed;
   }
 
-  boolean mergeImpacts(RulesDefinition.Rule def, RuleDto dto, UuidFactory uuidFactory, RuleChange ruleChange) {
+  boolean mergeImpacts(RulesDefinition.Rule def, RuleDto dto, RuleChange ruleChange) {
     if (dto.getEnumType() == RuleType.SECURITY_HOTSPOT) {
       return false;
     }
