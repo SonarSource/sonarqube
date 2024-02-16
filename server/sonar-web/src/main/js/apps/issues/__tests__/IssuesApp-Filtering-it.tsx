@@ -343,9 +343,9 @@ describe('issues app when reindexing', () => {
 
     // Enabled facets
     expect(ui.inNewCodeFilter.get()).toBeInTheDocument();
+    expect(ui.typeFacet.get()).toBeInTheDocument();
 
     // Disabled facets
-    expect(ui.typeFacet.query()).not.toBeInTheDocument();
     expect(ui.cleanCodeAttributeCategoryFacet.query()).not.toBeInTheDocument();
     expect(ui.softwareQualityFacet.query()).not.toBeInTheDocument();
     expect(ui.assigneeFacet.query()).not.toBeInTheDocument();

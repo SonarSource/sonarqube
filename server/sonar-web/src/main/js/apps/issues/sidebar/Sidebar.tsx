@@ -216,16 +216,20 @@ export class SidebarClass extends React.PureComponent<Props> {
             />
 
             <BasicSeparator className="sw-my-4" />
-            <TypeFacet
-              fetching={this.props.loadingFacets.types === true}
-              needIssueSync={needIssueSync}
-              onChange={this.props.onFilterChange}
-              onToggle={this.props.onFacetToggle}
-              open={!!openFacets.types}
-              stats={facets.types}
-              types={query.types}
-            />
+          </>
+        )}
 
+        <TypeFacet
+          fetching={this.props.loadingFacets.types === true}
+          needIssueSync={needIssueSync}
+          onChange={this.props.onFilterChange}
+          onToggle={this.props.onFacetToggle}
+          open={!!openFacets.types}
+          stats={facets.types}
+          types={query.types}
+        />
+        {!needIssueSync && (
+          <>
             <BasicSeparator className="sw-my-4" />
 
             <ScopeFacet
@@ -396,24 +400,28 @@ export class SidebarClass extends React.PureComponent<Props> {
         )}
 
         {needIssueSync && (
-          <FlagMessage className="sw-my-6" variant="info">
-            <div>
-              {translate('indexation.page_unavailable.description')}
-              <span className="sw-ml-1">
-                <FormattedMessage
-                  defaultMessage={translate('indexation.filters_unavailable')}
-                  id="indexation.filters_unavailable"
-                  values={{
-                    link: (
-                      <Link to="https://docs.sonarsource.com/sonarqube/latest/instance-administration/reindexing/">
-                        {translate('learn_more')}
-                      </Link>
-                    ),
-                  }}
-                />
-              </span>
-            </div>
-          </FlagMessage>
+          <>
+            <BasicSeparator className="sw-my-4" />
+
+            <FlagMessage className="sw-my-6" variant="info">
+              <div>
+                {translate('indexation.page_unavailable.description')}
+                <span className="sw-ml-1">
+                  <FormattedMessage
+                    defaultMessage={translate('indexation.filters_unavailable')}
+                    id="indexation.filters_unavailable"
+                    values={{
+                      link: (
+                        <Link to="https://docs.sonarsource.com/sonarqube/latest/instance-administration/reindexing/">
+                          {translate('learn_more')}
+                        </Link>
+                      ),
+                    }}
+                  />
+                </span>
+              </div>
+            </FlagMessage>
+          </>
         )}
       </>
     );
