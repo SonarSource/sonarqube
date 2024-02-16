@@ -77,7 +77,7 @@ describe('Global NCD update notification banner', () => {
 
   it('renders no global banner if user is not global admin', () => {
     const { container } = renderGlobalMessage(mockLoggedInUser());
-    expect(container).toBeEmptyDOMElement();
+    expect(container).toContainHTML('<div><div class="Toastify" /></div>');
   });
 
   it('renders global banner if user is global admin', async () => {
@@ -170,7 +170,7 @@ describe('Project NCD update notification banner', () => {
     const { container } = renderProjectMessage(
       mockComponent({ configuration: { showSettings: false } }),
     );
-    expect(container).toBeEmptyDOMElement();
+    expect(container).toContainHTML('<div><div class="Toastify" /></div>');
   });
 
   it('renders project banner if user is project admin', async () => {

@@ -17,18 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 /* NOTE: esbuild will transpile the _syntax_ down to what the TARGET_BROWSERS (in config/utils) */
 /* understand. It will _not_, however, polyfill missing API methods, such as                    */
 /* String.prototype.replaceAll. This is why we also import core-js.                             */
 import 'core-js/stable';
 /*                                                                                              */
 import axios from 'axios';
+import { addGlobalErrorMessage } from 'design-system';
 import 'react-day-picker/dist/style.css';
 import { getAvailableFeatures } from '../api/features';
 import { getGlobalNavigation } from '../api/navigation';
 import { getCurrentUser } from '../api/users';
 import { installExtensionsHandler, installWebAnalyticsHandler } from '../helpers/extensionsHandler';
-import { addGlobalErrorMessage } from '../helpers/globalMessages';
 import { loadL10nBundle } from '../helpers/l10nBundle';
 import { axiosToCatch, parseErrorResponse } from '../helpers/request';
 import { getBaseUrl, getSystemStatus, initAppVariables } from '../helpers/system';
@@ -45,14 +46,17 @@ async function initApplication() {
   axiosToCatch.defaults.headers.patch['Content-Type'] = 'application/merge-patch+json';
   axios.defaults.headers.patch['Content-Type'] = 'application/merge-patch+json';
   axios.defaults.baseURL = getBaseUrl();
+
   axios.interceptors.response.use(
     (response) => response.data,
     (error) => {
       const { response } = error;
       addGlobalErrorMessage(parseErrorResponse(response));
+
       return Promise.reject(response);
     },
   );
+
   const [l10nBundle, currentUser, appState, availableFeatures] = await Promise.all([
     loadL10nBundle(),
     isMainApp() ? getCurrentUser() : undefined,
@@ -70,6 +74,7 @@ async function initApplication() {
 
 function isMainApp() {
   const { pathname } = window.location;
+
   return (
     getSystemStatus() === 'UP' &&
     !pathname.startsWith(`${getBaseUrl()}/sessions`) &&

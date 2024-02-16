@@ -17,12 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { addGlobalErrorMessage } from 'design-system';
 import * as React from 'react';
 import { getLoginMessage } from '../../../../api/settings';
 import { getIdentityProviders } from '../../../../api/users';
-import { addGlobalErrorMessage } from '../../../../helpers/globalMessages';
 import { mockLocation } from '../../../../helpers/testMocks';
 import { renderComponent } from '../../../../helpers/testReactTestingUtils';
 import { byLabelText, byRole } from '../../../../helpers/testSelector';
@@ -45,7 +46,8 @@ jest.mock('../../../../api/settings', () => ({
   getLoginMessage: jest.fn().mockResolvedValue({ message: '' }),
 }));
 
-jest.mock('../../../../helpers/globalMessages', () => ({
+jest.mock('design-system', () => ({
+  ...jest.requireActual('design-system'),
   addGlobalErrorMessage: jest.fn(),
 }));
 

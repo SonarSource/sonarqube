@@ -17,11 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { ButtonPrimary, FlagMessage, FormField, InputField, Modal } from 'design-system';
+
+import {
+  ButtonPrimary,
+  FlagMessage,
+  FormField,
+  InputField,
+  Modal,
+  addGlobalSuccessMessage,
+} from 'design-system';
 import * as React from 'react';
 import { changePassword } from '../../../api/users';
 import { CurrentUserContext } from '../../../app/components/current-user/CurrentUserContext';
-import { addGlobalSuccessMessage } from '../../../helpers/globalMessages';
 import { translate } from '../../../helpers/l10n';
 import { ChangePasswordResults, RestUserDetailed, isLoggedIn } from '../../../types/users';
 
@@ -35,9 +42,11 @@ const PASSWORD_FORM_ID = 'user-password-form';
 export default function PasswordForm(props: Props) {
   const { user } = props;
   const [confirmPassword, setConfirmPassword] = React.useState('');
+
   const [errorTranslationKey, setErrorTranslationKey] = React.useState<string | undefined>(
     undefined,
   );
+
   const [newPassword, setNewPassword] = React.useState('');
   const [oldPassword, setOldPassword] = React.useState('');
   const [submitting, setSubmitting] = React.useState(false);
@@ -58,8 +67,10 @@ export default function PasswordForm(props: Props) {
 
   const handleChangePassword = (event: React.SyntheticEvent<HTMLFormElement>) => {
     event.preventDefault();
+
     if (newPassword.length > 0 && newPassword === confirmPassword) {
       setSubmitting(true);
+
       changePassword({
         login: user.login,
         password: newPassword,
@@ -108,6 +119,7 @@ export default function PasswordForm(props: Props) {
               <input className="sw-hidden" aria-hidden name="old-password-fake" type="password" />
             </FormField>
           )}
+
           <FormField htmlFor="user-password" label={translate('my_profile.password.new')} required>
             <InputField
               autoFocus
@@ -121,6 +133,7 @@ export default function PasswordForm(props: Props) {
             />
             <input className="sw-hidden" aria-hidden name="password-fake" type="password" />
           </FormField>
+
           <FormField
             htmlFor="confirm-user-password"
             label={translate('my_profile.password.confirm')}

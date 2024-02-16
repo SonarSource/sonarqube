@@ -33,7 +33,7 @@ it('should call react-toastify with the right args', () => {
   addGlobalErrorMessage(<span>error</span>, { position: 'top-left' });
 
   expect(toast).toHaveBeenCalledWith(
-    <div className="fs-mask sw-body-sm sw-p-3 sw-pb-4" data-test="global-message__ERROR">
+    <div className="fs-mask sw-body-sm sw-p-3 sw-pb-4" data-testid="global-message__ERROR">
       <span>error</span>
     </div>,
     { icon: <FlagErrorIcon />, type: 'error', position: 'top-left' },
@@ -42,7 +42,7 @@ it('should call react-toastify with the right args', () => {
   addGlobalSuccessMessage('it worked');
 
   expect(toast).toHaveBeenCalledWith(
-    <div className="fs-mask sw-body-sm sw-p-3 sw-pb-4" data-test="global-message__SUCCESS">
+    <div className="fs-mask sw-body-sm sw-p-3 sw-pb-4" data-testid="global-message__SUCCESS">
       it worked
     </div>,
     { icon: <FlagSuccessIcon />, type: 'success' },

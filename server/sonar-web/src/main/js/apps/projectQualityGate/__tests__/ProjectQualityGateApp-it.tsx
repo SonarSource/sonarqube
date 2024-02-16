@@ -17,8 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { addGlobalSuccessMessage } from 'design-system';
+import { addGlobalErrorMessage, addGlobalSuccessMessage } from 'design-system';
 import selectEvent from 'react-select-event';
 import { QualityGatesServiceMock } from '../../../api/mocks/QualityGatesServiceMock';
 import handleRequiredAuthorization from '../../../app/utils/handleRequiredAuthorization';
@@ -56,7 +58,6 @@ const ui = {
 
   saveButton: byRole('button', { name: 'save' }),
   noConditionsNewCodeWarning: byText('project_quality_gate.no_condition_on_new_code'),
-  alertMessage: byText('unknown'),
 };
 
 beforeAll(() => {
@@ -109,7 +110,10 @@ it('renders nothing and shows alert when any API fails', async () => {
   handler.setThrowOnGetGateForProject(true);
   renderProjectQualityGateApp();
 
-  expect(await ui.alertMessage.find()).toBeInTheDocument();
+  await waitFor(() => {
+    expect(addGlobalErrorMessage).toHaveBeenCalledWith('unknown');
+  });
+
   expect(ui.qualityGateHeading.query()).not.toBeInTheDocument();
 });
 

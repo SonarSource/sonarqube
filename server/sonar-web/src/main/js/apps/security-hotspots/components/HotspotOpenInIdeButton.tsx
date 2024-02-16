@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import {
   ButtonSecondary,
   DropdownMenu,
@@ -25,9 +26,10 @@ import {
   PopupPlacement,
   PopupZLevel,
   Spinner,
+  addGlobalErrorMessage,
+  addGlobalSuccessMessage,
 } from 'design-system';
 import * as React from 'react';
-import { addGlobalErrorMessage, addGlobalSuccessMessage } from '../../../helpers/globalMessages';
 import { translate } from '../../../helpers/l10n';
 import { openHotspot, probeSonarLintServers } from '../../../helpers/sonarlint';
 import { Ide } from '../../../types/sonarlint';
@@ -61,6 +63,7 @@ export default class HotspotOpenInIdeButton extends React.PureComponent<Props, S
   handleOnClick = async () => {
     this.setState({ loading: true, ides: [] });
     const ides = await probeSonarLintServers();
+
     if (ides.length === 0) {
       if (this.mounted) {
         this.setState({ loading: false });
@@ -76,6 +79,7 @@ export default class HotspotOpenInIdeButton extends React.PureComponent<Props, S
   openHotspot = (ide: Ide) => {
     this.setState({ loading: true, ides: [] as Ide[] });
     const { projectKey, hotspotKey } = this.props;
+
     return openHotspot(ide.port, projectKey, hotspotKey)
       .then(this.showSuccess)
       .catch(this.showError)
@@ -94,6 +98,7 @@ export default class HotspotOpenInIdeButton extends React.PureComponent<Props, S
 
   render() {
     const { ides, loading } = this.state;
+
     return (
       <div>
         <DropdownToggler
@@ -107,6 +112,7 @@ export default class HotspotOpenInIdeButton extends React.PureComponent<Props, S
               {ides.map((ide) => {
                 const { ideName, description } = ide;
                 const label = ideName + (description ? ` - ${description}` : '');
+
                 return (
                   <ItemButton
                     key={ide.port}

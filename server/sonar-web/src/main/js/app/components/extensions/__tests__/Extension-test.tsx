@@ -17,14 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { lightTheme } from 'design-system';
+import { addGlobalErrorMessage, lightTheme } from 'design-system';
 import * as React from 'react';
 import { IntlShape } from 'react-intl';
 import { getEnhancedWindow } from '../../../../helpers/browser';
 import { installExtensionsHandler } from '../../../../helpers/extensionsHandler';
-import { addGlobalErrorMessage } from '../../../../helpers/globalMessages';
 import {
   mockAppState,
   mockCurrentUser,
@@ -35,7 +35,10 @@ import { renderComponent } from '../../../../helpers/testReactTestingUtils';
 import { ExtensionStartMethodParameter } from '../../../../types/extension';
 import Extension, { ExtensionProps } from '../Extension';
 
-jest.mock('../../../../helpers/globalMessages');
+jest.mock('design-system', () => ({
+  ...jest.requireActual('design-system'),
+  addGlobalErrorMessage: jest.fn(),
+}));
 
 beforeAll(() => {
   installExtensionsHandler();

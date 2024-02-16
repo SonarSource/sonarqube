@@ -20,14 +20,13 @@
 
 import { withTheme } from '@emotion/react';
 import { QueryClient } from '@tanstack/react-query';
-import { Theme } from 'design-system';
+import { addGlobalErrorMessage, Theme } from 'design-system';
 import { isEqual } from 'lodash';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { injectIntl, WrappedComponentProps } from 'react-intl';
 import { Location, Router, withRouter } from '../../../components/hoc/withRouter';
 import { getExtensionStart } from '../../../helpers/extensions';
-import { addGlobalErrorMessage } from '../../../helpers/globalMessages';
 import { translate } from '../../../helpers/l10n';
 import { getCurrentL10nBundle } from '../../../helpers/l10nBundle';
 import { getBaseUrl } from '../../../helpers/system';
@@ -127,6 +126,7 @@ class Extension extends React.PureComponent<ExtensionProps, State> {
     return (
       <div>
         <Helmet title={this.props.extension.name} />
+
         {this.state.extensionElement ? (
           this.state.extensionElement
         ) : (

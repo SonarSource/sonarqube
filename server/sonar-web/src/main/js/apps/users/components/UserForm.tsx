@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { AxiosError, AxiosResponse } from 'axios';
 import {
   ButtonPrimary,
@@ -26,10 +27,10 @@ import {
   InputField,
   Modal,
   Spinner,
+  addGlobalErrorMessage,
 } from 'design-system';
 import * as React from 'react';
 import MandatoryFieldsExplanation from '../../../components/ui/MandatoryFieldsExplanation';
-import { addGlobalErrorMessage } from '../../../helpers/globalMessages';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { parseErrorResponse } from '../../../helpers/request';
 import { usePostUserMutation, useUpdateUserMutation } from '../../../queries/users';
@@ -81,6 +82,7 @@ export default function UserForm(props: Props) {
 
   const handleCreateUser = (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
+
     createUser(
       {
         email: email || undefined,
@@ -96,6 +98,7 @@ export default function UserForm(props: Props) {
   const handleUpdateUser = (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
     const { user } = props;
+
     updateUser(
       {
         id: user?.id!,
@@ -151,6 +154,7 @@ export default function UserForm(props: Props) {
               {translate('users.cannot_update_delegated_user')}
             </FlagMessage>
           )}
+
           <div className="sw-mb-4">
             <MandatoryFieldsExplanation />
           </div>
@@ -223,6 +227,7 @@ export default function UserForm(props: Props) {
               />
             </FormField>
           )}
+
           <FormField
             description={translate('user.login_or_email_used_as_scm_account')}
             label={translate('my_profile.scm_accounts')}
@@ -236,6 +241,7 @@ export default function UserForm(props: Props) {
                 scmAccount={scm}
               />
             ))}
+
             <div>
               <ButtonSecondary className="it__scm-account-add" onClick={handleAddScmAccount}>
                 {translate('add_verb')}
@@ -247,6 +253,7 @@ export default function UserForm(props: Props) {
       primaryButton={
         <>
           <Spinner loading={isLoadingCreate || isLoadingUserUpdate} />
+
           <ButtonPrimary
             disabled={isLoadingCreate || isLoadingUserUpdate}
             type="submit"

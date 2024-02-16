@@ -17,7 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { SubHeading } from 'design-system/lib';
+
+import { SubHeading } from 'design-system';
 import React from 'react';
 import MetaLink from '../../../../components/common/MetaLink';
 import { translate } from '../../../../helpers/l10n';

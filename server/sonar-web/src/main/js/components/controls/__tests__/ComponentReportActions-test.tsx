@@ -19,6 +19,7 @@
  */
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { addGlobalSuccessMessage } from 'design-system';
 import * as React from 'react';
 import {
   getReportStatus,
@@ -32,6 +33,11 @@ import { mockAppState, mockCurrentUser, mockLoggedInUser } from '../../../helper
 import { renderApp } from '../../../helpers/testReactTestingUtils';
 import { ComponentQualifier } from '../../../types/component';
 import { ComponentReportActions } from '../ComponentReportActions';
+
+jest.mock('design-system', () => ({
+  ...jest.requireActual('design-system'),
+  addGlobalSuccessMessage: jest.fn(),
+}));
 
 jest.mock('../../../api/component-report', () => ({
   ...jest.requireActual('../../../api/component-report'),
@@ -118,7 +124,9 @@ it('should allow user to (un)subscribe', async () => {
   await user.click(subscribeButton);
 
   expect(subscribeToEmailReport).toHaveBeenCalledWith(component.key, branch.name);
-  expect(await screen.findByRole('status')).toBeInTheDocument();
+  expect(addGlobalSuccessMessage).toHaveBeenLastCalledWith(
+    'component_report.subscribe_x_success.report.frequency.monthly.qualifier.trk',
+  );
 
   // And unsubscribe!
   await user.click(button);
@@ -131,8 +139,8 @@ it('should allow user to (un)subscribe', async () => {
   await user.click(unsubscribeButton);
 
   expect(unsubscribeFromEmailReport).toHaveBeenCalledWith(component.key, branch.name);
-  expect(screen.getByRole('status')).toHaveTextContent(
-    'component_report.subscribe_x_s...component_report.unsubscribe_x...',
+  expect(addGlobalSuccessMessage).toHaveBeenLastCalledWith(
+    'component_report.unsubscribe_x_success.report.frequency.monthly.qualifier.trk',
   );
 });
 

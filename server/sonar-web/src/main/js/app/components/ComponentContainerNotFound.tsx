@@ -17,7 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Card, CenteredLayout, Link, SubHeading } from 'design-system/lib';
+
+import { Link } from '@sonarsource/echoes-react';
+import { Card, CenteredLayout, SubHeading } from 'design-system';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { translate } from '../../helpers/l10n';

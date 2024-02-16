@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 export * from './Accordion';
 export { Badge } from './Badge';
 export * from './Banner';
@@ -78,7 +79,7 @@ export * from './Tags';
 export * from './Text';
 export * from './TextAccordion';
 export * from './Title';
-export { ToggleButton } from './ToggleButton';
+export * from './ToggleButton';
 export { Tooltip } from './Tooltip';
 export { TopBar } from './TopBar';
 export * from './TreeMap';

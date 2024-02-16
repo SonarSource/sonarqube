@@ -17,12 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { addGlobalErrorMessage } from 'design-system';
 import * as React from 'react';
 import { logIn } from '../../../api/auth';
 import { getLoginMessage } from '../../../api/settings';
 import { getIdentityProviders } from '../../../api/users';
 import { Location, withRouter } from '../../../components/hoc/withRouter';
-import { addGlobalErrorMessage } from '../../../helpers/globalMessages';
 import { translate } from '../../../helpers/l10n';
 import { getReturnUrl } from '../../../helpers/urls';
 import { IdentityProvider } from '../../../types/types';
@@ -75,6 +76,7 @@ export class LoginContainer extends React.PureComponent<Props, State> {
   async loadLoginMessage() {
     try {
       const { message } = await getLoginMessage();
+
       if (this.mounted) {
         this.setState({ message });
       }

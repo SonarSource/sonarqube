@@ -17,7 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { LabelValueSelectOption, SearchSelectDropdown } from 'design-system';
+
+import {
+  LabelValueSelectOption,
+  SearchSelectDropdown,
+  addGlobalSuccessMessage,
+} from 'design-system';
 import { noop } from 'lodash';
 import * as React from 'react';
 import { Options, SingleValue } from 'react-select';
@@ -25,7 +30,6 @@ import { assignSecurityHotspot } from '../../../api/security-hotspots';
 import { getUsers } from '../../../api/users';
 import { CurrentUserContext } from '../../../app/components/current-user/CurrentUserContext';
 import Avatar from '../../../components/ui/Avatar';
-import { addGlobalSuccessMessage } from '../../../helpers/globalMessages';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { Hotspot, HotspotResolution, HotspotStatus } from '../../../types/security-hotspots';
 import { RestUser, isLoggedIn, isUserActive } from '../../../types/users';
@@ -47,6 +51,7 @@ export default function Assignee(props: Props) {
   const {
     hotspot: { assigneeUser, status, resolution, key },
   } = props;
+
   const { currentUser } = React.useContext(CurrentUserContext);
 
   const allowCurrentUserSelection =
@@ -88,6 +93,7 @@ export default function Assignee(props: Props) {
             value: u.login,
             Icon: renderAvatar(u.name, u.avatar),
           }));
+
         cb(options);
       })
       .catch(() => {
@@ -102,6 +108,7 @@ export default function Assignee(props: Props) {
       })
         .then(() => {
           props.onAssigneeChange();
+
           addGlobalSuccessMessage(
             userOption.value
               ? translateWithParameters('hotspots.assign.success', userOption.label)

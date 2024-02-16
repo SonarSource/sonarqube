@@ -17,11 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { CenteredLayout, PageContentFontWrapper } from 'design-system';
+
+import { CenteredLayout, PageContentFontWrapper, addGlobalErrorMessage } from 'design-system';
 import * as React from 'react';
 import { logOut } from '../../../api/auth';
 import RecentHistory from '../../../app/components/RecentHistory';
-import { addGlobalErrorMessage } from '../../../helpers/globalMessages';
 import { translate } from '../../../helpers/l10n';
 import { getBaseUrl } from '../../../helpers/system';
 

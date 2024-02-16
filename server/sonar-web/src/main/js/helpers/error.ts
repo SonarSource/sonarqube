@@ -17,7 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { addGlobalErrorMessage } from './globalMessages';
+
+import { addGlobalErrorMessage } from 'design-system';
 import { parseError } from './request';
 
 export function throwGlobalError(param: Response | any): Promise<Response | any> {
@@ -38,6 +39,7 @@ export function throwGlobalError(param: Response | any): Promise<Response | any>
   // Axios response object
   if (param.data?.message) {
     addGlobalErrorMessage(param.data?.message);
+
     return Promise.reject(param);
   }
 

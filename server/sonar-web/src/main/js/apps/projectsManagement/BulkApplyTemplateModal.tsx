@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import {
   ButtonPrimary,
   FlagMessage,
@@ -70,6 +71,7 @@ export default class BulkApplyTemplateModal extends React.PureComponent<Props, S
 
   loadPermissionTemplates() {
     this.setState({ loading: true });
+
     getPermissionTemplates().then(
       ({ permissionTemplates }) => {
         if (this.mounted) {
@@ -93,9 +95,11 @@ export default class BulkApplyTemplateModal extends React.PureComponent<Props, S
     event.preventDefault();
     const { analyzedBefore } = this.props;
     const { permissionTemplate } = this.state;
+
     if (permissionTemplate) {
       this.setState({ submitting: true });
       const selection = this.props.selection.filter((s) => !s.managed);
+
       const parameters = selection.length
         ? {
             projects: selection.map((s) => s.key).join(),
@@ -109,6 +113,7 @@ export default class BulkApplyTemplateModal extends React.PureComponent<Props, S
             q: this.props.query || undefined,
             templateId: permissionTemplate,
           };
+
       bulkApplyTemplate(parameters).then(
         () => {
           if (this.mounted) {
@@ -160,6 +165,7 @@ export default class BulkApplyTemplateModal extends React.PureComponent<Props, S
         </FlagMessage>
       );
     }
+
     return (
       <FlagMessage variant="warning" className="sw-my-2">
         {translateWithParameters(
@@ -180,6 +186,7 @@ export default class BulkApplyTemplateModal extends React.PureComponent<Props, S
       this.state.permissionTemplates !== undefined
         ? this.state.permissionTemplates.map((t) => ({ label: t.name, value: t.id }))
         : [];
+
     return (
       <FormField htmlFor="bulk-apply-template-input" label={translate('template')} required>
         <InputSelect
@@ -219,6 +226,7 @@ export default class BulkApplyTemplateModal extends React.PureComponent<Props, S
         )}
       </form>
     );
+
     return (
       <Modal
         isScrollable={false}

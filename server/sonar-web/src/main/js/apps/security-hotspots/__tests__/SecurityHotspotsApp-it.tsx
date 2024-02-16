@@ -199,7 +199,7 @@ describe('CRUD', () => {
     await user.click(ui.activeAssignee.get());
     await user.click(ui.currentUserSelectionItem.get());
 
-    expect(ui.successGlobalMessage.get()).toHaveTextContent(`hotspots.assign.success.foo`);
+    expect(await ui.successGlobalMessage.find()).toHaveTextContent(`hotspots.assign.success.foo`);
     expect(ui.activeAssignee.get()).toHaveTextContent('foo');
   });
 
@@ -214,7 +214,9 @@ describe('CRUD', () => {
 
     expect(getUsers).toHaveBeenLastCalledWith({ q: 'User' });
     await user.keyboard('{Enter}');
-    expect(ui.successGlobalMessage.get()).toHaveTextContent(`hotspots.assign.success.User John`);
+    expect(await ui.successGlobalMessage.find()).toHaveTextContent(
+      `hotspots.assign.success.User John`,
+    );
   });
 
   it('should be able to change the status of a hotspot', async () => {

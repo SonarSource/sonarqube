@@ -17,10 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { throwGlobalError } from '../error';
-import { addGlobalErrorMessage } from '../globalMessages';
 
-jest.mock('../../helpers/globalMessages', () => ({
+import { addGlobalErrorMessage } from 'design-system';
+import { throwGlobalError } from '../error';
+
+jest.mock('design-system', () => ({
   addGlobalErrorMessage: jest.fn(),
 }));
 

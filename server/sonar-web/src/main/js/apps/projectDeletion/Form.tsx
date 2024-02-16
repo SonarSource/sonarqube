@@ -17,13 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { DangerButtonPrimary } from 'design-system/lib';
+
+import { DangerButtonPrimary, addGlobalSuccessMessage } from 'design-system';
 import * as React from 'react';
 import { deleteApplication } from '../../api/application';
 import { deletePortfolio, deleteProject } from '../../api/project-management';
 import ConfirmButton from '../../components/controls/ConfirmButton';
 import { Router, withRouter } from '../../components/hoc/withRouter';
-import { addGlobalSuccessMessage } from '../../helpers/globalMessages';
 import { translate, translateWithParameters } from '../../helpers/l10n';
 import { isApplication, isPortfolioLike } from '../../types/component';
 import { Component } from '../../types/types';
@@ -38,6 +38,7 @@ export class Form extends React.PureComponent<Props> {
     const { component } = this.props;
     let deleteMethod = deleteProject;
     let redirectTo = '/';
+
     if (isPortfolioLike(component.qualifier)) {
       deleteMethod = deletePortfolio;
       redirectTo = '/portfolios';
@@ -50,6 +51,7 @@ export class Form extends React.PureComponent<Props> {
     addGlobalSuccessMessage(
       translateWithParameters('project_deletion.resource_deleted', component.name),
     );
+
     this.props.router.replace(redirectTo);
   };
 

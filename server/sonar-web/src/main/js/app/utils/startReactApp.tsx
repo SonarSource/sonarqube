@@ -17,9 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { ThemeProvider } from '@emotion/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { lightTheme } from 'design-system';
+import { ToastMessageContainer, lightTheme } from 'design-system';
 import * as React from 'react';
 import { createRoot } from 'react-dom/client';
 import { Helmet, HelmetProvider } from 'react-helmet-async';
@@ -78,7 +79,6 @@ import ComponentContainer from '../components/ComponentContainer';
 import DocumentationRedirect from '../components/DocumentationRedirect';
 import FormattingHelp from '../components/FormattingHelp';
 import GlobalContainer from '../components/GlobalContainer';
-import GlobalMessagesContainer from '../components/GlobalMessagesContainer';
 import Landing from '../components/Landing';
 import MigrationContainer from '../components/MigrationContainer';
 import NonAdminPagesContainer from '../components/NonAdminPagesContainer';
@@ -274,7 +274,7 @@ export default function startReactApp(
               <ThemeProvider theme={lightTheme}>
                 <QueryClientProvider client={queryClient}>
                   <GlobalStyles />
-                  <GlobalMessagesContainer />
+                  <ToastMessageContainer />
                   <Helmet titleTemplate={translate('page_title.template.default')} />
                   <RouterProvider router={router} />
                 </QueryClientProvider>

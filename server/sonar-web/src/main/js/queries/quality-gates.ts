@@ -17,7 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { addGlobalSuccessMessage } from 'design-system';
 import {
   copyQualityGate,
   createCondition,
@@ -32,7 +34,6 @@ import {
   updateCondition,
 } from '../api/quality-gates';
 import { getCorrectCaycCondition } from '../apps/quality-gates/utils';
-import { addGlobalSuccessMessage } from '../helpers/globalMessages';
 import { translate } from '../helpers/l10n';
 import { Condition, QualityGate } from '../types/types';
 

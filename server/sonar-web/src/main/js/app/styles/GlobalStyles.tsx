@@ -19,7 +19,7 @@
  */
 
 import { Global, css, useTheme } from '@emotion/react';
-import { themeColor } from 'design-system/lib';
+import { themeColor } from 'design-system';
 import React from 'react';
 import twDefaultTheme from 'tailwindcss/defaultTheme';
 

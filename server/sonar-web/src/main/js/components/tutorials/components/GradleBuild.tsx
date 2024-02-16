@@ -17,7 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { ClipboardIconButton, CodeSnippet, NumberedListItem } from 'design-system/lib';
+
+import { ClipboardIconButton, CodeSnippet, NumberedListItem } from 'design-system';
 import React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { translate } from '../../../helpers/l10n';
