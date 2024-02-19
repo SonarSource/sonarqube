@@ -125,13 +125,13 @@ public class GitLabIdentityProvider implements OAuth2IdentityProvider {
       .setEmail(user.getEmail());
 
 
-    Set<String> userGroups = getGroups(scribe, accessToken);
-
-    if (!gitLabSettings.allowedGroups().isEmpty()) {
-      validateUserInAllowedGroups(userGroups, gitLabSettings.allowedGroups());
-    }
-
     if (gitLabSettings.syncUserGroups()) {
+      Set<String> userGroups = getGroups(scribe, accessToken);
+
+      if (!gitLabSettings.allowedGroups().isEmpty()) {
+        validateUserInAllowedGroups(userGroups, gitLabSettings.allowedGroups());
+      }
+
       builder.setGroups(userGroups);
     }
 

@@ -97,6 +97,7 @@ public class IntegrationTest {
 
   @Test
   public void callback_whenNotAllowedUser_shouldThrow() {
+    mapSettings.setProperty(GITLAB_AUTH_SYNC_USER_GROUPS, "true");
     OAuth2IdentityProvider.CallbackContext callbackContext = mockCallbackContext();
 
     mockAccessTokenResponse();
