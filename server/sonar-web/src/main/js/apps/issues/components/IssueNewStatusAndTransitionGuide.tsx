@@ -18,10 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { SpotlightTour, SpotlightTourStep } from 'design-system';
-import React from 'react';
+import React, { useState } from 'react';
 import { useIntl } from 'react-intl';
 import { CallBackProps } from 'react-joyride';
-import { createSharedStoreHook } from 'shared-store-hook';
 import { useCurrentUser } from '../../../app/components/current-user/CurrentUserContext';
 import DocumentationLink from '../../../components/common/DocumentationLink';
 import { SCREEN_POSITION_COMPUTE_DELAY } from '../../../components/common/ScreenPositionHelper';
@@ -29,13 +28,6 @@ import { useDismissNoticeMutation } from '../../../queries/users';
 import { IssueTransition } from '../../../types/issues';
 import { Issue } from '../../../types/types';
 import { NoticeType } from '../../../types/users';
-
-export const useAcceptGuideState = createSharedStoreHook<{
-  stepIndex: number;
-  guideIsRunning: boolean;
-}>({
-  initialState: { stepIndex: 0, guideIsRunning: false },
-});
 
 interface Props {
   run?: boolean;
@@ -45,15 +37,19 @@ interface Props {
 
 const PLACEMENT_RIGHT = 'right';
 const DOC_LINK = '/user-guide/issues/#statuses';
+export const SESSION_STORAGE_TRANSITION_GUIDE_KEY = 'issueNewStatusAndTransitionGuideStep';
 const EXTRA_DELAY = 100;
 const GUIDE_WIDTH = 360;
 
 export default function IssueNewStatusAndTransitionGuide(props: Readonly<Props>) {
-  const { run, issues } = props;
+  const { run, issues, togglePopup } = props;
   const { currentUser, updateDismissedNotices } = useCurrentUser();
   const { mutateAsync: dismissNotice } = useDismissNoticeMutation();
   const intl = useIntl();
-  const [{ guideIsRunning, stepIndex }, { setPartialState, resetState }] = useAcceptGuideState();
+  const [step, setStep] = useState(
+    +(sessionStorage.getItem(SESSION_STORAGE_TRANSITION_GUIDE_KEY) ?? 0),
+  );
+  const [start, setStart] = React.useState(false);
 
   const issueWithAcceptTransition = issues.find((issue) =>
     issue.transitions.includes(IssueTransition.Accept),
@@ -71,67 +67,74 @@ export default function IssueNewStatusAndTransitionGuide(props: Readonly<Props>)
   // to ensure proper positioning of the SpotlightTour in the context of ScreenPositionHelper,
   // then start the tour.
   React.useEffect(() => {
-    // If should start the tour and the tour is not started yet
-    if (!guideIsRunning && canRun) {
+    // Should start the tour if it is not started yet
+    if (!start && canRun) {
       setTimeout(() => {
         // Scroll to issue. This ensures proper rendering of the SpotlightTour.
         document
           .querySelector(`[data-guiding-id="issue-transition-${issueWithAcceptTransition.key}"]`)
           ?.scrollIntoView({ behavior: 'instant', block: 'center' });
         // Start the tour
-        setPartialState({ guideIsRunning: true });
+        if (step !== 0) {
+          togglePopup(issueWithAcceptTransition.key, 'transition', true);
+          setTimeout(() => {
+            setStart(run);
+          }, 0);
+        } else {
+          setStart(run);
+        }
       }, SCREEN_POSITION_COMPUTE_DELAY + EXTRA_DELAY);
     }
-  }, [canRun, guideIsRunning, setPartialState, issueWithAcceptTransition]);
+  }, [canRun, run, step, start, togglePopup, issueWithAcceptTransition]);
 
-  // We reset the state all the time so that the tour can be restarted when user revisits the page.
-  // This has effect only when user is ignored guide.
   React.useEffect(() => {
-    return resetState;
-  }, [resetState]);
+    if (start && canRun) {
+      sessionStorage.setItem(SESSION_STORAGE_TRANSITION_GUIDE_KEY, step.toString());
+    }
+  }, [step, start, canRun]);
 
-  if (!issueWithAcceptTransition || !guideIsRunning) {
+  if (!canRun || !start) {
     return null;
   }
 
-  const dismissTour = async () => {
-    if (userCompletedStatusGuide) {
-      return;
-    }
-
-    try {
-      await dismissNotice(NoticeType.ISSUE_NEW_STATUS_AND_TRANSITION_GUIDE);
-      updateDismissedNotices(NoticeType.ISSUE_NEW_STATUS_AND_TRANSITION_GUIDE, true);
-    } catch {
-      // ignore
-    }
-  };
-
-  const handleTourCallback = async ({ action, type, index }: CallBackProps) => {
-    if (type === 'step:after') {
-      // Open dropdown when going into step 1 and dismiss notice (we assume that the user has read the notice)
-      if (action === 'next' && index === 0) {
-        props.togglePopup(issueWithAcceptTransition.key, 'transition', true);
-        setTimeout(() => {
-          setPartialState({ stepIndex: index + 1 });
-          dismissTour();
-        }, 0);
-        return;
-      }
-
-      // Close dropdown when going into step 0 from step 1
-      if (action === 'prev' && index === 1) {
-        props.togglePopup(issueWithAcceptTransition.key, 'transition', false);
-      }
-
-      setPartialState({ stepIndex: action === 'prev' ? index - 1 : index + 1 });
-      return;
-    }
-
-    // When the tour is finished or skipped.
-    if (action === 'reset' || action === 'skip' || action === 'close') {
-      props.togglePopup(issueWithAcceptTransition.key, 'transition', false);
-      await dismissTour();
+  const onToggle = (props: CallBackProps) => {
+    const { action, lifecycle, index } = props;
+    switch (action) {
+      case 'close':
+      case 'skip':
+      case 'reset':
+        togglePopup(issueWithAcceptTransition.key, 'transition', false);
+        sessionStorage.removeItem(SESSION_STORAGE_TRANSITION_GUIDE_KEY);
+        dismissNotice(NoticeType.ISSUE_NEW_STATUS_AND_TRANSITION_GUIDE)
+          .then(() => {
+            updateDismissedNotices(NoticeType.ISSUE_NEW_STATUS_AND_TRANSITION_GUIDE, true);
+          })
+          .catch(() => {
+            /* noop */
+          });
+        break;
+      case 'next':
+        if (lifecycle === 'complete') {
+          if (index === 0) {
+            togglePopup(issueWithAcceptTransition.key, 'transition', true);
+            setTimeout(() => {
+              setStep(step + 1);
+            }, 0);
+          } else {
+            setStep(step + 1);
+          }
+        }
+        break;
+      case 'prev':
+        if (lifecycle === 'complete') {
+          if (index === 1) {
+            togglePopup(issueWithAcceptTransition.key, 'transition', false);
+          }
+          setStep(step - 1);
+        }
+        break;
+      default:
+        break;
     }
   };
 
@@ -173,10 +176,10 @@ export default function IssueNewStatusAndTransitionGuide(props: Readonly<Props>)
   return (
     <SpotlightTour
       width={GUIDE_WIDTH}
-      callback={handleTourCallback}
+      callback={onToggle}
       steps={steps}
-      stepIndex={stepIndex}
-      run={guideIsRunning}
+      stepIndex={step}
+      run={run}
       continuous
       skipLabel={intl.formatMessage({ id: 'skip' })}
       backLabel={intl.formatMessage({ id: 'go_back' })}

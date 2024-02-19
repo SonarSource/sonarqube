@@ -18,8 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { SpotlightTour, SpotlightTourStep } from 'design-system';
-import React from 'react';
+import React, { useState } from 'react';
 import { FormattedMessage } from 'react-intl';
+import { CallBackProps } from 'react-joyride';
 import { dismissNotice } from '../../../api/users';
 import { CurrentUserContext } from '../../../app/components/current-user/CurrentUserContext';
 import DocLink from '../../../components/common/DocLink';
@@ -32,11 +33,13 @@ interface Props {
 }
 
 const PLACEMENT_RIGHT = 'right';
+const SESSION_STORAGE_KEY = 'issueCleanCodeGuideStep';
 
 const EXTRA_DELAY = 50;
 
 export default function IssueGuide({ run }: Props) {
   const { currentUser, updateDismissedNotices } = React.useContext(CurrentUserContext);
+  const [step, setStep] = useState(+(sessionStorage.getItem(SESSION_STORAGE_KEY) ?? 0));
   const canRun = currentUser.isLoggedIn && !currentUser.dismissedNotices[NoticeType.ISSUE_GUIDE];
 
   // IssueGuide can be called within context of a ScreenPositionHelper. When this happens,
@@ -57,21 +60,44 @@ export default function IssueGuide({ run }: Props) {
         setStart(run);
       }, SCREEN_POSITION_COMPUTE_DELAY + EXTRA_DELAY);
     }
-  }, [canRun, run, start, setStart]);
+  }, [canRun, run, start]);
+
+  React.useEffect(() => {
+    if (start && canRun) {
+      sessionStorage.setItem(SESSION_STORAGE_KEY, step.toString());
+    }
+  }, [step, start, canRun]);
 
   if (!start || !canRun) {
     return null;
   }
 
-  const onToggle = (props: { action: string }) => {
-    if (props.action === 'reset') {
-      dismissNotice(NoticeType.ISSUE_GUIDE)
-        .then(() => {
-          updateDismissedNotices(NoticeType.ISSUE_GUIDE, true);
-        })
-        .catch(() => {
-          /* noop */
-        });
+  const onToggle = (props: CallBackProps) => {
+    switch (props.action) {
+      case 'close':
+      case 'skip':
+      case 'reset':
+        sessionStorage.removeItem(SESSION_STORAGE_KEY);
+        dismissNotice(NoticeType.ISSUE_GUIDE)
+          .then(() => {
+            updateDismissedNotices(NoticeType.ISSUE_GUIDE, true);
+          })
+          .catch(() => {
+            /* noop */
+          });
+        break;
+      case 'next':
+        if (props.lifecycle === 'complete') {
+          setStep(step + 1);
+        }
+        break;
+      case 'prev':
+        if (props.lifecycle === 'complete') {
+          setStep(step - 1);
+        }
+        break;
+      default:
+        break;
     }
   };
 
@@ -144,6 +170,7 @@ export default function IssueGuide({ run }: Props) {
       steps={steps}
       run={run}
       continuous
+      stepIndex={step}
       skipLabel={translate('skip')}
       backLabel={translate('go_back')}
       closeLabel={translate('close')}

@@ -28,7 +28,7 @@ import {
 } from 'design-system';
 import * as React from 'react';
 import { addIssueComment, setIssueTransition } from '../../../api/issues';
-import { useAcceptGuideState } from '../../../apps/issues/components/IssueNewStatusAndTransitionGuide';
+import { SESSION_STORAGE_TRANSITION_GUIDE_KEY } from '../../../apps/issues/components/IssueNewStatusAndTransitionGuide';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { Issue } from '../../../types/types';
 import StatusHelper from '../../shared/StatusHelper';
@@ -45,8 +45,8 @@ interface Props {
 export default function IssueTransition(props: Readonly<Props>) {
   const { isOpen, issue, onChange, togglePopup } = props;
 
-  const [{ stepIndex: guideStepIndex, guideIsRunning }] = useAcceptGuideState();
-
+  const guideStepIndex = +(sessionStorage.getItem(SESSION_STORAGE_TRANSITION_GUIDE_KEY) ?? 0);
+  const guideIsRunning = sessionStorage.getItem(SESSION_STORAGE_TRANSITION_GUIDE_KEY) !== null;
   const [transitioning, setTransitioning] = React.useState(false);
 
   async function handleSetTransition(transition: string, comment?: string) {

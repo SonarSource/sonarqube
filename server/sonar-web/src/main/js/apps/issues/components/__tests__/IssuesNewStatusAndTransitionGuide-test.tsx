@@ -20,17 +20,23 @@
 import { act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
-import CurrentUserContextProvider from '../../../app/components/current-user/CurrentUserContextProvider';
-import IssueTransitionComponent from '../../../components/issue/components/IssueTransition';
-import { mockCurrentUser, mockIssue } from '../../../helpers/testMocks';
-import { renderComponent } from '../../../helpers/testReactTestingUtils';
-import { IssueTransition } from '../../../types/issues';
-import { Issue } from '../../../types/types';
-import { NoticeType } from '../../../types/users';
-import IssueNewStatusAndTransitionGuide from '../components/IssueNewStatusAndTransitionGuide';
-import { issuesHandler, ui } from '../test-utils';
+import IssuesServiceMock from '../../../../api/mocks/IssuesServiceMock';
+import UsersServiceMock from '../../../../api/mocks/UsersServiceMock';
+import CurrentUserContextProvider from '../../../../app/components/current-user/CurrentUserContextProvider';
+import IssueTransitionComponent from '../../../../components/issue/components/IssueTransition';
+import { mockCurrentUser, mockIssue } from '../../../../helpers/testMocks';
+import { renderComponent } from '../../../../helpers/testReactTestingUtils';
+import { IssueTransition } from '../../../../types/issues';
+import { Issue } from '../../../../types/types';
+import { NoticeType } from '../../../../types/users';
+import { ui } from '../../test-utils';
+import IssueNewStatusAndTransitionGuide from '../IssueNewStatusAndTransitionGuide';
+
+const usersHandler = new UsersServiceMock();
+const issuesHandler = new IssuesServiceMock(usersHandler);
 
 beforeEach(() => {
+  usersHandler.reset();
   issuesHandler.reset();
 });
 
