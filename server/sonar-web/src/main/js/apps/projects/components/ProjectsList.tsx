@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+import classNames from 'classnames';
 import { Spinner } from 'design-system';
 import * as React from 'react';
 import { AutoSizer } from 'react-virtualized/dist/commonjs/AutoSizer';
@@ -80,7 +81,12 @@ export default class ProjectsList extends React.PureComponent<Props> {
     const project = projects[index];
 
     return (
-      <div key={key} role="row" style={{ ...style, height: PROJECT_CARD_HEIGHT }}>
+      <div
+        className={classNames({ 'sw-mt-4': index === 0 })}
+        key={key}
+        role="row"
+        style={{ ...style, height: PROJECT_CARD_HEIGHT }}
+      >
         <div className="sw-h-full" role="gridcell">
           <ProjectCard
             currentUser={this.props.currentUser}
@@ -105,11 +111,18 @@ export default class ProjectsList extends React.PureComponent<Props> {
             height={height}
             overscanRowCount={2}
             rowCount={this.props.projects.length + 1}
-            rowHeight={({ index }) =>
-              index === this.props.projects.length
-                ? PROJECT_LIST_FOOTER_HEIGHT
-                : PROJECT_CARD_HEIGHT + PROJECT_CARD_MARGIN
-            }
+            rowHeight={({ index }) => {
+              if (index === 0) {
+                // first card, double top and bottom margin
+                return PROJECT_CARD_HEIGHT + PROJECT_CARD_MARGIN * 2;
+              }
+              if (index === this.props.projects.length) {
+                // Footer card, no margin
+                return PROJECT_LIST_FOOTER_HEIGHT;
+              }
+              // all other cards, only bottom margin
+              return PROJECT_CARD_HEIGHT + PROJECT_CARD_MARGIN;
+            }}
             rowRenderer={this.renderRow}
             style={{ outline: 'none' }}
             tabIndex={-1}

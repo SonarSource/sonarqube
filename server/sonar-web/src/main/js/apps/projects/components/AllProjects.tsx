@@ -264,7 +264,7 @@ export class AllProjects extends React.PureComponent<Props, State> {
   );
 
   renderHeader = () => (
-    <div className="sw-w-full" style={{ height: '120px' }}>
+    <PageHeaderWrapper className="sw-w-full">
       <PageHeader
         currentUser={this.props.currentUser}
         onPerspectiveChange={this.handlePerspectiveChange}
@@ -275,7 +275,7 @@ export class AllProjects extends React.PureComponent<Props, State> {
         total={this.state.total}
         view={this.getView()}
       />
-    </div>
+    </PageHeaderWrapper>
   );
 
   renderMain = () => {
@@ -381,4 +381,9 @@ const SideBarStyle = styled.div`
   border-left: ${themeBorder('default', 'filterbarBorder')};
   border-right: ${themeBorder('default', 'filterbarBorder')};
   background-color: ${themeColor('backgroundSecondary')};
+`;
+
+const PageHeaderWrapper = styled.div`
+  height: 7.5rem;
+  border-bottom: ${themeBorder('default', 'filterbarBorder')};
 `;

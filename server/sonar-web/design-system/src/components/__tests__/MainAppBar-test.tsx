@@ -19,7 +19,7 @@
  */
 /* eslint-disable import/no-extraneous-dependencies */
 
-import { screen } from '@testing-library/react';
+import { fireEvent, screen } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { LAYOUT_LOGO_MAX_HEIGHT, LAYOUT_LOGO_MAX_WIDTH } from '../../helpers/constants';
 import { render } from '../../helpers/testUtils';
@@ -43,6 +43,21 @@ it('should render the logo', () => {
 
   // eslint-disable-next-line testing-library/no-node-access
   expect(element.container.querySelector('svg')).toHaveStyle({ height: '40px', width: '132px' });
+});
+
+it('should add shadow when scrolled', () => {
+  setupWithProps();
+
+  expect(screen.getByRole('banner')).toHaveStyle({
+    'box-shadow': 'none',
+  });
+
+  document.documentElement.scrollTop = 100;
+  fireEvent.scroll(document, { target: { scrollTop: 100 } });
+
+  expect(screen.getByRole('banner')).toHaveStyle({
+    'box-shadow': '0px 4px 8px -2px rgba(29,33,47,0.1),0px 2px 15px -2px rgba(29,33,47,0.06)',
+  });
 });
 
 function setupWithProps(

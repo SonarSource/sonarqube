@@ -17,7 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
+import { throttle } from 'lodash';
+import React from 'react';
 import tw from 'twin.macro';
 import {
   LAYOUT_GLOBAL_NAV_HEIGHT,
@@ -25,11 +28,12 @@ import {
   LAYOUT_LOGO_MAX_HEIGHT,
   LAYOUT_LOGO_MAX_WIDTH,
   LAYOUT_VIEWPORT_MIN_WIDTH,
+  THROTTLE_SCROLL_DELAY,
 } from '../helpers/constants';
-import { themeBorder, themeColor, themeContrast } from '../helpers/theme';
+import { themeBorder, themeColor, themeContrast, themeShadow } from '../helpers/theme';
 import { BaseLink } from './Link';
 
-const MainAppBarDiv = styled.div`
+const MainAppBarHeader = styled.header`
   ${tw`sw-flex`};
   ${tw`sw-items-center`};
   ${tw`sw-px-6`};
@@ -68,14 +72,28 @@ export function MainAppBar({
   children,
   Logo,
 }: React.PropsWithChildren<{ Logo: React.ElementType }>) {
+  const theme = useTheme();
+  const [boxShadow, setBoxShadow] = React.useState('none');
+
+  React.useEffect(() => {
+    const handleScroll = throttle(() => {
+      setBoxShadow(document.documentElement?.scrollTop > 0 ? themeShadow('md')({ theme }) : 'none');
+    }, THROTTLE_SCROLL_DELAY);
+
+    document.addEventListener('scroll', handleScroll);
+    return () => {
+      document.removeEventListener('scroll', handleScroll);
+    };
+  }, [theme]);
+
   return (
-    <MainAppBarDiv>
+    <MainAppBarHeader style={{ boxShadow }}>
       <MainAppBarNavLogoDiv>
         <MainAppBarNavLogoLink to="/">
           <Logo />
         </MainAppBarNavLogoLink>
       </MainAppBarNavLogoDiv>
       <MainAppBarNavRightDiv>{children}</MainAppBarNavRightDiv>
-    </MainAppBarDiv>
+    </MainAppBarHeader>
   );
 }
