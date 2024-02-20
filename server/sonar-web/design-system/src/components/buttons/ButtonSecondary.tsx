@@ -27,10 +27,4 @@ export const ButtonSecondary: React.FC<React.PropsWithChildren<ButtonProps>> = s
   --color: ${themeContrast('buttonSecondary')};
   --focus: ${themeColor('buttonSecondaryBorder', OPACITY_20_PERCENT)};
   --border: ${themeBorder('default', 'buttonSecondaryBorder')};
-
-  &:hover,
-  &:active,
-  &:focus {
-    border-color: ${themeColor('buttonSecondaryBorder')};
-  }
 `;

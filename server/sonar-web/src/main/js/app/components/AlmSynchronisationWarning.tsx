@@ -25,7 +25,6 @@ import { FormattedMessage } from 'react-intl';
 import { translate, translateWithParameters } from '../../helpers/l10n';
 import { AlmSyncStatus } from '../../types/provisioning';
 import { TaskStatuses } from '../../types/tasks';
-import './SystemAnnouncement.css';
 
 interface SynchronisationWarningProps {
   short?: boolean;

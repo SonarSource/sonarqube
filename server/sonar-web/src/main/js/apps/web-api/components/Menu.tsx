@@ -17,12 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import classNames from 'classnames';
+import { SubnavigationGroup, SubnavigationItem } from 'design-system';
 import * as React from 'react';
-import Link from '../../../components/common/Link';
+import { useNavigate } from 'react-router-dom';
 import { queryToSearch } from '../../../helpers/urls';
 import { WebApi } from '../../../types/types';
-import { actionsFilter, isDomainPathActive, Query, serializeQuery } from '../utils';
+import { Query, actionsFilter, isDomainPathActive, serializeQuery } from '../utils';
 import DeprecatedBadge from './DeprecatedBadge';
 import InternalBadge from './InternalBadge';
 
@@ -34,6 +34,19 @@ interface Props {
 
 export default function Menu(props: Props) {
   const { domains, query, splat } = props;
+
+  const navigateTo = useNavigate();
+
+  const showDomain = React.useCallback(
+    (domainPath: string) => {
+      navigateTo({
+        pathname: '/web_api/' + domainPath,
+        search: queryToSearch(serializeQuery(query)),
+      });
+    },
+    [query, navigateTo],
+  );
+
   const filteredDomains = (domains || [])
     .map((domain) => {
       const filteredActions = domain.actions.filter((action) =>
@@ -45,29 +58,23 @@ export default function Menu(props: Props) {
 
   const renderDomain = (domain: WebApi.Domain) => {
     const internal = !domain.actions.find((action) => !action.internal);
+
     return (
-      <li
-        className={classNames('list-group-item sw-p-0', {
-          active: isDomainPathActive(domain.path, splat),
-        })}
+      <SubnavigationItem
+        active={isDomainPathActive(domain.path, splat)}
+        onClick={() => showDomain(domain.path)}
         key={domain.path}
       >
-        <Link
-          to={{ pathname: '/web_api/' + domain.path, search: queryToSearch(serializeQuery(query)) }}
-        >
-          <h3 className="sw-truncate sw-px-2 sw-py-3">
-            {domain.path}
-            {domain.deprecatedSince && <DeprecatedBadge since={domain.deprecatedSince} />}
-            {internal && <InternalBadge />}
-          </h3>
-        </Link>
-      </li>
+        {domain.path}
+        {domain.deprecatedSince && <DeprecatedBadge since={domain.deprecatedSince} />}
+        {internal && <InternalBadge />}
+      </SubnavigationItem>
     );
   };
 
   return (
-    <div className="api-documentation-results panel" role="menu">
-      <ul className="list-group">{filteredDomains.map(renderDomain)}</ul>
-    </div>
+    <SubnavigationGroup className="sw-mt-4 sw-box-border">
+      {filteredDomains.map(renderDomain)}
+    </SubnavigationGroup>
   );
 }

@@ -17,10 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Link } from 'design-system';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useLocation } from 'react-router-dom';
-import Link from '../../components/common/Link';
 import { useDocUrl } from '../../helpers/docs';
 
 const PAUSE_REDIRECT = 1;
@@ -34,12 +34,12 @@ export default function DocumentationRedirect() {
       <Helmet>
         <meta httpEquiv="refresh" content={`${PAUSE_REDIRECT}; url='${url}'`} />
       </Helmet>
-      <div className="global-loading">
-        <div className="display-flex-center">
-          <i className="spinner global-loading-spinner" />
-          <span className="spacer-left global-loading-text">Redirecting...</span>
+      <div className="sw-flex sw-flex-col sw-items-center sw-gap-4 sw-h-[100vh]">
+        <div className="global-loading">
+          <i className="global-loading-spinner" />
+          <span className="global-loading-text">Redirecting...</span>
         </div>
-        <div className="display-flex-justify-content spacer-top large">
+        <div>
           <Link to={url}>Click here if you&apos;re not being redirected automatically</Link>
         </div>
       </div>

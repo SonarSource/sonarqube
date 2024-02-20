@@ -30,6 +30,7 @@ export type Variant = 'error' | 'warning' | 'success' | 'info';
 
 interface Props {
   children: ReactNode;
+  className?: string;
   onDismiss?: VoidFunction;
   variant: Variant;
 }
@@ -61,19 +62,19 @@ function getVariantInfo(variant: Variant) {
   return variantList[variant];
 }
 
-export function Banner({ children, onDismiss, variant }: Props) {
+export function Banner({ children, className, onDismiss, variant }: Props) {
   const variantInfo = getVariantInfo(variant);
 
   const intl = useIntl();
 
   return (
-    <div role="alert" style={{ height: LAYOUT_BANNER_HEIGHT }}>
+    <div className={className} role="alert" style={{ height: LAYOUT_BANNER_HEIGHT }}>
       <BannerWrapper
         backGroundColor={variantInfo.backGroundColor}
         fontColor={variantInfo.fontColor}
       >
         <BannerInner>
-          <div className="sw-flex">
+          <div className="sw-flex sw-items-center">
             <div className="sw-mr-3">{variantInfo.icon}</div>
             {children}
           </div>
@@ -103,7 +104,7 @@ const BannerWrapper = styled.div<{
   height: inherit;
   background-color: ${({ backGroundColor }) => themeColor(backGroundColor)};
   color: ${({ fontColor }) => themeColor(fontColor)};
-  ${tw`sw-z-global-navbar sw-fixed sw-w-full`}
+  ${tw`sw-z-popup sw-fixed sw-w-full`}
   ${tw`sw-sticky sw-top-0`}
 `;
 

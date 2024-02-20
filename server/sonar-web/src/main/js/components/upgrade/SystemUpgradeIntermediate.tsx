@@ -17,11 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Accordion, BasicSeparator, Link, Note } from 'design-system';
 import * as React from 'react';
 import { translate } from '../../helpers/l10n';
 import { SystemUpgrade } from '../../types/system';
-import { ButtonLink } from '../controls/buttons';
-import DropdownIcon from '../icons/DropdownIcon';
 import DateFormatter from '../intl/DateFormatter';
 
 interface Props {
@@ -49,38 +48,38 @@ export default class SystemUpgradeIntermediate extends React.PureComponent<Props
 
     return (
       <div className={this.props.className}>
-        <ButtonLink className="little-spacer-bottom" onClick={this.toggleIntermediatVersions}>
-          {showMore
-            ? translate('system.hide_intermediate_versions')
-            : translate('system.show_intermediate_versions')}
-          <DropdownIcon className="little-spacer-left" turned={showMore} />
-        </ButtonLink>
-        {showMore &&
-          upgrades.map((upgrade) => (
-            <div className="note system-upgrade-intermediate" key={upgrade.version}>
+        <Accordion
+          header={
+            showMore
+              ? translate('system.hide_intermediate_versions')
+              : translate('system.show_intermediate_versions')
+          }
+          open={showMore}
+          onClick={this.toggleIntermediatVersions}
+        >
+          {upgrades.map((upgrade, index) => (
+            <Note className="sw-block sw-mb-4" key={upgrade.version}>
               {upgrade.releaseDate && (
                 <DateFormatter date={upgrade.releaseDate} long>
                   {(formattedDate) => (
                     <p>
-                      <b className="little-spacer-right">SonarQube {upgrade.version}</b>
+                      <b className="sw-mr-1">SonarQube {upgrade.version}</b>
                       {formattedDate}
                       {upgrade.changeLogUrl && (
-                        <a
-                          className="spacer-left"
-                          href={upgrade.changeLogUrl}
-                          rel="noopener noreferrer"
-                          target="_blank"
-                        >
+                        <Link className="sw-ml-2" to={upgrade.changeLogUrl}>
                           {translate('system.release_notes')}
-                        </a>
+                        </Link>
                       )}
                     </p>
                   )}
                 </DateFormatter>
               )}
-              {upgrade.description && <p className="little-spacer-top">{upgrade.description}</p>}
-            </div>
+              {upgrade.description && <p className="sw-mt-2">{upgrade.description}</p>}
+
+              {index !== upgrades.length - 1 && <BasicSeparator />}
+            </Note>
           ))}
+        </Accordion>
       </div>
     );
   }

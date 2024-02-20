@@ -31,7 +31,7 @@ const ui = {
   helpIcon: byTestId('help-tooltip-activator'),
   helpLink: byRole('link', { name: 'Icon' }),
   linkInTooltip: byRole('link', { name: 'Label' }),
-  linkInTooltip2: byRole('link', { name: 'opens_in_new_window Label2' }),
+  linkInTooltip2: byRole('link', { name: 'Label2' }),
   afterLink: byRole('link', { name: 'Interactive element after' }),
 };
 

@@ -85,7 +85,7 @@ it('should allow to browse additional information', async () => {
   expect(await byText('{"example": "response"}').find()).toBeInTheDocument();
 });
 
-function renderAction(props: Partial<Action['props']> = {}) {
+function renderAction(props: Partial<React.ComponentProps<typeof Action>> = {}) {
   renderComponent(
     <Action
       action={mockAction()}
@@ -98,7 +98,7 @@ function renderAction(props: Partial<Action['props']> = {}) {
 }
 
 const ui = {
-  paramsTab: byRole('link', { name: 'api_documentation.parameters' }),
-  responseExampleTab: byRole('link', { name: 'api_documentation.response_example' }),
-  changelogTab: byRole('link', { name: 'api_documentation.changelog' }),
+  paramsTab: byRole('tab', { name: 'api_documentation.parameters' }),
+  responseExampleTab: byRole('tab', { name: 'api_documentation.response_example' }),
+  changelogTab: byRole('tab', { name: 'api_documentation.changelog' }),
 };

@@ -26,7 +26,6 @@ import { IndexationNotificationType } from '../../../types/indexation';
 import { Permissions } from '../../../types/permissions';
 import { CurrentUser, isLoggedIn } from '../../../types/users';
 import withCurrentUserContext from '../current-user/withCurrentUserContext';
-import './IndexationNotification.css';
 import IndexationNotificationHelper from './IndexationNotificationHelper';
 import IndexationNotificationRenderer from './IndexationNotificationRenderer';
 

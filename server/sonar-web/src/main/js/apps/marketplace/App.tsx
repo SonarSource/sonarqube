@@ -220,11 +220,7 @@ class App extends React.PureComponent<Props, State> {
                     readOnly={!allowActions}
                     refreshPending={this.props.fetchPendingPlugins}
                   />
-                  <ListFooter
-                    useMIUIButtons
-                    count={filteredPlugins.length}
-                    total={plugins.length}
-                  />
+                  <ListFooter count={filteredPlugins.length} total={plugins.length} />
                 </>
               )}
             </Spinner>

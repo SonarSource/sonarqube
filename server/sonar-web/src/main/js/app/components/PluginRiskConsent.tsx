@@ -17,10 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { ButtonPrimary, Card, Title } from 'design-system';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { setSimpleSettingValue } from '../../api/settings';
-import { Button } from '../../components/controls/buttons';
 import { whenLoggedIn } from '../../components/hoc/whenLoggedIn';
 import { Router, withRouter } from '../../components/hoc/withRouter';
 import { translate } from '../../helpers/l10n';
@@ -30,15 +31,14 @@ import { Permissions } from '../../types/permissions';
 import { RiskConsent } from '../../types/plugins';
 import { SettingsKey } from '../../types/settings';
 import { LoggedInUser } from '../../types/users';
-import './PluginRiskConsent.css';
 
 export interface PluginRiskConsentProps {
   currentUser: LoggedInUser;
   router: Router;
 }
 
-export function PluginRiskConsent(props: PluginRiskConsentProps) {
-  const { router, currentUser } = props;
+export function PluginRiskConsent(props: Readonly<PluginRiskConsentProps>) {
+  const { currentUser, router } = props;
 
   const isAdmin = hasGlobalPermission(currentUser, Permissions.Admin);
 
@@ -67,20 +67,24 @@ export function PluginRiskConsent(props: PluginRiskConsentProps) {
   };
 
   return (
-    <div className="plugin-risk-consent-page">
+    <>
       <Helmet defer={false} title={translate('plugin_risk_consent.page')} />
-      <div className="plugin-risk-consent-content boxed-group">
-        <div className="boxed-group-inner text-center">
-          <h1 className="big-spacer-bottom">{translate('plugin_risk_consent.title')}</h1>
-          <p className="big big-spacer-bottom">{translate('plugin_risk_consent.description')}</p>
-          <p className="big huge-spacer-bottom">{translate('plugin_risk_consent.description2')}</p>
 
-          <Button className="big-spacer-bottom" onClick={acknowledgeRisk}>
-            {translate('plugin_risk_consent.action')}
-          </Button>
-        </div>
-      </div>
-    </div>
+      <Card
+        className="sw-body-md sw-min-w-[500px] sw-mx-auto sw-mt-[10vh] sw-w-[40%] sw-text-center"
+        data-testid="plugin-risk-consent-page"
+      >
+        <Title className="sw-mb-4">{translate('plugin_risk_consent.title')}</Title>
+
+        <p className="sw-mb-4">{translate('plugin_risk_consent.description')}</p>
+
+        <p className="sw-mb-6">{translate('plugin_risk_consent.description2')}</p>
+
+        <ButtonPrimary className="sw-my-4" onClick={acknowledgeRisk}>
+          {translate('plugin_risk_consent.action')}
+        </ButtonPrimary>
+      </Card>
+    </>
   );
 }
 

@@ -690,7 +690,6 @@ export class CodingRulesApp extends React.PureComponent<Props, State> {
                           loadMore={this.fetchMoreRules}
                           ready={!this.state.loading}
                           total={paging.total}
-                          useMIUIButtons
                         />
                       )}
                     </>

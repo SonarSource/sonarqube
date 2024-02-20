@@ -87,7 +87,6 @@ export default function DeliveriesForm({ onClose, webhook }: Props) {
           loadMore={fetchMoreDeliveries}
           ready={!loading}
           total={paging.total}
-          useMIUIButtons
         />
       )}
     </Spinner>

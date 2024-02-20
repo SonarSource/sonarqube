@@ -129,14 +129,9 @@ const baseStyle = (props: ThemedProps) => css`
 `;
 
 const StyledInput = styled.input`
-  input[type='text']&,
-  input[type='number']&,
-  input[type='password']&,
-  input[type='email']& {
-    ${getInputVariant}
-    ${baseStyle}
-    ${tw`sw-h-control`}
-  }
+  ${getInputVariant}
+  ${baseStyle}
+  ${tw`sw-h-control`}
 `;
 
 const StyledTextArea = styled.textarea`

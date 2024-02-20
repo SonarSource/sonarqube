@@ -37,8 +37,8 @@ import {
 import React, { useState } from 'react';
 import { FormattedMessage } from 'react-intl';
 import ListFooter from '../../../../components/controls/ListFooter';
-import { LabelValueSelectOption } from '../../../../components/controls/Select';
 import { translate } from '../../../../helpers/l10n';
+import { LabelValueSelectOption } from '../../../../helpers/search';
 import { getBaseUrl } from '../../../../helpers/system';
 import { GithubOrganization, GithubRepository } from '../../../../types/alm-integration';
 import { AlmKeys, AlmSettingsInstance } from '../../../../types/alm-settings';
@@ -167,7 +167,6 @@ function RepositoryList(props: RepositoryListProps) {
         total={repositoryPaging.total}
         loadMore={props.onLoadMore}
         loading={loadingRepositories}
-        useMIUIButtons
       />
     </div>
   );

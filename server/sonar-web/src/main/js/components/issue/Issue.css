@@ -241,10 +241,6 @@
   overflow: auto;
 }
 
-.issue .badge-error {
-  background-color: var(--badgeRedBackgroundOnIssue);
-}
-
 .issue-message-box {
   background-color: var(--issueBgColor);
   border: 2px solid transparent;

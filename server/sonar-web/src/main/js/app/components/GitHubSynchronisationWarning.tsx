@@ -20,7 +20,6 @@
 import * as React from 'react';
 import { useGitHubSyncStatusQuery } from '../../queries/identity-provider/github';
 import AlmSynchronisationWarning from './AlmSynchronisationWarning';
-import './SystemAnnouncement.css';
 
 interface Props {
   short?: boolean;

@@ -39,7 +39,6 @@ import { translate } from '../../../helpers/l10n';
 import { BranchLike } from '../../../types/branch-like';
 import { isApplication, isPortfolioLike } from '../../../types/component';
 import { Breadcrumb, Component, ComponentMeasure, Dict, Metric } from '../../../types/types';
-import '../code.css';
 import { getCodeMetrics } from '../utils';
 import CodeBreadcrumbs from './CodeBreadcrumbs';
 import Components from './Components';

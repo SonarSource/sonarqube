@@ -23,8 +23,8 @@ import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { mockComponent } from '../../../helpers/mocks/component';
 import { ComponentContextShape, ComponentQualifier } from '../../../types/component';
 import { Component } from '../../../types/types';
-import { ComponentContext } from '../componentContext/ComponentContext';
 import NonAdminPagesContainer from '../NonAdminPagesContainer';
+import { ComponentContext } from '../componentContext/ComponentContext';
 
 function Child() {
   return <div>Test Child</div>;
@@ -34,7 +34,7 @@ it('should render correctly for an user that does not have access to all childre
   renderNonAdminPagesContainer(
     mockComponent({ qualifier: ComponentQualifier.Application, canBrowseAllChildProjects: false }),
   );
-  expect(screen.getByText('application.cannot_access_all_child_projects1')).toBeInTheDocument();
+  expect(screen.getByText(/^application.cannot_access_all_child_projects1/)).toBeInTheDocument();
 });
 
 it('should render correctly', () => {

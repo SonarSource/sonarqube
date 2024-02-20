@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { MultiSelector, Tags } from 'design-system';
+import { MultiSelector, SubHeading, Tags } from 'design-system';
 import { difference, without } from 'lodash';
 import React, { useState } from 'react';
 import { searchProjectTags, setApplicationTags, setProjectTags } from '../../../../api/components';
@@ -67,7 +67,7 @@ export default function MetaTags(props: Props) {
 
   return (
     <>
-      <h3>{translate('tags')}</h3>
+      <SubHeading>{translate('tags')}</SubHeading>
       <Tags
         allowUpdate={canUpdateTags()}
         ariaTagsListLabel={translate('tags')}

@@ -17,11 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { Modal } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import Link from '../../components/common/Link';
-import Modal from '../../components/controls/Modal';
-import { ResetButtonLink } from '../../components/controls/buttons';
 import { translate } from '../../helpers/l10n';
 
 interface Props {
@@ -29,13 +29,9 @@ interface Props {
 }
 
 export default function LicensePromptModal({ onClose }: Readonly<Props>) {
-  const header = translate('license.prompt.title');
   return (
-    <Modal contentLabel={header} onRequestClose={onClose}>
-      <header className="modal-head">
-        <h2>{header}</h2>
-      </header>
-      <div className="modal-body">
+    <Modal
+      body={
         <FormattedMessage
           defaultMessage={translate('license.prompt.description')}
           id="license.prompt.description"
@@ -47,10 +43,10 @@ export default function LicensePromptModal({ onClose }: Readonly<Props>) {
             ),
           }}
         />
-      </div>
-      <footer className="modal-foot">
-        <ResetButtonLink onClick={onClose}>{translate('cancel')}</ResetButtonLink>
-      </footer>
-    </Modal>
+      }
+      headerTitle={translate('license.prompt.title')}
+      onClose={onClose}
+      secondaryButtonLabel={translate('cancel')}
+    />
   );
 }

@@ -172,7 +172,7 @@ export default function Conditions({ qualityGate, isFetching }: Readonly<Props>)
               <HelperHintIcon />
             </DocumentationTooltip>
           )}
-          <Spinner loading={isFetching} className="it__spinner sw-ml-4 sw-mt-1" />
+          <Spinner loading={isFetching} className="sw-ml-4 sw-mt-1" />
         </div>
         <div>
           {(qualityGate.caycStatus === CaycStatus.NonCompliant || editing) && canEdit && (

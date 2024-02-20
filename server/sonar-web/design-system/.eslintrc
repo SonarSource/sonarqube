@@ -22,7 +22,7 @@
     "local-rules/use-metrictype-enum": "warn",
     "local-rules/use-visibility-enum": "warn",
     "local-rules/convert-class-to-function-component": "warn",
-    "local-rules/no-conditional-rendering-of-deferredspinner": "warn",
+    "local-rules/no-conditional-rendering-of-spinner": "warn",
     "local-rules/use-jest-mocked": "warn",
 
     // New rules added after updating eslint packages to more recent versions than eslint-config-sonarqube

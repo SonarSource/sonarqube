@@ -32,7 +32,7 @@ import {
 import * as React from 'react';
 import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
 import IssueChangelogDiff from '../../../components/issue/components/IssueChangelogDiff';
-import LegacyAvatar from '../../../components/ui/LegacyAvatar';
+import Avatar from '../../../components/ui/Avatar';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { sanitizeUserInput } from '../../../helpers/sanitize';
 import { Hotspot, ReviewHistoryType } from '../../../types/security-hotspots';
@@ -63,7 +63,7 @@ export default function HotspotReviewHistory(props: HotspotReviewHistoryProps) {
             <LightLabel as="div" className="sw-flex sw-gap-2">
               {user.name && (
                 <div className="sw-flex sw-items-center sw-gap-1">
-                  <LegacyAvatar hash={user.avatar} name={user.name} size={20} />
+                  <Avatar hash={user.avatar} name={user.name} size="xs" />
                   <span className="sw-body-sm-highlight">
                     {user.active ? user.name : translateWithParameters('user.x_deleted', user.name)}
                   </span>

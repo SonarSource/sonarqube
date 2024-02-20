@@ -21,7 +21,6 @@ import { CheckIcon, FlagErrorIcon, FlagWarningIcon } from 'design-system';
 import * as React from 'react';
 import { translate } from '../../helpers/l10n';
 import { HealthTypes } from '../../types/types';
-import './StatusIndicator.css';
 
 export interface StatusIndicatorProps {
   color: HealthTypes;

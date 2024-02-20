@@ -64,7 +64,7 @@ export default function AzureProjectAccordion(props: AzureProjectAccordionProps)
         </span>
       }
     >
-      {/* eslint-disable-next-line local-rules/no-conditional-rendering-of-deferredspinner*/}
+      {/* eslint-disable-next-line local-rules/no-conditional-rendering-of-spinner*/}
       {open && (
         <Spinner loading={loading}>
           {repositories.length === 0 ? (
@@ -113,7 +113,6 @@ export default function AzureProjectAccordion(props: AzureProjectAccordionProps)
                 count={limitedRepositories.length}
                 total={repositories.length}
                 loadMore={() => setPage((p) => p + 1)}
-                useMIUIButtons
               />
             </>
           )}

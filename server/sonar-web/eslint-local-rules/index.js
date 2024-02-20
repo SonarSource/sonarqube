@@ -20,7 +20,7 @@
 module.exports = {
   'use-jest-mocked': require('./use-jest-mocked'),
   'convert-class-to-function-component': require('./convert-class-to-function-component'),
-  'no-conditional-rendering-of-deferredspinner': require('./no-conditional-rendering-of-deferredspinner'),
+  'no-conditional-rendering-of-spinner': require('./no-conditional-rendering-of-spinner'),
   'use-visibility-enum': require('./use-visibility-enum'),
   'use-componentqualifier-enum': require('./use-componentqualifier-enum'),
   'use-metrickey-enum': require('./use-metrickey-enum'),

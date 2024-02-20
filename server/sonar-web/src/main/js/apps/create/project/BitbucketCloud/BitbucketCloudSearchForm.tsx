@@ -115,7 +115,6 @@ export default function BitbucketCloudSearchForm(props: BitbucketCloudSearchForm
         pageSize={BITBUCKET_CLOUD_PROJECTS_PAGESIZE}
         loadMore={props.onLoadMore}
         loading={loadingMore}
-        useMIUIButtons
       />
     </div>
   );

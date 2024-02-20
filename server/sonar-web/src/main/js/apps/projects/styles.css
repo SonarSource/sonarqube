@@ -27,10 +27,6 @@
   padding-left: 24px;
 }
 
-.projects-topbar-item .spinner {
-  top: -1px;
-}
-
 .projects-topbar-item.is-last {
   margin-left: auto;
   padding-left: 32px;

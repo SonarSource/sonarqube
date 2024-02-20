@@ -79,7 +79,6 @@ export default function GroupsApp() {
             loadMore={fetchNextPage}
             ready={!isLoading}
             total={data?.pages[0].page.total}
-            useMIUIButtons
           />
         </main>
       </PageContentFontWrapper>

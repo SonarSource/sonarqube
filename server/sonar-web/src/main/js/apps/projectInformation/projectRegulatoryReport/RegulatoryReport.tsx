@@ -31,14 +31,14 @@ import { useState } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { getBranches } from '../../../api/branches';
 import { getRegulatoryReportUrl } from '../../../api/regulatory-report';
-import DocLink from '../../../components/common/DocLink';
-import { LabelValueSelectOption } from '../../../components/controls/Select';
+import DocumentationLink from '../../../components/common/DocumentationLink';
 import {
   getBranchLikeDisplayName,
   getBranchLikeKey,
   isMainBranch,
 } from '../../../helpers/branch-like';
 import { translate } from '../../../helpers/l10n';
+import { LabelValueSelectOption } from '../../../helpers/search';
 import { BranchLike } from '../../../types/branch-like';
 import { Component } from '../../../types/types';
 
@@ -143,9 +143,9 @@ export default function RegulatoryReport({ component, branchLike }: Props) {
                 defaultMessage={translate('regulatory_page.available_branches_info.more_info')}
                 values={{
                   doc_link: (
-                    <DocLink to="/analyzing-source-code/branches/branch-analysis/#inactive-branches">
+                    <DocumentationLink to="/analyzing-source-code/branches/branch-analysis/#inactive-branches">
                       {translate('regulatory_page.available_branches_info.more_info.doc_link')}
-                    </DocLink>
+                    </DocumentationLink>
                   ),
                 }}
               />

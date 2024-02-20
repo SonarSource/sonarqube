@@ -23,7 +23,7 @@ import { MessageTypes } from '../../../../api/messages';
 import MessagesServiceMock from '../../../../api/mocks/MessagesServiceMock';
 import NewCodeDefinitionServiceMock from '../../../../api/mocks/NewCodeDefinitionServiceMock';
 import { renderComponent } from '../../../../helpers/testReactTestingUtils';
-import { byLabelText, byRole, byText } from '../../../../helpers/testSelector';
+import { byRole, byText } from '../../../../helpers/testSelector';
 import { NewCodeDefinitionType } from '../../../../types/new-code-definition';
 import NewCodeDefinition from '../NewCodeDefinition';
 
@@ -50,7 +50,7 @@ const ui = {
   saveButton: byRole('button', { name: 'save' }),
   cancelButton: byRole('button', { name: 'cancel' }),
   ncdAutoUpdateMessage: byText(/new_code_definition.auto_update.ncd_page.message/),
-  ncdAutoUpdateMessageDismiss: byLabelText('alert.dismiss'),
+  ncdAutoUpdateMessageDismiss: byRole('button', { name: 'dismiss' }),
 };
 
 it('renders and behaves as expected', async () => {

@@ -61,8 +61,10 @@ export default class ResponseExample extends React.PureComponent<Props, State> {
     const { responseExample } = this.state;
 
     return (
-      <div className="web-api-response">
-        {responseExample && <pre style={{ whiteSpace: 'pre-wrap' }}>{responseExample.example}</pre>}
+      <div className="sw-mt-6">
+        {responseExample && (
+          <pre className="sw-code sw-whitespace-pre-wrap">{responseExample.example}</pre>
+        )}
       </div>
     );
   }

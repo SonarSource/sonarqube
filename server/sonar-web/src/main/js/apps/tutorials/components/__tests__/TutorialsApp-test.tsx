@@ -22,7 +22,7 @@ import UserTokensMock from '../../../../api/mocks/UserTokensMock';
 import handleRequiredAuthentication from '../../../../helpers/handleRequiredAuthentication';
 import { mockCurrentUser, mockLoggedInUser } from '../../../../helpers/testMocks';
 import { renderAppWithComponentContext } from '../../../../helpers/testReactTestingUtils';
-import { byLabelText, byRole } from '../../../../helpers/testSelector';
+import { byRole, byText } from '../../../../helpers/testSelector';
 import { Permissions } from '../../../../types/permissions';
 import routes from '../../routes';
 
@@ -44,7 +44,7 @@ afterEach(() => {
 beforeEach(jest.clearAllMocks);
 
 const ui = {
-  loading: byLabelText('loading'),
+  loading: byText('loading'),
   localScanButton: byRole('heading', { name: 'onboarding.tutorial.choose_method' }),
 };
 

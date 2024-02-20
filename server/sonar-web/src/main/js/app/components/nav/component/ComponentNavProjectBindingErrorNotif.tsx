@@ -17,11 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import styled from '@emotion/styled';
+import { FlagWarningIcon, Link, themeBorder, themeColor } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { PULL_REQUEST_DECORATION_BINDING_CATEGORY } from '../../../../apps/settings/constants';
-import Link from '../../../../components/common/Link';
-import { Alert } from '../../../../components/ui/Alert';
 import { translate } from '../../../../helpers/l10n';
 import { getProjectSettingsUrl } from '../../../../helpers/urls';
 import { Component } from '../../../../types/types';
@@ -47,12 +47,20 @@ export default function ComponentNavProjectBindingErrorNotif(
   }
 
   return (
-    <Alert display="banner" variant="warning">
-      <FormattedMessage
-        defaultMessage={translate('component_navigation.pr_deco.error_detected_X')}
-        id="component_navigation.pr_deco.error_detected_X"
-        values={{ action }}
-      />
-    </Alert>
+    <StyledBanner className="sw-body-sm sw-py-3 sw-px-4 sw-gap-4">
+      <FlagWarningIcon />
+      <FormattedMessage id="component_navigation.pr_deco.error_detected_X" values={{ action }} />
+    </StyledBanner>
   );
 }
+
+const StyledBanner = styled.div`
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  width: 100%;
+
+  background-color: ${themeColor('warningBackground')};
+  border-top: ${themeBorder('default', 'warningBorder')};
+  border-bottom: ${themeBorder('default', 'warningBorder')};
+`;

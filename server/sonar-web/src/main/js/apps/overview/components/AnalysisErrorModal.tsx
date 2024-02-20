@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { Modal } from 'design-system';
 import * as React from 'react';
-import Modal from '../../../components/controls/Modal';
-import { ResetButtonLink } from '../../../components/controls/buttons';
 import { hasMessage, translate } from '../../../helpers/l10n';
 import { Task } from '../../../types/tasks';
 import { Component } from '../../../types/types';
@@ -32,36 +32,26 @@ interface Props {
   onClose: () => void;
 }
 
-export function AnalysisErrorModal(props: Props) {
-  const { component, currentTask } = props;
+export function AnalysisErrorModal(props: Readonly<Props>) {
+  const { component, currentTask, onClose } = props;
 
   const header = translate('error');
 
   const licenseError =
-    currentTask.errorType &&
+    currentTask.errorType !== undefined &&
     hasMessage('license.component_navigation.button', currentTask.errorType);
 
   return (
-    <Modal contentLabel={header} onRequestClose={props.onClose}>
-      <header className="modal-head">
-        <h2>{header}</h2>
-      </header>
-
-      <div className="modal-body modal-container">
-        {licenseError ? (
+    <Modal
+      body={
+        licenseError ? (
           <AnalysisLicenseError currentTask={currentTask} />
         ) : (
-          <AnalysisErrorMessage
-            component={component}
-            currentTask={currentTask}
-            onLeave={props.onClose}
-          />
-        )}
-      </div>
-
-      <footer className="modal-foot">
-        <ResetButtonLink onClick={props.onClose}>{translate('close')}</ResetButtonLink>
-      </footer>
-    </Modal>
+          <AnalysisErrorMessage component={component} currentTask={currentTask} onLeave={onClose} />
+        )
+      }
+      headerTitle={header}
+      onClose={onClose}
+    />
   );
 }

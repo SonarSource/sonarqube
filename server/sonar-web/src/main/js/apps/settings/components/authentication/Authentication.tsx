@@ -18,14 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import classNames from 'classnames';
-import { FlagMessage, Link, SubTitle, ToggleButton } from 'design-system';
+import { FlagMessage, Link, SubTitle, ToggleButton, getTabId, getTabPanelId } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { useSearchParams } from 'react-router-dom';
 import withAvailableFeatures, {
   WithAvailableFeaturesProps,
 } from '../../../../app/components/available-features/withAvailableFeatures';
-import { getTabId, getTabPanelId } from '../../../../components/controls/BoxedTabs';
 import { translate } from '../../../../helpers/l10n';
 import { getBaseUrl } from '../../../../helpers/system';
 import { searchParamsToQuery } from '../../../../helpers/urls';
@@ -152,7 +151,7 @@ export function Authentication(props: Props & WithAvailableFeaturesProps) {
       {tabs.map((tab) => (
         <div
           className={classNames('sw-overflow-y-auto', {
-            hidden: currentTab !== tab.value,
+            'sw-hidden': currentTab !== tab.value,
           })}
           key={tab.value}
           role="tabpanel"

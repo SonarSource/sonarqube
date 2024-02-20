@@ -31,3 +31,8 @@ export function highlightTerm(str: string, term: string) {
     str
   );
 }
+
+export interface LabelValueSelectOption<V = string> {
+  label: string;
+  value: V;
+}

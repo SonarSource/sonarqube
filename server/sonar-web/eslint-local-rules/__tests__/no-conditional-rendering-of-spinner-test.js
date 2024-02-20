@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 const { RuleTester } = require('eslint');
-const noConditionalRenderingOfDeferredSpinner = require('../no-conditional-rendering-of-deferredspinner');
+const noConditionalRenderingOfSpinner = require('../no-conditional-rendering-of-spinner');
 
 const ruleTester = new RuleTester({
   parser: require.resolve('@typescript-eslint/parser'),
@@ -29,44 +29,40 @@ const ruleTester = new RuleTester({
   },
 });
 
-ruleTester.run(
-  'no-conditional-rendering-of-deferredspinner',
-  noConditionalRenderingOfDeferredSpinner,
-  {
-    valid: [
-      {
-        code: `function MyCompontent({ loading }) {
+ruleTester.run('no-conditional-rendering-of-spinner', noConditionalRenderingOfSpinner, {
+  valid: [
+    {
+      code: `function MyCompontent({ loading }) {
   return <>
     <Spinner loading={loading} />
   </>
 }`,
-      },
-    ],
-    invalid: [
-      {
-        code: `function MyCompontent({ loading }) {
+    },
+  ],
+  invalid: [
+    {
+      code: `function MyCompontent({ loading }) {
   return <>
     {loading && <Spinner />}
   </>
 }`,
-        errors: [{ messageId: 'noConditionalRenderingOfDeferredSpinner' }],
-      },
-      {
-        code: `function MyComponent({ loading }) {
+      errors: [{ messageId: 'noConditionalRenderingOfSpinner' }],
+    },
+    {
+      code: `function MyComponent({ loading }) {
   return <>
     {loading ? <Spinner /> : <div />}
   </>
 }`,
-        errors: [{ messageId: 'noConditionalRenderingOfDeferredSpinner' }],
-      },
-      {
-        code: `function MyCompontent({ loaded }) {
+      errors: [{ messageId: 'noConditionalRenderingOfSpinner' }],
+    },
+    {
+      code: `function MyCompontent({ loaded }) {
   return <>
     {loaded ? <div /> : <Spinner />}
   </>
 }`,
-        errors: [{ messageId: 'noConditionalRenderingOfDeferredSpinner' }],
-      },
-    ],
-  }
-);
+      errors: [{ messageId: 'noConditionalRenderingOfSpinner' }],
+    },
+  ],
+});

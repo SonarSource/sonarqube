@@ -22,7 +22,7 @@ import styled from '@emotion/styled';
 import classNames from 'classnames';
 import {
   ChevronRightIcon,
-  CopyIcon,
+  ClipboardIconButton,
   HoverLink,
   InteractiveIcon,
   LightLabel,
@@ -34,8 +34,6 @@ import {
 import * as React from 'react';
 import { ComponentContext } from '../../../app/components/componentContext/ComponentContext';
 import { useCurrentUser } from '../../../app/components/current-user/CurrentUserContext';
-import Tooltip from '../../../components/controls/Tooltip';
-import { ClipboardBase } from '../../../components/controls/clipboard';
 import { DEFAULT_ISSUES_QUERY } from '../../../components/shared/utils';
 import { getBranchLikeQuery, isBranch, isPullRequest } from '../../../helpers/branch-like';
 import { translate } from '../../../helpers/l10n';
@@ -139,30 +137,11 @@ export function IssueSourceViewerHeader(props: Readonly<Props>) {
               {collapsedDirFromPath(path)}
               {fileFromPath(path)}
             </LightLabel>
-
-            <ClipboardBase>
-              {({ setCopyButton, copySuccess }) => {
-                return (
-                  <Tooltip
-                    mouseEnterDelay={INTERACTIVE_TOOLTIP_DELAY}
-                    overlay={
-                      <div className="sw-w-abs-150 sw-text-center">
-                        {translate(copySuccess ? 'copied_action' : 'copy_to_clipboard')}
-                      </div>
-                    }
-                    {...(copySuccess ? { visible: copySuccess } : undefined)}
-                  >
-                    <InteractiveIcon
-                      Icon={CopyIcon}
-                      aria-label={translate('source_viewer.click_to_copy_filepath')}
-                      data-clipboard-text={path}
-                      className="sw-h-6 sw-mx-2"
-                      innerRef={setCopyButton}
-                    />
-                  </Tooltip>
-                );
-              }}
-            </ClipboardBase>
+            <ClipboardIconButton
+              className="sw-h-6 sw-mx-2"
+              copyValue={path}
+              copyLabel={translate('source_viewer.click_to_copy_filepath')}
+            />
           </span>
         )}
       </div>

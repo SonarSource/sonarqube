@@ -17,16 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { FlagMessage, Link, Modal, Variant } from 'design-system';
 import { filter, flatMap, isEmpty, negate } from 'lodash';
 import * as React from 'react';
 import withAppStateContext from '../../app/components/app-state/withAppStateContext';
 import { translate } from '../../helpers/l10n';
 import { AppState } from '../../types/appstate';
 import { SystemUpgrade } from '../../types/system';
-import Link from '../common/Link';
-import Modal from '../controls/Modal';
-import { ResetButtonLink } from '../controls/buttons';
-import { Alert, AlertVariant } from '../ui/Alert';
 import SystemUpgradeItem from './SystemUpgradeItem';
 import { SYSTEM_VERSION_REGEXP, UpdateUseCase } from './utils';
 
@@ -38,7 +35,7 @@ interface Props {
   updateUseCase?: UpdateUseCase;
 }
 
-const MAP_ALERT: { [key in UpdateUseCase]?: AlertVariant } = {
+const MAP_ALERT: { [key in UpdateUseCase]?: Variant } = {
   [UpdateUseCase.NewPatch]: 'warning',
   [UpdateUseCase.PreLTS]: 'warning',
   [UpdateUseCase.PreviousLTS]: 'error',
@@ -79,38 +76,34 @@ export function SystemUpgradeForm(props: Readonly<Props>) {
   }
 
   return (
-    <Modal contentLabel={header} onRequestClose={onClose}>
-      <div className="modal-head">
-        <h2>{header}</h2>
-      </div>
-
-      <div className="modal-body">
-        {alertVariant && updateUseCase && (
-          <Alert variant={alertVariant} className={`it__upgrade-alert-${updateUseCase}`}>
-            {translate('admin_notification.update', updateUseCase)}
-          </Alert>
-        )}
-        {systemUpgradesWithPatch.map((upgrades) => (
-          <SystemUpgradeItem
-            edition={appState.edition}
-            key={upgrades[upgrades.length - 1].version}
-            systemUpgrades={upgrades}
-            isPatch={upgrades === patches}
-            isLTSVersion={upgrades.some((upgrade) => upgrade.version.startsWith(latestLTS))}
-          />
-        ))}
-      </div>
-      <div className="modal-foot">
-        <Link
-          className="pull-left link-no-underline display-flex-center"
-          to="https://www.sonarsource.com/products/sonarqube/downloads/?referrer=sonarqube"
-          target="_blank"
-        >
+    <Modal
+      headerTitle={header}
+      onClose={onClose}
+      body={
+        <>
+          {alertVariant && updateUseCase && (
+            <FlagMessage variant={alertVariant} className={`it__upgrade-alert-${updateUseCase}`}>
+              {translate('admin_notification.update', updateUseCase)}
+            </FlagMessage>
+          )}
+          {systemUpgradesWithPatch.map((upgrades) => (
+            <SystemUpgradeItem
+              edition={appState.edition}
+              key={upgrades[upgrades.length - 1].version}
+              systemUpgrades={upgrades}
+              isPatch={upgrades === patches}
+              isLTSVersion={upgrades.some((upgrade) => upgrade.version.startsWith(latestLTS))}
+            />
+          ))}
+        </>
+      }
+      primaryButton={
+        <Link to="https://www.sonarsource.com/products/sonarqube/downloads/?referrer=sonarqube">
           {translate('system.see_sonarqube_downloads')}
         </Link>
-        <ResetButtonLink onClick={onClose}>{translate('cancel')}</ResetButtonLink>
-      </div>
-    </Modal>
+      }
+      secondaryButtonLabel={translate('cancel')}
+    />
   );
 }
 

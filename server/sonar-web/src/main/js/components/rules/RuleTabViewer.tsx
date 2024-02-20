@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import classNames from 'classnames';
-import { ToggleButton } from 'design-system';
+import { ToggleButton, getTabId, getTabPanelId } from 'design-system';
 import { cloneDeep, debounce, groupBy, isEqual } from 'lodash';
 import * as React from 'react';
 import { Location } from 'react-router-dom';
@@ -29,7 +29,6 @@ import { RuleDescriptionSections } from '../../apps/coding-rules/rule';
 import { translate } from '../../helpers/l10n';
 import { RuleDetails } from '../../types/types';
 import { NoticeType } from '../../types/users';
-import { getTabId, getTabPanelId } from '../controls/BoxedTabs';
 import withLocation from '../hoc/withLocation';
 import MoreInfoRuleDescription from './MoreInfoRuleDescription';
 import RuleDescription from './RuleDescription';

@@ -145,7 +145,7 @@ export default function HotspotSnippetContainerRenderer(
       )}
 
       <SourceFileWrapper className="sw-box-border sw-w-full sw-rounded-1" ref={scrollableRef}>
-        <Spinner className="big-spacer" loading={loading} />
+        <Spinner className="sw-m-4" loading={loading} />
 
         {!loading && sourceLines.length > 0 && (
           <SnippetViewer

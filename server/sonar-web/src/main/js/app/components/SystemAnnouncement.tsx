@@ -17,14 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import classNames from 'classnames';
+import styled from '@emotion/styled';
+import { FlagWarningIcon, themeBorder, themeColor } from 'design-system';
 import { keyBy, throttle } from 'lodash';
 import * as React from 'react';
 import { getValues } from '../../api/settings';
-import { Alert } from '../../components/ui/Alert';
 import { Feature } from '../../types/features';
 import { GlobalSettingKeys, SettingValue } from '../../types/settings';
-import './SystemAnnouncement.css';
 import withAvailableFeatures, {
   WithAvailableFeaturesProps,
 } from './available-features/withAvailableFeatures';
@@ -78,20 +77,28 @@ export class SystemAnnouncement extends React.PureComponent<WithAvailableFeature
     const { displayMessage, message } = this.state;
 
     return (
-      <div className={classNames({ 'system-announcement-wrapper': displayMessage && message })}>
-        <Alert
-          className="system-announcement-banner"
-          title={message}
-          display="banner"
-          variant="warning"
-          aria-live="assertive"
-          role="alert"
-        >
-          {displayMessage && message}
-        </Alert>
-      </div>
+      <StyledBanner
+        className="sw-py-3 sw-px-4 sw-gap-3"
+        style={!(displayMessage && message.length > 0) ? { display: 'none' } : {}}
+        title={message}
+        aria-live="assertive"
+        role="alert"
+      >
+        <FlagWarningIcon />
+        <span>{displayMessage && message}</span>
+      </StyledBanner>
     );
   }
 }
 
 export default withAvailableFeatures(SystemAnnouncement);
+
+const StyledBanner = styled.div`
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  width: 100%;
+
+  background-color: ${themeColor('warningBackground')};
+  border-bottom: ${themeBorder('default', 'warningBorder')};
+`;

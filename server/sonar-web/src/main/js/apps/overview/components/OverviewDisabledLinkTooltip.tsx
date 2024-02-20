@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import DocLink from '../../../components/common/DocLink';
+import DocumentationLink from '../../../components/common/DocumentationLink';
 import { translate } from '../../../helpers/l10n';
 
 export function OverviewDisabledLinkTooltip() {
@@ -34,9 +34,9 @@ export function OverviewDisabledLinkTooltip() {
 
       <span className="sw-body-sm-highlight">{translate('indexation.learn_more')}</span>
 
-      <DocLink className="sw-ml-1" to="/instance-administration/reindexing/">
+      <DocumentationLink className="sw-ml-1" to="/instance-administration/reindexing/">
         {translate('indexation.reindexing')}
-      </DocLink>
+      </DocumentationLink>
     </div>
   );
 }

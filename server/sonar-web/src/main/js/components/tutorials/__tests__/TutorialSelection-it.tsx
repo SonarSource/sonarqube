@@ -28,7 +28,7 @@ import UserTokensMock from '../../../api/mocks/UserTokensMock';
 import { mockComponent } from '../../../helpers/mocks/component';
 import { mockLoggedInUser } from '../../../helpers/testMocks';
 import { renderApp } from '../../../helpers/testReactTestingUtils';
-import { byLabelText, byRole, byText } from '../../../helpers/testSelector';
+import { byRole, byText } from '../../../helpers/testSelector';
 import { ComponentPropsType } from '../../../helpers/testUtils';
 import { AlmKeys } from '../../../types/alm-settings';
 import { Feature } from '../../../types/features';
@@ -69,7 +69,7 @@ beforeEach(() => {
 });
 
 const ui = {
-  loading: byLabelText('loading'),
+  loading: byText('loading'),
   noScanRights: byText('onboarding.tutorial.no_scan_rights'),
   chooseTutorialLink: (mode: TutorialModes) =>
     byRole('link', { name: `onboarding.tutorial.choose_method.${mode}` }),

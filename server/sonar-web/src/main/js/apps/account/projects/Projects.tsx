@@ -57,7 +57,6 @@ export default function Projects(props: Readonly<Props>) {
             loading={props.loading}
             ready={!props.loading}
             total={props.total ?? 0}
-            useMIUIButtons
           />
         </>
       )}

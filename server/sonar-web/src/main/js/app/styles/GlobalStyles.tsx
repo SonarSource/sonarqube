@@ -17,17 +17,40 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
-import Icon, { IconProps } from './Icon';
 
-export default function CopyIcon({ fill = 'currentColor', ...iconProps }: IconProps) {
+import { Global, css, useTheme } from '@emotion/react';
+import { themeColor } from 'design-system/lib';
+import React from 'react';
+import twDefaultTheme from 'tailwindcss/defaultTheme';
+
+export function GlobalStyles() {
+  const theme = useTheme();
+
   return (
-    <Icon {...iconProps}>
-      <g fill={fill} fillRule="nonzero">
-        <path d="M2.931 15.005V3H2v13h9v-.995z" />
-        <path d="M10 4.015h3V14H4V1h6v3.015zM9 8V6H8v2H6v1h2v2h1V9h2V8H9z" />
-        <path d="M11 1v2h2a2.151 2.151 0 0 0-2-2z" />
-      </g>
-    </Icon>
+    <Global
+      styles={css`
+        body {
+          font-family: Inter, ${twDefaultTheme.fontFamily.sans.join(', ')};
+          font-size: 0.875rem;
+          line-height: 1.25rem;
+          font-weight: 400;
+
+          color: ${themeColor('pageContent')({ theme })};
+          background-color: ${themeColor('backgroundPrimary')({ theme })};
+        }
+
+        a {
+          outline: none;
+          text-decoration: none;
+          color: ${themeColor('pageContent')({ theme })};
+        }
+
+        ol,
+        ul {
+          padding-left: 0;
+          list-style: none;
+        }
+      `}
+    />
   );
 }

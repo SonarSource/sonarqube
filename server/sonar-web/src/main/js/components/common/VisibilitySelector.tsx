@@ -39,7 +39,7 @@ export default function VisibilitySelector(props: VisibilitySelectorProps) {
     <div className={classNames(className)}>
       {Object.values(Visibility).map((v) => (
         <RadioButton
-          className={`huge-spacer-right visibility-${v}`}
+          className={`sw-mr-10 it__visibility-${v}`}
           key={v}
           value={v}
           checked={v === visibility}

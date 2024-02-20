@@ -131,7 +131,6 @@ export default function AzureProjectsList(props: AzureProjectsListProps) {
         count={displayedProjects.length}
         loadMore={() => setPage((p) => p + 1)}
         total={filteredProjects.length}
-        useMIUIButtons
       />
     </div>
   );

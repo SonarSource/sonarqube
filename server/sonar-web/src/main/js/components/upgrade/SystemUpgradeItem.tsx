@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { DownloadButton, Link, SubHeading } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import {
@@ -27,8 +28,7 @@ import {
 import { translate, translateWithParameters } from '../../helpers/l10n';
 import { EditionKey } from '../../types/editions';
 import { SystemUpgrade } from '../../types/system';
-import DocLink from '../common/DocLink';
-import Link from '../common/Link';
+import DocumentationLink from '../common/DocumentationLink';
 import DateFormatter from '../intl/DateFormatter';
 import SystemUpgradeIntermediate from './SystemUpgradeIntermediate';
 
@@ -55,18 +55,17 @@ export default function SystemUpgradeItem(props: SystemUpgradeItemProps) {
 
   return (
     <div className="system-upgrade-version it__upgrade-list-item">
-      <h3 className="h1 spacer-bottom">
+      <SubHeading as="h3">
         <strong>{header}</strong>
         {!isPatch && (
           <Link
-            className="spacer-left medium"
+            className="sw-ml-2"
             to="https://www.sonarsource.com/products/sonarqube/whats-new/?referrer=sonarqube"
-            target="_blank"
           >
             {translate('system.see_whats_new')}
           </Link>
         )}
-      </h3>
+      </SubHeading>
       <p>
         <FormattedMessage
           defaultMessage={translate('system.version_is_availble')}
@@ -74,8 +73,8 @@ export default function SystemUpgradeItem(props: SystemUpgradeItemProps) {
           values={{ version: <b>SonarQube {lastUpgrade.version}</b> }}
         />
       </p>
-      <p className="spacer-top">{lastUpgrade.description}</p>
-      <div className="big-spacer-top">
+      <p className="sw-mt-2">{lastUpgrade.description}</p>
+      <div className="sw-mt-4">
         {lastUpgrade.releaseDate && (
           <DateFormatter date={lastUpgrade.releaseDate} long>
             {(formattedDate) => (
@@ -84,25 +83,23 @@ export default function SystemUpgradeItem(props: SystemUpgradeItemProps) {
           </DateFormatter>
         )}
         {lastUpgrade.changeLogUrl && (
-          <Link className="spacer-left" to={lastUpgrade.changeLogUrl} target="_blank">
+          <Link className="sw-ml-2" to={lastUpgrade.changeLogUrl}>
             {translate('system.release_notes')}
           </Link>
         )}
       </div>
-      <SystemUpgradeIntermediate className="spacer-top" upgrades={systemUpgrades.slice(1)} />
-      <div className="big-spacer-top">
-        <a
-          className="button"
-          download={getEditionDownloadFilename(downloadUrl)}
-          href={downloadUrl}
-          rel="noopener noreferrer"
-          target="_blank"
-        >
+      <SystemUpgradeIntermediate className="sw-mt-2" upgrades={systemUpgrades.slice(1)} />
+      <div className="sw-mt-4">
+        <DownloadButton download={getEditionDownloadFilename(downloadUrl)} href={downloadUrl}>
           {translateWithParameters('system.download_x', lastUpgrade.version)}
-        </a>
-        <DocLink className="spacer-left" to="/setup-and-upgrade/upgrade-the-server/upgrade-guide/">
+        </DownloadButton>
+
+        <DocumentationLink
+          className="sw-ml-2"
+          to="/setup-and-upgrade/upgrade-the-server/upgrade-guide/"
+        >
           {translate('system.how_to_upgrade')}
-        </DocLink>
+        </DocumentationLink>
       </div>
     </div>
   );

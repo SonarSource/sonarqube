@@ -29,6 +29,7 @@ module.exports = {
       auto: 'auto',
       default: 'default',
       pointer: 'pointer',
+      text: 'text',
       'not-allowed': 'not-allowed',
     },
     // Define font sizes

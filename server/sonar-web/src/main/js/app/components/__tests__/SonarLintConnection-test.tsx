@@ -112,7 +112,7 @@ it('should handle connection errors', async () => {
   ).toBeInTheDocument();
 
   const tokenValue = tokenMock.getLastToken()?.token ?? '';
-  expect(await screen.findByText(tokenValue)).toBeInTheDocument();
+  expect(await screen.findByRole('textbox')).toHaveValue(tokenValue);
 });
 
 it('should require authentication if user is not logged in', () => {

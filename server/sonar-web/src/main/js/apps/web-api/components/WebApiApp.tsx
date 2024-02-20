@@ -17,14 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import styled from '@emotion/styled';
+import {
+  LAYOUT_FOOTER_HEIGHT,
+  LAYOUT_GLOBAL_NAV_HEIGHT,
+  LargeCenteredLayout,
+  PageContentFontWrapper,
+  Title,
+} from 'design-system';
 import { maxBy } from 'lodash';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Params, useParams } from 'react-router-dom';
 import { fetchWebApi } from '../../../api/web-api';
 import A11ySkipTarget from '../../../components/a11y/A11ySkipTarget';
-import Link from '../../../components/common/Link';
-import ScreenPositionHelper from '../../../components/common/ScreenPositionHelper';
 import Suggestions from '../../../components/embed-docs-modal/Suggestions';
 import { Location, Router, withRouter } from '../../../components/hoc/withRouter';
 import { translate } from '../../../helpers/l10n';
@@ -155,49 +161,47 @@ export class WebApiApp extends React.PureComponent<Props, State> {
   };
 
   render() {
-    const splat = this.props.params.splat || '';
+    const splat = this.props.params.splat ?? '';
     const query = parseQuery(this.props.location.query);
     const { domains } = this.state;
 
     const domain = domains.find((domain) => isDomainPathActive(domain.path, splat));
 
     return (
-      <div className="layout-page">
-        <Suggestions suggestions="api_documentation" />
-        <Helmet defer={false} title={translate('api_documentation.page')} />
-        <ScreenPositionHelper className="layout-page-side-outer">
-          {({ top }) => (
-            <div className="layout-page-side" style={{ top }}>
-              <div className="layout-page-side-inner">
-                <div className="layout-page-filters">
-                  <A11ySkipTarget anchor="webapi_main" />
+      <LargeCenteredLayout>
+        <PageContentFontWrapper className="sw-body-sm sw-w-full sw-flex">
+          <Suggestions suggestions="api_documentation" />
+          <Helmet defer={false} title={translate('api_documentation.page')} />
+          <div className="sw-w-full sw-flex">
+            <NavContainer
+              aria-label={translate('api_documentation.domain_nav')}
+              className="sw--mx-2"
+            >
+              <A11ySkipTarget anchor="webapi_main" />
 
-                  <div className="web-api-page-header">
-                    <Link to="/web_api/">
-                      <h1>{translate('api_documentation.page')}</h1>
-                    </Link>
-                  </div>
+              <Title>{translate('api_documentation.page')}</Title>
 
-                  <Search
-                    onSearch={this.handleSearch}
-                    onToggleDeprecated={this.handleToggleDeprecated}
-                    onToggleInternal={this.handleToggleInternal}
-                    query={query}
-                  />
-
-                  <Menu domains={this.state.domains} query={query} splat={splat} />
-                </div>
+              <Search
+                onSearch={this.handleSearch}
+                onToggleDeprecated={this.handleToggleDeprecated}
+                onToggleInternal={this.handleToggleInternal}
+                query={query}
+              />
+              <div className="sw-w-[300px] sw-mr-2">
+                <Menu domains={this.state.domains} query={query} splat={splat} />
               </div>
-            </div>
-          )}
-        </ScreenPositionHelper>
-
-        <div className="layout-page-main">
-          <div className="layout-page-main-inner">
-            {domain && <Domain domain={domain} key={domain.path} query={query} />}
+            </NavContainer>
+            <main
+              style={{
+                height: `calc(100vh - ${LAYOUT_FOOTER_HEIGHT + LAYOUT_GLOBAL_NAV_HEIGHT}px`,
+              }}
+              className="sw-box-border sw-overflow-y-auto sw-relative sw-flex-1 sw-min-w-0 sw-ml-8 sw-py-8"
+            >
+              {domain && <Domain domain={domain} key={domain.path} query={query} />}
+            </main>
           </div>
-        </div>
-      </div>
+        </PageContentFontWrapper>
+      </LargeCenteredLayout>
     );
   }
 }
@@ -224,3 +228,13 @@ function getLatestDeprecatedAction(domain: Pick<WebApi.Domain, 'actions'>) {
     });
   return latestDeprecation || undefined;
 }
+
+const NavContainer = styled.nav`
+  scrollbar-gutter: stable;
+  overflow-y: auto;
+  overflow-x: hidden;
+  box-sizing: border-box;
+  height: calc(100vh - ${LAYOUT_FOOTER_HEIGHT + LAYOUT_GLOBAL_NAV_HEIGHT}px);
+  padding-top: 1.5rem;
+  padding-bottom: 1.5rem;
+`;

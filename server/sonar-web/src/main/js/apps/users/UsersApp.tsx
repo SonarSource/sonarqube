@@ -35,10 +35,10 @@ import GitLabSynchronisationWarning from '../../app/components/GitLabSynchronisa
 import HelpTooltip from '../../components/controls/HelpTooltip';
 import ListFooter from '../../components/controls/ListFooter';
 import { ManagedFilter } from '../../components/controls/ManagedFilter';
-import { LabelValueSelectOption } from '../../components/controls/Select';
 import Suggestions from '../../components/embed-docs-modal/Suggestions';
 import { now, toISO8601WithOffsetString } from '../../helpers/dates';
 import { translate } from '../../helpers/l10n';
+import { LabelValueSelectOption } from '../../helpers/search';
 import { useIdentityProviderQuery } from '../../queries/identity-provider/common';
 import { useUsersQueries } from '../../queries/users';
 import { IdentityProvider, Provider } from '../../types/types';
@@ -163,7 +163,6 @@ export default function UsersApp() {
           loadMore={fetchNextPage}
           ready={!isLoading}
           total={data?.pages[0].page.total}
-          useMIUIButtons
         />
       </PageContentFontWrapper>
     </LargeCenteredLayout>

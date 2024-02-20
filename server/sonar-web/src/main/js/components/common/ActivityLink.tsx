@@ -24,7 +24,6 @@ import { getActivityUrl, getMeasureHistoryUrl } from '../../helpers/urls';
 import { BranchLike } from '../../types/branch-like';
 import { GraphType } from '../../types/project-activity';
 import { isCustomGraph } from '../activity-graph/utils';
-import './ActivityLink.css';
 
 export interface ActivityLinkProps {
   branchLike?: BranchLike;

@@ -27,10 +27,4 @@ export const DangerButtonSecondary: React.FC<React.PropsWithChildren<ButtonProps
   --color: ${themeContrast('dangerButtonSecondary')};
   --focus: ${themeColor('dangerButtonSecondaryFocus', OPACITY_20_PERCENT)};
   --border: ${themeBorder('default', 'dangerButtonSecondaryBorder')};
-
-  &:hover,
-  &:active,
-  &:focus {
-    border-color: ${themeColor('dangerButtonSecondaryBorder')};
-  }
 `;

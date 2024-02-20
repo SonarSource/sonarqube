@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { CenteredLayout, FlagMessage } from 'design-system';
 import * as React from 'react';
 import { Outlet } from 'react-router-dom';
-import { Alert } from '../../components/ui/Alert';
 import { translate } from '../../helpers/l10n';
 import { isApplication } from '../../types/component';
 import { ComponentContext } from './componentContext/ComponentContext';
@@ -34,17 +34,18 @@ export default function NonAdminPagesContainer() {
    */
   if (component && isApplication(component.qualifier) && !component.canBrowseAllChildProjects) {
     return (
-      <div className="page page-limited display-flex-justify-center">
-        <Alert
-          className="it__alert-no-access-all-child-project max-width-60 huge-spacer-top"
-          display="block"
-          variant="error"
-        >
-          <p>{translate('application.cannot_access_all_child_projects1')}</p>
-          <br />
-          <p>{translate('application.cannot_access_all_child_projects2')}</p>
-        </Alert>
-      </div>
+      <CenteredLayout
+        className="sw-py-8 sw-body-md sw-flex sw-flex-col sw-items-center"
+        id="code-page"
+      >
+        <FlagMessage className="it__alert-no-access-all-child-project sw-mt-10" variant="error">
+          <p>
+            {translate('application.cannot_access_all_child_projects1')}
+            <br />
+            {translate('application.cannot_access_all_child_projects2')}
+          </p>
+        </FlagMessage>
+      </CenteredLayout>
     );
   }
 

@@ -17,11 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Link, Note, getTabPanelId } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import DocLink from '../../../components/common/DocLink';
-import Link from '../../../components/common/Link';
-import { getTabPanelId } from '../../../components/controls/BoxedTabs';
+import DocumentationLink from '../../../components/common/DocumentationLink';
 import { getBranchLikeQuery } from '../../../helpers/branch-like';
 import { translate } from '../../../helpers/l10n';
 import { getBaseUrl } from '../../../helpers/system';
@@ -62,18 +61,18 @@ export default function MeasuresPanelNoNewCode(props: MeasuresPanelNoNewCodeProp
 
   return (
     <div
-      className="display-flex-center display-flex-justify-center"
+      className="sw-flex sw-items-center sw-justify-center"
       id={getTabPanelId(CodeScope.New)}
       style={{ height: 500 }}
     >
       <img
         alt="" /* Make screen readers ignore this image; it's purely eye candy. */
-        className="spacer-right"
+        className="sw-mr-2"
         height={52}
         src={`${getBaseUrl()}/images/source-code.svg`}
       />
-      <div className="big-spacer-left text-muted" style={{ maxWidth: 500 }}>
-        <p className="spacer-bottom big-spacer-top big">{translate(badExplanationKey)}</p>
+      <Note as="div" className="sw-ml-4 sw-max-w-abs-500">
+        <p className="sw-mb-2 sw-mt-4">{translate(badExplanationKey)}</p>
         {hasBadNewCodeSettingSameRef ? (
           showSettingsLink && (
             <p>
@@ -102,13 +101,15 @@ export default function MeasuresPanelNoNewCode(props: MeasuresPanelNoNewCodeProp
               id="overview.measures.empty_link"
               values={{
                 learn_more_link: (
-                  <DocLink to="/user-guide/clean-as-you-code/">{translate('learn_more')}</DocLink>
+                  <DocumentationLink to="/user-guide/clean-as-you-code/">
+                    {translate('learn_more')}
+                  </DocumentationLink>
                 ),
               }}
             />
           </p>
         )}
-      </div>
+      </Note>
     </div>
   );
 }

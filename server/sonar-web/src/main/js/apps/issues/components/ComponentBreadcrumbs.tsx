@@ -18,9 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import styled from '@emotion/styled';
-import { Badge, themeBorder, themeContrast } from 'design-system';
+import { Badge, BranchIcon, themeBorder, themeContrast } from 'design-system';
 import * as React from 'react';
-import BranchIcon from '../../../components/icons/BranchIcon';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { collapsePath, limitComponentName } from '../../../helpers/path';
 import { ComponentQualifier, isView } from '../../../types/component';

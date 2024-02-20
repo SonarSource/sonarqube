@@ -26,7 +26,6 @@ import { WithBranchLikesProps, useBranchesQuery } from '../../../queries/branch'
 import { ComponentQualifier, isPortfolioLike } from '../../../types/component';
 import { Breadcrumb, Component, ComponentMeasure, Dict, Metric } from '../../../types/types';
 import { addComponent, addComponentBreadcrumbs, clearBucket } from '../bucket';
-import '../code.css';
 import { loadMoreChildren, retrieveComponent, retrieveComponentChildren } from '../utils';
 import CodeAppRenderer from './CodeAppRenderer';
 

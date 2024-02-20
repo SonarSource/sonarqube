@@ -33,8 +33,8 @@ import { isEmpty } from 'lodash';
 import * as React from 'react';
 import { getScannableProjects } from '../../../api/components';
 import withCurrentUserContext from '../../../app/components/current-user/withCurrentUserContext';
-import { LabelValueSelectOption } from '../../../components/controls/Select';
 import { translate } from '../../../helpers/l10n';
+import { LabelValueSelectOption } from '../../../helpers/search';
 import {
   EXPIRATION_OPTIONS,
   computeTokenExpirationDate,

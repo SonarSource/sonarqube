@@ -19,12 +19,20 @@
  */
 /* eslint-disable react/no-unused-prop-types */
 
-import classNames from 'classnames';
+import styled from '@emotion/styled';
+import {
+  FlagErrorIcon,
+  FlagSuccessIcon,
+  FlagWarningIcon,
+  Link,
+  Spinner,
+  ThemeColors,
+  themeBorder,
+  themeColor,
+} from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import DocLink from '../../../components/common/DocLink';
-import Link from '../../../components/common/Link';
-import { Alert, AlertProps } from '../../../components/ui/Alert';
+import DocumentationLink from '../../../components/common/DocumentationLink';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { queryToSearch } from '../../../helpers/urls';
 import { IndexationNotificationType } from '../../../types/indexation';
@@ -36,26 +44,41 @@ export interface IndexationNotificationRendererProps {
   type?: IndexationNotificationType;
 }
 
-const NOTIFICATION_VARIANTS: { [key in IndexationNotificationType]: AlertProps['variant'] } = {
-  [IndexationNotificationType.InProgress]: 'warning',
-  [IndexationNotificationType.InProgressWithFailure]: 'error',
-  [IndexationNotificationType.Completed]: 'success',
-  [IndexationNotificationType.CompletedWithFailure]: 'error',
+const NOTIFICATION_COLORS: {
+  [key in IndexationNotificationType]: { background: ThemeColors; border: ThemeColors };
+} = {
+  [IndexationNotificationType.InProgress]: {
+    background: 'warningBackground',
+    border: 'warningBorder',
+  },
+  [IndexationNotificationType.InProgressWithFailure]: {
+    background: 'errorBackground',
+    border: 'errorBorder',
+  },
+  [IndexationNotificationType.Completed]: {
+    background: 'successBackground',
+    border: 'successBorder',
+  },
+  [IndexationNotificationType.CompletedWithFailure]: {
+    background: 'errorBackground',
+    border: 'errorBorder',
+  },
 };
 
 export default function IndexationNotificationRenderer(props: IndexationNotificationRendererProps) {
   const { completedCount, total, type } = props;
 
   return (
-    <div className={classNames({ 'indexation-notification-wrapper': type })}>
-      <Alert
-        className="indexation-notification-banner"
-        display="banner"
-        variant={type ? NOTIFICATION_VARIANTS[type] : 'success'}
+    <div className={type === undefined ? 'sw-hidden' : ''}>
+      <StyledBanner
+        className="sw-body-sm sw-py-3 sw-px-4 sw-gap-4"
+        type={type ?? IndexationNotificationType.Completed}
         aria-live="assertive"
+        role="alert"
       >
         {type !== undefined && (
-          <div className="display-flex-center">
+          <>
+            {renderIcon(type)}
             {type === IndexationNotificationType.Completed && renderCompletedBanner()}
 
             {type === IndexationNotificationType.CompletedWithFailure &&
@@ -66,20 +89,34 @@ export default function IndexationNotificationRenderer(props: IndexationNotifica
 
             {type === IndexationNotificationType.InProgressWithFailure &&
               renderInProgressWithFailureBanner(completedCount as number, total as number)}
-          </div>
+          </>
         )}
-      </Alert>
+      </StyledBanner>
     </div>
   );
 }
 
+function renderIcon(type: IndexationNotificationType) {
+  switch (type) {
+    case IndexationNotificationType.Completed:
+      return <FlagSuccessIcon />;
+    case IndexationNotificationType.CompletedWithFailure:
+    case IndexationNotificationType.InProgressWithFailure:
+      return <FlagErrorIcon />;
+    case IndexationNotificationType.InProgress:
+      return <FlagWarningIcon />;
+    default:
+      return null;
+  }
+}
+
 function renderCompletedBanner() {
-  return <span className="spacer-right">{translate('indexation.completed')}</span>;
+  return <span>{translate('indexation.completed')}</span>;
 }
 
 function renderCompletedWithFailureBanner() {
   return (
-    <span className="spacer-right">
+    <span>
       <FormattedMessage
         defaultMessage={translate('indexation.completed_with_error')}
         id="indexation.completed_with_error"
@@ -97,7 +134,7 @@ function renderCompletedWithFailureBanner() {
 function renderInProgressBanner(completedCount: number, total: number) {
   return (
     <>
-      <span className="spacer-right">
+      <span>
         <FormattedMessage id="indexation.in_progress" />{' '}
         <FormattedMessage
           id="indexation.features_partly_available"
@@ -106,9 +143,9 @@ function renderInProgressBanner(completedCount: number, total: number) {
           }}
         />
       </span>
-      <i className="spinner spacer-right" />
 
-      <span className="spacer-right">
+      <span className="sw-flex sw-items-center">
+        <Spinner className="sw-mr-1 -sw-mb-1/2" />
         {translateWithParameters(
           'indexation.progression',
           completedCount.toString(),
@@ -116,7 +153,7 @@ function renderInProgressBanner(completedCount: number, total: number) {
         )}
       </span>
 
-      <span className="spacer-right">
+      <span>
         <FormattedMessage
           id="indexation.admin_link"
           defaultMessage={translate('indexation.admin_link')}
@@ -132,7 +169,7 @@ function renderInProgressBanner(completedCount: number, total: number) {
 function renderInProgressWithFailureBanner(completedCount: number, total: number) {
   return (
     <>
-      <span className="spacer-right">
+      <span>
         <FormattedMessage id="indexation.in_progress" />{' '}
         <FormattedMessage
           id="indexation.features_partly_available"
@@ -141,17 +178,15 @@ function renderInProgressWithFailureBanner(completedCount: number, total: number
           }}
         />
       </span>
-      <i className="spinner spacer-right" />
 
-      <span className="spacer-right">
+      <span className="sw-flex sw-items-center">
+        <Spinner className="sw-mr-1 -sw-mb-1/2" />
         <FormattedMessage
+          tagName="span"
           id="indexation.progression_with_error"
-          defaultMessage={translateWithParameters(
-            'indexation.progression_with_error',
-            completedCount.toString(),
-            total.toString(),
-          )}
           values={{
+            count: completedCount,
+            total,
             link: renderBackgroundTasksPageLink(
               true,
               translate('indexation.progression_with_error.link'),
@@ -181,8 +216,18 @@ function renderBackgroundTasksPageLink(hasError: boolean, text: string) {
 
 function renderIndexationDocPageLink() {
   return (
-    <DocLink to="/instance-administration/reindexing/">
+    <DocumentationLink className="sw-whitespace-nowrap" to="/instance-administration/reindexing/">
       <FormattedMessage id="indexation.features_partly_available.link" />
-    </DocLink>
+    </DocumentationLink>
   );
 }
+
+const StyledBanner = styled.div<{ type: IndexationNotificationType }>`
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  width: 100%;
+
+  background-color: ${({ type }) => themeColor(NOTIFICATION_COLORS[type].background)};
+  border-bottom: ${({ type }) => themeBorder('default', NOTIFICATION_COLORS[type].border)};
+`;

@@ -22,7 +22,7 @@ import * as React from 'react';
 import HelpTooltip from '../../components/controls/HelpTooltip';
 import { KeyboardKeys } from '../../helpers/keycodes';
 import { Placement } from '../controls/Tooltip';
-import DocLink from './DocLink';
+import DocumentationLink from './DocumentationLink';
 import Link from './Link';
 
 export interface DocumentationTooltipProps {
@@ -79,7 +79,7 @@ export default function DocumentationTooltip(props: DocumentationTooltipProps) {
       isInteractive
       innerRef={helpRef}
       overlay={
-        <div className="big-padded-top big-padded-bottom">
+        <div className="sw-py-4">
           {title && (
             <div className="spacer-bottom">
               <strong>{title}</strong>
@@ -90,14 +90,17 @@ export default function DocumentationTooltip(props: DocumentationTooltipProps) {
 
           {links && (
             <>
-              <hr className="big-spacer-top big-spacer-bottom" />
+              <hr className="sw-my-4" />
 
               {links.map(({ href, label, inPlace, doc = true }, index) => (
                 <div className="little-spacer-bottom" key={label}>
                   {doc ? (
-                    <DocLink to={href} innerRef={(ref) => (linksRef.current[index] = ref)}>
+                    <DocumentationLink
+                      to={href}
+                      innerRef={(ref) => (linksRef.current[index] = ref)}
+                    >
                       {label}
-                    </DocLink>
+                    </DocumentationLink>
                   ) : (
                     <Link
                       to={href}

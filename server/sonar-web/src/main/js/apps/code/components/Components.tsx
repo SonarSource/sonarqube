@@ -63,7 +63,7 @@ function Components(props: ComponentsProps) {
 
   const columnCount = metrics.length + Number(canBePinned) + Number(showAnalysisDate) + 1;
   return (
-    <div className="big-spacer-bottom table-wrapper">
+    <div className="sw-mb-4">
       <Table
         columnCount={columnCount}
         columnWidths={[

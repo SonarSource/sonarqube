@@ -29,7 +29,7 @@ import {
 } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import DocLink from '../../../components/common/DocLink';
+import DocumentationLink from '../../../components/common/DocumentationLink';
 import { translate } from '../../../helpers/l10n';
 import { isDiffMetric } from '../../../helpers/measures';
 import { CodeScope } from '../../../helpers/urls';
@@ -182,12 +182,12 @@ export function TabsPanel(props: React.PropsWithChildren<MeasuresPanelProps>) {
                 {`${translate('indexation.in_progress')} ${translate(
                   'indexation.details_unavailable',
                 )}`}
-                <DocLink
+                <DocumentationLink
                   className="sw-ml-1 sw-whitespace-nowrap"
                   to="/instance-administration/reindexing/"
                 >
                   {translate('learn_more')}
-                </DocLink>
+                </DocumentationLink>
               </span>
             </FlagMessage>
           )}

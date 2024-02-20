@@ -216,8 +216,8 @@ export default class BranchNewCodeDefinitionSettingModal extends React.PureCompo
 
     return (
       <Modal
-        isLarge
         headerTitle={header}
+        isLarge
         onClose={this.requestClose}
         body={formBody}
         primaryButton={

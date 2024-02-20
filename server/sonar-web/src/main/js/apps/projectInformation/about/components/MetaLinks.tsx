@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { SubHeading } from 'design-system/lib';
 import React from 'react';
 import MetaLink from '../../../../components/common/MetaLink';
 import { translate } from '../../../../helpers/l10n';
@@ -32,8 +33,8 @@ export default function MetaLinks({ links }: Readonly<Props>) {
 
   return (
     <>
-      <h3 id="external-links">{translate('overview.external_links')}</h3>
-      <ul className="project-info-list" aria-labelledby="external-links">
+      <SubHeading id="external-links">{translate('overview.external_links')}</SubHeading>
+      <ul className="sw-flex sw-flex-col sw-gap-2" aria-labelledby="external-links">
         {orderedLinks.map((link) => (
           <MetaLink key={link.id} link={link} />
         ))}

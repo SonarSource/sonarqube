@@ -19,7 +19,6 @@
  */
 import { Note, Switch } from 'design-system';
 import * as React from 'react';
-import { getToggleValue } from '../../../../components/controls/Toggle';
 import { translate } from '../../../../helpers/l10n';
 import { DefaultSpecializedInputProps, getPropertyName } from '../../utils';
 
@@ -46,4 +45,8 @@ export default function InputForBoolean({ onChange, name, value, setting }: Prop
       {value == null && <Note className="sw-ml-2">{translate('settings.not_set')}</Note>}
     </div>
   );
+}
+
+function getToggleValue(value: string | boolean) {
+  return typeof value === 'string' ? value === 'true' : value;
 }

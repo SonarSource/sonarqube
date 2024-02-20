@@ -101,6 +101,7 @@ import PortfolioPage from '../components/extensions/PortfolioPage';
 import PortfoliosPage from '../components/extensions/PortfoliosPage';
 import ProjectAdminPageExtension from '../components/extensions/ProjectAdminPageExtension';
 import ProjectPageExtension from '../components/extensions/ProjectPageExtension';
+import { GlobalStyles } from '../styles/GlobalStyles';
 import exportModulesAsGlobals from './exportModulesAsGlobals';
 
 function renderComponentRoutes() {
@@ -272,6 +273,7 @@ export default function startReactApp(
             <RawIntlProvider value={l10nBundle}>
               <ThemeProvider theme={lightTheme}>
                 <QueryClientProvider client={queryClient}>
+                  <GlobalStyles />
                   <GlobalMessagesContainer />
                   <Helmet titleTemplate={translate('page_title.template.default')} />
                   <RouterProvider router={router} />

@@ -17,12 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Spinner } from 'design-system';
 import { groupBy } from 'lodash';
 import * as React from 'react';
 import IssueItem from '../../../components/issue/Issue';
 import { BranchLike } from '../../../types/branch-like';
 import { Component, Issue } from '../../../types/types';
-
 import ComponentBreadcrumbs from './ComponentBreadcrumbs';
 
 interface Props {
@@ -93,7 +93,7 @@ export default class IssuesList extends React.PureComponent<Props, State> {
     if (prerender) {
       return (
         <div>
-          <i className="spinner" />
+          <Spinner />
         </div>
       );
     }

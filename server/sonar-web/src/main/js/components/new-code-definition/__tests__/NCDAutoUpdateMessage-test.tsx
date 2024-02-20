@@ -27,7 +27,7 @@ import NewCodeDefinitionServiceMock from '../../../api/mocks/NewCodeDefinitionSe
 import { mockComponent } from '../../../helpers/mocks/component';
 import { mockLoggedInUser } from '../../../helpers/testMocks';
 import { renderAppRoutes } from '../../../helpers/testReactTestingUtils';
-import { byLabelText, byText } from '../../../helpers/testSelector';
+import { byRole, byText } from '../../../helpers/testSelector';
 import { NewCodeDefinitionType } from '../../../types/new-code-definition';
 import { Component } from '../../../types/types';
 import NCDAutoUpdateMessage from '../NCDAutoUpdateMessage';
@@ -64,7 +64,7 @@ describe('Global NCD update notification banner', () => {
   });
 
   const ui = {
-    dismissButton: byLabelText('alert.dismiss'),
+    dismissButton: byRole('button', { name: 'dismiss' }),
     globalBannerContent: byText(/new_code_definition.auto_update.global.message/),
     reviewLink: byText('new_code_definition.auto_update.review_link'),
     adminNcdMessage: byText('Admin NCD'),
@@ -92,9 +92,7 @@ describe('Global NCD update notification banner', () => {
     renderGlobalMessage();
     expect(await ui.globalBannerContent.find()).toBeVisible();
     const user = userEvent.setup();
-    await act(async () => {
-      await user.click(ui.dismissButton.get());
-    });
+    await user.click(ui.dismissButton.get());
     expect(ui.globalBannerContent.query()).not.toBeInTheDocument();
   });
 
@@ -153,7 +151,7 @@ describe('Project NCD update notification banner', () => {
   });
 
   const ui = {
-    dismissButton: byLabelText('alert.dismiss'),
+    dismissButton: byRole('button', { name: 'dismiss' }),
     projectBannerContent: byText(/new_code_definition.auto_update.project.message/),
     projectNcdMessage: byText('Project NCD'),
     reviewLink: byText('new_code_definition.auto_update.review_link'),
@@ -189,9 +187,7 @@ describe('Project NCD update notification banner', () => {
     renderProjectMessage(component);
     expect(await ui.projectBannerContent.find()).toBeVisible();
     const user = userEvent.setup();
-    await act(async () => {
-      await user.click(ui.dismissButton.get());
-    });
+    await user.click(ui.dismissButton.get());
     expect(ui.projectBannerContent.query()).not.toBeInTheDocument();
   });
 

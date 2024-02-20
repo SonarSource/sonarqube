@@ -383,7 +383,7 @@ export class IssueTabViewer extends React.PureComponent<IssueTabViewerProps, Sta
                 tabs.map((tab) => (
                   <div
                     className={classNames({
-                      hidden: tab.key !== selectedTab.key,
+                      'sw-hidden': tab.key !== selectedTab.key,
                     })}
                     key={tab.key}
                   >

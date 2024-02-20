@@ -91,12 +91,6 @@ exports[`should highlight code content correctly 1`] = `
   pointer-events: none;
 }
 
-.emotion-4:hover,
-.emotion-4:active,
-.emotion-4:focus {
-  border-color: rgb(197,205,223);
-}
-
 .code-snippet-highlighted-oneline .emotion-4 {
   bottom: 0.5rem;
 }
@@ -301,12 +295,6 @@ exports[`should show full size when multiline with no editing 1`] = `
 
 .emotion-4 [disabled] {
   pointer-events: none;
-}
-
-.emotion-4:hover,
-.emotion-4:active,
-.emotion-4:focus {
-  border-color: rgb(197,205,223);
 }
 
 .code-snippet-highlighted-oneline .emotion-4 {
@@ -517,12 +505,6 @@ exports[`should show reduced size when single line with no editing 1`] = `
 
 .emotion-4 [disabled] {
   pointer-events: none;
-}
-
-.emotion-4:hover,
-.emotion-4:active,
-.emotion-4:focus {
-  border-color: rgb(197,205,223);
 }
 
 .code-snippet-highlighted-oneline .emotion-4 {

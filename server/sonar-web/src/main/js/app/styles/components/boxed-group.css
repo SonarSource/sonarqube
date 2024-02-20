@@ -51,26 +51,6 @@
   margin: calc(2 * var(--gridSize)) -20px;
 }
 
-.boxed-group-header {
-  position: relative;
-  z-index: 10;
-  padding: calc(2 * var(--gridSize)) 20px 0;
-}
-
-.boxed-group-header > h2 {
-  display: inline-block;
-  vertical-align: middle;
-  line-height: var(--controlHeight);
-}
-
-.boxed-group-actions {
-  position: relative;
-  z-index: 12;
-  float: right;
-  margin-top: calc(2 * var(--gridSize));
-  margin-right: 20px;
-}
-
 .boxed-group-inner {
   padding: calc(2 * var(--gridSize)) 20px;
 }
@@ -99,15 +79,6 @@
 .boxed-group-accordion:hover,
 .boxed-group-accordion.open {
   border-color: var(--info400);
-}
-
-.boxed-group-accordion .boxed-group-header {
-  cursor: pointer;
-  padding-bottom: calc(2 * var(--gridSize));
-}
-
-.boxed-group-accordion.not-clickable .boxed-group-header {
-  cursor: default;
 }
 
 .boxed-group-accordion.not-clickable .boxed-group-accordion-title > svg {

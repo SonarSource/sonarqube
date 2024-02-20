@@ -274,7 +274,6 @@ export class BackgroundTasksApp extends React.PureComponent<Props, State> {
             loading={loading}
             pageSize={pagination.pageSize}
             total={pagination.total}
-            useMIUIButtons
           />
         </PageContentFontWrapper>
       </LargeCenteredLayout>

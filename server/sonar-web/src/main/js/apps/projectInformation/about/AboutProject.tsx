@@ -62,14 +62,11 @@ export default function AboutProject(props: AboutProjectProps) {
       {!isApp &&
         (component.qualityGate ||
           (component.qualityProfiles && component.qualityProfiles.length > 0)) && (
-          <ProjectInformationSection className="sw-pt-0">
+          <ProjectInformationSection className="sw-pt-0 sw-flex sw-flex-col sw-gap-4">
             {component.qualityGate && <MetaQualityGate qualityGate={component.qualityGate} />}
 
             {component.qualityProfiles && component.qualityProfiles.length > 0 && (
-              <MetaQualityProfiles
-                headerClassName={component.qualityGate ? 'big-spacer-top' : undefined}
-                profiles={component.qualityProfiles}
-              />
+              <MetaQualityProfiles profiles={component.qualityProfiles} />
             )}
           </ProjectInformationSection>
         )}

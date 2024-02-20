@@ -81,9 +81,9 @@ function renderFirstLine(
             />
           )}
 
-          <h1 className="it__project-card-name" title={name}>
+          <span className="it__project-card-name" title={name}>
             <StandoutLink to={getProjectUrl(key)}>{name}</StandoutLink>
-          </h1>
+          </span>
 
           {qualifier === ComponentQualifier.Application && (
             <Tooltip

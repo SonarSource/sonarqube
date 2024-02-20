@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { InputSelect, LabelValueSelectOption } from 'design-system';
+import { InputSelect, LabelValueSelectOption, Note } from 'design-system';
 import * as React from 'react';
 import { OptionProps, SingleValueProps, components } from 'react-select';
 import { translate } from '../../helpers/l10n';
@@ -39,7 +39,7 @@ function customOptions(instance: AlmSettingsInstance) {
   return instance.url ? (
     <>
       <span>{instance.key} — </span>
-      <span className="text-muted">{instance.url}</span>
+      <Note>{instance.url}</Note>
     </>
   ) : (
     <span>{instance.key}</span>

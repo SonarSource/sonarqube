@@ -17,10 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Link } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import withCurrentUserContext from '../../../app/components/current-user/withCurrentUserContext';
-import Link from '../../../components/common/Link';
 import DismissableAlert from '../../../components/ui/DismissableAlert';
 import { translate } from '../../../helpers/l10n';
 import { queryToSearch } from '../../../helpers/urls';
@@ -84,46 +84,48 @@ export function FirstAnalysisNextStepsNotif(props: FirstAnalysisNextStepsNotifPr
 
   return (
     <DismissableAlert alertKey={`config_ci_pr_deco.${component.key}`} variant="info">
-      {showOnlyConfigureCI && (
-        <FormattedMessage
-          defaultMessage={translate('overview.project.next_steps.set_up_ci')}
-          id="overview.project.next_steps.set_up_ci"
-          values={{
-            link: tutorialsLink,
-          }}
-        />
-      )}
-
-      {showOnlyConfigurePR &&
-        (isProjectAdmin ? (
+      <div>
+        {showOnlyConfigureCI && (
           <FormattedMessage
-            defaultMessage={translate('overview.project.next_steps.set_up_pr_deco.admin')}
-            id="overview.project.next_steps.set_up_pr_deco.admin"
+            defaultMessage={translate('overview.project.next_steps.set_up_ci')}
+            id="overview.project.next_steps.set_up_ci"
             values={{
-              link_project_settings: projectSettingsLink,
+              link: tutorialsLink,
             }}
           />
-        ) : (
-          translate('overview.project.next_steps.set_up_pr_deco')
-        ))}
+        )}
 
-      {showBoth &&
-        (isProjectAdmin ? (
-          <FormattedMessage
-            defaultMessage={translate('overview.project.next_steps.set_up_pr_deco_and_ci.admin')}
-            id="overview.project.next_steps.set_up_pr_deco_and_ci.admin"
-            values={{
-              link_ci: tutorialsLink,
-              link_project_settings: projectSettingsLink,
-            }}
-          />
-        ) : (
-          <FormattedMessage
-            defaultMessage={translate('overview.project.next_steps.set_up_pr_deco_and_ci')}
-            id="overview.project.next_steps.set_up_pr_deco_and_ci"
-            values={{ link_ci: tutorialsLink }}
-          />
-        ))}
+        {showOnlyConfigurePR &&
+          (isProjectAdmin ? (
+            <FormattedMessage
+              defaultMessage={translate('overview.project.next_steps.set_up_pr_deco.admin')}
+              id="overview.project.next_steps.set_up_pr_deco.admin"
+              values={{
+                link_project_settings: projectSettingsLink,
+              }}
+            />
+          ) : (
+            translate('overview.project.next_steps.set_up_pr_deco')
+          ))}
+
+        {showBoth &&
+          (isProjectAdmin ? (
+            <FormattedMessage
+              defaultMessage={translate('overview.project.next_steps.set_up_pr_deco_and_ci.admin')}
+              id="overview.project.next_steps.set_up_pr_deco_and_ci.admin"
+              values={{
+                link_ci: tutorialsLink,
+                link_project_settings: projectSettingsLink,
+              }}
+            />
+          ) : (
+            <FormattedMessage
+              defaultMessage={translate('overview.project.next_steps.set_up_pr_deco_and_ci')}
+              id="overview.project.next_steps.set_up_pr_deco_and_ci"
+              values={{ link_ci: tutorialsLink }}
+            />
+          ))}
+      </div>
     </DismissableAlert>
   );
 }

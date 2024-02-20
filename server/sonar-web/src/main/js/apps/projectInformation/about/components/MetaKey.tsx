@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { ClipboardIconButton, CodeSnippet, HelperHintIcon } from 'design-system';
+import { ClipboardIconButton, CodeSnippet, HelperHintIcon, SubHeading } from 'design-system';
 import * as React from 'react';
 import HelpTooltip from '../../../../components/controls/HelpTooltip';
 import { translate } from '../../../../helpers/l10n';
@@ -30,8 +30,8 @@ interface MetaKeyProps {
 export default function MetaKey({ componentKey, qualifier }: MetaKeyProps) {
   return (
     <>
-      <div className="sw-flex sw-items-center">
-        <h3>{translate('overview.project_key', qualifier)}</h3>
+      <div className="sw-flex sw-items-baseline">
+        <SubHeading>{translate('overview.project_key', qualifier)}</SubHeading>
         <HelpTooltip
           className="sw-ml-1"
           overlay={

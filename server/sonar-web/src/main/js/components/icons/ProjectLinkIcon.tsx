@@ -26,35 +26,24 @@ import {
   SyncIcon,
 } from '@primer/octicons-react';
 import React, { FC } from 'react';
-import BugTrackerIcon from './BugTrackerIcon';
-import ContinuousIntegrationIcon from './ContinuousIntegrationIcon';
-import DetachIcon from './DetachIcon';
-import HouseIcon from './HouseIcon';
-import { IconProps } from './Icon';
-import SCMIcon from './SCMIcon';
 
 interface ProjectLinkIconProps {
   type: string;
-  miui?: boolean;
 }
 
-export default function ProjectLinkIcon({
-  miui,
-  type,
-  ...iconProps
-}: IconProps & ProjectLinkIconProps) {
-  const getIcon = (): FC<React.PropsWithChildren<IconProps | MIUIIconProps>> => {
+export default function ProjectLinkIcon({ type, ...iconProps }: ProjectLinkIconProps) {
+  const getIcon = (): FC<React.PropsWithChildren<MIUIIconProps>> => {
     switch (type) {
       case 'issue':
-        return miui ? PulseIcon : BugTrackerIcon;
+        return PulseIcon;
       case 'homepage':
-        return miui ? HomeIcon : HouseIcon;
+        return HomeIcon;
       case 'ci':
-        return miui ? SyncIcon : ContinuousIntegrationIcon;
+        return SyncIcon;
       case 'scm':
-        return miui ? FileIcon : SCMIcon;
+        return FileIcon;
       default:
-        return miui ? LinkExternalIcon : DetachIcon;
+        return LinkExternalIcon;
     }
   };
 

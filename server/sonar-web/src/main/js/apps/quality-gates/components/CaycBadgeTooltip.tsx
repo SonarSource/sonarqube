@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import DocLink from '../../../components/common/DocLink';
+import DocumentationLink from '../../../components/common/DocumentationLink';
 import { translate } from '../../../helpers/l10n';
 
 export default function CaycBadgeTooltip() {
@@ -27,9 +27,9 @@ export default function CaycBadgeTooltip() {
       <p className="spacer-bottom padded-bottom bordered-bottom-cayc">
         {translate('quality_gates.cayc.tooltip.message')}
       </p>
-      <DocLink to="/user-guide/clean-as-you-code/">
+      <DocumentationLink to="/user-guide/clean-as-you-code/">
         {translate('quality_gates.cayc.badge.tooltip.learn_more')}
-      </DocLink>
+      </DocumentationLink>
     </div>
   );
 }

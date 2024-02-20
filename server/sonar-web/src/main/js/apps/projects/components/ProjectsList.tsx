@@ -71,7 +71,6 @@ export default class ProjectsList extends React.PureComponent<Props> {
             loadMore={this.props.loadMore}
             loading={loading}
             ready={!loading}
-            useMIUIButtons
             total={total ?? 0}
           />
         </div>

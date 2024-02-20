@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { FlagMessage } from 'design-system/lib';
 import { intersection } from 'lodash';
 import * as React from 'react';
 import {
@@ -42,7 +43,6 @@ import {
   SourceLine,
   SourceViewerFile,
 } from '../../types/types';
-import { Alert } from '../ui/Alert';
 import { WorkspaceContext } from '../workspace/context';
 import SourceViewerCode from './SourceViewerCode';
 import { SourceViewerContext } from './SourceViewerContext';
@@ -591,17 +591,17 @@ export class SourceViewerClass extends React.PureComponent<Props, State> {
 
     if (this.state.notExist) {
       return (
-        <Alert className="spacer-top" variant="warning">
+        <FlagMessage className="sw-mt-2" variant="warning">
           {translate('component_viewer.no_component')}
-        </Alert>
+        </FlagMessage>
       );
     }
 
     if (notAccessible) {
       return (
-        <Alert className="spacer-top" variant="warning">
+        <FlagMessage className="sw-mt-2" variant="warning">
           {translate('code_viewer.no_source_code_displayed_due_to_security')}
-        </Alert>
+        </FlagMessage>
       );
     }
 
@@ -615,9 +615,9 @@ export class SourceViewerClass extends React.PureComponent<Props, State> {
           {!hideHeader && this.renderHeader(component)}
 
           {sourceRemoved && (
-            <Alert className="spacer-top" variant="warning">
+            <FlagMessage className="sw-mt-4 sw-ml-4" variant="warning">
               {translate('code_viewer.no_source_code_displayed_due_to_source_removed')}
-            </Alert>
+            </FlagMessage>
           )}
 
           {!sourceRemoved && sources !== undefined && this.renderCode(sources)}

@@ -27,11 +27,11 @@ import {
   TextError,
   TextSubdued,
   TrendUpCircleIcon,
+  getTabPanelId,
   themeColor,
 } from 'design-system';
 import React from 'react';
 import { useIntl } from 'react-intl';
-import { getTabPanelId } from '../../../components/controls/BoxedTabs';
 import { getLeakValue } from '../../../components/measure/utils';
 import { DEFAULT_ISSUES_QUERY } from '../../../components/shared/utils';
 import { getBranchLikeQuery } from '../../../helpers/branch-like';

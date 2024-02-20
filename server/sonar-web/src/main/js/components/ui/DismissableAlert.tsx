@@ -17,22 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import classNames from 'classnames';
+import { Banner, Variant } from 'design-system';
 import * as React from 'react';
-import { AlertProps } from '../../components/ui/Alert';
 import { get, save } from '../../helpers/storage';
-import './DismissableAlert.css';
-import DismissableAlertComponent from './DismissableAlertComponent';
 
-export interface DismissableAlertProps extends AlertProps {
+export interface DismissableAlertProps {
   alertKey: string;
   children?: React.ReactNode;
   className?: string;
+  variant: Variant;
 }
 
 export const DISMISSED_ALERT_STORAGE_KEY = 'sonarqube.dismissed_alert';
 
 export default function DismissableAlert(props: DismissableAlertProps) {
-  const { alertKey, children } = props;
+  const { alertKey, children, className, variant } = props;
   const [show, setShow] = React.useState(false);
 
   React.useEffect(() => {
@@ -47,14 +47,15 @@ export default function DismissableAlert(props: DismissableAlertProps) {
   };
 
   return !show ? null : (
-    <DismissableAlertComponent
+    <Banner
       onDismiss={() => {
         hideAlert();
         setShow(false);
       }}
-      {...props}
+      className={classNames('sw-w-full', className)}
+      variant={variant}
     >
       {children}
-    </DismissableAlertComponent>
+    </Banner>
   );
 }

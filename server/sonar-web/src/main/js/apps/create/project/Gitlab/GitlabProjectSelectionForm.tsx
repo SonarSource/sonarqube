@@ -117,7 +117,6 @@ export default function GitlabProjectSelectionForm(props: GitlabProjectSelection
         loading={loadingMore}
         pageSize={projectsPaging.pageSize}
         total={projectsPaging.total}
-        useMIUIButtons
       />
     </>
   );

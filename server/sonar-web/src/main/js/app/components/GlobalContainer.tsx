@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { ThemeProvider } from '@emotion/react';
-import classNames from 'classnames';
-import { lightTheme, ToastMessageContainer } from 'design-system';
+import styled from '@emotion/styled';
+import { lightTheme, themeColor, ToastMessageContainer } from 'design-system';
 import * as React from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import A11yProvider from '../../components/a11y/A11yProvider';
@@ -38,30 +38,11 @@ import StartupModal from './StartupModal';
 import SystemAnnouncement from './SystemAnnouncement';
 import UpdateNotification from './update-notification/UpdateNotification';
 
-const TEMP_PAGELIST_WITH_NEW_BACKGROUND = [
-  '/admin/extension/governance/views_console',
-  '/admin/extension/license',
-  '/code',
-  '/coding_rules',
-  '/component_measures',
-  '/dashboard',
-  '/portfolios',
-  '/profiles',
-  '/project/activity',
-  '/project/admin/extension/governance/console',
-  '/project/admin/extension/governance/report',
-  '/project/extension/securityreport/securityreport',
-  '/project/information',
-  '/project/issues',
-  '/projects',
-  '/quality_gates',
-  '/security_hotspots',
-  '/web_api_v2',
-  '/portfolio',
-  '/account',
-];
-
-const TEMP_PAGELIST_WITH_NEW_BACKGROUND_WHITE = [
+/*
+ * These pages need a white background (aka 'secondary', rather than the default 'primary')
+ * This should be revisited at some point (why the exception?)
+ */
+const PAGES_WITH_SECONDARY_BACKGROUND = [
   '/tutorials',
   '/projects/create',
   '/project/baseline',
@@ -101,15 +82,9 @@ export default function GlobalContainer() {
         <A11yProvider>
           <A11ySkipLinks />
           <div className="global-container">
-            <div
-              className={classNames('page-wrapper', {
-                'new-background': TEMP_PAGELIST_WITH_NEW_BACKGROUND.some((element) =>
-                  location.pathname.startsWith(element),
-                ),
-                'white-background': TEMP_PAGELIST_WITH_NEW_BACKGROUND_WHITE.includes(
-                  location.pathname,
-                ),
-              })}
+            <GlobalBackground
+              secondary={PAGES_WITH_SECONDARY_BACKGROUND.includes(location.pathname)}
+              className="sw-box-border sw-flex-[1_0_auto]"
               id="container"
             >
               <div className="page-container">
@@ -136,7 +111,7 @@ export default function GlobalContainer() {
                 </Workspace>
               </div>
               <PromotionNotification />
-            </div>
+            </GlobalBackground>
             <GlobalFooter />
           </div>
           <StartupModal />
@@ -145,3 +120,8 @@ export default function GlobalContainer() {
     </ThemeProvider>
   );
 }
+
+const GlobalBackground = styled.div<{ secondary: boolean }>`
+  background-color: ${({ secondary }) =>
+    themeColor(secondary ? 'backgroundSecondary' : 'backgroundPrimary')};
+`;

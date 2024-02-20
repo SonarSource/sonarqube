@@ -17,11 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Variant } from 'design-system';
+import { Banner, Variant } from 'design-system';
 import { groupBy, isEmpty, mapValues } from 'lodash';
 import * as React from 'react';
 import { getSystemUpgrades } from '../../../api/system';
-import { Alert } from '../../../components/ui/Alert';
 import DismissableAlert from '../../../components/ui/DismissableAlert';
 import SystemUpgradeButton from '../../../components/upgrade/SystemUpgradeButton';
 import { UpdateUseCase, sortUpgrades } from '../../../components/upgrade/utils';
@@ -34,7 +33,6 @@ import { Dict } from '../../../types/types';
 import { CurrentUser, isLoggedIn } from '../../../types/users';
 import withAppStateContext from '../app-state/withAppStateContext';
 import withCurrentUserContext from '../current-user/withCurrentUserContext';
-import './UpdateNotification.css';
 
 const MONTH_BEFOR_PREVIOUS_LTS_NOTIFICATION = 6;
 
@@ -223,7 +221,7 @@ export class UpdateNotification extends React.PureComponent<Props, State> {
       <DismissableAlert
         alertKey={dismissKey}
         variant={MAP_VARIANT[useCase]}
-        className={`promote-update-notification it__upgrade-prompt-${useCase}`}
+        className={`it__promote-update-notification it__upgrade-prompt-${useCase}`}
       >
         {translate('admin_notification.update', useCase)}
         <SystemUpgradeButton
@@ -233,14 +231,14 @@ export class UpdateNotification extends React.PureComponent<Props, State> {
         />
       </DismissableAlert>
     ) : (
-      <Alert variant={MAP_VARIANT[useCase]} className={`it__upgrade-prompt-${useCase}`}>
+      <Banner variant={MAP_VARIANT[useCase]} className={`it__upgrade-prompt-${useCase}`}>
         {translate('admin_notification.update', useCase)}
         <SystemUpgradeButton
           systemUpgrades={systemUpgrades}
           updateUseCase={useCase}
           latestLTS={latestLTS}
         />
-      </Alert>
+      </Banner>
     );
   }
 }

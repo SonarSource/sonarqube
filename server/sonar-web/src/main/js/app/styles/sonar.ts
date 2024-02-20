@@ -23,27 +23,10 @@
 import '../../../../../public/fonts/Inter/inter.css';
 import '../../../../../public/fonts/Ubuntu/Ubuntu.css';
 
-import './components/badges.css';
 import './components/boxed-group.css';
-import './components/columns.css';
-import './components/component-name.css';
-import './components/dropdowns.css';
 import './components/global-loading.css';
-import './components/issues.css';
-import './components/list-groups.css';
-import './components/menu.css';
 import './components/page.css';
-import './components/panels.css';
-import './components/spinner.css';
-import './components/ui.css';
 import './init/base.css';
-import './init/forms.css';
-import './init/icons.css';
-import './init/links.css';
-import './init/lists.css';
 import './init/misc.css';
-import './init/tables.css';
-import './init/type.css';
-import './mixins.css';
 import './print.css';
 import './style.css';

@@ -20,7 +20,6 @@
 import * as React from 'react';
 import { useGitLabSyncStatusQuery } from '../../queries/identity-provider/gitlab';
 import AlmSynchronisationWarning from './AlmSynchronisationWarning';
-import './SystemAnnouncement.css';
 
 interface Props {
   short?: boolean;

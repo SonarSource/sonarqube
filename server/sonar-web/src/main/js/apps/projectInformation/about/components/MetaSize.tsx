@@ -17,13 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { DrilldownLink, SizeIndicator } from 'design-system';
+import { DrilldownLink, Note, SizeIndicator, SubHeading } from 'design-system';
 import * as React from 'react';
 import { translate, translateWithParameters } from '../../../../helpers/l10n';
 import { formatMeasure, localizeMetric } from '../../../../helpers/measures';
 import { getComponentDrilldownUrl } from '../../../../helpers/urls';
 import { ComponentQualifier } from '../../../../types/component';
-import { MetricKey } from '../../../../types/metrics';
+import { MetricKey, MetricType } from '../../../../types/metrics';
 import { Component, Measure } from '../../../../types/types';
 
 interface MetaSizeProps {
@@ -45,25 +45,25 @@ export default function MetaSize({ component, measures }: MetaSizeProps) {
 
   return (
     <>
-      <div className="sw-flex sw-items-center">
-        <h3>{localizeMetric(MetricKey.ncloc)}</h3>
-        <span className="sw-ml-1 small">({translate('project.info.main_branch')})</span>
+      <div className="sw-flex sw-items-baseline">
+        <SubHeading>{localizeMetric(MetricKey.ncloc)}</SubHeading>
+        <span className="sw-ml-1">({translate('project.info.main_branch')})</span>
       </div>
       <div className="sw-flex sw-items-center">
         {ncloc && ncloc.value ? (
           <>
-            <DrilldownLink className="huge" to={url}>
+            <DrilldownLink to={url}>
               <span
                 aria-label={translateWithParameters(
                   'project.info.see_more_info_on_x_locs',
                   ncloc.value,
                 )}
               >
-                {formatMeasure(ncloc.value, 'SHORT_INT')}
+                {formatMeasure(ncloc.value, MetricType.ShortInteger)}
               </span>
             </DrilldownLink>
 
-            <span className="spacer-left">
+            <span className="sw-ml-2">
               <SizeIndicator value={Number(ncloc.value)} size="xs" />
             </span>
           </>
@@ -72,17 +72,15 @@ export default function MetaSize({ component, measures }: MetaSizeProps) {
         )}
 
         {isApp && (
-          <span className="huge-spacer-left display-inline-flex-center">
+          <span className="sw-inline-flex sw-items-center sw-ml-10">
             {projects ? (
               <DrilldownLink to={url}>
-                <span className="big">{formatMeasure(projects.value, 'SHORT_INT')}</span>
+                <span>{formatMeasure(projects.value, MetricType.ShortInteger)}</span>
               </DrilldownLink>
             ) : (
-              <span className="big">0</span>
+              <span>0</span>
             )}
-            <span className="little-spacer-left text-muted">
-              {translate('metric.projects.name')}
-            </span>
+            <Note className="sw-ml-1">{translate('metric.projects.name')}</Note>
           </span>
         )}
       </div>

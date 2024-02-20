@@ -17,13 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import {
+  ButtonPrimary,
+  Card,
+  CenteredLayout,
+  DarkLabel,
+  FlagMessage,
+  FormField,
+  InputField,
+  Link,
+  PageContentFontWrapper,
+  Spinner,
+  SubTitle,
+  Title,
+} from 'design-system';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
-import { SubmitButton } from '../../components/controls/buttons';
 import { Location } from '../../components/hoc/withRouter';
-import { Alert } from '../../components/ui/Alert';
-import MandatoryFieldMarker from '../../components/ui/MandatoryFieldMarker';
-import MandatoryFieldsExplanation from '../../components/ui/MandatoryFieldsExplanation';
 import { translate } from '../../helpers/l10n';
 import { getReturnUrl } from '../../helpers/urls';
 import Unauthorized from '../sessions/components/Unauthorized';
@@ -42,6 +52,9 @@ export interface ChangeAdminPasswordAppRendererProps {
   location: Location;
 }
 
+const PASSWORD_FIELD_ID = 'user-password';
+const CONFIRM_PASSWORD_FIELD_ID = 'confirm-user-password';
+
 export default function ChangeAdminPasswordAppRenderer(props: ChangeAdminPasswordAppRendererProps) {
   const {
     canAdmin,
@@ -58,93 +71,94 @@ export default function ChangeAdminPasswordAppRenderer(props: ChangeAdminPasswor
   }
 
   return (
-    <div className="page-wrapper-simple">
+    <CenteredLayout>
       <Helmet defer={false} title={translate('users.change_admin_password.page')} />
-      <div className="page-simple">
-        {success ? (
-          <Alert variant="success">
-            <p className="spacer-bottom">{translate('users.change_admin_password.form.success')}</p>
-            {/* We must not use Link here, because we need a refresh of the /api/navigation/global call. */}
-            <a href={getReturnUrl(location)}>
-              {translate('users.change_admin_password.form.continue_to_app')}
-            </a>
-          </Alert>
-        ) : (
-          <>
-            <h1 className="text-center bg-danger big padded">
-              {translate('users.change_admin_password.instance_is_at_risk')}
-            </h1>
-            <p className="text-center huge huge-spacer-top">
-              {translate('users.change_admin_password.header')}
-            </p>
-            <p className="text-center huge-spacer-top huge-spacer-bottom">
-              {translate('users.change_admin_password.description')}
-            </p>
-
-            <form
-              className="text-center"
-              onSubmit={(e: React.SyntheticEvent<HTMLFormElement>) => {
-                e.preventDefault();
-                props.onSubmit();
-              }}
-            >
-              <h2 className="big-spacer-bottom big">
-                {translate('users.change_admin_password.form.header')}
-              </h2>
-
-              <MandatoryFieldsExplanation className="form-field" />
-
-              <div className="form-field">
-                <label htmlFor="user-password">
-                  {translate('users.change_admin_password.form.password')}
-                  <MandatoryFieldMarker />
-                </label>
-                <input
-                  id="user-password"
-                  name="password"
-                  onChange={(e: React.SyntheticEvent<HTMLInputElement>) => {
-                    props.onPasswordChange(e.currentTarget.value);
-                  }}
-                  required
-                  type="password"
-                  value={passwordValue}
-                />
+      <PageContentFontWrapper className="sw-body-sm sw-flex sw-flex-col sw-items-center sw-justify-center">
+        <Card className="sw-mx-auto sw-mt-24 sw-w-abs-600 sw-flex sw-items-stretch sw-flex-col">
+          {success ? (
+            <FlagMessage className="sw-my-8" variant="success">
+              <div>
+                <p className="sw-mb-2">{translate('users.change_admin_password.form.success')}</p>
+                {/* We must reload because we need a refresh of the /api/navigation/global call. */}
+                <Link to={getReturnUrl(location)} reloadDocument>
+                  {translate('users.change_admin_password.form.continue_to_app')}
+                </Link>
               </div>
+            </FlagMessage>
+          ) : (
+            <>
+              <Title>{translate('users.change_admin_password.instance_is_at_risk')}</Title>
+              <DarkLabel className="sw-mb-2">
+                {translate('users.change_admin_password.header')}
+              </DarkLabel>
+              <p>{translate('users.change_admin_password.description')}</p>
 
-              <div className="form-field">
-                <label htmlFor="confirm-user-password">
-                  {translate('users.change_admin_password.form.confirm')}
-                  <MandatoryFieldMarker />
-                </label>
-                <input
-                  id="confirm-user-password"
-                  name="confirm-password"
-                  onChange={(e: React.SyntheticEvent<HTMLInputElement>) => {
-                    props.onConfirmPasswordChange(e.currentTarget.value);
-                  }}
+              <form
+                className="sw-mt-8"
+                onSubmit={(e: React.SyntheticEvent<HTMLFormElement>) => {
+                  e.preventDefault();
+                  props.onSubmit();
+                }}
+              >
+                <SubTitle className="sw-mb-4">
+                  {translate('users.change_admin_password.form.header')}
+                </SubTitle>
+
+                <FormField
+                  label={translate('users.change_admin_password.form.password')}
+                  htmlFor={PASSWORD_FIELD_ID}
                   required
-                  type="password"
-                  value={confirmPasswordValue}
-                />
+                >
+                  <InputField
+                    id={PASSWORD_FIELD_ID}
+                    name="password"
+                    onChange={(e: React.SyntheticEvent<HTMLInputElement>) => {
+                      props.onPasswordChange(e.currentTarget.value);
+                    }}
+                    required
+                    type="password"
+                    value={passwordValue}
+                  />
+                </FormField>
 
-                {confirmPasswordValue === passwordValue &&
-                  passwordValue === DEFAULT_ADMIN_PASSWORD && (
-                    <Alert className="spacer-top" variant="warning">
-                      {translate('users.change_admin_password.form.cannot_use_default_password')}
-                    </Alert>
-                  )}
-              </div>
+                <FormField
+                  label={translate('users.change_admin_password.form.confirm')}
+                  htmlFor={CONFIRM_PASSWORD_FIELD_ID}
+                  required
+                  description={
+                    confirmPasswordValue === passwordValue &&
+                    passwordValue === DEFAULT_ADMIN_PASSWORD && (
+                      <FlagMessage className="sw-mt-2" variant="warning">
+                        {translate('users.change_admin_password.form.cannot_use_default_password')}
+                      </FlagMessage>
+                    )
+                  }
+                >
+                  <InputField
+                    id={CONFIRM_PASSWORD_FIELD_ID}
+                    name="confirm-password"
+                    onChange={(e: React.SyntheticEvent<HTMLInputElement>) => {
+                      props.onConfirmPasswordChange(e.currentTarget.value);
+                    }}
+                    required
+                    type="password"
+                    value={confirmPasswordValue}
+                  />
+                </FormField>
 
-              <div className="form-field">
-                <SubmitButton disabled={!canSubmit || submitting}>
+                <ButtonPrimary
+                  className="sw-mt-8"
+                  disabled={!canSubmit || submitting}
+                  type="submit"
+                >
+                  <Spinner className="sw-mr-2" loading={submitting} />
                   {translate('update_verb')}
-                  {submitting && <i className="spinner spacer-left" />}
-                </SubmitButton>
-              </div>
-            </form>
-          </>
-        )}
-      </div>
-    </div>
+                </ButtonPrimary>
+              </form>
+            </>
+          )}
+        </Card>
+      </PageContentFontWrapper>
+    </CenteredLayout>
   );
 }

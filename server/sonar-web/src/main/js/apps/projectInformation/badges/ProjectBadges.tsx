@@ -94,7 +94,7 @@ export default function ProjectBadges(props: ProjectBadgesProps) {
   return (
     <div>
       <SubTitle>{translate('overview.badges.get_badge')}</SubTitle>
-      <p className="big-spacer-bottom">{translate('overview.badges.description', qualifier)}</p>
+      <p className="sw-mb-4">{translate('overview.badges.description', qualifier)}</p>
 
       <Spinner loading={isLoading || isEmpty(token)}>
         <div className="sw-flex sw-space-x-4 sw-mb-4">

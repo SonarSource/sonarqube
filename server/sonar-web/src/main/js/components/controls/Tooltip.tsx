@@ -406,7 +406,7 @@ export class TooltipInner extends React.Component<TooltipProps, State> {
     return (
       <div
         className={classNames(`${classNameSpace}-inner sw-font-sans`, classNameInner, {
-          hidden: !isVisible,
+          'sw-hidden': !isVisible,
         })}
         id={this.id}
         role="tooltip"

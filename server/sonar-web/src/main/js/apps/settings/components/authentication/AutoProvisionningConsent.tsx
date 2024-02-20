@@ -17,11 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { ButtonSecondary, Modal } from 'design-system';
+import { noop } from 'lodash';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import DocLink from '../../../../components/common/DocLink';
-import Modal from '../../../../components/controls/Modal';
-import { Button } from '../../../../components/controls/buttons';
+import DocumentationLink from '../../../../components/common/DocumentationLink';
 import { translate } from '../../../../helpers/l10n';
 import { useToggleGithubProvisioningMutation } from '../../../../queries/identity-provider/github';
 import { useGetValueQuery, useResetSettingsMutation } from '../../../../queries/settings';
@@ -55,11 +55,9 @@ export default function AutoProvisioningConsent() {
   }
 
   return (
-    <Modal contentLabel={header} shouldCloseOnOverlayClick={false} size="medium">
-      <header className="modal-head">
-        <h2>{header}</h2>
-      </header>
-      <div className="modal-body">
+    <Modal onClose={noop} closeOnOverlayClick={false} isLarge>
+      <Modal.Header title={header} />
+      <Modal.Body>
         <FormattedMessage
           tagName="p"
           id="settings.authentication.github.confirm_auto_provisioning.description1"
@@ -69,9 +67,9 @@ export default function AutoProvisioningConsent() {
           tagName="p"
           values={{
             documentation: (
-              <DocLink to="/instance-administration/authentication/github/">
+              <DocumentationLink to="/instance-administration/authentication/github/">
                 <FormattedMessage id="documentation" />
-              </DocLink>
+              </DocumentationLink>
             ),
           }}
         />
@@ -79,15 +77,19 @@ export default function AutoProvisioningConsent() {
           tagName="p"
           id="settings.authentication.github.confirm_auto_provisioning.question"
         />
-      </div>
-      <footer className="modal-foot">
-        <Button onClick={continueWithAuto}>
-          {translate('settings.authentication.github.confirm_auto_provisioning.continue')}
-        </Button>
-        <Button onClick={switchToJIT}>
-          {translate('settings.authentication.github.confirm_auto_provisioning.switch_jit')}
-        </Button>
-      </footer>
+      </Modal.Body>
+      <Modal.Footer
+        primaryButton={
+          <ButtonSecondary onClick={continueWithAuto}>
+            {translate('settings.authentication.github.confirm_auto_provisioning.continue')}
+          </ButtonSecondary>
+        }
+        secondaryButton={
+          <ButtonSecondary onClick={switchToJIT}>
+            {translate('settings.authentication.github.confirm_auto_provisioning.switch_jit')}
+          </ButtonSecondary>
+        }
+      />
     </Modal>
   );
 }

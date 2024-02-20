@@ -30,7 +30,7 @@ import {
 } from 'design-system';
 import * as React from 'react';
 import { Profile } from '../../../api/quality-profiles';
-import DocLink from '../../../components/common/DocLink';
+import DocumentationLink from '../../../components/common/DocumentationLink';
 import { translate } from '../../../helpers/l10n';
 import { sanitizeString } from '../../../helpers/sanitize';
 import { useActivateRuleMutation } from '../../../queries/quality-profiles';
@@ -117,12 +117,12 @@ export default function ActivationFormModal(props: Readonly<Props>) {
 
           <FlagMessage className="sw-mb-4" variant="info">
             {translate('coding_rules.severity_deprecated')}
-            <DocLink
+            <DocumentationLink
               className="sw-ml-2 sw-whitespace-nowrap"
               to="/user-guide/clean-code/introduction/"
             >
               {translate('learn_more')}
-            </DocLink>
+            </DocumentationLink>
           </FlagMessage>
 
           <FormField

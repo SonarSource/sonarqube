@@ -23,7 +23,7 @@ import { FormattedMessage } from 'react-intl';
 import { CallBackProps } from 'react-joyride';
 import { dismissNotice } from '../../../api/users';
 import { CurrentUserContext } from '../../../app/components/current-user/CurrentUserContext';
-import DocLink from '../../../components/common/DocLink';
+import DocumentationLink from '../../../components/common/DocumentationLink';
 import { SCREEN_POSITION_COMPUTE_DELAY } from '../../../components/common/ScreenPositionHelper';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { NoticeType } from '../../../types/users';
@@ -153,9 +153,9 @@ export default function IssueGuide({ run }: Props) {
           defaultMessage={translate('guiding.issue_list.5.content')}
           values={{
             link: (
-              <DocLink to="/user-guide/clean-code/introduction" className="sw-capitalize">
+              <DocumentationLink to="/user-guide/clean-code/introduction" className="sw-capitalize">
                 {translate('documentation')}
-              </DocLink>
+              </DocumentationLink>
             ),
           }}
         />

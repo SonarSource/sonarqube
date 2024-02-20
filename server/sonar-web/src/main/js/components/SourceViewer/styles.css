@@ -42,10 +42,6 @@
   text-align: center;
 }
 
-.source-viewer-more-code .spinner {
-  top: -1px;
-}
-
 .source-table + .source-viewer-more-code {
   border-bottom: none;
   border-top: 1px solid var(--barBorderColor);

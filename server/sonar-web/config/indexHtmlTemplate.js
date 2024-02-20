@@ -46,7 +46,7 @@ module.exports = (cssHash, jsHash) => `
 <body>
     <div id="content" data-base-url="%WEB_CONTEXT%" data-server-status="%SERVER_STATUS%" data-instance="%INSTANCE%" data-official="%OFFICIAL%">
         <div class="global-loading">
-            <i class="spinner global-loading-spinner"></i> 
+            <i class="global-loading-spinner"></i>
             <span aria-live="polite" class="global-loading-text">Loading...</span>
         </div>
     </div>

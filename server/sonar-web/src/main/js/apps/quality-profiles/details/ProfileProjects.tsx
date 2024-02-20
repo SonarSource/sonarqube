@@ -169,7 +169,6 @@ export default class ProfileProjects extends React.PureComponent<Props, State> {
         </Table>
         {projects.length > 0 && (
           <ListFooter
-            useMIUIButtons
             count={projects.length}
             loadMore={this.loadMore}
             loading={this.state.loadingMore}

@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Link } from 'design-system';
+import { Link, Note, SubHeading } from 'design-system';
 import * as React from 'react';
 import { translate } from '../../../../helpers/l10n';
 import { getQualityGateUrl } from '../../../../helpers/urls';
@@ -28,17 +28,15 @@ interface Props {
 
 export default function MetaQualityGate({ qualityGate }: Props) {
   return (
-    <>
-      <h3 id="quality-gate-header">{translate('project.info.quality_gate')}</h3>
+    <div>
+      <SubHeading id="quality-gate-header">{translate('project.info.quality_gate')}</SubHeading>
 
-      <ul className="project-info-list" aria-labelledby="quality-gate-header">
+      <ul className="sw-flex sw-flex-col sw-gap-2" aria-labelledby="quality-gate-header">
         <li>
-          {qualityGate.isDefault && (
-            <span className="note spacer-right">({translate('default')})</span>
-          )}
+          {qualityGate.isDefault && <Note className="sw-mr-2">({translate('default')})</Note>}
           <Link to={getQualityGateUrl(qualityGate.name)}>{qualityGate.name}</Link>
         </li>
       </ul>
-    </>
+    </div>
   );
 }

@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Badge, Link } from 'design-system';
+import { Badge, Link, SubHeading } from 'design-system';
 import React, { useContext, useEffect } from 'react';
 import { searchRules } from '../../../../api/rules';
 import { LanguagesContext } from '../../../../app/components/languages/LanguagesContext';
@@ -28,11 +28,10 @@ import { Languages } from '../../../../types/languages';
 import { ComponentQualityProfile, Dict } from '../../../../types/types';
 
 interface Props {
-  headerClassName?: string;
   profiles: ComponentQualityProfile[];
 }
 
-export function MetaQualityProfiles({ headerClassName, profiles }: Props) {
+export function MetaQualityProfiles({ profiles }: Readonly<Props>) {
   const [deprecatedByKey, setDeprecatedByKey] = React.useState<Dict<number>>({});
   const languages = useContext(LanguagesContext);
 
@@ -61,11 +60,10 @@ export function MetaQualityProfiles({ headerClassName, profiles }: Props) {
   }, [profiles]);
 
   return (
-    <>
-      <h3 className={headerClassName} id="quality-profiles-list">
-        {translate('overview.quality_profiles')}
-      </h3>
-      <ul className="project-info-list" aria-labelledby="quality-profiles-list">
+    <div>
+      <SubHeading id="quality-profiles-list">{translate('overview.quality_profiles')}</SubHeading>
+
+      <ul className="sw-flex sw-flex-col sw-gap-2" aria-labelledby="quality-profiles-list">
         {profiles.map((profile) => (
           <ProfileItem
             key={profile.key}
@@ -75,7 +73,7 @@ export function MetaQualityProfiles({ headerClassName, profiles }: Props) {
           />
         ))}
       </ul>
-    </>
+    </div>
   );
 }
 

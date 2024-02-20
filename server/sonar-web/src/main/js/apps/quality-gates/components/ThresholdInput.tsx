@@ -19,7 +19,7 @@
  */
 import { InputField, InputSelect } from 'design-system';
 import * as React from 'react';
-import { LabelValueSelectOption } from '../../../components/controls/Select';
+import { LabelValueSelectOption } from '../../../helpers/search';
 import { Metric } from '../../../types/types';
 
 interface Props {

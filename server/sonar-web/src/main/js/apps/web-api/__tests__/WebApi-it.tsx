@@ -88,8 +88,8 @@ function renderWebApi(navigateTo?: string) {
 }
 
 const ui = {
-  domainMenuItems: byRole('menu').byRole('listitem'),
-  domainMenuItemLink: (name: string) => byRole('menu').byRole('link', { name }),
+  domainMenuItems: byRole('navigation').byRole('link'),
+  domainMenuItemLink: (name: string) => byRole('navigation').byRole('link', { name }),
   domainHeader: (name: string) => byRole('heading', { level: 2, name }),
   sidebarHeader: byRole('heading', { name: 'api_documentation.page' }),
   searchInput: byLabelText('api_documentation.search'),

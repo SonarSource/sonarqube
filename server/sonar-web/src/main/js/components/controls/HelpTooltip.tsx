@@ -18,15 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import classNames from 'classnames';
+import { HelperHintIcon } from 'design-system';
 import * as React from 'react';
-import { colors } from '../../app/theme';
 import { translate } from '../../helpers/l10n';
-import HelpIcon from '../icons/HelpIcon';
-import { IconProps } from '../icons/Icon';
-import './HelpTooltip.css';
 import Tooltip, { Placement } from './Tooltip';
 
-interface Props extends Pick<IconProps, 'size'> {
+interface Props {
   className?: string;
   children?: React.ReactNode;
   onShow?: () => void;
@@ -35,6 +32,7 @@ interface Props extends Pick<IconProps, 'size'> {
   placement?: Placement;
   isInteractive?: boolean;
   innerRef?: React.Ref<HTMLSpanElement>;
+  size?: number;
 }
 
 const DEFAULT_SIZE = 12;
@@ -42,7 +40,12 @@ const DEFAULT_SIZE = 12;
 export default function HelpTooltip(props: Props) {
   const { size = DEFAULT_SIZE, overlay, placement, isInteractive, innerRef, children } = props;
   return (
-    <div className={classNames('help-tooltip', props.className)}>
+    <div
+      className={classNames(
+        'it__help-tooltip sw-inline-flex sw-items-center sw-align-middle',
+        props.className,
+      )}
+    >
       <Tooltip
         mouseLeaveDelay={0.25}
         onShow={props.onShow}
@@ -52,15 +55,12 @@ export default function HelpTooltip(props: Props) {
         isInteractive={isInteractive}
       >
         <span
-          className="display-inline-flex-center"
+          className="sw-inline-flex sw-items-center"
           data-testid="help-tooltip-activator"
           ref={innerRef}
         >
           {children ?? (
-            <HelpIcon
-              fill={colors.gray60}
-              size={size}
-              role="img"
+            <HelperHintIcon
               aria-label={isInteractive ? translate('tooltip_is_interactive') : translate('help')}
               description={
                 isInteractive ? (
@@ -72,18 +72,12 @@ export default function HelpTooltip(props: Props) {
                   overlay
                 )
               }
+              height={size}
+              width={size}
             />
           )}
         </span>
       </Tooltip>
     </div>
-  );
-}
-
-export function DarkHelpTooltip({ size = DEFAULT_SIZE, ...props }: Omit<Props, 'children'>) {
-  return (
-    <HelpTooltip {...props}>
-      <HelpIcon fill={colors.transparentBlack} fillInner={colors.white} size={size} />
-    </HelpTooltip>
   );
 }

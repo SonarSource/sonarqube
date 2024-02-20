@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Badge } from 'design-system';
 import * as React from 'react';
 import Tooltip from '../../../components/controls/Tooltip';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
@@ -32,7 +33,9 @@ export default function DeprecatedBadge({ since }: { since?: string }) {
     : translate('api_documentation.deprecated');
   return (
     <Tooltip overlay={overlay}>
-      <span className="badge badge-warning">{label}</span>
+      <span>
+        <Badge variant="default">{label}</Badge>
+      </span>
     </Tooltip>
   );
 }

@@ -55,7 +55,7 @@ export default function MetaLink({ iconOnly, link }: Readonly<Props>) {
         to={link.url}
         preventDefault={!isValid}
         onClick={isValid ? undefined : handleClick}
-        icon={<ProjectLinkIcon miui type={link.type} />}
+        icon={<ProjectLinkIcon type={link.type} />}
       >
         {!iconOnly && linkTitle}
       </StyledLink>

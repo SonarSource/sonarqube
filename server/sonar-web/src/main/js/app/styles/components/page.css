@@ -61,20 +61,6 @@
   flex: 1 0 auto;
 }
 
-.page-wrapper-simple {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin: 100px 0;
-}
-
-.page-simple {
-  width: 400px;
-  padding: 40px;
-  border: 1px solid var(--barBorderColor);
-  background-color: #fff;
-}
-
 .page-header {
   position: relative;
   margin-bottom: 20px;
@@ -89,12 +75,6 @@
 
 .page-header:after {
   clear: both;
-}
-
-.page-header .spinner {
-  position: relative;
-  top: 3px;
-  margin-left: 8px;
 }
 
 .page-title {
@@ -113,10 +93,6 @@
 
 .page-actions .badge {
   margin: 3px 0;
-}
-
-.page-actions .spinner {
-  top: 0 !important;
 }
 
 .page-description {

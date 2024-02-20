@@ -236,13 +236,11 @@ const StyledInteractiveIcon = styled(InteractiveIcon)`
 `;
 
 const StyledInputField = styled(InputField)`
-  input[type='text']& {
-    ${tw`sw-pl-8`};
-    ${tw`sw-cursor-pointer`};
+  ${tw`sw-pl-8`};
+  ${tw`sw-cursor-pointer`};
 
-    &.is-filled {
-      ${tw`sw-pr-8`};
-    }
+  &.is-filled {
+    ${tw`sw-pr-8`};
   }
 `;
 

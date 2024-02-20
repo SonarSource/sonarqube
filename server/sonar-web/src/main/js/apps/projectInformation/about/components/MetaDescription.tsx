@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { TextMuted } from 'design-system';
+import { SubHeading, TextMuted } from 'design-system';
 import * as React from 'react';
 import { translate } from '../../../../helpers/l10n';
 
@@ -29,7 +29,7 @@ interface Props {
 export default function MetaDescription({ description, isApp }: Props) {
   return (
     <>
-      <h3>{translate('project.info.description')}</h3>
+      <SubHeading>{translate('project.info.description')}</SubHeading>
       <TextMuted
         className="it__project-description"
         text={description ?? translate(isApp ? 'application' : 'project', 'info.empty_description')}

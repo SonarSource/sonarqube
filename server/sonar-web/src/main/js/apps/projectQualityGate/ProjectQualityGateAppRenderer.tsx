@@ -38,10 +38,10 @@ import { OptionProps, components } from 'react-select';
 import A11ySkipTarget from '../../components/a11y/A11ySkipTarget';
 import DisableableSelectOption from '../../components/common/DisableableSelectOption';
 import HelpTooltip from '../../components/controls/HelpTooltip';
-import { LabelValueSelectOption } from '../../components/controls/Select';
 import Suggestions from '../../components/embed-docs-modal/Suggestions';
 import { translate } from '../../helpers/l10n';
 import { isDiffMetric } from '../../helpers/measures';
+import { LabelValueSelectOption } from '../../helpers/search';
 import { getQualityGateUrl } from '../../helpers/urls';
 import { QualityGate } from '../../types/types';
 import BuiltInQualityGateBadge from '../quality-gates/components/BuiltInQualityGateBadge';
@@ -230,7 +230,7 @@ export default function ProjectQualityGateAppRenderer(props: ProjectQualityGateA
                 </FlagMessage>
               )}
               {needsReanalysis && (
-                <FlagMessage className="big-spacer-top abs-width-600" variant="warning">
+                <FlagMessage className="sw-mt-4 sw-w-abs-600" variant="warning">
                   {translate('project_quality_gate.requires_new_analysis')}
                 </FlagMessage>
               )}

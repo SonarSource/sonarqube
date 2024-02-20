@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { LabelValueSelectOption } from '../../components/controls/Select';
 import { translate } from '../../helpers/l10n';
+import { LabelValueSelectOption } from '../../helpers/search';
 import { UserActivity } from './types';
 
 // Nb of days without connection to SQ after which a user is considered inactive:

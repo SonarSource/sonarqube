@@ -25,6 +25,7 @@ import {
   HoverLink,
   LightLabel,
   LightPrimary,
+  Spinner,
   StandoutLink,
   SubTitle,
   Title,
@@ -104,7 +105,7 @@ export default function TutorialSelectionRenderer(props: TutorialSelectionRender
     DEFAULT_MAIN_BRANCH_NAME;
 
   if (loading) {
-    return <i aria-label={translate('loading')} className="spinner" />;
+    return <Spinner />;
   }
 
   if (!currentUserCanScanProject) {

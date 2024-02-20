@@ -78,7 +78,6 @@ export default function ViewMembersModal(props: Readonly<Props>) {
                 count={users.length}
                 loadMore={fetchNextPage}
                 total={data?.pages[0].page.total}
-                useMIUIButtons
               />
             )}
           </div>

@@ -17,14 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-.issues-main-header .component-name {
-  line-height: var(--controlHeight);
-}
-
-.issues-main-header-spinner {
-  margin-right: 2px;
-}
-
 .not-all-issue-warning.open-issue-list {
   background-color: var(--barBackgroundColor);
   box-sizing: border-box;

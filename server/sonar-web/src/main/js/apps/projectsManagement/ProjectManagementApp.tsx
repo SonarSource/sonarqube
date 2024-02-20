@@ -248,7 +248,6 @@ class ProjectManagementApp extends React.PureComponent<Props, State> {
             loadMore={this.loadMore}
             ready={this.state.ready}
             total={this.state.total}
-            useMIUIButtons
           />
         </PageContentFontWrapper>
       </LargeCenteredLayout>

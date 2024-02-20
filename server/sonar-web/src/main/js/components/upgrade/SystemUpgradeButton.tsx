@@ -17,10 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { ButtonSecondary } from 'design-system';
 import * as React from 'react';
 import { translate } from '../../helpers/l10n';
 import { SystemUpgrade } from '../../types/system';
-import { Button } from '../controls/buttons';
 import SystemUpgradeForm from './SystemUpgradeForm';
 import { groupUpgrades, sortUpgrades, UpdateUseCase } from './utils';
 
@@ -45,9 +45,9 @@ export default function SystemUpgradeButton(props: Readonly<Props>) {
 
   return (
     <>
-      <Button className="sw-ml-2" onClick={openSystemUpgradeForm}>
+      <ButtonSecondary className="sw-ml-2" onClick={openSystemUpgradeForm}>
         {translate('learn_more')}
-      </Button>
+      </ButtonSecondary>
       {isSystemUpgradeFormOpen && (
         <SystemUpgradeForm
           onClose={closeSystemUpgradeForm}

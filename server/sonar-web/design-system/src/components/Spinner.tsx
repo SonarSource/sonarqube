@@ -49,16 +49,25 @@ export function Spinner(props: React.PropsWithChildren<Props>) {
   }
 
   return (
-    <>
+    // Below: using <></> won't work in extenstions ('React' is not defined). This is because the
+    // name 'React' would already have been minified to something else when <> is resolved to
+    // React.Fragment
+    // eslint-disable-next-line react/jsx-fragments
+    <React.Fragment>
       <div className="sw-relative">
-        <div className={classNames('sw-overflow-hidden', { 'sw-sr-only': !loading })}>
+        <div
+          className={classNames('sw-overflow-hidden', {
+            'sw-sr-only': !loading,
+            it__loading: loading,
+          })}
+        >
           <StyledSpinner aria-live="polite" className={className} role="status">
             {loading && <span className="sw-sr-only">{ariaLabel}</span>}
           </StyledSpinner>
         </div>
       </div>
       {!loading && (children ?? (placeholder && <Placeholder className={className} />) ?? null)}
-    </>
+    </React.Fragment>
   );
 }
 

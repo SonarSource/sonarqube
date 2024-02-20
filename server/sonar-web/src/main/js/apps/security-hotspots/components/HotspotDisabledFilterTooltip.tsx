@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import DocLink from '../../../components/common/DocLink';
+import DocumentationLink from '../../../components/common/DocumentationLink';
 import { translate } from '../../../helpers/l10n';
 
 export function HotspotDisabledFilterTooltip() {
@@ -30,7 +30,7 @@ export function HotspotDisabledFilterTooltip() {
       </p>
       <hr className="sw-mx-0 sw-my-3 sw-p-0 sw-w-full" />
       <span className="sw-body-sm-highlight">{translate('indexation.learn_more')}</span>
-      <DocLink
+      <DocumentationLink
         className="sw-ml-1"
         onMouseDown={(e) => {
           // This tooltip content is rendered in the context of a <Dropdown>, and <DropdownToggler>
@@ -41,7 +41,7 @@ export function HotspotDisabledFilterTooltip() {
         to="/instance-administration/reindexing/"
       >
         {translate('indexation.reindexing')}
-      </DocLink>
+      </DocumentationLink>
     </div>
   );
 }

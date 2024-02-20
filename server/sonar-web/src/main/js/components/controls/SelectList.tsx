@@ -195,7 +195,6 @@ export default class SelectList extends React.PureComponent<Props, State> {
             needReload={this.props.needToReload}
             reload={this.onReload}
             total={this.props.elementsTotalCount}
-            useMIUIButtons
           />
         )}
       </PageContentFontWrapper>

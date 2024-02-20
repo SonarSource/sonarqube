@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Banner, Link } from 'design-system';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { MessageTypes, checkMessageDismissed, setMessageDismissed } from '../../api/messages';
@@ -26,8 +27,6 @@ import { NEW_CODE_PERIOD_CATEGORY } from '../../apps/settings/constants';
 import { queryToSearch } from '../../helpers/urls';
 import { useNewCodeDefinitionQuery } from '../../queries/newCodeDefinition';
 import { Component } from '../../types/types';
-import Link from '../common/Link';
-import DismissableAlertComponent from '../ui/DismissableAlertComponent';
 import {
   PreviouslyNonCompliantNCD,
   isGlobalOrProjectAdmin,
@@ -117,26 +116,23 @@ function NCDAutoUpdateMessage(props: Readonly<NCDAutoUpdateMessageProps>) {
     : 'new_code_definition.auto_update.project.message';
 
   return (
-    <DismissableAlertComponent
-      onDismiss={handleBannerDismiss}
-      variant="info"
-      display="banner"
-      bannerClassName="sw-mb-0"
-    >
-      <FormattedMessage
-        id={bannerMessageId}
-        values={{
-          date: new Date(updatedAt).toLocaleDateString(),
-          days: value,
-          link: (
-            <Link to={ncdReviewLinkTo}>
-              {intl.formatMessage({ id: 'new_code_definition.auto_update.review_link' })}
-            </Link>
-          ),
-          previousDays: previousNonCompliantValue,
-        }}
-      />
-    </DismissableAlertComponent>
+    <Banner onDismiss={handleBannerDismiss} variant="info">
+      <p>
+        <FormattedMessage
+          id={bannerMessageId}
+          values={{
+            date: new Date(updatedAt).toLocaleDateString(),
+            days: value,
+            link: (
+              <Link to={ncdReviewLinkTo}>
+                {intl.formatMessage({ id: 'new_code_definition.auto_update.review_link' })}
+              </Link>
+            ),
+            previousDays: previousNonCompliantValue,
+          }}
+        />
+      </p>
+    </Banner>
   );
 }
 

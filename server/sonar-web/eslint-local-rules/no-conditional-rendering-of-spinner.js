@@ -20,7 +20,7 @@
 module.exports = {
   meta: {
     messages: {
-      noConditionalRenderingOfDeferredSpinner:
+      noConditionalRenderingOfSpinner:
         'For accessibility reasons, you should not conditionally render a <Spinner />. Always render it, and pass a loading prop instead.',
     },
   },
@@ -30,18 +30,18 @@ module.exports = {
         switch (node.expression.type) {
           case 'LogicalExpression':
             const { right } = node.expression;
-            if (isDeferredSpinnerComponent(right)) {
-              context.report({ node, messageId: 'noConditionalRenderingOfDeferredSpinner' });
+            if (isSpinnerComponent(right)) {
+              context.report({ node, messageId: 'noConditionalRenderingOfSpinner' });
             }
             break;
 
           case 'ConditionalExpression':
             const { consequent, alternate } = node.expression;
-            if (isDeferredSpinnerComponent(consequent)) {
-              context.report({ node, messageId: 'noConditionalRenderingOfDeferredSpinner' });
+            if (isSpinnerComponent(consequent)) {
+              context.report({ node, messageId: 'noConditionalRenderingOfSpinner' });
             }
-            if (isDeferredSpinnerComponent(alternate)) {
-              context.report({ node, messageId: 'noConditionalRenderingOfDeferredSpinner' });
+            if (isSpinnerComponent(alternate)) {
+              context.report({ node, messageId: 'noConditionalRenderingOfSpinner' });
             }
             break;
         }
@@ -50,7 +50,7 @@ module.exports = {
   },
 };
 
-function isDeferredSpinnerComponent(element) {
+function isSpinnerComponent(element) {
   return (
     element.type === 'JSXElement' &&
     element.openingElement &&

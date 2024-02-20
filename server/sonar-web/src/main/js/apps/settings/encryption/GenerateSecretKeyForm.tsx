@@ -22,6 +22,7 @@ import {
   ClipboardIconButton,
   CodeSnippet,
   ListItem,
+  Spinner,
   SubHeading,
   UnorderedList,
 } from 'design-system';
@@ -29,7 +30,6 @@ import * as React from 'react';
 import { useCallback, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
 import DocumentationLink from '../../../components/common/DocumentationLink';
-import Spinner from '../../../components/ui/Spinner';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {

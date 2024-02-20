@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import styled from '@emotion/styled';
-import { ButtonPrimary, Card, Link, Note, Spinner, Title } from 'design-system';
+import { ButtonPrimary, Card, CenteredLayout, Link, Note, Spinner, Title } from 'design-system';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { FormattedMessage } from 'react-intl';
@@ -137,7 +137,7 @@ export default class App extends React.PureComponent<Props, State> {
     return (
       <>
         <Helmet defaultTitle={translate('maintenance.page')} defer={false} />
-        <div className="page-wrapper-simple" id="bd">
+        <CenteredLayout className="sw-flex sw-justify-around sw-mt-32" id="bd">
           <Card className="sw-body-sm sw-p-10 sw-w-abs-400" id="nonav">
             {status === 'OFFLINE' && (
               <>
@@ -307,7 +307,7 @@ export default class App extends React.PureComponent<Props, State> {
               </>
             )}
           </Card>
-        </div>
+        </CenteredLayout>
       </>
     );
   }

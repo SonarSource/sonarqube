@@ -21,7 +21,7 @@ import classNames from 'classnames';
 import { Spinner } from 'design-system';
 import React, { useCallback, useEffect } from 'react';
 import { FormattedMessage } from 'react-intl';
-import DocLink from '../../../components/common/DocLink';
+import DocumentationLink from '../../../components/common/DocumentationLink';
 import { ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
 import NewCodeDefinitionDaysOption from '../../../components/new-code-definition/NewCodeDefinitionDaysOption';
 import NewCodeDefinitionPreviousVersionOption from '../../../components/new-code-definition/NewCodeDefinitionPreviousVersionOption';
@@ -102,9 +102,9 @@ export default function NewCodeDefinition() {
                         id="settings.new_code_period.description3"
                         values={{
                           link: (
-                            <DocLink to="/project-administration/defining-new-code/">
+                            <DocumentationLink to="/project-administration/defining-new-code/">
                               {translate('settings.new_code_period.description3.link')}
-                            </DocLink>
+                            </DocumentationLink>
                           ),
                         }}
                       />
@@ -146,8 +146,12 @@ export default function NewCodeDefinition() {
                         }
                         settingLevel={NewCodeDefinitionLevels.Global}
                       />
-                      <div className="big-spacer-top">
-                        <p className={classNames('spacer-bottom', { invisible: !isFormTouched })}>
+                      <div className="sw-mt-4">
+                        <p
+                          className={classNames('spacer-bottom', {
+                            'sw-invisible': !isFormTouched,
+                          })}
+                        >
                           {translate('baseline.next_analysis_notice')}
                         </p>
                         <Spinner className="spacer-right" loading={isSaving} />

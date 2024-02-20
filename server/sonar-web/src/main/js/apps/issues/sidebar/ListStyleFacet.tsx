@@ -420,7 +420,6 @@ export class ListStyleFacet<S> extends React.Component<Props<S>, State<S>> {
             loadMoreAriaLabel={showMoreAriaLabel}
             ready={!searching}
             total={searchPaging.total}
-            useMIUIButtons
           />
         )}
       </>

@@ -125,7 +125,7 @@ export default class AllHoldersList extends React.PureComponent<Props> {
           selectedPermission={selectedPermission}
           users={users}
         />
-        <ListFooter count={count} loadMore={this.props.onLoadMore} total={total} useMIUIButtons />
+        <ListFooter count={count} loadMore={this.props.onLoadMore} total={total} />
       </>
     );
   }

@@ -17,10 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import classNames from 'classnames';
+import { Badge, Card, LinkBox, LinkIcon, SubHeading, Tabs } from 'design-system';
 import * as React from 'react';
-import Link from '../../../components/common/Link';
-import LinkIcon from '../../../components/icons/LinkIcon';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { queryToSearch } from '../../../helpers/urls';
 import { WebApi } from '../../../types/types';
@@ -38,168 +36,88 @@ interface Props {
   showInternal: boolean;
 }
 
-interface State {
-  showChangelog: boolean;
-  showParams: boolean;
-  showResponse: boolean;
+enum TabOption {
+  PARAMS = 'parameters',
+  RESPONSE = 'response_example',
+  CHANGELOG = 'changelog',
 }
 
-export default class Action extends React.PureComponent<Props, State> {
-  state: State = {
-    showChangelog: false,
-    showParams: false,
-    showResponse: false,
-  };
+export default function Action(props: Props) {
+  const { action, domain, showDeprecated, showInternal } = props;
+  const verb = action.post ? 'POST' : 'GET';
+  const actionKey = getActionKey(domain.path, action.key);
 
-  handleShowParamsClick = (e: React.SyntheticEvent<HTMLElement>) => {
-    e.preventDefault();
-    this.setState((state) => ({
-      showChangelog: false,
-      showResponse: false,
-      showParams: !state.showParams,
-    }));
-  };
+  const [tab, setTab] = React.useState<TabOption | undefined>(undefined);
 
-  handleShowResponseClick = (e: React.SyntheticEvent<HTMLElement>) => {
-    e.preventDefault();
-    this.setState((state) => ({
-      showChangelog: false,
-      showParams: false,
-      showResponse: !state.showResponse,
-    }));
-  };
+  const tabOptions = React.useMemo(() => {
+    const opts = [];
 
-  handleChangelogClick = (e: React.SyntheticEvent<HTMLElement>) => {
-    e.preventDefault();
-    this.setState((state) => ({
-      showChangelog: !state.showChangelog,
-      showParams: false,
-      showResponse: false,
-    }));
-  };
-
-  renderTabs() {
-    const { action } = this.props;
-    const { showChangelog, showParams, showResponse } = this.state;
-
-    if (action.params || action.hasResponseExample || action.changelog.length > 0) {
-      return (
-        <ul className="web-api-action-actions tabs">
-          {action.params && (
-            <li>
-              <a
-                className={classNames({ selected: showParams })}
-                href="#"
-                onClick={this.handleShowParamsClick}
-              >
-                {translate('api_documentation.parameters')}
-              </a>
-            </li>
-          )}
-
-          {action.hasResponseExample && (
-            <li>
-              <a
-                className={classNames({ selected: showResponse })}
-                href="#"
-                onClick={this.handleShowResponseClick}
-              >
-                {translate('api_documentation.response_example')}
-              </a>
-            </li>
-          )}
-
-          {action.changelog.length > 0 && (
-            <li>
-              <a
-                className={classNames({ selected: showChangelog })}
-                href="#"
-                onClick={this.handleChangelogClick}
-              >
-                {translate('api_documentation.changelog')}
-              </a>
-            </li>
-          )}
-        </ul>
-      );
+    if (action.params) {
+      opts.push(TabOption.PARAMS);
+    }
+    if (action.hasResponseExample) {
+      opts.push(TabOption.RESPONSE);
+    }
+    if (action.changelog.length > 0) {
+      opts.push(TabOption.CHANGELOG);
     }
 
-    return null;
-  }
+    return opts.map((option) => ({ label: translate('api_documentation', option), value: option }));
+  }, [action]);
 
-  render() {
-    const { action, domain } = this.props;
-    const { showChangelog, showParams, showResponse } = this.state;
-    const verb = action.post ? 'POST' : 'GET';
-    const actionKey = getActionKey(domain.path, action.key);
+  return (
+    <Card id={actionKey}>
+      <header className="sw-flex sw-items-baseline sw-gap-2">
+        <LinkBox
+          to={{
+            pathname: '/web_api/' + actionKey,
+            search: queryToSearch(
+              serializeQuery({
+                deprecated: Boolean(action.deprecatedSince),
+                internal: Boolean(action.internal),
+              }),
+            ),
+          }}
+        >
+          <LinkIcon />
+        </LinkBox>
 
-    return (
-      <div className="boxed-group" id={actionKey}>
-        <header className="web-api-action-header boxed-group-header">
-          <Link
-            className="spacer-right link-no-underline"
-            to={{
-              pathname: '/web_api/' + actionKey,
-              search: queryToSearch(
-                serializeQuery({
-                  deprecated: Boolean(action.deprecatedSince),
-                  internal: Boolean(action.internal),
-                }),
-              ),
-            }}
-          >
-            <LinkIcon />
-          </Link>
+        <SubHeading className="sw-m-0">
+          {verb} {actionKey}
+        </SubHeading>
 
-          <h3 className="web-api-action-title">
-            {verb}
-            &nbsp;
-            {actionKey}
-          </h3>
+        {action.internal && <InternalBadge />}
 
-          {action.internal && (
-            <span className="spacer-left">
-              <InternalBadge />
-            </span>
-          )}
+        {action.since && (
+          <Badge variant="new">{translateWithParameters('since_x', action.since)}</Badge>
+        )}
 
-          {action.since && (
-            <span className="spacer-left badge">
-              {translateWithParameters('since_x', action.since)}
-            </span>
-          )}
+        {action.deprecatedSince && <DeprecatedBadge since={action.deprecatedSince} />}
+      </header>
 
-          {action.deprecatedSince && (
-            <span className="spacer-left">
-              <DeprecatedBadge since={action.deprecatedSince} />
-            </span>
-          )}
-        </header>
+      <div
+        className="sw-mt-4 markdown"
+        // Safe: comes from the backend
+        dangerouslySetInnerHTML={{ __html: action.description }}
+      />
 
-        <div className="boxed-group-inner">
-          <div
-            className="web-api-action-description markdown"
-            // Safe: comes from the backend
-            dangerouslySetInnerHTML={{ __html: action.description }}
+      <div className="sw-mt-4">
+        <Tabs options={tabOptions} onChange={(opt) => setTab(opt)} value={tab} />
+
+        {tab === TabOption.PARAMS && action.params && (
+          <Params
+            params={action.params}
+            showDeprecated={showDeprecated}
+            showInternal={showInternal}
           />
+        )}
 
-          {this.renderTabs()}
+        {tab === TabOption.RESPONSE && action.hasResponseExample && (
+          <ResponseExample action={action} domain={domain} />
+        )}
 
-          {showParams && action.params && (
-            <Params
-              params={action.params}
-              showDeprecated={this.props.showDeprecated}
-              showInternal={this.props.showInternal}
-            />
-          )}
-
-          {showResponse && action.hasResponseExample && (
-            <ResponseExample action={action} domain={domain} />
-          )}
-
-          {showChangelog && <ActionChangelog changelog={action.changelog} />}
-        </div>
+        {tab === TabOption.CHANGELOG && <ActionChangelog changelog={action.changelog} />}
       </div>
-    );
-  }
+    </Card>
+  );
 }

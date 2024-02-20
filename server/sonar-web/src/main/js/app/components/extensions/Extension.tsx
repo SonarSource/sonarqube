@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { withTheme } from '@emotion/react';
 import { QueryClient } from '@tanstack/react-query';
 import { Theme } from 'design-system';
@@ -35,30 +36,29 @@ import { AppState } from '../../../types/appstate';
 import { ExtensionStartMethod } from '../../../types/extension';
 import { Dict, Extension as TypeExtension } from '../../../types/types';
 import { CurrentUser, HomePage } from '../../../types/users';
-import * as theme from '../../theme';
 import withAppStateContext from '../app-state/withAppStateContext';
 import withCurrentUserContext from '../current-user/withCurrentUserContext';
 
 export interface ExtensionProps extends WrappedComponentProps {
-  theme: Theme;
   appState: AppState;
   currentUser: CurrentUser;
   extension: TypeExtension;
   location: Location;
-  options?: Dict<any>;
-  router: Router;
+  options?: Dict<unknown>;
   queryClient: QueryClient;
+  router: Router;
+  theme: Theme;
   updateCurrentUserHomepage: (homepage: HomePage) => void;
 }
 
 interface State {
-  extensionElement?: React.ReactElement<any>;
+  extensionElement?: React.ReactElement<unknown>;
 }
 
 class Extension extends React.PureComponent<ExtensionProps, State> {
   container?: HTMLElement | null;
-  stop?: Function;
   state: State = {};
+  stop?: Function;
 
   componentDidMount() {
     this.startExtension();
@@ -78,23 +78,22 @@ class Extension extends React.PureComponent<ExtensionProps, State> {
   }
 
   handleStart = (start: ExtensionStartMethod) => {
-    const { theme: dsTheme, queryClient } = this.props;
+    const { theme, queryClient } = this.props;
+
     const result = start({
       appState: this.props.appState,
-      el: this.container,
+      baseUrl: getBaseUrl(),
       currentUser: this.props.currentUser,
+      el: this.container,
       intl: this.props.intl,
+      l10nBundle: getCurrentL10nBundle(),
       location: this.props.location,
+      queryClient,
       router: this.props.router,
       theme,
-      // New theme from design-system, we should drop old theme once the migration to miui is done
-      dsTheme,
-      baseUrl: getBaseUrl(),
-      l10nBundle: getCurrentL10nBundle(),
       // See SONAR-16207 and core-extension-enterprise-server/src/main/js/portfolios/components/Header.tsx
       // for more information on why we're passing this as a prop to an extension.
       updateCurrentUserHomepage: this.props.updateCurrentUserHomepage,
-      queryClient,
       ...this.props.options,
     });
 

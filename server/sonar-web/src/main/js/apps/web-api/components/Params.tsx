@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { ContentCell, DarkLabel, HtmlFormatter, Note, Table, TableRow } from 'design-system';
 import * as React from 'react';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { WebApi } from '../../../types/types';
@@ -29,44 +30,54 @@ interface Props {
   showInternal: boolean;
 }
 
+const TABLE_COLUMNS = ['200', 'auto', '200'];
+
 export default class Params extends React.PureComponent<Props> {
   renderKey(param: WebApi.Param) {
     return (
-      <td className="markdown" style={{ width: 180 }}>
-        <code>{param.key}</code>
+      <ContentCell>
+        <div>
+          <HtmlFormatter>
+            <code className="sw-code">{param.key}</code>
+          </HtmlFormatter>
 
-        {param.internal && (
-          <div className="little-spacer-top">
-            <InternalBadge />
-          </div>
-        )}
+          {param.internal && (
+            <div className="sw-mt-1">
+              <InternalBadge />
+            </div>
+          )}
 
-        {param.deprecatedSince && (
-          <div className="little-spacer-top">
-            <DeprecatedBadge since={param.deprecatedSince} />
-          </div>
-        )}
+          {param.deprecatedSince && (
+            <div className="sw-mt-1">
+              <DeprecatedBadge since={param.deprecatedSince} />
+            </div>
+          )}
 
-        <div className="note little-spacer-top">{param.required ? 'required' : 'optional'}</div>
+          <Note as="div" className="sw-mt-1">
+            {param.required ? 'required' : 'optional'}
+          </Note>
 
-        {param.since && (
-          <div className="note little-spacer-top">
-            {translateWithParameters('since_x', param.since)}
-          </div>
-        )}
+          {param.since && (
+            <Note as="div" className="sw-mt-1">
+              {translateWithParameters('since_x', param.since)}
+            </Note>
+          )}
 
-        {this.props.showDeprecated && param.deprecatedKey && (
-          <div className="big-spacer-top spacer-left">
-            <div className="note little-spacer-bottom">{translate('replaces')}:</div>
-            <code>{param.deprecatedKey}</code>
-            {param.deprecatedKeySince && (
-              <div className="little-spacer-top">
-                <DeprecatedBadge since={param.deprecatedKeySince} />
-              </div>
-            )}
-          </div>
-        )}
-      </td>
+          {this.props.showDeprecated && param.deprecatedKey && (
+            <div className="sw-ml-2 sw-mt-4">
+              <Note as="div" className="sw-mb-1">
+                {translate('replaces')}:
+              </Note>
+              <code className="sw-code">{param.deprecatedKey}</code>
+              {param.deprecatedKeySince && (
+                <div className="sw-mt-1">
+                  <DeprecatedBadge since={param.deprecatedKeySince} />
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      </ContentCell>
     );
   }
 
@@ -74,9 +85,9 @@ export default class Params extends React.PureComponent<Props> {
     const value = param[field];
     if (value !== undefined) {
       return (
-        <div className="little-spacer-top">
-          <h4>{translate('api_documentation', label)}</h4>
-          <code>{value}</code>
+        <div className="sw-mt-1">
+          <DarkLabel as="div">{translate('api_documentation', label)}</DarkLabel>
+          <code className="sw-code">{value}</code>
         </div>
       );
     } else {
@@ -90,28 +101,30 @@ export default class Params extends React.PureComponent<Props> {
       .filter((p) => showDeprecated || !p.deprecatedSince)
       .filter((p) => showInternal || !p.internal);
     return (
-      <div className="web-api-params">
-        <table>
-          <tbody>
-            {displayedParameters.map((param) => (
-              <tr key={param.key}>
-                {this.renderKey(param)}
+      <div className="sw-mt-6">
+        <Table columnCount={TABLE_COLUMNS.length} columnWidths={TABLE_COLUMNS}>
+          {displayedParameters.map((param) => (
+            <TableRow key={param.key}>
+              {this.renderKey(param)}
 
-                <td>
-                  <div
-                    className="markdown"
-                    // Safe: comes from the backend
-                    dangerouslySetInnerHTML={{ __html: param.description }}
-                  />
-                </td>
+              <ContentCell>
+                <div
+                  className="markdown"
+                  // Safe: comes from the backend
+                  dangerouslySetInnerHTML={{ __html: param.description }}
+                />
+              </ContentCell>
 
-                <td style={{ width: 250 }}>
+              <ContentCell>
+                <div>
                   {param.possibleValues && (
                     <div>
-                      <h4>{translate('api_documentation.possible_values')}</h4>
-                      <ul className="list-styled">
+                      <DarkLabel as="div">
+                        {translate('api_documentation.possible_values')}
+                      </DarkLabel>
+                      <ul>
                         {param.possibleValues.map((value) => (
-                          <li className="little-spacer-top" key={value}>
+                          <li className="sw-mt-1" key={value}>
                             <code>{value}</code>
                           </li>
                         ))}
@@ -126,11 +139,11 @@ export default class Params extends React.PureComponent<Props> {
                   {this.renderConstraint(param, 'maximumValue', 'max_value')}
                   {this.renderConstraint(param, 'minimumLength', 'min_length')}
                   {this.renderConstraint(param, 'maximumLength', 'max_length')}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                </div>
+              </ContentCell>
+            </TableRow>
+          ))}
+        </Table>
       </div>
     );
   }

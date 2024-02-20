@@ -21,8 +21,8 @@ import { Link } from 'design-system';
 import * as React from 'react';
 import { components, OptionProps } from 'react-select';
 import DisableableSelectOption from '../../../components/common/DisableableSelectOption';
-import { LabelValueSelectOption } from '../../../components/controls/Select';
 import { translate } from '../../../helpers/l10n';
+import { LabelValueSelectOption } from '../../../helpers/search';
 import { getQualityProfileUrl } from '../../../helpers/urls';
 
 export interface ProfileOption extends LabelValueSelectOption {

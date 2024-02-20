@@ -73,7 +73,7 @@ export default class GraphsHistory extends React.PureComponent<Props, State> {
       return (
         <div className="sw-flex sw-justify-center sw-flex-col sw-items-stretch sw-grow">
           <div className="sw-text-center">
-            <Spinner ariaLabel={translate('loading')} loading={loading} />
+            <Spinner loading={loading} />
           </div>
         </div>
       );

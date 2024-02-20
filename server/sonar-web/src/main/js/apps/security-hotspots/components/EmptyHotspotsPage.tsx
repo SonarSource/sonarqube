@@ -19,7 +19,7 @@
  */
 import { Note } from 'design-system';
 import * as React from 'react';
-import DocLink from '../../../components/common/DocLink';
+import DocumentationLink from '../../../components/common/DocumentationLink';
 import { translate } from '../../../helpers/l10n';
 import { getBaseUrl } from '../../../helpers/system';
 
@@ -60,9 +60,9 @@ export default function EmptyHotspotsPage(props: EmptyHotspotsPageProps) {
         {translate(`hotspots.${translationRoot}.description`)}
       </Note>
       {!(filtered || isStaticListOfHotspots) && (
-        <DocLink className="big-spacer-top" to="/user-guide/security-hotspots/">
+        <DocumentationLink className="sw-mt-4" to="/user-guide/security-hotspots/">
           {translate('hotspots.learn_more')}
-        </DocLink>
+        </DocumentationLink>
       )}
     </div>
   );

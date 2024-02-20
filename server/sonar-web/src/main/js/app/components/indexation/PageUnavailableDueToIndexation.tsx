@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { FlagMessage, Link } from 'design-system';
+import { CenteredLayout, FlagMessage, Link } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import withIndexationContext, {
@@ -37,8 +37,8 @@ export class PageUnavailableDueToIndexation extends React.PureComponent<WithInde
 
   render() {
     return (
-      <div className="page-wrapper-simple">
-        <FlagMessage className="sw-m-10" variant="info">
+      <CenteredLayout className="sw-flex sw-justify-around">
+        <FlagMessage className="sw-mt-32" variant="info">
           <span className="sw-w-[290px]">
             {translate('indexation.page_unavailable.description')}
             <span className="sw-ml-1">
@@ -58,7 +58,7 @@ export class PageUnavailableDueToIndexation extends React.PureComponent<WithInde
             </span>
           </span>
         </FlagMessage>
-      </div>
+      </CenteredLayout>
     );
   }
 }

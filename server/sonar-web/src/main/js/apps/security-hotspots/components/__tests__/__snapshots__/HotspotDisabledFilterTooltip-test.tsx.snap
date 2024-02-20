@@ -1,6 +1,49 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should render correctly and stop event propagation 1`] = `
+.emotion-0 {
+  color: var(--color);
+  border-bottom: var(--border);
+  font-weight: 600;
+  text-decoration-line: none;
+  --color: rgb(93,108,208);
+  --active: rgb(75,86,187);
+  --border: 1px solid rgb(159,169,237);
+  --borderActive: 1px solid rgb(159,169,237);
+}
+
+.emotion-0:visited {
+  color: var(--color);
+}
+
+.emotion-0:hover,
+.emotion-0:focus,
+.emotion-0:active {
+  color: var(--active);
+  border-bottom: var(--borderActive);
+}
+
+.emotion-0:hover .emotion-10,
+.emotion-0:focus .emotion-10,
+.emotion-0:active .emotion-10 {
+  color: rgb(123,135,217);
+}
+
+.emotion-0>svg {
+  vertical-align: text-bottom!important;
+}
+
+.e1vbniy50 .emotion-0 {
+  --color: rgb(189,198,255);
+  --active: rgb(209,215,254);
+  --border: 1px solid rgb(159,169,237);
+  --borderActive: 1px solid rgb(159,169,237);
+}
+
+.emotion-2 {
+  color: rgb(159,169,237);
+}
+
 <div>
   <div
     class="sw-body-sm sw-w-[190px]"
@@ -19,30 +62,27 @@ exports[`should render correctly and stop event propagation 1`] = `
       indexation.learn_more
     </span>
     <a
-      class="sw-ml-1"
+      class="sw-ml-1 emotion-0 emotion-1"
       href="https://docs.sonarsource.com/sonarqube/latest/instance-administration/reindexing/"
       rel="noopener noreferrer"
       target="_blank"
     >
+      indexation.reindexing
       <svg
-        class="little-spacer-right"
-        height="14"
-        style="fill-rule: evenodd; clip-rule: evenodd; stroke-linejoin: round; stroke-miterlimit: 1.41421;"
-        version="1.1"
+        aria-hidden="true"
+        class="sw-ml-1 emotion-2 emotion-10"
+        fill="currentColor"
+        focusable="false"
+        height="16"
+        role="img"
+        style="display: inline-block; user-select: none; vertical-align: middle; overflow: visible;"
         viewBox="0 0 16 16"
-        width="14"
-        xml:space="preserve"
-        xmlns:xlink="http://www.w3.org/1999/xlink"
+        width="16"
       >
-        <title>
-          opens_in_new_window
-        </title>
         <path
-          d="M12 9.25v2.5A2.25 2.25 0 0 1 9.75 14h-6.5A2.25 2.25 0 0 1 1 11.75v-6.5A2.25 2.25 0 0 1 3.25 3h5.5c.14 0 .25.11.25.25v.5c0 .14-.11.25-.25.25h-5.5C2.562 4 2 4.563 2 5.25v6.5c0 .688.563 1.25 1.25 1.25h6.5c.688 0 1.25-.563 1.25-1.25v-2.5c0-.14.11-.25.25-.25h.5c.14 0 .25.11.25.25zm3-6.75v4c0 .273-.227.5-.5.5a.497.497 0 0 1-.352-.148l-1.375-1.375L7.68 10.57a.27.27 0 0 1-.18.078.27.27 0 0 1-.18-.078l-.89-.89a.27.27 0 0 1-.078-.18.27.27 0 0 1 .078-.18l5.093-5.093-1.375-1.375A.497.497 0 0 1 10 2.5c0-.273.227-.5.5-.5h4c.273 0 .5.227.5.5z"
-          style="fill: currentColor;"
+          d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"
         />
       </svg>
-      indexation.reindexing
     </a>
   </div>
 </div>

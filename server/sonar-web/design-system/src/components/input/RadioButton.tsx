@@ -140,9 +140,9 @@ export const RadioButtonStyled = styled.input`
           to right,
           ${themeColor('radioDisabledBackground')},
           ${themeColor('radioDisabledBackground')}
-        ) !important;
-      background-clip: content-box, padding-box !important;
-      border: ${themeBorder('default', 'radioDisabledBorder')} !important;
+        );
+      background-clip: content-box, padding-box;
+      border: ${themeBorder('default', 'radioDisabledBorder')};
     }
   }
 `;

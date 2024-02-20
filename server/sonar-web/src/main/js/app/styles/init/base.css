@@ -29,12 +29,12 @@
 }
 
 *:focus-visible {
-  outline: 2px dotted var(--primary400);
+  outline: 2px dotted #297bae;
 }
 
 html,
 body {
-  background-color: var(--barBackgroundColor);
+  background-color: white;
 }
 
 body {

@@ -17,7 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { FlagErrorIcon, InputField, Note, SelectionCard } from 'design-system';
+import {
+  DismissableFlagMessage,
+  FlagErrorIcon,
+  InputField,
+  Note,
+  SelectionCard,
+} from 'design-system';
 import { noop } from 'lodash';
 import * as React from 'react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
@@ -30,8 +36,7 @@ import {
 } from '../../helpers/new-code-definition';
 import { isDefined } from '../../helpers/types';
 import { NewCodeDefinitionType } from '../../types/new-code-definition';
-import DocLink from '../common/DocLink';
-import DismissableAlertComponent from '../ui/DismissableAlertComponent';
+import DocumentationLink from '../common/DocumentationLink';
 import { NewCodeDefinitionLevels } from './utils';
 
 export interface Props {
@@ -146,9 +151,8 @@ export default function NewCodeDefinitionDaysOption(props: Props) {
             </Note>
 
             {shouldShowAutoUpdateBanner && (
-              <DismissableAlertComponent
+              <DismissableFlagMessage
                 variant="info"
-                display="inline"
                 className="sw-mt-4 sw-max-w-[800px]"
                 onDismiss={handleBannerDismiss}
               >
@@ -161,13 +165,13 @@ export default function NewCodeDefinitionDaysOption(props: Props) {
                     days: currentDaysValue,
                     date: isDefined(updatedAt) && new Date(updatedAt).toLocaleDateString(),
                     link: (
-                      <DocLink to="/project-administration/clean-as-you-code-settings/defining-new-code/#new-code-definition-options">
+                      <DocumentationLink to="/project-administration/clean-as-you-code-settings/defining-new-code/#new-code-definition-options">
                         {translate('learn_more')}
-                      </DocLink>
+                      </DocumentationLink>
                     ),
                   }}
                 />
-              </DismissableAlertComponent>
+              </DismissableFlagMessage>
             )}
           </div>
         )}

@@ -105,7 +105,7 @@ export default function PasswordForm(props: Props) {
                 type="password"
                 value={oldPassword}
               />
-              <input className="hidden" aria-hidden name="old-password-fake" type="password" />
+              <input className="sw-hidden" aria-hidden name="old-password-fake" type="password" />
             </FormField>
           )}
           <FormField htmlFor="user-password" label={translate('my_profile.password.new')} required>
@@ -119,7 +119,7 @@ export default function PasswordForm(props: Props) {
               value={newPassword}
               size="full"
             />
-            <input className="hidden" aria-hidden name="password-fake" type="password" />
+            <input className="sw-hidden" aria-hidden name="password-fake" type="password" />
           </FormField>
           <FormField
             htmlFor="confirm-user-password"
@@ -136,7 +136,7 @@ export default function PasswordForm(props: Props) {
               value={confirmPassword}
               size="full"
             />
-            <input className="hidden" aria-hidden name="confirm-password-fake" type="password" />
+            <input className="sw-hidden" aria-hidden name="confirm-password-fake" type="password" />
           </FormField>
         </form>
       }

@@ -1089,10 +1089,10 @@ export class App extends React.PureComponent<Props, State> {
       <SideBarStyle>
         <ScreenPositionHelper className="sw-z-filterbar">
           {({ top }) => (
-            <nav
+            <StyledNav
               aria-label={openIssue ? translate('list_of_issues') : translate('filters')}
               data-testid="issues-nav-bar"
-              className="issues-nav-bar sw-overflow-y-auto issue-filters-list"
+              className="issues-nav-bar sw-overflow-y-auto"
               style={{ height: `calc((100vh - ${top}px) - ${LAYOUT_FOOTER_HEIGHT}px)` }}
             >
               <div className="sw-w-[300px] lg:sw-w-[390px] sw-h-full">
@@ -1128,7 +1128,7 @@ export class App extends React.PureComponent<Props, State> {
                   this.renderFacets(warning)
                 )}
               </div>
-            </nav>
+            </StyledNav>
           )}
         </ScreenPositionHelper>
       </SideBarStyle>
@@ -1189,7 +1189,6 @@ export class App extends React.PureComponent<Props, State> {
             loading={loadingMore}
             pageSize={ISSUES_PAGE_SIZE}
             total={paging.total}
-            useMIUIButtons
           />
         )}
 
@@ -1392,4 +1391,14 @@ const StyledIssueWrapper = styled.div`
     border-bottom: none;
     border-top: none;
   }
+`;
+
+const StyledNav = styled.nav`
+  /*
+* On Firefox on Windows, the scrollbar hides the sidebar's content.
+* Using 'scrollbar-gutter:stable' is a workaround to ensure consistency with other browsers.
+* @see https://bugzilla.mozilla.org/show_bug.cgi?id=764076
+* @see https://discuss.sonarsource.com/t/unnecessary-horizontal-scrollbar-on-issues-page/14889/4
+*/
+  scrollbar-gutter: stable;
 `;

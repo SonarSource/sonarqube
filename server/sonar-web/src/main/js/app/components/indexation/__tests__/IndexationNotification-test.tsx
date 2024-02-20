@@ -103,7 +103,7 @@ describe('Completed banner', () => {
       />,
     );
 
-    expect(byText('indexation.progression_with_error').get()).toBeInTheDocument();
+    expect(byText(/^indexation\.progression_with_error\.link/).get()).toBeInTheDocument();
 
     rerender(
       <IndexationNotification

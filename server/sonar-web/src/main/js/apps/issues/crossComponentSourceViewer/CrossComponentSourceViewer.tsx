@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Spinner } from 'design-system';
+import { FlagMessage, Spinner } from 'design-system';
 import { findLastIndex, keyBy } from 'lodash';
 import * as React from 'react';
 import { getComponentForSourceViewer, getDuplications, getSources } from '../../../api/components';
@@ -33,7 +33,6 @@ import {
   duplicationsByLine as getDuplicationsByLine,
   issuesByComponentAndLine,
 } from '../../../components/SourceViewer/helpers/indexing';
-import { Alert } from '../../../components/ui/Alert';
 import { WorkspaceContext } from '../../../components/workspace/context';
 import { getBranchLikeQuery } from '../../../helpers/branch-like';
 import { throwGlobalError } from '../../../helpers/error';
@@ -199,9 +198,9 @@ export default class CrossComponentSourceViewer extends React.PureComponent<Prop
 
     if (notAccessible) {
       return (
-        <Alert className="spacer-top" variant="warning">
+        <FlagMessage className="sw-mt-2" variant="warning">
           {translate('code_viewer.no_source_code_displayed_due_to_security')}
-        </Alert>
+        </FlagMessage>
       );
     }
 

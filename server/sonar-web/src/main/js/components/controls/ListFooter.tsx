@@ -24,8 +24,6 @@ import * as React from 'react';
 import { translate, translateWithParameters } from '../../helpers/l10n';
 import { formatMeasure } from '../../helpers/measures';
 import { MetricType } from '../../types/metrics';
-import LegacySpinner from '../ui/Spinner';
-import { Button } from './buttons';
 
 export interface ListFooterProps {
   loadMoreAriaLabel?: string;
@@ -38,7 +36,6 @@ export interface ListFooterProps {
   reload?: () => void;
   ready?: boolean;
   total?: number;
-  useMIUIButtons?: boolean;
 }
 
 export default function ListFooter(props: ListFooterProps) {
@@ -52,7 +49,6 @@ export default function ListFooter(props: ListFooterProps) {
     total,
     pageSize,
     ready = true,
-    useMIUIButtons = false,
   } = props;
 
   const rootNode = React.useRef<HTMLDivElement>(null);
@@ -76,27 +72,27 @@ export default function ListFooter(props: ListFooterProps) {
 
   let button;
   if (needReload && props.reload) {
-    button = React.createElement(
-      useMIUIButtons ? ButtonSecondary : Button,
-      {
-        'data-test': 'reload',
-        className: classNames('sw-ml-2', { 'sw-body-sm': useMIUIButtons }),
-        disabled: loading,
-        onClick: props.reload,
-      } as Button['props'],
-      translate('reload'),
+    button = (
+      <ButtonSecondary
+        data-test="reload"
+        className="sw-ml-2 sw-body-sm"
+        disabled={loading}
+        onClick={props.reload}
+      >
+        {translate('reload')}
+      </ButtonSecondary>
     );
   } else if (hasMore && props.loadMore) {
-    button = React.createElement(
-      useMIUIButtons ? ButtonSecondary : Button,
-      {
-        'aria-label': loadMoreAriaLabel,
-        'data-test': 'show-more',
-        className: classNames('sw-ml-2', { 'sw-body-sm': useMIUIButtons }),
-        disabled: loading,
-        onClick: onLoadMore,
-      } as Button['props'],
-      translate('show_more'),
+    button = (
+      <ButtonSecondary
+        aria-label={loadMoreAriaLabel}
+        data-test="show-more"
+        className="sw-ml-2 sw-body-sm"
+        disabled={loading}
+        onClick={onLoadMore}
+      >
+        {translate('show_more')}
+      </ButtonSecondary>
     );
   }
 
@@ -121,12 +117,7 @@ export default function ListFooter(props: ListFooterProps) {
           : translateWithParameters('x_show', formatMeasure(count, MetricType.Integer))}
       </span>
       {button}
-      {/* eslint-disable local-rules/no-conditional-rendering-of-deferredspinner */}
-      {useMIUIButtons ? (
-        <Spinner loading={loading} className="sw-ml-2" />
-      ) : (
-        <LegacySpinner loading={loading} className="sw-ml-2" />
-      )}
+      <Spinner loading={loading} className="sw-ml-2" />
     </StyledDiv>
   );
 }

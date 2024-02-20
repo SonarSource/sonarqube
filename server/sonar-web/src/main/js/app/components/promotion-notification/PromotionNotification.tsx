@@ -45,19 +45,17 @@ export function PromotionNotification(props: CurrentUserContextInterface) {
   };
 
   return (
-    <div className="toaster display-flex-center big-padded-left big-padded-right">
-      <div className="toaster-icon spacer-right">
+    <div className="toaster sw-flex sw-items-center sw-px-4">
+      <div className="sw-mr-2">
         <img alt="SonarQube + SonarLint" height={80} src={`${getBaseUrl()}/images/sq-sl.svg`} />
       </div>
-      <div className="toaster-content flex-1 padded-left padded-right big-padded-top big-padded-bottom">
-        <span className="toaster-title text-bold medium">
-          {translate('promotion.sonarlint.title')}
-        </span>
-        <p className="spacer-top">{translate('promotion.sonarlint.content')}</p>
+      <div className="toaster-content sw-flex-1 sw-px-2 sw-py-4">
+        <span className="sw-body-sm-highlight">{translate('promotion.sonarlint.title')}</span>
+        <p className="sw-mt-2">{translate('promotion.sonarlint.content')}</p>
       </div>
       <div className="toaster-actions spacer-left padded-left display-flex-column display-flex-center">
         <a
-          className="button button-primary big-spacer-bottom"
+          className="button button-primary sw-mb-4"
           href="https://www.sonarsource.com/products/sonarlint/?referrer=sonarqube-welcome"
           rel="noreferrer"
           onClick={onClick}
