@@ -63,9 +63,9 @@ public class GsonTeamTest {
         "  }\n" +
         "]");
     assertThat(underTest).hasSize(2);
+    assertThat(underTest.get(1).getId()).isEqualTo("SonarSourceUci");
 
-    assertThat(underTest.get(1).getOrganizationId()).isEqualTo("SonarSource");
-    assertThat(underTest.get(1).getOrganizationId()).isEqualTo("SonarQubeUci");
+    assertThat(underTest.get(1).getOrganizationId()).isEqualTo("SonarQubeUci");;
   }
   @Test
   public void parse_two_teams() {
