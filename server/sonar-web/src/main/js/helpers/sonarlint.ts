@@ -62,6 +62,8 @@ export async function sendUserToken(port: number, token: NewUserToken) {
     expirationDate: token.expirationDate,
     token: token.token,
     type: token.type,
+    projectKey: token.projectKey ,
+    organizationKey: token.organizationKey,
   };
 
   const response = await fetch(tokenUrl, { method: 'POST', body: JSON.stringify(data) });

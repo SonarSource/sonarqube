@@ -29,6 +29,8 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.TokenType;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserTokenDto;
@@ -132,7 +134,20 @@ public class GenerateAction implements UserTokensWsAction {
 
       UserTokenDto userTokenDto = insertTokenInDb(dbSession, user, userTokenDtoFromRequest);
 
-      return buildResponse(userTokenDto, token, user);
+      String organizationKee = null;
+      if (userTokenDto.getProjectKey() != null) {
+        Optional<ProjectDto> project = dbClient.projectDao()
+          .selectProjectByKey(dbSession, userTokenDto.getProjectKey());
+        if (project.isPresent() && project.get().getOrganizationUuid() != null) {
+          Optional<OrganizationDto> organization = dbClient.organizationDao()
+            .selectByUuid(dbSession, project.get().getOrganizationUuid());
+          if (organization.isPresent()) {
+            organizationKee = organization.get().getKey();
+          }
+        }
+      }
+
+      return buildResponse(userTokenDto, token, user, organizationKee);
     }
   }
 
@@ -208,7 +223,7 @@ public class GenerateAction implements UserTokensWsAction {
     checkRequest(userTokenDto == null, "A user token for login '%s' and name '%s' already exists", user.getLogin(), name);
   }
 
-  private static GenerateWsResponse buildResponse(UserTokenDto userTokenDto, String token, UserDto user) {
+  private static GenerateWsResponse buildResponse(UserTokenDto userTokenDto, String token, UserDto user, String organizationKee) {
     GenerateWsResponse.Builder responseBuilder = GenerateWsResponse.newBuilder()
       .setLogin(user.getLogin())
       .setName(userTokenDto.getName())
@@ -218,6 +233,10 @@ public class GenerateAction implements UserTokensWsAction {
 
     if (userTokenDto.getProjectKey() != null) {
       responseBuilder.setProjectKey(userTokenDto.getProjectKey());
+    }
+
+    if (organizationKee != null) {
+      responseBuilder.setOrganizationKey(organizationKee);
     }
 
     if (userTokenDto.getExpirationDate() != null) {

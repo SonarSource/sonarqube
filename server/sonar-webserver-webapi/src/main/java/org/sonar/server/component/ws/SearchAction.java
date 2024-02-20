@@ -20,12 +20,6 @@
 package org.sonar.server.component.ws;
 
 import com.google.common.collect.ImmutableSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.server.ws.Change;
@@ -38,45 +32,55 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.user.UserTokenDto;
 import org.sonar.server.component.index.ComponentIndex;
 import org.sonar.server.component.index.ComponentQuery;
 import org.sonar.server.es.SearchIdResult;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.user.ThreadLocalUserSession;
+import org.sonar.server.user.TokenUserSession;
+import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Components;
 import org.sonarqube.ws.Components.SearchWsResponse;
+
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toMap;
-import static org.sonar.api.resources.Qualifiers.APP;
-import static org.sonar.api.resources.Qualifiers.PROJECT;
-import static org.sonar.api.resources.Qualifiers.SUBVIEW;
-import static org.sonar.api.resources.Qualifiers.VIEW;
+import static org.sonar.api.resources.Qualifiers.*;
 import static org.sonar.core.util.stream.MoreCollectors.toHashSet;
+import static org.sonar.db.user.TokenType.PROJECT_ANALYSIS_TOKEN;
 import static org.sonar.server.es.SearchOptions.MAX_PAGE_SIZE;
 import static org.sonar.server.ws.WsParameterBuilder.QualifierParameterContext.newQualifierParameterContext;
 import static org.sonar.server.ws.WsParameterBuilder.createQualifiersParameter;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
-import static org.sonarqube.ws.client.component.ComponentsWsParameters.ACTION_SEARCH;
-import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_ORGANIZATION;
-import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_QUALIFIERS;
+import static org.sonarqube.ws.client.component.ComponentsWsParameters.*;
 
 public class SearchAction implements ComponentsWsAction {
   private static final ImmutableSet<String> VALID_QUALIFIERS = ImmutableSet.<String>builder()
     .add(APP, PROJECT, VIEW, SUBVIEW)
     .build();
+  private final UserSession userSession;
   private final ComponentIndex componentIndex;
   private final DbClient dbClient;
   private final ResourceTypes resourceTypes;
   private final I18n i18n;
 
-  public SearchAction(ComponentIndex componentIndex, DbClient dbClient, ResourceTypes resourceTypes, I18n i18n) {
+  public SearchAction(ComponentIndex componentIndex, DbClient dbClient, ResourceTypes resourceTypes, I18n i18n, UserSession userSession) {
     this.componentIndex = componentIndex;
     this.dbClient = dbClient;
     this.resourceTypes = resourceTypes;
     this.i18n = i18n;
+    this.userSession = userSession;
   }
 
   @Override
@@ -134,11 +138,30 @@ public class SearchAction implements ComponentsWsAction {
       SearchIdResult<String> results = componentIndex.search(esQuery, new SearchOptions().setPage(request.getPage(), request.getPageSize()));
 
       List<ComponentDto> components = dbClient.componentDao().selectByUuids(dbSession, results.getUuids());
+
+      Optional<UserTokenDto> userToken = getUserToken();
+      if (userToken.isPresent() && PROJECT_ANALYSIS_TOKEN.name().equals(userToken.get().getType())) {
+        String projectUuid = userToken.get().getProjectUuid();
+        components = components.stream()
+          .filter(c -> c.branchUuid().equals(projectUuid))
+          .collect(Collectors.toList());
+      }
+
       Map<String, String> projectKeysByUuids = searchProjectsKeysByUuids(dbSession, components);
 
       return buildResponse(components, organization, projectKeysByUuids,
         Paging.forPageIndex(request.getPage()).withPageSize(request.getPageSize()).andTotal((int) results.getTotal()));
     }
+  }
+
+  private Optional<UserTokenDto> getUserToken() {
+    if (userSession instanceof ThreadLocalUserSession) {
+      UserSession tokenUserSession = ((ThreadLocalUserSession) userSession).get();
+      if (tokenUserSession instanceof TokenUserSession) {
+        return Optional.ofNullable(((TokenUserSession) tokenUserSession).getUserToken());
+      }
+    }
+    return Optional.empty();
   }
 
   private Map<String, String> searchProjectsKeysByUuids(DbSession dbSession, List<ComponentDto> components) {

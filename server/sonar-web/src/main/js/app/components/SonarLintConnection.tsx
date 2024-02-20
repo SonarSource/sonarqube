@@ -28,6 +28,8 @@ import { whenLoggedIn } from '../../components/hoc/whenLoggedIn';
 import CheckIcon from '../../components/icons/CheckIcon';
 import { translate, translateWithParameters } from '../../helpers/l10n';
 import { portIsValid, sendUserToken } from '../../helpers/sonarlint';
+import { getScannableProjects } from '../../api/components';
+import Select, { BasicSelectOption } from '../../components/controls/Select';
 import {
   computeTokenExpirationDate,
   computeTokenExpirationDateByHours,
@@ -40,6 +42,7 @@ import './SonarLintConnection.css';
 import withAppStateContext from './app-state/withAppStateContext';
 import { AppState } from '../../types/appstate';
 import { isDeploymentForAmazon} from '../../helpers/urls';
+import { TokenType } from '../../types/token';
 
 enum Status {
   request,
@@ -76,12 +79,35 @@ export function SonarLintConnection({ appState, currentUser }: Props) {
 
   const { login } = currentUser;
 
+  const [projects, setProjects] = React.useState<BasicSelectOption[]>([]);
+  const [selectedProject, setSelectedProject] = React.useState<BasicSelectOption>(undefined);
+
+  React.useEffect(() => {
+    const fetchProjects = async () => {
+        const { projects: projectArray } = await getScannableProjects();
+        const projects = projectArray.map((project) => ({ label: project.name, value: project.key }));
+
+        setProjects(projects);
+        setSelectedProject(projects.length === 1 ? projects[0] : undefined);
+    };
+    fetchProjects();
+  },[]);
+
+  const handleProjectChange = (selectedProject: BasicSelectOption) => {
+    setSelectedProject(selectedProject);
+  };
+
+  const isAllowConnectionDisabled = () => {
+    return isDeploymentForAmazon(whiteLabel) && (selectedProject == undefined || selectedProject == null);
+  }
+
   const authorize = React.useCallback(async () => {
     const newTokenName = await getNextAvailableTokenName(login, `${TOKEN_PREFIX}-${ideName}`);
     const expirationDate = await computeExpirationDate(whiteLabel);
-    const token = await generateToken({ name: newTokenName, login, expirationDate }).catch(
+    const token = isDeploymentForAmazon(whiteLabel) ? await generateToken({ name: newTokenName, login, expirationDate, projectKey: selectedProject.value, type: TokenType.Project }).catch(
+      () => undefined) : await generateToken({ name: newTokenName, login, expirationDate }).catch(
       () => undefined
-    );
+     );
 
     if (!token) {
       setStatus(Status.tokenError);
@@ -101,7 +127,7 @@ export function SonarLintConnection({ appState, currentUser }: Props) {
     } catch (_) {
       setStatus(Status.tokenCreated);
     }
-  }, [port, ideName, login]);
+  }, [port, ideName, login, selectedProject]);
 
   return (
     <div className="sonarlint-connection-page">
@@ -119,10 +145,28 @@ export function SonarLintConnection({ appState, currentUser }: Props) {
                 {translate('sonarlint-connection.request.description2')}
               </p>
 
-              <Button className="big-spacer-bottom" onClick={authorize}>
-                <CheckIcon className="spacer-right" />
-                {translate('sonarlint-connection.request.action')}
-              </Button>
+              <div className="display-flex-center big-spacer-bottom display-flex-justify-center">
+                  {isDeploymentForAmazon(whiteLabel) && (
+                      <div className="input-large spacer-right display-flex-column">
+                          <label htmlFor="token-select-project" className="text-bold text-left">
+                            {translate('users.tokens.project')}
+                          </label>
+                          <Select
+                            id="token-select-project"
+                            className="spacer-top it__project"
+                            onChange={handleProjectChange}
+                            options={projects}
+                            placeholder={translate('users.tokens.select_project')}
+                            value={selectedProject}
+                          />
+                      </div>
+                  )}
+
+                  <Button className="it__generate-token" onClick={authorize} style={{ marginTop: 'auto' }} disabled={isAllowConnectionDisabled()}>
+                    <CheckIcon className="spacer-right" />
+                    {translate('sonarlint-connection.request.action')}
+                  </Button>
+              </div>
             </>
           )}
 
