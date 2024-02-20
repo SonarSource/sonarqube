@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React, { useState } from 'react';
 import { NavigationServiceMock } from '../../../api/mocks/NavigationServiceMock';
@@ -133,7 +132,7 @@ it('should install, uninstall, update', async () => {
   expect(ui.updateButton.get(rows[1])).toBeInTheDocument();
   expect(ui.updateButton.get(rows[1])).toHaveTextContent('1.3.0');
   expect(ui.updatePending.query(rows[1])).not.toBeInTheDocument();
-  await act(() => user.click(ui.updateButton.get(rows[1])));
+  await user.click(ui.updateButton.get(rows[1]));
   expect(await ui.updatePending.find(rows[1])).toBeInTheDocument();
   expect(ui.updateButton.query(rows[1])).not.toBeInTheDocument();
 
@@ -142,7 +141,7 @@ it('should install, uninstall, update', async () => {
   expect(ui.uninstallButton.query(rows[2])).not.toBeInTheDocument();
   expect(ui.updateButton.query(rows[2])).not.toBeInTheDocument();
   expect(ui.installPending.query(rows[2])).not.toBeInTheDocument();
-  await act(() => user.click(ui.installButton.get(rows[2])));
+  await user.click(ui.installButton.get(rows[2]));
   expect(await ui.installPending.find(rows[2])).toBeInTheDocument();
   expect(ui.installButton.query(rows[2])).not.toBeInTheDocument();
 
@@ -157,7 +156,7 @@ it('should install, uninstall, update', async () => {
   expect(ui.acceptTerms.get(rows[4])).not.toBeChecked();
   await user.click(ui.acceptTerms.get(rows[4]));
   expect(ui.installButton.get(rows[4])).toBeEnabled();
-  await act(() => user.click(ui.installButton.get(rows[4])));
+  await user.click(ui.installButton.get(rows[4]));
   expect(await ui.installPending.find(rows[4])).toBeInTheDocument();
   expect(ui.installButton.query(rows[4])).not.toBeInTheDocument();
 
@@ -167,7 +166,7 @@ it('should install, uninstall, update', async () => {
   expect(ui.updateButton.get(rows[5])).toBeInTheDocument();
   expect(ui.updateButton.get(rows[5])).toHaveTextContent('1.2.0');
   expect(ui.updatePending.query(rows[5])).not.toBeInTheDocument();
-  await act(() => user.click(ui.updateButton.get(rows[5])));
+  await user.click(ui.updateButton.get(rows[5]));
   expect(await ui.updatePending.find(rows[5])).toBeInTheDocument();
   expect(ui.uninstallButton.query(rows[5])).not.toBeInTheDocument();
   expect(ui.updateButton.query(rows[5])).not.toBeInTheDocument();
@@ -236,8 +235,8 @@ describe('accessibility', () => {
     renderMarketplaceApp();
     const row = (await ui.pluginRow.findAll())[1];
     await expect(document.body).toHaveNoA11yViolations();
-    await act(() => user.click(ui.riskConsentButton.get()));
-    await act(() => user.click(ui.releaseDetailsButton.get(row)));
+    await user.click(ui.riskConsentButton.get());
+    await user.click(ui.releaseDetailsButton.get(row));
     await expect(document.body).toHaveNoA11yViolations();
   });
 });

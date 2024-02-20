@@ -117,7 +117,6 @@ describe('Permission provisioning', () => {
     jest.useFakeTimers({ advanceTimers: true });
   });
   afterEach(() => {
-    jest.runOnlyPendingTimers();
     jest.useRealTimers();
   });
   it('should render warning when permission is sync', async () => {
@@ -130,8 +129,8 @@ describe('Permission provisioning', () => {
     );
 
     renderApp();
-    await jest.runOnlyPendingTimersAsync();
 
+    jest.runOnlyPendingTimers();
     expect(
       await screen.findByText('provisioning.permission_synch_in_progress'),
     ).toBeInTheDocument();
@@ -145,9 +144,13 @@ describe('Permission provisioning', () => {
       }),
     );
 
-    await jest.runOnlyPendingTimersAsync();
+    jest.runOnlyPendingTimers();
 
-    expect(screen.queryByText('provisioning.permission_synch_in_progress')).not.toBeInTheDocument();
+    await waitFor(() => {
+      expect(
+        screen.queryByText('provisioning.permission_synch_in_progress'),
+      ).not.toBeInTheDocument();
+    });
   });
 });
 

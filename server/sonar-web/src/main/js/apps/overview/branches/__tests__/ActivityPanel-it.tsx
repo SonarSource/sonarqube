@@ -188,8 +188,8 @@ function renderActivityPanel() {
       ],
     }),
     mockAnalysis({ key: 'bar' }),
-    mockAnalysis(),
-    mockAnalysis(),
+    mockAnalysis({ key: 'baz' }),
+    mockAnalysis({ key: 'qux' }),
   ];
 
   const mockedProps: ActivityPanelProps = {

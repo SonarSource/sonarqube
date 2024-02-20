@@ -233,7 +233,7 @@ describe('Setup', () => {
       .mockResolvedValueOnce({ state: 'MIGRATION_SUCCEEDED' });
 
     renderSetupApp();
-    const user = userEvent.setup();
+    const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
 
     jest.runOnlyPendingTimers();
 
@@ -241,7 +241,7 @@ describe('Setup', () => {
     expect(title).toBeInTheDocument();
 
     // Trigger DB migration.
-    user.click(screen.getByRole('button'));
+    await user.click(screen.getByRole('button'));
 
     const message = await screen.findByText('MESSAGE');
     expect(message).toBeInTheDocument();
