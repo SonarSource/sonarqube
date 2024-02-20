@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
 import selectEvent from 'react-select-event';
@@ -108,11 +107,11 @@ it.each([
       await ui.setInput(inputId, value);
     }
     // Save form and check for errors
-    await act(() => user.click(ui.saveButton.get()));
+    await user.click(ui.saveButton.get());
     expect(await ui.validationMsg('cute error').find()).toBeInTheDocument();
 
     // Check validation with errors
-    await act(() => user.click(ui.validateButton.get()));
+    await user.click(ui.validateButton.get());
     expect(ui.validationMsg('cute error').get()).toBeInTheDocument();
 
     // Save form and check for errors
@@ -121,12 +120,12 @@ it.each([
       Object.keys(list).find((key) => key.endsWith('.repository')) as string,
       'Anything',
     );
-    await act(() => user.click(ui.saveButton.get()));
+    await user.click(ui.saveButton.get());
     expect(
       await ui.validationMsg('settings.pr_decoration.binding.check_configuration.success').find(),
     ).toBeInTheDocument();
 
-    await act(() => user.click(ui.validateButton.get()));
+    await user.click(ui.validateButton.get());
     expect(
       ui.validationMsg('settings.pr_decoration.binding.check_configuration.success').get(),
     ).toBeInTheDocument();
@@ -141,7 +140,7 @@ it.each([
     expect(ui.saveButton.query()).not.toBeInTheDocument();
 
     // Reset binding
-    await act(() => user.click(ui.resetButton.get()));
+    await user.click(ui.resetButton.get());
     expect(ui.input('', 'textbox').query()).not.toBeInTheDocument();
     expect(ui.input('', 'switch').query()).not.toBeInTheDocument();
   },

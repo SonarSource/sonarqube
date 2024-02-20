@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { act, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { omit, pick } from 'lodash';
 import * as React from 'react';
@@ -268,58 +268,38 @@ function getPageObject() {
     async addComment(content: string) {
       await user.click(selectors.commentAddBtn.get());
       await user.type(selectors.commentTextInput.get(), content);
-      await act(async () => {
-        await user.click(selectors.commentSaveBtn.get());
-      });
+      await user.click(selectors.commentSaveBtn.get());
     },
     async updateComment(content: string) {
       await user.click(selectors.commentEditBtn.get());
       await user.type(selectors.commentTextInput.get(), content);
-      await act(async () => {
-        await user.keyboard(`{Control>}{${KeyboardKeys.Enter}}{/Control}`);
-      });
+      await user.keyboard(`{Control>}{${KeyboardKeys.Enter}}{/Control}`);
     },
     async deleteComment() {
       await user.click(selectors.commentDeleteBtn.get());
-      await act(async () => {
-        await user.click(selectors.commentConfirmDeleteBtn.get());
-      });
+      await user.click(selectors.commentConfirmDeleteBtn.get());
     },
     async updateType(currentType: IssueType, newType: IssueType) {
       await user.click(selectors.updateTypeBtn(currentType).get());
-      await act(async () => {
-        await user.click(selectors.setTypeBtn(newType).get());
-      });
+      await user.click(selectors.setTypeBtn(newType).get());
     },
     async updateSeverity(currentSeverity: IssueSeverity, newSeverity: IssueSeverity) {
       await user.click(selectors.updateSeverityBtn(currentSeverity).get());
-      await act(async () => {
-        await user.click(selectors.setSeverityBtn(newSeverity).get());
-      });
+      await user.click(selectors.setSeverityBtn(newSeverity).get());
     },
     async updateStatus(currentStatus: IssueStatus, transition: IssueTransition) {
       await user.click(selectors.updateStatusBtn(currentStatus).get());
-      await act(async () => {
-        await user.click(selectors.setStatusBtn(transition).get());
-      });
+      await user.click(selectors.setStatusBtn(transition).get());
     },
     async updateAssignee(currentAssignee: string, newAssignee: string) {
       await user.click(selectors.updateAssigneeBtn(currentAssignee).get());
-      await act(async () => {
-        await user.type(selectors.assigneeSearchInput.get(), newAssignee);
-      });
-      await act(async () => {
-        await user.click(selectors.setAssigneeBtn(new RegExp(newAssignee)).get());
-      });
+      await user.type(selectors.assigneeSearchInput.get(), newAssignee);
+      await user.click(selectors.setAssigneeBtn(new RegExp(newAssignee)).get());
     },
     async addTag(tag: string, currentTagList?: string[]) {
       await user.click(selectors.updateTagsBtn(currentTagList).get());
-      await act(async () => {
-        await user.click(selectors.toggleTagCheckbox(tag).get());
-      });
-      await act(async () => {
-        await user.keyboard('{Escape}');
-      });
+      await user.click(selectors.toggleTagCheckbox(tag).get());
+      await user.keyboard('{Escape}');
     },
     async showChangelog() {
       await user.click(selectors.toggleChangelogBtn.get());
@@ -332,39 +312,25 @@ function getPageObject() {
       await user.click(selectors.issueMessageLink.get());
     },
     async pressDismissShortcut() {
-      await act(async () => {
-        await user.keyboard(`{${KeyboardKeys.Escape}}`);
-      });
+      await user.keyboard(`{${KeyboardKeys.Escape}}`);
     },
     async pressTransitionShortcut() {
-      await act(async () => {
-        await user.keyboard(`{${KeyboardKeys.KeyF}}`);
-      });
+      await user.keyboard(`{${KeyboardKeys.KeyF}}`);
     },
     async pressAssignShortcut() {
-      await act(async () => {
-        await user.keyboard(`{${KeyboardKeys.KeyA}}`);
-      });
+      await user.keyboard(`{${KeyboardKeys.KeyA}}`);
     },
     async pressAssignToMeShortcut() {
-      await act(async () => {
-        await user.keyboard(`{${KeyboardKeys.KeyM}}`);
-      });
+      await user.keyboard(`{${KeyboardKeys.KeyM}}`);
     },
     async pressSeverityShortcut() {
-      await act(async () => {
-        await user.keyboard(`{${KeyboardKeys.KeyI}}`);
-      });
+      await user.keyboard(`{${KeyboardKeys.KeyI}}`);
     },
     async pressTagsShortcut() {
-      await act(async () => {
-        await user.keyboard(`{${KeyboardKeys.KeyT}}`);
-      });
+      await user.keyboard(`{${KeyboardKeys.KeyT}}`);
     },
     async pressCheckShortcut() {
-      await act(async () => {
-        await user.keyboard(`{${KeyboardKeys.Space}}`);
-      });
+      await user.keyboard(`{${KeyboardKeys.Space}}`);
     },
   };
 

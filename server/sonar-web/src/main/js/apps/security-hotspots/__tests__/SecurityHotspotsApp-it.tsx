@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { act, screen, waitFor } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
 import { Route } from 'react-router-dom';
@@ -210,9 +210,7 @@ describe('CRUD', () => {
     await user.click(await ui.activeAssignee.find());
     await user.click(ui.inputAssignee.get());
 
-    await act(async () => {
-      await user.keyboard('User');
-    });
+    await user.keyboard('User');
 
     expect(getUsers).toHaveBeenLastCalledWith({ q: 'User' });
     await user.keyboard('{Enter}');
@@ -233,9 +231,7 @@ describe('CRUD', () => {
     await user.click(screen.getByRole('textbox', { name: 'hotspots.status.add_comment_optional' }));
     await user.keyboard(comment);
 
-    await act(async () => {
-      await user.click(ui.changeStatus.get());
-    });
+    await user.click(ui.changeStatus.get());
 
     expect(ui.continueReviewingButton.get()).toBeInTheDocument();
     await user.click(ui.continueReviewingButton.get());
@@ -328,22 +324,22 @@ describe('navigation', () => {
     const user = userEvent.setup();
     renderSecurityHotspotsApp();
 
-    await act(() => user.keyboard('{ArrowLeft}'));
+    await user.keyboard('{ArrowLeft}');
     expect(ui.codeContent.get()).toBeInTheDocument();
 
-    await act(() => user.keyboard('{ArrowRight}'));
+    await user.keyboard('{ArrowRight}');
     expect(ui.riskContent.get()).toBeInTheDocument();
 
-    await act(() => user.keyboard('{ArrowRight}'));
+    await user.keyboard('{ArrowRight}');
     expect(ui.vulnerabilityContent.get()).toBeInTheDocument();
 
-    await act(() => user.keyboard('{ArrowRight}'));
+    await user.keyboard('{ArrowRight}');
     expect(ui.fixContent.get()).toBeInTheDocument();
 
-    await act(() => user.keyboard('{ArrowRight}'));
+    await user.keyboard('{ArrowRight}');
     expect(ui.addCommentButton.get()).toBeInTheDocument();
 
-    await act(() => user.keyboard('{ArrowRight}'));
+    await user.keyboard('{ArrowRight}');
     expect(ui.addCommentButton.get()).toBeInTheDocument();
   });
 
@@ -401,9 +397,7 @@ it('after status change, should be able to disable success dialog show', async (
   await user.click(await ui.reviewButton.find());
   await user.click(ui.toReviewStatus.get());
 
-  await act(async () => {
-    await user.click(ui.changeStatus.get());
-  });
+  await user.click(ui.changeStatus.get());
 
   await user.click(ui.dontShowSuccessDialogCheckbox.get());
   expect(ui.dontShowSuccessDialogCheckbox.get()).toBeChecked();
@@ -413,9 +407,7 @@ it('after status change, should be able to disable success dialog show', async (
   await user.click(await ui.reviewButton.find());
   await user.click(ui.toReviewStatus.get());
 
-  await act(async () => {
-    await user.click(ui.changeStatus.get());
-  });
+  await user.click(ui.changeStatus.get());
 
   expect(ui.continueReviewingButton.query()).not.toBeInTheDocument();
 });

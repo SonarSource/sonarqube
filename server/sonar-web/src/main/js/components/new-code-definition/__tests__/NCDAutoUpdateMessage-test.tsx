@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
 import { Route } from 'react-router-dom';
@@ -117,9 +116,7 @@ describe('Global NCD update notification banner', () => {
     renderGlobalMessage();
     expect(await ui.globalBannerContent.find()).toBeVisible();
     const user = userEvent.setup();
-    await act(async () => {
-      await user.click(ui.reviewLink.get());
-    });
+    await user.click(ui.reviewLink.get());
     expect(await ui.adminNcdMessage.find()).toBeVisible();
   });
 });
@@ -213,9 +210,7 @@ describe('Project NCD update notification banner', () => {
     renderProjectMessage(component);
     expect(await ui.projectBannerContent.find()).toBeVisible();
     const user = userEvent.setup();
-    await act(async () => {
-      await user.click(ui.reviewLink.get());
-    });
+    await user.click(ui.reviewLink.get());
     expect(await ui.projectNcdMessage.find()).toBeVisible();
   });
 });

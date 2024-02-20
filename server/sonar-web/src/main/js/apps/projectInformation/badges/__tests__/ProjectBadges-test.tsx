@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { act, fireEvent, screen, waitFor } from '@testing-library/react';
+import { fireEvent, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
 import selectEvent from 'react-select-event';
@@ -93,12 +93,10 @@ it('should update params', async () => {
     ),
   ).toBeInTheDocument();
 
-  await act(async () => {
-    await selectEvent.select(
-      screen.getByLabelText('overview.badges.format'),
-      'overview.badges.options.formats.url',
-    );
-  });
+  await selectEvent.select(
+    screen.getByLabelText('overview.badges.format'),
+    'overview.badges.options.formats.url',
+  );
 
   expect(
     screen.getByText(
@@ -106,9 +104,7 @@ it('should update params', async () => {
     ),
   ).toBeInTheDocument();
 
-  await act(async () => {
-    await selectEvent.openMenu(screen.getByLabelText('overview.badges.metric'));
-  });
+  await selectEvent.openMenu(screen.getByLabelText('overview.badges.metric'));
   fireEvent.click(screen.getByText(`metric.${MetricKey.coverage}.name`));
 
   expect(
@@ -146,9 +142,7 @@ it('should warn about deprecated metrics', async () => {
   renderProjectBadges();
   await appLoaded();
 
-  await act(async () => {
-    await selectEvent.openMenu(screen.getByLabelText('overview.badges.metric'));
-  });
+  await selectEvent.openMenu(screen.getByLabelText('overview.badges.metric'));
   fireEvent.click(screen.getByText(`metric.${MetricKey.bugs}.name (deprecated)`));
 
   expect(

@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { act, screen, waitFor } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React, { useContext } from 'react';
 import { Route } from 'react-router-dom';
@@ -203,7 +203,7 @@ describe('getTasksForComponent', () => {
     });
     await waitFor(() => expect(getTasksForComponent).toHaveBeenCalledTimes(1));
 
-    act(() => jest.runOnlyPendingTimers());
+    jest.runOnlyPendingTimers();
 
     // Second round, the queue is now empty, hence we assume the previous task
     // was done. We immediately load the component again.
@@ -219,7 +219,7 @@ describe('getTasksForComponent', () => {
     expect(getTasksForComponent).toHaveBeenCalledTimes(3);
 
     // Make sure the timeout was cleared. It should not be called again.
-    act(() => jest.runAllTimers());
+    jest.runAllTimers();
 
     // The number of calls haven't changed.
     await waitFor(() => {
@@ -252,7 +252,7 @@ describe('getTasksForComponent', () => {
     });
     await waitFor(() => expect(getTasksForComponent).toHaveBeenCalledTimes(1));
 
-    act(() => jest.runOnlyPendingTimers());
+    jest.runOnlyPendingTimers();
 
     // Second round, nothing in the queue, BUT a success task is current. This
     // means the queue was processed too quick for us to see, and we didn't see
@@ -308,7 +308,7 @@ describe('getTasksForComponent', () => {
     // status endpoint.
     await waitFor(() => expect(getTasksForComponent).toHaveBeenCalledTimes(1));
 
-    act(() => jest.runOnlyPendingTimers());
+    jest.runOnlyPendingTimers();
 
     // Second round, nothing in the queue, and a success task is current. This
     // implies the current task was updated, and previously we displayed some information
@@ -475,7 +475,7 @@ describe('tutorials', () => {
 
     await waitFor(() => expect(getTasksForComponent).toHaveBeenCalledTimes(1));
 
-    act(() => jest.runOnlyPendingTimers());
+    jest.runOnlyPendingTimers();
 
     expect(mockedReplace).not.toHaveBeenCalled();
     await waitFor(() => expect(getTasksForComponent).toHaveBeenCalledTimes(2));
@@ -515,7 +515,7 @@ describe('tutorials', () => {
 
     await waitFor(() => expect(getTasksForComponent).toHaveBeenCalledTimes(1));
 
-    act(() => jest.runOnlyPendingTimers());
+    jest.runOnlyPendingTimers();
 
     expect(mockedReplace).not.toHaveBeenCalled();
     await waitFor(() => expect(getTasksForComponent).toHaveBeenCalledTimes(2));
@@ -559,7 +559,7 @@ describe('tutorials', () => {
 
     await waitFor(() => expect(getTasksForComponent).toHaveBeenCalledTimes(1));
 
-    act(() => jest.runOnlyPendingTimers());
+    jest.runOnlyPendingTimers();
 
     expect(mockedReplace).not.toHaveBeenCalled();
     await waitFor(() => expect(getTasksForComponent).toHaveBeenCalledTimes(2));

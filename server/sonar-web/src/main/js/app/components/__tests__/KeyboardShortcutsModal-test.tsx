@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
 import { renderComponent } from '../../../helpers/testReactTestingUtils';
@@ -30,7 +29,7 @@ it('should render correctly', async () => {
 
   expect(ui.modalTitle.query()).not.toBeInTheDocument();
 
-  await act(() => user.keyboard('?'));
+  await user.keyboard('?');
 
   expect(ui.modalTitle.get()).toBeInTheDocument();
 
@@ -43,7 +42,7 @@ it('should ignore other keydownes', async () => {
   const user = userEvent.setup();
   renderKeyboardShortcutsModal();
 
-  await act(() => user.keyboard('!'));
+  await user.keyboard('!');
 
   expect(ui.modalTitle.query()).not.toBeInTheDocument();
 });
@@ -54,7 +53,7 @@ it('should ignore events in an input', async () => {
   renderKeyboardShortcutsModal();
 
   await user.click(ui.textInput.get());
-  await act(() => user.keyboard('?'));
+  await user.keyboard('?');
 
   expect(ui.modalTitle.query()).not.toBeInTheDocument();
 });

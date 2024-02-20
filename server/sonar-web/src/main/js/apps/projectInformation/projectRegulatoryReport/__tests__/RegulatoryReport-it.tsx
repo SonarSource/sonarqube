@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { act, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
 import BranchesServiceMock from '../../../../api/mocks/BranchesServiceMock';
@@ -57,17 +57,13 @@ describe('RegulatoryReport tests', () => {
     expect(ui.moreInfo.get()).toBeInTheDocument();
     expect(ui.branchSelect.get()).toBeInTheDocument();
 
-    await act(async () => {
-      await user.click(ui.branchSelect.get());
-      await user.keyboard('[ArrowDown][Enter]');
-    });
+    await user.click(ui.branchSelect.get());
+    await user.keyboard('[ArrowDown][Enter]');
 
     expect(ui.downloadButton.get()).toBeInTheDocument();
     expect(screen.queryByText('regulatory_page.download_start.sentence')).not.toBeInTheDocument();
 
-    await act(async () => {
-      await user.click(ui.downloadButton.get());
-    });
+    await user.click(ui.downloadButton.get());
 
     expect(screen.getByText('regulatory_page.download_start.sentence')).toBeInTheDocument();
   });

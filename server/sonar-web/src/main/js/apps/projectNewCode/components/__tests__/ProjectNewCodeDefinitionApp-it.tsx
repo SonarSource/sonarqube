@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { last } from 'lodash';
 import selectEvent from 'react-select-event';
@@ -350,9 +349,7 @@ it('should correctly dismiss branch banner', async () => {
   expect(await ui.branchNCDsBanner.find()).toBeInTheDocument();
 
   const user = userEvent.setup();
-  await act(async () => {
-    await user.click(ui.dismissButton.get());
-  });
+  await user.click(ui.dismissButton.get());
 
   expect(ui.branchNCDsBanner.query()).not.toBeInTheDocument();
 });

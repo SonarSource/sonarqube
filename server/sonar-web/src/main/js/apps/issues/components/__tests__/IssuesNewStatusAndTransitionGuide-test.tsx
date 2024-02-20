@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
 import IssuesServiceMock from '../../../../api/mocks/IssuesServiceMock';
@@ -47,29 +46,19 @@ it('should display status guide', async () => {
   expect(await ui.guidePopup.find()).toBeInTheDocument();
   expect(ui.guidePopup.get()).toHaveTextContent('guiding.issue_accept.1.title');
 
-  await act(async () => {
-    await user.click(ui.guidePopup.byRole('button', { name: 'next' }).get());
-  });
+  await user.click(ui.guidePopup.byRole('button', { name: 'next' }).get());
 
   expect(ui.guidePopup.get()).toHaveTextContent('guiding.issue_accept.2.title');
 
-  await act(async () => {
-    await user.click(ui.guidePopup.byRole('button', { name: 'go_back' }).get());
-  });
+  await user.click(ui.guidePopup.byRole('button', { name: 'go_back' }).get());
   expect(ui.guidePopup.get()).toHaveTextContent('guiding.issue_accept.1.title');
 
-  await act(async () => {
-    await user.click(ui.guidePopup.byRole('button', { name: 'next' }).get());
-  });
-  await act(async () => {
-    await user.click(ui.guidePopup.byRole('button', { name: 'next' }).get());
-  });
+  await user.click(ui.guidePopup.byRole('button', { name: 'next' }).get());
+  await user.click(ui.guidePopup.byRole('button', { name: 'next' }).get());
   expect(ui.guidePopup.get()).toHaveTextContent('guiding.issue_accept.3.title');
   expect(ui.guidePopup.byRole('button', { name: 'Next' }).query()).not.toBeInTheDocument();
 
-  await act(async () => {
-    await user.click(ui.guidePopup.byRole('button', { name: 'close' }).get());
-  });
+  await user.click(ui.guidePopup.byRole('button', { name: 'close' }).get());
 
   expect(ui.guidePopup.query()).not.toBeInTheDocument();
 });

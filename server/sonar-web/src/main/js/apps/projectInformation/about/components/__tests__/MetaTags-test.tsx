@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { act, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
 import { setApplicationTags, setProjectTags } from '../../../../../api/components';
@@ -61,7 +61,7 @@ it('should allow to edit tags for a project', async () => {
   expect(await screen.findByText('foo, bar')).toBeInTheDocument();
   expect(screen.getByRole('button')).toBeInTheDocument();
 
-  await act(() => user.click(screen.getByRole('button', { name: 'foo bar +' })));
+  await user.click(screen.getByRole('button', { name: 'foo bar +' }));
 
   expect(await screen.findByRole('checkbox', { name: 'best' })).toBeInTheDocument();
 
@@ -94,7 +94,7 @@ it('should set tags for an app', async () => {
     }),
   });
 
-  await act(() => user.click(screen.getByRole('button', { name: 'no_tags +' })));
+  await user.click(screen.getByRole('button', { name: 'no_tags +' }));
 
   await user.click(await screen.findByRole('checkbox', { name: 'best' }));
 

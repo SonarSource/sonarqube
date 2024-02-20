@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { act, waitFor } from '@testing-library/react';
+import { waitFor } from '@testing-library/react';
 import { UserEvent } from '@testing-library/user-event/dist/types/setup/setup';
 import selectEvent from 'react-select-event';
 import { byRole, byText } from '../../helpers/testSelector';
@@ -72,7 +72,7 @@ export function getPageObject(user: UserEvent) {
       });
     },
     async toggleProjectPermission(target: string, permission: Permissions) {
-      await act(() => user.click(ui.projectPermissionCheckbox(target, permission).get()));
+      await user.click(ui.projectPermissionCheckbox(target, permission).get());
     },
     async toggleGlobalPermission(target: string, permission: Permissions) {
       await user.click(ui.globalPermissionCheckbox(target, permission).get());

@@ -21,7 +21,6 @@ import { within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { last } from 'lodash';
 import React from 'react';
-import { act } from 'react-dom/test-utils';
 import { Route } from 'react-router-dom';
 import ComponentsServiceMock from '../../../api/mocks/ComponentsServiceMock';
 import { renderAppWithComponentContext } from '../../../helpers/testReactTestingUtils';
@@ -58,9 +57,7 @@ it('can update project key', async () => {
   // Dialog should show old and new keys
   expect(within(ui.updateKeyDialog.get()).getByText(oldKey)).toBeInTheDocument();
   expect(within(ui.updateKeyDialog.get()).getByText(newKey)).toBeInTheDocument();
-  await act(async () => {
-    await user.click(last(ui.updateInputButton.getAll()) as HTMLElement);
-  });
+  await user.click(last(ui.updateInputButton.getAll()) as HTMLElement);
   expect(ui.updateInputButton.get()).toBeDisabled();
 
   expect(ui.newKeyInput.get()).toHaveValue(newKey);

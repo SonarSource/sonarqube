@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { act, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { formatISO, parseISO } from 'date-fns';
 import { byRole } from '../../../../../src/main/js/helpers/testSelector';
@@ -58,9 +58,7 @@ it('behaves correctly', async () => {
 
   onChange.mockClear();
 
-  act(() => {
-    jest.runAllTimers();
-  });
+  jest.runAllTimers();
 
   const previousButton = nav.byRole('button', { name: 'previous_month_x' });
   const nextButton = nav.byRole('button', { name: 'next_month_x' });

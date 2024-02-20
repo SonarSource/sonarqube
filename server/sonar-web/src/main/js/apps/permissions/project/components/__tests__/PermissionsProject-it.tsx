@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { act, screen, waitFor } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import AlmSettingsServiceMock from '../../../../../api/mocks/AlmSettingsServiceMock';
 import GithubProvisioningServiceMock from '../../../../../api/mocks/GithubProvisioningServiceMock';
@@ -155,9 +155,7 @@ describe('assigning/revoking permissions', () => {
     expect(
       ui.projectPermissionCheckbox('sonar-users', Permissions.Browse).query(),
     ).not.toBeInTheDocument();
-    await act(async () => {
-      await ui.turnProjectPrivate();
-    });
+    await ui.turnProjectPrivate();
     expect(ui.visibilityRadio(Visibility.Private).get()).toBeChecked();
     expect(
       ui.projectPermissionCheckbox('sonar-users', Permissions.Browse).get(),
@@ -165,9 +163,7 @@ describe('assigning/revoking permissions', () => {
 
     await ui.turnProjectPublic();
     expect(ui.makePublicDisclaimer.get()).toBeInTheDocument();
-    await act(async () => {
-      await ui.confirmTurnProjectPublic();
-    });
+    await ui.confirmTurnProjectPublic();
     expect(ui.visibilityRadio(Visibility.Public).get()).toBeChecked();
   });
 
@@ -260,9 +256,7 @@ describe('GH provisioning', () => {
     expect(ui.visibilityRadio(Visibility.Public).get()).toBeDisabled();
     expect(ui.visibilityRadio(Visibility.Public).get()).toBeChecked();
     expect(ui.visibilityRadio(Visibility.Private).get()).toBeDisabled();
-    await act(async () => {
-      await ui.turnProjectPrivate();
-    });
+    await ui.turnProjectPrivate();
     expect(ui.visibilityRadio(Visibility.Private).get()).not.toBeChecked();
   });
 
@@ -282,9 +276,7 @@ describe('GH provisioning', () => {
     expect(ui.visibilityRadio(Visibility.Public).get()).not.toHaveClass('disabled');
     expect(ui.visibilityRadio(Visibility.Public).get()).toBeChecked();
     expect(ui.visibilityRadio(Visibility.Private).get()).not.toHaveClass('disabled');
-    await act(async () => {
-      await ui.turnProjectPrivate();
-    });
+    await ui.turnProjectPrivate();
     expect(ui.visibilityRadio(Visibility.Private).get()).toBeChecked();
   });
 
@@ -304,9 +296,7 @@ describe('GH provisioning', () => {
     expect(ui.visibilityRadio(Visibility.Public).get()).not.toHaveClass('disabled');
     expect(ui.visibilityRadio(Visibility.Public).get()).toBeChecked();
     expect(ui.visibilityRadio(Visibility.Private).get()).not.toHaveClass('disabled');
-    await act(async () => {
-      await ui.turnProjectPrivate();
-    });
+    await ui.turnProjectPrivate();
     expect(ui.visibilityRadio(Visibility.Private).get()).toBeChecked();
   });
 
@@ -345,9 +335,7 @@ describe('GH provisioning', () => {
     expect(ui.confirmRemovePermissionDialog.get()).toHaveTextContent(
       `${Permissions.IssueAdmin}Alexa`,
     );
-    await act(() =>
-      user.click(ui.confirmRemovePermissionDialog.byRole('button', { name: 'confirm' }).get()),
-    );
+    await user.click(ui.confirmRemovePermissionDialog.byRole('button', { name: 'confirm' }).get());
     expect(ui.projectPermissionCheckbox('Alexa', Permissions.IssueAdmin).get()).not.toBeChecked();
 
     expect(ui.projectPermissionCheckbox('sonar-users', Permissions.Browse).get()).toBeChecked();
@@ -357,9 +345,7 @@ describe('GH provisioning', () => {
     expect(ui.confirmRemovePermissionDialog.get()).toHaveTextContent(
       `${Permissions.Browse}sonar-users`,
     );
-    await act(() =>
-      user.click(ui.confirmRemovePermissionDialog.byRole('button', { name: 'confirm' }).get()),
-    );
+    await user.click(ui.confirmRemovePermissionDialog.byRole('button', { name: 'confirm' }).get());
     expect(ui.projectPermissionCheckbox('sonar-users', Permissions.Browse).get()).not.toBeChecked();
     expect(ui.projectPermissionCheckbox('sonar-admins', Permissions.Admin).get()).toBeChecked();
     expect(ui.projectPermissionCheckbox('sonar-admins', Permissions.Admin).get()).toHaveAttribute(

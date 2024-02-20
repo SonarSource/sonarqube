@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { act, render } from '@testing-library/react';
+import { act, fireEvent, render } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { UserEvent } from '@testing-library/user-event/dist/types/setup/setup';
 import * as React from 'react';
@@ -43,17 +43,13 @@ const ui = {
 
 async function openToggler(user: UserEvent) {
   await user.click(ui.toggleButton.get());
-  act(() => {
-    jest.runAllTimers();
-  });
+  jest.runAllTimers();
   expect(ui.overlayButton.get()).toBeInTheDocument();
 }
 
 function focusOut() {
-  act(() => {
-    ui.overlayButton.get().focus();
-    ui.outButton.get().focus();
-  });
+  fireEvent.focus(ui.overlayButton.get());
+  fireEvent.focus(ui.outButton.get());
 }
 
 it('should handle key up/down', async () => {
@@ -201,6 +197,7 @@ it('should open/close correctly when default props is applied', async () => {
   expect(await ui.overlayButton.find()).toBeInTheDocument();
 
   // Focus out should close
+  // I have no idea why only act + this 2 lines work, but fireEvent.focus does not
   act(() => {
     ui.overlayButton.get().focus();
     ui.outButton.get().focus();

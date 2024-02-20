@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { act, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { addGlobalErrorMessage, addGlobalSuccessMessage } from 'design-system';
 import * as React from 'react';
@@ -84,13 +84,11 @@ it('handles button click with no ide found', async () => {
 
   renderComponentIssueOpenInIdeButton();
 
-  await act(async () => {
-    await user.click(
-      screen.getByRole('button', {
-        name: 'open_in_ide',
-      }),
-    );
-  });
+  await user.click(
+    screen.getByRole('button', {
+      name: 'open_in_ide',
+    }),
+  );
 
   expect(probeSonarLintServers).toHaveBeenCalledWith();
 
@@ -118,13 +116,11 @@ it('handles button click with one ide found', async () => {
 
   renderComponentIssueOpenInIdeButton();
 
-  await act(async () => {
-    await user.click(
-      screen.getByRole('button', {
-        name: 'open_in_ide',
-      }),
-    );
-  });
+  await user.click(
+    screen.getByRole('button', {
+      name: 'open_in_ide',
+    }),
+  );
 
   expect(probeSonarLintServers).toHaveBeenCalledWith();
 
@@ -150,13 +146,11 @@ it('handles button click with several ides found', async () => {
 
   renderComponentIssueOpenInIdeButton();
 
-  await act(async () => {
-    await user.click(
-      screen.getByRole('button', {
-        name: 'open_in_ide',
-      }),
-    );
-  });
+  await user.click(
+    screen.getByRole('button', {
+      name: 'open_in_ide',
+    }),
+  );
 
   expect(probeSonarLintServers).toHaveBeenCalledWith();
 
@@ -172,9 +166,7 @@ it('handles button click with several ides found', async () => {
 
   expect(secondIde).toBeInTheDocument();
 
-  await act(async () => {
-    await user.click(secondIde);
-  });
+  await user.click(secondIde);
 
   expect(openSonarLintIssue).toHaveBeenCalledWith({
     branchName: undefined,

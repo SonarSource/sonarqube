@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { act, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { renderWithContext } from '../../../helpers/testUtils';
 import { FCProps } from '../../../types/misc';
@@ -65,9 +65,7 @@ it('should handle key navigation', async () => {
   expect(screen.queryByText('different')).not.toBeInTheDocument();
   await user.keyboard('{Escape}');
   expect(await screen.findByText('different')).toBeInTheDocument();
-  await act(async () => {
-    await user.keyboard('{Escape}');
-  });
+  await user.keyboard('{Escape}');
   expect(screen.queryByText('different')).not.toBeInTheDocument();
   await user.tab({ shift: true });
   await user.keyboard('{ArrowDown}');
