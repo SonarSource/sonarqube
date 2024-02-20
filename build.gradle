@@ -15,6 +15,7 @@ plugins {
   id 'io.spring.dependency-management' version '1.1.3'
   id "org.cyclonedx.bom" version "1.7.4" apply false
   id 'org.sonarqube' version '4.4.1.3373'
+  id 'org.barfuin.gradle.jacocolog' version '3.1.0'
 }
 
 if (!JavaVersion.current().isCompatibleWith(VERSION_17)) {
@@ -192,6 +193,8 @@ subprojects {
   apply plugin: 'com.github.hierynomus.license'
   apply plugin: 'io.spring.dependency-management'
   apply plugin: 'jacoco'
+  apply plugin: 'java'
+  apply plugin: 'org.barfuin.gradle.jacocolog'
   apply plugin: 'java-library'
   apply plugin: 'idea'
   apply plugin: 'signing'
@@ -519,10 +522,20 @@ subprojects {
   jacocoTestReport {
     reports {
       xml.required = true
-      csv.required = false
-      html.required = false
+      csv.required = true
+      html.required = true
+      
     }
   }
+
+	jacocoLogTestCoverage {
+	    counters {
+	        showComplexityCoverage = true
+	        showClassCoverage = true
+	        showLineCoverage = true
+	    }
+	}
+
 
   normalization {
     runtimeClasspath {
@@ -537,6 +550,8 @@ subprojects {
 
   ext.failedTests = []
   test {
+    finalizedBy jacocoTestReport
+    finalizedBy jacocoLogTestCoverage
     jvmArgs '-Dfile.encoding=UTF8'
     maxHeapSize = '1G'
     systemProperty 'java.awt.headless', true
@@ -546,8 +561,10 @@ subprojects {
     }
     jacoco {
       enabled = true // do not disable recording of code coverage, so that remote Gradle cache entry can be used locally
-      includes = ['com.sonar.*', 'com.sonarsource.*', 'org.sonar.*', 'org.sonarqube.*', 'org.sonarsource.*']
+      //includes = ['com.sonar.*', 'com.sonarsource.*', 'org.sonar.*', 'org.sonarqube.*', 'org.sonarsource.*']
     }
+
+
     if (project.hasProperty('maxParallelTests')) {
       maxParallelForks = project.maxParallelTests as int
     }
@@ -683,7 +700,7 @@ subprojects {
   }
 
   tasks.withType(BlackBoxTest) {
-    jacoco.enabled = false
+    jacoco.enabled = true
     testClassesDirs = sourceSets.bbt.output.classesDirs
     classpath = sourceSets.bbt.runtimeClasspath
 
