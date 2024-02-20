@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import '@testing-library/jest-dom';
-import { configure, fireEvent, screen } from '@testing-library/react';
+import { configure, fireEvent, screen, waitFor } from '@testing-library/react';
 
 configure({
   asyncUtilTimeout: 3000,
@@ -48,6 +48,10 @@ expect.extend({
         };
 
     fireEvent.pointerLeave(received);
+
+    await waitFor(() => {
+      expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+    });
 
     return result;
   },

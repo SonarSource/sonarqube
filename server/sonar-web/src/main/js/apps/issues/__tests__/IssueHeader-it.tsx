@@ -25,8 +25,6 @@ import { byRole, byText } from '../../../helpers/testSelector';
 import { Dict } from '../../../types/types';
 import IssueHeader from '../components/IssueHeader';
 
-jest.useFakeTimers();
-
 it('renders correctly', async () => {
   const issue = mockIssue();
   renderIssueHeader(
@@ -57,19 +55,16 @@ it('renders correctly', async () => {
   await expect(cctBadge).toHaveATooltipWithContent(
     `issue.clean_code_attribute.${issue.cleanCodeAttribute}`,
   );
-  jest.runOnlyPendingTimers();
 
   // Software Qualities
   const qualityBadge = byText(`software_quality.${issue.impacts[0].softwareQuality}`).get();
   expect(qualityBadge).toBeInTheDocument();
   await expect(qualityBadge).toHaveATooltipWithContent('software_quality');
-  jest.runOnlyPendingTimers();
 
   // Deprecated type
   const type = byText(`issue.type.${issue.type}`).get();
   expect(type).toBeInTheDocument();
   await expect(type).toHaveATooltipWithContent('issue.clean_code_attribute');
-  jest.runOnlyPendingTimers();
 
   // Deprecated severity
   const severity = byText(`severity.${issue.severity}`).get();

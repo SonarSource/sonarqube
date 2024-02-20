@@ -54,10 +54,10 @@ describe('rendering', () => {
     expect(ui.templateLink('Permission Template 2').get()).toBeInTheDocument();
 
     // Shows warning for browse and code viewer permissions.
-    await expect(ui.getHeaderTooltipIconByIndex(1)).toHaveATooltipWithContent(
+    await expect(ui.getHeaderTooltipIconByIndex(0)).toHaveATooltipWithContent(
       'projects_role.public_projects_warning',
     );
-    await expect(ui.getHeaderTooltipIconByIndex(2)).toHaveATooltipWithContent(
+    await expect(ui.getHeaderTooltipIconByIndex(1)).toHaveATooltipWithContent(
       'projects_role.public_projects_warning',
     );
 
