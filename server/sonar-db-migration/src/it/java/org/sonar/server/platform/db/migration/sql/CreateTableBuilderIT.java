@@ -19,11 +19,13 @@
  */
 package org.sonar.server.platform.db.migration.sql;
 
+import java.util.List;
 import java.util.Map;
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.sonar.db.dialect.Dialect;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.db.MigrationDbTester;
+import org.sonar.db.dialect.Dialect;
 import org.sonar.server.platform.db.migration.def.TinyIntColumnDef;
 import org.sonar.server.platform.db.migration.def.VarcharColumnDef;
 
@@ -37,16 +39,22 @@ import static org.sonar.server.platform.db.migration.def.IntegerColumnDef.newInt
 import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.newVarcharColumnDefBuilder;
 import static org.sonar.server.platform.db.migration.sql.CreateTableBuilder.ColumnFlag.AUTO_INCREMENT;
 
-public class CreateTableBuilderIT {
-  @ClassRule
-  public static final MigrationDbTester dbTester = MigrationDbTester.createEmpty();
+class CreateTableBuilderIT {
+  @RegisterExtension
+  public final MigrationDbTester dbTester = MigrationDbTester.createEmpty();
 
-  private final Dialect dialect = dbTester.database().getDialect();
+  private Dialect dialect;
   private static int tableNameGenerator = 0;
 
+  @BeforeEach
+  void before() {
+    dialect = dbTester.database().getDialect();
+  }
+
   @Test
-  public void create_no_primary_key_table() {
-    newCreateTableBuilder()
+  void create_no_primary_key_table() {
+    String tableName = createTableName();
+    new CreateTableBuilder(dialect, tableName)
       .addColumn(newBooleanColumnDefBuilder().setColumnName("bool_col_1").build())
       .addColumn(newBooleanColumnDefBuilder().setColumnName("bool_col_2").setIsNullable(false).build())
       .addColumn(newIntegerColumnDefBuilder().setColumnName("i_col_1").build())
@@ -65,29 +73,35 @@ public class CreateTableBuilderIT {
       .addColumn(newBlobColumnDefBuilder().setColumnName("blob_col_2").setIsNullable(false).build())
       .build()
       .forEach(dbTester::executeDdl);
+    assertTableAndColumnsExists(tableName, "bool_col_1", "bool_col_2", "i_col_1", "i_col_2", "bi_col_1", "bi_col_2", "clob_col_1",
+      "clob_col_2", "dec_col_1", "dec_col_2", "tiny_col_1", "tiny_col_2", "varchar_col_1", "varchar_col_2", "blob_col_1", "blob_col_2");
   }
 
   @Test
-  public void create_single_column_primary_key_table() {
-    newCreateTableBuilder()
+  void create_single_column_primary_key_table() {
+    String tableName = createTableName();
+    new CreateTableBuilder(dialect, tableName)
       .addPkColumn(newBigIntegerColumnDefBuilder().setColumnName("bg_col_1").setIsNullable(false).build())
       .addColumn(newVarcharColumnDefBuilder().setColumnName("varchar_col_2").setLimit(40).setIsNullable(false).build())
       .build()
       .forEach(dbTester::executeDdl);
+    assertTableAndColumnsExists(tableName, "bg_col_1", "varchar_col_2");
   }
 
   @Test
-  public void create_multi_column_primary_key_table() {
-    newCreateTableBuilder()
+  void create_multi_column_primary_key_table() {
+    String tableName = createTableName();
+    new CreateTableBuilder(dialect, tableName)
       .addPkColumn(newBigIntegerColumnDefBuilder().setColumnName("bg_col_1").setIsNullable(false).build())
       .addPkColumn(newBigIntegerColumnDefBuilder().setColumnName("bg_col_2").setIsNullable(false).build())
       .addColumn(newVarcharColumnDefBuilder().setColumnName("varchar_col_2").setLimit(40).setIsNullable(false).build())
       .build()
       .forEach(dbTester::executeDdl);
+    assertTableAndColumnsExists(tableName, "bg_col_1", "bg_col_2", "varchar_col_2");
   }
 
   @Test
-  public void create_autoincrement_notnullable_integer_primary_key_table() {
+  void create_autoincrement_notnullable_integer_primary_key_table() {
     String tableName = createTableName();
     new CreateTableBuilder(dialect, tableName)
       .addPkColumn(newIntegerColumnDefBuilder().setColumnName("id").setIsNullable(false).build(), AUTO_INCREMENT)
@@ -99,7 +113,7 @@ public class CreateTableBuilderIT {
   }
 
   @Test
-  public void create_autoincrement_notnullable_biginteger_primary_key_table() {
+  void create_autoincrement_notnullable_biginteger_primary_key_table() {
     String tableName = createTableName();
     new CreateTableBuilder(dialect, tableName)
       .addPkColumn(newBigIntegerColumnDefBuilder().setColumnName("id").setIsNullable(false).build(), AUTO_INCREMENT)
@@ -120,6 +134,11 @@ public class CreateTableBuilderIT {
     Map<String, Object> row = dbTester.selectFirst("select id as \"id\", val as \"val\" from " + tableName);
     assertThat(row.get("id")).isNotNull();
     assertThat(row).containsEntry("val", "toto");
+  }
+
+  private void assertTableAndColumnsExists(String tableName, String... columnNames) {
+    List<Map<String, Object>> row = dbTester.select(String.format("select %s from %s", String.join(", ", columnNames), tableName));
+    assertThat(row).isEmpty();
   }
 
   private CreateTableBuilder newCreateTableBuilder() {

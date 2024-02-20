@@ -25,8 +25,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import javax.annotation.Nullable;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.MigrationDbTester;
@@ -39,19 +39,19 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.sonar.server.platform.db.migration.version.v101.MigrateScmAccountsFromUsersToScmAccounts.SCM_ACCOUNTS_SEPARATOR_CHAR;
 
-public class MigrateScmAccountsFromUsersToScmAccountsIT {
+class MigrateScmAccountsFromUsersToScmAccountsIT {
 
   private static final UuidFactory UUID_FACTORY = UuidFactoryFast.getInstance();
   private static final String SCM_ACCOUNT1 = "scmaccount";
   private static final String SCM_ACCOUNT2 = "scmaccount2";
   private static final String SCM_ACCOUNT_CAMELCASE = "scmAccount3";
 
-  @Rule
+  @RegisterExtension
   public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(MigrateScmAccountsFromUsersToScmAccounts.class);
   private final DataChange migrateScmAccountsFromUsersToScmAccounts = new MigrateScmAccountsFromUsersToScmAccounts(db.database());
 
   @Test
-  public void execute_whenUserHasNullScmAccounts_doNotInsertInScmAccounts() throws SQLException {
+  void execute_whenUserHasNullScmAccounts_doNotInsertInScmAccounts() throws SQLException {
     insertUserAndGetUuid(null);
 
     migrateScmAccountsFromUsersToScmAccounts.execute();
@@ -61,7 +61,7 @@ public class MigrateScmAccountsFromUsersToScmAccountsIT {
   }
 
   @Test
-  public void execute_whenUserHasEmptyScmAccounts_doNotInsertInScmAccounts() throws SQLException {
+  void execute_whenUserHasEmptyScmAccounts_doNotInsertInScmAccounts() throws SQLException {
     insertUserAndGetUuid("");
 
     migrateScmAccountsFromUsersToScmAccounts.execute();
@@ -71,7 +71,7 @@ public class MigrateScmAccountsFromUsersToScmAccountsIT {
   }
 
   @Test
-  public void execute_whenUserHasEmptyScmAccountsWithOneSeparator_doNotInsertInScmAccounts() throws SQLException {
+  void execute_whenUserHasEmptyScmAccountsWithOneSeparator_doNotInsertInScmAccounts() throws SQLException {
     insertUserAndGetUuid(String.valueOf(SCM_ACCOUNTS_SEPARATOR_CHAR));
 
     migrateScmAccountsFromUsersToScmAccounts.execute();
@@ -81,7 +81,7 @@ public class MigrateScmAccountsFromUsersToScmAccountsIT {
   }
 
   @Test
-  public void execute_whenUserHasEmptyScmAccountsWithTwoSeparators_doNotInsertInScmAccounts() throws SQLException {
+  void execute_whenUserHasEmptyScmAccountsWithTwoSeparators_doNotInsertInScmAccounts() throws SQLException {
     insertUserAndGetUuid(SCM_ACCOUNTS_SEPARATOR_CHAR + String.valueOf(SCM_ACCOUNTS_SEPARATOR_CHAR));
 
     migrateScmAccountsFromUsersToScmAccounts.execute();
@@ -91,7 +91,7 @@ public class MigrateScmAccountsFromUsersToScmAccountsIT {
   }
 
   @Test
-  public void execute_whenUserHasOneScmAccountWithoutSeparator_insertsInScmAccounts() throws SQLException {
+  void execute_whenUserHasOneScmAccountWithoutSeparator_insertsInScmAccounts() throws SQLException {
     String userUuid = insertUserAndGetUuid(SCM_ACCOUNT1);
 
     migrateScmAccountsFromUsersToScmAccounts.execute();
@@ -101,7 +101,7 @@ public class MigrateScmAccountsFromUsersToScmAccountsIT {
   }
 
   @Test
-  public void execute_whenUserHasOneScmAccountWithSeparators_insertsInScmAccounts() throws SQLException {
+  void execute_whenUserHasOneScmAccountWithSeparators_insertsInScmAccounts() throws SQLException {
     String userUuid = insertUserAndGetUuid(format("%s%s%s", SCM_ACCOUNTS_SEPARATOR_CHAR, SCM_ACCOUNT1, SCM_ACCOUNTS_SEPARATOR_CHAR));
 
     migrateScmAccountsFromUsersToScmAccounts.execute();
@@ -111,7 +111,7 @@ public class MigrateScmAccountsFromUsersToScmAccountsIT {
   }
 
   @Test
-  public void execute_whenUserHasOneScmAccountWithMixedCase_insertsInScmAccountsInLowerCase() throws SQLException {
+  void execute_whenUserHasOneScmAccountWithMixedCase_insertsInScmAccountsInLowerCase() throws SQLException {
     String userUuid = insertUserAndGetUuid(format("%s%s%s", SCM_ACCOUNTS_SEPARATOR_CHAR, SCM_ACCOUNT_CAMELCASE, SCM_ACCOUNTS_SEPARATOR_CHAR));
 
     migrateScmAccountsFromUsersToScmAccounts.execute();
@@ -121,7 +121,7 @@ public class MigrateScmAccountsFromUsersToScmAccountsIT {
   }
 
   @Test
-  public void execute_whenUserHasTwoScmAccount_insertsInScmAccounts() throws SQLException {
+  void execute_whenUserHasTwoScmAccount_insertsInScmAccounts() throws SQLException {
     String userUuid = insertUserAndGetUuid(format("%s%s%s%s%s",
       SCM_ACCOUNTS_SEPARATOR_CHAR, SCM_ACCOUNT1, SCM_ACCOUNTS_SEPARATOR_CHAR, SCM_ACCOUNT2, SCM_ACCOUNTS_SEPARATOR_CHAR));
 
@@ -135,7 +135,7 @@ public class MigrateScmAccountsFromUsersToScmAccountsIT {
   }
 
   @Test
-  public void migration_should_be_reentrant() throws SQLException {
+  void migration_should_be_reentrant() throws SQLException {
     String userUuid = insertUserAndGetUuid(SCM_ACCOUNT1);
 
     migrateScmAccountsFromUsersToScmAccounts.execute();
@@ -146,7 +146,7 @@ public class MigrateScmAccountsFromUsersToScmAccountsIT {
   }
 
   @Test
-  public void migration_should_be_reentrant_if_scm_account_column_dropped() {
+  void migration_should_be_reentrant_if_scm_account_column_dropped() {
     db.executeDdl("alter table users drop column scm_accounts");
 
     assertThatNoException().isThrownBy(migrateScmAccountsFromUsersToScmAccounts::execute);

@@ -23,8 +23,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Arrays;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.db.CoreDbTester;
 import org.sonar.server.platform.db.migration.step.MigrationStep;
 import org.sonar.server.platform.db.migration.step.RegisteredMigrationStep;
@@ -34,40 +34,40 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-public class MigrationHistoryImplIT {
-  @Rule
-  public CoreDbTester dbTester = CoreDbTester.createForSchema(MigrationHistoryImplIT.class, "schema_migration.sql");
+class MigrationHistoryImplIT {
+  @RegisterExtension
+  public final CoreDbTester dbTester = CoreDbTester.createForSchema(MigrationHistoryImplIT.class, "schema_migration.sql");
 
   private MigrationHistoryMeddler migrationHistoryMeddler = mock(MigrationHistoryMeddler.class);
   private MigrationHistoryImpl underTest = new MigrationHistoryImpl(dbTester.database(), migrationHistoryMeddler);
 
   @Test
-  public void start_does_not_fail_if_table_history_exists_and_calls_meddler() {
+  void start_does_not_fail_if_table_history_exists_and_calls_meddler() {
     underTest.start();
 
     verify(migrationHistoryMeddler).meddle(underTest);
   }
 
   @Test
-  public void getLastMigrationNumber_returns_empty_if_history_table_is_empty() {
+  void getLastMigrationNumber_returns_empty_if_history_table_is_empty() {
     assertThat(underTest.getLastMigrationNumber()).isEmpty();
   }
 
   @Test
-  public void getLastMigrationNumber_returns_last_version_assuming_version_are_only_number() throws SQLException {
+  void getLastMigrationNumber_returns_last_version_assuming_version_are_only_number() throws SQLException {
     insert(12, 5, 30, 8);
 
     assertThat(underTest.getLastMigrationNumber()).contains(30L);
   }
 
   @Test
-  public void done_fails_with_NPE_if_argument_is_null() {
+  void done_fails_with_NPE_if_argument_is_null() {
     assertThatThrownBy(() -> underTest.done(null))
       .isInstanceOf(NullPointerException.class);
   }
 
   @Test
-  public void done_adds_migration_number_to_table() {
+  void done_adds_migration_number_to_table() {
     underTest.done(new RegisteredMigrationStep(12, "aa", MigrationStep.class));
 
     assertThat(underTest.getLastMigrationNumber()).contains(12L);

@@ -21,30 +21,30 @@ package org.sonar.server.platform.db.migration.version.v103;
 
 import java.sql.SQLException;
 import java.sql.Types;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.db.MigrationDbTester;
 
 import static org.assertj.core.api.Assertions.assertThatCode;
 
-public class AddSqVersionColumnInQprofileChangesTableIT {
+class AddSqVersionColumnInQprofileChangesTableIT {
 
   private static final String TABLE_NAME = "qprofile_changes";
   private static final String COLUMN_NAME = "sq_version";
 
-  @Rule
+  @RegisterExtension
   public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(AddSqVersionColumnInQprofileChangesTable.class);
   private final AddSqVersionColumnInQprofileChangesTable underTest = new AddSqVersionColumnInQprofileChangesTable(db.database());
 
   @Test
-  public void execute_whenColumnDoesNotExist_shouldCreateColumn() throws SQLException {
+  void execute_whenColumnDoesNotExist_shouldCreateColumn() throws SQLException {
     db.assertColumnDoesNotExist(TABLE_NAME, COLUMN_NAME);
     underTest.execute();
     db.assertColumnDefinition(TABLE_NAME, COLUMN_NAME, Types.VARCHAR, 40, true);
   }
 
   @Test
-  public void execute_whenColumnsAlreadyExists_shouldNotFail() throws SQLException {
+  void execute_whenColumnsAlreadyExists_shouldNotFail() throws SQLException {
     underTest.execute();
     assertThatCode(underTest::execute).doesNotThrowAnyException();
   }

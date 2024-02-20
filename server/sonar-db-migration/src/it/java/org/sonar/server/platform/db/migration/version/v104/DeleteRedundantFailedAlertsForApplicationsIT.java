@@ -21,21 +21,21 @@ package org.sonar.server.platform.db.migration.version.v104;
 
 import java.sql.SQLException;
 import java.util.Map;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.db.MigrationDbTester;
 import org.sonar.server.platform.db.migration.step.DataChange;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class DeleteRedundantFailedAlertsForApplicationsIT {
+class DeleteRedundantFailedAlertsForApplicationsIT {
 
-  @Rule
+  @RegisterExtension
   public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(DeleteRedundantFailedAlertsForApplications.class);
   private final DataChange underTest = new DeleteRedundantFailedAlertsForApplications(db.database());
 
-  @Before
+  @BeforeEach
   public void setUp() {
     // cleanup db
     db.executeUpdateSql("truncate table events");
@@ -44,7 +44,7 @@ public class DeleteRedundantFailedAlertsForApplicationsIT {
   }
 
   @Test
-  public void givenFailedAlertsForApplication_whenExecuted_thenFailedAlertsAreDeleted() throws SQLException {
+  void givenFailedAlertsForApplication_whenExecuted_thenFailedAlertsAreDeleted() throws SQLException {
     // given
     insertComponent("app1", "appUuid1", "appUuid1", "APP");
 
@@ -71,7 +71,7 @@ public class DeleteRedundantFailedAlertsForApplicationsIT {
   }
 
   @Test
-  public void givenFailedAlertsForProject_whenExecute_thenTheEventsAreNotDeleted() throws SQLException {
+  void givenFailedAlertsForProject_whenExecute_thenTheEventsAreNotDeleted() throws SQLException {
     // given
     insertComponent("project1", "projectUuid1", "projectUuid1", "TRK");
 
@@ -89,7 +89,7 @@ public class DeleteRedundantFailedAlertsForApplicationsIT {
   }
 
   @Test
-  public void givenMigration_whenExecutedMoreThanOnce_thenNoError() throws SQLException {
+  void givenMigration_whenExecutedMoreThanOnce_thenNoError() throws SQLException {
     // given
     insertComponent("app1", "appUuid1", "appUuid1", "APP");
 

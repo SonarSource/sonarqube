@@ -21,28 +21,28 @@ package org.sonar.server.platform.db.migration.version.v100;
 
 import java.sql.SQLException;
 import java.sql.Types;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.db.MigrationDbTester;
 import org.sonar.server.platform.db.migration.step.DdlChange;
 
-public class DropBModuleUuidInComponentsIT {
+class DropBModuleUuidInComponentsIT {
   private static final String TABLE_NAME = "components";
   private static final String COLUMN_NAME = "b_module_uuid";
 
-  @Rule
+  @RegisterExtension
   public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(DropBModuleUuidInComponents.class);
   private final DdlChange underTest = new DropBModuleUuidInComponents(db.database());
 
   @Test
-  public void drops_column() throws SQLException {
+  void drops_column() throws SQLException {
     db.assertColumnDefinition(TABLE_NAME, COLUMN_NAME, Types.VARCHAR, 50, true);
     underTest.execute();
     db.assertColumnDoesNotExist(TABLE_NAME, COLUMN_NAME);
   }
 
   @Test
-  public void migration_is_reentrant() throws SQLException {
+  void migration_is_reentrant() throws SQLException {
     db.assertColumnDefinition(TABLE_NAME, COLUMN_NAME, Types.VARCHAR, 50, true);
     underTest.execute();
     underTest.execute();

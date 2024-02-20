@@ -21,8 +21,8 @@ package org.sonar.server.platform.db.migration.version.v104;
 
 import java.sql.SQLException;
 import java.sql.Types;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.db.MigrationDbTester;
 import org.sonar.server.platform.db.migration.step.DdlChange;
 
@@ -33,14 +33,14 @@ import static org.sonar.server.platform.db.migration.version.v104.CreateRuleTags
 import static org.sonar.server.platform.db.migration.version.v104.CreateRuleTagsTable.VALUE_COLUMN_NAME;
 import static org.sonar.server.platform.db.migration.version.v104.CreateRuleTagsTable.VALUE_COLUMN_SIZE;
 
-public class CreateRuleTagsTableIT {
-  @Rule
+class CreateRuleTagsTableIT {
+  @RegisterExtension
   public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(CreateRuleTagsTable.class);
 
   private final DdlChange createScmAccountsTable = new CreateRuleTagsTable(db.database());
 
   @Test
-  public void execute_whenRun_shouldCreateRuleTagsTable() throws SQLException {
+  void execute_whenRun_shouldCreateRuleTagsTable() throws SQLException {
     db.assertTableDoesNotExist(RULE_TAGS_TABLE_NAME);
 
     createScmAccountsTable.execute();
@@ -53,7 +53,7 @@ public class CreateRuleTagsTableIT {
   }
 
   @Test
-  public void execute_whenRunMoreThanOnce_shouldBeReentrant() throws SQLException {
+  void execute_whenRunMoreThanOnce_shouldBeReentrant() throws SQLException {
     db.assertTableDoesNotExist(RULE_TAGS_TABLE_NAME);
 
     createScmAccountsTable.execute();

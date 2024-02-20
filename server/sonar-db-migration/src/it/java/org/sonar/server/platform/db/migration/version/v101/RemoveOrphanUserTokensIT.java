@@ -23,8 +23,8 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.Nullable;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.MigrationDbTester;
@@ -32,16 +32,16 @@ import org.sonar.server.platform.db.migration.step.DataChange;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class RemoveOrphanUserTokensIT {
+class RemoveOrphanUserTokensIT {
   private final UuidFactory uuidFactory = UuidFactoryFast.getInstance();
 
-  @Rule
+  @RegisterExtension
   public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(RemoveOrphanUserTokens.class);
 
   private final DataChange underTest = new RemoveOrphanUserTokens(db.database());
 
   @Test
-  public void migration_deletes_orphan_tokens() throws SQLException {
+  void migration_deletes_orphan_tokens() throws SQLException {
     String project1Uuid = insertProject("project1");
 
     String token1Uuid = insertUserToken("project1");
@@ -55,7 +55,7 @@ public class RemoveOrphanUserTokensIT {
   }
 
   @Test
-  public void migration_should_be_reentrant() throws SQLException {
+  void migration_should_be_reentrant() throws SQLException {
     String project1Uuid = insertProject("project1");
 
     String token1Uuid = insertUserToken("project1");

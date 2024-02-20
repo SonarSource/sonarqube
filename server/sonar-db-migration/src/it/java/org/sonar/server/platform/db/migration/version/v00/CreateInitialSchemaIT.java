@@ -25,23 +25,23 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.db.MigrationDbTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class CreateInitialSchemaIT {
+class CreateInitialSchemaIT {
 
   private static final Set<String> SCHEMAS_TO_IGNORE = Set.of("INFORMATION_SCHEMA", "sys", "SYS", "SYSTEM", "CTXSYS", "MDSYS", "XDB");
 
-  @Rule
+  @RegisterExtension
   public final MigrationDbTester dbTester = MigrationDbTester.createForMigrationStep(CreateInitialSchema.class);
 
   private final CreateInitialSchema underTest = new CreateInitialSchema(dbTester.database());
 
   @Test
-  public void creates_tables_on_empty_db() throws Exception {
+  void creates_tables_on_empty_db() throws Exception {
     underTest.execute();
 
     List<String> tables = new ArrayList<>();

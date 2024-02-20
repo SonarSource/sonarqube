@@ -20,30 +20,30 @@
 package org.sonar.server.platform.db.migration.version.v102;
 
 import java.sql.SQLException;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.db.MigrationDbTester;
 
 import static java.sql.Types.VARCHAR;
 
-public class MakeProjectUuidNullableInUserDismissedMessagesIT {
+class MakeProjectUuidNullableInUserDismissedMessagesIT {
 
   private static final String TABLE_NAME = "user_dismissed_messages";
   private static final String COLUMN_NAME = "project_uuid";
 
-  @Rule
+  @RegisterExtension
   public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(MakeProjectUuidNullableInUserDismissedMessages.class);
   private final MakeProjectUuidNullableInUserDismissedMessages underTest = new MakeProjectUuidNullableInUserDismissedMessages(db.database());
 
   @Test
-  public void execute_shouldBeNullable() throws SQLException {
+  void execute_shouldBeNullable() throws SQLException {
     db.assertColumnDefinition(TABLE_NAME, COLUMN_NAME, VARCHAR, 40, false);
     underTest.execute();
     db.assertColumnDefinition(TABLE_NAME, COLUMN_NAME, VARCHAR, 40, true);
   }
 
   @Test
-  public void migration_is_reentrant() throws SQLException {
+  void migration_is_reentrant() throws SQLException {
     db.assertColumnDefinition(TABLE_NAME, COLUMN_NAME, VARCHAR, 40, false);
     underTest.execute();
     underTest.execute();

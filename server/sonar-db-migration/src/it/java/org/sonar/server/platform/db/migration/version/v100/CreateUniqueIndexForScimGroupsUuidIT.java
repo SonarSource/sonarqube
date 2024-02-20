@@ -20,8 +20,8 @@
 package org.sonar.server.platform.db.migration.version.v100;
 
 import java.sql.SQLException;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.db.MigrationDbTester;
 import org.sonar.server.platform.db.migration.step.DdlChange;
 
@@ -29,13 +29,13 @@ import static org.sonar.server.platform.db.migration.version.v100.CreateScimGrou
 import static org.sonar.server.platform.db.migration.version.v100.CreateUniqueIndexForScimGroupsUuid.COLUMN_NAME;
 import static org.sonar.server.platform.db.migration.version.v100.CreateUniqueIndexForScimGroupsUuid.INDEX_NAME;
 
-public class CreateUniqueIndexForScimGroupsUuidIT {
-  @Rule
+class CreateUniqueIndexForScimGroupsUuidIT {
+  @RegisterExtension
   public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(CreateUniqueIndexForScimGroupsUuid.class);
   private final DdlChange underTest = new CreateUniqueIndexForScimGroupsUuid(db.database());
 
   @Test
-  public void migration_should_create_index() throws SQLException {
+  void migration_should_create_index() throws SQLException {
     db.assertIndexDoesNotExist(TABLE_NAME, INDEX_NAME);
 
     underTest.execute();
@@ -44,7 +44,7 @@ public class CreateUniqueIndexForScimGroupsUuidIT {
   }
 
   @Test
-  public void migration_should_be_reentrant() throws SQLException {
+  void migration_should_be_reentrant() throws SQLException {
     db.assertIndexDoesNotExist(TABLE_NAME, INDEX_NAME);
 
     underTest.execute();

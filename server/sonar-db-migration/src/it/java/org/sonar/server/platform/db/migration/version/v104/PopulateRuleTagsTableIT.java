@@ -21,22 +21,22 @@ package org.sonar.server.platform.db.migration.version.v104;
 
 import java.sql.SQLException;
 import javax.annotation.Nullable;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.db.MigrationDbTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 
-public class PopulateRuleTagsTableIT {
+class PopulateRuleTagsTableIT {
 
-  @Rule
+  @RegisterExtension
   public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(PopulateRuleTagsTable.class);
 
   private final PopulateRuleTagsTable migration = new PopulateRuleTagsTable(db.database());
 
   @Test
-  public void execute_whenTagsExist_shouldPopulateProperly() throws SQLException {
+  void execute_whenTagsExist_shouldPopulateProperly() throws SQLException {
     insertRule("uuid-1", null, "tag_1,tag_2");
     insertRule("uuid-2", "systag_1,systag_2", null);
     insertRule("uuid-3", "systag_3,systag_4", "tag_3,tag_4");
@@ -58,7 +58,7 @@ public class PopulateRuleTagsTableIT {
   }
 
   @Test
-  public void execute_whenEmptyOrDuplicateTagsExist_shouldNotBeMigrated() throws SQLException {
+  void execute_whenEmptyOrDuplicateTagsExist_shouldNotBeMigrated() throws SQLException {
     insertRule("uuid-1", null, "tag_1,,tag_2");
     insertRule("uuid-2", "systag_1,,systag_2,systag_2,", null);
 
@@ -75,7 +75,7 @@ public class PopulateRuleTagsTableIT {
   }
 
   @Test
-  public void execute_whenRunMoreThanOnce_shouldBeReentrant() throws SQLException {
+  void execute_whenRunMoreThanOnce_shouldBeReentrant() throws SQLException {
     insertRule("uuid-3", "sys_tag", "tag");
     migration.execute();
     migration.execute();

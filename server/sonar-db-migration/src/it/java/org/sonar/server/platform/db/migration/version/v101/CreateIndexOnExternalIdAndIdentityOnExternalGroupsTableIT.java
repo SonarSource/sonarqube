@@ -20,8 +20,8 @@
 package org.sonar.server.platform.db.migration.version.v101;
 
 import java.sql.SQLException;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.db.MigrationDbTester;
 
 import static org.sonar.server.platform.db.migration.version.v101.CreateExternalGroupsTable.EXTERNAL_GROUP_ID_COLUMN_NAME;
@@ -29,15 +29,15 @@ import static org.sonar.server.platform.db.migration.version.v101.CreateExternal
 import static org.sonar.server.platform.db.migration.version.v101.CreateExternalGroupsTable.TABLE_NAME;
 import static org.sonar.server.platform.db.migration.version.v101.CreateIndexOnExternalIdAndIdentityOnExternalGroupsTable.INDEX_NAME;
 
-public class CreateIndexOnExternalIdAndIdentityOnExternalGroupsTableIT {
+class CreateIndexOnExternalIdAndIdentityOnExternalGroupsTableIT {
 
-  @Rule
+  @RegisterExtension
   public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(CreateIndexOnExternalIdAndIdentityOnExternalGroupsTable.class);
   private final CreateIndexOnExternalIdAndIdentityOnExternalGroupsTable createIndexOnExternalIdAndIdentityOnExternalGroupsTable = new CreateIndexOnExternalIdAndIdentityOnExternalGroupsTable(
     db.database());
 
   @Test
-  public void migration_should_create_index() throws SQLException {
+  void migration_should_create_index() throws SQLException {
     db.assertIndexDoesNotExist(TABLE_NAME, INDEX_NAME);
 
     createIndexOnExternalIdAndIdentityOnExternalGroupsTable.execute();
@@ -46,7 +46,7 @@ public class CreateIndexOnExternalIdAndIdentityOnExternalGroupsTableIT {
   }
 
   @Test
-  public void migration_should_be_reentrant() throws SQLException {
+  void migration_should_be_reentrant() throws SQLException {
     createIndexOnExternalIdAndIdentityOnExternalGroupsTable.execute();
     createIndexOnExternalIdAndIdentityOnExternalGroupsTable.execute();
 

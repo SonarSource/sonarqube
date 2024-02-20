@@ -20,29 +20,29 @@
 package org.sonar.server.platform.db.migration.version.v101;
 
 import java.sql.SQLException;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.db.MigrationDbTester;
 
 import static java.sql.Types.VARCHAR;
 
-public class CreateProjectUuidInUserTokensIT {
+class CreateProjectUuidInUserTokensIT {
   private static final String TABLE_NAME = "user_tokens";
   private static final String COLUMN_NAME = "project_uuid";
 
-  @Rule
+  @RegisterExtension
   public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(CreateProjectUuidInUserTokens.class);
   private final CreateProjectUuidInUserTokens underTest = new CreateProjectUuidInUserTokens(db.database());
 
   @Test
-  public void migration_creates_new_column() throws SQLException {
+  void migration_creates_new_column() throws SQLException {
     db.assertColumnDoesNotExist(TABLE_NAME, COLUMN_NAME);
     underTest.execute();
     db.assertColumnDefinition(TABLE_NAME, COLUMN_NAME, VARCHAR, 40, null);
   }
 
   @Test
-  public void migration_is_reentrant() throws SQLException {
+  void migration_is_reentrant() throws SQLException {
     db.assertColumnDoesNotExist(TABLE_NAME, COLUMN_NAME);
     underTest.execute();
     underTest.execute();

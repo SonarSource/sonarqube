@@ -20,23 +20,23 @@
 package org.sonar.server.platform.db.migration.version.v102;
 
 import java.sql.SQLException;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.db.MigrationDbTester;
 import org.sonar.server.platform.db.migration.step.DdlChange;
 
-public class DropIndexTaskUuidInWebhookDeliveriesIT {
+class DropIndexTaskUuidInWebhookDeliveriesIT {
 
   private static final String TABLE_NAME = "webhook_deliveries";
   private static final String COLUMN_NAME = "ce_task_uuid";
   private static final String INDEX_NAME = "ce_task_uuid";
 
-  @Rule
+  @RegisterExtension
   public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(DropIndexTaskUuidInWebhookDeliveries.class);
   private final DdlChange underTest = new DropIndexTaskUuidInWebhookDeliveries(db.database());
 
   @Test
-  public void index_is_dropped() throws SQLException {
+  void index_is_dropped() throws SQLException {
     db.assertIndex(TABLE_NAME, INDEX_NAME, COLUMN_NAME);
 
     underTest.execute();
@@ -45,7 +45,7 @@ public class DropIndexTaskUuidInWebhookDeliveriesIT {
   }
 
   @Test
-  public void migration_is_reentrant() throws SQLException {
+  void migration_is_reentrant() throws SQLException {
     db.assertIndex(TABLE_NAME, INDEX_NAME, COLUMN_NAME);
 
     underTest.execute();

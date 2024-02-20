@@ -20,8 +20,8 @@
 package org.sonar.server.platform.db.migration.version.v102;
 
 import java.sql.SQLException;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.db.MigrationDbTester;
 
 import static java.sql.Types.VARCHAR;
@@ -29,21 +29,21 @@ import static org.sonar.server.platform.db.migration.version.v102.IncreaseIsLast
 import static org.sonar.server.platform.db.migration.version.v102.IncreaseIsLastKeyInCeActivity.NEW_COLUMN_SIZE;
 import static org.sonar.server.platform.db.migration.version.v102.IncreaseIsLastKeyInCeActivity.TABLE_NAME;
 
-public class IncreaseIsLastKeyInCeActivityIT {
+class IncreaseIsLastKeyInCeActivityIT {
 
-  @Rule
+  @RegisterExtension
   public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(IncreaseIsLastKeyInCeActivity.class);
   private final IncreaseIsLastKeyInCeActivity underTest = new IncreaseIsLastKeyInCeActivity(db.database());
 
   @Test
-  public void execute_increaseColumnSize() throws SQLException {
+  void execute_increaseColumnSize() throws SQLException {
     db.assertColumnDefinition(TABLE_NAME, COLUMN_NAME, VARCHAR, 55, false);
     underTest.execute();
     db.assertColumnDefinition(TABLE_NAME, COLUMN_NAME, VARCHAR, NEW_COLUMN_SIZE, false);
   }
 
   @Test
-  public void migration_is_reentrant() throws SQLException {
+  void migration_is_reentrant() throws SQLException {
     db.assertColumnDefinition(TABLE_NAME, COLUMN_NAME, VARCHAR, 55, false);
     underTest.execute();
     underTest.execute();

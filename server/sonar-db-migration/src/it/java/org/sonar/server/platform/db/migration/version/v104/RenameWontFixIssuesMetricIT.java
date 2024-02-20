@@ -20,28 +20,28 @@
 package org.sonar.server.platform.db.migration.version.v104;
 
 import java.sql.SQLException;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.db.MigrationDbTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 
-public class RenameWontFixIssuesMetricIT {
+class RenameWontFixIssuesMetricIT {
 
-  @Rule
+  @RegisterExtension
   public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(RenameWontFixIssuesMetric.class);
   private final RenameWontFixIssuesMetric underTest = new RenameWontFixIssuesMetric(db.database());
 
   @Test
-  public void execute_whenMetricsTableIsEmpty_shouldDoNothing() throws SQLException {
+  void execute_whenMetricsTableIsEmpty_shouldDoNothing() throws SQLException {
     underTest.execute();
 
     assertThat(db.select("select name from metrics")).isEmpty();
   }
 
   @Test
-  public void execute_whenWontFixMetricExist_shouldRenameToAccepted() throws SQLException {
+  void execute_whenWontFixMetricExist_shouldRenameToAccepted() throws SQLException {
     insertMetric("wont_fix_issues");
     insertMetric("other_metric");
 
@@ -53,7 +53,7 @@ public class RenameWontFixIssuesMetricIT {
   }
 
   @Test
-  public void execute_isReentrant() throws SQLException {
+  void execute_isReentrant() throws SQLException {
     insertMetric("wont_fix_issues");
     insertMetric("other_metric");
 

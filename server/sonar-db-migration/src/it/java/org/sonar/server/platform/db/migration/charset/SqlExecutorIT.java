@@ -22,13 +22,13 @@ package org.sonar.server.platform.db.migration.charset;
 import java.sql.Connection;
 import java.util.List;
 import java.util.Map;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.db.CoreDbTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class SqlExecutorIT {
+class SqlExecutorIT {
 
   private static final String LOGIN_DB_COLUMN = "login";
   private static final String NAME_DB_COLUMN = "name";
@@ -37,11 +37,11 @@ public class SqlExecutorIT {
 
   private SqlExecutor underTest = new SqlExecutor();
 
-  @Rule
-  public CoreDbTester dbTester = CoreDbTester.createForSchema(SqlExecutorIT.class, "users_table.sql");
+  @RegisterExtension
+  public final CoreDbTester dbTester = CoreDbTester.createForSchema(SqlExecutorIT.class, "users_table.sql");
 
   @Test
-  public void executeSelect_executes_PreparedStatement() throws Exception {
+  void executeSelect_executes_PreparedStatement() throws Exception {
     dbTester.executeInsert(USERS_DB_TABLE, LOGIN_DB_COLUMN, "login1", NAME_DB_COLUMN, "name one", IS_ROOT_DB_COLUMN, false);
     dbTester.executeInsert(USERS_DB_TABLE, LOGIN_DB_COLUMN, "login2", NAME_DB_COLUMN, "name two", IS_ROOT_DB_COLUMN, false);
 
@@ -57,7 +57,7 @@ public class SqlExecutorIT {
   }
 
   @Test
-  public void executeUpdate_executes_PreparedStatement() throws Exception {
+  void executeUpdate_executes_PreparedStatement() throws Exception {
     dbTester.executeInsert(USERS_DB_TABLE, LOGIN_DB_COLUMN, "the_login", NAME_DB_COLUMN, "the name", IS_ROOT_DB_COLUMN, false);
 
     try (Connection connection = dbTester.openConnection()) {

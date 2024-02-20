@@ -21,8 +21,8 @@ package org.sonar.server.platform.db.migration.version.v102;
 
 import java.sql.SQLException;
 import javax.annotation.Nullable;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.rules.CleanCodeAttribute;
 import org.sonar.api.rules.RuleType;
 import org.sonar.db.MigrationDbTester;
@@ -30,21 +30,21 @@ import org.sonar.db.MigrationDbTester;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 
-public class PopulateCleanCodeAttributeColumnInRulesIT {
+class PopulateCleanCodeAttributeColumnInRulesIT {
 
   private static final String TABLE_NAME = "rules";
 
-  @Rule
+  @RegisterExtension
   public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(PopulateCleanCodeAttributeColumnInRules.class);
   private final PopulateCleanCodeAttributeColumnInRules underTest = new PopulateCleanCodeAttributeColumnInRules(db.database());
 
   @Test
-  public void execute_whenRulesDoNotExist_shouldNotFail() {
+  void execute_whenRulesDoNotExist_shouldNotFail() {
     assertThatCode(underTest::execute).doesNotThrowAnyException();
   }
 
   @Test
-  public void execute_whenRuleWithUndefinedCleanCodeAttribute_shouldUpdate() throws SQLException {
+  void execute_whenRuleWithUndefinedCleanCodeAttribute_shouldUpdate() throws SQLException {
     insertRule("1", null);
     underTest.execute();
     assertThat(db.select("select uuid, clean_code_attribute from rules"))
@@ -53,7 +53,7 @@ public class PopulateCleanCodeAttributeColumnInRulesIT {
   }
 
   @Test
-  public void execute_whenRuleWithUndefinedCleanCodeAttribute_shouldBeReentrant() throws SQLException {
+  void execute_whenRuleWithUndefinedCleanCodeAttribute_shouldBeReentrant() throws SQLException {
     insertRule("1", null);
     underTest.execute();
     underTest.execute();
@@ -63,7 +63,7 @@ public class PopulateCleanCodeAttributeColumnInRulesIT {
   }
 
   @Test
-  public void execute_whenRuleWithDefinedCleanCodeAttribute_shouldNotUpdate() throws SQLException {
+  void execute_whenRuleWithDefinedCleanCodeAttribute_shouldNotUpdate() throws SQLException {
     insertRule("1", CleanCodeAttribute.FOCUSED);
     underTest.execute();
     assertThat(db.select("select uuid, clean_code_attribute from rules"))
@@ -72,7 +72,7 @@ public class PopulateCleanCodeAttributeColumnInRulesIT {
   }
 
   @Test
-  public void execute_whenRuleIsHotspot_shouldNotUpdate() throws SQLException {
+  void execute_whenRuleIsHotspot_shouldNotUpdate() throws SQLException {
     insertRule("1", RuleType.SECURITY_HOTSPOT, null, null);
     underTest.execute();
     assertThat(db.select("select uuid, clean_code_attribute from rules"))
@@ -81,7 +81,7 @@ public class PopulateCleanCodeAttributeColumnInRulesIT {
   }
 
   @Test
-  public void execute_whenAdhocRuleIsHotspot_shouldNotUpdate() throws SQLException {
+  void execute_whenAdhocRuleIsHotspot_shouldNotUpdate() throws SQLException {
     insertRule("1", null, RuleType.SECURITY_HOTSPOT, null);
     underTest.execute();
     assertThat(db.select("select uuid, clean_code_attribute from rules"))

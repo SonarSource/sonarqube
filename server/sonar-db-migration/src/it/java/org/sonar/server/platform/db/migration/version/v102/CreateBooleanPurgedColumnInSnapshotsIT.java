@@ -20,31 +20,31 @@
 package org.sonar.server.platform.db.migration.version.v102;
 
 import java.sql.SQLException;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.db.MigrationDbTester;
 
 import static java.sql.Types.BOOLEAN;
 
-public class CreateBooleanPurgedColumnInSnapshotsIT {
+class CreateBooleanPurgedColumnInSnapshotsIT {
 
   private static final String TABLE_NAME = "snapshots";
   private static final String COLUMN_NAME = "purged";
 
-  @Rule
+  @RegisterExtension
   public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(CreateBooleanPurgedColumnInSnapshots.class);
 
   private final CreateBooleanPurgedColumnInSnapshots underTest = new CreateBooleanPurgedColumnInSnapshots(db.database());
 
   @Test
-  public void execute_whenColumnDoesNotExist_shouldCreatePurgedColumn() throws SQLException {
+  void execute_whenColumnDoesNotExist_shouldCreatePurgedColumn() throws SQLException {
     db.assertColumnDoesNotExist(TABLE_NAME, COLUMN_NAME);
     underTest.execute();
     db.assertColumnDefinition(TABLE_NAME, COLUMN_NAME, BOOLEAN, null, null);
   }
 
   @Test
-  public void execute_whenExecutedTwice_shouldNotFail() throws SQLException {
+  void execute_whenExecutedTwice_shouldNotFail() throws SQLException {
     db.assertColumnDoesNotExist(TABLE_NAME, COLUMN_NAME);
     underTest.execute();
     underTest.execute();

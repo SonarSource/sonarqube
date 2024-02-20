@@ -22,8 +22,8 @@ package org.sonar.server.platform.db.migration.version.v101;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.MigrationDbTester;
@@ -31,11 +31,11 @@ import org.sonar.server.platform.db.migration.step.DataChange;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class UpdateIsMainColumnInProjectBranchesIT {
+class UpdateIsMainColumnInProjectBranchesIT {
 
   private final UuidFactory uuidFactory = UuidFactoryFast.getInstance();
 
-  @Rule
+  @RegisterExtension
   public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(UpdateIsMainColumnInProjectBranches.class);
 
   private final DataChange underTest = new UpdateIsMainColumnInProjectBranches(db.database());
@@ -43,7 +43,7 @@ public class UpdateIsMainColumnInProjectBranchesIT {
   private static int not_random_value_always_incremented = 0;
 
   @Test
-  public void migration_updates_is_main_if_row_has_the_same_uuids() throws SQLException {
+  void migration_updates_is_main_if_row_has_the_same_uuids() throws SQLException {
     String branchUuid1 = insertProjectBranch(true);
     String branchUuid2 = insertProjectBranch(false);
 
@@ -54,7 +54,7 @@ public class UpdateIsMainColumnInProjectBranchesIT {
   }
 
   @Test
-  public void migration_should_be_reentrant() throws SQLException {
+  void migration_should_be_reentrant() throws SQLException {
     String branchUuid1 = insertProjectBranch(true);
     String branchUuid2 = insertProjectBranch(false);
 

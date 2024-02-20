@@ -24,6 +24,7 @@ dependencies {
   testImplementation 'com.squareup.okhttp3:mockwebserver'
   testImplementation 'junit:junit'
   testImplementation 'org.assertj:assertj-core'
+  testImplementation 'org.junit.jupiter:junit-jupiter-api'
   testImplementation 'org.mindrot:jbcrypt'
   testImplementation 'org.mockito:mockito-core'
   testImplementation 'org.xmlunit:xmlunit-core'
@@ -34,14 +35,19 @@ dependencies {
   testImplementation testFixtures(project(':server:sonar-db-core'))
 
   testFixturesImplementation 'org.sonarsource.orchestrator:sonar-orchestrator-junit4'
+  testFixturesImplementation 'org.junit.jupiter:junit-jupiter-api'
   testFixturesImplementation testFixtures(project(':server:sonar-db-core'))
 
   testRuntimeOnly 'com.h2database:h2'
   testRuntimeOnly 'com.microsoft.sqlserver:mssql-jdbc'
   testRuntimeOnly 'com.oracle.database.jdbc:ojdbc11'
+  testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+  testRuntimeOnly 'org.junit.vintage:junit-vintage-engine'
   testRuntimeOnly 'org.postgresql:postgresql'
 }
 
 test {
   systemProperty 'orchestrator.configUrl', System.getProperty('orchestrator.configUrl')
+  // Enabling the JUnit Platform (see https://github.com/junit-team/junit5-samples/tree/master/junit5-migration-gradle)
+  useJUnitPlatform()
 }

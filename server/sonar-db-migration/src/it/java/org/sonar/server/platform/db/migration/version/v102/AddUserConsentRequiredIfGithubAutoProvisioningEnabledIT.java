@@ -20,11 +20,11 @@
 package org.sonar.server.platform.db.migration.version.v102;
 
 import java.sql.SQLException;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.slf4j.event.Level;
-import org.sonar.api.testfixtures.log.LogTester;
+import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.MigrationDbTester;
@@ -34,22 +34,22 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.server.platform.db.migration.version.v102.AddUserConsentRequiredIfGithubAutoProvisioningEnabled.PROP_KEY;
 import static org.sonar.server.platform.db.migration.version.v102.AddUserConsentRequiredIfGithubAutoProvisioningEnabled.PROVISIONING_GITHUB_ENABLED_PROP_KEY;
 
-public class AddUserConsentRequiredIfGithubAutoProvisioningEnabledIT {
+class AddUserConsentRequiredIfGithubAutoProvisioningEnabledIT {
 
-  @Rule
-  public LogTester logger = new LogTester();
+  @RegisterExtension
+  public final LogTesterJUnit5 logger = new LogTesterJUnit5();
 
-  @Rule
+  @RegisterExtension
   public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(AddUserConsentRequiredIfGithubAutoProvisioningEnabled.class);
   private final DataChange underTest = new AddUserConsentRequiredIfGithubAutoProvisioningEnabled(db.database(), new System2(), UuidFactoryFast.getInstance());
 
-  @Before
+  @BeforeEach
   public void before() {
     logger.clear();
   }
 
   @Test
-  public void migration_whenGitHubAutoProvisioningPropertyNotPresent_shouldNotRequireConsent() throws SQLException {
+  void migration_whenGitHubAutoProvisioningPropertyNotPresent_shouldNotRequireConsent() throws SQLException {
     underTest.execute();
 
     assertThat(logger.logs(Level.WARN)).isEmpty();
@@ -57,7 +57,7 @@ public class AddUserConsentRequiredIfGithubAutoProvisioningEnabledIT {
   }
 
   @Test
-  public void migration_whenGitHubAutoProvisioningDisabled_shouldNotRequireConsent() throws SQLException {
+  void migration_whenGitHubAutoProvisioningDisabled_shouldNotRequireConsent() throws SQLException {
     disableGithubProvisioning();
     underTest.execute();
 
@@ -66,7 +66,7 @@ public class AddUserConsentRequiredIfGithubAutoProvisioningEnabledIT {
   }
 
   @Test
-  public void migration_whenGitHubAutoProvisioningEnabled_shouldRequireConsent() throws SQLException {
+  void migration_whenGitHubAutoProvisioningEnabled_shouldRequireConsent() throws SQLException {
     enableGithubProvisioning();
 
     underTest.execute();
@@ -77,7 +77,7 @@ public class AddUserConsentRequiredIfGithubAutoProvisioningEnabledIT {
   }
 
   @Test
-  public void migration_is_reentrant() throws SQLException {
+  void migration_is_reentrant() throws SQLException {
     enableGithubProvisioning();
 
     underTest.execute();

@@ -23,30 +23,30 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Types;
-import org.junit.Rule;
-import org.junit.Test;
-import org.sonar.db.dialect.MsSql;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.db.MigrationDbTester;
+import org.sonar.db.dialect.MsSql;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class MigrationHistoryTableImplIT {
+class MigrationHistoryTableImplIT {
   private static final String TABLE_SCHEMA_MIGRATIONS = "schema_migrations";
 
-  @Rule
-  public MigrationDbTester dbTester = MigrationDbTester.createEmpty();
+  @RegisterExtension
+  public final MigrationDbTester dbTester = MigrationDbTester.createEmpty();
 
-  private MigrationHistoryTableImpl underTest = new MigrationHistoryTableImpl(dbTester.database());
+  private final MigrationHistoryTableImpl underTest = new MigrationHistoryTableImpl(dbTester.database());
 
   @Test
-  public void start_creates_table_on_empty_schema() {
+  void start_creates_table_on_empty_schema() {
     underTest.start();
 
     verifyTable();
   }
 
   @Test
-  public void start_does_not_fail_if_table_exists() throws SQLException {
+  void start_does_not_fail_if_table_exists() throws SQLException {
     executeDdl(String.format("create table %s (version %s(255) not null)", TABLE_SCHEMA_MIGRATIONS, getFieldType()));
     verifyTable();
 

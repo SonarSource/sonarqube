@@ -21,25 +21,25 @@ package org.sonar.server.platform.db.migration.version.v102;
 
 import java.sql.SQLException;
 import javax.annotation.Nullable;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.db.MigrationDbTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 
-public class UpdateValueAndPopulatePreviousNonCompliantValueInNewCodePeriodsIT {
+class UpdateValueAndPopulatePreviousNonCompliantValueInNewCodePeriodsIT {
 
   private static final String TABLE_NAME = "new_code_periods";
   private static final String PROJECT_UUID = "project-uuid";
   private static final String BRANCH_UUID = "branch-uuid";
 
-  @Rule
+  @RegisterExtension
   public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(UpdateValueAndPopulatePreviousNonCompliantValueInNewCodePeriods.class);
   public final UpdateValueAndPopulatePreviousNonCompliantValueInNewCodePeriods underTest = new UpdateValueAndPopulatePreviousNonCompliantValueInNewCodePeriods(db.database());
 
   @Test
-  public void execute_whenSnapshotsExist_shouldPopulatePurgedColumn() throws SQLException {
+  void execute_whenSnapshotsExist_shouldPopulatePurgedColumn() throws SQLException {
     insertNewCodePeriods("uuid-1", PROJECT_UUID, BRANCH_UUID, "PREVIOUS_VERSION", null);
     insertNewCodePeriods("uuid-2", PROJECT_UUID, null, "NUMBER_OF_DAYS", "90");
     insertNewCodePeriods("uuid-3", null, null, "NUMBER_OF_DAYS", "97");

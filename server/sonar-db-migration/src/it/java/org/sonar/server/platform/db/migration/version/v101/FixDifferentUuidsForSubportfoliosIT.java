@@ -25,26 +25,26 @@ import java.util.Map;
 import java.util.Set;
 import javax.annotation.Nullable;
 import org.assertj.core.api.Assertions;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.db.MigrationDbTester;
 
 import static java.util.stream.Collectors.toSet;
 
-public class FixDifferentUuidsForSubportfoliosIT {
+class FixDifferentUuidsForSubportfoliosIT {
   private static final String OLD_UUID = "differentSubPfUuid";
   private static final String SUB_PF_KEY = "subPfKey";
   private static final String NEW_SUBPF_UUID = "subPfUuid";
   private static final String PF_UUID = "pfUuid";
   private static final String NEW_CHILD_SUBPF_UUID = "childsubpfUuid";
   private static final String OLD_CHILD_SUBPF_UUID = "old_child_subpf_uuid";
-  @Rule
+  @RegisterExtension
   public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(FixDifferentUuidsForSubportfolios.class);
   private final FixDifferentUuidsForSubportfolios underTest = new FixDifferentUuidsForSubportfolios(db.database());
 
   @Test
-  public void execute_shouldUpdatePortfoliosAndPortfolioProjectsAndPortfolioReferenceTable() throws SQLException {
+  void execute_shouldUpdatePortfoliosAndPortfolioProjectsAndPortfolioReferenceTable() throws SQLException {
     insertPortfolio("pfKey", PF_UUID);
     insertComponent(SUB_PF_KEY, NEW_SUBPF_UUID, PF_UUID, Qualifiers.SUBVIEW);
     insertSubPortfolio(SUB_PF_KEY, PF_UUID, PF_UUID, OLD_UUID);
@@ -59,7 +59,7 @@ public class FixDifferentUuidsForSubportfoliosIT {
   }
 
   @Test
-  public void execute_shouldBeRentrant() throws SQLException {
+  void execute_shouldBeRentrant() throws SQLException {
     insertPortfolio("pfKey", PF_UUID);
     insertComponent(SUB_PF_KEY, NEW_SUBPF_UUID, PF_UUID, Qualifiers.SUBVIEW);
     insertSubPortfolio(SUB_PF_KEY, PF_UUID, PF_UUID, OLD_UUID);
@@ -75,7 +75,7 @@ public class FixDifferentUuidsForSubportfoliosIT {
   }
 
   @Test
-  public void execute_shouldFixUuidForSubPortfolioAtDifferentLevels() throws SQLException {
+  void execute_shouldFixUuidForSubPortfolioAtDifferentLevels() throws SQLException {
     insertPortfolio("pfKey", PF_UUID);
 
     insertComponent(SUB_PF_KEY, NEW_SUBPF_UUID, PF_UUID, Qualifiers.SUBVIEW);

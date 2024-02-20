@@ -21,22 +21,22 @@ package org.sonar.server.platform.db.migration.version.v100;
 
 import java.sql.SQLException;
 import java.sql.Types;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.db.MigrationDbTester;
 import org.sonar.server.platform.db.migration.step.DdlChange;
 
-public class AddNclocToProjectsIT {
+class AddNclocToProjectsIT {
 
   private static final String TABLE_NAME = "projects";
   private static final String COLUMN_NAME = "ncloc";
 
-  @Rule
+  @RegisterExtension
   public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(AddNclocToProjects.class);
   private final DdlChange underTest = new AddNclocToProjects(db.database());
 
   @Test
-  public void add_column() throws SQLException {
+  void add_column() throws SQLException {
     db.assertColumnDoesNotExist(TABLE_NAME, COLUMN_NAME);
     db.assertColumnDoesNotExist(TABLE_NAME, COLUMN_NAME);
     underTest.execute();
@@ -44,7 +44,7 @@ public class AddNclocToProjectsIT {
   }
 
   @Test
-  public void migration_is_reentrant() throws SQLException {
+  void migration_is_reentrant() throws SQLException {
     db.assertColumnDoesNotExist(TABLE_NAME, COLUMN_NAME);
     underTest.execute();
     underTest.execute();

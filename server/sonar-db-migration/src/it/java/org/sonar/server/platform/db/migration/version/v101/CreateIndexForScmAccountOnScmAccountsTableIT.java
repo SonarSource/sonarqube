@@ -20,21 +20,21 @@
 package org.sonar.server.platform.db.migration.version.v101;
 
 import java.sql.SQLException;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.db.MigrationDbTester;
 
 import static org.sonar.server.platform.db.migration.version.v101.CreateIndexForScmAccountOnScmAccountsTable.INDEX_NAME;
 import static org.sonar.server.platform.db.migration.version.v101.CreateScmAccountsTable.SCM_ACCOUNTS_TABLE_NAME;
 import static org.sonar.server.platform.db.migration.version.v101.CreateScmAccountsTable.SCM_ACCOUNT_COLUMN_NAME;
 
-public class CreateIndexForScmAccountOnScmAccountsTableIT {
-  @Rule
+class CreateIndexForScmAccountOnScmAccountsTableIT {
+  @RegisterExtension
   public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(CreateIndexForScmAccountOnScmAccountsTable.class);
   private final CreateIndexForScmAccountOnScmAccountsTable createIndexForScmAccountOnScmAccountsTable = new CreateIndexForScmAccountOnScmAccountsTable(db.database());
 
   @Test
-  public void migration_should_create_index() throws SQLException {
+  void migration_should_create_index() throws SQLException {
     db.assertIndexDoesNotExist(SCM_ACCOUNTS_TABLE_NAME, INDEX_NAME);
 
     createIndexForScmAccountOnScmAccountsTable.execute();
@@ -43,7 +43,7 @@ public class CreateIndexForScmAccountOnScmAccountsTableIT {
   }
 
   @Test
-  public void migration_should_be_reentrant() throws SQLException {
+  void migration_should_be_reentrant() throws SQLException {
     createIndexForScmAccountOnScmAccountsTable.execute();
     createIndexForScmAccountOnScmAccountsTable.execute();
 

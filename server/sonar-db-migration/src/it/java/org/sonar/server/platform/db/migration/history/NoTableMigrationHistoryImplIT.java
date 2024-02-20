@@ -19,23 +19,23 @@
  */
 package org.sonar.server.platform.db.migration.history;
 
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.db.MigrationDbTester;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyNoInteractions;
 
-public class NoTableMigrationHistoryImplIT {
-  @Rule
-  public MigrationDbTester dbTester = MigrationDbTester.createEmpty();
+class NoTableMigrationHistoryImplIT {
+  @RegisterExtension
+  public final MigrationDbTester dbTester = MigrationDbTester.createEmpty();
 
-  private MigrationHistoryMeddler migrationHistoryMeddler = mock(MigrationHistoryMeddler.class);
-  private MigrationHistoryImpl underTest = new MigrationHistoryImpl(dbTester.database(), migrationHistoryMeddler);
+  private final MigrationHistoryMeddler migrationHistoryMeddler = mock(MigrationHistoryMeddler.class);
+  private final MigrationHistoryImpl underTest = new MigrationHistoryImpl(dbTester.database(), migrationHistoryMeddler);
 
   @Test
-  public void start_fails_with_ISE_if_table_history_does_not_exist() {
+  void start_fails_with_ISE_if_table_history_does_not_exist() {
     assertThatThrownBy(() -> {
       underTest.start();
       verifyNoInteractions(migrationHistoryMeddler);

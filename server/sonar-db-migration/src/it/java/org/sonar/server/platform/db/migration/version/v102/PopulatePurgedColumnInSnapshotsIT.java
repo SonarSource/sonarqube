@@ -21,29 +21,29 @@ package org.sonar.server.platform.db.migration.version.v102;
 
 import java.sql.SQLException;
 import javax.annotation.Nullable;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.db.MigrationDbTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.tuple;
 
-public class PopulatePurgedColumnInSnapshotsIT {
+class PopulatePurgedColumnInSnapshotsIT {
   private static final String TABLE_NAME = "snapshots";
 
-  @Rule
+  @RegisterExtension
   public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(PopulatePurgedColumnInSnapshots.class);
   private final PopulatePurgedColumnInSnapshots underTest = new PopulatePurgedColumnInSnapshots(db.database());
 
   @Test
-  public void execute_whenSnapshotsDoesNotExist_shouldNotFail() {
+  void execute_whenSnapshotsDoesNotExist_shouldNotFail() {
     assertThatCode(underTest::execute)
       .doesNotThrowAnyException();
   }
 
   @Test
-  public void execute_whenSnapshotsExist_shouldPopulatePurgedColumn() throws SQLException {
+  void execute_whenSnapshotsExist_shouldPopulatePurgedColumn() throws SQLException {
     insertSnapshot("uuid-1", null);
     insertSnapshot("uuid-2", 1);
     insertSnapshot("uuid-3", 0);

@@ -22,8 +22,8 @@ package org.sonar.server.platform.db.migration.step;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.CoreDbTester;
@@ -32,16 +32,16 @@ import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.server.platform.db.migration.step.ForceReloadingOfAllPlugins.OVERWRITE_HASH;
 
-public class ForceReloadingOfAllPluginsIT {
+class ForceReloadingOfAllPluginsIT {
   private final UuidFactory uuidFactory = UuidFactoryFast.getInstance();
 
-  @Rule
-  public CoreDbTester db = CoreDbTester.createForSchema(ForceReloadingOfAllPluginsIT.class, "schema.sql");
+  @RegisterExtension
+  public final CoreDbTester db = CoreDbTester.createForSchema(ForceReloadingOfAllPluginsIT.class, "schema.sql");
 
   private final DataChange underTest = new ForceReloadingOfAllPlugins(db.database());
 
   @Test
-  public void migration_overwrite_file_hash_on_all_plugins() throws SQLException {
+  void migration_overwrite_file_hash_on_all_plugins() throws SQLException {
     String pluginUuid1 = insertPlugin();
     String pluginUuid2 = insertPlugin();
 
@@ -52,7 +52,7 @@ public class ForceReloadingOfAllPluginsIT {
   }
 
   @Test
-  public void migration_should_be_reentrant() throws SQLException {
+  void migration_should_be_reentrant() throws SQLException {
     String pluginUuid1 = insertPlugin();
     String pluginUuid2 = insertPlugin();
 

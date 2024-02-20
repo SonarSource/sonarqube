@@ -20,29 +20,29 @@
 package org.sonar.server.platform.db.migration.version.v102;
 
 import java.sql.SQLException;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.db.MigrationDbTester;
 
 import static java.sql.Types.BOOLEAN;
 
-public class MakePurgedColumnNotNullableInSnapshotsIT {
+class MakePurgedColumnNotNullableInSnapshotsIT {
   private static final String TABLE_NAME = "snapshots";
   private static final String COLUMN_NAME = "purged";
 
-  @Rule
+  @RegisterExtension
   public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(MakePurgedColumnNotNullableInSnapshots.class);
   private final MakePurgedColumnNotNullableInSnapshots underTest = new MakePurgedColumnNotNullableInSnapshots(db.database());
 
   @Test
-  public void execute_whenColumnIsNullable_shouldMakeColumnNullable() throws SQLException {
+  void execute_whenColumnIsNullable_shouldMakeColumnNullable() throws SQLException {
     db.assertColumnDefinition(TABLE_NAME, COLUMN_NAME, BOOLEAN, null, true);
     underTest.execute();
     db.assertColumnDefinition(TABLE_NAME, COLUMN_NAME, BOOLEAN, null, false);
   }
 
   @Test
-  public void execute_whenExecutedTwice_shouldMakeColumnNullable() throws SQLException {
+  void execute_whenExecutedTwice_shouldMakeColumnNullable() throws SQLException {
     db.assertColumnDefinition(TABLE_NAME, COLUMN_NAME, BOOLEAN, null, true);
     underTest.execute();
     underTest.execute();

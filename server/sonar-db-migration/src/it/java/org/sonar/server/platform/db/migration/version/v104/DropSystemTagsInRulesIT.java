@@ -21,28 +21,28 @@ package org.sonar.server.platform.db.migration.version.v104;
 
 import java.sql.SQLException;
 import java.sql.Types;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.db.MigrationDbTester;
 import org.sonar.server.platform.db.migration.step.DdlChange;
 
-public class DropSystemTagsInRulesIT {
+class DropSystemTagsInRulesIT {
   private static final String TABLE_NAME = "rules";
   private static final String COLUMN_NAME = "system_tags";
 
-  @Rule
+  @RegisterExtension
   public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(DropSystemTagsInRules.class);
   private final DdlChange underTest = new DropSystemTagsInRules(db.database());
 
   @Test
-  public void executed_whenRun_shouldDropSystemTagsColumn() throws SQLException {
+  void executed_whenRun_shouldDropSystemTagsColumn() throws SQLException {
     db.assertColumnDefinition(TABLE_NAME, COLUMN_NAME, Types.VARCHAR, 4000, true);
     underTest.execute();
     db.assertColumnDoesNotExist(TABLE_NAME, COLUMN_NAME);
   }
 
   @Test
-  public void execute_whenRunMoreThanOnce_shouldBeReentrant() throws SQLException {
+  void execute_whenRunMoreThanOnce_shouldBeReentrant() throws SQLException {
     db.assertColumnDefinition(TABLE_NAME, COLUMN_NAME, Types.VARCHAR, 4000, true);
     underTest.execute();
     underTest.execute();

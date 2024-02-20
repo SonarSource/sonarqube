@@ -20,28 +20,28 @@
 package org.sonar.server.platform.db.migration.version.v102;
 
 import java.sql.SQLException;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.db.MigrationDbTester;
 
 
 
-public class DropTableProjectMappingsIT {
+class DropTableProjectMappingsIT {
   public static final String TABLE_NAME = "project_mappings";
 
-  @Rule
+  @RegisterExtension
   public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(DropTableProjectMappings.class);
   private final DropTableProjectMappings underTest = new DropTableProjectMappings(db.database());
 
   @Test
-  public void execute_shouldDropTable() throws SQLException {
+  void execute_shouldDropTable() throws SQLException {
     db.assertTableExists(TABLE_NAME);
     underTest.execute();
     db.assertTableDoesNotExist(TABLE_NAME);
   }
 
   @Test
-  public void execute_shouldSupportReentrantMigrationExecution() throws SQLException {
+  void execute_shouldSupportReentrantMigrationExecution() throws SQLException {
     db.assertTableExists(TABLE_NAME);
     underTest.execute();
     underTest.execute();

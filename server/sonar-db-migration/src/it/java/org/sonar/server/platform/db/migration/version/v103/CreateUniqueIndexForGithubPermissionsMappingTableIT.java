@@ -20,8 +20,8 @@
 package org.sonar.server.platform.db.migration.version.v103;
 
 import java.sql.SQLException;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.db.MigrationDbTester;
 
 import static org.sonar.server.platform.db.migration.version.v103.CreateGithubPermissionsMappingTable.GITHUB_PERMISSIONS_MAPPING_TABLE_NAME;
@@ -29,13 +29,13 @@ import static org.sonar.server.platform.db.migration.version.v103.CreateGithubPe
 import static org.sonar.server.platform.db.migration.version.v103.CreateGithubPermissionsMappingTable.SONARQUBE_PERMISSION_COLUMN;
 import static org.sonar.server.platform.db.migration.version.v103.CreateUniqueIndexForGithubPermissionsMappingTable.INDEX_NAME;
 
-public class CreateUniqueIndexForGithubPermissionsMappingTableIT {
-  @Rule
+class CreateUniqueIndexForGithubPermissionsMappingTableIT {
+  @RegisterExtension
   public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(CreateUniqueIndexForGithubPermissionsMappingTable.class);
   private final CreateUniqueIndexForGithubPermissionsMappingTable createIndex = new CreateUniqueIndexForGithubPermissionsMappingTable(db.database());
 
   @Test
-  public void migration_should_create_index() throws SQLException {
+  void migration_should_create_index() throws SQLException {
     db.assertIndexDoesNotExist(GITHUB_PERMISSIONS_MAPPING_TABLE_NAME, INDEX_NAME);
 
     createIndex.execute();
@@ -44,7 +44,7 @@ public class CreateUniqueIndexForGithubPermissionsMappingTableIT {
   }
 
   @Test
-  public void migration_should_be_reentrant() throws SQLException {
+  void migration_should_be_reentrant() throws SQLException {
     createIndex.execute();
     createIndex.execute();
 

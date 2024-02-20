@@ -20,8 +20,8 @@
 package org.sonar.server.platform.db.migration.version.v101;
 
 import java.sql.SQLException;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.db.MigrationDbTester;
 
 import static java.sql.Types.VARCHAR;
@@ -29,21 +29,21 @@ import static org.sonar.server.platform.db.migration.version.v101.IncreaseKeeCol
 import static org.sonar.server.platform.db.migration.version.v101.IncreaseKeeColumnSizeInInternalProperties.NEW_COLUMN_SIZE;
 import static org.sonar.server.platform.db.migration.version.v101.IncreaseKeeColumnSizeInInternalProperties.TABLE_NAME;
 
-public class IncreaseKeeColumnSizeInInternalPropertiesIT {
+class IncreaseKeeColumnSizeInInternalPropertiesIT {
 
-  @Rule
+  @RegisterExtension
   public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(IncreaseKeeColumnSizeInInternalProperties.class);
   private final IncreaseKeeColumnSizeInInternalProperties underTest = new IncreaseKeeColumnSizeInInternalProperties(db.database());
 
   @Test
-  public void execute_increaseColumnSize() throws SQLException {
+  void execute_increaseColumnSize() throws SQLException {
     db.assertColumnDefinition(TABLE_NAME, COLUMN_NAME, VARCHAR, 20, false);
     underTest.execute();
     db.assertColumnDefinition(TABLE_NAME, COLUMN_NAME, VARCHAR, NEW_COLUMN_SIZE, false);
   }
 
   @Test
-  public void migration_is_reentrant() throws SQLException {
+  void migration_is_reentrant() throws SQLException {
     db.assertColumnDefinition(TABLE_NAME, COLUMN_NAME, VARCHAR, 20, false);
     underTest.execute();
     underTest.execute();

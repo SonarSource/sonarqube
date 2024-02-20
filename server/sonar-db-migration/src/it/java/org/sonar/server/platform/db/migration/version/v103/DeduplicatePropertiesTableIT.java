@@ -22,19 +22,19 @@ package org.sonar.server.platform.db.migration.version.v103;
 import java.sql.SQLException;
 import java.util.Date;
 import javax.annotation.Nullable;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.MigrationDbTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 
-public class DeduplicatePropertiesTableIT {
+class DeduplicatePropertiesTableIT {
   public static final String KEY = "key";
   public static final String ENTITY = "entity";
   public static final String USER = "user";
-  @Rule
+  @RegisterExtension
   public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(DeduplicatePropertiesTable.class);
   private final DeduplicatePropertiesTable underTest = new DeduplicatePropertiesTable(db.database());
 
@@ -57,7 +57,7 @@ public class DeduplicatePropertiesTableIT {
   }
 
   @Test
-  public void execute_shouldDeduplicateRows_WhenOnlyKeyIsSpecified() throws SQLException {
+  void execute_shouldDeduplicateRows_WhenOnlyKeyIsSpecified() throws SQLException {
     createBaseProperties();
     createProperty(KEY, null, null);
     createProperty(KEY, null, null);
@@ -69,7 +69,7 @@ public class DeduplicatePropertiesTableIT {
   }
 
   @Test
-  public void execute_shouldDeduplicateRows_WhenOnlyKeyAndUserAreSpecified() throws SQLException {
+  void execute_shouldDeduplicateRows_WhenOnlyKeyAndUserAreSpecified() throws SQLException {
     createBaseProperties();
     createProperty(KEY, USER, null);
     createProperty(KEY, USER, null);
@@ -81,7 +81,7 @@ public class DeduplicatePropertiesTableIT {
   }
 
   @Test
-  public void execute_shouldDeduplicateRows_WhenKeyUserAndEntityAreSpecified() throws SQLException {
+  void execute_shouldDeduplicateRows_WhenKeyUserAndEntityAreSpecified() throws SQLException {
     createBaseProperties();
     createProperty(KEY, USER, ENTITY);
     createProperty(KEY, USER, ENTITY);
@@ -93,7 +93,7 @@ public class DeduplicatePropertiesTableIT {
   }
 
   @Test
-  public void execute_shouldBeReentrant() throws SQLException {
+  void execute_shouldBeReentrant() throws SQLException {
     createBaseProperties();
     createProperty(KEY, USER, ENTITY);
 

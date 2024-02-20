@@ -21,22 +21,22 @@ package org.sonar.server.platform.db.migration.version.v102;
 
 import java.sql.SQLException;
 import java.sql.Types;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.db.MigrationDbTester;
 import org.sonar.server.platform.db.migration.step.DdlChange;
 
 
-public class CreateRulesDefaultImpactsTableIT {
+class CreateRulesDefaultImpactsTableIT {
   private static final String EXPECTED_TABLE_NAME = "rules_default_impacts";
 
-  @Rule
+  @RegisterExtension
   public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(CreateRulesDefaultImpactsTable.class);
 
   private final DdlChange underTest = new CreateRulesDefaultImpactsTable(db.database());
 
   @Test
-  public void migration_should_create_a_table() throws SQLException {
+  void migration_should_create_a_table() throws SQLException {
     db.assertTableDoesNotExist(EXPECTED_TABLE_NAME);
 
     underTest.execute();
@@ -49,7 +49,7 @@ public class CreateRulesDefaultImpactsTableIT {
   }
 
   @Test
-  public void migration_should_be_reentrant() throws SQLException {
+  void migration_should_be_reentrant() throws SQLException {
     db.assertTableDoesNotExist(EXPECTED_TABLE_NAME);
 
     underTest.execute();

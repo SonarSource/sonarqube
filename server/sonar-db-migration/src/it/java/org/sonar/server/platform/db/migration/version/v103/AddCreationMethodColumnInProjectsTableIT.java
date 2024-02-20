@@ -20,8 +20,8 @@
 package org.sonar.server.platform.db.migration.version.v103;
 
 import java.sql.SQLException;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.db.MigrationDbTester;
 
 import static java.sql.Types.VARCHAR;
@@ -30,20 +30,20 @@ import static org.sonar.server.platform.db.migration.version.v103.AddCreationMet
 import static org.sonar.server.platform.db.migration.version.v103.AddCreationMethodColumnInProjectsTable.PROJECTS_CREATION_METHOD_COLUMN_SIZE;
 import static org.sonar.server.platform.db.migration.version.v103.AddCreationMethodColumnInProjectsTable.PROJECTS_TABLE_NAME;
 
-public class AddCreationMethodColumnInProjectsTableIT {
-  @Rule
+class AddCreationMethodColumnInProjectsTableIT {
+  @RegisterExtension
   public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(AddCreationMethodColumnInProjectsTable.class);
   private final AddCreationMethodColumnInProjectsTable underTest = new AddCreationMethodColumnInProjectsTable(db.database());
 
   @Test
-  public void execute_whenColumnDoesNotExist_shouldCreateColumn() throws SQLException {
+  void execute_whenColumnDoesNotExist_shouldCreateColumn() throws SQLException {
     db.assertColumnDoesNotExist(PROJECTS_TABLE_NAME, PROJECTS_CREATION_METHOD_COLUMN_NAME);
     underTest.execute();
     db.assertColumnDefinition(PROJECTS_TABLE_NAME, PROJECTS_CREATION_METHOD_COLUMN_NAME, VARCHAR, PROJECTS_CREATION_METHOD_COLUMN_SIZE, true);
   }
 
   @Test
-  public void execute_whenColumnsAlreadyExists_shouldNotFail() throws SQLException {
+  void execute_whenColumnsAlreadyExists_shouldNotFail() throws SQLException {
     underTest.execute();
     assertThatCode(underTest::execute).doesNotThrowAnyException();
   }

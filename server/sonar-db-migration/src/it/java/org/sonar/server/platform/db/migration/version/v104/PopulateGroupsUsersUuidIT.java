@@ -23,24 +23,24 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 import org.assertj.core.groups.Tuple;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.MigrationDbTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 
-public class PopulateGroupsUsersUuidIT {
+class PopulateGroupsUsersUuidIT {
 
   private static final String GROUPS_USERS_TABLE_NAME = "groups_users";
-  @Rule
+  @RegisterExtension
   public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(PopulateGroupsUsersUuid.class);
 
   private final PopulateGroupsUsersUuid migration = new PopulateGroupsUsersUuid(db.database(), UuidFactoryFast.getInstance());
 
   @Test
-  public void execute_whenTableIsEmpty_shouldPopulate() throws SQLException {
+  void execute_whenTableIsEmpty_shouldPopulate() throws SQLException {
     insertRowsWithoutUuid();
 
     migration.execute();
@@ -51,7 +51,7 @@ public class PopulateGroupsUsersUuidIT {
 
 
   @Test
-  public void execute_isReentrant() throws SQLException {
+  void execute_isReentrant() throws SQLException {
     insertRowsWithoutUuid();
     migration.execute();
     List<Tuple> existingUuids = getExistingUuids();

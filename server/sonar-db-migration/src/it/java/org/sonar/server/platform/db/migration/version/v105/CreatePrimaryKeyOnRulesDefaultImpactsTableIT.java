@@ -20,8 +20,8 @@
 package org.sonar.server.platform.db.migration.version.v105;
 
 import java.sql.SQLException;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.db.MigrationDbTester;
 
 import static org.sonar.server.platform.db.migration.version.v105.CreatePrimaryKeyOnRulesDefaultImpactsTable.PK_NAME;
@@ -29,14 +29,14 @@ import static org.sonar.server.platform.db.migration.version.v105.CreatePrimaryK
 import static org.sonar.server.platform.db.migration.version.v105.CreatePrimaryKeyOnRulesDefaultImpactsTable.SOFTWARE_QUALITY_COLUMN;
 import static org.sonar.server.platform.db.migration.version.v105.CreatePrimaryKeyOnRulesDefaultImpactsTable.TABLE_NAME;
 
-public class CreatePrimaryKeyOnRulesDefaultImpactsTableIT {
-  @Rule
+class CreatePrimaryKeyOnRulesDefaultImpactsTableIT {
+  @RegisterExtension
   public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(CreatePrimaryKeyOnRulesDefaultImpactsTable.class);
 
   private final CreatePrimaryKeyOnRulesDefaultImpactsTable createIndex = new CreatePrimaryKeyOnRulesDefaultImpactsTable(db.database());
 
   @Test
-  public void execute_whenPrimaryKeyDoesntExist_shouldCreatePrimaryKey() throws SQLException {
+  void execute_whenPrimaryKeyDoesntExist_shouldCreatePrimaryKey() throws SQLException {
     db.assertNoPrimaryKey(TABLE_NAME);
 
     createIndex.execute();
@@ -44,7 +44,7 @@ public class CreatePrimaryKeyOnRulesDefaultImpactsTableIT {
   }
 
   @Test
-  public void execute_whenPrimaryKeyAlreadyExist_shouldKeepThePrimaryKeyAndNotFail() throws SQLException {
+  void execute_whenPrimaryKeyAlreadyExist_shouldKeepThePrimaryKeyAndNotFail() throws SQLException {
     createIndex.execute();
     createIndex.execute();
 

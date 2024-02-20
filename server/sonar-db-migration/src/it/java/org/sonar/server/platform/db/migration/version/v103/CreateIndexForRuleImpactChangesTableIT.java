@@ -20,22 +20,22 @@
 package org.sonar.server.platform.db.migration.version.v103;
 
 import java.sql.SQLException;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.db.MigrationDbTester;
 
 
 
-public class CreateIndexForRuleImpactChangesTableIT {
+class CreateIndexForRuleImpactChangesTableIT {
 
   static final String INDEX_NAME = "rule_impact_changes_r_c_uuid";
   static final String TABLE_NAME = "rule_impact_changes";
-  @Rule
+  @RegisterExtension
   public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(CreateIndexForRuleImpactChangesTable.class);
   private final CreateIndexForRuleImpactChangesTable underTest = new CreateIndexForRuleImpactChangesTable(db.database());
 
   @Test
-  public void migration_should_create_index() throws SQLException {
+  void migration_should_create_index() throws SQLException {
     db.assertIndexDoesNotExist(TABLE_NAME, INDEX_NAME);
 
     underTest.execute();
@@ -44,7 +44,7 @@ public class CreateIndexForRuleImpactChangesTableIT {
   }
 
   @Test
-  public void migration_should_be_reentrant() throws SQLException {
+  void migration_should_be_reentrant() throws SQLException {
     underTest.execute();
     underTest.execute();
 

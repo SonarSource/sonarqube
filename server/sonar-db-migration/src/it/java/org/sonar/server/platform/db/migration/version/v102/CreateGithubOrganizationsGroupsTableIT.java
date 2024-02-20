@@ -21,8 +21,8 @@ package org.sonar.server.platform.db.migration.version.v102;
 
 import java.sql.SQLException;
 import java.sql.Types;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.db.MigrationDbTester;
 import org.sonar.server.platform.db.migration.step.DdlChange;
 
@@ -31,13 +31,13 @@ import static org.sonar.server.platform.db.migration.version.v102.CreateGithubOr
 import static org.sonar.server.platform.db.migration.version.v102.CreateGithubOrganizationsGroupsTable.ORGANIZATION_COLUMN_NAME;
 import static org.sonar.server.platform.db.migration.version.v102.CreateGithubOrganizationsGroupsTable.TABLE_NAME;
 
-public class CreateGithubOrganizationsGroupsTableIT {
-  @Rule
+class CreateGithubOrganizationsGroupsTableIT {
+  @RegisterExtension
   public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(CreateGithubOrganizationsGroupsTable.class);
   private final DdlChange createGithubOrganizationsGroupsTable = new CreateGithubOrganizationsGroupsTable(db.database());
 
   @Test
-  public void migration_should_create_a_table() throws SQLException {
+  void migration_should_create_a_table() throws SQLException {
     db.assertTableDoesNotExist(TABLE_NAME);
 
     createGithubOrganizationsGroupsTable.execute();
@@ -49,7 +49,7 @@ public class CreateGithubOrganizationsGroupsTableIT {
   }
 
   @Test
-  public void migration_should_be_reentrant() throws SQLException {
+  void migration_should_be_reentrant() throws SQLException {
     db.assertTableDoesNotExist(TABLE_NAME);
 
     createGithubOrganizationsGroupsTable.execute();

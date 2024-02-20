@@ -20,31 +20,31 @@
 package org.sonar.server.platform.db.migration.version.v101;
 
 import java.sql.SQLException;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.db.MigrationDbTester;
 
 import static java.sql.Types.VARCHAR;
 
-public class AddCodeVariantsColumnInIssuesTableIT {
+class AddCodeVariantsColumnInIssuesTableIT {
 
   private static final String TABLE_NAME = "issues";
   private static final String COLUMN_NAME = "code_variants";
   private static final int COLUMN_SIZE = 4000;
 
-  @Rule
+  @RegisterExtension
   public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(AddCodeVariantsColumnInIssuesTable.class);
   private final AddCodeVariantsColumnInIssuesTable underTest = new AddCodeVariantsColumnInIssuesTable(db.database());
 
   @Test
-  public void migration_should_add_column() throws SQLException {
+  void migration_should_add_column() throws SQLException {
     db.assertColumnDoesNotExist(TABLE_NAME, COLUMN_NAME);
     underTest.execute();
     db.assertColumnDefinition(TABLE_NAME, COLUMN_NAME, VARCHAR, COLUMN_SIZE, true);
   }
 
   @Test
-  public void migration_should_be_reentrant() throws SQLException {
+  void migration_should_be_reentrant() throws SQLException {
     db.assertColumnDoesNotExist(TABLE_NAME, COLUMN_NAME);
     underTest.execute();
     underTest.execute();

@@ -27,9 +27,9 @@ import java.util.Random;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.Version;
 import org.sonar.core.platform.SonarQubeVersion;
@@ -41,7 +41,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class PopulateInitialSchemaIT {
+class PopulateInitialSchemaIT {
 
   private static final long NOW = 1_500L;
 
@@ -51,18 +51,18 @@ public class PopulateInitialSchemaIT {
   private final System2 system2 = mock(System2.class);
   private final SonarQubeVersion sonarQubeVersion = mock(SonarQubeVersion.class);
 
-  @Rule
+  @RegisterExtension
   public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(PopulateInitialSchema.class);
 
   private final PopulateInitialSchema underTest = new PopulateInitialSchema(db.database(), system2, uuidFactory, sonarQubeVersion);
 
-  @Before
+  @BeforeEach
   public void setUp() {
     when(sonarQubeVersion.get()).thenReturn(version);
   }
 
   @Test
-  public void migration_inserts_users_and_groups() throws SQLException {
+  void migration_inserts_users_and_groups() throws SQLException {
     when(system2.now()).thenReturn(NOW);
 
     underTest.execute();

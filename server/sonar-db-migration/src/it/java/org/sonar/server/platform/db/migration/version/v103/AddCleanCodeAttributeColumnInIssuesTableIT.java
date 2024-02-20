@@ -21,29 +21,29 @@ package org.sonar.server.platform.db.migration.version.v103;
 
 import java.sql.SQLException;
 import java.sql.Types;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.db.MigrationDbTester;
 
 import static org.assertj.core.api.Assertions.assertThatCode;
 
-public class AddCleanCodeAttributeColumnInIssuesTableIT {
+class AddCleanCodeAttributeColumnInIssuesTableIT {
   private static final String TABLE_NAME = "issues";
   private static final String COLUMN_NAME = "clean_code_attribute";
 
-  @Rule
+  @RegisterExtension
   public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(AddCleanCodeAttributeColumnInIssuesTable.class);
   private final AddCleanCodeAttributeColumnInIssuesTable underTest = new AddCleanCodeAttributeColumnInIssuesTable(db.database());
 
   @Test
-  public void execute_whenColumnDoesNotExist_shouldCreateColumn() throws SQLException {
+  void execute_whenColumnDoesNotExist_shouldCreateColumn() throws SQLException {
     db.assertColumnDoesNotExist(TABLE_NAME, COLUMN_NAME);
     underTest.execute();
     db.assertColumnDefinition(TABLE_NAME, COLUMN_NAME, Types.VARCHAR, 40, true);
   }
 
   @Test
-  public void execute_whenColumnsAlreadyExists_shouldNotFail() throws SQLException {
+  void execute_whenColumnsAlreadyExists_shouldNotFail() throws SQLException {
     underTest.execute();
     assertThatCode(underTest::execute).doesNotThrowAnyException();
   }

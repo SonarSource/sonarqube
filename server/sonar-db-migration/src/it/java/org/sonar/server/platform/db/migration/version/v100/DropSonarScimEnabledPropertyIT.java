@@ -21,19 +21,19 @@ package org.sonar.server.platform.db.migration.version.v100;
 
 import java.sql.SQLException;
 import org.assertj.core.api.Assertions;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.db.MigrationDbTester;
 import org.sonar.server.platform.db.migration.step.DataChange;
 
-public class DropSonarScimEnabledPropertyIT {
+class DropSonarScimEnabledPropertyIT {
 
-  @Rule
+  @RegisterExtension
   public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(DropSonarScimEnabledProperty.class);
   private final DataChange underTest = new DropSonarScimEnabledProperty(db.database());
 
   @Test
-  public void migration_should_remove_scim_property() throws SQLException {
+  void migration_should_remove_scim_property() throws SQLException {
     insertScimProperty(db);
 
     underTest.execute();
@@ -42,7 +42,7 @@ public class DropSonarScimEnabledPropertyIT {
   }
 
   @Test
-  public void migration_is_reentrant() throws SQLException {
+  void migration_is_reentrant() throws SQLException {
     insertScimProperty(db);
 
     underTest.execute();

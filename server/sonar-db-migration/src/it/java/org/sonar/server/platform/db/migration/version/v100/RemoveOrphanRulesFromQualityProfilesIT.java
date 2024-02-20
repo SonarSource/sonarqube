@@ -22,9 +22,9 @@ package org.sonar.server.platform.db.migration.version.v100;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.core.util.UuidFactory;
@@ -37,21 +37,21 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.core.util.SequenceUuidFactory.UUID_1;
 
-public class RemoveOrphanRulesFromQualityProfilesIT {
+class RemoveOrphanRulesFromQualityProfilesIT {
 
-  @Rule
+  @RegisterExtension
   public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(RemoveOrphanRulesFromQualityProfiles.class);
   private final System2 system2 = mock(System2.class);
   private final UuidFactory instance = new SequenceUuidFactory();
   private final DataChange underTest = new RemoveOrphanRulesFromQualityProfiles(db.database(), instance, system2);
 
-  @Before
+  @BeforeEach
   public void before() {
     when(system2.now()).thenReturn(1L);
   }
 
   @Test
-  public void migration_should_remove_orphans() throws SQLException {
+  void migration_should_remove_orphans() throws SQLException {
     insertData();
 
     underTest.execute();
@@ -61,7 +61,7 @@ public class RemoveOrphanRulesFromQualityProfilesIT {
   }
 
   @Test
-  public void migration_should_be_reentrant() throws SQLException {
+  void migration_should_be_reentrant() throws SQLException {
     insertData();
 
     // re-entrant

@@ -20,29 +20,29 @@
 package org.sonar.server.platform.db.migration.version.v102;
 
 import java.sql.SQLException;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.db.MigrationDbTester;
 
 import static java.sql.Types.VARCHAR;
 
-public class RenameComponentUuidInGroupRolesIT {
+class RenameComponentUuidInGroupRolesIT {
   public static final String TABLE_NAME = "group_roles";
   public static final String NEW_COLUMN_NAME = "entity_uuid";
 
-  @Rule
+  @RegisterExtension
   public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(RenameComponentUuidInGroupRoles.class);
   private final RenameComponentUuidInGroupRoles underTest = new RenameComponentUuidInGroupRoles(db.database());
 
   @Test
-  public void columnIsRenamed() throws SQLException {
+  void columnIsRenamed() throws SQLException {
     db.assertColumnDoesNotExist(TABLE_NAME, NEW_COLUMN_NAME);
     underTest.execute();
     db.assertColumnDefinition(TABLE_NAME, NEW_COLUMN_NAME, VARCHAR, 40, true);
   }
 
   @Test
-  public void migration_is_reentrant() throws SQLException {
+  void migration_is_reentrant() throws SQLException {
     db.assertColumnDoesNotExist(TABLE_NAME, NEW_COLUMN_NAME);
     underTest.execute();
     underTest.execute();

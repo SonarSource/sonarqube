@@ -20,29 +20,29 @@
 package org.sonar.server.platform.db.migration.version.v100;
 
 import java.sql.SQLException;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.db.MigrationDbTester;
 import org.sonar.server.platform.db.migration.step.DdlChange;
 
-public class DropIndexProjectsModuleUuidInComponentsIT {
+class DropIndexProjectsModuleUuidInComponentsIT {
   private static final String TABLE_NAME = "components";
   private static final String COLUMN_NAME = "module_uuid";
   private static final String INDEX_NAME = "projects_module_uuid";
 
-  @Rule
+  @RegisterExtension
   public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(DropIndexProjectsModuleUuidInComponents.class);
   private final DdlChange underTest = new DropIndexProjectsModuleUuidInComponents(db.database());
 
   @Test
-  public void drops_index() throws SQLException {
+  void drops_index() throws SQLException {
     db.assertIndex(TABLE_NAME, INDEX_NAME, COLUMN_NAME);
     underTest.execute();
     db.assertIndexDoesNotExist(TABLE_NAME, INDEX_NAME);
   }
 
   @Test
-  public void execute_whenIndexNameWithPrefix_shouldStillDelete() throws SQLException {
+  void execute_whenIndexNameWithPrefix_shouldStillDelete() throws SQLException {
     String alteredIndexName = "idx_1234567891345678916456789_" + INDEX_NAME;
     db.renameIndex(TABLE_NAME, INDEX_NAME, alteredIndexName);
     db.assertIndexDoesNotExist(TABLE_NAME, INDEX_NAME);
@@ -52,7 +52,7 @@ public class DropIndexProjectsModuleUuidInComponentsIT {
   }
 
   @Test
-  public void migration_is_reentrant() throws SQLException {
+  void migration_is_reentrant() throws SQLException {
     db.assertIndex(TABLE_NAME, INDEX_NAME, COLUMN_NAME);
     underTest.execute();
     underTest.execute();

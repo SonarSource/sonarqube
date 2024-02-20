@@ -20,8 +20,8 @@
 package org.sonar.server.platform.db.migration.version.v101;
 
 import java.sql.SQLException;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.db.MigrationDbTester;
 
 import static org.sonar.server.platform.db.migration.version.v101.AddReportSubscriptionsTable.TABLE_NAME;
@@ -31,13 +31,13 @@ import static org.sonar.server.platform.db.migration.version.v101.CreateUniqueIn
 import static org.sonar.server.platform.db.migration.version.v101.CreateUniqueIndexForReportSubscriptionsTable.INDEX_NAME;
 
 
-public class CreateUniqueIndexForReportSubscriptionsTableIT {
-  @Rule
+class CreateUniqueIndexForReportSubscriptionsTableIT {
+  @RegisterExtension
   public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(CreateUniqueIndexForReportSubscriptionsTable.class);
   private final CreateUniqueIndexForReportSubscriptionsTable createUniqueIndexForReportSubscriptionsTable = new CreateUniqueIndexForReportSubscriptionsTable(db.database());
 
   @Test
-  public void migration_should_create_index() throws SQLException {
+  void migration_should_create_index() throws SQLException {
     db.assertIndexDoesNotExist(TABLE_NAME, INDEX_NAME);
 
     createUniqueIndexForReportSubscriptionsTable.execute();
@@ -46,7 +46,7 @@ public class CreateUniqueIndexForReportSubscriptionsTableIT {
   }
 
   @Test
-  public void migration_should_be_reentrant() throws SQLException {
+  void migration_should_be_reentrant() throws SQLException {
     createUniqueIndexForReportSubscriptionsTable.execute();
     createUniqueIndexForReportSubscriptionsTable.execute();
 

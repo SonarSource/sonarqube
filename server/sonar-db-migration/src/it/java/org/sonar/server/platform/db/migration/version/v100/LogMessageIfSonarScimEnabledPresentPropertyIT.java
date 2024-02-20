@@ -20,33 +20,33 @@
 package org.sonar.server.platform.db.migration.version.v100;
 
 import java.sql.SQLException;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.slf4j.event.Level;
-import org.sonar.api.testfixtures.log.LogTester;
+import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.db.MigrationDbTester;
 import org.sonar.server.platform.db.migration.step.DataChange;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.server.platform.db.migration.version.v100.LogMessageIfSonarScimEnabledPresentProperty.SONAR_SCIM_ENABLED;
 
-public class LogMessageIfSonarScimEnabledPresentPropertyIT {
+class LogMessageIfSonarScimEnabledPresentPropertyIT {
 
-  @Rule
-  public LogTester logger = new LogTester();
+  @RegisterExtension
+  public final LogTesterJUnit5 logger = new LogTesterJUnit5();
 
-  @Rule
+  @RegisterExtension
   public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(LogMessageIfSonarScimEnabledPresentProperty.class);
   private final DataChange underTest = new LogMessageIfSonarScimEnabledPresentProperty(db.database());
 
-  @Before
+  @BeforeEach
   public void before() {
     logger.clear();
   }
 
   @Test
-  public void migration_should_log_message_when_scim_property() throws SQLException {
+  void migration_should_log_message_when_scim_property() throws SQLException {
     db.executeInsert("properties ",
       "prop_key", "sonar.scim.enabled",
       "is_empty", false,
@@ -66,7 +66,7 @@ public class LogMessageIfSonarScimEnabledPresentPropertyIT {
   }
 
   @Test
-  public void migration_should_not_log_if_no_scim_property() throws SQLException {
+  void migration_should_not_log_if_no_scim_property() throws SQLException {
 
     underTest.execute();
 
@@ -74,7 +74,7 @@ public class LogMessageIfSonarScimEnabledPresentPropertyIT {
   }
 
   @Test
-  public void migration_is_reentrant() throws SQLException {
+  void migration_is_reentrant() throws SQLException {
     db.executeInsert("properties ",
       "prop_key", "sonar.scim.enabled",
       "is_empty", false,

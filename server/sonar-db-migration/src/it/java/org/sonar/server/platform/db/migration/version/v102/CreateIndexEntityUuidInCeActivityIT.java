@@ -20,17 +20,17 @@
 package org.sonar.server.platform.db.migration.version.v102;
 
 import java.sql.SQLException;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.db.MigrationDbTester;
 
-public class CreateIndexEntityUuidInCeActivityIT {
-  @Rule
+class CreateIndexEntityUuidInCeActivityIT {
+  @RegisterExtension
   public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(CreateIndexEntityUuidInCeActivity.class);
   private final CreateIndexEntityUuidInCeActivity createIndex = new CreateIndexEntityUuidInCeActivity(db.database());
 
   @Test
-  public void migration_should_create_index() throws SQLException {
+  void migration_should_create_index() throws SQLException {
     db.assertIndexDoesNotExist("ce_activity", "ce_activity_entity_uuid");
 
     createIndex.execute();
@@ -39,7 +39,7 @@ public class CreateIndexEntityUuidInCeActivityIT {
   }
 
   @Test
-  public void migration_should_be_reentrant() throws SQLException {
+  void migration_should_be_reentrant() throws SQLException {
     createIndex.execute();
     createIndex.execute();
 

@@ -22,8 +22,8 @@ package org.sonar.server.platform.db.migration.version.v100;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.MigrationDbTester;
@@ -33,17 +33,17 @@ import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.apache.commons.lang.RandomStringUtils.randomNumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class UpdateUserLocalValueInUsersIT {
+class UpdateUserLocalValueInUsersIT {
 
   private final UuidFactory uuidFactory = UuidFactoryFast.getInstance();
 
-  @Rule
-  public MigrationDbTester db = MigrationDbTester.createForMigrationStep(UpdateUserLocalValueInUsers.class);
+  @RegisterExtension
+  public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(UpdateUserLocalValueInUsers.class);
 
   private final DataChange underTest = new UpdateUserLocalValueInUsers(db.database());
 
   @Test
-  public void migration_updates_user_local_if_null() throws SQLException {
+  void migration_updates_user_local_if_null() throws SQLException {
     String userUuid1 = insertUser(true);
     String userUuid2 = insertUser(false);
     String userUuid3 = insertUser(null);
@@ -56,7 +56,7 @@ public class UpdateUserLocalValueInUsersIT {
   }
 
   @Test
-  public void migration_should_be_reentrant() throws SQLException {
+  void migration_should_be_reentrant() throws SQLException {
     String userUuid1 = insertUser(true);
     String userUuid2 = insertUser(false);
     String userUuid3 = insertUser(null);

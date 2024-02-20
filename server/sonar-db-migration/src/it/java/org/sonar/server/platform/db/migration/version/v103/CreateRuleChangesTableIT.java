@@ -21,24 +21,24 @@ package org.sonar.server.platform.db.migration.version.v103;
 
 import java.sql.SQLException;
 import java.sql.Types;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.db.MigrationDbTester;
 import org.sonar.server.platform.db.migration.step.DdlChange;
 
 import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.UUID_SIZE;
 
-public class CreateRuleChangesTableIT {
+class CreateRuleChangesTableIT {
 
   private final static String TABLE_NAME = "rule_changes";
 
-  @Rule
+  @RegisterExtension
   public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(CreateRuleChangesTable.class);
 
   private final DdlChange underTest = new CreateRuleChangesTable(db.database());
 
   @Test
-  public void migration_should_create_a_table() throws SQLException {
+  void migration_should_create_a_table() throws SQLException {
     db.assertTableDoesNotExist(TABLE_NAME);
 
     underTest.execute();
@@ -51,7 +51,7 @@ public class CreateRuleChangesTableIT {
   }
 
   @Test
-  public void migration_should_be_reentrant() throws SQLException {
+  void migration_should_be_reentrant() throws SQLException {
     db.assertTableDoesNotExist(TABLE_NAME);
 
     underTest.execute();

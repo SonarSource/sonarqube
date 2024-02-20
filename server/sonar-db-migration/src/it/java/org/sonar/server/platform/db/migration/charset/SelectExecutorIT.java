@@ -21,21 +21,21 @@ package org.sonar.server.platform.db.migration.charset;
 
 import java.sql.Connection;
 import java.util.List;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.db.CoreDbTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class SelectExecutorIT {
+class SelectExecutorIT {
 
-  @Rule
-  public CoreDbTester dbTester = CoreDbTester.createForSchema(SelectExecutorIT.class, "users_table.sql");
+  @RegisterExtension
+  public final CoreDbTester dbTester = CoreDbTester.createForSchema(SelectExecutorIT.class, "users_table.sql");
 
   SqlExecutor underTest = new SqlExecutor();
 
   @Test
-  public void testExecuteQuery() throws Exception {
+  void testExecuteQuery() throws Exception {
     insertUser("him", "Him");
     insertUser("her", "Her");
 

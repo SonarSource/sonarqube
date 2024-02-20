@@ -20,22 +20,22 @@
 package org.sonar.server.platform.db.migration.version.v102;
 
 import java.sql.SQLException;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.db.MigrationDbTester;
 import org.sonar.server.platform.db.migration.step.DdlChange;
 
-public class CreateIndexWebhookUuidCreatedAtInWebhookDeliveriesIT {
+class CreateIndexWebhookUuidCreatedAtInWebhookDeliveriesIT {
 
   public static final String TABLE_NAME = "webhook_deliveries";
   public static final String INDEX_NAME = "wd_webhook_uuid_created_at";
 
-  @Rule
+  @RegisterExtension
   public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(CreateIndexWebhookUuidCreatedAtInWebhookDeliveries.class);
   private final DdlChange createIndex = new CreateIndexWebhookUuidCreatedAtInWebhookDeliveries(db.database());
 
   @Test
-  public void migration_should_create_index() throws SQLException {
+  void migration_should_create_index() throws SQLException {
     db.assertIndexDoesNotExist(TABLE_NAME, INDEX_NAME);
 
     createIndex.execute();
@@ -44,7 +44,7 @@ public class CreateIndexWebhookUuidCreatedAtInWebhookDeliveriesIT {
   }
 
   @Test
-  public void migration_should_be_reentrant() throws SQLException {
+  void migration_should_be_reentrant() throws SQLException {
     createIndex.execute();
     createIndex.execute();
 

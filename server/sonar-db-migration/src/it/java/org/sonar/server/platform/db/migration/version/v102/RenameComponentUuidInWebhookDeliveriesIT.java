@@ -20,17 +20,17 @@
 package org.sonar.server.platform.db.migration.version.v102;
 
 import java.sql.SQLException;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.db.AbstractDbTester;
-import org.sonar.db.TestDb;
 import org.sonar.db.MigrationDbTester;
+import org.sonar.db.TestDb;
 import org.sonar.server.platform.db.migration.step.RenameVarcharColumnChange;
 import org.sonar.server.platform.db.migration.version.RenameVarcharColumnAbstractTest;
 
-public class RenameComponentUuidInWebhookDeliveriesIT extends RenameVarcharColumnAbstractTest {
+class RenameComponentUuidInWebhookDeliveriesIT extends RenameVarcharColumnAbstractTest {
 
-  @Rule
+  @RegisterExtension
   public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(RenameComponentUuidInWebhookDeliveries.class);
 
   public RenameComponentUuidInWebhookDeliveriesIT() {
@@ -38,12 +38,12 @@ public class RenameComponentUuidInWebhookDeliveriesIT extends RenameVarcharColum
   }
 
   @Test
-  public void migration_is_reentrant() throws SQLException {
+  void migration_is_reentrant() throws SQLException {
     super.verifyMigrationIsReentrant();
   }
 
   @Test
-  public void column_is_renamed() throws SQLException {
+  void column_is_renamed() throws SQLException {
     super.verifyColumnIsRenamed();
   }
 

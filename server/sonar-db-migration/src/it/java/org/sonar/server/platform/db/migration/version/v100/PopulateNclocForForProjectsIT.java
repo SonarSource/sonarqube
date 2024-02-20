@@ -22,8 +22,8 @@ package org.sonar.server.platform.db.migration.version.v100;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.MigrationDbTester;
@@ -32,24 +32,24 @@ import org.sonar.server.platform.db.migration.step.DataChange;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class PopulateNclocForForProjectsIT {
+class PopulateNclocForForProjectsIT {
 
   private final UuidFactory uuidFactory = UuidFactoryFast.getInstance();
 
-  @Rule
+  @RegisterExtension
   public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(PopulateNclocForForProjects.class);
 
   private final DataChange underTest = new PopulateNclocForForProjects(db.database());
 
   @Test
-  public void migration_populates_ncloc_for_projects() throws SQLException {
+  void migration_populates_ncloc_for_projects() throws SQLException {
     Map<String, Long> expectedNclocByProjectUuid = populateData();
     underTest.execute();
     verifyNclocCorrectlyPopulatedForProjects(expectedNclocByProjectUuid);
   }
 
   @Test
-  public void migration_should_be_reentrant() throws SQLException {
+  void migration_should_be_reentrant() throws SQLException {
     Map<String, Long> expectedNclocByProjectUuid = populateData();
     underTest.execute();
     // re-entrant

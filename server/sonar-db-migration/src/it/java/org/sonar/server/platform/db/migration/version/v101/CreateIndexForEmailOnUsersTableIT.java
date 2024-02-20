@@ -20,21 +20,21 @@
 package org.sonar.server.platform.db.migration.version.v101;
 
 import java.sql.SQLException;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.db.MigrationDbTester;
 
 import static org.sonar.server.platform.db.migration.version.v101.CreateIndexForEmailOnUsersTable.COLUMN_NAME;
 import static org.sonar.server.platform.db.migration.version.v101.CreateIndexForEmailOnUsersTable.INDEX_NAME;
 import static org.sonar.server.platform.db.migration.version.v101.CreateIndexForEmailOnUsersTable.TABLE_NAME;
 
-public class CreateIndexForEmailOnUsersTableIT {
-  @Rule
+class CreateIndexForEmailOnUsersTableIT {
+  @RegisterExtension
   public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(CreateIndexForEmailOnUsersTable.class);
   private final CreateIndexForEmailOnUsersTable createIndexForEmailOnUsersTable = new CreateIndexForEmailOnUsersTable(db.database());
 
   @Test
-  public void migration_should_create_index() throws SQLException {
+  void migration_should_create_index() throws SQLException {
     db.assertIndexDoesNotExist(TABLE_NAME, INDEX_NAME);
 
     createIndexForEmailOnUsersTable.execute();
@@ -43,7 +43,7 @@ public class CreateIndexForEmailOnUsersTableIT {
   }
 
   @Test
-  public void migration_should_be_reentrant() throws SQLException {
+  void migration_should_be_reentrant() throws SQLException {
     createIndexForEmailOnUsersTable.execute();
     createIndexForEmailOnUsersTable.execute();
 

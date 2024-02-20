@@ -21,8 +21,8 @@ package org.sonar.server.platform.db.migration.version.v102;
 
 import java.sql.SQLException;
 import java.sql.Types;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.db.MigrationDbTester;
 import org.sonar.server.platform.db.migration.step.DdlChange;
 
@@ -31,14 +31,14 @@ import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.USER_U
 import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.UUID_SIZE;
 import static org.sonar.server.platform.db.migration.version.v102.CreateAnticipatedTransitionsTable.ANTICIPATED_TRANSITIONS_TABLE_NAME;
 
-public class CreateAnticipatedTransitionsTableIT {
-  @Rule
+class CreateAnticipatedTransitionsTableIT {
+  @RegisterExtension
   public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(CreateAnticipatedTransitionsTable.class);
 
   private final DdlChange createAnticipatedTransitionsTable = new CreateAnticipatedTransitionsTable(db.database());
 
   @Test
-  public void migration_should_create_a_table() throws SQLException {
+  void migration_should_create_a_table() throws SQLException {
     db.assertTableDoesNotExist(ANTICIPATED_TRANSITIONS_TABLE_NAME);
 
     createAnticipatedTransitionsTable.execute();
@@ -58,7 +58,7 @@ public class CreateAnticipatedTransitionsTableIT {
   }
 
   @Test
-  public void migration_should_be_reentrant() throws SQLException {
+  void migration_should_be_reentrant() throws SQLException {
     db.assertTableDoesNotExist(ANTICIPATED_TRANSITIONS_TABLE_NAME);
 
     createAnticipatedTransitionsTable.execute();

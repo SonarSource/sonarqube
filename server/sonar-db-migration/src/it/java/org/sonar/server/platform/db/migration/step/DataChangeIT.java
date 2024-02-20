@@ -30,9 +30,9 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.db.CoreDbTester;
 import org.sonar.server.platform.db.migration.step.Select.Row;
 import org.sonar.server.platform.db.migration.step.Select.RowReader;
@@ -43,21 +43,21 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.Assert.fail;
 
-public class DataChangeIT {
+class DataChangeIT {
 
   private static final int MAX_BATCH_SIZE = 250;
   private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
-  @Rule
-  public CoreDbTester db = CoreDbTester.createForSchema(DataChangeIT.class, "schema.sql");
+  @RegisterExtension
+  public final CoreDbTester db = CoreDbTester.createForSchema(DataChangeIT.class, "schema.sql");
 
-  @Before
+  @BeforeEach
   public void setUp() {
     db.executeUpdateSql("truncate table persons");
   }
 
   @Test
-  public void query() throws Exception {
+  void query() throws Exception {
     insertPersons();
 
     AtomicBoolean executed = new AtomicBoolean(false);
@@ -77,7 +77,7 @@ public class DataChangeIT {
   }
 
   @Test
-  public void read_column_types() throws Exception {
+  void read_column_types() throws Exception {
     insertPersons();
 
     List<Object[]> persons = new ArrayList<>();
@@ -99,7 +99,7 @@ public class DataChangeIT {
   }
 
   @Test
-  public void parameterized_query() throws Exception {
+  void parameterized_query() throws Exception {
     insertPersons();
 
     final List<Long> ids = new ArrayList<>();
@@ -113,7 +113,7 @@ public class DataChangeIT {
   }
 
   @Test
-  public void display_current_row_details_if_error_during_get() throws Exception {
+  void display_current_row_details_if_error_during_get() throws Exception {
     insertPersons();
 
     assertThatThrownBy(() -> {
@@ -131,7 +131,7 @@ public class DataChangeIT {
   }
 
   @Test
-  public void display_current_row_details_if_error_during_list() throws Exception {
+  void display_current_row_details_if_error_during_list() throws Exception {
     insertPersons();
 
     assertThatThrownBy(() -> {
@@ -149,7 +149,7 @@ public class DataChangeIT {
   }
 
   @Test
-  public void bad_parameterized_query() throws Exception {
+  void bad_parameterized_query() throws Exception {
     insertPersons();
 
     DataChange change = new DataChange(db.database()) {
@@ -165,7 +165,7 @@ public class DataChangeIT {
   }
 
   @Test
-  public void scroll() throws Exception {
+  void scroll() throws Exception {
     insertPersons();
 
     final List<Long> ids = new ArrayList<>();
@@ -179,7 +179,7 @@ public class DataChangeIT {
   }
 
   @Test
-  public void insert() throws Exception {
+  void insert() throws Exception {
     insertPersons();
 
     new DataChange(db.database()) {
@@ -203,7 +203,7 @@ public class DataChangeIT {
   }
 
   @Test
-  public void batch_inserts() throws Exception {
+  void batch_inserts() throws Exception {
     insertPersons();
 
     new DataChange(db.database()) {
@@ -241,7 +241,7 @@ public class DataChangeIT {
   }
 
   @Test
-  public void override_size_of_batch_inserts() throws Exception {
+  void override_size_of_batch_inserts() throws Exception {
     new DataChange(db.database()) {
       @Override
       public void execute(Context context) throws SQLException {
@@ -275,7 +275,7 @@ public class DataChangeIT {
   }
 
   @Test
-  public void update_null() throws Exception {
+  void update_null() throws Exception {
     insertPersons();
 
     new DataChange(db.database()) {
@@ -301,7 +301,7 @@ public class DataChangeIT {
   }
 
   @Test
-  public void mass_batch_insert() throws Exception {
+  void mass_batch_insert() throws Exception {
     db.executeUpdateSql("truncate table persons");
 
     final int count = MAX_BATCH_SIZE + 10;
@@ -327,7 +327,7 @@ public class DataChangeIT {
   }
 
   @Test
-  public void scroll_and_update() throws Exception {
+  void scroll_and_update() throws Exception {
     insertPersons();
 
     new DataChange(db.database()) {
@@ -352,7 +352,7 @@ public class DataChangeIT {
   }
 
   @Test
-  public void display_current_row_details_if_error_during_scroll() throws Exception {
+  void display_current_row_details_if_error_during_scroll() throws Exception {
     insertPersons();
 
     assertThatThrownBy(() -> {
@@ -372,7 +372,7 @@ public class DataChangeIT {
   }
 
   @Test
-  public void mass_update() throws Exception {
+  void mass_update() throws Exception {
     insertPersons();
 
     new DataChange(db.database()) {
@@ -398,7 +398,7 @@ public class DataChangeIT {
   }
 
   @Test
-  public void row_splitter_should_split_correctly() throws Exception {
+  void row_splitter_should_split_correctly() throws Exception {
     insertPersons();
 
     new DataChange(db.database()) {
@@ -452,7 +452,7 @@ public class DataChangeIT {
   private record PhoneNumberRow(long personId, String phoneNumber){}
 
   @Test
-  public void display_current_row_details_if_error_during_mass_update() throws Exception {
+  void display_current_row_details_if_error_during_mass_update() throws Exception {
     insertPersons();
 
     assertThatThrownBy(() -> {
@@ -473,7 +473,7 @@ public class DataChangeIT {
   }
 
   @Test
-  public void mass_update_nothing() throws Exception {
+  void mass_update_nothing() throws Exception {
     insertPersons();
 
     new DataChange(db.database()) {
@@ -490,7 +490,7 @@ public class DataChangeIT {
   }
 
   @Test
-  public void bad_mass_update() throws Exception {
+  void bad_mass_update() throws Exception {
     insertPersons();
 
     DataChange change = new DataChange(db.database()) {
@@ -511,7 +511,7 @@ public class DataChangeIT {
   }
 
   @Test
-  public void read_not_null_fields() throws Exception {
+  void read_not_null_fields() throws Exception {
     insertPersons();
 
     List<Object[]> persons = new ArrayList<>();

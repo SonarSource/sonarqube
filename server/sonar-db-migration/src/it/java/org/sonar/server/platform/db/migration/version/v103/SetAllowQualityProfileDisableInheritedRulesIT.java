@@ -20,8 +20,8 @@
 package org.sonar.server.platform.db.migration.version.v103;
 
 import java.sql.SQLException;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactoryFast;
@@ -29,25 +29,25 @@ import org.sonar.db.MigrationDbTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class SetAllowQualityProfileDisableInheritedRulesIT {
+class SetAllowQualityProfileDisableInheritedRulesIT {
 
   private static final long NOW = 1;
 
-  @Rule
+  @RegisterExtension
   public final MigrationDbTester dbTester = MigrationDbTester.createForMigrationStep(SetAllowQualityProfileDisableInheritedRules.class);
   private final System2 system2 = new TestSystem2().setNow(NOW);
 
   private final SetAllowQualityProfileDisableInheritedRules script = new SetAllowQualityProfileDisableInheritedRules(dbTester.database(), system2, UuidFactoryFast.getInstance());
 
   @Test
-  public void execute_shouldInsertPropertyWithFalseValue() throws SQLException {
+  void execute_shouldInsertPropertyWithFalseValue() throws SQLException {
     script.execute();
 
     assertThatForceAuthenticationEquals("false");
   }
 
   @Test
-  public void execute_shouldBeReentrant() throws SQLException {
+  void execute_shouldBeReentrant() throws SQLException {
     script.execute();
     // re-entrant
     script.execute();
@@ -56,7 +56,7 @@ public class SetAllowQualityProfileDisableInheritedRulesIT {
   }
 
   @Test
-  public void execute_shouldNotUpdateTheValueThatAlreadyExistsInTheDatabase() throws SQLException {
+  void execute_shouldNotUpdateTheValueThatAlreadyExistsInTheDatabase() throws SQLException {
     insertPropertyWithValueAsTrue();
     script.execute();
 

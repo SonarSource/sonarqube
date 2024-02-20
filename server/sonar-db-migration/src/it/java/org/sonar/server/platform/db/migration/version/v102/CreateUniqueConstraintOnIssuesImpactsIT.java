@@ -20,19 +20,19 @@
 package org.sonar.server.platform.db.migration.version.v102;
 
 import java.sql.SQLException;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.db.MigrationDbTester;
 
 
 
-public class CreateUniqueConstraintOnIssuesImpactsIT {
-  @Rule
+class CreateUniqueConstraintOnIssuesImpactsIT {
+  @RegisterExtension
   public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(CreateUniqueConstraintOnIssuesImpacts.class);
   private final CreateUniqueConstraintOnIssuesImpacts underTest = new CreateUniqueConstraintOnIssuesImpacts(db.database());
 
   @Test
-  public void migration_should_create_index() throws SQLException {
+  void migration_should_create_index() throws SQLException {
     db.assertIndexDoesNotExist("issues_impacts", "uniq_iss_key_sof_qual");
 
     underTest.execute();
@@ -41,7 +41,7 @@ public class CreateUniqueConstraintOnIssuesImpactsIT {
   }
 
   @Test
-  public void migration_should_be_reentrant() throws SQLException {
+  void migration_should_be_reentrant() throws SQLException {
     underTest.execute();
     underTest.execute();
 

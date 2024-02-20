@@ -21,12 +21,12 @@ package org.sonar.server.platform.db.migration.version.v102;
 
 import java.sql.SQLException;
 import javax.annotation.Nullable;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.batch.rule.Severity;
 import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rules.RuleType;
-import org.sonar.api.testfixtures.log.LogTester;
+import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.MigrationDbTester;
 
@@ -34,23 +34,23 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.tuple;
 
-public class PopulateDefaultImpactsInRulesIT {
+class PopulateDefaultImpactsInRulesIT {
   private static final String TABLE_NAME = "rules";
 
-  @Rule
+  @RegisterExtension
   public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(PopulateDefaultImpactsInRules.class);
-  @Rule
-  public LogTester logTester = new LogTester();
+  @RegisterExtension
+  public final LogTesterJUnit5 logTester = new LogTesterJUnit5();
 
   private final PopulateDefaultImpactsInRules underTest = new PopulateDefaultImpactsInRules(db.database());
 
   @Test
-  public void execute_whenRulesDoNotExist_shouldNotFail() {
+  void execute_whenRulesDoNotExist_shouldNotFail() {
     assertThatCode(underTest::execute).doesNotThrowAnyException();
   }
 
   @Test
-  public void execute_whenRulesHasTypeAndSeverity_shouldCreateImpact() throws SQLException {
+  void execute_whenRulesHasTypeAndSeverity_shouldCreateImpact() throws SQLException {
     insertRuleWithType("uuid", RuleType.CODE_SMELL, Severity.MAJOR);
     underTest.execute();
 
@@ -61,7 +61,7 @@ public class PopulateDefaultImpactsInRulesIT {
   }
 
   @Test
-  public void execute_shouldBeReentrant() throws SQLException {
+  void execute_shouldBeReentrant() throws SQLException {
     insertRuleWithType("uuid", RuleType.CODE_SMELL, Severity.MAJOR);
     underTest.execute();
     underTest.execute();
@@ -75,7 +75,7 @@ public class PopulateDefaultImpactsInRulesIT {
   }
 
   @Test
-  public void execute_shouldNotBeExecuted_whenImpactsTableHasAlreadyRecords() throws SQLException {
+  void execute_shouldNotBeExecuted_whenImpactsTableHasAlreadyRecords() throws SQLException {
     insertRuleWithType("uuid", RuleType.CODE_SMELL, Severity.MAJOR);
     insertRuleWithType("uuid2", RuleType.CODE_SMELL, Severity.MAJOR);
     insertImpact("uuid", SoftwareQuality.SECURITY, org.sonar.api.issue.impact.Severity.HIGH);
@@ -90,7 +90,7 @@ public class PopulateDefaultImpactsInRulesIT {
   }
 
   @Test
-  public void execute_whenAdhocRulesHasTypeAndSeverity_shouldCreateImpact() throws SQLException {
+  void execute_whenAdhocRulesHasTypeAndSeverity_shouldCreateImpact() throws SQLException {
     insertRuleWithAdHocType("uuid", RuleType.CODE_SMELL, Severity.MAJOR);
     underTest.execute();
 
@@ -103,7 +103,7 @@ public class PopulateDefaultImpactsInRulesIT {
   }
 
   @Test
-  public void execute_whenAdhocRulesHasImpactAlready_shouldNotCreateImpact() throws SQLException {
+  void execute_whenAdhocRulesHasImpactAlready_shouldNotCreateImpact() throws SQLException {
     insertRuleWithAdHocType("uuid", RuleType.CODE_SMELL, Severity.MAJOR);
     insertImpact("uuid", SoftwareQuality.SECURITY, org.sonar.api.issue.impact.Severity.HIGH);
     underTest.execute();
@@ -117,7 +117,7 @@ public class PopulateDefaultImpactsInRulesIT {
   }
 
   @Test
-  public void execute_whenNoTypeAndSeverityDefined_shouldNotCreateImpact() throws SQLException {
+  void execute_whenNoTypeAndSeverityDefined_shouldNotCreateImpact() throws SQLException {
     insertRuleWithType("uuid", null, null);
     underTest.execute();
 
@@ -127,7 +127,7 @@ public class PopulateDefaultImpactsInRulesIT {
   }
 
   @Test
-  public void execute_whenInvalidValueDefined_shouldNotCreateImpactAndLog() throws SQLException {
+  void execute_whenInvalidValueDefined_shouldNotCreateImpactAndLog() throws SQLException {
     insertInvalidRule("uuid");
     underTest.execute();
 
@@ -138,7 +138,7 @@ public class PopulateDefaultImpactsInRulesIT {
   }
 
   @Test
-  public void execute_whenTypeIsHotspot_shouldNotCreateImpactAndLog() throws SQLException {
+  void execute_whenTypeIsHotspot_shouldNotCreateImpactAndLog() throws SQLException {
     insertRuleWithType("uuid", RuleType.SECURITY_HOTSPOT, Severity.MAJOR);
     underTest.execute();
 
@@ -148,7 +148,7 @@ public class PopulateDefaultImpactsInRulesIT {
   }
 
   @Test
-  public void execute_whenRuleHasEmptyFields_shouldCreateADefaultImpact() throws SQLException {
+  void execute_whenRuleHasEmptyFields_shouldCreateADefaultImpact() throws SQLException {
     insertPlaceholderAdhocRule("uuid");
     underTest.execute();
 
@@ -160,7 +160,7 @@ public class PopulateDefaultImpactsInRulesIT {
   }
 
   @Test
-  public void execute_whenStandardRuleHasBothAdhocAndStandardTypeAndSeverity_shouldCreateADefaultImpactWithAdhocTypes() throws SQLException {
+  void execute_whenStandardRuleHasBothAdhocAndStandardTypeAndSeverity_shouldCreateADefaultImpactWithAdhocTypes() throws SQLException {
     insertRule("uuid", RuleType.CODE_SMELL, Severity.CRITICAL, RuleType.VULNERABILITY, Severity.MINOR, true);
     underTest.execute();
 

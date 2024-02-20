@@ -21,28 +21,28 @@ package org.sonar.server.platform.db.migration.version.v101;
 
 import java.sql.SQLException;
 import java.sql.Types;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.db.MigrationDbTester;
 import org.sonar.server.platform.db.migration.step.DdlChange;
 
 import static org.sonar.server.platform.db.migration.version.v101.DropProjectKeyInUserTokens.COLUMN_NAME;
 import static org.sonar.server.platform.db.migration.version.v101.DropProjectKeyInUserTokens.TABLE_NAME;
 
-public class DropProjectKeyInUserTokensIT {
-  @Rule
+class DropProjectKeyInUserTokensIT {
+  @RegisterExtension
   public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(DropProjectKeyInUserTokens.class);
   private final DdlChange underTest = new DropProjectKeyInUserTokens(db.database());
 
   @Test
-  public void drops_column() throws SQLException {
+  void drops_column() throws SQLException {
     db.assertColumnDefinition(TABLE_NAME, COLUMN_NAME, Types.VARCHAR, 255, true);
     underTest.execute();
     db.assertColumnDoesNotExist(TABLE_NAME, COLUMN_NAME);
   }
 
   @Test
-  public void migration_is_reentrant() throws SQLException {
+  void migration_is_reentrant() throws SQLException {
     db.assertColumnDefinition(TABLE_NAME, COLUMN_NAME, Types.VARCHAR, 255, true);
     underTest.execute();
     underTest.execute();

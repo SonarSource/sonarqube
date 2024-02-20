@@ -20,30 +20,30 @@
 package org.sonar.server.platform.db.migration.version.v101;
 
 import java.sql.SQLException;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.db.MigrationDbTester;
 
 import static java.sql.Types.BOOLEAN;
 
-public class AlterIsMainColumnInProjectBranchesIT {
+class AlterIsMainColumnInProjectBranchesIT {
 
   private static final String TABLE_NAME = "project_branches";
   private static final String COLUMN_NAME = "is_main";
 
-  @Rule
+  @RegisterExtension
   public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(AlterIsMainColumnInProjectBranches.class);
   private final AlterIsMainColumnInProjectBranches underTest = new AlterIsMainColumnInProjectBranches(db.database());
 
   @Test
-  public void execute_shouldNotBeNullable() throws SQLException {
+  void execute_shouldNotBeNullable() throws SQLException {
     db.assertColumnDefinition(TABLE_NAME, COLUMN_NAME, BOOLEAN, null, true);
     underTest.execute();
     db.assertColumnDefinition(TABLE_NAME, COLUMN_NAME, BOOLEAN, null, false);
   }
 
   @Test
-  public void migration_is_reentrant() throws SQLException {
+  void migration_is_reentrant() throws SQLException {
     db.assertColumnDefinition(TABLE_NAME, COLUMN_NAME, BOOLEAN, null, true);
     underTest.execute();
     underTest.execute();

@@ -23,8 +23,8 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Optional;
 import javax.sql.DataSource;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.db.CoreDbTester;
 import org.sonar.db.Database;
 import org.sonar.db.dialect.H2;
@@ -36,10 +36,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class DbPrimaryKeyConstraintFinderIT {
+class DbPrimaryKeyConstraintFinderIT {
 
-  @Rule
-  public CoreDbTester db = CoreDbTester.createForSchema(DbPrimaryKeyConstraintFinderIT.class, "schema.sql");
+  @RegisterExtension
+  public final CoreDbTester db = CoreDbTester.createForSchema(DbPrimaryKeyConstraintFinderIT.class, "schema.sql");
 
   private final Database dbMock = mock(Database.class);
   private final DbPrimaryKeyConstraintFinder underTest = new DbPrimaryKeyConstraintFinder(dbMock);
@@ -50,7 +50,7 @@ public class DbPrimaryKeyConstraintFinderIT {
   private static final org.sonar.db.dialect.H2 H2 = new H2();
 
   @Test
-  public void findConstraintName_constraint_exists() throws SQLException {
+  void findConstraintName_constraint_exists() throws SQLException {
     DbPrimaryKeyConstraintFinder underTest = new DbPrimaryKeyConstraintFinder(db.database());
     Optional<String> constraintName = underTest.findConstraintName("TEST_PRIMARY_KEY");
     assertThat(constraintName).isPresent();
@@ -58,13 +58,13 @@ public class DbPrimaryKeyConstraintFinderIT {
   }
 
   @Test
-  public void findConstraintName_constraint_not_exist_fails_silently() throws SQLException {
+  void findConstraintName_constraint_not_exist_fails_silently() throws SQLException {
     DbPrimaryKeyConstraintFinder underTest = new DbPrimaryKeyConstraintFinder(db.database());
     assertThat(underTest.findConstraintName("NOT_EXISTING_TABLE")).isNotPresent();
   }
 
   @Test
-  public void getDbVendorSpecificQuery_mssql() {
+  void getDbVendorSpecificQuery_mssql() {
     when(dbMock.getDialect()).thenReturn(MS_SQL);
 
     assertThat(underTest.getDbVendorSpecificQuery("my_table"))
@@ -72,7 +72,7 @@ public class DbPrimaryKeyConstraintFinderIT {
   }
 
   @Test
-  public void getDbVendorSpecificQuery_postgresql() throws SQLException {
+  void getDbVendorSpecificQuery_postgresql() throws SQLException {
     DataSource dataSource = mock(DataSource.class);
     Connection connection = mock(Connection.class);
     when(dataSource.getConnection()).thenReturn(connection);
@@ -85,7 +85,7 @@ public class DbPrimaryKeyConstraintFinderIT {
   }
 
   @Test
-  public void getDbVendorSpecificQuery_oracle() {
+  void getDbVendorSpecificQuery_oracle() {
     when(dbMock.getDialect()).thenReturn(ORACLE);
 
     assertThat(underTest.getDbVendorSpecificQuery("my_table"))
@@ -93,7 +93,7 @@ public class DbPrimaryKeyConstraintFinderIT {
   }
 
   @Test
-  public void getDbVendorSpecificQuery_h2() {
+  void getDbVendorSpecificQuery_h2() {
     when(dbMock.getDialect()).thenReturn(H2);
 
     assertThat(underTest.getDbVendorSpecificQuery("my_table"))

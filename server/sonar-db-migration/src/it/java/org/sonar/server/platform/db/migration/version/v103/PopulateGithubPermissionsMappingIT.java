@@ -20,9 +20,9 @@
 package org.sonar.server.platform.db.migration.version.v103;
 
 import java.sql.SQLException;
-import org.junit.Rule;
-import org.junit.Test;
-import org.sonar.api.testfixtures.log.LogTester;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.MigrationDbTester;
 
@@ -30,17 +30,17 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.server.platform.db.migration.version.v103.CreateGithubPermissionsMappingTable.GITHUB_PERMISSIONS_MAPPING_TABLE_NAME;
 
-public class PopulateGithubPermissionsMappingIT {
+class PopulateGithubPermissionsMappingIT {
 
-  @Rule
+  @RegisterExtension
   public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(PopulateGithubPermissionsMapping.class);
-  @Rule
-  public LogTester logTester = new LogTester();
+  @RegisterExtension
+  public final LogTesterJUnit5 logTester = new LogTesterJUnit5();
 
   private final PopulateGithubPermissionsMapping migration = new PopulateGithubPermissionsMapping(db.database(), UuidFactoryFast.getInstance());
 
   @Test
-  public void execute_whenTableAlreadyPopulated_doesNothing() throws SQLException {
+  void execute_whenTableAlreadyPopulated_doesNothing() throws SQLException {
     db.executeInsert(GITHUB_PERMISSIONS_MAPPING_TABLE_NAME,
       "UUID", UuidFactoryFast.getInstance().create(),
       "github_role", "gh_role",
@@ -54,14 +54,14 @@ public class PopulateGithubPermissionsMappingIT {
   }
 
   @Test
-  public void execute_whenTableIsEmpty_shouldPopulate() throws SQLException {
+  void execute_whenTableIsEmpty_shouldPopulate() throws SQLException {
     migration.execute();
 
     verifyMapping();
   }
 
   @Test
-  public void execute_isReentrant() throws SQLException {
+  void execute_isReentrant() throws SQLException {
     migration.execute();
     migration.execute();
     migration.execute();

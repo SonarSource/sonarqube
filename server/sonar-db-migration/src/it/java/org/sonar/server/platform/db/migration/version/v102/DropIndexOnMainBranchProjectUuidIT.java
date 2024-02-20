@@ -20,29 +20,29 @@
 package org.sonar.server.platform.db.migration.version.v102;
 
 import java.sql.SQLException;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.db.MigrationDbTester;
 import org.sonar.server.platform.db.migration.step.DdlChange;
 
-public class DropIndexOnMainBranchProjectUuidIT {
+class DropIndexOnMainBranchProjectUuidIT {
   private static final String TABLE_NAME = "components";
   private static final String COLUMN_NAME = "main_branch_project_uuid";
   private static final String INDEX_NAME = "idx_main_branch_prj_uuid";
 
-  @Rule
+  @RegisterExtension
   public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(DropIndexOnMainBranchProjectUuid.class);
   private final DdlChange underTest = new DropIndexOnMainBranchProjectUuid(db.database());
 
   @Test
-  public void drops_index() throws SQLException {
+  void drops_index() throws SQLException {
     db.assertIndex(TABLE_NAME, INDEX_NAME, COLUMN_NAME);
     underTest.execute();
     db.assertIndexDoesNotExist(TABLE_NAME, INDEX_NAME);
   }
 
   @Test
-  public void migration_is_reentrant() throws SQLException {
+  void migration_is_reentrant() throws SQLException {
     db.assertIndex(TABLE_NAME, INDEX_NAME, COLUMN_NAME);
     underTest.execute();
     underTest.execute();

@@ -21,8 +21,8 @@ package org.sonar.server.platform.db.migration.version.v104;
 
 import java.sql.SQLException;
 import java.sql.Types;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.db.MigrationDbTester;
 import org.sonar.server.platform.db.migration.step.DdlChange;
 
@@ -31,15 +31,15 @@ import static org.sonar.server.platform.db.migration.version.v104.CreateIssuesFi
 import static org.sonar.server.platform.db.migration.version.v104.CreateIssuesFixedTable.COLUMN_PULL_REQUEST_UUID;
 import static org.sonar.server.platform.db.migration.version.v104.CreateIssuesFixedTable.TABLE_NAME;
 
-public class CreateIssuesFixedTableIT {
+class CreateIssuesFixedTableIT {
 
-  @Rule
+  @RegisterExtension
   public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(CreateIssuesFixedTable.class);
 
   private final DdlChange underTest = new CreateIssuesFixedTable(db.database());
 
   @Test
-  public void execute_shouldCreateTable() throws SQLException {
+  void execute_shouldCreateTable() throws SQLException {
     db.assertTableDoesNotExist(TABLE_NAME);
 
     underTest.execute();
@@ -51,7 +51,7 @@ public class CreateIssuesFixedTableIT {
   }
 
   @Test
-  public void execute_shouldBeReentrant() throws SQLException {
+  void execute_shouldBeReentrant() throws SQLException {
     db.assertTableDoesNotExist(TABLE_NAME);
 
     underTest.execute();

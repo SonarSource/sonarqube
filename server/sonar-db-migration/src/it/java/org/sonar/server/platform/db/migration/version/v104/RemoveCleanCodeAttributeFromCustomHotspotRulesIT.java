@@ -23,28 +23,28 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.db.MigrationDbTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 
-public class RemoveCleanCodeAttributeFromCustomHotspotRulesIT {
+class RemoveCleanCodeAttributeFromCustomHotspotRulesIT {
 
-  @Rule
+  @RegisterExtension
   public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(RemoveCleanCodeAttributeFromCustomHotspotRules.class);
   private final RemoveCleanCodeAttributeFromCustomHotspotRules underTest = new RemoveCleanCodeAttributeFromCustomHotspotRules(db.database());
 
   @Test
-  public void execute_whenRulesTableIsEmpty_shouldDoNothing() throws SQLException {
+  void execute_whenRulesTableIsEmpty_shouldDoNothing() throws SQLException {
     underTest.execute();
 
     assertThat(db.select("select clean_code_attribute from rules")).isEmpty();
   }
 
   @Test
-  public void execute_whenCustomHotspotRuleExist_shouldRemoveCleanCodeAttributeOnlyFromHotspot() throws SQLException {
+  void execute_whenCustomHotspotRuleExist_shouldRemoveCleanCodeAttributeOnlyFromHotspot() throws SQLException {
     insertRule("custom_hotspot_rule", 4, "CONVENTIONAL");
     insertRule("other_rule", 1, "ETHICAL");
 
@@ -66,7 +66,7 @@ public class RemoveCleanCodeAttributeFromCustomHotspotRulesIT {
   }
 
   @Test
-  public void execute_whenCustomHotspotRuleExist_isReentrant() throws SQLException {
+  void execute_whenCustomHotspotRuleExist_isReentrant() throws SQLException {
     insertRule("custom_hotspot_rule", 4, "CONVENTIONAL");
     insertRule("other_rule", 1, "ETHICAL");
 

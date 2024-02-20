@@ -21,29 +21,29 @@ package org.sonar.server.platform.db.migration.version.v105;
 
 import java.sql.SQLException;
 import java.sql.Types;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.db.MigrationDbTester;
 import org.sonar.server.platform.db.migration.step.DdlChange;
 
 import static org.sonar.server.platform.db.migration.version.v105.DropUuidColumnInIssuesImpactsTable.COLUMN_NAME;
 import static org.sonar.server.platform.db.migration.version.v105.DropUuidColumnInIssuesImpactsTable.TABLE_NAME;
 
-public class DropUuidColumnInIssuesImpactsTableIT {
+class DropUuidColumnInIssuesImpactsTableIT {
 
-  @Rule
+  @RegisterExtension
   public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(DropUuidColumnInIssuesImpactsTable.class);
   private final DdlChange underTest = new DropUuidColumnInIssuesImpactsTable(db.database());
 
   @Test
-  public void executed_whenRun_shouldDropSystemTagsColumn() throws SQLException {
+  void executed_whenRun_shouldDropSystemTagsColumn() throws SQLException {
     db.assertColumnDefinition(TABLE_NAME, COLUMN_NAME, Types.VARCHAR, 40, false);
     underTest.execute();
     db.assertColumnDoesNotExist(TABLE_NAME, COLUMN_NAME);
   }
 
   @Test
-  public void execute_whenRunMoreThanOnce_shouldBeReentrant() throws SQLException {
+  void execute_whenRunMoreThanOnce_shouldBeReentrant() throws SQLException {
     db.assertColumnDefinition(TABLE_NAME, COLUMN_NAME, Types.VARCHAR, 40, false);
     underTest.execute();
     underTest.execute();

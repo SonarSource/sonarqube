@@ -20,8 +20,8 @@
 package org.sonar.server.platform.db.migration.version.v101;
 
 import java.sql.SQLException;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.MigrationDbTester;
@@ -30,15 +30,15 @@ import org.sonar.server.platform.db.migration.step.DataChange;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 
-public class PopulateReportSubscriptionsIT {
-  @Rule
+class PopulateReportSubscriptionsIT {
+  @RegisterExtension
   public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(PopulateReportSubscriptions.class);
 
   private final UuidFactory uuidFactory = UuidFactoryFast.getInstance();
   private final DataChange underTest = new PopulateReportSubscriptions(db.database());
 
   @Test
-  public void execute_shouldPopulateFromPortfolioProperties() throws SQLException {
+  void execute_shouldPopulateFromPortfolioProperties() throws SQLException {
     insertPortfolio("uuid1");
     insertPortfolioProperty("uuid1", "1234");
 
@@ -50,7 +50,7 @@ public class PopulateReportSubscriptionsIT {
   }
 
   @Test
-  public void execute_shouldPopulateFromBranchProperties() throws SQLException {
+  void execute_shouldPopulateFromBranchProperties() throws SQLException {
     insertBranch("uuid1");
     insertBranchProperty("uuid1", "1234");
 
@@ -62,7 +62,7 @@ public class PopulateReportSubscriptionsIT {
   }
 
   @Test
-  public void execute_whenPropertyMatchesBothBranchAndPortfolio_shouldNotPopulate() throws SQLException {
+  void execute_whenPropertyMatchesBothBranchAndPortfolio_shouldNotPopulate() throws SQLException {
     insertBranch("uuid1");
     insertPortfolio("uuid1");
     insertBranchProperty("uuid1", "1234");

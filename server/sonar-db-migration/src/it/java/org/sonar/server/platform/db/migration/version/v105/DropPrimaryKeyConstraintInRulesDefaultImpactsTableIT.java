@@ -20,8 +20,8 @@
 package org.sonar.server.platform.db.migration.version.v105;
 
 import java.sql.SQLException;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.db.MigrationDbTester;
 import org.sonar.server.platform.db.migration.sql.DbPrimaryKeyConstraintFinder;
 import org.sonar.server.platform.db.migration.sql.DropPrimaryKeySqlGenerator;
@@ -31,9 +31,9 @@ import static org.sonar.server.platform.db.migration.version.v105.DropPrimaryKey
 import static org.sonar.server.platform.db.migration.version.v105.DropPrimaryKeyConstraintInRulesDefaultImpactsTable.CONSTRAINT_NAME;
 import static org.sonar.server.platform.db.migration.version.v105.DropPrimaryKeyConstraintInRulesDefaultImpactsTable.TABLE_NAME;
 
-public class DropPrimaryKeyConstraintInRulesDefaultImpactsTableIT {
+class DropPrimaryKeyConstraintInRulesDefaultImpactsTableIT {
 
-  @Rule
+  @RegisterExtension
   public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(DropPrimaryKeyConstraintInRulesDefaultImpactsTable.class);
 
   private final DbPrimaryKeyConstraintFinder dbPrimaryKeyConstraintFinder = new DbPrimaryKeyConstraintFinder(db.database());
@@ -41,14 +41,14 @@ public class DropPrimaryKeyConstraintInRulesDefaultImpactsTableIT {
     new DropPrimaryKeySqlGenerator(db.database(), dbPrimaryKeyConstraintFinder), dbPrimaryKeyConstraintFinder);
 
   @Test
-  public void execute_shouldRemoveExistingPrimaryKey() throws SQLException {
+  void execute_shouldRemoveExistingPrimaryKey() throws SQLException {
     db.assertPrimaryKey(TABLE_NAME, CONSTRAINT_NAME, COLUMN_NAME);
     underTest.execute();
     db.assertNoPrimaryKey(TABLE_NAME);
   }
 
   @Test
-  public void execute_when_reentrant_shouldRemoveExistingPrimaryKey() throws SQLException {
+  void execute_when_reentrant_shouldRemoveExistingPrimaryKey() throws SQLException {
     db.assertPrimaryKey(TABLE_NAME, CONSTRAINT_NAME, COLUMN_NAME);
     underTest.execute();
     underTest.execute();

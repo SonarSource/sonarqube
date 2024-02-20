@@ -20,29 +20,29 @@
 package org.sonar.server.platform.db.migration.version.v100;
 
 import java.sql.SQLException;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.db.MigrationDbTester;
 
 import static java.sql.Types.BOOLEAN;
 
-public class MakeColumnUserLocalNotNullableInUsersIT {
+class MakeColumnUserLocalNotNullableInUsersIT {
   private static final String TABLE_NAME = "users";
   private static final String COLUMN_NAME = "user_local";
 
-  @Rule
+  @RegisterExtension
   public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(MakeColumnUserLocalNotNullableInUsers.class);
   private final MakeColumnUserLocalNotNullableInUsers underTest = new MakeColumnUserLocalNotNullableInUsers(db.database());
 
   @Test
-  public void user_local_column_is_not_null() throws SQLException {
+  void user_local_column_is_not_null() throws SQLException {
     db.assertColumnDefinition(TABLE_NAME, COLUMN_NAME, BOOLEAN, null, true);
     underTest.execute();
     db.assertColumnDefinition(TABLE_NAME, COLUMN_NAME, BOOLEAN, null, false);
   }
 
   @Test
-  public void migration_is_reentrant() throws SQLException {
+  void migration_is_reentrant() throws SQLException {
     db.assertColumnDefinition(TABLE_NAME, COLUMN_NAME, BOOLEAN, null, true);
     underTest.execute();
     underTest.execute();

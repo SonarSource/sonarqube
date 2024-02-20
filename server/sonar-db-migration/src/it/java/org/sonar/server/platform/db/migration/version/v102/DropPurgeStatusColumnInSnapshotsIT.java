@@ -21,30 +21,30 @@ package org.sonar.server.platform.db.migration.version.v102;
 
 import java.sql.SQLException;
 import java.sql.Types;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.db.MigrationDbTester;
 
 
 
-public class DropPurgeStatusColumnInSnapshotsIT {
+class DropPurgeStatusColumnInSnapshotsIT {
 
   private static final String TABLE_NAME = "snapshots";
   private static final String COLUMN_NAME = "purge_status";
 
-  @Rule
+  @RegisterExtension
   public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(DropPurgeStatusColumnInSnapshots.class);
   private final DropPurgeStatusColumnInSnapshots underTest = new DropPurgeStatusColumnInSnapshots(db.database());
 
   @Test
-  public void drops_column() throws SQLException {
+  void drops_column() throws SQLException {
     db.assertColumnDefinition(TABLE_NAME, COLUMN_NAME, Types.INTEGER, null, null);
     underTest.execute();
     db.assertColumnDoesNotExist(TABLE_NAME, COLUMN_NAME);
   }
 
   @Test
-  public void migration_is_reentrant() throws SQLException {
+  void migration_is_reentrant() throws SQLException {
     db.assertColumnDefinition(TABLE_NAME, COLUMN_NAME, Types.INTEGER, null, null);
     underTest.execute();
     underTest.execute();

@@ -20,8 +20,8 @@
 package org.sonar.server.platform.db.migration.version.v101;
 
 import java.sql.SQLException;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.MigrationDbTester;
@@ -29,13 +29,13 @@ import org.sonar.server.platform.db.migration.step.DataChange;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class RemoveReportPropertiesIT {
+class RemoveReportPropertiesIT {
 
   private static final String SONAR_GOVERNANCE_REPORT_USER_NOTIFICATION = "sonar.governance.report.userNotification";
   private static final String SONAR_GOVERNANCE_REPORT_PROJECT_BRANCH_USER_NOTIFICATION = "sonar.governance.report.project.branch.userNotification";
   private static final String SONAR_GOVERNANCE_REPORT_LAST_SEND_TIME_IN_MS = "sonar.governance.report.lastSendTimeInMs";
   private static final String SONAR_GOVERNANCE_REPORT_PROJECT_BRANCH_LAST_SEND_TIME_IN_MS = "sonar.governance.report.project.branch.lastSendTimeInMs";
-  @Rule
+  @RegisterExtension
   public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(RemoveReportProperties.class);
 
   private final DataChange underTest = new RemoveReportProperties(db.database());
@@ -43,7 +43,7 @@ public class RemoveReportPropertiesIT {
   private final UuidFactory uuidFactory = UuidFactoryFast.getInstance();
 
   @Test
-  public void execute_shouldRemoveRelevantPropertiesFromTable() throws SQLException {
+  void execute_shouldRemoveRelevantPropertiesFromTable() throws SQLException {
     insertProperty( "branch_uuid", "user_uuid", SONAR_GOVERNANCE_REPORT_USER_NOTIFICATION, "true");
     insertProperty( "portfolio_uuid", "user_uuid", SONAR_GOVERNANCE_REPORT_PROJECT_BRANCH_USER_NOTIFICATION, "true");
     insertProperty( "branch_uuid", "user_uuid", SONAR_GOVERNANCE_REPORT_LAST_SEND_TIME_IN_MS, "12");
@@ -57,7 +57,7 @@ public class RemoveReportPropertiesIT {
   }
 
   @Test
-  public void execute_shouldBeIdempotent() throws SQLException {
+  void execute_shouldBeIdempotent() throws SQLException {
     insertProperty( "branch_uuid", "user_uuid", SONAR_GOVERNANCE_REPORT_USER_NOTIFICATION, "true");
     insertProperty( "portfolio_uuid", "user_uuid", SONAR_GOVERNANCE_REPORT_PROJECT_BRANCH_USER_NOTIFICATION, "true");
 

@@ -20,22 +20,22 @@
 package org.sonar.server.platform.db.migration.version.v102;
 
 import java.sql.SQLException;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.db.MigrationDbTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class FixSqaleIndexMetricDescriptionIT {
+class FixSqaleIndexMetricDescriptionIT {
 
-  @Rule
+  @RegisterExtension
   public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(FixSqaleIndexMetricDescription.class);
   private final FixSqaleIndexMetricDescription underTest = new FixSqaleIndexMetricDescription(db.database());
   private final String OLD_DESCRIPTION = "Total effort (in hours) to fix all the issues on the component and therefore to comply to all the requirements.";
   private final String NEW_DESCRIPTION = "Total effort (in minutes) to fix all the issues on the component and therefore to comply to all the requirements.";
 
-  @Before
+  @BeforeEach
   public void setUp() {
     db.executeInsert("metrics",
       "uuid", "uuid",
@@ -44,14 +44,14 @@ public class FixSqaleIndexMetricDescriptionIT {
   }
 
   @Test
-  public void execute_whenExecuted_shouldUpdateSqaleIndexDescription() throws SQLException {
+  void execute_whenExecuted_shouldUpdateSqaleIndexDescription() throws SQLException {
     assertThat(select()).isEqualTo(OLD_DESCRIPTION);
     underTest.execute();
     assertThat(select()).isEqualTo(NEW_DESCRIPTION);
   }
 
   @Test
-  public void execute_WhenExecutedTwice_shouldBeReentrant() throws SQLException {
+  void execute_WhenExecutedTwice_shouldBeReentrant() throws SQLException {
     assertThat(select()).isEqualTo(OLD_DESCRIPTION);
     underTest.execute();
     underTest.execute();

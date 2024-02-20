@@ -20,28 +20,28 @@
 package org.sonar.server.platform.db.migration.version.v103;
 
 import java.sql.SQLException;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.db.MigrationDbTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.server.platform.db.migration.version.v103.AddCreationMethodColumnInProjectsTable.PROJECTS_TABLE_NAME;
 
-public class PopulateCreationMethodColumnInProjectsTableIT {
+class PopulateCreationMethodColumnInProjectsTableIT {
 
-  @Rule
+  @RegisterExtension
   public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(PopulateCreationMethodColumnInProjectsTable.class);
   private final PopulateCreationMethodColumnInProjectsTable underTest = new PopulateCreationMethodColumnInProjectsTable(db.database());
 
   @Test
-  public void execute_whenProjectsTableIsEmpty_shouldDoNothing() throws SQLException {
+  void execute_whenProjectsTableIsEmpty_shouldDoNothing() throws SQLException {
     underTest.execute();
 
     assertThat(db.select("select creation_method from projects")).isEmpty();
   }
 
   @Test
-  public void execute_whenProjectsExist_shouldPopulateCreationMethodColumn() throws SQLException {
+  void execute_whenProjectsExist_shouldPopulateCreationMethodColumn() throws SQLException {
     insertProject("uuid-1");
     insertProject("uuid-2");
 
@@ -53,7 +53,7 @@ public class PopulateCreationMethodColumnInProjectsTableIT {
   }
 
   @Test
-  public void execute_isReentrant() throws SQLException {
+  void execute_isReentrant() throws SQLException {
     insertProject("uuid-1");
 
     underTest.execute();

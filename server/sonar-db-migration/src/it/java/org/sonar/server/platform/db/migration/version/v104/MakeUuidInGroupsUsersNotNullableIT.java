@@ -20,29 +20,29 @@
 package org.sonar.server.platform.db.migration.version.v104;
 
 import java.sql.SQLException;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.db.MigrationDbTester;
 
 import static java.sql.Types.VARCHAR;
 import static org.sonar.server.platform.db.migration.version.v104.AddUuidColumnToGroupsUsers.GROUPS_USERS_TABLE_NAME;
 import static org.sonar.server.platform.db.migration.version.v104.AddUuidColumnToGroupsUsers.GROUPS_USERS_UUID_COLUMN_NAME;
 
-public class MakeUuidInGroupsUsersNotNullableIT {
+class MakeUuidInGroupsUsersNotNullableIT {
 
-  @Rule
+  @RegisterExtension
   public final MigrationDbTester db = MigrationDbTester.createForMigrationStep( MakeUuidInGroupsUsersNotNullable.class);
   private final  MakeUuidInGroupsUsersNotNullable underTest = new  MakeUuidInGroupsUsersNotNullable(db.database());
 
   @Test
-  public void execute_whenUuidColumnIsNullable_shouldMakeItNonNullable() throws SQLException {
+  void execute_whenUuidColumnIsNullable_shouldMakeItNonNullable() throws SQLException {
     db.assertColumnDefinition(GROUPS_USERS_TABLE_NAME, GROUPS_USERS_UUID_COLUMN_NAME, VARCHAR, null, true);
     underTest.execute();
     db.assertColumnDefinition(GROUPS_USERS_TABLE_NAME, GROUPS_USERS_UUID_COLUMN_NAME, VARCHAR, null, false);
   }
 
   @Test
-  public void execute_whenUuidColumnIsNullable_shouldKeepItNullableAndNotFail() throws SQLException {
+  void execute_whenUuidColumnIsNullable_shouldKeepItNullableAndNotFail() throws SQLException {
     db.assertColumnDefinition(GROUPS_USERS_TABLE_NAME, GROUPS_USERS_UUID_COLUMN_NAME, VARCHAR, null, true);
     underTest.execute();
     underTest.execute();

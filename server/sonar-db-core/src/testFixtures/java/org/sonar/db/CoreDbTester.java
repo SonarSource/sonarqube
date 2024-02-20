@@ -20,12 +20,15 @@
 package org.sonar.db;
 
 import org.apache.commons.lang.StringUtils;
+import org.junit.jupiter.api.extension.AfterEachCallback;
+import org.junit.jupiter.api.extension.BeforeEachCallback;
+import org.junit.jupiter.api.extension.ExtensionContext;
 
 /**
  * This class should be called using @Rule.
  * Data is truncated between each tests. The schema is created between each test.
  */
-public class CoreDbTester extends AbstractDbTester<CoreTestDb> {
+public class CoreDbTester extends AbstractDbTester<CoreTestDb> implements BeforeEachCallback, AfterEachCallback {
 
   private CoreDbTester(CoreTestDb testDb) {
     super(testDb);
@@ -54,5 +57,15 @@ public class CoreDbTester extends AbstractDbTester<CoreTestDb> {
   @Override
   protected void after() {
     db.stop();
+  }
+
+  @Override
+  public void afterEach(ExtensionContext extensionContext) throws Exception {
+    after();
+  }
+
+  @Override
+  public void beforeEach(ExtensionContext extensionContext) throws Exception {
+    before();
   }
 }

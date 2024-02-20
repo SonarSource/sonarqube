@@ -26,12 +26,15 @@ dependencies {
   testImplementation 'com.microsoft.sqlserver:mssql-jdbc'
   testImplementation 'com.oracle.database.jdbc:ojdbc11'
   testImplementation 'com.tngtech.java:junit-dataprovider'
+  testImplementation 'org.junit.jupiter:junit-jupiter-api'
   testImplementation 'org.mockito:mockito-core'
   testImplementation 'org.postgresql:postgresql'
   testImplementation 'org.sonarsource.api.plugin:sonar-plugin-api-test-fixtures'
 
   testImplementation project(':sonar-testing-harness')
 
+  testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+  testRuntimeOnly 'org.junit.vintage:junit-vintage-engine'
   testRuntimeOnly 'com.h2database:h2'
   testRuntimeOnly 'com.microsoft.sqlserver:mssql-jdbc'
   testRuntimeOnly 'com.oracle.database.jdbc:ojdbc11'
@@ -43,6 +46,7 @@ dependencies {
   testFixturesApi 'org.apache.commons:commons-collections4'
 
   testFixturesImplementation 'com.oracle.database.jdbc:ojdbc11'
+  testFixturesImplementation 'org.junit.jupiter:junit-jupiter-api'
 
   testFixturesCompileOnly 'com.google.code.findbugs:jsr305'
 }

@@ -21,9 +21,12 @@ package org.sonar.db;
 
 import java.sql.SQLException;
 import javax.annotation.Nullable;
+import org.junit.jupiter.api.extension.AfterEachCallback;
+import org.junit.jupiter.api.extension.BeforeEachCallback;
+import org.junit.jupiter.api.extension.ExtensionContext;
 import org.sonar.server.platform.db.migration.step.MigrationStep;
 
-public class MigrationDbTester extends AbstractDbTester<MigrationTestDb> {
+public class MigrationDbTester extends AbstractDbTester<MigrationTestDb> implements BeforeEachCallback, AfterEachCallback {
 
   private MigrationDbTester(@Nullable Class<? extends MigrationStep> migrationStepClass) {
     super(new MigrationTestDb(migrationStepClass));
@@ -56,5 +59,15 @@ public class MigrationDbTester extends AbstractDbTester<MigrationTestDb> {
     } catch (SQLException e) {
       throw new IllegalStateException("Fail to truncate db tables", e);
     }
+  }
+
+  @Override
+  public void afterEach(ExtensionContext extensionContext) throws Exception {
+    after();
+  }
+
+  @Override
+  public void beforeEach(ExtensionContext extensionContext) throws Exception {
+    before();
   }
 }

@@ -21,29 +21,29 @@ package org.sonar.server.platform.db.migration.version.v101;
 
 import java.sql.SQLException;
 import java.sql.Types;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.db.MigrationDbTester;
 import org.sonar.server.platform.db.migration.step.DdlChange;
 
 import static org.sonar.server.platform.db.migration.version.v101.DropScmAccountsInUsers.COLUMN_NAME;
 import static org.sonar.server.platform.db.migration.version.v101.DropScmAccountsInUsers.TABLE_NAME;
 
-public class DropScmAccountsInUsersIT {
+class DropScmAccountsInUsersIT {
 
-  @Rule
+  @RegisterExtension
   public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(DropScmAccountsInUsers.class);
   private final DdlChange dropScmAccountsInUsers = new DropScmAccountsInUsers(db.database());
 
   @Test
-  public void drops_column() throws SQLException {
+  void drops_column() throws SQLException {
     db.assertColumnDefinition(TABLE_NAME, COLUMN_NAME, Types.VARCHAR, 4000, true);
     dropScmAccountsInUsers.execute();
     db.assertColumnDoesNotExist(TABLE_NAME, COLUMN_NAME);
   }
 
   @Test
-  public void migration_is_reentrant() throws SQLException {
+  void migration_is_reentrant() throws SQLException {
     db.assertColumnDefinition(TABLE_NAME, COLUMN_NAME, Types.VARCHAR, 4000, true);
     dropScmAccountsInUsers.execute();
     dropScmAccountsInUsers.execute();

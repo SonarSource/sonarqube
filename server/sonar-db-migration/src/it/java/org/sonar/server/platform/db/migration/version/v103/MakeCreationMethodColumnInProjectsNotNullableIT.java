@@ -20,28 +20,28 @@
 package org.sonar.server.platform.db.migration.version.v103;
 
 import java.sql.SQLException;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.db.MigrationDbTester;
 
 import static java.sql.Types.VARCHAR;
 import static org.sonar.server.platform.db.migration.version.v103.AddCreationMethodColumnInProjectsTable.PROJECTS_CREATION_METHOD_COLUMN_NAME;
 import static org.sonar.server.platform.db.migration.version.v103.AddCreationMethodColumnInProjectsTable.PROJECTS_TABLE_NAME;
 
-public class MakeCreationMethodColumnInProjectsNotNullableIT {
-  @Rule
+class MakeCreationMethodColumnInProjectsNotNullableIT {
+  @RegisterExtension
   public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(MakeCreationMethodColumnInProjectsNotNullable.class);
   private final MakeCreationMethodColumnInProjectsNotNullable underTest = new MakeCreationMethodColumnInProjectsNotNullable(db.database());
 
   @Test
-  public void user_local_column_is_not_null() throws SQLException {
+  void user_local_column_is_not_null() throws SQLException {
     db.assertColumnDefinition(PROJECTS_TABLE_NAME, PROJECTS_CREATION_METHOD_COLUMN_NAME, VARCHAR, null, true);
     underTest.execute();
     db.assertColumnDefinition(PROJECTS_TABLE_NAME, PROJECTS_CREATION_METHOD_COLUMN_NAME, VARCHAR, null, false);
   }
 
   @Test
-  public void migration_is_reentrant() throws SQLException {
+  void migration_is_reentrant() throws SQLException {
     db.assertColumnDefinition(PROJECTS_TABLE_NAME, PROJECTS_CREATION_METHOD_COLUMN_NAME, VARCHAR, null, true);
     underTest.execute();
     underTest.execute();
