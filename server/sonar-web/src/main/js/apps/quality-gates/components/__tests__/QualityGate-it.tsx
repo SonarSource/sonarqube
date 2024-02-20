@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { act, screen, waitFor, within } from '@testing-library/react';
+import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import selectEvent from 'react-select-event';
 import { QualityGatesServiceMock } from '../../../../api/mocks/QualityGatesServiceMock';
@@ -79,9 +79,7 @@ it('should render the built-in quality gate properly', async () => {
 
   const builtInQualityGate = await screen.findByText('Sonar way');
 
-  await act(async () => {
-    await user.click(builtInQualityGate);
-  });
+  await user.click(builtInQualityGate);
 
   expect(await screen.findByText(/quality_gates.is_built_in.cayc.description/)).toBeInTheDocument();
   expect(await screen.findByText(/quality_gates.is_built_in.description/)).toBeInTheDocument();
@@ -95,11 +93,9 @@ it('should be able to create a quality gate then delete it', async () => {
 
   // Using keyboard
   await user.click(createButton);
-  await act(async () => {
-    await user.click(screen.getByRole('textbox', { name: /name.*/ }));
-    await user.keyboard('testone');
-    await user.click(screen.getByRole('button', { name: 'quality_gate.create' }));
-  });
+  await user.click(screen.getByRole('textbox', { name: /name.*/ }));
+  await user.keyboard('testone');
+  await user.click(screen.getByRole('button', { name: 'quality_gate.create' }));
   expect(await screen.findByRole('button', { name: 'testone' })).toBeInTheDocument();
 
   // Using modal button
@@ -109,11 +105,9 @@ it('should be able to create a quality gate then delete it', async () => {
 
   expect(saveButton).toBeDisabled();
   const nameInput = screen.getByRole('textbox', { name: /name.*/ });
-  await act(async () => {
-    await user.click(nameInput);
-    await user.keyboard('testtwo');
-    await user.click(saveButton);
-  });
+  await user.click(nameInput);
+  await user.keyboard('testtwo');
+  await user.click(saveButton);
 
   const newQG = await screen.findByRole('button', { name: 'testtwo' });
 
@@ -147,10 +141,8 @@ it('should be able to copy a quality gate which is CaYC compliant', async () => 
   await user.click(copyButton);
   const nameInput = screen.getByRole('textbox', { name: /name.*/ });
   expect(nameInput).toBeInTheDocument();
-  await act(async () => {
-    await user.click(nameInput);
-    await user.keyboard(' bis{Enter}');
-  });
+  await user.click(nameInput);
+  await user.keyboard(' bis{Enter}');
   expect(await screen.findByRole('button', { name: /.* bis/ })).toBeInTheDocument();
 });
 
@@ -498,9 +490,7 @@ it('should display CaYC condition simplification tour for users who didnt dismis
 
   const qualityGate = await screen.findByText('Sonar way');
 
-  await act(async () => {
-    await user.click(qualityGate);
-  });
+  await user.click(qualityGate);
 
   expect(await byRole('alertdialog').find()).toBeInTheDocument();
 
@@ -510,9 +500,7 @@ it('should display CaYC condition simplification tour for users who didnt dismis
       .get(),
   ).toBeInTheDocument();
 
-  await act(async () => {
-    await user.click(byRole('alertdialog').byRole('button', { name: 'next' }).get());
-  });
+  await user.click(byRole('alertdialog').byRole('button', { name: 'next' }).get());
 
   expect(
     byRole('alertdialog')
@@ -520,9 +508,7 @@ it('should display CaYC condition simplification tour for users who didnt dismis
       .get(),
   ).toBeInTheDocument();
 
-  await act(async () => {
-    await user.click(byRole('alertdialog').byRole('button', { name: 'next' }).get());
-  });
+  await user.click(byRole('alertdialog').byRole('button', { name: 'next' }).get());
 
   expect(
     byRole('alertdialog')
@@ -530,9 +516,7 @@ it('should display CaYC condition simplification tour for users who didnt dismis
       .get(),
   ).toBeInTheDocument();
 
-  await act(async () => {
-    await user.click(byRole('alertdialog').byRole('button', { name: 'dismiss' }).get());
-  });
+  await user.click(byRole('alertdialog').byRole('button', { name: 'dismiss' }).get());
 
   expect(byRole('alertdialog').query()).not.toBeInTheDocument();
   expect(dismissNotice).toHaveBeenLastCalledWith(NoticeType.QG_CAYC_CONDITIONS_SIMPLIFICATION);
@@ -549,9 +533,7 @@ it('should not display CaYC condition simplification tour for users who dismisse
 
   const qualityGate = await screen.findByText('Sonar way');
 
-  await act(async () => {
-    await user.click(qualityGate);
-  });
+  await user.click(qualityGate);
 
   expect(byRole('alertdialog').query()).not.toBeInTheDocument();
 });

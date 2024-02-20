@@ -67,6 +67,7 @@ const ui = {
     name: 'onboarding.create_project.new_code_definition.create_x_projects2',
   }),
   globalSettingRadio: byRole('radio', { name: 'new_code_definition.global_setting' }),
+  createErrorMessage: byText('onboarding.create_project.github.warning.message'),
 };
 
 beforeAll(() => {
@@ -109,7 +110,9 @@ it('should not redirect to github when url is malformated', async () => {
   expect(screen.getByText('alm.configuration.selector.placeholder')).toBeInTheDocument();
   expect(ui.instanceSelector.get()).toBeInTheDocument();
 
-  await selectEvent.select(ui.instanceSelector.get(), [/conf-github-3/]);
+  await waitFor(() => selectEvent.select(ui.instanceSelector.get(), [/conf-github-3/]));
+
+  expect(await ui.createErrorMessage.find()).toBeInTheDocument();
 
   expect(window.location.replace).not.toHaveBeenCalled();
 });
@@ -121,7 +124,7 @@ it('should show import project feature when the authentication is successfull', 
 
   expect(await ui.instanceSelector.find()).toBeInTheDocument();
 
-  await selectEvent.select(ui.organizationSelector.get(), [/org-1/]);
+  await waitFor(() => selectEvent.select(ui.organizationSelector.get(), [/org-1/]));
 
   expect(await ui.project1.find()).toBeInTheDocument();
   expect(ui.project2.get()).toBeInTheDocument();
@@ -173,7 +176,7 @@ it('should import several projects', async () => {
 
   expect(await ui.instanceSelector.find()).toBeInTheDocument();
 
-  await selectEvent.select(ui.organizationSelector.get(), [/org-1/]);
+  await waitFor(() => selectEvent.select(ui.organizationSelector.get(), [/org-1/]));
 
   expect(await ui.project1.find()).toBeInTheDocument();
   expect(ui.project1Checkbox.get()).not.toBeChecked();
@@ -238,7 +241,7 @@ it('should show search filter when the authentication is successful', async () =
 
   expect(await ui.instanceSelector.find()).toBeInTheDocument();
 
-  await selectEvent.select(ui.organizationSelector.get(), [/org-1/]);
+  await waitFor(() => selectEvent.select(ui.organizationSelector.get(), [/org-1/]));
 
   const inputSearch = screen.getByRole('searchbox');
   await user.click(inputSearch);
@@ -261,7 +264,7 @@ it('should have load more', async () => {
 
   expect(await ui.instanceSelector.find()).toBeInTheDocument();
 
-  await selectEvent.select(ui.organizationSelector.get(), [/org-1/]);
+  await waitFor(() => selectEvent.select(ui.organizationSelector.get(), [/org-1/]));
 
   const loadMore = await screen.findByRole('button', { name: 'show_more' });
   expect(loadMore).toBeInTheDocument();
@@ -289,7 +292,7 @@ it('should show no result message when there are no projects', async () => {
 
   expect(await ui.instanceSelector.find()).toBeInTheDocument();
 
-  await selectEvent.select(ui.organizationSelector.get(), [/org-1/]);
+  await waitFor(() => selectEvent.select(ui.organizationSelector.get(), [/org-1/]));
 
   expect(screen.getByText('no_results')).toBeInTheDocument();
 });

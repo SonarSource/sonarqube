@@ -140,7 +140,7 @@ export class QualityGatesServiceMock {
             isCaycCondition: true,
           },
           { id: 'AXJMbIUHPAOIsUIE3eNs', metric: 'new_security_rating', op: 'GT', error: '1' },
-          { id: 'AXJMbIUHPAOIsUIE3eNs', metric: 'new_security_rating', op: 'GT', error: '0' },
+          { id: 'AXJMbIUHPAOIsUIE3eNy', metric: 'new_security_rating', op: 'GT', error: '0' },
           { id: 'deprecated', metric: 'function_complexity', op: 'LT', error: '1' },
         ],
         isDefault: false,
