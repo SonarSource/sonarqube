@@ -1,0 +1,206 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > Shutdowner</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">org.sonar.application</a>
+</div>
+
+<h1>Coverage Summary for Class: Shutdowner (org.sonar.application)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">Shutdowner</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    62.5%
+  </span>
+  <span class="absValue">
+    (5/8)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    54.5%
+  </span>
+  <span class="absValue">
+    (18/33)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;/*
+&nbsp; * SonarQube
+&nbsp; * Copyright (C) 2009-2024 SonarSource SA
+&nbsp; * mailto:info AT sonarsource DOT com
+&nbsp; *
+&nbsp; * This program is free software; you can redistribute it and/or
+&nbsp; * modify it under the terms of the GNU Lesser General Public
+&nbsp; * License as published by the Free Software Foundation; either
+&nbsp; * version 3 of the License, or (at your option) any later version.
+&nbsp; *
+&nbsp; * This program is distributed in the hope that it will be useful,
+&nbsp; * but WITHOUT ANY WARRANTY; without even the implied warranty of
+&nbsp; * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+&nbsp; * Lesser General Public License for more details.
+&nbsp; *
+&nbsp; * You should have received a copy of the GNU Lesser General Public License
+&nbsp; * along with this program; if not, write to the Free Software Foundation,
+&nbsp; * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+&nbsp; */
+&nbsp;package org.sonar.application;
+&nbsp;
+&nbsp;import java.io.File;
+&nbsp;import java.io.FileInputStream;
+&nbsp;import java.io.IOException;
+&nbsp;import java.io.InputStreamReader;
+&nbsp;import java.io.RandomAccessFile;
+&nbsp;import java.io.Reader;
+&nbsp;import java.net.URISyntaxException;
+&nbsp;import java.nio.MappedByteBuffer;
+&nbsp;import java.nio.channels.FileChannel;
+&nbsp;import java.util.Optional;
+&nbsp;import java.util.Properties;
+&nbsp;
+&nbsp;import static java.nio.charset.StandardCharsets.UTF_8;
+&nbsp;
+<b class="nc">&nbsp;public class Shutdowner {</b>
+&nbsp;  public static void main(String[] args) {
+&nbsp;    try {
+<b class="nc">&nbsp;      new Shutdowner().run();</b>
+<b class="nc">&nbsp;    } catch (Exception e) {</b>
+<b class="nc">&nbsp;      System.err.println(e.getMessage());</b>
+<b class="nc">&nbsp;      System.exit(1);</b>
+<b class="nc">&nbsp;    }</b>
+<b class="nc">&nbsp;  }</b>
+&nbsp;
+&nbsp;  void run() throws IOException {
+<b class="nc">&nbsp;    File homeDir = detectHomeDir();</b>
+<b class="nc">&nbsp;    Properties p = loadPropertiesFile(homeDir);</b>
+<b class="nc">&nbsp;    File tmpDir = resolveTempDir(p);</b>
+&nbsp;
+<b class="nc">&nbsp;    askForHardStop(tmpDir);</b>
+<b class="nc">&nbsp;  }</b>
+&nbsp;
+&nbsp;  // assuming jar file is in directory SQ_HOME/lib/
+&nbsp;
+&nbsp;  static File detectHomeDir() {
+&nbsp;    try {
+<b class="fc">&nbsp;      File appJar = new File(Shutdowner.class.getProtectionDomain().getCodeSource().getLocation().toURI());</b>
+<b class="fc">&nbsp;      return appJar.getParentFile().getParentFile();</b>
+<b class="nc">&nbsp;    } catch (URISyntaxException e) {</b>
+<b class="nc">&nbsp;      throw new IllegalStateException(&quot;Cannot detect path of shutdowner jar file&quot;, e);</b>
+&nbsp;    }
+&nbsp;  }
+&nbsp;
+&nbsp;  /**
+&nbsp;   * Loads the configuration file ${homeDir}/conf/sonar.properties.
+&nbsp;   * An empty {@link Properties} is returned if the file does not exist.
+&nbsp;   */
+&nbsp;  static Properties loadPropertiesFile(File homeDir) {
+<b class="fc">&nbsp;    Properties p = new Properties();</b>
+<b class="fc">&nbsp;    File propsFile = new File(new File(homeDir, &quot;conf&quot;), &quot;sonar.properties&quot;);</b>
+<b class="fc">&nbsp;    if (propsFile.exists()) {</b>
+<b class="fc">&nbsp;      try (Reader reader = new InputStreamReader(new FileInputStream(propsFile), UTF_8)) {</b>
+<b class="fc">&nbsp;        p.load(reader);</b>
+<b class="fc">&nbsp;        return p;</b>
+<b class="fc">&nbsp;      } catch (IOException e) {</b>
+<b class="nc">&nbsp;        throw new IllegalStateException(&quot;Cannot open file &quot; + propsFile, e);</b>
+&nbsp;      }
+&nbsp;    } else {
+<b class="fc">&nbsp;      throw new IllegalStateException(&quot;Configuration file not found: &quot; + propsFile);</b>
+&nbsp;    }
+&nbsp;  }
+&nbsp;
+&nbsp;  static File resolveTempDir(Properties p) {
+<b class="fc">&nbsp;    return new File(Optional.ofNullable(p.getProperty(&quot;sonar.path.temp&quot;)).orElse(&quot;temp&quot;));</b>
+&nbsp;  }
+&nbsp;
+&nbsp;  static void askForHardStop(File tmpDir) throws IOException {
+<b class="fc">&nbsp;    writeToShareMemory(tmpDir, 1, (byte) 0xFF);</b>
+<b class="fc">&nbsp;  }</b>
+&nbsp;
+&nbsp;  private static void writeToShareMemory(File tmpDir, int offset, byte value) throws IOException {
+<b class="fc">&nbsp;    try (RandomAccessFile sharedMemory = new RandomAccessFile(new File(tmpDir, &quot;sharedmemory&quot;), &quot;rw&quot;)) {</b>
+&nbsp;      // Using values from org.sonar.process.ProcessCommands
+<b class="fc">&nbsp;      MappedByteBuffer mappedByteBuffer = sharedMemory.getChannel().map(FileChannel.MapMode.READ_WRITE, 0, 50L * 10);</b>
+&nbsp;
+&nbsp;      // Now we are stopping all processes as quick as possible
+&nbsp;      // by asking for stop of &quot;app&quot; process
+<b class="fc">&nbsp;      mappedByteBuffer.put(offset, value);</b>
+<b class="fc">&nbsp;    }</b>
+<b class="fc">&nbsp;  }</b>
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2024-02-20 11:34</div>
+</div>
+</body>
+</html>

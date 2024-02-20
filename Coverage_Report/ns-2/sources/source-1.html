@@ -1,0 +1,156 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > BlackBoxTest</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">org.sonar.build</a>
+</div>
+
+<h1>Coverage Summary for Class: BlackBoxTest (org.sonar.build)</h1>
+
+<table class="coverageStats">
+
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">BlackBoxTest</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/11)
+  </span>
+</td>
+</tr>
+  <tr>
+    <td class="name">BlackBoxTest$_closure1</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/3)
+  </span>
+</td>
+  </tr>
+<tr>
+  <td class="name"><strong>Total</strong></td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/2)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/14)
+  </span>
+</td>
+</tr>
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package org.sonar.build
+&nbsp;
+&nbsp;import org.gradle.api.tasks.testing.Test
+&nbsp;
+&nbsp;class BlackBoxTest extends Test {
+&nbsp;  BlackBoxTest() {
+<b class="nc">&nbsp;    def branch = System.getenv(&#39;GITHUB_BRANCH&#39;)</b>
+<b class="nc">&nbsp;    if (branch != null &amp;&amp; Set.of(&quot;branch-nightly-build&quot;, &quot;master&quot;).contains(branch)) {</b>
+<b class="nc">&nbsp;      jvmArgs(&quot;-javaagent:&quot; + System.getenv(&#39;ASPECTJ_WEAVER_PATH&#39;))</b>
+<b class="nc">&nbsp;    }</b>
+&nbsp;
+<b class="nc">&nbsp;    systemProperty &#39;java.awt.headless&#39;, &#39;true&#39;</b>
+<b class="nc">&nbsp;    systemProperty &#39;orchestrator.configUrl&#39;, System.getProperty(&#39;orchestrator.configUrl&#39;)</b>
+<b class="nc">&nbsp;    systemProperty &#39;webdriver.chrome.driver&#39;, System.getProperty(&#39;webdriver.chrome.driver&#39;)</b>
+&nbsp;
+<b class="nc">&nbsp;    if (!project.version.endsWith(&quot;-SNAPSHOT&quot;)) {</b>
+<b class="nc">&nbsp;      systemProperty &#39;sonar.runtimeVersion&#39;, project.version</b>
+<b class="nc">&nbsp;    }</b>
+&nbsp;
+<b class="nc">&nbsp;    testLogging {</b>
+<b class="nc">&nbsp;      events &quot;skipped&quot;, &quot;failed&quot;</b>
+<b class="nc">&nbsp;      showStandardStreams = true</b>
+<b class="nc">&nbsp;      exceptionFormat &#39;full&#39;</b>
+&nbsp;    }
+&nbsp;  }
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2024-02-20 11:34</div>
+</div>
+</body>
+</html>

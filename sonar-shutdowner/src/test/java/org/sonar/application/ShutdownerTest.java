@@ -34,6 +34,7 @@ import org.junit.rules.TemporaryFolder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.Assert.*;
 
 public class ShutdownerTest {
   @Rule
@@ -101,6 +102,36 @@ public class ShutdownerTest {
 
     assertThat(file).isEqualTo(tempDirLocation);
   }
+
+  @Test
+  public void testDetectHomeDir() {
+    File homeDir = Shutdowner.detectHomeDir();
+    assertNotNull(homeDir);
+    assertTrue(homeDir.isDirectory());
+  }
+
+  @Test
+  public void testResolveTempDirWithProvidedPath() {
+    Properties properties = new Properties();
+    properties.setProperty("sonar.path.temp", "/path/to/temp");
+    File tempDir = Shutdowner.resolveTempDir(properties);
+    assertNotNull(tempDir);
+    assertEquals("/path/to/temp", tempDir.getPath());
+  }
+
+  @Test
+  public void testLoadPropertiesFileWithNonExistingFile() {
+    assertThrows(IllegalStateException.class, () -> Shutdowner.loadPropertiesFile(new File("non_existing_dir")));
+  }
+
+  @Test
+  public void testLoadPropertiesFileWithInvalidFile() {
+    assertThrows(IllegalStateException.class, () -> {
+      Shutdowner.loadPropertiesFile(new File("non_existing_dir"));
+    });
+  }
+
+
 
   @Test
   public void askForHardStop_write_right_bit_with_right_value_in_right_file() throws Exception {

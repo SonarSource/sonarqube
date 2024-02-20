@@ -1,0 +1,159 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > TestCaseAspect</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">org.sonarqube.ut.aspects</a>
+</div>
+
+<h1>Coverage Summary for Class: TestCaseAspect (org.sonarqube.ut.aspects)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">TestCaseAspect</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/6)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/11)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;/*
+&nbsp; * SonarQube
+&nbsp; * Copyright (C) 2009-2024 SonarSource SA
+&nbsp; * mailto:info AT sonarsource DOT com
+&nbsp; *
+&nbsp; * This program is free software; you can redistribute it and/or
+&nbsp; * modify it under the terms of the GNU Lesser General Public
+&nbsp; * License as published by the Free Software Foundation; either
+&nbsp; * version 3 of the License, or (at your option) any later version.
+&nbsp; *
+&nbsp; * This program is distributed in the hope that it will be useful,
+&nbsp; * but WITHOUT ANY WARRANTY; without even the implied warranty of
+&nbsp; * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+&nbsp; * Lesser General Public License for more details.
+&nbsp; *
+&nbsp; * You should have received a copy of the GNU Lesser General Public License
+&nbsp; * along with this program; if not, write to the Free Software Foundation,
+&nbsp; * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+&nbsp; */
+&nbsp;package org.sonarqube.ut.aspects;
+&nbsp;
+&nbsp;import org.aspectj.lang.JoinPoint;
+&nbsp;import org.aspectj.lang.ProceedingJoinPoint;
+&nbsp;import org.aspectj.lang.annotation.Around;
+&nbsp;import org.aspectj.lang.annotation.Aspect;
+&nbsp;import org.aspectj.lang.annotation.Before;
+&nbsp;import org.aspectj.lang.annotation.Pointcut;
+&nbsp;
+&nbsp;@Aspect(&quot;percflow(execution(@org.junit.Test * *(..)))&quot;)
+<b class="nc">&nbsp;public class TestCaseAspect {</b>
+<b class="nc">&nbsp;  private String testClass = &quot;&quot;;</b>
+<b class="nc">&nbsp;  private String testMethod = &quot;&quot;;</b>
+&nbsp;
+&nbsp;  @Pointcut(&quot;execution(@org.junit.Test * *(..))&quot;)
+&nbsp;  void anyTest() {
+<b class="nc">&nbsp;  }</b>
+&nbsp;
+&nbsp;  @Around(&quot;anyTest()&quot;)
+&nbsp;  public Object measureTestCase(ProceedingJoinPoint jp) throws Throwable {
+<b class="nc">&nbsp;    return measure(jp);</b>
+&nbsp;  }
+&nbsp;
+&nbsp;  @Before(&quot;anyTest()&quot;)
+&nbsp;  public void beforeCall(JoinPoint jp) {
+<b class="nc">&nbsp;    testClass = jp.getTarget().getClass().getName();</b>
+<b class="nc">&nbsp;    testMethod = jp.getSignature().getName();</b>
+&nbsp;  }
+&nbsp;
+&nbsp;  private Object measure(ProceedingJoinPoint jp) throws Throwable {
+<b class="nc">&nbsp;    return AspectAssistant.measure(jp, measure -&gt; measure</b>
+<b class="nc">&nbsp;      .setTestClass(testClass)</b>
+<b class="nc">&nbsp;      .setTestMethod(testMethod)</b>
+<b class="nc">&nbsp;      .setKind(MeasureKind.TESTCASE));</b>
+&nbsp;  }
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2024-02-20 11:34</div>
+</div>
+</body>
+</html>
