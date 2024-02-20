@@ -22,7 +22,6 @@ import { ButtonPrimary } from 'design-system/lib';
 import * as React from 'react';
 import { now } from '../../../helpers/dates';
 import { translate } from '../../../helpers/l10n';
-import { getBaseUrl } from '../../../helpers/system';
 import '../style.css';
 import { RangeOption } from '../utils';
 
@@ -73,7 +72,7 @@ export default function DownloadButton(props: Readonly<DownloadButtonProps>) {
 
   const downloadUrl = downloadDisabled
     ? '#'
-    : `${getBaseUrl()}/api/audit_logs/download?${getRangeParams(selection, dateRange)}`;
+    : `/api/audit_logs/download?${getRangeParams(selection, dateRange)}`;
 
   return (
     <>
