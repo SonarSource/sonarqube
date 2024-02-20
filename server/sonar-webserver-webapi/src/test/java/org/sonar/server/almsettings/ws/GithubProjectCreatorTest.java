@@ -23,14 +23,14 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Answers;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.sonar.alm.client.github.GithubPermissionConverter;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.web.UserRole;
@@ -72,14 +72,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.project.CreationMethod.ALM_IMPORT_API;
 import static org.sonar.db.project.CreationMethod.SCANNER_API_DEVOPS_AUTO_CONFIG;
 
-@RunWith(MockitoJUnitRunner.class)
-public class GithubProjectCreatorTest {
+@ExtendWith(MockitoExtension.class)
+class GithubProjectCreatorTest {
 
   private static final String ORGANIZATION_NAME = "orga2";
   private static final String REPOSITORY_NAME = "repo1";
@@ -89,7 +90,6 @@ public class GithubProjectCreatorTest {
   private static final String ALM_SETTING_KEY = "github_config_1";
   private static final String USER_LOGIN = "userLogin";
   private static final String USER_UUID = "userUuid";
-  private static final String BRANCH_UUID = "branchUuid1";
 
   @Mock(answer = Answers.RETURNS_DEEP_STUBS)
   private DbClient dbClient;
@@ -118,8 +118,7 @@ public class GithubProjectCreatorTest {
   private ManagedProjectService managedProjectService;
   @Mock(answer = Answers.RETURNS_DEEP_STUBS)
   private ProjectDefaultVisibility projectDefaultVisibility;
-  private GitHubSettings gitHubSettings = mock();
-  private ProjectCreator projectCreator;
+  private final GitHubSettings gitHubSettings = mock();
 
   private GithubProjectCreator githubProjectCreator;
 
@@ -128,13 +127,13 @@ public class GithubProjectCreatorTest {
   @Captor
   ArgumentCaptor<ProjectAlmSettingDto> projectAlmSettingDtoCaptor;
 
-  @Before
-  public void setup() {
-    when(userSession.getLogin()).thenReturn(USER_LOGIN);
-    when(userSession.getUuid()).thenReturn(USER_UUID);
+  @BeforeEach
+  void setup() {
+    lenient().when(userSession.getLogin()).thenReturn(USER_LOGIN);
+    lenient().when(userSession.getUuid()).thenReturn(USER_UUID);
 
-    when(almSettingDto.getUrl()).thenReturn(DEVOPS_PROJECT_DESCRIPTOR.url());
-    when(almSettingDto.getKey()).thenReturn(ALM_SETTING_KEY);
+    lenient().when(almSettingDto.getUrl()).thenReturn(DEVOPS_PROJECT_DESCRIPTOR.url());
+    lenient().when(almSettingDto.getKey()).thenReturn(ALM_SETTING_KEY);
 
     when(githubProjectCreationParameters.devOpsProjectDescriptor()).thenReturn(DEVOPS_PROJECT_DESCRIPTOR);
     when(githubProjectCreationParameters.userSession()).thenReturn(userSession);
@@ -142,14 +141,14 @@ public class GithubProjectCreatorTest {
     when(githubProjectCreationParameters.authAppInstallationToken()).thenReturn(authAppInstallationToken);
     when(githubProjectCreationParameters.almSettingDto()).thenReturn(almSettingDto);
 
-    projectCreator = new ProjectCreator(userSession, projectDefaultVisibility, componentUpdater);
+    ProjectCreator projectCreator = new ProjectCreator(userSession, projectDefaultVisibility, componentUpdater);
     githubProjectCreator = new GithubProjectCreator(dbClient, githubApplicationClient, githubPermissionConverter, projectKeyGenerator,
       permissionUpdater, permissionService, managedProjectService, projectCreator, githubProjectCreationParameters,gitHubSettings);
 
   }
 
   @Test
-  public void isScanAllowedUsingPermissionsFromDevopsPlatform_whenNoAuthToken_throws() {
+  void isScanAllowedUsingPermissionsFromDevopsPlatform_whenNoAuthToken_throws() {
     when(githubProjectCreationParameters.authAppInstallationToken()).thenReturn(null);
 
     assertThatIllegalStateException().isThrownBy(() -> githubProjectCreator.isScanAllowedUsingPermissionsFromDevopsPlatform())
@@ -157,12 +156,12 @@ public class GithubProjectCreatorTest {
   }
 
   @Test
-  public void isScanAllowedUsingPermissionsFromDevopsPlatform_whenUserIsNotAGitHubUser_returnsFalse() {
+  void isScanAllowedUsingPermissionsFromDevopsPlatform_whenUserIsNotAGitHubUser_returnsFalse() {
     assertThat(githubProjectCreator.isScanAllowedUsingPermissionsFromDevopsPlatform()).isFalse();
   }
 
   @Test
-  public void isScanAllowedUsingPermissionsFromDevopsPlatform_whenCollaboratorHasDirectAccessButNoScanPermissions_returnsFalse() {
+  void isScanAllowedUsingPermissionsFromDevopsPlatform_whenCollaboratorHasDirectAccessButNoScanPermissions_returnsFalse() {
     GsonRepositoryCollaborator collaborator1 = mockCollaborator("collaborator1", 1, "role1", "read", "admin");
     mockGithubCollaboratorsFromApi(collaborator1);
     bindSessionToCollaborator(collaborator1);
@@ -171,7 +170,7 @@ public class GithubProjectCreatorTest {
   }
 
   @Test
-  public void isScanAllowedUsingPermissionsFromDevopsPlatform_whenCollaboratorHasDirectAccess_returnsTrue() {
+  void isScanAllowedUsingPermissionsFromDevopsPlatform_whenCollaboratorHasDirectAccess_returnsTrue() {
     GsonRepositoryCollaborator collaborator1 = mockCollaborator("collaborator1", 1, "role1", "read", "admin");
     GsonRepositoryCollaborator collaborator2 = mockCollaborator("collaborator2", 2, "role2", "read", "scan");
     mockGithubCollaboratorsFromApi(collaborator1, collaborator2);
@@ -181,7 +180,7 @@ public class GithubProjectCreatorTest {
   }
 
   @Test
-  public void isScanAllowedUsingPermissionsFromDevopsPlatform_whenAccessViaTeamButNoScanPermissions_returnsFalse() {
+  void isScanAllowedUsingPermissionsFromDevopsPlatform_whenAccessViaTeamButNoScanPermissions_returnsFalse() {
     GsonRepositoryTeam team2 = mockGithubTeam("team2", 2, "role2", "another_perm", UserRole.ADMIN);
     mockTeamsFromApi(team2);
     bindGroupsToUser(team2.name());
@@ -190,7 +189,7 @@ public class GithubProjectCreatorTest {
   }
 
   @Test
-  public void isScanAllowedUsingPermissionsFromDevopsPlatform_whenAccessViaTeam_returnsTrue() {
+  void isScanAllowedUsingPermissionsFromDevopsPlatform_whenAccessViaTeam_returnsTrue() {
     GsonRepositoryTeam team1 = mockGithubTeam("team1", 1, "role1", "read", "another_perm");
     GsonRepositoryTeam team2 = mockGithubTeam("team2", 2, "role2", "another_perm", UserRole.SCAN);
     mockTeamsFromApi(team1, team2);
@@ -200,7 +199,7 @@ public class GithubProjectCreatorTest {
   }
 
   @Test
-  public void isScanAllowedUsingPermissionsFromDevopsPlatform_whenAccessViaTeamButUserNotInTeam_returnsFalse() {
+  void isScanAllowedUsingPermissionsFromDevopsPlatform_whenAccessViaTeamButUserNotInTeam_returnsFalse() {
     GsonRepositoryTeam team1 = mockGithubTeam("team1", 1, "role1", "read", "another_perm");
     GsonRepositoryTeam team2 = mockGithubTeam("team2", 2, "role2", "another_perm", UserRole.SCAN);
     mockTeamsFromApi(team1, team2);
@@ -240,13 +239,13 @@ public class GithubProjectCreatorTest {
 
   private void mockPermissionsConversion(GsonRepositoryCollaborator collaborator, String... sqPermissions) {
     Set<GithubPermissionsMappingDto> githubPermissionsMappingDtos = mockPermissionsMappingsDtos();
-    when(githubPermissionConverter.toSonarqubeRolesWithFallbackOnRepositoryPermissions(githubPermissionsMappingDtos, collaborator.roleName(), collaborator.permissions()))
+    lenient().when(githubPermissionConverter.toSonarqubeRolesWithFallbackOnRepositoryPermissions(githubPermissionsMappingDtos, collaborator.roleName(), collaborator.permissions()))
       .thenReturn(Arrays.stream(sqPermissions).collect(toSet()));
   }
 
   private void mockPermissionsConversion(GsonRepositoryTeam team, String... sqPermissions) {
     Set<GithubPermissionsMappingDto> githubPermissionsMappingDtos = mockPermissionsMappingsDtos();
-    when(githubPermissionConverter.toSonarqubeRolesWithFallbackOnRepositoryPermissions(githubPermissionsMappingDtos, team.permission(), team.permissions()))
+    lenient().when(githubPermissionConverter.toSonarqubeRolesWithFallbackOnRepositoryPermissions(githubPermissionsMappingDtos, team.permission(), team.permissions()))
       .thenReturn(Arrays.stream(sqPermissions).collect(toSet()));
   }
 
@@ -264,14 +263,14 @@ public class GithubProjectCreatorTest {
   }
 
   @Test
-  public void createProjectAndBindToDevOpsPlatform_whenRepoNotFound_throws() {
+  void createProjectAndBindToDevOpsPlatform_whenRepoNotFound_throws() {
     assertThatIllegalStateException().isThrownBy(
       () -> githubProjectCreator.createProjectAndBindToDevOpsPlatform(mock(), SCANNER_API_DEVOPS_AUTO_CONFIG, null))
       .withMessage("Impossible to find the repository 'orga2/repo1' on GitHub, using the devops config " + ALM_SETTING_KEY);
   }
 
   @Test
-  public void createProjectAndBindToDevOpsPlatformFromScanner_whenRepoFoundOnGitHub_successfullyCreatesProject() {
+  void createProjectAndBindToDevOpsPlatformFromScanner_whenRepoFoundOnGitHub_successfullyCreatesProject() {
     // given
     mockGitHubRepository();
 
@@ -298,7 +297,7 @@ public class GithubProjectCreatorTest {
   }
 
   @Test
-  public void createProjectAndBindToDevOpsPlatformFromScanner_whenRepoFoundOnGitHubAndVisibilitySynchronizationEnabled_successfullyCreatesProjectAndSetsVisibility() {
+  void createProjectAndBindToDevOpsPlatformFromScanner_whenRepoFoundOnGitHubAndVisibilitySynchronizationEnabled_successfullyCreatesProjectAndSetsVisibility() {
     // given
     mockPublicGithubRepository();
 
@@ -320,7 +319,7 @@ public class GithubProjectCreatorTest {
   }
 
   @Test
-  public void createProjectAndBindToDevOpsPlatformFromScanner_whenRepoFoundOnGitHubAndVisibilitySynchronizationDisabled_successfullyCreatesProjectAndMakesProjectPrivate() {
+  void createProjectAndBindToDevOpsPlatformFromScanner_whenRepoFoundOnGitHubAndVisibilitySynchronizationDisabled_successfullyCreatesProjectAndMakesProjectPrivate() {
     // given
     mockGitHubRepository();
 
@@ -342,7 +341,7 @@ public class GithubProjectCreatorTest {
   }
 
   @Test
-  public void createProjectAndBindToDevOpsPlatformFromApi_whenRepoFoundOnGitHub_successfullyCreatesProject() {
+  void createProjectAndBindToDevOpsPlatformFromApi_whenRepoFoundOnGitHub_successfullyCreatesProject() {
     // given
     String projectKey = "customProjectKey";
     mockGitHubRepository();
@@ -372,10 +371,8 @@ public class GithubProjectCreatorTest {
   private ArgumentCaptor<Collection<UserPermissionChange>> permissionChangesCaptor;
 
   @Test
-  public void createProjectAndBindToDevOpsPlatformFromApi_whenRepoFoundOnGitHubAutoProvisioningOnAndRepoPrivate_successfullyCreatesProject() {
+  void createProjectAndBindToDevOpsPlatformFromApi_whenRepoFoundOnGitHubAutoProvisioningOnAndRepoPrivate_successfullyCreatesProject() {
     // given
-    when(projectDefaultVisibility.get(any()).isPrivate()).thenReturn(true);
-
     String projectKey = "customProjectKey";
     mockGitHubRepository();
 
@@ -428,7 +425,7 @@ public class GithubProjectCreatorTest {
     when(repository.getDefaultBranch()).thenReturn(MAIN_BRANCH_NAME);
     when(repository.getName()).thenReturn(REPOSITORY_NAME);
     when(repository.getFullName()).thenReturn(DEVOPS_PROJECT_DESCRIPTOR.projectIdentifier());
-    when(repository.isPrivate()).thenReturn(true);
+    lenient().when(repository.isPrivate()).thenReturn(true);
     when(githubApplicationClient.getRepository(DEVOPS_PROJECT_DESCRIPTOR.url(), devOpsAppInstallationToken, DEVOPS_PROJECT_DESCRIPTOR.projectIdentifier())).thenReturn(
       Optional.of(repository));
     when(projectKeyGenerator.generateUniqueProjectKey(repository.getFullName())).thenReturn("generated_" + DEVOPS_PROJECT_DESCRIPTOR.projectIdentifier());
@@ -440,7 +437,6 @@ public class GithubProjectCreatorTest {
     ProjectDto projectDto = mockProjectDto(projectKey);
     when(componentCreationData.projectDto()).thenReturn(projectDto);
     BranchDto branchDto = mock();
-    when(branchDto.getUuid()).thenReturn(BRANCH_UUID);
     when(componentCreationData.mainBranchDto()).thenReturn(branchDto);
     when(componentUpdater.createWithoutCommit(any(), componentCreationParametersCaptor.capture())).thenReturn(componentCreationData);
     return componentCreationData;

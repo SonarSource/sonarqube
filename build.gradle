@@ -415,6 +415,9 @@ subprojects {
       dependency('org.mockito:mockito-core:5.10.0') {
         exclude 'org.hamcrest:hamcrest-core'
       }
+      dependency('org.mockito:mockito-junit-jupiter:5.10.0') {
+        exclude 'org.junit.jupiter:junit-jupiter-api'
+      }
       dependency "org.springframework:spring-test:${springVersion}"
       dependency 'org.mybatis:mybatis:3.5.15'
       dependencySet(group: 'org.slf4j', version: '2.0.11') {

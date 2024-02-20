@@ -38,7 +38,9 @@ dependencies {
   testImplementation 'com.tngtech.java:junit-dataprovider'
   testImplementation 'com.squareup.okhttp3:mockwebserver'
   testImplementation 'javax.servlet:javax.servlet-api'
+  testImplementation 'org.junit.jupiter:junit-jupiter-api'
   testImplementation 'org.mockito:mockito-core'
+  testImplementation 'org.mockito:mockito-junit-jupiter'
   testImplementation 'org.sonarsource.api.plugin:sonar-plugin-api-test-fixtures'
   testImplementation 'org.springframework:spring-test'
   testImplementation testFixtures(project(':server:sonar-server-common'))
@@ -48,4 +50,12 @@ dependencies {
   testImplementation testFixtures(project(':server:sonar-webserver-ws'))
   testImplementation project(':sonar-testing-harness')
   testFixturesApi testFixtures(project(':server:sonar-db-dao'))
+
+  testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+  testRuntimeOnly 'org.junit.vintage:junit-vintage-engine'
+
+  test {
+    // Enabling the JUnit Platform (see https://github.com/junit-team/junit5-samples/tree/master/junit5-migration-gradle)
+    useJUnitPlatform()
+  }
 }
