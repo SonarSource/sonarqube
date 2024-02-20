@@ -22,22 +22,38 @@ package org.sonar.auth;
 import com.github.scribejava.core.builder.ServiceBuilder;
 import com.github.scribejava.core.builder.api.DefaultApi20;
 import com.github.scribejava.core.model.OAuth2AccessToken;
+import com.github.scribejava.core.model.OAuthRequest;
 import com.github.scribejava.core.model.Response;
+import com.github.scribejava.core.model.Verb;
 import com.github.scribejava.core.oauth.OAuth20Service;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
+
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import static java.lang.String.format;
-import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
+//import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.junit.Assert.fail;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.sonar.auth.OAuthRestClient.executePaginatedRequest;
 import static org.sonar.auth.OAuthRestClient.executeRequest;
 
@@ -61,13 +77,64 @@ public class OAuthRestClientTest {
 
   @Test
   public void execute_request() throws IOException {
-    String body = randomAlphanumeric(10);
+   // String body = randomAlphanumeric(10);
+	  String body = org.apache.commons.lang.RandomStringUtils.randomAlphanumeric(10);
     mockWebServer.enqueue(new MockResponse().setBody(body));
 
     Response response = executeRequest(serverUrl + "/test", oAuth20Service, auth2AccessToken);
 
     assertThat(response.getBody()).isEqualTo(body);
   }
+
+  @Test
+  public void execute_request_with_exception() throws IOException {
+      // Arrange
+      String requestUrl = serverUrl + "/test";
+      OAuthRequest oAuthRequest = new OAuthRequest(Verb.GET, requestUrl);
+      Response mockResponse = new Response(500, "Internal Server Error", null, null);
+
+      OAuth20Service spyOAuth20Service = Mockito.spy(oAuth20Service);
+      try {
+          Mockito.doThrow(new InterruptedException("Simulated InterruptedException"))
+                  .when(spyOAuth20Service).execute(any(OAuthRequest.class));
+      } catch (InterruptedException | ExecutionException | IOException e) {
+          e.printStackTrace();
+      }
+
+      mockWebServer.enqueue(new MockResponse().setResponseCode(500).setBody("Internal Server Error"));
+
+      // Act & Assert
+      try {
+          Throwable thrown = catchThrowable(() -> executeRequest(requestUrl, spyOAuth20Service, auth2AccessToken));
+
+          assertThat(thrown)
+                  .isInstanceOf(IllegalStateException.class)
+                  .hasMessageContaining("java.lang.InterruptedException: Simulated InterruptedException");
+      } catch (Exception e) {
+          e.printStackTrace();
+      } finally {
+          // Ensure proper cleanup
+          resetMockWebServer();
+      }
+  }
+
+  private void resetMockWebServer() {
+	    while (true) {
+	        try {
+	            // Attempt to take a request from the MockWebServer
+	            okhttp3.mockwebserver.RecordedRequest recordedRequest = mockWebServer.takeRequest();
+	            if (recordedRequest == null) {
+	                // No more requests, break out of the loop
+	                break;
+	            }
+	        } catch (InterruptedException e) {
+	            // Log the interruption (if needed) and continue the loop
+	            Thread.currentThread().interrupt();
+	        }
+	    }
+	}
+
+
 
   @Test
   public void fail_to_execute_request() throws IOException {
