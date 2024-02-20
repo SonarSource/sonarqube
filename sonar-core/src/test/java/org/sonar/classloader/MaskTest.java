@@ -23,22 +23,22 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class MaskTest {
+class MaskTest {
 
   @Test
-  public void ALL_accepts_everything() throws Exception {
+  void ALL_accepts_everything() throws Exception {
     assertThat(Mask.ALL.acceptClass("org.sonar.Bar")).isTrue();
     assertThat(Mask.ALL.acceptClass("Bar")).isTrue();
   }
 
   @Test
-  public void NONE_accepts_nothing() throws Exception {
+  void NONE_accepts_nothing() throws Exception {
     assertThat(Mask.NONE.acceptClass("org.sonar.Bar")).isFalse();
     assertThat(Mask.NONE.acceptClass("Bar")).isFalse();
   }
 
   @Test
-  public void include_class() throws Exception {
+  void include_class() throws Exception {
     Mask mask = Mask.builder().include("org/sonar/Bar.class").build();
     assertThat(mask.acceptClass("org.sonar.Bar")).isTrue();
     assertThat(mask.acceptClass("org.sonar.qube.Bar")).isFalse();
@@ -47,14 +47,14 @@ public class MaskTest {
   }
 
   @Test
-  public void include_class_of_root_package() throws Exception {
+  void include_class_of_root_package() throws Exception {
     Mask mask = Mask.builder().include("Bar.class").build();
     assertThat(mask.acceptClass("Bar")).isTrue();
     assertThat(mask.acceptClass("Foo")).isFalse();
   }
 
   @Test
-  public void include_resource() throws Exception {
+  void include_resource() throws Exception {
     Mask mask = Mask.builder().include("org/sonar/Bar.class").build();
     assertThat(mask.acceptResource("org/sonar/Bar.class")).isTrue();
     assertThat(mask.acceptResource("org/sonar/qube/Bar.class")).isFalse();
@@ -63,7 +63,7 @@ public class MaskTest {
   }
 
   @Test
-  public void include_package() throws Exception {
+  void include_package() throws Exception {
     Mask mask = Mask.builder().include("org/sonar/", "org/other/").build();
     assertThat(mask.acceptClass("Foo")).isFalse();
     assertThat(mask.acceptClass("org.sonar.Bar")).isTrue();
@@ -73,7 +73,7 @@ public class MaskTest {
   }
 
   @Test
-  public void exclude_class() throws Exception {
+  void exclude_class() throws Exception {
     Mask mask = Mask.builder().exclude("org/sonar/Bar.class").build();
     assertThat(mask.acceptClass("org.sonar.Bar")).isFalse();
     assertThat(mask.acceptClass("org.sonar.qube.Bar")).isTrue();
@@ -82,7 +82,7 @@ public class MaskTest {
   }
 
   @Test
-  public void exclude_package() throws Exception {
+  void exclude_package() throws Exception {
     Mask mask = Mask.builder().exclude("org/sonar/", "org/other/").build();
     assertThat(mask.acceptClass("Foo")).isTrue();
     assertThat(mask.acceptClass("org.sonar.Bar")).isFalse();
@@ -92,7 +92,7 @@ public class MaskTest {
   }
 
   @Test
-  public void exclusion_is_subset_of_inclusion() throws Exception {
+  void exclusion_is_subset_of_inclusion() throws Exception {
     Mask mask = Mask.builder()
       .include("org/sonar/")
       .exclude("org/sonar/qube/")
@@ -103,7 +103,7 @@ public class MaskTest {
   }
 
   @Test
-  public void inclusion_is_subset_of_exclusion() throws Exception {
+  void inclusion_is_subset_of_exclusion() throws Exception {
     Mask mask = Mask.builder()
       .include("org/sonar/qube/")
       .exclude("org/sonar/")
@@ -114,7 +114,7 @@ public class MaskTest {
   }
 
   @Test
-  public void exclude_everything() throws Exception {
+  void exclude_everything() throws Exception {
     Mask mask = Mask.builder().exclude("/").build();
     assertThat(mask.acceptClass("org.sonar.Foo")).isFalse();
     assertThat(mask.acceptClass("Foo")).isFalse();
@@ -123,7 +123,7 @@ public class MaskTest {
   }
 
   @Test
-  public void include_everything() throws Exception {
+  void include_everything() throws Exception {
     Mask mask = Mask.builder().include("/").build();
     assertThat(mask.acceptClass("org.sonar.Foo")).isTrue();
     assertThat(mask.acceptClass("Foo")).isTrue();
@@ -132,7 +132,7 @@ public class MaskTest {
   }
 
   @Test
-  public void merge_with_ALL() throws Exception {
+  void merge_with_ALL() throws Exception {
     Mask mask = Mask.builder()
       .include("org/foo/")
       .exclude("org/bar/")
@@ -144,7 +144,7 @@ public class MaskTest {
   }
 
   @Test
-  public void merge_exclusions() throws Exception {
+  void merge_exclusions() throws Exception {
     Mask with = Mask.builder().exclude("bar/").build();
     Mask mask = Mask.builder().exclude("org/foo/").merge(with).build();
 
@@ -152,7 +152,7 @@ public class MaskTest {
   }
 
   @Test
-  public void should_not_merge_disjoined_inclusions() throws Exception {
+  void should_not_merge_disjoined_inclusions() throws Exception {
     Mask with = Mask.builder().include("org/bar/").build();
     Mask mask = Mask.builder().include("org/foo/").merge(with).build();
 
@@ -161,7 +161,7 @@ public class MaskTest {
   }
 
   @Test
-  public void merge_inclusions() throws Exception {
+  void merge_inclusions() throws Exception {
     Mask with = Mask.builder().include("org/foo/sub/", "org/bar/").build();
     Mask mask = Mask.builder().include("org/foo/", "org/bar/sub/").merge(with).build();
 
