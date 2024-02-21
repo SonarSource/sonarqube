@@ -19,6 +19,7 @@
  */
 package org.sonar.server.issue.index;
 
+import com.google.common.collect.Iterables;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
@@ -27,15 +28,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Predicate;
+import java.util.stream.Stream;
 import org.assertj.core.api.Assertions;
 import org.elasticsearch.search.SearchHit;
 import org.junit.Rule;
 import org.junit.Test;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 import org.slf4j.event.Level;
 import org.sonar.api.issue.impact.Severity;
 import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.testfixtures.log.LogTester;
+import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.BranchDto;
@@ -64,6 +69,7 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.emptySet;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.groups.Tuple.tuple;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
@@ -87,6 +93,51 @@ public class IssueIndexerIT {
   public LogTester logTester = new LogTester();
 
   private final IssueIndexer underTest = new IssueIndexer(es.client(), db.getDbClient(), new IssueIteratorFactory(db.getDbClient()), null);
+
+  @Test
+  public void whenMultipleChunks_allShouldBeClosed() {
+    RuleDto rule = db.rules().insert();
+    ProjectData projectData = db.components().insertPrivateProject();
+    ComponentDto project = projectData.getMainBranchComponent();
+    ComponentDto file = db.components().insertComponent(newFileDto(project)
+      .setPath("src/main/java/Action.java"));
+
+    List<IssueDto> issuesToIndex = Stream.generate(() ->
+        db.issues().insert(rule, project, file,
+          t -> t.setResolution("FIXED")
+            .setStatus("RESOLVED")
+            .setSeverity("BLOCKER")
+            .setManualSeverity(false)
+            .setAssigneeUuid("uuid-of-guy1")
+            .setAuthorLogin("guy2")
+            .setChecksum("FFFFF")
+            .setGap(2D)
+            .setEffort(10L)
+            .setMessage(null)
+            .setLine(444)
+            .setRuleUuid(rule.getUuid())
+            .setTags(List.of("tag1", "tag2", "tag3"))
+            .setCreatedAt(1400000000000L)
+            .setUpdatedAt(1400000000000L)
+            .setIssueCreationDate(new Date(1115848800000L))
+            .setIssueUpdateDate(new Date(1356994800000L))
+            .setIssueCloseDate(null)
+            .setType(2)
+            .setCodeVariants(List.of("variant1", "variant2"))))
+      .limit(200)
+      .toList();
+
+
+    try (MockedStatic<DatabaseUtils> dbUtils = Mockito.mockStatic(DatabaseUtils.class)) {
+      dbUtils.when(() -> DatabaseUtils.toUniqueAndSortedPartitions(Mockito.any())).thenAnswer(invocation -> {
+        Collection<String> input = invocation.getArgument(0);
+        return Iterables.partition(List.copyOf(input), 10);
+      });
+      // should have no exception. if session aren't released properly, a timeout on acquiring a session should be thrown.
+      assertThatCode(() -> underTest.commitAndIndexIssues(db.getSession(), issuesToIndex))
+        .doesNotThrowAnyException();
+    }
+  }
 
   @Test
   public void getIndexTypes_shouldReturnTypeIssue() {

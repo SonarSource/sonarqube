@@ -48,7 +48,10 @@ public class IssueIteratorForMultipleChunks implements IssueIterator {
 
   @Override
   public IssueDoc next() {
-    if (currentChunk == null || !currentChunk.hasNext()) {
+    if (currentChunk == null) {
+      currentChunk = nextChunk();
+    } else if (!currentChunk.hasNext()) {
+      currentChunk.close();
       currentChunk = nextChunk();
     }
     return currentChunk.next();
