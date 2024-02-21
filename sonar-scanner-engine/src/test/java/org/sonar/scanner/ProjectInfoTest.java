@@ -19,9 +19,6 @@
  */
 package org.sonar.scanner;
 
-import com.tngtech.java.junit.dataprovider.DataProvider;
-import com.tngtech.java.junit.dataprovider.DataProviderRunner;
-import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.time.Clock;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
@@ -30,8 +27,11 @@ import java.time.ZoneOffset;
 import java.util.Date;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.RandomStringUtils;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EmptySource;
+import org.junit.jupiter.params.provider.NullAndEmptySource;
+import org.junit.jupiter.params.provider.NullSource;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.utils.MessageException;
@@ -41,15 +41,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 
-@RunWith(DataProviderRunner.class)
-public class ProjectInfoTest {
+class ProjectInfoTest {
 
-  private MapSettings settings = new MapSettings();
-  private Clock clock = mock(Clock.class);
-  private ProjectInfo underTest = new ProjectInfo(settings.asConfig(), clock);
+  private final MapSettings settings = new MapSettings();
+  private final Clock clock = mock(Clock.class);
+  private final ProjectInfo underTest = new ProjectInfo(settings.asConfig(), clock);
 
   @Test
-  public void testSimpleDateTime() {
+  void testSimpleDateTime() {
     OffsetDateTime date = OffsetDateTime.of(2017, 1, 1, 12, 13, 14, 0, ZoneOffset.ofHours(2));
     settings.appendProperty(CoreProperties.PROJECT_DATE_PROPERTY, "2017-01-01T12:13:14+0200");
     settings.appendProperty(CoreProperties.PROJECT_VERSION_PROPERTY, "version");
@@ -61,7 +60,7 @@ public class ProjectInfoTest {
   }
 
   @Test
-  public void testSimpleDate() {
+  void testSimpleDate() {
     LocalDate date = LocalDate.of(2017, 1, 1);
     settings.appendProperty(CoreProperties.PROJECT_DATE_PROPERTY, "2017-01-01");
 
@@ -72,7 +71,7 @@ public class ProjectInfoTest {
   }
 
   @Test
-  public void emptyDate() {
+  void emptyDate() {
     settings.setProperty(CoreProperties.PROJECT_DATE_PROPERTY, "");
     settings.setProperty(CoreProperties.PROJECT_VERSION_PROPERTY, "version");
 
@@ -81,7 +80,7 @@ public class ProjectInfoTest {
   }
 
   @Test
-  public void fail_with_too_long_version() {
+  void fail_with_too_long_version() {
     String version = randomAlphabetic(101);
     settings.setProperty(CoreProperties.PROJECT_DATE_PROPERTY, "2017-01-01");
     settings.setProperty(CoreProperties.PROJECT_VERSION_PROPERTY, version);
@@ -93,7 +92,7 @@ public class ProjectInfoTest {
   }
 
   @Test
-  public void fail_with_too_long_buildString() {
+  void fail_with_too_long_buildString() {
     String buildString = randomAlphabetic(101);
     settings.setProperty(CoreProperties.PROJECT_DATE_PROPERTY, "2017-01-01");
     settings.setProperty(CoreProperties.BUILD_STRING_PROPERTY, buildString);
@@ -104,9 +103,9 @@ public class ProjectInfoTest {
         "The maximum length is 100 characters.");
   }
 
-  @Test
-  @UseDataProvider("emptyOrNullString")
-  public void getProjectVersion_is_empty_if_property_is_empty_or_null(@Nullable String projectVersion) {
+  @ParameterizedTest
+  @NullAndEmptySource
+  void getProjectVersion_is_empty_if_property_is_empty_or_null(@Nullable String projectVersion) {
     settings.setProperty(CoreProperties.PROJECT_DATE_PROPERTY, "2017-01-01");
     settings.setProperty(CoreProperties.PROJECT_VERSION_PROPERTY, projectVersion);
 
@@ -116,7 +115,7 @@ public class ProjectInfoTest {
   }
 
   @Test
-  public void getProjectVersion_contains_value_of_property() {
+  void getProjectVersion_contains_value_of_property() {
     String value = RandomStringUtils.randomAlphabetic(10);
     settings.setProperty(CoreProperties.PROJECT_DATE_PROPERTY, "2017-01-01");
     settings.setProperty(CoreProperties.PROJECT_VERSION_PROPERTY, value);
@@ -126,9 +125,9 @@ public class ProjectInfoTest {
     assertThat(underTest.getProjectVersion()).contains(value);
   }
 
-  @Test
-  @UseDataProvider("emptyOrNullString")
-  public void getBuildString_is_empty_if_property_is_empty_or_null(@Nullable String buildString) {
+  @ParameterizedTest
+  @NullAndEmptySource
+  void getBuildString_is_empty_if_property_is_empty_or_null(@Nullable String buildString) {
     settings.setProperty(CoreProperties.PROJECT_DATE_PROPERTY, "2017-01-01");
     settings.setProperty(CoreProperties.BUILD_STRING_PROPERTY, buildString);
 
@@ -138,7 +137,7 @@ public class ProjectInfoTest {
   }
 
   @Test
-  public void getBuildString_contains_value_of_property() {
+  void getBuildString_contains_value_of_property() {
     String value = RandomStringUtils.randomAlphabetic(10);
     settings.setProperty(CoreProperties.PROJECT_DATE_PROPERTY, "2017-01-01");
     settings.setProperty(CoreProperties.BUILD_STRING_PROPERTY, value);
@@ -146,13 +145,5 @@ public class ProjectInfoTest {
     underTest.start();
 
     assertThat(underTest.getBuildString()).contains(value);
-  }
-
-  @DataProvider
-  public static Object[][] emptyOrNullString() {
-    return new Object[][] {
-      {""},
-      {null},
-    };
   }
 }

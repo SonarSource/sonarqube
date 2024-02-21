@@ -19,9 +19,6 @@
  */
 package org.sonar.scm.git;
 
-import com.tngtech.java.junit.dataprovider.DataProvider;
-import com.tngtech.java.junit.dataprovider.DataProviderRunner;
-import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -37,10 +34,10 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
@@ -52,11 +49,11 @@ import org.sonar.api.utils.System2;
 import org.sonar.scm.git.strategy.DefaultBlameStrategy.BlameAlgorithmEnum;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@RunWith(DataProviderRunner.class)
-public class CompositeBlameCommandIT {
+class CompositeBlameCommandIT {
 
   private final AnalysisWarnings analysisWarnings = mock(AnalysisWarnings.class);
 
@@ -66,12 +63,12 @@ public class CompositeBlameCommandIT {
   private final ProcessWrapperFactory processWrapperFactory = new ProcessWrapperFactory();
   private final NativeGitBlameCommand nativeGitBlameCommand = new NativeGitBlameCommand(System2.INSTANCE, processWrapperFactory);
 
-  @Rule
-  public TemporaryFolder temp = new TemporaryFolder();
+  @TempDir
+  private File temp;
 
-  @Test
-  @UseDataProvider("namesOfTheTestRepositoriesWithBlameAlgorithm")
-  public void testThatBlameAlgorithmOutputsTheSameDataAsGitNativeBlame(String folder, BlameAlgorithmEnum blameAlgorithm) throws Exception {
+  @ParameterizedTest
+  @MethodSource("namesOfTheTestRepositoriesWithBlameAlgorithm")
+  void testThatBlameAlgorithmOutputsTheSameDataAsGitNativeBlame(String folder, BlameAlgorithmEnum blameAlgorithm) throws Exception {
     CompositeBlameCommand underTest = new CompositeBlameCommand(analysisWarnings, new PathResolver(), jGitBlameCommand, nativeGitBlameCommand, (p, f) -> blameAlgorithm);
 
     TestBlameOutput output = new TestBlameOutput();
@@ -84,9 +81,9 @@ public class CompositeBlameCommandIT {
     assertBlameMatchesExpectedBlame(output.blame, gitFolder);
   }
 
-  @DataProvider
-  public static Object[][] namesOfTheTestRepositoriesWithBlameAlgorithm() {
-    List<String> testCases = List.of("one-file-one-commit",
+  private static Stream<Arguments> namesOfTheTestRepositoriesWithBlameAlgorithm() {
+    List<String> testCases = List.of(
+      "one-file-one-commit",
       "one-file-two-commits",
       "two-files-one-commit",
       "merge-commits",
@@ -102,8 +99,8 @@ public class CompositeBlameCommandIT {
 
     List<BlameAlgorithmEnum> blameStrategies = Arrays.stream(BlameAlgorithmEnum.values()).toList();
     return testCases.stream()
-      .flatMap(t -> blameStrategies.stream().map(b -> new Object[]{t, b}))
-      .toArray(Object[][]::new);
+      .flatMap(t -> blameStrategies.stream().map(b -> arguments(t, b)))
+      .toList().stream();
   }
 
 
@@ -155,7 +152,7 @@ public class CompositeBlameCommandIT {
   }
 
   private File unzipGitRepository(String repositoryName) throws IOException {
-    File gitFolderForEachTest = temp.newFolder().toPath().toRealPath(LinkOption.NOFOLLOW_LINKS).toFile();
+    File gitFolderForEachTest = temp.toPath().toRealPath(LinkOption.NOFOLLOW_LINKS).toFile();
     Utils.javaUnzip(repositoryName + ".zip", gitFolderForEachTest);
     return gitFolderForEachTest.toPath().resolve(repositoryName).toFile();
   }
