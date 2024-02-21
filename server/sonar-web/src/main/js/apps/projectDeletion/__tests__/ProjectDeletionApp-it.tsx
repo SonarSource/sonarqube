@@ -52,9 +52,9 @@ it('should be able to delete project', async () => {
 
   expect(byText('deletion.page').get()).toBeInTheDocument();
   expect(byText('project_deletion.page.description').get()).toBeInTheDocument();
-  user.click(byRole('button', { name: 'delete' }).get());
+  await user.click(byRole('button', { name: 'delete' }).get());
   expect(await byRole('dialog', { name: 'qualifier.delete.TRK' }).find()).toBeInTheDocument();
-  user.click(
+  await user.click(
     byRole('dialog', { name: 'qualifier.delete.TRK' }).byRole('button', { name: 'delete' }).get(),
   );
 
@@ -79,10 +79,10 @@ it('should be able to delete Portfolio', async () => {
   expect(byText('deletion.page').get()).toBeInTheDocument();
   expect(byText('portfolio_deletion.page.description').get()).toBeInTheDocument();
 
-  user.click(byRole('button', { name: 'delete' }).get());
+  await user.click(byRole('button', { name: 'delete' }).get());
 
   expect(await byRole('dialog', { name: 'qualifier.delete.VW' }).find()).toBeInTheDocument();
-  user.click(
+  await user.click(
     byRole('dialog', { name: 'qualifier.delete.VW' }).byRole('button', { name: 'delete' }).get(),
   );
 
@@ -107,9 +107,9 @@ it('should be able to delete Application', async () => {
   expect(byText('deletion.page').get()).toBeInTheDocument();
   expect(byText('application_deletion.page.description').get()).toBeInTheDocument();
 
-  user.click(byRole('button', { name: 'delete' }).get());
+  await user.click(byRole('button', { name: 'delete' }).get());
   expect(await byRole('dialog', { name: 'qualifier.delete.APP' }).find()).toBeInTheDocument();
-  user.click(
+  await user.click(
     byRole('dialog', { name: 'qualifier.delete.APP' }).byRole('button', { name: 'delete' }).get(),
   );
 

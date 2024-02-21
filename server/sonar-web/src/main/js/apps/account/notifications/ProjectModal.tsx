@@ -172,7 +172,8 @@ export default class ProjectModal extends React.PureComponent<Props, State> {
     });
   };
 
-  handleSubmit = () => {
+  handleSubmit = (event: React.SyntheticEvent<HTMLFormElement>) => {
+    event.preventDefault();
     const { selectedProject } = this.state;
 
     if (selectedProject) {

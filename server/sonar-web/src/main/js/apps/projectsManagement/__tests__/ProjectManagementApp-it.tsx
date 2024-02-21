@@ -183,7 +183,9 @@ it('should filter projects', async () => {
   const user = userEvent.setup();
   renderProjectManagementApp();
   await waitFor(() => expect(ui.row.getAll()).toHaveLength(5));
-  await selectEvent.select(ui.visibilityFilter.get(), 'visibility.public');
+  await waitFor(() => {
+    selectEvent.select(ui.visibilityFilter.get(), 'visibility.public');
+  });
   await waitFor(() => expect(ui.row.getAll()).toHaveLength(4));
   await user.click(ui.analysisDateFilter.get());
   await user.click(await screen.findByRole('gridcell', { name: '5' }));
@@ -191,11 +193,15 @@ it('should filter projects', async () => {
   await user.click(ui.provisionedFilter.get());
   expect(ui.row.getAll()).toHaveLength(2);
   expect(ui.row.getAll()[1]).toHaveTextContent('Project 4');
-  await selectEvent.select(ui.qualifierFilter.get(), 'qualifiers.VW');
-  expect(ui.provisionedFilter.query()).not.toBeInTheDocument();
+  await waitFor(() => {
+    selectEvent.select(ui.qualifierFilter.get(), 'qualifiers.VW');
+  });
+  await waitFor(() => expect(ui.provisionedFilter.query()).not.toBeInTheDocument());
   expect(ui.row.getAll()).toHaveLength(2);
   await waitFor(() => expect(ui.row.getAll()[1]).toHaveTextContent('Portfolio 1'));
-  await selectEvent.select(ui.qualifierFilter.get(), 'qualifiers.APP');
+  await waitFor(() => {
+    selectEvent.select(ui.qualifierFilter.get(), 'qualifiers.APP');
+  });
   expect(ui.provisionedFilter.query()).not.toBeInTheDocument();
   expect(ui.row.getAll()).toHaveLength(2);
   await waitFor(() => expect(ui.row.getAll()[1]).toHaveTextContent('Application 1'));
@@ -207,12 +213,16 @@ it('should search by text', async () => {
   await waitFor(() => expect(ui.row.getAll()).toHaveLength(5));
   await user.type(ui.searchFilter.get(), 'provision');
   expect(ui.row.getAll()).toHaveLength(2);
-  await selectEvent.select(ui.qualifierFilter.get(), 'qualifiers.VW');
+  await waitFor(() => {
+    selectEvent.select(ui.qualifierFilter.get(), 'qualifiers.VW');
+  });
   await waitFor(() => expect(ui.row.getAll()).toHaveLength(4));
   expect(ui.searchFilter.get()).toHaveValue('');
   await user.type(ui.searchFilter.get(), 'Portfolio 2');
   expect(ui.row.getAll()).toHaveLength(2);
-  await selectEvent.select(ui.qualifierFilter.get(), 'qualifiers.APP');
+  await waitFor(() => {
+    selectEvent.select(ui.qualifierFilter.get(), 'qualifiers.APP');
+  });
   await waitFor(() => expect(ui.row.getAll()).toHaveLength(4));
   expect(ui.searchFilter.get()).toHaveValue('');
   await user.type(ui.searchFilter.get(), 'Application 3');
@@ -396,7 +406,9 @@ it('should load more and change the filter without caching old pages', async () 
   expect(projectRows[1]).toHaveTextContent('Project 0');
   expect(projectRows[60]).toHaveTextContent('Project 59');
 
-  await selectEvent.select(ui.qualifierFilter.get(), 'qualifiers.VW');
+  await waitFor(() => {
+    selectEvent.select(ui.qualifierFilter.get(), 'qualifiers.VW');
+  });
   await waitFor(() => expect(projectRows[1]).not.toBeInTheDocument());
   const portfolioRows = ui.row.getAll();
   expect(portfolioRows).toHaveLength(51);

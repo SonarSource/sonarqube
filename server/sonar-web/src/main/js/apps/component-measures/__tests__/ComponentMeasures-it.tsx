@@ -310,7 +310,7 @@ describe('navigation', () => {
 
     await user.click(ui.maintainabilityDomainBtn.get());
     await user.click(ui.measureBtn('Code Smells 8').get());
-    await ui.changeViewToList();
+    await waitFor(() => ui.changeViewToList());
 
     expect(
       within(await ui.measuresRow('out.tsx').find()).getByRole('cell', { name: '1' }),
@@ -330,7 +330,7 @@ describe('navigation', () => {
 
     await user.click(ui.maintainabilityDomainBtn.get());
     await user.click(ui.measureBtn('Maintainability Rating metric.has_rating_X.E').get());
-    await ui.changeViewToTreeMap();
+    await waitFor(() => ui.changeViewToTreeMap());
 
     expect(await ui.treeMapCell(/folderA/).find()).toBeInTheDocument();
     expect(ui.treeMapCell(/test1\.js/).get()).toBeInTheDocument();

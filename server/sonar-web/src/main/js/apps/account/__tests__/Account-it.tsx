@@ -172,11 +172,11 @@ it('should handle a currentUser not logged in', () => {
   locationMock.mockRestore();
 });
 
-it('should render the top menu', () => {
+it('should render the top menu', async () => {
   const name = 'Tyler Durden';
   renderAccountApp(mockLoggedInUser({ name }));
 
-  expect(screen.getByText(name)).toBeInTheDocument();
+  expect(await screen.findByText(name)).toBeInTheDocument();
 
   const topMenuNavigationItems = [
     'my_account.profile',
@@ -190,7 +190,7 @@ it('should render the top menu', () => {
 });
 
 describe('profile page', () => {
-  it('should display all the information', () => {
+  it('should display all the information', async () => {
     const loggedInUser = mockLoggedInUser({
       email: 'email@company.com',
       groups: ['group1'],
@@ -198,10 +198,10 @@ describe('profile page', () => {
     });
     renderAccountApp(loggedInUser);
 
+    expect(await screen.findByText('group1')).toBeInTheDocument();
+    expect(screen.getByText('account1')).toBeInTheDocument();
     expect(screen.getAllByText(loggedInUser.login)).toHaveLength(2);
     expect(screen.getAllByText(loggedInUser.email!)).toHaveLength(2);
-    expect(screen.getByText('group1')).toBeInTheDocument();
-    expect(screen.getByText('account1')).toBeInTheDocument();
   });
 
   it('should handle missing info', () => {
@@ -392,7 +392,7 @@ describe('security page', () => {
     ).not.toBeInTheDocument();
   });
 
-  it("should not suggest creating a Project token if the user doesn't have at least one scannable Projects", () => {
+  it("should not suggest creating a Project token if the user doesn't have at least one scannable Projects", async () => {
     jest.mocked(getScannableProjects).mockResolvedValueOnce({
       projects: [],
     });
@@ -401,7 +401,9 @@ describe('security page', () => {
       securityPagePath,
     );
 
-    selectEvent.openMenu(screen.getByRole('combobox', { name: 'users.tokens.type' }));
+    await waitFor(() => {
+      selectEvent.openMenu(screen.getByRole('combobox', { name: 'users.tokens.type' }));
+    });
     expect(screen.queryByText(`users.tokens.${TokenType.Project}`)).not.toBeInTheDocument();
   });
 
@@ -429,9 +431,11 @@ describe('security page', () => {
       securityPagePath,
     );
 
-    await selectEvent.select(screen.getByRole('combobox', { name: 'users.tokens.type' }), [
-      `users.tokens.${TokenType.Project}`,
-    ]);
+    await waitFor(async () => {
+      await selectEvent.select(screen.getByRole('combobox', { name: 'users.tokens.type' }), [
+        `users.tokens.${TokenType.Project}`,
+      ]);
+    });
 
     expect(screen.getByText('Project Name 1')).toBeInTheDocument();
   });

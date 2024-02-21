@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { screen } from '@testing-library/react';
+import { act, screen, waitFor } from '@testing-library/react';
 import React from 'react';
 import { addGlobalErrorMessage, addGlobalSuccessMessage } from '../../../helpers/globalMessages';
 import { renderApp } from '../../../helpers/testReactTestingUtils';
@@ -32,22 +32,28 @@ it('should display messages', async () => {
   // we render anything, the GlobalMessageContainer is rendered independently from routing
   renderApp('sonarqube', <NullComponent />);
 
-  addGlobalErrorMessage('This is an error');
-  addGlobalSuccessMessage('This was a triumph!');
-
+  await waitFor(() => {
+    addGlobalErrorMessage('This is an error');
+    addGlobalSuccessMessage('This was a triumph!');
+  });
   expect(await screen.findByRole('alert')).toHaveTextContent('This is an error');
   expect(screen.getByRole('status')).toHaveTextContent('This was a triumph!');
 
   // No duplicate message
-  addGlobalErrorMessage('This is an error');
+  await waitFor(() => {
+    addGlobalErrorMessage('This is an error');
+  });
   expect(screen.getByRole('alert')).toHaveTextContent(/^This is an error$/);
-  addGlobalSuccessMessage('This was a triumph!');
+  await waitFor(() => {
+    addGlobalSuccessMessage('This was a triumph!');
+  });
   expect(await screen.findByRole('status')).toHaveTextContent(
     /^This was a triumph!This was a triumph!$/,
   );
 
-  jest.runAllTimers();
-
+  act(() => {
+    jest.runAllTimers();
+  });
   expect(screen.queryByRole('alert')).not.toBeInTheDocument();
   expect(screen.queryByRole('status')).not.toBeInTheDocument();
 

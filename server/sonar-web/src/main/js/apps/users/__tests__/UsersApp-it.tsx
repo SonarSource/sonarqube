@@ -722,13 +722,17 @@ it('accessibility', async () => {
   // user creation dialog should be accessible
   await user.click(await ui.createUserButton.find());
   expect(await ui.dialogCreateUser.find()).toBeInTheDocument();
-  await expect(ui.dialogCreateUser.get()).toHaveNoA11yViolations();
+  await waitFor(async () => {
+    await expect(ui.dialogCreateUser.get()).toHaveNoA11yViolations();
+  });
   await user.click(ui.cancelButton.get());
 
   // users group membership dialog should be accessible
-  user.click(await ui.aliceUpdateGroupButton.find());
+  await user.click(await ui.aliceUpdateGroupButton.find());
   expect(await ui.dialogGroups.find()).toBeInTheDocument();
-  await expect(await ui.dialogGroups.find()).toHaveNoA11yViolations();
+  await waitFor(async () => {
+    await expect(await ui.dialogGroups.find()).toHaveNoA11yViolations();
+  });
   await user.click(ui.doneButton.get());
 
   // user update dialog should be accessible
@@ -748,7 +752,9 @@ it('accessibility', async () => {
   );
 
   expect(await ui.dialogTokens.find()).toBeInTheDocument();
-  await expect(await ui.dialogTokens.find()).toHaveNoA11yViolations();
+  await waitFor(async () => {
+    await expect(await ui.dialogTokens.find()).toHaveNoA11yViolations();
+  });
   await user.click(ui.closeButton.get());
 
   // user password dialog should be accessible
