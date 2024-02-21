@@ -18,10 +18,43 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import '@testing-library/jest-dom';
-import { configure } from '@testing-library/react';
+import { configure, fireEvent, screen, waitFor } from '@testing-library/react';
 import React from 'react';
 
 configure({
   asyncUtilTimeout: 3000,
 });
 global.React = React;
+
+expect.extend({
+  async toHaveATooltipWithContent(received: any, content: string) {
+    if (!(received instanceof Element)) {
+      return {
+        pass: false,
+        message: () => `Received object is not an HTMLElement, and cannot have a tooltip`,
+      };
+    }
+
+    fireEvent.pointerEnter(received);
+    const tooltip = await screen.findByRole('tooltip');
+
+    const result = tooltip.textContent?.includes(content)
+      ? {
+          pass: true,
+          message: () => `Tooltip content "${tooltip.textContent}" contains expected "${content}"`,
+        }
+      : {
+          pass: false,
+          message: () =>
+            `Tooltip content "${tooltip.textContent}" does not contain expected "${content}"`,
+        };
+
+    fireEvent.pointerLeave(received);
+
+    await waitFor(() => {
+      expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+    });
+
+    return result;
+  },
+});

@@ -17,15 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { screen } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import * as React from 'react';
 import { mockComponent } from '../../../../helpers/mocks/component';
 import { mockQuery } from '../../../../helpers/mocks/issues';
-import {
-  renderOwaspTop102021Category,
-  renderOwaspTop10Category,
-  renderSonarSourceSecurityCategory,
-} from '../../../../helpers/security-standard';
 import { mockAppState } from '../../../../helpers/testMocks';
 import { renderComponent } from '../../../../helpers/testReactTestingUtils';
 import { ComponentQualifier } from '../../../../types/component';
@@ -123,7 +118,7 @@ it.each([
   expect(screen.getByText(text)).toBeInTheDocument();
 });
 
-it('should call functions from security-standard', () => {
+it('should render correctly for standards', async () => {
   renderSidebar({
     component: mockComponent({ qualifier: ComponentQualifier.Application }),
     query: {
@@ -134,9 +129,9 @@ it('should call functions from security-standard', () => {
     },
   });
 
-  expect(renderOwaspTop10Category).toHaveBeenCalledTimes(1);
-  expect(renderOwaspTop102021Category).toHaveBeenCalledTimes(1);
-  expect(renderSonarSourceSecurityCategory).toHaveBeenCalledTimes(1);
+  await waitFor(() => {
+    expect(screen.getByLabelText('x_selected.3')).toBeInTheDocument();
+  });
 });
 
 function renderSidebar(props: Partial<Sidebar['props']> = {}) {

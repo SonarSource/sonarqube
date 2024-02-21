@@ -24,15 +24,6 @@ import { MultiSelectMenu } from '../MultiSelectMenu';
 
 const elements = ['foo', 'bar', 'baz'];
 
-beforeEach(() => {
-  jest.useFakeTimers();
-});
-
-afterEach(() => {
-  jest.runOnlyPendingTimers();
-  jest.useRealTimers();
-});
-
 it('should allow selecting and deselecting a new option', async () => {
   const user = userEvent.setup({ delay: null });
   const onSelect = jest.fn();
@@ -40,7 +31,6 @@ it('should allow selecting and deselecting a new option', async () => {
   renderMultiselect({ elements, onSelect, onUnselect, allowNewElements: true });
 
   await user.keyboard('new option');
-  jest.runAllTimers(); // skip the debounce
 
   expect(await screen.findByText('new option')).toBeInTheDocument();
 
@@ -89,9 +79,9 @@ it('should ignore the left and right arrow keys', async () => {
   expect(onSelect).toHaveBeenCalledWith('baz');
 });
 
-it('should show no results', () => {
+it('should show no results', async () => {
   renderMultiselect();
-  expect(screen.getByText('no results')).toBeInTheDocument();
+  expect(await screen.findByText('no results')).toBeInTheDocument();
 });
 
 function renderMultiselect(props: Partial<MultiSelectMenu['props']> = {}) {

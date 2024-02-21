@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { act, screen, waitFor } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import { noop } from 'lodash';
 import { render, renderWithRouter } from '../../helpers/testUtils';
 import {
@@ -35,15 +35,6 @@ import {
 import { Tooltip } from '../Tooltip';
 import { MenuIcon } from '../icons/MenuIcon';
 
-beforeEach(() => {
-  jest.useFakeTimers();
-});
-
-afterEach(() => {
-  jest.runOnlyPendingTimers();
-  jest.useRealTimers();
-});
-
 it('should render a full menu correctly', () => {
   renderDropdownMenu();
   expect(screen.getByRole('menuitem', { name: 'My header' })).toBeInTheDocument();
@@ -52,7 +43,7 @@ it('should render a full menu correctly', () => {
 });
 
 it('menu items should work with tooltips', async () => {
-  const { user } = render(
+  render(
     <Tooltip overlay="test tooltip">
       <ItemButton onClick={jest.fn()}>button</ItemButton>
     </Tooltip>,
@@ -61,24 +52,7 @@ it('menu items should work with tooltips', async () => {
   );
 
   expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
-
-  await user.hover(screen.getByRole('menuitem'));
-  expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
-
-  act(() => {
-    jest.runAllTimers();
-  });
-  expect(screen.getByRole('tooltip')).toBeVisible();
-
-  await user.unhover(screen.getByRole('menuitem'));
-  expect(screen.getByRole('tooltip')).toBeVisible();
-
-  act(() => {
-    jest.runAllTimers();
-  });
-  await waitFor(() => {
-    expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
-  });
+  await expect(screen.getByRole('menuitem')).toHaveATooltipWithContent('test tooltip');
 });
 
 function renderDropdownMenu() {

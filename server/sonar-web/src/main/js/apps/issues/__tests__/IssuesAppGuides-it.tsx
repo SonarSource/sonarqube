@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { waitForElementToBeRemoved } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
 import { mockCurrentUser } from '../../../helpers/testMocks';
@@ -167,11 +168,11 @@ describe('issue guides', () => {
       expect(ui.guidePopup.query()).not.toBeInTheDocument();
     });
 
-    it('should not show guide if there are no issues', () => {
+    it('should not show guide if there are no issues', async () => {
       issuesHandler.setIssueList([]);
       renderIssueApp(mockCurrentUser({ isLoggedIn: true }));
 
-      expect(ui.loading.query()).not.toBeInTheDocument();
+      await waitForElementToBeRemoved(ui.loading.query());
       expect(ui.guidePopup.query()).not.toBeInTheDocument();
     });
 

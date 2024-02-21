@@ -45,7 +45,7 @@ export const componentsHandler = new ComponentsServiceMock();
 export const branchHandler = new BranchesServiceMock();
 
 export const ui = {
-  loading: byText('loading'),
+  loading: byText('issues.loading_issues'),
   issuePageHeadering: byRole('heading', { level: 1, name: 'issues.page' }),
   issueItemAction1: byRole('link', { name: 'Issue with no location message' }),
   issueItemAction2: byRole('link', { name: 'FlowIssue' }),

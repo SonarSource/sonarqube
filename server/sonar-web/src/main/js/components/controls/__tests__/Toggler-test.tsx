@@ -17,21 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { act, fireEvent, render } from '@testing-library/react';
+import { render } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { UserEvent } from '@testing-library/user-event/dist/types/setup/setup';
 import * as React from 'react';
 import { byRole } from '../../../helpers/testSelector';
 import Toggler from '../Toggler';
 
-beforeEach(() => {
-  jest.useFakeTimers();
-});
-
-afterEach(() => {
-  jest.runOnlyPendingTimers();
-  jest.useRealTimers();
-});
 const ui = {
   toggleButton: byRole('button', { name: 'toggle' }),
   outButton: byRole('button', { name: 'out' }),
@@ -43,13 +35,11 @@ const ui = {
 
 async function openToggler(user: UserEvent) {
   await user.click(ui.toggleButton.get());
-  jest.runAllTimers();
   expect(ui.overlayButton.get()).toBeInTheDocument();
 }
 
-function focusOut() {
-  fireEvent.focus(ui.overlayButton.get());
-  fireEvent.focus(ui.outButton.get());
+async function focusOut() {
+  await userEvent.click(ui.outButton.get());
 }
 
 it('should handle key up/down', async () => {
@@ -126,13 +116,13 @@ it('should handle focus correctly', async () => {
 
   await openToggler(user);
 
-  focusOut();
+  await focusOut();
   expect(ui.overlayButton.query()).not.toBeInTheDocument();
 
   rerender({ closeOnFocusOut: false });
   await openToggler(user);
 
-  focusOut();
+  await focusOut();
   expect(ui.overlayButton.get()).toBeInTheDocument();
 });
 
@@ -197,11 +187,7 @@ it('should open/close correctly when default props is applied', async () => {
   expect(await ui.overlayButton.find()).toBeInTheDocument();
 
   // Focus out should close
-  // I have no idea why only act + this 2 lines work, but fireEvent.focus does not
-  act(() => {
-    ui.overlayButton.get().focus();
-    ui.outButton.get().focus();
-  });
+  await focusOut();
   expect(ui.overlayButton.query()).not.toBeInTheDocument();
 
   await openToggler(user);
