@@ -21,6 +21,7 @@ package org.sonar.server.issue.index;
 
 import com.google.common.base.CharMatcher;
 import com.google.common.base.Splitter;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -28,6 +29,8 @@ import java.util.Optional;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.ibatis.cursor.Cursor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.rules.CleanCodeAttribute;
@@ -48,11 +51,13 @@ import static org.sonar.server.security.SecurityStandards.fromSecurityStandards;
  * the issues index
  */
 class IssueIteratorForSingleChunk implements IssueIterator {
+  private static final Logger LOG = LoggerFactory.getLogger(IssueIteratorForSingleChunk.class);
 
   static final Splitter STRING_LIST_SPLITTER = Splitter.on(',').trimResults().omitEmptyStrings();
 
   private final DbSession session;
 
+  private final Cursor<IndexedIssueDto> indexCursor;
   private final Iterator<IndexedIssueDto> iterator;
 
   IssueIteratorForSingleChunk(DbClient dbClient, @Nullable String branchUuid, @Nullable Collection<String> issueKeys) {
@@ -60,7 +65,7 @@ class IssueIteratorForSingleChunk implements IssueIterator {
       "Cannot search for more than " + DatabaseUtils.PARTITION_SIZE_FOR_ORACLE + " issue keys at once. Please provide the keys in smaller chunks.");
     this.session = dbClient.openSession(false);
     try {
-      Cursor<IndexedIssueDto> indexCursor = dbClient.issueDao().scrollIssuesForIndexation(session, branchUuid, issueKeys);
+      indexCursor = dbClient.issueDao().scrollIssuesForIndexation(session, branchUuid, issueKeys);
       iterator = indexCursor.iterator();
     } catch (Exception e) {
       session.close();
@@ -75,6 +80,7 @@ class IssueIteratorForSingleChunk implements IssueIterator {
 
   @Override
   public IssueDoc next() {
+
     return toIssueDoc(iterator.next());
   }
 
@@ -170,6 +176,11 @@ class IssueIteratorForSingleChunk implements IssueIterator {
 
   @Override
   public void close() {
+    try {
+      indexCursor.close();
+    } catch (IOException e) {
+      LOG.atWarn().setMessage("unable to close the cursor, this may lead to database connexion leak. error is : {}").addArgument(e).log();
+    }
     session.close();
   }
 }
