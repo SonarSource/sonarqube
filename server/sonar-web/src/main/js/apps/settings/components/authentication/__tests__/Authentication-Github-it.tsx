@@ -334,16 +334,7 @@ describe('Github tab', () => {
     let user: UserEvent;
 
     beforeEach(() => {
-      jest.useFakeTimers({
-        advanceTimers: true,
-        now: new Date('2022-02-04T12:00:59Z'),
-      });
       user = userEvent.setup();
-    });
-
-    afterEach(() => {
-      jest.runOnlyPendingTimers();
-      jest.useRealTimers();
     });
 
     it('should display a success status when the synchronisation is a success', async () => {
@@ -408,7 +399,7 @@ describe('Github tab', () => {
       renderAuthentication([Feature.GithubProvisioning]);
       await ui.enableConfiguration(user);
 
-      await appLoaded();
+      assertAppIsLoaded();
 
       await waitFor(() => expect(ui.configurationValiditySuccess.query()).toBeInTheDocument());
     });
@@ -431,7 +422,7 @@ describe('Github tab', () => {
       renderAuthentication([Feature.GithubProvisioning]);
       await ui.enableConfiguration(user);
 
-      await appLoaded();
+      assertAppIsLoaded();
 
       await waitFor(() => expect(ui.configurationValiditySuccess.query()).toBeInTheDocument());
       expect(ui.configurationValiditySuccess.get()).toHaveTextContent('2');
@@ -474,7 +465,7 @@ describe('Github tab', () => {
       renderAuthentication([Feature.GithubProvisioning]);
       await ui.enableConfiguration(user);
 
-      await appLoaded();
+      assertAppIsLoaded();
 
       await waitFor(() => expect(ui.configurationValidityWarning.get()).toBeInTheDocument());
       expect(ui.configurationValidityWarning.get()).toHaveTextContent(errorMessage);
@@ -515,7 +506,7 @@ describe('Github tab', () => {
       renderAuthentication([Feature.GithubProvisioning]);
       await ui.enableConfiguration(user);
 
-      await appLoaded();
+      assertAppIsLoaded();
 
       await waitFor(() => expect(ui.configurationValiditySuccess.get()).toBeInTheDocument());
       expect(ui.configurationValiditySuccess.get()).toHaveTextContent('1');
@@ -556,7 +547,7 @@ describe('Github tab', () => {
       renderAuthentication([Feature.GithubProvisioning]);
       await ui.enableConfiguration(user);
 
-      await appLoaded();
+      assertAppIsLoaded();
 
       await waitFor(() => expect(ui.configurationValidityError.query()).toBeInTheDocument());
       expect(ui.configurationValidityError.get()).toHaveTextContent(errorMessage);
@@ -587,7 +578,7 @@ describe('Github tab', () => {
       renderAuthentication([Feature.GithubProvisioning]);
       await ui.enableConfiguration(user);
 
-      await appLoaded();
+      assertAppIsLoaded();
 
       await waitFor(() => expect(ui.configurationValiditySuccess.query()).toBeInTheDocument());
       expect(ui.configurationValiditySuccess.get()).not.toHaveTextContent(errorMessage);
@@ -633,7 +624,7 @@ describe('Github tab', () => {
       renderAuthentication([Feature.GithubProvisioning]);
       await ui.enableConfiguration(user);
 
-      await appLoaded();
+      assertAppIsLoaded();
 
       await waitFor(() => expect(ui.configurationValiditySuccess.query()).toBeInTheDocument());
 
@@ -701,7 +692,7 @@ describe('Github tab', () => {
         },
       });
 
-      await appLoaded();
+      assertAppIsLoaded();
 
       expect(await ui.configurationValidityError.find()).toBeInTheDocument();
 
@@ -1012,10 +1003,8 @@ describe('Github tab', () => {
   });
 });
 
-const appLoaded = async () => {
-  await waitFor(async () => {
-    expect(await screen.findByText('loading')).not.toBeInTheDocument();
-  });
+const assertAppIsLoaded = () => {
+  expect(screen.queryByText('loading')).not.toBeInTheDocument();
 };
 
 function renderAuthentication(features: Feature[] = []) {
