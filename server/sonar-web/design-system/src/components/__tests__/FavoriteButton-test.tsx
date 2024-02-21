@@ -22,6 +22,7 @@ import userEvent from '@testing-library/user-event';
 import { render } from '../../helpers/testUtils';
 import { FCProps } from '../../types/misc';
 import { FavoriteButton } from '../FavoriteButton';
+import { Tooltip } from '../Tooltip';
 
 it('should render favorite filled', () => {
   const { container } = renderFavoriteButton({ favorite: true });
@@ -44,6 +45,12 @@ it('should toggle favorite', async () => {
 
 function renderFavoriteButton(props: Partial<FCProps<typeof FavoriteButton>> = {}) {
   return render(
-    <FavoriteButton favorite overlay="label-info" toggleFavorite={jest.fn()} {...props} />,
+    <FavoriteButton
+      favorite
+      overlay="label-info"
+      toggleFavorite={jest.fn()}
+      tooltip={Tooltip}
+      {...props}
+    />,
   );
 }

@@ -26,6 +26,7 @@ import { renderWithContext } from '../../helpers/testUtils';
 import { FCProps } from '../../types/misc';
 import { MultiSelector } from '../MultiSelector';
 import { Tags } from '../Tags';
+import { Tooltip } from '../Tooltip';
 
 it('should display "no tags"', () => {
   renderTags({ tags: [] });
@@ -108,6 +109,7 @@ function Wrapper(overrides: Partial<FCProps<typeof Tags>> = {}) {
       emptyText="no tags"
       overlay={overlay}
       tags={selectedTags}
+      tooltip={Tooltip}
       {...overrides}
     />
   );

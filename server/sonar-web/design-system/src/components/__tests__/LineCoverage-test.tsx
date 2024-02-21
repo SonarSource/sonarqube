@@ -54,5 +54,7 @@ it('should render correctly when no data', () => {
 });
 
 function setupWithProps(props: Partial<FCProps<typeof LineCoverage>> = {}) {
-  return render(<LineCoverage coverageStatus="covered" lineNumber={16} status="OK" {...props} />);
+  return render(<LineCoverage coverageStatus="covered" lineNumber={16} status="OK" {...props} />, {
+    container: document.createElement('tr'),
+  });
 }

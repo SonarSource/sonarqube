@@ -33,13 +33,19 @@ it('should a popup when clicked', async () => {
 
 function setupWithProps(props: Partial<FCProps<typeof LineNumber>> = {}) {
   return render(
-    <LineNumber
-      ariaLabel="aria-label"
-      displayOptions
-      firstLineNumber={1}
-      lineNumber={16}
-      popup={<div>Popup</div>}
-      {...props}
-    />,
+    <table>
+      <tbody>
+        <tr>
+          <LineNumber
+            ariaLabel="aria-label"
+            displayOptions
+            firstLineNumber={1}
+            lineNumber={16}
+            popup={<div>Popup</div>}
+            {...props}
+          />
+        </tr>
+      </tbody>
+    </table>,
   );
 }

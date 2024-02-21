@@ -60,6 +60,7 @@ exports[`should render favorite empty 1`] = `
 
 <div>
   <button
+    aria-describedby="tooltip-2"
     aria-label="label-info"
     class="it__favorite-link it__is-filled emotion-0 emotion-1 emotion-2"
     type="button"
@@ -143,6 +144,7 @@ exports[`should render favorite filled 1`] = `
 
 <div>
   <button
+    aria-describedby="tooltip-1"
     aria-label="label-info"
     class="it__favorite-link it__is-filled emotion-0 emotion-1 emotion-2"
     type="button"

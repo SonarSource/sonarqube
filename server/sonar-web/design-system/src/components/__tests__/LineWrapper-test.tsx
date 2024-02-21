@@ -46,5 +46,6 @@ it('should set a highlighted background color in css props', () => {
 function setupWithProps(props: Partial<FCProps<typeof LineWrapper>> = {}) {
   return render(
     <LineWrapper displayCoverage displaySCM duplicationsCount={2} highlighted={false} {...props} />,
+    { container: document.createElement('tbody') },
   );
 }

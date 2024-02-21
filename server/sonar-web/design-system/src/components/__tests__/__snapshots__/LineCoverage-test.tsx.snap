@@ -30,7 +30,7 @@ exports[`should render correctly when covered 1`] = `
   outline: none;
 }
 
-<div>
+<tr>
   <td
     aria-describedby="tooltip-1"
     class="emotion-0 emotion-1"
@@ -41,7 +41,7 @@ exports[`should render correctly when covered 1`] = `
       class="emotion-2 emotion-3"
     />
   </td>
-</div>
+</tr>
 `;
 
 exports[`should render correctly when no data 1`] = `
@@ -62,12 +62,12 @@ exports[`should render correctly when no data 1`] = `
   background-color: rgb(239,242,249);
 }
 
-<div>
+<tr>
   <td
     class="emotion-0 emotion-1"
     data-line-number="16"
   />
-</div>
+</tr>
 `;
 
 exports[`should render correctly when partially covered with 5/10 conditions 1`] = `
@@ -99,7 +99,7 @@ exports[`should render correctly when partially covered with 5/10 conditions 1`]
   outline: none;
 }
 
-<div>
+<tr>
   <td
     aria-describedby="tooltip-4"
     class="emotion-0 emotion-1"
@@ -128,7 +128,7 @@ exports[`should render correctly when partially covered with 5/10 conditions 1`]
       </svg>
     </div>
   </td>
-</div>
+</tr>
 `;
 
 exports[`should render correctly when partially covered without conditions 1`] = `
@@ -160,7 +160,7 @@ exports[`should render correctly when partially covered without conditions 1`] =
   outline: none;
 }
 
-<div>
+<tr>
   <td
     aria-describedby="tooltip-3"
     class="emotion-0 emotion-1"
@@ -189,7 +189,7 @@ exports[`should render correctly when partially covered without conditions 1`] =
       </svg>
     </div>
   </td>
-</div>
+</tr>
 `;
 
 exports[`should render correctly when uncovered 1`] = `
@@ -222,7 +222,7 @@ exports[`should render correctly when uncovered 1`] = `
   outline: none;
 }
 
-<div>
+<tr>
   <td
     aria-describedby="tooltip-2"
     class="emotion-0 emotion-1"
@@ -233,5 +233,5 @@ exports[`should render correctly when uncovered 1`] = `
       class="emotion-2 emotion-3"
     />
   </td>
-</div>
+</tr>
 `;
