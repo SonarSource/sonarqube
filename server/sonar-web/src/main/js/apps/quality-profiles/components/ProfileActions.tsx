@@ -279,20 +279,18 @@ class ProfileActions extends React.PureComponent<Props, State> {
 
           {actions.setAsDefault &&
             (hasNoActiveRules ? (
-              <li>
-                <Tooltip
-                  placement={PopupPlacement.Left}
-                  overlay={translate('quality_profiles.cannot_set_default_no_rules')}
+              <Tooltip
+                placement={PopupPlacement.Left}
+                overlay={translate('quality_profiles.cannot_set_default_no_rules')}
+              >
+                <ItemButton
+                  className="it__quality-profiles__set-as-default"
+                  onClick={this.handleSetDefaultClick}
+                  disabled
                 >
-                  <ItemButton
-                    className="it__quality-profiles__set-as-default"
-                    onClick={this.handleSetDefaultClick}
-                    disabled
-                  >
-                    {translate('set_as_default')}
-                  </ItemButton>
-                </Tooltip>
-              </li>
+                  {translate('set_as_default')}
+                </ItemButton>
+              </Tooltip>
             ) : (
               <ItemButton
                 className="it__quality-profiles__set-as-default"

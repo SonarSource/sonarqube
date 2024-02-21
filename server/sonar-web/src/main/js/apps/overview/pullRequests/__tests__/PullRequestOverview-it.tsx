@@ -20,6 +20,7 @@
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
+import BranchesServiceMock from '../../../../api/mocks/BranchesServiceMock';
 import { fetchQualityGate, getQualityGateProjectStatus } from '../../../../api/quality-gates';
 import CurrentUserContextProvider from '../../../../app/components/current-user/CurrentUserContextProvider';
 import { mockPullRequest } from '../../../../helpers/mocks/branch-like';
@@ -119,6 +120,12 @@ jest.mock('../../../../api/quality-gates', () => {
     getGateForProject: jest.fn().mockResolvedValue(mockQualityGate({ isBuiltIn: true })),
     fetchQualityGate: jest.fn().mockResolvedValue(mockQualityGate({ isBuiltIn: true })),
   };
+});
+
+const branchesHandler = new BranchesServiceMock();
+
+afterEach(() => {
+  branchesHandler.reset();
 });
 
 it('should render links correctly', async () => {
