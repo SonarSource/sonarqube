@@ -33,6 +33,10 @@ import { AlmKeys, ProjectAlmBindingParams, ProjectAlmBindingResponse } from '../
 
 function useProjectKeyFromLocation() {
   const location = useLocation();
+  // Permissions Templates page uses id in query for template id, so to avoid conflict and unwanted fetching we don't search for project there
+  if (location.pathname.includes('permission_templates')) {
+    return null;
+  }
   const search = new URLSearchParams(location.search);
   const id = search.get('id');
   return id as string;
@@ -55,7 +59,7 @@ export function useProjectBindingQuery<T = ProjectAlmBindingResponse>(
   const projectKey = project ?? keyFromUrl;
 
   return useQuery({
-    queryKey: ['devops_integration', projectKey, 'binding'],
+    queryKey: ['devops_integration', projectKey ?? '_blank_', 'binding'],
     queryFn: ({ queryKey: [_, key] }) =>
       getProjectAlmBinding(key).catch((e: Response) => {
         if (e.status === HttpStatus.NotFound) {
@@ -65,6 +69,7 @@ export function useProjectBindingQuery<T = ProjectAlmBindingResponse>(
       }),
     staleTime: 60_000,
     retry: false,
+    enabled: projectKey !== null,
     ...options,
   });
 }
@@ -79,7 +84,13 @@ export function useDeleteProjectAlmBindingMutation(project?: string) {
   const keyFromUrl = useProjectKeyFromLocation();
   const client = useQueryClient();
   return useMutation({
-    mutationFn: () => deleteProjectAlmBinding(project ?? keyFromUrl),
+    mutationFn: () => {
+      const key = project ?? keyFromUrl;
+      if (key === null) {
+        throw new Error('No project key');
+      }
+      return deleteProjectAlmBinding(key);
+    },
     onSuccess: () => {
       client.invalidateQueries({
         queryKey: ['devops_integration', project ?? keyFromUrl, 'binding'],

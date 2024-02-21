@@ -17,16 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { useQuery } from '@tanstack/react-query';
+import { UseQueryOptions, useQuery } from '@tanstack/react-query';
 import { getSystemInfo } from '../../api/system';
-import { SysInfoCluster } from '../../types/types';
+import { Provider, SysInfoCluster } from '../../types/types';
 
-export function useIdentityProviderQuery() {
+export function useIdentityProviderQuery<T = { provider: Provider }>(
+  options?: Omit<UseQueryOptions<{ provider: Provider }, Error, T>, 'queryKey' | 'queryFn'>,
+) {
   return useQuery({
     queryKey: ['identity_provider', 'users_and_groups_provider'],
     queryFn: async () => {
       const info = (await getSystemInfo()) as SysInfoCluster;
       return { provider: info.System['External Users and Groups Provisioning'] };
     },
+    ...options,
   });
 }

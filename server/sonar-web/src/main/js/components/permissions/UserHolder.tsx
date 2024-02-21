@@ -45,7 +45,9 @@ export default function UserHolder(props: Props) {
     permissions,
     removeOnly,
   });
-  const { data: identityProvider } = useIdentityProviderQuery();
+  const { data: identityProvider } = useIdentityProviderQuery({
+    enabled: isGitHubProject ?? false,
+  });
 
   const permissionCells = permissions.map((permission) => (
     <PermissionCell

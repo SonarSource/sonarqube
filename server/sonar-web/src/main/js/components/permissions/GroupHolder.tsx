@@ -58,7 +58,9 @@ export default function GroupHolder(props: Props) {
     permissions,
     removeOnly,
   });
-  const { data: identityProvider } = useIdentityProviderQuery();
+  const { data: identityProvider } = useIdentityProviderQuery({
+    enabled: isGitHubProject ?? false,
+  });
 
   const description =
     group.name === ANYONE ? translate('user_groups.anyone.description') : group.description;
