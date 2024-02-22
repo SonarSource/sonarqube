@@ -27,8 +27,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.ibatis.cursor.Cursor;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.impl.utils.AlwaysIncreasingSystem2;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.RuleKey;
@@ -51,17 +51,17 @@ import org.sonar.db.rule.RuleDto;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 
-public class ProjectExportDaoIT {
+class ProjectExportDaoIT {
 
   private final System2 system2 = new AlwaysIncreasingSystem2(1000L);
 
-  @Rule
-  public DbTester db = DbTester.create(system2);
+  @RegisterExtension
+  private final DbTester db = DbTester.create(system2);
 
   private final ProjectExportDao projectExportDao = new ProjectExportDao();
 
   @Test
-  public void selectBranchesForExport_shouldOnlyReturnBranchExcludedFromPurge() {
+  void selectBranchesForExport_shouldOnlyReturnBranchExcludedFromPurge() {
     ProjectData projectData = db.components().insertPrivateProject("project-uuid");
     BranchDto branchExcludedFromPurge = db.components().insertProjectBranch(projectData.getProjectDto(),
       branch -> branch.setExcludeFromPurge(true));
@@ -79,9 +79,10 @@ public class ProjectExportDaoIT {
   }
 
   @Test
-  public void selectPropertiesForExport_shouldOnlyReturnProjectPropertiesNotLinkedToUser() {
+  void selectPropertiesForExport_shouldOnlyReturnProjectPropertiesNotLinkedToUser() {
     db.components().insertPrivateProject("project-uuid");
-    PropertyDto userProjectProperty = new PropertyDto().setKey("userProjectProperty").setEntityUuid("project-uuid").setUserUuid("user-uuid");
+    PropertyDto userProjectProperty = new PropertyDto().setKey("userProjectProperty").setEntityUuid("project-uuid").setUserUuid("user" +
+      "-uuid");
     PropertyDto globalProperty = new PropertyDto().setKey("globalProperty");
     PropertyDto projectProperty = new PropertyDto().setKey("projectProperty").setEntityUuid("project-uuid");
     db.properties().insertProperties(List.of(userProjectProperty, globalProperty, projectProperty), null, null, null, null);
@@ -94,7 +95,7 @@ public class ProjectExportDaoIT {
   }
 
   @Test
-  public void selectLinksForExport_shouldReturnLinkOfProject() {
+  void selectLinksForExport_shouldReturnLinkOfProject() {
     ProjectDto project = db.components().insertPrivateProject("project-uuid").getProjectDto();
     db.projectLinks().insertCustomLink(project, link -> link.setName("customLink").setHref("www.customLink.com"));
     db.projectLinks().insertProvidedLink(project, link -> link.setName("providedLink").setHref("www.providedLink.com"));
@@ -110,7 +111,7 @@ public class ProjectExportDaoIT {
   }
 
   @Test
-  public void selectNewCodePeriodsForExport_shouldOnlyReturnGlobalNewCodePeriodOrNewCodePeriodOnBranchExcludedFromPurge() {
+  void selectNewCodePeriodsForExport_shouldOnlyReturnGlobalNewCodePeriodOrNewCodePeriodOnBranchExcludedFromPurge() {
     ProjectDto project = db.components().insertPrivateProject("project-uuid").getProjectDto();
     BranchDto branchExcludedFromPurge = db.components().insertProjectBranch(project, branch -> branch.setExcludeFromPurge(true));
     BranchDto branchNotExcludedFromPurge = db.components().insertProjectBranch(project);
@@ -128,7 +129,7 @@ public class ProjectExportDaoIT {
   }
 
   @Test
-  public void scrollAdhocRulesForExport_shouldOnlyReturnAdHocRulesNotRemovedAndActiveOnProjectBranchesExcludedFromPurge() {
+  void scrollAdhocRulesForExport_shouldOnlyReturnAdHocRulesNotRemovedAndActiveOnProjectBranchesExcludedFromPurge() {
     ProjectData projectData = db.components().insertPrivateProject("project-uuid");
     ComponentDto file = db.components().insertFile(projectData.getMainBranchDto());
     ComponentDto mainBranchComponent = projectData.getMainBranchComponent();
@@ -143,7 +144,8 @@ public class ProjectExportDaoIT {
     RuleDto adHocRule3 = insertRule("adHocRule3", false, true, RuleStatus.REMOVED);
     db.issues().insertIssue(adHocRule3, mainBranchComponent, file, issueDto -> issueDto.setKee("issue-adHocRule3"));
     RuleDto adHocRule4 = insertRule("adHocRule4", false, true);
-    db.issues().insertIssue(adHocRule4, mainBranchComponent, file, issueDto -> issueDto.setKee("issue-adHocRule4").setStatus(Issue.STATUS_CLOSED));
+    db.issues().insertIssue(adHocRule4, mainBranchComponent, file,
+      issueDto -> issueDto.setKee("issue-adHocRule4").setStatus(Issue.STATUS_CLOSED));
     RuleDto standardRule = insertRule("standardRule", false, false);
     db.issues().insertIssue(standardRule, mainBranchComponent, file, issueDto -> issueDto.setKee("issue-standardRule"));
 
@@ -158,7 +160,7 @@ public class ProjectExportDaoIT {
   }
 
   @Test
-  public void scrollIssueForExport_shouldOnlyReturnIssueWithRulesNotRemovedAndActiveOnProjectBranchesExcludedFromPurge() {
+  void scrollIssueForExport_shouldOnlyReturnIssueWithRulesNotRemovedAndActiveOnProjectBranchesExcludedFromPurge() {
     ProjectData projectData = db.components().insertPrivateProject("project-uuid");
     ComponentDto file = db.components().insertFile(projectData.getMainBranchDto());
     ComponentDto mainBranchComponent = projectData.getMainBranchComponent();

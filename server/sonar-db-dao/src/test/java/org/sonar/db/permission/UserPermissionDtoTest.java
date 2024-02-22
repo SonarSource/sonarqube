@@ -20,14 +20,14 @@
 package org.sonar.db.permission;
 
 import java.util.List;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class UserPermissionDtoTest {
+class UserPermissionDtoTest {
 
   @Test
-  public void toString_shouldReturnInformationAboutAllFieldsExceptUuid() {
+  void toString_shouldReturnInformationAboutAllFieldsExceptUuid() {
     UserPermissionDto userPermissionDto = new UserPermissionDto("someUuid", "somePermission", "someUserUuid", "someEntityUuid");
 
     String toStringResult = userPermissionDto.toString();

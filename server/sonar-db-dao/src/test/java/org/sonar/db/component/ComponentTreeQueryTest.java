@@ -19,7 +19,8 @@
  */
 package org.sonar.db.component;
 
-import org.junit.Test;
+
+import org.junit.jupiter.api.Test;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -28,13 +29,13 @@ import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.db.component.ComponentTreeQuery.Strategy.CHILDREN;
 import static org.sonar.db.component.ComponentTreeQuery.Strategy.LEAVES;
 
-public class ComponentTreeQueryTest {
+class ComponentTreeQueryTest {
 
   private static final String BASE_UUID = "ABCD";
 
 
   @Test
-  public void create_query() {
+  void create_query() {
     ComponentTreeQuery query = ComponentTreeQuery.builder()
       .setBaseUuid(BASE_UUID)
       .setStrategy(CHILDREN)
@@ -50,7 +51,7 @@ public class ComponentTreeQueryTest {
   }
 
   @Test
-  public void create_minimal_query() {
+  void create_minimal_query() {
     ComponentTreeQuery query = ComponentTreeQuery.builder()
       .setBaseUuid(BASE_UUID)
       .setStrategy(CHILDREN)
@@ -64,7 +65,7 @@ public class ComponentTreeQueryTest {
   }
 
   @Test
-  public void test_getUuidPath() {
+  void test_getUuidPath() {
     assertThat(ComponentTreeQuery.builder().setBaseUuid(BASE_UUID).setStrategy(CHILDREN)
       .build().getUuidPath(newPrivateProjectDto("PROJECT_UUID"))).isEqualTo(".PROJECT_UUID.");
 
@@ -73,7 +74,7 @@ public class ComponentTreeQueryTest {
   }
 
   @Test
-  public void fail_when_no_base_uuid() {
+  void fail_when_no_base_uuid() {
     assertThatThrownBy(() -> {
       ComponentTreeQuery.builder()
         .setStrategy(CHILDREN)
@@ -83,7 +84,7 @@ public class ComponentTreeQueryTest {
   }
 
   @Test
-  public void fail_when_no_strategy() {
+  void fail_when_no_strategy() {
     assertThatThrownBy(() -> {
       ComponentTreeQuery.builder()
         .setBaseUuid(BASE_UUID)

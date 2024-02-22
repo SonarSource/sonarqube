@@ -19,9 +19,6 @@
  */
 package org.sonar.db.component;
 
-import com.tngtech.java.junit.dataprovider.DataProvider;
-import com.tngtech.java.junit.dataprovider.DataProviderRunner;
-import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
@@ -35,9 +32,10 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.sonar.api.impl.utils.AlwaysIncreasingSystem2;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
@@ -96,8 +94,7 @@ import static org.sonar.db.component.ComponentTesting.newSubPortfolio;
 import static org.sonar.db.component.ComponentTreeQuery.Strategy.CHILDREN;
 import static org.sonar.db.component.ComponentTreeQuery.Strategy.LEAVES;
 
-@RunWith(DataProviderRunner.class)
-public class ComponentDaoIT {
+class ComponentDaoIT {
 
   private static final String PROJECT_UUID = "project-uuid";
   private static final String DIR_UUID = "dir-uuid";
@@ -109,8 +106,8 @@ public class ComponentDaoIT {
 
   private final System2 system2 = new AlwaysIncreasingSystem2(1000L);
 
-  @Rule
-  public DbTester db = DbTester.create(system2);
+  @RegisterExtension
+  private final DbTester db = DbTester.create(system2);
 
   private final AuditPersister auditPersister = mock(AuditPersister.class);
 
@@ -126,7 +123,7 @@ public class ComponentDaoIT {
   }
 
   @Test
-  public void get_by_uuid() {
+  void get_by_uuid() {
     ComponentDto project = db.components().insertPrivateProject(p -> p
       .setKey("org.struts:struts")
       .setName("Struts")
@@ -152,7 +149,7 @@ public class ComponentDaoIT {
   }
 
   @Test
-  public void get_by_uuid_on_technical_project_copy() {
+  void get_by_uuid_on_technical_project_copy() {
     ComponentDto view = db.components().insertPublicPortfolio();
     ComponentDto project = db.components().insertPublicProject(p -> p
       .setKey("org.struts:struts")
@@ -177,7 +174,7 @@ public class ComponentDaoIT {
   }
 
   @Test
-  public void selectByUuid_on_disabled_component() {
+  void selectByUuid_on_disabled_component() {
     ComponentDto enabledProject = db.components().insertPublicProject(p -> p.setEnabled(true)).getMainBranchComponent();
     ComponentDto disabledProject = db.components().insertPublicProject(p -> p.setEnabled(false)).getMainBranchComponent();
 
@@ -187,7 +184,7 @@ public class ComponentDaoIT {
   }
 
   @Test
-  public void selectOrFailByUuid_fails_when_component_not_found() {
+  void selectOrFailByUuid_fails_when_component_not_found() {
     db.components().insertPublicProject().getMainBranchComponent();
 
     assertThatThrownBy(() -> underTest.selectOrFailByUuid(dbSession, "unknown"))
@@ -195,7 +192,7 @@ public class ComponentDaoIT {
   }
 
   @Test
-  public void select_by_key() {
+  void select_by_key() {
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto branch = db.components().insertProjectBranch(project);
     ComponentDto directory = db.components().insertComponent(newDirectory(project, "src"));
@@ -224,7 +221,7 @@ public class ComponentDaoIT {
   }
 
   @Test
-  public void select_by_key_and_branch() {
+  void select_by_key_and_branch() {
     ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("my_branch").setBranchType(BRANCH));
     ComponentDto file = db.components().insertComponent(newFileDto(branch, project.uuid()));
@@ -237,12 +234,14 @@ public class ComponentDaoIT {
   }
 
   @Test
-  public void select_by_key_and_pull_request() {
+  void select_by_key_and_pull_request() {
     ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("my_branch"));
     ComponentDto pullRequest = db.components().insertProjectBranch(project, b -> b.setKey("my_PR").setBranchType(PULL_REQUEST));
-    ComponentDto pullRequestNamedAsMainBranch = db.components().insertProjectBranch(project, b -> b.setKey("master").setBranchType(PULL_REQUEST));
-    ComponentDto pullRequestNamedAsBranch = db.components().insertProjectBranch(project, b -> b.setKey("my_branch").setBranchType(PULL_REQUEST));
+    ComponentDto pullRequestNamedAsMainBranch = db.components().insertProjectBranch(project,
+      b -> b.setKey("master").setBranchType(PULL_REQUEST));
+    ComponentDto pullRequestNamedAsBranch = db.components().insertProjectBranch(project,
+      b -> b.setKey("my_branch").setBranchType(PULL_REQUEST));
     ComponentDto file = db.components().insertComponent(newFileDto(pullRequest));
 
     assertThat(underTest.selectByKeyAndPullRequest(dbSession, project.getKey(), "my_PR").get().uuid()).isEqualTo(pullRequest.uuid());
@@ -254,7 +253,7 @@ public class ComponentDaoIT {
   }
 
   @Test
-  public void get_by_key_on_disabled_component() {
+  void get_by_key_on_disabled_component() {
     ComponentDto project = db.components().insertPrivateProject(p -> p.setEnabled(false)).getMainBranchComponent();
 
     ComponentDto result = underTest.selectByKey(dbSession, project.getKey()).get();
@@ -263,7 +262,7 @@ public class ComponentDaoIT {
   }
 
   @Test
-  public void get_by_key_on_a_root_project() {
+  void get_by_key_on_a_root_project() {
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
 
     ComponentDto result = underTest.selectByKey(dbSession, project.getKey()).get();
@@ -275,7 +274,7 @@ public class ComponentDaoIT {
   }
 
   @Test
-  public void selectByKeys_whenPassingKeys_shouldReturnComponentsInMainBranch() {
+  void selectByKeys_whenPassingKeys_shouldReturnComponentsInMainBranch() {
     ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto branch = db.components().insertProjectBranch(project1);
     ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
@@ -292,7 +291,7 @@ public class ComponentDaoIT {
   }
 
   @Test
-  public void selectByKeys_whenAppWithMultipleBranches_shouldReturnMainBranch() {
+  void selectByKeys_whenAppWithMultipleBranches_shouldReturnMainBranch() {
     ProjectDto proj = db.components().insertPrivateProject().getProjectDto();
     BranchDto projBranch = db.components().insertProjectBranch(proj);
 
@@ -302,8 +301,10 @@ public class ComponentDaoIT {
     db.components().addApplicationProject(app, proj);
     db.components().addProjectBranchToApplicationBranch(appBranch, projBranch);
 
-    ComponentDto projInApp = db.components().insertComponent(newProjectCopy(db.components().getComponentDto(proj), db.components().getComponentDto(app)));
-    db.components().insertComponent(ComponentTesting.newProjectCopy(db.components().getComponentDto(projBranch), db.components().getComponentDto(appBranch)));
+    ComponentDto projInApp = db.components().insertComponent(newProjectCopy(db.components().getComponentDto(proj),
+      db.components().getComponentDto(app)));
+    db.components().insertComponent(ComponentTesting.newProjectCopy(db.components().getComponentDto(projBranch),
+      db.components().getComponentDto(appBranch)));
 
     List<ComponentDto> results = underTest.selectByKeys(dbSession, asList(projInApp.getKey()));
 
@@ -313,7 +314,7 @@ public class ComponentDaoIT {
   }
 
   @Test
-  public void selectByKeys_whenBranchMissingDueToCorruption_shouldNotReturnComponents() {
+  void selectByKeys_whenBranchMissingDueToCorruption_shouldNotReturnComponents() {
     // this will create an entry in the components table, but not in the project_branches table
     ComponentDto project1 = db.components().insertComponent(ComponentTesting.newPublicProjectDto());
 
@@ -325,7 +326,7 @@ public class ComponentDaoIT {
   }
 
   @Test
-  public void selectByKeys_whenPortfolio_shouldReturnIt() {
+  void selectByKeys_whenPortfolio_shouldReturnIt() {
     ComponentDto portfolio = db.components().insertPrivatePortfolio();
 
     List<ComponentDto> results = underTest.selectByKeys(dbSession, asList(portfolio.getKey()));
@@ -336,7 +337,7 @@ public class ComponentDaoIT {
   }
 
   @Test
-  public void selectByKeys_whenSubPortfolio_shouldReturnIt() {
+  void selectByKeys_whenSubPortfolio_shouldReturnIt() {
     ComponentDto portfolio = db.components().insertPrivatePortfolio();
     ComponentDto subPortfolio = db.components().insertSubView(portfolio);
 
@@ -348,7 +349,7 @@ public class ComponentDaoIT {
   }
 
   @Test
-  public void selectByKeys_whenBothBranchAndPrPassed_shouldThrowISE() {
+  void selectByKeys_whenBothBranchAndPrPassed_shouldThrowISE() {
     DbSession session = db.getSession();
     List<String> keys = List.of("key");
     assertThatThrownBy(() -> underTest.selectByKeys(session, keys, "branch", "pr"))
@@ -356,7 +357,7 @@ public class ComponentDaoIT {
   }
 
   @Test
-  public void selectByKeys_whenSpecifyingBranch_shouldReturnComponentsInIt() {
+  void selectByKeys_whenSpecifyingBranch_shouldReturnComponentsInIt() {
     String branchKey = "my_branch";
     ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey(branchKey));
@@ -376,7 +377,7 @@ public class ComponentDaoIT {
   }
 
   @Test
-  public void selectByKeys_whenSpecifyingPR_shouldReturnComponentsInIt() {
+  void selectByKeys_whenSpecifyingPR_shouldReturnComponentsInIt() {
     String prKey = "my_branch";
     ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto pr = db.components().insertProjectBranch(project, b -> b.setKey(prKey).setBranchType(PULL_REQUEST));
@@ -395,7 +396,7 @@ public class ComponentDaoIT {
   }
 
   @Test
-  public void get_by_uuids() {
+  void get_by_uuids() {
     ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
 
@@ -411,7 +412,7 @@ public class ComponentDaoIT {
   }
 
   @Test
-  public void get_by_uuids_on_removed_components() {
+  void get_by_uuids_on_removed_components() {
     ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto project2 = db.components().insertPrivateProject(p -> p.setEnabled(false)).getMainBranchComponent();
 
@@ -425,7 +426,7 @@ public class ComponentDaoIT {
   }
 
   @Test
-  public void select_existing_uuids() {
+  void select_existing_uuids() {
     ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto project2 = db.components().insertPrivateProject(p -> p.setEnabled(false)).getMainBranchComponent();
 
@@ -435,7 +436,7 @@ public class ComponentDaoIT {
   }
 
   @Test
-  public void select_component_keys_by_qualifiers() {
+  void select_component_keys_by_qualifiers() {
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto directory = db.components().insertComponent(newDirectory(project, "src"));
     ComponentDto file = db.components().insertComponent(newFileDto(directory));
@@ -447,7 +448,7 @@ public class ComponentDaoIT {
   }
 
   @Test
-  public void fail_with_IAE_select_component_keys_by_qualifiers_on_empty_qualifier() {
+  void fail_with_IAE_select_component_keys_by_qualifiers_on_empty_qualifier() {
     Set<String> set = emptySet();
     assertThatThrownBy(() -> underTest.selectComponentsByQualifiers(dbSession, set))
       .isInstanceOf(IllegalArgumentException.class)
@@ -455,7 +456,7 @@ public class ComponentDaoIT {
   }
 
   @Test
-  public void find_sub_projects_by_component_keys() {
+  void find_sub_projects_by_component_keys() {
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto removedProject = db.components().insertPrivateProject(p -> p.setEnabled(false)).getMainBranchComponent();
     ComponentDto directory = db.components().insertComponent(newDirectory(project, "src"));
@@ -483,7 +484,7 @@ public class ComponentDaoIT {
   }
 
   @Test
-  public void select_enabled_files_from_project() {
+  void select_enabled_files_from_project() {
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto directory = db.components().insertComponent(newDirectory(project, "src"));
     ComponentDto file = db.components().insertComponent(newFileDto(project, directory));
@@ -491,7 +492,8 @@ public class ComponentDaoIT {
 
     // From root project
     assertThat(underTest.selectEnabledFilesFromProject(dbSession, project.uuid()))
-      .extracting(FilePathWithHashDto::getUuid, FilePathWithHashDto::getSrcHash, FilePathWithHashDto::getPath, FilePathWithHashDto::getRevision)
+      .extracting(FilePathWithHashDto::getUuid, FilePathWithHashDto::getSrcHash, FilePathWithHashDto::getPath,
+        FilePathWithHashDto::getRevision)
       .containsExactlyInAnyOrder(
         tuple(file.uuid(), fileSource.getSrcHash(), file.path(), fileSource.getRevision()));
 
@@ -502,7 +504,7 @@ public class ComponentDaoIT {
   }
 
   @Test
-  public void select_by_branch_uuid() {
+  void select_by_branch_uuid() {
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto removedProject = db.components().insertPrivateProject(p -> p.setEnabled(false)).getMainBranchComponent();
     ComponentDto directory = db.components().insertComponent(newDirectory(project, "src"));
@@ -519,7 +521,7 @@ public class ComponentDaoIT {
   }
 
   @Test
-  public void select_uuids_by_key_from_project() {
+  void select_uuids_by_key_from_project() {
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto branch = db.components().insertProjectBranch(project);
     ComponentDto removedProject = db.components().insertPrivateProject(p -> p.setEnabled(false)).getMainBranchComponent();
@@ -540,7 +542,7 @@ public class ComponentDaoIT {
   }
 
   @Test
-  public void select_uuids_by_key_from_project_and_branch() {
+  void select_uuids_by_key_from_project_and_branch() {
     String branchKey = "branch1";
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey(branchKey));
@@ -559,7 +561,7 @@ public class ComponentDaoIT {
   }
 
   @Test
-  public void select_uuids_by_key_from_project_and_pr() {
+  void select_uuids_by_key_from_project_and_pr() {
     String prKey = "pr1";
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey(prKey).setBranchType(PULL_REQUEST));
@@ -578,7 +580,7 @@ public class ComponentDaoIT {
   }
 
   @Test
-  public void select_views_and_sub_views_and_applications() {
+  void select_views_and_sub_views_and_applications() {
     db.components().insertPublicPortfolio("ABCD", p -> {
     });
     db.components().insertPublicPortfolio("IJKL", p -> {
@@ -595,14 +597,14 @@ public class ComponentDaoIT {
   }
 
   @Test
-  public void selectViewKeysWithEnabledCopyOfProject_returns_empty_when_set_is_empty() {
+  void selectViewKeysWithEnabledCopyOfProject_returns_empty_when_set_is_empty() {
     assertThat(underTest.selectViewKeysWithEnabledCopyOfProject(dbSession, emptySet()))
       .isEmpty();
   }
 
-  @Test
-  @UseDataProvider("oneOrMoreProjects")
-  public void selectViewKeysWithEnabledCopyOfProject_returns_empty_when_there_is_no_view(int projectCount) {
+  @ParameterizedTest
+  @MethodSource("oneOrMoreProjects")
+  void selectViewKeysWithEnabledCopyOfProject_returns_empty_when_there_is_no_view(int projectCount) {
     Set<String> projectUuids = IntStream.range(0, projectCount)
       .mapToObj(i -> randomAlphabetic(5))
       .collect(toSet());
@@ -610,17 +612,16 @@ public class ComponentDaoIT {
     assertThat(underTest.selectViewKeysWithEnabledCopyOfProject(dbSession, projectUuids)).isEmpty();
   }
 
-  @DataProvider
-  public static Object[][] oneOrMoreProjects() {
-    return new Object[][] {
+  static Object[][] oneOrMoreProjects() {
+    return new Object[][]{
       {1},
       {1 + new Random().nextInt(10)}
     };
   }
 
-  @Test
-  @UseDataProvider("portfolioOrApplicationRootViewQualifier")
-  public void selectViewKeysWithEnabledCopyOfProject_returns_root_view_with_direct_copy_of_project(String rootViewQualifier) {
+  @ParameterizedTest
+  @MethodSource("portfolioOrApplicationRootViewQualifier")
+  void selectViewKeysWithEnabledCopyOfProject_returns_root_view_with_direct_copy_of_project(String rootViewQualifier) {
     ComponentDto project = insertProject();
     ComponentDto view = insertView(rootViewQualifier);
     insertProjectCopy(view, project);
@@ -633,9 +634,9 @@ public class ComponentDaoIT {
       .isEqualTo(keys);
   }
 
-  @Test
-  @UseDataProvider("portfolioOrApplicationRootViewQualifier")
-  public void selectViewKeysWithEnabledCopyOfProject_returns_root_views_with_direct_copy_of_projects(String rootViewQualifier) {
+  @ParameterizedTest
+  @MethodSource("portfolioOrApplicationRootViewQualifier")
+  void selectViewKeysWithEnabledCopyOfProject_returns_root_views_with_direct_copy_of_projects(String rootViewQualifier) {
     ComponentDto project1 = insertProject();
     ComponentDto project2 = insertProject();
     ComponentDto view = insertView(rootViewQualifier);
@@ -667,9 +668,9 @@ public class ComponentDaoIT {
       .containsOnly(view.getKey(), view2.getKey());
   }
 
-  @Test
-  @UseDataProvider("portfolioOrApplicationRootViewQualifier")
-  public void selectViewKeysWithEnabledCopyOfProject_does_not_return_root_view_with_direct_copy_of_other_project(String rootViewQualifier) {
+  @ParameterizedTest
+  @MethodSource("portfolioOrApplicationRootViewQualifier")
+  void selectViewKeysWithEnabledCopyOfProject_does_not_return_root_view_with_direct_copy_of_other_project(String rootViewQualifier) {
     ComponentDto project1 = insertProject();
     ComponentDto project2 = insertProject();
     ComponentDto view1 = insertView(rootViewQualifier);
@@ -685,9 +686,9 @@ public class ComponentDaoIT {
       .isEqualTo(keys);
   }
 
-  @Test
-  @UseDataProvider("portfolioOrApplicationRootViewQualifier")
-  public void selectViewKeysWithEnabledCopyOfProject_does_not_return_root_view_with_disabled_direct_copy_of_project(String rootViewQualifier) {
+  @ParameterizedTest
+  @MethodSource("portfolioOrApplicationRootViewQualifier")
+  void selectViewKeysWithEnabledCopyOfProject_does_not_return_root_view_with_disabled_direct_copy_of_project(String rootViewQualifier) {
     ComponentDto project = insertProject();
     ComponentDto view1 = insertView(rootViewQualifier);
     insertProjectCopy(view1, project);
@@ -702,9 +703,9 @@ public class ComponentDaoIT {
       .isEqualTo(keys);
   }
 
-  @Test
-  @UseDataProvider("portfolioOrApplicationRootViewQualifier")
-  public void selectViewKeysWithEnabledCopyOfProject_does_not_return_disabled_root_view_with_direct_copy_of_project(String rootViewQualifier) {
+  @ParameterizedTest
+  @MethodSource("portfolioOrApplicationRootViewQualifier")
+  void selectViewKeysWithEnabledCopyOfProject_does_not_return_disabled_root_view_with_direct_copy_of_project(String rootViewQualifier) {
     ComponentDto project = insertProject();
     ComponentDto view1 = insertView(rootViewQualifier, t -> t.setEnabled(false));
     insertProjectCopy(view1, project);
@@ -719,9 +720,9 @@ public class ComponentDaoIT {
       .isEqualTo(keys);
   }
 
-  @Test
-  @UseDataProvider("portfolioOrApplicationRootViewQualifier")
-  public void selectViewKeysWithEnabledCopyOfProject_returns_root_view_with_indirect_copy_of_project(String rootViewQualifier) {
+  @ParameterizedTest
+  @MethodSource("portfolioOrApplicationRootViewQualifier")
+  void selectViewKeysWithEnabledCopyOfProject_returns_root_view_with_indirect_copy_of_project(String rootViewQualifier) {
     ComponentDto project = insertProject();
     ComponentDto view = insertView(rootViewQualifier);
     ComponentDto lowestSubview = insertSubviews(view);
@@ -735,9 +736,9 @@ public class ComponentDaoIT {
       .isEqualTo(keys);
   }
 
-  @Test
-  @UseDataProvider("portfolioOrApplicationRootViewQualifier")
-  public void selectViewKeysWithEnabledCopyOfProject_returns_root_views_with_indirect_copy_of_projects(String rootViewQualifier) {
+  @ParameterizedTest
+  @MethodSource("portfolioOrApplicationRootViewQualifier")
+  void selectViewKeysWithEnabledCopyOfProject_returns_root_views_with_indirect_copy_of_projects(String rootViewQualifier) {
     ComponentDto project1 = insertProject();
     ComponentDto project2 = insertProject();
     ComponentDto view1 = insertView(rootViewQualifier);
@@ -771,9 +772,9 @@ public class ComponentDaoIT {
       .containsOnly(view1.getKey(), view2.getKey());
   }
 
-  @Test
-  @UseDataProvider("portfolioOrApplicationRootViewQualifier")
-  public void selectViewKeysWithEnabledCopyOfProject_does_not_return_root_view_with_indirect_copy_of_other_project(String rootViewQualifier) {
+  @ParameterizedTest
+  @MethodSource("portfolioOrApplicationRootViewQualifier")
+  void selectViewKeysWithEnabledCopyOfProject_does_not_return_root_view_with_indirect_copy_of_other_project(String rootViewQualifier) {
     ComponentDto project1 = insertProject();
     ComponentDto project2 = insertProject();
     ComponentDto view1 = insertView(rootViewQualifier);
@@ -791,9 +792,9 @@ public class ComponentDaoIT {
       .isEqualTo(keys);
   }
 
-  @Test
-  @UseDataProvider("portfolioOrApplicationRootViewQualifier")
-  public void selectViewKeysWithEnabledCopyOfProject_does_not_return_root_view_with_disabled_indirect_copy_of_project(String rootViewQualifier) {
+  @ParameterizedTest
+  @MethodSource("portfolioOrApplicationRootViewQualifier")
+  void selectViewKeysWithEnabledCopyOfProject_does_not_return_root_view_with_disabled_indirect_copy_of_project(String rootViewQualifier) {
     ComponentDto project = insertProject();
     ComponentDto view1 = insertView(rootViewQualifier);
     ComponentDto lowestSubview1 = insertSubviews(view1);
@@ -810,9 +811,9 @@ public class ComponentDaoIT {
       .isEqualTo(keys);
   }
 
-  @Test
-  @UseDataProvider("portfolioOrApplicationRootViewQualifier")
-  public void selectViewKeysWithEnabledCopyOfProject_does_not_return_disabled_root_view_with_indirect_copy_of_project(String rootViewQualifier) {
+  @ParameterizedTest
+  @MethodSource("portfolioOrApplicationRootViewQualifier")
+  void selectViewKeysWithEnabledCopyOfProject_does_not_return_disabled_root_view_with_indirect_copy_of_project(String rootViewQualifier) {
     ComponentDto project = insertProject();
     ComponentDto view1 = insertView(rootViewQualifier, t -> t.setEnabled(false));
     ComponentDto lowestSubview1 = insertSubviews(view1);
@@ -829,9 +830,8 @@ public class ComponentDaoIT {
       .isEqualTo(keys);
   }
 
-  @DataProvider
-  public static Object[][] portfolioOrApplicationRootViewQualifier() {
-    return new Object[][] {
+  static Object[][] portfolioOrApplicationRootViewQualifier() {
+    return new Object[][]{
       {Qualifiers.VIEW},
       {Qualifiers.APP},
     };
@@ -855,11 +855,13 @@ public class ComponentDaoIT {
     if (rootViewQualifier.equals(Qualifiers.VIEW)) {
       return random.nextBoolean() ? tester.insertPublicPortfolio(dtoPopulators) : tester.insertPrivatePortfolio(dtoPopulators);
     }
-    return random.nextBoolean() ? tester.insertPublicApplication(dtoPopulators).getMainBranchComponent() : tester.insertPrivatePortfolio(dtoPopulators);
+    return random.nextBoolean() ? tester.insertPublicApplication(dtoPopulators).getMainBranchComponent() :
+      tester.insertPrivatePortfolio(dtoPopulators);
   }
 
   private ComponentDto insertProject() {
-    return random.nextBoolean() ? db.components().insertPrivateProject().getMainBranchComponent() : db.components().insertPublicProject().getMainBranchComponent();
+    return random.nextBoolean() ? db.components().insertPrivateProject().getMainBranchComponent() :
+      db.components().insertPublicProject().getMainBranchComponent();
   }
 
   @SafeVarargs
@@ -870,7 +872,7 @@ public class ComponentDaoIT {
   }
 
   @Test
-  public void select_projects_from_view() {
+  void select_projects_from_view() {
     ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto view = db.components().insertPublicPortfolio();
@@ -889,7 +891,7 @@ public class ComponentDaoIT {
   }
 
   @Test
-  public void select_enabled_views_from_root_view() {
+  void select_enabled_views_from_root_view() {
     ComponentDto rootPortfolio = db.components().insertPrivatePortfolio();
     ComponentDto subPortfolio = db.components().insertSubView(rootPortfolio);
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
@@ -902,7 +904,7 @@ public class ComponentDaoIT {
   }
 
   @Test
-  public void select_projects_from_view_should_escape_like_sensitive_characters() {
+  void select_projects_from_view_should_escape_like_sensitive_characters() {
     ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto project3 = db.components().insertPrivateProject().getMainBranchComponent();
@@ -922,7 +924,7 @@ public class ComponentDaoIT {
   }
 
   @Test
-  public void selectByQuery_provisioned() {
+  void selectByQuery_provisioned() {
     ComponentDto provisionedProject = db.components()
       .insertPrivateProject(p -> p.setKey("provisioned.project").setName("Provisioned Project")).getMainBranchComponent();
     ComponentDto provisionedPortfolio = db.components().insertPrivatePortfolio();
@@ -950,24 +952,29 @@ public class ComponentDaoIT {
       .containsOnly(provisionedProject.uuid(), provisionedPortfolio.uuid());
 
     // match key
-    assertThat(underTest.selectByQuery(dbSession, query.get().setNameOrKeyQuery(provisionedProject.getKey()).build(), forPage(1).andSize(10)))
+    assertThat(underTest.selectByQuery(dbSession, query.get().setNameOrKeyQuery(provisionedProject.getKey()).build(),
+      forPage(1).andSize(10)))
       .extracting(ComponentDto::uuid)
       .containsExactly(provisionedProject.uuid());
-    assertThat(underTest.selectByQuery(dbSession, query.get().setNameOrKeyQuery("pROvisiONed.proJEcT").setPartialMatchOnKey(true).build(), forPage(1).andSize(10)))
+    assertThat(underTest.selectByQuery(dbSession, query.get().setNameOrKeyQuery("pROvisiONed.proJEcT").setPartialMatchOnKey(true).build()
+      , forPage(1).andSize(10)))
       .extracting(ComponentDto::uuid)
       .containsExactly(provisionedProject.uuid());
-    assertThat(underTest.selectByQuery(dbSession, query.get().setNameOrKeyQuery("missing").setPartialMatchOnKey(true).build(), forPage(1).andSize(10))).isEmpty();
-    assertThat(underTest.selectByQuery(dbSession, query.get().setNameOrKeyQuery("to be escaped '\"\\%").setPartialMatchOnKey(true).build(), forPage(1).andSize(10)))
+    assertThat(underTest.selectByQuery(dbSession, query.get().setNameOrKeyQuery("missing").setPartialMatchOnKey(true).build(),
+      forPage(1).andSize(10))).isEmpty();
+    assertThat(underTest.selectByQuery(dbSession,
+      query.get().setNameOrKeyQuery("to be escaped '\"\\%").setPartialMatchOnKey(true).build(), forPage(1).andSize(10)))
       .isEmpty();
 
     // match name
-    assertThat(underTest.selectByQuery(dbSession, query.get().setNameOrKeyQuery("ned proj").setPartialMatchOnKey(true).build(), forPage(1).andSize(10)))
+    assertThat(underTest.selectByQuery(dbSession, query.get().setNameOrKeyQuery("ned proj").setPartialMatchOnKey(true).build(),
+      forPage(1).andSize(10)))
       .extracting(ComponentDto::uuid)
       .containsExactly(provisionedProject.uuid());
   }
 
   @Test
-  public void selectByQuery_onProvisionedOnly_filters_projects_with_analysis_on_branch() {
+  void selectByQuery_onProvisionedOnly_filters_projects_with_analysis_on_branch() {
     Supplier<ComponentQuery.Builder> query = () -> ComponentQuery.builder()
       .setQualifiers(PROJECT)
       .setOnProvisionedOnly(true);
@@ -988,14 +995,17 @@ public class ComponentDaoIT {
   }
 
   @Test
-  public void selectByQuery_verify_order() {
+  void selectByQuery_verify_order() {
     Date firstDate = new Date(system2.now());
     Date secondDate = new Date(system2.now());
     Date thirdDate = new Date(system2.now());
 
-    ComponentDto project3 = db.components().insertPrivateProject(componentDto -> componentDto.setName("project3").setCreatedAt(thirdDate)).getMainBranchComponent();
-    ComponentDto project1 = db.components().insertPrivateProject(componentDto -> componentDto.setName("project1").setCreatedAt(firstDate)).getMainBranchComponent();
-    ComponentDto project2 = db.components().insertPrivateProject(componentDto -> componentDto.setName("project2").setCreatedAt(secondDate)).getMainBranchComponent();
+    ComponentDto project3 =
+      db.components().insertPrivateProject(componentDto -> componentDto.setName("project3").setCreatedAt(thirdDate)).getMainBranchComponent();
+    ComponentDto project1 =
+      db.components().insertPrivateProject(componentDto -> componentDto.setName("project1").setCreatedAt(firstDate)).getMainBranchComponent();
+    ComponentDto project2 =
+      db.components().insertPrivateProject(componentDto -> componentDto.setName("project2").setCreatedAt(secondDate)).getMainBranchComponent();
 
     Supplier<ComponentQuery.Builder> query = () -> ComponentQuery.builder()
       .setQualifiers(PROJECT)
@@ -1011,7 +1021,7 @@ public class ComponentDaoIT {
   }
 
   @Test
-  public void count_provisioned() {
+  void count_provisioned() {
     db.components().insertPrivateProject().getMainBranchComponent();
     db.components().insertProjectAndSnapshot(newPrivateProjectDto());
     db.components().insertProjectAndSnapshot(ComponentTesting.newPortfolio());
@@ -1023,7 +1033,7 @@ public class ComponentDaoIT {
   }
 
   @Test
-  public void countByQuery_throws_IAE_if_too_many_component_keys() {
+  void countByQuery_throws_IAE_if_too_many_component_keys() {
     Set<String> keys = IntStream.range(0, 1_010).mapToObj(String::valueOf).collect(toSet());
     ComponentQuery.Builder query = ComponentQuery.builder()
       .setQualifiers(PROJECT)
@@ -1033,7 +1043,7 @@ public class ComponentDaoIT {
   }
 
   @Test
-  public void countByQuery_throws_IAE_if_too_many_component_uuids() {
+  void countByQuery_throws_IAE_if_too_many_component_uuids() {
     Set<String> uuids = IntStream.range(0, 1_010).mapToObj(String::valueOf).collect(toSet());
     ComponentQuery.Builder query = ComponentQuery.builder()
       .setQualifiers(PROJECT)
@@ -1050,7 +1060,7 @@ public class ComponentDaoIT {
   }
 
   @Test
-  public void selectByProjectUuid() {
+  void selectByProjectUuid() {
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto removedProject = db.components().insertPrivateProject(p -> p.setEnabled(false)).getMainBranchComponent();
     ComponentDto directory = db.components().insertComponent(newDirectory(project, "src"));
@@ -1066,7 +1076,7 @@ public class ComponentDaoIT {
   }
 
   @Test
-  public void update() {
+  void update() {
     ComponentDto mainBranch = db.components().insertPrivateProject("U1").getMainBranchComponent();
 
     underTest.update(dbSession, new ComponentUpdateDto()
@@ -1101,7 +1111,7 @@ public class ComponentDaoIT {
   }
 
   @Test
-  public void updateBEnabledToFalse() {
+  void updateBEnabledToFalse() {
     ComponentDto dto1 = newPrivateProjectDto("U1");
     ComponentDto dto2 = newPrivateProjectDto("U2");
     ComponentDto dto3 = newPrivateProjectDto("U3");
@@ -1146,14 +1156,16 @@ public class ComponentDaoIT {
 
   private Map<String, Object> selectBColumnsForUuid(String uuid) {
     return db.selectFirst(
-      "select b_changed as \"bChanged\", deprecated_kee as \"bKey\", b_copy_component_uuid as \"bCopyComponentUuid\", b_description as \"bDescription\", " +
-        "b_enabled as \"bEnabled\", b_uuid_path as \"bUuidPath\", b_language as \"bLanguage\", b_long_name as \"bLongName\", b_name as \"bName\", " +
+      "select b_changed as \"bChanged\", deprecated_kee as \"bKey\", b_copy_component_uuid as \"bCopyComponentUuid\", b_description as " +
+        "\"bDescription\", " +
+        "b_enabled as \"bEnabled\", b_uuid_path as \"bUuidPath\", b_language as \"bLanguage\", b_long_name as \"bLongName\", b_name as " +
+        "\"bName\", " +
         "b_path as \"bPath\", b_qualifier as \"bQualifier\" " +
         "from components where uuid='" + uuid + "'");
   }
 
   @Test
-  public void selectByQuery_throws_IAE_if_too_many_component_keys() {
+  void selectByQuery_throws_IAE_if_too_many_component_keys() {
     Set<String> keys = IntStream.range(0, 1_010).mapToObj(String::valueOf).collect(toSet());
     ComponentQuery.Builder query = ComponentQuery.builder()
       .setQualifiers(PROJECT)
@@ -1163,7 +1175,7 @@ public class ComponentDaoIT {
   }
 
   @Test
-  public void selectByQuery_throws_IAE_if_too_many_component_uuids() {
+  void selectByQuery_throws_IAE_if_too_many_component_uuids() {
     Set<String> uuids = IntStream.range(0, 1_010).mapToObj(String::valueOf).collect(toSet());
     ComponentQuery.Builder query = ComponentQuery.builder()
       .setQualifiers(PROJECT)
@@ -1181,7 +1193,7 @@ public class ComponentDaoIT {
   }
 
   @Test
-  public void selectByQuery_with_paging_query_and_qualifiers() {
+  void selectByQuery_with_paging_query_and_qualifiers() {
     db.components().insertProjectAndSnapshot(newPrivateProjectDto().setName("aaaa-name"));
     db.components().insertProjectAndSnapshot(newPortfolio());
     for (int i = 9; i >= 1; i--) {
@@ -1198,7 +1210,7 @@ public class ComponentDaoIT {
   }
 
   @Test
-  public void selectByQuery_should_not_return_branches() {
+  void selectByQuery_should_not_return_branches() {
     ComponentDto main = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto branch = db.components().insertProjectBranch(main);
 
@@ -1207,7 +1219,7 @@ public class ComponentDaoIT {
   }
 
   @Test
-  public void countByQuery_should_not_include_branches() {
+  void countByQuery_should_not_include_branches() {
     ComponentDto main = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto branch = db.components().insertProjectBranch(main);
 
@@ -1215,7 +1227,7 @@ public class ComponentDaoIT {
   }
 
   @Test
-  public void selectByQuery_name_with_special_characters() {
+  void selectByQuery_name_with_special_characters() {
     db.components().insertProjectAndSnapshot(newPrivateProjectDto().setName("project-\\_%/-name"));
 
     ComponentQuery query = ComponentQuery.builder().setNameOrKeyQuery("-\\_%/-").setQualifiers(PROJECT).build();
@@ -1226,7 +1238,7 @@ public class ComponentDaoIT {
   }
 
   @Test
-  public void selectByQuery_key_with_special_characters() {
+  void selectByQuery_key_with_special_characters() {
     db.components().insertProjectAndSnapshot(newPrivateProjectDto().setKey("project-_%-key"));
     db.components().insertProjectAndSnapshot(newPrivateProjectDto().setKey("project-key-that-does-not-match"));
 
@@ -1238,7 +1250,7 @@ public class ComponentDaoIT {
   }
 
   @Test
-  public void selectByQuery_on_key_partial_match_case_insensitive() {
+  void selectByQuery_on_key_partial_match_case_insensitive() {
     db.components().insertProjectAndSnapshot(newPrivateProjectDto().setKey("project-key"));
 
     ComponentQuery query = ComponentQuery.builder()
@@ -1252,7 +1264,7 @@ public class ComponentDaoIT {
   }
 
   @Test
-  public void selectByQuery_filter_last_analysis_date() {
+  void selectByQuery_filter_last_analysis_date() {
     long aLongTimeAgo = 1_000_000_000L;
     long recentTime = 3_000_000_000L;
     ComponentDto oldProject = db.components().insertPrivateProject().getMainBranchComponent();
@@ -1279,19 +1291,21 @@ public class ComponentDaoIT {
   }
 
   @Test
-  public void selectByQuery_filter_last_analysis_date_on_non_main_branches() {
+  void selectByQuery_filter_last_analysis_date_on_non_main_branches() {
     long aLongTimeAgo = 1_000_000_000L;
     long recentTime = 3_000_000_000L;
     // project with only a non-main and old analyzed branch
     ProjectData oldProjectData = db.components().insertPublicProject();
     ComponentDto oldProject = oldProjectData.getMainBranchComponent();
-    ComponentDto oldProjectBranch = db.components().insertProjectBranch(oldProject, newBranchDto(oldProjectData.projectUuid(), BRANCH).setBranchType(BRANCH));
+    ComponentDto oldProjectBranch = db.components().insertProjectBranch(oldProject,
+      newBranchDto(oldProjectData.projectUuid(), BRANCH).setBranchType(BRANCH));
     db.components().insertSnapshot(oldProjectBranch, s -> s.setLast(true).setCreatedAt(aLongTimeAgo));
 
     // project with only a old main branch and a recent non-main branch
     ProjectData recentProjectData = db.components().insertPublicProject();
     ComponentDto recentProject = recentProjectData.getMainBranchComponent();
-    ComponentDto recentProjectBranch = db.components().insertProjectBranch(recentProject, newBranchDto(recentProjectData.projectUuid(), BRANCH).setBranchType(BRANCH));
+    ComponentDto recentProjectBranch = db.components().insertProjectBranch(recentProject, newBranchDto(recentProjectData.projectUuid(),
+      BRANCH).setBranchType(BRANCH));
     db.components().insertSnapshot(recentProjectBranch, s -> s.setCreatedAt(recentTime).setLast(true));
     db.components().insertSnapshot(recentProjectBranch, s -> s.setCreatedAt(aLongTimeAgo).setLast(false));
 
@@ -1310,29 +1324,32 @@ public class ComponentDaoIT {
   }
 
   @Test
-  public void selectByQuery_filter_last_analysisof_all_branches_before() {
+  void selectByQuery_filter_last_analysisof_all_branches_before() {
     long aLongTimeAgo = 1_000_000_000L;
     long recentTime = 3_000_000_000L;
     // project with only a non-main and old analyzed branch
     ProjectData oldProjectData = db.components().insertPublicProject();
     ComponentDto oldProject = oldProjectData.getMainBranchComponent();
-    ComponentDto oldProjectBranch = db.components().insertProjectBranch(oldProject, newBranchDto(oldProjectData.projectUuid(), BRANCH).setBranchType(BRANCH));
+    ComponentDto oldProjectBranch = db.components().insertProjectBranch(oldProject,
+      newBranchDto(oldProjectData.projectUuid(), BRANCH).setBranchType(BRANCH));
     db.components().insertSnapshot(oldProjectBranch, s -> s.setLast(true).setCreatedAt(aLongTimeAgo));
 
     // project with only a old main branch and a recent non-main branch
     ProjectData recentProjectData = db.components().insertPublicProject();
     ComponentDto recentProject = recentProjectData.getMainBranchComponent();
-    ComponentDto recentProjectBranch = db.components().insertProjectBranch(recentProject, newBranchDto(recentProjectData.projectUuid(), BRANCH).setBranchType(BRANCH));
+    ComponentDto recentProjectBranch = db.components().insertProjectBranch(recentProject, newBranchDto(recentProjectData.projectUuid(),
+      BRANCH).setBranchType(BRANCH));
     db.components().insertSnapshot(recentProjectBranch, s -> s.setCreatedAt(recentTime).setLast(true));
     db.components().insertSnapshot(recentProjectBranch, s -> s.setCreatedAt(aLongTimeAgo).setLast(false));
 
-    assertThat(selectProjectUuidsByQuery(q -> q.setAllBranchesAnalyzedBefore(recentTime + 1_000L))).containsOnly(oldProject.uuid(), recentProject.uuid());
+    assertThat(selectProjectUuidsByQuery(q -> q.setAllBranchesAnalyzedBefore(recentTime + 1_000L))).containsOnly(oldProject.uuid(),
+      recentProject.uuid());
     assertThat(selectProjectUuidsByQuery(q -> q.setAllBranchesAnalyzedBefore(aLongTimeAgo))).isEmpty();
     assertThat(selectProjectUuidsByQuery(q -> q.setAllBranchesAnalyzedBefore(aLongTimeAgo + 1_000L))).containsOnly(oldProject.uuid());
   }
 
   @Test
-  public void selectByQuery_filter_last_analysisof_all_branches_before_for_portfolios() {
+  void selectByQuery_filter_last_analysisof_all_branches_before_for_portfolios() {
     long aLongTimeAgo = 1_000_000_000L;
     long recentTime = 3_000_000_000L;
 
@@ -1350,7 +1367,7 @@ public class ComponentDaoIT {
   }
 
   @Test
-  public void selectByQuery_filter_created_at() {
+  void selectByQuery_filter_created_at() {
     ComponentDto project1 = db.components().insertPrivateProject(p -> p.setCreatedAt(parseDate("2018-02-01"))).getMainBranchComponent();
     ComponentDto project2 = db.components().insertPrivateProject(p -> p.setCreatedAt(parseDate("2018-06-01"))).getMainBranchComponent();
 
@@ -1381,21 +1398,21 @@ public class ComponentDaoIT {
   }
 
   @Test
-  public void selectByQuery_filter_on_visibility() {
+  void selectByQuery_filter_on_visibility() {
     db.components().insertPrivateProject(p -> p.setKey("private-key")).getMainBranchComponent();
-    db.components().insertPublicProject(p -> p.setKey("public-key")).getMainBranchComponent();
+    db.components().insertPublicProject(p -> p.setKey("-key")).getMainBranchComponent();
 
     ComponentQuery privateProjectsQuery = ComponentQuery.builder().setPrivate(true).setQualifiers(PROJECT).build();
-    ComponentQuery publicProjectsQuery = ComponentQuery.builder().setPrivate(false).setQualifiers(PROJECT).build();
+    ComponentQuery ProjectsQuery = ComponentQuery.builder().setPrivate(false).setQualifiers(PROJECT).build();
     ComponentQuery allProjectsQuery = ComponentQuery.builder().setPrivate(null).setQualifiers(PROJECT).build();
 
     assertThat(underTest.selectByQuery(dbSession, privateProjectsQuery, forPage(1).andSize(10))).extracting(ComponentDto::getKey).containsExactly("private-key");
-    assertThat(underTest.selectByQuery(dbSession, publicProjectsQuery, forPage(1).andSize(10))).extracting(ComponentDto::getKey).containsExactly("public-key");
-    assertThat(underTest.selectByQuery(dbSession, allProjectsQuery, forPage(1).andSize(10))).extracting(ComponentDto::getKey).containsOnly("public-key", "private-key");
+    assertThat(underTest.selectByQuery(dbSession, ProjectsQuery, forPage(1).andSize(10))).extracting(ComponentDto::getKey).containsExactly("-key");
+    assertThat(underTest.selectByQuery(dbSession, allProjectsQuery, forPage(1).andSize(10))).extracting(ComponentDto::getKey).containsOnly("-key", "private-key");
   }
 
   @Test
-  public void selectByQuery_on_empty_list_of_component_key() {
+  void selectByQuery_on_empty_list_of_component_key() {
     db.components().insertPrivateProject().getMainBranchComponent();
     ComponentQuery dbQuery = ComponentQuery.builder().setQualifiers(PROJECT).setComponentKeys(emptySet()).build();
 
@@ -1407,7 +1424,7 @@ public class ComponentDaoIT {
   }
 
   @Test
-  public void selectByQuery_on_component_keys() {
+  void selectByQuery_on_component_keys() {
     ComponentDto sonarqube = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto jdk8 = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto cLang = db.components().insertPrivateProject().getMainBranchComponent();
@@ -1422,7 +1439,7 @@ public class ComponentDaoIT {
   }
 
   @Test
-  public void selectByQuery_on_empty_list_of_component_uuids() {
+  void selectByQuery_on_empty_list_of_component_uuids() {
     db.components().insertPrivateProject().getMainBranchComponent();
     ComponentQuery dbQuery = ComponentQuery.builder().setQualifiers(PROJECT).setComponentUuids(emptySet()).build();
 
@@ -1434,7 +1451,7 @@ public class ComponentDaoIT {
   }
 
   @Test
-  public void selectByQuery_on_component_uuids() {
+  void selectByQuery_on_component_uuids() {
     ComponentDto sonarqube = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto jdk8 = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto cLang = db.components().insertPrivateProject().getMainBranchComponent();
@@ -1449,7 +1466,7 @@ public class ComponentDaoIT {
   }
 
   @Test
-  public void selectAncestors() {
+  void selectAncestors() {
     // project -> dir -> file
     ComponentDto project = newPrivateProjectDto(PROJECT_UUID);
     db.components().insertProjectAndSnapshot(project);
@@ -1473,7 +1490,7 @@ public class ComponentDaoIT {
   }
 
   @Test
-  public void select_children() {
+  void select_children() {
     ComponentDto project = newPrivateProjectDto(PROJECT_UUID);
     db.components().insertProjectAndSnapshot(project);
     ComponentDto dir = newDirectory(project, DIR_UUID, "path");
@@ -1487,7 +1504,8 @@ public class ComponentDaoIT {
     db.commit();
 
     // test children of root
-    assertThat(underTest.selectChildren(dbSession, project.uuid(), List.of(project))).extracting("uuid").containsOnly(FILE_1_UUID, DIR_UUID);
+    assertThat(underTest.selectChildren(dbSession, project.uuid(), List.of(project))).extracting("uuid").containsOnly(FILE_1_UUID,
+      DIR_UUID);
 
     // test children of intermediate component (dir here)
     assertThat(underTest.selectChildren(dbSession, project.uuid(), List.of(dir))).extracting("uuid").containsOnly(FILE_2_UUID, FILE_3_UUID);
@@ -1496,11 +1514,12 @@ public class ComponentDaoIT {
     assertThat(underTest.selectChildren(dbSession, project.uuid(), List.of(fileInProject))).isEmpty();
 
     // test children of 2 components
-    assertThat(underTest.selectChildren(dbSession, project.uuid(), List.of(project, dir))).extracting("uuid").containsOnly(FILE_1_UUID, DIR_UUID, FILE_2_UUID, FILE_3_UUID);
+    assertThat(underTest.selectChildren(dbSession, project.uuid(), List.of(project, dir))).extracting("uuid").containsOnly(FILE_1_UUID,
+      DIR_UUID, FILE_2_UUID, FILE_3_UUID);
   }
 
   @Test
-  public void select_descendants_with_children_strategy() {
+  void select_descendants_with_children_strategy() {
     // project has 2 children: dir and file 1. Other files are part of dir.
     ComponentDto project = newPrivateProjectDto(PROJECT_UUID);
     db.components().insertProjectAndSnapshot(project);
@@ -1576,7 +1595,7 @@ public class ComponentDaoIT {
   }
 
   @Test
-  public void select_descendants_with_leaves_strategy() {
+  void select_descendants_with_leaves_strategy() {
     ComponentDto project = newPrivateProjectDto(PROJECT_UUID);
     db.components().insertProjectAndSnapshot(project);
     db.components().insertComponent(newDirectory(project, "dir-1-uuid", "dir"));
@@ -1591,7 +1610,7 @@ public class ComponentDaoIT {
   }
 
   @Test
-  public void select_descendants_returns_empty_list_if_base_component_does_not_exist() {
+  void select_descendants_returns_empty_list_if_base_component_does_not_exist() {
     ComponentTreeQuery query = newTreeQuery(PROJECT_UUID).setStrategy(CHILDREN).build();
 
     List<ComponentDto> result = underTest.selectDescendants(dbSession, query);
@@ -1599,7 +1618,7 @@ public class ComponentDaoIT {
   }
 
   @Test
-  public void select_descendants_of_a_view_and_filter_by_name() {
+  void select_descendants_of_a_view_and_filter_by_name() {
     ComponentDto view = ComponentTesting.newPortfolio(A_VIEW_UUID);
     db.components().insertPortfolioAndSnapshot(view);
     // one subview
@@ -1616,7 +1635,7 @@ public class ComponentDaoIT {
   }
 
   @Test
-  public void setPrivateForBranchUuid_updates_private_column_to_specified_value_for_all_rows_with_specified_projectUuid() {
+  void setPrivateForBranchUuid_updates_private_column_to_specified_value_for_all_rows_with_specified_projectUuid() {
     String uuid1 = "uuid1";
     String uuid2 = "uuid2";
 
@@ -1662,7 +1681,7 @@ public class ComponentDaoIT {
   }
 
   @Test
-  public void existAnyOfComponentsWithQualifiers() {
+  void existAnyOfComponentsWithQualifiers() {
     ComponentDto projectDto = db.components().insertComponent(newPrivateProjectDto());
 
     ComponentDto view = db.components().insertComponent(newPortfolio());
@@ -1671,41 +1690,50 @@ public class ComponentDaoIT {
     ComponentDto app = db.components().insertComponent(newApplication());
 
     assertThat(underTest.existAnyOfComponentsWithQualifiers(db.getSession(), emptyList(), newHashSet(APP, VIEW, SUBVIEW))).isFalse();
-    assertThat(underTest.existAnyOfComponentsWithQualifiers(db.getSession(), singletonList("not-existing-component"), newHashSet(APP, VIEW, SUBVIEW))).isFalse();
-    assertThat(underTest.existAnyOfComponentsWithQualifiers(db.getSession(), singletonList(projectDto.getKey()), newHashSet(APP, VIEW, SUBVIEW))).isFalse();
+    assertThat(underTest.existAnyOfComponentsWithQualifiers(db.getSession(), singletonList("not-existing-component"), newHashSet(APP,
+      VIEW, SUBVIEW))).isFalse();
+    assertThat(underTest.existAnyOfComponentsWithQualifiers(db.getSession(), singletonList(projectDto.getKey()), newHashSet(APP, VIEW,
+      SUBVIEW))).isFalse();
 
     assertThat(underTest.existAnyOfComponentsWithQualifiers(db.getSession(), singletonList(projectDto.getKey()), newHashSet(PROJECT))).isTrue();
 
-    assertThat(underTest.existAnyOfComponentsWithQualifiers(db.getSession(), singletonList(view.getKey()), newHashSet(APP, VIEW, SUBVIEW))).isTrue();
-    assertThat(underTest.existAnyOfComponentsWithQualifiers(db.getSession(), singletonList(subview.getKey()), newHashSet(APP, VIEW, SUBVIEW))).isTrue();
+    assertThat(underTest.existAnyOfComponentsWithQualifiers(db.getSession(), singletonList(view.getKey()),
+      newHashSet(APP, VIEW, SUBVIEW))).isTrue();
+    assertThat(underTest.existAnyOfComponentsWithQualifiers(db.getSession(), singletonList(subview.getKey()), newHashSet(APP, VIEW,
+      SUBVIEW))).isTrue();
     assertThat(underTest.existAnyOfComponentsWithQualifiers(db.getSession(), singletonList(app.getKey()), newHashSet(APP, VIEW, SUBVIEW))).isTrue();
 
-    assertThat(underTest.existAnyOfComponentsWithQualifiers(db.getSession(), newHashSet(projectDto.getKey(), view.getKey()), newHashSet(APP, VIEW, SUBVIEW))).isTrue();
+    assertThat(underTest.existAnyOfComponentsWithQualifiers(db.getSession(), newHashSet(projectDto.getKey(), view.getKey()),
+      newHashSet(APP, VIEW, SUBVIEW))).isTrue();
   }
 
   @Test
-  public void selectComponentsFromBranchesThatHaveOpenIssues() {
+  void selectComponentsFromBranchesThatHaveOpenIssues() {
     final ProjectDto project = db.components().insertPrivateProject(b -> b.setName("foo")).getProjectDto();
 
-    ComponentDto branch1 = db.components().insertProjectBranch(project, ComponentTesting.newBranchDto(project.getUuid(), BRANCH).setKey("branch1"));
+    ComponentDto branch1 = db.components().insertProjectBranch(project, ComponentTesting.newBranchDto(project.getUuid(), BRANCH).setKey(
+      "branch1"));
     ComponentDto fileBranch1 = db.components().insertComponent(ComponentTesting.newFileDto(branch1));
 
-    ComponentDto branch2 = db.components().insertProjectBranch(project, ComponentTesting.newBranchDto(project.getUuid(), BRANCH).setKey("branch2"));
+    ComponentDto branch2 = db.components().insertProjectBranch(project, ComponentTesting.newBranchDto(project.getUuid(), BRANCH).setKey(
+      "branch2"));
     ComponentDto fileBranch2 = db.components().insertComponent(ComponentTesting.newFileDto(branch2));
     RuleDto rule = db.rules().insert();
     db.issues().insert(new IssueDto().setKee("i1").setComponent(fileBranch1).setProject(branch1).setRule(rule).setStatus(STATUS_CONFIRMED));
     db.issues().insert(new IssueDto().setKee("i2").setComponent(fileBranch2).setProject(branch2).setRule(rule).setStatus(STATUS_CLOSED));
     db.issues().insert(new IssueDto().setKee("i3").setComponent(fileBranch2).setProject(branch2).setRule(rule).setStatus(STATUS_OPEN));
 
-    List<KeyWithUuidDto> result = underTest.selectComponentsFromBranchesThatHaveOpenIssues(db.getSession(), of(branch1.uuid(), branch2.uuid()));
+    List<KeyWithUuidDto> result = underTest.selectComponentsFromBranchesThatHaveOpenIssues(db.getSession(), of(branch1.uuid(),
+      branch2.uuid()));
 
     assertThat(result).extracting(KeyWithUuidDto::uuid).contains(fileBranch2.uuid());
   }
 
   @Test
-  public void selectComponentsFromBranchesThatHaveOpenIssues_returns_nothing_if_no_open_issues_in_sibling_branches() {
+  void selectComponentsFromBranchesThatHaveOpenIssues_returns_nothing_if_no_open_issues_in_sibling_branches() {
     final ProjectDto project = db.components().insertPrivateProject(b -> b.setName("foo")).getProjectDto();
-    ComponentDto branch1 = db.components().insertProjectBranch(project, ComponentTesting.newBranchDto(project.getUuid(), BRANCH).setKey("branch1"));
+    ComponentDto branch1 = db.components().insertProjectBranch(project, ComponentTesting.newBranchDto(project.getUuid(), BRANCH).setKey(
+      "branch1"));
     ComponentDto fileBranch1 = db.components().insertComponent(ComponentTesting.newFileDto(branch1));
     RuleDto rule = db.rules().insert();
     db.issues().insert(new IssueDto().setKee("i").setComponent(fileBranch1).setProject(branch1).setRule(rule).setStatus(STATUS_CLOSED));
@@ -1716,21 +1744,21 @@ public class ComponentDaoIT {
   }
 
   @Test
-  public void setPrivateForBranchUuid_auditPersisterIsCalled() {
+  void setPrivateForBranchUuid_auditPersisterIsCalled() {
     underTestWithAuditPersister.setPrivateForBranchUuid(dbSession, "anyUuid", false, "key", APP, "appName");
 
     verify(auditPersister).updateComponentVisibility(any(DbSession.class), any(ComponentNewValue.class));
   }
 
   @Test
-  public void setPrivateForBranchUuidWithoutAudit_auditPersisterIsNotCalled() {
+  void setPrivateForBranchUuidWithoutAudit_auditPersisterIsNotCalled() {
     underTestWithAuditPersister.setPrivateForBranchUuidWithoutAudit(dbSession, "anyUuid", false);
 
     verifyNoInteractions(auditPersister);
   }
 
   @Test
-  public void update_auditPersisterIsCalled() {
+  void update_auditPersisterIsCalled() {
     ComponentUpdateDto app = new ComponentUpdateDto().setUuid("uuid");
     app.setBQualifier(APP);
 
@@ -1740,7 +1768,7 @@ public class ComponentDaoIT {
   }
 
   @Test
-  public void insert_auditPersisterIsCalled() {
+  void insert_auditPersisterIsCalled() {
     ComponentDto app = ComponentTesting.newApplication();
 
     underTestWithAuditPersister.insert(dbSession, app, true);
@@ -1749,7 +1777,7 @@ public class ComponentDaoIT {
   }
 
   @Test
-  public void insert_branch_auditPersisterIsNotCalled() {
+  void insert_branch_auditPersisterIsNotCalled() {
     ProjectData projectData = db.components().insertPublicProject();
     ComponentDto project = projectData.getMainBranchComponent();
     BranchDto branch = newBranchDto(projectData.projectUuid(), BRANCH);
@@ -1761,7 +1789,7 @@ public class ComponentDaoIT {
   }
 
   @Test
-  public void selectByKeyCaseInsensitive_shouldFindProject_whenCaseIsDifferent() {
+  void selectByKeyCaseInsensitive_shouldFindProject_whenCaseIsDifferent() {
     String projectKey = randomAlphabetic(5).toLowerCase();
     db.components().insertPrivateProject(c -> c.setKey(projectKey)).getMainBranchComponent();
 
@@ -1772,7 +1800,7 @@ public class ComponentDaoIT {
   }
 
   @Test
-  public void selectByKeyCaseInsensitive_should_not_match_non_main_branch() {
+  void selectByKeyCaseInsensitive_should_not_match_non_main_branch() {
     String projectKey = randomAlphabetic(5).toLowerCase();
     ProjectDto project = db.components().insertPrivateProject(c -> c.setKey(projectKey)).getProjectDto();
     BranchDto projectBranch = db.components().insertProjectBranch(project);
@@ -1784,7 +1812,7 @@ public class ComponentDaoIT {
   }
 
   @Test
-  public void selectByKeyCaseInsensitive_shouldNotFindProject_whenKeyIsDifferent() {
+  void selectByKeyCaseInsensitive_shouldNotFindProject_whenKeyIsDifferent() {
     String projectKey = randomAlphabetic(5).toLowerCase();
     db.components().insertPrivateProject(c -> c.setKey(projectKey)).getMainBranchComponent();
 
@@ -1802,10 +1830,6 @@ public class ComponentDaoIT {
         IntStream.range(0, 1 + new Random().nextInt(5)).mapToObj(i -> randomAlphabetic(9)),
         Arrays.stream(uuids))
       .collect(toSet());
-  }
-
-  private void insertMeasure(double value, ComponentDto componentDto, MetricDto metric) {
-    db.measures().insertLiveMeasure(componentDto, metric, m -> m.setValue(value));
   }
 
   private static <T> Consumer<T> defaults() {

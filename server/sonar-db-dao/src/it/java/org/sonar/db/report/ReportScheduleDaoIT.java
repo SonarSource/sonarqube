@@ -21,28 +21,29 @@ package org.sonar.db.report;
 
 import java.util.List;
 import org.jetbrains.annotations.NotNull;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class ReportScheduleDaoIT {
+class ReportScheduleDaoIT {
 
-  @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+  @RegisterExtension
+  private final DbTester db = DbTester.create(System2.INSTANCE);
 
   private final ReportScheduleDao underTest = db.getDbClient().reportScheduleDao();
 
   @Test
-  public void upsert_shouldPersistCorrectDataOnBranch() {
+  void upsert_shouldPersistCorrectDataOnBranch() {
     ReportScheduleDto reportScheduleDto = newReportScheduleDto("uuid").setBranchUuid("branch_uuid").setLastSendTimeInMs(1L);
     underTest.upsert(db.getSession(), reportScheduleDto);
 
     List<ReportScheduleDto> actual = underTest.selectAll(db.getSession());
     assertThat(actual).hasSize(1);
-    assertThat(actual.get(0)).extracting(ReportScheduleDto::getBranchUuid, ReportScheduleDto::getLastSendTimeInMs).containsExactly("branch_uuid", 1L);
+    assertThat(actual.get(0)).extracting(ReportScheduleDto::getBranchUuid, ReportScheduleDto::getLastSendTimeInMs).containsExactly(
+      "branch_uuid", 1L);
   }
 
   @NotNull
@@ -51,17 +52,18 @@ public class ReportScheduleDaoIT {
   }
 
   @Test
-  public void upsert_shouldPersistCorrectDataOnPortfolio() {
+  void upsert_shouldPersistCorrectDataOnPortfolio() {
     ReportScheduleDto reportScheduleDto = newReportScheduleDto("uuid").setPortfolioUuid("portfolio_uuid").setLastSendTimeInMs(1L);
     underTest.upsert(db.getSession(), reportScheduleDto);
 
     List<ReportScheduleDto> actual = underTest.selectAll(db.getSession());
     assertThat(actual).hasSize(1);
-    assertThat(actual.get(0)).extracting(ReportScheduleDto::getPortfolioUuid, ReportScheduleDto::getLastSendTimeInMs).containsExactly("portfolio_uuid", 1L);
+    assertThat(actual.get(0)).extracting(ReportScheduleDto::getPortfolioUuid, ReportScheduleDto::getLastSendTimeInMs).containsExactly(
+      "portfolio_uuid", 1L);
   }
 
   @Test
-  public void upsert_shouldUpdateLastSendTimeInMsOnBranch() {
+  void upsert_shouldUpdateLastSendTimeInMsOnBranch() {
     ReportScheduleDto reportScheduleDto = newReportScheduleDto("uuid").setBranchUuid("branch_uuid").setLastSendTimeInMs(1L);
     underTest.upsert(db.getSession(), reportScheduleDto);
 
@@ -70,12 +72,13 @@ public class ReportScheduleDaoIT {
 
     List<ReportScheduleDto> actual = underTest.selectAll(db.getSession());
     assertThat(actual).hasSize(1);
-    assertThat(actual.get(0)).extracting(ReportScheduleDto::getBranchUuid, ReportScheduleDto::getLastSendTimeInMs).containsExactly("branch_uuid", 2L);
+    assertThat(actual.get(0)).extracting(ReportScheduleDto::getBranchUuid, ReportScheduleDto::getLastSendTimeInMs).containsExactly(
+      "branch_uuid", 2L);
 
   }
 
   @Test
-  public void upsert_shouldUpdateLastSendTimeInMsOnPortfolio() {
+  void upsert_shouldUpdateLastSendTimeInMsOnPortfolio() {
     ReportScheduleDto reportScheduleDto = newReportScheduleDto("uuid").setPortfolioUuid("portfolio_uuid").setLastSendTimeInMs(1L);
     underTest.upsert(db.getSession(), reportScheduleDto);
 
@@ -84,11 +87,12 @@ public class ReportScheduleDaoIT {
 
     List<ReportScheduleDto> actual = underTest.selectAll(db.getSession());
     assertThat(actual).hasSize(1);
-    assertThat(actual.get(0)).extracting(ReportScheduleDto::getPortfolioUuid, ReportScheduleDto::getLastSendTimeInMs).containsExactly("portfolio_uuid", 2L);
+    assertThat(actual.get(0)).extracting(ReportScheduleDto::getPortfolioUuid, ReportScheduleDto::getLastSendTimeInMs).containsExactly(
+      "portfolio_uuid", 2L);
   }
 
   @Test
-  public void selectByBranch_shouldRetrieveCorrectInformationOnBranch() {
+  void selectByBranch_shouldRetrieveCorrectInformationOnBranch() {
     ReportScheduleDto reportScheduleDto = newReportScheduleDto("uuid").setBranchUuid("branch_uuid").setLastSendTimeInMs(1L);
     underTest.upsert(db.getSession(), reportScheduleDto);
     assertThat(underTest.selectByBranch(db.getSession(), "branch_uuid"))
@@ -97,7 +101,7 @@ public class ReportScheduleDaoIT {
   }
 
   @Test
-  public void selectByPortfolio_shouldRetrieveCorrectInformationOnPortfolio() {
+  void selectByPortfolio_shouldRetrieveCorrectInformationOnPortfolio() {
     ReportScheduleDto reportScheduleDto = newReportScheduleDto("uuid").setPortfolioUuid("portfolio_uuid").setLastSendTimeInMs(1L);
     underTest.upsert(db.getSession(), reportScheduleDto);
     assertThat(underTest.selectByPortfolio(db.getSession(), "portfolio_uuid"))

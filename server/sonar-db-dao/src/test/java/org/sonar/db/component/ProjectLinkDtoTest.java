@@ -19,14 +19,14 @@
  */
 package org.sonar.db.component;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class ProjectLinkDtoTest {
+class ProjectLinkDtoTest {
 
   @Test
-  public void test_getters_and_setters() {
+  void test_getters_and_setters() {
     ProjectLinkDto dto = new ProjectLinkDto()
       .setUuid("ABCD")
       .setProjectUuid("EFGH")
@@ -46,7 +46,7 @@ public class ProjectLinkDtoTest {
   }
 
   @Test
-  public void test_provided_types() {
+  void test_provided_types() {
     assertThat(ProjectLinkDto.PROVIDED_TYPES).hasSize(5);
   }
 }

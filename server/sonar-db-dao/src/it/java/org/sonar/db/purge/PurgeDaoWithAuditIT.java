@@ -19,12 +19,9 @@
  */
 package org.sonar.db.purge;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
-import org.mockito.junit.MockitoJUnitRunner;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -37,31 +34,28 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-@RunWith(MockitoJUnitRunner.class)
-public class PurgeDaoWithAuditIT {
+class PurgeDaoWithAuditIT {
 
   private final System2 system2 = mock(System2.class);
 
-  @Rule
-  public DbTester db = DbTester.create(system2);
-
-  @Captor
-  ArgumentCaptor<ComponentNewValue> newValueCaptor;
+  @RegisterExtension
+  private final DbTester db = DbTester.create(system2);
 
   private final DbSession dbSession = db.getSession();
   private final AuditPersister auditPersister = mock(AuditPersister.class);
   private final PurgeDao underTestWithPersister = new PurgeDao(system2, auditPersister);
 
   @Test
-  public void delete_project_persist_audit_with_uuid_and_name() {
+  void delete_project_persist_audit_with_uuid_and_name() {
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-
+    ArgumentCaptor<ComponentNewValue> newValueCaptor = ArgumentCaptor.forClass(ComponentNewValue.class);
     underTestWithPersister.deleteProject(dbSession, project.uuid(), project.qualifier(), project.name(), project.getKey());
 
     verify(auditPersister).deleteComponent(any(DbSession.class), newValueCaptor.capture());
     ComponentNewValue componentNewValue = newValueCaptor.getValue();
     assertThat(componentNewValue)
-      .extracting(ComponentNewValue::getComponentUuid, ComponentNewValue::getComponentName, ComponentNewValue::getComponentKey, ComponentNewValue::getQualifier)
+      .extracting(ComponentNewValue::getComponentUuid, ComponentNewValue::getComponentName, ComponentNewValue::getComponentKey,
+        ComponentNewValue::getQualifier)
       .containsExactly(project.uuid(), project.name(), project.getKey(), "TRK");
   }
 

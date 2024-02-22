@@ -21,18 +21,18 @@ package org.sonar.db.audit.model;
 
 import java.util.List;
 import org.json.simple.parser.JSONParser;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.sonar.db.user.UserDto;
 
 import static java.util.Collections.emptyList;
 import static org.junit.Assert.fail;
 
-public class UserNewValueTest {
+class UserNewValueTest {
 
   private static final JSONParser jsonParser = new JSONParser();
 
   @Test
-  public void toString_givenAllFieldsWithValue_returnValidJSON() {
+  void toString_givenAllFieldsWithValue_returnValidJSON() {
     UserDto userDto = createUserDto();
     UserNewValue userNewValue = new UserNewValue(userDto);
 
@@ -42,7 +42,7 @@ public class UserNewValueTest {
   }
 
   @Test
-  public void toString_givenEmptyScmAccount_returnValidJSON() {
+  void toString_givenEmptyScmAccount_returnValidJSON() {
     UserDto userDto = createUserDto();
     userDto.setScmAccounts(emptyList());
     UserNewValue userNewValue = new UserNewValue(userDto);
@@ -53,7 +53,7 @@ public class UserNewValueTest {
   }
 
   @Test
-  public void toString_givenUserUuidAndUserLogin_returnValidJSON() {
+  void toString_givenUserUuidAndUserLogin_returnValidJSON() {
     UserNewValue userNewValue = new UserNewValue("userUuid", "userLogin");
 
     String jsonString = userNewValue.toString();

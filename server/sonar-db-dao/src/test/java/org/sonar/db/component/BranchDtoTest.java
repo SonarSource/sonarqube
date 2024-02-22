@@ -19,17 +19,17 @@
  */
 package org.sonar.db.component;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.sonar.db.protobuf.DbProjectBranches;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class BranchDtoTest {
+class BranchDtoTest {
 
   private final BranchDto underTest = new BranchDto();
 
   @Test
-  public void verify_toString() {
+  void verify_toString() {
     underTest.setUuid("U1");
     underTest.setProjectUuid("U2");
     underTest.setIsMain(false);
@@ -43,7 +43,7 @@ public class BranchDtoTest {
   }
 
   @Test
-  public void verify_equals() {
+  void verify_equals() {
     underTest.setUuid("U1");
     underTest.setProjectUuid("U2");
     underTest.setIsMain(true);
@@ -64,7 +64,7 @@ public class BranchDtoTest {
   }
 
   @Test
-  public void encode_and_decode_pull_request_data() {
+  void encode_and_decode_pull_request_data() {
     String branch = "feature/pr1";
     String title = "Dummy Feature Title";
     String url = "http://example.com/pullRequests/pr1";
@@ -85,7 +85,7 @@ public class BranchDtoTest {
   }
 
   @Test
-  public void getPullRequestData_returns_null_when_data_is_null() {
+  void getPullRequestData_returns_null_when_data_is_null() {
     assertThat(underTest.getPullRequestData()).isNull();
   }
 }

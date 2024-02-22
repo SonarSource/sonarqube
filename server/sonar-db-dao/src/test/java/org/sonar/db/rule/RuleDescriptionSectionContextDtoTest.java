@@ -19,20 +19,20 @@
  */
 package org.sonar.db.rule;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.db.rule.RuleDescriptionSectionContextDto.DISPLAY_NAME_MUST_BE_SET_ERROR;
 import static org.sonar.db.rule.RuleDescriptionSectionContextDto.KEY_MUST_BE_SET_ERROR;
 
-public class RuleDescriptionSectionContextDtoTest {
+class RuleDescriptionSectionContextDtoTest {
 
   private static final String CONTEXT_KEY = "key";
   private static final String CONTEXT_DISPLAY_NAME = "displayName";
 
   @Test
-  public void check_of_instantiate_object() {
+  void check_of_instantiate_object() {
     RuleDescriptionSectionContextDto context = RuleDescriptionSectionContextDto.of(CONTEXT_KEY, CONTEXT_DISPLAY_NAME);
 
     assertThat(context).extracting(RuleDescriptionSectionContextDto::getKey,
@@ -40,54 +40,54 @@ public class RuleDescriptionSectionContextDtoTest {
   }
 
   @Test
-  public void check_of_with_key_is_empty() {
+  void check_of_with_key_is_empty() {
     assertThatThrownBy(() -> RuleDescriptionSectionContextDto.of("", CONTEXT_DISPLAY_NAME))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage(KEY_MUST_BE_SET_ERROR);
   }
 
   @Test
-  public void check_of_with_display_name_is_empty() {
+  void check_of_with_display_name_is_empty() {
     assertThatThrownBy(() -> RuleDescriptionSectionContextDto.of(CONTEXT_KEY, ""))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage(DISPLAY_NAME_MUST_BE_SET_ERROR);
   }
 
   @Test
-  public void equals_with_equals_objects_should_return_true() {
+  void equals_with_equals_objects_should_return_true() {
     RuleDescriptionSectionContextDto context1 = RuleDescriptionSectionContextDto.of(CONTEXT_KEY, CONTEXT_DISPLAY_NAME);
     RuleDescriptionSectionContextDto context2 = RuleDescriptionSectionContextDto.of(CONTEXT_KEY, CONTEXT_DISPLAY_NAME);
     assertThat(context1).isEqualTo(context2);
   }
 
   @Test
-  public void equals_with_same_objects_should_return_true() {
+  void equals_with_same_objects_should_return_true() {
     RuleDescriptionSectionContextDto context1 = RuleDescriptionSectionContextDto.of(CONTEXT_KEY, CONTEXT_DISPLAY_NAME);
     assertThat(context1).isEqualTo(context1);
   }
-  
+
   @Test
-  public void equals_with_one_null_objet_should_return_false() {
+  void equals_with_one_null_objet_should_return_false() {
     RuleDescriptionSectionContextDto context1 = RuleDescriptionSectionContextDto.of(CONTEXT_KEY, CONTEXT_DISPLAY_NAME);
     assertThat(context1).isNotEqualTo(null);
   }
 
   @Test
-  public void equals_with_different_display_names_should_return_false() {
+  void equals_with_different_display_names_should_return_false() {
     RuleDescriptionSectionContextDto context1 = RuleDescriptionSectionContextDto.of(CONTEXT_KEY, CONTEXT_DISPLAY_NAME);
     RuleDescriptionSectionContextDto context2 = RuleDescriptionSectionContextDto.of(CONTEXT_KEY, CONTEXT_DISPLAY_NAME + "2");
     assertThat(context1).isNotEqualTo(context2);
   }
 
   @Test
-  public void equals_with_different_context_keys_should_return_false() {
+  void equals_with_different_context_keys_should_return_false() {
     RuleDescriptionSectionContextDto context1 = RuleDescriptionSectionContextDto.of(CONTEXT_KEY, CONTEXT_DISPLAY_NAME);
     RuleDescriptionSectionContextDto context2 = RuleDescriptionSectionContextDto.of(CONTEXT_KEY + "2", CONTEXT_DISPLAY_NAME);
     assertThat(context1).isNotEqualTo(context2);
   }
 
   @Test
-  public void hashcode_with_equals_objects_should_return_same_hash() {
+  void hashcode_with_equals_objects_should_return_same_hash() {
     RuleDescriptionSectionContextDto context1 = RuleDescriptionSectionContextDto.of(CONTEXT_KEY, CONTEXT_DISPLAY_NAME);
     RuleDescriptionSectionContextDto context2 = RuleDescriptionSectionContextDto.of(CONTEXT_KEY, CONTEXT_DISPLAY_NAME);
     assertThat(context1).hasSameHashCodeAs(context2);

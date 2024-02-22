@@ -19,17 +19,15 @@
  */
 package org.sonar.db.scim;
 
-import com.tngtech.java.junit.dataprovider.DataProvider;
-import com.tngtech.java.junit.dataprovider.DataProviderRunner;
-import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.IntStream;
 import org.apache.commons.lang.StringUtils;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.sonar.db.DbTester;
 import org.sonar.db.OffsetBasedPagination;
 import org.sonar.db.Pagination;
@@ -41,20 +39,19 @@ import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Fail.fail;
 import static org.assertj.core.groups.Tuple.tuple;
 
-@RunWith(DataProviderRunner.class)
-public class ScimGroupDaoTest {
+class ScimGroupDaoTest {
   private static final String DISPLAY_NAME_FILTER = "displayName eq \"group2\"";
-  @Rule
-  public DbTester db = DbTester.create();
+  @RegisterExtension
+  private final DbTester db = DbTester.create();
   private final ScimGroupDao scimGroupDao = db.getDbClient().scimGroupDao();
 
   @Test
-  public void findAll_ifNoData_returnsEmptyList() {
+  void findAll_ifNoData_returnsEmptyList() {
     assertThat(scimGroupDao.findAll(db.getSession())).isEmpty();
   }
 
   @Test
-  public void findAll_returnsAllEntries() {
+  void findAll_returnsAllEntries() {
     ScimGroupDto scimGroup1 = db.users().insertScimGroup(db.users().insertGroup());
     ScimGroupDto scimGroup2 = db.users().insertScimGroup(db.users().insertGroup());
 
@@ -68,7 +65,7 @@ public class ScimGroupDaoTest {
   }
 
   @Test
-  public void countScimGroups_shouldReturnTheTotalNumberOfScimGroups() {
+  void countScimGroups_shouldReturnTheTotalNumberOfScimGroups() {
     int totalScimGroups = 15;
     generateScimGroups(totalScimGroups);
 
@@ -76,13 +73,12 @@ public class ScimGroupDaoTest {
   }
 
   @Test
-  public void countScimGroups_shouldReturnZero_whenNoScimGroups() {
+  void countScimGroups_shouldReturnZero_whenNoScimGroups() {
     assertThat(scimGroupDao.countScimGroups(db.getSession(), ScimGroupQuery.ALL)).isZero();
   }
 
-  @DataProvider
-  public static Object[][] paginationData() {
-    return new Object[][] {
+  static Object[][] paginationData() {
+    return new Object[][]{
       {5, 0, 20, List.of("1", "2", "3", "4", "5")},
       {9, 0, 5, List.of("1", "2", "3", "4", "5")},
       {9, 3, 3, List.of("4", "5", "6")},
@@ -91,13 +87,14 @@ public class ScimGroupDaoTest {
     };
   }
 
-  @Test
-  @UseDataProvider("paginationData")
-  public void findScimGroups_whenPaginationAndStartIndex_shouldReturnTheCorrectNumberOfScimGroups(int totalScimGroups, int offset, int pageSize,
+  @ParameterizedTest
+  @MethodSource("paginationData")
+  void findScimGroups_whenPaginationAndStartIndex_shouldReturnTheCorrectNumberOfScimGroups(int totalScimGroups, int offset, int pageSize,
     List<String> expectedScimGroupUuidSuffixes) {
     generateScimGroups(totalScimGroups);
 
-    List<ScimGroupDto> scimGroupDtos = scimGroupDao.findScimGroups(db.getSession(), ScimGroupQuery.ALL, OffsetBasedPagination.forOffset(offset, pageSize));
+    List<ScimGroupDto> scimGroupDtos = scimGroupDao.findScimGroups(db.getSession(), ScimGroupQuery.ALL,
+      OffsetBasedPagination.forOffset(offset, pageSize));
 
     List<String> actualScimGroupsUuids = toScimGroupsUuids(scimGroupDtos);
     List<String> expectedScimGroupUuids = toExpectedscimGroupUuids(expectedScimGroupUuidSuffixes);
@@ -111,7 +108,7 @@ public class ScimGroupDaoTest {
   }
 
   @Test
-  public void findScimGroups_whenFilteringByDisplayName_shouldReturnTheExpectedScimGroups() {
+  void findScimGroups_whenFilteringByDisplayName_shouldReturnTheExpectedScimGroups() {
     insertGroupAndScimGroup("group1");
     insertGroupAndScimGroup("group2");
     ScimGroupQuery query = ScimGroupQuery.fromScimFilter(DISPLAY_NAME_FILTER);
@@ -123,7 +120,7 @@ public class ScimGroupDaoTest {
   }
 
   @Test
-  public void countScimGroups_whenFilteringByDisplayName_shouldReturnCorrectCount() {
+  void countScimGroups_whenFilteringByDisplayName_shouldReturnCorrectCount() {
     insertGroupAndScimGroup("group1");
     insertGroupAndScimGroup("group2");
     ScimGroupQuery query = ScimGroupQuery.fromScimFilter(DISPLAY_NAME_FILTER);
@@ -139,13 +136,13 @@ public class ScimGroupDaoTest {
   }
 
   @Test
-  public void getManagedGroupsSqlFilter_whenFilterByManagedIsTrue_returnsCorrectQuery() {
+  void getManagedGroupsSqlFilter_whenFilterByManagedIsTrue_returnsCorrectQuery() {
     String filterManagedUser = scimGroupDao.getManagedGroupSqlFilter(true);
     assertThat(filterManagedUser).isEqualTo(" exists (select group_uuid from scim_groups sg where sg.group_uuid = uuid)");
   }
 
   @Test
-  public void getManagedGroupsSqlFilter_whenFilterByManagedIsFalse_returnsCorrectQuery() {
+  void getManagedGroupsSqlFilter_whenFilterByManagedIsFalse_returnsCorrectQuery() {
     String filterNonManagedUser = scimGroupDao.getManagedGroupSqlFilter(false);
     assertThat(filterNonManagedUser).isEqualTo("not exists (select group_uuid from scim_groups sg where sg.group_uuid = uuid)");
   }
@@ -183,12 +180,12 @@ public class ScimGroupDaoTest {
   }
 
   @Test
-  public void findByScimUuid_whenScimUuidNotFound_shouldReturnEmptyOptional() {
+  void findByScimUuid_whenScimUuidNotFound_shouldReturnEmptyOptional() {
     assertThat(scimGroupDao.findByScimUuid(db.getSession(), "unknownId")).isEmpty();
   }
 
   @Test
-  public void findByScimUuid_whenScimUuidFound_shouldReturnDto() {
+  void findByScimUuid_whenScimUuidFound_shouldReturnDto() {
     ScimGroupDto scimGroupDto = db.users().insertScimGroup(db.users().insertGroup());
     db.users().insertScimGroup(db.users().insertGroup());
 
@@ -200,12 +197,12 @@ public class ScimGroupDaoTest {
   }
 
   @Test
-  public void findByGroupUuid_whenScimUuidNotFound_shouldReturnEmptyOptional() {
+  void findByGroupUuid_whenScimUuidNotFound_shouldReturnEmptyOptional() {
     assertThat(scimGroupDao.findByGroupUuid(db.getSession(), "unknownId")).isEmpty();
   }
 
   @Test
-  public void findByGroupUuid_whenScimUuidFound_shouldReturnDto() {
+  void findByGroupUuid_whenScimUuidFound_shouldReturnDto() {
     ScimGroupDto scimGroupDto = db.users().insertScimGroup(db.users().insertGroup());
     db.users().insertScimGroup(db.users().insertGroup());
 
@@ -217,7 +214,7 @@ public class ScimGroupDaoTest {
   }
 
   @Test
-  public void enableScimForGroup_addsGroupToScimGroups() {
+  void enableScimForGroup_addsGroupToScimGroups() {
     ScimGroupDto underTest = scimGroupDao.enableScimForGroup(db.getSession(), "sqGroup1");
 
     assertThat(underTest.getScimGroupUuid()).isNotBlank();
@@ -227,7 +224,7 @@ public class ScimGroupDaoTest {
   }
 
   @Test
-  public void deleteByGroupUuid_shouldDeleteScimGroup() {
+  void deleteByGroupUuid_shouldDeleteScimGroup() {
     ScimGroupDto scimGroupDto = db.users().insertScimGroup(db.users().insertGroup());
 
     scimGroupDao.deleteByGroupUuid(db.getSession(), scimGroupDto.getGroupUuid());
@@ -236,7 +233,7 @@ public class ScimGroupDaoTest {
   }
 
   @Test
-  public void deleteByScimUuid_shouldDeleteScimGroup() {
+  void deleteByScimUuid_shouldDeleteScimGroup() {
     ScimGroupDto scimGroupDto1 = db.users().insertScimGroup(db.users().insertGroup());
     ScimGroupDto scimGroupDto2 = db.users().insertScimGroup(db.users().insertGroup());
 
@@ -251,13 +248,13 @@ public class ScimGroupDaoTest {
   }
 
   @Test
-  public void deleteFromGroupUuid_shouldNotFail_whenNoGroup() {
+  void deleteFromGroupUuid_shouldNotFail_whenNoGroup() {
     assertThatCode(() -> scimGroupDao.deleteByGroupUuid(db.getSession(), randomAlphanumeric(6))).doesNotThrowAnyException();
   }
 
 
   @Test
-  public void deleteAll_should_remove_all_ScimGroups(){
+  void deleteAll_should_remove_all_ScimGroups() {
     insertScimGroup("scim-group-uuid1", "group-uuid1");
     insertScimGroup("scim-group-uuid2", "group-uuid2");
 

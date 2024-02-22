@@ -23,7 +23,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.Optional;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
@@ -31,9 +31,9 @@ import org.sonar.api.utils.System2;
 import static java.util.Collections.emptySet;
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class PurgeConfigurationTest {
+class PurgeConfigurationTest {
   @Test
-  public void should_delete_all_closed_issues() {
+  void should_delete_all_closed_issues() {
     PurgeConfiguration conf = new PurgeConfiguration("root", "project", 0, Optional.empty(), System2.INSTANCE, emptySet(), 0);
     assertThat(conf.maxLiveDateOfClosedIssues()).isNull();
 
@@ -42,7 +42,7 @@ public class PurgeConfigurationTest {
   }
 
   @Test
-  public void should_delete_only_old_closed_issues() {
+  void should_delete_only_old_closed_issues() {
     Date now = DateUtils.parseDate("2013-05-18");
 
     PurgeConfiguration conf = new PurgeConfiguration("root", "project", 30, Optional.empty(), System2.INSTANCE, emptySet(), 0);
@@ -54,7 +54,7 @@ public class PurgeConfigurationTest {
   }
 
   @Test
-  public void should_have_empty_branch_purge_date() {
+  void should_have_empty_branch_purge_date() {
     PurgeConfiguration conf = new PurgeConfiguration("root", "project", 30, Optional.of(10), System2.INSTANCE, emptySet(), 0);
     assertThat(conf.maxLiveDateOfInactiveBranches()).isNotEmpty();
     long tenDaysAgo = DateUtils.addDays(new Date(System2.INSTANCE.now()), -10).getTime();
@@ -62,17 +62,18 @@ public class PurgeConfigurationTest {
   }
 
   @Test
-  public void should_calculate_branch_purge_date() {
+  void should_calculate_branch_purge_date() {
     PurgeConfiguration conf = new PurgeConfiguration("root", "project", 30, Optional.empty(), System2.INSTANCE, emptySet(), 0);
     assertThat(conf.maxLiveDateOfInactiveBranches()).isEmpty();
   }
 
   @Test
-  public void should_delete_only_old_anticipated_transitions() {
+  void should_delete_only_old_anticipated_transitions() {
     int anticipatedTransitionMaxAge = 30;
     TestSystem2 system2 = new TestSystem2();
     system2.setNow(Instant.now().toEpochMilli());
-    PurgeConfiguration conf = new PurgeConfiguration("root", "project", 30, Optional.empty(), system2, emptySet(), anticipatedTransitionMaxAge);
+    PurgeConfiguration conf = new PurgeConfiguration("root", "project", 30, Optional.empty(), system2, emptySet(),
+      anticipatedTransitionMaxAge);
 
     Instant toDate = conf.maxLiveDateOfAnticipatedTransitions();
 

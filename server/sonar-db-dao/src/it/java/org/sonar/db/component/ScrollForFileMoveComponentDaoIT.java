@@ -19,18 +19,19 @@
  */
 package org.sonar.db.component;
 
-import com.tngtech.java.junit.dataprovider.DataProvider;
-import com.tngtech.java.junit.dataprovider.DataProviderRunner;
-import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 import org.apache.ibatis.session.ResultContext;
 import org.apache.ibatis.session.ResultHandler;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -39,41 +40,44 @@ import org.sonar.db.source.FileSourceDto;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.fail;
 import static org.sonar.api.resources.Qualifiers.FILE;
 import static org.sonar.api.resources.Qualifiers.UNIT_TEST_FILE;
 
-@RunWith(DataProviderRunner.class)
-public class ScrollForFileMoveComponentDaoIT {
-  @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+class ScrollForFileMoveComponentDaoIT {
+  @RegisterExtension
+  private final DbTester db = DbTester.create(System2.INSTANCE);
 
-  private Random random = new Random();
-  private DbSession dbSession = db.getSession();
-  private ComponentDao underTest = new ComponentDao(new NoOpAuditPersister());
+  private final DbSession dbSession = db.getSession();
+  private final ComponentDao underTest = new ComponentDao(new NoOpAuditPersister());
 
   @Test
-  public void scrollAllFilesForFileMove_has_no_effect_if_project_does_not_exist() {
+  void scrollAllFilesForFileMove_has_no_effect_if_project_does_not_exist() {
     String nonExistingProjectUuid = randomAlphabetic(10);
 
-    underTest.scrollAllFilesForFileMove(dbSession, nonExistingProjectUuid, resultContext -> fail("handler should not be called"));
+    underTest.scrollAllFilesForFileMove(dbSession, nonExistingProjectUuid, resultContext -> Assertions.fail("handler should not be " +
+      "called"));
   }
 
-  @Test
-  public void scrollAllFilesForFileMove_has_no_effect_if_project_has_no_file() {
-    ComponentDto project = random.nextBoolean() ? db.components().insertPrivateProject().getMainBranchComponent() : db.components().insertPublicProject().getMainBranchComponent();
+  @ParameterizedTest
+  @ValueSource(booleans = {true, false})
+  void scrollAllFilesForFileMove_has_no_effect_if_project_has_no_file(boolean isPrivate) {
+    ComponentDto project = isPrivate ? db.components().insertPrivateProject().getMainBranchComponent() :
+      db.components().insertPublicProject().getMainBranchComponent();
 
-    underTest.scrollAllFilesForFileMove(dbSession, project.uuid(), resultContext -> fail("handler should not be called"));
+    underTest.scrollAllFilesForFileMove(dbSession, project.uuid(), resultContext -> Assertions.fail("handler should not be called"));
   }
 
-  @Test
-  public void scrollAllFilesForFileMove_ignores_files_with_null_path() {
-    ComponentDto project = random.nextBoolean() ? db.components().insertPrivateProject().getMainBranchComponent() : db.components().insertPublicProject().getMainBranchComponent();
+  @ParameterizedTest
+  @ValueSource(booleans = {true, false})
+  void scrollAllFilesForFileMove_ignores_files_with_null_path(boolean isPrivate) {
+    ComponentDto project = isPrivate ? db.components().insertPrivateProject().getMainBranchComponent() :
+      db.components().insertPublicProject().getMainBranchComponent();
     ComponentAndSource file = insertFileAndSource(project, FILE);
     ComponentAndSource ut = insertFileAndSource(project, UNIT_TEST_FILE);
     ComponentDto fileNoPath = db.components().insertComponent(ComponentTesting.newFileDto(project).setPath(null).setQualifier(FILE));
     db.fileSources().insertFileSource(fileNoPath);
-    ComponentDto utNoPath = db.components().insertComponent(ComponentTesting.newFileDto(project).setPath(null).setQualifier(UNIT_TEST_FILE));
+    ComponentDto utNoPath =
+      db.components().insertComponent(ComponentTesting.newFileDto(project).setPath(null).setQualifier(UNIT_TEST_FILE));
     db.fileSources().insertFileSource(utNoPath);
     RecordingResultHandler resultHandler = new RecordingResultHandler();
 
@@ -84,13 +88,16 @@ public class ScrollForFileMoveComponentDaoIT {
     verifyFileMoveRowDto(resultHandler, ut);
   }
 
-  @Test
-  public void scrollAllFilesForFileMove_ignores_files_without_source() {
-    ComponentDto project = random.nextBoolean() ? db.components().insertPrivateProject().getMainBranchComponent() : db.components().insertPublicProject().getMainBranchComponent();
+  @ParameterizedTest
+  @ValueSource(booleans = {true, false})
+  void scrollAllFilesForFileMove_ignores_files_without_source(boolean isPrivate) {
+    ComponentDto project = isPrivate ? db.components().insertPrivateProject().getMainBranchComponent() :
+      db.components().insertPublicProject().getMainBranchComponent();
     ComponentAndSource file = insertFileAndSource(project, FILE);
     ComponentAndSource ut = insertFileAndSource(project, UNIT_TEST_FILE);
     ComponentDto fileNoSource = db.components().insertComponent(ComponentTesting.newFileDto(project).setPath(null).setQualifier(FILE));
-    ComponentDto utNoSource = db.components().insertComponent(ComponentTesting.newFileDto(project).setPath(null).setQualifier(UNIT_TEST_FILE));
+    ComponentDto utNoSource =
+      db.components().insertComponent(ComponentTesting.newFileDto(project).setPath(null).setQualifier(UNIT_TEST_FILE));
     RecordingResultHandler resultHandler = new RecordingResultHandler();
 
     underTest.scrollAllFilesForFileMove(dbSession, project.uuid(), resultHandler);
@@ -100,9 +107,11 @@ public class ScrollForFileMoveComponentDaoIT {
     verifyFileMoveRowDto(resultHandler, ut);
   }
 
-  @Test
-  public void scrollAllFilesForFileMove_scrolls_files_of_project() {
-    ComponentDto project = random.nextBoolean() ? db.components().insertPrivateProject().getMainBranchComponent() : db.components().insertPublicProject().getMainBranchComponent();
+  @ParameterizedTest
+  @ValueSource(booleans = {true, false})
+  void scrollAllFilesForFileMove_scrolls_files_of_project(boolean isPrivate) {
+    ComponentDto project = isPrivate ? db.components().insertPrivateProject().getMainBranchComponent() :
+      db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto dir1 = db.components().insertComponent(ComponentTesting.newDirectory(project, "path"));
     ComponentDto dir2 = db.components().insertComponent(ComponentTesting.newDirectory(dir1, "path2"));
     ComponentAndSource file1 = insertFileAndSource(project, FILE);
@@ -118,12 +127,14 @@ public class ScrollForFileMoveComponentDaoIT {
     verifyFileMoveRowDto(resultHandler, file3);
   }
 
-  @Test
-  public void scrollAllFilesForFileMove_scrolls_large_number_of_files_and_uts() {
-    ComponentDto project = random.nextBoolean() ? db.components().insertPrivateProject().getMainBranchComponent() : db.components().insertPublicProject().getMainBranchComponent();
-    List<ComponentAndSource> files = IntStream.range(0, 300 + random.nextInt(500))
+  @ParameterizedTest
+  @ValueSource(booleans = {true, false})
+  void scrollAllFilesForFileMove_scrolls_large_number_of_files_and_uts(boolean isPrivate) {
+    ComponentDto project = isPrivate ? db.components().insertPrivateProject().getMainBranchComponent() :
+      db.components().insertPublicProject().getMainBranchComponent();
+    List<ComponentAndSource> files = IntStream.range(0, 500)
       .mapToObj(i -> {
-        String qualifier = random.nextBoolean() ? FILE : UNIT_TEST_FILE;
+        String qualifier = isPrivate ? FILE : UNIT_TEST_FILE;
         ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(project).setKey("f_" + i).setQualifier(qualifier));
         FileSourceDto fileSource = db.fileSources().insertFileSource(file);
         return new ComponentAndSource(file, fileSource);
@@ -137,9 +148,11 @@ public class ScrollForFileMoveComponentDaoIT {
     files.forEach(f -> verifyFileMoveRowDto(resultHandler, f));
   }
 
-  @Test
-  public void scrollAllFilesForFileMove_scrolls_unit_tests_of_project() {
-    ComponentDto project = random.nextBoolean() ? db.components().insertPrivateProject().getMainBranchComponent() : db.components().insertPublicProject().getMainBranchComponent();
+  @ParameterizedTest
+  @ValueSource(booleans = {true, false})
+  void scrollAllFilesForFileMove_scrolls_unit_tests_of_project(boolean isPrivate) {
+    ComponentDto project = isPrivate ? db.components().insertPrivateProject().getMainBranchComponent() :
+      db.components().insertPublicProject().getMainBranchComponent();
     ComponentAndSource ut = insertFileAndSource(project, UNIT_TEST_FILE);
     RecordingResultHandler resultHandler = new RecordingResultHandler();
 
@@ -149,10 +162,11 @@ public class ScrollForFileMoveComponentDaoIT {
     verifyFileMoveRowDto(resultHandler, ut);
   }
 
-  @Test
-  @UseDataProvider("branchTypes")
-  public void scrollAllFilesForFileMove_scrolls_files_and_unit_tests_of_branch(BranchType branchType) {
-    ComponentDto project = random.nextBoolean() ? db.components().insertPrivateProject().getMainBranchComponent() : db.components().insertPublicProject().getMainBranchComponent();
+  @ParameterizedTest
+  @MethodSource("branchTypes")
+  void scrollAllFilesForFileMove_scrolls_files_and_unit_tests_of_branch(BranchType branchType, boolean isPrivate) {
+    ComponentDto project = isPrivate ? db.components().insertPrivateProject().getMainBranchComponent() :
+      db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto branch = db.components().insertProjectBranch(project, t -> t.setBranchType(branchType));
     ComponentAndSource file = insertFileAndSource(branch, FILE);
     ComponentAndSource ut = insertFileAndSource(branch, UNIT_TEST_FILE);
@@ -165,27 +179,31 @@ public class ScrollForFileMoveComponentDaoIT {
     verifyFileMoveRowDto(resultHandler, ut);
   }
 
-  @DataProvider
-  public static Object[][] branchTypes() {
-    return new Object[][] {
-      {BranchType.BRANCH},
-      {BranchType.PULL_REQUEST}
-    };
+  private static Stream<Arguments> branchTypes() {
+    return Stream.of(
+      Arguments.of(BranchType.BRANCH, true),
+      Arguments.of(BranchType.BRANCH, false),
+      Arguments.of(BranchType.PULL_REQUEST, true),
+      Arguments.of(BranchType.PULL_REQUEST, false)
+    );
   }
 
-  @Test
-  public void scrollAllFilesForFileMove_ignores_non_file_and_non_ut_component_with_source() {
-    ComponentDto project = random.nextBoolean() ? db.components().insertPrivateProject().getMainBranchComponent() : db.components().insertPublicProject().getMainBranchComponent();
+  @ParameterizedTest
+  @ValueSource(booleans = {true, false})
+  void scrollAllFilesForFileMove_ignores_non_file_and_non_ut_component_with_source(boolean isPrivate) {
+    ComponentDto project = isPrivate ? db.components().insertPrivateProject().getMainBranchComponent() :
+      db.components().insertPublicProject().getMainBranchComponent();
     db.fileSources().insertFileSource(project);
     ComponentDto dir = db.components().insertComponent(ComponentTesting.newDirectory(project, "foo"));
     db.fileSources().insertFileSource(dir);
     ComponentAndSource file = insertFileAndSource(project, FILE);
     ComponentAndSource ut = insertFileAndSource(dir, UNIT_TEST_FILE);
-    ComponentDto portfolio = random.nextBoolean() ? db.components().insertPublicPortfolio() : db.components().insertPrivatePortfolio();
+    ComponentDto portfolio = isPrivate ? db.components().insertPublicPortfolio() : db.components().insertPrivatePortfolio();
     db.fileSources().insertFileSource(portfolio);
     ComponentDto subView = db.components().insertSubView(portfolio);
     db.fileSources().insertFileSource(subView);
-    ComponentDto application = random.nextBoolean() ? db.components().insertPrivateApplication().getMainBranchComponent() : db.components().insertPublicApplication().getMainBranchComponent();
+    ComponentDto application = isPrivate ? db.components().insertPrivateApplication().getMainBranchComponent() :
+      db.components().insertPublicApplication().getMainBranchComponent();
     db.fileSources().insertFileSource(application);
     RecordingResultHandler resultHandler = new RecordingResultHandler();
 
@@ -218,14 +236,7 @@ public class ScrollForFileMoveComponentDaoIT {
     return new ComponentAndSource(file, fileSource);
   }
 
-  private static final class ComponentAndSource {
-    private final ComponentDto component;
-    private final FileSourceDto source;
-
-    private ComponentAndSource(ComponentDto component, FileSourceDto source) {
-      this.component = component;
-      this.source = source;
-    }
+  private record ComponentAndSource(ComponentDto component, FileSourceDto source) {
   }
 
   private static void verifyFileMoveRowDto(RecordingResultHandler resultHander, ComponentAndSource componentAndSource) {

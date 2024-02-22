@@ -19,21 +19,16 @@
  */
 package org.sonar.db.scim;
 
-import com.tngtech.java.junit.dataprovider.DataProvider;
-import com.tngtech.java.junit.dataprovider.DataProviderRunner;
-import com.tngtech.java.junit.dataprovider.UseDataProvider;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@RunWith(DataProviderRunner.class)
-public class ScimUserDtoTest {
+class ScimUserDtoTest {
 
 
-  @DataProvider
   public static Object[][] testEqualsParameters() {
-    return new Object[][] {
+    return new Object[][]{
       {new ScimUserDto("uuidA", "userIdA"), new ScimUserDto("uuidA", "userIdA"), true},
       {new ScimUserDto("uuidA", "userIdA"), new ScimUserDto("uuidA", "userIdB"), false},
       {new ScimUserDto("uuidA", "userIdA"), new ScimUserDto("uuidB", "userIdA"), false},
@@ -41,9 +36,9 @@ public class ScimUserDtoTest {
     };
   }
 
-  @Test
-  @UseDataProvider("testEqualsParameters")
-  public void testEquals(ScimUserDto scimUserDtoA, ScimUserDto scimUserDtoB, boolean expectedResult) {
+  @ParameterizedTest
+  @MethodSource("testEqualsParameters")
+  void testEquals(ScimUserDto scimUserDtoA, ScimUserDto scimUserDtoB, boolean expectedResult) {
     assertThat(scimUserDtoA.equals(scimUserDtoB)).isEqualTo(expectedResult);
   }
 }

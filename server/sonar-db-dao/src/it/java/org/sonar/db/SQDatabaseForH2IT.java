@@ -22,27 +22,27 @@ package org.sonar.db;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class SQDatabaseForH2IT {
+class SQDatabaseForH2IT {
   SQDatabase db = new SQDatabase.Builder().asH2Database("sonar2").createSchema(true).build();
 
-  @Before
-  public void startDb() {
+  @BeforeEach
+  void startDb() {
     db.start();
   }
 
-  @After
-  public void stopDb() {
+  @AfterEach
+  void stopDb() {
     db.stop();
   }
 
   @Test
-  public void shouldExecuteDdlAtStartup() throws SQLException {
+  void shouldExecuteDdlAtStartup() throws SQLException {
     Connection connection = db.getDataSource().getConnection();
     int tableCount = countTables(connection);
     connection.close();
@@ -52,7 +52,7 @@ public class SQDatabaseForH2IT {
 
   private static int countTables(Connection connection) throws SQLException {
     int count = 0;
-    ResultSet resultSet = connection.getMetaData().getTables("", null, null, new String[] {"TABLE"});
+    ResultSet resultSet = connection.getMetaData().getTables("", null, null, new String[]{"TABLE"});
     while (resultSet.next()) {
       count++;
     }

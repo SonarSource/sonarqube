@@ -24,8 +24,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.impl.utils.AlwaysIncreasingSystem2;
 import org.sonar.api.rules.CleanCodeAttribute;
 import org.sonar.api.utils.System2;
@@ -51,19 +51,19 @@ import static org.sonar.api.rules.CleanCodeAttribute.CONVENTIONAL;
 import static org.sonar.api.rules.CleanCodeAttribute.LAWFUL;
 import static org.sonar.api.rules.CleanCodeAttribute.TESTED;
 
-public class QProfileChangeDaoIT {
+class QProfileChangeDaoIT {
 
   private final System2 system2 = new AlwaysIncreasingSystem2();
 
-  @Rule
-  public DbTester db = DbTester.create(system2);
+  @RegisterExtension
+  private final DbTester db = DbTester.create(system2);
 
   private final DbSession dbSession = db.getSession();
   private final UuidFactory uuidFactory = new SequenceUuidFactory();
   private final QProfileChangeDao underTest = new QProfileChangeDao(system2, uuidFactory);
 
   @Test
-  public void insert() {
+  void insert() {
     QProfileChangeDto dto = insertChange("P1", "ACTIVATED", "marcel_uuid", "some_data", null);
 
     verifyInserted(dto);
@@ -73,7 +73,7 @@ public class QProfileChangeDaoIT {
    * user_login and data can be null
    */
   @Test
-  public void test_insert_with_null_fields() {
+  void test_insert_with_null_fields() {
     QProfileChangeDto dto = insertChange("P1", "ACTIVATED", null, null, null);
 
     verifyInserted(dto);
@@ -90,14 +90,14 @@ public class QProfileChangeDaoIT {
   }
 
   @Test
-  public void insert_throws_ISE_if_date_is_already_set() {
-    assertThatThrownBy(() ->  underTest.insert(dbSession, new QProfileChangeDto().setCreatedAt(123L)))
+  void insert_throws_ISE_if_date_is_already_set() {
+    assertThatThrownBy(() -> underTest.insert(dbSession, new QProfileChangeDto().setCreatedAt(123L)))
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("Date of QProfileChangeDto must be set by DAO only. Got 123.");
   }
 
   @Test
-  public void whenBulkInsert_thenDateAreTheSame() {
+  void whenBulkInsert_thenDateAreTheSame() {
     List<QProfileChangeDto> changes = Stream.generate(QProfileChangeDto::new)
       .peek(dto -> dto.setRulesProfileUuid("rule_profil_uuid").setChangeType("type"))
       .limit(3)
@@ -113,14 +113,14 @@ public class QProfileChangeDaoIT {
   }
 
   @Test
-  public void selectByQuery_returns_empty_list_if_profile_does_not_exist() {
+  void selectByQuery_returns_empty_list_if_profile_does_not_exist() {
     List<QProfileChangeDto> changes = underTest.selectByQuery(dbSession, new QProfileChangeQuery("P1"));
 
     assertThat(changes).isEmpty();
   }
 
   @Test
-  public void selectByQuery_returns_changes_ordered_by_descending_date() {
+  void selectByQuery_returns_changes_ordered_by_descending_date() {
     QProfileDto profile1 = db.qualityProfiles().insert();
     QProfileDto profile2 = db.qualityProfiles().insert();
 
@@ -135,14 +135,15 @@ public class QProfileChangeDaoIT {
   }
 
   @Test
-  public void selectByQuery_shouldReturnCleanCodeAttributeAndImpactChanges() {
+  void selectByQuery_shouldReturnCleanCodeAttributeAndImpactChanges() {
     QProfileDto profile1 = db.qualityProfiles().insert();
     QProfileDto profile2 = db.qualityProfiles().insert();
 
     RuleChangeDto ruleChange1 = insertRuleChange(CLEAR, TESTED,
       Set.of(new RuleImpactChangeDto(MAINTAINABILITY, RELIABILITY, LOW, MEDIUM), new RuleImpactChangeDto(RELIABILITY, null, LOW, null)));
     RuleChangeDto ruleChange2 = insertRuleChange(CONVENTIONAL, LAWFUL,
-      Set.of(new RuleImpactChangeDto(SECURITY, SECURITY, LOW, HIGH), new RuleImpactChangeDto(RELIABILITY, MAINTAINABILITY, MEDIUM, MEDIUM)));
+      Set.of(new RuleImpactChangeDto(SECURITY, SECURITY, LOW, HIGH), new RuleImpactChangeDto(RELIABILITY, MAINTAINABILITY, MEDIUM,
+        MEDIUM)));
 
     QProfileChangeDto change1OnP1 = insertChange(profile1.getRulesProfileUuid(), "ACTIVATED", null, null, ruleChange1);
     QProfileChangeDto change2OnP1 = insertChange(profile1, "ACTIVATED", null, null);
@@ -166,7 +167,7 @@ public class QProfileChangeDaoIT {
   }
 
   @Test
-  public void selectByQuery_whenRuleChangeHasNoImpact_shouldReturnEmptyImpacts() {
+  void selectByQuery_whenRuleChangeHasNoImpact_shouldReturnEmptyImpacts() {
     QProfileDto profile1 = db.qualityProfiles().insert();
 
     RuleChangeDto ruleChange = insertRuleChange(CLEAR, TESTED, null);
@@ -178,7 +179,7 @@ public class QProfileChangeDaoIT {
   }
 
   @Test
-  public void selectByQuery_supports_pagination_of_changes() {
+  void selectByQuery_supports_pagination_of_changes() {
     QProfileDto profile = db.qualityProfiles().insert();
     QProfileChangeDto change1 = insertChange(profile, "ACTIVATED", null, null);
     QProfileChangeDto change2 = insertChange(profile, "ACTIVATED", null, null);
@@ -195,7 +196,7 @@ public class QProfileChangeDaoIT {
   }
 
   @Test
-  public void selectByQuery_returns_changes_after_given_date() {
+  void selectByQuery_returns_changes_after_given_date() {
     QProfileDto profile = db.qualityProfiles().insert();
     QProfileChangeDto change1 = insertChange(profile, "ACTIVATED", null, null);
     QProfileChangeDto change2 = insertChange(profile, "ACTIVATED", null, null);
@@ -210,7 +211,7 @@ public class QProfileChangeDaoIT {
   }
 
   @Test
-  public void selectByQuery_returns_changes_before_given_date() {
+  void selectByQuery_returns_changes_before_given_date() {
     QProfileDto profile = db.qualityProfiles().insert();
     QProfileChangeDto change1 = insertChange(profile, "ACTIVATED", null, null);
     QProfileChangeDto change2 = insertChange(profile, "ACTIVATED", null, null);
@@ -225,7 +226,7 @@ public class QProfileChangeDaoIT {
   }
 
   @Test
-  public void selectByQuery_returns_changes_in_a_range_of_dates() {
+  void selectByQuery_returns_changes_in_a_range_of_dates() {
     QProfileDto profile = db.qualityProfiles().insert();
     QProfileChangeDto change1 = insertChange(profile, "ACTIVATED", null, null);
     QProfileChangeDto change2 = insertChange(profile, "ACTIVATED", null, null);
@@ -242,7 +243,7 @@ public class QProfileChangeDaoIT {
   }
 
   @Test
-  public void test_selectByQuery_mapping() {
+  void test_selectByQuery_mapping() {
     QProfileDto profile = db.qualityProfiles().insert();
     QProfileChangeDto inserted = insertChange(profile, "ACTIVATED", "theLogin", "theData");
 
@@ -259,7 +260,7 @@ public class QProfileChangeDaoIT {
   }
 
   @Test
-  public void countByQuery() {
+  void countByQuery() {
     QProfileDto profile1 = db.qualityProfiles().insert();
     QProfileDto profile2 = db.qualityProfiles().insert();
     long start = system2.now();
@@ -282,7 +283,7 @@ public class QProfileChangeDaoIT {
   }
 
   @Test
-  public void deleteByRulesProfileUuids() {
+  void deleteByRulesProfileUuids() {
     QProfileDto profile1 = db.qualityProfiles().insert();
     QProfileDto profile2 = db.qualityProfiles().insert();
     insertChange(profile1, "ACTIVATED", null, null);
@@ -296,7 +297,7 @@ public class QProfileChangeDaoIT {
   }
 
   @Test
-  public void deleteByProfileKeys_does_nothing_if_row_with_specified_key_does_not_exist() {
+  void deleteByProfileKeys_does_nothing_if_row_with_specified_key_does_not_exist() {
     QProfileDto profile1 = db.qualityProfiles().insert();
     insertChange(profile1.getRulesProfileUuid(), "ACTIVATED", null, null, null);
 
@@ -310,7 +311,7 @@ public class QProfileChangeDaoIT {
   }
 
   private QProfileChangeDto insertChange(String rulesProfileUuid, String type, @Nullable String userUuid, @Nullable String data,
-                                         @Nullable RuleChangeDto ruleChange) {
+    @Nullable RuleChangeDto ruleChange) {
     QProfileChangeDto dto = new QProfileChangeDto()
       .setRulesProfileUuid(rulesProfileUuid)
       .setUserUuid(userUuid)
@@ -322,7 +323,7 @@ public class QProfileChangeDaoIT {
   }
 
   private RuleChangeDto insertRuleChange(CleanCodeAttribute oldAttribute, CleanCodeAttribute newAttribute,
-                                         @Nullable Set<RuleImpactChangeDto> impactChanges) {
+    @Nullable Set<RuleImpactChangeDto> impactChanges) {
     RuleChangeDto ruleChange = new RuleChangeDto();
     ruleChange.setUuid(uuidFactory.create());
     ruleChange.setOldCleanCodeAttribute(oldAttribute);
@@ -340,7 +341,8 @@ public class QProfileChangeDaoIT {
 
   private QProfileChangeDto selectChangeByUuid(String uuid) {
     Map<String, Object> map = db.selectFirst(dbSession,
-      "select kee as \"uuid\", rules_profile_uuid as \"rulesProfileUuid\", created_at as \"createdAt\", user_uuid as \"userUuid\", change_type as \"changeType\", change_data as \"changeData\" from qprofile_changes where kee='"
+      "select kee as \"uuid\", rules_profile_uuid as \"rulesProfileUuid\", created_at as \"createdAt\", user_uuid as \"userUuid\", " +
+        "change_type as \"changeType\", change_data as \"changeData\" from qprofile_changes where kee='"
         + uuid + "'");
     return new QProfileChangeDto()
       .setUuid((String) map.get("uuid"))

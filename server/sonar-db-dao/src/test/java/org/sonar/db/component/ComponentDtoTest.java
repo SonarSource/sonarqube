@@ -19,15 +19,15 @@
  */
 package org.sonar.db.component;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.sonar.api.resources.Scopes;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class ComponentDtoTest {
+class ComponentDtoTest {
 
   @Test
-  public void setters_and_getters() {
+  void setters_and_getters() {
     ComponentDto componentDto = new ComponentDto()
       .setKey("org.struts:struts-core:src/org/struts/RequestContext.java")
       .setName("RequestContext.java")
@@ -52,7 +52,7 @@ public class ComponentDtoTest {
   }
 
   @Test
-  public void equals_and_hashcode() {
+  void equals_and_hashcode() {
     ComponentDto dto = new ComponentDto().setUuid("u1");
     ComponentDto dtoWithSameUuid = new ComponentDto().setUuid("u1");
     ComponentDto dtoWithDifferentUuid = new ComponentDto().setUuid("u2");
@@ -67,26 +67,26 @@ public class ComponentDtoTest {
   }
 
   @Test
-  public void toString_does_not_fail_if_empty() {
+  void toString_does_not_fail_if_empty() {
     ComponentDto dto = new ComponentDto();
     assertThat(dto.toString()).isNotEmpty();
   }
 
   @Test
-  public void is_root_project() {
+  void is_root_project() {
     assertThat(new ComponentDto().setUuid("uuid").setBranchUuid("branch").isRootProject()).isFalse();
     assertThat(new ComponentDto().setScope(Scopes.DIRECTORY).setUuid("uuid").setBranchUuid("uuid").isRootProject()).isFalse();
     assertThat(new ComponentDto().setScope(Scopes.PROJECT).setUuid("uuid").setBranchUuid("uuid").isRootProject()).isTrue();
   }
 
   @Test
-  public void formatUuidPathFromParent() {
+  void formatUuidPathFromParent() {
     ComponentDto parent = ComponentTesting.newPrivateProjectDto("123").setUuidPath(ComponentDto.UUID_PATH_OF_ROOT);
     assertThat(ComponentDto.formatUuidPathFromParent(parent)).isEqualTo(".123.");
   }
 
   @Test
-  public void getUuidPathLikeIncludingSelf() {
+  void getUuidPathLikeIncludingSelf() {
     ComponentDto project = ComponentTesting.newPrivateProjectDto().setUuidPath(ComponentDto.UUID_PATH_OF_ROOT);
     assertThat(project.getUuidPathLikeIncludingSelf()).isEqualTo("." + project.uuid() + ".%");
 
@@ -98,7 +98,7 @@ public class ComponentDtoTest {
   }
 
   @Test
-  public void getUuidPathAsList() {
+  void getUuidPathAsList() {
     ComponentDto root = new ComponentDto().setUuidPath(ComponentDto.UUID_PATH_OF_ROOT);
     assertThat(root.getUuidPathAsList()).isEmpty();
 

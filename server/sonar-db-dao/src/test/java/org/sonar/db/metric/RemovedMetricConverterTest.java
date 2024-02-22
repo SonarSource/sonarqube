@@ -20,14 +20,14 @@
 package org.sonar.db.metric;
 
 import java.util.List;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class RemovedMetricConverterTest {
+class RemovedMetricConverterTest {
 
   @Test
-  public void withRemovedMetricAlias_whenListContainsWontFix_shouldReturnListWithAccepted() {
+  void withRemovedMetricAlias_whenListContainsWontFix_shouldReturnListWithAccepted() {
     List<String> coreMetrics = List.of("wont_fix_issues", "blocker_violations", "critical_violations");
 
     List<String> upToDateMetrics = RemovedMetricConverter.withRemovedMetricAlias(coreMetrics);
@@ -36,7 +36,7 @@ public class RemovedMetricConverterTest {
   }
 
   @Test
-  public void withRemovedMetricAlias_whenListContainsAccepted_shouldReturnListWithAccepted() {
+  void withRemovedMetricAlias_whenListContainsAccepted_shouldReturnListWithAccepted() {
     List<String> coreMetrics = List.of("accepted_issues", "blocker_violations", "critical_violations");
 
     List<String> upToDateMetrics = RemovedMetricConverter.withRemovedMetricAlias(coreMetrics);
@@ -45,14 +45,14 @@ public class RemovedMetricConverterTest {
   }
 
   @Test
-  public void includeRenamedMetrics_whenWontFixIssuesPassed_shouldReturnAccepted() {
+  void includeRenamedMetrics_whenWontFixIssuesPassed_shouldReturnAccepted() {
     String upToDateMetric = RemovedMetricConverter.includeRenamedMetrics("wont_fix_issues");
 
     assertThat(upToDateMetric).isEqualTo("accepted_issues");
   }
 
   @Test
-  public void includeRenamedMetrics_whenAcceptedIssuesPassed_shouldReturnAccepted() {
+  void includeRenamedMetrics_whenAcceptedIssuesPassed_shouldReturnAccepted() {
     String upToDateMetric = RemovedMetricConverter.includeRenamedMetrics("accepted_issues");
 
     assertThat(upToDateMetric).isEqualTo("accepted_issues");

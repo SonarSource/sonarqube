@@ -21,17 +21,17 @@ package org.sonar.db.qualityprofile;
 
 import java.util.Collections;
 import java.util.Map;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.data.MapEntry.entry;
 
-public class QProfileChangeDtoTest {
+class QProfileChangeDtoTest {
 
-  private QProfileChangeDto underTest = new QProfileChangeDto();
+  private final QProfileChangeDto underTest = new QProfileChangeDto();
 
   @Test
-  public void convert_data_to_map() {
+  void convert_data_to_map() {
     underTest.setData((Map) null);
     assertThat(underTest.getDataAsMap()).isEmpty();
 

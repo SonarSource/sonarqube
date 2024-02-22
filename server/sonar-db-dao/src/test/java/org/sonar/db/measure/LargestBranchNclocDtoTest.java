@@ -19,16 +19,16 @@
  */
 package org.sonar.db.measure;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class LargestBranchNclocDtoTest {
+class LargestBranchNclocDtoTest {
 
   private final LargestBranchNclocDto underTest = new LargestBranchNclocDto();
 
   @Test
-  public void test_getter_and_setter() {
+  void test_getter_and_setter() {
     setUnderTest();
 
     assertThat(underTest.getProjectUuid()).isEqualTo("projectUuid");

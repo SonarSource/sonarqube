@@ -20,8 +20,8 @@
 package org.sonar.db.property;
 
 import java.util.Optional;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.core.util.UuidFactoryFast;
@@ -33,22 +33,22 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class InternalComponentPropertiesDaoIT {
+class InternalComponentPropertiesDaoIT {
 
   private static final String SOME_KEY = "key1";
   private static final String SOME_COMPONENT = "component1";
   private static final String SOME_VALUE = "value";
 
-  private System2 system2 = mock(System2.class);
+  private final System2 system2 = mock(System2.class);
 
-  @Rule
-  public DbTester dbTester = DbTester.create(system2);
-  private DbSession dbSession = dbTester.getSession();
-  private UuidFactory uuidFactory = UuidFactoryFast.getInstance();
-  private InternalComponentPropertiesDao underTest = new InternalComponentPropertiesDao(system2, uuidFactory);
+  @RegisterExtension
+  private final DbTester dbTester = DbTester.create(system2);
+  private final DbSession dbSession = dbTester.getSession();
+  private final UuidFactory uuidFactory = UuidFactoryFast.getInstance();
+  private final InternalComponentPropertiesDao underTest = new InternalComponentPropertiesDao(system2, uuidFactory);
 
   @Test
-  public void insertOrUpdate_insert_property_if_it_doesnt_already_exist() {
+  void insertOrUpdate_insert_property_if_it_doesnt_already_exist() {
     long createdAt = 10L;
     when(system2.now()).thenReturn(createdAt);
 
@@ -64,7 +64,7 @@ public class InternalComponentPropertiesDaoIT {
   }
 
   @Test
-  public void insertOrUpdate_update_property_if_it_already_exists() {
+  void insertOrUpdate_update_property_if_it_already_exists() {
     long createdAt = 10L;
     when(system2.now()).thenReturn(createdAt);
 
@@ -86,7 +86,7 @@ public class InternalComponentPropertiesDaoIT {
   }
 
   @Test
-  public void replaceValue_sets_to_newValue_if_oldValue_matches_expected() {
+  void replaceValue_sets_to_newValue_if_oldValue_matches_expected() {
     long createdAt = 10L;
     when(system2.now()).thenReturn(createdAt);
     InternalComponentPropertyDto dto = saveDto();
@@ -105,7 +105,7 @@ public class InternalComponentPropertiesDaoIT {
   }
 
   @Test
-  public void replaceValue_does_not_replace_if_oldValue_does_not_match_expected() {
+  void replaceValue_does_not_replace_if_oldValue_does_not_match_expected() {
     long createdAt = 10L;
     when(system2.now()).thenReturn(createdAt);
     InternalComponentPropertyDto dto = saveDto();
@@ -123,13 +123,13 @@ public class InternalComponentPropertiesDaoIT {
   }
 
   @Test
-  public void replaceValue_does_not_insert_if_record_does_not_exist() {
+  void replaceValue_does_not_insert_if_record_does_not_exist() {
     underTest.replaceValue(dbSession, SOME_COMPONENT, SOME_KEY, SOME_VALUE, "other value");
     assertThat(underTest.selectByComponentUuidAndKey(dbSession, SOME_COMPONENT, SOME_KEY)).isEmpty();
   }
 
   @Test
-  public void select_by_component_uuid_and_key_returns_property() {
+  void select_by_component_uuid_and_key_returns_property() {
     saveDto();
 
     Optional<InternalComponentPropertyDto> result = underTest.selectByComponentUuidAndKey(dbSession, SOME_COMPONENT, SOME_KEY);
@@ -139,7 +139,7 @@ public class InternalComponentPropertiesDaoIT {
   }
 
   @Test
-  public void select_by_component_uuid_and_key_returns_empty_when_it_doesnt_exist() {
+  void select_by_component_uuid_and_key_returns_empty_when_it_doesnt_exist() {
     saveDto();
 
     assertThat(underTest.selectByComponentUuidAndKey(dbSession, "other_component", SOME_KEY)).isEmpty();
@@ -147,7 +147,7 @@ public class InternalComponentPropertiesDaoIT {
   }
 
   @Test
-  public void delete_by_component_uuid_deletes_all_properties_with_given_componentUuid() {
+  void delete_by_component_uuid_deletes_all_properties_with_given_componentUuid() {
     underTest.insertOrUpdate(dbSession, SOME_COMPONENT, SOME_KEY, SOME_VALUE);
     underTest.insertOrUpdate(dbSession, SOME_COMPONENT, "other_key", "foo");
     underTest.insertOrUpdate(dbSession, "other_component", SOME_KEY, SOME_VALUE);
@@ -158,7 +158,7 @@ public class InternalComponentPropertiesDaoIT {
   }
 
   @Test
-  public void delete_by_component_uuid_and_key_does_nothing_if_property_doesnt_exist() {
+  void delete_by_component_uuid_and_key_does_nothing_if_property_doesnt_exist() {
     saveDto();
 
     assertThat(underTest.deleteByComponentUuid(dbSession, "other_component")).isZero();
@@ -166,7 +166,7 @@ public class InternalComponentPropertiesDaoIT {
   }
 
   @Test
-  public void loadDbKey_loads_dbKeys_for_all_components_with_given_property_and_value() {
+  void loadDbKey_loads_dbKeys_for_all_components_with_given_property_and_value() {
     ComponentDto portfolio1 = dbTester.components().insertPublicPortfolio();
     ComponentDto portfolio2 = dbTester.components().insertPublicPortfolio();
     ComponentDto portfolio3 = dbTester.components().insertPublicPortfolio();

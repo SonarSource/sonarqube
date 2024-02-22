@@ -22,30 +22,30 @@ package org.sonar.db.ce;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class CeTaskQueryTest {
+class CeTaskQueryTest {
 
   CeTaskQuery underTest = new CeTaskQuery();
 
   @Test
-  public void no_filter_on_entity_uuids_by_default() {
+  void no_filter_on_entity_uuids_by_default() {
     assertThat(underTest.getEntityUuids()).isNull();
     assertThat(underTest.isShortCircuitedByEntityUuids()).isFalse();
   }
 
   @Test
-  public void filter_on_entity_uuid() {
+  void filter_on_entity_uuid() {
     underTest.setEntityUuid("UUID1");
     assertThat(underTest.getEntityUuids()).containsOnly("UUID1");
     assertThat(underTest.isShortCircuitedByEntityUuids()).isFalse();
   }
 
   @Test
-  public void filter_on_multiple_entity_uuids() {
+  void filter_on_multiple_entity_uuids() {
     underTest.setEntityUuids(asList("UUID1", "UUID2"));
     assertThat(underTest.getEntityUuids()).containsOnly("UUID1", "UUID2");
     assertThat(underTest.isShortCircuitedByEntityUuids()).isFalse();
@@ -56,7 +56,7 @@ public class CeTaskQueryTest {
    * --> no results
    */
   @Test
-  public void short_circuited_if_empty_entity_uuid_filter() {
+  void short_circuited_if_empty_entity_uuid_filter() {
     underTest.setEntityUuids(Collections.emptyList());
     assertThat(underTest.getEntityUuids()).isEmpty();
     assertThat(underTest.isShortCircuitedByEntityUuids()).isTrue();
@@ -67,7 +67,7 @@ public class CeTaskQueryTest {
    * --> no results
    */
   @Test
-  public void short_circuited_if_too_many_entity_uuid_filters() {
+  void short_circuited_if_too_many_entity_uuid_filters() {
     List<String> uuids = new ArrayList<>();
     for (int i = 0; i < CeTaskQuery.MAX_COMPONENT_UUIDS + 2; i++) {
       uuids.add(String.valueOf(i));
@@ -78,7 +78,7 @@ public class CeTaskQueryTest {
   }
 
   @Test
-  public void test_errorTypes() {
+  void test_errorTypes() {
     assertThat(underTest.getErrorTypes()).isNull();
 
     underTest.setErrorTypes(asList("foo", "bar"));
@@ -86,7 +86,7 @@ public class CeTaskQueryTest {
   }
 
   @Test
-  public void test_minExecutedAt() {
+  void test_minExecutedAt() {
     assertThat(underTest.getMinExecutedAt()).isNull();
 
     underTest.setMinExecutedAt(1_000L);

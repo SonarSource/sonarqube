@@ -23,8 +23,8 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.Random;
 import java.util.stream.IntStream;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbSession;
@@ -35,16 +35,16 @@ import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.tuple;
 
-public class QualityGateConditionDaoIT {
+class QualityGateConditionDaoIT {
 
-  @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  @RegisterExtension
+  private final DbTester dbTester = DbTester.create(System2.INSTANCE);
 
-  private DbSession dbSession = dbTester.getSession();
-  private QualityGateConditionDao underTest = dbTester.getDbClient().gateConditionDao();
+  private final DbSession dbSession = dbTester.getSession();
+  private final QualityGateConditionDao underTest = dbTester.getDbClient().gateConditionDao();
 
   @Test
-  public void testInsert() {
+  void testInsert() {
     QualityGateConditionDto newCondition = insertQGCondition("1", "2", "GT", "20");
 
     assertThat(newCondition.getUuid()).isNotNull();
@@ -53,7 +53,7 @@ public class QualityGateConditionDaoIT {
   }
 
   @Test
-  public void testSelectForQualityGate() {
+  void testSelectForQualityGate() {
     String qg1Uuid = "1";
     String qg2Uuid = "2";
     int qg1Conditions = 2 + new Random().nextInt(5);
@@ -83,7 +83,7 @@ public class QualityGateConditionDaoIT {
   }
 
   @Test
-  public void selectAll() {
+  void selectAll() {
     MetricDto metric = dbTester.measures().insertMetric(t -> t.setEnabled(true));
     QualityGateConditionDto condition1 = insertQGCondition("uuid1", metric.getUuid());
     QualityGateConditionDto condition2 = insertQGCondition("uuid2", metric.getUuid());
@@ -97,7 +97,7 @@ public class QualityGateConditionDaoIT {
   }
 
   @Test
-  public void testSelectByUuid() {
+  void testSelectByUuid() {
     QualityGateConditionDto condition = insertQGCondition("1", "2", "GT", "20");
 
     assertEquals(underTest.selectByUuid(condition.getUuid(), dbSession), condition);
@@ -105,7 +105,7 @@ public class QualityGateConditionDaoIT {
   }
 
   @Test
-  public void testDelete() {
+  void testDelete() {
     QualityGateConditionDto condition1 = insertQGCondition("2");
     QualityGateConditionDto condition2 = insertQGCondition("3");
 
@@ -117,7 +117,7 @@ public class QualityGateConditionDaoIT {
   }
 
   @Test
-  public void testUpdate() {
+  void testUpdate() {
     QualityGateConditionDto condition1 = insertQGCondition("2");
     QualityGateConditionDto condition2 = insertQGCondition("3");
 
@@ -136,7 +136,7 @@ public class QualityGateConditionDaoIT {
   }
 
   @Test
-  public void shouldCleanConditions() {
+  void shouldCleanConditions() {
     MetricDto enabledMetric = dbTester.measures().insertMetric(t -> t.setEnabled(true));
     MetricDto disabledMetric = dbTester.measures().insertMetric(t -> t.setEnabled(false));
     QualityGateConditionDto condition1 = insertQGCondition("1", enabledMetric.getUuid());

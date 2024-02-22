@@ -20,16 +20,16 @@
 package org.sonar.db.measure;
 
 import com.google.common.base.Strings;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class MeasureDtoTest {
+class MeasureDtoTest {
 
   MeasureDto underTest = new MeasureDto();
 
   @Test
-  public void test_getter_and_setter() {
+  void test_getter_and_setter() {
     underTest
       .setValue(2d)
       .setData("text value");
@@ -38,12 +38,12 @@ public class MeasureDtoTest {
   }
 
   @Test
-  public void value_with_text_over_4000_characters() {
+  void value_with_text_over_4000_characters() {
     assertThat(underTest.setData(Strings.repeat("1", 4001)).getData()).isNotNull();
   }
 
   @Test
-  public void text_value_under_4000_characters() {
+  void text_value_under_4000_characters() {
     assertThat(underTest.setData("text value").getData()).isEqualTo("text value");
   }
 }

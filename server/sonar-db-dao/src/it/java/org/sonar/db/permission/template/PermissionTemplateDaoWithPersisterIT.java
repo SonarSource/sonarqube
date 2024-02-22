@@ -20,8 +20,8 @@
 package org.sonar.db.permission.template;
 
 import java.util.Date;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.mockito.ArgumentCaptor;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbSession;
@@ -40,21 +40,21 @@ import static org.sonar.api.web.UserRole.ADMIN;
 import static org.sonar.db.permission.template.PermissionTemplateTesting.newPermissionTemplateDto;
 import static org.sonar.db.user.GroupTesting.newGroupDto;
 
-public class PermissionTemplateDaoWithPersisterIT {
+class PermissionTemplateDaoWithPersisterIT {
   private final AuditPersister auditPersister = mock(AuditPersister.class);
 
   private static final Date PAST = new Date(100_000_000_000L);
   private static final Date NOW = new Date(500_000_000_000L);
 
-  @Rule
-  public final DbTester db = DbTester.create(auditPersister);
+  @RegisterExtension
+  private final DbTester db = DbTester.create(auditPersister);
   private final DbSession session = db.getSession();
 
   private final ArgumentCaptor<PermissionTemplateNewValue> newValueCaptor = ArgumentCaptor.forClass(PermissionTemplateNewValue.class);
   private final PermissionTemplateDao underTest = db.getDbClient().permissionTemplateDao();
 
   @Test
-  public void insertPermissionTemplateIsPersisted() {
+  void insertPermissionTemplateIsPersisted() {
     PermissionTemplateDto dto = insertPermissionTemplate();
 
     verify(auditPersister).addPermissionTemplate(eq(session), newValueCaptor.capture());
@@ -66,7 +66,7 @@ public class PermissionTemplateDaoWithPersisterIT {
   }
 
   @Test
-  public void updatePermissionTemplateIsPersisted() {
+  void updatePermissionTemplateIsPersisted() {
     PermissionTemplateDto dto = insertPermissionTemplate();
     underTest.update(session, dto);
 
@@ -80,7 +80,7 @@ public class PermissionTemplateDaoWithPersisterIT {
   }
 
   @Test
-  public void deletePermissionTemplateIsPersisted() {
+  void deletePermissionTemplateIsPersisted() {
     PermissionTemplateDto dto = insertPermissionTemplate();
     underTest.deleteByUuid(session, dto.getUuid(), dto.getName());
 
@@ -93,14 +93,14 @@ public class PermissionTemplateDaoWithPersisterIT {
   }
 
   @Test
-  public void deletePermissionTemplateWithoutAffectedRowsIsPersisted() {
+  void deletePermissionTemplateWithoutAffectedRowsIsPersisted() {
     underTest.deleteByUuid(session, "template-uuid", "template-name");
 
     verifyNoInteractions(auditPersister);
   }
 
   @Test
-  public void insertAndDeleteUserPermissionToTemplateIsPersisted() {
+  void insertAndDeleteUserPermissionToTemplateIsPersisted() {
     PermissionTemplateDto dto = insertPermissionTemplate();
     UserDto user = db.users().insertUser();
     underTest.insertUserPermission(session, dto.getUuid(), user.getUuid(), ADMIN, dto.getName(), user.getLogin());
@@ -125,7 +125,7 @@ public class PermissionTemplateDaoWithPersisterIT {
   }
 
   @Test
-  public void deleteUserPermissionToTemplateWithoutAffectedRowsIsNotPersisted() {
+  void deleteUserPermissionToTemplateWithoutAffectedRowsIsNotPersisted() {
     underTest.deleteUserPermission(session, "template-uuid", "user-uuid", ADMIN,
       "template-name", "user-login");
 
@@ -133,7 +133,7 @@ public class PermissionTemplateDaoWithPersisterIT {
   }
 
   @Test
-  public void insertAndDeleteUserPermissionByUserUuidToTemplateIsPersisted() {
+  void insertAndDeleteUserPermissionByUserUuidToTemplateIsPersisted() {
     PermissionTemplateDto dto = insertPermissionTemplate();
     UserDto user = db.users().insertUser();
     underTest.insertUserPermission(session, dto.getUuid(), user.getUuid(), ADMIN, dto.getName(), user.getLogin());
@@ -149,14 +149,14 @@ public class PermissionTemplateDaoWithPersisterIT {
   }
 
   @Test
-  public void deleteUserPermissionByUserUuidToTemplateWithoutAffectedRowsIsNotPersisted() {
+  void deleteUserPermissionByUserUuidToTemplateWithoutAffectedRowsIsNotPersisted() {
     underTest.deleteUserPermissionsByUserUuid(session, "user-uuid", "user-login");
 
     verifyNoInteractions(auditPersister);
   }
 
   @Test
-  public void insertAndDeleteGroupPermissionToTemplateIsPersisted() {
+  void insertAndDeleteGroupPermissionToTemplateIsPersisted() {
     PermissionTemplateDto dto = insertPermissionTemplate();
     GroupDto group = db.users().insertGroup(newGroupDto());
     underTest.insertGroupPermission(session, dto.getUuid(), group.getUuid(), ADMIN, dto.getName(), group.getName());
@@ -181,7 +181,7 @@ public class PermissionTemplateDaoWithPersisterIT {
   }
 
   @Test
-  public void deleteGroupPermissionToTemplateWithoutAffectedRowsIsNotPersisted() {
+  void deleteGroupPermissionToTemplateWithoutAffectedRowsIsNotPersisted() {
     underTest.deleteGroupPermission(session, "template-uuid", "group-uuid", ADMIN,
       "template-name", "group-name");
 
@@ -189,7 +189,7 @@ public class PermissionTemplateDaoWithPersisterIT {
   }
 
   @Test
-  public void insertAndDeleteGroupPermissionByGroupUuidToTemplateIsPersisted() {
+  void insertAndDeleteGroupPermissionByGroupUuidToTemplateIsPersisted() {
     PermissionTemplateDto templateDto = insertPermissionTemplate();
     PermissionTemplateGroupDto templateGroupDto = new PermissionTemplateGroupDto()
       .setUuid(Uuids.createFast())
@@ -206,7 +206,8 @@ public class PermissionTemplateDaoWithPersisterIT {
     assertThat(newValue)
       .extracting(PermissionTemplateNewValue::getTemplateUuid, PermissionTemplateNewValue::getName,
         PermissionTemplateNewValue::getPermission, PermissionTemplateNewValue::getGroupUuid, PermissionTemplateNewValue::getGroupName)
-      .containsExactly(templateDto.getUuid(), templateDto.getName(), ADMIN, templateGroupDto.getGroupUuid(), templateGroupDto.getGroupName());
+      .containsExactly(templateDto.getUuid(), templateDto.getName(), ADMIN, templateGroupDto.getGroupUuid(),
+        templateGroupDto.getGroupName());
     assertThat(newValue.toString()).doesNotContain("userUuid");
 
     underTest.deleteByGroup(session, templateGroupDto.getGroupUuid(), templateGroupDto.getGroupName());
@@ -221,7 +222,7 @@ public class PermissionTemplateDaoWithPersisterIT {
   }
 
   @Test
-  public void deleteGroupPermissionByGroupUuidToTemplateWithoutAffectedRowsIsNotPersisted() {
+  void deleteGroupPermissionByGroupUuidToTemplateWithoutAffectedRowsIsNotPersisted() {
     underTest.deleteByGroup(session, "group-uid", "group-name");
 
     verifyNoInteractions(auditPersister);

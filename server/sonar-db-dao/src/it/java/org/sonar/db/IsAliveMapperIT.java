@@ -19,34 +19,35 @@
  */
 package org.sonar.db;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.utils.System2;
 
 import static org.assertj.core.api.Assertions.assertThat;
-public class IsAliveMapperIT {
 
-  @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+class IsAliveMapperIT {
+
+  @RegisterExtension
+  private final DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   private DbSession session;
   private IsAliveMapper underTest;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     session = dbTester.getSession();
     underTest = session.getMapper(IsAliveMapper.class);
   }
 
-  @After
-  public void tearDown() {
+  @AfterEach
+  void tearDown() {
     session.close();
   }
 
   @Test
-  public void isAlive_works_for_current_vendors() {
+  void isAlive_works_for_current_vendors() {
     assertThat(underTest.isAlive()).isEqualTo(IsAliveMapper.IS_ALIVE_RETURNED_VALUE);
   }
 }

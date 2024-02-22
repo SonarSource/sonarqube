@@ -20,8 +20,8 @@
 package org.sonar.db.user;
 
 import java.util.Optional;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.core.util.UuidFactory;
@@ -30,21 +30,21 @@ import org.sonar.db.DbTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class SamlMessageIdDaoIT {
+class SamlMessageIdDaoIT {
 
   private static final long NOW = 1_000_000_000L;
 
-  private TestSystem2 system2 = new TestSystem2().setNow(NOW);
-  @Rule
-  public DbTester db = DbTester.create(system2);
+  private final TestSystem2 system2 = new TestSystem2().setNow(NOW);
+  @RegisterExtension
+  private final DbTester db = DbTester.create(system2);
 
-  private DbSession dbSession = db.getSession();
-  private UuidFactory uuidFactory = new SequenceUuidFactory();
+  private final DbSession dbSession = db.getSession();
+  private final UuidFactory uuidFactory = new SequenceUuidFactory();
 
-  private SamlMessageIdDao underTest = new SamlMessageIdDao(system2, uuidFactory);
+  private final SamlMessageIdDao underTest = new SamlMessageIdDao(system2, uuidFactory);
 
   @Test
-  public void selectByMessageId() {
+  void selectByMessageId() {
     SamlMessageIdDto dto = new SamlMessageIdDto()
       .setMessageId("ABCD")
       .setExpirationDate(15_000_000_000L);
@@ -59,7 +59,7 @@ public class SamlMessageIdDaoIT {
   }
 
   @Test
-  public void uuid_created_at_and_updated_at_are_ignored_during_insert() {
+  void uuid_created_at_and_updated_at_are_ignored_during_insert() {
     SamlMessageIdDto dto = new SamlMessageIdDto()
       .setMessageId("ABCD")
       .setExpirationDate(15_000_000_000L)
@@ -76,7 +76,7 @@ public class SamlMessageIdDaoIT {
   }
 
   @Test
-  public void deleteExpired() {
+  void deleteExpired() {
     SamlMessageIdDto expiredSamlMessageId1 = underTest.insert(dbSession, new SamlMessageIdDto()
       .setMessageId("MESSAGE_1")
       .setExpirationDate(NOW - 2_000_000_000L));

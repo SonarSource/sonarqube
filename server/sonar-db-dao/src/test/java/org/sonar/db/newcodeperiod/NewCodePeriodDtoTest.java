@@ -19,15 +19,15 @@
  */
 package org.sonar.db.newcodeperiod;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.sonar.api.utils.System2;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class NewCodePeriodDtoTest {
+class NewCodePeriodDtoTest {
 
   @Test
-  public void getters_and_setters() {
+  void getters_and_setters() {
     long currentTime = System2.INSTANCE.now();
     NewCodePeriodDto newCodePeriodDto = new NewCodePeriodDto()
       .setUuid("uuid")

@@ -19,18 +19,19 @@
  */
 package org.sonar.db.component;
 
-import org.junit.Test;
+
+import org.junit.jupiter.api.Test;
 
 import static org.apache.commons.lang.StringUtils.repeat;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.api.utils.DateUtils.parseDate;
 
-public class SnapshotDtoTest {
+class SnapshotDtoTest {
 
 
   @Test
-  public void test_getter_and_setter() {
+  void test_getter_and_setter() {
     SnapshotDto snapshotDto = create();
 
     assertThat(snapshotDto.getAnalysisDate()).isEqualTo(parseDate("2014-07-02").getTime());
@@ -44,7 +45,7 @@ public class SnapshotDtoTest {
   }
 
   @Test
-  public void fail_if_projectVersion_is_longer_then_100_characters() {
+  void fail_if_projectVersion_is_longer_then_100_characters() {
     SnapshotDto snapshotDto = new SnapshotDto();
     snapshotDto.setProjectVersion(null);
     snapshotDto.setProjectVersion("1.0");
@@ -58,13 +59,13 @@ public class SnapshotDtoTest {
   }
 
   @Test
-  public void fail_if_buildString_is_longer_then_100_characters() {
+  void fail_if_buildString_is_longer_then_100_characters() {
     SnapshotDto snapshotDto = new SnapshotDto();
     snapshotDto.setBuildString(null);
     snapshotDto.setBuildString("1.0");
     snapshotDto.setBuildString(repeat("a", 100));
 
-    assertThatThrownBy(() ->  snapshotDto.setBuildString(repeat("a", 101)))
+    assertThatThrownBy(() -> snapshotDto.setBuildString(repeat("a", 101)))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("buildString" +
         " length (101) is longer than the maximum authorized (100). " +
@@ -72,26 +73,26 @@ public class SnapshotDtoTest {
   }
 
   @Test
-  public void equals_whenSameObject_shouldReturnTrue() {
+  void equals_whenSameObject_shouldReturnTrue() {
     SnapshotDto snapshotDto = create();
     assertThat(snapshotDto.equals(snapshotDto)).isTrue();
   }
 
   @Test
-  public void equals_whenComparedToNull_shouldReturnFalse() {
+  void equals_whenComparedToNull_shouldReturnFalse() {
     SnapshotDto snapshotDto = create();
     assertThat(snapshotDto.equals(null)).isFalse();
   }
 
   @Test
-  public void equals_whenComparedToDifferentClass_shouldReturnFalse() {
+  void equals_whenComparedToDifferentClass_shouldReturnFalse() {
     SnapshotDto snapshotDto = create();
     Object differentObject = new Object();
     assertThat(snapshotDto.equals(differentObject)).isFalse();
   }
 
   @Test
-  public void equals_whenComparedToDifferentInstanceWithSameValues_shouldReturnTrue() {
+  void equals_whenComparedToDifferentInstanceWithSameValues_shouldReturnTrue() {
     SnapshotDto snapshotDto1 = create();
     SnapshotDto snapshotDto2 = create();
     assertThat(snapshotDto1.equals(snapshotDto2)).isTrue();
@@ -99,7 +100,7 @@ public class SnapshotDtoTest {
   }
 
   @Test
-  public void equals_whenComparedToDifferentInstanceWithDifferentValues_shouldReturnFalse() {
+  void equals_whenComparedToDifferentInstanceWithDifferentValues_shouldReturnFalse() {
     SnapshotDto snapshotDto1 = create();
     SnapshotDto snapshotDto2 = create().setBuildString("some-other-string");
     assertThat(snapshotDto1.equals(snapshotDto2)).isFalse();
@@ -107,14 +108,14 @@ public class SnapshotDtoTest {
   }
 
   @Test
-  public void hashcode_whenDifferentInstanceWithSameValues_shouldBeEqual() {
+  void hashcode_whenDifferentInstanceWithSameValues_shouldBeEqual() {
     SnapshotDto snapshotDto1 = create();
     SnapshotDto snapshotDto2 = create();
     assertThat(snapshotDto1).hasSameHashCodeAs(snapshotDto2);
   }
 
   @Test
-  public void hashcode_whenDifferentInstanceWithDifferentValues_shouldNotBeEqual() {
+  void hashcode_whenDifferentInstanceWithDifferentValues_shouldNotBeEqual() {
     SnapshotDto snapshotDto1 = create();
     SnapshotDto snapshotDto2 = create().setBuildString("some-other-string");
     assertThat(snapshotDto1).doesNotHaveSameHashCodeAs(snapshotDto2);

@@ -21,8 +21,8 @@ package org.sonar.db.project;
 
 import javax.annotation.Nullable;
 import org.assertj.core.api.Assertions;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.api.utils.System2;
@@ -39,12 +39,12 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-public class ProjectBadgeTokenDaoIT {
+class ProjectBadgeTokenDaoIT {
 
   private final System2 system2 = new TestSystem2().setNow(1000L);
 
-  @Rule
-  public DbTester db = DbTester.create(system2);
+  @RegisterExtension
+  private final DbTester db = DbTester.create(system2);
 
   private final AuditPersister auditPersister = spy(AuditPersister.class);
   private final UuidFactory uuidFactory = mock(UuidFactory.class);
@@ -52,11 +52,12 @@ public class ProjectBadgeTokenDaoIT {
   private final ProjectBadgeTokenDao projectBadgeTokenDao = new ProjectBadgeTokenDao(system2, auditPersister, uuidFactory);
 
   @Test
-  public void should_insert_and_select_by_project_uuid() {
+  void should_insert_and_select_by_project_uuid() {
     when(uuidFactory.create()).thenReturn("generated_uuid_1");
     ProjectDto projectDto = new ProjectDto().setUuid("project_uuid_1");
 
-    ProjectBadgeTokenDto insertedProjectBadgeToken = projectBadgeTokenDao.insert(db.getSession(), "token", projectDto, "userUuid", "userLogin");
+    ProjectBadgeTokenDto insertedProjectBadgeToken = projectBadgeTokenDao.insert(db.getSession(), "token", projectDto, "userUuid",
+      "userLogin");
     assertProjectBadgeToken(insertedProjectBadgeToken, "token");
 
     ProjectBadgeTokenDto selectedProjectBadgeToken = projectBadgeTokenDao.selectTokenByProject(db.getSession(), projectDto);
@@ -64,11 +65,12 @@ public class ProjectBadgeTokenDaoIT {
   }
 
   @Test
-  public void token_insertion_is_log_in_audit() {
+  void token_insertion_is_log_in_audit() {
     when(uuidFactory.create()).thenReturn("generated_uuid_1");
     ProjectDto projectDto = new ProjectDto().setUuid("project_uuid_1");
 
-    ProjectBadgeTokenDto insertedProjectBadgeToken = projectBadgeTokenDao.insert(db.getSession(), "token", projectDto, "user-uuid", "user-login");
+    ProjectBadgeTokenDto insertedProjectBadgeToken = projectBadgeTokenDao.insert(db.getSession(), "token", projectDto, "user-uuid", "user" +
+      "-login");
     assertProjectBadgeToken(insertedProjectBadgeToken, "token");
 
     ArgumentCaptor<ProjectBadgeTokenNewValue> captor = ArgumentCaptor.forClass(ProjectBadgeTokenNewValue.class);
@@ -80,12 +82,13 @@ public class ProjectBadgeTokenDaoIT {
   }
 
   @Test
-  public void upsert_existing_token_and_select_by_project_uuid() {
+  void upsert_existing_token_and_select_by_project_uuid() {
     when(uuidFactory.create()).thenReturn("generated_uuid_1");
     ProjectDto projectDto = new ProjectDto().setUuid("project_uuid_1");
 
     // first insert
-    ProjectBadgeTokenDto insertedProjectBadgeToken = projectBadgeTokenDao.insert(db.getSession(), "token", projectDto, "user-uuid", "user-login");
+    ProjectBadgeTokenDto insertedProjectBadgeToken = projectBadgeTokenDao.insert(db.getSession(), "token", projectDto, "user-uuid", "user" +
+      "-login");
     assertProjectBadgeToken(insertedProjectBadgeToken, "token");
 
     // renew
@@ -95,7 +98,7 @@ public class ProjectBadgeTokenDaoIT {
   }
 
   @Test
-  public void upsert_non_existing_token_and_select_by_project_uuid() {
+  void upsert_non_existing_token_and_select_by_project_uuid() {
     when(uuidFactory.create()).thenReturn("generated_uuid_1");
     ProjectDto projectDto = new ProjectDto().setUuid("project_uuid_1");
 
@@ -107,7 +110,7 @@ public class ProjectBadgeTokenDaoIT {
 
 
   @Test
-  public void token_upsert_is_log_in_audit() {
+  void token_upsert_is_log_in_audit() {
     when(uuidFactory.create()).thenReturn("generated_uuid_1");
     ProjectDto projectDto = new ProjectDto().setUuid("project_uuid_1");
 

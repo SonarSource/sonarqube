@@ -24,8 +24,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.DbSession;
@@ -34,18 +34,18 @@ import org.sonar.db.DbTester;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class PushEventDaoIT {
+class PushEventDaoIT {
 
   private final TestSystem2 system2 = new TestSystem2().setNow(1L);
 
-  @Rule
-  public DbTester db = DbTester.create(system2);
+  @RegisterExtension
+  private final DbTester db = DbTester.create(system2);
 
   private final DbSession session = db.getSession();
   private final PushEventDao underTest = db.getDbClient().pushEventDao();
 
   @Test
-  public void insert_events() {
+  void insert_events() {
     assertThat(db.countRowsOfTable(session, "push_events")).isZero();
 
     PushEventDto eventDtoFirst = new PushEventDto()
@@ -78,7 +78,7 @@ public class PushEventDaoIT {
   }
 
   @Test
-  public void select_expired_events() {
+  void select_expired_events() {
     PushEventDto eventDtoFirst = new PushEventDto()
       .setName("Event")
       .setProjectUuid("project-uuid")
@@ -107,7 +107,7 @@ public class PushEventDaoIT {
   }
 
   @Test
-  public void delete_events_in_batches() {
+  void delete_events_in_batches() {
     PushEventDto eventDtoFirst = new PushEventDto()
       .setName("Event")
       .setProjectUuid("project-uuid")
@@ -129,7 +129,7 @@ public class PushEventDaoIT {
   }
 
   @Test
-  public void selectChunkByProjectKeys() {
+  void selectChunkByProjectKeys() {
     system2.setNow(1L);
     generatePushEvent("proj1");
     system2.tick(); // tick=2
@@ -160,7 +160,7 @@ public class PushEventDaoIT {
   }
 
   @Test
-  public void selectChunkByProjectKeys_pagination() {
+  void selectChunkByProjectKeys_pagination() {
     system2.setNow(3L);
 
     IntStream.range(1, 10)

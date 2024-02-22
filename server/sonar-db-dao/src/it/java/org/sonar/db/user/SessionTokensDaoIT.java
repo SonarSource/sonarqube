@@ -20,8 +20,8 @@
 package org.sonar.db.user;
 
 import java.util.Optional;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.core.util.UuidFactory;
@@ -30,21 +30,21 @@ import org.sonar.db.DbTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class SessionTokensDaoIT {
+class SessionTokensDaoIT {
 
   private static final long NOW = 1_000_000_000L;
 
-  private TestSystem2 system2 = new TestSystem2().setNow(NOW);
-  @Rule
-  public DbTester db = DbTester.create(system2);
+  private final TestSystem2 system2 = new TestSystem2().setNow(NOW);
+  @RegisterExtension
+  private final DbTester db = DbTester.create(system2);
 
-  private DbSession dbSession = db.getSession();
-  private UuidFactory uuidFactory = new SequenceUuidFactory();
+  private final DbSession dbSession = db.getSession();
+  private final UuidFactory uuidFactory = new SequenceUuidFactory();
 
-  private SessionTokensDao underTest = new SessionTokensDao(system2, uuidFactory);
+  private final SessionTokensDao underTest = new SessionTokensDao(system2, uuidFactory);
 
   @Test
-  public void selectByUuid() {
+  void selectByUuid() {
     SessionTokenDto dto = new SessionTokenDto()
       .setUserUuid("ABCD")
       .setExpirationDate(15_000_000_000L);
@@ -60,7 +60,7 @@ public class SessionTokensDaoIT {
   }
 
   @Test
-  public void uuid_created_at_and_updated_at_are_ignored_during_insert() {
+  void uuid_created_at_and_updated_at_are_ignored_during_insert() {
     SessionTokenDto dto = new SessionTokenDto()
       .setUserUuid("ABCD")
       .setExpirationDate(15_000_000_000L)
@@ -79,7 +79,7 @@ public class SessionTokensDaoIT {
   }
 
   @Test
-  public void update() {
+  void update() {
     SessionTokenDto dto = new SessionTokenDto()
       .setUserUuid("ABCD")
       .setExpirationDate(15_000_000_000L);
@@ -96,7 +96,7 @@ public class SessionTokensDaoIT {
   }
 
   @Test
-  public void only_update_fields_that_makes_sense() {
+  void only_update_fields_that_makes_sense() {
     SessionTokenDto dto = new SessionTokenDto()
       .setUserUuid("ABCD")
       .setExpirationDate(15_000_000_000L);
@@ -106,7 +106,7 @@ public class SessionTokensDaoIT {
       .setExpirationDate(45_000_000_000L)
       // Following fields are ignored
       .setUserUuid("ANOTHER USER UUID")
-      .setCreatedAt(NOW -10_000_000_000L)
+      .setCreatedAt(NOW - 10_000_000_000L)
     );
 
     Optional<SessionTokenDto> result = underTest.selectByUuid(dbSession, dto.getUuid());
@@ -118,7 +118,7 @@ public class SessionTokensDaoIT {
   }
 
   @Test
-  public void deleteByUuid() {
+  void deleteByUuid() {
     UserDto user = db.users().insertUser();
     SessionTokenDto sessionToken1 = db.users().insertSessionToken(user);
     SessionTokenDto sessionToken2 = db.users().insertSessionToken(user);
@@ -133,7 +133,7 @@ public class SessionTokensDaoIT {
   }
 
   @Test
-  public void deleteByUser() {
+  void deleteByUser() {
     UserDto user = db.users().insertUser();
     SessionTokenDto sessionToken = db.users().insertSessionToken(user);
     // Creation another session token linked on another user, it should not be removed
@@ -147,7 +147,7 @@ public class SessionTokensDaoIT {
   }
 
   @Test
-  public void deleteExpired() {
+  void deleteExpired() {
     UserDto user = db.users().insertUser();
     SessionTokenDto expiredSessionToken1 = db.users().insertSessionToken(user, st -> st.setExpirationDate(NOW - 1_000_000_000L));
     SessionTokenDto expiredSessionToken2 = db.users().insertSessionToken(user, st -> st.setExpirationDate(NOW - 1_000_000_000L));

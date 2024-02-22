@@ -19,45 +19,45 @@
  */
 package org.sonar.api.notifications;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class NotificationTest {
+class NotificationTest {
   @Test
-  public void getType_shouldReturnTypePassedInConstructor() {
+  void getType_shouldReturnTypePassedInConstructor() {
     Notification notification = new Notification("type");
     assertThat(notification.getType()).isEqualTo("type");
   }
 
   @Test
-  public void getDefaultMessage_whenNotDefined_returnToString() {
+  void getDefaultMessage_whenNotDefined_returnToString() {
     Notification notification = new Notification("type");
     assertThat(notification.getDefaultMessage()).isEqualTo("Notification{type='type', fields={}}");
   }
 
   @Test
-  public void getDefaultMessage_whenDefined_returnDefinedMessage() {
+  void getDefaultMessage_whenDefined_returnDefinedMessage() {
     Notification notification = new Notification("type");
     notification.setDefaultMessage("default");
     assertThat(notification.getDefaultMessage()).isEqualTo("default");
   }
 
   @Test
-  public void getFieldValue_whenNotDefined_shouldReturnNull() {
+  void getFieldValue_whenNotDefined_shouldReturnNull() {
     Notification notification = new Notification("type");
     assertThat(notification.getFieldValue("unknown")).isNull();
   }
 
   @Test
-  public void getFieldValue_whenDefined_shouldReturnValue() {
+  void getFieldValue_whenDefined_shouldReturnValue() {
     Notification notification = new Notification("type");
     notification.setFieldValue("key", "value");
     assertThat(notification.getFieldValue("key")).isEqualTo("value");
   }
 
   @Test
-  public void equals_whenTypeAndFieldsMatch_shouldReturnTrue() {
+  void equals_whenTypeAndFieldsMatch_shouldReturnTrue() {
     Notification notification1 = new Notification("type");
     Notification notification2 = new Notification("type");
 
@@ -70,7 +70,7 @@ public class NotificationTest {
   }
 
   @Test
-  public void equals_whenTypeDontMatch_shouldReturnFalse() {
+  void equals_whenTypeDontMatch_shouldReturnFalse() {
     Notification notification1 = new Notification("type1");
     Notification notification2 = new Notification("type2");
 
@@ -78,7 +78,7 @@ public class NotificationTest {
   }
 
   @Test
-  public void equals_whenFieldsDontMatch_shouldReturnFalse() {
+  void equals_whenFieldsDontMatch_shouldReturnFalse() {
     Notification notification1 = new Notification("type");
     Notification notification2 = new Notification("type");
 
@@ -89,7 +89,7 @@ public class NotificationTest {
   }
 
   @Test
-  public void toString_shouldReturnTypeAndFields() {
+  void toString_shouldReturnTypeAndFields() {
     Notification notification1 = new Notification("type");
 
     notification1.setFieldValue("key", "value1");

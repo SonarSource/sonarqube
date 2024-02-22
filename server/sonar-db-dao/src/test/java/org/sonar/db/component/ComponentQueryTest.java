@@ -21,7 +21,7 @@ package org.sonar.db.component;
 
 import java.util.Date;
 import java.util.function.Supplier;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static java.util.Collections.emptySet;
 import static java.util.Collections.singleton;
@@ -29,11 +29,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
 
-public class ComponentQueryTest {
+class ComponentQueryTest {
 
 
   @Test
-  public void build_query() {
+  void build_query() {
     ComponentQuery underTest = ComponentQuery.builder()
       .setNameOrKeyQuery("key")
       .setAllBranchesAnalyzedBefore(100L)
@@ -51,7 +51,7 @@ public class ComponentQueryTest {
   }
 
   @Test
-  public void build_query_minimal_properties() {
+  void build_query_minimal_properties() {
     ComponentQuery underTest = ComponentQuery.builder()
       .setQualifiers(PROJECT)
       .build();
@@ -61,7 +61,7 @@ public class ComponentQueryTest {
   }
 
   @Test
-  public void test_getNameOrKeyUpperLikeQuery() {
+  void test_getNameOrKeyUpperLikeQuery() {
     ComponentQuery underTest = ComponentQuery.builder()
       .setNameOrKeyQuery("NAME/key")
       .setQualifiers(PROJECT)
@@ -71,7 +71,7 @@ public class ComponentQueryTest {
   }
 
   @Test
-  public void empty_list_of_components() {
+  void empty_list_of_components() {
     Supplier<ComponentQuery.Builder> query = () -> ComponentQuery.builder().setQualifiers(PROJECT);
 
     assertThat(query.get().setComponentKeys(emptySet()).build().hasEmptySetOfComponents()).isTrue();
@@ -81,14 +81,14 @@ public class ComponentQueryTest {
   }
 
   @Test
-  public void fail_if_no_qualifier_provided() {
+  void fail_if_no_qualifier_provided() {
     assertThatThrownBy(() -> ComponentQuery.builder().build())
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("At least one qualifier must be provided");
   }
 
   @Test
-  public void fail_if_partial_match_on_key_without_a_query() {
+  void fail_if_partial_match_on_key_without_a_query() {
     assertThatThrownBy(() -> ComponentQuery.builder().setQualifiers(PROJECT).setPartialMatchOnKey(false).build())
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("A query must be provided if a partial match on key is specified.");

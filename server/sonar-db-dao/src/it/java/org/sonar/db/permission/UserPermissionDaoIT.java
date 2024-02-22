@@ -27,8 +27,8 @@ import java.util.Random;
 import java.util.function.Consumer;
 import java.util.stream.IntStream;
 import org.assertj.core.groups.Tuple;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.util.Uuids;
@@ -51,16 +51,16 @@ import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.db.permission.PermissionQuery.DEFAULT_PAGE_SIZE;
 
-public class UserPermissionDaoIT {
+class UserPermissionDaoIT {
 
-  @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+  @RegisterExtension
+  private final DbTester db = DbTester.create(System2.INSTANCE);
 
   private final DbSession dbSession = db.getSession();
   private final UserPermissionDao underTest = new UserPermissionDao(new NoOpAuditPersister());
 
   @Test
-  public void select_global_permissions() {
+  void select_global_permissions() {
     UserDto user1 = insertUser(u -> u.setLogin("login1").setName("Marius").setEmail("email1@email.com"));
     UserDto user2 = insertUser(u -> u.setLogin("login2").setName("Marie").setEmail("email2@email.com"));
     UserDto user3 = insertUser(u -> u.setLogin("zanother").setName("Zoe").setEmail("zanother3@another.com"));
@@ -110,7 +110,7 @@ public class UserPermissionDaoIT {
   }
 
   @Test
-  public void select_project_permissions() {
+  void select_project_permissions() {
     UserDto user1 = insertUser(u -> u.setLogin("login1").setName("Marius").setEmail("email1@email.com"));
     UserDto user2 = insertUser(u -> u.setLogin("login2").setName("Marie").setEmail("email2@email.com"));
     UserDto user3 = insertUser(u -> u.setLogin("zanother").setName("Zoe").setEmail("zanother3@another.com"));
@@ -148,7 +148,7 @@ public class UserPermissionDaoIT {
   }
 
   @Test
-  public void selectUserUuidsByQuery_is_ordering_by_users_having_permissions_first_then_by_name_lowercase() {
+  void selectUserUuidsByQuery_is_ordering_by_users_having_permissions_first_then_by_name_lowercase() {
     UserDto user1 = insertUser(u -> u.setLogin("login1").setName("Z").setEmail("email1@email.com"));
     UserDto user2 = insertUser(u -> u.setLogin("login2").setName("A").setEmail("email2@email.com"));
     UserDto user3 = insertUser(u -> u.setLogin("login3").setName("Z").setEmail("zanother3@another.com"));
@@ -163,7 +163,7 @@ public class UserPermissionDaoIT {
   }
 
   @Test
-  public void selectUserUuidsByQuery_is_ordering_by_users_having_permissions_first_then_by_name_lowercase_when_high_number_of_users_for_global_permissions() {
+  void selectUserUuidsByQuery_is_ordering_by_users_having_permissions_first_then_by_name_lowercase_when_high_number_of_users_for_global_permissions() {
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     IntStream.rangeClosed(1, DEFAULT_PAGE_SIZE + 1).forEach(i -> {
       UserDto user = insertUser(u -> u.setLogin("login" + i).setName("" + i));
@@ -182,7 +182,7 @@ public class UserPermissionDaoIT {
   }
 
   @Test
-  public void selectUserUuidsByQuery_is_ordering_by_users_having_permissions_first_then_by_name_lowercase_when_high_number_of_users_for_project_permissions() {
+  void selectUserUuidsByQuery_is_ordering_by_users_having_permissions_first_then_by_name_lowercase_when_high_number_of_users_for_project_permissions() {
     IntStream.rangeClosed(1, DEFAULT_PAGE_SIZE + 1).forEach(i -> {
       UserDto user = insertUser(u -> u.setLogin("login" + i).setName("" + i));
       // Add global permission to be sure they are excluded
@@ -203,7 +203,7 @@ public class UserPermissionDaoIT {
   }
 
   @Test
-  public void selectUserUuidsByQuery_is_not_ordering_by_number_of_permissions() {
+  void selectUserUuidsByQuery_is_not_ordering_by_number_of_permissions() {
     UserDto user1 = insertUser(u -> u.setLogin("login1").setName("Z").setEmail("email1@email.com"));
     UserDto user2 = insertUser(u -> u.setLogin("login2").setName("A").setEmail("email2@email.com"));
     addGlobalPermission(GlobalPermission.ADMINISTER.getKey(), user1);
@@ -220,7 +220,7 @@ public class UserPermissionDaoIT {
   }
 
   @Test
-  public void countUsersByEntityPermission() {
+  void countUsersByEntityPermission() {
     UserDto user1 = insertUser();
     UserDto user2 = insertUser();
     ProjectDto project1 = db.components().insertPrivateProject().getProjectDto();
@@ -247,7 +247,7 @@ public class UserPermissionDaoIT {
   }
 
   @Test
-  public void selectUserUuidsByQuery() {
+  void selectUserUuidsByQuery() {
     UserDto user1 = insertUser(u -> u.setLogin("login1").setName("Marius").setEmail("email1@email.com"));
     UserDto user2 = insertUser(u -> u.setLogin("login2").setName("Marie").setEmail("email2@email.com"));
     ProjectDto project1 = db.components().insertPrivateProject().getProjectDto();
@@ -280,7 +280,7 @@ public class UserPermissionDaoIT {
   }
 
   @Test
-  public void selectUserUuidsByQueryAndScope_with_global_scope() {
+  void selectUserUuidsByQueryAndScope_with_global_scope() {
     UserDto user1 = insertUser(u -> u.setLogin("login1").setName("Marius").setEmail("email1@email.com"));
     UserDto user2 = insertUser(u -> u.setLogin("login2").setName("Marie").setEmail("email2@email.com"));
     ProjectDto project1 = db.components().insertPrivateProject().getProjectDto();
@@ -297,7 +297,7 @@ public class UserPermissionDaoIT {
   }
 
   @Test
-  public void selectUserUuidsByQueryAndScope_with_project_scope() {
+  void selectUserUuidsByQueryAndScope_with_project_scope() {
     UserDto user1 = insertUser(u -> u.setLogin("login1").setName("Marius").setEmail("email1@email.com"));
     UserDto user2 = insertUser(u -> u.setLogin("login2").setName("Marie").setEmail("email2@email.com"));
     ProjectDto project1 = db.components().insertPrivateProject().getProjectDto();
@@ -316,7 +316,7 @@ public class UserPermissionDaoIT {
   }
 
   @Test
-  public void selectUserUuidsByQuery_is_paginated() {
+  void selectUserUuidsByQuery_is_paginated() {
     List<String> userUuids = new ArrayList<>();
     for (int i = 0; i < 10; i++) {
       String name = "user-" + i;
@@ -338,7 +338,7 @@ public class UserPermissionDaoIT {
   }
 
   @Test
-  public void selectUserUuidsByQuery_is_sorted_by_insensitive_name() {
+  void selectUserUuidsByQuery_is_sorted_by_insensitive_name() {
     UserDto user1 = insertUser(u -> u.setName("user1"));
     addGlobalPermission(GlobalPermission.PROVISION_PROJECTS.getKey(), user1);
     UserDto user3 = insertUser(u -> u.setName("user3"));
@@ -351,7 +351,7 @@ public class UserPermissionDaoIT {
   }
 
   @Test
-  public void deleteGlobalPermission() {
+  void deleteGlobalPermission() {
     UserDto user1 = insertUser();
     UserDto user2 = insertUser();
     ProjectDto project1 = db.components().insertPrivateProject().getProjectDto();
@@ -382,7 +382,7 @@ public class UserPermissionDaoIT {
   }
 
   @Test
-  public void deleteEntityPermission() {
+  void deleteEntityPermission() {
     UserDto user1 = insertUser();
     UserDto user2 = insertUser();
     ProjectDto project1 = db.components().insertPrivateProject().getProjectDto();
@@ -402,7 +402,7 @@ public class UserPermissionDaoIT {
   }
 
   @Test
-  public void deleteEntityPermissions() {
+  void deleteEntityPermissions() {
     UserDto user1 = insertUser();
     UserDto user2 = insertUser();
     ProjectDto project1 = db.components().insertPrivateProject().getProjectDto();
@@ -418,7 +418,7 @@ public class UserPermissionDaoIT {
   }
 
   @Test
-  public void selectGlobalPermissionsOfUser() {
+  void selectGlobalPermissionsOfUser() {
     UserDto user1 = insertUser();
     UserDto user2 = insertUser();
     UserDto user3 = insertUser();
@@ -436,7 +436,7 @@ public class UserPermissionDaoIT {
   }
 
   @Test
-  public void selectEntityPermissionsOfUser() {
+  void selectEntityPermissionsOfUser() {
     UserDto user1 = insertUser();
     UserDto user2 = insertUser();
     ProjectDto project1 = db.components().insertPrivateProject().getProjectDto();
@@ -454,7 +454,7 @@ public class UserPermissionDaoIT {
   }
 
   @Test
-  public void selectUserIdsWithPermissionOnEntityBut_returns_empty_if_project_does_not_exist() {
+  void selectUserIdsWithPermissionOnEntityBut_returns_empty_if_project_does_not_exist() {
     ProjectData project = randomPublicOrPrivateProject();
     UserDto user = insertUser();
     db.users().insertProjectPermissionOnUser(user, "foo", project.getMainBranchComponent());
@@ -464,7 +464,7 @@ public class UserPermissionDaoIT {
   }
 
   @Test
-  public void selectUserIdsWithPermissionOnEntityBut_returns_only_users_of_projects_which_do_not_have_permission() {
+  void selectUserIdsWithPermissionOnEntityBut_returns_only_users_of_projects_which_do_not_have_permission() {
     ProjectData project = randomPublicOrPrivateProject();
     UserDto user1 = insertUser();
     UserDto user2 = insertUser();
@@ -483,7 +483,7 @@ public class UserPermissionDaoIT {
   }
 
   @Test
-  public void selectUserIdsWithPermissionOnEntityBut_does_not_return_groups_which_have_no_permission_at_all_on_specified_project() {
+  void selectUserIdsWithPermissionOnEntityBut_does_not_return_groups_which_have_no_permission_at_all_on_specified_project() {
     ProjectDto project = randomPublicOrPrivateProject().getProjectDto();
     UserDto user1 = insertUser();
     UserDto user2 = insertUser();
@@ -499,7 +499,7 @@ public class UserPermissionDaoIT {
   }
 
   @Test
-  public void deleteByUserId() {
+  void deleteByUserId() {
     UserDto user1 = insertUser();
     UserDto user2 = insertUser();
     ProjectDto project = db.components().insertPrivateProject().getProjectDto();
@@ -514,11 +514,12 @@ public class UserPermissionDaoIT {
 
     assertThat(db.select("select user_uuid as \"userUuid\", entity_uuid as \"entityUuid\", role as \"permission\" from user_roles"))
       .extracting((row) -> row.get("userUuid"), (row) -> row.get("entityUuid"), (row) -> row.get("permission"))
-      .containsOnly(tuple(user2.getUuid(), null, GlobalPermission.SCAN.getKey()), tuple(user2.getUuid(), project.getUuid(), GlobalPermission.ADMINISTER_QUALITY_GATES.getKey()));
+      .containsOnly(tuple(user2.getUuid(), null, GlobalPermission.SCAN.getKey()), tuple(user2.getUuid(), project.getUuid(),
+        GlobalPermission.ADMINISTER_QUALITY_GATES.getKey()));
   }
 
   @Test
-  public void deleteEntityPermissionOfAnyUser_has_no_effect_if_specified_entity_does_not_exist() {
+  void deleteEntityPermissionOfAnyUser_has_no_effect_if_specified_entity_does_not_exist() {
     UserDto user = insertUser();
     db.users().insertGlobalPermissionOnUser(user, GlobalPermission.SCAN);
 
@@ -531,7 +532,7 @@ public class UserPermissionDaoIT {
   }
 
   @Test
-  public void deleteEntityPermissionOfAnyUser_has_no_effect_if_specified_component_has_no_permission_at_all() {
+  void deleteEntityPermissionOfAnyUser_has_no_effect_if_specified_component_has_no_permission_at_all() {
     UserDto user = insertUser();
     db.users().insertGlobalPermissionOnUser(user, GlobalPermission.SCAN);
     ProjectData project = randomPublicOrPrivateProject();
@@ -543,7 +544,7 @@ public class UserPermissionDaoIT {
   }
 
   @Test
-  public void deleteEntityPermissionOfAnyUser_has_no_effect_if_specified_component_does_not_have_specified_permission() {
+  void deleteEntityPermissionOfAnyUser_has_no_effect_if_specified_component_does_not_have_specified_permission() {
     UserDto user = insertUser();
     db.users().insertGlobalPermissionOnUser(user, GlobalPermission.SCAN);
     ProjectData project = randomPublicOrPrivateProject();
@@ -557,7 +558,7 @@ public class UserPermissionDaoIT {
   }
 
   @Test
-  public void deleteEntityPermissionOfAnyUser_deletes_specified_permission_for_any_user_on_the_specified_component() {
+  void deleteEntityPermissionOfAnyUser_deletes_specified_permission_for_any_user_on_the_specified_component() {
     UserDto user1 = insertUser();
     UserDto user2 = insertUser();
     db.users().insertGlobalPermissionOnUser(user1, GlobalPermission.SCAN);
@@ -620,7 +621,8 @@ public class UserPermissionDaoIT {
     List<UserPermissionDto> currentPermissions = underTest.selectUserPermissionsByQuery(dbSession, query, expectedUserUuids);
     assertThat(currentPermissions).hasSize(expectedPermissions.length);
     Tuple[] expectedPermissionsAsTuple = Arrays.stream(expectedPermissions)
-      .map(expectedPermission -> tuple(expectedPermission.getUserUuid(), expectedPermission.getPermission(), expectedPermission.getEntityUuid()))
+      .map(expectedPermission -> tuple(expectedPermission.getUserUuid(), expectedPermission.getPermission(),
+        expectedPermission.getEntityUuid()))
       .toArray(Tuple[]::new);
     assertThat(currentPermissions)
       .extracting(UserPermissionDto::getUserUuid, UserPermissionDto::getPermission, UserPermissionDto::getEntityUuid)

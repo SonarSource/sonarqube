@@ -19,17 +19,17 @@
  */
 package org.sonar.db.entity;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.db.portfolio.PortfolioDto;
 import org.sonar.db.project.ProjectDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class EntityDtoTest {
+class EntityDtoTest {
 
   @Test
-  public void equals_whenEmptyObjects_shouldReturnTrue() {
+  void equals_whenEmptyObjects_shouldReturnTrue() {
     PortfolioDto p1 = new PortfolioDto();
     PortfolioDto p2 = new PortfolioDto();
 
@@ -39,33 +39,33 @@ public class EntityDtoTest {
   }
 
   @Test
-  public void equals_whenSameUuid_shouldReturnTrue() {
+  void equals_whenSameUuid_shouldReturnTrue() {
     PortfolioDto e1 = new PortfolioDto().setUuid("uuid1");
     PortfolioDto e2 = new PortfolioDto().setUuid("uuid1");
     assertThat(e1).isEqualTo(e2);
   }
 
   @Test
-  public void equals_whenDifferentUuid_shouldReturnFalse() {
+  void equals_whenDifferentUuid_shouldReturnFalse() {
     PortfolioDto e1 = new PortfolioDto().setUuid("uuid1");
     PortfolioDto e2 = new PortfolioDto().setUuid("uuid2");
     assertThat(e1).isNotEqualTo(e2);
   }
 
   @Test
-  public void equals_whenSameObject_shouldReturnFalse() {
+  void equals_whenSameObject_shouldReturnFalse() {
     PortfolioDto e1 = new PortfolioDto().setUuid("uuid1");
     assertThat(e1).isEqualTo(e1);
   }
 
   @Test
-  public void equals_whenDifferentType_shouldReturnFalse() {
+  void equals_whenDifferentType_shouldReturnFalse() {
     PortfolioDto e1 = new PortfolioDto().setUuid("uuid1");
     assertThat(e1).isNotEqualTo(new Object());
   }
 
   @Test
-  public void hashCode_whenEmptyObjects_shouldBeTheSame() {
+  void hashCode_whenEmptyObjects_shouldBeTheSame() {
     PortfolioDto p1 = new PortfolioDto();
     PortfolioDto p2 = new PortfolioDto();
 
@@ -76,7 +76,7 @@ public class EntityDtoTest {
   }
 
   @Test
-  public void getAuthUuid_whenEntityIsSubportfolio_shouldReturnAuthUuid() {
+  void getAuthUuid_whenEntityIsSubportfolio_shouldReturnAuthUuid() {
     PortfolioDto portfolioDto = new PortfolioDto();
     portfolioDto.qualifier = Qualifiers.SUBVIEW;
     portfolioDto.authUuid = "authUuid";
@@ -88,7 +88,7 @@ public class EntityDtoTest {
   }
 
   @Test
-  public void isProjectOrApp_whenQualifierIsProject_shouldReturnTrue() {
+  void isProjectOrApp_whenQualifierIsProject_shouldReturnTrue() {
     ProjectDto projectDto = new ProjectDto();
     projectDto.setQualifier(Qualifiers.PROJECT);
 
@@ -98,7 +98,7 @@ public class EntityDtoTest {
   }
 
   @Test
-  public void isProjectOrApp_whenQualifierIsPortfolio_shouldReturnFalse() {
+  void isProjectOrApp_whenQualifierIsPortfolio_shouldReturnFalse() {
     ProjectDto projectDto = new ProjectDto();
     projectDto.setQualifier(Qualifiers.VIEW);
 
@@ -108,7 +108,7 @@ public class EntityDtoTest {
   }
 
   @Test
-  public void isPortfolio_whenQualifierIsPortfolio_shouldReturnTrue() {
+  void isPortfolio_whenQualifierIsPortfolio_shouldReturnTrue() {
     ProjectDto projectDto = new ProjectDto();
     projectDto.setQualifier(Qualifiers.VIEW);
 
@@ -118,7 +118,7 @@ public class EntityDtoTest {
   }
 
   @Test
-  public void isPortfolio_whenQualifierIsProject_shouldReturnFalse() {
+  void isPortfolio_whenQualifierIsProject_shouldReturnFalse() {
     ProjectDto projectDto = new ProjectDto();
     projectDto.setQualifier(Qualifiers.PROJECT);
 

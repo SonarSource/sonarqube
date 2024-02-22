@@ -23,9 +23,9 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -36,19 +36,19 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.user.GroupTesting.newGroupDto;
 
-public class GroupDaoIT {
+class GroupDaoIT {
 
   private static final long NOW = 1_500_000L;
   private static final String MISSING_UUID = "unknown";
 
   private static final GroupQuery EMPTY_QUERY = GroupQuery.builder().build();
 
-  private System2 system2 = mock(System2.class);
+  private final System2 system2 = mock(System2.class);
 
-  @Rule
-  public DbTester db = DbTester.create(system2);
-  private DbSession dbSession = db.getSession();
-  private GroupDao underTest = db.getDbClient().groupDao();
+  @RegisterExtension
+  private final DbTester db = DbTester.create(system2);
+  private final DbSession dbSession = db.getSession();
+  private final GroupDao underTest = db.getDbClient().groupDao();
 
   // not static as group uuid is changed in each test
   private final GroupDto aGroup = new GroupDto()
@@ -56,13 +56,13 @@ public class GroupDaoIT {
     .setName("the-name")
     .setDescription("the description");
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     when(system2.now()).thenReturn(NOW);
   }
 
   @Test
-  public void selectByName() {
+  void selectByName() {
     db.getDbClient().groupDao().insert(dbSession, aGroup);
 
     GroupDto group = underTest.selectByName(dbSession, aGroup.getName()).get();
@@ -75,14 +75,14 @@ public class GroupDaoIT {
   }
 
   @Test
-  public void selectByName_returns_absent() {
+  void selectByName_returns_absent() {
     Optional<GroupDto> group = underTest.selectByName(dbSession, "missing");
 
     assertThat(group).isNotPresent();
   }
 
   @Test
-  public void selectByUserLogin() {
+  void selectByUserLogin() {
     GroupDto group1 = db.users().insertGroup();
     GroupDto group2 = db.users().insertGroup();
     GroupDto group3 = db.users().insertGroup();
@@ -95,7 +95,7 @@ public class GroupDaoIT {
   }
 
   @Test
-  public void selectByNames() {
+  void selectByNames() {
     GroupDto group1 = underTest.insert(dbSession, newGroupDto().setName("group1"));
     GroupDto group2 = underTest.insert(dbSession, newGroupDto().setName("group2"));
 
@@ -107,7 +107,7 @@ public class GroupDaoIT {
   }
 
   @Test
-  public void selectByUuids() {
+  void selectByUuids() {
     GroupDto group1 = db.users().insertGroup();
     GroupDto group2 = db.users().insertGroup();
     GroupDto group3 = db.users().insertGroup();
@@ -122,7 +122,7 @@ public class GroupDaoIT {
   }
 
   @Test
-  public void update() {
+  void update() {
     db.getDbClient().groupDao().insert(dbSession, aGroup);
     GroupDto dto = new GroupDto()
       .setUuid(aGroup.getUuid())
@@ -143,7 +143,7 @@ public class GroupDaoIT {
   }
 
   @Test
-  public void selectByQuery() {
+  void selectByQuery() {
     db.users().insertGroup("sonar-users");
     db.users().insertGroup("SONAR-ADMINS");
     db.users().insertGroup("customers-group1");
@@ -191,7 +191,7 @@ public class GroupDaoIT {
   }
 
   @Test
-  public void select_by_query_with_special_characters() {
+  void select_by_query_with_special_characters() {
     String groupNameWithSpecialCharacters = "group%_%/name";
     underTest.insert(dbSession, newGroupDto().setName(groupNameWithSpecialCharacters));
     db.commit();
@@ -205,7 +205,7 @@ public class GroupDaoIT {
   }
 
   @Test
-  public void countByQuery() {
+  void countByQuery() {
     db.users().insertGroup("sonar-users");
     db.users().insertGroup("SONAR-ADMINS");
     db.users().insertGroup("customers-group1");
@@ -223,7 +223,7 @@ public class GroupDaoIT {
   }
 
   @Test
-  public void deleteByUuid() {
+  void deleteByUuid() {
     db.getDbClient().groupDao().insert(dbSession, aGroup);
 
     underTest.deleteByUuid(dbSession, aGroup.getUuid(), aGroup.getName());

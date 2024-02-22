@@ -20,7 +20,7 @@
 package org.sonar.db.issue;
 
 import java.util.Set;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueStatus;
 import org.sonar.api.issue.impact.Severity;
@@ -29,10 +29,10 @@ import org.sonar.api.issue.impact.SoftwareQuality;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
 
-public class IndexedIssueDtoTest {
+class IndexedIssueDtoTest {
 
   @Test
-  public void settersGetters_shouldSetAndGetValues() {
+  void settersGetters_shouldSetAndGetValues() {
     IndexedIssueDto indexedIssueDto = new IndexedIssueDto()
       .setIssueKey("issueKey")
       .setAssignee("assignee")
@@ -67,13 +67,18 @@ public class IndexedIssueDtoTest {
 
     assertThat(indexedIssueDto)
       .extracting(IndexedIssueDto::getIssueKey, IndexedIssueDto::getAssignee, IndexedIssueDto::getAuthorLogin, IndexedIssueDto::getStatus,
-        IndexedIssueDto::isNewCodeReferenceIssue, IndexedIssueDto::getCleanCodeAttribute, IndexedIssueDto::getRuleCleanCodeAttribute, IndexedIssueDto::getCodeVariants,
-        IndexedIssueDto::getSecurityStandards, IndexedIssueDto::getComponentUuid, IndexedIssueDto::getIssueCloseDate, IndexedIssueDto::getIssueCreationDate,
-        IndexedIssueDto::getIssueUpdateDate, IndexedIssueDto::getEffort, IndexedIssueDto::isMain, IndexedIssueDto::getLanguage, IndexedIssueDto::getLine,
+        IndexedIssueDto::isNewCodeReferenceIssue, IndexedIssueDto::getCleanCodeAttribute, IndexedIssueDto::getRuleCleanCodeAttribute,
+        IndexedIssueDto::getCodeVariants,
+        IndexedIssueDto::getSecurityStandards, IndexedIssueDto::getComponentUuid, IndexedIssueDto::getIssueCloseDate,
+        IndexedIssueDto::getIssueCreationDate,
+        IndexedIssueDto::getIssueUpdateDate, IndexedIssueDto::getEffort, IndexedIssueDto::isMain, IndexedIssueDto::getLanguage,
+        IndexedIssueDto::getLine,
         IndexedIssueDto::getPath, IndexedIssueDto::getProjectUuid, IndexedIssueDto::getQualifier, IndexedIssueDto::getResolution,
-        IndexedIssueDto::getRuleUuid, IndexedIssueDto::getScope, IndexedIssueDto::getSeverity, IndexedIssueDto::getTags, IndexedIssueDto::getIssueType,
+        IndexedIssueDto::getRuleUuid, IndexedIssueDto::getScope, IndexedIssueDto::getSeverity, IndexedIssueDto::getTags,
+        IndexedIssueDto::getIssueType,
         IndexedIssueDto::getBranchUuid)
-      .containsExactly("issueKey", "assignee", "authorLogin", "status", true, "cleanCodeAttribute", "ruleCleanCodeAttribute", "codeVariants", "securityStandards",
+      .containsExactly("issueKey", "assignee", "authorLogin", "status", true, "cleanCodeAttribute", "ruleCleanCodeAttribute",
+        "codeVariants", "securityStandards",
         "componentUuid", 1L, 2L, 3L, 4L, true, "language", 5, "path", "projectUuid", "qualifier", "resolution", "ruleUuid",
         "scope", "severity", "tags", 6, "branchUuid");
 
@@ -91,7 +96,7 @@ public class IndexedIssueDtoTest {
   }
 
   @Test
-  public void getIssueStatus_shouldReturnIssueStatusFromStatusAndResolution() {
+  void getIssueStatus_shouldReturnIssueStatusFromStatusAndResolution() {
     IndexedIssueDto issue1 = new IndexedIssueDto().setStatus(Issue.STATUS_OPEN);
     IndexedIssueDto issue2 = new IndexedIssueDto().setStatus(Issue.STATUS_RESOLVED).setResolution(Issue.RESOLUTION_WONT_FIX);
     IndexedIssueDto issue3 = new IndexedIssueDto().setStatus(Issue.STATUS_CLOSED).setResolution(Issue.RESOLUTION_FIXED);

@@ -19,9 +19,6 @@
  */
 package org.sonar.db.issue;
 
-import com.tngtech.java.junit.dataprovider.DataProvider;
-import com.tngtech.java.junit.dataprovider.DataProviderRunner;
-import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -32,10 +29,11 @@ import java.util.function.Consumer;
 import java.util.stream.IntStream;
 import org.apache.ibatis.session.ResultContext;
 import org.apache.ibatis.session.ResultHandler;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.sonar.api.impl.utils.AlwaysIncreasingSystem2;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.impact.Severity;
@@ -57,13 +55,12 @@ import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 
-@RunWith(DataProviderRunner.class)
-public class IssueMapperIT {
+class IssueMapperIT {
 
   private static final long NO_FILTERING_ON_CLOSE_DATE = 1L;
 
-  @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  @RegisterExtension
+  private final DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   private final DbSession dbSession = dbTester.getSession();
   private final IssueMapper underTest = dbSession.getMapper(IssueMapper.class);
@@ -72,8 +69,8 @@ public class IssueMapperIT {
   private ComponentDto project, file, file2;
   private RuleDto rule;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     project = dbTester.components().insertPrivateProject().getMainBranchComponent();
     file = ComponentTesting.newFileDto(project);
     dbTester.getDbClient().componentDao().insert(dbSession, file, true);
@@ -85,7 +82,7 @@ public class IssueMapperIT {
   }
 
   @Test
-  public void insert() {
+  void insert() {
     underTest.insert(newIssue());
     dbTester.getSession().commit();
 
@@ -116,7 +113,7 @@ public class IssueMapperIT {
   }
 
   @Test
-  public void update() {
+  void update() {
     underTest.insert(newIssue());
 
     dbTester.getSession().commit();
@@ -177,7 +174,7 @@ public class IssueMapperIT {
   }
 
   @Test
-  public void updateBeforeSelectedDate_without_conflict() {
+  void updateBeforeSelectedDate_without_conflict() {
     underTest.insert(newIssue());
 
     IssueDto dto = newIssue()
@@ -212,7 +209,7 @@ public class IssueMapperIT {
   }
 
   @Test
-  public void updateBeforeSelectedDate_with_conflict() {
+  void updateBeforeSelectedDate_with_conflict() {
     underTest.insert(newIssue());
 
     IssueDto dto = newIssue()
@@ -248,7 +245,7 @@ public class IssueMapperIT {
   }
 
   @Test
-  public void scrollClosedByComponentUuid_returns_empty_when_no_issue_for_component() {
+  void scrollClosedByComponentUuid_returns_empty_when_no_issue_for_component() {
     String componentUuid = randomAlphabetic(10);
     RecorderResultHandler resultHandler = new RecorderResultHandler();
 
@@ -257,9 +254,9 @@ public class IssueMapperIT {
     assertThat(resultHandler.issues).isEmpty();
   }
 
-  @Test
-  @UseDataProvider("closedIssuesSupportedRuleTypes")
-  public void scrollClosedByComponentUuid_returns_closed_issues_with_at_least_one_diff_to_CLOSED(RuleType ruleType) {
+  @ParameterizedTest
+  @MethodSource("closedIssuesSupportedRuleTypes")
+  void scrollClosedByComponentUuid_returns_closed_issues_with_at_least_one_diff_to_CLOSED(RuleType ruleType) {
     ComponentDto component = randomComponent();
     IssueDto expected = insertNewClosedIssue(component, ruleType);
     IssueChangeDto changeDto = insertToClosedDiff(expected);
@@ -273,9 +270,9 @@ public class IssueMapperIT {
     assertThat(issue.getClosedChangeData()).contains(changeDto.getChangeData());
   }
 
-  @Test
-  @UseDataProvider("closedIssuesSupportedRuleTypes")
-  public void scrollClosedByComponentUuid_does_not_return_closed_issues_of_non_existing_rule(RuleType ruleType) {
+  @ParameterizedTest
+  @MethodSource("closedIssuesSupportedRuleTypes")
+  void scrollClosedByComponentUuid_does_not_return_closed_issues_of_non_existing_rule(RuleType ruleType) {
     ComponentDto component = randomComponent();
     IssueDto issueWithRule = insertNewClosedIssue(component, ruleType);
     IssueChangeDto issueChange = insertToClosedDiff(issueWithRule);
@@ -290,9 +287,9 @@ public class IssueMapperIT {
       .containsOnly(tuple(issueWithRule.getKey(), issueChange.getChangeData()));
   }
 
-  @Test
-  @UseDataProvider("closedIssuesSupportedRuleTypes")
-  public void scrollClosedByComponentUuid_does_not_return_closed_issues_of_orphan_component(RuleType ruleType) {
+  @ParameterizedTest
+  @MethodSource("closedIssuesSupportedRuleTypes")
+  void scrollClosedByComponentUuid_does_not_return_closed_issues_of_orphan_component(RuleType ruleType) {
     ComponentDto component = randomComponent();
     IssueDto issue = insertNewClosedIssue(component, ruleType);
     IssueChangeDto issueChange = insertToClosedDiff(issue);
@@ -309,9 +306,9 @@ public class IssueMapperIT {
       .containsOnly(tuple(issue.getKey(), issueChange.getChangeData()));
   }
 
-  @Test
-  @UseDataProvider("closedIssuesSupportedRuleTypes")
-  public void scrollClosedByComponentUuid_does_not_return_closed_issues_without_any_status_diff_to_CLOSED(RuleType ruleType) {
+  @ParameterizedTest
+  @MethodSource("closedIssuesSupportedRuleTypes")
+  void scrollClosedByComponentUuid_does_not_return_closed_issues_without_any_status_diff_to_CLOSED(RuleType ruleType) {
     ComponentDto component = randomComponent();
     IssueDto issueWithLineDiff = insertNewClosedIssue(component, ruleType);
     IssueChangeDto issueChange = insertToClosedDiff(issueWithLineDiff);
@@ -326,7 +323,7 @@ public class IssueMapperIT {
   }
 
   @Test
-  public void scrollClosedByComponentUuid_returns_closed_issues_of_type_SECURITY_HOTSPOT() {
+  void scrollClosedByComponentUuid_returns_closed_issues_of_type_SECURITY_HOTSPOT() {
     RuleType ruleType = randomSupportedRuleType();
     ComponentDto component = randomComponent();
     IssueDto securityHotspotIssue = insertNewClosedIssue(component, RuleType.SECURITY_HOTSPOT);
@@ -345,7 +342,7 @@ public class IssueMapperIT {
   }
 
   @Test
-  public void scrollClosedByComponentUuid_does_not_return_closed_issues_without_close_date() {
+  void scrollClosedByComponentUuid_does_not_return_closed_issues_without_close_date() {
     RuleType ruleType = randomSupportedRuleType();
     ComponentDto component = randomComponent();
     IssueDto issueWithoutCloseDate = insertNewClosedIssue(component, ruleType, t -> t.setIssueCloseDate(null));
@@ -363,11 +360,11 @@ public class IssueMapperIT {
   }
 
   @Test
-  public void scrollClosedByComponentUuid_returns_closed_issues_which_close_date_is_greater_or_equal_to_requested() {
+  void scrollClosedByComponentUuid_returns_closed_issues_which_close_date_is_greater_or_equal_to_requested() {
     RuleType ruleType = randomSupportedRuleType();
     ComponentDto component = randomComponent();
     RuleDto rule1 = dbTester.rules().insert(t -> t.setType(ruleType));
-    IssueDto[] issues = new IssueDto[] {
+    IssueDto[] issues = new IssueDto[]{
       insertNewClosedIssue(component, rule1, 1_999_999L),
       insertNewClosedIssue(component, rule1, 3_999_999L),
       insertNewClosedIssue(component, rule1, 2_999_999L),
@@ -409,13 +406,13 @@ public class IssueMapperIT {
       .containsOnly(issues[3].getKey(), issues[1].getKey(), issues[2].getKey(), issues[0].getKey());
   }
 
-  @Test
-  @UseDataProvider("closedIssuesSupportedRuleTypes")
-  public void scrollClosedByComponentUuid_return_one_row_per_status_diff_to_CLOSED_sorted_by_most_recent_creation_date_first(RuleType ruleType) {
+  @ParameterizedTest
+  @MethodSource("closedIssuesSupportedRuleTypes")
+  void scrollClosedByComponentUuid_return_one_row_per_status_diff_to_CLOSED_sorted_by_most_recent_creation_date_first(RuleType ruleType) {
     ComponentDto component = randomComponent();
     IssueDto issue = insertNewClosedIssue(component, ruleType);
     Date date = new Date();
-    IssueChangeDto[] changes = new IssueChangeDto[] {
+    IssueChangeDto[] changes = new IssueChangeDto[]{
       insertToClosedDiff(issue, DateUtils.addDays(date, -10)),
       insertToClosedDiff(issue, DateUtils.addDays(date, -60)),
       insertToClosedDiff(issue, date),
@@ -432,13 +429,13 @@ public class IssueMapperIT {
       .containsExactly(tuple(issue.getKey(), changes[2].getChangeData()));
   }
 
-  @Test
-  @UseDataProvider("closedIssuesSupportedRuleTypes")
-  public void scrollClosedByComponentUuid_does_not_return_row_for_status_change_from_close(RuleType ruleType) {
+  @ParameterizedTest
+  @MethodSource("closedIssuesSupportedRuleTypes")
+  void scrollClosedByComponentUuid_does_not_return_row_for_status_change_from_close(RuleType ruleType) {
     ComponentDto component = randomComponent();
     IssueDto issue = insertNewClosedIssue(component, ruleType);
     Date date = new Date();
-    IssueChangeDto[] changes = new IssueChangeDto[] {
+    IssueChangeDto[] changes = new IssueChangeDto[]{
       insertToClosedDiff(issue, DateUtils.addDays(date, -10), Issue.STATUS_CLOSED, Issue.STATUS_REOPENED),
       insertToClosedDiff(issue, DateUtils.addDays(date, -60)),
       insertToClosedDiff(issue, date),
@@ -518,10 +515,9 @@ public class IssueMapperIT {
     .filter(t -> t != RuleType.SECURITY_HOTSPOT)
     .toArray(RuleType[]::new);
 
-  @DataProvider
-  public static Object[][] closedIssuesSupportedRuleTypes() {
+  private static Object[][] closedIssuesSupportedRuleTypes() {
     return Arrays.stream(SUPPORTED_RULE_TYPES)
-      .map(t -> new Object[] {t})
+      .map(t -> new Object[]{t})
       .toArray(Object[][]::new);
   }
 
@@ -533,7 +529,7 @@ public class IssueMapperIT {
     ComponentDto project = dbTester.components().insertPublicProject().getMainBranchComponent();
     ComponentDto dir = dbTester.components().insertComponent(ComponentTesting.newDirectory(project, "foo"));
     ComponentDto file = dbTester.components().insertComponent(ComponentTesting.newFileDto(project, dir));
-    ComponentDto[] components = new ComponentDto[] {project, dir, file};
+    ComponentDto[] components = new ComponentDto[]{project, dir, file};
     return components[random.nextInt(components.length)];
   }
 

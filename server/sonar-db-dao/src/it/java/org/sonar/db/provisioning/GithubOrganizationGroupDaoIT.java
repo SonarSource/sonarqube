@@ -20,8 +20,8 @@
 package org.sonar.db.provisioning;
 
 import java.util.Set;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.user.GroupDao;
@@ -29,13 +29,13 @@ import org.sonar.db.user.GroupDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class GithubOrganizationGroupDaoIT {
+class GithubOrganizationGroupDaoIT {
 
   private static final String GROUP_UUID = "uuid";
   private static final String ORG_NAME = "org1";
 
-  @Rule
-  public final DbTester db = DbTester.create();
+  @RegisterExtension
+  private final DbTester db = DbTester.create();
 
   private final DbSession dbSession = db.getSession();
 
@@ -44,7 +44,7 @@ public class GithubOrganizationGroupDaoIT {
   private final GithubOrganizationGroupDao underTest = db.getDbClient().githubOrganizationGroupDao();
 
   @Test
-  public void insert_savesGithubOrganizationGroup() {
+  void insert_savesGithubOrganizationGroup() {
     GroupDto groupDto = insertGroup(GROUP_UUID);
     GithubOrganizationGroupDto githubOrganizationGroupDto = createGithubOrganizationGroupDto(groupDto.getUuid(), ORG_NAME);
 
@@ -56,7 +56,7 @@ public class GithubOrganizationGroupDaoIT {
   }
 
   @Test
-  public void selectByGroupUuid_shouldReturnGithubOrganizationGroup() {
+  void selectByGroupUuid_shouldReturnGithubOrganizationGroup() {
     GroupDto groupDto = insertGroup(GROUP_UUID);
     insertGroup("another group");
     GithubOrganizationGroupDto githubOrganizationGroupDto = createGithubOrganizationGroupDto(groupDto.getUuid(), ORG_NAME);
@@ -70,7 +70,7 @@ public class GithubOrganizationGroupDaoIT {
   }
 
   @Test
-  public void findAll_shouldReturnAllGithubOrganizationGroup() {
+  void findAll_shouldReturnAllGithubOrganizationGroup() {
     insertGroup("another group");
     GroupDto groupDto = insertGroup(GROUP_UUID);
     GithubOrganizationGroupDto githubOrganizationGroupDto = createGithubOrganizationGroupDto(groupDto.getUuid(), ORG_NAME);
@@ -83,12 +83,14 @@ public class GithubOrganizationGroupDaoIT {
 
     assertThat(all).hasSize(2)
       .containsExactlyInAnyOrder(
-        new GithubOrganizationGroupDto(githubOrganizationGroupDto.groupUuid(), githubOrganizationGroupDto.organizationName(), groupDto.getName()),
-        new GithubOrganizationGroupDto(githubOrganizationGroupDto2.groupUuid(), githubOrganizationGroupDto2.organizationName(), groupDto2.getName()));
+        new GithubOrganizationGroupDto(githubOrganizationGroupDto.groupUuid(), githubOrganizationGroupDto.organizationName(),
+          groupDto.getName()),
+        new GithubOrganizationGroupDto(githubOrganizationGroupDto2.groupUuid(), githubOrganizationGroupDto2.organizationName(),
+          groupDto2.getName()));
   }
 
   @Test
-  public void deleteByGroupUuid_shouldDeleteCorrectGroup() {
+  void deleteByGroupUuid_shouldDeleteCorrectGroup() {
     GroupDto groupDto = insertGroup(GROUP_UUID);
     GithubOrganizationGroupDto githubOrganizationGroupDto = createGithubOrganizationGroupDto(groupDto.getUuid(), ORG_NAME);
     underTest.insert(dbSession, githubOrganizationGroupDto);
@@ -103,7 +105,7 @@ public class GithubOrganizationGroupDaoIT {
   }
 
   @Test
-  public void deleteAll_shouldDeleteEverything() {
+  void deleteAll_shouldDeleteEverything() {
     GroupDto groupDto = insertGroup(GROUP_UUID);
     GithubOrganizationGroupDto githubOrganizationGroupDto = createGithubOrganizationGroupDto(groupDto.getUuid(), ORG_NAME);
     underTest.insert(dbSession, githubOrganizationGroupDto);

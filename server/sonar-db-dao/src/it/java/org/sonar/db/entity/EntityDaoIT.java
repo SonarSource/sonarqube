@@ -22,8 +22,8 @@ package org.sonar.db.entity;
 import java.util.LinkedList;
 import java.util.List;
 import org.apache.ibatis.session.ResultHandler;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.impl.utils.AlwaysIncreasingSystem2;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
@@ -37,16 +37,16 @@ import org.sonar.db.project.ProjectDto;
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class EntityDaoIT {
+class EntityDaoIT {
   private final System2 system2 = new AlwaysIncreasingSystem2(1000L);
 
-  @Rule
-  public DbTester db = DbTester.create(system2);
+  @RegisterExtension
+  private final DbTester db = DbTester.create(system2);
 
   private final EntityDao entityDao = new EntityDao();
 
   @Test
-  public void selectEntityByComponentUuid_shouldReturnProjectEntityBasedOnComponent() {
+  void selectEntityByComponentUuid_shouldReturnProjectEntityBasedOnComponent() {
     ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     BranchDto branchDto = db.components().insertProjectBranch(project);
     ComponentDto fileInBranch = db.components().insertFile(branchDto);
@@ -57,7 +57,7 @@ public class EntityDaoIT {
   }
 
   @Test
-  public void selectEntityByComponentUuid_shouldReturnPortfolioEntityBasedOnComponent() {
+  void selectEntityByComponentUuid_shouldReturnPortfolioEntityBasedOnComponent() {
     PortfolioDto portfolio = db.components().insertPublicPortfolioDto();
     assertThat(entityDao.selectByComponentUuid(db.getSession(), portfolio.getUuid()).get())
       .extracting(EntityDto::getUuid, EntityDto::getKey)
@@ -65,7 +65,7 @@ public class EntityDaoIT {
   }
 
   @Test
-  public void selectEntityByComponentUuid_whenPortfolioWithHierarchy_shouldReturnPortfolioEntityBasedOnComponent() {
+  void selectEntityByComponentUuid_whenPortfolioWithHierarchy_shouldReturnPortfolioEntityBasedOnComponent() {
     ComponentDto projectBranch = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto portfolio = db.components().insertPublicPortfolio();
     ComponentDto subPortfolio = db.components().insertSubportfolio(portfolio);
@@ -77,44 +77,46 @@ public class EntityDaoIT {
   }
 
   @Test
-  public void selectEntityByComponentUuid_whenUnknown_shouldReturnEmpty() {
+  void selectEntityByComponentUuid_whenUnknown_shouldReturnEmpty() {
     assertThat(entityDao.selectByComponentUuid(db.getSession(), "unknown")).isEmpty();
   }
 
   @Test
-  public void selectEntitiesByKeys_shouldReturnAllEntities() {
+  void selectEntitiesByKeys_shouldReturnAllEntities() {
     ProjectData application = db.components().insertPrivateApplication();
     ProjectData project = db.components().insertPrivateProject();
     PortfolioDto portfolio = db.components().insertPrivatePortfolioDto();
 
-    assertThat(entityDao.selectByKeys(db.getSession(), List.of(application.projectKey(), project.projectKey(), portfolio.getKey(), "unknown")))
+    assertThat(entityDao.selectByKeys(db.getSession(), List.of(application.projectKey(), project.projectKey(), portfolio.getKey(),
+      "unknown")))
       .extracting(EntityDto::getUuid)
       .containsOnly(application.projectUuid(), project.projectUuid(), portfolio.getUuid());
   }
 
   @Test
-  public void selectEntitiesByKeys_whenEmptyInput_shouldReturnEmptyList() {
+  void selectEntitiesByKeys_whenEmptyInput_shouldReturnEmptyList() {
     assertThat(entityDao.selectByKeys(db.getSession(), emptyList())).isEmpty();
   }
 
   @Test
-  public void selectEntitiesByUuids_shouldReturnAllEntities() {
+  void selectEntitiesByUuids_shouldReturnAllEntities() {
     ProjectData application = db.components().insertPrivateApplication();
     ProjectData project = db.components().insertPrivateProject();
     PortfolioDto portfolio = db.components().insertPrivatePortfolioDto();
 
-    assertThat(entityDao.selectByUuids(db.getSession(), List.of(application.projectUuid(), project.projectUuid(), portfolio.getUuid(), "unknown")))
+    assertThat(entityDao.selectByUuids(db.getSession(), List.of(application.projectUuid(), project.projectUuid(), portfolio.getUuid(),
+      "unknown")))
       .extracting(EntityDto::getKey)
       .containsOnly(application.projectKey(), project.projectKey(), portfolio.getKey());
   }
 
   @Test
-  public void selectEntitiesByUuids_whenEmptyInput_shouldReturnEmptyList() {
+  void selectEntitiesByUuids_whenEmptyInput_shouldReturnEmptyList() {
     assertThat(entityDao.selectByUuids(db.getSession(), emptyList())).isEmpty();
   }
 
   @Test
-  public void selectEntityByUuid_shouldReturnAllEntities() {
+  void selectEntityByUuid_shouldReturnAllEntities() {
     ProjectData application = db.components().insertPrivateApplication();
     ProjectData project = db.components().insertPrivateProject();
     PortfolioDto portfolio = db.components().insertPrivatePortfolioDto();
@@ -125,7 +127,7 @@ public class EntityDaoIT {
   }
 
   @Test
-  public void getDescription_shouldNotReturnNull() {
+  void getDescription_shouldNotReturnNull() {
     ProjectData project = db.components().insertPrivateProject();
     PortfolioDto portfolio = db.components().insertPrivatePortfolioDto();
 
@@ -134,12 +136,12 @@ public class EntityDaoIT {
   }
 
   @Test
-  public void selectEntityByUuid_whenNoMatch_shouldReturnEmpty() {
+  void selectEntityByUuid_whenNoMatch_shouldReturnEmpty() {
     assertThat(entityDao.selectByUuid(db.getSession(), "unknown")).isEmpty();
   }
 
   @Test
-  public void selectEntityByKey_shouldReturnAllEntities() {
+  void selectEntityByKey_shouldReturnAllEntities() {
     ProjectData application = db.components().insertPrivateApplication();
     ProjectData project = db.components().insertPrivateProject();
     PortfolioDto portfolio = db.components().insertPrivatePortfolioDto();
@@ -150,12 +152,12 @@ public class EntityDaoIT {
   }
 
   @Test
-  public void selectEntityByKey_whenNoMatch_shouldReturnEmpty() {
+  void selectEntityByKey_whenNoMatch_shouldReturnEmpty() {
     assertThat(entityDao.selectByKey(db.getSession(), "unknown")).isEmpty();
   }
 
   @Test
-  public void scrollEntitiesForIndexing_shouldReturnAllEntities() {
+  void scrollEntitiesForIndexing_shouldReturnAllEntities() {
     ProjectData application = db.components().insertPrivateApplication();
     ProjectData project = db.components().insertPrivateProject();
     PortfolioDto portfolio = db.components().insertPrivatePortfolioDto();

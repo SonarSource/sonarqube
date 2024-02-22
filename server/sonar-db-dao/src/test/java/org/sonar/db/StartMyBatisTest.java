@@ -19,16 +19,16 @@
  */
 package org.sonar.db;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
-public class StartMyBatisTest {
+class StartMyBatisTest {
 
   @Test
-  public void should_start_mybatis_instance(){
+  void should_start_mybatis_instance() {
     var myBatis = mock(MyBatis.class);
     var startMyBatis = new StartMyBatis(myBatis);
     startMyBatis.start();

@@ -22,8 +22,8 @@ package org.sonar.db.webhook;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -34,13 +34,13 @@ import static com.google.common.collect.ImmutableList.of;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.webhook.WebhookTesting.newProjectWebhook;
 
-public class WebhookDeliveryDaoIT {
+class WebhookDeliveryDaoIT {
 
   private static final long NOW = 1_500_000_000L;
   private static final long BEFORE = NOW - 1_000L;
 
-  @Rule
-  public final DbTester dbTester = DbTester.create(System2.INSTANCE);
+  @RegisterExtension
+  private final DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   private final DbClient dbClient = dbTester.getDbClient();
   private final DbSession dbSession = dbTester.getSession();
@@ -49,12 +49,12 @@ public class WebhookDeliveryDaoIT {
   private final WebhookDeliveryDao underTest = dbClient.webhookDeliveryDao();
 
   @Test
-  public void selectByUuid_returns_empty_if_uuid_does_not_exist() {
+  void selectByUuid_returns_empty_if_uuid_does_not_exist() {
     assertThat(underTest.selectByUuid(dbSession, "missing")).isEmpty();
   }
 
   @Test
-  public void selectOrderedByComponentUuid_returns_empty_if_no_records() {
+  void selectOrderedByComponentUuid_returns_empty_if_no_records() {
     underTest.insert(dbSession, WebhookDeliveryTesting.newDto("D1", "WEBHOOK_UUID_1", "PROJECT_1", "TASK_1"));
 
     List<WebhookDeliveryLiteDto> deliveries = underTest.selectOrderedByProjectUuid(dbSession, "ANOTHER_PROJECT", Pagination.all());
@@ -63,7 +63,7 @@ public class WebhookDeliveryDaoIT {
   }
 
   @Test
-  public void selectOrderedByComponentUuid_returns_records_ordered_by_date() {
+  void selectOrderedByComponentUuid_returns_records_ordered_by_date() {
     WebhookDeliveryDto dto1 = WebhookDeliveryTesting.newDto("D1", "WEBHOOK_UUID_1", "PROJECT_1", "TASK_1").setCreatedAt(BEFORE);
     WebhookDeliveryDto dto2 = WebhookDeliveryTesting.newDto("D2", "WEBHOOK_UUID_1", "PROJECT_1", "TASK_1").setCreatedAt(NOW);
     WebhookDeliveryDto dto3 = WebhookDeliveryTesting.newDto("D3", "WEBHOOK_UUID_1", "PROJECT_2", "TASK_1").setCreatedAt(NOW);
@@ -77,7 +77,7 @@ public class WebhookDeliveryDaoIT {
   }
 
   @Test
-  public void selectOrderedByCeTaskUuid_returns_empty_if_no_records() {
+  void selectOrderedByCeTaskUuid_returns_empty_if_no_records() {
     underTest.insert(dbSession, WebhookDeliveryTesting.newDto("D1", "WEBHOOK_UUID_1", "PROJECT_1", "TASK_1"));
 
     List<WebhookDeliveryLiteDto> deliveries = underTest.selectOrderedByCeTaskUuid(dbSession, "ANOTHER_TASK", Pagination.all());
@@ -86,7 +86,7 @@ public class WebhookDeliveryDaoIT {
   }
 
   @Test
-  public void selectOrderedByCeTaskUuid_returns_records_ordered_by_date() {
+  void selectOrderedByCeTaskUuid_returns_records_ordered_by_date() {
     WebhookDeliveryDto dto1 = WebhookDeliveryTesting.newDto("D1", "WEBHOOK_UUID_1", "PROJECT_1", "TASK_1").setCreatedAt(BEFORE);
     WebhookDeliveryDto dto2 = WebhookDeliveryTesting.newDto("D2", "WEBHOOK_UUID_1", "PROJECT_1", "TASK_1").setCreatedAt(NOW);
     WebhookDeliveryDto dto3 = WebhookDeliveryTesting.newDto("D3", "WEBHOOK_UUID_1", "PROJECT_2", "TASK_2").setCreatedAt(NOW);
@@ -100,7 +100,7 @@ public class WebhookDeliveryDaoIT {
   }
 
   @Test
-  public void selectByWebhookUuid_returns_empty_if_no_records() {
+  void selectByWebhookUuid_returns_empty_if_no_records() {
 
     underTest.insert(dbSession, WebhookDeliveryTesting.newDto("D1", "WEBHOOK_UUID_1", "PROJECT_1", "TASK_1"));
 
@@ -110,7 +110,7 @@ public class WebhookDeliveryDaoIT {
   }
 
   @Test
-  public void selectByWebhookUuid_returns_records_ordered_by_date() {
+  void selectByWebhookUuid_returns_records_ordered_by_date() {
     WebhookDto webhookDto = dbWebhooks.insert(WebhookTesting.newProjectWebhook("PROJECT_1"), "PROJECT_KEY", "PROJECT_NAME");
     WebhookDeliveryDto dto1 = WebhookDeliveryTesting.newDto("D1", webhookDto.getUuid(), "PROJECT_1", "TASK_1").setCreatedAt(BEFORE);
     WebhookDeliveryDto dto2 = WebhookDeliveryTesting.newDto("D2", webhookDto.getUuid(), "PROJECT_1", "TASK_2").setCreatedAt(NOW);
@@ -125,29 +125,39 @@ public class WebhookDeliveryDaoIT {
   }
 
   @Test
-  public void selectByWebhookUuid_returns_records_according_to_pagination() {
+  void selectByWebhookUuid_returns_records_according_to_pagination() {
     WebhookDto webhookDto = dbWebhooks.insert(WebhookTesting.newProjectWebhook("PROJECT_1"), "PROJECT_KEY", "PROJECT_NAME");
-    underTest.insert(dbSession, WebhookDeliveryTesting.newDto("D1", webhookDto.getUuid(), "PROJECT_1", "TASK_2").setCreatedAt(NOW - 5_000L));
-    underTest.insert(dbSession, WebhookDeliveryTesting.newDto("D2", webhookDto.getUuid(), "PROJECT_1", "TASK_2").setCreatedAt(NOW - 4_000L));
-    underTest.insert(dbSession, WebhookDeliveryTesting.newDto("D3", webhookDto.getUuid(), "PROJECT_1", "TASK_2").setCreatedAt(NOW - 3_000L));
-    underTest.insert(dbSession, WebhookDeliveryTesting.newDto("D4", webhookDto.getUuid(), "PROJECT_1", "TASK_2").setCreatedAt(NOW - 2_000L));
-    underTest.insert(dbSession, WebhookDeliveryTesting.newDto("D5", webhookDto.getUuid(), "PROJECT_1", "TASK_2").setCreatedAt(NOW - 1_000L));
+    underTest.insert(dbSession,
+      WebhookDeliveryTesting.newDto("D1", webhookDto.getUuid(), "PROJECT_1", "TASK_2").setCreatedAt(NOW - 5_000L));
+    underTest.insert(dbSession,
+      WebhookDeliveryTesting.newDto("D2", webhookDto.getUuid(), "PROJECT_1", "TASK_2").setCreatedAt(NOW - 4_000L));
+    underTest.insert(dbSession,
+      WebhookDeliveryTesting.newDto("D3", webhookDto.getUuid(), "PROJECT_1", "TASK_2").setCreatedAt(NOW - 3_000L));
+    underTest.insert(dbSession,
+      WebhookDeliveryTesting.newDto("D4", webhookDto.getUuid(), "PROJECT_1", "TASK_2").setCreatedAt(NOW - 2_000L));
+    underTest.insert(dbSession,
+      WebhookDeliveryTesting.newDto("D5", webhookDto.getUuid(), "PROJECT_1", "TASK_2").setCreatedAt(NOW - 1_000L));
     underTest.insert(dbSession, WebhookDeliveryTesting.newDto("D6", webhookDto.getUuid(), "PROJECT_1", "TASK_2").setCreatedAt(NOW));
 
-    List<WebhookDeliveryLiteDto> deliveries = underTest.selectByWebhookUuid(dbSession, webhookDto.getUuid(), Pagination.forPage(2).andSize(2));
+    List<WebhookDeliveryLiteDto> deliveries = underTest.selectByWebhookUuid(dbSession, webhookDto.getUuid(),
+      Pagination.forPage(2).andSize(2));
 
     assertThat(deliveries).extracting(WebhookDeliveryLiteDto::getUuid).containsExactly("D4", "D3");
   }
 
   @Test
-  public void selectLatestDelivery_of_a_webhook() {
+  void selectLatestDelivery_of_a_webhook() {
     WebhookDto webhook1 = dbWebhooks.insert(newProjectWebhook("PROJECT_1"), "PROJECT_KEY", "PROJECT_NAME");
-    underTest.insert(dbSession, WebhookDeliveryTesting.newDto("WH1-DELIVERY-1-UUID", webhook1.getUuid(), "PROJECT_1", "TASK_1").setCreatedAt(BEFORE));
-    underTest.insert(dbSession, WebhookDeliveryTesting.newDto("WH1-DELIVERY-2-UUID", webhook1.getUuid(), "PROJECT_1", "TASK_2").setCreatedAt(NOW));
+    underTest.insert(dbSession,
+      WebhookDeliveryTesting.newDto("WH1-DELIVERY-1-UUID", webhook1.getUuid(), "PROJECT_1", "TASK_1").setCreatedAt(BEFORE));
+    underTest.insert(dbSession,
+      WebhookDeliveryTesting.newDto("WH1-DELIVERY-2-UUID", webhook1.getUuid(), "PROJECT_1", "TASK_2").setCreatedAt(NOW));
 
     WebhookDto webhook2 = dbWebhooks.insert(newProjectWebhook("PROJECT_1"), "PROJECT_KEY", "PROJECT_NAME");
-    underTest.insert(dbSession, WebhookDeliveryTesting.newDto("WH2-DELIVERY-1-UUID", webhook2.getUuid(), "PROJECT_1", "TASK_1").setCreatedAt(BEFORE));
-    underTest.insert(dbSession, WebhookDeliveryTesting.newDto("WH2-DELIVERY-2-UUID", webhook2.getUuid(), "PROJECT_1", "TASK_2").setCreatedAt(NOW));
+    underTest.insert(dbSession,
+      WebhookDeliveryTesting.newDto("WH2-DELIVERY-1-UUID", webhook2.getUuid(), "PROJECT_1", "TASK_1").setCreatedAt(BEFORE));
+    underTest.insert(dbSession,
+      WebhookDeliveryTesting.newDto("WH2-DELIVERY-2-UUID", webhook2.getUuid(), "PROJECT_1", "TASK_2").setCreatedAt(NOW));
 
     Map<String, WebhookDeliveryLiteDto> map = underTest.selectLatestDeliveries(dbSession, of(webhook1, webhook2));
 
@@ -159,7 +169,7 @@ public class WebhookDeliveryDaoIT {
   }
 
   @Test
-  public void insert_row_with_only_mandatory_columns() {
+  void insert_row_with_only_mandatory_columns() {
     WebhookDeliveryDto dto = WebhookDeliveryTesting.newDto("DELIVERY_1", "WEBHOOK_UUID_1", "PROJECT_1", "TASK_1")
       .setDurationMs(1000)
       .setHttpStatus(null)
@@ -178,7 +188,7 @@ public class WebhookDeliveryDaoIT {
   }
 
   @Test
-  public void insert_row_with_all_columns() {
+  void insert_row_with_all_columns() {
     WebhookDeliveryDto dto = WebhookDeliveryTesting.newDto("DELIVERY_1", "WEBHOOK_UUID_1", "PROJECT_1", "TASK_1");
 
     underTest.insert(dbSession, dto);
@@ -192,13 +202,16 @@ public class WebhookDeliveryDaoIT {
   }
 
   @Test
-  public void deleteByWebhook() {
+  void deleteByWebhook() {
 
     WebhookDto webhookDto = dbWebhooks.insert(WebhookTesting.newProjectWebhook("PROJECT_1"), "PROJECT_KEY", "PROJECT_NAME");
 
-    underTest.insert(dbSession, WebhookDeliveryTesting.newDto("DELIVERY_1", webhookDto.getUuid(), "PROJECT_1", "TASK_1").setCreatedAt(1_000_000L));
-    underTest.insert(dbSession, WebhookDeliveryTesting.newDto("DELIVERY_2", webhookDto.getUuid(), "PROJECT_1", "TASK_2").setCreatedAt(2_000_000L));
-    underTest.insert(dbSession, WebhookDeliveryTesting.newDto("DELIVERY_3", "WONT BE DELETED WEBHOOK_UUID_2", "PROJECT_2", "TASK_3").setCreatedAt(1_000_000L));
+    underTest.insert(dbSession,
+      WebhookDeliveryTesting.newDto("DELIVERY_1", webhookDto.getUuid(), "PROJECT_1", "TASK_1").setCreatedAt(1_000_000L));
+    underTest.insert(dbSession,
+      WebhookDeliveryTesting.newDto("DELIVERY_2", webhookDto.getUuid(), "PROJECT_1", "TASK_2").setCreatedAt(2_000_000L));
+    underTest.insert(dbSession,
+      WebhookDeliveryTesting.newDto("DELIVERY_3", "WONT BE DELETED WEBHOOK_UUID_2", "PROJECT_2", "TASK_3").setCreatedAt(1_000_000L));
 
     underTest.deleteByWebhook(dbSession, webhookDto);
 
@@ -206,11 +219,15 @@ public class WebhookDeliveryDaoIT {
   }
 
   @Test
-  public void deleteComponentBeforeDate_deletes_rows_before_date() {
-    underTest.insert(dbSession, WebhookDeliveryTesting.newDto("DELIVERY_1", "WEBHOOK_UUID_1", "PROJECT_1", "TASK_1").setCreatedAt(1_000_000L));
-    underTest.insert(dbSession, WebhookDeliveryTesting.newDto("DELIVERY_2", "WEBHOOK_UUID_2", "PROJECT_1", "TASK_2").setCreatedAt(2_000_000L));
-    underTest.insert(dbSession, WebhookDeliveryTesting.newDto("DELIVERY_3", "WEBHOOK_UUID_3", "PROJECT_2", "TASK_3").setCreatedAt(1_000_000L));
-    underTest.insert(dbSession, WebhookDeliveryTesting.newDto("DELIVERY_4", "WEBHOOK_UUID_4", "PROJECT_3", "TASK_4").setCreatedAt(2_000_000L));
+  void deleteComponentBeforeDate_deletes_rows_before_date() {
+    underTest.insert(dbSession,
+      WebhookDeliveryTesting.newDto("DELIVERY_1", "WEBHOOK_UUID_1", "PROJECT_1", "TASK_1").setCreatedAt(1_000_000L));
+    underTest.insert(dbSession,
+      WebhookDeliveryTesting.newDto("DELIVERY_2", "WEBHOOK_UUID_2", "PROJECT_1", "TASK_2").setCreatedAt(2_000_000L));
+    underTest.insert(dbSession,
+      WebhookDeliveryTesting.newDto("DELIVERY_3", "WEBHOOK_UUID_3", "PROJECT_2", "TASK_3").setCreatedAt(1_000_000L));
+    underTest.insert(dbSession,
+      WebhookDeliveryTesting.newDto("DELIVERY_4", "WEBHOOK_UUID_4", "PROJECT_3", "TASK_4").setCreatedAt(2_000_000L));
 
     // should delete the old delivery on PROJECT_1 and keep the one of PROJECT_2
     underTest.deleteAllBeforeDate(dbSession, 1_500_000L);
@@ -220,7 +237,7 @@ public class WebhookDeliveryDaoIT {
   }
 
   @Test
-  public void deleteComponentBeforeDate_does_nothing_on_empty_table() {
+  void deleteComponentBeforeDate_does_nothing_on_empty_table() {
     underTest.deleteAllBeforeDate(dbSession, 1_500_000L);
 
     assertThat(dbTester.countRowsOfTable(dbSession, "webhook_deliveries")).isZero();

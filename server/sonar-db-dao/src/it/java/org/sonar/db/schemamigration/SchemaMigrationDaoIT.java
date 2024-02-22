@@ -20,9 +20,9 @@
 package org.sonar.db.schemamigration;
 
 import java.sql.Statement;
-import org.junit.After;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -31,41 +31,41 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class SchemaMigrationDaoIT {
-  @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  @RegisterExtension
+  private final DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   private DbSession dbSession = dbTester.getSession();
   private SchemaMigrationDao underTest = dbTester.getDbClient().schemaMigrationDao();
 
-  @After
-  public void tearDown() throws Exception {
+  @AfterEach
+  void tearDown() throws Exception {
     // schema_migration is not cleared by DbTester
-    try(Statement statement = dbTester.getSession().getConnection().createStatement()) {
+    try (Statement statement = dbTester.getSession().getConnection().createStatement()) {
       statement.execute("truncate table schema_migrations");
     }
   }
 
   @Test
-  public void insert_fails_with_NPE_if_argument_is_null() {
+  void insert_fails_with_NPE_if_argument_is_null() {
     assertThatThrownBy(() -> underTest.insert(dbSession, null))
       .isInstanceOf(NullPointerException.class)
       .hasMessage("version can't be null");
   }
 
   @Test
-  public void insert_fails_with_IAE_if_argument_is_empty() {
+  void insert_fails_with_IAE_if_argument_is_empty() {
     assertThatThrownBy(() -> underTest.insert(dbSession, ""))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("version can't be empty");
   }
 
   @Test
-  public void getVersions_returns_an_empty_list_if_table_is_empty() {
+  void getVersions_returns_an_empty_list_if_table_is_empty() {
     assertThat(underTest.selectVersions(dbSession)).isEmpty();
   }
 
   @Test
-  public void getVersions_returns_all_versions_in_table() {
+  void getVersions_returns_all_versions_in_table() {
     underTest.insert(dbSession, "22");
     underTest.insert(dbSession, "1");
     underTest.insert(dbSession, "3");

@@ -20,7 +20,7 @@
 package org.sonar.db.rule;
 
 import java.util.List;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.sonar.api.issue.impact.Severity;
 import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rules.CleanCodeAttribute;
@@ -30,10 +30,10 @@ import org.sonar.db.issue.ImpactDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class RuleForIndexingDtoTest {
+class RuleForIndexingDtoTest {
 
   @Test
-  public void fromRuleDto_whenCleanCodeAttributeSet_setCleanCodeCategory() {
+  void fromRuleDto_whenCleanCodeAttributeSet_setCleanCodeCategory() {
     RuleDto ruleDto = RuleTesting.newRuleWithoutDescriptionSection();
     ruleDto.setCleanCodeAttribute(CleanCodeAttribute.FOCUSED);
     ImpactDto impactDto = new ImpactDto().setSeverity(Severity.HIGH).setSoftwareQuality(SoftwareQuality.SECURITY);
@@ -49,7 +49,7 @@ public class RuleForIndexingDtoTest {
   }
 
   @Test
-  public void fromRuleDto_whenAdHocRule_setAdHocFields() {
+  void fromRuleDto_whenAdHocRule_setAdHocFields() {
     RuleDto ruleDto = RuleTesting.newRuleWithoutDescriptionSection();
     ruleDto.setIsAdHoc(true);
     ruleDto.setAdHocType(RuleType.BUG);

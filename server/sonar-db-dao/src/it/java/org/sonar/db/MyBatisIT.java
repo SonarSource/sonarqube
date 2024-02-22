@@ -21,32 +21,32 @@ package org.sonar.db;
 
 import org.apache.ibatis.session.Configuration;
 import org.hamcrest.core.Is;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.sonar.db.rule.RuleMapper;
 
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
 
-public class MyBatisIT {
+class MyBatisIT {
   private static SQDatabase database;
 
-  @BeforeClass
-  public static void start() {
+  @BeforeAll
+  static void start() {
     database = new SQDatabase.Builder().asH2Database("sonar2").createSchema(true).build();
     database.start();
   }
 
-  @AfterClass
-  public static void stop() {
+  @AfterAll
+  static void stop() {
     database.stop();
   }
 
-  private MyBatis underTest = new MyBatis(database);
+  private final MyBatis underTest = new MyBatis(database);
 
   @Test
-  public void shouldConfigureMyBatis() {
+  void shouldConfigureMyBatis() {
     underTest.start();
 
     Configuration conf = underTest.getSessionFactory().getConfiguration();
@@ -56,7 +56,7 @@ public class MyBatisIT {
   }
 
   @Test
-  public void shouldOpenBatchSession() {
+  void shouldOpenBatchSession() {
     underTest.start();
 
     try (DbSession session = underTest.openSession(false)) {

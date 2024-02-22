@@ -20,8 +20,8 @@
 package org.sonar.db.ce;
 
 import com.google.common.collect.ImmutableSet;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.CloseableIterator;
 import org.sonar.db.DbSession;
@@ -30,29 +30,30 @@ import org.sonar.db.DbTester;
 import static java.lang.System.lineSeparator;
 import static java.util.Collections.singleton;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 
-public class CeScannerContextDaoIT {
+class CeScannerContextDaoIT {
 
   private static final String TABLE_NAME = "ce_scanner_context";
   private static final String SOME_UUID = "some UUID";
 
-  @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  @RegisterExtension
+  private final DbTester dbTester = DbTester.create(System2.INSTANCE);
 
-  private System2 system = mock(System2.class);
-  private DbSession dbSession = dbTester.getSession();
+  private final System2 system = mock(System2.class);
+  private final DbSession dbSession = dbTester.getSession();
 
-  private CeScannerContextDao underTest = new CeScannerContextDao(system);
+  private final CeScannerContextDao underTest = new CeScannerContextDao(system);
 
   @Test
-  public void selectScannerContext_returns_empty_on_empty_table() {
+  void selectScannerContext_returns_empty_on_empty_table() {
     assertThat(underTest.selectScannerContext(dbSession, SOME_UUID)).isEmpty();
   }
 
   @Test
-  public void selectScannerContext_returns_empty_when_no_row_exist_for_taskUuid() {
+  void selectScannerContext_returns_empty_when_no_row_exist_for_taskUuid() {
     String data = "some data";
     underTest.insert(dbSession, SOME_UUID, scannerContextInputStreamOf(data));
     dbSession.commit();
@@ -62,14 +63,15 @@ public class CeScannerContextDaoIT {
   }
 
   @Test
-  public void insert_fails_with_IAE_if_data_is_empty() {
-    assertThatThrownBy(() -> underTest.insert(dbSession, SOME_UUID, CloseableIterator.emptyCloseableIterator()))
+  void insert_fails_with_IAE_if_data_is_empty() {
+    CloseableIterator<String> iterator = CloseableIterator.emptyCloseableIterator();
+    assertThatThrownBy(() -> underTest.insert(dbSession, SOME_UUID, iterator))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("Scanner context can not be empty");
   }
 
   @Test
-  public void insert_fails_with_IAE_if_data_is_fully_read() {
+  void insert_fails_with_IAE_if_data_is_fully_read() {
     CloseableIterator<String> iterator = scannerContextInputStreamOf("aa");
     iterator.next();
 
@@ -79,19 +81,20 @@ public class CeScannerContextDaoIT {
   }
 
   @Test
-  public void insert_fails_if_row_already_exists_for_taskUuid() {
+  void insert_fails_if_row_already_exists_for_taskUuid() {
     underTest.insert(dbSession, SOME_UUID, scannerContextInputStreamOf("bla"));
     dbSession.commit();
 
     assertThat(dbTester.countRowsOfTable(dbSession, TABLE_NAME)).isOne();
 
-    assertThatThrownBy(() -> underTest.insert(dbSession, SOME_UUID, scannerContextInputStreamOf("blo")))
+    CloseableIterator<String> iterator = scannerContextInputStreamOf("blo");
+    assertThatThrownBy(() -> underTest.insert(dbSession, SOME_UUID, iterator))
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("Fail to insert scanner context for task " + SOME_UUID);
   }
 
   @Test
-  public void insert_and_select_line_reader() {
+  void insert_and_select_line_reader() {
     String scannerContext = "line 1" + lineSeparator() + "line 2" + lineSeparator() + "line 3";
     underTest.insert(dbSession, SOME_UUID, scannerContextInputStreamOf(scannerContext));
     dbSession.commit();
@@ -100,12 +103,12 @@ public class CeScannerContextDaoIT {
   }
 
   @Test
-  public void deleteByUuids_does_not_fail_on_empty_table() {
-    underTest.deleteByUuids(dbSession, singleton("some uuid"));
+  void deleteByUuids_does_not_fail_on_empty_table() {
+    assertThatNoException().isThrownBy(() -> underTest.deleteByUuids(dbSession, singleton("some uuid")));
   }
 
   @Test
-  public void deleteByUuids_deletes_specified_existing_uuids() {
+  void deleteByUuids_deletes_specified_existing_uuids() {
     insertScannerContext(SOME_UUID);
     String data2 = insertScannerContext("UUID_2");
     insertScannerContext("UUID_3");
@@ -118,7 +121,7 @@ public class CeScannerContextDaoIT {
   }
 
   @Test
-  public void selectOlderThan() {
+  void selectOlderThan() {
     insertWithCreationDate("TASK_1", 1_450_000_000_000L);
     insertWithCreationDate("TASK_2", 1_460_000_000_000L);
     insertWithCreationDate("TASK_3", 1_470_000_000_000L);

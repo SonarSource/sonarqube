@@ -28,9 +28,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.IntStream;
 import org.apache.commons.lang.RandomStringUtils;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.mockito.internal.util.collections.Sets;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
@@ -55,23 +55,23 @@ import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.db.measure.MeasureTesting.newLiveMeasure;
 
-public class LiveMeasureDaoIT {
+class LiveMeasureDaoIT {
 
-  @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+  @RegisterExtension
+  private final DbTester db = DbTester.create(System2.INSTANCE);
 
   private final LiveMeasureDao underTest = db.getDbClient().liveMeasureDao();
   private MetricDto metric;
 
   private int branchId = 0;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     metric = db.measures().insertMetric();
   }
 
   @Test
-  public void selectByComponentUuidsAndMetricUuids() {
+  void selectByComponentUuidsAndMetricUuids() {
     LiveMeasureDto measure1 = newLiveMeasure().setMetricUuid(metric.getUuid());
     LiveMeasureDto measure2 = newLiveMeasure().setMetricUuid(metric.getUuid());
     underTest.insert(db.getSession(), measure1);
@@ -80,77 +80,88 @@ public class LiveMeasureDaoIT {
     List<LiveMeasureDto> selected = underTest.selectByComponentUuidsAndMetricUuids(db.getSession(),
       asList(measure1.getComponentUuid(), measure2.getComponentUuid()), singletonList(metric.getUuid()));
     assertThat(selected)
-      .extracting(LiveMeasureDto::getComponentUuid, LiveMeasureDto::getProjectUuid, LiveMeasureDto::getMetricUuid, LiveMeasureDto::getValue, LiveMeasureDto::getDataAsString)
+      .extracting(LiveMeasureDto::getComponentUuid, LiveMeasureDto::getProjectUuid, LiveMeasureDto::getMetricUuid,
+        LiveMeasureDto::getValue, LiveMeasureDto::getDataAsString)
       .containsExactlyInAnyOrder(
-        tuple(measure1.getComponentUuid(), measure1.getProjectUuid(), measure1.getMetricUuid(), measure1.getValue(), measure1.getDataAsString()),
-        tuple(measure2.getComponentUuid(), measure2.getProjectUuid(), measure2.getMetricUuid(), measure2.getValue(), measure2.getDataAsString()));
+        tuple(measure1.getComponentUuid(), measure1.getProjectUuid(), measure1.getMetricUuid(), measure1.getValue(),
+          measure1.getDataAsString()),
+        tuple(measure2.getComponentUuid(), measure2.getProjectUuid(), measure2.getMetricUuid(), measure2.getValue(),
+          measure2.getDataAsString()));
 
     assertThat(underTest.selectByComponentUuidsAndMetricUuids(db.getSession(), emptyList(), singletonList(metric.getUuid()))).isEmpty();
     assertThat(underTest.selectByComponentUuidsAndMetricUuids(db.getSession(), singletonList(measure1.getComponentUuid()), emptyList())).isEmpty();
   }
 
   @Test
-  public void selectByComponentUuidsAndMetricUuids_returns_empty_list_if_metric_does_not_match() {
+  void selectByComponentUuidsAndMetricUuids_returns_empty_list_if_metric_does_not_match() {
     LiveMeasureDto measure = newLiveMeasure().setMetricUuid(metric.getUuid());
     underTest.insert(db.getSession(), measure);
 
     String otherMetricUuid = metric.getUuid() + "other";
-    List<LiveMeasureDto> selected = underTest.selectByComponentUuidsAndMetricUuids(db.getSession(), singletonList(measure.getComponentUuid()), singletonList(otherMetricUuid));
+    List<LiveMeasureDto> selected = underTest.selectByComponentUuidsAndMetricUuids(db.getSession(),
+      singletonList(measure.getComponentUuid()), singletonList(otherMetricUuid));
 
     assertThat(selected).isEmpty();
   }
 
   @Test
-  public void selectByComponentUuidsAndMetricUuids_returns_empty_list_if_component_does_not_match() {
+  void selectByComponentUuidsAndMetricUuids_returns_empty_list_if_component_does_not_match() {
     LiveMeasureDto measure = newLiveMeasure();
     underTest.insert(db.getSession(), measure);
 
-    List<LiveMeasureDto> selected = underTest.selectByComponentUuidsAndMetricUuids(db.getSession(), singletonList("_missing_"), singletonList(measure.getMetricUuid()));
+    List<LiveMeasureDto> selected = underTest.selectByComponentUuidsAndMetricUuids(db.getSession(), singletonList("_missing_"),
+      singletonList(measure.getMetricUuid()));
 
     assertThat(selected).isEmpty();
   }
 
   @Test
-  public void selectByComponentUuidsAndMetricKeys() {
+  void selectByComponentUuidsAndMetricKeys() {
     LiveMeasureDto measure1 = newLiveMeasure().setMetricUuid(metric.getUuid());
     LiveMeasureDto measure2 = newLiveMeasure().setMetricUuid(metric.getUuid());
     underTest.insert(db.getSession(), measure1);
     underTest.insert(db.getSession(), measure2);
 
-    List<LiveMeasureDto> selected = underTest.selectByComponentUuidsAndMetricKeys(db.getSession(), asList(measure1.getComponentUuid(), measure2.getComponentUuid()),
+    List<LiveMeasureDto> selected = underTest.selectByComponentUuidsAndMetricKeys(db.getSession(), asList(measure1.getComponentUuid(),
+        measure2.getComponentUuid()),
       singletonList(metric.getKey()));
     assertThat(selected)
-      .extracting(LiveMeasureDto::getComponentUuid, LiveMeasureDto::getProjectUuid, LiveMeasureDto::getMetricUuid, LiveMeasureDto::getValue, LiveMeasureDto::getDataAsString)
+      .extracting(LiveMeasureDto::getComponentUuid, LiveMeasureDto::getProjectUuid, LiveMeasureDto::getMetricUuid,
+        LiveMeasureDto::getValue, LiveMeasureDto::getDataAsString)
       .containsExactlyInAnyOrder(
-        tuple(measure1.getComponentUuid(), measure1.getProjectUuid(), measure1.getMetricUuid(), measure1.getValue(), measure1.getDataAsString()),
-        tuple(measure2.getComponentUuid(), measure2.getProjectUuid(), measure2.getMetricUuid(), measure2.getValue(), measure2.getDataAsString()));
+        tuple(measure1.getComponentUuid(), measure1.getProjectUuid(), measure1.getMetricUuid(), measure1.getValue(),
+          measure1.getDataAsString()),
+        tuple(measure2.getComponentUuid(), measure2.getProjectUuid(), measure2.getMetricUuid(), measure2.getValue(),
+          measure2.getDataAsString()));
 
     assertThat(underTest.selectByComponentUuidsAndMetricKeys(db.getSession(), emptyList(), singletonList(metric.getKey()))).isEmpty();
     assertThat(underTest.selectByComponentUuidsAndMetricKeys(db.getSession(), singletonList(measure1.getComponentUuid()), emptyList())).isEmpty();
   }
 
   @Test
-  public void selectByComponentUuidsAndMetricKeys_returns_empty_list_if_metric_does_not_match() {
+  void selectByComponentUuidsAndMetricKeys_returns_empty_list_if_metric_does_not_match() {
     LiveMeasureDto measure = newLiveMeasure().setMetricUuid(metric.getUuid());
     underTest.insert(db.getSession(), measure);
 
-    List<LiveMeasureDto> selected = underTest.selectByComponentUuidsAndMetricKeys(db.getSession(), singletonList(measure.getComponentUuid()), singletonList("_other_"));
+    List<LiveMeasureDto> selected = underTest.selectByComponentUuidsAndMetricKeys(db.getSession(),
+      singletonList(measure.getComponentUuid()), singletonList("_other_"));
 
     assertThat(selected).isEmpty();
   }
 
   @Test
-  public void selectByComponentUuidsAndMetricKeys_returns_empty_list_if_component_does_not_match() {
+  void selectByComponentUuidsAndMetricKeys_returns_empty_list_if_component_does_not_match() {
     LiveMeasureDto measure = newLiveMeasure().setMetricUuid(metric.getUuid());
     underTest.insert(db.getSession(), measure);
 
-    List<LiveMeasureDto> selected = underTest.selectByComponentUuidsAndMetricKeys(db.getSession(), singletonList("_missing_"), singletonList(metric.getKey()));
+    List<LiveMeasureDto> selected = underTest.selectByComponentUuidsAndMetricKeys(db.getSession(), singletonList("_missing_"),
+      singletonList(metric.getKey()));
 
     assertThat(selected).isEmpty();
   }
 
   @Test
-  public void selectForProjectsByMetricUuids() {
+  void selectForProjectsByMetricUuids() {
     MetricDto metric = db.measures().insertMetric();
     MetricDto metric2 = db.measures().insertMetric();
     BranchDto projectBranch = db.components().insertPrivateProject().getMainBranchDto();
@@ -159,7 +170,8 @@ public class LiveMeasureDaoIT {
     underTest.insert(db.getSession(), newLiveMeasure(projectBranch, metric2).setValue(4.54).setData((String) null));
     underTest.insert(db.getSession(), newLiveMeasure(project2Branch, metric).setValue(99.99).setData((String) null));
 
-    List<ProjectMainBranchLiveMeasureDto> selected = underTest.selectForProjectMainBranchesByMetricUuids(db.getSession(), List.of(metric.getUuid(), metric2.getUuid()));
+    List<ProjectMainBranchLiveMeasureDto> selected = underTest.selectForProjectMainBranchesByMetricUuids(db.getSession(),
+      List.of(metric.getUuid(), metric2.getUuid()));
     assertThat(selected)
       .extracting(ProjectMainBranchLiveMeasureDto::getProjectUuid, ProjectMainBranchLiveMeasureDto::getMetricUuid,
         ProjectMainBranchLiveMeasureDto::getValue, ProjectMainBranchLiveMeasureDto::getTextValue)
@@ -170,7 +182,7 @@ public class LiveMeasureDaoIT {
   }
 
   @Test
-  public void selectForProjectMainBranchesByMetricUuids_whenMultipleBranches_shouldRetrieveMetricsFromMainBranch() {
+  void selectForProjectMainBranchesByMetricUuids_whenMultipleBranches_shouldRetrieveMetricsFromMainBranch() {
     MetricDto metric = db.measures().insertMetric();
     ProjectData projectData = db.components().insertPrivateProject();
     BranchDto mainBranch = projectData.getMainBranchDto();
@@ -180,7 +192,8 @@ public class LiveMeasureDaoIT {
     underTest.insert(db.getSession(), newLiveMeasure(branch1, metric).setValue(4.54).setData((String) null));
     underTest.insert(db.getSession(), newLiveMeasure(branch2, metric).setValue(99.99).setData((String) null));
 
-    List<ProjectMainBranchLiveMeasureDto> selected = underTest.selectForProjectMainBranchesByMetricUuids(db.getSession(), List.of(metric.getUuid()));
+    List<ProjectMainBranchLiveMeasureDto> selected = underTest.selectForProjectMainBranchesByMetricUuids(db.getSession(),
+      List.of(metric.getUuid()));
     assertThat(selected)
       .extracting(ProjectMainBranchLiveMeasureDto::getProjectUuid, ProjectMainBranchLiveMeasureDto::getMetricUuid,
         ProjectMainBranchLiveMeasureDto::getValue, ProjectMainBranchLiveMeasureDto::getTextValue)
@@ -189,15 +202,16 @@ public class LiveMeasureDaoIT {
   }
 
   @Test
-  public void selectForProjectsByMetricUuids_whenMetricDoesNotMatch_shouldReturnEmptyList() {
+  void selectForProjectsByMetricUuids_whenMetricDoesNotMatch_shouldReturnEmptyList() {
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     underTest.insert(db.getSession(), newLiveMeasure(project, metric).setValue(3.14).setData((String) null));
-    List<ProjectMainBranchLiveMeasureDto> selected = underTest.selectForProjectMainBranchesByMetricUuids(db.getSession(), singletonList("_other_"));
+    List<ProjectMainBranchLiveMeasureDto> selected = underTest.selectForProjectMainBranchesByMetricUuids(db.getSession(), singletonList(
+      "_other_"));
     assertThat(selected).isEmpty();
   }
 
   @Test
-  public void selectForProjectsByMetricUuids_shouldReturnProjectWithTRKQualifierOnly() {
+  void selectForProjectsByMetricUuids_shouldReturnProjectWithTRKQualifierOnly() {
     MetricDto metric = db.measures().insertMetric();
     ProjectData application = db.components().insertPrivateApplication();
     ProjectData project = db.components().insertPrivateProject();
@@ -207,7 +221,8 @@ public class LiveMeasureDaoIT {
     underTest.insert(db.getSession(), newLiveMeasure(project.getMainBranchComponent(), metric).setValue(4.54).setData((String) null));
     underTest.insert(db.getSession(), newLiveMeasure(project2.getMainBranchComponent(), metric).setValue(5.56).setData((String) null));
 
-    List<ProjectMainBranchLiveMeasureDto> selected = underTest.selectForProjectMainBranchesByMetricUuids(db.getSession(), List.of(metric.getUuid()));
+    List<ProjectMainBranchLiveMeasureDto> selected = underTest.selectForProjectMainBranchesByMetricUuids(db.getSession(),
+      List.of(metric.getUuid()));
 
     assertThat(selected)
       .extracting(ProjectMainBranchLiveMeasureDto::getProjectUuid)
@@ -215,7 +230,7 @@ public class LiveMeasureDaoIT {
   }
 
   @Test
-  public void selectByComponentUuidAndMetricKey() {
+  void selectByComponentUuidAndMetricKey() {
     LiveMeasureDto measure = newLiveMeasure().setMetricUuid(metric.getUuid());
     underTest.insert(db.getSession(), measure);
 
@@ -226,7 +241,7 @@ public class LiveMeasureDaoIT {
   }
 
   @Test
-  public void selectByComponentUuidAndMetricKey_return_empty_if_component_does_not_match() {
+  void selectByComponentUuidAndMetricKey_return_empty_if_component_does_not_match() {
     LiveMeasureDto measure = newLiveMeasure().setMetricUuid(metric.getUuid());
     underTest.insert(db.getSession(), measure);
 
@@ -234,7 +249,7 @@ public class LiveMeasureDaoIT {
   }
 
   @Test
-  public void selectByComponentUuidAndMetricKey_return_empty_if_metric_does_not_match() {
+  void selectByComponentUuidAndMetricKey_return_empty_if_metric_does_not_match() {
     LiveMeasureDto measure = newLiveMeasure().setMetricUuid(metric.getUuid());
     underTest.insert(db.getSession(), measure);
 
@@ -242,7 +257,7 @@ public class LiveMeasureDaoIT {
   }
 
   @Test
-  public void selectByComponentUuidAndMetricKeys() {
+  void selectByComponentUuidAndMetricKeys() {
     MetricDto metric2 = db.measures().insertMetric();
 
     LiveMeasureDto measure1 = newLiveMeasure().setMetricUuid(metric.getUuid()).setValue(1.0).setComponentUuid("uuid");
@@ -251,7 +266,8 @@ public class LiveMeasureDaoIT {
     underTest.insert(db.getSession(), measure1);
     underTest.insert(db.getSession(), measure2);
 
-    List<LiveMeasureDto> selected = underTest.selectByComponentUuidAndMetricKeys(db.getSession(), "uuid", asList(metric.getKey(), metric2.getKey()));
+    List<LiveMeasureDto> selected = underTest.selectByComponentUuidAndMetricKeys(db.getSession(), "uuid", asList(metric.getKey(),
+      metric2.getKey()));
 
     assertThat(selected).hasSize(2);
     assertThat(selected).extracting(LiveMeasureDto::getMetricUuid, LiveMeasureDto::getValue)
@@ -259,7 +275,7 @@ public class LiveMeasureDaoIT {
   }
 
   @Test
-  public void selectByComponentUuidAndMetricKeys_return_empty_if_component_does_not_match() {
+  void selectByComponentUuidAndMetricKeys_return_empty_if_component_does_not_match() {
     LiveMeasureDto measure = newLiveMeasure().setMetricUuid(metric.getUuid());
     underTest.insert(db.getSession(), measure);
 
@@ -267,7 +283,7 @@ public class LiveMeasureDaoIT {
   }
 
   @Test
-  public void selectByComponentUuidAndMetricKeys_return_empty_if_no_metric_matches() {
+  void selectByComponentUuidAndMetricKeys_return_empty_if_no_metric_matches() {
     LiveMeasureDto measure = newLiveMeasure().setMetricUuid(metric.getUuid());
     underTest.insert(db.getSession(), measure);
 
@@ -275,7 +291,7 @@ public class LiveMeasureDaoIT {
   }
 
   @Test
-  public void selectMeasure() {
+  void selectMeasure() {
     MetricDto metric = db.measures().insertMetric();
     LiveMeasureDto stored = newLiveMeasure().setMetricUuid(metric.getUuid());
     underTest.insert(db.getSession(), stored);
@@ -295,7 +311,7 @@ public class LiveMeasureDaoIT {
   }
 
   @Test
-  public void selectTreeByQuery() {
+  void selectTreeByQuery() {
     List<LiveMeasureDto> results = new ArrayList<>();
     MetricDto metric = db.measures().insertMetric();
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
@@ -316,7 +332,7 @@ public class LiveMeasureDaoIT {
   }
 
   @Test
-  public void scrollSelectByComponentUuidAndMetricKeys_for_non_empty_metric_set() {
+  void scrollSelectByComponentUuidAndMetricKeys_for_non_empty_metric_set() {
     List<LiveMeasureDto> results = new ArrayList<>();
     MetricDto metric = db.measures().insertMetric();
     MetricDto metric2 = db.measures().insertMetric();
@@ -340,7 +356,7 @@ public class LiveMeasureDaoIT {
   }
 
   @Test
-  public void scrollSelectByComponentUuidAndMetricKeys_for_empty_metric_set() {
+  void scrollSelectByComponentUuidAndMetricKeys_for_empty_metric_set() {
     List<LiveMeasureDto> results = new ArrayList<>();
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     underTest.scrollSelectByComponentUuidAndMetricKeys(db.getSession(), project.uuid(), Sets.newSet(),
@@ -350,7 +366,7 @@ public class LiveMeasureDaoIT {
   }
 
   @Test
-  public void selectTreeByQuery_with_empty_results() {
+  void selectTreeByQuery_with_empty_results() {
     List<LiveMeasureDto> results = new ArrayList<>();
     underTest.selectTreeByQuery(db.getSession(), newPrivateProjectDto(),
       MeasureTreeQuery.builder().setStrategy(MeasureTreeQuery.Strategy.LEAVES).build(),
@@ -360,13 +376,15 @@ public class LiveMeasureDaoIT {
   }
 
   @Test
-  public void selectMeasure_map_fields() {
+  void selectMeasure_map_fields() {
     MetricDto metric = db.measures().insertMetric();
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     underTest.insert(db.getSession(), newLiveMeasure(file, metric).setValue(3.14).setData("text_value"));
 
-    LiveMeasureDto result = underTest.selectMeasure(db.getSession(), file.uuid(), metric.getKey()).orElseThrow(() -> new IllegalArgumentException("Measure not found"));
+    LiveMeasureDto result =
+      underTest.selectMeasure(db.getSession(), file.uuid(), metric.getKey()).orElseThrow(() -> new IllegalArgumentException("Measure not " +
+        "found"));
 
     assertThat(result).as("Fail to map fields of %s", result.toString()).extracting(
         LiveMeasureDto::getProjectUuid, LiveMeasureDto::getComponentUuid, LiveMeasureDto::getMetricUuid, LiveMeasureDto::getValue,
@@ -375,7 +393,7 @@ public class LiveMeasureDaoIT {
   }
 
   @Test
-  public void countNcloc() {
+  void countNcloc() {
     MetricDto ncloc = db.measures().insertMetric(m -> m.setKey("ncloc").setValueType(INT.toString()));
     MetricDto lines = db.measures().insertMetric(m -> m.setKey("lines").setValueType(INT.toString()));
 
@@ -383,7 +401,8 @@ public class LiveMeasureDaoIT {
     db.measures().insertLiveMeasure(simpleProject, ncloc, m -> m.setValue(10d));
 
     ProjectData projectWithBiggerBranch = db.components().insertPublicProject();
-    BranchDto bigBranch = db.components().insertProjectBranch(projectWithBiggerBranch.getProjectDto(), b -> b.setBranchType(BranchType.BRANCH));
+    BranchDto bigBranch = db.components().insertProjectBranch(projectWithBiggerBranch.getProjectDto(),
+      b -> b.setBranchType(BranchType.BRANCH));
     db.measures().insertLiveMeasure(projectWithBiggerBranch, ncloc, m -> m.setValue(100d));
     db.measures().insertLiveMeasure(bigBranch, ncloc, m -> m.setValue(200d));
 
@@ -397,7 +416,7 @@ public class LiveMeasureDaoIT {
   }
 
   @Test
-  public void get_branch_with_max_ncloc_per_project() {
+  void get_branch_with_max_ncloc_per_project() {
     Map<String, MetricDto> metrics = setupMetrics();
     MetricDto ncloc = metrics.get("ncloc");
     setupProjectsWithLoc(ncloc, metrics.get("ncloc_language_distribution"), metrics.get("lines"));
@@ -416,15 +435,17 @@ public class LiveMeasureDaoIT {
   }
 
   @Test
-  public void get_loc_language_distribution() {
+  void get_loc_language_distribution() {
     Map<String, MetricDto> metrics = setupMetrics();
     MetricDto ncloc = metrics.get("ncloc");
     MetricDto nclocLanguageDistribution = metrics.get("ncloc_language_distribution");
     setupProjectsWithLoc(ncloc, nclocLanguageDistribution, metrics.get("lines"));
 
-    List<ProjectLocDistributionDto> results = underTest.selectLargestBranchesLocDistribution(db.getSession(), ncloc.getUuid(), nclocLanguageDistribution.getUuid());
+    List<ProjectLocDistributionDto> results = underTest.selectLargestBranchesLocDistribution(db.getSession(), ncloc.getUuid(),
+      nclocLanguageDistribution.getUuid());
 
-    String firstBranchOfProjectUuid = db.getDbClient().branchDao().selectByProjectUuid(db.getSession(), "projectWithTieOnOtherBranches").stream()
+    String firstBranchOfProjectUuid =
+      db.getDbClient().branchDao().selectByProjectUuid(db.getSession(), "projectWithTieOnOtherBranches").stream()
       .filter(branchDto -> !branchDto.isMain())
       .map(BranchDto::getUuid)
       .sorted()
@@ -434,7 +455,8 @@ public class LiveMeasureDaoIT {
       .containsExactlyInAnyOrder(
         new ProjectLocDistributionDto("projectWithTieOnBranchSize", getMainBranchUuid("projectWithTieOnBranchSize"), "java=250;js=0"),
         new ProjectLocDistributionDto("projectWithTieOnOtherBranches", firstBranchOfProjectUuid, "java=230;js=0"),
-        new ProjectLocDistributionDto("projectWithBranchBiggerThanMaster", getBranchUuid("projectWithBranchBiggerThanMaster", "notMasterBranch"), "java=100;js=100"),
+        new ProjectLocDistributionDto("projectWithBranchBiggerThanMaster", getBranchUuid("projectWithBranchBiggerThanMaster",
+          "notMasterBranch"), "java=100;js=100"),
         new ProjectLocDistributionDto("simpleProject", getMainBranchUuid("simpleProject"), "java=10;js=0"),
         new ProjectLocDistributionDto("projectWithLinesButNoLoc", getMainBranchUuid("projectWithLinesButNoLoc"), "java=0;js=0"));
   }
@@ -448,7 +470,7 @@ public class LiveMeasureDaoIT {
   }
 
   @Test
-  public void countNcloc_empty() {
+  void countNcloc_empty() {
     db.measures().insertMetric(m -> m.setKey("ncloc").setValueType(INT.toString()));
     db.measures().insertMetric(m -> m.setKey("lines").setValueType(INT.toString()));
     long result = underTest.sumNclocOfBiggestBranchForProject(db.getSession(), "non-existing-project-uuid");
@@ -457,7 +479,7 @@ public class LiveMeasureDaoIT {
   }
 
   @Test
-  public void insert_data() {
+  void insert_data() {
     byte[] data = "text_value".getBytes(StandardCharsets.UTF_8);
     MetricDto metric = db.measures().insertMetric();
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
@@ -466,13 +488,15 @@ public class LiveMeasureDaoIT {
 
     underTest.insert(db.getSession(), measure);
 
-    LiveMeasureDto result = underTest.selectMeasure(db.getSession(), file.uuid(), metric.getKey()).orElseThrow(() -> new IllegalArgumentException("Measure not found"));
+    LiveMeasureDto result =
+      underTest.selectMeasure(db.getSession(), file.uuid(), metric.getKey()).orElseThrow(() -> new IllegalArgumentException("Measure not " +
+        "found"));
     assertThat(new String(result.getData(), StandardCharsets.UTF_8)).isEqualTo("text_value");
     assertThat(result.getDataAsString()).isEqualTo("text_value");
   }
 
   @Test
-  public void insertOrUpdate() {
+  void insertOrUpdate() {
     // insert
     LiveMeasureDto dto = newLiveMeasure();
     underTest.insertOrUpdate(db.getSession(), dto);
@@ -488,7 +512,7 @@ public class LiveMeasureDaoIT {
   }
 
   @Test
-  public void deleteByComponentUuidExcludingMetricUuids() {
+  void deleteByComponentUuidExcludingMetricUuids() {
     LiveMeasureDto measure1 = newLiveMeasure().setComponentUuid("C1").setMetricUuid("1");
     LiveMeasureDto measure2 = newLiveMeasure().setComponentUuid("C1").setMetricUuid("2");
     LiveMeasureDto measure3 = newLiveMeasure().setComponentUuid("C1").setMetricUuid("3");
@@ -507,7 +531,7 @@ public class LiveMeasureDaoIT {
   }
 
   @Test
-  public void deleteByComponentUuid() {
+  void deleteByComponentUuid() {
     LiveMeasureDto measure1 = newLiveMeasure().setComponentUuid("C1").setMetricUuid("1");
     LiveMeasureDto measure2 = newLiveMeasure().setComponentUuid("C1").setMetricUuid("2");
     LiveMeasureDto measure3 = newLiveMeasure().setComponentUuid("C1").setMetricUuid("3");
@@ -524,7 +548,7 @@ public class LiveMeasureDaoIT {
   }
 
   @Test
-  public void deleteByComponentUuidExcludingMetricUuids_with_empty_metrics() {
+  void deleteByComponentUuidExcludingMetricUuids_with_empty_metrics() {
     LiveMeasureDto measure1 = newLiveMeasure().setComponentUuid("C1").setMetricUuid("1");
     LiveMeasureDto measure2 = newLiveMeasure().setComponentUuid("C1").setMetricUuid("2");
     LiveMeasureDto measureOnOtherComponent = newLiveMeasure().setComponentUuid("C2").setMetricUuid("2");
@@ -539,7 +563,7 @@ public class LiveMeasureDaoIT {
   }
 
   @Test
-  public void countProjectsHavingMeasure() {
+  void countProjectsHavingMeasure() {
     MetricDto metric1 = db.measures().insertMetric();
     MetricDto metric2 = db.measures().insertMetric();
     ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
@@ -554,7 +578,7 @@ public class LiveMeasureDaoIT {
   }
 
   @Test
-  public void upsert_inserts_or_updates_row() {
+  void upsert_inserts_or_updates_row() {
     if (!db.getDbClient().getDatabase().getDialect().supportsUpsert()) {
       return;
     }
@@ -576,7 +600,7 @@ public class LiveMeasureDaoIT {
   }
 
   @Test
-  public void upsert_does_not_update_row_if_values_are_not_changed() {
+  void upsert_does_not_update_row_if_values_are_not_changed() {
     if (!db.getDbClient().getDatabase().getDialect().supportsUpsert()) {
       return;
     }
@@ -592,7 +616,7 @@ public class LiveMeasureDaoIT {
   }
 
   @Test
-  public void upsert_updates_row_if_lob_data_is_changed() {
+  void upsert_updates_row_if_lob_data_is_changed() {
     if (!db.getDbClient().getDatabase().getDialect().supportsUpsert()) {
       return;
     }
@@ -609,7 +633,7 @@ public class LiveMeasureDaoIT {
   }
 
   @Test
-  public void upsert_does_not_update_row_if_lob_data_is_not_changed() {
+  void upsert_does_not_update_row_if_lob_data_is_not_changed() {
     if (!db.getDbClient().getDatabase().getDialect().supportsUpsert()) {
       return;
     }
@@ -624,7 +648,7 @@ public class LiveMeasureDaoIT {
   }
 
   @Test
-  public void upsert_updates_row_if_lob_data_is_removed() {
+  void upsert_updates_row_if_lob_data_is_removed() {
     if (!db.getDbClient().getDatabase().getDialect().supportsUpsert()) {
       return;
     }
@@ -641,7 +665,7 @@ public class LiveMeasureDaoIT {
   }
 
   @Test
-  public void upsert_updates_row_if_value_is_changed() {
+  void upsert_updates_row_if_value_is_changed() {
     if (!db.getDbClient().getDatabase().getDialect().supportsUpsert()) {
       return;
     }
@@ -657,7 +681,7 @@ public class LiveMeasureDaoIT {
   }
 
   @Test
-  public void upsert_updates_row_if_value_is_removed() {
+  void upsert_updates_row_if_value_is_removed() {
     if (!db.getDbClient().getDatabase().getDialect().supportsUpsert()) {
       return;
     }
@@ -673,7 +697,7 @@ public class LiveMeasureDaoIT {
   }
 
   @Test
-  public void upsert_updates_row_if_value_is_added() {
+  void upsert_updates_row_if_value_is_added() {
     if (!db.getDbClient().getDatabase().getDialect().supportsUpsert()) {
       return;
     }
@@ -689,7 +713,7 @@ public class LiveMeasureDaoIT {
   }
 
   @Test
-  public void upsert_multiple_rows() {
+  void upsert_multiple_rows() {
     if (!db.getDbClient().getDatabase().getDialect().supportsUpsert()) {
       return;
     }
@@ -722,7 +746,8 @@ public class LiveMeasureDaoIT {
   }
 
   private void verifyPersisted(LiveMeasureDto dto) {
-    List<LiveMeasureDto> selected = underTest.selectByComponentUuidsAndMetricUuids(db.getSession(), singletonList(dto.getComponentUuid()), singletonList(dto.getMetricUuid()));
+    List<LiveMeasureDto> selected = underTest.selectByComponentUuidsAndMetricUuids(db.getSession(), singletonList(dto.getComponentUuid())
+      , singletonList(dto.getMetricUuid()));
     assertThat(selected).hasSize(1);
     assertThat(selected.get(0)).isEqualToComparingOnlyGivenFields(dto,
       // do not compare the field "uuid", which is used only for insert, not select

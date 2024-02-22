@@ -19,8 +19,8 @@
  */
 package org.sonar.db.alm.pat;
 
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbSession;
@@ -37,22 +37,22 @@ import static org.mockito.Mockito.when;
 import static org.sonar.db.alm.integration.pat.AlmPatsTesting.newAlmPatDto;
 import static org.sonar.db.almsettings.AlmSettingsTesting.newGithubAlmSettingDto;
 
-public class AlmPatDaoIT {
+class AlmPatDaoIT {
 
   private static final long NOW = 1000000L;
   private static final String A_UUID = "SOME_UUID";
-  private TestSystem2 system2 = new TestSystem2().setNow(NOW);
-  @Rule
-  public DbTester db = DbTester.create(system2);
+  private final TestSystem2 system2 = new TestSystem2().setNow(NOW);
+  @RegisterExtension
+  private final DbTester db = DbTester.create(system2);
 
-  private DbSession dbSession = db.getSession();
-  private UuidFactory uuidFactory = mock(UuidFactory.class);
-  private AlmSettingDao almSettingDao = new AlmSettingDao(system2, uuidFactory, new NoOpAuditPersister());
+  private final DbSession dbSession = db.getSession();
+  private final UuidFactory uuidFactory = mock(UuidFactory.class);
+  private final AlmSettingDao almSettingDao = new AlmSettingDao(system2, uuidFactory, new NoOpAuditPersister());
 
-  private AlmPatDao underTest = new AlmPatDao(system2, uuidFactory, new NoOpAuditPersister());
+  private final AlmPatDao underTest = new AlmPatDao(system2, uuidFactory, new NoOpAuditPersister());
 
   @Test
-  public void selectByUuid() {
+  void selectByUuid() {
     when(uuidFactory.create()).thenReturn(A_UUID);
 
     AlmPatDto almPatDto = newAlmPatDto();
@@ -70,7 +70,7 @@ public class AlmPatDaoIT {
   }
 
   @Test
-  public void selectByAlmSetting() {
+  void selectByAlmSetting() {
     when(uuidFactory.create()).thenReturn(A_UUID);
 
     AlmSettingDto almSetting = newGithubAlmSettingDto();
@@ -93,7 +93,7 @@ public class AlmPatDaoIT {
   }
 
   @Test
-  public void update() {
+  void update() {
     when(uuidFactory.create()).thenReturn(A_UUID);
     AlmPatDto almPatDto = newAlmPatDto();
     underTest.insert(dbSession, almPatDto, null, null);
@@ -115,7 +115,7 @@ public class AlmPatDaoIT {
   }
 
   @Test
-  public void delete() {
+  void delete() {
     when(uuidFactory.create()).thenReturn(A_UUID);
     AlmPatDto almPat = newAlmPatDto();
     underTest.insert(dbSession, almPat, null, null);
@@ -126,7 +126,7 @@ public class AlmPatDaoIT {
   }
 
   @Test
-  public void deleteByUser() {
+  void deleteByUser() {
     when(uuidFactory.create()).thenReturn(A_UUID);
     UserDto userDto = db.users().insertUser();
     AlmPatDto almPat = newAlmPatDto();
@@ -139,7 +139,7 @@ public class AlmPatDaoIT {
   }
 
   @Test
-  public void deleteByAlmSetting() {
+  void deleteByAlmSetting() {
     when(uuidFactory.create()).thenReturn(A_UUID);
     AlmSettingDto almSettingDto = db.almSettings().insertBitbucketAlmSetting();
     AlmPatDto almPat = newAlmPatDto();

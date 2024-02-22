@@ -25,8 +25,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.IntStream;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbSession;
@@ -39,36 +39,36 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.within;
 import static org.sonar.db.metric.MetricTesting.newMetricDto;
 
-public class MetricDaoIT {
+class MetricDaoIT {
 
-  @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+  @RegisterExtension
+  private final DbTester db = DbTester.create(System2.INSTANCE);
 
-  private DbSession dbSession = db.getSession();
-  private MetricDao underTest = new MetricDao();
+  private final DbSession dbSession = db.getSession();
+  private final MetricDao underTest = new MetricDao();
 
   @Test
-  public void select_by_key_enabled_metric() {
+  void select_by_key_enabled_metric() {
     MetricDto expected = db.measures().insertMetric(t -> t.setEnabled(true));
 
     assertEquals(expected, underTest.selectByKey(dbSession, expected.getKey()));
   }
 
   @Test
-  public void select_by_key_disabled_metric() {
+  void select_by_key_disabled_metric() {
     MetricDto expected = db.measures().insertMetric(t -> t.setEnabled(false));
 
     assertEquals(expected, underTest.selectByKey(dbSession, expected.getKey()));
   }
 
   @Test
-  public void select_or_fail_by_key() {
+  void select_or_fail_by_key() {
     assertThatThrownBy(() -> underTest.selectOrFailByKey(dbSession, "unknown"))
       .isInstanceOf(RowNotFoundException.class);
   }
 
   @Test
-  public void find_all_enabled() {
+  void find_all_enabled() {
     List<MetricDto> enabledMetrics = IntStream.range(0, 1 + new Random().nextInt(10))
       .mapToObj(i -> MetricTesting.newMetricDto().setEnabled(true))
       .toList();
@@ -88,7 +88,7 @@ public class MetricDaoIT {
   }
 
   @Test
-  public void find_all() {
+  void find_all() {
     List<MetricDto> enabledMetrics = IntStream.range(0, 1 + new Random().nextInt(10))
       .mapToObj(i -> MetricTesting.newMetricDto().setEnabled(true))
       .toList();
@@ -108,7 +108,7 @@ public class MetricDaoIT {
   }
 
   @Test
-  public void insert() {
+  void insert() {
     underTest.insert(dbSession, new MetricDto()
       .setUuid(Uuids.createFast())
       .setKey("coverage")
@@ -144,23 +144,23 @@ public class MetricDaoIT {
   }
 
   @Test
-  public void insert_metrics() {
+  void insert_metrics() {
     underTest.insert(dbSession, new MetricDto()
-      .setUuid(Uuids.createFast())
-      .setKey("coverage")
-      .setShortName("Coverage")
-      .setDescription("Coverage by unit tests")
-      .setDomain("Tests")
-      .setValueType("PERCENT")
-      .setQualitative(true)
+        .setUuid(Uuids.createFast())
+        .setKey("coverage")
+        .setShortName("Coverage")
+        .setDescription("Coverage by unit tests")
+        .setDomain("Tests")
+        .setValueType("PERCENT")
+        .setQualitative(true)
 
-      .setWorstValue(0d)
-      .setBestValue(100d)
-      .setOptimizedBestValue(true)
-      .setDirection(1)
-      .setHidden(true)
-      .setDeleteHistoricalData(true)
-      .setEnabled(true),
+        .setWorstValue(0d)
+        .setBestValue(100d)
+        .setOptimizedBestValue(true)
+        .setDirection(1)
+        .setHidden(true)
+        .setDeleteHistoricalData(true)
+        .setEnabled(true),
       new MetricDto()
         .setUuid(Uuids.createFast())
         .setKey("ncloc")
@@ -183,7 +183,7 @@ public class MetricDaoIT {
   }
 
   @Test
-  public void selectByUuid() {
+  void selectByUuid() {
     MetricDto metric = underTest.insert(dbSession, newMetricDto());
 
     MetricDto result = underTest.selectByUuid(dbSession, metric.getUuid());
@@ -192,7 +192,7 @@ public class MetricDaoIT {
   }
 
   @Test
-  public void selectByUuids() {
+  void selectByUuids() {
     MetricDto metric1 = underTest.insert(dbSession, newMetricDto());
     MetricDto metric2 = underTest.insert(dbSession, newMetricDto());
 
@@ -202,7 +202,7 @@ public class MetricDaoIT {
   }
 
   @Test
-  public void update() {
+  void update() {
     MetricDto metric = underTest.insert(dbSession, newMetricDto().setKey("first-key"));
 
     underTest.update(dbSession, metric.setKey("second-key"));
@@ -212,7 +212,7 @@ public class MetricDaoIT {
   }
 
   @Test
-  public void countEnabled() {
+  void countEnabled() {
     underTest.insert(dbSession, newMetricDto().setEnabled(true));
     underTest.insert(dbSession, newMetricDto().setEnabled(true));
     underTest.insert(dbSession, newMetricDto().setEnabled(false));
@@ -223,7 +223,7 @@ public class MetricDaoIT {
   }
 
   @Test
-  public void selectByKeys() {
+  void selectByKeys() {
     underTest.insert(dbSession, newMetricDto().setKey("first-key"));
     underTest.insert(dbSession, newMetricDto().setKey("second-key"));
     underTest.insert(dbSession, newMetricDto().setKey("third-key"));
@@ -235,7 +235,7 @@ public class MetricDaoIT {
   }
 
   @Test
-  public void disableByKey() {
+  void disableByKey() {
     underTest.insert(dbSession, newMetricDto().setKey("metric-key").setEnabled(true));
 
     boolean updated = underTest.disableByKey(dbSession, "metric-key");
@@ -250,7 +250,7 @@ public class MetricDaoIT {
   }
 
   @Test
-  public void selectOrFailByKey() {
+  void selectOrFailByKey() {
     underTest.insert(dbSession, newMetricDto().setKey("metric-key"));
 
     MetricDto result = underTest.selectOrFailByKey(dbSession, "metric-key");
@@ -260,7 +260,7 @@ public class MetricDaoIT {
   }
 
   @Test
-  public void selectEnabled_with_paging() {
+  void selectEnabled_with_paging() {
     underTest.insert(dbSession, newMetricDto().setEnabled(true));
     underTest.insert(dbSession, newMetricDto().setEnabled(true));
     underTest.insert(dbSession, newMetricDto().setEnabled(true));

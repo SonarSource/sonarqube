@@ -19,7 +19,7 @@
  */
 package org.sonar.db.issue;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.sonar.api.utils.System2;
 import org.sonar.core.issue.DefaultIssueComment;
 import org.sonar.core.issue.FieldDiffs;
@@ -27,10 +27,10 @@ import org.sonar.core.issue.FieldDiffs;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.utils.DateUtils.parseDate;
 
-public class IssueChangeDtoTest {
+class IssueChangeDtoTest {
 
   @Test
-  public void create_from_comment() {
+  void create_from_comment() {
     DefaultIssueComment comment = DefaultIssueComment.create("ABCDE", "user_uuid", "the comment");
 
     IssueChangeDto dto = IssueChangeDto.of(comment, "project_uuid");
@@ -46,7 +46,7 @@ public class IssueChangeDtoTest {
   }
 
   @Test
-  public void create_from_comment_with_created_at() {
+  void create_from_comment_with_created_at() {
     DefaultIssueComment comment = DefaultIssueComment.create("ABCDE", "user_uuid", "the comment");
     comment.setCreatedAt(parseDate("2015-01-13"));
 
@@ -56,7 +56,7 @@ public class IssueChangeDtoTest {
   }
 
   @Test
-  public void create_from_diff() {
+  void create_from_diff() {
     FieldDiffs diffs = new FieldDiffs();
     diffs.setDiff("severity", "INFO", "BLOCKER");
     diffs.setUserUuid("user_uuid");
@@ -75,7 +75,7 @@ public class IssueChangeDtoTest {
   }
 
   @Test
-  public void create_from_diff_with_created_at() {
+  void create_from_diff_with_created_at() {
     FieldDiffs diffs = new FieldDiffs();
     diffs.setDiff("severity", "INFO", "BLOCKER");
     diffs.setUserUuid("user_uuid");
@@ -87,7 +87,7 @@ public class IssueChangeDtoTest {
   }
 
   @Test
-  public void to_comment() {
+  void to_comment() {
     IssueChangeDto changeDto = new IssueChangeDto()
       .setKey("EFGH")
       .setUserUuid("user_uuid")
@@ -106,7 +106,7 @@ public class IssueChangeDtoTest {
   }
 
   @Test
-  public void to_field_diffs_with_issue_creation_date() {
+  void to_field_diffs_with_issue_creation_date() {
     IssueChangeDto changeDto = new IssueChangeDto()
       .setKey("EFGH")
       .setUserUuid("user_uuid")
@@ -121,7 +121,7 @@ public class IssueChangeDtoTest {
   }
 
   @Test
-  public void to_field_diffs_with_create_at() {
+  void to_field_diffs_with_create_at() {
     IssueChangeDto changeDto = new IssueChangeDto()
       .setKey("EFGH")
       .setUserUuid("user_uuid")
@@ -136,7 +136,7 @@ public class IssueChangeDtoTest {
   }
 
   @Test
-  public void getIssueChangeCreationDate_fallback_to_createAt_when_null() {
+  void getIssueChangeCreationDate_fallback_to_createAt_when_null() {
     IssueChangeDto changeDto = new IssueChangeDto()
       .setKey("EFGH")
       .setUserUuid("user_uuid")
@@ -149,7 +149,7 @@ public class IssueChangeDtoTest {
   }
 
   @Test
-  public void to_string() {
+  void to_string() {
     DefaultIssueComment comment = DefaultIssueComment.create("ABCDE", "user_uuid", "the comment");
     IssueChangeDto dto = IssueChangeDto.of(comment, "project_uuid");
     assertThat(dto.toString()).contains("ABCDE");

@@ -21,26 +21,27 @@ package org.sonar.db.user;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-public class UserTokenDtoTest {
+class UserTokenDtoTest {
 
   @Test
-  public void fail_if_token_hash_is_longer_than_255_characters() {
+  void fail_if_token_hash_is_longer_than_255_characters() {
     assertThatThrownBy(() -> new UserTokenDto().setTokenHash(randomAlphabetic(256)))
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("Token hash length (256) is longer than the maximum authorized (255)");
   }
 
   @Test
-  public void token_isExpired_is_properly_calculated() {
-    UserTokenDto tokenWithNoExpirationDate =  new UserTokenDto();
-    UserTokenDto expiredToken =  new UserTokenDto().setExpirationDate(0L);
-    UserTokenDto nonExpiredToken =  new UserTokenDto().setExpirationDate(ZonedDateTime.now(ZoneId.systemDefault()).plusDays(10).toInstant().toEpochMilli());
+  void token_isExpired_is_properly_calculated() {
+    UserTokenDto tokenWithNoExpirationDate = new UserTokenDto();
+    UserTokenDto expiredToken = new UserTokenDto().setExpirationDate(0L);
+    UserTokenDto nonExpiredToken =
+      new UserTokenDto().setExpirationDate(ZonedDateTime.now(ZoneId.systemDefault()).plusDays(10).toInstant().toEpochMilli());
 
     assertThat(tokenWithNoExpirationDate.isExpired()).isFalse();
     assertThat(expiredToken.isExpired()).isTrue();

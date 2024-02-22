@@ -19,14 +19,14 @@
  */
 package org.sonar.db.portfolio;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.sonar.api.resources.Qualifiers;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class PortfolioDtoTest {
+class PortfolioDtoTest {
   @Test
-  public void setters_and_getters() {
+  void setters_and_getters() {
     PortfolioDto dto = new PortfolioDto();
 
     dto.setDescription("desc")
@@ -55,13 +55,13 @@ public class PortfolioDtoTest {
   }
 
   @Test
-  public void getQualifier_whenRoot_shouldReturnVW() {
+  void getQualifier_whenRoot_shouldReturnVW() {
     PortfolioDto dto = new PortfolioDto();
     assertThat(dto.getQualifier()).isEqualTo(Qualifiers.VIEW);
   }
 
   @Test
-  public void getQualifier_whenNotRoot_shouldReturnSVW() {
+  void getQualifier_whenNotRoot_shouldReturnSVW() {
     PortfolioDto dto = new PortfolioDto().setParentUuid("parent");
     assertThat(dto.getQualifier()).isEqualTo(Qualifiers.SUBVIEW);
   }

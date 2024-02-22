@@ -33,8 +33,8 @@ import java.util.function.Function;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.ibatis.exceptions.PersistenceException;
 import org.jetbrains.annotations.NotNull;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
@@ -72,16 +72,16 @@ import static org.sonar.db.Pagination.forPage;
 import static org.sonar.db.rule.RuleListQuery.RuleListQueryBuilder.newRuleListQueryBuilder;
 import static org.sonar.db.rule.RuleTesting.newRule;
 
-public class RuleDaoIT {
+class RuleDaoIT {
   private static final String UNKNOWN_RULE_UUID = "unknown-uuid";
 
-  @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+  @RegisterExtension
+  private final DbTester db = DbTester.create(System2.INSTANCE);
 
   private final RuleDao underTest = db.getDbClient().ruleDao();
 
   @Test
-  public void selectByKey() {
+  void selectByKey() {
     RuleDto ruleDto = db.rules().insert(r -> r.addDefaultImpact(newRuleDefaultImpact(SECURITY, org.sonar.api.issue.impact.Severity.LOW)));
 
     assertThat(underTest.selectByKey(db.getSession(), RuleKey.of("foo", "bar")))
@@ -97,7 +97,7 @@ public class RuleDaoIT {
   }
 
   @Test
-  public void insertShallow_shouldNotInsertChildEntities() {
+  void insertShallow_shouldNotInsertChildEntities() {
     RuleDto ruleDto = newRule();
 
     assertThat(ruleDto.getDefaultImpacts()).isNotEmpty();
@@ -114,7 +114,7 @@ public class RuleDaoIT {
   }
 
   @Test
-  public void insertRuleDescriptionSections() {
+  void insertRuleDescriptionSections() {
     RuleDto ruleDto = newRule();
     underTest.insertShallow(db.getSession(), ruleDto);
 
@@ -128,7 +128,7 @@ public class RuleDaoIT {
   }
 
   @Test
-  public void insertRuleDefaultImpacts() {
+  void insertRuleDefaultImpacts() {
     RuleDto ruleDto = newRule();
     underTest.insertShallow(db.getSession(), ruleDto);
 
@@ -146,7 +146,7 @@ public class RuleDaoIT {
   }
 
   @Test
-  public void insertRuleTag() {
+  void insertRuleTag() {
     RuleDto ruleDto = newRule();
     underTest.insertShallow(db.getSession(), ruleDto);
 
@@ -163,14 +163,14 @@ public class RuleDaoIT {
   }
 
   @Test
-  public void selectByKey_return_rule() {
+  void selectByKey_return_rule() {
     RuleDto ruleDto = db.rules().insert();
 
     assertThat(underTest.selectByKey(db.getSession(), ruleDto.getKey())).isNotEmpty();
   }
 
   @Test
-  public void selectByUuid() {
+  void selectByUuid() {
     RuleDto ruleDto = db.rules().insert();
 
     assertThat(underTest.selectByUuid(ruleDto.getUuid() + 500, db.getSession())).isEmpty();
@@ -179,7 +179,7 @@ public class RuleDaoIT {
   }
 
   @Test
-  public void selectByUuidWithDifferentValuesOfBooleans() {
+  void selectByUuidWithDifferentValuesOfBooleans() {
     for (int i = 0; i < 3; i++) {
       int indexBoolean = i;
       RuleDto ruleDto = db.rules().insert((ruleDto1 -> {
@@ -195,7 +195,7 @@ public class RuleDaoIT {
   }
 
   @Test
-  public void selectDefinitionByUuid() {
+  void selectDefinitionByUuid() {
     RuleDto rule = db.rules().insert();
 
     assertThat(underTest.selectByUuid(UNKNOWN_RULE_UUID, db.getSession())).isEmpty();
@@ -204,7 +204,7 @@ public class RuleDaoIT {
   }
 
   @Test
-  public void selectByUuids() {
+  void selectByUuids() {
     RuleDto rule1 = db.rules().insert();
     RuleDto rule2 = db.rules().insert();
     RuleDto removedRule = db.rules().insert(r -> r.setStatus(REMOVED));
@@ -217,7 +217,7 @@ public class RuleDaoIT {
   }
 
   @Test
-  public void selectDefinitionByUuids() {
+  void selectDefinitionByUuids() {
     RuleDto rule1 = db.rules().insert();
     RuleDto rule2 = db.rules().insert();
 
@@ -228,7 +228,7 @@ public class RuleDaoIT {
   }
 
   @Test
-  public void selectOrFailByKey() {
+  void selectOrFailByKey() {
     RuleDto rule1 = db.rules().insert();
     db.rules().insert();
 
@@ -237,7 +237,7 @@ public class RuleDaoIT {
   }
 
   @Test
-  public void selectOrFailByKey_fails_if_rule_not_found() {
+  void selectOrFailByKey_fails_if_rule_not_found() {
     DbSession session = db.getSession();
     RuleKey ruleKey = RuleKey.of("NOT", "FOUND");
     assertThatThrownBy(() -> underTest.selectOrFailByKey(session, ruleKey))
@@ -246,7 +246,7 @@ public class RuleDaoIT {
   }
 
   @Test
-  public void selectByKeys() {
+  void selectByKeys() {
     RuleDto rule1 = db.rules().insert();
     db.rules().insert();
 
@@ -259,7 +259,7 @@ public class RuleDaoIT {
   }
 
   @Test
-  public void selectDefinitionByKeys() {
+  void selectDefinitionByKeys() {
     RuleDto rule = db.rules().insert();
 
     assertThat(underTest.selectByKeys(db.getSession(), Collections.emptyList())).isEmpty();
@@ -271,9 +271,10 @@ public class RuleDaoIT {
   }
 
   @Test
-  public void selectAll() {
+  void selectAll() {
     RuleDto rule1 = db.rules().insertRule(r -> r.addDefaultImpact(newRuleDefaultImpact(SECURITY, org.sonar.api.issue.impact.Severity.LOW)));
-    RuleDto rule2 = db.rules().insertRule(r -> r.addDefaultImpact(newRuleDefaultImpact(RELIABILITY, org.sonar.api.issue.impact.Severity.MEDIUM)));
+    RuleDto rule2 = db.rules().insertRule(r -> r.addDefaultImpact(newRuleDefaultImpact(RELIABILITY,
+      org.sonar.api.issue.impact.Severity.MEDIUM)));
     RuleDto rule3 = db.rules().insertRule();
 
     List<RuleDto> ruleDtos = underTest.selectAll(db.getSession());
@@ -350,7 +351,7 @@ public class RuleDaoIT {
   }
 
   @Test
-  public void selectAllDefinitions() {
+  void selectAllDefinitions() {
     RuleDto rule1 = db.rules().insert();
     RuleDto rule2 = db.rules().insert();
     RuleDto removedRule = db.rules().insert(r -> r.setStatus(REMOVED));
@@ -361,7 +362,7 @@ public class RuleDaoIT {
   }
 
   @Test
-  public void selectEnabled_with_ResultHandler() {
+  void selectEnabled_with_ResultHandler() {
     RuleDto rule = db.rules().insert();
     db.rules().insert(r -> r.setStatus(REMOVED));
 
@@ -373,7 +374,7 @@ public class RuleDaoIT {
   }
 
   @Test
-  public void selectByTypeAndLanguages() {
+  void selectByTypeAndLanguages() {
     RuleDto rule1 = db.rules().insert(
       r -> r.setKey(RuleKey.of("java", "S001"))
         .setConfigKey("S1")
@@ -385,20 +386,24 @@ public class RuleDaoIT {
         .setType(RuleType.SECURITY_HOTSPOT)
         .setLanguage("js"));
 
-    assertThat(underTest.selectByTypeAndLanguages(db.getSession(), singletonList(RuleType.VULNERABILITY.getDbConstant()), singletonList("java")))
+    assertThat(underTest.selectByTypeAndLanguages(db.getSession(), singletonList(RuleType.VULNERABILITY.getDbConstant()), singletonList(
+      "java")))
       .extracting(RuleDto::getUuid, RuleDto::getLanguage, RuleDto::getType)
       .containsExactly(tuple(rule1.getUuid(), "java", RuleType.VULNERABILITY.getDbConstant()));
 
-    assertThat(underTest.selectByTypeAndLanguages(db.getSession(), singletonList(RuleType.SECURITY_HOTSPOT.getDbConstant()), singletonList("js")))
+    assertThat(underTest.selectByTypeAndLanguages(db.getSession(), singletonList(RuleType.SECURITY_HOTSPOT.getDbConstant()),
+      singletonList("js")))
       .extracting(RuleDto::getUuid, RuleDto::getLanguage, RuleDto::getType)
       .containsExactly(tuple(rule2.getUuid(), "js", RuleType.SECURITY_HOTSPOT.getDbConstant()));
 
-    assertThat(underTest.selectByTypeAndLanguages(db.getSession(), singletonList(RuleType.SECURITY_HOTSPOT.getDbConstant()), singletonList("java"))).isEmpty();
-    assertThat(underTest.selectByTypeAndLanguages(db.getSession(), singletonList(RuleType.VULNERABILITY.getDbConstant()), singletonList("js"))).isEmpty();
+    assertThat(underTest.selectByTypeAndLanguages(db.getSession(), singletonList(RuleType.SECURITY_HOTSPOT.getDbConstant()),
+      singletonList("java"))).isEmpty();
+    assertThat(underTest.selectByTypeAndLanguages(db.getSession(), singletonList(RuleType.VULNERABILITY.getDbConstant()), singletonList(
+      "js"))).isEmpty();
   }
 
   @Test
-  public void selectByLanguage() {
+  void selectByLanguage() {
     RuleDto rule1 = db.rules().insert(
       r -> r.setKey(RuleKey.of("java", "S001"))
         .setType(RuleType.VULNERABILITY)
@@ -430,7 +435,7 @@ public class RuleDaoIT {
   }
 
   @Test
-  public void selectByTypeAndLanguages_return_nothing_when_no_rule_on_languages() {
+  void selectByTypeAndLanguages_return_nothing_when_no_rule_on_languages() {
     db.rules().insert(
       r -> r.setKey(RuleKey.of("java", "S001"))
         .setConfigKey("S1")
@@ -442,12 +447,13 @@ public class RuleDaoIT {
         .setType(RuleType.VULNERABILITY)
         .setLanguage("js"));
 
-    assertThat(underTest.selectByTypeAndLanguages(db.getSession(), singletonList(RuleType.VULNERABILITY.getDbConstant()), singletonList("cpp")))
+    assertThat(underTest.selectByTypeAndLanguages(db.getSession(), singletonList(RuleType.VULNERABILITY.getDbConstant()), singletonList(
+      "cpp")))
       .isEmpty();
   }
 
   @Test
-  public void selectByTypeAndLanguages_return_nothing_when_no_rule_with_type() {
+  void selectByTypeAndLanguages_return_nothing_when_no_rule_with_type() {
     db.rules().insert(
       r -> r.setKey(RuleKey.of("java", "S001"))
         .setConfigKey("S1")
@@ -469,7 +475,7 @@ public class RuleDaoIT {
   }
 
   @Test
-  public void selectByTypeAndLanguages_ignores_external_rules() {
+  void selectByTypeAndLanguages_ignores_external_rules() {
     db.rules().insert(
       r -> r.setKey(RuleKey.of("java", "S001"))
         .setConfigKey("S1")
@@ -477,13 +483,14 @@ public class RuleDaoIT {
         .setIsExternal(true)
         .setLanguage("java"));
 
-    assertThat(underTest.selectByTypeAndLanguages(db.getSession(), singletonList(RuleType.VULNERABILITY.getDbConstant()), singletonList("java")))
+    assertThat(underTest.selectByTypeAndLanguages(db.getSession(), singletonList(RuleType.VULNERABILITY.getDbConstant()), singletonList(
+      "java")))
       .extracting(RuleDto::getUuid, RuleDto::getLanguage, RuleDto::getType)
       .isEmpty();
   }
 
   @Test
-  public void selectByTypeAndLanguages_ignores_template_rules() {
+  void selectByTypeAndLanguages_ignores_template_rules() {
     db.rules().insert(
       r -> r.setKey(RuleKey.of("java", "S001"))
         .setConfigKey("S1")
@@ -491,13 +498,14 @@ public class RuleDaoIT {
         .setIsTemplate(true)
         .setLanguage("java"));
 
-    assertThat(underTest.selectByTypeAndLanguages(db.getSession(), singletonList(RuleType.VULNERABILITY.getDbConstant()), singletonList("java")))
+    assertThat(underTest.selectByTypeAndLanguages(db.getSession(), singletonList(RuleType.VULNERABILITY.getDbConstant()), singletonList(
+      "java")))
       .extracting(RuleDto::getUuid, RuleDto::getLanguage, RuleDto::getType)
       .isEmpty();
   }
 
   @Test
-  public void select_by_query() {
+  void select_by_query() {
     db.rules().insert(r -> r.setKey(RuleKey.of("java", "S001")).setConfigKey("S1"));
     db.rules().insert(r -> r.setKey(RuleKey.of("java", "S002")));
     db.rules().insert(r -> r.setStatus(REMOVED));
@@ -511,7 +519,7 @@ public class RuleDaoIT {
   }
 
   @Test
-  public void insert_rule_with_description_section_context() {
+  void insert_rule_with_description_section_context() {
     RuleDto rule = db.rules().insert(r -> r
       .addRuleDescriptionSectionDto(createDescriptionSectionWithContext("how_to_fix", "spring", "Spring")));
 
@@ -530,7 +538,7 @@ public class RuleDaoIT {
   }
 
   @Test
-  public void insert_rule_with_different_section_context() {
+  void insert_rule_with_different_section_context() {
     RuleDto rule = db.rules().insert(r -> r
       .addRuleDescriptionSectionDto(createDescriptionSectionWithContext("how_to_fix", "spring", "Spring"))
       .addRuleDescriptionSectionDto(createDescriptionSectionWithContext("how_to_fix", "myBatis", "My Batis")));
@@ -540,7 +548,7 @@ public class RuleDaoIT {
   }
 
   @Test
-  public void insert() {
+  void insert() {
     RuleDescriptionSectionDto sectionDto = createDefaultRuleDescriptionSection();
     ImpactDto ruleDefaultImpactDto = newRuleDefaultImpact(SECURITY, org.sonar.api.issue.impact.Severity.HIGH);
     RuleDto newRule = new RuleDto()
@@ -611,7 +619,7 @@ public class RuleDaoIT {
   }
 
   @Test
-  public void update_RuleDefinitionDto() {
+  void update_RuleDefinitionDto() {
     RuleDto rule = db.rules().insert();
     RuleDescriptionSectionDto sectionDto = createDefaultRuleDescriptionSection();
     RuleDto ruleToUpdate = new RuleDto()
@@ -672,7 +680,7 @@ public class RuleDaoIT {
   }
 
   @Test
-  public void update_rule_sections_add_new_section() {
+  void update_rule_sections_add_new_section() {
     RuleDto rule = db.rules().insert();
     RuleDescriptionSectionDto existingSection = rule.getRuleDescriptionSectionDtos().iterator().next();
     RuleDescriptionSectionDto newSection = RuleDescriptionSectionDto.builder()
@@ -694,7 +702,7 @@ public class RuleDaoIT {
   }
 
   @Test
-  public void update_rule_sections_replaces_section() {
+  void update_rule_sections_replaces_section() {
     RuleDto rule = db.rules().insert();
     Set<RuleDescriptionSectionDto> ruleDescriptionSectionDtos = rule.getRuleDescriptionSectionDtos();
     RuleDescriptionSectionDto existingSection = ruleDescriptionSectionDtos.iterator().next();
@@ -715,7 +723,7 @@ public class RuleDaoIT {
   }
 
   @Test
-  public void update_rule_sections_replaces_section_with_context() {
+  void update_rule_sections_replaces_section_with_context() {
     RuleDto rule = db.rules().insert();
     Set<RuleDescriptionSectionDto> ruleDescriptionSectionDtos = rule.getRuleDescriptionSectionDtos();
     RuleDescriptionSectionDto existingSection = ruleDescriptionSectionDtos.iterator().next();
@@ -738,7 +746,7 @@ public class RuleDaoIT {
   }
 
   @Test
-  public void update_RuleMetadataDto_inserts_row_in_RULE_METADATA_if_not_exists_yet() {
+  void update_RuleMetadataDto_inserts_row_in_RULE_METADATA_if_not_exists_yet() {
     RuleDto rule = db.rules().insert();
 
     long createdAtBeforeUpdate = rule.getCreatedAt();
@@ -787,7 +795,7 @@ public class RuleDaoIT {
   }
 
   @Test
-  public void update_RuleMetadataDto_updates_row_in_RULE_METADATA_if_already_exists() {
+  void update_RuleMetadataDto_updates_row_in_RULE_METADATA_if_already_exists() {
     RuleDto rule = db.rules().insert();
     rule.setAdHocDescription("ad-hoc-desc");
     rule.setCreatedAt(3_500_000_000_000L);
@@ -851,7 +859,7 @@ public class RuleDaoIT {
   }
 
   @Test
-  public void select_all_rule_params() {
+  void select_all_rule_params() {
     RuleDto rule1 = db.rules().insert();
     RuleParamDto ruleParam1 = db.rules().insertRuleParam(rule1);
     RuleParamDto ruleParam12 = db.rules().insertRuleParam(rule1);
@@ -871,7 +879,7 @@ public class RuleDaoIT {
   }
 
   @Test
-  public void select_parameters_by_rule_key() {
+  void select_parameters_by_rule_key() {
     RuleDto rule = db.rules().insert();
     RuleParamDto ruleParam = db.rules().insertRuleParam(rule);
 
@@ -887,7 +895,7 @@ public class RuleDaoIT {
   }
 
   @Test
-  public void select_parameters_by_rule_keys() {
+  void select_parameters_by_rule_keys() {
     RuleDto rule1 = db.rules().insert();
     db.rules().insertRuleParam(rule1);
     RuleDto rule2 = db.rules().insert();
@@ -901,7 +909,7 @@ public class RuleDaoIT {
   }
 
   @Test
-  public void insert_parameter() {
+  void insert_parameter() {
     RuleDto ruleDefinitionDto = db.rules().insert();
 
     RuleParamDto orig = RuleParamDto.createFor(ruleDefinitionDto)
@@ -924,7 +932,7 @@ public class RuleDaoIT {
   }
 
   @Test
-  public void should_fail_to_insert_duplicate_parameter() {
+  void should_fail_to_insert_duplicate_parameter() {
     RuleDto ruleDefinitionDto = db.rules().insert();
 
     RuleParamDto param = RuleParamDto.createFor(ruleDefinitionDto)
@@ -941,7 +949,7 @@ public class RuleDaoIT {
   }
 
   @Test
-  public void update_parameter() {
+  void update_parameter() {
     RuleDto rule = db.rules().insert();
     RuleParamDto ruleParam = db.rules().insertRuleParam(rule);
 
@@ -960,11 +968,12 @@ public class RuleDaoIT {
 
     assertThat(underTest.selectRuleParamsByRuleKey(db.getSession(), rule.getKey()))
       .extracting(RuleParamDto::getName, RuleParamDto::getType, RuleParamDto::getDefaultValue, RuleParamDto::getDescription)
-      .containsExactlyInAnyOrder(tuple(ruleParam.getName(), "STRING", "^[a-z]+(\\.[a-z][a-z0-9]*)*$", "Regular expression used to check the package names against."));
+      .containsExactlyInAnyOrder(tuple(ruleParam.getName(), "STRING", "^[a-z]+(\\.[a-z][a-z0-9]*)*$", "Regular expression used to check " +
+        "the package names against."));
   }
 
   @Test
-  public void delete_parameter() {
+  void delete_parameter() {
     RuleDto rule = db.rules().insert();
     RuleParamDto ruleParam = db.rules().insertRuleParam(rule);
     assertThat(underTest.selectRuleParamsByRuleKey(db.getSession(), rule.getKey())).hasSize(1);
@@ -975,7 +984,7 @@ public class RuleDaoIT {
   }
 
   @Test
-  public void scrollIndexingRules_on_empty_table() {
+  void scrollIndexingRules_on_empty_table() {
     Accumulator<RuleForIndexingDto> accumulator = new Accumulator<>();
 
     underTest.selectIndexingRules(db.getSession(), accumulator);
@@ -984,7 +993,7 @@ public class RuleDaoIT {
   }
 
   @Test
-  public void scrollIndexingRules() {
+  void scrollIndexingRules() {
     Accumulator<RuleForIndexingDto> accumulator = new Accumulator<>();
     RuleDescriptionSectionDto ruleDescriptionSectionDto = RuleDescriptionSectionDto.builder()
       .key("DESC")
@@ -1034,7 +1043,7 @@ public class RuleDaoIT {
   }
 
   @Test
-  public void scrollIndexingRules_maps_rule_definition_fields_for_regular_rule_and_template_rule() {
+  void scrollIndexingRules_maps_rule_definition_fields_for_regular_rule_and_template_rule() {
     Accumulator<RuleForIndexingDto> accumulator = new Accumulator<>();
     RuleDto r1 = db.rules().insert();
     r1.setTags(Set.of("t1", "t2"));
@@ -1066,7 +1075,7 @@ public class RuleDaoIT {
   }
 
   @Test
-  public void scrollIndexingRulesByKeys() {
+  void scrollIndexingRulesByKeys() {
     Accumulator<RuleForIndexingDto> accumulator = new Accumulator<>();
     RuleDto r1 = db.rules().insert();
     db.rules().insert();
@@ -1079,7 +1088,7 @@ public class RuleDaoIT {
   }
 
   @Test
-  public void scrollIndexingRulesByKeys_maps_rule_definition_fields_for_regular_rule_and_template_rule() {
+  void scrollIndexingRulesByKeys_maps_rule_definition_fields_for_regular_rule_and_template_rule() {
     Accumulator<RuleForIndexingDto> accumulator = new Accumulator<>();
     RuleDto r1 = db.rules().insert();
     RuleDto r2 = db.rules().insert(rule -> rule.setTemplateUuid(r1.getUuid()));
@@ -1123,7 +1132,7 @@ public class RuleDaoIT {
   }
 
   @Test
-  public void scrollIndexingRulesByKeys_scrolls_nothing_if_key_does_not_exist() {
+  void scrollIndexingRulesByKeys_scrolls_nothing_if_key_does_not_exist() {
     Accumulator<RuleForIndexingDto> accumulator = new Accumulator<>();
     db.rules().insert();
     String nonExistingRuleUuid = "non-existing-uuid";
@@ -1134,7 +1143,7 @@ public class RuleDaoIT {
   }
 
   @Test
-  public void selectAllDeprecatedRuleKeys() {
+  void selectAllDeprecatedRuleKeys() {
     RuleDto r1 = db.rules().insert();
     RuleDto r2 = db.rules().insert();
 
@@ -1148,7 +1157,7 @@ public class RuleDaoIT {
   }
 
   @Test
-  public void selectDeprecatedRuleKeysByRuleUuids() {
+  void selectDeprecatedRuleKeysByRuleUuids() {
     RuleDto r1 = db.rules().insert();
     RuleDto r2 = db.rules().insert();
     RuleDto r3 = db.rules().insert();
@@ -1169,7 +1178,7 @@ public class RuleDaoIT {
   }
 
   @Test
-  public void selectAllDeprecatedRuleKeys_return_values_even_if_there_is_no_rule() {
+  void selectAllDeprecatedRuleKeys_return_values_even_if_there_is_no_rule() {
     db.rules().insertDeprecatedKey();
     db.rules().insertDeprecatedKey();
 
@@ -1183,7 +1192,7 @@ public class RuleDaoIT {
   }
 
   @Test
-  public void deleteDeprecatedRuleKeys_with_empty_list_has_no_effect() {
+  void deleteDeprecatedRuleKeys_with_empty_list_has_no_effect() {
     db.rules().insertDeprecatedKey();
     db.rules().insertDeprecatedKey();
 
@@ -1195,7 +1204,7 @@ public class RuleDaoIT {
   }
 
   @Test
-  public void deleteDeprecatedRuleKeys_with_non_existing_uuid_has_no_effect() {
+  void deleteDeprecatedRuleKeys_with_non_existing_uuid_has_no_effect() {
     db.rules().insertDeprecatedKey(d -> d.setUuid("A1"));
     db.rules().insertDeprecatedKey(d -> d.setUuid("A2"));
 
@@ -1207,7 +1216,7 @@ public class RuleDaoIT {
   }
 
   @Test
-  public void selectTags_shouldReturnSortedAndDistinct() {
+  void selectTags_shouldReturnSortedAndDistinct() {
     db.rules().insert(ruleDto -> ruleDto.setSystemTags(newHashSet("s1", "s2")).setTags(newHashSet("t1", "t2", "t3")));
     db.rules().insert(ruleDto -> ruleDto.setSystemTags(newHashSet("s3", "s4", "s5")).setTags(newHashSet("t3", "t4")));
 
@@ -1218,7 +1227,7 @@ public class RuleDaoIT {
   }
 
   @Test
-  public void selectTags_whenQueryPresent_shouldReturnFilteredList() {
+  void selectTags_whenQueryPresent_shouldReturnFilteredList() {
     db.rules().insert(ruleDto -> ruleDto.setSystemTags(newHashSet("foo_1", "bar_2")).setTags(newHashSet("foo_3", "bar_4")));
     db.rules().insert(ruleDto -> ruleDto.setSystemTags(newHashSet("ping_5", "pong_6")).setTags(newHashSet("ping_7", "pong_8")));
 
@@ -1228,7 +1237,7 @@ public class RuleDaoIT {
   }
 
   @Test
-  public void deleteDeprecatedRuleKeys() {
+  void deleteDeprecatedRuleKeys() {
     DeprecatedRuleKeyDto deprecatedRuleKeyDto1 = db.rules().insertDeprecatedKey();
     db.rules().insertDeprecatedKey();
 
@@ -1239,7 +1248,7 @@ public class RuleDaoIT {
   }
 
   @Test
-  public void insertDeprecatedRuleKey() {
+  void insertDeprecatedRuleKey() {
     RuleDto r1 = db.rules().insert();
     DeprecatedRuleKeyDto deprecatedRuleKeyDto = db.rules().insertDeprecatedKey(d -> d.setRuleUuid(r1.getUuid()));
 
@@ -1259,7 +1268,7 @@ public class RuleDaoIT {
   }
 
   @Test
-  public void countByLanguage_shouldReturnExpectedNumberOfRules() {
+  void countByLanguage_shouldReturnExpectedNumberOfRules() {
     insertMultipleRules(10, "js", false, READY);
     insertMultipleRules(5, "js", true, READY);
     insertMultipleRules(3, "kotlin", false, DEPRECATED);
@@ -1280,7 +1289,7 @@ public class RuleDaoIT {
   }
 
   @Test
-  public void insertDeprecatedRuleKey_with_same_RuleKey_should_fail() {
+  void insertDeprecatedRuleKey_with_same_RuleKey_should_fail() {
     String repositoryKey = randomAlphanumeric(50);
     String ruleKey = randomAlphanumeric(50);
     RuleDbTester ruleTester = db.rules();
@@ -1295,7 +1304,7 @@ public class RuleDaoIT {
   }
 
   @Test
-  public void selectRules_whenPagination_shouldReturnSpecificPage() {
+  void selectRules_whenPagination_shouldReturnSpecificPage() {
     db.rules().insert(rule -> rule.setUuid("uuid_1"));
     db.rules().insert(rule -> rule.setUuid("uuid_2"));
     db.rules().insert(rule -> rule.setUuid("uuid_3"));
@@ -1309,7 +1318,7 @@ public class RuleDaoIT {
   }
 
   @Test
-  public void selectRules_whenQueriedWithCreatedAt_shouldReturnRulesCreatedAfterCorrectlySorted() {
+  void selectRules_whenQueriedWithCreatedAt_shouldReturnRulesCreatedAfterCorrectlySorted() {
     long baseTime = 1696028921248L;
     db.rules().insert(rule -> rule.setUuid("uuid_1").setCreatedAt(baseTime));
     db.rules().insert(rule -> rule.setUuid("uuid_2").setCreatedAt(baseTime + 1000));
@@ -1325,7 +1334,7 @@ public class RuleDaoIT {
   }
 
   @Test
-  public void selectRules_whenQueriedWithLanguage_shouldReturnOnlyRulesWithLanguage() {
+  void selectRules_whenQueriedWithLanguage_shouldReturnOnlyRulesWithLanguage() {
     String queriedLang = "java";
     db.rules().insert(rule -> rule.setUuid("uuid_1").setLanguage(queriedLang));
     db.rules().insert(rule -> rule.setUuid("uuid_2").setLanguage("cpp"));
@@ -1340,7 +1349,7 @@ public class RuleDaoIT {
   }
 
   @Test
-  public void selectRules_whenQueriedWithQualityProfile_shouldReturnOnlyRulesActiveForThisQualityProfile() {
+  void selectRules_whenQueriedWithQualityProfile_shouldReturnOnlyRulesActiveForThisQualityProfile() {
     QProfileDto profile = db.qualityProfiles().insert();
     RuleDto rule1 = db.rules().insert(rule -> rule.setUuid("uuid_1"));
     db.rules().insert(rule -> rule.setUuid("uuid_2"));
@@ -1364,7 +1373,8 @@ public class RuleDaoIT {
   }
 
   private static RuleDescriptionSectionDto createDefaultRuleDescriptionSection() {
-    return RuleDescriptionSectionDto.createDefaultRuleDescriptionSection(UuidFactoryFast.getInstance().create(), RandomStringUtils.randomAlphanumeric(1000));
+    return RuleDescriptionSectionDto.createDefaultRuleDescriptionSection(UuidFactoryFast.getInstance().create(),
+      RandomStringUtils.randomAlphanumeric(1000));
   }
 
   private static class Accumulator<T> implements Consumer<T> {

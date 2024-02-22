@@ -20,8 +20,8 @@
 package org.sonar.db.issue;
 
 import java.util.List;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 
@@ -29,15 +29,15 @@ import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 
-public class IssueChangeMapperIT {
+class IssueChangeMapperIT {
 
-  @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  @RegisterExtension
+  private final DbTester dbTester = DbTester.create(System2.INSTANCE);
 
-  private IssueChangeMapper underTest = dbTester.getSession().getMapper(IssueChangeMapper.class);
+  private final IssueChangeMapper underTest = dbTester.getSession().getMapper(IssueChangeMapper.class);
 
   @Test
-  public void insert_diff() {
+  void insert_diff() {
     IssueChangeDto dto = new IssueChangeDto();
     dto.setUuid("uuid");
     dto.setKey(null /* no key on field changes */);
@@ -59,7 +59,7 @@ public class IssueChangeMapperIT {
   }
 
   @Test
-  public void insert_comment() {
+  void insert_comment() {
     IssueChangeDto dto = new IssueChangeDto();
     dto.setUuid("uuid");
     dto.setKey("COMMENT-1234");

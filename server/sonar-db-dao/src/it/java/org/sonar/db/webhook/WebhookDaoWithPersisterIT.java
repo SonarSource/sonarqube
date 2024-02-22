@@ -19,8 +19,8 @@
  */
 package org.sonar.db.webhook;
 
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
@@ -40,11 +40,11 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
-public class WebhookDaoWithPersisterIT {
+class WebhookDaoWithPersisterIT {
   private final AuditPersister auditPersister = mock(AuditPersister.class);
 
-  @Rule
-  public final DbTester dbTester = DbTester.create(System2.INSTANCE, auditPersister);
+  @RegisterExtension
+  private final DbTester dbTester = DbTester.create(System2.INSTANCE, auditPersister);
 
   private final DbClient dbClient = dbTester.getDbClient();
   private final DbSession dbSession = dbTester.getSession();
@@ -56,7 +56,7 @@ public class WebhookDaoWithPersisterIT {
   private final ArgumentCaptor<SecretNewValue> secretNewValueCaptor = ArgumentCaptor.forClass(SecretNewValue.class);
 
   @Test
-  public void insertGlobalWebhookIsPersisted() {
+  void insertGlobalWebhookIsPersisted() {
     WebhookDto dto = new WebhookDto()
       .setUuid("UUID_1")
       .setName("NAME_1")
@@ -74,7 +74,7 @@ public class WebhookDaoWithPersisterIT {
   }
 
   @Test
-  public void insertProjectWebhookIsPersisted() {
+  void insertProjectWebhookIsPersisted() {
     WebhookDto dto = new WebhookDto()
       .setUuid("UUID_1")
       .setName("NAME_1")
@@ -95,7 +95,7 @@ public class WebhookDaoWithPersisterIT {
   }
 
   @Test
-  public void updateGlobalWebhookIsPersistedWithoutSecret() {
+  void updateGlobalWebhookIsPersistedWithoutSecret() {
     WebhookDto dto = webhookDbTester.insertGlobalWebhook();
     dto = dto
       .setName("a-fancy-webhook")
@@ -111,16 +111,17 @@ public class WebhookDaoWithPersisterIT {
     assertThat(newValue)
       .extracting(WebhookNewValue::getWebhookUuid, WebhookNewValue::getName, WebhookNewValue::getUrl)
       .containsExactly(dto.getUuid(), dto.getName(), dto.getUrl());
-    assertThat(newValue).hasToString("{\"webhookUuid\": \"" + dto.getUuid() + "\", \"name\": \"a-fancy-webhook\", \"url\": \"http://www.fancy-webhook.io\" }");
+    assertThat(newValue).hasToString("{\"webhookUuid\": \"" + dto.getUuid() + "\", \"name\": \"a-fancy-webhook\", \"url\": \"http://www" +
+      ".fancy-webhook.io\" }");
   }
 
   @Test
-  public void updateGlobalWebhookIsPersistedWithSecret() {
+  void updateGlobalWebhookIsPersistedWithSecret() {
     WebhookDto dto = webhookDbTester.insertGlobalWebhook();
     dto = dto
-            .setName("a-fancy-webhook")
-            .setUrl("http://www.fancy-webhook.io")
-            .setSecret("new secret");
+      .setName("a-fancy-webhook")
+      .setUrl("http://www.fancy-webhook.io")
+      .setSecret("new secret");
 
     underTest.update(dbSession, dto, null, null);
 
@@ -131,13 +132,14 @@ public class WebhookDaoWithPersisterIT {
     verify(auditPersister).updateWebhook(eq(dbSession), newValueCaptor.capture());
     WebhookNewValue newValue = newValueCaptor.getValue();
     assertThat(newValue)
-            .extracting(WebhookNewValue::getWebhookUuid, WebhookNewValue::getName, WebhookNewValue::getUrl)
-            .containsExactly(dto.getUuid(), dto.getName(), dto.getUrl());
-    assertThat(newValue).hasToString("{\"webhookUuid\": \"" + dto.getUuid() + "\", \"name\": \"a-fancy-webhook\", \"url\": \"http://www.fancy-webhook.io\" }");
+      .extracting(WebhookNewValue::getWebhookUuid, WebhookNewValue::getName, WebhookNewValue::getUrl)
+      .containsExactly(dto.getUuid(), dto.getName(), dto.getUrl());
+    assertThat(newValue).hasToString("{\"webhookUuid\": \"" + dto.getUuid() + "\", \"name\": \"a-fancy-webhook\", \"url\": \"http://www" +
+      ".fancy-webhook.io\" }");
   }
 
   @Test
-  public void updateProjectWebhookIsPersisted() {
+  void updateProjectWebhookIsPersisted() {
     WebhookDto dto = webhookDbTester.insertGlobalWebhook();
     dto = dto
       .setName("a-fancy-webhook")
@@ -152,13 +154,14 @@ public class WebhookDaoWithPersisterIT {
       .extracting(WebhookNewValue::getWebhookUuid, WebhookNewValue::getName, WebhookNewValue::getUrl,
         WebhookNewValue::getProjectKey, WebhookNewValue::getProjectName)
       .containsExactly(dto.getUuid(), dto.getName(), dto.getUrl(), "project-key", "project-name");
-    assertThat(newValue).hasToString("{\"webhookUuid\": \"" + dto.getUuid() +"\", \"name\": \"a-fancy-webhook\", " +
+    assertThat(newValue).hasToString("{\"webhookUuid\": \"" + dto.getUuid() + "\", \"name\": \"a-fancy-webhook\", " +
       "\"url\": \"http://www.fancy-webhook.io\", \"projectKey\": \"project-key\", \"projectName\": \"project-name\" }");
   }
 
   @Test
-  public void deleteProjectWebhooksIsPersisted() {
-    ProjectDto projectDto = componentDbTester.insertPrivateProject(c->{}, p ->
+  void deleteProjectWebhooksIsPersisted() {
+    ProjectDto projectDto = componentDbTester.insertPrivateProject(c -> {
+    }, p ->
       p.setUuid("puuid").setName("pname").setKey("pkey")).getProjectDto();
     webhookDbTester.insertWebhook(projectDto);
 
@@ -174,7 +177,7 @@ public class WebhookDaoWithPersisterIT {
   }
 
   @Test
-  public void deleteProjectWebhooksWithoutAffectedRowsIsNotPersisted() {
+  void deleteProjectWebhooksWithoutAffectedRowsIsNotPersisted() {
     ProjectDto projectDto = componentDbTester.insertPrivateProject(p -> p.setUuid("puuid").setName("pname")).getProjectDto();
 
     underTest.deleteByProject(dbSession, projectDto);
@@ -184,7 +187,7 @@ public class WebhookDaoWithPersisterIT {
   }
 
   @Test
-  public void deleteWebhookIsPersisted() {
+  void deleteWebhookIsPersisted() {
     WebhookDto dto = webhookDbTester.insertGlobalWebhook();
 
     underTest.delete(dbSession, dto.getUuid(), dto.getName());
@@ -198,7 +201,7 @@ public class WebhookDaoWithPersisterIT {
   }
 
   @Test
-  public void deleteWebhookWithoutAffectedRowsIsNotPersisted() {
+  void deleteWebhookWithoutAffectedRowsIsNotPersisted() {
     underTest.delete(dbSession, "webhook-uuid", "webhook-name");
 
     verifyNoMoreInteractions(auditPersister);

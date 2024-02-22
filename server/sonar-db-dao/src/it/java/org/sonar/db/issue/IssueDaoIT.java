@@ -32,9 +32,9 @@ import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.apache.ibatis.cursor.Cursor;
 import org.jetbrains.annotations.NotNull;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.impact.Severity;
 import org.sonar.api.issue.impact.SoftwareQuality;
@@ -84,7 +84,7 @@ import static org.sonar.db.issue.IssueTesting.generateIssues;
 import static org.sonar.db.issue.IssueTesting.newCodeReferenceIssue;
 import static org.sonar.db.protobuf.DbIssues.MessageFormattingType.CODE;
 
-public class IssueDaoIT {
+class IssueDaoIT {
 
   private static final String PROJECT_UUID = "prj_uuid";
   private static final String PROJECT_KEY = "prj_key";
@@ -107,16 +107,16 @@ public class IssueDaoIT {
       .build())
     .build();
 
-  @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+  @RegisterExtension
+  private final DbTester db = DbTester.create(System2.INSTANCE);
 
   private final IssueDao underTest = db.getDbClient().issueDao();
 
   private ComponentDto projectDto;
   private UserDto userDto;
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
     int i = db.countSql(db.getSession(), "select count(1) from rules_default_impacts");
 
     db.rules().insert(RULE.setIsExternal(true));
@@ -126,7 +126,7 @@ public class IssueDaoIT {
   }
 
   @Test
-  public void selectByKeyOrFail() {
+  void selectByKeyOrFail() {
     prepareTables();
     IssueDto expected = new IssueDto()
       .setKee(ISSUE_KEY1)
@@ -163,7 +163,8 @@ public class IssueDaoIT {
     IssueDto issue = underTest.selectOrFailByKey(db.getSession(), ISSUE_KEY1);
 
     assertThat(issue).usingRecursiveComparison()
-      .ignoringFields("filePath", "issueCreationDate", "issueUpdateDate", "issueCloseDate", "cleanCodeAttribute", "impacts", "ruleDefaultImpacts")
+      .ignoringFields("filePath", "issueCreationDate", "issueUpdateDate", "issueCloseDate", "cleanCodeAttribute", "impacts",
+        "ruleDefaultImpacts")
       .isEqualTo(expected);
     assertThat(issue.parseMessageFormattings()).isEqualTo(MESSAGE_FORMATTING);
     assertThat(issue.getIssueCreationDate()).isNotNull();
@@ -184,7 +185,7 @@ public class IssueDaoIT {
   }
 
   @Test
-  public void selectByKeyOrFail_fails_if_key_not_found() {
+  void selectByKeyOrFail_fails_if_key_not_found() {
     prepareTables();
     DbSession session = db.getSession();
     assertThatThrownBy(() -> underTest.selectOrFailByKey(session, "DOES_NOT_EXIST"))
@@ -193,7 +194,7 @@ public class IssueDaoIT {
   }
 
   @Test
-  public void selectByKeys() {
+  void selectByKeys() {
     // contains I1 and I2
     prepareTables();
 
@@ -213,7 +214,7 @@ public class IssueDaoIT {
   }
 
   @Test
-  public void scrollIndexationIssues_shouldReturnDto() throws SQLException {
+  void scrollIndexationIssues_shouldReturnDto() throws SQLException {
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     RuleDto rule = db.rules().insert(r -> r.setRepositoryKey("java").setLanguage("java")
       .replaceAllDefaultImpacts(List.of(new ImpactDto()
@@ -249,7 +250,7 @@ public class IssueDaoIT {
   }
 
   @Test
-  public void selectIssueKeysByComponentUuid() {
+  void selectIssueKeysByComponentUuid() {
     // contains I1 and I2
     prepareTables();
 
@@ -260,7 +261,7 @@ public class IssueDaoIT {
   }
 
   @Test
-  public void selectIssueKeysByComponentUuidFiltersAccordingly() {
+  void selectIssueKeysByComponentUuidFiltersAccordingly() {
     // contains I1 and I2
     prepareTables();
 
@@ -289,7 +290,7 @@ public class IssueDaoIT {
   }
 
   @Test
-  public void selectIssueKeysByComponentUuidAndChangedSinceFiltersAccordingly() {
+  void selectIssueKeysByComponentUuidAndChangedSinceFiltersAccordingly() {
     long t1 = 1_340_000_000_000L;
     long t2 = 1_400_000_000_000L;
     // contains I1 and I2
@@ -315,7 +316,7 @@ public class IssueDaoIT {
   }
 
   @Test
-  public void selectByBranch() {
+  void selectByBranch() {
     long updatedAt = 1_340_000_000_000L;
     long changedSince = 1_000_000_000_000L;
 
@@ -336,7 +337,8 @@ public class IssueDaoIT {
     List<String> statusesB = List.of(STATUS_OPEN, STATUS_RESOLVED);
     IntStream.range(0, statusesB.size()).forEach(i -> insertBranchIssue(branchB, fileB, rule, "B" + i, statusesB.get(i), updatedAt));
 
-    List<IssueDto> branchAIssuesA1 = underTest.selectByBranch(db.getSession(), Set.of("issueA0", "issueA1", "issueA3", "issueWithResolution"),
+    List<IssueDto> branchAIssuesA1 = underTest.selectByBranch(db.getSession(), Set.of("issueA0", "issueA1", "issueA3",
+        "issueWithResolution"),
       buildSelectByBranchQuery(branchA, false, changedSince));
 
     assertThat(branchAIssuesA1)
@@ -360,7 +362,8 @@ public class IssueDaoIT {
         tuple("issueA1", STATUS_REVIEWED),
         tuple("issueA3", STATUS_RESOLVED));
 
-    List<IssueDto> branchBIssuesB1 = underTest.selectByBranch(db.getSession(), Set.of("issueB0", "issueB1"), buildSelectByBranchQuery(branchB, false, changedSince));
+    List<IssueDto> branchBIssuesB1 = underTest.selectByBranch(db.getSession(), Set.of("issueB0", "issueB1"),
+      buildSelectByBranchQuery(branchB, false, changedSince));
 
     assertThat(branchBIssuesB1)
       .extracting(IssueDto::getKey, IssueDto::getStatus)
@@ -368,7 +371,8 @@ public class IssueDaoIT {
         tuple("issueB0", STATUS_OPEN),
         tuple("issueB1", STATUS_RESOLVED));
 
-    List<IssueDto> branchBIssuesB2 = underTest.selectByBranch(db.getSession(), Set.of("issueB0", "issueB1"), buildSelectByBranchQuery(branchB, true, changedSince));
+    List<IssueDto> branchBIssuesB2 = underTest.selectByBranch(db.getSession(), Set.of("issueB0", "issueB1"),
+      buildSelectByBranchQuery(branchB, true, changedSince));
 
     assertThat(branchBIssuesB2)
       .extracting(IssueDto::getKey, IssueDto::getStatus)
@@ -377,7 +381,7 @@ public class IssueDaoIT {
   }
 
   @Test
-  public void selectOpenByComponentUuid() {
+  void selectOpenByComponentUuid() {
     RuleDto rule = db.rules().insert();
     ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto projectBranch = db.components().insertProjectBranch(project,
@@ -390,8 +394,10 @@ public class IssueDaoIT {
     db.issues().insert(rule, projectBranch, file, i -> i.setStatus(STATUS_CLOSED).setResolution(RESOLUTION_FIXED));
     IssueDto reopenedIssue = db.issues().insert(rule, projectBranch, file, i -> i.setStatus(STATUS_REOPENED).setResolution(null));
     IssueDto confirmedIssue = db.issues().insert(rule, projectBranch, file, i -> i.setStatus(STATUS_CONFIRMED).setResolution(null));
-    IssueDto wontfixIssue = db.issues().insert(rule, projectBranch, file, i -> i.setStatus(STATUS_RESOLVED).setResolution(RESOLUTION_WONT_FIX));
-    IssueDto fpIssue = db.issues().insert(rule, projectBranch, file, i -> i.setStatus(STATUS_RESOLVED).setResolution(RESOLUTION_FALSE_POSITIVE));
+    IssueDto wontfixIssue = db.issues().insert(rule, projectBranch, file,
+      i -> i.setStatus(STATUS_RESOLVED).setResolution(RESOLUTION_WONT_FIX));
+    IssueDto fpIssue = db.issues().insert(rule, projectBranch, file,
+      i -> i.setStatus(STATUS_RESOLVED).setResolution(RESOLUTION_FALSE_POSITIVE));
 
     assertThat(underTest.selectOpenByComponentUuids(db.getSession(), Collections.singletonList(file.uuid())))
       .extracting("kee")
@@ -399,7 +405,7 @@ public class IssueDaoIT {
   }
 
   @Test
-  public void selectOpenByComponentUuid_should_correctly_map_required_fields() {
+  void selectOpenByComponentUuid_should_correctly_map_required_fields() {
     RuleDto rule = db.rules().insert();
     ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto projectBranch = db.components().insertProjectBranch(project,
@@ -428,7 +434,7 @@ public class IssueDaoIT {
   }
 
   @Test
-  public void test_selectIssueGroupsByComponent_on_component_without_issues() {
+  void test_selectIssueGroupsByComponent_on_component_without_issues() {
     ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(project));
 
@@ -438,7 +444,7 @@ public class IssueDaoIT {
   }
 
   @Test
-  public void selectByKey_givenOneIssueWithQuickFix_selectOneIssueWithQuickFix() {
+  void selectByKey_givenOneIssueWithQuickFix_selectOneIssueWithQuickFix() {
     underTest.insert(db.getSession(), newIssueDto(ISSUE_KEY1)
       .setMessage("the message")
       .setRuleUuid(RULE.getUuid())
@@ -453,7 +459,7 @@ public class IssueDaoIT {
   }
 
   @Test
-  public void selectByKey_givenOneIssueWithoutQuickFix_selectOneIssueWithoutQuickFix() {
+  void selectByKey_givenOneIssueWithoutQuickFix_selectOneIssueWithoutQuickFix() {
     underTest.insert(db.getSession(), createIssueWithKey(ISSUE_KEY1));
 
     IssueDto issue = underTest.selectOrFailByKey(db.getSession(), ISSUE_KEY1);
@@ -463,7 +469,7 @@ public class IssueDaoIT {
   }
 
   @Test
-  public void selectIssueGroupsByComponent_on_file() {
+  void selectIssueGroupsByComponent_on_file() {
     ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(project));
     RuleDto rule = db.rules().insert();
@@ -511,7 +517,7 @@ public class IssueDaoIT {
   }
 
   @Test
-  public void selectGroupsOfComponentTreeOnLeak_on_file_new_code_reference_branch() {
+  void selectGroupsOfComponentTreeOnLeak_on_file_new_code_reference_branch() {
     ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(project));
     RuleDto rule = db.rules().insert();
@@ -554,7 +560,7 @@ public class IssueDaoIT {
   }
 
   @Test
-  public void selectIssueImpactGroupsByComponent_shouldReturnImpactGroups() {
+  void selectIssueImpactGroupsByComponent_shouldReturnImpactGroups() {
     ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(project));
     RuleDto rule = db.rules().insert();
@@ -602,7 +608,7 @@ public class IssueDaoIT {
   }
 
   @Test
-  public void selectIssueImpactGroupsByComponent_whenComponentWithNoIssues_shouldReturnEmpty() {
+  void selectIssueImpactGroupsByComponent_whenComponentWithNoIssues_shouldReturnEmpty() {
     ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(project));
 
@@ -612,7 +618,7 @@ public class IssueDaoIT {
   }
 
   @Test
-  public void selectByKey_givenOneIssueNewOnReferenceBranch_selectOneIssueWithNewOnReferenceBranch() {
+  void selectByKey_givenOneIssueNewOnReferenceBranch_selectOneIssueWithNewOnReferenceBranch() {
     underTest.insert(db.getSession(), newIssueDto(ISSUE_KEY1)
       .setMessage("the message")
       .setRuleUuid(RULE.getUuid())
@@ -641,7 +647,7 @@ public class IssueDaoIT {
   }
 
   @Test
-  public void selectByKey_givenOneIssueWithoutRuleDescriptionContextKey_returnsEmptyOptional() {
+  void selectByKey_givenOneIssueWithoutRuleDescriptionContextKey_returnsEmptyOptional() {
     underTest.insert(db.getSession(), createIssueWithKey(ISSUE_KEY1)
       .setRuleDescriptionContextKey(null));
     IssueDto issue1 = underTest.selectOrFailByKey(db.getSession(), ISSUE_KEY1);
@@ -650,7 +656,7 @@ public class IssueDaoIT {
   }
 
   @Test
-  public void selectByKey_givenOneIssueWithRuleDescriptionContextKey_returnsContextKey() {
+  void selectByKey_givenOneIssueWithRuleDescriptionContextKey_returnsContextKey() {
     underTest.insert(db.getSession(), createIssueWithKey(ISSUE_KEY1)
       .setRuleDescriptionContextKey(TEST_CONTEXT_KEY));
 
@@ -660,7 +666,7 @@ public class IssueDaoIT {
   }
 
   @Test
-  public void insert_shouldInsertBatchIssuesWithImpacts() {
+  void insert_shouldInsertBatchIssuesWithImpacts() {
     ImpactDto impact1 = new ImpactDto()
       .setSoftwareQuality(MAINTAINABILITY)
       .setSeverity(HIGH);
@@ -684,7 +690,7 @@ public class IssueDaoIT {
   }
 
   @Test
-  public void deleteIssueImpacts_shouldDeleteOnlyImpactsOfIssue() {
+  void deleteIssueImpacts_shouldDeleteOnlyImpactsOfIssue() {
     ImpactDto impact1 = new ImpactDto()
       .setSoftwareQuality(MAINTAINABILITY)
       .setSeverity(HIGH);
@@ -705,7 +711,7 @@ public class IssueDaoIT {
   }
 
   @Test
-  public void updateWithoutIssueImpacts_shouldNotReplaceIssueImpacts() {
+  void updateWithoutIssueImpacts_shouldNotReplaceIssueImpacts() {
     ImpactDto impact1 = new ImpactDto()
       .setSoftwareQuality(MAINTAINABILITY)
       .setSeverity(HIGH);
@@ -731,7 +737,7 @@ public class IssueDaoIT {
   }
 
   @Test
-  public void update_whenUpdatingRuleDescriptionContextKeyToNull_returnsEmptyContextKey() {
+  void update_whenUpdatingRuleDescriptionContextKeyToNull_returnsEmptyContextKey() {
     IssueDto issue = createIssueWithKey(ISSUE_KEY1).setRuleDescriptionContextKey(TEST_CONTEXT_KEY);
     underTest.insert(db.getSession(), issue);
 
@@ -743,7 +749,7 @@ public class IssueDaoIT {
   }
 
   @Test
-  public void update_whenUpdatingRuleDescriptionContextKeyToNotNull_returnsContextKey() {
+  void update_whenUpdatingRuleDescriptionContextKeyToNotNull_returnsContextKey() {
     IssueDto issue = createIssueWithKey(ISSUE_KEY1).setRuleDescriptionContextKey(null);
     underTest.insert(db.getSession(), issue);
 
@@ -755,7 +761,7 @@ public class IssueDaoIT {
   }
 
   @Test
-  public void update_givenOneIssueWithoutRuleDescriptionContextKey_returnsContextKey() {
+  void update_givenOneIssueWithoutRuleDescriptionContextKey_returnsContextKey() {
     IssueDto issue = createIssueWithKey(ISSUE_KEY1).setRuleDescriptionContextKey(TEST_CONTEXT_KEY);
     underTest.insert(db.getSession(), issue);
 
@@ -773,7 +779,7 @@ public class IssueDaoIT {
   }
 
   @Test
-  public void selectIssueKeysByQuery_shouldBePaginated() {
+  void selectIssueKeysByQuery_shouldBePaginated() {
     List<IssueDto> issues = generateIssues(10, i -> createIssueWithKey("i-" + i));
     issues.forEach(issue -> underTest.insert(db.getSession(), issue));
 
@@ -786,7 +792,7 @@ public class IssueDaoIT {
   }
 
   @Test
-  public void selectIssueKeysByQuery_whenFilteredByBranch_shouldGetOnlyBranchIssues() {
+  void selectIssueKeysByQuery_whenFilteredByBranch_shouldGetOnlyBranchIssues() {
     BranchDto branchDto = ComponentTesting.newBranchDto(PROJECT_UUID, BRANCH);
     ComponentDto branch = db.components().insertProjectBranch(projectDto, branchDto);
     ComponentDto branchFile = db.components().insertComponent(newFileDto(branch));
@@ -805,7 +811,7 @@ public class IssueDaoIT {
   }
 
   @Test
-  public void selectIssueKeysByQuery_whenFilteredByPullRequest_shouldGetOnlyPRIssues() {
+  void selectIssueKeysByQuery_whenFilteredByPullRequest_shouldGetOnlyPRIssues() {
     BranchDto pullRequestDto = ComponentTesting.newBranchDto(PROJECT_UUID, PULL_REQUEST);
     ComponentDto branch = db.components().insertProjectBranch(projectDto, pullRequestDto);
     ComponentDto branchFile = db.components().insertComponent(newFileDto(branch));
@@ -824,7 +830,7 @@ public class IssueDaoIT {
   }
 
   @Test
-  public void selectIssueKeysByQuery_whenFilteredByTypes_shouldGetIssuesWithSpecifiedTypes() {
+  void selectIssueKeysByQuery_whenFilteredByTypes_shouldGetIssuesWithSpecifiedTypes() {
     List<IssueDto> bugs = generateIssues(3, i -> createIssueWithKey("bug-" + i).setType(RuleType.BUG));
     List<IssueDto> codeSmells = generateIssues(3, i -> createIssueWithKey("codesmell-" + i).setType(RuleType.CODE_SMELL));
     Stream.of(bugs, codeSmells)
@@ -841,7 +847,7 @@ public class IssueDaoIT {
   }
 
   @Test
-  public void selectIssueKeysByQuery_whenFilteredByFilteredStatuses_shouldGetIssuesWithoutSpecifiedStatuses() {
+  void selectIssueKeysByQuery_whenFilteredByFilteredStatuses_shouldGetIssuesWithoutSpecifiedStatuses() {
     List<IssueDto> openIssues = generateIssues(3, i -> createIssueWithKey("open-" + i).setStatus("OPEN"));
     List<IssueDto> closedIssues = generateIssues(3, i -> createIssueWithKey("closed-" + i).setStatus("CLOSED"));
     List<IssueDto> resolvedIssues = generateIssues(3, i -> createIssueWithKey("resolved-" + i).setStatus("RESOLVED"));
@@ -859,7 +865,7 @@ public class IssueDaoIT {
   }
 
   @Test
-  public void selectIssueKeysByQuery_whenFilteredByFilteredResolutions_shouldGetIssuesWithoutSpecifiedResolution() {
+  void selectIssueKeysByQuery_whenFilteredByFilteredResolutions_shouldGetIssuesWithoutSpecifiedResolution() {
     List<IssueDto> unresolvedIssues = generateIssues(3, i -> createIssueWithKey("open-" + i).setResolution(null));
     List<IssueDto> wontfixIssues = generateIssues(3, i -> createIssueWithKey("wf-" + i).setResolution("WONTFIX"));
     List<IssueDto> falsePositiveIssues = generateIssues(3, i -> createIssueWithKey("fp-" + i).setResolution("FALSE-POSITIVE"));
@@ -877,7 +883,7 @@ public class IssueDaoIT {
   }
 
   @Test
-  public void selectIssueKeysByQuery_whenFilteredByFileComponent_shouldGetIssuesWithinFileOnly() {
+  void selectIssueKeysByQuery_whenFilteredByFileComponent_shouldGetIssuesWithinFileOnly() {
     ComponentDto otherFileDto = db.components().insertComponent(newFileDto(projectDto).setUuid("OTHER_UUID").setKey("OTHER_KEY"));
     List<IssueDto> fromFileIssues = generateIssues(3, i -> createIssueWithKey("file-" + i));
     List<IssueDto> fromOtherFileIssues = generateIssues(3, i -> createIssueWithKey("otherfile-" + i, PROJECT_UUID, otherFileDto.uuid()));
@@ -895,7 +901,7 @@ public class IssueDaoIT {
   }
 
   @Test
-  public void selectIssueKeysByQuery_whenFilteredWithInNewCodeReference_shouldGetNewCodeReferenceIssues() {
+  void selectIssueKeysByQuery_whenFilteredWithInNewCodeReference_shouldGetNewCodeReferenceIssues() {
     List<IssueDto> issues = generateIssues(3, i -> createIssueWithKey("i-" + i));
     List<IssueDto> newCodeRefIssues = generateIssues(3, i -> createIssueWithKey("newCodeRef-" + i));
     Stream.of(issues, newCodeRefIssues)
@@ -913,9 +919,11 @@ public class IssueDaoIT {
   }
 
   @Test
-  public void selectIssueKeysByQuery_whenFilteredWithCreatedAfter_shouldGetIssuesCreatedAfterDate() {
-    List<IssueDto> createdBeforeIssues = generateIssues(3, i -> createIssueWithKey("createdBefore-" + i).setResolution(null).setIssueCreationDate(new Date(1_400_000_000_000L)));
-    List<IssueDto> createdAfterIssues = generateIssues(3, i -> createIssueWithKey("createdAfter-" + i).setResolution(null).setIssueCreationDate(new Date(1_420_000_000_000L)));
+  void selectIssueKeysByQuery_whenFilteredWithCreatedAfter_shouldGetIssuesCreatedAfterDate() {
+    List<IssueDto> createdBeforeIssues = generateIssues(3,
+      i -> createIssueWithKey("createdBefore-" + i).setResolution(null).setIssueCreationDate(new Date(1_400_000_000_000L)));
+    List<IssueDto> createdAfterIssues = generateIssues(3,
+      i -> createIssueWithKey("createdAfter-" + i).setResolution(null).setIssueCreationDate(new Date(1_420_000_000_000L)));
     Stream.of(createdBeforeIssues, createdAfterIssues)
       .flatMap(Collection::stream)
       .forEach(issue -> underTest.insert(db.getSession(), issue));
@@ -930,7 +938,7 @@ public class IssueDaoIT {
   }
 
   @Test
-  public void selectIssueKeysByQuery_whenFilteredWithSoftwareQualities_shouldGetThoseIssuesOnly() {
+  void selectIssueKeysByQuery_whenFilteredWithSoftwareQualities_shouldGetThoseIssuesOnly() {
     prepareTables(); // One of the issues has software quality impact: SECURITY
 
     List<String> results = underTest.selectIssueKeysByQuery(
@@ -943,7 +951,7 @@ public class IssueDaoIT {
   }
 
   @Test
-  public void updateIfBeforeSelectedDate_whenCalledWithBeforeSelectDate_shouldUpdateImpacts() {
+  void updateIfBeforeSelectedDate_whenCalledWithBeforeSelectDate_shouldUpdateImpacts() {
     prepareTables();
     IssueDto issueDto = underTest.selectOrFailByKey(db.getSession(), ISSUE_KEY1)
       .setSelectedAt(1_440_000_000_000L);
@@ -954,7 +962,7 @@ public class IssueDaoIT {
   }
 
   @Test
-  public void updateIfBeforeSelectedDate_whenCalledWithAfterSelectDate_shouldNotUpdateImpacts() {
+  void updateIfBeforeSelectedDate_whenCalledWithAfterSelectDate_shouldNotUpdateImpacts() {
     prepareTables();
     IssueDto issueDto = underTest.selectOrFailByKey(db.getSession(), ISSUE_KEY1)
       .setSelectedAt(1_400_000_000_000L)
@@ -962,7 +970,8 @@ public class IssueDaoIT {
 
     underTest.updateIfBeforeSelectedDate(db.getSession(), issueDto);
 
-    assertThat(underTest.selectOrFailByKey(db.getSession(), ISSUE_KEY1).getImpacts()).extracting(i -> i.getSoftwareQuality(), i -> i.getSeverity())
+    assertThat(underTest.selectOrFailByKey(db.getSession(), ISSUE_KEY1).getImpacts()).extracting(i -> i.getSoftwareQuality(),
+        i -> i.getSeverity())
       .containsExactlyInAnyOrder(tuple(RELIABILITY, MEDIUM), tuple(SECURITY, LOW));
   }
 
@@ -1035,7 +1044,8 @@ public class IssueDaoIT {
     return RULE_TYPES_EXCEPT_HOTSPOT[nextInt(RULE_TYPES_EXCEPT_HOTSPOT.length)];
   }
 
-  private void insertBranchIssue(ComponentDto branch, ComponentDto file, RuleDto rule, String id, String status, @Nullable String resolution, Long updateAt) {
+  private void insertBranchIssue(ComponentDto branch, ComponentDto file, RuleDto rule, String id, String status,
+    @Nullable String resolution, Long updateAt) {
     db.issues().insert(rule, branch, file, i -> i.setKee("issue" + id)
       .setStatus(status)
       .setResolution(resolution)

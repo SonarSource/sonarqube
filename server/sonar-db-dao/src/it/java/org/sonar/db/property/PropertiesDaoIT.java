@@ -19,9 +19,6 @@
  */
 package org.sonar.db.property;
 
-import com.tngtech.java.junit.dataprovider.DataProvider;
-import com.tngtech.java.junit.dataprovider.DataProviderRunner;
-import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Date;
@@ -33,10 +30,11 @@ import java.util.Set;
 import java.util.function.Consumer;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.sonar.api.impl.utils.AlwaysIncreasingSystem2;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.db.DbClient;
@@ -67,8 +65,7 @@ import static org.sonar.db.property.PropertyTesting.newComponentPropertyDto;
 import static org.sonar.db.property.PropertyTesting.newGlobalPropertyDto;
 import static org.sonar.db.property.PropertyTesting.newUserPropertyDto;
 
-@RunWith(DataProviderRunner.class)
-public class PropertiesDaoIT {
+class PropertiesDaoIT {
 
   private static final String VALUE_SIZE_4000 = String.format("%1$4000.4000s", "*");
   private static final String VALUE_SIZE_4001 = VALUE_SIZE_4000 + "P";
@@ -77,20 +74,20 @@ public class PropertiesDaoIT {
   private final AlwaysIncreasingSystem2 system2 = new AlwaysIncreasingSystem2(INITIAL_DATE, 1);
   private final AuditPersister auditPersister = mock(AuditPersister.class);
 
-  @Rule
-  public DbTester db = DbTester.create(system2, auditPersister);
+  @RegisterExtension
+  private final DbTester db = DbTester.create(system2, auditPersister);
 
   private final DbClient dbClient = db.getDbClient();
   private final DbSession session = db.getSession();
   private final PropertiesDao underTest = db.getDbClient().propertiesDao();
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
     when(auditPersister.isTrackedProperty(anyString())).thenReturn(true);
   }
 
   @Test
-  public void hasNotificationSubscribers() {
+  void hasNotificationSubscribers() {
     UserDto user1 = db.users().insertUser(u -> u.setLogin("user1"));
     UserDto user2 = db.users().insertUser(u -> u.setLogin("user2"));
     String projectUuid = db.components().insertPrivateProject().getProjectDto().getUuid();
@@ -127,39 +124,43 @@ public class PropertiesDaoIT {
       .isFalse();
 
     // Global + Project subscribers
-    assertThat(underTest.hasProjectNotificationSubscribersForDispatchers(projectUuid, singletonList("DispatcherWithGlobalAndProjectSubscribers")))
+    assertThat(underTest.hasProjectNotificationSubscribersForDispatchers(projectUuid, singletonList(
+      "DispatcherWithGlobalAndProjectSubscribers")))
       .isTrue();
-    assertThat(underTest.hasProjectNotificationSubscribersForDispatchers("PROJECT_B", singletonList("DispatcherWithGlobalAndProjectSubscribers")))
+    assertThat(underTest.hasProjectNotificationSubscribersForDispatchers("PROJECT_B", singletonList(
+      "DispatcherWithGlobalAndProjectSubscribers")))
       .isTrue();
   }
 
   @Test
-  public void findEmailRecipientsForNotification_returns_empty_on_empty_properties_table() {
+  void findEmailRecipientsForNotification_returns_empty_on_empty_properties_table() {
     db.users().insertUser();
     String dispatcherKey = randomAlphabetic(5);
     String channelKey = randomAlphabetic(6);
     String projectKey = randomAlphabetic(7);
 
-    Set<EmailSubscriberDto> subscribers = underTest.findEmailSubscribersForNotification(db.getSession(), dispatcherKey, channelKey, projectKey);
+    Set<EmailSubscriberDto> subscribers = underTest.findEmailSubscribersForNotification(db.getSession(), dispatcherKey, channelKey,
+      projectKey);
 
     assertThat(subscribers).isEmpty();
   }
 
   @Test
-  public void findEmailRecipientsForNotification_with_logins_returns_empty_on_empty_properties_table() {
+  void findEmailRecipientsForNotification_with_logins_returns_empty_on_empty_properties_table() {
     db.users().insertUser();
     String dispatcherKey = randomAlphabetic(5);
     String channelKey = randomAlphabetic(6);
     String projectKey = randomAlphabetic(7);
     Set<String> logins = of("user1", "user2");
 
-    Set<EmailSubscriberDto> subscribers = underTest.findEmailSubscribersForNotification(db.getSession(), dispatcherKey, channelKey, projectKey, logins);
+    Set<EmailSubscriberDto> subscribers = underTest.findEmailSubscribersForNotification(db.getSession(), dispatcherKey, channelKey,
+      projectKey, logins);
 
     assertThat(subscribers).isEmpty();
   }
 
   @Test
-  public void findEmailRecipientsForNotification_finds_only_globally_subscribed_users_if_projectKey_is_null() {
+  void findEmailRecipientsForNotification_finds_only_globally_subscribed_users_if_projectKey_is_null() {
     UserDto user1 = db.users().insertUser(withEmail("user1"));
     UserDto user2 = db.users().insertUser(withEmail("user2"));
     UserDto user3 = db.users().insertUser(withEmail("user3"));
@@ -196,7 +197,7 @@ public class PropertiesDaoIT {
   }
 
   @Test
-  public void findEmailRecipientsForNotification_with_logins_finds_only_globally_subscribed_specified_users_if_projectKey_is_null() {
+  void findEmailRecipientsForNotification_with_logins_finds_only_globally_subscribed_specified_users_if_projectKey_is_null() {
     UserDto user1 = db.users().insertUser(withEmail("user1"));
     UserDto user2 = db.users().insertUser(withEmail("user2"));
     UserDto user3 = db.users().insertUser(withEmail("user3"));
@@ -242,7 +243,7 @@ public class PropertiesDaoIT {
   }
 
   @Test
-  public void selectEntityPropertyByKeyAndUserUuid_shouldFindPortfolioProperties() {
+  void selectEntityPropertyByKeyAndUserUuid_shouldFindPortfolioProperties() {
     PortfolioDto portfolio = db.components().insertPrivatePortfolioDto();
     String uuid1 = insertProperty("key", "value1", portfolio.getUuid(), "user1", null, null, null);
     String uuid2 = insertProperty("key", "value2", portfolio.getUuid(), "user2", null, null, null);
@@ -256,7 +257,7 @@ public class PropertiesDaoIT {
   }
 
   @Test
-  public void selectEntityPropertyByKeyAndUserUuid_shouldFindProjectAndAppProperties() {
+  void selectEntityPropertyByKeyAndUserUuid_shouldFindProjectAndAppProperties() {
     ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     String uuid1 = insertProperty("key", "value1", project.getUuid(), "user1", null, null, null);
     String uuid2 = insertProperty("key", "value2", project.getUuid(), "user2", null, null, null);
@@ -270,7 +271,7 @@ public class PropertiesDaoIT {
   }
 
   @Test
-  public void findEmailRecipientsForNotification_finds_global_and_project_subscribed_users_when_projectKey_is_non_null() {
+  void findEmailRecipientsForNotification_finds_global_and_project_subscribed_users_when_projectKey_is_non_null() {
     UserDto user1 = db.users().insertUser(withEmail("user1"));
     UserDto user2 = db.users().insertUser(withEmail("user2"));
     UserDto user3 = db.users().insertUser(withEmail("user3"));
@@ -314,7 +315,7 @@ public class PropertiesDaoIT {
   }
 
   @Test
-  public void findEmailRecipientsForNotification_with_logins_finds_global_and_project_subscribed_specified_users_when_projectKey_is_non_null() {
+  void findEmailRecipientsForNotification_with_logins_finds_global_and_project_subscribed_specified_users_when_projectKey_is_non_null() {
     UserDto user1 = db.users().insertUser(withEmail("user1"));
     UserDto user2 = db.users().insertUser(withEmail("user2"));
     UserDto user3 = db.users().insertUser(withEmail("user3"));
@@ -369,7 +370,7 @@ public class PropertiesDaoIT {
   }
 
   @Test
-  public void findEmailRecipientsForNotification_ignores_subscribed_users_without_email() {
+  void findEmailRecipientsForNotification_ignores_subscribed_users_without_email() {
     UserDto user1 = db.users().insertUser(withEmail("user1"));
     UserDto user2 = db.users().insertUser(noEmail("user2"));
     UserDto user3 = db.users().insertUser(withEmail("user3"));
@@ -404,7 +405,7 @@ public class PropertiesDaoIT {
   }
 
   @Test
-  public void findEmailRecipientsForNotification_with_logins_ignores_subscribed_users_without_email() {
+  void findEmailRecipientsForNotification_with_logins_ignores_subscribed_users_without_email() {
     UserDto user1 = db.users().insertUser(withEmail("user1"));
     UserDto user2 = db.users().insertUser(noEmail("user2"));
     UserDto user3 = db.users().insertUser(withEmail("user3"));
@@ -440,7 +441,7 @@ public class PropertiesDaoIT {
   }
 
   @Test
-  public void selectGlobalProperties() {
+  void selectGlobalProperties() {
     // global
     insertProperty("global.one", "one", null, null, null, null, null);
     insertProperty("global.two", "two", null, null, null, null, null);
@@ -458,9 +459,9 @@ public class PropertiesDaoIT {
       .containsExactly("global.two", null, null, "two");
   }
 
-  @Test
-  @UseDataProvider("allValuesForSelect")
-  public void selectGlobalProperties_supports_all_values(String dbValue, String expected) {
+  @ParameterizedTest
+  @MethodSource("allValuesForSelect")
+  void selectGlobalProperties_supports_all_values(String dbValue, String expected) {
     insertProperty("global.one", dbValue, null, null, null, null, null);
 
     List<PropertyDto> dtos = underTest.selectGlobalProperties(db.getSession());
@@ -473,7 +474,7 @@ public class PropertiesDaoIT {
   }
 
   @Test
-  public void selectGlobalProperty() {
+  void selectGlobalProperty() {
     // global
     insertProperty("global.one", "one", null, null, null, null, null);
     insertProperty("global.two", "two", null, null, null, null, null);
@@ -491,9 +492,9 @@ public class PropertiesDaoIT {
     assertThat(underTest.selectGlobalProperty("unexisting")).isNull();
   }
 
-  @Test
-  @UseDataProvider("allValuesForSelect")
-  public void selectGlobalProperty_supports_all_values(String dbValue, String expected) {
+  @ParameterizedTest
+  @MethodSource("allValuesForSelect")
+  void selectGlobalProperty_supports_all_values(String dbValue, String expected) {
     insertProperty("global.one", dbValue, null, null, null, null, null);
 
     assertThat(underTest.selectGlobalProperty("global.one"))
@@ -501,9 +502,9 @@ public class PropertiesDaoIT {
       .containsExactly(null, null, expected);
   }
 
-  @Test
-  @UseDataProvider("allValuesForSelect")
-  public void selectProjectProperties_supports_all_values(String dbValue, String expected) {
+  @ParameterizedTest
+  @MethodSource("allValuesForSelect")
+  void selectProjectProperties_supports_all_values(String dbValue, String expected) {
     ProjectDto projectDto = insertPrivateProject("A");
     insertProperty("project.one", dbValue, projectDto.getUuid(), null, null, projectDto.getKey(), projectDto.getName());
 
@@ -515,8 +516,7 @@ public class PropertiesDaoIT {
       .containsExactly("project.one", projectDto.getUuid(), expected);
   }
 
-  @DataProvider
-  public static Object[][] allValuesForSelect() {
+  private static Object[][] allValuesForSelect() {
     return new Object[][]{
       {null, ""},
       {"", ""},
@@ -527,7 +527,7 @@ public class PropertiesDaoIT {
   }
 
   @Test
-  public void selectProjectProperty() {
+  void selectProjectProperty() {
     insertProperty("project.one", "one", "uuid10", null, null, "component", "component");
 
     PropertyDto property = underTest.selectProjectProperty(db.getSession(), "uuid10", "project.one");
@@ -542,7 +542,7 @@ public class PropertiesDaoIT {
   }
 
   @Test
-  public void select_by_query() {
+  void select_by_query() {
     // global
     insertProperty("global.one", "one", null, null, null, null, null);
     insertProperty("global.two", "two", null, null, null, null, null);
@@ -567,7 +567,7 @@ public class PropertiesDaoIT {
   }
 
   @Test
-  public void select_global_properties_by_keys() {
+  void select_global_properties_by_keys() {
     insertPrivateProject("A");
     UserDto user = db.users().insertUser(u -> u.setLogin("B"));
 
@@ -601,7 +601,7 @@ public class PropertiesDaoIT {
   }
 
   @Test
-  public void select_properties_by_keys_and_component_ids() {
+  void select_properties_by_keys_and_component_ids() {
     ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     ProjectDto project2 = db.components().insertPrivateProject().getProjectDto();
     UserDto user = db.users().insertUser();
@@ -620,7 +620,8 @@ public class PropertiesDaoIT {
       .extracting(PropertyDto::getKey, PropertyDto::getEntityUuid).containsOnly(
         tuple(key, project.getUuid()),
         tuple(key, project2.getUuid()));
-    assertThat(underTest.selectPropertiesByKeysAndEntityUuids(session, newHashSet(key, anotherKey), newHashSet(project.getUuid(), project2.getUuid())))
+    assertThat(underTest.selectPropertiesByKeysAndEntityUuids(session, newHashSet(key, anotherKey), newHashSet(project.getUuid(),
+      project2.getUuid())))
       .extracting(PropertyDto::getKey, PropertyDto::getEntityUuid).containsOnly(
         tuple(key, project.getUuid()),
         tuple(key, project2.getUuid()),
@@ -632,13 +633,16 @@ public class PropertiesDaoIT {
   }
 
   @Test
-  public void select_by_key_and_matching_value() {
+  void select_by_key_and_matching_value() {
     ProjectDto project1 = db.components().insertPrivateProject().getProjectDto();
     ProjectDto project2 = db.components().insertPrivateProject().getProjectDto();
-    db.properties().insertProperties(null, project1.getKey(), project1.getName(), project1.getQualifier(), newComponentPropertyDto("key", "value", project1));
-    db.properties().insertProperties(null, project2.getKey(), project2.getName(), project2.getQualifier(), newComponentPropertyDto("key", "value", project2));
+    db.properties().insertProperties(null, project1.getKey(), project1.getName(), project1.getQualifier(), newComponentPropertyDto("key",
+      "value", project1));
+    db.properties().insertProperties(null, project2.getKey(), project2.getName(), project2.getQualifier(), newComponentPropertyDto("key",
+      "value", project2));
     db.properties().insertProperties(null, null, null, null, newGlobalPropertyDto("key", "value"));
-    db.properties().insertProperties(null, project1.getKey(), project1.getName(), project1.getQualifier(), newComponentPropertyDto("another key", "value", project1));
+    db.properties().insertProperties(null, project1.getKey(), project1.getName(), project1.getQualifier(), newComponentPropertyDto(
+      "another key", "value", project1));
 
     assertThat(underTest.selectByKeyAndMatchingValue(db.getSession(), "key", "value"))
       .extracting(PropertyDto::getValue, PropertyDto::getEntityUuid)
@@ -649,7 +653,7 @@ public class PropertiesDaoIT {
   }
 
   @Test
-  public void saveProperty_inserts_global_properties_when_they_do_not_exist_in_db() {
+  void saveProperty_inserts_global_properties_when_they_do_not_exist_in_db() {
     underTest.saveProperty(new PropertyDto().setKey("global.null").setValue(null));
     underTest.saveProperty(new PropertyDto().setKey("global.empty").setValue(""));
     underTest.saveProperty(new PropertyDto().setKey("global.text").setValue("some text"));
@@ -684,7 +688,7 @@ public class PropertiesDaoIT {
   }
 
   @Test
-  public void saveProperty_inserts_component_properties_when_they_do_not_exist_in_db() {
+  void saveProperty_inserts_component_properties_when_they_do_not_exist_in_db() {
     String componentUuid = "uuid12";
     underTest.saveProperty(new PropertyDto().setKey("component.null").setEntityUuid(componentUuid).setValue(null));
     underTest.saveProperty(new PropertyDto().setKey("component.empty").setEntityUuid(componentUuid).setValue(""));
@@ -720,7 +724,7 @@ public class PropertiesDaoIT {
   }
 
   @Test
-  public void saveProperty_inserts_user_properties_when_they_do_not_exist_in_db() {
+  void saveProperty_inserts_user_properties_when_they_do_not_exist_in_db() {
     String userUuid = "uuid-100";
     underTest.saveProperty(new PropertyDto().setKey("user.null").setUserUuid(userUuid).setValue(null));
     underTest.saveProperty(new PropertyDto().setKey("user.empty").setUserUuid(userUuid).setValue(""));
@@ -755,9 +759,9 @@ public class PropertiesDaoIT {
       .hasCreatedAt(INITIAL_DATE + 4);
   }
 
-  @Test
-  @UseDataProvider("valueUpdatesDataProvider")
-  public void saveProperty_deletes_then_inserts_global_properties_when_they_exist_in_db(@Nullable String oldValue, @Nullable String newValue) {
+  @ParameterizedTest
+  @MethodSource("valueUpdatesDataProvider")
+  void saveProperty_deletes_then_inserts_global_properties_when_they_exist_in_db(@Nullable String oldValue, @Nullable String newValue) {
     String uuid = insertProperty("global", oldValue, null, null, null, null, null);
 
     underTest.saveProperty(new PropertyDto().setKey("global").setValue(newValue));
@@ -778,9 +782,9 @@ public class PropertiesDaoIT {
     }
   }
 
-  @Test
-  @UseDataProvider("valueUpdatesDataProvider")
-  public void saveProperty_deletes_then_inserts_component_properties_when_they_exist_in_db(@Nullable String oldValue, @Nullable String newValue) {
+  @ParameterizedTest
+  @MethodSource("valueUpdatesDataProvider")
+  void saveProperty_deletes_then_inserts_component_properties_when_they_exist_in_db(@Nullable String oldValue, @Nullable String newValue) {
     String componentUuid = "uuid999";
     String uuid = insertProperty("global", oldValue, componentUuid, null, null, "component", "component");
 
@@ -801,9 +805,9 @@ public class PropertiesDaoIT {
     }
   }
 
-  @Test
-  @UseDataProvider("valueUpdatesDataProvider")
-  public void saveProperty_deletes_then_inserts_user_properties_when_they_exist_in_db(@Nullable String oldValue, @Nullable String newValue) {
+  @ParameterizedTest
+  @MethodSource("valueUpdatesDataProvider")
+  void saveProperty_deletes_then_inserts_user_properties_when_they_exist_in_db(@Nullable String oldValue, @Nullable String newValue) {
     String userUuid = "uuid-90";
     String uuid = insertProperty("global", oldValue, null, userUuid, "login", null, null);
 
@@ -825,8 +829,7 @@ public class PropertiesDaoIT {
     }
   }
 
-  @DataProvider
-  public static Object[][] valueUpdatesDataProvider() {
+  static Object[][] valueUpdatesDataProvider() {
     return new Object[][]{
       {null, null},
       {null, ""},
@@ -860,7 +863,7 @@ public class PropertiesDaoIT {
   }
 
   @Test
-  public void deleteGlobalProperty() {
+  void deleteGlobalProperty() {
     // global
     String uuid1 = insertProperty("global.key", "new_global", null, null, null, null, null);
     String uuid2 = insertProperty("to_be_deleted", "xxx", null, null, null, null, null);
@@ -895,7 +898,7 @@ public class PropertiesDaoIT {
   }
 
   @Test
-  public void delete_by_key_and_value() {
+  void delete_by_key_and_value() {
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto anotherProject = db.components().insertPrivateProject().getMainBranchComponent();
     insertProperty("KEY", "VALUE", null, null, null, null, null);
@@ -910,7 +913,8 @@ public class PropertiesDaoIT {
     underTest.deleteByKeyAndValue(session, "KEY", "VALUE");
     db.commit();
 
-    assertThat(db.select("select prop_key as \"key\", text_value as \"value\", entity_uuid as \"projectUuid\", user_uuid as \"userUuid\" from properties"))
+    assertThat(db.select("select prop_key as \"key\", text_value as \"value\", entity_uuid as \"projectUuid\", user_uuid as \"userUuid\" " +
+      "from properties"))
       .extracting((row) -> row.get("key"), (row) -> row.get("value"), (row) -> row.get("projectUuid"), (row) -> row.get("userUuid"))
       .containsOnly(tuple("KEY", "ANOTHER_VALUE", null, null), tuple("ANOTHER_KEY", "VALUE", project.uuid(), "100"));
   }
@@ -926,7 +930,7 @@ public class PropertiesDaoIT {
   }
 
   @Test
-  public void renamePropertyKey_updates_global_component_and_user_properties() {
+  void renamePropertyKey_updates_global_component_and_user_properties() {
     String uuid1 = insertProperty("foo", "bar", null, null, null, null, null);
     String uuid2 = insertProperty("old_name", "doc1", null, null, null, null, null);
     String uuid3 = insertProperty("old_name", "doc2", "15", null, null, "component", "component");
@@ -975,7 +979,7 @@ public class PropertiesDaoIT {
   }
 
   @Test
-  public void rename_to_same_key_has_no_effect() {
+  void rename_to_same_key_has_no_effect() {
     String uuid = insertProperty("foo", "bar", null, null, null, null, null);
 
     assertThatPropertiesRowByUuid(uuid)
@@ -992,19 +996,19 @@ public class PropertiesDaoIT {
   }
 
   @Test
-  public void should_not_rename_with_empty_key() {
+  void should_not_rename_with_empty_key() {
     assertThatThrownBy(() -> underTest.renamePropertyKey("foo", ""))
       .isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test
-  public void should_not_rename_an_empty_key() {
+  void should_not_rename_an_empty_key() {
     assertThatThrownBy(() -> underTest.renamePropertyKey(null, "foo"))
       .isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test
-  public void insert_shouldFail_whenPropertyAlreadyExists() {
+  void insert_shouldFail_whenPropertyAlreadyExists() {
     PropertiesMapper mapper = db.getSession().getSqlSession().getMapper(PropertiesMapper.class);
 
     mapper.insertAsText("uuid1", "key", null, null, "value", new Date().getTime());
@@ -1014,7 +1018,7 @@ public class PropertiesDaoIT {
   }
 
   @Test
-  public void insert_shouldFail_whenPropertyAlreadyExistsOnKeyAndUser() {
+  void insert_shouldFail_whenPropertyAlreadyExistsOnKeyAndUser() {
     PropertiesMapper mapper = db.getSession().getSqlSession().getMapper(PropertiesMapper.class);
 
     mapper.insertAsText("uuid3", "key", "user", null, "value", new Date().getTime());
@@ -1023,7 +1027,7 @@ public class PropertiesDaoIT {
   }
 
   @Test
-  public void insert_shouldFail_whenPropertyAlreadyExistsOnKeyAndUserAndEntity() {
+  void insert_shouldFail_whenPropertyAlreadyExistsOnKeyAndUserAndEntity() {
     PropertiesMapper mapper = db.getSession().getSqlSession().getMapper(PropertiesMapper.class);
 
     mapper.insertAsText("uuid5", "key", "user", "entity", "value", new Date().getTime());
@@ -1066,9 +1070,9 @@ public class PropertiesDaoIT {
     }
 
     return (String) db.selectFirst(session, "select uuid as \"uuid\" from properties" +
-                                            " where prop_key='" + key + "'" +
-                                            " and user_uuid" + (userUuid == null ? " is null" : "='" + userUuid + "'") +
-                                            " and entity_uuid" + (entityUuid == null ? " is null" : "='" + entityUuid + "'")).get("uuid");
+      " where prop_key='" + key + "'" +
+      " and user_uuid" + (userUuid == null ? " is null" : "='" + userUuid + "'") +
+      " and entity_uuid" + (entityUuid == null ? " is null" : "='" + entityUuid + "'")).get("uuid");
   }
 
   private ProjectDto insertPrivateProject(String projectKey) {

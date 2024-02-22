@@ -21,8 +21,8 @@ package org.sonar.db.newcodeperiod;
 
 import java.util.Optional;
 import javax.annotation.Nullable;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.core.util.UuidFactory;
@@ -41,17 +41,17 @@ import static org.sonar.db.newcodeperiod.NewCodePeriodType.PREVIOUS_VERSION;
 import static org.sonar.db.newcodeperiod.NewCodePeriodType.REFERENCE_BRANCH;
 import static org.sonar.db.newcodeperiod.NewCodePeriodType.SPECIFIC_ANALYSIS;
 
-public class NewCodePeriodDaoIT {
+class NewCodePeriodDaoIT {
 
-  @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+  @RegisterExtension
+  private final DbTester db = DbTester.create(System2.INSTANCE);
 
   private final DbSession dbSession = db.getSession();
   private final UuidFactory uuidFactory = new SequenceUuidFactory();
   private final NewCodePeriodDao underTest = new NewCodePeriodDao(System2.INSTANCE, uuidFactory);
 
   @Test
-  public void insert_new_code_period() {
+  void insert_new_code_period() {
     insert("1", "proj-uuid", "branch-uuid", NUMBER_OF_DAYS, "5", null);
 
     Optional<NewCodePeriodDto> resultOpt = underTest.selectByUuid(dbSession, "1");
@@ -73,7 +73,7 @@ public class NewCodePeriodDaoIT {
   }
 
   @Test
-  public void reference_branch_new_code_period_accepts_branches_with_long_names() {
+  void reference_branch_new_code_period_accepts_branches_with_long_names() {
     String branchWithLongName = "abcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabc" +
       "defghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijab" +
       "cdefghijabcdefghijabcdefghijabcdefghijxxxxx";
@@ -86,12 +86,12 @@ public class NewCodePeriodDaoIT {
   }
 
   @Test
-  public void select_global_with_no_value() {
+  void select_global_with_no_value() {
     assertThat(underTest.selectGlobal(dbSession)).isEmpty();
   }
 
   @Test
-  public void update_new_code_period() {
+  void update_new_code_period() {
     insert("1", "proj-uuid", "branch-uuid", NUMBER_OF_DAYS, "5", null);
 
     underTest.update(dbSession, new NewCodePeriodDto()
@@ -120,7 +120,7 @@ public class NewCodePeriodDaoIT {
   }
 
   @Test
-  public void update_referenceBranchPeriod_value() {
+  void update_referenceBranchPeriod_value() {
     insert("1", "proj-uuid", null, REFERENCE_BRANCH, "oldBranchName", null);
     insert("2", "proj-uuid-2", null, REFERENCE_BRANCH, "anotherBranch", null);
 
@@ -166,7 +166,7 @@ public class NewCodePeriodDaoIT {
   }
 
   @Test
-  public void insert_with_upsert() {
+  void insert_with_upsert() {
     insert("1", "proj-uuid", "branch-uuid", NUMBER_OF_DAYS, "5", null);
 
     Optional<NewCodePeriodDto> resultOpt = underTest.selectByUuid(dbSession, "1");
@@ -189,7 +189,7 @@ public class NewCodePeriodDaoIT {
   }
 
   @Test
-  public void update_with_upsert() {
+  void update_with_upsert() {
     insert("1", "proj-uuid", "branch-uuid", NUMBER_OF_DAYS, "5", null);
 
     underTest.upsert(dbSession, new NewCodePeriodDto()
@@ -219,7 +219,7 @@ public class NewCodePeriodDaoIT {
   }
 
   @Test
-  public void select_by_project_and_branch_uuids() {
+  void select_by_project_and_branch_uuids() {
     insert("1", "proj-uuid", "branch-uuid", NUMBER_OF_DAYS, "5", null);
 
     Optional<NewCodePeriodDto> resultOpt = underTest.selectByBranch(dbSession, "proj-uuid", "branch-uuid");
@@ -238,7 +238,7 @@ public class NewCodePeriodDaoIT {
   }
 
   @Test
-  public void select_branches_referencing() {
+  void select_branches_referencing() {
     ProjectData projectData = db.components().insertPrivateProject();
     ProjectDto project = projectData.getProjectDto();
     BranchDto mainBranch = projectData.getMainBranchDto();
@@ -251,11 +251,12 @@ public class NewCodePeriodDaoIT {
     insert("3", project.getUuid(), branch2.getUuid(), NUMBER_OF_DAYS, "5", null);
     insert("4", project.getUuid(), project.getUuid(), PREVIOUS_VERSION, null, null);
     db.commit();
-    assertThat(underTest.selectBranchesReferencing(dbSession, project.getUuid(), mainBranch.getKey())).containsOnly(branch1.getUuid(), branch3.getUuid());
+    assertThat(underTest.selectBranchesReferencing(dbSession, project.getUuid(), mainBranch.getKey())).containsOnly(branch1.getUuid(),
+      branch3.getUuid());
   }
 
   @Test
-  public void select_by_project_uuid() {
+  void select_by_project_uuid() {
     insert("1", "proj-uuid", null, NUMBER_OF_DAYS, "90", "130");
 
     Optional<NewCodePeriodDto> resultOpt = underTest.selectByProject(dbSession, "proj-uuid");
@@ -275,7 +276,7 @@ public class NewCodePeriodDaoIT {
   }
 
   @Test
-  public void select_global() {
+  void select_global() {
     insert("1", null, null, NUMBER_OF_DAYS, "30", null);
 
     Optional<NewCodePeriodDto> newCodePeriodDto = underTest.selectGlobal(dbSession);
@@ -293,7 +294,7 @@ public class NewCodePeriodDaoIT {
   }
 
   @Test
-  public void exists_by_project_analysis_is_true() {
+  void exists_by_project_analysis_is_true() {
     insert("1", "proj-uuid", "branch-uuid", SPECIFIC_ANALYSIS, "analysis-uuid", null);
 
     boolean exists = underTest.existsByProjectAnalysisUuid(dbSession, "analysis-uuid");
@@ -301,7 +302,7 @@ public class NewCodePeriodDaoIT {
   }
 
   @Test
-  public void delete_by_project_uuid_and_branch_uuid() {
+  void delete_by_project_uuid_and_branch_uuid() {
     insert("1", "proj-uuid", "branch-uuid", SPECIFIC_ANALYSIS, "analysis-uuid", null);
 
     underTest.delete(dbSession, "proj-uuid", "branch-uuid");
@@ -310,7 +311,7 @@ public class NewCodePeriodDaoIT {
   }
 
   @Test
-  public void delete_by_project_uuid() {
+  void delete_by_project_uuid() {
     insert("1", "proj-uuid", null, SPECIFIC_ANALYSIS, "analysis-uuid", null);
 
     underTest.delete(dbSession, "proj-uuid", null);
@@ -319,7 +320,7 @@ public class NewCodePeriodDaoIT {
   }
 
   @Test
-  public void delete_global() {
+  void delete_global() {
     insert("1", null, null, SPECIFIC_ANALYSIS, "analysis-uuid", null);
 
     underTest.delete(dbSession, null, null);
@@ -328,27 +329,27 @@ public class NewCodePeriodDaoIT {
   }
 
   @Test
-  public void exists_by_project_analysis_is_false() {
+  void exists_by_project_analysis_is_false() {
     boolean exists = underTest.existsByProjectAnalysisUuid(dbSession, "analysis-uuid");
     assertThat(exists).isFalse();
   }
 
   @Test
-  public void fail_select_by_project_and_branch_uuids_if_project_uuid_not_provided() {
+  void fail_select_by_project_and_branch_uuids_if_project_uuid_not_provided() {
     assertThatThrownBy(() -> underTest.selectByBranch(dbSession, null, "random-uuid"))
       .isInstanceOf(NullPointerException.class)
       .hasMessage("Project uuid must be specified.");
   }
 
   @Test
-  public void fail_select_by_project_and_branch_uuids_if_branch_uuid_not_provided() {
+  void fail_select_by_project_and_branch_uuids_if_branch_uuid_not_provided() {
     assertThatThrownBy(() -> underTest.selectByBranch(dbSession, "random-uuid", null))
       .isInstanceOf(NullPointerException.class)
       .hasMessage("Branch uuid must be specified.");
   }
 
   @Test
-  public void fail_select_by_project_uuid_if_project_uuid_not_provided() {
+  void fail_select_by_project_uuid_if_project_uuid_not_provided() {
     assertThatThrownBy(() -> underTest.selectByProject(dbSession, null))
       .isInstanceOf(NullPointerException.class)
       .hasMessage("Project uuid must be specified.");

@@ -21,8 +21,8 @@ package org.sonar.db.user;
 
 import java.util.List;
 import java.util.Optional;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbTester;
@@ -33,22 +33,23 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.db.dismissmessage.MessageType.SUGGEST_DEVELOPER_EDITION_UPGRADE;
 
-public class UserDismissedMessagesDaoIT {
+class UserDismissedMessagesDaoIT {
 
-  @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+  @RegisterExtension
+  private final DbTester db = DbTester.create(System2.INSTANCE);
 
   private final UserDismissedMessagesDao underTest = db.getDbClient().userDismissedMessagesDao();
 
   @Test
-  public void insert_user_dismissed_message() {
+  void insert_user_dismissed_message() {
     ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     UserDto user = db.users().insertUser();
     UserDismissedMessageDto dto = newDto(project, user);
 
     underTest.insert(db.getSession(), dto);
 
-    Optional<UserDismissedMessageDto> dtoFromDb = underTest.selectByUserAndProjectAndMessageType(db.getSession(), user.getUuid(), project, dto.getMessageType());
+    Optional<UserDismissedMessageDto> dtoFromDb = underTest.selectByUserAndProjectAndMessageType(db.getSession(), user.getUuid(), project
+      , dto.getMessageType());
     assertThat(dtoFromDb).isPresent();
     assertThat(dtoFromDb.get().getUuid()).isEqualTo(dto.getUuid());
     assertThat(dtoFromDb.get().getUserUuid()).isEqualTo(dto.getUserUuid());
@@ -59,12 +60,13 @@ public class UserDismissedMessagesDaoIT {
   }
 
   @Test
-  public void selectByUserAndProjectAndMessageType_returns_object_if_record_found() {
+  void selectByUserAndProjectAndMessageType_returns_object_if_record_found() {
     UserDto user = db.users().insertUser();
     ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     db.users().insertUserDismissedMessageOnProject(user, project, MessageType.GENERIC);
 
-    Optional<UserDismissedMessageDto> result = underTest.selectByUserAndProjectAndMessageType(db.getSession(), user.getUuid(), project, MessageType.GENERIC);
+    Optional<UserDismissedMessageDto> result = underTest.selectByUserAndProjectAndMessageType(db.getSession(), user.getUuid(), project,
+      MessageType.GENERIC);
 
     assertThat(result).isPresent();
     assertThat(result.get().getUserUuid()).isEqualTo(user.getUuid());
@@ -73,11 +75,12 @@ public class UserDismissedMessagesDaoIT {
   }
 
   @Test
-  public void selectByUserAndMessageType_returns_object_if_record_found() {
+  void selectByUserAndMessageType_returns_object_if_record_found() {
     UserDto user = db.users().insertUser();
     db.users().insertUserDismissedMessageOnInstance(user, MessageType.GENERIC);
 
-    Optional<UserDismissedMessageDto> result = underTest.selectByUserUuidAndMessageType(db.getSession(), user.getUuid(),MessageType.GENERIC);
+    Optional<UserDismissedMessageDto> result = underTest.selectByUserUuidAndMessageType(db.getSession(), user.getUuid(),
+      MessageType.GENERIC);
 
     assertThat(result).isPresent();
     assertThat(result.get().getUserUuid()).isEqualTo(user.getUuid());
@@ -86,18 +89,19 @@ public class UserDismissedMessagesDaoIT {
   }
 
   @Test
-  public void selectByUserAndProjectAndMessageType_returns_absent_if_no_record_found() {
+  void selectByUserAndProjectAndMessageType_returns_absent_if_no_record_found() {
     UserDto user = db.users().insertUser();
     ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     db.users().insertUserDismissedMessageOnProject(user, project, MessageType.GENERIC);
 
-    Optional<UserDismissedMessageDto> result = underTest.selectByUserAndProjectAndMessageType(db.getSession(), user.getUuid(), project, SUGGEST_DEVELOPER_EDITION_UPGRADE);
+    Optional<UserDismissedMessageDto> result = underTest.selectByUserAndProjectAndMessageType(db.getSession(), user.getUuid(), project,
+      SUGGEST_DEVELOPER_EDITION_UPGRADE);
 
     assertThat(result).isNotPresent();
   }
 
   @Test
-  public void selectByUserUuid_returns_all_dismissed_messages_of_a_user() {
+  void selectByUserUuid_returns_all_dismissed_messages_of_a_user() {
     UserDto user1 = db.users().insertUser();
     UserDto user2 = db.users().insertUser();
     ProjectDto project1 = db.components().insertPrivateProject().getProjectDto();
@@ -110,15 +114,16 @@ public class UserDismissedMessagesDaoIT {
     List<UserDismissedMessageDto> result = underTest.selectByUser(db.getSession(), user2);
 
     assertThat(result).hasSize(2);
-    assertThat(result).extracting(UserDismissedMessageDto::getUuid, UserDismissedMessageDto::getUserUuid, UserDismissedMessageDto::getProjectUuid,
-      UserDismissedMessageDto::getMessageType)
+    assertThat(result).extracting(UserDismissedMessageDto::getUuid, UserDismissedMessageDto::getUserUuid,
+        UserDismissedMessageDto::getProjectUuid,
+        UserDismissedMessageDto::getMessageType)
       .containsExactlyInAnyOrder(
         tuple(dto1.getUuid(), user2.getUuid(), project1.getUuid(), MessageType.GENERIC),
         tuple(dto2.getUuid(), user2.getUuid(), project2.getUuid(), MessageType.GENERIC));
   }
 
   @Test
-  public void deleteByUserUuid_removes_dismiss_warning_data_of_a_user() {
+  void deleteByUserUuid_removes_dismiss_warning_data_of_a_user() {
     UserDto user1 = db.users().insertUser();
     UserDto user2 = db.users().insertUser();
     ProjectDto project1 = db.components().insertPrivateProject().getProjectDto();
@@ -135,7 +140,7 @@ public class UserDismissedMessagesDaoIT {
   }
 
   @Test
-  public void deleteByUserUuid_removes_dismissed_messages_of_that_type() {
+  void deleteByUserUuid_removes_dismissed_messages_of_that_type() {
     UserDto user1 = db.users().insertUser();
     UserDto user2 = db.users().insertUser();
     ProjectDto project1 = db.components().insertPrivateProject().getProjectDto();
@@ -155,7 +160,7 @@ public class UserDismissedMessagesDaoIT {
       .containsExactly(dto2.getUuid());
   }
 
-  public static UserDismissedMessageDto newDto(ProjectDto project, UserDto user) {
+  static UserDismissedMessageDto newDto(ProjectDto project, UserDto user) {
     return new UserDismissedMessageDto()
       .setUuid(Uuids.createFast())
       .setMessageType(MessageType.GENERIC)

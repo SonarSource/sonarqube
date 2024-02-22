@@ -19,14 +19,12 @@
  */
 package org.sonar.db.user;
 
-import com.tngtech.java.junit.dataprovider.DataProvider;
-import com.tngtech.java.junit.dataprovider.DataProviderRunner;
-import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.util.List;
 import java.util.Set;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -36,17 +34,16 @@ import static org.sonar.core.util.SequenceUuidFactory.UUID_1;
 import static org.sonar.core.util.SequenceUuidFactory.UUID_2;
 import static org.sonar.core.util.SequenceUuidFactory.UUID_3;
 
-@RunWith(DataProviderRunner.class)
-public class UserGroupDaoIT {
+class UserGroupDaoIT {
 
-  @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  @RegisterExtension
+  private final DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   private final DbSession dbSession = dbTester.getSession();
   private final UserGroupDao underTest = dbTester.getDbClient().userGroupDao();
 
   @Test
-  public void insert() {
+  void insert() {
     UserDto user = dbTester.users().insertUser();
     GroupDto group = dbTester.users().insertGroup();
     UserGroupDto userGroupDto = new UserGroupDto().setUserUuid(user.getUuid()).setGroupUuid(group.getUuid());
@@ -58,7 +55,7 @@ public class UserGroupDaoIT {
   }
 
   @Test
-  public void select_user_uuids_in_group() {
+  void select_user_uuids_in_group() {
     UserDto user1 = dbTester.users().insertUser();
     UserDto user2 = dbTester.users().insertUser();
     UserDto user3 = dbTester.users().insertUser();
@@ -78,7 +75,7 @@ public class UserGroupDaoIT {
   }
 
   @Test
-  public void select_user_uuids_in_group_returns_empty_set_when_nothing_found() {
+  void select_user_uuids_in_group_returns_empty_set_when_nothing_found() {
     UserDto user1 = dbTester.users().insertUser();
     GroupDto group1 = dbTester.users().insertGroup();
     GroupDto group2 = dbTester.users().insertGroup();
@@ -92,7 +89,7 @@ public class UserGroupDaoIT {
   }
 
   @Test
-  public void delete_members_by_group_uuid() {
+  void delete_members_by_group_uuid() {
     UserDto user1 = dbTester.users().insertUser();
     UserDto user2 = dbTester.users().insertUser();
     GroupDto group1 = dbTester.users().insertGroup();
@@ -110,7 +107,7 @@ public class UserGroupDaoIT {
   }
 
   @Test
-  public void delete_by_user() {
+  void delete_by_user() {
     UserDto user1 = dbTester.users().insertUser();
     UserDto user2 = dbTester.users().insertUser();
     GroupDto group1 = dbTester.users().insertGroup();
@@ -127,9 +124,8 @@ public class UserGroupDaoIT {
     assertThat(dbTester.getDbClient().groupMembershipDao().selectGroupUuidsByUserUuid(dbTester.getSession(), user2.getUuid())).containsOnly(group1.getUuid(), group2.getUuid());
   }
 
-  @DataProvider
-  public static Object[][] userQueryAndExpectedValues() {
-    return new Object[][] {
+  private static Object[][] userQueryAndExpectedValues() {
+    return new Object[][]{
       {new UserGroupQuery(null, null, null),
         List.of(
           new UserGroupDto().setUuid("3").setGroupUuid("group_a").setUserUuid(UUID_1),
@@ -147,32 +143,32 @@ public class UserGroupDaoIT {
         )},
       {new UserGroupQuery(UUID_3, "group_b", UUID_1),
         List.of()},
-      {new UserGroupQuery(null,"group_b", null),
+      {new UserGroupQuery(null, "group_b", null),
         List.of(
           new UserGroupDto().setUuid("5").setGroupUuid("group_b").setUserUuid(UUID_1),
           new UserGroupDto().setUuid("6").setGroupUuid("group_b").setUserUuid(UUID_2)
         )},
-      {new UserGroupQuery(null,null, UUID_2),
+      {new UserGroupQuery(null, null, UUID_2),
         List.of(
           new UserGroupDto().setUuid("4").setGroupUuid("group_a").setUserUuid(UUID_2),
           new UserGroupDto().setUuid("6").setGroupUuid("group_b").setUserUuid(UUID_2)
         )},
-      {new UserGroupQuery(null,"group_a", UUID_2),
+      {new UserGroupQuery(null, "group_a", UUID_2),
         List.of(
           new UserGroupDto().setUuid("4").setGroupUuid("group_a").setUserUuid(UUID_2)
         )},
-      {new UserGroupQuery(null,"group_c", null),
+      {new UserGroupQuery(null, "group_c", null),
         List.of()},
-      {new UserGroupQuery(null,"group_c", UUID_2),
+      {new UserGroupQuery(null, "group_c", UUID_2),
         List.of()},
-      {new UserGroupQuery(null,"group_a", UUID_3),
+      {new UserGroupQuery(null, "group_a", UUID_3),
         List.of()}
     };
   }
 
-  @Test
-  @UseDataProvider("userQueryAndExpectedValues")
-  public void selectByQuery_returnsExpectedResults(UserGroupQuery userQuery, List<UserGroupDto> expectedUserGroupDtos) {
+ @ParameterizedTest
+ @MethodSource("userQueryAndExpectedValues")
+  void selectByQuery_returnsExpectedResults(UserGroupQuery userQuery, List<UserGroupDto> expectedUserGroupDtos) {
     insertUsersGroupsAndMembership();
 
     List<UserGroupDto> userGroupDtos = underTest.selectByQuery(dbTester.getSession(), userQuery, 1, 100);

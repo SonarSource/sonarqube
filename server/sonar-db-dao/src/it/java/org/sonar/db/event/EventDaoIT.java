@@ -23,8 +23,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 import java.util.stream.IntStream;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -38,17 +38,17 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.component.SnapshotTesting.newAnalysis;
 import static org.sonar.db.event.EventTesting.newEvent;
 
-public class EventDaoIT {
+class EventDaoIT {
 
-  @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  @RegisterExtension
+  private final DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   private final DbClient dbClient = dbTester.getDbClient();
   private final DbSession dbSession = dbTester.getSession();
   private final EventDao underTest = dbTester.getDbClient().eventDao();
 
   @Test
-  public void select_by_uuid() {
+  void select_by_uuid() {
     SnapshotDto analysis = dbTester.components().insertProjectAndSnapshot(ComponentTesting.newPrivateProjectDto());
     dbTester.events().insertEvent(newEvent(analysis).setUuid("A1"));
     dbTester.events().insertEvent(newEvent(analysis).setUuid("A2"));
@@ -61,7 +61,7 @@ public class EventDaoIT {
   }
 
   @Test
-  public void select_by_component_uuid() {
+  void select_by_component_uuid() {
     ComponentDto project1 = ComponentTesting.newPrivateProjectDto();
     ComponentDto project2 = ComponentTesting.newPrivateProjectDto();
     SnapshotDto analysis1 = dbTester.components().insertProjectAndSnapshot(project1);
@@ -104,7 +104,7 @@ public class EventDaoIT {
   }
 
   @Test
-  public void select_by_analysis_uuid() {
+  void select_by_analysis_uuid() {
     ComponentDto project = ComponentTesting.newPrivateProjectDto();
     SnapshotDto analysis = dbTester.components().insertProjectAndSnapshot(project);
     SnapshotDto otherAnalysis = dbClient.snapshotDao().insert(dbSession, newAnalysis(project));
@@ -123,7 +123,7 @@ public class EventDaoIT {
   }
 
   @Test
-  public void select_by_analysis_uuids() {
+  void select_by_analysis_uuids() {
     ComponentDto project = dbTester.components().insertPrivateProject().getMainBranchComponent();
     SnapshotDto a1 = dbTester.components().insertSnapshot(newAnalysis(project));
     SnapshotDto a2 = dbTester.components().insertSnapshot(newAnalysis(project));
@@ -146,7 +146,7 @@ public class EventDaoIT {
   }
 
   @Test
-  public void return_different_categories() {
+  void return_different_categories() {
     ComponentDto project = ComponentTesting.newPrivateProjectDto();
     SnapshotDto analysis = dbTester.components().insertProjectAndSnapshot(project);
     List<EventDto> events = IntStream.range(0, 1 + new Random().nextInt(10))
@@ -160,7 +160,7 @@ public class EventDaoIT {
   }
 
   @Test
-  public void insert() {
+  void insert() {
     EventDto expected = new EventDto()
       .setUuid("E1")
       .setAnalysisUuid("uuid_1")
@@ -188,7 +188,7 @@ public class EventDaoIT {
   }
 
   @Test
-  public void update_name_and_description() {
+  void update_name_and_description() {
     SnapshotDto analysis = dbTester.components().insertProjectAndSnapshot(ComponentTesting.newPrivateProjectDto());
     dbTester.events().insertEvent(newEvent(analysis).setUuid("E1"));
 
@@ -200,7 +200,7 @@ public class EventDaoIT {
   }
 
   @Test
-  public void givenSomeSqUpgradeEvents_whenRetrieved_shouldReturnCorrectlyOrderedByDateDescending() {
+  void givenSomeSqUpgradeEvents_whenRetrieved_shouldReturnCorrectlyOrderedByDateDescending() {
     long olderDate = 1L;
     long newerDate = 2L;
 
@@ -218,7 +218,7 @@ public class EventDaoIT {
   }
 
   @Test
-  public void delete_by_uuid() {
+  void delete_by_uuid() {
     dbTester.events().insertEvent(newEvent(newAnalysis(ComponentTesting.newPrivateProjectDto())).setUuid("E1"));
 
     underTest.delete(dbTester.getSession(), "E1");

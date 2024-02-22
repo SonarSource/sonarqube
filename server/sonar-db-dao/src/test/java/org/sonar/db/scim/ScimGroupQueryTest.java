@@ -19,23 +19,19 @@
  */
 package org.sonar.db.scim;
 
-import com.tngtech.java.junit.dataprovider.DataProvider;
-import com.tngtech.java.junit.dataprovider.DataProviderRunner;
-import com.tngtech.java.junit.dataprovider.UseDataProvider;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
-@RunWith(DataProviderRunner.class)
-public class ScimGroupQueryTest {
+class ScimGroupQueryTest {
 
-  @DataProvider
-  public static Object[][] filterData() {
+  static Object[][] filterData() {
     ScimGroupQuery queryWithDisplayName = new ScimGroupQuery("testGroup");
-    return new Object[][] {
+    return new Object[][]{
       {"displayName eq \"testGroup\"", queryWithDisplayName},
       {"  displayName eq \"testGroup\"  ", queryWithDisplayName},
       {"displayName     eq     \"testGroup\"", queryWithDisplayName},
@@ -46,17 +42,16 @@ public class ScimGroupQueryTest {
     };
   }
 
-  @Test
-  @UseDataProvider("filterData")
-  public void fromScimFilter_shouldCorrectlyResolveProperties(String filter, ScimGroupQuery expected) {
+  @ParameterizedTest
+  @MethodSource("filterData")
+  void fromScimFilter_shouldCorrectlyResolveProperties(String filter, ScimGroupQuery expected) {
     ScimGroupQuery scimGroupQuery = ScimGroupQuery.fromScimFilter(filter);
 
     assertThat(scimGroupQuery).usingRecursiveComparison().isEqualTo(expected);
   }
 
-  @DataProvider
-  public static Object[][] unsupportedFilterData() {
-    return new Object[][] {
+  private static Object[][] unsupportedFilterData() {
+    return new Object[][]{
       {"otherProp eq \"testGroup\""},
       {"displayName eq \"testGroup\" or displayName eq \"testGroup2\""},
       {"displayName eq \"testGroup\" and email eq \"test.user2@okta.local\""},
@@ -64,16 +59,17 @@ public class ScimGroupQueryTest {
     };
   }
 
-  @Test
-  @UseDataProvider("unsupportedFilterData")
-  public void fromScimFilter_shouldThrowAnException(String filter) {
+  @ParameterizedTest
+  @MethodSource("unsupportedFilterData")
+  void fromScimFilter_shouldThrowAnException(String filter) {
     assertThatIllegalArgumentException()
       .isThrownBy(() -> ScimGroupQuery.fromScimFilter(filter))
-      .withMessage(format("Unsupported filter or value: %s. The only supported filter and operator is 'displayName eq \"displayName\"", filter));
+      .withMessage(format("Unsupported filter or value: %s. The only supported filter and operator is 'displayName eq \"displayName\"",
+        filter));
   }
 
   @Test
-  public void empty_shouldHaveNoProperties() {
+  void empty_shouldHaveNoProperties() {
     ScimGroupQuery scimGroupQuery = ScimGroupQuery.ALL;
 
     assertThat(scimGroupQuery.getDisplayName()).isNull();

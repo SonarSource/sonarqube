@@ -20,8 +20,8 @@
 package org.sonar.db.component;
 
 import java.util.Collections;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
@@ -31,20 +31,20 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class ProjectLinkDaoIT {
+class ProjectLinkDaoIT {
 
   private final static long PAST = 5_000_000_000L;
   private final static long NOW = 10_000_000_000L;
 
-  private System2 system2 = new TestSystem2().setNow(NOW);
+  private final System2 system2 = new TestSystem2().setNow(NOW);
 
-  @Rule
-  public DbTester db = DbTester.create(system2);
+  @RegisterExtension
+  private final DbTester db = DbTester.create(system2);
 
-  private ProjectLinkDao underTest = db.getDbClient().projectLinkDao();
+  private final ProjectLinkDao underTest = db.getDbClient().projectLinkDao();
 
   @Test
-  public void select_by_id() {
+  void select_by_id() {
     ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     ProjectLinkDto link = db.projectLinks().insertProvidedLink(project, c -> c
       .setUuid("ABCD")
@@ -64,7 +64,7 @@ public class ProjectLinkDaoIT {
   }
 
   @Test
-  public void select_by_project_uuid() {
+  void select_by_project_uuid() {
     ProjectDto project1 = db.components().insertPrivateProject().getProjectDto();
     ProjectLinkDto link1 = db.projectLinks().insertProvidedLink(project1);
     ProjectLinkDto link2 = db.projectLinks().insertProvidedLink(project1);
@@ -82,7 +82,7 @@ public class ProjectLinkDaoIT {
   }
 
   @Test
-  public void select_by_project_uuids() {
+  void select_by_project_uuids() {
     ProjectDto project1 = db.components().insertPrivateProject().getProjectDto();
     ProjectLinkDto link1 = db.projectLinks().insertProvidedLink(project1);
     ProjectLinkDto link2 = db.projectLinks().insertProvidedLink(project1);
@@ -99,7 +99,7 @@ public class ProjectLinkDaoIT {
   }
 
   @Test
-  public void insert() {
+  void insert() {
     ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     ProjectLinkDto link = ProjectLinkTesting.newProvidedLinkDto()
       .setUuid("ABCD")
@@ -125,7 +125,7 @@ public class ProjectLinkDaoIT {
   }
 
   @Test
-  public void update() {
+  void update() {
     ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     ProjectLinkDto link = db.projectLinks().insertProvidedLink(project, c -> c
       .setUuid("ABCD")
@@ -154,7 +154,7 @@ public class ProjectLinkDaoIT {
   }
 
   @Test
-  public void delete() {
+  void delete() {
     ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     ProjectLinkDto link = db.projectLinks().insertProvidedLink(project);
 

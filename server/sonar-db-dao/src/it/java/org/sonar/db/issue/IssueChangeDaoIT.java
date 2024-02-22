@@ -26,8 +26,8 @@ import java.util.Set;
 import java.util.stream.Stream;
 import org.apache.ibatis.session.ResultContext;
 import org.apache.ibatis.session.ResultHandler;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.core.issue.FieldDiffs;
@@ -43,15 +43,15 @@ import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.db.issue.IssueChangeDto.TYPE_COMMENT;
 import static org.sonar.db.issue.IssueChangeDto.TYPE_FIELD_CHANGE;
 
-public class IssueChangeDaoIT {
+class IssueChangeDaoIT {
 
-  @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+  @RegisterExtension
+  private final DbTester db = DbTester.create(System2.INSTANCE);
 
   private final IssueChangeDao underTest = db.getDbClient().issueChangeDao();
 
   @Test
-  public void select_issue_changelog_from_issue_key() {
+  void select_issue_changelog_from_issue_key() {
     IssueDto issue1 = db.issues().insertIssue();
     db.issues().insertChange(issue1, c -> c.setChangeType(TYPE_FIELD_CHANGE).setChangeData("severity=MAJOR|BLOCKER"));
     IssueDto issue2 = db.issues().insertIssue();
@@ -68,7 +68,7 @@ public class IssueChangeDaoIT {
   }
 
   @Test
-  public void select_issue_changes_from_issues_keys() {
+  void select_issue_changes_from_issues_keys() {
     IssueDto issue1 = db.issues().insertIssue();
     db.issues().insertChange(issue1);
     db.issues().insertChange(issue1);
@@ -78,7 +78,8 @@ public class IssueChangeDaoIT {
     db.issues().insertChange(issue2);
     IssueDto issue3 = db.issues().insertIssue();
 
-    List<IssueChangeDto> changelog = underTest.selectByIssueKeys(db.getSession(), asList(issue1.getKey(), issue2.getKey(), issue3.getKey()));
+    List<IssueChangeDto> changelog = underTest.selectByIssueKeys(db.getSession(), asList(issue1.getKey(), issue2.getKey(),
+      issue3.getKey()));
 
     assertThat(changelog).hasSize(5);
 
@@ -87,7 +88,7 @@ public class IssueChangeDaoIT {
   }
 
   @Test
-  public void select_comment_by_key() {
+  void select_comment_by_key() {
     IssueDto issue = db.issues().insertIssue();
     IssueChangeDto issueChange = db.issues().insertChange(issue, c -> c.setChangeType(TYPE_COMMENT));
     db.issues().insertChange(issue, c -> c.setChangeType(TYPE_COMMENT));
@@ -105,7 +106,7 @@ public class IssueChangeDaoIT {
   }
 
   @Test
-  public void delete() {
+  void delete() {
     IssueDto issue = db.issues().insertIssue();
     IssueChangeDto issueChange1 = db.issues().insertChange(issue);
     IssueChangeDto issueChange2 = db.issues().insertChange(issue);
@@ -116,7 +117,7 @@ public class IssueChangeDaoIT {
   }
 
   @Test
-  public void deleteByUuids() {
+  void deleteByUuids() {
     IssueDto issue = db.issues().insertIssue();
     IssueChangeDto issueChange1 = db.issues().insertChange(issue);
     IssueChangeDto issueChange2 = db.issues().insertChange(issue);
@@ -128,7 +129,7 @@ public class IssueChangeDaoIT {
   }
 
   @Test
-  public void delete_unknown_key() {
+  void delete_unknown_key() {
     IssueDto issue = db.issues().insertIssue();
     db.issues().insertChange(issue);
 
@@ -136,7 +137,7 @@ public class IssueChangeDaoIT {
   }
 
   @Test
-  public void insert() {
+  void insert() {
     IssueDto issue = db.issues().insertIssue();
     IssueChangeDto changeDto = new IssueChangeDto()
       .setUuid("uuid")
@@ -154,14 +155,17 @@ public class IssueChangeDaoIT {
     db.getSession().commit();
 
     assertThat(underTest.selectByIssueKeys(db.getSession(), singletonList(issue.getKey())))
-      .extracting(IssueChangeDto::getKey, IssueChangeDto::getUuid, IssueChangeDto::getIssueKey, IssueChangeDto::getChangeData, IssueChangeDto::getChangeType,
-        IssueChangeDto::getIssueChangeCreationDate, IssueChangeDto::getCreatedAt, IssueChangeDto::getUpdatedAt, IssueChangeDto::getProjectUuid)
+      .extracting(IssueChangeDto::getKey, IssueChangeDto::getUuid, IssueChangeDto::getIssueKey, IssueChangeDto::getChangeData,
+        IssueChangeDto::getChangeType,
+        IssueChangeDto::getIssueChangeCreationDate, IssueChangeDto::getCreatedAt, IssueChangeDto::getUpdatedAt,
+        IssueChangeDto::getProjectUuid)
       .containsExactlyInAnyOrder(
-        tuple("EFGH", "uuid", issue.getKey(), "Some text", TYPE_COMMENT, 1_502_000_000_000L, 1_500_000_000_000L, 1_501_000_000_000L, "project_uuid"));
+        tuple("EFGH", "uuid", issue.getKey(), "Some text", TYPE_COMMENT, 1_502_000_000_000L, 1_500_000_000_000L, 1_501_000_000_000L,
+          "project_uuid"));
   }
 
   @Test
-  public void update() {
+  void update() {
     IssueDto issue = db.issues().insertIssue();
     IssueChangeDto issueChange = db.issues().insertChange(issue);
 
@@ -181,12 +185,13 @@ public class IssueChangeDaoIT {
       .extracting(IssueChangeDto::getKey, IssueChangeDto::getIssueKey, IssueChangeDto::getChangeData, IssueChangeDto::getChangeType,
         IssueChangeDto::getIssueChangeCreationDate, IssueChangeDto::getCreatedAt, IssueChangeDto::getUpdatedAt)
       .containsExactlyInAnyOrder(
-        tuple(issueChange.getKey(), issue.getKey(), "new comment", issueChange.getChangeType(), issueChange.getIssueChangeCreationDate(), issueChange.getCreatedAt(),
+        tuple(issueChange.getKey(), issue.getKey(), "new comment", issueChange.getChangeType(), issueChange.getIssueChangeCreationDate(),
+          issueChange.getCreatedAt(),
           1_500_000_000_000L));
   }
 
   @Test
-  public void update_unknown_key() {
+  void update_unknown_key() {
     IssueDto issue = db.issues().insertIssue();
     IssueChangeDto issueChange = db.issues().insertChange(issue);
 
@@ -201,12 +206,13 @@ public class IssueChangeDaoIT {
       .extracting(IssueChangeDto::getKey, IssueChangeDto::getIssueKey, IssueChangeDto::getChangeData, IssueChangeDto::getChangeType,
         IssueChangeDto::getIssueChangeCreationDate, IssueChangeDto::getCreatedAt, IssueChangeDto::getUpdatedAt)
       .containsExactlyInAnyOrder(
-        tuple(issueChange.getKey(), issue.getKey(), issueChange.getChangeData(), issueChange.getChangeType(), issueChange.getIssueChangeCreationDate(), issueChange.getCreatedAt(),
+        tuple(issueChange.getKey(), issue.getKey(), issueChange.getChangeData(), issueChange.getChangeType(),
+          issueChange.getIssueChangeCreationDate(), issueChange.getCreatedAt(),
           issueChange.getUpdatedAt()));
   }
 
   @Test
-  public void scrollDiffChangesOfIssues_scrolls_only_diff_changes_of_selected_issues() {
+  void scrollDiffChangesOfIssues_scrolls_only_diff_changes_of_selected_issues() {
     IssueDto issue1 = db.issues().insertIssue();
     IssueChangeDto diffChange1 = db.issues().insertChange(issue1, t -> t.setChangeType(TYPE_FIELD_CHANGE));
     db.issues().insertChange(issue1, t -> t.setChangeType(TYPE_COMMENT));
@@ -235,7 +241,7 @@ public class IssueChangeDaoIT {
   }
 
   @Test
-  public void scrollDiffChangesOfIssues_orders_changes_by_issue_and_then_creationDate() {
+  void scrollDiffChangesOfIssues_orders_changes_by_issue_and_then_creationDate() {
     IssueDto issue1 = db.issues().insertIssue();
     IssueChangeDto[] diffChanges = {
       db.issues().insertChange(issue1, t -> t.setChangeType(TYPE_FIELD_CHANGE).setCreatedAt(1L).setIssueChangeCreationDate(50L)),
@@ -267,7 +273,7 @@ public class IssueChangeDaoIT {
       return this;
     }
 
-    public Stream<String> getDtoKeys() {
+    private Stream<String> getDtoKeys() {
       return dtos.stream().map(IssueChangeDto::getKey);
     }
   }

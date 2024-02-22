@@ -19,20 +19,16 @@
  */
 package org.sonar.db.scim;
 
-import com.tngtech.java.junit.dataprovider.DataProvider;
-import com.tngtech.java.junit.dataprovider.DataProviderRunner;
-import com.tngtech.java.junit.dataprovider.UseDataProvider;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-@RunWith(DataProviderRunner.class)
-public class ScimUserQueryTest {
+class ScimUserQueryTest {
 
-  @DataProvider
-  public static Object[][] filterData() {
+  static Object[][] filterData() {
     ScimUserQuery queryWithUserName = ScimUserQuery.builder().userName("test.user@okta.local").build();
     ScimUserQuery emptyQuery = ScimUserQuery.builder().build();
     return new Object[][]{
@@ -46,16 +42,15 @@ public class ScimUserQueryTest {
     };
   }
 
-  @Test
-  @UseDataProvider("filterData")
-  public void fromScimFilter_shouldCorrectlyResolveProperties(String filter, ScimUserQuery expected) {
+  @ParameterizedTest
+  @MethodSource("filterData")
+  void fromScimFilter_shouldCorrectlyResolveProperties(String filter, ScimUserQuery expected) {
     ScimUserQuery scimUserQuery = ScimUserQuery.fromScimFilter(filter);
 
     assertThat(scimUserQuery).usingRecursiveComparison().isEqualTo(expected);
   }
 
-  @DataProvider
-  public static Object[][] unsupportedFilterData() {
+  static Object[][] unsupportedFilterData() {
     return new Object[][]{
       {"otherProp eq \"test.user@okta.local\""},
       {"userName eq \"test.user@okta.local\" or userName eq \"test.user2@okta.local\""},
@@ -64,16 +59,16 @@ public class ScimUserQueryTest {
     };
   }
 
-  @Test
-  @UseDataProvider("unsupportedFilterData")
-  public void fromScimFilter_shouldThrowAnException(String filter) {
+  @ParameterizedTest
+  @MethodSource("unsupportedFilterData")
+  void fromScimFilter_shouldThrowAnException(String filter) {
     assertThatThrownBy(() -> ScimUserQuery.fromScimFilter(filter))
       .isInstanceOf(IllegalStateException.class)
       .hasMessage(String.format("Unsupported filter value: %s. Format should be 'userName eq \"username\"'", filter));
   }
 
   @Test
-  public void empty_shouldHaveNoProperties() {
+  void empty_shouldHaveNoProperties() {
     ScimUserQuery scimUserQuery = ScimUserQuery.empty();
 
     assertThat(scimUserQuery.getUserName()).isNull();

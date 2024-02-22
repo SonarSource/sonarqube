@@ -19,22 +19,22 @@
  */
 package org.sonar.db;
 
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.utils.System2;
 import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo.Section;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class DatabaseMBeanIT {
+class DatabaseMBeanIT {
 
-  @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  @RegisterExtension
+  private final DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   private final FakeDatabaseMBean underTest = new FakeDatabaseMBean(dbTester.getDbClient());
 
   @Test
-  public void verify_mBean() {
+  void verify_mBean() {
 
     assertThat(underTest.getPoolActiveConnections()).isNotNegative();
     assertThat(underTest.getPoolIdleConnections()).isNotNegative();

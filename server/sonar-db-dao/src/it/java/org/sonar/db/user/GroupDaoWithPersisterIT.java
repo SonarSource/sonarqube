@@ -20,9 +20,9 @@
 package org.sonar.db.user;
 
 import java.util.Date;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
@@ -38,7 +38,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
-public class GroupDaoWithPersisterIT {
+class GroupDaoWithPersisterIT {
   private static final long NOW = 1_500_000L;
 
   private final AuditPersister auditPersister = mock(AuditPersister.class);
@@ -46,8 +46,8 @@ public class GroupDaoWithPersisterIT {
 
   private final System2 system2 = mock(System2.class);
 
-  @Rule
-  public final DbTester db = DbTester.create(system2, auditPersister);
+  @RegisterExtension
+  private final DbTester db = DbTester.create(system2, auditPersister);
 
   private final DbClient dbClient = db.getDbClient();
   private final GroupDao underTest = db.getDbClient().groupDao();
@@ -57,13 +57,13 @@ public class GroupDaoWithPersisterIT {
     .setName("the-name")
     .setDescription("the description");
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     when(system2.now()).thenReturn(NOW);
   }
 
   @Test
-  public void insertAndUpdateGroupIsPersisted() {
+  void insertAndUpdateGroupIsPersisted() {
     dbClient.groupDao().insert(db.getSession(), aGroup);
 
     verify(auditPersister).addUserGroup(eq(db.getSession()), newValueCaptor.capture());
@@ -92,7 +92,7 @@ public class GroupDaoWithPersisterIT {
   }
 
   @Test
-  public void deleteGroupIsPersisted() {
+  void deleteGroupIsPersisted() {
     dbClient.groupDao().insert(db.getSession(), aGroup);
 
     verify(auditPersister).addUserGroup(eq(db.getSession()), any());
@@ -107,7 +107,7 @@ public class GroupDaoWithPersisterIT {
   }
 
   @Test
-  public void deleteGroupWithoutAffectedRowsIsNotPersisted() {
+  void deleteGroupWithoutAffectedRowsIsNotPersisted() {
     underTest.deleteByUuid(db.getSession(), aGroup.getUuid(), aGroup.getName());
 
     verifyNoInteractions(auditPersister);

@@ -26,8 +26,8 @@ import org.assertj.core.api.AbstractListAssert;
 import org.assertj.core.api.Assertions;
 import org.assertj.core.api.ObjectAssert;
 import org.assertj.core.groups.Tuple;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -39,20 +39,21 @@ import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 
-public class DuplicationDaoIT {
+class DuplicationDaoIT {
 
-  @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+  @RegisterExtension
+  private final DbTester db = DbTester.create(System2.INSTANCE);
 
   private final DbSession dbSession = db.getSession();
   private final DuplicationDao dao = db.getDbClient().duplicationDao();
 
   @Test
-  public void selectCandidates_returns_block_from_last_snapshot_only_of_component_with_language_and_if_not_specified_analysis() {
+  void selectCandidates_returns_block_from_last_snapshot_only_of_component_with_language_and_if_not_specified_analysis() {
     ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto fooFile = db.components().insertComponent(ComponentTesting.newFileDto(project1).setLanguage("foo").setEnabled(true));
     ComponentDto fooFile1 = db.components().insertComponent(ComponentTesting.newFileDto(project1).setLanguage("foo").setEnabled(true));
-    ComponentDto disabledFooFile = db.components().insertComponent(ComponentTesting.newFileDto(project1).setLanguage("foo").setEnabled(false));
+    ComponentDto disabledFooFile =
+      db.components().insertComponent(ComponentTesting.newFileDto(project1).setLanguage("foo").setEnabled(false));
     ComponentDto barFile = db.components().insertComponent(ComponentTesting.newFileDto(project1).setLanguage("bar").setEnabled(true));
     ComponentDto noLanguageFile = db.components().insertComponent(ComponentTesting.newFileDto(project1).setLanguage(null).setEnabled(true));
     SnapshotDto newAnalysis = db.components().insertSnapshot(project1, t -> t.setLast(false));
@@ -103,11 +104,12 @@ public class DuplicationDaoIT {
 
   private AbstractListAssert<?, List<? extends Tuple>, Tuple, ObjectAssert<Tuple>> assertThat(List<DuplicationUnitDto> blocks) {
     return Assertions.assertThat(blocks)
-      .extracting(DuplicationUnitDto::getComponentUuid, DuplicationUnitDto::getComponentKey, DuplicationUnitDto::getAnalysisUuid, DuplicationUnitDto::getHash);
+      .extracting(DuplicationUnitDto::getComponentUuid, DuplicationUnitDto::getComponentKey, DuplicationUnitDto::getAnalysisUuid,
+        DuplicationUnitDto::getHash);
   }
 
   @Test
-  public void select_component() {
+  void select_component() {
     ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
     SnapshotDto analysis1 = db.components().insertSnapshot(project1);
     ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
@@ -136,7 +138,7 @@ public class DuplicationDaoIT {
   }
 
   @Test
-  public void insert() {
+  void insert() {
     ComponentDto project = newPrivateProjectDto();
     SnapshotDto analysis = db.components().insertProjectAndSnapshot(project);
 
@@ -158,7 +160,7 @@ public class DuplicationDaoIT {
       .containsEntry("END", 2L);
   }
 
-  public void insert(ComponentDto project, SnapshotDto analysis, String hash, int indexInFile, int startLine, int endLine) {
+  private void insert(ComponentDto project, SnapshotDto analysis, String hash, int indexInFile, int startLine, int endLine) {
     dao.insert(dbSession, new DuplicationUnitDto()
       .setAnalysisUuid(analysis.getUuid())
       .setComponentUuid(project.uuid())

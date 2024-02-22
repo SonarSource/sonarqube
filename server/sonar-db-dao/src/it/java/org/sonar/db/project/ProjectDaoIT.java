@@ -34,8 +34,8 @@ import java.util.stream.IntStream;
 import javax.annotation.Nullable;
 import org.assertj.core.api.Assertions;
 import org.assertj.core.groups.Tuple;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.impl.utils.AlwaysIncreasingSystem2;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.System2;
@@ -64,12 +64,12 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.sonar.api.measures.CoreMetrics.NCLOC_LANGUAGE_DISTRIBUTION_KEY;
 import static org.sonar.api.measures.Metric.ValueType.STRING;
 
-public class ProjectDaoIT {
+class ProjectDaoIT {
 
   private final System2 system2 = new AlwaysIncreasingSystem2(1000L);
 
-  @Rule
-  public DbTester db = DbTester.create(system2);
+  @RegisterExtension
+  private final DbTester db = DbTester.create(system2);
 
   private final AuditPersister auditPersister = mock(AuditPersister.class);
 
@@ -77,7 +77,7 @@ public class ProjectDaoIT {
   private final ProjectDao projectDaoWithAuditPersister = new ProjectDao(system2, auditPersister);
 
   @Test
-  public void should_insert_and_select_by_uuid() {
+  void should_insert_and_select_by_uuid() {
     ProjectDto dto = createProject("o1", "p1");
 
     projectDao.insert(db.getSession(), dto);
@@ -89,7 +89,7 @@ public class ProjectDaoIT {
   }
 
   @Test
-  public void selectProjectByKey_shouldReturnProject() {
+  void selectProjectByKey_shouldReturnProject() {
     ProjectDto dto = createProject("o1", "p1");
 
     projectDao.insert(db.getSession(), dto);
@@ -100,12 +100,12 @@ public class ProjectDaoIT {
   }
 
   @Test
-  public void selectProjectsByKeys_whenEmptyInput_returnEmptyList() {
+  void selectProjectsByKeys_whenEmptyInput_returnEmptyList() {
     assertThat(projectDao.selectProjectsByKeys(db.getSession(), emptySet())).isEmpty();
   }
 
   @Test
-  public void select_by_branch_uuid() {
+  void select_by_branch_uuid() {
     ProjectDto dto = createProject("o1", "p1");
     projectDao.insert(db.getSession(), dto);
     BranchDto branchDto = db.components().insertProjectBranch(dto);
@@ -113,7 +113,7 @@ public class ProjectDaoIT {
   }
 
   @Test
-  public void select_projects() {
+  void select_projects() {
     ProjectDto dto1 = createProject("o1", "p1");
     ProjectDto dto2 = createProject("o1", "p2");
 
@@ -125,7 +125,7 @@ public class ProjectDaoIT {
   }
 
   @Test
-  public void selectProjects_returnsCreationMethod() {
+  void selectProjects_returnsCreationMethod() {
     ProjectDto dto1 = createProject("o1", "p1").setCreationMethod(CreationMethod.SCANNER_API);
     ProjectDto dto2 = createProject("o1", "p2").setCreationMethod(CreationMethod.UNKNOWN);
 
@@ -133,7 +133,8 @@ public class ProjectDaoIT {
     projectDao.insert(db.getSession(), dto2);
 
     List<ProjectDto> projects = projectDao.selectProjects(db.getSession());
-    Map<String, CreationMethod> projectToCreationMethod = projects.stream().collect(Collectors.toMap(EntityDto::getName, ProjectDto::getCreationMethod));
+    Map<String, CreationMethod> projectToCreationMethod = projects.stream().collect(Collectors.toMap(EntityDto::getName,
+      ProjectDto::getCreationMethod));
     assertThat(projectToCreationMethod)
       .hasSize(2)
       .containsEntry("projectName_p1", CreationMethod.SCANNER_API)
@@ -141,7 +142,7 @@ public class ProjectDaoIT {
   }
 
   @Test
-  public void select_all() {
+  void select_all() {
     ProjectDto dto1 = createProject("o1", "p1");
     ProjectDto dto2 = createProject("o1", "p2");
     ProjectDto dto3 = createProject("o2", "p1");
@@ -161,7 +162,7 @@ public class ProjectDaoIT {
   }
 
   @Test
-  public void selectApplicationsByKeys_shouldReturnAllApplications() {
+  void selectApplicationsByKeys_shouldReturnAllApplications() {
     var applications = new ArrayList<ProjectDto>();
 
     for (int i = 0; i < 1500; i++) {
@@ -189,12 +190,12 @@ public class ProjectDaoIT {
   }
 
   @Test
-  public void selectApplicationsByKeys_whenEmptyInput_shouldReturnEmptyList() {
+  void selectApplicationsByKeys_whenEmptyInput_shouldReturnEmptyList() {
     assertThat(projectDao.selectApplicationsByKeys(db.getSession(), emptySet())).isEmpty();
   }
 
   @Test
-  public void update_tags() {
+  void update_tags() {
     ProjectDto dto1 = createProject("o1", "p1").setTagsString("");
     ProjectDto dto2 = createProject("o1", "p2").setTagsString("tag1,tag2");
 
@@ -220,7 +221,7 @@ public class ProjectDaoIT {
   }
 
   @Test
-  public void update_visibility() {
+  void update_visibility() {
     ProjectDto dto1 = createProject("o1", "p1").setPrivate(true);
     ProjectDto dto2 = createProject("o1", "p2");
 
@@ -242,7 +243,7 @@ public class ProjectDaoIT {
   }
 
   @Test
-  public void select_by_uuids() {
+  void select_by_uuids() {
     ProjectDto dto1 = createProject("o1", "p1");
     ProjectDto dto2 = createProject("o1", "p2");
     ProjectDto dto3 = createProject("o1", "p3");
@@ -258,7 +259,7 @@ public class ProjectDaoIT {
   }
 
   @Test
-  public void select_by_uuids_over_1000() {
+  void select_by_uuids_over_1000() {
     IntStream.range(0, 1005).mapToObj(value -> createProject("o1", "p" + value))
       .forEach(projectDto -> projectDao.insert(db.getSession(), projectDto));
 
@@ -268,7 +269,7 @@ public class ProjectDaoIT {
   }
 
   @Test
-  public void select_empty_by_uuids() {
+  void select_empty_by_uuids() {
     ProjectDto dto1 = createProject("o1", "p1");
     ProjectDto dto2 = createProject("o1", "p2");
     ProjectDto dto3 = createProject("o1", "p3");
@@ -282,7 +283,7 @@ public class ProjectDaoIT {
   }
 
   @Test
-  public void insert_withoutTrack_shouldNotCallAuditPersister() {
+  void insert_withoutTrack_shouldNotCallAuditPersister() {
     ProjectDto dto1 = createProject("o1", "p1");
 
     projectDaoWithAuditPersister.insert(db.getSession(), dto1, false);
@@ -291,7 +292,7 @@ public class ProjectDaoIT {
   }
 
   @Test
-  public void insert_withTrack_shouldCallAuditPersister() {
+  void insert_withTrack_shouldCallAuditPersister() {
     ProjectDto dto1 = createProject("o1", "p1");
 
     projectDaoWithAuditPersister.insert(db.getSession(), dto1, true);
@@ -300,7 +301,7 @@ public class ProjectDaoIT {
   }
 
   @Test
-  public void update_shouldCallAuditPersister() {
+  void update_shouldCallAuditPersister() {
     ProjectDto dto1 = createProject("o1", "p1");
 
     projectDaoWithAuditPersister.update(db.getSession(), dto1);
@@ -309,7 +310,7 @@ public class ProjectDaoIT {
   }
 
   @Test
-  public void select_project_uuids_associated_to_default_quality_profile_for_specific_language() {
+  void select_project_uuids_associated_to_default_quality_profile_for_specific_language() {
     String language = "xoo";
     Set<ProjectData> projects = insertProjects(nextInt(10));
     insertDefaultQualityProfile(language);
@@ -321,7 +322,7 @@ public class ProjectDaoIT {
   }
 
   @Test
-  public void update_ncloc_should_update_project() {
+  void update_ncloc_should_update_project() {
     String projectUuid = db.components().insertPublicProject().projectUuid();
 
     projectDao.updateNcloc(db.getSession(), projectUuid, 10L);
@@ -330,7 +331,7 @@ public class ProjectDaoIT {
   }
 
   @Test
-  public void getNcloc_sum_compute_correctly_sum_of_projects() {
+  void getNcloc_sum_compute_correctly_sum_of_projects() {
     projectDao.updateNcloc(db.getSession(), db.components().insertPublicProject().projectUuid(), 1L);
     projectDao.updateNcloc(db.getSession(), db.components().insertPublicProject().projectUuid(), 20L);
     projectDao.updateNcloc(db.getSession(), db.components().insertPublicProject().projectUuid(), 100L);
@@ -341,7 +342,7 @@ public class ProjectDaoIT {
   }
 
   @Test
-  public void getNcloc_sum_compute_correctly_sum_of_projects_while_excluding_project() {
+  void getNcloc_sum_compute_correctly_sum_of_projects_while_excluding_project() {
     projectDao.updateNcloc(db.getSession(), db.components().insertPublicProject().projectUuid(), 1L);
     projectDao.updateNcloc(db.getSession(), db.components().insertPublicProject().projectUuid(), 20L);
     ProjectDto project3 = db.components().insertPublicProject().getProjectDto();
@@ -353,7 +354,7 @@ public class ProjectDaoIT {
   }
 
   @Test
-  public void selectByUuids_whenUuidsAreEmptyWithPagination_shouldReturnEmptyList() {
+  void selectByUuids_whenUuidsAreEmptyWithPagination_shouldReturnEmptyList() {
     db.components().insertPublicProject();
 
     List<ProjectDto> projectDtos = projectDao.selectByUuids(db.getSession(), emptySet(), Pagination.forPage(1).andSize(1));
@@ -362,7 +363,7 @@ public class ProjectDaoIT {
   }
 
   @Test
-  public void selectByUuids_whenPagination_shouldReturnSubSetOfPagination() {
+  void selectByUuids_whenPagination_shouldReturnSubSetOfPagination() {
     Set<String> projectUuids = new HashSet<>();
     for (int i = 0; i < 5; i++) {
       final String name = "Project_" + i;
@@ -376,7 +377,7 @@ public class ProjectDaoIT {
   }
 
   @Test
-  public void countIndexedProjects() {
+  void countIndexedProjects() {
     assertThat(projectDao.countIndexedProjects(db.getSession())).isZero();
 
     // master branch with flag set to false
@@ -394,7 +395,7 @@ public class ProjectDaoIT {
   }
 
   @Test
-  public void countProjects() {
+  void countProjects() {
     assertThat(projectDao.countProjects(db.getSession())).isZero();
 
     IntStream.range(0, 10).forEach(x -> db.components().insertPrivateProject());

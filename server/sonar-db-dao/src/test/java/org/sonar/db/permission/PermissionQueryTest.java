@@ -19,18 +19,17 @@
  */
 package org.sonar.db.permission;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.sonar.db.component.ComponentDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.db.component.ComponentTesting.newPublicProjectDto;
 
-public class PermissionQueryTest {
-
+class PermissionQueryTest {
 
   @Test
-  public void create_query() {
+  void create_query() {
     ComponentDto project = newPublicProjectDto();
     PermissionQuery query = PermissionQuery.builder()
       .setEntity(project)
@@ -44,7 +43,7 @@ public class PermissionQueryTest {
   }
 
   @Test
-  public void create_query_with_pagination() {
+  void create_query_with_pagination() {
     PermissionQuery query = PermissionQuery.builder()
       .setPageSize(10)
       .setPageIndex(5)
@@ -55,7 +54,7 @@ public class PermissionQueryTest {
   }
 
   @Test
-  public void create_query_with_default_pagination() {
+  void create_query_with_default_pagination() {
     PermissionQuery query = PermissionQuery.builder()
       .build();
 
@@ -64,7 +63,7 @@ public class PermissionQueryTest {
   }
 
   @Test
-  public void fail_when_search_query_length_is_less_than_3_characters() {
+  void fail_when_search_query_length_is_less_than_3_characters() {
     assertThatThrownBy(() -> {
       PermissionQuery.builder()
         .setSearchQuery("so")

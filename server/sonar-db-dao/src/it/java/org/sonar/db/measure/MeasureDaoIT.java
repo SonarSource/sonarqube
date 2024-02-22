@@ -21,9 +21,9 @@ package org.sonar.db.measure;
 
 import java.util.List;
 import java.util.Optional;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
@@ -41,20 +41,20 @@ import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.SnapshotTesting.newAnalysis;
 
-public class MeasureDaoIT {
+class MeasureDaoIT {
 
   private MetricDto coverage;
   private MetricDto complexity;
   private MetricDto ncloc;
 
-  @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+  @RegisterExtension
+  private final DbTester db = DbTester.create(System2.INSTANCE);
   private final DbClient dbClient = db.getDbClient();
   private final DbSession dbSession = db.getSession();
   private final MeasureDao underTest = db.getDbClient().measureDao();
 
-  @Before
-  public void before() {
+  @BeforeEach
+  void before() {
     coverage = db.measures().insertMetric(m -> m.setKey("coverage"));
     complexity = db.measures().insertMetric(m -> m.setKey("complexity"));
     ncloc = db.measures().insertMetric(m -> m.setKey("ncloc"));
@@ -62,7 +62,7 @@ public class MeasureDaoIT {
   }
 
   @Test
-  public void test_selectLastMeasure() {
+  void test_selectLastMeasure() {
     MetricDto metric = db.measures().insertMetric();
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
@@ -83,7 +83,7 @@ public class MeasureDaoIT {
   }
 
   @Test
-  public void test_selectMeasure() {
+  void test_selectMeasure() {
     MetricDto metric = db.measures().insertMetric();
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
@@ -107,7 +107,7 @@ public class MeasureDaoIT {
   }
 
   @Test
-  public void test_selects() {
+  void test_selects() {
     ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto dir = db.components().insertComponent(newDirectory(project1, "path"));
     db.components().insertComponent(newFileDto(dir).setUuid("C1"));
@@ -161,13 +161,14 @@ public class MeasureDaoIT {
   }
 
   @Test
-  public void select_past_measures_with_several_analyses() {
+  void select_past_measures_with_several_analyses() {
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     long lastAnalysisDate = parseDate("2017-01-25").getTime();
     long previousAnalysisDate = lastAnalysisDate - 10_000_000_000L;
     long oldAnalysisDate = lastAnalysisDate - 100_000_000_000L;
     SnapshotDto lastAnalysis = dbClient.snapshotDao().insert(dbSession, newAnalysis(project).setCreatedAt(lastAnalysisDate));
-    SnapshotDto pastAnalysis = dbClient.snapshotDao().insert(dbSession, newAnalysis(project).setCreatedAt(previousAnalysisDate).setLast(false));
+    SnapshotDto pastAnalysis = dbClient.snapshotDao().insert(dbSession,
+      newAnalysis(project).setCreatedAt(previousAnalysisDate).setLast(false));
     dbClient.snapshotDao().insert(dbSession, newAnalysis(project).setCreatedAt(oldAnalysisDate).setLast(false));
     db.commit();
 

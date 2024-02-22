@@ -26,13 +26,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Random;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import org.apache.ibatis.session.ResultContext;
 import org.apache.ibatis.session.ResultHandler;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbSession;
@@ -44,20 +45,21 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.emptySet;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.assertj.core.api.Assertions.fail;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 
-public class FileSourceDaoIT {
+class FileSourceDaoIT {
 
-  @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  @RegisterExtension
+  private final DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   private final DbSession dbSession = dbTester.getSession();
 
   private final FileSourceDao underTest = dbTester.getDbClient().fileSourceDao();
 
   @Test
-  public void select() {
+  void select() {
     ComponentDto project = dbTester.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     FileSourceDto expected = dbTester.fileSources().insertFileSource(file);
@@ -76,7 +78,7 @@ public class FileSourceDaoIT {
   }
 
   @Test
-  public void insert() {
+  void insert() {
     FileSourceDto expected = new FileSourceDto()
       .setUuid(Uuids.createFast())
       .setProjectUuid("PRJ_UUID")
@@ -108,7 +110,7 @@ public class FileSourceDaoIT {
   }
 
   @Test
-  public void insert_does_not_fail_on_FileSourceDto_with_only_non_nullable_data() {
+  void insert_does_not_fail_on_FileSourceDto_with_only_non_nullable_data() {
     FileSourceDto fileSourceDto = new FileSourceDto()
       .setUuid(Uuids.createFast())
       .setProjectUuid("Foo")
@@ -116,11 +118,11 @@ public class FileSourceDaoIT {
       .setCreatedAt(1500000000000L)
       .setUpdatedAt(1500000000001L);
     underTest.insert(dbSession, fileSourceDto);
-    dbSession.commit();
+    assertThatNoException().isThrownBy(dbSession::commit);
   }
 
   @Test
-  public void selectSourceByFileUuid_reads_source_without_line_hashes() {
+  void selectSourceByFileUuid_reads_source_without_line_hashes() {
     FileSourceDto fileSourceDto = new FileSourceDto()
       .setUuid(Uuids.createFast())
       .setProjectUuid("Foo")
@@ -137,7 +139,7 @@ public class FileSourceDaoIT {
   }
 
   @Test
-  public void selectLineHashes_does_not_fail_when_lineshashes_is_null() {
+  void selectLineHashes_does_not_fail_when_lineshashes_is_null() {
     underTest.insert(dbSession, new FileSourceDto()
       .setUuid(Uuids.createFast())
       .setProjectUuid("PRJ_UUID")
@@ -154,7 +156,7 @@ public class FileSourceDaoIT {
   }
 
   @Test
-  public void selectLineHashesVersion_returns_without_significant_code_by_default() {
+  void selectLineHashesVersion_returns_without_significant_code_by_default() {
     underTest.insert(dbSession, new FileSourceDto()
       .setUuid(Uuids.createFast())
       .setProjectUuid("PRJ_UUID")
@@ -172,7 +174,7 @@ public class FileSourceDaoIT {
   }
 
   @Test
-  public void selectLineHashesVersion_succeeds() {
+  void selectLineHashesVersion_succeeds() {
     underTest.insert(dbSession, new FileSourceDto()
       .setUuid(Uuids.createFast())
       .setProjectUuid("PRJ_UUID")
@@ -191,13 +193,15 @@ public class FileSourceDaoIT {
   }
 
   @Test
-  public void scrollLineHashes_has_no_effect_if_no_uuids() {
+  void scrollLineHashes_has_no_effect_if_no_uuids() {
     underTest.scrollLineHashes(dbSession, emptySet(), resultContext -> fail("handler should not be called"));
   }
 
-  @Test
-  public void scrollLineHashes_scrolls_hashes_of_specific_keys() {
-    ComponentDto project = new Random().nextBoolean() ? dbTester.components().insertPrivateProject().getMainBranchComponent() : dbTester.components().insertPublicProject().getMainBranchComponent();
+  @ParameterizedTest
+  @ValueSource(booleans = {true, false})
+  void scrollLineHashes_scrolls_hashes_of_specific_keys(boolean isPrivate) {
+    ComponentDto project = isPrivate ? dbTester.components().insertPrivateProject().getMainBranchComponent() :
+      dbTester.components().insertPublicProject().getMainBranchComponent();
     ComponentDto file1 = dbTester.components().insertComponent(newFileDto(project));
     FileSourceDto fileSource1 = dbTester.fileSources().insertFileSource(file1);
     ComponentDto file2 = dbTester.components().insertComponent(newFileDto(project));
@@ -220,9 +224,11 @@ public class FileSourceDaoIT {
     verifyLinesHashes(handler, file3, fileSource3);
   }
 
-  @Test
-  public void scrollLineHashes_does_not_scroll_hashes_of_component_without_path() {
-    ComponentDto project = new Random().nextBoolean() ? dbTester.components().insertPrivateProject().getMainBranchComponent() : dbTester.components().insertPublicProject().getMainBranchComponent();
+  @ParameterizedTest
+  @ValueSource(booleans = {true, false})
+  void scrollLineHashes_does_not_scroll_hashes_of_component_without_path(boolean isPrivate) {
+    ComponentDto project = isPrivate ? dbTester.components().insertPrivateProject().getMainBranchComponent() :
+      dbTester.components().insertPublicProject().getMainBranchComponent();
     ComponentDto file1 = dbTester.components().insertComponent(newFileDto(project));
     FileSourceDto fileSource1 = dbTester.fileSources().insertFileSource(file1);
     ComponentDto file2 = dbTester.components().insertComponent(newFileDto(project).setPath(null));
@@ -234,9 +240,9 @@ public class FileSourceDaoIT {
   }
 
   @Test
-  public void scrollFileHashes_handles_scrolling_more_than_1000_files() {
+  void scrollFileHashes_handles_scrolling_more_than_1000_files() {
     ComponentDto project = dbTester.components().insertPrivateProject().getMainBranchComponent();
-    List<ComponentDto> files = IntStream.range(0, 1001 + new Random().nextInt(5))
+    List<ComponentDto> files = IntStream.range(0, 1005)
       .mapToObj(i -> {
         ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
         dbTester.fileSources().insertFileSource(file);
@@ -245,14 +251,15 @@ public class FileSourceDaoIT {
       .toList();
 
     Map<String, FileHashesDto> fileSourcesByUuid = new HashMap<>();
-    underTest.scrollFileHashesByProjectUuid(dbSession, project.branchUuid(), result -> fileSourcesByUuid.put(result.getResultObject().getFileUuid(), result.getResultObject()));
+    underTest.scrollFileHashesByProjectUuid(dbSession, project.branchUuid(),
+      result -> fileSourcesByUuid.put(result.getResultObject().getFileUuid(), result.getResultObject()));
 
     assertThat(fileSourcesByUuid).hasSize(files.size());
     files.forEach(t -> assertThat(fileSourcesByUuid).containsKey(t.uuid()));
   }
 
   @Test
-  public void scrollFileHashes_returns_all_hashes() {
+  void scrollFileHashes_returns_all_hashes() {
     ComponentDto project = dbTester.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     FileSourceDto inserted = dbTester.fileSources().insertFileSource(file);
@@ -270,10 +277,12 @@ public class FileSourceDaoIT {
     assertThat(fileSource.getLineHashesVersion()).isEqualTo(inserted.getLineHashesVersion());
   }
 
-  @Test
-  public void scrollLineHashes_handles_scrolling_more_than_1000_files() {
-    ComponentDto project = new Random().nextBoolean() ? dbTester.components().insertPrivateProject().getMainBranchComponent() : dbTester.components().insertPublicProject().getMainBranchComponent();
-    List<ComponentDto> files = IntStream.range(0, 1001 + new Random().nextInt(5))
+  @ParameterizedTest
+  @ValueSource(booleans = {true, false})
+  void scrollLineHashes_handles_scrolling_more_than_1000_files(boolean isPrivate) {
+    ComponentDto project = isPrivate ? dbTester.components().insertPrivateProject().getMainBranchComponent() :
+      dbTester.components().insertPublicProject().getMainBranchComponent();
+    List<ComponentDto> files = IntStream.range(0, 1005)
       .mapToObj(i -> {
         ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
         dbTester.fileSources().insertFileSource(file);
@@ -317,7 +326,7 @@ public class FileSourceDaoIT {
   }
 
   @Test
-  public void update() {
+  void update() {
     ComponentDto project = dbTester.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     FileSourceDto expected = dbTester.fileSources().insertFileSource(file);
@@ -351,7 +360,7 @@ public class FileSourceDaoIT {
   }
 
   @Test
-  public void update_to_no_line_hashes() {
+  void update_to_no_line_hashes() {
     ImmutableList<String> lineHashes = of("a", "b", "c");
     FileSourceDto fileSourceDto = new FileSourceDto()
       .setUuid(Uuids.createFast())

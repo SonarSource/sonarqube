@@ -24,7 +24,7 @@ import java.util.Collections;
 import java.util.Set;
 import java.util.TreeSet;
 import org.jetbrains.annotations.NotNull;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.sonar.api.issue.impact.Severity;
 import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rules.RuleType;
@@ -39,26 +39,26 @@ import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.db.rule.RuleDto.ERROR_MESSAGE_SECTION_ALREADY_EXISTS;
 import static org.sonar.db.rule.RuleTesting.newRule;
 
-public class RuleDtoTest {
+class RuleDtoTest {
 
   private static final String SECTION_KEY = "section key";
 
   @Test
-  public void setRuleKey_whenTooLong_shouldFail() {
+  void setRuleKey_whenTooLong_shouldFail() {
     assertThatThrownBy(() -> new RuleDto().setRuleKey(repeat("x", 250)))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessageContaining("Rule key is too long: ");
   }
 
   @Test
-  public void setName_whenTooLong_shouldFail() {
+  void setName_whenTooLong_shouldFail() {
     assertThatThrownBy(() -> new RuleDto().setName(repeat("x", 300)))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessageContaining("Rule name is too long: ");
   }
 
   @Test
-  public void setTags_whenTooLong_shouldFail() {
+  void setTags_whenTooLong_shouldFail() {
     assertThatThrownBy(() -> {
       Set<String> tags = ImmutableSet.of(repeat("a", 25), repeat("b", 20), repeat("c", 41));
       new RuleDto().setTags(tags);
@@ -68,34 +68,34 @@ public class RuleDtoTest {
   }
 
   @Test
-  public void setTags_shouldBeOptional() {
+  void setTags_shouldBeOptional() {
     RuleDto dto = new RuleDto().setTags(Collections.emptySet());
     assertThat(dto.getTags()).isEmpty();
   }
 
   @Test
-  public void setTags_shouldBeSet() {
+  void setTags_shouldBeSet() {
     Set<String> tags = new TreeSet<>(Set.of("first_tag", "second_tag", "third_tag"));
     RuleDto dto = new RuleDto().setTags(tags);
     assertThat(dto.getTags()).isEqualTo(tags);
   }
 
   @Test
-  public void setSystemTags_shouldBeSet() {
+  void setSystemTags_shouldBeSet() {
     Set<String> systemTags = new TreeSet<>(Set.of("first_tag", "second_tag", "third_tag"));
     RuleDto dto = new RuleDto().setSystemTags(systemTags);
     assertThat(dto.getSystemTags()).isEqualTo(systemTags);
   }
 
   @Test
-  public void setSecurityStandards_shouldBeJoinedByCommas() {
+  void setSecurityStandards_shouldBeJoinedByCommas() {
     Set<String> securityStandards = new TreeSet<>(Set.of("first_tag", "second_tag", "third_tag"));
     RuleDto dto = new RuleDto().setSecurityStandards(securityStandards);
     assertThat(dto.getSecurityStandards()).isEqualTo(securityStandards);
   }
 
   @Test
-  public void equals_shouldBeBasedOnUuid() {
+  void equals_shouldBeBasedOnUuid() {
     String uuid = Uuids.createFast();
     RuleDto dto = newRule().setUuid(uuid);
 
@@ -110,7 +110,7 @@ public class RuleDtoTest {
   }
 
   @Test
-  public void hashcode_shouldBeBasedOnUuid() {
+  void hashcode_shouldBeBasedOnUuid() {
     String uuid = Uuids.createFast();
     RuleDto dto = newRule().setUuid(uuid);
 
@@ -125,7 +125,7 @@ public class RuleDtoTest {
   }
 
   @Test
-  public void addRuleDescriptionSectionDto_whenSameKey_shouldThrowError() {
+  void addRuleDescriptionSectionDto_whenSameKey_shouldThrowError() {
     RuleDto dto = new RuleDto();
 
     RuleDescriptionSectionDto section1 = createSection(SECTION_KEY);
@@ -138,7 +138,7 @@ public class RuleDtoTest {
   }
 
   @Test
-  public void addRuleDescriptionSectionDto_whenDifferentContext() {
+  void addRuleDescriptionSectionDto_whenDifferentContext() {
     RuleDto dto = new RuleDto();
 
     RuleDescriptionSectionDto section1 = createSection(RuleDtoTest.SECTION_KEY, "context key 1", "context display Name 1");
@@ -154,7 +154,7 @@ public class RuleDtoTest {
   }
 
   @Test
-  public void addRuleDescriptionSectionDto_whenSameSectionAndContext_shouldThrowError() {
+  void addRuleDescriptionSectionDto_whenSameSectionAndContext_shouldThrowError() {
     RuleDto dto = new RuleDto();
     String contextKey = randomAlphanumeric(50);
     String displayName = randomAlphanumeric(50);
@@ -168,7 +168,7 @@ public class RuleDtoTest {
   }
 
   @Test
-  public void addDefaultImpact_whenSoftwareQualityAlreadyDefined_shouldThrowISE() {
+  void addDefaultImpact_whenSoftwareQualityAlreadyDefined_shouldThrowISE() {
     RuleDto dto = new RuleDto();
     dto.addDefaultImpact(newImpactDto(SoftwareQuality.MAINTAINABILITY, Severity.LOW));
 
@@ -180,7 +180,7 @@ public class RuleDtoTest {
   }
 
   @Test
-  public void replaceAllDefaultImpacts_whenSoftwareQualityAlreadyDuplicated_shouldThrowISE() {
+  void replaceAllDefaultImpacts_whenSoftwareQualityAlreadyDuplicated_shouldThrowISE() {
     RuleDto dto = new RuleDto();
     dto.addDefaultImpact(newImpactDto(SoftwareQuality.MAINTAINABILITY, Severity.MEDIUM));
     dto.addDefaultImpact(newImpactDto(SoftwareQuality.SECURITY, Severity.HIGH));
@@ -195,7 +195,7 @@ public class RuleDtoTest {
   }
 
   @Test
-  public void replaceAllImpacts_shouldReplaceExistingImpacts() {
+  void replaceAllImpacts_shouldReplaceExistingImpacts() {
     RuleDto dto = new RuleDto();
     dto.addDefaultImpact(newImpactDto(SoftwareQuality.MAINTAINABILITY, Severity.MEDIUM));
     dto.addDefaultImpact(newImpactDto(SoftwareQuality.SECURITY, Severity.HIGH));
@@ -215,7 +215,7 @@ public class RuleDtoTest {
   }
 
   @Test
-  public void getEnumType_shouldReturnCorrectValue() {
+  void getEnumType_shouldReturnCorrectValue() {
     RuleDto ruleDto = new RuleDto();
     ruleDto.setType(RuleType.CODE_SMELL);
 
@@ -239,7 +239,7 @@ public class RuleDtoTest {
       .build();
   }
 
-  public static ImpactDto newImpactDto(SoftwareQuality softwareQuality, Severity severity) {
+  static ImpactDto newImpactDto(SoftwareQuality softwareQuality, Severity severity) {
     return new ImpactDto(softwareQuality, severity);
   }
 }

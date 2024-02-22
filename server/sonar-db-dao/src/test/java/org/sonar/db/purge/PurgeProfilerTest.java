@@ -21,24 +21,24 @@ package org.sonar.db.purge;
 
 import java.util.List;
 import org.assertj.core.api.Assertions;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class PurgeProfilerTest {
+class PurgeProfilerTest {
 
   private MockedClock clock;
   private PurgeProfiler profiler;
 
-  @Before
-  public void prepare() {
+  @BeforeEach
+  void prepare() {
     clock = new MockedClock();
     profiler = new PurgeProfiler(clock);
   }
 
   @Test
-  public void shouldProfilePurge() {
+  void shouldProfilePurge() {
     profiler.start("foo");
     clock.sleep(10);
     profiler.stop();
@@ -58,7 +58,7 @@ public class PurgeProfilerTest {
   }
 
   @Test
-  public void shouldResetPurgeProfiling() {
+  void shouldResetPurgeProfiling() {
     profiler.start("foo");
     clock.sleep(10);
     profiler.stop();

@@ -19,9 +19,6 @@
  */
 package org.sonar.db.user;
 
-import com.tngtech.java.junit.dataprovider.DataProvider;
-import com.tngtech.java.junit.dataprovider.DataProviderRunner;
-import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -32,9 +29,10 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.IntStream;
 import org.assertj.core.groups.Tuple;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.db.DatabaseUtils;
@@ -53,25 +51,25 @@ import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.assertj.core.groups.Tuple.tuple;
 import static org.sonar.db.user.GroupTesting.newGroupDto;
 import static org.sonar.db.user.UserTesting.newUserDto;
 
-@RunWith(DataProviderRunner.class)
-public class UserDaoIT {
+class UserDaoIT {
   private static final long NOW = 1_500_000_000_000L;
 
-  private TestSystem2 system2 = new TestSystem2().setNow(NOW);
+  private final TestSystem2 system2 = new TestSystem2().setNow(NOW);
 
-  @Rule
-  public DbTester db = DbTester.create(system2);
+  @RegisterExtension
+  private final DbTester db = DbTester.create(system2);
 
-  private DbClient dbClient = db.getDbClient();
-  private DbSession session = db.getSession();
-  private UserDao underTest = db.getDbClient().userDao();
+  private final DbClient dbClient = db.getDbClient();
+  private final DbSession session = db.getSession();
+  private final UserDao underTest = db.getDbClient().userDao();
 
   @Test
-  public void selectByUuid() {
+  void selectByUuid() {
     UserDto user1 = db.users().insertUser();
     UserDto user2 = db.users().insertUser(user -> user.setActive(false));
 
@@ -81,7 +79,7 @@ public class UserDaoIT {
   }
 
   @Test
-  public void selectByUuid_withScmAccount_retrievesScmAccounts() {
+  void selectByUuid_withScmAccount_retrievesScmAccounts() {
     List<String> scmAccountsUser1 = List.of("account1_1", "account1_2");
     UserDto user1 = db.users().insertUser(u -> u.setScmAccounts(scmAccountsUser1));
     UserDto user2 = db.users().insertUser(u -> u.setScmAccounts(List.of("account2_1", "account2_2")));
@@ -92,11 +90,11 @@ public class UserDaoIT {
   }
 
   @Test
-  public void selectActiveUsersByScmAccountOrLoginOrEmail_findsCorrectResults() {
+  void selectActiveUsersByScmAccountOrLoginOrEmail_findsCorrectResults() {
     String user1 = db.users().insertUser(user -> user.setLogin("user1").setEmail("toto@tata.com")).getUuid();
     String user2 = db.users().insertUser(user -> user.setLogin("user2")).getUuid();
     String user3 = db.users().insertUser(user -> user.setLogin("user3").setScmAccounts(List.of("scmuser3", "scmuser3bis"))).getUuid();
-    String user4 =  db.users().insertUser(user -> user.setLogin("user4").setEmail("UPPERCASE@tata.com")).getUuid();
+    String user4 = db.users().insertUser(user -> user.setLogin("user4").setEmail("UPPERCASE@tata.com")).getUuid();
     db.users().insertUser();
     db.users().insertUser(user -> user.setLogin("inactive_user1").setActive(false));
     db.users().insertUser(user -> user.setLogin("inactive_user2").setActive(false).setScmAccounts(List.of("inactive_user2")));
@@ -114,7 +112,7 @@ public class UserDaoIT {
   }
 
   @Test
-  public void selectUserByLogin_ignore_inactive() {
+  void selectUserByLogin_ignore_inactive() {
     db.users().insertUser(user -> user.setLogin("user1"));
     db.users().insertUser(user -> user.setLogin("user2"));
     db.users().insertUser(user -> user.setLogin("inactive_user").setActive(false));
@@ -125,7 +123,7 @@ public class UserDaoIT {
   }
 
   @Test
-  public void selectExternalIdentityProviders() {
+  void selectExternalIdentityProviders() {
     db.users().insertUser(user -> user.setLogin("user1").setExternalIdentityProvider("github"));
     db.users().insertUser(user -> user.setLogin("user2").setExternalIdentityProvider("sonarqube"));
     db.users().insertUser(user -> user.setLogin("user3").setExternalIdentityProvider("github"));
@@ -134,7 +132,7 @@ public class UserDaoIT {
   }
 
   @Test
-  public void selectUserByLogin_not_found() {
+  void selectUserByLogin_not_found() {
     db.users().insertUser(user -> user.setLogin("user"));
 
     UserDto user = underTest.selectActiveUserByLogin(session, "not_found");
@@ -143,7 +141,7 @@ public class UserDaoIT {
   }
 
   @Test
-  public void selectUsersByLogins() {
+  void selectUsersByLogins() {
     db.users().insertUser(user -> user.setLogin("user1"));
     db.users().insertUser(user -> user.setLogin("user2"));
     db.users().insertUser(user -> user.setLogin("inactive_user").setActive(false));
@@ -154,7 +152,7 @@ public class UserDaoIT {
   }
 
   @Test
-  public void selectUsersByUuids() {
+  void selectUsersByUuids() {
     UserDto user1 = db.users().insertUser();
     UserDto user2 = db.users().insertUser();
     UserDto user3 = db.users().insertUser(user -> user.setActive(false));
@@ -165,14 +163,14 @@ public class UserDaoIT {
   }
 
   @Test
-  public void selectUsersByLogins_empty_logins() {
+  void selectUsersByLogins_empty_logins() {
     // no need to access db
     Collection<UserDto> users = underTest.selectByLogins(session, emptyList());
     assertThat(users).isEmpty();
   }
 
   @Test
-  public void selectByOrderedLogins() {
+  void selectByOrderedLogins() {
     db.users().insertUser(user -> user.setLogin("U1"));
     db.users().insertUser(user -> user.setLogin("U2"));
 
@@ -186,7 +184,7 @@ public class UserDaoIT {
   }
 
   @Test
-  public void selectUsersByQuery_all() {
+  void selectUsersByQuery_all() {
     db.users().insertUser(user -> user.setLogin("user").setName("User"));
     db.users().insertUser(user -> user.setLogin("inactive_user").setName("Disabled").setActive(false));
 
@@ -196,7 +194,7 @@ public class UserDaoIT {
   }
 
   @Test
-  public void selectUsersByQuery_only_actives() {
+  void selectUsersByQuery_only_actives() {
     db.users().insertUser(user -> user.setLogin("user").setName("User"));
     db.users().insertUser(user -> user.setLogin("inactive_user").setName("Disabled").setActive(false));
 
@@ -206,7 +204,7 @@ public class UserDaoIT {
   }
 
   @Test
-  public void selectUsersByQuery_whenSearchTextMatchPartOfTheLoginCaseInsensitively_findsTheRightResults() {
+  void selectUsersByQuery_whenSearchTextMatchPartOfTheLoginCaseInsensitively_findsTheRightResults() {
     db.users().insertUser(user -> user.setLogin("tata"));
     UserDto userToFind = db.users().insertUser(user -> user.setLogin("simon"));
     UserDto userToFind2 = db.users().insertUser(user -> user.setLogin("ToSimonTo"));
@@ -219,7 +217,7 @@ public class UserDaoIT {
   }
 
   @Test
-  public void selectUsersByQuery_whenSearchTextMatchPartOfTheNameCaseInsensitively_findsTheRightResults() {
+  void selectUsersByQuery_whenSearchTextMatchPartOfTheNameCaseInsensitively_findsTheRightResults() {
     db.users().insertUser(user -> user.setName("tata"));
     UserDto userToFind = db.users().insertUser(user -> user.setName("simon"));
     UserDto userToFind2 = db.users().insertUser(user -> user.setName("ToSimonTo"));
@@ -232,7 +230,7 @@ public class UserDaoIT {
   }
 
   @Test
-  public void selectUsersByQuery_whenSearchTextMatchPartOfTheEmailCaseInsensitively_findsTheRightResults() {
+  void selectUsersByQuery_whenSearchTextMatchPartOfTheEmailCaseInsensitively_findsTheRightResults() {
     db.users().insertUser(user -> user.setEmail("user@user.com"));
     UserDto userToFind = db.users().insertUser(user -> user.setEmail("simon@brandhof.com"));
     UserDto userToFind2 = db.users().insertUser(user -> user.setEmail("tagadasimon2@brandhof.com"));
@@ -245,7 +243,7 @@ public class UserDaoIT {
   }
 
   @Test
-  public void selectUsersByQuery_escape_special_characters_in_like() {
+  void selectUsersByQuery_escape_special_characters_in_like() {
     db.users().insertUser(user -> user.setLogin("user").setName("User"));
     db.users().insertUser(user -> user.setLogin("sbrandhof").setName("Simon Brandhof"));
 
@@ -257,7 +255,7 @@ public class UserDaoIT {
   }
 
   @Test
-  public void selectUsersByQuery_whenSearchingByUuids_findsTheRightResults() {
+  void selectUsersByQuery_whenSearchingByUuids_findsTheRightResults() {
     db.users().insertUser();
     UserDto userToFind1 = db.users().insertUser();
     UserDto userToFind2 = db.users().insertUser();
@@ -270,7 +268,7 @@ public class UserDaoIT {
   }
 
   @Test
-  public void selectUsersByQuery_whenSearchingByGroupUuid_findsTheRightResults() {
+  void selectUsersByQuery_whenSearchingByGroupUuid_findsTheRightResults() {
     db.users().insertUser();
     UserDto userToFind1 = db.users().insertUser(u -> u.setLogin("z"));
     UserDto userToFind2 = db.users().insertUser(u -> u.setLogin("a"));
@@ -287,7 +285,7 @@ public class UserDaoIT {
   }
 
   @Test
-  public void selectUsersByQuery_whenExcludingGroupUuid_findsTheRightResults() {
+  void selectUsersByQuery_whenExcludingGroupUuid_findsTheRightResults() {
     UserDto userToFind1 = db.users().insertUser(u -> u.setLogin("z"));
     UserDto userToFind2 = db.users().insertUser(u -> u.setLogin("a"));
     UserDto userToFind3 = db.users().insertUser(u -> u.setLogin("b"));
@@ -304,7 +302,7 @@ public class UserDaoIT {
   }
 
   @Test
-  public void selectUsersByQuery_whenSearchingByUuidsWithLongRange_shouldReturnTheExpectedUsers() {
+  void selectUsersByQuery_whenSearchingByUuidsWithLongRange_shouldReturnTheExpectedUsers() {
     db.users().insertUser();
     List<UserDto> users = generateAndInsertUsers(3200);
     Set<String> userUuids = users.stream()
@@ -324,9 +322,8 @@ public class UserDaoIT {
       .toList();
   }
 
-  @DataProvider
-  public static Object[][] paginationTestCases() {
-    return new Object[][] {
+  private static Object[][] paginationTestCases() {
+    return new Object[][]{
       {100, 1, 5},
       {100, 3, 18},
       {2075, 41, 50},
@@ -334,9 +331,9 @@ public class UserDaoIT {
     };
   }
 
-  @Test
-  @UseDataProvider("paginationTestCases")
-  public void selectUsers_whenUsingPagination_findsTheRightResults(int numberOfUsersToGenerate, int offset, int limit) {
+  @ParameterizedTest
+  @MethodSource("paginationTestCases")
+  void selectUsers_whenUsingPagination_findsTheRightResults(int numberOfUsersToGenerate, int offset, int limit) {
     Map<String, UserDto> allUsers = generateUsers(numberOfUsersToGenerate);
 
     UserQuery query = UserQuery.builder().build();
@@ -367,7 +364,7 @@ public class UserDaoIT {
   }
 
   @Test
-  public void insert_user_with_default_values() {
+  void insert_user_with_default_values() {
     UserDto userDto = new UserDto()
       .setLogin("john")
       .setName("John")
@@ -393,7 +390,7 @@ public class UserDaoIT {
   }
 
   @Test
-  public void insert_user() {
+  void insert_user() {
     long date = DateUtils.parseDate("2014-06-20").getTime();
 
     UserDto userDto = new UserDto()
@@ -438,7 +435,7 @@ public class UserDaoIT {
   }
 
   @Test
-  public void insert_user_does_not_set_last_connection_date() {
+  void insert_user_does_not_set_last_connection_date() {
     UserDto user = newUserDto().setLastConnectionDate(10_000_000_000L);
     underTest.insert(db.getSession(), user);
     db.getSession().commit();
@@ -449,7 +446,7 @@ public class UserDaoIT {
   }
 
   @Test
-  public void update_user() {
+  void update_user() {
     UserDto user = db.users().insertUser(u -> u
       .setLogin("john")
       .setName("John")
@@ -499,7 +496,7 @@ public class UserDaoIT {
   }
 
   @Test
-  public void update_scmAccounts() {
+  void update_scmAccounts() {
     UserDto user = db.users().insertUser(u -> u.setScmAccounts(emptyList()));
 
     underTest.update(db.getSession(), user.setScmAccounts(List.of("jo.hn", "john2", "johndooUpper", "")));
@@ -516,7 +513,7 @@ public class UserDaoIT {
   }
 
   @Test
-  public void deactivate_user() {
+  void deactivate_user() {
     UserDto user = insertActiveUser();
     insertUserGroup(user);
     UserDto otherUser = insertActiveUser();
@@ -544,7 +541,7 @@ public class UserDaoIT {
   }
 
   @Test
-  public void clean_users_homepage_when_deleting_project() {
+  void clean_users_homepage_when_deleting_project() {
 
     UserDto userUnderTest = newUserDto().setHomepageType("PROJECT").setHomepageParameter("dummy-project-UUID");
     underTest.insert(session, userUnderTest);
@@ -568,7 +565,7 @@ public class UserDaoIT {
   }
 
   @Test
-  public void update_last_sonarlint_connection_date() {
+  void update_last_sonarlint_connection_date() {
     UserDto user = db.users().insertUser();
     assertThat(user.getLastSonarlintConnectionDate()).isNull();
     underTest.updateSonarlintLastConnectionDate(db.getSession(), user.getLogin());
@@ -576,7 +573,7 @@ public class UserDaoIT {
   }
 
   @Test
-  public void count_sonarlint_weekly_users() {
+  void count_sonarlint_weekly_users() {
     UserDto user1 = db.users().insertUser(c -> c.setLastSonarlintConnectionDate(NOW - 100_000));
     UserDto user2 = db.users().insertUser(c -> c.setLastSonarlintConnectionDate(NOW));
     // these don't count
@@ -587,7 +584,7 @@ public class UserDaoIT {
   }
 
   @Test
-  public void count_active_users() {
+  void count_active_users() {
     db.users().insertUser();
     db.users().insertUser();
     db.users().insertUser();
@@ -597,7 +594,7 @@ public class UserDaoIT {
   }
 
   @Test
-  public void clean_user_homepage() {
+  void clean_user_homepage() {
 
     UserDto user = newUserDto().setHomepageType("RANDOM").setHomepageParameter("any-string");
     underTest.insert(session, user);
@@ -613,12 +610,12 @@ public class UserDaoIT {
   }
 
   @Test
-  public void does_not_fail_to_deactivate_missing_user() {
-    underTest.deactivateUser(session, newUserDto());
+  void does_not_fail_to_deactivate_missing_user() {
+    assertThatNoException().isThrownBy(() -> underTest.deactivateUser(session, newUserDto()));
   }
 
   @Test
-  public void select_by_login() {
+  void select_by_login() {
     UserDto user1 = db.users().insertUser(user -> user
       .setLogin("marius")
       .setName("Marius")
@@ -647,8 +644,9 @@ public class UserDaoIT {
   }
 
   @Test
-  public void select_nullable_by_scm_account() {
-    db.users().insertUser(user -> user.setLogin("marius").setName("Marius").setEmail("marius@lesbronzes.fr").setScmAccounts(asList("ma", "marius33")));
+  void select_nullable_by_scm_account() {
+    db.users().insertUser(user -> user.setLogin("marius").setName("Marius").setEmail("marius@lesbronzes.fr").setScmAccounts(asList("ma",
+      "marius33")));
     db.users().insertUser(user -> user.setLogin("sbrandhof").setName("Simon Brandhof").setEmail("sbrandhof@lesbronzes.fr").setScmAccounts(emptyList()));
 
     List<UserDto> searchByMa = underTest.selectByScmAccountOrLoginOrEmail(session, "ma");
@@ -662,8 +660,9 @@ public class UserDaoIT {
   }
 
   @Test
-  public void select_nullable_by_scm_account_return_many_results_when_same_email_is_used_by_many_users() {
-    db.users().insertUser(user -> user.setLogin("marius").setName("Marius").setEmail("marius@lesbronzes.fr").setScmAccounts(asList("ma", "marius33")));
+  void select_nullable_by_scm_account_return_many_results_when_same_email_is_used_by_many_users() {
+    db.users().insertUser(user -> user.setLogin("marius").setName("Marius").setEmail("marius@lesbronzes.fr").setScmAccounts(asList("ma",
+      "marius33")));
     db.users().insertUser(user -> user.setLogin("sbrandhof").setName("Simon Brandhof").setEmail("marius@lesbronzes.fr").setScmAccounts(emptyList()));
 
     List<UserDto> results = underTest.selectByScmAccountOrLoginOrEmail(session, "marius@lesbronzes.fr");
@@ -672,7 +671,7 @@ public class UserDaoIT {
   }
 
   @Test
-  public void select_nullable_by_login() {
+  void select_nullable_by_login() {
     db.users().insertUser(user -> user.setLogin("marius"));
     db.users().insertUser(user -> user.setLogin("sbrandhof"));
 
@@ -681,7 +680,7 @@ public class UserDaoIT {
   }
 
   @Test
-  public void select_by_email() {
+  void select_by_email() {
     UserDto activeUser1 = db.users().insertUser(u -> u.setEmail("user1@email.com"));
     UserDto activeUser2 = db.users().insertUser(u -> u.setEmail("user1@email.com"));
     UserDto disableUser = db.users().insertUser(u -> u.setActive(false));
@@ -692,17 +691,19 @@ public class UserDaoIT {
   }
 
   @Test
-  public void select_by_external_id_and_identity_provider() {
+  void select_by_external_id_and_identity_provider() {
     UserDto activeUser = db.users().insertUser();
     UserDto disableUser = db.users().insertUser(u -> u.setActive(false));
 
-    assertThat(underTest.selectByExternalIdAndIdentityProvider(session, activeUser.getExternalId(), activeUser.getExternalIdentityProvider())).isNotNull();
-    assertThat(underTest.selectByExternalIdAndIdentityProvider(session, disableUser.getExternalId(), disableUser.getExternalIdentityProvider())).isNotNull();
+    assertThat(underTest.selectByExternalIdAndIdentityProvider(session, activeUser.getExternalId(),
+      activeUser.getExternalIdentityProvider())).isNotNull();
+    assertThat(underTest.selectByExternalIdAndIdentityProvider(session, disableUser.getExternalId(),
+      disableUser.getExternalIdentityProvider())).isNotNull();
     assertThat(underTest.selectByExternalIdAndIdentityProvider(session, "unknown", "unknown")).isNull();
   }
 
   @Test
-  public void select_by_external_ids_and_identity_provider() {
+  void select_by_external_ids_and_identity_provider() {
     UserDto user1 = db.users().insertUser(u -> u.setExternalIdentityProvider("github"));
     UserDto user2 = db.users().insertUser(u -> u.setExternalIdentityProvider("github"));
     UserDto user3 = db.users().insertUser(u -> u.setExternalIdentityProvider("bitbucket"));
@@ -718,17 +719,19 @@ public class UserDaoIT {
   }
 
   @Test
-  public void select_by_external_login_and_identity_provider() {
+  void select_by_external_login_and_identity_provider() {
     UserDto activeUser = db.users().insertUser();
     UserDto disableUser = db.users().insertUser(u -> u.setActive(false));
 
-    assertThat(underTest.selectByExternalLoginAndIdentityProvider(session, activeUser.getExternalLogin(), activeUser.getExternalIdentityProvider())).isNotNull();
-    assertThat(underTest.selectByExternalLoginAndIdentityProvider(session, disableUser.getExternalLogin(), disableUser.getExternalIdentityProvider())).isNotNull();
+    assertThat(underTest.selectByExternalLoginAndIdentityProvider(session, activeUser.getExternalLogin(),
+      activeUser.getExternalIdentityProvider())).isNotNull();
+    assertThat(underTest.selectByExternalLoginAndIdentityProvider(session, disableUser.getExternalLogin(),
+      disableUser.getExternalIdentityProvider())).isNotNull();
     assertThat(underTest.selectByExternalLoginAndIdentityProvider(session, "unknown", "unknown")).isNull();
   }
 
   @Test
-  public void scrollByLUuids() {
+  void scrollByLUuids() {
     UserDto u1 = insertUser(true);
     UserDto u2 = insertUser(false);
     UserDto u3 = insertUser(false);
@@ -741,7 +744,7 @@ public class UserDaoIT {
   }
 
   @Test
-  public void scrollByUuids_scrolls_by_pages_of_1000_uuids() {
+  void scrollByUuids_scrolls_by_pages_of_1000_uuids() {
     List<String> uuids = new ArrayList<>();
     for (int i = 0; i < DatabaseUtils.PARTITION_SIZE_FOR_ORACLE + 10; i++) {
       uuids.add(insertUser(true).getUuid());
@@ -756,7 +759,7 @@ public class UserDaoIT {
   }
 
   @Test
-  public void scrollAll() {
+  void scrollAll() {
     UserDto u1 = insertUser(true);
     UserDto u2 = insertUser(false);
 
@@ -768,14 +771,15 @@ public class UserDaoIT {
   }
 
   @Test
-  public void selectUserTelemetry() {
+  void selectUserTelemetry() {
     UserDto u1 = insertUser(true);
     UserDto u2 = insertUser(false);
 
     List<UserTelemetryDto> result = underTest.selectUsersForTelemetry(db.getSession());
 
     assertThat(result)
-      .extracting(UserTelemetryDto::getUuid, UserTelemetryDto::isActive, UserTelemetryDto::getLastConnectionDate, UserTelemetryDto::getLastSonarlintConnectionDate,
+      .extracting(UserTelemetryDto::getUuid, UserTelemetryDto::isActive, UserTelemetryDto::getLastConnectionDate,
+        UserTelemetryDto::getLastSonarlintConnectionDate,
         UserTelemetryDto::getScimUuid)
       .containsExactlyInAnyOrder(
         tuple(u1.getUuid(), u1.isActive(), u1.getLastConnectionDate(), u1.getLastSonarlintConnectionDate(), null),
@@ -784,12 +788,13 @@ public class UserDaoIT {
   }
 
   @Test
-  public void selectUserTelemetryUpdatedLastConnectionDate() {
+  void selectUserTelemetryUpdatedLastConnectionDate() {
     UserDto u1 = insertUser(true);
     UserDto u2 = insertUser(false);
 
     assertThat(underTest.selectUsersForTelemetry(db.getSession()))
-      .extracting(UserTelemetryDto::getUuid, UserTelemetryDto::isActive, UserTelemetryDto::getLastConnectionDate, UserTelemetryDto::getLastSonarlintConnectionDate)
+      .extracting(UserTelemetryDto::getUuid, UserTelemetryDto::isActive, UserTelemetryDto::getLastConnectionDate,
+        UserTelemetryDto::getLastSonarlintConnectionDate)
       .containsExactlyInAnyOrder(
         tuple(u1.getUuid(), u1.isActive(), null, u1.getLastSonarlintConnectionDate()),
         tuple(u2.getUuid(), u2.isActive(), null, u2.getLastSonarlintConnectionDate()));
@@ -798,14 +803,15 @@ public class UserDaoIT {
     underTest.update(db.getSession(), u2.setLastConnectionDate(20_000_000_000L));
 
     assertThat(underTest.selectUsersForTelemetry(db.getSession()))
-      .extracting(UserTelemetryDto::getUuid, UserTelemetryDto::isActive, UserTelemetryDto::getLastConnectionDate, UserTelemetryDto::getLastSonarlintConnectionDate)
+      .extracting(UserTelemetryDto::getUuid, UserTelemetryDto::isActive, UserTelemetryDto::getLastConnectionDate,
+        UserTelemetryDto::getLastSonarlintConnectionDate)
       .containsExactlyInAnyOrder(
         tuple(u1.getUuid(), u1.isActive(), 10_000_000_000L, u1.getLastSonarlintConnectionDate()),
         tuple(u2.getUuid(), u2.isActive(), 20_000_000_000L, u2.getLastSonarlintConnectionDate()));
   }
 
   @Test
-  public void selectUserTelemetryWithScim() {
+  void selectUserTelemetryWithScim() {
     UserDto u1 = insertUser(true);
     UserDto u2 = insertUser(false);
     ScimUserDto scimUser1 = enableScimForUser(u1);
@@ -813,7 +819,8 @@ public class UserDaoIT {
     List<UserTelemetryDto> result = underTest.selectUsersForTelemetry(db.getSession());
 
     assertThat(result)
-      .extracting(UserTelemetryDto::getUuid, UserTelemetryDto::isActive, UserTelemetryDto::getLastConnectionDate, UserTelemetryDto::getLastSonarlintConnectionDate,
+      .extracting(UserTelemetryDto::getUuid, UserTelemetryDto::isActive, UserTelemetryDto::getLastConnectionDate,
+        UserTelemetryDto::getLastSonarlintConnectionDate,
         UserTelemetryDto::getScimUuid)
       .containsExactlyInAnyOrder(
         tuple(u1.getUuid(), u1.isActive(), u1.getLastConnectionDate(), u1.getLastSonarlintConnectionDate(), scimUser1.getScimUserUuid()),

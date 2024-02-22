@@ -20,115 +20,113 @@
 package org.sonar.db;
 
 import org.assertj.core.api.Assertions;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-public class OffsetBasedPaginationTest {
+class OffsetBasedPaginationTest {
 
   @Test
-  public void forOffset_whenNegativeOffset_shouldfailsWithIAE() {
+  void forOffset_whenNegativeOffset_shouldfailsWithIAE() {
     assertThatThrownBy(() -> OffsetBasedPagination.forOffset(-1, 10))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("offset must be >= 0");
   }
 
   @Test
-  public void forOffset_whenPageSizeIsZero_shouldfailsWithIAE() {
+  void forOffset_whenPageSizeIsZero_shouldfailsWithIAE() {
     assertThatThrownBy(() -> OffsetBasedPagination.forOffset(1, 0))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("page size must be >= 1");
   }
 
   @Test
-  public void forOffset_whenNegativePageSize_shouldfailsWithIAE() {
+  void forOffset_whenNegativePageSize_shouldfailsWithIAE() {
     assertThatThrownBy(() -> OffsetBasedPagination.forOffset(1, -1))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("page size must be >= 1");
   }
 
   @Test
-  public void forOffset_whenZeroOffset_shouldStartOffsetAtZero() {
+  void forOffset_whenZeroOffset_shouldStartOffsetAtZero() {
     assertThat(OffsetBasedPagination.forOffset(0, 100))
       .extracting(p -> p.getOffset(), p -> p.getPageSize())
       .containsExactly(0, 100);
   }
 
   @Test
-  public void forStartRowNumber_whenStartRowNumberLowerThanOne_shouldfailsWithIAE() {
+  void forStartRowNumber_whenStartRowNumberLowerThanOne_shouldfailsWithIAE() {
     assertThatThrownBy(() -> OffsetBasedPagination.forStartRowNumber(0, 10))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("startRowNumber must be >= 1");
   }
 
   @Test
-  public void forStartRowNumber_whenPageSizeIsZero_shouldfailsWithIAE() {
+  void forStartRowNumber_whenPageSizeIsZero_shouldfailsWithIAE() {
     assertThatThrownBy(() -> OffsetBasedPagination.forStartRowNumber(1, 0))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("page size must be >= 1");
   }
 
   @Test
-  public void forStartRowNumber_whenNegativePageSize_shouldfailsWithIAE() {
+  void forStartRowNumber_whenNegativePageSize_shouldfailsWithIAE() {
     assertThatThrownBy(() -> OffsetBasedPagination.forStartRowNumber(1, -1))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("page size must be >= 1");
   }
 
   @Test
-  public void equals_whenSameParameters_shouldBeTrue() {
+  void equals_whenSameParameters_shouldBeTrue() {
     Assertions.assertThat(OffsetBasedPagination.forStartRowNumber(15, 20))
       .isEqualTo(OffsetBasedPagination.forOffset(14, 20));
   }
 
   @Test
-  public void equals_whenSameObjects_shouldBeTrue() {
+  void equals_whenSameObjects_shouldBeTrue() {
     OffsetBasedPagination offsetBasedPagination = OffsetBasedPagination.forStartRowNumber(15, 20);
     Assertions.assertThat(offsetBasedPagination).isEqualTo(offsetBasedPagination);
   }
 
   @Test
-  public void hashcode_whenSameObjects_shouldBeEquals() {
+  void hashcode_whenSameObjects_shouldBeEquals() {
     OffsetBasedPagination offsetBasedPagination = OffsetBasedPagination.forStartRowNumber(15, 20);
     Assertions.assertThat(offsetBasedPagination).hasSameHashCodeAs(offsetBasedPagination);
   }
 
   @Test
-  public void equals_whenDifferentClasses_shouldBeFalse() {
+  void equals_whenDifferentClasses_shouldBeFalse() {
     Assertions.assertThat(OffsetBasedPagination.forStartRowNumber(15, 20)).isNotEqualTo("not an OffsetBasedPagination object");
   }
 
   @Test
-  public void equals_whenDifferentPageSize_shouldBeFalse() {
+  void equals_whenDifferentPageSize_shouldBeFalse() {
     Assertions.assertThat(OffsetBasedPagination.forStartRowNumber(15, 21))
       .isNotEqualTo(OffsetBasedPagination.forOffset(14, 20));
   }
 
   @Test
-  public void equals_whenDifferentOffset_shouldBeFalse() {
+  void equals_whenDifferentOffset_shouldBeFalse() {
     Assertions.assertThat(OffsetBasedPagination.forOffset(30, 20))
       .isNotEqualTo(OffsetBasedPagination.forOffset(15, 20));
   }
 
   @Test
-  public void hashcode_whenSameParameters_shouldBeEquals() {
+  void hashcode_whenSameParameters_shouldBeEquals() {
     Assertions.assertThat(OffsetBasedPagination.forStartRowNumber(1, 20))
       .hasSameHashCodeAs(OffsetBasedPagination.forOffset(0, 20));
   }
 
   @Test
-  public void hashcode_whenDifferentOffset_shouldBeNotEquals() {
+  void hashcode_whenDifferentOffset_shouldBeNotEquals() {
     Assertions.assertThat(OffsetBasedPagination.forOffset(10, 20))
       .doesNotHaveSameHashCodeAs(OffsetBasedPagination.forOffset(15, 20));
   }
 
   @Test
-  public void hashcode_whenDifferentPageSize_shouldBeNotEquals() {
+  void hashcode_whenDifferentPageSize_shouldBeNotEquals() {
     Assertions.assertThat(OffsetBasedPagination.forOffset(0, 20))
       .doesNotHaveSameHashCodeAs(OffsetBasedPagination.forOffset(0, 40));
   }
-
-
 
 }

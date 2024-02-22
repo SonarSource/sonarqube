@@ -20,15 +20,15 @@
 package org.sonar.db.issue;
 
 import java.util.List;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class IssueQueryParamsTest {
+class IssueQueryParamsTest {
   private final List<String> ruleRepositories = List.of("js-security", "java");
 
   @Test
-  public void validate_issue_query_parameters_structure() {
+  void validate_issue_query_parameters_structure() {
     boolean resolvedOnly = false;
     long changedSince = 1_000_000L;
     String branchUuid = "master-branch-uuid";

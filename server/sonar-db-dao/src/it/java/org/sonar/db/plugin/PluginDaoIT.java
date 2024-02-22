@@ -20,8 +20,8 @@
 package org.sonar.db.plugin;
 
 import javax.annotation.Nullable;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.plugin.PluginDto.Type;
@@ -30,15 +30,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.plugin.PluginDto.Type.BUNDLED;
 import static org.sonar.db.plugin.PluginDto.Type.EXTERNAL;
 
-public class PluginDaoIT {
+class PluginDaoIT {
 
-  @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+  @RegisterExtension
+  private final DbTester db = DbTester.create(System2.INSTANCE);
 
   private final PluginDao underTest = db.getDbClient().pluginDao();
 
   @Test
-  public void selectByKey() {
+  void selectByKey() {
     insertPlugins();
 
     assertThat(underTest.selectByKey(db.getSession(), "java2")).isEmpty();
@@ -47,13 +47,13 @@ public class PluginDaoIT {
   }
 
   @Test
-  public void selectAll() {
+  void selectAll() {
     insertPlugins();
     assertThat(underTest.selectAll(db.getSession())).hasSize(2);
   }
 
   @Test
-  public void insert() {
+  void insert() {
     insertPlugins();
 
     underTest.insert(db.getSession(), new PluginDto()
@@ -69,7 +69,7 @@ public class PluginDaoIT {
   }
 
   @Test
-  public void update() {
+  void update() {
     insertPlugins();
     PluginDto plugin = underTest.selectByKey(db.getSession(), "java").get();
 
@@ -82,7 +82,8 @@ public class PluginDaoIT {
     assertPlugin("java", "a", "foo", "abc", BUNDLED, true, 1500000000000L, 3L);
   }
 
-  private void assertPlugin(String key, String uuid, @Nullable String basePluginKey, String fileHash, Type type, boolean removed, long cretedAt, long updatedAt) {
+  private void assertPlugin(String key, String uuid, @Nullable String basePluginKey, String fileHash, Type type, boolean removed,
+    long cretedAt, long updatedAt) {
     PluginDto plugin = underTest.selectByKey(db.getSession(), key).get();
     assertThat(plugin.getUuid()).isEqualTo(uuid);
     assertThat(plugin.getKee()).isEqualTo(key);
@@ -99,7 +100,8 @@ public class PluginDaoIT {
     insertPlugin("b", "javacustom", "java", "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb", EXTERNAL, true, 1500000000000L, 1600000000000L);
   }
 
-  private void insertPlugin(String uuid, String key, @Nullable String basePluginKey, String fileHash, Type type, boolean removed, long createdAt, long updatedAt) {
+  private void insertPlugin(String uuid, String key, @Nullable String basePluginKey, String fileHash, Type type, boolean removed,
+    long createdAt, long updatedAt) {
     db.executeInsert("PLUGINS",
       "uuid", uuid,
       "kee", key,

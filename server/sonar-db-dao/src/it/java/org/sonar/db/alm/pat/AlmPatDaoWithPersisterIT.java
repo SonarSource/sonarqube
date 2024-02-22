@@ -19,8 +19,8 @@
  */
 package org.sonar.db.alm.pat;
 
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.core.util.UuidFactory;
@@ -42,7 +42,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.alm.integration.pat.AlmPatsTesting.newAlmPatDto;
 
-public class AlmPatDaoWithPersisterIT {
+class AlmPatDaoWithPersisterIT {
 
   private static final long NOW = 1000000L;
   private static final String A_UUID = "SOME_UUID";
@@ -50,8 +50,8 @@ public class AlmPatDaoWithPersisterIT {
   private final AuditPersister auditPersister = mock(AuditPersister.class);
   private final ArgumentCaptor<PersonalAccessTokenNewValue> newValueCaptor = ArgumentCaptor.forClass(PersonalAccessTokenNewValue.class);
   private final TestSystem2 system2 = new TestSystem2().setNow(NOW);
-  @Rule
-  public DbTester db = DbTester.create(system2, auditPersister);
+  @RegisterExtension
+  private final DbTester db = DbTester.create(system2, auditPersister);
 
   private final DbSession dbSession = db.getSession();
   private final UuidFactory uuidFactory = mock(UuidFactory.class);
@@ -59,7 +59,7 @@ public class AlmPatDaoWithPersisterIT {
   private final AlmPatDao underTest = db.getDbClient().almPatDao();
 
   @Test
-  public void insertAndUpdateArePersisted() {
+  void insertAndUpdateArePersisted() {
     when(uuidFactory.create()).thenReturn(A_UUID);
 
     AlmPatDto almPatDto = newAlmPatDto();
@@ -84,7 +84,7 @@ public class AlmPatDaoWithPersisterIT {
   }
 
   @Test
-  public void deleteIsPersisted() {
+  void deleteIsPersisted() {
     when(uuidFactory.create()).thenReturn(A_UUID);
 
     AlmPatDto almPat = newAlmPatDto();
@@ -105,7 +105,7 @@ public class AlmPatDaoWithPersisterIT {
   }
 
   @Test
-  public void deleteWithoutAffectedRowsIsNotPersisted() {
+  void deleteWithoutAffectedRowsIsNotPersisted() {
     AlmPatDto almPat = newAlmPatDto();
 
     underTest.delete(dbSession, almPat, null, null);
@@ -114,7 +114,7 @@ public class AlmPatDaoWithPersisterIT {
   }
 
   @Test
-  public void deleteByUserIsPersisted() {
+  void deleteByUserIsPersisted() {
     when(uuidFactory.create()).thenReturn(A_UUID);
     UserDto userDto = db.users().insertUser();
     AlmPatDto almPat = newAlmPatDto();
@@ -134,7 +134,7 @@ public class AlmPatDaoWithPersisterIT {
   }
 
   @Test
-  public void deleteByUserWithoutAffectedRowsIsNotPersisted() {
+  void deleteByUserWithoutAffectedRowsIsNotPersisted() {
     UserDto userDto = db.users().insertUser();
 
     underTest.deleteByUser(dbSession, userDto);
@@ -144,7 +144,7 @@ public class AlmPatDaoWithPersisterIT {
   }
 
   @Test
-  public void deleteByAlmSettingIsPersisted() {
+  void deleteByAlmSettingIsPersisted() {
     when(uuidFactory.create()).thenReturn(A_UUID);
     AlmSettingDto almSettingDto = db.almSettings().insertBitbucketAlmSetting();
     AlmPatDto almPat = newAlmPatDto();
@@ -164,7 +164,7 @@ public class AlmPatDaoWithPersisterIT {
   }
 
   @Test
-  public void deleteByAlmSettingWithoutAffectedRowsIsNotPersisted() {
+  void deleteByAlmSettingWithoutAffectedRowsIsNotPersisted() {
     AlmSettingDto almSettingDto = db.almSettings().insertBitbucketAlmSetting();
     clearInvocations(auditPersister);
     underTest.deleteByAlmSetting(dbSession, almSettingDto);

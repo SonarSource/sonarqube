@@ -23,8 +23,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbSession;
@@ -36,11 +36,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.AssertionsForClassTypes.tuple;
 
-public class AnalysisPropertiesDaoIT {
+class AnalysisPropertiesDaoIT {
   private static final long NOW = 1_000L;
 
-  @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  @RegisterExtension
+  private final DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   private final System2 system2 = new TestSystem2().setNow(NOW);
   private final DbSession dbSession = dbTester.getSession();
@@ -48,7 +48,7 @@ public class AnalysisPropertiesDaoIT {
   private final Random random = new Random();
 
   @Test
-  public void insert_with_null_uuid_throws_NPE() {
+  void insert_with_null_uuid_throws_NPE() {
     AnalysisPropertyDto analysisPropertyDto = new AnalysisPropertyDto()
       .setAnalysisUuid(randomAlphanumeric(10))
       .setKey(randomAlphanumeric(10))
@@ -60,7 +60,7 @@ public class AnalysisPropertiesDaoIT {
   }
 
   @Test
-  public void insert_with_null_key_throws_NPE() {
+  void insert_with_null_key_throws_NPE() {
     AnalysisPropertyDto analysisPropertyDto = new AnalysisPropertyDto()
       .setAnalysisUuid(randomAlphanumeric(10))
       .setUuid(randomAlphanumeric(10))
@@ -72,7 +72,7 @@ public class AnalysisPropertiesDaoIT {
   }
 
   @Test
-  public void insert_with_null_analysis_uuid_throws_NPE() {
+  void insert_with_null_analysis_uuid_throws_NPE() {
     AnalysisPropertyDto analysisPropertyDto = new AnalysisPropertyDto()
       .setUuid(randomAlphanumeric(10))
       .setKey(randomAlphanumeric(10))
@@ -84,7 +84,7 @@ public class AnalysisPropertiesDaoIT {
   }
 
   @Test
-  public void insert_with_null_value_throws_NPE() {
+  void insert_with_null_value_throws_NPE() {
     AnalysisPropertyDto analysisPropertyDto = new AnalysisPropertyDto()
       .setAnalysisUuid(randomAlphanumeric(10))
       .setUuid(randomAlphanumeric(10))
@@ -96,7 +96,7 @@ public class AnalysisPropertiesDaoIT {
   }
 
   @Test
-  public void insert_as_empty() {
+  void insert_as_empty() {
     AnalysisPropertyDto analysisPropertyDto = insertAnalysisPropertyDto(0);
 
     assertThat(dbTester.countRowsOfTable(dbSession, "ANALYSIS_PROPERTIES")).isOne();
@@ -104,7 +104,7 @@ public class AnalysisPropertiesDaoIT {
   }
 
   @Test
-  public void insert_as_text() {
+  void insert_as_text() {
     AnalysisPropertyDto analysisPropertyDto = insertAnalysisPropertyDto(1 + random.nextInt(3999));
 
     assertThat(dbTester.countRowsOfTable(dbSession, "ANALYSIS_PROPERTIES")).isOne();
@@ -112,7 +112,7 @@ public class AnalysisPropertiesDaoIT {
   }
 
   @Test
-  public void insert_as_clob() {
+  void insert_as_clob() {
     AnalysisPropertyDto analysisPropertyDto = insertAnalysisPropertyDto(4000 + random.nextInt(100));
 
     assertThat(dbTester.countRowsOfTable(dbSession, "ANALYSIS_PROPERTIES")).isOne();
@@ -120,7 +120,7 @@ public class AnalysisPropertiesDaoIT {
   }
 
   @Test
-  public void insert_a_list() {
+  void insert_a_list() {
     List<AnalysisPropertyDto> propertyDtos = Arrays.asList(
       newAnalysisPropertyDto(random.nextInt(8000), randomAlphanumeric(40)),
       newAnalysisPropertyDto(random.nextInt(8000), randomAlphanumeric(40)),
@@ -136,7 +136,7 @@ public class AnalysisPropertiesDaoIT {
   }
 
   @Test
-  public void selectByAnalysisUuid_should_return_correct_values() {
+  void selectByAnalysisUuid_should_return_correct_values() {
     String analysisUuid = randomAlphanumeric(40);
 
     List<AnalysisPropertyDto> propertyDtos = Arrays.asList(
@@ -157,7 +157,7 @@ public class AnalysisPropertiesDaoIT {
   }
 
   @Test
-  public void selectByKeyAndAnalysisUuids_should_return_correct_values() {
+  void selectByKeyAndAnalysisUuids_should_return_correct_values() {
     String analysisUuid = randomAlphanumeric(40);
 
     List<AnalysisPropertyDto> propertyDtos = Arrays.asList(
@@ -178,7 +178,7 @@ public class AnalysisPropertiesDaoIT {
   }
 
   @Test
-  public void selectProjectCountPerAnalysisPropertyValueInLastAnalysis_should_return_correct_values() {
+  void selectProjectCountPerAnalysisPropertyValueInLastAnalysis_should_return_correct_values() {
     final String analysisPropertyKey = "key";
     for (int i = 0; i < 7; i++) {
       String uuid = "uuid" + i;
@@ -189,14 +189,21 @@ public class AnalysisPropertiesDaoIT {
       dbTester.components().insertProjectBranch(project);
     }
 
-    underTest.insert(dbSession, new AnalysisPropertyDto().setKey(analysisPropertyKey).setValue("git").setAnalysisUuid("uuid0").setUuid("0"));
-    underTest.insert(dbSession, new AnalysisPropertyDto().setKey(analysisPropertyKey).setValue("svn").setAnalysisUuid("uuid1").setUuid("1"));
-    underTest.insert(dbSession, new AnalysisPropertyDto().setKey(analysisPropertyKey).setValue("undetected").setAnalysisUuid("uuid2").setUuid("2"));
-    underTest.insert(dbSession, new AnalysisPropertyDto().setKey(analysisPropertyKey).setValue("undetected").setAnalysisUuid("uuid3").setUuid("3"));
-    underTest.insert(dbSession, new AnalysisPropertyDto().setKey(analysisPropertyKey).setValue("git").setAnalysisUuid("uuid4").setUuid("4"));
-    underTest.insert(dbSession, new AnalysisPropertyDto().setKey(analysisPropertyKey).setValue("git").setAnalysisUuid("uuid5").setUuid("5"));
+    underTest.insert(dbSession, new AnalysisPropertyDto().setKey(analysisPropertyKey).setValue("git").setAnalysisUuid("uuid0").setUuid("0"
+    ));
+    underTest.insert(dbSession, new AnalysisPropertyDto().setKey(analysisPropertyKey).setValue("svn").setAnalysisUuid("uuid1").setUuid("1"
+    ));
+    underTest.insert(dbSession,
+      new AnalysisPropertyDto().setKey(analysisPropertyKey).setValue("undetected").setAnalysisUuid("uuid2").setUuid("2"));
+    underTest.insert(dbSession,
+      new AnalysisPropertyDto().setKey(analysisPropertyKey).setValue("undetected").setAnalysisUuid("uuid3").setUuid("3"));
+    underTest.insert(dbSession, new AnalysisPropertyDto().setKey(analysisPropertyKey).setValue("git").setAnalysisUuid("uuid4").setUuid("4"
+    ));
+    underTest.insert(dbSession, new AnalysisPropertyDto().setKey(analysisPropertyKey).setValue("git").setAnalysisUuid("uuid5").setUuid("5"
+    ));
 
-    List<AnalysisPropertyValuePerProject> result = underTest.selectAnalysisPropertyValueInLastAnalysisPerProject(dbSession, analysisPropertyKey);
+    List<AnalysisPropertyValuePerProject> result = underTest.selectAnalysisPropertyValueInLastAnalysisPerProject(dbSession,
+      analysisPropertyKey);
 
     assertThat(result)
       .extracting(AnalysisPropertyValuePerProject::getProjectUuid, AnalysisPropertyValuePerProject::getPropertyValue)

@@ -19,16 +19,15 @@
  */
 package org.sonar.db.event;
 
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Random;
 import java.util.stream.IntStream;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.event.EventComponentChangeDto.ChangeCategory;
 
 import static java.util.Collections.singletonList;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
@@ -36,32 +35,36 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.db.event.EventComponentChangeDto.ChangeCategory.ADDED;
+import static org.sonar.db.event.EventComponentChangeDto.ChangeCategory.FAILED_QUALITY_GATE;
+import static org.sonar.db.event.EventComponentChangeDto.ChangeCategory.REMOVED;
 
-public class EventComponentChangeDaoIT {
-  private static Random random = new Random();
+class EventComponentChangeDaoIT {
 
-  @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  @RegisterExtension
+  private final DbTester dbTester = DbTester.create(System2.INSTANCE);
 
-  private DbSession dbSession = dbTester.getSession();
+  private final DbSession dbSession = dbTester.getSession();
 
-  private System2 system2 = mock(System2.class);
-  private EventComponentChangeDao underTest = new EventComponentChangeDao(system2);
+  private final System2 system2 = mock(System2.class);
+  private final EventComponentChangeDao underTest = new EventComponentChangeDao(system2);
+
+  private static final long now = Instant.now().toEpochMilli();
 
   @Test
-  public void selectByEventUuid_on_empty_table() {
+  void selectByEventUuid_on_empty_table() {
     assertThat(underTest.selectByEventUuid(dbSession, randomAlphabetic(10)))
       .isEmpty();
   }
 
   @Test
-  public void selectByEventUuid_maps_columns_correctly() {
+  void selectByEventUuid_maps_columns_correctly() {
     String eventBase = randomAlphabetic(5);
     String rowBase = randomAlphabetic(6);
     String eventUuid = eventBase + "_event_uuid";
     String uuid = rowBase + "_uuid";
     EventComponentChangeDto dto = new EventComponentChangeDto()
-      .setCategory(randomChangeCategory())
+      .setCategory(ADDED)
       .setUuid(uuid)
       .setEventUuid(eventUuid)
       .setComponentUuid(rowBase + "_component_uuid")
@@ -69,7 +72,6 @@ public class EventComponentChangeDaoIT {
       .setComponentName(rowBase + "_component_name")
       .setComponentBranchKey(rowBase + "_component_branch_key");
     EventPurgeData purgeData = new EventPurgeData(eventBase + "_component_uuid", eventBase + "_analysis_uuid");
-    long now = random.nextLong();
     when(system2.now()).thenReturn(now);
 
     underTest.insert(dbSession, dto, purgeData);
@@ -98,13 +100,13 @@ public class EventComponentChangeDaoIT {
   }
 
   @Test
-  public void selectByAnalysisUuids_maps_columns_correctly() {
+  void selectByAnalysisUuids_maps_columns_correctly() {
     String eventBase = randomAlphabetic(5);
     String rowBase = randomAlphabetic(6);
     String eventUuid = eventBase + "_event_uuid";
     String uuid = rowBase + "_uuid";
     EventComponentChangeDto dto = new EventComponentChangeDto()
-      .setCategory(randomChangeCategory())
+      .setCategory(FAILED_QUALITY_GATE)
       .setUuid(uuid)
       .setEventUuid(eventUuid)
       .setComponentUuid(rowBase + "_component_uuid")
@@ -112,7 +114,6 @@ public class EventComponentChangeDaoIT {
       .setComponentName(rowBase + "_component_name")
       .setComponentBranchKey(rowBase + "_component_branch_key");
     EventPurgeData purgeData = new EventPurgeData(eventBase + "_component_uuid", eventBase + "_analysis_uuid");
-    long now = random.nextLong();
     when(system2.now()).thenReturn(now);
 
     underTest.insert(dbSession, dto, purgeData);
@@ -141,12 +142,12 @@ public class EventComponentChangeDaoIT {
   }
 
   @Test
-  public void selectByEventUuid_branchKey_can_be_null() {
+  void selectByEventUuid_branchKey_can_be_null() {
     String eventBase = randomAlphabetic(5);
     String rowBase = randomAlphabetic(6);
     String eventUuid = eventBase + "_event_uuid";
     EventComponentChangeDto dto = new EventComponentChangeDto()
-      .setCategory(randomChangeCategory())
+      .setCategory(REMOVED)
       .setUuid(rowBase + "_uuid")
       .setEventUuid(eventUuid)
       .setComponentUuid(rowBase + "_component_uuid")
@@ -154,7 +155,6 @@ public class EventComponentChangeDaoIT {
       .setComponentName(rowBase + "_component_name")
       .setComponentBranchKey(null);
     EventPurgeData purgeData = new EventPurgeData(eventBase + "_component_uuid", eventBase + "_analysis_uuid");
-    long now = random.nextLong();
     when(system2.now())
       .thenReturn(now)
       .thenThrow(new IllegalStateException("now should not be called twice"));
@@ -167,14 +167,14 @@ public class EventComponentChangeDaoIT {
   }
 
   @Test
-  public void selectByEventUuid_returns_all_rows_for_specified_event() {
+  void selectByEventUuid_returns_all_rows_for_specified_event() {
     String eventBase = randomAlphabetic(5);
     String rowBase = randomAlphabetic(6);
     String eventUuid1 = eventBase + "_event_uuid1";
     String eventUuid2 = eventBase + "_event_uuid2";
     EventComponentChangeDto[] event1Dtos = IntStream.range(0, 3)
       .mapToObj(i -> new EventComponentChangeDto()
-        .setCategory(randomChangeCategory())
+        .setCategory(FAILED_QUALITY_GATE)
         .setUuid(rowBase + eventUuid1 + i)
         .setEventUuid(eventUuid1)
         .setComponentUuid(rowBase + eventUuid1 + "_component_uuid" + i)
@@ -184,7 +184,7 @@ public class EventComponentChangeDaoIT {
       .toArray(EventComponentChangeDto[]::new);
     EventComponentChangeDto[] event2Dtos = IntStream.range(0, 2)
       .mapToObj(i -> new EventComponentChangeDto()
-        .setCategory(randomChangeCategory())
+        .setCategory(ADDED)
         .setUuid(rowBase + eventUuid2 + i)
         .setEventUuid(eventUuid2)
         .setComponentUuid(rowBase + eventUuid2 + "_component_uuid" + i)
@@ -193,7 +193,6 @@ public class EventComponentChangeDaoIT {
         .setComponentBranchKey(null))
       .toArray(EventComponentChangeDto[]::new);
     EventPurgeData doesNotMatter = new EventPurgeData(randomAlphabetic(7), randomAlphabetic(8));
-    long now = random.nextLong();
     when(system2.now()).thenReturn(now)
       .thenReturn(now + 1)
       .thenReturn(now + 2)
@@ -239,14 +238,14 @@ public class EventComponentChangeDaoIT {
   }
 
   @Test
-  public void selectByAnalysisUuids_returns_all_rows_for_specified_event() {
+  void selectByAnalysisUuids_returns_all_rows_for_specified_event() {
     String eventBase = randomAlphabetic(5);
     String rowBase = randomAlphabetic(6);
     String eventUuid1 = eventBase + "_event_uuid1";
     String eventUuid2 = eventBase + "_event_uuid2";
     EventComponentChangeDto[] event1Dtos = IntStream.range(0, 3)
       .mapToObj(i -> new EventComponentChangeDto()
-        .setCategory(randomChangeCategory())
+        .setCategory(REMOVED)
         .setUuid(rowBase + eventUuid1 + i)
         .setEventUuid(eventUuid1)
         .setComponentUuid(rowBase + eventUuid1 + "_component_uuid" + i)
@@ -256,7 +255,7 @@ public class EventComponentChangeDaoIT {
       .toArray(EventComponentChangeDto[]::new);
     EventComponentChangeDto[] event2Dtos = IntStream.range(0, 2)
       .mapToObj(i -> new EventComponentChangeDto()
-        .setCategory(randomChangeCategory())
+        .setCategory(ADDED)
         .setUuid(rowBase + eventUuid2 + i)
         .setEventUuid(eventUuid2)
         .setComponentUuid(rowBase + eventUuid2 + "_component_uuid" + i)
@@ -265,7 +264,6 @@ public class EventComponentChangeDaoIT {
         .setComponentBranchKey(null))
       .toArray(EventComponentChangeDto[]::new);
     EventPurgeData doesNotMatter = new EventPurgeData(randomAlphabetic(7), randomAlphabetic(8));
-    long now = random.nextLong();
     when(system2.now()).thenReturn(now)
       .thenReturn(now + 1)
       .thenReturn(now + 2)
@@ -304,7 +302,4 @@ public class EventComponentChangeDaoIT {
           now + 4));
   }
 
-  private static ChangeCategory randomChangeCategory() {
-    return ChangeCategory.values()[random.nextInt(ChangeCategory.values().length)];
-  }
 }

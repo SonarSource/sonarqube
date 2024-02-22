@@ -19,11 +19,9 @@
  */
 package org.sonar.db.property;
 
-import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import javax.annotation.Nullable;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.impl.utils.AlwaysIncreasingSystem2;
 import org.sonar.api.resources.Qualifiers;
@@ -43,8 +41,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
-@RunWith(DataProviderRunner.class)
-public class PropertiesDaoWithPersisterIT {
+class PropertiesDaoWithPersisterIT {
   private static final String KEY = "key";
   private static final String ANOTHER_KEY = "another_key";
   private static final String PROJECT_KEY = "project_key";
@@ -62,15 +59,15 @@ public class PropertiesDaoWithPersisterIT {
   private final AuditPersister auditPersister = mock(AuditPersister.class);
   private final ArgumentCaptor<PropertyNewValue> newValueCaptor = ArgumentCaptor.forClass(PropertyNewValue.class);
 
-  @Rule
-  public DbTester db = DbTester.create(system2, auditPersister);
+  @RegisterExtension
+  private final DbTester db = DbTester.create(system2, auditPersister);
 
   private final DbClient dbClient = db.getDbClient();
   private final DbSession session = db.getSession();
   private final PropertiesDao underTest = dbClient.propertiesDao();
 
   @Test
-  public void saveGlobalTrackedPropertyIsPersisted() {
+  void saveGlobalTrackedPropertyIsPersisted() {
     when(auditPersister.isTrackedProperty(KEY)).thenReturn(true);
     underTest.saveProperty(new PropertyDto().setKey(KEY).setValue(VALUE));
 
@@ -86,7 +83,7 @@ public class PropertiesDaoWithPersisterIT {
   }
 
   @Test
-  public void saveGlobalTrackedAndSecuredPropertyIsPersisted() {
+  void saveGlobalTrackedAndSecuredPropertyIsPersisted() {
     when(auditPersister.isTrackedProperty(SECURED_KEY)).thenReturn(true);
 
     underTest.saveProperty(new PropertyDto().setKey(SECURED_KEY).setValue(VALUE));
@@ -101,7 +98,7 @@ public class PropertiesDaoWithPersisterIT {
   }
 
   @Test
-  public void saveProjectPropertyIsPersisted() {
+  void saveProjectPropertyIsPersisted() {
     when(auditPersister.isTrackedProperty(KEY)).thenReturn(true);
 
     PropertyDto propertyDto = getPropertyDto(KEY, PROJECT_UUID, USER_UUID);
@@ -120,7 +117,7 @@ public class PropertiesDaoWithPersisterIT {
   }
 
   @Test
-  public void saveApplicationTrackedPropertyIsPersisted() {
+  void saveApplicationTrackedPropertyIsPersisted() {
     when(auditPersister.isTrackedProperty(KEY)).thenReturn(true);
 
     PropertyDto propertyDto = getPropertyDto(KEY, PROJECT_UUID, USER_UUID);
@@ -140,7 +137,7 @@ public class PropertiesDaoWithPersisterIT {
   }
 
   @Test
-  public void savePortfolioTrackedPropertyIsPersisted() {
+  void savePortfolioTrackedPropertyIsPersisted() {
     when(auditPersister.isTrackedProperty(KEY)).thenReturn(true);
 
     PropertyDto propertyDto = getPropertyDto(KEY, PROJECT_UUID, USER_UUID);
@@ -160,7 +157,7 @@ public class PropertiesDaoWithPersisterIT {
   }
 
   @Test
-  public void saveProjectTrackedAndSecuredPropertyIsPersisted() {
+  void saveProjectTrackedAndSecuredPropertyIsPersisted() {
     when(auditPersister.isTrackedProperty(SECURED_KEY)).thenReturn(true);
 
     PropertyDto propertyDto = getPropertyDto(SECURED_KEY, PROJECT_UUID, USER_UUID);
@@ -179,7 +176,7 @@ public class PropertiesDaoWithPersisterIT {
   }
 
   @Test
-  public void deleteTrackedPropertyByQueryIsPersisted() {
+  void deleteTrackedPropertyByQueryIsPersisted() {
     when(auditPersister.isTrackedProperty(KEY)).thenReturn(true);
     PropertyQuery query = getPropertyQuery(KEY);
     PropertyDto propertyDto = getPropertyDto(KEY, PROJECT_UUID, USER_UUID);
@@ -200,7 +197,7 @@ public class PropertiesDaoWithPersisterIT {
   }
 
   @Test
-  public void deleteTrackedPropertyByQueryWithoutAffectedRowsIsNotPersisted() {
+  void deleteTrackedPropertyByQueryWithoutAffectedRowsIsNotPersisted() {
     PropertyQuery query = getPropertyQuery(KEY);
 
     underTest.deleteByQuery(session, query);
@@ -209,7 +206,7 @@ public class PropertiesDaoWithPersisterIT {
   }
 
   @Test
-  public void deleteTrackedPropertyIsPersisted() {
+  void deleteTrackedPropertyIsPersisted() {
     when(auditPersister.isTrackedProperty(KEY)).thenReturn(true);
     PropertyDto propertyDto = getPropertyDto(KEY, PROJECT_UUID, USER_UUID);
     underTest.saveProperty(session, propertyDto, USER_LOGIN, null, null, null);
@@ -229,7 +226,7 @@ public class PropertiesDaoWithPersisterIT {
   }
 
   @Test
-  public void deleteTrackedPropertyWithoutAffectedRowsIsNotPersisted() {
+  void deleteTrackedPropertyWithoutAffectedRowsIsNotPersisted() {
     PropertyDto propertyDto = getPropertyDto(KEY, PROJECT_UUID, USER_UUID);
 
     underTest.delete(session, propertyDto, USER_LOGIN, PROJECT_KEY, PROJECT_NAME, Qualifiers.PROJECT);
@@ -238,7 +235,7 @@ public class PropertiesDaoWithPersisterIT {
   }
 
   @Test
-  public void deleteTrackedGlobalPropertyIsPersisted() {
+  void deleteTrackedGlobalPropertyIsPersisted() {
     when(auditPersister.isTrackedProperty(KEY)).thenReturn(true);
     PropertyDto propertyDto = getPropertyDto(KEY, null, null);
     underTest.saveProperty(session, propertyDto, null, null, null, null);
@@ -258,14 +255,14 @@ public class PropertiesDaoWithPersisterIT {
   }
 
   @Test
-  public void deleteTrackedGlobalPropertyWithoutAffectedRowsIsNotPersisted() {
+  void deleteTrackedGlobalPropertyWithoutAffectedRowsIsNotPersisted() {
     underTest.deleteGlobalProperty(KEY, session);
 
     verifyNoInteractions(auditPersister);
   }
 
   @Test
-  public void deleteTrackedPropertyByKeyAndValueIsPersisted() {
+  void deleteTrackedPropertyByKeyAndValueIsPersisted() {
     when(auditPersister.isTrackedProperty(KEY)).thenReturn(true);
 
     PropertyDto propertyDto = getPropertyDto(KEY, null, USER_UUID);
@@ -285,7 +282,7 @@ public class PropertiesDaoWithPersisterIT {
   }
 
   @Test
-  public void deleteTrackedPropertyByKeyAndValueWithoutAffectedRowsIsNotPersisted() {
+  void deleteTrackedPropertyByKeyAndValueWithoutAffectedRowsIsNotPersisted() {
     underTest.deleteByKeyAndValue(session, KEY, VALUE);
 
     verifyNoInteractions(auditPersister);

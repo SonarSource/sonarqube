@@ -19,8 +19,8 @@
  */
 package org.sonar.db.user;
 
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
@@ -35,11 +35,11 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
-public class UserGroupDaoWithPersisterIT {
+class UserGroupDaoWithPersisterIT {
   private final AuditPersister auditPersister = mock(AuditPersister.class);
 
-  @Rule
-  public final DbTester db = DbTester.create(System2.INSTANCE, auditPersister);
+  @RegisterExtension
+  private final DbTester db = DbTester.create(System2.INSTANCE, auditPersister);
 
   private final ArgumentCaptor<UserGroupNewValue> newValueCaptor = ArgumentCaptor.forClass(UserGroupNewValue.class);
 
@@ -47,7 +47,7 @@ public class UserGroupDaoWithPersisterIT {
   private final UserGroupDao underTest = dbClient.userGroupDao();
 
   @Test
-  public void insertUserGroupIsPersisted() {
+  void insertUserGroupIsPersisted() {
     UserDto user = db.users().insertUser();
 
     verify(auditPersister).addUser(eq(db.getSession()), any());
@@ -60,12 +60,13 @@ public class UserGroupDaoWithPersisterIT {
     verify(auditPersister).addUserToGroup(eq(db.getSession()), newValueCaptor.capture());
     assertThat(db.getDbClient().groupMembershipDao().selectGroupUuidsByUserUuid(db.getSession(), user.getUuid())).containsOnly(group.getUuid());
     assertThat(newValueCaptor.getValue())
-      .extracting(UserGroupNewValue::getGroupUuid, UserGroupNewValue::getName, UserGroupNewValue::getUserUuid, UserGroupNewValue::getUserLogin)
+      .extracting(UserGroupNewValue::getGroupUuid, UserGroupNewValue::getName, UserGroupNewValue::getUserUuid,
+        UserGroupNewValue::getUserLogin)
       .containsExactly(group.getUuid(), group.getName(), user.getUuid(), user.getLogin());
   }
 
   @Test
-  public void deleteUserGroupByGroupIsPersisted() {
+  void deleteUserGroupByGroupIsPersisted() {
     UserDto user1 = db.users().insertUser();
     UserDto user2 = db.users().insertUser();
     GroupDto group1 = db.users().insertGroup();
@@ -86,7 +87,7 @@ public class UserGroupDaoWithPersisterIT {
   }
 
   @Test
-  public void deleteUserGroupByGroupWithoutAffectedRowsIsNotPersisted() {
+  void deleteUserGroupByGroupWithoutAffectedRowsIsNotPersisted() {
     GroupDto group1 = db.users().insertGroup();
     underTest.deleteByGroupUuid(db.getSession(), group1.getUuid(), group1.getName());
     db.getSession().commit();
@@ -96,7 +97,7 @@ public class UserGroupDaoWithPersisterIT {
   }
 
   @Test
-  public void deleteUserGroupByUserIsPersisted() {
+  void deleteUserGroupByUserIsPersisted() {
     UserDto user1 = db.users().insertUser();
     UserDto user2 = db.users().insertUser();
     GroupDto group1 = db.users().insertGroup();
@@ -117,7 +118,7 @@ public class UserGroupDaoWithPersisterIT {
   }
 
   @Test
-  public void deleteUserGroupByUserWithoutAffectedRowsIsNotPersisted() {
+  void deleteUserGroupByUserWithoutAffectedRowsIsNotPersisted() {
     UserDto user1 = db.users().insertUser();
     underTest.deleteByUserUuid(db.getSession(), user1);
     db.getSession().commit();
@@ -127,7 +128,7 @@ public class UserGroupDaoWithPersisterIT {
   }
 
   @Test
-  public void delete_by_user_and_group() {
+  void delete_by_user_and_group() {
     UserDto user1 = db.users().insertUser();
     UserDto user2 = db.users().insertUser();
     GroupDto group1 = db.users().insertGroup();
@@ -140,12 +141,13 @@ public class UserGroupDaoWithPersisterIT {
     assertThat(db.getDbClient().groupMembershipDao().selectGroupUuidsByUserUuid(db.getSession(), user2.getUuid())).containsOnly(group1.getUuid());
     verify(auditPersister).deleteUserFromGroup(eq(db.getSession()), newValueCaptor.capture());
     assertThat(newValueCaptor.getValue())
-      .extracting(UserGroupNewValue::getGroupUuid, UserGroupNewValue::getName, UserGroupNewValue::getUserUuid, UserGroupNewValue::getUserLogin)
+      .extracting(UserGroupNewValue::getGroupUuid, UserGroupNewValue::getName, UserGroupNewValue::getUserUuid,
+        UserGroupNewValue::getUserLogin)
       .containsExactly(group1.getUuid(), group1.getName(), user1.getUuid(), user1.getLogin());
   }
 
   @Test
-  public void deleteByUserAndGroupWithoutAffectedRowsIsNotPersisted() {
+  void deleteByUserAndGroupWithoutAffectedRowsIsNotPersisted() {
     UserDto user1 = db.users().insertUser();
     GroupDto group1 = db.users().insertGroup();
     underTest.delete(db.getSession(), group1, user1);

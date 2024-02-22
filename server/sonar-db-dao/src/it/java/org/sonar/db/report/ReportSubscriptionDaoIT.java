@@ -23,8 +23,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import org.jetbrains.annotations.NotNull;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 
@@ -32,34 +32,35 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 
-public class ReportSubscriptionDaoIT {
+class ReportSubscriptionDaoIT {
 
-  @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+  @RegisterExtension
+  private final DbTester db = DbTester.create(System2.INSTANCE);
 
   private final ReportSubscriptionDao underTest = db.getDbClient().reportSubscriptionDao();
 
 
   @Test
-  public void insert_shouldInsertSubscriptionCorrectly() {
+  void insert_shouldInsertSubscriptionCorrectly() {
     underTest.insert(db.getSession(), createSubscriptionDto("uuid").setPortfolioUuid("pf").setUserUuid("userUuid"));
     Set<ReportSubscriptionDto> reportSubscriptionDtos = underTest.selectAll(db.getSession());
     assertThat(reportSubscriptionDtos).hasSize(1);
-    assertThat(reportSubscriptionDtos.iterator().next()).extracting(r -> r.getUuid(), r -> r.getUserUuid(), r -> r.getBranchUuid(), r -> r.getPortfolioUuid())
+    assertThat(reportSubscriptionDtos.iterator().next()).extracting(ReportSubscriptionDto::getUuid, ReportSubscriptionDto::getUserUuid, ReportSubscriptionDto::getBranchUuid,
+        ReportSubscriptionDto::getPortfolioUuid)
       .containsExactly("uuid", "userUuid", null, "pf");
   }
 
   @Test
-  public void insert_shouldPersistOnlyOneSubscription() {
+  void insert_shouldPersistOnlyOneSubscription() {
     ReportSubscriptionDto subscriptionDto = createSubscriptionDto("uuid").setPortfolioUuid("pf").setUserUuid("userUuid");
     underTest.insert(db.getSession(), subscriptionDto);
     db.getSession().commit();
 
-    assertThatThrownBy(()->  underTest.insert(db.getSession(), subscriptionDto)).isNotNull();
+    assertThatThrownBy(() -> underTest.insert(db.getSession(), subscriptionDto)).isNotNull();
   }
 
   @Test
-  public void insert_shouldPersistDifferentSubscriptions() {
+  void insert_shouldPersistDifferentSubscriptions() {
     underTest.insert(db.getSession(), createSubscriptionDto("uuid").setBranchUuid("branch").setUserUuid("userUuid"));
     underTest.insert(db.getSession(), createSubscriptionDto("uuid2").setBranchUuid("branch").setUserUuid("userUuid2"));
     underTest.insert(db.getSession(), createSubscriptionDto("uuid3").setBranchUuid("branch2").setUserUuid("userUuid"));
@@ -70,7 +71,7 @@ public class ReportSubscriptionDaoIT {
   }
 
   @Test
-  public void delete_shouldRemoveExistingSubscription() {
+  void delete_shouldRemoveExistingSubscription() {
     ReportSubscriptionDto subscriptionPf = createSubscriptionDto("uuid").setPortfolioUuid("pf").setUserUuid("userUuid");
     ReportSubscriptionDto subscriptionBranch = createSubscriptionDto("uuid2").setBranchUuid("branch").setUserUuid("userUuid2");
 
@@ -80,7 +81,7 @@ public class ReportSubscriptionDaoIT {
     underTest.delete(db.getSession(), subscriptionPf);
 
     assertThat(underTest.selectAll(db.getSession())).hasSize(1)
-        .extracting(p->p.getUuid()).containsExactly("uuid2");
+      .extracting(ReportSubscriptionDto::getUuid).containsExactly("uuid2");
 
     underTest.delete(db.getSession(), subscriptionBranch);
 
@@ -88,7 +89,7 @@ public class ReportSubscriptionDaoIT {
   }
 
   @Test
-  public void selectByPortfolio_shouldReturnRelatedListOfSubscriptions() {
+  void selectByPortfolio_shouldReturnRelatedListOfSubscriptions() {
     ReportSubscriptionDto subscriptionPf = createSubscriptionDto("uuid").setPortfolioUuid("pf").setUserUuid("userUuid");
     ReportSubscriptionDto subscriptionPf2 = createSubscriptionDto("uuid2").setPortfolioUuid("pf").setUserUuid("userUuid2");
     ReportSubscriptionDto subscriptionBranch = createSubscriptionDto("uuid3").setBranchUuid("branch").setUserUuid("userUuid2");
@@ -99,12 +100,12 @@ public class ReportSubscriptionDaoIT {
 
     List<ReportSubscriptionDto> reportSubscriptionDtos = underTest.selectByPortfolio(db.getSession(), subscriptionPf.getPortfolioUuid());
 
-    assertThat(reportSubscriptionDtos).hasSize(2).extracting(r -> r.getUuid(), r -> r.getUserUuid(), r -> r.getPortfolioUuid())
+    assertThat(reportSubscriptionDtos).hasSize(2).extracting(ReportSubscriptionDto::getUuid, ReportSubscriptionDto::getUserUuid, ReportSubscriptionDto::getPortfolioUuid)
       .containsExactly(tuple("uuid", "userUuid", "pf"), tuple("uuid2", "userUuid2", "pf"));
   }
 
   @Test
-  public void selectByProjectBranch_shouldReturnRelatedListOfSubscriptions() {
+  void selectByProjectBranch_shouldReturnRelatedListOfSubscriptions() {
     ReportSubscriptionDto subscriptionBranch = createSubscriptionDto("uuid").setBranchUuid("branch").setUserUuid("userUuid");
     ReportSubscriptionDto subscriptionBranch2 = createSubscriptionDto("uuid2").setBranchUuid("branch").setUserUuid("userUuid2");
     ReportSubscriptionDto subscriptionPf = createSubscriptionDto("uuid3").setPortfolioUuid("pf1").setUserUuid("userUuid2");
@@ -115,12 +116,12 @@ public class ReportSubscriptionDaoIT {
 
     List<ReportSubscriptionDto> reportSubscriptionDtos = underTest.selectByProjectBranch(db.getSession(), "branch");
 
-    assertThat(reportSubscriptionDtos).hasSize(2).extracting(r -> r.getUuid(), r -> r.getUserUuid(), r -> r.getBranchUuid())
+    assertThat(reportSubscriptionDtos).hasSize(2).extracting(ReportSubscriptionDto::getUuid, ReportSubscriptionDto::getUserUuid, ReportSubscriptionDto::getBranchUuid)
       .containsExactly(tuple("uuid", "userUuid", "branch"), tuple("uuid2", "userUuid2", "branch"));
   }
 
   @Test
-  public void selectByUserAndPortfolio_shouldReturnRelatedSubscription() {
+  void selectByUserAndPortfolio_shouldReturnRelatedSubscription() {
     ReportSubscriptionDto subscriptionPf = createSubscriptionDto("uuid").setPortfolioUuid("pf").setUserUuid("userUuid");
     ReportSubscriptionDto subscriptionPf2 = createSubscriptionDto("uuid2").setPortfolioUuid("pf").setUserUuid("userUuid2");
     ReportSubscriptionDto subscriptionBranch = createSubscriptionDto("uuid3").setBranchUuid("branch").setUserUuid("userUuid2");
@@ -129,13 +130,14 @@ public class ReportSubscriptionDaoIT {
     underTest.insert(db.getSession(), subscriptionPf2);
     underTest.insert(db.getSession(), subscriptionBranch);
 
-    Optional<ReportSubscriptionDto> reportSubscriptionDtos = underTest.selectByUserAndPortfolio(db.getSession(), subscriptionPf.getPortfolioUuid(), subscriptionPf.getUserUuid());
+    Optional<ReportSubscriptionDto> reportSubscriptionDtos = underTest.selectByUserAndPortfolio(db.getSession(),
+      subscriptionPf.getPortfolioUuid(), subscriptionPf.getUserUuid());
 
-    assertThat(reportSubscriptionDtos).isPresent().get().extracting(r->r.getUuid()).isEqualTo("uuid");
+    assertThat(reportSubscriptionDtos).isPresent().get().extracting(ReportSubscriptionDto::getUuid).isEqualTo("uuid");
   }
 
   @Test
-  public void selectByUserAndBranch_shouldReturnRelatedSubscription() {
+  void selectByUserAndBranch_shouldReturnRelatedSubscription() {
     ReportSubscriptionDto subscriptionPf = createSubscriptionDto("uuid").setPortfolioUuid("pf").setUserUuid("userUuid");
     ReportSubscriptionDto subscriptionPf2 = createSubscriptionDto("uuid2").setPortfolioUuid("pf").setUserUuid("userUuid2");
     ReportSubscriptionDto subscriptionBranch = createSubscriptionDto("uuid3").setBranchUuid("branch").setUserUuid("userUuid2");
@@ -144,9 +146,10 @@ public class ReportSubscriptionDaoIT {
     underTest.insert(db.getSession(), subscriptionPf2);
     underTest.insert(db.getSession(), subscriptionBranch);
 
-    Optional<ReportSubscriptionDto> reportSubscriptionDtos = underTest.selectByUserAndBranch(db.getSession(), subscriptionBranch.getBranchUuid(), subscriptionBranch.getUserUuid());
+    Optional<ReportSubscriptionDto> reportSubscriptionDtos = underTest.selectByUserAndBranch(db.getSession(),
+      subscriptionBranch.getBranchUuid(), subscriptionBranch.getUserUuid());
 
-    assertThat(reportSubscriptionDtos).isPresent().get().extracting(r->r.getUuid()).isEqualTo("uuid3");
+    assertThat(reportSubscriptionDtos).isPresent().get().extracting(ReportSubscriptionDto::getUuid).isEqualTo("uuid3");
   }
 
   @NotNull

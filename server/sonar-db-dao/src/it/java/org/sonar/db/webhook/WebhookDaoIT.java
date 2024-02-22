@@ -22,8 +22,8 @@ package org.sonar.db.webhook;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -33,10 +33,10 @@ import org.sonar.db.project.ProjectDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class WebhookDaoIT {
+class WebhookDaoIT {
 
-  @Rule
-  public final DbTester dbTester = DbTester.create(System2.INSTANCE);
+  @RegisterExtension
+  private final DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   private final System2 system2 = System2.INSTANCE;
   private final DbClient dbClient = dbTester.getDbClient();
@@ -46,12 +46,12 @@ public class WebhookDaoIT {
   private final ComponentDbTester componentDbTester = dbTester.components();
 
   @Test
-  public void selectByUuid_returns_empty_if_uuid_does_not_exist() {
+  void selectByUuid_returns_empty_if_uuid_does_not_exist() {
     assertThat(underTest.selectByUuid(dbSession, "missing")).isEmpty();
   }
 
   @Test
-  public void select_global_webhooks() {
+  void select_global_webhooks() {
     ProjectDto projectDto = componentDbTester.insertPrivateProject().getProjectDto();
     webhookDbTester.insertGlobalWebhook();
     webhookDbTester.insertGlobalWebhook();
@@ -64,7 +64,7 @@ public class WebhookDaoIT {
   }
 
   @Test
-  public void select_global_webhooks_returns_empty_list_if_there_are_no_global_webhooks() {
+  void select_global_webhooks_returns_empty_list_if_there_are_no_global_webhooks() {
     ProjectDto projectDto = componentDbTester.insertPrivateProject().getProjectDto();
     webhookDbTester.insertWebhook(projectDto);
     webhookDbTester.insertWebhook(projectDto);
@@ -75,7 +75,7 @@ public class WebhookDaoIT {
   }
 
   @Test
-  public void insert_global_webhook() {
+  void insert_global_webhook() {
     WebhookDto dto = new WebhookDto()
       .setUuid("UUID_1")
       .setName("NAME_1")
@@ -96,7 +96,7 @@ public class WebhookDaoIT {
   }
 
   @Test
-  public void insert_row_with_project() {
+  void insert_row_with_project() {
     WebhookDto dto = new WebhookDto()
       .setUuid("UUID_1")
       .setName("NAME_1")
@@ -118,7 +118,7 @@ public class WebhookDaoIT {
   }
 
   @Test
-  public void update_with_only_required_fields() {
+  void update_with_only_required_fields() {
     WebhookDto dto = webhookDbTester.insertGlobalWebhook();
 
     underTest.update(dbSession, dto
@@ -140,7 +140,7 @@ public class WebhookDaoIT {
   }
 
   @Test
-  public void update_with_all_fields() {
+  void update_with_all_fields() {
     WebhookDto dto = webhookDbTester.insertGlobalWebhook();
 
     underTest.update(dbSession, dto
@@ -162,7 +162,7 @@ public class WebhookDaoIT {
   }
 
   @Test
-  public void cleanWebhooksOfAProject() {
+  void cleanWebhooksOfAProject() {
     ProjectDto projectDto = componentDbTester.insertPrivateProject().getProjectDto();
     webhookDbTester.insertWebhook(projectDto);
     webhookDbTester.insertWebhook(projectDto);
@@ -176,7 +176,7 @@ public class WebhookDaoIT {
   }
 
   @Test
-  public void delete() {
+  void delete() {
     WebhookDto dto = webhookDbTester.insertGlobalWebhook();
 
     underTest.delete(dbSession, dto.getUuid(), dto.getName());
@@ -186,7 +186,7 @@ public class WebhookDaoIT {
   }
 
   @Test
-  public void set_default_org_if_webhook_does_not_have_a_project() {
+  void set_default_org_if_webhook_does_not_have_a_project() {
     WebhookDto dto = new WebhookDto()
       .setUuid("UUID_1")
       .setName("NAME_1")

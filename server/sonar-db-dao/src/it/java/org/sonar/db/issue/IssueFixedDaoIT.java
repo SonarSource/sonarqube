@@ -19,8 +19,8 @@
  */
 package org.sonar.db.issue;
 
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -28,21 +28,21 @@ import org.sonar.db.DbTester;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-public class IssueFixedDaoIT {
-  @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+class IssueFixedDaoIT {
+  @RegisterExtension
+  private final DbTester db = DbTester.create(System2.INSTANCE);
 
   private final IssueFixedDao underTest = db.getDbClient().issueFixedDao();
 
   @Test
-  public void insert_shouldPersistFixedIssue() {
+  void insert_shouldPersistFixedIssue() {
     IssueFixedDto fixedIssue = new IssueFixedDto("PR-1", "ISSUE-1");
     underTest.insert(db.getSession(), fixedIssue);
     assertThat(underTest.selectByPullRequest(db.getSession(), "PR-1")).containsOnly(fixedIssue);
   }
 
   @Test
-  public void insert_shouldThrowException_whenDuplicateRecord() {
+  void insert_shouldThrowException_whenDuplicateRecord() {
     IssueFixedDto fixedIssue = new IssueFixedDto("PR-1", "ISSUE-1");
     DbSession session = db.getSession();
     underTest.insert(session, fixedIssue);
@@ -52,7 +52,7 @@ public class IssueFixedDaoIT {
   }
 
   @Test
-  public void selectByPullRequest_shouldReturnAllFixedIssuesOfPullRequest() {
+  void selectByPullRequest_shouldReturnAllFixedIssuesOfPullRequest() {
     IssueFixedDto fixedIssue1 = new IssueFixedDto("PR-1", "ISSUE-1");
     IssueFixedDto fixedIssue2 = new IssueFixedDto("PR-1", "ISSUE-2");
     IssueFixedDto fixedIssue3 = new IssueFixedDto("PR-2", "ISSUE-3");
@@ -64,7 +64,7 @@ public class IssueFixedDaoIT {
   }
 
   @Test
-  public void delete_shouldRemovedExpectedIssuesFixed() {
+  void delete_shouldRemovedExpectedIssuesFixed() {
     IssueFixedDto fixedIssue1 = new IssueFixedDto("PR-1", "ISSUE-1");
     IssueFixedDto fixedIssue2 = new IssueFixedDto("PR-1", "ISSUE-2");
     underTest.insert(db.getSession(), fixedIssue1);

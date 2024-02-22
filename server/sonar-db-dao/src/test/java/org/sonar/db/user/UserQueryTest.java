@@ -22,14 +22,14 @@ package org.sonar.db.user;
 import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Set;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class UserQueryTest {
+class UserQueryTest {
 
   @Test
-  public void copyWithNewRangeOfUserUuids_copyAllFieldsCorrectly() {
+  void copyWithNewRangeOfUserUuids_copyAllFieldsCorrectly() {
     UserQuery original = createUserQueryWithAllFieldsSet();
 
     Set<String> newRangeOfUsers = Set.of("user1");

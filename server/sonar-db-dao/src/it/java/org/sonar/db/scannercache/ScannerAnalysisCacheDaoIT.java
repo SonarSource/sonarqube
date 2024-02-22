@@ -28,8 +28,8 @@ import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import org.apache.commons.io.IOUtils;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.core.util.UuidFactory;
@@ -44,15 +44,15 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class ScannerAnalysisCacheDaoIT {
-  @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+class ScannerAnalysisCacheDaoIT {
+  @RegisterExtension
+  private final DbTester dbTester = DbTester.create(System2.INSTANCE);
   private final static UuidFactory uuidFactory = new SequenceUuidFactory();
   private final DbSession dbSession = dbTester.getSession();
   private final ScannerAnalysisCacheDao underTest = dbTester.getDbClient().scannerAnalysisCacheDao();
 
   @Test
-  public void insert_should_insert_in_db() throws IOException {
+  void insert_should_insert_in_db() throws IOException {
     underTest.insert(dbSession, "branch1", stringToInputStream("test data"));
     dbSession.commit();
     assertThat(dbTester.countRowsOfTable("scanner_analysis_cache")).isOne();
@@ -60,13 +60,13 @@ public class ScannerAnalysisCacheDaoIT {
   }
 
   @Test
-  public void select_returns_empty_if_entry_doesnt_exist() {
+  void select_returns_empty_if_entry_doesnt_exist() {
     underTest.insert(dbSession, "branch1", stringToInputStream("test data"));
     assertThat(underTest.selectData(dbSession, "branch2")).isNull();
   }
 
   @Test
-  public void remove_all_should_delete_all() {
+  void remove_all_should_delete_all() {
     underTest.insert(dbSession, "branch1", stringToInputStream("test data"));
     underTest.insert(dbSession, "branch2", stringToInputStream("test data"));
 
@@ -77,7 +77,7 @@ public class ScannerAnalysisCacheDaoIT {
   }
 
   @Test
-  public void throw_illegalstateexception_when_sql_excpetion() throws SQLException {
+  void throw_illegalstateexception_when_sql_excpetion() throws SQLException {
     var dbSession = mock(DbSession.class);
     var connection = mock(Connection.class);
     when(dbSession.getConnection()).thenReturn(connection);
@@ -93,7 +93,7 @@ public class ScannerAnalysisCacheDaoIT {
   }
 
   @Test
-  public void cleanOlderThan7Days() {
+  void cleanOlderThan7Days() {
     var snapshotDao = dbTester.getDbClient().snapshotDao();
     var snapshot1 = createSnapshot(LocalDateTime.now().minusDays(1).toInstant(ZoneOffset.UTC).toEpochMilli());
     snapshotDao.insert(dbSession, snapshot1);

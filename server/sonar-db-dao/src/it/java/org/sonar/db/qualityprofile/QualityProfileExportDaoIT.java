@@ -26,9 +26,9 @@ import java.util.Optional;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
-import org.junit.Assert;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.impl.utils.AlwaysIncreasingSystem2;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rules.RuleType;
@@ -39,16 +39,16 @@ import org.sonar.db.rule.RuleParamDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class QualityProfileExportDaoIT {
+class QualityProfileExportDaoIT {
 
-  @Rule
-  public DbTester db = DbTester.create(new AlwaysIncreasingSystem2());
+  @RegisterExtension
+  private final DbTester db = DbTester.create(new AlwaysIncreasingSystem2());
 
   private final DbSession dbSession = db.getSession();
   private final QualityProfileExportDao underTest = db.getDbClient().qualityProfileExportDao();
 
   @Test
-  public void selectRulesByProfile_ready_rules_only() {
+  void selectRulesByProfile_ready_rules_only() {
     String language = "java";
     RuleDto rule1 = createRule(language);
     RuleDto rule2 = createRule(language);
@@ -67,7 +67,7 @@ public class QualityProfileExportDaoIT {
   }
 
   @Test
-  public void selectRulesByProfile_verify_columns() {
+  void selectRulesByProfile_verify_columns() {
     String language = "java";
     RuleDto ruleTemplate = createRule(language);
     RuleDto customRule = createRule(language, RuleStatus.READY, ruleTemplate.getUuid());
@@ -101,7 +101,8 @@ public class QualityProfileExportDaoIT {
     assertThat(exportCustomRuleDto.getTags()).isEqualTo(customRule.getTags());
     assertThat(exportCustomRuleDto.getTemplateRuleKey()).isEqualTo(ruleTemplate.getKey());
 
-    ActiveRuleDto activeCustomRule = activeRules.stream().filter(activeRuleDto -> activeRuleDto.getRuleKey().equals(customRule.getKey())).findFirst().get();
+    ActiveRuleDto activeCustomRule =
+      activeRules.stream().filter(activeRuleDto -> activeRuleDto.getRuleKey().equals(customRule.getKey())).findFirst().get();
     assertThat(exportCustomRuleDto.getSeverityString()).isEqualTo(activeCustomRule.getSeverityString());
 
     // verify regular rule
@@ -115,12 +116,13 @@ public class QualityProfileExportDaoIT {
     assertThat(exportRuleDto.getRuleKey()).isEqualTo(rule.getKey());
     assertThat(exportRuleDto.getRuleType()).isEqualTo(RuleType.valueOf(rule.getType()));
 
-    ActiveRuleDto activeRule = activeRules.stream().filter(activeRuleDto -> activeRuleDto.getRuleKey().equals(rule.getKey())).findFirst().get();
+    ActiveRuleDto activeRule =
+      activeRules.stream().filter(activeRuleDto -> activeRuleDto.getRuleKey().equals(rule.getKey())).findFirst().get();
     assertThat(exportRuleDto.getSeverityString()).isEqualTo(activeRule.getSeverityString());
   }
 
   @Test
-  public void selectRulesByProfile_verify_rows_over_1000() {
+  void selectRulesByProfile_verify_rows_over_1000() {
     String language = "java";
     int numberOfParamsToCreate = 1005;
     RuleDto rule = createRule(language);
@@ -141,7 +143,7 @@ public class QualityProfileExportDaoIT {
   }
 
   @Test
-  public void selectRulesByProfile_params_assigned_correctly() {
+  void selectRulesByProfile_params_assigned_correctly() {
     String language = "java";
     RuleDto firstRule = createRule(language);
     List<RuleParamDto> ruleParamsOfFirstRule = addParamsToRule(firstRule, 2);
@@ -190,8 +192,8 @@ public class QualityProfileExportDaoIT {
 
   private ExportRuleDto findExportedRuleByUuid(String uuid, List<ExportRuleDto> results) {
     Optional<ExportRuleDto> found = results.stream().filter(exportRuleDto -> uuid.equals(exportRuleDto.getActiveRuleUuid())).findFirst();
-    if (!found.isPresent()) {
-      Assert.fail();
+    if (found.isEmpty()) {
+      Assertions.fail();
     }
     return found.get();
   }

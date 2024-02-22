@@ -20,8 +20,8 @@
 package org.sonar.db.rule;
 
 import java.util.Set;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.issue.impact.Severity;
 import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rules.CleanCodeAttribute;
@@ -31,15 +31,15 @@ import org.sonar.db.DbTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class RuleChangeDaoIT {
+class RuleChangeDaoIT {
 
-  @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+  @RegisterExtension
+  private final DbTester db = DbTester.create(System2.INSTANCE);
 
   private final RuleChangeDao underTest = db.getDbClient().ruleChangeDao();
 
   @Test
-  public void insert_shouldInsertRuleChangeWithNullableImpacts() {
+  void insert_shouldInsertRuleChangeWithNullableImpacts() {
     RuleChangeDto ruleChangeDto = new RuleChangeDto();
     ruleChangeDto.setNewCleanCodeAttribute(CleanCodeAttribute.CLEAR);
     ruleChangeDto.setOldCleanCodeAttribute(CleanCodeAttribute.CONVENTIONAL);

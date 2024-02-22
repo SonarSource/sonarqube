@@ -19,33 +19,33 @@
  */
 package org.sonar.db.ce;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.apache.commons.lang.StringUtils.repeat;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.db.ce.CeTaskMessageDto.MAX_MESSAGE_SIZE;
 
-public class CeTaskMessageDtoTest {
+class CeTaskMessageDtoTest {
 
-  private CeTaskMessageDto underTest = new CeTaskMessageDto();
+  private final CeTaskMessageDto underTest = new CeTaskMessageDto();
 
   @Test
-  public void setMessage_fails_with_IAE_if_argument_is_null() {
+  void setMessage_fails_with_IAE_if_argument_is_null() {
     assertThatThrownBy(() -> underTest.setMessage(null))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("message can't be null nor empty");
   }
 
   @Test
-  public void setMessage_fails_with_IAE_if_argument_is_empty() {
+  void setMessage_fails_with_IAE_if_argument_is_empty() {
     assertThatThrownBy(() -> underTest.setMessage(""))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("message can't be null nor empty");
   }
 
   @Test
-  public void setMessage_accept_argument_of_size_4000() {
+  void setMessage_accept_argument_of_size_4000() {
     String str = repeat("a", MAX_MESSAGE_SIZE);
     underTest.setMessage(str);
 
@@ -53,7 +53,7 @@ public class CeTaskMessageDtoTest {
   }
 
   @Test
-  public void setMessage_truncates_the_message_if_argument_has_size_bigger_then_4000() {
+  void setMessage_truncates_the_message_if_argument_has_size_bigger_then_4000() {
     String str = repeat("a", MAX_MESSAGE_SIZE) + "extra long tail!!!";
 
     underTest.setMessage(str);

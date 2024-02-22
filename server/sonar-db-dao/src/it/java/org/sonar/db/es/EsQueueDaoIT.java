@@ -23,8 +23,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.IntStream;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.DbSession;
@@ -32,19 +32,19 @@ import org.sonar.db.DbTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class EsQueueDaoIT {
+class EsQueueDaoIT {
 
   private static final int LIMIT = 10;
-  private static TestSystem2 system2 = new TestSystem2().setNow(1_000);
+  private static final TestSystem2 system2 = new TestSystem2().setNow(1_000);
 
-  @Rule
-  public DbTester dbTester = DbTester.create(system2);
+  @RegisterExtension
+  private final DbTester dbTester = DbTester.create(system2);
 
-  private DbSession dbSession = dbTester.getSession();
-  private EsQueueDao underTest = dbTester.getDbClient().esQueueDao();
+  private final DbSession dbSession = dbTester.getSession();
+  private final EsQueueDao underTest = dbTester.getDbClient().esQueueDao();
 
   @Test
-  public void insert_data()  {
+  void insert_data() {
     int nbOfInsert = 10 + new Random().nextInt(20);
     List<EsQueueDto> esQueueDtos = new ArrayList<>();
     IntStream.rangeClosed(1, nbOfInsert).forEach(
@@ -56,7 +56,7 @@ public class EsQueueDaoIT {
   }
 
   @Test
-  public void delete_unknown_EsQueueDto_does_not_throw_exception() {
+  void delete_unknown_EsQueueDto_does_not_throw_exception() {
     int nbOfInsert = 10 + new Random().nextInt(20);
     List<EsQueueDto> esQueueDtos = new ArrayList<>();
     IntStream.rangeClosed(1, nbOfInsert).forEach(
@@ -70,7 +70,7 @@ public class EsQueueDaoIT {
   }
 
   @Test
-  public void delete_EsQueueDto_does_not_throw_exception() {
+  void delete_EsQueueDto_does_not_throw_exception() {
     int nbOfInsert = 10 + new Random().nextInt(20);
     List<EsQueueDto> esQueueDtos = new ArrayList<>();
     IntStream.rangeClosed(1, nbOfInsert).forEach(
@@ -85,7 +85,7 @@ public class EsQueueDaoIT {
   }
 
   @Test
-  public void selectForRecovery_must_return_limit_when_there_are_more_rows()  {
+  void selectForRecovery_must_return_limit_when_there_are_more_rows() {
     system2.setNow(1_000L);
     EsQueueDto i1 = underTest.insert(dbSession, EsQueueDto.create("foo", UuidFactoryFast.getInstance().create()));
     system2.setNow(1_001L);
@@ -107,7 +107,7 @@ public class EsQueueDaoIT {
   }
 
   @Test
-  public void selectForRecovery_returns_ordered_rows_created_before_date()  {
+  void selectForRecovery_returns_ordered_rows_created_before_date() {
     system2.setNow(1_000L);
     EsQueueDto i1 = underTest.insert(dbSession, EsQueueDto.create("foo", UuidFactoryFast.getInstance().create()));
     system2.setNow(1_001L);

@@ -20,9 +20,6 @@
 package org.sonar.db.component;
 
 import com.google.common.collect.Sets;
-import com.tngtech.java.junit.dataprovider.DataProvider;
-import com.tngtech.java.junit.dataprovider.DataProviderRunner;
-import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -33,9 +30,10 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbSession;
@@ -47,7 +45,6 @@ import org.sonar.db.protobuf.DbProjectBranches;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
-import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.apache.commons.lang.StringUtils.repeat;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
@@ -56,24 +53,23 @@ import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
 import static org.sonar.db.component.BranchType.BRANCH;
 import static org.sonar.db.component.BranchType.PULL_REQUEST;
 
-@RunWith(DataProviderRunner.class)
-public class BranchDaoIT {
+class BranchDaoIT {
 
   private static final long NOW = 1_000L;
   private static final String SELECT_FROM = """
     select project_uuid as "projectUuid", uuid as "uuid", branch_type as "branchType",
     kee as "kee", merge_branch_uuid as "mergeBranchUuid", pull_request_binary as "pullRequestBinary", created_at as "createdAt", updated_at as "updatedAt", is_main as "isMain"
     from project_branches""";
-  private System2 system2 = new TestSystem2().setNow(NOW);
+  private final System2 system2 = new TestSystem2().setNow(NOW);
 
-  @Rule
-  public DbTester db = DbTester.create(system2);
+  @RegisterExtension
+  private final DbTester db = DbTester.create(system2);
 
-  private DbSession dbSession = db.getSession();
-  private BranchDao underTest = new BranchDao(system2);
+  private final DbSession dbSession = db.getSession();
+  private final BranchDao underTest = new BranchDao(system2);
 
   @Test
-  public void insert_branch_with_only_nonnull_fields() {
+  void insert_branch_with_only_nonnull_fields() {
     BranchDto dto = new BranchDto();
     dto.setProjectUuid("U1");
     dto.setUuid("U2");
@@ -97,7 +93,7 @@ public class BranchDaoIT {
   }
 
   @Test
-  public void update_main_branch_name() {
+  void update_main_branch_name() {
     BranchDto dto = new BranchDto();
     dto.setProjectUuid("U1");
     dto.setUuid("U1");
@@ -123,7 +119,7 @@ public class BranchDaoIT {
   }
 
   @Test
-  public void selectBranchMeasuresForTelemetry() {
+  void selectBranchMeasuresForTelemetry() {
     BranchDto dto = new BranchDto();
     dto.setProjectUuid("U1");
     dto.setUuid("U1");
@@ -147,7 +143,7 @@ public class BranchDaoIT {
   }
 
   @Test
-  public void updateExcludeFromPurge() {
+  void updateExcludeFromPurge() {
     BranchDto dto = new BranchDto();
     dto.setProjectUuid("U1");
     dto.setUuid("U1");
@@ -163,32 +159,8 @@ public class BranchDaoIT {
     assertThat(loaded.isExcludeFromPurge()).isTrue();
   }
 
-  @DataProvider
-  public static Object[][] nullOrEmpty() {
-    return new Object[][] {
-      {null},
-      {""}
-    };
-  }
-
-  @DataProvider
-  public static Object[][] oldAndNewValuesCombinations() {
-    String value1 = randomAlphabetic(10);
-    String value2 = randomAlphabetic(20);
-    return new Object[][] {
-      {null, value1},
-      {"", value1},
-      {value1, null},
-      {value1, ""},
-      {value1, value2},
-      {null, null},
-      {"", null},
-      {value1, value1}
-    };
-  }
-
   @Test
-  public void insert_branch_with_all_fields_and_max_length_values() {
+  void insert_branch_with_all_fields_and_max_length_values() {
     BranchDto dto = new BranchDto();
     dto.setProjectUuid(repeat("a", 50));
     dto.setUuid(repeat("b", 50));
@@ -207,7 +179,7 @@ public class BranchDaoIT {
   }
 
   @Test
-  public void insert_pull_request_branch_with_only_non_null_fields() {
+  void insert_pull_request_branch_with_only_non_null_fields() {
     String projectUuid = "U1";
     String uuid = "U2";
     BranchType branchType = BranchType.PULL_REQUEST;
@@ -234,7 +206,7 @@ public class BranchDaoIT {
   }
 
   @Test
-  public void insert_pull_request_branch_with_all_fields() {
+  void insert_pull_request_branch_with_all_fields() {
     String projectUuid = "U1";
     String uuid = "U2";
     BranchType branchType = BranchType.PULL_REQUEST;
@@ -279,7 +251,7 @@ public class BranchDaoIT {
   }
 
   @Test
-  public void upsert_branch() {
+  void upsert_branch() {
     BranchDto dto = new BranchDto();
     dto.setProjectUuid("U1");
     dto.setUuid("U2");
@@ -303,7 +275,7 @@ public class BranchDaoIT {
   }
 
   @Test
-  public void upsert_pull_request() {
+  void upsert_pull_request() {
     BranchDto dto = new BranchDto();
     dto.setProjectUuid("U1");
     dto.setUuid("U2");
@@ -347,7 +319,7 @@ public class BranchDaoIT {
   }
 
   @Test
-  public void update_pull_request_data() {
+  void update_pull_request_data() {
     BranchDto dto = new BranchDto();
     dto.setProjectUuid("U1");
     dto.setUuid("U2");
@@ -401,7 +373,7 @@ public class BranchDaoIT {
   }
 
   @Test
-  public void selectByBranchKey() {
+  void selectByBranchKey() {
     BranchDto mainBranch = new BranchDto();
     mainBranch.setProjectUuid("U1");
     mainBranch.setUuid("U1");
@@ -433,7 +405,7 @@ public class BranchDaoIT {
   }
 
   @Test
-  public void selectByBranchKeys() {
+  void selectByBranchKeys() {
     ProjectDto project1 = db.components().insertPrivateProject().getProjectDto();
     ProjectDto project2 = db.components().insertPrivateProject().getProjectDto();
     ProjectDto project3 = db.components().insertPrivateProject().getProjectDto();
@@ -453,7 +425,7 @@ public class BranchDaoIT {
   }
 
   @Test
-  public void selectByComponent() {
+  void selectByComponent() {
     BranchDto mainBranch = new BranchDto();
     mainBranch.setProjectUuid("U1");
     mainBranch.setUuid("U1");
@@ -478,14 +450,17 @@ public class BranchDaoIT {
 
     assertThat(branches).hasSize(2);
 
-    assertThat(branches).extracting(BranchDto::getUuid, BranchDto::getKey, BranchDto::isMain, BranchDto::getProjectUuid, BranchDto::getBranchType, BranchDto::getMergeBranchUuid)
-      .containsOnly(tuple(mainBranch.getUuid(), mainBranch.getKey(), mainBranch.isMain(), mainBranch.getProjectUuid(), mainBranch.getBranchType(), mainBranch.getMergeBranchUuid()),
-        tuple(featureBranch.getUuid(), featureBranch.getKey(), featureBranch.isMain(), featureBranch.getProjectUuid(), featureBranch.getBranchType(),
+    assertThat(branches).extracting(BranchDto::getUuid, BranchDto::getKey, BranchDto::isMain, BranchDto::getProjectUuid,
+        BranchDto::getBranchType, BranchDto::getMergeBranchUuid)
+      .containsOnly(tuple(mainBranch.getUuid(), mainBranch.getKey(), mainBranch.isMain(), mainBranch.getProjectUuid(),
+          mainBranch.getBranchType(), mainBranch.getMergeBranchUuid()),
+        tuple(featureBranch.getUuid(), featureBranch.getKey(), featureBranch.isMain(), featureBranch.getProjectUuid(),
+          featureBranch.getBranchType(),
           featureBranch.getMergeBranchUuid()));
   }
 
   @Test
-  public void selectByPullRequestKey() {
+  void selectByPullRequestKey() {
     BranchDto mainBranch = new BranchDto();
     mainBranch.setProjectUuid("U1");
     mainBranch.setUuid("U1");
@@ -517,7 +492,7 @@ public class BranchDaoIT {
   }
 
   @Test
-  public void selectByKeys() {
+  void selectByKeys() {
     BranchDto mainBranch = new BranchDto()
       .setProjectUuid("U1")
       .setUuid("U1")
@@ -554,7 +529,7 @@ public class BranchDaoIT {
   }
 
   @Test
-  public void selectByUuids() {
+  void selectByUuids() {
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto branch1 = db.components().insertProjectBranch(project);
     ComponentDto branch2 = db.components().insertProjectBranch(project);
@@ -570,7 +545,7 @@ public class BranchDaoIT {
   }
 
   @Test
-  public void selectByProjectUuid() {
+  void selectByProjectUuid() {
     ProjectData projectData1 = db.components().insertPrivateProject();
     ComponentDto mainBranch1 = projectData1.getMainBranchComponent();
     ProjectData projectData2 = db.components().insertPrivateProject();
@@ -590,7 +565,7 @@ public class BranchDaoIT {
   }
 
   @Test
-  public void selectByUuid() {
+  void selectByUuid() {
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto branch1 = db.components().insertProjectBranch(project);
     ComponentDto branch2 = db.components().insertProjectBranch(project);
@@ -603,7 +578,7 @@ public class BranchDaoIT {
   }
 
   @Test
-  public void countPrAndBranchByProjectUuid() {
+  void countPrAndBranchByProjectUuid() {
     ProjectData projectData1 = db.components().insertPrivateProject();
     ComponentDto project1 = projectData1.getMainBranchComponent();
     db.components().insertProjectBranch(project1, b -> b.setBranchType(BRANCH).setKey("p1-branch-1"));
@@ -637,7 +612,7 @@ public class BranchDaoIT {
   }
 
   @Test
-  public void selectProjectUuidsWithIssuesNeedSync() {
+  void selectProjectUuidsWithIssuesNeedSync() {
     ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto project3 = db.components().insertPrivateProject().getMainBranchComponent();
@@ -653,11 +628,11 @@ public class BranchDaoIT {
 
     assertThat(underTest.selectProjectUuidsWithIssuesNeedSync(db.getSession(),
       Sets.newHashSet(project1Dto.getUuid(), project2Dto.getUuid(), project3Dto.getUuid(), project4Dto.getUuid())))
-        .containsOnly(project1Dto.getUuid());
+      .containsOnly(project1Dto.getUuid());
   }
 
   @Test
-  public void hasAnyBranchWhereNeedIssueSync() {
+  void hasAnyBranchWhereNeedIssueSync() {
     assertThat(underTest.hasAnyBranchWhereNeedIssueSync(dbSession, true)).isFalse();
     assertThat(underTest.hasAnyBranchWhereNeedIssueSync(dbSession, false)).isFalse();
 
@@ -673,7 +648,7 @@ public class BranchDaoIT {
   }
 
   @Test
-  public void countByTypeAndCreationDate() {
+  void countByTypeAndCreationDate() {
     assertThat(underTest.countByTypeAndCreationDate(dbSession, BranchType.BRANCH, 0L)).isZero();
 
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
@@ -689,7 +664,7 @@ public class BranchDaoIT {
   }
 
   @Test
-  public void selectBranchNeedingIssueSync() {
+  void selectBranchNeedingIssueSync() {
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     String uuid = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.BRANCH).setNeedIssueSync(true)).uuid();
     db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.BRANCH).setNeedIssueSync(false));
@@ -700,7 +675,7 @@ public class BranchDaoIT {
   }
 
   @Test
-  public void selectBranchNeedingIssueSyncForProject() {
+  void selectBranchNeedingIssueSyncForProject() {
     ProjectData projectData = db.components().insertPrivateProject();
     ComponentDto mainBranch = projectData.getMainBranchComponent();
     String uuid = db.components().insertProjectBranch(mainBranch, b -> b.setBranchType(BranchType.BRANCH).setNeedIssueSync(true)).uuid();
@@ -712,7 +687,7 @@ public class BranchDaoIT {
   }
 
   @Test
-  public void updateAllNeedIssueSync() {
+  void updateAllNeedIssueSync() {
     ProjectData projectData = db.components().insertPrivateProject();
     ComponentDto mainBranch = projectData.getMainBranchComponent();
     String uuid1 = db.components().insertProjectBranch(mainBranch, b -> b.setBranchType(BranchType.BRANCH).setNeedIssueSync(true)).uuid();
@@ -730,7 +705,7 @@ public class BranchDaoIT {
   }
 
   @Test
-  public void updateAllNeedIssueSyncForProject() {
+  void updateAllNeedIssueSyncForProject() {
     ProjectData projectData = db.components().insertPrivateProject();
     ComponentDto mainBranch = projectData.getMainBranchComponent();
     String uuid1 = db.components().insertProjectBranch(mainBranch, b -> b.setBranchType(BranchType.BRANCH).setNeedIssueSync(true)).uuid();
@@ -748,7 +723,7 @@ public class BranchDaoIT {
   }
 
   @Test
-  public void updateNeedIssueSync() {
+  void updateNeedIssueSync() {
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     String uuid1 = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.BRANCH).setNeedIssueSync(false)).uuid();
     String uuid2 = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.BRANCH).setNeedIssueSync(true)).uuid();
@@ -766,7 +741,7 @@ public class BranchDaoIT {
   }
 
   @Test
-  public void updateIsMain() {
+  void updateIsMain() {
     ProjectData projectData = db.components().insertPrivateProject();
     ProjectDto projectDto = projectData.getProjectDto();
     BranchDto mainBranch = projectData.getMainBranchDto();
@@ -783,7 +758,7 @@ public class BranchDaoIT {
   }
 
   @Test
-  public void doAnyOfComponentsNeedIssueSync() {
+  void doAnyOfComponentsNeedIssueSync() {
     assertThat(underTest.doAnyOfComponentsNeedIssueSync(dbSession, emptyList())).isFalse();
 
     ProjectData projectData1 = db.components().insertPrivateProject();
@@ -791,11 +766,15 @@ public class BranchDaoIT {
     ProjectData projectData2 = db.components().insertPrivateProject();
     ComponentDto project2 = projectData2.getMainBranchComponent();
     db.components().insertProjectBranch(projectData1.getProjectDto(), b -> b.setBranchType(BranchType.BRANCH).setNeedIssueSync(true));
-    BranchDto projectBranch1 = db.components().insertProjectBranch(projectData1.getProjectDto(), b -> b.setBranchType(BranchType.BRANCH).setNeedIssueSync(true));
-    BranchDto projectBranch2 = db.components().insertProjectBranch(projectData1.getProjectDto(), b -> b.setBranchType(BranchType.BRANCH).setNeedIssueSync(false));
+    BranchDto projectBranch1 = db.components().insertProjectBranch(projectData1.getProjectDto(),
+      b -> b.setBranchType(BranchType.BRANCH).setNeedIssueSync(true));
+    BranchDto projectBranch2 = db.components().insertProjectBranch(projectData1.getProjectDto(),
+      b -> b.setBranchType(BranchType.BRANCH).setNeedIssueSync(false));
     db.components().insertProjectBranch(projectData1.getProjectDto(), b -> b.setBranchType(BranchType.BRANCH).setNeedIssueSync(false));
-    BranchDto pullRequest1 = db.components().insertProjectBranch(projectData1.getProjectDto(), b -> b.setBranchType(BranchType.PULL_REQUEST).setNeedIssueSync(true));
-    BranchDto pullRequest2 = db.components().insertProjectBranch(projectData1.getProjectDto(), b -> b.setBranchType(BranchType.PULL_REQUEST).setNeedIssueSync(false));
+    BranchDto pullRequest1 = db.components().insertProjectBranch(projectData1.getProjectDto(),
+      b -> b.setBranchType(BranchType.PULL_REQUEST).setNeedIssueSync(true));
+    BranchDto pullRequest2 = db.components().insertProjectBranch(projectData1.getProjectDto(),
+      b -> b.setBranchType(BranchType.PULL_REQUEST).setNeedIssueSync(false));
     db.components().insertProjectBranch(projectData1.getProjectDto(), b -> b.setBranchType(BranchType.PULL_REQUEST).setNeedIssueSync(true));
 
     assertThat(underTest.doAnyOfComponentsNeedIssueSync(dbSession, singletonList(projectData1.projectKey()))).isTrue();
@@ -803,7 +782,7 @@ public class BranchDaoIT {
   }
 
   @Test
-  public void doAnyOfComponentsNeedIssueSync_test_more_than_1000() {
+  void doAnyOfComponentsNeedIssueSync_test_more_than_1000() {
     List<String> componentKeys = IntStream.range(0, 1100).mapToObj(value -> db.components().insertPrivateProject().getMainBranchComponent())
       .map(ComponentDto::getKey)
       .collect(Collectors.toCollection(ArrayList::new));
@@ -819,30 +798,30 @@ public class BranchDaoIT {
     assertThat(underTest.doAnyOfComponentsNeedIssueSync(dbSession, componentKeys)).isTrue();
   }
 
-  @DataProvider
-  public static Object[][] booleanValues() {
-    return new Object[][] {
+  private static Object[][] booleanValues() {
+    return new Object[][]{
       {true},
       {false}
     };
   }
 
-  @Test
-  @UseDataProvider("booleanValues")
-  public void isBranchNeedIssueSync_shouldReturnCorrectValue(boolean needIssueSync) {
+  @ParameterizedTest
+  @MethodSource("booleanValues")
+  void isBranchNeedIssueSync_shouldReturnCorrectValue(boolean needIssueSync) {
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    String branchUuid = db.components().insertProjectBranch(project, branch -> branch.setBranchType(BranchType.BRANCH).setNeedIssueSync(needIssueSync)).uuid();
+    String branchUuid = db.components().insertProjectBranch(project,
+      branch -> branch.setBranchType(BranchType.BRANCH).setNeedIssueSync(needIssueSync)).uuid();
 
     assertThat(underTest.isBranchNeedIssueSync(dbSession, branchUuid)).isEqualTo(needIssueSync);
   }
 
   @Test
-  public void isBranchNeedIssueSync_whenNoBranch_shouldReturnFalse() {
+  void isBranchNeedIssueSync_whenNoBranch_shouldReturnFalse() {
     assertThat(underTest.isBranchNeedIssueSync(dbSession, "unknown")).isFalse();
   }
 
   @Test
-  public void selectMainBranchByProjectUuid_whenMainBranch_shouldReturnMainBranch() {
+  void selectMainBranchByProjectUuid_whenMainBranch_shouldReturnMainBranch() {
     BranchDto dto = new BranchDto();
     dto.setProjectUuid("U1");
     dto.setUuid("U1");
@@ -852,11 +831,11 @@ public class BranchDaoIT {
     underTest.insert(dbSession, dto);
 
     assertThat(underTest.selectMainBranchByProjectUuid(dbSession, "U1")).get()
-      .extracting(e -> e.getUuid()).isEqualTo("U1");
+      .extracting(BranchDto::getUuid).isEqualTo("U1");
   }
 
   @Test
-  public void selectMainBranchByProjectUuid_whenNonMainBranch_shouldReturnEmpty() {
+  void selectMainBranchByProjectUuid_whenNonMainBranch_shouldReturnEmpty() {
     BranchDto dto = new BranchDto();
     dto.setProjectUuid("U1");
     dto.setUuid("U2");
@@ -869,7 +848,7 @@ public class BranchDaoIT {
   }
 
   @Test
-  public void selectMainBranchesByProjectUuids_whenNoUuidsPassed_shouldReturnEmpty() {
+  void selectMainBranchesByProjectUuids_whenNoUuidsPassed_shouldReturnEmpty() {
     insertBranchesForProjectUuids(true, "1");
 
     List<BranchDto> branchDtos = underTest.selectMainBranchesByProjectUuids(dbSession, Set.of());
@@ -878,7 +857,7 @@ public class BranchDaoIT {
   }
 
   @Test
-  public void selectMainBranchesByProjectUuids_whenOneUuidPassedAndTwoBranchesInDatabase_shouldReturnOneBranch() {
+  void selectMainBranchesByProjectUuids_whenOneUuidPassedAndTwoBranchesInDatabase_shouldReturnOneBranch() {
     insertBranchesForProjectUuids(true, "1", "2");
 
     List<BranchDto> branchDtos = underTest.selectMainBranchesByProjectUuids(dbSession, Set.of("1"));
@@ -888,7 +867,7 @@ public class BranchDaoIT {
   }
 
   @Test
-  public void selectMainBranchesByProjectUuids_whenTenUuidsPassedAndTenBranchesInDatabase_shouldReturnAllBranches() {
+  void selectMainBranchesByProjectUuids_whenTenUuidsPassedAndTenBranchesInDatabase_shouldReturnAllBranches() {
     String[] projectUuids = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10"};
     insertBranchesForProjectUuids(true, projectUuids);
     insertBranchesForProjectUuids(false, projectUuids);

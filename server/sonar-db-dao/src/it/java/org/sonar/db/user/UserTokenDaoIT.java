@@ -23,8 +23,8 @@ import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Map;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -36,16 +36,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.user.UserTokenTesting.newProjectAnalysisToken;
 import static org.sonar.db.user.UserTokenTesting.newUserToken;
 
-public class UserTokenDaoIT {
-  @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+class UserTokenDaoIT {
+  @RegisterExtension
+  private final DbTester db = DbTester.create(System2.INSTANCE);
 
   private final DbSession dbSession = db.getSession();
 
   private final UserTokenDao underTest = db.getDbClient().userTokenDao();
 
   @Test
-  public void insert_user_token() {
+  void insert_user_token() {
     UserTokenDto userToken = newUserToken();
 
     underTest.insert(db.getSession(), userToken, "login");
@@ -56,7 +56,7 @@ public class UserTokenDaoIT {
   }
 
   @Test
-  public void insert_user_token_with_expiration_date() {
+  void insert_user_token_with_expiration_date() {
     UserTokenDto userToken = newUserToken().setExpirationDate(nextLong());
 
     underTest.insert(db.getSession(), userToken, "login");
@@ -67,7 +67,7 @@ public class UserTokenDaoIT {
   }
 
   @Test
-  public void insert_project_analysis_token() {
+  void insert_project_analysis_token() {
     UserTokenDto projectAnalysisToken = newProjectAnalysisToken();
     ComponentDto project = db.components().insertPublicProject(projectAnalysisToken.getProjectUuid()).getMainBranchComponent();
     underTest.insert(db.getSession(), projectAnalysisToken, "login");
@@ -81,7 +81,7 @@ public class UserTokenDaoIT {
   }
 
   @Test
-  public void select_tokens_expired_in_7_days() {
+  void select_tokens_expired_in_7_days() {
     String token1 = insertTokenExpiredInDays(0);
     String token2 = insertTokenExpiredInDays(7);
     String token3 = insertTokenExpiredInDays(14);
@@ -91,7 +91,7 @@ public class UserTokenDaoIT {
       .containsOnly(token2);
   }
 
-  private String insertTokenExpiredInDays(long days){
+  private String insertTokenExpiredInDays(long days) {
     long expirationDate = LocalDate.now().plusDays(days).atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli();
     UserTokenDto userToken = newUserToken().setExpirationDate(expirationDate);
     underTest.insert(dbSession, userToken, "login");
@@ -99,7 +99,7 @@ public class UserTokenDaoIT {
   }
 
   @Test
-  public void update_last_connection_date() {
+  void update_last_connection_date() {
     UserDto user1 = db.users().insertUser();
     UserTokenDto userToken1 = db.users().insertToken(user1);
     UserTokenDto userToken2 = db.users().insertToken(user1);
@@ -114,7 +114,7 @@ public class UserTokenDaoIT {
   }
 
   @Test
-  public void select_by_token_hash() {
+  void select_by_token_hash() {
     UserDto user = db.users().insertUser();
     String tokenHash = "123456789";
     db.users().insertToken(user, t -> t.setTokenHash(tokenHash));
@@ -125,7 +125,7 @@ public class UserTokenDaoIT {
   }
 
   @Test
-  public void select_by_user_and_name() {
+  void select_by_user_and_name() {
     UserDto user = db.users().insertUser();
     UserTokenDto userToken = db.users().insertToken(user, t -> t.setName("name").setTokenHash("token"));
 
@@ -139,7 +139,7 @@ public class UserTokenDaoIT {
   }
 
   @Test
-  public void delete_tokens_by_user() {
+  void delete_tokens_by_user() {
     UserDto user1 = db.users().insertUser();
     UserDto user2 = db.users().insertUser();
     db.users().insertToken(user1);
@@ -154,7 +154,7 @@ public class UserTokenDaoIT {
   }
 
   @Test
-  public void delete_token_by_user_and_name() {
+  void delete_token_by_user_and_name() {
     UserDto user1 = db.users().insertUser();
     UserDto user2 = db.users().insertUser();
     db.users().insertToken(user1, t -> t.setName("name"));
@@ -169,7 +169,7 @@ public class UserTokenDaoIT {
   }
 
   @Test
-  public void delete_tokens_by_projectKey() {
+  void delete_tokens_by_projectKey() {
     UserDto user1 = db.users().insertUser();
     UserDto user2 = db.users().insertUser();
     db.users().insertToken(user1, t -> t.setProjectUuid("projectUuid1"));
@@ -184,7 +184,7 @@ public class UserTokenDaoIT {
   }
 
   @Test
-  public void count_tokens_by_user() {
+  void count_tokens_by_user() {
     UserDto user = db.users().insertUser();
     db.users().insertToken(user, t -> t.setName("name"));
     db.users().insertToken(user, t -> t.setName("another-name"));

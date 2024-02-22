@@ -19,8 +19,8 @@
  */
 package org.sonar.db.user;
 
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
@@ -39,19 +39,19 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.sonar.db.user.UserTokenTesting.newUserToken;
 
-public class UserTokenDaoWithPersisterIT {
+class UserTokenDaoWithPersisterIT {
   private final AuditPersister auditPersister = mock(AuditPersister.class);
   private final ArgumentCaptor<UserTokenNewValue> newValueCaptor = ArgumentCaptor.forClass(UserTokenNewValue.class);
 
-  @Rule
-  public final DbTester db = DbTester.create(System2.INSTANCE, auditPersister);
+  @RegisterExtension
+  private final DbTester db = DbTester.create(System2.INSTANCE, auditPersister);
 
   private final DbSession dbSession = db.getSession();
   private final DbClient dbClient = db.getDbClient();
   private final UserTokenDao underTest = dbClient.userTokenDao();
 
   @Test
-  public void insert_token_is_persisted() {
+  void insert_token_is_persisted() {
     UserTokenDto userToken = newUserToken()
       .setExpirationDate(nextLong())
       .setLastConnectionDate(nextLong());
@@ -69,7 +69,8 @@ public class UserTokenDaoWithPersisterIT {
     assertThat(userTokenFromDb.getExpirationDate()).isEqualTo(userToken.getExpirationDate());
     UserTokenNewValue newValue = newValueCaptor.getValue();
     assertThat(newValue)
-      .extracting(UserTokenNewValue::getTokenUuid, UserTokenNewValue::getTokenName, UserTokenNewValue::getUserUuid, UserTokenNewValue::getLastConnectionDate,
+      .extracting(UserTokenNewValue::getTokenUuid, UserTokenNewValue::getTokenName, UserTokenNewValue::getUserUuid,
+        UserTokenNewValue::getLastConnectionDate,
         UserTokenNewValue::getProjectKey, UserTokenNewValue::getType)
       .containsExactly(userToken.getUuid(), userToken.getName(), userToken.getUserUuid(), userToken.getLastConnectionDate(),
         userToken.getProjectKey(), userToken.getType());
@@ -79,7 +80,7 @@ public class UserTokenDaoWithPersisterIT {
   }
 
   @Test
-  public void update_token_is_persisted() {
+  void update_token_is_persisted() {
     UserDto user1 = db.users().insertUser();
     UserTokenDto userToken1 = db.users().insertToken(user1);
 
@@ -90,12 +91,13 @@ public class UserTokenDaoWithPersisterIT {
 
     verify(auditPersister).updateUserToken(eq(db.getSession()), newValueCaptor.capture());
     assertThat(newValueCaptor.getValue())
-      .extracting(UserTokenNewValue::getTokenUuid, UserTokenNewValue::getTokenName, UserTokenNewValue::getUserUuid, UserTokenNewValue::getLastConnectionDate)
+      .extracting(UserTokenNewValue::getTokenUuid, UserTokenNewValue::getTokenName, UserTokenNewValue::getUserUuid,
+        UserTokenNewValue::getLastConnectionDate)
       .containsExactly(userToken1.getUuid(), "new_name", userToken1.getUserUuid(), userToken1.getLastConnectionDate());
   }
 
   @Test
-  public void delete_tokens_by_user_is_persisted() {
+  void delete_tokens_by_user_is_persisted() {
     UserDto user1 = db.users().insertUser();
     UserDto user2 = db.users().insertUser();
     db.users().insertToken(user1);
@@ -113,7 +115,7 @@ public class UserTokenDaoWithPersisterIT {
   }
 
   @Test
-  public void delete_tokens_by_user_without_affected_rows_is_not_persisted() {
+  void delete_tokens_by_user_without_affected_rows_is_not_persisted() {
     UserDto user1 = db.users().insertUser();
 
     underTest.deleteByUser(dbSession, user1);
@@ -123,7 +125,7 @@ public class UserTokenDaoWithPersisterIT {
   }
 
   @Test
-  public void delete_token_by_user_and_name_is_persisted() {
+  void delete_token_by_user_and_name_is_persisted() {
     UserDto user1 = db.users().insertUser();
     UserDto user2 = db.users().insertUser();
     db.users().insertToken(user1, t -> t.setName("name"));
@@ -141,7 +143,7 @@ public class UserTokenDaoWithPersisterIT {
   }
 
   @Test
-  public void delete_token_by_user_and_name_without_affected_rows_is_not_persisted() {
+  void delete_token_by_user_and_name_without_affected_rows_is_not_persisted() {
     UserDto user1 = db.users().insertUser();
 
     underTest.deleteByUserAndName(dbSession, user1, "name");
@@ -152,7 +154,7 @@ public class UserTokenDaoWithPersisterIT {
 
 
   @Test
-  public void delete_token_by_projectKey_is_persisted() {
+  void delete_token_by_projectKey_is_persisted() {
     UserDto user1 = db.users().insertUser();
     UserDto user2 = db.users().insertUser();
     db.users().insertToken(user1, t -> t.setProjectUuid("projectToDelete"));
@@ -170,7 +172,7 @@ public class UserTokenDaoWithPersisterIT {
   }
 
   @Test
-  public void delete_token_by_projectKey_without_affected_rows_is_not_persisted() {
+  void delete_token_by_projectKey_without_affected_rows_is_not_persisted() {
     UserDto user1 = db.users().insertUser();
 
     db.users().insertToken(user1, t -> t.setProjectKey("projectToKeep"));

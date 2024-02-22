@@ -35,9 +35,9 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.assertj.core.api.AbstractAssert;
 import org.assertj.core.api.ThrowableAssert.ThrowingCallable;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.sonar.api.utils.System2;
@@ -65,7 +65,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.property.InternalPropertiesDao.LOCK_NAME_MAX_LENGTH;
 
-public class InternalPropertiesDaoIT {
+class InternalPropertiesDaoIT {
 
   private static final String EMPTY_STRING = "";
   private static final String A_KEY = "a_key";
@@ -81,41 +81,41 @@ public class InternalPropertiesDaoIT {
   private final System2 system2 = mock(System2.class);
   private final String DEFAULT_PROJECT_TEMPLATE = "defaultTemplate.prj";
 
-  @Rule
-  public DbTester dbTester = DbTester.create(system2);
+  @RegisterExtension
+  private final DbTester dbTester = DbTester.create(system2);
 
   private final DbSession dbSession = dbTester.getSession();
   private final AuditPersister auditPersister = mock(AuditPersister.class);
   private final InternalPropertiesDao underTest = new InternalPropertiesDao(system2, auditPersister);
   private final ArgumentCaptor<PropertyNewValue> newValueCaptor = ArgumentCaptor.forClass(PropertyNewValue.class);
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     when(auditPersister.isTrackedProperty(DEFAULT_PROJECT_TEMPLATE)).thenReturn(true);
   }
 
   @Test
-  public void save_throws_IAE_if_key_is_null() {
+  void save_throws_IAE_if_key_is_null() {
     expectKeyNullOrEmptyIAE(() -> underTest.save(dbSession, null, VALUE_SMALL));
   }
 
   @Test
-  public void save_throws_IAE_if_key_is_empty() {
+  void save_throws_IAE_if_key_is_empty() {
     expectKeyNullOrEmptyIAE(() -> underTest.save(dbSession, EMPTY_STRING, VALUE_SMALL));
   }
 
   @Test
-  public void save_throws_IAE_if_value_is_null() {
+  void save_throws_IAE_if_value_is_null() {
     expectValueNullOrEmptyIAE(() -> underTest.save(dbSession, A_KEY, null));
   }
 
   @Test
-  public void save_throws_IAE_if_value_is_empty() {
+  void save_throws_IAE_if_value_is_empty() {
     expectValueNullOrEmptyIAE(() -> underTest.save(dbSession, A_KEY, EMPTY_STRING));
   }
 
   @Test
-  public void save_persists_value_in_varchar_if_less_than_4000() {
+  void save_persists_value_in_varchar_if_less_than_4000() {
     when(system2.now()).thenReturn(DATE_2);
     underTest.save(dbSession, A_KEY, VALUE_SMALL);
 
@@ -125,7 +125,7 @@ public class InternalPropertiesDaoIT {
   }
 
   @Test
-  public void delete_removes_value() {
+  void delete_removes_value() {
     underTest.save(dbSession, A_KEY, VALUE_SMALL);
     dbSession.commit();
     assertThat(dbTester.countRowsOfTable("internal_properties")).isOne();
@@ -140,7 +140,7 @@ public class InternalPropertiesDaoIT {
   }
 
   @Test
-  public void delete_audits_if_value_was_deleted_and_it_is_tracked_key() {
+  void delete_audits_if_value_was_deleted_and_it_is_tracked_key() {
     underTest.save(dbSession, DEFAULT_PROJECT_TEMPLATE, VALUE_SMALL);
     clearInvocations(auditPersister);
     underTest.delete(dbSession, DEFAULT_PROJECT_TEMPLATE);
@@ -149,20 +149,20 @@ public class InternalPropertiesDaoIT {
   }
 
   @Test
-  public void delete_audits_does_not_audit_if_nothing_was_deleted() {
+  void delete_audits_does_not_audit_if_nothing_was_deleted() {
     underTest.delete(dbSession, DEFAULT_PROJECT_TEMPLATE);
     verifyNoInteractions(auditPersister);
   }
 
   @Test
-  public void save_audits_if_key_is_tracked() {
+  void save_audits_if_key_is_tracked() {
     underTest.save(dbSession, DEFAULT_PROJECT_TEMPLATE, VALUE_SMALL);
     verify(auditPersister).addProperty(any(), newValueCaptor.capture(), eq(false));
     assertAuditValue(DEFAULT_PROJECT_TEMPLATE, VALUE_SMALL);
   }
 
   @Test
-  public void save_audits_update_if_key_is_tracked_and_updated() {
+  void save_audits_update_if_key_is_tracked_and_updated() {
     underTest.save(dbSession, DEFAULT_PROJECT_TEMPLATE, "first value");
 
     Mockito.clearInvocations(auditPersister);
@@ -173,7 +173,7 @@ public class InternalPropertiesDaoIT {
   }
 
   @Test
-  public void save_persists_value_in_varchar_if_4000() {
+  void save_persists_value_in_varchar_if_4000() {
     when(system2.now()).thenReturn(DATE_1);
     underTest.save(dbSession, A_KEY, VALUE_SIZE_4000);
 
@@ -183,7 +183,7 @@ public class InternalPropertiesDaoIT {
   }
 
   @Test
-  public void save_persists_value_in_varchar_if_more_than_4000() {
+  void save_persists_value_in_varchar_if_more_than_4000() {
     when(system2.now()).thenReturn(DATE_2);
 
     underTest.save(dbSession, A_KEY, VALUE_SIZE_4001);
@@ -194,7 +194,7 @@ public class InternalPropertiesDaoIT {
   }
 
   @Test
-  public void save_persists_new_value_in_varchar_if_4000_when_old_one_was_in_varchar() {
+  void save_persists_new_value_in_varchar_if_4000_when_old_one_was_in_varchar() {
     when(system2.now()).thenReturn(DATE_1, DATE_2);
 
     underTest.save(dbSession, A_KEY, VALUE_SMALL);
@@ -209,7 +209,7 @@ public class InternalPropertiesDaoIT {
   }
 
   @Test
-  public void save_persists_new_value_in_clob_if_more_than_4000_when_old_one_was_in_varchar() {
+  void save_persists_new_value_in_clob_if_more_than_4000_when_old_one_was_in_varchar() {
     when(system2.now()).thenReturn(DATE_1, DATE_2);
 
     underTest.save(dbSession, A_KEY, VALUE_SMALL);
@@ -224,7 +224,7 @@ public class InternalPropertiesDaoIT {
   }
 
   @Test
-  public void save_persists_new_value_in_varchar_if_less_than_4000_when_old_one_was_in_clob() {
+  void save_persists_new_value_in_varchar_if_less_than_4000_when_old_one_was_in_clob() {
     when(system2.now()).thenReturn(DATE_1, DATE_2);
 
     underTest.save(dbSession, A_KEY, VALUE_SIZE_4001);
@@ -239,7 +239,7 @@ public class InternalPropertiesDaoIT {
   }
 
   @Test
-  public void save_persists_new_value_in_clob_if_more_than_4000_when_old_one_was_in_clob() {
+  void save_persists_new_value_in_clob_if_more_than_4000_when_old_one_was_in_clob() {
     when(system2.now()).thenReturn(DATE_1, DATE_2);
 
     String oldValue = VALUE_SIZE_4001 + "blabla";
@@ -255,17 +255,17 @@ public class InternalPropertiesDaoIT {
   }
 
   @Test
-  public void saveAsEmpty_throws_IAE_if_key_is_null() {
+  void saveAsEmpty_throws_IAE_if_key_is_null() {
     expectKeyNullOrEmptyIAE(() -> underTest.saveAsEmpty(dbSession, null));
   }
 
   @Test
-  public void saveAsEmpty_throws_IAE_if_key_is_empty() {
+  void saveAsEmpty_throws_IAE_if_key_is_empty() {
     expectKeyNullOrEmptyIAE(() -> underTest.saveAsEmpty(dbSession, EMPTY_STRING));
   }
 
   @Test
-  public void saveAsEmpty_persist_property_without_textvalue_nor_clob_value() {
+  void saveAsEmpty_persist_property_without_textvalue_nor_clob_value() {
     when(system2.now()).thenReturn(DATE_2);
 
     underTest.saveAsEmpty(dbSession, A_KEY);
@@ -276,14 +276,14 @@ public class InternalPropertiesDaoIT {
   }
 
   @Test
-  public void saveAsEmpty_audits_if_key_is_tracked() {
+  void saveAsEmpty_audits_if_key_is_tracked() {
     underTest.saveAsEmpty(dbSession, DEFAULT_PROJECT_TEMPLATE);
     verify(auditPersister).addProperty(any(), newValueCaptor.capture(), eq(false));
     assertAuditValue(DEFAULT_PROJECT_TEMPLATE, "");
   }
 
   @Test
-  public void saveAsEmpty_audits_update_if_key_is_tracked_and_updated() {
+  void saveAsEmpty_audits_update_if_key_is_tracked_and_updated() {
     underTest.save(dbSession, DEFAULT_PROJECT_TEMPLATE, "first value");
     Mockito.clearInvocations(auditPersister);
     underTest.saveAsEmpty(dbSession, DEFAULT_PROJECT_TEMPLATE);
@@ -292,7 +292,7 @@ public class InternalPropertiesDaoIT {
   }
 
   @Test
-  public void saveAsEmpty_persist_property_without_textvalue_nor_clob_value_when_old_value_was_in_varchar() {
+  void saveAsEmpty_persist_property_without_textvalue_nor_clob_value_when_old_value_was_in_varchar() {
     when(system2.now()).thenReturn(DATE_1, DATE_2);
 
     underTest.save(dbSession, A_KEY, VALUE_SMALL);
@@ -307,7 +307,7 @@ public class InternalPropertiesDaoIT {
   }
 
   @Test
-  public void saveAsEmpty_persist_property_without_textvalue_nor_clob_value_when_old_value_was_in_clob() {
+  void saveAsEmpty_persist_property_without_textvalue_nor_clob_value_when_old_value_was_in_clob() {
     when(system2.now()).thenReturn(DATE_2, DATE_1);
 
     underTest.save(dbSession, A_KEY, VALUE_SIZE_4001);
@@ -322,57 +322,57 @@ public class InternalPropertiesDaoIT {
   }
 
   @Test
-  public void selectByKey_throws_IAE_when_key_is_null() {
+  void selectByKey_throws_IAE_when_key_is_null() {
     expectKeyNullOrEmptyIAE(() -> underTest.selectByKey(dbSession, null));
   }
 
   @Test
-  public void selectByKey_throws_IAE_when_key_is_empty() {
+  void selectByKey_throws_IAE_when_key_is_empty() {
     expectKeyNullOrEmptyIAE(() -> underTest.selectByKey(dbSession, EMPTY_STRING));
   }
 
   @Test
-  public void selectByKey_returns_empty_optional_when_property_does_not_exist_in_DB() {
+  void selectByKey_returns_empty_optional_when_property_does_not_exist_in_DB() {
     assertThat(underTest.selectByKey(dbSession, A_KEY)).isEmpty();
   }
 
   @Test
-  public void selectByKey_returns_empty_string_when_property_is_empty_in_DB() {
+  void selectByKey_returns_empty_string_when_property_is_empty_in_DB() {
     underTest.saveAsEmpty(dbSession, A_KEY);
 
     assertThat(underTest.selectByKey(dbSession, A_KEY)).contains(EMPTY_STRING);
   }
 
   @Test
-  public void selectByKey_returns_value_when_property_has_value_stored_in_varchar() {
+  void selectByKey_returns_value_when_property_has_value_stored_in_varchar() {
     underTest.save(dbSession, A_KEY, VALUE_SMALL);
 
     assertThat(underTest.selectByKey(dbSession, A_KEY)).contains(VALUE_SMALL);
   }
 
   @Test
-  public void selectByKey_returns_value_when_property_has_value_stored_in_clob() {
+  void selectByKey_returns_value_when_property_has_value_stored_in_clob() {
     underTest.save(dbSession, A_KEY, VALUE_SIZE_4001);
 
     assertThat(underTest.selectByKey(dbSession, A_KEY)).contains(VALUE_SIZE_4001);
   }
 
   @Test
-  public void selectByKeys_returns_empty_map_if_keys_is_null() {
+  void selectByKeys_returns_empty_map_if_keys_is_null() {
     assertThat(underTest.selectByKeys(dbSession, null)).isEmpty();
   }
 
   @Test
-  public void selectByKeys_returns_empty_map_if_keys_is_empty() {
+  void selectByKeys_returns_empty_map_if_keys_is_empty() {
     assertThat(underTest.selectByKeys(dbSession, Collections.emptySet())).isEmpty();
   }
 
   @Test
-  public void selectByKeys_throws_IAE_when_keys_contains_null() {
+  void selectByKeys_throws_IAE_when_keys_contains_null() {
     Set<String> keysIncludingANull = Stream.of(
-      IntStream.range(0, 10).mapToObj(i -> "b_" + i),
-      Stream.of((String) null),
-      IntStream.range(0, 10).mapToObj(i -> "a_" + i))
+        IntStream.range(0, 10).mapToObj(i -> "b_" + i),
+        Stream.of((String) null),
+        IntStream.range(0, 10).mapToObj(i -> "a_" + i))
       .flatMap(s -> s)
       .collect(Collectors.toSet());
 
@@ -380,12 +380,12 @@ public class InternalPropertiesDaoIT {
   }
 
   @Test
-  public void selectByKeys_throws_IAE_when_keys_contains_empty_string() {
+  void selectByKeys_throws_IAE_when_keys_contains_empty_string() {
     Random random = new Random();
     Set<String> keysIncludingAnEmptyString = Stream.of(
-      IntStream.range(0, random.nextInt(10)).mapToObj(i -> "b_" + i),
-      Stream.of(""),
-      IntStream.range(0, random.nextInt(10)).mapToObj(i -> "a_" + i))
+        IntStream.range(0, random.nextInt(10)).mapToObj(i -> "b_" + i),
+        Stream.of(""),
+        IntStream.range(0, random.nextInt(10)).mapToObj(i -> "a_" + i))
       .flatMap(s -> s)
       .collect(Collectors.toSet());
 
@@ -393,7 +393,7 @@ public class InternalPropertiesDaoIT {
   }
 
   @Test
-  public void selectByKeys_returns_empty_optional_when_property_does_not_exist_in_DB() {
+  void selectByKeys_returns_empty_optional_when_property_does_not_exist_in_DB() {
     assertThat(underTest.selectByKeys(dbSession, ImmutableSet.of(A_KEY, ANOTHER_KEY)))
       .containsOnly(
         entry(A_KEY, Optional.empty()),
@@ -401,7 +401,7 @@ public class InternalPropertiesDaoIT {
   }
 
   @Test
-  public void selectByKeys_returns_empty_string_when_property_is_empty_in_DB() {
+  void selectByKeys_returns_empty_string_when_property_is_empty_in_DB() {
     underTest.saveAsEmpty(dbSession, A_KEY);
     underTest.saveAsEmpty(dbSession, ANOTHER_KEY);
 
@@ -412,7 +412,7 @@ public class InternalPropertiesDaoIT {
   }
 
   @Test
-  public void selectByKeys_returns_value_when_property_has_value_stored_in_varchar() {
+  void selectByKeys_returns_value_when_property_has_value_stored_in_varchar() {
     underTest.save(dbSession, A_KEY, VALUE_SMALL);
     underTest.save(dbSession, ANOTHER_KEY, OTHER_VALUE_SMALL);
 
@@ -423,7 +423,7 @@ public class InternalPropertiesDaoIT {
   }
 
   @Test
-  public void selectByKeys_returns_values_when_properties_has_value_stored_in_clob() {
+  void selectByKeys_returns_values_when_properties_has_value_stored_in_clob() {
     underTest.save(dbSession, A_KEY, VALUE_SIZE_4001);
     underTest.save(dbSession, ANOTHER_KEY, OTHER_VALUE_SIZE_4001);
 
@@ -434,12 +434,13 @@ public class InternalPropertiesDaoIT {
   }
 
   @Test
-  public void selectByKeys_queries_only_clob_properties_with_clob_SQL_query() {
+  void selectByKeys_queries_only_clob_properties_with_clob_SQL_query() {
     underTest.saveAsEmpty(dbSession, A_KEY);
     underTest.save(dbSession, "key2", VALUE_SMALL);
     underTest.save(dbSession, "key3", VALUE_SIZE_4001);
     Set<String> keys = ImmutableSet.of(A_KEY, "key2", "key3", "non_existent_key");
-    List<InternalPropertyDto> allInternalPropertyDtos = dbSession.getMapper(InternalPropertiesMapper.class).selectAsText(ImmutableList.copyOf(keys));
+    List<InternalPropertyDto> allInternalPropertyDtos =
+      dbSession.getMapper(InternalPropertiesMapper.class).selectAsText(ImmutableList.copyOf(keys));
     List<InternalPropertyDto> clobPropertyDtos = dbSession.getMapper(InternalPropertiesMapper.class).selectAsClob(ImmutableList.of("key3"));
 
     InternalPropertiesMapper mapperMock = mock(InternalPropertiesMapper.class);
@@ -458,7 +459,7 @@ public class InternalPropertiesDaoIT {
   }
 
   @Test
-  public void tryLock_succeeds_if_lock_did_not_exist() {
+  void tryLock_succeeds_if_lock_did_not_exist() {
     long now = new Random().nextInt();
     when(system2.now()).thenReturn(now);
     assertThat(underTest.tryLock(dbSession, A_KEY, 60)).isTrue();
@@ -467,7 +468,7 @@ public class InternalPropertiesDaoIT {
   }
 
   @Test
-  public void tryLock_succeeds_if_lock_acquired_before_lease_duration() {
+  void tryLock_succeeds_if_lock_acquired_before_lease_duration() {
     int lockDurationSeconds = 60;
 
     long before = new Random().nextInt();
@@ -482,7 +483,7 @@ public class InternalPropertiesDaoIT {
   }
 
   @Test
-  public void tryLock_fails_if_lock_acquired_within_lease_duration() {
+  void tryLock_fails_if_lock_acquired_within_lease_duration() {
     long now = new Random().nextInt();
     when(system2.now()).thenReturn(now);
     assertThat(underTest.tryLock(dbSession, A_KEY, 60)).isTrue();
@@ -492,7 +493,7 @@ public class InternalPropertiesDaoIT {
   }
 
   @Test
-  public void tryLock_fails_if_it_would_insert_concurrently() {
+  void tryLock_fails_if_it_would_insert_concurrently() {
     String name = randomAlphabetic(5);
     String propertyKey = propertyKeyOf(name);
 
@@ -513,7 +514,7 @@ public class InternalPropertiesDaoIT {
   }
 
   @Test
-  public void tryLock_fails_if_concurrent_caller_succeeded_first() {
+  void tryLock_fails_if_concurrent_caller_succeeded_first() {
     int lockDurationSeconds = 60;
     String name = randomAlphabetic(5);
     String propertyKey = propertyKeyOf(name);
@@ -539,14 +540,14 @@ public class InternalPropertiesDaoIT {
   }
 
   @Test
-  public void tryLock_throws_IAE_if_lock_name_is_empty() {
+  void tryLock_throws_IAE_if_lock_name_is_empty() {
     assertThatThrownBy(() -> underTest.tryLock(dbSession, "", 60))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("lock name can't be empty");
   }
 
   @Test
-  public void tryLock_throws_IAE_if_lock_name_length_is_too_long() {
+  void tryLock_throws_IAE_if_lock_name_length_is_too_long() {
     String tooLongName = randomAlphabetic(LOCK_NAME_MAX_LENGTH + 1);
 
     assertThatThrownBy(() -> underTest.tryLock(dbSession, tooLongName, 60))
@@ -558,7 +559,8 @@ public class InternalPropertiesDaoIT {
     verify(auditPersister).isTrackedProperty(key);
     PropertyNewValue newValue = newValueCaptor.getValue();
     assertThat(newValue)
-      .extracting(PropertyNewValue::getPropertyKey, PropertyNewValue::getPropertyValue, PropertyNewValue::getUserUuid, PropertyNewValue::getUserLogin)
+      .extracting(PropertyNewValue::getPropertyKey, PropertyNewValue::getPropertyValue, PropertyNewValue::getUserUuid,
+        PropertyNewValue::getUserLogin)
       .containsExactly(key, value, null, null);
   }
 
@@ -614,59 +616,59 @@ public class InternalPropertiesDaoIT {
       throw new IllegalArgumentException("Unsupported object type returned for column \"isEmpty\": " + flag.getClass());
     }
 
-    public InternalPropertyAssert isEmpty() {
+    InternalPropertyAssert isEmpty() {
       isNotNull();
 
-      if (!Objects.equals(actual.isEmpty(), TRUE)) {
-        failWithMessage("Expected Internal property to have column IS_EMPTY to be <%s> but was <%s>", true, actual.isEmpty());
+      if (!Objects.equals(actual.empty(), TRUE)) {
+        failWithMessage("Expected Internal property to have column IS_EMPTY to be <%s> but was <%s>", true, actual.empty());
       }
-      if (actual.getTextValue() != null) {
-        failWithMessage("Expected Internal property to have column TEXT_VALUE to be null but was <%s>", actual.getTextValue());
+      if (actual.textValue() != null) {
+        failWithMessage("Expected Internal property to have column TEXT_VALUE to be null but was <%s>", actual.textValue());
       }
-      if (actual.getClobValue() != null) {
-        failWithMessage("Expected Internal property to have column CLOB_VALUE to be null but was <%s>", actual.getClobValue());
+      if (actual.clobValue() != null) {
+        failWithMessage("Expected Internal property to have column CLOB_VALUE to be null but was <%s>", actual.clobValue());
       }
 
       return this;
     }
 
-    public InternalPropertyAssert hasTextValue(String expected) {
+    InternalPropertyAssert hasTextValue(String expected) {
       isNotNull();
 
-      if (!Objects.equals(actual.getTextValue(), expected)) {
-        failWithMessage("Expected Internal property to have column TEXT_VALUE to be <%s> but was <%s>", true, actual.getTextValue());
+      if (!Objects.equals(actual.textValue(), expected)) {
+        failWithMessage("Expected Internal property to have column TEXT_VALUE to be <%s> but was <%s>", true, actual.textValue());
       }
-      if (actual.getClobValue() != null) {
-        failWithMessage("Expected Internal property to have column CLOB_VALUE to be null but was <%s>", actual.getClobValue());
+      if (actual.clobValue() != null) {
+        failWithMessage("Expected Internal property to have column CLOB_VALUE to be null but was <%s>", actual.clobValue());
       }
-      if (!Objects.equals(actual.isEmpty(), FALSE)) {
-        failWithMessage("Expected Internal property to have column IS_EMPTY to be <%s> but was <%s>", false, actual.isEmpty());
+      if (!Objects.equals(actual.empty(), FALSE)) {
+        failWithMessage("Expected Internal property to have column IS_EMPTY to be <%s> but was <%s>", false, actual.empty());
       }
 
       return this;
     }
 
-    public InternalPropertyAssert hasClobValue(String expected) {
+    InternalPropertyAssert hasClobValue(String expected) {
       isNotNull();
 
-      if (!Objects.equals(actual.getClobValue(), expected)) {
-        failWithMessage("Expected Internal property to have column CLOB_VALUE to be <%s> but was <%s>", true, actual.getClobValue());
+      if (!Objects.equals(actual.clobValue(), expected)) {
+        failWithMessage("Expected Internal property to have column CLOB_VALUE to be <%s> but was <%s>", true, actual.clobValue());
       }
-      if (actual.getTextValue() != null) {
-        failWithMessage("Expected Internal property to have column TEXT_VALUE to be null but was <%s>", actual.getTextValue());
+      if (actual.textValue() != null) {
+        failWithMessage("Expected Internal property to have column TEXT_VALUE to be null but was <%s>", actual.textValue());
       }
-      if (!Objects.equals(actual.isEmpty(), FALSE)) {
-        failWithMessage("Expected Internal property to have column IS_EMPTY to be <%s> but was <%s>", false, actual.isEmpty());
+      if (!Objects.equals(actual.empty(), FALSE)) {
+        failWithMessage("Expected Internal property to have column IS_EMPTY to be <%s> but was <%s>", false, actual.empty());
       }
 
       return this;
     }
 
-    public InternalPropertyAssert hasCreatedAt(long expected) {
+    InternalPropertyAssert hasCreatedAt(long expected) {
       isNotNull();
 
-      if (!Objects.equals(actual.getCreatedAt(), expected)) {
-        failWithMessage("Expected Internal property to have column CREATED_AT to be <%s> but was <%s>", expected, actual.getCreatedAt());
+      if (!Objects.equals(actual.createdAt(), expected)) {
+        failWithMessage("Expected Internal property to have column CREATED_AT to be <%s> but was <%s>", expected, actual.createdAt());
       }
 
       return this;
@@ -674,37 +676,36 @@ public class InternalPropertiesDaoIT {
 
   }
 
-  private static final class InternalProperty {
-    private final Boolean empty;
-    private final String textValue;
-    private final String clobValue;
-    private final Long createdAt;
-
-    public InternalProperty(@Nullable Boolean empty, @Nullable String textValue, @Nullable String clobValue, @Nullable Long createdAt) {
-      this.empty = empty;
-      this.textValue = textValue;
-      this.clobValue = clobValue;
-      this.createdAt = createdAt;
-    }
-
-    @CheckForNull
-    public Boolean isEmpty() {
-      return empty;
-    }
-
-    @CheckForNull
-    public String getTextValue() {
-      return textValue;
-    }
-
-    @CheckForNull
-    public String getClobValue() {
-      return clobValue;
-    }
-
-    @CheckForNull
-    public Long getCreatedAt() {
-      return createdAt;
-    }
+ private record InternalProperty(Boolean empty, String textValue, String clobValue, Long createdAt) {
+  private InternalProperty(@Nullable Boolean empty, @Nullable String textValue, @Nullable String clobValue, @Nullable Long createdAt) {
+   this.empty = empty;
+   this.textValue = textValue;
+   this.clobValue = clobValue;
+   this.createdAt = createdAt;
   }
+
+  @Override
+  @CheckForNull
+  public Boolean empty() {
+   return empty;
+  }
+
+  @Override
+  @CheckForNull
+  public String textValue() {
+   return textValue;
+  }
+
+  @Override
+  @CheckForNull
+  public String clobValue() {
+   return clobValue;
+  }
+
+  @Override
+  @CheckForNull
+  public Long createdAt() {
+   return createdAt;
+  }
+ }
 }

@@ -21,8 +21,8 @@ package org.sonar.db.qualityprofile;
 
 import java.sql.SQLException;
 import java.util.Map;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.api.utils.System2;
@@ -49,7 +49,7 @@ import static org.sonar.db.qualityprofile.SearchQualityProfilePermissionQuery.IN
 import static org.sonar.db.qualityprofile.SearchQualityProfilePermissionQuery.OUT;
 import static org.sonar.db.qualityprofile.SearchQualityProfilePermissionQuery.builder;
 
-public class QProfileEditUsersDaoIT {
+class QProfileEditUsersDaoIT {
 
   private static final long NOW = 10_000_000_000L;
 
@@ -57,13 +57,13 @@ public class QProfileEditUsersDaoIT {
   private final AuditPersister auditPersister = mock(AuditPersister.class);
   private final ArgumentCaptor<UserEditorNewValue> newValueCaptor = ArgumentCaptor.forClass(UserEditorNewValue.class);
 
-  @Rule
-  public DbTester db = DbTester.create(system2, auditPersister);
+  @RegisterExtension
+  private final DbTester db = DbTester.create(system2, auditPersister);
 
   private final QProfileEditUsersDao underTest = db.getDbClient().qProfileEditUsersDao();
 
   @Test
-  public void exists() {
+  void exists() {
     QProfileDto profile = db.qualityProfiles().insert();
     QProfileDto anotherProfile = db.qualityProfiles().insert();
     UserDto user = db.users().insertUser();
@@ -86,7 +86,7 @@ public class QProfileEditUsersDaoIT {
   }
 
   @Test
-  public void countByQuery() {
+  void countByQuery() {
     QProfileDto profile = db.qualityProfiles().insert();
     UserDto user1 = db.users().insertUser();
     UserDto user2 = db.users().insertUser();
@@ -111,7 +111,7 @@ public class QProfileEditUsersDaoIT {
   }
 
   @Test
-  public void selectByQuery() {
+  void selectByQuery() {
     QProfileDto profile = db.qualityProfiles().insert();
     UserDto user1 = db.users().insertUser();
     UserDto user2 = db.users().insertUser();
@@ -144,7 +144,7 @@ public class QProfileEditUsersDaoIT {
   }
 
   @Test
-  public void selectByQuery_search_by_name_or_login() {
+  void selectByQuery_search_by_name_or_login() {
     QProfileDto profile = db.qualityProfiles().insert();
     UserDto user1 = db.users().insertUser(u -> u.setLogin("user1").setName("John Doe"));
     UserDto user2 = db.users().insertUser(u -> u.setLogin("user2").setName("John Smith"));
@@ -179,7 +179,7 @@ public class QProfileEditUsersDaoIT {
   }
 
   @Test
-  public void selectByQuery_with_paging() {
+  void selectByQuery_with_paging() {
     QProfileDto profile = db.qualityProfiles().insert();
     UserDto user1 = db.users().insertUser(u -> u.setName("user1"));
     UserDto user2 = db.users().insertUser(u -> u.setName("user2"));
@@ -213,7 +213,7 @@ public class QProfileEditUsersDaoIT {
   }
 
   @Test
-  public void selectQProfileUuidsByUser() {
+  void selectQProfileUuidsByUser() {
     QProfileDto profile1 = db.qualityProfiles().insert();
     QProfileDto profile2 = db.qualityProfiles().insert();
     UserDto user1 = db.users().insertUser(u -> u.setName("user1"));
@@ -227,7 +227,7 @@ public class QProfileEditUsersDaoIT {
   }
 
   @Test
-  public void insert() {
+  void insert() {
     String qualityProfileUuid = "QPROFILE";
     String qualityProfileName = "QPROFILE_NAME";
     String userUuid = "100";
@@ -239,7 +239,8 @@ public class QProfileEditUsersDaoIT {
       qualityProfileName, userLogin);
 
     assertThat(db.selectFirst(db.getSession(),
-      "select uuid as \"uuid\", user_uuid as \"userUuid\", qprofile_uuid as \"qProfileUuid\", created_at as \"createdAt\" from qprofile_edit_users")).contains(
+      "select uuid as \"uuid\", user_uuid as \"userUuid\", qprofile_uuid as \"qProfileUuid\", created_at as \"createdAt\" from " +
+        "qprofile_edit_users")).contains(
       entry("uuid", "ABCD"),
       entry("userUuid", userUuid),
       entry("qProfileUuid", qualityProfileUuid),
@@ -247,7 +248,7 @@ public class QProfileEditUsersDaoIT {
   }
 
   @Test
-  public void fail_to_insert_same_row_twice() {
+  void fail_to_insert_same_row_twice() {
     String qualityProfileUuid = "QPROFILE";
     String qualityProfileName = "QPROFILE_NAME";
     String userUuid = "100";
@@ -258,7 +259,7 @@ public class QProfileEditUsersDaoIT {
         .setQProfileUuid(qualityProfileUuid),
       qualityProfileName, userLogin);
 
-    assertThatThrownBy(() ->  {
+    assertThatThrownBy(() -> {
       underTest.insert(db.getSession(), new QProfileEditUsersDto()
           .setUuid("UUID-2")
           .setUserUuid(userUuid)
@@ -269,7 +270,7 @@ public class QProfileEditUsersDaoIT {
   }
 
   @Test
-  public void deleteByQProfileAndUser() {
+  void deleteByQProfileAndUser() {
     QProfileDto profile = db.qualityProfiles().insert();
     UserDto user = db.users().insertUser();
     db.qualityProfiles().addUserPermission(profile, user);
@@ -290,7 +291,7 @@ public class QProfileEditUsersDaoIT {
   }
 
   @Test
-  public void deleteByQProfiles() {
+  void deleteByQProfiles() {
     QProfileDto profile1 = db.qualityProfiles().insert();
     QProfileDto profile2 = db.qualityProfiles().insert();
     QProfileDto profile3 = db.qualityProfiles().insert();
@@ -321,7 +322,7 @@ public class QProfileEditUsersDaoIT {
   }
 
   @Test
-  public void deleteByUser() {
+  void deleteByUser() {
     QProfileDto profile1 = db.qualityProfiles().insert();
     QProfileDto profile3 = db.qualityProfiles().insert();
     UserDto user1 = db.users().insertUser();

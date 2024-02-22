@@ -19,8 +19,8 @@
  */
 package org.sonar.db.qualitygate;
 
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbSession;
@@ -42,12 +42,12 @@ import static org.sonar.db.user.SearchPermissionQuery.ANY;
 import static org.sonar.db.user.SearchPermissionQuery.IN;
 import static org.sonar.db.user.SearchPermissionQuery.OUT;
 
-public class QualityGateUserPermissionsDaoIT {
+class QualityGateUserPermissionsDaoIT {
   private final AuditPersister auditPersister = mock(AuditPersister.class);
   private final ArgumentCaptor<UserEditorNewValue> newValueCaptor = ArgumentCaptor.forClass(UserEditorNewValue.class);
 
-  @Rule
-  public final DbTester db = DbTester.create(System2.INSTANCE, auditPersister);
+  @RegisterExtension
+  private final DbTester db = DbTester.create(System2.INSTANCE, auditPersister);
 
   private final DbSession dbSession = db.getSession();
   private final UserDbTester userDbTester = new UserDbTester(db);
@@ -55,10 +55,11 @@ public class QualityGateUserPermissionsDaoIT {
   private final QualityGateUserPermissionsDao underTest = db.getDbClient().qualityGateUserPermissionDao();
 
   @Test
-  public void insert() {
+  void insert() {
     UserDto user = userDbTester.insertUser();
     QualityGateDto qualityGate = qualityGateDbTester.insertQualityGate();
-    QualityGateUserPermissionsDto qualityGateUserPermissions = new QualityGateUserPermissionsDto("uuid", user.getUuid(), qualityGate.getUuid());
+    QualityGateUserPermissionsDto qualityGateUserPermissions = new QualityGateUserPermissionsDto("uuid", user.getUuid(),
+      qualityGate.getUuid());
     underTest.insert(dbSession, qualityGateUserPermissions, qualityGate.getName(), user.getLogin());
     dbSession.commit();
 
@@ -78,11 +79,12 @@ public class QualityGateUserPermissionsDaoIT {
   }
 
   @Test
-  public void exist() {
+  void exist() {
     UserDto user1 = userDbTester.insertUser();
     UserDto user2 = userDbTester.insertUser();
     QualityGateDto qualityGate = qualityGateDbTester.insertQualityGate();
-    QualityGateUserPermissionsDto qualityGateUserPermissions = new QualityGateUserPermissionsDto("uuid", user1.getUuid(), qualityGate.getUuid());
+    QualityGateUserPermissionsDto qualityGateUserPermissions = new QualityGateUserPermissionsDto("uuid", user1.getUuid(),
+      qualityGate.getUuid());
     underTest.insert(dbSession, qualityGateUserPermissions, qualityGate.getName(), user1.getLogin());
     dbSession.commit();
 
@@ -93,13 +95,13 @@ public class QualityGateUserPermissionsDaoIT {
   }
 
   @Test
-  public void exist_can_handle_null_param_and_return_false() {
+  void exist_can_handle_null_param_and_return_false() {
     assertThat(underTest.exists(dbSession, "uuid", null)).isFalse();
     assertThat(underTest.exists(dbSession, null, "uuid")).isFalse();
   }
 
   @Test
-  public void countByQuery() {
+  void countByQuery() {
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
     UserDto user1 = db.users().insertUser();
     UserDto user2 = db.users().insertUser();
@@ -124,7 +126,7 @@ public class QualityGateUserPermissionsDaoIT {
   }
 
   @Test
-  public void selectByQuery() {
+  void selectByQuery() {
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
     UserDto user1 = db.users().insertUser();
     UserDto user2 = db.users().insertUser();
@@ -157,7 +159,7 @@ public class QualityGateUserPermissionsDaoIT {
   }
 
   @Test
-  public void selectByQuery_search_by_name_or_login() {
+  void selectByQuery_search_by_name_or_login() {
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
     UserDto user1 = db.users().insertUser(u -> u.setLogin("user1").setName("John Doe"));
     UserDto user2 = db.users().insertUser(u -> u.setLogin("user2").setName("John Smith"));
@@ -192,7 +194,7 @@ public class QualityGateUserPermissionsDaoIT {
   }
 
   @Test
-  public void selectByQuery_with_paging() {
+  void selectByQuery_with_paging() {
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
     UserDto user1 = db.users().insertUser(u -> u.setName("user1"));
     UserDto user2 = db.users().insertUser(u -> u.setName("user2"));
@@ -226,7 +228,7 @@ public class QualityGateUserPermissionsDaoIT {
   }
 
   @Test
-  public void deleteByQualityGateAndUser() {
+  void deleteByQualityGateAndUser() {
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
     UserDto user = db.users().insertUser();
     db.qualityGates().addUserPermission(qualityGate, user);
@@ -248,7 +250,7 @@ public class QualityGateUserPermissionsDaoIT {
   }
 
   @Test
-  public void deleteByUser() {
+  void deleteByUser() {
     QualityGateDto qualityGateDto1 = db.qualityGates().insertQualityGate();
     QualityGateDto qualityGateDto2 = db.qualityGates().insertQualityGate();
     QualityGateDto qualityGateDto3 = db.qualityGates().insertQualityGate();
@@ -276,7 +278,7 @@ public class QualityGateUserPermissionsDaoIT {
   }
 
   @Test
-  public void deleteByQualityGate() {
+  void deleteByQualityGate() {
     QualityGateDto qualityGateDto1 = qualityGateDbTester.insertQualityGate();
     QualityGateDto qualityGateDto2 = qualityGateDbTester.insertQualityGate();
     QualityGateDto qualityGateDto3 = qualityGateDbTester.insertQualityGate();

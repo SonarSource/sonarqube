@@ -23,14 +23,14 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.db.purge.DbCleanerTestUtils;
 import org.sonar.db.purge.PurgeableAnalysisDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class IntervalTest {
+class IntervalTest {
   static int calendarField(Interval interval, int field) {
     if (interval.count() == 0) {
       return -1;
@@ -43,7 +43,7 @@ public class IntervalTest {
   }
 
   @Test
-  public void shouldGroupByIntervals() {
+  void shouldGroupByIntervals() {
     List<PurgeableAnalysisDto> snapshots = Arrays.asList(
       DbCleanerTestUtils.createAnalysisWithDate("u1", "2011-04-03"),
 
@@ -54,9 +54,10 @@ public class IntervalTest {
       DbCleanerTestUtils.createAnalysisWithDate("u5", "2011-06-20"),
 
       DbCleanerTestUtils.createAnalysisWithDate("u6", "2012-06-29") // out of scope
-      );
+    );
 
-    List<Interval> intervals = Interval.group(snapshots, DateUtils.parseDate("2010-01-01"), DateUtils.parseDate("2011-12-31"), Calendar.MONTH);
+    List<Interval> intervals = Interval.group(snapshots, DateUtils.parseDate("2010-01-01"), DateUtils.parseDate("2011-12-31"),
+      Calendar.MONTH);
     assertThat(intervals).hasSize(3);
 
     assertThat(intervals.get(0).count()).isOne();
@@ -70,11 +71,10 @@ public class IntervalTest {
   }
 
   @Test
-  public void shouldNotJoinMonthsOfDifferentYears() {
+  void shouldNotJoinMonthsOfDifferentYears() {
     List<PurgeableAnalysisDto> snapshots = Arrays.asList(
       DbCleanerTestUtils.createAnalysisWithDate("u1", "2010-04-03"),
-      DbCleanerTestUtils.createAnalysisWithDate("u2", "2011-04-13")
-      );
+      DbCleanerTestUtils.createAnalysisWithDate("u2", "2011-04-13"));
 
     List<Interval> intervals = Interval.group(snapshots,
       DateUtils.parseDateTime("2010-01-01T00:00:00+0100"), DateUtils.parseDateTime("2011-12-31T00:00:00+0100"), Calendar.MONTH);
@@ -90,12 +90,11 @@ public class IntervalTest {
   }
 
   @Test
-  public void shouldIgnoreTimeWhenGroupingByIntervals() {
+  void shouldIgnoreTimeWhenGroupingByIntervals() {
     List<PurgeableAnalysisDto> snapshots = Arrays.asList(
       DbCleanerTestUtils.createAnalysisWithDateTime("u1", "2011-05-25T00:16:48+0100"),
       DbCleanerTestUtils.createAnalysisWithDateTime("u2", "2012-01-26T00:16:48+0100"),
-      DbCleanerTestUtils.createAnalysisWithDateTime("u3", "2012-01-27T00:16:48+0100")
-      );
+      DbCleanerTestUtils.createAnalysisWithDateTime("u3", "2012-01-27T00:16:48+0100"));
 
     List<Interval> intervals = Interval.group(snapshots,
       DateUtils.parseDateTime("2011-05-25T00:00:00+0100"),

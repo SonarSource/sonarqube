@@ -20,44 +20,43 @@
 package org.sonar.db.permission;
 
 import java.util.Arrays;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-public class GlobalPermissionTest {
+class GlobalPermissionTest {
 
   @Test
-  public void fromKey_returns_enum_with_specified_key() {
+  void fromKey_returns_enum_with_specified_key() {
     for (GlobalPermission p : GlobalPermission.values()) {
       assertThat(GlobalPermission.fromKey(p.getKey())).isEqualTo(p);
     }
   }
 
   @Test
-  public void fromKey_throws_exception_for_non_existing_keys() {
+  void fromKey_throws_exception_for_non_existing_keys() {
     String non_existing_permission = "non_existing";
     assertThatThrownBy(() -> GlobalPermission.fromKey(non_existing_permission))
       .isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test
-  public void contains_returns_true_for_existing_permissions() {
+  void contains_returns_true_for_existing_permissions() {
     Arrays.stream(GlobalPermission.values())
       .map(GlobalPermission::getKey)
-      .forEach(key -> {
-        assertThat(GlobalPermission.contains(key)).isTrue();
-      });
+      .forEach(key -> assertThat(GlobalPermission.contains(key)).isTrue());
   }
 
   @Test
-  public void contains_returns_false_for_non_existing_permissions() {
+  void contains_returns_false_for_non_existing_permissions() {
     String non_existing_permission = "non_existing";
     assertThat(GlobalPermission.contains(non_existing_permission)).isFalse();
   }
 
   @Test
-  public void all_in_one_line_contains_all_permissions() {
-    assertThat(GlobalPermission.ALL_ON_ONE_LINE).isEqualTo("admin, gateadmin, profileadmin, provisioning, scan, applicationcreator, portfoliocreator");
+  void all_in_one_line_contains_all_permissions() {
+    assertThat("admin, gateadmin, profileadmin, provisioning, scan, applicationcreator, " +
+      "portfoliocreator").isEqualTo(GlobalPermission.ALL_ON_ONE_LINE);
   }
 }

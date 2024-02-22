@@ -22,9 +22,6 @@ package org.sonar.db.ce;
 import com.google.common.base.Function;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
-import com.tngtech.java.junit.dataprovider.DataProvider;
-import com.tngtech.java.junit.dataprovider.DataProviderRunner;
-import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -36,10 +33,11 @@ import javax.annotation.Nullable;
 import org.assertj.core.api.AbstractListAssert;
 import org.assertj.core.api.ObjectAssert;
 import org.assertj.core.groups.Tuple;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.core.util.CloseableIterator;
 import org.sonar.core.util.UuidFactoryFast;
@@ -64,8 +62,7 @@ import static org.sonar.db.ce.CeQueueDto.Status.PENDING;
 import static org.sonar.db.ce.CeQueueTesting.makeInProgress;
 import static org.sonar.db.ce.CeTaskTypes.REPORT;
 
-@RunWith(DataProviderRunner.class)
-public class CeActivityDaoIT {
+class CeActivityDaoIT {
 
   private static final String ENTITY_1 = randomAlphabetic(12);
   private static final String MAINCOMPONENT_2 = randomAlphabetic(13);
@@ -76,19 +73,19 @@ public class CeActivityDaoIT {
 
   private final TestSystem2 system2 = new TestSystem2().setNow(INITIAL_TIME);
 
-  @Rule
-  public DbTester db = DbTester.create(system2);
+  @RegisterExtension
+  private final DbTester db = DbTester.create(system2);
 
   private final DbSession dbSession = db.getSession();
   private final CeActivityDao underTest = new CeActivityDao(system2);
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
     system2.setNow(INITIAL_TIME);
   }
 
   @Test
-  public void test_insert() {
+  void test_insert() {
     CeActivityDto inserted = insert("TASK_1", REPORT, COMPONENT_1, ENTITY_1, SUCCESS);
 
     Optional<CeActivityDto> saved = underTest.selectByUuid(db.getSession(), "TASK_1");
@@ -120,7 +117,7 @@ public class CeActivityDaoIT {
   }
 
   @Test
-  public void selectByUuid_populates_messages() {
+  void selectByUuid_populates_messages() {
     CeActivityDto[] tasks = {
       insert("TASK_1", REPORT, "PROJECT_1", SUCCESS),
       insert("TASK_2", REPORT, "PROJECT_1", SUCCESS),
@@ -158,9 +155,9 @@ public class CeActivityDaoIT {
       .setCreatedAt(task.getUuid().hashCode() + i);
   }
 
-  @Test
-  @UseDataProvider("notCanceledStatus")
-  public void insert_resets_is_last_and_main_is_last_fields_based_on_component_and_main_component(CeActivityDto.Status status) {
+  @ParameterizedTest
+  @MethodSource("notCanceledStatus")
+  void insert_resets_is_last_and_main_is_last_fields_based_on_component_and_main_component(CeActivityDto.Status status) {
     String project1 = randomAlphabetic(5);
     String branch11 = randomAlphabetic(6);
     String project2 = randomAlphabetic(8);
@@ -220,9 +217,9 @@ public class CeActivityDaoIT {
     assertIsLastAndMainIsLastFieldsOf(task3project1).containsOnly(tuple(true, true));
   }
 
-  @Test
-  @UseDataProvider("notCanceledStatus")
-  public void insert_resets_is_last_and_main_is_last_fields_based_on_type(CeActivityDto.Status status) {
+  @ParameterizedTest
+  @MethodSource("notCanceledStatus")
+  void insert_resets_is_last_and_main_is_last_fields_based_on_type(CeActivityDto.Status status) {
     String type1 = randomAlphabetic(10);
     String type2 = randomAlphabetic(11);
     String project = randomAlphabetic(5);
@@ -262,9 +259,9 @@ public class CeActivityDaoIT {
     assertIsLastAndMainIsLastFieldsOf(type2Branch2).containsOnly(tuple(true, true));
   }
 
-  @Test
-  @UseDataProvider("notCanceledStatus")
-  public void insert_resets_is_last_and_main_is_last_fields_based_on_component_or_not(CeActivityDto.Status status) {
+  @ParameterizedTest
+  @MethodSource("notCanceledStatus")
+  void insert_resets_is_last_and_main_is_last_fields_based_on_component_or_not(CeActivityDto.Status status) {
     String project = randomAlphabetic(5);
     String type1 = randomAlphabetic(11);
     String type2 = randomAlphabetic(11);
@@ -303,9 +300,9 @@ public class CeActivityDaoIT {
     assertIsLastAndMainIsLastFieldsOf(type1Project2).containsOnly(tuple(true, true));
   }
 
-  @Test
-  @UseDataProvider("notCanceledStatus")
-  public void insert_does_not_resets_is_last_and_main_is_last_fields_if_status_is_CANCELED(CeActivityDto.Status status) {
+  @ParameterizedTest
+  @MethodSource("notCanceledStatus")
+  void insert_does_not_resets_is_last_and_main_is_last_fields_if_status_is_CANCELED(CeActivityDto.Status status) {
     String project = randomAlphabetic(5);
     String branch = randomAlphabetic(6);
     String type = randomAlphabetic(10);
@@ -336,11 +333,10 @@ public class CeActivityDaoIT {
     assertIsLastAndMainIsLastFieldsOf(task1Branch2).containsOnly(tuple(false, false));
   }
 
-  @DataProvider
-  public static Object[][] notCanceledStatus() {
+  private static Object[][] notCanceledStatus() {
     return Arrays.stream(CeActivityDto.Status.values())
       .filter(t -> t != CANCELED)
-      .map(t -> new Object[] {t})
+      .map(t -> new Object[]{t})
       .toArray(Object[][]::new);
   }
 
@@ -353,15 +349,14 @@ public class CeActivityDaoIT {
     if (o instanceof Boolean) {
       return (Boolean) o;
     }
-    if (o instanceof Long) {
-      Long longBoolean = (Long) o;
+    if (o instanceof Long longBoolean) {
       return longBoolean.equals(1L);
     }
     throw new IllegalArgumentException("Unsupported object type returned for boolean: " + o.getClass());
   }
 
   @Test
-  public void test_insert_of_errorMessage_of_1_000_chars() {
+  void test_insert_of_errorMessage_of_1_000_chars() {
     CeActivityDto dto = createActivityDto("TASK_1", REPORT, COMPONENT_1, ENTITY_1, FAILED)
       .setErrorMessage(Strings.repeat("x", 1_000));
     underTest.insert(db.getSession(), dto);
@@ -371,7 +366,7 @@ public class CeActivityDaoIT {
   }
 
   @Test
-  public void test_insert_of_errorMessage_of_1_001_chars_is_truncated_to_1000() {
+  void test_insert_of_errorMessage_of_1_001_chars_is_truncated_to_1000() {
     String expected = Strings.repeat("x", 1_000);
     CeActivityDto dto = createActivityDto("TASK_1", REPORT, COMPONENT_1, ENTITY_1, FAILED)
       .setErrorMessage(expected + "y");
@@ -382,7 +377,7 @@ public class CeActivityDaoIT {
   }
 
   @Test
-  public void test_insert_error_message_and_stacktrace() {
+  void test_insert_error_message_and_stacktrace() {
     CeActivityDto dto = createActivityDto("TASK_1", REPORT, COMPONENT_1, ENTITY_1, FAILED)
       .setErrorStacktrace("error stack");
     underTest.insert(db.getSession(), dto);
@@ -395,7 +390,7 @@ public class CeActivityDaoIT {
   }
 
   @Test
-  public void test_insert_error_message_only() {
+  void test_insert_error_message_only() {
     CeActivityDto dto = createActivityDto("TASK_1", REPORT, COMPONENT_1, ENTITY_1, FAILED);
     underTest.insert(db.getSession(), dto);
 
@@ -406,7 +401,7 @@ public class CeActivityDaoIT {
   }
 
   @Test
-  public void insert_must_set_relevant_is_last_field() {
+  void insert_must_set_relevant_is_last_field() {
     // only a single task on MAINCOMPONENT_1 -> is_last=true
     insert("TASK_1", REPORT, ENTITY_1, SUCCESS);
     assertThat(underTest.selectByUuid(db.getSession(), "TASK_1").get().getIsLast()).isTrue();
@@ -430,7 +425,7 @@ public class CeActivityDaoIT {
   }
 
   @Test
-  public void test_selectByQuery() {
+  void test_selectByQuery() {
     insert("TASK_1", REPORT, ENTITY_1, SUCCESS);
     insert("TASK_2", REPORT, ENTITY_1, FAILED);
     insert("TASK_3", REPORT, MAINCOMPONENT_2, SUCCESS);
@@ -466,7 +461,7 @@ public class CeActivityDaoIT {
   }
 
   @Test
-  public void test_selectByQuery_verify_order_if_same_date() {
+  void test_selectByQuery_verify_order_if_same_date() {
     system2.setNow(INITIAL_TIME);
     insert("TASK_1", REPORT, ENTITY_1, SUCCESS);
     system2.setNow(INITIAL_TIME);
@@ -506,7 +501,7 @@ public class CeActivityDaoIT {
   }
 
   @Test
-  public void selectByQuery_does_not_populate_errorStacktrace_field() {
+  void selectByQuery_does_not_populate_errorStacktrace_field() {
     insert("TASK_1", REPORT, ENTITY_1, FAILED);
     underTest.insert(db.getSession(), createActivityDto("TASK_2", REPORT, COMPONENT_1, ENTITY_1, FAILED).setErrorStacktrace("some stack"));
 
@@ -518,19 +513,21 @@ public class CeActivityDaoIT {
   }
 
   @Test
-  public void selectByQuery_populates_hasScannerContext_flag() {
+  void selectByQuery_populates_hasScannerContext_flag() {
     insert("TASK_1", REPORT, ENTITY_1, SUCCESS);
     CeActivityDto dto2 = insert("TASK_2", REPORT, MAINCOMPONENT_2, SUCCESS);
     insertScannerContext(dto2.getUuid());
 
-    CeActivityDto dto = underTest.selectByQuery(db.getSession(), new CeTaskQuery().setEntityUuid(ENTITY_1), forPage(1).andSize(100)).iterator().next();
+    CeActivityDto dto =
+      underTest.selectByQuery(db.getSession(), new CeTaskQuery().setEntityUuid(ENTITY_1), forPage(1).andSize(100)).iterator().next();
     assertThat(dto.isHasScannerContext()).isFalse();
-    dto = underTest.selectByQuery(db.getSession(), new CeTaskQuery().setEntityUuid(MAINCOMPONENT_2), forPage(1).andSize(100)).iterator().next();
+    dto =
+      underTest.selectByQuery(db.getSession(), new CeTaskQuery().setEntityUuid(MAINCOMPONENT_2), forPage(1).andSize(100)).iterator().next();
     assertThat(dto.isHasScannerContext()).isTrue();
   }
 
   @Test
-  public void selectByQuery_populates_messages() {
+  void selectByQuery_populates_messages() {
     CeActivityDto[] tasks = {
       insert("TASK_1", REPORT, "PROJECT_1", SUCCESS),
       insert("TASK_2", REPORT, "PROJECT_1", FAILED),
@@ -580,7 +577,7 @@ public class CeActivityDaoIT {
   }
 
   @Test
-  public void selectByQuery_whenNoMessage_returnsEmptyList() {
+  void selectByQuery_whenNoMessage_returnsEmptyList() {
     insert("TASK_1", REPORT, "PROJECT_1", SUCCESS);
 
     List<CeActivityDto> results = underTest.selectByQuery(db.getSession(), new CeTaskQuery(), Pagination.all());
@@ -592,7 +589,7 @@ public class CeActivityDaoIT {
   }
 
   @Test
-  public void selectByQuery_is_paginated_and_return_results_sorted_from_last_to_first() {
+  void selectByQuery_is_paginated_and_return_results_sorted_from_last_to_first() {
     insert("TASK_1", REPORT, ENTITY_1, SUCCESS);
     insert("TASK_2", REPORT, ENTITY_1, FAILED);
     insert("TASK_3", REPORT, MAINCOMPONENT_2, SUCCESS);
@@ -608,7 +605,7 @@ public class CeActivityDaoIT {
   }
 
   @Test
-  public void selectByQuery_no_results_if_shortcircuited_by_component_uuids() {
+  void selectByQuery_no_results_if_shortcircuited_by_component_uuids() {
     insert("TASK_1", REPORT, ENTITY_1, SUCCESS);
 
     CeTaskQuery query = new CeTaskQuery();
@@ -617,7 +614,7 @@ public class CeActivityDaoIT {
   }
 
   @Test
-  public void select_and_count_by_date() {
+  void select_and_count_by_date() {
     insertWithDates("UUID1", 1_450_000_000_000L, 1_470_000_000_000L);
     insertWithDates("UUID2", 1_460_000_000_000L, 1_480_000_000_000L);
 
@@ -637,15 +634,17 @@ public class CeActivityDaoIT {
   }
 
   @Test
-  public void select_by_minExecutedAt() {
+  void select_by_minExecutedAt() {
     insertWithDates("UUID1", 1_450_000_000_000L, 1_470_000_000_000L);
     insertWithDates("UUID2", 1_460_000_000_000L, 1_480_000_000_000L);
 
     CeTaskQuery query = new CeTaskQuery().setMinExecutedAt(1_460_000_000_000L);
-    assertThat(underTest.selectByQuery(db.getSession(), query, forPage(1).andSize(5))).extracting("uuid").containsExactlyInAnyOrder("UUID1", "UUID2");
+    assertThat(underTest.selectByQuery(db.getSession(), query, forPage(1).andSize(5))).extracting("uuid").containsExactlyInAnyOrder(
+      "UUID1", "UUID2");
 
     query = new CeTaskQuery().setMinExecutedAt(1_475_000_000_000L);
-    assertThat(underTest.selectByQuery(db.getSession(), query, forPage(1).andSize(5))).extracting("uuid").containsExactlyInAnyOrder("UUID2");
+    assertThat(underTest.selectByQuery(db.getSession(), query, forPage(1).andSize(5))).extracting("uuid").containsExactlyInAnyOrder(
+      "UUID2");
 
     query = new CeTaskQuery().setMinExecutedAt(1_485_000_000_000L);
     assertThat(underTest.selectByQuery(db.getSession(), query, forPage(1).andSize(5))).isEmpty();
@@ -663,7 +662,7 @@ public class CeActivityDaoIT {
   }
 
   @Test
-  public void selectOlderThan() {
+  void selectOlderThan() {
     insertWithCreationDate("TASK_1", 1_450_000_000_000L);
     insertWithCreationDate("TASK_2", 1_460_000_000_000L);
     insertWithCreationDate("TASK_3", 1_470_000_000_000L);
@@ -673,7 +672,7 @@ public class CeActivityDaoIT {
   }
 
   @Test
-  public void selectNewerThan() {
+  void selectNewerThan() {
     insertWithCreationDate("TASK_1", 1_450_000_000_000L);
     insertWithCreationDate("TASK_2", 1_460_000_000_000L);
     insertWithCreationDate("TASK_3", 1_470_000_000_000L);
@@ -683,7 +682,7 @@ public class CeActivityDaoIT {
   }
 
   @Test
-  public void selectOlder_populates_hasScannerContext_flag() {
+  void selectOlder_populates_hasScannerContext_flag() {
     insertWithCreationDate("TASK_1", 1_450_000_000_000L);
     CeActivityDto dto2 = insertWithCreationDate("TASK_2", 1_450_000_000_000L);
     insertScannerContext(dto2.getUuid());
@@ -694,7 +693,7 @@ public class CeActivityDaoIT {
   }
 
   @Test
-  public void selectOlderThan_does_not_populate_errorStacktrace() {
+  void selectOlderThan_does_not_populate_errorStacktrace() {
     insert("TASK_1", REPORT, ENTITY_1, FAILED);
     underTest.insert(db.getSession(), createActivityDto("TASK_2", REPORT, COMPONENT_1, ENTITY_1, FAILED).setErrorStacktrace("some stack"));
 
@@ -706,7 +705,7 @@ public class CeActivityDaoIT {
   }
 
   @Test
-  public void selectOlderThan_populatesCorrectly() {
+  void selectOlderThan_populatesCorrectly() {
     CeActivityDto activity1 = insert("TASK_1", REPORT, "PROJECT_1", FAILED);
     insertCeTaskMessage(activity1, 10);
     CeActivityDto activity2 = insert("TASK_2", REPORT, "PROJECT_1", SUCCESS);
@@ -721,7 +720,7 @@ public class CeActivityDaoIT {
   }
 
   @Test
-  public void deleteByUuids() {
+  void deleteByUuids() {
     insert("TASK_1", "REPORT", ENTITY_1, SUCCESS);
     insert("TASK_2", "REPORT", ENTITY_1, SUCCESS);
     insert("TASK_3", "REPORT", ENTITY_1, SUCCESS);
@@ -733,7 +732,7 @@ public class CeActivityDaoIT {
   }
 
   @Test
-  public void deleteByUuids_does_nothing_if_uuid_does_not_exist() {
+  void deleteByUuids_does_nothing_if_uuid_does_not_exist() {
     insert("TASK_1", "REPORT", ENTITY_1, SUCCESS);
 
     // must not fail
@@ -743,7 +742,7 @@ public class CeActivityDaoIT {
   }
 
   @Test
-  public void count_last_by_status_and_entity_uuid() {
+  void count_last_by_status_and_entity_uuid() {
     insert("TASK_1", CeTaskTypes.REPORT, ENTITY_1, SUCCESS);
     // component 2
     insert("TASK_2", CeTaskTypes.REPORT, MAINCOMPONENT_2, SUCCESS);
@@ -759,7 +758,7 @@ public class CeActivityDaoIT {
   }
 
   @Test
-  public void selectLastByComponentUuidAndTaskType_returns_task_of_given_type() {
+  void selectLastByComponentUuidAndTaskType_returns_task_of_given_type() {
     insert("TASK_1", "VIEW_REFRESH", ENTITY_1, ENTITY_1, SUCCESS);
     insert("TASK_2", CeTaskTypes.REPORT, ENTITY_1, ENTITY_1, SUCCESS);
     insert("TASK_3", "PROJECT_EXPORT", ENTITY_1, ENTITY_1, SUCCESS);
@@ -772,7 +771,7 @@ public class CeActivityDaoIT {
   }
 
   @Test
-  public void selectLastByComponentUuidAndTaskType_returns_empty_if_task_of_given_type_does_not_exist() {
+  void selectLastByComponentUuidAndTaskType_returns_empty_if_task_of_given_type_does_not_exist() {
     insert("TASK_1", CeTaskTypes.REPORT, ENTITY_1, SUCCESS);
     db.commit();
 
@@ -782,7 +781,7 @@ public class CeActivityDaoIT {
   }
 
   @Test
-  public void selectByTaskType() {
+  void selectByTaskType() {
     insert("TASK_1", CeTaskTypes.REPORT, ENTITY_1, SUCCESS);
     insert("TASK_2", CeTaskTypes.BRANCH_ISSUE_SYNC, ENTITY_1, SUCCESS);
     db.commit();
@@ -798,7 +797,7 @@ public class CeActivityDaoIT {
   }
 
   @Test
-  public void hasAnyFailedOrCancelledIssueSyncTask() {
+  void hasAnyFailedOrCancelledIssueSyncTask() {
     assertThat(underTest.hasAnyFailedOrCancelledIssueSyncTask(db.getSession())).isFalse();
 
     insert("TASK_1", REPORT, ENTITY_1, SUCCESS);
@@ -855,20 +854,23 @@ public class CeActivityDaoIT {
     return insert(uuid, type, mainComponentUuid, mainComponentUuid, status);
   }
 
-  private CeActivityDto insertAndCommit(String uuid, String type, @Nullable String componentUuid, @Nullable String entityUuid, CeActivityDto.Status status) {
+  private CeActivityDto insertAndCommit(String uuid, String type, @Nullable String componentUuid, @Nullable String entityUuid,
+    CeActivityDto.Status status) {
     CeActivityDto res = insert(uuid, type, componentUuid, entityUuid, status);
     db.commit();
     return res;
   }
 
-  private CeActivityDto insert(String uuid, String type, @Nullable String componentUuid, @Nullable String entityUuid, CeActivityDto.Status status) {
+  private CeActivityDto insert(String uuid, String type, @Nullable String componentUuid, @Nullable String entityUuid,
+    CeActivityDto.Status status) {
     CeActivityDto dto = createActivityDto(uuid, type, componentUuid, entityUuid, status);
     system2.tick();
     underTest.insert(db.getSession(), dto);
     return dto;
   }
 
-  private CeActivityDto createActivityDto(String uuid, String type, @Nullable String componentUuid, @Nullable String entityUuid, CeActivityDto.Status status) {
+  private CeActivityDto createActivityDto(String uuid, String type, @Nullable String componentUuid, @Nullable String entityUuid,
+    CeActivityDto.Status status) {
     CeQueueDto creating = new CeQueueDto();
     creating.setUuid(uuid);
     creating.setStatus(PENDING);
@@ -911,13 +913,14 @@ public class CeActivityDaoIT {
   }
 
   private void insertScannerContext(String taskUuid) {
-    db.getDbClient().ceScannerContextDao().insert(dbSession, taskUuid, CloseableIterator.from(singletonList("scanner context of " + taskUuid).iterator()));
+    db.getDbClient().ceScannerContextDao().insert(dbSession, taskUuid,
+      CloseableIterator.from(singletonList("scanner context of " + taskUuid).iterator()));
     dbSession.commit();
   }
 
   private List<String> selectPageOfUuids(Pagination pagination) {
     return underTest.selectByQuery(db.getSession(), new CeTaskQuery(), pagination).stream()
-      .map(CeActivityToUuid.INSTANCE::apply)
+      .map(CeActivityToUuid.INSTANCE)
       .toList();
   }
 

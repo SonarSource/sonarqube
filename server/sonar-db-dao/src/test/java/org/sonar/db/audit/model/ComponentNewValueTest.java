@@ -22,14 +22,14 @@ package org.sonar.db.audit.model;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class ComponentNewValueTest {
+class ComponentNewValueTest {
 
   @Test
-  public void toString_generatesValidJson() throws ParseException {
+  void toString_generatesValidJson() throws ParseException {
     ComponentNewValue newValue = new ComponentNewValue("uuid", "name", "key", true, "path", "qualifier");
 
     JSONObject jsonObject = (JSONObject) new JSONParser().parse(newValue.toString());
@@ -38,7 +38,7 @@ public class ComponentNewValueTest {
   }
 
   @Test
-  public void toString_addsPortfolioQualifier() {
+  void toString_addsPortfolioQualifier() {
     ComponentNewValue newValue = new ComponentNewValue("uuid", "name", "key", true, "path", "VW");
 
     assertThat(newValue.toString())
@@ -47,8 +47,8 @@ public class ComponentNewValueTest {
   }
 
   @Test
-  public void toString_project_uuid_and_name_and_isPrivate_withEscapedQuotes() {
-    ComponentNewValue newValue = new ComponentNewValue("uuid", "the \"best\" name", "key", true,"TRK");
+  void toString_project_uuid_and_name_and_isPrivate_withEscapedQuotes() {
+    ComponentNewValue newValue = new ComponentNewValue("uuid", "the \"best\" name", "key", true, "TRK");
 
     assertThat(newValue.toString())
       .contains("\"componentUuid\": \"uuid\"")
@@ -59,7 +59,7 @@ public class ComponentNewValueTest {
   }
 
   @Test
-  public void toString_project_uuid_and_name_and_key() {
+  void toString_project_uuid_and_name_and_key() {
     ComponentNewValue newValue = new ComponentNewValue("uuid", "name", "key", "TRK");
 
     assertThat(newValue.toString())
@@ -70,7 +70,7 @@ public class ComponentNewValueTest {
   }
 
   @Test
-  public void toString_project_uuid_and_name_and_key_and_isPrivate_and_description() {
+  void toString_project_uuid_and_name_and_key_and_isPrivate_and_description() {
     ComponentNewValue newValue = new ComponentNewValue("uuid", true, "name", "key", "description", "TRK");
 
     assertThat(newValue.toString())
@@ -83,7 +83,7 @@ public class ComponentNewValueTest {
   }
 
   @Test
-  public void toString_addsProjectQualifier() {
+  void toString_addsProjectQualifier() {
     ComponentNewValue newValue = new ComponentNewValue("uuid", "name", "key", true, "path", "TRK");
 
     assertThat(newValue.toString())
@@ -92,7 +92,7 @@ public class ComponentNewValueTest {
   }
 
   @Test
-  public void toString_addsApplicationQualifier() {
+  void toString_addsApplicationQualifier() {
     ComponentNewValue newValue = new ComponentNewValue("uuid", "name", "key", true, "path", "APP");
 
     assertThat(newValue.toString())

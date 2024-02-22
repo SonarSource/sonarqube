@@ -19,15 +19,15 @@
  */
 package org.sonar.db.measure;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-public class PastMeasureDtoTest {
+class PastMeasureDtoTest {
 
   @Test
-  public void test_getter_and_setter() {
+  void test_getter_and_setter() {
     PastMeasureDto dto = new PastMeasureDto()
       .setValue(1d)
       .setMetricUuid("2");
@@ -38,7 +38,7 @@ public class PastMeasureDtoTest {
   }
 
   @Test
-  public void test_has_value() {
+  void test_has_value() {
     PastMeasureDto measureWithValue = new PastMeasureDto()
       .setValue(1d)
       .setMetricUuid("2");
@@ -50,7 +50,7 @@ public class PastMeasureDtoTest {
   }
 
   @Test
-  public void get_value_throw_a_NPE_if_value_is_null() {
+  void get_value_throw_a_NPE_if_value_is_null() {
     assertThatThrownBy(() -> new PastMeasureDto().getValue())
       .isInstanceOf(NullPointerException.class);
   }

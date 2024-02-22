@@ -19,36 +19,37 @@
  */
 package org.sonar.db.notification;
 
-import org.junit.Rule;
-import org.junit.Test;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.IntStream;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.IntStream;
-
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.sonar.core.util.SequenceUuidFactory.*;
+import static org.sonar.core.util.SequenceUuidFactory.UUID_1;
+import static org.sonar.core.util.SequenceUuidFactory.UUID_2;
+import static org.sonar.core.util.SequenceUuidFactory.UUID_3;
 import static org.sonar.db.notification.NotificationQueueDto.toNotificationQueueDto;
 
-public class NotificationQueueDaoIT {
+class NotificationQueueDaoIT {
 
   private final System2 system2 = mock(System2.class);
 
-  @Rule
-  public DbTester db = DbTester.create(system2);
+  @RegisterExtension
+  private final DbTester db = DbTester.create(system2);
 
-  private NotificationQueueDao dao = db.getDbClient().notificationQueueDao();
+  private final NotificationQueueDao dao = db.getDbClient().notificationQueueDao();
 
   @Test
-  public void should_insert_new_notification_queue() throws Exception {
+  void should_insert_new_notification_queue() throws Exception {
     NotificationQueueDto notificationQueueDto = toNotificationQueueDto(new Notification("email"));
 
     dao.insert(Arrays.asList(notificationQueueDto));
@@ -58,7 +59,7 @@ public class NotificationQueueDaoIT {
   }
 
   @Test
-  public void should_count_notification_queue() {
+  void should_count_notification_queue() {
     NotificationQueueDto notificationQueueDto = toNotificationQueueDto(new Notification("email"));
 
     assertThat(dao.count()).isZero();
@@ -69,7 +70,7 @@ public class NotificationQueueDaoIT {
   }
 
   @Test
-  public void should_delete_notification() {
+  void should_delete_notification() {
     List<NotificationQueueDto> notifs = IntStream.range(0, 30)
       .mapToObj(i -> toNotificationQueueDto(new Notification("foo_" + i)))
       .collect(toList());
@@ -84,7 +85,7 @@ public class NotificationQueueDaoIT {
   }
 
   @Test
-  public void should_findOldest() {
+  void should_findOldest() {
     when(system2.now()).thenAnswer(new Answer<Long>() {
       private long counter;
 

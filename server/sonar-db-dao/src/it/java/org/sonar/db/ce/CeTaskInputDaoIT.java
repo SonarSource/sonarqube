@@ -22,8 +22,8 @@ package org.sonar.db.ce;
 import java.io.InputStream;
 import java.util.Optional;
 import org.apache.commons.io.IOUtils;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbInputStream;
 import org.sonar.db.DbTester;
@@ -35,20 +35,20 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class CeTaskInputDaoIT {
+class CeTaskInputDaoIT {
 
   private static final String A_UUID = "U1";
   private static final String SOME_DATA = "this_is_a_report";
   private static final long NOW = 1_500_000_000_000L;
   private static final String TABLE_NAME = "ce_task_input";
 
-  @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
-  private System2 system = mock(System2.class);
-  private CeTaskInputDao underTest = new CeTaskInputDao(system);
+  @RegisterExtension
+  private final DbTester dbTester = DbTester.create(System2.INSTANCE);
+  private final System2 system = mock(System2.class);
+  private final CeTaskInputDao underTest = new CeTaskInputDao(system);
 
   @Test
-  public void insert_and_select_data_stream() throws Exception {
+  void insert_and_select_data_stream() throws Exception {
     when(system.now()).thenReturn(NOW);
 
     InputStream report = IOUtils.toInputStream(SOME_DATA);
@@ -62,19 +62,19 @@ public class CeTaskInputDaoIT {
   }
 
   @Test
-  public void fail_to_insert_invalid_row() {
+  void fail_to_insert_invalid_row() {
     assertThatThrownBy(() -> underTest.insert(dbTester.getSession(), null, IOUtils.toInputStream(SOME_DATA)))
       .hasMessage("Fail to insert data of CE task null");
   }
 
   @Test
-  public void selectData_returns_absent_if_uuid_not_found() {
+  void selectData_returns_absent_if_uuid_not_found() {
     Optional<DbInputStream> result = underTest.selectData(dbTester.getSession(), A_UUID);
     assertThat(result).isNotPresent();
   }
 
   @Test
-  public void selectData_returns_absent_if_uuid_exists_but_data_is_null() {
+  void selectData_returns_absent_if_uuid_exists_but_data_is_null() {
     insertData(A_UUID);
     dbTester.commit();
 
@@ -83,7 +83,7 @@ public class CeTaskInputDaoIT {
   }
 
   @Test
-  public void selectUuidsNotInQueue() {
+  void selectUuidsNotInQueue() {
     insertData("U1");
     insertData("U2");
     assertThat(underTest.selectUuidsNotInQueue(dbTester.getSession())).containsOnly("U1", "U2");
@@ -94,7 +94,7 @@ public class CeTaskInputDaoIT {
   }
 
   @Test
-  public void deleteByUuids() {
+  void deleteByUuids() {
     insertData(A_UUID);
     assertThat(dbTester.countRowsOfTable(TABLE_NAME)).isOne();
 

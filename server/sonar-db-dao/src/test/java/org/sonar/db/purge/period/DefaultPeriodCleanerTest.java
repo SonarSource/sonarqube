@@ -23,7 +23,7 @@ import com.google.common.collect.ImmutableList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.InOrder;
 import org.mockito.Mockito;
 import org.sonar.api.utils.System2;
@@ -37,16 +37,16 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
 
-public class DefaultPeriodCleanerTest {
+class DefaultPeriodCleanerTest {
 
   @Test
-  public void doClean() {
+  void doClean() {
     PurgeDao dao = mock(PurgeDao.class);
     DbSession session = mock(DbSession.class);
     when(dao.selectProcessedAnalysisByComponentUuid("uuid_123", session)).thenReturn(Arrays.asList(
-        new PurgeableAnalysisDto().setAnalysisUuid("u999").setDate(System2.INSTANCE.now()),
-        new PurgeableAnalysisDto().setAnalysisUuid("u456").setDate(System2.INSTANCE.now())
-        ));
+      new PurgeableAnalysisDto().setAnalysisUuid("u999").setDate(System2.INSTANCE.now()),
+      new PurgeableAnalysisDto().setAnalysisUuid("u456").setDate(System2.INSTANCE.now())
+    ));
     Filter filter1 = newFirstSnapshotInListFilter();
     Filter filter2 = newFirstSnapshotInListFilter();
 

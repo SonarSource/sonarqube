@@ -19,26 +19,24 @@
  */
 package org.sonar.db.ce;
 
-import com.tngtech.java.junit.dataprovider.DataProvider;
-import com.tngtech.java.junit.dataprovider.DataProviderRunner;
-import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.util.Random;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-@RunWith(DataProviderRunner.class)
-public class CeActivityDtoTest {
+class CeActivityDtoTest {
   private static final String STR_40_CHARS = "0123456789012345678901234567890123456789";
   private static final String STR_100_CHARS = randomAlphabetic(100);
-  private CeActivityDto underTest = new CeActivityDto();
+  private final CeActivityDto underTest = new CeActivityDto();
 
   @Test
-  public void constructor_from_CeQueueDto_populates_fields() {
+  void constructor_from_CeQueueDto_populates_fields() {
     long now = new Random().nextLong();
     CeQueueDto ceQueueDto = new CeQueueDto()
       .setUuid(randomAlphanumeric(10))
@@ -68,15 +66,15 @@ public class CeActivityDtoTest {
   }
 
   @Test
-  public void setComponentUuid_accepts_null_empty_and_string_40_chars_or_less() {
-    underTest.setComponentUuid(null);
-    underTest.setComponentUuid("");
-    underTest.setComponentUuid("bar");
-    underTest.setComponentUuid(STR_40_CHARS);
+  void setComponentUuid_accepts_null_empty_and_string_40_chars_or_less() {
+    assertThatNoException().isThrownBy(() -> underTest.setComponentUuid(null));
+    assertThatNoException().isThrownBy(() -> underTest.setComponentUuid(""));
+    assertThatNoException().isThrownBy(() -> underTest.setComponentUuid("bar"));
+    assertThatNoException().isThrownBy(() -> underTest.setComponentUuid(STR_40_CHARS));
   }
 
   @Test
-  public void setComponentUuid_throws_IAE_if_value_is_41_chars() {
+  void setComponentUuid_throws_IAE_if_value_is_41_chars() {
     String str_41_chars = STR_40_CHARS + "a";
 
     assertThatThrownBy(() -> underTest.setComponentUuid(str_41_chars))
@@ -85,15 +83,15 @@ public class CeActivityDtoTest {
   }
 
   @Test
-  public void setMainComponentUuid_accepts_null_empty_and_string_40_chars_or_less() {
-    underTest.setEntityUuid(null);
-    underTest.setEntityUuid("");
-    underTest.setEntityUuid("bar");
-    underTest.setEntityUuid(STR_40_CHARS);
+  void setMainComponentUuid_accepts_null_empty_and_string_40_chars_or_less() {
+    assertThatNoException().isThrownBy(() -> underTest.setEntityUuid(null));
+    assertThatNoException().isThrownBy(() -> underTest.setEntityUuid(""));
+    assertThatNoException().isThrownBy(() -> underTest.setEntityUuid("bar"));
+    assertThatNoException().isThrownBy(() -> underTest.setEntityUuid(STR_40_CHARS));
   }
 
   @Test
-  public void seEntityUuid_throws_IAE_if_value_is_41_chars() {
+  void seEntityUuid_throws_IAE_if_value_is_41_chars() {
     String str_41_chars = STR_40_CHARS + "a";
 
     assertThatThrownBy(() -> underTest.setEntityUuid(str_41_chars))
@@ -102,7 +100,7 @@ public class CeActivityDtoTest {
   }
 
   @Test
-  public void setNodeName_accepts_null_empty_and_string_100_chars_or_less() {
+  void setNodeName_accepts_null_empty_and_string_100_chars_or_less() {
     underTest.setNodeName(null);
     underTest.setNodeName("");
     underTest.setNodeName("bar");
@@ -111,29 +109,29 @@ public class CeActivityDtoTest {
   }
 
   @Test
-  public void setNodeName_ifMoreThan100chars_truncates() {
+  void setNodeName_ifMoreThan100chars_truncates() {
     underTest.setNodeName(STR_100_CHARS + "This should be truncated");
     assertThat(underTest.getNodeName()).isEqualTo(STR_100_CHARS);
   }
 
-  @Test
-  @UseDataProvider("stringsWithChar0")
-  public void setStacktrace_filters_out_char_zero(String withChar0, String expected) {
+  @ParameterizedTest
+  @MethodSource("stringsWithChar0")
+  void setStacktrace_filters_out_char_zero(String withChar0, String expected) {
     underTest.setErrorStacktrace(withChar0);
 
     assertThat(underTest.getErrorStacktrace()).isEqualTo(expected);
   }
 
-  @Test
-  @UseDataProvider("stringsWithChar0")
-  public void setErrorMessage_filters_out_char_zero(String withChar0, String expected) {
+  @ParameterizedTest
+  @MethodSource("stringsWithChar0")
+  void setErrorMessage_filters_out_char_zero(String withChar0, String expected) {
     underTest.setErrorMessage(withChar0);
 
     assertThat(underTest.getErrorMessage()).isEqualTo(expected);
   }
 
   @Test
-  public void setErrorMessage_truncates_to_1000_after_removing_char_zero() {
+  void setErrorMessage_truncates_to_1000_after_removing_char_zero() {
     String before = randomAlphanumeric(50);
     String after = randomAlphanumeric(950);
     String truncated = randomAlphanumeric(1 + new Random().nextInt(50));
@@ -142,9 +140,8 @@ public class CeActivityDtoTest {
     assertThat(underTest.getErrorMessage()).isEqualTo(before + after);
   }
 
-  @DataProvider
-  public static Object[][] stringsWithChar0() {
-    return new Object[][] {
+  static Object[][] stringsWithChar0() {
+    return new Object[][]{
       {"\u0000", ""},
       {"\u0000\u0000\u0000\u0000", ""},
       {"\u0000 \u0000a\u0000b\u0000   ", " ab   "},

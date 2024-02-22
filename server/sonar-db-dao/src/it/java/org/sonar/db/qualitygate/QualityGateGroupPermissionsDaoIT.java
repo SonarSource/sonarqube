@@ -21,8 +21,8 @@ package org.sonar.db.qualitygate;
 
 import java.util.Date;
 import java.util.List;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.Uuids;
@@ -46,18 +46,18 @@ import static org.sonar.db.user.SearchPermissionQuery.ANY;
 import static org.sonar.db.user.SearchPermissionQuery.IN;
 import static org.sonar.db.user.SearchPermissionQuery.OUT;
 
-public class QualityGateGroupPermissionsDaoIT {
+class QualityGateGroupPermissionsDaoIT {
   private final AuditPersister auditPersister = mock(AuditPersister.class);
   private final ArgumentCaptor<GroupEditorNewValue> newValueCaptor = ArgumentCaptor.forClass(GroupEditorNewValue.class);
 
-  @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE, auditPersister);
+  @RegisterExtension
+  private final DbTester dbTester = DbTester.create(System2.INSTANCE, auditPersister);
 
-  private DbSession dbSession = dbTester.getSession();
-  private QualityGateGroupPermissionsDao underTest = dbTester.getDbClient().qualityGateGroupPermissionsDao();
+  private final DbSession dbSession = dbTester.getSession();
+  private final QualityGateGroupPermissionsDao underTest = dbTester.getDbClient().qualityGateGroupPermissionsDao();
 
   @Test
-  public void itInsertsAndExistsReturnsTrue() {
+  void itInsertsAndExistsReturnsTrue() {
     GroupDto group = GroupTesting.newGroupDto();
     QualityGateDto qualityGateDto = insertQualityGate();
     QualityGateGroupPermissionsDto qualityGateGroupPermission = insertQualityGateGroupPermission(qualityGateDto.getUuid(),
@@ -78,11 +78,12 @@ public class QualityGateGroupPermissionsDaoIT {
   }
 
   @Test
-  public void existsReturnsTrueForListOfGroups() {
+  void existsReturnsTrueForListOfGroups() {
     GroupDto group1 = GroupTesting.newGroupDto();
     GroupDto group2 = GroupTesting.newGroupDto();
     QualityGateDto qualityGateDto = insertQualityGate();
-    QualityGateGroupPermissionsDto qualityGateGroupPermission = insertQualityGateGroupPermission(qualityGateDto.getUuid(), qualityGateDto.getName(),
+    QualityGateGroupPermissionsDto qualityGateGroupPermission = insertQualityGateGroupPermission(qualityGateDto.getUuid(),
+      qualityGateDto.getName(),
       group1.getUuid(), group1.getName());
 
     assertThat(qualityGateGroupPermission.getUuid()).isNotNull();
@@ -92,12 +93,12 @@ public class QualityGateGroupPermissionsDaoIT {
   }
 
   @Test
-  public void existsReturnsFalseWhenQGEditGroupsDoesNotExist() {
+  void existsReturnsFalseWhenQGEditGroupsDoesNotExist() {
     assertThat(underTest.exists(dbSession, randomAlphabetic(5), randomAlphabetic(5))).isFalse();
   }
 
   @Test
-  public void countByQuery() {
+  void countByQuery() {
     QualityGateDto qualityGateDto = insertQualityGate();
     GroupDto group1 = dbTester.users().insertGroup();
     GroupDto group2 = dbTester.users().insertGroup();
@@ -125,7 +126,7 @@ public class QualityGateGroupPermissionsDaoIT {
   }
 
   @Test
-  public void selectByQuery() {
+  void selectByQuery() {
     QualityGateDto qualityGateDto = insertQualityGate();
     GroupDto group1 = dbTester.users().insertGroup();
     GroupDto group2 = dbTester.users().insertGroup();
@@ -159,7 +160,7 @@ public class QualityGateGroupPermissionsDaoIT {
   }
 
   @Test
-  public void selectByQuery_search_by_name() {
+  void selectByQuery_search_by_name() {
     QualityGateDto qualityGateDto = insertQualityGate();
     GroupDto group1 = dbTester.users().insertGroup("sonar-users-project");
     GroupDto group2 = dbTester.users().insertGroup("sonar-users-qprofile");
@@ -187,7 +188,7 @@ public class QualityGateGroupPermissionsDaoIT {
   }
 
   @Test
-  public void selectByQuery_with_paging() {
+  void selectByQuery_with_paging() {
     QualityGateDto qualityGateDto = insertQualityGate();
     GroupDto group1 = dbTester.users().insertGroup("group1");
     GroupDto group2 = dbTester.users().insertGroup("group2");
@@ -222,7 +223,7 @@ public class QualityGateGroupPermissionsDaoIT {
   }
 
   @Test
-  public void deleteByGroup() {
+  void deleteByGroup() {
     QualityGateDto qualityGateDto1 = insertQualityGate();
     QualityGateDto qualityGateDto2 = insertQualityGate();
     QualityGateDto qualityGateDto3 = insertQualityGate();
@@ -241,7 +242,7 @@ public class QualityGateGroupPermissionsDaoIT {
     assertThat(newValue)
       .extracting(GroupEditorNewValue::getQualityGateName, GroupEditorNewValue::getQualityGateUuid,
         GroupEditorNewValue::getGroupName, GroupEditorNewValue::getGroupUuid)
-      .containsExactly(null,  null, group1.getName(), group1.getUuid());
+      .containsExactly(null, null, group1.getName(), group1.getUuid());
     assertThat(newValue.toString()).doesNotContain("\"qualityGateName\"").contains("\"groupName\"");
 
     assertThat(underTest.exists(dbSession, qualityGateDto1, group1)).isFalse();
@@ -250,7 +251,7 @@ public class QualityGateGroupPermissionsDaoIT {
   }
 
   @Test
-  public void deleteByQProfileAndGroup() {
+  void deleteByQProfileAndGroup() {
     QualityGateDto qualityGateDto = insertQualityGate();
     GroupDto group = dbTester.users().insertGroup();
     insertQualityGateGroupPermission(qualityGateDto.getUuid(), qualityGateDto.getName(), group.getUuid(), group.getName());
@@ -265,14 +266,14 @@ public class QualityGateGroupPermissionsDaoIT {
     assertThat(newValue)
       .extracting(GroupEditorNewValue::getQualityGateName, GroupEditorNewValue::getQualityGateUuid,
         GroupEditorNewValue::getGroupName, GroupEditorNewValue::getGroupUuid)
-      .containsExactly(qualityGateDto.getName(),  qualityGateDto.getUuid(), group.getName(), group.getUuid());
+      .containsExactly(qualityGateDto.getName(), qualityGateDto.getUuid(), group.getName(), group.getUuid());
     assertThat(newValue.toString()).contains("\"qualityGateName\"").contains("\"groupName\"");
 
     assertThat(underTest.exists(dbSession, qualityGateDto, group)).isFalse();
   }
 
   @Test
-  public void deleteByQualityGate() {
+  void deleteByQualityGate() {
     QualityGateDto qualityGateDto1 = insertQualityGate();
     QualityGateDto qualityGateDto2 = insertQualityGate();
     QualityGateDto qualityGateDto3 = insertQualityGate();
@@ -290,7 +291,7 @@ public class QualityGateGroupPermissionsDaoIT {
     assertThat(newValue)
       .extracting(GroupEditorNewValue::getQualityGateName, GroupEditorNewValue::getQualityGateUuid,
         GroupEditorNewValue::getGroupName, GroupEditorNewValue::getGroupUuid)
-      .containsExactly(qualityGateDto1.getName(),  qualityGateDto1.getUuid(), null, null);
+      .containsExactly(qualityGateDto1.getName(), qualityGateDto1.getUuid(), null, null);
     assertThat(newValue.toString()).contains("\"qualityGateName\"").doesNotContain("\"groupName\"");
 
     assertThat(underTest.exists(dbSession, qualityGateDto1, group1)).isFalse();

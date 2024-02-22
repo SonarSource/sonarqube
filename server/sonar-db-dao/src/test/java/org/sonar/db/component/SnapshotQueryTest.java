@@ -20,16 +20,16 @@
 package org.sonar.db.component;
 
 import java.util.List;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.component.SnapshotQuery.SORT_FIELD.BY_DATE;
 import static org.sonar.db.component.SnapshotQuery.SORT_ORDER.ASC;
 
-public class SnapshotQueryTest {
+class SnapshotQueryTest {
 
   @Test
-  public void test_setters_and_getters() {
+  void test_setters_and_getters() {
     SnapshotQuery query = new SnapshotQuery()
       .setRootComponentUuid("abcd")
       .setIsLast(true)

@@ -19,14 +19,15 @@
  */
 package org.sonar.db.event;
 
-import org.junit.Test;
+
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class EventDtoTest {
+class EventDtoTest {
 
   @Test
-  public void test_getters_and_setters() {
+  void test_getters_and_setters() {
     EventDto dto = new EventDto()
       .setAnalysisUuid("uuid_1")
       .setComponentUuid("ABCD")

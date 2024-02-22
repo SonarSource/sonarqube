@@ -21,8 +21,8 @@ package org.sonar.db.permission.template;
 
 import java.util.Collections;
 import java.util.stream.IntStream;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbSession;
@@ -40,17 +40,17 @@ import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.db.permission.PermissionQuery.DEFAULT_PAGE_SIZE;
 import static org.sonar.db.permission.PermissionQuery.builder;
 
-public class UserWithPermissionTemplateDaoIT {
+class UserWithPermissionTemplateDaoIT {
 
-  @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+  @RegisterExtension
+  private final DbTester db = DbTester.create(System2.INSTANCE);
 
   private final DbSession dbSession = db.getSession();
 
   private final PermissionTemplateDao underTest = db.getDbClient().permissionTemplateDao();
 
   @Test
-  public void select_logins() {
+  void select_logins() {
     UserDto user1 = db.users().insertUser();
     UserDto user2 = db.users().insertUser();
     UserDto user3 = db.users().insertUser();
@@ -72,7 +72,7 @@ public class UserWithPermissionTemplateDaoIT {
   }
 
   @Test
-  public void return_no_logins_on_unknown_template_key() {
+  void return_no_logins_on_unknown_template_key() {
     UserDto user = db.users().insertUser();
     PermissionTemplateDto permissionTemplate = db.permissionTemplates().insertTemplate();
     db.permissionTemplates().addUserToTemplate(permissionTemplate, user, USER);
@@ -83,7 +83,7 @@ public class UserWithPermissionTemplateDaoIT {
   }
 
   @Test
-  public void select_only_logins_with_permission() {
+  void select_only_logins_with_permission() {
     UserDto user1 = db.users().insertUser();
     UserDto user2 = db.users().insertUser();
     UserDto user3 = db.users().insertUser();
@@ -102,7 +102,7 @@ public class UserWithPermissionTemplateDaoIT {
   }
 
   @Test
-  public void select_only_enable_users() {
+  void select_only_enable_users() {
     UserDto user = db.users().insertUser();
     UserDto disabledUser = db.users().insertUser(u -> u.setActive(false));
     PermissionTemplateDto permissionTemplate = db.permissionTemplates().insertTemplate();
@@ -115,7 +115,7 @@ public class UserWithPermissionTemplateDaoIT {
   }
 
   @Test
-  public void search_by_user_name() {
+  void search_by_user_name() {
     UserDto user1 = db.users().insertUser(u -> u.setName("User1"));
     UserDto user2 = db.users().insertUser(u -> u.setName("User2"));
     UserDto user3 = db.users().insertUser(u -> u.setName("User3"));
@@ -135,7 +135,7 @@ public class UserWithPermissionTemplateDaoIT {
   }
 
   @Test
-  public void selectUserLoginsByQueryAndTemplate_is_ordering_result_by_users_with_permissions_then_by_name() {
+  void selectUserLoginsByQueryAndTemplate_is_ordering_result_by_users_with_permissions_then_by_name() {
     PermissionTemplateDto template = db.permissionTemplates().insertTemplate();
     UserDto user1 = db.users().insertUser(u -> u.setName("A"));
     UserDto user2 = db.users().insertUser(u -> u.setName("B"));
@@ -148,7 +148,7 @@ public class UserWithPermissionTemplateDaoIT {
   }
 
   @Test
-  public void selectUserLoginsByQueryAndTemplate_is_order_by_groups_with_permission_when_many_users() {
+  void selectUserLoginsByQueryAndTemplate_is_order_by_groups_with_permission_when_many_users() {
     PermissionTemplateDto template = db.permissionTemplates().insertTemplate();
     // Add another template having some users with permission to make sure it's correctly ignored
     PermissionTemplateDto otherTemplate = db.permissionTemplates().insertTemplate();
@@ -166,7 +166,7 @@ public class UserWithPermissionTemplateDaoIT {
   }
 
   @Test
-  public void should_be_paginated() {
+  void should_be_paginated() {
     UserDto user1 = db.users().insertUser(u -> u.setName("User1"));
     UserDto user2 = db.users().insertUser(u -> u.setName("User2"));
     UserDto user3 = db.users().insertUser(u -> u.setName("User3"));
@@ -186,7 +186,7 @@ public class UserWithPermissionTemplateDaoIT {
   }
 
   @Test
-  public void count_users() {
+  void count_users() {
     UserDto user1 = db.users().insertUser();
     UserDto user2 = db.users().insertUser();
     UserDto user3 = db.users().insertUser();
@@ -203,7 +203,7 @@ public class UserWithPermissionTemplateDaoIT {
   }
 
   @Test
-  public void select_user_permission_templates_by_template_and_logins() {
+  void select_user_permission_templates_by_template_and_logins() {
     UserDto user1 = db.users().insertUser();
     UserDto user2 = db.users().insertUser();
     UserDto user3 = db.users().insertUser();
@@ -215,14 +215,16 @@ public class UserWithPermissionTemplateDaoIT {
     PermissionTemplateDto anotherPermissionTemplate = db.permissionTemplates().insertTemplate();
     db.permissionTemplates().addUserToTemplate(anotherPermissionTemplate, user1, USER);
 
-    assertThat(underTest.selectUserPermissionsByTemplateIdAndUserLogins(dbSession, permissionTemplate.getUuid(), singletonList(user1.getLogin())))
+    assertThat(underTest.selectUserPermissionsByTemplateIdAndUserLogins(dbSession, permissionTemplate.getUuid(),
+      singletonList(user1.getLogin())))
       .extracting(PermissionTemplateUserDto::getUserLogin, PermissionTemplateUserDto::getPermission)
       .containsExactlyInAnyOrder(
         tuple(user1.getLogin(), USER),
         tuple(user1.getLogin(), ADMIN),
         tuple(user1.getLogin(), CODEVIEWER));
 
-    assertThat(underTest.selectUserPermissionsByTemplateIdAndUserLogins(dbSession, permissionTemplate.getUuid(), asList(user1.getLogin(), user2.getLogin(), user2.getLogin())))
+    assertThat(underTest.selectUserPermissionsByTemplateIdAndUserLogins(dbSession, permissionTemplate.getUuid(), asList(user1.getLogin(),
+      user2.getLogin(), user2.getLogin())))
       .extracting(PermissionTemplateUserDto::getUserLogin, PermissionTemplateUserDto::getPermission)
       .containsExactlyInAnyOrder(
         tuple(user1.getLogin(), USER),
@@ -230,7 +232,8 @@ public class UserWithPermissionTemplateDaoIT {
         tuple(user1.getLogin(), CODEVIEWER),
         tuple(user2.getLogin(), USER));
 
-    assertThat(underTest.selectUserPermissionsByTemplateIdAndUserLogins(dbSession, permissionTemplate.getUuid(), singletonList("unknown"))).isEmpty();
+    assertThat(underTest.selectUserPermissionsByTemplateIdAndUserLogins(dbSession, permissionTemplate.getUuid(),
+      singletonList("unknown"))).isEmpty();
     assertThat(underTest.selectUserPermissionsByTemplateIdAndUserLogins(dbSession, permissionTemplate.getUuid(), Collections.emptyList())).isEmpty();
     assertThat(underTest.selectUserPermissionsByTemplateIdAndUserLogins(dbSession, "123", singletonList(user1.getLogin()))).isEmpty();
   }

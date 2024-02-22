@@ -21,8 +21,8 @@ package org.sonar.db.provisioning;
 
 import java.util.List;
 import java.util.Set;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.mockito.ArgumentCaptor;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -35,23 +35,24 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.sonar.db.audit.model.GithubPermissionsMappingNewValue.ALL_PERMISSIONS;
 
-public class GithubPermissionsMappingDaoIT {
+class GithubPermissionsMappingDaoIT {
 
   private static final String MAPPING_UUID = "uuid";
 
   private final AuditPersister auditPersister = mock();
 
-  @Rule
-  public final DbTester db = DbTester.create(auditPersister);
+  @RegisterExtension
+  private final DbTester db = DbTester.create(auditPersister);
 
-  private final ArgumentCaptor<GithubPermissionsMappingNewValue> newValueCaptor = ArgumentCaptor.forClass(GithubPermissionsMappingNewValue.class);
+  private final ArgumentCaptor<GithubPermissionsMappingNewValue> newValueCaptor =
+    ArgumentCaptor.forClass(GithubPermissionsMappingNewValue.class);
 
   private final DbSession dbSession = db.getSession();
 
   private final GithubPermissionsMappingDao underTest = db.getDbClient().githubPermissionsMappingDao();
 
   @Test
-  public void insert_savesGithubPermissionsMappingDto() {
+  void insert_savesGithubPermissionsMappingDto() {
     GithubPermissionsMappingDto githubPermissionsMappingDto = new GithubPermissionsMappingDto(MAPPING_UUID, "GH_role", "SQ_role");
 
     underTest.insert(dbSession, githubPermissionsMappingDto);
@@ -69,7 +70,7 @@ public class GithubPermissionsMappingDaoIT {
   }
 
   @Test
-  public void delete_deletesGithubPermissionsMappingDto() {
+  void delete_deletesGithubPermissionsMappingDto() {
     GithubPermissionsMappingDto githubPermissionsMappingDto = new GithubPermissionsMappingDto(MAPPING_UUID, "GH_role", "SQ_role");
 
     underTest.insert(dbSession, githubPermissionsMappingDto);
@@ -84,7 +85,7 @@ public class GithubPermissionsMappingDaoIT {
   }
 
   @Test
-  public void deleteAllPermissionsForRole_deletesGithubPermissionsMappingDto() {
+  void deleteAllPermissionsForRole_deletesGithubPermissionsMappingDto() {
     List<GithubPermissionsMappingDto> role1Mappings = List.of(
       new GithubPermissionsMappingDto("1", "GH_role_1", "SQ_role_1"),
       new GithubPermissionsMappingDto("2", "GH_role_1", "SQ_role_2"),
@@ -108,7 +109,7 @@ public class GithubPermissionsMappingDaoIT {
   }
 
   @Test
-  public void findAll_shouldReturnAllGithubOrganizationGroup() {
+  void findAll_shouldReturnAllGithubOrganizationGroup() {
     GithubPermissionsMappingDto mapping1 = new GithubPermissionsMappingDto(MAPPING_UUID, "GH_role", "SQ_role");
     GithubPermissionsMappingDto mapping2 = new GithubPermissionsMappingDto(MAPPING_UUID + "2", "GH_role2", "SQ_role");
 
@@ -124,7 +125,7 @@ public class GithubPermissionsMappingDaoIT {
   }
 
   @Test
-  public void findAllForGithubRole_shouldReturnPermissionsForTheRole() {
+  void findAllForGithubRole_shouldReturnPermissionsForTheRole() {
     GithubPermissionsMappingDto mapping1 = new GithubPermissionsMappingDto(MAPPING_UUID, "GH_role", "SQ_role");
     GithubPermissionsMappingDto mapping2 = new GithubPermissionsMappingDto(MAPPING_UUID + "2", "GH_role2", "SQ_role");
     GithubPermissionsMappingDto mapping3 = new GithubPermissionsMappingDto(MAPPING_UUID + "3", "GH_role2", "SQ_role2");

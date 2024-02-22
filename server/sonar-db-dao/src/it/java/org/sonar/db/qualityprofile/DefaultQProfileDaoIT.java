@@ -21,8 +21,8 @@ package org.sonar.db.qualityprofile;
 
 import java.util.List;
 import java.util.Optional;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbSession;
@@ -31,17 +31,17 @@ import org.sonar.db.DbTester;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class DefaultQProfileDaoIT {
+class DefaultQProfileDaoIT {
 
-  @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  @RegisterExtension
+  DbTester dbTester = DbTester.create(System2.INSTANCE);
 
-  private DbSession dbSession = dbTester.getSession();
+  private final DbSession dbSession = dbTester.getSession();
 
-  private DefaultQProfileDao underTest = dbTester.getDbClient().defaultQProfileDao();
+  private final DefaultQProfileDao underTest = dbTester.getDbClient().defaultQProfileDao();
 
   @Test
-  public void insertOrUpdate_inserts_row_when_does_not_exist() {
+  void insertOrUpdate_inserts_row_when_does_not_exist() {
     QProfileDto profile = dbTester.qualityProfiles().insert();
     DefaultQProfileDto dto = DefaultQProfileDto.from(profile);
 
@@ -53,7 +53,7 @@ public class DefaultQProfileDaoIT {
   }
 
   @Test
-  public void insertOrUpdate_updates_row_when_exists() {
+  void insertOrUpdate_updates_row_when_exists() {
     String previousQProfileUuid = Uuids.create();
     DefaultQProfileDto dto = new DefaultQProfileDto()
       .setLanguage("java")
@@ -71,19 +71,19 @@ public class DefaultQProfileDaoIT {
   }
 
   @Test
-  public void insert_row() {
+  void insert_row() {
     String previousQProfileUuid = Uuids.create();
     DefaultQProfileDto dto = new DefaultQProfileDto()
       .setLanguage("java")
       .setQProfileUuid(previousQProfileUuid);
     underTest.insert(dbSession, dto);
     dbSession.commit();
-      assertThat(countRows()).isOne();
-      assertThat(selectUuidOfDefaultProfile(dto.getLanguage())).hasValue(dto.getQProfileUuid());
+    assertThat(countRows()).isOne();
+    assertThat(selectUuidOfDefaultProfile(dto.getLanguage())).hasValue(dto.getQProfileUuid());
   }
 
   @Test
-  public void deleteByQProfileUuids_deletes_rows_related_to_specified_profile() {
+  void deleteByQProfileUuids_deletes_rows_related_to_specified_profile() {
     underTest.insertOrUpdate(dbSession, new DefaultQProfileDto().setLanguage("java").setQProfileUuid("u1"));
     underTest.insertOrUpdate(dbSession, new DefaultQProfileDto().setLanguage("js").setQProfileUuid("u2"));
 
@@ -96,7 +96,7 @@ public class DefaultQProfileDaoIT {
   }
 
   @Test
-  public void selectExistingQProfileUuids_filters_defaults() {
+  void selectExistingQProfileUuids_filters_defaults() {
     QProfileDto profile1 = dbTester.qualityProfiles().insert();
     QProfileDto profile2 = dbTester.qualityProfiles().insert();
     dbTester.qualityProfiles().setAsDefault(profile1);
@@ -107,7 +107,7 @@ public class DefaultQProfileDaoIT {
   }
 
   @Test
-  public void isDefault_returns_true_if_profile_is_marked_as_default() {
+  void isDefault_returns_true_if_profile_is_marked_as_default() {
     QProfileDto profile1 = dbTester.qualityProfiles().insert();
     QProfileDto profile2 = dbTester.qualityProfiles().insert();
     dbTester.qualityProfiles().setAsDefault(profile1);

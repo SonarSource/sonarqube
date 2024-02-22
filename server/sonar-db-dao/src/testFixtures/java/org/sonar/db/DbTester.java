@@ -27,6 +27,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
+import org.junit.jupiter.api.extension.AfterEachCallback;
+import org.junit.jupiter.api.extension.BeforeEachCallback;
+import org.junit.jupiter.api.extension.ExtensionContext;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.core.util.UuidFactory;
@@ -60,7 +63,7 @@ import org.sonar.db.webhook.WebhookDeliveryDbTester;
  * This class should be called using @Rule.
  * Data is truncated between each tests. The schema is created between each test.
  */
-public class DbTester extends AbstractDbTester<TestDbImpl> {
+public class DbTester extends AbstractDbTester<TestDbImpl> implements BeforeEachCallback, AfterEachCallback {
 
   private final UuidFactory uuidFactory = new SequenceUuidFactory();
   private final System2 system2;
@@ -154,6 +157,11 @@ public class DbTester extends AbstractDbTester<TestDbImpl> {
     ioc.start();
     List<Dao> daos = ioc.getComponentsByType(Dao.class);
     client = new DbClient(db.getDatabase(), db.getMyBatis(), new TestDBSessions(db.getMyBatis()), daos.toArray(new Dao[daos.size()]));
+  }
+
+  @Override
+  public void beforeEach(ExtensionContext context) throws Exception {
+    before();
   }
 
   @Override
@@ -252,6 +260,11 @@ public class DbTester extends AbstractDbTester<TestDbImpl> {
 
   public AnticipatedTransitionDbTester anticipatedTransitions() {
     return anticipatedTransitionDbTester;
+  }
+
+  @Override
+  public void afterEach(ExtensionContext context) throws Exception {
+    after();
   }
 
   @Override

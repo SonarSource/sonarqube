@@ -19,11 +19,12 @@
  */
 package org.sonar.db.purge;
 
-import java.util.Random;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -32,46 +33,44 @@ import org.sonar.db.component.ComponentTesting;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class PurgeMapperIT {
+class PurgeMapperIT {
 
-  @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+  @RegisterExtension
+  private final DbTester db = DbTester.create(System2.INSTANCE);
 
   private DbSession dbSession;
   private PurgeMapper purgeMapper;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     dbSession = db.getDbClient().openSession(false);
     purgeMapper = dbSession.getMapper(PurgeMapper.class);
   }
 
-  @After
-  public void tearDown() {
+  @AfterEach
+  void tearDown() {
     if (dbSession != null) {
       dbSession.close();
     }
   }
 
   @Test
-  public void selectRootAndSubviewsByProjectUuid_returns_empty_when_table_is_empty() {
+  void selectRootAndSubviewsByProjectUuid_returns_empty_when_table_is_empty() {
     assertThat(purgeMapper.selectRootAndSubviewsByProjectUuid("foo")).isEmpty();
   }
 
-  @Test
-  public void selectRootAndSubviewsByProjectUuid_returns_project_with_specified_uuid() {
-    ComponentDto project = randomPublicOrPrivateProject();
+  @ParameterizedTest
+  @ValueSource(booleans = {true, false})
+  void selectRootAndSubviewsByProjectUuid_returns_project_with_specified_uuid(boolean isPrivate) {
+    ComponentDto project = isPrivate ? db.components().insertPrivateProject().getMainBranchComponent() :
+      db.components().insertPublicProject().getMainBranchComponent();
 
     assertThat(purgeMapper.selectRootAndSubviewsByProjectUuid(project.uuid()))
       .containsOnly(project.uuid());
   }
 
-  private ComponentDto randomPublicOrPrivateProject() {
-    return new Random().nextBoolean() ? db.components().insertPrivateProject().getMainBranchComponent() : db.components().insertPublicProject().getMainBranchComponent();
-  }
-
   @Test
-  public void selectRootAndSubviewsByProjectUuid_returns_view_with_specified_uuid() {
+  void selectRootAndSubviewsByProjectUuid_returns_view_with_specified_uuid() {
     ComponentDto view = db.components().insertPrivatePortfolio();
 
     assertThat(purgeMapper.selectRootAndSubviewsByProjectUuid(view.uuid()))
@@ -79,7 +78,7 @@ public class PurgeMapperIT {
   }
 
   @Test
-  public void selectRootAndSubviewsByProjectUuid_returns_application_with_specified_uuid() {
+  void selectRootAndSubviewsByProjectUuid_returns_application_with_specified_uuid() {
     ComponentDto view = db.components().insertPublicApplication().getMainBranchComponent();
 
     assertThat(purgeMapper.selectRootAndSubviewsByProjectUuid(view.uuid()))
@@ -87,7 +86,7 @@ public class PurgeMapperIT {
   }
 
   @Test
-  public void selectRootAndSubviewsByProjectUuid_returns_subviews_with_specified_project_uuid_and_view() {
+  void selectRootAndSubviewsByProjectUuid_returns_subviews_with_specified_project_uuid_and_view() {
     ComponentDto view = db.components().insertPublicPortfolio();
     ComponentDto subview1 = db.components().insertComponent(ComponentTesting.newSubPortfolio(view));
     ComponentDto subview2 = db.components().insertComponent(ComponentTesting.newSubPortfolio(view));
@@ -98,7 +97,7 @@ public class PurgeMapperIT {
   }
 
   @Test
-  public void selectRootAndSubviewsByProjectUuid_does_not_return_project_copy_with_specified_project_uuid() {
+  void selectRootAndSubviewsByProjectUuid_does_not_return_project_copy_with_specified_project_uuid() {
     ComponentDto privateProject = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto view = db.components().insertPrivatePortfolio();
     db.components().insertComponent(ComponentTesting.newProjectCopy("a", view, privateProject));
@@ -108,7 +107,7 @@ public class PurgeMapperIT {
   }
 
   @Test
-  public void selectRootAndSubviewsByProjectUuid_does_not_return_directory_with_specified_uuid() {
+  void selectRootAndSubviewsByProjectUuid_does_not_return_directory_with_specified_uuid() {
     ComponentDto privateProject = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto directory = db.components().insertComponent(ComponentTesting.newDirectory(privateProject, "A/B"));
 
@@ -117,7 +116,7 @@ public class PurgeMapperIT {
   }
 
   @Test
-  public void selectRootAndSubviewsByProjectUuid_does_not_return_file_with_specified_uuid() {
+  void selectRootAndSubviewsByProjectUuid_does_not_return_file_with_specified_uuid() {
     ComponentDto privateProject = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(privateProject));
 
@@ -126,7 +125,7 @@ public class PurgeMapperIT {
   }
 
   @Test
-  public void selectRootAndSubviewsByProjectUuid_does_not_return_subview_with_specified_uuid() {
+  void selectRootAndSubviewsByProjectUuid_does_not_return_subview_with_specified_uuid() {
     ComponentDto view = db.components().insertPrivatePortfolio();
     ComponentDto subview = db.components().insertComponent(ComponentTesting.newSubPortfolio(view));
 
@@ -135,7 +134,7 @@ public class PurgeMapperIT {
   }
 
   @Test
-  public void selectRootAndSubviewsByProjectUuid_does_not_return_technicalCopy_with_specified_uuid() {
+  void selectRootAndSubviewsByProjectUuid_does_not_return_technicalCopy_with_specified_uuid() {
     ComponentDto privateProject = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto view = db.components().insertPrivatePortfolio();
     ComponentDto technicalCopy = db.components().insertComponent(ComponentTesting.newProjectCopy("a", view, privateProject));

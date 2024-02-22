@@ -22,8 +22,8 @@ package org.sonar.db.component;
 import com.google.common.base.Strings;
 import java.util.List;
 import org.assertj.core.groups.Tuple;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -45,10 +45,10 @@ import static org.sonar.db.component.ComponentKeyUpdaterDao.computeNewKey;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 
-public class ComponentKeyUpdaterDaoIT {
+class ComponentKeyUpdaterDaoIT {
 
-  @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+  @RegisterExtension
+  private final DbTester db = DbTester.create(System2.INSTANCE);
   private final AuditPersister auditPersister = mock(AuditPersister.class);
   private final DbClient dbClient = db.getDbClient();
   private final DbSession dbSession = db.getSession();
@@ -56,7 +56,7 @@ public class ComponentKeyUpdaterDaoIT {
   private final ComponentKeyUpdaterDao underTestWithAuditPersister = new ComponentKeyUpdaterDao(auditPersister);
 
   @Test
-  public void updateKey_changes_the_key_of_tree_of_components() {
+  void updateKey_changes_the_key_of_tree_of_components() {
     ProjectData projectData = populateSomeData();
 
     underTest.updateKey(dbSession, projectData.getProjectDto().getUuid(), "org.struts:struts", "struts:core");
@@ -72,14 +72,15 @@ public class ComponentKeyUpdaterDaoIT {
   }
 
   @Test
-  public void updateKey_updates_disabled_components() {
+  void updateKey_updates_disabled_components() {
     ProjectData projectData = db.components().insertPrivateProject(p -> p.setKey("my_project"));
     ComponentDto mainBranch = projectData.getMainBranchComponent();
     ComponentDto directory = db.components().insertComponent(
       newDirectory(mainBranch, "B")
         .setKey("my_project:directory"));
     db.components().insertComponent(newFileDto(mainBranch, directory).setKey("my_project:directory/file"));
-    ComponentDto inactiveDirectory = db.components().insertComponent(newDirectory(mainBranch, "/inactive_directory").setKey("my_project:inactive_directory").setEnabled(false));
+    ComponentDto inactiveDirectory = db.components().insertComponent(newDirectory(mainBranch, "/inactive_directory").setKey("my_project" +
+      ":inactive_directory").setEnabled(false));
     db.components().insertComponent(newFileDto(mainBranch, inactiveDirectory).setKey("my_project:inactive_directory/file").setEnabled(false));
 
     underTest.updateKey(dbSession, projectData.projectUuid(), "my_project", "your_project");
@@ -89,11 +90,12 @@ public class ComponentKeyUpdaterDaoIT {
     assertThat(result)
       .hasSize(5)
       .extracting(ComponentDto::getKey)
-      .containsOnlyOnce("your_project", "your_project:directory", "your_project:directory/file", "your_project:inactive_directory", "your_project:inactive_directory/file");
+      .containsOnlyOnce("your_project", "your_project:directory", "your_project:directory/file", "your_project:inactive_directory",
+        "your_project:inactive_directory/file");
   }
 
   @Test
-  public void updateKey_updates_branches_too() {
+  void updateKey_updates_branches_too() {
     ProjectData projectData = db.components().insertPublicProject();
     ComponentDto mainBranch = projectData.getMainBranchComponent();
     String branchName = randomAlphanumeric(248);
@@ -120,7 +122,7 @@ public class ComponentKeyUpdaterDaoIT {
   }
 
   @Test
-  public void updateKey_updates_pull_requests_too() {
+  void updateKey_updates_pull_requests_too() {
     ProjectData projectData = db.components().insertPublicProject();
     ComponentDto mainBranch = projectData.getMainBranchComponent();
     String pullRequestKey1 = randomAlphanumeric(100);
@@ -148,7 +150,7 @@ public class ComponentKeyUpdaterDaoIT {
   }
 
   @Test
-  public void updateKey_throws_IAE_if_component_with_specified_key_does_not_exist() {
+  void updateKey_throws_IAE_if_component_with_specified_key_does_not_exist() {
     populateSomeData();
 
     assertThatThrownBy(() -> underTest.updateKey(dbSession, "A", "org.struts:struts", "foo:struts-core"))
@@ -157,7 +159,7 @@ public class ComponentKeyUpdaterDaoIT {
   }
 
   @Test
-  public void updateKey_throws_IAE_when_sub_component_key_is_too_long() {
+  void updateKey_throws_IAE_when_sub_component_key_is_too_long() {
     ProjectData projectData = db.components().insertPrivateProject("project-uuid", p -> p.setKey("old-project-key"));
     ProjectDto project = projectData.getProjectDto();
     db.components().insertComponent(newFileDto(projectData.getMainBranchComponent()).setKey("old-project-key:file"));
@@ -170,13 +172,13 @@ public class ComponentKeyUpdaterDaoIT {
   }
 
   @Test
-  public void compute_new_key() {
+  void compute_new_key() {
     assertThat(computeNewKey("my_project", "my_", "your_")).isEqualTo("your_project");
     assertThat(computeNewKey("my_project", "my_", "$()_")).isEqualTo("$()_project");
   }
 
   @Test
-  public void updateKey_callsAuditPersister() {
+  void updateKey_callsAuditPersister() {
     db.components().insertPrivateProject("A", p -> p.setKey("my_project"));
 
     underTestWithAuditPersister.updateKey(dbSession, "A", "my_project", "your_project");
@@ -188,7 +190,8 @@ public class ComponentKeyUpdaterDaoIT {
     ProjectData projectData = db.components().insertPrivateProject(t -> t.setKey("org.struts:struts").setUuid("A").setBranchUuid("A"));
     ComponentDto mainBranch1 = projectData.getMainBranchComponent();
     ComponentDto directory1 = db.components().insertComponent(newDirectory(mainBranch1, "/src/org/struts").setUuid("B"));
-    db.components().insertComponent(ComponentTesting.newFileDto(mainBranch1, directory1).setKey("org.struts:struts:/src/org/struts/RequestContext.java").setUuid("C"));
+    db.components().insertComponent(ComponentTesting.newFileDto(mainBranch1, directory1).setKey("org.struts:struts:/src/org/struts" +
+      "/RequestContext.java").setUuid("C"));
     ComponentDto project2 = db.components().insertPublicProject(t -> t.setKey("foo:struts-core").setUuid("D")).getMainBranchComponent();
     return projectData;
   }

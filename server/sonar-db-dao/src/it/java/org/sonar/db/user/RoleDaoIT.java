@@ -22,9 +22,9 @@ package org.sonar.db.user;
 import java.util.List;
 import java.util.Set;
 import org.assertj.core.api.ThrowableAssert.ThrowingCallable;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
@@ -38,23 +38,23 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER;
 
-public class RoleDaoIT {
+class RoleDaoIT {
 
   private static final Set<String> PROJECT_QUALIFIER = Set.of(Qualifiers.PROJECT);
 
-  @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+  @RegisterExtension
+  private final DbTester db = DbTester.create(System2.INSTANCE);
 
-  private DbSession dbSession = db.getSession();
-  private RoleDao underTest = db.getDbClient().roleDao();
+  private final DbSession dbSession = db.getSession();
+  private final RoleDao underTest = db.getDbClient().roleDao();
 
   private UserDto user1;
   private UserDto user2;
   private ProjectDto project1;
   private ProjectDto project2;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     user1 = db.users().insertUser();
     user2 = db.users().insertUser();
     project1 = db.components().insertPrivateProject(project -> project.setName("project1")).getProjectDto();
@@ -62,13 +62,15 @@ public class RoleDaoIT {
   }
 
   @Test
-  public void selectComponentUuidsByPermissionAndUserId_throws_IAR_if_permission_USER_is_specified() {
-    expectUnsupportedUserAndCodeViewerPermission(() -> underTest.selectEntityUuidsByPermissionAndUserUuidAndQualifier(dbSession, UserRole.USER, Uuids.createFast(), PROJECT_QUALIFIER));
+  void selectComponentUuidsByPermissionAndUserId_throws_IAR_if_permission_USER_is_specified() {
+    expectUnsupportedUserAndCodeViewerPermission(() -> underTest.selectEntityUuidsByPermissionAndUserUuidAndQualifier(dbSession,
+      UserRole.USER, Uuids.createFast(), PROJECT_QUALIFIER));
   }
 
   @Test
-  public void selectComponentUuidsByPermissionAndUserId_throws_IAR_if_permission_CODEVIEWER_is_specified() {
-    expectUnsupportedUserAndCodeViewerPermission(() -> underTest.selectEntityUuidsByPermissionAndUserUuidAndQualifier(dbSession, UserRole.CODEVIEWER, Uuids.createFast(), PROJECT_QUALIFIER));
+  void selectComponentUuidsByPermissionAndUserId_throws_IAR_if_permission_CODEVIEWER_is_specified() {
+    expectUnsupportedUserAndCodeViewerPermission(() -> underTest.selectEntityUuidsByPermissionAndUserUuidAndQualifier(dbSession,
+      UserRole.CODEVIEWER, Uuids.createFast(), PROJECT_QUALIFIER));
   }
 
   private void expectUnsupportedUserAndCodeViewerPermission(ThrowingCallable callback) {
@@ -78,7 +80,7 @@ public class RoleDaoIT {
   }
 
   @Test
-  public void selectEntityIdsByPermissionAndUserUuid() {
+  void selectEntityIdsByPermissionAndUserUuid() {
     db.users().insertProjectPermissionOnUser(user1, UserRole.ADMIN, project1);
     db.users().insertProjectPermissionOnUser(user1, UserRole.ADMIN, project2);
     // global permission - not returned
@@ -88,13 +90,14 @@ public class RoleDaoIT {
     // project permission on another permission - not returned
     db.users().insertProjectPermissionOnUser(user1, UserRole.ISSUE_ADMIN, project1);
 
-    List<String> entityUuids = underTest.selectEntityUuidsByPermissionAndUserUuidAndQualifier(dbSession, UserRole.ADMIN, user1.getUuid(), PROJECT_QUALIFIER);
+    List<String> entityUuids = underTest.selectEntityUuidsByPermissionAndUserUuidAndQualifier(dbSession, UserRole.ADMIN, user1.getUuid(),
+      PROJECT_QUALIFIER);
 
     assertThat(entityUuids).containsExactly(project1.getUuid(), project2.getUuid());
   }
 
   @Test
-  public void selectComponentIdsByPermissionAndUserUuid_group_permissions() {
+  void selectComponentIdsByPermissionAndUserUuid_group_permissions() {
     GroupDto group1 = db.users().insertGroup();
     GroupDto group2 = db.users().insertGroup();
     db.users().insertEntityPermissionOnGroup(group1, UserRole.ADMIN, project1);
@@ -109,13 +112,14 @@ public class RoleDaoIT {
     // project permission on another permission - not returned
     db.users().insertEntityPermissionOnGroup(group1, UserRole.ISSUE_ADMIN, project1);
 
-    List<String> result = underTest.selectEntityUuidsByPermissionAndUserUuidAndQualifier(dbSession, UserRole.ADMIN, user1.getUuid(), PROJECT_QUALIFIER);
+    List<String> result = underTest.selectEntityUuidsByPermissionAndUserUuidAndQualifier(dbSession, UserRole.ADMIN, user1.getUuid(),
+      PROJECT_QUALIFIER);
 
     assertThat(result).containsExactlyInAnyOrder(project1.getUuid(), project2.getUuid());
   }
 
   @Test
-  public void delete_all_group_permissions_by_group_uuid() {
+  void delete_all_group_permissions_by_group_uuid() {
     GroupDto group1 = db.users().insertGroup();
     GroupDto group2 = db.users().insertGroup();
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();

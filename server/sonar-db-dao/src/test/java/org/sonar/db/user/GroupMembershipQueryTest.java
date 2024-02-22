@@ -19,16 +19,16 @@
  */
 package org.sonar.db.user;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-public class GroupMembershipQueryTest {
+class GroupMembershipQueryTest {
 
 
   @Test
-  public void create_query() {
+  void create_query() {
     GroupMembershipQuery underTest = GroupMembershipQuery.builder()
       .groupSearch("sonar-users")
       .membership(GroupMembershipQuery.IN)
@@ -43,7 +43,7 @@ public class GroupMembershipQueryTest {
   }
 
   @Test
-  public void fail_on_invalid_membership() {
+  void fail_on_invalid_membership() {
     assertThatThrownBy(() -> {
       GroupMembershipQuery.builder()
         .membership("unknwown")

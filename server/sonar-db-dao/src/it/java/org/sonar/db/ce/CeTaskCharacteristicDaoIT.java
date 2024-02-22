@@ -20,8 +20,8 @@
 package org.sonar.db.ce;
 
 import com.google.common.collect.ImmutableSet;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 
@@ -31,28 +31,30 @@ import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 
-public class CeTaskCharacteristicDaoIT {
-  @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+class CeTaskCharacteristicDaoIT {
+  @RegisterExtension
+  private final DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   private CeTaskCharacteristicDao underTest = new CeTaskCharacteristicDao();
 
   @Test
-  public void selectByTaskUuids() {
+  void selectByTaskUuids() {
     insert("key1", "value1", "uuid1", "task1");
     insert("key2", "value2", "uuid2", "task2");
 
     dbTester.getSession().commit();
 
     assertThat(underTest.selectByTaskUuids(dbTester.getSession(), asList("task1", "task2")))
-      .extracting(CeTaskCharacteristicDto::getTaskUuid, CeTaskCharacteristicDto::getUuid, CeTaskCharacteristicDto::getKey, CeTaskCharacteristicDto::getValue)
+      .extracting(CeTaskCharacteristicDto::getTaskUuid, CeTaskCharacteristicDto::getUuid, CeTaskCharacteristicDto::getKey,
+        CeTaskCharacteristicDto::getValue)
       .containsOnly(
         tuple("task1", "uuid1", "key1", "value1"),
         tuple("task2", "uuid2", "key2", "value2"));
     assertThat(underTest.selectByTaskUuids(dbTester.getSession(), singletonList("unknown"))).isEmpty();
   }
+
   @Test
-  public void deleteByTaskUuids() {
+  void deleteByTaskUuids() {
     insert("key1", "value1", "uuid1", "task1");
     insert("key2", "value2", "uuid2", "task2");
     insert("key3", "value3", "uuid3", "task3");
@@ -64,7 +66,7 @@ public class CeTaskCharacteristicDaoIT {
   }
 
   @Test
-  public void deleteByTaskUuids_does_nothing_if_uuid_does_not_exist() {
+  void deleteByTaskUuids_does_nothing_if_uuid_does_not_exist() {
     insert("key1", "value1", "uuid1", "task1");
 
     // must not fail

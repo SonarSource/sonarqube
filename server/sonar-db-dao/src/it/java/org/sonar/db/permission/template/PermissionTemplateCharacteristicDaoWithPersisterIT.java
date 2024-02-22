@@ -19,8 +19,8 @@
  */
 package org.sonar.db.permission.template;
 
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
@@ -34,17 +34,17 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-public class PermissionTemplateCharacteristicDaoWithPersisterIT {
+class PermissionTemplateCharacteristicDaoWithPersisterIT {
   private final AuditPersister auditPersister = mock(AuditPersister.class);
 
-  @Rule
-  public final DbTester db = DbTester.create(System2.INSTANCE, auditPersister);
+  @RegisterExtension
+  private final DbTester db = DbTester.create(System2.INSTANCE, auditPersister);
   private final DbSession session = db.getSession();
   private final PermissionTemplateCharacteristicDao underTest = db.getDbClient().permissionTemplateCharacteristicDao();
   private final ArgumentCaptor<PermissionTemplateNewValue> newValueCaptor = ArgumentCaptor.forClass(PermissionTemplateNewValue.class);
 
   @Test
-  public void insertPermissionTemplateCharacteristicIsPersisted() {
+  void insertPermissionTemplateCharacteristicIsPersisted() {
     PermissionTemplateCharacteristicDto dto = getPermissionTemplateCharacteristic(UserRole.USER);
     underTest.insert(session, dto, "template");
 
@@ -58,7 +58,7 @@ public class PermissionTemplateCharacteristicDaoWithPersisterIT {
   }
 
   @Test
-  public void updatePermissionTemplateCharacteristicIsPersisted() {
+  void updatePermissionTemplateCharacteristicIsPersisted() {
     underTest.insert(session, getPermissionTemplateCharacteristic(UserRole.USER),
       "template");
     PermissionTemplateCharacteristicDto updated = getPermissionTemplateCharacteristic(UserRole.ADMIN);

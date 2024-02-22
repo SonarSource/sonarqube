@@ -19,18 +19,18 @@
  */
 package org.sonar.db.metric;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static com.google.common.base.Strings.repeat;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-public class MetricDtoTest {
+class MetricDtoTest {
 
-  private MetricDto underTest = new MetricDto();
+  private final MetricDto underTest = new MetricDto();
 
   @Test
-  public void getters_and_setters() {
+  void getters_and_setters() {
     MetricDto metricDto = new MetricDto()
       .setUuid("1")
       .setKey("coverage")
@@ -64,7 +64,7 @@ public class MetricDtoTest {
   }
 
   @Test
-  public void fail_if_key_longer_than_64_characters() {
+  void fail_if_key_longer_than_64_characters() {
     String a65 = repeat("a", 65);
 
     assertThatThrownBy(() -> underTest.setKey(a65))
@@ -73,7 +73,7 @@ public class MetricDtoTest {
   }
 
   @Test
-  public void fail_if_name_longer_than_64_characters() {
+  void fail_if_name_longer_than_64_characters() {
     String a65 = repeat("a", 65);
 
     assertThatThrownBy(() -> underTest.setShortName(a65))
@@ -82,7 +82,7 @@ public class MetricDtoTest {
   }
 
   @Test
-  public void fail_if_description_longer_than_255_characters() {
+  void fail_if_description_longer_than_255_characters() {
     String a256 = repeat("a", 256);
 
     assertThatThrownBy(() -> underTest.setDescription(a256))
@@ -91,7 +91,7 @@ public class MetricDtoTest {
   }
 
   @Test
-  public void fail_if_domain_longer_than_64_characters() {
+  void fail_if_domain_longer_than_64_characters() {
     String a65 = repeat("a", 65);
 
     assertThatThrownBy(() -> underTest.setDomain(a65))

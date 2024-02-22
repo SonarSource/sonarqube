@@ -21,8 +21,8 @@ package org.sonar.db.qualitygate;
 
 import java.util.List;
 import java.util.Optional;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.project.ProjectDto;
@@ -30,16 +30,16 @@ import org.sonar.db.project.ProjectDto;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 
-public class ProjectQgateAssociationDaoIT {
+class ProjectQgateAssociationDaoIT {
 
-  @Rule
-  public DbTester db = DbTester.create();
+  @RegisterExtension
+  private final DbTester db = DbTester.create();
 
   private final DbSession dbSession = db.getSession();
   private final ProjectQgateAssociationDao underTest = db.getDbClient().projectQgateAssociationDao();
 
   @Test
-  public void select_all_projects_by_query() {
+  void select_all_projects_by_query() {
     QualityGateDto qualityGate1 = db.qualityGates().insertQualityGate();
     QualityGateDto qualityGate2 = db.qualityGates().insertQualityGate();
     ProjectDto project1 = db.components().insertPrivateProject().getProjectDto();
@@ -54,7 +54,8 @@ public class ProjectQgateAssociationDaoIT {
       .build());
 
     assertThat(result)
-      .extracting(ProjectQgateAssociationDto::getUuid, ProjectQgateAssociationDto::getKey, ProjectQgateAssociationDto::getName, ProjectQgateAssociationDto::getGateUuid)
+      .extracting(ProjectQgateAssociationDto::getUuid, ProjectQgateAssociationDto::getKey, ProjectQgateAssociationDto::getName,
+        ProjectQgateAssociationDto::getGateUuid)
       .containsExactlyInAnyOrder(
         tuple(project1.getUuid(), project1.getKey(), project1.getName(), qualityGate1.getUuid()),
         tuple(project2.getUuid(), project2.getKey(), project2.getName(), qualityGate1.getUuid()),
@@ -62,7 +63,7 @@ public class ProjectQgateAssociationDaoIT {
   }
 
   @Test
-  public void select_all_projects_by_query_should_have_deterministic_order() {
+  void select_all_projects_by_query_should_have_deterministic_order() {
     QualityGateDto qualityGate1 = db.qualityGates().insertQualityGate();
     ProjectDto project1 = db.components().insertPrivateProject(d -> d.setName("p1").setKey("key1")).getProjectDto();
     ProjectDto project2 = db.components().insertPrivateProject(d -> d.setName("p1").setKey("key2")).getProjectDto();
@@ -81,7 +82,7 @@ public class ProjectQgateAssociationDaoIT {
   }
 
   @Test
-  public void select_projects_by_query() {
+  void select_projects_by_query() {
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
     ProjectDto project1 = db.components().insertPrivateProject().getProjectDto();
     ProjectDto project2 = db.components().insertPrivateProject().getProjectDto();
@@ -107,7 +108,7 @@ public class ProjectQgateAssociationDaoIT {
   }
 
   @Test
-  public void search_by_project_name() {
+  void search_by_project_name() {
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
     ProjectDto project1 = db.components().insertPrivateProject(p -> p.setName("Project One")).getProjectDto();
     ProjectDto project2 = db.components().insertPrivateProject(p -> p.setName("Project Two")).getProjectDto();
@@ -131,7 +132,7 @@ public class ProjectQgateAssociationDaoIT {
   }
 
   @Test
-  public void sorted_by_project_name() {
+  void sorted_by_project_name() {
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
     ProjectDto project1 = db.components().insertPrivateProject(p -> p.setName("Project One")).getProjectDto();
     ProjectDto project2 = db.components().insertPrivateProject(p -> p.setName("Project Two")).getProjectDto();
@@ -145,7 +146,7 @@ public class ProjectQgateAssociationDaoIT {
   }
 
   @Test
-  public void select_all() {
+  void select_all() {
     List<ProjectQgateAssociationDto> t = underTest.selectAll(dbSession);
 
     QualityGateDto qualityGate1 = db.qualityGates().insertQualityGate();
@@ -174,7 +175,7 @@ public class ProjectQgateAssociationDaoIT {
   }
 
   @Test
-  public void select_qgate_uuid_is_absent() {
+  void select_qgate_uuid_is_absent() {
     ProjectDto project = db.components().insertPrivateProject().getProjectDto();
 
     Optional<String> result = underTest.selectQGateUuidByProjectUuid(dbSession, project.getUuid());
@@ -183,7 +184,7 @@ public class ProjectQgateAssociationDaoIT {
   }
 
   @Test
-  public void select_qgate_uuid() {
+  void select_qgate_uuid() {
     QualityGateDto qualityGate1 = db.qualityGates().insertQualityGate();
     QualityGateDto qualityGate2 = db.qualityGates().insertQualityGate();
     ProjectDto project1 = db.components().insertPrivateProject().getProjectDto();
@@ -197,7 +198,7 @@ public class ProjectQgateAssociationDaoIT {
   }
 
   @Test
-  public void delete_by_project_uuid() {
+  void delete_by_project_uuid() {
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
     ProjectDto project = db.components().insertPrivateProject().getProjectDto();
 
@@ -211,7 +212,7 @@ public class ProjectQgateAssociationDaoIT {
   }
 
   @Test
-  public void delete_by_qgate_uuid() {
+  void delete_by_qgate_uuid() {
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
     ProjectDto project = db.components().insertPrivateProject().getProjectDto();
 
@@ -225,7 +226,7 @@ public class ProjectQgateAssociationDaoIT {
   }
 
   @Test
-  public void update_project_qgate_association() {
+  void update_project_qgate_association() {
     QualityGateDto firstQualityGate = db.qualityGates().insertQualityGate();
     QualityGateDto secondQualityGate = db.qualityGates().insertQualityGate();
     ProjectDto project = db.components().insertPrivateProject().getProjectDto();

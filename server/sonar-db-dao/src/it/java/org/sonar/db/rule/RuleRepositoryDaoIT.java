@@ -24,8 +24,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.impl.utils.AlwaysIncreasingSystem2;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbSession;
@@ -36,17 +36,17 @@ import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-public class RuleRepositoryDaoIT {
+class RuleRepositoryDaoIT {
 
-  private System2 system2 = new AlwaysIncreasingSystem2();
+  private final System2 system2 = new AlwaysIncreasingSystem2();
 
-  @Rule
-  public DbTester dbTester = DbTester.create(system2);
+  @RegisterExtension
+  private final DbTester dbTester = DbTester.create(system2);
 
-  private RuleRepositoryDao underTest = new RuleRepositoryDao(system2);
+  private final RuleRepositoryDao underTest = new RuleRepositoryDao(system2);
 
   @Test
-  public void insert_insert_rows_that_do_not_exist() {
+  void insert_insert_rows_that_do_not_exist() {
     RuleRepositoryDto repo1 = new RuleRepositoryDto("findbugs", "java", "Findbugs");
     RuleRepositoryDto repo2 = new RuleRepositoryDto("sonarjava", "java", "SonarJava");
     RuleRepositoryDto repo3 = new RuleRepositoryDto("sonarcobol", "cobol", "SonarCobol");
@@ -65,7 +65,7 @@ public class RuleRepositoryDaoIT {
   }
 
   @Test
-  public void update_update_rows_that_exist() {
+  void update_update_rows_that_exist() {
     RuleRepositoryDto repo1 = new RuleRepositoryDto("findbugs", "java", "Findbugs");
     RuleRepositoryDto repo2 = new RuleRepositoryDto("sonarjava", "java", "SonarJava");
     underTest.insert(dbTester.getSession(), asList(repo1, repo2));
@@ -89,7 +89,7 @@ public class RuleRepositoryDaoIT {
   }
 
   @Test
-  public void deleteIfKeyNotIn() {
+  void deleteIfKeyNotIn() {
     RuleRepositoryDto repo1 = new RuleRepositoryDto("findbugs", "java", "Findbugs");
     RuleRepositoryDto repo2 = new RuleRepositoryDto("sonarjava", "java", "SonarJava");
     RuleRepositoryDto repo3 = new RuleRepositoryDto("sonarcobol", "cobol", "SonarCobol");
@@ -102,7 +102,7 @@ public class RuleRepositoryDaoIT {
   }
 
   @Test
-  public void deleteIfKeyNotIn_truncates_table_if_keys_are_empty() {
+  void deleteIfKeyNotIn_truncates_table_if_keys_are_empty() {
     RuleRepositoryDto repo1 = new RuleRepositoryDto("findbugs", "java", "Findbugs");
     RuleRepositoryDto repo2 = new RuleRepositoryDto("sonarjava", "java", "SonarJava");
     underTest.insert(dbTester.getSession(), asList(repo1, repo2));
@@ -113,7 +113,7 @@ public class RuleRepositoryDaoIT {
   }
 
   @Test
-  public void deleteIfKeyNotIn_fails_if_more_than_1000_keys() {
+  void deleteIfKeyNotIn_fails_if_more_than_1000_keys() {
     assertThatThrownBy(() -> {
       Collection<String> keys = IntStream.range(0, 1_100).mapToObj(index -> "repo" + index).collect(Collectors.toSet());
       underTest.deleteIfKeyNotIn(dbTester.getSession(), keys);
@@ -123,26 +123,26 @@ public class RuleRepositoryDaoIT {
   }
 
   @Test
-  public void selectByQueryAndLanguage_shouldMatchOnlyOnKeeOrName(){
+  void selectByQueryAndLanguage_shouldMatchOnlyOnKeeOrName() {
     DbSession dbSession = dbTester.getSession();
     RuleRepositoryDto dto1 = new RuleRepositoryDto("a_findbugs", "java", "Findbugs");
     RuleRepositoryDto dto2 = new RuleRepositoryDto("jdk", "java", "Java");
     RuleRepositoryDto dto3 = new RuleRepositoryDto("cobol-lint", "cobol", "Cobol Lint");
-    underTest.insert(dbSession, asList(dto1,dto2,dto3));
+    underTest.insert(dbSession, asList(dto1, dto2, dto3));
 
-    List<RuleRepositoryDto> ruleRepositoryDtos = underTest.selectByQueryAndLanguage(dbSession, "%a%",null);
+    List<RuleRepositoryDto> ruleRepositoryDtos = underTest.selectByQueryAndLanguage(dbSession, "%a%", null);
 
     assertThat(ruleRepositoryDtos).extracting(RuleRepositoryDto::getName)
-      .containsExactlyInAnyOrder("Java","Findbugs");
+      .containsExactlyInAnyOrder("Java", "Findbugs");
   }
 
   @Test
-  public void selectByQueryAndLanguage_whenSeveralRepoMatchingForDifferentLanguages_matchOnlyTheRepoOfTheChosenLanguage(){
+  void selectByQueryAndLanguage_whenSeveralRepoMatchingForDifferentLanguages_matchOnlyTheRepoOfTheChosenLanguage() {
     DbSession dbSession = dbTester.getSession();
     RuleRepositoryDto dto1 = new RuleRepositoryDto("findbugs", "java", "Findbugsa");
     RuleRepositoryDto dto2 = new RuleRepositoryDto("java", "java", "Java");
     RuleRepositoryDto dto3 = new RuleRepositoryDto("cobol-bug", "cobol", "Cobol Lint");
-    underTest.insert(dbSession, asList(dto1,dto2,dto3));
+    underTest.insert(dbSession, asList(dto1, dto2, dto3));
 
     List<RuleRepositoryDto> ruleRepositoryDtos = underTest.selectByQueryAndLanguage(dbSession, "%bug%", "java");
 
@@ -152,7 +152,7 @@ public class RuleRepositoryDaoIT {
 
 
   @Test
-  public void selectAllKeys() {
+  void selectAllKeys() {
     DbSession dbSession = dbTester.getSession();
     RuleRepositoryDto dto1 = new RuleRepositoryDto("findbugs", "java", "Findbugs");
     RuleRepositoryDto dto2 = new RuleRepositoryDto("java", "java", "Java");
@@ -163,31 +163,30 @@ public class RuleRepositoryDaoIT {
   }
 
   @Test
-  public void selectByQueryAndLanguage_returnsEmptyList_when_thereIsNoResults() {
+  void selectByQueryAndLanguage_returnsEmptyList_when_thereIsNoResults() {
     DbSession dbSession = dbTester.getSession();
     RuleRepositoryDto dto1 = new RuleRepositoryDto("findbugs", "java", "Findbugs");
-    underTest.insert(dbSession, asList(dto1));
+    underTest.insert(dbSession, List.of(dto1));
 
     assertThat(underTest.selectByQueryAndLanguage(dbSession, "missing", null)).isEmpty();
   }
 
   @Test
-  public void selectByQueryAndLanguage_shouldBeCaseInsensitive(){
+  void selectByQueryAndLanguage_shouldBeCaseInsensitive() {
     DbSession dbSession = dbTester.getSession();
     RuleRepositoryDto dto1 = new RuleRepositoryDto("FINDBUGS", "java", "repoFB");
     RuleRepositoryDto dto2 = new RuleRepositoryDto("cobol-lint", "cobol", "Cobol Lint");
     RuleRepositoryDto dto3 = new RuleRepositoryDto("openjdk", "java", "JaVa");
-    underTest.insert(dbSession, asList(dto1,dto2,dto3));
+    underTest.insert(dbSession, asList(dto1, dto2, dto3));
 
-    assertThat(underTest.selectByQueryAndLanguage(dbSession,"bug", null))
+    assertThat(underTest.selectByQueryAndLanguage(dbSession, "bug", null))
       .extracting(RuleRepositoryDto::getKey).contains("FINDBUGS");
-    assertThat(underTest.selectByQueryAndLanguage(dbSession,"COBOL", null))
+    assertThat(underTest.selectByQueryAndLanguage(dbSession, "COBOL", null))
       .extracting(RuleRepositoryDto::getKey).contains("cobol-lint");
-    assertThat(underTest.selectByQueryAndLanguage(dbSession,"jAvA", null))
+    assertThat(underTest.selectByQueryAndLanguage(dbSession, "jAvA", null))
       .extracting(RuleRepositoryDto::getKey).contains("openjdk");
 
   }
-
 
 
   private long selectCreatedAtByKey(DbSession dbSession, String key) {

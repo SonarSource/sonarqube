@@ -22,8 +22,8 @@ package org.sonar.db.measure;
 import com.google.common.collect.Maps;
 import java.util.Map;
 import javax.annotation.Nullable;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -46,16 +46,16 @@ import static org.sonar.api.measures.Metric.ValueType.LEVEL;
 import static org.sonar.api.measures.Metric.ValueType.STRING;
 import static org.sonar.db.component.SnapshotTesting.newAnalysis;
 
-public class ProjectMeasuresIndexerIteratorIT {
+class ProjectMeasuresIndexerIteratorIT {
 
-  @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  @RegisterExtension
+  private final DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   private final DbClient dbClient = dbTester.getDbClient();
   private final DbSession dbSession = dbTester.getSession();
 
   @Test
-  public void return_project_measure() {
+  void return_project_measure() {
     ProjectData projectData = dbTester.components().insertPrivateProject(
       c -> c.setKey("Project-Key").setName("Project Name"),
       p -> p.setTags(newArrayList("platform", "java")));
@@ -82,7 +82,7 @@ public class ProjectMeasuresIndexerIteratorIT {
   }
 
   @Test
-  public void return_application_measure() {
+  void return_application_measure() {
     ProjectData projectData = dbTester.components().insertPrivateApplication(c -> c.setKey("App-Key").setName("App Name"));
     ComponentDto project = projectData.getMainBranchComponent();
 
@@ -105,7 +105,7 @@ public class ProjectMeasuresIndexerIteratorIT {
   }
 
   @Test
-  public void return_project_measure_having_leak() {
+  void return_project_measure_having_leak() {
     ProjectData projectData = dbTester.components().insertPrivateProject(
       c -> c.setKey("Project-Key").setName("Project Name"),
       p -> p.setTagsString("platform,java"));
@@ -119,7 +119,7 @@ public class ProjectMeasuresIndexerIteratorIT {
   }
 
   @Test
-  public void return_quality_gate_status_measure() {
+  void return_quality_gate_status_measure() {
     ComponentDto project1 = dbTester.components().insertPrivateProject().getMainBranchComponent();
     ProjectData projectData2 = dbTester.components().insertPrivateProject();
     ComponentDto project2 = projectData2.getMainBranchComponent();
@@ -136,7 +136,7 @@ public class ProjectMeasuresIndexerIteratorIT {
   }
 
   @Test
-  public void does_not_fail_when_quality_gate_has_no_value() {
+  void does_not_fail_when_quality_gate_has_no_value() {
     ProjectData projectData = dbTester.components().insertPrivateProject();
     ComponentDto project = projectData.getMainBranchComponent();
     MetricDto metric = dbTester.measures().insertMetric(m -> m.setValueType(LEVEL.name()).setKey("alert_status"));
@@ -148,10 +148,11 @@ public class ProjectMeasuresIndexerIteratorIT {
   }
 
   @Test
-  public void return_language_distribution_measure_from_biggest_branch() {
+  void return_language_distribution_measure_from_biggest_branch() {
     ProjectData projectData = dbTester.components().insertPrivateProject();
     ComponentDto project = projectData.getMainBranchComponent();
-    MetricDto languagesDistributionMetric = dbTester.measures().insertMetric(m -> m.setValueType(DATA.name()).setKey("ncloc_language_distribution"));
+    MetricDto languagesDistributionMetric = dbTester.measures().insertMetric(m -> m.setValueType(DATA.name()).setKey(
+      "ncloc_language_distribution"));
     MetricDto nclocMetric = dbTester.measures().insertMetric(m -> m.setValueType(INT.name()).setKey("ncloc"));
 
     dbTester.measures().insertLiveMeasure(project, languagesDistributionMetric, m -> m.setValue(null).setData("<null>=2;java=6;xoo=18"));
@@ -168,7 +169,7 @@ public class ProjectMeasuresIndexerIteratorIT {
   }
 
   @Test
-  public void does_not_return_none_numeric_metrics() {
+  void does_not_return_none_numeric_metrics() {
     ProjectData projectData = dbTester.components().insertPrivateProject();
     ComponentDto project = projectData.getMainBranchComponent();
     MetricDto dataMetric = dbTester.measures().insertMetric(m -> m.setValueType(DATA.name()).setKey("data"));
@@ -184,10 +185,11 @@ public class ProjectMeasuresIndexerIteratorIT {
   }
 
   @Test
-  public void does_not_return_disabled_metrics() {
+  void does_not_return_disabled_metrics() {
     ProjectData projectData = dbTester.components().insertPrivateProject();
     ComponentDto project = projectData.getMainBranchComponent();
-    MetricDto disabledMetric = dbTester.measures().insertMetric(m -> m.setValueType(INT.name()).setEnabled(false).setHidden(false).setKey("disabled"));
+    MetricDto disabledMetric =
+      dbTester.measures().insertMetric(m -> m.setValueType(INT.name()).setEnabled(false).setHidden(false).setKey("disabled"));
     dbTester.measures().insertLiveMeasure(project, disabledMetric, m -> m.setValue(10d));
 
     Map<String, ProjectMeasures> docsById = createResultSetAndReturnDocsById();
@@ -196,7 +198,7 @@ public class ProjectMeasuresIndexerIteratorIT {
   }
 
   @Test
-  public void ignore_measure_that_does_not_have_value() {
+  void ignore_measure_that_does_not_have_value() {
     MetricDto metric1 = dbTester.measures().insertMetric(m -> m.setValueType(INT.name()).setKey("coverage"));
     MetricDto metric2 = dbTester.measures().insertMetric(m -> m.setValueType(INT.name()).setKey("ncloc"));
     MetricDto leakMetric = dbTester.measures().insertMetric(m -> m.setValueType(INT.name()).setKey("new_lines"));
@@ -207,12 +209,13 @@ public class ProjectMeasuresIndexerIteratorIT {
     dbTester.measures().insertLiveMeasure(project, leakMetric, m -> m.setValue(20d));
     dbTester.measures().insertLiveMeasure(project, metric2, m -> m.setValue(null));
 
-    Map<String, Double> numericMeasures = createResultSetAndReturnDocsById().get(projectData.projectUuid()).getMeasures().getNumericMeasures();
+    Map<String, Double> numericMeasures =
+      createResultSetAndReturnDocsById().get(projectData.projectUuid()).getMeasures().getNumericMeasures();
     assertThat(numericMeasures).containsOnly(entry(metric1.getKey(), 10d), entry(leakMetric.getKey(), 20d));
   }
 
   @Test
-  public void ignore_numeric_measure_that_has_text_value_but_not_numeric_value() {
+  void ignore_numeric_measure_that_has_text_value_but_not_numeric_value() {
     MetricDto metric1 = dbTester.measures().insertMetric(m -> m.setValueType(INT.name()).setKey("coverage"));
     MetricDto metric2 = dbTester.measures().insertMetric(m -> m.setValueType(INT.name()).setKey("ncloc"));
     ProjectData projectData = dbTester.components().insertPrivateProject();
@@ -220,12 +223,13 @@ public class ProjectMeasuresIndexerIteratorIT {
     dbTester.measures().insertLiveMeasure(project, metric1, m -> m.setValue(10d).setData((String) null));
     dbTester.measures().insertLiveMeasure(project, metric2, m -> m.setValue(null).setData("foo"));
 
-    Map<String, Double> numericMeasures = createResultSetAndReturnDocsById().get(projectData.projectUuid()).getMeasures().getNumericMeasures();
+    Map<String, Double> numericMeasures =
+      createResultSetAndReturnDocsById().get(projectData.projectUuid()).getMeasures().getNumericMeasures();
     assertThat(numericMeasures).containsOnly(entry("coverage", 10d));
   }
 
   @Test
-  public void return_many_project_measures() {
+  void return_many_project_measures() {
     ComponentDto project1 = dbTester.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto project2 = dbTester.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto project3 = dbTester.components().insertPrivateProject().getMainBranchComponent();
@@ -237,7 +241,7 @@ public class ProjectMeasuresIndexerIteratorIT {
   }
 
   @Test
-  public void return_project_without_analysis() {
+  void return_project_without_analysis() {
     ProjectData projectData = dbTester.components().insertPrivateProject();
     ComponentDto project = projectData.getMainBranchComponent();
     dbClient.snapshotDao().insert(dbSession, newAnalysis(project).setLast(false));
@@ -252,7 +256,7 @@ public class ProjectMeasuresIndexerIteratorIT {
   }
 
   @Test
-  public void return_only_docs_from_given_project() {
+  void return_only_docs_from_given_project() {
     ProjectData projectData1 = dbTester.components().insertPrivateProject();
     ComponentDto project1 = projectData1.getMainBranchComponent();
     ComponentDto project2 = dbTester.components().insertPrivateProject().getMainBranchComponent();
@@ -273,7 +277,7 @@ public class ProjectMeasuresIndexerIteratorIT {
   }
 
   @Test
-  public void return_nothing_on_unknown_project() {
+  void return_nothing_on_unknown_project() {
     ComponentDto project = dbTester.components().insertPrivateProject().getMainBranchComponent();
     dbTester.components().insertSnapshot(project);
 
@@ -283,7 +287,7 @@ public class ProjectMeasuresIndexerIteratorIT {
   }
 
   @Test
-  public void non_main_branches_are_not_indexed() {
+  void non_main_branches_are_not_indexed() {
     ProjectData projectData = dbTester.components().insertPrivateProject();
     ComponentDto project = projectData.getMainBranchComponent();
     MetricDto metric = dbTester.measures().insertMetric(m -> m.setValueType(INT.name()).setKey("ncloc"));

@@ -20,7 +20,7 @@
 package org.sonar.db.measure;
 
 import java.util.Collections;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.sonar.db.component.ComponentTesting;
 
 import static java.util.Arrays.asList;
@@ -29,10 +29,10 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.db.measure.MeasureTreeQuery.Strategy.CHILDREN;
 import static org.sonar.db.measure.MeasureTreeQuery.Strategy.LEAVES;
 
-public class MeasureTreeQueryTest {
-  
+class MeasureTreeQueryTest {
+
   @Test
-  public void create_query() {
+  void create_query() {
     MeasureTreeQuery query = MeasureTreeQuery.builder()
       .setStrategy(CHILDREN)
       .setQualifiers(asList("FIL", "DIR"))
@@ -47,7 +47,7 @@ public class MeasureTreeQueryTest {
   }
 
   @Test
-  public void create_minimal_query() {
+  void create_minimal_query() {
     MeasureTreeQuery query = MeasureTreeQuery.builder()
       .setStrategy(CHILDREN)
       .build();
@@ -59,7 +59,7 @@ public class MeasureTreeQueryTest {
   }
 
   @Test
-  public void test_getNameOrKeyUpperLikeQuery() {
+  void test_getNameOrKeyUpperLikeQuery() {
     assertThat(MeasureTreeQuery.builder()
       .setNameOrKeyQuery("like-\\_%/-value")
       .setStrategy(CHILDREN)
@@ -71,7 +71,7 @@ public class MeasureTreeQueryTest {
   }
 
   @Test
-  public void test_getUuidPath() {
+  void test_getUuidPath() {
     assertThat(MeasureTreeQuery.builder().setStrategy(CHILDREN)
       .build().getUuidPath(ComponentTesting.newPrivateProjectDto("PROJECT_UUID"))).isEqualTo(".PROJECT_UUID.");
 
@@ -80,7 +80,7 @@ public class MeasureTreeQueryTest {
   }
 
   @Test
-  public void return_empty_when_metrics_is_empty() {
+  void return_empty_when_metrics_is_empty() {
     assertThat(MeasureTreeQuery.builder()
       .setStrategy(CHILDREN)
       .setMetricUuids(Collections.emptyList())
@@ -93,7 +93,7 @@ public class MeasureTreeQueryTest {
   }
 
   @Test
-  public void return_empty_when_qualifiers_is_empty() {
+  void return_empty_when_qualifiers_is_empty() {
     assertThat(MeasureTreeQuery.builder()
       .setStrategy(CHILDREN)
       .setQualifiers(Collections.emptyList())
@@ -106,7 +106,7 @@ public class MeasureTreeQueryTest {
   }
 
   @Test
-  public void fail_when_no_strategy() {
+  void fail_when_no_strategy() {
     assertThatThrownBy(() -> {
       MeasureTreeQuery.builder()
         .build();

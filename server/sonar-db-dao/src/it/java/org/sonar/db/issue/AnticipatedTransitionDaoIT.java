@@ -20,21 +20,21 @@
 package org.sonar.db.issue;
 
 import java.time.Instant;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class AnticipatedTransitionDaoIT {
-  @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+class AnticipatedTransitionDaoIT {
+  @RegisterExtension
+  private final DbTester db = DbTester.create(System2.INSTANCE);
 
   private final AnticipatedTransitionDao underTest = db.getDbClient().anticipatedTransitionDao();
 
   @Test
-  public void select_anticipated_transition() {
+  void select_anticipated_transition() {
     final String projectUuid = "project147852";
     String atUuid = "uuid_123456";
     String atUuid2 = "uuid_123457";
@@ -59,7 +59,7 @@ public class AnticipatedTransitionDaoIT {
   }
 
   @Test
-  public void select_anticipated_transition_by_project_and_filepath() {
+  void select_anticipated_transition_by_project_and_filepath() {
     final String projectUuid = "project147852";
     String atUuid = "uuid_123456";
     String atUuid2 = "uuid_123457";
@@ -84,7 +84,7 @@ public class AnticipatedTransitionDaoIT {
   }
 
   @Test
-  public void deleteByProjectAndUser_shouldDeleteAllRelatedRecords() {
+  void deleteByProjectAndUser_shouldDeleteAllRelatedRecords() {
     // given
     final String projectUuid1 = "project1";
     final String projectUuid2 = "project2";

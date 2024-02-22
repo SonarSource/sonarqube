@@ -21,9 +21,9 @@ package org.sonar.db.report;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
@@ -35,7 +35,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.issue.Issue.RESOLUTION_WONT_FIX;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 
-public class RegulatoryReportDaoIT {
+class RegulatoryReportDaoIT {
   private static final String PROJECT_UUID = "prj_uuid";
   private static final String PROJECT_KEY = "prj_key";
   private static final String FILE_UUID = "file_uuid";
@@ -43,8 +43,8 @@ public class RegulatoryReportDaoIT {
   private static final String BRANCH_UUID = "branch_uuid";
   private static final String BRANCH_NAME = "branch";
 
-  @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+  @RegisterExtension
+  private final DbTester db = DbTester.create(System2.INSTANCE);
 
   private final RegulatoryReportDao underTest = db.getDbClient().regulatoryReportDao();
   private ComponentDto project;
@@ -52,20 +52,24 @@ public class RegulatoryReportDaoIT {
   private RuleDto hotspotRule;
   private ComponentDto file;
 
-  @Before
-  public void prepare() {
+  @BeforeEach
+  void prepare() {
     rule = db.rules().insertRule();
     hotspotRule = db.rules().insertHotspotRule();
-    project = db.components().insertPrivateProject(t -> t.setBranchUuid(PROJECT_UUID).setUuid(PROJECT_UUID).setKey(PROJECT_KEY)).getMainBranchComponent();
+    project =
+      db.components().insertPrivateProject(t -> t.setBranchUuid(PROJECT_UUID).setUuid(PROJECT_UUID).setKey(PROJECT_KEY)).getMainBranchComponent();
     file = db.components().insertComponent(newFileDto(project).setUuid(FILE_UUID).setKey(FILE_KEY));
   }
 
   @Test
-  public void scrollIssues_returns_all_non_closed_issues_for_project() {
+  void scrollIssues_returns_all_non_closed_issues_for_project() {
     IssueDto issue1 = db.issues().insertIssue(rule, project, file, i -> i.setType(RuleType.BUG).setStatus("OPEN").setResolution(null));
-    IssueDto issue2 = db.issues().insertIssue(rule, project, file, i -> i.setType(RuleType.VULNERABILITY).setStatus("CONFIRMED").setResolution(null));
-    IssueDto issue3 = db.issues().insertHotspot(hotspotRule, project, file, i -> i.setStatus("RESOLVED").setResolution(RESOLUTION_WONT_FIX));
-    IssueDto issueCodeSmell = db.issues().insertIssue(rule, project, file, i -> i.setType(RuleType.CODE_SMELL).setStatus("RESOLVED").setResolution(RESOLUTION_WONT_FIX));
+    IssueDto issue2 = db.issues().insertIssue(rule, project, file,
+      i -> i.setType(RuleType.VULNERABILITY).setStatus("CONFIRMED").setResolution(null));
+    IssueDto issue3 = db.issues().insertHotspot(hotspotRule, project, file,
+      i -> i.setStatus("RESOLVED").setResolution(RESOLUTION_WONT_FIX));
+    IssueDto issueCodeSmell = db.issues().insertIssue(rule, project, file,
+      i -> i.setType(RuleType.CODE_SMELL).setStatus("RESOLVED").setResolution(RESOLUTION_WONT_FIX));
 
     // comments
     db.issues().insertChange(issue1, ic -> ic.setChangeData("c1").setIssueChangeCreationDate(1000L).setChangeType("comment"));

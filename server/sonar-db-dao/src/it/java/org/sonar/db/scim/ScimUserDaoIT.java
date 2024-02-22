@@ -19,9 +19,6 @@
  */
 package org.sonar.db.scim;
 
-import com.tngtech.java.junit.dataprovider.DataProvider;
-import com.tngtech.java.junit.dataprovider.DataProviderRunner;
-import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -31,9 +28,10 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.OffsetBasedPagination;
@@ -46,21 +44,20 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Fail.fail;
 
-@RunWith(DataProviderRunner.class)
-public class ScimUserDaoIT {
+class ScimUserDaoIT {
 
-  @Rule
-  public DbTester db = DbTester.create();
+  @RegisterExtension
+  private final DbTester db = DbTester.create();
   private final DbSession dbSession = db.getSession();
   private final ScimUserDao scimUserDao = db.getDbClient().scimUserDao();
 
   @Test
-  public void findAll_ifNoData_returnsEmptyList() {
+  void findAll_ifNoData_returnsEmptyList() {
     assertThat(scimUserDao.findAll(dbSession)).isEmpty();
   }
 
   @Test
-  public void findAll_returnsAllEntries() {
+  void findAll_returnsAllEntries() {
     ScimUserTestData scimUser1TestData = insertScimUser("scimUser1");
     ScimUserTestData scimUser2TestData = insertScimUser("scimUser2");
 
@@ -72,12 +69,12 @@ public class ScimUserDaoIT {
   }
 
   @Test
-  public void findByScimUuid_whenScimUuidNotFound_shouldReturnEmptyOptional() {
+  void findByScimUuid_whenScimUuidNotFound_shouldReturnEmptyOptional() {
     assertThat(scimUserDao.findByScimUuid(dbSession, "unknownId")).isEmpty();
   }
 
   @Test
-  public void findByScimUuid_whenScimUuidFound_shouldReturnDto() {
+  void findByScimUuid_whenScimUuidFound_shouldReturnDto() {
     ScimUserTestData scimUser1TestData = insertScimUser("scimUser1");
     insertScimUser("scimUser2");
 
@@ -89,12 +86,12 @@ public class ScimUserDaoIT {
   }
 
   @Test
-  public void findByUserUuid_whenScimUuidNotFound_shouldReturnEmptyOptional() {
+  void findByUserUuid_whenScimUuidNotFound_shouldReturnEmptyOptional() {
     assertThat(scimUserDao.findByUserUuid(dbSession, "unknownId")).isEmpty();
   }
 
   @Test
-  public void findByUserUuid_whenScimUuidFound_shouldReturnDto() {
+  void findByUserUuid_whenScimUuidFound_shouldReturnDto() {
     ScimUserTestData scimUser1TestData = insertScimUser("scimUser1");
     insertScimUser("scimUser2");
 
@@ -105,9 +102,8 @@ public class ScimUserDaoIT {
     assertThat(scimUserDto.getUserUuid()).isEqualTo(scimUser1TestData.getUserUuid());
   }
 
-  @DataProvider
-  public static Object[][] paginationData() {
-    return new Object[][] {
+  static Object[][] paginationData() {
+    return new Object[][]{
       {5, 0, 20, List.of("1", "2", "3", "4", "5")},
       {9, 0, 5, List.of("1", "2", "3", "4", "5")},
       {9, 3, 3, List.of("4", "5", "6")},
@@ -116,12 +112,14 @@ public class ScimUserDaoIT {
     };
   }
 
-  @Test
-  @UseDataProvider("paginationData")
-  public void findScimUsers_whenPaginationAndStartIndex_shouldReturnTheCorrectNumberOfScimUsers(int totalScimUsers, int offset, int pageSize, List<String> expectedScimUserUuids) {
+  @ParameterizedTest
+  @MethodSource("paginationData")
+  void findScimUsers_whenPaginationAndStartIndex_shouldReturnTheCorrectNumberOfScimUsers(int totalScimUsers, int offset, int pageSize,
+    List<String> expectedScimUserUuids) {
     generateScimUsers(totalScimUsers);
 
-    List<ScimUserDto> scimUserDtos = scimUserDao.findScimUsers(dbSession, ScimUserQuery.empty(), OffsetBasedPagination.forOffset(offset, pageSize));
+    List<ScimUserDto> scimUserDtos = scimUserDao.findScimUsers(dbSession, ScimUserQuery.empty(), OffsetBasedPagination.forOffset(offset,
+      pageSize));
 
     List<String> scimUsersUuids = toScimUsersUuids(scimUserDtos);
     assertThat(scimUsersUuids).containsExactlyElementsOf(expectedScimUserUuids);
@@ -134,7 +132,7 @@ public class ScimUserDaoIT {
   }
 
   @Test
-  public void countScimUsers_shouldReturnTheTotalNumberOfScimUsers() {
+  void countScimUsers_shouldReturnTheTotalNumberOfScimUsers() {
     int totalScimUsers = 15;
     generateScimUsers(totalScimUsers);
 
@@ -142,12 +140,12 @@ public class ScimUserDaoIT {
   }
 
   @Test
-  public void countScimUsers_shouldReturnZero_whenNoScimUsers() {
+  void countScimUsers_shouldReturnZero_whenNoScimUsers() {
     assertThat(scimUserDao.countScimUsers(dbSession, ScimUserQuery.empty())).isZero();
   }
 
   @Test
-  public void countScimUsers_shoudReturnZero_whenNoScimUsersMatchesQuery() {
+  void countScimUsers_shoudReturnZero_whenNoScimUsersMatchesQuery() {
     int totalScimUsers = 15;
     generateScimUsers(totalScimUsers);
     ScimUserQuery scimUserQuery = ScimUserQuery.builder().userName("jean.okta").build();
@@ -156,7 +154,7 @@ public class ScimUserDaoIT {
   }
 
   @Test
-  public void countScimUsers_shoudReturnCorrectNumberOfScimUser_whenFilteredByScimUserName() {
+  void countScimUsers_shoudReturnCorrectNumberOfScimUser_whenFilteredByScimUserName() {
     insertScimUsersWithUsers(List.of("TEST_A", "TEST_B", "TEST_B_BIS", "TEST_C", "TEST_D"));
     ScimUserQuery scimUserQuery = ScimUserQuery.builder().userName("test_b").build();
 
@@ -171,7 +169,7 @@ public class ScimUserDaoIT {
   }
 
   @Test
-  public void enableScimForUser_addsUserToScimUsers() {
+  void enableScimForUser_addsUserToScimUsers() {
     ScimUserDto scimUserDto = scimUserDao.enableScimForUser(dbSession, "sqUser1");
 
     assertThat(scimUserDto.getScimUserUuid()).isNotBlank();
@@ -180,9 +178,8 @@ public class ScimUserDaoIT {
     assertThat(scimUserDto.getUserUuid()).isEqualTo(actualScimUserDto.getUserUuid());
   }
 
-  @DataProvider
-  public static Object[][] filterData() {
-    return new Object[][] {
+  static Object[][] filterData() {
+    return new Object[][]{
       {"test_user", List.of("test_user", "Test_USEr", "xxx.test_user.yyy", "test_xxx_user"), List.of("1", "2")},
       {"TEST_USER", List.of("test_user", "Test_USEr", "xxx.test_user.yyy", "test_xxx_user"), List.of("1", "2")},
       {"test_user_x", List.of("test_user"), List.of()},
@@ -190,9 +187,10 @@ public class ScimUserDaoIT {
     };
   }
 
-  @Test
-  @UseDataProvider("filterData")
-  public void findScimUsers_whenFilteringByUserName_shouldReturnTheExpectedScimUsers(String search, List<String> userLogins, List<String> expectedScimUserUuids) {
+  @ParameterizedTest
+  @MethodSource("filterData")
+  void findScimUsers_whenFilteringByUserName_shouldReturnTheExpectedScimUsers(String search, List<String> userLogins,
+    List<String> expectedScimUserUuids) {
     insertScimUsersWithUsers(userLogins);
     ScimUserQuery query = ScimUserQuery.builder().userName(search).build();
 
@@ -203,8 +201,9 @@ public class ScimUserDaoIT {
   }
 
   @Test
-  public void findScimUsers_whenFilteringByGroupUuid_shouldReturnTheExpectedScimUsers() {
-    List<ScimUserTestData> scimUsersTestData = insertScimUsersWithUsers(List.of("userAInGroupA", "userBInGroupA", "userAInGroupB", "userNotInGroup"));
+  void findScimUsers_whenFilteringByGroupUuid_shouldReturnTheExpectedScimUsers() {
+    List<ScimUserTestData> scimUsersTestData = insertScimUsersWithUsers(List.of("userAInGroupA", "userBInGroupA", "userAInGroupB",
+      "userNotInGroup"));
     Map<String, ScimUserTestData> users = scimUsersTestData.stream()
       .collect(Collectors.toMap(testData -> testData.getUserDto().getExternalId(), Function.identity()));
 
@@ -233,7 +232,7 @@ public class ScimUserDaoIT {
   }
 
   @Test
-  public void findScimUsers_whenFilteringByScimUuidsWithLongRange_shouldReturnTheExpectedScimUsers() {
+  void findScimUsers_whenFilteringByScimUuidsWithLongRange_shouldReturnTheExpectedScimUsers() {
     generateScimUsers(3000);
     Set<String> expectedScimUserUuids = generateStrings(1, 2050);
 
@@ -249,7 +248,7 @@ public class ScimUserDaoIT {
   }
 
   @Test
-  public void findScimUsers_whenFilteringByScimUuidsAndUserName_shouldReturnTheExpectedScimUser() {
+  void findScimUsers_whenFilteringByScimUuidsAndUserName_shouldReturnTheExpectedScimUser() {
     Set<String> scimUserUuids = generateScimUsers(10).stream()
       .map(ScimUserTestData::getScimUserUuid)
       .collect(Collectors.toSet());
@@ -264,7 +263,7 @@ public class ScimUserDaoIT {
   }
 
   @Test
-  public void findScimUsers_whenFilteringByUserUuidsWithLongRange_shouldReturnTheExpectedScimUsers() {
+  void findScimUsers_whenFilteringByUserUuidsWithLongRange_shouldReturnTheExpectedScimUsers() {
     List<ScimUserTestData> scimUsersTestData = generateScimUsers(3000);
     Set<String> allUsersUuid = scimUsersTestData.stream()
       .map(ScimUserTestData::getUserUuid)
@@ -281,7 +280,7 @@ public class ScimUserDaoIT {
   }
 
   @Test
-  public void findScimUsers_whenFilteringByUserUuidsAndUserName_shouldReturnTheExpectedScimUser() {
+  void findScimUsers_whenFilteringByUserUuidsAndUserName_shouldReturnTheExpectedScimUser() {
     List<ScimUserTestData> scimUsersTestData = generateScimUsers(10);
     Set<String> allUsersUuid = scimUsersTestData.stream()
       .map(ScimUserTestData::getUserUuid)
@@ -308,7 +307,7 @@ public class ScimUserDaoIT {
   }
 
   @Test
-  public void deleteByUserUuid_shouldDeleteScimUser() {
+  void deleteByUserUuid_shouldDeleteScimUser() {
     ScimUserTestData scimUserTestData = insertScimUser("scimUser");
 
     scimUserDao.deleteByUserUuid(dbSession, scimUserTestData.getUserUuid());
@@ -317,7 +316,7 @@ public class ScimUserDaoIT {
   }
 
   @Test
-  public void deleteByScimUuid_shouldDeleteScimUser() {
+  void deleteByScimUuid_shouldDeleteScimUser() {
     ScimUserTestData scimUserTestData = insertScimUser("scimUser");
     ScimUserTestData scimUserTestData2 = insertScimUser("scimUser2");
 
@@ -332,7 +331,7 @@ public class ScimUserDaoIT {
   }
 
   @Test
-  public void deleteAll_should_remove_all_ScimUsers(){
+  void deleteAll_should_remove_all_ScimUsers() {
     insertScimUser("scimUser");
     insertScimUser("scimUser2");
 
@@ -342,7 +341,7 @@ public class ScimUserDaoIT {
   }
 
   @Test
-  public void deleteFromUserUuid_shouldNotFail_whenNoUser() {
+  void deleteFromUserUuid_shouldNotFail_whenNoUser() {
     assertThatCode(() -> scimUserDao.deleteByUserUuid(dbSession, randomAlphanumeric(6))).doesNotThrowAnyException();
   }
 
@@ -371,7 +370,7 @@ public class ScimUserDaoIT {
   }
 
   @Test
-  public void getManagedUserSqlFilter_isNotEmpty() {
+  void getManagedUserSqlFilter_isNotEmpty() {
     String filterManagedUser = scimUserDao.getManagedUserSqlFilter(true);
     assertThat(filterManagedUser).isNotEmpty();
     String filterNonManagedUser = scimUserDao.getManagedUserSqlFilter(false);
@@ -381,13 +380,13 @@ public class ScimUserDaoIT {
   }
 
   @Test
-  public void getManagedGroupsSqlFilter_whenFilterByManagedIsTrue_returnsCorrectQuery() {
+  void getManagedGroupsSqlFilter_whenFilterByManagedIsTrue_returnsCorrectQuery() {
     String filterManagedUser = scimUserDao.getManagedUserSqlFilter(true);
     assertThat(filterManagedUser).isEqualTo(" exists (select user_uuid from scim_users su where su.user_uuid = uuid)");
   }
 
   @Test
-  public void getManagedGroupsSqlFilter_whenFilterByManagedIsFalse_returnsCorrectQuery() {
+  void getManagedGroupsSqlFilter_whenFilterByManagedIsFalse_returnsCorrectQuery() {
     String filterNonManagedUser = scimUserDao.getManagedUserSqlFilter(false);
     assertThat(filterNonManagedUser).isEqualTo("not exists (select user_uuid from scim_users su where su.user_uuid = uuid)");
   }

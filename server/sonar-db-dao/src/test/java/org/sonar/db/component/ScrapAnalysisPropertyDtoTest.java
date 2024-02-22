@@ -19,39 +19,40 @@
  */
 package org.sonar.db.component;
 
-import java.util.Random;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class ScrapAnalysisPropertyDtoTest {
-
-  private Random random = new Random();
+class ScrapAnalysisPropertyDtoTest {
 
   @Test
-  public void test_empty_value() {
+  void test_empty_value() {
     ScrapAnalysisPropertyDto underTest = new ScrapAnalysisPropertyDto();
     underTest.setEmpty(true);
 
     assertThat(underTest.getValue()).isEmpty();
   }
 
-  @Test
-  public void test_text_set() {
+  @ParameterizedTest
+  @ValueSource(ints = {1, 2000, 4000})
+  void test_text_set(int value) {
     ScrapAnalysisPropertyDto underTest = new ScrapAnalysisPropertyDto();
-    String value = randomAlphanumeric(random.nextInt(4000));
-    underTest.setTextValue(value);
+    String text = randomAlphanumeric(value);
 
-    assertThat(underTest.getValue()).isEqualTo(value);
+    underTest.setTextValue(text);
+    assertThat(underTest.getValue()).isEqualTo(text);
   }
 
-  @Test
-  public void test_clob_set() {
+  @ParameterizedTest
+  @ValueSource(ints = {1, 2000, 4000})
+  void test_clob_set(int value) {
     ScrapAnalysisPropertyDto underTest = new ScrapAnalysisPropertyDto();
-    String value = randomAlphanumeric(4000 + random.nextInt(4000));
-    underTest.setClobValue(value);
+    String text = randomAlphanumeric(4000 + value);
 
-    assertThat(underTest.getValue()).isEqualTo(value);
+    underTest.setClobValue(text);
+    assertThat(underTest.getValue()).isEqualTo(text);
   }
 }

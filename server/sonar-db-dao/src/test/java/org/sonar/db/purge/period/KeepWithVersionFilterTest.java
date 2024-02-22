@@ -21,17 +21,17 @@ package org.sonar.db.purge.period;
 
 import java.util.Arrays;
 import java.util.List;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.sonar.db.purge.DbCleanerTestUtils;
 import org.sonar.db.purge.PurgeableAnalysisDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.utils.DateUtils.parseDate;
 
-public class KeepWithVersionFilterTest {
+class KeepWithVersionFilterTest {
 
   @Test
-  public void keep_only_analyses_with_a_version() {
+  void keep_only_analyses_with_a_version() {
     Filter underTest = new KeepWithVersionFilter(parseDate("2015-10-18"));
 
     List<PurgeableAnalysisDto> result = underTest.filter(Arrays.asList(

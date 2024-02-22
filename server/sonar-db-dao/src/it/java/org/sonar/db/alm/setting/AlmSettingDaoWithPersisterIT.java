@@ -19,8 +19,9 @@
  */
 package org.sonar.db.alm.setting;
 
-import org.junit.Rule;
-import org.junit.Test;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.core.util.UuidFactory;
@@ -38,7 +39,7 @@ import static org.mockito.Mockito.when;
 import static org.sonar.core.util.SequenceUuidFactory.UUID_1;
 import static org.sonar.db.almsettings.AlmSettingsTesting.newGithubAlmSettingDto;
 
-public class AlmSettingDaoWithPersisterIT {
+class AlmSettingDaoWithPersisterIT {
 
   private static final long NOW = 1000000L;
   private static final String A_UUID = "SOME_UUID";
@@ -46,8 +47,8 @@ public class AlmSettingDaoWithPersisterIT {
   private final ArgumentCaptor<DevOpsPlatformSettingNewValue> newValueCaptor = ArgumentCaptor.forClass(DevOpsPlatformSettingNewValue.class);
   private final AuditPersister auditPersister = mock(AuditPersister.class);
   private final TestSystem2 system2 = new TestSystem2().setNow(NOW);
-  @Rule
-  public final DbTester db = DbTester.create(system2, auditPersister);
+  @RegisterExtension
+  private final DbTester db = DbTester.create(system2, auditPersister);
 
   private final DbSession dbSession = db.getSession();
   private final UuidFactory uuidFactory = mock(UuidFactory.class);
@@ -55,7 +56,7 @@ public class AlmSettingDaoWithPersisterIT {
   private final AlmSettingDao underTest = db.getDbClient().almSettingDao();
 
   @Test
-  public void insertAndUpdateArePersisted() {
+  void insertAndUpdateArePersisted() {
     ArgumentCaptor<SecretNewValue> secretNewValueCaptor = ArgumentCaptor.forClass(SecretNewValue.class);
     when(uuidFactory.create()).thenReturn(A_UUID);
     AlmSettingDto almSettingDto = newGithubAlmSettingDto()
@@ -99,7 +100,7 @@ public class AlmSettingDaoWithPersisterIT {
   }
 
   @Test
-  public void deleteIsPersisted() {
+  void deleteIsPersisted() {
     when(uuidFactory.create()).thenReturn(A_UUID);
     AlmSettingDto almSettingDto = newGithubAlmSettingDto();
     underTest.insert(dbSession, almSettingDto);

@@ -31,8 +31,8 @@ import java.util.Random;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.mockito.Mockito;
 import org.sonar.api.impl.utils.AlwaysIncreasingSystem2;
 import org.sonar.api.impl.utils.TestSystem2;
@@ -53,7 +53,7 @@ import static org.sonar.db.ce.CeQueueDto.Status.PENDING;
 import static org.sonar.db.ce.CeQueueTesting.newCeQueueDto;
 import static org.sonar.db.ce.CeQueueTesting.reset;
 
-public class CeQueueDaoIT {
+class CeQueueDaoIT {
   private static final long INIT_TIME = 1_450_000_000_000L;
   private static final String TASK_UUID_1 = "TASK_1";
   private static final String TASK_UUID_2 = "TASK_2";
@@ -68,8 +68,8 @@ public class CeQueueDaoIT {
 
   private final TestSystem2 system2 = new TestSystem2().setNow(INIT_TIME);
 
-  @Rule
-  public DbTester db = DbTester.create(system2);
+  @RegisterExtension
+  private final DbTester db = DbTester.create(system2);
 
   private final System2 mockedSystem2 = mock(System2.class);
   private final System2 alwaysIncreasingSystem2 = new AlwaysIncreasingSystem2();
@@ -79,7 +79,7 @@ public class CeQueueDaoIT {
   private final CeQueueDao underTestAlwaysIncreasingSystem2 = new CeQueueDao(alwaysIncreasingSystem2);
 
   @Test
-  public void insert_populates_createdAt_and_updateAt_from_System2_with_same_value_if_any_is_not_set() {
+  void insert_populates_createdAt_and_updateAt_from_System2_with_same_value_if_any_is_not_set() {
     long now = 1_334_333L;
     CeQueueDto dto = new CeQueueDto()
       .setTaskType(CeTaskTypes.REPORT)
@@ -124,7 +124,7 @@ public class CeQueueDaoIT {
   }
 
   @Test
-  public void test_selectByUuid() {
+  void test_selectByUuid() {
     CeQueueDto ceQueueDto = insertPending(TASK_UUID_1, ENTITY_UUID_1);
 
     assertThat(underTest.selectByUuid(db.getSession(), "TASK_UNKNOWN")).isEmpty();
@@ -142,7 +142,7 @@ public class CeQueueDaoIT {
   }
 
   @Test
-  public void test_selectByMainComponentUuid() {
+  void test_selectByMainComponentUuid() {
     insertPending(TASK_UUID_1, ENTITY_UUID_1);
     insertPending(TASK_UUID_2, ENTITY_UUID_1);
     insertPending(TASK_UUID_3, "PROJECT_2");
@@ -153,7 +153,7 @@ public class CeQueueDaoIT {
   }
 
   @Test
-  public void test_selectAllInAscOrder() {
+  void test_selectAllInAscOrder() {
     insertPending(TASK_UUID_1, ENTITY_UUID_1);
     insertPending(TASK_UUID_2, ENTITY_UUID_1);
     insertPending(TASK_UUID_3, "PROJECT_2");
@@ -162,7 +162,7 @@ public class CeQueueDaoIT {
   }
 
   @Test
-  public void selectPending_returns_pending_tasks() {
+  void selectPending_returns_pending_tasks() {
     insertPending("p1");
     insertPending("p2");
     insertPending("p3");
@@ -176,7 +176,7 @@ public class CeQueueDaoIT {
   }
 
   @Test
-  public void selectCreationDateOfOldestPendingByMainComponentUuid_on_any_component_returns_date() {
+  void selectCreationDateOfOldestPendingByMainComponentUuid_on_any_component_returns_date() {
     long time = alwaysIncreasingSystem2.now() + 10_000;
     insertPending("p1", dto -> {
       dto.setCreatedAt(time);
@@ -196,7 +196,7 @@ public class CeQueueDaoIT {
   }
 
   @Test
-  public void selectCreationDateOfOldestPendingByMainComponentUuid_on_specific_component_returns_date() {
+  void selectCreationDateOfOldestPendingByMainComponentUuid_on_specific_component_returns_date() {
     long time = alwaysIncreasingSystem2.now() + 10_000;
     insertPending("p1", dto -> {
       dto.setCreatedAt(time);
@@ -221,14 +221,14 @@ public class CeQueueDaoIT {
   }
 
   @Test
-  public void selectCreationDateOfOldestPendingByMainComponentUuid_returns_empty_when_no_pending_tasks() {
+  void selectCreationDateOfOldestPendingByMainComponentUuid_returns_empty_when_no_pending_tasks() {
     makeInProgress("w1", alwaysIncreasingSystem2.now(), insertPending("i1"));
     assertThat(underTest.selectCreationDateOfOldestPendingByEntityUuid(db.getSession(), null))
       .isEmpty();
   }
 
   @Test
-  public void selectWornout_returns_task_pending_with_a_non_null_startedAt() {
+  void selectWornout_returns_task_pending_with_a_non_null_startedAt() {
     insertPending("p1");
     makeInProgress("w1", alwaysIncreasingSystem2.now(), insertPending("i1"));
     CeQueueDto resetDto = makeInProgress("w1", alwaysIncreasingSystem2.now(), insertPending("i2"));
@@ -242,7 +242,7 @@ public class CeQueueDaoIT {
   }
 
   @Test
-  public void test_delete() {
+  void test_delete() {
     insertPending(TASK_UUID_1, ENTITY_UUID_1);
     insertPending(TASK_UUID_2, ENTITY_UUID_1);
 
@@ -260,7 +260,7 @@ public class CeQueueDaoIT {
   }
 
   @Test
-  public void test_delete_with_expected_status() {
+  void test_delete_with_expected_status() {
     insertPending(TASK_UUID_1, ENTITY_UUID_1);
     insertInProgress(TASK_UUID_2, "workerUuid", System2.INSTANCE.now());
 
@@ -286,7 +286,7 @@ public class CeQueueDaoIT {
   }
 
   @Test
-  public void selectNotPendingForWorker_return_non_pending_tasks_for_specified_workerUuid() {
+  void selectNotPendingForWorker_return_non_pending_tasks_for_specified_workerUuid() {
     long startedAt = alwaysIncreasingSystem2.now();
     insertPending("u1");
     CeQueueDto inProgressTaskWorker1 = insertInProgress("u2", WORKER_UUID_1, startedAt);
@@ -299,7 +299,7 @@ public class CeQueueDaoIT {
   }
 
   @Test
-  public void resetToPendingByUuid_resets_status_of_specific_task() {
+  void resetToPendingByUuid_resets_status_of_specific_task() {
     long task1startedAt = alwaysIncreasingSystem2.now();
     CeQueueDto task1 = insertInProgress("uuid-1", "workerUuid", task1startedAt);
     CeQueueDto task2 = insertInProgress("uuid-2", "workerUuid", alwaysIncreasingSystem2.now());
@@ -311,7 +311,7 @@ public class CeQueueDaoIT {
   }
 
   @Test
-  public void resetToPendingForWorker_resets_status_of_non_pending_tasks_only_for_specified_workerUuid() {
+  void resetToPendingForWorker_resets_status_of_non_pending_tasks_only_for_specified_workerUuid() {
     CeQueueDto[] worker1 = {insertPending("u1"), insertPending("u2"), insertPending("u3"), insertPending("u4")};
     CeQueueDto[] worker2 = {insertPending("o1"), insertPending("o2"), insertPending("o3"), insertPending("o4")};
     long startedAt = alwaysIncreasingSystem2.now();
@@ -336,7 +336,7 @@ public class CeQueueDaoIT {
   }
 
   @Test
-  public void resetTasksWithUnknownWorkerUUIDs_with_empty_set_resets_status_of_all_pending_tasks() {
+  void resetTasksWithUnknownWorkerUUIDs_with_empty_set_resets_status_of_all_pending_tasks() {
     CeQueueDto[] worker1 = {insertPending("u1"), insertPending("u2"), insertPending("u3"), insertPending("u4")};
     CeQueueDto[] worker2 = {insertPending("o1"), insertPending("o2"), insertPending("o3"), insertPending("o4")};
     long startedAt = alwaysIncreasingSystem2.now();
@@ -358,7 +358,7 @@ public class CeQueueDaoIT {
   }
 
   @Test
-  public void resetTasksWithUnknownWorkerUUIDs_set_resets_status_of_all_pending_tasks_with_unknown_workers() {
+  void resetTasksWithUnknownWorkerUUIDs_set_resets_status_of_all_pending_tasks_with_unknown_workers() {
     CeQueueDto[] worker1 = {insertPending("u1"), insertPending("u2"), insertPending("u3"), insertPending("u4")};
     CeQueueDto[] worker2 = {insertPending("o1"), insertPending("o2"), insertPending("o3"), insertPending("o4")};
     long startedAt = alwaysIncreasingSystem2.now();
@@ -421,7 +421,7 @@ public class CeQueueDaoIT {
   }
 
   @Test
-  public void select_by_query() {
+  void select_by_query() {
     // task status not in query
     insertPending(newCeQueueDto(TASK_UUID_1)
       .setEntityUuid(ENTITY_UUID_1)
@@ -472,7 +472,7 @@ public class CeQueueDaoIT {
   }
 
   @Test
-  public void select_by_query_returns_empty_list_when_only_current() {
+  void select_by_query_returns_empty_list_when_only_current() {
     insertPending(newCeQueueDto(TASK_UUID_1)
       .setComponentUuid(ENTITY_UUID_1)
       .setStatus(IN_PROGRESS)
@@ -489,7 +489,7 @@ public class CeQueueDaoIT {
   }
 
   @Test
-  public void select_by_query_returns_empty_list_when_max_submitted_at() {
+  void select_by_query_returns_empty_list_when_max_submitted_at() {
     insertPending(newCeQueueDto(TASK_UUID_1)
       .setComponentUuid(ENTITY_UUID_1)
       .setStatus(IN_PROGRESS)
@@ -506,7 +506,7 @@ public class CeQueueDaoIT {
   }
 
   @Test
-  public void select_by_query_returns_empty_list_when_empty_list_of_entity_uuid() {
+  void select_by_query_returns_empty_list_when_empty_list_of_entity_uuid() {
     insertPending(newCeQueueDto(TASK_UUID_1)
       .setComponentUuid(ENTITY_UUID_1)
       .setStatus(IN_PROGRESS)
@@ -523,7 +523,7 @@ public class CeQueueDaoIT {
   }
 
   @Test
-  public void count_by_status_and_entity_uuid() {
+  void count_by_status_and_entity_uuid() {
     // task retrieved in the queue
     insertPending(newCeQueueDto(TASK_UUID_1)
       .setEntityUuid(ENTITY_UUID_1)
@@ -548,7 +548,7 @@ public class CeQueueDaoIT {
   }
 
   @Test
-  public void count_by_status_and_entity_uuids() {
+  void count_by_status_and_entity_uuids() {
     // task retrieved in the queue
     insertPending(newCeQueueDto(TASK_UUID_1)
       .setEntityUuid(ENTITY_UUID_1)
@@ -578,7 +578,7 @@ public class CeQueueDaoIT {
   }
 
   @Test
-  public void selectInProgressStartedBefore() {
+  void selectInProgressStartedBefore() {
     // pending task is ignored
     insertPending(newCeQueueDto(TASK_UUID_1)
       .setStatus(PENDING)
@@ -598,7 +598,7 @@ public class CeQueueDaoIT {
   }
 
   @Test
-  public void hasAnyIssueSyncTaskPendingOrInProgress_PENDING() {
+  void hasAnyIssueSyncTaskPendingOrInProgress_PENDING() {
     assertThat(underTest.hasAnyIssueSyncTaskPendingOrInProgress(db.getSession())).isFalse();
 
     insertPending(newCeQueueDto(TASK_UUID_1)
@@ -611,7 +611,7 @@ public class CeQueueDaoIT {
   }
 
   @Test
-  public void hasAnyIssueSyncTaskPendingOrInProgress_IN_PROGRESS() {
+  void hasAnyIssueSyncTaskPendingOrInProgress_IN_PROGRESS() {
     assertThat(underTest.hasAnyIssueSyncTaskPendingOrInProgress(db.getSession())).isFalse();
 
     insertPending(newCeQueueDto(TASK_UUID_1)
@@ -624,7 +624,7 @@ public class CeQueueDaoIT {
   }
 
   @Test
-  public void selectOldestPendingPrOrBranch_returns_oldest_100_pr_or_branch_tasks() {
+  void selectOldestPendingPrOrBranch_returns_oldest_100_pr_or_branch_tasks() {
     for (int i = 1; i < 110; i++) {
       insertPending(newCeQueueDto("task" + i)
         .setComponentUuid(ENTITY_UUID_1).setStatus(PENDING).setTaskType(CeTaskTypes.REPORT).setCreatedAt(i));
@@ -643,7 +643,7 @@ public class CeQueueDaoIT {
   }
 
   @Test
-  public void selectOldestPendingPrOrBranch_returns_branch_branch_type_if_no_characteristics() {
+  void selectOldestPendingPrOrBranch_returns_branch_branch_type_if_no_characteristics() {
     insertPending(newCeQueueDto(TASK_UUID_1)
       .setComponentUuid(COMPONENT_UUID_1)
       .setEntityUuid(ENTITY_UUID_1)
@@ -654,12 +654,13 @@ public class CeQueueDaoIT {
 
     assertThat(prOrBranchTasks).hasSize(1);
     assertThat(prOrBranchTasks.get(0))
-      .extracting(PrOrBranchTask::getBranchType, PrOrBranchTask::getComponentUuid, PrOrBranchTask::getEntityUuid, PrOrBranchTask::getTaskType)
+      .extracting(PrOrBranchTask::getBranchType, PrOrBranchTask::getComponentUuid, PrOrBranchTask::getEntityUuid,
+        PrOrBranchTask::getTaskType)
       .containsExactly(BRANCH, COMPONENT_UUID_1, ENTITY_UUID_1, CeTaskTypes.REPORT);
   }
 
   @Test
-  public void selectOldestPendingPrOrBranch_returns_branch_branch_type_if_unrelated_characteristics() {
+  void selectOldestPendingPrOrBranch_returns_branch_branch_type_if_unrelated_characteristics() {
     insertPending(newCeQueueDto(TASK_UUID_1)
       .setComponentUuid(COMPONENT_UUID_1)
       .setEntityUuid(ENTITY_UUID_1)
@@ -671,12 +672,13 @@ public class CeQueueDaoIT {
 
     assertThat(prOrBranchTasks).hasSize(1);
     assertThat(prOrBranchTasks.get(0))
-      .extracting(PrOrBranchTask::getBranchType, PrOrBranchTask::getComponentUuid, PrOrBranchTask::getEntityUuid, PrOrBranchTask::getTaskType)
+      .extracting(PrOrBranchTask::getBranchType, PrOrBranchTask::getComponentUuid, PrOrBranchTask::getEntityUuid,
+        PrOrBranchTask::getTaskType)
       .containsExactly(BRANCH, COMPONENT_UUID_1, ENTITY_UUID_1, CeTaskTypes.REPORT);
   }
 
   @Test
-  public void selectOldestPendingPrOrBranch_returns_all_fields() {
+  void selectOldestPendingPrOrBranch_returns_all_fields() {
     insertPending(newCeQueueDto(TASK_UUID_1)
       .setComponentUuid(COMPONENT_UUID_1)
       .setEntityUuid(ENTITY_UUID_1)
@@ -689,12 +691,13 @@ public class CeQueueDaoIT {
 
     assertThat(prOrBranchTasks).hasSize(1);
     assertThat(prOrBranchTasks.get(0))
-      .extracting(PrOrBranchTask::getBranchType, PrOrBranchTask::getComponentUuid, PrOrBranchTask::getEntityUuid, PrOrBranchTask::getTaskType)
+      .extracting(PrOrBranchTask::getBranchType, PrOrBranchTask::getComponentUuid, PrOrBranchTask::getEntityUuid,
+        PrOrBranchTask::getTaskType)
       .containsExactly(PULL_REQUEST, COMPONENT_UUID_1, ENTITY_UUID_1, CeTaskTypes.REPORT);
   }
 
   @Test
-  public void selectInProgressWithCharacteristics_returns_all_fields() {
+  void selectInProgressWithCharacteristics_returns_all_fields() {
     insertPending(newCeQueueDto(TASK_UUID_1)
       .setComponentUuid(COMPONENT_UUID_1)
       .setEntityUuid(ENTITY_UUID_1)
@@ -707,12 +710,13 @@ public class CeQueueDaoIT {
 
     assertThat(prOrBranchTasks).hasSize(1);
     assertThat(prOrBranchTasks.get(0))
-      .extracting(PrOrBranchTask::getBranchType, PrOrBranchTask::getComponentUuid, PrOrBranchTask::getEntityUuid, PrOrBranchTask::getTaskType)
+      .extracting(PrOrBranchTask::getBranchType, PrOrBranchTask::getComponentUuid, PrOrBranchTask::getEntityUuid,
+        PrOrBranchTask::getTaskType)
       .containsExactly(PULL_REQUEST, COMPONENT_UUID_1, ENTITY_UUID_1, CeTaskTypes.REPORT);
   }
 
   @Test
-  public void selectInProgressWithCharacteristics_returns_branch_branch_type_if_no_characteristics() {
+  void selectInProgressWithCharacteristics_returns_branch_branch_type_if_no_characteristics() {
     insertPending(newCeQueueDto(TASK_UUID_1)
       .setComponentUuid(COMPONENT_UUID_1)
       .setEntityUuid(ENTITY_UUID_1)
@@ -724,7 +728,8 @@ public class CeQueueDaoIT {
 
     assertThat(prOrBranchTasks).hasSize(1);
     assertThat(prOrBranchTasks.get(0))
-      .extracting(PrOrBranchTask::getBranchType, PrOrBranchTask::getComponentUuid, PrOrBranchTask::getEntityUuid, PrOrBranchTask::getTaskType)
+      .extracting(PrOrBranchTask::getBranchType, PrOrBranchTask::getComponentUuid, PrOrBranchTask::getEntityUuid,
+        PrOrBranchTask::getTaskType)
       .containsExactly(BRANCH, COMPONENT_UUID_1, ENTITY_UUID_1, CeTaskTypes.REPORT);
   }
 
@@ -782,16 +787,12 @@ public class CeQueueDaoIT {
   }
 
   private static Iterable<Map<String, Object>> upperizeKeys(List<Map<String, Object>> select) {
-    return select.stream().map(new Function<Map<String, Object>, Map<String, Object>>() {
-      @Nullable
-      @Override
-      public Map<String, Object> apply(Map<String, Object> input) {
-        Map<String, Object> res = new HashMap<>(input.size());
-        for (Map.Entry<String, Object> entry : input.entrySet()) {
-          res.put(entry.getKey().toUpperCase(), entry.getValue());
-        }
-        return res;
+    return select.stream().map((Function<Map<String, Object>, Map<String, Object>>) input -> {
+      Map<String, Object> res = new HashMap<>(input.size());
+      for (Map.Entry<String, Object> entry : input.entrySet()) {
+        res.put(entry.getKey().toUpperCase(), entry.getValue());
       }
+      return res;
     }).toList();
   }
 

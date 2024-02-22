@@ -19,28 +19,28 @@
  */
 package org.sonar.db.source;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-public class LineHashVersionTest {
+class LineHashVersionTest {
 
   @Test
-  public void should_create_from_int() {
+  void should_create_from_int() {
     assertThat(LineHashVersion.valueOf(0)).isEqualTo(LineHashVersion.WITHOUT_SIGNIFICANT_CODE);
     assertThat(LineHashVersion.valueOf(1)).isEqualTo(LineHashVersion.WITH_SIGNIFICANT_CODE);
   }
 
   @Test
-  public void should_throw_exception_if_version_is_too_high() {
+  void should_throw_exception_if_version_is_too_high() {
     assertThatThrownBy(() -> LineHashVersion.valueOf(2))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("Unknown line hash version: 2");
   }
 
   @Test
-  public void should_throw_exception_if_version_is_too_low() {
+  void should_throw_exception_if_version_is_too_low() {
     assertThatThrownBy(() -> LineHashVersion.valueOf(-1))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("Unknown line hash version: -1");

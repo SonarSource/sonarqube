@@ -20,9 +20,9 @@
 package org.sonar.db.component;
 
 import java.util.List;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactoryFast;
@@ -33,22 +33,22 @@ import org.sonar.db.project.ProjectDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class ApplicationProjectsDaoIT {
-  @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+class ApplicationProjectsDaoIT {
+  @RegisterExtension
+  private final DbTester db = DbTester.create(System2.INSTANCE);
 
   private final UuidFactoryFast uuids = UuidFactoryFast.getInstance();
   private final TestSystem2 system2 = new TestSystem2();
   private final DbSession dbSession = db.getSession();
   private final ApplicationProjectsDao underTest = new ApplicationProjectsDao(system2, uuids);
 
-  @Before
-  public void before() {
+  @BeforeEach
+  void before() {
     system2.setNow(1000L);
   }
 
   @Test
-  public void select_projects() {
+  void select_projects() {
     insertApplicationProject("uuid2", "p1");
     insertApplicationProject("uuid2", "p2");
 
@@ -57,20 +57,20 @@ public class ApplicationProjectsDaoIT {
   }
 
   @Test
-  public void select_projects_from_non_existing_app_is_empty() {
+  void select_projects_from_non_existing_app_is_empty() {
     insertApplicationProject("uuid", "p1");
     assertThat(underTest.selectProjects(dbSession, "does_not_exist")).isEmpty();
   }
 
   @Test
-  public void add_project() {
+  void add_project() {
     insertProject("p1");
     underTest.addProject(dbSession, "uuid", "p1");
     assertThat(underTest.selectProjects(dbSession, "uuid")).extracting(ProjectDto::getUuid).containsOnly("p1");
   }
 
   @Test
-  public void add_project_branch_to_application_branch() {
+  void add_project_branch_to_application_branch() {
     insertProject("p1");
     insertBranch("p1", "b1");
     insertApplication("app1");
@@ -80,7 +80,7 @@ public class ApplicationProjectsDaoIT {
   }
 
   @Test
-  public void select_project_branches_from_application_branch() {
+  void select_project_branches_from_application_branch() {
     ProjectDto project = db.components().insertPublicProject(p -> p.setKey("project")).getProjectDto();
     BranchDto projectBranch = db.components().insertProjectBranch(project, b -> b.setKey("project-branch"));
     ProjectDto app = db.components().insertPrivateApplication(a -> a.setKey("app1")).getProjectDto();
@@ -92,7 +92,7 @@ public class ApplicationProjectsDaoIT {
   }
 
   @Test
-  public void remove_project() {
+  void remove_project() {
     insertApplicationProject("uuid", "p1");
     insertApplicationProject("uuid", "p2");
     assertThat(underTest.selectProjects(dbSession, "uuid")).extracting(ProjectDto::getUuid).contains("p1");
@@ -101,14 +101,14 @@ public class ApplicationProjectsDaoIT {
   }
 
   @Test
-  public void remove_project_from_non_existing_app_is_no_op() {
+  void remove_project_from_non_existing_app_is_no_op() {
     insertApplicationProject("uuid", "p1");
     underTest.removeApplicationProjectsByApplicationAndProject(dbSession, "non_existing", "p1");
     assertThat(underTest.selectProjects(dbSession, "uuid")).extracting(ProjectDto::getUuid).containsOnly("p1");
   }
 
   @Test
-  public void remove_non_existing_project_from_app_is_no_op() {
+  void remove_non_existing_project_from_app_is_no_op() {
     insertApplicationProject("uuid", "p1");
     underTest.removeApplicationProjectsByApplicationAndProject(dbSession, "uuid", "non_existing");
     assertThat(underTest.selectProjects(dbSession, "uuid")).extracting(ProjectDto::getUuid).containsOnly("p1");
@@ -116,7 +116,7 @@ public class ApplicationProjectsDaoIT {
 
 
   @Test
-  public void selectProjectsMainBranchesOfApplication_whenApplicationDoesNotExist_shouldReturnEmptyList() {
+  void selectProjectsMainBranchesOfApplication_whenApplicationDoesNotExist_shouldReturnEmptyList() {
     insertBranchesForProjectUuids(true, "1");
 
     List<BranchDto> branchDtos = underTest.selectProjectsMainBranchesOfApplication(dbSession, "1");
@@ -125,7 +125,7 @@ public class ApplicationProjectsDaoIT {
   }
 
   @Test
-  public void selectProjectsMainBranchesOfApplication_whenApplicationExistWithTwoProjects_shouldReturnTwoBranches() {
+  void selectProjectsMainBranchesOfApplication_whenApplicationExistWithTwoProjects_shouldReturnTwoBranches() {
     String appUuid = "appUuid";
     insertProject("1");
     insertProject("2");
@@ -161,7 +161,8 @@ public class ApplicationProjectsDaoIT {
   }
 
   private void insertProject(String projectUuid) {
-    db.components().insertPrivateProject(c -> {}, p -> p.setUuid(projectUuid));
+    db.components().insertPrivateProject(c -> {
+    }, p -> p.setUuid(projectUuid));
   }
 
   private void insertApplication(String appUuid) {

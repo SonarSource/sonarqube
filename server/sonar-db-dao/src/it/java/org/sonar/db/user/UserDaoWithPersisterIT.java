@@ -19,11 +19,9 @@
  */
 package org.sonar.db.user;
 
-import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import java.util.List;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.api.utils.DateUtils;
@@ -41,22 +39,21 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.sonar.db.user.GroupTesting.newGroupDto;
 import static org.sonar.db.user.UserTesting.newUserDto;
 
-@RunWith(DataProviderRunner.class)
-public class UserDaoWithPersisterIT {
+class UserDaoWithPersisterIT {
   private static final long NOW = 1_500_000_000_000L;
   private final AuditPersister auditPersister = mock(AuditPersister.class);
 
   private final TestSystem2 system2 = new TestSystem2().setNow(NOW);
   private final ArgumentCaptor<UserNewValue> newValueCaptor = ArgumentCaptor.forClass(UserNewValue.class);
 
-  @Rule
-  public final DbTester db = DbTester.create(system2, auditPersister);
+  @RegisterExtension
+  private final DbTester db = DbTester.create(system2, auditPersister);
 
   private final DbClient dbClient = db.getDbClient();
   private final UserDao underTest = db.getDbClient().userDao();
 
   @Test
-  public void insertUserIsPersisted() {
+  void insertUserIsPersisted() {
     UserDto userDto = new UserDto()
       .setLogin("john")
       .setName("John")
@@ -77,7 +74,7 @@ public class UserDaoWithPersisterIT {
   }
 
   @Test
-  public void updateUserIsPersisted() {
+  void updateUserIsPersisted() {
     UserDto user = db.users().insertUser(u -> u
       .setLogin("john")
       .setName("John")
@@ -90,7 +87,7 @@ public class UserDaoWithPersisterIT {
       .setLogin("johnDoo")
       .setName("John Doo")
       .setEmail("jodoo@hn.com")
-      .setScmAccounts(List.of("jo.hn","john2","johndoo"))
+      .setScmAccounts(List.of("jo.hn", "john2", "johndoo"))
       .setActive(false)
       .setResetPassword(true)
       .setSalt("12345")
@@ -108,11 +105,14 @@ public class UserDaoWithPersisterIT {
     verify(auditPersister).updateUser(eq(db.getSession()), newValueCaptor.capture());
     UserNewValue newValue = newValueCaptor.getValue();
     assertThat(newValue)
-      .extracting(UserNewValue::getUserUuid, UserNewValue::getUserLogin, UserNewValue::getName, UserNewValue::getEmail, UserNewValue::isActive,
-        UserNewValue::getScmAccounts, UserNewValue::getExternalId, UserNewValue::getExternalLogin, UserNewValue::getExternalIdentityProvider,
+      .extracting(UserNewValue::getUserUuid, UserNewValue::getUserLogin, UserNewValue::getName, UserNewValue::getEmail,
+        UserNewValue::isActive,
+        UserNewValue::getScmAccounts, UserNewValue::getExternalId, UserNewValue::getExternalLogin,
+        UserNewValue::getExternalIdentityProvider,
         UserNewValue::isLocal, UserNewValue::getLastConnectionDate)
       .containsExactly(updatedUser.getUuid(), updatedUser.getLogin(), updatedUser.getName(), updatedUser.getEmail(), updatedUser.isActive(),
-        updatedUser.getSortedScmAccounts(), updatedUser.getExternalId(), updatedUser.getExternalLogin(), updatedUser.getExternalIdentityProvider(),
+        updatedUser.getSortedScmAccounts(), updatedUser.getExternalId(), updatedUser.getExternalLogin(),
+        updatedUser.getExternalIdentityProvider(),
         updatedUser.isLocal(), updatedUser.getLastConnectionDate());
     assertThat(newValue.toString())
       .contains("name")
@@ -120,7 +120,7 @@ public class UserDaoWithPersisterIT {
   }
 
   @Test
-  public void updateUserWithoutTrackIsNotPersisted() {
+  void updateUserWithoutTrackIsNotPersisted() {
     UserDto user = db.users().insertUser(u -> u
       .setLogin("john")
       .setName("John")
@@ -140,7 +140,7 @@ public class UserDaoWithPersisterIT {
   }
 
   @Test
-  public void deactivateUserIsPersisted() {
+  void deactivateUserIsPersisted() {
     UserDto user = insertActiveUser();
     insertUserGroup(user);
     underTest.update(db.getSession(), user.setLastConnectionDate(10_000_000_000L));

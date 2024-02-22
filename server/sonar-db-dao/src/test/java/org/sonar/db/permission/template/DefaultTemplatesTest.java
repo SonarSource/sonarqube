@@ -19,31 +19,31 @@
  */
 package org.sonar.db.permission.template;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-public class DefaultTemplatesTest {
+class DefaultTemplatesTest {
 
   private final DefaultTemplates underTest = new DefaultTemplates();
 
   @Test
-  public void setProject_throws_NPE_if_argument_is_null() {
+  void setProject_throws_NPE_if_argument_is_null() {
     assertThatThrownBy(() -> underTest.setProjectUuid(null))
       .isInstanceOf(NullPointerException.class)
       .hasMessage("defaultTemplates.project can't be null");
   }
 
   @Test
-  public void getProject_throws_NPE_if_project_is_null() {
+  void getProject_throws_NPE_if_project_is_null() {
     assertThatThrownBy(underTest::getProjectUuid)
       .isInstanceOf(NullPointerException.class)
       .hasMessage("defaultTemplates.project can't be null");
   }
 
   @Test
-  public void setProjectU() {
+  void setProjectU() {
     String uuid = "uuid-1";
     underTest.setProjectUuid(uuid);
 
@@ -51,26 +51,27 @@ public class DefaultTemplatesTest {
   }
 
   @Test
-  public void setApplicationsUuid_accepts_null() {
+  void setApplicationsUuid_accepts_null() {
     underTest.setApplicationsUuid(null);
 
     assertThat(underTest.getApplicationsUuid()).isNull();
   }
 
   @Test
-  public void setPortfoliosUuid_accepts_null() {
+  void setPortfoliosUuid_accepts_null() {
     underTest.setPortfoliosUuid(null);
 
     assertThat(underTest.getPortfoliosUuid()).isNull();
   }
 
   @Test
-  public void check_toString() {
+  void check_toString() {
     assertThat(underTest).hasToString("DefaultTemplates{projectUuid='null', portfoliosUuid='null', applicationsUuid='null'}");
     underTest
       .setProjectUuid("a project")
       .setApplicationsUuid("an application")
       .setPortfoliosUuid("a portfolio");
-    assertThat(underTest).hasToString("DefaultTemplates{projectUuid='a project', portfoliosUuid='a portfolio', applicationsUuid='an application'}");
+    assertThat(underTest).hasToString("DefaultTemplates{projectUuid='a project', portfoliosUuid='a portfolio', applicationsUuid='an " +
+      "application'}");
   }
 }
