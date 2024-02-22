@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { waitFor } from '@testing-library/react';
 import * as React from 'react';
 import { useContext } from 'react';
 import { mockAppState } from '../../../../helpers/testMocks';
@@ -60,11 +61,10 @@ it('should update the state on new status', async () => {
 
   expect(byText('null').get()).toBeInTheDocument();
 
-  triggerNewStatus(newStatus);
-
-  expect(
-    await byText('{"status":{"hasFailures":false,"isCompleted":true}}').find(),
-  ).toBeInTheDocument();
+  await waitFor(() => {
+    triggerNewStatus(newStatus);
+  });
+  expect(byText('{"status":{"hasFailures":false,"isCompleted":true}}').get()).toBeInTheDocument();
 });
 
 function renderIndexationContextProvider(props?: IndexationContextProviderProps) {
