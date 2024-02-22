@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import * as React from 'react';
 import { addFavorite, removeFavorite } from '../../../api/favorites';
 import { renderComponent } from '../../../helpers/testReactTestingUtils';
@@ -30,11 +31,12 @@ jest.mock('../../../api/favorites', () => ({
 }));
 
 it('renders and behaves correctly', async () => {
+  const user = userEvent.setup();
   renderFavorite({ favorite: false });
   let button = screen.getByRole('button');
   expect(button).toBeInTheDocument();
 
-  button.click();
+  await user.click(button);
   await new Promise(setImmediate);
   expect(addFavorite).toHaveBeenCalled();
 
@@ -42,7 +44,7 @@ it('renders and behaves correctly', async () => {
   expect(button).toBeInTheDocument();
   expect(button).toHaveFocus();
 
-  button.click();
+  await user.click(button);
   await new Promise(setImmediate);
   expect(removeFavorite).toHaveBeenCalled();
 
@@ -53,14 +55,13 @@ it('renders and behaves correctly', async () => {
 
 it('correctly calls handleFavorite if passed', async () => {
   const handleFavorite = jest.fn();
+  const user = userEvent.setup();
   renderFavorite({ handleFavorite });
 
-  screen.getByRole('button').click();
-  await new Promise(setImmediate);
+  await user.click(screen.getByRole('button'));
   expect(handleFavorite).toHaveBeenCalledWith('foo', false);
 
-  screen.getByRole('button').click();
-  await new Promise(setImmediate);
+  await user.click(screen.getByRole('button'));
   expect(handleFavorite).toHaveBeenCalledWith('foo', true);
 });
 

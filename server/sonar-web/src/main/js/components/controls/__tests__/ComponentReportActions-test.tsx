@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { screen } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
 import {
@@ -59,7 +59,7 @@ it('should not render anything when no status', async () => {
   // Loading
   expect(screen.queryByRole('button')).not.toBeInTheDocument();
 
-  await new Promise(setImmediate); // Make sure we wait until we're done loading
+  await waitFor(() => expect(getReportStatus).toHaveBeenCalled());
 
   // No status
   expect(screen.queryByRole('button')).not.toBeInTheDocument();
@@ -70,15 +70,15 @@ it('should not render anything when branch is purgeable', async () => {
     branch: mockBranch({ excludedFromPurge: false }),
   });
 
-  await new Promise(setImmediate); // Make sure we wait until we're done loading
+  await waitFor(() => expect(getReportStatus).toHaveBeenCalled());
 
   expect(screen.queryByRole('button')).not.toBeInTheDocument();
 });
 
-it('should not render anything without governance', async () => {
+it('should not render anything without governance', () => {
   renderComponentReportActions({ appState: mockAppState({ qualifiers: [] }) });
 
-  await new Promise(setImmediate); // Make sure we wait until we're done loading
+  expect(getReportStatus).not.toHaveBeenCalled();
 
   expect(screen.queryByRole('button')).not.toBeInTheDocument();
 });
@@ -120,8 +120,6 @@ it('should allow user to (un)subscribe', async () => {
   expect(subscribeToEmailReport).toHaveBeenCalledWith(component.key, branch.name);
   expect(await screen.findByRole('status')).toBeInTheDocument();
 
-  await new Promise(setImmediate);
-
   // And unsubscribe!
   await user.click(button);
 
@@ -142,8 +140,6 @@ it('should prevent user to subscribe if no email', async () => {
   const user = userEvent.setup();
 
   renderComponentReportActions({ currentUser: mockLoggedInUser({ email: undefined }) });
-
-  await new Promise(setImmediate);
 
   await user.click(
     await screen.findByRole('button', {

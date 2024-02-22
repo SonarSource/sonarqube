@@ -94,12 +94,10 @@ function renderHelp({ help, helpExample, helpParams = {}, id }: CommonFieldProps
 function renderLabel(props: LabelProps) {
   const { optional, id } = props;
   return (
-    <SubHeading>
-      <label htmlFor={id}>
-        {translate('settings.pr_decoration.binding.form', id)}
-        {!optional && <MandatoryFieldMarker />}
-      </label>
-    </SubHeading>
+    <label htmlFor={id}>
+      {translate('settings.pr_decoration.binding.form', id)}
+      {!optional && <MandatoryFieldMarker />}
+    </label>
   );
 }
 

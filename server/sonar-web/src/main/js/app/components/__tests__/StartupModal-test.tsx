@@ -19,6 +19,7 @@
  */
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
+import { showLicense } from '../../../api/editions';
 import { save } from '../../../helpers/storage';
 import { mockAppState, mockCurrentUser } from '../../../helpers/testMocks';
 import { renderApp } from '../../../helpers/testReactTestingUtils';
@@ -60,10 +61,8 @@ it('should check license and open on its own', async () => {
   const user = userEvent.setup();
   renderStartupModal();
 
-  await new Promise(setImmediate);
-
+  expect(await ui.modalHeader.find()).toBeInTheDocument();
   expect(save).toHaveBeenCalled();
-  expect(ui.modalHeader.get()).toBeInTheDocument();
 
   await user.click(ui.licensePageLink.get());
 
@@ -77,10 +76,10 @@ it.each([
   ],
   ['Cannot admin', { appState: mockAppState({ canAdmin: false, edition: EditionKey.enterprise }) }],
   ['User is not logged in', { currentUser: mockCurrentUser() }],
-])('should not open when not necessary: %s', async (_, props: Partial<StartupModal['props']>) => {
+])('should not open when not necessary: %s', (_, props: Partial<StartupModal['props']>) => {
   renderStartupModal(props);
 
-  await new Promise(setImmediate);
+  expect(showLicense).not.toHaveBeenCalled();
 
   expect(save).not.toHaveBeenCalled();
   expect(ui.modalHeader.query()).not.toBeInTheDocument();

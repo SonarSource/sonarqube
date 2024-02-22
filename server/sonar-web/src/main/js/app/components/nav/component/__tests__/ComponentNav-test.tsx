@@ -18,12 +18,23 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import React from 'react';
+import AlmSettingsServiceMock from '../../../../../api/mocks/AlmSettingsServiceMock';
+import BranchesServiceMock from '../../../../../api/mocks/BranchesServiceMock';
 import { mockProjectAlmBindingConfigurationErrors } from '../../../../../helpers/mocks/alm-settings';
 import { mockComponent } from '../../../../../helpers/mocks/component';
 import { renderApp } from '../../../../../helpers/testReactTestingUtils';
 import { ComponentQualifier } from '../../../../../types/component';
 import ComponentNav, { ComponentNavProps } from '../ComponentNav';
+
+const branchesHandler = new BranchesServiceMock();
+const almHandler = new AlmSettingsServiceMock();
+
+afterEach(() => {
+  branchesHandler.reset();
+  almHandler.reset();
+});
 
 it('renders correctly when the project binding is incorrect', () => {
   renderComponentNav({
@@ -35,8 +46,9 @@ it('renders correctly when the project binding is incorrect', () => {
 });
 
 it('correctly returns focus to the Project Information link when the drawer is closed', async () => {
+  const user = userEvent.setup();
   renderComponentNav();
-  screen.getByRole('link', { name: 'project.info.title' }).click();
+  await user.click(screen.getByRole('link', { name: 'project.info.title' }));
   expect(await screen.findByText('/project/information?id=my-project')).toBeInTheDocument();
 });
 

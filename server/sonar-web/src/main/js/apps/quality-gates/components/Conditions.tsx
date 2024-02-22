@@ -189,14 +189,14 @@ export default function Conditions({ qualityGate, isFetching }: Readonly<Props>)
 
       {uniqDuplicates.length > 0 && (
         <FlagMessage variant="warning" className="sw-flex sw-mb-4">
-          <p>
+          <div>
             <p>{translate('quality_gates.duplicated_conditions')}</p>
             <ul className="sw-my-2 sw-list-disc sw-pl-10">
               {uniqDuplicates.map((d) => (
                 <li key={d.metric.key}>{getLocalizedMetricName(d.metric)}</li>
               ))}
             </ul>
-          </p>
+          </div>
         </FlagMessage>
       )}
 
