@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { screen } from '@testing-library/react';
+import { act, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import ComputeEngineServiceMock from '../../../api/mocks/ComputeEngineServiceMock';
 import { ProjectDumpServiceMock } from '../../../api/mocks/ProjectDumpServiceMock';
@@ -103,6 +103,7 @@ it('should show pending->in progress->failed export', async () => {
     status: TaskStatuses.Pending,
     submittedAt: '2023-06-08T11:55:00Z',
   });
+
   await userEvent.click(await ui.exportBtn.find());
   expect(await ui.pendingExport.find()).toBeInTheDocument();
   expect(ui.exportBtn.query()).not.toBeInTheDocument();
@@ -113,7 +114,9 @@ it('should show pending->in progress->failed export', async () => {
     status: TaskStatuses.InProgress,
     startedAt: '2023-06-08T12:00:00Z',
   });
-  jest.runOnlyPendingTimers();
+  act(() => {
+    jest.runOnlyPendingTimers();
+  });
   expect(await ui.inProgressExport.find()).toBeInTheDocument();
   expect(ui.exportBtn.query()).not.toBeInTheDocument();
 
@@ -123,7 +126,9 @@ it('should show pending->in progress->failed export', async () => {
     status: TaskStatuses.Failed,
     executedAt: '2023-06-08T12:05:00Z',
   });
-  jest.runOnlyPendingTimers();
+  act(() => {
+    jest.runOnlyPendingTimers();
+  });
   expect(await ui.failedExport.find()).toBeInTheDocument();
   expect(ui.exportBtn.get()).toBeInTheDocument();
 });
@@ -159,7 +164,9 @@ it('should show pending->in progress->failed import', async () => {
     status: TaskStatuses.InProgress,
     startedAt: '2023-06-08T12:00:00Z',
   });
-  jest.runOnlyPendingTimers();
+  act(() => {
+    jest.runOnlyPendingTimers();
+  });
   expect(await ui.inProgressImport.find()).toBeInTheDocument();
   expect(ui.importBtn.query()).not.toBeInTheDocument();
 
@@ -169,7 +176,9 @@ it('should show pending->in progress->failed import', async () => {
     status: TaskStatuses.Failed,
     executedAt: '2023-06-08T12:05:00Z',
   });
-  jest.runOnlyPendingTimers();
+  act(() => {
+    jest.runOnlyPendingTimers();
+  });
   expect(await ui.failedImport.find()).toBeInTheDocument();
   expect(ui.importBtn.get()).toBeInTheDocument();
 });

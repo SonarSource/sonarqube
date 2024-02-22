@@ -41,7 +41,7 @@ const EDUCATION_PRINCIPLES_MAP: Dict<React.ComponentType<React.PropsWithChildren
   never_trust_user_input: NeverTrustUserInput,
 };
 
-export default class MoreInfoRuleDescription extends React.PureComponent<Props, {}> {
+export default class MoreInfoRuleDescription extends React.PureComponent<Props> {
   handleNotificationScroll = () => {
     const element = this.props.educationPrinciplesRef?.current;
 
@@ -114,7 +114,7 @@ const StyledEducationPrinciples = styled.div`
   background-color: ${themeColor('educationPrincipleBackground')};
   border: ${themeBorder('default', 'educationPrincipleBorder')};
 
-  & h3:first-child {
-    margin-top: 0px;
+  & h3:first-of-type {
+    margin-top: 0;
   }
 `;

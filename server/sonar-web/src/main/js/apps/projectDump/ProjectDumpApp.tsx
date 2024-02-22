@@ -170,7 +170,7 @@ export class ProjectDumpApp extends React.Component<Props, State> {
           <header className="sw-mb-5">
             <Helmet defer={false} title={translate('project_dump.page')} />
             <Title className="sw-mb-4">{translate('project_dump.page')}</Title>
-            <p>
+            <div>
               {projectImportFeatureEnabled ? (
                 <>
                   <p>{translate('project_dump.page.description1')}</p>
@@ -182,7 +182,7 @@ export class ProjectDumpApp extends React.Component<Props, State> {
                   <p>{translate('project_dump.page.description_without_import2')}</p>
                 </>
               )}
-            </p>
+            </div>
           </header>
 
           <Spinner loading={status === undefined}>
