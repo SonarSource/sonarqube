@@ -174,6 +174,14 @@ it('should show component not found if target branch is not found for fixing pul
 });
 
 describe('getTasksForComponent', () => {
+  beforeEach(() => {
+    jest.useFakeTimers();
+  });
+  afterEach(() => {
+    jest.runOnlyPendingTimers();
+    jest.useRealTimers();
+  });
+
   it('reload component after task progress finished', async () => {
     jest
       .mocked(getTasksForComponent)
@@ -186,43 +194,35 @@ describe('getTasksForComponent', () => {
 
     renderComponentContainer();
 
-    jest.useFakeTimers();
+    // getComponentNavigation is called imidiately after the component is mounted
+    expect(getComponentNavigation).toHaveBeenCalledTimes(1);
 
-    // First round, there's something in the queue, and component navigation was
-    // not called again (it's called once at mount, hence the 1 times assertion
-    // here).
-    await waitFor(() => {
-      expect(getComponentNavigation).toHaveBeenCalledTimes(1);
-    });
+    // we check that setTimeout is not yet set, because it requires getComponentNavigation to finish first (as a microtask)
+    expect(jest.getTimerCount()).toBe(0);
+
+    // First round, a pending task in the queue. This should trigger the setTimeout.
+    // We need waitFor because getComponentNavigation is not done yet and it is waiting to be run as a microtask
     await waitFor(() => expect(getTasksForComponent).toHaveBeenCalledTimes(1));
 
+    // getTasksForComponent updated the tasks, which triggers the setTimeout
+    expect(jest.getTimerCount()).toBe(1);
+    // we run the timer to trigger the next getTasksForComponent call
     jest.runOnlyPendingTimers();
-    jest.useRealTimers();
 
-    // Second round, the queue is now empty, hence we assume the previous task
-    // was done. We immediately load the component again.
-    await waitFor(() => expect(getTasksForComponent).toHaveBeenCalledTimes(2));
+    // Second round, the queue is now empty. This should trigger the component to reload.
+    expect(getTasksForComponent).toHaveBeenCalledTimes(2);
 
-    // Trigger the update.
-    // The component was correctly re-loaded.
+    // Since the set of tasks is changed the component fetching is triggered
+    // we need waitFor because getTasksForComponent is triggered, but not yet done, and it is waiting to be run as a microtask
     await waitFor(() => {
       expect(getComponentNavigation).toHaveBeenCalledTimes(2);
     });
-    // The status API call will be called 1 final time after the component is
-    // fully loaded, so the total will be 3.
+
+    // since waitFor waited for all microtasks and state changes getTasksForComponent was called as well because of component change.
     expect(getTasksForComponent).toHaveBeenCalledTimes(3);
 
     // Make sure the timeout was cleared. It should not be called again.
-    jest.useFakeTimers();
-    jest.runAllTimers();
-
-    // The number of calls haven't changed.
-    await waitFor(() => {
-      expect(getComponentNavigation).toHaveBeenCalledTimes(2);
-    });
-    expect(getTasksForComponent).toHaveBeenCalledTimes(3);
-
-    jest.useRealTimers();
+    expect(jest.getTimerCount()).toBe(0);
   });
 
   it('reloads component after task progress finished, and moves straight to current', async () => {
@@ -242,31 +242,33 @@ describe('getTasksForComponent', () => {
 
     renderComponentContainer();
 
-    jest.useFakeTimers();
+    // getComponentNavigation is called imidiately after the component is mounted
+    expect(getComponentNavigation).toHaveBeenCalledTimes(1);
 
-    // First round, nothing in the queue, and component navigation was not called
-    // again (it's called once at mount, hence the 1 times assertion here).
-    await waitFor(() => {
-      expect(getComponentNavigation).toHaveBeenCalledTimes(1);
-    });
+    // First round, no tasks in queue. This should trigger the setTimeout.
+    // We need waitFor because getComponentNavigation is not done yet and it is waiting to be run as a microtask
     await waitFor(() => expect(getTasksForComponent).toHaveBeenCalledTimes(1));
 
+    // Despite the fact taht we don't have any tasks in the queue, the component.analysisDate is undefined, so we trigger setTimeout
+    expect(jest.getTimerCount()).toBe(1);
     jest.runOnlyPendingTimers();
-    jest.useRealTimers();
 
     // Second round, nothing in the queue, BUT a success task is current. This
     // means the queue was processed too quick for us to see, and we didn't see
     // any pending tasks in the queue. So we immediately load the component again.
-    await waitFor(() => expect(getTasksForComponent).toHaveBeenCalledTimes(2));
+    expect(getTasksForComponent).toHaveBeenCalledTimes(2);
 
-    // Trigger the update.
-    // The component was correctly re-loaded.
+    // Since the set of tasks is changed the component fetching is triggered
+    // we need waitFor because getTasksForComponent is triggered, but not yet done, and it is waiting to be run as a microtask
     await waitFor(() => {
       expect(getComponentNavigation).toHaveBeenCalledTimes(2);
     });
     // The status API call will be called 1 final time after the component is
     // fully loaded, so the total will be 3.
     expect(getTasksForComponent).toHaveBeenCalledTimes(3);
+
+    // Make sure the timeout was cleared. It should not be called again.
+    expect(jest.getTimerCount()).toBe(0);
   });
 
   it('only fully loads a non-empty component once', async () => {
@@ -280,11 +282,13 @@ describe('getTasksForComponent', () => {
     } as unknown as Awaited<ReturnType<typeof getTasksForComponent>>);
 
     renderComponentContainer();
-    await waitFor(() => {
-      expect(getComponentNavigation).toHaveBeenCalledTimes(1);
-    });
+
+    expect(getComponentNavigation).toHaveBeenCalledTimes(1);
 
     await waitFor(() => expect(getTasksForComponent).toHaveBeenCalledTimes(1));
+
+    // Since the component has analysisDate, and the queue is empty, the setTimeout will not be triggered
+    expect(jest.getTimerCount()).toBe(0);
   });
 
   it('only fully reloads a non-empty component if there was previously some task in progress', async () => {
@@ -304,28 +308,30 @@ describe('getTasksForComponent', () => {
 
     renderComponentContainer();
 
-    jest.useFakeTimers();
-
     // First round, a pending task in the queue. This should trigger a reload of the
     // status endpoint.
     await waitFor(() => expect(getTasksForComponent).toHaveBeenCalledTimes(1));
 
+    expect(jest.getTimerCount()).toBe(1);
     jest.runOnlyPendingTimers();
-    jest.useRealTimers();
 
     // Second round, nothing in the queue, and a success task is current. This
     // implies the current task was updated, and previously we displayed some information
     // about a pending task. This new information must prompt the component to reload
     // all data.
-    await waitFor(() => expect(getTasksForComponent).toHaveBeenCalledTimes(2));
+    expect(getTasksForComponent).toHaveBeenCalledTimes(2);
 
     // The component was correctly re-loaded.
     await waitFor(() => {
       expect(getComponentNavigation).toHaveBeenCalledTimes(2);
     });
+
     // The status API call will be called 1 final time after the component is
     // fully loaded, so the total will be 3.
     expect(getTasksForComponent).toHaveBeenCalledTimes(3);
+
+    // Make sure the timeout was cleared. It should not be called again.
+    expect(jest.getTimerCount()).toBe(0);
   });
 });
 
@@ -473,11 +479,17 @@ describe('tutorials', () => {
     await waitFor(() => expect(getTasksForComponent).toHaveBeenCalledTimes(1));
     expect(mockedReplace).not.toHaveBeenCalled();
 
+    // Since component.analysisDate is undefined we trigger setTimeout
+    expect(jest.getTimerCount()).toBe(1);
     jest.runOnlyPendingTimers();
+    expect(getTasksForComponent).toHaveBeenCalledTimes(2);
+
+    // Since we have condition (component.analysisDate is undefined) that will lead to endless loop,
+    // it is easier to enable realTimers to avoid act() warnings.
     jest.useRealTimers();
 
-    await waitFor(() => expect(getTasksForComponent).toHaveBeenCalledTimes(2));
-    expect(mockedReplace).toHaveBeenCalledWith(getProjectUrl(componentKey));
+    // getTasksForComponent is called but not finished yet, so we need to wait for it to finish
+    await waitFor(() => expect(mockedReplace).toHaveBeenCalledWith(getProjectUrl(componentKey)));
   });
 
   it('should redirect to project branch dashboard from tutorials when receiving new related scan report', async () => {
@@ -505,22 +517,30 @@ describe('tutorials', () => {
       push: jest.fn(),
     });
 
+    jest.useFakeTimers();
+
     renderComponentContainer(
       { hasFeature: jest.fn().mockReturnValue(true) },
       `tutorials?id=${componentKey}`,
       '/',
     );
 
-    jest.useFakeTimers();
-
     await waitFor(() => expect(getTasksForComponent).toHaveBeenCalledTimes(1));
     expect(mockedReplace).not.toHaveBeenCalled();
 
+    // Since component.analysisDate is undefined we trigger setTimeout
+    expect(jest.getTimerCount()).toBe(1);
     jest.runOnlyPendingTimers();
+    expect(getTasksForComponent).toHaveBeenCalledTimes(2);
+
+    // Since we have condition (component.analysisDate is undefined) that will lead to endless loop,
+    // it is easier to enable realTimers to avoid act() warnings.
     jest.useRealTimers();
 
-    await waitFor(() => expect(getTasksForComponent).toHaveBeenCalledTimes(2));
-    expect(mockedReplace).toHaveBeenCalledWith(getProjectUrl(componentKey, branchName));
+    // getTasksForComponent is called but not finished yet, so we need to wait for it to finish
+    await waitFor(() =>
+      expect(mockedReplace).toHaveBeenCalledWith(getProjectUrl(componentKey, branchName)),
+    );
   });
 
   it('should redirect to project pull request dashboard from tutorials when receiving new related scan report', async () => {
@@ -550,22 +570,30 @@ describe('tutorials', () => {
       push: jest.fn(),
     });
 
+    jest.useFakeTimers();
+
     renderComponentContainer(
       { hasFeature: jest.fn().mockReturnValue(true) },
       `tutorials?id=${componentKey}`,
       '/',
     );
 
-    jest.useFakeTimers();
-
     await waitFor(() => expect(getTasksForComponent).toHaveBeenCalledTimes(1));
     expect(mockedReplace).not.toHaveBeenCalled();
 
+    // Since component.analysisDate is undefined we trigger setTimeout
+    expect(jest.getTimerCount()).toBe(1);
     jest.runOnlyPendingTimers();
+    expect(getTasksForComponent).toHaveBeenCalledTimes(2);
+
+    // Since we have condition (component.analysisDate is undefined) that will lead to endless loop,
+    // it is easier to enable realTimers to avoid act() warnings.
     jest.useRealTimers();
 
-    await waitFor(() => expect(getTasksForComponent).toHaveBeenCalledTimes(2));
-    expect(mockedReplace).toHaveBeenCalledWith(getPullRequestUrl(componentKey, pullRequestKey));
+    // getTasksForComponent is called but not finished yet, so we need to wait for it to finish
+    await waitFor(() =>
+      expect(mockedReplace).toHaveBeenCalledWith(getPullRequestUrl(componentKey, pullRequestKey)),
+    );
   });
 });
 
