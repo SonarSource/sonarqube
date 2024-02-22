@@ -22,6 +22,7 @@ package org.sonar.server.pushapi;
 import org.sonar.core.platform.Module;
 import org.sonar.server.pushapi.scheduler.polling.PushEventPollExecutorServiceImpl;
 import org.sonar.server.pushapi.scheduler.polling.PushEventPollScheduler;
+import org.sonar.server.pushapi.sonarlint.SonarLintPushEventEventExecutorServiceImpl;
 import org.sonar.server.pushapi.scheduler.purge.PushEventsPurgeExecutorServiceImpl;
 import org.sonar.server.pushapi.scheduler.purge.PushEventsPurgeScheduler;
 import org.sonar.server.pushapi.sonarlint.SonarLintClientPermissionsValidator;
@@ -37,6 +38,7 @@ public class ServerPushModule extends Module {
       SonarLintClientPermissionsValidator.class,
       SonarLintClientsRegistry.class,
       SonarLintPushAction.class,
+      SonarLintPushEventEventExecutorServiceImpl.class,
 
       PushEventPollExecutorServiceImpl.class,
       PushEventPollScheduler.class,
