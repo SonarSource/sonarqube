@@ -432,9 +432,14 @@ subprojects {
       dependency 'org.reflections:reflections:0.10.2'
       dependency 'org.simpleframework:simple:5.1.6'
       dependency 'org.sonarsource.git.blame:git-files-blame:1.0.2.275'
-      dependency ('org.sonarsource.orchestrator:sonar-orchestrator-junit4:4.7.1.1872') {
+      dependency('org.sonarsource.orchestrator:sonar-orchestrator-junit4:4.8.0.1898') {
         exclude 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml'
       }
+      dependency('org.sonarsource.orchestrator:sonar-orchestrator-junit5:4.8.0.1898') {
+        exclude 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml'
+      }
+      dependency 'org.junit.platform:junit-platform-suite-api:1.10.2'
+      dependency 'org.junit.platform:junit-platform-suite-engine:1.10.2'
       dependency 'org.sonarsource.update-center:sonar-update-center-common:1.31.0.1207'
       dependency("org.springframework:spring-context:${springVersion}") {
         exclude 'commons-logging:commons-logging'

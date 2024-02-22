@@ -20,6 +20,7 @@
 package org.sonarqube.ws.tester;
 
 import com.google.common.base.Preconditions;
+import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.container.Edition;
 import com.sonar.orchestrator.container.Server;
 import com.sonar.orchestrator.junit4.OrchestratorRule;
@@ -30,6 +31,11 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
+import org.junit.jupiter.api.extension.AfterAllCallback;
+import org.junit.jupiter.api.extension.AfterEachCallback;
+import org.junit.jupiter.api.extension.BeforeAllCallback;
+import org.junit.jupiter.api.extension.BeforeEachCallback;
+import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.rules.ExternalResource;
 import org.sonarqube.ws.Ce;
 import org.sonarqube.ws.client.HttpConnector;
@@ -63,11 +69,13 @@ import static org.sonarqube.ws.client.HttpConnector.DEFAULT_READ_TIMEOUT_MILLISE
  * <li>clean-up system administrators/roots</li>
  * <li>clean-up the properties that are not defined (no PropertyDefinition)</li>
  * </ul>
+ *
+ * When used with JUnit5, the tester can be started and stopped in the same pattern as Junit4 for @ClassRule or @Rule using the flag  #useJunit5ClassInitialization
  */
-public class Tester extends ExternalResource implements TesterSession {
+public class Tester extends ExternalResource implements TesterSession, BeforeEachCallback, AfterEachCallback, BeforeAllCallback, AfterAllCallback {
   static final String FORCE_AUTHENTICATION_PROPERTY_NAME = "sonar.forceAuthentication";
 
-  private final OrchestratorRule orchestrator;
+  private final Orchestrator orchestrator;
 
   private boolean enableForceAuthentication = false;
   private Elasticsearch elasticsearch = null;
@@ -78,11 +86,25 @@ public class Tester extends ExternalResource implements TesterSession {
 
   private final int readTimeoutMilliseconds;
 
+  /**
+   * Defines if the tester is executed at class level or method level in the Junit5 test.
+   * If true, the tester will be started and stopped at the class level.
+   */
+  private boolean classLevel = false;
+
   public Tester(OrchestratorRule orchestrator) {
     this(orchestrator, DEFAULT_READ_TIMEOUT_MILLISECONDS);
   }
 
   public Tester(OrchestratorRule orchestrator, int readTimeoutMilliseconds) {
+    this(orchestrator.getOrchestrator(), readTimeoutMilliseconds);
+  }
+
+  public Tester(Orchestrator orchestrator) {
+    this(orchestrator, DEFAULT_READ_TIMEOUT_MILLISECONDS);
+  }
+
+  public Tester(Orchestrator orchestrator, int readTimeoutMilliseconds) {
     this.orchestrator = orchestrator;
     this.readTimeoutMilliseconds = readTimeoutMilliseconds;
   }
@@ -90,6 +112,17 @@ public class Tester extends ExternalResource implements TesterSession {
   public Tester enableForceAuthentication() {
     verifyNotStarted();
     enableForceAuthentication = true;
+    return this;
+  }
+
+  /**
+   * Enable class level initialization for Junit5.
+   * Should only be used with Junit5.
+   *
+   * @return Tester
+   */
+  public Tester withClassLevel() {
+    classLevel = true;
     return this;
   }
 
@@ -161,7 +194,7 @@ public class Tester extends ExternalResource implements TesterSession {
     // Let's try to wait for 30s for in progress or pending tasks to finish
     int counter = 60;
     while (counter > 0 &&
-      wsClient().ce().activity(new ActivityRequest().setStatus(List.of("PENDING", "IN_PROGRESS"))).getTasksCount() != 0) {
+           wsClient().ce().activity(new ActivityRequest().setStatus(List.of("PENDING", "IN_PROGRESS"))).getTasksCount() != 0) {
       counter--;
       try {
         Thread.sleep(500);
@@ -205,7 +238,7 @@ public class Tester extends ExternalResource implements TesterSession {
     elasticsearch = new Elasticsearch(orchestrator.getServer().getSearchPort());
     return elasticsearch;
   }
-  
+
   private void verifyNotStarted() {
     if (beforeCalled) {
       throw new IllegalStateException("org.sonarqube.ws.tester.Tester should not be already started");
@@ -297,10 +330,38 @@ public class Tester extends ExternalResource implements TesterSession {
     return rootSession.almSettings();
   }
 
+  @Override
+  public void afterAll(ExtensionContext context) throws Exception {
+    if (classLevel) {
+      after();
+    }
+  }
+
+  @Override
+  public void afterEach(ExtensionContext context) throws Exception {
+    if (!classLevel) {
+      after();
+    }
+  }
+
+  @Override
+  public void beforeAll(ExtensionContext context) throws Exception {
+    if (classLevel) {
+      before();
+    }
+  }
+
+  @Override
+  public void beforeEach(ExtensionContext context) throws Exception {
+    if (!classLevel) {
+      before();
+    }
+  }
+
   private static class TesterSessionImpl implements TesterSession {
     private final WsClient client;
 
-    private TesterSessionImpl(OrchestratorRule orchestrator, @Nullable String login, @Nullable String password) {
+    private TesterSessionImpl(Orchestrator orchestrator, @Nullable String login, @Nullable String password) {
       Server server = orchestrator.getServer();
       this.client = WsClientFactories.getDefault().newClient(HttpConnector.newBuilder()
         .url(server.getUrl())
@@ -308,7 +369,7 @@ public class Tester extends ExternalResource implements TesterSession {
         .build());
     }
 
-    private TesterSessionImpl(OrchestratorRule orchestrator, @Nullable String systemPassCode) {
+    private TesterSessionImpl(Orchestrator orchestrator, @Nullable String systemPassCode) {
       Server server = orchestrator.getServer();
       this.client = WsClientFactories.getDefault().newClient(HttpConnector.newBuilder()
         .systemPassCode(systemPassCode)
@@ -316,7 +377,7 @@ public class Tester extends ExternalResource implements TesterSession {
         .build());
     }
 
-    private TesterSessionImpl(OrchestratorRule orchestrator, Consumer<HttpConnector.Builder>... httpConnectorPopulators) {
+    private TesterSessionImpl(Orchestrator orchestrator, Consumer<HttpConnector.Builder>... httpConnectorPopulators) {
       Server server = orchestrator.getServer();
       HttpConnector.Builder httpConnectorBuilder = HttpConnector.newBuilder()
         .url(server.getUrl());
