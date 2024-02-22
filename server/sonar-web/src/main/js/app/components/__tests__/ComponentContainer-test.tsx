@@ -174,15 +174,6 @@ it('should show component not found if target branch is not found for fixing pul
 });
 
 describe('getTasksForComponent', () => {
-  beforeEach(() => {
-    jest.useFakeTimers();
-  });
-
-  afterEach(() => {
-    jest.runOnlyPendingTimers();
-    jest.useRealTimers();
-  });
-
   it('reload component after task progress finished', async () => {
     jest
       .mocked(getTasksForComponent)
@@ -195,6 +186,8 @@ describe('getTasksForComponent', () => {
 
     renderComponentContainer();
 
+    jest.useFakeTimers();
+
     // First round, there's something in the queue, and component navigation was
     // not called again (it's called once at mount, hence the 1 times assertion
     // here).
@@ -204,6 +197,7 @@ describe('getTasksForComponent', () => {
     await waitFor(() => expect(getTasksForComponent).toHaveBeenCalledTimes(1));
 
     jest.runOnlyPendingTimers();
+    jest.useRealTimers();
 
     // Second round, the queue is now empty, hence we assume the previous task
     // was done. We immediately load the component again.
@@ -219,6 +213,7 @@ describe('getTasksForComponent', () => {
     expect(getTasksForComponent).toHaveBeenCalledTimes(3);
 
     // Make sure the timeout was cleared. It should not be called again.
+    jest.useFakeTimers();
     jest.runAllTimers();
 
     // The number of calls haven't changed.
@@ -226,6 +221,8 @@ describe('getTasksForComponent', () => {
       expect(getComponentNavigation).toHaveBeenCalledTimes(2);
     });
     expect(getTasksForComponent).toHaveBeenCalledTimes(3);
+
+    jest.useRealTimers();
   });
 
   it('reloads component after task progress finished, and moves straight to current', async () => {
@@ -245,6 +242,8 @@ describe('getTasksForComponent', () => {
 
     renderComponentContainer();
 
+    jest.useFakeTimers();
+
     // First round, nothing in the queue, and component navigation was not called
     // again (it's called once at mount, hence the 1 times assertion here).
     await waitFor(() => {
@@ -253,6 +252,7 @@ describe('getTasksForComponent', () => {
     await waitFor(() => expect(getTasksForComponent).toHaveBeenCalledTimes(1));
 
     jest.runOnlyPendingTimers();
+    jest.useRealTimers();
 
     // Second round, nothing in the queue, BUT a success task is current. This
     // means the queue was processed too quick for us to see, and we didn't see
@@ -304,11 +304,14 @@ describe('getTasksForComponent', () => {
 
     renderComponentContainer();
 
+    jest.useFakeTimers();
+
     // First round, a pending task in the queue. This should trigger a reload of the
     // status endpoint.
     await waitFor(() => expect(getTasksForComponent).toHaveBeenCalledTimes(1));
 
     jest.runOnlyPendingTimers();
+    jest.useRealTimers();
 
     // Second round, nothing in the queue, and a success task is current. This
     // implies the current task was updated, and previously we displayed some information
@@ -435,14 +438,6 @@ it('isSameBranch util returns expected result', () => {
 });
 
 describe('tutorials', () => {
-  beforeEach(() => {
-    jest.useFakeTimers({ advanceTimers: true });
-  });
-  afterEach(() => {
-    jest.runOnlyPendingTimers();
-    jest.useRealTimers();
-  });
-
   it('should redirect to project main branch dashboard from tutorials when receiving new related scan report', async () => {
     const componentKey = 'foo-component';
     jest.mocked(getComponentData).mockResolvedValue({
@@ -473,13 +468,16 @@ describe('tutorials', () => {
       '/',
     );
 
+    jest.useFakeTimers();
+
     await waitFor(() => expect(getTasksForComponent).toHaveBeenCalledTimes(1));
+    expect(mockedReplace).not.toHaveBeenCalled();
 
     jest.runOnlyPendingTimers();
+    jest.useRealTimers();
 
-    expect(mockedReplace).not.toHaveBeenCalled();
     await waitFor(() => expect(getTasksForComponent).toHaveBeenCalledTimes(2));
-    await waitFor(() => expect(mockedReplace).toHaveBeenCalledWith(getProjectUrl(componentKey)));
+    expect(mockedReplace).toHaveBeenCalledWith(getProjectUrl(componentKey));
   });
 
   it('should redirect to project branch dashboard from tutorials when receiving new related scan report', async () => {
@@ -513,15 +511,16 @@ describe('tutorials', () => {
       '/',
     );
 
+    jest.useFakeTimers();
+
     await waitFor(() => expect(getTasksForComponent).toHaveBeenCalledTimes(1));
+    expect(mockedReplace).not.toHaveBeenCalled();
 
     jest.runOnlyPendingTimers();
+    jest.useRealTimers();
 
-    expect(mockedReplace).not.toHaveBeenCalled();
     await waitFor(() => expect(getTasksForComponent).toHaveBeenCalledTimes(2));
-    await waitFor(() =>
-      expect(mockedReplace).toHaveBeenCalledWith(getProjectUrl(componentKey, branchName)),
-    );
+    expect(mockedReplace).toHaveBeenCalledWith(getProjectUrl(componentKey, branchName));
   });
 
   it('should redirect to project pull request dashboard from tutorials when receiving new related scan report', async () => {
@@ -557,15 +556,16 @@ describe('tutorials', () => {
       '/',
     );
 
+    jest.useFakeTimers();
+
     await waitFor(() => expect(getTasksForComponent).toHaveBeenCalledTimes(1));
+    expect(mockedReplace).not.toHaveBeenCalled();
 
     jest.runOnlyPendingTimers();
+    jest.useRealTimers();
 
-    expect(mockedReplace).not.toHaveBeenCalled();
     await waitFor(() => expect(getTasksForComponent).toHaveBeenCalledTimes(2));
-    await waitFor(() =>
-      expect(mockedReplace).toHaveBeenCalledWith(getPullRequestUrl(componentKey, pullRequestKey)),
-    );
+    expect(mockedReplace).toHaveBeenCalledWith(getPullRequestUrl(componentKey, pullRequestKey));
   });
 });
 
