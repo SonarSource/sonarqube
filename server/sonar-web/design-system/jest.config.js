@@ -48,7 +48,10 @@ module.exports = {
     '<rootDir>/config/jest/SetupTestEnvironment.js',
     '<rootDir>/config/jest/SetupTheme.js',
   ],
-  setupFilesAfterEnv: ['<rootDir>/config/jest/SetupReactTestingLibrary.ts'],
+  setupFilesAfterEnv: [
+    '<rootDir>/config/jest/SetupReactTestingLibrary.ts',
+    '<rootDir>/../config/jest/SetupFailOnConsole.ts',
+  ],
   snapshotSerializers: ['@emotion/jest/serializer'],
   testEnvironment: 'jsdom',
   testPathIgnorePatterns: [

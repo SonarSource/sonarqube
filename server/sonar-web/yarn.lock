@@ -5486,6 +5486,7 @@ __metadata:
     jest: "npm:29.7.0"
     jest-axe: "npm:8.0.0"
     jest-environment-jsdom: "npm:29.7.0"
+    jest-fail-on-console: "npm:3.1.2"
     jest-junit: "npm:16.0.0"
     jest-slow-test-reporter: "npm:1.0.0"
     jsdom: "npm:24.0.0"
@@ -10436,6 +10437,13 @@ __metadata:
     jest-mock: "npm:^29.7.0"
     jest-util: "npm:^29.7.0"
   checksum: 10/9cf7045adf2307cc93aed2f8488942e39388bff47ec1df149a997c6f714bfc66b2056768973770d3f8b1bf47396c19aa564877eb10ec978b952c6018ed1bd637
+  languageName: node
+  linkType: hard
+
+"jest-fail-on-console@npm:3.1.2":
+  version: 3.1.2
+  resolution: "jest-fail-on-console@npm:3.1.2"
+  checksum: 10/6f47a36cd9481121302660dbf29a6ce2443d0c2ad6ad872ee509fc538d674cdaa217f9bd041ce3771c1d8fda081ddcd85221027bbe6c9d2681cdae9d0922d329
   languageName: node
   linkType: hard
 
