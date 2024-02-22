@@ -24,10 +24,10 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 import org.apache.commons.io.FileUtils;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.api.io.TempDir;
 import org.sonar.api.utils.MessageException;
 import org.sonar.scanner.mediumtest.ScannerMediumTester;
 import org.sonar.xoo.XooPlugin;
@@ -35,13 +35,13 @@ import org.sonar.xoo.rule.XooRulesDefinition;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-public class DeprecatedBranchMediumIT {
+class DeprecatedBranchMediumIT {
 
-  @Rule
-  public TemporaryFolder temp = new TemporaryFolder();
+  @TempDir
+  private File temp;
 
-  @Rule
-  public ScannerMediumTester tester = new ScannerMediumTester()
+  @RegisterExtension
+  private final ScannerMediumTester tester = new ScannerMediumTester()
     .registerPlugin("xoo", new XooPlugin())
     .addRules(new XooRulesDefinition())
     // active a rule just to be sure that xoo files are published
@@ -52,9 +52,9 @@ public class DeprecatedBranchMediumIT {
 
   private Map<String, String> commonProps;
 
-  @Before
-  public void prepare() {
-    baseDir = temp.getRoot();
+  @BeforeEach
+  void prepare() {
+    baseDir = temp;
 
     commonProps = ImmutableMap.<String, String>builder()
       .put("sonar.task", "scan")
@@ -68,7 +68,7 @@ public class DeprecatedBranchMediumIT {
   }
 
   @Test
-  public void scanProjectWithBranch() throws IOException {
+  void scanProjectWithBranch() throws IOException {
     File srcDir = new File(baseDir, "src");
     srcDir.mkdir();
 

@@ -24,13 +24,13 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import org.apache.commons.io.FileUtils;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.api.io.TempDir;
 import org.slf4j.event.Level;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.testfixtures.log.LogTester;
+import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.scanner.mediumtest.AnalysisResult;
 import org.sonar.scanner.mediumtest.ScannerMediumTester;
 import org.sonar.scanner.protocol.output.ScannerReport;
@@ -39,28 +39,28 @@ import org.sonar.xoo.XooPlugin;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.tuple;
 
-public class CoverageMediumIT {
+class CoverageMediumIT {
 
-  @Rule
-  public LogTester logTester = new LogTester();
+  @RegisterExtension
+  private final LogTesterJUnit5 logTester = new LogTesterJUnit5();
 
-  @Rule
-  public TemporaryFolder temp = new TemporaryFolder();
+  @TempDir
+  private File temp;
 
-  @Rule
-  public ScannerMediumTester tester = new ScannerMediumTester()
+  @RegisterExtension
+  private final ScannerMediumTester tester = new ScannerMediumTester()
     .registerPlugin("xoo", new XooPlugin())
     .addDefaultQProfile("xoo", "Sonar Way");
 
-  @Before
-  public void prepare() throws IOException {
+  @BeforeEach
+  void prepare() throws IOException {
     logTester.setLevel(Level.DEBUG);
   }
 
   @Test
-  public void singleReport() throws IOException {
+  void singleReport() throws IOException {
 
-    File baseDir = temp.getRoot();
+    File baseDir = temp;
     File srcDir = new File(baseDir, "src");
     srcDir.mkdir();
 
@@ -84,9 +84,9 @@ public class CoverageMediumIT {
   }
 
   @Test
-  public void twoReports() throws IOException {
+  void twoReports() throws IOException {
 
-    File baseDir = temp.getRoot();
+    File baseDir = temp;
     File srcDir = new File(baseDir, "src");
     srcDir.mkdir();
 
@@ -113,9 +113,9 @@ public class CoverageMediumIT {
   }
 
   @Test
-  public void exclusionsForSimpleProject() throws IOException {
+  void exclusionsForSimpleProject() throws IOException {
 
-    File baseDir = temp.getRoot();
+    File baseDir = temp;
     File srcDir = new File(baseDir, "src");
     srcDir.mkdir();
 
@@ -138,9 +138,9 @@ public class CoverageMediumIT {
   }
 
   @Test
-  public void warn_user_for_outdated_inherited_scanner_side_exclusions_for_multi_module_project() throws IOException {
+  void warn_user_for_outdated_inherited_scanner_side_exclusions_for_multi_module_project() throws IOException {
 
-    File baseDir = temp.getRoot();
+    File baseDir = temp;
     File baseDirModuleA = new File(baseDir, "moduleA");
     File baseDirModuleB = new File(baseDir, "moduleB");
     File srcDirA = new File(baseDirModuleA, "src");
@@ -179,9 +179,9 @@ public class CoverageMediumIT {
   }
 
   @Test
-  public void module_level_exclusions_override_parent_for_multi_module_project() throws IOException {
+  void module_level_exclusions_override_parent_for_multi_module_project() throws IOException {
 
-    File baseDir = temp.getRoot();
+    File baseDir = temp;
     File baseDirModuleA = new File(baseDir, "moduleA");
     File baseDirModuleB = new File(baseDir, "moduleB");
     File srcDirA = new File(baseDirModuleA, "src");
@@ -218,9 +218,9 @@ public class CoverageMediumIT {
   }
 
   @Test
-  public void warn_user_for_outdated_server_side_exclusions_for_multi_module_project() throws IOException {
+  void warn_user_for_outdated_server_side_exclusions_for_multi_module_project() throws IOException {
 
-    File baseDir = temp.getRoot();
+    File baseDir = temp;
     File baseDirModuleA = new File(baseDir, "moduleA");
     File baseDirModuleB = new File(baseDir, "moduleB");
     File srcDirA = new File(baseDirModuleA, "src");
@@ -260,9 +260,9 @@ public class CoverageMediumIT {
   }
 
   @Test
-  public void fallbackOnExecutableLines() throws IOException {
+  void fallbackOnExecutableLines() throws IOException {
 
-    File baseDir = temp.getRoot();
+    File baseDir = temp;
     File srcDir = new File(baseDir, "src");
     srcDir.mkdir();
 
@@ -296,9 +296,9 @@ public class CoverageMediumIT {
 
   // SONAR-11641
   @Test
-  public void dontFallbackOnExecutableLinesIfNoCoverageSaved() throws IOException {
+  void dontFallbackOnExecutableLinesIfNoCoverageSaved() throws IOException {
 
-    File baseDir = temp.getRoot();
+    File baseDir = temp;
     File srcDir = new File(baseDir, "src");
     srcDir.mkdir();
 
@@ -327,9 +327,9 @@ public class CoverageMediumIT {
 
   // SONAR-9557
   @Test
-  public void exclusionsAndForceToZeroOnModules() throws IOException {
+  void exclusionsAndForceToZeroOnModules() throws IOException {
 
-    File baseDir = temp.getRoot();
+    File baseDir = temp;
     File srcDir = new File(baseDir, "module1/src");
     srcDir.mkdir();
 

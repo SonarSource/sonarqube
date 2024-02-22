@@ -40,6 +40,9 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import javax.annotation.Priority;
 import org.apache.commons.io.FileUtils;
+import org.junit.jupiter.api.extension.AfterTestExecutionCallback;
+import org.junit.jupiter.api.extension.BeforeTestExecutionCallback;
+import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.rules.ExternalResource;
 import org.sonar.api.Plugin;
 import org.sonar.api.SonarEdition;
@@ -88,7 +91,7 @@ import static java.util.Collections.emptySet;
 /**
  * Main utility class for writing scanner medium tests.
  */
-public class ScannerMediumTester extends ExternalResource {
+public class ScannerMediumTester extends ExternalResource implements BeforeTestExecutionCallback, AfterTestExecutionCallback {
 
   private static Path userHome = null;
   private final Map<String, String> globalProperties = new HashMap<>();
@@ -246,6 +249,16 @@ public class ScannerMediumTester extends ExternalResource {
   }
 
   @Override
+  public void afterTestExecution(ExtensionContext extensionContext) {
+    after();
+  }
+
+  @Override
+  public void beforeTestExecution(ExtensionContext extensionContext) {
+    before();
+  }
+
+  @Override
   protected void before() {
     try {
       createWorkingDirs();
@@ -266,6 +279,7 @@ public class ScannerMediumTester extends ExternalResource {
       throw new IllegalStateException(e);
     }
   }
+
 
   public AnalysisBuilder newAnalysis() {
     return new AnalysisBuilder(this);

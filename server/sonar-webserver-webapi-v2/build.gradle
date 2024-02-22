@@ -16,6 +16,7 @@ dependencies {
     api project(':server:sonar-webserver-common')
 
     testImplementation 'javax.servlet:javax.servlet-api'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api'
     testImplementation 'org.mockito:mockito-core'
     testImplementation 'org.skyscreamer:jsonassert:1.5.1'
     testImplementation 'org.sonarsource.api.plugin:sonar-plugin-api-test-fixtures'
@@ -28,5 +29,11 @@ dependencies {
     testFixturesApi 'org.springframework:spring-test'
 
     testRuntimeOnly 'org.apache.logging.log4j:log4j-core'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+    testRuntimeOnly 'org.junit.vintage:junit-vintage-engine'
 }
 
+test {
+    // Enabling the JUnit Platform (see https://github.com/junit-team/junit5-samples/tree/master/junit5-migration-gradle)
+    useJUnitPlatform()
+}

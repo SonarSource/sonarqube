@@ -33,14 +33,11 @@ import java.util.Properties;
 import java.util.zip.GZIPOutputStream;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.DisableOnDebug;
-import org.junit.rules.TemporaryFolder;
-import org.junit.rules.TestRule;
-import org.junit.rules.Timeout;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
+import org.junit.jupiter.api.io.TempDir;
 import org.simpleframework.http.Request;
 import org.simpleframework.http.Response;
 import org.simpleframework.http.core.Container;
@@ -57,19 +54,16 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.utils.HttpDownloader.HttpException;
 
-public class DefaultHttpDownloaderIT {
+class DefaultHttpDownloaderIT {
 
-  @Rule
-  public TemporaryFolder temporaryFolder = new TemporaryFolder();
-
-  @Rule
-  public TestRule safeguardTimeout = new DisableOnDebug(Timeout.seconds(60));
+  @TempDir
+  private File temporaryFolder;
 
   private static SocketConnection socketConnection;
   private static String baseUrl;
 
-  @BeforeClass
-  public static void startServer() throws IOException {
+  @BeforeAll
+  static void startServer() throws IOException {
     socketConnection = new SocketConnection(new ContainerServer(new Container() {
       public void handle(Request req, Response resp) {
         try {
@@ -116,15 +110,17 @@ public class DefaultHttpDownloaderIT {
     resp.getPrintStream().append("agent=" + req.getValues("User-Agent").get(0));
   }
 
-  @AfterClass
-  public static void stopServer() throws IOException {
+  @AfterAll
+  static void stopServer() throws IOException {
     if (null != socketConnection) {
       socketConnection.close();
     }
   }
 
-  @Test(timeout = 10000)
-  public void openStream_network_errors() throws IOException, URISyntaxException {
+  @Test
+  // To disable the timeout in debug mode, run the test with -Djunit.jupiter.execution.timeout.mode=disabled_on_debug
+  @Timeout(10)
+  void openStream_network_errors() throws IOException, URISyntaxException {
     // host not accepting connections
     String url = "http://127.0.0.1:1";
 
@@ -146,33 +142,32 @@ public class DefaultHttpDownloaderIT {
   }
 
   @Test
-  public void downloadBytes() throws URISyntaxException {
+  void downloadBytes() throws URISyntaxException {
     byte[] bytes = new DefaultHttpDownloader(mock(Server.class), new MapSettings().asConfig()).readBytes(new URI(baseUrl));
     assertThat(bytes).hasSizeGreaterThan(10);
   }
 
   @Test
-  public void readString() throws URISyntaxException {
+  void readString() throws URISyntaxException {
     String text = new DefaultHttpDownloader(mock(Server.class), new MapSettings().asConfig()).readString(new URI(baseUrl), StandardCharsets.UTF_8);
     assertThat(text.length()).isGreaterThan(10);
   }
 
   @Test
-  public void readGzipString() throws URISyntaxException {
+  void readGzipString() throws URISyntaxException {
     String text = new DefaultHttpDownloader(mock(Server.class), new MapSettings().asConfig()).readString(new URI(baseUrl + "/gzip/"), StandardCharsets.UTF_8);
     assertThat(text).isEqualTo("GZIP response");
   }
 
   @Test
-  public void readStringWithDefaultTimeout() throws URISyntaxException {
+  void readStringWithDefaultTimeout() throws URISyntaxException {
     String text = new DefaultHttpDownloader(mock(Server.class), new MapSettings().asConfig()).readString(new URI(baseUrl + "/timeout/"), StandardCharsets.UTF_8);
     assertThat(text.length()).isGreaterThan(10);
   }
 
   @Test
-  public void downloadToFile() throws URISyntaxException, IOException {
-    File toDir = temporaryFolder.newFolder();
-    File toFile = new File(toDir, "downloadToFile.txt");
+  void downloadToFile() throws URISyntaxException, IOException {
+    File toFile = new File(temporaryFolder, "downloadToFile.txt");
 
     new DefaultHttpDownloader(mock(Server.class), new MapSettings().asConfig()).download(new URI(baseUrl), toFile);
     assertThat(toFile).exists();
@@ -180,9 +175,8 @@ public class DefaultHttpDownloaderIT {
   }
 
   @Test
-  public void shouldNotCreateFileIfFailToDownload() throws Exception {
-    File toDir = temporaryFolder.newFolder();
-    File toFile = new File(toDir, "downloadToFile.txt");
+  void shouldNotCreateFileIfFailToDownload() throws Exception {
+    File toFile = new File(temporaryFolder, "downloadToFile.txt");
 
     try {
       new DefaultHttpDownloader(mock(Server.class), new MapSettings().asConfig()).download(new URI("http://localhost:1"), toFile);
@@ -192,7 +186,7 @@ public class DefaultHttpDownloaderIT {
   }
 
   @Test
-  public void userAgent_includes_version_and_SERVER_ID_when_server_is_provided() throws URISyntaxException, IOException {
+  void userAgent_includes_version_and_SERVER_ID_when_server_is_provided() throws URISyntaxException, IOException {
     Server server = mock(Server.class);
     when(server.getVersion()).thenReturn("2.2");
     MapSettings settings = new MapSettings();
@@ -207,7 +201,7 @@ public class DefaultHttpDownloaderIT {
   }
 
   @Test
-  public void userAgent_includes_only_version_when_there_is_no_SERVER_ID_and_server_is_provided() throws URISyntaxException, IOException {
+  void userAgent_includes_only_version_when_there_is_no_SERVER_ID_and_server_is_provided() throws URISyntaxException, IOException {
     Server server = mock(Server.class);
     when(server.getVersion()).thenReturn("2.2");
 
@@ -220,24 +214,24 @@ public class DefaultHttpDownloaderIT {
   }
 
   @Test
-  public void followRedirect() throws URISyntaxException {
+  void followRedirect() throws URISyntaxException {
     String content = new DefaultHttpDownloader(mock(Server.class), new MapSettings().asConfig()).readString(new URI(baseUrl + "/redirect/"), StandardCharsets.UTF_8);
     assertThat(content).isEqualTo("redirected");
   }
 
   @Test
-  public void supported_schemes() {
+  void supported_schemes() {
     assertThat(new DefaultHttpDownloader(mock(Server.class), new MapSettings().asConfig()).getSupportedSchemes()).contains("http");
   }
 
   @Test
-  public void uri_description() throws URISyntaxException {
+  void uri_description() throws URISyntaxException {
     String description = new DefaultHttpDownloader(mock(Server.class), new MapSettings().asConfig()).description(new URI("http://sonarsource.org"));
     assertThat(description).isEqualTo("http://sonarsource.org");
   }
 
   @Test
-  public void readBytes_whenServerReturnsError_shouldThrow() throws URISyntaxException {
+  void readBytes_whenServerReturnsError_shouldThrow() throws URISyntaxException {
     DefaultHttpDownloader downloader = new DefaultHttpDownloader(mock(Server.class), new MapSettings().asConfig());
     URI errorUri = new URI(baseUrl + "/error");
     assertThatThrownBy(() -> downloader.readBytes(errorUri)).isInstanceOf(HttpException.class).hasMessage("Fail to download [" + errorUri + "]. Response code: 500");

@@ -51,11 +51,12 @@ dependencies {
   testImplementation project(':sonar-testing-harness')
   testFixturesApi testFixtures(project(':server:sonar-db-dao'))
 
+  testFixturesImplementation 'org.junit.jupiter:junit-jupiter-api'
+
   testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
   testRuntimeOnly 'org.junit.vintage:junit-vintage-engine'
-
-  test {
-    // Enabling the JUnit Platform (see https://github.com/junit-team/junit5-samples/tree/master/junit5-migration-gradle)
-    useJUnitPlatform()
-  }
+}
+test {
+  // Enabling the JUnit Platform (see https://github.com/junit-team/junit5-samples/tree/master/junit5-migration-gradle)
+  useJUnitPlatform()
 }

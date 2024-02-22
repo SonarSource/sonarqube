@@ -34,6 +34,7 @@ dependencies {
   testImplementation 'com.google.code.findbugs:jsr305'
   testImplementation 'com.tngtech.java:junit-dataprovider'
   testImplementation 'javax.servlet:javax.servlet-api'
+  testImplementation 'org.junit.jupiter:junit-jupiter-api'
   testImplementation 'org.mockito:mockito-core'
   testImplementation 'org.sonarsource.api.plugin:sonar-plugin-api-test-fixtures'
   testImplementation testFixtures(project(':server:sonar-server-common'))
@@ -42,4 +43,12 @@ dependencies {
   testFixturesApi 'junit:junit'
 
   testFixturesCompileOnly 'com.google.code.findbugs:jsr305'
+
+  testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+  testRuntimeOnly 'org.junit.vintage:junit-vintage-engine'
+}
+
+test {
+  // Enabling the JUnit Platform (see https://github.com/junit-team/junit5-samples/tree/master/junit5-migration-gradle)
+  useJUnitPlatform()
 }

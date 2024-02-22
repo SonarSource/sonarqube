@@ -50,7 +50,16 @@ dependencies {
   testImplementation 'org.assertj:assertj-core'
   testImplementation 'org.assertj:assertj-guava'
   testImplementation 'org.hamcrest:hamcrest-all'
+  testImplementation 'org.junit.jupiter:junit-jupiter-api'
   testImplementation 'org.mockito:mockito-core'
   testImplementation project(':sonar-plugin-api-impl')
   testImplementation testFixtures(project(':server:sonar-server-common'))
+
+  testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+  testRuntimeOnly 'org.junit.vintage:junit-vintage-engine'
+}
+
+test {
+  // Enabling the JUnit Platform (see https://github.com/junit-team/junit5-samples/tree/master/junit5-migration-gradle)
+  useJUnitPlatform()
 }

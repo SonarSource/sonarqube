@@ -27,15 +27,15 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import org.apache.commons.io.FileUtils;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.api.io.TempDir;
 import org.slf4j.event.Level;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.FileMetadata;
 import org.sonar.api.notifications.AnalysisWarnings;
-import org.sonar.api.testfixtures.log.LogTester;
+import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.scanner.mediumtest.AnalysisResult;
 import org.sonar.scanner.mediumtest.ScannerMediumTester;
 import org.sonar.scanner.protocol.output.ScannerReport;
@@ -48,31 +48,31 @@ import org.sonarqube.ws.NewCodePeriods;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
-public class BranchMediumIT {
+class BranchMediumIT {
 
   private static final String PROJECT_KEY = "sample";
   private static final String FILE_PATH = "HelloJava.xoo";
   private static final String FILE_CONTENT = "xoooo";
-  public static final String ONE_ISSUE_PER_LINE_IS_RESTRICTED_TO_CHANGED_FILES_ONLY = "Sensor One Issue Per Line is restricted to changed files only";
+  private static final String ONE_ISSUE_PER_LINE_IS_RESTRICTED_TO_CHANGED_FILES_ONLY = "Sensor One Issue Per Line is restricted to changed files only";
   private File baseDir;
 
-  @Rule
-  public TemporaryFolder temp = new TemporaryFolder();
+  @TempDir
+  public File temp;
 
-  @Rule
-  public LogTester logTester = new LogTester();
+  @RegisterExtension
+  public LogTesterJUnit5 logTester = new LogTesterJUnit5();
 
-  @Rule
+  @RegisterExtension
   public ScannerMediumTester tester = new ScannerMediumTester()
     .registerPlugin("xoo", new XooPlugin())
     .addDefaultQProfile("xoo", "Sonar Way")
     .addRules(new XooRulesDefinition())
     .addActiveRule("xoo", "OneIssuePerLine", null, "One issue per line", "MAJOR", "OneIssuePerLine.internal", "xoo");
 
-  @Before
-  public void prepare() throws IOException {
+  @BeforeEach
+  void prepare() throws IOException {
     logTester.setLevel(Level.DEBUG);
-    baseDir = temp.newFolder();
+    baseDir = temp;
     Path filepath = baseDir.toPath().resolve(FILE_PATH);
     Files.write(filepath, FILE_CONTENT.getBytes());
 
@@ -87,7 +87,7 @@ public class BranchMediumIT {
   }
 
   @Test
-  public void should_not_skip_report_for_unchanged_files_in_pr() {
+  void should_not_skip_report_for_unchanged_files_in_pr() {
     // sanity check, normally report gets generated
     AnalysisResult result = getResult(tester);
     final DefaultInputFile file = (DefaultInputFile) result.inputFile(FILE_PATH);
@@ -108,7 +108,7 @@ public class BranchMediumIT {
   }
 
   @Test
-  public void shouldSkipSensorForUnchangedFilesOnPr() {
+  void shouldSkipSensorForUnchangedFilesOnPr() {
     AnalysisResult result = getResult(tester
             .setBranchName("myBranch")
             .setBranchTarget("main")
@@ -122,7 +122,7 @@ public class BranchMediumIT {
   }
 
   @Test
-  public void shouldNotSkipSensorForUnchangedFilesOnBranch() throws Exception {
+  void shouldNotSkipSensorForUnchangedFilesOnBranch() throws Exception {
     AnalysisResult result = getResult(tester
             .setBranchName("myBranch")
             .setBranchTarget("main")
@@ -136,7 +136,7 @@ public class BranchMediumIT {
   }
 
   @Test
-  public void verify_metadata() {
+  void verify_metadata() {
     String branchName = "feature";
     String branchTarget = "branch-1.x";
 

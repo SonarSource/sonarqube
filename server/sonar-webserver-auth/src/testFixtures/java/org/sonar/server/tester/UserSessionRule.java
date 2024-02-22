@@ -25,6 +25,9 @@ import java.util.List;
 import java.util.Optional;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.junit.jupiter.api.extension.AfterTestExecutionCallback;
+import org.junit.jupiter.api.extension.BeforeTestExecutionCallback;
+import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
@@ -78,7 +81,7 @@ import static com.google.common.base.Preconditions.checkState;
  * (use the latest override if you don't care about the actual value of the login, it will save noise in your test).
  * </p>
  */
-public class UserSessionRule implements TestRule, UserSession {
+public class UserSessionRule implements TestRule, UserSession, BeforeTestExecutionCallback, AfterTestExecutionCallback {
   private static final String DEFAULT_LOGIN = "default_login";
 
   private AbstractMockUserSession<?> currentUserSession;
@@ -168,6 +171,16 @@ public class UserSessionRule implements TestRule, UserSession {
 
   protected void after() {
     this.currentUserSession = null;
+  }
+
+  @Override
+  public void beforeTestExecution(ExtensionContext context) {
+    before();
+  }
+
+  @Override
+  public void afterTestExecution(ExtensionContext context) {
+    after();
   }
 
   public void set(AbstractMockUserSession<?> userSession) {
