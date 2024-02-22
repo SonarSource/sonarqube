@@ -99,19 +99,9 @@ it('renders and behaves as expected', async () => {
   expect(ui.saveButton.get()).toBeDisabled();
 });
 
-it('displays information message when NCD is automatically updated', async () => {
-  newCodeMock.setNewCodePeriod({
-    type: NewCodeDefinitionType.NumberOfDays,
-    value: '90',
-    previousNonCompliantValue: '120',
-    updatedAt: 1692279521904,
-  });
-  renderNewCodePeriod();
+it('displays & dismisses information message when NCD is automatically updated', async () => {
+  const assertError = spyOnLogError();
 
-  expect(await ui.ncdAutoUpdateMessage.find()).toBeVisible();
-});
-
-it('dismisses information message when NCD is automatically updated', async () => {
   newCodeMock.setNewCodePeriod({
     type: NewCodeDefinitionType.NumberOfDays,
     value: '90',
@@ -126,6 +116,8 @@ it('dismisses information message when NCD is automatically updated', async () =
   await user.click(ui.ncdAutoUpdateMessageDismiss.get());
 
   expect(ui.ncdAutoUpdateMessage.query()).not.toBeInTheDocument();
+
+  assertError();
 });
 
 it('does not display information message when NCD is automatically updated if message is already dismissed', () => {
@@ -140,6 +132,22 @@ it('does not display information message when NCD is automatically updated if me
 
   expect(ui.ncdAutoUpdateMessage.query()).not.toBeInTheDocument();
 });
+
+function spyOnLogError() {
+  const errorSpy = jest.spyOn(console, 'error').mockImplementationOnce(() => {});
+
+  return () => {
+    // There is an issue with the design of NewCodeDefinitionDaysOption that causes a domNesting error
+    // this is valid and has to be fixed, but this is not the purpose of this test
+    expect(errorSpy).toHaveBeenCalledTimes(1);
+    expect(errorSpy.mock.calls[0][0]).toBe(
+      'Warning: validateDOMNesting(...): %s cannot appear as a descendant of <%s>.%s',
+    );
+    expect(errorSpy.mock.calls[0][1]).toBe('<button>');
+    expect(errorSpy.mock.calls[0][2]).toBe('button');
+    errorSpy.mockRestore();
+  };
+}
 
 function renderNewCodePeriod() {
   return renderComponent(<NewCodeDefinition />);

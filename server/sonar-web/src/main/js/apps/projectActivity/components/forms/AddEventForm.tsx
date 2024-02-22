@@ -40,7 +40,8 @@ export default class AddEventForm extends React.PureComponent<Props, State> {
     this.setState({ name: event.target.value });
   };
 
-  handleSubmit = () => {
+  handleSubmit = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
     this.props.addEvent(this.props.analysis.key, this.state.name);
     this.props.onClose();
   };

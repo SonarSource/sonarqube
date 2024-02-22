@@ -43,7 +43,8 @@ export default class ChangeEventForm extends React.PureComponent<Props, State> {
     this.setState({ name: event.target.value });
   };
 
-  handleSubmit = () => {
+  handleSubmit = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
     this.props.changeEvent(this.props.event.key, this.state.name);
     this.props.onClose();
   };
