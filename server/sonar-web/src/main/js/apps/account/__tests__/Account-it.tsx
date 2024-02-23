@@ -401,9 +401,9 @@ describe('security page', () => {
       securityPagePath,
     );
 
-    await waitFor(() => {
-      selectEvent.openMenu(screen.getByRole('combobox', { name: 'users.tokens.type' }));
-    });
+    expect(await screen.findByText('users.tokens.generate')).toBeInTheDocument();
+
+    await selectEvent.openMenu(screen.getByRole('combobox', { name: 'users.tokens.type' }));
     expect(screen.queryByText(`users.tokens.${TokenType.Project}`)).not.toBeInTheDocument();
   });
 
@@ -430,12 +430,10 @@ describe('security page', () => {
       mockLoggedInUser({ permissions: { global: [Permissions.Scan] } }),
       securityPagePath,
     );
-
-    await waitFor(async () => {
-      await selectEvent.select(screen.getByRole('combobox', { name: 'users.tokens.type' }), [
-        `users.tokens.${TokenType.Project}`,
-      ]);
-    });
+    expect(await screen.findByText('users.tokens.generate')).toBeInTheDocument();
+    await selectEvent.select(screen.getByRole('combobox', { name: 'users.tokens.type' }), [
+      `users.tokens.${TokenType.Project}`,
+    ]);
 
     expect(screen.getByText('Project Name 1')).toBeInTheDocument();
   });

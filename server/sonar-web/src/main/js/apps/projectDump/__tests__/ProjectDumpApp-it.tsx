@@ -114,9 +114,7 @@ it('should show pending->in progress->failed export', async () => {
     status: TaskStatuses.InProgress,
     startedAt: '2023-06-08T12:00:00Z',
   });
-  act(() => {
-    jest.runOnlyPendingTimers();
-  });
+  jest.runOnlyPendingTimers();
   expect(await ui.inProgressExport.find()).toBeInTheDocument();
   expect(ui.exportBtn.query()).not.toBeInTheDocument();
 
@@ -164,9 +162,7 @@ it('should show pending->in progress->failed import', async () => {
     status: TaskStatuses.InProgress,
     startedAt: '2023-06-08T12:00:00Z',
   });
-  act(() => {
-    jest.runOnlyPendingTimers();
-  });
+  jest.runOnlyPendingTimers();
   expect(await ui.inProgressImport.find()).toBeInTheDocument();
   expect(ui.importBtn.query()).not.toBeInTheDocument();
 
