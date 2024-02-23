@@ -22,7 +22,7 @@ import userEvent from '@testing-library/user-event';
 import * as React from 'react';
 import { mockFlowLocation, mockIssue, mockPaging } from '../../../../helpers/testMocks';
 import { renderComponent } from '../../../../helpers/testReactTestingUtils';
-import { byRole, byText } from '../../../../helpers/testSelector';
+import { byRole } from '../../../../helpers/testSelector';
 import { ComponentPropsType } from '../../../../helpers/testUtils';
 import { FlowType, Issue } from '../../../../types/types';
 import { VISIBLE_LOCATIONS_COLLAPSE } from '../IssueLocationsCrossFile';
@@ -228,7 +228,7 @@ describe('interacting', () => {
 function getPageObject() {
   const selectors = {
     headerBackButton: byRole('link', { name: 'issues.return_to_list' }),
-    expandBadgesButton: byText(/issues.show_x_more_locations.\d/),
+    expandBadgesButton: byRole('button', { name: /issues.show_x_more_locations.\d/ }),
   };
   const user = userEvent.setup();
   const ui = {

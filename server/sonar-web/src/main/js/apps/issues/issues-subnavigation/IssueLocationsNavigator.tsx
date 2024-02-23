@@ -17,7 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { DiscreetLink, ExecutionFlowAccordion, SubnavigationFlowSeparator } from 'design-system';
+import styled from '@emotion/styled';
+import {
+  BareButton,
+  ExecutionFlowAccordion,
+  SubnavigationFlowSeparator,
+  themeBorder,
+} from 'design-system';
 import React, { Fragment, useCallback, useRef } from 'react';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { Flow, FlowType, Issue } from '../../../types/types';
@@ -36,7 +42,7 @@ interface Props {
   selectedLocationIndex: number | undefined;
 }
 
-export default function IssueLocationsNavigator(props: Props) {
+export default function IssueLocationsNavigator(props: Readonly<Props>) {
   const { issue, onFlowSelect, onLocationSelect, selectedFlowIndex, selectedLocationIndex } = props;
   const accordionElement = useRef<HTMLDivElement | null>(null);
   const hasFlows =
@@ -133,18 +139,16 @@ export default function IssueLocationsNavigator(props: Props) {
                 flow.type === FlowType.EXECUTION &&
                 hasFlowsWithType && (
                   <div>
-                    <DiscreetLink
+                    <StyledBareButton
                       onClick={() => {
                         handleAccordionClick(index);
                       }}
-                      preventDefault
-                      to="{{}}"
                     >
                       {translateWithParameters(
                         'issue.show_full_execution_flow',
                         flow.locations.length,
                       )}
-                    </DiscreetLink>
+                    </StyledBareButton>
                   </div>
                 )}
             </Fragment>
@@ -165,3 +169,7 @@ function getExecutionFlowLabel(flow: Flow, hasFlowsWithType: boolean) {
 
   return translate('issues.execution_flow');
 }
+
+const StyledBareButton = styled(BareButton)`
+  border-bottom: ${themeBorder('default', 'currentColor')};
+`;

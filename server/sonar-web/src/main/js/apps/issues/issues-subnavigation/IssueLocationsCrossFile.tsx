@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import styled from '@emotion/styled';
-import { DiscreetLink, themeBorder, themeContrast } from 'design-system';
+import { BareButton, themeBorder, themeContrast } from 'design-system';
 import React, { PureComponent } from 'react';
 import { translateWithParameters } from '../../../helpers/l10n';
 import { collapsePath } from '../../../helpers/path';
@@ -171,17 +171,12 @@ export default class IssueLocationsCrossFile extends PureComponent<Props, State>
         <div className="sw-flex sw-flex-col sw-gap-4">
           {this.renderGroup(firstGroup, 0, { onlyFirst: true })}
           <div>
-            <ExpandLink
-              blurAfterClick
-              onClick={this.handleMoreLocationsClick}
-              preventDefault
-              to={{}}
-            >
+            <ExpandButton onClick={this.handleMoreLocationsClick}>
               {translateWithParameters(
                 'issues.show_x_more_locations',
                 locations.length - VISIBLE_LOCATIONS_COLLAPSE,
               )}
-            </ExpandLink>
+            </ExpandButton>
           </div>
           {this.renderGroup(lastGroup, groups.length - 1, { onlyLast: true })}
         </div>
@@ -203,6 +198,7 @@ const ComponentName = styled.div`
   color: ${themeContrast('subnavigation')};
 `;
 
-const ExpandLink = styled(DiscreetLink)`
+const ExpandButton = styled(BareButton)`
   color: ${themeContrast('subnavigationSubheading')};
+  border-bottom: ${themeBorder('default', 'currentColor')};
 `;

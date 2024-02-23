@@ -35,7 +35,7 @@ interface Props {
   onClick?: () => void;
 }
 
-export function ExecutionFlowAccordion(props: Props) {
+export function ExecutionFlowAccordion(props: Readonly<Props>) {
   const { children, expanded, header, hidden, id, innerRef, onClick } = props;
 
   return (

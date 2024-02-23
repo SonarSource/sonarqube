@@ -19,7 +19,7 @@
  */
 import styled from '@emotion/styled';
 import classNames from 'classnames';
-import { BaseLink, LocationMarker, StyledMarker, themeColor } from 'design-system';
+import { LocationMarker, StyledMarker, themeColor } from 'design-system';
 import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import { translate } from '../../../helpers/l10n';
 
@@ -31,7 +31,7 @@ interface Props {
   selected: boolean;
 }
 
-export default function IssueLocation(props: Props) {
+export default function IssueLocation(props: Readonly<Props>) {
   const { index, message, selected, concealed, onClick } = props;
   const node = useRef<HTMLElement | null>(null);
   const locationType = useMemo(() => getLocationType(message), [message]);
@@ -47,7 +47,7 @@ export default function IssueLocation(props: Props) {
   }, [selected]);
 
   const handleClick = useCallback(
-    (event: React.MouseEvent<HTMLAnchorElement>) => {
+    (event: React.MouseEvent<HTMLButtonElement>) => {
       event.preventDefault();
       onClick(index);
     },
@@ -55,12 +55,7 @@ export default function IssueLocation(props: Props) {
   );
 
   return (
-    <StyledLink
-      aria-label={normalizedMessage}
-      aria-current={selected}
-      onClick={handleClick}
-      to={{}}
-    >
+    <StyledButton aria-label={normalizedMessage} aria-current={selected} onClick={handleClick}>
       <StyledLocation
         className={classNames('sw-p-1 sw-rounded-1/2 sw-flex sw-gap-2 sw-body-sm', {
           selected,
@@ -81,7 +76,7 @@ export default function IssueLocation(props: Props) {
           </StyledLocationName>
         </span>
       </StyledLocation>
-    </StyledLink>
+    </StyledButton>
   );
 }
 
@@ -96,9 +91,10 @@ const StyledLocation = styled.div`
   }
 `;
 
-const StyledLink = styled(BaseLink)`
+const StyledButton = styled.button`
   color: ${themeColor('pageContent')};
   border: none;
+  background: none;
 `;
 
 const StyledLocationName = styled.span`

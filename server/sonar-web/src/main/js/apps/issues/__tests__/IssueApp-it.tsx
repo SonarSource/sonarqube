@@ -97,7 +97,7 @@ describe('issue app', () => {
     const dataFlowButton = await screen.findByRole('button', {
       name: 'issue.flow.x_steps.2 Backtracking 1',
     });
-    const exectionFlowButton = screen.getByRole('link', {
+    const exectionFlowButton = screen.getByRole('button', {
       name: 'issue.show_full_execution_flow.3',
     });
 
@@ -345,8 +345,8 @@ describe('issue app', () => {
 
     await user.click(await ui.issueItemAction4.find());
 
-    expect(screen.getByRole('link', { name: 'location 1' })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'location 2' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'location 1' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'location 2' })).toBeInTheDocument();
 
     // Select the "why is this an issue" tab
     await user.click(
@@ -359,7 +359,7 @@ describe('issue app', () => {
       }),
     ).toHaveAttribute('aria-current', 'false');
 
-    await user.click(screen.getByRole('link', { name: 'location 1' }));
+    await user.click(screen.getByRole('button', { name: 'location 1' }));
 
     expect(
       screen.queryByRole('tab', {
@@ -378,7 +378,7 @@ describe('issue app', () => {
       }),
     ).toHaveAttribute('aria-current', 'false');
 
-    await user.click(screen.getByRole('link', { name: 'location 1' }));
+    await user.click(screen.getByRole('button', { name: 'location 1' }));
 
     expect(
       screen.queryByRole('tab', {
