@@ -125,28 +125,30 @@ class CompositeBlameCommandIT {
     Path expectedBlameFiles = new File(Utils.class.getResource("expected-blame/" + expectedBlameFolder).toURI()).toPath();
     Map<Path, List<BlameLine>> expectedBlame = new HashMap<>();
 
-    List<Path> filesInExpectedBlameFolder = Files.walk(expectedBlameFiles).filter(Files::isRegularFile).toList();
-    for (Path expectedFileBlamePath : filesInExpectedBlameFolder) {
-      List<BlameLine> blameLines = new ArrayList<>();
-      List<String> expectedBlameStrings = Files.readAllLines(expectedFileBlamePath);
-      for (String line : expectedBlameStrings) {
-        String revision = line.substring(0, 40);
+    try (Stream<Path> files = Files.walk(expectedBlameFiles)) {
+      List<Path> filesInExpectedBlameFolder = files.filter(Files::isRegularFile).toList();
+      for (Path expectedFileBlamePath : filesInExpectedBlameFolder) {
+        List<BlameLine> blameLines = new ArrayList<>();
+        List<String> expectedBlameStrings = Files.readAllLines(expectedFileBlamePath);
+        for (String line : expectedBlameStrings) {
+          String revision = line.substring(0, 40);
 
-        int beginningEmail = line.indexOf("<") + 1, endEmail = line.indexOf(">");
-        String email = line.substring(beginningEmail, endEmail);
+          int beginningEmail = line.indexOf("<") + 1, endEmail = line.indexOf(">");
+          String email = line.substring(beginningEmail, endEmail);
 
-        int beginningDate = line.indexOf("2", endEmail), dateLength = 25;
-        String sDate = line.substring(beginningDate, beginningDate + dateLength);
-        Date parsedDate = new Date(OffsetDateTime.parse(sDate).toInstant().toEpochMilli());
+          int beginningDate = line.indexOf("2", endEmail), dateLength = 25;
+          String sDate = line.substring(beginningDate, beginningDate + dateLength);
+          Date parsedDate = new Date(OffsetDateTime.parse(sDate).toInstant().toEpochMilli());
 
-        BlameLine blameLine = new BlameLine()
-          .revision(revision)
-          .author(email)
-          .date(parsedDate);
+          BlameLine blameLine = new BlameLine()
+            .revision(revision)
+            .author(email)
+            .date(parsedDate);
 
-        blameLines.add(blameLine);
+          blameLines.add(blameLine);
+        }
+        expectedBlame.put(expectedBlameFiles.relativize(expectedFileBlamePath), blameLines);
       }
-      expectedBlame.put(expectedBlameFiles.relativize(expectedFileBlamePath), blameLines);
     }
     return expectedBlame;
   }
