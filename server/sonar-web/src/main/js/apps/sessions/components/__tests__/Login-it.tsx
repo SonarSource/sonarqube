@@ -101,11 +101,13 @@ it('should behave correctly', async () => {
   // Incorrect login.
   await user.type(loginField, 'janedoe');
   await user.type(passwordField, 'invalid');
+
+  // We are not waiting for async handler to be done, as we assert that button is disabled immediately after
+  user.click(submitButton);
   await waitFor(() => {
-    // Don't use userEvent.click() here. This allows us to more easily see the loading state changes.
-    submitButton.click();
-    expect(submitButton).toBeDisabled(); // Loading
+    expect(submitButton).toBeDisabled();
   });
+
   await waitFor(() => {
     expect(addGlobalErrorMessage).toHaveBeenCalledWith('login.authentication_failed');
   });

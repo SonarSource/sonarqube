@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { act, screen, waitFor } from '@testing-library/react';
+import { act, screen } from '@testing-library/react';
 import React from 'react';
 import { addGlobalErrorMessage, addGlobalSuccessMessage } from '../../../helpers/globalMessages';
 import { renderApp } from '../../../helpers/testReactTestingUtils';
@@ -32,19 +32,21 @@ it('should display messages', async () => {
   // we render anything, the GlobalMessageContainer is rendered independently from routing
   renderApp('sonarqube', <NullComponent />);
 
-  await waitFor(() => {
+  act(() => {
     addGlobalErrorMessage('This is an error');
     addGlobalSuccessMessage('This was a triumph!');
   });
-  expect(await screen.findByRole('alert')).toHaveTextContent('This is an error');
+
+  expect(screen.getByRole('alert')).toHaveTextContent('This is an error');
   expect(screen.getByRole('status')).toHaveTextContent('This was a triumph!');
 
   // No duplicate message
-  await waitFor(() => {
+  act(() => {
     addGlobalErrorMessage('This is an error');
   });
+
   expect(screen.getByRole('alert')).toHaveTextContent(/^This is an error$/);
-  await waitFor(() => {
+  act(() => {
     addGlobalSuccessMessage('This was a triumph!');
   });
   expect(await screen.findByRole('status')).toHaveTextContent(

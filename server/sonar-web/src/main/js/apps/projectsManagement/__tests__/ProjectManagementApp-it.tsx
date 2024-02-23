@@ -183,6 +183,9 @@ it('should filter projects', async () => {
   const user = userEvent.setup();
   renderProjectManagementApp();
   await waitFor(() => expect(ui.row.getAll()).toHaveLength(5));
+  // Should return Promise: (and same for all similar cases below)
+  // await waitFor(() => selectEvent.select(ui.visibilityFilter.get(), ‘visibility.public’));
+  // Can be fixed by migrating ProjectManagementApp to functional component
   await waitFor(() => {
     selectEvent.select(ui.visibilityFilter.get(), 'visibility.public');
   });
