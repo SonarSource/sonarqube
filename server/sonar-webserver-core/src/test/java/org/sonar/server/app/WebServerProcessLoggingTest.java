@@ -42,6 +42,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.stream.Stream;
+import org.assertj.core.groups.Tuple;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Rule;
@@ -104,7 +105,10 @@ public class WebServerProcessLoggingTest {
     java.util.logging.Logger logger = java.util.logging.Logger.getLogger("com.ms.sqlserver.jdbc.DTV");
     logger.finest("Test");
     memoryAppender.stop();
-    assertThat(memoryAppender.getLogs()).hasSize(1);
+    assertThat(memoryAppender.getLogs())
+      .filteredOn(ILoggingEvent::getLoggerName, "com.ms.sqlserver.jdbc.DTV")
+      .extracting(ILoggingEvent::getLevel, ILoggingEvent::getMessage)
+      .containsOnly(new Tuple(Level.TRACE, "Test"));
   }
 
   @Test
