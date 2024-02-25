@@ -142,7 +142,7 @@ public class GitScmProviderTest {
   public void returnImplem() {
     JGitBlameCommand jblameCommand = new JGitBlameCommand();
     GitBlameCommand nativeBlameCommand = new GitBlameCommand(System2.INSTANCE, new ProcessWrapperFactory());
-    CompositeBlameCommand compositeBlameCommand = new CompositeBlameCommand(analysisWarnings, new PathResolver(), jblameCommand, nativeBlameCommand);
+    CompositeBlameCommand compositeBlameCommand = new CompositeBlameCommand(analysisWarnings, new PathResolver(), jblameCommand, nativeBlameCommand, mock(org.sonar.api.config.Configuration.class));
     GitScmProvider gitScmProvider = new GitScmProvider(compositeBlameCommand, analysisWarnings, gitIgnoreCommand, system2, documentationLinkGenerator);
 
     assertThat(gitScmProvider.blameCommand()).isEqualTo(compositeBlameCommand);

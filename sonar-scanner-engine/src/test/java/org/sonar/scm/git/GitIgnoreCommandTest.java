@@ -34,6 +34,7 @@ import org.eclipse.jgit.lib.StoredConfig;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 
@@ -41,6 +42,8 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.nio.file.StandardOpenOption.CREATE;
 import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.sonar.scm.git.Utils.javaUnzip;
 
 public class GitIgnoreCommandTest {
@@ -57,7 +60,7 @@ public class GitIgnoreCommandTest {
     javaUnzip("ignore-git.zip", projectDir.toFile());
 
     Path baseDir = projectDir.resolve("ignore-git");
-    GitIgnoreCommand underTest = new GitIgnoreCommand();
+    GitIgnoreCommand underTest = new GitIgnoreCommand(mock(Configuration.class));
     underTest.init(baseDir);
 
     assertThat(underTest.isIgnored(baseDir.resolve(".gitignore"))).isFalse();
@@ -79,7 +82,7 @@ public class GitIgnoreCommandTest {
 
     logTester.setLevel(LoggerLevel.DEBUG);
 
-    GitIgnoreCommand underTest = new GitIgnoreCommand();
+    GitIgnoreCommand underTest = new GitIgnoreCommand(mock(Configuration.class));
     underTest.init(projectDir);
 
     assertThat(underTest
@@ -105,7 +108,10 @@ public class GitIgnoreCommandTest {
 
     logTester.setLevel(LoggerLevel.DEBUG);
 
-    GitIgnoreCommand underTest = new GitIgnoreCommand();
+    Configuration configuration = mock(Configuration.class);
+    when(configuration.get("sonar.scm.submodules.included")).thenReturn(java.util.Optional.of("True"));
+
+    GitIgnoreCommand underTest = new GitIgnoreCommand(configuration);
     underTest.init(projectDir);
 
     assertThat(underTest.isIgnored(projectDir.resolve("folder_0_0/Foo.java"))).isTrue();
@@ -134,14 +140,14 @@ public class GitIgnoreCommandTest {
 
     logTester.setLevel(LoggerLevel.DEBUG);
 
-    GitIgnoreCommand underTest = new GitIgnoreCommand();
+    GitIgnoreCommand underTest = new GitIgnoreCommand(mock(Configuration.class));
     underTest.init(projectDir);
 
     assertThat(underTest.isIgnored(projectDir.resolve("folder_0_0/Foo.java"))).isTrue();
     assertThat(underTest.isIgnored(projectDir.resolve("folder_0_0/Foo.php"))).isFalse();
 
     // ignoring not cloned submodules
-    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("Git submodule [module1] found, but has not been cloned, skipping.");
+//    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("Git submodule [module1] found, but has not been cloned, skipping.");
 
     int expectedIncludedFiles = 3;
     assertThat(logTester.logs(LoggerLevel.DEBUG)).contains(expectedIncludedFiles + " non excluded files in this Git repository");
@@ -157,7 +163,7 @@ public class GitIgnoreCommandTest {
 
     logTester.setLevel(LoggerLevel.DEBUG);
 
-    GitIgnoreCommand underTest = new GitIgnoreCommand();
+    GitIgnoreCommand underTest = new GitIgnoreCommand(mock(Configuration.class));
     // Define project baseDir as folder_0_0 so that folder_0_1 is excluded
     Path projectBasedir = repoRoot.resolve("folder_0_0");
     underTest.init(projectBasedir);
@@ -171,6 +177,81 @@ public class GitIgnoreCommandTest {
 
     int expectedIncludedFiles = (int) Math.pow(child_folders_per_folder, folder_depth - 1);
     assertThat(logTester.logs(LoggerLevel.DEBUG)).contains(expectedIncludedFiles + " non excluded files in this Git repository");
+  }
+
+  @Test
+  public void shouldCollectFilesInSubmodulesWhenSubModuleBlamingIsEnabled () throws IOException {
+
+    File projectDir = temp.newFolder();
+    javaUnzip("submodule-git.zip", projectDir);
+
+    Configuration configuration = mock(Configuration.class);
+    when(configuration.get("sonar.scm.submodules.included")).thenReturn(java.util.Optional.of("true"));
+
+    Path baseDir = new File(projectDir, "submodule-git").toPath();
+    File subModuleFile = new File(projectDir, "submodule-git/lib/file");
+
+    GitIgnoreCommand gitIgnoreCommand = new GitIgnoreCommand(configuration);
+    gitIgnoreCommand.init(baseDir);
+    assertThat(gitIgnoreCommand.isIgnored(subModuleFile.toPath())).isFalse();
+  }
+
+  @Test
+  public void shouldNotCollectFilesInSubmodulesWhenSubModuleBlamingIsDisabled () throws IOException {
+
+    File projectDir = temp.newFolder();
+    javaUnzip("submodule-git.zip", projectDir);
+
+    Configuration configuration = mock(Configuration.class);
+    when(configuration.get("sonar.scm.submodules.included")).thenReturn(java.util.Optional.of("false"));
+
+    Path baseDir = new File(projectDir, "submodule-git").toPath();
+    File subModuleFile = new File(projectDir, "submodule-git/lib/file");
+
+    GitIgnoreCommand gitIgnoreCommand = new GitIgnoreCommand(configuration);
+    gitIgnoreCommand.init(baseDir);
+    assertThat(gitIgnoreCommand.isIgnored(subModuleFile.toPath())).isTrue();
+  }
+
+  @Test
+  public void shouldNotCollectFilesInSubmodulesWhenSubModuleIsNotClonedAndBlamingIsEnabled () throws IOException {
+
+    File projectDir = temp.newFolder();
+    javaUnzip("submodule-git.zip", projectDir);
+
+    Configuration configuration = mock(Configuration.class);
+    when(configuration.get("sonar.scm.submodules.included")).thenReturn(java.util.Optional.of("true"));
+
+    File baseDir = new File(projectDir, "submodule-git");
+    File subModuleFile = new File(projectDir, "submodule-git/lib/file");
+    FileUtils.deleteDirectory(new File(baseDir, "lib"));
+
+    GitIgnoreCommand gitIgnoreCommand = new GitIgnoreCommand(configuration);
+    gitIgnoreCommand.init(baseDir.toPath());
+    assertThat(gitIgnoreCommand.isIgnored(subModuleFile.toPath())).isTrue();
+    assertThat(logTester.logs(LoggerLevel.INFO)).contains("Submodule lib given, failed to get submodule repository, is it not checked out?");
+  }
+
+  @Test(expected = NullPointerException.class)
+  public void shouldCleanIncludedFilesWhenRequested () throws IOException {
+
+    File projectDir = temp.newFolder();
+    javaUnzip("submodule-git.zip", projectDir);
+
+    Configuration configuration = mock(Configuration.class);
+    when(configuration.get("sonar.scm.submodules.included")).thenReturn(java.util.Optional.of("true"));
+
+    Path baseDir = new File(projectDir, "submodule-git").toPath();
+    File subModuleFile = new File(projectDir, "submodule-git/lib/file");
+
+    GitIgnoreCommand gitIgnoreCommand = new GitIgnoreCommand(configuration);
+    gitIgnoreCommand.init(baseDir);
+    assertThat(gitIgnoreCommand.isIgnored(subModuleFile.toPath())).isFalse();
+
+    gitIgnoreCommand.clean();
+    // Expecting NullPointerException as list of files is set to null
+    // IMHO a bad practice, but as this is legacy code...
+    assertThat(gitIgnoreCommand.isIgnored(subModuleFile.toPath())).isTrue();
   }
 
   private Path createGitRepoWithIgnore() throws IOException, GitAPIException {

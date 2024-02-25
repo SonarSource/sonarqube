@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2024 SonarSource SA
+ * Copyright (C) 2009-2021 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -22,6 +22,7 @@ package org.sonar.scm.git;
 import java.io.IOException;
 import java.nio.file.Path;
 import org.sonar.api.batch.scm.IgnoreCommand;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.scanner.ScannerSide;
 
 import static java.util.Objects.requireNonNull;
@@ -29,12 +30,18 @@ import static java.util.Objects.requireNonNull;
 @ScannerSide
 public class GitIgnoreCommand implements IgnoreCommand {
 
+  private final boolean analyseSubmodules;
   private IncludedFilesRepository includedFilesRepository;
+
+  public GitIgnoreCommand(Configuration configuration) {
+    analyseSubmodules = GitScmConfiguration.subModuleAnalysisEnabled(configuration);
+ }
 
   @Override
   public void init(Path baseDir) {
+
     try {
-      this.includedFilesRepository = new IncludedFilesRepository(baseDir);
+      includedFilesRepository = new IncludedFilesRepository(baseDir, analyseSubmodules);
     } catch (IOException e) {
       throw new IllegalStateException("I/O error while indexing ignored files.", e);
     }

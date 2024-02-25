@@ -24,15 +24,17 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.commons.io.FileUtils;
+import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.lib.ConfigConstants;
+import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.lib.StoredConfig;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -42,22 +44,25 @@ import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.scm.BlameCommand;
 import org.sonar.api.batch.scm.BlameLine;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.notifications.AnalysisWarnings;
 import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.LogTester;
+import org.sonar.api.utils.log.LoggerLevel;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.Assert.fail;
 import static org.junit.Assume.assumeTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.startsWith;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.never;
 import static org.sonar.scm.git.Utils.javaUnzip;
 
 public class CompositeBlameCommandTest {
@@ -67,7 +72,9 @@ public class CompositeBlameCommandTest {
   private final JGitBlameCommand jGitBlameCommand = new JGitBlameCommand();
   private final GitBlameCommand gitBlameCommand = new GitBlameCommand(System2.INSTANCE, processWrapperFactory);
   private final AnalysisWarnings analysisWarnings = mock(AnalysisWarnings.class);
-  private final CompositeBlameCommand blameCommand = new CompositeBlameCommand(analysisWarnings, pathResolver, jGitBlameCommand, gitBlameCommand);
+  private final CompositeBlameCommand blameCommand = new CompositeBlameCommand(analysisWarnings, pathResolver, jGitBlameCommand, gitBlameCommand, mock(org.sonar.api.config.Configuration.class));
+
+  private File projectDir;
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
@@ -76,10 +83,22 @@ public class CompositeBlameCommandTest {
   public LogTester logTester = new LogTester();
   private final BlameCommand.BlameInput input = mock(BlameCommand.BlameInput.class);
 
+  @Before
+  public void setUp() throws Exception {
+    projectDir = temp.newFolder();
+  }
+
+  @After
+  public void tearDown() throws Exception {
+    FileUtils.cleanDirectory(projectDir);
+    //noinspection ResultOfMethodCallIgnored
+    projectDir.delete();
+  }
+
   @Test
   public void use_jgit_if_native_git_disabled() throws IOException {
     GitBlameCommand gitCmd = new GitBlameCommand("invalidcommandnotfound", System2.INSTANCE, processWrapperFactory);
-    BlameCommand blameCmd = new CompositeBlameCommand(analysisWarnings, pathResolver, jGitBlameCommand, gitCmd);
+    BlameCommand blameCmd = new CompositeBlameCommand(analysisWarnings, pathResolver, jGitBlameCommand, gitCmd, mock(org.sonar.api.config.Configuration.class));
     File projectDir = createNewTempFolder();
     javaUnzip("dummy-git.zip", projectDir);
 
@@ -94,7 +113,7 @@ public class CompositeBlameCommandTest {
   @Test
   public void fallback_to_jgit_if_native_git_fails() throws Exception {
     GitBlameCommand gitCmd = mock(GitBlameCommand.class);
-    BlameCommand blameCmd = new CompositeBlameCommand(analysisWarnings, pathResolver, jGitBlameCommand, gitCmd);
+    BlameCommand blameCmd = new CompositeBlameCommand(analysisWarnings, pathResolver, jGitBlameCommand, gitCmd, mock(org.sonar.api.config.Configuration.class));
     File projectDir = createNewTempFolder();
     javaUnzip("dummy-git.zip", projectDir);
 
@@ -118,7 +137,7 @@ public class CompositeBlameCommandTest {
     assumeTrue(gitBlameCommand.checkIfEnabled());
 
     JGitBlameCommand jgit = mock(JGitBlameCommand.class);
-    BlameCommand blameCmd = new CompositeBlameCommand(analysisWarnings, pathResolver, jgit, gitBlameCommand);
+    BlameCommand blameCmd = new CompositeBlameCommand(analysisWarnings, pathResolver, jgit, gitBlameCommand, mock(org.sonar.api.config.Configuration.class));
     File projectDir = createNewTempFolder();
     javaUnzip("dummy-git.zip", projectDir);
 
@@ -139,7 +158,7 @@ public class CompositeBlameCommandTest {
     assumeTrue(gitBlameCommand.checkIfEnabled());
 
     JGitBlameCommand jgit = mock(JGitBlameCommand.class);
-    BlameCommand blameCmd = new CompositeBlameCommand(analysisWarnings, pathResolver, jgit, gitBlameCommand);
+    BlameCommand blameCmd = new CompositeBlameCommand(analysisWarnings, pathResolver, jgit, gitBlameCommand, mock(org.sonar.api.config.Configuration.class));
     File projectDir = createNewTempFolder();
     javaUnzip("no-head-git.zip", projectDir);
 
@@ -164,7 +183,7 @@ public class CompositeBlameCommandTest {
     File baseDir = new File(projectDir, "dummy-git");
 
     JGitBlameCommand jgit = mock(JGitBlameCommand.class);
-    BlameCommand blameCmd = new CompositeBlameCommand(analysisWarnings, pathResolver, jgit, gitBlameCommand);
+    BlameCommand blameCmd = new CompositeBlameCommand(analysisWarnings, pathResolver, jgit, gitBlameCommand, mock(org.sonar.api.config.Configuration.class));
 
     setUpBlameInputWithFile(baseDir.toPath());
     TestBlameOutput output = new TestBlameOutput();
@@ -294,6 +313,209 @@ public class CompositeBlameCommandTest {
     return input;
   }
 
+  @Test
+  public void shouldIgnoreSubmodulesWhenNotCheckedOut() throws IOException {
+
+    javaUnzip("submodule-git.zip", projectDir);
+
+    CompositeBlameCommand compositeBlameCommand = newCompositeBlameCommand("true");
+
+    File baseDir = new File(projectDir, "submodule-git");
+
+    FileUtils.deleteDirectory(new File(baseDir, "lib"));
+
+    DefaultFileSystem fs = new DefaultFileSystem(baseDir);
+    when(input.fileSystem()).thenReturn(fs);
+    DefaultInputFile inputFile = new TestInputFileBuilder("foo", "lib/file")
+            .setModuleBaseDir(baseDir.toPath())
+            .build();
+    fs.add(inputFile);
+
+    GitIgnoreCommand ignoreCommand = new GitIgnoreCommand(mock(Configuration.class));
+    ignoreCommand.init(baseDir.toPath());
+
+    BlameCommand.BlameOutput blameResult = mock(BlameCommand.BlameOutput.class);
+    when(input.filesToBlame()).thenReturn(Collections.singletonList(inputFile));
+
+    compositeBlameCommand.blame(input, blameResult);
+
+    List<BlameLine> expectedBlame = new LinkedList<>();
+    verify(blameResult, never()).blameResult(inputFile, expectedBlame);
+  }
+
+  @Test
+  public void shouldNotRetrieveBlameInformationWhenFileIsModifiedButNotCommitted() throws IOException {
+
+    javaUnzip("dummy-git.zip", projectDir);
+
+    CompositeBlameCommand compositeBlameCommand = newCompositeBlameCommand("true");
+
+    File baseDir = new File(projectDir, "dummy-git");
+    DefaultFileSystem fs = new DefaultFileSystem(baseDir);
+    when(input.fileSystem()).thenReturn(fs);
+    String modifiedFile = "src/main/java/org/dummy/AnotherDummy.java";
+    DefaultInputFile inputFile = new TestInputFileBuilder("foo", modifiedFile)
+            .setModuleBaseDir(baseDir.toPath())
+            .build();
+    fs.add(inputFile);
+
+    // Emulate a modification
+    Files.write(baseDir.toPath().resolve(modifiedFile), "modification and \n some new line".getBytes());
+
+    BlameCommand.BlameOutput blameResult = mock(BlameCommand.BlameOutput.class);
+
+    when(input.filesToBlame()).thenReturn(Collections.singletonList(inputFile));
+    compositeBlameCommand.blame(input, blameResult);
+    verify(blameResult, never()).blameResult(any(),argThat(List::isEmpty));
+  }
+
+  @Test
+  public void shouldNotRetrieveBlameInformationWhenFileIsAddedButNotCommitted() throws IOException {
+
+    javaUnzip("dummy-git.zip", projectDir);
+
+    CompositeBlameCommand compositeBlameCommand = newCompositeBlameCommand("true");
+
+    File baseDir = new File(projectDir, "dummy-git");
+    DefaultFileSystem fs = new DefaultFileSystem(baseDir);
+    when(input.fileSystem()).thenReturn(fs);
+    DefaultInputFile inputFile = new TestInputFileBuilder("foo", DUMMY_JAVA)
+            .setModuleBaseDir(baseDir.toPath())
+            .build();
+    fs.add(inputFile);
+
+    // Emulate file creation
+    Files.write(baseDir.toPath().resolve(DUMMY_JAVA), "modification and \n some new line".getBytes());
+
+    try (Repository repository = JGitUtils.buildRepository(baseDir.toPath()); Git git = Git.wrap(repository)) {
+      git.add().addFilepattern(DUMMY_JAVA).call();
+    } catch ( GitAPIException e) {
+      fail("Failed when adding file to repository");
+    }
+
+    BlameCommand.BlameOutput blameResult = mock(BlameCommand.BlameOutput.class);
+    when(input.filesToBlame()).thenReturn(Collections.singletonList(inputFile));
+
+    compositeBlameCommand.blame(input, blameResult);
+
+    verify(blameResult, never()).blameResult(any(),argThat(List::isEmpty));
+  }
+
+  @Test
+  public void shouldRetrieveBlameInformationWhenFileIsModifiedAndCommitted() throws IOException {
+
+    javaUnzip("dummy-git.zip", projectDir);
+
+    CompositeBlameCommand compositeBlameCommand = newCompositeBlameCommand("true");
+
+    File baseDir = new File(projectDir, "dummy-git");
+    DefaultFileSystem fs = new DefaultFileSystem(baseDir);
+    when(input.fileSystem()).thenReturn(fs);
+    String modifiedFile = "src/main/java/org/dummy/AnotherDummy.java";
+    DefaultInputFile inputFile = new TestInputFileBuilder("foo", modifiedFile)
+            .setModuleBaseDir(baseDir.toPath())
+            .build();
+    fs.add(inputFile);
+
+    // Emulate a modification
+    Files.write(baseDir.toPath().resolve(modifiedFile), "modification and \n some new line".getBytes());
+
+    addAndCommitFile(baseDir, modifiedFile);
+
+    BlameCommand.BlameOutput blameResult = mock(BlameCommand.BlameOutput.class);
+    when(input.filesToBlame()).thenReturn(Collections.singletonList(inputFile));
+
+    compositeBlameCommand.blame(input, blameResult);
+
+    verify(blameResult).blameResult(any(),argThat(list -> list.size() == 2));
+  }
+
+  @Test
+  public void shouldRetrieveBlameInformationWhenFileIsAddedAndCommitted() throws IOException {
+
+    javaUnzip("dummy-git.zip", projectDir);
+
+    CompositeBlameCommand compositeBlameCommand = newCompositeBlameCommand("true");
+
+    File baseDir = new File(projectDir, "dummy-git");
+    DefaultFileSystem fs = new DefaultFileSystem(baseDir);
+    when(input.fileSystem()).thenReturn(fs);
+    DefaultInputFile inputFile = new TestInputFileBuilder("foo", DUMMY_JAVA)
+            .setModuleBaseDir(baseDir.toPath())
+            .build();
+    fs.add(inputFile);
+
+    // Emulate a modification
+    Files.write(baseDir.toPath().resolve(DUMMY_JAVA), "Added new file\n Line 1\nLine 2".getBytes());
+
+    addAndCommitFile(baseDir, DUMMY_JAVA);
+
+    BlameCommand.BlameOutput blameResult = mock(BlameCommand.BlameOutput.class);
+    when(input.filesToBlame()).thenReturn(Collections.singletonList(inputFile));
+
+    compositeBlameCommand.blame(input, blameResult);
+
+    verify(blameResult).blameResult(any(),argThat(list -> list.size() == 3));
+  }
+
+  @Test
+  public void shouldRetrieveBlameInformationForAllFilesWhenFileIsAddedAndCommitted() throws IOException {
+    javaUnzip("dummy-git.zip", projectDir);
+
+    CompositeBlameCommand compositeBlameCommand = newCompositeBlameCommand("true");
+
+    File baseDir = new File(projectDir, "dummy-git");
+    DefaultFileSystem fs = new DefaultFileSystem(baseDir);
+    when(input.fileSystem()).thenReturn(fs);
+    DefaultInputFile newFile = new TestInputFileBuilder("foo", DUMMY_JAVA)
+            .setModuleBaseDir(baseDir.toPath())
+            .build();
+    fs.add(newFile);
+
+    DefaultInputFile existingFile = new TestInputFileBuilder("foo", "src/main/java/org/dummy/AnotherDummy.java")
+            .setModuleBaseDir(baseDir.toPath())
+            .build();
+    fs.add(existingFile);
+
+    // Emulate creation of new file
+    Files.write(baseDir.toPath().resolve(DUMMY_JAVA), "Added new file\n Line 1\nLine 2".getBytes());
+
+    addAndCommitFile(baseDir, DUMMY_JAVA);
+
+    BlameCommand.BlameOutput blameResult = mock(BlameCommand.BlameOutput.class);
+    when(input.filesToBlame()).thenReturn(Arrays.asList(newFile, existingFile));
+
+    compositeBlameCommand.blame(input, blameResult);
+
+    verify(blameResult).blameResult(eq(newFile),argThat(list -> list.size() == 3));
+    verify(blameResult).blameResult(eq(existingFile),argThat(list -> list.size() == 29));
+  }
+
+  @Test
+  public void shouldNotRetrieveBlameInformationForADeletedFileThatIsNotCommitted() throws IOException {
+    javaUnzip("dummy-git.zip", projectDir);
+
+    CompositeBlameCommand compositeBlameCommand = newCompositeBlameCommand("true");
+
+    File baseDir = new File(projectDir, "dummy-git");
+    DefaultFileSystem fs = new DefaultFileSystem(baseDir);
+    when(input.fileSystem()).thenReturn(fs);
+
+    DefaultInputFile existingFile = new TestInputFileBuilder("foo", "src/main/java/org/dummy/AnotherDummy.java")
+            .setModuleBaseDir(baseDir.toPath())
+            .build();
+    fs.add(existingFile);
+
+    FileUtils.forceDelete(new File(baseDir, "src/main/java/org/dummy/AnotherDummy.java"));
+
+    BlameCommand.BlameOutput blameResult = mock(BlameCommand.BlameOutput.class);
+    when(input.filesToBlame()).thenReturn(Collections.singletonList(existingFile));
+
+    compositeBlameCommand.blame(input, blameResult);
+
+    verify(blameResult, never()).blameResult(existingFile,new LinkedList<>());
+  }
+
   private File createNewTempFolder() throws IOException {
     // This is needed for Windows, otherwise the created File point to invalid (shortened by Windows) temp folder path
     return temp.newFolder().toPath().toRealPath(LinkOption.NOFOLLOW_LINKS).toFile();
@@ -307,4 +529,24 @@ public class CompositeBlameCommandTest {
       blame.put(inputFile, list);
     }
   }
+
+  private void addAndCommitFile(File baseDir, String dummyJava) {
+    try (Repository repository = JGitUtils.buildRepository(baseDir.toPath()); Git git = Git.wrap(repository)) {
+      StoredConfig config = git.getRepository().getConfig();
+      config.setBoolean(ConfigConstants.CONFIG_COMMIT_SECTION, null, "gpgsign", false);
+      git.add().addFilepattern(dummyJava).call();
+      git.commit().setMessage("Dummy commit").setAuthor("dummy", "dummy@dummy.com").call();
+    } catch (GitAPIException e) {
+      fail("Failed when adding file to repository");
+    }
+  }
+
+  private CompositeBlameCommand newCompositeBlameCommand(String submoduleEnabled) {
+    Configuration configuration = mock(Configuration.class);
+    JGitBlameCommand jgit = mock(JGitBlameCommand.class);
+    when(configuration.get("sonar.scm.submodules.included")).thenReturn(java.util.Optional.of(submoduleEnabled));
+    return new CompositeBlameCommand(mock(AnalysisWarnings.class), new PathResolver(), jgit, gitBlameCommand, configuration);
+  }
+
+
 }
