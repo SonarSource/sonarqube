@@ -28,7 +28,9 @@ import org.apache.commons.io.FileUtils;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.SubmoduleAddCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.lib.ConfigConstants;
 import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.lib.StoredConfig;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -185,7 +187,12 @@ public class GitIgnoreCommandTest {
     Files.write(subRoot.resolve(".gitignore"), Arrays.asList("**/*.java"), UTF_8, TRUNCATE_EXISTING, CREATE);
     createFolderStructure(subRoot, 1, 0, 1);
 
+    StoredConfig config = git.getRepository().getConfig();
+    config.setBoolean(ConfigConstants.CONFIG_COMMIT_SECTION, null, "gpgsign", false);
+
     try (Git subGit = Git.init().setDirectory(subRoot.toFile()).call()) {
+      config = subGit.getRepository().getConfig();
+      config.setBoolean(ConfigConstants.CONFIG_COMMIT_SECTION, null, "gpgsign", false);
       subGit.add().addFilepattern(".").call();
       subGit.commit().setMessage("first").call();
     }

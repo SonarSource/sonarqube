@@ -13,7 +13,7 @@ pluginManagement {
           value = "Bearer $artifactoryPassword"
         }
       } else {
-        url 'https://plugins.gradle.org/m2/'
+        url 'https://nexus-test.eos.local/repository/maven-public/'
       }
     }
   }

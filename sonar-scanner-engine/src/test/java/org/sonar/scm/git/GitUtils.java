@@ -24,14 +24,21 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.lib.ConfigConstants;
 import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.lib.StoredConfig;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 
 public class GitUtils {
   public static Git createRepository(Path worktree) throws IOException {
     Repository repo = FileRepositoryBuilder.create(worktree.resolve(".git").toFile());
     repo.create();
-    return new Git(repo);
+
+    Git git = new Git(repo);
+    StoredConfig config = git.getRepository().getConfig();
+    config.setBoolean(ConfigConstants.CONFIG_COMMIT_SECTION, null, "gpgsign", false);
+
+    return git;
   }
 
   public static void createFile(String relativePath, String content, Path worktree) throws IOException {

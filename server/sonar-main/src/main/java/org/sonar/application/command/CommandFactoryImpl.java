@@ -155,6 +155,8 @@ public class CommandFactoryImpl implements CommandFactory {
   public JavaCommand createWebCommand(boolean leader) {
     File homeDir = props.nonNullValueAsFile(PATH_HOME.getKey());
 
+    LoggerFactory.getLogger(CommandFactoryImpl.class).info("SQ_VERSION is set to [" + SQ_VERSION + "]");
+
     WebJvmOptions jvmOptions = new WebJvmOptions(tempDir)
       .addFromMandatoryProperty(props, WEB_JAVA_OPTS.getKey())
       .addFromMandatoryProperty(props, WEB_JAVA_ADDITIONAL_OPTS.getKey());
@@ -181,6 +183,8 @@ public class CommandFactoryImpl implements CommandFactory {
   @Override
   public JavaCommand createCeCommand() {
     File homeDir = props.nonNullValueAsFile(PATH_HOME.getKey());
+
+    LoggerFactory.getLogger(CommandFactoryImpl.class).info("SQ_VERSION is set to [" + SQ_VERSION + "]");
 
     CeJvmOptions jvmOptions = new CeJvmOptions(tempDir)
       .addFromMandatoryProperty(props, CE_JAVA_OPTS.getKey())
