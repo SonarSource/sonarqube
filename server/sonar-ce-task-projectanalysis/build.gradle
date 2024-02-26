@@ -52,6 +52,7 @@ dependencies {
   testImplementation 'org.assertj:assertj-core'
   testImplementation 'org.assertj:assertj-guava'
   testImplementation 'org.junit.jupiter:junit-jupiter-api'
+  testImplementation 'org.junit.jupiter:junit-jupiter-params'
   testImplementation 'org.reflections:reflections'
   testImplementation 'org.sonarsource.api.plugin:sonar-plugin-api-test-fixtures'
   testImplementation project(':sonar-testing-harness')
@@ -59,6 +60,7 @@ dependencies {
 
   testFixturesApi 'junit:junit'
   testFixturesApi 'org.assertj:assertj-core'
+  testFixturesApi 'org.junit.jupiter:junit-jupiter-api'
   testFixturesApi 'org.mockito:mockito-core'
   testFixturesApi testFixtures(project(':server:sonar-ce-task'))
 

@@ -19,8 +19,8 @@
  */
 package org.sonar.auth.ldap;
 
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.server.http.HttpRequest;
 import org.sonar.auth.ldap.server.LdapServer;
@@ -28,23 +28,24 @@ import org.sonar.auth.ldap.server.LdapServer;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
-public class DefaultLdapAuthenticatorIT {
+class DefaultLdapAuthenticatorIT {
 
   /**
    * A reference to the original ldif file
    */
-  public static final String USERS_EXAMPLE_ORG_LDIF = "/users.example.org.ldif";
+  private static final String USERS_EXAMPLE_ORG_LDIF = "/users.example.org.ldif";
   /**
    * A reference to an additional ldif file.
    */
-  public static final String USERS_INFOSUPPORT_COM_LDIF = "/users.infosupport.com.ldif";
-  @ClassRule
-  public static LdapServer exampleServer = new LdapServer(USERS_EXAMPLE_ORG_LDIF);
-  @ClassRule
-  public static LdapServer infosupportServer = new LdapServer(USERS_INFOSUPPORT_COM_LDIF, "infosupport.com", "dc=infosupport,dc=com");
+  private static final String USERS_INFOSUPPORT_COM_LDIF = "/users.infosupport.com.ldif";
+  @RegisterExtension
+  private static final LdapServer exampleServer = new LdapServer(USERS_EXAMPLE_ORG_LDIF);
+  @RegisterExtension
+  private static final LdapServer infosupportServer = new LdapServer(USERS_INFOSUPPORT_COM_LDIF, "infosupport.com", "dc=infosupport," +
+    "dc=com");
 
   @Test
-  public void testNoConnection() {
+  void testNoConnection() {
     exampleServer.disableAnonymousAccess();
     try {
       LdapSettingsManager settingsManager = new LdapSettingsManager(
@@ -58,7 +59,7 @@ public class DefaultLdapAuthenticatorIT {
   }
 
   @Test
-  public void testSimple() {
+  void testSimple() {
     LdapSettingsManager settingsManager = new LdapSettingsManager(
       LdapSettingsFactory.generateAuthenticationSettings(exampleServer, null, LdapContextFactory.AUTH_METHOD_SIMPLE).asConfig());
     DefaultLdapAuthenticator authenticator = new DefaultLdapAuthenticator(settingsManager.getContextFactories(), settingsManager.getUserMappings());
@@ -82,7 +83,7 @@ public class DefaultLdapAuthenticatorIT {
   }
 
   @Test
-  public void testSimpleMultiLdap() {
+  void testSimpleMultiLdap() {
     LdapSettingsManager settingsManager = new LdapSettingsManager(
       LdapSettingsFactory.generateAuthenticationSettings(exampleServer, infosupportServer, LdapContextFactory.AUTH_METHOD_SIMPLE).asConfig());
     DefaultLdapAuthenticator authenticator = new DefaultLdapAuthenticator(settingsManager.getContextFactories(), settingsManager.getUserMappings());
@@ -115,7 +116,7 @@ public class DefaultLdapAuthenticatorIT {
   }
 
   @Test
-  public void testSasl() {
+  void testSasl() {
     MapSettings mapSettings = LdapSettingsFactory.generateAuthenticationSettings(exampleServer, null, LdapContextFactory.AUTH_METHOD_DIGEST_MD5);
     //set sasl QoP properties as per https://docs.oracle.com/javase/jndi/tutorial/ldap/security/digest.html
     mapSettings.setProperty("ldap.saslQop", "auth")
@@ -140,7 +141,7 @@ public class DefaultLdapAuthenticatorIT {
   }
 
   @Test
-  public void testSaslMultipleLdap() {
+  void testSaslMultipleLdap() {
     LdapSettingsManager settingsManager = new LdapSettingsManager(
       LdapSettingsFactory.generateAuthenticationSettings(exampleServer, infosupportServer, LdapContextFactory.AUTH_METHOD_CRAM_MD5).asConfig());
     DefaultLdapAuthenticator authenticator = new DefaultLdapAuthenticator(settingsManager.getContextFactories(), settingsManager.getUserMappings());

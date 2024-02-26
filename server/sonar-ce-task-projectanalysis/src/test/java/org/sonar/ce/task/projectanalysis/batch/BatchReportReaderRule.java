@@ -32,6 +32,8 @@ import java.util.Objects;
 import java.util.Optional;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.junit.jupiter.api.extension.AfterEachCallback;
+import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
@@ -39,7 +41,7 @@ import org.sonar.core.util.CloseableIterator;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReport.LineSgnificantCode;
 
-public class BatchReportReaderRule implements TestRule, BatchReportReader {
+public class BatchReportReaderRule implements TestRule, BatchReportReader, AfterEachCallback {
   private ScannerReport.Metadata metadata;
   private List<String> scannerLogs;
   private List<ScannerReport.ActiveRule> activeRules = new ArrayList<>();
@@ -320,4 +322,8 @@ public class BatchReportReaderRule implements TestRule, BatchReportReader {
     return this;
   }
 
+  @Override
+  public void afterEach(ExtensionContext context) {
+    clear();
+  }
 }

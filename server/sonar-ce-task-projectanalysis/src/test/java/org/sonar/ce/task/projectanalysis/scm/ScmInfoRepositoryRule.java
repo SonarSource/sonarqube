@@ -22,12 +22,14 @@ package org.sonar.ce.task.projectanalysis.scm;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import org.junit.jupiter.api.extension.AfterEachCallback;
+import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.rules.ExternalResource;
 import org.sonar.ce.task.projectanalysis.component.Component;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public class ScmInfoRepositoryRule extends ExternalResource implements ScmInfoRepository {
+public class ScmInfoRepositoryRule extends ExternalResource implements ScmInfoRepository, AfterEachCallback {
 
   private Map<Integer, ScmInfo> scmInfoByFileRef = new HashMap<>();
 
@@ -51,5 +53,10 @@ public class ScmInfoRepositoryRule extends ExternalResource implements ScmInfoRe
   public ScmInfoRepositoryRule setScmInfo(int fileRef, Map<Integer, Changeset> changesets) {
     scmInfoByFileRef.put(fileRef, new ScmInfoImpl(changesets.values().toArray(new Changeset[0])));
     return this;
+  }
+
+  @Override
+  public void afterEach(ExtensionContext extensionContext) throws Exception {
+    after();
   }
 }

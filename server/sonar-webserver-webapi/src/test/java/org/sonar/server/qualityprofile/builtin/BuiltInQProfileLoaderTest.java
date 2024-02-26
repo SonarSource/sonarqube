@@ -19,19 +19,19 @@
  */
 package org.sonar.server.qualityprofile.builtin;
 
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class BuiltInQProfileLoaderTest {
-  @Rule
-  public BuiltInQProfileRepositoryRule builtInQProfileRepositoryRule = new BuiltInQProfileRepositoryRule();
+class BuiltInQProfileLoaderTest {
+  @RegisterExtension
+  private final BuiltInQProfileRepositoryRule builtInQProfileRepositoryRule = new BuiltInQProfileRepositoryRule();
 
-  private BuiltInQProfileLoader underTest = new BuiltInQProfileLoader(builtInQProfileRepositoryRule);
+  private final BuiltInQProfileLoader underTest = new BuiltInQProfileLoader(builtInQProfileRepositoryRule);
 
   @Test
-  public void start_initializes_DefinedQProfileRepository() {
+  void start_initializes_DefinedQProfileRepository() {
     underTest.start();
 
     assertThat(builtInQProfileRepositoryRule.isInitialized()).isTrue();

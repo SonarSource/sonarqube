@@ -22,8 +22,8 @@ package org.sonar.process.cluster.health;
 import com.hazelcast.core.HazelcastInstanceNotActiveException;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.mockito.ArgumentCaptor;
 import org.sonar.process.LoggingRule;
 
@@ -39,9 +39,10 @@ import static org.mockito.Mockito.when;
 import static org.slf4j.event.Level.DEBUG;
 import static org.slf4j.event.Level.ERROR;
 
-public class HealthStateRefresherTest {
-  @Rule
-  public final LoggingRule logging = new LoggingRule(HealthStateRefresher.class);
+class HealthStateRefresherTest {
+
+  @RegisterExtension
+  private final LoggingRule logging = new LoggingRule(HealthStateRefresher.class);
 
   private final Random random = new Random();
   private final NodeDetailsTestSupport testSupport = new NodeDetailsTestSupport(random);
@@ -52,7 +53,7 @@ public class HealthStateRefresherTest {
   private final HealthStateRefresher underTest = new HealthStateRefresher(executorService, nodeHealthProvider, sharedHealthState);
 
   @Test
-  public void start_adds_runnable_with_10_second_delay_and_initial_delay_putting_NodeHealth_from_provider_into_SharedHealthState() {
+  void start_adds_runnable_with_10_second_delay_and_initial_delay_putting_NodeHealth_from_provider_into_SharedHealthState() {
     ArgumentCaptor<Runnable> runnableCaptor = ArgumentCaptor.forClass(Runnable.class);
     NodeHealth[] nodeHealths = {
       testSupport.randomNodeHealth(),
@@ -84,7 +85,7 @@ public class HealthStateRefresherTest {
   }
 
   @Test
-  public void stop_whenCalled_hasNoEffect() {
+  void stop_whenCalled_hasNoEffect() {
     underTest.stop();
 
     verify(sharedHealthState).clearMine();
@@ -92,7 +93,7 @@ public class HealthStateRefresherTest {
   }
 
   @Test
-  public void stop_whenThrowHazelcastInactiveException_shouldSilenceError() {
+  void stop_whenThrowHazelcastInactiveException_shouldSilenceError() {
     logging.setLevel(DEBUG);
     SharedHealthState sharedHealthStateMock = mock(SharedHealthState.class);
     doThrow(HazelcastInstanceNotActiveException.class).when(sharedHealthStateMock).clearMine();
@@ -104,7 +105,7 @@ public class HealthStateRefresherTest {
   }
 
   @Test
-  public void start_whenHazelcastIsNotActive_shouldNotLogErrors() {
+  void start_whenHazelcastIsNotActive_shouldNotLogErrors() {
     logging.setLevel(DEBUG);
     doThrow(new HazelcastInstanceNotActiveException()).when(sharedHealthState).writeMine(any());
 

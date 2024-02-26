@@ -20,8 +20,8 @@
 package org.sonar.ce.task.projectanalysis.step;
 
 import org.assertj.core.data.MapEntry;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 import org.sonar.ce.task.projectanalysis.batch.BatchReportReaderRule;
@@ -40,17 +40,17 @@ import static org.sonar.db.rule.RuleTesting.XOO_X2;
 
 public class LoadQualityProfilesStepTest {
 
-  @Rule
-  public BatchReportReaderRule batchReportReader = new BatchReportReaderRule();
+  @RegisterExtension
+  private final BatchReportReaderRule batchReportReader = new BatchReportReaderRule();
 
-  @Rule
-  public RuleRepositoryRule ruleRepository = new RuleRepositoryRule();
+  @RegisterExtension
+  private final RuleRepositoryRule ruleRepository = new RuleRepositoryRule();
 
-  private ActiveRulesHolderImpl activeRulesHolder = new ActiveRulesHolderImpl();
-  private LoadQualityProfilesStep underTest = new LoadQualityProfilesStep(batchReportReader, activeRulesHolder, ruleRepository);
+  private final ActiveRulesHolderImpl activeRulesHolder = new ActiveRulesHolderImpl();
+  private final LoadQualityProfilesStep underTest = new LoadQualityProfilesStep(batchReportReader, activeRulesHolder, ruleRepository);
 
   @Test
-  public void feed_active_rules() {
+  void feed_active_rules() {
     ruleRepository.add(XOO_X1)
       .setPluginKey("xoo");
     ruleRepository.add(XOO_X2)
@@ -86,7 +86,7 @@ public class LoadQualityProfilesStepTest {
   }
 
   @Test
-  public void ignore_rules_with_status_REMOVED() {
+  void ignore_rules_with_status_REMOVED() {
     ruleRepository.add(new DumbRule(XOO_X1).setStatus(RuleStatus.REMOVED));
 
     ScannerReport.ActiveRule.Builder batch1 = ScannerReport.ActiveRule.newBuilder()
@@ -100,7 +100,7 @@ public class LoadQualityProfilesStepTest {
   }
 
   @Test
-  public void ignore_not_found_rules() {
+  void ignore_not_found_rules() {
     ScannerReport.ActiveRule.Builder batch1 = ScannerReport.ActiveRule.newBuilder()
       .setRuleRepository(XOO_X1.repository()).setRuleKey(XOO_X1.rule())
       .setSeverity(Constants.Severity.BLOCKER);

@@ -23,13 +23,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import org.junit.jupiter.api.extension.AfterEachCallback;
+import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.rules.ExternalResource;
 
 import static com.google.common.base.Preconditions.checkState;
 import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
 
-public class MetricRepositoryRule extends ExternalResource implements MetricRepository {
+public class MetricRepositoryRule extends ExternalResource implements MetricRepository, AfterEachCallback {
   private final Map<String, Metric> metricsByKey = new HashMap<>();
   private final Map<String, Metric> metricsByUuid = new HashMap<>();
 
@@ -117,5 +119,10 @@ public class MetricRepositoryRule extends ExternalResource implements MetricRepo
   @Override
   public List<Metric> getMetricsByType(Metric.MetricType type) {
     return metricsByKey.values().stream().filter(m -> m.getType() == type).toList();
+  }
+
+  @Override
+  public void afterEach(ExtensionContext context) throws Exception {
+    after();
   }
 }

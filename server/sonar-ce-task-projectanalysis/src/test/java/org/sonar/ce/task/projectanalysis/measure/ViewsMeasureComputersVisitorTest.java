@@ -20,8 +20,8 @@
 package org.sonar.ce.task.projectanalysis.measure;
 
 import java.util.Arrays;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.ce.measure.MeasureComputer;
 import org.sonar.api.testfixtures.measure.TestMeasureComputerDefinitionContext;
 import org.sonar.ce.task.projectanalysis.api.measurecomputer.MeasureComputerDefinitionImpl;
@@ -45,7 +45,7 @@ import static org.sonar.ce.task.projectanalysis.measure.Measure.newMeasureBuilde
 import static org.sonar.ce.task.projectanalysis.measure.MeasureRepoEntry.entryOf;
 import static org.sonar.ce.task.projectanalysis.measure.MeasureRepoEntry.toEntries;
 
-public class ViewsMeasureComputersVisitorTest {
+class ViewsMeasureComputersVisitorTest {
 
   private static final String NEW_METRIC_KEY = "new_metric_key";
   private static final String NEW_METRIC_NAME = "new metric name";
@@ -97,25 +97,25 @@ public class ViewsMeasureComputersVisitorTest {
     }
   };
 
-  @Rule
-  public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
+  @RegisterExtension
+  private final TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
 
-  @Rule
-  public MetricRepositoryRule metricRepository = new MetricRepositoryRule()
+  @RegisterExtension
+  private final MetricRepositoryRule metricRepository = new MetricRepositoryRule()
     .add(NCLOC)
     .add(COMMENT_LINES)
     .add(NEW_METRIC);
 
-  @Rule
-  public MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create(TREE_WITH_SUB_VIEWS, metricRepository);
+  @RegisterExtension
+  private final MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create(TREE_WITH_SUB_VIEWS, metricRepository);
 
-  @Rule
-  public MeasureComputersHolderRule measureComputersHolder = new MeasureComputersHolderRule(new TestMeasureComputerDefinitionContext());
+  @RegisterExtension
+  private final MeasureComputersHolderRule measureComputersHolder = new MeasureComputersHolderRule(new TestMeasureComputerDefinitionContext());
 
-  ComponentIssuesRepository componentIssuesRepository = mock(ComponentIssuesRepository.class);
+  private final ComponentIssuesRepository componentIssuesRepository = mock(ComponentIssuesRepository.class);
 
   @Test
-  public void compute_plugin_measure() {
+  void compute_plugin_measure() {
     treeRootHolder.setRoot(TREE_WITH_SUB_VIEWS);
 
     addRawMeasure(PROJECT_VIEW_1_REF, NCLOC_KEY, 10);
@@ -142,7 +142,7 @@ public class ViewsMeasureComputersVisitorTest {
   }
 
   @Test
-  public void compute_plugin_measure_on_views_tree_having_only_one_view_with_a_project_view() {
+  void compute_plugin_measure_on_views_tree_having_only_one_view_with_a_project_view() {
     treeRootHolder.setRoot(TREE_WITH_DIRECT_PROJECT_VIEW);
 
     addRawMeasure(PROJECT_VIEW_1_REF, NCLOC_KEY, 10);
@@ -163,7 +163,7 @@ public class ViewsMeasureComputersVisitorTest {
   }
 
   @Test
-  public void nothing_to_compute_when_no_project_view() {
+  void nothing_to_compute_when_no_project_view() {
     treeRootHolder.setRoot(builder(VIEW, ROOT_REF)
       .addChildren(
         builder(SUBVIEW, VIEW_REF)
@@ -186,7 +186,7 @@ public class ViewsMeasureComputersVisitorTest {
   }
 
   @Test
-  public void nothing_to_compute_when_no_measure_computers() {
+  void nothing_to_compute_when_no_measure_computers() {
     treeRootHolder.setRoot(TREE_WITH_SUB_VIEWS);
 
     addRawMeasure(PROJECT_VIEW_1_REF, NCLOC_KEY, 10);

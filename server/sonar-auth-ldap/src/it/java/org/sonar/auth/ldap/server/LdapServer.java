@@ -19,10 +19,13 @@
  */
 package org.sonar.auth.ldap.server;
 
+import org.junit.jupiter.api.extension.AfterAllCallback;
+import org.junit.jupiter.api.extension.BeforeAllCallback;
+import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.rules.ExternalResource;
 import org.sonar.ldap.ApacheDS;
 
-public class LdapServer extends ExternalResource {
+public class LdapServer extends ExternalResource implements BeforeAllCallback, AfterAllCallback {
 
   private ApacheDS server;
   private String ldif;
@@ -40,9 +43,19 @@ public class LdapServer extends ExternalResource {
   }
 
   @Override
-  protected void before() throws Throwable {
+  public void beforeAll(ExtensionContext extensionContext) throws Exception {
+    before();
+  }
+
+  @Override
+  protected void before() throws Exception {
     server = ApacheDS.start(realm, baseDn);
     server.importLdif(LdapServer.class.getResourceAsStream(ldif));
+  }
+
+  @Override
+  public void afterAll(ExtensionContext extensionContext) throws Exception {
+    after();
   }
 
   @Override

@@ -65,7 +65,6 @@ public class GlobalActionTest {
   private final NodeInformation nodeInformation = mock(NodeInformation.class);
   private final DbClient dbClient = mock(DbClient.class, RETURNS_DEEP_STUBS);
   private final IssueIndexSyncProgressChecker indexSyncProgressChecker = mock(IssueIndexSyncProgressChecker.class);
-  private final BranchFeatureRule branchFeature = new BranchFeatureRule();
   private final PlatformEditionProvider editionProvider = mock(PlatformEditionProvider.class);
   private final WebAnalyticsLoader webAnalyticsLoader = mock(WebAnalyticsLoader.class);
   private final DefaultAdminCredentialsVerifier defaultAdminCredentialsVerifier = mock(DefaultAdminCredentialsVerifier.class);

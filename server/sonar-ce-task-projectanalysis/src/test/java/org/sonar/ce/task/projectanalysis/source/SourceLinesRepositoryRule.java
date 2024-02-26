@@ -23,6 +23,8 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import java.util.Arrays;
 import java.util.Collection;
+import org.junit.jupiter.api.extension.AfterEachCallback;
+import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.rules.ExternalResource;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.core.util.CloseableIterator;
@@ -30,9 +32,14 @@ import org.sonar.core.util.CloseableIterator;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
-public class SourceLinesRepositoryRule extends ExternalResource implements SourceLinesRepository {
+public class SourceLinesRepositoryRule extends ExternalResource implements SourceLinesRepository, AfterEachCallback {
 
   private Multimap<Integer, String> lines = ArrayListMultimap.create();
+
+  @Override
+  public void afterEach(ExtensionContext context) {
+    after();
+  }
 
   @Override
   protected void after() {

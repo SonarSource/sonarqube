@@ -70,7 +70,7 @@ public class CeProcessingSchedulerImplTest {
   // due to risks of infinite chaining of tasks/futures, a timeout is required for safety
   @Rule
   public TestRule safeguardTimeout = new DisableOnDebug(Timeout.seconds(60));
-  @Rule
+
   public CeConfigurationRule ceConfiguration = new CeConfigurationRule();
   private CeWorker ceWorker = mock(CeWorker.class);
   private CeWorkerFactory ceWorkerFactory = new TestCeWorkerFactory(ceWorker);

@@ -30,16 +30,16 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 import org.mockito.stubbing.Answer;
 import org.slf4j.event.Level;
 import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.api.testfixtures.log.LogAndArguments;
-import org.sonar.api.testfixtures.log.LogTester;
+import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.LoggerLevel;
@@ -76,54 +76,55 @@ import static org.sonar.ce.taskprocessor.CeWorker.Result.DISABLED;
 import static org.sonar.ce.taskprocessor.CeWorker.Result.NO_TASK;
 import static org.sonar.ce.taskprocessor.CeWorker.Result.TASK_PROCESSED;
 
-public class CeWorkerImplIT {
+class CeWorkerImplIT {
 
   private System2 system2 = new TestSystem2().setNow(1_450_000_000_000L);
 
-  @Rule
-  public CeTaskProcessorRepositoryRule taskProcessorRepository = new CeTaskProcessorRepositoryRule();
-  @Rule
-  public LogTester logTester = new LogTester();
-  @Rule
-  public DbTester db = DbTester.create(system2);
+  @RegisterExtension
+  private final CeTaskProcessorRepositoryRule taskProcessorRepository = new CeTaskProcessorRepositoryRule();
+  @RegisterExtension
+  private final LogTesterJUnit5 logTester = new LogTesterJUnit5();
+  @RegisterExtension
+  private final DbTester db = DbTester.create(system2);
 
-  private DbSession session = db.getSession();
+  private final DbSession session = db.getSession();
 
-  private InternalCeQueue queue = mock(InternalCeQueue.class);
-  private ReportTaskProcessor taskProcessor = mock(ReportTaskProcessor.class);
-  private CeWorker.ExecutionListener executionListener1 = mock(CeWorker.ExecutionListener.class);
-  private CeWorker.ExecutionListener executionListener2 = mock(CeWorker.ExecutionListener.class);
-  private CeWorkerController ceWorkerController = mock(CeWorkerController.class);
-  private ArgumentCaptor<String> workerUuidCaptor = ArgumentCaptor.forClass(String.class);
-  private int randomOrdinal = new Random().nextInt(50);
-  private String workerUuid = UUID.randomUUID().toString();
-  private CeWorker underTest = new CeWorkerImpl(randomOrdinal, workerUuid, queue, taskProcessorRepository, ceWorkerController,
-    executionListener1, executionListener2);
-  private CeWorker underTestNoListener = new CeWorkerImpl(randomOrdinal, workerUuid, queue, taskProcessorRepository, ceWorkerController);
-  private InOrder inOrder = inOrder(taskProcessor, queue, executionListener1, executionListener2);
+  private final InternalCeQueue queue = mock(InternalCeQueue.class);
+  private final ReportTaskProcessor taskProcessor = mock(ReportTaskProcessor.class);
+  private final CeWorker.ExecutionListener executionListener1 = mock(CeWorker.ExecutionListener.class);
+  private final CeWorker.ExecutionListener executionListener2 = mock(CeWorker.ExecutionListener.class);
+  private final CeWorkerController ceWorkerController = mock(CeWorkerController.class);
+  private final ArgumentCaptor<String> workerUuidCaptor = ArgumentCaptor.forClass(String.class);
+  private final int ordinal = 37;
+  private final String workerUuid = "8e5cc1dd-4617-4974-9234-0a9539212615";
+  private final CeWorker underTest = new CeWorkerImpl(ordinal, workerUuid, queue, taskProcessorRepository,
+    ceWorkerController, executionListener1, executionListener2);
+  private final CeWorker underTestNoListener = new CeWorkerImpl(ordinal, workerUuid, queue, taskProcessorRepository,
+    ceWorkerController);
+  private final InOrder inOrder = inOrder(taskProcessor, queue, executionListener1, executionListener2);
   private final CeTask.User submitter = new CeTask.User("UUID_USER_1", "LOGIN_1");
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     when(ceWorkerController.isEnabled(any(CeWorker.class))).thenReturn(true);
   }
 
   @Test
-  public void constructor_throws_IAE_if_ordinal_is_less_than_zero() {
+  void constructor_throws_IAE_if_ordinal_is_less_than_zero() {
     assertThatThrownBy(() -> new CeWorkerImpl(-1 - new Random().nextInt(20), workerUuid, queue, taskProcessorRepository, ceWorkerController))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("Ordinal must be >= 0");
   }
 
   @Test
-  public void getUUID_must_return_the_uuid_of_constructor() {
+  void getUUID_must_return_the_uuid_of_constructor() {
     String uuid = UUID.randomUUID().toString();
-    CeWorker underTest = new CeWorkerImpl(randomOrdinal, uuid, queue, taskProcessorRepository, ceWorkerController);
+    CeWorker underTest = new CeWorkerImpl(ordinal, uuid, queue, taskProcessorRepository, ceWorkerController);
     assertThat(underTest.getUUID()).isEqualTo(uuid);
   }
 
   @Test
-  public void worker_disabled() throws Exception {
+  void worker_disabled() throws Exception {
     reset(ceWorkerController);
     when(ceWorkerController.isEnabled(underTest)).thenReturn(false);
 
@@ -133,7 +134,7 @@ public class CeWorkerImplIT {
   }
 
   @Test
-  public void worker_disabled_no_listener() throws Exception {
+  void worker_disabled_no_listener() throws Exception {
     reset(ceWorkerController);
     when(ceWorkerController.isEnabled(underTest)).thenReturn(false);
 
@@ -143,7 +144,7 @@ public class CeWorkerImplIT {
   }
 
   @Test
-  public void no_pending_tasks_in_queue() throws Exception {
+  void no_pending_tasks_in_queue() throws Exception {
     when(queue.peek(anyString(), anyBoolean())).thenReturn(Optional.empty());
 
     assertThat(underTest.call()).isEqualTo(NO_TASK);
@@ -152,7 +153,7 @@ public class CeWorkerImplIT {
   }
 
   @Test
-  public void no_pending_tasks_in_queue_without_listener() throws Exception {
+  void no_pending_tasks_in_queue_without_listener() throws Exception {
     when(queue.peek(anyString(), anyBoolean())).thenReturn(Optional.empty());
 
     assertThat(underTestNoListener.call()).isEqualTo(NO_TASK);
@@ -161,7 +162,7 @@ public class CeWorkerImplIT {
   }
 
   @Test
-  public void fail_when_no_CeTaskProcessor_is_found_in_repository() throws Exception {
+  void fail_when_no_CeTaskProcessor_is_found_in_repository() throws Exception {
     CeTask task = createCeTask(null);
     taskProcessorRepository.setNoProcessorForTask(CeTaskTypes.REPORT);
     when(queue.peek(anyString(), anyBoolean())).thenReturn(Optional.of(task));
@@ -177,7 +178,7 @@ public class CeWorkerImplIT {
   }
 
   @Test
-  public void fail_when_no_CeTaskProcessor_is_found_in_repository_without_listener() throws Exception {
+  void fail_when_no_CeTaskProcessor_is_found_in_repository_without_listener() throws Exception {
     CeTask task = createCeTask(null);
     taskProcessorRepository.setNoProcessorForTask(CeTaskTypes.REPORT);
     when(queue.peek(anyString(), anyBoolean())).thenReturn(Optional.of(task));
@@ -190,7 +191,7 @@ public class CeWorkerImplIT {
   }
 
   @Test
-  public void peek_and_process_task() throws Exception {
+  void peek_and_process_task() throws Exception {
     CeTask task = createCeTask(null);
     taskProcessorRepository.setProcessorForTask(task.getType(), taskProcessor);
     when(queue.peek(anyString(), anyBoolean())).thenReturn(Optional.of(task));
@@ -207,7 +208,7 @@ public class CeWorkerImplIT {
   }
 
   @Test
-  public void peek_and_process_task_without_listeners() throws Exception {
+  void peek_and_process_task_without_listeners() throws Exception {
     CeTask task = createCeTask(null);
     taskProcessorRepository.setProcessorForTask(task.getType(), taskProcessor);
     when(queue.peek(anyString(), anyBoolean())).thenReturn(Optional.of(task));
@@ -221,7 +222,7 @@ public class CeWorkerImplIT {
   }
 
   @Test
-  public void fail_to_process_task() throws Exception {
+  void fail_to_process_task() throws Exception {
     CeTask task = createCeTask(null);
     when(queue.peek(anyString(), anyBoolean())).thenReturn(Optional.of(task));
     taskProcessorRepository.setProcessorForTask(task.getType(), taskProcessor);
@@ -239,7 +240,7 @@ public class CeWorkerImplIT {
   }
 
   @Test
-  public void fail_to_process_task_without_listeners() throws Exception {
+  void fail_to_process_task_without_listeners() throws Exception {
     CeTask task = createCeTask(null);
     when(queue.peek(anyString(), anyBoolean())).thenReturn(Optional.of(task));
     taskProcessorRepository.setProcessorForTask(task.getType(), taskProcessor);
@@ -254,7 +255,7 @@ public class CeWorkerImplIT {
   }
 
   @Test
-  public void log_task_characteristics() throws Exception {
+  void log_task_characteristics() throws Exception {
     when(queue.peek(anyString(), anyBoolean())).thenReturn(Optional.of(createCeTask(null, "pullRequest", "123", "branch", "foo")));
     taskProcessorRepository.setProcessorForTask(CeTaskTypes.REPORT, taskProcessor);
 
@@ -269,7 +270,7 @@ public class CeWorkerImplIT {
   }
 
   @Test
-  public void do_not_log_submitter_param_if_anonymous_and_success() throws Exception {
+  void do_not_log_submitter_param_if_anonymous_and_success() throws Exception {
     when(queue.peek(anyString(), anyBoolean())).thenReturn(Optional.of(createCeTask(null)));
     taskProcessorRepository.setProcessorForTask(CeTaskTypes.REPORT, taskProcessor);
 
@@ -284,7 +285,7 @@ public class CeWorkerImplIT {
   }
 
   @Test
-  public void do_not_log_submitter_param_if_anonymous_and_error() throws Exception {
+  void do_not_log_submitter_param_if_anonymous_and_error() throws Exception {
     CeTask ceTask = createCeTask(null);
     when(queue.peek(anyString(), anyBoolean())).thenReturn(Optional.of(ceTask));
     taskProcessorRepository.setProcessorForTask(ceTask.getType(), taskProcessor);
@@ -304,7 +305,7 @@ public class CeWorkerImplIT {
   }
 
   @Test
-  public void log_submitter_login_if_authenticated_and_success() throws Exception {
+  void log_submitter_login_if_authenticated_and_success() throws Exception {
     UserDto userDto = insertRandomUser();
     when(queue.peek(anyString(), anyBoolean())).thenReturn(Optional.of(createCeTask(toTaskSubmitter(userDto))));
     taskProcessorRepository.setProcessorForTask(CeTaskTypes.REPORT, taskProcessor);
@@ -321,7 +322,7 @@ public class CeWorkerImplIT {
   }
 
   @Test
-  public void log_submitterUuid_if_user_matching_submitterUuid_can_not_be_found() throws Exception {
+  void log_submitterUuid_if_user_matching_submitterUuid_can_not_be_found() throws Exception {
     when(queue.peek(anyString(), anyBoolean())).thenReturn(Optional.of(createCeTask(new CeTask.User("UUID_USER", null))));
     taskProcessorRepository.setProcessorForTask(CeTaskTypes.REPORT, taskProcessor);
 
@@ -337,7 +338,7 @@ public class CeWorkerImplIT {
   }
 
   @Test
-  public void display_submitterLogin_in_logs_when_set_in_case_of_error() throws Exception {
+  void display_submitterLogin_in_logs_when_set_in_case_of_error() throws Exception {
     UserDto userDto = insertRandomUser();
     CeTask ceTask = createCeTask(toTaskSubmitter(userDto));
     when(queue.peek(anyString(), anyBoolean())).thenReturn(Optional.of(ceTask));
@@ -357,7 +358,7 @@ public class CeWorkerImplIT {
   }
 
   @Test
-  public void display_start_stop_at_debug_level_for_console_if_DEBUG_is_enabled_and_task_successful() throws Exception {
+  void display_start_stop_at_debug_level_for_console_if_DEBUG_is_enabled_and_task_successful() throws Exception {
     logTester.setLevel(LoggerLevel.DEBUG);
 
     when(queue.peek(anyString(), anyBoolean())).thenReturn(Optional.of(createCeTask(submitter)));
@@ -375,7 +376,7 @@ public class CeWorkerImplIT {
   }
 
   @Test
-  public void display_start_at_debug_level_stop_at_error_level_for_console_if_DEBUG_is_enabled_and_task_failed() throws Exception {
+  void display_start_at_debug_level_stop_at_error_level_for_console_if_DEBUG_is_enabled_and_task_failed() throws Exception {
     logTester.setLevel(LoggerLevel.DEBUG);
 
     CeTask ceTask = createCeTask(submitter);
@@ -397,11 +398,11 @@ public class CeWorkerImplIT {
   }
 
   @Test
-  public void call_sets_and_restores_thread_name_with_information_of_worker_when_there_is_no_task_to_process() throws Exception {
+  void call_sets_and_restores_thread_name_with_information_of_worker_when_there_is_no_task_to_process() throws Exception {
     String threadName = randomAlphabetic(3);
     when(queue.peek(anyString(), anyBoolean())).thenAnswer(invocation -> {
       assertThat(Thread.currentThread().getName())
-        .isEqualTo("Worker " + randomOrdinal + " (UUID=" + workerUuid + ") on " + threadName);
+        .isEqualTo("Worker " + ordinal + " (UUID=" + workerUuid + ") on " + threadName);
       return Optional.empty();
     });
     Thread newThread = createThreadNameVerifyingThread(threadName);
@@ -411,11 +412,11 @@ public class CeWorkerImplIT {
   }
 
   @Test
-  public void call_sets_and_restores_thread_name_with_information_of_worker_when_a_task_is_processed() throws Exception {
+  void call_sets_and_restores_thread_name_with_information_of_worker_when_a_task_is_processed() throws Exception {
     String threadName = randomAlphabetic(3);
     when(queue.peek(anyString(), anyBoolean())).thenAnswer(invocation -> {
       assertThat(Thread.currentThread().getName())
-        .isEqualTo("Worker " + randomOrdinal + " (UUID=" + workerUuid + ") on " + threadName);
+        .isEqualTo("Worker " + ordinal + " (UUID=" + workerUuid + ") on " + threadName);
       return Optional.of(createCeTask(submitter));
     });
     taskProcessorRepository.setProcessorForTask(CeTaskTypes.REPORT, taskProcessor);
@@ -426,12 +427,12 @@ public class CeWorkerImplIT {
   }
 
   @Test
-  public void call_sets_and_restores_thread_name_with_information_of_worker_when_an_error_occurs() throws Exception {
+  void call_sets_and_restores_thread_name_with_information_of_worker_when_an_error_occurs() throws Exception {
     String threadName = randomAlphabetic(3);
     CeTask ceTask = createCeTask(submitter);
     when(queue.peek(anyString(), anyBoolean())).thenAnswer(invocation -> {
       assertThat(Thread.currentThread().getName())
-        .isEqualTo("Worker " + randomOrdinal + " (UUID=" + workerUuid + ") on " + threadName);
+        .isEqualTo("Worker " + ordinal + " (UUID=" + workerUuid + ") on " + threadName);
       return Optional.of(ceTask);
     });
     taskProcessorRepository.setProcessorForTask(CeTaskTypes.REPORT, taskProcessor);
@@ -443,7 +444,7 @@ public class CeWorkerImplIT {
   }
 
   @Test
-  public void call_sets_and_restores_thread_name_with_information_of_worker_when_worker_is_disabled() throws Exception {
+  void call_sets_and_restores_thread_name_with_information_of_worker_when_worker_is_disabled() throws Exception {
     reset(ceWorkerController);
     when(ceWorkerController.isEnabled(underTest)).thenReturn(false);
 
@@ -455,7 +456,7 @@ public class CeWorkerImplIT {
   }
 
   @Test
-  public void log_error_when_task_fails_with_not_MessageException() throws Exception {
+  void log_error_when_task_fails_with_not_MessageException() throws Exception {
     CeTask ceTask = createCeTask(submitter);
     when(queue.peek(anyString(), anyBoolean())).thenReturn(Optional.of(ceTask));
     taskProcessorRepository.setProcessorForTask(CeTaskTypes.REPORT, taskProcessor);
@@ -473,7 +474,7 @@ public class CeWorkerImplIT {
   }
 
   @Test
-  public void do_no_log_error_when_task_fails_with_MessageException() throws Exception {
+  void do_no_log_error_when_task_fails_with_MessageException() throws Exception {
     CeTask ceTask = createCeTask(submitter);
     when(queue.peek(anyString(), anyBoolean())).thenReturn(Optional.of(ceTask));
     taskProcessorRepository.setProcessorForTask(CeTaskTypes.REPORT, taskProcessor);
@@ -489,7 +490,7 @@ public class CeWorkerImplIT {
   }
 
   @Test
-  public void log_error_when_task_was_successful_but_ending_state_can_not_be_persisted_to_db() throws Exception {
+  void log_error_when_task_was_successful_but_ending_state_can_not_be_persisted_to_db() throws Exception {
     CeTask ceTask = createCeTask(submitter);
     when(queue.peek(anyString(), anyBoolean())).thenReturn(Optional.of(ceTask));
     taskProcessorRepository.setProcessorForTask(CeTaskTypes.REPORT, taskProcessor);
@@ -501,7 +502,7 @@ public class CeWorkerImplIT {
   }
 
   @Test
-  public void log_error_when_task_failed_and_ending_state_can_not_be_persisted_to_db() throws Exception {
+  void log_error_when_task_failed_and_ending_state_can_not_be_persisted_to_db() throws Exception {
     CeTask ceTask = createCeTask(submitter);
     when(queue.peek(anyString(), anyBoolean())).thenReturn(Optional.of(ceTask));
     taskProcessorRepository.setProcessorForTask(CeTaskTypes.REPORT, taskProcessor);
@@ -526,7 +527,7 @@ public class CeWorkerImplIT {
   }
 
   @Test
-  public void log_error_as_suppressed_when_task_failed_with_MessageException_and_ending_state_can_not_be_persisted_to_db() throws Exception {
+  void log_error_as_suppressed_when_task_failed_with_MessageException_and_ending_state_can_not_be_persisted_to_db() throws Exception {
     CeTask ceTask = createCeTask(submitter);
     when(queue.peek(anyString(), anyBoolean())).thenReturn(Optional.of(ceTask));
     taskProcessorRepository.setProcessorForTask(CeTaskTypes.REPORT, taskProcessor);
@@ -546,13 +547,13 @@ public class CeWorkerImplIT {
   }
 
   @Test
-  public void isExecutedBy_returns_false_when_no_interaction_with_instance() {
+  void isExecutedBy_returns_false_when_no_interaction_with_instance() {
     assertThat(underTest.isExecutedBy(Thread.currentThread())).isFalse();
     assertThat(underTest.isExecutedBy(new Thread())).isFalse();
   }
 
   @Test
-  public void isExecutedBy_returns_false_unless_a_thread_is_currently_calling_call() throws InterruptedException {
+  void isExecutedBy_returns_false_unless_a_thread_is_currently_calling_call() throws InterruptedException {
     CountDownLatch inCallLatch = new CountDownLatch(1);
     CountDownLatch assertionsDoneLatch = new CountDownLatch(1);
     // mock long running peek(String) call => Thread is executing call() but not running a task
@@ -585,7 +586,7 @@ public class CeWorkerImplIT {
   }
 
   @Test
-  public void isExecutedBy_returns_false_unless_a_thread_is_currently_executing_a_task() throws InterruptedException {
+  void isExecutedBy_returns_false_unless_a_thread_is_currently_executing_a_task() throws InterruptedException {
     CountDownLatch inCallLatch = new CountDownLatch(1);
     CountDownLatch assertionsDoneLatch = new CountDownLatch(1);
     String taskType = randomAlphabetic(12);
@@ -625,12 +626,12 @@ public class CeWorkerImplIT {
   }
 
   @Test
-  public void getCurrentTask_returns_empty_when_no_interaction_with_instance() {
+  void getCurrentTask_returns_empty_when_no_interaction_with_instance() {
     assertThat(underTest.getCurrentTask()).isEmpty();
   }
 
   @Test
-  public void do_not_exclude_portfolio_when_indexation_task_lookup_is_disabled() throws Exception {
+  void do_not_exclude_portfolio_when_indexation_task_lookup_is_disabled() throws Exception {
     // first call with empty queue to disable indexationTaskLookupEnabled
     when(queue.peek(anyString(), anyBoolean())).thenReturn(Optional.empty());
     assertThat(underTest.call()).isEqualTo(NO_TASK);
@@ -642,7 +643,7 @@ public class CeWorkerImplIT {
   }
 
   @Test
-  public void getCurrentTask_returns_empty_when_a_thread_is_currently_calling_call_but_not_executing_a_task() throws InterruptedException {
+  void getCurrentTask_returns_empty_when_a_thread_is_currently_calling_call_but_not_executing_a_task() throws InterruptedException {
     CountDownLatch inCallLatch = new CountDownLatch(1);
     CountDownLatch assertionsDoneLatch = new CountDownLatch(1);
     // mock long running peek(String) call => Thread is executing call() but not running a task
@@ -671,7 +672,7 @@ public class CeWorkerImplIT {
   }
 
   @Test
-  public void getCurrentTask_returns_empty_unless_a_thread_is_currently_executing_a_task() throws InterruptedException {
+  void getCurrentTask_returns_empty_unless_a_thread_is_currently_executing_a_task() throws InterruptedException {
     CountDownLatch inCallLatch = new CountDownLatch(1);
     CountDownLatch assertionsDoneLatch = new CountDownLatch(1);
     String taskType = randomAlphabetic(12);

@@ -20,9 +20,9 @@
 package org.sonar.ce.task.projectanalysis.source;
 
 import java.util.Arrays;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.period.NewCodeReferenceBranchComponentUuids;
@@ -40,7 +40,7 @@ import static org.mockito.Mockito.when;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.FILE;
 import static org.sonar.ce.task.projectanalysis.component.ReportComponent.builder;
 
-public class SourceLinesDiffImplTest {
+class SourceLinesDiffImplTest {
 
   private final DbClient dbClient = mock(DbClient.class);
   private final DbSession dbSession = mock(DbSession.class);
@@ -50,11 +50,12 @@ public class SourceLinesDiffImplTest {
   private final AnalysisMetadataHolder analysisMetadataHolder = mock(AnalysisMetadataHolder.class);
   private final ReferenceBranchComponentUuids referenceBranchComponentUuids = mock(ReferenceBranchComponentUuids.class);
   private final NewCodeReferenceBranchComponentUuids newCodeReferenceBranchComponentUuids = mock(NewCodeReferenceBranchComponentUuids.class);
-  @Rule
-  public PeriodHolderRule periodHolder = new PeriodHolderRule();
 
-  @Rule
-  public MutableMovedFilesRepositoryRule movedFiles = new MutableMovedFilesRepositoryRule();
+  @RegisterExtension
+  private final PeriodHolderRule periodHolder = new PeriodHolderRule();
+
+  @RegisterExtension
+  private final MutableMovedFilesRepositoryRule movedFiles = new MutableMovedFilesRepositoryRule();
 
   private final SourceLinesDiffImpl underTest = new SourceLinesDiffImpl(dbClient, fileSourceDao, sourceLinesHash,
     referenceBranchComponentUuids, movedFiles, analysisMetadataHolder, periodHolder, newCodeReferenceBranchComponentUuids);
@@ -71,15 +72,15 @@ public class SourceLinesDiffImplTest {
     "}"
   };
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     when(dbClient.openSession(false)).thenReturn(dbSession);
     when(dbClient.componentDao()).thenReturn(componentDao);
     when(dbClient.fileSourceDao()).thenReturn(fileSourceDao);
   }
 
   @Test
-  public void should_find_diff_with_reference_branch_for_prs() {
+  void should_find_diff_with_reference_branch_for_prs() {
     periodHolder.setPeriod(null);
     Component component = fileComponent(FILE_REF);
 
@@ -93,7 +94,7 @@ public class SourceLinesDiffImplTest {
   }
 
   @Test
-  public void all_file_is_modified_if_no_source_in_db() {
+  void all_file_is_modified_if_no_source_in_db() {
     periodHolder.setPeriod(null);
     Component component = fileComponent(FILE_REF);
 
@@ -103,7 +104,7 @@ public class SourceLinesDiffImplTest {
   }
 
   @Test
-  public void should_find_no_diff_when_report_and_db_content_are_identical() {
+  void should_find_no_diff_when_report_and_db_content_are_identical() {
     periodHolder.setPeriod(null);
     Component component = fileComponent(FILE_REF);
 

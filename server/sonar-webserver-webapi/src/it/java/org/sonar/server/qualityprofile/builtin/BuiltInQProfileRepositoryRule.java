@@ -27,6 +27,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import org.junit.jupiter.api.extension.BeforeEachCallback;
+import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.rules.ExternalResource;
 import org.sonar.api.resources.Language;
 import org.sonar.api.rule.RuleKey;
@@ -35,9 +37,15 @@ import org.sonar.db.rule.RuleDto;
 
 import static com.google.common.base.Preconditions.checkState;
 
-public class BuiltInQProfileRepositoryRule extends ExternalResource implements BuiltInQProfileRepository {
+public class BuiltInQProfileRepositoryRule extends ExternalResource
+  implements BuiltInQProfileRepository, BeforeEachCallback {
   private boolean initializeCalled = false;
   private List<BuiltInQProfile> profiles = new ArrayList<>();
+
+  @Override
+  public void beforeEach(ExtensionContext extensionContext) throws Exception {
+    before();
+  }
 
   @Override
   protected void before() {

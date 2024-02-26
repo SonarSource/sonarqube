@@ -20,20 +20,20 @@
 package org.sonar.ce.task.projectanalysis.issue;
 
 import com.google.common.collect.Iterators;
-import com.tngtech.java.junit.dataprovider.DataProvider;
-import com.tngtech.java.junit.dataprovider.DataProviderRunner;
-import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.RuleType;
@@ -70,8 +70,7 @@ import static org.sonar.api.issue.impact.SoftwareQuality.MAINTAINABILITY;
 import static org.sonar.api.issue.impact.SoftwareQuality.SECURITY;
 import static org.sonar.scanner.protocol.output.ScannerReport.MessageFormattingType.CODE;
 
-@RunWith(DataProviderRunner.class)
-public class TrackerRawInputFactoryTest {
+class TrackerRawInputFactoryTest {
 
   private static final String FILE_UUID = "fake_uuid";
   private static final String ANOTHER_FILE_UUID = "another_fake_uuid";
@@ -82,14 +81,14 @@ public class TrackerRawInputFactoryTest {
   private static final int ANOTHER_FILE_REF = 4;
   private static final String TEST_CONTEXT_KEY = "test_context_key";
 
-  @Rule
-  public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule().setRoot(PROJECT);
-  @Rule
-  public BatchReportReaderRule reportReader = new BatchReportReaderRule();
-  @Rule
-  public ActiveRulesHolderRule activeRulesHolder = new ActiveRulesHolderRule();
-  @Rule
-  public RuleRepositoryRule ruleRepository = new RuleRepositoryRule();
+  @RegisterExtension
+  private final TreeRootHolderRule treeRootHolder = new TreeRootHolderRule().setRoot(PROJECT);
+  @RegisterExtension
+  private final BatchReportReaderRule reportReader = new BatchReportReaderRule();
+  @RegisterExtension
+  private final ActiveRulesHolderRule activeRulesHolder = new ActiveRulesHolderRule();
+  @RegisterExtension
+  private final RuleRepositoryRule ruleRepository = new RuleRepositoryRule();
 
   private static final ReportComponent FILE = ReportComponent.builder(Component.Type.FILE, FILE_REF).setUuid(FILE_UUID).build();
   private static final ReportComponent ANOTHER_FILE = ReportComponent.builder(Component.Type.FILE, ANOTHER_FILE_REF).setUuid(ANOTHER_FILE_UUID).build();
@@ -100,14 +99,14 @@ public class TrackerRawInputFactoryTest {
   private final TrackerRawInputFactory underTest = new TrackerRawInputFactory(treeRootHolder, reportReader, sourceLinesHash,
     issueFilter, ruleRepository, activeRulesHolder);
 
-  @Before
-  public void before() {
+  @BeforeEach
+  void before() {
     when(sourceLinesHash.getLineHashesMatchingDBVersion(FILE)).thenReturn(Collections.singletonList("line"));
     when(issueFilter.accept(any(), eq(FILE))).thenReturn(true);
   }
 
   @Test
-  public void load_source_hash_sequences() {
+  void load_source_hash_sequences() {
     Input<DefaultIssue> input = underTest.create(FILE);
 
     assertThat(input.getLineHashSequence()).isNotNull();
@@ -119,7 +118,7 @@ public class TrackerRawInputFactoryTest {
   }
 
   @Test
-  public void load_source_hash_sequences_only_on_files() {
+  void load_source_hash_sequences_only_on_files() {
     Input<DefaultIssue> input = underTest.create(PROJECT);
 
     assertThat(input.getLineHashSequence()).isNotNull();
@@ -127,7 +126,7 @@ public class TrackerRawInputFactoryTest {
   }
 
   @Test
-  public void load_issues_from_report() {
+  void load_issues_from_report() {
     RuleKey ruleKey = RuleKey.of("java", "S001");
     markRuleAsActive(ruleKey);
     registerRule(ruleKey, "name", r -> r.addDefaultImpact(MAINTAINABILITY, LOW));
@@ -177,7 +176,7 @@ public class TrackerRawInputFactoryTest {
   }
 
   @Test
-  public void load_issues_from_report_with_locations() {
+  void load_issues_from_report_with_locations() {
     RuleKey ruleKey = RuleKey.of("java", "S001");
     markRuleAsActive(ruleKey);
     registerRule(ruleKey, "name");
@@ -223,7 +222,7 @@ public class TrackerRawInputFactoryTest {
   }
 
   @Test
-  public void load_issues_from_report_with_rule_description_context_key() {
+  void load_issues_from_report_with_rule_description_context_key() {
     RuleKey ruleKey = RuleKey.of("java", "S001");
     markRuleAsActive(ruleKey);
     registerRule(ruleKey, "name");
@@ -246,7 +245,7 @@ public class TrackerRawInputFactoryTest {
   }
 
   @Test
-  public void create_whenImpactIsNotDefinedAtRuleLevel_shouldDiscardImpacts() {
+  void create_whenImpactIsNotDefinedAtRuleLevel_shouldDiscardImpacts() {
     RuleKey ruleKey = RuleKey.of("java", "S001");
     markRuleAsActive(ruleKey);
     registerRule(ruleKey, "name", r -> r.addDefaultImpact(MAINTAINABILITY, LOW));
@@ -269,7 +268,7 @@ public class TrackerRawInputFactoryTest {
   }
 
   @Test
-  public void set_rule_name_as_message_when_issue_message_from_report_is_empty() {
+  void set_rule_name_as_message_when_issue_message_from_report_is_empty() {
     RuleKey ruleKey = RuleKey.of("java", "S001");
     markRuleAsActive(ruleKey);
     registerRule(ruleKey, "Rule 1");
@@ -295,7 +294,7 @@ public class TrackerRawInputFactoryTest {
 
   // SONAR-10781
   @Test
-  public void load_issues_from_report_missing_secondary_location_component() {
+  void load_issues_from_report_missing_secondary_location_component() {
     RuleKey ruleKey = RuleKey.of("java", "S001");
     markRuleAsActive(ruleKey);
     registerRule(ruleKey, "name");
@@ -338,9 +337,9 @@ public class TrackerRawInputFactoryTest {
     assertThat(locations.getFlow(0).getLocation(1).getComponentId()).isEqualTo(ANOTHER_FILE_UUID);
   }
 
-  @Test
-  @UseDataProvider("ruleTypeAndStatusByIssueType")
-  public void load_external_issues_from_report(IssueType issueType, RuleType expectedRuleType, String expectedStatus) {
+  @ParameterizedTest
+  @MethodSource("ruleTypeAndStatusByIssueType")
+  void load_external_issues_from_report(IssueType issueType, RuleType expectedRuleType, String expectedStatus) {
     registerRule(RuleKey.of("external_eslint", "S001"), "rule", r -> r.addDefaultImpact(MAINTAINABILITY, LOW));
     ScannerReport.ExternalIssue reportIssue = ScannerReport.ExternalIssue.newBuilder()
       .setTextRange(newTextRange(2))
@@ -391,19 +390,18 @@ public class TrackerRawInputFactoryTest {
     assertThat(issue.impacts()).containsExactlyEntriesOf(Map.of(MAINTAINABILITY, org.sonar.api.issue.impact.Severity.MEDIUM));
   }
 
-  @DataProvider
-  public static Object[][] ruleTypeAndStatusByIssueType() {
-    return new Object[][]{
-      {IssueType.CODE_SMELL, RuleType.CODE_SMELL, STATUS_OPEN},
-      {IssueType.BUG, RuleType.BUG, STATUS_OPEN},
-      {IssueType.VULNERABILITY, RuleType.VULNERABILITY, STATUS_OPEN},
-      {IssueType.SECURITY_HOTSPOT, RuleType.SECURITY_HOTSPOT, STATUS_TO_REVIEW}
-    };
+  private static Stream<Arguments> ruleTypeAndStatusByIssueType() {
+    return Stream.of(
+      Arguments.of(IssueType.CODE_SMELL, RuleType.CODE_SMELL, STATUS_OPEN),
+      Arguments.of(IssueType.BUG, RuleType.BUG, STATUS_OPEN),
+      Arguments.of(IssueType.VULNERABILITY, RuleType.VULNERABILITY, STATUS_OPEN),
+      Arguments.of(IssueType.SECURITY_HOTSPOT, RuleType.SECURITY_HOTSPOT, STATUS_TO_REVIEW)
+    );
   }
 
-  @Test
-  @UseDataProvider("ruleTypeAndStatusByIssueType")
-  public void load_external_issues_from_report_with_default_effort(IssueType issueType, RuleType expectedRuleType, String expectedStatus) {
+  @ParameterizedTest
+  @MethodSource("ruleTypeAndStatusByIssueType")
+  void load_external_issues_from_report_with_default_effort(IssueType issueType, RuleType expectedRuleType, String expectedStatus) {
     registerRule(RuleKey.of("external_eslint", "S001"), "rule");
     ScannerReport.ExternalIssue reportIssue = ScannerReport.ExternalIssue.newBuilder()
       .setTextRange(newTextRange(2))
@@ -435,7 +433,7 @@ public class TrackerRawInputFactoryTest {
   }
 
   @Test
-  public void create_whenSeverityAndTypeNotProvided_shouldTakeFromTheRule() {
+  void create_whenSeverityAndTypeNotProvided_shouldTakeFromTheRule() {
     registerRule(RuleKey.of("external_eslint", "S001"), "rule", r -> {
       r.setType(RuleType.BUG);
       r.setSeverity(Severity.MAJOR);
@@ -453,7 +451,7 @@ public class TrackerRawInputFactoryTest {
   }
 
   @Test
-  public void create_whenSeverityAndTypeNotProvidedByIssueAndRule_shouldTakeFromTheRuleImpact() {
+  void create_whenSeverityAndTypeNotProvidedByIssueAndRule_shouldTakeFromTheRuleImpact() {
     registerRule(RuleKey.of("external_eslint", "S001"), "rule",
       r -> r.addDefaultImpact(MAINTAINABILITY, org.sonar.api.issue.impact.Severity.MEDIUM));
     ScannerReport.ExternalIssue reportIssue = createIssue(null, null);
@@ -487,7 +485,7 @@ public class TrackerRawInputFactoryTest {
   }
 
   @Test
-  public void excludes_issues_on_inactive_rules() {
+  void excludes_issues_on_inactive_rules() {
     RuleKey ruleKey = RuleKey.of("java", "S001");
     ScannerReport.Issue reportIssue = ScannerReport.Issue.newBuilder()
       .setTextRange(newTextRange(2))
@@ -505,7 +503,7 @@ public class TrackerRawInputFactoryTest {
   }
 
   @Test
-  public void filter_excludes_issues_from_report() {
+  void filter_excludes_issues_from_report() {
     RuleKey ruleKey = RuleKey.of("java", "S001");
     markRuleAsActive(ruleKey);
     registerRule(ruleKey, "name");
@@ -526,7 +524,7 @@ public class TrackerRawInputFactoryTest {
   }
 
   @Test
-  public void exclude_issues_on_common_rules() {
+  void exclude_issues_on_common_rules() {
     RuleKey ruleKey = RuleKey.of(CommonRuleKeys.commonRepositoryForLang("java"), "S001");
     markRuleAsActive(ruleKey);
     ScannerReport.Issue reportIssue = ScannerReport.Issue.newBuilder()

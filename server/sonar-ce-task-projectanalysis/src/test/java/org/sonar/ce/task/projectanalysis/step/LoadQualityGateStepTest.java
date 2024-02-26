@@ -20,9 +20,9 @@
 package org.sonar.ce.task.projectanalysis.step;
 
 import java.util.Arrays;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.metric.Metric;
 import org.sonar.ce.task.projectanalysis.metric.MetricImpl;
@@ -37,9 +37,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class LoadQualityGateStepTest {
-  @Rule
-  public MutableQualityGateHolderRule mutableQualityGateHolder = new MutableQualityGateHolderRule();
+class LoadQualityGateStepTest {
+  @RegisterExtension
+  private final MutableQualityGateHolderRule mutableQualityGateHolder = new MutableQualityGateHolderRule();
 
   private final AnalysisMetadataHolder analysisMetadataHolder = mock(AnalysisMetadataHolder.class);
   private final QualityGateServiceImpl qualityGateService = mock(QualityGateServiceImpl.class);
@@ -47,13 +47,13 @@ public class LoadQualityGateStepTest {
   private final LoadQualityGateStep underTest = new LoadQualityGateStep(qualityGateService, mutableQualityGateHolder, analysisMetadataHolder);
   private final Project project = mock(Project.class);
 
-  @Before
-  public void before() {
+  @BeforeEach
+  void before() {
     when(analysisMetadataHolder.getProject()).thenReturn(project);
   }
 
   @Test
-  public void filter_conditions_on_pull_request() {
+  void filter_conditions_on_pull_request() {
     Metric newMetric = new MetricImpl("1", "new_key", "name", Metric.MetricType.INT);
     Metric metric = new MetricImpl("2", "key", "name", Metric.MetricType.INT);
     Condition variation = new Condition(newMetric, Condition.Operator.GREATER_THAN.getDbValue(), "1.0");
@@ -69,7 +69,7 @@ public class LoadQualityGateStepTest {
   }
 
   @Test
-  public void execute_sets_effective_quality_gate() {
+  void execute_sets_effective_quality_gate() {
     QualityGate qg = mock(QualityGate.class);
     when(qualityGateService.findEffectiveQualityGate(project)).thenReturn(qg);
 

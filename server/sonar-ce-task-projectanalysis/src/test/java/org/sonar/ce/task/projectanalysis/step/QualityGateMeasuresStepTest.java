@@ -25,9 +25,9 @@ import java.util.Objects;
 import java.util.Optional;
 import javax.annotation.Nullable;
 import org.assertj.core.api.AbstractAssert;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.sonar.api.config.internal.ConfigurationBridge;
@@ -57,6 +57,7 @@ import org.sonar.ce.task.step.TestComputationStepContext;
 
 import static com.google.common.collect.ImmutableList.of;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -66,7 +67,7 @@ import static org.sonar.ce.task.projectanalysis.measure.Measure.Level.ERROR;
 import static org.sonar.ce.task.projectanalysis.measure.Measure.Level.OK;
 import static org.sonar.ce.task.projectanalysis.measure.MeasureAssert.assertThat;
 
-public class QualityGateMeasuresStepTest {
+class QualityGateMeasuresStepTest {
   private static final MetricImpl INT_METRIC_1 = createIntMetric(1);
   private static final String INT_METRIC_1_KEY = INT_METRIC_1.getKey();
   private static final MetricImpl INT_METRIC_2 = createIntMetric(2);
@@ -77,24 +78,25 @@ public class QualityGateMeasuresStepTest {
   private static final String SOME_QG_UUID = "7521551";
   private static final String SOME_QG_NAME = "name";
 
-  @Rule
-  public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
-  @Rule
-  public QualityGateHolderRule qualityGateHolder = new QualityGateHolderRule();
-  @Rule
-  public MutableQualityGateStatusHolderRule qualityGateStatusHolder = new MutableQualityGateStatusHolderRule();
-  @Rule
-  public MetricRepositoryRule metricRepository = new MetricRepositoryRule();
-  @Rule
-  public MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create(treeRootHolder, metricRepository);
-  private EvaluationResultTextConverter resultTextConverter = mock(EvaluationResultTextConverter.class);
-  private MapSettings mapSettings = new MapSettings();
-  private TestSettingsRepository settings = new TestSettingsRepository(new ConfigurationBridge(mapSettings));
-  private QualityGateMeasuresStep underTest = new QualityGateMeasuresStep(treeRootHolder, qualityGateHolder, qualityGateStatusHolder, measureRepository, metricRepository,
+  @RegisterExtension
+  private final TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
+  @RegisterExtension
+  private final QualityGateHolderRule qualityGateHolder = new QualityGateHolderRule();
+  @RegisterExtension
+  private final MutableQualityGateStatusHolderRule qualityGateStatusHolder = new MutableQualityGateStatusHolderRule();
+  @RegisterExtension
+  private final MetricRepositoryRule metricRepository = new MetricRepositoryRule();
+  @RegisterExtension
+  private final MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create(treeRootHolder, metricRepository);
+
+  private final EvaluationResultTextConverter resultTextConverter = mock(EvaluationResultTextConverter.class);
+  private final MapSettings mapSettings = new MapSettings();
+  private final TestSettingsRepository settings = new TestSettingsRepository(new ConfigurationBridge(mapSettings));
+  private final QualityGateMeasuresStep underTest = new QualityGateMeasuresStep(treeRootHolder, qualityGateHolder, qualityGateStatusHolder, measureRepository, metricRepository,
     resultTextConverter, new SmallChangesetQualityGateSpecialCase(measureRepository, metricRepository, settings));
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     metricRepository
       .add(CoreMetrics.ALERT_STATUS)
       .add(CoreMetrics.QUALITY_GATE_DETAILS)
@@ -118,27 +120,27 @@ public class QualityGateMeasuresStepTest {
   }
 
   @Test
-  public void no_measure_if_tree_has_no_project() {
+  void no_measure_if_tree_has_no_project() {
     ReportComponent notAProjectComponent = ReportComponent.builder(Component.Type.DIRECTORY, 1).build();
 
     treeRootHolder.setRoot(notAProjectComponent);
 
     underTest.execute(new TestComputationStepContext());
 
-    measureRepository.getAddedRawMeasures(1).isEmpty();
+    assertTrue(measureRepository.getAddedRawMeasures(1).isEmpty());
   }
 
   @Test
-  public void no_measure_if_there_is_no_qualitygate() {
+  void no_measure_if_there_is_no_qualitygate() {
     qualityGateHolder.setQualityGate(null);
 
     underTest.execute(new TestComputationStepContext());
 
-    measureRepository.getAddedRawMeasures(PROJECT_COMPONENT).isEmpty();
+    assertTrue(measureRepository.getAddedRawMeasures(PROJECT_COMPONENT).isEmpty());
   }
 
   @Test
-  public void mutableQualityGateStatusHolder_is_not_populated_if_there_is_no_qualitygate() {
+  void mutableQualityGateStatusHolder_is_not_populated_if_there_is_no_qualitygate() {
     qualityGateHolder.setQualityGate(null);
 
     underTest.execute(new TestComputationStepContext());
@@ -149,7 +151,7 @@ public class QualityGateMeasuresStepTest {
   }
 
   @Test
-  public void new_measures_are_created_even_if_there_is_no_rawMeasure_for_metric_of_condition() {
+  void new_measures_are_created_even_if_there_is_no_rawMeasure_for_metric_of_condition() {
     Condition equals2Condition = createLessThanCondition(INT_METRIC_1, "2");
     qualityGateHolder.setQualityGate(new QualityGate(SOME_QG_UUID, SOME_QG_NAME, of(equals2Condition)));
 
@@ -171,7 +173,7 @@ public class QualityGateMeasuresStepTest {
   }
 
   @Test
-  public void rawMeasure_is_updated_if_present_and_new_measures_are_created_if_project_has_measure_for_metric_of_condition() {
+  void rawMeasure_is_updated_if_present_and_new_measures_are_created_if_project_has_measure_for_metric_of_condition() {
     int rawValue = 3;
     Condition equals2Condition = createLessThanCondition(INT_METRIC_1, "2");
     Measure rawMeasure = newMeasureBuilder().create(rawValue, null);
@@ -199,7 +201,7 @@ public class QualityGateMeasuresStepTest {
   }
 
   @Test
-  public void new_measures_have_ERROR_level_if_at_least_one_updated_measure_has_ERROR_level() {
+  void new_measures_have_ERROR_level_if_at_least_one_updated_measure_has_ERROR_level() {
     int rawValue = 3;
     Condition equalsOneErrorCondition = createLessThanCondition(INT_METRIC_1, "4");
     Condition equalsOneOkCondition = createLessThanCondition(INT_METRIC_2, "2");
@@ -237,7 +239,7 @@ public class QualityGateMeasuresStepTest {
   }
 
   @Test
-  public void new_measure_has_ERROR_level_of_all_conditions_for_a_specific_metric_if_its_the_worst() {
+  void new_measure_has_ERROR_level_of_all_conditions_for_a_specific_metric_if_its_the_worst() {
     int rawValue = 3;
     Condition fixedCondition = createLessThanCondition(INT_METRIC_1, "4");
     Condition periodCondition = createLessThanCondition(INT_METRIC_1, "2");
@@ -255,7 +257,7 @@ public class QualityGateMeasuresStepTest {
   }
 
   @Test
-  public void new_measure_has_condition_on_leak_period_when_all_conditions_on_specific_metric_has_same_QG_level() {
+  void new_measure_has_condition_on_leak_period_when_all_conditions_on_specific_metric_has_same_QG_level() {
     int rawValue = 0;
     Condition fixedCondition = createLessThanCondition(INT_METRIC_1, "1");
     Condition periodCondition = createLessThanCondition(INT_METRIC_1, "1");

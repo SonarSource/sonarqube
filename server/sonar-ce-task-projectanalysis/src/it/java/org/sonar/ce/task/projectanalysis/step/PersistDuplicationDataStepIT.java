@@ -20,9 +20,9 @@
 package org.sonar.ce.task.projectanalysis.step;
 
 import java.util.Optional;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.utils.System2;
 import org.sonar.ce.task.projectanalysis.analysis.MutableAnalysisMetadataHolderRule;
@@ -44,7 +44,7 @@ import static org.sonar.ce.task.projectanalysis.component.Component.Type.FILE;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.PROJECT;
 import static org.sonar.ce.task.projectanalysis.component.ReportComponent.builder;
 
-public class PersistDuplicationDataStepIT extends BaseStepTest {
+class PersistDuplicationDataStepIT extends BaseStepJUnit5Test {
 
   private static final int ROOT_REF = 1;
   private static final String PROJECT_KEY = "PROJECT_KEY";
@@ -58,10 +58,10 @@ public class PersistDuplicationDataStepIT extends BaseStepTest {
   private static final String FILE_2_KEY = "FILE_2_KEY";
   private static final String FILE_2_UUID = "u3";
 
-  @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
-  @Rule
-  public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule()
+  @RegisterExtension
+  private final DbTester db = DbTester.create(System2.INSTANCE);
+  @RegisterExtension
+  private final TreeRootHolderRule treeRootHolder = new TreeRootHolderRule()
     .setRoot(
       builder(PROJECT, ROOT_REF).setKey(PROJECT_KEY).setUuid(PROJECT_UUID)
         .addChildren(
@@ -71,15 +71,15 @@ public class PersistDuplicationDataStepIT extends BaseStepTest {
             .build())
         .build());
 
-  @Rule
-  public MutableAnalysisMetadataHolderRule analysisMetadataHolder = new MutableAnalysisMetadataHolderRule();
-  @Rule
-  public DuplicationRepositoryRule duplicationRepository = DuplicationRepositoryRule.create(treeRootHolder);
-  @Rule
-  public MetricRepositoryRule metricRepository = new MetricRepositoryRule();
+  @RegisterExtension
+  private final MutableAnalysisMetadataHolderRule analysisMetadataHolder = new MutableAnalysisMetadataHolderRule();
+  @RegisterExtension
+  private final DuplicationRepositoryRule duplicationRepository = DuplicationRepositoryRule.create(treeRootHolder);
+  @RegisterExtension
+  private final MetricRepositoryRule metricRepository = new MetricRepositoryRule();
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     MetricDto metric = db.measures().insertMetric(m -> m.setKey(DUPLICATIONS_DATA_KEY).setValueType(Metric.ValueType.STRING.name()));
     insertComponent(PROJECT_KEY, PROJECT_UUID);
     insertComponent(FILE_1_KEY, FILE_1_UUID);
@@ -94,7 +94,7 @@ public class PersistDuplicationDataStepIT extends BaseStepTest {
   }
 
   @Test
-  public void nothing_to_persist_when_no_duplication() {
+   void nothing_to_persist_when_no_duplication() {
     TestComputationStepContext context = new TestComputationStepContext();
 
     underTest().execute(context);
@@ -104,7 +104,7 @@ public class PersistDuplicationDataStepIT extends BaseStepTest {
   }
 
   @Test
-  public void compute_duplications_on_same_file() {
+  void compute_duplications_on_same_file() {
     duplicationRepository.addDuplication(FILE_1_REF, new TextBlock(1, 5), new TextBlock(6, 10));
     TestComputationStepContext context = new TestComputationStepContext();
 
@@ -117,7 +117,7 @@ public class PersistDuplicationDataStepIT extends BaseStepTest {
   }
 
   @Test
-  public void compute_duplications_on_different_files() {
+  void compute_duplications_on_different_files() {
     duplicationRepository.addDuplication(FILE_1_REF, new TextBlock(1, 5), FILE_2_REF, new TextBlock(6, 10));
     TestComputationStepContext context = new TestComputationStepContext();
 
@@ -131,7 +131,7 @@ public class PersistDuplicationDataStepIT extends BaseStepTest {
   }
 
   @Test
-  public void compute_duplications_on_unchanged_file() {
+  void compute_duplications_on_unchanged_file() {
     duplicationRepository.addExtendedProjectDuplication(FILE_1_REF, new TextBlock(1, 5), FILE_2_REF, new TextBlock(6, 10));
     TestComputationStepContext context = new TestComputationStepContext();
 
@@ -145,7 +145,7 @@ public class PersistDuplicationDataStepIT extends BaseStepTest {
   }
 
   @Test
-  public void compute_duplications_on_different_projects() {
+  void compute_duplications_on_different_projects() {
     String fileKeyFromOtherProject = "PROJECT2_KEY:file2";
     duplicationRepository.addCrossProjectDuplication(FILE_1_REF, new TextBlock(1, 5), fileKeyFromOtherProject, new TextBlock(6, 10));
     TestComputationStepContext context = new TestComputationStepContext();

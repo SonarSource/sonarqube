@@ -37,7 +37,6 @@ public class CeWorkerControllerImplTest {
   /** 1 <= workerCount <= 5 */
   private int randomWorkerCount = 1 + random.nextInt(5);
 
-  @Rule
   public CeConfigurationRule ceConfigurationRule = new CeConfigurationRule()
     .setWorkerCount(randomWorkerCount);
   @Rule

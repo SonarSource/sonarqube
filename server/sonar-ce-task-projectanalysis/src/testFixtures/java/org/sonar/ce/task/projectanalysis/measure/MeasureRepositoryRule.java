@@ -28,6 +28,8 @@ import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import org.junit.jupiter.api.extension.AfterEachCallback;
+import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.rules.ExternalResource;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.ComponentProvider;
@@ -49,7 +51,7 @@ import static java.util.Objects.requireNonNull;
  * methods that takes component ref and metric keys thanks to the integration with various Component and Metric
  * providers.
  */
-public class MeasureRepositoryRule extends ExternalResource implements MeasureRepository {
+public class MeasureRepositoryRule extends ExternalResource implements MeasureRepository, AfterEachCallback {
   private final ComponentProvider componentProvider;
   @CheckForNull
   private final MetricRepositoryRule metricRepositoryRule;
@@ -206,6 +208,11 @@ public class MeasureRepositoryRule extends ExternalResource implements MeasureRe
 
   public boolean isEmpty() {
     return rawMeasures.isEmpty();
+  }
+
+  @Override
+  public void afterEach(ExtensionContext extensionContext) throws Exception {
+    after();
   }
 
   private static final class InternalKey {

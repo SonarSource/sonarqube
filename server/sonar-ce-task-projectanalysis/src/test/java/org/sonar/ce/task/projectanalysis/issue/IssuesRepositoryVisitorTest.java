@@ -19,9 +19,9 @@
  */
 package org.sonar.ce.task.projectanalysis.issue;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.core.issue.DefaultIssue;
@@ -30,39 +30,38 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.sonar.ce.task.projectanalysis.component.ReportComponent.builder;
 
-public class IssuesRepositoryVisitorTest {
-  static final String FILE_UUID = "FILE_UUID";
-  static final String FILE_KEY = "FILE_KEY";
-  static final int FILE_REF = 2;
-  static final Component FILE = builder(Component.Type.FILE, FILE_REF)
+class IssuesRepositoryVisitorTest {
+  private static final String FILE_UUID = "FILE_UUID";
+  private static final String FILE_KEY = "FILE_KEY";
+  private static final int FILE_REF = 2;
+  private static final Component FILE = builder(Component.Type.FILE, FILE_REF)
     .setKey(FILE_KEY)
     .setUuid(FILE_UUID)
     .build();
 
-  static final String PROJECT_KEY = "PROJECT_KEY";
-  static final String PROJECT_UUID = "PROJECT_UUID";
-  static final int PROJECT_REF = 1;
-  static final Component PROJECT = builder(Component.Type.PROJECT, PROJECT_REF)
+  private static final String PROJECT_KEY = "PROJECT_KEY";
+  private static final String PROJECT_UUID = "PROJECT_UUID";
+  private static final int PROJECT_REF = 1;
+  private static final Component PROJECT = builder(Component.Type.PROJECT, PROJECT_REF)
     .setKey(PROJECT_KEY)
     .setUuid(PROJECT_UUID)
     .addChildren(FILE)
     .build();
 
-  @Rule
-  public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
+  @RegisterExtension
+  private final TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
 
-  @Rule
-  public ComponentIssuesRepositoryRule componentIssuesRepository = new ComponentIssuesRepositoryRule(treeRootHolder);
+  private final ComponentIssuesRepositoryRule componentIssuesRepository = new ComponentIssuesRepositoryRule(treeRootHolder);
 
-  IssuesRepositoryVisitor underTest = new IssuesRepositoryVisitor(componentIssuesRepository);
+  private final IssuesRepositoryVisitor underTest = new IssuesRepositoryVisitor(componentIssuesRepository);
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     treeRootHolder.setRoot(PROJECT);
   }
 
   @Test
-  public void feed_component_issues_repo() {
+  void feed_component_issues_repo() {
     DefaultIssue i1 = mock(DefaultIssue.class);
     DefaultIssue i2 = mock(DefaultIssue.class);
 
@@ -75,7 +74,7 @@ public class IssuesRepositoryVisitorTest {
   }
 
   @Test
-  public void empty_component_issues_repo_when_no_issue() {
+  void empty_component_issues_repo_when_no_issue() {
     DefaultIssue i1 = mock(DefaultIssue.class);
     DefaultIssue i2 = mock(DefaultIssue.class);
 

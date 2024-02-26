@@ -25,6 +25,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
+import org.junit.jupiter.api.extension.AfterEachCallback;
+import org.junit.jupiter.api.extension.BeforeEachCallback;
+import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.rules.ExternalResource;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.ComponentProvider;
@@ -35,7 +38,7 @@ import org.sonar.ce.task.projectanalysis.component.TreeRootHolderRule;
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
 
-public class DuplicationRepositoryRule extends ExternalResource implements DuplicationRepository {
+public class DuplicationRepositoryRule extends ExternalResource implements DuplicationRepository, BeforeEachCallback, AfterEachCallback {
   @CheckForNull
   private final ComponentProvider componentProvider;
   private DuplicationRepositoryImpl delegate;
@@ -60,8 +63,18 @@ public class DuplicationRepositoryRule extends ExternalResource implements Dupli
   }
 
   @Override
+  public void beforeEach(ExtensionContext extensionContext) {
+    before();
+  }
+
+  @Override
   protected void before() {
     this.delegate = new DuplicationRepositoryImpl();
+  }
+
+  @Override
+  public void afterEach(ExtensionContext extensionContext) {
+    after();
   }
 
   @Override

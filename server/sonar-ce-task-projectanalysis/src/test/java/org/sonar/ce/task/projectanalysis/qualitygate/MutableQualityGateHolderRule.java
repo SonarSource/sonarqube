@@ -20,10 +20,12 @@
 package org.sonar.ce.task.projectanalysis.qualitygate;
 
 import java.util.Optional;
+import org.junit.jupiter.api.extension.AfterEachCallback;
+import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.rules.ExternalResource;
 import org.sonar.server.qualitygate.EvaluatedQualityGate;
 
-public class MutableQualityGateHolderRule extends ExternalResource implements MutableQualityGateHolder {
+public class MutableQualityGateHolderRule extends ExternalResource implements MutableQualityGateHolder, AfterEachCallback {
   private MutableQualityGateHolder delegate = new QualityGateHolderImpl();
 
   @Override
@@ -53,5 +55,10 @@ public class MutableQualityGateHolderRule extends ExternalResource implements Mu
 
   public void reset() {
     this.delegate = new QualityGateHolderImpl();
+  }
+
+  @Override
+  public void afterEach(ExtensionContext extensionContext) throws Exception {
+    reset();
   }
 }

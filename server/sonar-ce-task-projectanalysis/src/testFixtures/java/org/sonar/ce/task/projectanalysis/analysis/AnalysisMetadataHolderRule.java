@@ -24,6 +24,8 @@ import java.util.Map;
 import java.util.Optional;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.junit.jupiter.api.extension.AfterEachCallback;
+import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.rules.ExternalResource;
 import org.sonar.ce.task.util.InitializedProperty;
 import org.sonar.db.component.BranchType;
@@ -34,7 +36,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static org.apache.commons.lang.StringUtils.defaultIfBlank;
 
-public class AnalysisMetadataHolderRule extends ExternalResource implements MutableAnalysisMetadataHolder {
+public class AnalysisMetadataHolderRule extends ExternalResource implements MutableAnalysisMetadataHolder, AfterEachCallback {
 
   private final InitializedProperty<String> uuid = new InitializedProperty<>();
   private final InitializedProperty<Long> analysisDate = new InitializedProperty<>();
@@ -227,5 +229,10 @@ public class AnalysisMetadataHolderRule extends ExternalResource implements Muta
   public boolean isPullRequest() {
     Branch property = this.branch.getProperty();
     return property != null && property.getType() == BranchType.PULL_REQUEST;
+  }
+
+  @Override
+  public void afterEach(ExtensionContext context) {
+    after();
   }
 }

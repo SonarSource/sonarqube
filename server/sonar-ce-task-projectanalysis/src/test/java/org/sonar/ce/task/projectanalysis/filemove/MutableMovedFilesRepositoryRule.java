@@ -23,14 +23,27 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 import javax.annotation.CheckForNull;
+import org.junit.jupiter.api.extension.AfterEachCallback;
+import org.junit.jupiter.api.extension.BeforeEachCallback;
+import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.rules.ExternalResource;
 import org.sonar.ce.task.projectanalysis.component.Component;
 
-public class MutableMovedFilesRepositoryRule extends ExternalResource implements MutableMovedFilesRepository {
+public class MutableMovedFilesRepositoryRule extends ExternalResource
+  implements MutableMovedFilesRepository, BeforeEachCallback, AfterEachCallback {
   @CheckForNull
   private MutableMovedFilesRepository delegate;
   private final Set<Component> componentsWithOriginal = new HashSet<>();
 
+  @Override
+  public void afterEach(ExtensionContext extensionContext) {
+    after();
+  }
+
+  @Override
+  public void beforeEach(ExtensionContext extensionContext) {
+    before();
+  }
   @Override
   protected void before() {
     this.delegate = new MutableMovedFilesRepositoryImpl();

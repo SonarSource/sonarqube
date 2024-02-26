@@ -21,12 +21,14 @@ package org.sonar.ce.task.projectanalysis.qualitygate;
 
 import java.util.Optional;
 import javax.annotation.Nullable;
+import org.junit.jupiter.api.extension.AfterEachCallback;
+import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.rules.ExternalResource;
 import org.sonar.server.qualitygate.EvaluatedQualityGate;
 
 import static com.google.common.base.Preconditions.checkState;
 
-public class QualityGateHolderRule extends ExternalResource implements QualityGateHolder {
+public class QualityGateHolderRule implements QualityGateHolder, AfterEachCallback {
   @Nullable
   private Optional<QualityGate> qualityGate;
   @Nullable
@@ -52,13 +54,13 @@ public class QualityGateHolderRule extends ExternalResource implements QualityGa
     return evaluation;
   }
 
-  @Override
-  protected void after() {
-    reset();
-  }
-
   public void reset() {
     this.qualityGate = null;
     this.evaluation = null;
+  }
+
+  @Override
+  public void afterEach(ExtensionContext extensionContext) throws Exception {
+    reset();
   }
 }

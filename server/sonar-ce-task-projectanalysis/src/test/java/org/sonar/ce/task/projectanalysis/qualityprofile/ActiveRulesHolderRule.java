@@ -22,10 +22,12 @@ package org.sonar.ce.task.projectanalysis.qualityprofile;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import org.junit.jupiter.api.extension.AfterEachCallback;
+import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.rules.ExternalResource;
 import org.sonar.api.rule.RuleKey;
 
-public class ActiveRulesHolderRule extends ExternalResource implements ActiveRulesHolder {
+public class ActiveRulesHolderRule extends ExternalResource implements ActiveRulesHolder, AfterEachCallback {
 
   private final Map<RuleKey, ActiveRule> activeRulesByKey = new HashMap<>();
 
@@ -42,5 +44,10 @@ public class ActiveRulesHolderRule extends ExternalResource implements ActiveRul
   @Override
   protected void after() {
     activeRulesByKey.clear();
+  }
+
+  @Override
+  public void afterEach(ExtensionContext extensionContext) throws Exception {
+    after();
   }
 }

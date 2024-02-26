@@ -17,31 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.ui.ws;
+package org.sonar.ce.task.projectanalysis.step;
 
-import org.junit.rules.ExternalResource;
-import org.sonar.server.branch.BranchFeatureProxy;
+import org.junit.jupiter.api.Test;
+import org.sonar.ce.task.step.ComputationStep;
 
-public class BranchFeatureRule extends ExternalResource implements BranchFeatureProxy {
+import static org.assertj.core.api.Assertions.assertThat;
 
-  private boolean enabled;
+/**
+ * Temporary solution to test metadata. Should be replaced by a medium test of
+ * all computation stack
+ */
+public abstract class BaseStepJUnit5Test {
 
-  public void setEnabled(boolean enabled) {
-    this.enabled = enabled;
+  protected abstract ComputationStep step();
+
+  @Test
+  public void test_metadata() {
+    assertThat(step().toString()).isNotEmpty();
+    assertThat(step().getDescription()).isNotEmpty();
   }
-
-  @Override
-  protected void after() {
-    reset();
-  }
-
-  public void reset() {
-    this.enabled = false;
-  }
-
-  @Override
-  public boolean isEnabled() {
-    return enabled;
-  }
-
 }
