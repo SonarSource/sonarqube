@@ -122,7 +122,7 @@ public class CompositeBlameCommand extends BlameCommand {
 
                 for (InputFile inputFile : input.filesToBlame()) {
 
-                  String filename = pathResolver.relativePath(gitBaseDir, inputFile.file());
+                  String filename = pathResolver.relativePath(subModuleWorkTree, inputFile.file());
                   if (filename == null || !committedFiles.contains(filename)) {
                     continue;
                   }
