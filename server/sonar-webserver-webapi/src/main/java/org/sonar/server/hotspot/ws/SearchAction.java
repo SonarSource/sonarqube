@@ -87,7 +87,7 @@ import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.api.utils.DateUtils.longToDate;
 import static org.sonar.api.utils.Paging.forPageIndex;
-import static org.sonar.api.web.UserRole.USER;
+import static org.sonar.api.web.UserRole.SCAN;
 import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.core.util.stream.MoreCollectors.toSet;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
@@ -327,8 +327,8 @@ public class SearchAction implements HotspotsWsAction {
       if (!Scopes.PROJECT.equals(project.scope()) || !SUPPORTED_QUALIFIERS.contains(project.qualifier()) || !project.isEnabled()) {
         throw new NotFoundException(format("Project '%s' not found", projectKey));
       }
-      userSession.checkComponentPermission(USER, project);
-      userSession.checkChildProjectsPermission(USER, project);
+      userSession.checkComponentPermission(SCAN, project);
+      userSession.checkChildProjectsPermission(SCAN, project);
       return project;
     });
   }

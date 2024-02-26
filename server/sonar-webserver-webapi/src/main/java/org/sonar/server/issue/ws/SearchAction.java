@@ -60,6 +60,7 @@ import org.sonar.server.user.ThreadLocalUserSession;
 import org.sonar.server.user.TokenUserSession;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Issues.SearchWsResponse;
+import org.springframework.util.CollectionUtils;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.base.Preconditions.checkArgument;
@@ -425,7 +426,7 @@ public class SearchAction implements IssuesWsAction {
   public final void handle(Request request, Response response) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       SearchRequest searchRequest = toSearchWsRequest(dbSession, request);
-      checkPermissions(searchRequest);
+      validateAndUpdateSearchRequestForProjectAnalysisToken(searchRequest);
 
       checkIfNeedIssueSync(dbSession, searchRequest);
       SearchWsResponse searchWsResponse = doHandle(searchRequest);
@@ -433,19 +434,37 @@ public class SearchAction implements IssuesWsAction {
     }
   }
 
-  private void checkPermissions(SearchRequest searchRequest) {
+  private void validateAndUpdateSearchRequestForProjectAnalysisToken(SearchRequest searchRequest) {
     if (userSession instanceof ThreadLocalUserSession) {
       UserSession tokenUserSession = ((ThreadLocalUserSession) userSession).get();
       if (tokenUserSession instanceof TokenUserSession) {
         UserTokenDto userToken = ((TokenUserSession) tokenUserSession).getUserToken();
         if (TokenType.PROJECT_ANALYSIS_TOKEN.name().equals(userToken.getType())) {
-          if (searchRequest.getComponents() == null || searchRequest.getComponents().size() != 1
-                  || !userToken.getProjectKey().equals(searchRequest.getComponents().get(0))) {
-            throw insufficientPrivilegesException();
-          }
+          validateAndUpdateSearchRequestWithProjectKeyIfMissing(searchRequest, userToken);
         }
       }
     }
+  }
+
+  private void validateAndUpdateSearchRequestWithProjectKeyIfMissing(SearchRequest searchRequest, UserTokenDto userToken) {
+    List<String> updatedSearchRequestComponents = new ArrayList<>();
+    if (!CollectionUtils.isEmpty(searchRequest.getComponents())) {
+      updatedSearchRequestComponents.addAll(filteredSearchRequestComponents(searchRequest, userToken));
+      if (updatedSearchRequestComponents.isEmpty()) {
+        throw insufficientPrivilegesException();
+      }
+    } else {
+      updatedSearchRequestComponents.add(userToken.getProjectKey());
+    }
+    searchRequest.setComponents(updatedSearchRequestComponents);
+  }
+
+  public List<String> filteredSearchRequestComponents(SearchRequest searchRequest, UserTokenDto userToken) {
+    String formattedProjectKey = userToken.getProjectKey() + ":";
+    return searchRequest.getComponents()
+      .stream()
+      .filter(c -> (c.startsWith(formattedProjectKey) || c.equals(userToken.getProjectKey())))
+      .toList();
   }
 
   private SearchWsResponse doHandle(SearchRequest request) {
