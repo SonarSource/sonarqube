@@ -111,14 +111,14 @@ class CeWorkerImplIT {
 
   @Test
   void constructor_throws_IAE_if_ordinal_is_less_than_zero() {
-    assertThatThrownBy(() -> new CeWorkerImpl(-1 - new Random().nextInt(20), workerUuid, queue, taskProcessorRepository, ceWorkerController))
+    assertThatThrownBy(() -> new CeWorkerImpl(-1, workerUuid, queue, taskProcessorRepository, ceWorkerController))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("Ordinal must be >= 0");
   }
 
   @Test
   void getUUID_must_return_the_uuid_of_constructor() {
-    String uuid = UUID.randomUUID().toString();
+    String uuid = "de338f4f-a06f-474f-8ad0-9941b7455904";
     CeWorker underTest = new CeWorkerImpl(ordinal, uuid, queue, taskProcessorRepository, ceWorkerController);
     assertThat(underTest.getUUID()).isEqualTo(uuid);
   }

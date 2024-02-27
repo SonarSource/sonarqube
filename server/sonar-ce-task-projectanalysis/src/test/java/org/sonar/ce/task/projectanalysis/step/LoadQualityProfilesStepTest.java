@@ -38,7 +38,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.rule.RuleTesting.XOO_X1;
 import static org.sonar.db.rule.RuleTesting.XOO_X2;
 
-public class LoadQualityProfilesStepTest {
+class LoadQualityProfilesStepTest {
 
   @RegisterExtension
   private final BatchReportReaderRule batchReportReader = new BatchReportReaderRule();
