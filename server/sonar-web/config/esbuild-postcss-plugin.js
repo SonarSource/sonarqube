@@ -24,6 +24,15 @@ const postCSSPlugin = ({ plugins = [], postcss }) => ({
   name: 'plugin-postcss',
   setup(build) {
     build.onLoad({ filter: /.\.css/ }, async ({ path }) => {
+      /*
+       * postCssCustomProperties removes all CSS variables from files
+       * We want to avoid this in some cases, typically echoes-react provides
+       * CSS variable to manage the theme.
+       */
+      if (path.includes('echoes-react')) {
+        return;
+      }
+
       const processor = postcss(plugins);
       const content = readFileSync(path);
       const result = await processor.process(content, { from: path });
