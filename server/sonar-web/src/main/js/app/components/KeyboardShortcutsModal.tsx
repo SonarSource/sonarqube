@@ -18,16 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import {
-  ContentCell,
-  Key,
-  KeyboardHint,
-  Link,
-  Modal,
-  SubTitle,
-  Table,
-  TableRow,
-} from 'design-system';
+import { LinkStandalone } from '@sonarsource/echoes-react';
+import { ContentCell, Key, KeyboardHint, Modal, SubTitle, Table, TableRow } from 'design-system';
 import * as React from 'react';
 import { isInput } from '../../helpers/keyboardEventHelpers';
 import { KeyboardKeys } from '../../helpers/keycodes';
@@ -148,12 +140,14 @@ function renderSection() {
   return SECTIONS.map((section) => (
     <div key={section.subTitle} className="sw-mb-4">
       <SubTitle>{translate(section.subTitle)}</SubTitle>
+
       <Table columnCount={2} columnWidths={['30%', '70%']}>
         {section.rows.map((row) => (
           <TableRow key={row.command}>
             <ContentCell className="sw-justify-center">
               <KeyboardHint command={row.command} title="" />
             </ContentCell>
+
             <ContentCell>{translate(row.description)}</ContentCell>
           </TableRow>
         ))}
@@ -195,24 +189,25 @@ export default function KeyboardShortcutsModal() {
 
   const body = (
     <>
-      <Link
-        to="/account"
+      <LinkStandalone
         onClick={() => {
           setDisplay(false);
           return true;
         }}
+        to="/account"
       >
         {translate('keyboard_shortcuts_modal.disable_link')}
-      </Link>
+      </LinkStandalone>
+
       <div className="sw-mt-4">{renderSection()}</div>
     </>
   );
 
   return (
     <Modal
+      body={body}
       headerTitle={title}
       onClose={() => setDisplay(false)}
-      body={body}
       secondaryButtonLabel={translate('close')}
     />
   );

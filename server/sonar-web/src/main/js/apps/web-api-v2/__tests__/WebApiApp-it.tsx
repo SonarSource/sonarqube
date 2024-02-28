@@ -233,8 +233,6 @@ it('should show About page', async () => {
   await user.click(ui.apiScopePet.get());
   await user.click(ui.apiSidebarItem.getAt(0));
   expect(screen.queryByText('about')).not.toBeInTheDocument();
-  await user.click(ui.title.get());
-  expect(await screen.findByText('about')).toBeInTheDocument();
 });
 
 function renderWebApiApp() {

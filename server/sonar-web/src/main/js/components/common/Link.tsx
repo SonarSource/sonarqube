@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import * as Echoes from '@sonarsource/echoes-react';
 import * as React from 'react';
 import { Link as ReactRouterDomLink, LinkProps as ReactRouterDomLinkProps } from 'react-router-dom';
 import { isWebUri } from 'valid-url';
@@ -25,6 +26,17 @@ import DetachIcon from '../icons/DetachIcon';
 
 type OriginalLinkProps = ReactRouterDomLinkProps & React.RefAttributes<HTMLAnchorElement>;
 
+/** @deprecated Use {@link Echoes.LinkProps | LinkProps} from Echoes instead.
+ *
+ * Some of the props have changed or been renamed:
+ * - `blurAfterClick` is now `shouldBlurAfterClick`
+ * - ~`disabled`~ doesn't exist anymore, a disabled link is just a regular text
+ * - `forceExternal` is now `isExternal`
+ * - `icon` is now `iconLeft` and can only be used with LinkStandalone
+ * - `preventDefault` is now `shouldPreventDefault`
+ * - `showExternalIcon` is now `hasExternalIcon`
+ * - `stopPropagation` is now `shouldStopPropagation`
+ */
 export interface LinkProps extends OriginalLinkProps {
   size?: number;
 }
@@ -66,4 +78,6 @@ function Link({ children, size, ...props }: LinkProps, ref: React.ForwardedRef<H
   );
 }
 
+/** @deprecated Use either {@link Echoes.Link | Link} or {@link Echoes.LinkStandalone | LinkStandalone} from Echoes instead.
+ */
 export default React.forwardRef(Link);

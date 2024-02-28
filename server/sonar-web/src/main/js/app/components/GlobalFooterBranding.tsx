@@ -17,7 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { DiscreetLink } from 'design-system';
+
+import { Link, LinkHighlight } from '@sonarsource/echoes-react';
 import * as React from 'react';
 import { isOfficial } from '../../helpers/system';
 
@@ -27,21 +28,28 @@ export default function GlobalFooterBranding() {
   return official ? (
     <div>
       SonarQube&trade; technology is powered by{' '}
-      <DiscreetLink to="https://www.sonarsource.com">SonarSource SA</DiscreetLink>
+      <Link highlight={LinkHighlight.CurrentColor} to="https://www.sonarsource.com">
+        SonarSource SA
+      </Link>
     </div>
   ) : (
     <div>
       This application is based on{' '}
-      <DiscreetLink
+      <Link
+        highlight={LinkHighlight.CurrentColor}
         to="https://www.sonarsource.com/products/sonarqube/?referrer=sonarqube"
         title="SonarQube™"
       >
         SonarQube™
-      </DiscreetLink>{' '}
+      </Link>{' '}
       but is <strong>not</strong> an official version provided by{' '}
-      <DiscreetLink to="https://www.sonarsource.com" title="SonarSource SA">
+      <Link
+        highlight={LinkHighlight.CurrentColor}
+        to="https://www.sonarsource.com"
+        title="SonarSource SA"
+      >
         SonarSource SA
-      </DiscreetLink>
+      </Link>
       .
     </div>
   );

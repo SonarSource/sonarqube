@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { css } from '@emotion/react';
 import styled from '@emotion/styled';
 import React, { HTMLAttributeAnchorTarget } from 'react';
@@ -26,6 +27,17 @@ import { themeBorder, themeColor } from '../helpers/theme';
 import { TooltipWrapperInner } from './Tooltip';
 import { OpenNewTabIcon } from './icons/OpenNewTabIcon';
 
+/** @deprecated Use LinkProps from Echoes instead.
+ *
+ * Some of the props have changed or been renamed:
+ * - `blurAfterClick` is now `shouldBlurAfterClick`
+ * - ~`disabled`~ doesn't exist anymore, a disabled link is just a regular text
+ * - `forceExternal` is now `isExternal`
+ * - `icon` is now `iconLeft` and can only be used with LinkStandalone
+ * - `preventDefault` is now `shouldPreventDefault`
+ * - `showExternalIcon` is now `hasExternalIcon`
+ * - `stopPropagation` is now `shouldStopPropagation`
+ */
 export interface LinkProps extends RouterLinkProps {
   blurAfterClick?: boolean;
   disabled?: boolean;
@@ -109,6 +121,8 @@ const ExternalIcon = styled(OpenNewTabIcon)`
   color: ${themeColor('linkExternalIcon')};
 `;
 
+/** @deprecated Use either Link or LinkStandalone from Echoes, or react-router-dom's Link instead.
+ */
 export const BaseLink = React.forwardRef(BaseLinkWithRef);
 
 const StyledBaseLink = styled(BaseLink)`
@@ -150,6 +164,8 @@ const StyledBaseLink = styled(BaseLink)`
     `};
 `;
 
+/** @deprecated Use either Link or LinkStandalone from Echoes instead.
+ */
 export const NakedLink = styled(BaseLink)`
   border-bottom: none;
   padding-bottom: 1px;
@@ -167,6 +183,8 @@ export const NakedLink = styled(BaseLink)`
          }`};
 `;
 
+/** @deprecated Use either Link or LinkStandalone from Echoes instead.
+ */
 export const DrilldownLink = styled(StyledBaseLink)`
   ${tw`sw-heading-lg`}
   ${tw`sw-tracking-tight`}
@@ -184,6 +202,8 @@ export const DrilldownLink = styled(StyledBaseLink)`
 
 DrilldownLink.displayName = 'DrilldownLink';
 
+/** @deprecated Use either Link or LinkStandalone from Echoes instead.
+ */
 export const HoverLink = styled(StyledBaseLink)`
   text-decoration: none;
 
@@ -203,6 +223,8 @@ export const HoverLink = styled(StyledBaseLink)`
 `;
 HoverLink.displayName = 'HoverLink';
 
+/** @deprecated Use either Link or LinkStandalone from Echoes instead.
+ */
 export const LinkBox = styled(StyledBaseLink)`
   text-decoration: none;
 
@@ -215,6 +237,8 @@ export const LinkBox = styled(StyledBaseLink)`
 `;
 LinkBox.displayName = 'LinkBox';
 
+/** @deprecated Use either Link or LinkStandalone from Echoes instead.
+ */
 export const DiscreetLinkBox = styled(StyledBaseLink)`
   text-decoration: none;
 
@@ -229,11 +253,15 @@ export const DiscreetLinkBox = styled(StyledBaseLink)`
 `;
 LinkBox.displayName = 'DiscreetLinkBox';
 
+/** @deprecated Use either Link or LinkStandalone from Echoes instead.
+ */
 export const DiscreetLink = styled(HoverLink)`
   --border: ${themeBorder('default', 'linkDiscreet')};
 `;
 DiscreetLink.displayName = 'DiscreetLink';
 
+/** @deprecated Use either Link or LinkStandalone from Echoes instead.
+ */
 export const ContentLink = styled(HoverLink)`
   --color: ${themeColor('pageTitle')};
   --border: ${themeBorder('default', 'contentLinkBorder')};
@@ -249,6 +277,8 @@ export const ContentLink = styled(HoverLink)`
 `;
 ContentLink.displayName = 'ContentLink';
 
+/** @deprecated Use either Link or LinkStandalone from Echoes instead.
+ */
 export const StandoutLink = styled(StyledBaseLink)`
   ${tw`sw-font-semibold`}
   ${tw`sw-no-underline`}
@@ -267,6 +297,8 @@ export const StandoutLink = styled(StyledBaseLink)`
 `;
 StandoutLink.displayName = 'StandoutLink';
 
+/** @deprecated Use either Link or LinkStandalone from Echoes instead.
+ */
 export const IssueIndicatorLink = styled(BaseLink)`
   color: ${themeColor('codeLineMeta')};
   text-decoration: none;

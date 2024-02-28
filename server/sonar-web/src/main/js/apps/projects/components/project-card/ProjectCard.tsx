@@ -17,7 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import styled from '@emotion/styled';
+import { Link, LinkStandalone } from '@sonarsource/echoes-react';
 import classNames from 'classnames';
 import {
   Badge,
@@ -27,7 +29,6 @@ import {
   Note,
   QualityGateIndicator,
   SeparatorCircleIcon,
-  StandoutLink,
   SubnavigationFlowSeparator,
   Tags,
   themeBorder,
@@ -42,6 +43,7 @@ import DateTimeFormatter from '../../../../components/intl/DateTimeFormatter';
 import Measure from '../../../../components/measure/Measure';
 import { translate, translateWithParameters } from '../../../../helpers/l10n';
 import { formatMeasure } from '../../../../helpers/measures';
+import { isDefined } from '../../../../helpers/types';
 import { getProjectUrl } from '../../../../helpers/urls';
 import { ComponentQualifier } from '../../../../types/component';
 import { MetricKey, MetricType } from '../../../../types/metrics';
@@ -70,7 +72,7 @@ function renderFirstLine(
     <>
       <div className="sw-flex sw-justify-between sw-items-center ">
         <div className="sw-flex sw-items-center ">
-          {isFavorite !== undefined && (
+          {isDefined(isFavorite) && (
             <Favorite
               className="sw-mr-2"
               component={key}
@@ -82,7 +84,7 @@ function renderFirstLine(
           )}
 
           <span className="it__project-card-name" title={name}>
-            <StandoutLink to={getProjectUrl(key)}>{name}</StandoutLink>
+            <LinkStandalone to={getProjectUrl(key)}>{name}</LinkStandalone>
           </span>
 
           {qualifier === ComponentQualifier.Application && (
@@ -90,7 +92,7 @@ function renderFirstLine(
               overlay={
                 <span>
                   {translate('qualifier.APP')}
-                  {measures.projects && (
+                  {measures.projects !== '' && (
                     <span>
                       {' ‒ '}
                       {translateWithParameters('x_projects_', measures.projects)}
@@ -111,7 +113,8 @@ function renderFirstLine(
             </span>
           </Tooltip>
         </div>
-        {analysisDate && (
+
+        {isDefined(analysisDate) && analysisDate !== '' && (
           <Tooltip overlay={qualityGateLabel}>
             <span className="sw-flex sw-items-center">
               <QualityGateIndicator
@@ -123,8 +126,9 @@ function renderFirstLine(
           </Tooltip>
         )}
       </div>
+
       <LightLabel as="div" className="sw-flex sw-items-center sw-mt-3">
-        {analysisDate && (
+        {isDefined(analysisDate) && analysisDate !== '' && (
           <DateTimeFormatter date={analysisDate}>
             {(formattedAnalysisDate) => (
               <span className="sw-body-sm-highlight" title={formattedAnalysisDate}>
@@ -139,10 +143,12 @@ function renderFirstLine(
             )}
           </DateTimeFormatter>
         )}
+
         {isNewCode
           ? measures[MetricKey.new_lines] != null && (
               <>
                 <SeparatorCircleIcon className="sw-mx-1" />
+
                 <div>
                   <span className="sw-body-sm-highlight sw-mr-1" data-key={MetricKey.new_lines}>
                     <Measure
@@ -151,6 +157,7 @@ function renderFirstLine(
                       value={measures.new_lines}
                     />
                   </span>
+
                   <span className="sw-body-sm">{translate('metric.new_lines.name')}</span>
                 </div>
               </>
@@ -158,6 +165,7 @@ function renderFirstLine(
           : measures[MetricKey.ncloc] != null && (
               <>
                 <SeparatorCircleIcon className="sw-mx-1" />
+
                 <div>
                   <span className="sw-body-sm-highlight sw-mr-1" data-key={MetricKey.ncloc}>
                     <Measure
@@ -166,17 +174,22 @@ function renderFirstLine(
                       value={measures.ncloc}
                     />
                   </span>
+
                   <span className="sw-body-sm">{translate('metric.ncloc.name')}</span>
                 </div>
+
                 <SeparatorCircleIcon className="sw-mx-1" />
+
                 <span className="sw-body-sm" data-key={MetricKey.ncloc_language_distribution}>
                   <ProjectCardLanguages distribution={measures.ncloc_language_distribution} />
                 </span>
               </>
             )}
+
         {tags.length > 0 && (
           <>
             <SeparatorCircleIcon className="sw-mx-1" />
+
             <Tags
               className="sw-body-sm"
               emptyText={translate('issue.no_tag')}
@@ -199,7 +212,11 @@ function renderSecondLine(
 ) {
   const { analysisDate, key, leakPeriodDate, measures, qualifier, isScannable } = project;
 
-  if (analysisDate && (!isNewCode || leakPeriodDate)) {
+  if (
+    isDefined(analysisDate) &&
+    analysisDate !== '' &&
+    (!isNewCode || (isDefined(leakPeriodDate) && leakPeriodDate !== ''))
+  ) {
     return (
       <ProjectCardMeasures
         measures={measures}
@@ -216,19 +233,20 @@ function renderSecondLine(
           ? translate('projects.no_new_code_period', qualifier)
           : translate('projects.not_analyzed', qualifier)}
       </Note>
+
       {qualifier !== ComponentQualifier.Application &&
-        !analysisDate &&
+        (analysisDate === undefined || analysisDate === '') &&
         isLoggedIn(currentUser) &&
         isScannable && (
-          <StandoutLink className="sw-ml-2 sw-body-sm-highlight" to={getProjectUrl(key)}>
+          <Link className="sw-ml-2 sw-body-sm-highlight" to={getProjectUrl(key)}>
             {translate('projects.configure_analysis')}
-          </StandoutLink>
+          </Link>
         )}
     </div>
   );
 }
 
-export default function ProjectCard(props: Props) {
+export default function ProjectCard(props: Readonly<Props>) {
   const { currentUser, type, project } = props;
   const isNewCode = type === 'leak';
 
@@ -240,7 +258,9 @@ export default function ProjectCard(props: Props) {
       data-key={project.key}
     >
       {renderFirstLine(project, props.handleFavorite, isNewCode)}
+
       <SubnavigationFlowSeparator className="sw-my-3" />
+
       {renderSecondLine(currentUser, project, isNewCode)}
     </ProjectCardWrapper>
   );

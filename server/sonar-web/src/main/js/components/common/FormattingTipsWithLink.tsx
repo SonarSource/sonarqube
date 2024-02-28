@@ -17,7 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { CodeSnippet, Link } from 'design-system';
+
+import { LinkStandalone } from '@sonarsource/echoes-react';
+import { CodeSnippet } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { translate } from '../../helpers/l10n';
@@ -30,6 +32,7 @@ interface Props {
 export default class FormattingTipsWithLink extends React.PureComponent<Props> {
   handleClick(evt: React.SyntheticEvent<HTMLAnchorElement>) {
     evt.preventDefault();
+
     window.open(
       getFormattingHelpUrl(),
       'Formatting',
@@ -40,9 +43,10 @@ export default class FormattingTipsWithLink extends React.PureComponent<Props> {
   render() {
     return (
       <div className={this.props.className}>
-        <Link onClick={this.handleClick} to="#">
+        <LinkStandalone onClick={this.handleClick} to="#">
           {translate('formatting.helplink')}
-        </Link>
+        </LinkStandalone>
+
         <p className="sw-mt-2">
           <FormattedMessage
             id="formatting.example.link"
@@ -50,6 +54,7 @@ export default class FormattingTipsWithLink extends React.PureComponent<Props> {
               example: (
                 <>
                   <br />
+
                   <CodeSnippet
                     isOneLine
                     noCopy

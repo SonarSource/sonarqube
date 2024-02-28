@@ -17,6 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { LinkStandalone } from '@sonarsource/echoes-react';
 import {
   ButtonPrimary,
   Card,
@@ -25,7 +27,6 @@ import {
   FlagMessage,
   FormField,
   InputField,
-  Link,
   PageContentFontWrapper,
   Spinner,
   SubTitle,
@@ -40,28 +41,30 @@ import Unauthorized from '../sessions/components/Unauthorized';
 import { DEFAULT_ADMIN_PASSWORD } from './constants';
 
 export interface ChangeAdminPasswordAppRendererProps {
-  passwordValue: string;
+  canAdmin?: boolean;
+  canSubmit?: boolean;
   confirmPasswordValue: string;
+  location: Location;
   onConfirmPasswordChange: (password: string) => void;
   onPasswordChange: (password: string) => void;
   onSubmit: () => void;
-  canAdmin?: boolean;
-  canSubmit?: boolean;
+  passwordValue: string;
   submitting: boolean;
   success: boolean;
-  location: Location;
 }
 
 const PASSWORD_FIELD_ID = 'user-password';
 const CONFIRM_PASSWORD_FIELD_ID = 'confirm-user-password';
 
-export default function ChangeAdminPasswordAppRenderer(props: ChangeAdminPasswordAppRendererProps) {
+export default function ChangeAdminPasswordAppRenderer(
+  props: Readonly<ChangeAdminPasswordAppRendererProps>,
+) {
   const {
     canAdmin,
     canSubmit,
     confirmPasswordValue,
-    passwordValue,
     location,
+    passwordValue,
     submitting,
     success,
   } = props;
@@ -73,24 +76,28 @@ export default function ChangeAdminPasswordAppRenderer(props: ChangeAdminPasswor
   return (
     <CenteredLayout>
       <Helmet defer={false} title={translate('users.change_admin_password.page')} />
+
       <PageContentFontWrapper className="sw-body-sm sw-flex sw-flex-col sw-items-center sw-justify-center">
         <Card className="sw-mx-auto sw-mt-24 sw-w-abs-600 sw-flex sw-items-stretch sw-flex-col">
           {success ? (
             <FlagMessage className="sw-my-8" variant="success">
               <div>
                 <p className="sw-mb-2">{translate('users.change_admin_password.form.success')}</p>
+
                 {/* We must reload because we need a refresh of the /api/navigation/global call. */}
-                <Link to={getReturnUrl(location)} reloadDocument>
+                <LinkStandalone to={getReturnUrl(location)} reloadDocument>
                   {translate('users.change_admin_password.form.continue_to_app')}
-                </Link>
+                </LinkStandalone>
               </div>
             </FlagMessage>
           ) : (
             <>
               <Title>{translate('users.change_admin_password.instance_is_at_risk')}</Title>
+
               <DarkLabel className="sw-mb-2">
                 {translate('users.change_admin_password.header')}
               </DarkLabel>
+
               <p>{translate('users.change_admin_password.description')}</p>
 
               <form
@@ -105,8 +112,8 @@ export default function ChangeAdminPasswordAppRenderer(props: ChangeAdminPasswor
                 </SubTitle>
 
                 <FormField
-                  label={translate('users.change_admin_password.form.password')}
                   htmlFor={PASSWORD_FIELD_ID}
+                  label={translate('users.change_admin_password.form.password')}
                   required
                 >
                   <InputField
@@ -122,9 +129,6 @@ export default function ChangeAdminPasswordAppRenderer(props: ChangeAdminPasswor
                 </FormField>
 
                 <FormField
-                  label={translate('users.change_admin_password.form.confirm')}
-                  htmlFor={CONFIRM_PASSWORD_FIELD_ID}
-                  required
                   description={
                     confirmPasswordValue === passwordValue &&
                     passwordValue === DEFAULT_ADMIN_PASSWORD && (
@@ -133,6 +137,9 @@ export default function ChangeAdminPasswordAppRenderer(props: ChangeAdminPasswor
                       </FlagMessage>
                     )
                   }
+                  htmlFor={CONFIRM_PASSWORD_FIELD_ID}
+                  label={translate('users.change_admin_password.form.confirm')}
+                  required
                 >
                   <InputField
                     id={CONFIRM_PASSWORD_FIELD_ID}
@@ -152,6 +159,7 @@ export default function ChangeAdminPasswordAppRenderer(props: ChangeAdminPasswor
                   type="submit"
                 >
                   <Spinner className="sw-mr-2" loading={submitting} />
+
                   {translate('update_verb')}
                 </ButtonPrimary>
               </form>

@@ -17,10 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Badge, BranchIcon, HoverLink, LightLabel, Note, QualifierIcon } from 'design-system';
+
+import { LinkHighlight, LinkStandalone } from '@sonarsource/echoes-react';
+import { Badge, BranchIcon, LightLabel, Note, QualifierIcon } from 'design-system';
 import * as React from 'react';
 import { getBranchLikeQuery } from '../../../helpers/branch-like';
 import { translate } from '../../../helpers/l10n';
+import { isDefined } from '../../../helpers/types';
 import { CodeScope, getComponentOverviewUrl, queryToSearch } from '../../../helpers/urls';
 import { BranchLike } from '../../../types/branch-like';
 import {
@@ -37,8 +40,8 @@ export function getTooltip(component: ComponentMeasure) {
     component.qualifier === ComponentQualifier.File ||
     component.qualifier === ComponentQualifier.TestFile;
 
-  if (isFile && component.path) {
-    return component.path + '\n\n' + component.key;
+  if (isFile && isDefined(component.path)) {
+    return `${component.path}\n\n${component.key}`;
   }
 
   return [component.name, component.key, component.branch].filter((s) => !!s).join('\n\n');
@@ -48,23 +51,23 @@ export interface Props {
   branchLike?: BranchLike;
   canBrowse?: boolean;
   component: ComponentMeasure;
+  newCodeSelected?: boolean;
   previous?: ComponentMeasure;
   rootComponent: ComponentMeasure;
-  unclickable?: boolean;
-  newCodeSelected?: boolean;
   showIcon?: boolean;
+  unclickable?: boolean;
 }
 
 export default function ComponentName({
   branchLike,
-  component,
-  unclickable = false,
-  rootComponent,
-  previous,
   canBrowse = false,
+  component,
   newCodeSelected,
+  previous,
+  rootComponent,
   showIcon = true,
-}: Props) {
+  unclickable = false,
+}: Readonly<Props>) {
   const ariaLabel = unclickable ? translate('code.parent_folder') : undefined;
 
   if (
@@ -89,9 +92,11 @@ export default function ComponentName({
             newCodeSelected,
           )}
         </div>
+
         {component.branch ? (
           <div className="sw-truncate sw-ml-2">
             <BranchIcon className="sw-mr-1" />
+
             <Note>{component.branch}</Note>
           </div>
         ) : (
@@ -102,6 +107,7 @@ export default function ComponentName({
       </span>
     );
   }
+
   return (
     <span title={getTooltip(component)} aria-label={ariaLabel}>
       {renderNameWithIcon(
@@ -129,6 +135,7 @@ function renderNameWithIcon(
 ) {
   const name = renderName(component, previous);
   const codeType = newCodeSelected ? CodeScope.New : CodeScope.Overall;
+
   if (
     !unclickable &&
     (isPortfolioLike(component.qualifier) ||
@@ -140,9 +147,11 @@ function renderNameWithIcon(
     )
       ? component.branch
       : undefined;
+
     return (
-      <HoverLink
-        icon={showIcon && <QualifierIcon className="sw-mr-1" qualifier={component.qualifier} />}
+      <LinkStandalone
+        highlight={LinkHighlight.CurrentColor}
+        iconLeft={showIcon && <QualifierIcon className="sw-mr-2" qualifier={component.qualifier} />}
         to={getComponentOverviewUrl(
           component.refKey ?? component.key,
           component.qualifier,
@@ -151,27 +160,32 @@ function renderNameWithIcon(
         )}
       >
         {name}
-      </HoverLink>
+      </LinkStandalone>
     );
   } else if (canBrowse) {
     const query = { id: rootComponent.key, ...getBranchLikeQuery(branchLike) };
+
     if (component.key !== rootComponent.key) {
       Object.assign(query, { selected: component.key });
     }
+
     return (
-      <HoverLink
-        icon={showIcon && <QualifierIcon qualifier={component.qualifier} />}
+      <LinkStandalone
+        highlight={LinkHighlight.CurrentColor}
+        iconLeft={showIcon && <QualifierIcon className="sw-mr-2" qualifier={component.qualifier} />}
         to={{ pathname: '/code', search: queryToSearch(query) }}
       >
         {name}
-      </HoverLink>
+      </LinkStandalone>
     );
   }
+
   return (
     <span>
       {showIcon && (
-        <QualifierIcon className="sw-mr-1 sw-align-text-bottom" qualifier={component.qualifier} />
+        <QualifierIcon className="sw-mr-2 sw-align-text-bottom" qualifier={component.qualifier} />
       )}
+
       {name}
     </span>
   );
@@ -182,13 +196,16 @@ function renderName(component: ComponentMeasure, previous: ComponentMeasure | un
     component.qualifier === ComponentQualifier.Directory &&
     previous &&
     previous.qualifier === ComponentQualifier.Directory;
+
   const prefix =
-    areBothDirs && previous !== undefined
+    areBothDirs && isDefined(previous)
       ? mostCommonPrefix([component.name + '/', previous.name + '/'])
       : '';
+
   return prefix ? (
     <span>
       <LightLabel>{prefix}</LightLabel>
+
       <span>{component.name.slice(prefix.length)}</span>
     </span>
   ) : (

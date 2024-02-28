@@ -17,13 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import {
   Badge,
   BasicSeparator,
   Checkbox,
   HelperHintIcon,
   InputSearch,
-  Link,
   SubnavigationAccordion,
   SubnavigationItem,
   SubnavigationSubheading,
@@ -41,13 +41,14 @@ import ApiFilterContext from './ApiFilterContext';
 import RestMethodPill from './RestMethodPill';
 
 interface Api {
-  name: string;
-  method: string;
   info: OpenAPIV3.OperationObject<InternalExtension>;
+  method: string;
+  name: string;
 }
+
 interface Props {
-  docInfo: OpenAPIV3.InfoObject;
   apisList: Api[];
+  docInfo: OpenAPIV3.InfoObject;
 }
 
 const METHOD_ORDER: Dict<number> = {
@@ -82,6 +83,7 @@ export default function ApiSidebar({ apisList, docInfo }: Readonly<Props>) {
         .filter((api) => showInternal || !api.info['x-internal'])
         .reduce<Record<string, Api[]>>((acc, api) => {
           const subgroup = api.name.split('/')[1];
+
           return {
             ...acc,
             [subgroup]: [...(acc[subgroup] ?? []), api],
@@ -92,16 +94,12 @@ export default function ApiSidebar({ apisList, docInfo }: Readonly<Props>) {
 
   return (
     <>
-      <h1 className="sw-mb-2">
-        <Link to="." className="sw-text-[unset] sw-border-none">
-          {docInfo.title}
-        </Link>
-      </h1>
+      <h1 className="sw-mb-2">{docInfo.title}</h1>
 
       <InputSearch
         className="sw-w-full"
-        placeholder={translate('api_documentation.v2.search')}
         onChange={setSearch}
+        placeholder={translate('api_documentation.v2.search')}
         value={search}
       />
 
@@ -109,6 +107,7 @@ export default function ApiSidebar({ apisList, docInfo }: Readonly<Props>) {
         <Checkbox checked={showInternal} onCheck={() => setShowInternal((prev) => !prev)}>
           <span className="sw-ml-2">{translate('api_documentation.show_internal_v2')}</span>
         </Checkbox>
+
         <HelpTooltip
           className="sw-ml-2"
           overlay={translate('api_documentation.internal_tooltip_v2')}
@@ -119,27 +118,31 @@ export default function ApiSidebar({ apisList, docInfo }: Readonly<Props>) {
 
       {Object.entries(groupedList).map(([group, apis]) => (
         <SubnavigationAccordion
+          className="sw-mt-2"
+          header={group}
+          id={`web-api-${group}`}
           initExpanded={apis.some(
             ({ name, method }) => name === activeApi[0] && method === activeApi[1],
           )}
-          className="sw-mt-2"
-          header={group}
           key={group}
-          id={`web-api-${group}`}
         >
           {sortBy(apis, (a) => [a.name, METHOD_ORDER[a.method]]).map(
             ({ method, name, info }, index, sorted) => {
               const resourceName = getResourceFromName(name);
+
               const previousResourceName =
                 index > 0 ? getResourceFromName(sorted[index - 1].name) : undefined;
+
               const isNewResource = resourceName !== previousResourceName;
 
               return (
                 <Fragment key={getApiEndpointKey(name, method)}>
                   {index > 0 && isNewResource && <BasicSeparator />}
+
                   {(index === 0 || isNewResource) && (
                     <SubnavigationSubheading>{resourceName}</SubnavigationSubheading>
                   )}
+
                   <SubnavigationItem
                     active={name === activeApi[0] && method === activeApi[1]}
                     onClick={handleApiClick}
@@ -148,6 +151,7 @@ export default function ApiSidebar({ apisList, docInfo }: Readonly<Props>) {
                     <div className="sw-flex sw-gap-2 sw-w-full sw-justify-between">
                       <div className="sw-flex sw-gap-2">
                         <RestMethodPill method={method} />
+
                         <div>{info.summary ?? name}</div>
                       </div>
 
@@ -158,6 +162,7 @@ export default function ApiSidebar({ apisList, docInfo }: Readonly<Props>) {
                               {translate('internal')}
                             </Badge>
                           )}
+
                           {info.deprecated && (
                             <Badge variant="deleted" className="sw-self-center">
                               {translate('deprecated')}

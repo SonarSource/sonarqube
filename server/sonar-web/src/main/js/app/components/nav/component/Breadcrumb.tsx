@@ -17,7 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { HoverLink, TextMuted } from 'design-system';
+
+import { LinkHighlight, LinkStandalone } from '@sonarsource/echoes-react';
 import * as React from 'react';
 import Favorite from '../../../../components/controls/Favorite';
 import { getComponentOverviewUrl } from '../../../../helpers/urls';
@@ -29,7 +30,7 @@ export interface BreadcrumbProps {
   currentUser: CurrentUser;
 }
 
-export function Breadcrumb(props: BreadcrumbProps) {
+export function Breadcrumb(props: Readonly<BreadcrumbProps>) {
   const { component, currentUser } = props;
 
   return (
@@ -48,15 +49,18 @@ export function Breadcrumb(props: BreadcrumbProps) {
                 qualifier={component.qualifier}
               />
             )}
-            <HoverLink
-              blurAfterClick
-              className="js-project-link sw-flex"
+
+            <LinkStandalone
+              highlight={LinkHighlight.Subdued}
+              className="js-project-link"
               key={breadcrumbElement.name}
+              shouldBlurAfterClick
               title={breadcrumbElement.name}
               to={getComponentOverviewUrl(breadcrumbElement.key, breadcrumbElement.qualifier)}
             >
-              <TextMuted text={breadcrumbElement.name} />
-            </HoverLink>
+              {breadcrumbElement.name}
+            </LinkStandalone>
+
             {isNotLast && <span className="slash-separator sw-mx-2" />}
           </div>
         );

@@ -17,9 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import styled from '@emotion/styled';
+import { LinkHighlight, LinkStandalone } from '@sonarsource/echoes-react';
 import {
-  DiscreetLink,
   FlagMessage,
   LAYOUT_VIEWPORT_MIN_WIDTH,
   PageContentFontWrapper,
@@ -38,7 +39,7 @@ interface GlobalFooterProps {
   hideLoggedInInfo?: boolean;
 }
 
-export default function GlobalFooter({ hideLoggedInInfo }: GlobalFooterProps) {
+export default function GlobalFooter({ hideLoggedInInfo }: Readonly<GlobalFooterProps>) {
   const appState = React.useContext(AppStateContext);
   const currentEdition = appState?.edition && getEdition(appState.edition);
 
@@ -53,7 +54,9 @@ export default function GlobalFooter({ hideLoggedInInfo }: GlobalFooterProps) {
               <span className="sw-body-md-highlight">
                 {translate('footer.production_database_warning')}
               </span>
+
               <br />
+
               <InstanceMessage message={translate('footer.production_database_explanation')} />
             </p>
           </FlagMessage>
@@ -64,32 +67,51 @@ export default function GlobalFooter({ hideLoggedInInfo }: GlobalFooterProps) {
 
           <ul className="sw-flex sw-items-center sw-gap-3 sw-ml-4">
             {!hideLoggedInInfo && currentEdition && <li>{currentEdition.name}</li>}
+
             {!hideLoggedInInfo && appState?.version && (
               <li className="sw-code">
                 {translateWithParameters('footer.version_x', appState.version)}
               </li>
             )}
+
             <li>
-              <DiscreetLink to="https://www.gnu.org/licenses/lgpl-3.0.txt">
+              <LinkStandalone
+                highlight={LinkHighlight.CurrentColor}
+                to="https://www.gnu.org/licenses/lgpl-3.0.txt"
+              >
                 {translate('footer.license')}
-              </DiscreetLink>
+              </LinkStandalone>
             </li>
+
             <li>
-              <DiscreetLink to="https://community.sonarsource.com/c/help/sq">
+              <LinkStandalone
+                highlight={LinkHighlight.CurrentColor}
+                to="https://community.sonarsource.com/c/help/sq"
+              >
                 {translate('footer.community')}
-              </DiscreetLink>
+              </LinkStandalone>
             </li>
+
             <li>
-              <DiscreetLink to={docUrl('/')}>{translate('footer.documentation')}</DiscreetLink>
+              <LinkStandalone highlight={LinkHighlight.CurrentColor} to={docUrl('/')}>
+                {translate('footer.documentation')}
+              </LinkStandalone>
             </li>
+
             <li>
-              <DiscreetLink to={docUrl('/instance-administration/plugin-version-matrix/')}>
+              <LinkStandalone
+                highlight={LinkHighlight.CurrentColor}
+                to={docUrl('/instance-administration/plugin-version-matrix/')}
+              >
                 {translate('footer.plugins')}
-              </DiscreetLink>
+              </LinkStandalone>
             </li>
+
             {!hideLoggedInInfo && (
               <li>
-                <DiscreetLink to="/web_api">{translate('footer.web_api')}</DiscreetLink>
+                <LinkStandalone highlight={LinkHighlight.CurrentColor} to="/web_api">
+                  {translate('footer.web_api')}
+                </LinkStandalone>
               </li>
             )}
           </ul>
@@ -100,8 +122,8 @@ export default function GlobalFooter({ hideLoggedInInfo }: GlobalFooterProps) {
 }
 
 const StyledFooter = styled.div`
+  background-color: ${themeColor('backgroundSecondary')};
+  border-top: ${themeBorder('default')};
   box-sizing: border-box;
   min-width: ${LAYOUT_VIEWPORT_MIN_WIDTH}px;
-  border-top: ${themeBorder('default')};
-  background-color: ${themeColor('backgroundSecondary')};
 `;

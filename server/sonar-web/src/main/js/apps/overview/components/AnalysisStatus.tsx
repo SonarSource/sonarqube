@@ -17,8 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { Link, Spinner } from '@sonarsource/echoes-react';
 import classNames from 'classnames';
-import { FlagMessage, Link, Spinner } from 'design-system';
+import { FlagMessage } from 'design-system';
 import * as React from 'react';
 import { useComponent } from '../../../app/components/componentContext/withComponentContext';
 import { translate } from '../../../helpers/l10n';
@@ -29,27 +31,30 @@ import { AnalysisErrorModal } from './AnalysisErrorModal';
 import AnalysisWarningsModal from './AnalysisWarningsModal';
 
 export interface HeaderMetaProps {
-  component: Component;
   className?: string;
+  component: Component;
 }
 
-export function AnalysisStatus(props: HeaderMetaProps) {
+export function AnalysisStatus(props: Readonly<HeaderMetaProps>) {
   const { className, component } = props;
   const { currentTask, isPending, isInProgress } = useComponent();
   const { data: warnings, isLoading } = useBranchWarningQuery(component);
 
   const [modalIsVisible, setDisplayModal] = React.useState(false);
+
   const openModal = React.useCallback(() => {
     setDisplayModal(true);
   }, [setDisplayModal]);
+
   const closeModal = React.useCallback(() => {
     setDisplayModal(false);
   }, [setDisplayModal]);
 
   if (isInProgress || isPending) {
     return (
-      <div data-test="analysis-status" className={classNames('sw-flex sw-items-center', className)}>
+      <div className={classNames('sw-flex sw-items-center', className)} data-test="analysis-status">
         <Spinner />
+
         <span className="sw-ml-1">
           {isInProgress
             ? translate('project_navigation.analysis_status.in_progress')
@@ -62,12 +67,22 @@ export function AnalysisStatus(props: HeaderMetaProps) {
   if (currentTask?.status === TaskStatuses.Failed) {
     return (
       <>
-        <FlagMessage data-test="analysis-status" variant="error" className={className}>
+        <FlagMessage className={className} data-test="analysis-status" variant="error">
           <span>{translate('project_navigation.analysis_status.failed')}</span>
-          <Link className="sw-ml-1" blurAfterClick onClick={openModal} preventDefault to={{}}>
+
+          {/* TODO: replace the Link below with a lighweight/discreet button component */}
+          {/* when it is available in Echoes */}
+          <Link
+            className="sw-ml-1"
+            onClick={openModal}
+            shouldBlurAfterClick
+            shouldPreventDefault
+            to={{}}
+          >
             {translate('project_navigation.analysis_status.details_link')}
           </Link>
         </FlagMessage>
+
         {modalIsVisible && (
           <AnalysisErrorModal
             component={component}
@@ -82,12 +97,22 @@ export function AnalysisStatus(props: HeaderMetaProps) {
   if (!isLoading && warnings && warnings.length > 0) {
     return (
       <>
-        <FlagMessage data-test="analysis-status" variant="warning" className={className}>
+        <FlagMessage className={className} data-test="analysis-status" variant="warning">
           <span>{translate('project_navigation.analysis_status.warnings')}</span>
-          <Link className="sw-ml-1" blurAfterClick onClick={openModal} preventDefault to={{}}>
+
+          {/* TODO: replace the Link below with a lighweight/discreet button component */}
+          {/* when it is available in Echoes */}
+          <Link
+            className="sw-ml-1"
+            onClick={openModal}
+            shouldBlurAfterClick
+            shouldPreventDefault
+            to={{}}
+          >
             {translate('project_navigation.analysis_status.details_link')}
           </Link>
         </FlagMessage>
+
         {modalIsVisible && (
           <AnalysisWarningsModal component={component} onClose={closeModal} warnings={warnings} />
         )}

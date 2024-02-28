@@ -17,7 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import styled from '@emotion/styled';
+import { LinkStandalone } from '@sonarsource/echoes-react';
 import {
   ClipboardIconButton,
   DrilldownLink,
@@ -25,7 +27,6 @@ import {
   InteractiveIcon,
   ItemButton,
   ItemLink,
-  Link,
   MenuIcon,
   Note,
   PopupPlacement,
@@ -44,20 +45,19 @@ import { formatMeasure } from '../../helpers/measures';
 import { collapsedDirFromPath, fileFromPath } from '../../helpers/path';
 import { omitNil } from '../../helpers/request';
 import { getBaseUrl } from '../../helpers/system';
+import { isDefined } from '../../helpers/types';
 import {
   getBranchLikeUrl,
   getCodeUrl,
   getComponentIssuesUrl,
   getComponentSecurityHotspotsUrl,
 } from '../../helpers/urls';
-import { DEFAULT_ISSUES_QUERY } from '../shared/utils';
-
+import type { BranchLike } from '../../types/branch-like';
 import { ComponentQualifier } from '../../types/component';
 import { IssueType } from '../../types/issues';
 import { MetricKey, MetricType } from '../../types/metrics';
-
-import type { BranchLike } from '../../types/branch-like';
 import type { Measure, SourceViewerFile } from '../../types/types';
+import { DEFAULT_ISSUES_QUERY } from '../shared/utils';
 import type { WorkspaceContextShape } from '../workspace/context';
 
 interface Props {
@@ -142,19 +142,22 @@ export default class SourceViewerHeader extends React.PureComponent<Props> {
       >
         <div className="sw-flex sw-flex-1 sw-flex-col sw-gap-1 sw-mr-5 sw-my-1">
           <div className="sw-flex sw-gap-1 sw-items-center">
-            <Link icon={<ProjectIcon />} to={getBranchLikeUrl(project, this.props.branchLike)}>
+            <LinkStandalone
+              iconLeft={<ProjectIcon className="sw-mr-2" />}
+              to={getBranchLikeUrl(project, this.props.branchLike)}
+            >
               {projectName}
-            </Link>
+            </LinkStandalone>
           </div>
 
-          <div className="sw-flex sw-gap-1 sw-items-center">
+          <div className="sw-flex sw-gap-2 sw-items-center">
             <QualifierIcon qualifier={q} />
 
             {collapsedDirFromPath(path)}
 
             {fileFromPath(path)}
 
-            <span className="sw-ml-1">
+            <span>
               <ClipboardIconButton
                 aria-label={translate('component_viewer.copy_path_to_clipboard')}
                 copyValue={path}
@@ -165,7 +168,7 @@ export default class SourceViewerHeader extends React.PureComponent<Props> {
 
         {showMeasures && (
           <div className="sw-flex sw-gap-6 sw-items-center">
-            {measures[unitTestsOrLines] && (
+            {isDefined(measures[unitTestsOrLines]) && (
               <div className="sw-flex sw-flex-col sw-gap-1">
                 <Note className="it__source-viewer-header-measure-label sw-body-lg">
                   {translate(`metric.${unitTestsOrLines}.name`)}
@@ -177,7 +180,7 @@ export default class SourceViewerHeader extends React.PureComponent<Props> {
               </div>
             )}
 
-            {measures.coverage !== undefined && (
+            {isDefined(measures.coverage) && (
               <div className="sw-flex sw-flex-col sw-gap-1">
                 <Note className="it__source-viewer-header-measure-label sw-body-lg">
                   {translate('metric.coverage.name')}
@@ -189,7 +192,7 @@ export default class SourceViewerHeader extends React.PureComponent<Props> {
               </div>
             )}
 
-            {measures.duplicationDensity !== undefined && (
+            {isDefined(measures.duplicationDensity) && (
               <div className="sw-flex sw-flex-col sw-gap-1">
                 <Note className="it__source-viewer-header-measure-label sw-body-lg">
                   {translate('duplications')}

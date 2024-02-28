@@ -17,7 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { FlagMessage, Link, SubTitle } from 'design-system';
+
+import { LinkStandalone } from '@sonarsource/echoes-react';
+import { FlagMessage, SubTitle } from 'design-system';
 import * as React from 'react';
 import { getQualityProfileExporterUrl } from '../../../api/quality-profiles';
 import { translate } from '../../../helpers/l10n';
@@ -28,7 +30,7 @@ interface Props {
   profile: Profile;
 }
 
-export default function ProfileExporters({ exporters, profile }: Props) {
+export default function ProfileExporters({ exporters, profile }: Readonly<Props>) {
   const exportersForLanguage = exporters.filter((e) => e.languages.includes(profile.language));
 
   if (exportersForLanguage.length === 0) {
@@ -40,15 +42,21 @@ export default function ProfileExporters({ exporters, profile }: Props) {
       <div>
         <SubTitle>{translate('quality_profiles.exporters')}</SubTitle>
       </div>
+
       <FlagMessage className="sw-mb-4" variant="warning">
         {translate('quality_profiles.exporters.deprecated')}
       </FlagMessage>
+
       <ul className="sw-flex sw-flex-col sw-gap-2">
         {exportersForLanguage.map((exporter) => (
           <li data-key={exporter.key} key={exporter.key}>
-            <Link isExternal showExternalIcon to={getQualityProfileExporterUrl(exporter, profile)}>
+            <LinkStandalone
+              hasExternalIcon
+              isExternal
+              to={getQualityProfileExporterUrl(exporter, profile)}
+            >
               {exporter.name}
-            </Link>
+            </LinkStandalone>
           </li>
         ))}
       </ul>

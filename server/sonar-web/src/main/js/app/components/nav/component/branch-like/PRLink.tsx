@@ -17,17 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Link } from 'design-system';
+
+import { LinkStandalone } from '@sonarsource/echoes-react';
 import React from 'react';
 import { isPullRequest } from '../../../../../helpers/branch-like';
 import { translate, translateWithParameters } from '../../../../../helpers/l10n';
 import { getBaseUrl } from '../../../../../helpers/system';
+import { isDefined } from '../../../../../helpers/types';
 import { AlmKeys } from '../../../../../types/alm-settings';
 import { BranchLike } from '../../../../../types/branch-like';
 import { Component } from '../../../../../types/types';
 
 function getPRUrlAlmKey(url = '') {
   const lowerCaseUrl = url.toLowerCase();
+
   if (lowerCaseUrl.includes(AlmKeys.GitHub)) {
     return AlmKeys.GitHub;
   } else if (lowerCaseUrl.includes(AlmKeys.GitLab)) {
@@ -41,29 +44,32 @@ function getPRUrlAlmKey(url = '') {
   ) {
     return AlmKeys.Azure;
   }
+
   return undefined;
 }
 
 export default function PRLink({
   currentBranchLike,
   component,
-}: {
+}: Readonly<{
   currentBranchLike: BranchLike;
   component: Component;
-}) {
+}>) {
   if (!isPullRequest(currentBranchLike)) {
     return null;
   }
 
   const almKey =
     component.alm?.key ||
-    (isPullRequest(currentBranchLike) && getPRUrlAlmKey(currentBranchLike.url));
+    (isPullRequest(currentBranchLike) && getPRUrlAlmKey(currentBranchLike.url)) ||
+    '';
+
   return (
     <>
-      {currentBranchLike.url !== undefined && (
-        <Link
-          icon={
-            almKey && (
+      {isDefined(currentBranchLike.url) && (
+        <LinkStandalone
+          iconLeft={
+            almKey !== '' && (
               <img
                 alt={almKey}
                 height={16}
@@ -75,8 +81,8 @@ export default function PRLink({
           key={currentBranchLike.key}
           to={currentBranchLike.url}
         >
-          {!almKey && translate('branches.see_the_pr')}
-        </Link>
+          {almKey === '' && translate('branches.see_the_pr')}
+        </LinkStandalone>
       )}
     </>
   );
