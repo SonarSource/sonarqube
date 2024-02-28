@@ -17,12 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import styled from '@emotion/styled';
+import { Spinner } from '@sonarsource/echoes-react';
 import {
   LAYOUT_FOOTER_HEIGHT,
   LargeCenteredLayout,
   PageContentFontWrapper,
-  Spinner,
   themeBorder,
   themeColor,
 } from 'design-system';
@@ -42,8 +43,10 @@ import handleRequiredAuthentication from '../../../helpers/handleRequiredAuthent
 import { translate } from '../../../helpers/l10n';
 import { addSideBarClass, removeSideBarClass } from '../../../helpers/pages';
 import { get, save } from '../../../helpers/storage';
+import { isDefined } from '../../../helpers/types';
 import { AppState } from '../../../types/appstate';
 import { ComponentQualifier } from '../../../types/component';
+import { MetricKey } from '../../../types/metrics';
 import { RawQuery } from '../../../types/types';
 import { CurrentUser, isLoggedIn } from '../../../types/users';
 import { Query, hasFilterParams, parseUrlQuery } from '../query';
@@ -55,10 +58,10 @@ import PageSidebar from './PageSidebar';
 import ProjectsList from './ProjectsList';
 
 interface Props {
+  appState: AppState;
   currentUser: CurrentUser;
   isFavorite: boolean;
   location: Location;
-  appState: AppState;
   router: Router;
 }
 
@@ -152,19 +155,20 @@ export class AllProjects extends React.PureComponent<Props, State> {
   handlePerspectiveChange = ({ view }: { view?: string }) => {
     const query: {
       view: string | undefined;
-      sort?: string | undefined;
+      sort?: string;
     } = {
       view: view === 'overall' ? undefined : view,
     };
 
     if (this.state.query.view === 'leak' || view === 'leak') {
-      if (this.state.query.sort) {
+      if (isDefined(this.state.query.sort)) {
         const sort = parseSorting(this.state.query.sort);
 
-        if (SORTING_SWITCH[sort.sortValue]) {
+        if (isDefined(SORTING_SWITCH[sort.sortValue])) {
           query.sort = (sort.sortDesc ? '-' : '') + SORTING_SWITCH[sort.sortValue];
         }
       }
+
       this.props.router.push({ pathname: this.props.location.pathname, query });
     } else {
       this.updateLocationQuery(query);
@@ -214,6 +218,7 @@ export class AllProjects extends React.PureComponent<Props, State> {
 
     return searchProjects(data).then(({ facets }) => {
       const values = facets.find((facet) => facet.property === property)?.values ?? [];
+
       return mapValues(keyBy(values, 'val'), 'count');
     });
   };
@@ -292,10 +297,10 @@ export class AllProjects extends React.PureComponent<Props, State> {
             handleFavorite={this.handleFavorite}
             isFavorite={this.props.isFavorite}
             isFiltered={hasFilterParams(this.state.query)}
+            loading={this.state.loading}
+            loadMore={this.fetchMoreProjects}
             projects={this.state.projects}
             query={this.state.query}
-            loadMore={this.fetchMoreProjects}
-            loading={this.state.loading}
             total={this.state.total}
           />
         )}
@@ -306,7 +311,7 @@ export class AllProjects extends React.PureComponent<Props, State> {
   render() {
     return (
       <StyledWrapper id="projects-page">
-        <Suggestions suggestions="projects" />
+        <Suggestions suggestions={MetricKey.projects} />
         <Helmet defer={false} title={translate('projects.page')} />
 
         <h1 className="sw-sr-only">{translate('projects.page')}</h1>
@@ -338,27 +343,27 @@ function getStorageOptions() {
     view?: string;
   } = {};
 
-  if (get(LS_PROJECTS_SORT)) {
-    options.sort = get(LS_PROJECTS_SORT) || undefined;
+  if (get(LS_PROJECTS_SORT) !== null) {
+    options.sort = get(LS_PROJECTS_SORT) ?? undefined;
   }
 
-  if (get(LS_PROJECTS_VIEW)) {
-    options.view = get(LS_PROJECTS_VIEW) || undefined;
+  if (get(LS_PROJECTS_VIEW) !== null) {
+    options.view = get(LS_PROJECTS_VIEW) ?? undefined;
   }
 
   return options;
 }
 
-function SetSearchParamsWrapper(props: Props) {
+function SetSearchParamsWrapper(props: Readonly<Props>) {
   const [searchParams, setSearchParams] = useSearchParams();
   const savedOptions = getStorageOptions();
 
   React.useEffect(
     () => {
-      const hasViewParams = searchParams.get('sort') || searchParams.get('view');
-      const hasSavedOptions = savedOptions.sort || savedOptions.view;
+      const hasViewParams = searchParams.get('sort') ?? searchParams.get('view');
+      const hasSavedOptions = savedOptions.sort ?? savedOptions.view;
 
-      if (!hasViewParams && hasSavedOptions) {
+      if (!isDefined(hasViewParams) && isDefined(hasSavedOptions)) {
         setSearchParams(savedOptions);
       }
     },

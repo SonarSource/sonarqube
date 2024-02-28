@@ -17,7 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { FlagMessage, Spinner } from 'design-system';
+
+import { Spinner } from '@sonarsource/echoes-react';
+import { FlagMessage } from 'design-system';
 import { findLastIndex, keyBy } from 'lodash';
 import * as React from 'react';
 import { getComponentForSourceViewer, getDuplications, getSources } from '../../../api/components';

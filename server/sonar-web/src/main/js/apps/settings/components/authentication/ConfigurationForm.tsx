@@ -17,7 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { ButtonPrimary, FlagMessage, Modal, Spinner } from 'design-system';
+
+import { Spinner } from '@sonarsource/echoes-react';
+import { ButtonPrimary, FlagMessage, Modal } from 'design-system';
 import { keyBy } from 'lodash';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
@@ -34,16 +36,16 @@ import { SettingValue } from './hook/useConfiguration';
 import { isAllowToSignUpEnabled, isOrganizationListEmpty } from './hook/useGithubConfiguration';
 
 interface Props {
-  create: boolean;
-  loading: boolean;
-  values: Dict<SettingValue>;
-  setNewValue: (key: string, value: string | boolean) => void;
   canBeSave: boolean;
-  onClose: () => void;
-  tab: AuthenticationTabs;
+  create: boolean;
   excludedField: string[];
   hasLegacyConfiguration?: boolean;
+  loading: boolean;
+  onClose: () => void;
   provisioningStatus?: ProvisioningType;
+  setNewValue: (key: string, value: string | boolean) => void;
+  tab: AuthenticationTabs;
+  values: Dict<SettingValue>;
 }
 
 interface ErrorValue {
@@ -53,15 +55,15 @@ interface ErrorValue {
 
 export default function ConfigurationForm(props: Readonly<Props>) {
   const {
-    create,
-    loading,
-    values,
-    setNewValue,
     canBeSave,
-    tab,
+    create,
     excludedField,
     hasLegacyConfiguration,
+    loading,
     provisioningStatus,
+    setNewValue,
+    tab,
+    values,
   } = props;
   const [errors, setErrors] = React.useState<Dict<ErrorValue>>({});
   const [showConfirmModal, setShowConfirmModal] = React.useState(false);
@@ -87,12 +89,14 @@ export default function ConfigurationForm(props: Readonly<Props>) {
       const errors = Object.values(values)
         .filter((v) => v.newValue === undefined && v.value === undefined && v.mandatory)
         .map((v) => ({ key: v.key, message: translate('field_required') }));
+
       setErrors(keyBy(errors, 'key'));
     }
   };
 
   const onSave = async () => {
     const data = await changeConfig(Object.values(values));
+
     const errors = data
       .filter(({ success }) => !success)
       .map(({ key }) => ({ key, message: translate('default_save_field_error_message') }));
@@ -110,15 +114,15 @@ export default function ConfigurationForm(props: Readonly<Props>) {
 
   const formBody = (
     <form id={FORM_ID} onSubmit={handleSubmit}>
-      <Spinner loading={loading} ariaLabel={translate('settings.authentication.form.loading')}>
+      <Spinner ariaLabel={translate('settings.authentication.form.loading')} isLoading={loading}>
         <FlagMessage
           className="sw-w-full sw-mb-8"
           variant={hasLegacyConfiguration ? 'warning' : 'info'}
         >
           <span>
             <FormattedMessage
-              id={`settings.authentication.${helpMessage}`}
               defaultMessage={translate(`settings.authentication.${helpMessage}`)}
+              id={`settings.authentication.${helpMessage}`}
               values={{
                 link: (
                   <DocumentationLink
@@ -131,21 +135,23 @@ export default function ConfigurationForm(props: Readonly<Props>) {
             />
           </span>
         </FlagMessage>
+
         {Object.values(values).map((val) => {
           if (excludedField.includes(val.key)) {
             return null;
           }
 
           const isSet = hasLegacyConfiguration ? false : !val.isNotSet;
+
           return (
             <div key={val.key} className="sw-mb-8">
               <AuthenticationFormField
-                settingValue={values[val.key]?.newValue ?? values[val.key]?.value}
                 definition={val.definition}
+                error={errors[val.key]?.message}
+                isNotSet={!isSet}
                 mandatory={val.mandatory}
                 onFieldChange={setNewValue}
-                isNotSet={!isSet}
-                error={errors[val.key]?.message}
+                settingValue={values[val.key]?.newValue ?? values[val.key]?.value}
               />
             </div>
           );
@@ -157,23 +163,24 @@ export default function ConfigurationForm(props: Readonly<Props>) {
   return (
     <>
       <Modal
+        body={formBody}
         headerTitle={header}
         isScrollable
         onClose={props.onClose}
-        body={formBody}
         primaryButton={
           <ButtonPrimary form={FORM_ID} type="submit" autoFocus disabled={!canBeSave}>
             {translate('settings.almintegration.form.save')}
-            <Spinner className="sw-ml-2" loading={loading} />
+
+            <Spinner className="sw-ml-2" isLoading={loading} />
           </ButtonPrimary>
         }
       />
       {showConfirmModal && (
         <GitHubConfirmModal
-          onConfirm={onSave}
           onClose={() => setShowConfirmModal(false)}
-          values={values}
+          onConfirm={onSave}
           provisioningStatus={provisioningStatus ?? ProvisioningType.jit}
+          values={values}
         />
       )}
     </>

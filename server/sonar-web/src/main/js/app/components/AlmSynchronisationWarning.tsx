@@ -17,9 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import styled from '@emotion/styled';
+import { Link, Spinner } from '@sonarsource/echoes-react';
 import { formatDistance } from 'date-fns';
-import { CheckIcon, FlagMessage, FlagWarningIcon, Link, Spinner, themeColor } from 'design-system';
+import { CheckIcon, FlagMessage, FlagWarningIcon, themeColor } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { translate, translateWithParameters } from '../../helpers/l10n';
@@ -27,19 +29,20 @@ import { AlmSyncStatus } from '../../types/provisioning';
 import { TaskStatuses } from '../../types/tasks';
 
 interface SynchronisationWarningProps {
-  short?: boolean;
   data: AlmSyncStatus;
+  short?: boolean;
 }
 
 interface LastSyncProps {
-  short?: boolean;
   info: AlmSyncStatus['lastSync'];
+  short?: boolean;
 }
 
 function LastSyncAlert({ info, short }: Readonly<LastSyncProps>) {
   if (info === undefined) {
     return null;
   }
+
   const { finishedAt, errorMessage, status, summary, warningMessage } = info;
 
   const formattedDate = finishedAt ? formatDistance(new Date(finishedAt), new Date()) : '';
@@ -54,13 +57,14 @@ function LastSyncAlert({ info, short }: Readonly<LastSyncProps>) {
             <CheckIcon width={32} height={32} className="sw-mr-2" />
           )}
         </IconWrapper>
+
         <i>
           {warningMessage ? (
             <FormattedMessage
-              id="settings.authentication.github.synchronization_successful.with_warning"
               defaultMessage={translate(
                 'settings.authentication.github.synchronization_successful.with_warning',
               )}
+              id="settings.authentication.github.synchronization_successful.with_warning"
               values={{
                 date: formattedDate,
                 details: (
@@ -82,10 +86,10 @@ function LastSyncAlert({ info, short }: Readonly<LastSyncProps>) {
       <FlagMessage variant="error">
         <div>
           <FormattedMessage
-            id="settings.authentication.github.synchronization_failed_short"
             defaultMessage={translate(
               'settings.authentication.github.synchronization_failed_short',
             )}
+            id="settings.authentication.github.synchronization_failed_short"
             values={{
               details: (
                 <Link className="sw-ml-2" to="/admin/settings?category=authentication&tab=github">
@@ -102,9 +106,9 @@ function LastSyncAlert({ info, short }: Readonly<LastSyncProps>) {
   return (
     <>
       <FlagMessage
-        variant={status === TaskStatuses.Success ? 'success' : 'error'}
-        role="alert"
         aria-live="assertive"
+        role="alert"
+        variant={status === TaskStatuses.Success ? 'success' : 'error'}
       >
         <div>
           {status === TaskStatuses.Success ? (
@@ -113,7 +117,9 @@ function LastSyncAlert({ info, short }: Readonly<LastSyncProps>) {
                 'settings.authentication.github.synchronization_successful',
                 formattedDate,
               )}
+
               <br />
+
               {summary ?? ''}
             </>
           ) : (
@@ -124,12 +130,15 @@ function LastSyncAlert({ info, short }: Readonly<LastSyncProps>) {
                   formattedDate,
                 )}
               </div>
+
               <br />
+
               {errorMessage ?? ''}
             </React.Fragment>
           )}
         </div>
       </FlagMessage>
+
       <FlagMessage variant="warning" role="alert" aria-live="assertive">
         {warningMessage}
       </FlagMessage>
@@ -138,8 +147,8 @@ function LastSyncAlert({ info, short }: Readonly<LastSyncProps>) {
 }
 
 export default function AlmSynchronisationWarning({
-  short,
   data,
+  short,
 }: Readonly<SynchronisationWarningProps>) {
   const loadingLabel =
     data.nextSync &&
@@ -148,11 +157,13 @@ export default function AlmSynchronisationWarning({
         ? 'settings.authentication.github.synchronization_pending'
         : 'settings.authentication.github.synchronization_in_progress',
     );
+
   return (
     <>
       {!short && (
         <div className={data.nextSync ? 'sw-flex sw-gap-2 sw-mb-4' : ''}>
-          <Spinner loading={!!data.nextSync} ariaLabel={loadingLabel} />
+          <Spinner ariaLabel={loadingLabel} isLoading={!!data.nextSync} />
+
           <div>{data.nextSync && loadingLabel}</div>
         </div>
       )}

@@ -17,8 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { Spinner } from '@sonarsource/echoes-react';
 import classNames from 'classnames';
-import { ItemButton, Spinner } from 'design-system';
+import { ItemButton } from 'design-system';
 import * as React from 'react';
 import { translate } from '../../../helpers/l10n';
 
@@ -36,13 +38,14 @@ export default class GlobalSearchShowMore extends React.PureComponent<Props> {
     event.preventDefault();
     event.stopPropagation();
     event.currentTarget.blur();
-    if (qualifier) {
+
+    if (qualifier !== '') {
       this.props.onMoreClick(qualifier);
     }
   };
 
   handleMouseEnter = (qualifier: string) => {
-    if (qualifier) {
+    if (qualifier !== '') {
       this.props.onSelect(`qualifier###${qualifier}`);
     }
   };
@@ -61,7 +64,7 @@ export default class GlobalSearchShowMore extends React.PureComponent<Props> {
           this.handleMouseEnter(qualifier);
         }}
       >
-        <Spinner loading={loadingMore === qualifier}>{translate('show_more')}</Spinner>
+        <Spinner isLoading={loadingMore === qualifier}>{translate('show_more')}</Spinner>
       </ItemButton>
     );
   }

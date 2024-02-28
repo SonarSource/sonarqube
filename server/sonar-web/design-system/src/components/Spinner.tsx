@@ -33,6 +33,13 @@ interface Props {
   placeholder?: boolean;
 }
 
+/** @deprecated Use Spinner from Echoes instead.
+ *
+ * Some of the props have changed or been renamed:
+ * - ~`customSpinner`~ has been removed
+ * - `loading` is now `isLoading`
+ * - `placeholder` is now `hasPlaceholder`
+ */
 export function Spinner(props: React.PropsWithChildren<Props>) {
   const intl = useIntl();
   const {
