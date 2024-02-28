@@ -44,13 +44,15 @@ public class SonarLintPushAction extends ServerPushAction {
   private final SonarLintClientPermissionsValidator permissionsValidator;
   private final UserSession userSession;
   private final DbClient dbClient;
+  private final SonarLintPushEventExecutorService sonarLintPushEventExecutorService;
 
   public SonarLintPushAction(SonarLintClientsRegistry sonarLintClientRegistry, UserSession userSession, DbClient dbClient,
-    SonarLintClientPermissionsValidator permissionsValidator) {
+    SonarLintClientPermissionsValidator permissionsValidator, SonarLintPushEventExecutorService sonarLintPushEventExecutorService) {
     this.clientsRegistry = sonarLintClientRegistry;
     this.userSession = userSession;
     this.dbClient = dbClient;
     this.permissionsValidator = permissionsValidator;
+    this.sonarLintPushEventExecutorService = sonarLintPushEventExecutorService;
   }
 
   @Override
@@ -99,7 +101,7 @@ public class SonarLintPushAction extends ServerPushAction {
 
     Set<String> projectUuids = projectDtos.stream().map(ProjectDto::getUuid).collect(Collectors.toSet());
 
-    SonarLintClient sonarLintClient = new SonarLintClient(asyncContext, projectUuids, params.getLanguages(), userSession.getUuid());
+    SonarLintClient sonarLintClient = new SonarLintClient(sonarLintPushEventExecutorService, asyncContext, projectUuids, params.getLanguages(), userSession.getUuid());
 
     clientsRegistry.registerClient(sonarLintClient);
   }
