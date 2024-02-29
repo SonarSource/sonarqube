@@ -41,6 +41,7 @@ public class ReportComputationSteps extends AbstractComputationSteps {
     ExtractReportStep.class,
     // The step which adds MDC variable with Codescan jobId
     CodescanLoggingStep.class,
+    CodescanJobLinkStep.class,
     PersistScannerContextStep.class,
     PersistAnalysisWarningsStep.class,
     GenerateAnalysisUuid.class,

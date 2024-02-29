@@ -28,6 +28,7 @@ import org.sonar.db.audit.AuditDao;
 import org.sonar.db.ce.CeActivityDao;
 import org.sonar.db.ce.CeQueueDao;
 import org.sonar.db.ce.CeScannerContextDao;
+import org.sonar.db.ce.CsQueueDao;
 import org.sonar.db.ce.CeTaskCharacteristicDao;
 import org.sonar.db.ce.CeTaskInputDao;
 import org.sonar.db.ce.CeTaskMessageDao;
@@ -133,6 +134,7 @@ public class DbClient {
   private final IssueChangeDao issueChangeDao;
   private final CeActivityDao ceActivityDao;
   private final CeQueueDao ceQueueDao;
+  private final CsQueueDao csQueueDao;
   private final CeTaskInputDao ceTaskInputDao;
   private final CeTaskCharacteristicDao ceTaskCharacteristicsDao;
   private final CeScannerContextDao ceScannerContextDao;
@@ -216,6 +218,7 @@ public class DbClient {
     issueChangeDao = getDao(map, IssueChangeDao.class);
     ceActivityDao = getDao(map, CeActivityDao.class);
     ceQueueDao = getDao(map, CeQueueDao.class);
+    csQueueDao = getDao(map, CsQueueDao.class);
     ceTaskInputDao = getDao(map, CeTaskInputDao.class);
     ceTaskCharacteristicsDao = getDao(map, CeTaskCharacteristicDao.class);
     ceScannerContextDao = getDao(map, CeScannerContextDao.class);
@@ -403,6 +406,10 @@ public class DbClient {
 
   public CeQueueDao ceQueueDao() {
     return ceQueueDao;
+  }
+
+  public CsQueueDao csQueueDao() {
+    return csQueueDao;
   }
 
   public CeTaskInputDao ceTaskInputDao() {

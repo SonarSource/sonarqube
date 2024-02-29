@@ -27,6 +27,7 @@ import org.sonar.db.alm.setting.ProjectAlmSettingDao;
 import org.sonar.db.audit.AuditDao;
 import org.sonar.db.ce.CeActivityDao;
 import org.sonar.db.ce.CeQueueDao;
+import org.sonar.db.ce.CsQueueDao;
 import org.sonar.db.ce.CeScannerContextDao;
 import org.sonar.db.ce.CeTaskCharacteristicDao;
 import org.sonar.db.ce.CeTaskInputDao;
@@ -110,6 +111,7 @@ public class DaoModule extends Module {
     BranchDao.class,
     CeActivityDao.class,
     CeQueueDao.class,
+    CsQueueDao.class,
     CeScannerContextDao.class,
     CeTaskCharacteristicDao.class,
     CeTaskInputDao.class,
