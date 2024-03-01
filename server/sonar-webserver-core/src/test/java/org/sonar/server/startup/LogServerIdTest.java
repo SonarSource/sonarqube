@@ -47,4 +47,72 @@ public class LogServerIdTest {
     // do not fail
     underTest.stop();
   }
+
+  @Test
+  public void shouldLogServerIdAtStartup() {
+    // Arrange
+    Server server = mock(Server.class);
+    when(server.getId()).thenReturn("unique-server-id");
+    LogServerId underTest = new LogServerId(server);
+
+    // Act
+    underTest.start();
+
+    // Assert
+    assertThat(logTester.logs(Level.INFO)).containsExactly("Server ID: unique-server-id");
+  }
+
+  @Test
+  public void shouldNotLogServerIdAfterStop() {
+    // Arrange
+    Server server = mock(Server.class);
+    when(server.getId()).thenReturn("unique-server-id");
+    LogServerId underTest = new LogServerId(server);
+    underTest.start(); // Start to log the server ID initially
+
+    // Act
+    underTest.stop();
+    logTester.clear(); // Clear all logs after stopping to simulate the end of lifecycle
+
+    // Assert
+    assertThat(logTester.logs(Level.INFO)).doesNotContain("Server ID: unique-server-id");
+  }
+
+  @Test
+  public void shouldLogCorrectServerIdForEachInstance() {
+    // Arrange
+    Server firstServer = mock(Server.class);
+    Server secondServer = mock(Server.class);
+    when(firstServer.getId()).thenReturn("first-server-id");
+    when(secondServer.getId()).thenReturn("second-server-id");
+
+    LogServerId firstUnderTest = new LogServerId(firstServer);
+    LogServerId secondUnderTest = new LogServerId(secondServer);
+
+    // Act
+    firstUnderTest.start();
+    secondUnderTest.start();
+
+    // Assert
+    assertThat(logTester.logs(Level.INFO)).contains("Server ID: first-server-id", "Server ID: second-server-id");
+  }
+
+  @Test
+  public void shouldHandleNullServerIdGracefully() {
+    // Arrange
+    Server server = mock(Server.class);
+    when(server.getId()).thenReturn(null); // Simulate server ID not set
+    LogServerId underTest = new LogServerId(server);
+
+    // Act
+    underTest.start();
+
+    // Assert
+    assertThat(logTester.logs(Level.INFO)).contains("Server ID: null");
+  }
+
+
+
+
+
 }

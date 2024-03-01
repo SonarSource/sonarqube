@@ -19,6 +19,8 @@
  */
 package org.sonar.db.permission.template;
 
+import org.sonar.db.user.GroupDto;
+
 import java.util.Date;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -92,4 +94,5 @@ public class PermissionTemplateDto {
     this.updatedAt = updatedAt;
     return this;
   }
+
 }

@@ -24,6 +24,7 @@ import java.util.Objects;
 import java.util.Optional;
 import org.junit.Rule;
 import org.junit.Test;
+import org.mockito.Mockito;
 import org.slf4j.event.Level;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.testfixtures.log.LogTester;

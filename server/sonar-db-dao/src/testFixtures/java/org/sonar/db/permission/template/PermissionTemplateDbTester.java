@@ -105,4 +105,5 @@ public class PermissionTemplateDbTester {
       templateName);
     db.commit();
   }
+
 }
