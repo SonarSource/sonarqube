@@ -22,7 +22,6 @@ import * as React from 'react';
 import { IssueActions } from '../../../types/issues';
 import { Issue } from '../../../types/types';
 import IssueAssign from './IssueAssign';
-import IssueCommentAction from './IssueCommentAction';
 import IssueTags from './IssueTags';
 import IssueTransition from './IssueTransition';
 import SonarLintBadge from './SonarLintBadge';
@@ -50,16 +49,7 @@ export default function IssueActionsBar(props: Readonly<Props>) {
     canSetTags,
   } = props;
 
-  const [commentPlaceholder, setCommentPlaceholder] = React.useState('');
-
-  const toggleComment = (open: boolean, placeholder = '') => {
-    setCommentPlaceholder(placeholder);
-
-    togglePopup('comment', open);
-  };
-
   const canAssign = issue.actions.includes(IssueActions.Assign);
-  const canComment = issue.actions.includes(IssueActions.Comment);
   const tagsPopupOpen = currentPopup === 'edit-tags' && canSetTags;
 
   return (
@@ -107,16 +97,6 @@ export default function IssueActionsBar(props: Readonly<Props>) {
           </li>
         )}
       </ul>
-
-      {canComment && (
-        <IssueCommentAction
-          commentPlaceholder={commentPlaceholder}
-          currentPopup={currentPopup === 'comment'}
-          issueKey={issue.key}
-          onChange={onChange}
-          toggleComment={toggleComment}
-        />
-      )}
     </div>
   );
 }
