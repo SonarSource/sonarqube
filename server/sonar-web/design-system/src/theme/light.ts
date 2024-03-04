@@ -646,6 +646,11 @@ export const lightTheme = {
     //education principles
     educationPrincipleBackground: COLORS.indigo[25],
     educationPrincipleBorder: COLORS.indigo[300],
+
+    // SonarLint PromotionNotification
+    promotionNotification: COLORS.blueGrey[35],
+    promotionNotificationBackground: COLORS.blueGrey[700],
+    promotionNotificationSeparator: COLORS.blueGrey[500],
   },
 
   // contrast colors to be used for text when using a color background with the same name
