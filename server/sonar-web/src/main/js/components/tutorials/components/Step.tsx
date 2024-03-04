@@ -60,7 +60,7 @@ export default function Step(props: Props) {
       >
         <TutorialStepList className="sw-flex-1">
           <TutorialStep title={stepTitle} stepNumber={stepNumber}>
-            {open ? <div>{props.renderForm()}</div> : <div className="boxed-group-inner" />}
+            {open ? <div>{props.renderForm()}</div> : <div className="sw-px-5 sw-pb-4" />}
           </TutorialStep>
         </TutorialStepList>
         {!open && props.renderResult && props.renderResult()}

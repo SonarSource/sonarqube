@@ -23,7 +23,6 @@
 import '../../../../../public/fonts/Inter/inter.css';
 import '../../../../../public/fonts/Ubuntu/Ubuntu.css';
 
-import './components/boxed-group.css';
 import './components/global-loading.css';
 import './components/page.css';
 import './init/base.css';

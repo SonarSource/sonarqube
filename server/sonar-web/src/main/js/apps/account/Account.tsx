@@ -27,7 +27,6 @@ import { useCurrentLoginUser } from '../../app/components/current-user/CurrentUs
 import A11ySkipTarget from '../../components/a11y/A11ySkipTarget';
 import Suggestions from '../../components/embed-docs-modal/Suggestions';
 import { translate, translateWithParameters } from '../../helpers/l10n';
-import './account.css';
 import Nav from './components/Nav';
 import UserCard from './components/UserCard';
 
