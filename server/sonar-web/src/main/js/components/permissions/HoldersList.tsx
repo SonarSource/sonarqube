@@ -123,7 +123,6 @@ export default class HoldersList extends React.PureComponent<
                     user={item}
                     disabled={isGitHubProject && !!githubProvisioningStatus && item.managed}
                     removeOnly={isGitHubProject && !!githubProvisioningStatus && !item.managed}
-                    isGitHubProject={isGitHubProject}
                   />
                 ) : (
                   <GroupHolder
@@ -135,7 +134,6 @@ export default class HoldersList extends React.PureComponent<
                     selectedPermission={selectedPermission}
                     disabled={isGitHubProject && !!githubProvisioningStatus && item.managed}
                     removeOnly={isGitHubProject && !!githubProvisioningStatus && !item.managed}
-                    isGitHubProject={isGitHubProject}
                   />
                 )}
               </>

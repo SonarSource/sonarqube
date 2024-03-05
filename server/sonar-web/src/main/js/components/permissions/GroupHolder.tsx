@@ -22,9 +22,8 @@ import * as React from 'react';
 import { translate } from '../../helpers/l10n';
 import { isPermissionDefinitionGroup } from '../../helpers/permissions';
 import { getBaseUrl } from '../../helpers/system';
-import { useIdentityProviderQuery } from '../../queries/identity-provider/common';
 import { Permissions } from '../../types/permissions';
-import { PermissionDefinitions, PermissionGroup, Provider } from '../../types/types';
+import { PermissionDefinitions, PermissionGroup } from '../../types/types';
 import GroupIcon from '../icons/GroupIcon';
 import PermissionCell from './PermissionCell';
 import usePermissionChange from './usePermissionChange';
@@ -37,29 +36,18 @@ interface Props {
   selectedPermission?: string;
   disabled?: boolean;
   removeOnly?: boolean;
-  isGitHubProject?: boolean;
 }
 
 export const ANYONE = 'Anyone';
 
 export default function GroupHolder(props: Props) {
-  const {
-    group,
-    isComponentPrivate,
-    permissions,
-    selectedPermission,
-    disabled,
-    removeOnly,
-    isGitHubProject,
-  } = props;
+  const { group, isComponentPrivate, permissions, selectedPermission, disabled, removeOnly } =
+    props;
   const { loading, handleCheck, modal } = usePermissionChange({
     holder: group,
     onToggle: props.onToggle,
     permissions,
     removeOnly,
-  });
-  const { data: identityProvider } = useIdentityProviderQuery({
-    enabled: isGitHubProject ?? false,
   });
 
   const description =
@@ -75,17 +63,15 @@ export default function GroupHolder(props: Props) {
               <div className="sw-flex-1 sw-text-ellipsis sw-whitespace-nowrap sw-overflow-hidden  sw-min-w-0">
                 <strong>{group.name}</strong>
               </div>
-              {isGitHubProject &&
-                identityProvider?.provider === Provider.Github &&
-                group.managed && (
-                  <img
-                    alt="github"
-                    className="sw-ml-2"
-                    aria-label={translate('project_permission.github_managed')}
-                    height={16}
-                    src={`${getBaseUrl()}/images/alm/github.svg`}
-                  />
-                )}
+              {disabled && (
+                <img
+                  alt="github"
+                  className="sw-ml-2"
+                  aria-label={translate('project_permission.github_managed')}
+                  height={16}
+                  src={`${getBaseUrl()}/images/alm/github.svg`}
+                />
+              )}
               {group.name === ANYONE && (
                 <Badge className="sw-ml-2" variant="deleted">
                   {translate('deprecated')}
