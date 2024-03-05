@@ -1,5 +1,4 @@
 package org.sonar.test;
-
 import org.junit.ComparisonFailure;
 import org.junit.Test;
 import org.sonar.test.JsonAssert;

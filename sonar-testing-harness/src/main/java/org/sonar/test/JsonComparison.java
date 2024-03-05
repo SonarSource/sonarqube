@@ -2,7 +2,6 @@ package org.sonar.test;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
-
 import javax.annotation.CheckForNull;
 import java.util.Date;
 import java.util.HashSet;
