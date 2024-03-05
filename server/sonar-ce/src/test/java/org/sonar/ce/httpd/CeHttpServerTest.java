@@ -109,7 +109,7 @@ public class CeHttpServerTest {
     Response response = call(underTest.getUrl() + "/pompom?toto=2");
     assertIsPomPomResponse(response);
   }
-
+ 
   @Test
   public void stop_stops_http_server() {
     underTest.stop();
@@ -161,5 +161,35 @@ public class CeHttpServerTest {
     public void handle(HttpRequest request, HttpResponse response) {
       throw FAILING_ACTION;
     }
+  }
+ 
+  @Test
+  public void action_is_invalid_url() throws IOException {
+    Response response = call(underTest.getUrl() + "/hello");
+    assertThat(response.code()).isEqualTo(404);
+  }
+
+  @Test
+  public void action_is_invalid_urls() throws IOException {
+    Response response = call(underTest.getUrl() + "/pompom");
+    assertThat(response.code()).isEqualTo(200);
+  }
+ 
+  @Test
+  public void action_is_valid_with_param() throws Exception {
+    Response response = call(underTest.getUrl() + "/pompom?toto=2");
+    assertThat(response.code()).isEqualTo(200);
+  }
+ 
+  @Test
+  public void action_is_invalid_with_param() throws Exception {
+    Response response = call(underTest.getUrl() + "/pompom?hello=2");
+    assertThat(response.code()).isEqualTo(200);
+  }
+ 
+  @Test
+  public void action_is_invalid_url_with_param() throws Exception {
+    Response response = call(underTest.getUrl() + "/hello?hello=2");
+    assertThat(response.code()).isEqualTo(404);
   }
 }
