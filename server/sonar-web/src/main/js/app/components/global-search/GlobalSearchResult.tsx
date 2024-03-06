@@ -18,9 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import classNames from 'classnames';
-import { ClockIcon, ItemLink, TextBold, TextMuted } from 'design-system';
+import { ClockIcon, ItemLink, StarFillIcon, TextBold, TextMuted } from 'design-system';
 import * as React from 'react';
-import FavoriteIcon from '../../../components/icons/FavoriteIcon';
 import { translate } from '../../../helpers/l10n';
 import { getComponentOverviewUrl } from '../../../helpers/urls';
 import { ComponentResult } from './utils';
@@ -56,7 +55,7 @@ export default class GlobalSearchResult extends React.PureComponent<Props> {
         <div className="sw-flex sw-justify-between sw-items-center sw-w-full">
           <TextBold match={component.match} name={component.name} />
           <div className="sw-ml-2">
-            {component.isFavorite && <FavoriteIcon favorite size={16} />}
+            {component.isFavorite && <StarFillIcon />}
             {!component.isFavorite && component.isRecentlyBrowsed && (
               <ClockIcon aria-label={translate('recently_browsed')} />
             )}

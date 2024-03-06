@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import styled from '@emotion/styled';
-import { CloseIcon, InteractiveIcon } from 'design-system';
+import { CloseIcon, InteractiveIcon, themeColor } from 'design-system';
 import * as React from 'react';
 import { translate } from '../../helpers/l10n';
 
@@ -29,7 +29,7 @@ export interface Props {
 }
 
 export default class WorkspaceNavItem extends React.PureComponent<Props> {
-  handleNameClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
+  handleNameClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
     event.currentTarget.blur();
     this.props.onOpen();
@@ -37,16 +37,19 @@ export default class WorkspaceNavItem extends React.PureComponent<Props> {
 
   render() {
     return (
-      <StyledWorkspaceNavItem className="workspace-nav-item">
-        <a className="workspace-nav-item-link" href="#" onClick={this.handleNameClick}>
+      <StyledWorkspaceNavItem className="sw-mr-2">
+        <StyledWorkSpaceNavItemButton
+          className="sw-body-sm sw-pr-8 sw-pl-2"
+          onClick={this.handleNameClick}
+        >
           {this.props.children}
-        </a>
+        </StyledWorkSpaceNavItemButton>
         <InteractiveIcon
-          aria-label={translate('close')}
-          className="js-close sw-ml-1 sw-absolute sw-right-1 sw-top-1"
-          onClick={this.props.onClose}
+          aria-label={translate('workspace.close')}
+          className="js-close sw-absolute sw-top-0 sw-right-0 sw-m-1/2"
           currentColor
           Icon={CloseIcon}
+          onClick={this.props.onClose}
           size="small"
         />
       </StyledWorkspaceNavItem>
@@ -55,5 +58,23 @@ export default class WorkspaceNavItem extends React.PureComponent<Props> {
 }
 
 const StyledWorkspaceNavItem = styled.li`
-  color: white;
+  display: inline-flex;
+  align-items: center;
+  position: relative;
+  color: ${themeColor('workSpaceNavItem')};
+`;
+
+const StyledWorkSpaceNavItemButton = styled.button`
+  display: inline-flex;
+  align-items: center;
+  border: none;
+  height: 1.75rem;
+  background-color: ${themeColor('workSpaceNavItemBackground')};
+  color: ${themeColor('workSpaceNavItem')};
+
+  &:hover,
+  &:focus {
+    color: ${themeColor('workSpaceNavItem')};
+    opacity: 0.9;
+  }
 `;

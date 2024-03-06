@@ -27,7 +27,7 @@ interface Props {
   index: number;
 }
 
-export function ChartLegendIcon({ index, className }: Props) {
+export function ChartLegend({ index, className }: Readonly<Props>) {
   const theme = useTheme() as Theme;
 
   return (

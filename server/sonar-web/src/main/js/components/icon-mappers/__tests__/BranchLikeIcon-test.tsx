@@ -17,17 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { render } from '@testing-library/react';
 import * as React from 'react';
-import { colors } from '../../app/theme';
-import Icon, { IconProps } from './Icon';
+import { mockBranch, mockPullRequest } from '../../../helpers/mocks/branch-like';
+import BranchLikeIcon, { BranchLikeIconProps } from '../../icon-mappers/BranchLikeIcon';
 
-export default function AlertSuccessIcon({ fill, ...iconProps }: IconProps) {
-  return (
-    <Icon {...iconProps}>
-      <path
-        d="M12.607 6.554q0-0.25-0.161-0.411l-0.813-0.804q-0.17-0.17-0.402-0.17t-0.402 0.17l-3.643 3.634-2.018-2.018q-0.17-0.17-0.402-0.17t-0.402 0.17l-0.813 0.804q-0.161 0.161-0.161 0.411 0 0.241 0.161 0.402l3.232 3.232q0.17 0.17 0.402 0.17 0.241 0 0.411-0.17l4.848-4.848q0.161-0.161 0.161-0.402zM14.857 8q0 1.866-0.92 3.442t-2.496 2.496-3.442 0.92-3.442-0.92-2.496-2.496-0.92-3.442 0.92-3.442 2.496-2.496 3.442-0.92 3.442 0.92 2.496 2.496 0.92 3.442z"
-        style={{ fill: fill || colors.green }}
-      />
-    </Icon>
-  );
+it('should render branch icon correctly', () => {
+  renderBranchLikeIcon({ branchLike: mockBranch() });
+  expect(document.body.innerHTML).toMatchSnapshot();
+});
+
+it('should render pull request icon correctly', () => {
+  renderBranchLikeIcon({ branchLike: mockPullRequest() });
+  expect(document.body.innerHTML).toMatchSnapshot();
+});
+
+function renderBranchLikeIcon(props: BranchLikeIconProps) {
+  return render(<BranchLikeIcon {...props} />);
 }

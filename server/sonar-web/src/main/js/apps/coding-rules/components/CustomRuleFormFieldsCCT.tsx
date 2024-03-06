@@ -28,7 +28,7 @@ import {
 } from 'design-system';
 import React from 'react';
 import { useIntl } from 'react-intl';
-import SoftwareImpactSeverityIcon from '../../../components/icons/SoftwareImpactSeverityIcon';
+import SoftwareImpactSeverityIcon from '../../../components/icon-mappers/SoftwareImpactSeverityIcon';
 import {
   CLEAN_CODE_ATTRIBUTES_BY_CATEGORY,
   CLEAN_CODE_CATEGORIES,

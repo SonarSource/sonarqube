@@ -17,15 +17,38 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import {
+  IconProps,
+  SeverityBlockerIcon,
+  SeverityCriticalIcon,
+  SeverityInfoIcon,
+  SeverityMajorIcon,
+  SeverityMinorIcon,
+} from 'design-system';
 import * as React from 'react';
-import ChevronDownIcon from './ChevronDownIcon';
-import ChevronRightIcon from './ChevronRightIcon';
-import { IconProps } from './Icon';
+import { translate } from '../../helpers/l10n';
+import { isDefined } from '../../helpers/types';
+import { Dict } from '../../types/types';
 
 interface Props extends IconProps {
-  open: boolean;
+  severity: string | null | undefined;
 }
 
-export default function OpenCloseIcon({ open, ...iconProps }: Props) {
-  return open ? <ChevronDownIcon {...iconProps} /> : <ChevronRightIcon {...iconProps} />;
+const severityIcons: Dict<(props: IconProps) => React.ReactElement> = {
+  blocker: SeverityBlockerIcon,
+  critical: SeverityCriticalIcon,
+  major: SeverityMajorIcon,
+  minor: SeverityMinorIcon,
+  info: SeverityInfoIcon,
+};
+
+export default function SeverityIcon({ severity, ...iconProps }: Omit<Props, 'label'>) {
+  if (!isDefined(severity)) {
+    return null;
+  }
+
+  const DesiredIcon = severityIcons[severity.toLowerCase()];
+  return DesiredIcon ? (
+    <DesiredIcon {...iconProps} aria-label={translate('severity', severity)} />
+  ) : null;
 }

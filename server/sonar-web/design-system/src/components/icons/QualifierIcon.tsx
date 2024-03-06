@@ -29,7 +29,7 @@ interface Props extends IconProps {
   qualifier: string | null | undefined;
 }
 
-export function QualifierIcon({ qualifier, fill, ...iconProps }: Props) {
+export function QualifierIcon({ qualifier, fill, ...iconProps }: Readonly<Props>) {
   const theme = useTheme();
 
   if (!qualifier) {
@@ -49,7 +49,7 @@ export function QualifierIcon({ qualifier, fill, ...iconProps }: Props) {
   return icon ?? null;
 }
 
-function PortfolioIcon({ fill = 'currentColor', ...iconProps }: IconProps) {
+function PortfolioIcon({ fill = 'currentColor', ...iconProps }: Readonly<IconProps>) {
   const theme = useTheme();
 
   return (
@@ -62,7 +62,7 @@ function PortfolioIcon({ fill = 'currentColor', ...iconProps }: IconProps) {
   );
 }
 
-function ApplicationIcon({ fill = 'currentColor', ...iconProps }: IconProps) {
+function ApplicationIcon({ fill = 'currentColor', ...iconProps }: Readonly<IconProps>) {
   const theme = useTheme();
 
   return (
@@ -75,7 +75,7 @@ function ApplicationIcon({ fill = 'currentColor', ...iconProps }: IconProps) {
   );
 }
 
-function SubPortfolioIcon({ fill = 'currentColor', ...iconProps }: IconProps) {
+function SubPortfolioIcon({ fill = 'currentColor', ...iconProps }: Readonly<IconProps>) {
   const theme = useTheme();
 
   return (

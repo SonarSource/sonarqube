@@ -28,7 +28,7 @@ import {
 } from 'design-system';
 import * as React from 'react';
 import QualityGateStatus from '../../../app/components/nav/component/branch-like/QualityGateStatus';
-import BranchLikeIcon from '../../../components/icons/BranchLikeIcon';
+import BranchLikeIcon from '../../../components/icon-mappers/BranchLikeIcon';
 import DateFromNow from '../../../components/intl/DateFromNow';
 import {
   getBranchLikeDisplayName,

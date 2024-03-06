@@ -136,12 +136,12 @@ it('should be resizable', async () => {
 
   expect(ui.workspaceViewerContainer.query()).not.toBeInTheDocument();
 
-  const fileLink = byRole('link', { name: 'qualifier.FIL path/to/component/k1' });
-  expect(fileLink.get()).toBeInTheDocument();
-  await user.click(fileLink.get());
+  const fileButton = byRole('button', { name: 'qualifier.FIL path/to/component/k1' });
+  expect(fileButton.get()).toBeInTheDocument();
+  await user.click(fileButton.get());
 
   await user.click(ui.closeButton.get());
-  expect(fileLink.query()).not.toBeInTheDocument();
+  expect(fileButton.query()).not.toBeInTheDocument();
 });
 
 function renderWorkspace(componentKey = 'k1', branchLike?: BranchLike) {

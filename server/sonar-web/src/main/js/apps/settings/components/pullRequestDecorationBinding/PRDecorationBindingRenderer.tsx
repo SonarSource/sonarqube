@@ -24,6 +24,7 @@ import {
   FlagMessage,
   Link,
   Note,
+  RequiredIcon,
   Spinner,
   SubHeading,
   SubTitle,
@@ -31,7 +32,6 @@ import {
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import AlmSettingsInstanceSelector from '../../../../components/devops-platform/AlmSettingsInstanceSelector';
-import MandatoryFieldMarker from '../../../../components/ui/MandatoryFieldMarker';
 import MandatoryFieldsExplanation from '../../../../components/ui/MandatoryFieldsExplanation';
 import { translate } from '../../../../helpers/l10n';
 import { getGlobalSettingsUrl } from '../../../../helpers/urls';
@@ -130,7 +130,7 @@ export default function PRDecorationBindingRenderer(props: PRDecorationBindingRe
             <SubHeading>
               <label htmlFor="name">
                 {translate('settings.pr_decoration.binding.form.name')}
-                <MandatoryFieldMarker className="sw-mr-2" />
+                <RequiredIcon className="sw-mr-2" />
               </label>
             </SubHeading>
             <div className="markdown">

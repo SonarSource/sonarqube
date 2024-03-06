@@ -24,7 +24,7 @@ import { FormattedMessage } from 'react-intl';
 import { translate } from '../../helpers/l10n';
 import { SoftwareImpactSeverity } from '../../types/clean-code-taxonomy';
 import DocumentationTooltip from '../common/DocumentationTooltip';
-import SoftwareImpactSeverityIcon from '../icons/SoftwareImpactSeverityIcon';
+import SoftwareImpactSeverityIcon from '../icon-mappers/SoftwareImpactSeverityIcon';
 
 export interface Props {
   className?: string;

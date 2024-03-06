@@ -17,13 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { HoverLink } from 'design-system';
+import { LinkHighlight, LinkStandalone } from '@sonarsource/echoes-react';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { translate } from '../../../helpers/l10n';
 import Link from '../../common/Link';
 import Tooltip from '../../controls/Tooltip';
-import SonarLintIcon from '../../icons/SonarLintIcon';
+import { SonarLintLogo } from '../../logos/SonarLintLogo';
 
 const SONARLINT_URL =
   'https://www.sonarsource.com/products/sonarlint/features/connected-mode/?referrer=sonarqube-quick-fix';
@@ -42,14 +42,22 @@ function SonarLintBadgeFull() {
       overlay={translate('issue.quick_fix_available_with_sonarlint_no_link')}
       mouseLeaveDelay={0.5}
     >
-      <HoverLink to={SONARLINT_URL} className="sw-flex sw-items-center" isExternal showExternalIcon>
-        <SonarLintIcon
-          className="it__issues-sonarlint-quick-fix"
-          size={20}
-          description={translate('issue.quick_fix_available_with_sonarlint_no_link')}
-        />
-        <span className="sw-ml-1">{translate('issue.quick_fix')}</span>
-      </HoverLink>
+      <LinkStandalone
+        highlight={LinkHighlight.Default}
+        iconLeft={
+          <SonarLintLogo
+            className="it__issues-sonarlint-quick-fix"
+            size={20}
+            description={translate('issue.quick_fix_available_with_sonarlint_no_link')}
+          />
+        }
+        to={SONARLINT_URL}
+        className="sw-flex sw-items-center"
+        isExternal
+        hasExternalIcon
+      >
+        {translate('issue.quick_fix')}
+      </LinkStandalone>
     </Tooltip>
   );
 }
@@ -73,7 +81,7 @@ function SonarLintBadgeCompact() {
       mouseLeaveDelay={0.5}
     >
       <div className="sw-flex sw-items-center">
-        <SonarLintIcon
+        <SonarLintLogo
           className="it__issues-sonarlint-quick-fix"
           size={15}
           description={translate('issue.quick_fix_available_with_sonarlint_no_link')}

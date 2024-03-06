@@ -17,17 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { useTheme } from '@emotion/react';
-import styled from '@emotion/styled';
-import classNames from 'classnames';
 import {
   BugIcon,
   CodeSmellIcon,
   IconProps,
   SecurityHotspotIcon,
   VulnerabilityIcon,
-  themeColor,
-  themeContrast,
 } from 'design-system';
 import React from 'react';
 import { IssueType } from '../../types/issues';
@@ -62,22 +57,3 @@ export default function IssueTypeIcon({ type, ...iconProps }: Props) {
       return null;
   }
 }
-
-export function IssueTypeCircleIcon({ className, type, ...iconProps }: Props) {
-  const theme = useTheme();
-  return (
-    <CircleIconContainer
-      className={classNames(
-        'sw-inline-flex sw-items-center sw-justify-center sw-shrink-0 sw-w-6 sw-h-6',
-        className,
-      )}
-    >
-      <IssueTypeIcon fill={themeContrast('issueTypeIcon')({ theme })} type={type} {...iconProps} />
-    </CircleIconContainer>
-  );
-}
-
-const CircleIconContainer = styled.div`
-  background: ${themeColor('issueTypeIcon')};
-  border-radius: 100%;
-`;

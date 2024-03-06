@@ -17,14 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { FlagMessage, InputField, Note, SubHeading, Switch } from 'design-system';
+import { FlagMessage, InputField, Note, RequiredIcon, SubHeading, Switch } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import withAvailableFeatures, {
   WithAvailableFeaturesProps,
 } from '../../../../app/components/available-features/withAvailableFeatures';
 import DocumentationLink from '../../../../components/common/DocumentationLink';
-import MandatoryFieldMarker from '../../../../components/ui/MandatoryFieldMarker';
 import { ALM_DOCUMENTATION_PATHS } from '../../../../helpers/constants';
 import { translate } from '../../../../helpers/l10n';
 import { convertGithubApiUrlToLink, stripTrailingSlash } from '../../../../helpers/urls';
@@ -96,7 +95,7 @@ function renderLabel(props: LabelProps) {
   return (
     <label htmlFor={id}>
       {translate('settings.pr_decoration.binding.form', id)}
-      {!optional && <MandatoryFieldMarker />}
+      {!optional && <RequiredIcon />}
     </label>
   );
 }

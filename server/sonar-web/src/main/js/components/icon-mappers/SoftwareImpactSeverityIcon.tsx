@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import {
+  IconProps,
   SoftwareImpactSeverityHighIcon,
   SoftwareImpactSeverityLowIcon,
   SoftwareImpactSeverityMediumIcon,
@@ -26,7 +27,6 @@ import * as React from 'react';
 import { translate } from '../../helpers/l10n';
 import { SoftwareImpactSeverity } from '../../types/clean-code-taxonomy';
 import { Dict } from '../../types/types';
-import { IconProps } from './Icon';
 
 interface Props extends IconProps {
   severity: string | null | undefined;

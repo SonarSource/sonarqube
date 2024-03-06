@@ -661,6 +661,12 @@ export const lightTheme = {
     promotionNotification: COLORS.blueGrey[35],
     promotionNotificationBackground: COLORS.blueGrey[700],
     promotionNotificationSeparator: COLORS.blueGrey[500],
+
+    // Workspace
+    workSpaceViewerBackground: COLORS.blueGrey[25],
+    workSpaceViewerShadow: COLORS.blueGrey[700],
+    workSpaceNavItem: COLORS.white,
+    workSpaceNavItemBackground: COLORS.blueGrey[500],
   },
 
   // contrast colors to be used for text when using a color background with the same name

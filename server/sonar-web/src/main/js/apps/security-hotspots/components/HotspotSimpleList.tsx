@@ -19,12 +19,12 @@
  */
 import { withTheme } from '@emotion/react';
 import styled from '@emotion/styled';
-import { Badge, SubnavigationAccordion, themeColor } from 'design-system';
+import { Badge, QualifierIcon, SubnavigationAccordion, themeColor } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import ListFooter from '../../../components/controls/ListFooter';
 import Tooltip from '../../../components/controls/Tooltip';
-import QualifierIcon from '../../../components/icons/QualifierIcon';
+
 import { translate } from '../../../helpers/l10n';
 import { fileFromPath } from '../../../helpers/path';
 import { ComponentQualifier } from '../../../types/component';
@@ -91,10 +91,7 @@ export default function HotspotSimpleList(props: HotspotSimpleListProps) {
                 {filterByFile ? (
                   <Tooltip overlay={filterByFile}>
                     <span>
-                      <QualifierIcon
-                        className="little-spacer-right"
-                        qualifier={ComponentQualifier.File}
-                      />
+                      <QualifierIcon className="sw-mr-1" qualifier={ComponentQualifier.File} />
                       {fileFromPath(filterByFile)}
                     </span>
                   </Tooltip>

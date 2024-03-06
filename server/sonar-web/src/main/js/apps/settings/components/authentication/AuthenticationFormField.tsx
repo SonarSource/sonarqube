@@ -18,12 +18,18 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import styled from '@emotion/styled';
-import { FormField, Highlight, InputField, Note, RequiredIcon } from 'design-system';
+import {
+  FlagErrorIcon,
+  FormField,
+  Highlight,
+  InputField,
+  Note,
+  RequiredIcon,
+  TextError,
+} from 'design-system';
 import React from 'react';
 import { useIntl } from 'react-intl';
-import ValidationInput, {
-  ValidationInputErrorPlacement,
-} from '../../../../components/controls/ValidationInput';
+import { isDefined } from '../../../../helpers/types';
 import { DefinitionV2, ExtendedSettingDefinition, SettingType } from '../../../../types/settings';
 import { getPropertyDescription, getPropertyName, isSecuredDefinition } from '../../utils';
 import AuthenticationMultiValueField from './AuthenticationMultiValuesField';
@@ -101,22 +107,29 @@ export default function AuthenticationFormField(props: Readonly<Props>) {
       {!isSecuredDefinition(definition) &&
         definition.type === undefined &&
         !definition.multiValues && (
-          <ValidationInput
-            error={error}
-            errorPlacement={ValidationInputErrorPlacement.Bottom}
-            isValid={false}
-            isInvalid={Boolean(error)}
-          >
+          <>
             <InputField
               size="full"
               id={definition.key}
+              isInvalid={isDefined(error) && error !== ''}
               maxLength={4000}
               name={definition.key}
               onChange={(e) => props.onFieldChange(definition.key, e.currentTarget.value)}
               type="text"
               value={String(settingValue ?? '')}
             />
-          </ValidationInput>
+            {isDefined(error) && error !== '' && (
+              <TextError
+                className="sw-mt-2"
+                text={
+                  <>
+                    <FlagErrorIcon className="sw-mr-1" />
+                    {error}
+                  </>
+                }
+              />
+            )}
+          </>
         )}
     </FormField>
   );

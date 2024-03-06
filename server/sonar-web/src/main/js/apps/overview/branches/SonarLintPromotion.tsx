@@ -21,7 +21,7 @@ import { Card, DiscreetLink } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import withCurrentUserContext from '../../../app/components/current-user/withCurrentUserContext';
-import SonarLintIcon from '../../../components/icons/SonarLintIcon';
+import { SonarLintLogo } from '../../../components/logos/SonarLintLogo';
 import { translate } from '../../../helpers/l10n';
 import { MetricKey } from '../../../types/metrics';
 import { QualityGateStatusCondition } from '../../../types/quality-gates';
@@ -73,7 +73,7 @@ export function SonarLintPromotion({ currentUser, qgConditions }: SonarLintPromo
                 SonarLint
               </DiscreetLink>
               <span className="sw-align-middle">
-                <SonarLintIcon size={16} />
+                <SonarLintLogo size={16} />
               </span>
             </>
           ),

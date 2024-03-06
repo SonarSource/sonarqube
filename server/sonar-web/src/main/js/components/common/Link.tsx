@@ -18,11 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as Echoes from '@sonarsource/echoes-react';
+import { OpenNewTabIcon } from 'design-system';
 import * as React from 'react';
 import { Link as ReactRouterDomLink, LinkProps as ReactRouterDomLinkProps } from 'react-router-dom';
 import { isWebUri } from 'valid-url';
 import { translate } from '../../helpers/l10n';
-import DetachIcon from '../icons/DetachIcon';
 
 type OriginalLinkProps = ReactRouterDomLinkProps & React.RefAttributes<HTMLAnchorElement>;
 
@@ -41,8 +41,6 @@ export interface LinkProps extends OriginalLinkProps {
   size?: number;
 }
 
-const DEFAULT_ICON_SIZE = 14;
-
 function Link({ children, size, ...props }: LinkProps, ref: React.ForwardedRef<HTMLAnchorElement>) {
   if (typeof props.to === 'string' && isWebUri(props.to)) {
     // The new React Router DOM's <Link> component no longer supports external links.
@@ -56,11 +54,7 @@ function Link({ children, size, ...props }: LinkProps, ref: React.ForwardedRef<H
         {...anchorProps}
       >
         {anchorProps.target === '_blank' && (
-          <DetachIcon
-            label={translate('opens_in_new_window')}
-            size={size || DEFAULT_ICON_SIZE}
-            className="little-spacer-right"
-          />
+          <OpenNewTabIcon aria-label={translate('opens_in_new_window')} className="sw-mr-1" />
         )}
         {children}
       </a>

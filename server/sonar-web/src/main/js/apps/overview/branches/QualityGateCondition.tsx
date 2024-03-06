@@ -20,7 +20,7 @@
 import { LinkBox, TextMuted } from 'design-system';
 import * as React from 'react';
 import { Path } from 'react-router-dom';
-import IssueTypeIcon from '../../../components/icons/IssueTypeIcon';
+import IssueTypeIcon from '../../../components/icon-mappers/IssueTypeIcon';
 import MeasureIndicator from '../../../components/measure/MeasureIndicator';
 import {
   DEFAULT_ISSUES_QUERY,
@@ -169,7 +169,7 @@ export default class QualityGateCondition extends React.PureComponent<Props> {
         />
         <div className="sw-flex sw-flex-col sw-text-sm">
           <div className="sw-flex sw-items-center">
-            <IssueTypeIcon className="sw-mr-2" query={metric.key} />
+            <IssueTypeIcon className="sw-mr-2" type={metric.key} />
             <span className="sw-body-sm-highlight sw-text-ellipsis sw-max-w-abs-300">
               {this.getPrimaryText()}
             </span>

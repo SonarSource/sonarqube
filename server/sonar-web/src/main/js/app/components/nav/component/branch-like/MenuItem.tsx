@@ -20,7 +20,7 @@
 import classNames from 'classnames';
 import { Badge, ItemButton, TextBold, TextMuted } from 'design-system';
 import * as React from 'react';
-import BranchLikeIcon from '../../../../../components/icons/BranchLikeIcon';
+import BranchLikeIcon from '../../../../../components/icon-mappers/BranchLikeIcon';
 import { getBranchLikeDisplayName, isMainBranch } from '../../../../../helpers/branch-like';
 import { translate } from '../../../../../helpers/l10n';
 import { BranchLike } from '../../../../../types/branch-like';

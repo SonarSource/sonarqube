@@ -17,21 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import styled from '@emotion/styled';
-import { CloseIcon, InputField, InteractiveIcon, Link } from 'design-system';
+import { LinkStandalone } from '@sonarsource/echoes-react';
+import { CloseIcon, InputField, InteractiveIcon } from 'design-system';
 import React, { useState } from 'react';
 import isValidUri from '../../app/utils/isValidUri';
 import { translate } from '../../helpers/l10n';
 import { getLinkName } from '../../helpers/projectLinks';
 import { ProjectLink } from '../../types/types';
-import ProjectLinkIcon from '../icons/ProjectLinkIcon';
 
 interface Props {
-  iconOnly?: boolean;
   link: ProjectLink;
 }
 
-export default function MetaLink({ iconOnly, link }: Readonly<Props>) {
+export default function MetaLink({ link }: Readonly<Props>) {
   const [expanded, setExpanded] = useState(false);
 
   const handleClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
@@ -51,14 +49,14 @@ export default function MetaLink({ iconOnly, link }: Readonly<Props>) {
   const isValid = isValidUri(link.url);
   return (
     <li>
-      <StyledLink
-        to={link.url}
-        preventDefault={!isValid}
+      <LinkStandalone
+        hasExternalIcon={false}
         onClick={isValid ? undefined : handleClick}
-        icon={<ProjectLinkIcon type={link.type} />}
+        shouldPreventDefault={!isValid}
+        to={link.url}
       >
-        {!iconOnly && linkTitle}
-      </StyledLink>
+        {linkTitle}
+      </LinkStandalone>
 
       {expanded && (
         <div className="sw-mt-1 sw-flex sw-items-center">
@@ -74,19 +72,3 @@ export default function MetaLink({ iconOnly, link }: Readonly<Props>) {
     </li>
   );
 }
-
-/*
- * Override the spacing to make it smaller
- * 1rem = 16px for the icon width
- * +
- * 0.5 rem = margin '2'
- */
-const StyledLink = styled(Link)`
-  margin-left: 1.5rem;
-
-  & > svg,
-  & > img {
-    margin-right: 0.5rem;
-    margin-left: -1.5rem;
-  }
-`;

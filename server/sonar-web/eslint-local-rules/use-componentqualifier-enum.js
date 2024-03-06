@@ -18,7 +18,4 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 const { useEnum } = require('./lib/use-enum');
-module.exports = useEnum(
-  ['APP', 'DIR', 'DEV', 'FIL', 'VW', 'TRK', 'SVW', 'UTS'],
-  'ComponentQualifier'
-);
+module.exports = useEnum(['APP', 'DIR', 'FIL', 'VW', 'TRK', 'SVW', 'UTS'], 'ComponentQualifier');

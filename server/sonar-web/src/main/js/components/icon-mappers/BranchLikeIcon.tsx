@@ -17,16 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { BranchIcon, IconProps, MainBranchIcon, PullRequestIcon, ThemeColors } from 'design-system';
 import * as React from 'react';
-import Icon, { IconProps } from './Icon';
+import { isMainBranch, isPullRequest } from '../../helpers/branch-like';
+import { BranchLike } from '../../types/branch-like';
 
-export default function CodeSmellIcon({ fill = 'currentColor', ...iconProps }: IconProps) {
-  return (
-    <Icon {...iconProps}>
-      <path
-        d="M8,15.1a7,7,0,1,0-7-7A7,7,0,0,0,8,15.1Zm.74-8.9,1.46-2.52a.29.29,0,0,1,.25-.14.3.3,0,0,1,.15,0,5.26,5.26,0,0,1,2.61,4.53.28.28,0,0,1-.29.29H10a.28.28,0,0,1-.29-.29,1.78,1.78,0,0,0-.88-1.51A.29.29,0,0,1,8.75,6.2Zm.11,3.44A.23.23,0,0,1,9,9.6a.29.29,0,0,1,.25.14l1.46,2.52a.18.18,0,0,1,0,.13.3.3,0,0,1-.15.27,5.3,5.3,0,0,1-5.23,0,.3.3,0,0,1-.1-.4L6.73,9.74A.29.29,0,0,1,7,9.6a.23.23,0,0,1,.14,0A1.79,1.79,0,0,0,8.86,9.64ZM5.33,3.59a.3.3,0,0,1,.41.1L7.2,6.21a.29.29,0,0,1-.1.4,1.79,1.79,0,0,0-.87,1.51.28.28,0,0,1-.29.29H3a.32.32,0,0,1-.32-.29A5.26,5.26,0,0,1,5.33,3.59Z"
-        style={{ fill }}
-      />
-    </Icon>
-  );
+export interface BranchLikeIconProps extends Omit<IconProps, 'fill'> {
+  branchLike: BranchLike;
+  fill?: ThemeColors;
+}
+
+export default function BranchLikeIcon({ branchLike, ...props }: Readonly<BranchLikeIconProps>) {
+  if (isPullRequest(branchLike)) {
+    return <PullRequestIcon fill="pageContentLight" {...props} />;
+  } else if (isMainBranch(branchLike)) {
+    return <MainBranchIcon fill="pageContentLight" {...props} />;
+  }
+  return <BranchIcon fill="pageContentLight" {...props} />;
 }

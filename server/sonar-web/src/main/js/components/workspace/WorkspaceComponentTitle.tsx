@@ -18,8 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import QualifierIcon from '../../components/icons/QualifierIcon';
+
+import { QualifierIcon } from 'design-system';
+import { translate } from '../../helpers/l10n';
 import { collapsePath } from '../../helpers/path';
+import { isDefined } from '../../helpers/types';
 import { ComponentDescriptor } from './context';
 
 interface Props {
@@ -31,8 +34,12 @@ export default function WorkspaceComponentTitle({ component, limited }: Props) {
   const { name = '—' } = component;
   return (
     <>
-      {component.qualifier && (
-        <QualifierIcon className="little-spacer-right" qualifier={component.qualifier} />
+      {isDefined(component.qualifier) && (
+        <QualifierIcon
+          aria-label={translate('qualifier', component.qualifier)}
+          className="sw-mr-1"
+          qualifier={component.qualifier}
+        />
       )}
       {limited ? collapsePath(name, 15) : name}
     </>

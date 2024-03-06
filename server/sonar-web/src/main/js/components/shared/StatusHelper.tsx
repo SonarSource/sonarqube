@@ -20,7 +20,7 @@
 import * as React from 'react';
 import { translate } from '../../helpers/l10n';
 import { IssueStatus } from '../../types/issues';
-import IssueStatusIcon from '../icons/IssueStatusIcon';
+import IssueStatusIcon from '../icon-mappers/IssueStatusIcon';
 
 interface Props {
   className?: string;

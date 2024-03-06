@@ -30,7 +30,7 @@ import {
 } from 'design-system';
 import * as React from 'react';
 import Tooltip from '../../../components/controls/Tooltip';
-import BranchLikeIcon from '../../../components/icons/BranchLikeIcon';
+import BranchLikeIcon from '../../../components/icon-mappers/BranchLikeIcon';
 import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { isNewCodeDefinitionCompliant } from '../../../helpers/new-code-definition';

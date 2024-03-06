@@ -19,10 +19,11 @@
  */
 import { withTheme } from '@emotion/react';
 import styled from '@emotion/styled';
-import { ClipboardIconButton, HoverLink, Note, themeBorder, themeColor } from 'design-system';
+import { ClipboardIconButton, Note, QualifierIcon, themeBorder, themeColor } from 'design-system';
 import React from 'react';
 import withCurrentUserContext from '../../../app/components/current-user/withCurrentUserContext';
-import QualifierIcon from '../../../components/icons/QualifierIcon';
+
+import { LinkHighlight, LinkStandalone } from '@sonarsource/echoes-react';
 import { translate } from '../../../helpers/l10n';
 import { collapsedDirFromPath, fileFromPath } from '../../../helpers/path';
 import { getBranchLikeUrl } from '../../../helpers/urls';
@@ -57,10 +58,13 @@ function HotspotSnippetHeader(props: HotspotSnippetHeaderProps) {
       <Note className="sw-flex sw-flex-1 sw-flex-wrap sw-gap-2 sw-items-center sw-my-1/2">
         {displayProjectName && (
           <span>
-            <HoverLink to={getBranchLikeUrl(project.key, branchLike)}>
-              <QualifierIcon qualifier={qualifier} className="sw-mr-2" />
+            <LinkStandalone
+              highlight={LinkHighlight.CurrentColor}
+              iconLeft={<QualifierIcon qualifier={qualifier} className="sw-mr-2" />}
+              to={getBranchLikeUrl(project.key, branchLike)}
+            >
               {project.name}
-            </HoverLink>
+            </LinkStandalone>
           </span>
         )}
 

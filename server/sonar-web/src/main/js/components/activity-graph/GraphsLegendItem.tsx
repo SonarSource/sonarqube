@@ -29,8 +29,8 @@ import {
   themeColor,
 } from 'design-system';
 import * as React from 'react';
-import { ChartLegendIcon } from '../../components/icons/ChartLegendIcon';
 import { translateWithParameters } from '../../helpers/l10n';
+import { ChartLegend } from './ChartLegend';
 
 interface Props {
   className?: string;
@@ -61,7 +61,7 @@ export function GraphsLegendItem({
       {showWarning ? (
         <FlagWarningIcon className="sw-mr-2" />
       ) : (
-        <ChartLegendIcon className="sw-mr-2" index={index} />
+        <ChartLegend className="sw-mr-2" index={index} />
       )}
       <span className="sw-body-sm" style={{ color: themeColor('graphCursorLineColor')({ theme }) }}>
         {name}

@@ -34,7 +34,7 @@ export interface SeveritySelectProps {
 function Option(props: Readonly<OptionProps<LabelValueSelectOption<IssueSeverity>, false>>) {
   return (
     <components.Option {...props}>
-      <SeverityHelper className="display-flex-center" severity={props.data.value} />
+      <SeverityHelper className="sw-flex sw-items-center" severity={props.data.value} />
     </components.Option>
   );
 }
@@ -44,7 +44,7 @@ function SingleValue(
 ) {
   return (
     <components.SingleValue {...props}>
-      <SeverityHelper className="display-flex-center" severity={props.data.value} />
+      <SeverityHelper className="sw-flex sw-items-center" severity={props.data.value} />
     </components.SingleValue>
   );
 }

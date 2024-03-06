@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import {
+  IconProps,
   StatusConfirmedIcon,
   StatusOpenIcon,
   StatusReopenedIcon,
@@ -26,7 +27,6 @@ import {
 import * as React from 'react';
 import { IssueStatus } from '../../types/issues';
 import { Dict } from '../../types/types';
-import { IconProps } from './Icon';
 
 interface Props extends IconProps {
   issueStatus: IssueStatus;

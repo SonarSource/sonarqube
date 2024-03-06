@@ -19,7 +19,7 @@
  */
 import { ChevronDownIcon, TextMuted } from 'design-system';
 import * as React from 'react';
-import BranchLikeIcon from '../../../../../components/icons/BranchLikeIcon';
+import BranchLikeIcon from '../../../../../components/icon-mappers/BranchLikeIcon';
 import { getBranchLikeDisplayName } from '../../../../../helpers/branch-like';
 import { BranchLike, BranchStatusData } from '../../../../../types/branch-like';
 import QualityGateStatus from './QualityGateStatus';

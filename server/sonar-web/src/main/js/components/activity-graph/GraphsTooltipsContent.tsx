@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { ChartLegendIcon } from '../../components/icons/ChartLegendIcon';
+import { ChartLegend } from './ChartLegend';
 
 interface Props {
   name: string;
@@ -31,7 +31,7 @@ export default function GraphsTooltipsContent({ name, index, translatedName, val
   return (
     <tr className="sw-h-8" key={name}>
       <td className="thin">
-        <ChartLegendIcon className="spacer-right" index={index} />
+        <ChartLegend className="sw-mr-2" index={index} />
       </td>
       <td className="sw-font-bold sw-text-right sw-pr-2 thin">{value}</td>
       <td>{translatedName}</td>

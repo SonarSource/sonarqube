@@ -17,14 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Badge, ContentCell, TableRowInteractive } from 'design-system';
+import { Badge, ContentCell, TableRowInteractive, UserGroupIcon } from 'design-system';
 import * as React from 'react';
 import { translate } from '../../helpers/l10n';
 import { isPermissionDefinitionGroup } from '../../helpers/permissions';
 import { getBaseUrl } from '../../helpers/system';
 import { Permissions } from '../../types/permissions';
 import { PermissionDefinitions, PermissionGroup } from '../../types/types';
-import GroupIcon from '../icons/GroupIcon';
 import PermissionCell from './PermissionCell';
 import usePermissionChange from './usePermissionChange';
 
@@ -57,7 +56,7 @@ export default function GroupHolder(props: Props) {
     <TableRowInteractive>
       <ContentCell>
         <div className="sw-flex sw-items-center">
-          <GroupIcon className="sw-mr-4" />
+          <UserGroupIcon className="sw-mr-4" />
           <div className="sw-max-w-abs-800">
             <div className="sw-flex sw-w-fit sw-max-w-full">
               <div className="sw-flex-1 sw-text-ellipsis sw-whitespace-nowrap sw-overflow-hidden  sw-min-w-0">
