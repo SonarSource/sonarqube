@@ -17,11 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { QualityGateIndicator } from 'design-system';
+import { MetricsLabel, MetricsRatingBadge, QualityGateIndicator } from 'design-system';
 import * as React from 'react';
 import Tooltip from '../../components/controls/Tooltip';
-import Rating from '../../components/ui/Rating';
-import { translateWithParameters } from '../../helpers/l10n';
+import { translate, translateWithParameters } from '../../helpers/l10n';
 import { formatMeasure } from '../../helpers/measures';
 import { MetricType } from '../../types/metrics';
 import { Status } from '../../types/types';
@@ -76,14 +75,21 @@ export default function Measure({
   }
 
   const tooltip = <RatingTooltipContent metricKey={metricKey} value={value} />;
-  const rating = ratingComponent ?? <Rating value={value} />;
+  const rating = ratingComponent ?? (
+    <MetricsRatingBadge
+      size={small ? 'sm' : 'md'}
+      label={
+        value
+          ? translateWithParameters('metric.has_rating_X', formatMeasure(value, MetricType.Rating))
+          : translate('metric.no_rating')
+      }
+      rating={formatMeasure(value, MetricType.Rating) as MetricsLabel}
+    />
+  );
 
-  if (tooltip) {
-    return (
-      <Tooltip overlay={tooltip}>
-        <span className={className}>{rating}</span>
-      </Tooltip>
-    );
-  }
-  return rating;
+  return (
+    <Tooltip overlay={tooltip}>
+      <span className={className}>{rating}</span>
+    </Tooltip>
+  );
 }

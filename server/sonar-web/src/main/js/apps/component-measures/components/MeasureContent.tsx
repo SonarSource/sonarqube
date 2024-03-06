@@ -430,7 +430,7 @@ export default class MeasureContent extends React.PureComponent<Props, State> {
             secondaryMeasure={secondaryMeasure}
           />
           {isFileComponent ? (
-            <div className="measure-details-viewer">
+            <div>
               <SourceViewer
                 hideHeader
                 branchLike={branchLike}

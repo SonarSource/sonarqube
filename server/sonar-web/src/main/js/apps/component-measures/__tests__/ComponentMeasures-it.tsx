@@ -120,15 +120,42 @@ describe('rendering', () => {
     expect(ui.measuresRows.getAll()).toHaveLength(7);
   });
 
-  it('should correctly render a treemap view', async () => {
+  it('should correctly render a rating treemap view', async () => {
     const { ui } = getPageObject();
     renderMeasuresApp('component_measures?id=foo&metric=sqale_rating&view=treemap');
     await ui.appLoaded();
 
-    expect(within(ui.treeMap.get()).getAllByRole('link')).toHaveLength(7);
+    expect(ui.treeMap.byRole('link').getAll()).toHaveLength(7);
     expect(ui.treeMapCell(/folderA .+ Maintainability Rating: C/).get()).toBeInTheDocument();
     expect(ui.treeMapCell(/test1\.js .+ Maintainability Rating: B/).get()).toBeInTheDocument();
     expect(ui.treeMapCell(/index\.tsx .+ Maintainability Rating: A/).get()).toBeInTheDocument();
+  });
+
+  it('should correctly render a percent treemap view', async () => {
+    const { measures } = componentsHandler;
+
+    measures['foo:folderA'][MetricKey.coverage] = {
+      metric: MetricKey.coverage,
+      value: '74.2',
+    };
+    measures['foo:test1.js'][MetricKey.coverage] = {
+      metric: MetricKey.coverage,
+      value: undefined,
+    };
+    measures['foo:index.tsx'][MetricKey.coverage] = {
+      metric: MetricKey.coverage,
+      value: '13.1',
+    };
+
+    const { ui } = getPageObject();
+    renderMeasuresApp('component_measures?id=foo&metric=coverage&view=treemap');
+    await ui.appLoaded();
+
+    expect(ui.treeMap.byRole('link').getAll()).toHaveLength(7);
+
+    expect(ui.treeMapCell(/folderA .+ Coverage: 74.2%/).get()).toBeInTheDocument();
+    expect(ui.treeMapCell(/test1\.js .+ Coverage: —/).get()).toBeInTheDocument();
+    expect(ui.treeMapCell(/index\.tsx .+ Coverage: 13.1%/).get()).toBeInTheDocument();
   });
 
   it('should render correctly for an unknown metric', async () => {

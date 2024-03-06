@@ -17,16 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import styled from '@emotion/styled';
 import { ScaleLinear, ScaleOrdinal } from 'd3-scale';
+import { CSSColor, themeColor } from 'design-system';
 import * as React from 'react';
-import { colors } from '../../app/theme';
-import './ColorGradientLegend.css';
 
 interface Props {
   className?: string;
   colorScale:
     | ScaleOrdinal<string, string> // used for LEVEL type
     | ScaleLinear<string, string | number>; // used for RATING or PERCENT type
+  naColors?: [CSSColor, CSSColor];
   height: number;
   padding?: [number, number, number, number];
   showColorNA?: boolean;
@@ -42,6 +43,7 @@ export default function ColorGradientLegend({
   padding = [12, 24, 0, 0],
   height,
   showColorNA = false,
+  naColors = ['rgb(36,36,36)', 'rgb(120,120,120)'],
   width,
 }: Props) {
   const colorRange: Array<string | number> = colorScale.range();
@@ -74,14 +76,14 @@ export default function ColorGradientLegend({
                 y1="0"
                 x2={i}
                 y2="30"
-                style={{ stroke: colors.gray71, strokeWidth: NA_SPACING }}
+                style={{ stroke: naColors[0], strokeWidth: NA_SPACING }}
               />
               <line
                 x1={i + NA_SPACING}
                 y1="0"
                 x2={i + NA_SPACING}
                 y2="30"
-                style={{ stroke: colors.gray60, strokeWidth: NA_SPACING }}
+                style={{ stroke: naColors[1], strokeWidth: NA_SPACING }}
               />
             </React.Fragment>
           ))}
@@ -90,8 +92,7 @@ export default function ColorGradientLegend({
       <g transform={`translate(${padding[3]}, ${padding[0]})`}>
         <rect fill="url(#gradient-legend)" height={rectHeight} width={widthNoPadding} x={0} y={0} />
         {colorDomain.map((d, idx) => (
-          <text
-            className="gradient-legend-text"
+          <GradientLegendText
             dy="-2px"
             // eslint-disable-next-line react/no-array-index-key
             key={idx}
@@ -99,7 +100,7 @@ export default function ColorGradientLegend({
             y={0}
           >
             {d}
-          </text>
+          </GradientLegendText>
         ))}
       </g>
       {showColorNA && (
@@ -111,16 +112,27 @@ export default function ColorGradientLegend({
             x={NA_SPACING}
             y={0}
           />
-          <text
-            className="gradient-legend-na"
-            dy="-2px"
-            x={NA_SPACING + (padding[1] - NA_SPACING) / 2}
-            y={0}
-          >
+          <GradientLegendTextBase dy="-2px" x={NA_SPACING + (padding[1] - NA_SPACING) / 2} y={0}>
             N/A
-          </text>
+          </GradientLegendTextBase>
         </g>
       )}
     </svg>
   );
 }
+
+const GradientLegendTextBase = styled.text`
+  text-anchor: middle;
+  fill: ${themeColor('pageContent')};
+  font-size: 10px;
+`;
+
+const GradientLegendText = styled(GradientLegendTextBase)`
+  &:first-of-type {
+    text-anchor: start;
+  }
+
+  &:last-of-type {
+    text-anchor: end;
+  }
+`;

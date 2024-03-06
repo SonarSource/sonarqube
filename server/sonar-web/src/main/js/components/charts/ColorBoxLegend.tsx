@@ -17,14 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import classNames from 'classnames';
+import styled from '@emotion/styled';
 import { ScaleLinear, ScaleOrdinal } from 'd3-scale';
 import * as React from 'react';
 import { formatMeasure } from '../../helpers/measures';
-import './ColorBoxLegend.css';
 
 interface Props {
-  className?: string;
   colorNA?: string;
   colorScale:
     | ScaleOrdinal<string, string> // used for LEVEL type
@@ -32,30 +30,40 @@ interface Props {
   metricType: string;
 }
 
-export default function ColorBoxLegend({ className, colorScale, colorNA, metricType }: Props) {
+export default function ColorBoxLegend({ colorScale, colorNA, metricType }: Props) {
   const colorDomain: Array<number | string> = colorScale.domain();
   const colorRange = colorScale.range();
   return (
-    <div className={classNames('color-box-legend', className)}>
+    <div className="sw-flex sw-justify-center sw-gap-6">
       {colorDomain.map((value, idx) => (
         <div key={value}>
-          <span className="color-box-legend-rect" style={{ borderColor: colorRange[idx] }}>
-            <span
-              className="color-box-legend-rect-inner"
-              style={{ backgroundColor: colorRange[idx] }}
-            />
-          </span>
+          <LegendRect style={{ borderColor: colorRange[idx] }}>
+            <span style={{ backgroundColor: colorRange[idx] }} />
+          </LegendRect>
           {formatMeasure(value, metricType)}
         </div>
       ))}
       {colorNA && (
         <div>
-          <span className="color-box-legend-rect" style={{ borderColor: colorNA }}>
-            <span className="color-box-legend-rect-inner" style={{ backgroundColor: colorNA }} />
-          </span>
+          <LegendRect style={{ borderColor: colorNA }}>
+            <span style={{ backgroundColor: colorNA }} />
+          </LegendRect>
           N/A
         </div>
       )}
     </div>
   );
 }
+
+const LegendRect = styled.span`
+  display: inline-block;
+  margin-top: 1px;
+  margin-right: 4px;
+  border: 1px solid;
+
+  & span {
+    display: block;
+    width: 8px;
+    height: 8px;
+  }
+`;
