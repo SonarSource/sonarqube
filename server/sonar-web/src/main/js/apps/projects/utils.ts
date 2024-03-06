@@ -91,10 +91,13 @@ const PAGE_SIZE = 50;
 export const METRICS = [
   MetricKey.alert_status,
   MetricKey.reliability_issues,
+  MetricKey.bugs,
   MetricKey.reliability_rating,
   MetricKey.security_issues,
+  MetricKey.vulnerabilities,
   MetricKey.security_rating,
   MetricKey.maintainability_issues,
+  MetricKey.code_smells,
   MetricKey.sqale_rating,
   MetricKey.security_hotspots_reviewed,
   MetricKey.security_review_rating,

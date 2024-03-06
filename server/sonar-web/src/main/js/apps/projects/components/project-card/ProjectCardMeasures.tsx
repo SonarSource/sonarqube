@@ -121,19 +121,28 @@ function renderRatings(props: ProjectCardMeasuresProps) {
         {
           iconLabel: translate(`metric.${MetricKey.security_issues}.short_name`),
           noShrink: true,
-          metricKey: MetricKey.security_issues,
+          metricKey:
+            measures[MetricKey.security_issues] !== undefined
+              ? MetricKey.security_issues
+              : MetricKey.vulnerabilities,
           metricRatingKey: MetricKey.security_rating,
           metricType: MetricType.ShortInteger,
         },
         {
           iconLabel: translate(`metric.${MetricKey.reliability_issues}.short_name`),
-          metricKey: MetricKey.reliability_issues,
+          metricKey:
+            measures[MetricKey.reliability_issues] !== undefined
+              ? MetricKey.reliability_issues
+              : MetricKey.bugs,
           metricRatingKey: MetricKey.reliability_rating,
           metricType: MetricType.ShortInteger,
         },
         {
           iconLabel: translate(`metric.${MetricKey.maintainability_issues}.short_name`),
-          metricKey: MetricKey.maintainability_issues,
+          metricKey:
+            measures[MetricKey.maintainability_issues] !== undefined
+              ? MetricKey.maintainability_issues
+              : MetricKey.code_smells,
           metricRatingKey: MetricKey.sqale_rating,
           metricType: MetricType.ShortInteger,
         },

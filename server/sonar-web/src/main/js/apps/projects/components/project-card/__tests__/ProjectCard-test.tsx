@@ -22,15 +22,18 @@ import React from 'react';
 import { mockCurrentUser, mockLoggedInUser } from '../../../../../helpers/testMocks';
 import { renderComponent } from '../../../../../helpers/testReactTestingUtils';
 import { ComponentQualifier, Visibility } from '../../../../../types/component';
+import { MetricKey } from '../../../../../types/metrics';
 import { CurrentUser } from '../../../../../types/users';
 import { Project } from '../../../types';
 import ProjectCard from '../ProjectCard';
 
 const MEASURES = {
-  alert_status: 'OK',
-  reliability_rating: '1.0',
-  sqale_rating: '1.0',
-  new_bugs: '12',
+  [MetricKey.ncloc]: '1000',
+  [MetricKey.alert_status]: 'OK',
+  [MetricKey.reliability_rating]: '1.0',
+  [MetricKey.security_rating]: '1.0',
+  [MetricKey.sqale_rating]: '1.0',
+  [MetricKey.new_bugs]: '12',
 };
 
 const PROJECT: Project = {
@@ -79,6 +82,90 @@ it('should not display configure analysis button for logged in user and without 
 it('should display applications', () => {
   renderProjectCard({ ...PROJECT, qualifier: ComponentQualifier.Application });
   expect(screen.getByLabelText('qualifier.APP')).toBeInTheDocument();
+});
+
+it('should not display awaiting analysis badge and do not display old measures', () => {
+  renderProjectCard({
+    ...PROJECT,
+    measures: {
+      ...MEASURES,
+      [MetricKey.security_issues]: JSON.stringify({ LOW: 0, MEDIUM: 0, HIGH: 1, total: 1 }),
+      [MetricKey.reliability_issues]: JSON.stringify({ LOW: 0, MEDIUM: 2, HIGH: 0, total: 2 }),
+      [MetricKey.maintainability_issues]: JSON.stringify({ LOW: 3, MEDIUM: 0, HIGH: 0, total: 3 }),
+      [MetricKey.code_smells]: '4',
+      [MetricKey.bugs]: '5',
+      [MetricKey.vulnerabilities]: '6',
+    },
+  });
+  expect(screen.queryByRole('status', { name: 'projects.awaiting_scan' })).not.toBeInTheDocument();
+  expect(screen.getByText('1')).toBeInTheDocument();
+  expect(screen.getByText('2')).toBeInTheDocument();
+  expect(screen.getByText('3')).toBeInTheDocument();
+  expect(screen.queryByText('4')).not.toBeInTheDocument();
+  expect(screen.queryByText('5')).not.toBeInTheDocument();
+  expect(screen.queryByText('6')).not.toBeInTheDocument();
+});
+
+it('should display awaiting analysis badge and show the old measures', async () => {
+  renderProjectCard({
+    ...PROJECT,
+    measures: {
+      ...MEASURES,
+      [MetricKey.code_smells]: '4',
+      [MetricKey.bugs]: '5',
+      [MetricKey.vulnerabilities]: '6',
+    },
+  });
+  expect(screen.getByRole('status', { name: 'projects.awaiting_scan' })).toBeInTheDocument();
+  await expect(
+    screen.getByRole('status', { name: 'projects.awaiting_scan' }),
+  ).toHaveATooltipWithContent('projects.awaiting_scan.description.TRK');
+  expect(screen.getByText('4')).toBeInTheDocument();
+  expect(screen.getByText('5')).toBeInTheDocument();
+  expect(screen.getByText('6')).toBeInTheDocument();
+});
+
+it('should display awaiting analysis badge and show the old measures for Application', async () => {
+  renderProjectCard({
+    ...PROJECT,
+    qualifier: ComponentQualifier.Application,
+    measures: {
+      ...MEASURES,
+      [MetricKey.code_smells]: '4',
+      [MetricKey.bugs]: '5',
+      [MetricKey.vulnerabilities]: '6',
+    },
+  });
+  expect(screen.getByRole('status', { name: 'projects.awaiting_scan' })).toBeInTheDocument();
+  await expect(
+    screen.getByRole('status', { name: 'projects.awaiting_scan' }),
+  ).toHaveATooltipWithContent('projects.awaiting_scan.description.APP');
+  expect(screen.getByText('4')).toBeInTheDocument();
+  expect(screen.getByText('5')).toBeInTheDocument();
+  expect(screen.getByText('6')).toBeInTheDocument();
+});
+
+it('should not display awaiting analysis badge if project is not analyzed', () => {
+  renderProjectCard({
+    ...PROJECT,
+    analysisDate: undefined,
+  });
+  expect(screen.queryByRole('status', { name: 'projects.awaiting_scan' })).not.toBeInTheDocument();
+});
+
+it('should not display awaiting analysis badge if project does not have lines of code', () => {
+  renderProjectCard({
+    ...PROJECT,
+    measures: {
+      ...(({ [MetricKey.ncloc]: _, ...rest }) => rest)(MEASURES),
+    },
+  });
+  expect(screen.queryByRole('status', { name: 'projects.awaiting_scan' })).not.toBeInTheDocument();
+});
+
+it('should not display awaiting analysis badge if it is a new code filter', () => {
+  renderProjectCard(PROJECT, undefined, 'leak');
+  expect(screen.queryByRole('status', { name: 'projects.awaiting_scan' })).not.toBeInTheDocument();
 });
 
 it('should display 3 aplication', () => {

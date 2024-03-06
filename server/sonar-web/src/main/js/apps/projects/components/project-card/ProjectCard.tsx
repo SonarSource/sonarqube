@@ -34,6 +34,7 @@ import {
   themeBorder,
   themeColor,
 } from 'design-system';
+import { isEmpty } from 'lodash';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import Favorite from '../../../../components/controls/Favorite';
@@ -66,6 +67,15 @@ function renderFirstLine(
   isNewCode: boolean,
 ) {
   const { analysisDate, isFavorite, key, measures, name, qualifier, tags, visibility } = project;
+  const awaitingScan =
+    [
+      MetricKey.reliability_issues,
+      MetricKey.maintainability_issues,
+      MetricKey.security_issues,
+    ].every((key) => measures[key] === undefined) &&
+    !isNewCode &&
+    !isEmpty(analysisDate) &&
+    measures.ncloc !== undefined;
   const formatted = formatMeasure(measures[MetricKey.alert_status], MetricType.Level);
   const qualityGateLabel = translateWithParameters('overview.quality_gate_x', formatted);
   return (
@@ -112,6 +122,16 @@ function renderFirstLine(
               <Badge className="sw-ml-2">{translate('visibility', visibility)}</Badge>
             </span>
           </Tooltip>
+
+          {awaitingScan && !isNewCode && !isEmpty(analysisDate) && measures.ncloc !== undefined && (
+            <Tooltip overlay={translate(`projects.awaiting_scan.description.${qualifier}`)}>
+              <span>
+                <Badge variant="new" className="sw-ml-2">
+                  {translate('projects.awaiting_scan')}
+                </Badge>
+              </span>
+            </Tooltip>
+          )}
         </div>
 
         {isDefined(analysisDate) && analysisDate !== '' && (
@@ -212,11 +232,7 @@ function renderSecondLine(
 ) {
   const { analysisDate, key, leakPeriodDate, measures, qualifier, isScannable } = project;
 
-  if (
-    isDefined(analysisDate) &&
-    analysisDate !== '' &&
-    (!isNewCode || (isDefined(leakPeriodDate) && leakPeriodDate !== ''))
-  ) {
+  if (!isEmpty(analysisDate) && (!isNewCode || !isEmpty(leakPeriodDate))) {
     return (
       <ProjectCardMeasures
         measures={measures}
@@ -235,7 +251,7 @@ function renderSecondLine(
       </Note>
 
       {qualifier !== ComponentQualifier.Application &&
-        (analysisDate === undefined || analysisDate === '') &&
+        isEmpty(analysisDate) &&
         isLoggedIn(currentUser) &&
         isScannable && (
           <Link className="sw-ml-2 sw-body-sm-highlight" to={getProjectUrl(key)}>
