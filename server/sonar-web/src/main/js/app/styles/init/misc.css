@@ -34,11 +34,6 @@ th.hide-overflow {
   overflow: hidden;
 }
 
-.note {
-  color: var(--secondFontColor);
-  font-size: var(--smallFontSize);
-}
-
 .null-spacer-bottom {
   margin-bottom: 0 !important;
 }

@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { FacetBox, FacetItem, FlagMessage, InputSearch } from 'design-system';
+import { FacetBox, FacetItem, FlagMessage, InputSearch, Note } from 'design-system';
 import { max, sortBy, values, without } from 'lodash';
 import * as React from 'react';
 import ListFooter from '../../../components/controls/ListFooter';
@@ -332,7 +332,9 @@ export class ListStyleFacet<S> extends React.Component<Props<S>, State<S>> {
 
         {selectedBelowLimit.length > 0 && (
           <>
-            <div className="note spacer-bottom text-center">⋯</div>
+            <Note as="div" className="sw-mb-2 sw-text-center">
+              ⋯
+            </Note>
 
             <FacetItemsList labelledby={this.getFacetHeaderId(property)}>
               {selectedBelowLimit.map((item) => (

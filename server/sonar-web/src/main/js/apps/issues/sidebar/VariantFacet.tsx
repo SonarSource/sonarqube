@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { FacetBox, FacetItem } from 'design-system';
+import { FacetBox, FacetItem, Note } from 'design-system';
 import { orderBy, sortBy, without } from 'lodash';
 import * as React from 'react';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
@@ -89,7 +89,9 @@ export function VariantFacet(props: VariantFacetProps) {
     >
       <FacetItemsList labelledby={id}>
         {nbSelectableItems === 0 && (
-          <div className="note spacer-bottom">{translate('no_results')}</div>
+          <Note as="div" className="sw-mb-2 sw-text-center">
+            {translate('no_results')}
+          </Note>
         )}
 
         {sortBy(

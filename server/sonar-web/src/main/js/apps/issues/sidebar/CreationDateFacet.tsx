@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { isSameDay } from 'date-fns';
-import { BarChart, DateRangePicker, FacetBox, FacetItem } from 'design-system';
-import { max } from 'lodash';
+import { BarChart, DateRangePicker, FacetBox, FacetItem, Note } from 'design-system';
+import { isEmpty, max } from 'lodash';
 import * as React from 'react';
 import { WrappedComponentProps, injectIntl } from 'react-intl';
 import { longFormatterOption } from '../../../components/intl/DateFormatter';
@@ -236,14 +236,14 @@ export class CreationDateFacetClass extends React.PureComponent<Props & WrappedC
   renderInner() {
     const { createdAfter, createdAfterIncludesTime, createdAt } = this.props;
 
-    if (createdAt) {
+    if (!isEmpty(createdAt)) {
       return (
         <div className="search-navigator-facet-container">
           <DateTimeFormatter date={this.props.createdAt} />
           <br />
-          <span className="note">
+          <Note>
             <DateFromNow date={this.props.createdAt} />
-          </span>
+          </Note>
         </div>
       );
     }

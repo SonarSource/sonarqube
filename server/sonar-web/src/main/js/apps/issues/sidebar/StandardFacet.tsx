@@ -19,7 +19,7 @@
  */
 /* eslint-disable react/no-unused-prop-types */
 
-import { FacetBox, FacetItem, TextMuted } from 'design-system';
+import { FacetBox, FacetItem, Note, TextMuted } from 'design-system';
 import { omit, sortBy, without } from 'lodash';
 import * as React from 'react';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
@@ -364,7 +364,11 @@ export class StandardFacet extends React.PureComponent<Props, State> {
 
         {selectedBelowLimit.length > 0 && (
           <>
-            {!allItemShown && <div className="note spacer-bottom text-center">⋯</div>}
+            {!allItemShown && (
+              <Note as="div" className="sw-mb-2 sw-text-center">
+                ⋯
+              </Note>
+            )}
             {selectedBelowLimit.map((item) => (
               <FacetItem
                 active

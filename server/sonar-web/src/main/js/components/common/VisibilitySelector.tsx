@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import classNames from 'classnames';
-import { RadioButton } from 'design-system';
+import { Note, RadioButton } from 'design-system';
 import * as React from 'react';
 import { translate } from '../../helpers/l10n';
 import { Visibility } from '../../types/component';
@@ -48,9 +48,7 @@ export default function VisibilitySelector(props: VisibilitySelectorProps) {
         >
           <div>
             {translate('visibility', v)}
-            {showDetails && (
-              <p className="note">{translate('visibility', v, 'description.long')}</p>
-            )}
+            {showDetails && <Note as="p">{translate('visibility', v, 'description.long')}</Note>}
           </div>
         </RadioButton>
       ))}

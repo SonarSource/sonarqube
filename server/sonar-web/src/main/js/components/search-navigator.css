@@ -228,10 +228,6 @@ button.search-navigator-facet:focus,
   color: var(--darkBlue);
 }
 
-.search-navigator-facet-header > .note {
-  font-weight: 400;
-}
-
 .search-navigator-facet-header > h3,
 .search-navigator-facet-header > h4 {
   line-height: inherit;

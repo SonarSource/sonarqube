@@ -121,7 +121,8 @@
     "start:force": "node scripts/start.js --force-build-design-system",
     "build": "node scripts/build.js",
     "build-release": "yarn install --immutable && node scripts/build.js release",
-    "test": "jest",
+    "test": "NODE_OPTIONS=--max-old-space-size=1024 jest",
+    "test-ci": "NODE_OPTIONS=\"-r dd-trace/ci/init\" jest --coverage --maxWorkers=5 --workerIdleMemoryLimit=2G --ci",
     "test-eslint-local-rules": "jest -c eslint-local-rules/jest.config.js",
     "format": "prettier --write --list-different \"src/main/js/**/*.{js,ts,tsx,css}\"",
     "format-check": "prettier --check \"src/main/js/**/*.{js,ts,tsx,css}\"",
@@ -130,7 +131,7 @@
     "lint-report-ci": "yarn install --immutable && eslint --ext js,ts,tsx --config .eslintrc-ci -f json -o eslint-report/eslint-report.json src/main/js  || yarn lint",
     "ts-check": "tsc --noEmit",
     "validate": "yarn dep-check && yarn lint && yarn ts-check && yarn format-check && yarn test",
-    "validate-ci": "yarn install --immutable && yarn dep-check && NODE_OPTIONS=\"-r dd-trace/ci/init\" yarn test --coverage --maxWorkers=5 --workerIdleMemoryLimit=2G --ci",
+    "validate-ci": "yarn install --immutable && yarn dep-check && yarn test-ci",
     "check-ci": "yarn install --immutable && yarn ts-check && yarn format-check && yarn test-eslint-local-rules",
     "update-cwes": "node scripts/update-cwes.js",
     "dep-check": "node scripts/validate-package-json.js"
