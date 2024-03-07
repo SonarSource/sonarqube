@@ -71,7 +71,7 @@ export default function PageHeader(props: Props) {
           {provisionedByGitHub && (
             <img
               alt="github"
-              className="sw-mx-2"
+              className="sw-mx-2 sw-align-baseline"
               aria-label={translate('project_permission.github_managed')}
               height={16}
               src={`${getBaseUrl()}/images/alm/github.svg`}
