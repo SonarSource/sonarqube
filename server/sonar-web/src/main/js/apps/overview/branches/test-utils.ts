@@ -100,6 +100,26 @@ export const getPageObjects = () => {
         );
       }
     },
+    expectSoftwareImpactMeasureCardToHaveOldMeasures: (
+      softwareQuality: SoftwareQuality,
+      rating: string,
+      total: number,
+      oldMetric: string,
+      branch = 'master',
+    ) => {
+      const branchQuery = branch ? `&branch=${branch}` : '';
+      expect(
+        byText(rating, { exact: true }).get(ui.softwareImpactMeasureCard(softwareQuality).get()),
+      ).toBeInTheDocument();
+      expect(
+        byRole('link', {
+          name: `overview.measures.software_impact.see_list_of_x_open_issues.${total}.software_quality.${softwareQuality}`,
+        }).get(),
+      ).toHaveAttribute(
+        'href',
+        `/project/issues?issueStatuses=OPEN%2CCONFIRMED&types=${oldMetric}${branchQuery}&id=foo`,
+      );
+    },
     expectSoftwareImpactMeasureBreakdownCard: (
       softwareQuality: SoftwareQuality,
       severity: SoftwareImpactSeverity,

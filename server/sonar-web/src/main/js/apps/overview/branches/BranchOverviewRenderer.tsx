@@ -19,21 +19,20 @@
  */
 import {
   BasicSeparator,
-  FlagMessage,
   LargeCenteredLayout,
   LightGreyCard,
   PageContentFontWrapper,
 } from 'design-system';
 import * as React from 'react';
-import { useIntl } from 'react-intl';
 import A11ySkipTarget from '../../../components/a11y/A11ySkipTarget';
 import { useLocation, useRouter } from '../../../components/hoc/withRouter';
+import AnalysisMissingInfoMessage from '../../../components/shared/AnalysisMissingInfoMessage';
 import { parseDate } from '../../../helpers/dates';
 import { isDiffMetric } from '../../../helpers/measures';
 import { CodeScope } from '../../../helpers/urls';
 import { ApplicationPeriod } from '../../../types/application';
 import { Branch } from '../../../types/branch-like';
-import { ComponentQualifier, isApplication } from '../../../types/component';
+import { ComponentQualifier } from '../../../types/component';
 import { MetricKey } from '../../../types/metrics';
 import { Analysis, GraphType, MeasureHistory } from '../../../types/project-activity';
 import { QualityGateStatus } from '../../../types/quality-gates';
@@ -94,18 +93,17 @@ export default function BranchOverviewRenderer(props: BranchOverviewRendererProp
   const { query } = useLocation();
   const router = useRouter();
 
-  const intl = useIntl();
   const tab = query.codeScope === CodeScope.Overall ? CodeScope.Overall : CodeScope.New;
   const leakPeriod = component.qualifier === ComponentQualifier.Application ? appLeak : period;
   const isNewCodeTab = tab === CodeScope.New;
   const hasNewCodeMeasures = measures.some((m) => isDiffMetric(m.metric.key));
 
   // Check if any potentially missing uncomputed measure is not present
-  const isMissingMeasures = (
-    isNewCodeTab
-      ? [MetricKey.new_accepted_issues]
-      : [MetricKey.security_issues, MetricKey.maintainability_issues, MetricKey.reliability_issues]
-  ).some((key) => !measures.find((measure) => measure.metric.key === key));
+  const isMissingMeasures = [
+    MetricKey.security_issues,
+    MetricKey.maintainability_issues,
+    MetricKey.reliability_issues,
+  ].some((key) => !measures.find((measure) => measure.metric.key === key));
 
   const selectTab = (tab: CodeScope) => {
     router.replace({ query: { ...query, codeScope: tab } });
@@ -121,14 +119,9 @@ export default function BranchOverviewRenderer(props: BranchOverviewRendererProp
     /* eslint-disable-next-line react-hooks/exhaustive-deps */
   }, [loadingStatus, hasNewCodeMeasures]);
 
-  const appReanalysisWarning =
-    isMissingMeasures && isApplication(component.qualifier) ? (
-      <FlagMessage variant="warning" className="sw-my-4">
-        {intl.formatMessage({
-          id: 'overview.missing_project_data.APP',
-        })}
-      </FlagMessage>
-    ) : null;
+  const analysisMissingInfo = isMissingMeasures && (
+    <AnalysisMissingInfoMessage qualifier={component.qualifier} className="sw-mt-6" />
+  );
 
   return (
     <>
@@ -184,15 +177,12 @@ export default function BranchOverviewRenderer(props: BranchOverviewRendererProp
                         {isNewCodeTab && (
                           <>
                             {hasNewCodeMeasures ? (
-                              <>
-                                {appReanalysisWarning}
-                                <NewCodeMeasuresPanel
-                                  qgStatuses={qgStatuses}
-                                  branch={branch}
-                                  component={component}
-                                  measures={measures}
-                                />
-                              </>
+                              <NewCodeMeasuresPanel
+                                qgStatuses={qgStatuses}
+                                branch={branch}
+                                component={component}
+                                measures={measures}
+                              />
                             ) : (
                               <MeasuresPanelNoNewCode
                                 branch={branch}
@@ -205,7 +195,7 @@ export default function BranchOverviewRenderer(props: BranchOverviewRendererProp
 
                         {!isNewCodeTab && (
                           <>
-                            {appReanalysisWarning}
+                            {analysisMissingInfo}
                             <OverallCodeMeasuresPanel
                               branch={branch}
                               qgStatuses={qgStatuses}

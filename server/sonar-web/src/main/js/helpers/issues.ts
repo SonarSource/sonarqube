@@ -24,6 +24,7 @@ import { MetricKey } from '../types/metrics';
 import { Dict, Flow, FlowLocation, FlowType, Issue, TextRange } from '../types/types';
 import { UserBase } from '../types/users';
 import { ISSUE_TYPES } from './constants';
+import { SoftwareQuality } from '../types/clean-code-taxonomy';
 
 interface Rule {}
 
@@ -162,6 +163,37 @@ export function parseIssueFromResponse(
     ...ensureTextRange(issue),
   } as Issue;
 }
+
+export function getIssueTypeBySoftwareQuality(quality: SoftwareQuality): IssueType {
+  const map = {
+    [SoftwareQuality.Maintainability]: IssueType.CodeSmell,
+    [SoftwareQuality.Security]: IssueType.Vulnerability,
+    [SoftwareQuality.Reliability]: IssueType.Bug,
+  };
+
+  return map[quality];
+}
+
+export const SOFTWARE_QUALITIES_METRIC_KEYS_MAP = {
+  [SoftwareQuality.Security]: {
+    metric: MetricKey.security_issues,
+    deprecatedMetric: MetricKey.vulnerabilities,
+    rating: MetricKey.security_rating,
+    newRating: MetricKey.new_security_rating,
+  },
+  [SoftwareQuality.Reliability]: {
+    metric: MetricKey.reliability_issues,
+    deprecatedMetric: MetricKey.bugs,
+    rating: MetricKey.reliability_rating,
+    newRating: MetricKey.new_reliability_rating,
+  },
+  [SoftwareQuality.Maintainability]: {
+    metric: MetricKey.maintainability_issues,
+    deprecatedMetric: MetricKey.code_smells,
+    rating: MetricKey.sqale_rating,
+    newRating: MetricKey.new_maintainability_rating,
+  },
+};
 
 export const ISSUETYPE_METRIC_KEYS_MAP = {
   [IssueType.CodeSmell]: {

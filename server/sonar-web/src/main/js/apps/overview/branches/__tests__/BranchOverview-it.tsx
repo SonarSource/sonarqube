@@ -37,7 +37,7 @@ import { mockAnalysis, mockAnalysisEvent } from '../../../../helpers/mocks/proje
 import { mockQualityGateProjectStatus } from '../../../../helpers/mocks/quality-gates';
 import { mockLoggedInUser, mockMeasure, mockPaging } from '../../../../helpers/testMocks';
 import { renderComponent } from '../../../../helpers/testReactTestingUtils';
-import { byRole, byText } from '../../../../helpers/testSelector';
+import { byLabelText, byRole, byText } from '../../../../helpers/testSelector';
 import { SoftwareImpactSeverity, SoftwareQuality } from '../../../../types/clean-code-taxonomy';
 import { ComponentQualifier } from '../../../../types/component';
 import { MetricKey } from '../../../../types/metrics';
@@ -323,9 +323,11 @@ describe('project overview', () => {
     );
   });
 
-  it('should render missing software impact measure cards', async () => {
-    // Make as if reliability_issues was not computed
+  it('should render old measures if software impact are missing', async () => {
+    // Make as if new analysis after upgrade is missing
     measuresHandler.deleteComponentMeasure('foo', MetricKey.maintainability_issues);
+    measuresHandler.deleteComponentMeasure('foo', MetricKey.security_issues);
+    measuresHandler.deleteComponentMeasure('foo', MetricKey.reliability_issues);
 
     const { user, ui } = getPageObjects();
     renderBranchOverview();
@@ -334,42 +336,90 @@ describe('project overview', () => {
 
     expect(await ui.softwareImpactMeasureCard(SoftwareQuality.Security).find()).toBeInTheDocument();
 
-    ui.expectSoftwareImpactMeasureCard(
+    ui.expectSoftwareImpactMeasureCard(SoftwareQuality.Security);
+    ui.expectSoftwareImpactMeasureCardToHaveOldMeasures(
       SoftwareQuality.Security,
       'B',
-      {
-        total: 1,
-        [SoftwareImpactSeverity.High]: 0,
-        [SoftwareImpactSeverity.Medium]: 1,
-        [SoftwareImpactSeverity.Low]: 0,
-      },
-      [false, true, false],
-    );
-    ui.expectSoftwareImpactMeasureCard(
-      SoftwareQuality.Reliability,
-      'A',
-      {
-        total: 3,
-        [SoftwareImpactSeverity.High]: 0,
-        [SoftwareImpactSeverity.Medium]: 2,
-        [SoftwareImpactSeverity.Low]: 1,
-      },
-      [false, true, false],
+      2,
+      'VULNERABILITY',
     );
 
-    // Maintainability is not computed
+    ui.expectSoftwareImpactMeasureCard(SoftwareQuality.Reliability);
+    ui.expectSoftwareImpactMeasureCardToHaveOldMeasures(SoftwareQuality.Reliability, 'A', 0, 'BUG');
+
+    ui.expectSoftwareImpactMeasureCard(SoftwareQuality.Maintainability);
+    ui.expectSoftwareImpactMeasureCardToHaveOldMeasures(
+      SoftwareQuality.Maintainability,
+      'E',
+      8,
+      'CODE_SMELL',
+    );
+  });
+
+  it('should render missing software impact measure cards if both software qualities and old measures are missing', async () => {
+    // Make as if no measures at all
+    measuresHandler.deleteComponentMeasure('foo', MetricKey.maintainability_issues);
+    measuresHandler.deleteComponentMeasure('foo', MetricKey.code_smells);
+
+    measuresHandler.deleteComponentMeasure('foo', MetricKey.security_issues);
+    measuresHandler.deleteComponentMeasure('foo', MetricKey.vulnerabilities);
+
+    measuresHandler.deleteComponentMeasure('foo', MetricKey.reliability_issues);
+    measuresHandler.deleteComponentMeasure('foo', MetricKey.bugs);
+
+    const { user, ui } = getPageObjects();
+    renderBranchOverview();
+
+    await user.click(await ui.overallCodeButton.find());
+
+    expect(await ui.softwareImpactMeasureCard(SoftwareQuality.Security).find()).toBeInTheDocument();
+
+    expect(byText('-', { exact: true }).getAll()).toHaveLength(3);
+
+    ui.expectSoftwareImpactMeasureCard(SoftwareQuality.Security);
+    expect(
+      byLabelText(
+        `overview.project.software_impact.has_rating.software_quality.${SoftwareQuality.Security}.B`,
+      ).get(),
+    ).toBeInTheDocument();
+
+    ui.expectSoftwareImpactMeasureCard(SoftwareQuality.Reliability);
+    expect(
+      byLabelText(
+        `overview.project.software_impact.has_rating.software_quality.${SoftwareQuality.Reliability}.A`,
+      ).get(),
+    ).toBeInTheDocument();
+
     ui.expectSoftwareImpactMeasureCard(SoftwareQuality.Maintainability);
     expect(
-      byText('overview.run_analysis_to_compute.TRK').get(
-        ui.softwareImpactMeasureCard(SoftwareQuality.Maintainability).get(),
-      ),
+      byLabelText(
+        `overview.project.software_impact.has_rating.software_quality.${SoftwareQuality.Maintainability}.E`,
+      ).get(),
     ).toBeInTheDocument();
-    ui.expectSoftwareImpactMeasureCard(SoftwareQuality.Maintainability, undefined, undefined, [
-      false,
-      false,
-      false,
-    ]);
   });
+
+  it.each([
+    ['security_issues', MetricKey.security_issues],
+    ['reliability_issues', MetricKey.reliability_issues],
+    ['maintainability_issues', MetricKey.maintainability_issues],
+  ])(
+    'should display info about missing analysis if a project is not computed for %s',
+    async (missingMetricKey) => {
+      measuresHandler.deleteComponentMeasure('foo', missingMetricKey as MetricKey);
+      const { user, ui } = getPageObjects();
+      renderBranchOverview();
+
+      await user.click(await ui.overallCodeButton.find());
+
+      expect(
+        await ui.softwareImpactMeasureCard(SoftwareQuality.Security).find(),
+      ).toBeInTheDocument();
+
+      await user.click(await ui.overallCodeButton.find());
+
+      expect(await screen.findByText('overview.missing_project_data.TRK')).toBeInTheDocument();
+    },
+  );
 
   it('should disable software impact measure card links during reindexing', async () => {
     const { user, ui } = getPageObjects();
@@ -527,17 +577,6 @@ describe('application overview', () => {
 
     expect(await screen.findByText('portfolio.app.empty')).toBeInTheDocument();
   });
-
-  it.each([['new_accepted_issues', MetricKey.new_accepted_issues]])(
-    'should ask to reanalyze all projects if a project is not computed for %s',
-    async (missingMetricKey) => {
-      measuresHandler.deleteComponentMeasure('foo', missingMetricKey as MetricKey);
-
-      renderBranchOverview({ component });
-
-      expect(await screen.findByText('overview.missing_project_data.APP')).toBeInTheDocument();
-    },
-  );
 
   it.each([
     ['security_issues', MetricKey.security_issues],

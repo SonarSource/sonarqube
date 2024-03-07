@@ -17,16 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { LinkHighlight, LinkStandalone } from '@sonarsource/echoes-react';
 import styled from '@emotion/styled';
 import classNames from 'classnames';
-import {
-  BasicSeparator,
-  LightGreyCard,
-  NakedLink,
-  TextBold,
-  TextSubdued,
-  themeColor,
-} from 'design-system';
+import { BasicSeparator, LightGreyCard, TextBold, TextSubdued } from 'design-system';
 import * as React from 'react';
 import { useIntl } from 'react-intl';
 import Tooltip from '../../../components/controls/Tooltip';
@@ -45,6 +39,11 @@ import { OverviewDisabledLinkTooltip } from '../components/OverviewDisabledLinkT
 import { softwareQualityToMeasure } from '../utils';
 import SoftwareImpactMeasureBreakdownCard from './SoftwareImpactMeasureBreakdownCard';
 import SoftwareImpactMeasureRating from './SoftwareImpactMeasureRating';
+import { isDefined } from '../../../helpers/types';
+import {
+  getIssueTypeBySoftwareQuality,
+  SOFTWARE_QUALITIES_METRIC_KEYS_MAP,
+} from '../../../helpers/issues';
 
 export interface SoftwareImpactBreakdownCardProps {
   component: Component;
@@ -63,15 +62,20 @@ export function SoftwareImpactMeasureCard(props: Readonly<SoftwareImpactBreakdow
   const metricKey = softwareQualityToMeasure(softwareQuality);
   const measureRaw = measures.find((m) => m.metric.key === metricKey);
   const measure = JSON.parse(measureRaw?.value ?? 'null') as SoftwareImpactMeasureData;
-
-  const renderDisabled = !measure || component.needIssueSync;
+  const alternativeMeasure = measures.find(
+    (m) => m.metric.key === SOFTWARE_QUALITIES_METRIC_KEYS_MAP[softwareQuality].deprecatedMetric,
+  );
 
   // Find rating measure
   const ratingMeasure = measures.find((m) => m.metric.key === ratingMetricKey);
 
+  const count = measure?.total ?? alternativeMeasure?.value;
+
   const totalLinkHref = getComponentIssuesUrl(component.key, {
     ...DEFAULT_ISSUES_QUERY,
-    impactSoftwareQualities: softwareQuality,
+    ...(isDefined(measure)
+      ? { impactSoftwareQualities: softwareQuality }
+      : { types: getIssueTypeBySoftwareQuality(softwareQuality) }),
     branch: branch?.name,
   });
 
@@ -99,30 +103,30 @@ export function SoftwareImpactMeasureCard(props: Readonly<SoftwareImpactBreakdow
         <div className="sw-flex sw-mt-2">
           <div
             className={classNames('sw-flex sw-gap-1 sw-items-center', {
-              'sw-opacity-60': renderDisabled,
+              'sw-opacity-60': component.needIssueSync,
             })}
           >
-            {measure ? (
+            {count ? (
               <Tooltip overlay={countTooltipOverlay}>
-                <NakedLink
+                <LinkStandalone
                   data-testid={`overview__software-impact-${softwareQuality}`}
                   aria-label={intl.formatMessage(
                     {
                       id: `overview.measures.software_impact.see_list_of_x_open_issues`,
                     },
                     {
-                      count: measure.total,
+                      count,
                       softwareQuality: intl.formatMessage({
                         id: `software_quality.${softwareQuality}`,
                       }),
                     },
                   )}
-                  className="sw-text-lg"
+                  className="sw-text-lg sw-font-semibold"
+                  highlight={LinkHighlight.CurrentColor}
                   to={totalLinkHref}
-                  disabled={component.needIssueSync}
                 >
-                  {formatMeasure(measure.total, MetricType.ShortInteger)}
-                </NakedLink>
+                  {formatMeasure(count, MetricType.ShortInteger)}
+                </LinkStandalone>
               </Tooltip>
             ) : (
               <StyledDash className="sw-font-bold" name="-" />
@@ -139,46 +143,32 @@ export function SoftwareImpactMeasureCard(props: Readonly<SoftwareImpactBreakdow
             />
           </div>
         </div>
-        <div className="sw-flex sw-gap-2">
-          {[
-            SoftwareImpactSeverity.High,
-            SoftwareImpactSeverity.Medium,
-            SoftwareImpactSeverity.Low,
-          ].map((severity) => (
-            <SoftwareImpactMeasureBreakdownCard
-              branch={branch}
-              key={severity}
-              component={component}
-              softwareQuality={softwareQuality}
-              value={measure?.[severity]?.toString()}
-              severity={severity}
-              active={highlightedSeverity === severity}
-            />
-          ))}
-        </div>
+        {measure && (
+          <div className="sw-flex sw-gap-2">
+            {[
+              SoftwareImpactSeverity.High,
+              SoftwareImpactSeverity.Medium,
+              SoftwareImpactSeverity.Low,
+            ].map((severity) => (
+              <SoftwareImpactMeasureBreakdownCard
+                branch={branch}
+                key={severity}
+                component={component}
+                softwareQuality={softwareQuality}
+                value={measure?.[severity]?.toString()}
+                severity={severity}
+                active={highlightedSeverity === severity}
+              />
+            ))}
+          </div>
+        )}
       </div>
-      {!measure && (
-        <>
-          <BasicSeparator className="sw--mx-4 sw-mb-0 sw-mt-3" />
-          <StyledInfoSection className="sw--ml-4 sw--mr-4 sw--mb-4 sw-text-xs sw-p-4 sw-flex sw-gap-1 sw-flex-wrap">
-            <span>
-              {intl.formatMessage({
-                id: `overview.run_analysis_to_compute.${component.qualifier}`,
-              })}
-            </span>
-          </StyledInfoSection>
-        </>
-      )}
     </LightGreyCard>
   );
 }
 
 const StyledDash = styled(TextBold)`
   font-size: 36px;
-`;
-
-const StyledInfoSection = styled.div`
-  background-color: ${themeColor('overviewSoftwareImpactSeverityNeutral')};
 `;
 
 export default SoftwareImpactMeasureCard;

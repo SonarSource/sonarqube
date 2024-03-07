@@ -17,16 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Spinner } from '@sonarsource/echoes-react';
 import { isBefore, sub } from 'date-fns';
-import {
-  BasicSeparator,
-  ButtonLink,
-  FlagMessage,
-  LightLabel,
-  PageTitle,
-  Spinner,
-  Tabs,
-} from 'design-system';
+import { BasicSeparator, ButtonLink, FlagMessage, LightLabel, Tabs } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import DocumentationLink from '../../../components/common/DocumentationLink';
@@ -131,15 +124,14 @@ export function TabsPanel(props: React.PropsWithChildren<MeasuresPanelProps>) {
 
   return (
     <div data-testid="overview__measures-panel">
-      <div className="sw-flex sw-justify-between sw-items-center sw-mb-4">
-        <PageTitle as="h2" text={translate('overview.measures')} />
+      <div className="sw-flex sw-justify-end sw-items-center sw-mb-4">
         <LastAnalysisLabel analysisDate={branch?.analysisDate} />
       </div>
       <BasicSeparator className="sw--mx-6 sw-mb-3" />
 
       {loading ? (
         <div>
-          <Spinner loading={loading} />
+          <Spinner isLoading={loading} />
         </div>
       ) : (
         <>
