@@ -20,6 +20,7 @@
 import { withTheme } from '@emotion/react';
 import styled from '@emotion/styled';
 import {
+  Card,
   LAYOUT_FOOTER_HEIGHT,
   LAYOUT_GLOBAL_NAV_HEIGHT,
   LargeCenteredLayout,
@@ -35,12 +36,6 @@ import { useNavigate, useParams } from 'react-router-dom';
 import Suggestions from '../../../components/embed-docs-modal/Suggestions';
 import '../../../components/search-navigator.css';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
-import {
-  addSideBarClass,
-  addWhitePageClass,
-  removeSideBarClass,
-  removeWhitePageClass,
-} from '../../../helpers/pages';
 import { getQualityGateUrl } from '../../../helpers/urls';
 import { useQualityGatesQuery } from '../../../queries/quality-gates';
 import { QualityGate } from '../../../types/types';
@@ -73,16 +68,6 @@ export default function App() {
   );
 
   useEffect(() => {
-    addWhitePageClass();
-    addSideBarClass();
-
-    return () => {
-      removeWhitePageClass();
-      removeSideBarClass();
-    };
-  }, []);
-
-  useEffect(() => {
     if (!name) {
       openDefault(qualityGates);
     }
@@ -102,7 +87,7 @@ export default function App() {
           <Suggestions suggestions="quality_gates" />
 
           <StyledContentWrapper
-            className="sw-col-span-3 sw-px-4 sw-py-6 sw-border-y-0 sw-rounded-0"
+            className="sw-col-span-3 sw-px-4 sw-py-6 sw-border-y-0"
             style={{
               height: `calc(100vh - ${LAYOUT_GLOBAL_NAV_HEIGHT + LAYOUT_FOOTER_HEIGHT}px)`,
             }}
@@ -120,9 +105,9 @@ export default function App() {
                 height: `calc(100vh - ${LAYOUT_GLOBAL_NAV_HEIGHT + LAYOUT_FOOTER_HEIGHT}px)`,
               }}
             >
-              <StyledContentWrapper className="sw-my-12">
+              <Card className="sw-my-12">
                 <Details qualityGateName={name} />
-              </StyledContentWrapper>
+              </Card>
             </div>
           )}
         </div>
@@ -133,7 +118,6 @@ export default function App() {
 
 const StyledContentWrapper = withTheme(styled.div`
   box-sizing: border-box;
-  border-radius: 4px;
   background-color: ${themeColor('filterbar')};
   border: ${themeBorder('default', 'filterbarBorder')};
   overflow-x: hidden;

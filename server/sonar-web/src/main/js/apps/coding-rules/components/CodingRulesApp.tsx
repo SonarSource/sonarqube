@@ -42,12 +42,6 @@ import '../../../components/search-navigator.css';
 import { isInput, isShortcut } from '../../../helpers/keyboardEventHelpers';
 import { KeyboardKeys } from '../../../helpers/keycodes';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
-import {
-  addSideBarClass,
-  addWhitePageClass,
-  removeSideBarClass,
-  removeWhitePageClass,
-} from '../../../helpers/pages';
 import { SecurityStandard } from '../../../types/security';
 import { SettingsKey } from '../../../types/settings';
 import { Dict, Paging, RawQuery, Rule, RuleActivation } from '../../../types/types';
@@ -135,8 +129,6 @@ export class CodingRulesApp extends React.PureComponent<Props, State> {
 
   componentDidMount() {
     this.mounted = true;
-    addWhitePageClass();
-    addSideBarClass();
     this.attachShortcuts();
     this.fetchInitialData();
   }
@@ -154,8 +146,6 @@ export class CodingRulesApp extends React.PureComponent<Props, State> {
 
   componentWillUnmount() {
     this.mounted = false;
-    removeWhitePageClass();
-    removeSideBarClass();
     this.detachShortcuts();
   }
 

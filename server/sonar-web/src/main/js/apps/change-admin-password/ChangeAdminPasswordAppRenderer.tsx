@@ -74,7 +74,7 @@ export default function ChangeAdminPasswordAppRenderer(
   }
 
   return (
-    <CenteredLayout>
+    <CenteredLayout className="sw-h-screen">
       <Helmet defer={false} title={translate('users.change_admin_password.page')} />
 
       <PageContentFontWrapper className="sw-body-sm sw-flex sw-flex-col sw-items-center sw-justify-center">

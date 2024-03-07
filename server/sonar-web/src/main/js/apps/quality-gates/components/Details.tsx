@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Spinner } from 'design-system';
+import { Spinner } from '@sonarsource/echoes-react';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useQualityGateQuery } from '../../../queries/quality-gates';
@@ -32,16 +32,14 @@ export default function Details({ qualityGateName }: Readonly<Props>) {
   const { data: qualityGate, isLoading, isFetching } = useQualityGateQuery(qualityGateName);
 
   return (
-    <main className="layout-page-main">
-      <Spinner loading={isLoading}>
-        {qualityGate && (
-          <>
-            <Helmet defer={false} title={qualityGate.name} />
-            <DetailsHeader qualityGate={qualityGate} />
-            <DetailsContent qualityGate={qualityGate} isFetching={isFetching} />
-          </>
-        )}
-      </Spinner>
-    </main>
+    <Spinner wrapperClassName="sw-block sw-text-center" isLoading={isLoading}>
+      {qualityGate && (
+        <main>
+          <Helmet defer={false} title={qualityGate.name} />
+          <DetailsHeader qualityGate={qualityGate} />
+          <DetailsContent qualityGate={qualityGate} isFetching={isFetching} />
+        </main>
+      )}
+    </Spinner>
   );
 }

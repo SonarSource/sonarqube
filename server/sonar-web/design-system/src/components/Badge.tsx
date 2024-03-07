@@ -74,11 +74,6 @@ const StyledBadge = styled.span<{
   &:empty {
     ${tw`sw-hidden`}
   }
-
-  .page-actions & {
-    ${tw`sw-my-1`};
-    ${tw`sw-mx-0`};
-  }
 `;
 
 const StyledCounter = styled.span<{

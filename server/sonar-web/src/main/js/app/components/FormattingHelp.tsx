@@ -17,13 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { CenteredLayout } from 'design-system';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { translate } from '../../helpers/l10n';
 
 export default function FormattingHelp() {
   return (
-    <div className="page page-limited">
+    <CenteredLayout className="sw-py-6 sw-h-screen">
       <Helmet defer={false} title={translate('formatting.page')} />
       <h2 className="spacer-bottom">Formatting Syntax</h2>
       <table className="width-100 data zebra">
@@ -147,6 +148,6 @@ export default function FormattingHelp() {
           </tr>
         </tbody>
       </table>
-    </div>
+    </CenteredLayout>
   );
 }

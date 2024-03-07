@@ -27,8 +27,8 @@ export default function SimpleSessionsContainer() {
     <>
       <PageTracker />
 
-      <div className="global-container">
-        <div className="page-wrapper new-background" id="container">
+      <div className="sw-flex sw-flex-col sw-h-full sw-min-h-[100vh]">
+        <div className="sw-box-border sw-flex-auto" id="container">
           <Outlet />
         </div>
         <GlobalFooter hideLoggedInInfo />

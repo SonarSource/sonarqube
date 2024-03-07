@@ -17,49 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-#settings-page .layout-page-side,
-#settings-page .layout-page-side-outer {
-  width: calc(50vw - 480px);
-  border-right: none;
-}
-
-#settings-page .layout-page-side-inner {
-  width: 160px;
-  margin-left: calc(50vw - 639px); /* 640px -1px for overlapping the border */
-}
-
-#settings-page .layout-page-main {
-  padding: 0;
-}
-
-#settings-page .layout-page-main-inner {
-  max-width: 1110px;
-}
-
-#settings-page .top-bar-outer {
-  height: 120px;
-}
-
-#settings-page .top-bar {
-  background-color: #f3f3f3;
-  position: fixed;
-  z-index: 55; /* todo */
-  left: 0;
-  right: 0;
-}
-
-#settings-page .top-bar-inner {
-  max-width: 1280px;
-  margin: 0 auto;
-  height: 120px;
-  box-sizing: border-box;
-}
-
-#settings-page .page-title,
-#settings-page .page-description {
-  float: none;
-}
-
 .settings-definitions-list > li + li {
   margin-top: 30px;
 }
@@ -73,25 +30,10 @@
   align-items: stretch;
 }
 
-.tabbed-definitions .settings-definition {
-  margin: 0 -16px;
-  padding: 10px 16px;
-}
-
-.settings-definition-changed {
-  border-top: 1px solid var(--alertBorderWarning);
-  border-bottom: 1px solid var(--alertBorderWarning);
-  background-color: var(--alertBackgroundWarning);
-}
-
 .settings-definition-left {
   width: 330px;
   padding-right: 30px;
   box-sizing: border-box;
-}
-
-.radio-card .settings-definition-left {
-  padding-right: 0;
 }
 
 .settings-definition-right {
@@ -100,38 +42,11 @@
   box-sizing: border-box;
 }
 
-.radio-card .settings-definition-right input {
-  width: 100%;
-}
-
 .settings-definition-name {
   text-overflow: ellipsis;
 }
 
-.settings-definition-key {
-  line-height: 1.5;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.settings-definition-state {
-  min-height: 32px;
-  padding-bottom: 4px;
-}
-
-.settings-definition-state > span {
-  display: flex;
-}
-
-.settings-definition-changes {
-  margin-top: 20px;
-  padding-top: 20px;
-  border-top: 1px dotted var(--barBorderColor);
-}
-
-.settings-sub-categories-list > li + li,
-.settings-sub-category {
+.settings-sub-categories-list > li + li {
   margin: 30px -20px 0;
   padding: 30px 20px;
   border-top: 1px solid var(--barBorderColor);
@@ -142,91 +57,8 @@
   font-size: var(--bigFontSize);
 }
 
-.settings-sub-category-description {
-  margin-top: -15px;
-  margin-bottom: 20px;
-  color: var(--secondFontColor);
-}
-
 .settings-large-input {
   width: 100% !important;
   max-width: 400px;
   min-width: 200px;
-}
-
-.side-tabs-menu {
-  margin-top: calc(2 * var(--gridSize));
-}
-
-.side-tabs-menu > li {
-  margin-bottom: 4px;
-}
-
-.side-tabs-menu > li > a {
-  display: block;
-  padding: 10px 10px;
-  line-height: 1.5;
-  border-top-left-radius: 3px;
-  border-bottom-left-radius: 3px;
-  border: 1px solid var(--barBorderColor);
-  border-right: none;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  transition:
-    color 0.3s ease,
-    background-color 0.3s ease;
-}
-
-.side-tabs-menu > li > a:hover,
-.side-tabs-menu > li > a:focus,
-.side-tabs-menu > li > a.active {
-  background-color: #fff;
-}
-
-.side-tabs-menu > li > a.active {
-  color: var(--baseFontColor);
-  cursor: default;
-}
-
-@media (max-width: 1320px) {
-  #settings-page .layout-page-side-outer,
-  #settings-page .layout-page-side {
-    width: 180px;
-  }
-
-  #settings-page .layout-page-side-inner {
-    margin-left: 20px;
-  }
-
-  #settings-page .top-bar-inner {
-    margin: 0 20px;
-  }
-}
-
-.settings-search-results {
-  max-height: 50vh;
-  width: 500px;
-  overflow-y: auto;
-  overflow-x: hidden;
-}
-
-.settings-search-results > li > a:hover {
-  background-color: unset;
-  border-left-color: unset;
-}
-
-.settings-search-results > li.active > a {
-  background-color: var(--neutral50);
-  border-left-color: var(--blacka60);
-}
-
-.fixed-footer {
-  position: sticky;
-  bottom: 0px;
-  align-items: center;
-  display: flex;
-  border: 1px solid var(--gray80);
-  background-color: white;
-  justify-content: space-between;
-  margin: 0px -16px;
 }

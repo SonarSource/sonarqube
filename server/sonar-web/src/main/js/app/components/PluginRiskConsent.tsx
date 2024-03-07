@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { ButtonPrimary, Card, Title } from 'design-system';
+import { ButtonPrimary, Card, CenteredLayout, Title } from 'design-system';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { setSimpleSettingValue } from '../../api/settings';
@@ -67,11 +67,11 @@ export function PluginRiskConsent(props: Readonly<PluginRiskConsentProps>) {
   };
 
   return (
-    <>
+    <CenteredLayout className="sw-h-screen sw-pt-[10vh]">
       <Helmet defer={false} title={translate('plugin_risk_consent.page')} />
 
       <Card
-        className="sw-body-md sw-min-w-[500px] sw-mx-auto sw-mt-[10vh] sw-w-[40%] sw-text-center"
+        className="sw-body-md sw-min-w-[500px] sw-mx-auto sw-w-[40%] sw-text-center"
         data-testid="plugin-risk-consent-page"
       >
         <Title className="sw-mb-4">{translate('plugin_risk_consent.title')}</Title>
@@ -84,7 +84,7 @@ export function PluginRiskConsent(props: Readonly<PluginRiskConsentProps>) {
           {translate('plugin_risk_consent.action')}
         </ButtonPrimary>
       </Card>
-    </>
+    </CenteredLayout>
   );
 }
 

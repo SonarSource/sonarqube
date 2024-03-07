@@ -25,7 +25,6 @@ import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import ListFooter from '../../../components/controls/ListFooter';
 import { translate } from '../../../helpers/l10n';
-import { removeSideBarClass } from '../../../helpers/pages';
 import { HotspotStatusFilter, RawHotspot } from '../../../types/security-hotspots';
 import { Dict, StandardSecurityCategories } from '../../../types/types';
 import { RISK_EXPOSURE_LEVELS, groupByCategory } from '../utils';
@@ -90,10 +89,6 @@ export default class HotspotList extends React.Component<Props, State> {
       const { selectedHotspot } = this.props;
       this.handleToggleCategory(selectedHotspot.securityCategory, true);
     }
-  }
-
-  componentWillUnmount() {
-    removeSideBarClass();
   }
 
   groupHotspots = (hotspots: RawHotspot[], securityCategories: StandardSecurityCategories) => {

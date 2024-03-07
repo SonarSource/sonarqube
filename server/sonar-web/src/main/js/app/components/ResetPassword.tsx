@@ -38,10 +38,10 @@ export interface ResetPasswordProps {
 
 export function ResetPassword({ currentUser }: Readonly<ResetPasswordProps>) {
   return (
-    <LargeCenteredLayout>
+    <LargeCenteredLayout className="sw-h-screen sw-pt-10">
       <PageContentFontWrapper className="sw-body-sm">
         <Helmet defer={false} title={translate('my_account.reset_password.page')} />
-        <div className="sw-flex sw-justify-center sw-mt-10">
+        <div className="sw-flex sw-justify-center">
           <div>
             <Title>{translate('my_account.reset_password')}</Title>
             <FlagMessage variant="warning" className="sw-mb-4">

@@ -34,7 +34,6 @@ import A11ySkipTarget from '../../../components/a11y/A11ySkipTarget';
 import Suggestions from '../../../components/embed-docs-modal/Suggestions';
 import { Location, Router, withRouter } from '../../../components/hoc/withRouter';
 import { translate } from '../../../helpers/l10n';
-import { addSideBarClass, removeSideBarClass } from '../../../helpers/pages';
 import { WebApi } from '../../../types/types';
 import '../styles/web-api.css';
 import {
@@ -66,7 +65,6 @@ export class WebApiApp extends React.PureComponent<Props, State> {
   componentDidMount() {
     this.mounted = true;
     this.fetchList();
-    addSideBarClass();
   }
 
   componentDidUpdate() {
@@ -76,7 +74,6 @@ export class WebApiApp extends React.PureComponent<Props, State> {
 
   componentWillUnmount() {
     this.mounted = false;
-    removeSideBarClass();
   }
 
   fetchList() {

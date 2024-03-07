@@ -17,33 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-.not-all-issue-warning.open-issue-list {
-  background-color: var(--barBackgroundColor);
-  box-sizing: border-box;
-  display: inline-block;
-  padding: 16px 16px 0;
-  position: sticky;
-  top: 0;
-  z-index: 1000;
-}
-
-.issues .issue-list {
-  /* no math, just a good guess */
-  min-width: 640px;
-  width: 800px;
-}
-
-.issues .issue a:focus,
-.issues .issue button:focus {
-  box-shadow: none;
-}
-
-@media (max-width: 1320px) {
-  .issues .issue-list {
-    width: calc(60vw - 40px);
-  }
-}
-
 .issue-location {
   display: inline-block;
   vertical-align: top;
@@ -51,38 +24,4 @@
   box-sizing: border-box;
   background-color: var(--issueBgColor);
   transition: background-color 0.3s ease;
-}
-
-.issues-workspace-list-component {
-  padding: 15px 0 6px;
-}
-
-.issues-workspace-list-item + .issues-workspace-list-item {
-  margin-top: 5px;
-}
-
-li:first-child .issues-workspace-list-component {
-  padding-top: 0;
-}
-
-.issues-predefined-periods {
-  display: flex;
-}
-
-.issues-predefined-periods .search-navigator-facet {
-  width: auto;
-  margin-right: calc(var(--gridSize) / 2);
-}
-
-.bulk-change-radio-button {
-  margin: 0 calc(-1 * var(--gridSize) / 2);
-  padding: 0 calc(var(--gridSize) / 2);
-}
-
-.bulk-change-radio-button:hover {
-  background-color: var(--barBackgroundColor);
-}
-
-.layout-page-main.open-issue {
-  padding-top: 0;
 }

@@ -46,7 +46,6 @@ import {
 import { Component, Dict } from '../../types/types';
 import { CurrentUser, isLoggedIn } from '../../types/users';
 import SecurityHotspotsAppRenderer from './SecurityHotspotsAppRenderer';
-import './styles.css';
 import { SECURITY_STANDARDS, getLocations } from './utils';
 
 const PAGE_SIZE = 500;

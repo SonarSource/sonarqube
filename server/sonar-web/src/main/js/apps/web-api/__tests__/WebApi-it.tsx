@@ -27,11 +27,6 @@ jest.mock('../../../components/common/ScreenPositionHelper');
 
 const webApiHandler = new WebApiServiceMock();
 
-jest.mock('../../../helpers/pages', () => ({
-  addSideBarClass: jest.fn(),
-  removeSideBarClass: jest.fn(),
-}));
-
 beforeAll(() => {
   webApiHandler.reset();
 });

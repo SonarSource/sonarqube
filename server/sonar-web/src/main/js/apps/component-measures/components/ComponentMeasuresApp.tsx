@@ -280,7 +280,7 @@ class ComponentMeasuresApp extends React.PureComponent<Props, State> {
         <Suggestions suggestions="component_measures" />
         <Helmet defer={false} title={translate('layout.measures')} />
         <PageContentFontWrapper className="sw-body-sm">
-          <Spinner className="my-10 sw-flex sw-content-center" isLoading={this.state.loading} />
+          <Spinner isLoading={this.state.loading} />
 
           {measures.length > 0 ? (
             <div className="sw-grid sw-grid-cols-12 sw-w-full">

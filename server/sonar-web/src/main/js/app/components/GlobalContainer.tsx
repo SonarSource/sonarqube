@@ -82,44 +82,49 @@ export default function GlobalContainer() {
       <SuggestionsProvider>
         <A11yProvider>
           <A11ySkipLinks />
-          <div className="global-container">
+          <GlobalContainerWrapper>
             <GlobalBackground
               secondary={PAGES_WITH_SECONDARY_BACKGROUND.includes(location.pathname)}
               className="sw-box-border sw-flex-[1_0_auto]"
               id="container"
             >
-              <div className="page-container">
-                <Workspace>
-                  <IndexationContextProvider>
-                    <LanguagesContextProvider>
-                      <MetricsContextProvider>
-                        <div className="sw-sticky sw-top-0 sw-z-global-navbar">
-                          <SystemAnnouncement />
-                          <IndexationNotification />
-                          <NCDAutoUpdateMessage />
-                          <UpdateNotification dismissable />
-                          <GlobalNav location={location} />
-                          {/* The following is the portal anchor point for the component nav
-                           * See ComponentContainer.tsx
-                           */}
-                          <div id="component-nav-portal" />
-                        </div>
-                        <Outlet />
-                      </MetricsContextProvider>
-                    </LanguagesContextProvider>
-                  </IndexationContextProvider>
-                </Workspace>
-              </div>
+              <Workspace>
+                <IndexationContextProvider>
+                  <LanguagesContextProvider>
+                    <MetricsContextProvider>
+                      <div className="sw-sticky sw-top-0 sw-z-global-navbar">
+                        <SystemAnnouncement />
+                        <IndexationNotification />
+                        <NCDAutoUpdateMessage />
+                        <UpdateNotification dismissable />
+                        <GlobalNav location={location} />
+                        {/* The following is the portal anchor point for the component nav
+                         * See ComponentContainer.tsx
+                         */}
+                        <div id="component-nav-portal" />
+                      </div>
+                      <Outlet />
+                    </MetricsContextProvider>
+                  </LanguagesContextProvider>
+                </IndexationContextProvider>
+              </Workspace>
               <PromotionNotification />
             </GlobalBackground>
             <GlobalFooter />
-          </div>
+          </GlobalContainerWrapper>
           <StartupModal />
         </A11yProvider>
       </SuggestionsProvider>
     </ThemeProvider>
   );
 }
+
+const GlobalContainerWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 100vh;
+`;
 
 const GlobalBackground = styled.div<{ secondary: boolean }>`
   background-color: ${({ secondary }) =>

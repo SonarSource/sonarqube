@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import classNames from 'classnames';
-import { Note, RadioButton } from 'design-system';
+import { RadioButton } from 'design-system';
 import * as React from 'react';
 import { translate } from '../../helpers/l10n';
 import { Visibility } from '../../types/component';
@@ -27,14 +27,13 @@ export interface VisibilitySelectorProps {
   canTurnToPrivate?: boolean;
   className?: string;
   onChange: (visibility: Visibility) => void;
-  showDetails?: boolean;
   visibility?: Visibility;
   disabled?: boolean;
   loading?: boolean;
 }
 
 export default function VisibilitySelector(props: VisibilitySelectorProps) {
-  const { className, canTurnToPrivate, visibility, showDetails, disabled, loading = false } = props;
+  const { className, canTurnToPrivate, visibility, disabled, loading = false } = props;
   return (
     <div className={classNames(className)}>
       {Object.values(Visibility).map((v) => (
@@ -46,10 +45,7 @@ export default function VisibilitySelector(props: VisibilitySelectorProps) {
           onCheck={props.onChange}
           disabled={disabled || (v === Visibility.Private && !canTurnToPrivate) || loading}
         >
-          <div>
-            {translate('visibility', v)}
-            {showDetails && <Note as="p">{translate('visibility', v, 'description.long')}</Note>}
-          </div>
+          <div>{translate('visibility', v)}</div>
         </RadioButton>
       ))}
     </div>

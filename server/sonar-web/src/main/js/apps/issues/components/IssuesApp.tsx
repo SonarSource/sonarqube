@@ -63,12 +63,6 @@ import { parseIssueFromResponse } from '../../../helpers/issues';
 import { isInput, isShortcut } from '../../../helpers/keyboardEventHelpers';
 import { KeyboardKeys } from '../../../helpers/keycodes';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
-import {
-  addSideBarClass,
-  addWhitePageClass,
-  removeSideBarClass,
-  removeWhitePageClass,
-} from '../../../helpers/pages';
 import { serializeDate } from '../../../helpers/query';
 import { withBranchLikes } from '../../../queries/branch';
 import { BranchLike } from '../../../types/branch-like';
@@ -225,8 +219,6 @@ export class App extends React.PureComponent<Props, State> {
       return;
     }
 
-    addWhitePageClass();
-    addSideBarClass();
     this.attachShortcuts();
 
     if (!this.props.isFetchingBranch) {
@@ -272,9 +264,6 @@ export class App extends React.PureComponent<Props, State> {
   componentWillUnmount() {
     this.detachShortcuts();
     this.mounted = false;
-
-    removeWhitePageClass();
-    removeSideBarClass();
   }
 
   attachShortcuts() {

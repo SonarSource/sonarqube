@@ -24,7 +24,6 @@ import '../../../../../public/fonts/Inter/inter.css';
 import '../../../../../public/fonts/Ubuntu/Ubuntu.css';
 
 import './components/global-loading.css';
-import './components/page.css';
 import './init/base.css';
 import './init/misc.css';
 import './print.css';

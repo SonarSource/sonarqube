@@ -218,8 +218,6 @@ module.exports = {
 
     globalNavContentHeight: `${4 * grid}px`,
 
-    maxPageWidth: '1320px',
-    minPageWidth: '1080px',
     pagePadding: '20px',
   },
 

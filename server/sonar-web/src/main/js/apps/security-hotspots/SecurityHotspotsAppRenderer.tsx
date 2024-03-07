@@ -48,7 +48,6 @@ import HotspotSidebarHeader from './components/HotspotSidebarHeader';
 import HotspotSimpleList from './components/HotspotSimpleList';
 import HotspotFilterByStatus from './components/HotspotStatusFilter';
 import HotspotViewer from './components/HotspotViewer';
-import './styles.css';
 
 export interface SecurityHotspotsAppRendererProps {
   branchLike?: BranchLike;

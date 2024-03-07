@@ -17,7 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { LargeCenteredLayout, PageContentFontWrapper, Spinner } from 'design-system';
+import { Spinner } from '@sonarsource/echoes-react';
+import { LargeCenteredLayout, PageContentFontWrapper } from 'design-system';
 import { debounce } from 'lodash';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
@@ -215,15 +216,6 @@ export class BackgroundTasksApp extends React.PureComponent<Props, State> {
     const { component, location } = this.props;
     const { loading, pagination, types, tasks } = this.state;
 
-    if (!types) {
-      return (
-        <div className="page page-limited">
-          <Helmet defer={false} title={translate('background_tasks.page')} />
-          <Spinner />
-        </div>
-      );
-    }
-
     const status = location.query.status || DEFAULT_FILTERS.status;
     const taskType = location.query.taskType || DEFAULT_FILTERS.taskType;
     const currents = location.query.currents || DEFAULT_FILTERS.currents;
@@ -233,48 +225,50 @@ export class BackgroundTasksApp extends React.PureComponent<Props, State> {
 
     return (
       <LargeCenteredLayout id="background-tasks">
-        <PageContentFontWrapper className="sw-my-8 sw-body-sm">
+        <PageContentFontWrapper className="sw-my-4 sw-body-sm">
           <Suggestions suggestions="background_tasks" />
           <Helmet defer={false} title={translate('background_tasks.page')} />
-          <Header component={component} />
+          <Spinner isLoading={!types}>
+            <Header component={component} />
 
-          <Stats
-            component={component}
-            failingCount={this.state.failingCount}
-            onCancelAllPending={this.handleCancelAllPending}
-            onShowFailing={this.handleShowFailing}
-            pendingCount={this.state.pendingCount}
-            pendingTime={this.state.pendingTime}
-          />
+            <Stats
+              component={component}
+              failingCount={this.state.failingCount}
+              onCancelAllPending={this.handleCancelAllPending}
+              onShowFailing={this.handleShowFailing}
+              pendingCount={this.state.pendingCount}
+              pendingTime={this.state.pendingTime}
+            />
 
-          <Search
-            component={component}
-            currents={currents}
-            loading={loading}
-            maxExecutedAt={maxExecutedAt}
-            minSubmittedAt={minSubmittedAt}
-            onFilterUpdate={this.handleFilterUpdate}
-            onReload={this.loadTasksDebounced}
-            query={query}
-            status={status}
-            taskType={taskType}
-            types={types}
-          />
+            <Search
+              component={component}
+              currents={currents}
+              loading={loading}
+              maxExecutedAt={maxExecutedAt}
+              minSubmittedAt={minSubmittedAt}
+              onFilterUpdate={this.handleFilterUpdate}
+              onReload={this.loadTasksDebounced}
+              query={query}
+              status={status}
+              taskType={taskType}
+              types={types ?? []}
+            />
 
-          <Tasks
-            component={component}
-            onCancelTask={this.handleCancelTask}
-            onFilterTask={this.handleFilterTask}
-            tasks={tasks}
-          />
+            <Tasks
+              component={component}
+              onCancelTask={this.handleCancelTask}
+              onFilterTask={this.handleFilterTask}
+              tasks={tasks}
+            />
 
-          <ListFooter
-            count={tasks.length}
-            loadMore={this.loadMoreTasks}
-            loading={loading}
-            pageSize={pagination.pageSize}
-            total={pagination.total}
-          />
+            <ListFooter
+              count={tasks.length}
+              loadMore={this.loadMoreTasks}
+              loading={loading}
+              pageSize={pagination.pageSize}
+              total={pagination.total}
+            />
+          </Spinner>
         </PageContentFontWrapper>
       </LargeCenteredLayout>
     );

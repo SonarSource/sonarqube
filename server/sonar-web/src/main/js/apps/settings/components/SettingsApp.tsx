@@ -20,12 +20,6 @@
 import * as React from 'react';
 import { getDefinitions } from '../../../api/settings';
 import withComponentContext from '../../../app/components/componentContext/withComponentContext';
-import {
-  addSideBarClass,
-  addWhitePageClass,
-  removeSideBarClass,
-  removeWhitePageClass,
-} from '../../../helpers/pages';
 import { ExtendedSettingDefinition } from '../../../types/settings';
 import { Component } from '../../../types/types';
 import '../styles.css';
@@ -46,8 +40,6 @@ class SettingsApp extends React.PureComponent<Props, State> {
 
   componentDidMount() {
     this.mounted = true;
-    addSideBarClass();
-    addWhitePageClass();
     this.fetchSettings();
   }
 
@@ -59,8 +51,6 @@ class SettingsApp extends React.PureComponent<Props, State> {
 
   componentWillUnmount() {
     this.mounted = false;
-    removeSideBarClass();
-    removeWhitePageClass();
   }
 
   fetchSettings = async () => {

@@ -41,7 +41,6 @@ import { Location, Router, withRouter } from '../../../components/hoc/withRouter
 import '../../../components/search-navigator.css';
 import handleRequiredAuthentication from '../../../helpers/handleRequiredAuthentication';
 import { translate } from '../../../helpers/l10n';
-import { addSideBarClass, removeSideBarClass } from '../../../helpers/pages';
 import { get, save } from '../../../helpers/storage';
 import { isDefined } from '../../../helpers/types';
 import { AppState } from '../../../types/appstate';
@@ -94,8 +93,6 @@ export class AllProjects extends React.PureComponent<Props, State> {
     }
 
     this.handleQueryChange();
-
-    addSideBarClass();
   }
 
   componentDidUpdate(prevProps: Props) {
@@ -106,7 +103,6 @@ export class AllProjects extends React.PureComponent<Props, State> {
 
   componentWillUnmount() {
     this.mounted = false;
-    removeSideBarClass();
   }
 
   fetchMoreProjects = () => {
