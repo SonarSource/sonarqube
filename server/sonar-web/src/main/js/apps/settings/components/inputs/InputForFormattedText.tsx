@@ -18,11 +18,17 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { InputTextArea } from 'design-system';
+import styled from '@emotion/styled';
+import {
+  ButtonSecondary,
+  HtmlFormatter,
+  InputTextArea,
+  PencilIcon,
+  themeBorder,
+  themeColor,
+} from 'design-system';
 import * as React from 'react';
 import FormattingTipsWithLink from '../../../../components/common/FormattingTipsWithLink';
-import { Button } from '../../../../components/controls/buttons';
-import EditIcon from '../../../../components/icons/EditIcon';
 import { translate } from '../../../../helpers/l10n';
 import { sanitizeUserInput } from '../../../../helpers/sanitize';
 import { DefaultSpecializedInputProps, getPropertyName } from '../../utils';
@@ -53,15 +59,26 @@ export default function InputForFormattedText(props: DefaultSpecializedInputProp
     </div>
   ) : (
     <>
-      <div
-        className="markdown-preview markdown"
-        // eslint-disable-next-line react/no-danger
-        dangerouslySetInnerHTML={{ __html: sanitizeUserInput(formattedValue ?? '') }}
-      />
-      <Button className="spacer-top" onClick={props.onEditing}>
-        <EditIcon className="spacer-right" />
+      <HtmlFormatter>
+        <FormattedPreviewBox
+          // eslint-disable-next-line react/no-danger
+          dangerouslySetInnerHTML={{ __html: sanitizeUserInput(formattedValue ?? '') }}
+        />
+      </HtmlFormatter>
+
+      <ButtonSecondary className="sw-mt-2" onClick={props.onEditing} icon={<PencilIcon />}>
         {translate('edit')}
-      </Button>
+      </ButtonSecondary>
     </>
   );
 }
+
+const FormattedPreviewBox = styled.div`
+  width: 450px;
+  background-color: ${themeColor('infoBackground')};
+  border: ${themeBorder('default', 'infoBorder')};
+  border-radius: 2px;
+  padding: 16px;
+  overflow-wrap: break-word;
+  line-height: 1.5;
+`;

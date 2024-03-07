@@ -18,12 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import styled from '@emotion/styled';
-import { FlagMessage, SubTitle, themeBorder, themeColor } from 'design-system';
+import { ButtonSecondary, FlagMessage, SubTitle, themeBorder, themeColor } from 'design-system';
 import * as React from 'react';
 import { RuleDescriptionSection } from '../../apps/coding-rules/rule';
 import { translate } from '../../helpers/l10n';
 import { Dict } from '../../types/types';
-import { ButtonLink } from '../controls/buttons';
 import RuleDescription from './RuleDescription';
 import DefenseInDepth from './educationPrinciples/DefenseInDepth';
 import NeverTrustUserInput from './educationPrinciples/NeverTrustUserInput';
@@ -63,17 +62,16 @@ export default class MoreInfoRuleDescription extends React.PureComponent<Props> 
       <div className="sw-my-6 rule-desc">
         {displayEducationalPrinciplesNotification && (
           <FlagMessage variant="info">
-            <p className="little-spacer-bottom little-spacer-top">
-              {translate('coding_rules.more_info.notification_message')}
-            </p>
+            <p className="sw-my-1">{translate('coding_rules.more_info.notification_message')}</p>
 
-            <ButtonLink
+            <ButtonSecondary
+              className="sw-whitespace-nowrap"
               onClick={() => {
                 this.handleNotificationScroll();
               }}
             >
               {translate('coding_rules.more_info.scroll_message')}
-            </ButtonLink>
+            </ButtonSecondary>
           </FlagMessage>
         )}
 

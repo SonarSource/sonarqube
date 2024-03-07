@@ -17,15 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { IconProps, InteractiveIcon } from 'design-system';
 import * as React from 'react';
 import { DraggableCore, DraggableData } from 'react-draggable';
-import { ButtonIcon } from '../../components/controls/buttons';
 import ClearIcon from '../../components/icons/ClearIcon';
 import CollapseIcon from '../../components/icons/CollapseIcon';
 import ExpandIcon from '../../components/icons/ExpandIcon';
-import { IconProps } from '../../components/icons/Icon';
 import MinimizeIcon from '../../components/icons/MinimizeIcon';
 import { translate } from '../../helpers/l10n';
+import Tooltip from '../controls/Tooltip';
 
 export interface Props {
   children: React.ReactNode;
@@ -55,27 +55,27 @@ export default class WorkspaceHeader extends React.PureComponent<Props> {
           <WorkspaceHeaderButton
             icon={MinimizeIcon}
             onClick={this.props.onCollapse}
-            tooltip="workspace.minimize"
+            tooltipContent="workspace.minimize"
           />
 
           {this.props.maximized ? (
             <WorkspaceHeaderButton
               icon={CollapseIcon}
               onClick={this.props.onMinimize}
-              tooltip="workspace.normal_size"
+              tooltipContent="workspace.normal_size"
             />
           ) : (
             <WorkspaceHeaderButton
               icon={ExpandIcon}
               onClick={this.props.onMaximize}
-              tooltip="workspace.full_window"
+              tooltipContent="workspace.full_window"
             />
           )}
 
           <WorkspaceHeaderButton
             icon={ClearIcon}
             onClick={this.props.onClose}
-            tooltip="workspace.close"
+            tooltipContent="workspace.close"
           />
         </div>
       </header>
@@ -84,21 +84,22 @@ export default class WorkspaceHeader extends React.PureComponent<Props> {
 }
 
 interface WorkspaceHeaderButtonProps {
-  icon: React.FC<React.PropsWithChildren<IconProps>>;
+  icon: React.ComponentType<React.PropsWithChildren<IconProps>>;
   onClick: () => void;
-  tooltip: string;
+  tooltipContent: string;
 }
 
-function WorkspaceHeaderButton({ icon: Icon, onClick, tooltip }: WorkspaceHeaderButtonProps) {
+function WorkspaceHeaderButton({ icon, onClick, tooltipContent }: WorkspaceHeaderButtonProps) {
   return (
-    <ButtonIcon
-      className="workspace-header-icon"
-      aria-label={translate(tooltip)}
-      color="#fff"
-      onClick={onClick}
-      tooltip={translate(tooltip)}
-    >
-      <Icon fill={undefined} />
-    </ButtonIcon>
+    <Tooltip overlay={translate(tooltipContent)}>
+      <InteractiveIcon
+        className="workspace-header-icon"
+        aria-label={translate(tooltipContent)}
+        Icon={icon}
+        currentColor
+        onClick={onClick}
+        size="small"
+      />
+    </Tooltip>
   );
 }

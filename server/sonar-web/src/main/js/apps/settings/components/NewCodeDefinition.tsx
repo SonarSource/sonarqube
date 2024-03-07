@@ -17,12 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Spinner } from '@sonarsource/echoes-react';
 import classNames from 'classnames';
-import { Spinner } from 'design-system';
+import { ButtonPrimary, ButtonSecondary } from 'design-system';
 import React, { useCallback, useEffect } from 'react';
 import { FormattedMessage } from 'react-intl';
 import DocumentationLink from '../../../components/common/DocumentationLink';
-import { ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
 import NewCodeDefinitionDaysOption from '../../../components/new-code-definition/NewCodeDefinitionDaysOption';
 import NewCodeDefinitionPreviousVersionOption from '../../../components/new-code-definition/NewCodeDefinitionPreviousVersionOption';
 import { NewCodeDefinitionLevels } from '../../../components/new-code-definition/utils';
@@ -117,7 +117,7 @@ export default function NewCodeDefinition() {
                 </div>
 
                 <div className="settings-definition-right">
-                  <Spinner loading={isLoading}>
+                  <Spinner isLoading={isLoading}>
                     <form className="sw-flex sw-flex-col sw-items-stretch" onSubmit={onSubmit}>
                       <NewCodeDefinitionPreviousVersionOption
                         isDefault
@@ -127,7 +127,7 @@ export default function NewCodeDefinition() {
                         }
                       />
                       <NewCodeDefinitionDaysOption
-                        className="spacer-top sw-mb-4"
+                        className="sw-mt-2 sw-mb-4"
                         days={numberOfDays}
                         currentDaysValue={
                           newCodeDefinition?.type === NewCodeDefinitionType.NumberOfDays
@@ -148,25 +148,25 @@ export default function NewCodeDefinition() {
                       />
                       <div className="sw-mt-4">
                         <p
-                          className={classNames('spacer-bottom', {
+                          className={classNames('sw-mb-2', {
                             'sw-invisible': !isFormTouched,
                           })}
                         >
                           {translate('baseline.next_analysis_notice')}
                         </p>
-                        <Spinner className="spacer-right" loading={isSaving} />
+                        <Spinner className="sw-mr-2" isLoading={isSaving} />
                         {!isSaving && (
                           <>
-                            <SubmitButton disabled={!isFormTouched || !isValid}>
+                            <ButtonPrimary type="submit" disabled={!isFormTouched || !isValid}>
                               {translate('save')}
-                            </SubmitButton>
-                            <ResetButtonLink
-                              className="spacer-left"
+                            </ButtonPrimary>
+                            <ButtonSecondary
+                              className="sw-ml-2"
                               disabled={!isFormTouched}
                               onClick={resetNewCodeDefinition}
                             >
                               {translate('cancel')}
-                            </ResetButtonLink>
+                            </ButtonSecondary>
                           </>
                         )}
                       </div>

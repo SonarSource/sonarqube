@@ -17,8 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import styled from '@emotion/styled';
+import { CloseIcon, InteractiveIcon } from 'design-system';
 import * as React from 'react';
-import { ClearButton } from '../../components/controls/buttons';
+import { translate } from '../../helpers/l10n';
 
 export interface Props {
   children: React.ReactNode;
@@ -35,17 +37,23 @@ export default class WorkspaceNavItem extends React.PureComponent<Props> {
 
   render() {
     return (
-      <li className="workspace-nav-item">
+      <StyledWorkspaceNavItem className="workspace-nav-item">
         <a className="workspace-nav-item-link" href="#" onClick={this.handleNameClick}>
           {this.props.children}
         </a>
-        <ClearButton
-          className="js-close workspace-nav-item-close workspace-header-icon button-small little-spacer-left"
-          color="#fff"
-          iconProps={{ size: 12 }}
+        <InteractiveIcon
+          aria-label={translate('close')}
+          className="js-close sw-ml-1 sw-absolute sw-right-1 sw-top-1"
           onClick={this.props.onClose}
+          currentColor
+          Icon={CloseIcon}
+          size="small"
         />
-      </li>
+      </StyledWorkspaceNavItem>
     );
   }
 }
+
+const StyledWorkspaceNavItem = styled.li`
+  color: white;
+`;
