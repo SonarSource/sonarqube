@@ -142,31 +142,6 @@
   color: var(--secondFontColor);
 }
 
-.issue-comment-text {
-  flex: 1;
-  min-width: 0;
-  margin-left: 5px;
-  margin-right: 5px;
-  line-height: 18px;
-  line-height: 1.5;
-  overflow: hidden;
-  outline: none;
-}
-
-.issue-comment-text.markdown pre {
-  float: none;
-  height: auto;
-  margin: 0;
-  padding: var(--gridSize);
-  background-color: var(--codeBackground);
-  border: none;
-  border-radius: 3px;
-}
-
-.issue-comment-text.markdown br ~ pre {
-  margin-top: var(--gridSize);
-}
-
 .issue-comment-actions {
   flex-shrink: 0;
   padding-left: 5px;

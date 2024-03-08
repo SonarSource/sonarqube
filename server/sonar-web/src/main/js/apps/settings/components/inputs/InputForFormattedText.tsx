@@ -49,7 +49,7 @@ export default function InputForFormattedText(props: DefaultSpecializedInputProp
       <InputTextArea
         size="large"
         aria-label={getPropertyName(setting.definition)}
-        className="settings-large-input text-top sw-mr-2"
+        className="settings-large-input sw-mr-2"
         name={name}
         onChange={handleInputChange}
         rows={5}

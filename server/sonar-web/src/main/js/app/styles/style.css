@@ -17,57 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-.tabs {
-  height: 20px;
-  border-bottom: 1px solid #ddd;
-  margin: 0;
-  padding: 0;
-  font-size: 93%;
-}
-
-.tabs li {
-  display: inline;
-  list-style-type: none;
-  font-weight: normal;
-  color: var(--secondFontColor);
-  vertical-align: baseline;
-  white-space: nowrap;
-  margin: 0;
-  border: 0;
-  padding: 0;
-}
-
-.tabs li a {
-  float: left;
-  color: var(--secondFontColor);
-  vertical-align: bottom;
-  height: 17px;
-  margin: 0 1px 0 0;
-  padding: 1px 5px;
-  border-bottom: none;
-  transition: none;
-}
-
-.tabs li a.selected {
-  text-decoration: none;
-  color: #555 !important;
-  font-weight: bold;
-  margin: 0 1px 0 0;
-}
 
 .rule-desc,
 .markdown {
   line-height: 1.5;
-}
-
-.cut-margins > *:first-child,
-.cut-margins > .markdown-content > *:first-child {
-  margin-top: 0 !important;
-}
-
-.cut-margins > *:last-child,
-.cut-margins > .markdown-content > *:last-child {
-  margin-bottom: 0 !important;
 }
 
 .rule-desc p,
@@ -216,83 +169,4 @@ code.rule {
 .markdown td {
   padding: 5px 10px;
   border: 1px solid var(--barBorderColor);
-}
-
-.property p {
-  margin-top: 10px;
-}
-
-.property pre,
-.coding-rules-detail-parameter pre {
-  display: inline-block;
-  min-width: 100%;
-  margin: 10px 0 !important;
-  padding: 10px !important;
-  border: 1px dashed #aaa;
-  box-sizing: border-box;
-  font-size: var(--smallFontSize);
-  font-family: var(--sourceCodeFontFamily);
-}
-
-.property blockquote,
-.coding-rules-detail-parameter blockquote {
-  margin-top: 10px;
-  padding: 10px;
-}
-
-.property ul {
-  list-style-type: disc;
-  list-style-position: inside;
-  margin: 10px;
-}
-
-.property ol {
-  list-style-type: decimal;
-  list-style-position: inside;
-  margin: 10px;
-}
-
-.property {
-  margin-bottom: 10px;
-}
-
-.property h3 {
-  float: none;
-  max-width: 20em;
-}
-
-.property > th,
-.property > td {
-  vertical-align: top;
-  padding: 10px;
-}
-
-.property > th {
-  text-align: right;
-}
-
-.property table.data {
-  width: 480px;
-}
-
-.property textarea {
-  vertical-align: text-top;
-}
-
-.shortcuts-modal h3 {
-  margin-bottom: 0;
-}
-
-.shortcuts-modal table {
-  width: 100%;
-  margin-top: 0;
-}
-
-.shortcuts-modal th {
-  padding: 3px 10px;
-  font-size: var(--verySmallFontSize);
-}
-
-.shortcuts-modal td {
-  padding: 3px 10px;
 }
