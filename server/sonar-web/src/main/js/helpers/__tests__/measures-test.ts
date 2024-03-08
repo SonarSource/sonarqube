@@ -19,10 +19,16 @@
  */
 import { MetricKey, MetricType } from '../../types/metrics';
 import { Dict } from '../../types/types';
+import { CCT_SOFTWARE_QUALITY_METRICS } from '../constants';
 import { getMessages } from '../l10nBundle';
-import { enhanceConditionWithMeasure, formatMeasure, isPeriodBestValue } from '../measures';
+import {
+  areCCTMeasuresComputed,
+  enhanceConditionWithMeasure,
+  formatMeasure,
+  isPeriodBestValue,
+} from '../measures';
 import { mockQualityGateStatusCondition } from '../mocks/quality-gates';
-import { mockMeasureEnhanced, mockMetric } from '../testMocks';
+import { mockMeasure, mockMeasureEnhanced, mockMetric } from '../testMocks';
 
 jest.unmock('../l10n');
 
@@ -257,5 +263,23 @@ describe('#formatMeasure()', () => {
 
   it('should not fail with undefined', () => {
     expect(formatMeasure(undefined, MetricType.Integer)).toBe('');
+  });
+});
+
+describe('areCCTMeasuresComputed', () => {
+  it('returns true when measures include maintainability_,security_,reliability_issues', () => {
+    expect(
+      areCCTMeasuresComputed(CCT_SOFTWARE_QUALITY_METRICS.map((metric) => mockMeasure({ metric }))),
+    ).toBe(true);
+  });
+
+  it('returns false otherwise', () => {
+    expect(areCCTMeasuresComputed([mockMeasure()])).toBe(false);
+    expect(
+      areCCTMeasuresComputed([
+        mockMeasure(),
+        mockMeasure({ metric: CCT_SOFTWARE_QUALITY_METRICS[0] }),
+      ]),
+    ).toBe(false);
   });
 });

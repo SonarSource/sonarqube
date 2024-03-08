@@ -19,6 +19,7 @@
  */
 import { getBreadcrumbs, getChildren, getComponent, getComponentData } from '../../api/components';
 import { getBranchLikeQuery, isPullRequest } from '../../helpers/branch-like';
+import { CCT_SOFTWARE_QUALITY_METRICS, OLD_TAXONOMY_METRICS } from '../../helpers/constants';
 import { BranchLike } from '../../types/branch-like';
 import { ComponentQualifier, isPortfolioLike } from '../../types/component';
 import { MetricKey } from '../../types/metrics';
@@ -34,9 +35,8 @@ import {
 
 const METRICS = [
   MetricKey.ncloc,
-  MetricKey.bugs,
-  MetricKey.vulnerabilities,
-  MetricKey.code_smells,
+  ...CCT_SOFTWARE_QUALITY_METRICS,
+  ...OLD_TAXONOMY_METRICS,
   MetricKey.security_hotspots,
   MetricKey.coverage,
   MetricKey.duplicated_lines_density,
@@ -64,9 +64,8 @@ const NEW_PORTFOLIO_METRICS = [
 
 const LEAK_METRICS = [
   MetricKey.new_lines,
-  MetricKey.bugs,
-  MetricKey.vulnerabilities,
-  MetricKey.code_smells,
+  ...CCT_SOFTWARE_QUALITY_METRICS,
+  ...OLD_TAXONOMY_METRICS,
   MetricKey.security_hotspots,
   MetricKey.new_coverage,
   MetricKey.new_duplicated_lines_density,

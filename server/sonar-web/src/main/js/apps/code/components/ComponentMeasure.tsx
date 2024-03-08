@@ -28,8 +28,16 @@ import {
 import * as React from 'react';
 import Measure from '../../../components/measure/Measure';
 import { getLeakValue } from '../../../components/measure/utils';
+import {
+  CCT_SOFTWARE_QUALITY_METRICS,
+  OLD_TO_NEW_TAXONOMY_METRICS_MAP,
+} from '../../../helpers/constants';
 import { translateWithParameters } from '../../../helpers/l10n';
-import { formatMeasure, isDiffMetric } from '../../../helpers/measures';
+import {
+  areCCTMeasuresComputed as areCCTMeasuresComputedFn,
+  formatMeasure,
+  isDiffMetric,
+} from '../../../helpers/measures';
 import { isApplication, isProject } from '../../../types/component';
 import { MetricKey, MetricType } from '../../../types/metrics';
 import { Metric, Status, ComponentMeasure as TypeComponentMeasure } from '../../../types/types';
@@ -44,14 +52,27 @@ export default function ComponentMeasure(props: Props) {
   const isProjectLike = isProject(component.qualifier) || isApplication(component.qualifier);
   const isReleasability = metric.key === MetricKey.releasability_rating;
 
-  const finalMetricKey = isProjectLike && isReleasability ? MetricKey.alert_status : metric.key;
+  let finalMetricKey = isProjectLike && isReleasability ? MetricKey.alert_status : metric.key;
   const finalMetricType = isProjectLike && isReleasability ? MetricType.Level : metric.type;
+
+  const areCCTMeasasuresComputed = areCCTMeasuresComputedFn(component.measures);
+  finalMetricKey = areCCTMeasasuresComputed
+    ? OLD_TO_NEW_TAXONOMY_METRICS_MAP[finalMetricKey as MetricKey] ?? finalMetricKey
+    : finalMetricKey;
 
   const measure = Array.isArray(component.measures)
     ? component.measures.find((measure) => measure.metric === finalMetricKey)
     : undefined;
 
-  const value = isDiffMetric(metric.key) ? getLeakValue(measure) : measure?.value;
+  let value;
+  if (
+    measure?.value !== undefined &&
+    CCT_SOFTWARE_QUALITY_METRICS.includes(measure.metric as MetricKey)
+  ) {
+    value = JSON.parse(measure.value).total;
+  } else {
+    value = isDiffMetric(metric.key) ? getLeakValue(measure) : measure?.value;
+  }
 
   switch (finalMetricType) {
     case MetricType.Level: {

@@ -37,11 +37,18 @@ import {
   themeColor,
 } from 'design-system';
 import * as React from 'react';
+import { useIntl } from 'react-intl';
 import { getBranchLikeQuery } from '../../helpers/branch-like';
-import { ISSUE_TYPES } from '../../helpers/constants';
-import { ISSUETYPE_METRIC_KEYS_MAP } from '../../helpers/issues';
-import { translate } from '../../helpers/l10n';
-import { formatMeasure } from '../../helpers/measures';
+import { SOFTWARE_QUALITIES } from '../../helpers/constants';
+import {
+  ISSUETYPE_METRIC_KEYS_MAP,
+  SOFTWARE_QUALITIES_METRIC_KEYS_MAP,
+  getIssueTypeBySoftwareQuality,
+} from '../../helpers/issues';
+import {
+  areCCTMeasuresComputed as areCCTMeasuresComputedFn,
+  formatMeasure,
+} from '../../helpers/measures';
 import { collapsedDirFromPath, fileFromPath } from '../../helpers/path';
 import { omitNil } from '../../helpers/request';
 import { getBaseUrl } from '../../helpers/system';
@@ -69,14 +76,19 @@ interface Props {
   sourceViewerFile: SourceViewerFile;
 }
 
-export default class SourceViewerHeader extends React.PureComponent<Props> {
-  openInWorkspace = () => {
-    const { key } = this.props.sourceViewerFile;
-    this.props.openComponent({ branchLike: this.props.branchLike, key });
-  };
+export default function SourceViewerHeader(props: Readonly<Props>) {
+  const intl = useIntl();
 
-  renderIssueMeasures = () => {
-    const { branchLike, componentMeasures, sourceViewerFile } = this.props;
+  const { showMeasures, branchLike, hidePinOption, openComponent, componentMeasures } = props;
+  const { key, measures, path, project, projectName, q } = props.sourceViewerFile;
+  const unitTestsOrLines = q === ComponentQualifier.TestFile ? MetricKey.tests : MetricKey.lines;
+
+  const query = new URLSearchParams(omitNil({ key, ...getBranchLikeQuery(branchLike) })).toString();
+
+  const rawSourcesLink = `${getBaseUrl()}/api/sources/raw?${query}`;
+
+  const renderIssueMeasures = () => {
+    const areCCTMeasuresComputed = areCCTMeasuresComputedFn(componentMeasures);
 
     return (
       componentMeasures &&
@@ -85,163 +97,192 @@ export default class SourceViewerHeader extends React.PureComponent<Props> {
           <StyledVerticalSeparator className="sw-h-8 sw-mx-6" />
 
           <div className="sw-flex sw-gap-6">
-            {ISSUE_TYPES.map((type: IssueType) => {
-              const params = {
-                ...getBranchLikeQuery(branchLike),
-                files: sourceViewerFile.path,
-                ...DEFAULT_ISSUES_QUERY,
-                types: type,
-              };
-
+            {SOFTWARE_QUALITIES.map((quality) => {
+              const { deprecatedMetric, metric } = SOFTWARE_QUALITIES_METRIC_KEYS_MAP[quality];
               const measure = componentMeasures.find(
-                (m) => m.metric === ISSUETYPE_METRIC_KEYS_MAP[type].metric,
+                (m) => m.metric === (areCCTMeasuresComputed ? metric : deprecatedMetric),
               );
+              const measureValue = areCCTMeasuresComputed
+                ? JSON.parse(measure?.value ?? 'null').total
+                : measure?.value ?? 0;
 
-              const linkUrl =
-                type === IssueType.SecurityHotspot
-                  ? getComponentSecurityHotspotsUrl(sourceViewerFile.project, params)
-                  : getComponentIssuesUrl(sourceViewerFile.project, params);
+              const linkUrl = getComponentIssuesUrl(project, {
+                ...getBranchLikeQuery(branchLike),
+                files: path,
+                ...DEFAULT_ISSUES_QUERY,
+                ...(areCCTMeasuresComputed
+                  ? { impactSoftwareQualities: quality }
+                  : { types: getIssueTypeBySoftwareQuality(quality) }),
+              });
+
+              const qualityTitle = intl.formatMessage({ id: `metric.${metric}.short_name` });
 
               return (
-                <div className="sw-flex sw-flex-col sw-gap-1" key={type}>
+                <div className="sw-flex sw-flex-col sw-gap-1" key={quality}>
                   <Note className="it__source-viewer-header-measure-label sw-body-lg">
-                    {translate('issue.type', type)}
+                    {qualityTitle}
                   </Note>
 
                   <span>
-                    <StyledDrilldownLink className="sw-body-md" to={linkUrl}>
-                      {formatMeasure(measure?.value ?? 0, MetricType.Integer)}
+                    <StyledDrilldownLink
+                      className="sw-body-md"
+                      aria-label={intl.formatMessage(
+                        { id: 'source_viewer.issue_link_x' },
+                        {
+                          count: formatMeasure(measureValue, MetricType.Integer),
+                          quality: qualityTitle,
+                        },
+                      )}
+                      to={linkUrl}
+                    >
+                      {formatMeasure(measureValue, MetricType.Integer)}
                     </StyledDrilldownLink>
                   </span>
                 </div>
               );
             })}
+
+            <div className="sw-flex sw-flex-col sw-gap-1" key={IssueType.SecurityHotspot}>
+              <Note className="it__source-viewer-header-measure-label sw-body-lg">
+                {intl.formatMessage({ id: `issue.type.${IssueType.SecurityHotspot}` })}
+              </Note>
+
+              <span>
+                <StyledDrilldownLink
+                  className="sw-body-md"
+                  to={getComponentSecurityHotspotsUrl(project, {
+                    ...getBranchLikeQuery(branchLike),
+                    files: path,
+                    ...DEFAULT_ISSUES_QUERY,
+                    types: IssueType.SecurityHotspot,
+                  })}
+                >
+                  {formatMeasure(
+                    componentMeasures.find(
+                      (m) =>
+                        m.metric === ISSUETYPE_METRIC_KEYS_MAP[IssueType.SecurityHotspot].metric,
+                    )?.value ?? 0,
+                    MetricType.Integer,
+                  )}
+                </StyledDrilldownLink>
+              </span>
+            </div>
           </div>
         </>
       )
     );
   };
 
-  render() {
-    const { showMeasures } = this.props;
-    const { key, measures, path, project, projectName, q } = this.props.sourceViewerFile;
-    const unitTestsOrLines = q === ComponentQualifier.TestFile ? MetricKey.tests : MetricKey.lines;
-
-    const query = new URLSearchParams(
-      omitNil({ key, ...getBranchLikeQuery(this.props.branchLike) }),
-    ).toString();
-
-    const rawSourcesLink = `${getBaseUrl()}/api/sources/raw?${query}`;
-
-    return (
-      <StyledHeaderContainer
-        className={
-          'it__source-viewer-header sw-body-sm sw-flex sw-items-center sw-px-4 sw-py-3 ' +
-          'sw-relative'
-        }
-      >
-        <div className="sw-flex sw-flex-1 sw-flex-col sw-gap-1 sw-mr-5 sw-my-1">
-          <div className="sw-flex sw-gap-1 sw-items-center">
-            <LinkStandalone
-              iconLeft={<ProjectIcon className="sw-mr-2" />}
-              to={getBranchLikeUrl(project, this.props.branchLike)}
-            >
-              {projectName}
-            </LinkStandalone>
-          </div>
-
-          <div className="sw-flex sw-gap-2 sw-items-center">
-            <QualifierIcon qualifier={q} />
-
-            {collapsedDirFromPath(path)}
-
-            {fileFromPath(path)}
-
-            <span>
-              <ClipboardIconButton
-                aria-label={translate('component_viewer.copy_path_to_clipboard')}
-                copyValue={path}
-              />
-            </span>
-          </div>
+  return (
+    <StyledHeaderContainer
+      className={
+        'it__source-viewer-header sw-body-sm sw-flex sw-items-center sw-px-4 sw-py-3 ' +
+        'sw-relative'
+      }
+    >
+      <div className="sw-flex sw-flex-1 sw-flex-col sw-gap-1 sw-mr-5 sw-my-1">
+        <div className="sw-flex sw-gap-1 sw-items-center">
+          <LinkStandalone
+            iconLeft={<ProjectIcon className="sw-mr-2" />}
+            to={getBranchLikeUrl(project, branchLike)}
+          >
+            {projectName}
+          </LinkStandalone>
         </div>
 
-        {showMeasures && (
-          <div className="sw-flex sw-gap-6 sw-items-center">
-            {isDefined(measures[unitTestsOrLines]) && (
-              <div className="sw-flex sw-flex-col sw-gap-1">
-                <Note className="it__source-viewer-header-measure-label sw-body-lg">
-                  {translate(`metric.${unitTestsOrLines}.name`)}
-                </Note>
+        <div className="sw-flex sw-gap-2 sw-items-center">
+          <QualifierIcon qualifier={q} />
 
-                <span className="sw-body-lg">
-                  {formatMeasure(measures[unitTestsOrLines], MetricType.ShortInteger)}
-                </span>
-              </div>
-            )}
+          {collapsedDirFromPath(path)}
 
-            {isDefined(measures.coverage) && (
-              <div className="sw-flex sw-flex-col sw-gap-1">
-                <Note className="it__source-viewer-header-measure-label sw-body-lg">
-                  {translate('metric.coverage.name')}
-                </Note>
+          {fileFromPath(path)}
 
-                <span className="sw-body-lg">
-                  {formatMeasure(measures.coverage, MetricType.Percent)}
-                </span>
-              </div>
-            )}
+          <span>
+            <ClipboardIconButton
+              aria-label={intl.formatMessage({ id: 'component_viewer.copy_path_to_clipboard' })}
+              copyValue={path}
+            />
+          </span>
+        </div>
+      </div>
 
-            {isDefined(measures.duplicationDensity) && (
-              <div className="sw-flex sw-flex-col sw-gap-1">
-                <Note className="it__source-viewer-header-measure-label sw-body-lg">
-                  {translate('duplications')}
-                </Note>
+      {showMeasures && (
+        <div className="sw-flex sw-gap-6 sw-items-center">
+          {isDefined(measures[unitTestsOrLines]) && (
+            <div className="sw-flex sw-flex-col sw-gap-1">
+              <Note className="it__source-viewer-header-measure-label sw-body-lg">
+                {intl.formatMessage({ id: `metric.${unitTestsOrLines}.name` })}
+              </Note>
 
-                <span className="sw-body-lg">
-                  {formatMeasure(measures.duplicationDensity, MetricType.Percent)}
-                </span>
-              </div>
-            )}
+              <span className="sw-body-lg">
+                {formatMeasure(measures[unitTestsOrLines], MetricType.ShortInteger)}
+              </span>
+            </div>
+          )}
 
-            {this.renderIssueMeasures()}
-          </div>
-        )}
+          {isDefined(measures.coverage) && (
+            <div className="sw-flex sw-flex-col sw-gap-1">
+              <Note className="it__source-viewer-header-measure-label sw-body-lg">
+                {intl.formatMessage({ id: 'metric.coverage.name' })}
+              </Note>
 
-        <Dropdown
-          id="source-viewer-header-actions"
-          overlay={
-            <>
-              <ItemLink
-                isExternal
-                to={getCodeUrl(this.props.sourceViewerFile.project, this.props.branchLike, key)}
+              <span className="sw-body-lg">
+                {formatMeasure(measures.coverage, MetricType.Percent)}
+              </span>
+            </div>
+          )}
+
+          {isDefined(measures.duplicationDensity) && (
+            <div className="sw-flex sw-flex-col sw-gap-1">
+              <Note className="it__source-viewer-header-measure-label sw-body-lg">
+                {intl.formatMessage({ id: 'duplications' })}
+              </Note>
+
+              <span className="sw-body-lg">
+                {formatMeasure(measures.duplicationDensity, MetricType.Percent)}
+              </span>
+            </div>
+          )}
+
+          {renderIssueMeasures()}
+        </div>
+      )}
+
+      <Dropdown
+        id="source-viewer-header-actions"
+        overlay={
+          <>
+            <ItemLink isExternal to={getCodeUrl(project, branchLike, key)}>
+              {intl.formatMessage({ id: 'component_viewer.new_window' })}
+            </ItemLink>
+
+            {!hidePinOption && (
+              <ItemButton
+                className="it__js-workspace"
+                onClick={() => {
+                  openComponent({ branchLike, key });
+                }}
               >
-                {translate('component_viewer.new_window')}
-              </ItemLink>
+                {intl.formatMessage({ id: 'component_viewer.open_in_workspace' })}
+              </ItemButton>
+            )}
 
-              {!this.props.hidePinOption && (
-                <ItemButton className="it__js-workspace" onClick={this.openInWorkspace}>
-                  {translate('component_viewer.open_in_workspace')}
-                </ItemButton>
-              )}
-
-              <ItemLink isExternal to={rawSourcesLink}>
-                {translate('component_viewer.show_raw_source')}
-              </ItemLink>
-            </>
-          }
-          placement={PopupPlacement.BottomRight}
-          zLevel={PopupZLevel.Global}
-        >
-          <InteractiveIcon
-            aria-label={translate('component_viewer.action_menu')}
-            className="it__js-actions sw-flex-0 sw-ml-4 sw-px-3 sw-py-2"
-            Icon={MenuIcon}
-          />
-        </Dropdown>
-      </StyledHeaderContainer>
-    );
-  }
+            <ItemLink isExternal to={rawSourcesLink}>
+              {intl.formatMessage({ id: 'component_viewer.show_raw_source' })}
+            </ItemLink>
+          </>
+        }
+        placement={PopupPlacement.BottomRight}
+        zLevel={PopupZLevel.Global}
+      >
+        <InteractiveIcon
+          aria-label={intl.formatMessage({ id: 'component_viewer.action_menu' })}
+          className="it__js-actions sw-flex-0 sw-ml-4 sw-px-3 sw-py-2"
+          Icon={MenuIcon}
+        />
+      </Dropdown>
+    </StyledHeaderContainer>
+  );
 }
 
 const StyledDrilldownLink = styled(DrilldownLink)`

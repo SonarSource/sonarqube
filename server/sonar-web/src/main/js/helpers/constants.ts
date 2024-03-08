@@ -86,6 +86,24 @@ export const ISSUE_TYPES: IssueType[] = [
   IssueType.SecurityHotspot,
 ];
 
+export const CCT_SOFTWARE_QUALITY_METRICS = [
+  MetricKey.security_issues,
+  MetricKey.reliability_issues,
+  MetricKey.maintainability_issues,
+];
+
+export const OLD_TAXONOMY_METRICS = [
+  MetricKey.vulnerabilities,
+  MetricKey.bugs,
+  MetricKey.code_smells,
+];
+
+export const OLD_TO_NEW_TAXONOMY_METRICS_MAP: { [key in MetricKey]?: MetricKey } = {
+  [MetricKey.vulnerabilities]: MetricKey.security_issues,
+  [MetricKey.bugs]: MetricKey.reliability_issues,
+  [MetricKey.code_smells]: MetricKey.maintainability_issues,
+};
+
 export const RESOLUTIONS = [
   IssueResolution.Unresolved,
   IssueResolution.FalsePositive,

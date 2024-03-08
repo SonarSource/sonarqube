@@ -23,7 +23,7 @@ import {
   QualityGateStatusConditionEnhanced,
 } from '../types/quality-gates';
 import { Dict, Measure, MeasureEnhanced, Metric } from '../types/types';
-import { ONE_SECOND } from './constants';
+import { CCT_SOFTWARE_QUALITY_METRICS, ONE_SECOND } from './constants';
 import { translate, translateWithParameters } from './l10n';
 import { getCurrentLocale } from './l10nBundle';
 import { isDefined } from './types';
@@ -77,6 +77,18 @@ export function getDisplayMetrics(metrics: Metric[]) {
 
 export function findMeasure(measures: MeasureEnhanced[], metric: MetricKey | string) {
   return measures.find((measure) => measure.metric.key === metric);
+}
+
+export function areCCTMeasuresComputed(measures?: Measure[] | MeasureEnhanced[]) {
+  return CCT_SOFTWARE_QUALITY_METRICS.every((metric) =>
+    measures?.find((measure) =>
+      isMeasureEnhanced(measure) ? measure.metric.key === metric : measure.metric === metric,
+    ),
+  );
+}
+
+function isMeasureEnhanced(measure: Measure | MeasureEnhanced): measure is MeasureEnhanced {
+  return (measure.metric as Metric)?.key !== undefined;
 }
 
 const HOURS_IN_DAY = 8;

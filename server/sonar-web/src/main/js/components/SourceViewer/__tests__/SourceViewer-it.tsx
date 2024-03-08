@@ -23,9 +23,13 @@ import * as React from 'react';
 import ComponentsServiceMock from '../../../api/mocks/ComponentsServiceMock';
 import IssuesServiceMock from '../../../api/mocks/IssuesServiceMock';
 import UsersServiceMock from '../../../api/mocks/UsersServiceMock';
+import { CCT_SOFTWARE_QUALITY_METRICS } from '../../../helpers/constants';
+import { isDiffMetric } from '../../../helpers/measures';
 import { HttpStatus } from '../../../helpers/request';
-import { mockIssue, mockLoggedInUser } from '../../../helpers/testMocks';
+import { mockIssue, mockLoggedInUser, mockMeasure } from '../../../helpers/testMocks';
 import { renderComponent } from '../../../helpers/testReactTestingUtils';
+import { byLabelText } from '../../../helpers/testSelector';
+import { MetricKey } from '../../../types/metrics';
 import { RestUserDetailed } from '../../../types/users';
 import SourceViewer, { Props } from '../SourceViewer';
 import loadIssues from '../helpers/loadIssues';
@@ -256,7 +260,7 @@ it('should show issue indicator', async () => {
 
   await user.click(
     issueRow.getByRole('button', {
-      name: 'source_viewer.issues_on_line.X_issues_of_type_Y.source_viewer.issues_on_line.show.2.issue.type.BUG.plural',
+      name: 'source_viewer.issues_on_line.multiple_issues_same_category.true.2.issue.clean_code_attribute_category.responsible',
     }),
   );
 });
@@ -338,6 +342,43 @@ it('should highlight symbol', async () => {
   });
 });
 
+it('should show software quality measures in header', async () => {
+  renderSourceViewer({ componentMeasures: generateMeasures(), showMeasures: true });
+
+  expect(
+    await byLabelText('source_viewer.issue_link_x.3.metric.security_issues.short_name').find(),
+  ).toBeInTheDocument();
+  expect(
+    await byLabelText('source_viewer.issue_link_x.3.metric.reliability_issues.short_name').find(),
+  ).toBeInTheDocument();
+  expect(
+    await byLabelText(
+      'source_viewer.issue_link_x.3.metric.maintainability_issues.short_name',
+    ).find(),
+  ).toBeInTheDocument();
+});
+
+it('should show old issue measures in header', async () => {
+  renderSourceViewer({
+    componentMeasures: generateMeasures().filter(
+      (m) => !CCT_SOFTWARE_QUALITY_METRICS.includes(m.metric as MetricKey),
+    ),
+    showMeasures: true,
+  });
+
+  expect(
+    await byLabelText('source_viewer.issue_link_x.1.metric.security_issues.short_name').find(),
+  ).toBeInTheDocument();
+  expect(
+    await byLabelText('source_viewer.issue_link_x.1.metric.reliability_issues.short_name').find(),
+  ).toBeInTheDocument();
+  expect(
+    await byLabelText(
+      'source_viewer.issue_link_x.1.metric.maintainability_issues.short_name',
+    ).find(),
+  ).toBeInTheDocument();
+});
+
 it('should show correct message when component is not asscessible', async () => {
   componentsHandler.setFailLoadingComponentStatus(HttpStatus.Forbidden);
   renderSourceViewer();
@@ -352,6 +393,32 @@ it('should show correct message when component does not exist', async () => {
   renderSourceViewer();
   expect(await screen.findByText('component_viewer.no_component')).toBeInTheDocument();
 });
+
+function generateMeasures(qualitiesValue = '3.0', overallValue = '1.0', newValue = '2.0') {
+  return [
+    ...[
+      MetricKey.security_issues,
+      MetricKey.reliability_issues,
+      MetricKey.maintainability_issues,
+    ].map((metric) =>
+      mockMeasure({ metric, value: JSON.stringify({ total: qualitiesValue }), period: undefined }),
+    ),
+    ...[
+      MetricKey.ncloc,
+      MetricKey.new_lines,
+      MetricKey.bugs,
+      MetricKey.vulnerabilities,
+      MetricKey.code_smells,
+      MetricKey.security_hotspots,
+      MetricKey.coverage,
+      MetricKey.new_coverage,
+    ].map((metric) =>
+      isDiffMetric(metric)
+        ? mockMeasure({ metric, period: { index: 1, value: newValue } })
+        : mockMeasure({ metric, value: overallValue, period: undefined }),
+    ),
+  ];
+}
 
 function renderSourceViewer(override?: Partial<Props>) {
   const { rerender } = renderComponent(

@@ -19,6 +19,10 @@
  */
 import { ContentCell, NumericalCell, RatingCell } from 'design-system';
 import * as React from 'react';
+import {
+  CCT_SOFTWARE_QUALITY_METRICS,
+  OLD_TO_NEW_TAXONOMY_METRICS_MAP,
+} from '../../../helpers/constants';
 import { translate } from '../../../helpers/l10n';
 import { isPortfolioLike } from '../../../types/component';
 import { MetricKey } from '../../../types/metrics';
@@ -33,6 +37,7 @@ interface ComponentsHeaderProps {
 }
 
 const SHORT_NAME_METRICS = [
+  ...CCT_SOFTWARE_QUALITY_METRICS,
   MetricKey.duplicated_lines_density,
   MetricKey.new_lines,
   MetricKey.new_coverage,
@@ -60,13 +65,15 @@ export default function ComponentsHeader(props: ComponentsHeaderProps) {
 
     Cell = RatingCell;
   } else {
-    columns = metrics.map((metric) =>
-      translate(
+    columns = metrics.map((m: MetricKey) => {
+      const metric = OLD_TO_NEW_TAXONOMY_METRICS_MAP[m] ?? m;
+
+      return translate(
         'metric',
         metric,
         SHORT_NAME_METRICS.includes(metric as MetricKey) ? 'short_name' : 'name',
-      ),
-    );
+      );
+    });
 
     Cell = NumericalCell;
   }

@@ -910,6 +910,15 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     qualitative: true,
     hidden: true,
   },
+  reliability_issues: {
+    key: 'reliability_issues',
+    type: 'INT',
+    name: 'Reliability',
+    description: 'Reliability issues',
+    direction: -1,
+    qualitative: true,
+    hidden: false,
+  },
   reliability_rating: {
     key: 'reliability_rating',
     type: 'RATING',
@@ -1011,6 +1020,15 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     qualitative: true,
     hidden: false,
     decimalScale: 1,
+  },
+  security_issues: {
+    key: 'security_issues',
+    type: 'INT',
+    name: 'Security',
+    description: 'Security issues',
+    direction: -1,
+    qualitative: true,
+    hidden: false,
   },
   security_rating: {
     key: 'security_rating',
@@ -1170,6 +1188,15 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     domain: 'Size',
     direction: -1,
     qualitative: false,
+    hidden: false,
+  },
+  maintainability_issues: {
+    key: 'maintainability_issues',
+    type: 'INT',
+    name: 'Maintainability',
+    description: 'Maintainability issues',
+    direction: -1,
+    qualitative: true,
     hidden: false,
   },
   sqale_index: {

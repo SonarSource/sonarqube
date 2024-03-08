@@ -20,9 +20,8 @@
 import { IssueIndicatorButton, LineIssuesIndicatorIcon, LineMeta } from 'design-system';
 import { uniq } from 'lodash';
 import * as React from 'react';
+import { useIntl } from 'react-intl';
 import Tooltip from '../../../components/controls/Tooltip';
-import { sortByType } from '../../../helpers/issues';
-import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { Issue, SourceLine } from '../../../types/types';
 
 const MOUSE_LEAVE_DELAY = 0.25;
@@ -37,33 +36,32 @@ export interface LineIssuesIndicatorProps {
 export function LineIssuesIndicator(props: LineIssuesIndicatorProps) {
   const { issues, issuesOpen, line } = props;
   const hasIssues = issues.length > 0;
+  const intl = useIntl();
 
   if (!hasIssues) {
     return <LineMeta />;
   }
 
-  const mostImportantIssue = sortByType(issues)[0];
-  const issueTypes = uniq(issues.map((i) => i.type));
-
-  const tooltipShowHide = translate('source_viewer.issues_on_line', issuesOpen ? 'hide' : 'show');
+  const issueAttributeCategories = uniq(issues.map((issue) => issue.cleanCodeAttributeCategory));
   let tooltipContent;
-  if (issueTypes.length > 1) {
-    tooltipContent = translateWithParameters(
-      'source_viewer.issues_on_line.multiple_issues',
-      tooltipShowHide,
-    );
-  } else if (issues.length === 1) {
-    tooltipContent = translateWithParameters(
-      'source_viewer.issues_on_line.issue_of_type_X',
-      tooltipShowHide,
-      translate('issue.type', mostImportantIssue.type),
+
+  if (issueAttributeCategories.length > 1) {
+    tooltipContent = intl.formatMessage(
+      { id: 'source_viewer.issues_on_line.multiple_issues' },
+      { show: !issuesOpen },
     );
   } else {
-    tooltipContent = translateWithParameters(
-      'source_viewer.issues_on_line.X_issues_of_type_Y',
-      tooltipShowHide,
-      issues.length,
-      translate('issue.type', mostImportantIssue.type, 'plural'),
+    tooltipContent = intl.formatMessage(
+      { id: 'source_viewer.issues_on_line.multiple_issues_same_category' },
+      {
+        show: !issuesOpen,
+        count: issues.length,
+        category: intl
+          .formatMessage({
+            id: `issue.clean_code_attribute_category.${issueAttributeCategories[0]}`,
+          })
+          .toLowerCase(),
+      },
     );
   }
 
@@ -75,10 +73,7 @@ export function LineIssuesIndicator(props: LineIssuesIndicatorProps) {
           aria-expanded={issuesOpen}
           onClick={props.onClick}
         >
-          <LineIssuesIndicatorIcon
-            issuesCount={issues.length}
-            mostImportantIssueType={mostImportantIssue.type}
-          />
+          <LineIssuesIndicatorIcon issuesCount={issues.length} />
         </IssueIndicatorButton>
       </Tooltip>
     </LineMeta>

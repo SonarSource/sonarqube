@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Spinner } from '@sonarsource/echoes-react';
 import {
   Card,
   FlagMessage,
@@ -24,9 +25,8 @@ import {
   KeyboardHint,
   LargeCenteredLayout,
   LightLabel,
-  Spinner,
 } from 'design-system';
-import { intersection } from 'lodash';
+import { difference, intersection } from 'lodash';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import A11ySkipTarget from '../../../components/a11y/A11ySkipTarget';
@@ -34,8 +34,11 @@ import HelpTooltip from '../../../components/controls/HelpTooltip';
 import ListFooter from '../../../components/controls/ListFooter';
 import Suggestions from '../../../components/embed-docs-modal/Suggestions';
 import { Location } from '../../../components/hoc/withRouter';
+import AnalysisMissingInfoMessage from '../../../components/shared/AnalysisMissingInfoMessage';
+import { CCT_SOFTWARE_QUALITY_METRICS, OLD_TAXONOMY_METRICS } from '../../../helpers/constants';
 import { KeyboardKeys } from '../../../helpers/keycodes';
 import { translate } from '../../../helpers/l10n';
+import { areCCTMeasuresComputed } from '../../../helpers/measures';
 import { BranchLike } from '../../../types/branch-like';
 import { isApplication, isPortfolioLike } from '../../../types/component';
 import { Breadcrumb, Component, ComponentMeasure, Dict, Metric } from '../../../types/types';
@@ -99,7 +102,15 @@ export default function CodeAppRenderer(props: Props) {
     getCodeMetrics(component.qualifier, branchLike, { newCode: newCodeSelected }),
     Object.keys(metrics),
   );
-  const filteredMetrics = metricKeys.map((metric) => metrics[metric]);
+
+  const allComponentsHaveSoftwareQualityMeasures = components.every((component) =>
+    areCCTMeasuresComputed(component.measures),
+  );
+
+  const filteredMetrics = difference(
+    metricKeys,
+    allComponentsHaveSoftwareQualityMeasures ? OLD_TAXONOMY_METRICS : CCT_SOFTWARE_QUALITY_METRICS,
+  ).map((key) => metrics[key]);
 
   let defaultTitle = translate('code.page');
   if (isApplication(baseComponent?.qualifier)) {
@@ -127,6 +138,10 @@ export default function CodeAppRenderer(props: Props) {
             <HelperHintIcon />
           </HelpTooltip>
         </FlagMessage>
+      )}
+
+      {!allComponentsHaveSoftwareQualityMeasures && (
+        <AnalysisMissingInfoMessage qualifier={component.qualifier} className="sw-mb-4" />
       )}
 
       <div className="sw-flex sw-justify-between">
@@ -181,7 +196,7 @@ export default function CodeAppRenderer(props: Props) {
 
       {(showComponentList || showSearch) && (
         <Card className="sw-mt-2 sw-overflow-auto">
-          <Spinner loading={loading}>
+          <Spinner isLoading={loading}>
             {showComponentList && (
               <Components
                 baseComponent={baseComponent}

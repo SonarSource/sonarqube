@@ -28,12 +28,11 @@ import A11ySkipTarget from '../../../components/a11y/A11ySkipTarget';
 import { useLocation, useRouter } from '../../../components/hoc/withRouter';
 import AnalysisMissingInfoMessage from '../../../components/shared/AnalysisMissingInfoMessage';
 import { parseDate } from '../../../helpers/dates';
-import { isDiffMetric } from '../../../helpers/measures';
+import { areCCTMeasuresComputed, isDiffMetric } from '../../../helpers/measures';
 import { CodeScope } from '../../../helpers/urls';
 import { ApplicationPeriod } from '../../../types/application';
 import { Branch } from '../../../types/branch-like';
 import { ComponentQualifier } from '../../../types/component';
-import { MetricKey } from '../../../types/metrics';
 import { Analysis, GraphType, MeasureHistory } from '../../../types/project-activity';
 import { QualityGateStatus } from '../../../types/quality-gates';
 import { Component, MeasureEnhanced, Metric, Period, QualityGate } from '../../../types/types';
@@ -99,11 +98,7 @@ export default function BranchOverviewRenderer(props: BranchOverviewRendererProp
   const hasNewCodeMeasures = measures.some((m) => isDiffMetric(m.metric.key));
 
   // Check if any potentially missing uncomputed measure is not present
-  const isMissingMeasures = [
-    MetricKey.security_issues,
-    MetricKey.maintainability_issues,
-    MetricKey.reliability_issues,
-  ].some((key) => !measures.find((measure) => measure.metric.key === key));
+  const isMissingMeasures = !areCCTMeasuresComputed(measures);
 
   const selectTab = (tab: CodeScope) => {
     router.replace({ query: { ...query, codeScope: tab } });

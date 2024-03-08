@@ -17,30 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import styled from '@emotion/styled';
-import { memo } from 'react';
-import tw from 'twin.macro';
-import { DotFillIcon } from '../icons';
 
-interface Props {
-  issuesCount: number;
-}
+import { DotFillIcon as OcticonDotFillIcon } from '@primer/octicons-react';
+import { OcticonHoc } from './Icon';
 
-function LineIssueIndicatorIconFunc({ issuesCount }: Readonly<Props>) {
-  return (
-    <>
-      <DotFillIcon />
-      {issuesCount > 1 && <IssueIndicatorCounter>{issuesCount}</IssueIndicatorCounter>}
-    </>
-  );
-}
-
-export const LineIssuesIndicatorIcon = memo(LineIssueIndicatorIconFunc);
-
-const IssueIndicatorCounter = styled.span`
-  font-size: 0.5rem;
-  line-height: 0.5rem;
-
-  ${tw`sw-ml-1/2`}
-  ${tw`sw-align-top`}
-`;
+export const DotFillIcon = OcticonHoc(OcticonDotFillIcon, 'DotFillIcon');

@@ -4,8 +4,11 @@ exports[`getCodeMetrics should return the right metrics for apps 1`] = `
 [
   "alert_status",
   "ncloc",
-  "bugs",
+  "security_issues",
+  "reliability_issues",
+  "maintainability_issues",
   "vulnerabilities",
+  "bugs",
   "code_smells",
   "security_hotspots",
   "coverage",
@@ -75,8 +78,11 @@ exports[`getCodeMetrics should return the right metrics for portfolios 4`] = `
 exports[`getCodeMetrics should return the right metrics for projects 1`] = `
 [
   "ncloc",
-  "bugs",
+  "security_issues",
+  "reliability_issues",
+  "maintainability_issues",
   "vulnerabilities",
+  "bugs",
   "code_smells",
   "security_hotspots",
   "coverage",
@@ -87,8 +93,11 @@ exports[`getCodeMetrics should return the right metrics for projects 1`] = `
 exports[`getCodeMetrics should return the right metrics for projects 2`] = `
 [
   "new_lines",
-  "bugs",
+  "security_issues",
+  "reliability_issues",
+  "maintainability_issues",
   "vulnerabilities",
+  "bugs",
   "code_smells",
   "security_hotspots",
   "new_coverage",

@@ -31,6 +31,7 @@ export { CollapseIcon } from './CollapseIcon';
 export { CommentIcon } from './CommentIcon';
 export { CopyIcon } from './CopyIcon';
 export { DirectoryIcon } from './DirectoryIcon';
+export { DotFillIcon } from './DotFillIcon';
 export { DraggableIcon } from './DraggableIcon';
 export { ExecutionFlowIcon } from './ExecutionFlowIcon';
 export { ExpandIcon } from './ExpandIcon';

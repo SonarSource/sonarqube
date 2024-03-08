@@ -20,10 +20,11 @@
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { UserEvent } from '@testing-library/user-event/dist/types/setup/setup';
-import { keyBy, times } from 'lodash';
+import { keyBy, omit, times } from 'lodash';
 import BranchesServiceMock from '../../../api/mocks/BranchesServiceMock';
 import ComponentsServiceMock from '../../../api/mocks/ComponentsServiceMock';
 import IssuesServiceMock from '../../../api/mocks/IssuesServiceMock';
+import { CCT_SOFTWARE_QUALITY_METRICS } from '../../../helpers/constants';
 import { isDiffMetric } from '../../../helpers/measures';
 import { mockComponent } from '../../../helpers/mocks/component';
 import { mockMeasure } from '../../../helpers/testMocks';
@@ -238,9 +239,9 @@ it('should correctly show measures for a project', async () => {
   const folderRow = ui.measureRow(/folderA/);
   [
     [MetricKey.ncloc, '2'],
-    [MetricKey.bugs, '2'],
-    [MetricKey.vulnerabilities, '2'],
-    [MetricKey.code_smells, '2'],
+    [MetricKey.security_issues, '4'],
+    [MetricKey.reliability_issues, '4'],
+    [MetricKey.maintainability_issues, '4'],
     [MetricKey.security_hotspots, '2'],
     [MetricKey.coverage, '2.0%'],
     [MetricKey.duplicated_lines_density, '2.0%'],
@@ -252,9 +253,73 @@ it('should correctly show measures for a project', async () => {
   const fileRow = ui.measureRow(/index\.tsx/);
   [
     [MetricKey.ncloc, '—'],
-    [MetricKey.bugs, '—'],
-    [MetricKey.vulnerabilities, '—'],
-    [MetricKey.code_smells, '—'],
+    [MetricKey.security_issues, '—'],
+    [MetricKey.reliability_issues, '—'],
+    [MetricKey.maintainability_issues, '—'],
+    [MetricKey.security_hotspots, '—'],
+    [MetricKey.coverage, '—'],
+    [MetricKey.duplicated_lines_density, '—'],
+  ].forEach(([domain, value]) => {
+    expect(ui.measureValueCell(fileRow, domain, value)).toBeInTheDocument();
+  });
+});
+
+it('should correctly show measures for a project when relying on old taxonomy', async () => {
+  const component = mockComponent(componentsHandler.findComponentTree('foo')?.component);
+  componentsHandler.registerComponentTree({
+    component,
+    ancestors: [],
+    children: [
+      {
+        component: mockComponent({
+          key: 'folderA',
+          name: 'folderA',
+          qualifier: ComponentQualifier.Directory,
+        }),
+        ancestors: [component],
+        children: [],
+      },
+      {
+        component: mockComponent({
+          key: 'index.tsx',
+          name: 'index.tsx',
+          qualifier: ComponentQualifier.File,
+        }),
+        ancestors: [component],
+        children: [],
+      },
+    ],
+  });
+  componentsHandler.registerComponentMeasures({
+    foo: { [MetricKey.ncloc]: mockMeasure({ metric: MetricKey.ncloc }) },
+    folderA: omit(generateMeasures('2.0'), CCT_SOFTWARE_QUALITY_METRICS),
+    'index.tsx': {},
+  });
+  const ui = getPageObject(userEvent.setup());
+  renderCode();
+  await ui.appLoaded(component.name);
+
+  // Folder A
+  const folderRow = ui.measureRow(/folderA/);
+  [
+    [MetricKey.ncloc, '2'],
+    [MetricKey.security_issues, '2'],
+    [MetricKey.reliability_issues, '2'],
+    [MetricKey.maintainability_issues, '2'],
+    [MetricKey.security_hotspots, '2'],
+    [MetricKey.coverage, '2.0%'],
+    [MetricKey.duplicated_lines_density, '2.0%'],
+  ].forEach(([domain, value]) => {
+    expect(ui.measureValueCell(folderRow, domain, value)).toBeInTheDocument();
+  });
+
+  // index.tsx
+  const fileRow = ui.measureRow(/index\.tsx/);
+  [
+    [MetricKey.ncloc, '—'],
+    [MetricKey.security_issues, '—'],
+    [MetricKey.reliability_issues, '—'],
+    [MetricKey.maintainability_issues, '—'],
     [MetricKey.security_hotspots, '—'],
     [MetricKey.coverage, '—'],
     [MetricKey.duplicated_lines_density, '—'],
@@ -444,6 +509,13 @@ function getPageObject(user: UserEvent) {
 function generateMeasures(overallValue = '1.0', newValue = '2.0') {
   return keyBy(
     [
+      ...[
+        MetricKey.security_issues,
+        MetricKey.reliability_issues,
+        MetricKey.maintainability_issues,
+      ].map((metric) =>
+        mockMeasure({ metric, value: JSON.stringify({ total: 4 }), period: undefined }),
+      ),
       ...[
         MetricKey.ncloc,
         MetricKey.new_lines,

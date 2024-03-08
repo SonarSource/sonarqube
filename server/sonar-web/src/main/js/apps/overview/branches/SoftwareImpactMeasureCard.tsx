@@ -17,15 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { LinkHighlight, LinkStandalone } from '@sonarsource/echoes-react';
 import styled from '@emotion/styled';
+import { LinkHighlight, LinkStandalone } from '@sonarsource/echoes-react';
 import classNames from 'classnames';
 import { BasicSeparator, LightGreyCard, TextBold, TextSubdued } from 'design-system';
 import * as React from 'react';
 import { useIntl } from 'react-intl';
 import Tooltip from '../../../components/controls/Tooltip';
 import { DEFAULT_ISSUES_QUERY } from '../../../components/shared/utils';
+import {
+  SOFTWARE_QUALITIES_METRIC_KEYS_MAP,
+  getIssueTypeBySoftwareQuality,
+} from '../../../helpers/issues';
 import { formatMeasure } from '../../../helpers/measures';
+import { isDefined } from '../../../helpers/types';
 import { getComponentIssuesUrl } from '../../../helpers/urls';
 import { Branch } from '../../../types/branch-like';
 import {
@@ -39,11 +44,6 @@ import { OverviewDisabledLinkTooltip } from '../components/OverviewDisabledLinkT
 import { softwareQualityToMeasure } from '../utils';
 import SoftwareImpactMeasureBreakdownCard from './SoftwareImpactMeasureBreakdownCard';
 import SoftwareImpactMeasureRating from './SoftwareImpactMeasureRating';
-import { isDefined } from '../../../helpers/types';
-import {
-  getIssueTypeBySoftwareQuality,
-  SOFTWARE_QUALITIES_METRIC_KEYS_MAP,
-} from '../../../helpers/issues';
 
 export interface SoftwareImpactBreakdownCardProps {
   component: Component;
@@ -69,7 +69,7 @@ export function SoftwareImpactMeasureCard(props: Readonly<SoftwareImpactBreakdow
   // Find rating measure
   const ratingMeasure = measures.find((m) => m.metric.key === ratingMetricKey);
 
-  const count = measure?.total ?? alternativeMeasure?.value;
+  const count = formatMeasure(measure?.total ?? alternativeMeasure?.value, MetricType.ShortInteger);
 
   const totalLinkHref = getComponentIssuesUrl(component.key, {
     ...DEFAULT_ISSUES_QUERY,
@@ -125,7 +125,7 @@ export function SoftwareImpactMeasureCard(props: Readonly<SoftwareImpactBreakdow
                   highlight={LinkHighlight.CurrentColor}
                   to={totalLinkHref}
                 >
-                  {formatMeasure(count, MetricType.ShortInteger)}
+                  {count}
                 </LinkStandalone>
               </Tooltip>
             ) : (
