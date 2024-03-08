@@ -26,7 +26,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Pattern;
 import javax.annotation.CheckForNull;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.mail.Email;
 import org.apache.commons.mail.EmailException;
 import org.apache.commons.mail.HtmlEmail;

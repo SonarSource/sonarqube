@@ -21,12 +21,12 @@ package org.sonar.scanner.scan;
 
 import com.google.common.annotations.VisibleForTesting;
 import java.util.Optional;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.notifications.AnalysisWarnings;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.batch.bootstrapper.EnvironmentInformation;
 import org.sonar.scanner.bootstrap.ScannerWsClientProvider;
 

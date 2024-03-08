@@ -19,22 +19,24 @@
  */
 package org.sonar.db.user;
 
+import java.security.SecureRandom;
 import java.util.Locale;
+import java.util.Random;
 import javax.annotation.Nullable;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
-import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
-import static org.apache.commons.lang.math.RandomUtils.nextBoolean;
-import static org.apache.commons.lang.math.RandomUtils.nextLong;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 
 public class UserTesting {
+
+  private static final Random RANDOM = new SecureRandom();
 
   public static UserDto newUserDto() {
     return new UserDto()
       .setUuid(randomAlphanumeric(40))
       .setActive(true)
-      .setLocal(nextBoolean())
+      .setLocal(RANDOM.nextBoolean())
       .setLogin(randomAlphanumeric(30))
       .setName(randomAlphanumeric(30))
       .setEmail(randomAlphanumeric(30))
@@ -44,8 +46,8 @@ public class UserTesting {
       .setExternalIdentityProvider(randomAlphanumeric(40))
       .setSalt(randomAlphanumeric(40))
       .setCryptedPassword(randomAlphanumeric(40))
-      .setCreatedAt(nextLong())
-      .setUpdatedAt(nextLong());
+      .setCreatedAt(RANDOM.nextLong(Long.MAX_VALUE))
+      .setUpdatedAt(RANDOM.nextLong(Long.MAX_VALUE));
   }
 
   public static UserDto newUserDto(String login, String name, @Nullable String email) {

@@ -19,16 +19,6 @@
  */
 package org.sonar.scanner.bootstrap;
 
-import org.apache.commons.lang.StringUtils;
-import org.sonar.api.CoreProperties;
-import org.sonar.api.impl.utils.DefaultTempFolder;
-import org.sonar.api.utils.System2;
-import org.sonar.api.utils.TempFolder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import static org.sonar.core.util.FileUtils.deleteQuietly;
-import org.springframework.context.annotation.Bean;
-
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
@@ -36,6 +26,16 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.concurrent.TimeUnit;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.sonar.api.CoreProperties;
+import org.sonar.api.impl.utils.DefaultTempFolder;
+import org.sonar.api.utils.System2;
+import org.sonar.api.utils.TempFolder;
+import org.springframework.context.annotation.Bean;
+
+import static org.sonar.core.util.FileUtils.deleteQuietly;
 
 public class GlobalTempFolderProvider {
   private static final Logger LOG = LoggerFactory.getLogger(GlobalTempFolderProvider.class);

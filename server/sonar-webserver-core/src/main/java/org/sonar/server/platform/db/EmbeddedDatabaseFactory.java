@@ -24,7 +24,7 @@ import org.sonar.api.Startable;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.System2;
 
-import static org.apache.commons.lang.StringUtils.startsWith;
+import static org.apache.commons.lang3.StringUtils.startsWith;
 import static org.sonar.process.ProcessProperties.Property.JDBC_URL;
 
 public class EmbeddedDatabaseFactory implements Startable {

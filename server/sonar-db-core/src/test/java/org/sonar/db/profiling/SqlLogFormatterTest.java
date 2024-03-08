@@ -21,7 +21,7 @@ package org.sonar.db.profiling;
 
 import org.junit.Test;
 
-import static org.apache.commons.lang.StringUtils.repeat;
+import static org.apache.commons.lang3.StringUtils.repeat;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class SqlLogFormatterTest {

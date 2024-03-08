@@ -45,7 +45,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
 import static java.util.Optional.ofNullable;
-import static org.apache.commons.lang.StringUtils.isNotBlank;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.sonar.server.projectanalysis.ws.EventValidator.checkModifiable;
 import static org.sonar.server.projectanalysis.ws.EventValidator.checkVersionName;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;

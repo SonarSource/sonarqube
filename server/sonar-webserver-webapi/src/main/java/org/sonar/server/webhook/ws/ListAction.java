@@ -37,7 +37,7 @@ import org.sonarqube.ws.Webhooks;
 import org.sonarqube.ws.Webhooks.ListResponse;
 import org.sonarqube.ws.Webhooks.ListResponseElement;
 
-import static org.apache.commons.lang.StringUtils.isNotBlank;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.server.webhook.HttpUrlHelper.obfuscateCredentials;
 import static org.sonar.server.webhook.ws.WebhooksWsParameters.LIST_ACTION;

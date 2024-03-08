@@ -19,10 +19,12 @@
  */
 package org.sonar.server.issue;
 
+import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Random;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.RuleType;
@@ -31,11 +33,12 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.server.issue.index.IssueDoc;
 import org.sonar.server.issue.index.IssueScope;
 
-import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
-import static org.apache.commons.lang.math.RandomUtils.nextInt;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
 import static org.sonar.api.issue.Issue.STATUS_OPEN;
 
 public class IssueDocTesting {
+
+  private static final Random RANDOM = new SecureRandom();
 
   public static IssueDoc newDoc(ComponentDto componentDto, String projectUuid) {
     return newDoc(Uuids.createFast(), projectUuid, componentDto);
@@ -91,11 +94,11 @@ public class IssueDocTesting {
     doc.setFilePath("filePath_" + randomAlphabetic(5));
     doc.setDirectoryPath("directory_" + randomAlphabetic(5));
     doc.setProjectUuid(Uuids.createFast());
-    doc.setLine(nextInt(1_000) + 1);
+    doc.setLine(RANDOM.nextInt(1_000) + 1);
     doc.setStatus(STATUS_OPEN);
     doc.setResolution(null);
-    doc.setSeverity(Severity.ALL.get(nextInt(Severity.ALL.size())));
-    doc.setEffort((long) nextInt(10));
+    doc.setSeverity(Severity.ALL.get(RANDOM.nextInt(Severity.ALL.size())));
+    doc.setEffort((long) RANDOM.nextInt(10));
     doc.setFuncCreationDate(new Date(System.currentTimeMillis() - 2_000));
     doc.setFuncUpdateDate(new Date(System.currentTimeMillis() - 1_000));
     doc.setFuncCloseDate(null);

@@ -22,7 +22,7 @@ package org.sonar.server.platform.db.migration.sql;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.apache.commons.lang.text.StrSubstitutor;
+import org.apache.commons.lang3.text.StrSubstitutor;
 import org.junit.Test;
 import org.sonar.db.dialect.Dialect;
 import org.sonar.db.dialect.H2;
@@ -39,7 +39,7 @@ import org.sonar.server.platform.db.migration.def.IntegerColumnDef;
 import org.sonar.server.platform.db.migration.def.TinyIntColumnDef;
 import org.sonar.server.platform.db.migration.def.VarcharColumnDef;
 
-import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 

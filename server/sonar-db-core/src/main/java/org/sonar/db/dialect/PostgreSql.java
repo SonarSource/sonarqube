@@ -22,9 +22,9 @@ package org.sonar.db.dialect;
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 import java.util.List;
-import org.apache.commons.lang.StringUtils;
-import org.sonar.api.utils.Version;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.utils.Version;
 
 import static com.google.common.base.Preconditions.checkState;
 

@@ -22,7 +22,7 @@ package org.sonar.server.user;
 import java.util.Objects;
 import java.util.Optional;
 import javax.annotation.Nullable;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.sonar.api.Startable;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.server.ServerSide;

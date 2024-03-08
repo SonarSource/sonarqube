@@ -24,16 +24,16 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import javax.annotation.concurrent.Immutable;
-import org.apache.commons.lang.ArrayUtils;
-import org.sonar.api.config.Configuration;
-import org.sonar.api.config.internal.Encryption;
-import org.sonar.api.config.PropertyDefinition;
-import org.sonar.api.config.PropertyDefinitions;
+import org.apache.commons.lang3.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.config.Configuration;
+import org.sonar.api.config.PropertyDefinition;
+import org.sonar.api.config.PropertyDefinitions;
+import org.sonar.api.config.internal.Encryption;
 
 import static java.util.Objects.requireNonNull;
-import static org.apache.commons.lang.StringUtils.trim;
+import static org.apache.commons.lang3.StringUtils.trim;
 import static org.sonar.api.config.internal.MultivalueProperty.parseAsCsv;
 
 @Immutable

@@ -32,7 +32,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDao;
 
 import static java.util.Collections.emptyList;
-import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;

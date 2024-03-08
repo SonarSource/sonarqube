@@ -19,7 +19,7 @@
  */
 package org.sonar.server.issue.notification;
 
-import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 public class EmailMessage {
 

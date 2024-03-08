@@ -20,8 +20,8 @@
 package org.sonar.server.platform;
 
 import java.util.Optional;
-import org.apache.commons.lang.builder.ReflectionToStringBuilder;
-import org.apache.commons.lang.builder.ToStringStyle;
+import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 import org.sonar.api.Startable;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.platform.ServerUpgradeStatus;

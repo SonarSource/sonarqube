@@ -35,7 +35,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 
 import static java.lang.String.format;
-import static org.apache.commons.lang.StringUtils.defaultString;
+import static org.apache.commons.lang3.StringUtils.defaultString;
 import static org.sonar.db.DatabaseUtils.getString;
 import static org.sonar.db.component.SnapshotDto.STATUS_PROCESSED;
 

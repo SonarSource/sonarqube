@@ -31,7 +31,7 @@ import org.sonar.db.webhook.WebhookDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.user.UserSession;
 
-import static org.apache.commons.lang.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.sonar.server.exceptions.NotFoundException.checkFoundWithOptional;
 import static org.sonar.server.webhook.ws.WebhooksWsParameters.KEY_PARAM;
 import static org.sonar.server.webhook.ws.WebhooksWsParameters.KEY_PARAM_MAXIMUM_LENGTH;

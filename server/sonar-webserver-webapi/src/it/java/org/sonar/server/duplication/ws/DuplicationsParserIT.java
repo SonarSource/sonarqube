@@ -22,7 +22,7 @@ package org.sonar.server.duplication.ws;
 import com.google.common.collect.Iterables;
 import java.util.List;
 import javax.annotation.Nullable;
-import org.apache.commons.lang.RandomStringUtils;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.db.DbTester;
@@ -31,7 +31,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.server.component.ComponentFinder;
 
 import static java.lang.String.format;
-import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 

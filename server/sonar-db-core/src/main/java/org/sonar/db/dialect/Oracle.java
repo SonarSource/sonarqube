@@ -22,7 +22,7 @@ package org.sonar.db.dialect;
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 import java.util.List;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.Version;
 

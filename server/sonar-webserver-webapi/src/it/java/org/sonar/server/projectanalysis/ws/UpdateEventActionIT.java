@@ -40,7 +40,7 @@ import org.sonarqube.ws.ProjectAnalyses;
 import org.sonarqube.ws.ProjectAnalyses.UpdateEventResponse;
 
 import static java.util.Optional.ofNullable;
-import static org.apache.commons.lang.StringUtils.repeat;
+import static org.apache.commons.lang3.StringUtils.repeat;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.db.component.SnapshotTesting.newAnalysis;

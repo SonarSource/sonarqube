@@ -30,7 +30,7 @@ import org.sonar.db.alm.setting.AlmSettingDto;
 import org.sonar.db.audit.NoOpAuditPersister;
 import org.sonar.db.user.UserDto;
 
-import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;

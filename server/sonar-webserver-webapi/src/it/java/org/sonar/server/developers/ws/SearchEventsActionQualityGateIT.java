@@ -40,7 +40,7 @@ import org.sonarqube.ws.Developers.SearchEventsWsResponse.Event;
 
 import static java.lang.String.format;
 import static java.lang.String.join;
-import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.mock;

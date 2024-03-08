@@ -47,7 +47,7 @@ import org.sonar.server.webhook.WebHooks;
 import org.sonar.server.webhook.WebhookPayload;
 import org.sonar.server.webhook.WebhookPayloadFactory;
 
-import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;

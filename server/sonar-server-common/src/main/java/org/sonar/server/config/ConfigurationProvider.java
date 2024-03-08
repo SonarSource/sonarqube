@@ -19,16 +19,16 @@
  */
 package org.sonar.server.config;
 
-import static java.util.function.UnaryOperator.identity;
-import org.apache.commons.lang.ArrayUtils;
+import java.util.Optional;
+import java.util.function.UnaryOperator;
+import org.apache.commons.lang3.ArrayUtils;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.config.PropertyDefinition;
-import static org.sonar.api.config.internal.MultivalueProperty.parseAsCsv;
 import org.sonar.api.config.internal.Settings;
 import org.springframework.context.annotation.Bean;
 
-import java.util.Optional;
-import java.util.function.UnaryOperator;
+import static java.util.function.UnaryOperator.identity;
+import static org.sonar.api.config.internal.MultivalueProperty.parseAsCsv;
 
 public class ConfigurationProvider {
 

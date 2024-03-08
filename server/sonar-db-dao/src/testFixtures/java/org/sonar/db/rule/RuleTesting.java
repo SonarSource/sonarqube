@@ -19,7 +19,9 @@
  */
 package org.sonar.db.rule;
 
+import java.security.SecureRandom;
 import java.util.Collection;
+import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
@@ -40,9 +42,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.ImmutableSet.copyOf;
 import static com.google.common.collect.Sets.newHashSet;
 import static java.util.Arrays.stream;
-import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
-import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
-import static org.apache.commons.lang.math.RandomUtils.nextInt;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 import static org.sonar.api.rule.RuleKey.EXTERNAL_RULE_REPO_PREFIX;
 import static org.sonar.api.rules.RuleType.CODE_SMELL;
 import static org.sonar.db.rule.RuleDescriptionSectionDto.createDefaultRuleDescriptionSection;
@@ -58,6 +59,8 @@ public class RuleTesting {
   public static final RuleKey XOO_X3 = RuleKey.of("xoo", "x3");
 
   private static final AtomicLong nextRuleId = new AtomicLong(0);
+
+  private static final Random RANDOM = new SecureRandom();
 
   private static final UuidFactory uuidFactory = UuidFactoryFast.getInstance();
 
@@ -102,19 +105,19 @@ public class RuleTesting {
         .setSeverity(org.sonar.api.issue.impact.Severity.HIGH))
       .setStatus(RuleStatus.READY)
       .setConfigKey("configKey_" + ruleKey.rule())
-      .setSeverity(Severity.ALL.get(nextInt(Severity.ALL.size())))
+      .setSeverity(Severity.ALL.get(RANDOM.nextInt(Severity.ALL.size())))
       .setIsTemplate(false)
       .setIsExternal(false)
       .setIsAdHoc(false)
       .setSystemTags(newHashSet("tag_" + randomAlphanumeric(5), "tag_" + randomAlphanumeric(5)))
       .setLanguage("lang_" + randomAlphanumeric(3))
       .setGapDescription("gapDescription_" + randomAlphanumeric(5))
-      .setDefRemediationBaseEffort(nextInt(10) + "h")
+      .setDefRemediationBaseEffort(RANDOM.nextInt(10) + "h")
       // voluntarily offset the remediation to be able to detect issues
-      .setDefRemediationGapMultiplier((nextInt(10) + 10) + "h")
+      .setDefRemediationGapMultiplier((RANDOM.nextInt(10) + 10) + "h")
       .setDefRemediationFunction("LINEAR_OFFSET")
-      .setRemediationBaseEffort(nextInt(10) + "h")
-      .setRemediationGapMultiplier(nextInt(10) + "h")
+      .setRemediationBaseEffort(RANDOM.nextInt(10) + "h")
+      .setRemediationGapMultiplier(RANDOM.nextInt(10) + "h")
       .setRemediationFunction("LINEAR_OFFSET")
       .setTags(newHashSet("tag_" + randomAlphanumeric(5), "tag_" + randomAlphanumeric(5)))
       .setNoteData("noteData_" + randomAlphanumeric(5))
@@ -123,8 +126,8 @@ public class RuleTesting {
       .setNoteUpdatedAt(System.currentTimeMillis() - 150)
       .setAdHocName("adHocName_" + randomAlphanumeric(5))
       .setAdHocDescription("adHocDescription_" + randomAlphanumeric(5))
-      .setAdHocSeverity(Severity.ALL.get(nextInt(Severity.ALL.size())))
-      .setAdHocType(RuleType.values()[nextInt(RuleType.values().length - 1)])
+      .setAdHocSeverity(Severity.ALL.get(RANDOM.nextInt(Severity.ALL.size())))
+      .setAdHocType(RuleType.values()[RANDOM.nextInt(RuleType.values().length - 1)])
       .setCreatedAt(currentTimeMillis)
       .setUpdatedAt(currentTimeMillis + 5)
       .setScope(Scope.MAIN)

@@ -19,7 +19,8 @@
  */
 package org.sonar.db.measure;
 
-import org.apache.commons.lang.math.RandomUtils;
+import java.security.SecureRandom;
+import java.util.Random;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
@@ -29,7 +30,9 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 public class MeasureTesting {
 
-  private static int cursor = RandomUtils.nextInt(100);
+  private static final Random RANDOM = new SecureRandom();
+
+  private static int cursor = RANDOM.nextInt(100);
 
   private MeasureTesting() {
     // static methods only

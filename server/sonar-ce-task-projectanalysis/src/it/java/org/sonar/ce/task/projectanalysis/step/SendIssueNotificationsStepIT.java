@@ -75,8 +75,7 @@ import static java.util.Collections.shuffle;
 import static java.util.Collections.singleton;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Stream.concat;
-import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
-import static org.apache.commons.lang.math.RandomUtils.nextInt;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
 import static org.mockito.ArgumentCaptor.forClass;
@@ -519,7 +518,7 @@ public class SendIssueNotificationsStepIT extends BaseStepTest {
         builder(Type.FILE, 11).setKey(file.getKey()).setName(file.longName()).build())
       .build());
     RuleDto ruleDefinitionDto = newRule();
-    RuleType randomTypeExceptHotspot = RuleType.values()[nextInt(RuleType.values().length - 1)];
+    RuleType randomTypeExceptHotspot = RuleType.values()[random.nextInt(RuleType.values().length - 1)];
     DefaultIssue issue = prepareIssue(issueCreatedAt, user, project, file, ruleDefinitionDto, randomTypeExceptHotspot);
     IssuesChangesNotification issuesChangesNotification = mock(IssuesChangesNotification.class);
     when(notificationService.hasProjectSubscribersForTypes(project.uuid(), NOTIF_TYPES)).thenReturn(true);
@@ -564,7 +563,7 @@ public class SendIssueNotificationsStepIT extends BaseStepTest {
       builder(Type.FILE, 11).setKey(file.getKey()).setName(file.longName()).build()).build());
     analysisMetadataHolder.setProject(Project.from(project));
     RuleDto ruleDefinitionDto = newRule();
-    RuleType randomTypeExceptHotspot = RuleType.values()[nextInt(RuleType.values().length - 1)];
+    RuleType randomTypeExceptHotspot = RuleType.values()[random.nextInt(RuleType.values().length - 1)];
     DefaultIssue issue = newIssue(ruleDefinitionDto, branch, file).setType(randomTypeExceptHotspot).toDefaultIssue()
       .setNew(false)
       .setChanged(true)
@@ -594,7 +593,7 @@ public class SendIssueNotificationsStepIT extends BaseStepTest {
     ComponentDto project = newPrivateProjectDto().setKey(PROJECT.getKey()).setLongName(PROJECT.getName());
     ComponentDto file = newFileDto(project).setKey(FILE.getKey()).setLongName(FILE.getName());
     RuleDto ruleDefinitionDto = newRule();
-    RuleType randomTypeExceptHotspot = RuleType.values()[nextInt(RuleType.values().length - 1)];
+    RuleType randomTypeExceptHotspot = RuleType.values()[random.nextInt(RuleType.values().length - 1)];
     List<DefaultIssue> issues = IntStream.range(0, 2001 + new Random().nextInt(10))
       .mapToObj(i -> newIssue(ruleDefinitionDto, project, file).setKee("uuid_" + i).setType(randomTypeExceptHotspot).toDefaultIssue()
         .setNew(false).setChanged(true).setSendNotifications(true).setAssigneeUuid(user.getUuid()))

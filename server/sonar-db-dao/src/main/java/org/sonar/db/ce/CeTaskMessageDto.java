@@ -23,7 +23,7 @@ import com.google.common.annotations.VisibleForTesting;
 import org.sonar.db.dismissmessage.MessageType;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static org.apache.commons.lang.StringUtils.abbreviate;
+import static org.apache.commons.lang3.StringUtils.abbreviate;
 
 public class CeTaskMessageDto {
   @VisibleForTesting

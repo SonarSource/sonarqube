@@ -51,7 +51,7 @@ import static com.google.common.base.Preconditions.checkState;
 import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
 import static java.util.Optional.ofNullable;
-import static org.apache.commons.lang.StringUtils.isNotEmpty;
+import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 import static org.sonar.db.component.BranchType.PULL_REQUEST;
 
 public class IssueUpdater {

@@ -52,7 +52,7 @@ import org.subethamail.wiser.WiserMessage;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
 import static junit.framework.Assert.fail;
-import static org.apache.commons.lang.RandomStringUtils.random;
+import static org.apache.commons.lang3.RandomStringUtils.random;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;

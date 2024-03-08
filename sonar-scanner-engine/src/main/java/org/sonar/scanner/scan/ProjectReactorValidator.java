@@ -34,7 +34,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import static java.lang.String.format;
 import static java.util.Objects.nonNull;
-import static org.apache.commons.lang.StringUtils.isNotEmpty;
+import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 import static org.sonar.core.component.ComponentKeys.ALLOWED_CHARACTERS_MESSAGE;
 import static org.sonar.core.config.ScannerProperties.BRANCHES_DOC_LINK_SUFFIX;
 import static org.sonar.core.config.ScannerProperties.BRANCH_NAME;

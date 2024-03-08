@@ -24,7 +24,7 @@ import org.sonar.scanner.ci.CiConfiguration;
 import org.sonar.scanner.ci.CiConfigurationImpl;
 import org.sonar.scanner.ci.CiVendor;
 
-import static org.apache.commons.lang.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 /**
  * Support of https://azure.microsoft.com/en-us/services/devops/

@@ -32,7 +32,7 @@ import javax.annotation.CheckForNull;
 import javax.management.InstanceNotFoundException;
 import javax.management.ObjectInstance;
 import javax.management.ObjectName;
-import org.apache.commons.lang.RandomStringUtils;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.sonar.ce.configuration.CeConfiguration;

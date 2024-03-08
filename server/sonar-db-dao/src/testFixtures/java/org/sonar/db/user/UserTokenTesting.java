@@ -19,10 +19,13 @@
  */
 package org.sonar.db.user;
 
-import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
-import static org.apache.commons.lang.math.RandomUtils.nextLong;
+import org.sonar.api.utils.System2;
+
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 
 public class UserTokenTesting {
+
+  private static final long NOW = System2.INSTANCE.now();
 
   private UserTokenTesting() {
     throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
@@ -33,7 +36,7 @@ public class UserTokenTesting {
       .setUserUuid("userUuid_" + randomAlphanumeric(40))
       .setName("name_" + randomAlphanumeric(20))
       .setTokenHash("hash_" + randomAlphanumeric(30))
-      .setCreatedAt(nextLong())
+      .setCreatedAt(NOW)
       .setType("USER_TOKEN");
   }
 
@@ -45,7 +48,7 @@ public class UserTokenTesting {
       .setProjectUuid("projectUuid_" + randomAlphanumeric(20))
       .setProjectKey("projectKey_" + randomAlphanumeric(40))
       .setProjectName("Project " + randomAlphanumeric(40))
-      .setCreatedAt(nextLong())
+      .setCreatedAt(NOW)
       .setType("PROJECT_ANALYSIS_TOKEN");
   }
 

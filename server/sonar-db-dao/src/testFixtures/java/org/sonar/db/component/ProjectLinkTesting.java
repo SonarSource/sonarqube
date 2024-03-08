@@ -19,18 +19,21 @@
  */
 package org.sonar.db.component;
 
-import org.apache.commons.lang.math.RandomUtils;
+import java.security.SecureRandom;
+import java.util.Random;
 import org.sonar.core.util.Uuids;
 
-import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
-import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 
 public class ProjectLinkTesting {
+
+  private static final Random RANDOM = new SecureRandom();
 
   public static ProjectLinkDto newProvidedLinkDto() {
     return newCommonLinkDto()
       .setName(null)
-      .setType(ProjectLinkDto.PROVIDED_TYPES.get(RandomUtils.nextInt(ProjectLinkDto.PROVIDED_TYPES.size() - 1)));
+      .setType(ProjectLinkDto.PROVIDED_TYPES.get(RANDOM.nextInt(ProjectLinkDto.PROVIDED_TYPES.size() - 1)));
   }
 
   public static ProjectLinkDto newCustomLinkDto() {

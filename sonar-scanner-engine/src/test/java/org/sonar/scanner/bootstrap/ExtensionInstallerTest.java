@@ -20,8 +20,7 @@
 package org.sonar.scanner.bootstrap;
 
 import java.util.Arrays;
-
-import org.apache.commons.lang.ClassUtils;
+import org.apache.commons.lang3.ClassUtils;
 import org.junit.Test;
 import org.sonar.api.Plugin;
 import org.sonar.api.SonarRuntime;

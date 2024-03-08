@@ -28,7 +28,7 @@ import org.sonar.db.rule.RuleDescriptionSectionDto;
 
 import static java.util.Collections.emptySet;
 import static java.util.Collections.singleton;
-import static org.apache.commons.lang.StringUtils.isNotEmpty;
+import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 import static org.sonar.api.rules.RuleType.BUG;
 import static org.sonar.api.rules.RuleType.CODE_SMELL;
 import static org.sonar.api.rules.RuleType.VULNERABILITY;

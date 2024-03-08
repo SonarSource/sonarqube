@@ -24,7 +24,7 @@ import org.sonar.scanner.ci.CiConfiguration;
 import org.sonar.scanner.ci.CiConfigurationImpl;
 import org.sonar.scanner.ci.CiVendor;
 
-import static org.apache.commons.lang.StringUtils.isNotEmpty;
+import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
 /**
  * Support https://semaphoreci.com

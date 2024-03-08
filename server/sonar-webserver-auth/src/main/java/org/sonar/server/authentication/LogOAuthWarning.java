@@ -19,11 +19,11 @@
  */
 package org.sonar.server.authentication;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.Startable;
 import org.sonar.api.platform.Server;
 import org.sonar.api.server.authentication.OAuth2IdentityProvider;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 public class LogOAuthWarning implements Startable {

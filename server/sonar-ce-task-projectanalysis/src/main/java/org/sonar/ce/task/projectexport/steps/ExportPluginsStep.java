@@ -21,7 +21,7 @@ package org.sonar.ce.task.projectexport.steps;
 
 import com.sonarsource.governance.projectdump.protobuf.ProjectDump;
 import java.util.Collection;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.LoggerFactory;
 import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.core.platform.PluginInfo;

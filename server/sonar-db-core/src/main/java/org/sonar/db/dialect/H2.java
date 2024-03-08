@@ -20,7 +20,7 @@
 package org.sonar.db.dialect;
 
 import java.sql.DatabaseMetaData;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.LoggerFactory;
 
 public class H2 extends AbstractDialect {

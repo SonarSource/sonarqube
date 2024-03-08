@@ -8,7 +8,7 @@ dependencies {
   // please keep the list grouped by configuration and ordered by name
 
   api 'com.google.guava:guava'
-  api 'commons-lang:commons-lang'
+  api 'org.apache.commons:commons-lang3'
   api 'commons-codec:commons-codec'
   api 'com.fasterxml.staxmate:staxmate'
 

@@ -22,7 +22,7 @@ package org.sonar.ce.task.projectanalysis.issue;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.Optional;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
@@ -36,7 +36,7 @@ import org.sonar.db.issue.IssueDto;
 import org.sonar.db.user.UserIdDto;
 import org.sonar.server.issue.IssueFieldsSetter;
 
-import static org.apache.commons.lang.StringUtils.defaultIfEmpty;
+import static org.apache.commons.lang3.StringUtils.defaultIfEmpty;
 import static org.sonar.core.issue.IssueChangeContext.issueChangeContextByScanBuilder;
 
 /**

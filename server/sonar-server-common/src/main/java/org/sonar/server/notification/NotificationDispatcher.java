@@ -19,7 +19,7 @@
  */
 package org.sonar.server.notification;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.sonar.api.ExtensionPoint;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.notifications.Notification;

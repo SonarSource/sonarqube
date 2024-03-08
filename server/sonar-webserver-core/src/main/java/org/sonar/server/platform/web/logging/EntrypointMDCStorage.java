@@ -22,7 +22,7 @@ package org.sonar.server.platform.web.logging;
 import javax.annotation.Nullable;
 import org.slf4j.MDC;
 
-import static org.apache.commons.lang.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 public class EntrypointMDCStorage implements AutoCloseable {
   public static final String ENTRYPOINT_MDC_KEY = "ENTRYPOINT";

@@ -20,7 +20,7 @@
 package org.sonar.core.util;
 
 import com.google.common.annotations.VisibleForTesting;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.concurrent.atomic.AtomicInteger;
 

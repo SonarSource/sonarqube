@@ -19,7 +19,7 @@
  */
 package org.sonar.server.qualityprofile.ws;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.issue.impact.SoftwareQuality;

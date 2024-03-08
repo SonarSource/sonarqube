@@ -19,15 +19,18 @@
  */
 package org.sonar.db.qualityprofile;
 
+import java.security.SecureRandom;
+import java.util.Random;
 import java.util.function.Consumer;
 import org.sonar.core.util.Uuids;
 
 import static java.util.Arrays.stream;
-import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
-import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
-import static org.apache.commons.lang.math.RandomUtils.nextLong;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 
 public class QualityProfileTesting {
+
+  private static final Random RANDOM = new SecureRandom();
 
   private QualityProfileTesting() {
     // prevent instantiation
@@ -43,7 +46,7 @@ public class QualityProfileTesting {
       .setRulesProfileUuid(Uuids.createFast())
       .setName(uuid)
       .setLanguage(randomAlphanumeric(20))
-      .setLastUsed(nextLong());
+      .setLastUsed(RANDOM.nextLong(Long.MAX_VALUE));
   }
 
   /**
@@ -54,7 +57,7 @@ public class QualityProfileTesting {
     return new QProfileChangeDto()
       .setUuid(randomAlphanumeric(40))
       .setRulesProfileUuid(randomAlphanumeric(40))
-      .setCreatedAt(nextLong())
+      .setCreatedAt(RANDOM.nextLong(Long.MAX_VALUE))
       .setChangeType("ACTIVATED")
       .setUserUuid("userUuid_" + randomAlphanumeric(10));
   }

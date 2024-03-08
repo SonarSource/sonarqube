@@ -19,8 +19,10 @@
  */
 package org.sonar.db.qualityprofile;
 
+import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.Optional;
+import java.util.Random;
 import java.util.function.Consumer;
 import org.sonar.api.rule.Severity;
 import org.sonar.core.util.Uuids;
@@ -33,11 +35,10 @@ import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static org.apache.commons.lang.math.RandomUtils.nextInt;
-import static org.apache.commons.lang.math.RandomUtils.nextLong;
 import static org.sonar.db.qualityprofile.ActiveRuleDto.createFor;
 
 public class QualityProfileDbTester {
+  private final Random random = new SecureRandom();
   private final DbClient dbClient;
   private final DbSession dbSession;
 
@@ -94,9 +95,9 @@ public class QualityProfileDbTester {
 
   public ActiveRuleDto activateRule(QProfileDto profile, RuleDto rule, Consumer<ActiveRuleDto> consumer) {
     ActiveRuleDto activeRule = createFor(profile, rule)
-      .setSeverity(Severity.ALL.get(nextInt(Severity.ALL.size())))
-      .setCreatedAt(nextLong())
-      .setUpdatedAt(nextLong());
+      .setSeverity(Severity.ALL.get(random.nextInt(Severity.ALL.size())))
+      .setCreatedAt(random.nextLong(Long.MAX_VALUE))
+      .setUpdatedAt(random.nextLong(Long.MAX_VALUE));
     consumer.accept(activeRule);
     dbClient.activeRuleDao().insert(dbSession, activeRule);
     dbSession.commit();

@@ -39,23 +39,23 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.alm.client.ApplicationHttpClient;
 import org.sonar.alm.client.ApplicationHttpClient.GetResponse;
+import org.sonar.alm.client.github.security.AppToken;
+import org.sonar.alm.client.github.security.GithubAppSecurity;
+import org.sonar.alm.client.gitlab.GsonApp;
+import org.sonar.api.internal.apachecommons.lang.StringUtils;
 import org.sonar.auth.github.AppInstallationToken;
+import org.sonar.auth.github.GitHubSettings;
+import org.sonar.auth.github.GithubAppConfiguration;
+import org.sonar.auth.github.GithubAppInstallation;
 import org.sonar.auth.github.GithubBinding;
 import org.sonar.auth.github.GithubBinding.GsonGithubRepository;
 import org.sonar.auth.github.GithubBinding.GsonInstallations;
 import org.sonar.auth.github.GithubBinding.GsonRepositorySearch;
 import org.sonar.auth.github.GsonRepositoryCollaborator;
 import org.sonar.auth.github.GsonRepositoryTeam;
-import org.sonar.auth.github.GithubAppConfiguration;
-import org.sonar.auth.github.GithubAppInstallation;
-import org.sonar.auth.github.security.AccessToken;
-import org.sonar.alm.client.github.security.AppToken;
-import org.sonar.alm.client.github.security.GithubAppSecurity;
-import org.sonar.auth.github.security.UserAccessToken;
-import org.sonar.alm.client.gitlab.GsonApp;
-import org.sonar.api.internal.apachecommons.lang.StringUtils;
-import org.sonar.auth.github.GitHubSettings;
 import org.sonar.auth.github.client.GithubApplicationClient;
+import org.sonar.auth.github.security.AccessToken;
+import org.sonar.auth.github.security.UserAccessToken;
 import org.sonar.server.exceptions.ServerException;
 import org.sonarqube.ws.client.HttpException;
 
@@ -234,7 +234,7 @@ public class GithubApplicationClientImpl implements GithubApplicationClient {
       Long.toString(gsonInstallation.getId()),
       gsonInstallation.getAccount().getLogin(),
       gsonInstallation.getPermissions(),
-      org.apache.commons.lang.StringUtils.isNotEmpty(gsonInstallation.getSuspendedAt()));
+      org.apache.commons.lang3.StringUtils.isNotEmpty(gsonInstallation.getSuspendedAt()));
   }
 
   private static boolean isOrganizationWhiteListed(Set<String> allowedOrganizations, String organizationName) {

@@ -19,10 +19,12 @@
  */
 package org.sonar.server.almintegration.ws.bitbucketserver;
 
+import java.security.SecureRandom;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Rule;
@@ -67,8 +69,7 @@ import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.Projects;
 
 import static java.util.Objects.requireNonNull;
-import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
-import static org.apache.commons.lang.math.JVMRandom.nextLong;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -104,6 +105,8 @@ public class ImportBitbucketServerProjectActionIT {
   private final ComponentUpdater componentUpdater = new ComponentUpdater(db.getDbClient(), i18n, System2.INSTANCE,
     mock(PermissionTemplateService.class), new FavoriteUpdater(db.getDbClient()), new TestIndexers(), new SequenceUuidFactory(),
     defaultBranchNameResolver, mock(PermissionUpdater.class), mock(PermissionService.class));
+
+  private final Random random = new SecureRandom();
 
   private final ImportHelper importHelper = new ImportHelper(db.getDbClient(), userSession);
   private final ProjectKeyGenerator projectKeyGenerator = mock(ProjectKeyGenerator.class);
@@ -517,7 +520,7 @@ public class ImportBitbucketServerProjectActionIT {
     bbsResult.setProject(project);
     bbsResult.setSlug(randomAlphanumeric(5));
     bbsResult.setName(randomAlphanumeric(5));
-    bbsResult.setId(nextLong(100));
+    bbsResult.setId(random.nextLong(100));
     when(bitbucketServerRestClient.getRepo(any(), any(), any(), any())).thenReturn(bbsResult);
     when(bitbucketServerRestClient.getBranches(any(), any(), any(), any())).thenReturn(branchesList);
     return bbsResult;
@@ -526,7 +529,7 @@ public class ImportBitbucketServerProjectActionIT {
   private Project getGsonBBSProject() {
     return new Project()
       .setKey(randomAlphanumeric(5))
-      .setId(nextLong(100))
+      .setId(random.nextLong(100))
       .setName(randomAlphanumeric(5));
   }
 

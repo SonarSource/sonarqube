@@ -30,7 +30,7 @@ import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
 
 import static java.util.Arrays.asList;
-import static org.apache.commons.lang.StringUtils.trim;
+import static org.apache.commons.lang3.StringUtils.trim;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class TrackerTest {

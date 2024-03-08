@@ -28,7 +28,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.alm.setting.AlmSettingDto;
 import org.sonar.server.user.UserSession;
 
-import static org.apache.commons.lang.StringUtils.isNotBlank;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.sonar.server.projectlink.ws.ProjectLinksWsParameters.PARAM_URL;
 
 public class UpdateAzureAction implements AlmSettingsWsAction {

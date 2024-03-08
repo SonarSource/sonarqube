@@ -20,7 +20,7 @@
 package org.sonar.scanner.scan.filesystem;
 
 import javax.annotation.concurrent.Immutable;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.scanner.repository.FileData;

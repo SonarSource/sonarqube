@@ -39,7 +39,7 @@ import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Stream;
-import org.apache.commons.lang.reflect.ConstructorUtils;
+import org.apache.commons.lang3.reflect.ConstructorUtils;
 import org.apache.http.HttpHost;
 import org.elasticsearch.ElasticsearchStatusException;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthRequest;

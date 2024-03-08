@@ -20,13 +20,12 @@
 package org.sonar.server.language;
 
 import com.google.common.collect.Collections2;
-import org.apache.commons.lang.StringUtils;
+import java.util.Arrays;
+import org.apache.commons.lang3.StringUtils;
 import org.sonar.api.resources.AbstractLanguage;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.core.util.NonNullInputFunction;
-
-import java.util.Arrays;
 
 public class LanguageTesting {
 

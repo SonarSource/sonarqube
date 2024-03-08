@@ -22,7 +22,7 @@ dependencies {
   api 'net.sf.trove4j:core:3.1.0'
   api 'commons-codec:commons-codec'
   api 'commons-io:commons-io'
-  api 'commons-lang:commons-lang'
+  api 'org.apache.commons:commons-lang3'
   api 'com.google.code.gson:gson'
   api 'com.google.guava:guava'
   api 'com.google.code.findbugs:jsr305'

@@ -54,7 +54,7 @@ import org.sonarqube.ws.Settings.ValuesWsResponse;
 
 import static java.lang.String.format;
 import static java.util.stream.Stream.concat;
-import static org.apache.commons.lang.StringUtils.isEmpty;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static org.sonar.api.CoreProperties.SERVER_ID;
 import static org.sonar.api.CoreProperties.SERVER_STARTTIME;
 import static org.sonar.api.PropertyType.FORMATTED_TEXT;

@@ -7,7 +7,7 @@ configurations {
 dependencies {
     // please keep the list ordered
 
-    api 'commons-lang:commons-lang'
+    api 'org.apache.commons:commons-lang3'
 
     compileOnlyApi 'com.google.code.findbugs:jsr305'
     compileOnlyApi 'javax.servlet:javax.servlet-api'

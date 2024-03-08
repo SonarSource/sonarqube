@@ -31,7 +31,7 @@ import org.sonar.server.qualityprofile.QProfileTree;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters;
 
-import static org.apache.commons.lang.StringUtils.isEmpty;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_LANGUAGE;
 
 public class ChangeParentAction implements QProfileWsAction {

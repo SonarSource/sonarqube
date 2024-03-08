@@ -60,7 +60,7 @@ import org.sonar.server.usergroups.DefaultGroupFinder;
 
 import static java.lang.String.format;
 import static java.util.function.Function.identity;
-import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;

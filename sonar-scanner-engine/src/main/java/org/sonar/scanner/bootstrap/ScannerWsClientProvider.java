@@ -29,7 +29,7 @@ import org.springframework.context.annotation.Bean;
 
 import static java.lang.Integer.parseInt;
 import static java.lang.String.valueOf;
-import static org.apache.commons.lang.StringUtils.defaultIfBlank;
+import static org.apache.commons.lang3.StringUtils.defaultIfBlank;
 import static org.sonar.core.config.ProxyProperties.HTTP_PROXY_PASSWORD;
 import static org.sonar.core.config.ProxyProperties.HTTP_PROXY_USER;
 

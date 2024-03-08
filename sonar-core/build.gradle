@@ -14,7 +14,7 @@ dependencies {
   api 'com.squareup.okhttp3:okhttp'
   api 'commons-codec:commons-codec'
   api 'commons-io:commons-io'
-  api 'commons-lang:commons-lang'
+  api 'org.apache.commons:commons-lang3'
   api 'javax.annotation:javax.annotation-api'
   api 'javax.inject:javax.inject'
   api 'org.slf4j:slf4j-api'

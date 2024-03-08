@@ -57,7 +57,7 @@ import org.sonarqube.ws.Common.Comment;
 
 import static java.util.Collections.emptySet;
 import static java.util.Collections.singleton;
-import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.api.utils.DateUtils.formatDateTime;

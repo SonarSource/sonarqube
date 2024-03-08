@@ -45,7 +45,7 @@ import org.sonar.db.user.UserTelemetryDto;
 import org.sonar.server.qualitygate.Condition;
 
 import static java.util.stream.Collectors.joining;
-import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;

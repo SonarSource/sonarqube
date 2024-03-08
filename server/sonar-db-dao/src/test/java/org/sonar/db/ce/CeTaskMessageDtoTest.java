@@ -21,7 +21,7 @@ package org.sonar.db.ce;
 
 import org.junit.jupiter.api.Test;
 
-import static org.apache.commons.lang.StringUtils.repeat;
+import static org.apache.commons.lang3.StringUtils.repeat;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.db.ce.CeTaskMessageDto.MAX_MESSAGE_SIZE;

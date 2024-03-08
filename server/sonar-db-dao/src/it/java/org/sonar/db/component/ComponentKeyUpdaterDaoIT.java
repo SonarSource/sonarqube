@@ -32,7 +32,7 @@ import org.sonar.db.audit.AuditPersister;
 import org.sonar.db.audit.model.ComponentKeyNewValue;
 import org.sonar.db.project.ProjectDto;
 
-import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;

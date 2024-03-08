@@ -20,9 +20,9 @@
 package org.sonar.core.util;
 
 import java.util.Locale;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
-import static org.apache.commons.lang.StringUtils.trim;
+import static org.apache.commons.lang3.StringUtils.trim;
 
 public final class SettingFormatter {
   private SettingFormatter() {

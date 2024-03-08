@@ -53,7 +53,7 @@ import org.sonar.process.cluster.hz.HazelcastMember;
 
 import static com.google.common.collect.ImmutableMap.of;
 import static java.util.Collections.synchronizedList;
-import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;

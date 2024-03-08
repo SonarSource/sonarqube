@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.db.user.UserDto;
 

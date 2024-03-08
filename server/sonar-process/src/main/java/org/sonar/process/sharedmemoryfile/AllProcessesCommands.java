@@ -28,7 +28,7 @@ import java.nio.charset.StandardCharsets;
 import org.apache.commons.io.IOUtils;
 
 import static java.lang.String.format;
-import static org.apache.commons.lang.StringUtils.rightPad;
+import static org.apache.commons.lang3.StringUtils.rightPad;
 import static org.sonar.process.sharedmemoryfile.ProcessCommands.MAX_PROCESSES;
 
 /**

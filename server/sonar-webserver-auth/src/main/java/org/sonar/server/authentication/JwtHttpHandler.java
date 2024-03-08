@@ -39,8 +39,8 @@ import org.sonar.db.user.UserDto;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
-import static org.apache.commons.lang.StringUtils.isEmpty;
-import static org.apache.commons.lang.time.DateUtils.addSeconds;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
+import static org.apache.commons.lang3.time.DateUtils.addSeconds;
 import static org.sonar.process.ProcessProperties.Property.WEB_SESSION_TIMEOUT_IN_MIN;
 import static org.sonar.server.authentication.Cookies.SAMESITE_LAX;
 import static org.sonar.server.authentication.Cookies.SET_COOKIE;

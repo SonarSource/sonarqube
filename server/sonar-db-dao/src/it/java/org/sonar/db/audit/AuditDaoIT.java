@@ -30,7 +30,7 @@ import org.sonar.core.util.UuidFactoryImpl;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 
-import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.audit.AuditDao.EXCEEDED_LENGTH;
 

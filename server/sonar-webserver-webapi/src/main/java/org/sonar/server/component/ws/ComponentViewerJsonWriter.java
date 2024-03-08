@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.db.DbClient;

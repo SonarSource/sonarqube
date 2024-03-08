@@ -24,7 +24,7 @@ import java.util.Calendar;
 import java.util.function.Consumer;
 import org.sonar.db.project.ProjectDto;
 
-import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 
 public class WebhookTesting {
 

@@ -32,7 +32,7 @@ import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.user.UserSession;
 
 import static java.lang.String.format;
-import static org.apache.commons.lang.StringUtils.isNotBlank;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.sonar.server.webhook.ws.WebhooksWsParameters.ACTION_CREATE;
 import static org.sonar.server.webhook.ws.WebhooksWsParameters.NAME_PARAM;
 import static org.sonar.server.webhook.ws.WebhooksWsParameters.NAME_PARAM_MAXIMUM_LENGTH;

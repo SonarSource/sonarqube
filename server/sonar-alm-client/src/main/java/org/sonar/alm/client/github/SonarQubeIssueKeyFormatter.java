@@ -21,7 +21,7 @@ package org.sonar.alm.client.github;
 
 import java.util.Optional;
 
-import static org.apache.commons.lang.StringUtils.substringBetween;
+import static org.apache.commons.lang3.StringUtils.substringBetween;
 
 
 public final class SonarQubeIssueKeyFormatter {

@@ -29,7 +29,7 @@ import org.sonar.db.entity.EntityDto;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.base.Preconditions.checkArgument;
-import static org.apache.commons.lang.StringUtils.defaultIfBlank;
+import static org.apache.commons.lang3.StringUtils.defaultIfBlank;
 import static org.sonar.api.utils.Paging.offset;
 import static org.sonar.db.DaoUtils.buildLikeValue;
 

@@ -19,12 +19,15 @@
  */
 package org.sonar.db.user;
 
+import java.security.SecureRandom;
 import java.util.Date;
+import java.util.Random;
 
-import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
-import static org.apache.commons.lang.math.RandomUtils.nextLong;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 
 public class GroupTesting {
+
+  private static final Random RANDOM = new SecureRandom();
 
   private GroupTesting() {
     // only statics
@@ -35,7 +38,7 @@ public class GroupTesting {
       .setUuid(randomAlphanumeric(40))
       .setName(randomAlphanumeric(255))
       .setDescription(randomAlphanumeric(200))
-      .setCreatedAt(new Date(nextLong()))
-      .setUpdatedAt(new Date(nextLong()));
+      .setCreatedAt(new Date(RANDOM.nextLong(Long.MAX_VALUE)))
+      .setUpdatedAt(new Date(RANDOM.nextLong(Long.MAX_VALUE)));
   }
 }

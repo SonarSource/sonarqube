@@ -21,7 +21,7 @@ package org.sonar.api.batch.fs.internal;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
 

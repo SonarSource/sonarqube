@@ -19,8 +19,9 @@
  */
 package org.sonar.db.property;
 
+import java.security.SecureRandom;
+import java.util.Random;
 import javax.annotation.Nullable;
-import org.apache.commons.lang.math.RandomUtils;
 import org.sonar.db.entity.EntityDto;
 import org.sonar.db.user.UserDto;
 
@@ -28,7 +29,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 public class PropertyTesting {
 
-  private static int cursor = RandomUtils.nextInt(100);
+  private static final Random RANDOM = new SecureRandom();
+  private static int cursor = RANDOM.nextInt(100);
 
   private PropertyTesting() {
     // static methods only

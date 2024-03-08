@@ -20,11 +20,11 @@
 package org.sonar.scanner.scan;
 
 import java.util.Map;
-import org.apache.commons.lang.StringUtils;
-import org.sonar.api.CoreProperties;
-import org.sonar.api.notifications.AnalysisWarnings;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.CoreProperties;
+import org.sonar.api.notifications.AnalysisWarnings;
 import org.sonar.scanner.repository.settings.ProjectSettingsLoader;
 import org.springframework.context.annotation.Bean;
 

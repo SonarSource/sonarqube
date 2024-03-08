@@ -21,16 +21,17 @@ package org.sonar.server.user;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Random;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
-import org.apache.commons.lang.math.RandomUtils;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.platform.NewUserHandler;
 import org.sonar.api.server.ServerSide;
@@ -56,7 +57,6 @@ import static org.sonar.server.exceptions.BadRequestException.checkRequest;
 
 @ServerSide
 public class UserUpdater {
-
   private static final String SQ_AUTHORITY = "sonarqube";
 
   private static final String LOGIN_PARAM = "Login";
@@ -76,6 +76,8 @@ public class UserUpdater {
   private final DefaultGroupFinder defaultGroupFinder;
   private final AuditPersister auditPersister;
   private final CredentialsLocalAuthentication localAuthentication;
+  private final Random random = new SecureRandom();
+
 
   @Inject
   public UserUpdater(NewUserNotifier newUserNotifier, DbClient dbClient, DefaultGroupFinder defaultGroupFinder, Configuration config,
@@ -183,7 +185,7 @@ public class UserUpdater {
   private String generateUniqueLogin(DbSession dbSession, String userName) {
     String slugName = slugify(userName);
     for (int i = 0; i < 10; i++) {
-      String login = slugName + RandomUtils.nextInt(100_000);
+      String login = slugName + random.nextInt(100_000);
       UserDto existingUser = dbClient.userDao().selectByLogin(dbSession, login);
       if (existingUser == null) {
         return login;

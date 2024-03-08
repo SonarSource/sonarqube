@@ -28,7 +28,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.alm.setting.AlmSettingDto;
 import org.sonar.server.user.UserSession;
 
-import static org.apache.commons.lang.StringUtils.removeEnd;
+import static org.apache.commons.lang3.StringUtils.removeEnd;
 import static org.sonar.db.alm.setting.ALM.GITHUB;
 
 public class CreateGithubAction implements AlmSettingsWsAction {

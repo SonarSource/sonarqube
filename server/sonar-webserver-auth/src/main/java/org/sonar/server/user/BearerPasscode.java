@@ -20,7 +20,7 @@
 package org.sonar.server.user;
 
 import java.util.Optional;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.server.ws.Request;
 

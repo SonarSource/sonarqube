@@ -26,7 +26,7 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.CharUtils;
+import org.apache.commons.lang3.CharUtils;
 import org.sonar.api.Startable;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.log.Logger;

@@ -22,7 +22,7 @@ package org.sonar.api.config.internal;
 import java.nio.charset.StandardCharsets;
 import javax.annotation.Nullable;
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * @deprecated since 8.7.0

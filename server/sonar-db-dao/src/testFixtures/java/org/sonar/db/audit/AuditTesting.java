@@ -19,24 +19,25 @@
  */
 package org.sonar.db.audit;
 
+import java.security.SecureRandom;
 import java.util.Random;
 
-import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 
 public class AuditTesting {
 
-  private static final Random random = new Random();
+  private static final Random RANDOM = new SecureRandom();
 
   private AuditTesting() {
     throw new IllegalStateException("Utility class");
   }
 
   public static AuditDto newAuditDto() {
-    return newAuditDto(random.nextLong(), "operation");
+    return newAuditDto(RANDOM.nextLong(Long.MAX_VALUE), "operation");
   }
 
   public static AuditDto newAuditDto(String operation) {
-    return newAuditDto(random.nextLong(), operation);
+    return newAuditDto(RANDOM.nextLong(Long.MAX_VALUE), operation);
   }
 
   public static AuditDto newAuditDto(long createdAt) {

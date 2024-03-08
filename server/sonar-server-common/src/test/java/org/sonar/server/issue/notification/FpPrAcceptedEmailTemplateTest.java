@@ -48,13 +48,13 @@ import org.sonar.test.html.HtmlFragmentAssert;
 
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
-import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.rules.RuleType.SECURITY_HOTSPOT;
-import static org.sonar.server.issue.notification.FPOrAcceptedNotification.FpPrAccepted.FP;
 import static org.sonar.server.issue.notification.FPOrAcceptedNotification.FpPrAccepted.ACCEPTED;
+import static org.sonar.server.issue.notification.FPOrAcceptedNotification.FpPrAccepted.FP;
 import static org.sonar.server.issue.notification.IssuesChangesNotificationBuilderTesting.newRandomNotAHotspotRule;
 import static org.sonar.server.issue.notification.IssuesChangesNotificationBuilderTesting.newSecurityHotspotRule;
 import static org.sonar.server.issue.notification.IssuesChangesNotificationBuilderTesting.randomRuleTypeHotspotExcluded;

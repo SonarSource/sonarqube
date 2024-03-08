@@ -24,12 +24,12 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
-import org.sonar.api.utils.MessageException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.utils.MessageException;
 
 import static java.lang.String.format;
-import static org.apache.commons.lang.StringUtils.containsIgnoreCase;
+import static org.apache.commons.lang3.StringUtils.containsIgnoreCase;
 
 class MssqlCharsetHandler extends CharsetHandler {
 

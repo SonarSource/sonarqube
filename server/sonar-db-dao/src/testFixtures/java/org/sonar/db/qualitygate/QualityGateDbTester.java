@@ -33,8 +33,8 @@ import org.sonar.db.property.PropertyDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 
-import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
-import static org.apache.commons.lang.RandomStringUtils.randomNumeric;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.randomNumeric;
 
 public class QualityGateDbTester {
   private static final String DEFAULT_QUALITY_GATE_PROPERTY_NAME = "qualitygate.default";

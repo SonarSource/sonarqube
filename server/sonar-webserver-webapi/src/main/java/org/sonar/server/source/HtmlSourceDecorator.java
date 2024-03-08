@@ -22,7 +22,7 @@ package org.sonar.server.source;
 import java.util.List;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 public class HtmlSourceDecorator {
 

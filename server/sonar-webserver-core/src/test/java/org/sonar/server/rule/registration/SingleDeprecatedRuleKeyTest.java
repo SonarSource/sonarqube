@@ -28,7 +28,7 @@ import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.db.rule.DeprecatedRuleKeyDto;
 import org.sonar.server.rule.registration.SingleDeprecatedRuleKey;
 
-import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
 import static org.mockito.Mockito.mock;

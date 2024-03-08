@@ -23,7 +23,7 @@ import java.time.Clock;
 import java.util.Date;
 import java.util.Optional;
 import java.util.function.Predicate;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.Startable;
 import org.sonar.api.config.Configuration;

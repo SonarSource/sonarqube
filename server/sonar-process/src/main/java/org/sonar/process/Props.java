@@ -23,8 +23,7 @@ import java.io.File;
 import java.util.Properties;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.sonar.api.config.internal.Encryption;
 
 import static org.sonar.api.CoreProperties.ENCRYPTION_SECRET_KEY_PATH;

@@ -32,7 +32,7 @@ import org.sonar.db.property.PropertyDto;
 import org.springframework.context.annotation.Bean;
 
 import static com.google.common.base.Preconditions.checkState;
-import static org.apache.commons.lang.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.sonar.api.CoreProperties.SERVER_STARTTIME;
 
 @ComputeEngineSide

@@ -31,7 +31,7 @@ import org.sonar.db.issue.ImpactDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.server.rule.RuleDescriptionSectionsGeneratorResolver;
 
-import static org.apache.commons.lang.StringUtils.isNotEmpty;
+import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
 public class NewRuleCreator {
 

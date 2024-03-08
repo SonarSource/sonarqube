@@ -31,7 +31,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Random;
 import javax.annotation.Nullable;
-import org.apache.commons.lang.time.DateUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.sonar.api.issue.DefaultTransitions;
@@ -42,7 +42,7 @@ import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.server.issue.IssueFieldsSetter;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static org.apache.commons.lang.time.DateUtils.addDays;
+import static org.apache.commons.lang3.time.DateUtils.addDays;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.Assert.fail;

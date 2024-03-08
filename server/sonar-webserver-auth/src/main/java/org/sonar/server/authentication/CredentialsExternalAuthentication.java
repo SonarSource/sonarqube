@@ -45,8 +45,8 @@ import org.sonar.server.http.JavaxHttpRequest;
 import org.sonar.server.user.SecurityRealmFactory;
 
 import static java.util.Objects.requireNonNull;
-import static org.apache.commons.lang.StringUtils.isEmpty;
-import static org.apache.commons.lang.StringUtils.trimToNull;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
+import static org.apache.commons.lang3.StringUtils.trimToNull;
 import static org.sonar.server.user.ExternalIdentity.SQ_AUTHORITY;
 
 /**

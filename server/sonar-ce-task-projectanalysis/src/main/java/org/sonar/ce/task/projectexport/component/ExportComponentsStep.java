@@ -23,8 +23,8 @@ import com.sonarsource.governance.projectdump.protobuf.ProjectDump;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import org.sonar.api.resources.Qualifiers;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.ce.task.projectexport.steps.DumpElement;
 import org.sonar.ce.task.projectexport.steps.DumpWriter;
 import org.sonar.ce.task.projectexport.steps.ProjectHolder;
@@ -35,7 +35,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 
 import static java.lang.String.format;
-import static org.apache.commons.lang.StringUtils.defaultString;
+import static org.apache.commons.lang3.StringUtils.defaultString;
 import static org.sonar.db.DatabaseUtils.getString;
 
 public class ExportComponentsStep implements ComputationStep {

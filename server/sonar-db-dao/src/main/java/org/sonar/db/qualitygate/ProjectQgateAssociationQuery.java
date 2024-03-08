@@ -25,7 +25,7 @@ import java.util.Locale;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.sonar.db.DaoUtils;
 import org.sonar.db.WildcardPosition;
 

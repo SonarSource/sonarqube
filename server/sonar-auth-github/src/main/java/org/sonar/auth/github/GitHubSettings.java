@@ -38,7 +38,7 @@ import org.sonar.server.property.InternalProperties;
 
 import static java.lang.String.format;
 import static java.lang.String.valueOf;
-import static org.apache.commons.lang.StringUtils.isNotBlank;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.sonar.api.PropertyType.BOOLEAN;
 import static org.sonar.api.PropertyType.PASSWORD;
 import static org.sonar.api.PropertyType.STRING;

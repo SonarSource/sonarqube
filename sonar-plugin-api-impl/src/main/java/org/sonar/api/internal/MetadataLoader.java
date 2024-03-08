@@ -28,7 +28,7 @@ import org.sonar.api.SonarEdition;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.Version;
 
-import static org.apache.commons.lang.StringUtils.trimToEmpty;
+import static org.apache.commons.lang3.StringUtils.trimToEmpty;
 
 /**
  * For internal use

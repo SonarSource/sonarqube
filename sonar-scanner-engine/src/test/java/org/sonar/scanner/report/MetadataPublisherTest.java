@@ -60,7 +60,7 @@ import org.sonar.scanner.scm.ScmConfiguration;
 import org.sonar.scanner.scm.ScmRevision;
 
 import static java.util.Collections.emptyMap;
-import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.mockito.ArgumentMatchers.any;

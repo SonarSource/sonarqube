@@ -21,7 +21,7 @@ package org.sonar.db.rule;
 
 import java.util.Objects;
 
-import static org.apache.commons.lang.StringUtils.isNotEmpty;
+import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 import static org.sonar.api.utils.Preconditions.checkArgument;
 
 public class RuleDescriptionSectionContextDto {

@@ -55,7 +55,7 @@ import static java.util.Arrays.stream;
 import static java.util.Collections.emptySet;
 import static java.util.stream.Stream.concat;
 import static java.util.stream.Stream.of;
-import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;

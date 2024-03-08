@@ -19,20 +19,22 @@
  */
 package org.sonar.db.source;
 
+import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Random;
 import java.util.function.Consumer;
 import java.util.stream.IntStream;
-import org.apache.commons.lang.math.RandomUtils;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.protobuf.DbFileSources;
 
-import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 
 public class FileSourceTester {
+
+  private static final Random RANDOM = new SecureRandom();
 
   private final DbTester db;
 
@@ -48,7 +50,7 @@ public class FileSourceTester {
       .setFileUuid(file.uuid())
       .setSrcHash(randomAlphanumeric(50))
       .setDataHash(randomAlphanumeric(50))
-      .setLineHashes(IntStream.range(0, new Random().nextInt(21)).mapToObj(String::valueOf).toList())
+      .setLineHashes(IntStream.range(0, RANDOM.nextInt(21)).mapToObj(String::valueOf).toList())
       .setRevision(randomAlphanumeric(100))
       .setSourceData(newRandomData(3).build())
       .setCreatedAt(new Date().getTime())
@@ -86,14 +88,14 @@ public class FileSourceTester {
         .setLine(i)
         .setScmRevision(randomAlphanumeric(15))
         .setScmAuthor(randomAlphanumeric(10))
-        .setScmDate(RandomUtils.nextLong())
+        .setScmDate(RANDOM.nextLong(Long.MAX_VALUE))
         .setSource(randomAlphanumeric(20))
-        .setLineHits(RandomUtils.nextInt(4))
-        .setConditions(RandomUtils.nextInt(4))
-        .setCoveredConditions(RandomUtils.nextInt(4))
+        .setLineHits(RANDOM.nextInt(4))
+        .setConditions(RANDOM.nextInt(4))
+        .setCoveredConditions(RANDOM.nextInt(4))
         .setHighlighting(randomAlphanumeric(40))
         .setSymbols(randomAlphanumeric(30))
-        .addAllDuplication(Arrays.asList(RandomUtils.nextInt(200), RandomUtils.nextInt(200)))
+        .addAllDuplication(Arrays.asList(RANDOM.nextInt(200), RANDOM.nextInt(200)))
         .build();
     }
     return dataBuilder;

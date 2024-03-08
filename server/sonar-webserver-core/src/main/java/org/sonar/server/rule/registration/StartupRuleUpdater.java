@@ -28,7 +28,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.sonar.api.issue.impact.Severity;
 import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.RuleStatus;
@@ -56,7 +56,7 @@ import org.sonar.server.rule.RuleDescriptionSectionsGeneratorResolver;
 import static com.google.common.collect.Sets.difference;
 import static java.lang.String.format;
 import static java.util.Collections.emptySet;
-import static org.apache.commons.lang.StringUtils.isNotEmpty;
+import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
 /**
  * The class detects changes between the rule definition coming from plugins during startup and rule from database.

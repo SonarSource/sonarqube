@@ -14,7 +14,7 @@ dependencies {
   api 'com.google.guava:guava'
   api 'com.hazelcast:hazelcast'
   api 'commons-io:commons-io'
-  api 'commons-lang:commons-lang'
+  api 'org.apache.commons:commons-lang3'
   api 'org.apache.logging.log4j:log4j-to-slf4j'
   api 'org.apache.logging.log4j:log4j-api'
   api 'org.elasticsearch.client:elasticsearch-rest-high-level-client'

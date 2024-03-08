@@ -30,7 +30,7 @@ import java.util.function.UnaryOperator;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.sonar.ce.task.projectanalysis.analysis.Branch;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReport.Component.FileStatus;
@@ -39,8 +39,8 @@ import org.sonar.server.project.Project;
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
-import static org.apache.commons.lang.StringUtils.removeStart;
-import static org.apache.commons.lang.StringUtils.trimToNull;
+import static org.apache.commons.lang3.StringUtils.removeStart;
+import static org.apache.commons.lang3.StringUtils.trimToNull;
 import static org.sonar.scanner.protocol.output.ScannerReport.Component.ComponentType.FILE;
 
 public class ComponentTreeBuilder {

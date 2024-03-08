@@ -20,14 +20,14 @@
 package org.sonar.scanner.scm;
 
 import java.util.Optional;
-import org.sonar.api.batch.scm.ScmProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.batch.scm.ScmProvider;
 import org.sonar.scanner.bootstrap.ScannerProperties;
 import org.sonar.scanner.ci.CiConfiguration;
 import org.sonar.scanner.fs.InputModuleHierarchy;
 
-import static org.apache.commons.lang.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.sonar.scanner.scan.ScanProperties.SCM_REVISION;
 
 public class ScmRevisionImpl implements ScmRevision {

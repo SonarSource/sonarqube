@@ -19,7 +19,7 @@
  */
 package org.sonar.server.almsettings.ws;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -29,7 +29,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.alm.setting.AlmSettingDto;
 import org.sonar.server.user.UserSession;
 
-import static org.apache.commons.lang.StringUtils.isNotBlank;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 public class UpdateGitlabAction implements AlmSettingsWsAction {
 

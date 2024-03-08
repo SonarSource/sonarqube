@@ -22,7 +22,7 @@ package org.sonar.application;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BooleanSupplier;
-import org.apache.commons.lang.RandomStringUtils;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.DisableOnDebug;

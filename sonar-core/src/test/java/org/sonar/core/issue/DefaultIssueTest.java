@@ -21,7 +21,7 @@ package org.sonar.core.issue;
 
 import java.util.List;
 import java.util.Map;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueStatus;

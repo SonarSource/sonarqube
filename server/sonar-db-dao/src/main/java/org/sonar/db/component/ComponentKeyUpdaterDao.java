@@ -25,7 +25,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.function.BiConsumer;
 import javax.annotation.Nullable;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
 import org.sonar.db.Dao;

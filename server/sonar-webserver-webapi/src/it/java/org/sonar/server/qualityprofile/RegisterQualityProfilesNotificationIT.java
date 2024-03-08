@@ -71,8 +71,7 @@ import org.sonar.server.util.TypeValidations;
 
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.Collections.singleton;
-import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
-import static org.apache.commons.lang.math.RandomUtils.nextLong;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.any;
@@ -362,8 +361,8 @@ public class RegisterQualityProfilesNotificationIT {
       .setProfileUuid(profile.getUuid())
       .setSeverity(severity.name())
       .setRuleUuid(rule.getUuid())
-      .setCreatedAt(nextLong())
-      .setUpdatedAt(nextLong());
+      .setCreatedAt(RANDOM.nextLong(Long.MAX_VALUE))
+      .setUpdatedAt(RANDOM.nextLong(Long.MAX_VALUE));
     db.getDbClient().activeRuleDao().insert(db.getSession(), dto);
     db.commit();
   }

@@ -27,7 +27,7 @@ import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReport.Measure.ValueCase;
 
 import static java.util.Optional.of;
-import static org.apache.commons.lang.StringUtils.trimToNull;
+import static org.apache.commons.lang3.StringUtils.trimToNull;
 
 public class BatchMeasureToMeasure {
 

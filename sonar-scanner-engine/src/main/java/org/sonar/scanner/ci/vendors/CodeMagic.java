@@ -19,14 +19,14 @@
  */
 package org.sonar.scanner.ci.vendors;
 
-import org.sonar.api.utils.System2;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.utils.System2;
 import org.sonar.scanner.ci.CiConfiguration;
 import org.sonar.scanner.ci.CiConfigurationImpl;
 import org.sonar.scanner.ci.CiVendor;
 
-import static org.apache.commons.lang.StringUtils.isEmpty;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 public class CodeMagic implements CiVendor {
 

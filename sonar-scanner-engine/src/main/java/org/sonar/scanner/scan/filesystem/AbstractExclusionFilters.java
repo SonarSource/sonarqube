@@ -24,14 +24,14 @@ import java.util.Arrays;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.PathPattern;
 import org.sonar.api.notifications.AnalysisWarnings;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import static java.lang.String.format;
 import static org.sonar.api.CoreProperties.PROJECT_TESTS_EXCLUSIONS_PROPERTY;

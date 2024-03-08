@@ -19,7 +19,7 @@
  */
 package org.sonar.scanner.ci.vendors;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.utils.System2;
@@ -28,7 +28,7 @@ import org.sonar.scanner.ci.CiConfigurationImpl;
 import org.sonar.scanner.ci.CiVendor;
 import org.sonar.scanner.ci.DevOpsPlatformInfo;
 
-import static org.apache.commons.lang.StringUtils.isEmpty;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 /**
  * Support of https://github.com/features/actions

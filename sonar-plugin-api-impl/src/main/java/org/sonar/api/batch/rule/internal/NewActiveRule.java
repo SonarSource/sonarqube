@@ -25,7 +25,7 @@ import java.util.Map;
 import java.util.Set;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 

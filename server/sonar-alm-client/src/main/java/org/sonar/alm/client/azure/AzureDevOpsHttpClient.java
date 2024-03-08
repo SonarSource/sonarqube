@@ -35,11 +35,11 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.lang.StringUtils;
-import org.sonar.alm.client.TimeoutConfiguration;
-import org.sonar.api.server.ServerSide;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.alm.client.TimeoutConfiguration;
+import org.sonar.api.server.ServerSide;
 import org.sonarqube.ws.client.OkHttpClientBuilder;
 
 import static java.util.stream.Collectors.joining;

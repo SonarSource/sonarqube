@@ -29,7 +29,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.property.PropertyDto;
 
 import static java.lang.String.format;
-import static org.apache.commons.lang.StringUtils.defaultString;
+import static org.apache.commons.lang3.StringUtils.defaultString;
 
 public class ExportSettingsStep implements ComputationStep {
 

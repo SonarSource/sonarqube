@@ -23,11 +23,11 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import javax.annotation.concurrent.ThreadSafe;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang.StringUtils;
-import org.sonar.api.utils.PathUtils;
-import org.sonar.api.utils.WildcardPattern;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.utils.PathUtils;
+import org.sonar.api.utils.WildcardPattern;
 
 @ThreadSafe
 public abstract class PathPattern {

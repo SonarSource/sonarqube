@@ -21,7 +21,7 @@ package org.sonar.server.es.textsearch;
 
 import java.util.Arrays;
 import java.util.List;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.sonar.server.es.newindex.DefaultIndexSettings;
 
 import static org.sonar.server.es.newindex.DefaultIndexSettings.MINIMUM_NGRAM_LENGTH;

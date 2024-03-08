@@ -28,7 +28,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
-import org.apache.commons.lang.time.DateUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.sonar.api.issue.Issue;
@@ -38,7 +38,7 @@ import org.sonar.core.issue.FieldDiffs;
 import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.server.issue.IssueFieldsSetter;
 
-import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.issue.DefaultTransitions.RESET_AS_TO_REVIEW;
 import static org.sonar.api.issue.DefaultTransitions.RESOLVE_AS_ACKNOWLEDGED;

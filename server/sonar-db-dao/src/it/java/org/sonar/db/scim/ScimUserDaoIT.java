@@ -39,7 +39,7 @@ import org.sonar.db.Pagination;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 
-import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Fail.fail;

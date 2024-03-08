@@ -20,7 +20,7 @@
 package org.sonar.process;
 
 import java.util.Map;
-import org.apache.commons.lang.SystemUtils;
+import org.apache.commons.lang3.SystemUtils;
 
 /**
  * An interface allowing to wrap around static call to {@link System} class.

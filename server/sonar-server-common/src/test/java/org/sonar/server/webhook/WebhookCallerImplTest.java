@@ -41,7 +41,7 @@ import org.sonar.api.utils.Version;
 import org.sonar.core.platform.SonarQubeVersion;
 import org.sonar.server.util.OkHttpClientProvider;
 
-import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.CoreProperties.SONAR_VALIDATE_WEBHOOKS_PROPERTY;

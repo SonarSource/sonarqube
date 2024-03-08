@@ -11,7 +11,7 @@ dependencies {
 
   api 'org.apache.commons:commons-email'
   api 'commons-io:commons-io'
-  api 'commons-lang:commons-lang'
+  api 'org.apache.commons:commons-lang3'
   api 'com.google.guava:guava'
   api 'org.slf4j:slf4j-api'
   api 'com.squareup.okhttp3:okhttp'

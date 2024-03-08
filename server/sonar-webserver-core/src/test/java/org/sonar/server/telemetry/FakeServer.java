@@ -23,7 +23,7 @@ import java.util.Date;
 import javax.annotation.CheckForNull;
 import org.sonar.api.platform.Server;
 
-import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 
 class FakeServer extends Server {
   private String id;

@@ -22,7 +22,7 @@ package org.sonar.server.permission;
 import org.junit.Test;
 import org.sonar.db.user.GroupDto;
 
-import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class GroupUuidOrAnyoneTest {

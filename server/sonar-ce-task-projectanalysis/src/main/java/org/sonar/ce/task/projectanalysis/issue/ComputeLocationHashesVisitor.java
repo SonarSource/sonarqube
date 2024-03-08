@@ -36,7 +36,7 @@ import org.sonar.db.protobuf.DbCommons;
 import org.sonar.db.protobuf.DbIssues;
 import org.sonar.server.issue.TaintChecker;
 
-import static org.apache.commons.lang.StringUtils.defaultIfEmpty;
+import static org.apache.commons.lang3.StringUtils.defaultIfEmpty;
 
 /**
  * This visitor will update the locations field of issues, by filling hashes for their locations:

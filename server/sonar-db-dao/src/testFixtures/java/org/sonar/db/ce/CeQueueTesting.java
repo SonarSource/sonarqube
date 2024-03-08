@@ -19,17 +19,21 @@
  */
 package org.sonar.db.ce;
 
+import java.security.SecureRandom;
+import java.util.Random;
 import java.util.stream.Stream;
 import org.sonar.db.DbSession;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
-import static org.apache.commons.lang.math.RandomUtils.nextLong;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.ce.CeQueueDto.Status.IN_PROGRESS;
 import static org.sonar.db.ce.CeQueueDto.Status.PENDING;
 
 public class CeQueueTesting {
+
+  private static final Random RANDOM = new SecureRandom();
+
   private CeQueueTesting() {
     // static methods only
   }
@@ -42,8 +46,8 @@ public class CeQueueTesting {
       .setStatus(CeQueueDto.Status.PENDING)
       .setTaskType(CeTaskTypes.REPORT)
       .setSubmitterUuid(randomAlphanumeric(255))
-      .setCreatedAt(nextLong())
-      .setUpdatedAt(nextLong());
+      .setCreatedAt(RANDOM.nextLong(Long.MAX_VALUE))
+      .setUpdatedAt(RANDOM.nextLong(Long.MAX_VALUE));
   }
 
   public static void makeInProgress(DbSession dbSession, String workerUuid, long now, CeQueueDto... ceQueueDtos) {

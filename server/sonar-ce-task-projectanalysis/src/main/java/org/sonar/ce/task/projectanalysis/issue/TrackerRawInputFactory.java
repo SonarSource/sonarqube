@@ -54,7 +54,7 @@ import org.sonar.scanner.protocol.output.ScannerReport.IssueType;
 import org.sonar.server.rule.CommonRuleKeys;
 
 import static java.util.stream.Collectors.toMap;
-import static org.apache.commons.lang.StringUtils.isNotEmpty;
+import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 import static org.sonar.api.issue.Issue.STATUS_OPEN;
 import static org.sonar.api.issue.Issue.STATUS_TO_REVIEW;
 

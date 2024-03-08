@@ -19,10 +19,12 @@
  */
 package org.sonar.db.user;
 
+import java.security.SecureRandom;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.utils.System2;
@@ -31,12 +33,14 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 
 import static java.util.Collections.singletonList;
-import static org.apache.commons.lang.math.RandomUtils.nextLong;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.user.UserTokenTesting.newProjectAnalysisToken;
 import static org.sonar.db.user.UserTokenTesting.newUserToken;
 
 class UserTokenDaoIT {
+
+  private final Random random = new SecureRandom();
+
   @RegisterExtension
   private final DbTester db = DbTester.create(System2.INSTANCE);
 
@@ -57,7 +61,7 @@ class UserTokenDaoIT {
 
   @Test
   void insert_user_token_with_expiration_date() {
-    UserTokenDto userToken = newUserToken().setExpirationDate(nextLong());
+    UserTokenDto userToken = newUserToken().setExpirationDate(10000L);
 
     underTest.insert(db.getSession(), userToken, "login");
 

@@ -10,7 +10,7 @@ dependencies {
   api 'com.google.code.gson:gson'
   api 'com.google.protobuf:protobuf-java'
   api 'commons-io:commons-io'
-  api 'commons-lang:commons-lang'
+  api 'org.apache.commons:commons-lang3'
   api project(':sonar-core')
 
   compileOnlyApi 'com.google.code.findbugs:jsr305'

@@ -23,8 +23,8 @@ import javax.annotation.Nullable;
 import org.sonar.core.component.ComponentKeys;
 import org.sonar.db.component.BranchType;
 
-import static org.apache.commons.lang.StringUtils.isEmpty;
-import static org.apache.commons.lang.StringUtils.trimToNull;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
+import static org.apache.commons.lang3.StringUtils.trimToNull;
 
 public class TestBranch implements Branch {
   private final String name;

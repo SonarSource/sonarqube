@@ -21,7 +21,7 @@ package org.sonar.db.webhook;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 public class WebhookDeliveryDto extends WebhookDeliveryLiteDto<WebhookDeliveryDto> {
   /** Error message if HTTP request cannot be sent, else null */

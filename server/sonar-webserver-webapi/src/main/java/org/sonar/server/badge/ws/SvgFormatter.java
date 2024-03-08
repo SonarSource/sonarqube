@@ -25,7 +25,7 @@ import java.text.NumberFormat;
 import java.util.Locale;
 
 import static java.lang.String.format;
-import static org.apache.commons.lang.StringUtils.trim;
+import static org.apache.commons.lang3.StringUtils.trim;
 
 class SvgFormatter {
 

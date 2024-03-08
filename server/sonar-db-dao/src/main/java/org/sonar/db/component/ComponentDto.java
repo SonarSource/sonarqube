@@ -26,13 +26,13 @@ import java.util.List;
 import java.util.Objects;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.sonar.api.resources.Scopes;
 import org.sonar.db.WildcardPosition;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
-import static org.apache.commons.lang.StringUtils.substringBeforeLast;
+import static org.apache.commons.lang3.StringUtils.substringBeforeLast;
 import static org.sonar.db.DaoUtils.buildLikeValue;
 import static org.sonar.db.component.ComponentValidator.checkComponentKey;
 import static org.sonar.db.component.ComponentValidator.checkComponentLongName;

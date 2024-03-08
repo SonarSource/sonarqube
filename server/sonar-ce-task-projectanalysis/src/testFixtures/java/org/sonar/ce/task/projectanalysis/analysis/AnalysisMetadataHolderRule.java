@@ -34,7 +34,7 @@ import org.sonar.server.qualityprofile.QualityProfile;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
-import static org.apache.commons.lang.StringUtils.defaultIfBlank;
+import static org.apache.commons.lang3.StringUtils.defaultIfBlank;
 
 public class AnalysisMetadataHolderRule extends ExternalResource implements MutableAnalysisMetadataHolder, AfterEachCallback {
 

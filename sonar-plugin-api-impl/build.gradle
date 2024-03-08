@@ -9,7 +9,7 @@ dependencies {
 
   api 'commons-codec:commons-codec'
   api 'commons-io:commons-io'
-  api 'commons-lang:commons-lang'
+  api 'org.apache.commons:commons-lang3'
   api 'org.apache.commons:commons-csv'
   api 'org.sonarsource.api.plugin:sonar-plugin-api'
 

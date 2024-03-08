@@ -40,8 +40,8 @@ import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo.Section.Builder;
 import org.sonar.server.platform.NodeInformation;
 
 import static java.util.stream.Collectors.toUnmodifiableSet;
-import static org.apache.commons.lang.StringUtils.containsIgnoreCase;
-import static org.apache.commons.lang.StringUtils.endsWithIgnoreCase;
+import static org.apache.commons.lang3.StringUtils.containsIgnoreCase;
+import static org.apache.commons.lang3.StringUtils.endsWithIgnoreCase;
 import static org.sonar.process.ProcessProperties.Property.AUTH_JWT_SECRET;
 import static org.sonar.process.ProcessProperties.Property.CE_JAVA_ADDITIONAL_OPTS;
 import static org.sonar.process.ProcessProperties.Property.CE_JAVA_OPTS;

@@ -30,7 +30,7 @@ import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbSession;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static org.apache.commons.lang.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 public class RuleRepositoryDao implements Dao {
 

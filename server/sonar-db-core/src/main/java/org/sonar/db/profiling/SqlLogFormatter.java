@@ -22,7 +22,7 @@ package org.sonar.db.profiling;
 import java.util.regex.Pattern;
 import javax.annotation.Nullable;
 
-import static org.apache.commons.lang.StringUtils.abbreviate;
+import static org.apache.commons.lang3.StringUtils.abbreviate;
 
 public class SqlLogFormatter {
 

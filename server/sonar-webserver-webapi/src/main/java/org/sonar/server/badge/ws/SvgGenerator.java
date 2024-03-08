@@ -23,7 +23,7 @@ import com.google.common.collect.ImmutableMap;
 import java.io.IOException;
 import java.util.Map;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.text.StrSubstitutor;
+import org.apache.commons.lang3.text.StrSubstitutor;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.server.ServerSide;
 

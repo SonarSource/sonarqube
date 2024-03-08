@@ -43,7 +43,7 @@ dependencies {
 
   testImplementation 'com.google.code.findbugs:jsr305'
   testImplementation 'com.tngtech.java:junit-dataprovider'
-  testImplementation 'commons-lang:commons-lang'
+  testImplementation 'org.apache.commons:commons-lang3'
   testImplementation 'junit:junit'
   testImplementation 'org.apache.logging.log4j:log4j-api'
   testImplementation 'org.apache.logging.log4j:log4j-core'

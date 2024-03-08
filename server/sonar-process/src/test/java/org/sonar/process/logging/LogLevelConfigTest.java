@@ -21,7 +21,7 @@ package org.sonar.process.logging;
 
 import ch.qos.logback.classic.Level;
 import java.util.Collections;
-import org.apache.commons.lang.RandomStringUtils;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.Test;
 import org.sonar.process.ProcessId;
 

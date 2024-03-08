@@ -19,7 +19,7 @@
  */
 package org.sonar.auth.ldap;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.sonar.api.config.Configuration;
 
 import static org.sonar.auth.ldap.LdapSettingsManager.MANDATORY_LDAP_PROPERTY_ERROR;

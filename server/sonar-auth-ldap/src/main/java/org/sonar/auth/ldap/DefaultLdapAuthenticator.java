@@ -26,10 +26,10 @@ import javax.naming.directory.SearchResult;
 import javax.security.auth.login.Configuration;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
-import org.apache.commons.lang.StringUtils;
-import org.sonar.api.server.ServerSide;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.server.ServerSide;
 
 /**
  * @author Evgeny Mandrikov

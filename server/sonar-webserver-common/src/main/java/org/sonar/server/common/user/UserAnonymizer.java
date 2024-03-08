@@ -21,7 +21,7 @@ package org.sonar.server.common.user;
 
 import java.util.function.Supplier;
 import javax.inject.Inject;
-import org.apache.commons.lang.RandomStringUtils;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.user.UserDto;

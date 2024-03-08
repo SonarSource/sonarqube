@@ -22,7 +22,7 @@ package org.sonar.server.projecttag;
 import java.util.List;
 import java.util.Locale;
 import java.util.regex.Pattern;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;

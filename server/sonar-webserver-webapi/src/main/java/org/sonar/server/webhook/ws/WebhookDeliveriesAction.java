@@ -44,7 +44,7 @@ import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Webhooks;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static org.apache.commons.lang.StringUtils.isNotBlank;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.sonar.api.server.ws.WebService.Param.PAGE;
 import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_02;

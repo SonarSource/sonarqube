@@ -41,7 +41,7 @@ import org.sonarqube.ws.Permissions.UpdateTemplateWsResponse;
 
 import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
-import static org.apache.commons.lang.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.sonar.server.exceptions.BadRequestException.checkRequest;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdmin;
 import static org.sonar.server.permission.RequestValidator.MSG_TEMPLATE_WITH_SAME_NAME;

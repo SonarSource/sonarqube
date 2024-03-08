@@ -28,7 +28,7 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.sonar.application.command.EsJvmOptions;
 import org.sonar.process.Props;
 

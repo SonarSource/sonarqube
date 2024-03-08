@@ -20,10 +20,12 @@
 package org.sonar.server.pushapi.qualityprofile;
 
 import java.nio.charset.StandardCharsets;
+import java.security.SecureRandom;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Deque;
 import java.util.List;
+import java.util.Random;
 import java.util.Set;
 import java.util.function.Consumer;
 import org.junit.Rule;
@@ -46,8 +48,7 @@ import org.sonar.server.qualityprofile.ActiveRuleChange;
 import org.sonarqube.ws.Common;
 
 import static java.util.List.of;
-import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
-import static org.apache.commons.lang.math.RandomUtils.nextInt;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.measures.CoreMetrics.NCLOC_LANGUAGE_DISTRIBUTION_KEY;
 import static org.sonar.api.measures.Metric.ValueType.STRING;
@@ -56,6 +57,8 @@ import static org.sonar.db.rule.RuleTesting.newTemplateRule;
 import static org.sonar.server.qualityprofile.ActiveRuleChange.Type.ACTIVATED;
 
 public class QualityProfileChangeEventServiceImplTest {
+
+  private final Random random = new SecureRandom();
 
   @Rule
   public DbTester db = DbTester.create();
@@ -226,7 +229,7 @@ public class QualityProfileChangeEventServiceImplTest {
       .setMetricUuid(metric.getUuid())
       .setComponentUuid(branch.uuid())
       .setProjectUuid(projectDto.getUuid())
-      .setData(language + "=" + nextInt(10));
+      .setData(language + "=" + random.nextInt(10));
 
     db.measures().insertLiveMeasure(branch, metric, configureLiveMeasure);
   }

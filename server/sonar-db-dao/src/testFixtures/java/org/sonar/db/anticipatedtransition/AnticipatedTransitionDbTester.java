@@ -27,7 +27,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.issue.AnticipatedTransitionDto;
 import org.sonar.db.issue.AnticipatedTransitionMapper;
 
-import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
 
 public class AnticipatedTransitionDbTester {
 

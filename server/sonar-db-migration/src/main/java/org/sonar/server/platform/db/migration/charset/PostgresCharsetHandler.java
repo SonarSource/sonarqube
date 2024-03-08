@@ -27,14 +27,14 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.sonar.api.utils.MessageException;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.utils.MessageException;
 import org.sonar.db.version.SqTables;
 
 import static java.lang.String.format;
 import static java.util.Optional.ofNullable;
-import static org.apache.commons.lang.StringUtils.containsIgnoreCase;
-import static org.apache.commons.lang.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.containsIgnoreCase;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 class PostgresCharsetHandler extends CharsetHandler {
 

@@ -22,7 +22,7 @@ package org.sonar.batch.bootstrapper;
 import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.Nullable;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * @since 2.14

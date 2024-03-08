@@ -29,7 +29,7 @@ import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.MigrationDbTester;
 import org.sonar.server.platform.db.migration.step.DataChange;
 
-import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class PopulateNclocForForProjectsIT {

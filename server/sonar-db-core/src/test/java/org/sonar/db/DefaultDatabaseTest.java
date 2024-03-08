@@ -32,7 +32,7 @@ import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.db.dialect.PostgreSql;
 import org.sonar.process.logging.LogbackHelper;
 
-import static org.apache.commons.lang.StringUtils.removeStart;
+import static org.apache.commons.lang3.StringUtils.removeStart;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;

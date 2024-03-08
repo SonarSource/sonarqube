@@ -39,7 +39,7 @@ import org.sonar.server.management.ManagedInstanceService;
 import org.sonar.server.setting.ThreadLocalSettings;
 
 import static java.lang.String.format;
-import static org.apache.commons.lang.StringUtils.isNotBlank;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.sonar.alm.client.gitlab.GitlabGlobalSettingsValidator.ValidationMode.AUTH_ONLY;
 import static org.sonar.alm.client.gitlab.GitlabGlobalSettingsValidator.ValidationMode.COMPLETE;
 import static org.sonar.api.utils.Preconditions.checkState;

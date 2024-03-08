@@ -19,9 +19,11 @@
  */
 package org.sonar.db.user;
 
+import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 import java.util.Set;
 import java.util.function.Consumer;
 import javax.annotation.CheckForNull;
@@ -32,9 +34,9 @@ import org.sonar.api.web.UserRole;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
-import org.sonar.db.dismissmessage.MessageType;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.dismissmessage.MessageType;
 import org.sonar.db.entity.EntityDto;
 import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.permission.GroupPermissionDto;
@@ -47,14 +49,15 @@ import org.sonar.db.scim.ScimUserDto;
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.toSet;
-import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
-import static org.apache.commons.lang.math.RandomUtils.nextLong;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER;
 import static org.sonar.db.user.GroupTesting.newGroupDto;
 
 public class UserDbTester {
   private static final Set<String> PUBLIC_PERMISSIONS = Set.of(UserRole.USER, UserRole.CODEVIEWER);
   public static final String PERMISSIONS_CANT_BE_GRANTED_ON_BRANCHES = "Permissions can't be granted on branches";
+
+  private final Random random = new SecureRandom();
 
   private final DbTester db;
   private final DbClient dbClient;
@@ -482,7 +485,7 @@ public class UserDbTester {
   public final SessionTokenDto insertSessionToken(UserDto user, Consumer<SessionTokenDto>... populators) {
     SessionTokenDto dto = new SessionTokenDto()
       .setUserUuid(user.getUuid())
-      .setExpirationDate(nextLong());
+      .setExpirationDate(random.nextLong(Long.MAX_VALUE));
     stream(populators).forEach(p -> p.accept(dto));
     db.getDbClient().sessionTokensDao().insert(db.getSession(), dto);
     db.commit();

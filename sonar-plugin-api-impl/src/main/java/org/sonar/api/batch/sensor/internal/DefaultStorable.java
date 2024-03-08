@@ -20,8 +20,8 @@
 package org.sonar.api.batch.sensor.internal;
 
 import javax.annotation.Nullable;
-import org.apache.commons.lang.builder.ToStringBuilder;
-import org.apache.commons.lang.builder.ToStringStyle;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 
 import static java.util.Objects.requireNonNull;
 import static org.sonar.api.utils.Preconditions.checkState;

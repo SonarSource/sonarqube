@@ -33,8 +33,8 @@ import org.sonar.server.platform.NodeInformation;
 import org.sonar.server.property.InternalProperties;
 
 import static com.google.common.base.Preconditions.checkState;
-import static org.apache.commons.lang.StringUtils.isEmpty;
-import static org.apache.commons.lang.StringUtils.isNotEmpty;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
+import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 import static org.sonar.api.CoreProperties.SERVER_ID;
 import static org.sonar.server.property.InternalProperties.SERVER_ID_CHECKSUM;
 

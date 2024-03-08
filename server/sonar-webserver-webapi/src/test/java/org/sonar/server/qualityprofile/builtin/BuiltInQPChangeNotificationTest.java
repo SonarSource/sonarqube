@@ -24,7 +24,7 @@ import org.junit.Test;
 import org.sonar.api.notifications.Notification;
 import org.sonar.server.qualityprofile.builtin.BuiltInQPChangeNotificationBuilder.Profile;
 
-import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;

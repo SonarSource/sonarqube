@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import javax.annotation.Nullable;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.sonar.server.common.gitlab.config.GitlabConfiguration;
 import org.sonar.server.common.gitlab.config.GitlabConfigurationService;
 import org.sonar.server.common.gitlab.config.ProvisioningType;

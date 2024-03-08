@@ -34,7 +34,7 @@ import org.sonar.api.batch.scm.BlameLine;
 import org.sonar.api.utils.DateUtils;
 
 import static com.google.common.base.Preconditions.checkState;
-import static org.apache.commons.lang.StringUtils.trimToNull;
+import static org.apache.commons.lang3.StringUtils.trimToNull;
 
 public class XooBlameCommand extends BlameCommand {
 

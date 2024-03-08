@@ -42,7 +42,7 @@ import org.sonarqube.ws.MediaTypes;
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static java.util.Collections.emptyList;
 import static java.util.Locale.ENGLISH;
-import static org.apache.commons.lang.StringUtils.substringAfterLast;
+import static org.apache.commons.lang3.StringUtils.substringAfterLast;
 import static org.apache.tomcat.util.http.fileupload.FileUploadBase.MULTIPART;
 
 public class ServletRequest extends ValidatingRequest {

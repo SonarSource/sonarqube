@@ -53,7 +53,7 @@ import org.sonarqube.ws.Ce;
 import org.sonarqube.ws.Common;
 
 import static java.util.Collections.singleton;
-import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.api.web.UserRole.ADMIN;

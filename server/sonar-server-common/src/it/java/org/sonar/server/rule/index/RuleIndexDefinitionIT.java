@@ -22,7 +22,7 @@ package org.sonar.server.rule.index;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.search.TotalHits;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.indices.AnalyzeRequest;

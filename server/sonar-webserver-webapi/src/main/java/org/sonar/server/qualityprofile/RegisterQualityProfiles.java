@@ -32,7 +32,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.sonar.api.Startable;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;

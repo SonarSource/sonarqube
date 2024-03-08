@@ -20,7 +20,7 @@
 package org.sonar.server.source.ws;
 
 import com.google.common.io.Resources;
-import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;

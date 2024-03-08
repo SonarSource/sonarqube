@@ -34,7 +34,7 @@ import org.sonar.updatecenter.common.SonarUpdate;
 import org.sonar.updatecenter.common.UpdateCenter;
 import org.sonar.updatecenter.common.Version;
 
-import static org.apache.commons.lang.StringUtils.isNotBlank;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.sonar.server.plugins.edition.EditionBundledPlugins.isEditionBundled;
 
 /**

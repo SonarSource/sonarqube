@@ -38,7 +38,7 @@ import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.user.UserSession;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static org.apache.commons.lang.StringUtils.isNotBlank;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.sonar.core.util.Slug.slugify;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
 import static org.sonar.db.DatabaseUtils.closeQuietly;

@@ -39,7 +39,7 @@ import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.server.project.Project;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.Assert.fail;

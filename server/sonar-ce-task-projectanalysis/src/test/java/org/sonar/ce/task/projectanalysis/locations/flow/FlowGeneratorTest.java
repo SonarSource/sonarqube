@@ -19,9 +19,10 @@
  */
 package org.sonar.ce.task.projectanalysis.locations.flow;
 
+import java.security.SecureRandom;
 import java.util.List;
 import java.util.Map;
-import org.apache.commons.lang.math.RandomUtils;
+import java.util.Random;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -34,7 +35,7 @@ import org.sonar.db.protobuf.DbIssues;
 
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toMap;
-import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -43,6 +44,9 @@ import static org.mockito.Mockito.when;
 public class FlowGeneratorTest {
 
   private static final String COMPONENT_NAME = "test_comp";
+
+  private final Random random = new SecureRandom();
+
 
   @Mock
   private TreeRootHolder treeRootHolder;
@@ -124,10 +128,10 @@ public class FlowGeneratorTest {
 
   private DbIssues.Location createDbLocation(String componentId) {
     org.sonar.db.protobuf.DbCommons.TextRange textRange = org.sonar.db.protobuf.DbCommons.TextRange.newBuilder()
-      .setStartLine(RandomUtils.nextInt())
-      .setEndLine(RandomUtils.nextInt())
-      .setStartOffset(RandomUtils.nextInt())
-      .setEndOffset(RandomUtils.nextInt())
+      .setStartLine(random.nextInt(Integer.MAX_VALUE))
+      .setEndLine(random.nextInt(Integer.MAX_VALUE))
+      .setStartOffset(random.nextInt(Integer.MAX_VALUE))
+      .setEndOffset(random.nextInt(Integer.MAX_VALUE))
       .build();
 
     Component component = mock(Component.class);

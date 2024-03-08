@@ -24,7 +24,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
-import org.apache.commons.lang.time.DateUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import org.sonar.db.purge.PurgeableAnalysisDto;
 
 final class Interval {

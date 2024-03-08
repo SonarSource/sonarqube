@@ -61,8 +61,8 @@ import org.sonarqube.ws.client.RequestWithPayload.Part;
 import org.sonarqube.ws.client.WsResponse;
 
 import static java.net.URLEncoder.encode;
-import static org.apache.commons.lang.StringUtils.EMPTY;
-import static org.apache.commons.lang.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.EMPTY;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.sonar.core.ce.CeTaskCharacteristics.BRANCH_TYPE;
 import static org.sonar.core.ce.CeTaskCharacteristics.DEVOPS_PLATFORM_PROJECT_IDENTIFIER;
 import static org.sonar.core.ce.CeTaskCharacteristics.DEVOPS_PLATFORM_URL;

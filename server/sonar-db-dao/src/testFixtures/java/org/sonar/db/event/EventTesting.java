@@ -22,7 +22,7 @@ package org.sonar.db.event;
 import org.sonar.db.component.SnapshotDto;
 
 import static java.util.Objects.requireNonNull;
-import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 
 public class EventTesting {
 

@@ -23,7 +23,7 @@ import ch.qos.logback.access.tomcat.LogbackValve;
 import ch.qos.logback.core.util.ExecutorServiceUtil;
 import org.apache.catalina.LifecycleException;
 import org.apache.catalina.LifecycleState;
-import org.apache.commons.lang.reflect.FieldUtils;
+import org.apache.commons.lang3.reflect.FieldUtils;
 
 /**
  * Implementation of {@link ch.qos.logback.access.tomcat.LogbackValve} that does not

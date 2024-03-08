@@ -24,7 +24,7 @@ import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.server.ws.ServletFilterHandler;
 
-import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class UsersWsTest {

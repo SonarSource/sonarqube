@@ -25,7 +25,7 @@ import java.io.ObjectOutputStream;
 import java.util.Random;
 import java.util.stream.IntStream;
 
-import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 import static org.sonar.process.cluster.health.NodeDetails.newNodeDetailsBuilder;
 import static org.sonar.process.cluster.health.NodeHealth.newNodeHealthBuilder;
 

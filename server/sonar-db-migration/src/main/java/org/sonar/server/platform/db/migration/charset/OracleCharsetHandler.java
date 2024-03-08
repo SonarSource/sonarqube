@@ -21,11 +21,11 @@ package org.sonar.server.platform.db.migration.charset;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import org.sonar.api.utils.MessageException;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.utils.MessageException;
 
 import static java.lang.String.format;
-import static org.apache.commons.lang.StringUtils.containsIgnoreCase;
+import static org.apache.commons.lang3.StringUtils.containsIgnoreCase;
 
 class OracleCharsetHandler extends CharsetHandler {
 

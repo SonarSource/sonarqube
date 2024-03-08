@@ -29,7 +29,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.AssumptionViolatedException;
 import org.sonar.api.config.internal.Settings;
 import org.sonar.db.dialect.H2;

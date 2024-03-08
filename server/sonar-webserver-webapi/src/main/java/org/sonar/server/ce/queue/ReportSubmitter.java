@@ -49,7 +49,7 @@ import org.sonar.server.project.ws.ProjectCreator;
 import org.sonar.server.user.UserSession;
 
 import static java.lang.String.format;
-import static org.apache.commons.lang.StringUtils.defaultIfBlank;
+import static org.apache.commons.lang3.StringUtils.defaultIfBlank;
 import static org.sonar.db.permission.GlobalPermission.SCAN;
 import static org.sonar.db.project.CreationMethod.SCANNER_API;
 import static org.sonar.db.project.CreationMethod.SCANNER_API_DEVOPS_AUTO_CONFIG;

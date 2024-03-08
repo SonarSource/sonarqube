@@ -21,7 +21,7 @@ package org.sonar.ce.task.projectanalysis.step;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.CrawlerDepthLimit;
 import org.sonar.ce.task.projectanalysis.component.DepthTraversalTypeAwareCrawler;

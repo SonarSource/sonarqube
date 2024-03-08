@@ -19,10 +19,9 @@
  */
 package org.sonar.application.config;
 
-import org.apache.commons.lang.StringUtils;
-
 import java.util.Map;
 import java.util.Properties;
+import org.apache.commons.lang3.StringUtils;
 
 public class CommandLineParser {
 

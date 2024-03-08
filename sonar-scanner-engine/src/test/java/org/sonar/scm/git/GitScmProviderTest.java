@@ -27,6 +27,7 @@ import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.security.SecureRandom;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
@@ -57,10 +58,10 @@ import org.junit.rules.TemporaryFolder;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.notifications.AnalysisWarnings;
 import org.sonar.api.scan.filesystem.PathResolver;
-import org.sonar.api.utils.MessageException;
-import org.sonar.api.utils.System2;
 import org.sonar.api.testfixtures.log.LogAndArguments;
 import org.sonar.api.testfixtures.log.LogTester;
+import org.sonar.api.utils.MessageException;
+import org.sonar.api.utils.System2;
 import org.sonar.core.documentation.DocumentationLinkGenerator;
 import org.sonar.scm.git.strategy.DefaultBlameStrategy;
 
@@ -122,7 +123,7 @@ public class GitScmProviderTest {
   public LogTester logs = new LogTester();
 
   private final GitIgnoreCommand gitIgnoreCommand = mock(GitIgnoreCommand.class);
-  private static final Random random = new Random();
+  private static final Random RANDOM = new SecureRandom();
   private static final System2 system2 = mock(System2.class);
 
   private Path worktree;
@@ -812,7 +813,7 @@ public class GitScmProviderTest {
     for (int i = 0; i < 4; i++) {
       sb.append(' ');
       for (int j = 0; j < prefix.length(); j++) {
-        sb.append((char) ('a' + random.nextInt(26)));
+        sb.append((char) ('a' + RANDOM.nextInt(26)));
       }
     }
     return sb.toString();

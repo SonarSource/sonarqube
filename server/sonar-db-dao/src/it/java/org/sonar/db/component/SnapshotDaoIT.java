@@ -19,6 +19,7 @@
  */
 package org.sonar.db.component;
 
+import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
@@ -45,8 +46,7 @@ import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toList;
-import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
-import static org.apache.commons.lang.math.RandomUtils.nextLong;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.db.ce.CeActivityDto.Status.CANCELED;
@@ -60,6 +60,8 @@ import static org.sonar.db.component.SnapshotQuery.SORT_ORDER.DESC;
 import static org.sonar.db.component.SnapshotTesting.newAnalysis;
 
 class SnapshotDaoIT {
+
+  private final Random random = new SecureRandom();
 
   @RegisterExtension
   private final DbTester db = DbTester.create(System2.INSTANCE);
@@ -210,7 +212,6 @@ class SnapshotDaoIT {
 
   @Test
   void selectAnalysesByQuery_all() {
-    Random random = new Random();
     List<SnapshotDto> snapshots = IntStream.range(0, 1 + random.nextInt(5))
       .mapToObj(i -> {
         ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
@@ -227,7 +228,6 @@ class SnapshotDaoIT {
 
   @Test
   void selectAnalysesByQuery_by_component_uuid() {
-    Random random = new Random();
     ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
     List<SnapshotDto> snapshots1 = IntStream.range(0, 1 + random.nextInt(20))
@@ -249,7 +249,6 @@ class SnapshotDaoIT {
 
   @Test
   void selectAnalysesByQuery_sort_by_date() {
-    Random random = new Random();
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     List<SnapshotDto> snapshots = IntStream.range(0, 1 + random.nextInt(20))
       .mapToObj(j -> SnapshotTesting.newAnalysis(project).setCreatedAt(1_000L + j))
@@ -573,11 +572,11 @@ class SnapshotDaoIT {
     queueDto.setTaskType(CeTaskTypes.REPORT);
     queueDto.setComponentUuid(projectUuid);
     queueDto.setUuid(randomAlphanumeric(40));
-    queueDto.setCreatedAt(nextLong());
+    queueDto.setCreatedAt(random.nextLong(Long.MAX_VALUE));
     CeActivityDto activityDto = new CeActivityDto(queueDto);
     activityDto.setStatus(status);
-    activityDto.setExecutionTimeMs(nextLong());
-    activityDto.setExecutedAt(nextLong());
+    activityDto.setExecutionTimeMs(random.nextLong(10000));
+    activityDto.setExecutedAt(random.nextLong(Long.MAX_VALUE));
     activityDto.setAnalysisUuid(analysis.getUuid());
     db.getDbClient().ceActivityDao().insert(db.getSession(), activityDto);
     db.commit();

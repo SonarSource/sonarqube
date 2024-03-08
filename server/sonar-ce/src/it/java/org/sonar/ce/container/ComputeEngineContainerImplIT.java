@@ -26,7 +26,7 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.Properties;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;

@@ -31,7 +31,7 @@ import org.sonar.server.common.health.EsStatusClusterCheck;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.health.Health;
 
-import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;

@@ -19,6 +19,7 @@
  */
 package org.sonar.db.issue;
 
+import java.security.SecureRandom;
 import java.sql.SQLException;
 import java.util.Collection;
 import java.util.Collections;
@@ -26,6 +27,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 import java.util.Set;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -56,7 +58,6 @@ import org.sonar.db.user.UserDto;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
-import static org.apache.commons.lang.math.RandomUtils.nextInt;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.fail;
@@ -95,6 +96,8 @@ class IssueDaoIT {
   private static final String ISSUE_KEY2 = "I2";
   private static final String TEST_CONTEXT_KEY = "test_context_key";
   private static final String USER_LOGIN = "user_login";
+
+  private static final Random RANDOM = new SecureRandom();
 
   private static final RuleType[] RULE_TYPES_EXCEPT_HOTSPOT = Stream.of(RuleType.values())
     .filter(r -> r != RuleType.SECURITY_HOTSPOT)
@@ -1041,7 +1044,7 @@ class IssueDaoIT {
   }
 
   private static RuleType randomRuleTypeExceptHotspot() {
-    return RULE_TYPES_EXCEPT_HOTSPOT[nextInt(RULE_TYPES_EXCEPT_HOTSPOT.length)];
+    return RULE_TYPES_EXCEPT_HOTSPOT[RANDOM.nextInt(RULE_TYPES_EXCEPT_HOTSPOT.length)];
   }
 
   private void insertBranchIssue(ComponentDto branch, ComponentDto file, RuleDto rule, String id, String status,

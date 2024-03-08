@@ -47,7 +47,7 @@ import org.sonar.server.project.Project;
 import org.sonar.server.qualitygate.notification.QGChangeNotification;
 
 import static java.util.Collections.emptyList;
-import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;

@@ -25,7 +25,7 @@ import java.util.Collection;
 import java.util.Objects;
 import java.util.function.Function;
 import javax.annotation.Nonnull;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.sonar.api.rule.RuleKey;
 
 import static java.util.Comparator.comparing;

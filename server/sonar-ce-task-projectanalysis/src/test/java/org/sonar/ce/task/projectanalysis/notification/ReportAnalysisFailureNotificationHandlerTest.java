@@ -38,7 +38,7 @@ import org.sonar.server.notification.email.EmailNotificationChannel.EmailDeliver
 
 import static java.util.Collections.emptySet;
 import static java.util.stream.Collectors.toSet;
-import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;

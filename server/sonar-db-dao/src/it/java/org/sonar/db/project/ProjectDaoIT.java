@@ -19,6 +19,7 @@
  */
 package org.sonar.db.project;
 
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -27,6 +28,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Random;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -53,7 +55,6 @@ import org.sonar.db.metric.MetricDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 
 import static java.util.Collections.emptySet;
-import static org.apache.commons.lang.math.RandomUtils.nextInt;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.any;
@@ -65,6 +66,8 @@ import static org.sonar.api.measures.CoreMetrics.NCLOC_LANGUAGE_DISTRIBUTION_KEY
 import static org.sonar.api.measures.Metric.ValueType.STRING;
 
 class ProjectDaoIT {
+
+  private final Random random = new SecureRandom();
 
   private final System2 system2 = new AlwaysIncreasingSystem2(1000L);
 
@@ -312,7 +315,7 @@ class ProjectDaoIT {
   @Test
   void select_project_uuids_associated_to_default_quality_profile_for_specific_language() {
     String language = "xoo";
-    Set<ProjectData> projects = insertProjects(nextInt(10));
+    Set<ProjectData> projects = insertProjects(random.nextInt(10));
     insertDefaultQualityProfile(language);
     insertProjectsLiveMeasures(language, projects);
 
@@ -427,7 +430,7 @@ class ProjectDaoIT {
       .setMetricUuid(metric.getUuid())
       .setComponentUuid(componentDto.uuid())
       .setProjectUuid(project.getUuid())
-      .setData(language + "=" + nextInt(10));
+      .setData(language + "=" + random.nextInt(10));
   }
 
   private Consumer<ProjectData> insertLiveMeasure(String language, MetricDto metric) {

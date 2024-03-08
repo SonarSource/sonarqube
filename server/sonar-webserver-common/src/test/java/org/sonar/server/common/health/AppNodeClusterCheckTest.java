@@ -31,7 +31,7 @@ import org.sonar.server.health.Health;
 
 import static java.util.stream.Collectors.toSet;
 import static java.util.stream.Stream.of;
-import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 import static org.sonar.process.cluster.health.NodeHealth.Status.GREEN;
 import static org.sonar.process.cluster.health.NodeHealth.Status.RED;
 import static org.sonar.process.cluster.health.NodeHealth.Status.YELLOW;

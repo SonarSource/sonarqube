@@ -33,7 +33,7 @@ import org.sonar.server.es.Index;
 import org.sonar.server.es.IndexType;
 import org.sonar.server.es.IndexType.IndexMainType;
 
-import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.data.MapEntry.entry;

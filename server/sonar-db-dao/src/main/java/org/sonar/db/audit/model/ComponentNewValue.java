@@ -21,7 +21,7 @@ package org.sonar.db.audit.model;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.project.ProjectDto;
 

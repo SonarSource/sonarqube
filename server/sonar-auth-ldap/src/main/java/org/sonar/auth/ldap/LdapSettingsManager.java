@@ -21,11 +21,11 @@ package org.sonar.auth.ldap;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
-import org.apache.commons.lang.StringUtils;
-import org.sonar.api.config.Configuration;
-import org.sonar.api.server.ServerSide;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.config.Configuration;
+import org.sonar.api.server.ServerSide;
 
 /**
  * The LdapSettingsManager will parse the settings.

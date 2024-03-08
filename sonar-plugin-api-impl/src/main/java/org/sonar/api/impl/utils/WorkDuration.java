@@ -21,8 +21,8 @@ package org.sonar.api.impl.utils;
 
 import java.io.Serializable;
 import javax.annotation.Nullable;
-import org.apache.commons.lang.builder.ToStringBuilder;
-import org.apache.commons.lang.builder.ToStringStyle;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 
 /**
  * @since 4.2

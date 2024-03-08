@@ -29,7 +29,7 @@ import org.elasticsearch.index.query.QueryBuilder;
 import org.junit.Test;
 import org.sonar.server.es.searchrequest.TopAggregationDefinition.FilterScope;
 
-import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;

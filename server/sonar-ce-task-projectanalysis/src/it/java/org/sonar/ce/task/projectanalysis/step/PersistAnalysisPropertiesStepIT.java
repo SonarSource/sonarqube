@@ -35,7 +35,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.AnalysisPropertyDto;
 import org.sonar.scanner.protocol.output.ScannerReport;
 
-import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.mock;

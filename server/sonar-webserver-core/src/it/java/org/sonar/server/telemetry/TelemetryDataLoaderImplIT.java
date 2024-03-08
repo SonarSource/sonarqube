@@ -74,7 +74,7 @@ import org.sonar.server.telemetry.TelemetryData.ProjectStatistics;
 import org.sonar.updatecenter.common.Version;
 
 import static java.util.Arrays.asList;
-import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.assertj.core.groups.Tuple.tuple;

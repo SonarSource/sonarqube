@@ -42,7 +42,7 @@ import org.sonar.db.audit.model.PropertyNewValue;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Collections.singletonList;
-import static org.apache.commons.lang.StringUtils.repeat;
+import static org.apache.commons.lang3.StringUtils.repeat;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 import static org.sonar.db.DatabaseUtils.executeLargeInputsIntoSet;
 

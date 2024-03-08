@@ -2,7 +2,7 @@
 dependencies {
   api 'com.google.guava:guava'
   api 'commons-io:commons-io'
-  api 'commons-lang:commons-lang'
+  api 'org.apache.commons:commons-lang3'
   api 'org.apache.commons:commons-csv'
 
   compileOnlyApi 'com.google.code.findbugs:jsr305'

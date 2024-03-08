@@ -22,6 +22,7 @@ package org.sonar.db.purge;
 import com.google.common.collect.ImmutableSet;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
@@ -37,8 +38,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.math.RandomUtils;
-import org.apache.commons.lang.time.DateUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.slf4j.event.Level;
@@ -98,7 +98,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.time.ZoneOffset.UTC;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
-import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
 import static org.mockito.Mockito.mock;
@@ -124,6 +124,8 @@ import static org.sonar.db.webhook.WebhookDeliveryTesting.selectAllDeliveryUuids
 class PurgeDaoIT {
 
   private static final String PROJECT_UUID = "P1";
+
+  private final Random random = new SecureRandom();
 
   private final System2 system2 = mock(System2.class);
 
@@ -2045,7 +2047,7 @@ oldCreationDate));
   }
 
   private CeActivityDto insertCeActivity(ComponentDto component, String entityUuid) {
-    Status unusedStatus = Status.values()[RandomUtils.nextInt(Status.values().length)];
+    Status unusedStatus = Status.values()[random.nextInt(Status.values().length)];
     CeQueueDto queueDto = createCeQueue(component, entityUuid, unusedStatus);
 
     CeActivityDto dto = new CeActivityDto(queueDto);

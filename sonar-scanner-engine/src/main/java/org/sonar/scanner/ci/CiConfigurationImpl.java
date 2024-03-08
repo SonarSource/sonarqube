@@ -22,7 +22,7 @@ package org.sonar.scanner.ci;
 import java.util.Optional;
 import javax.annotation.Nullable;
 
-import static org.apache.commons.lang.StringUtils.defaultIfBlank;
+import static org.apache.commons.lang3.StringUtils.defaultIfBlank;
 
 public class CiConfigurationImpl implements CiConfiguration {
   private final String ciName;

@@ -39,7 +39,7 @@ import org.sonar.db.rule.RuleParamDto;
 import org.sonar.db.rule.RuleTesting;
 
 import static java.util.stream.Collectors.toList;
-import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.Mockito.mock;

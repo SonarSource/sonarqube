@@ -23,7 +23,7 @@ import org.junit.Test;
 import org.sonar.server.es.searchrequest.TopAggregationDefinition.NestedFieldFilterScope;
 import org.sonar.server.es.searchrequest.TopAggregationDefinition.SimpleFieldFilterScope;
 
-import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 

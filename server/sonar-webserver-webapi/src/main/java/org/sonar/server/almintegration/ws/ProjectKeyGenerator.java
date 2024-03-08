@@ -21,7 +21,7 @@ package org.sonar.server.almintegration.ws;
 
 import com.google.common.annotations.VisibleForTesting;
 import java.util.List;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.sonar.core.util.UuidFactory;
 
 import static com.google.common.collect.Lists.asList;

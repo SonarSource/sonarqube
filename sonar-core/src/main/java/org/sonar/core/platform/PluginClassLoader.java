@@ -26,7 +26,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
-import org.apache.commons.lang.SystemUtils;
+import org.apache.commons.lang3.SystemUtils;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.Plugin;
 import org.sonar.updatecenter.common.Version;
@@ -134,7 +134,7 @@ public class PluginClassLoader {
         try {
           instancesByPluginKey.put(pluginKey, (Plugin) classLoader.loadClass(mainClass).getDeclaredConstructor().newInstance());
         } catch (UnsupportedClassVersionError e) {
-          throw new IllegalStateException(String.format("The plugin [%s] does not support Java %s", pluginKey, SystemUtils.JAVA_VERSION_TRIMMED), e);
+          throw new IllegalStateException(String.format("The plugin [%s] does not support Java %s", pluginKey, SystemUtils.JAVA_VERSION), e);
         } catch (Throwable e) {
           throw new IllegalStateException(String.format("Fail to instantiate class [%s] of plugin [%s]", mainClass, pluginKey), e);
         }

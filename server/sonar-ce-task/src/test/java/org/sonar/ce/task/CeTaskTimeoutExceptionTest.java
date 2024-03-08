@@ -21,7 +21,7 @@ package org.sonar.ce.task;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import org.apache.commons.lang.RandomStringUtils;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.Test;
 import org.sonar.db.ce.CeActivityDto;
 

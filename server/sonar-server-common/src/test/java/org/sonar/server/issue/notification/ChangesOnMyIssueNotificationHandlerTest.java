@@ -50,7 +50,7 @@ import org.sonar.server.notification.email.EmailNotificationChannel;
 import org.sonar.server.notification.email.EmailNotificationChannel.EmailDeliveryRequest;
 
 import static java.util.stream.Collectors.toSet;
-import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anySet;
 import static org.mockito.Mockito.mock;

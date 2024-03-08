@@ -28,7 +28,7 @@ import org.sonar.core.util.UuidFactory;
 import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.CoreDbTester;
 
-import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.server.platform.db.migration.step.ForceReloadingOfAllPlugins.OVERWRITE_HASH;
 

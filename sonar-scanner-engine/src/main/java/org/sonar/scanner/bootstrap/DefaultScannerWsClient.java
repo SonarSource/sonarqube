@@ -32,7 +32,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.annotation.CheckForNull;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.notifications.AnalysisWarnings;
 import org.sonar.api.utils.MessageException;

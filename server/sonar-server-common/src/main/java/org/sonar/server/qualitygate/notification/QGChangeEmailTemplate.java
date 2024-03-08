@@ -19,18 +19,16 @@
  */
 package org.sonar.server.qualitygate.notification;
 
+import java.util.Optional;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.sonar.api.config.EmailSettings;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.notifications.Notification;
 import org.sonar.server.issue.notification.EmailMessage;
 import org.sonar.server.issue.notification.EmailTemplate;
 import org.sonar.server.measure.Rating;
-
-import java.util.Optional;
 
 /**
  * Creates email message for notification "alerts".

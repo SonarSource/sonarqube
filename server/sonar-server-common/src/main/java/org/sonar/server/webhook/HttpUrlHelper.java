@@ -27,7 +27,7 @@ import javax.annotation.Nullable;
 import okhttp3.HttpUrl;
 
 import static com.google.common.base.Preconditions.checkState;
-import static org.apache.commons.lang.StringUtils.repeat;
+import static org.apache.commons.lang3.StringUtils.repeat;
 
 public final class HttpUrlHelper {
   private HttpUrlHelper() {

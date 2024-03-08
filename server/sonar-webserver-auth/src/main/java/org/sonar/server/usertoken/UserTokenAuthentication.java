@@ -21,7 +21,7 @@ package org.sonar.server.usertoken;
 
 import java.util.Optional;
 import javax.annotation.Nullable;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.sonar.api.server.http.HttpRequest;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -34,7 +34,7 @@ import org.sonar.server.authentication.event.AuthenticationEvent;
 import org.sonar.server.authentication.event.AuthenticationException;
 import org.sonar.server.exceptions.NotFoundException;
 
-import static org.apache.commons.lang.StringUtils.startsWithIgnoreCase;
+import static org.apache.commons.lang3.StringUtils.startsWithIgnoreCase;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.server.authentication.BasicAuthentication.extractCredentialsFromHeader;
 

@@ -27,7 +27,7 @@ import java.util.Properties;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.sonar.process.MessageException;
 import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;

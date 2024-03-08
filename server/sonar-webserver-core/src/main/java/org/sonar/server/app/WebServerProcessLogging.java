@@ -34,8 +34,8 @@ import org.sonar.process.logging.LogLevelConfig;
 import org.sonar.process.logging.RootLoggerConfig;
 import org.sonar.server.log.ServerProcessLogging;
 
-import static org.apache.commons.lang.StringUtils.EMPTY;
-import static org.apache.commons.lang.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.EMPTY;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.sonar.process.ProcessId.WEB_SERVER;
 import static org.sonar.process.ProcessProperties.Property.LOG_JSON_OUTPUT;
 import static org.sonar.process.logging.AbstractLogHelper.PREFIX_LOG_FORMAT;

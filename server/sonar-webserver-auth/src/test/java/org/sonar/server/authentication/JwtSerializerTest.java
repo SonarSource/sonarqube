@@ -36,8 +36,8 @@ import org.sonar.api.utils.System2;
 import org.sonar.server.authentication.JwtSerializer.JwtSession;
 import org.sonar.server.authentication.event.AuthenticationException;
 
-import static org.apache.commons.lang.time.DateUtils.addMinutes;
-import static org.apache.commons.lang.time.DateUtils.addYears;
+import static org.apache.commons.lang3.time.DateUtils.addMinutes;
+import static org.apache.commons.lang3.time.DateUtils.addYears;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.server.authentication.event.AuthenticationEvent.Source;

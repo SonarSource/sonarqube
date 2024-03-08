@@ -19,6 +19,8 @@
  */
 package org.sonar.db.user;
 
+import java.security.SecureRandom;
+import java.util.Random;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.mockito.ArgumentCaptor;
@@ -30,7 +32,6 @@ import org.sonar.db.DbTester;
 import org.sonar.db.audit.AuditPersister;
 import org.sonar.db.audit.model.UserTokenNewValue;
 
-import static org.apache.commons.lang.math.RandomUtils.nextLong;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -40,6 +41,9 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.sonar.db.user.UserTokenTesting.newUserToken;
 
 class UserTokenDaoWithPersisterIT {
+
+  private final Random random = new SecureRandom();
+
   private final AuditPersister auditPersister = mock(AuditPersister.class);
   private final ArgumentCaptor<UserTokenNewValue> newValueCaptor = ArgumentCaptor.forClass(UserTokenNewValue.class);
 
@@ -53,8 +57,8 @@ class UserTokenDaoWithPersisterIT {
   @Test
   void insert_token_is_persisted() {
     UserTokenDto userToken = newUserToken()
-      .setExpirationDate(nextLong())
-      .setLastConnectionDate(nextLong());
+      .setExpirationDate(random.nextLong(Long.MAX_VALUE))
+      .setLastConnectionDate(random.nextLong(Long.MAX_VALUE));
     underTest.insert(db.getSession(), userToken, "login");
 
     verify(auditPersister).addUserToken(eq(db.getSession()), newValueCaptor.capture());

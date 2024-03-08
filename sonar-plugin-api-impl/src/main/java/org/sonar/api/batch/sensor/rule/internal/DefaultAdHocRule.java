@@ -32,7 +32,7 @@ import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rules.CleanCodeAttribute;
 import org.sonar.api.rules.RuleType;
 
-import static org.apache.commons.lang.StringUtils.isNotBlank;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.sonar.api.utils.Preconditions.checkState;
 
 public class DefaultAdHocRule extends DefaultStorable implements AdHocRule, NewAdHocRule {

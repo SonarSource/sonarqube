@@ -20,14 +20,14 @@
 package org.sonar.alm.client.github;
 
 import java.util.Optional;
-import org.sonar.auth.github.GithubAppConfiguration;
 import org.sonar.api.config.internal.Encryption;
 import org.sonar.api.config.internal.Settings;
 import org.sonar.api.server.ServerSide;
+import org.sonar.auth.github.GithubAppConfiguration;
 import org.sonar.auth.github.client.GithubApplicationClient;
 import org.sonar.db.alm.setting.AlmSettingDto;
 
-import static org.apache.commons.lang.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 @ServerSide
 public class GithubGlobalSettingsValidator {

@@ -23,7 +23,7 @@ import com.sonarsource.plugins.license.api.FooBar;
 import java.io.File;
 import java.util.List;
 import java.util.Map;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
 import org.sonar.api.server.rule.RulesDefinition;
 

@@ -22,7 +22,7 @@ package org.sonar.core.issue;
 import java.time.Instant;
 import java.util.Date;
 import java.util.Objects;
-import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.jetbrains.annotations.Nullable;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.RuleKey;

@@ -27,7 +27,7 @@ import org.sonar.scanner.protocol.output.ScannerReport;
 
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.Objects.requireNonNull;
-import static org.apache.commons.lang.StringUtils.isNotEmpty;
+import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
 /**
  * ScmInfo implementation based on the changeset information from the Report

@@ -38,7 +38,7 @@ import org.sonar.scanner.ProjectInfo;
 import org.sonar.scanner.bootstrap.GlobalConfiguration;
 
 import static java.lang.String.format;
-import static org.apache.commons.lang.RandomStringUtils.randomAscii;
+import static org.apache.commons.lang3.RandomStringUtils.randomAscii;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;

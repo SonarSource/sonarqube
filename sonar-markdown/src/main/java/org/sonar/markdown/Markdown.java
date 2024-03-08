@@ -19,7 +19,7 @@
  */
 package org.sonar.markdown;
 
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.sonar.channel.ChannelDispatcher;
 import org.sonar.channel.CodeReader;
 
@@ -54,6 +54,6 @@ public final class Markdown {
   }
 
   public static String convertToHtml(String input) {
-    return new Markdown().convert(StringEscapeUtils.escapeHtml(input));
+    return new Markdown().convert(StringEscapeUtils.escapeHtml4(input));
   }
 }

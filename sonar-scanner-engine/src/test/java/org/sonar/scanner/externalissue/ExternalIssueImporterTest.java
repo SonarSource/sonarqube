@@ -20,9 +20,10 @@
 package org.sonar.scanner.externalissue;
 
 import java.io.File;
+import java.security.SecureRandom;
 import java.util.Map;
+import java.util.Random;
 import javax.annotation.Nullable;
-import org.apache.commons.lang.math.RandomUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -41,8 +42,8 @@ import org.sonar.api.rules.RuleType;
 import org.sonar.api.testfixtures.log.LogTester;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.apache.commons.lang.ObjectUtils.defaultIfNull;
-import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.ObjectUtils.defaultIfNull;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.api.issue.impact.Severity.HIGH;
@@ -56,6 +57,8 @@ public class ExternalIssueImporterTest {
   public static final String RULE_ID = "some_rule_id";
   public static final String RULE_NAME = "some_rule_name";
   public static final CleanCodeAttribute RULE_ATTRIBUTE = CleanCodeAttribute.FORMATTED;
+
+  private final Random random = new SecureRandom();
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
@@ -381,7 +384,7 @@ public class ExternalIssueImporterTest {
     input.ruleId = randomAlphabetic(5);
     input.severity = "CRITICAL";
     input.type = "BUG";
-    input.effortMinutes = RandomUtils.nextInt();
+    input.effortMinutes = random.nextInt(Integer.MAX_VALUE);
     input.primaryLocation = new ExternalIssueReport.Location();
     input.primaryLocation.filePath = sourceFile.getProjectRelativePath();
     input.primaryLocation.message = randomAlphabetic(5);

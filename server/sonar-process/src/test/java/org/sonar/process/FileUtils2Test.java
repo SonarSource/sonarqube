@@ -26,7 +26,7 @@ import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
 import javax.annotation.CheckForNull;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.SystemUtils;
+import org.apache.commons.lang3.SystemUtils;
 import org.assertj.core.api.ThrowableAssert.ThrowingCallable;
 import org.junit.Rule;
 import org.junit.Test;

@@ -21,7 +21,7 @@ package org.sonar.api.batch.sensor.issue.internal;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.sonar.api.batch.fs.InputComponent;
 import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
@@ -32,8 +32,8 @@ import org.sonar.api.batch.sensor.issue.NewMessageFormatting;
 import org.sonar.api.issue.Issue;
 
 import static java.util.Objects.requireNonNull;
-import static org.apache.commons.lang.StringUtils.abbreviate;
-import static org.apache.commons.lang.StringUtils.trim;
+import static org.apache.commons.lang3.StringUtils.abbreviate;
+import static org.apache.commons.lang3.StringUtils.trim;
 import static org.sonar.api.utils.Preconditions.checkArgument;
 import static org.sonar.api.utils.Preconditions.checkState;
 

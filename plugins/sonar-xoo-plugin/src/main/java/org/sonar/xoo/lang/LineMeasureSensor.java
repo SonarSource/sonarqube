@@ -24,7 +24,9 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
@@ -32,8 +34,6 @@ import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.utils.KeyValueFormat;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.xoo.Xoo;
 
 /**

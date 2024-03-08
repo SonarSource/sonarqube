@@ -42,7 +42,7 @@ import org.sonarqube.ws.Plugins.UpdateStatus;
 
 import static java.lang.String.CASE_INSENSITIVE_ORDER;
 import static java.util.Optional.ofNullable;
-import static org.apache.commons.lang.StringUtils.isNotBlank;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.sonar.api.utils.DateUtils.formatDate;
 import static org.sonar.server.plugins.edition.EditionBundledPlugins.isEditionBundled;
 import static org.sonarqube.ws.Plugins.UpdateStatus.COMPATIBLE;

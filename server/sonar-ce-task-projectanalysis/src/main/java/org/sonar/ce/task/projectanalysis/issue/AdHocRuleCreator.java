@@ -38,7 +38,7 @@ import org.sonar.db.rule.RuleDto;
 import org.sonar.server.rule.index.RuleIndexer;
 
 import static java.util.Objects.requireNonNull;
-import static org.apache.commons.lang.StringUtils.substring;
+import static org.apache.commons.lang3.StringUtils.substring;
 import static org.sonar.api.rule.RuleStatus.READY;
 import static org.sonar.db.rule.RuleDto.Scope.ALL;
 

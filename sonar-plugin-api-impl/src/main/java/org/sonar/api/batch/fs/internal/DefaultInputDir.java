@@ -22,7 +22,7 @@ package org.sonar.api.batch.fs.internal;
 import java.io.File;
 import java.net.URI;
 import java.nio.file.Path;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.sonar.api.batch.fs.InputDir;
 import org.sonar.api.utils.PathUtils;
 

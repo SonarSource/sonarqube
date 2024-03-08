@@ -29,7 +29,7 @@ import okhttp3.HttpUrl;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import static org.apache.commons.lang.StringUtils.repeat;
+import static org.apache.commons.lang3.StringUtils.repeat;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.server.webhook.HttpUrlHelper.obfuscateCredentials;
 

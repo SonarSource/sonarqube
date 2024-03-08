@@ -28,7 +28,7 @@ import org.sonar.server.issue.notification.IssuesChangesNotificationBuilder.Chan
 import org.sonar.server.issue.notification.IssuesChangesNotificationBuilder.User;
 import org.sonar.server.issue.notification.IssuesChangesNotificationBuilder.UserChange;
 
-import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.sonar.server.issue.notification.IssuesChangesNotificationBuilderTesting.newRandomNotAHotspotRule;

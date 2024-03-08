@@ -40,7 +40,7 @@ import static java.net.HttpURLConnection.HTTP_MOVED_TEMP;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static okhttp3.internal.http.StatusLine.HTTP_PERM_REDIRECT;
 import static okhttp3.internal.http.StatusLine.HTTP_TEMP_REDIRECT;
-import static org.apache.commons.lang.StringUtils.isNotEmpty;
+import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
 @ServerSide
 @ComputeEngineSide

@@ -25,7 +25,7 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.db.entity.EntityDto;
 
-import static org.apache.commons.lang.StringUtils.trimToNull;
+import static org.apache.commons.lang3.StringUtils.trimToNull;
 import static org.sonar.db.component.DbTagsReader.readDbTags;
 
 public class ProjectDto extends EntityDto {

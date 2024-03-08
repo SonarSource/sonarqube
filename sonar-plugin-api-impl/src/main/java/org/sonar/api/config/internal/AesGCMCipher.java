@@ -24,9 +24,8 @@ import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import javax.annotation.Nullable;
 import javax.crypto.spec.GCMParameterSpec;
-
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 final class AesGCMCipher extends AesCipher {
   private static final int GCM_TAG_LENGTH_IN_BITS = 128;

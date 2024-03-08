@@ -29,7 +29,7 @@ import org.sonar.server.authentication.event.AuthenticationException;
 
 import static java.lang.String.format;
 import static org.apache.commons.codec.digest.DigestUtils.sha256Hex;
-import static org.apache.commons.lang.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.sonar.server.authentication.Cookies.findCookie;
 import static org.sonar.server.authentication.Cookies.newCookieBuilder;
 import static org.sonar.server.authentication.event.AuthenticationEvent.Source;

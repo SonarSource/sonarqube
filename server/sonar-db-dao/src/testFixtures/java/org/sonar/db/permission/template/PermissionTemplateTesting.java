@@ -19,17 +19,21 @@
  */
 package org.sonar.db.permission.template;
 
+import java.security.SecureRandom;
 import java.util.Date;
+import java.util.Random;
 import java.util.function.Consumer;
-import org.apache.commons.lang.math.RandomUtils;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.permission.PermissionsTestHelper;
 
 import static java.util.Arrays.stream;
-import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
-import static org.apache.commons.lang.RandomStringUtils.randomAscii;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.randomAscii;
 
 public class PermissionTemplateTesting {
+
+  private static final Random RANDOM = new SecureRandom();
+
   @SafeVarargs
   public static PermissionTemplateDto newPermissionTemplateDto(Consumer<PermissionTemplateDto>... populators) {
     PermissionTemplateDto dto = new PermissionTemplateDto()
@@ -44,7 +48,7 @@ public class PermissionTemplateTesting {
 
   public static PermissionTemplateUserDto newPermissionTemplateUserDto() {
     return new PermissionTemplateUserDto()
-      .setPermission(PermissionsTestHelper.ALL_PERMISSIONS.toArray(new String[0])[RandomUtils.nextInt(PermissionsTestHelper.ALL_PERMISSIONS.size())])
+      .setPermission(PermissionsTestHelper.ALL_PERMISSIONS.toArray(new String[0])[RANDOM.nextInt(PermissionsTestHelper.ALL_PERMISSIONS.size())])
       .setCreatedAt(new Date())
       .setUpdatedAt(new Date());
   }
@@ -52,7 +56,7 @@ public class PermissionTemplateTesting {
   public static PermissionTemplateGroupDto newPermissionTemplateGroupDto() {
     return new PermissionTemplateGroupDto()
       .setUuid(Uuids.createFast())
-      .setPermission(PermissionsTestHelper.ALL_PERMISSIONS.toArray(new String[0])[RandomUtils.nextInt(PermissionsTestHelper.ALL_PERMISSIONS.size())])
+      .setPermission(PermissionsTestHelper.ALL_PERMISSIONS.toArray(new String[0])[RANDOM.nextInt(PermissionsTestHelper.ALL_PERMISSIONS.size())])
       .setCreatedAt(new Date())
       .setUpdatedAt(new Date());
   }
@@ -60,8 +64,8 @@ public class PermissionTemplateTesting {
   public static PermissionTemplateCharacteristicDto newPermissionTemplateCharacteristicDto() {
     return new PermissionTemplateCharacteristicDto()
       .setUuid(Uuids.createFast())
-      .setPermission(PermissionsTestHelper.ALL_PERMISSIONS.toArray(new String[0])[RandomUtils.nextInt(PermissionsTestHelper.ALL_PERMISSIONS.size())])
-      .setWithProjectCreator(RandomUtils.nextBoolean())
+      .setPermission(PermissionsTestHelper.ALL_PERMISSIONS.toArray(new String[0])[RANDOM.nextInt(PermissionsTestHelper.ALL_PERMISSIONS.size())])
+      .setWithProjectCreator(RANDOM.nextBoolean())
       .setCreatedAt(System.currentTimeMillis())
       .setUpdatedAt(System.currentTimeMillis());
   }

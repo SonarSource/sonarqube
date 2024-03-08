@@ -27,7 +27,7 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 import static java.util.regex.Pattern.CASE_INSENSITIVE;
-import static org.apache.commons.lang.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 public class ScimUserQuery {
   private static final Pattern USERNAME_FILTER_PATTERN = Pattern.compile("^userName\\s+eq\\s+\"([^\"]*?)\"$", CASE_INSENSITIVE);

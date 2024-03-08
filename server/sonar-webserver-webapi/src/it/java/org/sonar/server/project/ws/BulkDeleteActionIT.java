@@ -20,17 +20,18 @@
 package org.sonar.server.project.ws;
 
 import java.net.HttpURLConnection;
+import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.math.RandomUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.junit.Rule;
 import org.junit.Test;
@@ -84,6 +85,7 @@ public class BulkDeleteActionIT {
   private final ComponentCleanerService componentCleanerService = mock(ComponentCleanerService.class);
   private final DbClient dbClient = db.getDbClient();
   private final ProjectLifeCycleListeners projectLifeCycleListeners = mock(ProjectLifeCycleListeners.class);
+  private final Random random = new SecureRandom();
 
   private final BulkDeleteAction underTest = new BulkDeleteAction(componentCleanerService, dbClient, userSession, projectLifeCycleListeners);
   private final WsActionTester ws = new WsActionTester(underTest);
@@ -291,7 +293,7 @@ public class BulkDeleteActionIT {
     userSession.logIn().addPermission(ADMINISTER);
 
     Date now = new Date();
-    Date futureDate = new DateTime(now).plusDays(RandomUtils.nextInt() + 1).toDate();
+    Date futureDate = new DateTime(now).plusDays(random.nextInt(1, Integer.MAX_VALUE)).toDate();
     ComponentDto project1 = db.components().insertPublicProject().getMainBranchComponent();
     db.getDbClient().snapshotDao().insert(db.getSession(), newAnalysis(project1).setCreatedAt(now.getTime()));
     ComponentDto project2 = db.components().insertPublicProject().getMainBranchComponent();

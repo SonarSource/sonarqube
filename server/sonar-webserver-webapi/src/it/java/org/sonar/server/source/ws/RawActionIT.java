@@ -35,7 +35,7 @@ import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
 
 import static java.lang.String.format;
-import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.db.component.ComponentTesting.newFileDto;

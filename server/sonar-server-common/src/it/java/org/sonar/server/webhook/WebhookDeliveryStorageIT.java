@@ -20,7 +20,7 @@
 package org.sonar.server.webhook;
 
 import java.io.IOException;
-import org.apache.commons.lang.RandomStringUtils;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
@@ -31,7 +31,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.webhook.WebhookDeliveryDto;
 import org.sonar.db.webhook.WebhookDeliveryTesting;
 
-import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;

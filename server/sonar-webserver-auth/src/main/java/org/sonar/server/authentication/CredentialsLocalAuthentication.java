@@ -27,7 +27,7 @@ import java.util.EnumMap;
 import javax.annotation.Nullable;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
-import org.apache.commons.lang.RandomStringUtils;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.mindrot.jbcrypt.BCrypt;
 import org.sonar.api.config.Configuration;
 import org.sonar.db.DbClient;

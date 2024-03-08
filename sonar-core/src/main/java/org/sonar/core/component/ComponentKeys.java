@@ -21,7 +21,7 @@ package org.sonar.core.component;
 
 import java.util.regex.Pattern;
 import javax.annotation.Nullable;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import static com.google.common.base.Preconditions.checkArgument;
 

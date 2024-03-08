@@ -21,7 +21,7 @@ package org.sonar.scanner.report;
 
 import java.util.Map;
 import javax.annotation.CheckForNull;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputFile.Status;

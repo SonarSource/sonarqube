@@ -36,7 +36,7 @@ import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.rule.index.RuleIndexer;
 
-import static org.apache.commons.lang.StringUtils.repeat;
+import static org.apache.commons.lang3.StringUtils.repeat;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 

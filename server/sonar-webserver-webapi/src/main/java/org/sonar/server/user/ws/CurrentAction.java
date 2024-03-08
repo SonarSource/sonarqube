@@ -47,15 +47,15 @@ import static java.util.Collections.singletonList;
 import static java.util.Optional.empty;
 import static java.util.Optional.of;
 import static java.util.Optional.ofNullable;
-import static org.apache.commons.lang.StringUtils.EMPTY;
+import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.server.user.ws.DismissNoticeAction.AVAILABLE_NOTICE_KEYS;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
-import static org.sonarqube.ws.Users.CurrentWsResponse.Permissions;
-import static org.sonarqube.ws.Users.CurrentWsResponse.newBuilder;
 import static org.sonarqube.ws.Users.CurrentWsResponse.HomepageType.APPLICATION;
 import static org.sonarqube.ws.Users.CurrentWsResponse.HomepageType.PORTFOLIO;
 import static org.sonarqube.ws.Users.CurrentWsResponse.HomepageType.PROJECT;
+import static org.sonarqube.ws.Users.CurrentWsResponse.Permissions;
+import static org.sonarqube.ws.Users.CurrentWsResponse.newBuilder;
 import static org.sonarqube.ws.client.user.UsersWsParameters.ACTION_CURRENT;
 
 public class CurrentAction implements UsersWsAction {

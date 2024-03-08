@@ -19,7 +19,9 @@
  */
 package org.sonar.server.developers.ws;
 
+import java.security.SecureRandom;
 import java.util.Date;
+import java.util.Random;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import org.junit.Rule;
@@ -51,9 +53,7 @@ import org.sonarqube.ws.Developers.SearchEventsWsResponse;
 import org.sonarqube.ws.Developers.SearchEventsWsResponse.Event;
 
 import static java.lang.String.format;
-import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
-import static org.apache.commons.lang.math.RandomUtils.nextInt;
-import static org.apache.commons.lang.math.RandomUtils.nextLong;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
@@ -87,6 +87,7 @@ public class SearchEventsActionIT {
   private IssueIndexer issueIndexer = new IssueIndexer(es.client(), db.getDbClient(), new IssueIteratorFactory(db.getDbClient()), null);
   private WsActionTester ws = new WsActionTester(new SearchEventsAction(db.getDbClient(), userSession, server, issueIndex,
     issueIndexSyncProgressChecker));
+  private final Random random = new SecureRandom();
 
   @Test
   public void definition() {
@@ -270,11 +271,11 @@ public class SearchEventsActionIT {
     queueDto.setTaskType(CeTaskTypes.REPORT);
     queueDto.setComponentUuid(mainBranchUuid);
     queueDto.setUuid(randomAlphanumeric(40));
-    queueDto.setCreatedAt(nextLong());
+    queueDto.setCreatedAt(random.nextLong(Long.MAX_VALUE));
     CeActivityDto activityDto = new CeActivityDto(queueDto);
     activityDto.setStatus(status);
-    activityDto.setExecutionTimeMs(nextLong());
-    activityDto.setExecutedAt(nextLong());
+    activityDto.setExecutionTimeMs(random.nextLong(Long.MAX_VALUE));
+    activityDto.setExecutedAt(random.nextLong(Long.MAX_VALUE));
     activityDto.setAnalysisUuid(analysis.getUuid());
     db.getDbClient().ceActivityDao().insert(db.getSession(), activityDto);
     db.commit();
@@ -301,6 +302,6 @@ public class SearchEventsActionIT {
   }
 
   private RuleType randomRuleTypeExceptHotspot() {
-    return RULE_TYPES_EXCEPT_HOTSPOT[nextInt(RULE_TYPES_EXCEPT_HOTSPOT.length)];
+    return RULE_TYPES_EXCEPT_HOTSPOT[random.nextInt(RULE_TYPES_EXCEPT_HOTSPOT.length)];
   }
 }

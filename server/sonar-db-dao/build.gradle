@@ -10,7 +10,7 @@ dependencies {
   api 'com.google.guava:guava'
   api 'com.google.protobuf:protobuf-java'
   api 'commons-io:commons-io'
-  api 'commons-lang:commons-lang'
+  api 'org.apache.commons:commons-lang3'
   api 'org.lz4:lz4-java'
   api 'org.mybatis:mybatis'
   api 'org.sonarsource.api.plugin:sonar-plugin-api'

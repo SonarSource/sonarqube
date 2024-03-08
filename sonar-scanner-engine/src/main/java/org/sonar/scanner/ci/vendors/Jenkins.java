@@ -21,20 +21,20 @@ package org.sonar.scanner.ci.vendors;
 
 import java.nio.file.Path;
 import java.util.Optional;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.lib.RepositoryBuilder;
-import org.sonar.api.batch.fs.internal.DefaultInputProject;
-import org.sonar.api.utils.System2;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.batch.fs.internal.DefaultInputProject;
+import org.sonar.api.utils.System2;
 import org.sonar.scanner.ci.CiConfiguration;
 import org.sonar.scanner.ci.CiConfigurationImpl;
 import org.sonar.scanner.ci.CiVendor;
 
-import static org.apache.commons.lang.StringUtils.isNotBlank;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 public class Jenkins implements CiVendor {
   private static final Logger LOG = LoggerFactory.getLogger(Jenkins.class);

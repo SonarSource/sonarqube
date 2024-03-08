@@ -23,7 +23,7 @@ import java.util.Arrays;
 import java.util.List;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.apache.commons.lang.builder.ReflectionToStringBuilder;
+import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 
 import static com.google.common.collect.Lists.newArrayList;
 

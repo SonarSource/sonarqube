@@ -28,7 +28,7 @@ import org.sonar.server.authentication.event.AuthenticationException;
 import org.sonar.server.usertoken.UserTokenAuthentication;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.apache.commons.lang.StringUtils.startsWithIgnoreCase;
+import static org.apache.commons.lang3.StringUtils.startsWithIgnoreCase;
 import static org.sonar.server.authentication.event.AuthenticationEvent.Method;
 import static org.sonar.server.authentication.event.AuthenticationEvent.Source;
 

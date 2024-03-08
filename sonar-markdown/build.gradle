@@ -7,7 +7,7 @@ sonar {
 dependencies {
   // please keep list ordered
 
-  api 'commons-lang:commons-lang'
+  api 'org.apache.commons:commons-lang3'
   api 'org.codehaus.sonar:sonar-channel'
 
   testImplementation 'ch.qos.logback:logback-classic'

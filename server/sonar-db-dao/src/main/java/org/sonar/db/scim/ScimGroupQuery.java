@@ -26,7 +26,7 @@ import java.util.regex.Pattern;
 import javax.annotation.Nullable;
 
 import static java.util.regex.Pattern.CASE_INSENSITIVE;
-import static org.apache.commons.lang.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 public class ScimGroupQuery {
   private static final Pattern DISPLAY_NAME_FILTER_PATTERN = Pattern.compile("^displayName\\s+eq\\s+\"([^\"]*?)\"$", CASE_INSENSITIVE);

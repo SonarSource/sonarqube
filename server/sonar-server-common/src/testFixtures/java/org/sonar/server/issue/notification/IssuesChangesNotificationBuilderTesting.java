@@ -35,7 +35,7 @@ import org.sonar.server.issue.notification.IssuesChangesNotificationBuilder.User
 import org.sonar.server.issue.notification.IssuesChangesNotificationBuilder.UserChange;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
 import static org.sonar.api.rules.RuleType.BUG;
 import static org.sonar.api.rules.RuleType.CODE_SMELL;
 import static org.sonar.api.rules.RuleType.SECURITY_HOTSPOT;

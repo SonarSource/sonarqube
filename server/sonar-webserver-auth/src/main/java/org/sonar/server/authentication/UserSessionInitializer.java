@@ -37,7 +37,7 @@ import org.sonar.server.user.TokenUserSession;
 import org.sonar.server.user.UserSession;
 
 import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
-import static org.apache.commons.lang.StringUtils.defaultString;
+import static org.apache.commons.lang3.StringUtils.defaultString;
 import static org.sonar.api.CoreProperties.CORE_FORCE_AUTHENTICATION_DEFAULT_VALUE;
 import static org.sonar.api.CoreProperties.CORE_FORCE_AUTHENTICATION_PROPERTY;
 import static org.sonar.api.utils.DateUtils.formatDateTime;

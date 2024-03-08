@@ -23,7 +23,7 @@ import com.google.common.annotations.VisibleForTesting;
 import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 import java.util.zip.CRC32;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.sonar.api.config.Configuration;
 import org.sonar.core.platform.ServerId;
 

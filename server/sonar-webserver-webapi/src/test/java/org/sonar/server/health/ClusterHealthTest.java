@@ -32,7 +32,7 @@ import org.sonar.process.cluster.health.NodeHealth;
 
 import static java.util.stream.Collectors.toSet;
 import static java.util.stream.Stream.concat;
-import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.process.cluster.health.NodeHealth.newNodeHealthBuilder;

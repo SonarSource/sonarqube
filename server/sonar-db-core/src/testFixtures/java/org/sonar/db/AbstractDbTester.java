@@ -50,7 +50,7 @@ import javax.annotation.Nullable;
 import org.apache.commons.collections4.map.CaseInsensitiveMap;
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.rules.ExternalResource;
 import org.slf4j.LoggerFactory;
 import org.sonar.db.dialect.H2;

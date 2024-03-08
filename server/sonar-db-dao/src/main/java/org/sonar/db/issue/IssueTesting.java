@@ -19,11 +19,12 @@
  */
 package org.sonar.db.issue;
 
+import java.security.SecureRandom;
 import java.util.Date;
 import java.util.List;
+import java.util.Random;
 import java.util.function.Function;
 import java.util.stream.Stream;
-import org.apache.commons.lang.math.RandomUtils;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.resources.Qualifiers;
@@ -36,12 +37,12 @@ import org.sonar.db.rule.RuleDto;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.Sets.newHashSet;
-import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
-import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
-import static org.apache.commons.lang.math.RandomUtils.nextInt;
-import static org.apache.commons.lang.math.RandomUtils.nextLong;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 
 public class IssueTesting {
+
+  private static final Random RANDOM = new SecureRandom();
 
   private IssueTesting() {
     // only statics
@@ -68,14 +69,14 @@ public class IssueTesting {
       .setComponent(file)
       .setStatus(Issue.STATUS_OPEN)
       .setResolution(null)
-      .setSeverity(Severity.ALL.get(nextInt(Severity.ALL.size())))
+      .setSeverity(Severity.ALL.get(RANDOM.nextInt(Severity.ALL.size())))
       //TODO map to correct impact. Will be fixed with persistence of impacts on issues
       .addImpact(new ImpactDto().setSoftwareQuality(SoftwareQuality.MAINTAINABILITY).setSeverity(org.sonar.api.issue.impact.Severity.HIGH))
-      .setEffort((long) RandomUtils.nextInt(10))
+      .setEffort((long) RANDOM.nextInt(10))
       .setAssigneeUuid("assignee-uuid_" + randomAlphabetic(26))
       .setAuthorLogin("author_" + randomAlphabetic(5))
-      // Adding one to the generated random value in order to never get 0 (as it's a forbidden value)
-      .setLine(nextInt(1_000) + 1)
+      // Starting from 1 in order to never get 0 (as it's a forbidden value)
+      .setLine(RANDOM.nextInt(1, 1_001))
       .setMessage("message_" + randomAlphabetic(5))
       .setChecksum("checksum_" + randomAlphabetic(5))
       .setTags(newHashSet("tag_" + randomAlphanumeric(5), "tag_" + randomAlphanumeric(5)))
@@ -95,9 +96,9 @@ public class IssueTesting {
       .setChangeType(IssueChangeDto.TYPE_FIELD_CHANGE)
       .setUserUuid("userUuid_" + randomAlphanumeric(40))
       .setProjectUuid(issue.getProjectUuid())
-      .setIssueChangeCreationDate(nextLong())
-      .setCreatedAt(nextLong())
-      .setUpdatedAt(nextLong());
+      .setIssueChangeCreationDate(RANDOM.nextLong(Long.MAX_VALUE))
+      .setCreatedAt(RANDOM.nextLong(Long.MAX_VALUE))
+      .setUpdatedAt(RANDOM.nextLong(Long.MAX_VALUE));
   }
 
   public static NewCodeReferenceIssueDto newCodeReferenceIssue(IssueDto issue) {

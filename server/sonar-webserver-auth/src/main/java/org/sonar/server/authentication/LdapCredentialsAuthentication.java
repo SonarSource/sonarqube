@@ -23,13 +23,13 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Optional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.server.authentication.Display;
 import org.sonar.api.server.authentication.IdentityProvider;
 import org.sonar.api.server.authentication.UserIdentity;
 import org.sonar.api.server.http.HttpRequest;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.auth.ldap.LdapAuthenticationResult;
 import org.sonar.auth.ldap.LdapAuthenticator;
 import org.sonar.auth.ldap.LdapGroupsProvider;
@@ -41,8 +41,8 @@ import org.sonar.server.authentication.event.AuthenticationEvent;
 import org.sonar.server.authentication.event.AuthenticationEvent.Source;
 import org.sonar.server.authentication.event.AuthenticationException;
 
-import static org.apache.commons.lang.StringUtils.isEmpty;
-import static org.apache.commons.lang.StringUtils.trimToNull;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
+import static org.apache.commons.lang3.StringUtils.trimToNull;
 
 public class LdapCredentialsAuthentication {
 

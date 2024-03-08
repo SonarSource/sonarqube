@@ -22,7 +22,7 @@ package org.sonar.process;
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import static java.lang.String.format;
 import static org.sonar.process.FileUtils2.deleteQuietly;
