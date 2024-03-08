@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Spinner } from '@sonarsource/echoes-react';
 import {
   BasicSeparator,
   ButtonSecondary,
@@ -25,7 +26,6 @@ import {
   FormField,
   IllustratedSelectionCard,
   InputSelect,
-  Spinner,
   SubTitle,
   ToggleButton,
 } from 'design-system';
@@ -96,7 +96,7 @@ export default function ProjectBadges(props: ProjectBadgesProps) {
       <SubTitle>{translate('overview.badges.get_badge')}</SubTitle>
       <p className="sw-mb-4">{translate('overview.badges.description', qualifier)}</p>
 
-      <Spinner loading={isLoading || isEmpty(token)}>
+      <Spinner isLoading={isLoading || isEmpty(token)}>
         <div className="sw-flex sw-space-x-4 sw-mb-4">
           <IllustratedSelectionCard
             className="sw-w-abs-300 it__badge-button"
@@ -176,7 +176,7 @@ export default function ProjectBadges(props: ProjectBadgesProps) {
         </div>
       </FormField>
 
-      <Spinner className="spacer-top spacer-bottom" loading={isFetchingToken || isRenewing}>
+      <Spinner className="sw-my-2" isLoading={isFetchingToken || isRenewing}>
         {!isLoading && (
           <CodeSnippet
             language="plaintext"
@@ -195,7 +195,7 @@ export default function ProjectBadges(props: ProjectBadgesProps) {
               {translate('overview.badges.renew.description')}{' '}
               <ButtonSecondary
                 disabled={isLoading}
-                className="spacer-top it__project-info-renew-badge sw-mr-auto"
+                className="sw-mt-2 it__project-info-renew-badge sw-mr-auto"
                 onClick={() => {
                   renewToken(project);
                 }}

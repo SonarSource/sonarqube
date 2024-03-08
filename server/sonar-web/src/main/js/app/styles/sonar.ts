@@ -25,6 +25,5 @@ import '../../../../../public/fonts/Ubuntu/Ubuntu.css';
 
 import './components/global-loading.css';
 import './init/base.css';
-import './init/misc.css';
 import './print.css';
 import './style.css';

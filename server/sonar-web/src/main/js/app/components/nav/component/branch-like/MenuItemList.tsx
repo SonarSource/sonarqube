@@ -99,7 +99,7 @@ export function MenuItemList(props: MenuItemListProps) {
           <ItemHeader>
             {translate('branch_like_navigation.orphan_pull_requests')}
             <HelpTooltip
-              className="little-spacer-left"
+              className="sw-ml-1"
               overlay={translate('branch_like_navigation.orphan_pull_requests.tooltip')}
             >
               <HelperHintIcon />

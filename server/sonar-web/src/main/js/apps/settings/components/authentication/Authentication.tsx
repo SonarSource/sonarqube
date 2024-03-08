@@ -55,12 +55,7 @@ export const DOCUMENTATION_LINK_SUFFIXES = {
 
 function renderDevOpsIcon(key: string) {
   return (
-    <img
-      alt={key}
-      className="spacer-right"
-      height={16}
-      src={`${getBaseUrl()}/images/alm/${key}.svg`}
-    />
+    <img alt={key} className="sw-mr-2" height={16} src={`${getBaseUrl()}/images/alm/${key}.svg`} />
   );
 }
 

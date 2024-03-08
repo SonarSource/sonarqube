@@ -212,7 +212,7 @@ export default class BubbleChartView extends React.PureComponent<Props, State> {
         <div>
           <div className="sw-flex sw-items-center sw-whitespace-nowrap">
             <Highlight className="it__measure-overview-bubble-chart-title">{title}</Highlight>
-            <HelpTooltip className="spacer-left" overlay={this.getDescription(domain)}>
+            <HelpTooltip className="sw-ml-2" overlay={this.getDescription(domain)}>
               <HelperHintIcon />
             </HelpTooltip>
           </div>
@@ -260,7 +260,7 @@ export default class BubbleChartView extends React.PureComponent<Props, State> {
           </div>
           {colorsMetric && (
             <ColorRatingsLegend
-              className="spacer-top"
+              className="sw-mt-2"
               filters={ratingFilters}
               onRatingClick={this.handleRatingFilterClick}
             />

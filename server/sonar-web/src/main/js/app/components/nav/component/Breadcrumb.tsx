@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+import styled from '@emotion/styled';
 import { LinkHighlight, LinkStandalone } from '@sonarsource/echoes-react';
 import * as React from 'react';
 import Favorite from '../../../../components/controls/Favorite';
@@ -61,7 +62,7 @@ export function Breadcrumb(props: Readonly<BreadcrumbProps>) {
               {breadcrumbElement.name}
             </LinkStandalone>
 
-            {isNotLast && <span className="slash-separator sw-mx-2" />}
+            {isNotLast && <SlashSeparator className="sw-mx-2" />}
           </div>
         );
       })}
@@ -70,3 +71,10 @@ export function Breadcrumb(props: Readonly<BreadcrumbProps>) {
 }
 
 export default React.memo(Breadcrumb);
+
+const SlashSeparator = styled.span`
+  &:after {
+    content: '/';
+    color: rgba(68, 68, 68, 0.3);
+  }
+`;

@@ -24,7 +24,7 @@ import { translate } from '../../../helpers/l10n';
 export default function CaycBadgeTooltip() {
   return (
     <div>
-      <p className="spacer-bottom padded-bottom bordered-bottom-cayc">
+      <p className="sw-mb-2 sw-pb-2 bordered-bottom-cayc">
         {translate('quality_gates.cayc.tooltip.message')}
       </p>
       <DocumentationLink to="/user-guide/clean-as-you-code/">

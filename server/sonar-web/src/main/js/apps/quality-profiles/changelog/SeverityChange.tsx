@@ -27,7 +27,7 @@ interface Props {
 
 export default function SeverityChange({ severity }: Props) {
   return (
-    <div className="nowrap">
+    <div className="sw-whitespace-nowrap">
       {translate('quality_profiles.deprecated_severity_set_to')}{' '}
       <SeverityHelper severity={severity} />
     </div>

@@ -302,7 +302,7 @@ export default class ComponentSourceSnippetGroupViewer extends React.PureCompone
         )}
 
         <IssueSourceViewerHeader
-          className={issueIsClosed && !issueIsFileLevel ? 'null-spacer-bottom' : ''}
+          className={issueIsClosed && !issueIsFileLevel ? 'sw-mb-0' : ''}
           expandable={isExpandable(snippets, snippetGroup)}
           issueKey={issue.key}
           loading={loading}

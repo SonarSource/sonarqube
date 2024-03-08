@@ -48,7 +48,7 @@ export default class PermissionHeader extends React.PureComponent<Props> {
     if (isPermissionDefinitionGroup(permission)) {
       return permission.permissions.map((permission) => (
         <React.Fragment key={permission.key}>
-          <b className="little-spacer-right">{permission.name}:</b>
+          <b className="sw-mr-1">{permission.name}:</b>
           <InstanceMessage key={permission.key} message={permission.description} />
           <br />
         </React.Fragment>

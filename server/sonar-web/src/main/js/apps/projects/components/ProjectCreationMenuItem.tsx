@@ -36,13 +36,13 @@ export default function ProjectCreationMenuItem(props: ProjectCreationMenuItemPr
   }
   return (
     <ItemLink
-      className="display-flex-center"
+      className="sw-flex sw-items-center"
       to={{ pathname: '/projects/create', search: queryToSearch({ mode: alm }) }}
     >
       {alm !== 'manual' && (
         <img
           alt={alm}
-          className="spacer-right"
+          className="sw-mr-2"
           width={16}
           src={`${getBaseUrl()}/images/alm/${almIcon}.svg`}
         />

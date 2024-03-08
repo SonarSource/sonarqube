@@ -120,7 +120,7 @@ export default function RuleDetails(props: Readonly<Props>) {
             {params.length > 0 && <RuleDetailsParameters params={params} />}
 
             {isEditable && (
-              <div className="coding-rules-detail-description display-flex-center">
+              <div className="coding-rules-detail-description sw-flex sw-items-center">
                 {/* `templateRule` is used to get rule meta data, `customRule` is used to get parameter values */}
                 {/* it's expected to pass the same rule to both parameters */}
                 <CustomRuleButton customRule={ruleDetails} templateRule={ruleDetails}>

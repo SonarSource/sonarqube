@@ -93,7 +93,7 @@ export default function Sidebar(props: Props) {
         <FlagMessage className="sw-mt-4 it__portfolio_warning" variant="warning">
           {translate('component_measures.not_all_measures_are_shown')}
           <HelpTooltip
-            className="spacer-left"
+            className="sw-ml-2"
             overlay={translate('component_measures.not_all_measures_are_shown.help')}
           />
         </FlagMessage>

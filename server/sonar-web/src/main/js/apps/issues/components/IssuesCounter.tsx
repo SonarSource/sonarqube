@@ -26,7 +26,5 @@ interface Props {
 }
 
 export default function IssuesCounter(props: Props) {
-  return (
-    <PageCounter className="spacer-left" label={translate('issues.issues')} total={props.total} />
-  );
+  return <PageCounter className="sw-ml-2" label={translate('issues.issues')} total={props.total} />;
 }

@@ -50,7 +50,7 @@ export default function DeleteModal({ id, onDelete, onCancel, projectCount }: De
       onConfirm={onDelete}
     >
       <>
-        <p className="spacer-bottom">
+        <p className="sw-mb-2">
           <FormattedMessage
             defaultMessage={translate('settings.almintegration.delete.message')}
             id="settings.almintegration.delete.message"

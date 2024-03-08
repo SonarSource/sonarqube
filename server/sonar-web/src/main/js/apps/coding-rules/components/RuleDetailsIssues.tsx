@@ -143,7 +143,7 @@ export class RuleDetailsIssues extends React.PureComponent<Props, State> {
     const path = getIssuesUrl({ ...DEFAULT_ISSUES_QUERY, rules: key });
 
     const totalItem = (
-      <span className="little-spacer-left">
+      <span className="sw-ml-1">
         {'('}
         <Link to={path}>{total}</Link>
         {')'}

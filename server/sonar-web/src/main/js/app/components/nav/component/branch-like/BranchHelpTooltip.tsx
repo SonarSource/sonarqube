@@ -17,10 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Link } from '@sonarsource/echoes-react';
 import { HelperHintIcon } from 'design-system';
 import React from 'react';
 import DocumentationTooltip from '../../../../../components/common/DocumentationTooltip';
-import Link from '../../../../../components/common/Link';
 import HelpTooltip from '../../../../../components/controls/HelpTooltip';
 import { translate, translateWithParameters } from '../../../../../helpers/l10n';
 import { getApplicationAdminUrl } from '../../../../../helpers/urls';
@@ -54,7 +54,7 @@ export default function BranchHelpTooltip({
           overlay={
             <>
               <p>{translate('application.branches.help')}</p>
-              <hr className="spacer-top spacer-bottom" />
+              <hr className="sw-my-2" />
               <Link to={getApplicationAdminUrl(component.key)}>
                 {translate('application.branches.link')}
               </Link>

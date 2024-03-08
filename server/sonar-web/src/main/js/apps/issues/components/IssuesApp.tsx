@@ -953,10 +953,10 @@ export class App extends React.PureComponent<Props, State> {
     }
 
     return (
-      <div className="pull-left">
+      <div className="sw-float-left sw-flex sw-items-center">
         <Checkbox
           checked={isChecked}
-          className="spacer-right text-middle"
+          className="sw-mr-2"
           disabled={issues.length === 0}
           id="issues-selection"
           onCheck={this.handleCheckAll}

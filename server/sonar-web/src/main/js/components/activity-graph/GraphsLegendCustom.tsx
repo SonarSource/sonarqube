@@ -56,7 +56,7 @@ export default function GraphsLegendCustom(props: GraphsLegendCustomProps) {
               overlay={translate('project_activity.graphs.custom.metric_no_history')}
             >
               <li
-                className="spacer-left spacer-right"
+                className="sw-mx-2"
                 aria-label={translate('project_activity.graphs.custom.metric_no_history')}
               >
                 {legendItem}

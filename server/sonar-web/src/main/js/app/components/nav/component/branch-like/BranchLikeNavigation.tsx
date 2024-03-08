@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import styled from '@emotion/styled';
 import { ButtonSecondary, Popup, PopupPlacement, PopupZLevel } from 'design-system';
 import * as React from 'react';
 import EscKeydownHandler from '../../../../../components/controls/EscKeydownHandler';
@@ -67,7 +68,7 @@ export function BranchLikeNavigation(props: BranchLikeNavigationProps) {
 
   return (
     <>
-      <span className="slash-separator sw-mx-2" />
+      <SlashSeparator className=" sw-mx-2" />
       <div className="sw-flex sw-items-center it__branch-like-navigation-toggler-container">
         <Popup
           allowResizing
@@ -123,3 +124,10 @@ export function BranchLikeNavigation(props: BranchLikeNavigationProps) {
 }
 
 export default withAvailableFeatures(React.memo(BranchLikeNavigation));
+
+const SlashSeparator = styled.span`
+  &:after {
+    content: '/';
+    color: rgba(68, 68, 68, 0.3);
+  }
+`;

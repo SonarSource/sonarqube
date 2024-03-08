@@ -39,7 +39,7 @@ function IconLink({
       <img
         alt={text}
         aria-hidden
-        className="spacer-right"
+        className="sw-mr-2"
         height="18"
         src={`${getBaseUrl()}/images/${icon}`}
         width="18"

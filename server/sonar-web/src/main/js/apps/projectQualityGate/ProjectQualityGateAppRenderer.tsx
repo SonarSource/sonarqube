@@ -70,7 +70,7 @@ function renderQualitygateOption(props: OptionProps<QualityGateOption, false>) {
     <components.Option {...props}>
       <div>
         <DisableableSelectOption
-          className="abs-width-100"
+          className="sw-w-[100px]"
           option={props.data}
           disabledReason={translate('project_quality_gate.no_condition.reason')}
           disableTooltipOverlay={() => (

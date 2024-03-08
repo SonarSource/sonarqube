@@ -35,7 +35,7 @@ export default function Header(props: Readonly<Props>) {
         <Title className="sw-mb-4">{translate('background_tasks.page')}</Title>
         <p className="sw-max-w-3/4">
           {translate('background_tasks.page.description')}
-          <DocumentationLink className="spacer-left" to="/analyzing-source-code/background-tasks/">
+          <DocumentationLink className="sw-ml-2" to="/analyzing-source-code/background-tasks/">
             {translate('learn_more')}
           </DocumentationLink>
         </p>

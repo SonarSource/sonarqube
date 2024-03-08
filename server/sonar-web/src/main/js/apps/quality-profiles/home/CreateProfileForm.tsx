@@ -240,7 +240,7 @@ export default function CreateProfileForm(props: Readonly<Props>) {
               onClick={handleSelectExtend}
               title={intl.formatMessage({ id: 'quality_profiles.creation_from_extend' })}
             >
-              <p className="spacer-bottom">
+              <p className="sw-mb-2">
                 {intl.formatMessage({ id: 'quality_profiles.creation_from_extend_description_1' })}
               </p>
               <p>
@@ -252,7 +252,7 @@ export default function CreateProfileForm(props: Readonly<Props>) {
               onClick={handleSelectCopy}
               title={intl.formatMessage({ id: 'quality_profiles.creation_from_copy' })}
             >
-              <p className="spacer-bottom">
+              <p className="sw-mb-2">
                 {intl.formatMessage({ id: 'quality_profiles.creation_from_copy_description_1' })}
               </p>
               <p>

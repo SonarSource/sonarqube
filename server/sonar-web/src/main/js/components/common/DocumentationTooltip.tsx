@@ -81,7 +81,7 @@ export default function DocumentationTooltip(props: DocumentationTooltipProps) {
       overlay={
         <div className="sw-py-4">
           {title && (
-            <div className="spacer-bottom">
+            <div className="sw-mb-2">
               <strong>{title}</strong>
             </div>
           )}
@@ -93,7 +93,7 @@ export default function DocumentationTooltip(props: DocumentationTooltipProps) {
               <hr className="sw-my-4" />
 
               {links.map(({ href, label, inPlace, doc = true }, index) => (
-                <div className="little-spacer-bottom" key={label}>
+                <div className="sw-mb-1" key={label}>
                   {doc ? (
                     <DocumentationLink
                       to={href}

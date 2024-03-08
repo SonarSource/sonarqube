@@ -83,9 +83,7 @@ export default class PluginActions extends React.PureComponent<Props, State> {
       <div className="it__js-actions">
         {isAvailablePlugin(plugin) && (
           <div>
-            <p className="little-spacer-bottom">
-              {translate('marketplace.available_under_commercial_license')}
-            </p>
+            <p className="sw-mb-1">{translate('marketplace.available_under_commercial_license')}</p>
             {plugin.homepageUrl && (
               <Link to={plugin.homepageUrl} target="_blank">
                 {translate('marketplace.learn_more')}
@@ -95,12 +93,12 @@ export default class PluginActions extends React.PureComponent<Props, State> {
         )}
         {isInstalledPlugin(plugin) && (
           <p>
-            <CheckIcon className="little-spacer-right" />
+            <CheckIcon className="sw-mr-1" />
             {translate('marketplace.installed')}
           </p>
         )}
         {isInstalledPlugin(plugin) && plugin.updates && plugin.updates.length > 0 && (
-          <div className="spacer-top">
+          <div className="sw-mt-2">
             {plugin.updates.map((update, idx) => (
               <PluginUpdateButton
                 disabled={this.state.loading}

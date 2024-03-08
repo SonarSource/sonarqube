@@ -133,7 +133,7 @@ export default function ProjectQualityProfilesAppRenderer(
                               <>
                                 {profile.name}
                                 {profile.isBuiltIn && (
-                                  <BuiltInQualityProfileBadge className="spacer-left" />
+                                  <BuiltInQualityProfileBadge className="sw-ml-2" />
                                 )}
                               </>
                             )}

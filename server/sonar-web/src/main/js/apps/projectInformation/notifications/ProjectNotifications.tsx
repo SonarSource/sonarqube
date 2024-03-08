@@ -17,7 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Checkbox, FlagMessage, Spinner, SubTitle } from 'design-system';
+import { Spinner } from '@sonarsource/echoes-react';
+import { Checkbox, FlagMessage, SubTitle } from 'design-system';
 import * as React from 'react';
 import {
   WithNotificationsProps,
@@ -74,11 +75,11 @@ export function ProjectNotifications(props: WithNotificationsProps & Props) {
     <form aria-labelledby="notifications-update-title">
       <SubTitle>{translate('project.info.notifications')}</SubTitle>
 
-      <FlagMessage className="spacer-top" variant="info">
+      <FlagMessage className="sw-mt-2" variant="info">
         {translate('notification.dispatcher.information')}
       </FlagMessage>
 
-      <Spinner className="sw-mt-6" loading={loading}>
+      <Spinner className="sw-mt-6" isLoading={loading}>
         <h3 id="notifications-update-title" className="sw-mt-6">
           {translate('notifications.send_email')}
         </h3>
