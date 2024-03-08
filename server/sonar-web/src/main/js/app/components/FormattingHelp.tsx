@@ -17,126 +17,155 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { CenteredLayout } from 'design-system';
+import {
+  CellComponent,
+  ContentCell,
+  HtmlFormatter,
+  PageContentFontWrapper,
+  Table,
+  TableRow,
+  Title,
+} from 'design-system';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { translate } from '../../helpers/l10n';
 
+const COLUMNS = ['50%', '50%'];
+
 export default function FormattingHelp() {
   return (
-    <CenteredLayout className="sw-py-6 sw-h-screen">
+    <PageContentFontWrapper className="sw-body-md sw-p-6 sw-h-screen">
       <Helmet defer={false} title={translate('formatting.page')} />
-      <h2 className="spacer-bottom">Formatting Syntax</h2>
-      <table className="width-100 data zebra">
-        <thead>
-          <tr>
-            <th>Write:</th>
-            <th>To display:</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>*this text is bold*</td>
-            <td className="markdown">
+      <Title>Formatting Syntax</Title>
+      <Table
+        columnCount={COLUMNS.length}
+        columnWidths={COLUMNS}
+        header={
+          <TableRow>
+            <ContentCell>Write:</ContentCell>
+            <ContentCell>To display:</ContentCell>
+          </TableRow>
+        }
+      >
+        <TableRow>
+          <ContentCell>*this text is bold*</ContentCell>
+          <ContentCell>
+            <HtmlFormatter>
               <strong>this text is bold</strong>
-            </td>
-          </tr>
-          <tr>
-            <td>https://www.sonarsource.com/products/sonarqube</td>
-            <td className="markdown">
+            </HtmlFormatter>
+          </ContentCell>
+        </TableRow>
+        <TableRow>
+          <ContentCell>https://www.sonarsource.com/products/sonarqube</ContentCell>
+          <ContentCell>
+            <HtmlFormatter>
               <a href="https://www.sonarsource.com/products/sonarqube">
                 https://www.sonarsource.com/products/sonarqube
               </a>
-            </td>
-          </tr>
-          <tr>
-            <td className="text-top">
-              [SonarQube™ Home Page](https://www.sonarsource.com/products/sonarqube)
-            </td>
-            <td className="markdown text-top">
+            </HtmlFormatter>
+          </ContentCell>
+        </TableRow>
+        <TableRow>
+          <ContentCell>
+            [SonarQube™ Home Page](https://www.sonarsource.com/products/sonarqube)
+          </ContentCell>
+          <ContentCell>
+            <HtmlFormatter>
               <a href="https://www.sonarsource.com/products/sonarqube">SonarQube™ Home Page</a>
-            </td>
-          </tr>
-          <tr>
-            <td className="text-top">
-              * first item
-              <br />* second item
-            </td>
-            <td className="markdown">
+            </HtmlFormatter>
+          </ContentCell>
+        </TableRow>
+        <TableRow>
+          <ContentCell>
+            * first item
+            <br />* second item
+          </ContentCell>
+          <ContentCell>
+            <HtmlFormatter>
               <ul>
                 <li>first item</li>
                 <li>second item</li>
               </ul>
-            </td>
-          </tr>
-          <tr>
-            <td className="text-top">
-              1. first item
-              <br />
-              1. second item
-            </td>
-            <td className="markdown text-top">
+            </HtmlFormatter>
+          </ContentCell>
+        </TableRow>
+        <TableRow>
+          <CellComponent>
+            1. first item
+            <br />
+            1. second item
+          </CellComponent>
+          <ContentCell>
+            <HtmlFormatter>
               <ol>
                 <li>first item</li>
                 <li>second item</li>
               </ol>
-            </td>
-          </tr>
-          <tr>
-            <td className="text-top">
-              = Heading Level 1<br />
-              == Heading Level 2<br />
-              === Heading Level 3<br />
-              ==== Heading Level 4<br />
-              ===== Heading Level 5<br />
-              ====== Heading Level 6<br />
-            </td>
-            <td className="markdown text-top">
+            </HtmlFormatter>
+          </ContentCell>
+        </TableRow>
+        <TableRow>
+          <ContentCell>
+            = Heading Level 1<br />
+            == Heading Level 2<br />
+            === Heading Level 3<br />
+            ==== Heading Level 4<br />
+            ===== Heading Level 5<br />
+            ====== Heading Level 6<br />
+          </ContentCell>
+          <ContentCell>
+            <HtmlFormatter>
               <h1>Heading Level 1</h1>
               <h2>Heading Level 2</h2>
               <h3>Heading Level 3</h3>
               <h4>Heading Level 4</h4>
               <h5>Heading Level 5</h5>
               <h6>Heading Level 6</h6>
-            </td>
-          </tr>
-          <tr>
-            <td className="text-top">``Lists#newArrayList()``</td>
-            <td className="markdown text-top">
+            </HtmlFormatter>
+          </ContentCell>
+        </TableRow>
+        <TableRow>
+          <ContentCell>``Lists#newArrayList()``</ContentCell>
+          <ContentCell>
+            <HtmlFormatter>
               <code>Lists#newArrayList()</code>
-            </td>
-          </tr>
-          <tr>
-            <td className="text-top">
-              ``
-              <br />
-              {'// code on multiple lines'}
-              <br />
-              {'public void foo() {'}
-              <br />
-              &nbsp;&nbsp;
-              {'// do some logic here'}
-              <br />
-              {'}'}
-              <br />
-              ``
-            </td>
-            <td className="markdown text-top">
+            </HtmlFormatter>
+          </ContentCell>
+        </TableRow>
+        <TableRow>
+          <ContentCell>
+            ``
+            <br />
+            {'// code on multiple lines'}
+            <br />
+            {'public void foo() {'}
+            <br />
+            &nbsp;&nbsp;
+            {'// do some logic here'}
+            <br />
+            {'}'}
+            <br />
+            ``
+          </ContentCell>
+          <ContentCell>
+            <HtmlFormatter>
               <pre>
                 {'// code on multiple lines\npublic void foo() {\n  // do some logic here\n}'}
               </pre>
-            </td>
-          </tr>
-          <tr>
-            <td className="text-top">
-              Standard text
-              <br />
-              &gt; Blockquoted text
-              <br />
-              &gt; that spans multiple lines
-              <br />
-            </td>
-            <td className="markdown text-top">
+            </HtmlFormatter>
+          </ContentCell>
+        </TableRow>
+        <TableRow>
+          <ContentCell>
+            Standard text
+            <br />
+            &gt; Blockquoted text
+            <br />
+            &gt; that spans multiple lines
+            <br />
+          </ContentCell>
+          <ContentCell>
+            <HtmlFormatter>
               <p>Standard text</p>
               <blockquote>
                 Blockquoted text
@@ -144,10 +173,10 @@ export default function FormattingHelp() {
                 that spans multiple lines
                 <br />
               </blockquote>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </CenteredLayout>
+            </HtmlFormatter>
+          </ContentCell>
+        </TableRow>
+      </Table>
+    </PageContentFontWrapper>
   );
 }

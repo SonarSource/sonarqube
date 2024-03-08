@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { TableSeparator } from 'design-system';
 import * as React from 'react';
 import { translate } from '../../helpers/l10n';
 import { formatMeasure } from '../../helpers/measures';
@@ -40,13 +41,7 @@ export default function GraphsTooltipsContentCoverage(props: GraphsTooltipsConte
   const coverageValue = coverage.history[tooltipIdx].value;
   return (
     <>
-      {addSeparator && (
-        <tr>
-          <td colSpan={3}>
-            <hr />
-          </td>
-        </tr>
-      )}
+      {addSeparator && <TableSeparator />}
       {uncoveredValue && (
         <tr className="sw-h-8">
           <td className="sw-font-bold sw-text-right sw-pr-2 thin" colSpan={2}>

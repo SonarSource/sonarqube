@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { ThemeProp, themeColor, withTheme } from 'design-system';
+import { Table, TableSeparator, ThemeProp, themeColor, withTheme } from 'design-system';
 import * as React from 'react';
 import { Popup, PopupPlacement } from '../../components/ui/popups';
 import { isDefined } from '../../helpers/types';
@@ -45,6 +45,8 @@ export type Props = PropsWithoutTheme & ThemeProp;
 const TOOLTIP_WIDTH = 280;
 const TOOLTIP_LEFT_MARGIN = 60;
 const TOOLTIP_LEFT_FLIP_THRESHOLD = 50;
+
+const COLUMNS = 3;
 
 export class GraphsTooltipsClass extends React.PureComponent<Props> {
   renderContent() {
@@ -107,38 +109,31 @@ export class GraphsTooltipsClass extends React.PureComponent<Props> {
           >
             <DateTimeFormatter date={selectedDate} />
           </div>
-          <table
-            className="width-100"
+          <Table
+            columnCount={COLUMNS}
+            noHeaderTopBorder
             style={{ color: themeColor('dropdownMenuSubTitle')({ theme }) }}
           >
-            <tbody>
-              {addSeparator && (
-                <tr>
-                  <td colSpan={3}>
-                    <hr />
-                  </td>
-                </tr>
-              )}
-              {events?.length > 0 && (
-                <GraphsTooltipsContentEvents addSeparator={addSeparator} events={events} />
-              )}
-              {tooltipContent}
-              {graph === GraphType.coverage && (
-                <GraphsTooltipsContentCoverage
-                  addSeparator={addSeparator}
-                  measuresHistory={measuresHistory}
-                  tooltipIdx={tooltipIdx}
-                />
-              )}
-              {graph === GraphType.duplications && (
-                <GraphsTooltipsContentDuplication
-                  addSeparator={addSeparator}
-                  measuresHistory={measuresHistory}
-                  tooltipIdx={tooltipIdx}
-                />
-              )}
-            </tbody>
-          </table>
+            {addSeparator && <TableSeparator />}
+            {events?.length > 0 && (
+              <GraphsTooltipsContentEvents addSeparator={addSeparator} events={events} />
+            )}
+            {tooltipContent}
+            {graph === GraphType.coverage && (
+              <GraphsTooltipsContentCoverage
+                addSeparator={addSeparator}
+                measuresHistory={measuresHistory}
+                tooltipIdx={tooltipIdx}
+              />
+            )}
+            {graph === GraphType.duplications && (
+              <GraphsTooltipsContentDuplication
+                addSeparator={addSeparator}
+                measuresHistory={measuresHistory}
+                tooltipIdx={tooltipIdx}
+              />
+            )}
+          </Table>
         </div>
       </Popup>
     );
