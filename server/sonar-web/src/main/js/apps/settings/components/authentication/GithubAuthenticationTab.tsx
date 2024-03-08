@@ -38,7 +38,6 @@ import AutoProvisioningConsent from './AutoProvisionningConsent';
 import ConfigurationDetails from './ConfigurationDetails';
 import ConfigurationForm from './ConfigurationForm';
 import GitHubConfigurationValidity from './GitHubConfigurationValidity';
-import GitHubConfirmModal from './GitHubConfirmModal';
 import GitHubMappingModal from './GitHubMappingModal';
 import ProvisioningSection from './ProvisioningSection';
 import TabHeader from './TabHeader';
@@ -49,6 +48,7 @@ import useGithubConfiguration, {
   isAllowToSignUpEnabled,
   isOrganizationListEmpty,
 } from './hook/useGithubConfiguration';
+import ConfirmProvisioningModal from './ConfirmProvisioningModal';
 
 interface GithubAuthenticationProps {
   definitions: ExtendedSettingDefinition[];
@@ -309,11 +309,13 @@ export default function GithubAuthenticationTab(props: GithubAuthenticationProps
               }
             />
             {showConfirmProvisioningModal && (
-              <GitHubConfirmModal
-                onConfirm={() => changeProvisioning()}
+              <ConfirmProvisioningModal
+                allowUsersToSignUp={isAllowToSignUpEnabled(values)}
+                hasProvisioningTypeChange={hasGithubProvisioningTypeChange}
+                isAllowListEmpty={isOrganizationListEmpty(values)}
                 onClose={() => setShowConfirmProvisioningModal(false)}
-                values={values}
-                hasGithubProvisioningTypeChange={hasGithubProvisioningTypeChange}
+                onConfirm={changeProvisioning}
+                provider={Provider.Github}
                 provisioningStatus={provisioningStatus}
               />
             )}

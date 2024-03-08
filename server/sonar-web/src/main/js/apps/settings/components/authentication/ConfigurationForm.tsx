@@ -28,12 +28,12 @@ import { translate } from '../../../../helpers/l10n';
 import { useSaveValuesMutation } from '../../../../queries/settings';
 import { AlmKeys } from '../../../../types/alm-settings';
 import { ProvisioningType } from '../../../../types/provisioning';
-import { Dict } from '../../../../types/types';
+import { Dict, Provider } from '../../../../types/types';
 import { AuthenticationTabs, DOCUMENTATION_LINK_SUFFIXES } from './Authentication';
 import AuthenticationFormField from './AuthenticationFormField';
-import GitHubConfirmModal from './GitHubConfirmModal';
 import { SettingValue } from './hook/useConfiguration';
 import { isAllowToSignUpEnabled, isOrganizationListEmpty } from './hook/useGithubConfiguration';
+import ConfirmProvisioningModal from './ConfirmProvisioningModal';
 
 interface Props {
   canBeSave: boolean;
@@ -176,11 +176,13 @@ export default function ConfigurationForm(props: Readonly<Props>) {
         }
       />
       {showConfirmModal && (
-        <GitHubConfirmModal
+        <ConfirmProvisioningModal
+          allowUsersToSignUp={isAllowToSignUpEnabled(values)}
+          isAllowListEmpty={isOrganizationListEmpty(values)}
           onClose={() => setShowConfirmModal(false)}
           onConfirm={onSave}
+          provider={Provider.Github}
           provisioningStatus={provisioningStatus ?? ProvisioningType.jit}
-          values={values}
         />
       )}
     </>

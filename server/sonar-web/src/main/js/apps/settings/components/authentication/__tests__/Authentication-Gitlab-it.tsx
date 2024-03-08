@@ -117,6 +117,9 @@ const ui = {
   confirmJitProvisioningDialog: byRole('dialog', {
     name: 'settings.authentication.gitlab.confirm.JIT',
   }),
+  confirmInsecureProvisioningDialog: byRole('dialog', {
+    name: 'settings.authentication.gitlab.confirm.insecure',
+  }),
   confirmProvisioningChange: byRole('button', {
     name: 'settings.authentication.gitlab.provisioning_change.confirm_changes',
   }),
@@ -329,10 +332,46 @@ it('should change from auto provisioning to JIT with proper validation', async (
 
   expect(await ui.saveProvisioning.find()).toBeEnabled();
 
-  expect(ui.jitAllowUsersToSignUpToggle.get()).toBeInTheDocument();
+  await user.click(ui.jitAllowUsersToSignUpToggle.get());
+  await user.click(ui.deleteGroupButton.get());
 
   await user.click(ui.saveProvisioning.get());
-  expect(ui.confirmJitProvisioningDialog.get()).toBeInTheDocument();
+  expect(
+    ui.confirmJitProvisioningDialog
+      .byText('settings.authentication.gitlab.provisioning_change.insecure_config')
+      .get(),
+  ).toBeInTheDocument();
+  await user.click(ui.confirmProvisioningChange.get());
+  expect(ui.confirmJitProvisioningDialog.query()).not.toBeInTheDocument();
+
+  expect(ui.jitProvisioningRadioButton.get()).toBeChecked();
+  expect(await ui.saveProvisioning.find()).toBeDisabled();
+});
+
+it('should show configuration warning with jit provisioning and no groups', async () => {
+  handler.setGitlabConfigurations([
+    mockGitlabConfiguration({
+      allowUsersToSignUp: false,
+      enabled: true,
+      provisioningType: ProvisioningType.jit,
+      allowedGroups: [],
+      isProvisioningTokenSet: true,
+    }),
+  ]);
+  const user = userEvent.setup();
+  renderAuthentication([Feature.GitlabProvisioning]);
+
+  expect(await ui.editConfigButton.find()).toBeInTheDocument();
+
+  await user.click(ui.jitAllowUsersToSignUpToggle.get());
+  await user.click(ui.saveProvisioning.get());
+
+  expect(
+    ui.confirmInsecureProvisioningDialog
+      .byText('settings.authentication.gitlab.provisioning_change.insecure_config')
+      .get(),
+  ).toBeInTheDocument();
+
   await user.click(ui.confirmProvisioningChange.get());
   expect(ui.confirmJitProvisioningDialog.query()).not.toBeInTheDocument();
 

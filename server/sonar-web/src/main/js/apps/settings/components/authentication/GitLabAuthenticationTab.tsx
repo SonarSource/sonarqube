@@ -18,13 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { Spinner } from 'design-system';
-import { omitBy } from 'lodash';
+import { isEmpty, omitBy } from 'lodash';
 import React, { FormEvent, useContext } from 'react';
 import { FormattedMessage } from 'react-intl';
 import GitLabSynchronisationWarning from '../../../../app/components/GitLabSynchronisationWarning';
 import { AvailableFeaturesContext } from '../../../../app/components/available-features/AvailableFeaturesContext';
 import DocumentationLink from '../../../../components/common/DocumentationLink';
-import ConfirmModal from '../../../../components/controls/ConfirmModal';
 import { translate, translateWithParameters } from '../../../../helpers/l10n';
 import { useIdentityProviderQuery } from '../../../../queries/identity-provider/common';
 import {
@@ -45,6 +44,7 @@ import GitLabConfigurationForm from './GitLabConfigurationForm';
 import GitLabConfigurationValidity from './GitLabConfigurationValidity';
 import ProvisioningSection from './ProvisioningSection';
 import TabHeader from './TabHeader';
+import ConfirmProvisioningModal from './ConfirmProvisioningModal';
 
 interface ChangesForm {
   provisioningType?: GitLabConfigurationUpdateBody['provisioningType'];
@@ -125,7 +125,10 @@ export default function GitLabAuthenticationTab() {
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    if (changes?.provisioningType !== undefined) {
+    if (
+      changes?.provisioningType !== undefined ||
+      (provisioningType === ProvisioningType.jit && allowUsersToSignUp && isEmpty(allowedGroups))
+    ) {
       setShowConfirmProvisioningModal(true);
     } else {
       updateProvisioning();
@@ -381,16 +384,15 @@ export default function GitLabAuthenticationTab() {
         )}
       </div>
       {showConfirmProvisioningModal && provisioningType && (
-        <ConfirmModal
-          onConfirm={updateProvisioning}
-          header={translate('settings.authentication.gitlab.confirm', provisioningType)}
+        <ConfirmProvisioningModal
+          allowUsersToSignUp={allowUsersToSignUp}
+          hasProvisioningTypeChange={Boolean(changes?.provisioningType)}
+          isAllowListEmpty={isEmpty(allowedGroups)}
           onClose={() => setShowConfirmProvisioningModal(false)}
-          confirmButtonText={translate(
-            'settings.authentication.gitlab.provisioning_change.confirm_changes',
-          )}
-        >
-          {translate('settings.authentication.gitlab.confirm', provisioningType, 'description')}
-        </ConfirmModal>
+          onConfirm={updateProvisioning}
+          provider={Provider.Gitlab}
+          provisioningStatus={provisioningType}
+        />
       )}
       {openForm && (
         <GitLabConfigurationForm data={configuration ?? null} onClose={() => setOpenForm(false)} />
