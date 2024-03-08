@@ -37,6 +37,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.CheckForNull;
@@ -77,6 +78,9 @@ import static java.lang.String.format;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 import static java.util.Optional.ofNullable;
+import static org.sonar.api.measures.CoreMetrics.MAINTAINABILITY_ISSUES_KEY;
+import static org.sonar.api.measures.CoreMetrics.RELIABILITY_ISSUES_KEY;
+import static org.sonar.api.measures.CoreMetrics.SECURITY_ISSUES_KEY;
 import static org.sonar.api.measures.Metric.ValueType.DATA;
 import static org.sonar.api.measures.Metric.ValueType.DISTRIB;
 import static org.sonar.api.utils.Paging.offset;
@@ -149,7 +153,6 @@ public class ComponentTreeAction implements MeasuresWsAction {
   static final String ALL_METRIC_SORT_FILTER = "all";
   static final String WITH_MEASURES_ONLY_METRIC_SORT_FILTER = "withMeasuresOnly";
   static final Set<String> METRIC_SORT_FILTERS = ImmutableSortedSet.of(ALL_METRIC_SORT_FILTER, WITH_MEASURES_ONLY_METRIC_SORT_FILTER);
-  static final Set<String> FORBIDDEN_METRIC_TYPES = Set.of(DISTRIB.name(), DATA.name());
   private static final int MAX_METRIC_KEYS = 15;
   private static final String COMMA_JOIN_SEPARATOR = ", ";
   private static final Set<String> QUALIFIERS_ELIGIBLE_FOR_BEST_VALUE = Set.of(Qualifiers.FILE, Qualifiers.UNIT_TEST_FILE);
@@ -181,10 +184,10 @@ public class ComponentTreeAction implements MeasuresWsAction {
       .setHandler(this)
       .addPagingParams(100, MAX_SIZE)
       .setChangelog(
+        new Change("10.5", "Added new accepted values for the 'metricKeys' param: 'maintainability_issues', 'reliability_issues', 'security_issues'"),
         new Change("10.4", String.format("The metrics %s are now deprecated in the response " +
             "without exact replacement. Use 'maintainability_issues', 'reliability_issues' and 'security_issues' instead.",
           MeasuresWsModule.getDeprecatedMetricsInSonarQube104())),
-        new Change("10.4", "Added new accepted values for the 'metricKeys' param: 'maintainability_issues', 'reliability_issues', 'security_issues'"),
         new Change("10.4", "The metrics 'open_issues', 'reopened_issues' and 'confirmed_issues' are now deprecated in the response. Consume 'violations' instead."),
         new Change("10.4", "The use of 'open_issues', 'reopened_issues' and 'confirmed_issues' values in 'metricKeys' param are now deprecated. Use 'violations' instead."),
         new Change("10.4", "The metric 'wont_fix_issues' is now deprecated in the response. Consume 'accepted_issues' instead."),
@@ -258,7 +261,10 @@ public class ComponentTreeAction implements MeasuresWsAction {
       .setPossibleValues(METRIC_SORT_FILTERS);
 
     createMetricKeysParameter(action)
-      .setDescription("Comma-separated list of metric keys. Types %s are not allowed.", String.join(COMMA_JOIN_SEPARATOR, FORBIDDEN_METRIC_TYPES))
+      .setDescription("Comma-separated list of metric keys. Types %s are not allowed. For type %s only %s metrics are supported",
+        String.join(COMMA_JOIN_SEPARATOR, UnsupportedMetrics.FORBIDDEN_METRIC_TYPES),
+        DATA.name(),
+        String.join(COMMA_JOIN_SEPARATOR, UnsupportedMetrics.PARTIALLY_SUPPORTED_METRICS.get(DATA.name())))
       .setMaxValuesAllowed(MAX_METRIC_KEYS);
     createAdditionalFieldsParameter(action);
     createQualifiersParameter(action, newQualifierParameterContext(i18n, resourceTypes));
@@ -290,7 +296,7 @@ public class ComponentTreeAction implements MeasuresWsAction {
       request,
       data,
       Paging.forPageIndex(
-        request.getPage())
+          request.getPage())
         .withPageSize(request.getPageSize())
         .andTotal(data.getComponentCount()),
       request.getMetricKeys());
@@ -516,7 +522,7 @@ public class ComponentTreeAction implements MeasuresWsAction {
       throw new NotFoundException(format("The following metric keys are not found: %s", String.join(COMMA_JOIN_SEPARATOR, missingMetricKeys)));
     }
     String forbiddenMetrics = metrics.stream()
-      .filter(metric -> ComponentTreeAction.FORBIDDEN_METRIC_TYPES.contains(metric.getValueType()))
+      .filter(UnsupportedMetrics.INSTANCE)
       .map(MetricDto::getKey)
       .sorted()
       .collect(Collectors.joining(COMMA_JOIN_SEPARATOR));
@@ -668,4 +674,26 @@ public class ComponentTreeAction implements MeasuresWsAction {
       return new MetricDtoWithBestValue(input);
     }
   }
+
+  private enum UnsupportedMetrics implements Predicate<MetricDto> {
+    INSTANCE;
+
+    static final Set<String> FORBIDDEN_METRIC_TYPES = Set.of(DISTRIB.name());
+    static final Map<String, Set<String>> PARTIALLY_SUPPORTED_METRICS= Map. of(
+      DATA.name(), Set.of(SECURITY_ISSUES_KEY, MAINTAINABILITY_ISSUES_KEY, RELIABILITY_ISSUES_KEY));
+
+    @Override
+    public boolean test(@Nonnull MetricDto input) {
+      if (FORBIDDEN_METRIC_TYPES.contains(input.getValueType())) {
+        return true;
+      }
+      Set<String> partialSupport = PARTIALLY_SUPPORTED_METRICS.get(input.getValueType());
+      if (partialSupport == null) {
+        return false;
+      } else {
+        return !partialSupport.contains(input.getKey());
+      }
+    }
+  }
+
 }
