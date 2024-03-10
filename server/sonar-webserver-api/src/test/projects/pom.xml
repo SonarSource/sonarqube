@@ -18,5 +18,4 @@
     <module>fake-sqale-plugin</module>
     <module>fake-views-plugin</module>
   </modules>
-
 </project>

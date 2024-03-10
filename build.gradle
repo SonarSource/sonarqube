@@ -16,6 +16,7 @@ plugins {
   id "org.cyclonedx.bom" version "1.7.4" apply false
   id 'org.sonarqube' version '4.4.1.3373'
   id 'org.barfuin.gradle.jacocolog' version '3.1.0'
+  id 'info.solidsoft.pitest' version '1.15.0'
 }
 
 if (!JavaVersion.current().isCompatibleWith(VERSION_17)) {
@@ -805,3 +806,8 @@ tasks.named('sonarqube') {
     outputFile.append(JsonOutput.toJson([category: "Analysis", suite: "Standalone", operation: "total", duration: taskDuration]) + '\n')
   }
 }
+
+//plugins {
+//  id 'java-library' //or 'java-library' - depending on your needs
+//  id 'info.solidsoft.pitest' version '1.15.0'
+//}

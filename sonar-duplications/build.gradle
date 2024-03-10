@@ -1,3 +1,8 @@
+plugins {
+  id 'info.solidsoft.pitest' version '1.15.0' // Add PITest plugin
+}
+group 'org.sonar.duplications';
+
 sonar {
   properties {
     property 'sonar.projectName', "${projectTitle} :: Duplications"
@@ -19,3 +24,5 @@ dependencies {
   testImplementation 'org.hamcrest:hamcrest-core'
   testImplementation 'org.mockito:mockito-core'
 }
+
+

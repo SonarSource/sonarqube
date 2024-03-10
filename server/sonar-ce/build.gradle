@@ -1,3 +1,9 @@
+plugins {
+  id 'info.solidsoft.pitest' version '1.15.0' // Add PITest plugin
+}
+
+group 'org.sonar.ce';
+
 description = 'Compute Engine JVM application'
 
 sonar {
@@ -23,7 +29,7 @@ dependencies {
   api project(':sonar-core')
   api project(':sonar-plugin-api-impl')
   api project(':sonar-ws')
-  
+
   compileOnlyApi 'com.google.code.findbugs:jsr305'
 
   testImplementation 'com.google.code.findbugs:jsr305'
@@ -37,4 +43,14 @@ dependencies {
 
   testImplementation testFixtures(project(':server:sonar-db-dao'))
 
+}
+
+
+
+pitest {
+  targetClasses = ['com.server.sonar-ce.src.test'] // Replace with your package
+  timestampedReports = false
+  outputFormats = ['HTML', 'XML']
+  mutators = ['DEFAULT']
+  // Add other configurations as necessary
 }
