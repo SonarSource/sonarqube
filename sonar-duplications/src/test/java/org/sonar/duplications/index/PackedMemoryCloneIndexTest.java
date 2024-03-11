@@ -32,6 +32,7 @@ import java.util.Iterator;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.sameInstance;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
 public class PackedMemoryCloneIndexTest {
@@ -132,6 +133,29 @@ public class PackedMemoryCloneIndexTest {
     index.insert(newBlock("a", 1));
   }
 
+  @Test
+  public void testNoResources() {
+      // Create a MemoryCloneIndex instance
+      MemoryCloneIndex memoryCloneIndex = new MemoryCloneIndex();
+
+      // Add some blocks to the index
+      memoryCloneIndex.insert(createBlock("resource1", new byte[]{1, 2, 3}));
+      memoryCloneIndex.insert(createBlock("resource2", new byte[]{4, 5, 6}));
+
+      // Assert that the noResources method returns the correct count
+      assertEquals(2, memoryCloneIndex.noResources());
+  }
+
+  private Block createBlock(String resourceId, byte[] hash) {
+      return Block.builder()
+              .setResourceId(resourceId)
+              .setBlockHash(new ByteArray(hash))
+              .setIndexInFile(1)
+              .setLines(1, 5)
+              .setUnit(1, 2)
+              .build();
+  }
+  
   /**
    * Given: index, which accepts blocks with 4-byte hash.
    * Expected: exception during search by 8-byte hash.
