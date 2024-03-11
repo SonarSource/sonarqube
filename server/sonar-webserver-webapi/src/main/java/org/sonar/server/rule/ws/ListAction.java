@@ -21,7 +21,6 @@ package org.sonar.server.rule.ws;
 
 import com.google.common.collect.Maps;
 import java.util.Date;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -81,7 +80,9 @@ public class ListAction implements RulesWsAction {
       new Change("10.4", "Add pagination"),
       new Change("10.4", String.format("Add the '%s' parameter", PARAM_AVAILABLE_SINCE)),
       new Change("10.4", String.format("Add the '%s' parameter", PARAM_QPROFILE)),
-      new Change("10.4", "Add the 'createdAt' sorting parameter"));
+      new Change("10.4", "Add the 'createdAt' sorting field"),
+      new Change("10.5", String.format("The sorting parameter '%s' no longer has a default value (was 'createdAt')",
+        WebService.Param.SORT)));
 
     action.createParam(PARAM_AVAILABLE_SINCE)
       .setDescription("Filter rules available since the given date. If no value is provided, all rules are returned. Format is yyyy-MM-dd.")
@@ -90,7 +91,7 @@ public class ListAction implements RulesWsAction {
     action.createParam(PARAM_QPROFILE)
       .setDescription("Filter rules that are activated in the given quality profile.")
       .setSince("10.4");
-    action.createSortParams(Set.of("createdAt"), "createdAt", false)
+    action.createSortParams(Set.of("createdAt"), null, false)
       .setSince("10.4");
     action.addPagingParamsSince(100, 500, "10.4");
   }
@@ -139,7 +140,7 @@ public class ListAction implements RulesWsAction {
       Pagination.forPage(wsRequest.page).andSize(wsRequest.pageSize));
     Map<String, RuleDto> rulesByUuid = Maps.uniqueIndex(dbClient.ruleDao().selectByUuids(dbSession, ruleListResult.getUuids()), RuleDto::getUuid);
     Set<String> ruleUuids = rulesByUuid.keySet();
-    List<RuleDto> rules = new LinkedList<>(rulesByUuid.values());
+    List<RuleDto> rules = ruleListResult.getUuids().stream().map(rulesByUuid::get).toList();
 
     List<String> templateRuleUuids = rules.stream()
       .map(RuleDto::getTemplateUuid)

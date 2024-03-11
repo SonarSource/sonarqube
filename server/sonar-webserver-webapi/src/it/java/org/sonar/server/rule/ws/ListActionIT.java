@@ -21,6 +21,8 @@ package org.sonar.server.rule.ws;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import org.junit.Rule;
@@ -73,8 +75,9 @@ public class ListActionIT {
 
   @Test
   public void execute_shouldReturnRules() {
-    db.rules().insert(RuleTesting.newRule(RuleKey.parse(RULE_KEY_1)).setConfigKey(null).setName(null));
-    db.rules().insert(RuleTesting.newRule(RuleKey.parse(RULE_KEY_2)).setConfigKey("I002").setName("Rule Two"));
+    List<RuleDto> rules = List.of(
+      db.rules().insert(RuleTesting.newRule(RuleKey.parse(RULE_KEY_1)).setConfigKey(null).setName(null)),
+      db.rules().insert(RuleTesting.newRule(RuleKey.parse(RULE_KEY_2)).setConfigKey("I002").setName("Rule Two")));
     db.getSession().commit();
 
     Rules.ListResponse listResponse = ws.newRequest()
@@ -91,6 +94,24 @@ public class ListActionIT {
     assertThat(ruleS002.getKey()).isEqualTo(RULE_KEY_2);
     assertThat(ruleS002.getInternalKey()).isEqualTo("I002");
     assertThat(ruleS002.getName()).isEqualTo("Rule Two");
+
+    assertThat(listResponse.getRulesList()).extracting(Rules.Rule::getKey).containsExactly(
+      rules.stream().sorted(Comparator.comparing(RuleDto::getUuid)).map(rule -> rule.getKey().toString()).toArray(String[]::new));
+  }
+
+  @Test
+  public void execute_whenSortingDefined_shouldReturnSortedRules() {
+    db.rules().insert(RuleTesting.newRule(RuleKey.parse(RULE_KEY_1)).setCreatedAt(2_000_000L));
+    db.rules().insert(RuleTesting.newRule(RuleKey.parse(RULE_KEY_2)).setCreatedAt(1_000_000L));
+    db.getSession().commit();
+
+    Rules.ListResponse listResponse = ws.newRequest()
+      .setParam(WebService.Param.SORT, "createdAt")
+      .setParam(WebService.Param.ASCENDING, "true")
+      .executeProtobuf(Rules.ListResponse.class);
+
+    assertThat(listResponse.getRulesCount()).isEqualTo(2);
+    assertThat(listResponse.getRulesList()).extracting(Rules.Rule::getKey).containsExactly(RULE_KEY_2, RULE_KEY_1);
   }
 
   @Test
