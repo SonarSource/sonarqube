@@ -20,6 +20,7 @@
 package org.sonar.server.almsettings.ws;
 
 import java.util.regex.Pattern;
+import javax.annotation.Nullable;
 import org.sonar.api.server.ServerSide;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -34,6 +35,7 @@ import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.AlmSettings;
 
 import static java.lang.String.format;
+import static org.apache.commons.lang.StringUtils.isEmpty;
 import static org.sonar.api.web.UserRole.ADMIN;
 
 @ServerSide
@@ -107,6 +109,12 @@ public class AlmSettingsSupport {
         return AlmSettings.Alm.gitlab;
       default:
         throw new IllegalStateException(format("Unknown DevOps Platform '%s'", alm.name()));
+    }
+  }
+
+  public void checkPrivateKeyOnUrlUpdate(AlmSettingDto almSettingDto, String url, @Nullable String privateKey) {
+    if (!url.equals(almSettingDto.getUrl()) && isEmpty(privateKey)) {
+      throw new IllegalArgumentException("Please provide the Private Key to update the URL.");
     }
   }
 }

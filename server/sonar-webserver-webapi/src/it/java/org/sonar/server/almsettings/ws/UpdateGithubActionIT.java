@@ -123,14 +123,14 @@ public class UpdateGithubActionIT {
   }
 
   @Test
-  public void update_without_private_key_nor_client_secret() {
+  public void update_without_client_secret() {
     buildTestRequestWithoutSecrets().execute();
 
     assertThat(db.getDbClient().almSettingDao().selectAll(db.getSession()))
       .extracting(AlmSettingDto::getKey, AlmSettingDto::getUrl, AlmSettingDto::getAppId,
         s -> s.getDecryptedPrivateKey(encryption), AlmSettingDto::getClientId, s -> s.getDecryptedClientSecret(encryption))
       .containsOnly(tuple(almSettingDto.getKey(), "https://github.enterprise-unicorn.com", "54321",
-        almSettingDto.getDecryptedPrivateKey(encryption), "client_1234", almSettingDto.getDecryptedClientSecret(encryption)));
+        "10987654321", "client_1234", almSettingDto.getDecryptedClientSecret(encryption)));
   }
 
 
@@ -139,7 +139,8 @@ public class UpdateGithubActionIT {
       .setParam("key", almSettingDto.getKey())
       .setParam("url", "https://github.enterprise-unicorn.com/")
       .setParam("appId", "54321")
-      .setParam("clientId", "client_1234");
+      .setParam("clientId", "client_1234")
+      .setParam("privateKey", "10987654321");
   }
 
   @Test
@@ -164,6 +165,34 @@ public class UpdateGithubActionIT {
     assertThatThrownBy(request::execute)
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessageContaining(format("An DevOps Platform setting with key '%s' already exists", almSetting2.getKey()));
+  }
+
+  @Test
+  public void update_without_url_changes_does_not_need_private_key() {
+    TestRequest request = ws.newRequest()
+      .setParam("key", almSettingDto.getKey())
+      .setParam("url", almSettingDto.getUrl())
+      .setParam("appId", "54321")
+      .setParam("clientId", "client_1234");
+
+    request.execute();
+
+    assertThat(db.getDbClient().almSettingDao().selectAll(db.getSession()))
+      .extracting(AlmSettingDto::getKey, AlmSettingDto::getUrl, AlmSettingDto::getAppId, AlmSettingDto::getClientId)
+      .containsOnly(tuple(almSettingDto.getKey(), almSettingDto.getUrl(), "54321", "client_1234"));
+  }
+
+  @Test
+  public void fail_when_url_updated_without_private_key() {
+    TestRequest request = ws.newRequest()
+      .setParam("key", almSettingDto.getKey())
+      .setParam("url", "https://github.enterprise-unicorn.com")
+      .setParam("appId", "54321")
+      .setParam("clientId", "client_1234");
+
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining("Please provide the Private Key to update the URL.");
   }
 
   @Test
@@ -250,8 +279,7 @@ public class UpdateGithubActionIT {
   public static Object[][] secretParams() {
     return new Object[][] {
       {"webhookSecret"},
-      {"clientSecret"},
-      {"privateKey"}
+      {"clientSecret"}
     };
   }
 
