@@ -100,7 +100,8 @@ public class ResetAction implements SettingsWsAction {
       resetRequest.getKeys().forEach(key -> {
         SettingsWsSupport.validateKey(key);
         SettingData data = new SettingData(key, emptyList(), entity.orElse(null));
-        List.of(validations.scope(), validations.qualifier()).forEach(validation -> validation.accept(data));
+        validations.validateScope(data);
+        validations.validateQualifier(data);
       });
 
       List<String> keys = getKeys(resetRequest);

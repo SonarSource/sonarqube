@@ -1,5 +1,4 @@
 {
-  "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "Custom configuration schema",
   "description": "Schema to validate custom configuration given as input to the custom configuration properties",
   "definitions": {

@@ -26,7 +26,7 @@ import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.net.HttpURLConnection;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Rule;
@@ -437,37 +437,36 @@ public class SetActionIT {
   @Test
   @UseDataProvider("securityJsonProperties")
   public void successfully_validate_json_schema(String securityPropertyKey) {
-    String security_custom_config = "{\n" +
-      "  \"S3649\": {\n" +
-      "    \"sources\": [\n" +
-      "      {\n" +
-      "        \"methodId\": \"My\\\\Namespace\\\\ClassName\\\\ServerRequest::getQuery\"\n" +
-      "      }\n" +
-      "    ],\n" +
-      "    \"sanitizers\": [\n" +
-      "      {\n" +
-      "        \"methodId\": \"str_replace\"," +
-      "        \"args\": [\n" +
-      "           0\n" +
-      "         ]\n" +
-      "      }\n" +
-      "    ],\n" +
-      "    \"validators\": [\n" +
-      "      {\n" +
-      "        \"methodId\": \"is_valid\"," +
-      "        \"args\": [\n" +
-      "           1\n" +
-      "         ]\n" +
-      "      }\n" +
-      "    ],\n" +
-      "    \"sinks\": [\n" +
-      "      {\n" +
-      "        \"methodId\": \"mysql_query\",\n" +
-      "        \"args\": [1]\n" +
-      "      }\n" +
-      "    ]\n" +
-      "  }\n" +
-      "}";
+    String security_custom_config = """
+      {
+        "S3649": {
+          "sources": [
+            {
+              "methodId": "My\\\\Namespace\\\\ClassName\\\\ServerRequest::getQuery"
+            }
+          ],
+          "sanitizers": [
+            {
+              "methodId": "str_replace",        "args": [
+                 0
+               ]
+            }
+          ],
+          "validators": [
+            {
+              "methodId": "is_valid",        "args": [
+                 1
+               ]
+            }
+          ],
+          "sinks": [
+            {
+              "methodId": "mysql_query",
+              "args": [1]
+            }
+          ]
+        }
+      }""";
     definitions.addComponent(PropertyDefinition
       .builder(securityPropertyKey)
       .name("foo")
@@ -485,21 +484,22 @@ public class SetActionIT {
   @Test
   @UseDataProvider("securityJsonProperties")
   public void fail_json_schema_validation_when_property_has_incorrect_type(String securityPropertyKey) {
-    String security_custom_config = "{\n" +
-      "  \"S3649\": {\n" +
-      "    \"sources\": [\n" +
-      "      {\n" +
-      "        \"methodId\": \"My\\\\Namespace\\\\ClassName\\\\ServerRequest::getQuery\"\n" +
-      "      }\n" +
-      "    ],\n" +
-      "    \"sinks\": [\n" +
-      "      {\n" +
-      "        \"methodId\": 12345,\n" +
-      "        \"args\": [1]\n" +
-      "      }\n" +
-      "    ]\n" +
-      "  }\n" +
-      "}";
+    String security_custom_config = """
+      {
+        "S3649": {
+          "sources": [
+            {
+              "methodId": "My\\\\Namespace\\\\ClassName\\\\ServerRequest::getQuery"
+            }
+          ],
+          "sinks": [
+            {
+              "methodId": 12345,
+              "args": [1]
+            }
+          ]
+        }
+      }""";
     definitions.addComponent(PropertyDefinition
       .builder(securityPropertyKey)
       .name("foo")
@@ -511,26 +511,27 @@ public class SetActionIT {
 
     assertThatThrownBy(() -> callForGlobalSetting(securityPropertyKey, security_custom_config))
       .isInstanceOf(IllegalArgumentException.class)
-      .hasMessageContaining("S3649/sinks/0/methodId: expected type: String, found: Integer");
+      .hasMessageContaining("expected type: string, actual: integer at line 10, character 21, pointer: #/S3649/sinks/0/methodId");
   }
 
   @Test
   @UseDataProvider("securityJsonProperties")
   public void fail_json_schema_validation_when_sanitizers_have_no_args(String securityPropertyKey) {
-    String security_custom_config = "{\n" +
-      "  \"S3649\": {\n" +
-      "    \"sources\": [\n" +
-      "      {\n" +
-      "        \"methodId\": \"My\\\\Namespace\\\\ClassName\\\\ServerRequest::getQuery\"\n" +
-      "      }\n" +
-      "    ],\n" +
-      "    \"sanitizers\": [\n" +
-      "       {\n" +
-      "         \"methodId\": \"SomeSanitizer\"\n" +
-      "       }\n" +
-      "    ]\n" +
-      "  }\n" +
-      "}";
+    String security_custom_config = """
+      {
+        "S3649": {
+          "sources": [
+            {
+              "methodId": "My\\\\Namespace\\\\ClassName\\\\ServerRequest::getQuery"
+            }
+          ],
+          "sanitizers": [
+             {
+               "methodId": "SomeSanitizer"
+             }
+          ]
+        }
+      }""";
     definitions.addComponent(PropertyDefinition
       .builder(securityPropertyKey)
       .name("foo")
@@ -542,27 +543,28 @@ public class SetActionIT {
 
     assertThatThrownBy(() -> callForGlobalSetting(securityPropertyKey, security_custom_config))
       .isInstanceOf(IllegalArgumentException.class)
-      .hasMessageContaining("Provided JSON is invalid [#/S3649/sanitizers/0: #: only 1 subschema matches out of 2]");
+      .hasMessageContaining("required properties are missing: args at line 9, character 8, pointer: #/S3649/sanitizers/0");
   }
 
   @Test
   @UseDataProvider("securityJsonProperties")
   public void fail_json_schema_validation_when_validators_have_empty_args_array(String securityPropertyKey) {
-    String security_custom_config = "{\n" +
-      "  \"S3649\": {\n" +
-      "    \"sources\": [\n" +
-      "      {\n" +
-      "        \"methodId\": \"My\\\\Namespace\\\\ClassName\\\\ServerRequest::getQuery\"\n" +
-      "      }\n" +
-      "    ],\n" +
-      "    \"validators\": [\n" +
-      "       {\n" +
-      "         \"methodId\": \"SomeValidator\",\n" +
-      "         \"args\": []\n" +
-      "       }\n" +
-      "    ]\n" +
-      "  }\n" +
-      "}";
+    String security_custom_config = """
+      {
+        "S3649": {
+          "sources": [
+            {
+              "methodId": "My\\\\Namespace\\\\ClassName\\\\ServerRequest::getQuery"
+            }
+          ],
+          "validators": [
+             {
+               "methodId": "SomeValidator",
+               "args": []
+             }
+          ]
+        }
+      }""";
     definitions.addComponent(PropertyDefinition
       .builder(securityPropertyKey)
       .name("foo")
@@ -574,27 +576,28 @@ public class SetActionIT {
 
     assertThatThrownBy(() -> callForGlobalSetting(securityPropertyKey, security_custom_config))
       .isInstanceOf(IllegalArgumentException.class)
-      .hasMessageContaining("Provided JSON is invalid [#/S3649/validators/0: #: only 1 subschema matches out of 2]");
+      .hasMessageContaining("expected minimum items: 1, found only 0 at line 11, character 18, pointer: #/S3649/validators/0/args");
   }
 
   @Test
   @UseDataProvider("securityJsonProperties")
   public void fail_json_schema_validation_when_property_has_unknown_attribute(String securityPropertyKey) {
-    String security_custom_config = "{\n" +
-      "  \"S3649\": {\n" +
-      "    \"sources\": [\n" +
-      "      {\n" +
-      "        \"methodId\": \"My\\\\Namespace\\\\ClassName\\\\ServerRequest::getQuery\"\n" +
-      "      }\n" +
-      "    ],\n" +
-      "    \"unknown\": [\n" +
-      "      {\n" +
-      "        \"methodId\": 12345,\n" +
-      "        \"args\": [1]\n" +
-      "      }\n" +
-      "    ]\n" +
-      "  }\n" +
-      "}";
+    String security_custom_config = """
+      {
+        "S3649": {
+          "sources": [
+            {
+              "methodId": "My\\\\Namespace\\\\ClassName\\\\ServerRequest::getQuery"
+            }
+          ],
+          "unknown": [
+            {
+              "methodId": 12345,
+              "args": [1]
+            }
+          ]
+        }
+      }""";
     definitions.addComponent(PropertyDefinition
       .builder(securityPropertyKey)
       .name("foo")
@@ -606,7 +609,7 @@ public class SetActionIT {
 
     assertThatThrownBy(() -> callForGlobalSetting(securityPropertyKey, security_custom_config))
       .isInstanceOf(IllegalArgumentException.class)
-      .hasMessageContaining("extraneous key [unknown] is not permitted");
+      .hasMessageContaining("false schema always fails at line 8, character 16, pointer: #/S3649/unknown");
   }
 
   @Test
@@ -1101,11 +1104,11 @@ public class SetActionIT {
 
   @Test
   public void fail_when_component_not_found() {
-    assertThatThrownBy(() -> ws.newRequest()
+    TestRequest testRequest = ws.newRequest()
       .setParam("key", "foo")
       .setParam("value", "2")
-      .setParam("component", "unknown")
-      .execute())
+      .setParam("component", "unknown");
+    assertThatThrownBy(testRequest::execute)
       .isInstanceOf(NotFoundException.class)
       .hasMessage("Component key 'unknown' not found");
   }
@@ -1116,11 +1119,11 @@ public class SetActionIT {
     logInAsProjectAdministrator(project);
     String settingKey = ProcessProperties.Property.JDBC_URL.getKey();
 
-    assertThatThrownBy(() -> ws.newRequest()
+    TestRequest testRequest = ws.newRequest()
       .setParam("key", settingKey)
       .setParam("value", "any value")
-      .setParam("component", project.getKey())
-      .execute())
+      .setParam("component", project.getKey());
+    assertThatThrownBy(testRequest::execute)
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage(format("Setting '%s' can only be used in sonar.properties", settingKey));
   }
@@ -1257,6 +1260,6 @@ public class SetActionIT {
   }
 
   private ProjectData randomPublicOrPrivateProject() {
-    return new Random().nextBoolean() ? db.components().insertPrivateProject() : db.components().insertPublicProject();
+    return ThreadLocalRandom.current().nextBoolean() ? db.components().insertPrivateProject() : db.components().insertPublicProject();
   }
 }

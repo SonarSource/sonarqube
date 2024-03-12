@@ -8,8 +8,7 @@ dependencies {
   // please keep the list grouped by configuration and ordered by name
 
   api 'com.google.guava:guava'
-  api 'com.github.everit-org.json-schema:org.everit.json.schema'
-
+  implementation 'com.github.erosb:json-sKema'
   api 'io.prometheus:simpleclient_common'
   api 'io.prometheus:simpleclient_servlet'
 

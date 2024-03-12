@@ -302,7 +302,10 @@ subprojects {
         entry 'scribejava-apis'
         entry 'scribejava-core'
       }
-      dependency 'com.github.everit-org.json-schema:org.everit.json.schema:1.14.4'
+      dependency('com.github.erosb:json-sKema:0.13.0') {
+        // this version of json-sKema does not make use of commons-collections, so we can exclude it safely
+        exclude 'commons-collections:commons-collections'
+      }
       // This project is no longer maintained and was forked
       // by https://github.com/java-diff-utils/java-diff-utils
       // (io.github.java-diff-utils:java-diff-utils).

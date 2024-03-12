@@ -210,8 +210,9 @@ public class SetAction implements SettingsWsAction {
     checkValueIsSet(request);
     String settingKey = request.getKey();
     SettingData settingData = new SettingData(settingKey, valuesFromRequest(request), entity.orElse(null));
-    List.of(validations.scope(), validations.qualifier(), validations.valueType())
-      .forEach(validation -> validation.accept(settingData));
+    validations.validateScope(settingData);
+    validations.validateQualifier(settingData);
+    validations.validateValueType(settingData);
   }
 
   private static void validatePropertySet(SetRequest request, @Nullable PropertyDefinition definition) {
