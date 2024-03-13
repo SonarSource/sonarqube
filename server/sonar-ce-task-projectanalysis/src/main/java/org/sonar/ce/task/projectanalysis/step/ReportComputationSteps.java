@@ -32,6 +32,7 @@ import org.sonar.ce.task.projectanalysis.qualityprofile.RegisterQualityProfileSt
 import org.sonar.ce.task.projectanalysis.source.PersistFileSourcesStep;
 import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.ce.task.step.ExecuteStatelessInitExtensionsStep;
+import org.sonar.ce.task.step.ExecuteStatelessOnFinishStep;
 
 /**
  * Ordered list of steps classes and instances to be executed for batch processing
@@ -127,6 +128,7 @@ public class ReportComputationSteps extends AbstractComputationSteps {
     // notifications are sent at the end, so that webapp displays up-to-date information
     SendIssueNotificationsStep.class,
 
+    ExecuteStatelessOnFinishStep.class,
     PublishTaskResultStep.class,
     TriggerViewRefreshStep.class);
 
