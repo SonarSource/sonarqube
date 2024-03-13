@@ -30,7 +30,6 @@ import NavLink from './NavLink';
 import { Tooltip } from './Tooltip';
 import { ClipboardBase } from './clipboard';
 import { Checkbox } from './input/Checkbox';
-import { RadioButton } from './input/RadioButton';
 
 interface Props extends React.HtmlHTMLAttributes<HTMLMenuElement> {
   children?: React.ReactNode;
@@ -194,30 +193,6 @@ export function ItemCheckbox(props: ItemCheckboxProps) {
       >
         {children}
       </ItemCheckboxStyled>
-    </li>
-  );
-}
-
-interface ItemRadioButtonProps extends ListItemProps {
-  checked: boolean;
-  disabled?: boolean;
-  onCheck: (value: string) => void;
-  value: string;
-}
-
-export function ItemRadioButton(props: ItemRadioButtonProps) {
-  const { checked, children, className, disabled, innerRef, onCheck, value, ...liProps } = props;
-  return (
-    <li ref={innerRef} role="none" {...liProps}>
-      <ItemRadioButtonStyled
-        checked={checked}
-        className={classNames(className, { disabled })}
-        disabled={disabled}
-        onCheck={onCheck}
-        value={value}
-      >
-        {children}
-      </ItemRadioButtonStyled>
     </li>
   );
 }
@@ -395,11 +370,6 @@ const ItemDownloadStyled = styled.a`
 `;
 
 const ItemCheckboxStyled = styled(Checkbox)`
-  --color: ${themeContrast('dropdownMenu')};
-  ${itemStyle}
-`;
-
-const ItemRadioButtonStyled = styled(RadioButton)`
   --color: ${themeContrast('dropdownMenu')};
   ${itemStyle}
 `;

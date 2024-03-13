@@ -30,7 +30,6 @@ import {
   ItemHeader,
   ItemLink,
   ItemNavLink,
-  ItemRadioButton,
 } from '../DropdownMenu';
 import { Tooltip } from '../Tooltip';
 import { MenuIcon } from '../icons/MenuIcon';
@@ -74,9 +73,6 @@ function renderDropdownMenu() {
       <ItemCheckbox checked onCheck={noop}>
         Checkbox item
       </ItemCheckbox>
-      <ItemRadioButton checked={false} onCheck={noop} value="radios">
-        Radio item
-      </ItemRadioButton>
     </DropdownMenu>,
   );
 }

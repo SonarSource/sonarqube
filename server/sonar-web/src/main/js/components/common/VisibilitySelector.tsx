@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { RadioButtonGroup } from '@sonarsource/echoes-react';
 import classNames from 'classnames';
-import { RadioButton } from 'design-system';
 import * as React from 'react';
 import { translate } from '../../helpers/l10n';
 import { Visibility } from '../../types/component';
@@ -32,22 +32,21 @@ export interface VisibilitySelectorProps {
   loading?: boolean;
 }
 
-export default function VisibilitySelector(props: VisibilitySelectorProps) {
+export default function VisibilitySelector(props: Readonly<VisibilitySelectorProps>) {
   const { className, canTurnToPrivate, visibility, disabled, loading = false } = props;
   return (
     <div className={classNames(className)}>
-      {Object.values(Visibility).map((v) => (
-        <RadioButton
-          className={`sw-mr-10 it__visibility-${v}`}
-          key={v}
-          value={v}
-          checked={v === visibility}
-          onCheck={props.onChange}
-          disabled={disabled || (v === Visibility.Private && !canTurnToPrivate) || loading}
-        >
-          <div>{translate('visibility', v)}</div>
-        </RadioButton>
-      ))}
+      <RadioButtonGroup
+        id="project-visiblity-radio"
+        isDisabled={disabled}
+        options={Object.values(Visibility).map((v) => ({
+          label: translate('visibility', v),
+          value: v,
+          isDisabled: (v === Visibility.Private && !canTurnToPrivate) || loading,
+        }))}
+        value={visibility}
+        onChange={props.onChange}
+      />
     </div>
   );
 }

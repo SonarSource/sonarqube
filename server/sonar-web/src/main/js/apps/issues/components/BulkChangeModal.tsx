@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { Checkbox, Spinner } from '@sonarsource/echoes-react';
+import { Checkbox, RadioButtonGroup, Spinner } from '@sonarsource/echoes-react';
 import {
   ButtonPrimary,
   FlagMessage,
@@ -28,7 +28,6 @@ import {
   LabelValueSelectOption,
   LightLabel,
   Modal,
-  RadioButton,
 } from 'design-system';
 import { countBy, flattenDeep, pickBy, sortBy } from 'lodash';
 import * as React from 'react';
@@ -297,23 +296,16 @@ export class BulkChangeModal extends React.PureComponent<Props, State> {
           <Highlight as="legend" className="sw-mb-2">
             {translate('issue.change_status')}
           </Highlight>
-          {transitions.map((transition) => (
-            <div
-              className="sw-mb-1 sw-flex sw-items-center sw-justify-between"
-              key={transition.transition}
-            >
-              <RadioButton
-                checked={this.state.transition === transition.transition}
-                onCheck={this.handleRadioTransitionChange}
-                value={transition.transition}
-              >
-                {translate('issue.transition', transition.transition)}
-              </RadioButton>
-              <LightLabel>
-                ({translateWithParameters('issue_bulk_change.x_issues', transition.count)})
-              </LightLabel>
-            </div>
-          ))}
+
+          <RadioButtonGroup
+            id="bulk-change-transition"
+            options={transitions.map(({ transition, count }) => ({
+              label: translate('issue.transition', transition),
+              value: transition,
+              helpText: translateWithParameters('issue_bulk_change.x_issues', count),
+            }))}
+            onChange={this.handleRadioTransitionChange}
+          />
         </fieldset>
       </div>
     );
@@ -333,7 +325,6 @@ export class BulkChangeModal extends React.PureComponent<Props, State> {
     return (
       <FormField label={translate('issue_bulk_change.resolution_comment')}>
         <InputTextArea
-          autoFocus
           aria-label={translate('issue_bulk_change.resolution_comment')}
           onChange={this.handleCommentChange}
           placeholder={translate(

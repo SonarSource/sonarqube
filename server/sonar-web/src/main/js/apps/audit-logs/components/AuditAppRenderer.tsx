@@ -18,14 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+import { Link, RadioButtonGroup } from '@sonarsource/echoes-react';
 import { subDays } from 'date-fns';
 import {
   DateRangePicker,
   LargeCenteredLayout,
-  Link,
   PageContentFontWrapper,
   PopupZLevel,
-  RadioButton,
   Title,
 } from 'design-system';
 import * as React from 'react';
@@ -75,7 +74,7 @@ const getRangeOptions = (housekeepingPolicy: HousekeepingPolicy) => {
   return rangeOptions;
 };
 
-export default function AuditAppRenderer(props: AuditAppRendererProps) {
+export default function AuditAppRenderer(props: Readonly<AuditAppRendererProps>) {
   const { dateRange, downloadStarted, housekeepingPolicy, selection } = props;
 
   return (
@@ -112,19 +111,15 @@ export default function AuditAppRenderer(props: AuditAppRendererProps) {
         <div className="sw-mb-6">
           <h3 className="sw-mb-4">{translate('audit_logs.download')}</h3>
 
-          <ul>
-            {getRangeOptions(housekeepingPolicy).map((option) => (
-              <li key={option} className="sw-mb-2">
-                <RadioButton
-                  checked={selection === option}
-                  onCheck={props.handleOptionSelection}
-                  value={option}
-                >
-                  {translate('audit_logs.range_option', option)}
-                </RadioButton>
-              </li>
-            ))}
-          </ul>
+          <RadioButtonGroup
+            id="audit-logs-housekeeping-radio"
+            options={getRangeOptions(housekeepingPolicy).map((option) => ({
+              label: translate('audit_logs.range_option', option),
+              value: option,
+            }))}
+            value={selection}
+            onChange={props.handleOptionSelection}
+          />
 
           <DateRangePicker
             className="sw-w-abs-350 sw-mt-4"

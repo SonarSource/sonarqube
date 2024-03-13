@@ -17,7 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { ButtonPrimary, FlagMessage, Modal, RadioButton, TextSubdued } from 'design-system';
+import { RadioButtonGroup } from '@sonarsource/echoes-react';
+import { ButtonPrimary, FlagMessage, Modal } from 'design-system';
 import React, { useState } from 'react';
 import { translate } from '../../helpers/l10n';
 import { useGithubProvisioningEnabledQuery } from '../../queries/identity-provider/github';
@@ -31,7 +32,7 @@ export interface Props {
 
 const FORM_ID = 'change-default-visibility-form';
 
-export default function ChangeDefaultVisibilityForm(props: Props) {
+export default function ChangeDefaultVisibilityForm(props: Readonly<Props>) {
   const [visibility, setVisibility] = useState(props.defaultVisibility);
   const { data: githubProbivisioningEnabled } = useGithubProvisioningEnabledQuery();
 
@@ -49,22 +50,17 @@ export default function ChangeDefaultVisibilityForm(props: Props) {
 
   const body = (
     <form id={FORM_ID} onSubmit={handleConfirmClick}>
-      {Object.values(Visibility).map((visibilityValue) => (
-        <div className="sw-mb-4" key={visibilityValue}>
-          <RadioButton
-            value={visibilityValue}
-            checked={visibility === visibilityValue}
-            onCheck={handleVisibilityChange}
-          >
-            <div>
-              {translate('visibility', visibilityValue)}
-              <TextSubdued as="p" className="sw-mt-2">
-                {translate('visibility', visibilityValue, 'description.short')}
-              </TextSubdued>
-            </div>
-          </RadioButton>
-        </div>
-      ))}
+      <RadioButtonGroup
+        id="settings-projects-visibility-radio"
+        options={Object.values(Visibility).map((visibilityValue) => ({
+          label: translate('visibility', visibilityValue),
+          helpText: translate('visibility', visibilityValue, 'description.short'),
+          value: visibilityValue,
+        }))}
+        value={visibility}
+        onChange={handleVisibilityChange}
+      />
+
       <FlagMessage variant="warning">
         {translate(
           `settings.projects.change_visibility_form.warning${

@@ -39,6 +39,11 @@ type Props =
   | ({ onCheck: (value: string) => void; value: string } & PropsBase)
   | ({ onCheck: () => void; value: never } & PropsBase);
 
+/** @deprecated Use RadioButtonGroup from Echoes instead.
+ *
+ * Individual Radio Buttons can't be used anymore.
+ * Instead, build the list of options and pass it to the RadioButtonGroup component.
+ */
 export function RadioButton({
   checked,
   children,
@@ -88,6 +93,11 @@ const LabelStyled = styled.label<{ disabled?: boolean }>`
   }
 `;
 
+/** @deprecated Use RadioButtonGroup from Echoes instead.
+ *
+ * Individual Radio Buttons can't be used anymore.
+ * Instead, build the list of options and pass it to the RadioButtonGroup component.
+ */
 export const RadioButtonStyled = styled.input`
   appearance: none; //disables native style
   border: ${themeBorder('default', 'radioBorder')};

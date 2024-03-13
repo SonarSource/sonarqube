@@ -17,7 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { ButtonPrimary, FormField, Modal, RadioButton } from 'design-system';
+import { RadioButtonGroup } from '@sonarsource/echoes-react';
+import { ButtonPrimary, FormField, Modal } from 'design-system';
 import * as React from 'react';
 import { getLocalizedMetricName, translate } from '../../../helpers/l10n';
 import { isDiffMetric } from '../../../helpers/measures';
@@ -93,18 +94,15 @@ export default function AddConditionModal({ metrics, onClose, qualityGate }: Rea
     return (
       <form onSubmit={handleFormSubmit} id={ADD_CONDITION_MODAL_ID}>
         <FormField label={translate('quality_gates.conditions.where')}>
-          <div className="sw-flex sw-gap-4">
-            <RadioButton checked={scope === 'new'} onCheck={handleScopeChange} value="new">
-              <span data-test="quality-gates__condition-scope-new">
-                {translate('quality_gates.conditions.new_code')}
-              </span>
-            </RadioButton>
-            <RadioButton checked={scope === 'overall'} onCheck={handleScopeChange} value="overall">
-              <span data-test="quality-gates__condition-scope-overall">
-                {translate('quality_gates.conditions.overall_code')}
-              </span>
-            </RadioButton>
-          </div>
+          <RadioButtonGroup
+            id="quality_gates-add-condition-scope-radio"
+            options={[
+              { label: translate('quality_gates.conditions.new_code'), value: 'new' },
+              { label: translate('quality_gates.conditions.overall_code'), value: 'overall' },
+            ]}
+            value={scope}
+            onChange={handleScopeChange}
+          />
         </FormField>
 
         <FormField
