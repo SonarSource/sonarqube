@@ -17,7 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { ActionCell, Badge, Checkbox, ContentCell, HoverLink, Note, TableRow } from 'design-system';
+
+import { Checkbox, LinkHighlight, LinkStandalone } from '@sonarsource/echoes-react';
+import { ActionCell, Badge, ContentCell, Note, TableRow } from 'design-system';
 import * as React from 'react';
 import { Project } from '../../api/project-management';
 import PrivacyBadgeContainer from '../../components/common/PrivacyBadgeContainer';
@@ -37,7 +39,7 @@ interface Props {
   selected: boolean;
 }
 
-export default function ProjectRow(props: Props) {
+export default function ProjectRow(props: Readonly<Props>) {
   const { currentUser, project, selected } = props;
   const { data: githubProvisioningEnabled } = useGithubProvisioningEnabledQuery();
 
@@ -49,17 +51,20 @@ export default function ProjectRow(props: Props) {
     <TableRow data-project-key={project.key}>
       <ContentCell>
         <Checkbox
-          label={translateWithParameters('projects_management.select_project', project.name)}
+          ariaLabel={translateWithParameters('projects_management.select_project', project.name)}
           checked={selected}
           onCheck={handleProjectCheck}
         />
       </ContentCell>
       <ContentCell className="it__project-row-text-cell">
-        <HoverLink to={getComponentOverviewUrl(project.key, project.qualifier)}>
+        <LinkStandalone
+          highlight={LinkHighlight.CurrentColor}
+          to={getComponentOverviewUrl(project.key, project.qualifier)}
+        >
           <Tooltip overlay={project.name} placement="left">
             <span>{project.name}</span>
           </Tooltip>
-        </HoverLink>
+        </LinkStandalone>
         {project.qualifier === ComponentQualifier.Project &&
           githubProvisioningEnabled &&
           !project.managed && <Badge className="sw-ml-1">{translate('local')}</Badge>}

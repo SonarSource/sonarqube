@@ -18,7 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { CellComponent, Checkbox, TableRowInteractive } from 'design-system';
+import { Checkbox } from '@sonarsource/echoes-react';
+import { CellComponent, TableRowInteractive } from 'design-system';
 import * as React from 'react';
 import { hasMessage, translate, translateWithParameters } from '../../../helpers/l10n';
 import {
@@ -77,13 +78,13 @@ export default function NotificationsList({
         <CellComponent className="sw-py-0 sw-border-0" key={channel}>
           <div className="sw-justify-end sw-flex sw-items-center">
             <Checkbox
-              checked={isEnabled(type, channel)}
-              id={checkboxId(type, channel)}
-              label={translateWithParameters(
+              ariaLabel={translateWithParameters(
                 'notification.dispatcher.description_x',
                 getDispatcherLabel(type),
               )}
-              onCheck={(checked) => handleCheck(type, channel, checked)}
+              checked={isEnabled(type, channel)}
+              id={checkboxId(type, channel)}
+              onCheck={(checked) => handleCheck(type, channel, checked as boolean)}
             />
           </div>
         </CellComponent>

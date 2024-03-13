@@ -4533,9 +4533,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@sonarsource/echoes-react@npm:0.1.1":
-  version: 0.1.1
-  resolution: "@sonarsource/echoes-react@npm:0.1.1"
+"@sonarsource/echoes-react@npm:0.1.2":
+  version: 0.1.2
+  resolution: "@sonarsource/echoes-react@npm:0.1.2"
   dependencies:
     "@primer/octicons-react": "npm:19.8.0"
     "@radix-ui/react-checkbox": "npm:1.0.4"
@@ -4547,7 +4547,7 @@ __metadata:
     react-dom: ^17.0.0 || ^18.0.0
     react-intl: ^6.0.0
     react-router-dom: ^6.0.0
-  checksum: 10/9d9901397aeef7faba3262281b919a186aeba5aaf3f27073a7895a0fe96fc2a2a5fb1ba9a4959401d11396e585075065cc4f18cff2ce8eabc48235032239d130
+  checksum: 10/fc25b30ed8ffa0186eb206ef2e71b444c334b4a350eb3e9e71874a064b9fe590b525ad2f1459d5d9de7882fb8be899a2a9e6154df758406900a5380f8e3810c2
   languageName: node
   linkType: hard
 
@@ -5749,7 +5749,7 @@ __metadata:
     "@primer/octicons-react": "npm:19.8.0"
     "@react-spring/rafz": "npm:9.7.3"
     "@react-spring/web": "npm:9.7.3"
-    "@sonarsource/echoes-react": "npm:0.1.1"
+    "@sonarsource/echoes-react": "npm:0.1.2"
     "@swc/core": "npm:1.4.0"
     "@swc/jest": "npm:0.2.36"
     "@tanstack/react-query": "npm:5.18.1"

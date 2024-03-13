@@ -17,9 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import styled from '@emotion/styled';
+import { Checkbox } from '@sonarsource/echoes-react';
 import classNames from 'classnames';
-import { BasicSeparator, Checkbox, themeBorder } from 'design-system';
+import { BasicSeparator, themeBorder } from 'design-system';
 import * as React from 'react';
 import { deleteIssueComment, editIssueComment } from '../../../api/issues';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
@@ -100,9 +102,9 @@ export default class IssueView extends React.PureComponent<Props> {
           {hasCheckbox && (
             <span className="sw-mt-1/2 sw-ml-1 sw-self-start">
               <Checkbox
+                ariaLabel={translateWithParameters('issues.action_select.label', issue.message)}
                 checked={checked ?? false}
                 onCheck={this.handleCheck}
-                label={translateWithParameters('issues.action_select.label', issue.message)}
                 title={translate('issues.action_select')}
               />
             </span>

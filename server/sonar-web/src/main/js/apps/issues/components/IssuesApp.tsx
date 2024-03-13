@@ -17,16 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import styled from '@emotion/styled';
+import { Checkbox, Spinner } from '@sonarsource/echoes-react';
 import classNames from 'classnames';
 import {
   ButtonSecondary,
-  Checkbox,
   FlagMessage,
   LAYOUT_FOOTER_HEIGHT,
   LargeCenteredLayout,
   PageContentFontWrapper,
-  Spinner,
   ToggleButton,
   themeBorder,
   themeColor,
@@ -955,12 +955,12 @@ export class App extends React.PureComponent<Props, State> {
     return (
       <div className="sw-float-left sw-flex sw-items-center">
         <Checkbox
-          checked={isChecked}
+          ariaLabel={translate('issues.select_all_issues')}
+          checked={thirdState ? 'indeterminate' : isChecked}
           className="sw-mr-2"
-          disabled={issues.length === 0}
           id="issues-selection"
+          isDisabled={issues.length === 0}
           onCheck={this.handleCheckAll}
-          thirdState={thirdState}
           title={translate('issues.select_all_issues')}
         />
 
@@ -1227,7 +1227,7 @@ export class App extends React.PureComponent<Props, State> {
           >
             {this.renderHeader({ openIssue, paging })}
 
-            <Spinner loading={loadingRule}>
+            <Spinner isLoading={loadingRule}>
               {openIssue && openRuleDetails ? (
                 <IssueTabViewer
                   activityTabContent={
@@ -1264,7 +1264,7 @@ export class App extends React.PureComponent<Props, State> {
                   <Spinner
                     ariaLabel={translate('issues.loading_issues')}
                     className="sw-mt-4"
-                    loading={loading}
+                    isLoading={loading}
                   >
                     {checkAll && paging && paging.total > MAX_PAGE_SIZE && (
                       <div className="sw-mt-3">

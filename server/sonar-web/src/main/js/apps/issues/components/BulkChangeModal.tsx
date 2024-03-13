@@ -17,9 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { Checkbox, Spinner } from '@sonarsource/echoes-react';
 import {
   ButtonPrimary,
-  Checkbox,
   FlagMessage,
   FormField,
   Highlight,
@@ -28,7 +29,6 @@ import {
   LightLabel,
   Modal,
   RadioButton,
-  Spinner,
 } from 'design-system';
 import { countBy, flattenDeep, pickBy, sortBy } from 'lodash';
 import * as React from 'react';
@@ -351,17 +351,12 @@ export class BulkChangeModal extends React.PureComponent<Props, State> {
   };
 
   renderNotificationsField = () => (
-    <div>
-      <Checkbox
-        checked={this.state.notifications !== undefined}
-        className="sw-my-2 sw-gap-1/2"
-        id="send-notifications"
-        onCheck={this.handleFieldCheck('notifications')}
-        right
-      >
-        {translate('issue.send_notifications')}
-      </Checkbox>
-    </div>
+    <Checkbox
+      checked={this.state.notifications !== undefined}
+      id="send-notifications"
+      label={translate('issue.send_notifications')}
+      onCheck={this.handleFieldCheck('notifications')}
+    />
   );
 
   renderForm = () => {
@@ -371,7 +366,7 @@ export class BulkChangeModal extends React.PureComponent<Props, State> {
     const limitReached = paging && paging.total > MAX_PAGE_SIZE;
 
     return (
-      <Spinner loading={loading}>
+      <Spinner isLoading={loading}>
         <form id="bulk-change-form" onSubmit={this.handleSubmit} className="sw-mr-4">
           {limitReached && (
             <FlagMessage className="sw-mb-4" variant="warning">

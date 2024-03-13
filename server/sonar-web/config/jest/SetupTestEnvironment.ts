@@ -51,6 +51,28 @@ const MockIntersectionObserverEntries = [{ isIntersecting: true }];
   return MockObserver;
 });
 
+// ResizeObserver
+
+const MockResizeObserverEntries = [
+  {
+    contentRect: {
+      width: 100,
+      height: 200,
+    },
+  },
+];
+
+const MockResizeObserver = {
+  observe: jest.fn(),
+  unobserve: jest.fn(),
+  disconnect: jest.fn(),
+};
+
+global.ResizeObserver = jest.fn().mockImplementation((callback) => {
+  callback(MockResizeObserverEntries, MockResizeObserver);
+  return MockResizeObserver;
+});
+
 // Copied from pollyfill.io
 // To be remove when upgrading jsdom https://github.com/jsdom/jsdom/releases/tag/22.1.0
 // jest-environment-jsdom to v30

@@ -41,6 +41,19 @@ interface Props {
   title?: string;
 }
 
+/** @deprecated Use Checkbox from Echoes instead.
+ *
+ * Some of the props have changed or been renamed:
+ * - ~`aria-disabled`~ is now inferred from `isDisabled`
+ * - `ariaLabel` is now mandatory in the absence of `label`
+ * - ~`children`~ has been removed
+ * - `disabled` is now `isDisabled`
+ * - `label` is no longer used in the aria-label but displayed next to the checkbox
+ * - `loading` is now `isLoading`
+ * - ~`onClick`~ has been removed
+ * - ~`right`~ has been removed
+ * - `thirdState` is now represented by the `indeterminate` value of the `checked` prop
+ */
 export function Checkbox({
   checked,
   disabled,

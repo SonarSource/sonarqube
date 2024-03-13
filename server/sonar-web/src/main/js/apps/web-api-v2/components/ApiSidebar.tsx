@@ -18,10 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+import { Checkbox } from '@sonarsource/echoes-react';
 import {
   Badge,
   BasicSeparator,
-  Checkbox,
   HelperHintIcon,
   InputSearch,
   SubnavigationAccordion,
@@ -104,9 +104,11 @@ export default function ApiSidebar({ apisList, docInfo }: Readonly<Props>) {
       />
 
       <div className="sw-mt-4 sw-flex sw-items-center">
-        <Checkbox checked={showInternal} onCheck={() => setShowInternal((prev) => !prev)}>
-          <span className="sw-ml-2">{translate('api_documentation.show_internal_v2')}</span>
-        </Checkbox>
+        <Checkbox
+          checked={showInternal}
+          label={translate('api_documentation.show_internal_v2')}
+          onCheck={() => setShowInternal((prev) => !prev)}
+        />
 
         <HelpTooltip
           className="sw-ml-2"
