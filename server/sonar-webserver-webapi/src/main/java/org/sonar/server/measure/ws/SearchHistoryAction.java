@@ -95,7 +95,10 @@ public class SearchHistoryAction implements MeasuresWsAction {
       .setResponseExample(getClass().getResource("search_history-example.json"))
       .setSince("6.3")
       .setChangelog(
-        new Change("10.4", String.format("The metrics %s are now deprecated in the response " +
+        new Change("10.5", String.format("The metrics %s are now deprecated " +
+                                         "without exact replacement. Use 'maintainability_issues', 'reliability_issues' and 'security_issues' instead.",
+          MeasuresWsModule.getDeprecatedMetricsInSonarQube105())),
+        new Change("10.4", String.format("The metrics %s are now deprecated " +
             "without exact replacement. Use 'maintainability_issues', 'reliability_issues' and 'security_issues' instead.",
           MeasuresWsModule.getDeprecatedMetricsInSonarQube104())),
         new Change("10.4", "The metrics 'open_issues', 'reopened_issues' and 'confirmed_issues' are now deprecated in the response. Consume 'violations' instead."),

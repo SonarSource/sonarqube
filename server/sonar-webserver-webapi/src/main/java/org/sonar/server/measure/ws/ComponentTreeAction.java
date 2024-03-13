@@ -184,8 +184,11 @@ public class ComponentTreeAction implements MeasuresWsAction {
       .setHandler(this)
       .addPagingParams(100, MAX_SIZE)
       .setChangelog(
+        new Change("10.5", String.format("The metrics %s are now deprecated " +
+                                         "without exact replacement. Use 'maintainability_issues', 'reliability_issues' and 'security_issues' instead.",
+          MeasuresWsModule.getDeprecatedMetricsInSonarQube105())),
         new Change("10.5", "Added new accepted values for the 'metricKeys' param: 'maintainability_issues', 'reliability_issues', 'security_issues'"),
-        new Change("10.4", String.format("The metrics %s are now deprecated in the response " +
+        new Change("10.4", String.format("The metrics %s are now deprecated " +
             "without exact replacement. Use 'maintainability_issues', 'reliability_issues' and 'security_issues' instead.",
           MeasuresWsModule.getDeprecatedMetricsInSonarQube104())),
         new Change("10.4", "The metrics 'open_issues', 'reopened_issues' and 'confirmed_issues' are now deprecated in the response. Consume 'violations' instead."),
