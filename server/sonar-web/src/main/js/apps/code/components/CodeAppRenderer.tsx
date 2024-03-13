@@ -72,7 +72,7 @@ interface Props {
   handleSelectNewCode: (newCodeSelected: boolean) => void;
 }
 
-export default function CodeAppRenderer(props: Props) {
+export default function CodeAppRenderer(props: Readonly<Props>) {
   const {
     branchLike,
     component,

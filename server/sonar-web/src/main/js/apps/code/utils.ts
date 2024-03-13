@@ -46,19 +46,19 @@ const APPLICATION_METRICS = [MetricKey.alert_status, ...METRICS];
 
 const PORTFOLIO_METRICS = [
   MetricKey.releasability_rating,
-  MetricKey.reliability_rating,
   MetricKey.security_rating,
-  MetricKey.security_review_rating,
+  MetricKey.reliability_rating,
   MetricKey.sqale_rating,
+  MetricKey.security_review_rating,
   MetricKey.ncloc,
 ];
 
 const NEW_PORTFOLIO_METRICS = [
   MetricKey.releasability_rating,
-  MetricKey.new_reliability_rating,
   MetricKey.new_security_rating,
-  MetricKey.new_security_review_rating,
+  MetricKey.new_reliability_rating,
   MetricKey.new_maintainability_rating,
+  MetricKey.new_security_review_rating,
   MetricKey.new_lines,
 ];
 

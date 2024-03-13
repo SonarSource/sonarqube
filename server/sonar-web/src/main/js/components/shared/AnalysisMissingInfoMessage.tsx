@@ -21,6 +21,7 @@ import { FlagMessage } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
 import DocumentationLink from '../common/DocumentationLink';
+import { ComponentQualifier } from '../../types/component';
 
 interface AnalysisMissingInfoMessageProps {
   qualifier: string;
@@ -32,6 +33,10 @@ export default function AnalysisMissingInfoMessage({
   className,
 }: Readonly<AnalysisMissingInfoMessageProps>) {
   const intl = useIntl();
+
+  if (qualifier === ComponentQualifier.Portfolio) {
+    return null;
+  }
 
   return (
     <FlagMessage variant="info" className={className}>

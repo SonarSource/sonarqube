@@ -380,10 +380,10 @@ it('should correctly show new VS overall measures for Portfolios', async () => {
   let child1Row = ui.measureRow(/^Child 1/);
   [
     ['Releasability', 'OK'],
+    ['security', 'C'],
     ['Reliability', 'C'],
-    ['vulnerabilities', 'C'],
-    ['security_hotspots', 'C'],
     ['Maintainability', 'C'],
+    ['security_review', 'C'],
     ['ncloc', '3'],
     ['last_analysis_date', '2022-02-01'],
   ].forEach(([domain, value]) => {
@@ -394,10 +394,10 @@ it('should correctly show new VS overall measures for Portfolios', async () => {
   let child2Row = ui.measureRow(/^Child 2/);
   [
     ['Releasability', 'ERROR'],
+    ['security', '—'],
     ['Reliability', '—'],
-    ['vulnerabilities', '—'],
-    ['security_hotspots', '—'],
     ['Maintainability', '—'],
+    ['security_review', '—'],
     ['ncloc', '—'],
     ['last_analysis_date', '—'],
   ].forEach(([domain, value]) => {
@@ -411,10 +411,10 @@ it('should correctly show new VS overall measures for Portfolios', async () => {
   child1Row = ui.measureRow(/^Child 1/);
   [
     ['Releasability', 'OK'],
+    ['security', 'B'],
     ['Reliability', 'B'],
-    ['vulnerabilities', 'B'],
-    ['security_hotspots', 'B'],
     ['Maintainability', 'B'],
+    ['security_review', 'B'],
     ['ncloc', '2'],
   ].forEach(([domain, value]) => {
     expect(ui.measureValueCell(child1Row, domain, value)).toBeInTheDocument();
@@ -424,10 +424,10 @@ it('should correctly show new VS overall measures for Portfolios', async () => {
   child2Row = ui.measureRow(/^Child 2/);
   [
     ['Releasability', 'ERROR'],
+    ['security', '—'],
     ['Reliability', '—'],
-    ['vulnerabilities', '—'],
-    ['security_hotspots', '—'],
     ['Maintainability', '—'],
+    ['security_review', '—'],
     ['ncloc', '—'],
   ].forEach(([domain, value]) => {
     expect(ui.measureValueCell(child2Row, domain, value)).toBeInTheDocument();

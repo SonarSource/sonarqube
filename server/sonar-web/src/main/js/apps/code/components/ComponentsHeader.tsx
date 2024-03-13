@@ -52,10 +52,10 @@ export default function ComponentsHeader(props: ComponentsHeaderProps) {
   if (isPortfolio) {
     columns = [
       translate('metric_domain.Releasability'),
+      translate('portfolio.metric_domain.security'),
       translate('metric_domain.Reliability'),
-      translate('portfolio.metric_domain.vulnerabilities'),
-      translate('portfolio.metric_domain.security_hotspots'),
       translate('metric_domain.Maintainability'),
+      translate('portfolio.metric_domain.security_review'),
       translate('metric.ncloc.name'),
     ];
 
