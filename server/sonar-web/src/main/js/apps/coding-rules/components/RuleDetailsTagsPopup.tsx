@@ -70,12 +70,13 @@ export default class RuleDetailsTagsPopup extends React.PureComponent<Props, Sta
   };
 
   render() {
-    const availableTags = difference(this.state.searchResult, this.props.tags);
-    const selectedTags = [...this.props.sysTags, ...this.props.tags];
+    const { sysTags, tags } = this.props;
+    const { searchResult } = this.state;
+    const availableTags = difference(searchResult, tags);
+    const selectedTags = [...sysTags, ...tags];
     return (
       <MultiSelector
         createElementLabel={translate('coding_rules.create_tag')}
-        disableMessage={translate('coding_rules.system_tags_tooltip')}
         headerLabel={translate('tags')}
         searchInputAriaLabel={translate('search.search_for_tags')}
         noResultsLabel={translate('no_results')}
@@ -83,8 +84,14 @@ export default class RuleDetailsTagsPopup extends React.PureComponent<Props, Sta
         onSelect={this.onSelect}
         onUnselect={this.onUnselect}
         selectedElements={selectedTags}
-        selectedElementsDisabled={this.props.sysTags}
+        selectedElementsDisabled={sysTags}
         elements={availableTags}
+        renderTooltip={(element: string, disabled: boolean) => {
+          if (sysTags.includes(element) && disabled) {
+            return translate('coding_rules.system_tags_tooltip');
+          }
+          return null;
+        }}
       />
     );
   }

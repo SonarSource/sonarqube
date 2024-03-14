@@ -21,6 +21,7 @@ import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
 import classNames from 'classnames';
 import {
+  Badge,
   CloseIcon,
   FlagWarningIcon,
   InteractiveIcon,
@@ -29,7 +30,12 @@ import {
   themeColor,
 } from 'design-system';
 import * as React from 'react';
+import { FormattedMessage, useIntl } from 'react-intl';
+import { DEPRECATED_ACTIVITY_METRICS } from '../../helpers/constants';
 import { translateWithParameters } from '../../helpers/l10n';
+import { MetricKey } from '../../types/metrics';
+import DocumentationLink from '../common/DocumentationLink';
+import Tooltip from '../controls/Tooltip';
 import { ChartLegend } from './ChartLegend';
 
 interface Props {
@@ -49,9 +55,11 @@ export function GraphsLegendItem({
   removeMetric,
   showWarning,
 }: Props) {
+  const intl = useIntl();
   const theme = useTheme() as Theme;
 
   const isActionable = removeMetric !== undefined;
+  const isDeprecated = DEPRECATED_ACTIVITY_METRICS.includes(metric as MetricKey);
 
   return (
     <StyledLegendItem
@@ -66,6 +74,29 @@ export function GraphsLegendItem({
       <span className="sw-body-sm" style={{ color: themeColor('graphCursorLineColor')({ theme }) }}>
         {name}
       </span>
+      {isDeprecated && (
+        <Tooltip
+          overlay={
+            <FormattedMessage
+              id="project_activity.custom_metric.deprecated"
+              values={{
+                learn_more: (
+                  <DocumentationLink
+                    className="sw-ml-2 sw-whitespace-nowrap"
+                    to="/user-guide/clean-code/code-analysis/"
+                  >
+                    {intl.formatMessage({ id: 'learn_more' })}
+                  </DocumentationLink>
+                ),
+              }}
+            />
+          }
+        >
+          <div>
+            <Badge className="sw-ml-1">{intl.formatMessage({ id: 'deprecated' })}</Badge>
+          </div>
+        </Tooltip>
+      )}
       {isActionable && (
         <InteractiveIcon
           Icon={CloseIcon}

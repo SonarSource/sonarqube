@@ -23,7 +23,6 @@ interface Props {
   allowNewElements?: boolean;
   allowSearch?: boolean;
   createElementLabel: string;
-  disableMessage?: string;
   elements: string[];
   headerLabel: string;
   listSize?: number;
@@ -31,6 +30,7 @@ interface Props {
   onSearch?: (query: string) => Promise<void>;
   onSelect: (item: string) => void;
   onUnselect: (item: string) => void;
+  renderTooltip?: (item: string, disabled: boolean) => React.ReactNode;
   searchInputAriaLabel: string;
   selectedElements: string[];
   selectedElementsDisabled?: string[];
@@ -42,7 +42,6 @@ export function MultiSelector(props: Readonly<Props>) {
   const {
     allowNewElements,
     createElementLabel,
-    disableMessage,
     selectedElementsDisabled,
     headerLabel,
     noResultsLabel,
@@ -50,6 +49,7 @@ export function MultiSelector(props: Readonly<Props>) {
     selectedElements,
     elements,
     allowSearch = true,
+    renderTooltip,
     listSize = LIST_SIZE,
   } = props;
 
@@ -58,7 +58,6 @@ export function MultiSelector(props: Readonly<Props>) {
       allowNewElements={allowNewElements}
       allowSearch={allowSearch}
       createElementLabel={createElementLabel}
-      disableMessage={disableMessage}
       elements={elements}
       headerNode={<div className="sw-mt-4 sw-font-semibold">{headerLabel}</div>}
       listSize={listSize}
@@ -67,6 +66,7 @@ export function MultiSelector(props: Readonly<Props>) {
       onSelect={props.onSelect}
       onUnselect={props.onUnselect}
       placeholder={searchInputAriaLabel}
+      renderTooltip={renderTooltip}
       searchInputAriaLabel={searchInputAriaLabel}
       selectedElements={selectedElements}
       selectedElementsDisabled={selectedElementsDisabled}

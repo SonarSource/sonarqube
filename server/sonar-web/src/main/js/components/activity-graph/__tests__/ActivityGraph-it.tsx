@@ -132,6 +132,9 @@ it('should correctly handle adding/removing custom metrics', async () => {
   // We should see 2 graphs, correctly labelled.
   expect(ui.graphs.getAll()).toHaveLength(2);
 
+  // old types and confirmed metrics should be deprecated and show a badge (both in dropdown and in legend)
+  expect(ui.deprecatedBadge.getAll()).toHaveLength(6);
+
   // We cannot select anymore Int types. It should hide options, and show an alert.
   expect(ui.vulnerabilityCheckbox.query()).not.toBeInTheDocument();
   expect(ui.hiddenOptionsAlert.get()).toBeInTheDocument();
@@ -172,6 +175,7 @@ function getPageObject() {
 
     // Add/remove metrics.
     addMetricBtn: byRole('button', { name: 'project_activity.graphs.custom.add' }),
+    deprecatedBadge: byText('deprecated'),
     bugsCheckbox: byRole('checkbox', { name: MetricKey.bugs }),
     newBugsCheckbox: byRole('checkbox', { name: MetricKey.new_bugs }),
     burnedBudgetCheckbox: byRole('checkbox', { name: MetricKey.burned_budget }),

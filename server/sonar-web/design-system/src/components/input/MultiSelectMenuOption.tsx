@@ -27,12 +27,12 @@ export interface MultiSelectOptionProps {
   active?: boolean;
   createElementLabel: string;
   custom?: boolean;
-  disableMessage?: string;
   disabled?: boolean;
   element: string;
   onHover: (element: string) => void;
   onSelectChange: (selected: boolean, element: string) => void;
   renderLabel?: (element: string) => React.ReactNode;
+  renderTooltip?: (element: string, disabled: boolean) => React.ReactNode;
   selected?: boolean;
 }
 
@@ -41,12 +41,12 @@ export function MultiSelectMenuOption(props: MultiSelectOptionProps) {
     active,
     createElementLabel,
     custom,
-    disabled,
-    disableMessage,
+    disabled = false,
     element,
     onSelectChange,
     selected,
     renderLabel = identity,
+    renderTooltip,
   } = props;
 
   const onHover = () => {
@@ -56,7 +56,7 @@ export function MultiSelectMenuOption(props: MultiSelectOptionProps) {
   const label = renderLabel(element);
 
   return (
-    <Tooltip overlay={disabled && disableMessage} placement={PopupPlacement.Right}>
+    <Tooltip overlay={renderTooltip?.(element, disabled)} placement={PopupPlacement.Right}>
       <ItemCheckbox
         checked={Boolean(selected)}
         className={classNames('sw-flex sw-py-2 sw-px-4', { active })}

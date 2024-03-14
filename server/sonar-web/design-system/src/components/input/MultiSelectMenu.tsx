@@ -30,7 +30,6 @@ interface Props {
   allowSearch?: boolean;
   allowSelection?: boolean;
   createElementLabel: string;
-  disableMessage?: string;
   elements: string[];
   elementsDisabled?: string[];
   footerNode?: React.ReactNode;
@@ -42,6 +41,7 @@ interface Props {
   onSelect: (item: string) => void;
   onUnselect: (item: string) => void;
   placeholder: string;
+  renderTooltip?: (element: string, disabled: boolean) => React.ReactNode;
   searchInputAriaLabel: string;
   selectedElements: string[];
   selectedElementsDisabled?: string[];
@@ -265,7 +265,6 @@ export class MultiSelectMenu extends PureComponent<Props, State> {
       allowSelection = true,
       allowNewElements = true,
       createElementLabel,
-      disableMessage,
       selectedElementsDisabled = [],
       headerNode = '',
       footerNode = '',
@@ -273,6 +272,7 @@ export class MultiSelectMenu extends PureComponent<Props, State> {
       noResultsLabel,
       searchInputAriaLabel,
       elementsDisabled,
+      renderTooltip,
     } = this.props;
     const { renderLabel } = this.props as PropsWithDefault;
 
@@ -313,13 +313,13 @@ export class MultiSelectMenu extends PureComponent<Props, State> {
               <MultiSelectMenuOption
                 active={activeElement === element}
                 createElementLabel={createElementLabel}
-                disableMessage={disableMessage}
                 disabled={selectedElementsDisabled.includes(element)}
                 element={element}
                 key={element}
                 onHover={this.handleElementHover}
                 onSelectChange={this.handleSelectChange}
                 renderLabel={renderLabel}
+                renderTooltip={renderTooltip}
                 selected
               />
             ))}
@@ -334,6 +334,7 @@ export class MultiSelectMenu extends PureComponent<Props, State> {
                 onHover={this.handleElementHover}
                 onSelectChange={this.handleSelectChange}
                 renderLabel={renderLabel}
+                renderTooltip={renderTooltip}
               />
             ))}
           {elementsDisabled?.map((element) => (
@@ -346,6 +347,7 @@ export class MultiSelectMenu extends PureComponent<Props, State> {
               onHover={this.handleElementHover}
               onSelectChange={this.handleSelectChange}
               renderLabel={renderLabel}
+              renderTooltip={renderTooltip}
             />
           ))}
           {showNewElement && (

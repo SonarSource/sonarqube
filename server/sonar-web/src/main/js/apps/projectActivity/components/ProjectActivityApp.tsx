@@ -31,7 +31,6 @@ import {
 } from '../../../components/activity-graph/utils';
 import { useLocation, useRouter } from '../../../components/hoc/withRouter';
 import { getBranchLikeQuery } from '../../../helpers/branch-like';
-import { HIDDEN_METRICS } from '../../../helpers/constants';
 import { parseDate } from '../../../helpers/dates';
 import useApplicationLeakQuery from '../../../queries/applications';
 import { useBranchesQuery } from '../../../queries/branch';
@@ -106,16 +105,19 @@ export function ProjectActivityApp() {
   }, [appLeaks, component?.leakPeriodDate, component?.qualifier]);
 
   const filteredMetrics = React.useMemo(() => {
-    if (isPortfolioLike(component?.qualifier)) {
-      return Object.values(metrics).filter(
-        (metric) => metric.key !== MetricKey.security_hotspots_reviewed,
-      );
-    }
+    return Object.values(metrics).filter((metric) => {
+      if (
+        isPortfolioLike(component?.qualifier) &&
+        metric.key === MetricKey.security_hotspots_reviewed
+      ) {
+        return false;
+      }
+      if (isProject(component?.qualifier) && metric.key === MetricKey.security_review_rating) {
+        return false;
+      }
 
-    return Object.values(metrics).filter(
-      (metric) =>
-        ![...HIDDEN_METRICS, MetricKey.security_review_rating].includes(metric.key as MetricKey),
-    );
+      return true;
+    });
   }, [component?.qualifier, metrics]);
 
   const handleUpdateQuery = (newQuery: Query) => {

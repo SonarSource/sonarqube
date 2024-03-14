@@ -17,9 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { FlagMessage, MultiSelectMenu } from 'design-system';
+import { Badge, FlagMessage, MultiSelectMenu } from 'design-system';
 import * as React from 'react';
-import { translate, translateWithParameters } from '../../helpers/l10n';
+import { FormattedMessage, useIntl } from 'react-intl';
+import { DEPRECATED_ACTIVITY_METRICS } from '../../helpers/constants';
+import { getLocalizedMetricName, translate, translateWithParameters } from '../../helpers/l10n';
+import { MetricKey } from '../../types/metrics';
+import DocumentationLink from '../common/DocumentationLink';
 
 export interface AddGraphMetricPopupProps {
   elements: string[];
@@ -29,7 +33,6 @@ export interface AddGraphMetricPopupProps {
   onSelect: (item: string) => void;
   onUnselect: (item: string) => void;
   popupPosition?: any;
-  renderLabel: (element: string) => React.ReactNode;
   selectedElements: string[];
 }
 
@@ -38,6 +41,7 @@ export default function AddGraphMetricPopup({
   metricsTypeFilter,
   ...props
 }: AddGraphMetricPopupProps) {
+  const intl = useIntl();
   let footerNode: React.ReactNode = '';
 
   if (props.selectedElements.length >= 6) {
@@ -60,6 +64,45 @@ export default function AddGraphMetricPopup({
     );
   }
 
+  const renderLabel = (key: string) => {
+    const metricName = getLocalizedMetricName({ key });
+    const isDeprecated = DEPRECATED_ACTIVITY_METRICS.includes(key as MetricKey);
+
+    return (
+      <>
+        {metricName}
+        {isDeprecated && (
+          <Badge className="sw-ml-1">{intl.formatMessage({ id: 'deprecated' })}</Badge>
+        )}
+      </>
+    );
+  };
+
+  const renderTooltip = (key: string) => {
+    const isDeprecated = DEPRECATED_ACTIVITY_METRICS.includes(key as MetricKey);
+
+    if (isDeprecated) {
+      return (
+        <FormattedMessage
+          id="project_activity.custom_metric.deprecated"
+          tagName="div"
+          values={{
+            learn_more: (
+              <DocumentationLink
+                className="sw-ml-2 sw-whitespace-nowrap"
+                to="/user-guide/clean-code/code-analysis/"
+              >
+                {intl.formatMessage({ id: 'learn_more' })}
+              </DocumentationLink>
+            ),
+          }}
+        />
+      );
+    }
+
+    return null;
+  };
+
   return (
     <MultiSelectMenu
       createElementLabel=""
@@ -74,7 +117,8 @@ export default function AddGraphMetricPopup({
       onSelect={(item: string) => elements.includes(item) && props.onSelect(item)}
       onUnselect={props.onUnselect}
       placeholder={translate('search.search_for_metrics')}
-      renderLabel={props.renderLabel}
+      renderLabel={renderLabel}
+      renderTooltip={renderTooltip}
       selectedElements={props.selectedElements}
       listSize={0}
     />

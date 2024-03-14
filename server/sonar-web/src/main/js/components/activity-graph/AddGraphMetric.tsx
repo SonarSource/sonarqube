@@ -20,9 +20,10 @@
 import { ButtonSecondary, ChevronDownIcon, Dropdown, TextMuted } from 'design-system';
 import { sortBy } from 'lodash';
 import * as React from 'react';
+import { HIDDEN_METRICS } from '../../helpers/constants';
 import { getLocalizedMetricName, translate } from '../../helpers/l10n';
 import { isDiffMetric } from '../../helpers/measures';
-import { MetricType } from '../../types/metrics';
+import { MetricKey, MetricType } from '../../types/metrics';
 import { Metric } from '../../types/types';
 import AddGraphMetricPopup from './AddGraphMetricPopup';
 
@@ -59,10 +60,19 @@ export default class AddGraphMetric extends React.PureComponent<Props, State> {
   ) => {
     return metrics
       .filter((metric) => {
+        if (metric.hidden) {
+          return false;
+        }
+        if (isDiffMetric(metric.key)) {
+          return false;
+        }
+        if ([MetricType.Data, MetricType.Distribution].includes(metric.type as MetricType)) {
+          return false;
+        }
+        if (HIDDEN_METRICS.includes(metric.key as MetricKey)) {
+          return false;
+        }
         if (
-          metric.hidden ||
-          isDiffMetric(metric.key) ||
-          [MetricType.Data, MetricType.Distribution].includes(metric.type as MetricType) ||
           selectedMetrics.includes(metric.key) ||
           !getLocalizedMetricName(metric).toLowerCase().includes(query.toLowerCase())
         ) {
@@ -134,7 +144,6 @@ export default class AddGraphMetric extends React.PureComponent<Props, State> {
             onSearch={this.onSearch}
             onSelect={this.onSelect}
             onUnselect={this.onUnselect}
-            renderLabel={(element) => this.getLocalizedMetricNameFromKey(element)}
             selectedElements={selectedMetrics}
           />
         }

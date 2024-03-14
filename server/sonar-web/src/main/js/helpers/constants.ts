@@ -137,7 +137,23 @@ export const RATING_COLORS = [
   { fill: colors.error400, fillTransparent: colors.error400a20, stroke: colors.error700 },
 ];
 
-export const HIDDEN_METRICS = [MetricKey.open_issues, MetricKey.reopened_issues];
+export const HIDDEN_METRICS = [
+  MetricKey.open_issues,
+  MetricKey.reopened_issues,
+  MetricKey.high_impact_accepted_issues,
+];
+
+export const DEPRECATED_ACTIVITY_METRICS = [
+  MetricKey.blocker_violations,
+  MetricKey.critical_violations,
+  MetricKey.major_violations,
+  MetricKey.minor_violations,
+  MetricKey.info_violations,
+  MetricKey.code_smells,
+  MetricKey.bugs,
+  MetricKey.vulnerabilities,
+  MetricKey.confirmed_issues,
+];
 
 export const PROJECT_KEY_MAX_LEN = 400;
 
