@@ -20,6 +20,7 @@
 import { DangerButtonPrimary, Modal } from 'design-system';
 import * as React from 'react';
 import { translate } from '../../../../helpers/l10n';
+import { useDeleteEventMutation } from '../../../../queries/project-analyses';
 import { AnalysisEvent } from '../../../../types/project-activity';
 
 export interface RemoveEventFormProps {
@@ -28,18 +29,21 @@ export interface RemoveEventFormProps {
   header: string;
   removeEventQuestion: string;
   onClose: () => void;
-  onConfirm: (analysis: string, event: string) => Promise<void>;
 }
 
 export default function RemoveEventForm(props: RemoveEventFormProps) {
   const { analysisKey, event, header, removeEventQuestion } = props;
+
+  const { mutate: deleteEvent } = useDeleteEventMutation();
   return (
     <Modal
       headerTitle={header}
       onClose={props.onClose}
       body={<p>{removeEventQuestion}</p>}
       primaryButton={
-        <DangerButtonPrimary onClick={() => props.onConfirm(analysisKey, event.key)}>
+        <DangerButtonPrimary
+          onClick={() => deleteEvent({ analysis: analysisKey, event: event.key })}
+        >
           {translate('delete')}
         </DangerButtonPrimary>
       }

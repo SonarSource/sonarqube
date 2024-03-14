@@ -31,11 +31,9 @@ export interface EventProps {
   canAdmin?: boolean;
   event: AnalysisEvent;
   isFirst?: boolean;
-  onChange?: (event: string, name: string) => Promise<void>;
-  onDelete?: (analysisKey: string, event: string) => Promise<void>;
 }
 
-function Event(props: EventProps) {
+function Event(props: Readonly<EventProps>) {
   const { analysisKey, event, canAdmin, isFirst } = props;
 
   const [changing, setChanging] = React.useState(false);
@@ -43,8 +41,8 @@ function Event(props: EventProps) {
 
   const isOther = event.category === ProjectAnalysisEventCategory.Other;
   const isVersion = event.category === ProjectAnalysisEventCategory.Version;
-  const canChange = (isOther || isVersion) && props.onChange;
-  const canDelete = (isOther || (isVersion && !isFirst)) && props.onDelete;
+  const canChange = isOther || isVersion;
+  const canDelete = isOther || (isVersion && !isFirst);
   const showActions = canAdmin && (canChange || canDelete);
 
   return (
@@ -80,9 +78,8 @@ function Event(props: EventProps) {
         </div>
       )}
 
-      {changing && props.onChange && (
+      {changing && (
         <ChangeEventForm
-          changeEvent={props.onChange}
           event={event}
           header={
             isVersion
@@ -93,7 +90,7 @@ function Event(props: EventProps) {
         />
       )}
 
-      {deleting && props.onDelete && (
+      {deleting && (
         <RemoveEventForm
           analysisKey={analysisKey}
           event={event}
@@ -103,7 +100,6 @@ function Event(props: EventProps) {
               : translate('project_activity.remove_custom_event')
           }
           onClose={() => setDeleting(false)}
-          onConfirm={props.onDelete}
           removeEventQuestion={translate(
             `project_activity.${isVersion ? 'remove_version' : 'remove_custom_event'}.question`,
           )}

@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { throwGlobalError } from '../helpers/error';
-import { getJSON, post, postJSON, RequestData } from '../helpers/request';
+import { getJSON, post, postJSON } from '../helpers/request';
 import { BranchParameters } from '../types/branch-like';
 import {
   Analysis,
@@ -33,20 +33,50 @@ export enum ProjectActivityStatuses {
   STATUS_LIVE_MEASURE_COMPUTE = 'L',
 }
 
-export function getProjectActivity(
-  data: {
-    project: string;
-    statuses?: string;
-    category?: string;
-    from?: string;
-    p?: number;
-    ps?: number;
-  } & BranchParameters,
-): Promise<{ analyses: Analysis[]; paging: Paging }> {
+export type ProjectActivityParams = {
+  project?: string;
+  statuses?: string;
+  category?: string;
+  from?: string;
+  p?: number;
+  ps?: number;
+} & BranchParameters;
+
+export interface ProjectActivityResponse {
+  analyses: Analysis[];
+  paging: Paging;
+}
+
+export function getProjectActivity(data: ProjectActivityParams): Promise<ProjectActivityResponse> {
   return getJSON('/api/project_analyses/search', data).catch(throwGlobalError);
 }
 
-interface CreateEventResponse {
+const PROJECT_ACTIVITY_PAGE_SIZE = 500;
+
+export function getAllTimeProjectActivity(
+  data: ProjectActivityParams,
+  prev?: ProjectActivityResponse,
+): Promise<ProjectActivityResponse> {
+  return getProjectActivity({ ...data, ps: data.ps ?? PROJECT_ACTIVITY_PAGE_SIZE }).then((r) => {
+    const result = prev
+      ? {
+          analyses: prev.analyses.concat(r.analyses),
+          paging: r.paging,
+        }
+      : r;
+
+    if (result.paging.pageIndex * result.paging.pageSize >= result.paging.total) {
+      return result;
+    }
+
+    return getAllTimeProjectActivity(
+      { ...data, ps: data.ps ?? PROJECT_ACTIVITY_PAGE_SIZE, p: result.paging.pageIndex + 1 },
+      result,
+    );
+  });
+}
+
+export interface CreateEventResponse {
   analysis: string;
   key: string;
   name: string;
@@ -54,19 +84,12 @@ interface CreateEventResponse {
   description?: string;
 }
 
-export function createEvent(
-  analysis: string,
-  name: string,
-  category?: string,
-  description?: string,
-): Promise<CreateEventResponse> {
-  const data: RequestData = { analysis, name };
-  if (category) {
-    data.category = category;
-  }
-  if (description) {
-    data.description = description;
-  }
+export function createEvent(data: {
+  analysis: string;
+  name: string;
+  category?: string;
+  description?: string;
+}): Promise<CreateEventResponse> {
   return postJSON('/api/project_analyses/create_event', data).then(
     (r) => r.event,
     throwGlobalError,
@@ -77,18 +100,11 @@ export function deleteEvent(event: string): Promise<void | Response> {
   return post('/api/project_analyses/delete_event', { event }).catch(throwGlobalError);
 }
 
-export function changeEvent(
-  event: string,
-  name?: string,
-  description?: string,
-): Promise<CreateEventResponse> {
-  const data: RequestData = { event };
-  if (name) {
-    data.name = name;
-  }
-  if (description) {
-    data.description = description;
-  }
+export function changeEvent(data: {
+  event: string;
+  name?: string;
+  description?: string;
+}): Promise<CreateEventResponse> {
   return postJSON('/api/project_analyses/update_event', data).then(
     (r) => r.event,
     throwGlobalError,

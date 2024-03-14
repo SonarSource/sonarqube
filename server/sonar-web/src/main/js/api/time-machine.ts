@@ -33,7 +33,7 @@ export interface TimeMachineResponse {
 
 export function getTimeMachineData(
   data: {
-    component: string;
+    component?: string;
     from?: string;
     metrics: string;
     p?: number;
@@ -46,7 +46,7 @@ export function getTimeMachineData(
 
 export function getAllTimeMachineData(
   data: {
-    component: string;
+    component?: string;
     metrics: string;
     from?: string;
     p?: number;

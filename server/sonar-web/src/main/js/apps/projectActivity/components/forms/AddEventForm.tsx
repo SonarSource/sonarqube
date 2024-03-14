@@ -20,64 +20,65 @@
 import { ButtonPrimary, InputField, Modal } from 'design-system';
 import * as React from 'react';
 import { translate } from '../../../../helpers/l10n';
+import { useCreateEventMutation } from '../../../../queries/project-analyses';
 import { ParsedAnalysis } from '../../../../types/project-activity';
 
 interface Props {
-  addEvent: (analysis: string, name: string, category?: string) => Promise<void>;
+  category?: string;
   addEventButtonText: string;
   analysis: ParsedAnalysis;
   onClose: () => void;
 }
 
-interface State {
-  name: string;
-}
+export default function AddEventForm(props: Readonly<Props>) {
+  const { addEventButtonText, onClose, analysis, category } = props;
+  const [name, setName] = React.useState('');
+  const { mutate: createEvent } = useCreateEventMutation(onClose);
 
-export default class AddEventForm extends React.PureComponent<Props, State> {
-  state: State = { name: '' };
-
-  handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    this.setState({ name: event.target.value });
+  const handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setName(event.target.value);
   };
 
-  handleSubmit = (e: React.MouseEvent<HTMLButtonElement>) => {
+  const handleSubmit = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    this.props.addEvent(this.props.analysis.key, this.state.name);
-    this.props.onClose();
+    const data: Parameters<typeof createEvent>[0] = { analysis: analysis.key, name };
+
+    if (category !== undefined) {
+      data.category = category;
+    }
+    createEvent(data);
   };
 
-  render() {
-    return (
-      <Modal
-        headerTitle={translate(this.props.addEventButtonText)}
-        onClose={this.props.onClose}
-        body={
-          <form id="add-event-form">
-            <label htmlFor="name">{translate('name')}</label>
-            <InputField
-              id="name"
-              className="sw-my-2"
-              autoFocus
-              onChange={this.handleNameChange}
-              type="text"
-              value={this.state.name}
-              size="full"
-            />
-          </form>
-        }
-        primaryButton={
-          <ButtonPrimary
-            id="add-event-submit"
-            form="add-event-form"
-            type="submit"
-            disabled={!this.state.name}
-            onClick={this.handleSubmit}
-          >
-            {translate('save')}
-          </ButtonPrimary>
-        }
-        secondaryButtonLabel={translate('cancel')}
-      />
-    );
-  }
+  return (
+    <Modal
+      headerTitle={translate(addEventButtonText)}
+      onClose={onClose}
+      body={
+        <form id="add-event-form">
+          <label htmlFor="name">{translate('name')}</label>
+          <InputField
+            id="name"
+            className="sw-my-2"
+            autoFocus
+            onChange={handleNameChange}
+            type="text"
+            value={name}
+            size="full"
+          />
+        </form>
+      }
+      primaryButton={
+        <ButtonPrimary
+          id="add-event-submit"
+          form="add-event-form"
+          type="submit"
+          disabled={name === ''}
+          onClick={handleSubmit}
+        >
+          {translate('save')}
+        </ButtonPrimary>
+      }
+      secondaryButtonLabel={translate('cancel')}
+    />
+  );
 }

@@ -20,15 +20,17 @@
 import { DangerButtonPrimary, Modal } from 'design-system';
 import * as React from 'react';
 import { translate } from '../../../../helpers/l10n';
+import { useDeleteAnalysisMutation } from '../../../../queries/project-analyses';
 import { ParsedAnalysis } from '../../../../types/project-activity';
 
 interface Props {
   analysis: ParsedAnalysis;
-  deleteAnalysis: (analysis: string) => Promise<void>;
   onClose: () => void;
 }
 
-export default function RemoveAnalysisForm({ analysis, deleteAnalysis, onClose }: Props) {
+export default function RemoveAnalysisForm({ analysis, onClose }: Readonly<Props>) {
+  const { mutate: deleteAnalysis } = useDeleteAnalysisMutation(onClose);
+
   return (
     <Modal
       headerTitle={translate('project_activity.delete_analysis')}

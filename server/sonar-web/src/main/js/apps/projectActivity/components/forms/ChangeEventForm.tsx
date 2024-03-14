@@ -20,68 +20,60 @@
 import { ButtonPrimary, InputField, Modal } from 'design-system';
 import * as React from 'react';
 import { translate } from '../../../../helpers/l10n';
+import { useChangeEventMutation } from '../../../../queries/project-analyses';
 import { AnalysisEvent } from '../../../../types/project-activity';
 
 interface Props {
-  changeEvent: (event: string, name: string) => Promise<void>;
   event: AnalysisEvent;
   header: string;
   onClose: () => void;
 }
 
-interface State {
-  name: string;
-}
+export default function ChangeEventForm(props: Readonly<Props>) {
+  const { event, header, onClose } = props;
+  const [name, setName] = React.useState(event.name);
 
-export default class ChangeEventForm extends React.PureComponent<Props, State> {
-  constructor(props: Props) {
-    super(props);
-    this.state = { name: props.event.name };
-  }
+  const { mutate: changeEvent } = useChangeEventMutation(onClose);
 
-  changeInput = (event: React.ChangeEvent<HTMLInputElement>) => {
-    this.setState({ name: event.target.value });
+  const changeInput = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setName(event.target.value);
   };
 
-  handleSubmit = (e: React.MouseEvent<HTMLButtonElement>) => {
+  const handleSubmit = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    this.props.changeEvent(this.props.event.key, this.state.name);
-    this.props.onClose();
+    changeEvent({ event: event.key, name });
   };
 
-  render() {
-    const { name } = this.state;
-    return (
-      <Modal
-        headerTitle={this.props.header}
-        onClose={this.props.onClose}
-        body={
-          <form id="change-event-form">
-            <label htmlFor="name">{translate('name')}</label>
-            <InputField
-              id="name"
-              className="sw-my-2"
-              autoFocus
-              onChange={this.changeInput}
-              type="text"
-              value={name}
-              size="full"
-            />
-          </form>
-        }
-        primaryButton={
-          <ButtonPrimary
-            id="change-event-submit"
-            form="change-event-form"
-            type="submit"
-            disabled={!name || name === this.props.event.name}
-            onClick={this.handleSubmit}
-          >
-            {translate('change_verb')}
-          </ButtonPrimary>
-        }
-        secondaryButtonLabel={translate('cancel')}
-      />
-    );
-  }
+  return (
+    <Modal
+      headerTitle={header}
+      onClose={onClose}
+      body={
+        <form id="change-event-form">
+          <label htmlFor="name">{translate('name')}</label>
+          <InputField
+            id="name"
+            className="sw-my-2"
+            autoFocus
+            onChange={changeInput}
+            type="text"
+            value={name}
+            size="full"
+          />
+        </form>
+      }
+      primaryButton={
+        <ButtonPrimary
+          id="change-event-submit"
+          form="change-event-form"
+          type="submit"
+          disabled={name === '' || name === event.name}
+          onClick={handleSubmit}
+        >
+          {translate('change_verb')}
+        </ButtonPrimary>
+      }
+      secondaryButtonLabel={translate('cancel')}
+    />
+  );
 }

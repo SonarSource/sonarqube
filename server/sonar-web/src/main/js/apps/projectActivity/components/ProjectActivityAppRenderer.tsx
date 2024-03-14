@@ -28,7 +28,6 @@ import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import A11ySkipTarget from '../../../components/a11y/A11ySkipTarget';
 import Suggestions from '../../../components/embed-docs-modal/Suggestions';
-import { parseDate } from '../../../helpers/dates';
 import { translate } from '../../../helpers/l10n';
 import { ComponentQualifier } from '../../../types/component';
 import { MeasureHistory, ParsedAnalysis } from '../../../types/project-activity';
@@ -39,13 +38,8 @@ import ProjectActivityGraphs from './ProjectActivityGraphs';
 import ProjectActivityPageFilters from './ProjectActivityPageFilters';
 
 interface Props {
-  onAddCustomEvent: (analysis: string, name: string, category?: string) => Promise<void>;
-  onAddVersion: (analysis: string, version: string) => Promise<void>;
   analyses: ParsedAnalysis[];
   analysesLoading: boolean;
-  onChangeEvent: (event: string, name: string) => Promise<void>;
-  onDeleteAnalysis: (analysis: string) => Promise<void>;
-  onDeleteEvent: (analysis: string, event: string) => Promise<void>;
   graphLoading: boolean;
   leakPeriodDate?: Date;
   initializing: boolean;
@@ -57,14 +51,22 @@ interface Props {
 }
 
 export default function ProjectActivityAppRenderer(props: Props) {
-  const { analyses, measuresHistory, query } = props;
-  const { configuration } = props.project;
+  const {
+    analyses,
+    measuresHistory,
+    query,
+    leakPeriodDate,
+    analysesLoading,
+    initializing,
+    graphLoading,
+    metrics,
+    project,
+  } = props;
+  const { configuration, qualifier } = props.project;
   const canAdmin =
-    (props.project.qualifier === ComponentQualifier.Project ||
-      props.project.qualifier === ComponentQualifier.Application) &&
-    (configuration ? configuration.showHistory : false);
-  const canDeleteAnalyses = configuration ? configuration.showHistory : false;
-  const leakPeriodDate = props.leakPeriodDate ? parseDate(props.leakPeriodDate) : undefined;
+    (qualifier === ComponentQualifier.Project || qualifier === ComponentQualifier.Application) &&
+    configuration?.showHistory;
+  const canDeleteAnalyses = configuration?.showHistory;
   return (
     <main className="sw-p-5" id="project-activity">
       <Suggestions suggestions="project_activity" />
@@ -84,18 +86,13 @@ export default function ProjectActivityAppRenderer(props: Props) {
           <div className="sw-grid sw-grid-cols-12 sw-gap-x-12">
             <StyledWrapper className="sw-col-span-4 sw-rounded-1">
               <ProjectActivityAnalysesList
-                onAddCustomEvent={props.onAddCustomEvent}
-                onAddVersion={props.onAddVersion}
                 analyses={analyses}
-                analysesLoading={props.analysesLoading}
+                analysesLoading={analysesLoading}
                 canAdmin={canAdmin}
                 canDeleteAnalyses={canDeleteAnalyses}
-                onChangeEvent={props.onChangeEvent}
-                onDeleteAnalysis={props.onDeleteAnalysis}
-                onDeleteEvent={props.onDeleteEvent}
-                initializing={props.initializing}
+                initializing={initializing}
                 leakPeriodDate={leakPeriodDate}
-                project={props.project}
+                project={project}
                 query={query}
                 onUpdateQuery={props.onUpdateQuery}
               />
@@ -104,10 +101,10 @@ export default function ProjectActivityAppRenderer(props: Props) {
               <ProjectActivityGraphs
                 analyses={analyses}
                 leakPeriodDate={leakPeriodDate}
-                loading={props.graphLoading}
+                loading={graphLoading}
                 measuresHistory={measuresHistory}
-                metrics={props.metrics}
-                project={props.project.key}
+                metrics={metrics}
+                project={project.key}
                 query={query}
                 updateQuery={props.onUpdateQuery}
               />

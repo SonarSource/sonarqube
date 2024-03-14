@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { getWrappedDisplayName } from '../../../components/hoc/utils';
-import { ComponentContextShape } from '../../../types/component';
+import { ComponentContextShape, ComponentQualifier } from '../../../types/component';
 import { ComponentContext } from './ComponentContext';
 
 export default function withComponentContext<P extends Partial<ComponentContextShape>>(
@@ -42,4 +42,33 @@ export default function withComponentContext<P extends Partial<ComponentContextS
 
 export function useComponent() {
   return React.useContext(ComponentContext);
+}
+
+export function useTopLevelComponentKey() {
+  const { component } = useComponent();
+
+  const componentKey = React.useMemo(() => {
+    if (!component) {
+      return undefined;
+    }
+
+    let current = component.breadcrumbs.length - 1;
+
+    while (
+      current > 0 &&
+      !(
+        [
+          ComponentQualifier.Project,
+          ComponentQualifier.Portfolio,
+          ComponentQualifier.Application,
+        ] as string[]
+      ).includes(component.breadcrumbs[current].qualifier)
+    ) {
+      current--;
+    }
+
+    return component.breadcrumbs[current].key;
+  }, [component]);
+
+  return componentKey;
 }

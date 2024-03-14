@@ -37,25 +37,26 @@ import { formatterOption } from '../../../components/intl/DateTimeFormatter';
 import TimeFormatter from '../../../components/intl/TimeFormatter';
 import { parseDate } from '../../../helpers/dates';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
-import { ParsedAnalysis } from '../../../types/project-activity';
+import { ParsedAnalysis, ProjectAnalysisEventCategory } from '../../../types/project-activity';
 import Events from './Events';
 import AddEventForm from './forms/AddEventForm';
 import RemoveAnalysisForm from './forms/RemoveAnalysisForm';
 
 export interface ProjectActivityAnalysisProps extends WrappedComponentProps {
-  onAddCustomEvent: (analysis: string, name: string, category?: string) => Promise<void>;
-  onAddVersion: (analysis: string, version: string) => Promise<void>;
   analysis: ParsedAnalysis;
   canAdmin?: boolean;
   canDeleteAnalyses?: boolean;
   canCreateVersion: boolean;
-  onChangeEvent: (event: string, name: string) => Promise<void>;
-  onDeleteAnalysis: (analysis: string) => Promise<void>;
-  onDeleteEvent: (analysis: string, event: string) => Promise<void>;
   isBaseline: boolean;
   isFirst: boolean;
   selected: boolean;
   onUpdateSelectedDate: (date: Date) => void;
+}
+
+export enum Dialog {
+  AddEvent = 'add_event',
+  AddVersion = 'add_version',
+  RemoveAnalysis = 'remove_analysis',
 }
 
 function ProjectActivityAnalysis(props: ProjectActivityAnalysisProps) {
@@ -77,9 +78,8 @@ function ProjectActivityAnalysis(props: ProjectActivityAnalysisProps) {
     }
   });
 
-  const [addEventForm, setAddEventForm] = React.useState(false);
-  const [addVersionForm, setAddVersionForm] = React.useState(false);
-  const [removeAnalysisForm, setRemoveAnalysisForm] = React.useState(false);
+  const [dialog, setDialog] = React.useState<Dialog | undefined>();
+  const closeDialog = () => setDialog(undefined);
 
   const parsedDate = parseDate(analysis.date);
   const hasVersion = analysis.events.find((event) => event.category === 'VERSION') != null;
@@ -113,7 +113,11 @@ function ProjectActivityAnalysis(props: ProjectActivityAnalysisProps) {
             'project_activity.show_analysis_X_on_graph',
             analysis.buildString ?? formatDate(parsedDate, formatterOption),
           )}
-          onClick={() => props.onUpdateSelectedDate(analysis.date)}
+          onClick={() => {
+            if (!selected) {
+              props.onUpdateSelectedDate(analysis.date);
+            }
+          }}
           ref={(ref) => (node = ref)}
         >
           <div className="it__project-activity-time">
@@ -139,12 +143,15 @@ function ProjectActivityAnalysis(props: ProjectActivityAnalysisProps) {
                   zLevel={PopupZLevel.Absolute}
                 >
                   {canAddVersion && (
-                    <ItemButton className="js-add-version" onClick={() => setAddVersionForm(true)}>
+                    <ItemButton
+                      className="js-add-version"
+                      onClick={() => setDialog(Dialog.AddVersion)}
+                    >
                       {translate('project_activity.add_version')}
                     </ItemButton>
                   )}
                   {canAddEvent && (
-                    <ItemButton className="js-add-event" onClick={() => setAddEventForm(true)}>
+                    <ItemButton className="js-add-event" onClick={() => setDialog(Dialog.AddEvent)}>
                       {translate('project_activity.add_custom_event')}
                     </ItemButton>
                   )}
@@ -152,37 +159,32 @@ function ProjectActivityAnalysis(props: ProjectActivityAnalysisProps) {
                   {canDeleteAnalyses && (
                     <ItemDangerButton
                       className="js-delete-analysis"
-                      onClick={() => setRemoveAnalysisForm(true)}
+                      onClick={() => setDialog(Dialog.RemoveAnalysis)}
                     >
                       {translate('project_activity.delete_analysis')}
                     </ItemDangerButton>
                   )}
                 </ActionsDropdown>
 
-                {addVersionForm && (
+                {[Dialog.AddEvent, Dialog.AddVersion].includes(dialog as Dialog) && (
                   <AddEventForm
-                    addEvent={props.onAddVersion}
-                    addEventButtonText="project_activity.add_version"
+                    category={
+                      dialog === Dialog.AddVersion
+                        ? ProjectAnalysisEventCategory.Version
+                        : undefined
+                    }
+                    addEventButtonText={
+                      dialog === Dialog.AddVersion
+                        ? 'project_activity.add_version'
+                        : 'project_activity.add_custom_event'
+                    }
                     analysis={analysis}
-                    onClose={() => setAddVersionForm(false)}
+                    onClose={closeDialog}
                   />
                 )}
 
-                {addEventForm && (
-                  <AddEventForm
-                    addEvent={props.onAddCustomEvent}
-                    addEventButtonText="project_activity.add_custom_event"
-                    analysis={analysis}
-                    onClose={() => setAddEventForm(false)}
-                  />
-                )}
-
-                {removeAnalysisForm && (
-                  <RemoveAnalysisForm
-                    analysis={analysis}
-                    deleteAnalysis={props.onDeleteAnalysis}
-                    onClose={() => setRemoveAnalysisForm(false)}
-                  />
+                {dialog === 'remove_analysis' && (
+                  <RemoveAnalysisForm analysis={analysis} onClose={closeDialog} />
                 )}
               </div>
             </ClickEventBoundary>
@@ -194,8 +196,6 @@ function ProjectActivityAnalysis(props: ProjectActivityAnalysisProps) {
               canAdmin={canAdmin}
               events={analysis.events}
               isFirst={isFirst}
-              onChange={props.onChangeEvent}
-              onDelete={props.onDeleteEvent}
             />
           )}
         </ActivityAnalysisListItem>

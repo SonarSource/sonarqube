@@ -27,8 +27,6 @@ export interface EventsProps {
   canAdmin?: boolean;
   events: AnalysisEvent[];
   isFirst?: boolean;
-  onChange?: (event: string, name: string) => Promise<void>;
-  onDelete?: (analysis: string, event: string) => Promise<void>;
 }
 
 function Events(props: EventsProps) {
@@ -61,8 +59,6 @@ function Events(props: EventsProps) {
           event={event}
           isFirst={isFirst}
           key={event.key}
-          onChange={props.onChange}
-          onDelete={props.onDelete}
         />
       ))}
     </div>

@@ -101,10 +101,9 @@ describe('rendering', () => {
   it('should render issues as default graph', async () => {
     const { ui } = getPageObject();
     renderProjectActivityAppContainer();
-    await ui.appLoaded();
 
+    await ui.appLoaded();
     expect(ui.graphTypeIssues.get()).toBeInTheDocument();
-    expect(ui.graphs.getAll().length).toBe(1);
   });
 
   it('should render new code legend for applications', async () => {
@@ -119,7 +118,6 @@ describe('rendering', () => {
       }),
     );
     await ui.appLoaded();
-
     expect(ui.newCodeLegend.get()).toBeInTheDocument();
   });
 
@@ -135,8 +133,8 @@ describe('rendering', () => {
         leakPeriodDate: parseDate('2017-03-01T22:00:00.000Z').toDateString(),
       }),
     );
-    await ui.appLoaded();
 
+    await ui.appLoaded();
     expect(ui.newCodeLegend.get()).toBeInTheDocument();
   });
 
@@ -153,7 +151,6 @@ describe('rendering', () => {
       );
 
       await ui.appLoaded({ doNotWaitForBranch: true });
-
       expect(ui.newCodeLegend.query()).not.toBeInTheDocument();
     },
   );
@@ -171,7 +168,6 @@ describe('rendering', () => {
     );
 
     await ui.appLoaded();
-
     expect(ui.baseline.get()).toBeInTheDocument();
   });
 
@@ -188,7 +184,6 @@ describe('rendering', () => {
     );
 
     await ui.appLoaded();
-
     expect(ui.baseline.get()).toBeInTheDocument();
   });
 
@@ -205,7 +200,6 @@ describe('rendering', () => {
     );
 
     await ui.appLoaded();
-
     expect(ui.baseline.query()).not.toBeInTheDocument();
   });
 
@@ -562,9 +556,7 @@ function getPageObject() {
     ui: {
       ...ui,
       async appLoaded({ doNotWaitForBranch }: { doNotWaitForBranch?: boolean } = {}) {
-        await waitFor(() => {
-          expect(ui.loading.query()).not.toBeInTheDocument();
-        });
+        expect(await ui.graphs.findAll()).toHaveLength(1);
 
         if (!doNotWaitForBranch) {
           await waitFor(() => {

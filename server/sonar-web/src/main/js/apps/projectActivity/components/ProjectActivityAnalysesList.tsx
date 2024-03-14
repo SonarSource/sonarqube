@@ -33,15 +33,10 @@ import { AnalysesByDay, Query, activityQueryChanged, getAnalysesByVersionByDay }
 import ProjectActivityAnalysis, { BaselineMarker } from './ProjectActivityAnalysis';
 
 interface Props {
-  onAddCustomEvent: (analysis: string, name: string, category?: string) => Promise<void>;
-  onAddVersion: (analysis: string, version: string) => Promise<void>;
   analyses: ParsedAnalysis[];
   analysesLoading: boolean;
   canAdmin?: boolean;
   canDeleteAnalyses?: boolean;
-  onChangeEvent: (event: string, name: string) => Promise<void>;
-  onDeleteAnalysis: (analysis: string) => Promise<void>;
-  onDeleteEvent: (analysis: string, event: string) => Promise<void>;
   initializing: boolean;
   leakPeriodDate?: Date;
   project: { qualifier: string };
@@ -110,15 +105,10 @@ export default class ProjectActivityAnalysesList extends React.PureComponent<Pro
 
     return (
       <ProjectActivityAnalysis
-        onAddCustomEvent={this.props.onAddCustomEvent}
-        onAddVersion={this.props.onAddVersion}
         analysis={analysis}
         canAdmin={this.props.canAdmin}
         canCreateVersion={this.props.project.qualifier === ComponentQualifier.Project}
         canDeleteAnalyses={this.props.canDeleteAnalyses}
-        onChangeEvent={this.props.onChangeEvent}
-        onDeleteAnalysis={this.props.onDeleteAnalysis}
-        onDeleteEvent={this.props.onDeleteEvent}
         isBaseline={analysis.key === newCodeKey}
         isFirst={analysis.key === firstAnalysisKey}
         key={analysis.key}

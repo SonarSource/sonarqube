@@ -27,6 +27,7 @@ import {
   createEvent,
   deleteAnalysis,
   deleteEvent,
+  getAllTimeProjectActivity,
   getProjectActivity,
 } from '../projectActivity';
 
@@ -83,6 +84,9 @@ export class ProjectActivityServiceMock {
     this.#analysisList = cloneDeep(defaultAnalysesList);
 
     jest.mocked(getProjectActivity).mockImplementation(this.getActivityHandler);
+    jest
+      .mocked(getAllTimeProjectActivity)
+      .mockImplementation(this.getAllTimeProjectActivityHandler);
     jest.mocked(deleteAnalysis).mockImplementation(this.deleteAnalysisHandler);
     jest.mocked(createEvent).mockImplementation(this.createEventHandler);
     jest.mocked(changeEvent).mockImplementation(this.changeEventHandler);
@@ -121,7 +125,7 @@ export class ProjectActivityServiceMock {
       ? this.#analysisList.filter((a) => a.events.some((e) => e.category === category))
       : this.#analysisList;
 
-    if (from) {
+    if (from !== undefined) {
       const fromTime = parseDate(from).getTime();
       analyses = analyses.filter((a) => parseDate(a.date).getTime() >= fromTime);
     }
@@ -134,6 +138,36 @@ export class ProjectActivityServiceMock {
     });
   };
 
+  getAllTimeProjectActivityHandler = (
+    data: {
+      project: string;
+      statuses?: string;
+      category?: string;
+      from?: string;
+      p?: number;
+      ps?: number;
+    } & BranchParameters,
+  ) => {
+    const { project, p = DEFAULT_PAGE, category, from } = data;
+
+    if (project === UNKNOWN_PROJECT) {
+      throw new Error(`Could not find project "${UNKNOWN_PROJECT}"`);
+    }
+
+    let analyses = category
+      ? this.#analysisList.filter((a) => a.events.some((e) => e.category === category))
+      : this.#analysisList;
+
+    if (from !== undefined) {
+      const fromTime = parseDate(from).getTime();
+      analyses = analyses.filter((a) => parseDate(a.date).getTime() >= fromTime);
+    }
+    return this.reply({
+      paging: { pageSize: PAGE_SIZE, total: this.#analysisList.length, pageIndex: p },
+      analyses: this.#analysisList,
+    });
+  };
+
   deleteAnalysisHandler = (analysisKey: string) => {
     const i = this.#analysisList.findIndex(({ key }) => key === analysisKey);
     if (i === undefined) {
@@ -143,12 +177,18 @@ export class ProjectActivityServiceMock {
     return this.reply(undefined);
   };
 
-  createEventHandler = (
-    analysisKey: string,
-    name: string,
-    category = ProjectAnalysisEventCategory.Other,
-    description?: string,
-  ) => {
+  createEventHandler = (data: {
+    analysis: string;
+    name: string;
+    category?: ProjectAnalysisEventCategory;
+    description?: string;
+  }) => {
+    const {
+      analysis: analysisKey,
+      name,
+      category = ProjectAnalysisEventCategory.Other,
+      description,
+    } = data;
     const analysis = this.findAnalysis(analysisKey);
 
     const key = uniqueId(analysisKey);
@@ -163,7 +203,8 @@ export class ProjectActivityServiceMock {
     });
   };
 
-  changeEventHandler = (eventKey: string, name: string, description?: string) => {
+  changeEventHandler = (data: { event: string; name: string; description?: string }) => {
+    const { event: eventKey, name, description } = data;
     const [eventIndex, analysisKey] = this.findEvent(eventKey);
     const analysis = this.findAnalysis(analysisKey);
     const event = analysis.events[eventIndex];

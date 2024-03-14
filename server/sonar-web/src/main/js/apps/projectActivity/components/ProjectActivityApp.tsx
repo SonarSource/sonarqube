@@ -17,63 +17,31 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
-import * as React from 'react';
-import { useSearchParams } from 'react-router-dom';
-import { getApplicationLeak } from '../../../api/application';
+import React from 'react';
 import {
-  ProjectActivityStatuses,
-  changeEvent,
-  createEvent,
-  deleteAnalysis,
-  deleteEvent,
-  getProjectActivity,
-} from '../../../api/projectActivity';
-import { getAllTimeMachineData } from '../../../api/time-machine';
-import withComponentContext from '../../../app/components/componentContext/withComponentContext';
-import withMetricsContext from '../../../app/components/metrics/withMetricsContext';
+  useComponent,
+  useTopLevelComponentKey,
+} from '../../../app/components/componentContext/withComponentContext';
+import { useMetrics } from '../../../app/components/metrics/withMetricsContext';
 import {
   DEFAULT_GRAPH,
   getActivityGraph,
   getHistoryMetrics,
   isCustomGraph,
 } from '../../../components/activity-graph/utils';
-import { Location, Router, withRouter } from '../../../components/hoc/withRouter';
+import { useLocation, useRouter } from '../../../components/hoc/withRouter';
 import { getBranchLikeQuery } from '../../../helpers/branch-like';
 import { HIDDEN_METRICS } from '../../../helpers/constants';
 import { parseDate } from '../../../helpers/dates';
-import { serializeStringArray } from '../../../helpers/query';
-import { WithBranchLikesProps, withBranchLikes } from '../../../queries/branch';
-import {
-  ComponentQualifier,
-  isApplication,
-  isPortfolioLike,
-  isProject,
-} from '../../../types/component';
+import useApplicationLeakQuery from '../../../queries/applications';
+import { useBranchesQuery } from '../../../queries/branch';
+import { useAllMeasuresHistoryQuery } from '../../../queries/measures';
+import { useAllProjectAnalysesQuery } from '../../../queries/project-analyses';
+import { isApplication, isPortfolioLike, isProject } from '../../../types/component';
 import { MetricKey } from '../../../types/metrics';
-import {
-  GraphType,
-  MeasureHistory,
-  ParsedAnalysis,
-  ProjectAnalysisEventCategory,
-} from '../../../types/project-activity';
-import { Component, Dict, Metric, Paging, RawQuery } from '../../../types/types';
-import * as actions from '../actions';
-import {
-  Query,
-  customMetricsChanged,
-  parseQuery,
-  serializeQuery,
-  serializeUrlQuery,
-} from '../utils';
+import { MeasureHistory, ParsedAnalysis } from '../../../types/project-activity';
+import { Query, parseQuery, serializeUrlQuery } from '../utils';
 import ProjectActivityAppRenderer from './ProjectActivityAppRenderer';
-
-interface Props extends WithBranchLikesProps {
-  component: Component;
-  location: Location;
-  metrics: Dict<Metric>;
-  router: Router;
-}
 
 export interface State {
   analyses: ParsedAnalysis[];
@@ -87,233 +55,58 @@ export interface State {
 
 export const PROJECT_ACTIVITY_GRAPH = 'sonar_project_activity.graph';
 
-const ACTIVITY_PAGE_SIZE_FIRST_BATCH = 100;
-const ACTIVITY_PAGE_SIZE = 500;
+export function ProjectActivityApp() {
+  const { query, pathname } = useLocation();
+  const parsedQuery = parseQuery(query);
+  const router = useRouter();
+  const { component } = useComponent();
+  const metrics = useMetrics();
+  const { data: { branchLike } = {}, isFetching: isFetchingBranch } = useBranchesQuery(component);
+  const enabled =
+    component?.key !== undefined &&
+    (isPortfolioLike(component?.qualifier) || (Boolean(branchLike) && !isFetchingBranch));
 
-class ProjectActivityApp extends React.PureComponent<Props, State> {
-  mounted = false;
+  const componentKey = useTopLevelComponentKey();
+  const { data: appLeaks } = useApplicationLeakQuery(
+    componentKey ?? '',
+    isApplication(component?.qualifier),
+  );
 
-  constructor(props: Props) {
-    super(props);
+  const { data: analysesData, isLoading: isLoadingAnalyses } = useAllProjectAnalysesQuery(enabled);
 
-    this.state = {
-      analyses: [],
-      analysesLoading: false,
-      graphLoading: true,
-      initialized: false,
-      measuresHistory: [],
-      query: parseQuery(props.location.query),
-    };
-  }
+  const { data: historyData, isLoading: isLoadingHistory } = useAllMeasuresHistoryQuery(
+    componentKey,
+    getBranchLikeQuery(branchLike),
+    getHistoryMetrics(query.graph || DEFAULT_GRAPH, parsedQuery.customMetrics).join(','),
+    enabled,
+  );
 
-  componentDidMount() {
-    this.mounted = true;
+  const analyses = React.useMemo(() => analysesData ?? [], [analysesData]);
 
-    if (this.isBranchReady()) {
-      this.firstLoadData(this.state.query, this.props.component);
-    }
-  }
-
-  componentDidUpdate(prevProps: Props) {
-    const unparsedQuery = this.props.location.query;
-
-    const hasQueryChanged = prevProps.location.query !== unparsedQuery;
-
-    const wasBranchJustFetched = !!prevProps.isFetchingBranch && !this.props.isFetchingBranch;
-
-    if (this.isBranchReady() && (hasQueryChanged || wasBranchJustFetched)) {
-      const query = parseQuery(unparsedQuery);
-
-      if (
-        query.graph !== this.state.query.graph ||
-        customMetricsChanged(this.state.query, query) ||
-        wasBranchJustFetched
-      ) {
-        if (this.state.initialized) {
-          this.updateGraphData(query.graph || DEFAULT_GRAPH, query.customMetrics);
-        } else {
-          this.firstLoadData(query, this.props.component);
-        }
-      }
-
-      this.setState({ query });
-    }
-  }
-
-  componentWillUnmount() {
-    this.mounted = false;
-  }
-
-  isBranchReady = () =>
-    isPortfolioLike(this.props.component.qualifier) ||
-    (this.props.branchLike !== undefined && !this.props.isFetchingBranch);
-
-  handleAddCustomEvent = (analysisKey: string, name: string, category?: string) => {
-    return createEvent(analysisKey, name, category).then(({ analysis, ...event }) => {
-      if (this.mounted) {
-        this.setState(actions.addCustomEvent(analysis, event));
-      }
-    });
-  };
-
-  handleAddVersion = (analysis: string, version: string) => {
-    return this.handleAddCustomEvent(analysis, version, ProjectAnalysisEventCategory.Version);
-  };
-
-  handleChangeEvent = (eventKey: string, name: string) => {
-    return changeEvent(eventKey, name).then(({ analysis, ...event }) => {
-      if (this.mounted) {
-        this.setState(actions.changeEvent(analysis, event));
-      }
-    });
-  };
-
-  handleDeleteAnalysis = (analysis: string) => {
-    return deleteAnalysis(analysis).then(() => {
-      if (this.mounted) {
-        this.updateGraphData(
-          this.state.query.graph || DEFAULT_GRAPH,
-          this.state.query.customMetrics,
-        );
-
-        this.setState(actions.deleteAnalysis(analysis));
-      }
-    });
-  };
-
-  handleDeleteEvent = (analysis: string, event: string) => {
-    return deleteEvent(event).then(() => {
-      if (this.mounted) {
-        this.setState(actions.deleteEvent(analysis, event));
-      }
-    });
-  };
-
-  fetchActivity = (
-    project: string,
-    statuses: ProjectActivityStatuses[],
-    p: number,
-    ps: number,
-    additional?: RawQuery,
-  ) => {
-    const parameters = {
-      project,
-      statuses: serializeStringArray(statuses),
-      p,
-      ps,
-      ...getBranchLikeQuery(this.props.branchLike),
-    };
-
-    return getProjectActivity({ ...additional, ...parameters }).then(({ analyses, paging }) => ({
-      analyses: analyses.map((analysis) => ({
-        ...analysis,
-        date: parseDate(analysis.date),
-      })) as ParsedAnalysis[],
-
-      paging,
-    }));
-  };
-
-  fetchMeasuresHistory = (metrics: string[]): Promise<MeasureHistory[]> => {
-    if (metrics.length <= 0) {
-      return Promise.resolve([]);
-    }
-
-    return getAllTimeMachineData({
-      component: this.props.component.key,
-      metrics: metrics.join(),
-      ...getBranchLikeQuery(this.props.branchLike),
-    }).then(({ measures }) =>
-      measures.map((measure) => ({
+  const measuresHistory = React.useMemo(
+    () =>
+      historyData?.measures?.map((measure) => ({
         metric: measure.metric,
-
-        history: measure.history.map((analysis) => ({
-          date: parseDate(analysis.date),
-          value: analysis.value,
+        history: measure.history.map((historyItem) => ({
+          date: parseDate(historyItem.date),
+          value: historyItem.value,
         })),
-      })),
-    );
-  };
+      })) ?? [],
+    [historyData],
+  );
 
-  fetchAllActivities = (topLevelComponent: string) => {
-    this.setState({ analysesLoading: true });
-
-    this.loadAllActivities(topLevelComponent).then(
-      ({ analyses }) => {
-        if (this.mounted) {
-          this.setState({
-            analyses,
-            analysesLoading: false,
-          });
-        }
-      },
-      () => {
-        if (this.mounted) {
-          this.setState({ analysesLoading: false });
-        }
-      },
-    );
-  };
-
-  loadAllActivities = (
-    project: string,
-    prevResult?: { analyses: ParsedAnalysis[]; paging: Paging },
-  ): Promise<{ analyses: ParsedAnalysis[]; paging: Paging }> => {
-    if (
-      prevResult &&
-      prevResult.paging.pageIndex * prevResult.paging.pageSize >= prevResult.paging.total
-    ) {
-      return Promise.resolve(prevResult);
+  const leakPeriodDate = React.useMemo(() => {
+    if (appLeaks?.[0]) {
+      return parseDate(appLeaks[0].date);
+    } else if (isProject(component?.qualifier) && component?.leakPeriodDate !== undefined) {
+      return parseDate(component.leakPeriodDate);
     }
 
-    const nextPage = prevResult ? prevResult.paging.pageIndex + 1 : 1;
+    return undefined;
+  }, [appLeaks, component?.leakPeriodDate, component?.qualifier]);
 
-    return this.fetchActivity(
-      project,
-      [
-        ProjectActivityStatuses.STATUS_PROCESSED,
-        ProjectActivityStatuses.STATUS_LIVE_MEASURE_COMPUTE,
-      ],
-      nextPage,
-      ACTIVITY_PAGE_SIZE,
-    ).then((result) => {
-      if (!prevResult) {
-        return this.loadAllActivities(project, result);
-      }
-
-      return this.loadAllActivities(project, {
-        analyses: prevResult.analyses.concat(result.analyses),
-        paging: result.paging,
-      });
-    });
-  };
-
-  getTopLevelComponent = (component: Component) => {
-    let current = component.breadcrumbs.length - 1;
-
-    while (
-      current > 0 &&
-      !(
-        [
-          ComponentQualifier.Project,
-          ComponentQualifier.Portfolio,
-          ComponentQualifier.Application,
-        ] as string[]
-      ).includes(component.breadcrumbs[current].qualifier)
-    ) {
-      current--;
-    }
-
-    return component.breadcrumbs[current].key;
-  };
-
-  filterMetrics = () => {
-    const {
-      component: { qualifier },
-      metrics,
-    } = this.props;
-
-    if (isPortfolioLike(qualifier)) {
+  const filteredMetrics = React.useMemo(() => {
+    if (isPortfolioLike(component?.qualifier)) {
       return Object.values(metrics).filter(
         (metric) => metric.key !== MetricKey.security_hotspots_reviewed,
       );
@@ -323,138 +116,57 @@ class ProjectActivityApp extends React.PureComponent<Props, State> {
       (metric) =>
         ![...HIDDEN_METRICS, MetricKey.security_review_rating].includes(metric.key as MetricKey),
     );
-  };
+  }, [component?.qualifier, metrics]);
 
-  async firstLoadData(query: Query, component: Component) {
-    const graphMetrics = getHistoryMetrics(query.graph || DEFAULT_GRAPH, query.customMetrics);
-    const topLevelComponent = this.getTopLevelComponent(component);
-
-    try {
-      const [{ analyses }, measuresHistory, leaks] = await Promise.all([
-        this.fetchActivity(
-          topLevelComponent,
-          [
-            ProjectActivityStatuses.STATUS_PROCESSED,
-            ProjectActivityStatuses.STATUS_LIVE_MEASURE_COMPUTE,
-          ],
-          1,
-          ACTIVITY_PAGE_SIZE_FIRST_BATCH,
-          serializeQuery(query),
-        ),
-
-        this.fetchMeasuresHistory(graphMetrics),
-
-        component.qualifier === ComponentQualifier.Application
-          ? // eslint-disable-next-line local-rules/no-api-imports
-            getApplicationLeak(component.key)
-          : undefined,
-      ]);
-
-      if (this.mounted) {
-        let leakPeriodDate;
-
-        if (isApplication(component.qualifier) && leaks?.length) {
-          [leakPeriodDate] = leaks
-            .map((leak) => parseDate(leak.date))
-            .sort((d1, d2) => d2.getTime() - d1.getTime());
-        } else if (isProject(component.qualifier) && component.leakPeriodDate) {
-          leakPeriodDate = parseDate(component.leakPeriodDate);
-        }
-
-        this.setState({
-          analyses,
-          graphLoading: false,
-          initialized: true,
-          leakPeriodDate,
-          measuresHistory,
-        });
-
-        this.fetchAllActivities(topLevelComponent);
-      }
-    } catch (error) {
-      if (this.mounted) {
-        this.setState({ initialized: true, graphLoading: false });
-      }
-    }
-  }
-
-  updateGraphData = (graph: GraphType, customMetrics: string[]) => {
-    const graphMetrics = getHistoryMetrics(graph, customMetrics);
-    this.setState({ graphLoading: true });
-
-    this.fetchMeasuresHistory(graphMetrics).then(
-      (measuresHistory) => {
-        if (this.mounted) {
-          this.setState({ graphLoading: false, measuresHistory });
-        }
-      },
-      () => {
-        if (this.mounted) {
-          this.setState({ graphLoading: false, measuresHistory: [] });
-        }
-      },
-    );
-  };
-
-  handleUpdateQuery = (newQuery: Query) => {
-    const query = serializeUrlQuery({
-      ...this.state.query,
+  const handleUpdateQuery = (newQuery: Query) => {
+    const q = serializeUrlQuery({
+      ...parsedQuery,
       ...newQuery,
     });
 
-    this.props.router.push({
-      pathname: this.props.location.pathname,
+    router.push({
+      pathname,
       query: {
-        ...query,
-        ...getBranchLikeQuery(this.props.branchLike),
-        id: this.props.component.key,
+        ...q,
+        ...getBranchLikeQuery(branchLike),
+        id: component?.key,
       },
     });
   };
 
-  render() {
-    const metrics = this.filterMetrics();
-
-    return (
+  return (
+    component && (
       <ProjectActivityAppRenderer
-        onAddCustomEvent={this.handleAddCustomEvent}
-        onAddVersion={this.handleAddVersion}
-        analyses={this.state.analyses}
-        analysesLoading={this.state.analysesLoading}
-        onChangeEvent={this.handleChangeEvent}
-        onDeleteAnalysis={this.handleDeleteAnalysis}
-        onDeleteEvent={this.handleDeleteEvent}
-        graphLoading={!this.state.initialized || this.state.graphLoading}
-        leakPeriodDate={this.state.leakPeriodDate}
-        initializing={!this.state.initialized}
-        measuresHistory={this.state.measuresHistory}
-        metrics={metrics}
-        project={this.props.component}
-        query={this.state.query}
-        onUpdateQuery={this.handleUpdateQuery}
+        analyses={analyses}
+        analysesLoading={isLoadingAnalyses}
+        graphLoading={isLoadingHistory}
+        leakPeriodDate={leakPeriodDate}
+        initializing={isLoadingAnalyses || isLoadingHistory}
+        measuresHistory={measuresHistory}
+        metrics={filteredMetrics}
+        project={component}
+        onUpdateQuery={handleUpdateQuery}
+        query={parsedQuery}
       />
-    );
-  }
+    )
+  );
 }
 
-const isFiltered = (searchParams: URLSearchParams) => {
-  let filtered = false;
+export default function RedirectWrapper() {
+  const { query } = useLocation();
+  const { component } = useComponent();
+  const router = useRouter();
 
-  searchParams.forEach((value, key) => {
-    if (key !== 'id' && value !== '') {
-      filtered = true;
+  const filtered = React.useMemo(() => {
+    for (const key in query) {
+      if (key !== 'id' && query[key] !== '') {
+        return true;
+      }
     }
-  });
+    return false;
+  }, [query]);
 
-  return filtered;
-};
-
-function RedirectWrapper(props: Props) {
-  const [searchParams, setSearchParams] = useSearchParams();
-
-  const filtered = isFiltered(searchParams);
-
-  const { graph, customGraphs } = getActivityGraph(PROJECT_ACTIVITY_GRAPH, props.component.key);
+  const { graph, customGraphs } = getActivityGraph(PROJECT_ACTIVITY_GRAPH, component?.key ?? '');
   const emptyCustomGraph = isCustomGraph(graph) && customGraphs.length <= 0;
 
   // if there is no filter, but there are saved preferences in the localStorage
@@ -463,21 +175,15 @@ function RedirectWrapper(props: Props) {
 
   React.useEffect(() => {
     if (shouldRedirect) {
-      const query = parseQuery(searchParams);
       const newQuery = { ...query, graph };
 
       if (isCustomGraph(newQuery.graph)) {
-        searchParams.set('custom_metrics', customGraphs.join(','));
+        router.replace({ query: { ...newQuery, custom_metrics: customGraphs.join(',') } });
+      } else {
+        router.replace({ query: newQuery });
       }
-
-      searchParams.set('graph', graph);
-      setSearchParams(searchParams, { replace: true });
     }
-  }, [customGraphs, graph, searchParams, setSearchParams, shouldRedirect]);
+  }, [shouldRedirect, router, query, graph, customGraphs]);
 
-  return shouldRedirect ? null : <ProjectActivityApp {...props} />;
+  return shouldRedirect ? null : <ProjectActivityApp />;
 }
-
-export default withComponentContext(
-  withRouter(withMetricsContext(withBranchLikes(RedirectWrapper))),
-);
