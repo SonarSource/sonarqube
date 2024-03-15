@@ -22,7 +22,9 @@ package org.sonar.ce.task.projectanalysis.formula.counter;
 import java.util.Optional;
 import org.sonar.ce.task.projectanalysis.formula.Counter;
 
-public interface SumCounter<T extends Number, COUNTER extends SumCounter<T, COUNTER>> extends Counter<COUNTER> {
+public interface SumCounter<T, COUNTER extends SumCounter<T, COUNTER>> extends Counter<COUNTER> {
 
   Optional<T> getValue();
+
+  void addValue(T value);
 }

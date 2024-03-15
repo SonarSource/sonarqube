@@ -65,7 +65,8 @@ public class LongSumCounter implements SumCounter<Long, LongSumCounter> {
     }
   }
 
-  private void addValue(long newValue) {
+  @Override
+  public void addValue(Long newValue) {
     initialized = true;
     value += newValue;
   }

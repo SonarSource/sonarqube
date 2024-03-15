@@ -65,7 +65,8 @@ public class IntSumCounter implements SumCounter<Integer, IntSumCounter> {
     }
   }
 
-  private void addValue(int newValue) {
+  @Override
+  public void addValue(Integer newValue) {
     initialized = true;
     value += newValue;
   }
