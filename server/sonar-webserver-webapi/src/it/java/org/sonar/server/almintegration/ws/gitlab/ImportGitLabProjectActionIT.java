@@ -42,6 +42,7 @@ import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.almintegration.ws.ImportHelper;
 import org.sonar.server.almintegration.ws.ProjectKeyGenerator;
+import org.sonar.server.almsettings.ws.gitlab.GitlabProjectCreatorFactory;
 import org.sonar.server.component.ComponentUpdater;
 import org.sonar.server.es.TestIndexers;
 import org.sonar.server.exceptions.NotFoundException;
@@ -53,6 +54,7 @@ import org.sonar.server.permission.PermissionUpdater;
 import org.sonar.server.project.DefaultBranchNameResolver;
 import org.sonar.server.project.ProjectDefaultVisibility;
 import org.sonar.server.project.Visibility;
+import org.sonar.server.project.ws.ProjectCreator;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
@@ -98,11 +100,13 @@ public class ImportGitLabProjectActionIT {
   private final ImportHelper importHelper = new ImportHelper(db.getDbClient(), userSession);
   private final ProjectDefaultVisibility projectDefaultVisibility = mock(ProjectDefaultVisibility.class);
   private final ProjectKeyGenerator projectKeyGenerator = mock(ProjectKeyGenerator.class);
-  private PlatformEditionProvider editionProvider = mock(PlatformEditionProvider.class);
-  private NewCodeDefinitionResolver newCodeDefinitionResolver = new NewCodeDefinitionResolver(db.getDbClient(), editionProvider);
+  private final PlatformEditionProvider editionProvider = mock(PlatformEditionProvider.class);
+  private final NewCodeDefinitionResolver newCodeDefinitionResolver = new NewCodeDefinitionResolver(db.getDbClient(), editionProvider);
+  private final ProjectCreator projectCreator = new ProjectCreator(userSession, projectDefaultVisibility, componentUpdater);
+  private final GitlabProjectCreatorFactory gitlabProjectCreatorFactory = new GitlabProjectCreatorFactory(db.getDbClient(), projectKeyGenerator, projectCreator,
+    gitlabApplicationClient, userSession);
   private final ImportGitLabProjectAction importGitLabProjectAction = new ImportGitLabProjectAction(
-    db.getDbClient(), userSession, projectDefaultVisibility, gitlabApplicationClient, componentUpdater, importHelper, projectKeyGenerator, newCodeDefinitionResolver,
-    defaultBranchNameResolver);
+    db.getDbClient(), userSession, componentUpdater, importHelper, newCodeDefinitionResolver, gitlabProjectCreatorFactory);
   private final WsActionTester ws = new WsActionTester(importGitLabProjectAction);
 
   @Before
@@ -324,7 +328,6 @@ public class ImportGitLabProjectActionIT {
 
     assertThatNoException().isThrownBy(request::execute);
   }
-
 
   private AlmSettingDto configureUserAndPatAndAlmSettings() {
     UserDto user = db.users().insertUser();

@@ -25,6 +25,7 @@ import java.util.Set;
 import javax.annotation.Priority;
 import org.sonar.api.server.ServerSide;
 import org.sonar.db.DbSession;
+import org.sonar.db.alm.setting.AlmSettingDto;
 
 @ServerSide
 @Priority(1)
@@ -43,5 +44,11 @@ public class DelegatingDevOpsProjectCreatorFactory implements DevOpsProjectCreat
       .findFirst();
   }
 
+  @Override
+  public Optional<DevOpsProjectCreator> getDevOpsProjectCreator(AlmSettingDto almSettingDto, DevOpsProjectDescriptor devOpsProjectDescriptor) {
+    return delegates.stream()
+      .flatMap(delegate -> delegate.getDevOpsProjectCreator(almSettingDto, devOpsProjectDescriptor).stream())
+      .findFirst();
+  }
 
 }

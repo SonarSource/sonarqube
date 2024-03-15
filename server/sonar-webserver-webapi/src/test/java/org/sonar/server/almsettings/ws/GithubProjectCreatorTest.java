@@ -143,7 +143,7 @@ class GithubProjectCreatorTest {
 
     ProjectCreator projectCreator = new ProjectCreator(userSession, projectDefaultVisibility, componentUpdater);
     githubProjectCreator = new GithubProjectCreator(dbClient, githubApplicationClient, githubPermissionConverter, projectKeyGenerator,
-      permissionUpdater, permissionService, managedProjectService, projectCreator, githubProjectCreationParameters,gitHubSettings);
+      permissionUpdater, permissionService, managedProjectService, projectCreator, githubProjectCreationParameters, gitHubSettings);
 
   }
 
@@ -265,7 +265,7 @@ class GithubProjectCreatorTest {
   @Test
   void createProjectAndBindToDevOpsPlatform_whenRepoNotFound_throws() {
     assertThatIllegalStateException().isThrownBy(
-      () -> githubProjectCreator.createProjectAndBindToDevOpsPlatform(mock(), SCANNER_API_DEVOPS_AUTO_CONFIG, null))
+      () -> githubProjectCreator.createProjectAndBindToDevOpsPlatform(mock(), SCANNER_API_DEVOPS_AUTO_CONFIG, false, null, null))
       .withMessage("Impossible to find the repository 'orga2/repo1' on GitHub, using the devops config " + ALM_SETTING_KEY);
   }
 
@@ -281,7 +281,7 @@ class GithubProjectCreatorTest {
 
     // when
     ComponentCreationData actualComponentCreationData = githubProjectCreator.createProjectAndBindToDevOpsPlatform(dbClient.openSession(true),
-      SCANNER_API_DEVOPS_AUTO_CONFIG, null);
+      SCANNER_API_DEVOPS_AUTO_CONFIG, false, null, null);
 
     // then
     assertThat(actualComponentCreationData).isEqualTo(componentCreationData);
@@ -309,7 +309,7 @@ class GithubProjectCreatorTest {
 
     // when
     ComponentCreationData actualComponentCreationData = githubProjectCreator.createProjectAndBindToDevOpsPlatform(dbClient.openSession(true),
-      SCANNER_API_DEVOPS_AUTO_CONFIG, null);
+      SCANNER_API_DEVOPS_AUTO_CONFIG, false, null, null);
 
     // then
     assertThat(actualComponentCreationData).isEqualTo(componentCreationData);
@@ -331,7 +331,7 @@ class GithubProjectCreatorTest {
 
     // when
     ComponentCreationData actualComponentCreationData = githubProjectCreator.createProjectAndBindToDevOpsPlatform(dbClient.openSession(true),
-      SCANNER_API_DEVOPS_AUTO_CONFIG, null);
+      SCANNER_API_DEVOPS_AUTO_CONFIG, false, null, null);
 
     // then
     assertThat(actualComponentCreationData).isEqualTo(componentCreationData);
@@ -352,7 +352,8 @@ class GithubProjectCreatorTest {
     when(projectDefaultVisibility.get(any())).thenReturn(Visibility.PRIVATE);
 
     // when
-    ComponentCreationData actualComponentCreationData = githubProjectCreator.createProjectAndBindToDevOpsPlatform(dbClient.openSession(true), ALM_IMPORT_API, projectKey);
+    ComponentCreationData actualComponentCreationData = githubProjectCreator.createProjectAndBindToDevOpsPlatform(dbClient.openSession(true), ALM_IMPORT_API, false, projectKey,
+      null);
 
     // then
     assertThat(actualComponentCreationData).isEqualTo(componentCreationData);
@@ -382,7 +383,8 @@ class GithubProjectCreatorTest {
     when(gitHubSettings.isProvisioningEnabled()).thenReturn(true);
 
     // when
-    ComponentCreationData actualComponentCreationData = githubProjectCreator.createProjectAndBindToDevOpsPlatform(dbClient.openSession(true), ALM_IMPORT_API, projectKey);
+    ComponentCreationData actualComponentCreationData = githubProjectCreator.createProjectAndBindToDevOpsPlatform(dbClient.openSession(true), ALM_IMPORT_API, false, projectKey,
+      null);
 
     // then
     assertThat(actualComponentCreationData).isEqualTo(componentCreationData);

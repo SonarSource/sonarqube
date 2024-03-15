@@ -17,18 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.almsettings.ws;
+@ParametersAreNonnullByDefault
+package org.sonar.server.almsettings.ws.gitlab;
 
-import javax.annotation.Nullable;
-import org.sonar.db.DbSession;
-import org.sonar.db.project.CreationMethod;
-import org.sonar.server.component.ComponentCreationData;
-
-public interface DevOpsProjectCreator {
-
-  boolean isScanAllowedUsingPermissionsFromDevopsPlatform();
-
-  ComponentCreationData createProjectAndBindToDevOpsPlatform(DbSession dbSession, CreationMethod creationMethod, Boolean monorepo, @Nullable String projectKey,
-    @Nullable String projectName);
-
-}
+import javax.annotation.ParametersAreNonnullByDefault;

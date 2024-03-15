@@ -376,7 +376,7 @@ public class ReportSubmitterIT {
   private void assertProjectWasCreatedWithBinding(boolean isPrivate) {
     ProjectDto projectDto = db.getDbClient().projectDao().selectProjectByKey(db.getSession(), PROJECT_KEY).orElseThrow();
     assertThat(projectDto.getCreationMethod()).isEqualTo(CreationMethod.SCANNER_API_DEVOPS_AUTO_CONFIG);
-    assertThat(projectDto.getName()).isEqualTo("repoName");
+    assertThat(projectDto.getName()).isEqualTo(PROJECT_NAME);
     assertThat(projectDto.isPrivate()).isEqualTo(isPrivate);
 
     BranchDto branchDto = db.getDbClient().branchDao().selectByBranchKey(db.getSession(), projectDto.getUuid(), "defaultBranch").orElseThrow();

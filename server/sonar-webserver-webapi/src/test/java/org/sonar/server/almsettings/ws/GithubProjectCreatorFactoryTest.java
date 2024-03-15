@@ -33,8 +33,11 @@ import org.sonar.alm.client.github.GithubPermissionConverter;
 import org.sonar.auth.github.AppInstallationToken;
 import org.sonar.auth.github.GitHubSettings;
 import org.sonar.auth.github.client.GithubApplicationClient;
+import org.sonar.auth.github.security.AccessToken;
+import org.sonar.auth.github.security.UserAccessToken;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.alm.pat.AlmPatDto;
 import org.sonar.db.alm.setting.ALM;
 import org.sonar.db.alm.setting.AlmSettingDto;
 import org.sonar.server.almintegration.ws.ProjectKeyGenerator;
@@ -71,6 +74,7 @@ public class GithubProjectCreatorFactoryTest {
     DEVOPS_PLATFORM_URL, GITHUB_PROJECT_DESCRIPTOR.url(),
     DEVOPS_PLATFORM_PROJECT_IDENTIFIER, GITHUB_PROJECT_DESCRIPTOR.projectIdentifier());
   private static final long APP_INSTALLATION_ID = 534534534543L;
+  private static final String USER_ACCESS_TOKEN = "userPat";
 
   @Mock
   private DbSession dbSession;
@@ -156,7 +160,7 @@ public class GithubProjectCreatorFactoryTest {
 
     DevOpsProjectCreator devOpsProjectCreator = githubProjectCreatorFactory.getDevOpsProjectCreator(dbSession, VALID_GITHUB_PROJECT_COORDINATES).orElseThrow();
 
-    GithubProjectCreator expectedGithubProjectCreator = getExpectedGithubProjectCreator(almSettingDto, false);
+    GithubProjectCreator expectedGithubProjectCreator = getExpectedGithubProjectCreator(almSettingDto, false, appInstallationToken);
     assertThat(devOpsProjectCreator).usingRecursiveComparison().isEqualTo(expectedGithubProjectCreator);
   }
 
@@ -174,7 +178,7 @@ public class GithubProjectCreatorFactoryTest {
 
     DevOpsProjectCreator devOpsProjectCreator = githubProjectCreatorFactory.getDevOpsProjectCreator(dbSession, VALID_GITHUB_PROJECT_COORDINATES).orElseThrow();
 
-    GithubProjectCreator expectedGithubProjectCreator = getExpectedGithubProjectCreator(almSettingDto, true);
+    GithubProjectCreator expectedGithubProjectCreator = getExpectedGithubProjectCreator(almSettingDto, true, appInstallationToken);
     assertThat(devOpsProjectCreator).usingRecursiveComparison().isEqualTo(expectedGithubProjectCreator);
   }
 
@@ -188,34 +192,36 @@ public class GithubProjectCreatorFactoryTest {
 
     DevOpsProjectCreator devOpsProjectCreator = githubProjectCreatorFactory.getDevOpsProjectCreator(dbSession, VALID_GITHUB_PROJECT_COORDINATES).orElseThrow();
 
-    GithubProjectCreator expectedGithubProjectCreator = getExpectedGithubProjectCreator(matchingAlmSettingDto, false);
+    GithubProjectCreator expectedGithubProjectCreator = getExpectedGithubProjectCreator(matchingAlmSettingDto, false, appInstallationToken);
     assertThat(devOpsProjectCreator).usingRecursiveComparison().isEqualTo(expectedGithubProjectCreator);
   }
 
   @Test
   public void getDevOpsProjectCreatorFromImport_shouldInstantiateDevOpsProjectCreator() {
     AlmSettingDto mockAlmSettingDto = mockAlmSettingDto(true);
+    mockAlmPatDto(mockAlmSettingDto);
 
     mockSuccessfulGithubInteraction();
 
-    DevOpsProjectCreator devOpsProjectCreator = githubProjectCreatorFactory.getDevOpsProjectCreator(mockAlmSettingDto, appInstallationToken, GITHUB_PROJECT_DESCRIPTOR);
+    DevOpsProjectCreator devOpsProjectCreator = githubProjectCreatorFactory.getDevOpsProjectCreator(mockAlmSettingDto, GITHUB_PROJECT_DESCRIPTOR).orElseThrow();
 
-    GithubProjectCreator expectedGithubProjectCreator = getExpectedGithubProjectCreator(mockAlmSettingDto, false);
+    GithubProjectCreator expectedGithubProjectCreator = getExpectedGithubProjectCreator(mockAlmSettingDto, false, new UserAccessToken(USER_ACCESS_TOKEN));
     assertThat(devOpsProjectCreator).usingRecursiveComparison().isEqualTo(expectedGithubProjectCreator);
   }
 
   @Test
   public void getDevOpsProjectCreatorFromImport_whenGitHubConfigDoesNotAllowAccessToRepo_shouldThrow() {
     AlmSettingDto mockAlmSettingDto = mockAlmSettingDto(false);
+    mockAlmPatDto(mockAlmSettingDto);
 
     mockValidGitHubSettings();
 
     when(githubApplicationClient.getInstallationId(any(), eq(GITHUB_REPO_FULL_NAME))).thenReturn(Optional.empty());
 
-    assertThatThrownBy(() -> githubProjectCreatorFactory.getDevOpsProjectCreator(mockAlmSettingDto, appInstallationToken, GITHUB_PROJECT_DESCRIPTOR))
+    assertThatThrownBy(() -> githubProjectCreatorFactory.getDevOpsProjectCreator(mockAlmSettingDto, GITHUB_PROJECT_DESCRIPTOR))
       .isInstanceOf(BadConfigurationException.class)
       .hasMessage(format("GitHub auto-provisioning is activated. However the repo %s is not in the scope of the authentication application. "
-          + "The permissions can't be checked, and the project can not be created.",
+        + "The permissions can't be checked, and the project can not be created.",
         GITHUB_REPO_FULL_NAME));
   }
 
@@ -231,10 +237,10 @@ public class GithubProjectCreatorFactoryTest {
     when(githubApplicationClient.createAppInstallationToken(any(), eq(APP_INSTALLATION_ID))).thenReturn(Optional.of(appInstallationToken));
   }
 
-  private GithubProjectCreator getExpectedGithubProjectCreator(AlmSettingDto almSettingDto, boolean isInstanceManaged) {
+  private GithubProjectCreator getExpectedGithubProjectCreator(AlmSettingDto almSettingDto, boolean isInstanceManaged, AccessToken accessToken) {
     DevOpsProjectDescriptor devOpsProjectDescriptor = new DevOpsProjectDescriptor(ALM.GITHUB, almSettingDto.getUrl(), GITHUB_REPO_FULL_NAME);
     AppInstallationToken authAppInstallToken = isInstanceManaged ? authAppInstallationToken : null;
-    GithubProjectCreationParameters githubProjectCreationParameters = new GithubProjectCreationParameters(devOpsProjectDescriptor, almSettingDto, userSession, appInstallationToken,
+    GithubProjectCreationParameters githubProjectCreationParameters = new GithubProjectCreationParameters(devOpsProjectDescriptor, almSettingDto, userSession, accessToken,
       authAppInstallToken);
     return new GithubProjectCreator(dbClient, githubApplicationClient, githubPermissionConverter, projectKeyGenerator, permissionUpdater, permissionService,
       managedProjectService, projectCreator, githubProjectCreationParameters, gitHubSettings);
@@ -243,9 +249,16 @@ public class GithubProjectCreatorFactoryTest {
   private AlmSettingDto mockAlmSettingDto(boolean repoAccess) {
     AlmSettingDto almSettingDto = mock();
     when(almSettingDto.getUrl()).thenReturn(repoAccess ? GITHUB_PROJECT_DESCRIPTOR.url() : "anotherUrl");
+    when(almSettingDto.getAlm()).thenReturn(ALM.GITHUB);
 
     when(dbClient.almSettingDao().selectByAlm(dbSession, ALM.GITHUB)).thenReturn(List.of(almSettingDto));
     return almSettingDto;
+  }
+
+  private void mockAlmPatDto(AlmSettingDto almSettingDto) {
+    when(userSession.getUuid()).thenReturn("userUuid");
+    when(dbClient.almPatDao().selectByUserAndAlmSetting(any(), eq("userUuid"), eq(almSettingDto)))
+      .thenReturn(Optional.of(new AlmPatDto().setPersonalAccessToken(USER_ACCESS_TOKEN)));
   }
 
 }

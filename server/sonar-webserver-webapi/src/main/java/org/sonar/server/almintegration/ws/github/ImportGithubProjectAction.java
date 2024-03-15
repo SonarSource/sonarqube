@@ -21,15 +21,12 @@ package org.sonar.server.almintegration.ws.github;
 
 import java.util.Optional;
 import javax.inject.Inject;
-import org.sonar.auth.github.security.AccessToken;
-import org.sonar.auth.github.security.UserAccessToken;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.alm.pat.AlmPatDto;
 import org.sonar.db.alm.setting.ALM;
 import org.sonar.db.alm.setting.AlmSettingDto;
 import org.sonar.db.component.BranchDto;
@@ -42,14 +39,15 @@ import org.sonar.server.almsettings.ws.DevOpsProjectDescriptor;
 import org.sonar.server.almsettings.ws.GithubProjectCreatorFactory;
 import org.sonar.server.component.ComponentCreationData;
 import org.sonar.server.component.ComponentUpdater;
+import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.newcodeperiod.NewCodeDefinitionResolver;
 import org.sonar.server.project.DefaultBranchNameResolver;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Projects;
 
 import static java.util.Objects.requireNonNull;
-import static org.sonar.db.project.CreationMethod.Category.ALM_IMPORT;
 import static org.sonar.db.project.CreationMethod.getCreationMethod;
+import static org.sonar.db.project.CreationMethod.Category.ALM_IMPORT;
 import static org.sonar.server.almintegration.ws.ImportHelper.PARAM_ALM_SETTING;
 import static org.sonar.server.almintegration.ws.ImportHelper.toCreateResponse;
 import static org.sonar.server.newcodeperiod.NewCodeDefinitionResolver.NEW_CODE_PERIOD_TYPE_DESCRIPTION_PROJECT_CREATION;
@@ -92,9 +90,9 @@ public class ImportGithubProjectAction implements AlmIntegrationsWsAction {
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction("import_github_project")
       .setDescription("Create a SonarQube project with the information from the provided GitHub repository.<br/>" +
-                      "Autoconfigure pull request decoration mechanism. If Automatic Provisioning is enable for GitHub, " +
-                      "it will also synchronize permissions from the repository.<br/>" +
-                      "Requires the 'Create Projects' permission")
+        "Autoconfigure pull request decoration mechanism. If Automatic Provisioning is enable for GitHub, " +
+        "it will also synchronize permissions from the repository.<br/>" +
+        "Requires the 'Create Projects' permission")
       .setPost(true)
       .setSince("8.4")
       .setHandler(this)
@@ -135,16 +133,15 @@ public class ImportGithubProjectAction implements AlmIntegrationsWsAction {
     String newCodeDefinitionValue = request.param(PARAM_NEW_CODE_DEFINITION_VALUE);
     try (DbSession dbSession = dbClient.openSession(false)) {
 
-      AccessToken accessToken = getAccessToken(dbSession, almSettingDto);
-
       String repositoryKey = request.mandatoryParam(PARAM_REPOSITORY_KEY);
 
       String url = requireNonNull(almSettingDto.getUrl(), "DevOps Platform url cannot be null");
       DevOpsProjectDescriptor devOpsProjectDescriptor = new DevOpsProjectDescriptor(ALM.GITHUB, url, repositoryKey);
 
-      DevOpsProjectCreator devOpsProjectCreator = githubProjectCreatorFactory.getDevOpsProjectCreator(almSettingDto, accessToken, devOpsProjectDescriptor);
+      DevOpsProjectCreator devOpsProjectCreator = githubProjectCreatorFactory.getDevOpsProjectCreator(almSettingDto, devOpsProjectDescriptor)
+        .orElseThrow(() -> BadRequestException.create("GitHub DevOps platform configuration not found."));
       CreationMethod creationMethod = getCreationMethod(ALM_IMPORT, userSession.isAuthenticatedBrowserSession());
-      ComponentCreationData componentCreationData = devOpsProjectCreator.createProjectAndBindToDevOpsPlatform(dbSession, creationMethod, null);
+      ComponentCreationData componentCreationData = devOpsProjectCreator.createProjectAndBindToDevOpsPlatform(dbSession, creationMethod, false, null, null);
 
       checkNewCodeDefinitionParam(newCodeDefinitionType, newCodeDefinitionValue);
 
@@ -161,13 +158,4 @@ public class ImportGithubProjectAction implements AlmIntegrationsWsAction {
       return toCreateResponse(projectDto);
     }
   }
-
-  private AccessToken getAccessToken(DbSession dbSession, AlmSettingDto almSettingDto) {
-    String userUuid = importHelper.getUserUuid();
-    return dbClient.almPatDao().selectByUserAndAlmSetting(dbSession, userUuid, almSettingDto)
-      .map(AlmPatDto::getPersonalAccessToken)
-      .map(UserAccessToken::new)
-      .orElseThrow(() -> new IllegalArgumentException("No personal access token found"));
-  }
-
 }

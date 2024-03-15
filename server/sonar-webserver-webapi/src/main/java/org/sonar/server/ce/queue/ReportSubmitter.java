@@ -153,7 +153,7 @@ public class ReportSubmitter {
       // Project key is already used as a module of another project
       ComponentDto anotherBaseProject = dbClient.componentDao().selectOrFailByUuid(dbSession, component.branchUuid());
       errors.add(format("The project '%s' is already defined in SonarQube but as a module of project '%s'. "
-                        + "If you really want to stop directly analysing project '%s', please first delete it from SonarQube and then relaunch the analysis of project '%s'.",
+        + "If you really want to stop directly analysing project '%s', please first delete it from SonarQube and then relaunch the analysis of project '%s'.",
         rawProjectKey, anotherBaseProject.getKey(), anotherBaseProject.getKey(), rawProjectKey));
     }
     if (!errors.isEmpty()) {
@@ -170,7 +170,7 @@ public class ReportSubmitter {
     throwIfCurrentUserWouldNotHaveScanPermission(projectKey, dbSession, devOpsProjectCreator);
 
     if (devOpsProjectCreator != null) {
-      return devOpsProjectCreator.createProjectAndBindToDevOpsPlatform(dbSession, SCANNER_API_DEVOPS_AUTO_CONFIG, projectKey);
+      return devOpsProjectCreator.createProjectAndBindToDevOpsPlatform(dbSession, SCANNER_API_DEVOPS_AUTO_CONFIG, false, projectKey, projectName);
     }
     return projectCreator.createProject(dbSession, componentKey.getKey(), defaultIfBlank(projectName, projectKey), null, SCANNER_API);
   }

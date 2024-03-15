@@ -22,9 +22,12 @@ package org.sonar.server.almsettings.ws;
 import java.util.Map;
 import java.util.Optional;
 import org.sonar.db.DbSession;
+import org.sonar.db.alm.setting.AlmSettingDto;
 
 public interface DevOpsProjectCreatorFactory {
 
   Optional<DevOpsProjectCreator> getDevOpsProjectCreator(DbSession dbSession, Map<String, String> characteristics);
+
+  Optional<DevOpsProjectCreator> getDevOpsProjectCreator(AlmSettingDto almSettingDto, DevOpsProjectDescriptor devOpsProjectDescriptor);
 
 }

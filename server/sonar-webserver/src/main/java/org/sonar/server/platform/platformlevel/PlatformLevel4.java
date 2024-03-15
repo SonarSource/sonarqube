@@ -20,6 +20,7 @@
 package org.sonar.server.platform.platformlevel;
 
 import java.util.List;
+import org.sonar.alm.client.RatioBasedRateLimitChecker;
 import org.sonar.alm.client.TimeoutConfigurationImpl;
 import org.sonar.alm.client.azure.AzureDevOpsHttpClient;
 import org.sonar.alm.client.azure.AzureDevOpsValidator;
@@ -33,13 +34,12 @@ import org.sonar.alm.client.github.GithubGlobalSettingsValidator;
 import org.sonar.alm.client.github.GithubHeaders;
 import org.sonar.alm.client.github.GithubPaginatedHttpClient;
 import org.sonar.alm.client.github.GithubPermissionConverter;
-import org.sonar.alm.client.RatioBasedRateLimitChecker;
 import org.sonar.alm.client.github.config.GithubProvisioningConfigValidator;
 import org.sonar.alm.client.github.security.GithubAppSecurityImpl;
+import org.sonar.alm.client.gitlab.GitlabApplicationClient;
 import org.sonar.alm.client.gitlab.GitlabApplicationHttpClient;
 import org.sonar.alm.client.gitlab.GitlabGlobalSettingsValidator;
 import org.sonar.alm.client.gitlab.GitlabHeaders;
-import org.sonar.alm.client.gitlab.GitlabApplicationClient;
 import org.sonar.alm.client.gitlab.GitlabPaginatedHttpClient;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.server.rule.RulesDefinitionXmlLoader;
@@ -69,6 +69,7 @@ import org.sonar.server.almsettings.MultipleAlmFeature;
 import org.sonar.server.almsettings.ws.AlmSettingsWsModule;
 import org.sonar.server.almsettings.ws.DelegatingDevOpsProjectCreatorFactory;
 import org.sonar.server.almsettings.ws.GithubProjectCreatorFactory;
+import org.sonar.server.almsettings.ws.gitlab.GitlabProjectCreatorFactory;
 import org.sonar.server.authentication.AuthenticationModule;
 import org.sonar.server.authentication.DefaultAdminCredentialsVerifierImpl;
 import org.sonar.server.authentication.DefaultAdminCredentialsVerifierNotificationHandler;
@@ -85,6 +86,7 @@ import org.sonar.server.ce.ws.CeWsModule;
 import org.sonar.server.common.gitlab.config.GitlabConfigurationService;
 import org.sonar.server.common.group.service.GroupMembershipService;
 import org.sonar.server.common.group.service.GroupService;
+import org.sonar.server.common.rule.RuleCreator;
 import org.sonar.server.common.rule.service.RuleService;
 import org.sonar.server.common.text.MacroInterpreter;
 import org.sonar.server.component.ComponentCleanerService;
@@ -228,7 +230,6 @@ import org.sonar.server.qualityprofile.builtin.BuiltInQProfileRepositoryImpl;
 import org.sonar.server.qualityprofile.builtin.RuleActivator;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.qualityprofile.ws.QProfilesWsModule;
-import org.sonar.server.common.rule.RuleCreator;
 import org.sonar.server.rule.RuleDefinitionsLoader;
 import org.sonar.server.rule.RuleDescriptionFormatter;
 import org.sonar.server.rule.RuleUpdater;
@@ -580,6 +581,7 @@ public class PlatformLevel4 extends PlatformLevel {
       GitlabPaginatedHttpClient.class,
       GitlabApplicationClient.class,
       GitlabGlobalSettingsValidator.class,
+      GitlabProjectCreatorFactory.class,
       AzureDevOpsValidator.class,
 
       // ALM settings

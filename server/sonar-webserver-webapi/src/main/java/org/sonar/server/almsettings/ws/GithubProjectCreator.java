@@ -156,25 +156,28 @@ public class GithubProjectCreator implements DevOpsProjectCreator {
   }
 
   @Override
-  public ComponentCreationData createProjectAndBindToDevOpsPlatform(DbSession dbSession, CreationMethod creationMethod, @Nullable String projectKey) {
+  public ComponentCreationData createProjectAndBindToDevOpsPlatform(DbSession dbSession, CreationMethod creationMethod, Boolean monorepo, @Nullable String projectKey,
+    @Nullable String projectName) {
     String url = requireNonNull(almSettingDto.getUrl(), "DevOps Platform url cannot be null");
     Repository repository = githubApplicationClient.getRepository(url, devOpsAppInstallationToken, devOpsProjectDescriptor.projectIdentifier())
       .orElseThrow(() -> new IllegalStateException(
         String.format("Impossible to find the repository '%s' on GitHub, using the devops config %s", devOpsProjectDescriptor.projectIdentifier(), almSettingDto.getKey())));
 
-    return createProjectAndBindToDevOpsPlatform(dbSession, projectKey, almSettingDto, repository, creationMethod);
+    return createProjectAndBindToDevOpsPlatform(dbSession, monorepo, projectKey, projectName, almSettingDto, repository, creationMethod);
   }
 
-  private ComponentCreationData createProjectAndBindToDevOpsPlatform(DbSession dbSession, @Nullable String projectKey, AlmSettingDto almSettingDto,
+  private ComponentCreationData createProjectAndBindToDevOpsPlatform(DbSession dbSession, Boolean monorepo, @Nullable String projectKey, @Nullable String projectName,
+    AlmSettingDto almSettingDto,
     Repository repository, CreationMethod creationMethod) {
     String key = Optional.ofNullable(projectKey).orElse(getUniqueProjectKey(repository));
 
     boolean isManaged = gitHubSettings.isProvisioningEnabled();
 
-    ComponentCreationData componentCreationData = projectCreator.createProject(dbSession, key, repository.getName(), repository.getDefaultBranch(), creationMethod,
+    ComponentCreationData componentCreationData = projectCreator.createProject(dbSession, key, Optional.ofNullable(projectName).orElse(repository.getName()),
+      repository.getDefaultBranch(), creationMethod,
       shouldProjectBePrivate(repository), isManaged);
     ProjectDto projectDto = Optional.ofNullable(componentCreationData.projectDto()).orElseThrow();
-    createProjectAlmSettingDto(dbSession, repository, projectDto, almSettingDto);
+    createProjectAlmSettingDto(dbSession, repository, projectDto, almSettingDto, monorepo);
     addScanPermissionToCurrentUser(dbSession, projectDto);
 
     BranchDto mainBranchDto = Optional.ofNullable(componentCreationData.mainBranchDto()).orElseThrow();
@@ -210,14 +213,14 @@ public class GithubProjectCreator implements DevOpsProjectCreator {
     return projectKeyGenerator.generateUniqueProjectKey(repository.getFullName());
   }
 
-  private void createProjectAlmSettingDto(DbSession dbSession, Repository repo, ProjectDto projectDto, AlmSettingDto almSettingDto) {
+  private void createProjectAlmSettingDto(DbSession dbSession, Repository repo, ProjectDto projectDto, AlmSettingDto almSettingDto, Boolean monorepo) {
     ProjectAlmSettingDto projectAlmSettingDto = new ProjectAlmSettingDto()
       .setAlmSettingUuid(almSettingDto.getUuid())
       .setAlmRepo(repo.getFullName())
       .setAlmSlug(null)
       .setProjectUuid(projectDto.getUuid())
       .setSummaryCommentEnabled(true)
-      .setMonorepo(false);
+      .setMonorepo(monorepo);
     dbClient.projectAlmSettingDao().insertOrUpdate(dbSession, projectAlmSettingDto, almSettingDto.getKey(), projectDto.getName(), projectDto.getKey());
   }
 
