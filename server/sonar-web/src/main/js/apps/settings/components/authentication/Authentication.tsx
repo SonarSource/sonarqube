@@ -17,16 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { Link } from '@sonarsource/echoes-react';
 import classNames from 'classnames';
-import { FlagMessage, Link, SubTitle, ToggleButton, getTabId, getTabPanelId } from 'design-system';
+import { FlagMessage, SubTitle, ToggleButton, getTabId, getTabPanelId } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { useSearchParams } from 'react-router-dom';
 import withAvailableFeatures, {
   WithAvailableFeaturesProps,
 } from '../../../../app/components/available-features/withAvailableFeatures';
+import { Image } from '../../../../components/common/Image';
 import { translate } from '../../../../helpers/l10n';
-import { getBaseUrl } from '../../../../helpers/system';
 import { searchParamsToQuery } from '../../../../helpers/urls';
 import { AlmKeys } from '../../../../types/alm-settings';
 import { Feature } from '../../../../types/features';
@@ -54,9 +56,7 @@ export const DOCUMENTATION_LINK_SUFFIXES = {
 };
 
 function renderDevOpsIcon(key: string) {
-  return (
-    <img alt={key} className="sw-mr-2" height={16} src={`${getBaseUrl()}/images/alm/${key}.svg`} />
-  );
+  return <Image alt={key} className="sw-mr-2" height={16} src={`/images/alm/${key}.svg`} />;
 }
 
 export function Authentication(props: Props & WithAvailableFeaturesProps) {

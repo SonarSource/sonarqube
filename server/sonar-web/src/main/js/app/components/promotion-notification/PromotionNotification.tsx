@@ -17,12 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import styled from '@emotion/styled';
 import { ButtonPrimary, ButtonSecondary, themeBorder, themeColor } from 'design-system';
 import * as React from 'react';
 import { dismissNotice } from '../../../api/users';
+import { Image } from '../../../components/common/Image';
 import { translate } from '../../../helpers/l10n';
-import { getBaseUrl } from '../../../helpers/system';
 import { NoticeType, isLoggedIn } from '../../../types/users';
 import { CurrentUserContextInterface } from '../current-user/CurrentUserContext';
 import withCurrentUserContext from '../current-user/withCurrentUserContext';
@@ -47,7 +48,7 @@ export function PromotionNotification(props: CurrentUserContextInterface) {
   return (
     <PromotionNotificationWrapper className="it__promotion_notification sw-z-global-popup sw-rounded-1 sw-flex sw-items-center sw-px-4">
       <div className="sw-mr-2">
-        <img alt="SonarQube + SonarLint" height={80} src={`${getBaseUrl()}/images/sq-sl.svg`} />
+        <Image alt="SonarQube + SonarLint" height={80} src="/images/sq-sl.svg" />
       </div>
       <PromotionNotificationContent className="sw-flex-1 sw-px-2 sw-py-4">
         <span className="sw-body-sm-highlight">{translate('promotion.sonarlint.title')}</span>

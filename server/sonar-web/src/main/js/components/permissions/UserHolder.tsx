@@ -17,12 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { Avatar, ContentCell, Note, TableRowInteractive } from 'design-system';
 import * as React from 'react';
 import { translate } from '../../helpers/l10n';
 import { isPermissionDefinitionGroup } from '../../helpers/permissions';
-import { getBaseUrl } from '../../helpers/system';
+import { isDefined } from '../../helpers/types';
 import { PermissionDefinitions, PermissionUser } from '../../types/types';
+import { Image } from '../common/Image';
 import PermissionCell from './PermissionCell';
 import usePermissionChange from './usePermissionChange';
 
@@ -90,16 +92,16 @@ export default function UserHolder(props: Props) {
                 <Note className="sw-ml-2">{user.login}</Note>
               </div>
               {disabled && (
-                <img
+                <Image
                   alt="github"
                   className="sw-ml-2"
                   height={16}
                   aria-label={translate('project_permission.github_managed')}
-                  src={`${getBaseUrl()}/images/alm/github.svg`}
+                  src="/images/alm/github.svg"
                 />
               )}
             </div>
-            {user.email && (
+            {isDefined(user.email) && (
               <div className="sw-mt-2 sw-max-w-100 sw-text-ellipsis sw-whitespace-nowrap sw-overflow-hidden">
                 {user.email}
               </div>

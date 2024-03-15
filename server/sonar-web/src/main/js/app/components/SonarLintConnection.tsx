@@ -17,6 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { LinkStandalone } from '@sonarsource/echoes-react';
 import {
   ButtonPrimary,
   Card,
@@ -24,7 +26,6 @@ import {
   CheckIcon,
   ClipboardButton,
   InputField,
-  Link,
   ListItem,
   Note,
   OrderedList,
@@ -33,6 +34,7 @@ import {
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { useSearchParams } from 'react-router-dom';
+import { Image } from '../../components/common/Image';
 import { whenLoggedIn } from '../../components/hoc/whenLoggedIn';
 import { translate, translateWithParameters } from '../../helpers/l10n';
 import { generateSonarLintUserToken, portIsValid, sendUserToken } from '../../helpers/sonarlint';
@@ -88,10 +90,9 @@ export function SonarLintConnection({ currentUser }: Readonly<Props>) {
       {status === Status.request && (
         <>
           <Title>{translate('sonarlint-connection.request.title')}</Title>
-          <img
-            alt=""
+          <Image
+            alt="sonarlint-connection-request"
             className="sw-my-4"
-            role="presentation"
             src="/images/SonarLint-connection-request.png"
           />
           <p className="sw-my-4">
@@ -107,7 +108,7 @@ export function SonarLintConnection({ currentUser }: Readonly<Props>) {
 
       {status === Status.tokenError && (
         <>
-          <img alt="" className="sw-my-4 sw-pt-2" role="presentation" src="/images/cross.svg" />
+          <Image alt="sonarlint-token-error" className="sw-my-4 sw-pt-2" src="/images/cross.svg" />
           <Title>{translate('sonarlint-connection.token-error.title')}</Title>
           <p className="sw-my-4">{translate('sonarlint-connection.token-error.description')}</p>
           <p className="sw-mb-4">
@@ -116,9 +117,9 @@ export function SonarLintConnection({ currentUser }: Readonly<Props>) {
               defaultMessage={translate('sonarlint-connection.token-error.description2')}
               values={{
                 link: (
-                  <Link to="/account/security">
+                  <LinkStandalone to="/account/security">
                     {translate('sonarlint-connection.token-error.description2.link')}
-                  </Link>
+                  </LinkStandalone>
                 ),
               }}
             />
@@ -128,7 +129,11 @@ export function SonarLintConnection({ currentUser }: Readonly<Props>) {
 
       {status === Status.tokenCreated && newToken && (
         <>
-          <img alt="" className="sw-my-4 sw-pt-2" role="presentation" src="/images/check.svg" />
+          <Image
+            alt="sonarlint-connection-error"
+            className="sw-my-4 sw-pt-2"
+            src="/images/check.svg"
+          />
           <Title>{translate('sonarlint-connection.connection-error.title')}</Title>
           <p className="sw-my-6">
             {translate('sonarlint-connection.connection-error.description')}
@@ -160,10 +165,9 @@ export function SonarLintConnection({ currentUser }: Readonly<Props>) {
       {status === Status.tokenSent && newToken && (
         <>
           <Title>{translate('sonarlint-connection.success.title')}</Title>
-          <img
-            alt=""
+          <Image
+            alt="sonarlint-connection-success"
             className="sw-mb-4"
-            role="presentation"
             src="/images/SonarLint-connection-ok.png"
           />
           <p className="sw-my-4">

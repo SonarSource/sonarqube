@@ -21,8 +21,9 @@
 import { Badge, Note, getTextColor } from 'design-system';
 import * as React from 'react';
 import { colors } from '../../../app/theme';
+import { Image } from '../../../components/common/Image';
 import { translate } from '../../../helpers/l10n';
-import { getBaseUrl } from '../../../helpers/system';
+import { isDefined } from '../../../helpers/types';
 import { IdentityProvider, Provider } from '../../../types/types';
 import { RestUserDetailed } from '../../../types/users';
 
@@ -39,7 +40,9 @@ export default function UserListItemIdentity({ identityProvider, user, managePro
         <strong className="it__user-name sw-body-sm-highlight">{user.name}</strong>
         <Note className="it__user-login">{user.login}</Note>
       </div>
-      {user.email && <div className="it__user-email sw-mt-1">{user.email}</div>}
+      {isDefined(user.email) && user.email !== '' && (
+        <div className="it__user-email sw-mt-1">{user.email}</div>
+      )}
       {!user.local && user.externalProvider !== 'sonarqube' && (
         <ExternalProvider identityProvider={identityProvider} user={user} />
       )}
@@ -68,11 +71,11 @@ export function ExternalProvider({ identityProvider, user }: Omit<Props, 'manage
           color: getTextColor(identityProvider.backgroundColor, colors.secondFontColor),
         }}
       >
-        <img
+        <Image
           alt={identityProvider.name}
           className="sw-mr-1"
           height="14"
-          src={getBaseUrl() + identityProvider.iconPath}
+          src={identityProvider.iconPath}
           width="14"
         />
         {user.externalLogin}

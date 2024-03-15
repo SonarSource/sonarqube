@@ -18,15 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+import { LinkHighlight, LinkStandalone, Spinner } from '@sonarsource/echoes-react';
 import {
   Breadcrumbs,
   FlagMessage,
   GreyCard,
-  HoverLink,
   LightLabel,
   LightPrimary,
-  Spinner,
-  StandoutLink,
   SubTitle,
   Title,
 } from 'design-system';
@@ -34,13 +32,13 @@ import * as React from 'react';
 import { AnalysisStatus } from '../../apps/overview/components/AnalysisStatus';
 import { isMainBranch } from '../../helpers/branch-like';
 import { translate } from '../../helpers/l10n';
-import { getBaseUrl } from '../../helpers/system';
 import { getProjectTutorialLocation } from '../../helpers/urls';
 import { useBranchesQuery } from '../../queries/branch';
 import { AlmKeys, AlmSettingsInstance, ProjectAlmBindingResponse } from '../../types/alm-settings';
 import { MainBranch } from '../../types/branch-like';
 import { Component } from '../../types/types';
 import { LoggedInUser } from '../../types/users';
+import { Image } from '../common/Image';
 import AzurePipelinesTutorial from './azure-pipelines/AzurePipelinesTutorial';
 import BitbucketPipelinesTutorial from './bitbucket-pipelines/BitbucketPipelinesTutorial';
 import GitHubActionTutorial from './github-action/GitHubActionTutorial';
@@ -66,9 +64,11 @@ export interface TutorialSelectionRendererProps {
 function renderAlm(mode: TutorialModes, project: string, icon?: React.ReactNode) {
   return (
     <GreyCard className="sw-col-span-4 sw-p-4">
-      <StandoutLink icon={icon} to={getProjectTutorialLocation(project, mode)}>
-        {translate('onboarding.tutorial.choose_method', mode)}
-      </StandoutLink>
+      <LinkStandalone iconLeft={icon} to={getProjectTutorialLocation(project, mode)}>
+        <span className={icon ? 'sw-ml-2' : ''}>
+          {translate('onboarding.tutorial.choose_method', mode)}
+        </span>
+      </LinkStandalone>
 
       {mode === TutorialModes.Local && (
         <LightLabel as="p" className="sw-mt-3">
@@ -157,10 +157,10 @@ export default function TutorialSelectionRenderer(props: TutorialSelectionRender
               renderAlm(
                 TutorialModes.Jenkins,
                 component.key,
-                <img
+                <Image
                   alt="" // Should be ignored by screen readers
                   className="sw-h-4 sw-w-4"
-                  src={`${getBaseUrl()}/images/tutorials/jenkins.svg`}
+                  src="/images/tutorials/jenkins.svg"
                 />,
               )}
 
@@ -168,10 +168,10 @@ export default function TutorialSelectionRenderer(props: TutorialSelectionRender
               renderAlm(
                 TutorialModes.GitHubActions,
                 component.key,
-                <img
+                <Image
                   alt="" // Should be ignored by screen readers
                   className="sw-h-4 sw-w-4"
-                  src={`${getBaseUrl()}/images/tutorials/github-actions.svg`}
+                  src="/images/tutorials/github-actions.svg"
                 />,
               )}
 
@@ -179,10 +179,10 @@ export default function TutorialSelectionRenderer(props: TutorialSelectionRender
               renderAlm(
                 TutorialModes.BitbucketPipelines,
                 component.key,
-                <img
+                <Image
                   alt="" // Should be ignored by screen readers
                   className="sw-h-4 sw-w-4"
-                  src={`${getBaseUrl()}/images/alm/bitbucket.svg`}
+                  src="/images/alm/bitbucket.svg"
                 />,
               )}
 
@@ -190,10 +190,10 @@ export default function TutorialSelectionRenderer(props: TutorialSelectionRender
               renderAlm(
                 TutorialModes.GitLabCI,
                 component.key,
-                <img
+                <Image
                   alt="" // Should be ignored by screen readers
                   className="sw-h-4 sw-w-4"
-                  src={`${getBaseUrl()}/images/alm/gitlab.svg`}
+                  src="/images/alm/gitlab.svg"
                 />,
               )}
 
@@ -201,10 +201,10 @@ export default function TutorialSelectionRenderer(props: TutorialSelectionRender
               renderAlm(
                 TutorialModes.AzurePipelines,
                 component.key,
-                <img
+                <Image
                   alt="" // Should be ignored by screen readers
                   className="sw-h-4 sw-w-4"
-                  src={`${getBaseUrl()}/images/tutorials/azure-pipelines.svg`}
+                  src="/images/tutorials/azure-pipelines.svg"
                 />,
               )}
 
@@ -217,13 +217,19 @@ export default function TutorialSelectionRenderer(props: TutorialSelectionRender
 
       {selectedTutorial && (
         <Breadcrumbs className="sw-mb-3">
-          <HoverLink to={getProjectTutorialLocation(component.key)}>
+          <LinkStandalone
+            highlight={LinkHighlight.CurrentColor}
+            to={getProjectTutorialLocation(component.key)}
+          >
             {translate('onboarding.tutorial.breadcrumbs.home')}
-          </HoverLink>
+          </LinkStandalone>
 
-          <HoverLink to={getProjectTutorialLocation(component.key, selectedTutorial)}>
+          <LinkStandalone
+            highlight={LinkHighlight.CurrentColor}
+            to={getProjectTutorialLocation(component.key, selectedTutorial)}
+          >
             {translate('onboarding.tutorial.breadcrumbs', selectedTutorial)}
-          </HoverLink>
+          </LinkStandalone>
         </Breadcrumbs>
       )}
 

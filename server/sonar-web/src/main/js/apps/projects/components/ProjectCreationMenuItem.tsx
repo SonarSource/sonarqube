@@ -17,10 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { ItemLink } from 'design-system';
 import * as React from 'react';
+import { Image } from '../../../components/common/Image';
 import { translate } from '../../../helpers/l10n';
-import { getBaseUrl } from '../../../helpers/system';
 import { queryToSearch } from '../../../helpers/urls';
 import { AlmKeys } from '../../../types/alm-settings';
 
@@ -40,12 +41,7 @@ export default function ProjectCreationMenuItem(props: ProjectCreationMenuItemPr
       to={{ pathname: '/projects/create', search: queryToSearch({ mode: alm }) }}
     >
       {alm !== 'manual' && (
-        <img
-          alt={alm}
-          className="sw-mr-2"
-          width={16}
-          src={`${getBaseUrl()}/images/alm/${almIcon}.svg`}
-        />
+        <Image alt={alm} className="sw-mr-2" width={16} src={`/images/alm/${almIcon}.svg`} />
       )}
       {translate('my_account.add_project', alm)}
     </ItemLink>

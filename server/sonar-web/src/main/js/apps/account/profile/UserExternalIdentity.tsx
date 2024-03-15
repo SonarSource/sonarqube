@@ -17,11 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { getTextColor } from 'design-system';
 import * as React from 'react';
 import { getIdentityProviders } from '../../../api/users';
 import { colors } from '../../../app/theme';
-import { getBaseUrl } from '../../../helpers/system';
+import { Image } from '../../../components/common/Image';
 import { IdentityProvider } from '../../../types/types';
 import { LoggedInUser } from '../../../types/users';
 
@@ -104,11 +105,11 @@ export default class UserExternalIdentity extends React.PureComponent<
             color: getTextColor(identityProvider.backgroundColor, colors.secondFontColor),
           }}
         >
-          <img
+          <Image
             alt={identityProvider.name}
             className="sw-mr-1"
             height="14"
-            src={getBaseUrl() + identityProvider.iconPath}
+            src={identityProvider.iconPath}
             width="14"
           />
           {user.externalIdentity}

@@ -17,22 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 /* eslint-disable react/no-unused-prop-types */
+
+import { LinkStandalone, Spinner } from '@sonarsource/echoes-react';
 import {
   ButtonSecondary,
   GreyCard,
   HelperHintIcon,
   LightPrimary,
-  Spinner,
-  StandoutLink,
   TextMuted,
   Title,
 } from 'design-system';
 import * as React from 'react';
 import withAppStateContext from '../../../app/components/app-state/withAppStateContext';
+import { Image } from '../../../components/common/Image';
 import HelpTooltip from '../../../components/controls/HelpTooltip';
 import { translate } from '../../../helpers/l10n';
-import { getBaseUrl } from '../../../helpers/system';
 import { getCreateProjectModeLocation } from '../../../helpers/urls';
 import { AlmKeys } from '../../../types/alm-settings';
 import { AppState } from '../../../types/appstate';
@@ -79,12 +80,10 @@ function renderAlmOption(
   const svgFileNameGrey = `${svgFileName}_grey`;
 
   const icon = (
-    <img
+    <Image
       alt="" // Should be ignored by screen readers
       className="sw-h-4 sw-w-4"
-      src={`${getBaseUrl()}/images/alm/${
-        !disabled && hasConfig ? svgFileName : svgFileNameGrey
-      }.svg`}
+      src={`/images/alm/${!disabled && hasConfig ? svgFileName : svgFileNameGrey}.svg`}
     />
   );
 
@@ -92,9 +91,11 @@ function renderAlmOption(
     <GreyCard key={alm} className="sw-col-span-4 sw-p-4 sw-flex sw-justify-between sw-items-center">
       <div className="sw-items-center sw-flex sw-py-2">
         {!disabled && hasConfig ? (
-          <StandoutLink icon={icon} to={getCreateProjectModeLocation(mode)}>
-            {translate('onboarding.create_project.import_select_method', alm)}
-          </StandoutLink>
+          <LinkStandalone iconLeft={icon} to={getCreateProjectModeLocation(mode)}>
+            <span className="sw-ml-2">
+              {translate('onboarding.create_project.import_select_method', alm)}
+            </span>
+          </LinkStandalone>
         ) : (
           <>
             {icon}
@@ -106,7 +107,7 @@ function renderAlmOption(
         )}
       </div>
 
-      <Spinner loading={loadingBindings}>
+      <Spinner isLoading={loadingBindings}>
         {!hasConfig &&
           (canAdmin ? (
             <ButtonSecondary onClick={() => props.onConfigMode(configMode)}>
@@ -167,9 +168,9 @@ export function CreateProjectModeSelection(props: CreateProjectModeSelectionProp
         <div className="sw-grid sw-gap-x-12 sw-gap-y-6 sw-grid-cols-12">
           <GreyCard className="sw-col-span-4 sw-p-4 sw-py-6 sw-flex sw-justify-between sw-items-center">
             <div>
-              <StandoutLink to={getCreateProjectModeLocation(CreateProjectModes.Manual)}>
+              <LinkStandalone to={getCreateProjectModeLocation(CreateProjectModes.Manual)}>
                 {translate('onboarding.create_project.import_select_method.manual')}
-              </StandoutLink>
+              </LinkStandalone>
             </div>
           </GreyCard>
         </div>

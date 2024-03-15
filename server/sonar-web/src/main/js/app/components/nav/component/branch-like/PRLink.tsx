@@ -20,9 +20,9 @@
 
 import { LinkStandalone } from '@sonarsource/echoes-react';
 import React from 'react';
+import { Image } from '../../../../../components/common/Image';
 import { isPullRequest } from '../../../../../helpers/branch-like';
 import { translate, translateWithParameters } from '../../../../../helpers/l10n';
-import { getBaseUrl } from '../../../../../helpers/system';
 import { isDefined } from '../../../../../helpers/types';
 import { AlmKeys } from '../../../../../types/alm-settings';
 import { BranchLike } from '../../../../../types/branch-like';
@@ -70,10 +70,10 @@ export default function PRLink({
         <LinkStandalone
           iconLeft={
             almKey !== '' && (
-              <img
+              <Image
                 alt={almKey}
                 height={16}
-                src={`${getBaseUrl()}/images/alm/${almKey}.svg`}
+                src={`/images/alm/${almKey}.svg`}
                 title={translateWithParameters('branches.see_the_pr_on_x', translate(almKey))}
               />
             )

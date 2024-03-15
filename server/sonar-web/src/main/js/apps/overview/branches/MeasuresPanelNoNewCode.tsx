@@ -17,13 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Link, Note, getTabPanelId } from 'design-system';
+
+import { Link } from '@sonarsource/echoes-react';
+import { Note, getTabPanelId } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import DocumentationLink from '../../../components/common/DocumentationLink';
+import { Image } from '../../../components/common/Image';
 import { getBranchLikeQuery } from '../../../helpers/branch-like';
 import { translate } from '../../../helpers/l10n';
-import { getBaseUrl } from '../../../helpers/system';
 import { CodeScope, queryToSearch } from '../../../helpers/urls';
 import { Branch } from '../../../types/branch-like';
 import { ComponentQualifier } from '../../../types/component';
@@ -42,7 +44,10 @@ export default function MeasuresPanelNoNewCode(props: MeasuresPanelNoNewCodeProp
   const isApp = component.qualifier === ComponentQualifier.Application;
 
   const hasBadReferenceBranch =
-    !isApp && !!period && !period.date && period.mode === NewCodeDefinitionType.ReferenceBranch;
+    !isApp &&
+    !!period &&
+    period.date === '' &&
+    period.mode === NewCodeDefinitionType.ReferenceBranch;
   /*
    * If the period is "reference branch"-based, and if there's no date, it means
    * that we're not lacking a second analysis, but that we'll never have new code because the
@@ -65,11 +70,11 @@ export default function MeasuresPanelNoNewCode(props: MeasuresPanelNoNewCodeProp
       id={getTabPanelId(CodeScope.New)}
       style={{ height: 500 }}
     >
-      <img
+      <Image
         alt="" /* Make screen readers ignore this image; it's purely eye candy. */
         className="sw-mr-2"
         height={52}
-        src={`${getBaseUrl()}/images/source-code.svg`}
+        src="/images/source-code.svg"
       />
       <Note as="div" className="sw-ml-4 sw-max-w-abs-500">
         <p className="sw-mb-2 sw-mt-4">{translate(badExplanationKey)}</p>

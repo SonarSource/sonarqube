@@ -9,6 +9,17 @@
   "rules": {
     "camelcase": "off",
     "promise/no-return-wrap": "warn",
+    "react/forbid-elements": [
+      "warn",
+      {
+        "forbid": [
+          {
+            "element": "img",
+            "message": "use <Image> from components/common instead"
+          }
+        ]
+      }
+    ],
     "react/jsx-curly-brace-presence": "warn",
     "testing-library/render-result-naming-convention": "off",
     /* Local rules, defined in ./eslint-local-rules/ */

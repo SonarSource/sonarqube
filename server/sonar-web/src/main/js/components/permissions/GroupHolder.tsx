@@ -17,13 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { Badge, ContentCell, TableRowInteractive, UserGroupIcon } from 'design-system';
 import * as React from 'react';
 import { translate } from '../../helpers/l10n';
 import { isPermissionDefinitionGroup } from '../../helpers/permissions';
-import { getBaseUrl } from '../../helpers/system';
+import { isDefined } from '../../helpers/types';
 import { Permissions } from '../../types/permissions';
 import { PermissionDefinitions, PermissionGroup } from '../../types/types';
+import { Image } from '../common/Image';
 import PermissionCell from './PermissionCell';
 import usePermissionChange from './usePermissionChange';
 
@@ -63,12 +65,12 @@ export default function GroupHolder(props: Props) {
                 <strong>{group.name}</strong>
               </div>
               {disabled && (
-                <img
+                <Image
                   alt="github"
                   className="sw-ml-2"
                   aria-label={translate('project_permission.github_managed')}
                   height={16}
-                  src={`${getBaseUrl()}/images/alm/github.svg`}
+                  src="/images/alm/github.svg"
                 />
               )}
               {group.name === ANYONE && (
@@ -77,7 +79,9 @@ export default function GroupHolder(props: Props) {
                 </Badge>
               )}
             </div>
-            {description && <div className="sw-mt-2 sw-whitespace-normal">{description}</div>}
+            {isDefined(description) && (
+              <div className="sw-mt-2 sw-whitespace-normal">{description}</div>
+            )}
           </div>
         </div>
       </ContentCell>

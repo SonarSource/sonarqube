@@ -17,11 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { ItemDivider, ItemHeader, ItemLink, OpenNewTabIcon } from 'design-system';
 import * as React from 'react';
 import { translate } from '../../helpers/l10n';
-import { getBaseUrl } from '../../helpers/system';
 import { SuggestionLink } from '../../types/types';
+import { Image } from '../common/Image';
 import { DocItemLink } from './DocItemLink';
 import { SuggestionsContext } from './SuggestionsContext';
 
@@ -36,12 +37,12 @@ function IconLink({
 }) {
   return (
     <ItemLink to={link}>
-      <img
+      <Image
         alt={text}
         aria-hidden
         className="sw-mr-2"
         height="18"
-        src={`${getBaseUrl()}/images/${icon}`}
+        src={`/images/${icon}`}
         width="18"
       />
       {text}

@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { Spinner } from '@sonarsource/echoes-react';
 import {
   BasicSeparator,
@@ -32,6 +33,7 @@ import {
 import { isEmpty } from 'lodash';
 import * as React from 'react';
 import { useState } from 'react';
+import { Image } from '../../../components/common/Image';
 import { getBranchLikeQuery } from '../../../helpers/branch-like';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { localizeMetric } from '../../../helpers/measures';
@@ -103,7 +105,7 @@ export default function ProjectBadges(props: ProjectBadgesProps) {
             onClick={() => handleSelectType(BadgeType.measure)}
             selected={BadgeType.measure === selectedType}
             image={
-              <img
+              <Image
                 alt={translate('overview.badges', BadgeType.measure, 'alt')}
                 src={getBadgeUrl(BadgeType.measure, fullBadgeOptions, token)}
               />
@@ -115,7 +117,7 @@ export default function ProjectBadges(props: ProjectBadgesProps) {
             onClick={() => handleSelectType(BadgeType.qualityGate)}
             selected={BadgeType.qualityGate === selectedType}
             image={
-              <img
+              <Image
                 alt={translate('overview.badges', BadgeType.qualityGate, 'alt')}
                 src={getBadgeUrl(BadgeType.qualityGate, fullBadgeOptions, token)}
                 width="128px"

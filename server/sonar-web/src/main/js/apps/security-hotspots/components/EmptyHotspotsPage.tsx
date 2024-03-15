@@ -17,11 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { Note } from 'design-system';
 import * as React from 'react';
 import DocumentationLink from '../../../components/common/DocumentationLink';
+import { Image } from '../../../components/common/Image';
 import { translate } from '../../../helpers/l10n';
-import { getBaseUrl } from '../../../helpers/system';
 
 export interface EmptyHotspotsPageProps {
   filtered: boolean;
@@ -45,13 +46,11 @@ export default function EmptyHotspotsPage(props: EmptyHotspotsPageProps) {
 
   return (
     <div className="sw-items-center sw-justify-center sw-flex-col sw-flex sw-pt-16">
-      <img
+      <Image
         alt={translate('hotspots.page')}
         className="sw-mt-8"
         height={100}
-        src={`${getBaseUrl()}/images/${
-          filtered && !filterByFile ? 'filter-large' : 'hotspot-large'
-        }.svg`}
+        src={`/images/${filtered && !filterByFile ? 'filter-large' : 'hotspot-large'}.svg`}
       />
       <h1 className="sw-mt-10 sw-body-sm-highlight">
         {translate(`hotspots.${translationRoot}.title`)}

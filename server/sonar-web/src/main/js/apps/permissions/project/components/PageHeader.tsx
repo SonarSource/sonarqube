@@ -17,11 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { ButtonPrimary, FlagMessage, Title } from 'design-system';
 import * as React from 'react';
 import GitHubSynchronisationWarning from '../../../../app/components/GitHubSynchronisationWarning';
+import { Image } from '../../../../components/common/Image';
 import { translate } from '../../../../helpers/l10n';
-import { getBaseUrl } from '../../../../helpers/system';
+import { isDefined } from '../../../../helpers/types';
 import { useGithubProvisioningEnabledQuery } from '../../../../queries/identity-provider/github';
 import { isApplication, isPortfolioLike, isProject } from '../../../../types/component';
 import { Component } from '../../../../types/types';
@@ -69,19 +71,19 @@ export default function PageHeader(props: Props) {
         <Title>
           {translate('permissions.page')}
           {provisionedByGitHub && (
-            <img
+            <Image
               alt="github"
               className="sw-mx-2 sw-align-baseline"
               aria-label={translate('project_permission.github_managed')}
               height={16}
-              src={`${getBaseUrl()}/images/alm/github.svg`}
+              src="/images/alm/github.svg"
             />
           )}
         </Title>
 
         <div>
           <p>{description}</p>
-          {visibilityDescription && <p>{visibilityDescription}</p>}
+          {isDefined(visibilityDescription) && <p>{visibilityDescription}</p>}
           {provisionedByGitHub && (
             <>
               <p>{translate('roles.page.description.github')}</p>

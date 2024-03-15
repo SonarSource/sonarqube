@@ -17,9 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { SubHeading, UnorderedList } from 'design-system';
 import * as React from 'react';
-import { getBaseUrl } from '../../../helpers/system';
+import { Image } from '../../../components/common/Image';
 import { Edition, EditionKey } from '../../../types/editions';
 
 interface Props {
@@ -32,11 +33,11 @@ export default function EditionBox({ edition }: Readonly<Props>) {
       return (
         <div>
           <SubHeading as="h2" id="data-center-edition">
-            <img
+            <Image
               alt="SonarQube logo"
               className="sw-mr-2"
               width={16}
-              src={`${getBaseUrl()}/images/embed-doc/sq-icon.svg`}
+              src="/images/embed-doc/sq-icon.svg"
             />
             <span>Data Center Edition</span>
           </SubHeading>
@@ -56,11 +57,11 @@ export default function EditionBox({ edition }: Readonly<Props>) {
       return (
         <div>
           <SubHeading as="h2" id="enterprise-edition">
-            <img
+            <Image
               alt="SonarQube logo"
               className="sw-mr-2"
               width={16}
-              src={`${getBaseUrl()}/images/embed-doc/sq-icon.svg`}
+              src="/images/embed-doc/sq-icon.svg"
             />
             <span>Enterprise Edition</span>
           </SubHeading>
@@ -83,11 +84,11 @@ export default function EditionBox({ edition }: Readonly<Props>) {
       return (
         <div>
           <SubHeading as="h2" id="developer-edition">
-            <img
+            <Image
               alt="SonarQube logo"
               className="sw-mr-2"
               width={16}
-              src={`${getBaseUrl()}/images/embed-doc/sq-icon.svg`}
+              src="/images/embed-doc/sq-icon.svg"
             />
             <span>Developer Edition</span>
           </SubHeading>
@@ -98,28 +99,18 @@ export default function EditionBox({ edition }: Readonly<Props>) {
           <UnorderedList className="sw-ml-8" ticks>
             <li>
               <span>PR / MR decoration &amp; Quality Gate</span>
-              <img
-                alt="GitHub"
-                className="sw-ml-2"
-                src={`${getBaseUrl()}/images/alm/github.svg`}
-                width={16}
-              />
-              <img
-                alt="GitLab"
-                className="sw-ml-2"
-                src={`${getBaseUrl()}/images/alm/gitlab.svg`}
-                width={16}
-              />
-              <img
+              <Image alt="GitHub" className="sw-ml-2" src="/images/alm/github.svg" width={16} />
+              <Image alt="GitLab" className="sw-ml-2" src="/images/alm/gitlab.svg" width={16} />
+              <Image
                 alt="Azure DevOps"
                 className="sw-ml-2"
-                src={`${getBaseUrl()}/images/alm/azure.svg`}
+                src="/images/alm/azure.svg"
                 width={16}
               />
-              <img
+              <Image
                 alt="Bitbucket"
                 className="sw-ml-2"
-                src={`${getBaseUrl()}/images/alm/bitbucket.svg`}
+                src="/images/alm/bitbucket.svg"
                 width={16}
               />
             </li>

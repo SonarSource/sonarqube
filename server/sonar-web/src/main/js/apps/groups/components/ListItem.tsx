@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import {
   ActionsDropdown,
   Badge,
@@ -33,8 +34,8 @@ import {
 } from 'design-system';
 import * as React from 'react';
 import { useState } from 'react';
+import { Image } from '../../../components/common/Image';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
-import { getBaseUrl } from '../../../helpers/system';
 import { useGroupMembersCountQuery } from '../../../queries/group-memberships';
 import { Group, Provider } from '../../../types/types';
 import DeleteGroupForm from './DeleteGroupForm';
@@ -69,11 +70,11 @@ export default function ListItem(props: Readonly<ListItemProps>) {
     }
 
     return (
-      <img
+      <Image
         alt={identityProvider}
         className="sw-ml-2 sw-mr-2"
         height={16}
-        src={`${getBaseUrl()}/images/alm/${identityProvider}.svg`}
+        src={`/images/alm/${identityProvider}.svg`}
       />
     );
   };

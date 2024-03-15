@@ -17,11 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { FlagMessage, Link, SubTitle, ToggleButton } from 'design-system';
+
+import { Link } from '@sonarsource/echoes-react';
+import { FlagMessage, SubTitle, ToggleButton } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
+import { Image } from '../../../../components/common/Image';
 import { translate } from '../../../../helpers/l10n';
-import { getBaseUrl } from '../../../../helpers/system';
+import { isDefined } from '../../../../helpers/types';
 import { useGetValuesQuery } from '../../../../queries/settings';
 import {
   AlmKeys,
@@ -56,12 +59,7 @@ const tabs = [
   {
     label: (
       <>
-        <img
-          alt="github"
-          className="sw-mr-2"
-          height={16}
-          src={`${getBaseUrl()}/images/alm/github.svg`}
-        />
+        <Image alt="github" className="sw-mr-2" height={16} src="/images/alm/github.svg" />
         {translate('settings.almintegration.tab.github')}
       </>
     ),
@@ -70,12 +68,7 @@ const tabs = [
   {
     label: (
       <>
-        <img
-          alt="bitbucket"
-          className="sw-mr-2"
-          height={16}
-          src={`${getBaseUrl()}/images/alm/bitbucket.svg`}
-        />
+        <Image alt="bitbucket" className="sw-mr-2" height={16} src="/images/alm/bitbucket.svg" />
         {translate('settings.almintegration.tab.bitbucket')}
       </>
     ),
@@ -84,12 +77,7 @@ const tabs = [
   {
     label: (
       <>
-        <img
-          alt="azure"
-          className="sw-mr-2"
-          height={16}
-          src={`${getBaseUrl()}/images/alm/azure.svg`}
-        />
+        <Image alt="azure" className="sw-mr-2" height={16} src="/images/alm/azure.svg" />
         {translate('settings.almintegration.tab.azure')}
       </>
     ),
@@ -98,12 +86,7 @@ const tabs = [
   {
     label: (
       <>
-        <img
-          alt="gitlab"
-          className="sw-mr-2"
-          height={16}
-          src={`${getBaseUrl()}/images/alm/gitlab.svg`}
-        />
+        <Image alt="gitlab" className="sw-mr-2" height={16} src="/images/alm/gitlab.svg" />
         {translate('settings.almintegration.tab.gitlab')}
       </>
     ),
@@ -182,7 +165,7 @@ export default function AlmIntegrationRenderer(props: AlmIntegrationRendererProp
         onUpdateDefinitions={props.onUpdateDefinitions}
       />
 
-      {definitionKeyForDeletion && (
+      {isDefined(definitionKeyForDeletion) && (
         <DeleteModal
           id={definitionKeyForDeletion}
           onCancel={props.onCancelDelete}

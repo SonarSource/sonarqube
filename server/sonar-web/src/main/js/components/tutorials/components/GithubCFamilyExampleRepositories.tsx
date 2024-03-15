@@ -17,11 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { LinkStandalone } from '@sonarsource/echoes-react';
 import classNames from 'classnames';
-import { Card, LightLabel, StandoutLink } from 'design-system';
+import { Card, LightLabel } from 'design-system';
 import React from 'react';
 import { translate } from '../../../helpers/l10n';
-import { getBaseUrl } from '../../../helpers/system';
+import { Image } from '../../common/Image';
 import { OSs, TutorialModes } from '../types';
 
 export interface GithubCFamilyExampleRepositoriesProps {
@@ -58,15 +60,15 @@ export default function GithubCFamilyExampleRepositories(
   return (
     <Card className={classNames('sw-p-4 sw-bg-inherit', className)}>
       <div>
-        <img
+        <Image
           alt="" // Should be ignored by screen readers
           className="sw-mr-2"
           height={20}
-          src={`${getBaseUrl()}/images/alm/github.svg`}
+          src="/images/alm/github.svg"
         />
-        <StandoutLink target="_blank" to={link}>
+        <LinkStandalone target="_blank" to={link}>
           sonarsource-cfamily-examples
-        </StandoutLink>
+        </LinkStandalone>
       </div>
       <LightLabel as="p" className="sw-mt-4">
         {translate('onboarding.tutorial.cfamily.examples_repositories_description')}

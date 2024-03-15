@@ -17,22 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import styled from '@emotion/styled';
+import { Spinner } from '@sonarsource/echoes-react';
 import {
   Card,
   FlagMessage,
   PageContentFontWrapper,
-  Spinner,
   Title,
   themeBorder,
   themeColor,
 } from 'design-system';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
+import { Image } from '../../../components/common/Image';
 import { Location } from '../../../components/hoc/withRouter';
 import { translate } from '../../../helpers/l10n';
 import { sanitizeUserInput } from '../../../helpers/sanitize';
-import { getBaseUrl } from '../../../helpers/system';
 import { getReturnUrl } from '../../../helpers/urls';
 import { IdentityProvider } from '../../../types/types';
 import LoginForm from './LoginForm';
@@ -54,17 +55,12 @@ export default function Login(props: Readonly<LoginProps>) {
   return (
     <div className="sw-flex sw-flex-col sw-items-center" id="login_form">
       <Helmet defer={false} title={translate('login.page')} />
-      <img alt="" className="sw-mt-32" src={`${getBaseUrl()}/images/sonar-logo-horizontal.png`} />
+      <Image alt="" className="sw-mt-32" src="/images/sonar-logo-horizontal.png" />
       <Card className="sw-my-14 sw-p-0 sw-w-abs-350">
         <PageContentFontWrapper className="sw-body-md sw-flex sw-flex-col sw-items-center sw-py-8 sw-px-4">
-          <img
-            alt=""
-            className="sw-mb-6"
-            src={`${getBaseUrl()}/images/embed-doc/sq-icon.svg`}
-            width={28}
-          />
+          <Image alt="" className="sw-mb-6" src="/images/embed-doc/sq-icon.svg" width={28} />
           <Title className="sw-mb-6">{translate('login.login_to_sonarqube')}</Title>
-          <Spinner loading={loading}>
+          <Spinner isLoading={loading}>
             <>
               {displayError && (
                 <FlagMessage className="sw-mb-6" variant="error">
