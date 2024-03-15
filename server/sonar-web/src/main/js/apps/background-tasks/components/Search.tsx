@@ -62,6 +62,10 @@ export default class Search extends React.PureComponent<Props> {
     this.props.onFilterUpdate({ query });
   };
 
+  handleReload = () => {
+    this.props.onReload();
+  };
+
   handleReset = () => {
     this.props.onFilterUpdate(DEFAULT_FILTERS);
   };
@@ -142,7 +146,7 @@ export default class Search extends React.PureComponent<Props> {
             <ButtonSecondary
               className="js-reload sw-mr-2"
               disabled={loading}
-              onClick={this.props.onReload}
+              onClick={this.handleReload}
             >
               {translate('reload')}
             </ButtonSecondary>
