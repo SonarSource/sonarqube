@@ -60,13 +60,22 @@ public class MeasureUpdateFormulaFactoryImpl implements MeasureUpdateFormulaFact
       (context, issues) -> context.setValue(issues.countUnresolvedByType(RuleType.SECURITY_HOTSPOT, false))),
 
     new MeasureUpdateFormula(CoreMetrics.RELIABILITY_ISSUES, false, true, new ImpactAddChildren(),
-      (context, issues) -> context.setValue(issues.getBySoftwareQuality(SoftwareQuality.RELIABILITY))),
+      (context, issues) -> context.setValue(issues.getBySoftwareQuality(SoftwareQuality.RELIABILITY, false))),
 
     new MeasureUpdateFormula(CoreMetrics.MAINTAINABILITY_ISSUES, false, true, new ImpactAddChildren(),
-      (context, issues) -> context.setValue(issues.getBySoftwareQuality(SoftwareQuality.MAINTAINABILITY))),
+      (context, issues) -> context.setValue(issues.getBySoftwareQuality(SoftwareQuality.MAINTAINABILITY, false))),
 
     new MeasureUpdateFormula(CoreMetrics.SECURITY_ISSUES, false, true, new ImpactAddChildren(),
-      (context, issues) -> context.setValue(issues.getBySoftwareQuality(SoftwareQuality.SECURITY))),
+      (context, issues) -> context.setValue(issues.getBySoftwareQuality(SoftwareQuality.SECURITY, false))),
+
+    new MeasureUpdateFormula(CoreMetrics.NEW_RELIABILITY_ISSUES, true, true, new ImpactAddChildren(),
+      (context, issues) -> context.setValue(issues.getBySoftwareQuality(SoftwareQuality.RELIABILITY, true))),
+
+    new MeasureUpdateFormula(CoreMetrics.NEW_MAINTAINABILITY_ISSUES, true, true, new ImpactAddChildren(),
+      (context, issues) -> context.setValue(issues.getBySoftwareQuality(SoftwareQuality.MAINTAINABILITY, true))),
+
+    new MeasureUpdateFormula(CoreMetrics.NEW_SECURITY_ISSUES, true, true, new ImpactAddChildren(),
+      (context, issues) -> context.setValue(issues.getBySoftwareQuality(SoftwareQuality.SECURITY, true))),
 
     new MeasureUpdateFormula(CoreMetrics.VIOLATIONS, false, new AddChildren(),
       (context, issues) -> context.setValue(issues.countUnresolved(false))),

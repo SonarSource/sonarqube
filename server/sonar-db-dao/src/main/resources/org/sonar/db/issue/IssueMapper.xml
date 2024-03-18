@@ -514,17 +514,35 @@
 
   <select id="selectIssueImpactGroupsByComponent" resultType="org.sonar.db.issue.IssueImpactGroupDto" parameterType="map">
     select
-    i.status as status,
-    i.resolution as resolution,
-    ii.software_quality as softwareQuality,
-    ii.severity as severity,
-    count(i.kee) as "count"
-    from issues i
-    inner join issues_impacts ii on i.kee = ii.issue_key
-    where i.status &lt;&gt; 'CLOSED'
-    and (i.resolution is null or i.resolution = 'WONTFIX')
-    and i.component_uuid = #{component.uuid,jdbcType=VARCHAR}
-    group by i.status, i.resolution, ii.software_quality, ii.severity
+      i2.status as status,
+      i2.resolution as resolution,
+      i2.software_quality as softwareQuality,
+      i2.severity as severity,
+      count(i2.kee) as "count",
+      i2.inLeak as inLeak
+      from (
+        select
+          i.status,
+          i.resolution,
+          i.kee,
+          ii.software_quality,
+          ii.severity,
+          <if test="leakPeriodBeginningDate &gt;= 0">
+            case when i.issue_creation_date &gt; #{leakPeriodBeginningDate,jdbcType=BIGINT} then ${_true} else ${_false} end as inLeak
+          </if>
+          <if test="leakPeriodBeginningDate &lt; 0">
+            case when n.uuid is null then  ${_false} else ${_true} end as inLeak
+          </if>
+          from issues i
+            inner join issues_impacts ii on i.kee = ii.issue_key
+          <if test="leakPeriodBeginningDate &lt; 0">
+            left join new_code_reference_issues n on n.issue_key = i.kee
+          </if>
+          where i.status &lt;&gt; 'CLOSED'
+          and (i.resolution is null or i.resolution = 'WONTFIX')
+          and i.component_uuid = #{component.uuid,jdbcType=VARCHAR}
+      ) i2
+    group by i2.status, i2.resolution, i2.software_quality, i2.severity, i2.inLeak
   </select>
 
   <select id="selectIssueKeysByComponentUuid" parameterType="string" resultType="string">

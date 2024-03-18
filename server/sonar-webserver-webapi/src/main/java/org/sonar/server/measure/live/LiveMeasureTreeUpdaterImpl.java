@@ -89,7 +89,7 @@ public class LiveMeasureTreeUpdaterImpl implements LiveMeasureTreeUpdater {
 
     components.getSortedTree().forEach(c -> {
       IssueCounter issueCounter = new IssueCounter(dbClient.issueDao().selectIssueGroupsByComponent(dbSession, c, beginningOfLeak),
-        dbClient.issueDao().selectIssueImpactGroupsByComponent(dbSession, c));
+        dbClient.issueDao().selectIssueImpactGroupsByComponent(dbSession, c, beginningOfLeak));
       for (MeasureUpdateFormula formula : formulaFactory.getFormulas()) {
         if (shouldComputeMetric(formula, useLeakFormulas, components.getBranch(), matrix)) {
           context.change(c, formula);

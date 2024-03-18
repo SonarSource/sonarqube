@@ -27,8 +27,8 @@ import java.util.Map;
 import java.util.Set;
 import javax.annotation.Nullable;
 import org.assertj.core.data.MapEntry;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.issue.impact.Severity;
 import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rules.RuleType;
@@ -92,11 +92,14 @@ import static org.sonar.api.measures.CoreMetrics.NEW_CODE_SMELLS_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_CRITICAL_VIOLATIONS;
 import static org.sonar.api.measures.CoreMetrics.NEW_CRITICAL_VIOLATIONS_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_INFO_VIOLATIONS;
+import static org.sonar.api.measures.CoreMetrics.NEW_MAINTAINABILITY_ISSUES;
 import static org.sonar.api.measures.CoreMetrics.NEW_MAJOR_VIOLATIONS;
 import static org.sonar.api.measures.CoreMetrics.NEW_MAJOR_VIOLATIONS_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_MINOR_VIOLATIONS;
+import static org.sonar.api.measures.CoreMetrics.NEW_RELIABILITY_ISSUES;
 import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_HOTSPOTS;
 import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_HOTSPOTS_KEY;
+import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_ISSUES;
 import static org.sonar.api.measures.CoreMetrics.NEW_VIOLATIONS;
 import static org.sonar.api.measures.CoreMetrics.NEW_VIOLATIONS_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_VULNERABILITIES;
@@ -120,24 +123,25 @@ import static org.sonar.api.rules.RuleType.CODE_SMELL;
 import static org.sonar.api.rules.RuleType.SECURITY_HOTSPOT;
 import static org.sonar.ce.task.projectanalysis.component.ReportComponent.builder;
 import static org.sonar.ce.task.projectanalysis.issue.IssueCounter.IMPACT_TO_METRIC_KEY;
+import static org.sonar.ce.task.projectanalysis.issue.IssueCounter.IMPACT_TO_NEW_METRIC_KEY;
 import static org.sonar.ce.task.projectanalysis.measure.Measure.newMeasureBuilder;
 import static org.sonar.ce.task.projectanalysis.measure.MeasureRepoEntry.entryOf;
 
-public class IssueCounterTest {
+class IssueCounterTest {
 
   private static final Component FILE1 = builder(Component.Type.FILE, 1).build();
   private static final Component FILE2 = builder(Component.Type.FILE, 2).build();
   private static final Component FILE3 = builder(Component.Type.FILE, 3).build();
   private static final Component PROJECT = builder(Component.Type.PROJECT, 4).addChildren(FILE1, FILE2, FILE3).build();
 
-  @Rule
-  public BatchReportReaderRule reportReader = new BatchReportReaderRule();
+  @RegisterExtension
+  private final BatchReportReaderRule reportReader = new BatchReportReaderRule();
 
-  @Rule
-  public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
+  @RegisterExtension
+  private final TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
 
-  @Rule
-  public MetricRepositoryRule metricRepository = new MetricRepositoryRule()
+  @RegisterExtension
+  private final MetricRepositoryRule metricRepository = new MetricRepositoryRule()
     .add(VIOLATIONS)
     .add(OPEN_ISSUES)
     .add(REOPENED_ISSUES)
@@ -167,15 +171,19 @@ public class IssueCounterTest {
     .add(HIGH_IMPACT_ACCEPTED_ISSUES)
     .add(RELIABILITY_ISSUES)
     .add(MAINTAINABILITY_ISSUES)
-    .add(SECURITY_ISSUES);
+    .add(SECURITY_ISSUES)
+    .add(NEW_RELIABILITY_ISSUES)
+    .add(NEW_MAINTAINABILITY_ISSUES)
+    .add(NEW_SECURITY_ISSUES);
 
-  @Rule
-  public MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create(treeRootHolder, metricRepository);
-  private NewIssueClassifier newIssueClassifier = mock(NewIssueClassifier.class);
-  private IssueCounter underTest = new IssueCounter(metricRepository, measureRepository, newIssueClassifier);
+  @RegisterExtension
+  private final MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create(treeRootHolder, metricRepository);
+  private final NewIssueClassifier newIssueClassifier = mock(NewIssueClassifier.class);
+  private final IssueCounter underTest = new IssueCounter(metricRepository, measureRepository, newIssueClassifier);
+  private static int issueCounter;
 
   @Test
-  public void count_issues_by_status() {
+  void count_issues_by_status() {
     // bottom-up traversal -> from files to project
     underTest.beforeComponent(FILE1);
     underTest.onIssue(FILE1, createIssue(null, STATUS_OPEN, BLOCKER));
@@ -203,7 +211,7 @@ public class IssueCounterTest {
   }
 
   @Test
-  public void count_issues_by_resolution() {
+  void count_issues_by_resolution() {
     // bottom-up traversal -> from files to project
     underTest.beforeComponent(FILE1);
     underTest.onIssue(FILE1, createIssue(null, STATUS_OPEN, BLOCKER));
@@ -233,7 +241,7 @@ public class IssueCounterTest {
   }
 
   @Test
-  public void count_unresolved_issues_by_severity() {
+  void count_unresolved_issues_by_severity() {
     // bottom-up traversal -> from files to project
     underTest.beforeComponent(FILE1);
     underTest.onIssue(FILE1, createIssue(null, STATUS_OPEN, BLOCKER));
@@ -257,7 +265,7 @@ public class IssueCounterTest {
   }
 
   @Test
-  public void count_unresolved_issues_by_type() {
+  void count_unresolved_issues_by_type() {
     // bottom-up traversal -> from files to project
     // file1 : one open code smell, one closed code smell (which will be excluded from metric)
     underTest.beforeComponent(FILE1);
@@ -286,7 +294,7 @@ public class IssueCounterTest {
   }
 
   @Test
-  public void count_new_issues() {
+  void count_new_issues() {
     when(newIssueClassifier.isEnabled()).thenReturn(true);
 
     underTest.beforeComponent(FILE1);
@@ -315,7 +323,7 @@ public class IssueCounterTest {
   }
 
   @Test
-  public void count_new_accepted_issues() {
+  void count_new_accepted_issues() {
     when(newIssueClassifier.isEnabled()).thenReturn(true);
 
     underTest.beforeComponent(FILE1);
@@ -338,7 +346,7 @@ public class IssueCounterTest {
   }
 
   @Test
-  public void count_impacts() {
+  void onIssue_shouldCountOverallSoftwareQualitiesMeasures() {
     when(newIssueClassifier.isEnabled()).thenReturn(true);
 
     underTest.beforeComponent(FILE1);
@@ -360,9 +368,43 @@ public class IssueCounterTest {
 
     Set<Map.Entry<String, Measure>> entries = measureRepository.getRawMeasures(FILE1).entrySet();
 
-    assertSoftwareQualityMeasures(SoftwareQuality.MAINTAINABILITY, getImpactMeasure(4, 2, 2, 0), entries);
-    assertSoftwareQualityMeasures(SoftwareQuality.SECURITY, getImpactMeasure(2, 1, 1, 0), entries);
-    assertSoftwareQualityMeasures(SoftwareQuality.RELIABILITY, getImpactMeasure(0, 0, 0, 0), entries);
+    assertOverallSoftwareQualityMeasures(SoftwareQuality.MAINTAINABILITY, getImpactMeasure(4, 2, 2, 0), entries);
+    assertOverallSoftwareQualityMeasures(SoftwareQuality.SECURITY, getImpactMeasure(2, 1, 1, 0), entries);
+    assertOverallSoftwareQualityMeasures(SoftwareQuality.RELIABILITY, getImpactMeasure(0, 0, 0, 0), entries);
+  }
+
+  @Test
+  void onIssue_shouldCountNewSoftwareQualitiesMeasures() {
+    when(newIssueClassifier.isEnabled()).thenReturn(true);
+
+    underTest.beforeComponent(FILE1);
+    underTest.onIssue(FILE1, createIssue(RESOLUTION_WONT_FIX, STATUS_OPEN, SoftwareQuality.MAINTAINABILITY,  HIGH));
+    underTest.onIssue(FILE1, createNewIssue(RESOLUTION_WONT_FIX, STATUS_OPEN, SoftwareQuality.MAINTAINABILITY, HIGH));
+    underTest.onIssue(FILE1, createNewIssue(RESOLUTION_WONT_FIX, STATUS_RESOLVED, SoftwareQuality.MAINTAINABILITY, HIGH));
+    underTest.onIssue(FILE1, createNewIssue(RESOLUTION_WONT_FIX, STATUS_OPEN, SoftwareQuality.MAINTAINABILITY, MEDIUM));
+
+    underTest.onIssue(FILE1, createIssue(RESOLUTION_WONT_FIX, STATUS_OPEN, SoftwareQuality.RELIABILITY,  HIGH));
+    underTest.onIssue(FILE1, createNewIssue(RESOLUTION_WONT_FIX, STATUS_OPEN, SoftwareQuality.RELIABILITY, LOW));
+    underTest.onIssue(FILE1, createNewIssue(RESOLUTION_WONT_FIX, STATUS_RESOLVED, SoftwareQuality.RELIABILITY, HIGH));
+    underTest.onIssue(FILE1, createNewIssue(RESOLUTION_WONT_FIX, STATUS_OPEN, SoftwareQuality.RELIABILITY, MEDIUM));
+
+    underTest.onIssue(FILE1, createIssue(RESOLUTION_WONT_FIX, STATUS_OPEN, SoftwareQuality.SECURITY,  MEDIUM));
+    underTest.onIssue(FILE1, createNewIssue(RESOLUTION_WONT_FIX, STATUS_OPEN, SoftwareQuality.SECURITY, LOW));
+    underTest.onIssue(FILE1, createNewIssue(RESOLUTION_WONT_FIX, STATUS_OPEN, SoftwareQuality.SECURITY, HIGH));
+    underTest.onIssue(FILE1, createNewIssue(RESOLUTION_WONT_FIX, STATUS_OPEN, SoftwareQuality.SECURITY, HIGH));
+    underTest.onIssue(FILE1, createNewIssue(RESOLUTION_WONT_FIX, STATUS_RESOLVED, SoftwareQuality.SECURITY, HIGH));
+    underTest.onIssue(FILE1, createNewIssue(RESOLUTION_WONT_FIX, STATUS_OPEN, SoftwareQuality.SECURITY, MEDIUM));
+
+    underTest.afterComponent(FILE1);
+
+    underTest.beforeComponent(PROJECT);
+    underTest.afterComponent(PROJECT);
+
+    Set<Map.Entry<String, Measure>> entries = measureRepository.getRawMeasures(FILE1).entrySet();
+
+    assertNewSoftwareQualityMeasures(SoftwareQuality.MAINTAINABILITY, getImpactMeasure(2, 1, 1, 0), entries);
+    assertNewSoftwareQualityMeasures(SoftwareQuality.RELIABILITY, getImpactMeasure(2, 0, 1, 1), entries);
+    assertNewSoftwareQualityMeasures(SoftwareQuality.SECURITY, getImpactMeasure(4, 2, 1, 1), entries);
   }
 
   private static Map<String, Long> getImpactMeasure(long total, long high, long medium, long low) {
@@ -374,11 +416,21 @@ public class IssueCounterTest {
     return map;
   }
 
-  private void assertSoftwareQualityMeasures(SoftwareQuality softwareQuality, Map<? extends String, Long> expectedMap,
+  private void assertOverallSoftwareQualityMeasures(SoftwareQuality softwareQuality, Map<? extends String, Long> expectedMap,
     Set<Map.Entry<String, Measure>> actualRaw) {
+    assertSoftwareQualityMeasures(softwareQuality, expectedMap, actualRaw, IMPACT_TO_METRIC_KEY);
+  }
+
+  private void assertNewSoftwareQualityMeasures(SoftwareQuality softwareQuality, Map<? extends String, Long> expectedMap,
+    Set<Map.Entry<String, Measure>> actualRaw) {
+    assertSoftwareQualityMeasures(softwareQuality, expectedMap, actualRaw, IMPACT_TO_NEW_METRIC_KEY);
+  }
+
+  private void assertSoftwareQualityMeasures(SoftwareQuality softwareQuality, Map<? extends String, Long> expectedMap,
+    Set<Map.Entry<String, Measure>> actualRaw, Map<String, String> impactToMetricMap) {
 
     Map.Entry<String, Measure> softwareQualityMap = actualRaw.stream()
-      .filter(e -> e.getKey().equals(IMPACT_TO_METRIC_KEY.get(softwareQuality.name())))
+      .filter(e -> e.getKey().equals(impactToMetricMap.get(softwareQuality.name())))
       .findFirst()
       .get();
 
@@ -386,7 +438,7 @@ public class IssueCounterTest {
   }
 
   @Test
-  public void count_high_impact_accepted_issues() {
+  void count_high_impact_accepted_issues() {
     when(newIssueClassifier.isEnabled()).thenReturn(true);
 
     underTest.beforeComponent(FILE1);
@@ -413,7 +465,7 @@ public class IssueCounterTest {
   }
 
   @Test
-  public void exclude_hotspots_from_issue_counts() {
+  void exclude_hotspots_from_issue_counts() {
     // bottom-up traversal -> from files to project
     underTest.beforeComponent(FILE1);
     underTest.onIssue(FILE1, createSecurityHotspot());
@@ -437,7 +489,7 @@ public class IssueCounterTest {
   }
 
   @Test
-  public void exclude_new_hotspots_from_issue_counts() {
+  void exclude_new_hotspots_from_issue_counts() {
     when(newIssueClassifier.isEnabled()).thenReturn(true);
 
     underTest.beforeComponent(FILE1);
@@ -496,7 +548,7 @@ public class IssueCounterTest {
 
   private DefaultIssue createNewIssue(@Nullable String resolution, String status, SoftwareQuality softwareQuality, Severity impactSeverity) {
     DefaultIssue issue = createNewIssue(resolution, status, MAJOR, CODE_SMELL);
-    issue.addImpact(SoftwareQuality.MAINTAINABILITY, impactSeverity);
+    issue.addImpact(softwareQuality, impactSeverity);
     return issue;
   }
 
@@ -522,6 +574,7 @@ public class IssueCounterTest {
 
   private static DefaultIssue createIssue(@Nullable String resolution, String status, String severity, RuleType ruleType) {
     return new DefaultIssue()
+      .setKey(String.valueOf(++issueCounter))
       .setResolution(resolution).setStatus(status)
       .setSeverity(severity).setRuleKey(RuleTesting.XOO_X1)
       .setType(ruleType);

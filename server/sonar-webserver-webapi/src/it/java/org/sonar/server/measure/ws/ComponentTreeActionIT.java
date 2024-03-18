@@ -60,6 +60,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.api.measures.CoreMetrics.MAINTAINABILITY_ISSUES_KEY;
+import static org.sonar.api.measures.CoreMetrics.NEW_MAINTAINABILITY_ISSUES_KEY;
+import static org.sonar.api.measures.CoreMetrics.NEW_RELIABILITY_ISSUES_KEY;
+import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_ISSUES_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_RATING_KEY;
 import static org.sonar.api.measures.CoreMetrics.RELIABILITY_ISSUES_KEY;
 import static org.sonar.api.measures.CoreMetrics.SECURITY_ISSUES_KEY;
@@ -867,12 +870,10 @@ class ComponentTreeActionIT {
     ComponentDto mainBranch = projectData.getMainBranchComponent();
     addProjectPermission(projectData);
     db.getDbClient().snapshotDao().insert(dbSession, newAnalysis(mainBranch));
-    MetricDto dataMetric = dbClient.metricDao().insert(dbSession, newDataMetricDto(SECURITY_ISSUES_KEY));
-    db.measures().insertLiveMeasure(mainBranch, dataMetric, c -> c.setData(SECURITY_ISSUES_KEY + "_data"));
-    dataMetric = dbClient.metricDao().insert(dbSession, newDataMetricDto(MAINTAINABILITY_ISSUES_KEY));
-    db.measures().insertLiveMeasure(mainBranch, dataMetric, c -> c.setData(MAINTAINABILITY_ISSUES_KEY + "_data"));
-    dataMetric = dbClient.metricDao().insert(dbSession, newDataMetricDto(RELIABILITY_ISSUES_KEY));
-    db.measures().insertLiveMeasure(mainBranch, dataMetric, c -> c.setData(RELIABILITY_ISSUES_KEY + "_data"));
+
+    insertMetricAndLiveMeasure(mainBranch, SECURITY_ISSUES_KEY, "_data");
+    insertMetricAndLiveMeasure(mainBranch, MAINTAINABILITY_ISSUES_KEY, "_data");
+    insertMetricAndLiveMeasure(mainBranch, RELIABILITY_ISSUES_KEY, "_data");
 
     ComponentTreeWsResponse response = ws.newRequest()
       .setParam(PARAM_COMPONENT, mainBranch.getKey())
@@ -889,6 +890,40 @@ class ComponentTreeActionIT {
       .containsExactlyInAnyOrder(tuple(SECURITY_ISSUES_KEY, SECURITY_ISSUES_KEY + "_data"),
         tuple(MAINTAINABILITY_ISSUES_KEY, MAINTAINABILITY_ISSUES_KEY + "_data"),
         tuple(RELIABILITY_ISSUES_KEY, RELIABILITY_ISSUES_KEY + "_data"));
+  }
+
+  @Test
+  void execute_whenUsingSupportedNewDATAMetrics_shouldReturnMetrics() {
+    ProjectData projectData = db.components().insertPrivateProject();
+    ComponentDto mainBranch = projectData.getMainBranchComponent();
+    addProjectPermission(projectData);
+    db.components().insertSnapshot(mainBranch);
+    ComponentDto file1 = db.components().insertComponent(newFileDto(mainBranch));
+
+    insertMetricAndLiveMeasure(file1, NEW_SECURITY_ISSUES_KEY, "_data");
+    insertMetricAndLiveMeasure(file1, NEW_MAINTAINABILITY_ISSUES_KEY, "_data");
+    insertMetricAndLiveMeasure(file1, NEW_RELIABILITY_ISSUES_KEY, "_data");
+
+    ComponentTreeWsResponse response = ws.newRequest()
+      .setParam(PARAM_COMPONENT, mainBranch.getKey())
+      .setParam(PARAM_METRIC_KEYS, format("%s,%s,%s",
+        NEW_SECURITY_ISSUES_KEY,
+        NEW_MAINTAINABILITY_ISSUES_KEY,
+        NEW_RELIABILITY_ISSUES_KEY
+      ))
+      .setParam(PARAM_ADDITIONAL_FIELDS, "metrics,period")
+      .executeProtobuf(ComponentTreeWsResponse.class);
+
+    assertThat(response.getComponents(0).getMeasuresCount()).isEqualTo(3);
+
+    List<Measure> dataMeasures = response.getComponents(0).getMeasuresList();
+
+    assertThat(dataMeasures)
+      .extracting(Measure::getMetric, m-> m.getPeriod().getValue())
+      .containsExactlyInAnyOrder(tuple(NEW_SECURITY_ISSUES_KEY, NEW_SECURITY_ISSUES_KEY + "_data"),
+        tuple(NEW_MAINTAINABILITY_ISSUES_KEY, NEW_MAINTAINABILITY_ISSUES_KEY + "_data"),
+        tuple(NEW_RELIABILITY_ISSUES_KEY, NEW_RELIABILITY_ISSUES_KEY + "_data")
+      );
   }
 
   @Test
@@ -1123,6 +1158,12 @@ class ComponentTreeActionIT {
       .setWorstValue(null)
       .setBestValue(null)
       .setOptimizedBestValue(false);
+  }
+
+  private void insertMetricAndLiveMeasure(ComponentDto dto,  String key, String additionalData) {
+    MetricDto dataMetric = dbClient.metricDao().insert(dbSession, newDataMetricDto(key));
+    db.measures().insertLiveMeasure(dto, dataMetric, c -> c.setData(key + additionalData));
+
   }
 
   private static MetricDto newDataMetricDto(String key) {

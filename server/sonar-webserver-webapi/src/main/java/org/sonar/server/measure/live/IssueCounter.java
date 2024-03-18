@@ -167,16 +167,16 @@ class IssueCounter {
     return onlyInLeak ? count.leak : count.absolute;
   }
 
-  public String getBySoftwareQuality(SoftwareQuality softwareQuality) {
+  public String getBySoftwareQuality(SoftwareQuality softwareQuality, boolean onlyInLeak) {
     Map<Severity, Count> severityToCount = bySoftwareQualityAndSeverity.get(softwareQuality);
 
     ImpactMeasureBuilder impactMeasureBuilder;
     if (severityToCount != null) {
       impactMeasureBuilder = ImpactMeasureBuilder.newInstance();
       for (Severity severity : Severity.values()) {
-        impactMeasureBuilder = impactMeasureBuilder.setSeverity(severity, Optional.ofNullable(severityToCount.get(severity)).map(count -> count.absolute).orElse(0L));
+        impactMeasureBuilder = impactMeasureBuilder.setSeverity(severity, value(severityToCount.get(severity), onlyInLeak));
       }
-      impactMeasureBuilder = impactMeasureBuilder.setTotal(severityToCount.values().stream().mapToLong(count -> count.absolute).sum());
+      impactMeasureBuilder = impactMeasureBuilder.setTotal(severityToCount.values().stream().mapToLong(count -> value(count, onlyInLeak)).sum());
     } else {
       impactMeasureBuilder = ImpactMeasureBuilder.createEmpty();
     }
@@ -197,6 +197,9 @@ class IssueCounter {
 
     public void add(IssueImpactGroupDto group) {
       absolute += group.getCount();
+      if (group.isInLeak()) {
+        leak += group.getCount();
+      }
     }
   }
 

@@ -50,7 +50,7 @@ import static org.sonar.api.measures.CoreMetrics.CRITICAL_VIOLATIONS_KEY;
 import static org.sonar.api.measures.CoreMetrics.FALSE_POSITIVE_ISSUES_KEY;
 import static org.sonar.api.measures.CoreMetrics.HIGH_IMPACT_ACCEPTED_ISSUES_KEY;
 import static org.sonar.api.measures.CoreMetrics.INFO_VIOLATIONS_KEY;
-import static org.sonar.api.measures.CoreMetrics.MAINTAINABILITY_ISSUES;
+import static org.sonar.api.measures.CoreMetrics.MAINTAINABILITY_ISSUES_KEY;
 import static org.sonar.api.measures.CoreMetrics.MAJOR_VIOLATIONS_KEY;
 import static org.sonar.api.measures.CoreMetrics.MINOR_VIOLATIONS_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_ACCEPTED_ISSUES_KEY;
@@ -59,16 +59,19 @@ import static org.sonar.api.measures.CoreMetrics.NEW_BUGS_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_CODE_SMELLS_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_CRITICAL_VIOLATIONS_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_INFO_VIOLATIONS_KEY;
+import static org.sonar.api.measures.CoreMetrics.NEW_MAINTAINABILITY_ISSUES_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_MAJOR_VIOLATIONS_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_MINOR_VIOLATIONS_KEY;
+import static org.sonar.api.measures.CoreMetrics.NEW_RELIABILITY_ISSUES_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_HOTSPOTS_KEY;
+import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_ISSUES_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_VIOLATIONS_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_VULNERABILITIES_KEY;
 import static org.sonar.api.measures.CoreMetrics.OPEN_ISSUES_KEY;
-import static org.sonar.api.measures.CoreMetrics.RELIABILITY_ISSUES;
+import static org.sonar.api.measures.CoreMetrics.RELIABILITY_ISSUES_KEY;
 import static org.sonar.api.measures.CoreMetrics.REOPENED_ISSUES_KEY;
 import static org.sonar.api.measures.CoreMetrics.SECURITY_HOTSPOTS_KEY;
-import static org.sonar.api.measures.CoreMetrics.SECURITY_ISSUES;
+import static org.sonar.api.measures.CoreMetrics.SECURITY_ISSUES_KEY;
 import static org.sonar.api.measures.CoreMetrics.VIOLATIONS_KEY;
 import static org.sonar.api.measures.CoreMetrics.VULNERABILITIES_KEY;
 import static org.sonar.api.rule.Severity.BLOCKER;
@@ -109,9 +112,14 @@ public class IssueCounter extends IssueVisitor {
     INFO, NEW_INFO_VIOLATIONS_KEY);
 
   static final Map<String, String> IMPACT_TO_METRIC_KEY = Map.of(
-    SoftwareQuality.SECURITY.name(), SECURITY_ISSUES.key(),
-    SoftwareQuality.RELIABILITY.name(), RELIABILITY_ISSUES.key(),
-    SoftwareQuality.MAINTAINABILITY.name(), MAINTAINABILITY_ISSUES.key());
+    SoftwareQuality.SECURITY.name(), SECURITY_ISSUES_KEY,
+    SoftwareQuality.RELIABILITY.name(), RELIABILITY_ISSUES_KEY,
+    SoftwareQuality.MAINTAINABILITY.name(), MAINTAINABILITY_ISSUES_KEY);
+
+  static final Map<String, String> IMPACT_TO_NEW_METRIC_KEY = Map.of(
+    SoftwareQuality.SECURITY.name(), NEW_SECURITY_ISSUES_KEY,
+    SoftwareQuality.RELIABILITY.name(), NEW_RELIABILITY_ISSUES_KEY,
+    SoftwareQuality.MAINTAINABILITY.name(), NEW_MAINTAINABILITY_ISSUES_KEY);
 
   private static final Map<RuleType, String> TYPE_TO_METRIC_KEY = ImmutableMap.<RuleType, String>builder()
     .put(CODE_SMELL, CODE_SMELLS_KEY)
@@ -222,9 +230,7 @@ public class IssueCounter extends IssueVisitor {
       String severity = entry.getKey();
       String metricKey = entry.getValue();
       Multiset<String> bag = currentCounters.counterForPeriod().severityBag;
-      Metric metric = metricRepository.getByKey(metricKey);
-      measureRepository.add(component, metric, Measure.newMeasureBuilder()
-        .create(bag.count(severity)));
+      addMeasure(component, metricKey, bag.count(severity));
     }
 
     // waiting for Java 8 lambda in order to factor this loop with the previous one
@@ -233,9 +239,12 @@ public class IssueCounter extends IssueVisitor {
       RuleType type = entry.getKey();
       String metricKey = entry.getValue();
       Multiset<RuleType> bag = currentCounters.counterForPeriod().typeBag;
-      Metric metric = metricRepository.getByKey(metricKey);
-      measureRepository.add(component, metric, Measure.newMeasureBuilder()
-        .create(bag.count(type)));
+      addMeasure(component, metricKey, bag.count(type));
+    }
+
+    for (Map.Entry<String, Map<String, Long>> impactEntry : currentCounters.counterForPeriod().impactsBag.entrySet()) {
+      String json = ImpactMeasureBuilder.fromMap(impactEntry.getValue()).buildAsString();
+      addMeasure(component, IMPACT_TO_NEW_METRIC_KEY.get(impactEntry.getKey()), json);
     }
 
     addMeasure(component, NEW_ACCEPTED_ISSUES_KEY, currentCounters.counterForPeriod().accepted);

@@ -79,6 +79,9 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 import static java.util.Optional.ofNullable;
 import static org.sonar.api.measures.CoreMetrics.MAINTAINABILITY_ISSUES_KEY;
+import static org.sonar.api.measures.CoreMetrics.NEW_MAINTAINABILITY_ISSUES_KEY;
+import static org.sonar.api.measures.CoreMetrics.NEW_RELIABILITY_ISSUES_KEY;
+import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_ISSUES_KEY;
 import static org.sonar.api.measures.CoreMetrics.RELIABILITY_ISSUES_KEY;
 import static org.sonar.api.measures.CoreMetrics.SECURITY_ISSUES_KEY;
 import static org.sonar.api.measures.Metric.ValueType.DATA;
@@ -184,6 +187,7 @@ public class ComponentTreeAction implements MeasuresWsAction {
       .setHandler(this)
       .addPagingParams(100, MAX_SIZE)
       .setChangelog(
+        new Change("10.5", "Added new accepted values for the 'metricKeys' param: 'new_maintainability_issues', 'new_reliability_issues', 'new_security_issues'"),
         new Change("10.5", String.format("The metrics %s are now deprecated " +
                                          "without exact replacement. Use 'maintainability_issues', 'reliability_issues' and 'security_issues' instead.",
           MeasuresWsModule.getDeprecatedMetricsInSonarQube105())),
@@ -683,7 +687,14 @@ public class ComponentTreeAction implements MeasuresWsAction {
 
     static final Set<String> FORBIDDEN_METRIC_TYPES = Set.of(DISTRIB.name());
     static final Map<String, Set<String>> PARTIALLY_SUPPORTED_METRICS= Map. of(
-      DATA.name(), Set.of(SECURITY_ISSUES_KEY, MAINTAINABILITY_ISSUES_KEY, RELIABILITY_ISSUES_KEY));
+      DATA.name(),
+      Set.of(
+        SECURITY_ISSUES_KEY,
+        MAINTAINABILITY_ISSUES_KEY,
+        RELIABILITY_ISSUES_KEY,
+        NEW_SECURITY_ISSUES_KEY,
+        NEW_MAINTAINABILITY_ISSUES_KEY,
+        NEW_RELIABILITY_ISSUES_KEY));
 
     @Override
     public boolean test(@Nonnull MetricDto input) {

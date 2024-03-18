@@ -98,6 +98,7 @@ public class SearchHistoryAction implements MeasuresWsAction {
         new Change("10.5", String.format("The metrics %s are now deprecated " +
                                          "without exact replacement. Use 'maintainability_issues', 'reliability_issues' and 'security_issues' instead.",
           MeasuresWsModule.getDeprecatedMetricsInSonarQube105())),
+        new Change("10.5", "Added new accepted values for the 'metricKeys' param: 'new_maintainability_issues', 'new_reliability_issues', 'new_security_issues'"),
         new Change("10.4", String.format("The metrics %s are now deprecated " +
             "without exact replacement. Use 'maintainability_issues', 'reliability_issues' and 'security_issues' instead.",
           MeasuresWsModule.getDeprecatedMetricsInSonarQube104())),

@@ -31,6 +31,7 @@ public class IssueImpactGroupDto {
   private SoftwareQuality softwareQuality;
   private Severity severity;
   private long count;
+  private boolean inLeak;
 
   public IssueImpactGroupDto() {
     // nothing to do
@@ -75,5 +76,13 @@ public class IssueImpactGroupDto {
 
   public void setCount(long count) {
     this.count = count;
+  }
+
+  public boolean isInLeak() {
+    return inLeak;
+  }
+
+  public void setInLeak(boolean inLeak) {
+    this.inLeak = inLeak;
   }
 }

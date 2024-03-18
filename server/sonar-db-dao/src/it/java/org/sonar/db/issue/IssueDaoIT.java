@@ -37,6 +37,8 @@ import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.impact.Severity;
 import org.sonar.api.issue.impact.SoftwareQuality;
@@ -562,8 +564,10 @@ class IssueDaoIT {
     assertThat(result.stream().filter(g -> !g.isInLeak()).mapToLong(IssueGroupDto::getCount).sum()).isOne();
   }
 
-  @Test
-  void selectIssueImpactGroupsByComponent_shouldReturnImpactGroups() {
+  @ParameterizedTest
+  @ValueSource(booleans =  {true, false})
+  void selectIssueImpactGroupsByComponent_shouldReturnImpactGroups(boolean inLeak) {
+
     ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(project));
     RuleDto rule = db.rules().insert();
@@ -581,9 +585,10 @@ class IssueDaoIT {
     db.issues().insert(rule, project, file,
       i -> i.setStatus(STATUS_RESOLVED).setResolution(RESOLUTION_FALSE_POSITIVE).replaceAllImpacts(List.of(createImpact(SECURITY, HIGH))));
 
-    Collection<IssueImpactGroupDto> result = underTest.selectIssueImpactGroupsByComponent(db.getSession(), file);
+    Collection<IssueImpactGroupDto> result = underTest.selectIssueImpactGroupsByComponent(db.getSession(), file, inLeak ? 1L : Long.MAX_VALUE);
 
     assertThat(result).hasSize(5);
+    assertThat(result.stream().filter(IssueImpactGroupDto::isInLeak)).hasSize(inLeak ? 5 : 0);
     assertThat(result.stream().mapToLong(IssueImpactGroupDto::getCount).sum()).isEqualTo(6);
 
     assertThat(result.stream().filter(g -> g.getSoftwareQuality() == SECURITY).mapToLong(IssueImpactGroupDto::getCount).sum()).isEqualTo(4);
@@ -603,6 +608,44 @@ class IssueDaoIT {
     assertThat(result.stream().noneMatch(g -> RESOLUTION_FALSE_POSITIVE.equals(g.getResolution()))).isTrue();
     assertThat(result.stream().noneMatch(g -> RELIABILITY == g.getSoftwareQuality())).isTrue();
     assertThat(result.stream().noneMatch(g -> MEDIUM == g.getSeverity())).isTrue();
+
+  }
+
+  @Test
+  void selectIssueImpactGroupsByComponent_whenNewCodeFromReferenceBranch_shouldReturnImpactGroups() {
+
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
+    ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(project));
+    RuleDto rule = db.rules().insert();
+    IssueDto issueInNewCodePeriod = db.issues().insert(rule, project, file,
+      i -> i.setStatus(STATUS_OPEN).replaceAllImpacts(List.of(createImpact(SECURITY, HIGH), createImpact(MAINTAINABILITY, LOW))));
+    db.issues().insert(rule, project, file,
+      i -> i.setStatus(STATUS_RESOLVED).setResolution(RESOLUTION_WONT_FIX).replaceAllImpacts(List.of(createImpact(SECURITY, HIGH))));
+
+    db.issues().insertNewCodeReferenceIssue(issueInNewCodePeriod);
+
+    Collection<IssueImpactGroupDto> result = underTest.selectIssueImpactGroupsByComponent(db.getSession(), file, -1L);
+
+    assertThat(result).hasSize(3);
+    assertThat(result.stream().filter(IssueImpactGroupDto::isInLeak)).hasSize(2);
+    assertThat(result.stream().mapToLong(IssueImpactGroupDto::getCount).sum()).isEqualTo(3);
+
+    assertThat(result.stream().filter(g -> g.getSoftwareQuality() == SECURITY).mapToLong(IssueImpactGroupDto::getCount).sum()).isEqualTo(2);
+    assertThat(result.stream().filter(g -> g.getSoftwareQuality() == MAINTAINABILITY).mapToLong(IssueImpactGroupDto::getCount).sum()).isEqualTo(1);
+
+    assertThat(result.stream().filter(g -> g.getSeverity() == HIGH).mapToLong(IssueImpactGroupDto::getCount).sum()).isEqualTo(2);
+    assertThat(result.stream().filter(g -> g.getSeverity() == LOW).mapToLong(IssueImpactGroupDto::getCount).sum()).isOne();
+
+    assertThat(result.stream().filter(g -> STATUS_OPEN.equals(g.getStatus())).mapToLong(IssueImpactGroupDto::getCount).sum()).isEqualTo(2);
+    assertThat(result.stream().filter(g -> STATUS_REOPENED.equals(g.getStatus())).mapToLong(IssueImpactGroupDto::getCount).sum()).isZero();
+    assertThat(result.stream().filter(g -> STATUS_RESOLVED.equals(g.getStatus())).mapToLong(IssueImpactGroupDto::getCount).sum()).isOne();
+
+    assertThat(result.stream().filter(g -> RESOLUTION_WONT_FIX.equals(g.getResolution())).mapToLong(IssueImpactGroupDto::getCount).sum()).isOne();
+
+
+    assertThat(result.stream().filter(IssueImpactGroupDto::isInLeak).mapToLong(IssueImpactGroupDto::getCount).sum()).isEqualTo(2);
+    assertThat(result.stream().filter(g -> g.isInLeak() && g.getSoftwareQuality() == SECURITY).mapToLong(IssueImpactGroupDto::getCount).sum()).isEqualTo(1);
+    assertThat(result.stream().filter(g -> g.isInLeak() && g.getSoftwareQuality() == MAINTAINABILITY).mapToLong(IssueImpactGroupDto::getCount).sum()).isEqualTo(1);
   }
 
   @NotNull
@@ -615,7 +658,7 @@ class IssueDaoIT {
     ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(project));
 
-    Collection<IssueImpactGroupDto> groups = underTest.selectIssueImpactGroupsByComponent(db.getSession(), file);
+    Collection<IssueImpactGroupDto> groups = underTest.selectIssueImpactGroupsByComponent(db.getSession(), file, 1_000L);
 
     assertThat(groups).isEmpty();
   }
