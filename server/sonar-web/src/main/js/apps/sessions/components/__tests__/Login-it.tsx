@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { screen, waitFor } from '@testing-library/react';
+import { waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { addGlobalErrorMessage } from 'design-system';
 import * as React from 'react';
@@ -26,8 +26,13 @@ import { getLoginMessage } from '../../../../api/settings';
 import { getIdentityProviders } from '../../../../api/users';
 import { mockLocation } from '../../../../helpers/testMocks';
 import { renderComponent } from '../../../../helpers/testReactTestingUtils';
-import { byLabelText, byRole } from '../../../../helpers/testSelector';
+import { byLabelText, byRole, byText } from '../../../../helpers/testSelector';
 import { LoginContainer } from '../LoginContainer';
+import { getBaseUrl } from '../../../../helpers/system';
+
+jest.mock('../../../../helpers/system', () => ({
+  getBaseUrl: jest.fn().mockReturnValue(''),
+}));
 
 jest.mock('../../../../api/users', () => {
   const { mockIdentityProvider } = jest.requireActual('../../../../helpers/testMocks');
@@ -53,6 +58,7 @@ jest.mock('design-system', () => ({
 
 const originalLocation = window.location;
 const replace = jest.fn();
+const customLoginMessage = 'Welcome to SQ! Please use your Skynet credentials';
 
 beforeAll(() => {
   const location = {
@@ -79,18 +85,17 @@ it('should behave correctly', async () => {
 
   renderLoginContainer();
 
-  const heading = await screen.findByRole('heading', { name: 'login.login_to_sonarqube' });
-  expect(heading).toBeInTheDocument();
+  expect(await ui.header.find()).toBeInTheDocument();
 
   // OAuth provider.
-  const link = screen.getByRole('button', { name: 'Github login.login_with_x.Github' });
-  expect(link).toBeInTheDocument();
+  expect(ui.githubButton.get()).toBeInTheDocument();
+  expect(ui.githubImage.get()).toHaveAttribute('src', '/path/icon.svg');
 
   // Login form collapsed by default.
   expect(ui.loginInput.query()).not.toBeInTheDocument();
 
   // Open login form, log in.
-  await user.click(screen.getByRole('button', { name: 'login.more_options' }));
+  await user.click(ui.loginOptionsButton.get());
 
   const cancelLink = await ui.backLink.find();
   expect(cancelLink).toBeInTheDocument();
@@ -98,7 +103,7 @@ it('should behave correctly', async () => {
 
   const loginField = ui.loginInput.get();
   const passwordField = ui.passwordInput.get();
-  const submitButton = screen.getByRole('button', { name: 'sessions.log_in' });
+  const submitButton = ui.submitButton.get();
 
   // Incorrect login.
   await user.type(loginField, 'janedoe');
@@ -122,15 +127,23 @@ it('should behave correctly', async () => {
   expect(replace).toHaveBeenCalledWith('/some/path');
 });
 
+it('should have correct image URL with different baseURL', async () => {
+  jest.mocked(getBaseUrl).mockReturnValue('/context');
+
+  renderLoginContainer();
+
+  expect(await ui.header.find()).toBeInTheDocument();
+  expect(ui.githubImage.get()).toHaveAttribute('src', '/context/path/icon.svg');
+});
+
 it('should not show any OAuth providers if none are configured', async () => {
   jest.mocked(getIdentityProviders).mockResolvedValueOnce({ identityProviders: [] });
   renderLoginContainer();
 
-  const heading = await screen.findByRole('heading', { name: 'login.login_to_sonarqube' });
-  expect(heading).toBeInTheDocument();
+  expect(await ui.header.find()).toBeInTheDocument();
 
   // No OAuth providers, login form display by default.
-  expect(screen.queryByRole('link', { name: 'login.login_with_x' })).not.toBeInTheDocument();
+  expect(ui.loginOAuthLink.query()).not.toBeInTheDocument();
   expect(ui.loginInput.get()).toBeInTheDocument();
 });
 
@@ -139,26 +152,23 @@ it("should show a warning if there's an authorization error", async () => {
     location: mockLocation({ query: { authorizationError: 'true' } }),
   });
 
-  const heading = await screen.findByRole('heading', { name: 'login.login_to_sonarqube' });
-  expect(heading).toBeInTheDocument();
+  expect(await ui.header.find()).toBeInTheDocument();
 
-  expect(screen.getByText('login.unauthorized_access_alert')).toBeInTheDocument();
+  expect(ui.unauthorizedAccessText.get()).toBeInTheDocument();
 });
 
 it('should display a login message if enabled & provided', async () => {
-  const message = 'Welcome to SQ! Please use your Skynet credentials';
-  jest.mocked(getLoginMessage).mockResolvedValueOnce({ message });
+  jest.mocked(getLoginMessage).mockResolvedValueOnce({ message: customLoginMessage });
   renderLoginContainer({});
 
-  expect(await screen.findByText(message)).toBeInTheDocument();
+  expect(await ui.customLoginText.find()).toBeInTheDocument();
 });
 
 it('should handle errors', async () => {
   jest.mocked(getLoginMessage).mockRejectedValueOnce('nope');
   renderLoginContainer({});
 
-  const heading = await screen.findByRole('heading', { name: 'login.login_to_sonarqube' });
-  expect(heading).toBeInTheDocument();
+  expect(await ui.header.find()).toBeInTheDocument();
 });
 
 function renderLoginContainer(props: Partial<LoginContainer['props']> = {}) {
@@ -168,7 +178,15 @@ function renderLoginContainer(props: Partial<LoginContainer['props']> = {}) {
 }
 
 const ui = {
+  customLoginText: byText(customLoginMessage),
+  header: byRole('heading', { name: 'login.login_to_sonarqube' }),
   loginInput: byLabelText(/login/),
   passwordInput: byLabelText(/password/),
   backLink: byRole('link', { name: 'go_back' }),
+  githubImage: byRole('img', { name: 'Github' }),
+  githubButton: byRole('button', { name: 'Github login.login_with_x.Github' }),
+  loginOAuthLink: byRole('link', { name: 'login.login_with_x' }),
+  loginOptionsButton: byRole('button', { name: 'login.more_options' }),
+  submitButton: byRole('button', { name: 'sessions.log_in' }),
+  unauthorizedAccessText: byText('login.unauthorized_access_alert'),
 };

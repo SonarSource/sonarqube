@@ -48,7 +48,7 @@ export default function OAuthProviders({ identityProviders, returnTo }: Readonly
             <ThirdPartyButton
               className="sw-w-full sw-justify-center"
               name={identityProvider.name}
-              iconPath={identityProvider.iconPath}
+              iconPath={`${getBaseUrl()}${identityProvider.iconPath}`}
               onClick={() => authenticate(identityProvider.key)}
             >
               <span>{translateWithParameters('login.login_with_x', identityProvider.name)}</span>
