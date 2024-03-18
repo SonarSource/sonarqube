@@ -46,7 +46,7 @@ export function MenuItem(props: MenuItemProps) {
         onSelect(branchLike);
       }}
     >
-      <div className="sw-flex sw-items-center sw-justify-between text-ellipsis sw-flex-1">
+      <div className="sw-flex sw-items-center sw-justify-between sw-truncate sw-flex-1">
         <div className="sw-flex sw-items-center">
           <BranchLikeIcon branchLike={branchLike} />
 

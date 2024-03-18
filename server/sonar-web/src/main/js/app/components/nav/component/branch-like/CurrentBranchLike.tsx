@@ -34,7 +34,7 @@ export function CurrentBranchLike(props: CurrentBranchLikeProps) {
   const displayName = getBranchLikeDisplayName(currentBranchLike);
 
   return (
-    <div className="sw-flex sw-items-center text-ellipsis">
+    <div className="sw-flex sw-items-center sw-truncate">
       <BranchLikeIcon branchLike={currentBranchLike} />
       <TextMuted text={displayName} className="sw-ml-3" />
       <QualityGateStatus branchLike={currentBranchLike} className="sw-ml-4" />
