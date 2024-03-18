@@ -23,10 +23,14 @@ import { Badge } from '../Badge';
 
 it('renders badge correctly', () => {
   render(<Badge>foo</Badge>);
-  expect(screen.getByRole('status')).toBeInTheDocument();
+  expect(screen.getByText('foo')).toBeInTheDocument();
 });
 
 it('renders counter correctly', () => {
-  render(<Badge variant="counter">23</Badge>);
-  expect(screen.getByRole('status')).toHaveAttribute('aria-label', '23');
+  render(
+    <Badge title="This 23" variant="counter">
+      23
+    </Badge>,
+  );
+  expect(screen.getByRole('img')).toHaveAccessibleName('This 23');
 });

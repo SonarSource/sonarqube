@@ -40,7 +40,16 @@ export const getPageObjects = () => {
       data?: SoftwareImpactMeasureData,
       severitiesActiveState?: boolean[],
       branch = 'master',
+      failed = false,
     ) => {
+      if (failed) {
+        expect(
+          byTestId(`overview__software-impact-card-${softwareQuality}`)
+            .byText('overview.measures.failed_badge')
+            .get(),
+        ).toBeInTheDocument();
+      }
+
       if (typeof rating === 'string') {
         expect(
           byText(rating, { exact: true }).get(ui.softwareImpactMeasureCard(softwareQuality).get()),

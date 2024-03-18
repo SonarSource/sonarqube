@@ -70,6 +70,7 @@ export default function OverallCodeMeasuresPanel(props: Readonly<OverallCodeMeas
         <SoftwareImpactMeasureCard
           branch={branch}
           component={component}
+          conditions={conditions}
           softwareQuality={SoftwareQuality.Security}
           ratingMetricKey={MetricKey.security_rating}
           measures={measures}
@@ -77,6 +78,7 @@ export default function OverallCodeMeasuresPanel(props: Readonly<OverallCodeMeas
         <SoftwareImpactMeasureCard
           branch={branch}
           component={component}
+          conditions={conditions}
           softwareQuality={SoftwareQuality.Reliability}
           ratingMetricKey={MetricKey.reliability_rating}
           measures={measures}
@@ -84,6 +86,7 @@ export default function OverallCodeMeasuresPanel(props: Readonly<OverallCodeMeas
         <SoftwareImpactMeasureCard
           branch={branch}
           component={component}
+          conditions={conditions}
           softwareQuality={SoftwareQuality.Maintainability}
           ratingMetricKey={MetricKey.sqale_rating}
           measures={measures}

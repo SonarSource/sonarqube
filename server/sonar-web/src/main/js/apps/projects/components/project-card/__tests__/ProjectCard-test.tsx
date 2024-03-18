@@ -65,7 +65,7 @@ it('should display tags', async () => {
 it('should display private badge', () => {
   const project: Project = { ...PROJECT, visibility: Visibility.Private };
   renderProjectCard(project);
-  expect(screen.getByLabelText('visibility.private')).toBeInTheDocument();
+  expect(screen.getByText('visibility.private')).toBeInTheDocument();
 });
 
 it('should display configure analysis button for logged in user and scan rights', () => {
@@ -81,7 +81,7 @@ it('should not display configure analysis button for logged in user and without 
 
 it('should display applications', () => {
   renderProjectCard({ ...PROJECT, qualifier: ComponentQualifier.Application });
-  expect(screen.getByLabelText('qualifier.APP')).toBeInTheDocument();
+  expect(screen.getAllByText('qualifier.APP')).toHaveLength(2);
 });
 
 it('should not display awaiting analysis badge and do not display old measures', () => {
@@ -97,7 +97,7 @@ it('should not display awaiting analysis badge and do not display old measures',
       [MetricKey.vulnerabilities]: '6',
     },
   });
-  expect(screen.queryByRole('status', { name: 'projects.awaiting_scan' })).not.toBeInTheDocument();
+  expect(screen.queryByText('projects.awaiting_scan')).not.toBeInTheDocument();
   expect(screen.getByText('1')).toBeInTheDocument();
   expect(screen.getByText('2')).toBeInTheDocument();
   expect(screen.getByText('3')).toBeInTheDocument();
@@ -116,10 +116,10 @@ it('should display awaiting analysis badge and show the old measures', async () 
       [MetricKey.vulnerabilities]: '6',
     },
   });
-  expect(screen.getByRole('status', { name: 'projects.awaiting_scan' })).toBeInTheDocument();
-  await expect(
-    screen.getByRole('status', { name: 'projects.awaiting_scan' }),
-  ).toHaveATooltipWithContent('projects.awaiting_scan.description.TRK');
+  expect(screen.getByText('projects.awaiting_scan')).toBeInTheDocument();
+  await expect(screen.getByText('projects.awaiting_scan')).toHaveATooltipWithContent(
+    'projects.awaiting_scan.description.TRK',
+  );
   expect(screen.getByText('4')).toBeInTheDocument();
   expect(screen.getByText('5')).toBeInTheDocument();
   expect(screen.getByText('6')).toBeInTheDocument();
@@ -136,10 +136,10 @@ it('should display awaiting analysis badge and show the old measures for Applica
       [MetricKey.vulnerabilities]: '6',
     },
   });
-  expect(screen.getByRole('status', { name: 'projects.awaiting_scan' })).toBeInTheDocument();
-  await expect(
-    screen.getByRole('status', { name: 'projects.awaiting_scan' }),
-  ).toHaveATooltipWithContent('projects.awaiting_scan.description.APP');
+  expect(screen.getByText('projects.awaiting_scan')).toBeInTheDocument();
+  await expect(screen.getByText('projects.awaiting_scan')).toHaveATooltipWithContent(
+    'projects.awaiting_scan.description.APP',
+  );
   expect(screen.getByText('4')).toBeInTheDocument();
   expect(screen.getByText('5')).toBeInTheDocument();
   expect(screen.getByText('6')).toBeInTheDocument();
@@ -150,7 +150,7 @@ it('should not display awaiting analysis badge if project is not analyzed', () =
     ...PROJECT,
     analysisDate: undefined,
   });
-  expect(screen.queryByRole('status', { name: 'projects.awaiting_scan' })).not.toBeInTheDocument();
+  expect(screen.queryByText('projects.awaiting_scan')).not.toBeInTheDocument();
 });
 
 it('should not display awaiting analysis badge if project does not have lines of code', () => {
@@ -160,12 +160,12 @@ it('should not display awaiting analysis badge if project does not have lines of
       ...(({ [MetricKey.ncloc]: _, ...rest }) => rest)(MEASURES),
     },
   });
-  expect(screen.queryByRole('status', { name: 'projects.awaiting_scan' })).not.toBeInTheDocument();
+  expect(screen.queryByText('projects.awaiting_scan')).not.toBeInTheDocument();
 });
 
 it('should not display awaiting analysis badge if it is a new code filter', () => {
   renderProjectCard(PROJECT, undefined, 'leak');
-  expect(screen.queryByRole('status', { name: 'projects.awaiting_scan' })).not.toBeInTheDocument();
+  expect(screen.queryByText('projects.awaiting_scan')).not.toBeInTheDocument();
 });
 
 it('should display 3 aplication', () => {

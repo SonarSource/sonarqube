@@ -46,7 +46,7 @@ it('should render correctly', async () => {
 
   expect(await screen.findAllByText('metric.level.ERROR')).toHaveLength(2);
   expect(screen.getAllByText('metric.level.OK')).toHaveLength(2);
-  expect(screen.getByRole('status', { name: 'v1.0' })).toBeInTheDocument();
+  expect(screen.getByText('v1.0')).toBeInTheDocument();
   expect(screen.getByText(/event.category.OTHER/)).toBeInTheDocument();
   expect(screen.getByText(/event.category.DEFINITION_CHANGE/)).toBeInTheDocument();
   expect(screen.getByText('event.sqUpgrade10.2')).toBeInTheDocument();

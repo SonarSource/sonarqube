@@ -32,8 +32,7 @@ const variantList: Record<BadgeVariant, ThemeColors> = {
   counterFailed: 'badgeCounterFailed',
 };
 
-interface BadgeProps {
-  children: string | number;
+interface BadgeProps extends React.PropsWithChildren {
   className?: string;
   title?: string;
   variant?: BadgeVariant;
@@ -41,9 +40,9 @@ interface BadgeProps {
 
 export function Badge({ className, children, title, variant = 'default' }: BadgeProps) {
   const commonProps = {
-    'aria-label': title ?? children.toString(),
+    'aria-label': title,
     className,
-    role: 'status',
+    role: title ? 'img' : 'presentation',
     title,
   };
 

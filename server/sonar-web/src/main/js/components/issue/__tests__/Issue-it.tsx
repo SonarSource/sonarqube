@@ -71,7 +71,7 @@ describe('rendering', () => {
 
   it('should render correctly for external rule engines', () => {
     renderIssue({ issue: mockIssue(true, { externalRuleEngine: 'ESLINT' }) });
-    expect(screen.getByRole('status', { name: 'ESLINT' })).toBeInTheDocument();
+    expect(screen.getByText('ESLINT')).toBeInTheDocument();
   });
 
   it('should render the SonarLint icon correctly', async () => {

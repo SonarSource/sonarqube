@@ -20,9 +20,9 @@
 import styled from '@emotion/styled';
 import { LinkHighlight, LinkStandalone } from '@sonarsource/echoes-react';
 import classNames from 'classnames';
-import { BasicSeparator, LightGreyCard, TextBold, TextSubdued } from 'design-system';
+import { Badge, BasicSeparator, LightGreyCard, TextBold, TextSubdued } from 'design-system';
 import * as React from 'react';
-import { useIntl } from 'react-intl';
+import { FormattedMessage, useIntl } from 'react-intl';
 import Tooltip from '../../../components/controls/Tooltip';
 import { DEFAULT_ISSUES_QUERY } from '../../../components/shared/utils';
 import {
@@ -39,14 +39,16 @@ import {
   SoftwareQuality,
 } from '../../../types/clean-code-taxonomy';
 import { MetricKey, MetricType } from '../../../types/metrics';
+import { QualityGateStatusConditionEnhanced } from '../../../types/quality-gates';
 import { Component, MeasureEnhanced } from '../../../types/types';
 import { OverviewDisabledLinkTooltip } from '../components/OverviewDisabledLinkTooltip';
-import { softwareQualityToMeasure } from '../utils';
+import { Status, softwareQualityToMeasure } from '../utils';
 import SoftwareImpactMeasureBreakdownCard from './SoftwareImpactMeasureBreakdownCard';
 import SoftwareImpactMeasureRating from './SoftwareImpactMeasureRating';
 
 export interface SoftwareImpactBreakdownCardProps {
   component: Component;
+  conditions: QualityGateStatusConditionEnhanced[];
   softwareQuality: SoftwareQuality;
   ratingMetricKey: MetricKey;
   measures: MeasureEnhanced[];
@@ -54,7 +56,7 @@ export interface SoftwareImpactBreakdownCardProps {
 }
 
 export function SoftwareImpactMeasureCard(props: Readonly<SoftwareImpactBreakdownCardProps>) {
-  const { component, softwareQuality, ratingMetricKey, measures, branch } = props;
+  const { component, conditions, softwareQuality, ratingMetricKey, measures, branch } = props;
 
   const intl = useIntl();
 
@@ -92,12 +94,21 @@ export function SoftwareImpactMeasureCard(props: Readonly<SoftwareImpactBreakdow
     intl.formatMessage({ id: 'overview.measures.software_impact.count_tooltip' })
   );
 
+  const failed = conditions.some((c) => c.level === Status.ERROR && c.metric === ratingMetricKey);
+
   return (
     <LightGreyCard
       data-testid={`overview__software-impact-card-${softwareQuality}`}
       className="sw-w-1/3 sw-overflow-hidden sw-rounded-2 sw-p-4 sw-flex-col"
     >
-      <TextBold name={intl.formatMessage({ id: `software_quality.${softwareQuality}` })} />
+      <div className="sw-flex sw-justify-between">
+        <TextBold name={intl.formatMessage({ id: `software_quality.${softwareQuality}` })} />
+        {failed && (
+          <Badge className="sw-h-fit" variant="deleted">
+            <FormattedMessage id="overview.measures.failed_badge" />
+          </Badge>
+        )}
+      </div>
       <BasicSeparator className="sw--mx-4" />
       <div className="sw-flex sw-flex-col sw-gap-3">
         <div className="sw-flex sw-mt-2">

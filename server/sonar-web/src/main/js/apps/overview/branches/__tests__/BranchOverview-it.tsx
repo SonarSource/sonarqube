@@ -262,6 +262,21 @@ describe('project overview', () => {
 
   // eslint-disable-next-line jest/expect-expect
   it('should render software impact measure cards', async () => {
+    qualityGatesHandler.setQualityGateProjectStatus(
+      mockQualityGateProjectStatus({
+        status: 'ERROR',
+        conditions: [
+          {
+            actualValue: '2',
+            comparator: 'GT',
+            errorThreshold: '1',
+            metricKey: MetricKey.reliability_rating,
+            periodIndex: 1,
+            status: 'ERROR',
+          },
+        ],
+      }),
+    );
     const { user, ui } = getPageObjects();
     renderBranchOverview();
 
@@ -288,6 +303,8 @@ describe('project overview', () => {
         [SoftwareImpactSeverity.Low]: 1,
       },
       [false, true, false],
+      undefined,
+      true,
     );
     ui.expectSoftwareImpactMeasureCard(
       SoftwareQuality.Maintainability,
