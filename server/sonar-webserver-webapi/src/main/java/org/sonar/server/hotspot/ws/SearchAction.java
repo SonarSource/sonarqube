@@ -47,6 +47,7 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.Paging;
 import org.sonar.api.utils.System2;
+import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
@@ -56,6 +57,8 @@ import org.sonar.db.issue.IssueDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.protobuf.DbIssues;
 import org.sonar.db.rule.RuleDto;
+import org.sonar.db.user.TokenType;
+import org.sonar.db.user.UserTokenDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.exceptions.NotFoundException;
@@ -64,6 +67,8 @@ import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.issue.index.IssueIndexSyncProgressChecker;
 import org.sonar.server.issue.index.IssueQuery;
 import org.sonar.server.security.SecurityStandards;
+import org.sonar.server.user.ThreadLocalUserSession;
+import org.sonar.server.user.TokenUserSession;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.MessageFormattingUtils;
 import org.sonarqube.ws.Common;
@@ -87,7 +92,6 @@ import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.api.utils.DateUtils.longToDate;
 import static org.sonar.api.utils.Paging.forPageIndex;
-import static org.sonar.api.web.UserRole.SCAN;
 import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.core.util.stream.MoreCollectors.toSet;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
@@ -181,6 +185,19 @@ public class SearchAction implements HotspotsWsAction {
       loadRules(dbSession, searchResponseData);
       writeProtobuf(formatResponse(searchResponseData), request, response);
     }
+  }
+
+  private String getUserRoleForProject() {
+    if (userSession instanceof ThreadLocalUserSession) {
+      UserSession tokenUserSession = ((ThreadLocalUserSession) userSession).get();
+      if (tokenUserSession instanceof TokenUserSession) {
+        UserTokenDto userToken = ((TokenUserSession) tokenUserSession).getUserToken();
+        if (TokenType.PROJECT_ANALYSIS_TOKEN.name().equals(userToken.getType())) {
+          return UserRole.SCAN;
+        }
+      }
+    }
+    return UserRole.USER;
   }
 
   private void checkIfNeedIssueSync(DbSession dbSession, WsRequest wsRequest) {
@@ -327,8 +344,9 @@ public class SearchAction implements HotspotsWsAction {
       if (!Scopes.PROJECT.equals(project.scope()) || !SUPPORTED_QUALIFIERS.contains(project.qualifier()) || !project.isEnabled()) {
         throw new NotFoundException(format("Project '%s' not found", projectKey));
       }
-      userSession.checkComponentPermission(SCAN, project);
-      userSession.checkChildProjectsPermission(SCAN, project);
+      String userProjectRole = getUserRoleForProject();
+      userSession.checkComponentPermission(userProjectRole, project);
+      userSession.checkChildProjectsPermission(userProjectRole, project);
       return project;
     });
   }
