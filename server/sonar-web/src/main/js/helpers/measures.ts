@@ -23,7 +23,11 @@ import {
   QualityGateStatusConditionEnhanced,
 } from '../types/quality-gates';
 import { Dict, Measure, MeasureEnhanced, Metric } from '../types/types';
-import { CCT_SOFTWARE_QUALITY_METRICS, ONE_SECOND } from './constants';
+import {
+  CCT_SOFTWARE_QUALITY_METRICS,
+  LEAK_CCT_SOFTWARE_QUALITY_METRICS,
+  ONE_SECOND,
+} from './constants';
 import { translate, translateWithParameters } from './l10n';
 import { getCurrentLocale } from './l10nBundle';
 import { isDefined } from './types';
@@ -72,11 +76,26 @@ export function isDiffMetric(metricKey: MetricKey | string): boolean {
 }
 
 export function getDisplayMetrics(metrics: Metric[]) {
-  return metrics.filter((metric) => !metric.hidden && !['DATA', 'DISTRIB'].includes(metric.type));
+  return metrics.filter(
+    (metric) =>
+      !metric.hidden &&
+      ([...CCT_SOFTWARE_QUALITY_METRICS, ...LEAK_CCT_SOFTWARE_QUALITY_METRICS].includes(
+        metric.key as MetricKey,
+      ) ||
+        ![MetricType.Data, MetricType.Distribution].includes(metric.type as MetricType)),
+  );
 }
 
 export function findMeasure(measures: MeasureEnhanced[], metric: MetricKey | string) {
   return measures.find((measure) => measure.metric.key === metric);
+}
+
+export function areLeakCCTMeasuresComputed(measures?: Measure[] | MeasureEnhanced[]) {
+  return LEAK_CCT_SOFTWARE_QUALITY_METRICS.every((metric) =>
+    measures?.find((measure) =>
+      isMeasureEnhanced(measure) ? measure.metric.key === metric : measure.metric === metric,
+    ),
+  );
 }
 
 export function areCCTMeasuresComputed(measures?: Measure[] | MeasureEnhanced[]) {
@@ -87,9 +106,25 @@ export function areCCTMeasuresComputed(measures?: Measure[] | MeasureEnhanced[])
   );
 }
 
+export function areLeakAndOverallCCTMeasuresComputed(measures?: Measure[] | MeasureEnhanced[]) {
+  return areLeakCCTMeasuresComputed(measures) && areCCTMeasuresComputed(measures);
+}
+
 function isMeasureEnhanced(measure: Measure | MeasureEnhanced): measure is MeasureEnhanced {
   return (measure.metric as Metric)?.key !== undefined;
 }
+
+export const getCCTMeasureValue = (key: string, value?: string) => {
+  if (
+    CCT_SOFTWARE_QUALITY_METRICS.concat(LEAK_CCT_SOFTWARE_QUALITY_METRICS).includes(
+      key as MetricKey,
+    ) &&
+    value !== undefined
+  ) {
+    return JSON.parse(value).total;
+  }
+  return value;
+};
 
 const HOURS_IN_DAY = 8;
 

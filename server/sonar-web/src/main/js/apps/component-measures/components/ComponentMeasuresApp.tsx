@@ -21,6 +21,7 @@ import { withTheme } from '@emotion/react';
 import styled from '@emotion/styled';
 import { Spinner } from '@sonarsource/echoes-react';
 import {
+  FlagMessage,
   LargeCenteredLayout,
   Note,
   PageContentFontWrapper,
@@ -33,12 +34,15 @@ import { Helmet } from 'react-helmet-async';
 import { getMeasuresWithPeriod } from '../../../api/measures';
 import { getAllMetrics } from '../../../api/metrics';
 import { ComponentContext } from '../../../app/components/componentContext/ComponentContext';
+import HelpTooltip from '../../../components/controls/HelpTooltip';
 import Suggestions from '../../../components/embed-docs-modal/Suggestions';
 import { Location, Router, withRouter } from '../../../components/hoc/withRouter';
 import { enhanceMeasure } from '../../../components/measure/utils';
 import '../../../components/search-navigator.css';
+import AnalysisMissingInfoMessage from '../../../components/shared/AnalysisMissingInfoMessage';
 import { getBranchLikeQuery, isPullRequest, isSameBranchLike } from '../../../helpers/branch-like';
 import { translate } from '../../../helpers/l10n';
+import { areLeakAndOverallCCTMeasuresComputed } from '../../../helpers/measures';
 import { WithBranchLikesProps, useBranchesQuery } from '../../../queries/branch';
 import { ComponentQualifier, isPortfolioLike } from '../../../types/component';
 import { MeasurePageView } from '../../../types/measures';
@@ -134,7 +138,10 @@ class ComponentMeasuresApp extends React.PureComponent<Props, State> {
   fetchMeasures(metrics: State['metrics']) {
     const { branchLike } = this.props;
     const query = parseQuery(this.props.location.query);
-    const componentKey = query.selected || this.props.component.key;
+    const componentKey =
+      query.selected !== undefined && query.selected !== ''
+        ? query.selected
+        : this.props.component.key;
 
     const filteredKeys = getMeasuresPageMetricKeys(metrics, branchLike);
 
@@ -285,15 +292,25 @@ class ComponentMeasuresApp extends React.PureComponent<Props, State> {
           {measures.length > 0 ? (
             <div className="sw-grid sw-grid-cols-12 sw-w-full">
               <Sidebar
-                canBrowseAllChildProjects={!!canBrowseAllChildProjects}
                 measures={measures}
-                qualifier={qualifier}
                 selectedMetric={metric ? metric.key : query.metric}
                 showFullMeasures={showFullMeasures}
                 updateQuery={this.updateQuery}
               />
 
               <div className="sw-col-span-9 sw-ml-12">
+                {!canBrowseAllChildProjects && isPortfolioLike(qualifier) && (
+                  <FlagMessage className="sw-mb-4 it__portfolio_warning" variant="warning">
+                    {translate('component_measures.not_all_measures_are_shown')}
+                    <HelpTooltip
+                      className="sw-ml-2"
+                      overlay={translate('component_measures.not_all_measures_are_shown.help')}
+                    />
+                  </FlagMessage>
+                )}
+                {!areLeakAndOverallCCTMeasuresComputed(measures) && (
+                  <AnalysisMissingInfoMessage className="sw-mb-4" qualifier={qualifier} />
+                )}
                 {this.renderContent(displayOverview, query, metric)}
               </div>
             </div>

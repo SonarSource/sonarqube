@@ -29,7 +29,7 @@ interface Props {
   measure: MeasureEnhanced;
 }
 
-export default function SubnavigationMeasureValue({ measure }: Props) {
+export default function SubnavigationMeasureValue({ measure }: Readonly<Props>) {
   const isDiff = isDiffMetric(measure.metric.key);
   const value = isDiff ? measure.leak : measure.value;
   const formatted = formatMeasure(value, MetricType.Rating);

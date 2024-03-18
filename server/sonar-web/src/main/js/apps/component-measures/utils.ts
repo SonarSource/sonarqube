@@ -20,9 +20,22 @@
 import { groupBy, memoize, sortBy, toPairs } from 'lodash';
 import { enhanceMeasure } from '../../components/measure/utils';
 import { isBranch, isPullRequest } from '../../helpers/branch-like';
-import { HIDDEN_METRICS } from '../../helpers/constants';
-import { getLocalizedMetricName } from '../../helpers/l10n';
-import { MEASURES_REDIRECTION, getDisplayMetrics, isDiffMetric } from '../../helpers/measures';
+import {
+  CCT_SOFTWARE_QUALITY_METRICS,
+  HIDDEN_METRICS,
+  LEAK_CCT_SOFTWARE_QUALITY_METRICS,
+  LEAK_OLD_TAXONOMY_METRICS,
+  OLD_TAXONOMY_METRICS,
+} from '../../helpers/constants';
+import { getLocalizedMetricName, translate } from '../../helpers/l10n';
+import {
+  MEASURES_REDIRECTION,
+  areLeakCCTMeasuresComputed,
+  areCCTMeasuresComputed,
+  getDisplayMetrics,
+  isDiffMetric,
+  getCCTMeasureValue,
+} from '../../helpers/measures';
 import {
   cleanQuery,
   parseAsOptionalBoolean,
@@ -31,7 +44,7 @@ import {
 } from '../../helpers/query';
 import { BranchLike } from '../../types/branch-like';
 import { ComponentQualifier } from '../../types/component';
-import { MeasurePageView } from '../../types/measures';
+import { Domain, MeasurePageView } from '../../types/measures';
 import { MetricKey, MetricType } from '../../types/metrics';
 import {
   ComponentMeasure,
@@ -51,15 +64,102 @@ export const DEFAULT_VIEW = MeasurePageView.tree;
 export const DEFAULT_METRIC = PROJECT_OVERVEW;
 export const KNOWN_DOMAINS = [
   'Releasability',
-  'Reliability',
   'Security',
-  'SecurityReview',
+  'Reliability',
   'Maintainability',
+  'SecurityReview',
   'Coverage',
   'Duplications',
   'Size',
   'Complexity',
 ];
+
+const CCT_METRIC_DOMAIN_MAP: Dict<string> = {
+  [MetricKey.security_issues]: 'Security',
+  [MetricKey.new_security_issues]: 'Security',
+  [MetricKey.reliability_issues]: 'Reliability',
+  [MetricKey.new_reliability_issues]: 'Reliability',
+  [MetricKey.maintainability_issues]: 'Maintainability',
+  [MetricKey.new_maintainability_issues]: 'Maintainability',
+};
+
+const DEPRECATED_METRICS = [
+  MetricKey.blocker_violations,
+  MetricKey.new_blocker_violations,
+  MetricKey.critical_violations,
+  MetricKey.new_critical_violations,
+  MetricKey.major_violations,
+  MetricKey.new_major_violations,
+  MetricKey.info_violations,
+  MetricKey.new_info_violations,
+  MetricKey.minor_violations,
+  MetricKey.new_minor_violations,
+  MetricKey.high_impact_accepted_issues,
+];
+
+const ISSUES_METRICS = [
+  MetricKey.accepted_issues,
+  MetricKey.new_accepted_issues,
+  MetricKey.confirmed_issues,
+  MetricKey.false_positive_issues,
+  MetricKey.violations,
+  MetricKey.new_violations,
+];
+
+export const populateDomainsFromMeasures = memoize((measures: MeasureEnhanced[]): Domain[] => {
+  let populatedMeasures = measures
+    .filter((measure) => !DEPRECATED_METRICS.includes(measure.metric.key as MetricKey))
+    .map((measure) => {
+      const isDiff = isDiffMetric(measure.metric.key);
+      const calculatedValue = getCCTMeasureValue(
+        measure.metric.key,
+        isDiff ? measure.leak : measure.value,
+      );
+
+      return {
+        ...measure,
+        metric: {
+          ...measure.metric,
+          domain: CCT_METRIC_DOMAIN_MAP[measure.metric.key] ?? measure.metric.domain,
+        },
+        ...(!isDiff && { value: calculatedValue }),
+        ...(isDiff && { leak: calculatedValue }),
+      };
+    });
+  if (areLeakCCTMeasuresComputed(measures)) {
+    populatedMeasures = populatedMeasures.filter(
+      (measure) => !LEAK_OLD_TAXONOMY_METRICS.includes(measure.metric.key as MetricKey),
+    );
+  }
+  if (areCCTMeasuresComputed(measures)) {
+    populatedMeasures = populatedMeasures.filter(
+      (measure) => !OLD_TAXONOMY_METRICS.includes(measure.metric.key as MetricKey),
+    );
+  }
+
+  return groupByDomains(populatedMeasures);
+});
+
+export function getMetricSubnavigationName(
+  metric: Metric,
+  translateFn: (metric: Metric) => string,
+  isDiff = false,
+) {
+  if (
+    [
+      ...LEAK_CCT_SOFTWARE_QUALITY_METRICS,
+      ...CCT_SOFTWARE_QUALITY_METRICS,
+      ...ISSUES_METRICS,
+      ...OLD_TAXONOMY_METRICS,
+      ...LEAK_OLD_TAXONOMY_METRICS,
+    ].includes(metric.key as MetricKey)
+  ) {
+    return translate(
+      `component_measures.metric.${metric.key}.${isDiff ? 'detailed_name' : 'name'}`,
+    );
+  }
+  return translateFn(metric);
+}
 
 export function filterMeasures(measures: MeasureEnhanced[]): MeasureEnhanced[] {
   return measures.filter((measure) => !HIDDEN_METRICS.includes(measure.metric.key as MetricKey));

@@ -17,8 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { LinkStandalone } from '@sonarsource/echoes-react';
 import classNames from 'classnames';
-import { Link, MetricsLabel, MetricsRatingBadge } from 'design-system';
+import { MetricsLabel, MetricsRatingBadge } from 'design-system';
 import * as React from 'react';
 import LanguageDistribution from '../../../components/charts/LanguageDistribution';
 import Tooltip from '../../../components/controls/Tooltip';
@@ -30,7 +31,7 @@ import { BranchLike } from '../../../types/branch-like';
 import { ComponentQualifier } from '../../../types/component';
 import { MetricKey, MetricType } from '../../../types/metrics';
 import { ComponentMeasure, Metric, Period, Measure as TypeMeasure } from '../../../types/types';
-import { hasFullMeasures } from '../utils';
+import { getMetricSubnavigationName, hasFullMeasures } from '../utils';
 import LeakPeriodLegend from './LeakPeriodLegend';
 
 interface Props {
@@ -42,7 +43,7 @@ interface Props {
   secondaryMeasure?: TypeMeasure;
 }
 
-export default function MeasureHeader(props: Props) {
+export default function MeasureHeader(props: Readonly<Props>) {
   const { branchLike, component, leakPeriod, measureValue, metric, secondaryMeasure } = props;
   const isDiff = isDiffMetric(metric.key);
   const hasHistory =
@@ -53,11 +54,13 @@ export default function MeasureHeader(props: Props) {
       ComponentQualifier.Project,
     ].includes(component.qualifier as ComponentQualifier) && hasFullMeasures(branchLike);
   const displayLeak = hasFullMeasures(branchLike);
+  const title = getMetricSubnavigationName(metric, getLocalizedMetricName, isDiff);
+
   return (
     <div className="sw-mb-4">
       <div className="sw-flex sw-items-center sw-justify-between sw-gap-4">
         <div className="it__measure-details-metric sw-flex sw-items-center sw-gap-1">
-          <strong className="sw-body-md-highlight">{getLocalizedMetricName(metric)}</strong>
+          <strong className="sw-body-md-highlight">{title}</strong>
 
           <div className="sw-flex sw-items-center sw-ml-2">
             <Measure
@@ -84,12 +87,12 @@ export default function MeasureHeader(props: Props) {
           {!isDiff && hasHistory && (
             <Tooltip overlay={translate('component_measures.show_metric_history')}>
               <span className="sw-ml-4">
-                <Link
+                <LinkStandalone
                   className="it__show-history-link sw-font-semibold"
                   to={getMeasureHistoryUrl(component.key, metric.key, branchLike)}
                 >
                   {translate('component_measures.see_metric_history')}
-                </Link>
+                </LinkStandalone>
               </span>
             </Tooltip>
           )}

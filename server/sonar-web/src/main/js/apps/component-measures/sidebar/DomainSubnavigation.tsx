@@ -34,7 +34,12 @@ import {
   translate,
 } from '../../../helpers/l10n';
 import { MeasureEnhanced } from '../../../types/types';
-import { addMeasureCategories, hasBubbleChart, sortMeasures } from '../utils';
+import {
+  addMeasureCategories,
+  getMetricSubnavigationName,
+  hasBubbleChart,
+  sortMeasures,
+} from '../utils';
 import DomainSubnavigationItem from './DomainSubnavigationItem';
 
 interface Props {
@@ -45,7 +50,7 @@ interface Props {
   showFullMeasures: boolean;
 }
 
-export default function DomainSubnavigation(props: Props) {
+export default function DomainSubnavigation(props: Readonly<Props>) {
   const { domain, onChange, open, selected, showFullMeasures } = props;
   const helperMessageKey = `component_measures.domain_subnavigation.${domain.name}.help`;
   const helper = hasMessage(helperMessageKey) ? translate(helperMessageKey) : undefined;
@@ -100,7 +105,7 @@ export default function DomainSubnavigation(props: Props) {
           <DomainSubnavigationItem
             key={item.metric.key}
             measure={item}
-            name={translateMetric(item.metric)}
+            name={getMetricSubnavigationName(item.metric, translateMetric)}
             onChange={onChange}
             selected={selected}
           />

@@ -92,10 +92,22 @@ export const CCT_SOFTWARE_QUALITY_METRICS = [
   MetricKey.maintainability_issues,
 ];
 
+export const LEAK_CCT_SOFTWARE_QUALITY_METRICS = [
+  MetricKey.new_security_issues,
+  MetricKey.new_reliability_issues,
+  MetricKey.new_maintainability_issues,
+];
+
 export const OLD_TAXONOMY_METRICS = [
   MetricKey.vulnerabilities,
   MetricKey.bugs,
   MetricKey.code_smells,
+];
+
+export const LEAK_OLD_TAXONOMY_METRICS = [
+  MetricKey.new_vulnerabilities,
+  MetricKey.new_bugs,
+  MetricKey.new_code_smells,
 ];
 
 export const OLD_TO_NEW_TAXONOMY_METRICS_MAP: { [key in MetricKey]?: MetricKey } = {

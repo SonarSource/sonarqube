@@ -21,7 +21,6 @@ import { withTheme } from '@emotion/react';
 import styled from '@emotion/styled';
 import {
   BareButton,
-  FlagMessage,
   LAYOUT_FOOTER_HEIGHT,
   LAYOUT_GLOBAL_NAV_HEIGHT,
   LAYOUT_PROJECT_NAV_HEIGHT,
@@ -32,33 +31,24 @@ import {
 } from 'design-system';
 import * as React from 'react';
 import A11ySkipTarget from '../../../components/a11y/A11ySkipTarget';
-import HelpTooltip from '../../../components/controls/HelpTooltip';
 import { translate } from '../../../helpers/l10n';
 import useFollowScroll from '../../../hooks/useFollowScroll';
-import { isPortfolioLike } from '../../../types/component';
 import { MeasureEnhanced } from '../../../types/types';
-import { PROJECT_OVERVEW, Query, groupByDomains, isProjectOverview } from '../utils';
+import { PROJECT_OVERVEW, Query, isProjectOverview, populateDomainsFromMeasures } from '../utils';
 import DomainSubnavigation from './DomainSubnavigation';
+import { Domain } from '../../../types/measures';
 
 interface Props {
-  canBrowseAllChildProjects: boolean;
   measures: MeasureEnhanced[];
-  qualifier: string;
   selectedMetric: string;
   showFullMeasures: boolean;
   updateQuery: (query: Partial<Query>) => void;
 }
 
-export default function Sidebar(props: Props) {
-  const {
-    showFullMeasures,
-    canBrowseAllChildProjects,
-    qualifier,
-    updateQuery,
-    selectedMetric,
-    measures,
-  } = props;
+export default function Sidebar(props: Readonly<Props>) {
+  const { showFullMeasures, updateQuery, selectedMetric, measures } = props;
   const { top: topScroll, scrolledOnce } = useFollowScroll();
+  const domains = populateDomainsFromMeasures(measures);
 
   const handleChangeMetric = React.useCallback(
     (metric: string) => {
@@ -89,15 +79,6 @@ export default function Sidebar(props: Props) {
           )`,
       }}
     >
-      {!canBrowseAllChildProjects && isPortfolioLike(qualifier) && (
-        <FlagMessage className="sw-mt-4 it__portfolio_warning" variant="warning">
-          {translate('component_measures.not_all_measures_are_shown')}
-          <HelpTooltip
-            className="sw-ml-2"
-            overlay={translate('component_measures.not_all_measures_are_shown.help')}
-          />
-        </FlagMessage>
-      )}
       <section
         className="sw-flex sw-flex-col sw-gap-4 sw-p-4"
         aria-label={translate('component_measures.navigation')}
@@ -118,7 +99,7 @@ export default function Sidebar(props: Props) {
           </SubnavigationItem>
         </SubnavigationGroup>
 
-        {groupByDomains(measures).map((domain: Domain) => (
+        {domains.map((domain: Domain) => (
           <DomainSubnavigation
             domain={domain}
             key={domain.name}
@@ -131,11 +112,6 @@ export default function Sidebar(props: Props) {
       </section>
     </StyledSidebar>
   );
-}
-
-interface Domain {
-  measures: MeasureEnhanced[];
-  name: string;
 }
 
 function isDomainSelected(selectedMetric: string, domain: Domain) {

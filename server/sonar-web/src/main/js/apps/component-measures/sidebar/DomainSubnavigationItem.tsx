@@ -29,7 +29,12 @@ interface Props {
   selected: string;
 }
 
-export default function DomainSubnavigationItem({ measure, name, onChange, selected }: Props) {
+export default function DomainSubnavigationItem({
+  measure,
+  name,
+  onChange,
+  selected,
+}: Readonly<Props>) {
   const { key } = measure.metric;
   return (
     <SubnavigationItem active={key === selected} key={key} onClick={onChange} value={key}>

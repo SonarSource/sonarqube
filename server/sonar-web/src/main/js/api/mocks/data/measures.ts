@@ -28,6 +28,7 @@ import { ComponentTree } from './components';
 import { IssueData } from './issues';
 import { listAllComponent, listAllComponentTrees } from './utils';
 
+const MAX_RATING = 5;
 export type MeasureRecords = Record<string, Record<string, Measure>>;
 
 export function mockFullMeasureData(tree: ComponentTree, issueList: IssueData[]) {
@@ -68,6 +69,21 @@ function mockComponentMeasure(tree: ComponentTree, issueList: IssueData[], metri
         }),
       });
 
+    case MetricKey.new_security_issues:
+      return mockMeasure({
+        metric: metricKey,
+        period: {
+          index: 1,
+          value: JSON.stringify({
+            total: 3,
+            [SoftwareImpactSeverity.High]: 2,
+            [SoftwareImpactSeverity.Medium]: 0,
+            [SoftwareImpactSeverity.Low]: 1,
+          }),
+        },
+        value: undefined,
+      });
+
     case MetricKey.reliability_issues:
       return mockMeasure({
         metric: metricKey,
@@ -79,6 +95,21 @@ function mockComponentMeasure(tree: ComponentTree, issueList: IssueData[], metri
         }),
       });
 
+    case MetricKey.new_reliability_issues:
+      return mockMeasure({
+        metric: metricKey,
+        period: {
+          index: 1,
+          value: JSON.stringify({
+            total: 2,
+            [SoftwareImpactSeverity.High]: 0,
+            [SoftwareImpactSeverity.Medium]: 1,
+            [SoftwareImpactSeverity.Low]: 1,
+          }),
+        },
+        value: undefined,
+      });
+
     case MetricKey.maintainability_issues:
       return mockMeasure({
         metric: metricKey,
@@ -88,6 +119,21 @@ function mockComponentMeasure(tree: ComponentTree, issueList: IssueData[], metri
           [SoftwareImpactSeverity.Medium]: 0,
           [SoftwareImpactSeverity.Low]: 1,
         }),
+      });
+
+    case MetricKey.new_maintainability_issues:
+      return mockMeasure({
+        metric: metricKey,
+        period: {
+          index: 1,
+          value: JSON.stringify({
+            total: 5,
+            [SoftwareImpactSeverity.High]: 2,
+            [SoftwareImpactSeverity.Medium]: 2,
+            [SoftwareImpactSeverity.Low]: 1,
+          }),
+        },
+        value: undefined,
       });
   }
 
@@ -234,13 +280,16 @@ function mockComponentMeasure(tree: ComponentTree, issueList: IssueData[], metri
 export function getMetricTypeFromKey(metricKey: string) {
   if (/(coverage|duplication)$/.test(metricKey)) {
     return MetricType.Percent;
-  } else if (/_rating$/.test(metricKey)) {
+  } else if (metricKey.includes('_rating')) {
     return MetricType.Rating;
   } else if (
     [
       MetricKey.reliability_issues,
+      MetricKey.new_reliability_issues,
       MetricKey.security_issues,
+      MetricKey.new_security_issues,
       MetricKey.maintainability_issues,
+      MetricKey.new_maintainability_issues,
     ].includes(metricKey as MetricKey)
   ) {
     return MetricType.Data;
@@ -276,7 +325,7 @@ function isIssueRelatedRating(metricKey: MetricKey) {
  * ratio to the LOC. But using the number will suffice as an approximation in our tests.
  */
 function computeRating(issues: RawIssue[], type: IssueType) {
-  const value = Math.max(Math.min(issues.filter((i) => i.type === type).length, 5), 1);
+  const value = Math.max(Math.min(issues.filter((i) => i.type === type).length, MAX_RATING), 1);
   return {
     value: `${value}.0`,
     bestValue: value === 1,

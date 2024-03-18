@@ -88,11 +88,11 @@ describe('rendering', () => {
     // Check one of the domains.
     await user.click(ui.maintainabilityDomainBtn.get());
     [
-      'New Code Smells 8',
+      'component_measures.metric.new_maintainability_issues.name 5',
       'Added Technical Debt work_duration.x_minutes.1',
       'Technical Debt Ratio on New Code 1.0%',
       'Maintainability Rating on New Code metric.has_rating_X.E',
-      'Code Smells 8',
+      'component_measures.metric.maintainability_issues.name 2',
       'Technical Debt work_duration.x_minutes.1',
       'Technical Debt Ratio 1.0%',
       'Maintainability Rating metric.has_rating_X.E',
@@ -100,6 +100,32 @@ describe('rendering', () => {
     ].forEach((measure) => {
       expect(ui.measureBtn(measure).get()).toBeInTheDocument();
     });
+  });
+
+  it('should correctly revert to old measures when analysis is missing', async () => {
+    measuresHandler.deleteComponentMeasure('foo', MetricKey.maintainability_issues);
+    measuresHandler.deleteComponentMeasure('foo', MetricKey.new_maintainability_issues);
+
+    const { ui, user } = getPageObject();
+    renderMeasuresApp();
+    await ui.appLoaded();
+
+    // Check one of the domains.
+    await user.click(ui.maintainabilityDomainBtn.get());
+    [
+      'component_measures.metric.new_code_smells.name 8',
+      'Added Technical Debt work_duration.x_minutes.1',
+      'Technical Debt Ratio on New Code 1.0%',
+      'Maintainability Rating on New Code metric.has_rating_X.E',
+      'component_measures.metric.code_smells.name 8',
+      'Technical Debt work_duration.x_minutes.1',
+      'Technical Debt Ratio 1.0%',
+      'Maintainability Rating metric.has_rating_X.E',
+      'Effort to Reach Maintainability Rating A work_duration.x_minutes.1',
+    ].forEach((measure) => {
+      expect(ui.measureBtn(measure).get()).toBeInTheDocument();
+    });
+    expect(screen.getByText('overview.missing_project_data.TRK')).toBeInTheDocument();
   });
 
   it('should correctly render a list view', async () => {
@@ -172,7 +198,17 @@ describe('rendering', () => {
     renderMeasuresApp('component_measures?id=foo&metric=open_issues');
     await ui.appLoaded();
 
-    expect(screen.getAllByText('Issues').length).toBeGreaterThan(1);
+    expect(screen.getAllByText('Issues').length).toEqual(1);
+    [
+      'component_measures.metric.new_violations.name 1',
+      'component_measures.metric.violations.name 1',
+      'component_measures.metric.confirmed_issues.name 1',
+      'component_measures.metric.accepted_issues.name 1',
+      'component_measures.metric.new_accepted_issues.name 1',
+      'component_measures.metric.false_positive_issues.name 1',
+    ].forEach((measure) => {
+      expect(ui.measureBtn(measure).get()).toBeInTheDocument();
+    });
   });
 
   it('should render correctly if there are no measures', async () => {
@@ -267,14 +303,16 @@ describe('rendering', () => {
 
   it('should correctly render a link to the activity page', async () => {
     const { ui, user } = getPageObject();
-    renderMeasuresApp('component_measures?id=foo&metric=new_code_smells');
+    renderMeasuresApp('component_measures?id=foo&metric=new_maintainability_issues');
     await ui.appLoaded();
 
     expect(ui.goToActivityLink.query()).not.toBeInTheDocument();
-    await user.click(ui.measureBtn('Code Smells 8').get());
+    await user.click(
+      ui.measureBtn('component_measures.metric.maintainability_issues.name 2').get(),
+    );
     expect(ui.goToActivityLink.get()).toHaveAttribute(
       'href',
-      '/project/activity?id=foo&graph=custom&custom_metrics=code_smells',
+      '/project/activity?id=foo&graph=custom&custom_metrics=maintainability_issues',
     );
   });
 
@@ -305,9 +343,11 @@ describe('navigation', () => {
     // Drilldown to the file level.
     await user.click(ui.maintainabilityDomainBtn.get());
 
-    await user.click(ui.measureBtn('Code Smells 8').get());
+    await user.click(
+      ui.measureBtn('component_measures.metric.maintainability_issues.name 2').get(),
+    );
     expect(
-      within(ui.measuresRow('folderA').get()).getByRole('cell', { name: '3' }),
+      within(ui.measuresRow('folderA').get()).getByRole('cell', { name: '2' }),
     ).toBeInTheDocument();
     expect(
       within(ui.measuresRow('test1.js').get()).getByRole('cell', { name: '2' }),
@@ -315,7 +355,7 @@ describe('navigation', () => {
 
     await user.click(ui.fileLink('folderA').get());
     expect(
-      within(ui.measuresRow('out.tsx').get()).getByRole('cell', { name: '1' }),
+      within(ui.measuresRow('out.tsx').get()).getByRole('cell', { name: '2' }),
     ).toBeInTheDocument();
     expect(
       within(ui.measuresRow('in.tsx').get()).getByRole('cell', { name: '2' }),
@@ -336,11 +376,13 @@ describe('navigation', () => {
     await ui.appLoaded();
 
     await user.click(ui.maintainabilityDomainBtn.get());
-    await user.click(ui.measureBtn('Code Smells 8').get());
+    await user.click(
+      ui.measureBtn('component_measures.metric.maintainability_issues.name 2').get(),
+    );
     await waitFor(() => ui.changeViewToList());
 
     expect(
-      within(await ui.measuresRow('out.tsx').find()).getByRole('cell', { name: '1' }),
+      within(await ui.measuresRow('out.tsx').find()).getByRole('cell', { name: '2' }),
     ).toBeInTheDocument();
     expect(
       within(ui.measuresRow('test1.js').get()).getByRole('cell', { name: '2' }),
@@ -378,13 +420,15 @@ describe('navigation', () => {
 
     // Drilldown to the file level.
     await user.click(ui.maintainabilityDomainBtn.get());
-    await user.click(ui.measureBtn('Code Smells 8').get());
+    await user.click(
+      ui.measureBtn('component_measures.metric.maintainability_issues.name 2').get(),
+    );
 
     await ui.arrowDown(); // Select the 1st element ("folderA")
     await ui.arrowRight(); // Open "folderA"
 
     expect(
-      within(ui.measuresRow('out.tsx').get()).getByRole('cell', { name: '1' }),
+      within(ui.measuresRow('out.tsx').get()).getByRole('cell', { name: '2' }),
     ).toBeInTheDocument();
     expect(
       within(ui.measuresRow('in.tsx').get()).getByRole('cell', { name: '2' }),
@@ -394,7 +438,7 @@ describe('navigation', () => {
     await ui.arrowLeft(); // Close "folderA"
 
     expect(
-      within(ui.measuresRow('folderA').get()).getByRole('cell', { name: '3' }),
+      within(ui.measuresRow('folderA').get()).getByRole('cell', { name: '2' }),
     ).toBeInTheDocument();
 
     await ui.arrowRight(); // Open "folderA"
@@ -416,15 +460,41 @@ describe('redirects', () => {
   });
 
   it('should redirect old metric route', async () => {
+    measuresHandler.deleteComponentMeasure('foo', MetricKey.maintainability_issues);
+    measuresHandler.deleteComponentMeasure('foo', MetricKey.new_maintainability_issues);
+
     const { ui } = getPageObject();
     renderMeasuresApp('component_measures/metric/bugs?id=foo');
     await ui.appLoaded();
-    expect(ui.measureBtn('Bugs 0').get()).toHaveAttribute('aria-current', 'true');
+    expect(ui.measureBtn('component_measures.metric.bugs.name 0').get()).toHaveAttribute(
+      'aria-current',
+      'true',
+    );
+  });
+
+  it('should redirect old metric route for software qualities', async () => {
+    const { ui } = getPageObject();
+    renderMeasuresApp('component_measures/metric/security_issues?id=foo');
+    await ui.appLoaded();
+    expect(ui.measureBtn('component_measures.metric.security_issues.name 1').get()).toHaveAttribute(
+      'aria-current',
+      'true',
+    );
   });
 
   it('should redirect old domain route', async () => {
+    measuresHandler.deleteComponentMeasure('foo', MetricKey.maintainability_issues);
+    measuresHandler.deleteComponentMeasure('foo', MetricKey.new_maintainability_issues);
+
     const { ui } = getPageObject();
     renderMeasuresApp('component_measures/domain/bugs?id=foo');
+    await ui.appLoaded();
+    expect(ui.reliabilityDomainBtn.get()).toHaveAttribute('aria-expanded', 'true');
+  });
+
+  it('should redirect old domain route for software qualities', async () => {
+    const { ui } = getPageObject();
+    renderMeasuresApp('component_measures/domain/reliability_issues?id=foo');
     await ui.appLoaded();
     expect(ui.reliabilityDomainBtn.get()).toHaveAttribute('aria-expanded', 'true');
   });

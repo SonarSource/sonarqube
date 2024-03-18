@@ -21,7 +21,7 @@ import { MetricsLabel, MetricsRatingBadge, NumericalCell } from 'design-system';
 import * as React from 'react';
 import Measure from '../../../components/measure/Measure';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
-import { formatMeasure, isDiffMetric } from '../../../helpers/measures';
+import { formatMeasure, getCCTMeasureValue, isDiffMetric } from '../../../helpers/measures';
 import { MetricType } from '../../../types/metrics';
 import { ComponentMeasureEnhanced, MeasureEnhanced, Metric } from '../../../types/types';
 
@@ -35,7 +35,8 @@ export default function MeasureCell({ component, measure, metric }: Props) {
   const getValue = (item: { leak?: string; value?: string }) =>
     isDiffMetric(metric.key) ? item.leak : item.value;
 
-  const value = getValue(measure || component);
+  const rawValue = getValue(measure || component);
+  const value = getCCTMeasureValue(metric.key, rawValue);
 
   return (
     <NumericalCell className="sw-py-3">

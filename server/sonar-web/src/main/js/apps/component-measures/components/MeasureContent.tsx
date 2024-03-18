@@ -29,7 +29,7 @@ import { getBranchLikeQuery, isSameBranchLike } from '../../../helpers/branch-li
 import { getComponentMeasureUniqueKey } from '../../../helpers/component';
 import { KeyboardKeys } from '../../../helpers/keycodes';
 import { translate } from '../../../helpers/l10n';
-import { isDiffMetric } from '../../../helpers/measures';
+import { getCCTMeasureValue, isDiffMetric } from '../../../helpers/measures';
 import { RequestData } from '../../../helpers/request';
 import { isDefined } from '../../../helpers/types';
 import { getProjectUrl } from '../../../helpers/urls';
@@ -94,8 +94,14 @@ export default class MeasureContent extends React.PureComponent<Props, State> {
   }
 
   componentDidUpdate(prevProps: Props) {
-    const prevComponentKey = prevProps.selected || prevProps.rootComponent.key;
-    const componentKey = this.props.selected || this.props.rootComponent.key;
+    const prevComponentKey =
+      prevProps.selected !== undefined && prevProps.selected !== ''
+        ? prevProps.selected
+        : prevProps.rootComponent.key;
+    const componentKey =
+      this.props.selected !== undefined && this.props.selected !== ''
+        ? this.props.selected
+        : this.props.rootComponent.key;
     if (
       prevComponentKey !== componentKey ||
       !isSameBranchLike(prevProps.branchLike, this.props.branchLike) ||
@@ -116,7 +122,7 @@ export default class MeasureContent extends React.PureComponent<Props, State> {
     const { metricKeys, opts, strategy } = this.getComponentRequestParams(view, requestedMetric, {
       ...(asc !== undefined && { asc }),
     });
-    const componentKey = selected || rootComponent.key;
+    const componentKey = selected !== undefined && selected !== '' ? selected : rootComponent.key;
     const baseComponentMetrics = [requestedMetric.key];
     if (requestedMetric.key === MetricKey.ncloc) {
       baseComponentMetrics.push(MetricKey.ncloc_language_distribution);
@@ -347,8 +353,10 @@ export default class MeasureContent extends React.PureComponent<Props, State> {
       return null;
     }
 
-    const measureValue =
+    const rawMeasureValue =
       measure && (isDiffMetric(measure.metric) ? measure.period?.value : measure.value);
+    const measureValue = getCCTMeasureValue(metric.key, rawMeasureValue);
+
     const isFileComponent = isFile(baseComponent.qualifier);
     const selectedIdx = this.getSelectedIndex();
 

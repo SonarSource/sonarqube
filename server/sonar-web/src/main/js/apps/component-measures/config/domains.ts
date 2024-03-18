@@ -23,16 +23,21 @@ interface Domains {
   [domain: string]: { categories?: string[]; order: string[] };
 }
 
+const NEW_CODE_CATEGORY = 'new_code_category';
+const OVERALL_CATEGORY = 'overall_category';
+
 export const domains: Domains = {
   Reliability: {
-    categories: ['new_code_category', 'overall_category'],
+    categories: [NEW_CODE_CATEGORY, OVERALL_CATEGORY],
     order: [
-      'new_code_category',
+      NEW_CODE_CATEGORY,
+      MetricKey.new_reliability_issues,
       MetricKey.new_bugs,
       MetricKey.new_reliability_rating,
       MetricKey.new_reliability_remediation_effort,
 
-      'overall_category',
+      OVERALL_CATEGORY,
+      MetricKey.reliability_issues,
       MetricKey.bugs,
       MetricKey.reliability_rating,
       MetricKey.reliability_remediation_effort,
@@ -40,14 +45,16 @@ export const domains: Domains = {
   },
 
   Security: {
-    categories: ['new_code_category', 'overall_category'],
+    categories: [NEW_CODE_CATEGORY, OVERALL_CATEGORY],
     order: [
-      'new_code_category',
+      NEW_CODE_CATEGORY,
+      MetricKey.new_security_issues,
       MetricKey.new_vulnerabilities,
       MetricKey.new_security_rating,
       MetricKey.new_security_remediation_effort,
 
-      'overall_category',
+      OVERALL_CATEGORY,
+      MetricKey.security_issues,
       MetricKey.vulnerabilities,
       MetricKey.security_rating,
       MetricKey.security_remediation_effort,
@@ -55,14 +62,14 @@ export const domains: Domains = {
   },
 
   SecurityReview: {
-    categories: ['new_code_category', 'overall_category'],
+    categories: [NEW_CODE_CATEGORY, OVERALL_CATEGORY],
     order: [
-      'new_code_category',
+      NEW_CODE_CATEGORY,
       MetricKey.new_security_hotspots,
       MetricKey.new_security_review_rating,
       MetricKey.new_security_hotspots_reviewed,
 
-      'overall_category',
+      OVERALL_CATEGORY,
       MetricKey.security_hotspots,
       MetricKey.security_review_rating,
       MetricKey.security_hotspots_reviewed,
@@ -70,15 +77,17 @@ export const domains: Domains = {
   },
 
   Maintainability: {
-    categories: ['new_code_category', 'overall_category'],
+    categories: [NEW_CODE_CATEGORY, OVERALL_CATEGORY],
     order: [
-      'new_code_category',
+      NEW_CODE_CATEGORY,
+      MetricKey.new_maintainability_issues,
       MetricKey.new_code_smells,
       MetricKey.new_technical_debt,
       MetricKey.new_sqale_debt_ratio,
       MetricKey.new_maintainability_rating,
 
-      'overall_category',
+      OVERALL_CATEGORY,
+      MetricKey.maintainability_issues,
       MetricKey.code_smells,
       MetricKey.sqale_index,
       MetricKey.sqale_debt_ratio,
@@ -88,9 +97,9 @@ export const domains: Domains = {
   },
 
   Coverage: {
-    categories: ['new_code_category', 'overall_category', 'tests_category'],
+    categories: [NEW_CODE_CATEGORY, OVERALL_CATEGORY, 'tests_category'],
     order: [
-      'new_code_category',
+      NEW_CODE_CATEGORY,
       MetricKey.new_coverage,
       MetricKey.new_lines_to_cover,
       MetricKey.new_uncovered_lines,
@@ -99,7 +108,7 @@ export const domains: Domains = {
       MetricKey.new_uncovered_conditions,
       MetricKey.new_branch_coverage,
 
-      'overall_category',
+      OVERALL_CATEGORY,
       MetricKey.coverage,
       MetricKey.lines_to_cover,
       MetricKey.uncovered_lines,
@@ -119,14 +128,14 @@ export const domains: Domains = {
   },
 
   Duplications: {
-    categories: ['new_code_category', 'overall_category'],
+    categories: [NEW_CODE_CATEGORY, OVERALL_CATEGORY],
     order: [
-      'new_code_category',
+      NEW_CODE_CATEGORY,
       MetricKey.new_duplicated_lines_density,
       MetricKey.new_duplicated_lines,
       MetricKey.new_duplicated_blocks,
 
-      'overall_category',
+      OVERALL_CATEGORY,
       MetricKey.duplicated_lines_density,
       MetricKey.duplicated_lines,
       MetricKey.duplicated_blocks,
@@ -157,23 +166,16 @@ export const domains: Domains = {
   },
 
   Issues: {
+    categories: [NEW_CODE_CATEGORY, OVERALL_CATEGORY],
     order: [
+      NEW_CODE_CATEGORY,
       MetricKey.new_violations,
-      MetricKey.new_blocker_violations,
-      MetricKey.new_critical_violations,
-      MetricKey.new_major_violations,
-      MetricKey.new_minor_violations,
-      MetricKey.new_info_violations,
+      MetricKey.new_accepted_issues,
 
+      OVERALL_CATEGORY,
       MetricKey.violations,
-      MetricKey.blocker_violations,
-      MetricKey.critical_violations,
-      MetricKey.major_violations,
-      MetricKey.minor_violations,
-      MetricKey.info_violations,
-      MetricKey.open_issues,
-      MetricKey.reopened_issues,
       MetricKey.confirmed_issues,
+      MetricKey.accepted_issues,
       MetricKey.false_positive_issues,
     ],
   },
