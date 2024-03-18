@@ -155,7 +155,17 @@ it('should render links correctly', async () => {
     }).get(),
   ).toHaveAttribute('href', '/project/issues?fixedInPullRequest=1001&id=foo');
 
-  expect(screen.getByLabelText('no_data')).toBeInTheDocument();
+  expect(
+    screen.getByRole('link', { name: 'no_measure_value_x.metric.new_security_hotspots.name' }),
+  ).toBeInTheDocument();
+  expect(
+    screen.getByRole('link', { name: 'no_measure_value_x.metric.new_accepted_issues.name' }),
+  ).toBeInTheDocument();
+  expect(
+    screen.getByRole('link', {
+      name: 'no_measure_value_x.metric.new_duplicated_lines_density.name',
+    }),
+  ).toBeInTheDocument();
 });
 
 it('should render correctly for a passed QG', async () => {

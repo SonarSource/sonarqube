@@ -172,6 +172,7 @@ export default function NewCodeMeasuresPanel(props: Readonly<Props>) {
             : 'issue.type.SECURITY_HOTSPOT.plural'
         }
         url={getComponentSecurityHotspotsUrl(component.key, {
+          inNewCodePeriod: 'true',
           ...getBranchLikeQuery(branch),
         })}
         value={newSecurityHotspots}

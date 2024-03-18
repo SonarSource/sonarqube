@@ -19,7 +19,6 @@
  */
 import styled from '@emotion/styled';
 import { LinkHighlight, LinkStandalone } from '@sonarsource/echoes-react';
-import classNames from 'classnames';
 import { Badge, LightGreyCard, LightGreyCardTitle, TextBold, TextSubdued } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
@@ -41,7 +40,6 @@ import {
 import { MetricKey, MetricType } from '../../../types/metrics';
 import { QualityGateStatusConditionEnhanced } from '../../../types/quality-gates';
 import { Component, MeasureEnhanced } from '../../../types/types';
-import { OverviewDisabledLinkTooltip } from '../components/OverviewDisabledLinkTooltip';
 import { Status, softwareQualityToMeasure } from '../utils';
 import SoftwareImpactMeasureBreakdownCard from './SoftwareImpactMeasureBreakdownCard';
 import SoftwareImpactMeasureRating from './SoftwareImpactMeasureRating';
@@ -88,11 +86,9 @@ export function SoftwareImpactMeasureCard(props: Readonly<SoftwareImpactBreakdow
       (severity) => measure[severity] > 0,
     );
 
-  const countTooltipOverlay = component.needIssueSync ? (
-    <OverviewDisabledLinkTooltip />
-  ) : (
-    intl.formatMessage({ id: 'overview.measures.software_impact.count_tooltip' })
-  );
+  const countTooltipOverlay = intl.formatMessage({
+    id: 'overview.measures.software_impact.count_tooltip',
+  });
 
   const failed = conditions.some((c) => c.level === Status.ERROR && c.metric === ratingMetricKey);
 
@@ -111,11 +107,7 @@ export function SoftwareImpactMeasureCard(props: Readonly<SoftwareImpactBreakdow
       </LightGreyCardTitle>
       <div className="sw-flex sw-flex-col sw-gap-3">
         <div className="sw-flex sw-mt-4">
-          <div
-            className={classNames('sw-flex sw-gap-1 sw-items-center', {
-              'sw-opacity-60': component.needIssueSync,
-            })}
-          >
+          <div className="sw-flex sw-gap-1 sw-items-center">
             {count ? (
               <Tooltip overlay={countTooltipOverlay}>
                 <LinkStandalone

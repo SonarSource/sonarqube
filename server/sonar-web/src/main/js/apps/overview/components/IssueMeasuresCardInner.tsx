@@ -18,15 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import styled from '@emotion/styled';
+import { LinkHighlight, LinkStandalone } from '@sonarsource/echoes-react';
 import classNames from 'classnames';
-import { Badge, ContentLink, NoDataIcon, themeColor } from 'design-system';
+import { Badge, NoDataIcon, themeColor } from 'design-system';
 import * as React from 'react';
 import { Path } from 'react-router-dom';
-import Tooltip from '../../../components/controls/Tooltip';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { localizeMetric } from '../../../helpers/measures';
 import { MetricKey } from '../../../types/metrics';
-import { OverviewDisabledLinkTooltip } from './OverviewDisabledLinkTooltip';
 
 interface IssueMeasuresCardInnerProps extends React.HTMLAttributes<HTMLDivElement> {
   metric: MetricKey;
@@ -60,27 +59,22 @@ export function IssueMeasuresCardInner(props: Readonly<IssueMeasuresCardInnerPro
         </ColorBold>
         <div className="sw-flex sw-justify-between sw-items-center sw-h-9">
           <div className="sw-h-fit">
-            <Tooltip
-              classNameSpace={disabled ? 'tooltip' : 'sw-hidden'}
-              overlay={value && <OverviewDisabledLinkTooltip />}
+            <LinkStandalone
+              highlight={LinkHighlight.Default}
+              aria-label={
+                value
+                  ? translateWithParameters(
+                      'overview.see_more_details_on_x_of_y',
+                      value,
+                      localizeMetric(metric),
+                    )
+                  : translateWithParameters('no_measure_value_x', localizeMetric(metric))
+              }
+              className="it__overview-measures-value sw-w-fit sw-text-lg"
+              to={url}
             >
-              <ContentLink
-                disabled={disabled || !value}
-                aria-label={
-                  value
-                    ? translateWithParameters(
-                        'overview.see_more_details_on_x_of_y',
-                        value,
-                        localizeMetric(metric),
-                      )
-                    : translate('no_data')
-                }
-                className="it__overview-measures-value sw-w-fit sw-text-lg"
-                to={url}
-              >
-                {value ? value : '-'}
-              </ContentLink>
-            </Tooltip>
+              {value ?? '-'}
+            </LinkStandalone>
           </div>
           {value ? icon : <NoDataIcon size="md" />}
         </div>

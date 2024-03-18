@@ -250,6 +250,11 @@ describe('project overview', () => {
     expect(await screen.findByText('metric.level.ERROR')).toBeInTheDocument();
     expect(screen.getByText(/overview.X_conditions_failed/)).toBeInTheDocument();
     expect(screen.getAllByText(/overview.quality_gate.required_x/)).toHaveLength(3);
+    expect(
+      screen.getByRole('link', {
+        name: '1 1 metric.new_security_hotspots_reviewed.name quality_gates.operator.GT 2',
+      }),
+    ).toHaveAttribute('href', '/security_hotspots?id=foo&inNewCodePeriod=true');
   });
 
   it('should correctly show a project as empty', async () => {
@@ -437,39 +442,6 @@ describe('project overview', () => {
       expect(await screen.findByText('overview.missing_project_data.TRK')).toBeInTheDocument();
     },
   );
-
-  it('should disable software impact measure card links during reindexing', async () => {
-    const { user, ui } = getPageObjects();
-    renderBranchOverview({
-      component: mockComponent({
-        breadcrumbs: [mockComponent({ key: 'foo' })],
-        key: 'foo',
-        needIssueSync: true,
-      }),
-    });
-
-    await user.click(await ui.overallCodeButton.find());
-
-    expect(await ui.softwareImpactMeasureCard(SoftwareQuality.Security).find()).toBeInTheDocument();
-
-    ui.expectSoftwareImpactMeasureCard(
-      SoftwareQuality.Security,
-      'B',
-      {
-        total: 1,
-        [SoftwareImpactSeverity.High]: 0,
-        [SoftwareImpactSeverity.Medium]: 1,
-        [SoftwareImpactSeverity.Low]: 0,
-      },
-      [false, true, false],
-    );
-
-    await expect(
-      byRole('link', {
-        name: `overview.measures.software_impact.see_list_of_x_open_issues.${1}.software_quality.${SoftwareQuality.Security}`,
-      }).get(),
-    ).toHaveATooltipWithContent('indexation.in_progress');
-  });
 });
 
 describe('application overview', () => {

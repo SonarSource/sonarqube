@@ -42,7 +42,6 @@ import { QualityGateStatus } from '../../../types/quality-gates';
 import { Component, MeasureEnhanced } from '../../../types/types';
 import MeasuresCard from '../components/MeasuresCard';
 import MeasuresCardNumber from '../components/MeasuresCardNumber';
-import { OverviewDisabledLinkTooltip } from '../components/OverviewDisabledLinkTooltip';
 import MeasuresPanelPercentCards from './MeasuresPanelPercentCards';
 import SoftwareImpactMeasureCard from './SoftwareImpactMeasureCard';
 
@@ -108,8 +107,6 @@ export default function OverallCodeMeasuresPanel(props: Readonly<OverallCodeMeas
               color={acceptedIssues === '0' ? 'overviewCardDefaultIcon' : 'overviewCardWarningIcon'}
             />
           }
-          disabled={component.needIssueSync}
-          tooltip={component.needIssueSync ? <OverviewDisabledLinkTooltip /> : null}
         >
           <TextSubdued className="sw-body-xs sw-mt-3">
             {intl.formatMessage({
