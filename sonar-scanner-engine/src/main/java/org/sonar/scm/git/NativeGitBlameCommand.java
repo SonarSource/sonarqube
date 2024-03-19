@@ -53,7 +53,7 @@ public class NativeGitBlameCommand {
   private static final String MINIMUM_REQUIRED_GIT_VERSION = "2.24.0";
   private static final String DEFAULT_GIT_COMMAND = "git";
   private static final String BLAME_LINE_PORCELAIN_FLAG = "--line-porcelain";
-  private static final String END_OF_OPTIONS_FLAG = "--end-of-options";
+  private static final String FILENAME_SEPARATOR_FLAG = "--";
   private static final String IGNORE_WHITESPACES = "-w";
 
   private static final Pattern whitespaceRegex = Pattern.compile("\\s+");
@@ -128,7 +128,7 @@ public class NativeGitBlameCommand {
           gitCommand,
           GIT_DIR_FLAG, String.format(GIT_DIR_ARGUMENT, baseDir), GIT_DIR_FORCE_FLAG, baseDir.toString(),
           BLAME_COMMAND,
-          BLAME_LINE_PORCELAIN_FLAG, IGNORE_WHITESPACES, END_OF_OPTIONS_FLAG, fileName)
+          BLAME_LINE_PORCELAIN_FLAG, IGNORE_WHITESPACES, FILENAME_SEPARATOR_FLAG, fileName)
         .execute();
     } catch (UncommittedLineException e) {
       LOG.debug("Unable to blame file '{}' - it has uncommitted changes", fileName);
