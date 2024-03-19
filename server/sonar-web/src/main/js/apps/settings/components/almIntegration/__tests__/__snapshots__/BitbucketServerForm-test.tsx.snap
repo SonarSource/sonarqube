@@ -13,15 +13,12 @@ exports[`should render correctly 1`] = `
   />
   <AlmBindingDefinitionFormField
     help={
-      <FormattedMessage
-        defaultMessage="settings.almintegration.form.url.bitbucket.help"
-        id="settings.almintegration.form.url.bitbucket.help"
-        values={
-          {
-            "example": "https://bitbucket-server.your-company.com",
-          }
-        }
-      />
+      <React.Fragment>
+        settings.almintegration.form.url.bitbucket.help
+        <br />
+        <br />
+        settings.almintegration.form.url.bitbucket.pat_warning
+      </React.Fragment>
     }
     id="url.bitbucket"
     maxLength={2000}

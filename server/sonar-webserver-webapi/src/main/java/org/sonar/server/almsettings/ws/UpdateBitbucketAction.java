@@ -85,7 +85,6 @@ public class UpdateBitbucketAction implements AlmSettingsWsAction {
   private void doHandle(Request request) {
     String key = request.mandatoryParam(PARAM_KEY);
     String newKey = request.param(PARAM_NEW_KEY);
-    String url = request.mandatoryParam(PARAM_URL);
     String pat = request.param(PARAM_PERSONAL_ACCESS_TOKEN);
 
     try (DbSession dbSession = dbClient.openSession(false)) {
@@ -93,6 +92,9 @@ public class UpdateBitbucketAction implements AlmSettingsWsAction {
       if (isNotBlank(newKey) && !newKey.equals(key)) {
         almSettingsSupport.checkAlmSettingDoesNotAlreadyExist(dbSession, newKey);
       }
+
+      String url = request.mandatoryParam(PARAM_URL);
+      almSettingsSupport.checkPatOnUrlUpdate(almSettingDto, url, pat);
 
       if (isNotBlank(pat)) {
         almSettingDto.setPersonalAccessToken(pat);

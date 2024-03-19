@@ -31,6 +31,7 @@ import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 
 import static java.lang.String.format;
@@ -88,7 +89,23 @@ public class UpdateBitbucketActionTest {
   }
 
   @Test
-  public void update_without_pat() {
+  public void fail_when_url_updated_without_pat() {
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user).setSystemAdministrator();
+
+    AlmSettingDto almSettingDto = db.almSettings().insertBitbucketAlmSetting();
+
+    TestRequest request = ws.newRequest()
+      .setParam("key", almSettingDto.getKey())
+      .setParam("url", "https://bitbucket.enterprise-unicorn.com");
+
+    assertThatThrownBy(() -> request.execute())
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Please provide the Personal Access Token to update the URL.");
+  }
+
+  @Test
+  public void update_with_url_change_needs_path() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user).setSystemAdministrator();
 
@@ -97,10 +114,12 @@ public class UpdateBitbucketActionTest {
     ws.newRequest()
       .setParam("key", almSettingDto.getKey())
       .setParam("url", "https://bitbucket.enterprise-unicorn.com")
+      .setParam("personalAccessToken", "0123456789")
       .execute();
+
     assertThat(db.getDbClient().almSettingDao().selectAll(db.getSession()))
       .extracting(AlmSettingDto::getKey, AlmSettingDto::getUrl, s -> s.getDecryptedPersonalAccessToken(encryption))
-      .containsOnly(tuple(almSettingDto.getKey(), "https://bitbucket.enterprise-unicorn.com", almSettingDto.getDecryptedPersonalAccessToken(encryption)));
+      .containsOnly(tuple(almSettingDto.getKey(), "https://bitbucket.enterprise-unicorn.com", "0123456789"));
   }
 
   @Test
