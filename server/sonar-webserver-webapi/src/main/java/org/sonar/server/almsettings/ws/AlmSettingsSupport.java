@@ -113,8 +113,16 @@ public class AlmSettingsSupport {
   }
 
   public void checkPrivateKeyOnUrlUpdate(AlmSettingDto almSettingDto, String url, @Nullable String privateKey) {
-    if (!url.equals(almSettingDto.getUrl()) && isEmpty(privateKey)) {
-      throw new IllegalArgumentException("Please provide the Private Key to update the URL.");
+    checkCredentialArtifactOnUrlUpdate(url, almSettingDto, privateKey, "Please provide the Private Key to update the URL.");
+  }
+
+  public void checkPatOnUrlUpdate(AlmSettingDto almSettingDto, String url, @Nullable String pat) {
+    checkCredentialArtifactOnUrlUpdate(url, almSettingDto, pat, "Please provide the Personal Access Token to update the URL.");
+  }
+
+  private static void checkCredentialArtifactOnUrlUpdate(String url, AlmSettingDto almSettingDto, @Nullable String credentialArtifact, String errorMessage) {
+    if (!url.equals(almSettingDto.getUrl()) && isEmpty(credentialArtifact)) {
+      throw new IllegalArgumentException(errorMessage);
     }
   }
 }

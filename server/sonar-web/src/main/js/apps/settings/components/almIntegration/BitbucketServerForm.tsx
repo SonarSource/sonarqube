@@ -47,11 +47,12 @@ export default function BitbucketServerForm(props: BitbucketServerFormProps) {
       />
       <AlmBindingDefinitionFormField
         help={
-          <FormattedMessage
-            defaultMessage={translate('settings.almintegration.form.url.bitbucket.help')}
-            id="settings.almintegration.form.url.bitbucket.help"
-            values={{ example: 'https://bitbucket-server.your-company.com' }}
-          />
+          <>
+            {translate('settings.almintegration.form.url.bitbucket.help')}
+            <br />
+            <br />
+            {translate('settings.almintegration.form.url.bitbucket.pat_warning')}
+          </>
         }
         id="url.bitbucket"
         maxLength={2000}
