@@ -22,6 +22,7 @@ export function generateGitHubActionsYaml(
   branchesEnabled: boolean,
   runsOn: string,
   steps: string,
+  additionalConfig?: string,
 ) {
   return `name: Build
 
@@ -33,11 +34,11 @@ ${branchesEnabled ? '  pull_request:\n    types: [opened, synchronize, reopened]
 
 jobs:
   build:
-    name: Build
+    name: Build and analyze
     runs-on: ${runsOn}
-    permissions: read-all
+    ${additionalConfig ?? ''}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis${steps}`;
 }

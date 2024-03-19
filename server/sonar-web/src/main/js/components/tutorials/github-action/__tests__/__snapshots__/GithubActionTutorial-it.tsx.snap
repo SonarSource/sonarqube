@@ -12,11 +12,11 @@ on:
 
 jobs:
   build:
-    name: Build
+    name: Build and analyze
     runs-on: windows-latest
-    permissions: read-all
+    
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
       - name: Set up JDK 17
@@ -62,36 +62,28 @@ on:
 
 jobs:
   build:
-    name: Build
-    runs-on: <image ready for your build toolchain>
-    permissions: read-all
+    name: Build and analyze
+    runs-on: ubuntu-latest
+    env:
+      BUILD_WRAPPER_OUT_DIR: build_wrapper_output_directory # Directory where build-wrapper output will be placed
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
-      - name: Download and install the build wrapper, build the project
-        run: |
-          mkdir $HOME/.sonar
-          curl -sSLo $HOME/.sonar/build-wrapper-linux-x86.zip \${{ secrets.SONAR_HOST_URL }}/static/cpp/build-wrapper-linux-x86.zip
-          unzip -o $HOME/.sonar/build-wrapper-linux-x86.zip -d $HOME/.sonar/
-          $HOME/.sonar/build-wrapper-linux-x86/build-wrapper-linux-x86-64 --out-dir bw-output <your clean build command>
+      - name: Install sonar-scanner and build-wrapper
         env:
-          SONAR_HOST_URL: \${{ secrets.SONAR_HOST_URL }}
-
-      - name: Download and install the SonarScanner
-        env:
-          SONAR_SCANNER_VERSION: 5.0.1.3006
+          SONAR_HOST_URL: \${{secrets.SONAR_HOST_URL}}
+        uses: SonarSource/sonarqube-github-c-cpp@v1
+      - name: Run build-wrapper
         run: |
-          curl -sSLo $HOME/.sonar/sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-\${{ env.SONAR_SCANNER_VERSION }}-linux.zip
-          unzip -o $HOME/.sonar/sonar-scanner.zip -d $HOME/.sonar/
-          echo "$HOME/.sonar/sonar-scanner-\${{ env.SONAR_SCANNER_VERSION }}-linux/bin" >> $GITHUB_PATH
-
-      - name: SonarQube analysis
-        run: |
-          sonar-scanner --define sonar.cfamily.build-wrapper-output=bw-output  
+          build-wrapper-linux-x86-64 --out-dir \${{ env.BUILD_WRAPPER_OUT_DIR }} <insert_your_clean_build_command>
+      - name: Run sonar-scanner
         env:
+          GITHUB_TOKEN: \${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: \${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: \${{ secrets.SONAR_HOST_URL }}"
+          SONAR_HOST_URL: \${{secrets.SONAR_HOST_URL}}
+        run: |
+          sonar-scanner --define sonar.cfamily.build-wrapper-output="\${{ env.BUILD_WRAPPER_OUT_DIR }}""
 `;
 
 exports[`should follow and complete all steps: CFamily MacOS: .github/workflows/build.yml 1`] = `
@@ -106,34 +98,28 @@ on:
 
 jobs:
   build:
-    name: Build
-    runs-on: <image ready for your build toolchain>
-    permissions: read-all
+    name: Build and analyze
+    runs-on: macos-latest
+    env:
+      BUILD_WRAPPER_OUT_DIR: build_wrapper_output_directory # Directory where build-wrapper output will be placed
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
-      - name: Download and install the build wrapper
-        run: |
-          mkdir $HOME/.sonar
-          curl -sSLo $HOME/.sonar/build-wrapper-macosx-x86.zip \${{ secrets.SONAR_HOST_URL }}/static/cpp/build-wrapper-macosx-x86.zip
-          unzip -o $HOME/.sonar/build-wrapper-macosx-x86.zip -d $HOME/.sonar/
+      - name: Install sonar-scanner and build-wrapper
         env:
-          SONAR_HOST_URL: \${{ secrets.SONAR_HOST_URL }}
-
-      - name: Download and install the SonarScanner
+          SONAR_HOST_URL: \${{secrets.SONAR_HOST_URL}}
+        uses: SonarSource/sonarqube-github-c-cpp@v1
+      - name: Run build-wrapper
         run: |
-          curl -sSLo $HOME/.sonar/sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-5.0.1.3006-macosx.zip
-          unzip -o $HOME/.sonar/sonar-scanner.zip -d $HOME/.sonar/
-
-      - name: Build and analyse the project
-        run: |
-          # Potential improvement : add these paths to the PATH env var.
-          $HOME/.sonar/build-wrapper-macosx-x86/build-wrapper-macosx-x86 --out-dir bw-output <your clean build command>
-          $HOME/.sonar/sonar-scanner-5.0.1.3006-macosx/bin/sonar-scanner -Dsonar.cfamily.build-wrapper-output=bw-output
+          build-wrapper-macosx-x86 --out-dir \${{ env.BUILD_WRAPPER_OUT_DIR }} <insert_your_clean_build_command>
+      - name: Run sonar-scanner
         env:
+          GITHUB_TOKEN: \${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: \${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: \${{ secrets.SONAR_HOST_URL }}"
+          SONAR_HOST_URL: \${{secrets.SONAR_HOST_URL}}
+        run: |
+          sonar-scanner --define sonar.cfamily.build-wrapper-output="\${{ env.BUILD_WRAPPER_OUT_DIR }}""
 `;
 
 exports[`should follow and complete all steps: CFamily Windows: .github/workflows/build.yml 1`] = `
@@ -148,43 +134,28 @@ on:
 
 jobs:
   build:
-    name: Build
-    runs-on: <image ready for your build toolchain>
-    permissions: read-all
+    name: Build and analyze
+    runs-on: windows-latest
+    env:
+      BUILD_WRAPPER_OUT_DIR: build_wrapper_output_directory # Directory where build-wrapper output will be placed
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
-      - name: Download and install the build wrapper
-        shell: powershell
-        run: |
-          $path = "$HOME/.sonar/build-wrapper-win-x86.zip"
-          mkdir $HOME/.sonar
-          [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-          (New-Object System.Net.WebClient).DownloadFile("\${{ secrets.SONAR_HOST_URL }}/static/cpp/build-wrapper-win-x86.zip", $path)
-          Add-Type -AssemblyName System.IO.Compression.FileSystem
-          [System.IO.Compression.ZipFile]::ExtractToDirectory($path, "$HOME/.sonar")
+      - name: Install sonar-scanner and build-wrapper
         env:
-          SONAR_HOST_URL: \${{ secrets.SONAR_HOST_URL }}
-
-      - name: Download and install the SonarScanner
-        shell: powershell
+          SONAR_HOST_URL: \${{secrets.SONAR_HOST_URL}}
+        uses: SonarSource/sonarqube-github-c-cpp@v1
+      - name: Run build-wrapper
         run: |
-          $path = "$HOME/.sonar/sonar-scanner-cli-5.0.1.3006-windows.zip"
-          [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-          (New-Object System.Net.WebClient).DownloadFile("https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-5.0.1.3006-windows.zip", $path)
-          Add-Type -AssemblyName System.IO.Compression.FileSystem
-          [System.IO.Compression.ZipFile]::ExtractToDirectory($path, "$HOME/.sonar")
-
-      - name: Build and analyse the project
-        shell: powershell
-        run: |
-          $env:Path += ";$HOME/.sonar/build-wrapper-win-x86;$HOME/.sonar/sonar-scanner-5.0.1.3006-windows/bin"
-          build-wrapper-win-x86-64 --out-dir bw-output <your clean build command>
-          sonar-scanner.bat "-Dsonar.cfamily.build-wrapper-output=bw-output"
+          build-wrapper-win-x86-64 --out-dir \${{ env.BUILD_WRAPPER_OUT_DIR }} <insert_your_clean_build_command>
+      - name: Run sonar-scanner
         env:
+          GITHUB_TOKEN: \${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: \${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: \${{ secrets.SONAR_HOST_URL }}"
+          SONAR_HOST_URL: \${{secrets.SONAR_HOST_URL}}
+        run: |
+          sonar-scanner --define sonar.cfamily.build-wrapper-output="\${{ env.BUILD_WRAPPER_OUT_DIR }}""
 `;
 
 exports[`should follow and complete all steps: CFamily: sonar-project.properties 1`] = `"sonar.projectKey=my-project"`;
@@ -201,11 +172,11 @@ on:
 
 jobs:
   build:
-    name: Build
+    name: Build and analyze
     runs-on: ubuntu-latest
-    permissions: read-all
+    
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
       - name: Set up JDK 17
@@ -269,11 +240,11 @@ on:
 
 jobs:
   build:
-    name: Build
+    name: Build and analyze
     runs-on: ubuntu-latest
-    permissions: read-all
+    
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
       - name: Set up JDK 17
@@ -311,11 +282,11 @@ on:
 
 jobs:
   build:
-    name: Build
+    name: Build and analyze
     runs-on: ubuntu-latest
-    permissions: read-all
+    
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
       - uses: sonarsource/sonarqube-scan-action@master
