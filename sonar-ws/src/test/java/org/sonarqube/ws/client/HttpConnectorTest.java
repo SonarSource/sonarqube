@@ -28,12 +28,14 @@ import java.util.Base64;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
+import java.util.zip.GZIPOutputStream;
 import javax.net.ssl.SSLSocketFactory;
 import okhttp3.ConnectionSpec;
 import okhttp3.OkHttpClient;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
+import okio.Buffer;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -49,6 +51,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static okhttp3.Credentials.basic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.sonarqube.ws.client.HttpConnector.newBuilder;
@@ -100,6 +103,42 @@ public class HttpConnectorTest {
   }
 
   @Test
+  public void call_whenGzipNotAcceptedInResponse_shouldNotUseGzip() throws Exception {
+    server.enqueue(new MockResponse().setResponseCode(200).addHeader("Content-Encoding", "gzip")
+      .setBody(gzip("potentially a body with 100 GB of data normally encoded in gzip")));
+
+    //by default we dont accept gzip
+    underTest = HttpConnector.newBuilder().url(serverUrl).build();
+    GetRequest request = new GetRequest("rest/api/1.0/repos");
+
+    WsResponse call = underTest.call(request);
+    assertThrows(Throwable.class, () -> call.content());
+  }
+
+  @Test
+  public void call_whenGzipIsAcceptedInResponse_shouldResponseContainContent() throws Exception {
+    server.enqueue(new MockResponse().setResponseCode(200).addHeader("Content-Encoding", "gzip")
+      .setBody(gzip("example")));
+
+    underTest = HttpConnector.newBuilder().acceptGzip(true).url(serverUrl).build();
+    GetRequest request = new GetRequest("rest/api/1.0/repos").setHeader("Accept-Encoding", "gzip");
+
+    WsResponse call = underTest.call(request);
+    RecordedRequest recordedRequest = server.takeRequest();
+
+    assertThat(recordedRequest.getHeader("Accept-Encoding")).isEqualTo("gzip");
+    assertThat(call.content()).isNotEmpty();
+  }
+
+  private Buffer gzip(String content) throws IOException {
+    Buffer buffer = new Buffer();
+    GZIPOutputStream gzip = new GZIPOutputStream(buffer.outputStream());
+    gzip.write(content.getBytes(UTF_8));
+    gzip.close();
+    return buffer;
+  }
+
+  @Test
   public void test_default_settings() throws Exception {
     answerHelloWorld();
     underTest = HttpConnector.newBuilder().url(serverUrl).build();
@@ -122,8 +161,7 @@ public class HttpConnectorTest {
     assertThat(recordedRequest.getHeader("Accept")).isEqualTo(MediaTypes.PROTOBUF);
     assertThat(recordedRequest.getHeader("Accept-Charset")).isEqualTo("UTF-8");
     assertThat(recordedRequest.getHeader("User-Agent")).startsWith("okhttp/");
-    // compression is handled by OkHttp
-    assertThat(recordedRequest.getHeader("Accept-Encoding")).isEqualTo("gzip");
+    assertThat(recordedRequest.getHeader("Accept-Encoding")).isNull();
   }
 
   @Test

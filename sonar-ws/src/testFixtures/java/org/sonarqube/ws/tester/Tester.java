@@ -364,6 +364,7 @@ public class Tester extends ExternalResource implements TesterSession, BeforeEac
     private TesterSessionImpl(Orchestrator orchestrator, @Nullable String login, @Nullable String password) {
       Server server = orchestrator.getServer();
       this.client = WsClientFactories.getDefault().newClient(HttpConnector.newBuilder()
+        .acceptGzip(true)
         .url(server.getUrl())
         .credentials(login, password)
         .build());
@@ -372,6 +373,7 @@ public class Tester extends ExternalResource implements TesterSession, BeforeEac
     private TesterSessionImpl(Orchestrator orchestrator, @Nullable String systemPassCode) {
       Server server = orchestrator.getServer();
       this.client = WsClientFactories.getDefault().newClient(HttpConnector.newBuilder()
+        .acceptGzip(true)
         .systemPassCode(systemPassCode)
         .url(server.getUrl())
         .build());
@@ -380,6 +382,7 @@ public class Tester extends ExternalResource implements TesterSession, BeforeEac
     private TesterSessionImpl(Orchestrator orchestrator, Consumer<HttpConnector.Builder>... httpConnectorPopulators) {
       Server server = orchestrator.getServer();
       HttpConnector.Builder httpConnectorBuilder = HttpConnector.newBuilder()
+        .acceptGzip(true)
         .url(server.getUrl());
       stream(httpConnectorPopulators).forEach(populator -> populator.accept(httpConnectorBuilder));
       this.client = WsClientFactories.getDefault().newClient(httpConnectorBuilder.build());

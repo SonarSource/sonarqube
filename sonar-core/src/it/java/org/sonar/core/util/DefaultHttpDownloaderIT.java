@@ -33,8 +33,10 @@ import java.util.Properties;
 import java.util.zip.GZIPOutputStream;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
+import org.junit.Ignore;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.api.io.TempDir;
@@ -70,14 +72,6 @@ class DefaultHttpDownloaderIT {
           if (req.getPath().getPath().contains("/redirect/")) {
             resp.setCode(303);
             resp.setValue("Location", "/redirected");
-          } else if (req.getPath().getPath().contains("/gzip/")) {
-            if (!"gzip".equals(req.getValue("Accept-Encoding"))) {
-              throw new IllegalStateException("Should accept gzip");
-            }
-            resp.setValue("Content-Encoding", "gzip");
-            GZIPOutputStream gzipOutputStream = new GZIPOutputStream(resp.getOutputStream());
-            gzipOutputStream.write("GZIP response".getBytes());
-            gzipOutputStream.close();
           } else if (req.getPath().getPath().contains("/redirected")) {
             resp.getPrintStream().append("redirected");
           } else if (req.getPath().getPath().contains("/error")) {
@@ -151,12 +145,6 @@ class DefaultHttpDownloaderIT {
   void readString() throws URISyntaxException {
     String text = new DefaultHttpDownloader(mock(Server.class), new MapSettings().asConfig()).readString(new URI(baseUrl), StandardCharsets.UTF_8);
     assertThat(text.length()).isGreaterThan(10);
-  }
-
-  @Test
-  void readGzipString() throws URISyntaxException {
-    String text = new DefaultHttpDownloader(mock(Server.class), new MapSettings().asConfig()).readString(new URI(baseUrl + "/gzip/"), StandardCharsets.UTF_8);
-    assertThat(text).isEqualTo("GZIP response");
   }
 
   @Test
