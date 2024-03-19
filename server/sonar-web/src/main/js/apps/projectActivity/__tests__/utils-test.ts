@@ -162,12 +162,10 @@ describe('parseQuery', () => {
 describe('serializeQuery', () => {
   it('should serialize query for api request', () => {
     expect(utils.serializeQuery(QUERY)).toEqual({
-      from: '2017-04-27T08:21:32+0000',
       project: 'foo',
     });
     expect(utils.serializeQuery({ ...QUERY, graph: GraphType.coverage, category: 'test' })).toEqual(
       {
-        from: '2017-04-27T08:21:32+0000',
         project: 'foo',
         category: 'test',
       },

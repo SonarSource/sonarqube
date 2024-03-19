@@ -247,11 +247,13 @@ exports[`should render correctly: Zoom enabled 1`] = `
         class="line-chart-path line-chart-path-0"
         d="M0,16L20,8"
         stroke="rgb(85,170,223)"
+        stroke-dasharray="0"
       />
       <path
         class="line-chart-path line-chart-path-1"
         d="M40,0Z"
         stroke="rgb(58,127,173)"
+        stroke-dasharray="3"
       />
     </g>
     <g>
@@ -509,11 +511,13 @@ exports[`should render correctly: basisCurve 1`] = `
         class="line-chart-path line-chart-path-0"
         d="M0,16L20,8"
         stroke="rgb(85,170,223)"
+        stroke-dasharray="0"
       />
       <path
         class="line-chart-path line-chart-path-1"
         d="M40,0Z"
         stroke="rgb(58,127,173)"
+        stroke-dasharray="3"
       />
     </g>
     <g>
@@ -771,11 +775,13 @@ exports[`should render correctly: default 1`] = `
         class="line-chart-path line-chart-path-0"
         d="M0,16L20,8"
         stroke="rgb(85,170,223)"
+        stroke-dasharray="0"
       />
       <path
         class="line-chart-path line-chart-path-1"
         d="M40,0Z"
         stroke="rgb(58,127,173)"
+        stroke-dasharray="3"
       />
     </g>
     <g>
@@ -1193,11 +1199,13 @@ exports[`should render correctly: format y tick 1`] = `
         class="line-chart-path line-chart-path-0"
         d="M0,16L20,8"
         stroke="rgb(85,170,223)"
+        stroke-dasharray="0"
       />
       <path
         class="line-chart-path line-chart-path-1"
         d="M40,0Z"
         stroke="rgb(58,127,173)"
+        stroke-dasharray="3"
       />
     </g>
     <g>
@@ -1463,11 +1471,13 @@ exports[`should render correctly: leakPeriodDate 1`] = `
         class="line-chart-path line-chart-path-0"
         d="M0,16L20,8"
         stroke="rgb(85,170,223)"
+        stroke-dasharray="0"
       />
       <path
         class="line-chart-path line-chart-path-1"
         d="M40,0Z"
         stroke="rgb(58,127,173)"
+        stroke-dasharray="3"
       />
     </g>
     <g>
@@ -1608,11 +1618,13 @@ exports[`should render correctly: level metric 1`] = `
         class="line-chart-path line-chart-path-0"
         d="M0,NaNL20,NaN"
         stroke="rgb(85,170,223)"
+        stroke-dasharray="0"
       />
       <path
         class="line-chart-path line-chart-path-1"
         d="M40,NaNZ"
         stroke="rgb(58,127,173)"
+        stroke-dasharray="3"
       />
     </g>
     <g>
@@ -1869,11 +1881,13 @@ exports[`should render correctly: no areas 1`] = `
         class="line-chart-path line-chart-path-0"
         d="M0,16L20,8"
         stroke="rgb(85,170,223)"
+        stroke-dasharray="0"
       />
       <path
         class="line-chart-path line-chart-path-1"
         d="M40,0Z"
         stroke="rgb(58,127,173)"
+        stroke-dasharray="3"
       />
     </g>
     <g>
@@ -2036,11 +2050,13 @@ exports[`should render correctly: rating metric 1`] = `
         class="line-chart-path line-chart-path-0"
         d="M0,0L20,6"
         stroke="rgb(85,170,223)"
+        stroke-dasharray="0"
       />
       <path
         class="line-chart-path line-chart-path-1"
         d="M40,12Z"
         stroke="rgb(58,127,173)"
+        stroke-dasharray="3"
       />
     </g>
     <g>
@@ -2298,11 +2314,13 @@ exports[`should render correctly: selected date 1`] = `
         class="line-chart-path line-chart-path-0"
         d="M0,16L20,8"
         stroke="rgb(85,170,223)"
+        stroke-dasharray="0"
       />
       <path
         class="line-chart-path line-chart-path-1"
         d="M40,0Z"
         stroke="rgb(58,127,173)"
+        stroke-dasharray="3"
       />
     </g>
     <g>
@@ -2585,11 +2603,13 @@ exports[`should render correctly: zoomSpeed 1`] = `
         class="line-chart-path line-chart-path-0"
         d="M0,16L20,8"
         stroke="rgb(85,170,223)"
+        stroke-dasharray="0"
       />
       <path
         class="line-chart-path line-chart-path-1"
         d="M40,0Z"
         stroke="rgb(58,127,173)"
+        stroke-dasharray="3"
       />
     </g>
     <g>

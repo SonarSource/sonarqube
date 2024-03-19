@@ -144,14 +144,12 @@ export const HIDDEN_METRICS = [
 ];
 
 export const DEPRECATED_ACTIVITY_METRICS = [
+  ...OLD_TAXONOMY_METRICS,
   MetricKey.blocker_violations,
   MetricKey.critical_violations,
   MetricKey.major_violations,
   MetricKey.minor_violations,
   MetricKey.info_violations,
-  MetricKey.code_smells,
-  MetricKey.bugs,
-  MetricKey.vulnerabilities,
   MetricKey.confirmed_issues,
 ];
 

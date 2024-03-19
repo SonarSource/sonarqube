@@ -128,9 +128,7 @@ export function parseQuery(urlQuery: RawQuery): Query {
 export function serializeQuery(query: Query): RawQuery {
   return cleanQuery({
     category: serializeString(query.category),
-    from: serializeDate(query.from),
     project: serializeString(query.project),
-    to: serializeDate(query.to),
   });
 }
 

@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { chunk, flatMap, groupBy, sortBy } from 'lodash';
+import { CCT_SOFTWARE_QUALITY_METRICS } from '../../helpers/constants';
 import { getLocalizedMetricName, translate } from '../../helpers/l10n';
 import { localizeMetric } from '../../helpers/measures';
 import { get, save } from '../../helpers/storage';
@@ -45,6 +46,8 @@ const GRAPHS_METRICS: Dict<string[]> = {
     MetricKey.duplicated_lines_density,
   ],
 };
+
+export const LINE_CHART_DASHES = [0, 3, 7];
 
 export function isCustomGraph(graph: GraphType) {
   return graph === GraphType.custom;
@@ -126,14 +129,24 @@ export function generateSeries(
           return generateCoveredLinesMetric(measure, measuresHistory);
         }
         const metric = findMetric(measure.metric, metrics);
+        const isSoftwareQualityMetric = CCT_SOFTWARE_QUALITY_METRICS.includes(
+          metric?.key as MetricKey,
+        );
         return {
-          data: measure.history.map((analysis) => ({
-            x: analysis.date,
-            y: metric && metric.type === MetricType.Level ? analysis.value : Number(analysis.value),
-          })),
+          data: measure.history.map((analysis) => {
+            let { value } = analysis;
+
+            if (value !== undefined && isSoftwareQualityMetric) {
+              value = JSON.parse(value).total;
+            }
+            return {
+              x: analysis.date,
+              y: metric?.type === MetricType.Level ? value : Number(value),
+            };
+          }),
           name: measure.metric,
           translatedName: metric ? getLocalizedMetricName(metric) : localizeMetric(measure.metric),
-          type: metric ? metric.type : MetricType.Integer,
+          type: !metric || isSoftwareQualityMetric ? MetricType.Integer : metric.type,
         };
       }),
     (serie) =>

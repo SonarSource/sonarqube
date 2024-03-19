@@ -20,7 +20,7 @@
 import { ButtonSecondary, ChevronDownIcon, Dropdown, TextMuted } from 'design-system';
 import { sortBy } from 'lodash';
 import * as React from 'react';
-import { HIDDEN_METRICS } from '../../helpers/constants';
+import { CCT_SOFTWARE_QUALITY_METRICS, HIDDEN_METRICS } from '../../helpers/constants';
 import { getLocalizedMetricName, translate } from '../../helpers/l10n';
 import { isDiffMetric } from '../../helpers/measures';
 import { MetricKey, MetricType } from '../../types/metrics';
@@ -66,7 +66,10 @@ export default class AddGraphMetric extends React.PureComponent<Props, State> {
         if (isDiffMetric(metric.key)) {
           return false;
         }
-        if ([MetricType.Data, MetricType.Distribution].includes(metric.type as MetricType)) {
+        if (
+          [MetricType.Data, MetricType.Distribution].includes(metric.type as MetricType) &&
+          !CCT_SOFTWARE_QUALITY_METRICS.includes(metric.key as MetricKey)
+        ) {
           return false;
         }
         if (HIDDEN_METRICS.includes(metric.key as MetricKey)) {

@@ -21,6 +21,7 @@ import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { times } from 'lodash';
 import * as React from 'react';
+import { CCT_SOFTWARE_QUALITY_METRICS } from '../../../helpers/constants';
 import { parseDate } from '../../../helpers/dates';
 import { mockHistoryItem, mockMeasureHistory } from '../../../helpers/mocks/project-activity';
 import { mockMetric } from '../../../helpers/testMocks';
@@ -153,15 +154,21 @@ it('should correctly handle adding/removing custom metrics', async () => {
   await ui.clickOnMetric(MetricKey.code_smells);
   await ui.clickOnMetric(MetricKey.coverage);
 
-  // Search for option.
-  await ui.searchForMetric('bug');
-  expect(ui.bugsCheckbox.get()).toBeInTheDocument();
+  // Search for option and select it
+  await ui.searchForMetric('maintainability');
   expect(ui.vulnerabilityCheckbox.query()).not.toBeInTheDocument();
+  await ui.clickOnMetric(MetricKey.maintainability_issues);
 
-  // Disable final metrics by clicking on the legend items.
-  await ui.removeMetric(MetricKey.confirmed_issues);
+  // Disable percentage metrics by clicking on the legend items.
   await ui.removeMetric(MetricKey.duplicated_lines_density);
   await ui.removeMetric(MetricKey.test_success_density);
+
+  // We should see 1 graph
+  expect(ui.graphs.getAll()).toHaveLength(1);
+
+  // Disable final number metrics
+  await ui.removeMetric(MetricKey.confirmed_issues);
+  await ui.removeMetric(MetricKey.maintainability_issues);
 
   // Should show message that there's no data to be rendered.
   expect(ui.noDataText.get()).toBeInTheDocument();
@@ -176,7 +183,7 @@ function getPageObject() {
     // Add/remove metrics.
     addMetricBtn: byRole('button', { name: 'project_activity.graphs.custom.add' }),
     deprecatedBadge: byText('deprecated'),
-    bugsCheckbox: byRole('checkbox', { name: MetricKey.bugs }),
+    maintainabilityIssuesCheckbox: byRole('checkbox', { name: MetricKey.maintainability_issues }),
     newBugsCheckbox: byRole('checkbox', { name: MetricKey.new_bugs }),
     burnedBudgetCheckbox: byRole('checkbox', { name: MetricKey.burned_budget }),
     vulnerabilityCheckbox: byRole('checkbox', { name: MetricKey.vulnerabilities }),
@@ -255,6 +262,7 @@ function renderActivityGraph(
       MetricKey.bugs,
       MetricKey.code_smells,
       MetricKey.confirmed_issues,
+      MetricKey.maintainability_issues,
       MetricKey.vulnerabilities,
       MetricKey.blocker_violations,
       MetricKey.lines_to_cover,
@@ -269,7 +277,12 @@ function renderActivityGraph(
         return mockHistoryItem({ date, value: i.toString() });
       });
       history.push(
-        mockHistoryItem({ date: parseDate('2018-10-27T12:21:15+0200') }),
+        mockHistoryItem({
+          date: parseDate('2018-10-27T12:21:15+0200'),
+          value: CCT_SOFTWARE_QUALITY_METRICS.includes(metric)
+            ? JSON.stringify({ total: 2286 })
+            : '2286',
+        }),
         mockHistoryItem({ date: parseDate('2020-10-27T16:33:50+0200') }),
       );
       measuresHistory.push(mockMeasureHistory({ metric, history }));

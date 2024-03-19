@@ -36,6 +36,7 @@ import * as React from 'react';
 import { isDefined } from '../../helpers/types';
 import { MetricType } from '../../types/metrics';
 import { Chart } from '../../types/types';
+import { LINE_CHART_DASHES } from '../activity-graph/utils';
 import './AdvancedTimeline.css';
 import './LineChart.css';
 
@@ -450,6 +451,7 @@ export class AdvancedTimelineClass extends React.PureComponent<Props, State> {
             stroke={themeColor(`graphLineColor.${idx}` as Parameters<typeof themeColor>[0])({
               theme,
             })}
+            strokeDasharray={LINE_CHART_DASHES[idx]}
           />
         ))}
       </g>

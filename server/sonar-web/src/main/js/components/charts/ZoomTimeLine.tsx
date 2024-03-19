@@ -27,6 +27,7 @@ import * as React from 'react';
 import Draggable, { DraggableBounds, DraggableCore, DraggableData } from 'react-draggable';
 import { MetricType } from '../../types/metrics';
 import { Chart } from '../../types/types';
+import { LINE_CHART_DASHES } from '../activity-graph/utils';
 
 export interface Props {
   basisCurve?: boolean;
@@ -412,6 +413,7 @@ const StyledPath = styled.path<{ index: number }>`
   clip-path: url(#chart-clip);
   fill: none;
   stroke: ${({ index }) => themeColor(`graphLineColor.${index}` as CSSColor)};
+  stroke-dasharray: ${({ index }) => LINE_CHART_DASHES[index]};
   stroke-width: 2px;
 `;
 

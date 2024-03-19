@@ -21,6 +21,7 @@ import { useTheme } from '@emotion/react';
 import classNames from 'classnames';
 import { Theme, themeColor } from 'design-system';
 import * as React from 'react';
+import { LINE_CHART_DASHES } from './utils';
 
 interface Props {
   className?: string;
@@ -36,7 +37,6 @@ export function ChartLegend({ index, className }: Readonly<Props>) {
       clipRule="evenodd"
       fillRule="evenodd"
       height={16}
-      strokeLinejoin="round"
       strokeMiterlimit={1.41421}
       viewBox="0 0 16 16"
       width={16}
@@ -44,12 +44,13 @@ export function ChartLegend({ index, className }: Readonly<Props>) {
       xmlnsXlink="http://www.w3.org/1999/xlink"
     >
       <path
-        className={classNames('line-chart-path line-chart-path-legend', `line-chart-path-${index}`)}
-        d="M14.325 7.143v1.714q0 0.357-0.25 0.607t-0.607 0.25h-10.857q-0.357 0-0.607-0.25t-0.25-0.607v-1.714q0-0.357 0.25-0.607t0.607-0.25h10.857q0.357 0 0.607 0.25t0.25 0.607z"
+        className={classNames('line-chart-path', `line-chart-path-${index}`)}
+        d="M0 8 L 16 8"
         style={{
-          fill: themeColor(`graphLineColor.${index}` as Parameters<typeof themeColor>[0])({
+          stroke: themeColor(`graphLineColor.${index}` as Parameters<typeof themeColor>[0])({
             theme,
           }),
+          strokeDasharray: LINE_CHART_DASHES[index],
         }}
       />
     </svg>
