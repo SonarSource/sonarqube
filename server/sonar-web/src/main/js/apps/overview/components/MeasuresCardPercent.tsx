@@ -84,10 +84,7 @@ export default function MeasuresCardPercent(
   const linesValue = useDiffMetric
     ? getLeakValue(findMeasure(measures, linesMetric))
     : findMeasure(measures, linesMetric)?.value;
-  const linesLabel =
-    measurementType === MeasurementType.Coverage
-      ? 'overview.quality_gate.on_x_new_lines_to_cover'
-      : 'overview.quality_gate.on_x_new_lines';
+  const linesLabel = `overview.${metricKey}.on_x_new_lines`;
   const linesUrl = getComponentDrilldownUrl({
     componentKey,
     metric: linesMetric,
