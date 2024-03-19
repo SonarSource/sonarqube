@@ -18,12 +18,22 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { PROJECT_KEY_INVALID_CHARACTERS } from '../../../helpers/projects';
+import { AlmKeys } from './alm-settings';
 
-export function tokenExistedBefore(error?: string) {
-  return error?.includes('is missing');
+export interface DopSetting {
+  appId?: string;
+  id: string;
+  key: string;
+  type: AlmKeys;
+  url?: string;
 }
 
-export function getSanitizedProjectKey(projectKey: string) {
-  return projectKey.trim().replace(PROJECT_KEY_INVALID_CHARACTERS, '-');
+export interface BoundProject {
+  devOpsPlatformSettingId: string;
+  monorepo: boolean;
+  newCodeDefinitionType?: string;
+  newCodeDefinitionValue?: string;
+  projectKey: string;
+  projectName: string;
+  repositoryIdentifier: string;
 }

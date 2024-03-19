@@ -21,7 +21,7 @@ import classNames from 'classnames';
 import { LargeCenteredLayout } from 'design-system';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
-import { getAlmSettings } from '../../../api/alm-settings';
+import { getDopSettings } from '../../../api/dop-translation';
 import withAppStateContext from '../../../app/components/app-state/withAppStateContext';
 import withAvailableFeatures, {
   WithAvailableFeaturesProps,
@@ -31,6 +31,7 @@ import { Location, Router, withRouter } from '../../../components/hoc/withRouter
 import { translate } from '../../../helpers/l10n';
 import { AlmKeys, AlmSettingsInstance } from '../../../types/alm-settings';
 import { AppState } from '../../../types/appstate';
+import { DopSetting } from '../../../types/dop-translation';
 import { Feature } from '../../../types/features';
 import AlmBindingDefinitionForm from '../../settings/components/almIntegration/AlmBindingDefinitionForm';
 import AzureProjectCreate from './Azure/AzureProjectCreate';
@@ -53,7 +54,7 @@ interface State {
   azureSettings: AlmSettingsInstance[];
   bitbucketSettings: AlmSettingsInstance[];
   bitbucketCloudSettings: AlmSettingsInstance[];
-  githubSettings: AlmSettingsInstance[];
+  githubSettings: DopSetting[];
   gitlabSettings: AlmSettingsInstance[];
   loading: boolean;
   creatingAlmDefinition?: AlmKeys;
@@ -73,6 +74,7 @@ export type ImportProjectParam =
   | {
       creationMode: CreateProjectModes.AzureDevOps;
       almSetting: string;
+      monorepo: false;
       projects: {
         projectName: string;
         repositoryName: string;
@@ -81,6 +83,7 @@ export type ImportProjectParam =
   | {
       creationMode: CreateProjectModes.BitbucketCloud;
       almSetting: string;
+      monorepo: false;
       projects: {
         repositorySlug: string;
       }[];
@@ -88,6 +91,7 @@ export type ImportProjectParam =
   | {
       creationMode: CreateProjectModes.BitbucketServer;
       almSetting: string;
+      monorepo: false;
       projects: {
         repositorySlug: string;
         projectKey: string;
@@ -96,6 +100,7 @@ export type ImportProjectParam =
   | {
       creationMode: CreateProjectModes.GitHub;
       almSetting: string;
+      monorepo: false;
       projects: {
         repositoryKey: string;
       }[];
@@ -103,12 +108,14 @@ export type ImportProjectParam =
   | {
       creationMode: CreateProjectModes.GitLab;
       almSetting: string;
+      monorepo: false;
       projects: {
         gitlabProjectId: string;
       }[];
     }
   | {
       creationMode: CreateProjectModes.Manual;
+      monorepo: false;
       projects: {
         project: string;
         name: string;
@@ -116,9 +123,9 @@ export type ImportProjectParam =
       }[];
     }
   | {
-      creationMode: CreateProjectModes.Monorepo;
+      creationMode: CreateProjectModes;
       devOpsPlatformSettingId: string;
-      monorepo: boolean;
+      monorepo: true;
       projects: {
         projectKey: string;
         projectName: string;
@@ -146,6 +153,14 @@ export class CreateProjectPage extends React.PureComponent<CreateProjectPageProp
     this.fetchAlmBindings();
   }
 
+  componentDidUpdate(prevProps: CreateProjectPageProps) {
+    const { location } = this.props;
+
+    if (location.query.mono !== prevProps.location.query.mono) {
+      this.fetchAlmBindings();
+    }
+  }
+
   componentWillUnmount() {
     this.mounted = false;
   }
@@ -153,6 +168,15 @@ export class CreateProjectPage extends React.PureComponent<CreateProjectPageProp
   cleanQueryParameters() {
     const { location, router } = this.props;
 
+    const isMonorepoSupported = this.props.hasFeature(Feature.MonoRepositoryPullRequestDecoration);
+
+    if (location.query?.mono === 'true' && !isMonorepoSupported) {
+      // Timeout is required to force the refresh of the URL
+      setTimeout(() => {
+        location.query.mono = undefined;
+        router.replace(location);
+      }, 0);
+    }
     if (location.query?.setncd === 'true') {
       // Timeout is required to force the refresh of the URL
       setTimeout(() => {
@@ -164,23 +188,28 @@ export class CreateProjectPage extends React.PureComponent<CreateProjectPageProp
 
   fetchAlmBindings = () => {
     this.setState({ loading: true });
-    return getAlmSettings()
-      .then((almSettings) => {
-        if (this.mounted) {
-          this.setState({
-            azureSettings: almSettings.filter((s) => s.alm === AlmKeys.Azure),
-            bitbucketSettings: almSettings.filter((s) => s.alm === AlmKeys.BitbucketServer),
-            bitbucketCloudSettings: almSettings.filter((s) => s.alm === AlmKeys.BitbucketCloud),
-            githubSettings: almSettings.filter((s) => s.alm === AlmKeys.GitHub),
-            gitlabSettings: almSettings.filter((s) => s.alm === AlmKeys.GitLab),
-            loading: false,
-          });
-        }
+
+    return getDopSettings()
+      .then(({ dopSettings }) => {
+        this.setState({
+          azureSettings: dopSettings
+            .filter(({ type }) => type === AlmKeys.Azure)
+            .map(({ key, type, url }) => ({ alm: type, key, url })),
+          bitbucketSettings: dopSettings
+            .filter(({ type }) => type === AlmKeys.BitbucketServer)
+            .map(({ key, type, url }) => ({ alm: type, key, url })),
+          bitbucketCloudSettings: dopSettings
+            .filter(({ type }) => type === AlmKeys.BitbucketCloud)
+            .map(({ key, type, url }) => ({ alm: type, key, url })),
+          githubSettings: dopSettings.filter(({ type }) => type === AlmKeys.GitHub),
+          gitlabSettings: dopSettings
+            .filter(({ type }) => type === AlmKeys.GitLab)
+            .map(({ key, type, url }) => ({ alm: type, key, url })),
+          loading: false,
+        });
       })
       .catch(() => {
-        if (this.mounted) {
-          this.setState({ loading: false });
-        }
+        this.setState({ loading: false });
       });
   };
 
@@ -285,11 +314,9 @@ export class CreateProjectPage extends React.PureComponent<CreateProjectPageProp
         return (
           <GitHubProjectCreate
             canAdmin={!!canAdmin}
-            loadingBindings={loading}
-            location={location}
+            isLoadingBindings={loading}
             onProjectSetupDone={this.handleProjectSetupDone}
-            router={router}
-            almInstances={githubSettings}
+            dopSettings={githubSettings}
           />
         );
       }

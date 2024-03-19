@@ -23,7 +23,7 @@ import AlmSettingsInstanceSelector from '../../../../components/devops-platform/
 import { hasMessage, translate, translateWithParameters } from '../../../../helpers/l10n';
 import { AlmKeys, AlmSettingsInstance } from '../../../../types/alm-settings';
 
-export interface AlmSettingsInstanceDropdownProps {
+interface Props {
   almKey: AlmKeys;
   almInstances?: AlmSettingsInstance[];
   selectedAlmInstance?: AlmSettingsInstance;
@@ -32,7 +32,7 @@ export interface AlmSettingsInstanceDropdownProps {
 
 const MIN_SIZE_INSTANCES = 2;
 
-export default function AlmSettingsInstanceDropdown(props: AlmSettingsInstanceDropdownProps) {
+export default function AlmSettingsInstanceDropdown(props: Readonly<Props>) {
   const { almKey, almInstances, selectedAlmInstance } = props;
   if (!almInstances || almInstances.length < MIN_SIZE_INSTANCES) {
     return null;
@@ -43,7 +43,7 @@ export default function AlmSettingsInstanceDropdown(props: AlmSettingsInstanceDr
     : `alm.${almKey}`;
 
   return (
-    <div className="sw-flex sw-flex-col">
+    <div className="sw-flex sw-flex-col sw-mb-9">
       <DarkLabel htmlFor="alm-config-selector" className="sw-mb-2">
         {translateWithParameters('alm.configuration.selector.label', translate(almKeyTranslation))}
       </DarkLabel>
@@ -51,7 +51,7 @@ export default function AlmSettingsInstanceDropdown(props: AlmSettingsInstanceDr
         instances={almInstances}
         onChange={props.onChangeConfig}
         initialValue={selectedAlmInstance ? selectedAlmInstance.key : undefined}
-        className="sw-w-abs-400 sw-mb-9"
+        className="sw-w-abs-400"
         inputId="alm-config-selector"
       />
     </div>

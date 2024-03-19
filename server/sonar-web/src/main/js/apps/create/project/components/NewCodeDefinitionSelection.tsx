@@ -34,6 +34,7 @@ import * as React from 'react';
 import { useEffect } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { useNavigate, unstable_usePrompt as usePrompt } from 'react-router-dom';
+import { useLocation } from '../../../../components/hoc/withRouter';
 import NewCodeDefinitionSelector from '../../../../components/new-code-definition/NewCodeDefinitionSelector';
 import { useDocUrl } from '../../../../helpers/docs';
 import { translate } from '../../../../helpers/l10n';
@@ -65,6 +66,7 @@ export default function NewCodeDefinitionSelection(props: Props) {
   const mutateCount = useImportProjectProgress();
   const isImporting = mutateCount > 0;
   const intl = useIntl();
+  const location = useLocation();
   const navigate = useNavigate();
   const getDocUrl = useDocUrl();
   usePrompt({
@@ -74,10 +76,11 @@ export default function NewCodeDefinitionSelection(props: Props) {
 
   const projectCount = importProjects.projects.length;
   const isMultipleProjects = projectCount > 1;
+  const isMonorepo = location.query?.mono === 'true';
 
   useEffect(() => {
     const redirect = (projectCount: number) => {
-      if (projectCount === 1 && data) {
+      if (!isMonorepo && projectCount === 1 && data) {
         if (redirectTo === '/projects') {
           navigate(getProjectUrl(data.project.key));
         } else {
@@ -110,7 +113,11 @@ export default function NewCodeDefinitionSelection(props: Props) {
       if (redirectTo === '/projects') {
         addGlobalSuccessMessage(
           intl.formatMessage(
-            { id: 'onboarding.create_project.success' },
+            {
+              id: isMonorepo
+                ? 'onboarding.create_project.monorepo.success'
+                : 'onboarding.create_project.success',
+            },
             {
               count: projectCount - failedImports,
             },

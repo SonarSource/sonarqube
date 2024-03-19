@@ -23,10 +23,12 @@ import CreateYmlFile from '../../components/CreateYmlFile';
 import DefaultProjectKey from '../../components/DefaultProjectKey';
 import { GITHUB_ACTIONS_RUNS_ON_LINUX } from '../constants';
 import { generateGitHubActionsYaml } from '../utils';
+import MonorepoDocLinkFallback from './MonorepoDocLinkFallback';
 
 export interface OthersProps {
   branchesEnabled?: boolean;
   mainBranchName: string;
+  monorepo?: boolean;
   component: Component;
 }
 
@@ -55,19 +57,24 @@ function otherYamlSteps(branchesEnabled: boolean) {
 }
 
 export default function Others(props: OthersProps) {
-  const { component, branchesEnabled, mainBranchName } = props;
+  const { component, branchesEnabled, mainBranchName, monorepo } = props;
   return (
     <>
-      <DefaultProjectKey component={component} />
-      <CreateYmlFile
-        yamlFileName=".github/workflows/build.yml"
-        yamlTemplate={generateGitHubActionsYaml(
-          mainBranchName,
-          !!branchesEnabled,
-          GITHUB_ACTIONS_RUNS_ON_LINUX,
-          otherYamlSteps(!!branchesEnabled),
-        )}
-      />
+      <DefaultProjectKey component={component} monorepo={monorepo} />
+
+      {monorepo ? (
+        <MonorepoDocLinkFallback />
+      ) : (
+        <CreateYmlFile
+          yamlFileName=".github/workflows/build.yml"
+          yamlTemplate={generateGitHubActionsYaml(
+            mainBranchName,
+            !!branchesEnabled,
+            GITHUB_ACTIONS_RUNS_ON_LINUX,
+            otherYamlSteps(!!branchesEnabled),
+          )}
+        />
+      )}
     </>
   );
 }

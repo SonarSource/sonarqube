@@ -33,27 +33,36 @@ export interface GitHubActionTutorialProps {
   baseUrl: string;
   component: Component;
   currentUser: LoggedInUser;
+  monorepo?: boolean;
   mainBranchName: string;
   willRefreshAutomatically?: boolean;
 }
 
 export default function GitHubActionTutorial(props: GitHubActionTutorialProps) {
   const [done, setDone] = React.useState<boolean>(false);
-  const { almBinding, baseUrl, currentUser, component, mainBranchName, willRefreshAutomatically } =
-    props;
+  const {
+    almBinding,
+    baseUrl,
+    currentUser,
+    component,
+    monorepo,
+    mainBranchName,
+    willRefreshAutomatically,
+  } = props;
+
+  const secretStepTitle = `onboarding.tutorial.with.github_action.create_secret.title${monorepo ? '.monorepo' : ''}`;
+
   return (
     <>
       <Title>{translate('onboarding.tutorial.with.github_ci.title')}</Title>
-
       <TutorialStepList className="sw-mb-8">
-        <TutorialStep
-          title={translate('onboarding.tutorial.with.github_action.create_secret.title')}
-        >
+        <TutorialStep title={translate(secretStepTitle)}>
           <SecretStep
             almBinding={almBinding}
             baseUrl={baseUrl}
             component={component}
             currentUser={currentUser}
+            monorepo={monorepo}
           />
         </TutorialStep>
         <TutorialStep title={translate('onboarding.tutorial.with.github_action.yaml.title')}>
@@ -63,6 +72,7 @@ export default function GitHubActionTutorial(props: GitHubActionTutorialProps) {
                 buildTool={buildTool}
                 mainBranchName={mainBranchName}
                 component={component}
+                monorepo={monorepo}
               />
             )}
           </YamlFileStep>

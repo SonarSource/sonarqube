@@ -18,21 +18,17 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import axios from 'axios';
+import { BoundProject, DopSetting } from '../types/dop-translation';
+import { Paging } from '../types/types';
 
 const DOP_TRANSLATION_PATH = '/api/v2/dop-translation';
+const BOUND_PROJECTS_PATH = `${DOP_TRANSLATION_PATH}/bound-projects`;
+const DOP_SETTINGS_PATH = `${DOP_TRANSLATION_PATH}/dop-settings`;
 
-// Imported projects
+export function createBoundProject(data: BoundProject) {
+  return axios.post(BOUND_PROJECTS_PATH, data);
+}
 
-const IMPORTED_PROJECTS_PATH = `${DOP_TRANSLATION_PATH}/bound-projects`;
-
-export function createImportedProjects(data: {
-  devOpsPlatformSettingId: string;
-  monorepo: boolean;
-  newCodeDefinitionType?: string;
-  newCodeDefinitionValue?: string;
-  projectKey: string;
-  projectName: string;
-  repositoryIdentifier: string;
-}) {
-  return axios.post(IMPORTED_PROJECTS_PATH, data);
+export function getDopSettings() {
+  return axios.get<{ paging: Paging; dopSettings: DopSetting[] }>(DOP_SETTINGS_PATH);
 }

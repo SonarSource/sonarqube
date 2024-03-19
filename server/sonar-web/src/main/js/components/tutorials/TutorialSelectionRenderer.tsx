@@ -258,6 +258,7 @@ export default function TutorialSelectionRenderer(props: TutorialSelectionRender
           baseUrl={baseUrl}
           component={component}
           currentUser={currentUser}
+          monorepo={projectBinding?.monorepo}
           mainBranchName={mainBranchName}
           willRefreshAutomatically={willRefreshAutomatically}
         />

@@ -198,6 +198,7 @@ export default class BitbucketCloudProjectCreate extends React.PureComponent<Pro
       this.props.onProjectSetupDone({
         creationMode: CreateProjectModes.BitbucketCloud,
         almSetting: selectedAlmInstance.key,
+        monorepo: false,
         projects: [
           {
             repositorySlug,

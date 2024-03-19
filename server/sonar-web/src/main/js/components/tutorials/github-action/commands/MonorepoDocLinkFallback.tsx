@@ -17,13 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { NumberedListItem } from 'design-system';
+import * as React from 'react';
+import { translate } from '../../../../helpers/l10n';
+import DocumentationLink from '../../../common/DocumentationLink';
 
-import { PROJECT_KEY_INVALID_CHARACTERS } from '../../../helpers/projects';
+const MONOREPO_DOC =
+  '/devops-platform-integration/github-integration/monorepo/#workflow-file-example';
 
-export function tokenExistedBefore(error?: string) {
-  return error?.includes('is missing');
-}
-
-export function getSanitizedProjectKey(projectKey: string) {
-  return projectKey.trim().replace(PROJECT_KEY_INVALID_CHARACTERS, '-');
+export default function MonorepoDocLinkFallback() {
+  return (
+    <NumberedListItem>
+      <DocumentationLink className="sw-mt-4" to={MONOREPO_DOC}>
+        {translate('onboarding.tutorial.with.github_action.monorepo.see_yaml_instructions')}
+      </DocumentationLink>{' '}
+      {translate('onboarding.tutorial.with.github_action.monorepo.pre_see_yaml_instructions')}
+    </NumberedListItem>
+  );
 }

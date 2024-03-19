@@ -24,5 +24,4 @@ export enum CreateProjectModes {
   BitbucketCloud = 'bitbucketcloud',
   GitHub = 'github',
   GitLab = 'gitlab',
-  Monorepo = 'monorepo',
 }

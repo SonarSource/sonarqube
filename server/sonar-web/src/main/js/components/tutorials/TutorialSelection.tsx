@@ -33,14 +33,14 @@ import { Location, withRouter } from '../hoc/withRouter';
 import TutorialSelectionRenderer from './TutorialSelectionRenderer';
 import { TutorialModes } from './types';
 
-interface Props {
+export interface TutorialSelectionProps {
   component: Component;
   currentUser: LoggedInUser;
   willRefreshAutomatically?: boolean;
   location: Location;
 }
 
-export function TutorialSelection(props: Props) {
+export function TutorialSelection(props: Readonly<TutorialSelectionProps>) {
   const { component, currentUser, location, willRefreshAutomatically } = props;
   const [currentUserCanScanProject, setCurrentUserCanScanProject] = React.useState(false);
   const [baseUrl, setBaseUrl] = React.useState(getHostUrl());

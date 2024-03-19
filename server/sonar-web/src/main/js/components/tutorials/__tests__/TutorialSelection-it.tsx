@@ -29,12 +29,11 @@ import { mockComponent } from '../../../helpers/mocks/component';
 import { mockLoggedInUser } from '../../../helpers/testMocks';
 import { renderApp } from '../../../helpers/testReactTestingUtils';
 import { byRole, byText } from '../../../helpers/testSelector';
-import { ComponentPropsType } from '../../../helpers/testUtils';
 import { AlmKeys } from '../../../types/alm-settings';
 import { Feature } from '../../../types/features';
 import { Permissions } from '../../../types/permissions';
 import { SettingsKey } from '../../../types/settings';
-import TutorialSelection from '../TutorialSelection';
+import TutorialSelection, { TutorialSelectionProps } from '../TutorialSelection';
 import { TutorialModes } from '../types';
 
 jest.mock('../../../api/branches');
@@ -71,8 +70,14 @@ beforeEach(() => {
 const ui = {
   loading: byText('loading'),
   noScanRights: byText('onboarding.tutorial.no_scan_rights'),
+  monoRepoSecretInfo: byText('onboarding.tutorial.with.github_action.create_secret.monorepo_info'),
+  monoRepoYamlDocLink: byRole('link', {
+    name: 'onboarding.tutorial.with.github_action.monorepo.see_yaml_instructions',
+  }),
   chooseTutorialLink: (mode: TutorialModes) =>
     byRole('link', { name: `onboarding.tutorial.choose_method.${mode}` }),
+  chooseBootstrapper: (bootstrapper: string) =>
+    byRole('radio', { name: `onboarding.build.${bootstrapper}` }),
 };
 
 it.each([
@@ -98,6 +103,54 @@ it.each([
   await user.click(ui.chooseTutorialLink(mode).get());
   expect(screen.getByText(title)).toBeInTheDocument();
   expect(screen.getByText(breadcrumbs)).toBeInTheDocument();
+});
+
+it('should properly detect and render GitHub monorepo-specific instructions for GitHub Actions', async () => {
+  almMock.handleSetProjectBinding(AlmKeys.GitHub, {
+    project: 'foo',
+    almSetting: 'foo',
+    repository: 'repo',
+    monorepo: true,
+  });
+  const user = userEvent.setup();
+  renderTutorialSelection({});
+  await waitOnDataLoaded();
+
+  await user.click(ui.chooseTutorialLink(TutorialModes.GitHubActions).get());
+
+  expect(ui.monoRepoSecretInfo.get()).toBeInTheDocument();
+
+  expect(ui.monoRepoYamlDocLink.query()).not.toBeInTheDocument();
+  await user.click(ui.chooseBootstrapper('maven').get());
+  expect(ui.monoRepoYamlDocLink.get()).toBeInTheDocument();
+
+  await user.click(ui.chooseBootstrapper('gradle').get());
+  expect(ui.monoRepoYamlDocLink.get()).toBeInTheDocument();
+
+  await user.click(ui.chooseBootstrapper('dotnet').get());
+  expect(ui.monoRepoYamlDocLink.get()).toBeInTheDocument();
+
+  await user.click(ui.chooseBootstrapper('other').get());
+  expect(ui.monoRepoYamlDocLink.get()).toBeInTheDocument();
+});
+
+it('should properly render GitHub project tutorials for GitHub Actions', async () => {
+  almMock.handleSetProjectBinding(AlmKeys.GitHub, {
+    project: 'foo',
+    almSetting: 'foo',
+    repository: 'repo',
+    monorepo: false,
+  });
+  const user = userEvent.setup();
+  renderTutorialSelection({});
+  await waitOnDataLoaded();
+
+  await user.click(ui.chooseTutorialLink(TutorialModes.GitHubActions).get());
+
+  expect(ui.monoRepoSecretInfo.query()).not.toBeInTheDocument();
+
+  await user.click(ui.chooseBootstrapper('maven').get());
+  expect(ui.monoRepoYamlDocLink.query()).not.toBeInTheDocument();
 });
 
 it.each([
@@ -189,7 +242,7 @@ async function startLocalTutorial(user: UserEvent) {
 }
 
 function renderTutorialSelection(
-  props: Partial<ComponentPropsType<typeof TutorialSelection>> = {},
+  props: Partial<TutorialSelectionProps> = {},
   navigateTo: string = 'tutorials?id=bar',
 ) {
   return renderApp(

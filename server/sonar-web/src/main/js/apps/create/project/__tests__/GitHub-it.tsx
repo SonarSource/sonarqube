@@ -24,7 +24,7 @@ import * as React from 'react';
 import selectEvent from 'react-select-event';
 import { getGithubRepositories } from '../../../../api/alm-integrations';
 import AlmIntegrationsServiceMock from '../../../../api/mocks/AlmIntegrationsServiceMock';
-import AlmSettingsServiceMock from '../../../../api/mocks/AlmSettingsServiceMock';
+import DopTranslationServiceMock from '../../../../api/mocks/DopTranslationServiceMock';
 import NewCodeDefinitionServiceMock from '../../../../api/mocks/NewCodeDefinitionServiceMock';
 import { mockGitHubRepository } from '../../../../helpers/mocks/alm-integrations';
 import { renderApp } from '../../../../helpers/testReactTestingUtils';
@@ -37,7 +37,7 @@ jest.mock('../../../../api/alm-settings');
 const original = window.location;
 
 let almIntegrationHandler: AlmIntegrationsServiceMock;
-let almSettingsHandler: AlmSettingsServiceMock;
+let dopTranslationHandler: DopTranslationServiceMock;
 let newCodePeriodHandler: NewCodeDefinitionServiceMock;
 
 const ui = {
@@ -76,14 +76,14 @@ beforeAll(() => {
     value: { replace: jest.fn() },
   });
   almIntegrationHandler = new AlmIntegrationsServiceMock();
-  almSettingsHandler = new AlmSettingsServiceMock();
+  dopTranslationHandler = new DopTranslationServiceMock();
   newCodePeriodHandler = new NewCodeDefinitionServiceMock();
 });
 
 beforeEach(() => {
   jest.clearAllMocks();
   almIntegrationHandler.reset();
-  almSettingsHandler.reset();
+  dopTranslationHandler.reset();
   newCodePeriodHandler.reset();
 });
 
@@ -120,7 +120,7 @@ it('should not redirect to github when url is malformated', async () => {
 it('should show import project feature when the authentication is successfull', async () => {
   const user = userEvent.setup();
 
-  renderCreateProject('project/create?mode=github&almInstance=conf-github-2&code=213321213');
+  renderCreateProject('project/create?mode=github&dopSetting=conf-github-2&code=213321213');
 
   expect(await ui.instanceSelector.find()).toBeInTheDocument();
 
@@ -172,7 +172,7 @@ it('should import several projects', async () => {
     mockGitHubRepository({ name: 'Github repo 3', key: 'key3' }),
   ]);
 
-  renderCreateProject('project/create?mode=github&almInstance=conf-github-2&code=213321213');
+  renderCreateProject('project/create?mode=github&dopSetting=conf-github-2&code=213321213');
 
   expect(await ui.instanceSelector.find()).toBeInTheDocument();
 
@@ -237,7 +237,7 @@ it('should import several projects', async () => {
 
 it('should show search filter when the authentication is successful', async () => {
   const user = userEvent.setup();
-  renderCreateProject('project/create?mode=github&almInstance=conf-github-2&code=213321213');
+  renderCreateProject('project/create?mode=github&dopSetting=conf-github-2&code=213321213');
 
   expect(await ui.instanceSelector.find()).toBeInTheDocument();
 
@@ -247,12 +247,14 @@ it('should show search filter when the authentication is successful', async () =
   await user.click(inputSearch);
   await user.keyboard('search');
 
-  expect(getGithubRepositories).toHaveBeenLastCalledWith({
-    almSetting: 'conf-github-2',
-    organization: 'org-1',
-    page: 1,
-    pageSize: 50,
-    query: 'search',
+  await waitFor(() => {
+    expect(getGithubRepositories).toHaveBeenLastCalledWith({
+      almSetting: 'conf-github-2',
+      organization: 'org-1',
+      page: 1,
+      pageSize: 50,
+      query: 'search',
+    });
   });
 });
 
@@ -260,7 +262,7 @@ it('should have load more', async () => {
   const user = userEvent.setup();
   almIntegrationHandler.createRandomGithubRepositoriessWithLoadMore(10, 20);
 
-  renderCreateProject('project/create?mode=github&almInstance=conf-github-2&code=213321213');
+  renderCreateProject('project/create?mode=github&dopSetting=conf-github-2&code=213321213');
 
   expect(await ui.instanceSelector.find()).toBeInTheDocument();
 
@@ -288,7 +290,7 @@ it('should have load more', async () => {
 it('should show no result message when there are no projects', async () => {
   almIntegrationHandler.setGithubRepositories([]);
 
-  renderCreateProject('project/create?mode=github&almInstance=conf-github-2&code=213321213');
+  renderCreateProject('project/create?mode=github&dopSetting=conf-github-2&code=213321213');
 
   expect(await ui.instanceSelector.find()).toBeInTheDocument();
 

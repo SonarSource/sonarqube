@@ -18,12 +18,17 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { PROJECT_KEY_INVALID_CHARACTERS } from '../../../helpers/projects';
+/* eslint-disable local-rules/use-metrickey-enum */
 
-export function tokenExistedBefore(error?: string) {
-  return error?.includes('is missing');
-}
+import { AlmKeys } from '../../../types/alm-settings';
+import { DopSetting } from '../../../types/dop-translation';
 
-export function getSanitizedProjectKey(projectKey: string) {
-  return projectKey.trim().replace(PROJECT_KEY_INVALID_CHARACTERS, '-');
+export function mockDopSetting(overrides?: Partial<DopSetting>): DopSetting {
+  return {
+    id: overrides?.id ?? overrides?.key ?? 'dop-setting-test-id',
+    key: 'Test/DopSetting',
+    type: AlmKeys.GitHub,
+    url: 'https://github.com',
+    ...overrides,
+  };
 }

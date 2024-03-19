@@ -143,6 +143,7 @@ export default class GitlabProjectCreate extends React.PureComponent<Props, Stat
       this.props.onProjectSetupDone({
         creationMode: CreateProjectModes.GitLab,
         almSetting: selectedAlmInstance.key,
+        monorepo: false,
         projects: [{ gitlabProjectId }],
       });
     }

@@ -21,7 +21,7 @@ import { screen } from '@testing-library/react';
 
 import * as React from 'react';
 import AlmIntegrationsServiceMock from '../../../../api/mocks/AlmIntegrationsServiceMock';
-import AlmSettingsServiceMock from '../../../../api/mocks/AlmSettingsServiceMock';
+import DopTranslationServiceMock from '../../../../api/mocks/DopTranslationServiceMock';
 import NewCodeDefinitionServiceMock from '../../../../api/mocks/NewCodeDefinitionServiceMock';
 import { mockAppState } from '../../../../helpers/testMocks';
 import { renderApp } from '../../../../helpers/testReactTestingUtils';
@@ -32,7 +32,7 @@ jest.mock('../../../../api/alm-integrations');
 jest.mock('../../../../api/alm-settings');
 
 let almIntegrationHandler: AlmIntegrationsServiceMock;
-let almSettingsHandler: AlmSettingsServiceMock;
+let dopTranslationHandler: DopTranslationServiceMock;
 let newCodePeriodHandler: NewCodeDefinitionServiceMock;
 
 const original = window.location;
@@ -43,14 +43,14 @@ beforeAll(() => {
     value: { replace: jest.fn() },
   });
   almIntegrationHandler = new AlmIntegrationsServiceMock();
-  almSettingsHandler = new AlmSettingsServiceMock();
+  dopTranslationHandler = new DopTranslationServiceMock();
   newCodePeriodHandler = new NewCodeDefinitionServiceMock();
 });
 
 beforeEach(() => {
   jest.clearAllMocks();
   almIntegrationHandler.reset();
-  almSettingsHandler.reset();
+  dopTranslationHandler.reset();
   newCodePeriodHandler.reset();
 });
 afterAll(() => {
@@ -58,14 +58,14 @@ afterAll(() => {
 });
 
 it('should be able to setup if no config and admin', async () => {
-  almSettingsHandler.removeFromAlmSettings(AlmKeys.Azure);
+  dopTranslationHandler.removeDopTypeFromSettings(AlmKeys.Azure);
   renderCreateProject(true);
   expect(await screen.findByText('onboarding.create_project.select_method')).toBeInTheDocument();
   expect(screen.getByRole('button', { name: 'setup' })).toBeInTheDocument();
 });
 
 it('should not be able to setup if no config and no admin rights', async () => {
-  almSettingsHandler.removeFromAlmSettings(AlmKeys.Azure);
+  dopTranslationHandler.removeDopTypeFromSettings(AlmKeys.Azure);
   renderCreateProject();
   expect(await screen.findByText('onboarding.create_project.select_method')).toBeInTheDocument();
   expect(screen.queryByRole('button', { name: 'setup' })).not.toBeInTheDocument();

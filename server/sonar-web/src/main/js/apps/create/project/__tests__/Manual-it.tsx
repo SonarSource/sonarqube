@@ -17,9 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { UserEvent } from '@testing-library/user-event/dist/types/setup/setup';
 import AlmSettingsServiceMock from '../../../../api/mocks/AlmSettingsServiceMock';
+import DopTranslationServiceMock from '../../../../api/mocks/DopTranslationServiceMock';
 import NewCodeDefinitionServiceMock from '../../../../api/mocks/NewCodeDefinitionServiceMock';
 import { ProjectsServiceMock } from '../../../../api/mocks/ProjectsServiceMock';
 import { getNewCodeDefinition } from '../../../../api/newCodeDefinition';
@@ -34,6 +36,7 @@ import routes from '../../../projects/routes';
 jest.mock('../../../../api/measures');
 jest.mock('../../../../api/favorites');
 jest.mock('../../../../api/alm-settings');
+jest.mock('../../../../api/dop-translation');
 jest.mock('../../../../api/newCodeDefinition');
 jest.mock('../../../../api/project-management', () => ({
   createProject: jest.fn().mockReturnValue(Promise.resolve({ project: mockProject() })),
@@ -98,6 +101,7 @@ async function fillFormAndNext(displayName: string, user: UserEvent) {
 }
 
 let almSettingsHandler: AlmSettingsServiceMock;
+let dopTranslationHandler: DopTranslationServiceMock;
 let newCodePeriodHandler: NewCodeDefinitionServiceMock;
 let projectHandler: ProjectsServiceMock;
 
@@ -109,6 +113,7 @@ beforeAll(() => {
     value: { replace: jest.fn() },
   });
   almSettingsHandler = new AlmSettingsServiceMock();
+  dopTranslationHandler = new DopTranslationServiceMock();
   newCodePeriodHandler = new NewCodeDefinitionServiceMock();
   projectHandler = new ProjectsServiceMock();
 });
@@ -116,6 +121,7 @@ beforeAll(() => {
 beforeEach(() => {
   jest.clearAllMocks();
   almSettingsHandler.reset();
+  dopTranslationHandler.reset();
   newCodePeriodHandler.reset();
   projectHandler.reset();
 });
@@ -192,7 +198,7 @@ it('the project onboarding page should be displayed when the project is created'
   expect(await ui.projectDashboardText.find()).toBeInTheDocument();
 });
 
-it('validate the provate key field', async () => {
+it('validate the private key field', async () => {
   const user = userEvent.setup();
   renderCreateProject();
   expect(ui.manualProjectHeader.get()).toBeInTheDocument();
@@ -200,7 +206,9 @@ it('validate the provate key field', async () => {
   await user.click(ui.displayNameField.get());
   await user.keyboard('exists');
 
-  expect(ui.projectNextButton.get()).toBeDisabled();
+  await waitFor(() => {
+    expect(ui.projectNextButton.get()).toBeDisabled();
+  });
   await user.click(ui.projectNextButton.get());
 });
 

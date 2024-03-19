@@ -17,305 +17,279 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { debounce } from 'lodash';
-import * as React from 'react';
-import { isWebUri } from 'valid-url';
-import {
-  getGithubClientId,
-  getGithubOrganizations,
-  getGithubRepositories,
-} from '../../../../api/alm-integrations';
-import { Location, Router } from '../../../../components/hoc/withRouter';
-import { getHostUrl } from '../../../../helpers/urls';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { getGithubOrganizations, getGithubRepositories } from '../../../../api/alm-integrations';
+import { useLocation, useRouter } from '../../../../components/hoc/withRouter';
+import { LabelValueSelectOption } from '../../../../helpers/search';
 import { GithubOrganization, GithubRepository } from '../../../../types/alm-integration';
-import { AlmKeys, AlmSettingsInstance } from '../../../../types/alm-settings';
+import { AlmSettingsInstance } from '../../../../types/alm-settings';
+import { DopSetting } from '../../../../types/dop-translation';
 import { Paging } from '../../../../types/types';
 import { ImportProjectParam } from '../CreateProjectPage';
+import MonorepoProjectCreate from '../monorepo/MonorepoProjectCreate';
 import { CreateProjectModes } from '../types';
 import GitHubProjectCreateRenderer from './GitHubProjectCreateRenderer';
+import { redirectToGithub } from './utils';
 
 interface Props {
   canAdmin: boolean;
-  loadingBindings: boolean;
+  isLoadingBindings: boolean;
   onProjectSetupDone: (importProjects: ImportProjectParam) => void;
-  almInstances: AlmSettingsInstance[];
-  location: Location;
-  router: Router;
-}
-
-interface State {
-  error: boolean;
-  loadingOrganizations: boolean;
-  loadingRepositories: boolean;
-  organizations: GithubOrganization[];
-  repositoryPaging: Paging;
-  repositories: GithubRepository[];
-  searchQuery: string;
-  selectedOrganization?: GithubOrganization;
-  selectedAlmInstance?: AlmSettingsInstance;
+  dopSettings: DopSetting[];
 }
 
 const REPOSITORY_PAGE_SIZE = 50;
+const REPOSITORY_SEARCH_DEBOUNCE_TIME = 250;
 
-export default class GitHubProjectCreate extends React.Component<Props, State> {
-  mounted = false;
+export default function GitHubProjectCreate(props: Readonly<Props>) {
+  const { canAdmin, dopSettings, isLoadingBindings, onProjectSetupDone } = props;
 
-  constructor(props: Props) {
-    super(props);
+  const repositorySearchDebounceId = useRef<NodeJS.Timeout | undefined>();
 
-    this.state = {
-      error: false,
-      loadingOrganizations: true,
-      loadingRepositories: false,
-      organizations: [],
-      repositories: [],
-      repositoryPaging: { pageSize: REPOSITORY_PAGE_SIZE, total: 0, pageIndex: 1 },
-      searchQuery: '',
-      selectedAlmInstance: this.getInitialSelectedAlmInstance(),
-    };
+  const [isInError, setIsInError] = useState(false);
+  const [isLoadingOrganizations, setIsLoadingOrganizations] = useState(true);
+  const [isLoadingRepositories, setIsLoadingRepositories] = useState(false);
+  const [organizations, setOrganizations] = useState<GithubOrganization[]>([]);
+  const [repositories, setRepositories] = useState<GithubRepository[]>([]);
+  const [repositoryPaging, setRepositoryPaging] = useState<Paging>({
+    pageSize: REPOSITORY_PAGE_SIZE,
+    total: 0,
+    pageIndex: 1,
+  });
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedDopSetting, setSelectedDopSetting] = useState<DopSetting>();
+  const [selectedOrganization, setSelectedOrganization] = useState<GithubOrganization>();
+  const [selectedRepository, setSelectedRepository] = useState<GithubRepository>();
 
-    this.triggerSearch = debounce(this.triggerSearch, 250);
-  }
+  const location = useLocation();
+  const router = useRouter();
 
-  componentDidMount() {
-    this.mounted = true;
-    this.initialize();
-  }
+  const isMonorepoSetup = location.query?.mono === 'true';
+  const hasDopSettings = Boolean(dopSettings?.length);
+  const organizationOptions = useMemo(() => {
+    return organizations.map(transformToOption);
+  }, [organizations]);
+  const repositoryOptions = useMemo(() => {
+    return repositories.map(transformToOption);
+  }, [repositories]);
 
-  componentDidUpdate(prevProps: Props) {
-    if (prevProps.almInstances.length === 0 && this.props.almInstances.length > 0) {
-      this.setState({ selectedAlmInstance: this.getInitialSelectedAlmInstance() }, () => {
-        this.initialize().catch(() => {
-          /* noop */
+  const fetchRepositories = useCallback(
+    async (params: { organizationKey: string; page?: number; query?: string }) => {
+      const { organizationKey, page = 1, query } = params;
+
+      if (selectedDopSetting === undefined) {
+        setIsInError(true);
+        return;
+      }
+
+      setIsLoadingRepositories(true);
+
+      try {
+        const { paging, repositories } = await getGithubRepositories({
+          almSetting: selectedDopSetting.key,
+          organization: organizationKey,
+          pageSize: REPOSITORY_PAGE_SIZE,
+          page,
+          query,
         });
-      });
-    }
-  }
 
-  componentWillUnmount() {
-    this.mounted = false;
-  }
-
-  getInitialSelectedAlmInstance() {
-    const {
-      location: {
-        query: { almInstance: selectedAlmInstanceKey },
-      },
-      almInstances,
-    } = this.props;
-    const selectedAlmInstance = almInstances.find(
-      (instance) => instance.key === selectedAlmInstanceKey,
-    );
-    if (selectedAlmInstance) {
-      return selectedAlmInstance;
-    }
-    return this.props.almInstances.length > 1 ? undefined : this.props.almInstances[0];
-  }
-
-  async initialize() {
-    const { location, router } = this.props;
-    const { selectedAlmInstance } = this.state;
-    if (!selectedAlmInstance || !selectedAlmInstance.url) {
-      this.setState({ error: true });
-      return;
-    }
-    this.setState({ error: false });
-
-    const code = location.query?.code;
-    try {
-      if (!code) {
-        await this.redirectToGithub(selectedAlmInstance);
-      } else {
-        delete location.query.code;
-        router.replace(location);
-        await this.fetchOrganizations(selectedAlmInstance, code);
+        setRepositoryPaging(paging);
+        setRepositories((prevRepositories) =>
+          page === 1 ? repositories : [...prevRepositories, ...repositories],
+        );
+      } catch (_) {
+        setRepositoryPaging({ pageIndex: 1, pageSize: REPOSITORY_PAGE_SIZE, total: 0 });
+        setRepositories([]);
+      } finally {
+        setIsLoadingRepositories(false);
       }
-    } catch (e) {
-      if (this.mounted) {
-        this.setState({ error: true });
-      }
-    }
-  }
+    },
+    [selectedDopSetting],
+  );
 
-  async redirectToGithub(selectedAlmInstance: AlmSettingsInstance) {
-    if (!selectedAlmInstance.url) {
-      return;
-    }
-
-    const { clientId } = await getGithubClientId(selectedAlmInstance.key);
-
-    if (!clientId) {
-      this.setState({ error: true });
-      return;
-    }
-    const queryParams = [
-      { param: 'client_id', value: clientId },
-      {
-        param: 'redirect_uri',
-        value: encodeURIComponent(
-          `${getHostUrl()}/projects/create?mode=${AlmKeys.GitHub}&almInstance=${
-            selectedAlmInstance.key
-          }`,
-        ),
-      },
-    ]
-      .map(({ param, value }) => `${param}=${value}`)
-      .join('&');
-
-    let instanceRootUrl;
-    // Strip the api section from the url, since we're not hitting the api here.
-    if (selectedAlmInstance.url.includes('/api/v3')) {
-      // GitHub Enterprise
-      instanceRootUrl = selectedAlmInstance.url.replace('/api/v3', '');
-    } else {
-      // github.com
-      instanceRootUrl = selectedAlmInstance.url.replace('api.', '');
-    }
-
-    // strip the trailing /
-    instanceRootUrl = instanceRootUrl.replace(/\/$/, '');
-    if (!isWebUri(instanceRootUrl)) {
-      this.setState({ error: true });
-    } else {
-      window.location.replace(`${instanceRootUrl}/login/oauth/authorize?${queryParams}`);
-    }
-  }
-
-  async fetchOrganizations(selectedAlmInstance: AlmSettingsInstance, token: string) {
-    const { organizations } = await getGithubOrganizations(selectedAlmInstance.key, token);
-
-    if (this.mounted) {
-      this.setState({ loadingOrganizations: false, organizations });
-    }
-  }
-
-  async fetchRepositories(params: { organizationKey: string; page?: number; query?: string }) {
-    const { organizationKey, page = 1, query } = params;
-    const { selectedAlmInstance } = this.state;
-
-    if (!selectedAlmInstance) {
-      this.setState({ error: true });
-      return;
-    }
-
-    this.setState({ loadingRepositories: true });
-
-    try {
-      const data = await getGithubRepositories({
-        almSetting: selectedAlmInstance.key,
-        organization: organizationKey,
-        pageSize: REPOSITORY_PAGE_SIZE,
-        page,
-        query,
-      });
-
-      if (this.mounted) {
-        this.setState(({ repositories }) => ({
-          loadingRepositories: false,
-          repositoryPaging: data.paging,
-          repositories: page === 1 ? data.repositories : [...repositories, ...data.repositories],
-        }));
-      }
-    } catch (_) {
-      if (this.mounted) {
-        this.setState({
-          loadingRepositories: false,
-          repositoryPaging: { pageIndex: 1, pageSize: REPOSITORY_PAGE_SIZE, total: 0 },
-          repositories: [],
+  const handleImportRepository = useCallback(
+    (repoKeys: string[]) => {
+      if (selectedDopSetting && selectedOrganization && repoKeys.length > 0) {
+        onProjectSetupDone({
+          almSetting: selectedDopSetting.key,
+          creationMode: CreateProjectModes.GitHub,
+          monorepo: false,
+          projects: repoKeys.map((repositoryKey) => ({ repositoryKey })),
         });
       }
-    }
-  }
+    },
+    [onProjectSetupDone, selectedDopSetting, selectedOrganization],
+  );
 
-  triggerSearch = (query: string) => {
-    const { selectedOrganization } = this.state;
+  const handleLoadMore = useCallback(() => {
     if (selectedOrganization) {
-      this.fetchRepositories({ organizationKey: selectedOrganization.key, query });
-    }
-  };
-
-  handleSelectOrganization = (key: string) => {
-    this.setState(({ organizations }) => ({
-      searchQuery: '',
-      selectedOrganization: organizations.find((o) => o.key === key),
-    }));
-    this.fetchRepositories({ organizationKey: key });
-  };
-
-  handleSearch = (searchQuery: string) => {
-    this.setState({ searchQuery });
-    this.triggerSearch(searchQuery);
-  };
-
-  handleLoadMore = () => {
-    const { repositoryPaging, searchQuery, selectedOrganization } = this.state;
-
-    if (selectedOrganization) {
-      this.fetchRepositories({
+      fetchRepositories({
         organizationKey: selectedOrganization.key,
         page: repositoryPaging.pageIndex + 1,
         query: searchQuery,
       });
     }
-  };
+  }, [fetchRepositories, repositoryPaging.pageIndex, searchQuery, selectedOrganization]);
 
-  handleImportRepository = (repoKeys: string[]) => {
-    const { selectedOrganization, selectedAlmInstance } = this.state;
+  const handleSelectOrganization = useCallback(
+    (organizationKey: string) => {
+      setSearchQuery('');
+      setSelectedOrganization(organizations.find(({ key }) => key === organizationKey));
+      fetchRepositories({ organizationKey });
+    },
+    [fetchRepositories, organizations],
+  );
 
-    if (selectedAlmInstance && selectedOrganization && repoKeys.length > 0) {
-      this.props.onProjectSetupDone({
-        almSetting: selectedAlmInstance.key,
-        creationMode: CreateProjectModes.GitHub,
-        projects: repoKeys.map((repositoryKey) => ({ repositoryKey })),
-      });
+  const handleSelectRepository = useCallback(
+    (repositoryIdentifier: string) => {
+      setSelectedRepository(repositories.find(({ key }) => key === repositoryIdentifier));
+    },
+    [repositories],
+  );
+
+  const authenticateToGithub = useCallback(async () => {
+    try {
+      await redirectToGithub({ isMonorepoSetup, selectedDopSetting });
+    } catch {
+      setIsInError(true);
     }
-  };
+  }, [isMonorepoSetup, selectedDopSetting]);
 
-  onSelectedAlmInstanceChange = (instance: AlmSettingsInstance) => {
-    this.setState(
-      { selectedAlmInstance: instance, searchQuery: '', organizations: [], repositories: [] },
-      () => {
-        this.initialize().catch(() => {
-          /* noop */
+  const onSelectDopSetting = useCallback((setting: DopSetting | undefined) => {
+    setSelectedDopSetting(setting);
+    setOrganizations([]);
+    setRepositories([]);
+    setSearchQuery('');
+  }, []);
+
+  const onSelectedAlmInstanceChange = useCallback(
+    (instance: AlmSettingsInstance) => {
+      onSelectDopSetting(dopSettings.find((dopSetting) => dopSetting.key === instance.key));
+    },
+    [dopSettings, onSelectDopSetting],
+  );
+
+  useEffect(() => {
+    const selectedDopSettingId = location.query?.dopSetting;
+    if (selectedDopSettingId !== undefined) {
+      const selectedDopSetting = dopSettings.find(({ id }) => id === selectedDopSettingId);
+
+      if (selectedDopSetting) {
+        setSelectedDopSetting(selectedDopSetting);
+      }
+
+      return;
+    }
+
+    if (dopSettings.length > 1) {
+      setSelectedDopSetting(undefined);
+      return;
+    }
+
+    setSelectedDopSetting(dopSettings[0]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hasDopSettings]);
+
+  useEffect(() => {
+    if (selectedDopSetting?.url === undefined) {
+      setIsInError(true);
+      return;
+    }
+    setIsInError(false);
+
+    const code = location.query?.code;
+    if (code === undefined) {
+      authenticateToGithub().catch(() => {
+        setIsInError(true);
+      });
+    } else {
+      delete location.query.code;
+      router.replace(location);
+
+      getGithubOrganizations(selectedDopSetting.key, code)
+        .then(({ organizations }) => {
+          setOrganizations(organizations);
+          setIsLoadingOrganizations(false);
+        })
+        .catch(() => {
+          setIsInError(true);
         });
-      },
-    );
-  };
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedDopSetting]);
 
-  render() {
-    const { canAdmin, loadingBindings, almInstances } = this.props;
-    const {
-      error,
-      loadingOrganizations,
-      loadingRepositories,
-      organizations,
-      repositoryPaging,
-      repositories,
-      searchQuery,
-      selectedOrganization,
-      selectedAlmInstance,
-    } = this.state;
+  useEffect(() => {
+    repositorySearchDebounceId.current = setTimeout(() => {
+      if (selectedOrganization) {
+        fetchRepositories({
+          organizationKey: selectedOrganization.key,
+          query: searchQuery,
+        });
+      }
+    }, REPOSITORY_SEARCH_DEBOUNCE_TIME);
 
-    return (
-      <GitHubProjectCreateRenderer
-        canAdmin={canAdmin}
-        error={error}
-        loadingBindings={loadingBindings}
-        loadingOrganizations={loadingOrganizations}
-        loadingRepositories={loadingRepositories}
-        onImportRepository={this.handleImportRepository}
-        onLoadMore={this.handleLoadMore}
-        onSearch={this.handleSearch}
-        onSelectOrganization={this.handleSelectOrganization}
-        organizations={organizations}
-        repositoryPaging={repositoryPaging}
-        searchQuery={searchQuery}
-        repositories={repositories}
-        selectedOrganization={selectedOrganization}
-        almInstances={almInstances}
-        selectedAlmInstance={selectedAlmInstance}
-        onSelectedAlmInstanceChange={this.onSelectedAlmInstanceChange}
-      />
-    );
-  }
+    return () => {
+      clearTimeout(repositorySearchDebounceId.current);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchQuery]);
+
+  return isMonorepoSetup ? (
+    <MonorepoProjectCreate
+      dopSettings={dopSettings}
+      canAdmin={canAdmin}
+      error={isInError}
+      loadingBindings={isLoadingBindings}
+      loadingOrganizations={isLoadingOrganizations}
+      loadingRepositories={isLoadingRepositories}
+      onProjectSetupDone={onProjectSetupDone}
+      onSearchRepositories={setSearchQuery}
+      onSelectDopSetting={onSelectDopSetting}
+      onSelectOrganization={handleSelectOrganization}
+      onSelectRepository={handleSelectRepository}
+      organizationOptions={organizationOptions}
+      repositoryOptions={repositoryOptions}
+      repositorySearchQuery={searchQuery}
+      selectedDopSetting={selectedDopSetting}
+      selectedOrganization={selectedOrganization && transformToOption(selectedOrganization)}
+      selectedRepository={selectedRepository && transformToOption(selectedRepository)}
+    />
+  ) : (
+    <GitHubProjectCreateRenderer
+      almInstances={dopSettings.map(({ key, type, url }) => ({
+        alm: type,
+        key,
+        url,
+      }))}
+      canAdmin={canAdmin}
+      error={isInError}
+      loadingBindings={isLoadingBindings}
+      loadingOrganizations={isLoadingOrganizations}
+      loadingRepositories={isLoadingRepositories}
+      onImportRepository={handleImportRepository}
+      onLoadMore={handleLoadMore}
+      onSearch={setSearchQuery}
+      onSelectedAlmInstanceChange={onSelectedAlmInstanceChange}
+      onSelectOrganization={handleSelectOrganization}
+      organizations={organizations}
+      repositories={repositories}
+      repositoryPaging={repositoryPaging}
+      searchQuery={searchQuery}
+      selectedAlmInstance={
+        selectedDopSetting && {
+          alm: selectedDopSetting.type,
+          key: selectedDopSetting.key,
+          url: selectedDopSetting.url,
+        }
+      }
+      selectedOrganization={selectedOrganization}
+    />
+  );
+}
+
+function transformToOption({
+  key,
+  name,
+}: GithubOrganization | GithubRepository): LabelValueSelectOption {
+  return { value: key, label: name };
 }

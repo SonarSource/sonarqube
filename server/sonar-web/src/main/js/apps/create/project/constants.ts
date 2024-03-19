@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 export const PROJECT_NAME_MAX_LEN = 255;
 
 export const DEFAULT_BBS_PAGE_SIZE = 25;

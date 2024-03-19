@@ -20,6 +20,7 @@
 /* eslint-disable react/no-unused-prop-types */
 
 import styled from '@emotion/styled';
+import { Link, Spinner } from '@sonarsource/echoes-react';
 import {
   ButtonPrimary,
   Checkbox,
@@ -28,23 +29,25 @@ import {
   InputSearch,
   InputSelect,
   LightPrimary,
-  Link,
-  Spinner,
   Title,
   themeBorder,
   themeColor,
 } from 'design-system';
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
+import { AvailableFeaturesContext } from '../../../../app/components/available-features/AvailableFeaturesContext';
 import ListFooter from '../../../../components/controls/ListFooter';
 import { translate } from '../../../../helpers/l10n';
 import { LabelValueSelectOption } from '../../../../helpers/search';
 import { getBaseUrl } from '../../../../helpers/system';
+import { queryToSearch } from '../../../../helpers/urls';
 import { GithubOrganization, GithubRepository } from '../../../../types/alm-integration';
 import { AlmKeys, AlmSettingsInstance } from '../../../../types/alm-settings';
+import { Feature } from '../../../../types/features';
 import { Paging } from '../../../../types/types';
 import AlmRepoItem from '../components/AlmRepoItem';
 import AlmSettingsInstanceDropdown from '../components/AlmSettingsInstanceDropdown';
+import { CreateProjectModes } from '../types';
 
 interface GitHubProjectCreateRendererProps {
   canAdmin: boolean;
@@ -173,6 +176,10 @@ function RepositoryList(props: RepositoryListProps) {
 }
 
 export default function GitHubProjectCreateRenderer(props: GitHubProjectCreateRendererProps) {
+  const isMonorepoSupported = useContext(AvailableFeaturesContext).includes(
+    Feature.MonoRepositoryPullRequestDecoration,
+  );
+
   const {
     canAdmin,
     error,
@@ -211,7 +218,28 @@ export default function GitHubProjectCreateRenderer(props: GitHubProjectCreateRe
       <header className="sw-mb-10">
         <Title className="sw-mb-4">{translate('onboarding.create_project.github.title')}</Title>
         <LightPrimary className="sw-body-sm">
-          {translate('onboarding.create_project.github.subtitle')}
+          {isMonorepoSupported ? (
+            <FormattedMessage
+              id="onboarding.create_project.github.subtitle.with_monorepo"
+              values={{
+                monorepoSetupLink: (
+                  <Link
+                    to={{
+                      pathname: '/projects/create',
+                      search: queryToSearch({
+                        mode: CreateProjectModes.GitHub,
+                        mono: true,
+                      }),
+                    }}
+                  >
+                    <FormattedMessage id="onboarding.create_project.github.subtitle.link" />
+                  </Link>
+                ),
+              }}
+            />
+          ) : (
+            <FormattedMessage id="onboarding.create_project.github.subtitle" />
+          )}
         </LightPrimary>
       </header>
 
@@ -246,7 +274,7 @@ export default function GitHubProjectCreateRenderer(props: GitHubProjectCreateRe
 
       <div className="sw-flex sw-gap-12">
         <LargeColumn>
-          <Spinner loading={loadingOrganizations && !error}>
+          <Spinner isLoading={loadingOrganizations && !error}>
             {!error && (
               <div className="sw-flex sw-flex-col">
                 <DarkLabel htmlFor="github-choose-organization" className="sw-mb-2">

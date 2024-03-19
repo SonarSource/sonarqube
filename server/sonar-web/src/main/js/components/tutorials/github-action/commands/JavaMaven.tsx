@@ -22,10 +22,12 @@ import { Component } from '../../../../types/types';
 import CreateYmlFile from '../../components/CreateYmlFile';
 import { GITHUB_ACTIONS_RUNS_ON_LINUX } from '../constants';
 import { generateGitHubActionsYaml } from '../utils';
+import MonorepoDocLinkFallback from './MonorepoDocLinkFallback';
 
 export interface JavaMavenProps {
   branchesEnabled?: boolean;
   mainBranchName: string;
+  monorepo?: boolean;
   component: Component;
 }
 
@@ -55,7 +57,12 @@ function mavenYamlSteps(projectKey: string, projectName: string) {
 }
 
 export default function JavaMaven(props: JavaMavenProps) {
-  const { component, branchesEnabled, mainBranchName } = props;
+  const { component, branchesEnabled, mainBranchName, monorepo } = props;
+
+  if (monorepo) {
+    return <MonorepoDocLinkFallback />;
+  }
+
   return (
     <CreateYmlFile
       yamlFileName=".github/workflows/build.yml"

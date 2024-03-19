@@ -189,6 +189,7 @@ export default class BitbucketProjectCreate extends React.PureComponent<Props, S
       this.props.onProjectSetupDone({
         creationMode: CreateProjectModes.BitbucketServer,
         almSetting: selectedAlmInstance.key,
+        monorepo: false,
         projects: [
           {
             projectKey: selectedRepository.projectKey,

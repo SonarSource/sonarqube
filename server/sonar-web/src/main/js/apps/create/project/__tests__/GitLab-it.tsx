@@ -23,7 +23,7 @@ import * as React from 'react';
 import selectEvent from 'react-select-event';
 import { getGitlabProjects } from '../../../../api/alm-integrations';
 import AlmIntegrationsServiceMock from '../../../../api/mocks/AlmIntegrationsServiceMock';
-import AlmSettingsServiceMock from '../../../../api/mocks/AlmSettingsServiceMock';
+import DopTranslationServiceMock from '../../../../api/mocks/DopTranslationServiceMock';
 import NewCodeDefinitionServiceMock from '../../../../api/mocks/NewCodeDefinitionServiceMock';
 import { renderApp } from '../../../../helpers/testReactTestingUtils';
 import { byLabelText, byRole, byText } from '../../../../helpers/testSelector';
@@ -33,7 +33,7 @@ jest.mock('../../../../api/alm-integrations');
 jest.mock('../../../../api/alm-settings');
 
 let almIntegrationHandler: AlmIntegrationsServiceMock;
-let almSettingsHandler: AlmSettingsServiceMock;
+let dopTranslationHandler: DopTranslationServiceMock;
 let newCodePeriodHandler: NewCodeDefinitionServiceMock;
 
 const ui = {
@@ -53,14 +53,14 @@ beforeAll(() => {
     value: { replace: jest.fn() },
   });
   almIntegrationHandler = new AlmIntegrationsServiceMock();
-  almSettingsHandler = new AlmSettingsServiceMock();
+  dopTranslationHandler = new DopTranslationServiceMock();
   newCodePeriodHandler = new NewCodeDefinitionServiceMock();
 });
 
 beforeEach(() => {
   jest.clearAllMocks();
   almIntegrationHandler.reset();
-  almSettingsHandler.reset();
+  dopTranslationHandler.reset();
   newCodePeriodHandler.reset();
 });
 

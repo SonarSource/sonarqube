@@ -213,6 +213,7 @@ export default class AzureProjectCreate extends React.PureComponent<Props, State
       this.props.onProjectSetupDone({
         creationMode: CreateProjectModes.AzureDevOps,
         almSetting: selectedAlmInstance.key,
+        monorepo: false,
         projects: [
           {
             projectName: selectedRepository.projectName,

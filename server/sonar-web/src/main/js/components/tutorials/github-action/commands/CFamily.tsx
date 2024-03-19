@@ -28,10 +28,12 @@ import GithubCFamilyExampleRepositories from '../../components/GithubCFamilyExam
 import RenderOptions from '../../components/RenderOptions';
 import { OSs, TutorialModes } from '../../types';
 import { generateGitHubActionsYaml } from '../utils';
+import MonorepoDocLinkFallback from './MonorepoDocLinkFallback';
 
 export interface CFamilyProps {
   branchesEnabled?: boolean;
   mainBranchName: string;
+  monorepo?: boolean;
   component: Component;
 }
 
@@ -84,7 +86,7 @@ const STEPS = {
 };
 
 export default function CFamily(props: CFamilyProps) {
-  const { component, branchesEnabled, mainBranchName } = props;
+  const { component, branchesEnabled, mainBranchName, monorepo } = props;
   const [os, setOs] = React.useState<undefined | OSs>(OSs.Linux);
 
   const runsOn = {
@@ -94,7 +96,7 @@ export default function CFamily(props: CFamilyProps) {
   };
   return (
     <>
-      <DefaultProjectKey component={component} />
+      <DefaultProjectKey component={component} monorepo={monorepo} />
       <NumberedListItem>
         <span>{translate('onboarding.build.other.os')}</span>
         <RenderOptions
@@ -112,22 +114,25 @@ export default function CFamily(props: CFamilyProps) {
           />
         )}
       </NumberedListItem>
-      {os && (
-        <>
-          <CreateYmlFile
-            yamlFileName=".github/workflows/build.yml"
-            yamlTemplate={generateGitHubActionsYaml(
-              mainBranchName,
-              !!branchesEnabled,
-              runsOn[os],
-              STEPS[os],
-              `env:
+      {os &&
+        (monorepo ? (
+          <MonorepoDocLinkFallback />
+        ) : (
+          <>
+            <CreateYmlFile
+              yamlFileName=".github/workflows/build.yml"
+              yamlTemplate={generateGitHubActionsYaml(
+                mainBranchName,
+                !!branchesEnabled,
+                runsOn[os],
+                STEPS[os],
+                `env:
       BUILD_WRAPPER_OUT_DIR: build_wrapper_output_directory # Directory where build-wrapper output will be placed`,
-            )}
-          />
-          <CompilationInfo />
-        </>
-      )}
+              )}
+            />
+            <CompilationInfo />
+          </>
+        ))}
     </>
   );
 }

@@ -17,13 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { useTheme } from '@emotion/react';
+import { themeColor } from '../../helpers';
+import { CustomIcon, IconProps } from './Icon';
 
-import { PROJECT_KEY_INVALID_CHARACTERS } from '../../../helpers/projects';
+export function AddNewIcon({ fill = 'currentColor', ...iconProps }: Readonly<IconProps>) {
+  const theme = useTheme();
 
-export function tokenExistedBefore(error?: string) {
-  return error?.includes('is missing');
-}
-
-export function getSanitizedProjectKey(projectKey: string) {
-  return projectKey.trim().replace(PROJECT_KEY_INVALID_CHARACTERS, '-');
+  return (
+    <CustomIcon {...iconProps}>
+      <path
+        clipRule="evenodd"
+        d="M8 0c-.55228 0-1 .44771-1 1v6H1c-.55229 0-1 .44771-1 1 0 .55228.44771 1 1 1h6v6c0 .5523.44772 1 1 1 .55229 0 1-.4477 1-1V9h6c.5523 0 1-.44771 1-1 0-.55228-.4477-1-1-1H9V1c0-.55229-.44771-1-1-1Z"
+        fill={themeColor(fill)({ theme })}
+        fillRule="evenodd"
+      />
+    </CustomIcon>
+  );
 }

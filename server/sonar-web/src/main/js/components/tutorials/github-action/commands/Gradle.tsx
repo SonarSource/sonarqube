@@ -23,10 +23,12 @@ import CreateYmlFile from '../../components/CreateYmlFile';
 import GradleBuild from '../../components/GradleBuild';
 import { GITHUB_ACTIONS_RUNS_ON_LINUX } from '../constants';
 import { generateGitHubActionsYaml } from '../utils';
+import MonorepoDocLinkFallback from './MonorepoDocLinkFallback';
 
 export interface GradleProps {
   branchesEnabled?: boolean;
   mainBranchName: string;
+  monorepo?: boolean;
   component: Component;
 }
 
@@ -54,20 +56,25 @@ const GRADLE_YAML_STEPS = `
         run: ./gradlew build sonar --info`;
 
 export default function Gradle(props: GradleProps) {
-  const { component, branchesEnabled, mainBranchName } = props;
+  const { component, branchesEnabled, mainBranchName, monorepo } = props;
 
   return (
     <>
       <GradleBuild component={component} />
-      <CreateYmlFile
-        yamlFileName=".github/workflows/build.yml"
-        yamlTemplate={generateGitHubActionsYaml(
-          mainBranchName,
-          !!branchesEnabled,
-          GITHUB_ACTIONS_RUNS_ON_LINUX,
-          GRADLE_YAML_STEPS,
-        )}
-      />
+
+      {monorepo ? (
+        <MonorepoDocLinkFallback />
+      ) : (
+        <CreateYmlFile
+          yamlFileName=".github/workflows/build.yml"
+          yamlTemplate={generateGitHubActionsYaml(
+            mainBranchName,
+            !!branchesEnabled,
+            GITHUB_ACTIONS_RUNS_ON_LINUX,
+            GRADLE_YAML_STEPS,
+          )}
+        />
+      )}
     </>
   );
 }

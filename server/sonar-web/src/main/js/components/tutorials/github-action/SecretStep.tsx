@@ -20,6 +20,7 @@
 import {
   BasicSeparator,
   ClipboardIconButton,
+  FlagMessage,
   NumberedList,
   NumberedListItem,
   StandoutLink,
@@ -41,10 +42,11 @@ export interface SecretStepProps {
   baseUrl: string;
   component: Component;
   currentUser: LoggedInUser;
+  monorepo?: boolean;
 }
 
 export default function SecretStep(props: SecretStepProps) {
-  const { almBinding, baseUrl, component, currentUser } = props;
+  const { almBinding, baseUrl, component, currentUser, monorepo } = props;
   const { data: projectBinding } = useProjectBindingQuery(component.key);
 
   return (
@@ -132,6 +134,11 @@ export default function SecretStep(props: SecretStepProps) {
           />
         </NumberedListItem>
       </NumberedList>
+      {monorepo && (
+        <FlagMessage variant="info" className="sw-block sw-w-fit sw-mt-4">
+          {translate('onboarding.tutorial.with.github_action.create_secret.monorepo_info')}
+        </FlagMessage>
+      )}
     </>
   );
 }

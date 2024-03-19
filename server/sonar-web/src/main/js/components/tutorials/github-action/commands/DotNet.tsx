@@ -22,10 +22,12 @@ import { Component } from '../../../../types/types';
 import CreateYmlFile from '../../components/CreateYmlFile';
 import { GITHUB_ACTIONS_RUNS_ON_WINDOWS } from '../constants';
 import { generateGitHubActionsYaml } from '../utils';
+import MonorepoDocLinkFallback from './MonorepoDocLinkFallback';
 
 export interface DotNetProps {
   branchesEnabled?: boolean;
   mainBranchName: string;
+  monorepo?: boolean;
   component: Component;
 }
 
@@ -63,7 +65,12 @@ function dotnetYamlSteps(projectKey: string) {
 }
 
 export default function DotNet(props: DotNetProps) {
-  const { component, branchesEnabled, mainBranchName } = props;
+  const { component, branchesEnabled, mainBranchName, monorepo } = props;
+
+  if (monorepo) {
+    return <MonorepoDocLinkFallback />;
+  }
+
   return (
     <CreateYmlFile
       yamlFileName=".github/workflows/build.yml"

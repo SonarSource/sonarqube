@@ -37,6 +37,7 @@ import {
   ComponentRaw,
   GetTreeParams,
   changeKey,
+  doesComponentExists,
   getBreadcrumbs,
   getChildren,
   getComponentData,
@@ -106,6 +107,7 @@ export default class ComponentsServiceMock {
     jest.mocked(setProjectTags).mockImplementation(this.handleSetProjectTags);
     jest.mocked(setApplicationTags).mockImplementation(this.handleSetApplicationTags);
     jest.mocked(searchProjects).mockImplementation(this.handleSearchProjects);
+    jest.mocked(doesComponentExists).mockImplementation(this.handleDoesComponentExists);
   }
 
   handleSearchProjects: typeof searchProjects = (data) => {
@@ -418,6 +420,11 @@ export default class ComponentsServiceMock {
       base.component.tags = tags.split(',');
     }
     return this.reply();
+  };
+
+  handleDoesComponentExists: typeof doesComponentExists = ({ component }) => {
+    const exists = this.components.some(({ component: { key } }) => key === component);
+    return this.reply(exists);
   };
 
   reply<T>(): Promise<void>;

@@ -24,17 +24,19 @@ import SentenceWithFilename from './SentenceWithFilename';
 
 export interface DefaultProjectKeyProps {
   component: Component;
+  monorepo?: boolean;
 }
 
 const sonarProjectSnippet = (key: string) => `sonar.projectKey=${key}`;
 
 export default function DefaultProjectKey(props: DefaultProjectKeyProps) {
-  const { component } = props;
+  const { component, monorepo } = props;
+
   return (
     <NumberedListItem>
       <SentenceWithFilename
         filename="sonar-project.properties"
-        translationKey="onboarding.tutorial.other.project_key"
+        translationKey={`onboarding.tutorial.other.project_key${monorepo ? '.monorepo' : ''}`}
       />
       <CodeSnippet snippet={sonarProjectSnippet(component.key)} isOneLine className="sw-p-6" />
     </NumberedListItem>

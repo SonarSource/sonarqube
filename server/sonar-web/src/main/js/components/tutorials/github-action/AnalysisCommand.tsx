@@ -34,10 +34,11 @@ export interface AnalysisCommandProps extends WithAvailableFeaturesProps {
   buildTool: BuildTools;
   mainBranchName: string;
   component: Component;
+  monorepo?: boolean;
 }
 
-export function AnalysisCommand(props: AnalysisCommandProps) {
-  const { buildTool, component, mainBranchName } = props;
+export function AnalysisCommand(props: Readonly<AnalysisCommandProps>) {
+  const { buildTool, component, mainBranchName, monorepo } = props;
   const branchSupportEnabled = props.hasFeature(Feature.BranchSupport);
 
   switch (buildTool) {
@@ -46,6 +47,7 @@ export function AnalysisCommand(props: AnalysisCommandProps) {
         <JavaMaven
           branchesEnabled={branchSupportEnabled}
           mainBranchName={mainBranchName}
+          monorepo={monorepo}
           component={component}
         />
       );
@@ -54,6 +56,7 @@ export function AnalysisCommand(props: AnalysisCommandProps) {
         <Gradle
           branchesEnabled={branchSupportEnabled}
           mainBranchName={mainBranchName}
+          monorepo={monorepo}
           component={component}
         />
       );
@@ -62,6 +65,7 @@ export function AnalysisCommand(props: AnalysisCommandProps) {
         <DotNet
           branchesEnabled={branchSupportEnabled}
           mainBranchName={mainBranchName}
+          monorepo={monorepo}
           component={component}
         />
       );
@@ -70,6 +74,7 @@ export function AnalysisCommand(props: AnalysisCommandProps) {
         <CFamily
           branchesEnabled={branchSupportEnabled}
           mainBranchName={mainBranchName}
+          monorepo={monorepo}
           component={component}
         />
       );
@@ -78,9 +83,12 @@ export function AnalysisCommand(props: AnalysisCommandProps) {
         <Others
           branchesEnabled={branchSupportEnabled}
           mainBranchName={mainBranchName}
+          monorepo={monorepo}
           component={component}
         />
       );
+    default:
+      return undefined;
   }
 }
 

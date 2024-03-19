@@ -24,7 +24,6 @@ import withAvailableFeatures, {
   WithAvailableFeaturesProps,
 } from '../../../../app/components/available-features/withAvailableFeatures';
 import DocumentationLink from '../../../../components/common/DocumentationLink';
-import { ALM_DOCUMENTATION_PATHS } from '../../../../helpers/constants';
 import { translate } from '../../../../helpers/l10n';
 import { convertGithubApiUrlToLink, stripTrailingSlash } from '../../../../helpers/urls';
 import {
@@ -294,7 +293,7 @@ export function AlmSpecificForm(props: AlmSpecificFormProps) {
           help: true,
           helpParams: {
             doc_link: (
-              <DocumentationLink to={ALM_DOCUMENTATION_PATHS[alm]}>
+              <DocumentationLink to="/project-administration/monorepos/">
                 {translate('learn_more')}
               </DocumentationLink>
             ),

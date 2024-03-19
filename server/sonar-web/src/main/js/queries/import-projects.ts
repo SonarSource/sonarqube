@@ -25,7 +25,7 @@ import {
   importGithubRepository,
   importGitlabProject,
 } from '../api/alm-integrations';
-import { createImportedProjects } from '../api/dop-translation';
+import { createBoundProject } from '../api/dop-translation';
 import { createProject } from '../api/project-management';
 import { ImportProjectParam } from '../apps/create/project/CreateProjectPage';
 import { CreateProjectModes } from '../apps/create/project/types';
@@ -34,20 +34,22 @@ export type MutationArg<AlmImport extends ImportProjectParam = ImportProjectPara
   AlmImport extends {
     creationMode: infer A;
     almSetting: string;
+    monorepo: false;
     projects: (infer R)[];
   }
-    ? { creationMode: A; almSetting: string } & R
+    ? { creationMode: A; almSetting: string; monorepo: false } & R
     :
         | {
             creationMode: CreateProjectModes.Manual;
             project: string;
             name: string;
             mainBranch: string;
+            monorepo: false;
           }
         | {
-            creationMode: CreateProjectModes.Monorepo;
+            creationMode: CreateProjectModes;
             devOpsPlatformSettingId: string;
-            monorepo: boolean;
+            monorepo: true;
             projectKey: string;
             projectName: string;
             repositoryIdentifier: string;
@@ -61,18 +63,21 @@ export function useImportProjectMutation() {
         newCodeDefinitionValue?: string;
       } & MutationArg,
     ) => {
-      if (data.creationMode === CreateProjectModes.GitHub) {
-        return importGithubRepository(data);
-      } else if (data.creationMode === CreateProjectModes.AzureDevOps) {
-        return importAzureRepository(data);
-      } else if (data.creationMode === CreateProjectModes.BitbucketCloud) {
-        return importBitbucketCloudRepository(data);
-      } else if (data.creationMode === CreateProjectModes.BitbucketServer) {
-        return importBitbucketServerProject(data);
-      } else if (data.creationMode === CreateProjectModes.GitLab) {
-        return importGitlabProject(data);
-      } else if (data.creationMode === CreateProjectModes.Monorepo) {
-        return createImportedProjects(data);
+      if (data.monorepo === true) {
+        return createBoundProject(data);
+      }
+
+      switch (data.creationMode) {
+        case CreateProjectModes.GitHub:
+          return importGithubRepository(data);
+        case CreateProjectModes.AzureDevOps:
+          return importAzureRepository(data);
+        case CreateProjectModes.BitbucketCloud:
+          return importBitbucketCloudRepository(data);
+        case CreateProjectModes.BitbucketServer:
+          return importBitbucketServerProject(data);
+        case CreateProjectModes.GitLab:
+          return importGitlabProject(data);
       }
 
       return createProject(data);
