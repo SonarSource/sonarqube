@@ -45,9 +45,9 @@ import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.l18n.I18nRule;
 import org.sonar.server.management.ManagedProjectService;
-import org.sonar.server.permission.DefaultTemplatesResolver;
-import org.sonar.server.permission.DefaultTemplatesResolverImpl;
-import org.sonar.server.permission.PermissionTemplateService;
+import org.sonar.server.common.permission.DefaultTemplatesResolver;
+import org.sonar.server.common.permission.DefaultTemplatesResolverImpl;
+import org.sonar.server.common.permission.PermissionTemplateService;
 import org.sonar.server.permission.ws.BasePermissionWsIT;
 
 import static org.assertj.core.api.Assertions.assertThat;

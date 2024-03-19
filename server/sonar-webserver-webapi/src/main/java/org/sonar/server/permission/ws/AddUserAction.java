@@ -30,8 +30,8 @@ import org.sonar.db.user.UserId;
 import org.sonar.server.common.management.ManagedInstanceChecker;
 import org.sonar.server.common.permission.Operation;
 import org.sonar.server.permission.PermissionService;
-import org.sonar.server.permission.PermissionUpdater;
-import org.sonar.server.permission.UserPermissionChange;
+import org.sonar.server.common.permission.PermissionUpdater;
+import org.sonar.server.common.permission.UserPermissionChange;
 import org.sonar.server.user.UserSession;
 
 import static java.util.Collections.singletonList;

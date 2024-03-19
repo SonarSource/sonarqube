@@ -40,9 +40,9 @@ import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.common.management.ManagedInstanceChecker;
 import org.sonar.server.management.ManagedProjectService;
-import org.sonar.server.permission.DefaultTemplatesResolver;
-import org.sonar.server.permission.DefaultTemplatesResolverImpl;
-import org.sonar.server.permission.PermissionTemplateService;
+import org.sonar.server.common.permission.DefaultTemplatesResolver;
+import org.sonar.server.common.permission.DefaultTemplatesResolverImpl;
+import org.sonar.server.common.permission.PermissionTemplateService;
 import org.sonar.server.permission.ws.BasePermissionWsIT;
 import org.sonar.server.ws.TestRequest;
 

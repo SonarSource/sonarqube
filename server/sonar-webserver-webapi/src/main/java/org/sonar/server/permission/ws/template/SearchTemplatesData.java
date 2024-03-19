@@ -22,7 +22,7 @@ package org.sonar.server.permission.ws.template;
 import com.google.common.collect.Table;
 import java.util.List;
 import org.sonar.db.permission.template.PermissionTemplateDto;
-import org.sonar.server.permission.DefaultTemplatesResolver.ResolvedDefaultTemplates;
+import org.sonar.server.common.permission.DefaultTemplatesResolver.ResolvedDefaultTemplates;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.base.Preconditions.checkState;

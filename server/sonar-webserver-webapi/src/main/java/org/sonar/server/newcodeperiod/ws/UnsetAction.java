@@ -34,7 +34,7 @@ import org.sonar.db.newcodeperiod.NewCodePeriodDao;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.newcodeperiod.CaycUtils;
+import org.sonar.server.common.newcodeperiod.CaycUtils;
 import org.sonar.server.user.UserSession;
 
 import static java.lang.String.format;

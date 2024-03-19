@@ -26,11 +26,15 @@ dependencies {
   testImplementation 'org.assertj:assertj-core'
   testImplementation 'org.junit.jupiter:junit-jupiter-api'
   testImplementation 'org.mockito:mockito-core'
+  testImplementation 'org.mockito:mockito-junit-jupiter'
 
   testImplementation project(':sonar-testing-harness')
   testImplementation testFixtures(project(':server:sonar-db-dao'))
   testImplementation testFixtures(project(':server:sonar-server-common'))
   testImplementation testFixtures(project(':server:sonar-webserver-api'))
+  testImplementation testFixtures(project(':server:sonar-webserver-auth'))
+  testImplementation testFixtures(project(':server:sonar-webserver-es'))
+
 
   testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
   testRuntimeOnly 'org.junit.vintage:junit-vintage-engine'

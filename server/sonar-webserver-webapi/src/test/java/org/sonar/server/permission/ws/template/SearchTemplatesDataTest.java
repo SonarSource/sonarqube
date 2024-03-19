@@ -21,7 +21,7 @@ package org.sonar.server.permission.ws.template;
 
 import com.google.common.collect.HashBasedTable;
 import org.junit.Test;
-import org.sonar.server.permission.DefaultTemplatesResolverImpl;
+import org.sonar.server.common.permission.DefaultTemplatesResolverImpl;
 
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;

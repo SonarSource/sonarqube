@@ -43,7 +43,7 @@ import org.sonar.db.component.ComponentQuery;
 import org.sonar.db.entity.EntityDto;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.server.management.ManagedProjectService;
-import org.sonar.server.permission.PermissionTemplateService;
+import org.sonar.server.common.permission.PermissionTemplateService;
 import org.sonar.server.permission.ws.PermissionWsSupport;
 import org.sonar.server.permission.ws.PermissionsWsAction;
 import org.sonar.server.permission.ws.WsParameters;

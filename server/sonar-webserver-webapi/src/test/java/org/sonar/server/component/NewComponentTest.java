@@ -20,13 +20,14 @@
 package org.sonar.server.component;
 
 import org.junit.Test;
+import org.sonar.server.common.component.NewComponent;
 
 import static com.google.common.base.Strings.repeat;
 import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
-import static org.sonar.server.component.NewComponent.newComponentBuilder;
+import static org.sonar.server.common.component.NewComponent.newComponentBuilder;
 
 public class NewComponentTest {
   private static final String KEY = "key";

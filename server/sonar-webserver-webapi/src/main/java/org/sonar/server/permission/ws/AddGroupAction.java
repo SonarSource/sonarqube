@@ -29,10 +29,10 @@ import org.sonar.db.DbSession;
 import org.sonar.db.entity.EntityDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.server.common.management.ManagedInstanceChecker;
-import org.sonar.server.permission.GroupPermissionChange;
+import org.sonar.server.common.permission.GroupPermissionChange;
 import org.sonar.server.common.permission.Operation;
 import org.sonar.server.permission.PermissionService;
-import org.sonar.server.permission.PermissionUpdater;
+import org.sonar.server.common.permission.PermissionUpdater;
 import org.sonar.server.user.UserSession;
 
 import static org.sonar.server.permission.ws.WsParameters.createGroupNameParameter;

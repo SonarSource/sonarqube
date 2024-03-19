@@ -33,7 +33,7 @@ import org.sonar.db.entity.EntityDto;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.common.management.ManagedInstanceChecker;
-import org.sonar.server.permission.PermissionTemplateService;
+import org.sonar.server.common.permission.PermissionTemplateService;
 import org.sonar.server.permission.ws.PermissionWsSupport;
 import org.sonar.server.permission.ws.PermissionsWsAction;
 import org.sonar.server.permission.ws.ProjectWsRef;
