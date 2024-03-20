@@ -56,6 +56,9 @@ export default function AzureForm(props: AzureFormProps) {
             {translate('settings.almintegration.form.url.azure.help2')}
             <br />
             <em>https://dev.azure.com/your_organization</em>
+            <br />
+            <br />
+            {translate('settings.almintegration.form.url.pat_warning')}
           </>
         }
         id="url.azure"
