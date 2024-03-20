@@ -21,7 +21,9 @@ package org.sonar.server.authentication;
 
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
+import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.util.Optional;
+import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -106,7 +108,7 @@ public class OAuth2AuthenticationParametersImplTest {
 
   @Test
   public void get_return_to_parameter() {
-    when(request.getCookies()).thenReturn(new Cookie[] {wrapCookie(AUTHENTICATION_COOKIE_NAME, "{\"return_to\":\"/admin/settings\"}")});
+    when(request.getCookies()).thenReturn(new Cookie[]{wrapCookie(AUTHENTICATION_COOKIE_NAME, "{\"return_to\":\"/admin/settings\"}")});
 
     Optional<String> redirection = underTest.getReturnTo(request);
 
@@ -115,7 +117,7 @@ public class OAuth2AuthenticationParametersImplTest {
 
   @Test
   public void get_return_to_is_empty_when_no_cookie() {
-    when(request.getCookies()).thenReturn(new Cookie[] {});
+    when(request.getCookies()).thenReturn(new Cookie[]{});
 
     Optional<String> redirection = underTest.getReturnTo(request);
 
@@ -124,7 +126,7 @@ public class OAuth2AuthenticationParametersImplTest {
 
   @Test
   public void get_return_to_is_empty_when_no_value() {
-    when(request.getCookies()).thenReturn(new Cookie[] {wrapCookie(AUTHENTICATION_COOKIE_NAME, "{}")});
+    when(request.getCookies()).thenReturn(new Cookie[]{wrapCookie(AUTHENTICATION_COOKIE_NAME, "{}")});
 
     Optional<String> redirection = underTest.getReturnTo(request);
 
@@ -133,7 +135,7 @@ public class OAuth2AuthenticationParametersImplTest {
 
   @Test
   public void delete() {
-    when(request.getCookies()).thenReturn(new Cookie[] {wrapCookie(AUTHENTICATION_COOKIE_NAME, "{\"return_to\":\"/admin/settings\"}")});
+    when(request.getCookies()).thenReturn(new Cookie[]{wrapCookie(AUTHENTICATION_COOKIE_NAME, "{\"return_to\":\"/admin/settings\"}")});
 
     underTest.delete(request, response);
 
@@ -143,6 +145,33 @@ public class OAuth2AuthenticationParametersImplTest {
     assertThat(updatedCookie.getValue()).isNull();
     assertThat(updatedCookie.getPath()).isEqualTo("/");
     assertThat(updatedCookie.getMaxAge()).isZero();
+  }
+
+  @DataProvider
+  public static Object[][] payloadToSanitizeAndExpectedOutcome() {
+    return new Object[][]{
+      {generatePath("/admin/settings"), "/admin/settings"},
+      {generatePath("/admin/../../settings"), "/settings"},
+      {generatePath("/admin/../settings"), "/settings"},
+      {generatePath("/admin/settings/.."), "/admin"},
+      {generatePath("/admin/..%2fsettings/"), "/settings"},
+      {generatePath("/admin/%2e%2e%2fsettings/"), "/settings"},
+      {generatePath("../admin/settings"), null},
+    };
+  }
+
+  private static String generatePath(String returnTo) {
+    return "{\"return_to\":\"" + returnTo + "\"}";
+  }
+
+  @Test
+  @UseDataProvider("payloadToSanitizeAndExpectedOutcome")
+  public void getReturnTo_whenContainingPathTraversalCharacters_sanitizeThem(String payload, @Nullable String expectedSanitizedUrl) {
+    when(request.getCookies()).thenReturn(new Cookie[]{wrapCookie(AUTHENTICATION_COOKIE_NAME, payload)});
+
+    Optional<String> redirection = underTest.getReturnTo(request);
+
+    assertThat(redirection).isEqualTo(Optional.ofNullable(expectedSanitizedUrl));
   }
 
   private JavaxHttpRequest.JavaxCookie wrapCookie(String name, String value) {
