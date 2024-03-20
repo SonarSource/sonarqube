@@ -21,7 +21,9 @@ package org.sonar.server.authentication;
 
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
+import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.util.Optional;
+import javax.annotation.Nullable;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -54,7 +56,7 @@ public class OAuth2AuthenticationParametersImplTest {
 
   @Test
   public void init_create_cookie() {
-    when(request.getParameter("return_to")).thenReturn("/settings");
+    when(request.getParameter("return_to")).thenReturn("/admin/settings");
 
     underTest.init(request, response);
 
@@ -114,7 +116,7 @@ public class OAuth2AuthenticationParametersImplTest {
 
   @Test
   public void get_return_to_is_empty_when_no_cookie() {
-    when(request.getCookies()).thenReturn(new Cookie[] {});
+    when(request.getCookies()).thenReturn(new Cookie[]{});
 
     Optional<String> redirection = underTest.getReturnTo(request);
 
@@ -123,7 +125,7 @@ public class OAuth2AuthenticationParametersImplTest {
 
   @Test
   public void get_return_to_is_empty_when_no_value() {
-    when(request.getCookies()).thenReturn(new Cookie[] {new Cookie(AUTHENTICATION_COOKIE_NAME, "{}")});
+    when(request.getCookies()).thenReturn(new Cookie[]{new Cookie(AUTHENTICATION_COOKIE_NAME, "{}")});
 
     Optional<String> redirection = underTest.getReturnTo(request);
 
@@ -132,7 +134,7 @@ public class OAuth2AuthenticationParametersImplTest {
 
   @Test
   public void delete() {
-    when(request.getCookies()).thenReturn(new Cookie[] {new Cookie(AUTHENTICATION_COOKIE_NAME, "{\"return_to\":\"/settings\"}")});
+    when(request.getCookies()).thenReturn(new Cookie[]{new Cookie(AUTHENTICATION_COOKIE_NAME, "{\"return_to\":\"/settings\"}")});
 
     underTest.delete(request, response);
 
@@ -142,5 +144,36 @@ public class OAuth2AuthenticationParametersImplTest {
     assertThat(updatedCookie.getValue()).isNull();
     assertThat(updatedCookie.getPath()).isEqualTo("/");
     assertThat(updatedCookie.getMaxAge()).isZero();
+  }
+
+  @DataProvider
+  public static Object[][] payloadToSanitizeAndExpectedOutcome() {
+    return new Object[][]{
+      {generatePath("/admin/settings"), "/admin/settings"},
+      {generatePath("/admin/../../settings"), "/settings"},
+      {generatePath("/admin/../settings"), "/settings"},
+      {generatePath("/admin/settings/.."), "/admin"},
+      {generatePath("/admin/..%2fsettings/"), "/settings"},
+      {generatePath("/admin/%2e%2e%2fsettings/"), "/settings"},
+      {generatePath("../admin/settings"), null},
+    };
+  }
+
+  private static String generatePath(String returnTo) {
+    return "{\"return_to\":\"" + returnTo + "\"}";
+  }
+
+  @Test
+  @UseDataProvider("payloadToSanitizeAndExpectedOutcome")
+  public void getReturnTo_whenContainingPathTraversalCharacters_sanitizeThem(String payload, @Nullable String expectedSanitizedUrl) {
+    when(request.getCookies()).thenReturn(new Cookie[]{wrapCookie(AUTHENTICATION_COOKIE_NAME, payload)});
+
+    Optional<String> redirection = underTest.getReturnTo(request);
+
+    assertThat(redirection).isEqualTo(Optional.ofNullable(expectedSanitizedUrl));
+  }
+
+  private Cookie wrapCookie(String name, String value) {
+    return new javax.servlet.http.Cookie(name, value);
   }
 }

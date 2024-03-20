@@ -25,6 +25,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Type;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -124,12 +125,17 @@ public class OAuth2AuthenticationParametersImpl implements OAuth2AuthenticationP
       return empty();
     }
 
-    String sanitizedUrl = url.trim();
-    boolean isValidUrl = VALID_RETURN_TO.matcher(sanitizedUrl).matches();
+    String trimmedUrl = url.trim();
+    boolean isValidUrl = VALID_RETURN_TO.matcher(trimmedUrl).matches();
     if (!isValidUrl) {
       return empty();
     }
 
-    return Optional.of(sanitizedUrl);
+    Path sanitizedPath = escapePathTraversalChars(trimmedUrl);
+    return Optional.of(sanitizedPath.toString());
+  }
+
+  private static Path escapePathTraversalChars(String sanitizedUrl) {
+    return Path.of(sanitizedUrl).normalize();
   }
 }
