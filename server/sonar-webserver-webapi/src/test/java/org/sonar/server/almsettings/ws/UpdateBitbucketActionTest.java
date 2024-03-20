@@ -105,7 +105,7 @@ public class UpdateBitbucketActionTest {
   }
 
   @Test
-  public void update_with_url_change_needs_path() {
+  public void update_with_url_change_needs_pat() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user).setSystemAdministrator();
 
