@@ -51,6 +51,9 @@ export default function GitlabForm(props: GitlabFormProps) {
             {translate('settings.almintegration.form.url.gitlab.help')}
             <br />
             <em>https://gitlab.com/api/v4</em>
+            <br />
+            <br />
+            {translate('settings.almintegration.form.url.pat_warning')}
           </>
         }
         id="url.gitlab"

@@ -51,7 +51,7 @@ export default function BitbucketServerForm(props: BitbucketServerFormProps) {
             {translate('settings.almintegration.form.url.bitbucket.help')}
             <br />
             <br />
-            {translate('settings.almintegration.form.url.bitbucket.pat_warning')}
+            {translate('settings.almintegration.form.url.pat_warning')}
           </>
         }
         id="url.bitbucket"
