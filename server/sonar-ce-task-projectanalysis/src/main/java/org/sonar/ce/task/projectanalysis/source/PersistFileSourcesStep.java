@@ -20,10 +20,10 @@
 package org.sonar.ce.task.projectanalysis.source;
 
 import java.util.List;
+import java.util.Objects;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.lang3.ObjectUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.CrawlerDepthLimit;
@@ -130,7 +130,7 @@ public class PersistFileSourcesStep implements ComputationStep {
         boolean binaryDataUpdated = !dataHash.equals(previousDto.getDataHash());
         boolean srcHashUpdated = !srcHash.equals(previousDto.getSrcHash());
         String revision = computeRevision(latestChangeWithRevision);
-        boolean revisionUpdated = !ObjectUtils.equals(revision, previousDto.getRevision());
+        boolean revisionUpdated = !Objects.equals(revision, previousDto.getRevision());
         boolean lineHashesVersionUpdated = previousDto.getLineHashesVersion() != lineHashesVersion;
         if (binaryDataUpdated || srcHashUpdated || revisionUpdated || lineHashesVersionUpdated) {
           FileSourceDto updatedDto = new FileSourceDto()

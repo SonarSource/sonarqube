@@ -84,7 +84,7 @@ public class ShowAction implements SourcesWsAction {
   public void handle(Request request, Response response) {
     String fileKey = request.mandatoryParam("key");
     int from = Math.max(request.paramAsInt("from"), 1);
-    int to = (Integer) ObjectUtils.defaultIfNull(request.paramAsInt("to"), Integer.MAX_VALUE);
+    int to = ObjectUtils.defaultIfNull(request.paramAsInt("to"), Integer.MAX_VALUE);
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       ComponentDto file = componentFinder.getByKey(dbSession, fileKey);

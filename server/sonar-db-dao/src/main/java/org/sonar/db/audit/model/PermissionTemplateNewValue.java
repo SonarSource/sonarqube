@@ -19,9 +19,9 @@
  */
 package org.sonar.db.audit.model;
 
+import java.util.Objects;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.apache.commons.lang3.ObjectUtils;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 
 public class PermissionTemplateNewValue extends NewValue {
@@ -168,7 +168,7 @@ public class PermissionTemplateNewValue extends NewValue {
     addField(sb, "\"userLogin\": ", this.userLogin, true);
     addField(sb, "\"groupUuid\": ", this.groupUuid, true);
     addField(sb, "\"groupName\": ", this.groupName, true);
-    addField(sb, "\"withProjectCreator\": ", ObjectUtils.toString(this.withProjectCreator), false);
+    addField(sb, "\"withProjectCreator\": ", Objects.toString(this.withProjectCreator, ""), false);
     endString(sb);
     return sb.toString();
   }

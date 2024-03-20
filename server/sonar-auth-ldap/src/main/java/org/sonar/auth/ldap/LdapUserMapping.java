@@ -44,10 +44,10 @@ public class LdapUserMapping {
   public LdapUserMapping(Configuration config, String settingsPrefix) {
     String userBaseDnSettingKey = settingsPrefix + ".user.baseDn";
     this.baseDn = config.get(userBaseDnSettingKey).orElseThrow(() -> new LdapException(String.format(MANDATORY_LDAP_PROPERTY_ERROR, userBaseDnSettingKey)));
-    this.realNameAttribute = StringUtils.defaultString(config.get(settingsPrefix + ".user.realNameAttribute").orElse(null), DEFAULT_NAME_ATTRIBUTE);
-    this.emailAttribute = StringUtils.defaultString(config.get(settingsPrefix + ".user.emailAttribute").orElse(null), DEFAULT_EMAIL_ATTRIBUTE);
+    this.realNameAttribute = config.get(settingsPrefix + ".user.realNameAttribute").orElse(DEFAULT_NAME_ATTRIBUTE);
+    this.emailAttribute = config.get(settingsPrefix + ".user.emailAttribute").orElse(DEFAULT_EMAIL_ATTRIBUTE);
 
-    String req = StringUtils.defaultString(config.get(settingsPrefix + ".user.request").orElse(null), DEFAULT_REQUEST);
+    String req = config.get(settingsPrefix + ".user.request").orElse(DEFAULT_REQUEST);
     req = StringUtils.replace(req, "{login}", "{0}");
     this.request = req;
   }

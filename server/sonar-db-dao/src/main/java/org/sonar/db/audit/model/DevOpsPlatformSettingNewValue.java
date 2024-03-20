@@ -19,9 +19,9 @@
  */
 package org.sonar.db.audit.model;
 
+import java.util.Objects;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.apache.commons.lang3.ObjectUtils;
 import org.sonar.db.alm.setting.AlmSettingDto;
 import org.sonar.db.alm.setting.ProjectAlmSettingDto;
 import org.sonar.db.project.ProjectDto;
@@ -194,8 +194,8 @@ public class DevOpsPlatformSettingNewValue extends NewValue {
     addField(sb, "\"projectName\": ", this.projectName, true);
     addField(sb, "\"almRepo\": ", this.almRepo, true);
     addField(sb, "\"almSlug\": ", this.almSlug, true);
-    addField(sb, "\"isSummaryCommentEnabled\": ", ObjectUtils.toString(this.isSummaryCommentEnabled), false);
-    addField(sb, "\"isMonorepo\": ", ObjectUtils.toString(this.isMonorepo), false);
+    addField(sb, "\"isSummaryCommentEnabled\": ", Objects.toString(this.isSummaryCommentEnabled, ""), false);
+    addField(sb, "\"isMonorepo\": ", Objects.toString(this.isMonorepo, ""), false);
     endString(sb);
     return sb.toString();
   }

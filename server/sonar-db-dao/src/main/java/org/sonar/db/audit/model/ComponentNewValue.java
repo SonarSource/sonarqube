@@ -19,9 +19,9 @@
  */
 package org.sonar.db.audit.model;
 
+import java.util.Objects;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.apache.commons.lang3.ObjectUtils;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.project.ProjectDto;
 
@@ -116,8 +116,8 @@ public class ComponentNewValue extends NewValue {
     addField(sb, "\"qualifier\": ", getQualifier(qualifier), true);
     addField(sb, "\"description\": ", this.description, true);
     addField(sb, "\"path\": ", this.path, true);
-    addField(sb, "\"isPrivate\": ", ObjectUtils.toString(this.isPrivate), false);
-    addField(sb, "\"isEnabled\": ", ObjectUtils.toString(this.isEnabled), false);
+    addField(sb, "\"isPrivate\": ", Objects.toString(this.isPrivate, ""), false);
+    addField(sb, "\"isEnabled\": ", Objects.toString(this.isEnabled, ""), false);
     endString(sb);
     return sb.toString();
   }

@@ -23,6 +23,7 @@ dependencies {
   api 'commons-codec:commons-codec'
   api 'commons-io:commons-io'
   api 'org.apache.commons:commons-lang3'
+  implementation 'org.apache.commons:commons-text'
   api 'com.google.code.gson:gson'
   api 'com.google.guava:guava'
   api 'com.google.code.findbugs:jsr305'

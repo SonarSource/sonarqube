@@ -19,6 +19,7 @@
  */
 package org.sonar.server.authentication;
 
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import org.slf4j.MDC;
@@ -37,7 +38,6 @@ import org.sonar.server.user.TokenUserSession;
 import org.sonar.server.user.UserSession;
 
 import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
-import static org.apache.commons.lang3.StringUtils.defaultString;
 import static org.sonar.api.CoreProperties.CORE_FORCE_AUTHENTICATION_DEFAULT_VALUE;
 import static org.sonar.api.CoreProperties.CORE_FORCE_AUTHENTICATION_PROPERTY;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
@@ -140,8 +140,8 @@ public class UserSessionInitializer {
     }
     threadLocalSession.set(session);
     checkTokenUserSession(response, session);
-    request.setAttribute(ACCESS_LOG_LOGIN, defaultString(session.getLogin(), "-"));
-    MDC.put(USER_LOGIN_MDC_KEY, defaultString(session.getLogin(), "-"));
+    request.setAttribute(ACCESS_LOG_LOGIN, Objects.toString(session.getLogin(), "-"));
+    MDC.put(USER_LOGIN_MDC_KEY, Objects.toString(session.getLogin(), "-"));
   }
 
   private static void checkTokenUserSession(HttpResponse response, UserSession session) {

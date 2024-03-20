@@ -246,7 +246,7 @@ public class EmailNotificationChannel extends NotificationChannel {
 
   private void setSubject(Email email, EmailMessage emailMessage) {
     String subject = StringUtils.defaultIfBlank(StringUtils.trimToEmpty(configuration.getPrefix()) + " ", "")
-      + StringUtils.defaultString(emailMessage.getSubject(), SUBJECT_DEFAULT);
+      + Objects.toString(emailMessage.getSubject(), SUBJECT_DEFAULT);
     email.setSubject(subject);
   }
 

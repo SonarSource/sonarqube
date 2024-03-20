@@ -23,7 +23,7 @@ import com.google.common.collect.ImmutableMap;
 import java.io.IOException;
 import java.util.Map;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.text.StrSubstitutor;
+import org.apache.commons.text.StringSubstitutor;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.server.ServerSide;
 
@@ -150,7 +150,7 @@ public class SvgGenerator {
       .put(PARAMETER_LABEL, label)
       .put(PARAMETER_VALUE, value)
       .build();
-    StrSubstitutor strSubstitutor = new StrSubstitutor(values);
+    StringSubstitutor strSubstitutor = new StringSubstitutor(values);
     return strSubstitutor.replace(badgeTemplate);
   }
 
@@ -162,7 +162,7 @@ public class SvgGenerator {
     Map<String, String> values = ImmutableMap.of(
       PARAMETER_TOTAL_WIDTH, valueOf(MARGIN + computeWidth(error) + MARGIN),
       PARAMETER_LABEL, error);
-    StrSubstitutor strSubstitutor = new StrSubstitutor(values);
+    StringSubstitutor strSubstitutor = new StringSubstitutor(values);
     return strSubstitutor.replace(errorTemplate);
   }
 

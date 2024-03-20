@@ -66,7 +66,7 @@ public class NewRule {
   }
 
   public NewRule setStatus(@Nullable RuleStatus s) {
-    this.status = (RuleStatus) ObjectUtils.defaultIfNull(s, RuleStatus.defaultStatus());
+    this.status = ObjectUtils.defaultIfNull(s, RuleStatus.defaultStatus());
     return this;
   }
 

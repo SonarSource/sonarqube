@@ -44,9 +44,9 @@ public class LdapGroupMapping {
    */
   public LdapGroupMapping(Configuration config, String settingsPrefix) {
     this.baseDn = config.get(settingsPrefix + ".group.baseDn").orElse(null);
-    this.idAttribute = StringUtils.defaultString(config.get(settingsPrefix + ".group.idAttribute").orElse(null), DEFAULT_ID_ATTRIBUTE);
+    this.idAttribute = config.get(settingsPrefix + ".group.idAttribute").orElse(DEFAULT_ID_ATTRIBUTE);
 
-    String req = StringUtils.defaultString(config.get(settingsPrefix + ".group.request").orElse(null), DEFAULT_REQUEST);
+    String req = config.get(settingsPrefix + ".group.request").orElse(DEFAULT_REQUEST);
     this.requiredUserAttributes = StringUtils.substringsBetween(req, "{", "}");
     for (int i = 0; i < requiredUserAttributes.length; i++) {
       req = StringUtils.replace(req, "{" + requiredUserAttributes[i] + "}", "{" + i + "}");

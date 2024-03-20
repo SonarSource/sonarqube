@@ -78,8 +78,8 @@ public class LdapContextFactory {
   private final String saslMaxbuf;
 
   public LdapContextFactory(org.sonar.api.config.Configuration config, String settingsPrefix, String ldapUrl) {
-    this.authentication = StringUtils.defaultString(config.get(settingsPrefix + ".authentication").orElse(null), DEFAULT_AUTHENTICATION);
-    this.factory = StringUtils.defaultString(config.get(settingsPrefix + ".contextFactoryClass").orElse(null), DEFAULT_FACTORY);
+    this.authentication = config.get(settingsPrefix + ".authentication").orElse(DEFAULT_AUTHENTICATION);
+    this.factory = config.get(settingsPrefix + ".contextFactoryClass").orElse(DEFAULT_FACTORY);
     this.realm = config.get(settingsPrefix + ".realm").orElse(null);
     this.providerUrl = ldapUrl;
     this.startTLS = config.getBoolean(settingsPrefix + ".StartTLS").orElse(false);

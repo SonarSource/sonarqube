@@ -179,7 +179,7 @@ public abstract class AbstractExclusionFilters {
   }
 
   static PathPattern[] prepareMainExclusions(String[] sourceExclusions, String[] testInclusions) {
-    String[] patterns = (String[]) ArrayUtils.addAll(
+    String[] patterns = ArrayUtils.addAll(
       sourceExclusions, testInclusions);
     return PathPattern.create(patterns);
   }

@@ -199,7 +199,7 @@ public class NativeGitBlameCommand {
   private static String formatGitSemanticVersion(String version) {
     return semanticVersionDelimiter
       .splitAsStream(version)
-      .takeWhile(NumberUtils::isNumber)
+      .takeWhile(NumberUtils::isCreatable)
       .collect(Collectors.joining("."));
   }
 

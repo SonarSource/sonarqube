@@ -74,7 +74,7 @@ public class NextPendingTaskPicker {
    * priority is always given to the task that is waiting longer - to avoid starvation
    */
   private Optional<CeQueueDto> submitOldest(DbSession session, String workerUuid, @Nullable CeTaskDtoLight eligibleForPeek, @Nullable CeTaskDtoLight eligibleForPeekInParallel) {
-    CeTaskDtoLight oldest = (CeTaskDtoLight) ObjectUtils.min(eligibleForPeek, eligibleForPeekInParallel);
+    CeTaskDtoLight oldest = ObjectUtils.min(eligibleForPeek, eligibleForPeekInParallel);
     Optional<CeQueueDto> ceQueueDto = ceQueueDao.tryToPeek(session, oldest.getCeTaskUuid(), workerUuid);
     if (!Objects.equals(oldest, eligibleForPeek)) {
       ceQueueDto.ifPresent(t -> LOG.info("Task [uuid = " + t.getUuid() + "] will be run concurrently with other tasks for the same project"));

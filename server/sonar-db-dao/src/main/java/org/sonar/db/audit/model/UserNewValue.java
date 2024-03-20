@@ -21,9 +21,9 @@ package org.sonar.db.audit.model;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.apache.commons.lang3.ObjectUtils;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.db.user.UserDto;
 
@@ -146,12 +146,12 @@ public class UserNewValue extends NewValue {
     addField(sb, "\"userLogin\": ", this.userLogin, true);
     addField(sb, "\"name\": ", this.name, true);
     addField(sb, "\"email\": ", this.email, true);
-    addField(sb, "\"isActive\": ", ObjectUtils.toString(this.isActive), false);
+    addField(sb, "\"isActive\": ", Objects.toString(this.isActive, ""), false);
     addField(sb, "\"scmAccounts\": ", String.join(",", scmAccounts), true);
     addField(sb, "\"externalId\": ", this.externalId, true);
     addField(sb, "\"externalLogin\": ", this.externalLogin, true);
     addField(sb, "\"externalIdentityProvider\": ", this.externalIdentityProvider, true);
-    addField(sb, "\"local\": ", ObjectUtils.toString(this.local), false);
+    addField(sb, "\"local\": ", Objects.toString(this.local, ""), false);
     addField(sb, "\"lastConnectionDate\": ", this.lastConnectionDate == null ?
       "" : DateUtils.formatDateTime(this.lastConnectionDate), true);
     endString(sb);

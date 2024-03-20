@@ -25,7 +25,6 @@ import java.util.Collection;
 import java.util.Objects;
 import java.util.function.Function;
 import javax.annotation.Nonnull;
-import org.apache.commons.lang3.StringUtils;
 import org.sonar.api.rule.RuleKey;
 
 import static java.util.Comparator.comparing;
@@ -66,7 +65,7 @@ public class AbstractTracker<RAW extends Trackable, BASE extends Trackable> {
     protected LineAndLineHashKey(Trackable trackable) {
       this.ruleKey = trackable.getRuleKey();
       this.line = trackable.getLine();
-      this.lineHash = StringUtils.defaultString(trackable.getLineHash(), "");
+      this.lineHash = Objects.toString(trackable.getLineHash(), "");
     }
 
     @Override
@@ -98,7 +97,7 @@ public class AbstractTracker<RAW extends Trackable, BASE extends Trackable> {
       this.ruleKey = trackable.getRuleKey();
       this.line = trackable.getLine();
       this.message = trackable.getMessage();
-      this.lineHash = StringUtils.defaultString(trackable.getLineHash(), "");
+      this.lineHash = Objects.toString(trackable.getLineHash(), "");
     }
 
     @Override
@@ -128,7 +127,7 @@ public class AbstractTracker<RAW extends Trackable, BASE extends Trackable> {
     LineHashAndMessageKey(Trackable trackable) {
       this.ruleKey = trackable.getRuleKey();
       this.message = trackable.getMessage();
-      this.lineHash = StringUtils.defaultString(trackable.getLineHash(), "");
+      this.lineHash = Objects.toString(trackable.getLineHash(), "");
     }
 
     @Override
@@ -186,7 +185,7 @@ public class AbstractTracker<RAW extends Trackable, BASE extends Trackable> {
 
     LineHashKey(Trackable trackable) {
       this.ruleKey = trackable.getRuleKey();
-      this.lineHash = StringUtils.defaultString(trackable.getLineHash(), "");
+      this.lineHash = Objects.toString(trackable.getLineHash(), "");
     }
 
     @Override
