@@ -54,6 +54,7 @@ import org.sonar.server.almintegration.ws.ImportHelper;
 import org.sonar.server.common.almintegration.ProjectKeyGenerator;
 import org.sonar.server.common.almsettings.github.GithubProjectCreatorFactory;
 import org.sonar.server.common.component.ComponentUpdater;
+import org.sonar.server.common.project.ImportProjectService;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.es.IndexersImpl;
 import org.sonar.server.es.TestIndexers;
@@ -144,8 +145,10 @@ public class ImportGithubProjectActionIT {
   private final GithubProjectCreatorFactory gitHubProjectCreatorFactory = new GithubProjectCreatorFactory(db.getDbClient(),
     null, appClient, projectKeyGenerator, userSession, projectCreator, gitHubSettings, githubPermissionConverter, userPermissionUpdater, permissionService,
     managedProjectService);
-  private final WsActionTester ws = new WsActionTester(new ImportGithubProjectAction(db.getDbClient(), userSession,
-    componentUpdater, importHelper, newCodeDefinitionResolver, defaultBranchNameResolver, gitHubProjectCreatorFactory));
+
+  private final ImportProjectService importProjectService = new ImportProjectService(db.getDbClient(), gitHubProjectCreatorFactory, userSession, componentUpdater,
+    newCodeDefinitionResolver);
+  private final WsActionTester ws = new WsActionTester(new ImportGithubProjectAction(importProjectService, importHelper));
 
   @Before
   public void before() {

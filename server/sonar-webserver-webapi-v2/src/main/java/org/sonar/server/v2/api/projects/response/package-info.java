@@ -17,18 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.project.ws;
+@ParametersAreNonnullByDefault
+package org.sonar.server.v2.api.projects.response;
 
-import org.junit.Test;
-import org.sonar.core.platform.ListContainer;
-
-import static org.assertj.core.api.Assertions.assertThat;
-
-public class ProjectsWsModuleTest {
-  @Test
-  public void verify_count_of_added_components_on_SonarQube() {
-    ListContainer container = new ListContainer();
-    new ProjectsWsModule().configure(container);
-    assertThat(container.getAddedObjects()).hasSize(15);
-  }
-}
+import javax.annotation.ParametersAreNonnullByDefault;

@@ -70,7 +70,7 @@ public class ProjectAlmSettingDto {
   private long updatedAt;
   private long createdAt;
 
-  String getUuid() {
+  public String getUuid() {
     return uuid;
   }
 

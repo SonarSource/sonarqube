@@ -38,6 +38,8 @@ public class WebApiEndpoints {
 
   public static final String GITLAB_CONFIGURATION_ENDPOINT = DOP_TRANSLATION_DOMAIN + "/gitlab-configurations";
 
+  public static final String BOUND_PROJECTS_ENDPOINT = DOP_TRANSLATION_DOMAIN + "/bound-projects";
+
   public static final String INTERNAL = "internal";
 
   private WebApiEndpoints() {

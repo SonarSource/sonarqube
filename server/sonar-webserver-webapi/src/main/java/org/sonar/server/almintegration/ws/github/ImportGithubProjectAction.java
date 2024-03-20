@@ -19,40 +19,24 @@
  */
 package org.sonar.server.almintegration.ws.github;
 
-import java.util.Optional;
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
 import org.sonar.db.alm.setting.ALM;
 import org.sonar.db.alm.setting.AlmSettingDto;
-import org.sonar.db.component.BranchDto;
-import org.sonar.db.project.CreationMethod;
-import org.sonar.db.project.ProjectDto;
 import org.sonar.server.almintegration.ws.AlmIntegrationsWsAction;
 import org.sonar.server.almintegration.ws.ImportHelper;
-import org.sonar.server.common.almsettings.DevOpsProjectCreator;
-import org.sonar.server.common.almsettings.DevOpsProjectDescriptor;
-import org.sonar.server.common.almsettings.github.GithubProjectCreatorFactory;
-import org.sonar.server.component.ComponentCreationData;
-import org.sonar.server.common.component.ComponentUpdater;
-import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.common.newcodeperiod.NewCodeDefinitionResolver;
-import org.sonar.server.project.DefaultBranchNameResolver;
-import org.sonar.server.user.UserSession;
+import org.sonar.server.common.project.ImportProjectRequest;
+import org.sonar.server.common.project.ImportProjectService;
+import org.sonar.server.common.project.ImportedProject;
 import org.sonarqube.ws.Projects;
 
-import static java.util.Objects.requireNonNull;
-import static org.sonar.db.project.CreationMethod.getCreationMethod;
-import static org.sonar.db.project.CreationMethod.Category.ALM_IMPORT;
 import static org.sonar.server.almintegration.ws.ImportHelper.PARAM_ALM_SETTING;
-import static org.sonar.server.almintegration.ws.ImportHelper.toCreateResponse;
 import static org.sonar.server.common.newcodeperiod.NewCodeDefinitionResolver.NEW_CODE_PERIOD_TYPE_DESCRIPTION_PROJECT_CREATION;
 import static org.sonar.server.common.newcodeperiod.NewCodeDefinitionResolver.NEW_CODE_PERIOD_VALUE_DESCRIPTION_PROJECT_CREATION;
-import static org.sonar.server.common.newcodeperiod.NewCodeDefinitionResolver.checkNewCodeDefinitionParam;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_NEW_CODE_DEFINITION_TYPE;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_NEW_CODE_DEFINITION_VALUE;
@@ -60,30 +44,13 @@ import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_NEW_COD
 public class ImportGithubProjectAction implements AlmIntegrationsWsAction {
   public static final String PARAM_REPOSITORY_KEY = "repositoryKey";
 
-  private final DbClient dbClient;
-
-  private final UserSession userSession;
-  private final ComponentUpdater componentUpdater;
+  private final ImportProjectService importProjectService;
   private final ImportHelper importHelper;
 
-  private final NewCodeDefinitionResolver newCodeDefinitionResolver;
-
-  private final DefaultBranchNameResolver defaultBranchNameResolver;
-
-  private final GithubProjectCreatorFactory githubProjectCreatorFactory;
-
   @Inject
-  public ImportGithubProjectAction(DbClient dbClient, UserSession userSession,
-    ComponentUpdater componentUpdater, ImportHelper importHelper,
-    NewCodeDefinitionResolver newCodeDefinitionResolver,
-    DefaultBranchNameResolver defaultBranchNameResolver, GithubProjectCreatorFactory githubProjectCreatorFactory) {
-    this.dbClient = dbClient;
-    this.userSession = userSession;
-    this.componentUpdater = componentUpdater;
+  public ImportGithubProjectAction(ImportProjectService importProjectService, ImportHelper importHelper) {
+    this.importProjectService = importProjectService;
     this.importHelper = importHelper;
-    this.newCodeDefinitionResolver = newCodeDefinitionResolver;
-    this.defaultBranchNameResolver = defaultBranchNameResolver;
-    this.githubProjectCreatorFactory = githubProjectCreatorFactory;
   }
 
   @Override
@@ -128,34 +95,18 @@ public class ImportGithubProjectAction implements AlmIntegrationsWsAction {
   private Projects.CreateWsResponse doHandle(Request request) {
     importHelper.checkProvisionProjectPermission();
     AlmSettingDto almSettingDto = importHelper.getAlmSettingDtoForAlm(request, ALM.GITHUB);
-
+    String repositoryKey = request.mandatoryParam(PARAM_REPOSITORY_KEY);
     String newCodeDefinitionType = request.param(PARAM_NEW_CODE_DEFINITION_TYPE);
     String newCodeDefinitionValue = request.param(PARAM_NEW_CODE_DEFINITION_VALUE);
-    try (DbSession dbSession = dbClient.openSession(false)) {
 
-      String repositoryKey = request.mandatoryParam(PARAM_REPOSITORY_KEY);
+    ImportedProject importedProject = importProjectService.importProject(toServiceRequest(almSettingDto, repositoryKey, newCodeDefinitionType, newCodeDefinitionValue));
 
-      String url = requireNonNull(almSettingDto.getUrl(), "DevOps Platform url cannot be null");
-      DevOpsProjectDescriptor devOpsProjectDescriptor = new DevOpsProjectDescriptor(ALM.GITHUB, url, repositoryKey);
+    return ImportHelper.toCreateResponse(importedProject.projectDto());
 
-      DevOpsProjectCreator devOpsProjectCreator = githubProjectCreatorFactory.getDevOpsProjectCreator(almSettingDto, devOpsProjectDescriptor)
-        .orElseThrow(() -> BadRequestException.create("GitHub DevOps platform configuration not found."));
-      CreationMethod creationMethod = getCreationMethod(ALM_IMPORT, userSession.isAuthenticatedBrowserSession());
-      ComponentCreationData componentCreationData = devOpsProjectCreator.createProjectAndBindToDevOpsPlatform(dbSession, creationMethod, false, null, null);
+  }
 
-      checkNewCodeDefinitionParam(newCodeDefinitionType, newCodeDefinitionValue);
-
-      ProjectDto projectDto = Optional.ofNullable(componentCreationData.projectDto()).orElseThrow();
-      BranchDto mainBranchDto = Optional.ofNullable(componentCreationData.mainBranchDto()).orElseThrow();
-
-      if (newCodeDefinitionType != null) {
-        newCodeDefinitionResolver.createNewCodeDefinition(dbSession, projectDto.getUuid(), mainBranchDto.getUuid(),
-          Optional.ofNullable(mainBranchDto.getKey()).orElse(defaultBranchNameResolver.getEffectiveMainBranchName()),
-          newCodeDefinitionType, newCodeDefinitionValue);
-      }
-
-      componentUpdater.commitAndIndex(dbSession, componentCreationData);
-      return toCreateResponse(projectDto);
-    }
+  private static ImportProjectRequest toServiceRequest(AlmSettingDto almSettingDto, String githubRepositoryKey, @Nullable String newCodeDefinitionType,
+    @Nullable String newCodeDefinitionValue) {
+    return new ImportProjectRequest(null, null, almSettingDto.getUuid(), githubRepositoryKey, newCodeDefinitionType, newCodeDefinitionValue, false);
   }
 }

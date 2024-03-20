@@ -17,7 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@ParametersAreNonnullByDefault
-package org.sonar.server.newcodeperiod;
+package org.sonar.server.common.project;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.Nullable;
+
+public record ImportProjectRequest(
+  @Nullable
+  String projectKey,
+
+  @Nullable
+  String projectName,
+  String almSettingId,
+  String repositoryIdentifier,
+  @Nullable
+  String newCodeDefinitionType,
+  @Nullable
+  String newCodeDefinitionValue,
+  Boolean monorepo) {
+
+}

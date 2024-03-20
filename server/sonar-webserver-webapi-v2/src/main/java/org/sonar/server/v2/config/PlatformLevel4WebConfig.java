@@ -32,6 +32,7 @@ import org.sonar.server.common.health.WebServerStatusNodeCheck;
 import org.sonar.server.common.management.ManagedInstanceChecker;
 import org.sonar.server.common.platform.LivenessChecker;
 import org.sonar.server.common.platform.LivenessCheckerImpl;
+import org.sonar.server.common.project.ImportProjectService;
 import org.sonar.server.common.rule.service.RuleService;
 import org.sonar.server.common.text.MacroInterpreter;
 import org.sonar.server.common.user.service.UserService;
@@ -46,6 +47,8 @@ import org.sonar.server.v2.api.group.controller.DefaultGroupController;
 import org.sonar.server.v2.api.group.controller.GroupController;
 import org.sonar.server.v2.api.membership.controller.DefaultGroupMembershipController;
 import org.sonar.server.v2.api.membership.controller.GroupMembershipController;
+import org.sonar.server.v2.api.projects.controller.DefaultBoundProjectsController;
+import org.sonar.server.v2.api.projects.controller.BoundProjectsController;
 import org.sonar.server.v2.api.rule.controller.DefaultRuleController;
 import org.sonar.server.v2.api.rule.controller.RuleController;
 import org.sonar.server.v2.api.rule.converter.RuleRestResponseGenerator;
@@ -100,7 +103,6 @@ public class PlatformLevel4WebConfig {
     return new DefaultGroupController(userSession, dbClient, groupService, managedInstanceChecker);
   }
 
-
   @Bean
   public GroupMembershipController groupMembershipsController(UserSession userSession,
     GroupMembershipService groupMembershipService, ManagedInstanceChecker managedInstanceChecker) {
@@ -127,6 +129,12 @@ public class PlatformLevel4WebConfig {
   @Bean
   public GitlabConfigurationController gitlabConfigurationController(UserSession userSession, GitlabConfigurationService gitlabConfigurationService) {
     return new DefaultGitlabConfigurationController(userSession, gitlabConfigurationService);
+  }
+
+  @Bean
+  public BoundProjectsController importedProjectsController(UserSession userSession, ImportProjectService importProjectService) {
+    return new DefaultBoundProjectsController(
+      userSession, importProjectService);
   }
 
 }

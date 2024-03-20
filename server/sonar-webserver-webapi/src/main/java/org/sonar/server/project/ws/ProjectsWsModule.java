@@ -20,6 +20,7 @@
 package org.sonar.server.project.ws;
 
 import org.sonar.core.platform.Module;
+import org.sonar.server.common.project.ImportProjectService;
 import org.sonar.server.common.project.ProjectCreator;
 import org.sonar.server.project.ProjectDefaultVisibility;
 import org.sonar.server.project.ProjectLifeCycleListenersImpl;
@@ -33,6 +34,7 @@ public class ProjectsWsModule extends Module {
   @Override
   protected void configureModule() {
     add(
+      ImportProjectService.class,
       ProjectDefaultVisibility.class,
       ProjectFinder.class,
       ProjectLifeCycleListenersImpl.class,

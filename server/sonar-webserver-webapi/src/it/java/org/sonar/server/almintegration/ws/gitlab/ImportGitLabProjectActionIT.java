@@ -44,6 +44,7 @@ import org.sonar.server.almintegration.ws.ImportHelper;
 import org.sonar.server.common.almintegration.ProjectKeyGenerator;
 import org.sonar.server.common.almsettings.gitlab.GitlabProjectCreatorFactory;
 import org.sonar.server.common.component.ComponentUpdater;
+import org.sonar.server.common.project.ImportProjectService;
 import org.sonar.server.es.TestIndexers;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.favorite.FavoriteUpdater;
@@ -105,8 +106,10 @@ public class ImportGitLabProjectActionIT {
   private final ProjectCreator projectCreator = new ProjectCreator(userSession, projectDefaultVisibility, componentUpdater);
   private final GitlabProjectCreatorFactory gitlabProjectCreatorFactory = new GitlabProjectCreatorFactory(db.getDbClient(), projectKeyGenerator, projectCreator,
     gitlabApplicationClient, userSession);
-  private final ImportGitLabProjectAction importGitLabProjectAction = new ImportGitLabProjectAction(
-    db.getDbClient(), userSession, componentUpdater, importHelper, newCodeDefinitionResolver, gitlabProjectCreatorFactory);
+
+  private final ImportProjectService importProjectService = new ImportProjectService(db.getDbClient(), gitlabProjectCreatorFactory, userSession, componentUpdater,
+    newCodeDefinitionResolver);
+  private final ImportGitLabProjectAction importGitLabProjectAction = new ImportGitLabProjectAction(importProjectService, importHelper);
   private final WsActionTester ws = new WsActionTester(importGitLabProjectAction);
 
   @Before

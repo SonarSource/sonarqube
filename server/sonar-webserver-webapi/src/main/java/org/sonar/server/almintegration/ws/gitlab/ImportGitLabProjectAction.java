@@ -19,37 +19,24 @@
  */
 package org.sonar.server.almintegration.ws.gitlab;
 
-import java.util.Optional;
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
 import org.sonar.db.alm.setting.ALM;
 import org.sonar.db.alm.setting.AlmSettingDto;
-import org.sonar.db.component.BranchDto;
-import org.sonar.db.project.ProjectDto;
 import org.sonar.server.almintegration.ws.AlmIntegrationsWsAction;
 import org.sonar.server.almintegration.ws.ImportHelper;
-import org.sonar.server.common.almsettings.DevOpsProjectCreator;
-import org.sonar.server.common.almsettings.DevOpsProjectDescriptor;
-import org.sonar.server.common.almsettings.gitlab.GitlabProjectCreatorFactory;
-import org.sonar.server.component.ComponentCreationData;
-import org.sonar.server.common.component.ComponentUpdater;
-import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.common.newcodeperiod.NewCodeDefinitionResolver;
-import org.sonar.server.user.UserSession;
+import org.sonar.server.common.project.ImportProjectRequest;
+import org.sonar.server.common.project.ImportProjectService;
+import org.sonar.server.common.project.ImportedProject;
 import org.sonarqube.ws.Projects.CreateWsResponse;
 
-import static java.util.Objects.requireNonNull;
-import static org.sonar.db.project.CreationMethod.getCreationMethod;
-import static org.sonar.db.project.CreationMethod.Category.ALM_IMPORT;
 import static org.sonar.server.almintegration.ws.ImportHelper.PARAM_ALM_SETTING;
 import static org.sonar.server.common.newcodeperiod.NewCodeDefinitionResolver.NEW_CODE_PERIOD_TYPE_DESCRIPTION_PROJECT_CREATION;
 import static org.sonar.server.common.newcodeperiod.NewCodeDefinitionResolver.NEW_CODE_PERIOD_VALUE_DESCRIPTION_PROJECT_CREATION;
-import static org.sonar.server.common.newcodeperiod.NewCodeDefinitionResolver.checkNewCodeDefinitionParam;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_NEW_CODE_DEFINITION_TYPE;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_NEW_CODE_DEFINITION_VALUE;
@@ -58,23 +45,13 @@ public class ImportGitLabProjectAction implements AlmIntegrationsWsAction {
 
   public static final String PARAM_GITLAB_PROJECT_ID = "gitlabProjectId";
 
-  private final DbClient dbClient;
-  private final UserSession userSession;
-  private final ComponentUpdater componentUpdater;
+  private final ImportProjectService importProjectService;
   private final ImportHelper importHelper;
-  private final NewCodeDefinitionResolver newCodeDefinitionResolver;
-  private final GitlabProjectCreatorFactory projectCreatorFactory;
 
   @Inject
-  public ImportGitLabProjectAction(DbClient dbClient, UserSession userSession,
-    ComponentUpdater componentUpdater, ImportHelper importHelper, NewCodeDefinitionResolver newCodeDefinitionResolver,
-    GitlabProjectCreatorFactory projectCreatorFactory) {
-    this.dbClient = dbClient;
-    this.userSession = userSession;
-    this.componentUpdater = componentUpdater;
+  public ImportGitLabProjectAction(ImportProjectService importProjectService, ImportHelper importHelper) {
+    this.importProjectService = importProjectService;
     this.importHelper = importHelper;
-    this.newCodeDefinitionResolver = newCodeDefinitionResolver;
-    this.projectCreatorFactory = projectCreatorFactory;
   }
 
   @Override
@@ -112,33 +89,17 @@ public class ImportGitLabProjectAction implements AlmIntegrationsWsAction {
 
   private CreateWsResponse doHandle(Request request) {
     importHelper.checkProvisionProjectPermission();
-
+    AlmSettingDto almSettingDto = importHelper.getAlmSettingDtoForAlm(request, ALM.GITLAB);
+    String gitlabProjectId = request.mandatoryParam(PARAM_GITLAB_PROJECT_ID);
     String newCodeDefinitionType = request.param(PARAM_NEW_CODE_DEFINITION_TYPE);
     String newCodeDefinitionValue = request.param(PARAM_NEW_CODE_DEFINITION_VALUE);
+    ImportedProject importedProject = importProjectService.importProject(toServiceRequest(almSettingDto, gitlabProjectId, newCodeDefinitionType, newCodeDefinitionValue));
 
-    try (DbSession dbSession = dbClient.openSession(false)) {
-      AlmSettingDto almSettingDto = importHelper.getAlmSettingDtoForAlm(request, ALM.GITLAB);
+    return ImportHelper.toCreateResponse(importedProject.projectDto());
+  }
 
-      String gitlabProjectId = request.mandatoryParam(PARAM_GITLAB_PROJECT_ID);
-      String gitlabUrl = requireNonNull(almSettingDto.getUrl(), "DevOps Platform gitlabUrl cannot be null");
-
-      DevOpsProjectDescriptor projectDescriptor = new DevOpsProjectDescriptor(ALM.GITLAB, gitlabUrl, gitlabProjectId);
-      DevOpsProjectCreator projectCreator = projectCreatorFactory.getDevOpsProjectCreator(almSettingDto, projectDescriptor)
-        .orElseThrow(() -> BadRequestException.create("Gitlab DevOps platform configuration not found"));
-      ComponentCreationData componentCreationData = projectCreator.createProjectAndBindToDevOpsPlatform(dbSession,
-        getCreationMethod(ALM_IMPORT, userSession.isAuthenticatedBrowserSession()), false, null, null);
-
-      ProjectDto projectDto = Optional.ofNullable(componentCreationData.projectDto()).orElseThrow();
-      BranchDto mainBranchDto = Optional.ofNullable(componentCreationData.mainBranchDto()).orElseThrow();
-
-      checkNewCodeDefinitionParam(newCodeDefinitionType, newCodeDefinitionValue);
-      if (newCodeDefinitionType != null) {
-        newCodeDefinitionResolver.createNewCodeDefinition(dbSession, projectDto.getUuid(), mainBranchDto.getUuid(),
-          mainBranchDto.getKey(), newCodeDefinitionType, newCodeDefinitionValue);
-      }
-
-      componentUpdater.commitAndIndex(dbSession, componentCreationData);
-      return ImportHelper.toCreateResponse(projectDto);
-    }
+  private static ImportProjectRequest toServiceRequest(AlmSettingDto almSettingDto, String gitlabProjectId, @Nullable String newCodeDefinitionType,
+    @Nullable String newCodeDefinitionValue) {
+    return new ImportProjectRequest(null, null, almSettingDto.getUuid(), gitlabProjectId, newCodeDefinitionType, newCodeDefinitionValue, false);
   }
 }
