@@ -114,6 +114,16 @@ export type ImportProjectParam =
         name: string;
         mainBranch: string;
       }[];
+    }
+  | {
+      creationMode: CreateProjectModes.Monorepo;
+      devOpsPlatformSettingId: string;
+      monorepo: boolean;
+      projects: {
+        projectKey: string;
+        projectName: string;
+      }[];
+      repositoryIdentifier: string;
     };
 
 export class CreateProjectPage extends React.PureComponent<CreateProjectPageProps, State> {

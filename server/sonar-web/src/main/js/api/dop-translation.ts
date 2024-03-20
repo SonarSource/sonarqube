@@ -17,12 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export enum CreateProjectModes {
-  Manual = 'manual',
-  AzureDevOps = 'azure',
-  BitbucketServer = 'bitbucket',
-  BitbucketCloud = 'bitbucketcloud',
-  GitHub = 'github',
-  GitLab = 'gitlab',
-  Monorepo = 'monorepo',
+import axios from 'axios';
+
+const DOP_TRANSLATION_PATH = '/api/v2/dop-translation';
+
+// Imported projects
+
+const IMPORTED_PROJECTS_PATH = `${DOP_TRANSLATION_PATH}/bound-projects`;
+
+export function createImportedProjects(data: {
+  devOpsPlatformSettingId: string;
+  monorepo: boolean;
+  newCodeDefinitionType?: string;
+  newCodeDefinitionValue?: string;
+  projectKey: string;
+  projectName: string;
+  repositoryIdentifier: string;
+}) {
+  return axios.post(IMPORTED_PROJECTS_PATH, data);
 }

@@ -25,6 +25,7 @@ import {
   importGithubRepository,
   importGitlabProject,
 } from '../api/alm-integrations';
+import { createImportedProjects } from '../api/dop-translation';
 import { createProject } from '../api/project-management';
 import { ImportProjectParam } from '../apps/create/project/CreateProjectPage';
 import { CreateProjectModes } from '../apps/create/project/types';
@@ -36,7 +37,21 @@ export type MutationArg<AlmImport extends ImportProjectParam = ImportProjectPara
     projects: (infer R)[];
   }
     ? { creationMode: A; almSetting: string } & R
-    : never;
+    :
+        | {
+            creationMode: CreateProjectModes.Manual;
+            project: string;
+            name: string;
+            mainBranch: string;
+          }
+        | {
+            creationMode: CreateProjectModes.Monorepo;
+            devOpsPlatformSettingId: string;
+            monorepo: boolean;
+            projectKey: string;
+            projectName: string;
+            repositoryIdentifier: string;
+          };
 
 export function useImportProjectMutation() {
   return useMutation({
@@ -56,6 +71,8 @@ export function useImportProjectMutation() {
         return importBitbucketServerProject(data);
       } else if (data.creationMode === CreateProjectModes.GitLab) {
         return importGitlabProject(data);
+      } else if (data.creationMode === CreateProjectModes.Monorepo) {
+        return createImportedProjects(data);
       }
 
       return createProject(data);
