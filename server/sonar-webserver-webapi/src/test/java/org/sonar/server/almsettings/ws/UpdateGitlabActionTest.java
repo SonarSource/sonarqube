@@ -78,7 +78,7 @@ public class UpdateGitlabActionTest {
   }
 
   @Test
-  public void update_with_url() {
+  public void update_with_url_needs_pat() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user).setSystemAdministrator();
 
@@ -114,19 +114,19 @@ public class UpdateGitlabActionTest {
   }
 
   @Test
-  public void update_without_pat() {
+  public void fail_when_url_updated_without_pat() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user).setSystemAdministrator();
 
     AlmSettingDto almSettingDto = db.almSettings().insertGitlabAlmSetting();
 
-    ws.newRequest()
+    TestRequest request = ws.newRequest()
       .setParam("key", almSettingDto.getKey())
-      .setParam("url", GITLAB_URL)
-      .execute();
-    assertThat(db.getDbClient().almSettingDao().selectAll(db.getSession()))
-      .extracting(AlmSettingDto::getKey, AlmSettingDto::getUrl, s -> s.getDecryptedPersonalAccessToken(encryption))
-      .containsOnly(tuple(almSettingDto.getKey(), GITLAB_URL, almSettingDto.getDecryptedPersonalAccessToken(encryption)));
+      .setParam("url", GITLAB_URL);
+
+    assertThatThrownBy(() -> request.execute())
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Please provide the Personal Access Token to update the URL.");
   }
 
   @Test

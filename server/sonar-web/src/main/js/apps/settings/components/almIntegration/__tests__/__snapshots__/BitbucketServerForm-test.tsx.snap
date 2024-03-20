@@ -17,7 +17,7 @@ exports[`should render correctly 1`] = `
         settings.almintegration.form.url.bitbucket.help
         <br />
         <br />
-        settings.almintegration.form.url.bitbucket.pat_warning
+        settings.almintegration.form.url.pat_warning
       </React.Fragment>
     }
     id="url.bitbucket"
