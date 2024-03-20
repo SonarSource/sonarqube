@@ -42,6 +42,7 @@ import static java.util.stream.Collectors.toSet;
 public class GitLabIdentityProvider implements OAuth2IdentityProvider {
 
   public static final String API_SCOPE = "api";
+  public static final String READ_USER_SCOPE = "read_user";
   public static final String KEY = "gitlab";
   private final GitLabSettings gitLabSettings;
   private final ScribeGitLabOauth2Api scribeApi;
@@ -93,7 +94,7 @@ public class GitLabIdentityProvider implements OAuth2IdentityProvider {
     checkState(isEnabled(), "GitLab authentication is disabled");
     return new ServiceBuilder(gitLabSettings.applicationId())
       .apiSecret(gitLabSettings.secret())
-      .defaultScope(API_SCOPE)
+      .defaultScope(gitLabSettings.syncUserGroups() ? API_SCOPE : READ_USER_SCOPE)
       .callback(context.getCallbackUrl());
   }
 
