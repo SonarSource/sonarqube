@@ -20,16 +20,16 @@
 package org.sonar.server.measure;
 
 import java.util.Map;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.sonar.api.issue.impact.Severity;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-public class ImpactMeasureBuilderTest {
+class ImpactMeasureBuilderTest {
 
   @Test
-  public void createEmptyMeasure_shouldReturnMeasureWithAllFields() {
+  void createEmptyMeasure_shouldReturnMeasureWithAllFields() {
     ImpactMeasureBuilder builder = ImpactMeasureBuilder.createEmpty();
     assertThat(builder.buildAsMap())
       .containsAllEntriesOf(getImpactMap(0L, 0L, 0L, 0L));
@@ -40,7 +40,7 @@ public class ImpactMeasureBuilderTest {
   }
 
   @Test
-  public void fromMap_shouldInitializeCorrectlyTheBuilder() {
+  void fromMap_shouldInitializeCorrectlyTheBuilder() {
     Map<String, Long> map = getImpactMap(6L, 3L, 2L, 1L);
     ImpactMeasureBuilder builder = ImpactMeasureBuilder.fromMap(map);
     assertThat(builder.buildAsMap())
@@ -48,7 +48,7 @@ public class ImpactMeasureBuilderTest {
   }
 
   @Test
-  public void fromMap_whenMissingField_shouldThrowException() {
+  void fromMap_whenMissingField_shouldThrowException() {
     Map<String, Long> map = Map.of();
     assertThatThrownBy(() -> ImpactMeasureBuilder.fromMap(map))
       .isInstanceOf(IllegalArgumentException.class)
@@ -56,7 +56,7 @@ public class ImpactMeasureBuilderTest {
   }
 
   @Test
-  public void toString_shouldInitializeCorrectlyTheBuilder() {
+  void toString_shouldInitializeCorrectlyTheBuilder() {
     ImpactMeasureBuilder builder = ImpactMeasureBuilder.fromString("""
       {
         total: 6,
@@ -70,7 +70,7 @@ public class ImpactMeasureBuilderTest {
   }
 
   @Test
-  public void buildAsMap_whenIsEmpty_shouldThrowException() {
+  void buildAsMap_whenIsEmpty_shouldThrowException() {
     ImpactMeasureBuilder impactMeasureBuilder = ImpactMeasureBuilder.newInstance();
     assertThatThrownBy(impactMeasureBuilder::buildAsMap)
       .isInstanceOf(IllegalArgumentException.class)
@@ -78,7 +78,7 @@ public class ImpactMeasureBuilderTest {
   }
 
   @Test
-  public void buildAsMap_whenMissingSeverity_shouldThrowException() {
+  void buildAsMap_whenMissingSeverity_shouldThrowException() {
     ImpactMeasureBuilder impactMeasureBuilder = ImpactMeasureBuilder.newInstance()
       .setTotal(1L)
       .setSeverity(Severity.HIGH, 1L)
@@ -89,7 +89,7 @@ public class ImpactMeasureBuilderTest {
   }
 
   @Test
-  public void buildAsString_whenMissingSeverity_shouldThrowException() {
+  void buildAsString_whenMissingSeverity_shouldThrowException() {
     ImpactMeasureBuilder impactMeasureBuilder = ImpactMeasureBuilder.newInstance()
       .setTotal(1L)
       .setSeverity(Severity.HIGH, 1L)
@@ -100,7 +100,7 @@ public class ImpactMeasureBuilderTest {
   }
 
   @Test
-  public void setSeverity_shouldInitializeSeverityValues() {
+  void setSeverity_shouldInitializeSeverityValues() {
     ImpactMeasureBuilder builder = ImpactMeasureBuilder.newInstance()
       .setSeverity(Severity.HIGH, 3L)
       .setSeverity(Severity.MEDIUM, 2L)
@@ -111,7 +111,7 @@ public class ImpactMeasureBuilderTest {
   }
 
   @Test
-  public void add_shouldSumImpactsAndTotal() {
+  void add_shouldSumImpactsAndTotal() {
     ImpactMeasureBuilder builder = ImpactMeasureBuilder.fromMap(getImpactMap(6L, 3L, 2L, 1L))
       .add(ImpactMeasureBuilder.newInstance().setTotal(6L).setSeverity(Severity.HIGH, 3L).setSeverity(Severity.MEDIUM, 2L).setSeverity(Severity.LOW, 1L));
     assertThat(builder.buildAsMap())
@@ -119,12 +119,19 @@ public class ImpactMeasureBuilderTest {
   }
 
   @Test
-  public void add_whenOtherMapHasMissingField_shouldThrowException() {
+  void add_whenOtherMapHasMissingField_shouldThrowException() {
     ImpactMeasureBuilder impactMeasureBuilder = ImpactMeasureBuilder.newInstance();
     ImpactMeasureBuilder otherBuilder = ImpactMeasureBuilder.newInstance();
     assertThatThrownBy(() -> impactMeasureBuilder.add(otherBuilder))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("Map must contain a total key");
+  }
+
+  @Test
+  void getTotal_shoudReturnExpectedTotal() {
+    ImpactMeasureBuilder builder = ImpactMeasureBuilder.fromMap(getImpactMap(6L, 3L, 2L, 1L));
+
+    assertThat(builder.getTotal()).isEqualTo(6L);
   }
 
 }

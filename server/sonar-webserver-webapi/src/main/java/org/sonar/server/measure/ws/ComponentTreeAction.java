@@ -78,12 +78,6 @@ import static java.lang.String.format;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 import static java.util.Optional.ofNullable;
-import static org.sonar.api.measures.CoreMetrics.MAINTAINABILITY_ISSUES_KEY;
-import static org.sonar.api.measures.CoreMetrics.NEW_MAINTAINABILITY_ISSUES_KEY;
-import static org.sonar.api.measures.CoreMetrics.NEW_RELIABILITY_ISSUES_KEY;
-import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_ISSUES_KEY;
-import static org.sonar.api.measures.CoreMetrics.RELIABILITY_ISSUES_KEY;
-import static org.sonar.api.measures.CoreMetrics.SECURITY_ISSUES_KEY;
 import static org.sonar.api.measures.Metric.ValueType.DATA;
 import static org.sonar.api.measures.Metric.ValueType.DISTRIB;
 import static org.sonar.api.utils.Paging.offset;
@@ -179,9 +173,9 @@ public class ComponentTreeAction implements MeasuresWsAction {
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction(ACTION_COMPONENT_TREE)
       .setDescription(format("Navigate through components based on the chosen strategy with specified measures.<br>" +
-        "Requires the following permission: 'Browse' on the specified project.<br>" +
-        "For applications, it also requires 'Browse' permission on its child projects. <br>" +
-        "When limiting search with the %s parameter, directories are not returned.", Param.TEXT_QUERY))
+                             "Requires the following permission: 'Browse' on the specified project.<br>" +
+                             "For applications, it also requires 'Browse' permission on its child projects. <br>" +
+                             "When limiting search with the %s parameter, directories are not returned.", Param.TEXT_QUERY))
       .setResponseExample(getClass().getResource("component_tree-example.json"))
       .setSince("5.4")
       .setHandler(this)
@@ -193,7 +187,7 @@ public class ComponentTreeAction implements MeasuresWsAction {
           MeasuresWsModule.getDeprecatedMetricsInSonarQube105())),
         new Change("10.5", "Added new accepted values for the 'metricKeys' param: 'maintainability_issues', 'reliability_issues', 'security_issues'"),
         new Change("10.4", String.format("The metrics %s are now deprecated " +
-            "without exact replacement. Use 'maintainability_issues', 'reliability_issues' and 'security_issues' instead.",
+                                         "without exact replacement. Use 'maintainability_issues', 'reliability_issues' and 'security_issues' instead.",
           MeasuresWsModule.getDeprecatedMetricsInSonarQube104())),
         new Change("10.4", "The metrics 'open_issues', 'reopened_issues' and 'confirmed_issues' are now deprecated in the response. Consume 'violations' instead."),
         new Change("10.4", "The use of 'open_issues', 'reopened_issues' and 'confirmed_issues' values in 'metricKeys' param are now deprecated. Use 'violations' instead."),
@@ -226,9 +220,9 @@ public class ComponentTreeAction implements MeasuresWsAction {
 
     action.createParam(Param.TEXT_QUERY)
       .setDescription("Limit search to: <ul>" +
-        "<li>component names that contain the supplied string</li>" +
-        "<li>component keys that are exactly the same as the supplied string</li>" +
-        "</ul>")
+                      "<li>component names that contain the supplied string</li>" +
+                      "<li>component keys that are exactly the same as the supplied string</li>" +
+                      "</ul>")
       .setMinimumLength(QUERY_MINIMUM_LENGTH)
       .setExampleValue("FILE_NAM");
 
@@ -260,10 +254,10 @@ public class ComponentTreeAction implements MeasuresWsAction {
 
     action.createParam(PARAM_METRIC_SORT_FILTER)
       .setDescription(format("Filter components. Sort must be on a metric. Possible values are: " +
-        "<ul>" +
-        "<li>%s: return all components</li>" +
-        "<li>%s: filter out components that do not have a measure on the sorted metric</li>" +
-        "</ul>", ALL_METRIC_SORT_FILTER, WITH_MEASURES_ONLY_METRIC_SORT_FILTER))
+                             "<ul>" +
+                             "<li>%s: return all components</li>" +
+                             "<li>%s: filter out components that do not have a measure on the sorted metric</li>" +
+                             "</ul>", ALL_METRIC_SORT_FILTER, WITH_MEASURES_ONLY_METRIC_SORT_FILTER))
       .setDefaultValue(ALL_METRIC_SORT_FILTER)
       .setPossibleValues(METRIC_SORT_FILTERS);
 
@@ -278,11 +272,11 @@ public class ComponentTreeAction implements MeasuresWsAction {
 
     action.createParam(PARAM_STRATEGY)
       .setDescription("Strategy to search for base component descendants:" +
-        "<ul>" +
-        "<li>children: return the children components of the base component. Grandchildren components are not returned</li>" +
-        "<li>all: return all the descendants components of the base component. Grandchildren are returned.</li>" +
-        "<li>leaves: return all the descendant components (files, in general) which don't have other children. They are the leaves of the component tree.</li>" +
-        "</ul>")
+                      "<ul>" +
+                      "<li>children: return the children components of the base component. Grandchildren components are not returned</li>" +
+                      "<li>all: return all the descendants components of the base component. Grandchildren are returned.</li>" +
+                      "<li>leaves: return all the descendant components (files, in general) which don't have other children. They are the leaves of the component tree.</li>" +
+                      "</ul>")
       .setPossibleValues(STRATEGIES.keySet())
       .setDefaultValue(ALL_STRATEGY);
   }
@@ -686,15 +680,9 @@ public class ComponentTreeAction implements MeasuresWsAction {
     INSTANCE;
 
     static final Set<String> FORBIDDEN_METRIC_TYPES = Set.of(DISTRIB.name());
-    static final Map<String, Set<String>> PARTIALLY_SUPPORTED_METRICS= Map. of(
+    static final Map<String, Set<String>> PARTIALLY_SUPPORTED_METRICS = Map.of(
       DATA.name(),
-      Set.of(
-        SECURITY_ISSUES_KEY,
-        MAINTAINABILITY_ISSUES_KEY,
-        RELIABILITY_ISSUES_KEY,
-        NEW_SECURITY_ISSUES_KEY,
-        NEW_MAINTAINABILITY_ISSUES_KEY,
-        NEW_RELIABILITY_ISSUES_KEY));
+      DataSupportedMetrics.IMPACTS_SUPPORTED_METRICS);
 
     @Override
     public boolean test(@Nonnull MetricDto input) {

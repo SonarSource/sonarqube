@@ -26,6 +26,7 @@ import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import javax.annotation.CheckForNull;
 import org.sonar.api.issue.impact.Severity;
 
 import static org.sonar.api.utils.Preconditions.checkArgument;
@@ -83,6 +84,11 @@ public class ImpactMeasureBuilder {
   public ImpactMeasureBuilder setTotal(long value) {
     map.put(TOTAL_KEY, value);
     return this;
+  }
+
+  @CheckForNull
+  public Long getTotal() {
+    return map.get(TOTAL_KEY);
   }
 
   public ImpactMeasureBuilder add(ImpactMeasureBuilder other) {
