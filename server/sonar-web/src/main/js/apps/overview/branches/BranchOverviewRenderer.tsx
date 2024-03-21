@@ -33,7 +33,7 @@ import { areCCTMeasuresComputed, isDiffMetric } from '../../../helpers/measures'
 import { CodeScope } from '../../../helpers/urls';
 import { ApplicationPeriod } from '../../../types/application';
 import { Branch } from '../../../types/branch-like';
-import { ComponentQualifier } from '../../../types/component';
+import { ComponentQualifier, isPortfolioLike } from '../../../types/component';
 import { Analysis, GraphType, MeasureHistory } from '../../../types/project-activity';
 import { QualityGateStatus } from '../../../types/quality-gates';
 import { Component, MeasureEnhanced, Metric, Period, QualityGate } from '../../../types/types';
@@ -118,7 +118,11 @@ export default function BranchOverviewRenderer(props: BranchOverviewRendererProp
   }, [loadingStatus, hasNewCodeMeasures]);
 
   const analysisMissingInfo = isMissingMeasures && (
-    <AnalysisMissingInfoMessage qualifier={component.qualifier} className="sw-mt-6" />
+    <AnalysisMissingInfoMessage
+      qualifier={component.qualifier}
+      hide={isPortfolioLike(component.qualifier)}
+      className="sw-mt-6"
+    />
   );
 
   return (

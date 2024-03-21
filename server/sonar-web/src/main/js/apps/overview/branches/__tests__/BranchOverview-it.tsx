@@ -439,7 +439,7 @@ describe('project overview', () => {
 
       await user.click(await ui.overallCodeButton.find());
 
-      expect(await screen.findByText('overview.missing_project_data.TRK')).toBeInTheDocument();
+      expect(await screen.findByText('overview.missing_project_dataTRK')).toBeInTheDocument();
     },
   );
 });
@@ -580,7 +580,7 @@ describe('application overview', () => {
       renderBranchOverview({ component });
       await user.click(await ui.overallCodeButton.find());
 
-      expect(await screen.findByText('overview.missing_project_data.APP')).toBeInTheDocument();
+      expect(await screen.findByText('overview.missing_project_dataAPP')).toBeInTheDocument();
     },
   );
 });

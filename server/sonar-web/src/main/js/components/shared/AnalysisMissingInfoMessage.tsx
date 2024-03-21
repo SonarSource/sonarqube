@@ -21,32 +21,34 @@ import { FlagMessage } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
 import DocumentationLink from '../common/DocumentationLink';
-import { ComponentQualifier } from '../../types/component';
 
 interface AnalysisMissingInfoMessageProps {
+  hide?: boolean;
   qualifier: string;
   className?: string;
 }
 
 export default function AnalysisMissingInfoMessage({
+  hide,
   qualifier,
   className,
 }: Readonly<AnalysisMissingInfoMessageProps>) {
   const intl = useIntl();
 
-  if (qualifier === ComponentQualifier.Portfolio) {
+  if (hide) {
     return null;
   }
 
   return (
     <FlagMessage variant="info" className={className}>
       <FormattedMessage
-        id={`overview.missing_project_data.${qualifier}`}
+        id="overview.missing_project_data"
         tagName="div"
         values={{
+          qualifier,
           learn_more: (
             <DocumentationLink
-              className="sw-ml-2 sw-whitespace-nowrap"
+              className="sw-whitespace-nowrap"
               to="/user-guide/clean-code/code-analysis/"
             >
               {intl.formatMessage({ id: 'learn_more' })}

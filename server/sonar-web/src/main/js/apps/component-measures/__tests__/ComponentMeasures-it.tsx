@@ -125,7 +125,7 @@ describe('rendering', () => {
     ].forEach((measure) => {
       expect(ui.measureBtn(measure).get()).toBeInTheDocument();
     });
-    expect(screen.getByText('overview.missing_project_data.TRK')).toBeInTheDocument();
+    expect(screen.getByText('overview.missing_project_dataTRK')).toBeInTheDocument();
   });
 
   it('should correctly render a list view', async () => {

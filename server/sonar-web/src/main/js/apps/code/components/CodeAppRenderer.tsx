@@ -141,7 +141,11 @@ export default function CodeAppRenderer(props: Readonly<Props>) {
       )}
 
       {!allComponentsHaveSoftwareQualityMeasures && (
-        <AnalysisMissingInfoMessage qualifier={component.qualifier} className="sw-mb-4" />
+        <AnalysisMissingInfoMessage
+          qualifier={component.qualifier}
+          hide={isPortfolio}
+          className="sw-mb-4"
+        />
       )}
 
       <div className="sw-flex sw-justify-between">
