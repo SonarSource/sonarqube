@@ -20,7 +20,7 @@
 import { RadioButtonGroup } from '@sonarsource/echoes-react';
 import { ButtonPrimary, FormField, Modal } from 'design-system';
 import * as React from 'react';
-import { getLocalizedMetricName, translate } from '../../../helpers/l10n';
+import { translate } from '../../../helpers/l10n';
 import { isDiffMetric } from '../../../helpers/measures';
 import { useCreateConditionMutation } from '../../../queries/quality-gates';
 import { Condition, Metric, QualityGate } from '../../../types/types';
@@ -106,7 +106,6 @@ export default function AddConditionModal({ metrics, onClose, qualityGate }: Rea
         </FormField>
 
         <FormField
-          description={selectedMetric && getLocalizedMetricName(selectedMetric)}
           htmlFor="condition-metric"
           label={translate('quality_gates.conditions.fails_when')}
         >

@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import styled from '@emotion/styled';
-import { debounce } from 'lodash';
 import React from 'react';
 import {
   ActionMeta,
@@ -30,7 +29,7 @@ import {
 import { AsyncProps } from 'react-select/async';
 import Select from 'react-select/dist/declarations/src/Select';
 import tw from 'twin.macro';
-import { DEBOUNCE_DELAY, PopupPlacement, PopupZLevel, themeBorder } from '../../helpers';
+import { PopupPlacement, PopupZLevel, themeBorder } from '../../helpers';
 import { InputSizeKeys } from '../../types/theme';
 import { DropdownToggler } from '../DropdownToggler';
 import { SearchHighlighterContext } from '../SearchHighlighter';
@@ -119,7 +118,6 @@ export function SearchSelectDropdown<
     },
     [minLength, loadOptions],
   );
-  const debouncedLoadOptions = React.useRef(debounce(handleLoadOptions, DEBOUNCE_DELAY));
 
   const handleInputChange = React.useCallback(
     (newValue: string, actionMeta: InputActionMeta) => {
@@ -169,7 +167,7 @@ export function SearchSelectDropdown<
                 Option: IconOption,
                 ...rest.components,
               }}
-              loadOptions={debouncedLoadOptions.current}
+              loadOptions={handleLoadOptions}
               menuIsOpen
               minLength={minLength}
               onChange={handleChange}

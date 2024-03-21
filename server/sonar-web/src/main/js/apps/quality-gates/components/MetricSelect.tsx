@@ -72,7 +72,7 @@ export function MetricSelect({ metric, metricsArray, metrics, onMetricChange }: 
     optionsWithDomains.push(option);
   });
 
-  const handleAssigneeSearch = React.useCallback(
+  const handleMetricsSearch = React.useCallback(
     (query: string, resolve: (options: Options<LabelValueSelectOption<string>>) => void) => {
       resolve(options.filter((opt) => opt.label.toLowerCase().includes(query.toLowerCase())));
     },
@@ -86,7 +86,7 @@ export function MetricSelect({ metric, metricsArray, metrics, onMetricChange }: 
       controlSize="full"
       inputId="condition-metric"
       defaultOptions={optionsWithDomains}
-      loadOptions={handleAssigneeSearch}
+      loadOptions={handleMetricsSearch}
       onChange={handleChange}
       placeholder={translate('search.search_for_metrics')}
       controlLabel={
