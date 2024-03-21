@@ -23,7 +23,7 @@ import { FormattedMessage, useIntl } from 'react-intl';
 import { DEPRECATED_ACTIVITY_METRICS } from '../../helpers/constants';
 import { getLocalizedMetricName, translate, translateWithParameters } from '../../helpers/l10n';
 import { MetricKey } from '../../types/metrics';
-import DocumentationLink from '../common/DocumentationLink';
+import { getDeprecatedTranslationKeyForTooltip } from './utils';
 
 export interface AddGraphMetricPopupProps {
   elements: string[];
@@ -64,9 +64,9 @@ export default function AddGraphMetricPopup({
     );
   }
 
-  const renderLabel = (key: string) => {
+  const renderLabel = (key: MetricKey) => {
     const metricName = getLocalizedMetricName({ key });
-    const isDeprecated = DEPRECATED_ACTIVITY_METRICS.includes(key as MetricKey);
+    const isDeprecated = DEPRECATED_ACTIVITY_METRICS.includes(key);
 
     return (
       <>
@@ -78,26 +78,10 @@ export default function AddGraphMetricPopup({
     );
   };
 
-  const renderTooltip = (key: string) => {
-    const isDeprecated = DEPRECATED_ACTIVITY_METRICS.includes(key as MetricKey);
-
+  const renderTooltip = (key: MetricKey) => {
+    const isDeprecated = DEPRECATED_ACTIVITY_METRICS.includes(key);
     if (isDeprecated) {
-      return (
-        <FormattedMessage
-          id="project_activity.custom_metric.deprecated"
-          tagName="div"
-          values={{
-            learn_more: (
-              <DocumentationLink
-                className="sw-ml-2 sw-whitespace-nowrap"
-                to="/user-guide/clean-code/code-analysis/"
-              >
-                {intl.formatMessage({ id: 'learn_more' })}
-              </DocumentationLink>
-            ),
-          }}
-        />
-      );
+      return <FormattedMessage id={getDeprecatedTranslationKeyForTooltip(key)} tagName="div" />;
     }
 
     return null;

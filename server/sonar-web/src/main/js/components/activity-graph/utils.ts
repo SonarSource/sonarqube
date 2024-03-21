@@ -18,7 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { chunk, flatMap, groupBy, sortBy } from 'lodash';
-import { CCT_SOFTWARE_QUALITY_METRICS } from '../../helpers/constants';
+import {
+  CCT_SOFTWARE_QUALITY_METRICS,
+  OLD_TO_NEW_TAXONOMY_METRICS_MAP,
+} from '../../helpers/constants';
 import { getLocalizedMetricName, translate } from '../../helpers/l10n';
 import { localizeMetric } from '../../helpers/measures';
 import { get, save } from '../../helpers/storage';
@@ -190,6 +193,19 @@ export function getAnalysisEventsForDate(analyses: ParsedAnalysis[], date?: Date
   }
 
   return [];
+}
+
+export function getDeprecatedTranslationKeyForTooltip(metric: MetricKey) {
+  const quality = OLD_TO_NEW_TAXONOMY_METRICS_MAP[metric];
+
+  let deprecatedKey = 'severity';
+  if (quality) {
+    deprecatedKey = 'quality';
+  } else if (metric === MetricKey.confirmed_issues) {
+    deprecatedKey = 'confirmed';
+  }
+
+  return `project_activity.custom_metric.deprecated.${deprecatedKey}`;
 }
 
 function findMetric(key: string, metrics: Metric[]) {

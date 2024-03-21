@@ -34,9 +34,9 @@ import { FormattedMessage, useIntl } from 'react-intl';
 import { DEPRECATED_ACTIVITY_METRICS } from '../../helpers/constants';
 import { translateWithParameters } from '../../helpers/l10n';
 import { MetricKey } from '../../types/metrics';
-import DocumentationLink from '../common/DocumentationLink';
 import Tooltip from '../controls/Tooltip';
 import { ChartLegend } from './ChartLegend';
+import { getDeprecatedTranslationKeyForTooltip } from './utils';
 
 interface Props {
   className?: string;
@@ -78,17 +78,8 @@ export function GraphsLegendItem({
         <Tooltip
           overlay={
             <FormattedMessage
-              id="project_activity.custom_metric.deprecated"
-              values={{
-                learn_more: (
-                  <DocumentationLink
-                    className="sw-ml-2 sw-whitespace-nowrap"
-                    to="/user-guide/clean-code/code-analysis/"
-                  >
-                    {intl.formatMessage({ id: 'learn_more' })}
-                  </DocumentationLink>
-                ),
-              }}
+              id={getDeprecatedTranslationKeyForTooltip(metric as MetricKey)}
+              tagName="div"
             />
           }
         >
