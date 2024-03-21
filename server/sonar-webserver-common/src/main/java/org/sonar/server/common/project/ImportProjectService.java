@@ -37,7 +37,6 @@ import org.sonar.server.component.ComponentCreationData;
 import org.sonar.server.user.UserSession;
 
 import static java.lang.String.format;
-import static java.util.Objects.requireNonNull;
 import static org.sonar.db.project.CreationMethod.getCreationMethod;
 import static org.sonar.db.project.CreationMethod.Category.ALM_IMPORT;
 import static org.sonar.server.common.newcodeperiod.NewCodeDefinitionResolver.checkNewCodeDefinitionParam;
@@ -63,8 +62,7 @@ public class ImportProjectService {
     try (DbSession dbSession = dbClient.openSession(false)) {
       checkNewCodeDefinitionParam(request.newCodeDefinitionType(), request.newCodeDefinitionValue());
       AlmSettingDto almSetting = dbClient.almSettingDao().selectByUuid(dbSession, request.almSettingId()).orElseThrow(() -> new IllegalArgumentException("ALM setting not found"));
-      String almUrl = requireNonNull(almSetting.getUrl());
-      DevOpsProjectDescriptor projectDescriptor = new DevOpsProjectDescriptor(almSetting.getAlm(), almUrl, request.repositoryIdentifier());
+      DevOpsProjectDescriptor projectDescriptor = new DevOpsProjectDescriptor(almSetting.getAlm(), almSetting.getUrl(), request.repositoryIdentifier());
 
       DevOpsProjectCreator projectCreator = devOpsProjectCreatorFactory.getDevOpsProjectCreator(almSetting, projectDescriptor)
         .orElseThrow(() -> new IllegalArgumentException(format("Platform %s not supported", almSetting.getAlm().name())));

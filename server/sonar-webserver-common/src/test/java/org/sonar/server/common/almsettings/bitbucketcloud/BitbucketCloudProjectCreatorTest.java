@@ -17,9 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.common.almsettings.gitlab;
+package org.sonar.server.common.almsettings.bitbucketcloud;
 
-import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -29,10 +28,8 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.sonar.alm.client.gitlab.GitLabBranch;
-import org.sonar.alm.client.gitlab.GitlabApplicationClient;
-import org.sonar.alm.client.gitlab.GitlabServerException;
-import org.sonar.alm.client.gitlab.Project;
+import org.sonar.alm.client.bitbucket.bitbucketcloud.BitbucketCloudRestClient;
+import org.sonar.alm.client.bitbucket.bitbucketcloud.Repository;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.alm.pat.AlmPatDto;
@@ -57,60 +54,47 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class GitlabProjectCreatorTest {
-
-  private static final String PROJECT_UUID = "projectUuid";
+class BitbucketCloudProjectCreatorTest {
 
   private static final String USER_LOGIN = "userLogin";
   private static final String USER_UUID = "userUuid";
-
-  private static final String REPOSITORY_PATH_WITH_NAMESPACE = "pathWith/namespace";
-
-  private static final String GITLAB_PROJECT_NAME = "gitlabProjectName";
-
-  private static final String REPOSITORY_ID = "1234";
-
+  private static final String REPOSITORY_SLUG = "projectSlug";
+  private static final String REPOSITORY_NAME = "repositoryName";
+  private static final String ALM_SETTING_KEY = "bitbucketcloud_config_1";
+  private static final String ALM_SETTING_UUID = "almSettingUuid";
+  private static final String USER_PAT = "1234";
+  private static final String PROJECT_UUID = "projectUuid";
+  private static final String WORKSPACE = "workspace";
   private static final String MAIN_BRANCH_NAME = "defaultBranch";
 
-  private static final String ALM_SETTING_KEY = "gitlab_config_1";
-  private static final String ALM_SETTING_UUID = "almSettingUuid";
-
-  private static final String USER_PAT = "1234";
-
-  public static final String GITLAB_URL = "http://api.com";
   @Mock(answer = Answers.RETURNS_DEEP_STUBS)
   private DbClient dbClient;
-
-  @Mock
-  private ProjectKeyGenerator projectKeyGenerator;
-
-  @Mock
-  private ProjectCreator projectCreator;
-
   @Mock
   private AlmSettingDto almSettingDto;
   @Mock
   private DevOpsProjectDescriptor devOpsProjectDescriptor;
   @Mock
-  private GitlabApplicationClient gitlabApplicationClient;
-  @Mock
   private UserSession userSession;
+  @Mock
+  private BitbucketCloudRestClient bitbucketCloudRestClient;
+  @Mock
+  private ProjectCreator projectCreator;
+  @Mock
+  private ProjectKeyGenerator projectKeyGenerator;
 
   @InjectMocks
-  private GitlabProjectCreator underTest;
+  private BitbucketCloudProjectCreator underTest;
 
   @BeforeEach
   void setup() {
     lenient().when(userSession.getLogin()).thenReturn(USER_LOGIN);
     lenient().when(userSession.getUuid()).thenReturn(USER_UUID);
 
-    lenient().when(almSettingDto.getUrl()).thenReturn(GITLAB_URL);
     lenient().when(almSettingDto.getKey()).thenReturn(ALM_SETTING_KEY);
     lenient().when(almSettingDto.getUuid()).thenReturn(ALM_SETTING_UUID);
 
-    lenient().when(devOpsProjectDescriptor.projectIdentifier()).thenReturn(REPOSITORY_ID);
-    lenient().when(devOpsProjectDescriptor.url()).thenReturn(GITLAB_URL);
-    lenient().when(devOpsProjectDescriptor.alm()).thenReturn(ALM.GITLAB);
+    lenient().when(devOpsProjectDescriptor.projectIdentifier()).thenReturn(REPOSITORY_SLUG);
+    lenient().when(devOpsProjectDescriptor.alm()).thenReturn(ALM.BITBUCKET_CLOUD);
   }
 
   @Test
@@ -121,27 +105,37 @@ class GitlabProjectCreatorTest {
   }
 
   @Test
-  void createProjectAndBindToDevOpsPlatform_whenUserHasNoPat_throws() {
+  void createProjectAndBindToDevOpsPlatform_whenPatIsMissing_shouldThrow() {
     assertThatExceptionOfType(IllegalArgumentException.class)
       .isThrownBy(() -> underTest.createProjectAndBindToDevOpsPlatform(mock(DbSession.class), CreationMethod.ALM_IMPORT_API, false, null, null))
-      .withMessage("personal access token for 'gitlab_config_1' is missing");
+      .withMessage("personal access token for 'bitbucketcloud_config_1' is missing");
   }
 
   @Test
-  void createProjectAndBindToDevOpsPlatform_whenRepoNotFound_throws() {
+  void createProjectAndBindToDevOpsPlatform_whenWorkspaceIsNotDefined_shouldThrow() {
     mockPatForUser();
-    when(gitlabApplicationClient.getProject(GITLAB_URL, USER_PAT, Long.valueOf(REPOSITORY_ID))).thenThrow(new GitlabServerException(404, "Not found"));
+    assertThatExceptionOfType(IllegalArgumentException.class)
+      .isThrownBy(() -> underTest.createProjectAndBindToDevOpsPlatform(mock(DbSession.class), CreationMethod.ALM_IMPORT_API, false, null, null))
+      .withMessage("workspace for alm setting bitbucketcloud_config_1 is missing");
+  }
+
+  @Test
+  void createProjectAndBindToDevOpsPlatform_whenRepositoryNotFound_shouldThrow() {
+    mockPatForUser();
+    when(almSettingDto.getAppId()).thenReturn("workspace");
+    when(bitbucketCloudRestClient.getRepo(USER_PAT, "workspace", REPOSITORY_SLUG)).thenThrow(new IllegalStateException("Problem fetching repository from Bitbucket Cloud"));
     assertThatExceptionOfType(IllegalStateException.class)
       .isThrownBy(() -> underTest.createProjectAndBindToDevOpsPlatform(mock(DbSession.class), CreationMethod.ALM_IMPORT_API, false, null, null))
-      .withMessage("Failed to fetch GitLab project with ID '1234' from 'http://api.com'");
-
+      .withMessage("Problem fetching repository from Bitbucket Cloud");
   }
 
   @Test
-  void createProjectAndBindToDevOpsPlatform_whenRepoFoundOnGitlab_successfullyCreatesProject() {
+  void createProjectAndBindToDevOpsPlatform_whenRepoFoundOnBitbucket_successfullyCreatesProject() {
     mockPatForUser();
-    mockGitlabProject();
-    mockMainBranch();
+
+    when(almSettingDto.getAppId()).thenReturn(WORKSPACE);
+
+    mockBitbucketCloudRepository();
     mockProjectCreation("projectKey", "projectName");
 
     underTest.createProjectAndBindToDevOpsPlatform(mock(DbSession.class), CreationMethod.ALM_IMPORT_API, true, "projectKey", "projectName");
@@ -153,32 +147,32 @@ class GitlabProjectCreatorTest {
     ProjectAlmSettingDto createdProjectAlmSettingDto = projectAlmSettingCaptor.getValue();
 
     assertThat(createdProjectAlmSettingDto.getAlmSettingUuid()).isEqualTo(ALM_SETTING_UUID);
-    assertThat(createdProjectAlmSettingDto.getAlmRepo()).isEqualTo(REPOSITORY_ID);
+    assertThat(createdProjectAlmSettingDto.getAlmRepo()).isEqualTo(REPOSITORY_SLUG);
     assertThat(createdProjectAlmSettingDto.getProjectUuid()).isEqualTo(PROJECT_UUID);
     assertThat(createdProjectAlmSettingDto.getMonorepo()).isTrue();
   }
 
   @Test
-  void createProjectAndBindToDevOpsPlatform_whenNoKeyAndNameSpecified_generatesKeyAndUsersGitlabProjectName() {
+  void createProjectAndBindToDevOpsPlatform_whenNoKeyAndNameSpecified_generatesKeyAndUsersBitbucketRepositoryName() {
     mockPatForUser();
-    mockGitlabProject();
-    mockMainBranch();
 
+    when(almSettingDto.getAppId()).thenReturn(WORKSPACE);
+
+    mockBitbucketCloudRepository();
     String generatedProjectKey = "generatedProjectKey";
-    when(projectKeyGenerator.generateUniqueProjectKey(REPOSITORY_PATH_WITH_NAMESPACE)).thenReturn(generatedProjectKey);
-
-    mockProjectCreation(generatedProjectKey, GITLAB_PROJECT_NAME);
+    when(projectKeyGenerator.generateUniqueProjectKey(WORKSPACE, REPOSITORY_SLUG)).thenReturn(generatedProjectKey);
+    mockProjectCreation(generatedProjectKey, REPOSITORY_NAME);
 
     underTest.createProjectAndBindToDevOpsPlatform(mock(DbSession.class), CreationMethod.ALM_IMPORT_API, true, null, null);
 
     ArgumentCaptor<ProjectAlmSettingDto> projectAlmSettingCaptor = ArgumentCaptor.forClass(ProjectAlmSettingDto.class);
 
-    verify(dbClient.projectAlmSettingDao()).insertOrUpdate(any(), projectAlmSettingCaptor.capture(), eq(ALM_SETTING_KEY), eq(GITLAB_PROJECT_NAME), eq(generatedProjectKey));
+    verify(dbClient.projectAlmSettingDao()).insertOrUpdate(any(), projectAlmSettingCaptor.capture(), eq(ALM_SETTING_KEY), eq(REPOSITORY_NAME), eq(generatedProjectKey));
 
     ProjectAlmSettingDto createdProjectAlmSettingDto = projectAlmSettingCaptor.getValue();
 
     assertThat(createdProjectAlmSettingDto.getAlmSettingUuid()).isEqualTo(ALM_SETTING_UUID);
-    assertThat(createdProjectAlmSettingDto.getAlmRepo()).isEqualTo(REPOSITORY_ID);
+    assertThat(createdProjectAlmSettingDto.getAlmRepo()).isEqualTo(REPOSITORY_SLUG);
     assertThat(createdProjectAlmSettingDto.getProjectUuid()).isEqualTo(PROJECT_UUID);
     assertThat(createdProjectAlmSettingDto.getMonorepo()).isTrue();
   }
@@ -189,17 +183,12 @@ class GitlabProjectCreatorTest {
     when(dbClient.almPatDao().selectByUserAndAlmSetting(any(), eq(USER_UUID), eq(almSettingDto))).thenReturn(Optional.of(almPatDto));
   }
 
-  private void mockGitlabProject() {
-    Project project = mock(Project.class);
-    lenient().when(project.getPathWithNamespace()).thenReturn(REPOSITORY_PATH_WITH_NAMESPACE);
-    when(project.getName()).thenReturn(GITLAB_PROJECT_NAME);
-    when(gitlabApplicationClient.getProject(GITLAB_URL, USER_PAT, Long.valueOf(REPOSITORY_ID))).thenReturn(project);
-
-  }
-
-  private void mockMainBranch() {
-    when(gitlabApplicationClient.getBranches(GITLAB_URL, USER_PAT, Long.valueOf(REPOSITORY_ID)))
-      .thenReturn(List.of(new GitLabBranch("notMain", false), new GitLabBranch(MAIN_BRANCH_NAME, true)));
+  private void mockBitbucketCloudRepository() {
+    Repository repository = mock(Repository.class, Answers.RETURNS_DEEP_STUBS);
+    when(repository.getMainBranch().getName()).thenReturn(MAIN_BRANCH_NAME);
+    when(repository.getSlug()).thenReturn(REPOSITORY_SLUG);
+    when(repository.getName()).thenReturn(REPOSITORY_NAME);
+    when(bitbucketCloudRestClient.getRepo(USER_PAT, WORKSPACE, REPOSITORY_SLUG)).thenReturn(repository);
   }
 
   private void mockProjectCreation(String projectKey, String projectName) {

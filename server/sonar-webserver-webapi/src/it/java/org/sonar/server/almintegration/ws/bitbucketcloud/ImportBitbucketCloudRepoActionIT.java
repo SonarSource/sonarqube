@@ -42,7 +42,14 @@ import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.almintegration.ws.ImportHelper;
 import org.sonar.server.common.almintegration.ProjectKeyGenerator;
+import org.sonar.server.common.almsettings.DevOpsProjectCreatorFactory;
+import org.sonar.server.common.almsettings.bitbucketcloud.BitbucketCloudProjectCreatorFactory;
 import org.sonar.server.common.component.ComponentUpdater;
+import org.sonar.server.common.newcodeperiod.NewCodeDefinitionResolver;
+import org.sonar.server.common.permission.PermissionTemplateService;
+import org.sonar.server.common.permission.PermissionUpdater;
+import org.sonar.server.common.project.ImportProjectService;
+import org.sonar.server.common.project.ProjectCreator;
 import org.sonar.server.es.TestIndexers;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -50,10 +57,7 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.favorite.FavoriteUpdater;
 import org.sonar.server.l18n.I18nRule;
-import org.sonar.server.common.newcodeperiod.NewCodeDefinitionResolver;
 import org.sonar.server.permission.PermissionService;
-import org.sonar.server.common.permission.PermissionTemplateService;
-import org.sonar.server.common.permission.PermissionUpdater;
 import org.sonar.server.project.DefaultBranchNameResolver;
 import org.sonar.server.project.ProjectDefaultVisibility;
 import org.sonar.server.project.Visibility;
@@ -99,10 +103,15 @@ public class ImportBitbucketCloudRepoActionIT {
 
   private final ImportHelper importHelper = new ImportHelper(db.getDbClient(), userSession);
   private final ProjectKeyGenerator projectKeyGenerator = mock(ProjectKeyGenerator.class);
-  private PlatformEditionProvider editionProvider = mock(PlatformEditionProvider.class);
-  private NewCodeDefinitionResolver newCodeDefinitionResolver = new NewCodeDefinitionResolver(db.getDbClient(), editionProvider);
-  private final WsActionTester ws = new WsActionTester(new ImportBitbucketCloudRepoAction(db.getDbClient(), userSession,
-    bitbucketCloudRestClient, projectDefaultVisibility, componentUpdater, importHelper, projectKeyGenerator, newCodeDefinitionResolver, defaultBranchNameResolver));
+  private final PlatformEditionProvider editionProvider = mock(PlatformEditionProvider.class);
+  private final NewCodeDefinitionResolver newCodeDefinitionResolver = new NewCodeDefinitionResolver(db.getDbClient(), editionProvider);
+  private final ProjectCreator projectCreator = new ProjectCreator(userSession, projectDefaultVisibility, componentUpdater);
+
+  private final DevOpsProjectCreatorFactory devOpsProjectCreatorFactory = new BitbucketCloudProjectCreatorFactory(db.getDbClient(), userSession, bitbucketCloudRestClient,
+    projectCreator, projectKeyGenerator);
+  private final ImportProjectService importProjectService = new ImportProjectService(db.getDbClient(), devOpsProjectCreatorFactory, userSession, componentUpdater,
+    newCodeDefinitionResolver);
+  private final WsActionTester ws = new WsActionTester(new ImportBitbucketCloudRepoAction(importHelper, importProjectService));
 
   @Before
   public void before() {
@@ -294,7 +303,7 @@ public class ImportBitbucketCloudRepoActionIT {
   public void fail_project_already_exist() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user).addPermission(PROVISION_PROJECTS);
-    AlmSettingDto almSetting = db.almSettings().insertGitHubAlmSetting();
+    AlmSettingDto almSetting = db.almSettings().insertBitbucketCloudAlmSetting();
     db.almPats().insert(dto -> {
       dto.setAlmSettingUuid(almSetting.getUuid());
       dto.setUserUuid(user.getUuid());
@@ -341,7 +350,7 @@ public class ImportBitbucketCloudRepoActionIT {
   public void check_pat_is_missing() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user).addPermission(PROVISION_PROJECTS);
-    AlmSettingDto almSetting = db.almSettings().insertGitHubAlmSetting();
+    AlmSettingDto almSetting = db.almSettings().insertBitbucketCloudAlmSetting();
 
     TestRequest request = ws.newRequest()
       .setParam("almSetting", almSetting.getKey())
@@ -349,7 +358,7 @@ public class ImportBitbucketCloudRepoActionIT {
 
     assertThatThrownBy(request::execute)
       .isInstanceOf(IllegalArgumentException.class)
-      .hasMessageContaining("Username and App Password for '" + almSetting.getKey() + "' is missing");
+      .hasMessageContaining("personal access token for '" + almSetting.getKey() + "' is missing");
   }
 
   @Test

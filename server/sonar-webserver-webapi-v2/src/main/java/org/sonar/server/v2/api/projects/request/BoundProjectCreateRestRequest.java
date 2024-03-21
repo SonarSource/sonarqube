@@ -39,7 +39,12 @@ public record BoundProjectCreateRestRequest(
   String devOpsPlatformSettingId,
 
   @NotEmpty
-  @Schema(description = "Identifier of the DevOps platform repository to import. Repository slug for GitHub, repository id for GitLab.")
+  @Schema(
+    description = """
+      Identifier of the DevOps platform repository to import:
+      - repository slug for GitHub and Bitbucket Cloud
+      - repository id for GitLab
+      """)
   String repositoryIdentifier,
 
   @Nullable

@@ -17,10 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.common.almsettings;
+@ParametersAreNonnullByDefault
+package org.sonar.server.common.almsettings.bitbucketcloud;
 
-import javax.annotation.Nullable;
-import org.sonar.db.alm.setting.ALM;
-
-public record DevOpsProjectDescriptor(ALM alm, @Nullable String url, String projectIdentifier) {
-}
+import javax.annotation.ParametersAreNonnullByDefault;

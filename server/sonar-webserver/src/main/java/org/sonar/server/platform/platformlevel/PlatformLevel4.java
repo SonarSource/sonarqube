@@ -68,6 +68,7 @@ import org.sonar.server.almintegration.ws.github.GithubProvisioningWs;
 import org.sonar.server.almsettings.MultipleAlmFeature;
 import org.sonar.server.almsettings.ws.AlmSettingsWsModule;
 import org.sonar.server.common.almsettings.DelegatingDevOpsProjectCreatorFactory;
+import org.sonar.server.common.almsettings.bitbucketcloud.BitbucketCloudProjectCreatorFactory;
 import org.sonar.server.common.almsettings.github.GithubProjectCreatorFactory;
 import org.sonar.server.common.almsettings.gitlab.GitlabProjectCreatorFactory;
 import org.sonar.server.authentication.AuthenticationModule;
@@ -573,6 +574,7 @@ public class PlatformLevel4 extends PlatformLevel {
       BitbucketServerRestClient.class,
       AzureDevOpsHttpClient.class,
       new AlmIntegrationsWSModule(),
+      BitbucketCloudProjectCreatorFactory.class,
       BitbucketCloudValidator.class,
       BitbucketServerSettingsValidator.class,
       GithubGlobalSettingsValidator.class,

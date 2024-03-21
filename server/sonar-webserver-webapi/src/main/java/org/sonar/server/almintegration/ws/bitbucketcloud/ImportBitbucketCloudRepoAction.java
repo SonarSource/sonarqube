@@ -19,46 +19,25 @@
  */
 package org.sonar.server.almintegration.ws.bitbucketcloud;
 
-import java.util.Optional;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
-import org.sonar.alm.client.bitbucket.bitbucketcloud.BitbucketCloudRestClient;
-import org.sonar.alm.client.bitbucket.bitbucketcloud.Repository;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
-import org.sonar.db.alm.pat.AlmPatDto;
 import org.sonar.db.alm.setting.ALM;
 import org.sonar.db.alm.setting.AlmSettingDto;
-import org.sonar.db.alm.setting.ProjectAlmSettingDto;
-import org.sonar.db.component.BranchDto;
-import org.sonar.db.project.ProjectDto;
 import org.sonar.server.almintegration.ws.AlmIntegrationsWsAction;
 import org.sonar.server.almintegration.ws.ImportHelper;
-import org.sonar.server.common.almintegration.ProjectKeyGenerator;
-import org.sonar.server.component.ComponentCreationData;
-import org.sonar.server.common.component.ComponentCreationParameters;
-import org.sonar.server.common.component.ComponentUpdater;
-import org.sonar.server.common.component.NewComponent;
-import org.sonar.server.common.newcodeperiod.NewCodeDefinitionResolver;
-import org.sonar.server.project.DefaultBranchNameResolver;
-import org.sonar.server.project.ProjectDefaultVisibility;
-import org.sonar.server.user.UserSession;
+import org.sonar.server.common.project.ImportProjectRequest;
+import org.sonar.server.common.project.ImportProjectService;
+import org.sonar.server.common.project.ImportedProject;
 import org.sonarqube.ws.Projects;
 
-import static java.util.Optional.ofNullable;
-import static org.sonar.api.resources.Qualifiers.PROJECT;
-import static org.sonar.db.project.CreationMethod.Category.ALM_IMPORT;
-import static org.sonar.db.project.CreationMethod.getCreationMethod;
 import static org.sonar.server.almintegration.ws.ImportHelper.PARAM_ALM_SETTING;
 import static org.sonar.server.almintegration.ws.ImportHelper.toCreateResponse;
-import static org.sonar.server.common.component.NewComponent.newComponentBuilder;
 import static org.sonar.server.common.newcodeperiod.NewCodeDefinitionResolver.NEW_CODE_PERIOD_TYPE_DESCRIPTION_PROJECT_CREATION;
 import static org.sonar.server.common.newcodeperiod.NewCodeDefinitionResolver.NEW_CODE_PERIOD_VALUE_DESCRIPTION_PROJECT_CREATION;
-import static org.sonar.server.common.newcodeperiod.NewCodeDefinitionResolver.checkNewCodeDefinitionParam;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_NEW_CODE_DEFINITION_TYPE;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_NEW_CODE_DEFINITION_VALUE;
@@ -67,30 +46,13 @@ public class ImportBitbucketCloudRepoAction implements AlmIntegrationsWsAction {
 
   private static final String PARAM_REPO_SLUG = "repositorySlug";
 
-  private final DbClient dbClient;
-  private final UserSession userSession;
-  private final BitbucketCloudRestClient bitbucketCloudRestClient;
-  private final ProjectDefaultVisibility projectDefaultVisibility;
-  private final ComponentUpdater componentUpdater;
   private final ImportHelper importHelper;
-  private final ProjectKeyGenerator projectKeyGenerator;
-  private final NewCodeDefinitionResolver newCodeDefinitionResolver;
-  private final DefaultBranchNameResolver defaultBranchNameResolver;
+  private final ImportProjectService importProjectService;
 
   @Inject
-  public ImportBitbucketCloudRepoAction(DbClient dbClient, UserSession userSession, BitbucketCloudRestClient bitbucketCloudRestClient,
-    ProjectDefaultVisibility projectDefaultVisibility, ComponentUpdater componentUpdater, ImportHelper importHelper,
-    ProjectKeyGenerator projectKeyGenerator, NewCodeDefinitionResolver newCodeDefinitionResolver,
-    DefaultBranchNameResolver defaultBranchNameResolver) {
-    this.dbClient = dbClient;
-    this.userSession = userSession;
-    this.bitbucketCloudRestClient = bitbucketCloudRestClient;
-    this.projectDefaultVisibility = projectDefaultVisibility;
-    this.componentUpdater = componentUpdater;
+  public ImportBitbucketCloudRepoAction(ImportHelper importHelper, ImportProjectService importProjectService) {
     this.importHelper = importHelper;
-    this.projectKeyGenerator = projectKeyGenerator;
-    this.newCodeDefinitionResolver = newCodeDefinitionResolver;
-    this.defaultBranchNameResolver = defaultBranchNameResolver;
+    this.importProjectService = importProjectService;
   }
 
   @Override
@@ -133,77 +95,17 @@ public class ImportBitbucketCloudRepoAction implements AlmIntegrationsWsAction {
 
   private Projects.CreateWsResponse doHandle(Request request) {
     importHelper.checkProvisionProjectPermission();
-
+    AlmSettingDto almSettingDto = importHelper.getAlmSettingDtoForAlm(request, ALM.BITBUCKET_CLOUD);
     String newCodeDefinitionType = request.param(PARAM_NEW_CODE_DEFINITION_TYPE);
     String newCodeDefinitionValue = request.param(PARAM_NEW_CODE_DEFINITION_VALUE);
-
     String repoSlug = request.mandatoryParam(PARAM_REPO_SLUG);
-    AlmSettingDto almSettingDto = importHelper.getAlmSettingDtoForAlm(request, ALM.BITBUCKET_CLOUD);
-    String workspace = ofNullable(almSettingDto.getAppId())
-      .orElseThrow(() -> new IllegalArgumentException(String.format("workspace for alm setting %s is missing", almSettingDto.getKey())));
-
-    try (DbSession dbSession = dbClient.openSession(false)) {
-      String pat = getPat(dbSession, almSettingDto);
-
-      Repository repo = bitbucketCloudRestClient.getRepo(pat, workspace, repoSlug);
-
-      ComponentCreationData componentCreationData = createProject(dbSession, workspace, repo, repo.getMainBranch().getName());
-      ProjectDto projectDto = Optional.ofNullable(componentCreationData.projectDto()).orElseThrow();
-      BranchDto mainBranchDto = Optional.ofNullable(componentCreationData.mainBranchDto()).orElseThrow();
-
-      populatePRSetting(dbSession, repo, projectDto, almSettingDto);
-
-      checkNewCodeDefinitionParam(newCodeDefinitionType, newCodeDefinitionValue);
-
-      if (newCodeDefinitionType != null) {
-        newCodeDefinitionResolver.createNewCodeDefinition(dbSession, projectDto.getUuid(), mainBranchDto.getUuid(),
-          Optional.ofNullable(repo.getMainBranch().getName()).orElse(defaultBranchNameResolver.getEffectiveMainBranchName()),
-          newCodeDefinitionType, newCodeDefinitionValue);
-      }
-
-      componentUpdater.commitAndIndex(dbSession, componentCreationData);
-
-      return toCreateResponse(projectDto);
-    }
+    ImportedProject importedProject = importProjectService.importProject(toServiceRequest(almSettingDto, repoSlug, newCodeDefinitionType, newCodeDefinitionValue));
+    return toCreateResponse(importedProject.projectDto());
   }
 
-  private String getPat(DbSession dbSession, AlmSettingDto almSettingDto) {
-    String userUuid = importHelper.getUserUuid();
-
-    return dbClient.almPatDao().selectByUserAndAlmSetting(dbSession, userUuid, almSettingDto)
-      .map(AlmPatDto::getPersonalAccessToken)
-      .orElseThrow(() -> new IllegalArgumentException(String.format("Username and App Password for '%s' is missing",
-        almSettingDto.getKey())));
-  }
-
-  private ComponentCreationData createProject(DbSession dbSession, String workspace, Repository repo, @Nullable String defaultBranchName) {
-    boolean visibility = projectDefaultVisibility.get(dbSession).isPrivate();
-    String uniqueProjectKey = projectKeyGenerator.generateUniqueProjectKey(workspace, repo.getSlug());
-    NewComponent newProject = newComponentBuilder()
-      .setKey(uniqueProjectKey)
-      .setName(repo.getName())
-      .setPrivate(visibility)
-      .setQualifier(PROJECT)
-      .build();
-    ComponentCreationParameters componentCreationParameters = ComponentCreationParameters.builder()
-      .newComponent(newProject)
-      .userUuid(userSession.getUuid())
-      .userLogin(userSession.getLogin())
-      .mainBranchName(defaultBranchName)
-      .creationMethod(getCreationMethod(ALM_IMPORT, userSession.isAuthenticatedBrowserSession()))
-      .build();
-    return componentUpdater.createWithoutCommit(dbSession, componentCreationParameters);
-  }
-
-  private void populatePRSetting(DbSession dbSession, Repository repo, ProjectDto projectDto, AlmSettingDto almSettingDto) {
-    ProjectAlmSettingDto projectAlmSettingDto = new ProjectAlmSettingDto()
-      .setAlmSettingUuid(almSettingDto.getUuid())
-      // Bitbucket Cloud PR decoration reads almRepo
-      .setAlmRepo(repo.getSlug())
-      .setProjectUuid(projectDto.getUuid())
-      .setMonorepo(false);
-    dbClient.projectAlmSettingDao().insertOrUpdate(dbSession, projectAlmSettingDto, almSettingDto.getKey(),
-      projectDto.getName(), projectDto.getKey());
+  private static ImportProjectRequest toServiceRequest(AlmSettingDto almSettingDto, String slug, @Nullable String newCodeDefinitionType,
+    @Nullable String newCodeDefinitionValue) {
+    return new ImportProjectRequest(null, null, almSettingDto.getUuid(), slug, newCodeDefinitionType, newCodeDefinitionValue, false);
   }
 
 }
