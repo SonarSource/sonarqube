@@ -21,6 +21,7 @@ import {
   BasicSeparator,
   LargeCenteredLayout,
   LightGreyCard,
+  LightGreyCardTitle,
   PageContentFontWrapper,
 } from 'design-system';
 import * as React from 'react';
@@ -37,6 +38,7 @@ import { Analysis, GraphType, MeasureHistory } from '../../../types/project-acti
 import { QualityGateStatus } from '../../../types/quality-gates';
 import { Component, MeasureEnhanced, Metric, Period, QualityGate } from '../../../types/types';
 import { AnalysisStatus } from '../components/AnalysisStatus';
+import LastAnalysisLabel from '../components/LastAnalysisLabel';
 import ActivityPanel from './ActivityPanel';
 import BranchMetaTopBar from './BranchMetaTopBar';
 import FirstAnalysisNextStepsNotif from './FirstAnalysisNextStepsNotif';
@@ -45,6 +47,7 @@ import NewCodeMeasuresPanel from './NewCodeMeasuresPanel';
 import NoCodeWarning from './NoCodeWarning';
 import OverallCodeMeasuresPanel from './OverallCodeMeasuresPanel';
 import QualityGatePanel from './QualityGatePanel';
+import { QualityGateStatusTitle } from './QualityGateStatusTitle';
 import SonarLintPromotion from './SonarLintPromotion';
 import { TabsPanel } from './TabsPanel';
 
@@ -141,9 +144,10 @@ export default function BranchOverviewRenderer(props: BranchOverviewRendererProp
                   </>
                 )}
                 <AnalysisStatus className="sw-mt-6" component={component} />
-                <div className="sw-flex sw-mt-6">
-                  <div className="sw-w-1/4 sw-mr-3">
-                    <LightGreyCard className="sw-h-max">
+                <div className="sw-flex sw-gap-3 sw-mt-6">
+                  <div className="sw-w-1/4">
+                    <LightGreyCard>
+                      <QualityGateStatusTitle />
                       <QualityGatePanel
                         component={component}
                         loading={loadingStatus}
@@ -156,15 +160,18 @@ export default function BranchOverviewRenderer(props: BranchOverviewRendererProp
                     />
                   </div>
 
-                  <LightGreyCard className="sw-flex-1">
-                    <div className="sw-flex sw-flex-col">
+                  <div className="sw-flex-1">
+                    <LightGreyCard className="sw-flex sw-flex-col">
+                      <LightGreyCardTitle>
+                        <div>&nbsp;</div>
+                        <LastAnalysisLabel analysisDate={branch?.analysisDate} />
+                      </LightGreyCardTitle>
                       <TabsPanel
                         analyses={analyses}
                         appLeak={appLeak}
                         component={component}
                         loading={loadingStatus}
                         period={period}
-                        branch={branch}
                         qgStatuses={qgStatuses}
                         isNewCode={isNewCodeTab}
                         onTabSelect={selectTab}
@@ -212,8 +219,8 @@ export default function BranchOverviewRenderer(props: BranchOverviewRendererProp
                         metrics={metrics}
                         onGraphChange={onGraphChange}
                       />
-                    </div>
-                  </LightGreyCard>
+                    </LightGreyCard>
+                  </div>
                 </div>
               </div>
             )}

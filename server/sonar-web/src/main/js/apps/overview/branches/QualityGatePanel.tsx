@@ -28,7 +28,6 @@ import CleanAsYouCodeWarning from './CleanAsYouCodeWarning';
 import QualityGatePanelSection from './QualityGatePanelSection';
 import QualityGateStatusHeader from './QualityGateStatusHeader';
 import QualityGateStatusPassedView from './QualityGateStatusPassedView';
-import { QualityGateStatusTitle } from './QualityGateStatusTitle';
 
 export interface QualityGatePanelProps {
   component: Pick<Component, 'key' | 'qualifier' | 'qualityGate'>;
@@ -68,7 +67,6 @@ export function QualityGatePanel(props: QualityGatePanelProps) {
 
   return (
     <div data-testid="overview__quality-gate-panel">
-      <QualityGateStatusTitle />
       <div className="sw-pt-5">
         <Spinner loading={loading}>
           <QualityGateStatusHeader

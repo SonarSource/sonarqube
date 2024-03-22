@@ -19,7 +19,7 @@
  */
 import { Spinner } from '@sonarsource/echoes-react';
 import { isBefore, sub } from 'date-fns';
-import { BasicSeparator, ButtonLink, FlagMessage, LightLabel, Tabs } from 'design-system';
+import { ButtonLink, FlagMessage, LightLabel, Tabs } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import DocumentationLink from '../../../components/common/DocumentationLink';
@@ -27,12 +27,10 @@ import { translate } from '../../../helpers/l10n';
 import { isDiffMetric } from '../../../helpers/measures';
 import { CodeScope } from '../../../helpers/urls';
 import { ApplicationPeriod } from '../../../types/application';
-import { Branch } from '../../../types/branch-like';
 import { ComponentQualifier } from '../../../types/component';
 import { Analysis, ProjectAnalysisEventCategory } from '../../../types/project-activity';
 import { QualityGateStatus } from '../../../types/quality-gates';
 import { Component, Period } from '../../../types/types';
-import LastAnalysisLabel from '../components/LastAnalysisLabel';
 import { MAX_ANALYSES_NB } from './ActivityPanel';
 import { LeakPeriodInfo } from './LeakPeriodInfo';
 
@@ -42,7 +40,6 @@ export interface MeasuresPanelProps {
   component: Component;
   loading?: boolean;
   period?: Period;
-  branch?: Branch;
   qgStatuses?: QualityGateStatus[];
   isNewCode: boolean;
   onTabSelect: (tab: CodeScope) => void;
@@ -59,7 +56,6 @@ export function TabsPanel(props: React.PropsWithChildren<MeasuresPanelProps>) {
     period,
     qgStatuses = [],
     isNewCode,
-    branch,
     children,
   } = props;
   const isApp = component.qualifier === ComponentQualifier.Application;
@@ -123,12 +119,7 @@ export function TabsPanel(props: React.PropsWithChildren<MeasuresPanelProps>) {
   ];
 
   return (
-    <div data-testid="overview__measures-panel">
-      <div className="sw-flex sw-justify-end sw-items-center sw-mb-4">
-        <LastAnalysisLabel analysisDate={branch?.analysisDate} />
-      </div>
-      <BasicSeparator className="sw--mx-6 sw-mb-3" />
-
+    <div className="sw-mt-3" data-testid="overview__measures-panel">
       {loading ? (
         <div>
           <Spinner isLoading={loading} />

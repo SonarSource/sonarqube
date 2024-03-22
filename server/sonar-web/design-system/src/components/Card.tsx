@@ -21,6 +21,7 @@ import styled from '@emotion/styled';
 import * as React from 'react';
 import tw from 'twin.macro';
 import { themeBorder, themeColor } from '../helpers/theme';
+import { BasicSeparator } from './Separator';
 
 interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
   children: React.ReactNode;
@@ -42,6 +43,17 @@ export function LightGreyCard(props: Readonly<CardProps>) {
   const { children, ...rest } = props;
 
   return <LightGreyCardStyled {...rest}>{children}</LightGreyCardStyled>;
+}
+
+export function LightGreyCardTitle({ children }: Readonly<React.PropsWithChildren>) {
+  return (
+    <>
+      <div className="sw-flex sw-items-center sw-justify-between sw-w-full sw-mb-4 sw-min-h-6">
+        {children}
+      </div>
+      <BasicSeparator className="sw--mx-6 sw-my-0" />
+    </>
+  );
 }
 
 export const CardWithPrimaryBackground = styled(Card)`

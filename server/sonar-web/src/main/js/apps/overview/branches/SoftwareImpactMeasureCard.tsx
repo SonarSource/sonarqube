@@ -20,7 +20,7 @@
 import styled from '@emotion/styled';
 import { LinkHighlight, LinkStandalone } from '@sonarsource/echoes-react';
 import classNames from 'classnames';
-import { Badge, BasicSeparator, LightGreyCard, TextBold, TextSubdued } from 'design-system';
+import { Badge, LightGreyCard, LightGreyCardTitle, TextBold, TextSubdued } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
 import Tooltip from '../../../components/controls/Tooltip';
@@ -101,17 +101,16 @@ export function SoftwareImpactMeasureCard(props: Readonly<SoftwareImpactBreakdow
       data-testid={`overview__software-impact-card-${softwareQuality}`}
       className="sw-w-1/3 sw-overflow-hidden sw-rounded-2 sw-p-4 sw-flex-col"
     >
-      <div className="sw-flex sw-justify-between">
+      <LightGreyCardTitle>
         <TextBold name={intl.formatMessage({ id: `software_quality.${softwareQuality}` })} />
         {failed && (
           <Badge className="sw-h-fit" variant="deleted">
             <FormattedMessage id="overview.measures.failed_badge" />
           </Badge>
         )}
-      </div>
-      <BasicSeparator className="sw--mx-4" />
+      </LightGreyCardTitle>
       <div className="sw-flex sw-flex-col sw-gap-3">
-        <div className="sw-flex sw-mt-2">
+        <div className="sw-flex sw-mt-4">
           <div
             className={classNames('sw-flex sw-gap-1 sw-items-center', {
               'sw-opacity-60': component.needIssueSync,
