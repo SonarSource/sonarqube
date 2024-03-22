@@ -26,6 +26,7 @@ import { Dict, Measure, MeasureEnhanced, Metric } from '../types/types';
 import {
   CCT_SOFTWARE_QUALITY_METRICS,
   LEAK_CCT_SOFTWARE_QUALITY_METRICS,
+  LEAK_OLD_TAXONOMY_METRICS,
   ONE_SECOND,
 } from './constants';
 import { translate, translateWithParameters } from './l10n';
@@ -91,6 +92,16 @@ export function findMeasure(measures: MeasureEnhanced[], metric: MetricKey | str
 }
 
 export function areLeakCCTMeasuresComputed(measures?: Measure[] | MeasureEnhanced[]) {
+  if (
+    LEAK_OLD_TAXONOMY_METRICS.every(
+      (metric) =>
+        !measures?.find((measure) =>
+          isMeasureEnhanced(measure) ? measure.metric.key === metric : measure.metric === metric,
+        ),
+    )
+  ) {
+    return true;
+  }
   return LEAK_CCT_SOFTWARE_QUALITY_METRICS.every((metric) =>
     measures?.find((measure) =>
       isMeasureEnhanced(measure) ? measure.metric.key === metric : measure.metric === metric,
