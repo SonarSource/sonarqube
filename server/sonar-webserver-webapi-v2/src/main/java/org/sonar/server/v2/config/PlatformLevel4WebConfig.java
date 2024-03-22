@@ -41,14 +41,16 @@ import org.sonar.server.platform.NodeInformation;
 import org.sonar.server.rule.RuleDescriptionFormatter;
 import org.sonar.server.user.SystemPasscode;
 import org.sonar.server.user.UserSession;
+import org.sonar.server.v2.api.dop.controller.DefaultDopSettingsController;
+import org.sonar.server.v2.api.dop.controller.DopSettingsController;
 import org.sonar.server.v2.api.gitlab.config.controller.DefaultGitlabConfigurationController;
 import org.sonar.server.v2.api.gitlab.config.controller.GitlabConfigurationController;
 import org.sonar.server.v2.api.group.controller.DefaultGroupController;
 import org.sonar.server.v2.api.group.controller.GroupController;
 import org.sonar.server.v2.api.membership.controller.DefaultGroupMembershipController;
 import org.sonar.server.v2.api.membership.controller.GroupMembershipController;
-import org.sonar.server.v2.api.projects.controller.DefaultBoundProjectsController;
 import org.sonar.server.v2.api.projects.controller.BoundProjectsController;
+import org.sonar.server.v2.api.projects.controller.DefaultBoundProjectsController;
 import org.sonar.server.v2.api.rule.controller.DefaultRuleController;
 import org.sonar.server.v2.api.rule.controller.RuleController;
 import org.sonar.server.v2.api.rule.converter.RuleRestResponseGenerator;
@@ -133,8 +135,12 @@ public class PlatformLevel4WebConfig {
 
   @Bean
   public BoundProjectsController importedProjectsController(UserSession userSession, ImportProjectService importProjectService) {
-    return new DefaultBoundProjectsController(
-      userSession, importProjectService);
+    return new DefaultBoundProjectsController(userSession, importProjectService);
+  }
+
+  @Bean
+  public DopSettingsController dopSettingsController(UserSession userSession, DbClient dbClient) {
+    return new DefaultDopSettingsController(userSession, dbClient);
   }
 
 }

@@ -40,6 +40,8 @@ public class WebApiEndpoints {
 
   public static final String BOUND_PROJECTS_ENDPOINT = DOP_TRANSLATION_DOMAIN + "/bound-projects";
 
+  public static final String DOP_SETTINGS_ENDPOINT = DOP_TRANSLATION_DOMAIN + "/dop-settings";
+
   public static final String INTERNAL = "internal";
 
   private WebApiEndpoints() {
