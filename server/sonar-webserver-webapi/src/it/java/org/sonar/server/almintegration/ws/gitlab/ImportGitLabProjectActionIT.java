@@ -28,6 +28,7 @@ import org.junit.Test;
 import org.sonar.alm.client.gitlab.GitLabBranch;
 import org.sonar.alm.client.gitlab.GitlabApplicationClient;
 import org.sonar.alm.client.gitlab.Project;
+import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.core.i18n.I18n;
 import org.sonar.core.platform.EditionProvider;
@@ -44,18 +45,18 @@ import org.sonar.server.almintegration.ws.ImportHelper;
 import org.sonar.server.common.almintegration.ProjectKeyGenerator;
 import org.sonar.server.common.almsettings.gitlab.GitlabProjectCreatorFactory;
 import org.sonar.server.common.component.ComponentUpdater;
+import org.sonar.server.common.newcodeperiod.NewCodeDefinitionResolver;
+import org.sonar.server.common.permission.PermissionTemplateService;
+import org.sonar.server.common.permission.PermissionUpdater;
 import org.sonar.server.common.project.ImportProjectService;
+import org.sonar.server.common.project.ProjectCreator;
 import org.sonar.server.es.TestIndexers;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.favorite.FavoriteUpdater;
-import org.sonar.server.common.newcodeperiod.NewCodeDefinitionResolver;
 import org.sonar.server.permission.PermissionService;
-import org.sonar.server.common.permission.PermissionTemplateService;
-import org.sonar.server.common.permission.PermissionUpdater;
 import org.sonar.server.project.DefaultBranchNameResolver;
 import org.sonar.server.project.ProjectDefaultVisibility;
 import org.sonar.server.project.Visibility;
-import org.sonar.server.common.project.ProjectCreator;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
@@ -75,6 +76,8 @@ import static org.mockito.Mockito.when;
 import static org.sonar.db.component.BranchDto.DEFAULT_MAIN_BRANCH_NAME;
 import static org.sonar.db.newcodeperiod.NewCodePeriodType.NUMBER_OF_DAYS;
 import static org.sonar.db.permission.GlobalPermission.PROVISION_PROJECTS;
+import static org.sonar.server.almintegration.ws.ImportHelper.PARAM_ALM_SETTING;
+import static org.sonar.server.almintegration.ws.gitlab.ImportGitLabProjectAction.PARAM_GITLAB_PROJECT_ID;
 import static org.sonar.server.tester.UserSessionRule.standalone;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_NEW_CODE_DEFINITION_TYPE;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_NEW_CODE_DEFINITION_VALUE;
@@ -116,6 +119,22 @@ public class ImportGitLabProjectActionIT {
   public void before() {
     when(projectDefaultVisibility.get(any())).thenReturn(Visibility.PRIVATE);
     when(defaultBranchNameResolver.getEffectiveMainBranchName()).thenReturn(DEFAULT_MAIN_BRANCH_NAME);
+  }
+
+  @Test
+  public void definition() {
+    WebService.Action def = ws.getDef();
+
+    assertThat(def.since()).isEqualTo("8.5");
+    assertThat(def.isPost()).isTrue();
+    assertThat(def.params())
+      .extracting(WebService.Param::key, WebService.Param::isRequired)
+      .containsExactlyInAnyOrder(
+        tuple(PARAM_ALM_SETTING, false),
+        tuple(PARAM_GITLAB_PROJECT_ID, true),
+        tuple(PARAM_NEW_CODE_DEFINITION_TYPE, false),
+        tuple(PARAM_NEW_CODE_DEFINITION_VALUE, false));
+    assertThat(def.deprecatedSince()).isEqualTo("10.5");
   }
 
   @Test

@@ -49,6 +49,9 @@ import org.sonar.db.user.UserDto;
 import org.sonar.server.almintegration.ws.ImportHelper;
 import org.sonar.server.common.almintegration.ProjectKeyGenerator;
 import org.sonar.server.common.component.ComponentUpdater;
+import org.sonar.server.common.newcodeperiod.NewCodeDefinitionResolver;
+import org.sonar.server.common.permission.PermissionTemplateService;
+import org.sonar.server.common.permission.PermissionUpdater;
 import org.sonar.server.es.TestIndexers;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -56,10 +59,7 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.favorite.FavoriteUpdater;
 import org.sonar.server.l18n.I18nRule;
-import org.sonar.server.common.newcodeperiod.NewCodeDefinitionResolver;
 import org.sonar.server.permission.PermissionService;
-import org.sonar.server.common.permission.PermissionTemplateService;
-import org.sonar.server.common.permission.PermissionUpdater;
 import org.sonar.server.project.DefaultBranchNameResolver;
 import org.sonar.server.project.ProjectDefaultVisibility;
 import org.sonar.server.project.Visibility;
@@ -498,6 +498,7 @@ public class ImportBitbucketServerProjectActionIT {
         tuple("projectKey", true),
         tuple(PARAM_NEW_CODE_DEFINITION_TYPE, false),
         tuple(PARAM_NEW_CODE_DEFINITION_VALUE, false));
+    assertThat(def.deprecatedSince()).isEqualTo("10.5");
   }
 
   private AlmSettingDto configureUserAndPatAndAlmSettings() {

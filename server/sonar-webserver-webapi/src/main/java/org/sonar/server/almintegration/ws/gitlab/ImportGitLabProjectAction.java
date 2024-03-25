@@ -63,7 +63,9 @@ public class ImportGitLabProjectAction implements AlmIntegrationsWsAction {
       .setSince("8.5")
       .setHandler(this)
       .setChangelog(
-        new Change("10.3", String.format("Parameter %s becomes optional if you have only one configuration for GitLab", PARAM_ALM_SETTING)));
+        new Change("10.5", "This endpoint is deprecated, please use its API v2 version /api/v2/dop-translation/bound-projects"),
+        new Change("10.3", String.format("Parameter %s becomes optional if you have only one configuration for GitLab", PARAM_ALM_SETTING)))
+      .setDeprecatedSince("10.5");
 
     action.createParam(ImportHelper.PARAM_ALM_SETTING)
       .setDescription("DevOps Platform configuration key. This parameter is optional if you have only one GitLab integration.");

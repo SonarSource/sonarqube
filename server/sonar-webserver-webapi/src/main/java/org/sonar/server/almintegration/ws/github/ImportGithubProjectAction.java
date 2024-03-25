@@ -64,9 +64,11 @@ public class ImportGithubProjectAction implements AlmIntegrationsWsAction {
       .setSince("8.4")
       .setHandler(this)
       .setChangelog(
+        new Change("10.5", "This endpoint is deprecated, please use its API v2 version /api/v2/dop-translation/bound-projects"),
         new Change("10.3", "Parameter organization is not necessary anymore"),
         new Change("10.3", String.format("Parameter %s becomes optional if you have only one configuration for GitHub", PARAM_ALM_SETTING)),
-        new Change("10.3", "Endpoint visibility change from internal to public"));
+        new Change("10.3", "Endpoint visibility change from internal to public"))
+      .setDeprecatedSince("10.5");
 
     action.createParam(PARAM_ALM_SETTING)
       .setMaximumLength(200)

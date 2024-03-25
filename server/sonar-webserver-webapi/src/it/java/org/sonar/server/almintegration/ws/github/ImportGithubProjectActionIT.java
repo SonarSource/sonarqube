@@ -54,7 +54,14 @@ import org.sonar.server.almintegration.ws.ImportHelper;
 import org.sonar.server.common.almintegration.ProjectKeyGenerator;
 import org.sonar.server.common.almsettings.github.GithubProjectCreatorFactory;
 import org.sonar.server.common.component.ComponentUpdater;
+import org.sonar.server.common.newcodeperiod.NewCodeDefinitionResolver;
+import org.sonar.server.common.permission.GroupPermissionChanger;
+import org.sonar.server.common.permission.PermissionTemplateService;
+import org.sonar.server.common.permission.PermissionUpdater;
+import org.sonar.server.common.permission.UserPermissionChange;
+import org.sonar.server.common.permission.UserPermissionChanger;
 import org.sonar.server.common.project.ImportProjectService;
+import org.sonar.server.common.project.ProjectCreator;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.es.IndexersImpl;
 import org.sonar.server.es.TestIndexers;
@@ -63,20 +70,13 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.favorite.FavoriteUpdater;
 import org.sonar.server.management.ManagedProjectService;
-import org.sonar.server.common.newcodeperiod.NewCodeDefinitionResolver;
-import org.sonar.server.common.permission.GroupPermissionChanger;
 import org.sonar.server.permission.PermissionService;
 import org.sonar.server.permission.PermissionServiceImpl;
-import org.sonar.server.common.permission.PermissionTemplateService;
-import org.sonar.server.common.permission.PermissionUpdater;
-import org.sonar.server.common.permission.UserPermissionChange;
-import org.sonar.server.common.permission.UserPermissionChanger;
 import org.sonar.server.permission.index.FooIndexDefinition;
 import org.sonar.server.permission.index.PermissionIndexer;
 import org.sonar.server.project.DefaultBranchNameResolver;
 import org.sonar.server.project.ProjectDefaultVisibility;
 import org.sonar.server.project.Visibility;
-import org.sonar.server.common.project.ProjectCreator;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
@@ -521,6 +521,7 @@ public class ImportGithubProjectActionIT {
         tuple(PARAM_REPOSITORY_KEY, true),
         tuple(PARAM_NEW_CODE_DEFINITION_TYPE, false),
         tuple(PARAM_NEW_CODE_DEFINITION_VALUE, false));
+    assertThat(def.deprecatedSince()).isEqualTo("10.5");
   }
 
   private AlmSettingDto setupUserWithPatAndAlmSettings() {

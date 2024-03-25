@@ -442,6 +442,7 @@ public class ImportBitbucketCloudRepoActionIT {
         tuple("repositorySlug", true),
         tuple(PARAM_NEW_CODE_DEFINITION_TYPE, false),
         tuple(PARAM_NEW_CODE_DEFINITION_VALUE, false));
+    assertThat(def.deprecatedSince()).isEqualTo("10.5");
   }
 
   private AlmSettingDto configureUserAndPatAndAlmSettings() {

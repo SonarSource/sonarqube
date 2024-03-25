@@ -38,11 +38,11 @@ import org.sonar.db.project.ProjectDto;
 import org.sonar.server.almintegration.ws.AlmIntegrationsWsAction;
 import org.sonar.server.almintegration.ws.ImportHelper;
 import org.sonar.server.common.almintegration.ProjectKeyGenerator;
-import org.sonar.server.component.ComponentCreationData;
 import org.sonar.server.common.component.ComponentCreationParameters;
 import org.sonar.server.common.component.ComponentUpdater;
 import org.sonar.server.common.component.NewComponent;
 import org.sonar.server.common.newcodeperiod.NewCodeDefinitionResolver;
+import org.sonar.server.component.ComponentCreationData;
 import org.sonar.server.project.DefaultBranchNameResolver;
 import org.sonar.server.project.ProjectDefaultVisibility;
 import org.sonar.server.user.UserSession;
@@ -50,8 +50,8 @@ import org.sonarqube.ws.Projects.CreateWsResponse;
 
 import static java.util.Objects.requireNonNull;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
-import static org.sonar.db.project.CreationMethod.Category.ALM_IMPORT;
 import static org.sonar.db.project.CreationMethod.getCreationMethod;
+import static org.sonar.db.project.CreationMethod.Category.ALM_IMPORT;
 import static org.sonar.server.almintegration.ws.ImportHelper.PARAM_ALM_SETTING;
 import static org.sonar.server.almintegration.ws.ImportHelper.toCreateResponse;
 import static org.sonar.server.common.component.NewComponent.newComponentBuilder;
@@ -103,8 +103,10 @@ public class ImportAzureProjectAction implements AlmIntegrationsWsAction {
       .setSince("8.6")
       .setHandler(this)
       .setChangelog(
+        new Change("10.5", "This endpoint is deprecated, please use its API v2 version /api/v2/dop-translation/bound-projects"),
         new Change("10.3", String.format("Parameter %s becomes optional if you have only one configuration for Azure", PARAM_ALM_SETTING)),
-        new Change("10.3", "Endpoint visibility change from internal to public"));
+        new Change("10.3", "Endpoint visibility change from internal to public"))
+      .setDeprecatedSince("10.5");
 
     action.createParam(PARAM_ALM_SETTING)
       .setMaximumLength(200)
