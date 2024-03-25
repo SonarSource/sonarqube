@@ -86,12 +86,16 @@ beforeEach(() => {
       MetricKey.sqale_rating,
       MetricKey.security_hotspots_reviewed,
       MetricKey.security_review_rating,
+      MetricKey.maintainability_issues,
     ].map((metric) =>
       mockMeasureHistory({
         metric,
-        history: projectActivityHandler
-          .getAnalysesList()
-          .map(({ date }) => mockHistoryItem({ value: '3', date: parseDate(date) })),
+        history: projectActivityHandler.getAnalysesList().map(({ date }) =>
+          mockHistoryItem({
+            value: '3',
+            date: parseDate(date),
+          }),
+        ),
       }),
     ),
   );
@@ -241,6 +245,50 @@ describe('rendering', () => {
       ).not.toBeInTheDocument();
     },
   );
+
+  it('should render graph gap info message', async () => {
+    timeMachineHandler.setMeasureHistory([
+      mockMeasureHistory({
+        metric: MetricKey.maintainability_issues,
+        history: projectActivityHandler.getAnalysesList().map(({ date }, index) =>
+          mockHistoryItem({
+            // eslint-disable-next-line jest/no-conditional-in-test
+            value: index === 0 ? '3' : undefined,
+            date: parseDate(date),
+          }),
+        ),
+      }),
+    ]);
+    const { ui } = getPageObject();
+    renderProjectActivityAppContainer(
+      mockComponent({
+        breadcrumbs: [
+          { key: 'breadcrumb', name: 'breadcrumb', qualifier: ComponentQualifier.Application },
+        ],
+      }),
+    );
+
+    await ui.changeGraphType(GraphType.custom);
+    await ui.openMetricsDropdown();
+    await ui.toggleMetric(MetricKey.maintainability_issues);
+    expect(ui.gapInfoMessage.get()).toBeInTheDocument();
+  });
+
+  it('should not render graph gap info message if no gaps', async () => {
+    const { ui } = getPageObject();
+    renderProjectActivityAppContainer(
+      mockComponent({
+        breadcrumbs: [
+          { key: 'breadcrumb', name: 'breadcrumb', qualifier: ComponentQualifier.Application },
+        ],
+      }),
+    );
+
+    await ui.changeGraphType(GraphType.custom);
+    await ui.openMetricsDropdown();
+    await ui.toggleMetric(MetricKey.maintainability_issues);
+    expect(ui.gapInfoMessage.query()).not.toBeInTheDocument();
+  });
 });
 
 describe('CRUD', () => {
@@ -512,6 +560,7 @@ function getPageObject() {
     // Graphs.
     graphs: byLabelText('project_activity.graphs.explanation_x', { exact: false }),
     noDataText: byText('project_activity.graphs.custom.no_history'),
+    gapInfoMessage: byText('project_activity.graphs.data_table.data_gap', { exact: false }),
 
     // Add metrics.
     addMetricBtn: byRole('button', { name: 'project_activity.graphs.custom.add' }),
@@ -697,6 +746,7 @@ function renderProjectActivityAppContainer(
     {
       metrics: keyBy(
         [
+          mockMetric({ key: MetricKey.maintainability_issues, type: MetricType.Data }),
           mockMetric({ key: MetricKey.bugs, type: MetricType.Integer }),
           mockMetric({ key: MetricKey.code_smells, type: MetricType.Integer }),
           mockMetric({ key: MetricKey.security_hotspots_reviewed }),

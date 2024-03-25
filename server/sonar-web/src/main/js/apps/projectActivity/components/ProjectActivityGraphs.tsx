@@ -17,8 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { FlagMessage } from 'design-system';
 import { debounce, findLast, maxBy, minBy, sortBy } from 'lodash';
 import * as React from 'react';
+import { FormattedMessage } from 'react-intl';
 import GraphsHeader from '../../../components/activity-graph/GraphsHeader';
 import GraphsHistory from '../../../components/activity-graph/GraphsHistory';
 import GraphsZoom from '../../../components/activity-graph/GraphsZoom';
@@ -31,6 +33,9 @@ import {
   saveActivityGraph,
   splitSeriesInGraphs,
 } from '../../../components/activity-graph/utils';
+import DocumentationLink from '../../../components/common/DocumentationLink';
+import { CCT_SOFTWARE_QUALITY_METRICS } from '../../../helpers/constants';
+import { translate } from '../../../helpers/l10n';
 import {
   GraphType,
   MeasureHistory,
@@ -198,6 +203,48 @@ export default class ProjectActivityGraphs extends React.PureComponent<Props, St
     }
   };
 
+  renderQualitiesMetricInfoMessage = () => {
+    const { measuresHistory } = this.props;
+
+    const qualityMeasuresHistory = measuresHistory.find((history) =>
+      CCT_SOFTWARE_QUALITY_METRICS.includes(history.metric),
+    );
+
+    const indexOfFirstMeasureWithValue = qualityMeasuresHistory?.history.findIndex(
+      (item) => item.value,
+    );
+
+    const hasGaps =
+      indexOfFirstMeasureWithValue === -1
+        ? false
+        : qualityMeasuresHistory?.history
+            .slice(indexOfFirstMeasureWithValue)
+            .some((item) => item.value === undefined);
+
+    if (hasGaps) {
+      return (
+        <FlagMessage variant="info">
+          <FormattedMessage
+            id="project_activity.graphs.data_table.data_gap"
+            tagName="div"
+            values={{
+              learn_more: (
+                <DocumentationLink
+                  className="sw-whitespace-nowrap"
+                  to="/user-guide/clean-code/code-analysis/"
+                >
+                  {translate('learn_more')}
+                </DocumentationLink>
+              ),
+            }}
+          />
+        </FlagMessage>
+      );
+    }
+
+    return null;
+  };
+
   render() {
     const { analyses, leakPeriodDate, loading, measuresHistory, metrics, query } = this.props;
     const { graphEndDate, graphStartDate, series } = this.state;
@@ -214,6 +261,7 @@ export default class ProjectActivityGraphs extends React.PureComponent<Props, St
           selectedMetrics={query.customMetrics}
           onUpdateGraph={this.handleUpdateGraph}
         />
+        {this.renderQualitiesMetricInfoMessage()}
         <GraphsHistory
           analyses={analyses}
           graph={query.graph}
