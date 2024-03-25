@@ -27,7 +27,7 @@ import withCurrentUserContext from '../../app/components/current-user/withCurren
 import withIndexationGuard from '../../components/hoc/withIndexationGuard';
 import { Location, Router, withRouter } from '../../components/hoc/withRouter';
 import { getLeakValue } from '../../components/measure/utils';
-import { getBranchLikeQuery, isPullRequest } from '../../helpers/branch-like';
+import { getBranchLikeQuery, isPullRequest, isSameBranchLike } from '../../helpers/branch-like';
 import { isInput } from '../../helpers/keyboardEventHelpers';
 import { KeyboardKeys } from '../../helpers/keycodes';
 import { getStandards } from '../../helpers/security-standard';
@@ -54,7 +54,6 @@ interface Props {
   branchLike?: BranchLike;
   currentUser: CurrentUser;
   component: Component;
-  isFetchingBranch?: boolean;
   location: Location;
   router: Router;
 }
@@ -113,18 +112,14 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
   componentDidMount() {
     this.mounted = true;
 
-    if (!this.props.isFetchingBranch) {
-      this.fetchInitialData();
-    }
+    this.fetchInitialData();
 
     this.registerKeyboardEvents();
   }
 
   componentDidUpdate(previous: Props) {
-    const wasBranchJustFetched = !!previous.isFetchingBranch && !this.props.isFetchingBranch;
-
     if (
-      wasBranchJustFetched ||
+      !isSameBranchLike(previous.branchLike, this.props.branchLike) ||
       this.props.component.key !== previous.component.key ||
       this.props.location.query.hotspots !== previous.location.query.hotspots ||
       SECURITY_STANDARDS.some((s) => this.props.location.query[s] !== previous.location.query[s]) ||
@@ -134,7 +129,7 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
     }
 
     if (
-      wasBranchJustFetched ||
+      !isSameBranchLike(previous.branchLike, this.props.branchLike) ||
       isLoggedIn(this.props.currentUser) !== isLoggedIn(previous.currentUser) ||
       this.props.location.query.assignedToMe !== previous.location.query.assignedToMe ||
       this.props.location.query.inNewCodePeriod !== previous.location.query.inNewCodePeriod
@@ -271,6 +266,7 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
   };
 
   fetchInitialData() {
+    const { branchLike: previousBranch } = this.props;
     return Promise.all([
       getStandards(),
       this.fetchSecurityHotspots(),
@@ -281,21 +277,25 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
           return;
         }
 
-        const selectedHotspot = hotspots.length > 0 ? hotspots[0] : undefined;
+        const { branchLike } = this.props;
 
-        this.setState({
-          hotspots,
-          hotspotsTotal: paging.total,
-          loading: false,
-          selectedHotspot,
-          standards,
-        });
+        if (isSameBranchLike(previousBranch, branchLike)) {
+          const selectedHotspot = hotspots.length > 0 ? hotspots[0] : undefined;
+
+          this.setState({
+            hotspots,
+            hotspotsTotal: paging.total,
+            loading: false,
+            selectedHotspot,
+            standards,
+          });
+        }
       })
       .catch(this.handleCallFailure);
   }
 
   fetchSecurityHotspotsReviewed = () => {
-    const { branchLike, component } = this.props;
+    const { branchLike: previousBranch, component } = this.props;
     const { filters } = this.state;
 
     const reviewedHotspotsMetricKey = filters.inNewCodePeriod
@@ -307,20 +307,23 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
     return getMeasures({
       component: component.key,
       metricKeys: reviewedHotspotsMetricKey,
-      ...getBranchLikeQuery(branchLike),
+      ...getBranchLikeQuery(previousBranch),
     })
       .then((measures) => {
+        const { branchLike } = this.props;
         if (!this.mounted) {
           return;
         }
 
-        const measure = measures && measures.length > 0 ? measures[0] : undefined;
+        if (isSameBranchLike(previousBranch, branchLike)) {
+          const measure = measures && measures.length > 0 ? measures[0] : undefined;
 
-        const hotspotsReviewedMeasure = filters.inNewCodePeriod
-          ? getLeakValue(measure)
-          : measure?.value;
+          const hotspotsReviewedMeasure = filters.inNewCodePeriod
+            ? getLeakValue(measure)
+            : measure?.value;
 
-        this.setState({ hotspotsReviewedMeasure, loadingMeasure: false });
+          this.setState({ hotspotsReviewedMeasure, loadingMeasure: false });
+        }
       })
       .catch(() => {
         if (this.mounted) {
