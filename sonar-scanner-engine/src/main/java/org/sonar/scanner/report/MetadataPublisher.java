@@ -132,7 +132,7 @@ public class MetadataPublisher implements ReportPublisherStep {
   private void addScmInformation(ScannerReport.Metadata.Builder builder) {
     try {
       scmRevision.get().ifPresent(revisionId -> {
-        LOG.debug("SCM revision ID '{}'", revisionId);
+        LOG.info("SCM revision ID '{}'", revisionId);
         builder.setScmRevisionId(revisionId);
       });
     } catch (UnsupportedOperationException e) {
