@@ -40,6 +40,7 @@ import org.sonar.server.component.index.ComponentIndex;
 import org.sonar.server.component.index.ComponentQuery;
 import org.sonar.server.es.SearchIdResult;
 import org.sonar.server.es.SearchOptions;
+import org.sonar.server.es.newindex.DefaultIndexSettings;
 import org.sonarqube.ws.Components;
 import org.sonarqube.ws.Components.SearchWsResponse;
 
@@ -90,7 +91,9 @@ public class SearchAction implements ComponentsWsAction {
       .setDescription("Limit search to: <ul>" +
         "<li>component names that contain the supplied string</li>" +
         "<li>component keys that are exactly the same as the supplied string</li>" +
-        "</ul>")
+        "</ul><br>" +
+        "The value length of the param must be between " + DefaultIndexSettings.MINIMUM_NGRAM_LENGTH + " and " +
+        DefaultIndexSettings.MAXIMUM_NGRAM_LENGTH + " (inclusive) characters. In case longer value is provided it will be truncated.")
       .setExampleValue("sonar");
 
     createQualifiersParameter(action, newQualifierParameterContext(i18n, resourceTypes), VALID_QUALIFIERS)
