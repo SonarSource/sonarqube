@@ -81,6 +81,7 @@ import org.sonar.server.ce.projectdump.ProjectExportWsModule;
 import org.sonar.server.ce.ws.CeWsModule;
 import org.sonar.server.common.almintegration.ProjectKeyGenerator;
 import org.sonar.server.common.almsettings.DelegatingDevOpsProjectCreatorFactory;
+import org.sonar.server.common.almsettings.azuredevops.AzureDevOpsProjectCreatorFactory;
 import org.sonar.server.common.almsettings.bitbucketcloud.BitbucketCloudProjectCreatorFactory;
 import org.sonar.server.common.almsettings.bitbucketserver.BitbucketServerProjectCreatorFactory;
 import org.sonar.server.common.almsettings.github.GithubProjectCreatorFactory;
@@ -574,6 +575,7 @@ public class PlatformLevel4 extends PlatformLevel {
       BitbucketCloudRestClientConfiguration.class,
       BitbucketServerRestClient.class,
       AzureDevOpsHttpClient.class,
+      AzureDevOpsProjectCreatorFactory.class,
       new AlmIntegrationsWSModule(),
       BitbucketCloudValidator.class,
       BitbucketCloudProjectCreatorFactory.class,

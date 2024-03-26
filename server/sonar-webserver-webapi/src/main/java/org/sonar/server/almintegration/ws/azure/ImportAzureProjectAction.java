@@ -19,45 +19,25 @@
  */
 package org.sonar.server.almintegration.ws.azure;
 
-import java.util.Optional;
+import javax.annotation.Nullable;
 import javax.inject.Inject;
-import org.sonar.alm.client.azure.AzureDevOpsHttpClient;
-import org.sonar.alm.client.azure.GsonAzureRepo;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
-import org.sonar.db.alm.pat.AlmPatDto;
 import org.sonar.db.alm.setting.ALM;
 import org.sonar.db.alm.setting.AlmSettingDto;
-import org.sonar.db.alm.setting.ProjectAlmSettingDto;
-import org.sonar.db.component.BranchDto;
-import org.sonar.db.project.ProjectDto;
 import org.sonar.server.almintegration.ws.AlmIntegrationsWsAction;
 import org.sonar.server.almintegration.ws.ImportHelper;
-import org.sonar.server.common.almintegration.ProjectKeyGenerator;
-import org.sonar.server.common.component.ComponentCreationParameters;
-import org.sonar.server.common.component.ComponentUpdater;
-import org.sonar.server.common.component.NewComponent;
-import org.sonar.server.common.newcodeperiod.NewCodeDefinitionResolver;
-import org.sonar.server.component.ComponentCreationData;
-import org.sonar.server.project.DefaultBranchNameResolver;
-import org.sonar.server.project.ProjectDefaultVisibility;
-import org.sonar.server.user.UserSession;
+import org.sonar.server.common.project.ImportProjectRequest;
+import org.sonar.server.common.project.ImportProjectService;
+import org.sonar.server.common.project.ImportedProject;
 import org.sonarqube.ws.Projects.CreateWsResponse;
 
-import static java.util.Objects.requireNonNull;
-import static org.sonar.api.resources.Qualifiers.PROJECT;
-import static org.sonar.db.project.CreationMethod.getCreationMethod;
-import static org.sonar.db.project.CreationMethod.Category.ALM_IMPORT;
 import static org.sonar.server.almintegration.ws.ImportHelper.PARAM_ALM_SETTING;
 import static org.sonar.server.almintegration.ws.ImportHelper.toCreateResponse;
-import static org.sonar.server.common.component.NewComponent.newComponentBuilder;
 import static org.sonar.server.common.newcodeperiod.NewCodeDefinitionResolver.NEW_CODE_PERIOD_TYPE_DESCRIPTION_PROJECT_CREATION;
 import static org.sonar.server.common.newcodeperiod.NewCodeDefinitionResolver.NEW_CODE_PERIOD_VALUE_DESCRIPTION_PROJECT_CREATION;
-import static org.sonar.server.common.newcodeperiod.NewCodeDefinitionResolver.checkNewCodeDefinitionParam;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_NEW_CODE_DEFINITION_TYPE;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_NEW_CODE_DEFINITION_VALUE;
@@ -67,30 +47,14 @@ public class ImportAzureProjectAction implements AlmIntegrationsWsAction {
   private static final String PARAM_REPOSITORY_NAME = "repositoryName";
   private static final String PARAM_PROJECT_NAME = "projectName";
 
-  private final DbClient dbClient;
-  private final UserSession userSession;
-  private final AzureDevOpsHttpClient azureDevOpsHttpClient;
-  private final ProjectDefaultVisibility projectDefaultVisibility;
-  private final ComponentUpdater componentUpdater;
   private final ImportHelper importHelper;
-  private final ProjectKeyGenerator projectKeyGenerator;
-  private final NewCodeDefinitionResolver newCodeDefinitionResolver;
-  private final DefaultBranchNameResolver defaultBranchNameResolver;
+
+  private final ImportProjectService importProjectService;
 
   @Inject
-  public ImportAzureProjectAction(DbClient dbClient, UserSession userSession, AzureDevOpsHttpClient azureDevOpsHttpClient,
-    ProjectDefaultVisibility projectDefaultVisibility, ComponentUpdater componentUpdater,
-    ImportHelper importHelper, ProjectKeyGenerator projectKeyGenerator, NewCodeDefinitionResolver newCodeDefinitionResolver,
-    DefaultBranchNameResolver defaultBranchNameResolver) {
-    this.dbClient = dbClient;
-    this.userSession = userSession;
-    this.azureDevOpsHttpClient = azureDevOpsHttpClient;
-    this.projectDefaultVisibility = projectDefaultVisibility;
-    this.componentUpdater = componentUpdater;
+  public ImportAzureProjectAction(ImportHelper importHelper, ImportProjectService importProjectService) {
     this.importHelper = importHelper;
-    this.projectKeyGenerator = projectKeyGenerator;
-    this.newCodeDefinitionResolver = newCodeDefinitionResolver;
-    this.defaultBranchNameResolver = defaultBranchNameResolver;
+    this.importProjectService = importProjectService;
   }
 
   @Override
@@ -140,74 +104,20 @@ public class ImportAzureProjectAction implements AlmIntegrationsWsAction {
   private CreateWsResponse doHandle(Request request) {
     importHelper.checkProvisionProjectPermission();
     AlmSettingDto almSettingDto = importHelper.getAlmSettingDtoForAlm(request, ALM.AZURE_DEVOPS);
-
     String newCodeDefinitionType = request.param(PARAM_NEW_CODE_DEFINITION_TYPE);
     String newCodeDefinitionValue = request.param(PARAM_NEW_CODE_DEFINITION_VALUE);
+    String projectName = request.mandatoryParam(PARAM_PROJECT_NAME);
+    String repositoryName = request.mandatoryParam(PARAM_REPOSITORY_NAME);
 
-    try (DbSession dbSession = dbClient.openSession(false)) {
+    ImportedProject importedProject = importProjectService
+      .importProject(toServiceRequest(almSettingDto, projectName, repositoryName, newCodeDefinitionType, newCodeDefinitionValue));
 
-      String pat = getPat(dbSession, almSettingDto);
-
-      String projectName = request.mandatoryParam(PARAM_PROJECT_NAME);
-      String repositoryName = request.mandatoryParam(PARAM_REPOSITORY_NAME);
-
-      String url = requireNonNull(almSettingDto.getUrl(), "DevOps Platform url cannot be null");
-      GsonAzureRepo repo = azureDevOpsHttpClient.getRepo(url, pat, projectName, repositoryName);
-
-      ComponentCreationData componentCreationData = createProject(dbSession, repo);
-      ProjectDto projectDto = Optional.ofNullable(componentCreationData.projectDto()).orElseThrow();
-      BranchDto mainBranchDto = Optional.ofNullable(componentCreationData.mainBranchDto()).orElseThrow();
-      populatePRSetting(dbSession, repo, projectDto, almSettingDto);
-
-      checkNewCodeDefinitionParam(newCodeDefinitionType, newCodeDefinitionValue);
-
-      if (newCodeDefinitionType != null) {
-        newCodeDefinitionResolver.createNewCodeDefinition(dbSession, projectDto.getUuid(), mainBranchDto.getUuid(),
-          Optional.ofNullable(repo.getDefaultBranchName()).orElse(defaultBranchNameResolver.getEffectiveMainBranchName()),
-          newCodeDefinitionType, newCodeDefinitionValue);
-      }
-
-      componentUpdater.commitAndIndex(dbSession, componentCreationData);
-
-      return toCreateResponse(projectDto);
-    }
+    return toCreateResponse(importedProject.projectDto());
   }
 
-  private String getPat(DbSession dbSession, AlmSettingDto almSettingDto) {
-    String userUuid = importHelper.getUserUuid();
-    Optional<AlmPatDto> almPatDto = dbClient.almPatDao().selectByUserAndAlmSetting(dbSession, userUuid, almSettingDto);
-    return almPatDto.map(AlmPatDto::getPersonalAccessToken)
-      .orElseThrow(() -> new IllegalArgumentException(String.format("personal access token for '%s' is missing", almSettingDto.getKey())));
-  }
-
-  private ComponentCreationData createProject(DbSession dbSession, GsonAzureRepo repo) {
-    boolean visibility = projectDefaultVisibility.get(dbSession).isPrivate();
-    String uniqueProjectKey = projectKeyGenerator.generateUniqueProjectKey(repo.getProject().getName(), repo.getName());
-    NewComponent newProject = newComponentBuilder()
-      .setKey(uniqueProjectKey)
-      .setName(repo.getName())
-      .setPrivate(visibility)
-      .setQualifier(PROJECT)
-      .build();
-    ComponentCreationParameters componentCreationParameters = ComponentCreationParameters.builder()
-      .newComponent(newProject)
-      .userUuid(userSession.getUuid())
-      .userLogin(userSession.getLogin())
-      .mainBranchName(repo.getDefaultBranchName())
-      .creationMethod(getCreationMethod(ALM_IMPORT, userSession.isAuthenticatedBrowserSession()))
-      .build();
-    return componentUpdater.createWithoutCommit(dbSession, componentCreationParameters);
-  }
-
-  private void populatePRSetting(DbSession dbSession, GsonAzureRepo repo, ProjectDto projectDto, AlmSettingDto almSettingDto) {
-    ProjectAlmSettingDto projectAlmSettingDto = new ProjectAlmSettingDto()
-      .setAlmSettingUuid(almSettingDto.getUuid())
-      .setAlmRepo(repo.getName())
-      .setAlmSlug(repo.getProject().getName())
-      .setProjectUuid(projectDto.getUuid())
-      .setMonorepo(false);
-    dbClient.projectAlmSettingDao().insertOrUpdate(dbSession, projectAlmSettingDto, almSettingDto.getKey(),
-      projectDto.getName(), projectDto.getKey());
+  private static ImportProjectRequest toServiceRequest(AlmSettingDto almSettingDto, String projectIdentifier, String repositoryIdentifier, @Nullable String newCodeDefinitionType,
+    @Nullable String newCodeDefinitionValue) {
+    return new ImportProjectRequest(null, null, almSettingDto.getUuid(), repositoryIdentifier, projectIdentifier, newCodeDefinitionType, newCodeDefinitionValue, false);
   }
 
 }

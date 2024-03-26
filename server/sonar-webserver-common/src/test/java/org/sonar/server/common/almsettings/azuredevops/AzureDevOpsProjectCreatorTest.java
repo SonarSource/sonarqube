@@ -17,9 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.common.almsettings.gitlab;
+package org.sonar.server.common.almsettings.azuredevops;
 
-import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -29,10 +28,9 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.sonar.alm.client.gitlab.GitLabBranch;
-import org.sonar.alm.client.gitlab.GitlabApplicationClient;
-import org.sonar.alm.client.gitlab.GitlabServerException;
-import org.sonar.alm.client.gitlab.Project;
+import org.sonar.alm.client.azure.AzureDevOpsHttpClient;
+import org.sonar.alm.client.azure.AzureDevopsServerException;
+import org.sonar.alm.client.azure.GsonAzureRepo;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.alm.pat.AlmPatDto;
@@ -57,53 +55,50 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class GitlabProjectCreatorTest {
+class AzureDevOpsProjectCreatorTest {
 
-  private static final String PROJECT_UUID = "projectUuid";
   private static final String USER_LOGIN = "userLogin";
   private static final String USER_UUID = "userUuid";
-  private static final String REPOSITORY_PATH_WITH_NAMESPACE = "pathWith/namespace";
-  private static final String GITLAB_PROJECT_NAME = "gitlabProjectName";
-  private static final String REPOSITORY_ID = "1234";
-  private static final String MAIN_BRANCH_NAME = "defaultBranch";
-  private static final String ALM_SETTING_KEY = "gitlab_config_1";
+  private static final String REPOSITORY_NAME = "repositoryName";
+  private static final String DEVOPS_PROJECT_ID = "project-identifier";
+  private static final String DEVOPS_PROJECT_NAME = "devops-project-name";
+  private static final String ALM_SETTING_KEY = "azuredevops_config_1";
   private static final String ALM_SETTING_UUID = "almSettingUuid";
   private static final String USER_PAT = "1234";
-  public static final String GITLAB_URL = "http://api.com";
+  public static final String AZURE_DEVOPS_URL = "http://api.com";
+  private static final String MAIN_BRANCH_NAME = "defaultBranch";
+  private static final String PROJECT_UUID = "projectUuid";
 
   @Mock(answer = Answers.RETURNS_DEEP_STUBS)
   private DbClient dbClient;
-
-  @Mock
-  private ProjectKeyGenerator projectKeyGenerator;
-
-  @Mock
-  private ProjectCreator projectCreator;
-
   @Mock
   private AlmSettingDto almSettingDto;
   @Mock
   private DevOpsProjectDescriptor devOpsProjectDescriptor;
   @Mock
-  private GitlabApplicationClient gitlabApplicationClient;
-  @Mock
   private UserSession userSession;
+  @Mock
+  private AzureDevOpsHttpClient azureDevOpsHttpClient;
+  @Mock
+  private ProjectCreator projectCreator;
+  @Mock
+  private ProjectKeyGenerator projectKeyGenerator;
 
   @InjectMocks
-  private GitlabProjectCreator underTest;
+  private AzureDevOpsProjectCreator underTest;
 
   @BeforeEach
   void setup() {
     lenient().when(userSession.getLogin()).thenReturn(USER_LOGIN);
     lenient().when(userSession.getUuid()).thenReturn(USER_UUID);
 
-    lenient().when(almSettingDto.getUrl()).thenReturn(GITLAB_URL);
     lenient().when(almSettingDto.getKey()).thenReturn(ALM_SETTING_KEY);
     lenient().when(almSettingDto.getUuid()).thenReturn(ALM_SETTING_UUID);
+    lenient().when(almSettingDto.getUrl()).thenReturn(AZURE_DEVOPS_URL);
 
-    lenient().when(devOpsProjectDescriptor.repositoryIdentifier()).thenReturn(REPOSITORY_ID);
-    lenient().when(devOpsProjectDescriptor.url()).thenReturn(GITLAB_URL);
-    lenient().when(devOpsProjectDescriptor.alm()).thenReturn(ALM.GITLAB);
+    lenient().when(devOpsProjectDescriptor.repositoryIdentifier()).thenReturn(REPOSITORY_NAME);
+    lenient().when(devOpsProjectDescriptor.projectIdentifier()).thenReturn(DEVOPS_PROJECT_ID);
+    lenient().when(devOpsProjectDescriptor.alm()).thenReturn(ALM.BITBUCKET_CLOUD);
   }
 
   @Test
@@ -114,27 +109,37 @@ class GitlabProjectCreatorTest {
   }
 
   @Test
-  void createProjectAndBindToDevOpsPlatform_whenUserHasNoPat_throws() {
+  void createProjectAndBindToDevOpsPlatform_whenPatIsMissing_shouldThrow() {
     assertThatExceptionOfType(IllegalArgumentException.class)
       .isThrownBy(() -> underTest.createProjectAndBindToDevOpsPlatform(mock(DbSession.class), CreationMethod.ALM_IMPORT_API, false, null, null))
-      .withMessage("personal access token for 'gitlab_config_1' is missing");
+      .withMessage("personal access token for 'azuredevops_config_1' is missing");
   }
 
   @Test
-  void createProjectAndBindToDevOpsPlatform_whenRepoNotFound_throws() {
+  void createProjectAndBindToDevOpsPlatform_whenRepositoryNotFound_shouldThrow() {
     mockPatForUser();
-    when(gitlabApplicationClient.getProject(GITLAB_URL, USER_PAT, Long.valueOf(REPOSITORY_ID))).thenThrow(new GitlabServerException(404, "Not found"));
+    when(azureDevOpsHttpClient.getRepo(AZURE_DEVOPS_URL, USER_PAT, DEVOPS_PROJECT_ID, REPOSITORY_NAME))
+      .thenThrow(new AzureDevopsServerException(404, "Problem fetching repository from AzureDevOps"));
     assertThatExceptionOfType(IllegalStateException.class)
       .isThrownBy(() -> underTest.createProjectAndBindToDevOpsPlatform(mock(DbSession.class), CreationMethod.ALM_IMPORT_API, false, null, null))
-      .withMessage("Failed to fetch GitLab project with ID '1234' from 'http://api.com'");
-
+      .withMessage("Failed to fetch AzureDevOps repository 'repositoryName' from project 'project-identifier' from 'http://api.com'");
   }
 
   @Test
-  void createProjectAndBindToDevOpsPlatform_whenRepoFoundOnGitlab_successfullyCreatesProject() {
+  void createProjectAndBindToDevOpsPlatform_projectIdentifierIsNull_shouldThrow() {
     mockPatForUser();
-    mockGitlabProject();
-    mockMainBranch();
+    lenient().when(devOpsProjectDescriptor.projectIdentifier()).thenReturn(null);
+
+    assertThatExceptionOfType(IllegalArgumentException.class)
+      .isThrownBy(() -> underTest.createProjectAndBindToDevOpsPlatform(mock(DbSession.class), CreationMethod.ALM_IMPORT_API, false, null, null))
+      .withMessage("DevOps Project Identifier cannot be null for Azure DevOps");
+  }
+
+  @Test
+  void createProjectAndBindToDevOpsPlatform_whenRepoFoundOnAzureDevOps_successfullyCreatesProject() {
+    mockPatForUser();
+    mockAzureDevOpsProject();
+
     mockProjectCreation("projectKey", "projectName");
 
     underTest.createProjectAndBindToDevOpsPlatform(mock(DbSession.class), CreationMethod.ALM_IMPORT_API, true, "projectKey", "projectName");
@@ -146,32 +151,34 @@ class GitlabProjectCreatorTest {
     ProjectAlmSettingDto createdProjectAlmSettingDto = projectAlmSettingCaptor.getValue();
 
     assertThat(createdProjectAlmSettingDto.getAlmSettingUuid()).isEqualTo(ALM_SETTING_UUID);
-    assertThat(createdProjectAlmSettingDto.getAlmRepo()).isEqualTo(REPOSITORY_ID);
+    assertThat(createdProjectAlmSettingDto.getAlmRepo()).isEqualTo(REPOSITORY_NAME);
+    assertThat(createdProjectAlmSettingDto.getAlmSlug()).isEqualTo(DEVOPS_PROJECT_NAME);
     assertThat(createdProjectAlmSettingDto.getProjectUuid()).isEqualTo(PROJECT_UUID);
     assertThat(createdProjectAlmSettingDto.getMonorepo()).isTrue();
   }
 
   @Test
-  void createProjectAndBindToDevOpsPlatform_whenNoKeyAndNameSpecified_generatesKeyAndUsesGitlabProjectName() {
+  void createProjectAndBindToDevOpsPlatform_whenNoKeyAndNameSpecified_generatesKeyAndUsesAzureRepositoryName() {
     mockPatForUser();
-    mockGitlabProject();
-    mockMainBranch();
+    mockAzureDevOpsProject();
+
 
     String generatedProjectKey = "generatedProjectKey";
-    when(projectKeyGenerator.generateUniqueProjectKey(REPOSITORY_PATH_WITH_NAMESPACE)).thenReturn(generatedProjectKey);
+    when(projectKeyGenerator.generateUniqueProjectKey(DEVOPS_PROJECT_NAME, REPOSITORY_NAME)).thenReturn(generatedProjectKey);
 
-    mockProjectCreation(generatedProjectKey, GITLAB_PROJECT_NAME);
+    mockProjectCreation(generatedProjectKey, REPOSITORY_NAME);
 
     underTest.createProjectAndBindToDevOpsPlatform(mock(DbSession.class), CreationMethod.ALM_IMPORT_API, true, null, null);
 
     ArgumentCaptor<ProjectAlmSettingDto> projectAlmSettingCaptor = ArgumentCaptor.forClass(ProjectAlmSettingDto.class);
 
-    verify(dbClient.projectAlmSettingDao()).insertOrUpdate(any(), projectAlmSettingCaptor.capture(), eq(ALM_SETTING_KEY), eq(GITLAB_PROJECT_NAME), eq(generatedProjectKey));
+    verify(dbClient.projectAlmSettingDao()).insertOrUpdate(any(), projectAlmSettingCaptor.capture(), eq(ALM_SETTING_KEY), eq(REPOSITORY_NAME), eq(generatedProjectKey));
 
     ProjectAlmSettingDto createdProjectAlmSettingDto = projectAlmSettingCaptor.getValue();
 
     assertThat(createdProjectAlmSettingDto.getAlmSettingUuid()).isEqualTo(ALM_SETTING_UUID);
-    assertThat(createdProjectAlmSettingDto.getAlmRepo()).isEqualTo(REPOSITORY_ID);
+    assertThat(createdProjectAlmSettingDto.getAlmRepo()).isEqualTo(REPOSITORY_NAME);
+    assertThat(createdProjectAlmSettingDto.getAlmSlug()).isEqualTo(DEVOPS_PROJECT_NAME);
     assertThat(createdProjectAlmSettingDto.getProjectUuid()).isEqualTo(PROJECT_UUID);
     assertThat(createdProjectAlmSettingDto.getMonorepo()).isTrue();
   }
@@ -182,17 +189,12 @@ class GitlabProjectCreatorTest {
     when(dbClient.almPatDao().selectByUserAndAlmSetting(any(), eq(USER_UUID), eq(almSettingDto))).thenReturn(Optional.of(almPatDto));
   }
 
-  private void mockGitlabProject() {
-    Project project = mock(Project.class);
-    lenient().when(project.getPathWithNamespace()).thenReturn(REPOSITORY_PATH_WITH_NAMESPACE);
-    when(project.getName()).thenReturn(GITLAB_PROJECT_NAME);
-    when(gitlabApplicationClient.getProject(GITLAB_URL, USER_PAT, Long.valueOf(REPOSITORY_ID))).thenReturn(project);
-
-  }
-
-  private void mockMainBranch() {
-    when(gitlabApplicationClient.getBranches(GITLAB_URL, USER_PAT, Long.valueOf(REPOSITORY_ID)))
-      .thenReturn(List.of(new GitLabBranch("notMain", false), new GitLabBranch(MAIN_BRANCH_NAME, true)));
+  private void mockAzureDevOpsProject() {
+    GsonAzureRepo repository = mock(GsonAzureRepo.class, Answers.RETURNS_DEEP_STUBS);
+    when(repository.getName()).thenReturn(REPOSITORY_NAME);
+    when(repository.getDefaultBranchName()).thenReturn(MAIN_BRANCH_NAME);
+    when(repository.getProject().getName()).thenReturn(DEVOPS_PROJECT_NAME);
+    when(azureDevOpsHttpClient.getRepo(AZURE_DEVOPS_URL, USER_PAT, DEVOPS_PROJECT_ID, REPOSITORY_NAME)).thenReturn(repository);
   }
 
   private void mockProjectCreation(String projectKey, String projectName) {

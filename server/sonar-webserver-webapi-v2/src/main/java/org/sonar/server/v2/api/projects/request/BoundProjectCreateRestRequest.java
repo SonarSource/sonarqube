@@ -44,6 +44,7 @@ public record BoundProjectCreateRestRequest(
       Identifier of the DevOps platform repository to import:
       - repository slug for GitHub and Bitbucket (Cloud and Server)
       - repository id for GitLab
+      - repository name for Azure DevOps
       """)
   String repositoryIdentifier,
 

@@ -42,10 +42,14 @@ import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.almintegration.ws.ImportHelper;
 import org.sonar.server.common.almintegration.ProjectKeyGenerator;
+import org.sonar.server.common.almsettings.DevOpsProjectCreatorFactory;
+import org.sonar.server.common.almsettings.azuredevops.AzureDevOpsProjectCreatorFactory;
 import org.sonar.server.common.component.ComponentUpdater;
 import org.sonar.server.common.newcodeperiod.NewCodeDefinitionResolver;
 import org.sonar.server.common.permission.PermissionTemplateService;
 import org.sonar.server.common.permission.PermissionUpdater;
+import org.sonar.server.common.project.ImportProjectService;
+import org.sonar.server.common.project.ProjectCreator;
 import org.sonar.server.es.TestIndexers;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -103,11 +107,16 @@ public class ImportAzureProjectActionIT {
   private final ProjectDefaultVisibility projectDefaultVisibility = mock(ProjectDefaultVisibility.class);
   private final ProjectKeyGenerator projectKeyGenerator = mock(ProjectKeyGenerator.class);
 
-  private PlatformEditionProvider editionProvider = mock(PlatformEditionProvider.class);
-  private NewCodeDefinitionResolver newCodeDefinitionResolver = new NewCodeDefinitionResolver(db.getDbClient(), editionProvider);
-  private final ImportAzureProjectAction importAzureProjectAction = new ImportAzureProjectAction(db.getDbClient(), userSession,
-    azureDevOpsHttpClient, projectDefaultVisibility, componentUpdater, importHelper, projectKeyGenerator, newCodeDefinitionResolver,
-    defaultBranchNameResolver);
+  private final PlatformEditionProvider editionProvider = mock(PlatformEditionProvider.class);
+  private final NewCodeDefinitionResolver newCodeDefinitionResolver = new NewCodeDefinitionResolver(db.getDbClient(), editionProvider);
+  private final ProjectCreator projectCreator = new ProjectCreator(userSession, projectDefaultVisibility, componentUpdater);
+  private final DevOpsProjectCreatorFactory devOpsProjectCreatorFactory = new AzureDevOpsProjectCreatorFactory(db.getDbClient(), userSession, azureDevOpsHttpClient, projectCreator,
+    projectKeyGenerator);
+
+  private final ImportProjectService importProjectService = new ImportProjectService(db.getDbClient(), devOpsProjectCreatorFactory, userSession, componentUpdater,
+    newCodeDefinitionResolver);
+  private final ImportAzureProjectAction importAzureProjectAction = new ImportAzureProjectAction(
+    importHelper, importProjectService);
   private final WsActionTester ws = new WsActionTester(importAzureProjectAction);
 
   @Before
@@ -126,7 +135,7 @@ public class ImportAzureProjectActionIT {
 
     ProjectDto projectDto = getProjectDto(result);
 
-    Optional<ProjectAlmSettingDto> projectAlmSettingDto = db.getDbClient().projectAlmSettingDao().selectByProject(db.getSession(),      projectDto);
+    Optional<ProjectAlmSettingDto> projectAlmSettingDto = db.getDbClient().projectAlmSettingDao().selectByProject(db.getSession(), projectDto);
 
     assertThat(projectAlmSettingDto.get().getAlmRepo()).isEqualTo("repo-name");
     assertThat(projectAlmSettingDto.get().getAlmSettingUuid()).isEqualTo(almSetting.getUuid());
@@ -446,7 +455,6 @@ public class ImportAzureProjectActionIT {
 
     assertThatNoException().isThrownBy(request::execute);
   }
-
 
   @Test
   public void define() {
