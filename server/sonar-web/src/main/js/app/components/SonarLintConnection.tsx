@@ -65,7 +65,7 @@ const getNextAvailableTokenName = async (login: string, tokenNameBase: string) =
 };
 
 async function computeExpirationDate(whiteLabel: string) {
-  return isDeploymentForAmazon(whiteLabel) ? computeTokenExpirationDateByHours(8) : computeTokenExpirationDate(1);
+  return isDeploymentForAmazon(whiteLabel) ? computeTokenExpirationDateByHours(8) : computeTokenExpirationDate(TokenExpiration.OneYear);
 }
 
 export function SonarLintConnection({ appState, currentUser }: Props) {
