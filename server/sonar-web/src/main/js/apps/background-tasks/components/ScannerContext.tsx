@@ -17,12 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Modal, Spinner } from 'design-system';
+
+import { Spinner } from '@sonarsource/echoes-react';
+import { Modal } from 'design-system';
 import { noop } from 'lodash';
 import * as React from 'react';
-import { FormattedMessage } from 'react-intl';
 import { getTask } from '../../../api/ce';
 import { translate } from '../../../helpers/l10n';
+import { isDefined } from '../../../helpers/types';
 import { Task } from '../../../types/tasks';
 
 interface Props {
@@ -61,23 +63,17 @@ export default class ScannerContext extends React.PureComponent<Props, State> {
 
     return (
       <Modal
-        onClose={this.props.onClose}
-        isLarge
-        isScrollable
-        headerTitle={
-          <FormattedMessage
-            id="background_tasks.error_stacktrace.title"
-            values={{
-              project: task.componentName,
-              type: translate('background_task.type', task.type),
-            }}
-          />
-        }
         body={
-          <Spinner loading={scannerContext == null}>
-            <pre className="js-task-scanner-context">{scannerContext}</pre>
+          <Spinner isLoading={!isDefined(scannerContext)}>
+            <pre className="it__task-scanner-context">{scannerContext}</pre>
           </Spinner>
         }
+        headerTitle={`${translate('background_tasks.scanner_context')}: ${
+          task.componentName
+        } [${translate('background_task.type', task.type)}]`}
+        isLarge
+        isScrollable
+        onClose={this.props.onClose}
         secondaryButtonLabel={translate('close')}
       />
     );
