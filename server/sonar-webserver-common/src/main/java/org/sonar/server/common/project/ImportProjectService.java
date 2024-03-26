@@ -62,7 +62,8 @@ public class ImportProjectService {
     try (DbSession dbSession = dbClient.openSession(false)) {
       checkNewCodeDefinitionParam(request.newCodeDefinitionType(), request.newCodeDefinitionValue());
       AlmSettingDto almSetting = dbClient.almSettingDao().selectByUuid(dbSession, request.almSettingId()).orElseThrow(() -> new IllegalArgumentException("ALM setting not found"));
-      DevOpsProjectDescriptor projectDescriptor = new DevOpsProjectDescriptor(almSetting.getAlm(), almSetting.getUrl(), request.repositoryIdentifier());
+      DevOpsProjectDescriptor projectDescriptor = new DevOpsProjectDescriptor(almSetting.getAlm(), almSetting.getUrl(), request.repositoryIdentifier(),
+        request.projectIdentifier());
 
       DevOpsProjectCreator projectCreator = devOpsProjectCreatorFactory.getDevOpsProjectCreator(almSetting, projectDescriptor)
         .orElseThrow(() -> new IllegalArgumentException(format("Platform %s not supported", almSetting.getAlm().name())));

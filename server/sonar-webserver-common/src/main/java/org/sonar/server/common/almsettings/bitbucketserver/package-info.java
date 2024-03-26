@@ -17,23 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.common.project;
+@ParametersAreNonnullByDefault
+package org.sonar.server.common.almsettings.bitbucketserver;
 
-import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 
-public record ImportProjectRequest(
-  @Nullable
-  String projectKey,
-  @Nullable
-  String projectName,
-  String almSettingId,
-  String repositoryIdentifier,
-  @Nullable
-  String projectIdentifier,
-  @Nullable
-  String newCodeDefinitionType,
-  @Nullable
-  String newCodeDefinitionValue,
-  Boolean monorepo) {
-
-}

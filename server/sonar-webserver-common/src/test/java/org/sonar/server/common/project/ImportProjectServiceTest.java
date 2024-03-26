@@ -52,7 +52,8 @@ class ImportProjectServiceTest {
 
   private static final String API_URL = "https://api.com";
   private static final String PROJECT_UUID = "project-uuid";
-  private static final String REPOSITORY_ID = "repository-id";
+  private static final String DOP_REPOSITORY_ID = "repository-id";
+  private static final String DOP_PROJECT_ID = "project-id";
   private static final String PROJECT_KEY = "project-key";
   private static final String PROJECT_NAME = "project-name";
   private static final String MAIN_BRANCH_UUID = "main-branch-uuid";
@@ -77,7 +78,7 @@ class ImportProjectServiceTest {
     DbSession dbSession = mockDbSession();
     when(dbClient.almSettingDao().selectByUuid(dbSession, ALM_SETTING_ID)).thenReturn(Optional.empty());
 
-    ImportProjectRequest request = new ImportProjectRequest(PROJECT_KEY, PROJECT_NAME, ALM_SETTING_ID, REPOSITORY_ID, null, null, true);
+    ImportProjectRequest request = new ImportProjectRequest(PROJECT_KEY, PROJECT_NAME, ALM_SETTING_ID, DOP_REPOSITORY_ID, DOP_PROJECT_ID, null, null, true);
 
     assertThatThrownBy(() -> importProjectService.importProject(request))
       .isInstanceOf(IllegalArgumentException.class)
@@ -95,7 +96,7 @@ class ImportProjectServiceTest {
     when(devOpsProjectCreatorFactory.getDevOpsProjectCreator(eq(almSetting), any()))
       .thenReturn(Optional.empty());
 
-    ImportProjectRequest request = new ImportProjectRequest(PROJECT_KEY, PROJECT_NAME, ALM_SETTING_ID, REPOSITORY_ID, null, null, true);
+    ImportProjectRequest request = new ImportProjectRequest(PROJECT_KEY, PROJECT_NAME, ALM_SETTING_ID, DOP_REPOSITORY_ID, DOP_PROJECT_ID, null, null, true);
 
     assertThatThrownBy(() -> importProjectService.importProject(request))
       .isInstanceOf(IllegalArgumentException.class)
@@ -117,7 +118,7 @@ class ImportProjectServiceTest {
 
     ProjectAlmSettingDto projectAlmSettingDto = mockProjectAlmSetting(dbSession, projectDto);
 
-    ImportProjectRequest request = new ImportProjectRequest(PROJECT_KEY, PROJECT_NAME, ALM_SETTING_ID, REPOSITORY_ID, null, null, true);
+    ImportProjectRequest request = new ImportProjectRequest(PROJECT_KEY, PROJECT_NAME, ALM_SETTING_ID, DOP_REPOSITORY_ID, DOP_PROJECT_ID, null, null, true);
 
     ImportedProject importedProject = importProjectService.importProject(request);
 
@@ -142,7 +143,7 @@ class ImportProjectServiceTest {
 
     ProjectAlmSettingDto projectAlmSettingDto = mockProjectAlmSetting(dbSession, projectDto);
 
-    ImportProjectRequest request = new ImportProjectRequest(PROJECT_KEY, PROJECT_NAME, ALM_SETTING_ID, REPOSITORY_ID, "NUMBER_OF_DAYS", "10", true);
+    ImportProjectRequest request = new ImportProjectRequest(PROJECT_KEY, PROJECT_NAME, ALM_SETTING_ID, DOP_REPOSITORY_ID, DOP_PROJECT_ID, "NUMBER_OF_DAYS", "10", true);
 
     ImportedProject importedProject = importProjectService.importProject(request);
 
@@ -175,7 +176,7 @@ class ImportProjectServiceTest {
 
   private DevOpsProjectCreator mockDevOpsProjectCreator(AlmSettingDto almSetting) {
     DevOpsProjectCreator devOpsProjectCreator = mock(DevOpsProjectCreator.class);
-    DevOpsProjectDescriptor projectDescriptor = new DevOpsProjectDescriptor(ALM.GITHUB, API_URL, REPOSITORY_ID);
+    DevOpsProjectDescriptor projectDescriptor = new DevOpsProjectDescriptor(ALM.GITHUB, API_URL, DOP_REPOSITORY_ID, DOP_PROJECT_ID);
     when(devOpsProjectCreatorFactory.getDevOpsProjectCreator(almSetting, projectDescriptor))
       .thenReturn(Optional.of(devOpsProjectCreator));
     return devOpsProjectCreator;

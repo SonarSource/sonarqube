@@ -48,8 +48,15 @@ public class DefaultBoundProjectsController implements BoundProjectsController {
   }
 
   private static ImportProjectRequest restRequestToServiceRequest(BoundProjectCreateRestRequest request) {
-    return new ImportProjectRequest(request.projectKey(), request.projectName(), request.devOpsPlatformSettingId(), request.repositoryIdentifier(),
-      request.newCodeDefinitionType(), request.newCodeDefinitionValue(), request.monorepo());
+    return new ImportProjectRequest(
+      request.projectKey(),
+      request.projectName(),
+      request.devOpsPlatformSettingId(),
+      request.repositoryIdentifier(),
+      request.projectIdentifier(),
+      request.newCodeDefinitionType(),
+      request.newCodeDefinitionValue(),
+      request.monorepo());
   }
 
   private static BoundProjectCreateRestResponse toRestResponse(ImportedProject importedProject) {

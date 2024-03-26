@@ -104,7 +104,7 @@ public class GithubProjectCreator implements DevOpsProjectCreator {
   public boolean isScanAllowedUsingPermissionsFromDevopsPlatform() {
     checkState(githubProjectCreationParameters.authAppInstallationToken() != null, "An auth app token is required in case repository permissions checking is necessary.");
 
-    String[] orgaAndRepoTokenified = devOpsProjectDescriptor.projectIdentifier().split("/");
+    String[] orgaAndRepoTokenified = devOpsProjectDescriptor.repositoryIdentifier().split("/");
     String organization = orgaAndRepoTokenified[0];
     String repository = orgaAndRepoTokenified[1];
 
@@ -161,9 +161,9 @@ public class GithubProjectCreator implements DevOpsProjectCreator {
   public ComponentCreationData createProjectAndBindToDevOpsPlatform(DbSession dbSession, CreationMethod creationMethod, Boolean monorepo, @Nullable String projectKey,
     @Nullable String projectName) {
     String url = requireNonNull(almSettingDto.getUrl(), "DevOps Platform url cannot be null");
-    Repository repository = githubApplicationClient.getRepository(url, devOpsAppInstallationToken, devOpsProjectDescriptor.projectIdentifier())
+    Repository repository = githubApplicationClient.getRepository(url, devOpsAppInstallationToken, devOpsProjectDescriptor.repositoryIdentifier())
       .orElseThrow(() -> new IllegalStateException(
-        String.format("Impossible to find the repository '%s' on GitHub, using the devops config %s", devOpsProjectDescriptor.projectIdentifier(), almSettingDto.getKey())));
+        String.format("Impossible to find the repository '%s' on GitHub, using the devops config %s", devOpsProjectDescriptor.repositoryIdentifier(), almSettingDto.getKey())));
 
     return createProjectAndBindToDevOpsPlatform(dbSession, monorepo, projectKey, projectName, almSettingDto, repository, creationMethod);
   }

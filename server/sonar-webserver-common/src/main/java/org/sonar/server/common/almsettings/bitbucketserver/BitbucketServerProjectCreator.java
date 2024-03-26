@@ -17,12 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.common.almsettings.bitbucketcloud;
+package org.sonar.server.common.almsettings.bitbucketserver;
 
 import java.util.Optional;
 import org.jetbrains.annotations.Nullable;
-import org.sonar.alm.client.bitbucket.bitbucketcloud.BitbucketCloudRestClient;
-import org.sonar.alm.client.bitbucket.bitbucketcloud.Repository;
+import org.sonar.alm.client.bitbucketserver.BitbucketServerRestClient;
+import org.sonar.alm.client.bitbucketserver.Branch;
+import org.sonar.alm.client.bitbucketserver.BranchesList;
+import org.sonar.alm.client.bitbucketserver.Repository;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.alm.pat.AlmPatDto;
@@ -39,26 +41,25 @@ import org.sonar.server.user.UserSession;
 
 import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
-import static java.util.Optional.ofNullable;
 
-public class BitbucketCloudProjectCreator implements DevOpsProjectCreator {
+public class BitbucketServerProjectCreator implements DevOpsProjectCreator {
 
-  private final DbClient dbClient;
   private final AlmSettingDto almSettingDto;
+  private final BitbucketServerRestClient bitbucketServerRestClient;
+  private final DbClient dbClient;
   private final DevOpsProjectDescriptor devOpsProjectDescriptor;
   private final UserSession userSession;
-  private final BitbucketCloudRestClient bitbucketCloudRestClient;
   private final ProjectCreator projectCreator;
   private final ProjectKeyGenerator projectKeyGenerator;
 
-
-  public BitbucketCloudProjectCreator(DbClient dbClient, AlmSettingDto almSettingDto, DevOpsProjectDescriptor devOpsProjectDescriptor, UserSession userSession,
-    BitbucketCloudRestClient bitbucketCloudRestClient, ProjectCreator projectCreator, ProjectKeyGenerator projectKeyGenerator) {
-    this.dbClient = dbClient;
+  public BitbucketServerProjectCreator(AlmSettingDto almSettingDto, BitbucketServerRestClient bitbucketServerRestClient,
+    DbClient dbClient, DevOpsProjectDescriptor devOpsProjectDescriptor, UserSession userSession, ProjectCreator projectCreator,
+    ProjectKeyGenerator projectKeyGenerator) {
     this.almSettingDto = almSettingDto;
+    this.bitbucketServerRestClient = bitbucketServerRestClient;
+    this.dbClient = dbClient;
     this.devOpsProjectDescriptor = devOpsProjectDescriptor;
     this.userSession = userSession;
-    this.bitbucketCloudRestClient = bitbucketCloudRestClient;
     this.projectCreator = projectCreator;
     this.projectKeyGenerator = projectKeyGenerator;
   }
@@ -72,47 +73,66 @@ public class BitbucketCloudProjectCreator implements DevOpsProjectCreator {
   public ComponentCreationData createProjectAndBindToDevOpsPlatform(DbSession dbSession, CreationMethod creationMethod, Boolean monorepo, @Nullable String projectKey,
     @Nullable String projectName) {
 
-    String pat = findPersonalAccessTokenOrThrow(dbSession, almSettingDto);
-    String workspace = ofNullable(almSettingDto.getAppId())
-      .orElseThrow(() -> new IllegalArgumentException(String.format("workspace for alm setting %s is missing", almSettingDto.getKey())));
+    String pat = findPersonalAccessTokenOrThrow(dbSession);
+    String url = requireNonNull(almSettingDto.getUrl(), "DevOps Platform url cannot be null");
+    String bitbucketRepo = devOpsProjectDescriptor.repositoryIdentifier();
+    String bitbucketProject = getBitbucketProjectOrThrow();
 
-    Repository repo = bitbucketCloudRestClient.getRepo(pat, workspace, devOpsProjectDescriptor.repositoryIdentifier());
+    Repository repository = bitbucketServerRestClient.getRepo(url, pat, bitbucketProject, bitbucketRepo);
+    String defaultBranchName = getDefaultBranchName(url, pat, bitbucketProject, bitbucketRepo);
 
     ComponentCreationData componentCreationData = projectCreator.createProject(
       dbSession,
-      getProjectKey(workspace, projectKey, repo),
-      getProjectName(projectName, repo),
-      repo.getMainBranch().getName(),
+      getProjectKey(projectKey, repository),
+      getProjectName(projectName, repository),
+      defaultBranchName,
       creationMethod);
     ProjectDto projectDto = Optional.ofNullable(componentCreationData.projectDto()).orElseThrow();
+    createProjectAlmSettingDto(dbSession, repository.getSlug(), projectDto, almSettingDto, monorepo);
 
-    createProjectAlmSettingDto(dbSession, repo.getSlug(), projectDto, almSettingDto, monorepo);
     return componentCreationData;
   }
 
-  private String findPersonalAccessTokenOrThrow(DbSession dbSession, AlmSettingDto almSettingDto) {
+  private String findPersonalAccessTokenOrThrow(DbSession dbSession) {
     String userUuid = requireNonNull(userSession.getUuid(), "User UUID cannot be null.");
     Optional<AlmPatDto> almPatDto = dbClient.almPatDao().selectByUserAndAlmSetting(dbSession, userUuid, almSettingDto);
+
     return almPatDto.map(AlmPatDto::getPersonalAccessToken)
       .orElseThrow(() -> new IllegalArgumentException(format("personal access token for '%s' is missing", almSettingDto.getKey())));
   }
 
-  private String getProjectKey(String workspace, @Nullable String projectKey, Repository repository) {
-    return Optional.ofNullable(projectKey).orElseGet(() -> projectKeyGenerator.generateUniqueProjectKey(workspace, repository.getSlug()));
+  private String getBitbucketProjectOrThrow() {
+    if (devOpsProjectDescriptor.projectIdentifier() == null) {
+      throw new IllegalArgumentException(String.format("The BitBucket project, in which the repository %s is located, is mandatory",
+        devOpsProjectDescriptor.repositoryIdentifier()));
+    }
+    return devOpsProjectDescriptor.projectIdentifier();
+  }
+
+  private String getDefaultBranchName(String url, String pat, String project, String repo) {
+    BranchesList branches = bitbucketServerRestClient.getBranches(url, pat, project, repo);
+    Optional<Branch> defaultBranch = branches.findDefaultBranch();
+    return defaultBranch.map(Branch::getName).orElse(null);
+  }
+
+  private String getProjectKey(@Nullable String projectKey, Repository repo) {
+    return Optional.ofNullable(projectKey).orElseGet(() -> projectKeyGenerator.generateUniqueProjectKey(repo.getProject().getKey(), repo.getSlug()));
   }
 
   private static String getProjectName(@Nullable String projectName, Repository repository) {
     return Optional.ofNullable(projectName).orElse(repository.getName());
   }
 
-  private void createProjectAlmSettingDto(DbSession dbSession, String repoSlug, ProjectDto projectDto, AlmSettingDto almSettingDto, Boolean monorepo) {
+  private void createProjectAlmSettingDto(DbSession dbSession, String repoSlug, ProjectDto projectDto, AlmSettingDto almSettingDto,
+    Boolean isMonorepo) {
     ProjectAlmSettingDto projectAlmSettingDto = new ProjectAlmSettingDto()
       .setAlmSettingUuid(almSettingDto.getUuid())
       .setAlmRepo(repoSlug)
       .setAlmSlug(null)
       .setProjectUuid(projectDto.getUuid())
       .setSummaryCommentEnabled(true)
-      .setMonorepo(monorepo);
+      .setMonorepo(isMonorepo);
+
     dbClient.projectAlmSettingDao().insertOrUpdate(dbSession, projectAlmSettingDto, almSettingDto.getKey(), projectDto.getName(), projectDto.getKey());
   }
 

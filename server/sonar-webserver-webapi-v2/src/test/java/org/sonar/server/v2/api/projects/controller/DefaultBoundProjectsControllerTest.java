@@ -44,7 +44,8 @@ class DefaultBoundProjectsControllerTest {
 
   private static final String PROJECT_UUID = "project-uuid";
   private static final String PROJECT_ALM_SETTING_UUID = "project-alm-setting-uuid";
-  private static final String REPOSITORY_ID = "repository-id";
+  private static final String DOP_REPOSITORY_ID = "dop-repository-id";
+  private static final String DOP_PROJECT_ID = "dop-project-id";
   private static final String PROJECT_KEY = "project-key";
   private static final String PROJECT_NAME = "project-name";
   private static final String ALM_SETTING_ID = "alm-setting-id";
@@ -117,7 +118,8 @@ class DefaultBoundProjectsControllerTest {
       PROJECT_KEY,
       PROJECT_NAME,
       ALM_SETTING_ID,
-      REPOSITORY_ID,
+      DOP_REPOSITORY_ID,
+      DOP_PROJECT_ID,
       "NUMBER_OF_DAYS",
       "10",
       true)))
@@ -133,7 +135,8 @@ class DefaultBoundProjectsControllerTest {
                   "projectKey": "project-key",
                   "projectName": "project-name",
                   "devOpsPlatformSettingId": "alm-setting-id",
-                  "repositoryIdentifier": "repository-id",
+                  "repositoryIdentifier": "dop-repository-id",
+                  "projectIdentifier": "dop-project-id",
                   "newCodeDefinitionType": "NUMBER_OF_DAYS",
                   "newCodeDefinitionValue": "10",
                   "monorepo": true

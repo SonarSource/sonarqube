@@ -43,16 +43,13 @@ import org.sonar.db.alm.setting.AlmSettingDto;
 import org.sonar.server.common.almintegration.ProjectKeyGenerator;
 import org.sonar.server.common.almsettings.DevOpsProjectCreator;
 import org.sonar.server.common.almsettings.DevOpsProjectDescriptor;
-import org.sonar.server.common.almsettings.github.GithubProjectCreationParameters;
-import org.sonar.server.common.almsettings.github.GithubProjectCreator;
-import org.sonar.server.common.almsettings.github.GithubProjectCreatorFactory;
+import org.sonar.server.common.permission.PermissionUpdater;
+import org.sonar.server.common.permission.UserPermissionChange;
+import org.sonar.server.common.project.ProjectCreator;
 import org.sonar.server.exceptions.BadConfigurationException;
 import org.sonar.server.management.ManagedProjectService;
 import org.sonar.server.permission.PermissionService;
-import org.sonar.server.common.permission.PermissionUpdater;
-import org.sonar.server.common.permission.UserPermissionChange;
 import org.sonar.server.project.ProjectDefaultVisibility;
-import org.sonar.server.common.project.ProjectCreator;
 import org.sonar.server.user.UserSession;
 
 import static java.lang.String.format;
@@ -74,10 +71,10 @@ public class GithubProjectCreatorFactoryTest {
   private static final String GITHUB_REPO_FULL_NAME = ORGANIZATION_NAME + "/" + PROJECT_NAME;
   private static final String GITHUB_API_URL = "https://api.toto.com";
 
-  private static final DevOpsProjectDescriptor GITHUB_PROJECT_DESCRIPTOR = new DevOpsProjectDescriptor(ALM.GITHUB, GITHUB_API_URL, GITHUB_REPO_FULL_NAME);
+  private static final DevOpsProjectDescriptor GITHUB_PROJECT_DESCRIPTOR = new DevOpsProjectDescriptor(ALM.GITHUB, GITHUB_API_URL, GITHUB_REPO_FULL_NAME, null);
   private static final Map<String, String> VALID_GITHUB_PROJECT_COORDINATES = Map.of(
     DEVOPS_PLATFORM_URL, GITHUB_PROJECT_DESCRIPTOR.url(),
-    DEVOPS_PLATFORM_PROJECT_IDENTIFIER, GITHUB_PROJECT_DESCRIPTOR.projectIdentifier());
+    DEVOPS_PLATFORM_PROJECT_IDENTIFIER, GITHUB_PROJECT_DESCRIPTOR.repositoryIdentifier());
   private static final long APP_INSTALLATION_ID = 534534534543L;
   private static final String USER_ACCESS_TOKEN = "userPat";
 
@@ -243,7 +240,7 @@ public class GithubProjectCreatorFactoryTest {
   }
 
   private GithubProjectCreator getExpectedGithubProjectCreator(AlmSettingDto almSettingDto, boolean isInstanceManaged, AccessToken accessToken) {
-    DevOpsProjectDescriptor devOpsProjectDescriptor = new DevOpsProjectDescriptor(ALM.GITHUB, almSettingDto.getUrl(), GITHUB_REPO_FULL_NAME);
+    DevOpsProjectDescriptor devOpsProjectDescriptor = new DevOpsProjectDescriptor(ALM.GITHUB, almSettingDto.getUrl(), GITHUB_REPO_FULL_NAME, null);
     AppInstallationToken authAppInstallToken = isInstanceManaged ? authAppInstallationToken : null;
     GithubProjectCreationParameters githubProjectCreationParameters = new GithubProjectCreationParameters(devOpsProjectDescriptor, almSettingDto, userSession, accessToken,
       authAppInstallToken);

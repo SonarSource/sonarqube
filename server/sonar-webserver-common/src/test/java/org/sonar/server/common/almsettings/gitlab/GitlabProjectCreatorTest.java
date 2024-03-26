@@ -108,7 +108,7 @@ class GitlabProjectCreatorTest {
     lenient().when(almSettingDto.getKey()).thenReturn(ALM_SETTING_KEY);
     lenient().when(almSettingDto.getUuid()).thenReturn(ALM_SETTING_UUID);
 
-    lenient().when(devOpsProjectDescriptor.projectIdentifier()).thenReturn(REPOSITORY_ID);
+    lenient().when(devOpsProjectDescriptor.repositoryIdentifier()).thenReturn(REPOSITORY_ID);
     lenient().when(devOpsProjectDescriptor.url()).thenReturn(GITLAB_URL);
     lenient().when(devOpsProjectDescriptor.alm()).thenReturn(ALM.GITLAB);
   }

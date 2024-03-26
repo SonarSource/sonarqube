@@ -101,9 +101,9 @@ public class GitlabProjectCreator implements DevOpsProjectCreator {
 
   private Long getGitlabProjectId() {
     try {
-      return Long.parseLong(devOpsProjectDescriptor.projectIdentifier());
+      return Long.parseLong(devOpsProjectDescriptor.repositoryIdentifier());
     } catch (NumberFormatException e) {
-      throw new IllegalArgumentException(format("GitLab project identifier must be a number, was '%s'", devOpsProjectDescriptor.projectIdentifier()));
+      throw new IllegalArgumentException(format("GitLab project identifier must be a number, was '%s'", devOpsProjectDescriptor.repositoryIdentifier()));
     }
   }
 

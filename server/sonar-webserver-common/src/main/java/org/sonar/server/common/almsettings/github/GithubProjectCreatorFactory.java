@@ -94,7 +94,7 @@ public class GithubProjectCreatorFactory implements DevOpsProjectCreatorFactory 
     if (githubApiUrl == null || githubRepository == null) {
       return Optional.empty();
     }
-    DevOpsProjectDescriptor devOpsProjectDescriptor = new DevOpsProjectDescriptor(ALM.GITHUB, githubApiUrl, githubRepository);
+    DevOpsProjectDescriptor devOpsProjectDescriptor = new DevOpsProjectDescriptor(ALM.GITHUB, githubApiUrl, githubRepository, null);
 
     return dbClient.almSettingDao().selectByAlm(dbSession, ALM.GITHUB).stream()
       .filter(almSettingDto -> devOpsProjectDescriptor.url().equals(almSettingDto.getUrl()))
@@ -107,14 +107,14 @@ public class GithubProjectCreatorFactory implements DevOpsProjectCreatorFactory 
   private Optional<DevOpsProjectCreator> findInstallationIdAndCreateDevOpsProjectCreator(DevOpsProjectDescriptor devOpsProjectDescriptor,
     AlmSettingDto almSettingDto) {
     GithubAppConfiguration githubAppConfiguration = githubGlobalSettingsValidator.validate(almSettingDto);
-    return findInstallationIdToAccessRepo(githubAppConfiguration, devOpsProjectDescriptor.projectIdentifier())
+    return findInstallationIdToAccessRepo(githubAppConfiguration, devOpsProjectDescriptor.repositoryIdentifier())
       .map(installationId -> generateAppInstallationToken(githubAppConfiguration, installationId))
       .map(appInstallationToken -> createGithubProjectCreator(devOpsProjectDescriptor, almSettingDto, appInstallationToken));
   }
 
   private GithubProjectCreator createGithubProjectCreator(DevOpsProjectDescriptor devOpsProjectDescriptor, AlmSettingDto almSettingDto,
     AppInstallationToken appInstallationToken) {
-    LOG.info("DevOps configuration {} auto-detected for project {}", almSettingDto.getKey(), devOpsProjectDescriptor.projectIdentifier());
+    LOG.info("DevOps configuration {} auto-detected for project {}", almSettingDto.getKey(), devOpsProjectDescriptor.repositoryIdentifier());
     Optional<AppInstallationToken> authAppInstallationToken = getAuthAppInstallationTokenIfNecessary(devOpsProjectDescriptor);
 
     GithubProjectCreationParameters githubProjectCreationParameters = new GithubProjectCreationParameters(devOpsProjectDescriptor, almSettingDto, userSession, appInstallationToken,
@@ -151,11 +151,11 @@ public class GithubProjectCreatorFactory implements DevOpsProjectCreatorFactory 
   private Optional<AppInstallationToken> getAuthAppInstallationTokenIfNecessary(DevOpsProjectDescriptor devOpsProjectDescriptor) {
     if (gitHubSettings.isProvisioningEnabled()) {
       GithubAppConfiguration githubAppConfiguration = new GithubAppConfiguration(Long.parseLong(gitHubSettings.appId()), gitHubSettings.privateKey(), gitHubSettings.apiURL());
-      long installationId = findInstallationIdToAccessRepo(githubAppConfiguration, devOpsProjectDescriptor.projectIdentifier())
+      long installationId = findInstallationIdToAccessRepo(githubAppConfiguration, devOpsProjectDescriptor.repositoryIdentifier())
         .orElseThrow(() -> new BadConfigurationException("PROJECT",
           format("GitHub auto-provisioning is activated. However the repo %s is not in the scope of the authentication application. "
             + "The permissions can't be checked, and the project can not be created.",
-            devOpsProjectDescriptor.projectIdentifier())));
+            devOpsProjectDescriptor.repositoryIdentifier())));
       return Optional.of(generateAppInstallationToken(githubAppConfiguration, installationId));
     }
     return Optional.empty();

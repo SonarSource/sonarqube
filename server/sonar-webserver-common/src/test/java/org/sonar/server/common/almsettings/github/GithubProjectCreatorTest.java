@@ -87,7 +87,7 @@ class GithubProjectCreatorTest {
   private static final String REPOSITORY_NAME = "repo1";
 
   private static final String MAIN_BRANCH_NAME = "defaultBranch";
-  private static final DevOpsProjectDescriptor DEVOPS_PROJECT_DESCRIPTOR = new DevOpsProjectDescriptor(ALM.GITHUB, "http://api.com", ORGANIZATION_NAME + "/" + REPOSITORY_NAME);
+  private static final DevOpsProjectDescriptor DEVOPS_PROJECT_DESCRIPTOR = new DevOpsProjectDescriptor(ALM.GITHUB, "http://api.com", ORGANIZATION_NAME + "/" + REPOSITORY_NAME, null);
   private static final String ALM_SETTING_KEY = "github_config_1";
   private static final String USER_LOGIN = "userLogin";
   private static final String USER_UUID = "userUuid";
@@ -427,11 +427,11 @@ class GithubProjectCreatorTest {
     GithubApplicationClient.Repository repository = mock();
     when(repository.getDefaultBranch()).thenReturn(MAIN_BRANCH_NAME);
     when(repository.getName()).thenReturn(REPOSITORY_NAME);
-    when(repository.getFullName()).thenReturn(DEVOPS_PROJECT_DESCRIPTOR.projectIdentifier());
+    when(repository.getFullName()).thenReturn(DEVOPS_PROJECT_DESCRIPTOR.repositoryIdentifier());
     lenient().when(repository.isPrivate()).thenReturn(true);
-    when(githubApplicationClient.getRepository(DEVOPS_PROJECT_DESCRIPTOR.url(), devOpsAppInstallationToken, DEVOPS_PROJECT_DESCRIPTOR.projectIdentifier())).thenReturn(
+    when(githubApplicationClient.getRepository(DEVOPS_PROJECT_DESCRIPTOR.url(), devOpsAppInstallationToken, DEVOPS_PROJECT_DESCRIPTOR.repositoryIdentifier())).thenReturn(
       Optional.of(repository));
-    when(projectKeyGenerator.generateUniqueProjectKey(repository.getFullName())).thenReturn("generated_" + DEVOPS_PROJECT_DESCRIPTOR.projectIdentifier());
+    when(projectKeyGenerator.generateUniqueProjectKey(repository.getFullName())).thenReturn("generated_" + DEVOPS_PROJECT_DESCRIPTOR.repositoryIdentifier());
     return repository;
   }
 
@@ -468,7 +468,7 @@ class GithubProjectCreatorTest {
   }
 
   private static void assertAlmSettingsDtoContainsCorrectInformation(AlmSettingDto almSettingDto, ProjectDto projectDto, ProjectAlmSettingDto projectAlmSettingDto) {
-    assertThat(projectAlmSettingDto.getAlmRepo()).isEqualTo(DEVOPS_PROJECT_DESCRIPTOR.projectIdentifier());
+    assertThat(projectAlmSettingDto.getAlmRepo()).isEqualTo(DEVOPS_PROJECT_DESCRIPTOR.repositoryIdentifier());
     assertThat(projectAlmSettingDto.getAlmSlug()).isNull();
     assertThat(projectAlmSettingDto.getAlmSettingUuid()).isEqualTo(almSettingDto.getUuid());
     assertThat(projectAlmSettingDto.getProjectUuid()).isEqualTo(projectDto.getUuid());

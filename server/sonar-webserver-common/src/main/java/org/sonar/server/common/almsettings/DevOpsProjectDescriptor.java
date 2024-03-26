@@ -22,5 +22,5 @@ package org.sonar.server.common.almsettings;
 import javax.annotation.Nullable;
 import org.sonar.db.alm.setting.ALM;
 
-public record DevOpsProjectDescriptor(ALM alm, @Nullable String url, String projectIdentifier) {
+public record DevOpsProjectDescriptor(ALM alm, @Nullable String url, String repositoryIdentifier, @Nullable String projectIdentifier) {
 }

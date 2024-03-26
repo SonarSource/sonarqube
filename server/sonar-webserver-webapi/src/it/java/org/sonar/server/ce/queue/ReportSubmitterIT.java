@@ -27,10 +27,10 @@ import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.auth.github.client.GithubApplicationClient;
 import org.sonar.alm.client.github.GithubGlobalSettingsValidator;
 import org.sonar.api.utils.System2;
 import org.sonar.auth.github.GitHubSettings;
+import org.sonar.auth.github.client.GithubApplicationClient;
 import org.sonar.ce.queue.CeQueue;
 import org.sonar.ce.queue.CeQueueImpl;
 import org.sonar.ce.queue.CeTaskSubmit;
@@ -57,6 +57,10 @@ import org.sonar.server.common.almsettings.github.GithubProjectCreationParameter
 import org.sonar.server.common.almsettings.github.GithubProjectCreator;
 import org.sonar.server.common.almsettings.github.GithubProjectCreatorFactory;
 import org.sonar.server.common.component.ComponentUpdater;
+import org.sonar.server.common.permission.PermissionTemplateService;
+import org.sonar.server.common.permission.PermissionUpdater;
+import org.sonar.server.common.permission.UserPermissionChange;
+import org.sonar.server.common.project.ProjectCreator;
 import org.sonar.server.es.TestIndexers;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -65,13 +69,9 @@ import org.sonar.server.management.ManagedInstanceService;
 import org.sonar.server.management.ManagedProjectService;
 import org.sonar.server.permission.PermissionService;
 import org.sonar.server.permission.PermissionServiceImpl;
-import org.sonar.server.common.permission.PermissionTemplateService;
-import org.sonar.server.common.permission.PermissionUpdater;
-import org.sonar.server.common.permission.UserPermissionChange;
 import org.sonar.server.project.DefaultBranchNameResolver;
 import org.sonar.server.project.ProjectDefaultVisibility;
 import org.sonar.server.project.Visibility;
-import org.sonar.server.common.project.ProjectCreator;
 import org.sonar.server.tester.UserSessionRule;
 
 import static java.lang.String.format;
@@ -393,7 +393,7 @@ public class ReportSubmitterIT {
 
     mockGithubRepository(isPrivate);
 
-    DevOpsProjectDescriptor projectDescriptor = new DevOpsProjectDescriptor(ALM.GITHUB, "apiUrl", "orga/repo");
+    DevOpsProjectDescriptor projectDescriptor = new DevOpsProjectDescriptor(ALM.GITHUB, "apiUrl", "orga/repo", null);
     GithubProjectCreationParameters githubProjectCreationParameters = new GithubProjectCreationParameters(projectDescriptor, almSettingDto, userSession, mock(), null);
     DevOpsProjectCreator devOpsProjectCreator = spy(new GithubProjectCreator(db.getDbClient(), githubApplicationClient, null, projectKeyGenerator,
       permissionUpdater, permissionService, managedProjectService, projectCreator, githubProjectCreationParameters, gitHubSettings));

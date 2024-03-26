@@ -42,10 +42,18 @@ public record BoundProjectCreateRestRequest(
   @Schema(
     description = """
       Identifier of the DevOps platform repository to import:
-      - repository slug for GitHub and Bitbucket Cloud
+      - repository slug for GitHub and Bitbucket (Cloud and Server)
       - repository id for GitLab
       """)
   String repositoryIdentifier,
+
+  @Nullable
+  @Schema(
+    description = """
+      Identifier of the DevOps platform project in which the repository is located.
+      This is only needed for Azure and BitBucket Server platforms
+      """)
+  String projectIdentifier,
 
   @Nullable
   @Schema(description = """

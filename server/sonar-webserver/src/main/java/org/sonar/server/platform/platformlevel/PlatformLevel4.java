@@ -63,14 +63,9 @@ import org.sonar.core.platform.SpringComponentContainer;
 import org.sonar.server.almintegration.ws.AlmIntegrationsWSModule;
 import org.sonar.server.almintegration.ws.CredentialsEncoderHelper;
 import org.sonar.server.almintegration.ws.ImportHelper;
-import org.sonar.server.common.almintegration.ProjectKeyGenerator;
 import org.sonar.server.almintegration.ws.github.GithubProvisioningWs;
 import org.sonar.server.almsettings.MultipleAlmFeature;
 import org.sonar.server.almsettings.ws.AlmSettingsWsModule;
-import org.sonar.server.common.almsettings.DelegatingDevOpsProjectCreatorFactory;
-import org.sonar.server.common.almsettings.bitbucketcloud.BitbucketCloudProjectCreatorFactory;
-import org.sonar.server.common.almsettings.github.GithubProjectCreatorFactory;
-import org.sonar.server.common.almsettings.gitlab.GitlabProjectCreatorFactory;
 import org.sonar.server.authentication.AuthenticationModule;
 import org.sonar.server.authentication.DefaultAdminCredentialsVerifierImpl;
 import org.sonar.server.authentication.DefaultAdminCredentialsVerifierNotificationHandler;
@@ -84,16 +79,28 @@ import org.sonar.server.branch.ws.BranchWsModule;
 import org.sonar.server.ce.CeModule;
 import org.sonar.server.ce.projectdump.ProjectExportWsModule;
 import org.sonar.server.ce.ws.CeWsModule;
+import org.sonar.server.common.almintegration.ProjectKeyGenerator;
+import org.sonar.server.common.almsettings.DelegatingDevOpsProjectCreatorFactory;
+import org.sonar.server.common.almsettings.bitbucketcloud.BitbucketCloudProjectCreatorFactory;
+import org.sonar.server.common.almsettings.bitbucketserver.BitbucketServerProjectCreatorFactory;
+import org.sonar.server.common.almsettings.github.GithubProjectCreatorFactory;
+import org.sonar.server.common.almsettings.gitlab.GitlabProjectCreatorFactory;
+import org.sonar.server.common.component.ComponentUpdater;
 import org.sonar.server.common.gitlab.config.GitlabConfigurationService;
 import org.sonar.server.common.group.service.GroupMembershipService;
 import org.sonar.server.common.group.service.GroupService;
+import org.sonar.server.common.newcodeperiod.NewCodeDefinitionResolver;
+import org.sonar.server.common.permission.DefaultTemplatesResolverImpl;
+import org.sonar.server.common.permission.GroupPermissionChanger;
+import org.sonar.server.common.permission.PermissionTemplateService;
+import org.sonar.server.common.permission.PermissionUpdater;
+import org.sonar.server.common.permission.UserPermissionChanger;
 import org.sonar.server.common.rule.RuleCreator;
 import org.sonar.server.common.rule.service.RuleService;
 import org.sonar.server.common.text.MacroInterpreter;
 import org.sonar.server.component.ComponentCleanerService;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.component.ComponentService;
-import org.sonar.server.common.component.ComponentUpdater;
 import org.sonar.server.component.index.ComponentIndex;
 import org.sonar.server.component.index.ComponentIndexDefinition;
 import org.sonar.server.component.index.EntityDefinitionIndexer;
@@ -160,15 +167,9 @@ import org.sonar.server.monitoring.devops.AzureMetricsTask;
 import org.sonar.server.monitoring.devops.BitbucketMetricsTask;
 import org.sonar.server.monitoring.devops.GithubMetricsTask;
 import org.sonar.server.monitoring.devops.GitlabMetricsTask;
-import org.sonar.server.common.newcodeperiod.NewCodeDefinitionResolver;
 import org.sonar.server.newcodeperiod.ws.NewCodePeriodsWsModule;
 import org.sonar.server.notification.NotificationModule;
 import org.sonar.server.notification.ws.NotificationWsModule;
-import org.sonar.server.common.permission.DefaultTemplatesResolverImpl;
-import org.sonar.server.common.permission.GroupPermissionChanger;
-import org.sonar.server.common.permission.PermissionTemplateService;
-import org.sonar.server.common.permission.PermissionUpdater;
-import org.sonar.server.common.permission.UserPermissionChanger;
 import org.sonar.server.permission.index.PermissionIndexer;
 import org.sonar.server.permission.ws.PermissionsWsModule;
 import org.sonar.server.platform.ClusterVerification;
@@ -574,8 +575,9 @@ public class PlatformLevel4 extends PlatformLevel {
       BitbucketServerRestClient.class,
       AzureDevOpsHttpClient.class,
       new AlmIntegrationsWSModule(),
-      BitbucketCloudProjectCreatorFactory.class,
       BitbucketCloudValidator.class,
+      BitbucketCloudProjectCreatorFactory.class,
+      BitbucketServerProjectCreatorFactory.class,
       BitbucketServerSettingsValidator.class,
       GithubGlobalSettingsValidator.class,
       GitlabHeaders.class,

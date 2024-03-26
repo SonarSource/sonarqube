@@ -48,10 +48,14 @@ import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.almintegration.ws.ImportHelper;
 import org.sonar.server.common.almintegration.ProjectKeyGenerator;
+import org.sonar.server.common.almsettings.DevOpsProjectCreatorFactory;
+import org.sonar.server.common.almsettings.bitbucketserver.BitbucketServerProjectCreatorFactory;
 import org.sonar.server.common.component.ComponentUpdater;
 import org.sonar.server.common.newcodeperiod.NewCodeDefinitionResolver;
 import org.sonar.server.common.permission.PermissionTemplateService;
 import org.sonar.server.common.permission.PermissionUpdater;
+import org.sonar.server.common.project.ImportProjectService;
+import org.sonar.server.common.project.ProjectCreator;
 import org.sonar.server.es.TestIndexers;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -68,6 +72,7 @@ import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.Projects;
 
+import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
 import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -110,8 +115,13 @@ public class ImportBitbucketServerProjectActionIT {
 
   private final ImportHelper importHelper = new ImportHelper(db.getDbClient(), userSession);
   private final ProjectKeyGenerator projectKeyGenerator = mock(ProjectKeyGenerator.class);
-  private final WsActionTester ws = new WsActionTester(new ImportBitbucketServerProjectAction(db.getDbClient(), userSession,
-    bitbucketServerRestClient, projectDefaultVisibility, componentUpdater, importHelper, projectKeyGenerator, newCodeDefinitionResolver, defaultBranchNameResolver));
+
+  private final ProjectCreator projectCreator = new ProjectCreator(userSession, projectDefaultVisibility, componentUpdater);
+  private final DevOpsProjectCreatorFactory devOpsProjectCreatorFactory = new BitbucketServerProjectCreatorFactory(db.getDbClient(), userSession, bitbucketServerRestClient,
+    projectCreator, projectKeyGenerator);
+  private final ImportProjectService importProjectService = new ImportProjectService(db.getDbClient(), devOpsProjectCreatorFactory, userSession, componentUpdater,
+    newCodeDefinitionResolver);
+  private final WsActionTester ws = new WsActionTester(new ImportBitbucketServerProjectAction(importHelper, importProjectService));
 
   private static BranchesList defaultBranchesList;
 
@@ -350,15 +360,18 @@ public class ImportBitbucketServerProjectActionIT {
   public void check_pat_is_missing() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user).addPermission(PROVISION_PROJECTS);
-    AlmSettingDto almSetting = db.almSettings().insertGitHubAlmSetting();
+    AlmSettingDto almSetting = db.almSettings().insertBitbucketAlmSetting();
+    Project project = getGsonBBSProject();
+    mockBitbucketServerRepo(project, new BranchesList());
 
-    assertThatThrownBy(() -> {
-      ws.newRequest()
-        .setParam("almSetting", almSetting.getKey())
-        .execute();
-    })
+    TestRequest request = ws.newRequest()
+      .setParam("almSetting", almSetting.getKey())
+      .setParam("projectKey", "projectKey")
+      .setParam("repositorySlug", "repo-slug");
+
+    assertThatThrownBy(request::execute)
       .isInstanceOf(IllegalArgumentException.class)
-      .hasMessage("personal access token for '" + almSetting.getKey() + "' is missing");
+      .hasMessage(format("personal access token for '%s' is missing", almSetting.getKey()));
   }
 
   @Test

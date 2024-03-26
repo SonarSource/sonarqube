@@ -17,14 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.common.almsettings.bitbucketcloud;
+package org.sonar.server.common.almsettings.bitbucketserver;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.sonar.alm.client.bitbucket.bitbucketcloud.BitbucketCloudRestClient;
+import org.sonar.alm.client.bitbucketserver.BitbucketServerRestClient;
 import org.sonar.db.DbClient;
 import org.sonar.db.alm.setting.ALM;
 import org.sonar.db.alm.setting.AlmSettingDto;
@@ -39,24 +39,23 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class BitbucketCloudProjectCreatorFactoryTest {
-
+class BitbucketServerProjectCreatorFactoryTest {
   @Mock
   private DbClient dbClient;
   @Mock
   private UserSession userSession;
   @Mock
-  private BitbucketCloudRestClient bitbucketCloudRestClient;
+  private BitbucketServerRestClient bitbucketServerRestClient;
   @Mock
   private ProjectCreator projectCreator;
   @Mock
   private ProjectKeyGenerator projectKeyGenerator;
 
   @InjectMocks
-  private BitbucketCloudProjectCreatorFactory underTest;
+  private BitbucketServerProjectCreatorFactory underTest;
 
   @Test
-  void getDevOpsProjectCreator_whenAlmIsNotBitbucketCloud_shouldReturnEmpty() {
+  void getDevOpsProjectCreator_whenAlmIsNotBitbucketServer_shouldReturnEmpty() {
     AlmSettingDto almSettingDto = mock(AlmSettingDto.class);
     when(almSettingDto.getAlm()).thenReturn(ALM.GITLAB);
     DevOpsProjectDescriptor devOpsProjectDescriptor = new DevOpsProjectDescriptor(ALM.GITLAB, null, "bitbucket_repo", "bitbucket_project");
@@ -65,16 +64,15 @@ class BitbucketCloudProjectCreatorFactoryTest {
   }
 
   @Test
-  void getDevOpsProjectCreator_whenAlmItBitbucketCloud_shouldReturnProjectCreator() {
+  void testGetDevOpsProjectCreator_whenAlmIsBitbucketServer_shouldReturnProjectCreator() {
     AlmSettingDto almSettingDto = mock(AlmSettingDto.class);
-    when(almSettingDto.getAlm()).thenReturn(ALM.BITBUCKET_CLOUD);
-    DevOpsProjectDescriptor devOpsProjectDescriptor = new DevOpsProjectDescriptor(ALM.BITBUCKET_CLOUD, null, "bitbucket_repo", "bitbucket_project");
+    when(almSettingDto.getAlm()).thenReturn(ALM.BITBUCKET);
+    DevOpsProjectDescriptor devOpsProjectDescriptor = new DevOpsProjectDescriptor(ALM.BITBUCKET, null, "bitbucket_repo", "bitbucket_project");
 
-    DevOpsProjectCreator expectedProjectCreator = new BitbucketCloudProjectCreator(dbClient, almSettingDto, devOpsProjectDescriptor, userSession, bitbucketCloudRestClient,
-      projectCreator, projectKeyGenerator);
+    DevOpsProjectCreator expectedProjectCreator = new BitbucketServerProjectCreator(almSettingDto, bitbucketServerRestClient, dbClient,
+      devOpsProjectDescriptor, userSession, projectCreator, projectKeyGenerator);
     DevOpsProjectCreator devOpsProjectCreator = underTest.getDevOpsProjectCreator(almSettingDto, devOpsProjectDescriptor).orElseThrow();
 
     assertThat(devOpsProjectCreator).usingRecursiveComparison().isEqualTo(expectedProjectCreator);
   }
-
 }
