@@ -514,8 +514,8 @@ subprojects {
         String packageInfoPath = it + "/package-info.java"
         File packageInfoFile = new File (packageInfoPath)
         if (!packageInfoFile.exists()) {
-            logger.warn("Creating file: " + packageInfoPath)
-            def packageName = packageInfoFile.getParent().takeAfter("src/main/java/").replaceAll("/", "\\.")
+            logger.info("Creating file: " + packageInfoPath)
+            def packageName = packageInfoFile.getParent().replaceAll("[\\\\ /]", ".").takeAfter("src.main.java.");
             String packageInfoContent = applyPackageInfoTemplate(packageName)
             packageInfoFile << packageInfoContent
         }
