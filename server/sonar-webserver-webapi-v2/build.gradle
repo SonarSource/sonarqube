@@ -10,7 +10,7 @@ dependencies {
     api 'org.springframework:spring-webmvc'
     api 'org.hibernate:hibernate-validator'
     api 'javax.el:javax.el-api'
-    api 'org.glassfish:javax.el'
+    api 'org.glassfish:jakarta.el'
 
     api project(':server:sonar-db-dao')
     api project(':server:sonar-webserver-common')
