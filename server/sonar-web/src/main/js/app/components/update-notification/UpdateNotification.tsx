@@ -20,25 +20,19 @@
 import { Banner, Variant } from 'design-system';
 import { groupBy, isEmpty, mapValues } from 'lodash';
 import * as React from 'react';
-import { getSystemUpgrades } from '../../../api/system';
 import DismissableAlert from '../../../components/ui/DismissableAlert';
 import SystemUpgradeButton from '../../../components/upgrade/SystemUpgradeButton';
-import { UpdateUseCase, sortUpgrades } from '../../../components/upgrade/utils';
+import { UpdateUseCase } from '../../../components/upgrade/utils';
 import { translate } from '../../../helpers/l10n';
 import { hasGlobalPermission } from '../../../helpers/users';
+import { useSystemUpgrades } from '../../../queries/system';
 import { AppState } from '../../../types/appstate';
 import { Permissions } from '../../../types/permissions';
-import { SystemUpgrade } from '../../../types/system';
 import { Dict } from '../../../types/types';
 import { CurrentUser, isLoggedIn } from '../../../types/users';
 import withAppStateContext from '../app-state/withAppStateContext';
 import withCurrentUserContext from '../current-user/withCurrentUserContext';
-
-const MONTH_BEFOR_PREVIOUS_LTS_NOTIFICATION = 6;
-
-type GroupedSystemUpdate = {
-  [x: string]: Dict<SystemUpgrade[]>;
-};
+import { isMinorUpdate, isPatchUpdate, isPreLTSUpdate, isPreviousLTSUpdate } from './helpers';
 
 const MAP_VARIANT: Dict<Variant> = {
   [UpdateUseCase.NewMinorVersion]: 'info',
@@ -53,194 +47,86 @@ interface Props {
   currentUser: CurrentUser;
 }
 
-interface State {
-  dismissKey: string;
-  useCase: UpdateUseCase;
-  latestLTS: string;
-  systemUpgrades: SystemUpgrade[];
-  canSeeNotification: boolean;
-}
+const VERSION_PARSER = /^(\d+)\.(\d+)(\.(\d+))?/;
 
-export class UpdateNotification extends React.PureComponent<Props, State> {
-  mounted = false;
-  versionParser = /^(\d+)\.(\d+)(\.(\d+))?/;
+export function UpdateNotification({ dismissable, appState, currentUser }: Readonly<Props>) {
+  const canUserSeeNotification =
+    isLoggedIn(currentUser) && hasGlobalPermission(currentUser, Permissions.Admin);
+  const regExpParsedVersion = VERSION_PARSER.exec(appState.version);
+  const { data } = useSystemUpgrades({
+    enabled: canUserSeeNotification && regExpParsedVersion !== null,
+  });
 
-  constructor(props: Props) {
-    super(props);
-    this.state = {
-      dismissKey: '',
-      systemUpgrades: [],
-      latestLTS: '',
-      canSeeNotification: false,
-      useCase: UpdateUseCase.NewMinorVersion,
-    };
-  }
-
-  componentDidMount() {
-    this.mounted = true;
-
-    this.fetchSystemUpgradeInformation();
-  }
-
-  componentWillUnmount() {
-    this.mounted = false;
-  }
-
-  isPreLTSUpdate(parsedVersion: number[], latestLTS: string) {
-    const [currentMajor, currentMinor] = parsedVersion;
-    const [ltsMajor, ltsMinor] = latestLTS.split('.').map(Number);
-    return currentMajor < ltsMajor || (currentMajor === ltsMajor && currentMinor < ltsMinor);
-  }
-
-  isPreviousLTSUpdate(
-    parsedVersion: number[],
-    latestLTS: string,
-    systemUpgrades: GroupedSystemUpdate,
+  if (
+    !canUserSeeNotification ||
+    regExpParsedVersion === null ||
+    data === undefined ||
+    isEmpty(data.upgrades)
   ) {
-    const [ltsMajor, ltsMinor] = latestLTS.split('.').map(Number);
-    let ltsOlderThan6Month = false;
-    const beforeLts = this.isPreLTSUpdate(parsedVersion, latestLTS);
-    if (beforeLts) {
-      const allLTS = sortUpgrades(systemUpgrades[ltsMajor][ltsMinor]);
-      const ltsReleaseDate = new Date(allLTS[allLTS.length - 1]?.releaseDate || '');
-      if (isNaN(ltsReleaseDate.getTime())) {
-        // We can not parse the LTS date.
-        // It is unlikly that this could happen but consider LTS to be old.
-        return true;
-      }
-      ltsOlderThan6Month =
-        ltsReleaseDate.setMonth(ltsReleaseDate.getMonth() + MONTH_BEFOR_PREVIOUS_LTS_NOTIFICATION) -
-          Date.now() <
-        0;
-    }
-    return ltsOlderThan6Month && beforeLts;
+    return null;
   }
 
-  isMinorUpdate(parsedVersion: number[], systemUpgrades: GroupedSystemUpdate) {
-    const [currentMajor, currentMinor] = parsedVersion;
-    const allMinor = systemUpgrades[currentMajor];
-    return Object.keys(allMinor)
-      .map(Number)
-      .some((minor) => minor > currentMinor);
-  }
+  const { upgrades, latestLTS } = data;
+  const parsedVersion = regExpParsedVersion
+    .slice(1)
+    .map(Number)
+    .map((n) => (isNaN(n) ? 0 : n));
 
-  isPatchUpdate(parsedVersion: number[], systemUpgrades: GroupedSystemUpdate) {
-    const [currentMajor, currentMinor, currentPatch] = parsedVersion;
-    const allMinor = systemUpgrades[currentMajor];
-    const allPatch = sortUpgrades(allMinor[currentMinor] || []);
-
-    if (!isEmpty(allPatch)) {
-      const [, , latestPatch] = allPatch[0].version.split('.').map(Number);
-      const effectiveCurrentPatch = isNaN(currentPatch) ? 0 : currentPatch;
-      const effectiveLatestPatch = isNaN(latestPatch) ? 0 : latestPatch;
-      return effectiveCurrentPatch < effectiveLatestPatch;
-    }
-    return false;
-  }
-
-  async fetchSystemUpgradeInformation() {
-    if (
-      !isLoggedIn(this.props.currentUser) ||
-      !hasGlobalPermission(this.props.currentUser, Permissions.Admin)
-    ) {
-      this.noPromptToShow();
-      return;
-    }
-
-    const regExpParsedVersion = this.versionParser.exec(this.props.appState.version);
-    if (regExpParsedVersion === null) {
-      this.noPromptToShow();
-      return;
-    }
-    regExpParsedVersion.shift();
-    const parsedVersion = regExpParsedVersion.map(Number).map((n) => (isNaN(n) ? 0 : n));
-
-    const { upgrades, latestLTS } = await getSystemUpgrades();
-
-    if (isEmpty(upgrades)) {
-      // No new upgrades
-      this.noPromptToShow();
-      return;
-    }
-    const systemUpgrades = mapValues(
+  const systemUpgrades = mapValues(
+    groupBy(upgrades, (upgrade) => {
+      const [major] = upgrade.version.split('.');
+      return major;
+    }),
+    (upgrades) =>
       groupBy(upgrades, (upgrade) => {
-        const [major] = upgrade.version.split('.');
-        return major;
+        const [, minor] = upgrade.version.split('.');
+        return minor;
       }),
-      (upgrades) =>
-        groupBy(upgrades, (upgrade) => {
-          const [, minor] = upgrade.version.split('.');
-          return minor;
-        }),
-    );
+  );
 
-    let useCase = UpdateUseCase.NewMinorVersion;
+  let useCase = UpdateUseCase.NewMinorVersion;
 
-    if (this.isPreviousLTSUpdate(parsedVersion, latestLTS, systemUpgrades)) {
-      useCase = UpdateUseCase.PreviousLTS;
-    } else if (this.isPreLTSUpdate(parsedVersion, latestLTS)) {
-      useCase = UpdateUseCase.PreLTS;
-    } else if (this.isPatchUpdate(parsedVersion, systemUpgrades)) {
-      useCase = UpdateUseCase.NewPatch;
-    } else if (this.isMinorUpdate(parsedVersion, systemUpgrades)) {
-      useCase = UpdateUseCase.NewMinorVersion;
-    }
-
-    const latest = [...upgrades].sort(
-      (upgrade1, upgrade2) =>
-        new Date(upgrade2.releaseDate ?? '').getTime() -
-        new Date(upgrade1.releaseDate ?? '').getTime(),
-    )[0];
-
-    const dismissKey = useCase + latest.version;
-
-    if (this.mounted) {
-      this.setState({
-        latestLTS,
-        useCase,
-        dismissKey,
-        systemUpgrades: upgrades,
-        canSeeNotification: true,
-      });
-    }
+  if (isPreviousLTSUpdate(parsedVersion, latestLTS, systemUpgrades)) {
+    useCase = UpdateUseCase.PreviousLTS;
+  } else if (isPreLTSUpdate(parsedVersion, latestLTS)) {
+    useCase = UpdateUseCase.PreLTS;
+  } else if (isPatchUpdate(parsedVersion, systemUpgrades)) {
+    useCase = UpdateUseCase.NewPatch;
+  } else if (isMinorUpdate(parsedVersion, systemUpgrades)) {
+    useCase = UpdateUseCase.NewMinorVersion;
   }
 
-  noPromptToShow() {
-    if (this.mounted) {
-      this.setState({ canSeeNotification: false });
-    }
-  }
+  const latest = [...upgrades].sort(
+    (upgrade1, upgrade2) =>
+      new Date(upgrade2.releaseDate ?? '').getTime() -
+      new Date(upgrade1.releaseDate ?? '').getTime(),
+  )[0];
 
-  render() {
-    const { dismissable } = this.props;
-    const { latestLTS, systemUpgrades, canSeeNotification, useCase, dismissKey } = this.state;
-    if (!canSeeNotification) {
-      return null;
-    }
-    return dismissable ? (
-      <DismissableAlert
-        alertKey={dismissKey}
-        variant={MAP_VARIANT[useCase]}
-        className={`it__promote-update-notification it__upgrade-prompt-${useCase}`}
-      >
-        {translate('admin_notification.update', useCase)}
-        <SystemUpgradeButton
-          systemUpgrades={systemUpgrades}
-          updateUseCase={useCase}
-          latestLTS={latestLTS}
-        />
-      </DismissableAlert>
-    ) : (
-      <Banner variant={MAP_VARIANT[useCase]} className={`it__upgrade-prompt-${useCase}`}>
-        {translate('admin_notification.update', useCase)}
-        <SystemUpgradeButton
-          systemUpgrades={systemUpgrades}
-          updateUseCase={useCase}
-          latestLTS={latestLTS}
-        />
-      </Banner>
-    );
-  }
+  const dismissKey = useCase + latest.version;
+
+  return dismissable ? (
+    <DismissableAlert
+      alertKey={dismissKey}
+      variant={MAP_VARIANT[useCase]}
+      className={`it__promote-update-notification it__upgrade-prompt-${useCase}`}
+    >
+      {translate('admin_notification.update', useCase)}
+      <SystemUpgradeButton
+        systemUpgrades={upgrades}
+        updateUseCase={useCase}
+        latestLTS={latestLTS}
+      />
+    </DismissableAlert>
+  ) : (
+    <Banner variant={MAP_VARIANT[useCase]} className={`it__upgrade-prompt-${useCase}`}>
+      {translate('admin_notification.update', useCase)}
+      <SystemUpgradeButton
+        systemUpgrades={upgrades}
+        updateUseCase={useCase}
+        latestLTS={latestLTS}
+      />
+    </Banner>
+  );
 }
 
 export default withCurrentUserContext(withAppStateContext(UpdateNotification));
