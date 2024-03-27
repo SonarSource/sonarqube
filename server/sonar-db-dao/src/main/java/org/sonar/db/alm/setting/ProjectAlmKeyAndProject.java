@@ -24,6 +24,7 @@ public class ProjectAlmKeyAndProject {
   private String projectUuid;
   private String almId;
   private String url;
+  private Boolean monorepo;
 
   public ProjectAlmKeyAndProject() {
     // keep empty
@@ -53,6 +54,14 @@ public class ProjectAlmKeyAndProject {
 
   public ProjectAlmKeyAndProject setUrl(String url) {
     this.url = url;
+    return this;
+  }
+
+  public Boolean getMonorepo() {
+    return monorepo;
+  }
+  public ProjectAlmKeyAndProject setMonorepo(Boolean monorepo) {
+    this.monorepo = monorepo;
     return this;
   }
 }

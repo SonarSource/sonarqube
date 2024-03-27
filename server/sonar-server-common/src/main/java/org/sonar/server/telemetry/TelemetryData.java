@@ -27,7 +27,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import javax.annotation.Nullable;
-import org.sonar.core.platform.EditionProvider;
 import org.sonar.core.platform.EditionProvider.Edition;
 import org.sonar.db.project.CreationMethod;
 import org.sonar.db.user.UserTelemetryDto;
@@ -42,7 +41,7 @@ public class TelemetryData {
   private final Long messageSequenceNumber;
   private final Map<String, String> plugins;
   private final Database database;
-  private final EditionProvider.Edition edition;
+  private final Edition edition;
   private final String defaultQualityGate;
   private final String sonarWayQualityGate;
   private final Long installationDate;
@@ -109,7 +108,7 @@ public class TelemetryData {
     return database;
   }
 
-  public Optional<EditionProvider.Edition> getEdition() {
+  public Optional<Edition> getEdition() {
     return Optional.ofNullable(edition);
   }
 
@@ -325,7 +324,6 @@ public class TelemetryData {
       return this;
     }
 
-
     Builder setQualityProfiles(List<QualityProfile> qualityProfiles) {
       this.qualityProfiles = qualityProfiles;
       return this;
@@ -378,18 +376,17 @@ public class TelemetryData {
   }
 
   public record QualityProfile(String uuid, @Nullable String parentUuid, String language, boolean isDefault,
-                               boolean isBuiltIn,
-                        @Nullable Boolean builtInParent, @Nullable Integer rulesOverriddenCount,
-                        @Nullable Integer rulesActivatedCount, @Nullable Integer rulesDeactivatedCount
-  ) {
+    boolean isBuiltIn,
+    @Nullable Boolean builtInParent, @Nullable Integer rulesOverriddenCount,
+    @Nullable Integer rulesActivatedCount, @Nullable Integer rulesDeactivatedCount) {
   }
 
   record ManagedInstanceInformation(boolean isManaged, @Nullable String provider) {
   }
 
   record CloudUsage(boolean kubernetes, @Nullable String kubernetesVersion, @Nullable String kubernetesPlatform,
-                    @Nullable String kubernetesProvider,
-                    @Nullable String officialHelmChart, @Nullable String containerRuntime, boolean officialImage) {
+    @Nullable String kubernetesProvider,
+    @Nullable String officialHelmChart, @Nullable String containerRuntime, boolean officialImage) {
   }
 
   public static class ProjectStatistics {
@@ -407,8 +404,8 @@ public class TelemetryData {
     private final Long developmentCost;
     private final int ncdId;
     private final Long externalSecurityReportExportedAt;
-
     private final CreationMethod creationMethod;
+    private final Boolean monorepo;
 
     ProjectStatistics(Builder builder) {
       this.projectUuid = builder.projectUuid;
@@ -426,6 +423,7 @@ public class TelemetryData {
       this.ncdId = builder.ncdId;
       this.externalSecurityReportExportedAt = builder.externalSecurityReportExportedAt;
       this.creationMethod = builder.creationMethod;
+      this.monorepo = builder.monorepo;
     }
 
     public int getNcdId() {
@@ -488,6 +486,10 @@ public class TelemetryData {
       return creationMethod;
     }
 
+    public Boolean isMonorepo() {
+      return monorepo;
+    }
+
     static class Builder {
       private String projectUuid;
       private Long branchCount;
@@ -504,6 +506,7 @@ public class TelemetryData {
       private int ncdId;
       private Long externalSecurityReportExportedAt;
       private CreationMethod creationMethod;
+      private Boolean monorepo;
 
       public Builder setProjectUuid(String projectUuid) {
         this.projectUuid = projectUuid;
@@ -577,6 +580,11 @@ public class TelemetryData {
 
       public Builder setCreationMethod(CreationMethod creationMethod) {
         this.creationMethod = creationMethod;
+        return this;
+      }
+
+      public Builder setMonorepo(Boolean monorepo) {
+        this.monorepo = monorepo;
         return this;
       }
 

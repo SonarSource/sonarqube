@@ -88,7 +88,11 @@ public class AlmSettingsDbTester {
   }
 
   public ProjectAlmSettingDto insertGitlabProjectAlmSetting(AlmSettingDto gitlabAlmSetting, ProjectDto project) {
-    return insertProjectAlmSetting(newGitlabProjectAlmSettingDto(gitlabAlmSetting, project), gitlabAlmSetting.getKey(),
+    return insertGitlabProjectAlmSetting(gitlabAlmSetting, project, false);
+  }
+
+  public ProjectAlmSettingDto insertGitlabProjectAlmSetting(AlmSettingDto gitlabAlmSetting, ProjectDto project, boolean monorepo) {
+    return insertProjectAlmSetting(newGitlabProjectAlmSettingDto(gitlabAlmSetting, project, monorepo), gitlabAlmSetting.getKey(),
       project.getName(), project.getKey());
   }
 

@@ -222,7 +222,7 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
     this.qualityProfileByProjectAndLanguage.clear();
   }
 
-  private void  loadNewCodeDefinitions(DbSession dbSession, List<BranchMeasuresDto> branchMeasuresDtos) {
+  private void loadNewCodeDefinitions(DbSession dbSession, List<BranchMeasuresDto> branchMeasuresDtos) {
     var branchUuidByKey = branchMeasuresDtos.stream()
       .collect(Collectors.toMap(dto -> createBranchUniqueKey(dto.getProjectUuid(), dto.getBranchKey()), BranchMeasuresDto::getBranchUuid));
     List<NewCodePeriodDto> newCodePeriodDtos = dbClient.newCodePeriodDao().selectAll(dbSession);
@@ -291,7 +291,7 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
   private void resolveProjectStatistics(TelemetryData.Builder data, DbSession dbSession, String defaultQualityGateUuid, List<ProjectDto> projects) {
     Map<String, String> scmByProject = getAnalysisPropertyByProject(dbSession, SONAR_ANALYSIS_DETECTEDSCM);
     Map<String, String> ciByProject = getAnalysisPropertyByProject(dbSession, SONAR_ANALYSIS_DETECTEDCI);
-    Map<String, ProjectAlmKeyAndProject> almAndUrlByProject = getAlmAndUrlByProject(dbSession);
+    Map<String, ProjectAlmKeyAndProject> almAndUrlAndMonorepoByProject = getAlmAndUrlByProject(dbSession);
     Map<String, PrBranchAnalyzedLanguageCountByProjectDto> prAndBranchCountByProject = dbClient.branchDao().countPrBranchAnalyzedLanguageByProjectUuid(dbSession)
       .stream().collect(toMap(PrBranchAnalyzedLanguageCountByProjectDto::getProjectUuid, Function.identity()));
     Map<String, String> qgatesByProject = getProjectQgatesMap(dbSession);
@@ -313,7 +313,7 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
         .setQG(qgatesByProject.getOrDefault(projectUuid, defaultQualityGateUuid))
         .setScm(Optional.ofNullable(scmByProject.get(projectUuid)).orElse(UNDETECTED))
         .setCi(Optional.ofNullable(ciByProject.get(projectUuid)).orElse(UNDETECTED))
-        .setDevops(resolveDevopsPlatform(almAndUrlByProject, projectUuid))
+        .setDevops(resolveDevopsPlatform(almAndUrlAndMonorepoByProject, projectUuid))
         .setBugs(metrics.getOrDefault("bugs", null))
         .setDevelopmentCost(metrics.getOrDefault("development_cost", null))
         .setVulnerabilities(metrics.getOrDefault("vulnerabilities", null))
@@ -322,6 +322,7 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
         .setNcdId(ncdByProject.getOrDefault(projectUuid, instanceNcd).hashCode())
         .setExternalSecurityReportExportedAt(securityReportExportedAtByProjectUuid.get(projectUuid))
         .setCreationMethod(project.getCreationMethod())
+        .setMonorepo(resolveMonorepo(almAndUrlAndMonorepoByProject, projectUuid))
         .build();
       projectStatistics.add(stats);
     }
@@ -341,6 +342,12 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
       return getAlmName(projectAlmKeyAndProject.getAlmId(), projectAlmKeyAndProject.getUrl());
     }
     return UNDETECTED;
+  }
+
+  private static Boolean resolveMonorepo(Map<String, ProjectAlmKeyAndProject> almAndUrlByProject, String projectUuid) {
+    return Optional.ofNullable(almAndUrlByProject.get(projectUuid))
+      .map(ProjectAlmKeyAndProject::getMonorepo)
+      .orElse(false);
   }
 
   private void resolveProjects(TelemetryData.Builder data, DbSession dbSession) {
@@ -413,8 +420,7 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
       Condition telemetryCondition = new Condition(
         metricKey,
         fromDbValue(condition.getOperator()),
-        condition.getErrorThreshold()
-      );
+        condition.getErrorThreshold());
 
       conditionsMap
         .computeIfAbsent(qualityGateUuid, k -> new ArrayList<>())

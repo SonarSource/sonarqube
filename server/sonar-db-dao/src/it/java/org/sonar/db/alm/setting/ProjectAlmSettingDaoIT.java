@@ -44,6 +44,7 @@ class ProjectAlmSettingDaoIT {
   private static final long A_DATE_LATER = 1_700_000_000_000L;
 
   private static final String A_UUID = "SOME_UUID";
+  private static final String ANOTHER_UUID = "SOME_UUID2";
   private final TestSystem2 system2 = new TestSystem2().setNow(A_DATE);
   @RegisterExtension
   private final DbTester db = DbTester.create(system2);
@@ -117,8 +118,8 @@ class ProjectAlmSettingDaoIT {
     AlmSettingDto gitlabSetting = db.almSettings().insertGitlabAlmSetting();
     ProjectAlmSettingDto gitlabProject = createAlmProject(gitlabSetting);
 
-    List<ProjectAlmSettingDto> projectAlmSettingDtos =
-      underTest.selectByProjectUuidsAndAlm(dbSession, Set.of(githubProject.getProjectUuid(), gitlabProject.getProjectUuid()), ALM.GITHUB);
+    List<ProjectAlmSettingDto> projectAlmSettingDtos = underTest.selectByProjectUuidsAndAlm(dbSession, Set.of(githubProject.getProjectUuid(), gitlabProject.getProjectUuid()),
+      ALM.GITHUB);
 
     assertThat(projectAlmSettingDtos)
       .usingRecursiveFieldByFieldElementComparator()
@@ -171,15 +172,30 @@ class ProjectAlmSettingDaoIT {
   }
 
   @Test
-  void select_alm_type_and_url_by_project() {
-    when(uuidFactory.create()).thenReturn(A_UUID);
+  void selectAlmTypeAndUrlByProject_returnsCorrectValues() {
+    when(uuidFactory.create())
+      .thenReturn(A_UUID)
+      .thenReturn(ANOTHER_UUID);
     AlmSettingDto almSettingsDto = db.almSettings().insertGitHubAlmSetting();
-    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
-    ProjectAlmSettingDto githubProjectAlmSettingDto = newGithubProjectAlmSettingDto(almSettingsDto, project);
-    underTest.insertOrUpdate(dbSession, githubProjectAlmSettingDto, almSettingsDto.getKey(), project.getName(), project.getKey());
+
+    ProjectDto project1 = db.components().insertPrivateProject().getProjectDto();
+    ProjectDto project2 = db.components().insertPrivateProject().getProjectDto();
+
+    ProjectAlmSettingDto githubProjectAlmSettingDto1 = newGithubProjectAlmSettingDto(almSettingsDto, project1, false);
+    ProjectAlmSettingDto githubProjectAlmSettingDto2 = newGithubProjectAlmSettingDto(almSettingsDto, project2, true);
+
+    underTest.insertOrUpdate(dbSession, githubProjectAlmSettingDto1, almSettingsDto.getKey(), project1.getName(), project1.getKey());
+    underTest.insertOrUpdate(dbSession, githubProjectAlmSettingDto2, almSettingsDto.getKey(), project2.getName(), project2.getKey());
+
     assertThat(underTest.selectAlmTypeAndUrlByProject(dbSession))
-      .extracting(ProjectAlmKeyAndProject::getProjectUuid, ProjectAlmKeyAndProject::getAlmId, ProjectAlmKeyAndProject::getUrl)
-      .containsExactly(tuple(project.getUuid(), almSettingsDto.getAlm().getId(), almSettingsDto.getUrl()));
+      .extracting(
+        ProjectAlmKeyAndProject::getProjectUuid,
+        ProjectAlmKeyAndProject::getAlmId,
+        ProjectAlmKeyAndProject::getUrl,
+        ProjectAlmKeyAndProject::getMonorepo
+      ).containsExactlyInAnyOrder(
+        tuple(project1.getUuid(), almSettingsDto.getAlm().getId(), almSettingsDto.getUrl(), false),
+        tuple(project2.getUuid(), almSettingsDto.getAlm().getId(), almSettingsDto.getUrl(), true));
   }
 
   @Test

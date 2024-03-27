@@ -215,7 +215,7 @@ public class TelemetryDataLoaderImplIT {
     AlmSettingDto almSettingDto = db.almSettings().insertAzureAlmSetting(a -> a.setUrl("https://dev.azure.com"));
     AlmSettingDto gitHubAlmSetting = db.almSettings().insertGitHubAlmSetting(a -> a.setUrl("https://api.github.com"));
     db.almSettings().insertAzureProjectAlmSetting(almSettingDto, projectData1.getProjectDto());
-    db.almSettings().insertGitlabProjectAlmSetting(gitHubAlmSetting, projectData2.getProjectDto());
+    db.almSettings().insertGitlabProjectAlmSetting(gitHubAlmSetting, projectData2.getProjectDto(), true);
 
     // quality gates
     QualityGateDto qualityGate1 = db.qualityGates().insertQualityGate(qg -> qg.setName("QG1").setBuiltIn(true));
@@ -238,8 +238,8 @@ public class TelemetryDataLoaderImplIT {
     // link one project to a non-default QG
     db.qualityGates().associateProjectToQualityGate(db.components().getProjectDtoByMainBranch(mainBranch1), qualityGate1);
 
-    var ncd1 = db.newCodePeriods().insert(projectData1.projectUuid(), NewCodePeriodType.NUMBER_OF_DAYS, "30");
-    var ncd2 = db.newCodePeriods().insert(projectData1.projectUuid(), branch2.branchUuid(), NewCodePeriodType.REFERENCE_BRANCH, "reference");
+    db.newCodePeriods().insert(projectData1.projectUuid(), NewCodePeriodType.NUMBER_OF_DAYS, "30");
+    db.newCodePeriods().insert(projectData1.projectUuid(), branch2.branchUuid(), NewCodePeriodType.REFERENCE_BRANCH, "reference");
 
     var instanceNcdId = NewCodeDefinition.getInstanceDefault().hashCode();
     var projectNcdId = new NewCodeDefinition(NewCodePeriodType.NUMBER_OF_DAYS.name(), "30", "project").hashCode();
@@ -274,15 +274,25 @@ public class TelemetryDataLoaderImplIT {
         tuple(projectData2.projectUuid(), "java", 180L, analysisDate),
         tuple(projectData2.projectUuid(), "js", 20L, analysisDate));
     assertThat(data.getProjectStatistics())
-      .extracting(ProjectStatistics::getBranchCount, ProjectStatistics::getPullRequestCount, ProjectStatistics::getQualityGate,
-        ProjectStatistics::getScm, ProjectStatistics::getCi, ProjectStatistics::getDevopsPlatform,
-        ProjectStatistics::getBugs, ProjectStatistics::getVulnerabilities, ProjectStatistics::getSecurityHotspots,
-        ProjectStatistics::getDevelopmentCost, ProjectStatistics::getTechnicalDebt, ProjectStatistics::getNcdId)
+      .extracting(
+        ProjectStatistics::getBranchCount,
+        ProjectStatistics::getPullRequestCount,
+        ProjectStatistics::getQualityGate,
+        ProjectStatistics::getScm,
+        ProjectStatistics::getCi,
+        ProjectStatistics::getDevopsPlatform,
+        ProjectStatistics::getBugs,
+        ProjectStatistics::getVulnerabilities,
+        ProjectStatistics::getSecurityHotspots,
+        ProjectStatistics::getDevelopmentCost,
+        ProjectStatistics::getTechnicalDebt,
+        ProjectStatistics::getNcdId,
+        ProjectStatistics::isMonorepo)
       .containsExactlyInAnyOrder(
         tuple(3L, 0L, qualityGate1.getUuid(), "scm-1", "ci-1", "azure_devops_cloud", Optional.of(1L), Optional.of(1L), Optional.of(1L), Optional.of(50L), Optional.of(5L),
-          projectNcdId),
+          projectNcdId, false),
         tuple(1L, 0L, builtInDefaultQualityGate.getUuid(), "scm-2", "ci-2", "github_cloud", Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(),
-          Optional.empty(), instanceNcdId));
+          Optional.empty(), instanceNcdId, true));
 
     assertThat(data.getBranches())
       .extracting(Branch::branchUuid, Branch::ncdId)
@@ -710,8 +720,6 @@ public class TelemetryDataLoaderImplIT {
       .setValue(value)
       .setCreatedAt(1L));
   }
-
-
 
   @DataProvider
   public static Set<String> getScimFeatureStatues() {

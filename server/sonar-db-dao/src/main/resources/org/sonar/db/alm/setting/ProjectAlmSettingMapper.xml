@@ -19,7 +19,8 @@
     select
       pas.project_uuid as "projectUuid",
       alm_settings.alm_id as "almId",
-      alm_settings.url as "url"
+      alm_settings.url as "url",
+      pas.monorepo as "monorepo"
     from
       project_alm_settings pas
     inner join

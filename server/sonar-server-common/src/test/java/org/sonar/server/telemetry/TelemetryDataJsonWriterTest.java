@@ -463,7 +463,8 @@ public class TelemetryDataJsonWriterTest {
             "developmentCost": 30,
             "ncdId": 12345,
             "externalSecurityReportExportedAt": 1500000,
-            "project_creation_method": "LOCAL_API"
+            "project_creation_method": "LOCAL_API",
+            "monorepo": true
           },
           {
             "projectUuid": "uuid-1",
@@ -480,7 +481,8 @@ public class TelemetryDataJsonWriterTest {
             "developmentCost": 60,
             "ncdId": 12345,
             "externalSecurityReportExportedAt": 1500001,
-            "project_creation_method": "LOCAL_API"
+            "project_creation_method": "LOCAL_API",
+            "monorepo": false
           },
           {
             "projectUuid": "uuid-2",
@@ -497,7 +499,8 @@ public class TelemetryDataJsonWriterTest {
             "developmentCost": 90,
             "ncdId": 12345,
             "externalSecurityReportExportedAt": 1500002,
-            "project_creation_method": "LOCAL_API"
+            "project_creation_method": "LOCAL_API",
+            "monorepo": true
           }
         ]
       }
@@ -730,7 +733,8 @@ public class TelemetryDataJsonWriterTest {
       .setScm("scm-" + i)
       .setDevops("devops-" + i)
       .setNcdId(NCD_ID)
-      .setCreationMethod(CreationMethod.LOCAL_API);
+      .setCreationMethod(CreationMethod.LOCAL_API)
+      .setMonorepo(false);
   }
 
   private static TelemetryData.ProjectStatistics.Builder getProjectStatisticsWithMetricBuilder(int i) {
@@ -741,7 +745,8 @@ public class TelemetryDataJsonWriterTest {
       .setDevelopmentCost((i + 1L) * 30d)
       .setTechnicalDebt((i + 1L) * 60d)
       .setExternalSecurityReportExportedAt(1_500_000L + i)
-      .setCreationMethod(CreationMethod.LOCAL_API);
+      .setCreationMethod(CreationMethod.LOCAL_API)
+      .setMonorepo(i % 2 == 0);
   }
 
   private List<TelemetryData.QualityGate> attachQualityGates() {

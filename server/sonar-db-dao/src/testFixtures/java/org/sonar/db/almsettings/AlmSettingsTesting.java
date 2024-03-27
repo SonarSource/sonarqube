@@ -78,19 +78,27 @@ public class AlmSettingsTesting {
   }
 
   public static ProjectAlmSettingDto newGithubProjectAlmSettingDto(AlmSettingDto githubAlmSetting, ProjectDto project) {
+    return newGithubProjectAlmSettingDto(githubAlmSetting, project, false);
+  }
+
+  public static ProjectAlmSettingDto newGithubProjectAlmSettingDto(AlmSettingDto githubAlmSetting, ProjectDto project, boolean monorepo) {
     return new ProjectAlmSettingDto()
       .setAlmSettingUuid(githubAlmSetting.getUuid())
       .setProjectUuid(project.getUuid())
       .setAlmRepo(randomAlphanumeric(256))
       .setSummaryCommentEnabled(true)
-      .setMonorepo(false);
+      .setMonorepo(monorepo);
   }
 
   public static ProjectAlmSettingDto newGitlabProjectAlmSettingDto(AlmSettingDto gitlabAlmSetting, ProjectDto project) {
+    return newGitlabProjectAlmSettingDto(gitlabAlmSetting, project, false);
+  }
+
+  public static ProjectAlmSettingDto newGitlabProjectAlmSettingDto(AlmSettingDto gitlabAlmSetting, ProjectDto project, boolean monorepo) {
     return new ProjectAlmSettingDto()
       .setAlmSettingUuid(gitlabAlmSetting.getUuid())
       .setProjectUuid(project.getUuid())
-      .setMonorepo(false);
+      .setMonorepo(monorepo);
   }
 
   static ProjectAlmSettingDto newAzureProjectAlmSettingDto(AlmSettingDto azureAlmSetting, ProjectDto project) {
