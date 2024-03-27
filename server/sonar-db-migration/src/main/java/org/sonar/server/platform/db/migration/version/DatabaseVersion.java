@@ -27,8 +27,8 @@ public class DatabaseVersion {
 
   /**
    * The minimum supported version which can be upgraded. Lower
-   * versions must be previously upgraded to LTS version.
-   * Note that the value can't be less than current LTS version.
+   * versions must be previously upgraded to LTA version.
+   * Note that the value can't be less than current LTA version.
    */
   public static final long MIN_UPGRADE_VERSION = 6_802;
 
