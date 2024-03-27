@@ -4,4 +4,4 @@ set -euo pipefail
 source .cirrus/cirrus-env
 
 ./gradlew cleanTest test jacocoTestReport \
-  --parallel --configure-on-demand --console plain -Pqa
+  --parallel --max-workers=3 --configure-on-demand --console plain -Pqa
