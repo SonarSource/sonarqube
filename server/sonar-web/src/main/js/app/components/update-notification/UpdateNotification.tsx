@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Banner, Variant } from 'design-system';
+import { Banner } from 'design-system';
 import { groupBy, isEmpty, mapValues } from 'lodash';
 import * as React from 'react';
 import DismissableAlert from '../../../components/ui/DismissableAlert';
@@ -26,33 +26,26 @@ import { UpdateUseCase } from '../../../components/upgrade/utils';
 import { translate } from '../../../helpers/l10n';
 import { hasGlobalPermission } from '../../../helpers/users';
 import { useSystemUpgrades } from '../../../queries/system';
-import { AppState } from '../../../types/appstate';
 import { Permissions } from '../../../types/permissions';
-import { Dict } from '../../../types/types';
-import { CurrentUser, isLoggedIn } from '../../../types/users';
-import withAppStateContext from '../app-state/withAppStateContext';
-import withCurrentUserContext from '../current-user/withCurrentUserContext';
-import { isMinorUpdate, isPatchUpdate, isPreLTSUpdate, isPreviousLTSUpdate } from './helpers';
-
-const MAP_VARIANT: Dict<Variant> = {
-  [UpdateUseCase.NewMinorVersion]: 'info',
-  [UpdateUseCase.NewPatch]: 'warning',
-  [UpdateUseCase.PreLTS]: 'warning',
-  [UpdateUseCase.PreviousLTS]: 'error',
-};
+import { isLoggedIn } from '../../../types/users';
+import { useAppState } from '../app-state/withAppStateContext';
+import { useCurrentUser } from '../current-user/CurrentUserContext';
+import { BANNER_VARIANT, isCurrentVersionLTA, isMinorUpdate, isPatchUpdate } from './helpers';
 
 interface Props {
-  dismissable: boolean;
-  appState: AppState;
-  currentUser: CurrentUser;
+  dismissable?: boolean;
 }
 
 const VERSION_PARSER = /^(\d+)\.(\d+)(\.(\d+))?/;
 
-export function UpdateNotification({ dismissable, appState, currentUser }: Readonly<Props>) {
+export default function UpdateNotification({ dismissable }: Readonly<Props>) {
+  const appState = useAppState();
+  const { currentUser } = useCurrentUser();
+
   const canUserSeeNotification =
     isLoggedIn(currentUser) && hasGlobalPermission(currentUser, Permissions.Admin);
   const regExpParsedVersion = VERSION_PARSER.exec(appState.version);
+
   const { data } = useSystemUpgrades({
     enabled: canUserSeeNotification && regExpParsedVersion !== null,
   });
@@ -66,7 +59,8 @@ export function UpdateNotification({ dismissable, appState, currentUser }: Reado
     return null;
   }
 
-  const { upgrades, latestLTS } = data;
+  const { upgrades, installedVersionActive, latestLTA } = data;
+
   const parsedVersion = regExpParsedVersion
     .slice(1)
     .map(Number)
@@ -84,16 +78,15 @@ export function UpdateNotification({ dismissable, appState, currentUser }: Reado
       }),
   );
 
-  let useCase = UpdateUseCase.NewMinorVersion;
+  let useCase = UpdateUseCase.NewVersion;
 
-  if (isPreviousLTSUpdate(parsedVersion, latestLTS, systemUpgrades)) {
-    useCase = UpdateUseCase.PreviousLTS;
-  } else if (isPreLTSUpdate(parsedVersion, latestLTS)) {
-    useCase = UpdateUseCase.PreLTS;
-  } else if (isPatchUpdate(parsedVersion, systemUpgrades)) {
+  if (!installedVersionActive) {
+    useCase = UpdateUseCase.CurrentVersionInactive;
+  } else if (
+    isPatchUpdate(parsedVersion, systemUpgrades) &&
+    (isCurrentVersionLTA(parsedVersion, latestLTA) || !isMinorUpdate(parsedVersion, systemUpgrades))
+  ) {
     useCase = UpdateUseCase.NewPatch;
-  } else if (isMinorUpdate(parsedVersion, systemUpgrades)) {
-    useCase = UpdateUseCase.NewMinorVersion;
   }
 
   const latest = [...upgrades].sort(
@@ -107,26 +100,24 @@ export function UpdateNotification({ dismissable, appState, currentUser }: Reado
   return dismissable ? (
     <DismissableAlert
       alertKey={dismissKey}
-      variant={MAP_VARIANT[useCase]}
+      variant={BANNER_VARIANT[useCase]}
       className={`it__promote-update-notification it__upgrade-prompt-${useCase}`}
     >
       {translate('admin_notification.update', useCase)}
       <SystemUpgradeButton
         systemUpgrades={upgrades}
         updateUseCase={useCase}
-        latestLTS={latestLTS}
+        latestLTA={latestLTA}
       />
     </DismissableAlert>
   ) : (
-    <Banner variant={MAP_VARIANT[useCase]} className={`it__upgrade-prompt-${useCase}`}>
+    <Banner variant={BANNER_VARIANT[useCase]} className={`it__upgrade-prompt-${useCase}`}>
       {translate('admin_notification.update', useCase)}
       <SystemUpgradeButton
         systemUpgrades={upgrades}
         updateUseCase={useCase}
-        latestLTS={latestLTS}
+        latestLTA={latestLTA}
       />
     </Banner>
   );
 }
-
-export default withCurrentUserContext(withAppStateContext(UpdateNotification));

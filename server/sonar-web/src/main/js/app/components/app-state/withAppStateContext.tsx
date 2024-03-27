@@ -43,3 +43,7 @@ export default function withAppStateContext<P>(
     }
   };
 }
+
+export function useAppState() {
+  return React.useContext(AppStateContext);
+}

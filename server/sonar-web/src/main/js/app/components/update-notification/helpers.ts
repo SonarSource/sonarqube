@@ -18,44 +18,20 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+import { Variant } from 'design-system';
 import { isEmpty } from 'lodash';
-import { sortUpgrades } from '../../../components/upgrade/utils';
+import { UpdateUseCase, sortUpgrades } from '../../../components/upgrade/utils';
 import { SystemUpgrade } from '../../../types/system';
-
-const MONTH_BEFOR_PREVIOUS_LTS_NOTIFICATION = 6;
+import { Dict } from '../../../types/types';
 
 type GroupedSystemUpdate = {
   [x: string]: Record<string, SystemUpgrade[]>;
 };
 
-export const isPreLTSUpdate = (parsedVersion: number[], latestLTS: string) => {
+export const isCurrentVersionLTA = (parsedVersion: number[], latestLTS: string) => {
   const [currentMajor, currentMinor] = parsedVersion;
   const [ltsMajor, ltsMinor] = latestLTS.split('.').map(Number);
-  return currentMajor < ltsMajor || (currentMajor === ltsMajor && currentMinor < ltsMinor);
-};
-
-export const isPreviousLTSUpdate = (
-  parsedVersion: number[],
-  latestLTS: string,
-  systemUpgrades: GroupedSystemUpdate,
-) => {
-  const [ltsMajor, ltsMinor] = latestLTS.split('.').map(Number);
-  let ltsOlderThan6Month = false;
-  const beforeLts = isPreLTSUpdate(parsedVersion, latestLTS);
-  if (beforeLts) {
-    const allLTS = sortUpgrades(systemUpgrades[ltsMajor][ltsMinor]);
-    const ltsReleaseDate = new Date(allLTS[allLTS.length - 1]?.releaseDate ?? '');
-    if (isNaN(ltsReleaseDate.getTime())) {
-      // We can not parse the LTS date.
-      // It is unlikly that this could happen but consider LTS to be old.
-      return true;
-    }
-    ltsOlderThan6Month =
-      ltsReleaseDate.setMonth(ltsReleaseDate.getMonth() + MONTH_BEFOR_PREVIOUS_LTS_NOTIFICATION) -
-        Date.now() <
-      0;
-  }
-  return ltsOlderThan6Month && beforeLts;
+  return currentMajor === ltsMajor && currentMinor === ltsMinor;
 };
 
 export const isMinorUpdate = (parsedVersion: number[], systemUpgrades: GroupedSystemUpdate) => {
@@ -69,7 +45,7 @@ export const isMinorUpdate = (parsedVersion: number[], systemUpgrades: GroupedSy
 export const isPatchUpdate = (parsedVersion: number[], systemUpgrades: GroupedSystemUpdate) => {
   const [currentMajor, currentMinor, currentPatch] = parsedVersion;
   const allMinor = systemUpgrades[currentMajor];
-  const allPatch = sortUpgrades(allMinor[currentMinor] || []);
+  const allPatch = sortUpgrades(allMinor?.[currentMinor] ?? []);
 
   if (!isEmpty(allPatch)) {
     const [, , latestPatch] = allPatch[0].version.split('.').map(Number);
@@ -78,4 +54,10 @@ export const isPatchUpdate = (parsedVersion: number[], systemUpgrades: GroupedSy
     return effectiveCurrentPatch < effectiveLatestPatch;
   }
   return false;
+};
+
+export const BANNER_VARIANT: Dict<Variant> = {
+  [UpdateUseCase.NewVersion]: 'info',
+  [UpdateUseCase.CurrentVersionInactive]: 'error',
+  [UpdateUseCase.NewPatch]: 'warning',
 };

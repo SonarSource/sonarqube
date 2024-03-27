@@ -36,7 +36,8 @@ export function getSystemStatus(): Promise<{ id: string; version: string; status
 
 export function getSystemUpgrades(): Promise<{
   upgrades: SystemUpgrade[];
-  latestLTS: string;
+  latestLTA: string;
+  installedVersionActive: boolean;
   updateCenterRefresh: string;
 }> {
   return getJSON('/api/system/upgrades');

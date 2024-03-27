@@ -34,21 +34,21 @@ import SystemUpgradeIntermediate from './SystemUpgradeIntermediate';
 
 export interface SystemUpgradeItemProps {
   edition: EditionKey | undefined;
-  isLTSVersion: boolean;
+  isLTAVersion: boolean;
   isPatch: boolean;
   systemUpgrades: SystemUpgrade[];
 }
 
 export default function SystemUpgradeItem(props: SystemUpgradeItemProps) {
-  const { edition, isPatch, isLTSVersion, systemUpgrades } = props;
+  const { edition, isPatch, isLTAVersion, systemUpgrades } = props;
   const lastUpgrade = systemUpgrades[0];
   const downloadUrl = getEditionDownloadUrl(
     getEdition(edition || EditionKey.community),
     lastUpgrade,
   );
   let header = translate('system.latest_version');
-  if (isLTSVersion) {
-    header = translate('system.lts_version');
+  if (isLTAVersion) {
+    header = translate('system.lta_version');
   } else if (isPatch) {
     header = translate('system.latest_patch');
   }

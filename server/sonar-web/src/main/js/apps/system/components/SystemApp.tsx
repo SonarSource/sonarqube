@@ -129,7 +129,7 @@ class SystemApp extends React.PureComponent<Props, State> {
         <Helmet defer={false} title={translate('system_info.page')} />
         <PageContentFontWrapper className="sw-body-sm sw-pb-8">
           <div>
-            <UpdateNotification dismissable={false} />
+            <UpdateNotification />
           </div>
           {sysInfoData && (
             <PageHeader

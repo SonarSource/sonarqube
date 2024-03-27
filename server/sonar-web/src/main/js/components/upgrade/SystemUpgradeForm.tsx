@@ -17,35 +17,30 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { FlagMessage, Link, Modal, Variant } from 'design-system';
+import { FlagMessage, Link, Modal } from 'design-system';
 import { filter, flatMap, isEmpty, negate } from 'lodash';
 import * as React from 'react';
-import withAppStateContext from '../../app/components/app-state/withAppStateContext';
+import { useAppState } from '../../app/components/app-state/withAppStateContext';
+import { BANNER_VARIANT } from '../../app/components/update-notification/helpers';
 import { translate } from '../../helpers/l10n';
-import { AppState } from '../../types/appstate';
 import { SystemUpgrade } from '../../types/system';
 import SystemUpgradeItem from './SystemUpgradeItem';
 import { SYSTEM_VERSION_REGEXP, UpdateUseCase } from './utils';
 
 interface Props {
-  appState: AppState;
   onClose: () => void;
   systemUpgrades: SystemUpgrade[][];
-  latestLTS: string;
-  updateUseCase?: UpdateUseCase;
+  latestLTA: string;
+  updateUseCase: UpdateUseCase;
 }
 
-const MAP_ALERT: { [key in UpdateUseCase]?: Variant } = {
-  [UpdateUseCase.NewPatch]: 'warning',
-  [UpdateUseCase.PreLTS]: 'warning',
-  [UpdateUseCase.PreviousLTS]: 'error',
-};
-
-export function SystemUpgradeForm(props: Readonly<Props>) {
-  const { appState, latestLTS, onClose, updateUseCase, systemUpgrades } = props;
+export default function SystemUpgradeForm(props: Readonly<Props>) {
+  const appState = useAppState();
+  const { latestLTA, onClose, updateUseCase, systemUpgrades } = props;
 
   let systemUpgradesWithPatch: SystemUpgrade[][] = [];
-  const alertVariant = updateUseCase ? MAP_ALERT[updateUseCase] : undefined;
+  const alertVariant =
+    updateUseCase !== UpdateUseCase.NewVersion ? BANNER_VARIANT[updateUseCase] : undefined;
   const header = translate('system.system_upgrade');
   const parsedVersion = SYSTEM_VERSION_REGEXP.exec(appState.version);
   let patches: SystemUpgrade[] = [];
@@ -65,12 +60,12 @@ export function SystemUpgradeForm(props: Readonly<Props>) {
 
     systemUpgradesWithPatch.push(patches);
   } else {
-    let untilLTS = false;
+    let untilLTA = false;
 
     for (const upgrades of systemUpgrades) {
-      if (untilLTS === false) {
+      if (untilLTA === false) {
         systemUpgradesWithPatch.push(upgrades);
-        untilLTS = upgrades.some((upgrade) => upgrade.version.startsWith(latestLTS));
+        untilLTA = upgrades.some((upgrade) => upgrade.version.startsWith(latestLTA));
       }
     }
   }
@@ -81,7 +76,7 @@ export function SystemUpgradeForm(props: Readonly<Props>) {
       onClose={onClose}
       body={
         <>
-          {alertVariant && updateUseCase && (
+          {alertVariant && (
             <FlagMessage variant={alertVariant} className={`it__upgrade-alert-${updateUseCase}`}>
               {translate('admin_notification.update', updateUseCase)}
             </FlagMessage>
@@ -92,7 +87,7 @@ export function SystemUpgradeForm(props: Readonly<Props>) {
               key={upgrades[upgrades.length - 1].version}
               systemUpgrades={upgrades}
               isPatch={upgrades === patches}
-              isLTSVersion={upgrades.some((upgrade) => upgrade.version.startsWith(latestLTS))}
+              isLTAVersion={upgrades.some((upgrade) => upgrade.version.startsWith(latestLTA))}
             />
           ))}
         </>
@@ -106,5 +101,3 @@ export function SystemUpgradeForm(props: Readonly<Props>) {
     />
   );
 }
-
-export default withAppStateContext(SystemUpgradeForm);

@@ -31,7 +31,7 @@ const ui = {
   header: byRole('heading', { name: 'system.system_upgrade' }),
   downloadLink: byRole('link', { name: /system.see_sonarqube_downloads/ }),
 
-  ltsVersionHeader: byRole('heading', { name: /system.lts_version/ }),
+  ltaVersionHeader: byRole('heading', { name: /system.lta_version/ }),
 
   newPatchWarning: byText(/admin_notification.update/),
 };
@@ -44,7 +44,7 @@ it('should render properly', async () => {
   await user.click(ui.learnMoreButton.get());
 
   expect(ui.header.get()).toBeInTheDocument();
-  expect(ui.ltsVersionHeader.get()).toBeInTheDocument();
+  expect(ui.ltaVersionHeader.get()).toBeInTheDocument();
   expect(ui.downloadLink.get()).toBeInTheDocument();
 });
 
@@ -54,7 +54,7 @@ it('should render properly for new patch', async () => {
   renderSystemUpgradeButton(
     {
       updateUseCase: UpdateUseCase.NewPatch,
-      latestLTS: '9.9',
+      latestLTA: '9.9',
       systemUpgrades: [{ downloadUrl: '', version: '9.9.1' }],
     },
     '9.9',
@@ -64,7 +64,7 @@ it('should render properly for new patch', async () => {
 
   expect(ui.header.get()).toBeInTheDocument();
   expect(ui.newPatchWarning.get()).toBeInTheDocument();
-  expect(ui.ltsVersionHeader.get()).toBeInTheDocument();
+  expect(ui.ltaVersionHeader.get()).toBeInTheDocument();
   expect(ui.downloadLink.get()).toBeInTheDocument();
 });
 
@@ -74,7 +74,8 @@ function renderSystemUpgradeButton(
 ) {
   renderComponent(
     <SystemUpgradeButton
-      latestLTS="9.9"
+      updateUseCase={UpdateUseCase.NewVersion}
+      latestLTA="9.9"
       systemUpgrades={[
         { downloadUrl: 'eight', version: '9.8' },
         { downloadUrl: 'lts', version: '9.9' },

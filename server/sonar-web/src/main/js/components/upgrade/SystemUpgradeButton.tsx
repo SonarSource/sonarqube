@@ -25,13 +25,13 @@ import SystemUpgradeForm from './SystemUpgradeForm';
 import { groupUpgrades, sortUpgrades, UpdateUseCase } from './utils';
 
 interface Props {
-  latestLTS: string;
+  latestLTA: string;
   systemUpgrades: SystemUpgrade[];
-  updateUseCase?: UpdateUseCase;
+  updateUseCase: UpdateUseCase;
 }
 
 export default function SystemUpgradeButton(props: Readonly<Props>) {
-  const { latestLTS, systemUpgrades, updateUseCase } = props;
+  const { latestLTA, systemUpgrades, updateUseCase } = props;
 
   const [isSystemUpgradeFormOpen, setSystemUpgradeFormOpen] = React.useState(false);
 
@@ -52,7 +52,7 @@ export default function SystemUpgradeButton(props: Readonly<Props>) {
         <SystemUpgradeForm
           onClose={closeSystemUpgradeForm}
           systemUpgrades={groupUpgrades(sortUpgrades(systemUpgrades))}
-          latestLTS={latestLTS}
+          latestLTA={latestLTA}
           updateUseCase={updateUseCase}
         />
       )}
