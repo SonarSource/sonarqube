@@ -27,6 +27,8 @@ public enum CreationMethod {
   LOCAL_BROWSER(Category.LOCAL, true, true),
   ALM_IMPORT_API(Category.ALM_IMPORT, false, false),
   ALM_IMPORT_BROWSER(Category.ALM_IMPORT, true, false),
+  ALM_IMPORT_MONOREPO_API(Category.ALM_IMPORT_MONOREPO, false, false),
+  ALM_IMPORT_MONOREPO_BROWSER(Category.ALM_IMPORT_MONOREPO, true, false),
   SCANNER_API(Category.SCANNER, false, true),
   SCANNER_API_DEVOPS_AUTO_CONFIG(Category.SCANNER, false, false);
 
@@ -60,5 +62,7 @@ public enum CreationMethod {
     return isLocal;
   }
 
-  public enum Category {UNKNOWN, LOCAL, ALM_IMPORT, SCANNER}
+  public enum Category {
+    UNKNOWN, LOCAL, ALM_IMPORT, ALM_IMPORT_MONOREPO, SCANNER
+  }
 }

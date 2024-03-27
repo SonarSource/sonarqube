@@ -29,6 +29,7 @@ import org.sonar.db.alm.setting.ALM;
 import org.sonar.db.alm.setting.AlmSettingDto;
 import org.sonar.db.alm.setting.ProjectAlmSettingDto;
 import org.sonar.db.component.BranchDto;
+import org.sonar.db.project.CreationMethod;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.common.almsettings.DevOpsProjectCreator;
 import org.sonar.server.common.almsettings.DevOpsProjectCreatorFactory;
@@ -47,6 +48,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.permission.GlobalPermission.PROVISION_PROJECTS;
+import static org.sonar.db.project.CreationMethod.ALM_IMPORT_API;
+import static org.sonar.db.project.CreationMethod.ALM_IMPORT_MONOREPO_API;
 
 class ImportProjectServiceTest {
 
@@ -111,7 +114,7 @@ class ImportProjectServiceTest {
 
     DevOpsProjectCreator devOpsProjectCreator = mockDevOpsProjectCreator(almSetting);
 
-    ComponentCreationData componentCreationData = mockProjectCreation(devOpsProjectCreator, dbSession);
+    ComponentCreationData componentCreationData = mockProjectCreation(devOpsProjectCreator, ALM_IMPORT_MONOREPO_API, true, dbSession);
 
     ProjectDto projectDto = mockProjectDto(componentCreationData);
     when(componentCreationData.mainBranchDto()).thenReturn(mock(BranchDto.class));
@@ -136,14 +139,14 @@ class ImportProjectServiceTest {
 
     DevOpsProjectCreator devOpsProjectCreator = mockDevOpsProjectCreator(almSetting);
 
-    ComponentCreationData componentCreationData = mockProjectCreation(devOpsProjectCreator, dbSession);
+    ComponentCreationData componentCreationData = mockProjectCreation(devOpsProjectCreator, ALM_IMPORT_API, false, dbSession);
 
     ProjectDto projectDto = mockProjectDto(componentCreationData);
     mockBranchDto(componentCreationData);
 
     ProjectAlmSettingDto projectAlmSettingDto = mockProjectAlmSetting(dbSession, projectDto);
 
-    ImportProjectRequest request = new ImportProjectRequest(PROJECT_KEY, PROJECT_NAME, ALM_SETTING_ID, DOP_REPOSITORY_ID, DOP_PROJECT_ID, "NUMBER_OF_DAYS", "10", true);
+    ImportProjectRequest request = new ImportProjectRequest(PROJECT_KEY, PROJECT_NAME, ALM_SETTING_ID, DOP_REPOSITORY_ID, DOP_PROJECT_ID, "NUMBER_OF_DAYS", "10", false);
 
     ImportedProject importedProject = importProjectService.importProject(request);
 
@@ -182,9 +185,9 @@ class ImportProjectServiceTest {
     return devOpsProjectCreator;
   }
 
-  private static ComponentCreationData mockProjectCreation(DevOpsProjectCreator devOpsProjectCreator, DbSession dbSession) {
+  private static ComponentCreationData mockProjectCreation(DevOpsProjectCreator devOpsProjectCreator, CreationMethod creationMethod, boolean monorepo, DbSession dbSession) {
     ComponentCreationData componentCreationData = mock(ComponentCreationData.class);
-    when(devOpsProjectCreator.createProjectAndBindToDevOpsPlatform(eq(dbSession), any(), eq(true), eq(PROJECT_KEY), eq(PROJECT_NAME)))
+    when(devOpsProjectCreator.createProjectAndBindToDevOpsPlatform(dbSession, creationMethod, monorepo, PROJECT_KEY, PROJECT_NAME))
       .thenReturn(componentCreationData);
     return componentCreationData;
   }

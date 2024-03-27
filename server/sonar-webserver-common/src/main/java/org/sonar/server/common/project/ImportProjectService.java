@@ -37,8 +37,8 @@ import org.sonar.server.component.ComponentCreationData;
 import org.sonar.server.user.UserSession;
 
 import static java.lang.String.format;
-import static org.sonar.db.project.CreationMethod.getCreationMethod;
 import static org.sonar.db.project.CreationMethod.Category.ALM_IMPORT;
+import static org.sonar.db.project.CreationMethod.Category.ALM_IMPORT_MONOREPO;
 import static org.sonar.server.common.newcodeperiod.NewCodeDefinitionResolver.checkNewCodeDefinitionParam;
 
 @ServerSide
@@ -68,7 +68,7 @@ public class ImportProjectService {
       DevOpsProjectCreator projectCreator = devOpsProjectCreatorFactory.getDevOpsProjectCreator(almSetting, projectDescriptor)
         .orElseThrow(() -> new IllegalArgumentException(format("Platform %s not supported", almSetting.getAlm().name())));
 
-      CreationMethod creationMethod = getCreationMethod(ALM_IMPORT, userSession.isAuthenticatedBrowserSession());
+      CreationMethod creationMethod = getCreationMethod(request.monorepo());
       ComponentCreationData componentCreationData = projectCreator.createProjectAndBindToDevOpsPlatform(
         dbSession,
         creationMethod,
@@ -88,6 +88,14 @@ public class ImportProjectService {
         .orElseThrow(() -> new IllegalStateException("Project ALM setting was not created"));
       dbSession.commit();
       return new ImportedProject(projectDto, projectAlmSettingDto);
+    }
+  }
+
+  private CreationMethod getCreationMethod(boolean monorepo) {
+    if (monorepo) {
+      return CreationMethod.getCreationMethod(ALM_IMPORT_MONOREPO, userSession.isAuthenticatedBrowserSession());
+    } else {
+      return CreationMethod.getCreationMethod(ALM_IMPORT, userSession.isAuthenticatedBrowserSession());
     }
   }
 

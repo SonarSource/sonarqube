@@ -25,6 +25,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.ArgumentsProvider;
 import org.junit.jupiter.params.provider.ArgumentsSource;
+import org.sonar.db.project.CreationMethod.Category;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -33,20 +34,22 @@ class CreationMethodTest {
   static class CreationMethodProvider implements ArgumentsProvider {
     @Override
     public Stream<? extends Arguments> provideArguments(ExtensionContext context) {
-      return Stream.of(Arguments.of(CreationMethod.Category.UNKNOWN, true, CreationMethod.UNKNOWN),
-        Arguments.of(CreationMethod.Category.UNKNOWN, false, CreationMethod.UNKNOWN),
-        Arguments.of(CreationMethod.Category.LOCAL, true, CreationMethod.LOCAL_BROWSER),
-        Arguments.of(CreationMethod.Category.LOCAL, false, CreationMethod.LOCAL_API),
-        Arguments.of(CreationMethod.Category.ALM_IMPORT, true, CreationMethod.ALM_IMPORT_BROWSER),
-        Arguments.of(CreationMethod.Category.ALM_IMPORT, false, CreationMethod.ALM_IMPORT_API),
-        Arguments.of(CreationMethod.Category.SCANNER, true, CreationMethod.UNKNOWN),
-        Arguments.of(CreationMethod.Category.SCANNER, false, CreationMethod.SCANNER_API));
+      return Stream.of(Arguments.of(Category.UNKNOWN, true, CreationMethod.UNKNOWN),
+        Arguments.of(Category.UNKNOWN, false, CreationMethod.UNKNOWN),
+        Arguments.of(Category.LOCAL, true, CreationMethod.LOCAL_BROWSER),
+        Arguments.of(Category.LOCAL, false, CreationMethod.LOCAL_API),
+        Arguments.of(Category.ALM_IMPORT, true, CreationMethod.ALM_IMPORT_BROWSER),
+        Arguments.of(Category.ALM_IMPORT, false, CreationMethod.ALM_IMPORT_API),
+        Arguments.of(Category.ALM_IMPORT_MONOREPO, true, CreationMethod.ALM_IMPORT_MONOREPO_BROWSER),
+        Arguments.of(Category.ALM_IMPORT_MONOREPO, false, CreationMethod.ALM_IMPORT_MONOREPO_API),
+        Arguments.of(Category.SCANNER, true, CreationMethod.UNKNOWN),
+        Arguments.of(Category.SCANNER, false, CreationMethod.SCANNER_API));
     }
   }
 
   @ParameterizedTest()
   @ArgumentsSource(CreationMethodProvider.class)
-  void getCreationMethod_returnsCorrectCreationMethod(CreationMethod.Category category, boolean isCreatedViaBrowser,
+  void getCreationMethod_returnsCorrectCreationMethod(Category category, boolean isCreatedViaBrowser,
     CreationMethod expectedCreationMethod) {
     CreationMethod creationMethod = CreationMethod.getCreationMethod(category, isCreatedViaBrowser);
     assertThat(creationMethod).isEqualTo(expectedCreationMethod);
