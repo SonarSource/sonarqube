@@ -21,9 +21,17 @@ package org.sonar.db.alm.setting;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.stream.IntStream;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbSession;
@@ -31,6 +39,11 @@ import org.sonar.db.DbTester;
 import org.sonar.db.audit.NoOpAuditPersister;
 import org.sonar.db.project.ProjectDto;
 
+import static java.util.Arrays.stream;
+import static java.util.Collections.emptyMap;
+import static java.util.Collections.emptySet;
+import static java.util.stream.Collectors.toMap;
+import static java.util.stream.Collectors.toSet;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.mock;
@@ -126,12 +139,13 @@ class ProjectAlmSettingDaoIT {
       .containsExactlyInAnyOrder(githubProject);
   }
 
-  private ProjectAlmSettingDto createAlmProject(AlmSettingDto almSettingsDto) {
+  private ProjectAlmSettingDto createAlmProject(AlmSettingDto almSettingsDto, Consumer<ProjectAlmSettingDto>... populators) {
     ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     when(uuidFactory.create()).thenReturn(project.getUuid() + "_set");
-    ProjectAlmSettingDto githubProjectAlmSettingDto = newGithubProjectAlmSettingDto(almSettingsDto, project);
-    underTest.insertOrUpdate(dbSession, githubProjectAlmSettingDto, almSettingsDto.getKey(), project.getName(), project.getKey());
-    return githubProjectAlmSettingDto;
+    ProjectAlmSettingDto projectAlmSettingDto = newGithubProjectAlmSettingDto(almSettingsDto, project);
+    stream(populators).forEach(p -> p.accept(projectAlmSettingDto));
+    underTest.insertOrUpdate(dbSession, projectAlmSettingDto, almSettingsDto.getKey(), project.getName(), project.getKey());
+    return projectAlmSettingDto;
   }
 
   @Test
@@ -196,6 +210,95 @@ class ProjectAlmSettingDaoIT {
       ).containsExactlyInAnyOrder(
         tuple(project1.getUuid(), almSettingsDto.getAlm().getId(), almSettingsDto.getUrl(), false),
         tuple(project2.getUuid(), almSettingsDto.getAlm().getId(), almSettingsDto.getUrl(), true));
+  }
+
+  @Test
+  void selectByUuid_whenNoResult_returnsEmptyOptional() {
+    Optional<ProjectAlmSettingDto> dto = underTest.selectByUuid(dbSession, "inexistantUuid");
+    assertThat(dto).isEmpty();
+  }
+
+  @Test
+  void selectByUuid_whenResult_returnsIt() {
+    ProjectAlmSettingDto expectedDto = createAlmProject(db.almSettings().insertGitHubAlmSetting());
+
+    Optional<ProjectAlmSettingDto> actualDto = underTest.selectByUuid(dbSession, expectedDto.getUuid());
+
+    assertThat(actualDto)
+      .isPresent().get()
+      .usingRecursiveComparison()
+      .isEqualTo(expectedDto);
+  }
+
+  @Test
+  void selectProjectAlmSettings_whenNoResult_returnsEmptyList() {
+    List<ProjectAlmSettingDto> dtos = underTest.selectProjectAlmSettings(dbSession, new ProjectAlmSettingQuery("repository", "almSettingUuid"), 1, 100);
+    assertThat(dtos).isEmpty();
+  }
+
+  @Test
+  void selectProjectAlmSettings_whenResults_returnsThem() {
+    AlmSettingDto matchingAlmSettingDto = db.almSettings().insertGitHubAlmSetting();
+    AlmSettingDto notMatchingAlmSettingDto = db.almSettings().insertGitHubAlmSetting();
+    ProjectAlmSettingDto matchingRepo = createAlmProject(matchingAlmSettingDto, dto -> dto.setAlmRepo("matchingRepo"));
+    ProjectAlmSettingDto notMatchingRepo = createAlmProject(matchingAlmSettingDto, dto -> dto.setAlmRepo("whatever"));
+    ProjectAlmSettingDto matchingAlmSetting = createAlmProject(matchingAlmSettingDto, dto -> dto.setAlmRepo("matchingRepo"));
+    ProjectAlmSettingDto notMatchingAlmSetting = createAlmProject(notMatchingAlmSettingDto, dto -> dto.setAlmRepo("matchingRepo"));
+
+    List<ProjectAlmSettingDto> dtos = underTest.selectProjectAlmSettings(dbSession, new ProjectAlmSettingQuery("matchingRepo", matchingAlmSettingDto.getUuid()), 1, 100);
+    assertThat(dtos)
+      .usingRecursiveFieldByFieldElementComparator()
+      .containsExactlyInAnyOrder(matchingRepo, matchingAlmSetting);
+  }
+
+  private static Object[][] paginationTestCases() {
+    return new Object[][]{
+      {100, 1, 5},
+      {100, 3, 18},
+      {2075, 41, 50},
+      {0, 2, 5},
+    };
+  }
+
+  @ParameterizedTest
+  @MethodSource("paginationTestCases")
+  void selectProjectAlmSettings_whenUsingPagination_findsTheRightResults(int numberToGenerate, int offset, int limit) {
+      when(uuidFactory.create()).thenAnswer(answer -> UUID.randomUUID().toString());
+
+    Map<String, ProjectAlmSettingDto> allProjectAlmSettingsDtos = generateProjectAlmSettingsDtos(numberToGenerate);
+
+    ProjectAlmSettingQuery query = new ProjectAlmSettingQuery(null, null);
+    List<ProjectAlmSettingDto> projectAlmSettingDtos = underTest.selectProjectAlmSettings(dbSession, query, offset, limit);
+
+    Set<ProjectAlmSettingDto> expectedDtos = getExpectedProjectAlmSettingDtos(offset, limit, allProjectAlmSettingsDtos);
+
+    assertThat(projectAlmSettingDtos).usingRecursiveFieldByFieldElementComparator().containsExactlyInAnyOrderElementsOf(expectedDtos);
+    assertThat(underTest.countProjectAlmSettings(dbSession, query)).isEqualTo(numberToGenerate);
+  }
+
+  private Map<String, ProjectAlmSettingDto> generateProjectAlmSettingsDtos(int numberToGenerate) {
+    if (numberToGenerate == 0) {
+      return emptyMap();
+    }
+    Map<String, ProjectAlmSettingDto> result = IntStream.range(1000, 1000 + numberToGenerate)
+      .mapToObj(i -> underTest.insertOrUpdate(dbSession, new ProjectAlmSettingDto()
+          .setAlmRepo("repo_" + i)
+          .setAlmSettingUuid("almSettingUuid_" + i)
+          .setProjectUuid("projectUuid_" + i)
+          .setMonorepo(false),
+        "key_" + i, "projectName_" + i, "projectKey_" + i))
+      .collect(toMap(ProjectAlmSettingDto::getAlmRepo, Function.identity()));
+    db.commit();
+    return result;
+  }
+
+  private Set<ProjectAlmSettingDto> getExpectedProjectAlmSettingDtos(int offset, int limit, Map<String, ProjectAlmSettingDto> allProjectAlmSettingsDtos) {
+    if (allProjectAlmSettingsDtos.isEmpty()) {
+      return emptySet();
+    }
+    return IntStream.range(1000 + (offset - 1) * limit, 1000 + offset * limit)
+      .mapToObj(i -> allProjectAlmSettingsDtos.get("repo_" + i))
+      .collect(toSet());
   }
 
   @Test

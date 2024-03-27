@@ -96,6 +96,7 @@ import org.sonar.server.common.permission.GroupPermissionChanger;
 import org.sonar.server.common.permission.PermissionTemplateService;
 import org.sonar.server.common.permission.PermissionUpdater;
 import org.sonar.server.common.permission.UserPermissionChanger;
+import org.sonar.server.common.projectbindings.service.ProjectBindingsService;
 import org.sonar.server.common.rule.RuleCreator;
 import org.sonar.server.common.rule.service.RuleService;
 import org.sonar.server.common.text.MacroInterpreter;
@@ -592,6 +593,7 @@ public class PlatformLevel4 extends PlatformLevel {
 
       // ALM settings
       new AlmSettingsWsModule(),
+      ProjectBindingsService.class,
 
       // Project export
       new ProjectExportWsModule(),

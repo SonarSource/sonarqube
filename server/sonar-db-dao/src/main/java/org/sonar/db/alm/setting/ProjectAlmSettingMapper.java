@@ -23,13 +23,21 @@ import java.util.List;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import org.apache.ibatis.annotations.Param;
+import org.sonar.db.Pagination;
 
 public interface ProjectAlmSettingMapper {
+
+  @CheckForNull
+  ProjectAlmSettingDto selectByUuid(@Param("uuid") String uuid);
 
   @CheckForNull
   ProjectAlmSettingDto selectByProjectUuid(@Param("projectUuid") String projectUuid);
 
   int countByAlmSettingUuid(@Param("almSettingUuid") String almSettingUuid);
+
+  int countByQuery(@Param("query") ProjectAlmSettingQuery query);
+
+  List<ProjectAlmSettingDto> selectByQuery(@Param("query") ProjectAlmSettingQuery query, @Param("pagination") Pagination pagination);
 
   void insert(@Param("dto") ProjectAlmSettingDto projectAlmSettingDto, @Param("uuid") String uuid, @Param("now") long now);
 

@@ -33,6 +33,7 @@ import org.sonar.server.common.management.ManagedInstanceChecker;
 import org.sonar.server.common.platform.LivenessChecker;
 import org.sonar.server.common.platform.LivenessCheckerImpl;
 import org.sonar.server.common.project.ImportProjectService;
+import org.sonar.server.common.projectbindings.service.ProjectBindingsService;
 import org.sonar.server.common.rule.service.RuleService;
 import org.sonar.server.common.text.MacroInterpreter;
 import org.sonar.server.common.user.service.UserService;
@@ -49,6 +50,8 @@ import org.sonar.server.v2.api.group.controller.DefaultGroupController;
 import org.sonar.server.v2.api.group.controller.GroupController;
 import org.sonar.server.v2.api.membership.controller.DefaultGroupMembershipController;
 import org.sonar.server.v2.api.membership.controller.GroupMembershipController;
+import org.sonar.server.v2.api.projectbindings.controller.DefaultProjectBindingsController;
+import org.sonar.server.v2.api.projectbindings.controller.ProjectBindingsController;
 import org.sonar.server.v2.api.projects.controller.BoundProjectsController;
 import org.sonar.server.v2.api.projects.controller.DefaultBoundProjectsController;
 import org.sonar.server.v2.api.rule.controller.DefaultRuleController;
@@ -141,6 +144,11 @@ public class PlatformLevel4WebConfig {
   @Bean
   public DopSettingsController dopSettingsController(UserSession userSession, DbClient dbClient) {
     return new DefaultDopSettingsController(userSession, dbClient);
+  }
+
+  @Bean
+  public ProjectBindingsController projectBindingsController(UserSession userSession, ProjectBindingsService projectBindingsService) {
+    return new DefaultProjectBindingsController(userSession, projectBindingsService);
   }
 
 }

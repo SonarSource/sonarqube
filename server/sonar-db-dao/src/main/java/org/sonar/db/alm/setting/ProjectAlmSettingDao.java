@@ -28,6 +28,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
+import org.sonar.db.Pagination;
 import org.sonar.db.audit.AuditPersister;
 import org.sonar.db.audit.model.DevOpsPlatformSettingNewValue;
 import org.sonar.db.project.ProjectDto;
@@ -46,7 +47,7 @@ public class ProjectAlmSettingDao implements Dao {
     this.auditPersister = auditPersister;
   }
 
-  public void insertOrUpdate(DbSession dbSession, ProjectAlmSettingDto projectAlmSettingDto, String key, String projectName, String projectKey) {
+  public ProjectAlmSettingDto insertOrUpdate(DbSession dbSession, ProjectAlmSettingDto projectAlmSettingDto, String key, String projectName, String projectKey) {
     String uuid = uuidFactory.create();
     long now = system2.now();
     ProjectAlmSettingMapper mapper = getMapper(dbSession);
@@ -66,6 +67,8 @@ public class ProjectAlmSettingDao implements Dao {
     } else {
       auditPersister.addDevOpsPlatformSetting(dbSession, value);
     }
+
+    return projectAlmSettingDto;
   }
 
   public void deleteByProject(DbSession dbSession, ProjectDto project) {
@@ -82,6 +85,18 @@ public class ProjectAlmSettingDao implements Dao {
 
   public int countByAlmSetting(DbSession dbSession, AlmSettingDto almSetting) {
     return getMapper(dbSession).countByAlmSettingUuid(almSetting.getUuid());
+  }
+
+  public int countProjectAlmSettings(DbSession dbSession, ProjectAlmSettingQuery query) {
+    return getMapper(dbSession).countByQuery(query);
+  }
+
+  public List<ProjectAlmSettingDto> selectProjectAlmSettings(DbSession dbSession, ProjectAlmSettingQuery query, int page, int pageSize) {
+    return getMapper(dbSession).selectByQuery(query, Pagination.forPage(page).andSize(pageSize));
+  }
+
+  public Optional<ProjectAlmSettingDto> selectByUuid(DbSession dbSession, String uuid) {
+    return Optional.ofNullable(getMapper(dbSession).selectByUuid(uuid));
   }
 
   public Optional<ProjectAlmSettingDto> selectByProject(DbSession dbSession, ProjectDto project) {

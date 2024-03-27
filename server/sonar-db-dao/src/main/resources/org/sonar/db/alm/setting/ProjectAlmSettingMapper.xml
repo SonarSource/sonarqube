@@ -27,6 +27,14 @@
       alm_settings alm_settings on pas.alm_setting_uuid = alm_settings.uuid
   </select>
 
+    <select id="selectByUuid" parameterType="string" resultType="org.sonar.db.alm.setting.ProjectAlmSettingDto">
+      select <include refid="sqlColumns"/>
+    from
+      project_alm_settings p
+    where
+      p.uuid = #{uuid, jdbcType=VARCHAR}
+    </select>
+
   <select id="selectByProjectUuid" parameterType="string" resultType="org.sonar.db.alm.setting.ProjectAlmSettingDto">
     select <include refid="sqlColumns"/>
     from
@@ -161,7 +169,7 @@
       project_uuid = #{dto.projectUuid, jdbcType=VARCHAR}
   </update>
 
-    <select id="countByAlmSettingUuid" parameterType="map" resultType="int">
+  <select id="countByAlmSettingUuid" parameterType="map" resultType="int">
     SELECT
       count(1)
     FROM
@@ -169,6 +177,39 @@
     WHERE
       alm_setting_uuid = #{almSettingUuid, jdbcType=VARCHAR}
   </select>
+
+  <select id="countByQuery" parameterType="map" resultType="int">
+    SELECT
+      count(1)
+    FROM
+      project_alm_settings p
+    <include refid="searchByQueryWhereClause"/>
+  </select>
+
+  <select id="selectByQuery" resultType="org.sonar.db.alm.setting.ProjectAlmSettingDto">
+    SELECT
+      <include refid="sqlColumns"/>
+    FROM
+      project_alm_settings p
+    <include refid="searchByQueryWhereClause"/>
+    ORDER BY p.alm_repo, p.uuid
+    <include refid="org.sonar.db.common.Common.pagination"/>
+    </select>
+
+  <sql id="searchByQueryWhereClause">
+    <where>
+      1=1
+      <if test="query.repository != null">
+        AND (
+          (lower(p.alm_repo) = lower(#{query.repository, jdbcType=VARCHAR}))
+          OR (lower(p.alm_slug) = lower(#{query.repository, jdbcType=VARCHAR}))
+        )
+      </if>
+      <if test="query.almSettingUuid != null">
+        AND p.alm_setting_uuid = #{query.almSettingUuid, jdbcType=VARCHAR}
+      </if>
+    </where>
+  </sql>
 
   <delete id="deleteByAlmSettingUuid" parameterType="String">
     DELETE FROM project_alm_settings WHERE alm_setting_uuid = #{almSettingUuid, jdbcType=VARCHAR}
