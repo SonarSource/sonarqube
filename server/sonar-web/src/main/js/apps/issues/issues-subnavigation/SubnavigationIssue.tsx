@@ -31,8 +31,6 @@ import { Issue } from '../../../types/types';
 import IssueItemLocationsQuantity from './IssueItemLocationsQuantity';
 import IssueLocationsNavigator from './IssueLocationsNavigator';
 
-const HALF_DIVIDER = 2;
-
 export interface ConciseIssueProps {
   issue: Issue;
   onFlowSelect: (index?: number) => void;
@@ -48,12 +46,8 @@ export default function SubnavigationIssue(props: ConciseIssueProps) {
   const element = React.useRef<HTMLLIElement>(null);
 
   React.useEffect(() => {
-    if (selected && element.current) {
-      const parent = document.querySelector('nav.issues-nav-bar') as HTMLMenuElement;
-      const rect = parent.getBoundingClientRect();
-      const offset =
-        element.current.offsetTop - rect.height / HALF_DIVIDER + rect.top / HALF_DIVIDER;
-      parent.scrollTo({ top: offset, behavior: 'smooth' });
+    if (selected) {
+      element.current?.scrollIntoView({ block: 'nearest' });
     }
   }, [selected]);
 
