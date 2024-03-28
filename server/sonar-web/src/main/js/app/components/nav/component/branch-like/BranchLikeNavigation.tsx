@@ -95,7 +95,7 @@ export function BranchLikeNavigation(props: BranchLikeNavigationProps) {
           zLevel={PopupZLevel.Global}
         >
           <ButtonSecondary
-            className="sw-max-w-abs-350 sw-px-3"
+            className="sw-max-w-abs-800 sw-px-3"
             onClick={() => {
               setIsMenuOpen(!isMenuOpen);
             }}

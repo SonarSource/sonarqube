@@ -96,7 +96,7 @@ export const StyledText = styled.span`
   ${tw`sw-inline-block`};
   ${tw`sw-truncate`};
   ${tw`sw-font-semibold`};
-  ${tw`sw-max-w-abs-600`}
+  ${tw`sw-max-w-abs-800`}
 
   mark {
     ${tw`sw-inline-block`};
