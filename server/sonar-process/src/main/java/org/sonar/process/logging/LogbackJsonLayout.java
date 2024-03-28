@@ -46,7 +46,7 @@ import static java.util.Objects.requireNonNull;
  */
 public class LogbackJsonLayout extends LayoutBase<ILoggingEvent> {
 
-  static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ISO_OFFSET_DATE_TIME
+  static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSXXX")
     .withLocale(Locale.US)
     .withZone(ZoneId.systemDefault());
   private static final Pattern NEWLINE_REGEXP = Pattern.compile("\n");
