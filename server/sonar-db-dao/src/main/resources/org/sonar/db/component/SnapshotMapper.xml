@@ -54,52 +54,34 @@
       and coalesce(pb.project_uuid, p.branch_uuid) = #{projectUuid,jdbcType=VARCHAR}
   </select>
 
-  <select id="selectLastAnalysisDateByProjectUuids" resultType="org.sonar.db.component.ProjectLastAnalysisDateDto">
-    select
-      result_with_duplicates.project_uuid as project_uuid,
-      max(result_with_duplicates.last_analysis_date) as last_analysis_date
-    FROM
-      (
-      <!-- cases of an analysis of a project or app, with entries in project_branches -->
-      SELECT project_uuid, last_analysis_date
-      FROM (
-        SELECT
-          COALESCE(pb.project_uuid, c.branch_uuid) AS project_uuid,
-          s.created_at AS last_analysis_date
-        FROM snapshots s
-          INNER JOIN components c ON s.root_component_uuid = c.branch_uuid
-          LEFT JOIN project_branches pb ON pb.uuid = c.branch_uuid
-        WHERE
-          s.islast = ${_true}
-          AND pb.uuid IS NOT NULL
-          AND pb.project_uuid IN
-          <foreach collection="projectUuids" item="projectUuid" separator="," open="(" close=")">
-            #{projectUuid,jdbcType=VARCHAR}
-          </foreach>
-      ) project_case
-
-      UNION
-
-      <!-- cases of an analysis of a portfolio, where there are no branches -->
-      SELECT project_uuid, last_analysis_date
-      FROM (
-        SELECT
-          COALESCE(pb.project_uuid, c.branch_uuid) AS project_uuid,
-          s.created_at AS last_analysis_date
-        FROM snapshots s
-          INNER JOIN components c ON s.root_component_uuid = c.branch_uuid
-          LEFT JOIN project_branches pb ON pb.uuid = c.branch_uuid
-        WHERE
-          s.islast = ${_true}
-          AND pb.branch_type IS NULL
-          AND pb.uuid IS NULL
-          AND c.branch_uuid IN
-          <foreach collection="projectUuids" item="projectUuid" separator="," open="(" close=")">
-            #{projectUuid,jdbcType=VARCHAR}
-          </foreach>
-      ) portfolio_case
-    ) result_with_duplicates
-    GROUP BY project_uuid
+   <select id="selectLastAnalysisDateByProjectUuids" resultType="org.sonar.db.component.ProjectLastAnalysisDateDto">
+      select
+        pb.project_uuid as project_uuid,
+        max(s.created_at) as last_analysis_date
+      from
+        snapshots s
+      inner join project_branches pb on
+        pb.uuid = s.root_component_uuid
+      where
+        s.islast = ${_true} and pb.project_uuid in
+        <foreach collection="projectUuids" item="projectUuid" separator="," open="(" close=")">
+          #{projectUuid,jdbcType=VARCHAR}
+        </foreach>
+      group by pb.project_uuid
+      union
+      select
+        p.uuid as project_uuid,
+        max(s.created_at) as last_analysis_date
+      from
+        snapshots s
+      inner join portfolios p on
+        p.uuid = s.root_component_uuid
+      where
+        s.islast = ${_true} and p.uuid in
+        <foreach collection="projectUuids" item="projectUuid" separator="," open="(" close=")">
+          #{projectUuid,jdbcType=VARCHAR}
+        </foreach>
+      group by p.uuid
   </select>
 
   <select id="selectLastSnapshotByRootComponentUuid" resultType="Snapshot">
