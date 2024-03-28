@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { CodeSnippet, TextMuted } from 'design-system';
+import { Card, CodeSnippet, TextMuted } from 'design-system';
 import { OpenAPIV3 } from 'openapi-types';
 import React from 'react';
 import { translate } from '../../../helpers/l10n';
@@ -25,10 +25,10 @@ import { ExcludeReferences } from '../types';
 import { extractSchemaAndMediaType } from '../utils';
 
 interface Props {
-  content?: Exclude<ExcludeReferences<OpenAPIV3.ResponseObject>['content'], undefined>;
+  content: Exclude<ExcludeReferences<OpenAPIV3.ResponseObject>['content'], undefined>;
 }
 
-export default function ApiResponseSchema(props: Readonly<Props>) {
+export default function ApiRequestSchema(props: Readonly<Props>) {
   const { content, ...other } = props;
 
   const results = extractSchemaAndMediaType(content);
@@ -38,13 +38,12 @@ export default function ApiResponseSchema(props: Readonly<Props>) {
   }
 
   return results.map(({ requestMediaType, schema }) => (
-    <CodeSnippet
-      key={requestMediaType}
-      language="json"
-      className="sw-p-6"
-      snippet={schema}
-      wrap="words"
-      {...other}
-    />
+    <Card key={requestMediaType}>
+      <div>
+        <span>{translate('api_documentation.v2.request_subheader.request_content_type')}</span>
+        <CodeSnippet snippet={requestMediaType} isOneLine noCopy />
+      </div>
+      <CodeSnippet language="json" className="sw-p-6" snippet={schema} wrap="words" {...other} />
+    </Card>
   ));
 }

@@ -27,7 +27,7 @@ import { ExcludeReferences, InternalExtension } from '../types';
 import { mapOpenAPISchema } from '../utils';
 import ApiFilterContext from './ApiFilterContext';
 import ApiRequestBodyParameters from './ApiRequestParameters';
-import ApiResponseSchema from './ApiResponseSchema';
+import ApiRequestSchema from './ApiRequestSchema';
 
 interface Props {
   data: ExcludeReferences<OpenAPIV3.OperationObject>;
@@ -153,7 +153,7 @@ export default function ApiParameters({ data }: Readonly<Props>) {
           <SubHeading id="api_documentation.v2.request_subheader.request_body">
             {translate('api_documentation.v2.request_subheader.request_body')}
           </SubHeading>
-          <ApiResponseSchema content={requestBody} />
+          <ApiRequestSchema content={requestBody} />
           <ApiRequestBodyParameters content={requestBody} />
         </div>
       )}

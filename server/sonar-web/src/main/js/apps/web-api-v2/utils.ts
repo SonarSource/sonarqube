@@ -19,6 +19,7 @@
  */
 import { mapValues } from 'lodash';
 import { OpenAPIV3 } from 'openapi-types';
+import { isDefined } from '../../helpers/types';
 import { DereferenceRecursive, ExcludeReferences } from './types';
 
 export const URL_DIVIDER = '--';
@@ -89,3 +90,31 @@ export const getResponseCodeClassName = (code: string): string => {
 };
 
 export const getApiEndpointKey = (name: string, method: string) => `${name}${URL_DIVIDER}${method}`;
+
+const DISPLAYED_MEDIA_TYPES = ['application/json', 'application/merge-patch+json'];
+
+export function extractSchemaAndMediaType(
+  content?: Exclude<ExcludeReferences<OpenAPIV3.ResponseObject>['content'], undefined>,
+) {
+  if (!content) {
+    return [];
+  }
+
+  const requests = Object.keys(content)
+    .filter((mediaType) => DISPLAYED_MEDIA_TYPES.includes(mediaType))
+    .map((requestMediaType) => {
+      const schema = content[requestMediaType]?.schema;
+
+      if (!schema) {
+        return null;
+      }
+
+      return {
+        requestMediaType,
+        schema: JSON.stringify(mapOpenAPISchema(schema), null, 2),
+      };
+    })
+    .filter(isDefined);
+
+  return requests;
+}
