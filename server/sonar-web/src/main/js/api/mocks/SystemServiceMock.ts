@@ -22,24 +22,49 @@ import { Provider, SysInfoCluster, SysInfoLogging, SysInfoStandalone } from '../
 
 import { LogsLevels } from '../../apps/system/utils';
 import { mockClusterSysInfo, mockLogs, mockStandaloneSysInfo } from '../../helpers/testMocks';
-import { getSystemInfo, setLogLevel } from '../system';
+import { getSystemInfo, getSystemUpgrades, setLogLevel } from '../system';
 
 jest.mock('../system');
+
+type SystemUpgrades = {
+  upgrades: [];
+  latestLTA: string;
+  updateCenterRefresh: string;
+  installedVersionActive: boolean;
+};
 
 export default class SystemServiceMock {
   isCluster: boolean = false;
   logging: SysInfoLogging = mockLogs();
   systemInfo: SysInfoCluster | SysInfoStandalone = mockStandaloneSysInfo();
+  systemUpgrades: SystemUpgrades = {
+    upgrades: [],
+    latestLTA: '7.9',
+    updateCenterRefresh: '2021-09-01',
+    installedVersionActive: true,
+  };
 
   constructor() {
     this.updateSystemInfo();
     jest.mocked(getSystemInfo).mockImplementation(this.handleGetSystemInfo);
     jest.mocked(setLogLevel).mockImplementation(this.handleSetLogLevel);
+    jest.mocked(getSystemUpgrades).mockImplementation(this.handleGetSystemUpgrades);
   }
 
   handleGetSystemInfo = () => {
     return this.reply(this.systemInfo);
   };
+
+  handleGetSystemUpgrades = () => {
+    return this.reply(this.systemUpgrades);
+  };
+
+  setSystemUpgrades(systemUpgrades: Partial<SystemUpgrades>) {
+    this.systemUpgrades = {
+      ...this.systemUpgrades,
+      ...systemUpgrades,
+    };
+  }
 
   setProvider(provider: Provider | null) {
     this.systemInfo = mockStandaloneSysInfo({

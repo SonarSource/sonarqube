@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import SystemServiceMock from '../../../api/mocks/SystemServiceMock';
 import { mockAppState } from '../../../helpers/testMocks';
 import { renderComponent } from '../../../helpers/testReactTestingUtils';
 import { byRole, byText } from '../../../helpers/testSelector';
@@ -26,7 +27,13 @@ import { EditionKey } from '../../../types/editions';
 import { FCProps } from '../../../types/misc';
 import GlobalFooter from '../GlobalFooter';
 
-it('should render the logged-in information', () => {
+const systemMock = new SystemServiceMock();
+
+afterEach(() => {
+  systemMock.reset();
+});
+
+it('should render the logged-in information', async () => {
   renderGlobalFooter();
 
   expect(ui.databaseWarningMessage.query()).not.toBeInTheDocument();
@@ -35,7 +42,24 @@ it('should render the logged-in information', () => {
 
   expect(byText('Community Edition').get()).toBeInTheDocument();
   expect(ui.versionLabel('4.2').get()).toBeInTheDocument();
+  expect(await ui.ltaDocumentationLinkActive.find()).toBeInTheDocument();
   expect(ui.apiLink.get()).toBeInTheDocument();
+});
+
+it('should render the inactive version and cleanup build number', async () => {
+  systemMock.setSystemUpgrades({ installedVersionActive: false });
+  renderGlobalFooter({}, { version: '4.2 (build 12345)' });
+
+  expect(ui.versionLabel('4.2.12345').get()).toBeInTheDocument();
+  expect(await ui.ltaDocumentationLinkInactive.find()).toBeInTheDocument();
+});
+
+it('should active status if undefined', () => {
+  systemMock.setSystemUpgrades({ installedVersionActive: undefined });
+  renderGlobalFooter({}, { version: '4.2 (build 12345)' });
+
+  expect(ui.ltaDocumentationLinkInactive.query()).not.toBeInTheDocument();
+  expect(ui.ltaDocumentationLinkActive.query()).not.toBeInTheDocument();
 });
 
 it('should not render missing logged-in information', () => {
@@ -84,7 +108,7 @@ const ui = {
   databaseWarningMessage: byText('footer.production_database_warning'),
 
   versionLabel: (version?: string) =>
-    version ? byText(`footer.version_x.${version}`) : byText(/footer\.version_x/),
+    version ? byText(/footer\.version\.*(\d.\d)/) : byText(/footer\.version/),
 
   // links
   websiteLink: byRole('link', { name: 'SonarQube™' }),
@@ -94,4 +118,10 @@ const ui = {
   docsLink: byRole('link', { name: 'opens_in_new_window footer.documentation' }),
   pluginsLink: byRole('link', { name: 'opens_in_new_window footer.plugins' }),
   apiLink: byRole('link', { name: 'footer.web_api' }),
+  ltaDocumentationLinkActive: byRole('link', {
+    name: `footer.version.status.active open_in_new_window`,
+  }),
+  ltaDocumentationLinkInactive: byRole('link', {
+    name: `footer.version.status.inactive open_in_new_window`,
+  }),
 };

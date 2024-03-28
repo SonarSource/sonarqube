@@ -17,9 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Card, ClipboardButton, FlagMessage, Spinner, Title } from 'design-system';
+import { Spinner } from '@sonarsource/echoes-react';
+import { Card, ClipboardButton, FlagMessage, Title } from 'design-system';
 import * as React from 'react';
 import withAppStateContext from '../../../app/components/app-state/withAppStateContext';
+import AppVersionStatus from '../../../components/shared/AppVersionStatus';
 import { toShortISO8601String } from '../../../helpers/dates';
 import { translate } from '../../../helpers/l10n';
 import { AppState } from '../../../types/appstate';
@@ -43,7 +45,7 @@ function PageHeader(props: Readonly<Props>) {
         <Title>{translate('system_info.page')}</Title>
 
         <div className="sw-flex sw-items-center">
-          <Spinner className="sw-mr-4 sw-mt-1" loading={loading} />
+          <Spinner className="sw-mr-4 sw-mt-1" isLoading={loading} />
 
           <PageActions
             canDownloadLogs={!isCluster}
@@ -70,7 +72,9 @@ function PageHeader(props: Readonly<Props>) {
               </div>
               <div className="sw-flex sw-items-center">
                 <strong className="sw-w-32">{translate('system.version')}</strong>
-                <span>{version}</span>
+                <span>
+                  <AppVersionStatus />
+                </span>
               </div>
             </div>
             <ClipboardButton

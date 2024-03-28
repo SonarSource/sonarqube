@@ -23,6 +23,7 @@ import { first } from 'lodash';
 import SystemServiceMock from '../../../../api/mocks/SystemServiceMock';
 import { renderAppRoutes } from '../../../../helpers/testReactTestingUtils';
 import { byRole, byText } from '../../../../helpers/testSelector';
+import { AppState } from '../../../../types/appstate';
 import routes from '../../routes';
 import { LogsLevels } from '../../utils';
 
@@ -52,7 +53,7 @@ describe('System Info Standalone', () => {
   it('can change logs level', async () => {
     const { user, ui } = getPageObjects();
     renderSystemApp();
-    expect(await ui.pageHeading.find()).toBeInTheDocument();
+    await ui.appIsLoaded();
 
     await user.click(ui.changeLogLevelButton.get());
     expect(ui.logLevelWarning.queryAll()).toHaveLength(0);
@@ -81,6 +82,15 @@ describe('System Info Standalone', () => {
     });
     expect(ui.downloadSystemInfoButton.get()).toBeInTheDocument();
   });
+
+  it('should render current version and status', async () => {
+    const { ui } = getPageObjects();
+    renderSystemApp();
+    await ui.appIsLoaded();
+
+    expect(ui.versionLabel('7.8').get()).toBeInTheDocument();
+    expect(ui.ltaDocumentationLinkActive.get()).toBeInTheDocument();
+  });
 });
 
 describe('System Info Cluster', () => {
@@ -89,8 +99,6 @@ describe('System Info Cluster', () => {
     const { user, ui } = getPageObjects();
     renderSystemApp();
     await ui.appIsLoaded();
-
-    expect(await ui.pageHeading.find()).toBeInTheDocument();
 
     expect(ui.downloadLogsButton.query()).not.toBeInTheDocument();
     expect(ui.downloadSystemInfoButton.get()).toBeInTheDocument();
@@ -109,10 +117,20 @@ describe('System Info Cluster', () => {
     await user.click(first(ui.sectionButton('server1.example.com').getAll()) as HTMLElement);
     expect(screen.getByRole('heading', { name: 'Web Logging' })).toBeInTheDocument();
   });
+
+  it('should render current version and status', async () => {
+    systemMock.setIsCluster(true);
+    const { ui } = getPageObjects();
+    renderSystemApp();
+    await ui.appIsLoaded();
+
+    expect(ui.versionLabel('7.8').get()).toBeInTheDocument();
+    expect(ui.ltaDocumentationLinkActive.get()).toBeInTheDocument();
+  });
 });
 
-function renderSystemApp() {
-  return renderAppRoutes('system', routes);
+function renderSystemApp(appState?: AppState) {
+  return renderAppRoutes('system', routes, { appState });
 }
 
 function getPageObjects() {
@@ -130,6 +148,11 @@ function getPageObjects() {
     logLevelWarningShort: byText('system.log_level.warning.short'),
     healthCauseWarning: byText('Friendly warning'),
     saveButton: byRole('button', { name: 'save' }),
+    versionLabel: (version?: string) =>
+      version ? byText(/footer\.version\s*(\d.\d)/) : byText(/footer\.version/),
+    ltaDocumentationLinkActive: byRole('link', {
+      name: `footer.version.status.active open_in_new_window`,
+    }),
   };
 
   async function appIsLoaded() {

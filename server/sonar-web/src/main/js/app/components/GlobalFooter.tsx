@@ -27,21 +27,23 @@ import {
   themeBorder,
   themeColor,
 } from 'design-system';
-import * as React from 'react';
+import React from 'react';
+import { useIntl } from 'react-intl';
 import InstanceMessage from '../../components/common/InstanceMessage';
+import AppVersionStatus from '../../components/shared/AppVersionStatus';
 import { useDocUrl } from '../../helpers/docs';
 import { getEdition } from '../../helpers/editions';
-import { translate, translateWithParameters } from '../../helpers/l10n';
+import { useAppState } from './app-state/withAppStateContext';
 import GlobalFooterBranding from './GlobalFooterBranding';
-import { AppStateContext } from './app-state/AppStateContext';
 
 interface GlobalFooterProps {
   hideLoggedInInfo?: boolean;
 }
 
 export default function GlobalFooter({ hideLoggedInInfo }: Readonly<GlobalFooterProps>) {
-  const appState = React.useContext(AppStateContext);
+  const appState = useAppState();
   const currentEdition = appState?.edition && getEdition(appState.edition);
+  const intl = useIntl();
 
   const docUrl = useDocUrl();
 
@@ -52,12 +54,14 @@ export default function GlobalFooter({ hideLoggedInInfo }: Readonly<GlobalFooter
           <FlagMessage className="sw-mb-4" id="evaluation_warning" variant="warning">
             <p>
               <span className="sw-body-md-highlight">
-                {translate('footer.production_database_warning')}
+                {intl.formatMessage({ id: 'footer.production_database_warning' })}
               </span>
 
               <br />
 
-              <InstanceMessage message={translate('footer.production_database_explanation')} />
+              <InstanceMessage
+                message={intl.formatMessage({ id: 'footer.production_database_explanation' })}
+              />
             </p>
           </FlagMessage>
         )}
@@ -70,7 +74,7 @@ export default function GlobalFooter({ hideLoggedInInfo }: Readonly<GlobalFooter
 
             {!hideLoggedInInfo && appState?.version && (
               <li className="sw-code">
-                {translateWithParameters('footer.version_x', appState.version)}
+                <AppVersionStatus />
               </li>
             )}
 
@@ -79,7 +83,7 @@ export default function GlobalFooter({ hideLoggedInInfo }: Readonly<GlobalFooter
                 highlight={LinkHighlight.CurrentColor}
                 to="https://www.gnu.org/licenses/lgpl-3.0.txt"
               >
-                {translate('footer.license')}
+                {intl.formatMessage({ id: 'footer.license' })}
               </LinkStandalone>
             </li>
 
@@ -88,13 +92,13 @@ export default function GlobalFooter({ hideLoggedInInfo }: Readonly<GlobalFooter
                 highlight={LinkHighlight.CurrentColor}
                 to="https://community.sonarsource.com/c/help/sq"
               >
-                {translate('footer.community')}
+                {intl.formatMessage({ id: 'footer.community' })}
               </LinkStandalone>
             </li>
 
             <li>
               <LinkStandalone highlight={LinkHighlight.CurrentColor} to={docUrl('/')}>
-                {translate('footer.documentation')}
+                {intl.formatMessage({ id: 'footer.documentation' })}
               </LinkStandalone>
             </li>
 
@@ -103,14 +107,14 @@ export default function GlobalFooter({ hideLoggedInInfo }: Readonly<GlobalFooter
                 highlight={LinkHighlight.CurrentColor}
                 to={docUrl('/instance-administration/plugin-version-matrix/')}
               >
-                {translate('footer.plugins')}
+                {intl.formatMessage({ id: 'footer.plugins' })}
               </LinkStandalone>
             </li>
 
             {!hideLoggedInInfo && (
               <li>
                 <LinkStandalone highlight={LinkHighlight.CurrentColor} to="/web_api">
-                  {translate('footer.web_api')}
+                  {intl.formatMessage({ id: 'footer.web_api' })}
                 </LinkStandalone>
               </li>
             )}
