@@ -19,7 +19,7 @@
  */
 
 import { ThemeProvider } from '@emotion/react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClientProvider } from '@tanstack/react-query';
 import { ToastMessageContainer, lightTheme } from 'design-system';
 import * as React from 'react';
 import { createRoot } from 'react-dom/client';
@@ -70,6 +70,7 @@ import webAPIRoutes from '../../apps/web-api/routes';
 import webhooksRoutes from '../../apps/webhooks/routes';
 import { translate } from '../../helpers/l10n';
 import { getBaseUrl } from '../../helpers/system';
+import { queryClient } from '../../queries/queryClient';
 import { AppState } from '../../types/appstate';
 import { Feature } from '../../types/features';
 import { CurrentUser } from '../../types/users';
@@ -251,8 +252,6 @@ const router = createBrowserRouter(
   ),
   { basename: getBaseUrl() },
 );
-
-const queryClient = new QueryClient();
 
 export default function startReactApp(
   l10nBundle: IntlShape,

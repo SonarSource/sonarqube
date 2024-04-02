@@ -68,7 +68,6 @@ export function useProjectBindingQuery<T = ProjectAlmBindingResponse>(
         return e;
       }),
     staleTime: 60_000,
-    retry: false,
     enabled: projectKey !== null,
     ...options,
   });
