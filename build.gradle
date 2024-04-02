@@ -415,7 +415,7 @@ subprojects {
       dependency 'org.elasticsearch:mocksocket:1.2'
       dependency "org.codelibs.elasticsearch.module:analysis-common:${elasticSearchVersion}"
       dependency "org.codelibs.elasticsearch.module:reindex:${elasticSearchVersion}"
-      dependency 'org.eclipse.jgit:org.eclipse.jgit:6.8.0.202311291450-r'
+      dependency 'org.eclipse.jgit:org.eclipse.jgit:6.9.0.202403050737-r'
       dependency 'org.tmatesoft.svnkit:svnkit:1.10.11'
       dependency 'org.hamcrest:hamcrest-all:1.3'
       dependency 'org.jsoup:jsoup:1.17.2'
