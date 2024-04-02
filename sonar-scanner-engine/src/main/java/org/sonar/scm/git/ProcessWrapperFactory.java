@@ -23,6 +23,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Scanner;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
@@ -41,7 +43,11 @@ public class ProcessWrapperFactory {
   }
 
   public ProcessWrapper create(@Nullable Path baseDir, Consumer<String> stdOutLineConsumer, String... command) {
-    return new ProcessWrapper(baseDir, stdOutLineConsumer, command);
+    return new ProcessWrapper(baseDir, stdOutLineConsumer, Map.of(), command);
+  }
+
+  public ProcessWrapper create(@Nullable Path baseDir, Consumer<String> stdOutLineConsumer, Map<String, String> envVariables, String... command) {
+    return new ProcessWrapper(baseDir, stdOutLineConsumer, envVariables, command);
   }
 
   static class ProcessWrapper {
@@ -49,10 +55,12 @@ public class ProcessWrapperFactory {
     private final Path baseDir;
     private final Consumer<String> stdOutLineConsumer;
     private final String[] command;
+    private final Map<String, String> envVariables = new HashMap<>();
 
-    ProcessWrapper(@Nullable Path baseDir, Consumer<String> stdOutLineConsumer, String... command) {
+    ProcessWrapper(@Nullable Path baseDir, Consumer<String> stdOutLineConsumer, Map<String, String> envVariables, String... command) {
       this.baseDir = baseDir;
       this.stdOutLineConsumer = stdOutLineConsumer;
+      this.envVariables.putAll(envVariables);
       this.command = command;
     }
 
@@ -60,6 +68,7 @@ public class ProcessWrapperFactory {
       ProcessBuilder pb = new ProcessBuilder()
         .command(command)
         .directory(baseDir != null ? baseDir.toFile() : null);
+      envVariables.forEach(pb.environment()::put);
 
       Process p = pb.start();
       try {

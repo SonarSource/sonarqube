@@ -20,6 +20,7 @@
 package org.sonar.scm.git;
 
 import java.io.IOException;
+import java.util.Map;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -41,8 +42,8 @@ public class ProcessWrapperFactoryTest {
   public void should_log_error_output_in_debug_mode() throws IOException {
     logTester.setLevel(Level.DEBUG);
     var root = temp.newFolder().toPath();
-    var processWrapper = underTest.create(root, v -> {}, "git", "blame");
-    assertThatThrownBy(() -> processWrapper.execute())
+    var processWrapper = underTest.create(root, v -> {}, Map.of("LANG", "en_US"), "git", "blame");
+    assertThatThrownBy(processWrapper::execute)
       .isInstanceOf(IllegalStateException.class);
 
     assertThat(logTester.logs(Level.DEBUG).get(0)).startsWith("fatal:");

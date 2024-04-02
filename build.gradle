@@ -566,6 +566,10 @@ subprojects {
     jvmArgs '-Dfile.encoding=UTF8'
     maxHeapSize = '1500m'
     systemProperty 'java.awt.headless', true
+    // Some tests are asserting on localized messages or dates
+    systemProperty 'user.language', 'en'
+    systemProperty 'user.country', 'US'
+    environment 'LANGUAGE', 'en_US'
     testLogging {
       events "skipped", "failed" // verbose log for failed and skipped tests (by default the name of the tests are not logged)
       exceptionFormat 'full' // log the full stack trace (default is the 1st line of the stack trace)
