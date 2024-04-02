@@ -22,7 +22,6 @@ package org.sonar.server.common.permission;
 import javax.annotation.Nullable;
 import org.sonar.db.entity.EntityDto;
 import org.sonar.db.user.UserId;
-import org.sonar.server.common.permission.Operation;
 import org.sonar.server.permission.PermissionService;
 
 import static java.util.Objects.requireNonNull;
