@@ -446,7 +446,7 @@ subprojects {
       }
       dependency 'org.junit.platform:junit-platform-suite-api:1.10.2'
       dependency 'org.junit.platform:junit-platform-suite-engine:1.10.2'
-      dependency 'org.sonarsource.update-center:sonar-update-center-common:1.32.0.2424'
+      dependency 'org.sonarsource.update-center:sonar-update-center-common:1.32.0.2441'
       dependency("org.springframework:spring-context:${springVersion}") {
         exclude 'commons-logging:commons-logging'
       }
