@@ -415,9 +415,8 @@ export function decodeJwt(token: string) {
   return JSON.parse(window.atob(base64));
 }
 
-const VERSION_REGEX = /[\s()]/g;
-const VERSION_BUILD = 'build';
+const VERSION_BUILD = 'build ';
 export function getInstanceVersionNumber(version: string) {
-  // e.g. "10.5 (build 12345)" => "10.5.12345"
-  return version.replace(VERSION_REGEX, '').replace(VERSION_BUILD, '.');
+  // e.g. "10.5 (build 12345)" => "10.5 (12345)"
+  return version.replace(VERSION_BUILD, '');
 }
