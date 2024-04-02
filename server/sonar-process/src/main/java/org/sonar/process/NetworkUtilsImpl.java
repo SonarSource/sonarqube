@@ -124,7 +124,11 @@ public class NetworkUtilsImpl implements NetworkUtils {
     try {
       Optional<InetAddress> inetAddress = toInetAddress(hostOrAddress);
       if (inetAddress.isPresent()) {
-        return NetworkInterface.getByInetAddress(inetAddress.get()) != null;
+        var addr = inetAddress.get();
+        if (addr.isAnyLocalAddress() || addr.isLoopbackAddress()) {
+          return true;
+        }
+        return NetworkInterface.getByInetAddress(addr) != null;
       }
       return false;
     } catch (SocketException e) {
