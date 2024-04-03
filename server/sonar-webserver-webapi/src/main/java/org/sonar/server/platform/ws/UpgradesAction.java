@@ -117,18 +117,19 @@ public class UpgradesAction implements SystemWsAction {
 
   private void writeResponse(JsonWriter jsonWriter) {
     jsonWriter.beginObject();
-
-    Optional<UpdateCenter> updateCenterOpt = updateCenterFactory.getUpdateCenter(DO_NOT_FORCE_REFRESH);
-    writeUpgrades(jsonWriter, updateCenterOpt);
-    if (updateCenterOpt.isPresent()) {
-      UpdateCenter updateCenter = updateCenterOpt.get();
-      writeLatestLtsVersion(jsonWriter, updateCenter);
-      writeLatestLtaVersion(jsonWriter, updateCenter);
-      jsonWriter.propDateTime(PROPERTY_UPDATE_CENTER_REFRESH, updateCenter.getDate());
-      jsonWriter.prop(INSTALLED_VERSION_ACTIVE, activeVersionEvaluator.evaluateIfActiveVersion(updateCenter));
+    try {
+      Optional<UpdateCenter> updateCenterOpt = updateCenterFactory.getUpdateCenter(DO_NOT_FORCE_REFRESH);
+      writeUpgrades(jsonWriter, updateCenterOpt);
+      if (updateCenterOpt.isPresent()) {
+        UpdateCenter updateCenter = updateCenterOpt.get();
+        writeLatestLtsVersion(jsonWriter, updateCenter);
+        writeLatestLtaVersion(jsonWriter, updateCenter);
+        jsonWriter.propDateTime(PROPERTY_UPDATE_CENTER_REFRESH, updateCenter.getDate());
+        jsonWriter.prop(INSTALLED_VERSION_ACTIVE, activeVersionEvaluator.evaluateIfActiveVersion(updateCenter));
+      }
+    } finally {
+      jsonWriter.endObject();
     }
-
-    jsonWriter.endObject();
   }
 
   private static void writeLatestLtsVersion(JsonWriter jsonWriter, UpdateCenter updateCenter) {
