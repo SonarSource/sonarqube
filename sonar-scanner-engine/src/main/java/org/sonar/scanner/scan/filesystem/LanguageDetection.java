@@ -66,7 +66,7 @@ public class LanguageDetection {
         for (int i = 0; i < patterns.length; i++) {
           String suffix = patterns[i];
           String extension = sanitizeExtension(suffix);
-          patterns[i] = "**/*." + extension;
+          patterns[i] = "**/*" + extension;
         }
         PathPattern[] defaultLanguagePatterns = PathPattern.create(patterns);
         patternsByLanguageBuilder.put(language, defaultLanguagePatterns);
@@ -122,6 +122,9 @@ public class LanguageDetection {
   }
 
   static String sanitizeExtension(String suffix) {
-    return StringUtils.lowerCase(StringUtils.removeStart(suffix, "."));
+    if (!suffix.contains(".")) {
+      return "." + StringUtils.lowerCase(suffix);
+    }
+    return StringUtils.lowerCase(suffix);
   }
 }
