@@ -43,7 +43,8 @@ public class SystemWsModule extends Module {
       RestartAction.class,
       StatusAction.class,
       UpgradesAction.class,
-      SystemWs.class
+      SystemWs.class,
+      ActiveVersionEvaluator.class
 
     );
   }

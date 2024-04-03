@@ -37,5 +37,7 @@
     }
   ],
   "latestLTS": "8.9",
+  "latestLTA": "8.9",
+  "installedVersionActive": true,
   "updateCenterRefresh": "2015-04-24T16:08:36+0200"
 }
