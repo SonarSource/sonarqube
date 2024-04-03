@@ -223,10 +223,10 @@ export class IssueTabViewer extends React.PureComponent<IssueTabViewerProps, Sta
           <RuleDescription
             defaultContextKey={ruleDescriptionContextKey}
             language={ruleLanguage}
-            sections={
-              descriptionSectionsByKey[RuleDescriptionSections.DEFAULT] ||
+            sections={(
+              descriptionSectionsByKey[RuleDescriptionSections.DEFAULT] ??
               descriptionSectionsByKey[RuleDescriptionSections.ROOT_CAUSE]
-            }
+            ).concat(descriptionSectionsByKey[RuleDescriptionSections.INTRODUCTION] ?? [])}
           />
         ),
       },

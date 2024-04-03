@@ -207,7 +207,10 @@ export default class IssuesServiceMock {
           htmlNote: '<h1>Extended Description</h1>',
           educationPrinciples: ['defense_in_depth'],
           descriptionSections: [
-            { key: RuleDescriptionSections.INTRODUCTION, content: '<h1>Into</h1>' },
+            {
+              key: RuleDescriptionSections.INTRODUCTION,
+              content: '<h1>Introduction to this rule</h1>',
+            },
             { key: RuleDescriptionSections.ROOT_CAUSE, content: '<h1>Because</h1>' },
             { key: RuleDescriptionSections.HOW_TO_FIX, content: '<h1>Fix with</h1>' },
             {

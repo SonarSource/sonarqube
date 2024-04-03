@@ -146,7 +146,8 @@ export function mockRuleDetailsList() {
       name: 'Awsome Python rule',
       descriptionSections: [
         { key: RuleDescriptionSections.INTRODUCTION, content: introTitle },
-        { key: RuleDescriptionSections.HOW_TO_FIX, content: rootCauseContent },
+        { key: RuleDescriptionSections.ROOT_CAUSE, content: rootCauseContent },
+        { key: RuleDescriptionSections.HOW_TO_FIX, content: howToFixContent },
         {
           key: RuleDescriptionSections.RESOURCES,
           content: resourceContent,

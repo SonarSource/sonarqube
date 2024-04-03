@@ -164,10 +164,10 @@ export class RuleTabViewer extends React.PureComponent<RuleTabViewerProps, State
           descriptionSectionsByKey[RuleDescriptionSections.ROOT_CAUSE]) && (
           <RuleDescription
             language={ruleLanguage}
-            sections={
-              descriptionSectionsByKey[RuleDescriptionSections.DEFAULT] ||
+            sections={(
+              descriptionSectionsByKey[RuleDescriptionSections.DEFAULT] ??
               descriptionSectionsByKey[RuleDescriptionSections.ROOT_CAUSE]
-            }
+            ).concat(descriptionSectionsByKey[RuleDescriptionSections.INTRODUCTION] ?? [])}
           />
         ),
         value: TabKeys.WhyIsThisAnIssue,

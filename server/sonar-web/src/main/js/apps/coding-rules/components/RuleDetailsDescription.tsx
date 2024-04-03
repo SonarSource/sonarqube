@@ -23,16 +23,17 @@ import {
   CodeSyntaxHighlighter,
   DangerButtonSecondary,
   InputTextArea,
-  Spinner,
 } from 'design-system';
+
+import { Spinner } from '@sonarsource/echoes-react';
+
 import * as React from 'react';
 import FormattingTips from '../../../components/common/FormattingTips';
 import RuleTabViewer from '../../../components/rules/RuleTabViewer';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
-import { sanitizeString, sanitizeUserInput } from '../../../helpers/sanitize';
+import { sanitizeUserInput } from '../../../helpers/sanitize';
 import { useUpdateRuleMutation } from '../../../queries/rules';
 import { RuleDetails } from '../../../types/types';
-import { RuleDescriptionSections } from '../rule';
 import RemoveExtendedDescriptionModal from './RemoveExtendedDescriptionModal';
 
 interface Props {
@@ -144,7 +145,7 @@ export default function RuleDetailsDescription(props: Readonly<Props>) {
             {translate('cancel')}
           </ButtonSecondary>
 
-          <Spinner className="sw-ml-2" loading={updatingRule} />
+          <Spinner className="sw-ml-2" isLoading={updatingRule} />
         </div>
 
         <FormattingTips />
@@ -152,36 +153,8 @@ export default function RuleDetailsDescription(props: Readonly<Props>) {
     </form>
   );
 
-  const hasDescription = !ruleDetails.isExternal || ruleDetails.type !== 'UNKNOWN';
-
-  const hasDescriptionSection =
-    hasDescription && ruleDetails.descriptionSections && ruleDetails.descriptionSections.length > 0;
-
-  const defaultSection =
-    hasDescriptionSection &&
-    ruleDetails.descriptionSections?.length === 1 &&
-    ruleDetails.descriptionSections[0].key === RuleDescriptionSections.DEFAULT
-      ? ruleDetails.descriptionSections[0]
-      : undefined;
-
-  const introductionSection = ruleDetails.descriptionSections?.find(
-    (section) => section.key === RuleDescriptionSections.INTRODUCTION,
-  )?.content;
-
   return (
     <div className="js-rule-description">
-      {hasDescriptionSection && !defaultSection && (
-        <>
-          {introductionSection && (
-            <CodeSyntaxHighlighter
-              className="rule-desc"
-              htmlAsString={sanitizeString(introductionSection)}
-              language={ruleDetails.lang}
-            />
-          )}
-        </>
-      )}
-
       <RuleTabViewer ruleDetails={ruleDetails} />
 
       {ruleDetails.isExternal && (

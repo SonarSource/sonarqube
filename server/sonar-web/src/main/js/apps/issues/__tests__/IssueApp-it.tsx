@@ -22,7 +22,7 @@ import userEvent from '@testing-library/user-event';
 import React from 'react';
 import { TabKeys } from '../../../components/rules/RuleTabViewer';
 import { mockLoggedInUser } from '../../../helpers/testMocks';
-import { byRole } from '../../../helpers/testSelector';
+import { byRole, byText } from '../../../helpers/testSelector';
 import { RestUserDetailed } from '../../../types/users';
 import {
   branchHandler,
@@ -84,6 +84,8 @@ describe('issue app', () => {
         name: `coding_rules.description_section.title.root_cause`,
       }),
     ).toHaveAttribute('aria-current', 'true');
+
+    expect(byText(/Introduction to this rule/).get()).toBeInTheDocument();
   });
 
   it('should interact with flows and locations', async () => {

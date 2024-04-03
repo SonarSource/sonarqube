@@ -27,10 +27,11 @@ import {
   themeColor,
 } from 'design-system';
 import * as React from 'react';
-import { RuleDescriptionSection } from '../../apps/coding-rules/rule';
+import { RuleDescriptionSection, RuleDescriptionSections } from '../../apps/coding-rules/rule';
 import applyCodeDifferences from '../../helpers/code-difference';
 import { translate, translateWithParameters } from '../../helpers/l10n';
 import { sanitizeString } from '../../helpers/sanitize';
+import { isDefined } from '../../helpers/types';
 import OtherContextOption from './OtherContextOption';
 
 const OTHERS_KEY = 'others';
@@ -120,6 +121,10 @@ export default class RuleDescription extends React.PureComponent<Props, State> {
     const { className, language, sections } = this.props;
     const { contexts, defaultContext, selectedContext } = this.state;
 
+    const introductionSection = sections?.find(
+      (section) => section.key === RuleDescriptionSections.INTRODUCTION,
+    )?.content;
+
     const options = contexts.map((ctxt) => ({
       label: ctxt.displayName,
       value: ctxt.displayName,
@@ -136,6 +141,13 @@ export default class RuleDescription extends React.PureComponent<Props, State> {
           <h2 className="sw-body-sm-highlight sw-mb-4">
             {translate('coding_rules.description_context.title')}
           </h2>
+          {isDefined(introductionSection) && (
+            <CodeSyntaxHighlighter
+              className="rule-desc"
+              htmlAsString={sanitizeString(introductionSection)}
+              language={language}
+            />
+          )}
 
           {defaultContext && (
             <FlagMessage variant="info" className="sw-mb-4">
@@ -183,6 +195,14 @@ export default class RuleDescription extends React.PureComponent<Props, State> {
           applyCodeDifferences(node);
         }}
       >
+        {isDefined(introductionSection) && (
+          <CodeSyntaxHighlighter
+            className="rule-desc"
+            htmlAsString={sanitizeString(introductionSection)}
+            language={language}
+          />
+        )}
+
         <CodeSyntaxHighlighter
           htmlAsString={sanitizeString(sections[0].content)}
           language={language}
