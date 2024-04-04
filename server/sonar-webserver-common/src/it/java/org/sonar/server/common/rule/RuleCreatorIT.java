@@ -543,23 +543,6 @@ public class RuleCreatorIT {
   }
 
   @Test
-  public void fail_to_create_custom_rule_when_invalid_key() {
-    // insert template rule
-    RuleDto templateRule = createTemplateRule();
-
-    NewCustomRule newRule = NewCustomRule.createForCustomRule(RuleKey.of("java", "*INVALID*"), templateRule.getKey())
-      .setName("My custom")
-      .setMarkdownDescription("some description")
-      .setSeverity(Severity.MAJOR)
-      .setStatus(RuleStatus.READY)
-      .setParameters(Map.of("regex", "a.*"));
-
-    assertThatThrownBy(() -> underTest.create(dbSession, newRule))
-      .isInstanceOf(BadRequestException.class)
-      .hasMessage("The rule key \"*INVALID*\" is invalid, it should only contain: a-z, 0-9, \"_\"");
-  }
-
-  @Test
   public void fail_to_create_custom_rule_when_rule_key_already_exists() {
     // insert template rule
     RuleDto templateRule = createTemplateRule();

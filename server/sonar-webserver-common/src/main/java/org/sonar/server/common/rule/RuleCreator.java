@@ -27,7 +27,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.apache.commons.lang3.StringUtils;
@@ -66,8 +65,6 @@ import static org.sonar.server.exceptions.BadRequestException.checkRequest;
 @ServerSide
 public class RuleCreator {
   private static final String TEMPLATE_KEY_NOT_EXIST_FORMAT = "The template key doesn't exist: %s";
-  private static final Pattern RULE_KEY_REGEX = Pattern.compile("^[\\w]+$");
-
   private final System2 system2;
   private final RuleIndexer ruleIndexer;
   private final DbClient dbClient;
@@ -180,9 +177,6 @@ public class RuleCreator {
     if (!ruleKey.repository().equals(templateKey.repository())) {
       errors.add("Custom and template keys must be in the same repository");
     }
-    if (!RULE_KEY_REGEX.matcher(ruleKey.rule()).matches()) {
-      errors.add(format("The rule key \"%s\" is invalid, it should only contain: a-z, 0-9, \"_\"", ruleKey.rule()));
-    }
   }
 
   private Optional<RuleDto> loadRule(DbSession dbSession, RuleKey ruleKey) {
@@ -254,8 +248,8 @@ public class RuleCreator {
         SoftwareQuality softwareQuality = ImpactMapper.convertToSoftwareQuality(RuleType.valueOf(type));
         org.sonar.api.issue.impact.Severity impactSeverity = ImpactMapper.convertToImpactSeverity(severity);
         ruleDto.addDefaultImpact(new ImpactDto()
-            .setSoftwareQuality(softwareQuality)
-            .setSeverity(impactSeverity))
+          .setSoftwareQuality(softwareQuality)
+          .setSeverity(impactSeverity))
           .setType(type)
           .setSeverity(severity);
       }
