@@ -2322,32 +2322,6 @@ export const definitions: ExtendedSettingDefinition[] = [
     deprecatedKey: 'workUnitsBySizePoint',
   },
   {
-    key: 'languageSpecificParameters',
-    name: 'Language specific parameters',
-    description:
-      'DEPRECATED - The parameters specified here for a given language will override the general parameters defined in this section.',
-    type: SettingType.PROPERTY_SET,
-    category: 'technicalDebt',
-    subCategory: 'technicalDebt',
-    options: [],
-    fields: [
-      {
-        key: 'language',
-        name: 'Language Key',
-        description: 'Ex: java, cs, cpp...',
-        options: [],
-      },
-      {
-        key: 'man_days',
-        name: 'Development cost',
-        description: 'If left blank, the generic value defined in this section will be used.',
-        type: SettingType.FLOAT,
-        options: [],
-      },
-    ],
-    deprecatedKey: 'languageSpecificParameters',
-  },
-  {
     key: 'sonar.technicalDebt.ratingGrid',
     name: 'Maintainability rating grid',
     description:

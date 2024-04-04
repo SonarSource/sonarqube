@@ -64,12 +64,12 @@ import static org.sonar.ce.task.projectanalysis.measure.MeasureAssert.assertThat
 import static org.sonar.server.measure.Rating.A;
 import static org.sonar.server.measure.Rating.D;
 
-public class  NewMaintainabilityMeasuresVisitorTest {
+public class NewMaintainabilityMeasuresVisitorTest {
 
-  private static final double[] RATING_GRID = new double[] {0.1, 0.2, 0.5, 1};
+  private static final double[] RATING_GRID = new double[]{0.1, 0.2, 0.5, 1};
 
   private static final String LANGUAGE_1_KEY = "language 1 key";
-  private static final long LANGUAGE_1_DEV_COST = 30L;
+  private static final long DEV_COST = 30L;
   private static final int ROOT_REF = 1;
   private static final int LANGUAGE_1_FILE_REF = 11111;
   private static final Offset<Double> VALUE_COMPARISON_OFFSET = Offset.offset(0.01);
@@ -94,6 +94,7 @@ public class  NewMaintainabilityMeasuresVisitorTest {
   @Before
   public void setUp() {
     when(ratingSettings.getDebtRatingGrid()).thenReturn(new DebtRatingGrid(RATING_GRID));
+    when(ratingSettings.getDevCost()).thenReturn(DEV_COST);
     underTest = new VisitorsCrawler(Arrays.asList(new NewMaintainabilityMeasuresVisitor(metricRepository, measureRepository, newLinesRepository, ratingSettings)));
   }
 
@@ -122,7 +123,6 @@ public class  NewMaintainabilityMeasuresVisitorTest {
   @Test
   public void file_has_no_new_debt_ratio_variation_if_new_lines_not_available() {
     when(newLinesRepository.newLinesAvailable()).thenReturn(false);
-    when(ratingSettings.getDevCost(LANGUAGE_1_KEY)).thenReturn(LANGUAGE_1_DEV_COST);
     setupOneFileAloneInAProject(50, Flag.SRC_FILE, Flag.WITH_NCLOC, Flag.NO_NEW_LINES);
     measureRepository.addRawMeasure(ROOT_REF, NEW_TECHNICAL_DEBT_KEY, createNewDebtMeasure(50));
 
@@ -152,7 +152,6 @@ public class  NewMaintainabilityMeasuresVisitorTest {
   @Test
   public void file_has_new_debt_ratio_if_some_lines_are_new() {
     when(newLinesRepository.newLinesAvailable()).thenReturn(true);
-    when(ratingSettings.getDevCost(LANGUAGE_1_KEY)).thenReturn(LANGUAGE_1_DEV_COST);
     setupOneFileAloneInAProject(50, Flag.SRC_FILE, Flag.WITH_NCLOC, Flag.WITH_NEW_LINES);
     measureRepository.addRawMeasure(ROOT_REF, NEW_TECHNICAL_DEBT_KEY, createNewDebtMeasure(50));
 
@@ -164,7 +163,7 @@ public class  NewMaintainabilityMeasuresVisitorTest {
 
   @Test
   public void new_debt_ratio_changes_with_language_cost() {
-    when(ratingSettings.getDevCost(LANGUAGE_1_KEY)).thenReturn(LANGUAGE_1_DEV_COST * 10);
+    when(ratingSettings.getDevCost()).thenReturn(DEV_COST * 10);
     setupOneFileAloneInAProject(50, Flag.SRC_FILE, Flag.WITH_NCLOC, Flag.WITH_NEW_LINES);
     measureRepository.addRawMeasure(ROOT_REF, NEW_TECHNICAL_DEBT_KEY, createNewDebtMeasure(50));
 
@@ -176,7 +175,6 @@ public class  NewMaintainabilityMeasuresVisitorTest {
 
   @Test
   public void new_debt_ratio_changes_with_new_technical_debt() {
-    when(ratingSettings.getDevCost(LANGUAGE_1_KEY)).thenReturn(LANGUAGE_1_DEV_COST);
     setupOneFileAloneInAProject(500, Flag.SRC_FILE, Flag.WITH_NCLOC, Flag.WITH_NEW_LINES);
     measureRepository.addRawMeasure(ROOT_REF, NEW_TECHNICAL_DEBT_KEY, createNewDebtMeasure(500));
 
@@ -188,7 +186,6 @@ public class  NewMaintainabilityMeasuresVisitorTest {
 
   @Test
   public void new_debt_ratio_on_non_file_level_is_based_on_new_technical_debt_of_that_level() {
-    when(ratingSettings.getDevCost(LANGUAGE_1_KEY)).thenReturn(LANGUAGE_1_DEV_COST);
     setupOneFileAloneInAProject(500, Flag.SRC_FILE, Flag.WITH_NCLOC, Flag.WITH_NEW_LINES);
     measureRepository.addRawMeasure(ROOT_REF, NEW_TECHNICAL_DEBT_KEY, createNewDebtMeasure(1200));
 
@@ -200,7 +197,6 @@ public class  NewMaintainabilityMeasuresVisitorTest {
 
   @Test
   public void new_debt_ratio_when_file_is_unit_test() {
-    when(ratingSettings.getDevCost(LANGUAGE_1_KEY)).thenReturn(LANGUAGE_1_DEV_COST);
     setupOneFileAloneInAProject(500, Flag.UT_FILE, Flag.WITH_NCLOC, Flag.WITH_NEW_LINES);
     measureRepository.addRawMeasure(ROOT_REF, NEW_TECHNICAL_DEBT_KEY, createNewDebtMeasure(1200));
 
@@ -213,7 +209,6 @@ public class  NewMaintainabilityMeasuresVisitorTest {
   @Test
   public void new_debt_ratio_is_0_when_file_has_no_new_lines() {
     when(newLinesRepository.newLinesAvailable()).thenReturn(true);
-    when(ratingSettings.getDevCost(LANGUAGE_1_KEY)).thenReturn(LANGUAGE_1_DEV_COST);
     setupOneFileAloneInAProject(50, Flag.SRC_FILE, Flag.WITH_NCLOC, Flag.NO_NEW_LINES);
     measureRepository.addRawMeasure(ROOT_REF, NEW_TECHNICAL_DEBT_KEY, createNewDebtMeasure(50));
 
@@ -226,7 +221,6 @@ public class  NewMaintainabilityMeasuresVisitorTest {
   @Test
   public void new_debt_ratio_is_0_on_non_file_level_when_no_file_has_new_lines() {
     when(newLinesRepository.newLinesAvailable()).thenReturn(true);
-    when(ratingSettings.getDevCost(LANGUAGE_1_KEY)).thenReturn(LANGUAGE_1_DEV_COST);
     setupOneFileAloneInAProject(50, Flag.SRC_FILE, Flag.WITH_NCLOC, Flag.NO_NEW_LINES);
     measureRepository.addRawMeasure(ROOT_REF, NEW_TECHNICAL_DEBT_KEY, createNewDebtMeasure(200));
 
@@ -238,7 +232,6 @@ public class  NewMaintainabilityMeasuresVisitorTest {
 
   @Test
   public void new_debt_ratio_is_0_when_there_is_no_ncloc_in_file() {
-    when(ratingSettings.getDevCost(LANGUAGE_1_KEY)).thenReturn(LANGUAGE_1_DEV_COST);
     setupOneFileAloneInAProject(50, Flag.SRC_FILE, Flag.NO_NCLOC, Flag.WITH_NEW_LINES);
     measureRepository.addRawMeasure(ROOT_REF, NEW_TECHNICAL_DEBT_KEY, createNewDebtMeasure(50));
 
@@ -250,7 +243,6 @@ public class  NewMaintainabilityMeasuresVisitorTest {
 
   @Test
   public void new_debt_ratio_is_0_on_non_file_level_when_one_file_has_zero_new_debt_because_of_no_changeset() {
-    when(ratingSettings.getDevCost(LANGUAGE_1_KEY)).thenReturn(LANGUAGE_1_DEV_COST);
     setupOneFileAloneInAProject(50, Flag.SRC_FILE, Flag.NO_NCLOC, Flag.WITH_NEW_LINES);
     measureRepository.addRawMeasure(ROOT_REF, NEW_TECHNICAL_DEBT_KEY, createNewDebtMeasure(200));
 
@@ -262,7 +254,6 @@ public class  NewMaintainabilityMeasuresVisitorTest {
 
   @Test
   public void new_debt_ratio_is_0_when_ncloc_measure_is_missing() {
-    when(ratingSettings.getDevCost(LANGUAGE_1_KEY)).thenReturn(LANGUAGE_1_DEV_COST);
     setupOneFileAloneInAProject(50, Flag.SRC_FILE, Flag.MISSING_MEASURE_NCLOC, Flag.WITH_NEW_LINES);
     measureRepository.addRawMeasure(ROOT_REF, NEW_TECHNICAL_DEBT_KEY, createNewDebtMeasure(50));
 
@@ -274,7 +265,6 @@ public class  NewMaintainabilityMeasuresVisitorTest {
 
   @Test
   public void leaf_components_always_have_a_measure_when_at_least_one_period_exist_and_ratio_is_computed_from_current_level_new_debt() {
-    when(ratingSettings.getDevCost(LANGUAGE_1_KEY)).thenReturn(LANGUAGE_1_DEV_COST);
     Component file = builder(FILE, LANGUAGE_1_FILE_REF).setFileAttributes(new FileAttributes(false, LANGUAGE_1_KEY, 1)).build();
     treeRootHolder.setRoot(
       builder(PROJECT, ROOT_REF)
@@ -301,7 +291,6 @@ public class  NewMaintainabilityMeasuresVisitorTest {
 
   @Test
   public void compute_new_maintainability_rating() {
-    when(ratingSettings.getDevCost(LANGUAGE_1_KEY)).thenReturn(LANGUAGE_1_DEV_COST);
     ReportComponent file = builder(FILE, LANGUAGE_1_FILE_REF).setFileAttributes(new FileAttributes(false, LANGUAGE_1_KEY, 1)).build();
     treeRootHolder.setRoot(
       builder(PROJECT, ROOT_REF)
@@ -332,7 +321,6 @@ public class  NewMaintainabilityMeasuresVisitorTest {
   public void compute_new_development_cost() {
     ReportComponent file1 = builder(FILE, LANGUAGE_1_FILE_REF).setFileAttributes(new FileAttributes(false, LANGUAGE_1_KEY, 4)).build();
     ReportComponent file2 = builder(FILE, 22_222).setFileAttributes(new FileAttributes(false, LANGUAGE_1_KEY, 6)).build();
-    when(ratingSettings.getDevCost(LANGUAGE_1_KEY)).thenReturn(LANGUAGE_1_DEV_COST);
     treeRootHolder.setRoot(
       builder(PROJECT, ROOT_REF)
         .addChildren(
@@ -353,15 +341,14 @@ public class  NewMaintainabilityMeasuresVisitorTest {
 
     underTest.visit(treeRootHolder.getRoot());
 
-    assertNewDevelopmentCostValues(ROOT_REF, 5 * LANGUAGE_1_DEV_COST);
-    assertNewDevelopmentCostValues(LANGUAGE_1_FILE_REF, 2 * LANGUAGE_1_DEV_COST);
-    assertNewDevelopmentCostValues(22_222, 3 * LANGUAGE_1_DEV_COST);
+    assertNewDevelopmentCostValues(ROOT_REF, 5 * DEV_COST);
+    assertNewDevelopmentCostValues(LANGUAGE_1_FILE_REF, 2 * DEV_COST);
+    assertNewDevelopmentCostValues(22_222, 3 * DEV_COST);
   }
 
   @Test
   public void compute_new_maintainability_rating_to_A_when_no_debt() {
     when(newLinesRepository.newLinesAvailable()).thenReturn(true);
-    when(ratingSettings.getDevCost(LANGUAGE_1_KEY)).thenReturn(LANGUAGE_1_DEV_COST);
     treeRootHolder.setRoot(
       builder(PROJECT, ROOT_REF)
         .addChildren(

@@ -46,6 +46,7 @@ public class DbVersion105 implements DbVersion {
       .add(10_5_002, "Drop column 'uuid' from 'issues_impacts' table", DropUuidColumnInIssuesImpactsTable.class)
       .add(10_5_003, "Drop column 'uuid' from 'rules_default_impacts' table", DropUuidColumnInRulesDefaultImpactsTable.class)
       .add(10_5_004, "Create primary key on 'issues_impacts' table", CreatePrimaryKeyOnIssuesImpactsTable.class)
-      .add(10_5_005, "Create primary key on 'rules_default_impacts' table", CreatePrimaryKeyOnRulesDefaultImpactsTable.class);
+      .add(10_5_005, "Create primary key on 'rules_default_impacts' table", CreatePrimaryKeyOnRulesDefaultImpactsTable.class)
+      .add(10_5_006, "Delete 'languageSpecificParameters' property set from 'properties' table", DeleteLanguageSpecificParametersPropertySet.class);
   }
 }

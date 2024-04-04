@@ -179,7 +179,6 @@ import org.sonar.server.platform.PersistentSettings;
 import org.sonar.server.platform.SystemInfoWriterModule;
 import org.sonar.server.platform.WebCoreExtensionsInstaller;
 import org.sonar.server.platform.db.CheckAnyonePermissionsAtStartup;
-import org.sonar.server.platform.db.CheckLanguageSpecificParamsAtStartup;
 import org.sonar.server.platform.web.ActionDeprecationLoggerInterceptor;
 import org.sonar.server.platform.web.SonarLintConnectionFilter;
 import org.sonar.server.platform.web.WebServiceFilter;
@@ -435,7 +434,6 @@ public class PlatformLevel4 extends PlatformLevel {
       UserPermissionChanger.class,
       GroupPermissionChanger.class,
       CheckAnyonePermissionsAtStartup.class,
-      CheckLanguageSpecificParamsAtStartup.class,
       VisibilityService.class,
 
       // components

@@ -26,9 +26,6 @@ public class QModelTester {
 
   private static final String DEV_COST_PROPERTY = "sonar.technicalDebt.developmentCost";
   private static final String RATING_GRID_PROPERTY = "sonar.technicalDebt.ratingGrid";
-  private static final String DEV_COST_LANGUAGE_PROPERTY = "languageSpecificParameters";
-  private static final String DEV_COST_LANGUAGE_NAME_PROPERTY = DEV_COST_LANGUAGE_PROPERTY + ".0.language";
-  private static final String DEV_COST_LANGUAGE_COST_PROPERTY = DEV_COST_LANGUAGE_PROPERTY + ".0.man_days";
   private static final Joiner COMMA_JOINER = Joiner.on(",");
 
   private final TesterSession session;
@@ -41,18 +38,12 @@ public class QModelTester {
     session.settings().setGlobalSettings(DEV_COST_PROPERTY, Integer.toString(developmentCost));
   }
 
-  public void updateLanguageDevelopmentCost(String language, int developmentCost) {
-    session.settings().setGlobalSettings(DEV_COST_LANGUAGE_PROPERTY, "0");
-    session.settings().setGlobalSettings(DEV_COST_LANGUAGE_NAME_PROPERTY, language);
-    session.settings().setGlobalSettings(DEV_COST_LANGUAGE_COST_PROPERTY, Integer.toString(developmentCost));
-  }
-
   public void updateRatingGrid(Double... ratingGrid) {
     Preconditions.checkState(ratingGrid.length == 4, "Rating grid must contains 4 values");
     session.settings().setGlobalSettings(RATING_GRID_PROPERTY, COMMA_JOINER.join(ratingGrid));
   }
 
   public void reset() {
-    session.settings().resetSettings(DEV_COST_LANGUAGE_PROPERTY, DEV_COST_LANGUAGE_NAME_PROPERTY, DEV_COST_LANGUAGE_COST_PROPERTY, RATING_GRID_PROPERTY, DEV_COST_PROPERTY);
+    session.settings().resetSettings(RATING_GRID_PROPERTY, DEV_COST_PROPERTY);
   }
 }

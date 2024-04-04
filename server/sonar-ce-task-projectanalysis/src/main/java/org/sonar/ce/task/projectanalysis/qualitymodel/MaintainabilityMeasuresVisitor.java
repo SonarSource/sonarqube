@@ -94,7 +94,7 @@ public class MaintainabilityMeasuresVisitor extends PathAwareVisitorAdapter<Main
   private long computeDevelopmentCost(Component file) {
     Optional<Measure> measure = measureRepository.getRawMeasure(file, nclocMetric);
     long ncloc = measure.map(Measure::getIntValue).orElse(0);
-    return ncloc * ratingSettings.getDevCost(file.getFileAttributes().getLanguageKey());
+    return ncloc * ratingSettings.getDevCost();
   }
 
   private void computeAndSaveMeasures(Component component, Path<Counter> path) {

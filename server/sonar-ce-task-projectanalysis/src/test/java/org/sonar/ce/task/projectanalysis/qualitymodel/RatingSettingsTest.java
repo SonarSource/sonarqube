@@ -23,22 +23,16 @@ import org.junit.Test;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.internal.MapSettings;
-import org.sonar.api.measures.CoreMetrics;
-import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.System2;
 import org.sonar.core.config.CorePropertyDefinitions;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.api.CoreProperties.DEVELOPMENT_COST;
-import static org.sonar.api.CoreProperties.LANGUAGE_SPECIFIC_PARAMETERS;
-import static org.sonar.api.CoreProperties.LANGUAGE_SPECIFIC_PARAMETERS_LANGUAGE_KEY;
-import static org.sonar.api.CoreProperties.LANGUAGE_SPECIFIC_PARAMETERS_MAN_DAYS_KEY;
 
 public class RatingSettingsTest {
 
   private MapSettings settings = new MapSettings(new PropertyDefinitions(System2.INSTANCE, CorePropertyDefinitions.all()));
-
 
   @Test
   public void load_rating_grid() {
@@ -54,31 +48,11 @@ public class RatingSettingsTest {
   }
 
   @Test
-  public void load_work_units_for_language() {
+  public void load_dev_cost() {
     settings.setProperty(DEVELOPMENT_COST, "50");
     RatingSettings configurationLoader = new RatingSettings(settings.asConfig());
 
-    assertThat(configurationLoader.getDevCost("defaultLanguage")).isEqualTo(50L);
-  }
-
-  @Test
-  public void load_overridden_values_for_language() {
-
-    String aLanguage = "aLanguage";
-    String anotherLanguage = "anotherLanguage";
-
-    settings.setProperty(LANGUAGE_SPECIFIC_PARAMETERS, "0,1");
-    settings.setProperty(LANGUAGE_SPECIFIC_PARAMETERS + "." + "0" + "." + LANGUAGE_SPECIFIC_PARAMETERS_LANGUAGE_KEY, aLanguage);
-    settings.setProperty(LANGUAGE_SPECIFIC_PARAMETERS + "." + "0" + "." + LANGUAGE_SPECIFIC_PARAMETERS_MAN_DAYS_KEY, "30");
-    settings.setProperty(LANGUAGE_SPECIFIC_PARAMETERS + "." + "0" + "." + CoreProperties.LANGUAGE_SPECIFIC_PARAMETERS_SIZE_METRIC_KEY, CoreMetrics.NCLOC_KEY);
-    settings.setProperty(LANGUAGE_SPECIFIC_PARAMETERS + "." + "1" + "." + LANGUAGE_SPECIFIC_PARAMETERS_LANGUAGE_KEY, anotherLanguage);
-    settings.setProperty(LANGUAGE_SPECIFIC_PARAMETERS + "." + "1" + "." + LANGUAGE_SPECIFIC_PARAMETERS_MAN_DAYS_KEY, "40");
-    settings.setProperty(LANGUAGE_SPECIFIC_PARAMETERS + "." + "1" + "." + CoreProperties.LANGUAGE_SPECIFIC_PARAMETERS_SIZE_METRIC_KEY, CoreMetrics.COMPLEXITY_KEY);
-
-    RatingSettings configurationLoader = new RatingSettings(settings.asConfig());
-
-    assertThat(configurationLoader.getDevCost(aLanguage)).isEqualTo(30L);
-    assertThat(configurationLoader.getDevCost(anotherLanguage)).isEqualTo(40L);
+    assertThat(configurationLoader.getDevCost()).isEqualTo(50L);
   }
 
   @Test
@@ -91,29 +65,4 @@ public class RatingSettingsTest {
 
   }
 
-  @Test
-  public void use_generic_value_when_specific_setting_is_missing() {
-    String aLanguage = "aLanguage";
-
-    settings.setProperty(DEVELOPMENT_COST, "30");
-    settings.setProperty(LANGUAGE_SPECIFIC_PARAMETERS, "0");
-    settings.setProperty(LANGUAGE_SPECIFIC_PARAMETERS + "." + "0" + "." + LANGUAGE_SPECIFIC_PARAMETERS_LANGUAGE_KEY, aLanguage);
-    settings.setProperty(LANGUAGE_SPECIFIC_PARAMETERS + "." + "0" + "." + LANGUAGE_SPECIFIC_PARAMETERS_MAN_DAYS_KEY, "40");
-
-    RatingSettings configurationLoader = new RatingSettings(settings.asConfig());
-
-    assertThat(configurationLoader.getDevCost(aLanguage)).isEqualTo(40L);
-  }
-
-  @Test
-  public void constructor_fails_with_ME_if_language_specific_parameter_language_is_missing() {
-    settings.setProperty(DEVELOPMENT_COST, "30");
-    settings.setProperty(LANGUAGE_SPECIFIC_PARAMETERS, "0");
-    settings.setProperty(LANGUAGE_SPECIFIC_PARAMETERS + "." + "0" + "." + LANGUAGE_SPECIFIC_PARAMETERS_MAN_DAYS_KEY, "40");
-
-    assertThatThrownBy(() -> new RatingSettings(settings.asConfig()))
-      .isInstanceOf(MessageException.class)
-      .hasMessage("Technical debt configuration is corrupted. At least one language specific parameter has no Language key. " +
-        "Contact your administrator to update this configuration in the global administration section of SonarQube.");
-  }
 }

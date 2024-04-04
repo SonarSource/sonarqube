@@ -34,7 +34,7 @@ class DebtProperties {
   static List<PropertyDefinition> all() {
     return List.of(
       PropertyDefinition.builder(CoreProperties.DEVELOPMENT_COST)
-        .defaultValue("" + CoreProperties.DEVELOPMENT_COST_DEF_VALUE)
+        .defaultValue(CoreProperties.DEVELOPMENT_COST_DEF_VALUE)
         .name("Development cost")
         .description("Cost to develop one line of code (LOC). Example: if the cost to develop 1 LOC has been estimated " +
           "at 30 minutes, then the value of this property would be 30.")
@@ -43,7 +43,7 @@ class DebtProperties {
         .build(),
 
       PropertyDefinition.builder(CoreProperties.RATING_GRID)
-        .defaultValue("" + CoreProperties.RATING_GRID_DEF_VALUES)
+        .defaultValue(CoreProperties.RATING_GRID_DEF_VALUES)
         .name("Maintainability rating grid")
         .description("Maintainability ratings range from A (very good) to E (very bad). The rating is determined by the value of " +
           "the Technical Debt Ratio, which compares the technical debt on a project to the cost it would take to rewrite " +
@@ -52,24 +52,6 @@ class DebtProperties {
           "2,500 LOC will have a technical debt ratio of 24000/(30 * 2,500) = 0.32. That yields a maintainability rating of D.")
         .category(CoreProperties.CATEGORY_TECHNICAL_DEBT)
         .deprecatedKey("ratingGrid")
-        .build(),
-
-      PropertyDefinition.builder(CoreProperties.LANGUAGE_SPECIFIC_PARAMETERS)
-        .name("Language specific parameters")
-        .description("DEPRECATED - The parameters specified here for a given language will override the general parameters defined in this section.")
-        .category(CoreProperties.CATEGORY_TECHNICAL_DEBT)
-        .deprecatedKey("languageSpecificParameters")
-        .fields(
-          PropertyFieldDefinition.build(CoreProperties.LANGUAGE_SPECIFIC_PARAMETERS_LANGUAGE_KEY)
-            .name("Language Key")
-            .description("Ex: java, cs, cpp...")
-            .type(PropertyType.STRING)
-            .build(),
-          PropertyFieldDefinition.build(CoreProperties.LANGUAGE_SPECIFIC_PARAMETERS_MAN_DAYS_KEY)
-            .name("Development cost")
-            .description("If left blank, the generic value defined in this section will be used.")
-            .type(PropertyType.FLOAT)
-            .build())
         .build());
   }
 }

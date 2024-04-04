@@ -68,8 +68,7 @@ public class MaintainabilityMeasuresVisitorTest {
 
   static final double[] RATING_GRID = new double[] {0.1, 0.2, 0.5, 1};
 
-  static final long DEV_COST_LANGUAGE_1 = 30;
-  static final long DEV_COST_LANGUAGE_2 = 42;
+  static final long DEV_COST = 30;
 
   static final int PROJECT_REF = 1;
   static final int DIRECTORY_REF = 123;
@@ -111,8 +110,7 @@ public class MaintainabilityMeasuresVisitorTest {
   public void setUp() {
     // assumes rating configuration is consistent
     when(ratingSettings.getDebtRatingGrid()).thenReturn(new DebtRatingGrid(RATING_GRID));
-    when(ratingSettings.getDevCost(LANGUAGE_KEY_1)).thenReturn(DEV_COST_LANGUAGE_1);
-    when(ratingSettings.getDevCost(LANGUAGE_KEY_2)).thenReturn(DEV_COST_LANGUAGE_2);
+    when(ratingSettings.getDevCost()).thenReturn(DEV_COST);
 
     underTest = new VisitorsCrawler(singletonList(new MaintainabilityMeasuresVisitor(metricRepository, measureRepository, ratingSettings)));
   }
@@ -167,26 +165,26 @@ public class MaintainabilityMeasuresVisitorTest {
     underTest.visit(root);
 
     // verify measures on files
-    verifyAddedRawMeasure(1112, DEVELOPMENT_COST_KEY, Long.toString(ncloc1112 * DEV_COST_LANGUAGE_2));
-    verifyAddedRawMeasure(1113, DEVELOPMENT_COST_KEY, Long.toString(ncloc1113 * DEV_COST_LANGUAGE_1));
-    verifyAddedRawMeasure(1121, DEVELOPMENT_COST_KEY, Long.toString(nclocValue1121 * DEV_COST_LANGUAGE_2));
-    verifyAddedRawMeasure(1211, DEVELOPMENT_COST_KEY, Long.toString(ncloc1211 * DEV_COST_LANGUAGE_1));
+    verifyAddedRawMeasure(1112, DEVELOPMENT_COST_KEY, Long.toString(ncloc1112 * DEV_COST));
+    verifyAddedRawMeasure(1113, DEVELOPMENT_COST_KEY, Long.toString(ncloc1113 * DEV_COST));
+    verifyAddedRawMeasure(1121, DEVELOPMENT_COST_KEY, Long.toString(nclocValue1121 * DEV_COST));
+    verifyAddedRawMeasure(1211, DEVELOPMENT_COST_KEY, Long.toString(ncloc1211 * DEV_COST));
 
     // directory has no children => no file => 0 everywhere and A rating
     verifyAddedRawMeasure(122, DEVELOPMENT_COST_KEY, "0");
 
     // directory has children => dev cost is aggregated
     verifyAddedRawMeasure(111, DEVELOPMENT_COST_KEY, Long.toString(
-      ncloc1112 * DEV_COST_LANGUAGE_2 +
-        ncloc1113 * DEV_COST_LANGUAGE_1));
-    verifyAddedRawMeasure(112, DEVELOPMENT_COST_KEY, Long.toString(nclocValue1121 * DEV_COST_LANGUAGE_2));
-    verifyAddedRawMeasure(121, DEVELOPMENT_COST_KEY, Long.toString(ncloc1211 * DEV_COST_LANGUAGE_1));
+      ncloc1112 * DEV_COST +
+        ncloc1113 * DEV_COST));
+    verifyAddedRawMeasure(112, DEVELOPMENT_COST_KEY, Long.toString(nclocValue1121 * DEV_COST));
+    verifyAddedRawMeasure(121, DEVELOPMENT_COST_KEY, Long.toString(ncloc1211 * DEV_COST));
 
     verifyAddedRawMeasure(1, DEVELOPMENT_COST_KEY, Long.toString(
-      ncloc1112 * DEV_COST_LANGUAGE_2 +
-        ncloc1113 * DEV_COST_LANGUAGE_1 +
-        nclocValue1121 * DEV_COST_LANGUAGE_2 +
-        ncloc1211 * DEV_COST_LANGUAGE_1));
+      ncloc1112 * DEV_COST +
+        ncloc1113 * DEV_COST +
+        nclocValue1121 * DEV_COST +
+        ncloc1211 * DEV_COST));
   }
 
   @Test
@@ -211,10 +209,10 @@ public class MaintainabilityMeasuresVisitorTest {
 
     underTest.visit(ROOT_PROJECT);
 
-    verifyAddedRawMeasure(FILE_1_REF, SQALE_DEBT_RATIO_KEY, file1MaintainabilityCost * 1d / (file1Ncloc * DEV_COST_LANGUAGE_1) * 100);
-    verifyAddedRawMeasure(FILE_2_REF, SQALE_DEBT_RATIO_KEY, file2MaintainabilityCost * 1d / (file2Ncloc * DEV_COST_LANGUAGE_1) * 100);
-    verifyAddedRawMeasure(DIRECTORY_REF, SQALE_DEBT_RATIO_KEY, directoryMaintainabilityCost * 1d / ((file1Ncloc + file2Ncloc) * DEV_COST_LANGUAGE_1) * 100);
-    verifyAddedRawMeasure(PROJECT_REF, SQALE_DEBT_RATIO_KEY, projectMaintainabilityCost * 1d / ((file1Ncloc + file2Ncloc) * DEV_COST_LANGUAGE_1) * 100);
+    verifyAddedRawMeasure(FILE_1_REF, SQALE_DEBT_RATIO_KEY, file1MaintainabilityCost * 1d / (file1Ncloc * DEV_COST) * 100);
+    verifyAddedRawMeasure(FILE_2_REF, SQALE_DEBT_RATIO_KEY, file2MaintainabilityCost * 1d / (file2Ncloc * DEV_COST) * 100);
+    verifyAddedRawMeasure(DIRECTORY_REF, SQALE_DEBT_RATIO_KEY, directoryMaintainabilityCost * 1d / ((file1Ncloc + file2Ncloc) * DEV_COST) * 100);
+    verifyAddedRawMeasure(PROJECT_REF, SQALE_DEBT_RATIO_KEY, projectMaintainabilityCost * 1d / ((file1Ncloc + file2Ncloc) * DEV_COST) * 100);
   }
 
   @Test
@@ -261,13 +259,13 @@ public class MaintainabilityMeasuresVisitorTest {
     underTest.visit(ROOT_PROJECT);
 
     verifyAddedRawMeasure(FILE_1_REF, EFFORT_TO_REACH_MAINTAINABILITY_RATING_A_KEY,
-      (long) (file1Effort - RATING_GRID[0] * file1Ncloc * DEV_COST_LANGUAGE_1));
+      (long) (file1Effort - RATING_GRID[0] * file1Ncloc * DEV_COST));
     verifyAddedRawMeasure(FILE_2_REF, EFFORT_TO_REACH_MAINTAINABILITY_RATING_A_KEY,
-      (long) (file2Effort - RATING_GRID[0] * file2Ncloc * DEV_COST_LANGUAGE_1));
+      (long) (file2Effort - RATING_GRID[0] * file2Ncloc * DEV_COST));
     verifyAddedRawMeasure(DIRECTORY_REF, EFFORT_TO_REACH_MAINTAINABILITY_RATING_A_KEY,
-      (long) (dirEffort - RATING_GRID[0] * (file1Ncloc + file2Ncloc) * DEV_COST_LANGUAGE_1));
+      (long) (dirEffort - RATING_GRID[0] * (file1Ncloc + file2Ncloc) * DEV_COST));
     verifyAddedRawMeasure(PROJECT_REF, EFFORT_TO_REACH_MAINTAINABILITY_RATING_A_KEY,
-      (long) (projectEffort - RATING_GRID[0] * (file1Ncloc + file2Ncloc) * DEV_COST_LANGUAGE_1));
+      (long) (projectEffort - RATING_GRID[0] * (file1Ncloc + file2Ncloc) * DEV_COST));
   }
 
   @Test

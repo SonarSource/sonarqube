@@ -22,10 +22,10 @@ package org.sonar.ce.task.projectanalysis.qualitymodel;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import org.sonar.api.measures.CoreMetrics;
-import org.sonar.api.utils.KeyValueFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.measures.CoreMetrics;
+import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.CrawlerDepthLimit;
 import org.sonar.ce.task.projectanalysis.component.PathAwareVisitorAdapter;
@@ -159,7 +159,7 @@ public class NewMaintainabilityMeasuresVisitor extends PathAwareVisitorAdapter<N
   private void initNewDebtRatioCounter(Counter devCostCounter, Component file, Measure nclocDataMeasure, Set<Integer> changedLines) {
     boolean hasDevCost = false;
 
-    long lineDevCost = ratingSettings.getDevCost(file.getFileAttributes().getLanguageKey());
+    long lineDevCost = ratingSettings.getDevCost();
     for (Integer nclocLineIndex : nclocLineIndexes(nclocDataMeasure)) {
       if (changedLines.contains(nclocLineIndex)) {
         devCostCounter.incrementDevCost(lineDevCost);
