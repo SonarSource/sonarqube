@@ -30,11 +30,11 @@ import {
 import { getLocalizedMetricName, translate } from '../../helpers/l10n';
 import {
   MEASURES_REDIRECTION,
-  areLeakCCTMeasuresComputed,
   areCCTMeasuresComputed,
+  areLeakCCTMeasuresComputed,
+  getCCTMeasureValue,
   getDisplayMetrics,
   isDiffMetric,
-  getCCTMeasureValue,
 } from '../../helpers/measures';
 import {
   cleanQuery,
@@ -74,15 +74,6 @@ export const KNOWN_DOMAINS = [
   'Complexity',
 ];
 
-const CCT_METRIC_DOMAIN_MAP: Dict<string> = {
-  [MetricKey.security_issues]: 'Security',
-  [MetricKey.new_security_issues]: 'Security',
-  [MetricKey.reliability_issues]: 'Reliability',
-  [MetricKey.new_reliability_issues]: 'Reliability',
-  [MetricKey.maintainability_issues]: 'Maintainability',
-  [MetricKey.new_maintainability_issues]: 'Maintainability',
-};
-
 const DEPRECATED_METRICS = [
   MetricKey.blocker_violations,
   MetricKey.new_blocker_violations,
@@ -118,14 +109,10 @@ export const populateDomainsFromMeasures = memoize((measures: MeasureEnhanced[])
 
       return {
         ...measure,
-        metric: {
-          ...measure.metric,
-          domain: CCT_METRIC_DOMAIN_MAP[measure.metric.key] ?? measure.metric.domain,
-        },
-        ...(!isDiff && { value: calculatedValue }),
-        ...(isDiff && { leak: calculatedValue }),
+        ...{ [isDiff ? 'leak' : 'value']: calculatedValue },
       };
     });
+
   if (areLeakCCTMeasuresComputed(measures)) {
     populatedMeasures = populatedMeasures.filter(
       (measure) => !LEAK_OLD_TAXONOMY_METRICS.includes(measure.metric.key as MetricKey),
