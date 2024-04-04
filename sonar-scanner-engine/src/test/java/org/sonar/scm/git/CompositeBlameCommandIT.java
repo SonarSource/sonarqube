@@ -34,6 +34,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.junit.jupiter.api.io.CleanupMode;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -49,6 +50,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.scm.git.strategy.DefaultBlameStrategy.BlameAlgorithmEnum;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.io.CleanupMode.NEVER;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -63,7 +65,9 @@ class CompositeBlameCommandIT {
   private final ProcessWrapperFactory processWrapperFactory = new ProcessWrapperFactory();
   private final NativeGitBlameCommand nativeGitBlameCommand = new NativeGitBlameCommand(System2.INSTANCE, processWrapperFactory);
 
-  @TempDir
+  // In JUnit4, if the cleanup cannot be performed, the test would not fail. This has changed with JUnit5
+  // As we cannot find the cause of failure during cleanup, we disable it for now
+  @TempDir (cleanup = NEVER)
   private File temp;
 
   @ParameterizedTest
