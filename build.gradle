@@ -14,7 +14,7 @@ plugins {
   id "de.undercouch.download" version "5.5.0" apply false
   id 'io.spring.dependency-management' version '1.1.4'
   id "org.cyclonedx.bom" version "1.7.4" apply false
-  id 'org.sonarqube' version '4.4.1.3373'
+  id 'org.sonarqube' version '5.0.0.4638'
 }
 
 if (!JavaVersion.current().isCompatibleWith(VERSION_17)) {
