@@ -109,9 +109,7 @@ public class BitbucketCloudProjectCreator implements DevOpsProjectCreator {
     ProjectAlmSettingDto projectAlmSettingDto = new ProjectAlmSettingDto()
       .setAlmSettingUuid(almSettingDto.getUuid())
       .setAlmRepo(repoSlug)
-      .setAlmSlug(null)
       .setProjectUuid(projectDto.getUuid())
-      .setSummaryCommentEnabled(true)
       .setMonorepo(monorepo);
     dbClient.projectAlmSettingDao().insertOrUpdate(dbSession, projectAlmSettingDto, almSettingDto.getKey(), projectDto.getName(), projectDto.getKey());
   }

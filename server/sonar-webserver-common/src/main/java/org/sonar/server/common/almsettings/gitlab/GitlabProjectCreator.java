@@ -135,9 +135,7 @@ public class GitlabProjectCreator implements DevOpsProjectCreator {
     ProjectAlmSettingDto projectAlmSettingDto = new ProjectAlmSettingDto()
       .setAlmSettingUuid(almSettingDto.getUuid())
       .setAlmRepo(gitlabProjectId)
-      .setAlmSlug(null)
       .setProjectUuid(projectDto.getUuid())
-      .setSummaryCommentEnabled(true)
       .setMonorepo(monorepo);
     dbClient.projectAlmSettingDao().insertOrUpdate(dbSession, projectAlmSettingDto, almSettingDto.getKey(), projectDto.getName(), projectDto.getKey());
   }

@@ -144,7 +144,8 @@ class BitbucketServerProjectCreatorTest {
     ProjectAlmSettingDto createdProjectAlmSettingDto = projectAlmSettingCaptor.getValue();
 
     assertThat(createdProjectAlmSettingDto.getAlmSettingUuid()).isEqualTo(ALM_SETTING_UUID);
-    assertThat(createdProjectAlmSettingDto.getAlmRepo()).isEqualTo(DOP_REPOSITORY_ID);
+    assertThat(createdProjectAlmSettingDto.getAlmRepo()).isEqualTo(DOP_PROJECT_ID);
+    assertThat(createdProjectAlmSettingDto.getAlmSlug()).isEqualTo(DOP_REPOSITORY_ID);
     assertThat(createdProjectAlmSettingDto.getProjectUuid()).isEqualTo(PROJECT_UUID);
     assertThat(createdProjectAlmSettingDto.getMonorepo()).isTrue();
   }
@@ -167,7 +168,8 @@ class BitbucketServerProjectCreatorTest {
     ProjectAlmSettingDto createdProjectAlmSettingDto = projectAlmSettingCaptor.getValue();
 
     assertThat(createdProjectAlmSettingDto.getAlmSettingUuid()).isEqualTo(ALM_SETTING_UUID);
-    assertThat(createdProjectAlmSettingDto.getAlmRepo()).isEqualTo(DOP_REPOSITORY_ID);
+    assertThat(createdProjectAlmSettingDto.getAlmRepo()).isEqualTo(DOP_PROJECT_ID);
+    assertThat(createdProjectAlmSettingDto.getAlmSlug()).isEqualTo(DOP_REPOSITORY_ID);
     assertThat(createdProjectAlmSettingDto.getProjectUuid()).isEqualTo(PROJECT_UUID);
     assertThat(createdProjectAlmSettingDto.getMonorepo()).isTrue();
   }

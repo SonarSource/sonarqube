@@ -88,7 +88,7 @@ public class BitbucketServerProjectCreator implements DevOpsProjectCreator {
       defaultBranchName,
       creationMethod);
     ProjectDto projectDto = Optional.ofNullable(componentCreationData.projectDto()).orElseThrow();
-    createProjectAlmSettingDto(dbSession, repository.getSlug(), projectDto, almSettingDto, monorepo);
+    createProjectAlmSettingDto(dbSession, repository, projectDto, almSettingDto, monorepo);
 
     return componentCreationData;
   }
@@ -123,14 +123,13 @@ public class BitbucketServerProjectCreator implements DevOpsProjectCreator {
     return Optional.ofNullable(projectName).orElse(repository.getName());
   }
 
-  private void createProjectAlmSettingDto(DbSession dbSession, String repoSlug, ProjectDto projectDto, AlmSettingDto almSettingDto,
+  private void createProjectAlmSettingDto(DbSession dbSession, Repository repository, ProjectDto projectDto, AlmSettingDto almSettingDto,
     Boolean isMonorepo) {
     ProjectAlmSettingDto projectAlmSettingDto = new ProjectAlmSettingDto()
       .setAlmSettingUuid(almSettingDto.getUuid())
-      .setAlmRepo(repoSlug)
-      .setAlmSlug(null)
+      .setAlmRepo(repository.getProject().getKey())
+      .setAlmSlug(repository.getSlug())
       .setProjectUuid(projectDto.getUuid())
-      .setSummaryCommentEnabled(true)
       .setMonorepo(isMonorepo);
 
     dbClient.projectAlmSettingDao().insertOrUpdate(dbSession, projectAlmSettingDto, almSettingDto.getKey(), projectDto.getName(), projectDto.getKey());
