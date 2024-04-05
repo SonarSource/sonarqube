@@ -75,6 +75,12 @@ junit_report_cache_template: &JUNIT_REPORT_CACHE_TEMPLATE
       - "**/test-results/test"
     fingerprint_script: echo $CIRRUS_BUILD_ID
 
+build_cache_template: &BUILD_CACHE_TEMPLATE
+  build_cache:
+    folders:
+      - "**/build/**/*"
+    fingerprint_script: echo $BUILD_NUMBER
+
 cache_dependencies_task:
   container:
     dockerfile: .cirrus/Dockerfile
@@ -95,6 +101,7 @@ build_task:
     memory: 8Gb
   <<: *DEFAULT_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
+  <<: *BUILD_CACHE_TEMPLATE
   <<: *YARN_CACHE_TEMPLATE
   <<: *JAR_CACHE_TEMPLATE
   build_script: .cirrus/cirrus-build.sh
@@ -162,6 +169,7 @@ junit_task:
 
 sq_analysis_task:
   depends_on:
+    - build
     - yarn_lint
     - yarn_validate
     - junit
@@ -173,6 +181,7 @@ sq_analysis_task:
     SONAR_HOST_URL: https://next.sonarqube.com/sonarqube
     SONAR_TOKEN: ENCRYPTED[!b6fd814826c51e64ee61b0b6f3ae621551f6413383f7170f73580e2e141ac78c4b134b506f6288c74faa0dd564c05a29!]
   <<: *GRADLE_CACHE_TEMPLATE
+  <<: *BUILD_CACHE_TEMPLATE
   <<: *YARN_CACHE_TEMPLATE
   <<: *JEST_REPORT_CACHE_TEMPLATE
   <<: *ESLINT_REPORT_CACHE_TEMPLATE
