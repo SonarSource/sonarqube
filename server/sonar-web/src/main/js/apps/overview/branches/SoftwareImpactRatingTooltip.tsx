@@ -30,7 +30,7 @@ export function SoftwareImpactRatingTooltip(props: Readonly<SoftwareImpactRating
 
   const intl = useIntl();
 
-  if (!rating || rating === 'A') {
+  if (rating === undefined) {
     return null;
   }
 
@@ -45,6 +45,11 @@ export function SoftwareImpactRatingTooltip(props: Readonly<SoftwareImpactRating
     );
   }
 
+  const maintainabilityMessageId =
+    softwareQuality === SoftwareQuality.Maintainability
+      ? `.${SoftwareQuality.Maintainability}`
+      : '';
+
   const softwareQualityLabel = intl.formatMessage({
     id: `software_quality.${softwareQuality}`,
   });
@@ -56,7 +61,10 @@ export function SoftwareImpactRatingTooltip(props: Readonly<SoftwareImpactRating
 
   return intl.formatMessage(
     {
-      id: 'overview.measures.software_impact.improve_rating_tooltip',
+      id:
+        rating === 'A'
+          ? `overview.measures.software_impact.improve_rating_tooltip${maintainabilityMessageId}.A`
+          : `overview.measures.software_impact.improve_rating_tooltip${maintainabilityMessageId}`,
     },
     {
       softwareQuality: softwareQualityLabel,

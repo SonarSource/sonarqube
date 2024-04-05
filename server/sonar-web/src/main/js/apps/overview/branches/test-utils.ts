@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import userEvent from '@testing-library/user-event';
-import { byRole, byTestId, byText } from '../../../helpers/testSelector';
+import { byLabelText, byRole, byTestId, byText } from '../../../helpers/testSelector';
 import {
   SoftwareImpactMeasureData,
   SoftwareImpactSeverity,
@@ -31,6 +31,10 @@ export const getPageObjects = () => {
     overallCodeButton: byRole('tab', { name: /overview.overall_code/ }),
     softwareImpactMeasureCard: (softwareQuality: SoftwareQuality) =>
       byTestId(`overview__software-impact-card-${softwareQuality}`),
+    softwareImpactMeasureCardRating: (softwareQuality: SoftwareQuality, rating: string) =>
+      byLabelText(
+        `overview.project.software_impact.has_rating.software_quality.${softwareQuality}.${rating}`,
+      ),
   };
   const ui = {
     ...selectors,
@@ -142,6 +146,15 @@ export const getPageObjects = () => {
       } else {
         expect(link).not.toHaveClass('active');
       }
+    },
+    expectSoftwareImpactMeasureCardRatingTooltip: async (
+      softwareQuality: SoftwareQuality,
+      rating: string,
+      text: string,
+    ) => {
+      await expect(
+        ui.softwareImpactMeasureCardRating(softwareQuality, rating).get(),
+      ).toHaveATooltipWithContent(text);
     },
   };
   return { user, ui };

@@ -37,7 +37,7 @@ import { mockAnalysis, mockAnalysisEvent } from '../../../../helpers/mocks/proje
 import { mockQualityGateProjectStatus } from '../../../../helpers/mocks/quality-gates';
 import { mockLoggedInUser, mockMeasure, mockPaging } from '../../../../helpers/testMocks';
 import { renderComponent } from '../../../../helpers/testReactTestingUtils';
-import { byLabelText, byRole, byText } from '../../../../helpers/testSelector';
+import { byRole, byText } from '../../../../helpers/testSelector';
 import { SoftwareImpactSeverity, SoftwareQuality } from '../../../../types/clean-code-taxonomy';
 import { ComponentQualifier } from '../../../../types/component';
 import { MetricKey } from '../../../../types/metrics';
@@ -298,6 +298,12 @@ describe('project overview', () => {
       },
       [false, true, false],
     );
+    await ui.expectSoftwareImpactMeasureCardRatingTooltip(
+      SoftwareQuality.Security,
+      'B',
+      'overview.measures.software_impact.improve_rating_tooltip.software_quality.SECURITY.software_quality.security.B.overview.measures.software_impact.severity.LOW.improve_tooltip',
+    );
+
     ui.expectSoftwareImpactMeasureCard(
       SoftwareQuality.Reliability,
       'A',
@@ -311,6 +317,12 @@ describe('project overview', () => {
       undefined,
       true,
     );
+    await ui.expectSoftwareImpactMeasureCardRatingTooltip(
+      SoftwareQuality.Reliability,
+      'A',
+      'overview.measures.software_impact.improve_rating_tooltip.A.software_quality.RELIABILITY.software_quality.reliability.A.overview.measures.software_impact.severity.LOW.improve_tooltip',
+    );
+
     ui.expectSoftwareImpactMeasureCard(
       SoftwareQuality.Maintainability,
       'E',
@@ -321,6 +333,11 @@ describe('project overview', () => {
         [SoftwareImpactSeverity.Low]: 1,
       },
       [false, false, true],
+    );
+    await ui.expectSoftwareImpactMeasureCardRatingTooltip(
+      SoftwareQuality.Maintainability,
+      'E',
+      'overview.measures.software_impact.improve_rating_tooltip.MAINTAINABILITY.software_quality.MAINTAINABILITY.software_quality.maintainability.E.overview.measures.software_impact.severity.HIGH.improve_tooltip',
     );
   });
 
@@ -400,23 +417,17 @@ describe('project overview', () => {
 
     ui.expectSoftwareImpactMeasureCard(SoftwareQuality.Security);
     expect(
-      byLabelText(
-        `overview.project.software_impact.has_rating.software_quality.${SoftwareQuality.Security}.B`,
-      ).get(),
+      ui.softwareImpactMeasureCardRating(SoftwareQuality.Security, 'B').get(),
     ).toBeInTheDocument();
 
     ui.expectSoftwareImpactMeasureCard(SoftwareQuality.Reliability);
     expect(
-      byLabelText(
-        `overview.project.software_impact.has_rating.software_quality.${SoftwareQuality.Reliability}.A`,
-      ).get(),
+      ui.softwareImpactMeasureCardRating(SoftwareQuality.Reliability, 'A').get(),
     ).toBeInTheDocument();
 
     ui.expectSoftwareImpactMeasureCard(SoftwareQuality.Maintainability);
     expect(
-      byLabelText(
-        `overview.project.software_impact.has_rating.software_quality.${SoftwareQuality.Maintainability}.E`,
-      ).get(),
+      ui.softwareImpactMeasureCardRating(SoftwareQuality.Maintainability, 'E').get(),
     ).toBeInTheDocument();
   });
 
