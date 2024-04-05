@@ -42,6 +42,7 @@ import org.sonar.scanner.externalissue.sarif.RunMapper.RunMapperResult;
 import static java.util.Collections.emptySet;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
@@ -128,6 +129,36 @@ public class RunMapperTest {
 
       assertThat(runMapperResult.getNewAdHocRules()).containsOnly(externalRule);
       assertThat(logTester.logs()).isEmpty();
+    }
+  }
+
+  @Test
+  public void mapRun_shouldNotFail_whenExtensionsDontHaveRules() {
+    when(run.getTool().getDriver().getRules()).thenReturn(Set.of(rule));
+    Extension extension = mock(Extension.class);
+    when(extension.getRules()).thenReturn(null);
+    when(run.getTool().getExtensions()).thenReturn(Set.of(extension));
+
+    try (MockedStatic<RulesSeverityDetector> detector = mockStatic(RulesSeverityDetector.class)) {
+      detector.when(() -> RulesSeverityDetector.detectRulesSeverities(run, TEST_DRIVER)).thenReturn(Map.of(RULE_ID, WARNING));
+      detector.when(() -> RulesSeverityDetector.detectRulesSeveritiesForNewTaxonomy(run, TEST_DRIVER)).thenReturn(Map.of(RULE_ID, WARNING));
+
+      assertThatNoException().isThrownBy(() -> runMapper.mapRun(run));
+    }
+  }
+
+  @Test
+  public void mapRun_shouldNotFail_whenExtensionsHaveEmptyRules() {
+    when(run.getTool().getDriver().getRules()).thenReturn(Set.of(rule));
+    Extension extension = mock(Extension.class);
+    when(extension.getRules()).thenReturn(Set.of());
+    when(run.getTool().getExtensions()).thenReturn(Set.of(extension));
+
+    try (MockedStatic<RulesSeverityDetector> detector = mockStatic(RulesSeverityDetector.class)) {
+      detector.when(() -> RulesSeverityDetector.detectRulesSeverities(run, TEST_DRIVER)).thenReturn(Map.of(RULE_ID, WARNING));
+      detector.when(() -> RulesSeverityDetector.detectRulesSeveritiesForNewTaxonomy(run, TEST_DRIVER)).thenReturn(Map.of(RULE_ID, WARNING));
+
+      assertThatNoException().isThrownBy(() -> runMapper.mapRun(run));
     }
   }
 

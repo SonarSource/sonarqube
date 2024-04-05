@@ -21,6 +21,7 @@ package org.sonar.core.sarif;
 
 import com.google.gson.annotations.SerializedName;
 import java.util.Set;
+import javax.annotation.CheckForNull;
 
 public class Extension {
   @SerializedName("rules")
@@ -33,6 +34,7 @@ public class Extension {
     // http://stackoverflow.com/a/18645370/229031
   }
 
+  @CheckForNull
   public Set<Rule> getRules() {
     return rules;
   }

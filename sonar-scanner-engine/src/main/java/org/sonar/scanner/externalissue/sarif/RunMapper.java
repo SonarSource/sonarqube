@@ -31,6 +31,7 @@ import org.sonar.api.batch.sensor.issue.NewExternalIssue;
 import org.sonar.api.batch.sensor.rule.NewAdHocRule;
 import org.sonar.api.scanner.ScannerSide;
 import org.sonar.core.sarif.Driver;
+import org.sonar.core.sarif.Extension;
 import org.sonar.core.sarif.Result;
 import org.sonar.core.sarif.Rule;
 import org.sonar.core.sarif.Run;
@@ -84,7 +85,7 @@ public class RunMapper {
   private List<NewAdHocRule> toNewAdHocRules(Run run, String driverName, Map<String, String> ruleSeveritiesByRuleId, Map<String, String> ruleSeveritiesByRuleIdForNewCCT) {
     Set<Rule> driverRules = run.getTool().getDriver().getRules();
     Set<Rule> extensionRules = hasExtensions(run.getTool())
-      ? run.getTool().getExtensions().stream().flatMap(extension -> extension.getRules().stream()).collect(toSet())
+      ? run.getTool().getExtensions().stream().filter(RunMapper::hasRules).flatMap(extension -> extension.getRules().stream()).collect(toSet())
       : Set.of();
     return Stream.concat(driverRules.stream(), extensionRules.stream())
       .distinct()
@@ -94,6 +95,10 @@ public class RunMapper {
 
   private static boolean hasExtensions(Tool tool) {
     return tool.getExtensions() != null && !tool.getExtensions().isEmpty();
+  }
+
+  private static boolean hasRules(Extension extension) {
+    return extension.getRules() != null && !extension.getRules().isEmpty();
   }
 
   private List<NewExternalIssue> toNewExternalIssues(Run run, String driverName, Map<String, String> ruleSeveritiesByRuleId, Map<String, String> ruleSeveritiesByRuleIdForNewCCT) {
