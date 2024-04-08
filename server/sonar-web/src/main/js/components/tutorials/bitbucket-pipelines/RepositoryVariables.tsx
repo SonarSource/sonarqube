@@ -17,13 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import {
-  BasicSeparator,
-  ClipboardIconButton,
-  NumberedList,
-  NumberedListItem,
-  StandoutLink,
-} from 'design-system';
+import { LinkStandalone } from '@sonarsource/echoes-react';
+import { BasicSeparator, ClipboardIconButton, NumberedList, NumberedListItem } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { translate } from '../../../helpers/l10n';
@@ -54,16 +49,15 @@ export default function RepositoryVariables(props: RepositoryVariablesProps) {
         values={{
           repository_variables:
             almBinding?.url && projectBinding?.repository ? (
-              <StandoutLink
+              <LinkStandalone
                 to={`${buildBitbucketCloudLink(
                   almBinding,
                   projectBinding,
                 )}/admin/addon/admin/pipelines/repository-variables`}
                 target="_blank"
-                rel="noopener noreferrer"
               >
                 {translate('onboarding.tutorial.with.bitbucket_pipelines.variables.intro.link')}
-              </StandoutLink>
+              </LinkStandalone>
             ) : (
               <span className="sw-body-sm-highlight">
                 {translate('onboarding.tutorial.with.bitbucket_pipelines.variables.intro.link')}

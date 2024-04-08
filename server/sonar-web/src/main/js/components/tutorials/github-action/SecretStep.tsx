@@ -17,19 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Link, LinkStandalone } from '@sonarsource/echoes-react';
 import {
   BasicSeparator,
   ClipboardIconButton,
   FlagMessage,
   NumberedList,
   NumberedListItem,
-  StandoutLink,
 } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { translate } from '../../../helpers/l10n';
+import { hasGlobalPermission } from '../../../helpers/users';
 import { useProjectBindingQuery } from '../../../queries/devops-integration';
 import { AlmSettingsInstance } from '../../../types/alm-settings';
+import { Permissions } from '../../../types/permissions';
 import { Component } from '../../../types/types';
 import { LoggedInUser } from '../../../types/users';
 import { InlineSnippet } from '../components/InlineSnippet';
@@ -57,13 +59,12 @@ export default function SecretStep(props: SecretStepProps) {
         values={{
           settings_secret:
             almBinding && projectBinding ? (
-              <StandoutLink
+              <LinkStandalone
                 to={`${buildGithubLink(almBinding, projectBinding)}/settings/secrets`}
                 target="_blank"
-                rel="noopener noreferrer"
               >
                 {translate('onboarding.tutorial.with.github_action.secret.intro.link')}
-              </StandoutLink>
+              </LinkStandalone>
             ) : (
               <span className="sw-body-sm-highlight">
                 {translate('onboarding.tutorial.with.github_action.secret.intro.link')}
@@ -85,6 +86,38 @@ export default function SecretStep(props: SecretStepProps) {
           />
           <InlineSnippet snippet="SONAR_TOKEN" className="sw-ml-1" />
           <ClipboardIconButton copyValue="SONAR_TOKEN" className="sw-ml-2 sw-align-sub" />
+          {monorepo && (
+            <FlagMessage variant="info" className="sw-block sw-w-fit sw-mt-4">
+              <FormattedMessage
+                defaultMessage={translate(
+                  'onboarding.tutorial.with.github_action.create_secret.monorepo_sonar_token',
+                )}
+                id="onboarding.tutorial.with.github_action.create_secret.monorepo_sonar_token"
+                values={{
+                  token_name: <InlineSnippet snippet="SONAR_TOKEN_1" className="sw-ml-1" />,
+                  global_secret: hasGlobalPermission(currentUser, Permissions.Scan) ? (
+                    <FormattedMessage
+                      defaultMessage={translate(
+                        'onboarding.tutorial.with.github_action.create_secret.monorepo_create_global_token',
+                      )}
+                      id="onboarding.tutorial.with.github_action.create_secret.monorepo_create_global_token"
+                      values={{
+                        link: (
+                          <Link to="/account/security" target="_blank" className="sw-mx-1">
+                            {translate(
+                              'onboarding.tutorial.with.github_action.create_secret.monorepo_create_global_token.link',
+                            )}
+                          </Link>
+                        ),
+                      }}
+                    />
+                  ) : (
+                    ''
+                  ),
+                }}
+              />
+            </FlagMessage>
+          )}
         </NumberedListItem>
         <NumberedListItem>
           <TokenStepGenerator component={component} currentUser={currentUser} />

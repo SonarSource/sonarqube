@@ -50,13 +50,13 @@ export default function GitHubActionTutorial(props: GitHubActionTutorialProps) {
     willRefreshAutomatically,
   } = props;
 
-  const secretStepTitle = `onboarding.tutorial.with.github_action.create_secret.title${monorepo ? '.monorepo' : ''}`;
-
   return (
     <>
       <Title>{translate('onboarding.tutorial.with.github_ci.title')}</Title>
       <TutorialStepList className="sw-mb-8">
-        <TutorialStep title={translate(secretStepTitle)}>
+        <TutorialStep
+          title={translate('onboarding.tutorial.with.github_action.create_secret.title')}
+        >
           <SecretStep
             almBinding={almBinding}
             baseUrl={baseUrl}
