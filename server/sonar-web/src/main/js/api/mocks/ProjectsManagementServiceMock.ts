@@ -119,6 +119,9 @@ export default class ProjectManagementServiceMock {
       ) {
         return false;
       }
+      if (params.projects !== undefined && !params.projects.split(',').includes(item.key)) {
+        return false;
+      }
       return true;
     });
 

@@ -18,17 +18,29 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import axios from 'axios';
-import { BoundProject, DopSetting } from '../types/dop-translation';
+import { BoundProject, DopSetting, ProjectBinding } from '../types/dop-translation';
 import { Paging } from '../types/types';
 
 const DOP_TRANSLATION_PATH = '/api/v2/dop-translation';
 const BOUND_PROJECTS_PATH = `${DOP_TRANSLATION_PATH}/bound-projects`;
 const DOP_SETTINGS_PATH = `${DOP_TRANSLATION_PATH}/dop-settings`;
+const PROJECT_BINDINGS_PATH = `${DOP_TRANSLATION_PATH}/project-bindings`;
 
 export function createBoundProject(data: BoundProject) {
   return axios.post(BOUND_PROJECTS_PATH, data);
 }
 
 export function getDopSettings() {
-  return axios.get<{ paging: Paging; dopSettings: DopSetting[] }>(DOP_SETTINGS_PATH);
+  return axios.get<{ dopSettings: DopSetting[]; page: Paging }>(DOP_SETTINGS_PATH);
+}
+
+export function getProjectBindings(data: {
+  dopSettingId?: string;
+  pageIndex?: number;
+  pageSize?: number;
+  repository?: string;
+}) {
+  return axios.get<{ page: Paging; projectBindings: ProjectBinding[] }>(PROJECT_BINDINGS_PATH, {
+    params: data,
+  });
 }

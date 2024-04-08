@@ -18,31 +18,21 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { AlmKeys } from './alm-settings';
+import { useQuery } from '@tanstack/react-query';
+import { getProjectBindings } from '../api/dop-translation';
 
-export interface DopSetting {
-  appId?: string;
-  id: string;
-  key: string;
-  type: AlmKeys;
-  url?: string;
-}
-
-export interface BoundProject {
-  devOpsPlatformSettingId: string;
-  monorepo: boolean;
-  newCodeDefinitionType?: string;
-  newCodeDefinitionValue?: string;
-  projectKey: string;
-  projectName: string;
-  repositoryIdentifier: string;
-}
-
-export interface ProjectBinding {
-  dopSetting: string;
-  id: string;
-  projectId: string;
-  projectKey: string;
-  repository: string;
-  slug: string;
+export function useProjectBindingsQuery(
+  data: {
+    dopSettingId?: string;
+    pageIndex?: number;
+    pageSize?: number;
+    repository?: string;
+  },
+  enabled = true,
+) {
+  return useQuery({
+    enabled,
+    queryKey: ['dop-translation', 'project-bindings', data],
+    queryFn: () => getProjectBindings(data),
+  });
 }

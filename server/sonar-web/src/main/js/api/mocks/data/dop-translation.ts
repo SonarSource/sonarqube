@@ -21,7 +21,7 @@
 /* eslint-disable local-rules/use-metrickey-enum */
 
 import { AlmKeys } from '../../../types/alm-settings';
-import { DopSetting } from '../../../types/dop-translation';
+import { DopSetting, ProjectBinding } from '../../../types/dop-translation';
 
 export function mockDopSetting(overrides?: Partial<DopSetting>): DopSetting {
   return {
@@ -29,6 +29,18 @@ export function mockDopSetting(overrides?: Partial<DopSetting>): DopSetting {
     key: 'Test/DopSetting',
     type: AlmKeys.GitHub,
     url: 'https://github.com',
+    ...overrides,
+  };
+}
+
+export function mockProjectBinding(overrides?: Partial<ProjectBinding>): ProjectBinding {
+  return {
+    dopSetting: 'dop-setting-test-id',
+    id: 'project-binding-test-id',
+    projectId: 'project-id',
+    projectKey: 'project-key',
+    repository: 'repository',
+    slug: 'Slug/Project',
     ...overrides,
   };
 }

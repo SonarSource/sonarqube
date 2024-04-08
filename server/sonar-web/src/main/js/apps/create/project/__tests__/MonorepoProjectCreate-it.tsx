@@ -26,8 +26,11 @@ import AlmSettingsServiceMock from '../../../../api/mocks/AlmSettingsServiceMock
 import ComponentsServiceMock from '../../../../api/mocks/ComponentsServiceMock';
 import DopTranslationServiceMock from '../../../../api/mocks/DopTranslationServiceMock';
 import NewCodeDefinitionServiceMock from '../../../../api/mocks/NewCodeDefinitionServiceMock';
+import ProjectManagementServiceMock from '../../../../api/mocks/ProjectsManagementServiceMock';
+import SettingsServiceMock from '../../../../api/mocks/SettingsServiceMock';
+import { mockProject } from '../../../../helpers/mocks/projects';
 import { renderApp } from '../../../../helpers/testReactTestingUtils';
-import { byRole } from '../../../../helpers/testSelector';
+import { byRole, byText } from '../../../../helpers/testSelector';
 import { AlmKeys } from '../../../../types/alm-settings';
 import { Feature } from '../../../../types/features';
 import CreateProjectPage from '../CreateProjectPage';
@@ -41,6 +44,8 @@ let almSettingsHandler: AlmSettingsServiceMock;
 let componentsHandler: ComponentsServiceMock;
 let dopTranslationHandler: DopTranslationServiceMock;
 let newCodePeriodHandler: NewCodeDefinitionServiceMock;
+let projectManagementHandler: ProjectManagementServiceMock;
+let settingsHandler: SettingsServiceMock;
 
 const ui = {
   addButton: byRole('button', { name: 'onboarding.create_project.monorepo.add_project' }),
@@ -61,6 +66,12 @@ const ui = {
   repositorySelector: byRole('combobox', {
     name: `onboarding.create_project.monorepo.choose_repository.${AlmKeys.GitHub}`,
   }),
+  notBoundRepositoryMessage: byText(
+    'onboarding.create_project.monorepo.choose_repository.no_already_bound_projects',
+  ),
+  alreadyBoundRepositoryMessage: byText(
+    /onboarding.create_project.monorepo.choose_repository.existing_already_bound_projects/,
+  ),
   submitButton: byRole('button', { name: 'next' }),
 };
 
@@ -74,6 +85,8 @@ beforeAll(() => {
   componentsHandler = new ComponentsServiceMock();
   dopTranslationHandler = new DopTranslationServiceMock();
   newCodePeriodHandler = new NewCodeDefinitionServiceMock();
+  settingsHandler = new SettingsServiceMock();
+  projectManagementHandler = new ProjectManagementServiceMock(settingsHandler);
 });
 
 beforeEach(() => {
@@ -83,6 +96,8 @@ beforeEach(() => {
   componentsHandler.reset();
   dopTranslationHandler.reset();
   newCodePeriodHandler.reset();
+  projectManagementHandler.reset();
+  settingsHandler.reset();
 });
 
 describe('github monorepo project setup', () => {
@@ -104,6 +119,49 @@ describe('github monorepo project setup', () => {
     await user.click(await ui.cancelButton.find());
 
     expect(ui.gitHubOnboardingTitle.get()).toBeInTheDocument();
+  });
+
+  it('should display that selected repository is not bound to any existing project', async () => {
+    renderCreateProject({ code: '123', dopSetting: 'dop-setting-test-id', isMonorepo: true });
+
+    expect(await ui.monorepoTitle.find()).toBeInTheDocument();
+
+    expect(await ui.dopSettingSelector.find()).toBeInTheDocument();
+    expect(ui.monorepoProjectTitle.query()).not.toBeInTheDocument();
+
+    await waitFor(async () => {
+      await selectEvent.select(await ui.organizationSelector.find(), 'org-1');
+    });
+    expect(ui.monorepoProjectTitle.query()).not.toBeInTheDocument();
+
+    await selectEvent.select(await ui.repositorySelector.find(), 'Github repo 1');
+
+    expect(await ui.notBoundRepositoryMessage.find()).toBeInTheDocument();
+  });
+
+  it('should display that selected repository is already bound to an existing project', async () => {
+    projectManagementHandler.setProjects([
+      mockProject({
+        key: 'key123',
+        name: 'Project GitHub 1',
+      }),
+    ]);
+    renderCreateProject({ code: '123', dopSetting: 'dop-setting-test-id', isMonorepo: true });
+
+    expect(await ui.monorepoTitle.find()).toBeInTheDocument();
+
+    expect(await ui.dopSettingSelector.find()).toBeInTheDocument();
+    expect(ui.monorepoProjectTitle.query()).not.toBeInTheDocument();
+
+    await waitFor(async () => {
+      await selectEvent.select(await ui.organizationSelector.find(), 'org-1');
+    });
+    expect(ui.monorepoProjectTitle.query()).not.toBeInTheDocument();
+
+    await selectEvent.select(await ui.repositorySelector.find(), 'Github repo 1');
+
+    expect(await ui.alreadyBoundRepositoryMessage.find()).toBeInTheDocument();
+    expect(byRole('link', { name: 'Project GitHub 1' }).get()).toBeInTheDocument();
   });
 
   it('should be able to set a monorepo project', async () => {

@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Link, Spinner } from '@sonarsource/echoes-react';
+import { Link, LinkHighlight, LinkStandalone, Spinner } from '@sonarsource/echoes-react';
 import {
   AddNewIcon,
   BlueGreySeparator,
@@ -31,9 +31,13 @@ import {
 } from 'design-system';
 import React, { useEffect, useRef } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
+import { getComponents } from '../../../../api/project-management';
 import { useLocation, useRouter } from '../../../../components/hoc/withRouter';
+import { throwGlobalError } from '../../../../helpers/error';
 import { translate } from '../../../../helpers/l10n';
 import { LabelValueSelectOption } from '../../../../helpers/search';
+import { getProjectUrl } from '../../../../helpers/urls';
+import { useProjectBindingsQuery } from '../../../../queries/dop-translation';
 import { AlmKeys } from '../../../../types/alm-settings';
 import { DopSetting } from '../../../../types/dop-translation';
 import { ImportProjectParam } from '../CreateProjectPage';
@@ -89,12 +93,26 @@ export default function MonorepoProjectCreate(props: Readonly<MonorepoProjectCre
   const projectCounter = useRef(0);
 
   const [projects, setProjects] = React.useState<ProjectItem[]>([]);
+  const [alreadyBoundProjects, setAlreadyBoundProjects] = React.useState<
+    Array<{ projectId: string; projectName: string }>
+  >([]);
 
   const location = useLocation();
   const { push } = useRouter();
   const { formatMessage } = useIntl();
 
   const projectKeys = React.useMemo(() => projects.map(({ key }) => key), [projects]);
+  const {
+    data: alreadyBoundProjectBindings,
+    isFetching: isFetchingAlreadyBoundProjects,
+    isLoading: isLoadingAlreadyBoundProjects,
+  } = useProjectBindingsQuery(
+    {
+      dopSettingId: selectedDopSetting?.id,
+      repository: selectedRepository?.value,
+    },
+    selectedRepository !== undefined,
+  );
 
   const almKey = location.query.mode as AlmKeys;
 
@@ -180,6 +198,30 @@ export default function MonorepoProjectCreate(props: Readonly<MonorepoProjectCre
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedRepository]);
+
+  useEffect(() => {
+    if (alreadyBoundProjectBindings === undefined) {
+      return;
+    }
+
+    if (alreadyBoundProjectBindings.projectBindings.length === 0) {
+      setAlreadyBoundProjects([]);
+      return;
+    }
+
+    getComponents({
+      projects: alreadyBoundProjectBindings.projectBindings.reduce(
+        (projectsSearchParam, { projectKey }) => `${projectsSearchParam},${projectKey}`,
+        '',
+      ),
+    })
+      .then(({ components }) => {
+        setAlreadyBoundProjects(
+          components.map(({ key, name }) => ({ projectId: key, projectName: name })),
+        );
+      })
+      .catch(throwGlobalError);
+  }, [alreadyBoundProjectBindings]);
 
   if (loadingBindings) {
     return <Spinner />;
@@ -293,23 +335,50 @@ export default function MonorepoProjectCreate(props: Readonly<MonorepoProjectCre
             </DarkLabel>
           )}
           {selectedOrganization && (
-            <InputSelect
-              inputId="monorepo-choose-repository"
-              inputValue={repositorySearchQuery}
-              isLoading={loadingRepositories}
-              isSearchable
-              noOptionsMessage={() => formatMessage({ id: 'no_results' })}
-              onChange={({ value }: LabelValueSelectOption) => {
-                onSelectRepository(value);
-              }}
-              onInputChange={onSearchRepositories}
-              options={repositoryOptions}
-              placeholder={formatMessage({
-                id: `onboarding.create_project.monorepo.choose_repository.${almKey}.placeholder`,
-              })}
-              size="full"
-              value={selectedRepository}
-            />
+            <>
+              <InputSelect
+                inputId="monorepo-choose-repository"
+                inputValue={repositorySearchQuery}
+                isLoading={loadingRepositories}
+                isSearchable
+                noOptionsMessage={() => formatMessage({ id: 'no_results' })}
+                onChange={({ value }: LabelValueSelectOption) => {
+                  onSelectRepository(value);
+                }}
+                onInputChange={onSearchRepositories}
+                options={repositoryOptions}
+                placeholder={formatMessage({
+                  id: `onboarding.create_project.monorepo.choose_repository.${almKey}.placeholder`,
+                })}
+                size="full"
+                value={selectedRepository}
+              />
+              {selectedRepository &&
+                !isLoadingAlreadyBoundProjects &&
+                !isFetchingAlreadyBoundProjects && (
+                  <FlagMessage className="sw-mt-2" variant="info">
+                    {alreadyBoundProjects.length === 0 ? (
+                      <FormattedMessage id="onboarding.create_project.monorepo.choose_repository.no_already_bound_projects" />
+                    ) : (
+                      <div>
+                        <FormattedMessage id="onboarding.create_project.monorepo.choose_repository.existing_already_bound_projects" />
+                        <ul className="sw-mt-4">
+                          {alreadyBoundProjects.map(({ projectId, projectName }) => (
+                            <li key={projectId}>
+                              <LinkStandalone
+                                to={getProjectUrl(projectId)}
+                                highlight={LinkHighlight.Subdued}
+                              >
+                                {projectName}
+                              </LinkStandalone>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </FlagMessage>
+                )}
+            </>
           )}
         </div>
       </div>
