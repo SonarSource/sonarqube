@@ -24,6 +24,7 @@ import java.util.Optional;
 import org.sonar.db.alm.setting.ProjectAlmSettingDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.common.SearchResults;
+import org.sonar.server.common.projectbindings.service.ProjectBindingInformation;
 import org.sonar.server.common.projectbindings.service.ProjectBindingsSearchRequest;
 import org.sonar.server.common.projectbindings.service.ProjectBindingsService;
 import org.sonar.server.exceptions.NotFoundException;
@@ -54,34 +55,44 @@ public class DefaultProjectBindingsController implements ProjectBindingsControll
       ProjectDto projectDto = projectBindingsService.findProjectFromBinding(projectAlmSettingDto.get())
         .orElseThrow(() -> new IllegalStateException(String.format("Project (uuid '%s') not found for binding '%s'", projectAlmSettingDto.get().getProjectUuid(), id)));
       userSession.checkEntityPermission(USER, projectDto);
-      return toProjectBinding(projectAlmSettingDto.get());
+      return toProjectBinding(projectDto, projectAlmSettingDto.get());
     } else {
       throw new NotFoundException(String.format("Project binding '%s' not found", id));
     }
+  }
+
+  private static ProjectBinding toProjectBinding(ProjectDto projectDto, ProjectAlmSettingDto projectAlmSettingDto) {
+    return new ProjectBinding(
+      projectAlmSettingDto.getUuid(),
+      projectAlmSettingDto.getAlmSettingUuid(),
+      projectAlmSettingDto.getProjectUuid(),
+      projectDto.getKey(),
+      projectAlmSettingDto.getAlmRepo(),
+      projectAlmSettingDto.getAlmSlug());
   }
 
   @Override
   public ProjectBindingsSearchRestResponse searchProjectBindings(ProjectBindingsSearchRestRequest restRequest, RestPage restPage) {
     userSession.checkLoggedIn().checkPermission(PROVISION_PROJECTS);
     ProjectBindingsSearchRequest serviceRequest = new ProjectBindingsSearchRequest(restRequest.repository(), restRequest.dopSettingId(), restPage.pageIndex(), restPage.pageSize());
-    SearchResults<ProjectAlmSettingDto> searchResults = projectBindingsService.findProjectBindingsByRequest(serviceRequest);
+    SearchResults<ProjectBindingInformation> searchResults = projectBindingsService.findProjectBindingsByRequest(serviceRequest);
     List<ProjectBinding> projectBindings = toProjectBindings(searchResults);
     return new ProjectBindingsSearchRestResponse(projectBindings, new PageRestResponse(restPage.pageIndex(), restPage.pageSize(), searchResults.total()));
   }
 
-  private static List<ProjectBinding> toProjectBindings(SearchResults<ProjectAlmSettingDto> searchResults) {
+  private static List<ProjectBinding> toProjectBindings(SearchResults<ProjectBindingInformation> searchResults) {
     return searchResults.searchResults().stream()
       .map(DefaultProjectBindingsController::toProjectBinding)
       .toList();
   }
 
-  private static ProjectBinding toProjectBinding(ProjectAlmSettingDto dto) {
+  private static ProjectBinding toProjectBinding(ProjectBindingInformation projectBindingInformation) {
     return new ProjectBinding(
-      dto.getUuid(),
-      dto.getAlmSettingUuid(),
-      dto.getProjectUuid(),
-      dto.getAlmRepo(),
-      dto.getAlmSlug()
-    );
+      projectBindingInformation.id(),
+      projectBindingInformation.devOpsPlatformSettingId(),
+      projectBindingInformation.projectId(),
+      projectBindingInformation.projectKey(),
+      projectBindingInformation.repository(),
+      projectBindingInformation.slug());
   }
 }

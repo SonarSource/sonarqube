@@ -19,12 +19,13 @@
  */
 package org.sonar.server.common.projectbindings.service;
 
-
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Answers;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.InjectMocks;
@@ -32,9 +33,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.alm.setting.ProjectAlmSettingDao;
 import org.sonar.db.alm.setting.ProjectAlmSettingDto;
 import org.sonar.db.alm.setting.ProjectAlmSettingQuery;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.server.common.SearchResults;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -55,7 +56,7 @@ public class ProjectBindingsServiceTest {
 
   @Mock
   private DbSession dbSession;
-  @Mock
+  @Mock(answer = Answers.RETURNS_DEEP_STUBS)
   private DbClient dbClient;
 
   @InjectMocks
@@ -67,7 +68,6 @@ public class ProjectBindingsServiceTest {
   @BeforeEach
   void setup() {
     when(dbClient.openSession(false)).thenReturn(dbSession);
-    when(dbClient.projectAlmSettingDao()).thenReturn(mock(ProjectAlmSettingDao.class));
   }
 
   @Test
@@ -87,21 +87,30 @@ public class ProjectBindingsServiceTest {
 
   @Test
   void findProjectBindingsByRequest_whenResults_returnsThem() {
-    ProjectAlmSettingDto dto1 = mock();
-    ProjectAlmSettingDto dto2 = mock();
-    List<ProjectAlmSettingDto> expectedResults = List.of(dto1, dto2);
+    ProjectAlmSettingDto projectAlmSettingDto1 = mockProjectAlmSettingDto("1");
+    ProjectAlmSettingDto projectAlmSettingDto2 = mockProjectAlmSettingDto("2");
+    List<ProjectAlmSettingDto> projectAlmSettings = List.of(projectAlmSettingDto1, projectAlmSettingDto2);
 
     when(dbClient.projectAlmSettingDao().selectProjectAlmSettings(eq(dbSession), daoQueryCaptor.capture(), eq(12), eq(42)))
-      .thenReturn(expectedResults);
+      .thenReturn(projectAlmSettings);
     when(dbClient.projectAlmSettingDao().countProjectAlmSettings(eq(dbSession), any()))
-      .thenReturn(expectedResults.size());
+      .thenReturn(projectAlmSettings.size());
+
+    ProjectDto mockProjectDto1 = mockProjectDto("1");
+    ProjectDto mockProjectDto2 = mockProjectDto("2");
+
+    when(dbClient.projectDao().selectByUuids(dbSession, Set.of("projectUuid_1", "projectUuid_2")))
+      .thenReturn(List.of(mockProjectDto1, mockProjectDto2));
 
     ProjectBindingsSearchRequest request = new ProjectBindingsSearchRequest(REPO_QUERY, ALM_SETTING_UUID_QUERY, 12, 42);
-    SearchResults<ProjectAlmSettingDto> actualResults = underTest.findProjectBindingsByRequest(request);
+
+    List<ProjectBindingInformation> expectedResults = List.of(projectBindingInformation("1"), projectBindingInformation("2"));
+
+    SearchResults<ProjectBindingInformation> actualResults = underTest.findProjectBindingsByRequest(request);
 
     assertThat(daoQueryCaptor.getValue().repository()).isEqualTo(REPO_QUERY);
     assertThat(daoQueryCaptor.getValue().almSettingUuid()).isEqualTo(ALM_SETTING_UUID_QUERY);
-    assertThat(actualResults.total()).isEqualTo(expectedResults.size());
+    assertThat(actualResults.total()).isEqualTo(projectAlmSettings.size());
     assertThat(actualResults.searchResults()).containsExactlyInAnyOrderElementsOf(expectedResults);
   }
 
@@ -111,12 +120,38 @@ public class ProjectBindingsServiceTest {
       .thenReturn(12);
 
     ProjectBindingsSearchRequest request = new ProjectBindingsSearchRequest(null, null, 42, 0);
-    SearchResults<ProjectAlmSettingDto> actualResults = underTest.findProjectBindingsByRequest(request);
+    SearchResults<ProjectBindingInformation> actualResults = underTest.findProjectBindingsByRequest(request);
 
     assertThat(actualResults.total()).isEqualTo(12);
     assertThat(actualResults.searchResults()).isEmpty();
 
     verify(dbClient.projectAlmSettingDao(), never()).selectProjectAlmSettings(eq(dbSession), any(), anyInt(), anyInt());
+  }
+
+  private static ProjectAlmSettingDto mockProjectAlmSettingDto(String i) {
+    ProjectAlmSettingDto dto = mock();
+    when(dto.getUuid()).thenReturn("uuid_" + i);
+    when(dto.getAlmSettingUuid()).thenReturn("almSettingUuid_" + i);
+    when(dto.getProjectUuid()).thenReturn("projectUuid_" + i);
+    when(dto.getAlmRepo()).thenReturn("almRepo_" + i);
+    when(dto.getAlmSlug()).thenReturn("almSlug_" + i);
+    return dto;
+  }
+
+  private static ProjectDto mockProjectDto(String i) {
+    ProjectDto dto = mock();
+    when(dto.getUuid()).thenReturn("projectUuid_" + i);
+    when(dto.getKey()).thenReturn("projectKey_" + i);
+    return dto;
+  }
+
+  private static ProjectBindingInformation projectBindingInformation(String i) {
+    return new ProjectBindingInformation("uuid_" + i,
+      "almSettingUuid_" + i,
+      "projectUuid_" + i,
+      "projectKey_" + i,
+      "almRepo_" + i,
+      "almSlug_" + i);
   }
 
 }

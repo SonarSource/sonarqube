@@ -27,6 +27,7 @@ import org.mockito.ArgumentCaptor;
 import org.sonar.db.alm.setting.ProjectAlmSettingDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.common.SearchResults;
+import org.sonar.server.common.projectbindings.service.ProjectBindingInformation;
 import org.sonar.server.common.projectbindings.service.ProjectBindingsSearchRequest;
 import org.sonar.server.common.projectbindings.service.ProjectBindingsService;
 import org.sonar.server.tester.UserSessionRule;
@@ -112,7 +113,10 @@ class DefaultProjectBindingsControllerTest {
   @Test
   void getProjectBinding_whenProjectBindingAndPermissions_returnsIt() throws Exception {
     ProjectAlmSettingDto projectAlmSettingDto = mockProjectAlmSettingDto("1");
+
     ProjectDto projectDto = mock();
+    when(projectDto.getKey()).thenReturn("projectKey_1");
+
     userSession.logIn().addProjectPermission(ADMIN, projectDto);
     when(projectBindingsService.findProjectBindingByUuid(UUID)).thenReturn(Optional.of(projectAlmSettingDto));
     when(projectBindingsService.findProjectFromBinding(projectAlmSettingDto)).thenReturn(Optional.ofNullable(projectDto));
@@ -124,8 +128,9 @@ class DefaultProjectBindingsControllerTest {
         content().json("""
           {
             "id": "uuid_1",
-            "dopSettings": "almSettingUuid_1",
+            "devOpsPlatformSettingId": "almSettingUuid_1",
             "projectId": "projectUuid_1",
+            "projectKey": "projectKey_1",
             "repository": "almRepo_1",
             "slug": "almSlug_1"
           }
@@ -175,10 +180,10 @@ class DefaultProjectBindingsControllerTest {
   void searchProjectBindings_whenResultsFound_shouldReturnsThem() throws Exception {
     userSession.logIn().addPermission(PROVISION_PROJECTS);
 
-    ProjectAlmSettingDto dto1 = mockProjectAlmSettingDto("1");
-    ProjectAlmSettingDto dto2 = mockProjectAlmSettingDto("2");
+    ProjectBindingInformation dto1 = projectBindingInformation("1");
+    ProjectBindingInformation dto2 = projectBindingInformation("2");
 
-    List<ProjectAlmSettingDto> expectedResults = List.of(dto1, dto2);
+    List<ProjectBindingInformation> expectedResults = List.of(dto1, dto2);
     when(projectBindingsService.findProjectBindingsByRequest(any())).thenReturn(new SearchResults<>(expectedResults, expectedResults.size()));
 
     mockMvc
@@ -190,33 +195,35 @@ class DefaultProjectBindingsControllerTest {
       .andExpectAll(
         status().isOk(),
         content().json("""
-          {
-            "projectBindings": [
-              {
-                "id": "uuid_1",
-                "dopSettings": "almSettingUuid_1",
-                "projectId": "projectUuid_1",
-                "repository": "almRepo_1",
-                "slug": "almSlug_1"
-              },
-              {
-                "id": "uuid_2",
-                "dopSettings": "almSettingUuid_2",
-                "projectId": "projectUuid_2",
-                "repository": "almRepo_2",
-                "slug": "almSlug_2"
+            {
+              "projectBindings": [
+                {
+                  "id": "uuid_1",
+                  "devOpsPlatformSettingId": "almSettingUuid_1",
+                  "projectId": "projectUuid_1",
+                  "projectKey": "projectKey_1",
+                  "repository": "almRepo_1",
+                  "slug": "almSlug_1"
+                },
+                {
+                  "id": "uuid_2",
+                  "devOpsPlatformSettingId": "almSettingUuid_2",
+                  "projectId": "projectUuid_2",
+                  "projectKey": "projectKey_2",
+                  "repository": "almRepo_2",
+                  "slug": "almSlug_2"
+                }
+              ],
+              "page": {
+                "pageIndex": 1,
+                "pageSize": 100,
+                "total": 2
               }
-            ],
-            "page": {
-              "pageIndex": 1,
-              "pageSize": 100,
-              "total": 2
             }
-          }
-        """));
+          """));
   }
 
-  private ProjectAlmSettingDto mockProjectAlmSettingDto(String i) {
+  private static ProjectAlmSettingDto mockProjectAlmSettingDto(String i) {
     ProjectAlmSettingDto dto = mock();
     when(dto.getUuid()).thenReturn("uuid_" + i);
     when(dto.getAlmSettingUuid()).thenReturn("almSettingUuid_" + i);
@@ -224,6 +231,15 @@ class DefaultProjectBindingsControllerTest {
     when(dto.getAlmRepo()).thenReturn("almRepo_" + i);
     when(dto.getAlmSlug()).thenReturn("almSlug_" + i);
     return dto;
+  }
+
+  private static ProjectBindingInformation projectBindingInformation(String i) {
+    return new ProjectBindingInformation("uuid_" + i,
+      "almSettingUuid_" + i,
+      "projectUuid_" + i,
+      "projectKey_" + i,
+      "almRepo_" + i,
+      "almSlug_" + i);
   }
 
 }

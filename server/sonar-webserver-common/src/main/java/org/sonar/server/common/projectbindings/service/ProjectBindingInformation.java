@@ -17,30 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.v2.api.projectbindings.model;
+package org.sonar.server.common.projectbindings.service;
 
 import javax.annotation.Nullable;
-import javax.validation.constraints.NotNull;
 
-public record ProjectBinding (
-
-  @NotNull
+public record ProjectBindingInformation(
   String id,
 
-  @NotNull
   String devOpsPlatformSettingId,
 
-  @NotNull
   String projectId,
 
-  @NotNull
   String projectKey,
 
-  @Nullable
-  String repository,
+  @Nullable String repository,
 
-  @Nullable
-  String slug
-
-) {
+  @Nullable String slug) {
 }
