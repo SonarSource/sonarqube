@@ -21,6 +21,7 @@ import * as React from 'react';
 import { AppState } from '../../../types/appstate';
 
 export const DEFAULT_APP_STATE = {
+  installedVersionEOL: '',
   authenticationError: false,
   authorizationError: false,
   edition: undefined,

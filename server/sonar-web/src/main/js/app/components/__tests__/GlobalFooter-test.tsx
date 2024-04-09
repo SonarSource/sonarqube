@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { addDays, subDays } from 'date-fns';
 import * as React from 'react';
 import SystemServiceMock from '../../../api/mocks/SystemServiceMock';
 import { mockAppState } from '../../../helpers/testMocks';
@@ -54,12 +55,24 @@ it('should render the inactive version and cleanup build number', async () => {
   expect(await ui.ltaDocumentationLinkInactive.find()).toBeInTheDocument();
 });
 
-it('should active status if undefined', () => {
+it('should show active status if offline and did not reach EOL', async () => {
   systemMock.setSystemUpgrades({ installedVersionActive: undefined });
-  renderGlobalFooter({}, { version: '4.2 (build 12345)' });
+  renderGlobalFooter(
+    {},
+    { version: '4.2 (build 12345)', installedVersionEOL: addDays(new Date(), 10).toISOString() },
+  );
 
-  expect(ui.ltaDocumentationLinkInactive.query()).not.toBeInTheDocument();
-  expect(ui.ltaDocumentationLinkActive.query()).not.toBeInTheDocument();
+  expect(await ui.ltaDocumentationLinkActive.find()).toBeInTheDocument();
+});
+
+it('should show inactive status if offline and reached EOL', async () => {
+  systemMock.setSystemUpgrades({ installedVersionActive: undefined });
+  renderGlobalFooter(
+    {},
+    { version: '4.2 (build 12345)', installedVersionEOL: subDays(new Date(), 10).toISOString() },
+  );
+
+  expect(await ui.ltaDocumentationLinkInactive.find()).toBeInTheDocument();
 });
 
 it('should not render missing logged-in information', () => {

@@ -17,8 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { isAfter } from 'date-fns';
 import { AppVariablesElement } from '../types/browser';
 import { getEnhancedWindow } from './browser';
+import { parseDate } from './dates';
 
 export function getBaseUrl() {
   return getEnhancedWindow().baseUrl;
@@ -52,4 +54,8 @@ export function initAppVariables() {
   getEnhancedWindow().serverStatus = appVariablesDiv.dataset.serverStatus;
   getEnhancedWindow().instance = appVariablesDiv.dataset.instance;
   getEnhancedWindow().official = Boolean(appVariablesDiv.dataset.official);
+}
+
+export function isCurrentVersionEOLActive(installedVersionEOL: string) {
+  return isAfter(parseDate(installedVersionEOL), new Date());
 }

@@ -19,16 +19,25 @@
  */
 
 import { LinkHighlight, LinkStandalone } from '@sonarsource/echoes-react';
-import React from 'react';
+import React, { useMemo } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { useAppState } from '../../app/components/app-state/withAppStateContext';
 import { useDocUrl } from '../../helpers/docs';
 import { getInstanceVersionNumber } from '../../helpers/strings';
+import { isCurrentVersionEOLActive } from '../../helpers/system';
 import { useSystemUpgrades } from '../../queries/system';
 
 export default function AppVersionStatus() {
   const { data } = useSystemUpgrades();
-  const { version } = useAppState();
+  const { version, installedVersionEOL } = useAppState();
+
+  const isActiveVersion = useMemo(() => {
+    if (data?.installedVersionActive !== undefined) {
+      return data.installedVersionActive;
+    }
+
+    return isCurrentVersionEOLActive(installedVersionEOL);
+  }, [data?.installedVersionActive, installedVersionEOL]);
 
   const docUrl = useDocUrl();
   const intl = useIntl();
@@ -37,20 +46,17 @@ export default function AppVersionStatus() {
     { id: `footer.version` },
     {
       version: getInstanceVersionNumber(version),
-      status:
-        data?.installedVersionActive !== undefined ? (
-          <LinkStandalone
-            className="sw-ml-1"
-            highlight={LinkHighlight.CurrentColor}
-            to={docUrl('/setup-and-upgrade/upgrade-the-server/active-versions/')}
-          >
-            <FormattedMessage
-              id={`footer.version.status.${data.installedVersionActive ? 'active' : 'inactive'}`}
-            />
-          </LinkStandalone>
-        ) : (
-          ''
-        ),
-    },
+      status: (
+        <LinkStandalone
+          className="sw-ml-1"
+          highlight={LinkHighlight.CurrentColor}
+          to={docUrl('/setup-and-upgrade/upgrade-the-server/active-versions/')}
+        >
+          <FormattedMessage
+            id={`footer.version.status.${isActiveVersion ? 'active' : 'inactive'}`}
+          />
+        </LinkStandalone>
+      ),
+    }
   );
 }

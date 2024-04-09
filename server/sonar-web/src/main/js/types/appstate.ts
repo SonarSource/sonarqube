@@ -28,6 +28,7 @@ export interface AppState {
   edition?: EditionKey;
   globalPages?: Extension[];
   instanceUsesDefaultAdminCredentials?: boolean;
+  installedVersionEOL: string;
   needIssueSync?: boolean;
   productionDatabase: boolean;
   qualifiers: string[];

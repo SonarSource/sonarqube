@@ -33,6 +33,7 @@ import {
   SoftwareQuality,
 } from '../types/clean-code-taxonomy';
 import { RuleRepository } from '../types/coding-rules';
+import { ComponentQualifier } from '../types/component';
 import { EditionKey } from '../types/editions';
 import {
   IssueDeprecatedStatus,
@@ -90,10 +91,11 @@ export function mockAppState(overrides: Partial<AppState> = {}): AppState {
   return {
     edition: EditionKey.community,
     productionDatabase: true,
-    qualifiers: ['TRK'],
+    qualifiers: [ComponentQualifier.Project],
     settings: {},
     version: '1.0',
     documentationUrl: 'https://docs.sonarsource.com/sonarqube/10.0',
+    installedVersionEOL: '2024-01-01T00:00:00Z',
     ...overrides,
   };
 }
