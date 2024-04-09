@@ -19,10 +19,13 @@
  */
 package org.sonar.server.ui.ws;
 
+import java.util.Objects;
 import java.util.Optional;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.mockito.MockedStatic;
 import org.sonar.api.config.internal.MapSettings;
+import org.sonar.api.internal.MetadataLoader;
 import org.sonar.api.platform.Server;
 import org.sonar.api.resources.ResourceType;
 import org.sonar.api.resources.ResourceTypeTree;
@@ -51,13 +54,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
 import static org.sonar.test.JsonAssert.assertJson;
 
-public class GlobalActionTest {
+class GlobalActionTest {
 
-  @Rule
-  public UserSessionRule userSession = UserSessionRule.standalone();
+  @RegisterExtension
+  private final UserSessionRule userSession = UserSessionRule.standalone();
 
   private final MapSettings settings = new MapSettings();
 
@@ -73,7 +77,7 @@ public class GlobalActionTest {
   private WsActionTester ws;
 
   @Test
-  public void empty_call() {
+  void empty_call() {
     init();
 
     assertJson(call()).isSimilarTo("{" +
@@ -84,8 +88,8 @@ public class GlobalActionTest {
   }
 
   @Test
-  public void return_qualifiers() {
-    init(new Page[] {}, new ResourceTypeTree[] {
+  void return_qualifiers() {
+    init(new Page[]{}, new ResourceTypeTree[]{
       ResourceTypeTree.builder()
         .addType(ResourceType.builder("POL").build())
         .addType(ResourceType.builder("LOP").build())
@@ -104,7 +108,7 @@ public class GlobalActionTest {
   }
 
   @Test
-  public void return_settings() {
+  void return_settings() {
     settings.setProperty("sonar.lf.logoUrl", "http://example.com/my-custom-logo.png");
     settings.setProperty("sonar.lf.logoWidthPx", 135);
     settings.setProperty("sonar.lf.gravatarServerUrl", "https://secure.gravatar.com/avatar/{EMAIL_MD5}.jpg?s={SIZE}&d=identicon");
@@ -130,7 +134,7 @@ public class GlobalActionTest {
   }
 
   @Test
-  public void return_developer_info_disabled_setting() {
+  void return_developer_info_disabled_setting() {
     init();
     settings.setProperty("sonar.developerAggregatedInfo.disabled", true);
 
@@ -142,7 +146,7 @@ public class GlobalActionTest {
   }
 
   @Test
-  public void return_deprecated_logo_settings() {
+  void return_deprecated_logo_settings() {
     init();
     settings.setProperty("sonar.lf.logoUrl", "http://example.com/my-custom-logo.png");
     settings.setProperty("sonar.lf.logoWidthPx", 135);
@@ -158,8 +162,8 @@ public class GlobalActionTest {
   }
 
   @Test
-  public void the_returned_global_pages_do_not_include_administration_pages() {
-    init(createPages(), new ResourceTypeTree[] {});
+  void the_returned_global_pages_do_not_include_administration_pages() {
+    init(createPages(), new ResourceTypeTree[]{});
 
     assertJson(call()).isSimilarTo("{" +
       "  \"globalPages\": [" +
@@ -176,7 +180,7 @@ public class GlobalActionTest {
   }
 
   @Test
-  public void return_sonarqube_version() {
+  void return_sonarqube_version() {
     init();
     when(server.getVersion()).thenReturn("6.2");
 
@@ -186,7 +190,16 @@ public class GlobalActionTest {
   }
 
   @Test
-  public void functional_version_when_4_digits() {
+  void execute_shouldReturnVersionEol() {
+    init();
+    try (MockedStatic<MetadataLoader> mocked = mockStatic(MetadataLoader.class)) {
+      mocked.when(() -> MetadataLoader.loadSqVersionEol(any())).thenReturn("2025-01-01");
+      assertThat(call()).contains("\"versionEOL\":\"2025-01-01\"");
+    }
+  }
+
+  @Test
+  void functional_version_when_4_digits() {
     init();
     when(server.getVersion()).thenReturn("6.3.1.1234");
 
@@ -196,7 +209,7 @@ public class GlobalActionTest {
   }
 
   @Test
-  public void functional_version_when_third_digit_is_0() {
+  void functional_version_when_third_digit_is_0() {
     init();
     when(server.getVersion()).thenReturn("6.3.0.1234");
 
@@ -206,7 +219,7 @@ public class GlobalActionTest {
   }
 
   @Test
-  public void return_if_production_database_or_not() {
+  void return_if_production_database_or_not() {
     init();
     when(dbClient.getDatabase().getDialect()).thenReturn(new PostgreSql());
 
@@ -216,7 +229,7 @@ public class GlobalActionTest {
   }
 
   @Test
-  public void return_need_issue_sync() {
+  void return_need_issue_sync() {
     init();
     when(indexSyncProgressChecker.isIssueSyncInProgress(any())).thenReturn(true);
     assertJson(call()).isSimilarTo("{\"needIssueSync\": true}");
@@ -226,7 +239,7 @@ public class GlobalActionTest {
   }
 
   @Test
-  public void instance_uses_default_admin_credentials() {
+  void instance_uses_default_admin_credentials() {
     init();
 
     when(defaultAdminCredentialsVerifier.hasDefaultCredentialUser()).thenReturn(true);
@@ -242,7 +255,7 @@ public class GlobalActionTest {
   }
 
   @Test
-  public void standalone_flag() {
+  void standalone_flag() {
     init();
     userSession.logIn().setSystemAdministrator();
     when(nodeInformation.isStandalone()).thenReturn(true);
@@ -251,7 +264,7 @@ public class GlobalActionTest {
   }
 
   @Test
-  public void not_standalone_flag() {
+  void not_standalone_flag() {
     init();
     userSession.logIn().setSystemAdministrator();
     when(nodeInformation.isStandalone()).thenReturn(false);
@@ -260,14 +273,14 @@ public class GlobalActionTest {
   }
 
   @Test
-  public void test_example_response() {
+  void test_example_response() {
     settings.setProperty("sonar.lf.logoUrl", "http://example.com/my-custom-logo.png");
     settings.setProperty("sonar.lf.logoWidthPx", 135);
     settings.setProperty("sonar.lf.gravatarServerUrl", "http://some-server.tld/logo.png");
     settings.setProperty("sonar.lf.enableGravatar", true);
     settings.setProperty("sonar.updatecenter.activate", false);
     settings.setProperty("sonar.technicalDebt.ratingGrid", "0.05,0.1,0.2,0.5");
-    init(createPages(), new ResourceTypeTree[] {
+    init(createPages(), new ResourceTypeTree[]{
       ResourceTypeTree.builder()
         .addType(ResourceType.builder("POL").build())
         .addType(ResourceType.builder("LOP").build())
@@ -285,12 +298,18 @@ public class GlobalActionTest {
     when(editionProvider.get()).thenReturn(Optional.of(EditionProvider.Edition.COMMUNITY));
     when(documentationLinkGenerator.getDocumentationLink(null)).thenReturn("http://docs.example.com/10.0");
 
-    String result = call();
-    assertJson(result).isSimilarTo(ws.getDef().responseExampleAsString());
+
+    try (MockedStatic<MetadataLoader> mocked = mockStatic(MetadataLoader.class)) {
+      mocked.when(() -> MetadataLoader.loadSqVersionEol(any())).thenReturn("2025-01-01");
+
+      String result = call();
+
+      assertJson(result).isSimilarTo(Objects.requireNonNull(ws.getDef().responseExampleAsString()));
+    }
   }
 
   @Test
-  public void edition_is_not_returned_if_not_defined() {
+  void edition_is_not_returned_if_not_defined() {
     init();
     when(editionProvider.get()).thenReturn(Optional.empty());
 
@@ -299,7 +318,7 @@ public class GlobalActionTest {
   }
 
   @Test
-  public void edition_is_returned_if_defined() {
+  void edition_is_returned_if_defined() {
     init();
     when(editionProvider.get()).thenReturn(Optional.of(EditionProvider.Edition.DEVELOPER));
 
@@ -308,7 +327,7 @@ public class GlobalActionTest {
   }
 
   @Test
-  public void web_analytics_js_path_is_not_returned_if_not_defined() {
+  void web_analytics_js_path_is_not_returned_if_not_defined() {
     init();
     when(webAnalyticsLoader.getUrlPathToJs()).thenReturn(Optional.empty());
 
@@ -317,7 +336,7 @@ public class GlobalActionTest {
   }
 
   @Test
-  public void web_analytics_js_path_is_returned_if_defined() {
+  void web_analytics_js_path_is_returned_if_defined() {
     init();
     String path = "static/googleanalytics/analytics.js";
     when(webAnalyticsLoader.getUrlPathToJs()).thenReturn(Optional.of(path));
@@ -327,7 +346,7 @@ public class GlobalActionTest {
   }
 
   @Test
-  public void call_shouldReturnDocumentationUrl() {
+  void call_shouldReturnDocumentationUrl() {
     init();
     String url = "https://docs.sonarsource.com/sonarqube/10.0";
     when(documentationLinkGenerator.getDocumentationLink(null)).thenReturn(url);
@@ -337,7 +356,7 @@ public class GlobalActionTest {
   }
 
   private void init() {
-    init(new org.sonar.api.web.page.Page[] {}, new ResourceTypeTree[] {});
+    init(new org.sonar.api.web.page.Page[]{}, new ResourceTypeTree[]{});
   }
 
   private void init(org.sonar.api.web.page.Page[] pages, ResourceTypeTree[] resourceTypeTrees) {
@@ -348,7 +367,7 @@ public class GlobalActionTest {
     when(pluginRepository.getPluginInfo(any())).thenReturn(new PluginInfo("unused").setVersion(Version.create("1.0")));
     CoreExtensionRepository coreExtensionRepository = mock(CoreExtensionRepository.class);
     when(coreExtensionRepository.isInstalled(any())).thenReturn(false);
-    PageRepository pageRepository = new PageRepository(pluginRepository, coreExtensionRepository, new PageDefinition[] {context -> {
+    PageRepository pageRepository = new PageRepository(pluginRepository, coreExtensionRepository, new PageDefinition[]{context -> {
       for (Page page : pages) {
         context.addPage(page);
       }
@@ -370,6 +389,6 @@ public class GlobalActionTest {
     Page anotherPage = Page.builder("another_plugin/page").setName("My Another Page").build();
     Page adminPage = Page.builder("my_plugin/admin_page").setName("Admin Page").setAdmin(true).build();
 
-    return new Page[] {page, anotherPage, adminPage};
+    return new Page[]{page, anotherPage, adminPage};
   }
 }

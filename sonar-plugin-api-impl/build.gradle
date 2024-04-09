@@ -21,9 +21,14 @@ dependencies {
   testImplementation 'com.google.guava:guava'
   testImplementation 'com.tngtech.java:junit-dataprovider'
   testImplementation 'junit:junit'
+  testImplementation 'org.junit.jupiter:junit-jupiter-api'
   testImplementation 'org.assertj:assertj-core'
   testImplementation 'org.mockito:mockito-core'
+  testImplementation 'org.mockito:mockito-junit-jupiter'
   testImplementation 'org.sonarsource.api.plugin:sonar-plugin-api-test-fixtures'
+
+  testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+  testRuntimeOnly 'org.junit.vintage:junit-vintage-engine'
 }
 
 import org.apache.tools.ant.filters.ReplaceTokens
@@ -46,4 +51,8 @@ publishing {
       }
     }
   }
+}
+test {
+  // Enabling the JUnit Platform (see https://github.com/junit-team/junit5-samples/tree/master/junit5-migration-gradle)
+  useJUnitPlatform()
 }

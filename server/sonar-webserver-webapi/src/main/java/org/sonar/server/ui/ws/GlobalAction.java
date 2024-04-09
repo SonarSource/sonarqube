@@ -28,9 +28,11 @@ import org.sonar.api.config.Configuration;
 import org.sonar.api.platform.Server;
 import org.sonar.api.resources.ResourceType;
 import org.sonar.api.resources.ResourceTypes;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService.NewController;
+import org.sonar.api.utils.System2;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.api.web.page.Page;
 import org.sonar.core.documentation.DocumentationLinkGenerator;
@@ -48,6 +50,7 @@ import org.sonar.server.user.UserSession;
 
 import static org.sonar.api.CoreProperties.DEVELOPER_AGGREGATED_INFO_DISABLED;
 import static org.sonar.api.CoreProperties.RATING_GRID;
+import static org.sonar.api.internal.MetadataLoader.loadSqVersionEol;
 import static org.sonar.core.config.WebConstants.SONAR_LF_ENABLE_GRAVATAR;
 import static org.sonar.core.config.WebConstants.SONAR_LF_GRAVATAR_SERVER_URL;
 import static org.sonar.core.config.WebConstants.SONAR_LF_LOGO_URL;
@@ -80,9 +83,9 @@ public class GlobalAction implements NavigationWsAction, Startable {
   private final DocumentationLinkGenerator documentationLinkGenerator;
 
   public GlobalAction(PageRepository pageRepository, Configuration config, ResourceTypes resourceTypes, Server server,
-                      NodeInformation nodeInformation, DbClient dbClient, UserSession userSession, PlatformEditionProvider editionProvider,
-                      WebAnalyticsLoader webAnalyticsLoader, IssueIndexSyncProgressChecker issueIndexSyncChecker,
-                      DefaultAdminCredentialsVerifier defaultAdminCredentialsVerifier, DocumentationLinkGenerator documentationLinkGenerator) {
+    NodeInformation nodeInformation, DbClient dbClient, UserSession userSession, PlatformEditionProvider editionProvider,
+    WebAnalyticsLoader webAnalyticsLoader, IssueIndexSyncProgressChecker issueIndexSyncChecker,
+    DefaultAdminCredentialsVerifier defaultAdminCredentialsVerifier, DocumentationLinkGenerator documentationLinkGenerator) {
     this.pageRepository = pageRepository;
     this.config = config;
     this.resourceTypes = resourceTypes;
@@ -115,7 +118,8 @@ public class GlobalAction implements NavigationWsAction, Startable {
       .setHandler(this)
       .setInternal(true)
       .setResponseExample(getClass().getResource("global-example.json"))
-      .setSince("5.2");
+      .setSince("5.2")
+      .setChangelog(new Change("10.5", "Field 'versionEOL' added, to indicate the end of support of installed version."));
   }
 
   @Override
@@ -128,6 +132,7 @@ public class GlobalAction implements NavigationWsAction, Startable {
       writeDeprecatedLogoProperties(json);
       writeQualifiers(json);
       writeVersion(json);
+      writeVersionEol(json);
       writeDatabaseProduction(json);
       writeInstanceUsesDefaultAdminCredentials(json);
       editionProvider.get().ifPresent(e -> json.prop("edition", e.name().toLowerCase(Locale.ENGLISH)));
@@ -177,6 +182,10 @@ public class GlobalAction implements NavigationWsAction, Startable {
   private void writeVersion(JsonWriter json) {
     String displayVersion = VersionFormatter.format(server.getVersion());
     json.prop("version", displayVersion);
+  }
+
+  private void writeVersionEol(JsonWriter json) {
+    json.prop("versionEOL", loadSqVersionEol(System2.INSTANCE));
   }
 
   private void writeDatabaseProduction(JsonWriter json) {
