@@ -79,7 +79,7 @@ build_cache_template: &BUILD_CACHE_TEMPLATE
   build_cache:
     folders:
       - "**/build/**/*"
-    fingerprint_script: echo $BUILD_NUMBER
+    fingerprint_script: echo $CIRRUS_BUILD_ID
 
 cache_dependencies_task:
   container:
