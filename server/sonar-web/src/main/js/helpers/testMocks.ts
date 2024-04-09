@@ -76,6 +76,7 @@ export function mockAppState(overrides: Partial<AppState> = {}): AppState {
     qualifiers: ['TRK'],
     settings: {},
     version: '1.0',
+    versionEOL: '2022-01-01',
     ...overrides,
   };
 }

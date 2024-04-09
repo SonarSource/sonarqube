@@ -85,7 +85,7 @@ exports[`should render correctly 3`] = `
                 </strong>
               </th>
               <td>
-                7.7.0.1234
+                <AppVersionStatus />
               </td>
             </tr>
           </tbody>
@@ -160,7 +160,7 @@ exports[`should render correctly: on embedded database 1`] = `
                 </strong>
               </th>
               <td>
-                7.7.0.1234
+                <AppVersionStatus />
               </td>
             </tr>
           </tbody>

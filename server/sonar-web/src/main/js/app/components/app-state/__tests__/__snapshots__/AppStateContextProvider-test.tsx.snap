@@ -13,6 +13,7 @@ exports[`should set value correctly 1`] = `
         "sonar.lf.logoUrl": "whatevs/",
       },
       "version": "1.0",
+      "versionEOL": "2022-01-01",
     }
   }
 />

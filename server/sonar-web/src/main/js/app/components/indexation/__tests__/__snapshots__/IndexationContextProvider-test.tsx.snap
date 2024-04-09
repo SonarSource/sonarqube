@@ -12,6 +12,7 @@ exports[`should render correctly and start polling if issue sync is needed 1`] =
       ],
       "settings": {},
       "version": "1.0",
+      "versionEOL": "2022-01-01",
     }
   }
 >

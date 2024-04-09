@@ -20,6 +20,7 @@
 import * as React from 'react';
 import withAppStateContext from '../../../app/components/app-state/withAppStateContext';
 import { ClipboardButton } from '../../../components/controls/clipboard';
+import AppVersionStatus from '../../../components/shared/AppVersionStatus';
 import { Alert } from '../../../components/ui/Alert';
 import { toShortNotSoISOString } from '../../../helpers/dates';
 import { translate } from '../../../helpers/l10n';
@@ -79,7 +80,9 @@ export function PageHeader(props: Props) {
                     <th>
                       <strong>{translate('system.version')}</strong>
                     </th>
-                    <td>{version}</td>
+                    <td>
+                      <AppVersionStatus />
+                    </td>
                   </tr>
                 </tbody>
               </table>

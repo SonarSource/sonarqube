@@ -11,6 +11,7 @@ exports[`should render React extensions correctly 1`] = `
       ],
       "settings": {},
       "version": "1.0",
+      "versionEOL": "2022-01-01",
     }
   }
   currentUser={
@@ -73,6 +74,7 @@ exports[`should render React extensions correctly 2`] = `
       ],
       "settings": {},
       "version": "1.0",
+      "versionEOL": "2022-01-01",
     }
   }
   currentUser={

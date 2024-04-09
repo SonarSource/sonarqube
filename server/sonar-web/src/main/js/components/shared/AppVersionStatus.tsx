@@ -18,32 +18,31 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { getWrappedDisplayName } from '../../../components/hoc/utils';
-import { AppState } from '../../../types/appstate';
-import { AppStateContext } from './AppStateContext';
+import { FormattedMessage } from 'react-intl';
+import { useAppState } from '../../app/components/app-state/withAppStateContext';
+import { now, parseDate } from '../../helpers/dates';
+import { translate } from '../../helpers/l10n';
+import DocLink from '../common/DocLink';
 
-export interface WithAppStateContextProps {
-  appState: AppState;
-}
+export default function AppVersionStatus() {
+  const { version, versionEOL } = useAppState();
+  const isActive = parseDate(versionEOL) > now();
 
-export default function withAppStateContext<P>(
-  WrappedComponent: React.ComponentType<P & WithAppStateContextProps>
-) {
-  return class WithAppStateContext extends React.PureComponent<
-    Omit<P, keyof WithAppStateContextProps>
-  > {
-    static displayName = getWrappedDisplayName(WrappedComponent, 'withAppStateContext');
-
-    render() {
-      return (
-        <AppStateContext.Consumer>
-          {(appState) => <WrappedComponent appState={appState} {...(this.props as P)} />}
-        </AppStateContext.Consumer>
-      );
-    }
-  };
-}
-
-export function useAppState() {
-  return React.useContext(AppStateContext);
+  return (
+    <FormattedMessage
+      id="footer.version"
+      defaultMessage={translate('footer.version')}
+      values={{
+        version,
+        status: (
+          <DocLink
+            to="/setup-and-upgrade/upgrade-the-server/active-versions/"
+            className="little-spacer-left"
+          >
+            {translate(`footer.version.status.${isActive ? 'active' : 'inactive'}`)}
+          </DocLink>
+        ),
+      }}
+    />
+  );
 }
