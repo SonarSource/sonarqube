@@ -28,6 +28,7 @@ import org.sonar.api.SonarEdition;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.Version;
 
+import static java.lang.String.format;
 import static org.apache.commons.lang.StringUtils.trimToEmpty;
 
 /**
@@ -40,6 +41,8 @@ public class MetadataLoader {
   private static final String SQ_VERSION_FILE_PATH = "/sq-version.txt";
   private static final String SONAR_API_VERSION_FILE_PATH = "/sonar-api-version.txt";
   private static final String EDITION_FILE_PATH = "/sonar-edition.txt";
+  private static final String SQ_VERSION_EOL_FILE_PATH = "/sq-version-eol.txt";
+  public static final String CAN_NOT_LOAD_FROM_CLASSPATH = "Can not load %s from classpath";
 
   private MetadataLoader() {
     // only static methods
@@ -48,18 +51,25 @@ public class MetadataLoader {
   public static Version loadApiVersion(System2 system) {
     return getVersion(system, SONAR_API_VERSION_FILE_PATH);
   }
+
   public static Version loadSQVersion(System2 system) {
     return getVersion(system, SQ_VERSION_FILE_PATH);
   }
 
-  private static Version getVersion(System2 system, String versionFilePath) {
-    URL url = system.getResource(versionFilePath);
+  public static String loadSqVersionEol(System2 system) {
+    return getParamFromFile(system, SQ_VERSION_EOL_FILE_PATH);
+  }
 
-    try (Scanner scanner = new Scanner(url.openStream(), StandardCharsets.UTF_8.name())) {
-      String versionInFile = scanner.nextLine();
-      return Version.parse(versionInFile);
+  private static Version getVersion(System2 system, String versionFilePath) {
+    return Version.parse(getParamFromFile(system, versionFilePath));
+  }
+
+  private static String getParamFromFile(System2 system, String filePath) {
+    URL url = system.getResource(filePath);
+    try (Scanner scanner = new Scanner(url.openStream(), StandardCharsets.UTF_8)) {
+      return scanner.nextLine();
     } catch (IOException e) {
-      throw new IllegalStateException("Can not load " + versionFilePath + " from classpath ", e);
+      throw new IllegalStateException(format(CAN_NOT_LOAD_FROM_CLASSPATH, filePath), e);
     }
   }
 
@@ -68,11 +78,11 @@ public class MetadataLoader {
     if (url == null) {
       return SonarEdition.COMMUNITY;
     }
-    try (Scanner scanner = new Scanner(url.openStream(), StandardCharsets.UTF_8.name())) {
+    try (Scanner scanner = new Scanner(url.openStream(), StandardCharsets.UTF_8)) {
       String editionInFile = scanner.nextLine();
       return parseEdition(editionInFile);
     } catch (IOException e) {
-      throw new IllegalStateException("Can not load " + EDITION_FILE_PATH + " from classpath", e);
+      throw new IllegalStateException(format(CAN_NOT_LOAD_FROM_CLASSPATH, EDITION_FILE_PATH), e);
     }
   }
 
@@ -81,7 +91,7 @@ public class MetadataLoader {
     try {
       return SonarEdition.valueOf(str);
     } catch (IllegalArgumentException e) {
-      throw new IllegalStateException(String.format("Invalid edition found in '%s': '%s'", EDITION_FILE_PATH, str));
+      throw new IllegalStateException(format("Invalid edition found in '%s': '%s'", EDITION_FILE_PATH, str));
     }
   }
 }
