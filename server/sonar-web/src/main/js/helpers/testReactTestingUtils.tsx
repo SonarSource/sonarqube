@@ -111,7 +111,13 @@ export function renderComponent(
   }: RenderContext = {},
 ) {
   function Wrapper({ children }: { children: React.ReactElement }) {
-    const queryClient = new QueryClient();
+    const queryClient = new QueryClient({
+      defaultOptions: {
+        queries: {
+          retry: false,
+        },
+      },
+    });
 
     return (
       <IntlWrapper>

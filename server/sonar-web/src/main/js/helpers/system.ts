@@ -56,6 +56,6 @@ export function initAppVariables() {
   getEnhancedWindow().official = Boolean(appVariablesDiv.dataset.official);
 }
 
-export function isCurrentVersionEOLActive(installedVersionEOL: string) {
-  return isAfter(parseDate(installedVersionEOL), new Date());
+export function isCurrentVersionEOLActive(versionEOL: string) {
+  return isAfter(parseDate(versionEOL), new Date());
 }

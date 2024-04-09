@@ -30,7 +30,7 @@ import { SYSTEM_VERSION_REGEXP, UpdateUseCase } from './utils';
 interface Props {
   onClose: () => void;
   systemUpgrades: SystemUpgrade[][];
-  latestLTA: string;
+  latestLTA?: string;
   updateUseCase: UpdateUseCase;
 }
 
@@ -65,7 +65,9 @@ export default function SystemUpgradeForm(props: Readonly<Props>) {
     for (const upgrades of systemUpgrades) {
       if (untilLTA === false) {
         systemUpgradesWithPatch.push(upgrades);
-        untilLTA = upgrades.some((upgrade) => upgrade.version.startsWith(latestLTA));
+        untilLTA = upgrades.some(
+          (upgrade) => latestLTA !== undefined && upgrade.version.startsWith(latestLTA),
+        );
       }
     }
   }
@@ -87,7 +89,9 @@ export default function SystemUpgradeForm(props: Readonly<Props>) {
               key={upgrades[upgrades.length - 1].version}
               systemUpgrades={upgrades}
               isPatch={upgrades === patches}
-              isLTAVersion={upgrades.some((upgrade) => upgrade.version.startsWith(latestLTA))}
+              isLTAVersion={upgrades.some(
+                (upgrade) => latestLTA !== undefined && upgrade.version.startsWith(latestLTA),
+              )}
             />
           ))}
         </>

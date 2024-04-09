@@ -18,12 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import userEvent from '@testing-library/user-event';
+import { addDays, formatISO, subDays } from 'date-fns';
 import * as React from 'react';
 import { getSystemUpgrades } from '../../../api/system';
 import { UpdateUseCase } from '../../../components/upgrade/utils';
 import { mockAppState, mockCurrentUser } from '../../../helpers/testMocks';
 import { renderComponent } from '../../../helpers/testReactTestingUtils';
 import { byRole } from '../../../helpers/testSelector';
+import { AppState } from '../../../types/appstate';
 import { Permissions } from '../../../types/permissions';
 import { CurrentUser } from '../../../types/users';
 import { AppStateContext } from '../app-state/AppStateContext';
@@ -70,6 +72,40 @@ it('should not render update notification if no upgrades', () => {
   renderUpdateNotification();
   expect(getSystemUpgrades).toHaveBeenCalled();
   expect(ui.updateMessage.query()).not.toBeInTheDocument();
+});
+
+it('should show error message if upgrades call failed and the version has reached eol', async () => {
+  jest.mocked(getSystemUpgrades).mockReturnValue(Promise.reject(new Error('error')));
+  renderUpdateNotification(undefined, undefined, {
+    versionEOL: formatISO(subDays(new Date(), 1), { representation: 'date' }),
+  });
+  expect(await ui.updateMessage.find()).toHaveTextContent(
+    `admin_notification.update.${UpdateUseCase.CurrentVersionInactive}`,
+  );
+  expect(ui.openDialogBtn.query()).not.toBeInTheDocument();
+});
+
+it('should not show the notification banner if there is no network connection and version has not reached the eol', () => {
+  jest.mocked(getSystemUpgrades).mockResolvedValue({
+    upgrades: [],
+  });
+  renderUpdateNotification(undefined, undefined, {
+    versionEOL: formatISO(addDays(new Date(), 1), { representation: 'date' }),
+  });
+  expect(ui.updateMessage.query()).not.toBeInTheDocument();
+});
+
+it('should show the error banner if there is no network connection and version has reached the eol', async () => {
+  jest.mocked(getSystemUpgrades).mockResolvedValue({
+    upgrades: [],
+  });
+  renderUpdateNotification(undefined, undefined, {
+    versionEOL: formatISO(subDays(new Date(), 1), { representation: 'date' }),
+  });
+  expect(await ui.updateMessage.find()).toHaveTextContent(
+    `admin_notification.update.${UpdateUseCase.CurrentVersionInactive}`,
+  );
+  expect(ui.openDialogBtn.query()).not.toBeInTheDocument();
 });
 
 it('active / latest / patch', async () => {
@@ -224,7 +260,7 @@ it('active / lta / patch', async () => {
     installedVersionActive: true,
   });
   const user = userEvent.setup();
-  renderUpdateNotification(undefined, undefined, '9.9.0');
+  renderUpdateNotification(undefined, undefined, { version: '9.9.0' });
   expect(await ui.updateMessage.find()).toHaveTextContent(
     `admin_notification.update.${UpdateUseCase.NewPatch}`,
   );
@@ -245,7 +281,7 @@ it('active / lta / new minor', async () => {
     installedVersionActive: true,
   });
   const user = userEvent.setup();
-  renderUpdateNotification(undefined, undefined, '9.9.0');
+  renderUpdateNotification(undefined, undefined, { version: '9.9.0' });
   expect(await ui.updateMessage.find()).toHaveTextContent(
     `admin_notification.update.${UpdateUseCase.NewVersion}`,
   );
@@ -269,7 +305,7 @@ it('active / lta / new minor + patch', async () => {
     installedVersionActive: true,
   });
   const user = userEvent.setup();
-  renderUpdateNotification(undefined, undefined, '9.9.0');
+  renderUpdateNotification(undefined, undefined, { version: '9.9.0' });
   expect(await ui.updateMessage.find()).toHaveTextContent(
     `admin_notification.update.${UpdateUseCase.NewPatch}`,
   );
@@ -295,7 +331,7 @@ it('active / prev lta / new lta + patch', async () => {
     installedVersionActive: true,
   });
   const user = userEvent.setup();
-  renderUpdateNotification(undefined, undefined, '8.9.0');
+  renderUpdateNotification(undefined, undefined, { version: '8.9.0' });
   expect(await ui.updateMessage.find()).toHaveTextContent(
     `admin_notification.update.${UpdateUseCase.NewPatch}`,
   );
@@ -321,7 +357,7 @@ it('active / prev lta / new lta + new minor + patch', async () => {
     installedVersionActive: true,
   });
   const user = userEvent.setup();
-  renderUpdateNotification(undefined, undefined, '8.9.0');
+  renderUpdateNotification(undefined, undefined, { version: '8.9.0' });
   expect(await ui.updateMessage.find()).toHaveTextContent(
     `admin_notification.update.${UpdateUseCase.NewPatch}`,
   );
@@ -344,7 +380,7 @@ it('no longer active / prev lta / new lta', async () => {
     installedVersionActive: false,
   });
   const user = userEvent.setup();
-  renderUpdateNotification(undefined, undefined, '8.9.0');
+  renderUpdateNotification(undefined, undefined, { version: '8.9.0' });
   expect(await ui.updateMessage.find()).toHaveTextContent(
     `admin_notification.update.${UpdateUseCase.CurrentVersionInactive}`,
   );
@@ -366,7 +402,7 @@ it('no longer active / prev lta / new lta + patch', async () => {
     installedVersionActive: false,
   });
   const user = userEvent.setup();
-  renderUpdateNotification(undefined, undefined, '8.9.0');
+  renderUpdateNotification(undefined, undefined, { version: '8.9.0' });
   expect(await ui.updateMessage.find()).toHaveTextContent(
     `admin_notification.update.${UpdateUseCase.CurrentVersionInactive}`,
   );
@@ -394,7 +430,7 @@ it('no longer active / prev lta / new lta + patch + new minors', async () => {
     installedVersionActive: false,
   });
   const user = userEvent.setup();
-  renderUpdateNotification(undefined, undefined, '8.9.0');
+  renderUpdateNotification(undefined, undefined, { version: '8.9.0' });
   expect(await ui.updateMessage.find()).toHaveTextContent(
     `admin_notification.update.${UpdateUseCase.CurrentVersionInactive}`,
   );
@@ -424,7 +460,8 @@ it('no longer active / prev lta / new lta + patch + new minors', async () => {
 function renderUpdateNotification(
   dissmissable: boolean = false,
   user?: Partial<CurrentUser>,
-  version: string = '10.5.0',
+  // versionEOL is a date in the past to be sure that it is not used when we have data from upgrades endpoint
+  appState: Partial<AppState> = { version: '10.5.0', versionEOL: '2020-01-01' },
 ) {
   return renderComponent(
     <CurrentUserContext.Provider
@@ -438,7 +475,7 @@ function renderUpdateNotification(
         updateDismissedNotices: () => {},
       }}
     >
-      <AppStateContext.Provider value={mockAppState({ version })}>
+      <AppStateContext.Provider value={mockAppState(appState)}>
         <UpdateNotification dismissable={dissmissable} />
       </AppStateContext.Provider>
     </CurrentUserContext.Provider>,

@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { addMonths, formatISO } from 'date-fns';
 import { omit } from 'lodash';
 import { To } from 'react-router-dom';
 import { CompareResponse } from '../api/quality-profiles';
@@ -94,8 +95,8 @@ export function mockAppState(overrides: Partial<AppState> = {}): AppState {
     qualifiers: [ComponentQualifier.Project],
     settings: {},
     version: '1.0',
+    versionEOL: formatISO(addMonths(new Date(), 1), { representation: 'date' }),
     documentationUrl: 'https://docs.sonarsource.com/sonarqube/10.0',
-    installedVersionEOL: '2024-01-01T00:00:00Z',
     ...overrides,
   };
 }

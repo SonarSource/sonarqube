@@ -25,7 +25,7 @@ import SystemUpgradeForm from './SystemUpgradeForm';
 import { groupUpgrades, sortUpgrades, UpdateUseCase } from './utils';
 
 interface Props {
-  latestLTA: string;
+  latestLTA?: string;
   systemUpgrades: SystemUpgrade[];
   updateUseCase: UpdateUseCase;
 }
@@ -42,6 +42,10 @@ export default function SystemUpgradeButton(props: Readonly<Props>) {
   const closeSystemUpgradeForm = React.useCallback(() => {
     setSystemUpgradeFormOpen(false);
   }, [setSystemUpgradeFormOpen]);
+
+  if (systemUpgrades.length === 0) {
+    return null;
+  }
 
   return (
     <>

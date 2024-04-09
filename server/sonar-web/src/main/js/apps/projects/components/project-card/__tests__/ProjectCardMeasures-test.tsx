@@ -27,6 +27,7 @@ import { Dict } from '../../../../../types/types';
 import ProjectCardMeasures, { ProjectCardMeasuresProps } from '../ProjectCardMeasures';
 
 jest.mock('date-fns', () => ({
+  ...jest.requireActual('date-fns'),
   differenceInMilliseconds: () => 1000 * 60 * 60 * 24 * 30 * 8, // ~ 8 months
 }));
 

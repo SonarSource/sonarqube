@@ -121,7 +121,7 @@
     "start:force": "node scripts/start.js --force-build-design-system",
     "build": "node scripts/build.js",
     "build-release": "yarn install --immutable && node scripts/build.js release",
-    "test": "NODE_OPTIONS=--max-old-space-size=1024 jest",
+    "test": "jest --workerIdleMemoryLimit=1G",
     "test-ci": "NODE_OPTIONS=\"-r dd-trace/ci/init\" jest --coverage --maxWorkers=5 --workerIdleMemoryLimit=2G --ci",
     "test-eslint-local-rules": "jest -c eslint-local-rules/jest.config.js",
     "format": "prettier --write --list-different \"src/main/js/**/*.{js,ts,tsx,css}\"",

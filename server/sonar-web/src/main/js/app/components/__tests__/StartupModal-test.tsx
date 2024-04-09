@@ -42,7 +42,10 @@ jest.mock('../../../helpers/dates', () => ({
   toShortISO8601String: jest.fn().mockReturnValue('short-not-iso-date'),
 }));
 
-jest.mock('date-fns', () => ({ differenceInDays: jest.fn().mockReturnValue(1) }));
+jest.mock('date-fns', () => ({
+  ...jest.requireActual('date-fns'),
+  differenceInDays: jest.fn().mockReturnValue(1),
+}));
 
 const LOGGED_IN_USER: LoggedInUser = {
   groups: [],

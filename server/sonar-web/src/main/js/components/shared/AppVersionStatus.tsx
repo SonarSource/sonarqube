@@ -29,15 +29,15 @@ import { useSystemUpgrades } from '../../queries/system';
 
 export default function AppVersionStatus() {
   const { data } = useSystemUpgrades();
-  const { version, installedVersionEOL } = useAppState();
+  const { version, versionEOL } = useAppState();
 
   const isActiveVersion = useMemo(() => {
     if (data?.installedVersionActive !== undefined) {
       return data.installedVersionActive;
     }
 
-    return isCurrentVersionEOLActive(installedVersionEOL);
-  }, [data?.installedVersionActive, installedVersionEOL]);
+    return isCurrentVersionEOLActive(versionEOL);
+  }, [data?.installedVersionActive, versionEOL]);
 
   const docUrl = useDocUrl();
   const intl = useIntl();
@@ -57,6 +57,6 @@ export default function AppVersionStatus() {
           />
         </LinkStandalone>
       ),
-    }
+    },
   );
 }

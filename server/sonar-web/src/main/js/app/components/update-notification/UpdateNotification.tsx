@@ -24,6 +24,7 @@ import DismissableAlert from '../../../components/ui/DismissableAlert';
 import SystemUpgradeButton from '../../../components/upgrade/SystemUpgradeButton';
 import { UpdateUseCase } from '../../../components/upgrade/utils';
 import { translate } from '../../../helpers/l10n';
+import { isCurrentVersionEOLActive } from '../../../helpers/system';
 import { hasGlobalPermission } from '../../../helpers/users';
 import { useSystemUpgrades } from '../../../queries/system';
 import { Permissions } from '../../../types/permissions';
@@ -46,20 +47,25 @@ export default function UpdateNotification({ dismissable }: Readonly<Props>) {
     isLoggedIn(currentUser) && hasGlobalPermission(currentUser, Permissions.Admin);
   const regExpParsedVersion = VERSION_PARSER.exec(appState.version);
 
-  const { data } = useSystemUpgrades({
+  const { data, isLoading } = useSystemUpgrades({
     enabled: canUserSeeNotification && regExpParsedVersion !== null,
   });
 
-  if (
-    !canUserSeeNotification ||
-    regExpParsedVersion === null ||
-    data === undefined ||
-    isEmpty(data.upgrades)
-  ) {
+  if (!canUserSeeNotification || regExpParsedVersion === null || isLoading) {
     return null;
   }
 
-  const { upgrades, installedVersionActive, latestLTA } = data;
+  const { upgrades = [], installedVersionActive, latestLTA } = data ?? {};
+
+  let active = installedVersionActive;
+
+  if (installedVersionActive === undefined) {
+    active = isCurrentVersionEOLActive(appState.versionEOL);
+  }
+
+  if (active && isEmpty(upgrades)) {
+    return null;
+  }
 
   const parsedVersion = regExpParsedVersion
     .slice(1)
@@ -80,11 +86,12 @@ export default function UpdateNotification({ dismissable }: Readonly<Props>) {
 
   let useCase = UpdateUseCase.NewVersion;
 
-  if (!installedVersionActive) {
+  if (!active) {
     useCase = UpdateUseCase.CurrentVersionInactive;
   } else if (
     isPatchUpdate(parsedVersion, systemUpgrades) &&
-    (isCurrentVersionLTA(parsedVersion, latestLTA) || !isMinorUpdate(parsedVersion, systemUpgrades))
+    ((latestLTA !== undefined && isCurrentVersionLTA(parsedVersion, latestLTA)) ||
+      !isMinorUpdate(parsedVersion, systemUpgrades))
   ) {
     useCase = UpdateUseCase.NewPatch;
   }
@@ -95,7 +102,7 @@ export default function UpdateNotification({ dismissable }: Readonly<Props>) {
       new Date(upgrade1.releaseDate ?? '').getTime(),
   )[0];
 
-  const dismissKey = useCase + latest.version;
+  const dismissKey = useCase + (latest?.version ?? appState.version);
 
   return dismissable ? (
     <DismissableAlert

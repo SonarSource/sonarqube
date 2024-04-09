@@ -28,13 +28,13 @@ export interface AppState {
   edition?: EditionKey;
   globalPages?: Extension[];
   instanceUsesDefaultAdminCredentials?: boolean;
-  installedVersionEOL: string;
   needIssueSync?: boolean;
   productionDatabase: boolean;
   qualifiers: string[];
   settings: { [key in GlobalSettingKeys]?: string };
   standalone?: boolean;
   version: string;
+  versionEOL: string;
   webAnalyticsJsPath?: string;
   documentationUrl: string;
 }

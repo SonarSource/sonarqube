@@ -59,7 +59,7 @@ it('should show active status if offline and did not reach EOL', async () => {
   systemMock.setSystemUpgrades({ installedVersionActive: undefined });
   renderGlobalFooter(
     {},
-    { version: '4.2 (build 12345)', installedVersionEOL: addDays(new Date(), 10).toISOString() },
+    { version: '4.2 (build 12345)', versionEOL: addDays(new Date(), 10).toISOString() },
   );
 
   expect(await ui.ltaDocumentationLinkActive.find()).toBeInTheDocument();
@@ -69,7 +69,7 @@ it('should show inactive status if offline and reached EOL', async () => {
   systemMock.setSystemUpgrades({ installedVersionActive: undefined });
   renderGlobalFooter(
     {},
-    { version: '4.2 (build 12345)', installedVersionEOL: subDays(new Date(), 10).toISOString() },
+    { version: '4.2 (build 12345)', versionEOL: subDays(new Date(), 10).toISOString() },
   );
 
   expect(await ui.ltaDocumentationLinkInactive.find()).toBeInTheDocument();
