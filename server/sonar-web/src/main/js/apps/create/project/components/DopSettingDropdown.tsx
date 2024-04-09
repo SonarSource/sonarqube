@@ -20,7 +20,7 @@
 import classNames from 'classnames';
 import { DarkLabel, InputSelect, LabelValueSelectOption, Note } from 'design-system';
 import * as React from 'react';
-import { FormattedMessage } from 'react-intl';
+import { FormattedMessage, useIntl } from 'react-intl';
 import { OptionProps, SingleValueProps, components } from 'react-select';
 import { translate } from '../../../../helpers/l10n';
 import { AlmKeys } from '../../../../types/alm-settings';
@@ -62,6 +62,8 @@ function orgToOption(alm: DopSetting) {
 }
 
 export default function DopSettingDropdown(props: Readonly<DopSettingDropdownProps>) {
+  const { formatMessage } = useIntl();
+
   const { almKey, className, dopSettings, onChangeSetting, selectedDopSetting } = props;
   if (!dopSettings || dopSettings.length < MIN_SIZE_INSTANCES) {
     return null;
@@ -70,7 +72,10 @@ export default function DopSettingDropdown(props: Readonly<DopSettingDropdownPro
   return (
     <div className={classNames('sw-flex sw-flex-col', className)}>
       <DarkLabel htmlFor="dop-setting-dropdown" className="sw-mb-2">
-        <FormattedMessage id={`onboarding.create_project.monorepo.choose_dop_setting.${almKey}`} />
+        <FormattedMessage
+          id="onboarding.create_project.monorepo.choose_dop_setting"
+          values={{ almKey: formatMessage({ id: `alm.${almKey}` }) }}
+        />
       </DarkLabel>
 
       <InputSelect

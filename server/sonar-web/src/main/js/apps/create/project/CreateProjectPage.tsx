@@ -55,7 +55,7 @@ interface State {
   bitbucketSettings: AlmSettingsInstance[];
   bitbucketCloudSettings: AlmSettingsInstance[];
   githubSettings: DopSetting[];
-  gitlabSettings: AlmSettingsInstance[];
+  gitlabSettings: DopSetting[];
   loading: boolean;
   creatingAlmDefinition?: AlmKeys;
   importProjects?: ImportProjectParam;
@@ -202,9 +202,7 @@ export class CreateProjectPage extends React.PureComponent<CreateProjectPageProp
             .filter(({ type }) => type === AlmKeys.BitbucketCloud)
             .map(({ key, type, url }) => ({ alm: type, key, url })),
           githubSettings: dopSettings.filter(({ type }) => type === AlmKeys.GitHub),
-          gitlabSettings: dopSettings
-            .filter(({ type }) => type === AlmKeys.GitLab)
-            .map(({ key, type, url }) => ({ alm: type, key, url })),
+          gitlabSettings: dopSettings.filter(({ type }) => type === AlmKeys.GitLab),
           loading: false,
         });
       })
@@ -324,10 +322,8 @@ export class CreateProjectPage extends React.PureComponent<CreateProjectPageProp
         return (
           <GitlabProjectCreate
             canAdmin={!!canAdmin}
-            loadingBindings={loading}
-            location={location}
-            router={router}
-            almInstances={gitlabSettings}
+            dopSettings={gitlabSettings}
+            isLoadingBindings={loading}
             onProjectSetupDone={this.handleProjectSetupDone}
           />
         );

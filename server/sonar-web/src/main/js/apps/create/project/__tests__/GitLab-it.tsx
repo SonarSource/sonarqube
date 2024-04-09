@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { screen, within } from '@testing-library/react';
+import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
 import selectEvent from 'react-select-event';
@@ -28,6 +28,8 @@ import NewCodeDefinitionServiceMock from '../../../../api/mocks/NewCodeDefinitio
 import { renderApp } from '../../../../helpers/testReactTestingUtils';
 import { byLabelText, byRole, byText } from '../../../../helpers/testSelector';
 import CreateProjectPage from '../CreateProjectPage';
+import { Feature } from '../../../../types/features';
+import { CreateProjectModes } from '../types';
 
 jest.mock('../../../../api/alm-integrations');
 jest.mock('../../../../api/alm-settings');
@@ -37,12 +39,16 @@ let dopTranslationHandler: DopTranslationServiceMock;
 let newCodePeriodHandler: NewCodeDefinitionServiceMock;
 
 const ui = {
+  cancelButton: byRole('button', { name: 'cancel' }),
   gitlabCreateProjectButton: byText('onboarding.create_project.select_method.gitlab'),
+  gitLabOnboardingTitle: byRole('heading', { name: 'onboarding.create_project.gitlab.title' }),
+  instanceSelector: byLabelText(/alm.configuration.selector.label/),
+  monorepoSetupLink: byRole('link', { name: 'onboarding.create_project.gitlab.subtitle.link' }),
+  monorepoTitle: byRole('heading', { name: 'onboarding.create_project.monorepo.titlealm.gitlab' }),
 
   personalAccessTokenInput: byRole('textbox', {
     name: /onboarding.create_project.enter_pat/,
   }),
-  instanceSelector: byLabelText(/alm.configuration.selector.label/),
 };
 
 const original = window.location;
@@ -145,17 +151,18 @@ it('should show search filter when PAT is already set', async () => {
   await user.click(inputSearch);
   await user.keyboard('sea');
 
+  await waitFor(() => expect(getGitlabProjects).toHaveBeenCalledTimes(2));
   expect(getGitlabProjects).toHaveBeenLastCalledWith({
     almSetting: 'conf-final-2',
     page: 1,
-    pageSize: 20,
+    pageSize: 50,
     query: 'sea',
   });
 });
 
 it('should have load more', async () => {
   const user = userEvent.setup();
-  almIntegrationHandler.createRandomGitlabProjectsWithLoadMore(10, 20);
+  almIntegrationHandler.createRandomGitlabProjectsWithLoadMore(50, 75);
   renderCreateProject();
 
   expect(await screen.findByText('onboarding.create_project.gitlab.title')).toBeInTheDocument();
@@ -167,12 +174,12 @@ it('should have load more', async () => {
    * Next api call response will simulate reaching the last page so we can test the
    * loadmore button disapperance.
    */
-  almIntegrationHandler.createRandomGitlabProjectsWithLoadMore(20, 20);
+  almIntegrationHandler.createRandomGitlabProjectsWithLoadMore(50, 50);
   await user.click(loadMore);
   expect(getGitlabProjects).toHaveBeenLastCalledWith({
     almSetting: 'conf-final-2',
     page: 2,
-    pageSize: 20,
+    pageSize: 50,
     query: '',
   });
   expect(loadMore).not.toBeInTheDocument();
@@ -190,8 +197,38 @@ it('should show no result message when there are no projects', async () => {
   ).toBeInTheDocument();
 });
 
-function renderCreateProject() {
-  renderApp('project/create', <CreateProjectPage />, {
-    navigateTo: 'project/create?mode=gitlab',
+describe('GitLab monorepo project navigation', () => {
+  it('should be able to access monorepo setup page from GitLab project import page', async () => {
+    const user = userEvent.setup();
+    renderCreateProject();
+
+    await user.click(await ui.monorepoSetupLink.find());
+
+    expect(ui.monorepoTitle.get()).toBeInTheDocument();
+  });
+
+  it('should be able to go back to GitLab onboarding page from monorepo setup page', async () => {
+    const user = userEvent.setup();
+    renderCreateProject({ isMonorepo: true });
+
+    await user.click(await ui.cancelButton.find());
+
+    expect(ui.gitLabOnboardingTitle.get()).toBeInTheDocument();
+  });
+});
+
+function renderCreateProject({
+  isMonorepo = false,
+}: {
+  isMonorepo?: boolean;
+} = {}) {
+  let queryString = `mode=${CreateProjectModes.GitLab}`;
+  if (isMonorepo) {
+    queryString += '&mono=true';
+  }
+
+  renderApp('projects/create', <CreateProjectPage />, {
+    navigateTo: `projects/create?${queryString}`,
+    featureList: [Feature.MonoRepositoryPullRequestDecoration],
   });
 }

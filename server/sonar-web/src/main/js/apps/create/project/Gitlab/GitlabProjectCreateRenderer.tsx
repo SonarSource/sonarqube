@@ -17,16 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { LightPrimary, Spinner, Title } from 'design-system';
+import { LightPrimary, Title } from 'design-system';
 import * as React from 'react';
 import { translate } from '../../../../helpers/l10n';
 import { GitlabProject } from '../../../../types/alm-integration';
-import { AlmKeys, AlmSettingsInstance } from '../../../../types/alm-settings';
+import { AlmInstanceBase, AlmKeys, AlmSettingsInstance } from '../../../../types/alm-settings';
 import { Paging } from '../../../../types/types';
 import AlmSettingsInstanceDropdown from '../components/AlmSettingsInstanceDropdown';
 import WrongBindingCountAlert from '../components/WrongBindingCountAlert';
 import GitlabPersonalAccessTokenForm from './GItlabPersonalAccessTokenForm';
 import GitlabProjectSelectionForm from './GitlabProjectSelectionForm';
+import { FormattedMessage } from 'react-intl';
+import { Link, Spinner } from '@sonarsource/echoes-react';
+import { queryToSearch } from '../../../../helpers/urls';
+import { CreateProjectModes } from '../types';
+import { Feature } from '../../../../types/features';
+import { AvailableFeaturesContext } from '../../../../app/components/available-features/AvailableFeaturesContext';
 
 export interface GitlabProjectCreateRendererProps {
   canAdmin?: boolean;
@@ -44,10 +50,16 @@ export interface GitlabProjectCreateRendererProps {
   almInstances?: AlmSettingsInstance[];
   selectedAlmInstance?: AlmSettingsInstance;
   showPersonalAccessTokenForm?: boolean;
-  onSelectedAlmInstanceChange: (instance: AlmSettingsInstance) => void;
+  onSelectedAlmInstanceChange: (instance: AlmInstanceBase) => void;
 }
 
-export default function GitlabProjectCreateRenderer(props: GitlabProjectCreateRendererProps) {
+export default function GitlabProjectCreateRenderer(
+  props: Readonly<GitlabProjectCreateRendererProps>,
+) {
+  const isMonorepoSupported = React.useContext(AvailableFeaturesContext).includes(
+    Feature.MonoRepositoryPullRequestDecoration,
+  );
+
   const {
     canAdmin,
     loading,
@@ -67,7 +79,28 @@ export default function GitlabProjectCreateRenderer(props: GitlabProjectCreateRe
       <header className="sw-mb-10">
         <Title className="sw-mb-4">{translate('onboarding.create_project.gitlab.title')}</Title>
         <LightPrimary className="sw-body-sm">
-          {translate('onboarding.create_project.gitlab.subtitle')}
+          {isMonorepoSupported ? (
+            <FormattedMessage
+              id="onboarding.create_project.gitlab.subtitle.with_monorepo"
+              values={{
+                monorepoSetupLink: (
+                  <Link
+                    to={{
+                      pathname: '/projects/create',
+                      search: queryToSearch({
+                        mode: CreateProjectModes.GitLab,
+                        mono: true,
+                      }),
+                    }}
+                  >
+                    <FormattedMessage id="onboarding.create_project.gitlab.subtitle.link" />
+                  </Link>
+                ),
+              }}
+            />
+          ) : (
+            <FormattedMessage id="onboarding.create_project.gitlab.subtitle" />
+          )}
         </LightPrimary>
       </header>
 
@@ -78,7 +111,7 @@ export default function GitlabProjectCreateRenderer(props: GitlabProjectCreateRe
         onChangeConfig={props.onSelectedAlmInstanceChange}
       />
 
-      <Spinner loading={loading} />
+      <Spinner isLoading={loading} />
 
       {!loading && !selectedAlmInstance && (
         <WrongBindingCountAlert alm={AlmKeys.GitLab} canAdmin={!!canAdmin} />

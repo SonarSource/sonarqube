@@ -23,8 +23,8 @@ import {
   setAlmPersonalAccessToken,
 } from '../../../api/alm-integrations';
 import { translate } from '../../../helpers/l10n';
-import { AlmSettingsInstance } from '../../../types/alm-settings';
 import { tokenExistedBefore } from './utils';
+import { AlmInstanceBase } from '../../../types/alm-settings';
 
 export interface PATType {
   validationFailed: boolean;
@@ -41,7 +41,7 @@ export interface PATType {
 }
 
 export const usePersonalAccessToken = (
-  almSetting: AlmSettingsInstance,
+  almSetting: AlmInstanceBase,
   resetPat: boolean,
   onPersonalAccessTokenCreated: () => void,
 ): PATType => {

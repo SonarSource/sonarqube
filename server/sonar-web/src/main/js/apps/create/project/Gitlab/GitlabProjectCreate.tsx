@@ -17,227 +17,255 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { getGitlabProjects } from '../../../../api/alm-integrations';
-import { Location, Router } from '../../../../components/hoc/withRouter';
 import { GitlabProject } from '../../../../types/alm-integration';
-import { AlmSettingsInstance } from '../../../../types/alm-settings';
+import { AlmInstanceBase } from '../../../../types/alm-settings';
 import { Paging } from '../../../../types/types';
 import { ImportProjectParam } from '../CreateProjectPage';
 import { CreateProjectModes } from '../types';
 import GitlabProjectCreateRenderer from './GitlabProjectCreateRenderer';
+import { DopSetting } from '../../../../types/dop-translation';
+import { useLocation, useRouter } from '../../../../components/hoc/withRouter';
+import MonorepoProjectCreate from '../monorepo/MonorepoProjectCreate';
+import GitlabPersonalAccessTokenForm from './GItlabPersonalAccessTokenForm';
+import { orderBy } from 'lodash';
+import { LabelValueSelectOption } from 'design-system';
 
 interface Props {
   canAdmin: boolean;
-  loadingBindings: boolean;
-  almInstances: AlmSettingsInstance[];
-  location: Location;
-  router: Router;
+  isLoadingBindings: boolean;
   onProjectSetupDone: (importProjects: ImportProjectParam) => void;
+  dopSettings: DopSetting[];
 }
 
-interface State {
-  loading: boolean;
-  loadingMore: boolean;
-  projects?: GitlabProject[];
-  projectsPaging: Paging;
-  resetPat: boolean;
-  searching: boolean;
-  searchQuery: string;
-  selectedAlmInstance: AlmSettingsInstance;
-  showPersonalAccessTokenForm: boolean;
-}
+const REPOSITORY_PAGE_SIZE = 50;
+const REPOSITORY_SEARCH_DEBOUNCE_TIME = 250;
 
-const GITLAB_PROJECTS_PAGESIZE = 20;
+export default function GitlabProjectCreate(props: Readonly<Props>) {
+  const { canAdmin, dopSettings, isLoadingBindings, onProjectSetupDone } = props;
 
-export default class GitlabProjectCreate extends React.PureComponent<Props, State> {
-  mounted = false;
+  const repositorySearchDebounceId = useRef<NodeJS.Timeout | undefined>();
 
-  constructor(props: Props) {
-    super(props);
+  const [isLoadingRepositories, setIsLoadingRepositories] = useState(false);
+  const [isLoadingMoreRepositories, setIsLoadingMoreRepositories] = useState(false);
+  const [repositories, setRepositories] = useState<GitlabProject[]>([]);
+  const [repositoryPaging, setRepositoryPaging] = useState<Paging>({
+    pageSize: REPOSITORY_PAGE_SIZE,
+    total: 0,
+    pageIndex: 1,
+  });
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedDopSetting, setSelectedDopSetting] = useState<DopSetting>();
+  const [selectedRepository, setSelectedRepository] = useState<GitlabProject>();
+  const [resetPersonalAccessToken, setResetPersonalAccessToken] = useState<boolean>(false);
+  const [showPersonalAccessTokenForm, setShowPersonalAccessTokenForm] = useState<boolean>(true);
 
-    this.state = {
-      loading: false,
-      loadingMore: false,
-      projectsPaging: { pageIndex: 1, total: 0, pageSize: GITLAB_PROJECTS_PAGESIZE },
-      resetPat: false,
-      showPersonalAccessTokenForm: true,
-      searching: false,
-      searchQuery: '',
-      selectedAlmInstance: props.almInstances[0],
-    };
-  }
+  const location = useLocation();
+  const router = useRouter();
 
-  componentDidMount() {
-    this.mounted = true;
-  }
-
-  componentDidUpdate(prevProps: Props) {
-    const { almInstances } = this.props;
-    if (prevProps.almInstances.length === 0 && this.props.almInstances.length > 0) {
-      this.setState({ selectedAlmInstance: almInstances[0] }, () => {
-        this.fetchInitialData().catch(() => {
-          /* noop */
-        });
-      });
+  const isMonorepoSetup = location.query?.mono === 'true';
+  const hasDopSettings = useMemo(() => {
+    if (dopSettings === undefined) {
+      return false;
     }
-  }
 
-  componentWillUnmount() {
-    this.mounted = false;
-  }
+    return dopSettings.length > 0;
+  }, [dopSettings]);
+  const repositoryOptions = useMemo(() => {
+    return repositories.map(transformToOption);
+  }, [repositories]);
 
-  fetchInitialData = async () => {
-    const { showPersonalAccessTokenForm } = this.state;
-
-    if (!showPersonalAccessTokenForm) {
-      this.setState({ loading: true });
-      const result = await this.fetchProjects();
-      if (this.mounted && result) {
-        const { projects, projectsPaging } = result;
-
-        this.setState({
-          loading: false,
-          projects,
-          projectsPaging,
-        });
-      } else {
-        this.setState({
-          loading: false,
-        });
+  const fetchProjects = useCallback(
+    (pageIndex = 1, query?: string) => {
+      if (!selectedDopSetting) {
+        return Promise.resolve(undefined);
       }
-    }
-  };
 
-  handleError = () => {
-    if (this.mounted) {
-      this.setState({ resetPat: true, showPersonalAccessTokenForm: true });
-    }
-
-    return undefined;
-  };
-
-  fetchProjects = async (pageIndex = 1, query?: string) => {
-    const { selectedAlmInstance } = this.state;
-    if (!selectedAlmInstance) {
-      return Promise.resolve(undefined);
-    }
-
-    try {
       // eslint-disable-next-line local-rules/no-api-imports
-      return await getGitlabProjects({
-        almSetting: selectedAlmInstance.key,
+      return getGitlabProjects({
+        almSetting: selectedDopSetting.key,
         page: pageIndex,
-        pageSize: GITLAB_PROJECTS_PAGESIZE,
+        pageSize: REPOSITORY_PAGE_SIZE,
         query,
       });
-    } catch (_) {
-      return this.handleError();
+    },
+    [selectedDopSetting],
+  );
+
+  const fetchInitialData = useCallback(() => {
+    if (!showPersonalAccessTokenForm) {
+      setIsLoadingRepositories(true);
+
+      fetchProjects()
+        .then((result) => {
+          if (result?.projects) {
+            setIsLoadingRepositories(false);
+            setRepositories(
+              isMonorepoSetup
+                ? orderBy(result.projects, [(res) => res.name.toLowerCase()], ['asc'])
+                : result.projects,
+            );
+            setRepositoryPaging(result.projectsPaging);
+          } else {
+            setIsLoadingRepositories(false);
+          }
+        })
+        .catch(() => {
+          setResetPersonalAccessToken(true);
+          setShowPersonalAccessTokenForm(true);
+        });
     }
-  };
+  }, [fetchProjects, isMonorepoSetup, showPersonalAccessTokenForm]);
 
-  handleImport = (gitlabProjectId: string) => {
-    const { selectedAlmInstance } = this.state;
-
-    if (selectedAlmInstance) {
-      this.props.onProjectSetupDone({
-        creationMode: CreateProjectModes.GitLab,
-        almSetting: selectedAlmInstance.key,
-        monorepo: false,
-        projects: [{ gitlabProjectId }],
-      });
-    }
-  };
-
-  handleLoadMore = async () => {
-    this.setState({ loadingMore: true });
-
-    const {
-      projectsPaging: { pageIndex },
-      searchQuery,
-    } = this.state;
-
-    const result = await this.fetchProjects(pageIndex + 1, searchQuery);
-    if (this.mounted) {
-      this.setState(({ projects = [], projectsPaging }) => ({
-        loadingMore: false,
-        projects: result ? [...projects, ...result.projects] : projects,
-        projectsPaging: result ? result.projectsPaging : projectsPaging,
-      }));
-    }
-  };
-
-  handleSearch = async (searchQuery: string) => {
-    this.setState({ searching: true, searchQuery });
-
-    const result = await this.fetchProjects(1, searchQuery);
-    if (this.mounted) {
-      this.setState(({ projects, projectsPaging }) => ({
-        searching: false,
-        projects: result ? result.projects : projects,
-        projectsPaging: result ? result.projectsPaging : projectsPaging,
-      }));
-    }
-  };
-
-  cleanUrl = () => {
-    const { location, router } = this.props;
+  const cleanUrl = useCallback(() => {
     delete location.query.resetPat;
     router.replace(location);
-  };
+  }, [location, router]);
 
-  handlePersonalAccessTokenCreated = () => {
-    this.cleanUrl();
-    this.setState({ showPersonalAccessTokenForm: false, resetPat: false }, () => {
-      this.fetchInitialData();
-    });
-  };
+  const handlePersonalAccessTokenCreated = useCallback(() => {
+    cleanUrl();
+    setShowPersonalAccessTokenForm(false);
+    setResetPersonalAccessToken(false);
+    fetchInitialData();
+  }, [cleanUrl, fetchInitialData]);
 
-  onSelectedAlmInstanceChange = (instance: AlmSettingsInstance) => {
-    this.setState({
-      selectedAlmInstance: instance,
-      showPersonalAccessTokenForm: true,
-      projects: undefined,
-      resetPat: false,
-      searchQuery: '',
-    });
-  };
+  const handleImportRepository = useCallback(
+    (gitlabProjectId: string) => {
+      if (selectedDopSetting) {
+        onProjectSetupDone({
+          almSetting: selectedDopSetting.key,
+          creationMode: CreateProjectModes.GitLab,
+          monorepo: false,
+          projects: [{ gitlabProjectId }],
+        });
+      }
+    },
+    [onProjectSetupDone, selectedDopSetting],
+  );
 
-  render() {
-    const { loadingBindings, location, almInstances, canAdmin } = this.props;
-    const {
-      loading,
-      loadingMore,
-      projects,
-      projectsPaging,
-      resetPat,
-      searching,
-      searchQuery,
-      selectedAlmInstance,
-      showPersonalAccessTokenForm,
-    } = this.state;
+  const handleLoadMore = useCallback(async () => {
+    setIsLoadingMoreRepositories(true);
+    const result = await fetchProjects(repositoryPaging.pageIndex + 1, searchQuery);
+    if (result?.projects) {
+      setRepositoryPaging(result ? result.projectsPaging : repositoryPaging);
+      setRepositories(result ? [...repositories, ...result.projects] : repositories);
+    }
+    setIsLoadingMoreRepositories(false);
+  }, [fetchProjects, repositories, repositoryPaging, searchQuery]);
 
-    return (
-      <GitlabProjectCreateRenderer
-        canAdmin={canAdmin}
-        almInstances={almInstances}
-        selectedAlmInstance={selectedAlmInstance}
-        loading={loading || loadingBindings}
-        loadingMore={loadingMore}
-        onImport={this.handleImport}
-        onLoadMore={this.handleLoadMore}
-        onPersonalAccessTokenCreated={this.handlePersonalAccessTokenCreated}
-        onSearch={this.handleSearch}
-        projects={projects}
-        projectsPaging={projectsPaging}
-        resetPat={resetPat || Boolean(location.query.resetPat)}
-        searching={searching}
-        searchQuery={searchQuery}
-        showPersonalAccessTokenForm={
-          showPersonalAccessTokenForm || Boolean(location.query.resetPat)
+  const handleSelectRepository = useCallback(
+    (repositoryKey: string) => {
+      setSelectedRepository(repositories.find(({ id }) => id === repositoryKey));
+    },
+    [repositories],
+  );
+
+  const onSelectDopSetting = useCallback((setting: DopSetting | undefined) => {
+    setSelectedDopSetting(setting);
+    setShowPersonalAccessTokenForm(true);
+    setRepositories([]);
+    setSearchQuery('');
+  }, []);
+
+  const onSelectedAlmInstanceChange = useCallback(
+    (instance: AlmInstanceBase) => {
+      onSelectDopSetting(dopSettings.find((dopSetting) => dopSetting.key === instance.key));
+    },
+    [dopSettings, onSelectDopSetting],
+  );
+
+  useEffect(() => {
+    if (dopSettings.length > 0) {
+      setSelectedDopSetting(dopSettings[0]);
+      return;
+    }
+
+    setSelectedDopSetting(undefined);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hasDopSettings]);
+
+  useEffect(() => {
+    if (selectedDopSetting) {
+      fetchInitialData();
+    }
+  }, [fetchInitialData, selectedDopSetting]);
+
+  useEffect(() => {
+    repositorySearchDebounceId.current = setTimeout(async () => {
+      const result = await fetchProjects(1, searchQuery);
+      if (result?.projects) {
+        setRepositories(orderBy(result.projects, [(res) => res.name.toLowerCase()], ['asc']));
+        setRepositoryPaging(result.projectsPaging);
+      }
+    }, REPOSITORY_SEARCH_DEBOUNCE_TIME);
+
+    return () => {
+      clearTimeout(repositorySearchDebounceId.current);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchQuery]);
+
+  return isMonorepoSetup ? (
+    <MonorepoProjectCreate
+      canAdmin={canAdmin}
+      dopSettings={dopSettings}
+      error={false}
+      loadingBindings={isLoadingBindings}
+      loadingOrganizations={false}
+      loadingRepositories={isLoadingRepositories}
+      onProjectSetupDone={onProjectSetupDone}
+      onSearchRepositories={setSearchQuery}
+      onSelectDopSetting={onSelectDopSetting}
+      onSelectRepository={handleSelectRepository}
+      personalAccessTokenComponent={
+        !isLoadingRepositories &&
+        selectedDopSetting && (
+          <GitlabPersonalAccessTokenForm
+            almSetting={selectedDopSetting}
+            resetPat={resetPersonalAccessToken}
+            onPersonalAccessTokenCreated={handlePersonalAccessTokenCreated}
+          />
+        )
+      }
+      repositoryOptions={repositoryOptions}
+      repositorySearchQuery={searchQuery}
+      selectedDopSetting={selectedDopSetting}
+      selectedRepository={selectedRepository ? transformToOption(selectedRepository) : undefined}
+      showPersonalAccessToken={showPersonalAccessTokenForm || Boolean(location.query.resetPat)}
+    />
+  ) : (
+    <GitlabProjectCreateRenderer
+      almInstances={dopSettings.map((dopSetting) => ({
+        alm: dopSetting.type,
+        key: dopSetting.key,
+        url: dopSetting.url,
+      }))}
+      canAdmin={canAdmin}
+      loading={isLoadingRepositories || isLoadingBindings}
+      loadingMore={isLoadingMoreRepositories}
+      onImport={handleImportRepository}
+      onLoadMore={handleLoadMore}
+      onPersonalAccessTokenCreated={handlePersonalAccessTokenCreated}
+      onSearch={setSearchQuery}
+      onSelectedAlmInstanceChange={onSelectedAlmInstanceChange}
+      projects={repositories}
+      projectsPaging={repositoryPaging}
+      resetPat={resetPersonalAccessToken || Boolean(location.query.resetPat)}
+      searching={isLoadingRepositories}
+      searchQuery={searchQuery}
+      selectedAlmInstance={
+        selectedDopSetting && {
+          alm: selectedDopSetting.type,
+          key: selectedDopSetting.key,
+          url: selectedDopSetting.url,
         }
-        onSelectedAlmInstanceChange={this.onSelectedAlmInstanceChange}
-      />
-    );
-  }
+      }
+      showPersonalAccessTokenForm={showPersonalAccessTokenForm || Boolean(location.query.resetPat)}
+    />
+  );
+}
+
+function transformToOption({ id, name }: GitlabProject): LabelValueSelectOption<string> {
+  return { value: id, label: name };
 }

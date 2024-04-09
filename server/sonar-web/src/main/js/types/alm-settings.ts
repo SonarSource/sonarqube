@@ -130,8 +130,11 @@ export interface GitlabProjectAlmBindingParams extends ProjectAlmBindingParams {
   repository?: string;
 }
 
-export interface AlmSettingsInstance {
+export interface AlmSettingsInstance extends AlmInstanceBase {
   alm: AlmKeys;
+}
+
+export interface AlmInstanceBase {
   key: string;
   url?: string;
 }

@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { FlagMessage, InputSearch, LightPrimary, Link } from 'design-system';
+import { FlagMessage, InputSearch, LightPrimary } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import ListFooter from '../../../../components/controls/ListFooter';
@@ -29,6 +29,7 @@ import { GitlabProject } from '../../../../types/alm-integration';
 import { Paging } from '../../../../types/types';
 import AlmRepoItem from '../components/AlmRepoItem';
 import { CreateProjectModes } from '../types';
+import { Link } from '@sonarsource/echoes-react';
 
 export interface GitlabProjectSelectionFormProps {
   loadingMore: boolean;
@@ -41,7 +42,9 @@ export interface GitlabProjectSelectionFormProps {
   searchQuery: string;
 }
 
-export default function GitlabProjectSelectionForm(props: GitlabProjectSelectionFormProps) {
+export default function GitlabProjectSelectionForm(
+  props: Readonly<GitlabProjectSelectionFormProps>,
+) {
   const { loadingMore, projects = [], projectsPaging, searching, searchQuery } = props;
 
   if (projects.length === 0 && searchQuery.length === 0 && !searching) {

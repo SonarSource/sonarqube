@@ -17,35 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Link, LinkHighlight, LinkStandalone, Spinner } from '@sonarsource/echoes-react';
-import {
-  AddNewIcon,
-  BlueGreySeparator,
-  ButtonPrimary,
-  ButtonSecondary,
-  DarkLabel,
-  FlagMessage,
-  InputSelect,
-  SubTitle,
-  Title,
-} from 'design-system';
+import { Spinner } from '@sonarsource/echoes-react';
+import { BlueGreySeparator, ButtonPrimary, ButtonSecondary } from 'design-system';
 import React, { useEffect, useRef } from 'react';
-import { FormattedMessage, useIntl } from 'react-intl';
+import { FormattedMessage } from 'react-intl';
 import { getComponents } from '../../../../api/project-management';
 import { useLocation, useRouter } from '../../../../components/hoc/withRouter';
 import { throwGlobalError } from '../../../../helpers/error';
-import { translate } from '../../../../helpers/l10n';
 import { LabelValueSelectOption } from '../../../../helpers/search';
-import { getProjectUrl } from '../../../../helpers/urls';
 import { useProjectBindingsQuery } from '../../../../queries/dop-translation';
 import { AlmKeys } from '../../../../types/alm-settings';
 import { DopSetting } from '../../../../types/dop-translation';
 import { ImportProjectParam } from '../CreateProjectPage';
-import DopSettingDropdown from '../components/DopSettingDropdown';
-import { ProjectData, ProjectValidationCard } from '../components/ProjectValidation';
+import { ProjectData } from '../components/ProjectValidation';
 import { CreateProjectModes } from '../types';
 import { getSanitizedProjectKey } from '../utils';
 import { MonorepoProjectHeader } from './MonorepoProjectHeader';
+import { MonorepoConnectionSelector } from './MonorepoConnectionSelector';
+import { MonorepoProjectsList } from './MonorepoProjectsList';
 
 interface MonorepoProjectCreateProps {
   canAdmin: boolean;
@@ -57,37 +46,29 @@ interface MonorepoProjectCreateProps {
   onProjectSetupDone: (importProjects: ImportProjectParam) => void;
   onSearchRepositories: (query: string) => void;
   onSelectDopSetting: (instance: DopSetting) => void;
-  onSelectOrganization: (organizationKey: string) => void;
-  onSelectRepository: (repositoryIdentifier: string) => void;
+  onSelectOrganization?: (organizationKey: string) => void;
+  onSelectRepository: (repositoryKey: string) => void;
   organizationOptions?: LabelValueSelectOption[];
+  personalAccessTokenComponent?: React.ReactNode;
   repositoryOptions?: LabelValueSelectOption[];
   repositorySearchQuery: string;
   selectedDopSetting?: DopSetting;
   selectedOrganization?: LabelValueSelectOption;
   selectedRepository?: LabelValueSelectOption;
+  showOrganizations?: boolean;
+  showPersonalAccessToken?: boolean;
 }
 
 type ProjectItem = Required<ProjectData<number>>;
 
 export default function MonorepoProjectCreate(props: Readonly<MonorepoProjectCreateProps>) {
   const {
-    dopSettings,
-    canAdmin,
-    error,
     loadingBindings,
-    loadingOrganizations,
-    loadingRepositories,
     onProjectSetupDone,
-    onSearchRepositories,
-    onSelectDopSetting,
-    onSelectOrganization,
-    onSelectRepository,
-    organizationOptions,
-    repositoryOptions,
-    repositorySearchQuery,
     selectedDopSetting,
     selectedOrganization,
     selectedRepository,
+    showOrganizations = false,
   } = props;
 
   const projectCounter = useRef(0);
@@ -99,7 +80,6 @@ export default function MonorepoProjectCreate(props: Readonly<MonorepoProjectCre
 
   const location = useLocation();
   const { push } = useRouter();
-  const { formatMessage } = useIntl();
 
   const projectKeys = React.useMemo(() => projects.map(({ key }) => key), [projects]);
   const {
@@ -116,24 +96,26 @@ export default function MonorepoProjectCreate(props: Readonly<MonorepoProjectCre
 
   const almKey = location.query.mode as AlmKeys;
 
+  const isOptionSelectionInvalid =
+    (showOrganizations && selectedOrganization === undefined) || selectedRepository === undefined;
   const isSetupInvalid =
     selectedDopSetting === undefined ||
-    selectedOrganization === undefined ||
-    selectedRepository === undefined ||
+    isOptionSelectionInvalid ||
     projects.length === 0 ||
     projects.some(({ hasError, key, name }) => hasError || key === '' || name === '');
 
-  const addProject = () => {
-    if (selectedOrganization === undefined || selectedRepository === undefined) {
+  const onAddProject = React.useCallback(() => {
+    if (isOptionSelectionInvalid) {
       return;
     }
 
     const id = projectCounter.current;
     projectCounter.current += 1;
-
     const projectKeySuffix = id === 0 ? '' : `-${id}`;
     const projectKey = getSanitizedProjectKey(
-      `${selectedOrganization.label}_${selectedRepository.label}_add-your-reference${projectKeySuffix}`,
+      showOrganizations && selectedOrganization
+        ? `${selectedOrganization.label}_${selectedRepository.label}_add-your-reference${projectKeySuffix}`
+        : `${selectedRepository.label}_add-your-reference${projectKeySuffix}`,
     );
 
     const newProjects = [
@@ -148,28 +130,40 @@ export default function MonorepoProjectCreate(props: Readonly<MonorepoProjectCre
     ];
 
     setProjects(newProjects);
-  };
+  }, [
+    isOptionSelectionInvalid,
+    projects,
+    selectedOrganization,
+    selectedRepository,
+    showOrganizations,
+  ]);
 
-  const onProjectChange = (project: ProjectItem) => {
-    const newProjects = projects.filter(({ id }) => id !== project.id);
-    newProjects.push({
-      ...project,
-    });
-    newProjects.sort((a, b) => a.id - b.id);
+  const onChangeProject = React.useCallback(
+    (project: ProjectItem) => {
+      const newProjects = projects.filter(({ id }) => id !== project.id);
+      newProjects.push({
+        ...project,
+      });
+      newProjects.sort((a, b) => a.id - b.id);
 
-    setProjects(newProjects);
-  };
+      setProjects(newProjects);
+    },
+    [projects],
+  );
 
-  const onProjectRemove = (id: number) => {
-    const newProjects = projects.filter(({ id: projectId }) => projectId !== id);
+  const onRemoveProject = React.useCallback(
+    (id: number) => {
+      const newProjects = projects.filter(({ id: projectId }) => projectId !== id);
 
-    setProjects(newProjects);
-  };
+      setProjects(newProjects);
+    },
+    [projects],
+  );
 
   const cancelMonorepoSetup = () => {
     push({
       pathname: location.pathname,
-      query: { mode: AlmKeys.GitHub },
+      query: { mode: almKey },
     });
   };
 
@@ -194,7 +188,7 @@ export default function MonorepoProjectCreate(props: Readonly<MonorepoProjectCre
 
   useEffect(() => {
     if (selectedRepository !== undefined && projects.length === 0) {
-      addProject();
+      onAddProject();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedRepository]);
@@ -233,188 +227,25 @@ export default function MonorepoProjectCreate(props: Readonly<MonorepoProjectCre
 
       <BlueGreySeparator className="sw-my-5" />
 
-      <div className="sw-flex sw-flex-col sw-gap-6">
-        <Title>
-          <FormattedMessage
-            id={`onboarding.create_project.monorepo.choose_organization_and_repository.${almKey}`}
-          />
-        </Title>
-
-        <DopSettingDropdown
-          almKey={almKey}
-          dopSettings={dopSettings}
-          selectedDopSetting={selectedDopSetting}
-          onChangeSetting={onSelectDopSetting}
-        />
-
-        {error && selectedDopSetting && !loadingOrganizations && (
-          <FlagMessage variant="warning">
-            <span>
-              {canAdmin ? (
-                <FormattedMessage
-                  id="onboarding.create_project.github.warning.message_admin"
-                  defaultMessage={translate(
-                    'onboarding.create_project.github.warning.message_admin',
-                  )}
-                  values={{
-                    link: (
-                      <Link to="/admin/settings?category=almintegration">
-                        {translate('onboarding.create_project.github.warning.message_admin.link')}
-                      </Link>
-                    ),
-                  }}
-                />
-              ) : (
-                translate('onboarding.create_project.github.warning.message')
-              )}
-            </span>
-          </FlagMessage>
-        )}
-
-        <div className="sw-flex sw-flex-col">
-          <Spinner isLoading={loadingOrganizations && !error}>
-            {!error && (
-              <>
-                <DarkLabel htmlFor="monorepo-choose-organization" className="sw-mb-2">
-                  <FormattedMessage
-                    id={`onboarding.create_project.monorepo.choose_organization.${almKey}`}
-                  />
-                </DarkLabel>
-                {(organizationOptions?.length ?? 0) > 0 ? (
-                  <InputSelect
-                    size="full"
-                    isSearchable
-                    inputId="monorepo-choose-organization"
-                    options={organizationOptions}
-                    onChange={({ value }: LabelValueSelectOption) => {
-                      onSelectOrganization(value);
-                    }}
-                    placeholder={formatMessage({
-                      id: `onboarding.create_project.monorepo.choose_organization.${almKey}.placeholder`,
-                    })}
-                    value={selectedOrganization}
-                  />
-                ) : (
-                  !loadingOrganizations && (
-                    <FlagMessage variant="error" className="sw-mb-2">
-                      <span>
-                        {canAdmin ? (
-                          <FormattedMessage
-                            id="onboarding.create_project.github.no_orgs_admin"
-                            defaultMessage={translate(
-                              'onboarding.create_project.github.no_orgs_admin',
-                            )}
-                            values={{
-                              link: (
-                                <Link to="/admin/settings?category=almintegration">
-                                  {translate(
-                                    'onboarding.create_project.github.warning.message_admin.link',
-                                  )}
-                                </Link>
-                              ),
-                            }}
-                          />
-                        ) : (
-                          translate('onboarding.create_project.github.no_orgs')
-                        )}
-                      </span>
-                    </FlagMessage>
-                  )
-                )}
-              </>
-            )}
-          </Spinner>
-        </div>
-
-        <div className="sw-flex sw-flex-col">
-          {selectedOrganization && (
-            <DarkLabel className="sw-mb-2" htmlFor="monorepo-choose-repository">
-              <FormattedMessage
-                id={`onboarding.create_project.monorepo.choose_repository.${almKey}`}
-              />
-            </DarkLabel>
-          )}
-          {selectedOrganization && (
-            <>
-              <InputSelect
-                inputId="monorepo-choose-repository"
-                inputValue={repositorySearchQuery}
-                isLoading={loadingRepositories}
-                isSearchable
-                noOptionsMessage={() => formatMessage({ id: 'no_results' })}
-                onChange={({ value }: LabelValueSelectOption) => {
-                  onSelectRepository(value);
-                }}
-                onInputChange={onSearchRepositories}
-                options={repositoryOptions}
-                placeholder={formatMessage({
-                  id: `onboarding.create_project.monorepo.choose_repository.${almKey}.placeholder`,
-                })}
-                size="full"
-                value={selectedRepository}
-              />
-              {selectedRepository &&
-                !isLoadingAlreadyBoundProjects &&
-                !isFetchingAlreadyBoundProjects && (
-                  <FlagMessage className="sw-mt-2" variant="info">
-                    {alreadyBoundProjects.length === 0 ? (
-                      <FormattedMessage id="onboarding.create_project.monorepo.choose_repository.no_already_bound_projects" />
-                    ) : (
-                      <div>
-                        <FormattedMessage id="onboarding.create_project.monorepo.choose_repository.existing_already_bound_projects" />
-                        <ul className="sw-mt-4">
-                          {alreadyBoundProjects.map(({ projectId, projectName }) => (
-                            <li key={projectId}>
-                              <LinkStandalone
-                                to={getProjectUrl(projectId)}
-                                highlight={LinkHighlight.Subdued}
-                              >
-                                {projectName}
-                              </LinkStandalone>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-                  </FlagMessage>
-                )}
-            </>
-          )}
-        </div>
-      </div>
+      <MonorepoConnectionSelector
+        almKey={almKey}
+        alreadyBoundProjects={alreadyBoundProjects}
+        isFetchingAlreadyBoundProjects={isFetchingAlreadyBoundProjects}
+        isLoadingAlreadyBoundProjects={isLoadingAlreadyBoundProjects}
+        {...props}
+      />
 
       {selectedRepository !== undefined && (
         <>
           <BlueGreySeparator className="sw-my-5" />
 
-          <div>
-            <SubTitle>
-              <FormattedMessage id="onboarding.create_project.monorepo.project_title" />
-            </SubTitle>
-            <div>
-              {projects.map(({ id, key, name }) => (
-                <ProjectValidationCard
-                  className="sw-mt-4"
-                  initialKey={key}
-                  initialName={name}
-                  key={id}
-                  monorepoSetupProjectKeys={projectKeys}
-                  onChange={onProjectChange}
-                  onRemove={() => {
-                    onProjectRemove(id);
-                  }}
-                  projectId={id}
-                />
-              ))}
-            </div>
-
-            <div className="sw-flex sw-justify-end sw-mt-4">
-              <ButtonSecondary onClick={addProject}>
-                <AddNewIcon className="sw-mr-2" />
-                <FormattedMessage id="onboarding.create_project.monorepo.add_project" />
-              </ButtonSecondary>
-            </div>
-          </div>
+          <MonorepoProjectsList
+            projectKeys={projectKeys}
+            onAddProject={onAddProject}
+            onChangeProject={onChangeProject}
+            onRemoveProject={onRemoveProject}
+            projects={projects}
+          />
         </>
       )}
 

@@ -21,21 +21,21 @@ import { InputSelect, LabelValueSelectOption, Note } from 'design-system';
 import * as React from 'react';
 import { OptionProps, SingleValueProps, components } from 'react-select';
 import { translate } from '../../helpers/l10n';
-import { AlmSettingsInstance } from '../../types/alm-settings';
+import { AlmInstanceBase } from '../../types/alm-settings';
 
-function optionRenderer(props: OptionProps<LabelValueSelectOption<AlmSettingsInstance>, false>) {
+function optionRenderer(props: OptionProps<LabelValueSelectOption<AlmInstanceBase>, false>) {
   return <components.Option {...props}>{customOptions(props.data.value)}</components.Option>;
 }
 
 function singleValueRenderer(
-  props: SingleValueProps<LabelValueSelectOption<AlmSettingsInstance>, false>,
+  props: SingleValueProps<LabelValueSelectOption<AlmInstanceBase>, false>,
 ) {
   return (
     <components.SingleValue {...props}>{customOptions(props.data.value)}</components.SingleValue>
   );
 }
 
-function customOptions(instance: AlmSettingsInstance) {
+function customOptions(instance: AlmInstanceBase) {
   return instance.url ? (
     <>
       <span>{instance.key} — </span>
@@ -46,14 +46,14 @@ function customOptions(instance: AlmSettingsInstance) {
   );
 }
 
-function orgToOption(alm: AlmSettingsInstance) {
+function orgToOption(alm: AlmInstanceBase) {
   return { value: alm, label: alm.key };
 }
 
 interface Props {
-  instances: AlmSettingsInstance[];
+  instances: AlmInstanceBase[];
   initialValue?: string;
-  onChange: (instance: AlmSettingsInstance) => void;
+  onChange: (instance: AlmInstanceBase) => void;
   className: string;
   inputId: string;
 }
@@ -68,7 +68,7 @@ export default function AlmSettingsInstanceSelector(props: Props) {
       isClearable={false}
       isSearchable={false}
       options={instances.map(orgToOption)}
-      onChange={(data: LabelValueSelectOption<AlmSettingsInstance>) => {
+      onChange={(data: LabelValueSelectOption<AlmInstanceBase>) => {
         props.onChange(data.value);
       }}
       components={{
@@ -76,7 +76,7 @@ export default function AlmSettingsInstanceSelector(props: Props) {
         SingleValue: singleValueRenderer,
       }}
       placeholder={translate('alm.configuration.selector.placeholder')}
-      getOptionValue={(opt: LabelValueSelectOption<AlmSettingsInstance>) => opt.value.key}
+      getOptionValue={(opt: LabelValueSelectOption<AlmInstanceBase>) => opt.value.key}
       value={instances.map(orgToOption).find((opt) => opt.value.key === initialValue) ?? null}
       size="full"
     />

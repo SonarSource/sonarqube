@@ -18,14 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { AlmKeys } from './alm-settings';
+import { AlmInstanceBase, AlmKeys } from './alm-settings';
 
-export interface DopSetting {
+export interface DopSetting extends AlmInstanceBase {
   appId?: string;
   id: string;
-  key: string;
   type: AlmKeys;
-  url?: string;
 }
 
 export interface BoundProject {

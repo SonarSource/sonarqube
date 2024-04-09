@@ -20,7 +20,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { getGithubOrganizations, getGithubRepositories } from '../../../../api/alm-integrations';
 import { useLocation, useRouter } from '../../../../components/hoc/withRouter';
-import { LabelValueSelectOption } from '../../../../helpers/search';
 import { GithubOrganization, GithubRepository } from '../../../../types/alm-integration';
 import { AlmSettingsInstance } from '../../../../types/alm-settings';
 import { DopSetting } from '../../../../types/dop-translation';
@@ -30,6 +29,7 @@ import MonorepoProjectCreate from '../monorepo/MonorepoProjectCreate';
 import { CreateProjectModes } from '../types';
 import GitHubProjectCreateRenderer from './GitHubProjectCreateRenderer';
 import { redirectToGithub } from './utils';
+import { LabelValueSelectOption } from 'design-system';
 
 interface Props {
   canAdmin: boolean;
@@ -253,6 +253,7 @@ export default function GitHubProjectCreate(props: Readonly<Props>) {
       selectedDopSetting={selectedDopSetting}
       selectedOrganization={selectedOrganization && transformToOption(selectedOrganization)}
       selectedRepository={selectedRepository && transformToOption(selectedRepository)}
+      showOrganizations
     />
   ) : (
     <GitHubProjectCreateRenderer
@@ -290,6 +291,6 @@ export default function GitHubProjectCreate(props: Readonly<Props>) {
 function transformToOption({
   key,
   name,
-}: GithubOrganization | GithubRepository): LabelValueSelectOption {
+}: GithubOrganization | GithubRepository): LabelValueSelectOption<string> {
   return { value: key, label: name };
 }
