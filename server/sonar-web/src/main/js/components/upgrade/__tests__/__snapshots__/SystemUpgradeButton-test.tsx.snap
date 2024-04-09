@@ -1,5 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`should not show button if there are no upgrades 1`] = `""`;
+
 exports[`should open modal correctly 1`] = `
 <Fragment>
   <Button

@@ -48,6 +48,11 @@ export default class SystemUpgradeButton extends React.PureComponent<Props, Stat
   render() {
     const { latestLTS, systemUpgrades, updateUseCase } = this.props;
     const { openSystemUpgradeForm } = this.state;
+
+    if (systemUpgrades.length === 0) {
+      return null;
+    }
+
     return (
       <>
         <Button className="spacer-left" onClick={this.handleOpenSystemUpgradeForm}>

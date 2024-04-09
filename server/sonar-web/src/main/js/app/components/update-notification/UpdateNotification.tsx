@@ -23,7 +23,8 @@ import { getSystemUpgrades } from '../../../api/system';
 import { Alert, AlertVariant } from '../../../components/ui/Alert';
 import DismissableAlert from '../../../components/ui/DismissableAlert';
 import SystemUpgradeButton from '../../../components/upgrade/SystemUpgradeButton';
-import { sortUpgrades, UpdateUseCase } from '../../../components/upgrade/utils';
+import { UpdateUseCase, sortUpgrades } from '../../../components/upgrade/utils';
+import { now, parseDate } from '../../../helpers/dates';
 import { translate } from '../../../helpers/l10n';
 import { hasGlobalPermission } from '../../../helpers/users';
 import { AppState } from '../../../types/appstate';
@@ -158,7 +159,7 @@ export class UpdateNotification extends React.PureComponent<Props, State> {
 
     const { upgrades, latestLTS } = await getSystemUpgrades();
 
-    if (isEmpty(upgrades)) {
+    if (isEmpty(upgrades) && parseDate(this.props.appState.versionEOL) > now()) {
       // No new upgrades
       this.noPromptToShow();
       return;
@@ -177,7 +178,9 @@ export class UpdateNotification extends React.PureComponent<Props, State> {
 
     let useCase = UpdateUseCase.NewMinorVersion;
 
-    if (this.isPreviousLTSUpdate(parsedVersion, latestLTS, systemUpgrades)) {
+    if (parseDate(this.props.appState.versionEOL) <= now()) {
+      useCase = UpdateUseCase.PreviousLTS;
+    } else if (this.isPreviousLTSUpdate(parsedVersion, latestLTS, systemUpgrades)) {
       useCase = UpdateUseCase.PreviousLTS;
     } else if (this.isPreLTSUpdate(parsedVersion, latestLTS)) {
       useCase = UpdateUseCase.PreLTS;
@@ -193,7 +196,7 @@ export class UpdateNotification extends React.PureComponent<Props, State> {
         new Date(upgrade1.releaseDate || '').getTime()
     )[0];
 
-    const dismissKey = useCase + latest.version;
+    const dismissKey = useCase + latest?.version;
 
     if (this.mounted) {
       this.setState({
