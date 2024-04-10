@@ -1,6 +1,14 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`should not show button if there are no upgrades 1`] = `""`;
+exports[`should not show button if there are no upgrades 1`] = `
+<ForwardRef(Link)
+  className="spacer-left"
+  target="_blank"
+  to="https://www.sonarqube.org/downloads/?referrer=sonarqube"
+>
+  learn_more
+</ForwardRef(Link)>
+`;
 
 exports[`should open modal correctly 1`] = `
 <Fragment>
