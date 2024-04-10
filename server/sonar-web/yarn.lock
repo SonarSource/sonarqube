@@ -4533,13 +4533,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@sonarsource/echoes-react@npm:0.1.3":
-  version: 0.1.3
-  resolution: "@sonarsource/echoes-react@npm:0.1.3"
+"@sonarsource/echoes-react@npm:0.2.0":
+  version: 0.2.0
+  resolution: "@sonarsource/echoes-react@npm:0.2.0"
   dependencies:
-    "@primer/octicons-react": "npm:19.8.0"
     "@radix-ui/react-checkbox": "npm:1.0.4"
     "@radix-ui/react-radio-group": "npm:1.1.3"
+    material-symbols: "npm:0.17.0"
   peerDependencies:
     "@emotion/react": ^11.0.0
     "@emotion/styled": ^11.0.0
@@ -4547,7 +4547,7 @@ __metadata:
     react-dom: ^17.0.0 || ^18.0.0
     react-intl: ^6.0.0
     react-router-dom: ^6.0.0
-  checksum: 10/2e10f1f77a720956f8ead9caa418abc15d54ba316c7086798d6b46187d146d98b4a54c0f362bd6e87d4d2e2b01e0e13744a6661461bb54024cc7612748a9b3c6
+  checksum: 10/e2effc89f5bfa673a71e80bfbbfdbdc56364fe50595406410e2bd1000c7351041a280d0774866b557bc1cf2145d3a0e433aa78e36a6074b35a798ad425d06e88
   languageName: node
   linkType: hard
 
@@ -5749,7 +5749,7 @@ __metadata:
     "@primer/octicons-react": "npm:19.8.0"
     "@react-spring/rafz": "npm:9.7.3"
     "@react-spring/web": "npm:9.7.3"
-    "@sonarsource/echoes-react": "npm:0.1.3"
+    "@sonarsource/echoes-react": "npm:0.2.0"
     "@swc/core": "npm:1.4.0"
     "@swc/jest": "npm:0.2.36"
     "@tanstack/react-query": "npm:5.18.1"
@@ -11696,6 +11696,13 @@ __metadata:
   dependencies:
     tmpl: "npm:1.0.5"
   checksum: 10/4c66ddfc654537333da952c084f507fa4c30c707b1635344eb35be894d797ba44c901a9cebe914aa29a7f61357543ba09b09dddbd7f65b4aee756b450f169f40
+  languageName: node
+  linkType: hard
+
+"material-symbols@npm:0.17.0":
+  version: 0.17.0
+  resolution: "material-symbols@npm:0.17.0"
+  checksum: 10/d432e18203d38b83a645783b03ac4b321d30cd6a8bec1aae5e47fccf4340387d4f7bc703d3aebb5a25639c316bb04f2027518e592869361d8bfbbd46ca8c9835
   languageName: node
   linkType: hard
 
