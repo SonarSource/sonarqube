@@ -39,6 +39,7 @@ jest.mock('../../../api/system', () => ({
 const ui = {
   updateMessage: byRole('alert'),
   openDialogBtn: byRole('button', { name: 'learn_more' }),
+  learnMoreLink: byRole('link', { name: /learn_more/ }),
   dialog: byRole('dialog', { name: 'system.system_upgrade' }),
   latestHeader: byRole('heading', { name: /system.latest_version/ }),
   latestLTAHeader: byRole('heading', { name: /system.lta_version/ }),
@@ -83,6 +84,7 @@ it('should show error message if upgrades call failed and the version has reache
     `admin_notification.update.${UpdateUseCase.CurrentVersionInactive}`,
   );
   expect(ui.openDialogBtn.query()).not.toBeInTheDocument();
+  expect(ui.learnMoreLink.get()).toBeInTheDocument();
 });
 
 it('should not show the notification banner if there is no network connection and version has not reached the eol', () => {
@@ -106,6 +108,7 @@ it('should show the error banner if there is no network connection and version h
     `admin_notification.update.${UpdateUseCase.CurrentVersionInactive}`,
   );
   expect(ui.openDialogBtn.query()).not.toBeInTheDocument();
+  expect(ui.learnMoreLink.get()).toBeInTheDocument();
 });
 
 it('active / latest / patch', async () => {

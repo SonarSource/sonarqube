@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Link } from '@sonarsource/echoes-react';
 import { ButtonSecondary } from 'design-system';
 import * as React from 'react';
 import { translate } from '../../helpers/l10n';
@@ -44,7 +45,15 @@ export default function SystemUpgradeButton(props: Readonly<Props>) {
   }, [setSystemUpgradeFormOpen]);
 
   if (systemUpgrades.length === 0) {
-    return null;
+    return (
+      <Link
+        className="sw-ml-2"
+        to="https://www.sonarsource.com/products/sonarqube/downloads/?referrer=sonarqube"
+        target="_blank"
+      >
+        {translate('learn_more')}
+      </Link>
+    );
   }
 
   return (
