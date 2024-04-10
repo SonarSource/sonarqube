@@ -74,13 +74,16 @@ public final class LoggingConfiguration {
   }
 
   public LoggingConfiguration setVerbose(Map<String, String> props) {
+    verbose = isVerboseEnabled(props);
+    return setVerbose(verbose);
+  }
+
+  public static boolean isVerboseEnabled(Map<String, String> props) {
     String logLevel = props.get("sonar.log.level");
     String deprecatedProfilingLevel = props.get("sonar.log.profilingLevel");
-    verbose = "true".equals(props.get("sonar.verbose")) ||
+    return "true".equals(props.get("sonar.verbose")) ||
       "DEBUG".equals(logLevel) || "TRACE".equals(logLevel) ||
       "BASIC".equals(deprecatedProfilingLevel) || "FULL".equals(deprecatedProfilingLevel);
-
-    return setVerbose(verbose);
   }
 
   public LoggingConfiguration setRootLevel(String level) {

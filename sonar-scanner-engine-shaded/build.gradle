@@ -9,3 +9,11 @@ apply plugin: 'com.github.johnrengelman.shadow'
 dependencies {
   api project(':sonar-scanner-engine')
 }
+
+jar {
+  manifest {
+    attributes(
+      'Main-Class' : "org.sonar.scanner.bootstrap.ScannerMain"
+    )
+  }
+}

@@ -61,8 +61,9 @@ dependencies {
   testImplementation 'org.hamcrest:hamcrest-core'
   testImplementation 'org.mockito:mockito-core'
   testImplementation 'org.mockito:mockito-junit-jupiter'
-  api 'org.sonarsource.api.plugin:sonar-plugin-api-test-fixtures'
+  testImplementation 'org.sonarsource.api.plugin:sonar-plugin-api-test-fixtures'
   testImplementation project(':plugins:sonar-xoo-plugin')
+  testImplementation 'org.wiremock:wiremock-standalone'
 
   testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
   testRuntimeOnly 'org.junit.vintage:junit-vintage-engine'

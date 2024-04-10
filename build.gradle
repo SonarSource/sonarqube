@@ -461,6 +461,7 @@ subprojects {
       dependency 'javax.el:javax.el-api:3.0.0'
       dependency 'org.glassfish:jakarta.el:3.0.4'
       dependency 'org.kohsuke:github-api:1.318'
+      dependency 'org.wiremock:wiremock-standalone:3.5.2'
 
       // please keep this list alphabetically ordered
     }

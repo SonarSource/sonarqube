@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <configuration debug="false">
+  <include resource="logback-shared.xml"/>
 
   <!--
   
@@ -17,27 +18,6 @@
       <pattern>${FORMAT}</pattern>
     </encoder>
   </appender>
-
-  <!-- BeanUtils generate too many DEBUG logs when sonar.verbose is set -->
-  <logger name="org.apache.commons.beanutils.converters" level="WARN"/>
-
-  <!-- FileSnapshot generate too many DEBUG logs when sonar.verbose is set -->
-  <logger name="org.eclipse.jgit.internal.storage.file" level="INFO"/>
-
-  <!-- Spring generates too many DEBUG logs when sonar.verbose is set -->
-  <logger name="org.springframework" level="INFO"/>
-
-  <!-- AbstractApplicationContext generate too verbose warning if warn is Enabled -->
-  <logger name="org.springframework.context.annotation.AnnotationConfigApplicationContext" level="ERROR"/>
-
-  <logger name="org.sonar.core.platform.PriorityBeanFactory" level="INFO"/>
-
-  <!-- sonar.showSql -->
-  <!-- see also org.sonar.db.MyBatis#configureLogback() -->
-  <logger name="org.mybatis" level="${SQL_LOGGER_LEVEL:-WARN}"/>
-  <logger name="org.apache.ibatis" level="${SQL_LOGGER_LEVEL:-WARN}"/>
-  <logger name="java.sql" level="${SQL_LOGGER_LEVEL:-WARN}"/>
-  <logger name="java.sql.ResultSet" level="WARN"/>
 
   <root level="${ROOT_LOGGER_LEVEL}">
     <!-- sonar.verbose -->
