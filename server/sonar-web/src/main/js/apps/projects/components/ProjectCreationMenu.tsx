@@ -17,9 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { IconChevronDown } from '@sonarsource/echoes-react';
 import {
   ButtonSecondary,
-  ChevronDownIcon,
   Dropdown,
   ItemDivider,
   ItemLink,
@@ -46,11 +47,11 @@ interface State {
 }
 
 const almSettingsValidators = {
-  [AlmKeys.Azure]: (settings: AlmSettingsInstance) => !!settings.url,
-  [AlmKeys.BitbucketServer]: (_: AlmSettingsInstance) => true,
+  [AlmKeys.Azure]: (settings: AlmSettingsInstance) => Boolean(settings.url),
   [AlmKeys.BitbucketCloud]: (_: AlmSettingsInstance) => true,
+  [AlmKeys.BitbucketServer]: (_: AlmSettingsInstance) => true,
   [AlmKeys.GitHub]: (_: AlmSettingsInstance) => true,
-  [AlmKeys.GitLab]: (settings: AlmSettingsInstance) => !!settings.url,
+  [AlmKeys.GitLab]: (settings: AlmSettingsInstance) => Boolean(settings.url),
 };
 
 export class ProjectCreationMenu extends React.PureComponent<Props, State> {
@@ -84,6 +85,7 @@ export class ProjectCreationMenu extends React.PureComponent<Props, State> {
 
     const boundAlms = IMPORT_COMPATIBLE_ALMS.filter((key) => {
       const currentAlmSettings = almSettings.filter((s) => s.alm === key);
+
       return (
         currentAlmSettings.length > 0 &&
         key === currentAlmSettings[0].alm &&
@@ -111,9 +113,6 @@ export class ProjectCreationMenu extends React.PureComponent<Props, State> {
     return (
       <Dropdown
         id="project-creation-menu"
-        size="auto"
-        placement={PopupPlacement.BottomRight}
-        zLevel={PopupZLevel.Global}
         overlay={
           <>
             {[...boundAlms, 'manual'].map((alm) => (
@@ -122,6 +121,7 @@ export class ProjectCreationMenu extends React.PureComponent<Props, State> {
             {boundAlms.length < IMPORT_COMPATIBLE_ALMS.length && (
               <>
                 <ItemDivider />
+
                 <ItemLink to={{ pathname: '/projects/create' }}>
                   {boundAlms.length === 0
                     ? translate('my_account.add_project.more')
@@ -131,10 +131,14 @@ export class ProjectCreationMenu extends React.PureComponent<Props, State> {
             )}
           </>
         }
+        placement={PopupPlacement.BottomRight}
+        size="auto"
+        zLevel={PopupZLevel.Global}
       >
         <ButtonSecondary>
           {translate('projects.add')}
-          <ChevronDownIcon className="sw-ml-1" />
+
+          <IconChevronDown className="sw-ml-1" />
         </ButtonSecondary>
       </Dropdown>
     );

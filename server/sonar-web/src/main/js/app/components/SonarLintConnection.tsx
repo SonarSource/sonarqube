@@ -18,12 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { LinkStandalone } from '@sonarsource/echoes-react';
+import { IconCheck, LinkStandalone } from '@sonarsource/echoes-react';
 import {
   ButtonPrimary,
   Card,
   CardSeparator,
-  CheckIcon,
   ClipboardButton,
   InputField,
   ListItem,
@@ -100,7 +99,7 @@ export function SonarLintConnection({ currentUser }: Readonly<Props>) {
           </p>
           <p className="sw-mb-10">{translate('sonarlint-connection.request.description2')}</p>
 
-          <ButtonPrimary icon={<CheckIcon fill="currentColor" />} onClick={authorize}>
+          <ButtonPrimary icon={<IconCheck className="sw-mr-1" />} onClick={authorize}>
             {translate('sonarlint-connection.request.action')}
           </ButtonPrimary>
         </>

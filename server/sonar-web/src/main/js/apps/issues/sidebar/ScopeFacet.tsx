@@ -17,7 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { FacetBox, FacetItem, FileIcon, TestFileIcon } from 'design-system';
+
+import { IconFile, IconFileCode } from '@sonarsource/echoes-react';
+import { FacetBox, FacetItem } from 'design-system';
 import { without } from 'lodash';
 import * as React from 'react';
 import { SOURCE_SCOPES } from '../../../helpers/constants';
@@ -68,7 +70,12 @@ export function ScopeFacet(props: ScopeFacetProps) {
               <FacetItem
                 active={active}
                 className="it__search-navigator-facet"
-                icon={{ MAIN: <FileIcon />, TEST: <TestFileIcon /> }[scope]}
+                icon={
+                  {
+                    MAIN: <IconFile className="sw-mr-1" />,
+                    TEST: <IconFileCode className="sw-mr-1" />,
+                  }[scope]
+                }
                 key={scope}
                 name={translate('issue.scope', scope)}
                 onClick={(itemValue: string, multiple: boolean) => {

@@ -106,7 +106,7 @@ export const StyledText = styled.span`
   }
 `;
 
-const StyledMutedText = styled(StyledText)`
+export const StyledMutedText = styled(StyledText)`
   ${tw`sw-font-regular`};
   color: ${themeColor('dropdownMenuSubTitle')};
 `;

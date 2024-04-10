@@ -17,21 +17,31 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { BranchIcon, IconProps, MainBranchIcon, PullRequestIcon, ThemeColors } from 'design-system';
+
+import { IconBranch, IconGitBranch, IconProps, IconPullrequest } from '@sonarsource/echoes-react';
+import { StyledMutedText } from 'design-system';
 import * as React from 'react';
 import { isMainBranch, isPullRequest } from '../../helpers/branch-like';
 import { BranchLike } from '../../types/branch-like';
 
-export interface BranchLikeIconProps extends Omit<IconProps, 'fill'> {
+export interface BranchLikeIconProps extends IconProps {
   branchLike: BranchLike;
-  fill?: ThemeColors;
 }
 
 export default function BranchLikeIcon({ branchLike, ...props }: Readonly<BranchLikeIconProps>) {
+  let Icon;
+
   if (isPullRequest(branchLike)) {
-    return <PullRequestIcon fill="pageContentLight" {...props} />;
+    Icon = IconPullrequest;
   } else if (isMainBranch(branchLike)) {
-    return <MainBranchIcon fill="pageContentLight" {...props} />;
+    Icon = IconBranch;
+  } else {
+    Icon = IconGitBranch;
   }
-  return <BranchIcon fill="pageContentLight" {...props} />;
+
+  return (
+    <StyledMutedText>
+      <Icon {...props} />
+    </StyledMutedText>
+  );
 }

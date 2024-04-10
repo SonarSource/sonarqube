@@ -17,7 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { BugIcon, CodeSmellIcon, FacetBox, FacetItem, VulnerabilityIcon } from 'design-system';
+
+import { IconBug, IconCodeSmell, IconVulnerability } from '@sonarsource/echoes-react';
+import { FacetBox, FacetItem } from 'design-system';
 import { orderBy, without } from 'lodash';
 import * as React from 'react';
 import { ISSUE_TYPES } from '../../../helpers/constants';
@@ -48,10 +50,12 @@ export class TypeFacet extends React.PureComponent<Props> {
 
   handleItemClick = (itemValue: string, multiple: boolean) => {
     const { types } = this.props;
+
     if (multiple) {
       const newValue = orderBy(
         types.includes(itemValue) ? without(types, itemValue) : [...types, itemValue],
       );
+
       this.props.onChange({ [this.property]: newValue });
     } else {
       this.props.onChange({
@@ -89,9 +93,9 @@ export class TypeFacet extends React.PureComponent<Props> {
         className="it__search-navigator-facet"
         icon={
           {
-            BUG: <BugIcon />,
-            CODE_SMELL: <CodeSmellIcon />,
-            VULNERABILITY: <VulnerabilityIcon />,
+            BUG: <IconBug className="sw-mr-1" />,
+            CODE_SMELL: <IconCodeSmell className="sw-mr-1" />,
+            VULNERABILITY: <IconVulnerability className="sw-mr-1" />,
           }[type]
         }
         key={type}

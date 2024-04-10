@@ -17,7 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { BranchIcon, PullRequestIcon, ToggleButton, getTabId, getTabPanelId } from 'design-system';
+
+import { IconGitBranch, IconPullrequest } from '@sonarsource/echoes-react';
+import { ToggleButton, getTabId, getTabPanelId } from 'design-system';
 import * as React from 'react';
 import { useState } from 'react';
 import {
@@ -52,7 +54,7 @@ const TABS = [
     value: Tabs.Branch,
     label: (
       <>
-        <BranchIcon />
+        <IconGitBranch />
         <span className="sw-ml-2">{translate('project_branch_pull_request.tabs.branches')}</span>
       </>
     ),
@@ -62,7 +64,7 @@ const TABS = [
     value: Tabs.PullRequest,
     label: (
       <>
-        <PullRequestIcon />
+        <IconPullrequest />
         <span className="sw-ml-2">
           {translate('project_branch_pull_request.tabs.pull_requests')}
         </span>

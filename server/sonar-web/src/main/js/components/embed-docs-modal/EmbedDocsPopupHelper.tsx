@@ -17,13 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import {
-  Dropdown,
-  InteractiveIcon,
-  MenuHelpIcon,
-  PopupPlacement,
-  PopupZLevel,
-} from 'design-system';
+
+import { IconQuestionMark } from '@sonarsource/echoes-react';
+import { Dropdown, InteractiveIcon, PopupPlacement, PopupZLevel } from 'design-system';
 import * as React from 'react';
 import { translate } from '../../helpers/l10n';
 import Tooltip from '../controls/Tooltip';
@@ -42,11 +38,9 @@ export default function EmbedDocsPopupHelper() {
         {({ onToggleClick, open }) => (
           <Tooltip mouseLeaveDelay={0.2} overlay={!open ? translate('help') : undefined}>
             <InteractiveIcon
-              Icon={MenuHelpIcon}
+              Icon={IconQuestionMark}
               aria-expanded={open}
-              iconProps={{
-                'data-guiding-id': 'issue-5',
-              }}
+              data-guiding-id="issue-5"
               aria-controls="help-menu-dropdown"
               aria-haspopup
               aria-label={translate('help')}

@@ -17,7 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { ProjectIcon, Spinner } from 'design-system';
+
+import { IconProject, Spinner } from '@sonarsource/echoes-react';
 import { omit } from 'lodash';
 import * as React from 'react';
 import { getTree, searchProjects } from '../../../api/components';
@@ -124,7 +125,7 @@ export function ProjectFacet(props: Readonly<Props>) {
 
   const renderSearchResult = (project: Pick<SearchedProject, 'name'>, term: string) => (
     <>
-      <ProjectIcon className="sw-mr-1" />
+      <IconProject className="sw-mr-1" />
 
       {highlightTerm(project.name, term)}
     </>
@@ -169,9 +170,9 @@ function ProjectItem({
 
   return (
     <div className="sw-flex sw-items-center">
-      <ProjectIcon className="sw-mr-1" />
+      <IconProject className="sw-mr-1" />
 
-      <Spinner loading={projectName === undefined && isLoading} />
+      <Spinner isLoading={projectName === undefined && isLoading} />
 
       <span className="sw-min-w-0 sw-truncate" title={label}>
         {label}
