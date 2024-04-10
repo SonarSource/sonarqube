@@ -17,8 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { CodeSnippet, NumberedListItem } from 'design-system';
+import { CodeSnippet, FlagMessage, NumberedListItem } from 'design-system';
 import * as React from 'react';
+import { FormattedMessage } from 'react-intl';
 import { Component } from '../../../types/types';
 import SentenceWithFilename from './SentenceWithFilename';
 
@@ -33,12 +34,17 @@ export default function DefaultProjectKey(props: DefaultProjectKeyProps) {
   const { component, monorepo } = props;
 
   return (
-    <NumberedListItem>
+    <NumberedListItem className="sw-mb-6">
       <SentenceWithFilename
         filename="sonar-project.properties"
         translationKey={`onboarding.tutorial.other.project_key${monorepo ? '.monorepo' : ''}`}
       />
       <CodeSnippet snippet={sonarProjectSnippet(component.key)} isOneLine className="sw-p-6" />
+      <div>
+        <FlagMessage variant="info">
+          <FormattedMessage id="onboarding.tutorial.other.project_key.monorepo.info" />
+        </FlagMessage>
+      </div>
     </NumberedListItem>
   );
 }

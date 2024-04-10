@@ -30,8 +30,7 @@ export default function MonorepoDocLinkFallback() {
     <NumberedListItem>
       <DocumentationLink className="sw-mt-4" to={MONOREPO_DOC}>
         {translate('onboarding.tutorial.with.github_action.monorepo.see_yaml_instructions')}
-      </DocumentationLink>{' '}
-      {translate('onboarding.tutorial.with.github_action.monorepo.pre_see_yaml_instructions')}
+      </DocumentationLink>
     </NumberedListItem>
   );
 }

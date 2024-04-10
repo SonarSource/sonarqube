@@ -28,10 +28,8 @@ import {
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { translate } from '../../../helpers/l10n';
-import { hasGlobalPermission } from '../../../helpers/users';
 import { useProjectBindingQuery } from '../../../queries/devops-integration';
 import { AlmSettingsInstance } from '../../../types/alm-settings';
-import { Permissions } from '../../../types/permissions';
 import { Component } from '../../../types/types';
 import { LoggedInUser } from '../../../types/users';
 import { InlineSnippet } from '../components/InlineSnippet';
@@ -86,38 +84,6 @@ export default function SecretStep(props: SecretStepProps) {
           />
           <InlineSnippet snippet="SONAR_TOKEN" className="sw-ml-1" />
           <ClipboardIconButton copyValue="SONAR_TOKEN" className="sw-ml-2 sw-align-sub" />
-          {monorepo && (
-            <FlagMessage variant="info" className="sw-block sw-w-fit sw-mt-4">
-              <FormattedMessage
-                defaultMessage={translate(
-                  'onboarding.tutorial.with.github_action.create_secret.monorepo_sonar_token',
-                )}
-                id="onboarding.tutorial.with.github_action.create_secret.monorepo_sonar_token"
-                values={{
-                  token_name: <InlineSnippet snippet="SONAR_TOKEN_1" className="sw-ml-1" />,
-                  global_secret: hasGlobalPermission(currentUser, Permissions.Scan) ? (
-                    <FormattedMessage
-                      defaultMessage={translate(
-                        'onboarding.tutorial.with.github_action.create_secret.monorepo_create_global_token',
-                      )}
-                      id="onboarding.tutorial.with.github_action.create_secret.monorepo_create_global_token"
-                      values={{
-                        link: (
-                          <Link to="/account/security" target="_blank" className="sw-mx-1">
-                            {translate(
-                              'onboarding.tutorial.with.github_action.create_secret.monorepo_create_global_token.link',
-                            )}
-                          </Link>
-                        ),
-                      }}
-                    />
-                  ) : (
-                    ''
-                  ),
-                }}
-              />
-            </FlagMessage>
-          )}
         </NumberedListItem>
         <NumberedListItem>
           <TokenStepGenerator component={component} currentUser={currentUser} />
@@ -127,6 +93,27 @@ export default function SecretStep(props: SecretStepProps) {
             translationKey="onboarding.tutorial.with.github_action.secret.add"
             highlightKeys={['add_secret']}
           />
+          {monorepo && (
+            <FlagMessage variant="info" className="sw-block sw-w-fit sw-mt-4">
+              <div>
+                <div>
+                  <FormattedMessage
+                    id="onboarding.tutorial.with.github_action.create_secret.monorepo_project_level_token_info"
+                    values={{
+                      link: (
+                        <Link to="/account/security">
+                          <FormattedMessage id="onboarding.tutorial.with.github_action.create_secret.monorepo_project_level_token_info.link" />
+                        </Link>
+                      ),
+                    }}
+                  />
+                </div>
+                <div className="sw-mt-2">
+                  <FormattedMessage id="onboarding.tutorial.with.github_action.create_secret.monorepo_global_token_info" />
+                </div>
+              </div>
+            </FlagMessage>
+          )}
         </NumberedListItem>
       </NumberedList>
       <BasicSeparator className="sw-my-6" />
@@ -167,11 +154,6 @@ export default function SecretStep(props: SecretStepProps) {
           />
         </NumberedListItem>
       </NumberedList>
-      {monorepo && (
-        <FlagMessage variant="info" className="sw-block sw-w-fit sw-mt-4">
-          {translate('onboarding.tutorial.with.github_action.create_secret.monorepo_info')}
-        </FlagMessage>
-      )}
     </>
   );
 }

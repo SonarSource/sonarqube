@@ -70,7 +70,9 @@ beforeEach(() => {
 const ui = {
   loading: byText('loading'),
   noScanRights: byText('onboarding.tutorial.no_scan_rights'),
-  monoRepoSecretInfo: byText('onboarding.tutorial.with.github_action.create_secret.monorepo_info'),
+  monoRepoSecretInfo: byText(
+    'onboarding.tutorial.with.github_action.create_secret.monorepo_project_level_token_info.link',
+  ),
   monoRepoYamlDocLink: byRole('link', {
     name: 'onboarding.tutorial.with.github_action.monorepo.see_yaml_instructions',
   }),
