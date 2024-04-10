@@ -21,4 +21,10 @@
 import { DotFillIcon as OcticonDotFillIcon } from '@primer/octicons-react';
 import { OcticonHoc } from './Icon';
 
+/** @deprecated Use IconDot with the isFilled prop from Echoes instead, if possible.
+ *
+ * Be aware that the full icon set is not yet available in Echoes, and therefore you may not be able
+ * to replace all of the icons yet. There are situations where it is OK to ignore this deprecation
+ * warning when revisiting old code, but all new code should use the icons from Echoes.
+ */
 export const DotFillIcon = OcticonHoc(OcticonDotFillIcon, 'DotFillIcon');

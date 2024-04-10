@@ -17,10 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import styled from '@emotion/styled';
 import { KebabHorizontalIcon } from '@primer/octicons-react';
 import { OcticonHoc } from './Icon';
 
+/** @deprecated Use IconMoreVertical from Echoes instead, if possible.
+ *
+ * Be aware that the full icon set is not yet available in Echoes, and therefore you may not be able
+ * to replace all of the icons yet. There are situations where it is OK to ignore this deprecation
+ * warning when revisiting old code, but all new code should use the icons from Echoes.
+ */
 export const MenuIcon = styled(OcticonHoc(KebabHorizontalIcon, 'MenuIcon'))`
   transform: rotate(90deg);
 `;

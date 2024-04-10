@@ -17,13 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import styled from '@emotion/styled';
 import { StarFillIcon as OcticonStarFillIcon } from '@primer/octicons-react';
 import { themeColor } from '../../helpers';
 import { OcticonHoc } from './Icon';
 
-// provide a default fill color that is different from the default icon
+/** @deprecated Use IconStar with the isFilled prop from Echoes instead, if possible.
+ *
+ * Be aware that the full icon set is not yet available in Echoes, and therefore you may not be able
+ * to replace all of the icons yet. There are situations where it is OK to ignore this deprecation
+ * warning when revisiting old code, but all new code should use the icons from Echoes.
+ */
 export const StarFillIcon = styled(OcticonHoc(OcticonStarFillIcon))`
+  // provide a default fill color that is different from the default icon
   fill: ${themeColor('iconFavorite')};
 `;
 

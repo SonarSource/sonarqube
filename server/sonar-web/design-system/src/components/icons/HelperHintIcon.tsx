@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { useTheme } from '@emotion/react';
 import { Fragment } from 'react';
 import { themeColor, themeContrast } from '../../helpers/theme';
@@ -26,6 +27,12 @@ type Props = IconProps & {
   raised?: boolean;
 };
 
+/** @deprecated Use IconQuestionMark from Echoes instead, if possible.
+ *
+ * Be aware that the full icon set is not yet available in Echoes, and therefore you may not be able
+ * to replace all of the icons yet. There are situations where it is OK to ignore this deprecation
+ * warning when revisiting old code, but all new code should use the icons from Echoes.
+ */
 export function HelperHintIcon({ raised, ...iconProps }: Props) {
   const theme = useTheme();
   return (

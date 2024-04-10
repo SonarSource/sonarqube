@@ -17,7 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { HomeIcon as OcticonHomeIcon } from '@primer/octicons-react';
 import { OcticonHoc } from './Icon';
 
+/** @deprecated Use IconHome from Echoes instead, if possible.
+ *
+ * Be aware that the full icon set is not yet available in Echoes, and therefore you may not be able
+ * to replace all of the icons yet. There are situations where it is OK to ignore this deprecation
+ * warning when revisiting old code, but all new code should use the icons from Echoes.
+ */
 export const HomeIcon = OcticonHoc(OcticonHomeIcon, 'HomeIcon');
