@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 export { AddNewIcon } from './AddNewIcon';
 export { BranchIcon } from './BranchIcon';
 export { BugIcon } from './BugIcon';
@@ -43,7 +44,6 @@ export { FlagInfoIcon } from './FlagInfoIcon';
 export { FlagSuccessIcon } from './FlagSuccessIcon';
 export { FlagWarningIcon } from './FlagWarningIcon';
 export { HelperHintIcon } from './HelperHintIcon';
-export { HighImpactCircleIcon } from './HighImpactCircleIcon';
 export { HomeFillIcon } from './HomeFillIcon';
 export { HomeIcon } from './HomeIcon';
 export * from './Icon';
@@ -60,14 +60,12 @@ export { NoDataIcon } from './NoDataIcon';
 export { OpenCloseIndicator } from './OpenCloseIndicator';
 export { OpenNewTabIcon } from './OpenNewTabIcon';
 export { OverridenIcon } from './OverridenIcon';
-export { OverviewQGNotComputedIcon } from './OverviewQGNotComputedIcon';
 export { OverviewQGPassedIcon } from './OverviewQGPassedIcon';
 export { PencilIcon } from './PencilIcon';
 export { PinIcon } from './PinIcon';
 export { ProjectIcon } from './ProjectIcon';
 export { PullRequestIcon } from './PullRequestIcon';
 export { QualifierIcon } from './QualifierIcon';
-export { RefreshIcon } from './RefreshIcon';
 export { RequiredIcon } from './RequiredIcon';
 export { SecurityHotspotIcon } from './SecurityHotspotIcon';
 export { SeparatorCircleIcon } from './SeparatorCircleIcon';
