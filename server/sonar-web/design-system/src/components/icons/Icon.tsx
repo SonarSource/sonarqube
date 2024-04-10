@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { useTheme } from '@emotion/react';
 import { OcticonProps } from '@primer/octicons-react';
 import React from 'react';
@@ -32,6 +33,21 @@ interface Props {
   description?: React.ReactNode;
 }
 
+/** @deprecated Use IconProps from Echoes instead.
+ *
+ * Some of the props have been dropped:
+ * - ~`aria-hidden`~ is now inferred from the absence of an `aria-label`
+ * - ~`data-guiding-id`~ is no longer passed down to the DOM, put it on a wrapper instead
+ * - ~`description`~ doesn't exist anymore
+ * - ~`fill`~ doesn't exist anymore, icon colors cannot be overrriden anymore, they take the color
+ *   of their surroundings (currentColor) or have an intrinsic color. If you need to change the
+ *   color, either make sure the wrapper has a color, or define a styled(MyIcon). Those cases should
+ *   be rare and happen only during the transition to Echoes icons.
+ * - ~`height`~ doesn't exist anymore, icons are sized based on the font-size of their parent
+ * - ~`transform`~ doesn't exist anymore
+ * - ~`viewbox`~ doesn't exist anymore, icons are sized based on the font-size of their parent
+ * - ~`width`~ doesn't exist anymore, icons are sized based on the font-size of their parent
+ */
 export interface IconProps extends Omit<Props, 'children'> {
   ['data-guiding-id']?: string;
   fill?: ThemeColors | CSSColor;
@@ -47,6 +63,7 @@ function convertRemToPixel(remString: string) {
   return Number(remString.replace('rem', '')) * PIXELS_IN_ONE_REM;
 }
 
+/** @deprecated Don't create new icons based on this, use the ones from Echoes instead. */
 export function CustomIcon(props: Props) {
   const {
     'aria-label': ariaLabel,
@@ -86,6 +103,7 @@ export function CustomIcon(props: Props) {
   );
 }
 
+/** @deprecated Don't create new icons based on this, use the ones from Echoes instead. */
 export function OcticonHoc(
   WrappedOcticon: React.ComponentType<React.PropsWithChildren<OcticonProps>>,
   displayName?: string,
