@@ -13,7 +13,7 @@
     "@primer/octicons-react": "19.8.0",
     "@react-spring/rafz": "9.7.3",
     "@react-spring/web": "9.7.3",
-    "@sonarsource/echoes-react": "0.2.0",
+    "@sonarsource/echoes-react": "0.2.1",
     "@tanstack/react-query": "5.18.1",
     "axios": "1.6.7",
     "classnames": "2.5.1",
