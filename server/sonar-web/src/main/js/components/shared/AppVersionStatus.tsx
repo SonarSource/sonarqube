@@ -34,12 +34,12 @@ export default function AppVersionStatus() {
       defaultMessage={translate('footer.version')}
       values={{
         version,
-        status: (
+        status: !isActive && (
           <DocLink
             to="/setup-and-upgrade/upgrade-the-server/active-versions/"
             className="little-spacer-left"
           >
-            {translate(`footer.version.status.${isActive ? 'active' : 'inactive'}`)}
+            {translate('footer.version.status.inactive')}
           </DocLink>
         ),
       }}

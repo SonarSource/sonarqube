@@ -29,10 +29,12 @@ jest.mock('../../../helpers/dates', () => ({
   now: () => new Date('2022-01-01'),
 }));
 
-it('should render active version if it has not reached EOL', () => {
+it('should not render inactive version if it has not reached EOL', () => {
   renderAppVersionStatus(mockAppState({ versionEOL: '2022-01-02' }));
 
-  expect(screen.getByRole('link', { name: /footer.version.status.active/ })).toBeInTheDocument();
+  expect(
+    screen.queryByRole('link', { name: /footer.version.status.inactive/ })
+  ).not.toBeInTheDocument();
 });
 
 it('should render inactive version if it has reached EOL', () => {
