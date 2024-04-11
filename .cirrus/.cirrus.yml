@@ -104,7 +104,7 @@ build_task:
   <<: *BUILD_CACHE_TEMPLATE
   <<: *YARN_CACHE_TEMPLATE
   <<: *JAR_CACHE_TEMPLATE
-  build_script: .cirrus/cirrus-build.sh
+  script: .cirrus/cirrus-build.sh
   <<: *CLEANUP_GRADLE_CACHE_SCRIPT
   <<: *DEFAULT_ARTIFACTS_TEMPLATE
 
