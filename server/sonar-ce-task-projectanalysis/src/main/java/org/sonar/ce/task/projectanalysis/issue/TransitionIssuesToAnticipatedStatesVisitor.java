@@ -21,6 +21,7 @@ package org.sonar.ce.task.projectanalysis.issue;
 
 import java.time.Instant;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import org.apache.logging.log4j.util.Strings;
@@ -53,7 +54,8 @@ public class TransitionIssuesToAnticipatedStatesVisitor extends IssueVisitor {
 
   private final AnticipatedTransitionRepository anticipatedTransitionRepository;
 
-  public TransitionIssuesToAnticipatedStatesVisitor(AnticipatedTransitionRepository anticipatedTransitionRepository, IssueLifecycle issueLifecycle, CeTaskMessages ceTaskMessages) {
+  public TransitionIssuesToAnticipatedStatesVisitor(AnticipatedTransitionRepository anticipatedTransitionRepository,
+    IssueLifecycle issueLifecycle, CeTaskMessages ceTaskMessages) {
     this.anticipatedTransitionRepository = anticipatedTransitionRepository;
     this.issueLifecycle = issueLifecycle;
     this.ceTaskMessages = ceTaskMessages;
@@ -63,6 +65,8 @@ public class TransitionIssuesToAnticipatedStatesVisitor extends IssueVisitor {
   public void beforeComponent(Component component) {
     if (FILE.equals(component.getType())) {
       anticipatedTransitions = anticipatedTransitionRepository.getAnticipatedTransitionByComponent(component);
+    } else {
+      anticipatedTransitions = Collections.emptyList();
     }
   }
 
@@ -104,5 +108,4 @@ public class TransitionIssuesToAnticipatedStatesVisitor extends IssueVisitor {
     String componentKey = componentKeyLength > MAX_LENGTH ? ("..." + issue.componentKey().substring(componentKeyLength - MAX_LENGTH, componentKeyLength)) : issue.componentKey();
     return String.format(TRANSITION_ERROR_TEMPLATE.replace("{}", "%s"), issue.getLine(), componentKey, e.getMessage());
   }
-
 }

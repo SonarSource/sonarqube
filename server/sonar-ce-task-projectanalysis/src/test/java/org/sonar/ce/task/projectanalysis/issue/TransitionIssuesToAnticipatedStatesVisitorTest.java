@@ -50,6 +50,7 @@ import static org.sonar.api.issue.Issue.STATUS_RESOLVED;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.PROJECT;
 
 public class TransitionIssuesToAnticipatedStatesVisitorTest {
+
   @Rule
   public LogTester logTester = new LogTester();
   private final IssueLifecycle issueLifecycle = mock(IssueLifecycle.class);
@@ -58,12 +59,14 @@ public class TransitionIssuesToAnticipatedStatesVisitorTest {
 
   private final CeTaskMessages ceTaskMessages = mock(CeTaskMessages.class);
 
-  private final TransitionIssuesToAnticipatedStatesVisitor underTest = new TransitionIssuesToAnticipatedStatesVisitor(anticipatedTransitionRepository, issueLifecycle, ceTaskMessages);
+  private final TransitionIssuesToAnticipatedStatesVisitor underTest =
+    new TransitionIssuesToAnticipatedStatesVisitor(anticipatedTransitionRepository, issueLifecycle, ceTaskMessages);
 
   @Test
   public void givenMatchingAnticipatedTransitions_transitionsShouldBeAppliedToIssues() {
     Component component = getComponent(Component.Type.FILE);
-    when(anticipatedTransitionRepository.getAnticipatedTransitionByComponent(component)).thenReturn(getAnticipatedTransitions("projectKey", "fileName"));
+    when(anticipatedTransitionRepository.getAnticipatedTransitionByComponent(component))
+      .thenReturn(getAnticipatedTransitions("projectKey", "fileName"));
 
     DefaultIssue issue = getDefaultIssue(1, "abcdefghi", "issue message");
 
@@ -81,7 +84,8 @@ public class TransitionIssuesToAnticipatedStatesVisitorTest {
     Component component = getComponent(Component.Type.FILE);
     String exceptionMessage = "Cannot apply transition";
 
-    when(anticipatedTransitionRepository.getAnticipatedTransitionByComponent(component)).thenReturn(getAnticipatedTransitions("projectKey", "fileName"));
+    when(anticipatedTransitionRepository.getAnticipatedTransitionByComponent(component))
+      .thenReturn(getAnticipatedTransitions("projectKey", "fileName"));
     doThrow(new IllegalStateException(exceptionMessage)).when(issueLifecycle).doManualTransition(any(), any(), any());
     DefaultIssue issue = getDefaultIssue(1, "abcdefghi", "issue message");
     issue.setComponentKey(component.getKey());
@@ -101,7 +105,8 @@ public class TransitionIssuesToAnticipatedStatesVisitorTest {
   @Test
   public void givenMatchingAnticipatedTransitionsOnResolvedIssue_transitionsShouldNotBeAppliedToIssues() {
     Component component = getComponent(Component.Type.FILE);
-    when(anticipatedTransitionRepository.getAnticipatedTransitionByComponent(component)).thenReturn(getAnticipatedTransitions("projectKey", "fileName"));
+    when(anticipatedTransitionRepository.getAnticipatedTransitionByComponent(component))
+      .thenReturn(getAnticipatedTransitions("projectKey", "fileName"));
 
     DefaultIssue issue = getDefaultIssue(1, "abcdefghi", "issue message");
     issue.setStatus(STATUS_RESOLVED);
@@ -117,7 +122,8 @@ public class TransitionIssuesToAnticipatedStatesVisitorTest {
   @Test
   public void givenMatchingAnticipatedTransitions_whenIssueIsNotNew_transitionsShouldNotBeAppliedToIssues() {
     Component component = getComponent(Component.Type.FILE);
-    when(anticipatedTransitionRepository.getAnticipatedTransitionByComponent(component)).thenReturn(getAnticipatedTransitions("projectKey", "fileName"));
+    when(anticipatedTransitionRepository.getAnticipatedTransitionByComponent(component))
+      .thenReturn(getAnticipatedTransitions("projectKey", "fileName"));
 
     DefaultIssue issue = getDefaultIssue(1, "abcdefghi", "issue message");
     issue.setNew(false);
@@ -133,7 +139,8 @@ public class TransitionIssuesToAnticipatedStatesVisitorTest {
   @Test
   public void givenNonMatchingAnticipatedTransitions_transitionsAreNotAppliedToIssues() {
     Component component = getComponent(Component.Type.FILE);
-    when(anticipatedTransitionRepository.getAnticipatedTransitionByComponent(component)).thenReturn(getAnticipatedTransitions("projectKey", "fileName"));
+    when(anticipatedTransitionRepository.getAnticipatedTransitionByComponent(component))
+      .thenReturn(getAnticipatedTransitions("projectKey", "fileName"));
 
     DefaultIssue issue = getDefaultIssue(2, "abcdefghf", "another issue message");
 
@@ -148,7 +155,8 @@ public class TransitionIssuesToAnticipatedStatesVisitorTest {
   @Test
   public void givenMatchingAnticipatedTransitionsWithEmptyComment_transitionsShouldBeAppliedToIssuesAndDefaultCommentApplied() {
     Component component = getComponent(Component.Type.FILE);
-    when(anticipatedTransitionRepository.getAnticipatedTransitionByComponent(component)).thenReturn(getAnticipatedTransitionsWithEmptyComment("projectKey", "fileName"));
+    when(anticipatedTransitionRepository.getAnticipatedTransitionByComponent(component))
+      .thenReturn(getAnticipatedTransitionsWithEmptyComment("projectKey", "fileName"));
 
     DefaultIssue issue = getDefaultIssue(1, "abcdefghi", "issue message");
 
@@ -181,12 +189,25 @@ public class TransitionIssuesToAnticipatedStatesVisitorTest {
     verifyNoInteractions(anticipatedTransitionRepository);
   }
 
+  @Test
+  public void givenAProjecComponent_the_issue_is_not_affected() {
+    Component component = getComponent(PROJECT);
+    DefaultIssue issue = getDefaultIssue(1, "abcdefghi", "issue message");
+
+    underTest.beforeComponent(component);
+    underTest.onIssue(component, issue);
+    assertThat(issue.getAnticipatedTransitionUuid()).isEmpty();
+    assertThat(issue.isBeingClosed()).isFalse();
+  }
+
   private Collection<AnticipatedTransition> getAnticipatedTransitions(String projecKey, String fileName) {
-    return Stream.of(new AnticipatedTransition("atuuid", projecKey, "admin", RuleKey.parse("repo:id"), "issue message", fileName, 1, "abcdefghi", DefaultTransitions.ACCEPT, "doing the transition in an anticipated way")).toList();
+    return Stream.of(new AnticipatedTransition("atuuid", projecKey, "admin", RuleKey.parse("repo:id"), "issue message", fileName, 1,
+      "abcdefghi", DefaultTransitions.ACCEPT, "doing the transition in an anticipated way")).toList();
   }
 
   private Collection<AnticipatedTransition> getAnticipatedTransitionsWithEmptyComment(String projecKey, String fileName) {
-    return Stream.of(new AnticipatedTransition("atuuid", projecKey, "admin", RuleKey.parse("repo:id"), "issue message", fileName, 1, "abcdefghi", DefaultTransitions.ACCEPT, null)).toList();
+    return Stream.of(new AnticipatedTransition("atuuid", projecKey, "admin", RuleKey.parse("repo:id"), "issue message", fileName, 1,
+      "abcdefghi", DefaultTransitions.ACCEPT, null)).toList();
   }
 
   private Component getComponent(Component.Type type) {
