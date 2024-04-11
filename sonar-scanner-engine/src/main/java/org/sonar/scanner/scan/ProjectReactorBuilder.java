@@ -60,7 +60,6 @@ public class ProjectReactorBuilder {
 
   private static final String INVALID_VALUE_OF_X_FOR_Y = "Invalid value of {0} for {1}";
 
-
   private static final Logger LOG = Loggers.get(ProjectReactorBuilder.class);
 
   @VisibleForTesting
@@ -125,12 +124,21 @@ public class ProjectReactorBuilder {
     Profiler profiler = Profiler.create(LOG).startInfo("Process project properties");
     Map<String, Map<String, String>> propertiesByModuleIdPath = new HashMap<>();
     extractPropertiesByModule(propertiesByModuleIdPath, "", "", new HashMap<>(scannerProps.properties()));
-    ProjectDefinition rootProject = createModuleDefinition(propertiesByModuleIdPath.get(""), null);
+    var rootModuleProperties = propertiesByModuleIdPath.get("");
+    setBaseDirIfNeeded(rootModuleProperties);
+    ProjectDefinition rootProject = createModuleDefinition(rootModuleProperties, null);
     rootProjectWorkDir = rootProject.getWorkDir();
     defineChildren(rootProject, propertiesByModuleIdPath, "");
     cleanAndCheckProjectDefinitions(rootProject);
     profiler.stopInfo();
     return new ProjectReactor(rootProject);
+  }
+
+  private static void setBaseDirIfNeeded(Map<String, String> rootModuleProperties) {
+    var baseDir = rootModuleProperties.get(PROPERTY_PROJECT_BASEDIR);
+    if (StringUtils.isBlank(baseDir)) {
+      rootModuleProperties.put(PROPERTY_PROJECT_BASEDIR, Paths.get("").toAbsolutePath().toString());
+    }
   }
 
   private static void extractPropertiesByModule(Map<String, Map<String, String>> propertiesByModuleIdPath, String currentModuleId, String currentModuleIdPath,

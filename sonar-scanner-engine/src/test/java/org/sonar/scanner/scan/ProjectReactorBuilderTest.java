@@ -51,6 +51,14 @@ public class ProjectReactorBuilderTest {
   public LogTester logTester = new LogTester();
 
   @Test
+  public void projectBaseDirDefaultToCurrentDirectory() {
+    ScannerProperties bootstrapProps = new ScannerProperties(Map.of("sonar.projectKey", "foo"));
+    ProjectReactor projectReactor = new ProjectReactorBuilder(bootstrapProps, mock(AnalysisWarnings.class)).execute();
+    var def = projectReactor.getRoot();
+    assertThat(def.getBaseDir()).isEqualTo(new File("").getAbsoluteFile());
+  }
+
+  @Test
   public void shouldDefineSimpleProject() {
     ProjectDefinition projectDefinition = loadProjectDefinition("simple-project");
 
