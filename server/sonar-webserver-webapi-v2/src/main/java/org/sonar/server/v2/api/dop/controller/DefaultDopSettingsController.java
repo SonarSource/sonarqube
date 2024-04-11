@@ -29,6 +29,7 @@ import org.sonar.server.v2.api.dop.response.DopSettingsRestResponse;
 import org.sonar.server.v2.api.response.PageRestResponse;
 
 import static org.sonar.db.permission.GlobalPermission.PROVISION_PROJECTS;
+import static org.sonar.server.common.AlmSettingMapper.toResponseAlm;
 
 public class DefaultDopSettingsController implements DopSettingsController {
 
@@ -57,11 +58,10 @@ public class DefaultDopSettingsController implements DopSettingsController {
   private static DopSettingsResource toDopSettingsResource(AlmSettingDto almSettingDto) {
     return new DopSettingsResource(
       almSettingDto.getUuid(),
-      almSettingDto.getRawAlm(),
+      toResponseAlm(almSettingDto.getAlm()).name(),
       almSettingDto.getKey(),
       almSettingDto.getUrl(),
-      almSettingDto.getAppId()
-    );
+      almSettingDto.getAppId());
   }
 
 }

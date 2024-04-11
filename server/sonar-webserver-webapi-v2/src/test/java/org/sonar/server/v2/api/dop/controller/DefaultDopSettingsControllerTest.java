@@ -26,6 +26,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.alm.setting.ALM;
 import org.sonar.db.alm.setting.AlmSettingDto;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.v2.api.ControllerTester;
@@ -70,10 +71,13 @@ class DefaultDopSettingsControllerTest {
 
   @Test
   void fetchAllDopSettings_whenDbClientReturnsData_returnsResponse() throws Exception {
+    AlmSettingDto almSettingDto1 = generateAlmSettingsDto("github");
+    AlmSettingDto almSettingDto2 = generateAlmSettingsDto("azure_devops");
+    AlmSettingDto almSettingDto3 = generateAlmSettingsDto("bitbucket_cloud");
     List<AlmSettingDto> dopSettings = List.of(
-      generateAlmSettingsDto("github"),
-      generateAlmSettingsDto("azure"),
-      generateAlmSettingsDto("bitbucket_cloud")
+      almSettingDto1,
+      almSettingDto2,
+      almSettingDto3
     );
     when(dbClient.almSettingDao().selectAll(dbSession)).thenReturn(dopSettings);
 
@@ -83,14 +87,21 @@ class DefaultDopSettingsControllerTest {
       .andExpect(status().isOk())
       .andReturn();
     DopSettingsRestResponse response = gson.fromJson(mvcResult.getResponse().getContentAsString(), DopSettingsRestResponse.class);
+
+    List<DopSettingsResource> expectedDopSettings = List.of(
+      toDopSettingsResource(almSettingDto1, "github"),
+      toDopSettingsResource(almSettingDto2, "azure"),
+      toDopSettingsResource(almSettingDto3, "bitbucketcloud")
+    );
+
     assertThat(response.dopSettings())
-      .containsExactlyInAnyOrderElementsOf(dopSettings.stream().map(DefaultDopSettingsControllerTest::toDopSettingsResource).toList());
+      .containsExactlyInAnyOrderElementsOf(expectedDopSettings);
   }
 
-  private static DopSettingsResource toDopSettingsResource(AlmSettingDto almSettingDto) {
+  private static DopSettingsResource toDopSettingsResource(AlmSettingDto almSettingDto, String alm) {
     return new DopSettingsResource(
       almSettingDto.getUuid(),
-      almSettingDto.getRawAlm(),
+      alm,
       almSettingDto.getKey(),
       almSettingDto.getUrl(),
       almSettingDto.getAppId()
@@ -100,7 +111,7 @@ class DefaultDopSettingsControllerTest {
   private AlmSettingDto generateAlmSettingsDto(String dopType) {
     AlmSettingDto dto = mock();
     when(dto.getUuid()).thenReturn("uuid_" + dopType);
-    when(dto.getRawAlm()).thenReturn(dopType);
+    when(dto.getAlm()).thenReturn(ALM.fromId(dopType));
     when(dto.getKey()).thenReturn("key_" + dopType);
     when(dto.getUrl()).thenReturn("url_" + dopType);
     when(dto.getAppId()).thenReturn("appId_" + dopType);

@@ -36,7 +36,7 @@ import org.sonarqube.ws.AlmSettings.GetBindingWsResponse;
 import static java.lang.String.format;
 import static java.util.Optional.ofNullable;
 import static org.sonar.api.web.UserRole.USER;
-import static org.sonar.server.almsettings.ws.AlmSettingsSupport.toAlmWs;
+import static org.sonar.server.common.AlmSettingMapper.toResponseAlm;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class GetBindingAction implements AlmSettingsWsAction {
@@ -89,7 +89,7 @@ public class GetBindingAction implements AlmSettingsWsAction {
         .orElseThrow(() -> new IllegalStateException(format("DevOps Platform setting with uuid '%s' cannot be found", projectAlmSetting.getAlmSettingUuid())));
 
       GetBindingWsResponse.Builder builder = GetBindingWsResponse.newBuilder()
-        .setAlm(toAlmWs(almSetting.getAlm()))
+        .setAlm(toResponseAlm(almSetting.getAlm()))
         .setKey(almSetting.getKey());
       ofNullable(projectAlmSetting.getAlmRepo()).ifPresent(builder::setRepository);
       ofNullable(almSetting.getUrl()).ifPresent(builder::setUrl);

@@ -17,20 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.v2.api.dop.response;
+package org.sonar.server.common;
 
-import io.swagger.v3.oas.annotations.media.Schema;
-import javax.annotation.Nullable;
+import org.junit.jupiter.api.Test;
+import org.sonar.db.alm.setting.ALM;
+import org.sonarqube.ws.AlmSettings;
 
-public record DopSettingsResource(
-  @Schema(accessMode = Schema.AccessMode.READ_ONLY)
-  String id,
-  @Schema(description = "Supported DevOps Platform are: github, gitlab, azure, bitbucketcloud, bitbucket_server")
-  String type,
-  String key,
-  @Nullable
-  String url,
-  @Nullable
-  String appId
-) {
+import static org.assertj.core.api.Assertions.assertThat;
+
+class AlmSettingMapperTest {
+
+
+  @Test
+  void toResponseAlm_shouldCorrectlyMapAlms() {
+    assertThat(AlmSettingMapper.toResponseAlm(ALM.GITHUB)).isEqualTo(AlmSettings.Alm.github);
+    assertThat(AlmSettingMapper.toResponseAlm(ALM.BITBUCKET)).isEqualTo(AlmSettings.Alm.bitbucket);
+    assertThat(AlmSettingMapper.toResponseAlm(ALM.BITBUCKET_CLOUD)).isEqualTo(AlmSettings.Alm.bitbucketcloud);
+    assertThat(AlmSettingMapper.toResponseAlm(ALM.AZURE_DEVOPS)).isEqualTo(AlmSettings.Alm.azure);
+    assertThat(AlmSettingMapper.toResponseAlm(ALM.GITLAB)).isEqualTo(AlmSettings.Alm.gitlab);
+  }
+
 }

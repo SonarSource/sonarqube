@@ -38,6 +38,7 @@ import org.sonarqube.ws.AlmSettings.ListWsResponse;
 import static java.util.Optional.ofNullable;
 import static org.sonar.api.web.UserRole.ADMIN;
 import static org.sonar.db.permission.GlobalPermission.PROVISION_PROJECTS;
+import static org.sonar.server.common.AlmSettingMapper.toResponseAlm;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class ListAction implements AlmSettingsWsAction {
@@ -98,7 +99,7 @@ public class ListAction implements AlmSettingsWsAction {
         .map(almSetting -> {
           AlmSetting.Builder almSettingBuilder = AlmSetting.newBuilder()
             .setKey(almSetting.getKey())
-            .setAlm(AlmSettingsSupport.toAlmWs(almSetting.getAlm()));
+            .setAlm(toResponseAlm(almSetting.getAlm()));
 
           if (almSetting.getAlm() == ALM.BITBUCKET_CLOUD) {
             almSettingBuilder.setUrl(BITBUCKETCLOUD_ROOT_URL + almSetting.getAppId() + "/");

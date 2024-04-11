@@ -17,20 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.v2.api.dop.response;
+package org.sonar.server.common;
 
-import io.swagger.v3.oas.annotations.media.Schema;
-import javax.annotation.Nullable;
+import org.sonar.db.alm.setting.ALM;
+import org.sonarqube.ws.AlmSettings;
 
-public record DopSettingsResource(
-  @Schema(accessMode = Schema.AccessMode.READ_ONLY)
-  String id,
-  @Schema(description = "Supported DevOps Platform are: github, gitlab, azure, bitbucketcloud, bitbucket_server")
-  String type,
-  String key,
-  @Nullable
-  String url,
-  @Nullable
-  String appId
-) {
+public class AlmSettingMapper {
+
+  private AlmSettingMapper() {
+  }
+
+  public static AlmSettings.Alm toResponseAlm(ALM alm) {
+    return switch (alm) {
+      case GITHUB -> AlmSettings.Alm.github;
+      case BITBUCKET -> AlmSettings.Alm.bitbucket;
+      case BITBUCKET_CLOUD -> AlmSettings.Alm.bitbucketcloud;
+      case AZURE_DEVOPS -> AlmSettings.Alm.azure;
+      case GITLAB -> AlmSettings.Alm.gitlab;
+    };
+  }
 }
