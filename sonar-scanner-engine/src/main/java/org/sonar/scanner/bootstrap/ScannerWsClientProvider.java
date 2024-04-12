@@ -19,6 +19,8 @@
  */
 package org.sonar.scanner.bootstrap;
 
+import java.net.InetSocketAddress;
+import java.net.Proxy;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.notifications.AnalysisWarnings;
 import org.sonar.api.utils.System2;
@@ -30,6 +32,7 @@ import org.springframework.context.annotation.Bean;
 import static java.lang.Integer.parseInt;
 import static java.lang.String.valueOf;
 import static org.apache.commons.lang3.StringUtils.defaultIfBlank;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.sonar.core.config.ProxyProperties.HTTP_PROXY_PASSWORD;
 import static org.sonar.core.config.ProxyProperties.HTTP_PROXY_USER;
 
@@ -57,13 +60,27 @@ public class ScannerWsClientProvider {
       .url(url)
       .credentials(login, scannerProps.property(CoreProperties.PASSWORD));
 
-    // OkHttp detect 'http.proxyHost' java property, but credentials should be filled
-    final String proxyUser = System.getProperty(HTTP_PROXY_USER, "");
-    if (!proxyUser.isEmpty()) {
-      connectorBuilder.proxyCredentials(proxyUser, System.getProperty(HTTP_PROXY_PASSWORD));
+    // OkHttp detects 'http.proxyHost' java property already, so just focus on sonar properties
+    String proxyHost = defaultIfBlank(scannerProps.property("sonar.scanner.proxyHost"), null);
+    if (proxyHost != null) {
+      int proxyPort;
+      String proxyPortStr = defaultIfBlank(scannerProps.property("sonar.scanner.proxyPort"), url.startsWith("https") ? "443" : "80");
+      try {
+        proxyPort = parseInt(proxyPortStr);
+      } catch (NumberFormatException e) {
+        throw new IllegalArgumentException("Invalid proxy port: " + proxyPortStr, e);
+      }
+      connectorBuilder.proxy(new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxyHost, proxyPort)));
     }
 
-    return new DefaultScannerWsClient(WsClientFactories.getDefault().newClient(connectorBuilder.build()), login != null,
-      globalMode, analysisWarnings);
+    var scannerProxyUser = scannerProps.property("sonar.scanner.proxyUser");
+    String proxyUser = scannerProxyUser != null ? scannerProxyUser : system.properties().getProperty(HTTP_PROXY_USER, "");
+    if (isNotBlank(proxyUser)) {
+      var scannerProxyPwd = scannerProps.property("sonar.scanner.proxyPassword");
+      String proxyPassword = scannerProxyPwd != null ? scannerProxyPwd : system.properties().getProperty(HTTP_PROXY_PASSWORD, "");
+      connectorBuilder.proxyCredentials(proxyUser, proxyPassword);
+    }
+
+    return new DefaultScannerWsClient(WsClientFactories.getDefault().newClient(connectorBuilder.build()), login != null, globalMode, analysisWarnings);
   }
 }
