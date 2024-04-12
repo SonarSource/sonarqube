@@ -13,15 +13,15 @@ default_artifact_template: &DEFAULT_ARTIFACTS_TEMPLATE
       find . -type f -wholename "**/build/test-results/test-jest/junit.xml" -exec
       xmlstarlet edit --inplace --delete '//testsuite[@errors=0 and @failures=0]' {} \;
     junit_artifacts:
-      path: "**/build/test-results/**/*.xml"
-      type: "text/xml"
+      path: '**/build/test-results/**/*.xml'
+      type: 'text/xml'
       format: junit
     reports_artifacts:
-      path: "**/build/reports/**/*"
+      path: '**/build/reports/**/*'
     screenshots_artifacts:
-      path: "**/build/screenshots/**/*"
+      path: '**/build/screenshots/**/*'
     log_artifacts:
-      path: "**/build/**/*.log"
+      path: '**/build/**/*.log'
 
 default_template: &DEFAULT_TEMPLATE
   clone_script: |
@@ -46,12 +46,12 @@ cleanup_gradle_cache_script_template: &CLEANUP_GRADLE_CACHE_SCRIPT
 
 yarn_cache_template: &YARN_CACHE_TEMPLATE
   yarn_cache:
-    folder: "~/.yarn/berry/cache"
+    folder: '~/.yarn/berry/cache'
     fingerprint_script: cat server/sonar-web/yarn.lock
 
 jar_cache_template: &JAR_CACHE_TEMPLATE
   jar_cache:
-    folder: "**/build/libs/*.jar"
+    folder: '**/build/libs/*.jar'
     fingerprint_key: jar-cache_$CIRRUS_BUILD_ID
 
 eslint_report_cache_template: &ESLINT_REPORT_CACHE_TEMPLATE
@@ -71,14 +71,14 @@ jest_report_cache_template: &JEST_REPORT_CACHE_TEMPLATE
 junit_report_cache_template: &JUNIT_REPORT_CACHE_TEMPLATE
   junit_report_cache:
     folders:
-      - "**/reports/jacoco"
-      - "**/test-results/test"
+      - '**/reports/jacoco'
+      - '**/test-results/test'
     fingerprint_script: echo $CIRRUS_BUILD_ID
 
 build_cache_template: &BUILD_CACHE_TEMPLATE
   build_cache:
     folders:
-      - "**/build/**/*"
+      - '**/build/**/*'
     fingerprint_script: echo $CIRRUS_BUILD_ID
 
 cache_dependencies_task:
@@ -113,7 +113,7 @@ yarn_lint_task:
   container:
     dockerfile: .cirrus/Dockerfile
     cpu: 3
-    memory: 4Gb
+    memory: 10Gb
   <<: *DEFAULT_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
   <<: *YARN_CACHE_TEMPLATE
