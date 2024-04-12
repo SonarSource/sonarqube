@@ -11,9 +11,10 @@
     "build-release": "yarn install --immutable && yarn build",
     "lint": "eslint --ext js,ts,tsx,snap src",
     "lint-report-ci": "yarn install --immutable && eslint --ext js,ts,tsx -f json -o eslint-report/eslint-report.json src  || yarn lint",
-    "test": "jest",
+    "test": "jest --workerIdleMemoryLimit=1G",
+    "test-ci": "NODE_OPTIONS=\"-r dd-trace/ci/init\" jest --coverage --maxWorkers=5 --workerIdleMemoryLimit=2G --ci",
     "ts-check": "tsc --noEmit",
-    "validate-ci": "yarn install --immutable && yarn ts-check && yarn format-check && NODE_OPTIONS=\"-r dd-trace/ci/init\" yarn test --coverage --ci"
+    "validate-ci": "yarn install --immutable && yarn ts-check && yarn format-check && yarn test-ci"
   },
   "devDependencies": {
     "@babel/core": "7.23.9",
