@@ -70,6 +70,7 @@ public class OkHttpClientBuilder {
   private Boolean followRedirects;
   private long connectTimeoutMs = -1;
   private long readTimeoutMs = -1;
+  private long responseTimeoutMs = -1;
   private SSLSocketFactory sslSocketFactory = null;
   private X509TrustManager sslTrustManager = null;
   private boolean acceptGzip = false;
@@ -170,6 +171,18 @@ public class OkHttpClientBuilder {
   }
 
   /**
+   * Sets the default response timeout for new connections. A value of 0 means no timeout.
+   * Default is to have no timeout.
+   */
+  public OkHttpClientBuilder setResponseTimeoutMs(long l) {
+    if (l < 0) {
+      throw new IllegalArgumentException("Response timeout must be positive. Got " + l);
+    }
+    this.responseTimeoutMs = l;
+    return this;
+  }
+
+  /**
    * Set if redirects should be followed or not.
    * Default is defined by OkHttp (true, follow redirects).
    */
@@ -186,6 +199,9 @@ public class OkHttpClientBuilder {
     }
     if (readTimeoutMs >= 0) {
       builder.readTimeout(readTimeoutMs, TimeUnit.MILLISECONDS);
+    }
+    if (responseTimeoutMs >= 0) {
+      builder.callTimeout(responseTimeoutMs, TimeUnit.MILLISECONDS);
     }
     builder.addNetworkInterceptor(this::addHeaders);
     if(!acceptGzip) {

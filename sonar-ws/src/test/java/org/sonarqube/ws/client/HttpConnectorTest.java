@@ -107,7 +107,7 @@ public class HttpConnectorTest {
     server.enqueue(new MockResponse().setResponseCode(200).addHeader("Content-Encoding", "gzip")
       .setBody(gzip("potentially a body with 100 GB of data normally encoded in gzip")));
 
-    //by default we dont accept gzip
+    // by default we dont accept gzip
     underTest = HttpConnector.newBuilder().url(serverUrl).build();
     GetRequest request = new GetRequest("rest/api/1.0/repos");
 
@@ -319,10 +319,12 @@ public class HttpConnectorTest {
       .url(serverUrl)
       .readTimeoutMilliseconds(42)
       .connectTimeoutMilliseconds(74)
+      .responseTimeoutMilliseconds(53)
       .build();
 
     assertThat(underTest.okHttpClient().readTimeoutMillis()).isEqualTo(42);
     assertThat(underTest.okHttpClient().connectTimeoutMillis()).isEqualTo(74);
+    assertThat(underTest.okHttpClient().callTimeoutMillis()).isEqualTo(53);
   }
 
   @Test

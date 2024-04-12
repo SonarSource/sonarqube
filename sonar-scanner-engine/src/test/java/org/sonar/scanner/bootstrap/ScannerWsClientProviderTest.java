@@ -126,6 +126,46 @@ class ScannerWsClientProviderTest {
   }
 
   @Test
+  void it_should_timeout_on_long_response() {
+    scannerProps.put("sonar.host.url", sonarqubeMock.baseUrl());
+    scannerProps.put("sonar.scanner.responseTimeout", "PT0.2S");
+
+    DefaultScannerWsClient client = underTest.provide(new ScannerProperties(scannerProps), env, GLOBAL_ANALYSIS_MODE, system2, ANALYSIS_WARNINGS);
+
+    sonarqubeMock.stubFor(get("/api/plugins/installed")
+      .willReturn(aResponse().withStatus(200)
+        .withFixedDelay(2000)
+        .withBody("Success")));
+
+    HttpConnector httpConnector = (HttpConnector) client.wsConnector();
+
+    var getRequest = new GetRequest("api/plugins/installed");
+    var thrown = assertThrows(IllegalStateException.class, () -> httpConnector.call(getRequest));
+
+    assertThat(thrown).hasStackTraceContaining("timeout");
+  }
+
+  @Test
+  void it_should_timeout_on_slow_response() {
+    scannerProps.put("sonar.host.url", sonarqubeMock.baseUrl());
+    scannerProps.put("sonar.scanner.socketTimeout", "PT0.2S");
+
+    DefaultScannerWsClient client = underTest.provide(new ScannerProperties(scannerProps), env, GLOBAL_ANALYSIS_MODE, system2, ANALYSIS_WARNINGS);
+
+    sonarqubeMock.stubFor(get("/api/plugins/installed")
+      .willReturn(aResponse().withStatus(200)
+        .withChunkedDribbleDelay(2, 2000)
+        .withBody("Success")));
+
+    HttpConnector httpConnector = (HttpConnector) client.wsConnector();
+
+    var getRequest = new GetRequest("api/plugins/installed");
+    var thrown = assertThrows(IllegalStateException.class, () -> httpConnector.call(getRequest));
+
+    assertThat(thrown).hasStackTraceContaining("timeout");
+  }
+
+  @Test
   void it_should_honor_scanner_proxy_settings() {
     scannerProps.put("sonar.host.url", sonarqubeMock.baseUrl());
     scannerProps.put("sonar.scanner.proxyHost", "localhost");

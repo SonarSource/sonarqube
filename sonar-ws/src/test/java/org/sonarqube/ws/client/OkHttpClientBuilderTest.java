@@ -83,4 +83,11 @@ public class OkHttpClientBuilderTest {
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("Read timeout must be positive. Got -10");
   }
+
+  @Test
+  public void build_throws_IAE_if_response_timeout_is_negative() {
+    assertThatThrownBy(() -> underTest.setResponseTimeoutMs(-10))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Response timeout must be positive. Got -10");
+  }
 }

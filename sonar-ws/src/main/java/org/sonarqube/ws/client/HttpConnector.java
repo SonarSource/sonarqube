@@ -57,6 +57,7 @@ public class HttpConnector implements WsConnector {
 
   public static final int DEFAULT_CONNECT_TIMEOUT_MILLISECONDS = 30_000;
   public static final int DEFAULT_READ_TIMEOUT_MILLISECONDS = 60_000;
+  public static final int DEFAULT_RESPONSE_TIMEOUT_MILLISECONDS = 0;
   private static final String JSON = "application/json; charset=utf-8";
 
   /**
@@ -85,6 +86,7 @@ public class HttpConnector implements WsConnector {
     okHttpClientBuilder.setProxyLogin(builder.proxyLogin);
     okHttpClientBuilder.setProxyPassword(builder.proxyPassword);
     okHttpClientBuilder.setConnectTimeoutMs(builder.connectTimeoutMs);
+    okHttpClientBuilder.setResponseTimeoutMs(builder.responseTimeoutMs);
     okHttpClientBuilder.setReadTimeoutMs(builder.readTimeoutMs);
     okHttpClientBuilder.setSSLSocketFactory(builder.sslSocketFactory);
     okHttpClientBuilder.setTrustManager(builder.sslTrustManager);
@@ -264,6 +266,7 @@ public class HttpConnector implements WsConnector {
     private String systemPassCode;
     private int connectTimeoutMs = DEFAULT_CONNECT_TIMEOUT_MILLISECONDS;
     private int readTimeoutMs = DEFAULT_READ_TIMEOUT_MILLISECONDS;
+    private int responseTimeoutMs = DEFAULT_RESPONSE_TIMEOUT_MILLISECONDS;
     private SSLSocketFactory sslSocketFactory = null;
     private X509TrustManager sslTrustManager = null;
     private boolean acceptGzip = false;
@@ -351,6 +354,15 @@ public class HttpConnector implements WsConnector {
      */
     public Builder readTimeoutMilliseconds(int i) {
       this.readTimeoutMs = i;
+      return this;
+    }
+
+    /**
+     * Sets the response timeout to a specified timeout, in milliseconds.
+     * A timeout of zero is interpreted as an infinite timeout. Default value is {@link #DEFAULT_RESPONSE_TIMEOUT_MILLISECONDS}
+     */
+    public Builder responseTimeoutMilliseconds(int i) {
+      this.responseTimeoutMs = i;
       return this;
     }
 
