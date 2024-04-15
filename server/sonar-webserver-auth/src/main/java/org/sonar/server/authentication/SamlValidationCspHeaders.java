@@ -37,6 +37,7 @@ public class SamlValidationCspHeaders {
       "default-src 'self'",
       "base-uri 'none'",
       "connect-src 'self' http: https:",
+      "font-src 'self' data:;" +
       "img-src * data: blob:",
       "object-src 'none'",
       "script-src 'nonce-" + nonce + "'",

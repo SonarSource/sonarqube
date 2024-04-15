@@ -31,7 +31,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletResponse;
 
 public class CspFilter implements Filter {
-  
+
   private final List<String> cspHeaders = new ArrayList<>();
   private String policies = null;
 
@@ -40,11 +40,12 @@ public class CspFilter implements Filter {
     cspHeaders.add("Content-Security-Policy");
     cspHeaders.add("X-Content-Security-Policy");
     cspHeaders.add("X-WebKit-CSP");
-    
+
     List<String> cspPolicies = new ArrayList<>();
     cspPolicies.add("default-src 'self'");
     cspPolicies.add("base-uri 'none'");
     cspPolicies.add("connect-src 'self' http: https:");
+    cspPolicies.add("font-src 'self' data:");
     cspPolicies.add("img-src * data: blob:");
     cspPolicies.add("object-src 'none'");
     cspPolicies.add("script-src 'self'");
