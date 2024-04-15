@@ -46,6 +46,9 @@ public class WebApiEndpoints {
 
   public static final String INTERNAL = "internal";
 
+  public static final String ANALYSIS_ENDPOINT = "/analysis";
+  public static final String VERSION_ENDPOINT = ANALYSIS_ENDPOINT + "/version";
+
   private WebApiEndpoints() {
   }
 }

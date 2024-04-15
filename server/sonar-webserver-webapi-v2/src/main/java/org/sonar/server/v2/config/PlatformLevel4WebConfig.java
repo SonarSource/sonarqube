@@ -20,6 +20,7 @@
 package org.sonar.server.v2.config;
 
 import javax.annotation.Nullable;
+import org.sonar.api.platform.Server;
 import org.sonar.api.resources.Languages;
 import org.sonar.db.DbClient;
 import org.sonar.server.common.gitlab.config.GitlabConfigurationService;
@@ -42,6 +43,8 @@ import org.sonar.server.platform.NodeInformation;
 import org.sonar.server.rule.RuleDescriptionFormatter;
 import org.sonar.server.user.SystemPasscode;
 import org.sonar.server.user.UserSession;
+import org.sonar.server.v2.api.analysis.controller.DefaultVersionController;
+import org.sonar.server.v2.api.analysis.controller.VersionController;
 import org.sonar.server.v2.api.dop.controller.DefaultDopSettingsController;
 import org.sonar.server.v2.api.dop.controller.DopSettingsController;
 import org.sonar.server.v2.api.gitlab.config.controller.DefaultGitlabConfigurationController;
@@ -149,6 +152,11 @@ public class PlatformLevel4WebConfig {
   @Bean
   public ProjectBindingsController projectBindingsController(UserSession userSession, ProjectBindingsService projectBindingsService) {
     return new DefaultProjectBindingsController(userSession, projectBindingsService);
+  }
+
+  @Bean
+  public VersionController versionController(Server server) {
+    return new DefaultVersionController(server);
   }
 
 }
