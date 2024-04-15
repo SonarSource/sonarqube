@@ -71,7 +71,6 @@ export * from './SonarQubeLogo';
 export { Spinner } from './Spinner';
 export * from './SpotlightTour';
 export * from './Switch';
-export * from './Table';
 export * from './Tabs';
 export * from './Tags';
 export * from './Text';

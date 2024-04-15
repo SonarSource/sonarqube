@@ -19,27 +19,39 @@
  */
 import styled from '@emotion/styled';
 import classNames from 'classnames';
-import { times } from 'lodash';
-import { ComponentProps, createContext, ReactNode, useContext } from 'react';
+import { isNumber, times } from 'lodash';
+import { ComponentProps, ReactNode, createContext, useContext } from 'react';
 import tw from 'twin.macro';
-import { themeBorder, themeColor } from '../helpers';
-import { FCProps } from '../types/misc';
+import { FCProps } from '~types/misc';
+import { themeBorder, themeColor } from '../../helpers/theme';
 
-export interface TableProps extends ComponentProps<'table'> {
+interface TableBaseProps extends ComponentProps<'table'> {
   caption?: ReactNode;
-  columnCount: number;
-  columnWidths?: Array<number | string>;
   header?: ReactNode;
   noHeaderTopBorder?: boolean;
   noSidePadding?: boolean;
   withRoundedBorder?: boolean;
 }
 
-export function Table(props: TableProps) {
+interface ColumnWidthsProps extends TableBaseProps {
+  columnCount: number;
+  columnWidths?: Array<number | string>;
+  gridTemplate?: never;
+}
+
+interface GridTemplateProps extends TableBaseProps {
+  columnCount?: never;
+  columnWidths?: never;
+  gridTemplate: string;
+}
+
+export type TableProps = ColumnWidthsProps | GridTemplateProps;
+
+export function Table(props: Readonly<TableProps>) {
+  const { columnCount, gridTemplate } = props;
   const {
     className,
-    columnCount,
-    columnWidths = [],
+    columnWidths,
     header,
     caption,
     children,
@@ -56,16 +68,19 @@ export function Table(props: TableProps) {
           'no-header-top-border': noHeaderTopBorder,
           'no-side-padding': noSidePadding,
           'with-rounded-border': withRoundedBorder,
+          'with-grid-template': gridTemplate !== undefined,
         },
         className,
       )}
       {...rest}
     >
-      <colgroup>
-        {times(columnCount, (i) => (
-          <col key={i} width={columnWidths[i] ?? 'auto'} />
-        ))}
-      </colgroup>
+      {isNumber(columnCount) && (
+        <colgroup>
+          {times(columnCount, (i) => (
+            <col key={i} width={columnWidths?.[i] ?? 'auto'} />
+          ))}
+        </colgroup>
+      )}
 
       {caption && (
         <caption>
@@ -135,7 +150,7 @@ function TableRowInteractiveBase({
   children,
   selected,
   ...props
-}: TableRowInteractiveProps) {
+}: Readonly<TableRowInteractiveProps>) {
   return (
     <TableRow aria-selected={selected} className={classNames(className, { selected })} {...props}>
       {children}
@@ -236,9 +251,19 @@ export function CheckboxCell({ children, ...props }: CellComponentProps) {
   );
 }
 
-const StyledTable = styled.table`
+const StyledTable = styled.table<{ gridTemplate?: string }>`
   width: 100%;
   border-collapse: collapse;
+
+  &.with-grid-template {
+    display: grid;
+    grid-template-columns: ${(props) => props.gridTemplate};
+    thead,
+    tbody,
+    tr {
+      display: contents;
+    }
+  }
 
   &.with-rounded-border {
     border-collapse: separate;
@@ -260,6 +285,7 @@ const StyledTable = styled.table`
 
 const CellComponentStyled = styled.td`
   color: ${themeColor('pageContent')};
+  ${tw`sw-items-center`}
   ${tw`sw-body-sm`}
   ${tw`sw-py-4 sw-px-2`}
   ${tw`sw-align-middle`}
