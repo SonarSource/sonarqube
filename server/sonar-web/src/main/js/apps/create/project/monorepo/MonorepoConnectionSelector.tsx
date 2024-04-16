@@ -20,6 +20,7 @@
 import { Title } from 'design-system/lib';
 import React from 'react';
 import { FormattedMessage } from 'react-intl';
+import { GroupBase } from 'react-select';
 import { LabelValueSelectOption } from '../../../../helpers/search';
 import { AlmKeys } from '../../../../types/alm-settings';
 import { DopSetting } from '../../../../types/dop-translation';
@@ -48,7 +49,7 @@ interface Props {
   onSelectRepository: (repositoryKey: string) => void;
   organizationOptions?: LabelValueSelectOption[];
   personalAccessTokenComponent?: React.ReactNode;
-  repositoryOptions?: LabelValueSelectOption[];
+  repositoryOptions?: LabelValueSelectOption[] | GroupBase<LabelValueSelectOption>[];
   repositorySearchQuery: string;
   selectedDopSetting?: DopSetting;
   selectedOrganization?: LabelValueSelectOption;

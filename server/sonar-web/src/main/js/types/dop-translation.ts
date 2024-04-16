@@ -31,6 +31,7 @@ export interface BoundProject {
   monorepo: boolean;
   newCodeDefinitionType?: string;
   newCodeDefinitionValue?: string;
+  projectIdentifier?: string;
   projectKey: string;
   projectName: string;
   repositoryIdentifier: string;

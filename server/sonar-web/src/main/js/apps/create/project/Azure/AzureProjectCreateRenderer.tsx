@@ -17,25 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Link, Spinner } from '@sonarsource/echoes-react';
 import {
   FlagMessage,
   InputSearch,
   LightPrimary,
-  Link,
   PageContentFontWrapper,
-  Spinner,
   Title,
 } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
+import { AvailableFeaturesContext } from '../../../../app/components/available-features/AvailableFeaturesContext';
 import { translate } from '../../../../helpers/l10n';
-import { getGlobalSettingsUrl } from '../../../../helpers/urls';
+import { getGlobalSettingsUrl, queryToSearch } from '../../../../helpers/urls';
 import { AzureProject, AzureRepository } from '../../../../types/alm-integration';
 import { AlmKeys, AlmSettingsInstance } from '../../../../types/alm-settings';
+import { Feature } from '../../../../types/features';
 import { Dict } from '../../../../types/types';
 import { ALM_INTEGRATION_CATEGORY } from '../../../settings/constants';
 import AlmSettingsInstanceDropdown from '../components/AlmSettingsInstanceDropdown';
 import WrongBindingCountAlert from '../components/WrongBindingCountAlert';
+import { CreateProjectModes } from '../types';
 import AzurePersonalAccessTokenForm from './AzurePersonalAccessTokenForm';
 import AzureProjectsList from './AzureProjectsList';
 
@@ -59,7 +61,9 @@ export interface AzureProjectCreateRendererProps {
   onSelectedAlmInstanceChange: (instance: AlmSettingsInstance) => void;
 }
 
-export default function AzureProjectCreateRenderer(props: AzureProjectCreateRendererProps) {
+export default function AzureProjectCreateRenderer(
+  props: Readonly<AzureProjectCreateRendererProps>,
+) {
   const {
     canAdmin,
     loading,
@@ -75,15 +79,41 @@ export default function AzureProjectCreateRenderer(props: AzureProjectCreateRend
     selectedAlmInstance,
   } = props;
 
-  const showCountError = !loading && (!almInstances || almInstances?.length === 0);
-  const showUrlError = !loading && selectedAlmInstance && !selectedAlmInstance.url;
+  const isMonorepoSupported = React.useContext(AvailableFeaturesContext).includes(
+    Feature.MonoRepositoryPullRequestDecoration,
+  );
+
+  const showCountError = !loading && (!almInstances || almInstances.length === 0);
+  const showUrlError =
+    !loading && selectedAlmInstance !== undefined && selectedAlmInstance.url === undefined;
 
   return (
     <PageContentFontWrapper>
       <header className="sw-mb-10">
         <Title className="sw-mb-4">{translate('onboarding.create_project.azure.title')}</Title>
         <LightPrimary className="sw-body-sm">
-          {translate('onboarding.create_project.azure.subtitle')}
+          {isMonorepoSupported ? (
+            <FormattedMessage
+              id="onboarding.create_project.azure.subtitle.with_monorepo"
+              values={{
+                monorepoSetupLink: (
+                  <Link
+                    to={{
+                      pathname: '/projects/create',
+                      search: queryToSearch({
+                        mode: CreateProjectModes.AzureDevOps,
+                        mono: true,
+                      }),
+                    }}
+                  >
+                    <FormattedMessage id="onboarding.create_project.subtitle_monorepo_setup_link" />
+                  </Link>
+                ),
+              }}
+            />
+          ) : (
+            <FormattedMessage id="onboarding.create_project.azure.subtitle" />
+          )}
         </LightPrimary>
       </header>
 
@@ -94,7 +124,7 @@ export default function AzureProjectCreateRenderer(props: AzureProjectCreateRend
         onChangeConfig={props.onSelectedAlmInstanceChange}
       />
 
-      <Spinner loading={loading} />
+      <Spinner isLoading={loading} />
 
       {showUrlError && (
         <FlagMessage variant="error" className="sw-mb-2">
@@ -122,8 +152,7 @@ export default function AzureProjectCreateRenderer(props: AzureProjectCreateRend
       {showCountError && <WrongBindingCountAlert alm={AlmKeys.Azure} canAdmin={!!canAdmin} />}
 
       {!loading &&
-        selectedAlmInstance &&
-        selectedAlmInstance.url &&
+        selectedAlmInstance?.url &&
         (showPersonalAccessTokenForm ? (
           <div>
             <AzurePersonalAccessTokenForm
@@ -141,7 +170,7 @@ export default function AzureProjectCreateRenderer(props: AzureProjectCreateRend
                 size="full"
               />
             </div>
-            <Spinner loading={Boolean(searching)}>
+            <Spinner isLoading={Boolean(searching)}>
               <AzureProjectsList
                 loadingRepositories={loadingRepositories}
                 onOpenProject={props.onOpenProject}

@@ -43,7 +43,9 @@ const ui = {
   gitlabCreateProjectButton: byText('onboarding.create_project.select_method.gitlab'),
   gitLabOnboardingTitle: byRole('heading', { name: 'onboarding.create_project.gitlab.title' }),
   instanceSelector: byLabelText(/alm.configuration.selector.label/),
-  monorepoSetupLink: byRole('link', { name: 'onboarding.create_project.gitlab.subtitle.link' }),
+  monorepoSetupLink: byRole('link', {
+    name: 'onboarding.create_project.subtitle_monorepo_setup_link',
+  }),
   monorepoTitle: byRole('heading', { name: 'onboarding.create_project.monorepo.titlealm.gitlab' }),
 
   personalAccessTokenInput: byRole('textbox', {

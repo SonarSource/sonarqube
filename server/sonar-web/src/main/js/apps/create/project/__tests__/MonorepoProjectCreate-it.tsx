@@ -57,7 +57,9 @@ const ui = {
   monorepoProjectTitle: byRole('heading', {
     name: 'onboarding.create_project.monorepo.project_title',
   }),
-  monorepoSetupLink: byRole('link', { name: 'onboarding.create_project.github.subtitle.link' }),
+  monorepoSetupLink: byRole('link', {
+    name: 'onboarding.create_project.subtitle_monorepo_setup_link',
+  }),
   monorepoTitle: byRole('heading', { name: 'onboarding.create_project.monorepo.titlealm.github' }),
   organizationSelector: byRole('combobox', {
     name: `onboarding.create_project.monorepo.choose_organization`,

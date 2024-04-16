@@ -232,7 +232,7 @@ export default function GitHubProjectCreateRenderer(props: GitHubProjectCreateRe
                       }),
                     }}
                   >
-                    <FormattedMessage id="onboarding.create_project.github.subtitle.link" />
+                    <FormattedMessage id="onboarding.create_project.subtitle_monorepo_setup_link" />
                   </Link>
                 ),
               }}

@@ -51,7 +51,7 @@ export interface CreateProjectPageProps extends WithAvailableFeaturesProps {
 }
 
 interface State {
-  azureSettings: AlmSettingsInstance[];
+  azureSettings: DopSetting[];
   bitbucketSettings: AlmSettingsInstance[];
   bitbucketCloudSettings: AlmSettingsInstance[];
   githubSettings: DopSetting[];
@@ -130,6 +130,7 @@ export type ImportProjectParam =
         projectKey: string;
         projectName: string;
       }[];
+      projectIdentifier?: string;
       repositoryIdentifier: string;
     };
 
@@ -192,9 +193,7 @@ export class CreateProjectPage extends React.PureComponent<CreateProjectPageProp
     return getDopSettings()
       .then(({ dopSettings }) => {
         this.setState({
-          azureSettings: dopSettings
-            .filter(({ type }) => type === AlmKeys.Azure)
-            .map(({ key, type, url }) => ({ alm: type, key, url })),
+          azureSettings: dopSettings.filter(({ type }) => type === AlmKeys.Azure),
           bitbucketSettings: dopSettings
             .filter(({ type }) => type === AlmKeys.BitbucketServer)
             .map(({ key, type, url }) => ({ alm: type, key, url })),
@@ -276,10 +275,8 @@ export class CreateProjectPage extends React.PureComponent<CreateProjectPageProp
         return (
           <AzureProjectCreate
             canAdmin={!!canAdmin}
-            loadingBindings={loading}
-            location={location}
-            router={router}
-            almInstances={azureSettings}
+            dopSettings={azureSettings}
+            isLoadingBindings={loading}
             onProjectSetupDone={this.handleProjectSetupDone}
           />
         );

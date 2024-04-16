@@ -93,7 +93,7 @@ export default function GitlabProjectCreateRenderer(
                       }),
                     }}
                   >
-                    <FormattedMessage id="onboarding.create_project.gitlab.subtitle.link" />
+                    <FormattedMessage id="onboarding.create_project.subtitle_monorepo_setup_link" />
                   </Link>
                 ),
               }}

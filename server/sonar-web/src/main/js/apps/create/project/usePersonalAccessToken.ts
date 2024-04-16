@@ -63,7 +63,7 @@ export const usePersonalAccessToken = (
         setCheckingPat(true);
         const { patIsValid, error } = await checkPersonalAccessTokenIsValid(key)
           .then(({ status, error }) => ({ patIsValid: status, error }))
-          .catch(() => ({ patIsValid: status, error: translate('default_error_message') }));
+          .catch(() => ({ patIsValid: false, error: translate('default_error_message') }));
         if (patIsValid) {
           onPersonalAccessTokenCreated();
           return;

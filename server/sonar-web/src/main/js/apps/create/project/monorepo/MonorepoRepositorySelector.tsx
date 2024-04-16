@@ -21,6 +21,7 @@ import { LinkHighlight, LinkStandalone, Spinner } from '@sonarsource/echoes-reac
 import { DarkLabel, FlagMessage, InputSelect } from 'design-system';
 import React from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
+import { GroupBase } from 'react-select';
 import { LabelValueSelectOption } from '../../../../helpers/search';
 import { getProjectUrl } from '../../../../helpers/urls';
 import { AlmKeys } from '../../../../types/alm-settings';
@@ -38,7 +39,7 @@ interface Props {
   onSearchRepositories: (query: string) => void;
   onSelectRepository: (repositoryKey: string) => void;
   repositorySearchQuery: string;
-  repositoryOptions?: LabelValueSelectOption[];
+  repositoryOptions?: LabelValueSelectOption[] | GroupBase<LabelValueSelectOption>[];
   selectedOrganization?: LabelValueSelectOption;
   selectedRepository?: LabelValueSelectOption;
   showOrganizations?: boolean;

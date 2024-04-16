@@ -21,6 +21,7 @@ import { Spinner } from '@sonarsource/echoes-react';
 import { BlueGreySeparator, ButtonPrimary, ButtonSecondary } from 'design-system';
 import React, { useEffect, useRef } from 'react';
 import { FormattedMessage } from 'react-intl';
+import { GroupBase } from 'react-select';
 import { getComponents } from '../../../../api/project-management';
 import { useLocation, useRouter } from '../../../../components/hoc/withRouter';
 import { throwGlobalError } from '../../../../helpers/error';
@@ -50,7 +51,7 @@ interface MonorepoProjectCreateProps {
   onSelectRepository: (repositoryKey: string) => void;
   organizationOptions?: LabelValueSelectOption[];
   personalAccessTokenComponent?: React.ReactNode;
-  repositoryOptions?: LabelValueSelectOption[];
+  repositoryOptions?: LabelValueSelectOption[] | GroupBase<LabelValueSelectOption>[];
   repositorySearchQuery: string;
   selectedDopSetting?: DopSetting;
   selectedOrganization?: LabelValueSelectOption;

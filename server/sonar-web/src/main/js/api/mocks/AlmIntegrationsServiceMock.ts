@@ -146,8 +146,9 @@ export default class AlmIntegrationsServiceMock {
   ];
 
   defaultAzureRepositories: AzureRepository[] = [
-    mockAzureRepository({ sqProjectKey: 'random' }),
-    mockAzureRepository({ name: 'Azure repo 2' }),
+    mockAzureRepository({ sqProjectKey: 'random', projectName: 'Azure project' }),
+    mockAzureRepository({ name: 'Azure repo 2', projectName: 'Azure project' }),
+    mockAzureRepository({ name: 'Azure repo 3', projectName: 'Azure project 2' }),
   ];
 
   defaultGithubRepositories: GithubRepository[] = [
@@ -232,15 +233,15 @@ export default class AlmIntegrationsServiceMock {
     return Promise.resolve({ projects: this.azureProjects });
   };
 
-  getAzureRepositories = () => {
+  getAzureRepositories: typeof getAzureRepositories = (_, projectName) => {
     return Promise.resolve({
-      repositories: this.azureRepositories,
+      repositories: this.azureRepositories.filter((repo) => repo.projectName === projectName),
     });
   };
 
-  searchAzureRepositories = () => {
+  searchAzureRepositories: typeof searchAzureRepositories = (_, searchQuery) => {
     return Promise.resolve({
-      repositories: this.azureRepositories,
+      repositories: this.azureRepositories.filter((repo) => repo.name.includes(searchQuery)),
     });
   };
 

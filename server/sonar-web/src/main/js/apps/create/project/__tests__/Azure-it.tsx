@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { screen } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
@@ -28,7 +28,9 @@ import DopTranslationServiceMock from '../../../../api/mocks/DopTranslationServi
 import NewCodeDefinitionServiceMock from '../../../../api/mocks/NewCodeDefinitionServiceMock';
 import { renderApp } from '../../../../helpers/testReactTestingUtils';
 import { byLabelText, byRole, byText } from '../../../../helpers/testSelector';
+import { Feature } from '../../../../types/features';
 import CreateProjectPage from '../CreateProjectPage';
+import { CreateProjectModes } from '../types';
 
 jest.mock('../../../../api/alm-integrations');
 jest.mock('../../../../api/alm-settings');
@@ -39,10 +41,25 @@ let newCodePeriodHandler: NewCodeDefinitionServiceMock;
 
 const ui = {
   azureCreateProjectButton: byText('onboarding.create_project.select_method.azure'),
+  cancelButton: byRole('button', { name: 'cancel' }),
+  azureOnboardingTitle: byRole('heading', { name: 'onboarding.create_project.azure.title' }),
+  monorepoDopSettingDropdown: byRole('combobox', {
+    name: 'onboarding.create_project.monorepo.choose_dop_settingalm.azure',
+  }),
+  instanceSelector: byLabelText(/alm.configuration.selector.label/),
+  monorepoTitle: byRole('heading', { name: 'onboarding.create_project.monorepo.titlealm.azure' }),
+  monorepoSetupLink: byRole('link', {
+    name: 'onboarding.create_project.subtitle_monorepo_setup_link',
+  }),
   personalAccessTokenInput: byRole('textbox', {
     name: /onboarding.create_project.enter_pat/,
   }),
-  instanceSelector: byLabelText(/alm.configuration.selector.label/),
+  repositorySelector: byRole('combobox', {
+    name: `onboarding.create_project.monorepo.choose_repository`,
+  }),
+  searchbox: byRole('searchbox', {
+    name: 'onboarding.create_project.search_projects_repositories',
+  }),
 };
 
 const original = window.location;
@@ -110,6 +127,47 @@ it('should show import project feature when PAT is already set', async () => {
     }),
   ).toBeInTheDocument();
 
+  await user.click(screen.getByText('Azure project 2'));
+  expect(
+    screen.getByRole('listitem', {
+      name: 'Azure repo 3',
+    }),
+  ).toBeInTheDocument();
+
+  await user.type(ui.searchbox.get(), 'repo 2');
+  expect(
+    screen.queryByRole('listitem', {
+      name: 'Azure repo 1',
+    }),
+  ).not.toBeInTheDocument();
+  expect(
+    screen.queryByRole('listitem', {
+      name: 'Azure repo 3',
+    }),
+  ).not.toBeInTheDocument();
+  expect(
+    screen.getByRole('listitem', {
+      name: 'Azure repo 2',
+    }),
+  ).toBeInTheDocument();
+
+  await user.clear(ui.searchbox.get());
+  expect(
+    screen.queryByRole('listitem', {
+      name: 'Azure repo 3',
+    }),
+  ).not.toBeInTheDocument();
+  expect(
+    screen.getByRole('listitem', {
+      name: 'Azure repo 1',
+    }),
+  ).toBeInTheDocument();
+  expect(
+    screen.getByRole('listitem', {
+      name: 'Azure repo 2',
+    }),
+  ).toBeInTheDocument();
+
   const importButton = screen.getByText('onboarding.create_project.import');
   await user.click(importButton);
 
@@ -149,8 +207,63 @@ it('should show search filter when PAT is already set', async () => {
   expect(screen.getByText('onboarding.create_project.azure.no_results')).toBeInTheDocument();
 });
 
-function renderCreateProject() {
-  renderApp('project/create', <CreateProjectPage />, {
-    navigateTo: 'project/create?mode=azure',
+describe('Azure monorepo setup navigation', () => {
+  it('should not display monorepo setup link if feature is disabled', async () => {
+    renderCreateProject({ isMonorepoFeatureEnabled: false });
+
+    await waitFor(() => {
+      // This test raises an Act warning if the following expect is not wrapped inside a `waitFor`
+      // Feel free to investigate and fix it if you have time
+      expect(ui.monorepoSetupLink.query()).not.toBeInTheDocument();
+    });
+  });
+
+  it('should be able to access monorepo setup page from Azure project import page', async () => {
+    const user = userEvent.setup();
+    renderCreateProject();
+
+    await user.click(await ui.monorepoSetupLink.find());
+
+    expect(ui.monorepoTitle.get()).toBeInTheDocument();
+  });
+
+  it('should be able to go back to Azure onboarding page from monorepo setup page', async () => {
+    const user = userEvent.setup();
+    renderCreateProject({ isMonorepo: true });
+
+    await user.click(await ui.cancelButton.find());
+
+    expect(ui.azureOnboardingTitle.get()).toBeInTheDocument();
+  });
+
+  it('should load every repositories from every projects in monorepo setup mode', async () => {
+    renderCreateProject({ isMonorepo: true });
+
+    await selectEvent.select(await ui.monorepoDopSettingDropdown.find(), [/conf-azure-2/]);
+    selectEvent.openMenu(await ui.repositorySelector.find());
+
+    expect(screen.getByText('Azure repo 1')).toBeInTheDocument();
+    expect(screen.getByText('Azure repo 2')).toBeInTheDocument();
+    expect(screen.getByText('Azure repo 3')).toBeInTheDocument();
+  });
+});
+
+function renderCreateProject({
+  isMonorepo = false,
+  isMonorepoFeatureEnabled = true,
+}: {
+  isMonorepo?: boolean;
+  isMonorepoFeatureEnabled?: boolean;
+} = {}) {
+  let queryString = `mode=${CreateProjectModes.AzureDevOps}`;
+  if (isMonorepo) {
+    queryString += '&mono=true';
+  }
+
+  renderApp('projects/create', <CreateProjectPage />, {
+    navigateTo: `projects/create?${queryString}`,
+    featureList: isMonorepoFeatureEnabled
+      ? [Feature.MonoRepositoryPullRequestDecoration]
+      : undefined,
   });
 }
