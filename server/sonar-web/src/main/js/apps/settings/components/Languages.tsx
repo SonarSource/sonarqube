@@ -73,11 +73,10 @@ export function Languages(props: Readonly<LanguagesProps>) {
         <SearchSelectDropdown
           defaultOptions={availableLanguages}
           controlAriaLabel={translate('property.category.languages')}
-          className="input-large select-settings-language"
           onChange={handleOnChange}
           loadOptions={handleLanguagesSearch}
           placeholder={translate('settings.languages.select_a_language_placeholder')}
-          size="large"
+          controlSize="medium"
           zLevel={PopupZLevel.Content}
           value={availableLanguages.find((language) => language.value === selectedLanguage)}
         />
