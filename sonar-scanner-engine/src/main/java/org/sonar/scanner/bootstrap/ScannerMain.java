@@ -60,6 +60,8 @@ public class ScannerMain {
 
     var properties = parseInputProperties(in);
 
+    EnvironmentConfig.processEnvVariables(properties);
+
     configureLogLevel(properties);
 
     runScannerEngine(properties);

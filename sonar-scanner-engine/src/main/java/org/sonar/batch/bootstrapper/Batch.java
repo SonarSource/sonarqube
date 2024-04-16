@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
 import org.sonar.api.utils.MessageException;
+import org.sonar.scanner.bootstrap.EnvironmentConfig;
 import org.sonar.scanner.bootstrap.SpringGlobalContainer;
 
 /**
@@ -47,6 +48,7 @@ public final class Batch {
     }
     if (builder.globalProperties != null) {
       globalProperties.putAll(builder.globalProperties);
+      EnvironmentConfig.processEnvVariables(globalProperties);
     }
     if (builder.isEnableLoggingConfiguration()) {
       loggingConfig = new LoggingConfiguration(builder.environment).setProperties(globalProperties);
