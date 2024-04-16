@@ -72,7 +72,8 @@ public class IntegrationTest {
       .setProperty(GITLAB_AUTH_URL, gitLabUrl)
       .setProperty(GITLAB_AUTH_APPLICATION_ID, "123")
       .setProperty(GITLAB_AUTH_SECRET, "456")
-      .setProperty(GITLAB_AUTH_ALLOWED_GROUPS, "group1,group2");
+      .setProperty(GITLAB_AUTH_ALLOWED_GROUPS, "group1,group2")
+      .setProperty(GITLAB_AUTH_SYNC_USER_GROUPS, "true");
   }
 
   @Test
@@ -96,7 +97,7 @@ public class IntegrationTest {
   }
 
   @Test
-  public void callback_whenNotAllowedUser_shouldThrow() {
+  public void callback_whenGroupNotAllowedAndGroupSyncEnabled_shouldThrow() {
     OAuth2IdentityProvider.CallbackContext callbackContext = mockCallbackContext();
 
     mockAccessTokenResponse();
@@ -106,6 +107,21 @@ public class IntegrationTest {
     assertThatThrownBy(() -> gitLabIdentityProvider.callback(callbackContext))
       .isInstanceOf((UnauthorizedException.class))
       .hasMessage("You are not allowed to authenticate");
+  }
+
+  @Test
+  public void callback_whenGroupNotAllowedAndGroupSyncDisabled_shouldThrow() {
+    mapSettings.setProperty(GITLAB_AUTH_SYNC_USER_GROUPS, "false");
+    OAuth2IdentityProvider.CallbackContext callbackContext = mockCallbackContext();
+
+    mockAccessTokenResponse();
+    mockUserResponse();
+    mockSingleGroupReponse("wrong-group");
+
+    gitLabIdentityProvider.callback(callbackContext);
+
+    verify(callbackContext).authenticate(any());
+    verify(callbackContext).redirectToRequestedPage();
   }
 
   @Test
