@@ -61,9 +61,7 @@ export default function DetailsHeader({ qualityGate }: Readonly<Props>) {
     actions.setAsDefault,
   ])['true'];
   const canEdit = Boolean(actions?.manageConditions);
-  const { mutateAsync: setQualityGateAsDefault } = useSetQualityGateAsDefaultMutation(
-    qualityGate.name,
-  );
+  const { mutateAsync: setQualityGateAsDefault } = useSetQualityGateAsDefaultMutation();
 
   const handleSetAsDefaultClick = () => {
     if (!qualityGate.isDefault) {
