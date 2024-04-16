@@ -94,10 +94,7 @@ export default function SystemUpgradeItem(props: SystemUpgradeItemProps) {
           {translateWithParameters('system.download_x', lastUpgrade.version)}
         </DownloadButton>
 
-        <DocumentationLink
-          className="sw-ml-2"
-          to="/setup-and-upgrade/upgrade-the-server/upgrade-guide/"
-        >
+        <DocumentationLink className="sw-ml-2" to="/setup-and-upgrade/upgrade-the-server/roadmap/">
           {translate('system.how_to_upgrade')}
         </DocumentationLink>
       </div>

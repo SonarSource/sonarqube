@@ -233,7 +233,7 @@ export default class App extends React.PureComponent<Props, State> {
                     id="maintenance.sonarqube_is_under_maintenance.2"
                     values={{
                       link: (
-                        <DocumentationLink to="/setup-and-upgrade/upgrade-the-server/upgrade-guide/">
+                        <DocumentationLink to="/setup-and-upgrade/upgrade-the-server/roadmap/">
                           {translate('maintenance.sonarqube_is_under_maintenance_link.2')}
                         </DocumentationLink>
                       ),
