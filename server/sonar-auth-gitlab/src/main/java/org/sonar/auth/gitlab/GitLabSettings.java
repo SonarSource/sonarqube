@@ -126,9 +126,9 @@ public class GitLabSettings {
         .build(),
       PropertyDefinition.builder(GITLAB_AUTH_ALLOWED_GROUPS)
         .name("Allowed groups")
-        .description("Only members of these groups (and sub-groups) will be allowed to authenticate. " +
-          "Please enter the group slug as it appears in the GitLab URL, for instance `my-gitlab-group`. " +
-          "⚠ if not set, any GitLab user will be able to authenticate to the server.")
+        .description("Only members of these groups (and sub-groups) will be allowed to authenticate. Enter the group slug as it appears in the GitLab URL, for instance " +
+          "`my-gitlab-group`. ⚠ When you turn on `Allow users to sign up`, make sure to also turn on group synchronization and provide a list of allowed groups." +
+          " Otherwise, any GitLab user will be able to log in to this SonarQube instance.")
         .multiValues(true)
         .category(CATEGORY)
         .subCategory(SUBCATEGORY)

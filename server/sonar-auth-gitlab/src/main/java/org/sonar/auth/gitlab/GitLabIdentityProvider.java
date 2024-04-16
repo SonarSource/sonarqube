@@ -20,16 +20,17 @@
 package org.sonar.auth.gitlab;
 
 import com.github.scribejava.core.builder.ServiceBuilder;
-import com.github.scribejava.core.builder.ServiceBuilderOAuth20;
 import com.github.scribejava.core.model.OAuth2AccessToken;
 import com.github.scribejava.core.model.OAuthConstants;
 import com.github.scribejava.core.oauth.OAuth20Service;
+import com.google.common.annotations.VisibleForTesting;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Stream;
+import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import org.sonar.api.server.authentication.Display;
 import org.sonar.api.server.authentication.OAuth2IdentityProvider;
@@ -41,17 +42,24 @@ import static java.util.stream.Collectors.toSet;
 
 public class GitLabIdentityProvider implements OAuth2IdentityProvider {
 
-  public static final String API_SCOPE = "api";
-  public static final String READ_USER_SCOPE = "read_user";
   public static final String KEY = "gitlab";
   private final GitLabSettings gitLabSettings;
   private final ScribeGitLabOauth2Api scribeApi;
   private final GitLabRestClient gitLabRestClient;
+  private final ScribeFactory scribeFactory;
 
+  @Inject
   public GitLabIdentityProvider(GitLabSettings gitLabSettings, GitLabRestClient gitLabRestClient, ScribeGitLabOauth2Api scribeApi) {
+    this(gitLabSettings, gitLabRestClient, scribeApi, new ScribeFactory());
+  }
+
+  @VisibleForTesting
+  GitLabIdentityProvider(GitLabSettings gitLabSettings, GitLabRestClient gitLabRestClient, ScribeGitLabOauth2Api scribeApi,
+    ScribeFactory scribeFactory) {
     this.gitLabSettings = gitLabSettings;
     this.scribeApi = scribeApi;
     this.gitLabRestClient = gitLabRestClient;
+    this.scribeFactory = scribeFactory;
   }
 
   @Override
@@ -85,23 +93,18 @@ public class GitLabIdentityProvider implements OAuth2IdentityProvider {
   @Override
   public void init(InitContext context) {
     String state = context.generateCsrfState();
-    OAuth20Service scribe = newScribeBuilder(context).build(scribeApi);
-    String url = scribe.getAuthorizationUrl(state);
-    context.redirectTo(url);
-  }
-
-  private ServiceBuilderOAuth20 newScribeBuilder(OAuth2Context context) {
-    checkState(isEnabled(), "GitLab authentication is disabled");
-    return new ServiceBuilder(gitLabSettings.applicationId())
-      .apiSecret(gitLabSettings.secret())
-      .defaultScope(gitLabSettings.syncUserGroups() ? API_SCOPE : READ_USER_SCOPE)
-      .callback(context.getCallbackUrl());
+    try (OAuth20Service scribe = scribeFactory.newScribe(gitLabSettings, context.getCallbackUrl(), scribeApi)) {
+      String url = scribe.getAuthorizationUrl(state);
+      context.redirectTo(url);
+    } catch (IOException e) {
+      throw new IllegalStateException(e);
+    }
   }
 
   @Override
   public void callback(CallbackContext context) {
-    try {
-      onCallback(context);
+    try (OAuth20Service scribe = scribeFactory.newScribe(gitLabSettings, context.getCallbackUrl(), scribeApi)) {
+      onCallback(context, scribe);
     } catch (IOException | ExecutionException e) {
       throw new IllegalStateException(e);
     } catch (InterruptedException e) {
@@ -110,12 +113,10 @@ public class GitLabIdentityProvider implements OAuth2IdentityProvider {
     }
   }
 
-  private void onCallback(CallbackContext context) throws InterruptedException, ExecutionException, IOException {
+  private void onCallback(CallbackContext context, OAuth20Service scribe) throws InterruptedException, ExecutionException, IOException {
     HttpServletRequest request = context.getRequest();
-    OAuth20Service scribe = newScribeBuilder(context).build(scribeApi);
     String code = request.getParameter(OAuthConstants.CODE);
     OAuth2AccessToken accessToken = scribe.getAccessToken(code);
-
     GsonUser user = gitLabRestClient.getUser(scribe, accessToken);
 
     UserIdentity.Builder builder = UserIdentity.builder()
@@ -124,22 +125,20 @@ public class GitLabIdentityProvider implements OAuth2IdentityProvider {
       .setName(user.getName())
       .setEmail(user.getEmail());
 
-
-    Set<String> userGroups = getGroups(scribe, accessToken);
-
-    if (!gitLabSettings.allowedGroups().isEmpty()) {
-      validateUserInAllowedGroups(userGroups, gitLabSettings.allowedGroups());
-    }
-
     if (gitLabSettings.syncUserGroups()) {
+      Set<String> userGroups = getGroups(scribe, accessToken);
+      validateUserInAllowedGroups(userGroups, gitLabSettings.allowedGroups());
       builder.setGroups(userGroups);
     }
-
     context.authenticate(builder.build());
     context.redirectToRequestedPage();
   }
 
-  private static void validateUserInAllowedGroups(Set<String> userGroups, Set<String> allowedGroups) {
+  private void validateUserInAllowedGroups(Set<String> userGroups, Set<String> allowedGroups) {
+    if (gitLabSettings.allowedGroups().isEmpty()) {
+      return;
+    }
+
     boolean allowedUser = userGroups.stream()
       .anyMatch(userGroup -> isAllowedGroup(userGroup, allowedGroups));
 
@@ -158,6 +157,21 @@ public class GitLabIdentityProvider implements OAuth2IdentityProvider {
       .flatMap(Collection::stream)
       .map(GsonGroup::getFullPath)
       .collect(toSet());
+  }
+
+  static class ScribeFactory {
+
+    private static final String API_SCOPE = "api";
+    private static final String READ_USER_SCOPE = "read_user";
+
+    OAuth20Service newScribe(GitLabSettings gitLabSettings, String callbackUrl, ScribeGitLabOauth2Api scribeApi) {
+      checkState(gitLabSettings.isEnabled(), "GitLab authentication is disabled");
+      return new ServiceBuilder(gitLabSettings.applicationId())
+        .apiSecret(gitLabSettings.secret())
+        .defaultScope(gitLabSettings.syncUserGroups() ? API_SCOPE : READ_USER_SCOPE)
+        .callback(callbackUrl)
+        .build(scribeApi);
+    }
   }
 
 }
