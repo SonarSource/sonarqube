@@ -110,6 +110,7 @@
     "postcss-calc": "9.0.1",
     "postcss-custom-properties": "12.1.11",
     "prettier": "3.2.5",
+    "prettier-plugin-organize-imports": "3.2.4",
     "react-select-event": "5.5.1",
     "tailwindcss": "3.3.5",
     "turbo": "1.11.3",

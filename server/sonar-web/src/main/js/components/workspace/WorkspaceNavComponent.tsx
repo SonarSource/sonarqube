@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { ComponentDescriptor } from './context';
 import WorkspaceComponentTitle from './WorkspaceComponentTitle';
 import WorkspaceNavItem from './WorkspaceNavItem';
+import { ComponentDescriptor } from './context';
 
 export interface Props {
   component: ComponentDescriptor;

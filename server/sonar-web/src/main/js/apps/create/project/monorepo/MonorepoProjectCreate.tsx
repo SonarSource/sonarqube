@@ -32,8 +32,8 @@ import { ImportProjectParam } from '../CreateProjectPage';
 import { ProjectData } from '../components/ProjectValidation';
 import { CreateProjectModes } from '../types';
 import { getSanitizedProjectKey } from '../utils';
-import { MonorepoProjectHeader } from './MonorepoProjectHeader';
 import { MonorepoConnectionSelector } from './MonorepoConnectionSelector';
+import { MonorepoProjectHeader } from './MonorepoProjectHeader';
 import { MonorepoProjectsList } from './MonorepoProjectsList';
 
 interface MonorepoProjectCreateProps {

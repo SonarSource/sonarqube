@@ -5828,6 +5828,7 @@ __metadata:
     postcss-calc: "npm:9.0.1"
     postcss-custom-properties: "npm:12.1.11"
     prettier: "npm:3.2.5"
+    prettier-plugin-organize-imports: "npm:3.2.4"
     react: "npm:18.2.0"
     react-day-picker: "npm:8.10.0"
     react-dom: "npm:18.2.0"
@@ -7705,6 +7706,7 @@ __metadata:
     postcss-calc: "npm:9.0.1"
     postcss-custom-properties: "npm:12.1.11"
     prettier: "npm:^3.1.0"
+    prettier-plugin-organize-imports: "npm:3.2.4"
     react-toastify: "npm:10.0.4"
     twin.macro: "npm:3.4.1"
     typescript: "npm:5.3.3"
@@ -12745,6 +12747,23 @@ __metadata:
   version: 1.1.2
   resolution: "prelude-ls@npm:1.1.2"
   checksum: 10/946a9f60d3477ca6b7d4c5e8e452ad1b98dc8aaa992cea939a6b926ac16cc4129d7217c79271dc808b5814b1537ad0af37f29a942e2eafbb92cfc5a1c87c38cb
+  languageName: node
+  linkType: hard
+
+"prettier-plugin-organize-imports@npm:3.2.4":
+  version: 3.2.4
+  resolution: "prettier-plugin-organize-imports@npm:3.2.4"
+  peerDependencies:
+    "@volar/vue-language-plugin-pug": ^1.0.4
+    "@volar/vue-typescript": ^1.0.4
+    prettier: ">=2.0"
+    typescript: ">=2.9"
+  peerDependenciesMeta:
+    "@volar/vue-language-plugin-pug":
+      optional: true
+    "@volar/vue-typescript":
+      optional: true
+  checksum: 10/93c98d365af500aa4c72f5330d82c20a20d0e7661a9692e6f26a76a2f4f88b99e0f85dcb8871e98b6d687d6e19ea5f1dcc937f9e29fd0778e888675ecafed233
   languageName: node
   linkType: hard
 

@@ -24,11 +24,11 @@ import { addGlobalErrorMessage } from 'design-system';
 import * as React from 'react';
 import { getLoginMessage } from '../../../../api/settings';
 import { getIdentityProviders } from '../../../../api/users';
+import { getBaseUrl } from '../../../../helpers/system';
 import { mockLocation } from '../../../../helpers/testMocks';
 import { renderComponent } from '../../../../helpers/testReactTestingUtils';
 import { byLabelText, byRole, byText } from '../../../../helpers/testSelector';
 import { LoginContainer } from '../LoginContainer';
-import { getBaseUrl } from '../../../../helpers/system';
 
 jest.mock('../../../../helpers/system', () => ({
   getBaseUrl: jest.fn().mockReturnValue(''),

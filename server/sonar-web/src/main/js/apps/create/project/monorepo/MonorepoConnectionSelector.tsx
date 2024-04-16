@@ -20,13 +20,13 @@
 import { Title } from 'design-system/lib';
 import React from 'react';
 import { FormattedMessage } from 'react-intl';
+import { LabelValueSelectOption } from '../../../../helpers/search';
+import { AlmKeys } from '../../../../types/alm-settings';
+import { DopSetting } from '../../../../types/dop-translation';
 import DopSettingDropdown from '../components/DopSettingDropdown';
+import MonorepoNoOrganisations from './MonorepoNoOrganisations';
 import { MonorepoOrganisationSelector } from './MonorepoOrganisationSelector';
 import { MonorepoRepositorySelector } from './MonorepoRepositorySelector';
-import { LabelValueSelectOption } from '../../../../helpers/search';
-import { DopSetting } from '../../../../types/dop-translation';
-import { AlmKeys } from '../../../../types/alm-settings';
-import MonorepoNoOrganisations from './MonorepoNoOrganisations';
 
 interface Props {
   almKey: AlmKeys;

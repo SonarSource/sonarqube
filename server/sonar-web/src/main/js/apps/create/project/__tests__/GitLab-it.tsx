@@ -27,8 +27,8 @@ import DopTranslationServiceMock from '../../../../api/mocks/DopTranslationServi
 import NewCodeDefinitionServiceMock from '../../../../api/mocks/NewCodeDefinitionServiceMock';
 import { renderApp } from '../../../../helpers/testReactTestingUtils';
 import { byLabelText, byRole, byText } from '../../../../helpers/testSelector';
-import CreateProjectPage from '../CreateProjectPage';
 import { Feature } from '../../../../types/features';
+import CreateProjectPage from '../CreateProjectPage';
 import { CreateProjectModes } from '../types';
 
 jest.mock('../../../../api/alm-integrations');

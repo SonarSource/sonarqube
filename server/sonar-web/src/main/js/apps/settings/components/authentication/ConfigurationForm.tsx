@@ -31,9 +31,9 @@ import { ProvisioningType } from '../../../../types/provisioning';
 import { Dict, Provider } from '../../../../types/types';
 import { AuthenticationTabs, DOCUMENTATION_LINK_SUFFIXES } from './Authentication';
 import AuthenticationFormField from './AuthenticationFormField';
+import ConfirmProvisioningModal from './ConfirmProvisioningModal';
 import { SettingValue } from './hook/useConfiguration';
 import { isAllowToSignUpEnabled, isOrganizationListEmpty } from './hook/useGithubConfiguration';
-import ConfirmProvisioningModal from './ConfirmProvisioningModal';
 
 interface Props {
   canBeSave: boolean;

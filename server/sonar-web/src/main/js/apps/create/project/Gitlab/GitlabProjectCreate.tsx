@@ -17,20 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { LabelValueSelectOption } from 'design-system';
+import { orderBy } from 'lodash';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { getGitlabProjects } from '../../../../api/alm-integrations';
+import { useLocation, useRouter } from '../../../../components/hoc/withRouter';
 import { GitlabProject } from '../../../../types/alm-integration';
 import { AlmInstanceBase } from '../../../../types/alm-settings';
+import { DopSetting } from '../../../../types/dop-translation';
 import { Paging } from '../../../../types/types';
 import { ImportProjectParam } from '../CreateProjectPage';
-import { CreateProjectModes } from '../types';
-import GitlabProjectCreateRenderer from './GitlabProjectCreateRenderer';
-import { DopSetting } from '../../../../types/dop-translation';
-import { useLocation, useRouter } from '../../../../components/hoc/withRouter';
 import MonorepoProjectCreate from '../monorepo/MonorepoProjectCreate';
+import { CreateProjectModes } from '../types';
 import GitlabPersonalAccessTokenForm from './GItlabPersonalAccessTokenForm';
-import { orderBy } from 'lodash';
-import { LabelValueSelectOption } from 'design-system';
+import GitlabProjectCreateRenderer from './GitlabProjectCreateRenderer';
 
 interface Props {
   canAdmin: boolean;

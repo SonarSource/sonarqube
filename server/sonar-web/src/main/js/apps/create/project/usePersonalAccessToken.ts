@@ -23,8 +23,8 @@ import {
   setAlmPersonalAccessToken,
 } from '../../../api/alm-integrations';
 import { translate } from '../../../helpers/l10n';
-import { tokenExistedBefore } from './utils';
 import { AlmInstanceBase } from '../../../types/alm-settings';
+import { tokenExistedBefore } from './utils';
 
 export interface PATType {
   validationFailed: boolean;

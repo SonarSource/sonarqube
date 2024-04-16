@@ -40,11 +40,11 @@ import { Provider } from '../../../../types/types';
 import { DOCUMENTATION_LINK_SUFFIXES } from './Authentication';
 import AuthenticationFormField from './AuthenticationFormField';
 import ConfigurationDetails from './ConfigurationDetails';
+import ConfirmProvisioningModal from './ConfirmProvisioningModal';
 import GitLabConfigurationForm from './GitLabConfigurationForm';
 import GitLabConfigurationValidity from './GitLabConfigurationValidity';
 import ProvisioningSection from './ProvisioningSection';
 import TabHeader from './TabHeader';
-import ConfirmProvisioningModal from './ConfirmProvisioningModal';
 
 interface ChangesForm {
   provisioningType?: GitLabConfigurationUpdateBody['provisioningType'];

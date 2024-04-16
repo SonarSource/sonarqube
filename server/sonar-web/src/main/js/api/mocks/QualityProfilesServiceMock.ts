@@ -72,7 +72,7 @@ import {
   searchUsers,
   setDefaultProfile,
 } from '../quality-profiles';
-import { getRuleDetails, searchRules, listRules } from '../rules';
+import { getRuleDetails, listRules, searchRules } from '../rules';
 
 jest.mock('../../api/rules');
 

@@ -19,13 +19,13 @@
  */
 import {
   ButtonPrimary,
-  Spinner,
   FlagErrorIcon,
   FlagMessage,
   FormField,
   InputField,
   LightPrimary,
   Link,
+  Spinner,
 } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';

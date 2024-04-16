@@ -33,8 +33,8 @@ import InstanceMessage from '../../components/common/InstanceMessage';
 import AppVersionStatus from '../../components/shared/AppVersionStatus';
 import { useDocUrl } from '../../helpers/docs';
 import { getEdition } from '../../helpers/editions';
-import { useAppState } from './app-state/withAppStateContext';
 import GlobalFooterBranding from './GlobalFooterBranding';
+import { useAppState } from './app-state/withAppStateContext';
 
 interface GlobalFooterProps {
   hideLoggedInInfo?: boolean;

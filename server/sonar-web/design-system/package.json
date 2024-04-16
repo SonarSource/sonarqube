@@ -49,6 +49,7 @@
     "postcss-calc": "9.0.1",
     "postcss-custom-properties": "12.1.11",
     "prettier": "^3.1.0",
+    "prettier-plugin-organize-imports": "3.2.4",
     "twin.macro": "3.4.1",
     "typescript": "5.3.3",
     "vite": "4.5.0",

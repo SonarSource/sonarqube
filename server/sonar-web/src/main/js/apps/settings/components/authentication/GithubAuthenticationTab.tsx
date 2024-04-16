@@ -37,6 +37,7 @@ import AuthenticationFormField from './AuthenticationFormField';
 import AutoProvisioningConsent from './AutoProvisionningConsent';
 import ConfigurationDetails from './ConfigurationDetails';
 import ConfigurationForm from './ConfigurationForm';
+import ConfirmProvisioningModal from './ConfirmProvisioningModal';
 import GitHubConfigurationValidity from './GitHubConfigurationValidity';
 import GitHubMappingModal from './GitHubMappingModal';
 import ProvisioningSection from './ProvisioningSection';
@@ -48,7 +49,6 @@ import useGithubConfiguration, {
   isAllowToSignUpEnabled,
   isOrganizationListEmpty,
 } from './hook/useGithubConfiguration';
-import ConfirmProvisioningModal from './ConfirmProvisioningModal';
 
 interface GithubAuthenticationProps {
   definitions: ExtendedSettingDefinition[];

@@ -17,22 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Link, Spinner } from '@sonarsource/echoes-react';
 import { LightPrimary, Title } from 'design-system';
 import * as React from 'react';
+import { FormattedMessage } from 'react-intl';
+import { AvailableFeaturesContext } from '../../../../app/components/available-features/AvailableFeaturesContext';
 import { translate } from '../../../../helpers/l10n';
+import { queryToSearch } from '../../../../helpers/urls';
 import { GitlabProject } from '../../../../types/alm-integration';
 import { AlmInstanceBase, AlmKeys, AlmSettingsInstance } from '../../../../types/alm-settings';
+import { Feature } from '../../../../types/features';
 import { Paging } from '../../../../types/types';
 import AlmSettingsInstanceDropdown from '../components/AlmSettingsInstanceDropdown';
 import WrongBindingCountAlert from '../components/WrongBindingCountAlert';
+import { CreateProjectModes } from '../types';
 import GitlabPersonalAccessTokenForm from './GItlabPersonalAccessTokenForm';
 import GitlabProjectSelectionForm from './GitlabProjectSelectionForm';
-import { FormattedMessage } from 'react-intl';
-import { Link, Spinner } from '@sonarsource/echoes-react';
-import { queryToSearch } from '../../../../helpers/urls';
-import { CreateProjectModes } from '../types';
-import { Feature } from '../../../../types/features';
-import { AvailableFeaturesContext } from '../../../../app/components/available-features/AvailableFeaturesContext';
 
 export interface GitlabProjectCreateRendererProps {
   canAdmin?: boolean;

@@ -19,10 +19,10 @@
  */
 import { FlagMessage } from 'design-system';
 import React from 'react';
+import { useIntl } from 'react-intl';
 import ConfirmModal from '../../../../components/controls/ConfirmModal';
 import { ProvisioningType } from '../../../../types/provisioning';
 import { Provider } from '../../../../types/types';
-import { useIntl } from 'react-intl';
 
 interface Props {
   allowUsersToSignUp?: boolean;

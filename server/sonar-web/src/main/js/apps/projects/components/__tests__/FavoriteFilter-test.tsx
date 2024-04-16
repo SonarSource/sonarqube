@@ -28,7 +28,7 @@ import {
   mockRouter,
 } from '../../../../helpers/testMocks';
 import { renderComponent } from '../../../../helpers/testReactTestingUtils';
-import { ALL_PATHNAME, FavoriteFilter, FAVORITE_PATHNAME } from '../FavoriteFilter';
+import { ALL_PATHNAME, FAVORITE_PATHNAME, FavoriteFilter } from '../FavoriteFilter';
 
 jest.mock('../../../../helpers/storage', () => ({
   save: jest.fn(),

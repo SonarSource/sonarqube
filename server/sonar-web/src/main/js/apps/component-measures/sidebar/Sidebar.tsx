@@ -33,10 +33,10 @@ import * as React from 'react';
 import A11ySkipTarget from '../../../components/a11y/A11ySkipTarget';
 import { translate } from '../../../helpers/l10n';
 import useFollowScroll from '../../../hooks/useFollowScroll';
+import { Domain } from '../../../types/measures';
 import { MeasureEnhanced } from '../../../types/types';
 import { PROJECT_OVERVEW, Query, isProjectOverview, populateDomainsFromMeasures } from '../utils';
 import DomainSubnavigation from './DomainSubnavigation';
-import { Domain } from '../../../types/measures';
 
 interface Props {
   measures: MeasureEnhanced[];

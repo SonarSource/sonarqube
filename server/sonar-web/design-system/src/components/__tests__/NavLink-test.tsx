@@ -18,8 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { screen } from '@testing-library/react';
-// @ts-expect-error React is needed for <></> fragments
-import React from 'react';
+import * as React from 'react';
 import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom';
 import { render } from '../../helpers/testUtils';
 import NavLink from '../NavLink';
@@ -99,10 +98,14 @@ const setupWithMemoryRouter = (component: JSX.Element, initialEntries = ['/initi
       <Routes>
         <Route
           element={
-            <>
+            // Below: using <></> won't work in extensions ('React' is not defined). This is because the
+            // name 'React' would already have been minified to something else when <> is resolved to
+            // React.Fragment
+            // eslint-disable-next-line react/jsx-fragments
+            <React.Fragment>
               {component}
               <ShowPath />
-            </>
+            </React.Fragment>
           }
           path="/initial"
         />
