@@ -39,7 +39,7 @@ export default function BranchMetaTopBar({ branch, measures, component }: Readon
   const intl = useIntl();
 
   const currentPage = getCurrentPage(component, branch) as HomePage;
-  const locMeasure = findMeasure(measures, MetricKey.lines);
+  const locMeasure = findMeasure(measures, MetricKey.ncloc);
 
   const leftSection = (
     <h1 className="sw-flex sw-gap-2 sw-items-center sw-heading-md">{branch.name}</h1>
