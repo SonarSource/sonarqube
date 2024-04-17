@@ -19,10 +19,11 @@
  */
 import { deleteRequest, getJSON, post, postJSON } from '../helpers/request';
 import { throwGlobalError } from '../helpers/error';
-import { Visibility } from "../types/types";
+import { Visibility, Notification } from "../types/types";
 
-export function getRawNotificationsForOrganization(key: string){
-  return getJSON('/_codescan/notifications', { organizationId: key });
+export function getRawNotificationsForOrganization(key: string) : Promise<Notification> {
+  return getJSON('/_codescan/notifications', { organizationId: key })
+      .catch(throwGlobalError);
 }
 
 export function deleteProject(uuid: string, deleteProject?: boolean): Promise<void> {

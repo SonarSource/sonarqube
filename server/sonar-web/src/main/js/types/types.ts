@@ -868,3 +868,8 @@ export interface OrganizationBase {
 export interface OrganizationMember extends UserActive {
   groupCount?: number;
 }
+
+export interface Notification {
+  type: string
+  message: string
+}

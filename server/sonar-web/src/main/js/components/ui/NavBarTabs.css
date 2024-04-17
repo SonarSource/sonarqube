@@ -49,7 +49,7 @@
 .navbar-tabs > li > .button-link:focus {
   border-bottom-color: var(--blue);
 }
-.org-alert{
+.org-alert-error{
   border: 1px solid #f4b1b0;
   background-color: #f2dede;
   color: #862422;
@@ -60,7 +60,7 @@
     margin-left: auto;
     margin-right: auto;
 }
-.org-alert .icon{
+.org-alert-error .icon{
   float: left;
   color: #f2dede;
   border-radius: 54px;
@@ -71,7 +71,28 @@
   padding-left: 8px;
   font-size: 12px;
 }
-.org-alert .msg{
+.org-alert-error .msg{
+  float:left;
+  padding: 7px;
+}
+.org-alert-warning{
+  border: 1px solid #faebcc;
+  background-color: #fcf8e3;
+  color: #6f4f17;
+  height: 30px;
+}
+.org-alert-warning .icon{
+  float: left;
+  color: #db781a;
+  border-radius: 54px;
+  border: 1px solid #faebcc;
+  background-color: orange;
+  width: 14px;
+  margin: 6px 7px;
+  padding-left: 10px;
+  font-size: 12px;
+}
+.org-alert-warning .msg{
   float:left;
   padding: 7px;
 }

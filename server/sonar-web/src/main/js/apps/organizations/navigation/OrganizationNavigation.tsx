@@ -23,9 +23,9 @@ import OrganizationNavigationMenu from './OrganizationNavigationMenu';
 import OrganizationNavigationMeta from './OrganizationNavigationMeta';
 import { rawSizes } from '../../../app/theme';
 import ContextNavBar from "../../../components/ui/ContextNavBar";
-import { Organization } from "../../../types/types";
+import { Organization, Notification } from "../../../types/types";
 import { getRawNotificationsForOrganization } from '../../../../js/api/codescan';
-import { throwGlobalError } from '../../../../js/helpers/error';
+import { sanitizeUserInput } from '../../../helpers/sanitize';
 
 interface Props {
   location: { pathname: string };
@@ -33,83 +33,62 @@ interface Props {
   userOrganizations: Organization[];
 }
 
-interface State{
-  error: string,
-}
+export function OrganizationNavigation({ location, organization, userOrganizations }: Props) {
+  const [notifications, setNotifications] = React.useState<Notification[]>([]);
+  const { contextNavHeightRaw, contextNavHeightWithError } = rawSizes;
+  const [height, setHeight] = React.useState(contextNavHeightRaw);
+  const orgAlertHeight = 30; // refer .org-alert-warning height in NavBarTabs
 
-export class OrganizationNavigation extends React.PureComponent<Props, State> {
-  mounted = false;
-  state: State = {
-    error: ''
-  };
+  React.useEffect(() => {
+    const fetchNotifications = async () => {
+        const notifications = await getRawNotificationsForOrganization(organization.kee);
+        if (notifications.length > 0) {
+          const errorNotifications = notifications.filter(notification => notification.type == 'ERROR');
+          if (errorNotifications.length > 0) {
+            setNotifications(errorNotifications);
+            setHeight(contextNavHeightWithError + orgAlertHeight * (errorNotifications.length - 1));
+          } else {
+            setNotifications(notifications);
+            setHeight(contextNavHeightWithError + orgAlertHeight * (notifications.length - 1));
+          }
+        } else {
+          setNotifications([]);
+          setHeight(contextNavHeightRaw);
+        }
+    };
+    fetchNotifications();
+  },[organization, userOrganizations]);
 
- componentDidMount() {
-    this.mounted = true;
-    this.fetchNotificiations();
-  }
-
-  componentDidUpdate() {
-    this.fetchNotificiations();  
-  }
-
-  async fetchNotificiations() {
-    const { organization } = { ...this.props }
-    await getRawNotificationsForOrganization(organization.kee).then((data:any) => {
-      const notfication = data?.organization?.notifications?.[0];
-      if(notfication?.type === "error") {
-        this.setState({ error: notfication.message });
-      } else {
-        this.setState({ error: '' });  
-      }
-    }).catch(throwGlobalError)
-  }
-
-
-  componentWillUnmount() {
-    this.mounted = false;
-  }
-
-  render(){
-    const { contextNavHeightRaw, contextNavHeightWithError } = rawSizes;
-    const {location,organization,userOrganizations} = {...this.props}  
-    const {error} = {...this.state};
-    
-    const height = (error?.length>0) ? contextNavHeightWithError : contextNavHeightRaw;
-    return (
-      <>
-      <ContextNavBar height={height} id="context-navigation">
-        <div className="navbar-context-justified">
-          <OrganizationNavigationHeader
-              organization={organization}
-              organizations={userOrganizations}
-          />
-          <OrganizationNavigationMeta
-              organization={organization}
-          />
-        </div>
-        <OrganizationNavigationMenu
-            location={location}
-            organization={organization}
-        />
-        {
-        error?.length>0 ? (
-        <div className='org-alert'>
-          <div className='org-alert-inner'>
-            <div className='icon'>
-              x
-            </div>
-            <div className='msg'>
-              {error}
-            </div>
+  return (
+        <>
+        <ContextNavBar height={height} id="context-navigation">
+          <div className="navbar-context-justified">
+            <OrganizationNavigationHeader
+                organization={organization}
+                organizations={userOrganizations}
+            />
+            <OrganizationNavigationMeta
+                organization={organization}
+            />
           </div>
-        </div>
-        ) : (<></>)
-      }
-      </ContextNavBar>
-    </>
-  );
-  }
-
+          <OrganizationNavigationMenu
+              location={location}
+              organization={organization}
+          />
+          { notifications.map((notification, key) => (
+              <div className={"org-alert-" + notification.type.toLowerCase()} key={key}>
+                <div className='org-alert-inner'>
+                  <div className='icon'>
+                    {notification.type === 'ERROR' ? 'x' : '!'}
+                  </div>
+                  <div className='msg' dangerouslySetInnerHTML={{ __html: sanitizeUserInput(notification.message) }} />
+                </div>
+              </div>
+            ))
+          }
+        </ContextNavBar>
+      </>
+    );
 }
 
 export default OrganizationNavigation;
