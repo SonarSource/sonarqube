@@ -19,5 +19,5 @@ fi
   -Dsonar.analysis.pipeline="$PIPELINE_ID" \
   -Dsonar.analysis.repository="$GITHUB_REPO" \
   -Dsonar.analysis.sha1="$GIT_SHA1" \
-  -Dsonar.exclusions=**/design-system/src/theme/**
+  -Dsonar.exclusions=**/design-system/src/theme/** \
   --parallel --configure-on-demand --console plain -Pqa
