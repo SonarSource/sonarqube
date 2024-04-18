@@ -210,7 +210,7 @@ subprojects {
   ext {
     protobufVersion = '3.24.2'
     springVersion = '5.3.31'
-    elasticSearchVersion = '7.17.17'
+    elasticSearchVersion = '7.17.19'
   }
 
   sonar {
@@ -414,9 +414,9 @@ subprojects {
       }
       dependency "org.elasticsearch.plugin:transport-netty4-client:${elasticSearchVersion}"
       dependency 'org.elasticsearch:mocksocket:1.2'
-      dependency "org.codelibs.elasticsearch.module:analysis-common:${elasticSearchVersion}"
-      dependency "org.codelibs.elasticsearch.module:reindex:${elasticSearchVersion}"
       dependency 'org.eclipse.jgit:org.eclipse.jgit:6.9.0.202403050737-r'
+      dependency "org.codelibs.elasticsearch.module:analysis-common:7.17.18"
+      dependency "org.codelibs.elasticsearch.module:reindex:7.17.18"
       dependency 'org.tmatesoft.svnkit:svnkit:1.10.11'
       dependency 'org.hamcrest:hamcrest-all:1.3'
       dependency 'org.jsoup:jsoup:1.17.2'
