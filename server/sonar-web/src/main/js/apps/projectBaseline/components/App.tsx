@@ -136,7 +136,7 @@ export class App extends React.PureComponent<Props, State> {
     Promise.all([
       getNewCodePeriod(),
       getNewCodePeriod({
-        branch: this.props.hasFeature(Feature.BranchSupport) ? undefined : branchLike.name,
+        branch: branchLike.name,
         project: component.key,
       }),
     ]).then(
