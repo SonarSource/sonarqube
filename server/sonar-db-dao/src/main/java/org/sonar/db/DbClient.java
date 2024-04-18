@@ -43,6 +43,7 @@ import org.sonar.db.duplication.DuplicationDao;
 import org.sonar.db.es.EsQueueDao;
 import org.sonar.db.event.EventComponentChangeDao;
 import org.sonar.db.event.EventDao;
+import org.sonar.db.ideusage.IdeUsageDao;
 import org.sonar.db.issue.IssueChangeDao;
 import org.sonar.db.issue.IssueDao;
 import org.sonar.db.mapping.ProjectMappingsDao;
@@ -111,6 +112,7 @@ public class DbClient {
   private final QualityProfileDao qualityProfileDao;
   private final QualityProfileExportDao qualityProfileExportDao;
   private final PropertiesDao propertiesDao;
+  private final IdeUsageDao ideUsageDao;
   private final AlmSettingDao almSettingDao;
   private final AlmPatDao almPatDao;
   private final AuditDao auditDao;
@@ -201,6 +203,7 @@ public class DbClient {
     qualityProfileDao = getDao(map, QualityProfileDao.class);
     qualityProfileExportDao = getDao(map, QualityProfileExportDao.class);
     propertiesDao = getDao(map, PropertiesDao.class);
+    ideUsageDao = getDao(map, IdeUsageDao.class);
     internalPropertiesDao = getDao(map, InternalPropertiesDao.class);
     snapshotDao = getDao(map, SnapshotDao.class);
     componentDao = getDao(map, ComponentDao.class);
@@ -334,6 +337,10 @@ public class DbClient {
 
   public PropertiesDao propertiesDao() {
     return propertiesDao;
+  }
+
+  public IdeUsageDao ideUsageDao() {
+    return ideUsageDao;
   }
 
   public InternalPropertiesDao internalPropertiesDao() {

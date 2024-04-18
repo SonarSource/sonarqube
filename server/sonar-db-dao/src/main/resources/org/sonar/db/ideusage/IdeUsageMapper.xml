@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd">
+
+<mapper namespace="org.sonar.db.ideusage.IdeUsageMapper">
+
+  <delete id="deleteByOrganizationAndUser" parameterType="map">
+    delete from cs_ide_usage iu
+    where
+    iu.user_uuid=#{userUuid,jdbcType=VARCHAR}
+    and iu.organization_uuid=#{organizationUuid,jdbcType=VARCHAR}
+  </delete>
+
+</mapper>

@@ -43,6 +43,7 @@ import org.sonar.db.duplication.DuplicationDao;
 import org.sonar.db.es.EsQueueDao;
 import org.sonar.db.event.EventComponentChangeDao;
 import org.sonar.db.event.EventDao;
+import org.sonar.db.ideusage.IdeUsageDao;
 import org.sonar.db.issue.IssueChangeDao;
 import org.sonar.db.issue.IssueDao;
 import org.sonar.db.mapping.ProjectMappingsDao;
@@ -151,6 +152,7 @@ public class DaoModule extends Module {
     ProjectMappingsDao.class,
     ProjectQgateAssociationDao.class,
     PropertiesDao.class,
+    IdeUsageDao.class,
     PurgeDao.class,
     PushEventDao.class,
     QProfileChangeDao.class,

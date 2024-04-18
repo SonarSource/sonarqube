@@ -69,6 +69,7 @@ import org.sonar.db.es.EsQueueMapper;
 import org.sonar.db.event.EventComponentChangeMapper;
 import org.sonar.db.event.EventDto;
 import org.sonar.db.event.EventMapper;
+import org.sonar.db.ideusage.IdeUsageMapper;
 import org.sonar.db.issue.IssueChangeDto;
 import org.sonar.db.issue.IssueChangeMapper;
 import org.sonar.db.issue.IssueDto;
@@ -303,6 +304,7 @@ public class MyBatis {
       ProjectMappingsMapper.class,
       ProjectQgateAssociationMapper.class,
       PropertiesMapper.class,
+      IdeUsageMapper.class,
       PurgeMapper.class,
       PushEventMapper.class,
       QProfileChangeMapper.class,
