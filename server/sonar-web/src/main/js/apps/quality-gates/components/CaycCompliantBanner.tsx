@@ -28,13 +28,17 @@ import { FormattedMessage } from 'react-intl';
 import DocumentationLink from '../../../components/common/DocumentationLink';
 import { translate } from '../../../helpers/l10n';
 import { OPTIMIZED_CAYC_CONDITIONS } from '../utils';
+import QGRecommendedIcon from './QGRecommendedIcon';
 
 export default function CaycCompliantBanner() {
   return (
     <CardWithPrimaryBackground className="sw-mb-9 sw-p-8">
-      <SubHeadingHighlight className="sw-mb-2">
-        {translate('quality_gates.cayc.banner.title')}
-      </SubHeadingHighlight>
+      <div className="sw-flex sw-items-center sw-mb-2">
+        <QGRecommendedIcon className="sw-mr-2" />
+        <SubHeadingHighlight className="sw-m-0">
+          {translate('quality_gates.cayc.banner.title')}
+        </SubHeadingHighlight>
+      </div>
 
       <div>
         <FormattedMessage

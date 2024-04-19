@@ -17,13 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import {
-  Badge,
-  BareButton,
-  FlagWarningIcon,
-  SubnavigationGroup,
-  SubnavigationItem,
-} from 'design-system';
+import { Badge, BareButton, SubnavigationGroup, SubnavigationItem } from 'design-system';
 import * as React from 'react';
 import { useNavigate } from 'react-router-dom';
 import Tooltip from '../../../components/controls/Tooltip';
@@ -32,6 +26,7 @@ import { translate } from '../../../helpers/l10n';
 import { getQualityGateUrl } from '../../../helpers/urls';
 import { CaycStatus, QualityGate } from '../../../types/types';
 import BuiltInQualityGateBadge from './BuiltInQualityGateBadge';
+import QGRecommendedIcon from './QGRecommendedIcon';
 
 interface Props {
   qualityGates: QualityGate[];
@@ -80,12 +75,13 @@ export default function List({ qualityGates, currentQualityGate }: Props) {
                 </div>
               )}
             </div>
-            {qualityGate.caycStatus === CaycStatus.NonCompliant &&
-              qualityGate.actions?.manageConditions && (
-                <Tooltip overlay={translate('quality_gates.cayc.tooltip.message')}>
-                  <FlagWarningIcon description={translate('quality_gates.cayc.tooltip.message')} />
-                </Tooltip>
-              )}
+            {qualityGate.caycStatus !== CaycStatus.NonCompliant && (
+              <Tooltip overlay={translate('quality_gates.cayc.tooltip.message')}>
+                <span>
+                  <QGRecommendedIcon />
+                </span>
+              </Tooltip>
+            )}
           </SubnavigationItem>
         );
       })}

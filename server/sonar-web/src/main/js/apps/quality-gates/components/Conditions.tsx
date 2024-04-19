@@ -23,6 +23,7 @@ import {
   HeadingDark,
   HelperHintIcon,
   HighlightedSection,
+  LightLabel,
   LightPrimary,
   Link,
   Note,
@@ -34,6 +35,7 @@ import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { useAvailableFeatures } from '../../../app/components/available-features/withAvailableFeatures';
 import { useMetrics } from '../../../app/components/metrics/withMetricsContext';
+import DocumentationLink from '../../../components/common/DocumentationLink';
 import DocumentationTooltip from '../../../components/common/DocumentationTooltip';
 import ModalButton, { ModalProps } from '../../../components/controls/ModalButton';
 import { useDocUrl } from '../../../helpers/docs';
@@ -49,6 +51,7 @@ import CaycCondition from './CaycCondition';
 import CaycFixOptimizeBanner from './CaycFixOptimizeBanner';
 import CaycReviewUpdateConditionsModal from './ConditionReviewAndUpdateModal';
 import ConditionsTable from './ConditionsTable';
+import QGRecommendedIcon from './QGRecommendedIcon';
 
 interface Props {
   qualityGate: QualityGate;
@@ -144,6 +147,25 @@ export default function Conditions({ qualityGate, isFetching }: Readonly<Props>)
   return (
     <div>
       <CaYCConditionsSimplificationGuide qualityGate={qualityGate} />
+
+      {qualityGate.isBuiltIn && (
+        <div className="sw-flex sw-items-center sw-mt-2 sw-mb-9">
+          <QGRecommendedIcon className="sw-mr-1" />
+          <LightLabel>
+            <FormattedMessage
+              defaultMessage="quality_gates.is_built_in.cayc.description"
+              id="quality_gates.is_built_in.cayc.description"
+              values={{
+                link: (
+                  <DocumentationLink to="/user-guide/clean-as-you-code/">
+                    {translate('clean_as_you_code')}
+                  </DocumentationLink>
+                ),
+              }}
+            />
+          </LightLabel>
+        </div>
+      )}
 
       {isCompliantCustomQualityGate && !isOptimizing && <CaycCompliantBanner />}
       {isCompliantCustomQualityGate && isOptimizing && canEdit && (

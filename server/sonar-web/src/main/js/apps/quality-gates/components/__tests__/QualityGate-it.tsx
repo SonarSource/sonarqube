@@ -82,7 +82,6 @@ it('should render the built-in quality gate properly', async () => {
   await user.click(builtInQualityGate);
 
   expect(await screen.findByText(/quality_gates.is_built_in.cayc.description/)).toBeInTheDocument();
-  expect(await screen.findByText(/quality_gates.is_built_in.description/)).toBeInTheDocument();
 });
 
 it('should be able to create a quality gate then delete it', async () => {
@@ -424,7 +423,6 @@ it('should not warn user when quality gate is not CaYC compliant and user has no
   await user.click(nonCompliantQualityGate);
 
   expect(screen.queryByRole('alert')).not.toBeInTheDocument();
-  expect(screen.queryByText('quality_gates.cayc.tooltip.message')).not.toBeInTheDocument();
 });
 
 it('should not show optimize banner when quality gate is compliant but non-CaYC and user has no permission to edit it', async () => {
@@ -438,7 +436,6 @@ it('should not show optimize banner when quality gate is compliant but non-CaYC 
   await user.click(nonCompliantQualityGate);
 
   expect(screen.queryByRole('alert')).not.toBeInTheDocument();
-  expect(screen.queryByText('quality_gates.cayc.tooltip.message')).not.toBeInTheDocument();
 });
 
 it('should warn user when quality gate is not CaYC compliant and user has permission to edit it', async () => {
@@ -449,7 +446,6 @@ it('should warn user when quality gate is not CaYC compliant and user has permis
   const nonCompliantQualityGate = await screen.findByRole('button', { name: /Non Cayc QG/ });
 
   await user.click(nonCompliantQualityGate);
-  // expect(screen.getByTestId('conditions')).toMatchSnapshot();
 
   expect(await screen.findByText(/quality_gates.cayc_missing.banner.title/)).toBeInTheDocument();
   expect(screen.getAllByText('quality_gates.cayc.tooltip.message').length).toBeGreaterThan(0);

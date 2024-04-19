@@ -22,23 +22,18 @@ import {
   Badge,
   ButtonSecondary,
   DangerButtonPrimary,
-  FlagWarningIcon,
   ItemButton,
   ItemDangerButton,
   ItemDivider,
-  LightLabel,
   SubTitle,
 } from 'design-system';
 import { countBy } from 'lodash';
 import * as React from 'react';
-import { FormattedMessage } from 'react-intl';
-import DocumentationLink from '../../../components/common/DocumentationLink';
 import Tooltip from '../../../components/controls/Tooltip';
 import { translate } from '../../../helpers/l10n';
 import { useSetQualityGateAsDefaultMutation } from '../../../queries/quality-gates';
 import { CaycStatus, QualityGate } from '../../../types/types';
 import BuiltInQualityGateBadge from './BuiltInQualityGateBadge';
-import CaycBadgeTooltip from './CaycBadgeTooltip';
 import CopyQualityGateForm from './CopyQualityGateForm';
 import DeleteQualityGateForm from './DeleteQualityGateForm';
 import RenameQualityGateForm from './RenameQualityGateForm';
@@ -46,8 +41,6 @@ import RenameQualityGateForm from './RenameQualityGateForm';
 interface Props {
   qualityGate: QualityGate;
 }
-
-const TOOLTIP_MOUSE_LEAVE_DELAY = 0.3;
 
 export default function DetailsHeader({ qualityGate }: Readonly<Props>) {
   const [isRenameFormOpen, setIsRenameFormOpen] = React.useState(false);
@@ -60,7 +53,6 @@ export default function DetailsHeader({ qualityGate }: Readonly<Props>) {
     actions.delete,
     actions.setAsDefault,
   ])['true'];
-  const canEdit = Boolean(actions?.manageConditions);
   const { mutateAsync: setQualityGateAsDefault } = useSetQualityGateAsDefaultMutation();
 
   const handleSetAsDefaultClick = () => {
@@ -75,46 +67,11 @@ export default function DetailsHeader({ qualityGate }: Readonly<Props>) {
         <div className="sw-flex sw-flex-col">
           <div className="sw-flex sw-items-baseline">
             <SubTitle className="sw-m-0">{qualityGate.name}</SubTitle>
-            {qualityGate.caycStatus === CaycStatus.NonCompliant && canEdit && (
-              <Tooltip overlay={<CaycBadgeTooltip />} mouseLeaveDelay={TOOLTIP_MOUSE_LEAVE_DELAY}>
-                <FlagWarningIcon className="sw-ml-2" description={<CaycBadgeTooltip />} />
-              </Tooltip>
-            )}
             <div className="sw-flex sw-gap-2 sw-ml-4">
               {qualityGate.isDefault && <Badge>{translate('default')}</Badge>}
               {qualityGate.isBuiltIn && <BuiltInQualityGateBadge />}
             </div>
           </div>
-          {qualityGate.isBuiltIn && (
-            <>
-              <LightLabel className="sw-mt-2">
-                <FormattedMessage
-                  defaultMessage="quality_gates.is_built_in.cayc.description"
-                  id="quality_gates.is_built_in.cayc.description"
-                  values={{
-                    link: (
-                      <DocumentationLink to="/user-guide/clean-as-you-code/">
-                        {translate('clean_as_you_code')}
-                      </DocumentationLink>
-                    ),
-                  }}
-                />
-              </LightLabel>
-              <span className="sw-mt-9">
-                <FormattedMessage
-                  defaultMessage="quality_gates.is_built_in.description"
-                  id="quality_gates.is_built_in.description"
-                  values={{
-                    link: (
-                      <DocumentationLink to="/user-guide/quality-gates/#using-sonar-way-the-recommended-quality-gate">
-                        {translate('learn_more')}
-                      </DocumentationLink>
-                    ),
-                  }}
-                />
-              </span>
-            </>
-          )}
         </div>
         {actionsCount === 1 && (
           <>

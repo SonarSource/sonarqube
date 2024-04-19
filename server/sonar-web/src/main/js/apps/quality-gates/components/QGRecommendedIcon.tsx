@@ -17,19 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
-import DocumentationLink from '../../../components/common/DocumentationLink';
-import { translate } from '../../../helpers/l10n';
 
-export default function CaycBadgeTooltip() {
-  return (
-    <div>
-      <p className="sw-mb-2 sw-pb-2 bordered-bottom-cayc">
-        {translate('quality_gates.cayc.tooltip.message')}
-      </p>
-      <DocumentationLink to="/user-guide/clean-as-you-code/">
-        {translate('quality_gates.cayc.badge.tooltip.learn_more')}
-      </DocumentationLink>
-    </div>
-  );
-}
+import styled from '@emotion/styled';
+import { IconRecommended } from '@sonarsource/echoes-react';
+import { themeColor } from 'design-system';
+
+const QGRecommendedIcon = styled(IconRecommended)`
+  color: ${themeColor('primary')};
+`;
+
+export default QGRecommendedIcon;
