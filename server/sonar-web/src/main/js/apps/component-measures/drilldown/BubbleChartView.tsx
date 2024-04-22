@@ -27,7 +27,6 @@ import {
   themeColor,
 } from 'design-system';
 import * as React from 'react';
-import HelpTooltip from '../../../components/controls/HelpTooltip';
 import {
   getLocalizedMetricDomain,
   getLocalizedMetricName,
@@ -37,6 +36,7 @@ import {
 import { formatMeasure, isDiffMetric } from '../../../helpers/measures';
 import { isDefined } from '../../../helpers/types';
 import { getComponentDrilldownUrl } from '../../../helpers/urls';
+import HelpTooltip from '../../../sonar-aligned/components/controls/HelpTooltip';
 import { BranchLike } from '../../../types/branch-like';
 import { isProject, isView } from '../../../types/component';
 import { MetricKey } from '../../../types/metrics';

@@ -22,9 +22,9 @@ import { HelperHintIcon, Highlight } from 'design-system';
 import React from 'react';
 import { FormattedMessage } from 'react-intl';
 import withMetricsContext from '../../../app/components/metrics/withMetricsContext';
-import DocumentationTooltip from '../../../components/common/DocumentationTooltip';
 import { translate } from '../../../helpers/l10n';
 import { formatMeasure } from '../../../helpers/measures';
+import DocHelpTooltip from '../../../sonar-aligned/components/controls/DocHelpTooltip';
 import { MetricKey } from '../../../types/metrics';
 import { Condition, Dict, Metric } from '../../../types/types';
 import { getCaycConditionMetadata, getLocalizedMetricNameNoDiffMetric } from '../utils';
@@ -64,12 +64,12 @@ function CaycCondition({ condition, metric, metrics }: Readonly<Props>) {
               value: <Highlight>&nbsp;{formatMeasure(condition.error, metric.type)}</Highlight>,
             }}
           />
-          <DocumentationTooltip
+          <DocHelpTooltip
             className="sw-ml-2 sw-align-text-top"
             content={translate('quality_gates.conditions.cayc.threshold.hint')}
           >
             <HelperHintIcon />
-          </DocumentationTooltip>
+          </DocHelpTooltip>
         </StyledContentCell>
       )}
     </StyledItem>

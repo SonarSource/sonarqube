@@ -19,8 +19,8 @@
  */
 import { FlagMessage, HelperHintIcon, SubTitle } from 'design-system';
 import * as React from 'react';
-import DocumentationTooltip from '../../../components/common/DocumentationTooltip';
 import { translate } from '../../../helpers/l10n';
+import DocHelpTooltip from '../../../sonar-aligned/components/controls/DocHelpTooltip';
 import { QualityGate } from '../../../types/types';
 import Conditions from './Conditions';
 import Projects from './Projects';
@@ -50,12 +50,9 @@ export function DetailsContent(props: DetailsContentProps) {
         <div className="sw-flex sw-flex-col">
           <SubTitle as="h3" className="sw-body-md-highlight">
             {translate('quality_gates.projects')}
-            <DocumentationTooltip
-              className="sw-ml-2"
-              content={translate('quality_gates.projects.help')}
-            >
+            <DocHelpTooltip className="sw-ml-2" content={translate('quality_gates.projects.help')}>
               <HelperHintIcon />
-            </DocumentationTooltip>
+            </DocHelpTooltip>
           </SubTitle>
 
           {qualityGate.isDefault ? (

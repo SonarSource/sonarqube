@@ -20,8 +20,8 @@
 import { Pill } from 'design-system';
 import React from 'react';
 import { translate } from '../../helpers/l10n';
+import DocHelpTooltip from '../../sonar-aligned/components/controls/DocHelpTooltip';
 import { CleanCodeAttribute, CleanCodeAttributeCategory } from '../../types/clean-code-taxonomy';
-import DocumentationTooltip from '../common/DocumentationTooltip';
 
 export interface Props {
   className?: string;
@@ -34,7 +34,7 @@ export function CleanCodeAttributePill(props: Readonly<Props>) {
   const { className, cleanCodeAttributeCategory, cleanCodeAttribute, type = 'issue' } = props;
 
   return (
-    <DocumentationTooltip
+    <DocHelpTooltip
       content={
         <>
           <p className="sw-mb-4">
@@ -70,6 +70,6 @@ export function CleanCodeAttributePill(props: Readonly<Props>) {
           <span> | {translate(type, 'clean_code_attribute', cleanCodeAttribute)}</span>
         )}
       </Pill>
-    </DocumentationTooltip>
+    </DocHelpTooltip>
   );
 }

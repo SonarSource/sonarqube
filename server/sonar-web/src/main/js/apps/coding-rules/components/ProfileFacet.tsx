@@ -22,8 +22,8 @@ import { FacetBox, FacetItem, HelperHintIcon, Note, themeColor } from 'design-sy
 import { sortBy } from 'lodash';
 import * as React from 'react';
 import { Profile } from '../../../api/quality-profiles';
-import DocumentationTooltip from '../../../components/common/DocumentationTooltip';
 import { translate } from '../../../helpers/l10n';
+import DocHelpTooltip from '../../../sonar-aligned/components/controls/DocHelpTooltip';
 import { Dict } from '../../../types/types';
 import { FacetItemsList } from '../../issues/sidebar/FacetItemsList';
 import { FacetKey, Query } from '../query';
@@ -175,7 +175,7 @@ export default class ProfileFacet extends React.PureComponent<Props> {
         clearIconLabel={translate('clear')}
         count={count}
         help={
-          <DocumentationTooltip
+          <DocHelpTooltip
             content={translate('coding_rules.facet.qprofile.help')}
             links={[
               {
@@ -185,7 +185,7 @@ export default class ProfileFacet extends React.PureComponent<Props> {
             ]}
           >
             <HelperHintIcon />
-          </DocumentationTooltip>
+          </DocHelpTooltip>
         }
       >
         {open && (

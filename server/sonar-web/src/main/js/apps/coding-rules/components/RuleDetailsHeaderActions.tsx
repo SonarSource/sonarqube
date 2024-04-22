@@ -19,11 +19,11 @@
  */
 import { Note, SeparatorCircleIcon, TextSubdued } from 'design-system';
 import * as React from 'react';
-import DocumentationTooltip from '../../../components/common/DocumentationTooltip';
 import IssueSeverityIcon from '../../../components/icon-mappers/IssueSeverityIcon';
 import IssueTypeIcon from '../../../components/icon-mappers/IssueTypeIcon';
 import TagsList from '../../../components/tags/TagsList';
 import { translate } from '../../../helpers/l10n';
+import DocHelpTooltip from '../../../sonar-aligned/components/controls/DocHelpTooltip';
 import { IssueSeverity } from '../../../types/issues';
 import { Dict, RuleDetails } from '../../../types/types';
 import RuleDetailsTagsPopup from './RuleDetailsTagsPopup';
@@ -44,7 +44,7 @@ export default function RuleDetailsHeaderActions(props: Readonly<Props>) {
   return (
     <Note className="sw-flex sw-flex-wrap sw-items-center sw-gap-2 sw-body-xs">
       {/* Type */}
-      <DocumentationTooltip
+      <DocHelpTooltip
         content={
           <>
             <p className="sw-mb-4">{translate('coding_rules.type.deprecation.title')}</p>
@@ -71,11 +71,11 @@ export default function RuleDetailsHeaderActions(props: Readonly<Props>) {
           />
           {translate('issue.type', ruleDetails.type)}
         </TextSubdued>
-      </DocumentationTooltip>
+      </DocHelpTooltip>
       <SeparatorCircleIcon />
 
       {/* Severity */}
-      <DocumentationTooltip
+      <DocHelpTooltip
         content={
           <>
             <p className="sw-mb-4">{translate('coding_rules.severity.deprecation.title')}</p>
@@ -102,7 +102,7 @@ export default function RuleDetailsHeaderActions(props: Readonly<Props>) {
           />
           {translate('severity', ruleDetails.severity)}
         </TextSubdued>
-      </DocumentationTooltip>
+      </DocHelpTooltip>
       <SeparatorCircleIcon />
 
       {/* Tags */}

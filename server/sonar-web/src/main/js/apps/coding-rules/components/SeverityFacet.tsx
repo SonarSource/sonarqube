@@ -19,10 +19,10 @@
  */
 import { HelperHintIcon } from 'design-system';
 import * as React from 'react';
-import DocumentationTooltip from '../../../components/common/DocumentationTooltip';
 import SoftwareImpactSeverityIcon from '../../../components/icon-mappers/SoftwareImpactSeverityIcon';
 import { IMPACT_SEVERITIES } from '../../../helpers/constants';
 import { translate } from '../../../helpers/l10n';
+import DocHelpTooltip from '../../../sonar-aligned/components/controls/DocHelpTooltip';
 import Facet, { BasicProps } from './Facet';
 
 export default function SeverityFacet(props: BasicProps) {
@@ -49,7 +49,7 @@ export default function SeverityFacet(props: BasicProps) {
       renderName={renderName}
       renderTextName={renderTextName}
       help={
-        <DocumentationTooltip
+        <DocHelpTooltip
           placement="right"
           content={
             <>
@@ -65,7 +65,7 @@ export default function SeverityFacet(props: BasicProps) {
           ]}
         >
           <HelperHintIcon />
-        </DocumentationTooltip>
+        </DocHelpTooltip>
       }
     />
   );

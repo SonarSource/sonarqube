@@ -25,7 +25,6 @@ import {
   SubnavigationSubheading,
 } from 'design-system';
 import React from 'react';
-import HelpTooltip from '../../../components/controls/HelpTooltip';
 import {
   getLocalizedCategoryMetricName,
   getLocalizedMetricDomain,
@@ -33,6 +32,7 @@ import {
   hasMessage,
   translate,
 } from '../../../helpers/l10n';
+import HelpTooltip from '../../../sonar-aligned/components/controls/HelpTooltip';
 import { MeasureEnhanced } from '../../../types/types';
 import {
   addMeasureCategories,

@@ -20,10 +20,10 @@
 import { HelperHintIcon, Spinner, Switch } from 'design-system';
 import * as React from 'react';
 import { useEffect } from 'react';
-import HelpTooltip from '../../../components/controls/HelpTooltip';
 import { isMainBranch } from '../../../helpers/branch-like';
 import { translate } from '../../../helpers/l10n';
 import { useExcludeFromPurgeMutation } from '../../../queries/branch';
+import HelpTooltip from '../../../sonar-aligned/components/controls/HelpTooltip';
 import { Branch } from '../../../types/branch-like';
 import { Component } from '../../../types/types';
 

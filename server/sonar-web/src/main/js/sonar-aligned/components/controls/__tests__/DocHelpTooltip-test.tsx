@@ -19,11 +19,11 @@
  */
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
-import { byRole, byTestId } from '../../../helpers/testSelector';
+import { byRole, byTestId } from '../../../../helpers/testSelector';
 
-import { renderComponent } from '../../../helpers/testReactTestingUtils';
-import DocumentationTooltip, { DocumentationTooltipProps } from '../DocumentationTooltip';
-import Link from '../Link';
+import Link from '../../../../components/common/Link';
+import { renderComponent } from '../../../../helpers/testReactTestingUtils';
+import DocHelpTooltip, { DocHelpTooltipProps } from '../DocHelpTooltip';
 
 const ui = {
   body: byRole('body'),
@@ -37,7 +37,7 @@ const ui = {
 
 it('should correctly navigate through TAB', async () => {
   const user = userEvent.setup();
-  renderDocumentationTooltip();
+  renderDocHelpTooltip();
 
   await user.tab();
   expect(await ui.beforeLink.find()).toHaveFocus();
@@ -59,13 +59,13 @@ it('should correctly navigate through TAB', async () => {
   expect(await ui.beforeLink.find()).toHaveFocus();
 });
 
-function renderDocumentationTooltip(props: Partial<DocumentationTooltipProps> = {}) {
+function renderDocHelpTooltip(props: Partial<DocHelpTooltipProps> = {}) {
   return renderComponent(
     <>
       <Link to="/" target="_blank">
         Interactive element before
       </Link>
-      <DocumentationTooltip
+      <DocHelpTooltip
         title="Tooltip title"
         content="Tooltip content"
         links={[
@@ -86,7 +86,7 @@ function renderDocumentationTooltip(props: Partial<DocumentationTooltipProps> = 
         <Link to="/" target="_blank">
           Icon
         </Link>
-      </DocumentationTooltip>
+      </DocHelpTooltip>
       <Link to="/" target="_blank">
         Interactive element after
       </Link>

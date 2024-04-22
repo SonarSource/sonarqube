@@ -19,9 +19,9 @@
  */
 import { ButtonPrimary, HelperHintIcon, Title } from 'design-system';
 import * as React from 'react';
-import DocumentationTooltip from '../../../components/common/DocumentationTooltip';
 import ModalButton, { ModalProps } from '../../../components/controls/ModalButton';
 import { translate } from '../../../helpers/l10n';
+import DocHelpTooltip from '../../../sonar-aligned/components/controls/DocHelpTooltip';
 import CreateQualityGateForm from './CreateQualityGateForm';
 
 interface Props {
@@ -54,7 +54,7 @@ export default function ListHeader({ canCreate }: Readonly<Props>) {
         <Title className="sw-flex sw-items-center sw-body-md-highlight sw-mb-0">
           {translate('quality_gates.page')}
         </Title>
-        <DocumentationTooltip
+        <DocHelpTooltip
           className="sw-ml-2"
           content={translate('quality_gates.help')}
           links={[
@@ -65,7 +65,7 @@ export default function ListHeader({ canCreate }: Readonly<Props>) {
           ]}
         >
           <HelperHintIcon />
-        </DocumentationTooltip>
+        </DocHelpTooltip>
       </div>
       {canCreate && <CreateQualityGateModal />}
     </div>

@@ -20,11 +20,11 @@
 import { Link } from '@sonarsource/echoes-react';
 import { HelperHintIcon } from 'design-system';
 import React from 'react';
-import DocumentationTooltip from '../../../../../components/common/DocumentationTooltip';
-import HelpTooltip from '../../../../../components/controls/HelpTooltip';
 import { translate, translateWithParameters } from '../../../../../helpers/l10n';
 import { getApplicationAdminUrl } from '../../../../../helpers/urls';
 import { useProjectBindingQuery } from '../../../../../queries/devops-integration';
+import DocHelpTooltip from '../../../../../sonar-aligned/components/controls/DocHelpTooltip';
+import HelpTooltip from '../../../../../sonar-aligned/components/controls/HelpTooltip';
 import { AlmKeys } from '../../../../../types/alm-settings';
 import { Component } from '../../../../../types/types';
 
@@ -68,7 +68,7 @@ export default function BranchHelpTooltip({
   } else {
     if (!branchSupportEnabled) {
       return (
-        <DocumentationTooltip
+        <DocHelpTooltip
           content={
             projectBinding != null
               ? translateWithParameters(
@@ -92,13 +92,13 @@ export default function BranchHelpTooltip({
           }
         >
           {helpIcon}
-        </DocumentationTooltip>
+        </DocHelpTooltip>
       );
     }
 
     if (!hasManyBranches) {
       return (
-        <DocumentationTooltip
+        <DocHelpTooltip
           content={translate('branch_like_navigation.only_one_branch.content')}
           data-test="only-one-branch-like"
           links={[
@@ -120,7 +120,7 @@ export default function BranchHelpTooltip({
           title={translate('branch_like_navigation.only_one_branch.title')}
         >
           {helpIcon}
-        </DocumentationTooltip>
+        </DocHelpTooltip>
       );
     }
   }

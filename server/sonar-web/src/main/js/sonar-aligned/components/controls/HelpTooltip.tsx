@@ -20,25 +20,22 @@
 import classNames from 'classnames';
 import { HelperHintIcon } from 'design-system';
 import * as React from 'react';
-import { translate } from '../../helpers/l10n';
-import Tooltip, { Placement } from './Tooltip';
+import Tooltip, { Placement } from '../../../components/controls/Tooltip';
+import { translate } from '../../../helpers/l10n';
 
 interface Props {
-  className?: string;
+  'aria-label'?: string;
   children?: React.ReactNode;
-  onShow?: () => void;
-  onHide?: () => void;
+  className?: string;
+  'data-testid'?: string;
   overlay: React.ReactNode;
   placement?: Placement;
-  isInteractive?: boolean;
-  innerRef?: React.Ref<HTMLSpanElement>;
-  size?: number;
 }
 
 const DEFAULT_SIZE = 12;
 
-export default function HelpTooltip(props: Props) {
-  const { size = DEFAULT_SIZE, overlay, placement, isInteractive, innerRef, children } = props;
+export default function HelpTooltip(props: Readonly<Props>) {
+  const { overlay, placement, children } = props;
   return (
     <div
       className={classNames(
@@ -46,34 +43,18 @@ export default function HelpTooltip(props: Props) {
         props.className,
       )}
     >
-      <Tooltip
-        mouseLeaveDelay={0.25}
-        onShow={props.onShow}
-        onHide={props.onHide}
-        overlay={overlay}
-        placement={placement}
-        isInteractive={isInteractive}
-      >
+      <Tooltip mouseLeaveDelay={0.25} overlay={overlay} placement={placement}>
         <span
+          aria-label={props['aria-label']}
           className="sw-inline-flex sw-items-center"
-          data-testid="help-tooltip-activator"
-          ref={innerRef}
+          data-testid={props['data-testid'] ?? 'help-tooltip-activator'}
         >
           {children ?? (
             <HelperHintIcon
-              aria-label={isInteractive ? translate('tooltip_is_interactive') : translate('help')}
-              description={
-                isInteractive ? (
-                  <>
-                    {translate('tooltip_is_interactive')}
-                    {overlay}
-                  </>
-                ) : (
-                  overlay
-                )
-              }
-              height={size}
-              width={size}
+              aria-label={translate('help')}
+              description={overlay}
+              height={DEFAULT_SIZE}
+              width={DEFAULT_SIZE}
             />
           )}
         </span>

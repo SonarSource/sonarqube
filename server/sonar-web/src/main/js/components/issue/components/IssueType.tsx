@@ -21,8 +21,8 @@
 import { IconProps, TextSubdued } from 'design-system';
 import * as React from 'react';
 import { translate } from '../../../helpers/l10n';
+import DocHelpTooltip from '../../../sonar-aligned/components/controls/DocHelpTooltip';
 import { Issue } from '../../../types/types';
-import DocumentationTooltip from '../../common/DocumentationTooltip';
 import IssueTypeIcon from '../../icon-mappers/IssueTypeIcon';
 import { DeprecatedFieldTooltip } from './DeprecatedFieldTooltip';
 
@@ -32,7 +32,7 @@ interface Props extends IconProps {
 
 export default function IssueType({ issue, ...iconProps }: Readonly<Props>) {
   return (
-    <DocumentationTooltip
+    <DocHelpTooltip
       content={<DeprecatedFieldTooltip field="type" />}
       links={[
         {
@@ -45,6 +45,6 @@ export default function IssueType({ issue, ...iconProps }: Readonly<Props>) {
         <IssueTypeIcon fill="iconTypeDisabled" type={issue.type} aria-hidden {...iconProps} />
         {translate('issue.type', issue.type)}
       </TextSubdued>
-    </DocumentationTooltip>
+    </DocHelpTooltip>
   );
 }

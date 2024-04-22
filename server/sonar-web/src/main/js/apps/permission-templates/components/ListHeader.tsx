@@ -20,8 +20,8 @@
 import { ContentCell, FlagMessage, HelperHintIcon, TableRow } from 'design-system';
 import * as React from 'react';
 import InstanceMessage from '../../../components/common/InstanceMessage';
-import HelpTooltip from '../../../components/controls/HelpTooltip';
 import { translate } from '../../../helpers/l10n';
+import HelpTooltip from '../../../sonar-aligned/components/controls/HelpTooltip';
 import { Permission } from '../../../types/types';
 
 interface Props {

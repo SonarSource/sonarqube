@@ -43,7 +43,7 @@ export interface TooltipProps {
   visible?: boolean;
   // If tooltip overlay has interactive content (links for instance) we may set this to true to stop
   // default behavior of tabbing (other changes should be done outside of this component to make it work)
-  // See example DocumentationTooltip
+  // See example DocHelpTooltip
   isInteractive?: boolean;
   classNameInner?: string;
 }

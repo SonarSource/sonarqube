@@ -20,9 +20,9 @@
 import { GreySeparator, HelperHintIcon, SubHeading, Title } from 'design-system';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
-import HelpTooltip from '../../../components/controls/HelpTooltip';
 import { whenLoggedIn } from '../../../components/hoc/whenLoggedIn';
 import { translate } from '../../../helpers/l10n';
+import HelpTooltip from '../../../sonar-aligned/components/controls/HelpTooltip';
 import { LoggedInUser } from '../../../types/users';
 import { Preferences } from './Preferences';
 import UserExternalIdentity from './UserExternalIdentity';

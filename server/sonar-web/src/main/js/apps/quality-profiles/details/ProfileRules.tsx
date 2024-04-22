@@ -33,10 +33,10 @@ import * as React from 'react';
 import { useEffect, useState } from 'react';
 import { getQualityProfile } from '../../../api/quality-profiles';
 import { searchRules } from '../../../api/rules';
-import DocumentationTooltip from '../../../components/common/DocumentationTooltip';
 import { translate } from '../../../helpers/l10n';
 import { isDefined } from '../../../helpers/types';
 import { getRulesUrl } from '../../../helpers/urls';
+import DocHelpTooltip from '../../../sonar-aligned/components/controls/DocHelpTooltip';
 import { CleanCodeAttributeCategory, SoftwareQuality } from '../../../types/clean-code-taxonomy';
 import { SearchRulesResponse } from '../../../types/coding-rules';
 import { RulesFacetName } from '../../../types/rules';
@@ -219,11 +219,11 @@ export default function ProfileRules({ profile }: Readonly<Props>) {
         {/* this user could potentially activate more rules if the profile was not built-in */}
         {/* in such cases it's better to show the button but disable it with a tooltip */}
         {actions.copy && profile.isBuiltIn && (
-          <DocumentationTooltip content={translate('quality_profiles.activate_more.help.built_in')}>
+          <DocHelpTooltip content={translate('quality_profiles.activate_more.help.built_in')}>
             <ButtonPrimary className="it__quality-profiles__activate-rules" disabled>
               {translate('quality_profiles.activate_more')}
             </ButtonPrimary>
-          </DocumentationTooltip>
+          </DocHelpTooltip>
         )}
       </div>
     </section>

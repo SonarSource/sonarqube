@@ -22,10 +22,10 @@ import { BareButton, ContentCell, HelperHintIcon } from 'design-system';
 import * as React from 'react';
 import { translate, translateWithParameters } from '../../helpers/l10n';
 import { isPermissionDefinitionGroup } from '../../helpers/permissions';
+import HelpTooltip from '../../sonar-aligned/components/controls/HelpTooltip';
 import { PermissionDefinition, PermissionDefinitionGroup } from '../../types/types';
 import InstanceMessage from '../common/InstanceMessage';
 import ClickEventBoundary from '../controls/ClickEventBoundary';
-import HelpTooltip from '../controls/HelpTooltip';
 import Tooltip from '../controls/Tooltip';
 
 interface Props {

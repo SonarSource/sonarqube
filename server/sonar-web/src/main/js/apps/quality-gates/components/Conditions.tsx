@@ -36,10 +36,10 @@ import { FormattedMessage } from 'react-intl';
 import { useAvailableFeatures } from '../../../app/components/available-features/withAvailableFeatures';
 import { useMetrics } from '../../../app/components/metrics/withMetricsContext';
 import DocumentationLink from '../../../components/common/DocumentationLink';
-import DocumentationTooltip from '../../../components/common/DocumentationTooltip';
 import ModalButton, { ModalProps } from '../../../components/controls/ModalButton';
 import { useDocUrl } from '../../../helpers/docs';
 import { getLocalizedMetricName, translate } from '../../../helpers/l10n';
+import DocHelpTooltip from '../../../sonar-aligned/components/controls/DocHelpTooltip';
 import { Feature } from '../../../types/features';
 import { MetricKey } from '../../../types/metrics';
 import { CaycStatus, Condition as ConditionType, QualityGate } from '../../../types/types';
@@ -181,7 +181,7 @@ export default function Conditions({ qualityGate, isFetching }: Readonly<Props>)
             {translate('quality_gates.conditions')}
           </HeadingDark>
           {!qualityGate.isBuiltIn && (
-            <DocumentationTooltip
+            <DocHelpTooltip
               className="sw-ml-2"
               content={translate('quality_gates.conditions.help')}
               links={[
@@ -192,7 +192,7 @@ export default function Conditions({ qualityGate, isFetching }: Readonly<Props>)
               ]}
             >
               <HelperHintIcon />
-            </DocumentationTooltip>
+            </DocHelpTooltip>
           )}
           <Spinner loading={isFetching} className="sw-ml-4 sw-mt-1" />
         </div>
@@ -227,12 +227,12 @@ export default function Conditions({ qualityGate, isFetching }: Readonly<Props>)
           <div>
             <div className="sw-flex sw-items-center sw-gap-2 sw-mb-2">
               <HeadingDark as="h3">{translate('quality_gates.conditions.cayc')}</HeadingDark>
-              <DocumentationTooltip
+              <DocHelpTooltip
                 content={translate('quality_gates.conditions.cayc.hint')}
                 placement="right"
               >
                 <HelperHintIcon />
-              </DocumentationTooltip>
+              </DocHelpTooltip>
             </div>
 
             <HighlightedSection className="sw-p-0 sw-my-2 sw-w-3/4" id="cayc-highlight">

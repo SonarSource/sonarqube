@@ -21,9 +21,9 @@
 import { IconProps, TextSubdued } from 'design-system';
 import * as React from 'react';
 import { translate } from '../../../helpers/l10n';
+import DocHelpTooltip from '../../../sonar-aligned/components/controls/DocHelpTooltip';
 import { IssueSeverity as IssueSeverityType } from '../../../types/issues';
 import { Issue } from '../../../types/types';
-import DocumentationTooltip from '../../common/DocumentationTooltip';
 import IssueSeverityIcon from '../../icon-mappers/IssueSeverityIcon';
 import { DeprecatedFieldTooltip } from './DeprecatedFieldTooltip';
 
@@ -33,7 +33,7 @@ interface Props extends IconProps {
 
 export default function IssueSeverity({ issue, ...iconProps }: Readonly<Props>) {
   return (
-    <DocumentationTooltip
+    <DocHelpTooltip
       content={<DeprecatedFieldTooltip field="severity" />}
       links={[
         {
@@ -51,6 +51,6 @@ export default function IssueSeverity({ issue, ...iconProps }: Readonly<Props>) 
         />
         {translate('severity', issue.severity)}
       </TextSubdued>
-    </DocumentationTooltip>
+    </DocHelpTooltip>
   );
 }

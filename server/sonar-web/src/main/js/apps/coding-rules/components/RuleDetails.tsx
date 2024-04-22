@@ -30,7 +30,6 @@ import {
 import * as React from 'react';
 import { Profile } from '../../../api/quality-profiles';
 import ConfirmButton from '../../../components/controls/ConfirmButton';
-import HelpTooltip from '../../../components/controls/HelpTooltip';
 import DateFormatter from '../../../components/intl/DateFormatter';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import {
@@ -38,6 +37,7 @@ import {
   useRuleDetailsQuery,
   useUpdateRuleMutation,
 } from '../../../queries/rules';
+import HelpTooltip from '../../../sonar-aligned/components/controls/HelpTooltip';
 import { Dict } from '../../../types/types';
 import { Activation } from '../query';
 import CustomRuleButton from './CustomRuleButton';

@@ -48,9 +48,9 @@ import {
   computeTokenExpirationDate,
   getAvailableExpirationOptions,
 } from '../../../helpers/tokens';
+import DocHelpTooltip from '../../../sonar-aligned/components/controls/DocHelpTooltip';
 import { TokenExpiration, TokenType, UserToken } from '../../../types/token';
 import { LoggedInUser } from '../../../types/users';
-import DocumentationTooltip from '../../common/DocumentationTooltip';
 import ProjectTokenScopeInfo from '../components/ProjectTokenScopeInfo';
 import Step from '../components/Step';
 import { getUniqueTokenName } from '../utils';
@@ -213,7 +213,7 @@ export default class TokenStep extends React.PureComponent<Props, State> {
           <div className="sw-flex sw-flex-col">
             <HighlightLabel className="sw-mb-2" htmlFor="generate-token-input">
               {translate('onboarding.token.name.label')}
-              <DocumentationTooltip
+              <DocHelpTooltip
                 className="sw-ml-2"
                 content={translate('onboarding.token.name.help')}
                 links={[
@@ -224,7 +224,7 @@ export default class TokenStep extends React.PureComponent<Props, State> {
                 ]}
               >
                 <HelperHintIcon />
-              </DocumentationTooltip>
+              </DocHelpTooltip>
             </HighlightLabel>
             <InputField
               id="generate-token-input"
@@ -276,7 +276,7 @@ export default class TokenStep extends React.PureComponent<Props, State> {
           <div className="sw-flex sw-flex-col sw-mt-4">
             <HighlightLabel className="sw-mb-2" htmlFor="existing-token-input">
               {translate('onboarding.token.use_existing_token.label')}
-              <DocumentationTooltip
+              <DocHelpTooltip
                 className="sw-ml-2"
                 content={translate('onboarding.token.use_existing_token.help')}
                 links={[
@@ -287,7 +287,7 @@ export default class TokenStep extends React.PureComponent<Props, State> {
                 ]}
               >
                 <HelperHintIcon />
-              </DocumentationTooltip>
+              </DocHelpTooltip>
             </HighlightLabel>
             <InputField
               id="existing-token-input"

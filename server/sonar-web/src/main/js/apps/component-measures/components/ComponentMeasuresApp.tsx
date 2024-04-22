@@ -34,7 +34,6 @@ import { Helmet } from 'react-helmet-async';
 import { getMeasuresWithPeriod } from '../../../api/measures';
 import { getAllMetrics } from '../../../api/metrics';
 import { ComponentContext } from '../../../app/components/componentContext/ComponentContext';
-import HelpTooltip from '../../../components/controls/HelpTooltip';
 import Suggestions from '../../../components/embed-docs-modal/Suggestions';
 import { Location, Router, withRouter } from '../../../components/hoc/withRouter';
 import { enhanceMeasure } from '../../../components/measure/utils';
@@ -44,6 +43,7 @@ import { getBranchLikeQuery, isPullRequest, isSameBranchLike } from '../../../he
 import { translate } from '../../../helpers/l10n';
 import { areLeakAndOverallCCTMeasuresComputed } from '../../../helpers/measures';
 import { WithBranchLikesProps, useBranchesQuery } from '../../../queries/branch';
+import HelpTooltip from '../../../sonar-aligned/components/controls/HelpTooltip';
 import { ComponentQualifier, isPortfolioLike } from '../../../types/component';
 import { MeasurePageView } from '../../../types/measures';
 import { MetricKey } from '../../../types/metrics';
