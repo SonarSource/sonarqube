@@ -17,9 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Spinner } from '@sonarsource/echoes-react';
 import { MultiSelector, SubHeading, Tags } from 'design-system';
 import { difference, without } from 'lodash';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { searchProjectTags, setApplicationTags, setProjectTags } from '../../../../api/components';
 import Tooltip from '../../../../components/controls/Tooltip';
 import { PopupPlacement } from '../../../../components/ui/popups';
@@ -33,7 +34,11 @@ interface Props {
 }
 
 export default function MetaTags(props: Props) {
-  const [open, setOpen] = React.useState(false);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    setLoading(false);
+  }, [props.component.tags]);
 
   const canUpdateTags = () => {
     const { configuration } = props.component;
@@ -57,6 +62,7 @@ export default function MetaTags(props: Props) {
   };
 
   const handleSetProjectTags = (values: string[]) => {
+    setLoading(true);
     setTags(values).then(
       () => props.onComponentChange({ tags: values }),
       () => {},
@@ -73,13 +79,15 @@ export default function MetaTags(props: Props) {
         ariaTagsListLabel={translate('tags')}
         className="project-info-tags"
         emptyText={translate('no_tags')}
-        overlay={<MetaTagsSelector selectedTags={tags} setProjectTags={handleSetProjectTags} />}
+        overlay={
+          <Spinner isLoading={loading}>
+            <MetaTagsSelector selectedTags={tags} setProjectTags={handleSetProjectTags} />
+          </Spinner>
+        }
         popupPlacement={PopupPlacement.Bottom}
         tags={tags}
         tagsToDisplay={2}
         tooltip={Tooltip}
-        open={open}
-        onClose={() => setOpen(false)}
       />
     </>
   );

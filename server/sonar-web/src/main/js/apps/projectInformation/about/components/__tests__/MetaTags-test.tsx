@@ -24,6 +24,7 @@ import { setApplicationTags, setProjectTags } from '../../../../../api/component
 import { mockComponent } from '../../../../../helpers/mocks/component';
 import { renderComponent } from '../../../../../helpers/testReactTestingUtils';
 import { ComponentQualifier } from '../../../../../types/component';
+import { Component } from '../../../../../types/types';
 import MetaTags from '../MetaTags';
 
 jest.mock('../../../../../api/components', () => ({
@@ -45,8 +46,6 @@ it('should render without tags and admin rights', async () => {
 
 it('should allow to edit tags for a project', async () => {
   const user = userEvent.setup();
-
-  const onComponentChange = jest.fn();
   const component = mockComponent({
     key: 'my-second-project',
     tags: ['foo', 'bar'],
@@ -56,7 +55,7 @@ it('should allow to edit tags for a project', async () => {
     name: 'MySecondProject',
   });
 
-  renderMetaTags({ component, onComponentChange });
+  renderMetaTags(component);
 
   expect(await screen.findByText('foo, bar')).toBeInTheDocument();
   expect(screen.getByRole('button')).toBeInTheDocument();
@@ -66,15 +65,11 @@ it('should allow to edit tags for a project', async () => {
   expect(await screen.findByRole('checkbox', { name: 'best' })).toBeInTheDocument();
 
   await user.click(screen.getByRole('checkbox', { name: 'best' }));
-  expect(onComponentChange).toHaveBeenCalledWith({ tags: ['foo', 'bar', 'best'] });
+  expect(await screen.findByRole('button', { name: 'foo bar ... +' })).toBeInTheDocument();
 
-  onComponentChange.mockClear();
-
-  /*
-   * Since we're not actually updating the tags, we're back to having the foo, bar only
-   */
   await user.click(screen.getByRole('checkbox', { name: 'bar' }));
-  expect(onComponentChange).toHaveBeenCalledWith({ tags: ['foo'] });
+
+  expect(await screen.findByRole('button', { name: 'foo best +' })).toBeInTheDocument();
 
   expect(setProjectTags).toHaveBeenCalled();
   expect(setApplicationTags).not.toHaveBeenCalled();
@@ -85,14 +80,14 @@ it('should allow to edit tags for a project', async () => {
 it('should set tags for an app', async () => {
   const user = userEvent.setup();
 
-  renderMetaTags({
-    component: mockComponent({
+  renderMetaTags(
+    mockComponent({
       configuration: {
         showSettings: true,
       },
       qualifier: ComponentQualifier.Application,
     }),
-  });
+  );
 
   await user.click(screen.getByRole('button', { name: 'no_tags +' }));
 
@@ -102,14 +97,25 @@ it('should set tags for an app', async () => {
   expect(setApplicationTags).toHaveBeenCalled();
 });
 
-function renderMetaTags(overrides: Partial<Parameters<typeof MetaTags>[0]> = {}) {
-  const component = mockComponent({
-    configuration: {
-      showSettings: false,
-    },
-  });
+function renderMetaTags(componentOverride: Partial<Component> = {}) {
+  function Component(componentOverride: Partial<Parameters<typeof MetaTags>[0]>) {
+    const [component, setComponent] = React.useState(
+      mockComponent({
+        configuration: {
+          showSettings: false,
+        },
+        ...componentOverride,
+      }),
+    );
 
-  return renderComponent(
-    <MetaTags component={component} onComponentChange={jest.fn()} {...overrides} />,
-  );
+    const handleComponentChange = ({ tags }: { tags: string[] }) => {
+      setComponent((c) => {
+        return { ...c, tags };
+      });
+    };
+
+    return <MetaTags component={component} onComponentChange={handleComponentChange} />;
+  }
+
+  return renderComponent(<Component {...componentOverride} />);
 }
