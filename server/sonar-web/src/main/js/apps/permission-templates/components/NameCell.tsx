@@ -19,7 +19,7 @@
  */
 import { CodeSnippet, ContentCell, Link } from 'design-system';
 import * as React from 'react';
-import { queryToSearch } from '../../../helpers/urls';
+import { queryToSearch } from '~sonar-aligned/helpers/urls';
 import { PermissionTemplate } from '../../../types/types';
 import { PERMISSION_TEMPLATES_PATH } from '../utils';
 import Defaults from './Defaults';

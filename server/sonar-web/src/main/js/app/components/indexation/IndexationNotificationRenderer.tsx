@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 /* eslint-disable react/no-unused-prop-types */
-
 import styled from '@emotion/styled';
 import {
   FlagErrorIcon,
@@ -32,9 +31,9 @@ import {
 } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
+import { queryToSearch } from '~sonar-aligned/helpers/urls';
 import DocumentationLink from '../../../components/common/DocumentationLink';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
-import { queryToSearch } from '../../../helpers/urls';
 import { IndexationNotificationType } from '../../../types/indexation';
 import { TaskStatuses, TaskTypes } from '../../../types/tasks';
 

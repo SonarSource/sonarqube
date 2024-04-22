@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Location } from '../../../../components/hoc/withRouter';
+import { Location } from '~sonar-aligned/types/router';
 import { BadgeOptions, BadgeType, getBadgeSnippet, getBadgeUrl } from '../utils';
 
 jest.mock('../../../../helpers/urls', () => ({

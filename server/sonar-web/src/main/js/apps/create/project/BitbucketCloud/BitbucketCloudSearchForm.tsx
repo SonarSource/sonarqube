@@ -20,10 +20,10 @@
 import { FlagMessage, InputSearch, LightPrimary, Link } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
+import { queryToSearch } from '~sonar-aligned/helpers/urls';
 import ListFooter from '../../../../components/controls/ListFooter';
 import { translate } from '../../../../helpers/l10n';
 import { getBaseUrl } from '../../../../helpers/system';
-import { queryToSearch } from '../../../../helpers/urls';
 import { BitbucketCloudRepository } from '../../../../types/alm-integration';
 import AlmRepoItem from '../components/AlmRepoItem';
 import { REPOSITORY_PAGE_SIZE } from '../constants';

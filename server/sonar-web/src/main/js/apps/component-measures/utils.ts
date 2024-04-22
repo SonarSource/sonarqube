@@ -19,6 +19,7 @@
  */
 import { groupBy, memoize, sortBy, toPairs } from 'lodash';
 import { isBranch } from '~sonar-aligned/helpers/branch-like';
+import { RawQuery } from '~sonar-aligned/types/router';
 import { enhanceMeasure } from '../../components/measure/utils';
 import { isPullRequest } from '../../helpers/branch-like';
 import {
@@ -54,7 +55,6 @@ import {
   Measure,
   MeasureEnhanced,
   Metric,
-  RawQuery,
 } from '../../types/types';
 import { bubbles } from './config/bubbles';
 import { domains } from './config/domains';

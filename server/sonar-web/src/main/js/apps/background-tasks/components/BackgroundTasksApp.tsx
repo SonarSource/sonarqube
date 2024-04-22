@@ -22,6 +22,8 @@ import { LargeCenteredLayout, PageContentFontWrapper } from 'design-system';
 import { debounce } from 'lodash';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
+import { withRouter } from '~sonar-aligned/components/hoc/withRouter';
+import { Location, RawQuery, Router } from '~sonar-aligned/types/router';
 import {
   cancelAllTasks,
   cancelTask as cancelTaskAPI,
@@ -32,12 +34,11 @@ import {
 import withComponentContext from '../../../app/components/componentContext/withComponentContext';
 import ListFooter from '../../../components/controls/ListFooter';
 import Suggestions from '../../../components/embed-docs-modal/Suggestions';
-import { Location, Router, withRouter } from '../../../components/hoc/withRouter';
 import { toShortISO8601String } from '../../../helpers/dates';
 import { translate } from '../../../helpers/l10n';
 import { parseAsDate } from '../../../helpers/query';
 import { Task, TaskStatuses } from '../../../types/tasks';
-import { Component, Paging, RawQuery } from '../../../types/types';
+import { Component, Paging } from '../../../types/types';
 import { CURRENTS, DEBOUNCE_DELAY, DEFAULT_FILTERS, PAGE_SIZE } from '../constants';
 import { Query, mapFiltersToParameters, updateTask } from '../utils';
 import Header from './Header';

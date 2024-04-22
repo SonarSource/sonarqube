@@ -20,10 +20,10 @@
 import { Link } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
+import { queryToSearch } from '~sonar-aligned/helpers/urls';
 import withCurrentUserContext from '../../../app/components/current-user/withCurrentUserContext';
 import DismissableAlert from '../../../components/ui/DismissableAlert';
 import { translate } from '../../../helpers/l10n';
-import { queryToSearch } from '../../../helpers/urls';
 import { useProjectBindingQuery } from '../../../queries/devops-integration';
 import { ComponentQualifier } from '../../../types/component';
 import { Component } from '../../../types/types';

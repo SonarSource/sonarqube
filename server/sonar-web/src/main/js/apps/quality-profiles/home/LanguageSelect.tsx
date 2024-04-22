@@ -20,7 +20,7 @@
 import { LabelValueSelectOption, SearchSelectDropdown } from 'design-system';
 import * as React from 'react';
 import { useIntl } from 'react-intl';
-import { useRouter } from '../../../components/hoc/withRouter';
+import { useRouter } from '~sonar-aligned/components/hoc/withRouter';
 import { PROFILE_PATH } from '../constants';
 import { getProfilesForLanguagePath } from '../utils';
 

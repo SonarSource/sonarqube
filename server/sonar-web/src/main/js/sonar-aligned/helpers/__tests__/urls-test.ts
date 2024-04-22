@@ -17,19 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
-import { RawQuery } from '~sonar-aligned/types/router';
-import { Facet } from '../types';
-import RatingFacet from './RatingFacet';
+import { queryToSearch } from '../urls';
 
-interface Props {
-  facet?: Facet;
-  headerDetail?: React.ReactNode;
-  maxFacetValue?: number;
-  onQueryChange: (change: RawQuery) => void;
-  value?: any;
-}
+describe('queryToSearch', () => {
+  it('should return query by default', () => {
+    expect(queryToSearch()).toBe('?');
+  });
 
-export default function SecurityFilter(props: Props) {
-  return <RatingFacet {...props} name="Security" property="security" />;
-}
+  it('should return query with string values', () => {
+    expect(queryToSearch({ key: 'value' })).toBe('?key=value');
+  });
+
+  it('should remove empty values', () => {
+    expect(queryToSearch({ key: 'value', anotherKey: '' })).toBe('?key=value');
+  });
+
+  it('should return query with array values', () => {
+    expect(queryToSearch({ key: ['value1', 'value2'] })).toBe('?key=value1&key=value2');
+  });
+});

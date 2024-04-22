@@ -19,9 +19,9 @@
  */
 import React from 'react';
 import { Navigate, Route, useParams, useSearchParams } from 'react-router-dom';
+import { searchParamsToQuery } from '~sonar-aligned/helpers/router';
 import NavigateWithParams from '../../app/utils/NavigateWithParams';
 import { omitNil } from '../../helpers/request';
-import { searchParamsToQuery } from '../../helpers/urls';
 import ComponentMeasuresApp from './components/ComponentMeasuresApp';
 
 const routes = () => (

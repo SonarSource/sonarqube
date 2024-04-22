@@ -26,8 +26,8 @@ import {
   PopupZLevel,
 } from 'design-system';
 import * as React from 'react';
+import { useLocation } from '~sonar-aligned/components/hoc/withRouter';
 import { getBranchLikeQuery } from '~sonar-aligned/helpers/branch-like';
-import { useLocation } from '../../../../components/hoc/withRouter';
 import { DEFAULT_ISSUES_QUERY } from '../../../../components/shared/utils';
 import { isPullRequest } from '../../../../helpers/branch-like';
 import { hasMessage, translate, translateWithParameters } from '../../../../helpers/l10n';

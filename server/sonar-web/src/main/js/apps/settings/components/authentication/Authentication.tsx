@@ -24,12 +24,12 @@ import { FlagMessage, SubTitle, ToggleButton, getTabId, getTabPanelId } from 'de
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { useSearchParams } from 'react-router-dom';
+import { searchParamsToQuery } from '~sonar-aligned/helpers/router';
 import withAvailableFeatures, {
   WithAvailableFeaturesProps,
 } from '../../../../app/components/available-features/withAvailableFeatures';
 import { Image } from '../../../../components/common/Image';
 import { translate } from '../../../../helpers/l10n';
-import { searchParamsToQuery } from '../../../../helpers/urls';
 import { AlmKeys } from '../../../../types/alm-settings';
 import { Feature } from '../../../../types/features';
 import { ExtendedSettingDefinition } from '../../../../types/settings';

@@ -17,14 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
 import { LinkHighlight, LinkStandalone } from '@sonarsource/echoes-react';
 import { Badge, BranchIcon, LightLabel, Note, QualifierIcon } from 'design-system';
 import * as React from 'react';
 import { getBranchLikeQuery } from '~sonar-aligned/helpers/branch-like';
+import { queryToSearch } from '~sonar-aligned/helpers/urls';
 import { translate } from '../../../helpers/l10n';
 import { isDefined } from '../../../helpers/types';
-import { CodeScope, getComponentOverviewUrl, queryToSearch } from '../../../helpers/urls';
+import { CodeScope, getComponentOverviewUrl } from '../../../helpers/urls';
 import { BranchLike } from '../../../types/branch-like';
 import {
   ComponentQualifier,

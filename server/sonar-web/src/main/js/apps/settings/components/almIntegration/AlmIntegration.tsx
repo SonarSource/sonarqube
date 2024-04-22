@@ -19,6 +19,8 @@
  */
 import { noop } from 'lodash';
 import * as React from 'react';
+import { withRouter } from '~sonar-aligned/components/hoc/withRouter';
+import { Location, Router } from '~sonar-aligned/types/router';
 import {
   countBoundProjects,
   deleteConfiguration,
@@ -28,7 +30,6 @@ import {
 import withAvailableFeatures, {
   WithAvailableFeaturesProps,
 } from '../../../../app/components/available-features/withAvailableFeatures';
-import { Location, Router, withRouter } from '../../../../components/hoc/withRouter';
 import {
   AlmBindingDefinitionBase,
   AlmKeys,

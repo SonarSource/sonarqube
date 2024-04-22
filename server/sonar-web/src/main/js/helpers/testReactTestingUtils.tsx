@@ -36,6 +36,7 @@ import {
   createRoutesFromElements,
   parsePath,
 } from 'react-router-dom';
+import { useLocation } from '~sonar-aligned/components/hoc/withRouter';
 import AdminContext from '../app/components/AdminContext';
 import AppStateContextProvider from '../app/components/app-state/AppStateContextProvider';
 import { AvailableFeaturesContext } from '../app/components/available-features/AvailableFeaturesContext';
@@ -44,7 +45,6 @@ import CurrentUserContextProvider from '../app/components/current-user/CurrentUs
 import IndexationContextProvider from '../app/components/indexation/IndexationContextProvider';
 import { LanguagesContext } from '../app/components/languages/LanguagesContext';
 import { MetricsContext } from '../app/components/metrics/MetricsContext';
-import { useLocation } from '../components/hoc/withRouter';
 import { AppState } from '../types/appstate';
 import { ComponentContextShape } from '../types/component';
 import { Feature } from '../types/features';

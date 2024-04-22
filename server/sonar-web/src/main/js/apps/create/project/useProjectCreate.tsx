@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useLocation, useRouter } from '../../../components/hoc/withRouter';
+import { useLocation, useRouter } from '~sonar-aligned/components/hoc/withRouter';
 import { isDefined } from '../../../helpers/types';
 import { AlmInstanceBase, AlmKeys } from '../../../types/alm-settings';
 import { DopSetting } from '../../../types/dop-translation';

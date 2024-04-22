@@ -30,6 +30,8 @@ import {
 import { keyBy } from 'lodash';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
+import { withRouter } from '~sonar-aligned/components/hoc/withRouter';
+import { Location, RawQuery, Router } from '~sonar-aligned/types/router';
 import { Profile, searchQualityProfiles } from '../../../api/quality-profiles';
 import { getRulesApp, searchRules } from '../../../api/rules';
 import { getValue } from '../../../api/settings';
@@ -37,14 +39,13 @@ import withCurrentUserContext from '../../../app/components/current-user/withCur
 import A11ySkipTarget from '../../../components/a11y/A11ySkipTarget';
 import ListFooter from '../../../components/controls/ListFooter';
 import Suggestions from '../../../components/embed-docs-modal/Suggestions';
-import { Location, Router, withRouter } from '../../../components/hoc/withRouter';
 import '../../../components/search-navigator.css';
 import { isInput, isShortcut } from '../../../helpers/keyboardEventHelpers';
 import { KeyboardKeys } from '../../../helpers/keycodes';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { SecurityStandard } from '../../../types/security';
 import { SettingsKey } from '../../../types/settings';
-import { Dict, Paging, RawQuery, Rule, RuleActivation } from '../../../types/types';
+import { Dict, Paging, Rule, RuleActivation } from '../../../types/types';
 import { CurrentUser, isLoggedIn } from '../../../types/users';
 import { FiltersHeader } from '../../issues/sidebar/FiltersHeader';
 import {

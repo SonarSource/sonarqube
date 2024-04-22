@@ -17,16 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { isArray, mapValues, omitBy } from 'lodash';
 import { Path, To } from 'react-router-dom';
 import { getBranchLikeQuery, isBranch, isMainBranch } from '~sonar-aligned/helpers/branch-like';
+import { queryToSearch } from '~sonar-aligned/helpers/urls';
 import { getProfilePath } from '../apps/quality-profiles/utils';
 import { DEFAULT_ISSUES_QUERY } from '../components/shared/utils';
 import { BranchLike, BranchParameters } from '../types/branch-like';
 import { ComponentQualifier, isApplication, isPortfolioLike } from '../types/component';
 import { MeasurePageView } from '../types/measures';
 import { GraphType } from '../types/project-activity';
-import { Dict, RawQuery } from '../types/types';
+import { Dict } from '../types/types';
 import { HomePage } from '../types/users';
 import { isPullRequest } from './branch-like';
 import { serializeOptionalBoolean } from './query';
@@ -47,35 +47,6 @@ type CodeScopeType = CodeScope.Overall | CodeScope.New;
 export type Query = Location['query'];
 
 const PROJECT_BASE_URL = '/dashboard';
-
-export function queryToSearch(query: RawQuery = {}) {
-  const arrayParams: Array<{ key: string; values: string[] }> = [];
-
-  const stringParams = mapValues(query, (value, key) => {
-    // array values are added afterwards
-    if (isArray(value)) {
-      arrayParams.push({ key, values: value });
-      return '';
-    }
-
-    return value != null ? `${value}` : '';
-  });
-  const filteredParams = omitBy(stringParams, (v: string) => v.length === 0);
-  const searchParams = new URLSearchParams(filteredParams);
-
-  /*
-   * Add each value separately
-   * e.g. author: ['a', 'b'] should be serialized as
-   * author=a&author=b
-   */
-  arrayParams.forEach(({ key, values }) => {
-    values.forEach((value) => {
-      searchParams.append(key, value);
-    });
-  });
-
-  return `?${searchParams.toString()}`;
-}
 
 export function getComponentOverviewUrl(
   componentKey: string,
@@ -420,23 +391,6 @@ export function getReturnUrl(location: { hash?: string; query?: { return_to?: st
 export function isRelativeUrl(url?: string): boolean {
   const regex = new RegExp(/^\/[^/\\]/);
   return Boolean(url && regex.test(url));
-}
-
-export function searchParamsToQuery(searchParams: URLSearchParams, omitKey: string[] = []) {
-  const result: RawQuery = {};
-
-  searchParams.forEach((value, key) => {
-    if (omitKey.includes(key)) {
-      return;
-    }
-    if (result[key]) {
-      result[key] = ([] as string[]).concat(result[key], value);
-    } else {
-      result[key] = value;
-    }
-  });
-
-  return result;
 }
 
 export function convertToTo(link: string | Location) {

@@ -20,9 +20,9 @@
 import { Accordion, FlagMessage, Link } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
+import { queryToSearch } from '~sonar-aligned/helpers/urls';
 import { translate, translateWithParameters } from '../../../../helpers/l10n';
 import { getBaseUrl } from '../../../../helpers/system';
-import { queryToSearch } from '../../../../helpers/urls';
 import { BitbucketProject, BitbucketRepository } from '../../../../types/alm-integration';
 import AlmRepoItem from '../components/AlmRepoItem';
 import { CreateProjectModes } from '../types';

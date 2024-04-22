@@ -20,9 +20,9 @@
 
 import { ItemLink } from 'design-system';
 import * as React from 'react';
+import { queryToSearch } from '~sonar-aligned/helpers/urls';
 import { Image } from '../../../components/common/Image';
 import { translate } from '../../../helpers/l10n';
-import { queryToSearch } from '../../../helpers/urls';
 import { AlmKeys } from '../../../types/alm-settings';
 
 export interface ProjectCreationMenuItemProps {

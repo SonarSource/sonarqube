@@ -19,9 +19,9 @@
  */
 import { SizeIndicator } from 'design-system';
 import * as React from 'react';
+import { RawQuery } from '~sonar-aligned/types/router';
 import { translate } from '../../../helpers/l10n';
 import { getSizeRatingAverageValue, getSizeRatingLabel } from '../../../helpers/ratings';
-import { RawQuery } from '../../../types/types';
 import { Facet } from '../types';
 import RangeFacetBase from './RangeFacetBase';
 

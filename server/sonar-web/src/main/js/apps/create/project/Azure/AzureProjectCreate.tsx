@@ -20,12 +20,12 @@
 import { LabelValueSelectOption } from 'design-system';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { GroupBase } from 'react-select';
+import { useLocation, useRouter } from '~sonar-aligned/components/hoc/withRouter';
 import {
   getAzureProjects,
   getAzureRepositories,
   searchAzureRepositories,
 } from '../../../../api/alm-integrations';
-import { useLocation, useRouter } from '../../../../components/hoc/withRouter';
 import { AzureProject, AzureRepository } from '../../../../types/alm-integration';
 import { AlmSettingsInstance } from '../../../../types/alm-settings';
 import { DopSetting } from '../../../../types/dop-translation';

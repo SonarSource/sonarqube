@@ -20,13 +20,14 @@
 
 import { flatMap, range } from 'lodash';
 import * as React from 'react';
+import { withRouter } from '~sonar-aligned/components/hoc/withRouter';
 import { getBranchLikeQuery } from '~sonar-aligned/helpers/branch-like';
+import { Location, Router } from '~sonar-aligned/types/router';
 import { getMeasures } from '../../api/measures';
 import { getSecurityHotspotList, getSecurityHotspots } from '../../api/security-hotspots';
 import withComponentContext from '../../app/components/componentContext/withComponentContext';
 import withCurrentUserContext from '../../app/components/current-user/withCurrentUserContext';
 import withIndexationGuard from '../../components/hoc/withIndexationGuard';
-import { Location, Router, withRouter } from '../../components/hoc/withRouter';
 import { getLeakValue } from '../../components/measure/utils';
 import { isPullRequest, isSameBranchLike } from '../../helpers/branch-like';
 import { isInput } from '../../helpers/keyboardEventHelpers';

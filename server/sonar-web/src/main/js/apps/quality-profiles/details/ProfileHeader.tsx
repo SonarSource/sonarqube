@@ -20,7 +20,7 @@
 import { Badge, Breadcrumbs, HoverLink, Link, PageContentFontWrapper } from 'design-system';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
-import { useLocation } from '../../../components/hoc/withRouter';
+import { useLocation } from '~sonar-aligned/components/hoc/withRouter';
 import DateFromNow from '../../../components/intl/DateFromNow';
 import { AdminPageHeader } from '../../../components/ui/AdminPageHeader';
 import { translate, translateWithParameters } from '../../../helpers/l10n';

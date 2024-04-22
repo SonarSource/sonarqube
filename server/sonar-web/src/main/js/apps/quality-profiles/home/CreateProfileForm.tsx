@@ -37,13 +37,13 @@ import * as React from 'react';
 import { useRef } from 'react';
 import { useIntl } from 'react-intl';
 import { SingleValue } from 'react-select';
+import { Location } from '~sonar-aligned/types/router';
 import {
   changeProfileParent,
   copyProfile,
   createQualityProfile,
   getImporters,
 } from '../../../api/quality-profiles';
-import { Location } from '../../../components/hoc/withRouter';
 import MandatoryFieldsExplanation from '../../../components/ui/MandatoryFieldsExplanation';
 import { parseAsOptionalString } from '../../../helpers/query';
 import { useProfileInheritanceQuery } from '../../../queries/quality-profiles';

@@ -19,9 +19,9 @@
  */
 import * as React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useLocation } from '~sonar-aligned/components/hoc/withRouter';
 import { searchProjects } from '../../../api/components';
 import withCurrentUserContext from '../../../app/components/current-user/withCurrentUserContext';
-import { useLocation } from '../../../components/hoc/withRouter';
 import { get } from '../../../helpers/storage';
 import { hasGlobalPermission } from '../../../helpers/users';
 import { CurrentUser, isLoggedIn } from '../../../types/users';

@@ -18,9 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { withRouter } from '~sonar-aligned/components/hoc/withRouter';
+import { Location, Router } from '~sonar-aligned/types/router';
 import withComponentContext from '../../../app/components/componentContext/withComponentContext';
 import withMetricsContext from '../../../app/components/metrics/withMetricsContext';
-import { Location, Router, withRouter } from '../../../components/hoc/withRouter';
 import { CodeScope, getCodeUrl, getProjectUrl } from '../../../helpers/urls';
 import { WithBranchLikesProps, useBranchesQuery } from '../../../queries/branch';
 import { ComponentQualifier, isPortfolioLike } from '../../../types/component';

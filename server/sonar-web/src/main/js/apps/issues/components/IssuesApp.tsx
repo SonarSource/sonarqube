@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
 import styled from '@emotion/styled';
 import { Checkbox, Spinner } from '@sonarsource/echoes-react';
 import classNames from 'classnames';
@@ -35,7 +34,9 @@ import { keyBy, omit, without } from 'lodash';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { FormattedMessage } from 'react-intl';
+import { withRouter } from '~sonar-aligned/components/hoc/withRouter';
 import { getBranchLikeQuery } from '~sonar-aligned/helpers/branch-like';
+import { Location, RawQuery, Router } from '~sonar-aligned/types/router';
 import { listIssues, searchIssues } from '../../../api/issues';
 import { getRuleDetails } from '../../../api/rules';
 import withComponentContext from '../../../app/components/componentContext/withComponentContext';
@@ -49,7 +50,6 @@ import withIndexationContext, {
   WithIndexationContextProps,
 } from '../../../components/hoc/withIndexationContext';
 import withIndexationGuard from '../../../components/hoc/withIndexationGuard';
-import { Location, Router, withRouter } from '../../../components/hoc/withRouter';
 import IssueTabViewer from '../../../components/rules/IssueTabViewer';
 import '../../../components/search-navigator.css';
 import { DEFAULT_ISSUES_QUERY } from '../../../components/shared/utils';
@@ -72,7 +72,7 @@ import {
   ReferencedRule,
 } from '../../../types/issues';
 import { SecurityStandard } from '../../../types/security';
-import { Component, Dict, Issue, Paging, RawQuery, RuleDetails } from '../../../types/types';
+import { Component, Dict, Issue, Paging, RuleDetails } from '../../../types/types';
 import { CurrentUser, UserBase } from '../../../types/users';
 import * as actions from '../actions';
 import SubnavigationIssuesList from '../issues-subnavigation/SubnavigationIssuesList';

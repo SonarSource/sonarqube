@@ -20,7 +20,8 @@
 import { PopupZLevel, SearchSelectDropdown, SubHeading } from 'design-system';
 import * as React from 'react';
 import { Options } from 'react-select';
-import { Location, Router, withRouter } from '../../../components/hoc/withRouter';
+import { withRouter } from '~sonar-aligned/components/hoc/withRouter';
+import { Location, Router } from '~sonar-aligned/types/router';
 import { translate } from '../../../helpers/l10n';
 import { CATEGORY_OVERRIDES, LANGUAGES_CATEGORY } from '../constants';
 import { getCategoryName } from '../utils';

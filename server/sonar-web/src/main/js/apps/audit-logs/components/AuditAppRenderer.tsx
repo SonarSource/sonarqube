@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
 import { Link, RadioButtonGroup } from '@sonarsource/echoes-react';
 import { subDays } from 'date-fns';
 import {
@@ -30,10 +29,10 @@ import {
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { FormattedMessage } from 'react-intl';
+import { queryToSearch } from '~sonar-aligned/helpers/urls';
 import Suggestions from '../../../components/embed-docs-modal/Suggestions';
 import { now } from '../../../helpers/dates';
 import { translate } from '../../../helpers/l10n';
-import { queryToSearch } from '../../../helpers/urls';
 import '../style.css';
 import { HousekeepingPolicy, RangeOption } from '../utils';
 import DownloadButton from './DownloadButton';

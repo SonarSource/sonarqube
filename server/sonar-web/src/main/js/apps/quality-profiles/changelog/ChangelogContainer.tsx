@@ -19,8 +19,9 @@
  */
 import { ButtonSecondary, Spinner } from 'design-system';
 import * as React from 'react';
+import { withRouter } from '~sonar-aligned/components/hoc/withRouter';
+import { Location, Router } from '~sonar-aligned/types/router';
 import { ChangelogResponse, getProfileChangelog } from '../../../api/quality-profiles';
-import { Location, Router, withRouter } from '../../../components/hoc/withRouter';
 import { parseDate, toISO8601WithOffsetString } from '../../../helpers/dates';
 import { translate } from '../../../helpers/l10n';
 import { withQualityProfilesContext } from '../qualityProfilesContext';

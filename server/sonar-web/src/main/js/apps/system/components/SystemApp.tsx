@@ -20,10 +20,11 @@
 import { LargeCenteredLayout, PageContentFontWrapper } from 'design-system';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
+import { withRouter } from '~sonar-aligned/components/hoc/withRouter';
+import { Location, Router } from '~sonar-aligned/types/router';
 import { getSystemInfo } from '../../../api/system';
 import UpdateNotification from '../../../app/components/update-notification/UpdateNotification';
 import Suggestions from '../../../components/embed-docs-modal/Suggestions';
-import { Location, Router, withRouter } from '../../../components/hoc/withRouter';
 import { translate } from '../../../helpers/l10n';
 import { SysInfoCluster, SysInfoStandalone } from '../../../types/types';
 import '../styles.css';

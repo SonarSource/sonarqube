@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
 import { withTheme } from '@emotion/react';
 import { QueryClient } from '@tanstack/react-query';
 import { addGlobalErrorMessage, Theme } from 'design-system';
@@ -25,7 +24,8 @@ import { isEqual } from 'lodash';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { injectIntl, WrappedComponentProps } from 'react-intl';
-import { Location, Router, withRouter } from '../../../components/hoc/withRouter';
+import { withRouter } from '~sonar-aligned/components/hoc/withRouter';
+import { Location, Router } from '~sonar-aligned/types/router';
 import { getExtensionStart } from '../../../helpers/extensions';
 import { translate } from '../../../helpers/l10n';
 import { getCurrentL10nBundle } from '../../../helpers/l10nBundle';

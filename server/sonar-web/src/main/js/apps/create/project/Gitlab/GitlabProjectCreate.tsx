@@ -19,8 +19,8 @@
  */
 import { LabelValueSelectOption } from 'design-system';
 import React, { useCallback, useMemo } from 'react';
+import { useLocation } from '~sonar-aligned/components/hoc/withRouter';
 import { getGitlabProjects } from '../../../../api/alm-integrations';
-import { useLocation } from '../../../../components/hoc/withRouter';
 import { GitlabProject } from '../../../../types/alm-integration';
 import { AlmKeys } from '../../../../types/alm-settings';
 import { DopSetting } from '../../../../types/dop-translation';

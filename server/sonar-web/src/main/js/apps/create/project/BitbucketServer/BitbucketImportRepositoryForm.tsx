@@ -20,8 +20,8 @@
 import { FlagMessage, InputSearch, Link } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
+import { queryToSearch } from '~sonar-aligned/helpers/urls';
 import { translate } from '../../../../helpers/l10n';
-import { queryToSearch } from '../../../../helpers/urls';
 import {
   BitbucketProject,
   BitbucketProjectRepositories,

@@ -34,11 +34,12 @@ import * as React from 'react';
 import { useEffect } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { useNavigate, unstable_usePrompt as usePrompt } from 'react-router-dom';
-import { useLocation } from '../../../../components/hoc/withRouter';
+import { useLocation } from '~sonar-aligned/components/hoc/withRouter';
+import { queryToSearch } from '~sonar-aligned/helpers/urls';
 import NewCodeDefinitionSelector from '../../../../components/new-code-definition/NewCodeDefinitionSelector';
 import { useDocUrl } from '../../../../helpers/docs';
 import { translate } from '../../../../helpers/l10n';
-import { getProjectUrl, queryToSearch } from '../../../../helpers/urls';
+import { getProjectUrl } from '../../../../helpers/urls';
 import {
   MutationArg,
   useImportProjectMutation,

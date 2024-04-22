@@ -19,12 +19,12 @@
  */
 import { omit } from 'lodash';
 import { To } from 'react-router-dom';
+import { Location, Router } from '~sonar-aligned/types/router';
 import { CompareResponse } from '../api/quality-profiles';
 import { RuleDescriptionSections } from '../apps/coding-rules/rule';
 import { REST_RULE_KEYS_TO_OLD_KEYS } from '../apps/coding-rules/utils';
 import { Exporter, Profile, ProfileChangelogEvent } from '../apps/quality-profiles/types';
 import { LogsLevels } from '../apps/system/utils';
-import { Location, Router } from '../components/hoc/withRouter';
 import { AppState } from '../types/appstate';
 import {
   CleanCodeAttribute,
@@ -592,9 +592,12 @@ export function mockRouter(
     goBack: jest.fn(),
     goForward: jest.fn(),
     isActive: jest.fn(),
+    navigate: jest.fn(),
     push: jest.fn(),
     replace: jest.fn(),
+    searchParams: new URLSearchParams(),
     setRouteLeaveHook: jest.fn(),
+    setSearchParams: jest.fn(),
     ...overrides,
   } as Router;
 }

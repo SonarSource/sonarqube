@@ -19,11 +19,12 @@
  */
 import { uniqBy } from 'lodash';
 import * as React from 'react';
+import { RawQuery } from '~sonar-aligned/types/router';
 import withLanguagesContext from '../../../app/components/languages/withLanguagesContext';
 import { translate } from '../../../helpers/l10n';
 import { highlightTerm } from '../../../helpers/search';
 import { Language, Languages } from '../../../types/languages';
-import { Dict, RawQuery } from '../../../types/types';
+import { Dict } from '../../../types/types';
 import { ListStyleFacet } from '../../issues/sidebar/ListStyleFacet';
 import { Facet } from '../types';
 

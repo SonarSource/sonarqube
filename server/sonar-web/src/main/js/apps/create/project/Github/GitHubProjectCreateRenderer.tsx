@@ -18,16 +18,15 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 /* eslint-disable react/no-unused-prop-types */
-
 import { Link, Spinner } from '@sonarsource/echoes-react';
 import { DarkLabel, FlagMessage, InputSelect, LightPrimary, Title } from 'design-system';
 import React, { useContext, useEffect, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
+import { queryToSearch } from '~sonar-aligned/helpers/urls';
 import { useAppState } from '../../../../app/components/app-state/withAppStateContext';
 import { AvailableFeaturesContext } from '../../../../app/components/available-features/AvailableFeaturesContext';
 import { translate } from '../../../../helpers/l10n';
 import { LabelValueSelectOption } from '../../../../helpers/search';
-import { queryToSearch } from '../../../../helpers/urls';
 import { GithubOrganization, GithubRepository } from '../../../../types/alm-integration';
 import { AlmKeys, AlmSettingsInstance } from '../../../../types/alm-settings';
 import { Feature } from '../../../../types/features';

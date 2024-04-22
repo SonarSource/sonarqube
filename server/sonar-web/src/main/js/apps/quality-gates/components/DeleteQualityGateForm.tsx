@@ -19,7 +19,7 @@
  */
 import { DangerButtonPrimary, Modal } from 'design-system';
 import * as React from 'react';
-import { useRouter } from '../../../components/hoc/withRouter';
+import { useRouter } from '~sonar-aligned/components/hoc/withRouter';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { getQualityGatesUrl } from '../../../helpers/urls';
 import { useDeleteQualityGateMutation } from '../../../queries/quality-gates';

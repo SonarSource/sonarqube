@@ -19,10 +19,11 @@
  */
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
+import { withRouter } from '~sonar-aligned/components/hoc/withRouter';
+import { Location } from '~sonar-aligned/types/router';
 import { getPermissionTemplates } from '../../../api/permissions';
 import withAppStateContext from '../../../app/components/app-state/withAppStateContext';
 import Suggestions from '../../../components/embed-docs-modal/Suggestions';
-import { Location, withRouter } from '../../../components/hoc/withRouter';
 import { translate } from '../../../helpers/l10n';
 import { AppState } from '../../../types/appstate';
 import { Permission, PermissionTemplate } from '../../../types/types';

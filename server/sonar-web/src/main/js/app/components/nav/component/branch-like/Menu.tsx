@@ -19,8 +19,10 @@
  */
 import { DropdownMenu, InputSearch, ItemDivider, Link } from 'design-system';
 import * as React from 'react';
+import { withRouter } from '~sonar-aligned/components/hoc/withRouter';
 import { isBranch } from '~sonar-aligned/helpers/branch-like';
-import { Router, withRouter } from '../../../../../components/hoc/withRouter';
+import { queryToSearch } from '~sonar-aligned/helpers/urls';
+import { Router } from '~sonar-aligned/types/router';
 import {
   getBrancheLikesAsTree,
   isPullRequest,
@@ -28,7 +30,7 @@ import {
 } from '../../../../../helpers/branch-like';
 import { KeyboardKeys } from '../../../../../helpers/keycodes';
 import { translate } from '../../../../../helpers/l10n';
-import { getBranchLikeUrl, queryToSearch } from '../../../../../helpers/urls';
+import { getBranchLikeUrl } from '../../../../../helpers/urls';
 import { BranchLike, BranchLikeTree } from '../../../../../types/branch-like';
 import { ComponentQualifier } from '../../../../../types/component';
 import { Component } from '../../../../../types/types';

@@ -17,18 +17,46 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { pick } from 'lodash';
-import { Query, queryToSearch } from '../../helpers/urls';
-
+import { isArray, mapValues, omitBy, pick } from 'lodash';
 import { Path } from 'react-router-dom';
+import { Query } from '../../helpers/urls';
 import { BranchLike } from '../../types/branch-like';
 import { SecurityStandard } from '../../types/security';
-import { getBranchLikeQuery } from './branch-like';
+import { getBranchLikeQuery } from '../helpers/branch-like';
+import { RawQuery } from '../types/router';
+
+export function queryToSearch(query: RawQuery = {}) {
+  const arrayParams: Array<{ key: string; values: string[] }> = [];
+
+  const stringParams = mapValues(query, (value, key) => {
+    // array values are added afterwards
+    if (isArray(value)) {
+      arrayParams.push({ key, values: value });
+      return '';
+    }
+
+    return value != null ? `${value}` : '';
+  });
+  const filteredParams = omitBy(stringParams, (v: string) => v.length === 0);
+  const searchParams = new URLSearchParams(filteredParams);
+
+  /*
+   * Add each value separately
+   * e.g. author: ['a', 'b'] should be serialized as
+   * author=a&author=b
+   */
+  arrayParams.forEach(({ key, values }) => {
+    values.forEach((value) => {
+      searchParams.append(key, value);
+    });
+  });
+
+  return `?${searchParams.toString()}`;
+}
 
 /**
  * Generate URL for a component's issues page
  */
-
 export function getComponentIssuesUrl(componentKey: string, query?: Query): Path {
   return {
     pathname: '/project/issues',
@@ -40,7 +68,6 @@ export function getComponentIssuesUrl(componentKey: string, query?: Query): Path
 /**
  * Generate URL for a component's security hotspot page
  */
-
 export function getComponentSecurityHotspotsUrl(
   componentKey: string,
   branchLike?: BranchLike,

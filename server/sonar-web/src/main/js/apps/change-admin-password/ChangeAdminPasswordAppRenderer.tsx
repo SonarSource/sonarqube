@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
 import { LinkStandalone } from '@sonarsource/echoes-react';
 import {
   ButtonPrimary,
@@ -34,7 +33,7 @@ import {
 } from 'design-system';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
-import { Location } from '../../components/hoc/withRouter';
+import { Location } from '~sonar-aligned/types/router';
 import { translate } from '../../helpers/l10n';
 import { getReturnUrl } from '../../helpers/urls';
 import Unauthorized from '../sessions/components/Unauthorized';

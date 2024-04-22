@@ -19,9 +19,9 @@
  */
 import { differenceInYears } from 'date-fns';
 import { sortBy } from 'lodash';
+import { queryToSearch } from '~sonar-aligned/helpers/urls';
 import { Profile as BaseProfile } from '../../api/quality-profiles';
 import { isValidDate, parseDate } from '../../helpers/dates';
-import { queryToSearch } from '../../helpers/urls';
 import { PROFILE_COMPARE_PATH, PROFILE_PATH } from './constants';
 import { Profile } from './types';
 

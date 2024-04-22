@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import { useLocation, useRouter } from '~sonar-aligned/components/hoc/withRouter';
 import { getBranchLikeQuery } from '~sonar-aligned/helpers/branch-like';
 import {
   useComponent,
@@ -30,7 +31,6 @@ import {
   getHistoryMetrics,
   isCustomGraph,
 } from '../../../components/activity-graph/utils';
-import { useLocation, useRouter } from '../../../components/hoc/withRouter';
 import { parseDate } from '../../../helpers/dates';
 import useApplicationLeakQuery from '../../../queries/applications';
 import { useBranchesQuery } from '../../../queries/branch';

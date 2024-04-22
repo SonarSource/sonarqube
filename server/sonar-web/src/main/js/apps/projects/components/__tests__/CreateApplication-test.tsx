@@ -19,12 +19,12 @@
  */
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
+import { queryToSearch } from '~sonar-aligned/helpers/urls';
 import { createApplication } from '../../../../api/application';
 import { getComponentNavigation } from '../../../../api/navigation';
 import { mockAppState, mockLoggedInUser, mockRouter } from '../../../../helpers/testMocks';
 import { renderComponent } from '../../../../helpers/testReactTestingUtils';
 import { byRole, byText } from '../../../../helpers/testSelector';
-import { queryToSearch } from '../../../../helpers/urls';
 import { ComponentQualifier, Visibility } from '../../../../types/component';
 import { FCProps } from '../../../../types/misc';
 import { LoggedInUser } from '../../../../types/users';

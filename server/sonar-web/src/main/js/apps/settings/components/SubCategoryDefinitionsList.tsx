@@ -20,7 +20,8 @@
 import { BasicSeparator, Note, SubTitle } from 'design-system';
 import { groupBy, sortBy } from 'lodash';
 import * as React from 'react';
-import { Location, withRouter } from '../../../components/hoc/withRouter';
+import { withRouter } from '~sonar-aligned/components/hoc/withRouter';
+import { Location } from '~sonar-aligned/types/router';
 import { sanitizeStringRestricted } from '../../../helpers/sanitize';
 import { SettingDefinitionAndValue } from '../../../types/settings';
 import { Component } from '../../../types/types';

@@ -19,11 +19,12 @@
  */
 import { size } from 'lodash';
 import * as React from 'react';
+import { RawQuery } from '~sonar-aligned/types/router';
 import { searchProjectTags } from '../../../api/components';
-import { ListStyleFacet } from '../../../apps/issues/sidebar/ListStyleFacet';
 import { translate } from '../../../helpers/l10n';
 import { highlightTerm } from '../../../helpers/search';
-import { Dict, RawQuery } from '../../../types/types';
+import { Dict } from '../../../types/types';
+import { ListStyleFacet } from '../../issues/sidebar/ListStyleFacet';
 import { Facet } from '../types';
 
 interface Props {

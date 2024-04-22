@@ -21,7 +21,7 @@ import { LinkStandalone } from '@sonarsource/echoes-react';
 import { LightPrimary, Title } from 'design-system/lib';
 import React from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
-import { useLocation } from '../../../../components/hoc/withRouter';
+import { useLocation } from '~sonar-aligned/components/hoc/withRouter';
 import { useDocUrl } from '../../../../helpers/docs';
 
 export function MonorepoProjectHeader() {

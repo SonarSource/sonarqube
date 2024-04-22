@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { Location } from '~sonar-aligned/types/router';
 import SourceViewer from '../../../components/SourceViewer/SourceViewer';
 import withKeyboardNavigation from '../../../components/hoc/withKeyboardNavigation';
-import { Location } from '../../../components/hoc/withRouter';
 import { BranchLike } from '../../../types/branch-like';
 import { Measure } from '../../../types/types';
 

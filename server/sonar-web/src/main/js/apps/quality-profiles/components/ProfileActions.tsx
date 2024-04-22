@@ -30,6 +30,8 @@ import {
 } from 'design-system';
 import { some } from 'lodash';
 import * as React from 'react';
+import { withRouter } from '~sonar-aligned/components/hoc/withRouter';
+import { Router } from '~sonar-aligned/types/router';
 import {
   changeProfileParent,
   copyProfile,
@@ -38,7 +40,6 @@ import {
   renameProfile,
   setDefaultProfile,
 } from '../../../api/quality-profiles';
-import { Router, withRouter } from '../../../components/hoc/withRouter';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { getBaseUrl } from '../../../helpers/system';
 import { getRulesUrl } from '../../../helpers/urls';

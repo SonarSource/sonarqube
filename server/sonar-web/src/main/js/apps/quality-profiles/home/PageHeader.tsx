@@ -20,8 +20,8 @@
 import { ButtonPrimary, ButtonSecondary, FlagMessage, Link } from 'design-system';
 import * as React from 'react';
 import { useIntl } from 'react-intl';
+import { useLocation, useRouter } from '~sonar-aligned/components/hoc/withRouter';
 import { Actions } from '../../../api/quality-profiles';
-import { useLocation, useRouter } from '../../../components/hoc/withRouter';
 import { useDocUrl } from '../../../helpers/docs';
 import { translate } from '../../../helpers/l10n';
 import { Profile } from '../types';

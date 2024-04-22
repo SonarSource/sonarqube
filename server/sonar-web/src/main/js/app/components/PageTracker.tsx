@@ -19,7 +19,8 @@
  */
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
-import { Location, withRouter } from '../../components/hoc/withRouter';
+import { withRouter } from '~sonar-aligned/components/hoc/withRouter';
+import { Location } from '~sonar-aligned/types/router';
 import { installScript } from '../../helpers/extensions';
 import { getWebAnalyticsPageHandlerFromCache } from '../../helpers/extensionsHandler';
 import { getInstance } from '../../helpers/system';

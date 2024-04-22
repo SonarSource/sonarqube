@@ -19,8 +19,8 @@
  */
 import { Badge, Card, LinkBox, LinkIcon, SubHeading, Tabs } from 'design-system';
 import * as React from 'react';
+import { queryToSearch } from '~sonar-aligned/helpers/urls';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
-import { queryToSearch } from '../../../helpers/urls';
 import { WebApi } from '../../../types/types';
 import { getActionKey, serializeQuery } from '../utils';
 import ActionChangelog from './ActionChangelog';

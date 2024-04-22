@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { findDOMNode } from 'react-dom';
-import { getWrappedDisplayName } from './utils';
+import { getWrappedDisplayName } from '~sonar-aligned/components/hoc/utils';
 
 export interface WithScrollToProps {
   selected?: boolean;

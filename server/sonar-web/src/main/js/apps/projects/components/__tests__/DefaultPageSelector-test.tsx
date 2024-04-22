@@ -20,8 +20,8 @@
 import { render, screen } from '@testing-library/react';
 import * as React from 'react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
+import { useLocation } from '~sonar-aligned/components/hoc/withRouter';
 import { searchProjects } from '../../../../api/components';
-import { useLocation } from '../../../../components/hoc/withRouter';
 import { get } from '../../../../helpers/storage';
 import { mockCurrentUser, mockLoggedInUser } from '../../../../helpers/testMocks';
 import { hasGlobalPermission } from '../../../../helpers/users';

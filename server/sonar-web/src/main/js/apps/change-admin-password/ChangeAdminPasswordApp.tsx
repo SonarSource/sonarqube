@@ -18,9 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { withRouter } from '~sonar-aligned/components/hoc/withRouter';
+import { Location } from '~sonar-aligned/types/router';
 import { changePassword } from '../../api/users';
 import withAppStateContext from '../../app/components/app-state/withAppStateContext';
-import { Location, withRouter } from '../../components/hoc/withRouter';
 import { AppState } from '../../types/appstate';
 import ChangeAdminPasswordAppRenderer from './ChangeAdminPasswordAppRenderer';
 import { DEFAULT_ADMIN_LOGIN, DEFAULT_ADMIN_PASSWORD } from './constants';

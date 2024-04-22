@@ -20,7 +20,8 @@
 import { debounce, keyBy } from 'lodash';
 import lunr, { LunrIndex } from 'lunr';
 import * as React from 'react';
-import { Router, withRouter } from '../../../components/hoc/withRouter';
+import { withRouter } from '~sonar-aligned/components/hoc/withRouter';
+import { Router } from '~sonar-aligned/types/router';
 import { KeyboardKeys } from '../../../helpers/keycodes';
 import { ExtendedSettingDefinition } from '../../../types/settings';
 import { Component, Dict } from '../../../types/types';

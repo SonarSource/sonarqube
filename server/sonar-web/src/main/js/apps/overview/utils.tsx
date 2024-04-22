@@ -21,6 +21,7 @@ import { memoize } from 'lodash';
 import React from 'react';
 import { IntlShape } from 'react-intl';
 import { formatMeasure } from '~sonar-aligned/helpers/measures';
+import { RawQuery } from '~sonar-aligned/types/router';
 import { ISSUETYPE_METRIC_KEYS_MAP } from '../../helpers/issues';
 import { translate } from '../../helpers/l10n';
 import { parseAsString } from '../../helpers/query';
@@ -29,7 +30,7 @@ import { IssueType } from '../../types/issues';
 import { MetricKey, MetricType } from '../../types/metrics';
 import { AnalysisMeasuresVariations, MeasureHistory } from '../../types/project-activity';
 import { QualityGateStatusConditionEnhanced } from '../../types/quality-gates';
-import { Dict, RawQuery } from '../../types/types';
+import { Dict } from '../../types/types';
 
 export const BRANCH_OVERVIEW_METRICS: string[] = [
   // quality gate

@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { memoize } from 'lodash';
+import { RawQuery } from '~sonar-aligned/types/router';
 import { cleanQuery, parseAsString, serializeString } from '../../helpers/query';
-import { RawQuery } from '../../types/types';
 
 export interface Query {
   search: string;

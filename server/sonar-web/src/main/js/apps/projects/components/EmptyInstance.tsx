@@ -19,7 +19,8 @@
  */
 import { ButtonPrimary, FishVisual, Highlight } from 'design-system';
 import * as React from 'react';
-import { Router, withRouter } from '../../../components/hoc/withRouter';
+import { withRouter } from '~sonar-aligned/components/hoc/withRouter';
+import { Router } from '~sonar-aligned/types/router';
 import { translate } from '../../../helpers/l10n';
 import { hasGlobalPermission } from '../../../helpers/users';
 import { Permissions } from '../../../types/permissions';

@@ -18,6 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { withRouter } from '~sonar-aligned/components/hoc/withRouter';
+import { Location } from '~sonar-aligned/types/router';
 import { getAlmSettingsNoCatch } from '../../api/alm-settings';
 import { getScannableProjects } from '../../api/components';
 import { getValue } from '../../api/settings';
@@ -29,7 +31,6 @@ import { Permissions } from '../../types/permissions';
 import { SettingsKey } from '../../types/settings';
 import { Component } from '../../types/types';
 import { LoggedInUser } from '../../types/users';
-import { Location, withRouter } from '../hoc/withRouter';
 import TutorialSelectionRenderer from './TutorialSelectionRenderer';
 import { TutorialModes } from './types';
 

@@ -18,9 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { withRouter } from '~sonar-aligned/components/hoc/withRouter';
+import { Location } from '~sonar-aligned/types/router';
 import AdminContext from '../../app/components/AdminContext';
 import withAppStateContext from '../../app/components/app-state/withAppStateContext';
-import { Location, withRouter } from '../../components/hoc/withRouter';
 import { AppState } from '../../types/appstate';
 import { EditionKey } from '../../types/editions';
 import { GlobalSettingKeys } from '../../types/settings';

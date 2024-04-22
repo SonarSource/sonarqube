@@ -18,25 +18,18 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { useMemo } from 'react';
 import {
-  Location as LocationRouter,
   Params,
   useLocation as useLocationRouter,
   useNavigate,
   useParams,
+  useSearchParams,
 } from 'react-router-dom';
-import { queryToSearch, searchParamsToQuery } from '../../helpers/urls';
-import { RawQuery } from '../../types/types';
+import { searchParamsToQuery } from '../../helpers/router';
+import { queryToSearch } from '../../helpers/urls';
+import { Location, Router } from '../../types/router';
 import { getWrappedDisplayName } from './utils';
-
-export interface Location extends LocationRouter {
-  query: RawQuery;
-}
-
-export interface Router {
-  replace: (location: string | Partial<Location>) => void;
-  push: (location: string | Partial<Location>) => void;
-}
 
 export interface WithRouterProps {
   location: Location;
@@ -47,7 +40,7 @@ export interface WithRouterProps {
 export function withRouter<P extends Partial<WithRouterProps>>(
   WrappedComponent: React.ComponentType<React.PropsWithChildren<P>>,
 ): React.ComponentType<React.PropsWithChildren<Omit<P, keyof WithRouterProps>>> {
-  function ComponentWithRouterProp(props: P) {
+  function ComponentWithRouterProp(props: Readonly<P>) {
     const router = useRouter();
     const params = useParams();
     const location = useLocation();
@@ -63,8 +56,9 @@ export function withRouter<P extends Partial<WithRouterProps>>(
 
 export function useRouter() {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
 
-  const router = React.useMemo(
+  return React.useMemo(
     () => ({
       replace: (path: string | Partial<Location>) => {
         if ((path as Location).query) {
@@ -78,15 +72,19 @@ export function useRouter() {
         }
         navigate(path);
       },
+      navigate,
+      searchParams,
+      setSearchParams,
     }),
-    [navigate],
+    [navigate, searchParams, setSearchParams],
   );
-
-  return router;
 }
 
 export function useLocation() {
   const location = useLocationRouter();
 
-  return { ...location, query: searchParamsToQuery(new URLSearchParams(location.search)) };
+  return useMemo(
+    () => ({ ...location, query: searchParamsToQuery(new URLSearchParams(location.search)) }),
+    [location],
+  );
 }

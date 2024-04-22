@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { getWrappedDisplayName } from '~sonar-aligned/components/hoc/utils';
 import { LanguagesContext } from '../../app/components/languages/LanguagesContext';
-import { getWrappedDisplayName } from './utils';
 
 export function withCLanguageFeature<P>(
   WrappedComponent: React.ComponentType<

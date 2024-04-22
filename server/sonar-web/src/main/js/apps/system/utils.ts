@@ -19,9 +19,9 @@
  */
 import { each, memoize, omit, omitBy, pickBy, sortBy } from 'lodash';
 import { formatMeasure } from '~sonar-aligned/helpers/measures';
+import { RawQuery } from '~sonar-aligned/types/router';
 import { cleanQuery, parseAsArray, parseAsString, serializeStringArray } from '../../helpers/query';
 import {
-  RawQuery,
   SysInfoAppNode,
   SysInfoBase,
   SysInfoCluster,

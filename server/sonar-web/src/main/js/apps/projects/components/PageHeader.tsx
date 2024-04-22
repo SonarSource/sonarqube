@@ -19,10 +19,10 @@
  */
 import { InputSearch, LightLabel, LightPrimary } from 'design-system';
 import * as React from 'react';
+import { RawQuery } from '~sonar-aligned/types/router';
 import HomePageSelect from '../../../components/controls/HomePageSelect';
 import Tooltip from '../../../components/controls/Tooltip';
 import { translate } from '../../../helpers/l10n';
-import { RawQuery } from '../../../types/types';
 import { CurrentUser, isLoggedIn } from '../../../types/users';
 import ApplicationCreation from './ApplicationCreation';
 import PerspectiveSelect from './PerspectiveSelect';

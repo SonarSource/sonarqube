@@ -19,8 +19,8 @@
  */
 import { ToggleButton } from 'design-system';
 import * as React from 'react';
+import { withRouter, WithRouterProps } from '~sonar-aligned/components/hoc/withRouter';
 import withCurrentUserContext from '../../../app/components/current-user/withCurrentUserContext';
-import { withRouter, WithRouterProps } from '../../../components/hoc/withRouter';
 import { translate } from '../../../helpers/l10n';
 import { save } from '../../../helpers/storage';
 import { CurrentUser, isLoggedIn } from '../../../types/users';

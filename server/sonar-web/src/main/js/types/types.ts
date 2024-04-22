@@ -538,8 +538,6 @@ export interface QualityGate extends QualityGatePreview {
   caycStatus?: CaycStatus;
 }
 
-export type RawQuery = Dict<any>;
-
 export interface Rule {
   cleanCodeAttributeCategory?: CleanCodeAttributeCategory;
   cleanCodeAttribute?: CleanCodeAttribute;

@@ -19,9 +19,10 @@
  */
 import { ButtonPrimary, FlagMessage, Spinner, Title } from 'design-system';
 import React, { useState } from 'react';
+import { withRouter } from '~sonar-aligned/components/hoc/withRouter';
 import { throwGlobalError } from '~sonar-aligned/helpers/error';
+import { Router } from '~sonar-aligned/types/router';
 import { createPermissionTemplate } from '../../../api/permissions';
-import { Router, withRouter } from '../../../components/hoc/withRouter';
 import { translate } from '../../../helpers/l10n';
 import { useGithubProvisioningEnabledQuery } from '../../../queries/identity-provider/github';
 import { PERMISSION_TEMPLATES_PATH } from '../utils';

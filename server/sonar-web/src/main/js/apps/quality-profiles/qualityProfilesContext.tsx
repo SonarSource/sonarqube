@@ -19,10 +19,10 @@
  */
 import React from 'react';
 import { useOutletContext } from 'react-router-dom';
+import { getWrappedDisplayName } from '~sonar-aligned/components/hoc/utils';
 import { Actions } from '../../api/quality-profiles';
-import { Exporter, Profile } from '../../apps/quality-profiles/types';
-import { getWrappedDisplayName } from '../../components/hoc/utils';
 import { Language } from '../../types/languages';
+import { Exporter, Profile } from './types';
 
 export interface QualityProfilesContextProps {
   actions: Actions;

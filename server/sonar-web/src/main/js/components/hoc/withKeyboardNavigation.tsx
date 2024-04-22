@@ -18,11 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { getWrappedDisplayName } from '~sonar-aligned/components/hoc/utils';
 import { getComponentMeasureUniqueKey } from '../../helpers/component';
 import { isInput, isShortcut } from '../../helpers/keyboardEventHelpers';
 import { KeyboardKeys } from '../../helpers/keycodes';
 import { ComponentMeasure } from '../../types/types';
-import { getWrappedDisplayName } from './utils';
 
 export interface WithKeyboardNavigationProps {
   components?: ComponentMeasure[];

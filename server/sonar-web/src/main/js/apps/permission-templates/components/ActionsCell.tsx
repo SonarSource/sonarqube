@@ -20,14 +20,15 @@
 import { ActionsDropdown, ItemButton, ItemLink, PopupZLevel } from 'design-system';
 import { difference } from 'lodash';
 import * as React from 'react';
+import { withRouter } from '~sonar-aligned/components/hoc/withRouter';
+import { queryToSearch } from '~sonar-aligned/helpers/urls';
+import { Router } from '~sonar-aligned/types/router';
 import {
   deletePermissionTemplate,
   setDefaultPermissionTemplate,
   updatePermissionTemplate,
 } from '../../../api/permissions';
-import { Router, withRouter } from '../../../components/hoc/withRouter';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
-import { queryToSearch } from '../../../helpers/urls';
 import { PermissionTemplate } from '../../../types/types';
 import { PERMISSION_TEMPLATES_PATH } from '../utils';
 import DeleteForm from './DeleteForm';

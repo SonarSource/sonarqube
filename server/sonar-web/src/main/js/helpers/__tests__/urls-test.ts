@@ -17,9 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { searchParamsToQuery } from '~sonar-aligned/helpers/router';
 import {
   getComponentIssuesUrl,
   getComponentSecurityHotspotsUrl,
+  queryToSearch,
 } from '~sonar-aligned/helpers/urls';
 import { DEFAULT_ISSUES_QUERY } from '../../components/shared/utils';
 import { AlmKeys } from '../../types/alm-settings';
@@ -47,8 +49,6 @@ import {
   getQualityGatesUrl,
   getReturnUrl,
   isRelativeUrl,
-  queryToSearch,
-  searchParamsToQuery,
   stripTrailingSlash,
 } from '../urls';
 

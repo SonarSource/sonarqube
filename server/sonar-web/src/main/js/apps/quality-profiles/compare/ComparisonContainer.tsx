@@ -19,7 +19,7 @@
  */
 import { Spinner } from 'design-system';
 import * as React from 'react';
-import { useLocation, useRouter } from '../../../components/hoc/withRouter';
+import { useLocation, useRouter } from '~sonar-aligned/components/hoc/withRouter';
 import { useProfilesCompareQuery } from '../../../queries/quality-profiles';
 import { useGetValueQuery } from '../../../queries/settings';
 import { SettingsKey } from '../../../types/settings';

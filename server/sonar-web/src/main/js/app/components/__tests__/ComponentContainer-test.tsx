@@ -21,11 +21,11 @@ import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React, { useContext } from 'react';
 import { Route } from 'react-router-dom';
+import * as withRouter from '~sonar-aligned/components/hoc/withRouter';
 import { validateProjectAlmBinding } from '../../../api/alm-settings';
 import { getTasksForComponent } from '../../../api/ce';
 import { getComponentData } from '../../../api/components';
 import { getComponentNavigation } from '../../../api/navigation';
-import * as withRouter from '../../../components/hoc/withRouter';
 import { mockProjectAlmBindingConfigurationErrors } from '../../../helpers/mocks/alm-settings';
 import { mockBranch, mockPullRequest } from '../../../helpers/mocks/branch-like';
 import { mockComponent } from '../../../helpers/mocks/component';
@@ -72,9 +72,9 @@ jest.mock('../../utils/handleRequiredAuthorization', () => ({
   default: jest.fn(),
 }));
 
-jest.mock('../../../components/hoc/withRouter', () => ({
+jest.mock('~sonar-aligned/components/hoc/withRouter', () => ({
   __esModule: true,
-  ...jest.requireActual('../../../components/hoc/withRouter'),
+  ...jest.requireActual('~sonar-aligned/components/hoc/withRouter'),
 }));
 
 const ui = {
@@ -466,6 +466,9 @@ describe('tutorials', () => {
     jest.spyOn(withRouter, 'useRouter').mockReturnValue({
       replace: mockedReplace,
       push: jest.fn(),
+      navigate: jest.fn(),
+      searchParams: new URLSearchParams(),
+      setSearchParams: jest.fn(),
     });
 
     renderComponentContainer(
@@ -515,6 +518,9 @@ describe('tutorials', () => {
     jest.spyOn(withRouter, 'useRouter').mockReturnValue({
       replace: mockedReplace,
       push: jest.fn(),
+      navigate: jest.fn(),
+      searchParams: new URLSearchParams(),
+      setSearchParams: jest.fn(),
     });
 
     jest.useFakeTimers();
@@ -568,6 +574,9 @@ describe('tutorials', () => {
     jest.spyOn(withRouter, 'useRouter').mockReturnValue({
       replace: mockedReplace,
       push: jest.fn(),
+      navigate: jest.fn(),
+      searchParams: new URLSearchParams(),
+      setSearchParams: jest.fn(),
     });
 
     jest.useFakeTimers();

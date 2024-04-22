@@ -21,7 +21,7 @@
 import { Theme } from '@emotion/react';
 import { QueryClient } from '@tanstack/react-query';
 import { IntlShape } from 'react-intl';
-import { Location, Router } from '../components/hoc/withRouter';
+import { Location, Router } from '~sonar-aligned/types/router';
 import { AppState } from './appstate';
 import { BranchLike } from './branch-like';
 import { L10nBundle } from './l10nBundle';

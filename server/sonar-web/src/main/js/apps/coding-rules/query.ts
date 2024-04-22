@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { RawQuery } from '~sonar-aligned/types/router';
 import {
   cleanQuery,
   parseAsArray,
@@ -35,7 +36,7 @@ import {
   SoftwareImpactSeverity,
   SoftwareQuality,
 } from '../../types/clean-code-taxonomy';
-import { Dict, RawQuery, RuleInheritance } from '../../types/types';
+import { Dict, RuleInheritance } from '../../types/types';
 
 export interface Query {
   activation: boolean | undefined;

@@ -20,7 +20,7 @@
 import { SubnavigationGroup, SubnavigationItem } from 'design-system';
 import * as React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { queryToSearch } from '../../../helpers/urls';
+import { queryToSearch } from '~sonar-aligned/helpers/urls';
 import { WebApi } from '../../../types/types';
 import { Query, actionsFilter, isDomainPathActive, serializeQuery } from '../utils';
 import DeprecatedBadge from './DeprecatedBadge';

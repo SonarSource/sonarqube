@@ -17,13 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
 import { ButtonPrimary, Card, CenteredLayout, Title } from 'design-system';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
+import { withRouter } from '~sonar-aligned/components/hoc/withRouter';
+import { Router } from '~sonar-aligned/types/router';
 import { setSimpleSettingValue } from '../../api/settings';
 import { whenLoggedIn } from '../../components/hoc/whenLoggedIn';
-import { Router, withRouter } from '../../components/hoc/withRouter';
 import { translate } from '../../helpers/l10n';
 import { getBaseUrl } from '../../helpers/system';
 import { hasGlobalPermission } from '../../helpers/users';

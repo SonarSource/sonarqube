@@ -20,8 +20,9 @@
 import { BasicSeparator, DangerButtonSecondary, StyledPageTitle } from 'design-system';
 import { flatMap } from 'lodash';
 import * as React from 'react';
+import { RawQuery } from '~sonar-aligned/types/router';
 import { translate } from '../../../helpers/l10n';
-import { Dict, RawQuery } from '../../../types/types';
+import { Dict } from '../../../types/types';
 import CoverageFilter from '../filters/CoverageFilter';
 import DuplicationsFilter from '../filters/DuplicationsFilter';
 import LanguagesFilter from '../filters/LanguagesFilter';

@@ -20,10 +20,11 @@
 import { LargeCenteredLayout, PageContentFontWrapper, Title } from 'design-system';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
+import { withRouter } from '~sonar-aligned/components/hoc/withRouter';
+import { Router } from '~sonar-aligned/types/router';
 import { changeKey } from '../../api/components';
 import RecentHistory from '../../app/components/RecentHistory';
 import withComponentContext from '../../app/components/componentContext/withComponentContext';
-import { Router, withRouter } from '../../components/hoc/withRouter';
 import { translate } from '../../helpers/l10n';
 import { Component } from '../../types/types';
 import UpdateForm from './UpdateForm';

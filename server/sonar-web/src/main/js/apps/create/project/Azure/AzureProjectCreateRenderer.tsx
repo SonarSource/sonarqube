@@ -27,10 +27,11 @@ import {
 } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
+import { queryToSearch } from '~sonar-aligned/helpers/urls';
 import { useAppState } from '../../../../app/components/app-state/withAppStateContext';
 import { AvailableFeaturesContext } from '../../../../app/components/available-features/AvailableFeaturesContext';
 import { translate } from '../../../../helpers/l10n';
-import { getGlobalSettingsUrl, queryToSearch } from '../../../../helpers/urls';
+import { getGlobalSettingsUrl } from '../../../../helpers/urls';
 import { AzureProject, AzureRepository } from '../../../../types/alm-integration';
 import { AlmKeys, AlmSettingsInstance } from '../../../../types/alm-settings';
 import { Feature } from '../../../../types/features';

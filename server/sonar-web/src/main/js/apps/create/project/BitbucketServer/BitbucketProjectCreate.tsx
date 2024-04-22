@@ -18,12 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { Location, Router } from '~sonar-aligned/types/router';
 import {
   getBitbucketServerProjects,
   getBitbucketServerRepositories,
   searchForBitbucketServerRepositories,
 } from '../../../../api/alm-integrations';
-import { Location, Router } from '../../../../components/hoc/withRouter';
 import {
   BitbucketProject,
   BitbucketProjectRepositories,

@@ -19,13 +19,13 @@
  */
 import { uniqWith } from 'lodash';
 import * as React from 'react';
+import { getWrappedDisplayName } from '~sonar-aligned/components/hoc/utils';
 import { addNotification, getNotifications, removeNotification } from '../../api/notifications';
 import {
   Notification,
   NotificationGlobalType,
   NotificationProjectType,
 } from '../../types/notifications';
-import { getWrappedDisplayName } from './utils';
 
 interface State {
   channels: string[];

@@ -20,7 +20,7 @@
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Outlet, useSearchParams } from 'react-router-dom';
-import { useLocation } from '../../../components/hoc/withRouter';
+import { useLocation } from '~sonar-aligned/components/hoc/withRouter';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import ProfileHeader from '../details/ProfileHeader';
 import { useQualityProfilesContext } from '../qualityProfilesContext';

@@ -20,10 +20,11 @@
 
 import { addGlobalErrorMessage } from 'design-system';
 import * as React from 'react';
+import { withRouter } from '~sonar-aligned/components/hoc/withRouter';
+import { Location } from '~sonar-aligned/types/router';
 import { logIn } from '../../../api/auth';
 import { getLoginMessage } from '../../../api/settings';
 import { getIdentityProviders } from '../../../api/users';
-import { Location, withRouter } from '../../../components/hoc/withRouter';
 import { translate } from '../../../helpers/l10n';
 import { getReturnUrl } from '../../../helpers/urls';
 import { IdentityProvider } from '../../../types/types';

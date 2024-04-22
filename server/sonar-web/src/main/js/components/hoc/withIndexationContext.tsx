@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { getWrappedDisplayName } from '~sonar-aligned/components/hoc/utils';
 import { IndexationContext } from '../../app/components/indexation/IndexationContext';
 import { IndexationContextInterface } from '../../types/indexation';
-import { getWrappedDisplayName } from './utils';
 
 export interface WithIndexationContextProps {
   indexationContext: IndexationContextInterface;

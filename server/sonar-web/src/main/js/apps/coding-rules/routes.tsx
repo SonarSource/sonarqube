@@ -19,7 +19,7 @@
  */
 import React, { useEffect } from 'react';
 import { Route, useLocation, useNavigate } from 'react-router-dom';
-import { RawQuery } from '../../types/types';
+import { RawQuery } from '~sonar-aligned/types/router';
 import CodingRulesApp from './components/CodingRulesApp';
 import { parseQuery, serializeQuery } from './query';
 

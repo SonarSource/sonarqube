@@ -29,11 +29,12 @@ import {
 } from 'design-system';
 import { debounce, uniqBy } from 'lodash';
 import * as React from 'react';
+import { withRouter } from '~sonar-aligned/components/hoc/withRouter';
+import { Router } from '~sonar-aligned/types/router';
 import { getSuggestions } from '../../../api/components';
 import FocusOutHandler from '../../../components/controls/FocusOutHandler';
 import OutsideClickHandler from '../../../components/controls/OutsideClickHandler';
 import Tooltip from '../../../components/controls/Tooltip';
-import { Router, withRouter } from '../../../components/hoc/withRouter';
 import { PopupPlacement } from '../../../components/ui/popups';
 import { isInput, isShortcut } from '../../../helpers/keyboardEventHelpers';
 import { KeyboardKeys } from '../../../helpers/keycodes';

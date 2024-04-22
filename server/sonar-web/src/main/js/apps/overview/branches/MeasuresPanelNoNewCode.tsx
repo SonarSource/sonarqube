@@ -17,16 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
 import { Link } from '@sonarsource/echoes-react';
 import { Note, getTabPanelId } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { getBranchLikeQuery } from '~sonar-aligned/helpers/branch-like';
+import { queryToSearch } from '~sonar-aligned/helpers/urls';
 import DocumentationLink from '../../../components/common/DocumentationLink';
 import { Image } from '../../../components/common/Image';
 import { translate } from '../../../helpers/l10n';
-import { CodeScope, queryToSearch } from '../../../helpers/urls';
+import { CodeScope } from '../../../helpers/urls';
 import { Branch } from '../../../types/branch-like';
 import { ComponentQualifier } from '../../../types/component';
 import { NewCodeDefinitionType } from '../../../types/new-code-definition';
