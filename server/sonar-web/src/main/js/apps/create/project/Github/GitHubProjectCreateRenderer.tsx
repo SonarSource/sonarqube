@@ -19,34 +19,20 @@
  */
 /* eslint-disable react/no-unused-prop-types */
 
-import styled from '@emotion/styled';
 import { Link, Spinner } from '@sonarsource/echoes-react';
-import {
-  ButtonPrimary,
-  Checkbox,
-  DarkLabel,
-  FlagMessage,
-  InputSearch,
-  InputSelect,
-  LightPrimary,
-  Title,
-  themeBorder,
-  themeColor,
-} from 'design-system';
-import React, { useContext, useState } from 'react';
+import { DarkLabel, FlagMessage, InputSelect, LightPrimary, Title } from 'design-system';
+import React, { useContext, useEffect, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { AvailableFeaturesContext } from '../../../../app/components/available-features/AvailableFeaturesContext';
-import ListFooter from '../../../../components/controls/ListFooter';
 import { translate } from '../../../../helpers/l10n';
 import { LabelValueSelectOption } from '../../../../helpers/search';
-import { getBaseUrl } from '../../../../helpers/system';
 import { queryToSearch } from '../../../../helpers/urls';
 import { GithubOrganization, GithubRepository } from '../../../../types/alm-integration';
 import { AlmKeys, AlmSettingsInstance } from '../../../../types/alm-settings';
 import { Feature } from '../../../../types/features';
 import { Paging } from '../../../../types/types';
-import AlmRepoItem from '../components/AlmRepoItem';
 import AlmSettingsInstanceDropdown from '../components/AlmSettingsInstanceDropdown';
+import RepositoryList from '../components/RepositoryList';
 import { CreateProjectModes } from '../types';
 
 interface GitHubProjectCreateRendererProps {
@@ -69,113 +55,13 @@ interface GitHubProjectCreateRendererProps {
   onSelectedAlmInstanceChange: (instance: AlmSettingsInstance) => void;
 }
 
-type RepositoryListProps = Pick<
-  GitHubProjectCreateRendererProps,
-  | 'loadingRepositories'
-  | 'repositories'
-  | 'repositoryPaging'
-  | 'searchQuery'
-  | 'selectedOrganization'
-  | 'onLoadMore'
-  | 'onSearch'
-> & {
-  selected: Set<string>;
-  checkAll: () => void;
-  uncheckAll: () => void;
-  onCheck: (key: string) => void;
-};
-
 function orgToOption({ key, name }: GithubOrganization) {
   return { value: key, label: name };
 }
 
-function RepositoryList(props: RepositoryListProps) {
-  const {
-    loadingRepositories,
-    repositories,
-    repositoryPaging,
-    searchQuery,
-    selectedOrganization,
-    selected,
-  } = props;
-
-  const areAllRepositoriesChecked = () => {
-    const nonImportedRepos = repositories?.filter((r) => !r.sqProjectKey) ?? [];
-    return nonImportedRepos.length > 0 && selected.size === nonImportedRepos.length;
-  };
-
-  const onCheckAllRepositories = () => {
-    const allSelected = areAllRepositoriesChecked();
-    if (allSelected) {
-      props.uncheckAll();
-    } else {
-      props.checkAll();
-    }
-  };
-
-  if (!selectedOrganization || !repositories) {
-    return null;
-  }
-
-  return (
-    <div>
-      <div className="sw-mb-2 sw-py-2 sw-flex sw-items-center sw-justify-between sw-w-full">
-        <div>
-          <Checkbox
-            className="sw-ml-5"
-            checked={areAllRepositoriesChecked()}
-            disabled={repositories.length === 0}
-            onCheck={onCheckAllRepositories}
-          >
-            <span className="sw-ml-2">
-              {translate('onboarding.create_project.select_all_repositories')}
-            </span>
-          </Checkbox>
-        </div>
-        <InputSearch
-          size="medium"
-          loading={loadingRepositories}
-          onChange={props.onSearch}
-          placeholder={translate('onboarding.create_project.search_repositories')}
-          value={searchQuery}
-        />
-      </div>
-
-      {repositories.length === 0 ? (
-        <div className="sw-py-6 sw-px-2">
-          <LightPrimary className="sw-body-sm">{translate('no_results')}</LightPrimary>
-        </div>
-      ) : (
-        <ul className="sw-flex sw-flex-col sw-gap-3">
-          {repositories.map(({ key, url, sqProjectKey, name }) => (
-            <AlmRepoItem
-              key={key}
-              almKey={key}
-              almUrl={url}
-              almUrlText={translate('onboarding.create_project.see_on_github')}
-              almIconSrc={`${getBaseUrl()}/images/tutorials/github-actions.svg`}
-              sqProjectKey={sqProjectKey}
-              multiple
-              selected={selected.has(key)}
-              onCheck={(key: string) => props.onCheck(key)}
-              primaryTextNode={<span title={name}>{name}</span>}
-            />
-          ))}
-        </ul>
-      )}
-
-      <ListFooter
-        className="sw-mb-10"
-        count={repositories.length}
-        total={repositoryPaging.total}
-        loadMore={props.onLoadMore}
-        loading={loadingRepositories}
-      />
-    </div>
-  );
-}
-
-export default function GitHubProjectCreateRenderer(props: GitHubProjectCreateRendererProps) {
+export default function GitHubProjectCreateRenderer(
+  props: Readonly<GitHubProjectCreateRendererProps>,
+) {
   const isMonorepoSupported = useContext(AvailableFeaturesContext).includes(
     Feature.MonoRepositoryPullRequestDecoration,
   );
@@ -193,24 +79,36 @@ export default function GitHubProjectCreateRenderer(props: GitHubProjectCreateRe
   } = props;
   const [selected, setSelected] = useState<Set<string>>(new Set());
 
+  useEffect(() => {
+    const selectedKeys = Array.from(selected).filter((key) =>
+      repositories?.find((r) => r.key === key),
+    );
+    setSelected(new Set(selectedKeys));
+    // We want to update only when `repositories` changes.
+    // If we subscribe to `selected` changes we will enter an infinite loop.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [repositories]);
+
   if (loadingBindings) {
     return <Spinner />;
   }
+
+  const handleCheck = (key: string) => {
+    setSelected((prev) => new Set(prev.delete(key) ? prev : prev.add(key)));
+  };
+
+  const handleCheckAll = () => {
+    setSelected(
+      new Set(repositories?.filter((r) => r.sqProjectKey === undefined).map((r) => r.key) ?? []),
+    );
+  };
 
   const handleImport = () => {
     props.onImportRepository(Array.from(selected));
   };
 
-  const handleCheckAll = () => {
-    setSelected(new Set(repositories?.filter((r) => !r.sqProjectKey).map((r) => r.key) ?? []));
-  };
-
   const handleUncheckAll = () => {
     setSelected(new Set());
-  };
-
-  const handleCheck = (key: string) => {
-    setSelected((prev) => new Set(prev.delete(key) ? prev : prev.add(key)));
   };
 
   return (
@@ -272,112 +170,61 @@ export default function GitHubProjectCreateRenderer(props: GitHubProjectCreateRe
         </FlagMessage>
       )}
 
-      <div className="sw-flex sw-gap-12">
-        <LargeColumn>
-          <Spinner isLoading={loadingOrganizations && !error}>
-            {!error && (
-              <div className="sw-flex sw-flex-col">
-                <DarkLabel htmlFor="github-choose-organization" className="sw-mb-2">
-                  {translate('onboarding.create_project.github.choose_organization')}
-                </DarkLabel>
-                {organizations.length > 0 ? (
-                  <InputSelect
-                    className="sw-w-full sw-mb-9"
-                    size="full"
-                    isSearchable
-                    inputId="github-choose-organization"
-                    options={organizations.map(orgToOption)}
-                    onChange={({ value }: LabelValueSelectOption) =>
-                      props.onSelectOrganization(value)
-                    }
-                    value={selectedOrganization ? orgToOption(selectedOrganization) : null}
-                  />
-                ) : (
-                  !loadingOrganizations && (
-                    <FlagMessage variant="error" className="sw-mb-2">
-                      <span>
-                        {canAdmin ? (
-                          <FormattedMessage
-                            id="onboarding.create_project.github.no_orgs_admin"
-                            defaultMessage={translate(
-                              'onboarding.create_project.github.no_orgs_admin',
-                            )}
-                            values={{
-                              link: (
-                                <Link to="/admin/settings?category=almintegration">
-                                  {translate(
-                                    'onboarding.create_project.github.warning.message_admin.link',
-                                  )}
-                                </Link>
-                              ),
-                            }}
-                          />
-                        ) : (
-                          translate('onboarding.create_project.github.no_orgs')
-                        )}
-                      </span>
-                    </FlagMessage>
-                  )
-                )}
-              </div>
+      <Spinner isLoading={loadingOrganizations && !error}>
+        {!error && (
+          <div className="sw-flex sw-flex-col">
+            <DarkLabel htmlFor="github-choose-organization" className="sw-mb-2">
+              {translate('onboarding.create_project.github.choose_organization')}
+            </DarkLabel>
+            {organizations.length > 0 ? (
+              <InputSelect
+                className="sw-w-7/12 sw-mb-9"
+                size="full"
+                isSearchable
+                inputId="github-choose-organization"
+                options={organizations.map(orgToOption)}
+                onChange={({ value }: LabelValueSelectOption) => props.onSelectOrganization(value)}
+                value={selectedOrganization ? orgToOption(selectedOrganization) : null}
+              />
+            ) : (
+              !loadingOrganizations && (
+                <FlagMessage variant="error" className="sw-mb-2">
+                  <span>
+                    {canAdmin ? (
+                      <FormattedMessage
+                        id="onboarding.create_project.github.no_orgs_admin"
+                        defaultMessage={translate('onboarding.create_project.github.no_orgs_admin')}
+                        values={{
+                          link: (
+                            <Link to="/admin/settings?category=almintegration">
+                              {translate(
+                                'onboarding.create_project.github.warning.message_admin.link',
+                              )}
+                            </Link>
+                          ),
+                        }}
+                      />
+                    ) : (
+                      translate('onboarding.create_project.github.no_orgs')
+                    )}
+                  </span>
+                </FlagMessage>
+              )
             )}
-          </Spinner>
+          </div>
+        )}
+        {selectedOrganization && (
           <RepositoryList
             {...props}
-            selected={selected}
+            almKey={AlmKeys.GitHub}
             checkAll={handleCheckAll}
-            uncheckAll={handleUncheckAll}
             onCheck={handleCheck}
+            onImport={handleImport}
+            selected={selected}
+            uncheckAll={handleUncheckAll}
           />
-        </LargeColumn>
-        <SideColumn>
-          {selected.size > 0 && (
-            <SetupBox className="sw-rounded-2 sw-p-8 sw-mb-0">
-              <SetupBoxTitle className="sw-mb-2 sw-heading-md">
-                <FormattedMessage
-                  id="onboarding.create_project.x_repositories_selected"
-                  values={{ count: selected.size }}
-                />
-              </SetupBoxTitle>
-              <div>
-                <SetupBoxContent className="sw-pb-4">
-                  <FormattedMessage
-                    id="onboarding.create_project.x_repository_created"
-                    values={{ count: selected.size }}
-                  />
-                </SetupBoxContent>
-                <div className="sw-mt-4">
-                  <ButtonPrimary onClick={handleImport} className="js-set-up-projects">
-                    {translate('onboarding.create_project.import')}
-                  </ButtonPrimary>
-                </div>
-              </div>
-            </SetupBox>
-          )}
-        </SideColumn>
-      </div>
+        )}
+      </Spinner>
     </>
   );
 }
-
-const LargeColumn = styled.div`
-  flex: 6;
-`;
-
-const SideColumn = styled.div`
-  flex: 4;
-`;
-
-const SetupBox = styled.form`
-  max-height: 280px;
-  background: ${themeColor('highlightedSection')};
-  border: ${themeBorder('default', 'highlightedSectionBorder')};
-`;
-
-const SetupBoxTitle = styled.h2`
-  color: ${themeColor('pageTitle')};
-`;
-
-const SetupBoxContent = styled.div`
-  border-bottom: ${themeBorder('default')};
-`;

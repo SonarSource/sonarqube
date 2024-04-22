@@ -48,7 +48,6 @@ export default function GitlabProjectCreate(props: Readonly<Props>) {
   const repositorySearchDebounceId = useRef<NodeJS.Timeout | undefined>();
 
   const [isLoadingRepositories, setIsLoadingRepositories] = useState(false);
-  const [isLoadingMoreRepositories, setIsLoadingMoreRepositories] = useState(false);
   const [repositories, setRepositories] = useState<GitlabProject[]>([]);
   const [repositoryPaging, setRepositoryPaging] = useState<Paging>({
     pageSize: REPOSITORY_PAGE_SIZE,
@@ -131,13 +130,13 @@ export default function GitlabProjectCreate(props: Readonly<Props>) {
   }, [cleanUrl, fetchInitialData]);
 
   const handleImportRepository = useCallback(
-    (gitlabProjectId: string) => {
-      if (selectedDopSetting) {
+    (repoKeys: string[]) => {
+      if (selectedDopSetting && repoKeys.length > 0) {
         onProjectSetupDone({
           almSetting: selectedDopSetting.key,
           creationMode: CreateProjectModes.GitLab,
           monorepo: false,
-          projects: [{ gitlabProjectId }],
+          projects: repoKeys.map((repoKeys) => ({ gitlabProjectId: repoKeys })),
         });
       }
     },
@@ -145,13 +144,11 @@ export default function GitlabProjectCreate(props: Readonly<Props>) {
   );
 
   const handleLoadMore = useCallback(async () => {
-    setIsLoadingMoreRepositories(true);
     const result = await fetchProjects(repositoryPaging.pageIndex + 1, searchQuery);
     if (result?.projects) {
       setRepositoryPaging(result ? result.projectsPaging : repositoryPaging);
       setRepositories(result ? [...repositories, ...result.projects] : repositories);
     }
-    setIsLoadingMoreRepositories(false);
   }, [fetchProjects, repositories, repositoryPaging, searchQuery]);
 
   const handleSelectRepository = useCallback(
@@ -243,7 +240,6 @@ export default function GitlabProjectCreate(props: Readonly<Props>) {
       }))}
       canAdmin={canAdmin}
       loading={isLoadingRepositories || isLoadingBindings}
-      loadingMore={isLoadingMoreRepositories}
       onImport={handleImportRepository}
       onLoadMore={handleLoadMore}
       onPersonalAccessTokenCreated={handlePersonalAccessTokenCreated}
@@ -252,7 +248,6 @@ export default function GitlabProjectCreate(props: Readonly<Props>) {
       projects={repositories}
       projectsPaging={repositoryPaging}
       resetPat={resetPersonalAccessToken || Boolean(location.query.resetPat)}
-      searching={isLoadingRepositories}
       searchQuery={searchQuery}
       selectedAlmInstance={
         selectedDopSetting && {

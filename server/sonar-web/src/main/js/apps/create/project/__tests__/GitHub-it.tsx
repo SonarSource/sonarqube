@@ -167,9 +167,9 @@ it('should import several projects', async () => {
   const user = userEvent.setup();
 
   almIntegrationHandler.setGithubRepositories([
-    mockGitHubRepository({ name: 'Github repo 1', key: 'key1' }),
-    mockGitHubRepository({ name: 'Github repo 2', key: 'key2' }),
-    mockGitHubRepository({ name: 'Github repo 3', key: 'key3' }),
+    mockGitHubRepository({ id: '1', name: 'Github repo 1', key: 'key1' }),
+    mockGitHubRepository({ id: '2', name: 'Github repo 2', key: 'key2' }),
+    mockGitHubRepository({ id: '3', name: 'Github repo 3', key: 'key3' }),
   ]);
 
   renderCreateProject('project/create?mode=github&dopSetting=conf-github-2&code=213321213');

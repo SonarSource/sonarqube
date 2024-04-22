@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { screen, waitFor, within } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
 import selectEvent from 'react-select-event';
@@ -25,6 +25,7 @@ import { getGitlabProjects } from '../../../../api/alm-integrations';
 import AlmIntegrationsServiceMock from '../../../../api/mocks/AlmIntegrationsServiceMock';
 import DopTranslationServiceMock from '../../../../api/mocks/DopTranslationServiceMock';
 import NewCodeDefinitionServiceMock from '../../../../api/mocks/NewCodeDefinitionServiceMock';
+import { mockGitlabProject } from '../../../../helpers/mocks/alm-integrations';
 import { renderApp } from '../../../../helpers/testReactTestingUtils';
 import { byLabelText, byRole, byText } from '../../../../helpers/testSelector';
 import { Feature } from '../../../../types/features';
@@ -43,14 +44,44 @@ const ui = {
   gitlabCreateProjectButton: byText('onboarding.create_project.select_method.gitlab'),
   gitLabOnboardingTitle: byRole('heading', { name: 'onboarding.create_project.gitlab.title' }),
   instanceSelector: byLabelText(/alm.configuration.selector.label/),
+  importProjectsTitle: byText('onboarding.create_project.gitlab.title'),
   monorepoSetupLink: byRole('link', {
     name: 'onboarding.create_project.subtitle_monorepo_setup_link',
   }),
   monorepoTitle: byRole('heading', { name: 'onboarding.create_project.monorepo.titlealm.gitlab' }),
-
+  patHelpInstructions: byText('onboarding.create_project.pat_help.instructions.gitlab'),
   personalAccessTokenInput: byRole('textbox', {
     name: /onboarding.create_project.enter_pat/,
   }),
+
+  // Bulk import
+  checkAll: byRole('checkbox', { name: 'onboarding.create_project.select_all_repositories' }),
+  project1: byRole('listitem', { name: 'Gitlab project 1' }),
+  project1Checkbox: byRole('listitem', { name: 'Gitlab project 1' }).byRole('checkbox'),
+  project1Link: byRole('listitem', { name: 'Gitlab project 1' }).byRole('link', {
+    name: 'Gitlab project 1',
+  }),
+  project1GitlabLink: byRole('listitem', { name: 'Gitlab project 1' }).byRole('link', {
+    name: 'onboarding.create_project.see_on.alm.gitlab',
+  }),
+  project2: byRole('listitem', { name: 'Gitlab project 2' }),
+  project2Checkbox: byRole('listitem', { name: 'Gitlab project 2' }).byRole('checkbox'),
+  project3: byRole('listitem', { name: 'Gitlab project 3' }),
+  project3Checkbox: byRole('listitem', { name: 'Gitlab project 3' }).byRole('checkbox'),
+  importButton: byRole('button', { name: 'onboarding.create_project.import' }),
+  saveButton: byRole('button', { name: 'save' }),
+  backButton: byRole('button', { name: 'back' }),
+  newCodeMultipleProjectTitle: byRole('heading', {
+    name: 'onboarding.create_x_project.new_code_definition.title2',
+  }),
+  changePeriodLaterInfo: byText('onboarding.create_projects.new_code_definition.change_info'),
+  createProjectButton: byRole('button', {
+    name: 'onboarding.create_project.new_code_definition.create_x_projects1',
+  }),
+  createProjectsButton: byRole('button', {
+    name: 'onboarding.create_project.new_code_definition.create_x_projects2',
+  }),
+  globalSettingRadio: byRole('radio', { name: 'new_code_definition.global_setting' }),
 };
 
 const original = window.location;
@@ -80,72 +111,39 @@ it('should ask for PAT when it is not set yet and show the import project featur
   const user = userEvent.setup();
   renderCreateProject();
 
-  expect(await screen.findByText('onboarding.create_project.gitlab.title')).toBeInTheDocument();
+  expect(await ui.importProjectsTitle.find()).toBeInTheDocument();
   expect(ui.instanceSelector.get()).toBeInTheDocument();
 
   expect(screen.getByText('onboarding.create_project.enter_pat')).toBeInTheDocument();
-  expect(
-    screen.getByText('onboarding.create_project.pat_help.instructions.gitlab'),
-  ).toBeInTheDocument();
-  expect(screen.getByRole('button', { name: 'save' })).toBeInTheDocument();
+  expect(ui.patHelpInstructions.get()).toBeInTheDocument();
+  expect(ui.saveButton.get()).toBeInTheDocument();
 
   await user.click(ui.personalAccessTokenInput.get());
   await user.keyboard('secret');
-  await user.click(screen.getByRole('button', { name: 'save' }));
+  await user.click(ui.saveButton.get());
 
-  expect(screen.getByText('Gitlab project 1')).toBeInTheDocument();
-  expect(screen.getByText('Gitlab project 2')).toBeInTheDocument();
-  expect(screen.getAllByText('onboarding.create_project.import')).toHaveLength(2);
-  expect(screen.getByText('onboarding.create_project.repository_imported')).toBeInTheDocument();
+  expect(await ui.project1.find()).toBeInTheDocument();
 });
 
 it('should show import project feature when PAT is already set', async () => {
-  const user = userEvent.setup();
-  let projectItem;
   renderCreateProject();
 
-  expect(await screen.findByText('onboarding.create_project.gitlab.title')).toBeInTheDocument();
+  expect(await ui.importProjectsTitle.find()).toBeInTheDocument();
   await selectEvent.select(ui.instanceSelector.get(), [/conf-final-2/]);
 
-  expect(await screen.findByText('Gitlab project 1')).toBeInTheDocument();
-  expect(screen.getByText('Gitlab project 2')).toBeInTheDocument();
-
-  projectItem = screen.getByRole('listitem', { name: /Gitlab project 1/ });
-  expect(
-    within(projectItem).getByText('onboarding.create_project.repository_imported'),
-  ).toBeInTheDocument();
-  expect(within(projectItem).getByRole('link', { name: /Gitlab project 1/ })).toBeInTheDocument();
-  expect(within(projectItem).getByRole('link', { name: /Gitlab project 1/ })).toHaveAttribute(
+  expect(await ui.project1.find()).toBeInTheDocument();
+  expect(ui.project1Link.get()).toHaveAttribute('href', '/dashboard?id=key');
+  expect(ui.project1GitlabLink.get()).toHaveAttribute(
     'href',
-    '/dashboard?id=key',
+    'https://gitlab.company.com/best-projects/awesome-project-exclamation',
   );
-
-  projectItem = screen.getByRole('listitem', { name: /Gitlab project 2/ });
-  const importButton = within(projectItem).getByRole('button', {
-    name: 'onboarding.create_project.import',
-  });
-
-  await user.click(importButton);
-
-  expect(
-    screen.getByRole('heading', { name: 'onboarding.create_x_project.new_code_definition.title1' }),
-  ).toBeInTheDocument();
-
-  await user.click(screen.getByRole('radio', { name: 'new_code_definition.global_setting' }));
-  await user.click(
-    screen.getByRole('button', {
-      name: 'onboarding.create_project.new_code_definition.create_x_projects1',
-    }),
-  );
-
-  expect(await screen.findByText('/dashboard?id=key')).toBeInTheDocument();
 });
 
 it('should show search filter when PAT is already set', async () => {
   const user = userEvent.setup();
   renderCreateProject();
 
-  expect(await screen.findByText('onboarding.create_project.gitlab.title')).toBeInTheDocument();
+  expect(await ui.importProjectsTitle.find()).toBeInTheDocument();
 
   await selectEvent.select(ui.instanceSelector.get(), [/conf-final-2/]);
 
@@ -162,13 +160,83 @@ it('should show search filter when PAT is already set', async () => {
   });
 });
 
+it('should import several projects', async () => {
+  const user = userEvent.setup();
+
+  almIntegrationHandler.setGitlabProjects([
+    mockGitlabProject({ id: '1', name: 'Gitlab project 1' }),
+    mockGitlabProject({ id: '2', name: 'Gitlab project 2' }),
+    mockGitlabProject({ id: '3', name: 'Gitlab project 3' }),
+  ]);
+
+  renderCreateProject();
+
+  expect(await ui.importProjectsTitle.find()).toBeInTheDocument();
+  await selectEvent.select(ui.instanceSelector.get(), [/conf-final-2/]);
+
+  expect(await ui.project1.find()).toBeInTheDocument();
+  expect(ui.project1Checkbox.get()).not.toBeChecked();
+  expect(ui.project2Checkbox.get()).not.toBeChecked();
+  expect(ui.project3Checkbox.get()).not.toBeChecked();
+  expect(ui.checkAll.get()).not.toBeChecked();
+  expect(ui.importButton.query()).not.toBeInTheDocument();
+
+  await user.click(ui.project1Checkbox.get());
+
+  expect(ui.project1Checkbox.get()).toBeChecked();
+  expect(ui.project2Checkbox.get()).not.toBeChecked();
+  expect(ui.project3Checkbox.get()).not.toBeChecked();
+  expect(ui.checkAll.get()).not.toBeChecked();
+  expect(ui.importButton.get()).toBeInTheDocument();
+
+  await user.click(ui.checkAll.get());
+
+  expect(ui.project1Checkbox.get()).toBeChecked();
+  expect(ui.project2Checkbox.get()).toBeChecked();
+  expect(ui.project3Checkbox.get()).toBeChecked();
+  expect(ui.checkAll.get()).toBeChecked();
+  expect(ui.importButton.get()).toBeInTheDocument();
+
+  await user.click(ui.checkAll.get());
+
+  expect(ui.project1Checkbox.get()).not.toBeChecked();
+  expect(ui.project2Checkbox.get()).not.toBeChecked();
+  expect(ui.project3Checkbox.get()).not.toBeChecked();
+  expect(ui.checkAll.get()).not.toBeChecked();
+  expect(ui.importButton.query()).not.toBeInTheDocument();
+
+  await user.click(ui.project1Checkbox.get());
+  await user.click(ui.project2Checkbox.get());
+
+  expect(ui.importButton.get()).toBeInTheDocument();
+  await user.click(ui.importButton.get());
+
+  expect(await ui.newCodeMultipleProjectTitle.find()).toBeInTheDocument();
+  expect(ui.changePeriodLaterInfo.get()).toBeInTheDocument();
+  expect(ui.createProjectsButton.get()).toBeDisabled();
+
+  await user.click(ui.backButton.get());
+  expect(ui.project1Checkbox.get()).toBeChecked();
+  expect(ui.project2Checkbox.get()).toBeChecked();
+  expect(ui.project3Checkbox.get()).not.toBeChecked();
+  expect(ui.importButton.get()).toBeInTheDocument();
+  await user.click(ui.importButton.get());
+
+  expect(await ui.newCodeMultipleProjectTitle.find()).toBeInTheDocument();
+
+  await user.click(ui.globalSettingRadio.get());
+  expect(ui.createProjectsButton.get()).toBeEnabled();
+  await user.click(ui.createProjectsButton.get());
+
+  expect(await screen.findByText('/projects?sort=-creation_date')).toBeInTheDocument();
+});
+
 it('should have load more', async () => {
   const user = userEvent.setup();
   almIntegrationHandler.createRandomGitlabProjectsWithLoadMore(50, 75);
   renderCreateProject();
 
-  expect(await screen.findByText('onboarding.create_project.gitlab.title')).toBeInTheDocument();
-  await selectEvent.select(ui.instanceSelector.get(), [/conf-final-2/]);
+  await selectEvent.select(await ui.instanceSelector.find(), [/conf-final-2/]);
   const loadMore = await screen.findByRole('button', { name: 'show_more' });
   expect(loadMore).toBeInTheDocument();
 
@@ -191,12 +259,10 @@ it('should show no result message when there are no projects', async () => {
   almIntegrationHandler.setGitlabProjects([]);
   renderCreateProject();
 
-  expect(await screen.findByText('onboarding.create_project.gitlab.title')).toBeInTheDocument();
+  expect(await ui.importProjectsTitle.find()).toBeInTheDocument();
   await selectEvent.select(ui.instanceSelector.get(), [/conf-final-2/]);
 
-  expect(
-    await screen.findByText('onboarding.create_project.gitlab.no_projects'),
-  ).toBeInTheDocument();
+  expect(await screen.findByText('no_results')).toBeInTheDocument();
 });
 
 describe('GitLab monorepo project navigation', () => {
