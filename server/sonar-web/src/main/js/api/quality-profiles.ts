@@ -20,8 +20,8 @@
 import { map } from 'lodash';
 import { Exporter, ProfileChangelogEvent } from '../apps/quality-profiles/types';
 import { csvEscape } from '../helpers/csv';
-import { throwGlobalError } from '../helpers/error';
 import { RequestData, getJSON, post, postJSON } from '../helpers/request';
+import { throwGlobalError } from '../sonar-aligned/helpers/error';
 import { CleanCodeAttributeCategory, SoftwareImpact } from '../types/clean-code-taxonomy';
 import { Dict, Paging, ProfileInheritanceDetails, UserSelected } from '../types/types';
 

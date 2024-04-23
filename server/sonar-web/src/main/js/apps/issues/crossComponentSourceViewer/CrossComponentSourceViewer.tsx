@@ -37,9 +37,9 @@ import {
 } from '../../../components/SourceViewer/helpers/indexing';
 import { WorkspaceContext } from '../../../components/workspace/context';
 import { getBranchLikeQuery } from '../../../helpers/branch-like';
-import { throwGlobalError } from '../../../helpers/error';
 import { translate } from '../../../helpers/l10n';
 import { HttpStatus } from '../../../helpers/request';
+import { throwGlobalError } from '../../../sonar-aligned/helpers/error';
 import { BranchLike } from '../../../types/branch-like';
 import { isFile } from '../../../types/component';
 import { IssueDeprecatedStatus } from '../../../types/issues';

@@ -19,9 +19,18 @@
  */
 
 import { addGlobalErrorMessage } from 'design-system';
-import { parseError } from './request';
+import handleRequiredAuthentication from '../../helpers/handleRequiredAuthentication';
+import { HttpStatus, parseError } from '../../helpers/request';
 
-export function throwGlobalError(param: Response | any): Promise<Response | any> {
+interface ThrowGlobalErrorOptions {
+  redirectUnauthorizedNoReasons?: boolean;
+  returnErrorReasons?: boolean; // used only in SC
+}
+
+export function throwGlobalError(
+  param: Response | any,
+  options: ThrowGlobalErrorOptions = {},
+): Promise<Response | any> {
   if (param.response instanceof Response) {
     /* eslint-disable-next-line no-console */
     console.warn('DEPRECATED: response should not be wrapped, pass it directly.');
@@ -30,9 +39,17 @@ export function throwGlobalError(param: Response | any): Promise<Response | any>
 
   if (param instanceof Response) {
     return parseError(param)
-      .then(addGlobalErrorMessage, () => {
-        /* ignore parsing errors */
-      })
+      .then(
+        (...args) => {
+          addGlobalErrorMessage(...args);
+          if (options.redirectUnauthorizedNoReasons && param.status === HttpStatus.Unauthorized) {
+            handleRequiredAuthentication();
+          }
+        },
+        () => {
+          /* ignore parsing errors */
+        },
+      )
       .then(() => Promise.reject(param));
   }
 

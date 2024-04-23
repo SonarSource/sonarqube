@@ -24,10 +24,10 @@ import withAppStateContext from '../../../app/components/app-state/withAppStateC
 import withCurrentUserContext from '../../../app/components/current-user/withCurrentUserContext';
 import CreateApplicationForm from '../../../app/components/extensions/CreateApplicationForm';
 import { Router, withRouter } from '../../../components/hoc/withRouter';
-import { throwGlobalError } from '../../../helpers/error';
 import { translate } from '../../../helpers/l10n';
 import { getComponentAdminUrl, getComponentOverviewUrl } from '../../../helpers/urls';
 import { hasGlobalPermission } from '../../../helpers/users';
+import { throwGlobalError } from '../../../sonar-aligned/helpers/error';
 import { AppState } from '../../../types/appstate';
 import { ComponentQualifier } from '../../../types/component';
 import { Permissions } from '../../../types/permissions';

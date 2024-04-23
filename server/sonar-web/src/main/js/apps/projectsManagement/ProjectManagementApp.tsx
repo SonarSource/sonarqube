@@ -31,9 +31,9 @@ import withCurrentUserContext from '../../app/components/current-user/withCurren
 import ListFooter from '../../components/controls/ListFooter';
 import Suggestions from '../../components/embed-docs-modal/Suggestions';
 import { toShortISO8601String } from '../../helpers/dates';
-import { throwGlobalError } from '../../helpers/error';
 import { translate } from '../../helpers/l10n';
 import { hasGlobalPermission } from '../../helpers/users';
+import { throwGlobalError } from '../../sonar-aligned/helpers/error';
 import { Visibility } from '../../types/component';
 import { Permissions } from '../../types/permissions';
 import { SettingsKey } from '../../types/settings';

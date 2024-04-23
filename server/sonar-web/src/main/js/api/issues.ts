@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import getCoverageStatus from '../components/SourceViewer/helpers/getCoverageStatus';
-import { throwGlobalError } from '../helpers/error';
 import {
   get,
   getJSON,
@@ -28,6 +27,7 @@ import {
   postJSON,
   RequestData,
 } from '../helpers/request';
+import { throwGlobalError } from '../sonar-aligned/helpers/error';
 import { FacetName, IssueResponse, ListIssuesResponse, RawIssuesResponse } from '../types/issues';
 import { Dict, FacetValue, IssueChangelog, SnippetsByComponent, SourceLine } from '../types/types';
 

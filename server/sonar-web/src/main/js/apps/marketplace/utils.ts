@@ -19,9 +19,9 @@
  */
 import { findLastIndex, memoize } from 'lodash';
 import { getInstalledPlugins, getUpdatesPlugins } from '../../api/plugins';
-import { throwGlobalError } from '../../helpers/error';
 import { cleanQuery, parseAsString, serializeString } from '../../helpers/query';
 import { isDefined } from '../../helpers/types';
+import { throwGlobalError } from '../../sonar-aligned/helpers/error';
 import { InstalledPlugin, Plugin, Update } from '../../types/plugins';
 import { RawQuery } from '../../types/types';
 

@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { OpenAPIV3 } from 'openapi-types';
-import { throwGlobalError } from '../helpers/error';
 import { getJSON } from '../helpers/request';
+import { throwGlobalError } from '../sonar-aligned/helpers/error';
 import { WebApi } from '../types/types';
 
 interface RawDomain {

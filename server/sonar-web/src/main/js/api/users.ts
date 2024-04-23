@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import axios from 'axios';
-import { throwGlobalError } from '../helpers/error';
 import { HttpStatus, axiosToCatch, getJSON, parseJSON, post } from '../helpers/request';
+import { throwGlobalError } from '../sonar-aligned/helpers/error';
 import { IdentityProvider, Paging } from '../types/types';
 import {
   ChangePasswordResults,

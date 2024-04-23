@@ -32,8 +32,8 @@ import withAvailableFeatures, {
   WithAvailableFeaturesProps,
 } from '../../app/components/available-features/withAvailableFeatures';
 import withComponentContext from '../../app/components/componentContext/withComponentContext';
-import { throwGlobalError } from '../../helpers/error';
 import { translate } from '../../helpers/l10n';
+import { throwGlobalError } from '../../sonar-aligned/helpers/error';
 import { Feature } from '../../types/features';
 import { DumpStatus, DumpTask } from '../../types/project-dump';
 import { ActivityRequestParameters, TaskStatuses, TaskTypes } from '../../types/tasks';
