@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { MetricsEnum, MetricsRatingBadge } from 'design-system';
+import { MetricsRatingBadge, RatingEnum } from 'design-system';
 import * as React from 'react';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { formatMeasure } from '../../../helpers/measures';
@@ -77,6 +77,6 @@ function renderOption(option: number) {
   const ratingFormatted = formatMeasure(option, MetricType.Rating);
 
   return (
-    <MetricsRatingBadge label={ratingFormatted} rating={ratingFormatted as MetricsEnum} size="xs" />
+    <MetricsRatingBadge label={ratingFormatted} rating={ratingFormatted as RatingEnum} size="xs" />
   );
 }

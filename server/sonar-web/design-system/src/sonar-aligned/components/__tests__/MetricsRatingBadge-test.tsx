@@ -17,8 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export * from './components';
-export * from './helpers';
-export * from './sonar-aligned';
-export * from './theme';
-export * from './types';
+import { screen } from '@testing-library/react';
+import { render } from '../../../helpers/testUtils';
+import { FCProps } from '../../../types/misc';
+
+import { MetricsRatingBadge } from '../MetricsRatingBadge';
+
+it('should display RatingIndicator', () => {
+  setupWithProps();
+  expect(screen.getByLabelText('New label')).toBeInTheDocument();
+});
+
+it('should display RatingIndicator with value', () => {
+  setupWithProps({ rating: 'A' });
+  expect(screen.getByText('A')).toBeInTheDocument();
+});
+
+function setupWithProps(props: Partial<FCProps<typeof MetricsRatingBadge>> = {}) {
+  return render(<MetricsRatingBadge label="New label" {...props} />);
+}

@@ -20,10 +20,10 @@
 import {
   CoverageIndicator,
   DuplicationsIndicator,
-  MetricsLabel,
   MetricsRatingBadge,
   Note,
   PageContentFontWrapper,
+  RatingLabel,
 } from 'design-system';
 import * as React from 'react';
 import Measure from '../../../../components/measure/Measure';
@@ -178,7 +178,7 @@ function renderRatings(props: ProjectCardMeasuresProps) {
 
     return (
       <ProjectCardMeasure key={metricKey} metricKey={metricKey} label={iconLabel}>
-        <MetricsRatingBadge label={metricKey} rating={value as MetricsLabel} />
+        <MetricsRatingBadge label={metricKey} rating={value as RatingLabel} />
         <Measure
           metricKey={metricKey}
           metricType={metricType}

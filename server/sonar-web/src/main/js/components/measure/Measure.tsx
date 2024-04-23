@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { MetricsLabel, MetricsRatingBadge, QualityGateIndicator } from 'design-system';
+import { MetricsRatingBadge, QualityGateIndicator, RatingLabel } from 'design-system';
 import * as React from 'react';
 import Tooltip from '../../components/controls/Tooltip';
 import { translate, translateWithParameters } from '../../helpers/l10n';
@@ -83,7 +83,7 @@ export default function Measure({
           ? translateWithParameters('metric.has_rating_X', formatMeasure(value, MetricType.Rating))
           : translate('metric.no_rating')
       }
-      rating={formatMeasure(value, MetricType.Rating) as MetricsLabel}
+      rating={formatMeasure(value, MetricType.Rating) as RatingLabel}
     />
   );
 

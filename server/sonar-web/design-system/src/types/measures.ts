@@ -28,16 +28,6 @@ export enum DuplicationEnum {
 
 export type DuplicationLabel = keyof typeof DuplicationEnum;
 
-export enum MetricsEnum {
-  A = 'A',
-  B = 'B',
-  C = 'C',
-  D = 'D',
-  E = 'E',
-}
-
-export type MetricsLabel = keyof typeof MetricsEnum;
-
 export enum SizeEnum {
   XS = 'XS',
   S = 'S',

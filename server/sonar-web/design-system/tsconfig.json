@@ -16,7 +16,8 @@
       "~helpers/*": ["src/helpers/*"],
       "~icons/*": ["src/icons/*"],
       "~types/*": ["src/types/*"],
-      "~utils/*": ["src/utils/*"]
+      "~utils/*": ["src/utils/*"],
+      "~sonar-aligned/*": ["src/sonar-aligned/*"]
     },
     "resolveJsonModule": true,
     "skipLibCheck": true

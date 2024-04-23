@@ -19,11 +19,11 @@
  */
 import {
   ContentCell,
-  MetricsEnum,
   MetricsRatingBadge,
   NumericalCell,
   QualityGateIndicator,
   RatingCell,
+  RatingEnum,
 } from 'design-system';
 import * as React from 'react';
 import Measure from '../../../components/measure/Measure';
@@ -96,7 +96,7 @@ export default function ComponentMeasure(props: Props) {
         <RatingCell className="sw-whitespace-nowrap">
           <MetricsRatingBadge
             label={value ?? '—'}
-            rating={formatMeasure(value, MetricType.Rating) as MetricsEnum}
+            rating={formatMeasure(value, MetricType.Rating) as RatingEnum}
           />
         </RatingCell>
       );

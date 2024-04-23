@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { MetricsLabel, MetricsRatingBadge, Note } from 'design-system';
+import { MetricsRatingBadge, Note, RatingLabel } from 'design-system';
 import React from 'react';
 import Measure from '../../../components/measure/Measure';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
@@ -48,7 +48,7 @@ export default function SubnavigationMeasureValue({ measure }: Readonly<Props>) 
                 ? translateWithParameters('metric.has_rating_X', formatted)
                 : translate('metric.no_rating')
             }
-            rating={formatted as MetricsLabel}
+            rating={formatted as RatingLabel}
           />
         }
         metricKey={measure.metric.key}

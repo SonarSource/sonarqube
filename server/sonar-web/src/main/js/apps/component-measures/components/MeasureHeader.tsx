@@ -19,7 +19,7 @@
  */
 import { LinkStandalone } from '@sonarsource/echoes-react';
 import classNames from 'classnames';
-import { MetricsLabel, MetricsRatingBadge } from 'design-system';
+import { MetricsRatingBadge, RatingLabel } from 'design-system';
 import * as React from 'react';
 import LanguageDistribution from '../../../components/charts/LanguageDistribution';
 import Tooltip from '../../../components/controls/Tooltip';
@@ -78,7 +78,7 @@ export default function MeasureHeader(props: Readonly<Props>) {
                         )
                       : translate('metric.no_rating')
                   }
-                  rating={formatMeasure(measureValue, MetricType.Rating) as MetricsLabel}
+                  rating={formatMeasure(measureValue, MetricType.Rating) as RatingLabel}
                 />
               }
             />

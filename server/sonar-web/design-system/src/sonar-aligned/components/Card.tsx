@@ -20,8 +20,8 @@
 import styled from '@emotion/styled';
 import * as React from 'react';
 import tw from 'twin.macro';
-import { themeBorder, themeColor } from '../helpers/theme';
-import { BasicSeparator } from './Separator';
+import { BasicSeparator } from '../../components/Separator';
+import { themeBorder, themeColor } from '../../helpers/theme';
 
 interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
   children: React.ReactNode;

@@ -19,14 +19,14 @@
  */
 import styled from '@emotion/styled';
 import tw from 'twin.macro';
-import { getProp, themeColor, themeContrast } from '../helpers/theme';
-import { MetricsLabel } from '../types/measures';
+import { getProp, themeColor, themeContrast } from '../../helpers/theme';
+import { RatingLabel } from '../types/measures';
 
 type sizeType = keyof typeof SIZE_MAPPING;
 interface Props extends React.AriaAttributes {
   className?: string;
-  label: string;
-  rating?: MetricsLabel;
+  label?: string;
+  rating?: RatingLabel;
   size?: sizeType;
 }
 
@@ -90,7 +90,7 @@ const getFontSize = (size: string) => {
   }
 };
 
-const MetricsRatingBadgeStyled = styled.div<{ rating: MetricsLabel; size: string }>`
+const MetricsRatingBadgeStyled = styled.div<{ rating: RatingLabel; size: string }>`
   width: ${getProp('size')};
   height: ${getProp('size')};
   color: ${({ rating }) => themeContrast(`rating.${rating}`)};

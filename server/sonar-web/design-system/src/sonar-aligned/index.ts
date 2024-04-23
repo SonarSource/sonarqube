@@ -17,29 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { screen } from '@testing-library/react';
-import { render } from '../../helpers/testUtils';
-import { Card, GreyCard, LightGreyCard } from '../Card';
 
-it('renders card correctly', () => {
-  render(<Card>Hello</Card>);
-  const cardContent = screen.getByText('Hello');
-  expect(cardContent).toHaveStyle({
-    border: '1px solid rgb(225,230,243)',
-    'background-color': 'rgb(255,255,255)',
-  });
-});
-
-it.each([Card, GreyCard, LightGreyCard])(
-  'renders %p correctly with classNames',
-  (CardComponent) => {
-    render(
-      <CardComponent className="sw-bg-black sw-border-8" role="tabpanel">
-        Hello
-      </CardComponent>,
-    );
-    const cardContent = screen.getByText('Hello');
-    expect(cardContent).toHaveClass('sw-bg-black sw-border-8');
-    expect(cardContent).toHaveAttribute('role', 'tabpanel');
-  },
-);
+export * from './components';
+export * from './types';
