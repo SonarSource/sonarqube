@@ -347,7 +347,7 @@ subprojects {
         entry 'mockwebserver'
         entry 'okhttp-tls'
       }
-      dependency 'org.json:json:20231013'
+      dependency 'org.json:json:20240303'
       // To be removed after migration to JUnit5 is finished
       dependency 'com.tngtech.java:junit-dataprovider:1.13.1'
       dependency 'com.tngtech.junit.dataprovider:junit-jupiter-params-dataprovider:2.10'
