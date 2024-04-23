@@ -34,7 +34,7 @@ import org.mockito.ArgumentCaptor;
 import org.sonar.api.scanner.fs.InputProject;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.testfixtures.log.LogTester;
-import org.sonar.scanner.bootstrap.DefaultScannerWsClient;
+import org.sonar.scanner.http.DefaultScannerWsClient;
 import org.sonar.scanner.protocol.internal.ScannerInternal.SensorCacheEntry;
 import org.sonar.scanner.protocol.internal.SensorCacheData;
 import org.sonar.scanner.scan.branch.BranchConfiguration;

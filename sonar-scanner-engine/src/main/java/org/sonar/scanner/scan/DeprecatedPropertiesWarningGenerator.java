@@ -28,7 +28,7 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.notifications.AnalysisWarnings;
 import org.sonar.batch.bootstrapper.EnvironmentInformation;
-import org.sonar.scanner.bootstrap.ScannerWsClientProvider;
+import org.sonar.scanner.http.ScannerWsClientProvider;
 
 public class DeprecatedPropertiesWarningGenerator {
   private static final Logger LOG = LoggerFactory.getLogger(DeprecatedPropertiesWarningGenerator.class);

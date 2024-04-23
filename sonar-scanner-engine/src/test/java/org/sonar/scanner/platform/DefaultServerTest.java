@@ -24,7 +24,7 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.utils.Version;
 import org.sonar.core.platform.SonarQubeVersion;
-import org.sonar.scanner.bootstrap.DefaultScannerWsClient;
+import org.sonar.scanner.http.DefaultScannerWsClient;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;

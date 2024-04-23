@@ -36,6 +36,7 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.core.plugin.PluginType;
+import org.sonar.scanner.http.DefaultScannerWsClient;
 import org.sonar.scanner.mediumtest.LocalPlugin;
 import org.sonarqube.ws.client.GetRequest;
 

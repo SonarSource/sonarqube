@@ -34,7 +34,7 @@ import org.sonar.api.impl.utils.ScannerUtils;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
-import org.sonar.scanner.bootstrap.DefaultScannerWsClient;
+import org.sonar.scanner.http.DefaultScannerWsClient;
 import org.sonarqube.ws.Settings;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.HttpException;

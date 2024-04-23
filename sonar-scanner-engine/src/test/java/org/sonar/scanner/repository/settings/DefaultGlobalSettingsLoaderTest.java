@@ -25,7 +25,7 @@ import java.io.PipedOutputStream;
 import java.util.Map;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.sonar.scanner.bootstrap.DefaultScannerWsClient;
+import org.sonar.scanner.http.DefaultScannerWsClient;
 import org.sonarqube.ws.Settings;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.WsResponse;

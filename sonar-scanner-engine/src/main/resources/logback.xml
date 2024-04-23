@@ -26,4 +26,9 @@
   <logger name="org.springframework.context.annotation.AnnotationConfigApplicationContext" level="ERROR"/>
 
   <logger name="org.sonar.core.platform.PriorityBeanFactory" level="INFO"/>
+
+  <!-- CertificateUtils is too verbose when loading system certificates -->
+  <logger name="nl.altindag.ssl.util.CertificateUtils" level="INFO"/>
+
+
 </configuration>

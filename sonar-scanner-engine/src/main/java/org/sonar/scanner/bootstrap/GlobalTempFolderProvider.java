@@ -31,7 +31,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.impl.utils.DefaultTempFolder;
-import org.sonar.api.utils.System2;
 import org.sonar.api.utils.TempFolder;
 import org.springframework.context.annotation.Bean;
 
@@ -42,24 +41,13 @@ public class GlobalTempFolderProvider {
   private static final long CLEAN_MAX_AGE = TimeUnit.DAYS.toMillis(21);
   static final String TMP_NAME_PREFIX = ".sonartmp_";
 
-  private System2 system;
-
-  public GlobalTempFolderProvider() {
-    this(new System2());
-  }
-
-  GlobalTempFolderProvider(System2 system) {
-    this.system = system;
-  }
-
   @Bean("GlobalTempFolder")
-  public TempFolder provide(ScannerProperties scannerProps) {
-
-    String workingPathName = StringUtils.defaultIfBlank(scannerProps.property(CoreProperties.GLOBAL_WORKING_DIRECTORY), CoreProperties.GLOBAL_WORKING_DIRECTORY_DEFAULT_VALUE);
-    Path workingPath = Paths.get(workingPathName);
+  public TempFolder provide(ScannerProperties scannerProps, SonarUserHome userHome) {
+    var workingPathName = StringUtils.defaultIfBlank(scannerProps.property(CoreProperties.GLOBAL_WORKING_DIRECTORY), CoreProperties.GLOBAL_WORKING_DIRECTORY_DEFAULT_VALUE);
+    var workingPath = Paths.get(workingPathName);
 
     if (!workingPath.isAbsolute()) {
-      Path home = findSonarHome(scannerProps);
+      var home = userHome.getPath();
       workingPath = home.resolve(workingPath).normalize();
     }
     try {
@@ -67,7 +55,7 @@ public class GlobalTempFolderProvider {
     } catch (IOException e) {
       LOG.error(String.format("failed to clean global working directory: %s", workingPath), e);
     }
-    Path tempDir = createTempFolder(workingPath);
+    var tempDir = createTempFolder(workingPath);
     return new DefaultTempFolder(tempDir.toFile(), true);
 
   }
@@ -90,24 +78,8 @@ public class GlobalTempFolderProvider {
     }
   }
 
-  private Path findSonarHome(ScannerProperties props) {
-    String home = props.property("sonar.userHome");
-    if (home != null) {
-      return Paths.get(home).toAbsolutePath();
-    }
-
-    home = system.envVariable("SONAR_USER_HOME");
-
-    if (home != null) {
-      return Paths.get(home).toAbsolutePath();
-    }
-
-    home = system.property("user.home");
-    return Paths.get(home, ".sonar").toAbsolutePath();
-  }
-
   private static void cleanTempFolders(Path path) throws IOException {
-    if (path.toFile().exists()) {
+    if (Files.exists(path)) {
       try (DirectoryStream<Path> stream = Files.newDirectoryStream(path, new CleanFilter())) {
         for (Path p : stream) {
           deleteQuietly(p.toFile());
@@ -118,8 +90,8 @@ public class GlobalTempFolderProvider {
 
   private static class CleanFilter implements DirectoryStream.Filter<Path> {
     @Override
-    public boolean accept(Path path) throws IOException {
-      if (!path.toFile().exists()) {
+    public boolean accept(Path path) {
+      if (!Files.exists(path)) {
         return false;
       }
 

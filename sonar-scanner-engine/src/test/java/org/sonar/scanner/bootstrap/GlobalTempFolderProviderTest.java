@@ -23,139 +23,107 @@ import com.google.common.collect.ImmutableMap;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributeView;
 import java.nio.file.attribute.FileTime;
-import java.util.Collections;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
-import org.apache.commons.io.FileUtils;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.TempFolder;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assume.assumeTrue;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class GlobalTempFolderProviderTest {
-  @Rule
-  public TemporaryFolder temp = new TemporaryFolder();
+class GlobalTempFolderProviderTest {
 
-  private GlobalTempFolderProvider tempFolderProvider = new GlobalTempFolderProvider();
+  private final SonarUserHome sonarUserHome = mock(SonarUserHome.class);
+  private final GlobalTempFolderProvider underTest = new GlobalTempFolderProvider();
 
   @Test
-  public void createTempFolderProps() throws Exception {
-    File workingDir = temp.newFolder();
-    workingDir.delete();
+  void createTempFolderProps(@TempDir Path workingDir) throws Exception {
+    Files.delete(workingDir);
 
-    TempFolder tempFolder = tempFolderProvider.provide(
-      new ScannerProperties(ImmutableMap.of(CoreProperties.GLOBAL_WORKING_DIRECTORY, workingDir.getAbsolutePath())));
+    var tempFolder = underTest.provide(
+      new ScannerProperties(ImmutableMap.of(CoreProperties.GLOBAL_WORKING_DIRECTORY, workingDir.toAbsolutePath().toString())), sonarUserHome);
     tempFolder.newDir();
     tempFolder.newFile();
-    assertThat(getCreatedTempDir(workingDir)).exists();
-    assertThat(getCreatedTempDir(workingDir).list()).hasSize(2);
 
-    FileUtils.deleteQuietly(workingDir);
+    assertThat(workingDir).isDirectory();
+    assertThat(workingDir.toFile().list()).hasSize(1);
+    var rootTmpDir = workingDir.toFile().listFiles()[0];
+    assertThat(rootTmpDir.list()).hasSize(2);
   }
 
   @Test
-  public void cleanUpOld() throws IOException {
+  void cleanUpOld(@TempDir Path workingDir) throws IOException {
     long creationTime = System.currentTimeMillis() - TimeUnit.DAYS.toMillis(100);
-    File workingDir = temp.newFolder();
 
     for (int i = 0; i < 3; i++) {
-      File tmp = new File(workingDir, ".sonartmp_" + i);
-      tmp.mkdirs();
+      Path tmp = workingDir.resolve(".sonartmp_" + i);
+      Files.createDirectories(tmp);
       setFileCreationDate(tmp, creationTime);
     }
 
-    tempFolderProvider.provide(
-      new ScannerProperties(ImmutableMap.of(CoreProperties.GLOBAL_WORKING_DIRECTORY, workingDir.getAbsolutePath())));
-    // this also checks that all other temps were deleted
-    assertThat(getCreatedTempDir(workingDir)).exists();
+    underTest.provide(
+      new ScannerProperties(ImmutableMap.of(CoreProperties.GLOBAL_WORKING_DIRECTORY, workingDir.toAbsolutePath().toString())), sonarUserHome);
 
-    FileUtils.deleteQuietly(workingDir);
+    // this also checks that all other temps were deleted
+    assertThat(workingDir.toFile().list()).hasSize(1);
   }
 
   @Test
-  public void createTempFolderSonarHome() throws Exception {
+  void createTempFolderFromSonarHome(@TempDir Path sonarUserHomePath) throws Exception {
     // with sonar home, it will be in {sonar.home}/.sonartmp
-    File sonarHome = temp.newFolder();
-    File workingDir = new File(sonarHome, CoreProperties.GLOBAL_WORKING_DIRECTORY_DEFAULT_VALUE).getAbsoluteFile();
+    when(sonarUserHome.getPath()).thenReturn(sonarUserHomePath);
+    
+    var expectedWorkingDir = sonarUserHomePath.resolve(CoreProperties.GLOBAL_WORKING_DIRECTORY_DEFAULT_VALUE);
 
-    TempFolder tempFolder = tempFolderProvider.provide(
-      new ScannerProperties(ImmutableMap.of("sonar.userHome", sonarHome.getAbsolutePath())));
+    TempFolder tempFolder = underTest.provide(new ScannerProperties(Map.of()), sonarUserHome);
     tempFolder.newDir();
     tempFolder.newFile();
-    assertThat(getCreatedTempDir(workingDir)).exists();
-    assertThat(getCreatedTempDir(workingDir).list()).hasSize(2);
 
-    FileUtils.deleteQuietly(sonarHome);
+    assertThat(expectedWorkingDir).isDirectory();
+    assertThat(expectedWorkingDir.toFile().list()).hasSize(1);
+    var rootTmpDir = expectedWorkingDir.toFile().listFiles()[0];
+    assertThat(rootTmpDir.list()).hasSize(2);
   }
 
   @Test
-  public void createTempFolderDefault() throws Exception {
-    System2 system = mock(System2.class);
-    tempFolderProvider = new GlobalTempFolderProvider(system);
-    File userHome = temp.newFolder();
-
-    when(system.envVariable("SONAR_USER_HOME")).thenReturn(null);
-    when(system.property("user.home")).thenReturn(userHome.getAbsolutePath());
-
-    // if nothing is defined, it will be in {user.home}/.sonar/.sonartmp
-    File defaultSonarHome = new File(userHome.getAbsolutePath(), ".sonar");
-    File workingDir = new File(defaultSonarHome, CoreProperties.GLOBAL_WORKING_DIRECTORY_DEFAULT_VALUE).getAbsoluteFile();
-    try {
-      TempFolder tempFolder = tempFolderProvider.provide(
-        new ScannerProperties(Collections.emptyMap()));
-      tempFolder.newDir();
-      tempFolder.newFile();
-      assertThat(getCreatedTempDir(workingDir)).exists();
-      assertThat(getCreatedTempDir(workingDir).list()).hasSize(2);
-    } finally {
-      FileUtils.deleteQuietly(workingDir);
-    }
-  }
-
-  @Test
-  public void dotWorkingDir() {
-    File sonarHome = temp.getRoot();
+  void dotWorkingDir(@TempDir Path sonarUserHomePath) {
+    when(sonarUserHome.getPath()).thenReturn(sonarUserHomePath);
     String globalWorkDir = ".";
     ScannerProperties globalProperties = new ScannerProperties(
-      ImmutableMap.of("sonar.userHome", sonarHome.getAbsolutePath(), CoreProperties.GLOBAL_WORKING_DIRECTORY, globalWorkDir));
+      ImmutableMap.of(CoreProperties.GLOBAL_WORKING_DIRECTORY, globalWorkDir));
 
-    TempFolder tempFolder = tempFolderProvider.provide(globalProperties);
+    var tempFolder = underTest.provide(globalProperties, sonarUserHome);
     File newFile = tempFolder.newFile();
-    assertThat(newFile.getParentFile().getParentFile().getAbsolutePath()).isEqualTo(sonarHome.getAbsolutePath());
+    
+    assertThat(newFile.getParentFile().getParentFile().toPath()).isEqualTo(sonarUserHomePath);
     assertThat(newFile.getParentFile().getName()).startsWith(".sonartmp_");
   }
 
   @Test
-  public void homeIsSymbolicLink() throws IOException {
+  void homeIsSymbolicLink(@TempDir Path realSonarHome, @TempDir Path symlink) throws IOException {
     assumeTrue(!System2.INSTANCE.isOsWindows());
-    File realSonarHome = temp.newFolder();
-    File symlink = temp.newFolder();
-    symlink.delete();
-    Files.createSymbolicLink(symlink.toPath(), realSonarHome.toPath());
-    ScannerProperties globalProperties = new ScannerProperties(ImmutableMap.of("sonar.userHome", symlink.getAbsolutePath()));
+    symlink.toFile().delete();
+    Files.createSymbolicLink(symlink, realSonarHome);
+    when(sonarUserHome.getPath()).thenReturn(symlink);
 
-    TempFolder tempFolder = tempFolderProvider.provide(globalProperties);
+    ScannerProperties globalProperties = new ScannerProperties(Map.of());
+
+    TempFolder tempFolder = underTest.provide(globalProperties, sonarUserHome);
     File newFile = tempFolder.newFile();
-    assertThat(newFile.getParentFile().getParentFile().getAbsolutePath()).isEqualTo(symlink.getAbsolutePath());
+    assertThat(newFile.getParentFile().getParentFile().toPath().toAbsolutePath()).isEqualTo(symlink);
     assertThat(newFile.getParentFile().getName()).startsWith(".sonartmp_");
   }
 
-  private File getCreatedTempDir(File workingDir) {
-    assertThat(workingDir).isDirectory();
-    assertThat(workingDir.listFiles()).hasSize(1);
-    return workingDir.listFiles()[0];
-  }
-
-  private void setFileCreationDate(File f, long time) throws IOException {
-    BasicFileAttributeView attributes = Files.getFileAttributeView(f.toPath(), BasicFileAttributeView.class);
+  private void setFileCreationDate(Path f, long time) throws IOException {
+    BasicFileAttributeView attributes = Files.getFileAttributeView(f, BasicFileAttributeView.class);
     FileTime creationTime = FileTime.fromMillis(time);
     attributes.setTimes(creationTime, creationTime, creationTime);
   }

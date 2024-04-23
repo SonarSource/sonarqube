@@ -315,6 +315,7 @@ subprojects {
         exclude 'junit:junit'
       }
       dependency 'com.squareup.okio:okio:3.7.0'
+      dependency 'io.github.hakky54:sslcontext-kickstart:8.3.4'
       dependency 'io.prometheus:simpleclient:0.16.0'
       dependency 'io.prometheus:simpleclient_common:0.16.0'
       dependency 'io.prometheus:simpleclient_servlet:0.16.0'
@@ -370,6 +371,7 @@ subprojects {
         entry 'junit-jupiter-params'
         entry 'junit-vintage-engine'
       }
+      dependency 'org.junit-pioneer:junit-pioneer:2.2.0'
       dependency 'org.xmlunit:xmlunit-core:2.9.1'
       dependency 'org.xmlunit:xmlunit-matchers:2.9.1'
       dependency 'org.lz4:lz4-java:1.8.0'

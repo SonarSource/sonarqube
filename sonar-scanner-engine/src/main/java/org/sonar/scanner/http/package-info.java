@@ -17,14 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.scanner.bootstrap;
+@ParametersAreNonnullByDefault
+package org.sonar.scanner.http;
 
-import org.sonarqube.ws.client.WsRequest;
-import org.sonarqube.ws.client.WsResponse;
-
-public interface ScannerWsClient {
-  WsResponse call(WsRequest request);
-
-  String baseUrl();
-
-}
+import javax.annotation.ParametersAreNonnullByDefault;

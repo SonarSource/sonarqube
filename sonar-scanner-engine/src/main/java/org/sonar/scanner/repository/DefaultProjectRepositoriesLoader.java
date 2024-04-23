@@ -28,7 +28,7 @@ import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.impl.utils.ScannerUtils;
-import org.sonar.scanner.bootstrap.DefaultScannerWsClient;
+import org.sonar.scanner.http.DefaultScannerWsClient;
 import org.sonarqube.ws.Batch.WsProjectResponse;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.HttpException;

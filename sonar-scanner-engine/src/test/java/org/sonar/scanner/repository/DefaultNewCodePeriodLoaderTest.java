@@ -25,7 +25,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import org.junit.Test;
 import org.sonar.scanner.WsTestUtil;
-import org.sonar.scanner.bootstrap.DefaultScannerWsClient;
+import org.sonar.scanner.http.DefaultScannerWsClient;
 import org.sonarqube.ws.NewCodePeriods;
 
 import static org.mockito.Mockito.mock;

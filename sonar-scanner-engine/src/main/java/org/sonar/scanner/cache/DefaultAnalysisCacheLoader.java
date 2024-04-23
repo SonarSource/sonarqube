@@ -30,7 +30,7 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
 import org.sonar.core.util.Protobuf;
-import org.sonar.scanner.bootstrap.DefaultScannerWsClient;
+import org.sonar.scanner.http.DefaultScannerWsClient;
 import org.sonar.scanner.protocol.internal.ScannerInternal.SensorCacheEntry;
 import org.sonar.scanner.protocol.internal.SensorCacheData;
 import org.sonar.scanner.scan.branch.BranchConfiguration;

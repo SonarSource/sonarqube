@@ -26,7 +26,7 @@ import org.sonar.api.config.Configuration;
 import org.sonar.api.platform.Server;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.core.platform.SonarQubeVersion;
-import org.sonar.scanner.bootstrap.DefaultScannerWsClient;
+import org.sonar.scanner.http.DefaultScannerWsClient;
 
 import static org.apache.commons.lang3.StringUtils.trimToEmpty;
 

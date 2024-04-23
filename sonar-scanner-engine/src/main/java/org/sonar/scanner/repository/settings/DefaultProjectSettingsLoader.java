@@ -20,7 +20,7 @@
 package org.sonar.scanner.repository.settings;
 
 import java.util.Map;
-import org.sonar.scanner.bootstrap.DefaultScannerWsClient;
+import org.sonar.scanner.http.DefaultScannerWsClient;
 import org.sonar.scanner.bootstrap.ScannerProperties;
 
 public class DefaultProjectSettingsLoader extends AbstractSettingsLoader implements ProjectSettingsLoader {

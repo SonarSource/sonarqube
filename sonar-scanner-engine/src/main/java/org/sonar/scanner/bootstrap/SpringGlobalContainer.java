@@ -48,6 +48,7 @@ import org.sonar.core.platform.SpringComponentContainer;
 import org.sonar.core.util.DefaultHttpDownloader;
 import org.sonar.core.util.UuidFactoryImpl;
 import org.sonar.scanner.extension.ScannerCoreExtensionsInstaller;
+import org.sonar.scanner.http.ScannerWsClientProvider;
 import org.sonar.scanner.notifications.DefaultAnalysisWarnings;
 import org.sonar.scanner.platform.DefaultServer;
 import org.sonar.scanner.repository.DefaultMetricsRepositoryLoader;
@@ -98,6 +99,7 @@ public class SpringGlobalContainer extends SpringComponentContainer {
       DefaultServer.class,
       DefaultDocumentationLinkGenerator.class,
       new GlobalTempFolderProvider(),
+      new SonarUserHomeProvider(),
       analysisWarnings,
       UriReader.class,
       PluginFiles.class,

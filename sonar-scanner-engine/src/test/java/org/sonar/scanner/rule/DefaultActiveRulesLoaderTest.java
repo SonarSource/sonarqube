@@ -30,7 +30,7 @@ import org.sonar.api.batch.rule.LoadedActiveRule;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.scanner.WsTestUtil;
-import org.sonar.scanner.bootstrap.DefaultScannerWsClient;
+import org.sonar.scanner.http.DefaultScannerWsClient;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
 import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Rules;

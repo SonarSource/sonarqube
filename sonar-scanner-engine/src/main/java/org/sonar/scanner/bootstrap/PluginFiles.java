@@ -26,15 +26,16 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.nio.file.Files;
-import java.util.Objects;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.Optional;
-import java.util.stream.Stream;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.config.Configuration;
 import org.sonar.scanner.bootstrap.ScannerPluginInstaller.InstalledPlugin;
+import org.sonar.scanner.http.DefaultScannerWsClient;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.HttpException;
 import org.sonarqube.ws.client.WsResponse;
@@ -51,21 +52,21 @@ public class PluginFiles {
 
   private final DefaultScannerWsClient wsClient;
   private final Configuration configuration;
-  private final File cacheDir;
-  private final File tempDir;
+  private final Path cacheDir;
+  private final Path tempDir;
 
-  public PluginFiles(DefaultScannerWsClient wsClient, Configuration configuration) {
+  public PluginFiles(DefaultScannerWsClient wsClient, Configuration configuration, SonarUserHome sonarUserHome) {
     this.wsClient = wsClient;
     this.configuration = configuration;
-    File home = locateHomeDir(configuration);
-    this.cacheDir = mkdir(new File(home, "cache"), "user cache");
-    this.tempDir = mkdir(new File(home, "_tmp"), "temp dir");
-    LOGGER.info("User cache: {}", cacheDir.getAbsolutePath());
+    var home = sonarUserHome.getPath();
+    this.cacheDir = mkdir(home.resolve("cache"), "user cache");
+    this.tempDir = mkdir(home.resolve("_tmp"), "temp dir");
+    LOGGER.info("User cache: {}", cacheDir);
   }
 
   public File createTempDir() {
     try {
-      return Files.createTempDirectory(tempDir.toPath(), "plugins").toFile();
+      return Files.createTempDirectory(tempDir, "plugins").toFile();
     } catch (IOException e) {
       throw new IllegalStateException("Fail to create temp directory in " + tempDir, e);
     }
@@ -81,24 +82,24 @@ public class PluginFiles {
    */
   public Optional<File> get(InstalledPlugin plugin) {
     // Does not fail if another process tries to create the directory at the same time.
-    File jarInCache = jarInCache(plugin.key, plugin.hash);
-    if (jarInCache.exists() && jarInCache.isFile()) {
-      return Optional.of(jarInCache);
+    Path jarInCache = jarInCache(plugin.key, plugin.hash);
+    if (Files.isRegularFile(jarInCache)) {
+      return Optional.of(jarInCache.toFile());
     }
-    return download(plugin);
+    return download(plugin).map(Path::toFile);
   }
 
-  private Optional<File> download(InstalledPlugin plugin) {
+  private Optional<Path> download(InstalledPlugin plugin) {
     GetRequest request = new GetRequest("api/plugins/download")
       .setParam("plugin", plugin.key)
       .setTimeOutInMs(configuration.getInt(PLUGINS_DOWNLOAD_TIMEOUT_PROPERTY).orElse(PLUGINS_DOWNLOAD_TIMEOUT_DEFAULT) * 1000);
 
-    File downloadedFile = newTempFile();
+    Path downloadedFile = newTempFile();
     LOGGER.debug("Download plugin '{}' to '{}'", plugin.key, downloadedFile);
 
     try (WsResponse response = wsClient.call(request)) {
       Optional<String> expectedMd5 = response.header(MD5_HEADER);
-      if (!expectedMd5.isPresent()) {
+      if (expectedMd5.isEmpty()) {
         throw new IllegalStateException(format(
           "Fail to download plugin [%s]. Request to %s did not return header %s", plugin.key, response.requestUrl(), MD5_HEADER));
       }
@@ -114,14 +115,14 @@ public class PluginFiles {
 
       // un-compress if needed
       String cacheMd5;
-      File tempJar;
+      Path tempJar;
 
       tempJar = downloadedFile;
       cacheMd5 = expectedMd5.get();
 
       // put in cache
-      File jarInCache = jarInCache(plugin.key, cacheMd5);
-      mkdir(jarInCache.getParentFile());
+      Path jarInCache = jarInCache(plugin.key, cacheMd5);
+      mkdir(jarInCache.getParent());
       moveFile(tempJar, jarInCache);
       return Optional.of(jarInCache);
 
@@ -137,82 +138,75 @@ public class PluginFiles {
     }
   }
 
-  private static void downloadBinaryTo(InstalledPlugin plugin, File downloadedFile, WsResponse response) {
+  private static void downloadBinaryTo(InstalledPlugin plugin, Path downloadedFile, WsResponse response) {
     try (InputStream stream = response.contentStream()) {
-      FileUtils.copyInputStreamToFile(stream, downloadedFile);
+      FileUtils.copyInputStreamToFile(stream, downloadedFile.toFile());
     } catch (IOException e) {
       throw new IllegalStateException(format("Fail to download plugin [%s] into %s", plugin.key, downloadedFile), e);
     }
   }
 
-  private File jarInCache(String pluginKey, String hash) {
-    File hashDir = new File(cacheDir, hash);
-    File file = new File(hashDir, format("sonar-%s-plugin.jar", pluginKey));
-    if (!file.getParentFile().toPath().equals(hashDir.toPath())) {
+  private Path jarInCache(String pluginKey, String hash) {
+    Path hashDir = cacheDir.resolve(hash);
+    Path file = hashDir.resolve(format("sonar-%s-plugin.jar", pluginKey));
+    if (!file.getParent().equals(hashDir)) {
       // vulnerability - attempt to create a file outside the cache directory
       throw new IllegalStateException(format("Fail to download plugin [%s]. Key is not valid.", pluginKey));
     }
     return file;
   }
 
-  private File newTempFile() {
+  private Path newTempFile() {
     try {
-      return File.createTempFile("fileCache", null, tempDir);
+      return Files.createTempFile(tempDir, "fileCache", null);
     } catch (IOException e) {
       throw new IllegalStateException("Fail to create temp file in " + tempDir, e);
     }
   }
 
-  private static String computeMd5(File file) {
-    try (InputStream fis = new BufferedInputStream(FileUtils.openInputStream(file))) {
+  private static String computeMd5(Path file) {
+    try (InputStream fis = new BufferedInputStream(Files.newInputStream(file))) {
       return DigestUtils.md5Hex(fis);
     } catch (IOException e) {
       throw new IllegalStateException("Fail to compute md5 of " + file, e);
     }
   }
 
-  private static void moveFile(File sourceFile, File targetFile) {
-    boolean rename = sourceFile.renameTo(targetFile);
-    // Check if the file was cached by another process during download
-    if (!rename && !targetFile.exists()) {
-      LOGGER.warn("Unable to rename {} to {}", sourceFile.getAbsolutePath(), targetFile.getAbsolutePath());
-      LOGGER.warn("A copy/delete will be tempted but with no guarantee of atomicity");
-      try {
-        Files.move(sourceFile.toPath(), targetFile.toPath());
-      } catch (IOException e) {
-        throw new IllegalStateException("Fail to move " + sourceFile.getAbsolutePath() + " to " + targetFile, e);
+  private static void moveFile(Path sourceFile, Path targetFile) {
+    try {
+      Files.move(sourceFile, targetFile, StandardCopyOption.ATOMIC_MOVE);
+    } catch (IOException e1) {
+      // Check if the file was cached by another process during download
+      if (!Files.exists(targetFile)) {
+        LOGGER.warn("Unable to rename {} to {}", sourceFile, targetFile);
+        LOGGER.warn("A copy/delete will be tempted but with no guarantee of atomicity");
+        try {
+          Files.move(sourceFile, targetFile);
+        } catch (IOException e2) {
+          throw new IllegalStateException("Fail to move " + sourceFile + " to " + targetFile, e2);
+        }
       }
     }
   }
 
-  private static void mkdir(File dir) {
+  private static void mkdir(Path dir) {
     try {
-      Files.createDirectories(dir.toPath());
+      Files.createDirectories(dir);
     } catch (IOException e) {
       throw new IllegalStateException("Fail to create cache directory: " + dir, e);
     }
   }
 
-  private static File mkdir(File dir, String debugTitle) {
-    if (!dir.isDirectory() || !dir.exists()) {
-      LOGGER.debug("Create : {}", dir.getAbsolutePath());
+  private static Path mkdir(Path dir, String debugTitle) {
+    if (!Files.isDirectory(dir)) {
+      LOGGER.debug("Create : {}", dir);
       try {
-        Files.createDirectories(dir.toPath());
+        Files.createDirectories(dir);
       } catch (IOException e) {
-        throw new IllegalStateException("Unable to create " + debugTitle + dir.getAbsolutePath(), e);
+        throw new IllegalStateException("Unable to create folder " + debugTitle + " at " + dir, e);
       }
     }
     return dir;
   }
 
-  private static File locateHomeDir(Configuration configuration) {
-    return Stream.of(
-      configuration.get("sonar.userHome").orElse(null),
-      System.getenv("SONAR_USER_HOME"),
-      System.getProperty("user.home") + File.separator + ".sonar")
-      .filter(Objects::nonNull)
-      .findFirst()
-      .map(File::new)
-      .get();
-  }
 }

@@ -25,7 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.Metric.ValueType;
-import org.sonar.scanner.bootstrap.DefaultScannerWsClient;
+import org.sonar.scanner.http.DefaultScannerWsClient;
 import org.sonar.scanner.protocol.GsonHelper;
 import org.sonarqube.ws.client.GetRequest;
 

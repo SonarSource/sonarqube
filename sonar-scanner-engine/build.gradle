@@ -27,6 +27,7 @@ dependencies {
   api 'com.google.protobuf:protobuf-java'
   api 'com.squareup.okhttp3:okhttp'
   api 'com.fasterxml.staxmate:staxmate'
+  implementation 'io.github.hakky54:sslcontext-kickstart'
   api 'javax.annotation:javax.annotation-api'
   api 'org.eclipse.jgit:org.eclipse.jgit'
   api 'org.tmatesoft.svnkit:svnkit'
@@ -64,6 +65,7 @@ dependencies {
   testImplementation 'org.sonarsource.api.plugin:sonar-plugin-api-test-fixtures'
   testImplementation project(':plugins:sonar-xoo-plugin')
   testImplementation 'org.wiremock:wiremock-standalone'
+  testImplementation 'org.junit-pioneer:junit-pioneer'
 
   testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
   testRuntimeOnly 'org.junit.vintage:junit-vintage-engine'

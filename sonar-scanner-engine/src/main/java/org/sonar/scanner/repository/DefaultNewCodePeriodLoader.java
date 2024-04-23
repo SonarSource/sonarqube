@@ -21,7 +21,7 @@ package org.sonar.scanner.repository;
 
 import java.io.IOException;
 import java.io.InputStream;
-import org.sonar.scanner.bootstrap.DefaultScannerWsClient;
+import org.sonar.scanner.http.DefaultScannerWsClient;
 import org.sonarqube.ws.NewCodePeriods;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.HttpException;

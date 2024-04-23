@@ -26,7 +26,7 @@ import java.io.InputStream;
 import org.junit.Test;
 import org.sonar.api.utils.MessageException;
 import org.sonar.scanner.WsTestUtil;
-import org.sonar.scanner.bootstrap.DefaultScannerWsClient;
+import org.sonar.scanner.http.DefaultScannerWsClient;
 import org.sonarqube.ws.Qualityprofiles;
 import org.sonarqube.ws.Qualityprofiles.SearchWsResponse.QualityProfile;
 import org.sonarqube.ws.client.HttpException;

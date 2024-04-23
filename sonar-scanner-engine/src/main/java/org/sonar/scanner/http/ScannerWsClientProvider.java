@@ -17,16 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.scanner.bootstrap;
+package org.sonar.scanner.http;
 
 import java.net.InetSocketAddress;
 import java.net.Proxy;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.Duration;
 import java.time.format.DateTimeParseException;
+import nl.altindag.ssl.SSLFactory;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.notifications.AnalysisWarnings;
 import org.sonar.api.utils.System2;
 import org.sonar.batch.bootstrapper.EnvironmentInformation;
+import org.sonar.scanner.bootstrap.GlobalAnalysisMode;
+import org.sonar.scanner.bootstrap.ScannerProperties;
+import org.sonar.scanner.bootstrap.SonarUserHome;
+import org.sonar.scanner.http.ssl.CertificateStore;
+import org.sonar.scanner.http.ssl.SslConfig;
 import org.sonarqube.ws.client.HttpConnector;
 import org.sonarqube.ws.client.WsClientFactories;
 import org.springframework.context.annotation.Bean;
@@ -52,7 +60,7 @@ public class ScannerWsClientProvider {
 
   @Bean("DefaultScannerWsClient")
   public DefaultScannerWsClient provide(ScannerProperties scannerProps, EnvironmentInformation env, GlobalAnalysisMode globalMode,
-    System2 system, AnalysisWarnings analysisWarnings) {
+    System2 system, AnalysisWarnings analysisWarnings, SonarUserHome sonarUserHome) {
     String url = defaultIfBlank(scannerProps.property("sonar.host.url"), "http://localhost:9000");
     HttpConnector.Builder connectorBuilder = HttpConnector.newBuilder().acceptGzip(true);
 
@@ -63,13 +71,16 @@ public class ScannerWsClientProvider {
     String envVarToken = defaultIfBlank(system.envVariable(TOKEN_ENV_VARIABLE), null);
     String token = defaultIfBlank(scannerProps.property(TOKEN_PROPERTY), envVarToken);
     String login = defaultIfBlank(scannerProps.property(CoreProperties.LOGIN), token);
+    var sslContext = configureSsl(parseSslConfig(scannerProps, sonarUserHome), system);
     connectorBuilder
       .readTimeoutMilliseconds(parseDurationProperty(socketTimeout, SONAR_SCANNER_SOCKET_TIMEOUT))
       .connectTimeoutMilliseconds(parseDurationProperty(connectTimeout, SONAR_SCANNER_CONNECT_TIMEOUT))
       .responseTimeoutMilliseconds(parseDurationProperty(responseTimeout, SONAR_SCANNER_RESPONSE_TIMEOUT))
       .userAgent(env.toString())
       .url(url)
-      .credentials(login, scannerProps.property(CoreProperties.PASSWORD));
+      .credentials(login, scannerProps.property(CoreProperties.PASSWORD))
+      .setSSLSocketFactory(sslContext.getSslSocketFactory())
+      .setTrustManager(sslContext.getTrustManager().orElseThrow());
 
     // OkHttp detects 'http.proxyHost' java property already, so just focus on sonar properties
     String proxyHost = defaultIfBlank(scannerProps.property("sonar.scanner.proxyHost"), null);
@@ -109,4 +120,33 @@ public class ScannerWsClientProvider {
       return parseIntProperty(propValue, propKey) * 1_000;
     }
   }
+
+  private static SslConfig parseSslConfig(ScannerProperties scannerProperties, SonarUserHome sonarUserHome) {
+    var keyStorePath = defaultIfBlank(scannerProperties.property("sonar.scanner.keystorePath"), sonarUserHome.getPath().resolve("ssl/keystore.p12").toString());
+    var keyStorePassword = defaultIfBlank(scannerProperties.property("sonar.scanner.keystorePassword"), CertificateStore.DEFAULT_PASSWORD);
+    var trustStorePath = defaultIfBlank(scannerProperties.property("sonar.scanner.truststorePath"), sonarUserHome.getPath().resolve("ssl/truststore.p12").toString());
+    var trustStorePassword = defaultIfBlank(scannerProperties.property("sonar.scanner.truststorePassword"), CertificateStore.DEFAULT_PASSWORD);
+    var keyStore = new CertificateStore(Path.of(keyStorePath), keyStorePassword);
+    var trustStore = new CertificateStore(Path.of(trustStorePath), trustStorePassword);
+    return new SslConfig(keyStore, trustStore);
+  }
+
+  private static SSLFactory configureSsl(SslConfig sslConfig, System2 system2) {
+    var sslFactoryBuilder = SSLFactory.builder()
+      .withDefaultTrustMaterial()
+      .withSystemTrustMaterial();
+    if (system2.properties().containsKey("javax.net.ssl.keyStore")) {
+      sslFactoryBuilder.withSystemPropertyDerivedIdentityMaterial();
+    }
+    var keyStore = sslConfig.getKeyStore();
+    if (keyStore != null && Files.exists(keyStore.getPath())) {
+      sslFactoryBuilder.withIdentityMaterial(keyStore.getPath(), keyStore.getKeyStorePassword().toCharArray(), keyStore.getKeyStoreType());
+    }
+    var trustStore = sslConfig.getTrustStore();
+    if (trustStore != null && Files.exists(trustStore.getPath())) {
+      sslFactoryBuilder.withTrustMaterial(trustStore.getPath(), trustStore.getKeyStorePassword().toCharArray(), trustStore.getKeyStoreType());
+    }
+    return sslFactoryBuilder.build();
+  }
+
 }

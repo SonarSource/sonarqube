@@ -28,7 +28,7 @@ import org.slf4j.event.Level;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.scanner.WsTestUtil;
-import org.sonar.scanner.bootstrap.DefaultScannerWsClient;
+import org.sonar.scanner.http.DefaultScannerWsClient;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.catchThrowableOfType;

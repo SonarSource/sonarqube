@@ -39,7 +39,7 @@ import org.sonar.api.platform.Server;
 import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.TempFolder;
-import org.sonar.scanner.bootstrap.DefaultScannerWsClient;
+import org.sonar.scanner.http.DefaultScannerWsClient;
 import org.sonar.scanner.bootstrap.GlobalAnalysisMode;
 import org.sonar.scanner.ci.CiConfiguration;
 import org.sonar.scanner.ci.DevOpsPlatformInfo;

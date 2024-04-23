@@ -31,7 +31,7 @@ import org.sonar.api.batch.rule.LoadedActiveRule;
 import org.sonar.api.impl.utils.ScannerUtils;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.DateUtils;
-import org.sonar.scanner.bootstrap.ScannerWsClient;
+import org.sonar.scanner.http.ScannerWsClient;
 import org.sonarqube.ws.Common.Paging;
 import org.sonarqube.ws.Rules;
 import org.sonarqube.ws.Rules.Active;

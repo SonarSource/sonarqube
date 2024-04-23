@@ -24,7 +24,7 @@ import java.io.Reader;
 import javax.annotation.Nullable;
 import org.apache.commons.lang3.StringUtils;
 import org.mockito.ArgumentMatcher;
-import org.sonar.scanner.bootstrap.DefaultScannerWsClient;
+import org.sonar.scanner.http.DefaultScannerWsClient;
 import org.sonarqube.ws.client.WsRequest;
 import org.sonarqube.ws.client.WsResponse;
 

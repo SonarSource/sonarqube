@@ -27,7 +27,7 @@ import org.sonar.api.Startable;
 import org.sonar.api.utils.MessageException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.scanner.bootstrap.DefaultScannerWsClient;
+import org.sonar.scanner.http.DefaultScannerWsClient;
 import org.sonar.scanner.bootstrap.GlobalAnalysisMode;
 import org.sonar.scanner.report.CeTaskReportDataHolder;
 import org.sonar.scanner.scan.ScanProperties;
