@@ -23,8 +23,8 @@ import { DiscreetLinkBox, Tooltip, themeColor, themeContrast } from 'design-syst
 import * as React from 'react';
 import { useIntl } from 'react-intl';
 import { DEFAULT_ISSUES_QUERY } from '../../../components/shared/utils';
-import { formatMeasure } from '../../../helpers/measures';
 import { getComponentIssuesUrl } from '../../../helpers/urls';
+import { formatMeasure } from '../../../sonar-aligned/helpers/measures';
 import { Branch } from '../../../types/branch-like';
 import { SoftwareImpactSeverity, SoftwareQuality } from '../../../types/clean-code-taxonomy';
 import { MetricType } from '../../../types/metrics';

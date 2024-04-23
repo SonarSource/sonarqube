@@ -20,7 +20,7 @@
 import { TableSeparator } from 'design-system';
 import * as React from 'react';
 import { translate } from '../../helpers/l10n';
-import { formatMeasure } from '../../helpers/measures';
+import { formatMeasure } from '../../sonar-aligned/helpers/measures';
 import { MetricKey, MetricType } from '../../types/metrics';
 import { MeasureHistory } from '../../types/project-activity';
 

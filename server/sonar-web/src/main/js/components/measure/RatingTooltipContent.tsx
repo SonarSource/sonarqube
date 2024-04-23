@@ -20,13 +20,14 @@
 import * as React from 'react';
 import withAppStateContext from '../../app/components/app-state/withAppStateContext';
 import { translate, translateWithParameters } from '../../helpers/l10n';
-import { formatMeasure, isDiffMetric } from '../../helpers/measures';
+import { isDiffMetric } from '../../helpers/measures';
 import {
   DIFF_METRIC_PREFIX_LENGTH,
   GRID_INDEX_OFFSET,
   PERCENT_MULTIPLIER,
   getMaintainabilityGrid,
 } from '../../helpers/ratings';
+import { formatMeasure } from '../../sonar-aligned/helpers/measures';
 import { AppState } from '../../types/appstate';
 import { MetricKey, MetricType } from '../../types/metrics';
 import { GlobalSettingKeys } from '../../types/settings';

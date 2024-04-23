@@ -23,7 +23,7 @@ import { orderBy, sortBy, without } from 'lodash';
 import * as React from 'react';
 import Tooltip from '../../../components/controls/Tooltip';
 import { translate } from '../../../helpers/l10n';
-import { formatMeasure } from '../../../helpers/measures';
+import { formatMeasure } from '../../../sonar-aligned/helpers/measures';
 import { MetricType } from '../../../types/metrics';
 import { Dict } from '../../../types/types';
 import { FacetItemsList } from '../../issues/sidebar/FacetItemsList';

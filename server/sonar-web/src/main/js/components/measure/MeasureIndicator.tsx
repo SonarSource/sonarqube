@@ -24,14 +24,14 @@ import {
   RatingEnum,
 } from 'design-system';
 import * as React from 'react';
-import { formatMeasure } from '../../helpers/measures';
+import { formatMeasure } from '../../sonar-aligned/helpers/measures';
 import { MetricKey, MetricType } from '../../types/metrics';
 import Measure from './Measure';
 import { duplicationRatingConverter } from './utils';
 
 interface Props {
   className?: string;
-  decimals?: number | null;
+  decimals?: number;
   metricKey: string;
   metricType: string;
   small?: boolean;

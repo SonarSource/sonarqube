@@ -21,14 +21,14 @@ import { MetricsRatingBadge, QualityGateIndicator, RatingLabel } from 'design-sy
 import * as React from 'react';
 import Tooltip from '../../components/controls/Tooltip';
 import { translate, translateWithParameters } from '../../helpers/l10n';
-import { formatMeasure } from '../../helpers/measures';
+import { formatMeasure } from '../../sonar-aligned/helpers/measures';
 import { MetricType } from '../../types/metrics';
 import { Status } from '../../types/types';
 import RatingTooltipContent from './RatingTooltipContent';
 
 interface Props {
   className?: string;
-  decimals?: number | null;
+  decimals?: number;
   metricKey: string;
   metricType: string;
   small?: boolean;

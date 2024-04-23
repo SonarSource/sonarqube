@@ -21,7 +21,8 @@ import { MetricsRatingBadge, Note, RatingLabel } from 'design-system';
 import React from 'react';
 import Measure from '../../../components/measure/Measure';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
-import { formatMeasure, isDiffMetric } from '../../../helpers/measures';
+import { isDiffMetric } from '../../../helpers/measures';
+import { formatMeasure } from '../../../sonar-aligned/helpers/measures';
 import { MetricType } from '../../../types/metrics';
 import { MeasureEnhanced } from '../../../types/types';
 

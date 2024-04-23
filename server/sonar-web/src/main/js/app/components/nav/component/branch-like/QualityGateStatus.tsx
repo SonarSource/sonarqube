@@ -21,7 +21,7 @@ import classNames from 'classnames';
 import { QualityGateIndicator } from 'design-system';
 import React from 'react';
 import { translateWithParameters } from '../../../../../helpers/l10n';
-import { formatMeasure } from '../../../../../helpers/measures';
+import { formatMeasure } from '../../../../../sonar-aligned/helpers/measures';
 import { BranchLike } from '../../../../../types/branch-like';
 import { MetricType } from '../../../../../types/metrics';
 

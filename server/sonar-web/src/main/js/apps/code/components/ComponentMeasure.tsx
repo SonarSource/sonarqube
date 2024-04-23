@@ -35,9 +35,9 @@ import {
 import { translateWithParameters } from '../../../helpers/l10n';
 import {
   areCCTMeasuresComputed as areCCTMeasuresComputedFn,
-  formatMeasure,
   isDiffMetric,
 } from '../../../helpers/measures';
+import { formatMeasure } from '../../../sonar-aligned/helpers/measures';
 import { isApplication, isProject } from '../../../types/component';
 import { MetricKey, MetricType } from '../../../types/metrics';
 import { Metric, Status, ComponentMeasure as TypeComponentMeasure } from '../../../types/types';

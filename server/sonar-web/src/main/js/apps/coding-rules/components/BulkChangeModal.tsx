@@ -22,7 +22,7 @@ import * as React from 'react';
 import { Profile, bulkActivateRules, bulkDeactivateRules } from '../../../api/quality-profiles';
 import withLanguagesContext from '../../../app/components/languages/withLanguagesContext';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
-import { formatMeasure } from '../../../helpers/measures';
+import { formatMeasure } from '../../../sonar-aligned/helpers/measures';
 import { Languages } from '../../../types/languages';
 import { MetricType } from '../../../types/metrics';
 import { Dict } from '../../../types/types';

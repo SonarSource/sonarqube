@@ -21,7 +21,7 @@ import styled from '@emotion/styled';
 import classNames from 'classnames';
 import { themeColor } from 'design-system';
 import * as React from 'react';
-import { formatMeasure } from '../../../helpers/measures';
+import { formatMeasure } from '../../../sonar-aligned/helpers/measures';
 import { Condition, Metric } from '../../../types/types';
 import { getCorrectCaycCondition } from '../utils';
 import ConditionValueDescription from './ConditionValueDescription';

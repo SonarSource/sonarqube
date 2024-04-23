@@ -20,7 +20,7 @@
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { translate } from '../../../helpers/l10n';
-import { formatMeasure } from '../../../helpers/measures';
+import { formatMeasure } from '../../../sonar-aligned/helpers/measures';
 
 export default function TotalEffort({ effort }: { effort: number }) {
   return (

@@ -21,7 +21,7 @@ import { useTheme } from '@emotion/react';
 import { DiscreetLink, Theme, themeColor } from 'design-system';
 import * as React from 'react';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
-import { formatMeasure } from '../../../helpers/measures';
+import { formatMeasure } from '../../../sonar-aligned/helpers/measures';
 import { MetricType } from '../../../types/metrics';
 
 export interface Props {

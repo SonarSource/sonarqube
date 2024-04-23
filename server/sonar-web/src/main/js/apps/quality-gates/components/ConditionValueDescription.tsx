@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { translate } from '../../../helpers/l10n';
-import { formatMeasure } from '../../../helpers/measures';
+import { formatMeasure } from '../../../sonar-aligned/helpers/measures';
 import { MetricKey } from '../../../types/metrics';
 import { Condition, Metric } from '../../../types/types';
 import { GreenColorText } from './ConditionValue';

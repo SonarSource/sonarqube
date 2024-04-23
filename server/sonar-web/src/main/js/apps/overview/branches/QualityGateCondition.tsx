@@ -28,7 +28,7 @@ import {
   propsToIssueParams,
 } from '../../../components/shared/utils';
 import { translate } from '../../../helpers/l10n';
-import { formatMeasure, isDiffMetric, localizeMetric } from '../../../helpers/measures';
+import { isDiffMetric, localizeMetric } from '../../../helpers/measures';
 import { getOperatorLabel } from '../../../helpers/qualityGates';
 import {
   getComponentDrilldownUrl,
@@ -36,6 +36,7 @@ import {
   getComponentSecurityHotspotsUrl,
 } from '../../../helpers/urls';
 import { getBranchLikeQuery } from '../../../sonar-aligned/helpers/branch-like';
+import { formatMeasure } from '../../../sonar-aligned/helpers/measures';
 import { BranchLike } from '../../../types/branch-like';
 import { IssueType } from '../../../types/issues';
 import { MetricKey, MetricType } from '../../../types/metrics';
@@ -139,7 +140,7 @@ export default class QualityGateCondition extends React.PureComponent<Props> {
     if (metric.type !== MetricType.Rating) {
       const actual = (condition.period ? measure.period?.value : measure.value) as string;
       const formattedValue = formatMeasure(actual, metric.type, {
-        decimal: 2,
+        decimals: 1,
         omitExtraDecimalZeros: metric.type === MetricType.Percent,
       });
       return `${formattedValue} ${subText}`;

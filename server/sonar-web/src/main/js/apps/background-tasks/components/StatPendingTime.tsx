@@ -20,8 +20,8 @@
 import { HelperHintIcon } from 'design-system';
 import * as React from 'react';
 import { translate } from '../../../helpers/l10n';
-import { formatMeasure } from '../../../helpers/measures';
 import HelpTooltip from '../../../sonar-aligned/components/controls/HelpTooltip';
+import { formatMeasure } from '../../../sonar-aligned/helpers/measures';
 
 // Do not display the pending time for values smaller than this threshold (in ms)
 const MIN_PENDING_TIME_THRESHOLD = 1000;

@@ -24,8 +24,8 @@ import { useIntl } from 'react-intl';
 import { listRules } from '../../../api/rules';
 import { toShortISO8601String } from '../../../helpers/dates';
 import { translateWithParameters } from '../../../helpers/l10n';
-import { formatMeasure } from '../../../helpers/measures';
 import { getRulesUrl } from '../../../helpers/urls';
+import { formatMeasure } from '../../../sonar-aligned/helpers/measures';
 import { MetricType } from '../../../types/metrics';
 import { Rule, RuleActivation } from '../../../types/types';
 

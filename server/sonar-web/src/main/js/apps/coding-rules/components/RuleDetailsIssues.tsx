@@ -29,8 +29,8 @@ import withAvailableFeatures, {
 import Tooltip from '../../../components/controls/Tooltip';
 import { DEFAULT_ISSUES_QUERY } from '../../../components/shared/utils';
 import { translate } from '../../../helpers/l10n';
-import { formatMeasure } from '../../../helpers/measures';
 import { getIssuesUrl } from '../../../helpers/urls';
+import { formatMeasure } from '../../../sonar-aligned/helpers/measures';
 import { Feature } from '../../../types/features';
 import { FacetName } from '../../../types/issues';
 import { MetricType } from '../../../types/metrics';

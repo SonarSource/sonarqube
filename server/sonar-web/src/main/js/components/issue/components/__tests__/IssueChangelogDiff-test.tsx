@@ -23,7 +23,7 @@ import { mockIssueChangelogDiff } from '../../../../helpers/mocks/issues';
 import { renderComponent } from '../../../../helpers/testReactTestingUtils';
 import IssueChangelogDiff, { IssueChangelogDiffProps } from '../IssueChangelogDiff';
 
-jest.mock('../../../../helpers/measures', () => ({
+jest.mock('../../../../sonar-aligned/helpers/measures', () => ({
   formatMeasure: jest
     .fn()
     .mockImplementation((value: string, type: string) => `formatted.${value}.as.${type}`),

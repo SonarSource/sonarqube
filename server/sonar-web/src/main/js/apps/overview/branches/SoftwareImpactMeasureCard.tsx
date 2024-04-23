@@ -28,9 +28,9 @@ import {
   SOFTWARE_QUALITIES_METRIC_KEYS_MAP,
   getIssueTypeBySoftwareQuality,
 } from '../../../helpers/issues';
-import { formatMeasure } from '../../../helpers/measures';
 import { isDefined } from '../../../helpers/types';
 import { getComponentIssuesUrl } from '../../../helpers/urls';
+import { formatMeasure } from '../../../sonar-aligned/helpers/measures';
 import { Branch } from '../../../types/branch-like';
 import {
   SoftwareImpactMeasureData,

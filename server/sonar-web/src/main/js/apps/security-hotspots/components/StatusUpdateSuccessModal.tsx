@@ -21,8 +21,8 @@ import { ButtonPrimary, ButtonSecondary, Checkbox, Modal, Note } from 'design-sy
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
-import { formatMeasure } from '../../../helpers/measures';
 import { save } from '../../../helpers/storage';
+import { formatMeasure } from '../../../sonar-aligned/helpers/measures';
 import { HotspotStatusOption } from '../../../types/security-hotspots';
 import { SHOW_STATUS_DIALOG_STORAGE_KEY } from '../constants';
 

@@ -27,13 +27,14 @@ import {
   propsToIssueParams,
 } from '../../../components/shared/utils';
 import { getLocalizedMetricName, translate } from '../../../helpers/l10n';
-import { formatMeasure, getShortType, isDiffMetric } from '../../../helpers/measures';
+import { getShortType, isDiffMetric } from '../../../helpers/measures';
 import {
   getComponentDrilldownUrl,
   getComponentIssuesUrl,
   getComponentSecurityHotspotsUrl,
 } from '../../../helpers/urls';
 import { getBranchLikeQuery } from '../../../sonar-aligned/helpers/branch-like';
+import { formatMeasure } from '../../../sonar-aligned/helpers/measures';
 import { BranchLike } from '../../../types/branch-like';
 import { IssueType } from '../../../types/issues';
 import { MetricType } from '../../../types/metrics';

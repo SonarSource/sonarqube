@@ -44,10 +44,7 @@ import {
   SOFTWARE_QUALITIES_METRIC_KEYS_MAP,
   getIssueTypeBySoftwareQuality,
 } from '../../helpers/issues';
-import {
-  areCCTMeasuresComputed as areCCTMeasuresComputedFn,
-  formatMeasure,
-} from '../../helpers/measures';
+import { areCCTMeasuresComputed as areCCTMeasuresComputedFn } from '../../helpers/measures';
 import { collapsedDirFromPath, fileFromPath } from '../../helpers/path';
 import { omitNil } from '../../helpers/request';
 import { getBaseUrl } from '../../helpers/system';
@@ -59,6 +56,7 @@ import {
   getComponentSecurityHotspotsUrl,
 } from '../../helpers/urls';
 import { getBranchLikeQuery } from '../../sonar-aligned/helpers/branch-like';
+import { formatMeasure } from '../../sonar-aligned/helpers/measures';
 import type { BranchLike } from '../../types/branch-like';
 import { ComponentQualifier } from '../../types/component';
 import { IssueType } from '../../types/issues';

@@ -25,8 +25,9 @@ import LanguageDistribution from '../../../components/charts/LanguageDistributio
 import Tooltip from '../../../components/controls/Tooltip';
 import Measure from '../../../components/measure/Measure';
 import { getLocalizedMetricName, translate, translateWithParameters } from '../../../helpers/l10n';
-import { formatMeasure, isDiffMetric } from '../../../helpers/measures';
+import { isDiffMetric } from '../../../helpers/measures';
 import { getMeasureHistoryUrl } from '../../../helpers/urls';
+import { formatMeasure } from '../../../sonar-aligned/helpers/measures';
 import { BranchLike } from '../../../types/branch-like';
 import { ComponentQualifier } from '../../../types/component';
 import { MetricKey, MetricType } from '../../../types/metrics';
