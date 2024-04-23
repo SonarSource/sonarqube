@@ -52,12 +52,7 @@ import { Location, Router, withRouter } from '../../../components/hoc/withRouter
 import IssueTabViewer from '../../../components/rules/IssueTabViewer';
 import '../../../components/search-navigator.css';
 import { DEFAULT_ISSUES_QUERY } from '../../../components/shared/utils';
-import {
-  fillBranchLike,
-  getBranchLikeQuery,
-  isPullRequest,
-  isSameBranchLike,
-} from '../../../helpers/branch-like';
+import { fillBranchLike, isPullRequest, isSameBranchLike } from '../../../helpers/branch-like';
 import handleRequiredAuthentication from '../../../helpers/handleRequiredAuthentication';
 import { parseIssueFromResponse } from '../../../helpers/issues';
 import { isInput, isShortcut } from '../../../helpers/keyboardEventHelpers';
@@ -65,6 +60,7 @@ import { KeyboardKeys } from '../../../helpers/keycodes';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { serializeDate } from '../../../helpers/query';
 import { withBranchLikes } from '../../../queries/branch';
+import { getBranchLikeQuery } from '../../../sonar-aligned/helpers/branch-like';
 import { BranchLike } from '../../../types/branch-like';
 import { ComponentQualifier, isPortfolioLike, isProject } from '../../../types/component';
 import {

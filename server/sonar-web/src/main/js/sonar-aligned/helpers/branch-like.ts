@@ -17,32 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
-import { IconBranch, IconGitBranch, IconProps, IconPullrequest } from '@sonarsource/echoes-react';
-import { StyledMutedText } from 'design-system';
-import * as React from 'react';
 import { isPullRequest } from '../../helpers/branch-like';
-import { isMainBranch } from '../../sonar-aligned/helpers/branch-like';
-import { BranchLike } from '../../types/branch-like';
 
-export interface BranchLikeIconProps extends IconProps {
-  branchLike: BranchLike;
-}
+import { Branch, BranchLike, BranchParameters, MainBranch } from '../../types/branch-like';
 
-export default function BranchLikeIcon({ branchLike, ...props }: Readonly<BranchLikeIconProps>) {
-  let Icon;
-
-  if (isPullRequest(branchLike)) {
-    Icon = IconPullrequest;
-  } else if (isMainBranch(branchLike)) {
-    Icon = IconBranch;
-  } else {
-    Icon = IconGitBranch;
+export function getBranchLikeQuery(
+  branchLike?: BranchLike,
+  includeMainBranch = false,
+): BranchParameters {
+  if (isBranch(branchLike) && (includeMainBranch || !isMainBranch(branchLike))) {
+    return { branch: branchLike.name };
+  } else if (isPullRequest(branchLike)) {
+    return { pullRequest: branchLike.key };
   }
-
-  return (
-    <StyledMutedText>
-      <Icon {...props} />
-    </StyledMutedText>
-  );
+  return {};
+}
+export function isBranch(branchLike?: BranchLike): branchLike is Branch {
+  return branchLike !== undefined && (branchLike as Branch).isMain !== undefined;
+}
+export function isMainBranch(branchLike?: BranchLike): branchLike is MainBranch {
+  return isBranch(branchLike) && branchLike.isMain;
 }

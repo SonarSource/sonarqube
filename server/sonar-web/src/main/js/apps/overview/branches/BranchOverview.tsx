@@ -34,11 +34,7 @@ import {
   getHistoryMetrics,
   saveActivityGraph,
 } from '../../../components/activity-graph/utils';
-import {
-  getBranchLikeDisplayName,
-  getBranchLikeQuery,
-  isMainBranch,
-} from '../../../helpers/branch-like';
+import { getBranchLikeDisplayName } from '../../../helpers/branch-like';
 import { parseDate, toISO8601WithOffsetString } from '../../../helpers/dates';
 import { enhanceConditionWithMeasure, enhanceMeasuresWithMetrics } from '../../../helpers/measures';
 import {
@@ -46,6 +42,7 @@ import {
   extractStatusConditionsFromProjectStatus,
 } from '../../../helpers/qualityGates';
 import { isDefined } from '../../../helpers/types';
+import { getBranchLikeQuery, isMainBranch } from '../../../sonar-aligned/helpers/branch-like';
 import { ApplicationPeriod } from '../../../types/application';
 import { Branch, BranchLike } from '../../../types/branch-like';
 import { ComponentQualifier } from '../../../types/component';

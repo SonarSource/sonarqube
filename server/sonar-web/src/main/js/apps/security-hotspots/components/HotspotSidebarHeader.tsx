@@ -36,9 +36,9 @@ import withCurrentUserContext from '../../../app/components/current-user/withCur
 import Tooltip from '../../../components/controls/Tooltip';
 import Measure from '../../../components/measure/Measure';
 import { PopupPlacement } from '../../../components/ui/popups';
-import { isBranch } from '../../../helpers/branch-like';
 import { translate } from '../../../helpers/l10n';
 import HelpTooltip from '../../../sonar-aligned/components/controls/HelpTooltip';
+import { isBranch } from '../../../sonar-aligned/helpers/branch-like';
 import { BranchLike } from '../../../types/branch-like';
 import { ComponentContextShape } from '../../../types/component';
 import { MetricKey, MetricType } from '../../../types/metrics';

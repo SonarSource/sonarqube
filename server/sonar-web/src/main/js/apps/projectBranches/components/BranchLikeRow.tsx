@@ -30,13 +30,9 @@ import * as React from 'react';
 import QualityGateStatus from '../../../app/components/nav/component/branch-like/QualityGateStatus';
 import BranchLikeIcon from '../../../components/icon-mappers/BranchLikeIcon';
 import DateFromNow from '../../../components/intl/DateFromNow';
-import {
-  getBranchLikeDisplayName,
-  isBranch,
-  isMainBranch,
-  isPullRequest,
-} from '../../../helpers/branch-like';
+import { getBranchLikeDisplayName, isPullRequest } from '../../../helpers/branch-like';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { isBranch, isMainBranch } from '../../../sonar-aligned/helpers/branch-like';
 import { BranchLike } from '../../../types/branch-like';
 import { Component } from '../../../types/types';
 import BranchPurgeSetting from './BranchPurgeSetting';

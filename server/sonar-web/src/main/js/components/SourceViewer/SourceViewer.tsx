@@ -28,9 +28,10 @@ import {
   getSources,
 } from '../../api/components';
 import { ComponentContext } from '../../app/components/componentContext/ComponentContext';
-import { getBranchLikeQuery, isSameBranchLike } from '../../helpers/branch-like';
+import { isSameBranchLike } from '../../helpers/branch-like';
 import { translate } from '../../helpers/l10n';
 import { HttpStatus } from '../../helpers/request';
+import { getBranchLikeQuery } from '../../sonar-aligned/helpers/branch-like';
 import { BranchLike } from '../../types/branch-like';
 import { ComponentQualifier } from '../../types/component';
 import {

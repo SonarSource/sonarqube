@@ -27,7 +27,6 @@ import {
   StyledPageTitle,
 } from 'design-system';
 import React from 'react';
-import { getBranchLikeQuery } from '../../../helpers/branch-like';
 import { translate } from '../../../helpers/l10n';
 import {
   getComponentSecurityHotspotsUrl,
@@ -35,6 +34,7 @@ import {
   getRuleUrl,
 } from '../../../helpers/urls';
 import { useRefreshBranchStatus } from '../../../queries/branch';
+import { getBranchLikeQuery } from '../../../sonar-aligned/helpers/branch-like';
 import { BranchLike } from '../../../types/branch-like';
 import { SecurityStandard, Standards } from '../../../types/security';
 import { Hotspot, HotspotStatusOption } from '../../../types/security-hotspots';

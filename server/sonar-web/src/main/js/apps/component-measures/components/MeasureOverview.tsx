@@ -22,7 +22,8 @@ import * as React from 'react';
 import { getComponentLeaves } from '../../../api/components';
 import SourceViewer from '../../../components/SourceViewer/SourceViewer';
 import A11ySkipTarget from '../../../components/a11y/A11ySkipTarget';
-import { getBranchLikeQuery, isSameBranchLike } from '../../../helpers/branch-like';
+import { isSameBranchLike } from '../../../helpers/branch-like';
+import { getBranchLikeQuery } from '../../../sonar-aligned/helpers/branch-like';
 import { BranchLike } from '../../../types/branch-like';
 import { isFile } from '../../../types/component';
 import {

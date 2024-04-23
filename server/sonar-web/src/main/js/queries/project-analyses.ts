@@ -32,9 +32,9 @@ import {
   useComponent,
   useTopLevelComponentKey,
 } from '../app/components/componentContext/withComponentContext';
-import { getBranchLikeQuery } from '../helpers/branch-like';
 import { parseDate } from '../helpers/dates';
 import { serializeStringArray } from '../helpers/query';
+import { getBranchLikeQuery } from '../sonar-aligned/helpers/branch-like';
 import { BranchParameters } from '../types/branch-like';
 import { ParsedAnalysis } from '../types/project-activity';
 import { useBranchesQuery } from './branch';

@@ -39,11 +39,12 @@ import { Location, Router, withRouter } from '../../../components/hoc/withRouter
 import { enhanceMeasure } from '../../../components/measure/utils';
 import '../../../components/search-navigator.css';
 import AnalysisMissingInfoMessage from '../../../components/shared/AnalysisMissingInfoMessage';
-import { getBranchLikeQuery, isPullRequest, isSameBranchLike } from '../../../helpers/branch-like';
+import { isPullRequest, isSameBranchLike } from '../../../helpers/branch-like';
 import { translate } from '../../../helpers/l10n';
 import { areLeakAndOverallCCTMeasuresComputed } from '../../../helpers/measures';
 import { WithBranchLikesProps, useBranchesQuery } from '../../../queries/branch';
 import HelpTooltip from '../../../sonar-aligned/components/controls/HelpTooltip';
+import { getBranchLikeQuery } from '../../../sonar-aligned/helpers/branch-like';
 import { ComponentQualifier, isPortfolioLike } from '../../../types/component';
 import { MeasurePageView } from '../../../types/measures';
 import { MetricKey } from '../../../types/metrics';

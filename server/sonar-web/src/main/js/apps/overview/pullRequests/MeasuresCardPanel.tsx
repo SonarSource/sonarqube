@@ -20,9 +20,9 @@
 import classNames from 'classnames';
 import * as React from 'react';
 import { getLeakValue } from '../../../components/measure/utils';
-import { getBranchLikeQuery } from '../../../helpers/branch-like';
 import { findMeasure } from '../../../helpers/measures';
 import { getComponentDrilldownUrl, getComponentSecurityHotspotsUrl } from '../../../helpers/urls';
+import { getBranchLikeQuery } from '../../../sonar-aligned/helpers/branch-like';
 import { PullRequest } from '../../../types/branch-like';
 import { MetricKey } from '../../../types/metrics';
 import { QualityGateStatusConditionEnhanced } from '../../../types/quality-gates';

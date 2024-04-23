@@ -21,10 +21,10 @@
 import { LinkHighlight, LinkStandalone } from '@sonarsource/echoes-react';
 import { Badge, BranchIcon, LightLabel, Note, QualifierIcon } from 'design-system';
 import * as React from 'react';
-import { getBranchLikeQuery } from '../../../helpers/branch-like';
 import { translate } from '../../../helpers/l10n';
 import { isDefined } from '../../../helpers/types';
 import { CodeScope, getComponentOverviewUrl, queryToSearch } from '../../../helpers/urls';
+import { getBranchLikeQuery } from '../../../sonar-aligned/helpers/branch-like';
 import { BranchLike } from '../../../types/branch-like';
 import {
   ComponentQualifier,

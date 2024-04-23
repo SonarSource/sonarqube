@@ -30,12 +30,12 @@ import {
   isCustomGraph,
 } from '../../../components/activity-graph/utils';
 import { useLocation, useRouter } from '../../../components/hoc/withRouter';
-import { getBranchLikeQuery } from '../../../helpers/branch-like';
 import { parseDate } from '../../../helpers/dates';
 import useApplicationLeakQuery from '../../../queries/applications';
 import { useBranchesQuery } from '../../../queries/branch';
 import { useAllMeasuresHistoryQuery } from '../../../queries/measures';
 import { useAllProjectAnalysesQuery } from '../../../queries/project-analyses';
+import { getBranchLikeQuery } from '../../../sonar-aligned/helpers/branch-like';
 import { isApplication, isPortfolioLike, isProject } from '../../../types/component';
 import { MetricKey } from '../../../types/metrics';
 import { MeasureHistory, ParsedAnalysis } from '../../../types/project-activity';

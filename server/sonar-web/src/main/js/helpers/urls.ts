@@ -21,6 +21,7 @@ import { isArray, mapValues, omitBy, pick } from 'lodash';
 import { Path, To } from 'react-router-dom';
 import { getProfilePath } from '../apps/quality-profiles/utils';
 import { DEFAULT_ISSUES_QUERY } from '../components/shared/utils';
+import { getBranchLikeQuery, isBranch, isMainBranch } from '../sonar-aligned/helpers/branch-like';
 import { BranchLike, BranchParameters } from '../types/branch-like';
 import { ComponentQualifier, isApplication, isPortfolioLike } from '../types/component';
 import { MeasurePageView } from '../types/measures';
@@ -28,7 +29,7 @@ import { GraphType } from '../types/project-activity';
 import { SecurityStandard } from '../types/security';
 import { Dict, RawQuery } from '../types/types';
 import { HomePage } from '../types/users';
-import { getBranchLikeQuery, isBranch, isMainBranch, isPullRequest } from './branch-like';
+import { isPullRequest } from './branch-like';
 import { serializeOptionalBoolean } from './query';
 import { getBaseUrl } from './system';
 

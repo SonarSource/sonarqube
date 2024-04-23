@@ -22,13 +22,13 @@ import * as React from 'react';
 import { Router, withRouter } from '../../../../../components/hoc/withRouter';
 import {
   getBrancheLikesAsTree,
-  isBranch,
   isPullRequest,
   isSameBranchLike,
 } from '../../../../../helpers/branch-like';
 import { KeyboardKeys } from '../../../../../helpers/keycodes';
 import { translate } from '../../../../../helpers/l10n';
 import { getBranchLikeUrl, queryToSearch } from '../../../../../helpers/urls';
+import { isBranch } from '../../../../../sonar-aligned/helpers/branch-like';
 import { BranchLike, BranchLikeTree } from '../../../../../types/branch-like';
 import { ComponentQualifier } from '../../../../../types/component';
 import { Component } from '../../../../../types/types';

@@ -19,7 +19,7 @@
  */
 import { groupBy, memoize, sortBy, toPairs } from 'lodash';
 import { enhanceMeasure } from '../../components/measure/utils';
-import { isBranch, isPullRequest } from '../../helpers/branch-like';
+import { isPullRequest } from '../../helpers/branch-like';
 import {
   CCT_SOFTWARE_QUALITY_METRICS,
   HIDDEN_METRICS,
@@ -42,6 +42,7 @@ import {
   parseAsString,
   serializeString,
 } from '../../helpers/query';
+import { isBranch } from '../../sonar-aligned/helpers/branch-like';
 import { BranchLike } from '../../types/branch-like';
 import { ComponentQualifier } from '../../types/component';
 import { Domain, MeasurePageView } from '../../types/measures';

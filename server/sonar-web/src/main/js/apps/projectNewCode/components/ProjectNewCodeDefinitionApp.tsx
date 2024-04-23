@@ -27,7 +27,7 @@ import withAvailableFeatures, {
 } from '../../../app/components/available-features/withAvailableFeatures';
 import withComponentContext from '../../../app/components/componentContext/withComponentContext';
 import Suggestions from '../../../components/embed-docs-modal/Suggestions';
-import { isBranch, sortBranches } from '../../../helpers/branch-like';
+import { sortBranches } from '../../../helpers/branch-like';
 import { translate } from '../../../helpers/l10n';
 import {
   DEFAULT_NEW_CODE_DEFINITION_TYPE,
@@ -38,6 +38,7 @@ import {
   useNewCodeDefinitionMutation,
   useNewCodeDefinitionQuery,
 } from '../../../queries/newCodeDefinition';
+import { isBranch } from '../../../sonar-aligned/helpers/branch-like';
 import { AppState } from '../../../types/appstate';
 import { Branch, BranchLike } from '../../../types/branch-like';
 import { Feature } from '../../../types/features';

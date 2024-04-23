@@ -27,7 +27,6 @@ import {
   isIssueMeasure,
   propsToIssueParams,
 } from '../../../components/shared/utils';
-import { getBranchLikeQuery } from '../../../helpers/branch-like';
 import { translate } from '../../../helpers/l10n';
 import { formatMeasure, isDiffMetric, localizeMetric } from '../../../helpers/measures';
 import { getOperatorLabel } from '../../../helpers/qualityGates';
@@ -36,6 +35,7 @@ import {
   getComponentIssuesUrl,
   getComponentSecurityHotspotsUrl,
 } from '../../../helpers/urls';
+import { getBranchLikeQuery } from '../../../sonar-aligned/helpers/branch-like';
 import { BranchLike } from '../../../types/branch-like';
 import { IssueType } from '../../../types/issues';
 import { MetricKey, MetricType } from '../../../types/metrics';

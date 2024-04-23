@@ -19,10 +19,10 @@
  */
 import { Card, FlagMessage, Link } from 'design-system';
 import * as React from 'react';
-import { getBranchLikeQuery } from '../../../helpers/branch-like';
 import { useDocUrl } from '../../../helpers/docs';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { getProjectQueryUrl } from '../../../helpers/urls';
+import { getBranchLikeQuery } from '../../../sonar-aligned/helpers/branch-like';
 import { QualityGateStatus } from '../../../types/quality-gates';
 
 interface Props {

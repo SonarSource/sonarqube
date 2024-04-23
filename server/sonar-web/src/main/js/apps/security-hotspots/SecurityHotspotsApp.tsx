@@ -27,11 +27,12 @@ import withCurrentUserContext from '../../app/components/current-user/withCurren
 import withIndexationGuard from '../../components/hoc/withIndexationGuard';
 import { Location, Router, withRouter } from '../../components/hoc/withRouter';
 import { getLeakValue } from '../../components/measure/utils';
-import { getBranchLikeQuery, isPullRequest, isSameBranchLike } from '../../helpers/branch-like';
+import { isPullRequest, isSameBranchLike } from '../../helpers/branch-like';
 import { isInput } from '../../helpers/keyboardEventHelpers';
 import { KeyboardKeys } from '../../helpers/keycodes';
 import { getStandards } from '../../helpers/security-standard';
 import { withBranchLikes } from '../../queries/branch';
+import { getBranchLikeQuery } from '../../sonar-aligned/helpers/branch-like';
 import { BranchLike } from '../../types/branch-like';
 import { ComponentQualifier } from '../../types/component';
 import { MetricKey } from '../../types/metrics';

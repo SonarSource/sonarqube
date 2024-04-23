@@ -38,7 +38,6 @@ import {
 } from 'design-system';
 import * as React from 'react';
 import { useIntl } from 'react-intl';
-import { getBranchLikeQuery } from '../../helpers/branch-like';
 import { SOFTWARE_QUALITIES } from '../../helpers/constants';
 import {
   ISSUETYPE_METRIC_KEYS_MAP,
@@ -59,6 +58,7 @@ import {
   getComponentIssuesUrl,
   getComponentSecurityHotspotsUrl,
 } from '../../helpers/urls';
+import { getBranchLikeQuery } from '../../sonar-aligned/helpers/branch-like';
 import type { BranchLike } from '../../types/branch-like';
 import { ComponentQualifier } from '../../types/component';
 import { IssueType } from '../../types/issues';

@@ -28,9 +28,10 @@ import {
   PreviouslyNonCompliantBranchNCD,
   isPreviouslyNonCompliantDaysNCD,
 } from '../../../components/new-code-definition/utils';
-import { isBranch, sortBranches } from '../../../helpers/branch-like';
+import { sortBranches } from '../../../helpers/branch-like';
 import { translate } from '../../../helpers/l10n';
 import { DEFAULT_NEW_CODE_DEFINITION_TYPE } from '../../../helpers/new-code-definition';
+import { isBranch } from '../../../sonar-aligned/helpers/branch-like';
 import { Branch, BranchLike, BranchWithNewCodePeriod } from '../../../types/branch-like';
 import { NewCodeDefinition } from '../../../types/new-code-definition';
 import { Component } from '../../../types/types';

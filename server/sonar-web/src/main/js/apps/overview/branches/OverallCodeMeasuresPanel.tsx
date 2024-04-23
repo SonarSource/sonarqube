@@ -26,13 +26,13 @@ import {
 } from 'design-system';
 import * as React from 'react';
 import { useIntl } from 'react-intl';
-import { getBranchLikeQuery } from '../../../helpers/branch-like';
 import { findMeasure, formatMeasure, formatRating } from '../../../helpers/measures';
 import {
   CodeScope,
   getComponentIssuesUrl,
   getComponentSecurityHotspotsUrl,
 } from '../../../helpers/urls';
+import { getBranchLikeQuery } from '../../../sonar-aligned/helpers/branch-like';
 import { Branch } from '../../../types/branch-like';
 import { SoftwareQuality } from '../../../types/clean-code-taxonomy';
 import { isApplication } from '../../../types/component';

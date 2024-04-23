@@ -34,13 +34,13 @@ import React from 'react';
 import { useIntl } from 'react-intl';
 import { getLeakValue } from '../../../components/measure/utils';
 import { DEFAULT_ISSUES_QUERY } from '../../../components/shared/utils';
-import { getBranchLikeQuery } from '../../../helpers/branch-like';
 import { findMeasure, formatMeasure, formatRating } from '../../../helpers/measures';
 import {
   CodeScope,
   getComponentIssuesUrl,
   getComponentSecurityHotspotsUrl,
 } from '../../../helpers/urls';
+import { getBranchLikeQuery } from '../../../sonar-aligned/helpers/branch-like';
 import { Branch } from '../../../types/branch-like';
 import { isApplication } from '../../../types/component';
 import { IssueStatus } from '../../../types/issues';

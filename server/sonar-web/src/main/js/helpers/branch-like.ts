@@ -18,22 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { orderBy } from 'lodash';
-import {
-  Branch,
-  BranchLike,
-  BranchLikeTree,
-  BranchParameters,
-  MainBranch,
-  PullRequest,
-} from '../types/branch-like';
-
-export function isBranch(branchLike?: BranchLike): branchLike is Branch {
-  return branchLike !== undefined && (branchLike as Branch).isMain !== undefined;
-}
-
-export function isMainBranch(branchLike?: BranchLike): branchLike is MainBranch {
-  return isBranch(branchLike) && branchLike.isMain;
-}
+import { isBranch, isMainBranch } from '../sonar-aligned/helpers/branch-like';
+import { Branch, BranchLike, BranchLikeTree, PullRequest } from '../types/branch-like';
 
 export function sortBranches(branches: Branch[]) {
   return orderBy(branches, [(b) => b.isMain, (b) => b.name], ['desc', 'asc']);
@@ -111,18 +97,6 @@ export function getBrancheLikesAsTree(branchLikes: BranchLike[]): BranchLikeTree
   function getPullRequests(branch: Branch) {
     return pullRequests.filter((pr) => !pr.isOrphan && pr.base === branch.name);
   }
-}
-
-export function getBranchLikeQuery(
-  branchLike?: BranchLike,
-  includeMainBranch = false,
-): BranchParameters {
-  if (isBranch(branchLike) && (includeMainBranch || !isMainBranch(branchLike))) {
-    return { branch: branchLike.name };
-  } else if (isPullRequest(branchLike)) {
-    return { pullRequest: branchLike.key };
-  }
-  return {};
 }
 
 // Create branch object from branch name or pull request key
