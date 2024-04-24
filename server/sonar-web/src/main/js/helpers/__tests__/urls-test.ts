@@ -18,17 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { searchParamsToQuery } from '~sonar-aligned/helpers/router';
-import {
-  getComponentIssuesUrl,
-  getComponentSecurityHotspotsUrl,
-  queryToSearch,
-} from '~sonar-aligned/helpers/urls';
-import { DEFAULT_ISSUES_QUERY } from '../../components/shared/utils';
+import { queryToSearch } from '~sonar-aligned/helpers/urls';
 import { AlmKeys } from '../../types/alm-settings';
 import { ComponentQualifier } from '../../types/component';
 import { IssueType } from '../../types/issues';
 import { MeasurePageView } from '../../types/measures';
-import { SecurityStandard } from '../../types/security';
 import { mockBranch, mockMainBranch, mockPullRequest } from '../mocks/branch-like';
 import { mockLocation } from '../testMocks';
 import {
@@ -91,66 +85,6 @@ describe('getComponentAdminUrl', () => {
     ['Project', ComponentQualifier.Project, { pathname: '/dashboard', search: '?id=key' }],
   ])('should work for %s', (_qualifierName, qualifier, result) => {
     expect(getComponentAdminUrl('key', qualifier)).toEqual(result);
-  });
-});
-
-describe('#getComponentIssuesUrl', () => {
-  it('should work without parameters', () => {
-    expect(getComponentIssuesUrl(SIMPLE_COMPONENT_KEY)).toEqual(
-      expect.objectContaining({
-        pathname: '/project/issues',
-        search: queryToSearch({ id: SIMPLE_COMPONENT_KEY }),
-      }),
-    );
-  });
-
-  it('should work with parameters', () => {
-    expect(getComponentIssuesUrl(SIMPLE_COMPONENT_KEY, DEFAULT_ISSUES_QUERY)).toEqual(
-      expect.objectContaining({
-        pathname: '/project/issues',
-        search: queryToSearch({ ...DEFAULT_ISSUES_QUERY, id: SIMPLE_COMPONENT_KEY }),
-      }),
-    );
-  });
-});
-
-describe('#getComponentSecurityHotspotsUrl', () => {
-  it('should work with no extra parameters', () => {
-    expect(getComponentSecurityHotspotsUrl(SIMPLE_COMPONENT_KEY)).toEqual(
-      expect.objectContaining({
-        pathname: '/security_hotspots',
-        search: queryToSearch({ id: SIMPLE_COMPONENT_KEY }),
-      }),
-    );
-  });
-
-  it('should forward some query parameters', () => {
-    expect(
-      getComponentSecurityHotspotsUrl(SIMPLE_COMPONENT_KEY, undefined, {
-        inNewCodePeriod: 'true',
-        [SecurityStandard.OWASP_TOP10_2021]: 'a1',
-        [SecurityStandard.CWE]: '213',
-        [SecurityStandard.OWASP_TOP10]: 'a1',
-        [SecurityStandard.SONARSOURCE]: 'command-injection',
-        [SecurityStandard.PCI_DSS_3_2]: '4.2',
-        [SecurityStandard.PCI_DSS_4_0]: '4.1',
-        ignoredParam: '1234',
-      }),
-    ).toEqual(
-      expect.objectContaining({
-        pathname: '/security_hotspots',
-        search: queryToSearch({
-          id: SIMPLE_COMPONENT_KEY,
-          inNewCodePeriod: 'true',
-          [SecurityStandard.OWASP_TOP10_2021]: 'a1',
-          [SecurityStandard.OWASP_TOP10]: 'a1',
-          [SecurityStandard.SONARSOURCE]: 'command-injection',
-          [SecurityStandard.CWE]: '213',
-          [SecurityStandard.PCI_DSS_3_2]: '4.2',
-          [SecurityStandard.PCI_DSS_4_0]: '4.1',
-        }),
-      }),
-    );
   });
 });
 
