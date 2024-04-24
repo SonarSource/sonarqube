@@ -21,7 +21,7 @@ import { LightLabel, TextError } from 'design-system';
 import * as React from 'react';
 import { useIntl } from 'react-intl';
 import { To } from 'react-router-dom';
-import { formatMeasure } from '../../../sonar-aligned/helpers/measures';
+import { formatMeasure } from '~sonar-aligned/helpers/measures';
 import { MetricKey, MetricType } from '../../../types/metrics';
 import { QualityGateStatusConditionEnhanced } from '../../../types/quality-gates';
 import { Status, getConditionRequiredLabel } from '../utils';

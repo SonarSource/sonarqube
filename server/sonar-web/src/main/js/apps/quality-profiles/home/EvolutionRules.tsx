@@ -21,11 +21,11 @@ import { DiscreetLink, Link, Note } from 'design-system';
 import { noop, sortBy } from 'lodash';
 import * as React from 'react';
 import { useIntl } from 'react-intl';
+import { formatMeasure } from '~sonar-aligned/helpers/measures';
 import { listRules } from '../../../api/rules';
 import { toShortISO8601String } from '../../../helpers/dates';
 import { translateWithParameters } from '../../../helpers/l10n';
 import { getRulesUrl } from '../../../helpers/urls';
-import { formatMeasure } from '../../../sonar-aligned/helpers/measures';
 import { MetricType } from '../../../types/metrics';
 import { Rule, RuleActivation } from '../../../types/types';
 

@@ -20,11 +20,11 @@
 import { SeparatorCircleIcon } from 'design-system';
 import React from 'react';
 import { useIntl } from 'react-intl';
+import { formatMeasure } from '~sonar-aligned/helpers/measures';
 import { getCurrentPage } from '../../../app/components/nav/component/utils';
 import ComponentReportActions from '../../../components/controls/ComponentReportActions';
 import HomePageSelect from '../../../components/controls/HomePageSelect';
 import { findMeasure } from '../../../helpers/measures';
-import { formatMeasure } from '../../../sonar-aligned/helpers/measures';
 import { Branch } from '../../../types/branch-like';
 import { MetricKey, MetricType } from '../../../types/metrics';
 import { Component, MeasureEnhanced } from '../../../types/types';

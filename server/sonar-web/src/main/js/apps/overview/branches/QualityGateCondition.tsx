@@ -20,6 +20,12 @@
 import { LinkBox, TextMuted } from 'design-system';
 import * as React from 'react';
 import { Path } from 'react-router-dom';
+import { getBranchLikeQuery } from '~sonar-aligned/helpers/branch-like';
+import { formatMeasure } from '~sonar-aligned/helpers/measures';
+import {
+  getComponentIssuesUrl,
+  getComponentSecurityHotspotsUrl,
+} from '~sonar-aligned/helpers/urls';
 import IssueTypeIcon from '../../../components/icon-mappers/IssueTypeIcon';
 import MeasureIndicator from '../../../components/measure/MeasureIndicator';
 import {
@@ -30,13 +36,7 @@ import {
 import { translate } from '../../../helpers/l10n';
 import { isDiffMetric, localizeMetric } from '../../../helpers/measures';
 import { getOperatorLabel } from '../../../helpers/qualityGates';
-import {
-  getComponentDrilldownUrl,
-  getComponentIssuesUrl,
-  getComponentSecurityHotspotsUrl,
-} from '../../../helpers/urls';
-import { getBranchLikeQuery } from '../../../sonar-aligned/helpers/branch-like';
-import { formatMeasure } from '../../../sonar-aligned/helpers/measures';
+import { getComponentDrilldownUrl } from '../../../helpers/urls';
 import { BranchLike } from '../../../types/branch-like';
 import { IssueType } from '../../../types/issues';
 import { MetricKey, MetricType } from '../../../types/metrics';
@@ -64,13 +64,11 @@ export default class QualityGateCondition extends React.PureComponent<Props> {
   };
 
   getUrlForSecurityHotspot(inNewCodePeriod: boolean) {
-    const query: Dict<string | undefined> = {
-      ...getBranchLikeQuery(this.props.branchLike),
-    };
-    if (inNewCodePeriod) {
-      Object.assign(query, { inNewCodePeriod: 'true' });
-    }
-    return getComponentSecurityHotspotsUrl(this.props.component.key, query);
+    return getComponentSecurityHotspotsUrl(
+      this.props.component.key,
+      this.props.branchLike,
+      inNewCodePeriod ? { inNewCodePeriod: 'true' } : {},
+    );
   }
 
   getUrlForCodeSmells(inNewCodePeriod: boolean) {

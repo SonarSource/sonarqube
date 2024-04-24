@@ -19,8 +19,8 @@
  */
 import { Pill } from 'design-system';
 import React from 'react';
+import DocHelpTooltip from '~sonar-aligned/components/controls/DocHelpTooltip';
 import { translate } from '../../helpers/l10n';
-import DocHelpTooltip from '../../sonar-aligned/components/controls/DocHelpTooltip';
 import { CleanCodeAttribute, CleanCodeAttributeCategory } from '../../types/clean-code-taxonomy';
 
 export interface Props {

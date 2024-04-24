@@ -20,10 +20,10 @@
 import { memoize } from 'lodash';
 import React from 'react';
 import { IntlShape } from 'react-intl';
+import { formatMeasure } from '~sonar-aligned/helpers/measures';
 import { ISSUETYPE_METRIC_KEYS_MAP } from '../../helpers/issues';
 import { translate } from '../../helpers/l10n';
 import { parseAsString } from '../../helpers/query';
-import { formatMeasure } from '../../sonar-aligned/helpers/measures';
 import { SoftwareQuality } from '../../types/clean-code-taxonomy';
 import { IssueType } from '../../types/issues';
 import { MetricKey, MetricType } from '../../types/metrics';

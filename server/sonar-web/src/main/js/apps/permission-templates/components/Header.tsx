@@ -19,11 +19,11 @@
  */
 import { ButtonPrimary, FlagMessage, Spinner, Title } from 'design-system';
 import React, { useState } from 'react';
+import { throwGlobalError } from '~sonar-aligned/helpers/error';
 import { createPermissionTemplate } from '../../../api/permissions';
 import { Router, withRouter } from '../../../components/hoc/withRouter';
 import { translate } from '../../../helpers/l10n';
 import { useGithubProvisioningEnabledQuery } from '../../../queries/identity-provider/github';
-import { throwGlobalError } from '../../../sonar-aligned/helpers/error';
 import { PERMISSION_TEMPLATES_PATH } from '../utils';
 import Form from './Form';
 

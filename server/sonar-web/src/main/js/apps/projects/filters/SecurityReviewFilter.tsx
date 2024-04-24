@@ -19,8 +19,8 @@
  */
 import { MetricsRatingBadge, RatingEnum } from 'design-system';
 import * as React from 'react';
+import { formatMeasure } from '~sonar-aligned/helpers/measures';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
-import { formatMeasure } from '../../../sonar-aligned/helpers/measures';
 import { MetricType } from '../../../types/metrics';
 import { Dict, RawQuery } from '../../../types/types';
 import { Facet } from '../types';

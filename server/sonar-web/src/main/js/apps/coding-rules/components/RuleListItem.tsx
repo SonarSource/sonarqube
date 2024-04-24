@@ -29,6 +29,7 @@ import {
   themeBorder,
 } from 'design-system';
 import * as React from 'react';
+import DocHelpTooltip from '~sonar-aligned/components/controls/DocHelpTooltip';
 import { Profile, deactivateRule } from '../../../api/quality-profiles';
 import ConfirmButton from '../../../components/controls/ConfirmButton';
 import Tooltip from '../../../components/controls/Tooltip';
@@ -38,7 +39,6 @@ import TypeHelper from '../../../components/shared/TypeHelper';
 import TagsList from '../../../components/tags/TagsList';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { getRuleUrl } from '../../../helpers/urls';
-import DocHelpTooltip from '../../../sonar-aligned/components/controls/DocHelpTooltip';
 import { Rule } from '../../../types/types';
 import { Activation } from '../query';
 import ActivationButton from './ActivationButton';

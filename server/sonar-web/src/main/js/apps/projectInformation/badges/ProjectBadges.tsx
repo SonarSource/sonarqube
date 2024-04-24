@@ -33,6 +33,7 @@ import {
 import { isEmpty } from 'lodash';
 import * as React from 'react';
 import { useState } from 'react';
+import { getBranchLikeQuery } from '~sonar-aligned/helpers/branch-like';
 import { Image } from '../../../components/common/Image';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { localizeMetric } from '../../../helpers/measures';
@@ -42,7 +43,6 @@ import {
   useBadgeTokenQuery,
   useRenewBagdeTokenMutation,
 } from '../../../queries/badges';
-import { getBranchLikeQuery } from '../../../sonar-aligned/helpers/branch-like';
 import { BranchLike } from '../../../types/branch-like';
 import { MetricKey } from '../../../types/metrics';
 import { Component } from '../../../types/types';

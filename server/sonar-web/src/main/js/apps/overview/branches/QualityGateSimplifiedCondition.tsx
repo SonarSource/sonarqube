@@ -19,12 +19,12 @@
  */
 import { Highlight, LinkBox } from 'design-system';
 import * as React from 'react';
+import { getBranchLikeQuery } from '~sonar-aligned/helpers/branch-like';
+import { formatMeasure } from '~sonar-aligned/helpers/measures';
+import { getComponentIssuesUrl } from '~sonar-aligned/helpers/urls';
 import { propsToIssueParams } from '../../../components/shared/utils';
 import { translate } from '../../../helpers/l10n';
 import { isDiffMetric, localizeMetric } from '../../../helpers/measures';
-import { getComponentIssuesUrl } from '../../../helpers/urls';
-import { getBranchLikeQuery } from '../../../sonar-aligned/helpers/branch-like';
-import { formatMeasure } from '../../../sonar-aligned/helpers/measures';
 import { BranchLike } from '../../../types/branch-like';
 import { MetricKey, MetricType } from '../../../types/metrics';
 import { QualityGateStatusConditionEnhanced } from '../../../types/quality-gates';

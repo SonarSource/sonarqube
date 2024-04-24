@@ -29,6 +29,7 @@ import {
 } from 'design-system';
 import React, { useEffect, useMemo, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
+import HelpTooltip from '~sonar-aligned/components/controls/HelpTooltip';
 import { getIdentityProviders } from '../../api/users';
 import GitHubSynchronisationWarning from '../../app/components/GitHubSynchronisationWarning';
 import GitLabSynchronisationWarning from '../../app/components/GitLabSynchronisationWarning';
@@ -40,7 +41,6 @@ import { translate } from '../../helpers/l10n';
 import { LabelValueSelectOption } from '../../helpers/search';
 import { useIdentityProviderQuery } from '../../queries/identity-provider/common';
 import { useUsersQueries } from '../../queries/users';
-import HelpTooltip from '../../sonar-aligned/components/controls/HelpTooltip';
 import { IdentityProvider, Provider } from '../../types/types';
 import { RestUserDetailed } from '../../types/users';
 import Header from './Header';

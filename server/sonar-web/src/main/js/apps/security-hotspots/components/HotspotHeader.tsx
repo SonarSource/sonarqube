@@ -27,14 +27,10 @@ import {
   StyledPageTitle,
 } from 'design-system';
 import React from 'react';
+import { getComponentSecurityHotspotsUrl } from '~sonar-aligned/helpers/urls';
 import { translate } from '../../../helpers/l10n';
-import {
-  getComponentSecurityHotspotsUrl,
-  getPathUrlAsString,
-  getRuleUrl,
-} from '../../../helpers/urls';
+import { getPathUrlAsString, getRuleUrl } from '../../../helpers/urls';
 import { useRefreshBranchStatus } from '../../../queries/branch';
-import { getBranchLikeQuery } from '../../../sonar-aligned/helpers/branch-like';
 import { BranchLike } from '../../../types/branch-like';
 import { SecurityStandard, Standards } from '../../../types/security';
 import { Hotspot, HotspotStatusOption } from '../../../types/security-hotspots';
@@ -56,8 +52,7 @@ export function HotspotHeader(props: HotspotHeaderProps) {
   const refreshBranchStatus = useRefreshBranchStatus();
 
   const permalink = getPathUrlAsString(
-    getComponentSecurityHotspotsUrl(component.key, {
-      ...getBranchLikeQuery(branchLike),
+    getComponentSecurityHotspotsUrl(component.key, branchLike, {
       hotspots: key,
     }),
     false,

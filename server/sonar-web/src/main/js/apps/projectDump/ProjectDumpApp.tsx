@@ -26,6 +26,7 @@ import {
 } from 'design-system';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
+import { throwGlobalError } from '~sonar-aligned/helpers/error';
 import { getActivity } from '../../api/ce';
 import { getStatus } from '../../api/project-dump';
 import withAvailableFeatures, {
@@ -33,7 +34,6 @@ import withAvailableFeatures, {
 } from '../../app/components/available-features/withAvailableFeatures';
 import withComponentContext from '../../app/components/componentContext/withComponentContext';
 import { translate } from '../../helpers/l10n';
-import { throwGlobalError } from '../../sonar-aligned/helpers/error';
 import { Feature } from '../../types/features';
 import { DumpStatus, DumpTask } from '../../types/project-dump';
 import { ActivityRequestParameters, TaskStatuses, TaskTypes } from '../../types/tasks';

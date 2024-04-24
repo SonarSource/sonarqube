@@ -33,13 +33,13 @@ import {
 import { differenceWith, map, uniqBy } from 'lodash';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
+import DocHelpTooltip from '~sonar-aligned/components/controls/DocHelpTooltip';
 import { useAvailableFeatures } from '../../../app/components/available-features/withAvailableFeatures';
 import { useMetrics } from '../../../app/components/metrics/withMetricsContext';
 import DocumentationLink from '../../../components/common/DocumentationLink';
 import ModalButton, { ModalProps } from '../../../components/controls/ModalButton';
 import { useDocUrl } from '../../../helpers/docs';
 import { getLocalizedMetricName, translate } from '../../../helpers/l10n';
-import DocHelpTooltip from '../../../sonar-aligned/components/controls/DocHelpTooltip';
 import { Feature } from '../../../types/features';
 import { MetricKey } from '../../../types/metrics';
 import { CaycStatus, Condition as ConditionType, QualityGate } from '../../../types/types';

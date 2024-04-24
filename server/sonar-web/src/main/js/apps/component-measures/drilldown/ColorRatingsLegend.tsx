@@ -19,8 +19,8 @@
  */
 import { ColorFilterOption, ColorsLegend } from 'design-system';
 import * as React from 'react';
+import { formatMeasure } from '~sonar-aligned/helpers/measures';
 import { translateWithParameters } from '../../../helpers/l10n';
-import { formatMeasure } from '../../../sonar-aligned/helpers/measures';
 import { MetricType } from '../../../types/metrics';
 
 export interface ColorRatingsLegendProps {

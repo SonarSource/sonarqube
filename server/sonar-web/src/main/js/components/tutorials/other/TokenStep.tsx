@@ -41,6 +41,7 @@ import {
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { SingleValue } from 'react-select';
+import DocHelpTooltip from '~sonar-aligned/components/controls/DocHelpTooltip';
 import { generateToken, getTokens, revokeToken } from '../../../api/user-tokens';
 import { translate } from '../../../helpers/l10n';
 import {
@@ -48,7 +49,6 @@ import {
   computeTokenExpirationDate,
   getAvailableExpirationOptions,
 } from '../../../helpers/tokens';
-import DocHelpTooltip from '../../../sonar-aligned/components/controls/DocHelpTooltip';
 import { TokenExpiration, TokenType, UserToken } from '../../../types/token';
 import { LoggedInUser } from '../../../types/users';
 import ProjectTokenScopeInfo from '../components/ProjectTokenScopeInfo';

@@ -21,6 +21,7 @@
 import { HeadingDark, LargeCenteredLayout, PageContentFontWrapper, Spinner } from 'design-system';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
+import { isBranch } from '~sonar-aligned/helpers/branch-like';
 import withAppStateContext from '../../../app/components/app-state/withAppStateContext';
 import withAvailableFeatures, {
   WithAvailableFeaturesProps,
@@ -38,7 +39,6 @@ import {
   useNewCodeDefinitionMutation,
   useNewCodeDefinitionQuery,
 } from '../../../queries/newCodeDefinition';
-import { isBranch } from '../../../sonar-aligned/helpers/branch-like';
 import { AppState } from '../../../types/appstate';
 import { Branch, BranchLike } from '../../../types/branch-like';
 import { Feature } from '../../../types/features';

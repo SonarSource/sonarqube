@@ -22,6 +22,8 @@ import { LinkHighlight, LinkStandalone } from '@sonarsource/echoes-react';
 import { Badge, LightGreyCard, LightGreyCardTitle, TextBold, TextSubdued } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
+import { formatMeasure } from '~sonar-aligned/helpers/measures';
+import { getComponentIssuesUrl } from '~sonar-aligned/helpers/urls';
 import Tooltip from '../../../components/controls/Tooltip';
 import { DEFAULT_ISSUES_QUERY } from '../../../components/shared/utils';
 import {
@@ -29,8 +31,6 @@ import {
   getIssueTypeBySoftwareQuality,
 } from '../../../helpers/issues';
 import { isDefined } from '../../../helpers/types';
-import { getComponentIssuesUrl } from '../../../helpers/urls';
-import { formatMeasure } from '../../../sonar-aligned/helpers/measures';
 import { Branch } from '../../../types/branch-like';
 import {
   SoftwareImpactMeasureData,

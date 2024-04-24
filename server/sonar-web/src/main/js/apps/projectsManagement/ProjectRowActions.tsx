@@ -19,12 +19,12 @@
  */
 import { ActionsDropdown, ItemButton, ItemLink, PopupZLevel, Spinner } from 'design-system';
 import React, { useState } from 'react';
+import { throwGlobalError } from '~sonar-aligned/helpers/error';
 import { getComponentNavigation } from '../../api/navigation';
 import { Project } from '../../api/project-management';
 import { translate, translateWithParameters } from '../../helpers/l10n';
 import { getComponentPermissionsUrl } from '../../helpers/urls';
 import { useGithubProvisioningEnabledQuery } from '../../queries/identity-provider/github';
-import { throwGlobalError } from '../../sonar-aligned/helpers/error';
 import { LoggedInUser } from '../../types/users';
 import ApplyTemplate from '../permissions/project/components/ApplyTemplate';
 import RestoreAccessModal from './RestoreAccessModal';

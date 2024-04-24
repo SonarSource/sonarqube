@@ -28,6 +28,7 @@ import {
   themeColor,
 } from 'design-system';
 import * as React from 'react';
+import HelpTooltip from '~sonar-aligned/components/controls/HelpTooltip';
 import { Profile } from '../../../api/quality-profiles';
 import ConfirmButton from '../../../components/controls/ConfirmButton';
 import DateFormatter from '../../../components/intl/DateFormatter';
@@ -37,7 +38,6 @@ import {
   useRuleDetailsQuery,
   useUpdateRuleMutation,
 } from '../../../queries/rules';
-import HelpTooltip from '../../../sonar-aligned/components/controls/HelpTooltip';
 import { Dict } from '../../../types/types';
 import { Activation } from '../query';
 import CustomRuleButton from './CustomRuleButton';

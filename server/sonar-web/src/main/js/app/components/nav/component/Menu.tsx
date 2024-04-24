@@ -26,13 +26,13 @@ import {
   PopupZLevel,
 } from 'design-system';
 import * as React from 'react';
+import { getBranchLikeQuery } from '~sonar-aligned/helpers/branch-like';
 import { useLocation } from '../../../../components/hoc/withRouter';
 import { DEFAULT_ISSUES_QUERY } from '../../../../components/shared/utils';
 import { isPullRequest } from '../../../../helpers/branch-like';
 import { hasMessage, translate, translateWithParameters } from '../../../../helpers/l10n';
 import { getPortfolioUrl, getProjectQueryUrl } from '../../../../helpers/urls';
 import { useBranchesQuery } from '../../../../queries/branch';
-import { getBranchLikeQuery } from '../../../../sonar-aligned/helpers/branch-like';
 import { BranchParameters } from '../../../../types/branch-like';
 import {
   ComponentQualifier,

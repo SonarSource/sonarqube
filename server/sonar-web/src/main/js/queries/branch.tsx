@@ -22,6 +22,7 @@ import { debounce, flatten } from 'lodash';
 import * as React from 'react';
 import { useCallback, useContext } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { isBranch } from '~sonar-aligned/helpers/branch-like';
 import {
   deleteBranch,
   deletePullRequest,
@@ -38,7 +39,6 @@ import { useLocation } from '../components/hoc/withRouter';
 import { isPullRequest } from '../helpers/branch-like';
 import { extractStatusConditionsFromProjectStatus } from '../helpers/qualityGates';
 import { searchParamsToQuery } from '../helpers/urls';
-import { isBranch } from '../sonar-aligned/helpers/branch-like';
 import { Branch, BranchLike } from '../types/branch-like';
 import { isApplication, isPortfolioLike, isProject } from '../types/component';
 import { Feature } from '../types/features';

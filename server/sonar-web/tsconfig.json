@@ -3,6 +3,7 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
+      "~sonar-aligned/*": ["src/main/js/sonar-aligned/*"],
       "*": ["./src/main/js/@types/*"]
     }
   },

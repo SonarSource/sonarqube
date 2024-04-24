@@ -29,11 +29,11 @@ import {
   Title,
 } from 'design-system';
 import * as React from 'react';
+import { isMainBranch } from '~sonar-aligned/helpers/branch-like';
 import { AnalysisStatus } from '../../apps/overview/components/AnalysisStatus';
 import { translate } from '../../helpers/l10n';
 import { getProjectTutorialLocation } from '../../helpers/urls';
 import { useBranchesQuery } from '../../queries/branch';
-import { isMainBranch } from '../../sonar-aligned/helpers/branch-like';
 import { AlmKeys, AlmSettingsInstance, ProjectAlmBindingResponse } from '../../types/alm-settings';
 import { MainBranch } from '../../types/branch-like';
 import { Component } from '../../types/types';

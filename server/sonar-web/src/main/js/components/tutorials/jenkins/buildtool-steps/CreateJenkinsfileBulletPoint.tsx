@@ -19,7 +19,7 @@
  */
 import { CodeSnippet, FlagMessage, HelperHintIcon, NumberedListItem } from 'design-system';
 import * as React from 'react';
-import HelpTooltip from '../../../../sonar-aligned/components/controls/HelpTooltip';
+import HelpTooltip from '~sonar-aligned/components/controls/HelpTooltip';
 import SentenceWithFilename from '../../components/SentenceWithFilename';
 import SentenceWithHighlights from '../../components/SentenceWithHighlights';
 

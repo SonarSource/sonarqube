@@ -18,8 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { getComponentDrilldownUrl, getComponentIssuesUrl } from '../../helpers/urls';
-import { getBranchLikeQuery } from '../../sonar-aligned/helpers/branch-like';
+import { getBranchLikeQuery } from '~sonar-aligned/helpers/branch-like';
+import { getComponentIssuesUrl } from '~sonar-aligned/helpers/urls';
+import { getComponentDrilldownUrl } from '../../helpers/urls';
 import { BranchLike } from '../../types/branch-like';
 import Link from '../common/Link';
 import { isIssueMeasure, propsToIssueParams } from './utils';

@@ -19,8 +19,8 @@
  */
 import { ActionCell, ContentCell, HelperHintIcon, Table, TableRow } from 'design-system';
 import * as React from 'react';
+import HelpTooltip from '~sonar-aligned/components/controls/HelpTooltip';
 import { translate } from '../../helpers/l10n';
-import HelpTooltip from '../../sonar-aligned/components/controls/HelpTooltip';
 import { IdentityProvider, Provider } from '../../types/types';
 import { RestUserDetailed } from '../../types/users';
 import UserListItem from './components/UserListItem';

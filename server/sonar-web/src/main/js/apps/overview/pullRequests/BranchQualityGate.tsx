@@ -20,7 +20,7 @@
 import { HelperHintIcon, LightPrimary, QualityGateIndicator, TextMuted } from 'design-system';
 import React from 'react';
 import { useIntl } from 'react-intl';
-import HelpTooltip from '../../../sonar-aligned/components/controls/HelpTooltip';
+import HelpTooltip from '~sonar-aligned/components/controls/HelpTooltip';
 import { BranchLike } from '../../../types/branch-like';
 import { QualityGateStatusConditionEnhanced } from '../../../types/quality-gates';
 import { Component, Status } from '../../../types/types';

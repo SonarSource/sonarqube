@@ -20,10 +20,10 @@
 import classNames from 'classnames';
 import { Badge, ItemButton, TextBold, TextMuted } from 'design-system';
 import * as React from 'react';
+import { isMainBranch } from '~sonar-aligned/helpers/branch-like';
 import BranchLikeIcon from '../../../../../components/icon-mappers/BranchLikeIcon';
 import { getBranchLikeDisplayName } from '../../../../../helpers/branch-like';
 import { translate } from '../../../../../helpers/l10n';
-import { isMainBranch } from '../../../../../sonar-aligned/helpers/branch-like';
 import { BranchLike } from '../../../../../types/branch-like';
 import QualityGateStatus from './QualityGateStatus';
 

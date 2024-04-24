@@ -19,7 +19,7 @@
  */
 
 import { addGlobalErrorMessage } from 'design-system';
-import { throwGlobalError } from '../../sonar-aligned/helpers/error';
+import { throwGlobalError } from '~sonar-aligned/helpers/error';
 
 jest.mock('design-system', () => ({
   addGlobalErrorMessage: jest.fn(),

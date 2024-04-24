@@ -19,8 +19,8 @@
  */
 import { ClipboardIconButton, CodeSnippet, HelperHintIcon, SubHeading } from 'design-system';
 import * as React from 'react';
+import HelpTooltip from '~sonar-aligned/components/controls/HelpTooltip';
 import { translate } from '../../../../helpers/l10n';
-import HelpTooltip from '../../../../sonar-aligned/components/controls/HelpTooltip';
 
 interface MetaKeyProps {
   componentKey: string;

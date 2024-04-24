@@ -17,16 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { isArray, mapValues, omitBy, pick } from 'lodash';
+import { isArray, mapValues, omitBy } from 'lodash';
 import { Path, To } from 'react-router-dom';
+import { getBranchLikeQuery, isBranch, isMainBranch } from '~sonar-aligned/helpers/branch-like';
 import { getProfilePath } from '../apps/quality-profiles/utils';
 import { DEFAULT_ISSUES_QUERY } from '../components/shared/utils';
-import { getBranchLikeQuery, isBranch, isMainBranch } from '../sonar-aligned/helpers/branch-like';
 import { BranchLike, BranchParameters } from '../types/branch-like';
 import { ComponentQualifier, isApplication, isPortfolioLike } from '../types/component';
 import { MeasurePageView } from '../types/measures';
 import { GraphType } from '../types/project-activity';
-import { SecurityStandard } from '../types/security';
 import { Dict, RawQuery } from '../types/types';
 import { HomePage } from '../types/users';
 import { isPullRequest } from './branch-like';
@@ -45,7 +44,7 @@ export enum CodeScope {
 
 type CodeScopeType = CodeScope.Overall | CodeScope.New;
 
-type Query = Location['query'];
+export type Query = Location['query'];
 
 const PROJECT_BASE_URL = '/dashboard';
 
@@ -187,47 +186,6 @@ export function getPullRequestUrl(project: string, pullRequest: string): Partial
 export function getIssuesUrl(query: Query): To {
   const pathname = '/issues';
   return { pathname, search: queryToSearch(query) };
-}
-
-/**
- * Generate URL for a component's issues page
- */
-export function getComponentIssuesUrl(componentKey: string, query?: Query): Path {
-  return {
-    pathname: '/project/issues',
-    search: queryToSearch({ ...(query || {}), id: componentKey }),
-    hash: '',
-  };
-}
-
-/**
- * Generate URL for a component's security hotspot page
- */
-export function getComponentSecurityHotspotsUrl(componentKey: string, query: Query = {}): Path {
-  const { branch, pullRequest, inNewCodePeriod, hotspots, assignedToMe, files } = query;
-  return {
-    pathname: '/security_hotspots',
-    search: queryToSearch({
-      id: componentKey,
-      branch,
-      pullRequest,
-      inNewCodePeriod,
-      hotspots,
-      assignedToMe,
-      files,
-      ...pick(query, [
-        SecurityStandard.OWASP_TOP10_2021,
-        SecurityStandard.OWASP_TOP10,
-        SecurityStandard.SONARSOURCE,
-        SecurityStandard.CWE,
-        SecurityStandard.PCI_DSS_3_2,
-        SecurityStandard.PCI_DSS_4_0,
-        SecurityStandard.OWASP_ASVS_4_0,
-        'owaspAsvsLevel',
-      ]),
-    }),
-    hash: '',
-  };
 }
 
 /**

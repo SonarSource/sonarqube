@@ -19,10 +19,10 @@
  */
 import { ContentCell, Link, Note, NumericalCell, TableRow } from 'design-system';
 import * as React from 'react';
+import { formatMeasure } from '~sonar-aligned/helpers/measures';
 import { translateWithParameters } from '../../../helpers/l10n';
 import { isDefined } from '../../../helpers/types';
 import { getRulesUrl } from '../../../helpers/urls';
-import { formatMeasure } from '../../../sonar-aligned/helpers/measures';
 import { MetricType } from '../../../types/metrics';
 import { RulesFacetName } from '../../../types/rules';
 

@@ -19,10 +19,10 @@
  */
 import { Badge, HelperHintIcon, Link, Note, SeparatorCircleIcon } from 'design-system';
 import React from 'react';
+import HelpTooltip from '~sonar-aligned/components/controls/HelpTooltip';
 import Tooltip from '../../../components/controls/Tooltip';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { getRuleUrl } from '../../../helpers/urls';
-import HelpTooltip from '../../../sonar-aligned/components/controls/HelpTooltip';
 import { Dict, RuleDetails } from '../../../types/types';
 
 const EXTERNAL_RULE_REPO_PREFIX = 'external_';

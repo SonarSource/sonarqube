@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { getBranchLikeQuery } from '~sonar-aligned/helpers/branch-like';
 import { listIssues, searchIssues } from '../../../api/issues';
 import { parseIssueFromResponse } from '../../../helpers/issues';
-import { getBranchLikeQuery } from '../../../sonar-aligned/helpers/branch-like';
 import { BranchLike } from '../../../types/branch-like';
 import { Issue, RawQuery } from '../../../types/types';
 import { DEFAULT_ISSUES_QUERY } from '../../shared/utils';

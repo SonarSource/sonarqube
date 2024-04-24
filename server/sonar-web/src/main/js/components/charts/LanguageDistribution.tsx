@@ -20,9 +20,9 @@
 import { Histogram } from 'design-system';
 import { sortBy } from 'lodash';
 import * as React from 'react';
+import { formatMeasure } from '~sonar-aligned/helpers/measures';
 import withLanguagesContext from '../../app/components/languages/withLanguagesContext';
 import { translate } from '../../helpers/l10n';
-import { formatMeasure } from '../../sonar-aligned/helpers/measures';
 import { Languages } from '../../types/languages';
 import { MetricType } from '../../types/metrics';
 

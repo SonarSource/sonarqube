@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { formatMeasure } from '~sonar-aligned/helpers/measures';
 import withAppStateContext from '../../app/components/app-state/withAppStateContext';
 import { translate, translateWithParameters } from '../../helpers/l10n';
 import { isDiffMetric } from '../../helpers/measures';
@@ -27,7 +28,6 @@ import {
   PERCENT_MULTIPLIER,
   getMaintainabilityGrid,
 } from '../../helpers/ratings';
-import { formatMeasure } from '../../sonar-aligned/helpers/measures';
 import { AppState } from '../../types/appstate';
 import { MetricKey, MetricType } from '../../types/metrics';
 import { GlobalSettingKeys } from '../../types/settings';

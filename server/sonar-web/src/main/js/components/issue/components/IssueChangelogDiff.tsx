@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { formatMeasure } from '~sonar-aligned/helpers/measures';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
-import { formatMeasure } from '../../../sonar-aligned/helpers/measures';
 import { IssueChangelogDiff as TypeIssueChangelogDiff } from '../../../types/types';
 
 export interface IssueChangelogDiffProps {

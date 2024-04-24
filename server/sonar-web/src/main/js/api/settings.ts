@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { omitBy } from 'lodash';
+import { throwGlobalError } from '~sonar-aligned/helpers/error';
 import { isCategoryDefinition } from '../apps/settings/utils';
 import { getJSON, post, postJSON, RequestData } from '../helpers/request';
-import { throwGlobalError } from '../sonar-aligned/helpers/error';
 import { BranchParameters } from '../types/branch-like';
 import {
   ExtendedSettingDefinition,

@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { throwGlobalError } from '~sonar-aligned/helpers/error';
 import { getJSON, post } from '../helpers/request';
-import { throwGlobalError } from '../sonar-aligned/helpers/error';
 import { Branch, PullRequest } from '../types/branch-like';
 
 export function getBranches(project: string): Promise<Branch[]> {

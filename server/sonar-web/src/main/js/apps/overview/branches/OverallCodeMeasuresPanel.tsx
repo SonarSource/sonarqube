@@ -26,14 +26,14 @@ import {
 } from 'design-system';
 import * as React from 'react';
 import { useIntl } from 'react-intl';
-import { findMeasure, formatRating } from '../../../helpers/measures';
+import { getBranchLikeQuery } from '~sonar-aligned/helpers/branch-like';
+import { formatMeasure } from '~sonar-aligned/helpers/measures';
 import {
-  CodeScope,
   getComponentIssuesUrl,
   getComponentSecurityHotspotsUrl,
-} from '../../../helpers/urls';
-import { getBranchLikeQuery } from '../../../sonar-aligned/helpers/branch-like';
-import { formatMeasure } from '../../../sonar-aligned/helpers/measures';
+} from '~sonar-aligned/helpers/urls';
+import { findMeasure, formatRating } from '../../../helpers/measures';
+import { CodeScope } from '../../../helpers/urls';
 import { Branch } from '../../../types/branch-like';
 import { SoftwareQuality } from '../../../types/clean-code-taxonomy';
 import { isApplication } from '../../../types/component';
@@ -129,9 +129,7 @@ export default function OverallCodeMeasuresPanel(props: Readonly<OverallCodeMeas
               ? 'issue.type.SECURITY_HOTSPOT'
               : 'issue.type.SECURITY_HOTSPOT.plural'
           }
-          url={getComponentSecurityHotspotsUrl(component.key, {
-            ...getBranchLikeQuery(branch),
-          })}
+          url={getComponentSecurityHotspotsUrl(component.key, branch)}
           value={securityHotspots}
           metric={MetricKey.security_hotspots}
           conditions={conditions}

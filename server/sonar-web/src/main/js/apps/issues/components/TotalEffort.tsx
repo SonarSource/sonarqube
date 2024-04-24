@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
+import { formatMeasure } from '~sonar-aligned/helpers/measures';
 import { translate } from '../../../helpers/l10n';
-import { formatMeasure } from '../../../sonar-aligned/helpers/measures';
 
 export default function TotalEffort({ effort }: { effort: number }) {
   return (

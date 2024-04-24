@@ -21,6 +21,7 @@ import { ContentCell, Link, Spinner, SubTitle, Table, TableRow } from 'design-sy
 import { keyBy } from 'lodash';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
+import { formatMeasure } from '~sonar-aligned/helpers/measures';
 import { getComponentData } from '../../../api/components';
 import { getFacet } from '../../../api/issues';
 import withAvailableFeatures, {
@@ -30,7 +31,6 @@ import Tooltip from '../../../components/controls/Tooltip';
 import { DEFAULT_ISSUES_QUERY } from '../../../components/shared/utils';
 import { translate } from '../../../helpers/l10n';
 import { getIssuesUrl } from '../../../helpers/urls';
-import { formatMeasure } from '../../../sonar-aligned/helpers/measures';
 import { Feature } from '../../../types/features';
 import { FacetName } from '../../../types/issues';
 import { MetricType } from '../../../types/metrics';

@@ -20,8 +20,8 @@
 
 import { IconProps, TextSubdued } from 'design-system';
 import * as React from 'react';
+import DocHelpTooltip from '~sonar-aligned/components/controls/DocHelpTooltip';
 import { translate } from '../../../helpers/l10n';
-import DocHelpTooltip from '../../../sonar-aligned/components/controls/DocHelpTooltip';
 import { Issue } from '../../../types/types';
 import IssueTypeIcon from '../../icon-mappers/IssueTypeIcon';
 import { DeprecatedFieldTooltip } from './DeprecatedFieldTooltip';

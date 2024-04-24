@@ -19,9 +19,9 @@
  */
 import { ActionCell, ContentCell, HelperHintIcon, Table, TableRow } from 'design-system';
 import * as React from 'react';
+import HelpTooltip from '~sonar-aligned/components/controls/HelpTooltip';
 import { getBranchLikeKey } from '../../../helpers/branch-like';
 import { translate } from '../../../helpers/l10n';
-import HelpTooltip from '../../../sonar-aligned/components/controls/HelpTooltip';
 import { BranchLike } from '../../../types/branch-like';
 import { Component } from '../../../types/types';
 import BranchLikeRow from './BranchLikeRow';

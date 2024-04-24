@@ -30,11 +30,11 @@ import {
   Title,
 } from 'design-system';
 import * as React from 'react';
+import HelpTooltip from '~sonar-aligned/components/controls/HelpTooltip';
 import withAppStateContext from '../../../app/components/app-state/withAppStateContext';
 import { Image } from '../../../components/common/Image';
 import { translate } from '../../../helpers/l10n';
 import { getCreateProjectModeLocation } from '../../../helpers/urls';
-import HelpTooltip from '../../../sonar-aligned/components/controls/HelpTooltip';
 import { AlmKeys } from '../../../types/alm-settings';
 import { AppState } from '../../../types/appstate';
 import { CreateProjectModes } from './types';

@@ -28,11 +28,11 @@ import {
 import * as React from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { To } from 'react-router-dom';
+import { formatMeasure } from '~sonar-aligned/helpers/measures';
 import { duplicationRatingConverter, getLeakValue } from '../../../components/measure/utils';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { findMeasure, localizeMetric } from '../../../helpers/measures';
 import { getComponentDrilldownUrl } from '../../../helpers/urls';
-import { formatMeasure } from '../../../sonar-aligned/helpers/measures';
 import { BranchLike } from '../../../types/branch-like';
 import { MetricKey, MetricType } from '../../../types/metrics';
 import { QualityGateStatusConditionEnhanced } from '../../../types/quality-gates';

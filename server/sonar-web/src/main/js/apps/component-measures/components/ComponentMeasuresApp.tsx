@@ -31,6 +31,8 @@ import {
 import { keyBy } from 'lodash';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
+import HelpTooltip from '~sonar-aligned/components/controls/HelpTooltip';
+import { getBranchLikeQuery } from '~sonar-aligned/helpers/branch-like';
 import { getMeasuresWithPeriod } from '../../../api/measures';
 import { getAllMetrics } from '../../../api/metrics';
 import { ComponentContext } from '../../../app/components/componentContext/ComponentContext';
@@ -43,8 +45,6 @@ import { isPullRequest, isSameBranchLike } from '../../../helpers/branch-like';
 import { translate } from '../../../helpers/l10n';
 import { areLeakAndOverallCCTMeasuresComputed } from '../../../helpers/measures';
 import { WithBranchLikesProps, useBranchesQuery } from '../../../queries/branch';
-import HelpTooltip from '../../../sonar-aligned/components/controls/HelpTooltip';
-import { getBranchLikeQuery } from '../../../sonar-aligned/helpers/branch-like';
 import { ComponentQualifier, isPortfolioLike } from '../../../types/component';
 import { MeasurePageView } from '../../../types/measures';
 import { MetricKey } from '../../../types/metrics';

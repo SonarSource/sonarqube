@@ -31,14 +31,14 @@ import {
   Spinner,
 } from 'design-system';
 import * as React from 'react';
+import HelpTooltip from '~sonar-aligned/components/controls/HelpTooltip';
+import { isBranch } from '~sonar-aligned/helpers/branch-like';
 import withComponentContext from '../../../app/components/componentContext/withComponentContext';
 import withCurrentUserContext from '../../../app/components/current-user/withCurrentUserContext';
 import Tooltip from '../../../components/controls/Tooltip';
 import Measure from '../../../components/measure/Measure';
 import { PopupPlacement } from '../../../components/ui/popups';
 import { translate } from '../../../helpers/l10n';
-import HelpTooltip from '../../../sonar-aligned/components/controls/HelpTooltip';
-import { isBranch } from '../../../sonar-aligned/helpers/branch-like';
 import { BranchLike } from '../../../types/branch-like';
 import { ComponentContextShape } from '../../../types/component';
 import { MetricKey, MetricType } from '../../../types/metrics';

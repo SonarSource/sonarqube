@@ -19,6 +19,7 @@
  */
 import { sortBy, uniq } from 'lodash';
 import * as React from 'react';
+import { getBranchLikeQuery, isMainBranch } from '~sonar-aligned/helpers/branch-like';
 import { getApplicationDetails, getApplicationLeak } from '../../../api/application';
 import { getMeasuresWithPeriodAndMetrics } from '../../../api/measures';
 import { getProjectActivity } from '../../../api/projectActivity';
@@ -42,7 +43,6 @@ import {
   extractStatusConditionsFromProjectStatus,
 } from '../../../helpers/qualityGates';
 import { isDefined } from '../../../helpers/types';
-import { getBranchLikeQuery, isMainBranch } from '../../../sonar-aligned/helpers/branch-like';
 import { ApplicationPeriod } from '../../../types/application';
 import { Branch, BranchLike } from '../../../types/branch-like';
 import { ComponentQualifier } from '../../../types/component';

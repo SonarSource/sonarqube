@@ -20,12 +20,12 @@
 import { QualifierIcon } from 'design-system';
 import { omit } from 'lodash';
 import * as React from 'react';
+import { getBranchLikeQuery } from '~sonar-aligned/helpers/branch-like';
 import { getFiles } from '../../../api/components';
 import { translate } from '../../../helpers/l10n';
 import { collapsePath, splitPath } from '../../../helpers/path';
 import { highlightTerm } from '../../../helpers/search';
 import { isDefined } from '../../../helpers/types';
-import { getBranchLikeQuery } from '../../../sonar-aligned/helpers/branch-like';
 import { BranchLike } from '../../../types/branch-like';
 import { TreeComponentWithPath } from '../../../types/component';
 import { Facet } from '../../../types/issues';

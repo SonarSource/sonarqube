@@ -19,10 +19,10 @@
  */
 import { MetricsRatingBadge, NumericalCell, RatingLabel } from 'design-system';
 import * as React from 'react';
+import { formatMeasure } from '~sonar-aligned/helpers/measures';
 import Measure from '../../../components/measure/Measure';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { getCCTMeasureValue, isDiffMetric } from '../../../helpers/measures';
-import { formatMeasure } from '../../../sonar-aligned/helpers/measures';
 import { MetricType } from '../../../types/metrics';
 import { ComponentMeasureEnhanced, MeasureEnhanced, Metric } from '../../../types/types';
 

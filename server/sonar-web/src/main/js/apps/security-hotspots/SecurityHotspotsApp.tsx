@@ -20,6 +20,7 @@
 
 import { flatMap, range } from 'lodash';
 import * as React from 'react';
+import { getBranchLikeQuery } from '~sonar-aligned/helpers/branch-like';
 import { getMeasures } from '../../api/measures';
 import { getSecurityHotspotList, getSecurityHotspots } from '../../api/security-hotspots';
 import withComponentContext from '../../app/components/componentContext/withComponentContext';
@@ -32,7 +33,6 @@ import { isInput } from '../../helpers/keyboardEventHelpers';
 import { KeyboardKeys } from '../../helpers/keycodes';
 import { getStandards } from '../../helpers/security-standard';
 import { withBranchLikes } from '../../queries/branch';
-import { getBranchLikeQuery } from '../../sonar-aligned/helpers/branch-like';
 import { BranchLike } from '../../types/branch-like';
 import { ComponentQualifier } from '../../types/component';
 import { MetricKey } from '../../types/metrics';

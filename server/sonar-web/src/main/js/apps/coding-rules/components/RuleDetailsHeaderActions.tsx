@@ -19,11 +19,11 @@
  */
 import { Note, SeparatorCircleIcon, TextSubdued } from 'design-system';
 import * as React from 'react';
+import DocHelpTooltip from '~sonar-aligned/components/controls/DocHelpTooltip';
 import IssueSeverityIcon from '../../../components/icon-mappers/IssueSeverityIcon';
 import IssueTypeIcon from '../../../components/icon-mappers/IssueTypeIcon';
 import TagsList from '../../../components/tags/TagsList';
 import { translate } from '../../../helpers/l10n';
-import DocHelpTooltip from '../../../sonar-aligned/components/controls/DocHelpTooltip';
 import { IssueSeverity } from '../../../types/issues';
 import { Dict, RuleDetails } from '../../../types/types';
 import RuleDetailsTagsPopup from './RuleDetailsTagsPopup';

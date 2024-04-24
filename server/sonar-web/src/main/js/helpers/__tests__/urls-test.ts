@@ -17,6 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import {
+  getComponentIssuesUrl,
+  getComponentSecurityHotspotsUrl,
+} from '~sonar-aligned/helpers/urls';
 import { DEFAULT_ISSUES_QUERY } from '../../components/shared/utils';
 import { AlmKeys } from '../../types/alm-settings';
 import { ComponentQualifier } from '../../types/component';
@@ -32,9 +36,7 @@ import {
   getComponentAdminUrl,
   getComponentDrilldownUrl,
   getComponentDrilldownUrlWithSelection,
-  getComponentIssuesUrl,
   getComponentOverviewUrl,
-  getComponentSecurityHotspotsUrl,
   getCreateProjectModeLocation,
   getDeprecatedActiveRulesUrl,
   getGlobalSettingsUrl,
@@ -124,7 +126,7 @@ describe('#getComponentSecurityHotspotsUrl', () => {
 
   it('should forward some query parameters', () => {
     expect(
-      getComponentSecurityHotspotsUrl(SIMPLE_COMPONENT_KEY, {
+      getComponentSecurityHotspotsUrl(SIMPLE_COMPONENT_KEY, undefined, {
         inNewCodePeriod: 'true',
         [SecurityStandard.OWASP_TOP10_2021]: 'a1',
         [SecurityStandard.CWE]: '213',

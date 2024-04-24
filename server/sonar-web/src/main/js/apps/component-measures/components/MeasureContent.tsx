@@ -19,6 +19,7 @@
  */
 import { Highlight, KeyboardHint } from 'design-system';
 import * as React from 'react';
+import { getBranchLikeQuery } from '~sonar-aligned/helpers/branch-like';
 import { getComponentTree } from '../../../api/components';
 import { getMeasures } from '../../../api/measures';
 import SourceViewer from '../../../components/SourceViewer/SourceViewer';
@@ -33,7 +34,6 @@ import { getCCTMeasureValue, isDiffMetric } from '../../../helpers/measures';
 import { RequestData } from '../../../helpers/request';
 import { isDefined } from '../../../helpers/types';
 import { getProjectUrl } from '../../../helpers/urls';
-import { getBranchLikeQuery } from '../../../sonar-aligned/helpers/branch-like';
 import { BranchLike } from '../../../types/branch-like';
 import { isApplication, isFile, isView } from '../../../types/component';
 import { MeasurePageView } from '../../../types/measures';

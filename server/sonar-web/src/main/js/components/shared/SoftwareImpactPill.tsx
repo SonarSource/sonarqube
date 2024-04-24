@@ -21,8 +21,8 @@ import classNames from 'classnames';
 import { Pill } from 'design-system';
 import React from 'react';
 import { FormattedMessage } from 'react-intl';
+import DocHelpTooltip from '~sonar-aligned/components/controls/DocHelpTooltip';
 import { translate } from '../../helpers/l10n';
-import DocHelpTooltip from '../../sonar-aligned/components/controls/DocHelpTooltip';
 import { SoftwareImpactSeverity } from '../../types/clean-code-taxonomy';
 import SoftwareImpactSeverityIcon from '../icon-mappers/SoftwareImpactSeverityIcon';
 

@@ -19,8 +19,8 @@
  */
 import { HelperHintIcon, LightGreyCardTitle, PageTitle } from 'design-system';
 import React from 'react';
+import HelpTooltip from '~sonar-aligned/components/controls/HelpTooltip';
 import { translate } from '../../../helpers/l10n';
-import HelpTooltip from '../../../sonar-aligned/components/controls/HelpTooltip';
 
 export function QualityGateStatusTitle() {
   return (

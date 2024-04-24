@@ -38,6 +38,12 @@ import {
 } from 'design-system';
 import * as React from 'react';
 import { useIntl } from 'react-intl';
+import { getBranchLikeQuery } from '~sonar-aligned/helpers/branch-like';
+import { formatMeasure } from '~sonar-aligned/helpers/measures';
+import {
+  getComponentIssuesUrl,
+  getComponentSecurityHotspotsUrl,
+} from '~sonar-aligned/helpers/urls';
 import { SOFTWARE_QUALITIES } from '../../helpers/constants';
 import {
   ISSUETYPE_METRIC_KEYS_MAP,
@@ -49,14 +55,7 @@ import { collapsedDirFromPath, fileFromPath } from '../../helpers/path';
 import { omitNil } from '../../helpers/request';
 import { getBaseUrl } from '../../helpers/system';
 import { isDefined } from '../../helpers/types';
-import {
-  getBranchLikeUrl,
-  getCodeUrl,
-  getComponentIssuesUrl,
-  getComponentSecurityHotspotsUrl,
-} from '../../helpers/urls';
-import { getBranchLikeQuery } from '../../sonar-aligned/helpers/branch-like';
-import { formatMeasure } from '../../sonar-aligned/helpers/measures';
+import { getBranchLikeUrl, getCodeUrl } from '../../helpers/urls';
 import type { BranchLike } from '../../types/branch-like';
 import { ComponentQualifier } from '../../types/component';
 import { IssueType } from '../../types/issues';
@@ -148,8 +147,7 @@ export default function SourceViewerHeader(props: Readonly<Props>) {
               <span>
                 <StyledDrilldownLink
                   className="sw-body-md"
-                  to={getComponentSecurityHotspotsUrl(project, {
-                    ...getBranchLikeQuery(branchLike),
+                  to={getComponentSecurityHotspotsUrl(project, branchLike, {
                     files: path,
                     ...DEFAULT_ISSUES_QUERY,
                     types: IssueType.SecurityHotspot,

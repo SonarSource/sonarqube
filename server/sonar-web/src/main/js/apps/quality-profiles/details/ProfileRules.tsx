@@ -31,12 +31,12 @@ import {
 import { keyBy } from 'lodash';
 import * as React from 'react';
 import { useEffect, useState } from 'react';
+import DocHelpTooltip from '~sonar-aligned/components/controls/DocHelpTooltip';
 import { getQualityProfile } from '../../../api/quality-profiles';
 import { searchRules } from '../../../api/rules';
 import { translate } from '../../../helpers/l10n';
 import { isDefined } from '../../../helpers/types';
 import { getRulesUrl } from '../../../helpers/urls';
-import DocHelpTooltip from '../../../sonar-aligned/components/controls/DocHelpTooltip';
 import { CleanCodeAttributeCategory, SoftwareQuality } from '../../../types/clean-code-taxonomy';
 import { SearchRulesResponse } from '../../../types/coding-rules';
 import { RulesFacetName } from '../../../types/rules';

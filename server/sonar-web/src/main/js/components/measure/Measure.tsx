@@ -19,9 +19,9 @@
  */
 import { MetricsRatingBadge, QualityGateIndicator, RatingLabel } from 'design-system';
 import * as React from 'react';
+import { formatMeasure } from '~sonar-aligned/helpers/measures';
 import Tooltip from '../../components/controls/Tooltip';
 import { translate, translateWithParameters } from '../../helpers/l10n';
-import { formatMeasure } from '../../sonar-aligned/helpers/measures';
 import { MetricType } from '../../types/metrics';
 import { Status } from '../../types/types';
 import RatingTooltipContent from './RatingTooltipContent';

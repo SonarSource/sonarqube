@@ -19,6 +19,7 @@
  */
 
 import { addGlobalSuccessMessage } from 'design-system';
+import { throwGlobalError } from '~sonar-aligned/helpers/error';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import {
   get,
@@ -31,7 +32,6 @@ import {
   postJSONBody,
   request,
 } from '../../../helpers/request';
-import { throwGlobalError } from '../../../sonar-aligned/helpers/error';
 
 const exposeLibraries = () => {
   const global = window as any;

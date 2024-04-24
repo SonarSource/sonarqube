@@ -20,9 +20,9 @@
 import { FlagMessage, HelperHintIcon, Link } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
+import HelpTooltip from '~sonar-aligned/components/controls/HelpTooltip';
 import { translate } from '../../../helpers/l10n';
 import { getDeprecatedActiveRulesUrl } from '../../../helpers/urls';
-import HelpTooltip from '../../../sonar-aligned/components/controls/HelpTooltip';
 
 interface Props {
   activeDeprecatedRules: number;

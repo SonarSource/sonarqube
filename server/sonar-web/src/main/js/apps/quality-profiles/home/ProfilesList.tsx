@@ -21,7 +21,7 @@ import { ContentCell, FlagMessage, HelperHintIcon, Table, TableRow } from 'desig
 import { groupBy, pick, sortBy } from 'lodash';
 import * as React from 'react';
 import { useIntl } from 'react-intl';
-import HelpTooltip from '../../../sonar-aligned/components/controls/HelpTooltip';
+import HelpTooltip from '~sonar-aligned/components/controls/HelpTooltip';
 import { Language } from '../../../types/languages';
 import { Dict } from '../../../types/types';
 import { Profile } from '../types';

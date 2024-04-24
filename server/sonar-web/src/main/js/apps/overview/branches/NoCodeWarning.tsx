@@ -19,9 +19,9 @@
  */
 import { FlagMessage } from 'design-system';
 import * as React from 'react';
+import { isMainBranch } from '~sonar-aligned/helpers/branch-like';
 import { getBranchLikeDisplayName } from '../../../helpers/branch-like';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
-import { isMainBranch } from '../../../sonar-aligned/helpers/branch-like';
 import { BranchLike } from '../../../types/branch-like';
 import { ComponentQualifier } from '../../../types/component';
 import { MetricKey } from '../../../types/metrics';

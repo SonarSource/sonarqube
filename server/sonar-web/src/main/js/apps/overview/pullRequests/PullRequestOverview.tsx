@@ -20,12 +20,12 @@
 import { BasicSeparator, CenteredLayout, PageContentFontWrapper, Spinner } from 'design-system';
 import { uniq } from 'lodash';
 import * as React from 'react';
+import { getBranchLikeQuery } from '~sonar-aligned/helpers/branch-like';
 import { enhanceConditionWithMeasure, enhanceMeasuresWithMetrics } from '../../../helpers/measures';
 import { isDefined } from '../../../helpers/types';
 import { useBranchStatusQuery } from '../../../queries/branch';
 import { useComponentMeasuresWithMetricsQuery } from '../../../queries/component';
 import { useComponentQualityGateQuery } from '../../../queries/quality-gates';
-import { getBranchLikeQuery } from '../../../sonar-aligned/helpers/branch-like';
 import { PullRequest } from '../../../types/branch-like';
 import { Component } from '../../../types/types';
 import { AnalysisStatus } from '../components/AnalysisStatus';

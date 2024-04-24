@@ -21,6 +21,7 @@
 import { FlagMessage, LargeCenteredLayout, PageContentFontWrapper, Spinner } from 'design-system';
 import * as React from 'react';
 import { Navigate } from 'react-router-dom';
+import { isBranch, isMainBranch } from '~sonar-aligned/helpers/branch-like';
 import { getScannableProjects } from '../../../api/components';
 import withCurrentUserContext from '../../../app/components/current-user/withCurrentUserContext';
 import { getBranchLikeDisplayName } from '../../../helpers/branch-like';
@@ -28,7 +29,6 @@ import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { getProjectTutorialLocation } from '../../../helpers/urls';
 import { hasGlobalPermission } from '../../../helpers/users';
 import { useTaskForComponentQuery } from '../../../queries/component';
-import { isBranch, isMainBranch } from '../../../sonar-aligned/helpers/branch-like';
 import { BranchLike } from '../../../types/branch-like';
 import { ComponentQualifier } from '../../../types/component';
 import { Permissions } from '../../../types/permissions';

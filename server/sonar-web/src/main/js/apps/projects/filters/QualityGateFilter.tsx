@@ -20,9 +20,9 @@
 import { FacetBox, FacetItem, HelperHintIcon, QualityGateIndicator } from 'design-system';
 import { without } from 'lodash';
 import * as React from 'react';
+import HelpTooltip from '~sonar-aligned/components/controls/HelpTooltip';
 import { translate } from '../../../helpers/l10n';
 import { isDefined } from '../../../helpers/types';
-import HelpTooltip from '../../../sonar-aligned/components/controls/HelpTooltip';
 import { RawQuery, Status } from '../../../types/types';
 import { FacetItemsList } from '../../issues/sidebar/FacetItemsList';
 import { formatFacetStat } from '../../issues/utils';

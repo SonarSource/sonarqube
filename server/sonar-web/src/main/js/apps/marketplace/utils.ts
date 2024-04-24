@@ -18,10 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { findLastIndex, memoize } from 'lodash';
+import { throwGlobalError } from '~sonar-aligned/helpers/error';
 import { getInstalledPlugins, getUpdatesPlugins } from '../../api/plugins';
 import { cleanQuery, parseAsString, serializeString } from '../../helpers/query';
 import { isDefined } from '../../helpers/types';
-import { throwGlobalError } from '../../sonar-aligned/helpers/error';
 import { InstalledPlugin, Plugin, Update } from '../../types/plugins';
 import { RawQuery } from '../../types/types';
 

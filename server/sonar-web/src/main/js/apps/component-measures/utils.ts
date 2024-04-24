@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { groupBy, memoize, sortBy, toPairs } from 'lodash';
+import { isBranch } from '~sonar-aligned/helpers/branch-like';
 import { enhanceMeasure } from '../../components/measure/utils';
 import { isPullRequest } from '../../helpers/branch-like';
 import {
@@ -42,7 +43,6 @@ import {
   parseAsString,
   serializeString,
 } from '../../helpers/query';
-import { isBranch } from '../../sonar-aligned/helpers/branch-like';
 import { BranchLike } from '../../types/branch-like';
 import { ComponentQualifier } from '../../types/component';
 import { Domain, MeasurePageView } from '../../types/measures';

@@ -19,9 +19,9 @@
  */
 import { ButtonPrimary, HelperHintIcon, Title } from 'design-system';
 import * as React from 'react';
+import DocHelpTooltip from '~sonar-aligned/components/controls/DocHelpTooltip';
 import ModalButton, { ModalProps } from '../../../components/controls/ModalButton';
 import { translate } from '../../../helpers/l10n';
-import DocHelpTooltip from '../../../sonar-aligned/components/controls/DocHelpTooltip';
 import CreateQualityGateForm from './CreateQualityGateForm';
 
 interface Props {

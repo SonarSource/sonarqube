@@ -25,10 +25,10 @@ import {
   Spinner,
 } from 'design-system';
 import * as React from 'react';
+import HelpTooltip from '~sonar-aligned/components/controls/HelpTooltip';
 import { getWorkers } from '../../../api/ce';
 import Tooltip from '../../../components/controls/Tooltip';
 import { translate } from '../../../helpers/l10n';
-import HelpTooltip from '../../../sonar-aligned/components/controls/HelpTooltip';
 import NoWorkersSupportPopup from './NoWorkersSupportPopup';
 import WorkersForm from './WorkersForm';
 

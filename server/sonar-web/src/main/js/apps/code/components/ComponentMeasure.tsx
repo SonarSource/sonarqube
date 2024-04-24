@@ -26,6 +26,7 @@ import {
   RatingEnum,
 } from 'design-system';
 import * as React from 'react';
+import { formatMeasure } from '~sonar-aligned/helpers/measures';
 import Measure from '../../../components/measure/Measure';
 import { getLeakValue } from '../../../components/measure/utils';
 import {
@@ -37,7 +38,6 @@ import {
   areCCTMeasuresComputed as areCCTMeasuresComputedFn,
   isDiffMetric,
 } from '../../../helpers/measures';
-import { formatMeasure } from '../../../sonar-aligned/helpers/measures';
 import { isApplication, isProject } from '../../../types/component';
 import { MetricKey, MetricType } from '../../../types/metrics';
 import { Metric, Status, ComponentMeasure as TypeComponentMeasure } from '../../../types/types';
