@@ -23,11 +23,11 @@ import { uniqueId } from 'lodash';
 import * as React from 'react';
 import tw from 'twin.macro';
 import { themeColor } from '../helpers';
+import { BareButton } from '../sonar-aligned/components/buttons';
 import { Badge } from './Badge';
 import { DestructiveIcon } from './InteractiveIcon';
 import { Spinner } from './Spinner';
 import { Tooltip as SCTooltip } from './Tooltip';
-import { BareButton } from './buttons';
 import { OpenCloseIndicator } from './icons';
 import { CloseIcon } from './icons/CloseIcon';
 

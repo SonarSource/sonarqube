@@ -29,7 +29,8 @@ import ReactJoyride, {
 import tw from 'twin.macro';
 import { GLOBAL_POPUP_Z_INDEX, PopupZLevel, themeColor } from '../helpers';
 import { findAnchor } from '../helpers/dom';
-import { ButtonLink, ButtonPrimary, WrapperButton } from './buttons';
+import { ButtonPrimary } from '../sonar-aligned/components/buttons';
+import { ButtonLink, WrapperButton } from './buttons';
 import { CloseIcon } from './icons';
 import { PopupWrapper } from './popups';
 

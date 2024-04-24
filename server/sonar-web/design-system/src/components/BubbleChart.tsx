@@ -29,10 +29,10 @@ import * as React from 'react';
 import { AutoSizer } from 'react-virtualized/dist/commonjs/AutoSizer';
 import tw from 'twin.macro';
 import { themeColor, themeContrast } from '../helpers';
+import { ButtonSecondary } from '../sonar-aligned/components/buttons';
 import { BubbleColorVal } from '../types/charts';
 import { Note } from './Text';
 import { Tooltip } from './Tooltip';
-import { ButtonSecondary } from './buttons';
 
 const TICKS_COUNT = 5;
 

@@ -19,8 +19,8 @@
  */
 import styled from '@emotion/styled';
 import React from 'react';
-import { OPACITY_20_PERCENT } from '../../helpers/constants';
-import { themeBorder, themeColor, themeContrast } from '../../helpers/theme';
+import { OPACITY_20_PERCENT } from '../../../helpers/constants';
+import { themeBorder, themeColor, themeContrast } from '../../../helpers/theme';
 import { Button, ButtonProps } from './Button';
 
 interface ThirdPartyProps extends Omit<ButtonProps, 'Icon'> {

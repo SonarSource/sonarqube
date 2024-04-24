@@ -20,9 +20,10 @@
 import styled from '@emotion/styled';
 import classNames from 'classnames';
 import { themeBorder } from '../../helpers';
+import { ButtonProps } from '../../sonar-aligned/components/buttons';
 import { Badge } from '../Badge';
 import { LightLabel } from '../Text';
-import { ButtonProps, WrapperButton } from '../buttons';
+import { WrapperButton } from '../buttons';
 import { ChevronDownIcon } from '../icons';
 
 interface Props extends Pick<ButtonProps, 'onClick'> {

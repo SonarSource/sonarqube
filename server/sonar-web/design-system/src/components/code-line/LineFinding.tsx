@@ -21,7 +21,7 @@ import styled from '@emotion/styled';
 import { forwardRef, Ref } from 'react';
 import tw from 'twin.macro';
 import { themeBorder, themeColor, themeContrast, themeShadow } from '../../helpers/theme';
-import { BareButton } from '../buttons';
+import { BareButton } from '../../sonar-aligned/components/buttons';
 
 interface Props {
   className?: string;

@@ -19,8 +19,8 @@
  */
 import { screen } from '@testing-library/react';
 import { renderWithRouter } from '../../helpers/testUtils';
+import { ButtonSecondary } from '../../sonar-aligned/components/buttons';
 import { ActionsDropdown, Dropdown } from '../Dropdown';
-import { ButtonSecondary } from '../buttons';
 
 describe('Dropdown', () => {
   it('renders', async () => {

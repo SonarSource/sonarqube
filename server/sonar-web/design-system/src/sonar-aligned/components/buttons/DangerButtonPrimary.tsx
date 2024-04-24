@@ -17,7 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import styled from '@emotion/styled';
+import { OPACITY_20_PERCENT, themeBorder, themeColor, themeContrast } from '../../../helpers';
+import { Button, ButtonProps } from './Button';
 
-export * from './Card';
-export * from './MetricsRatingBadge';
-export * from './buttons';
+export const DangerButtonPrimary: React.FC<React.PropsWithChildren<ButtonProps>> = styled(Button)`
+  --background: ${themeColor('dangerButton')};
+  --backgroundHover: ${themeColor('dangerButtonHover')};
+  --color: ${themeContrast('dangerButton')};
+  --focus: ${themeColor('dangerButtonFocus', OPACITY_20_PERCENT)};
+  --border: ${themeBorder('default', 'transparent')};
+`;

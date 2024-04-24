@@ -22,8 +22,8 @@ import { PropsWithChildren } from 'react';
 import tw from 'twin.macro';
 import { OPACITY_20_PERCENT, themeBorder, themeColor } from '../helpers';
 import { getTabId, getTabPanelId } from '../helpers/tabs';
+import { BareButton } from '../sonar-aligned/components/buttons';
 import { Badge } from './Badge';
-import { BareButton } from './buttons';
 
 type TabValueType = string | number | boolean;
 

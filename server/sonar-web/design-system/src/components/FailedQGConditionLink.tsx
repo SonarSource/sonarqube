@@ -20,7 +20,7 @@
 import styled from '@emotion/styled';
 import tw from 'twin.macro';
 import { themeColor } from '../helpers/theme';
-import { ButtonProps, DangerButtonSecondary } from './buttons';
+import { ButtonProps, DangerButtonSecondary } from '../sonar-aligned/components/buttons';
 import { ChevronRightIcon } from './icons/ChevronRightIcon';
 
 const StyledFailedQGConditionLink = styled(DangerButtonSecondary)`

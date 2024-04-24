@@ -24,8 +24,8 @@ import { uniqueId } from 'lodash';
 import React from 'react';
 import tw from 'twin.macro';
 import { themeBorder, themeColor, themeContrast } from '../helpers';
+import { BareButton } from '../sonar-aligned/components/buttons';
 import { ThemedProps } from '../types';
-import { BareButton } from './buttons';
 import { OpenCloseIndicator } from './icons/OpenCloseIndicator';
 
 interface AccordionProps {

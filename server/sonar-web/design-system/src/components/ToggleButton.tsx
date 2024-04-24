@@ -21,8 +21,8 @@ import styled from '@emotion/styled';
 import tw from 'twin.macro';
 import { getTabId, getTabPanelId } from '../helpers/tabs';
 import { themeBorder, themeColor, themeContrast } from '../helpers/theme';
+import { ButtonSecondary } from '../sonar-aligned/components/buttons';
 import { Badge } from './Badge';
-import { ButtonSecondary } from './buttons';
 
 type ToggleButtonValueType = string | number | boolean;
 

@@ -18,8 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import styled from '@emotion/styled';
-import { buttonStyle } from './Button';
-import { PrimaryStyle } from './ButtonPrimary';
+import { buttonStyle, PrimaryStyle } from '../../sonar-aligned/components/buttons';
 
 export const DownloadButton = styled.a`
   ${buttonStyle}

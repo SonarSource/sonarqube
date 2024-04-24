@@ -30,6 +30,7 @@ module.exports = {
     'src/components/**/*.{ts,tsx,js}',
     'src/helpers/**/*.{ts,tsx,js}',
     'src/hooks/**/*.{ts,tsx,js}',
+    'src/sonar-aligned/**/*.{ts,tsx,js}',
     '!src/helpers/{keycodes,testUtils}.{ts,tsx}',
   ],
   coverageReporters: ['lcovonly', 'text'],

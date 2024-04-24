@@ -18,13 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import styled from '@emotion/styled';
-import { OPACITY_20_PERCENT, themeBorder, themeColor, themeContrast } from '../../helpers';
+import { OPACITY_20_PERCENT, themeBorder, themeColor, themeContrast } from '../../../helpers';
 import { Button, ButtonProps } from './Button';
 
-export const ButtonSecondary: React.FC<React.PropsWithChildren<ButtonProps>> = styled(Button)`
-  --background: ${themeColor('buttonSecondary')};
-  --backgroundHover: ${themeColor('buttonSecondaryHover')};
-  --color: ${themeContrast('buttonSecondary')};
-  --focus: ${themeColor('buttonSecondaryBorder', OPACITY_20_PERCENT)};
-  --border: ${themeBorder('default', 'buttonSecondaryBorder')};
+export const DangerButtonSecondary: React.FC<React.PropsWithChildren<ButtonProps>> = styled(Button)`
+  --background: ${themeColor('dangerButtonSecondary')};
+  --backgroundHover: ${themeColor('dangerButtonSecondaryHover')};
+  --color: ${themeContrast('dangerButtonSecondary')};
+  --focus: ${themeColor('dangerButtonSecondaryFocus', OPACITY_20_PERCENT)};
+  --border: ${themeBorder('default', 'dangerButtonSecondaryBorder')};
 `;

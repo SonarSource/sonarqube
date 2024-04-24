@@ -17,20 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { css } from '@emotion/react';
 import styled from '@emotion/styled';
-import { OPACITY_20_PERCENT, themeBorder, themeColor, themeContrast } from '../../helpers';
-import { ThemedProps } from '../../types';
-import { Button, ButtonProps } from './Button';
+import { themeColor } from '../../../helpers';
 
-export const PrimaryStyle = (props: ThemedProps) => css`
-  --background: ${themeColor('button')(props)};
-  --backgroundHover: ${themeColor('buttonHover')(props)};
-  --color: ${themeContrast('primary')(props)};
-  --focus: ${themeColor('button', OPACITY_20_PERCENT)(props)};
-  --border: ${themeBorder('default', 'transparent')(props)};
-`;
+export const BareButton = styled.button`
+  all: unset;
+  cursor: pointer;
 
-export const ButtonPrimary: React.FC<React.PropsWithChildren<ButtonProps>> = styled(Button)`
-  ${PrimaryStyle}
+  &:focus-visible {
+    background-color: ${themeColor('dropdownMenuHover')};
+  }
 `;

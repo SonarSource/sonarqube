@@ -23,7 +23,7 @@ import * as React from 'react';
 import tw from 'twin.macro';
 import { themeBorder, themeColor, themeContrast } from '../helpers';
 import { isDefined } from '../helpers/types';
-import { ButtonProps, ButtonSecondary } from './buttons';
+import { ButtonProps, ButtonSecondary } from '../sonar-aligned/components/buttons';
 
 export type FacetItemProps = Omit<ButtonProps, 'name' | 'onClick'> & {
   active?: boolean;

@@ -20,15 +20,7 @@
 import styled from '@emotion/styled';
 import tw from 'twin.macro';
 import { themeBorder, themeColor, themeContrast } from '../../helpers';
-
-export const BareButton = styled.button`
-  all: unset;
-  cursor: pointer;
-
-  &:focus-visible {
-    background-color: ${themeColor('dropdownMenuHover')};
-  }
-`;
+import { BareButton } from '../../sonar-aligned/components/buttons';
 
 interface CodeViewerExpanderProps {
   direction: 'UP' | 'DOWN';

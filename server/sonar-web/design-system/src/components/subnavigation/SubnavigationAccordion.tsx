@@ -21,7 +21,7 @@ import styled from '@emotion/styled';
 import { ReactNode, useCallback, useState } from 'react';
 import tw from 'twin.macro';
 import { themeColor, themeContrast } from '../../helpers/theme';
-import { BareButton } from '../buttons';
+import { BareButton } from '../../sonar-aligned/components/buttons';
 import { OpenCloseIndicator } from '../icons/OpenCloseIndicator';
 import { SubnavigationGroup } from './SubnavigationGroup';
 

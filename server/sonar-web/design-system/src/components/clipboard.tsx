@@ -21,9 +21,9 @@ import classNames from 'classnames';
 import Clipboard from 'clipboard';
 import React from 'react';
 import { INTERACTIVE_TOOLTIP_DELAY } from '../helpers/constants';
+import { ButtonSecondary } from '../sonar-aligned/components/buttons';
 import { DiscreetInteractiveIcon, InteractiveIcon, InteractiveIconSize } from './InteractiveIcon';
 import { Tooltip } from './Tooltip';
-import { ButtonSecondary } from './buttons';
 import { CopyIcon } from './icons/CopyIcon';
 import { IconProps } from './icons/Icon';
 

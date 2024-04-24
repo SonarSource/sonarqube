@@ -21,9 +21,9 @@ import { css } from '@emotion/react';
 import styled from '@emotion/styled';
 import React from 'react';
 import tw from 'twin.macro';
-import { themeBorder, themeColor, themeContrast } from '../../helpers/theme';
-import { ThemedProps } from '../../types/theme';
-import { BaseLink, LinkProps } from '../Link';
+import { BaseLink, LinkProps } from '../../../components/Link';
+import { themeBorder, themeColor, themeContrast } from '../../../helpers/theme';
+import { ThemedProps } from '../../../types/theme';
 
 type AllowedButtonAttributes = Pick<
   React.ButtonHTMLAttributes<HTMLButtonElement>,
@@ -38,10 +38,11 @@ export interface ButtonProps extends AllowedButtonAttributes {
   icon?: React.ReactNode;
   innerRef?: React.Ref<HTMLButtonElement>;
   isExternal?: LinkProps['isExternal'];
-  onClick?: (event: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>) => unknown;
 
+  onClick?: (event: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>) => unknown;
   preventDefault?: boolean;
   reloadDocument?: LinkProps['reloadDocument'];
+  showExternalIcon?: boolean;
   stopPropagation?: boolean;
   target?: LinkProps['target'];
   to?: LinkProps['to'];

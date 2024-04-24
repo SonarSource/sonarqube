@@ -20,7 +20,7 @@
 import classNames from 'classnames';
 import { uniqueId } from 'lodash';
 import * as React from 'react';
-import { BareButton } from './buttons';
+import { BareButton } from '../sonar-aligned/components/buttons';
 import { OpenCloseIndicator } from './icons/OpenCloseIndicator';
 
 interface AccordionProps {

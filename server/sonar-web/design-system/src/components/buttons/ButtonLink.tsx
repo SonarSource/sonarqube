@@ -20,7 +20,7 @@
 import styled from '@emotion/styled';
 import tw from 'twin.macro';
 import { themeBorder, themeColor } from '../../helpers';
-import { BareButton } from './BareButtons';
+import { BareButton } from '../../sonar-aligned/components/buttons';
 
 export const ButtonLink = styled(BareButton)`
   color: ${themeColor('linkDefault')};

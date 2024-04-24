@@ -23,8 +23,8 @@ import { uniqueId } from 'lodash';
 import React, { ReactNode } from 'react';
 import tw from 'twin.macro';
 import { themeColor } from '../helpers';
+import { BareButton } from '../sonar-aligned/components/buttons';
 import { Note } from './Text';
-import { BareButton } from './buttons';
 import { OpenCloseIndicator } from './icons';
 
 interface Props {

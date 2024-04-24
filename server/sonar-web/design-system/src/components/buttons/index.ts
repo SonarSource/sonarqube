@@ -18,12 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 export * from './BareButtons';
-export * from './Button';
 export * from './ButtonLink';
-export * from './ButtonPrimary';
-export * from './ButtonSecondary';
-export * from './DangerButtonPrimary';
-export * from './DangerButtonSecondary';
 export * from './DownloadButton';
-export * from './ThirdPartyButton';
 export * from './WrapperButton';

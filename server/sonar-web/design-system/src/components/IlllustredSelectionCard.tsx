@@ -22,7 +22,7 @@ import classNames from 'classnames';
 import { ReactNode } from 'react';
 import tw from 'twin.macro';
 import { themeBorder, themeColor } from '../helpers/theme';
-import { BareButton } from './buttons';
+import { BareButton } from '../sonar-aligned/components/buttons';
 
 interface Props {
   className?: string;
