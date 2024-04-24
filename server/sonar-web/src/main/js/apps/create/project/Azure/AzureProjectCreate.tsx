@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { LabelValueSelectOption } from 'design-system/lib';
+import { LabelValueSelectOption } from 'design-system';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { GroupBase } from 'react-select';
 import {
@@ -37,14 +37,13 @@ import AzurePersonalAccessTokenForm from './AzurePersonalAccessTokenForm';
 import AzureCreateProjectRenderer from './AzureProjectCreateRenderer';
 
 interface Props {
-  canAdmin: boolean;
   dopSettings: DopSetting[];
   isLoadingBindings: boolean;
   onProjectSetupDone: (importProjects: ImportProjectParam) => void;
 }
 
 export default function AzureProjectCreate(props: Readonly<Props>) {
-  const { canAdmin, dopSettings, isLoadingBindings, onProjectSetupDone } = props;
+  const { dopSettings, isLoadingBindings, onProjectSetupDone } = props;
   const [isLoading, setIsLoading] = useState(false);
   const [loadingRepositories, setLoadingRepositories] = useState<Dict<boolean>>({});
   const [isSearching, setIsSearching] = useState(false);
@@ -297,7 +296,6 @@ export default function AzureProjectCreate(props: Readonly<Props>) {
 
   return isMonorepoSetup ? (
     <MonorepoProjectCreate
-      canAdmin={canAdmin}
       dopSettings={dopSettings}
       error={false}
       loadingBindings={isLoadingBindings}
@@ -326,7 +324,6 @@ export default function AzureProjectCreate(props: Readonly<Props>) {
   ) : (
     <AzureCreateProjectRenderer
       almInstances={almInstances}
-      canAdmin={canAdmin}
       loading={isLoading || isLoadingBindings}
       loadingRepositories={loadingRepositories}
       onImportRepository={handleImportRepository}

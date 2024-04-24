@@ -17,242 +17,215 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
+import { LabelValueSelectOption } from 'design-system';
+import React, { useCallback, useMemo, useState } from 'react';
 import { searchForBitbucketCloudRepositories } from '../../../../api/alm-integrations';
-import { Location, Router } from '../../../../components/hoc/withRouter';
+import { useLocation } from '../../../../components/hoc/withRouter';
 import { BitbucketCloudRepository } from '../../../../types/alm-integration';
-import { AlmSettingsInstance } from '../../../../types/alm-settings';
-import { Paging } from '../../../../types/types';
+import { AlmKeys } from '../../../../types/alm-settings';
+import { DopSetting } from '../../../../types/dop-translation';
 import { ImportProjectParam } from '../CreateProjectPage';
-import { BITBUCKET_CLOUD_PROJECTS_PAGESIZE } from '../constants';
+import { REPOSITORY_PAGE_SIZE } from '../constants';
+import MonorepoProjectCreate from '../monorepo/MonorepoProjectCreate';
 import { CreateProjectModes } from '../types';
+import { useProjectCreate } from '../useProjectCreate';
+import { useProjectRepositorySearch } from '../useProjectRepositorySearch';
+import BitbucketCloudPersonalAccessTokenForm from './BitbucketCloudPersonalAccessTokenForm';
 import BitbucketCloudProjectCreateRenderer from './BitbucketCloudProjectCreateRender';
 
 interface Props {
-  canAdmin: boolean;
-  almInstances: AlmSettingsInstance[];
-  loadingBindings: boolean;
-  location: Location;
-  router: Router;
+  dopSettings: DopSetting[];
+  isLoadingBindings: boolean;
   onProjectSetupDone: (importProjects: ImportProjectParam) => void;
 }
 
-interface State {
-  isLastPage?: boolean;
-  loading: boolean;
-  loadingMore: boolean;
-  projectsPaging: Omit<Paging, 'total'>;
-  resetPat: boolean;
-  repositories: BitbucketCloudRepository[];
-  searching: boolean;
-  searchQuery: string;
-  selectedAlmInstance: AlmSettingsInstance;
-  showPersonalAccessTokenForm: boolean;
+export default function BitbucketCloudProjectCreate(props: Readonly<Props>) {
+  const { dopSettings, isLoadingBindings, onProjectSetupDone } = props;
+
+  const [isLastPage, setIsLastPage] = useState<boolean>(true);
+  const [projectsPaging, setProjectsPaging] = useState<{ pageIndex: number; pageSize: number }>({
+    pageIndex: 1,
+    pageSize: REPOSITORY_PAGE_SIZE,
+  });
+
+  const {
+    handlePersonalAccessTokenCreated,
+    handleSelectRepository,
+    isInitialized,
+    isLoadingRepositories,
+    isLoadingMoreRepositories,
+    isMonorepoSetup,
+    onSelectedAlmInstanceChange,
+    onSelectDopSetting,
+    repositories,
+    resetLoading,
+    resetPersonalAccessToken,
+    searchQuery,
+    selectedDopSetting,
+    selectedRepository,
+    setIsInitialized,
+    setRepositories,
+    setResetPersonalAccessToken,
+    setSearchQuery,
+    setShowPersonalAccessTokenForm,
+    showPersonalAccessTokenForm,
+  } = useProjectCreate<BitbucketCloudRepository, undefined>(
+    AlmKeys.BitbucketCloud,
+    dopSettings,
+    ({ slug }) => slug,
+    REPOSITORY_PAGE_SIZE,
+  );
+
+  const location = useLocation();
+  const repositoryOptions = useMemo(() => repositories?.map(transformToOption), [repositories]);
+
+  const fetchRepositories = useCallback(
+    (_orgKey?: string, query = '', pageIndex = 1, more = false) => {
+      if (!selectedDopSetting || showPersonalAccessTokenForm) {
+        return Promise.resolve();
+      }
+
+      resetLoading(true, more);
+
+      // eslint-disable-next-line local-rules/no-api-imports
+      return searchForBitbucketCloudRepositories(
+        selectedDopSetting.key,
+        query,
+        REPOSITORY_PAGE_SIZE,
+        pageIndex,
+      )
+        .then((result) => {
+          resetLoading(false, more);
+
+          if (result) {
+            setIsLastPage(result.isLastPage);
+            setIsInitialized(true);
+          }
+
+          if (result?.repositories) {
+            setRepositories(
+              more && repositories && repositories.length > 0
+                ? [...repositories, ...result.repositories]
+                : result.repositories,
+            );
+          }
+        })
+        .catch(() => {
+          resetLoading(false, more);
+          setResetPersonalAccessToken(true);
+          setShowPersonalAccessTokenForm(true);
+        });
+    },
+    [
+      repositories,
+      resetLoading,
+      selectedDopSetting,
+      showPersonalAccessTokenForm,
+      setIsInitialized,
+      setIsLastPage,
+      setRepositories,
+      setResetPersonalAccessToken,
+      setShowPersonalAccessTokenForm,
+    ],
+  );
+
+  const handleLoadMore = useCallback(() => {
+    const page = projectsPaging.pageIndex + 1;
+    setProjectsPaging((paging) => ({
+      pageIndex: page,
+      pageSize: paging.pageSize,
+    }));
+
+    fetchRepositories(undefined, searchQuery, page, true);
+  }, [fetchRepositories, projectsPaging, searchQuery, setProjectsPaging]);
+
+  const handleImportRepository = useCallback(
+    (repositorySlug: string) => {
+      if (selectedDopSetting) {
+        onProjectSetupDone({
+          creationMode: CreateProjectModes.BitbucketCloud,
+          almSetting: selectedDopSetting.key,
+          monorepo: false,
+          projects: [{ repositorySlug }],
+        });
+      }
+    },
+    [onProjectSetupDone, selectedDopSetting],
+  );
+
+  const { isSearching, onSearch } = useProjectRepositorySearch(
+    AlmKeys.BitbucketCloud,
+    fetchRepositories,
+    isInitialized,
+    selectedDopSetting,
+    undefined,
+    setSearchQuery,
+    showPersonalAccessTokenForm,
+  );
+
+  return isMonorepoSetup ? (
+    <MonorepoProjectCreate
+      dopSettings={dopSettings}
+      error={false}
+      loadingBindings={isLoadingBindings}
+      loadingOrganizations={false}
+      loadingRepositories={isLoadingRepositories}
+      onProjectSetupDone={onProjectSetupDone}
+      onSearchRepositories={onSearch}
+      onSelectDopSetting={onSelectDopSetting}
+      onSelectRepository={handleSelectRepository}
+      personalAccessTokenComponent={
+        !isLoadingRepositories &&
+        selectedDopSetting && (
+          <BitbucketCloudPersonalAccessTokenForm
+            almSetting={selectedDopSetting}
+            resetPat={resetPersonalAccessToken}
+            onPersonalAccessTokenCreated={handlePersonalAccessTokenCreated}
+          />
+        )
+      }
+      repositoryOptions={repositoryOptions}
+      repositorySearchQuery={searchQuery}
+      selectedDopSetting={selectedDopSetting}
+      selectedRepository={selectedRepository ? transformToOption(selectedRepository) : undefined}
+      showPersonalAccessToken={showPersonalAccessTokenForm || Boolean(location.query.resetPat)}
+    />
+  ) : (
+    <BitbucketCloudProjectCreateRenderer
+      isLastPage={isLastPage}
+      selectedAlmInstance={
+        selectedDopSetting
+          ? {
+              alm: selectedDopSetting.type,
+              key: selectedDopSetting.key,
+              url: selectedDopSetting.url,
+            }
+          : undefined
+      }
+      almInstances={dopSettings?.map((instance) => ({
+        alm: instance.type,
+        key: instance.key,
+        url: instance.url,
+      }))}
+      loadingMore={isLoadingMoreRepositories}
+      loading={isLoadingRepositories || isLoadingBindings}
+      onImport={handleImportRepository}
+      onLoadMore={handleLoadMore}
+      onPersonalAccessTokenCreated={handlePersonalAccessTokenCreated}
+      onSearch={onSearch}
+      onSelectedAlmInstanceChange={onSelectedAlmInstanceChange}
+      repositories={repositories}
+      searching={isSearching}
+      searchQuery={searchQuery}
+      resetPat={resetPersonalAccessToken || Boolean(location.query.resetPat)}
+      showPersonalAccessTokenForm={showPersonalAccessTokenForm || Boolean(location.query.resetPat)}
+    />
+  );
 }
 
-export default class BitbucketCloudProjectCreate extends React.PureComponent<Props, State> {
-  mounted = false;
-
-  constructor(props: Props) {
-    super(props);
-    this.state = {
-      // For now, we only handle a single instance. So we always use the first
-      // one from the list.
-      loading: false,
-      loadingMore: false,
-      resetPat: false,
-      projectsPaging: { pageIndex: 1, pageSize: BITBUCKET_CLOUD_PROJECTS_PAGESIZE },
-      repositories: [],
-      searching: false,
-      searchQuery: '',
-      selectedAlmInstance: props.almInstances[0],
-      showPersonalAccessTokenForm: true,
-    };
-  }
-
-  componentDidMount() {
-    this.mounted = true;
-  }
-
-  componentDidUpdate(prevProps: Props) {
-    if (prevProps.almInstances.length === 0 && this.props.almInstances.length > 0) {
-      this.setState({ selectedAlmInstance: this.props.almInstances[0] }, () => {
-        this.fetchData().catch(() => {
-          /* noop */
-        });
-      });
-    }
-  }
-
-  handlePersonalAccessTokenCreated = () => {
-    this.cleanUrl();
-
-    this.setState({ loading: true, showPersonalAccessTokenForm: false }, () => {
-      this.fetchData()
-        .then(() => this.setState({ loading: false }))
-        .catch(() => {
-          /* noop */
-        });
-    });
-  };
-
-  cleanUrl = () => {
-    const { location, router } = this.props;
-    delete location.query.resetPat;
-    router.replace(location);
-  };
-
-  async fetchData(more = false) {
-    const {
-      selectedAlmInstance,
-      searchQuery,
-      projectsPaging: { pageIndex, pageSize },
-      showPersonalAccessTokenForm,
-    } = this.state;
-    if (selectedAlmInstance && !showPersonalAccessTokenForm) {
-      const { isLastPage, repositories } = await searchForBitbucketCloudRepositories(
-        selectedAlmInstance.key,
-        searchQuery,
-        pageSize,
-        pageIndex,
-      ).catch(() => {
-        this.handleError();
-        return { isLastPage: undefined, repositories: undefined };
-      });
-      if (this.mounted && isLastPage !== undefined && repositories !== undefined) {
-        if (more) {
-          this.setState((state) => ({
-            isLastPage,
-            repositories: [...state.repositories, ...repositories],
-          }));
-        } else {
-          this.setState({ isLastPage, repositories });
-        }
-      }
-    }
-  }
-
-  handleError = () => {
-    if (this.mounted) {
-      this.setState({
-        projectsPaging: { pageIndex: 1, pageSize: BITBUCKET_CLOUD_PROJECTS_PAGESIZE },
-        repositories: [],
-        resetPat: true,
-        showPersonalAccessTokenForm: true,
-      });
-    }
-
-    return undefined;
-  };
-
-  handleSearch = (searchQuery: string) => {
-    this.setState(
-      {
-        searching: true,
-        projectsPaging: { pageIndex: 1, pageSize: BITBUCKET_CLOUD_PROJECTS_PAGESIZE },
-        searchQuery,
-      },
-      () => {
-        this.fetchData().then(
-          () => {
-            if (this.mounted) {
-              this.setState({ searching: false });
-            }
-          },
-          () => {
-            /* noop */
-          },
-        );
-      },
-    );
-  };
-
-  handleLoadMore = () => {
-    this.setState(
-      (state) => ({
-        loadingMore: true,
-        projectsPaging: {
-          pageIndex: state.projectsPaging.pageIndex + 1,
-          pageSize: state.projectsPaging.pageSize,
-        },
-      }),
-      () => {
-        this.fetchData(true).then(
-          () => {
-            if (this.mounted) {
-              this.setState({ loadingMore: false });
-            }
-          },
-          () => {
-            /* noop */
-          },
-        );
-      },
-    );
-  };
-
-  handleImport = (repositorySlug: string) => {
-    const { selectedAlmInstance } = this.state;
-
-    if (selectedAlmInstance) {
-      this.props.onProjectSetupDone({
-        creationMode: CreateProjectModes.BitbucketCloud,
-        almSetting: selectedAlmInstance.key,
-        monorepo: false,
-        projects: [
-          {
-            repositorySlug,
-          },
-        ],
-      });
-    }
-  };
-
-  onSelectedAlmInstanceChange = (instance: AlmSettingsInstance) => {
-    this.setState({
-      selectedAlmInstance: instance,
-      showPersonalAccessTokenForm: true,
-      resetPat: false,
-      searching: false,
-      searchQuery: '',
-      projectsPaging: { pageIndex: 1, pageSize: BITBUCKET_CLOUD_PROJECTS_PAGESIZE },
-    });
-  };
-
-  render() {
-    const { canAdmin, loadingBindings, location, almInstances } = this.props;
-    const {
-      isLastPage = true,
-      selectedAlmInstance,
-      loading,
-      loadingMore,
-      repositories,
-      showPersonalAccessTokenForm,
-      resetPat,
-      searching,
-      searchQuery,
-    } = this.state;
-    return (
-      <BitbucketCloudProjectCreateRenderer
-        isLastPage={isLastPage}
-        selectedAlmInstance={selectedAlmInstance}
-        almInstances={almInstances}
-        canAdmin={canAdmin}
-        loadingMore={loadingMore}
-        loading={loading || loadingBindings}
-        onImport={this.handleImport}
-        onLoadMore={this.handleLoadMore}
-        onPersonalAccessTokenCreated={this.handlePersonalAccessTokenCreated}
-        onSearch={this.handleSearch}
-        onSelectedAlmInstanceChange={this.onSelectedAlmInstanceChange}
-        repositories={repositories}
-        searching={searching}
-        searchQuery={searchQuery}
-        resetPat={resetPat || Boolean(location.query.resetPat)}
-        showPersonalAccessTokenForm={
-          showPersonalAccessTokenForm || Boolean(location.query.resetPat)
-        }
-      />
-    );
-  }
+function transformToOption({
+  name,
+  slug,
+}: BitbucketCloudRepository): LabelValueSelectOption<string> {
+  return { value: slug, label: name };
 }

@@ -36,7 +36,6 @@ import { CreateProjectModes } from '../types';
 import BitbucketCreateProjectRenderer from './BitbucketProjectCreateRenderer';
 
 interface Props {
-  canAdmin: boolean;
   almInstances: AlmSettingsInstance[];
   loadingBindings: boolean;
   location: Location;
@@ -236,7 +235,7 @@ export default class BitbucketProjectCreate extends React.PureComponent<Props, S
   };
 
   render() {
-    const { canAdmin, loadingBindings, location, almInstances } = this.props;
+    const { loadingBindings, location, almInstances } = this.props;
     const {
       selectedAlmInstance,
       loading,
@@ -251,7 +250,6 @@ export default class BitbucketProjectCreate extends React.PureComponent<Props, S
       <BitbucketCreateProjectRenderer
         selectedAlmInstance={selectedAlmInstance}
         almInstances={almInstances}
-        canAdmin={canAdmin}
         loading={loading || loadingBindings}
         onImportRepository={this.handleImportRepository}
         onPersonalAccessTokenCreated={this.handlePersonalAccessTokenCreated}

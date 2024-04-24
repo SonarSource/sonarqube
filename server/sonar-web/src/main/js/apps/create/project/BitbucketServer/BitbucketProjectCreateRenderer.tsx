@@ -34,7 +34,6 @@ import BitbucketServerPersonalAccessTokenForm from './BitbucketServerPersonalAcc
 export interface BitbucketProjectCreateRendererProps {
   selectedAlmInstance?: AlmSettingsInstance;
   almInstances: AlmSettingsInstance[];
-  canAdmin?: boolean;
   loading: boolean;
   onImportRepository: (repository: BitbucketRepository) => void;
   onSearch: (query: string) => void;
@@ -52,7 +51,6 @@ export default function BitbucketProjectCreateRenderer(props: BitbucketProjectCr
   const {
     almInstances,
     selectedAlmInstance,
-    canAdmin,
     loading,
     projects,
     projectRepositories,
@@ -81,7 +79,7 @@ export default function BitbucketProjectCreateRenderer(props: BitbucketProjectCr
 
       <Spinner loading={loading}>
         {!loading && !selectedAlmInstance && (
-          <WrongBindingCountAlert alm={AlmKeys.BitbucketServer} canAdmin={!!canAdmin} />
+          <WrongBindingCountAlert alm={AlmKeys.BitbucketServer} />
         )}
 
         {!loading &&

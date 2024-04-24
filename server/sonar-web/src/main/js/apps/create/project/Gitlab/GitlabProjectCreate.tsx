@@ -18,68 +18,72 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { LabelValueSelectOption } from 'design-system';
-import { orderBy } from 'lodash';
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { getGitlabProjects } from '../../../../api/alm-integrations';
-import { useLocation, useRouter } from '../../../../components/hoc/withRouter';
+import { useLocation } from '../../../../components/hoc/withRouter';
 import { GitlabProject } from '../../../../types/alm-integration';
-import { AlmInstanceBase } from '../../../../types/alm-settings';
+import { AlmKeys } from '../../../../types/alm-settings';
 import { DopSetting } from '../../../../types/dop-translation';
-import { Paging } from '../../../../types/types';
 import { ImportProjectParam } from '../CreateProjectPage';
+import { REPOSITORY_PAGE_SIZE } from '../constants';
 import MonorepoProjectCreate from '../monorepo/MonorepoProjectCreate';
 import { CreateProjectModes } from '../types';
+import { useProjectCreate } from '../useProjectCreate';
+import { useProjectRepositorySearch } from '../useProjectRepositorySearch';
 import GitlabPersonalAccessTokenForm from './GItlabPersonalAccessTokenForm';
 import GitlabProjectCreateRenderer from './GitlabProjectCreateRenderer';
 
 interface Props {
-  canAdmin: boolean;
   isLoadingBindings: boolean;
   onProjectSetupDone: (importProjects: ImportProjectParam) => void;
   dopSettings: DopSetting[];
 }
 
-const REPOSITORY_PAGE_SIZE = 50;
-const REPOSITORY_SEARCH_DEBOUNCE_TIME = 250;
-
 export default function GitlabProjectCreate(props: Readonly<Props>) {
-  const { canAdmin, dopSettings, isLoadingBindings, onProjectSetupDone } = props;
+  const { dopSettings, isLoadingBindings, onProjectSetupDone } = props;
 
-  const repositorySearchDebounceId = useRef<NodeJS.Timeout | undefined>();
-
-  const [isLoadingRepositories, setIsLoadingRepositories] = useState(false);
-  const [repositories, setRepositories] = useState<GitlabProject[]>([]);
-  const [repositoryPaging, setRepositoryPaging] = useState<Paging>({
-    pageSize: REPOSITORY_PAGE_SIZE,
-    total: 0,
-    pageIndex: 1,
-  });
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedDopSetting, setSelectedDopSetting] = useState<DopSetting>();
-  const [selectedRepository, setSelectedRepository] = useState<GitlabProject>();
-  const [resetPersonalAccessToken, setResetPersonalAccessToken] = useState<boolean>(false);
-  const [showPersonalAccessTokenForm, setShowPersonalAccessTokenForm] = useState<boolean>(true);
+  const {
+    handlePersonalAccessTokenCreated,
+    handleSelectRepository,
+    isInitialized,
+    isLoadingRepositories,
+    isMonorepoSetup,
+    onSelectedAlmInstanceChange,
+    onSelectDopSetting,
+    projectsPaging,
+    repositories,
+    resetPersonalAccessToken,
+    searchQuery,
+    selectedDopSetting,
+    selectedRepository,
+    setIsInitialized,
+    setIsLoadingRepositories,
+    setProjectsPaging,
+    setRepositories,
+    setResetPersonalAccessToken,
+    setSearchQuery,
+    setShowPersonalAccessTokenForm,
+    showPersonalAccessTokenForm,
+  } = useProjectCreate<GitlabProject, undefined>(
+    AlmKeys.GitLab,
+    dopSettings,
+    ({ id }) => id,
+    REPOSITORY_PAGE_SIZE,
+  );
 
   const location = useLocation();
-  const router = useRouter();
 
-  const isMonorepoSetup = location.query?.mono === 'true';
-  const hasDopSettings = useMemo(() => {
-    if (dopSettings === undefined) {
-      return false;
-    }
-
-    return dopSettings.length > 0;
-  }, [dopSettings]);
   const repositoryOptions = useMemo(() => {
     return repositories.map(transformToOption);
   }, [repositories]);
 
-  const fetchProjects = useCallback(
-    (pageIndex = 1, query?: string) => {
-      if (!selectedDopSetting) {
-        return Promise.resolve(undefined);
+  const fetchRepositories = useCallback(
+    (_orgKey?: string, query = '', pageIndex = 1, more = false) => {
+      if (showPersonalAccessTokenForm || !selectedDopSetting) {
+        return Promise.resolve();
       }
+
+      setIsLoadingRepositories(true);
 
       // eslint-disable-next-line local-rules/no-api-imports
       return getGitlabProjects({
@@ -87,47 +91,39 @@ export default function GitlabProjectCreate(props: Readonly<Props>) {
         page: pageIndex,
         pageSize: REPOSITORY_PAGE_SIZE,
         query,
-      });
-    },
-    [selectedDopSetting],
-  );
-
-  const fetchInitialData = useCallback(() => {
-    if (!showPersonalAccessTokenForm) {
-      setIsLoadingRepositories(true);
-
-      fetchProjects()
+      })
         .then((result) => {
           if (result?.projects) {
-            setIsLoadingRepositories(false);
+            setProjectsPaging(result.projectsPaging);
             setRepositories(
-              isMonorepoSetup
-                ? orderBy(result.projects, [(res) => res.name.toLowerCase()], ['asc'])
+              more && repositories && repositories.length > 0
+                ? [...repositories, ...result.projects]
                 : result.projects,
             );
-            setRepositoryPaging(result.projectsPaging);
-          } else {
-            setIsLoadingRepositories(false);
+            setIsInitialized(true);
           }
+        })
+        .finally(() => {
+          setIsLoadingRepositories(false);
         })
         .catch(() => {
           setResetPersonalAccessToken(true);
           setShowPersonalAccessTokenForm(true);
+          setIsLoadingRepositories(false);
         });
-    }
-  }, [fetchProjects, isMonorepoSetup, showPersonalAccessTokenForm]);
-
-  const cleanUrl = useCallback(() => {
-    delete location.query.resetPat;
-    router.replace(location);
-  }, [location, router]);
-
-  const handlePersonalAccessTokenCreated = useCallback(() => {
-    cleanUrl();
-    setShowPersonalAccessTokenForm(false);
-    setResetPersonalAccessToken(false);
-    fetchInitialData();
-  }, [cleanUrl, fetchInitialData]);
+    },
+    [
+      repositories,
+      selectedDopSetting,
+      setIsInitialized,
+      setIsLoadingRepositories,
+      setProjectsPaging,
+      setRepositories,
+      setResetPersonalAccessToken,
+      setShowPersonalAccessTokenForm,
+      showPersonalAccessTokenForm,
+    ],
+  );
 
   const handleImportRepository = useCallback(
     (repoKeys: string[]) => {
@@ -143,76 +139,29 @@ export default function GitlabProjectCreate(props: Readonly<Props>) {
     [onProjectSetupDone, selectedDopSetting],
   );
 
-  const handleLoadMore = useCallback(async () => {
-    const result = await fetchProjects(repositoryPaging.pageIndex + 1, searchQuery);
-    if (result?.projects) {
-      setRepositoryPaging(result ? result.projectsPaging : repositoryPaging);
-      setRepositories(result ? [...repositories, ...result.projects] : repositories);
-    }
-  }, [fetchProjects, repositories, repositoryPaging, searchQuery]);
+  const handleLoadMore = useCallback(() => {
+    fetchRepositories(undefined, searchQuery, projectsPaging.pageIndex + 1, true);
+  }, [fetchRepositories, projectsPaging, searchQuery]);
 
-  const handleSelectRepository = useCallback(
-    (repositoryKey: string) => {
-      setSelectedRepository(repositories.find(({ id }) => id === repositoryKey));
-    },
-    [repositories],
+  const { onSearch } = useProjectRepositorySearch(
+    AlmKeys.GitLab,
+    fetchRepositories,
+    isInitialized,
+    selectedDopSetting,
+    undefined,
+    setSearchQuery,
+    showPersonalAccessTokenForm,
   );
-
-  const onSelectDopSetting = useCallback((setting: DopSetting | undefined) => {
-    setSelectedDopSetting(setting);
-    setShowPersonalAccessTokenForm(true);
-    setRepositories([]);
-    setSearchQuery('');
-  }, []);
-
-  const onSelectedAlmInstanceChange = useCallback(
-    (instance: AlmInstanceBase) => {
-      onSelectDopSetting(dopSettings.find((dopSetting) => dopSetting.key === instance.key));
-    },
-    [dopSettings, onSelectDopSetting],
-  );
-
-  useEffect(() => {
-    if (dopSettings.length > 0) {
-      setSelectedDopSetting(dopSettings[0]);
-      return;
-    }
-
-    setSelectedDopSetting(undefined);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hasDopSettings]);
-
-  useEffect(() => {
-    if (selectedDopSetting) {
-      fetchInitialData();
-    }
-  }, [fetchInitialData, selectedDopSetting]);
-
-  useEffect(() => {
-    repositorySearchDebounceId.current = setTimeout(async () => {
-      const result = await fetchProjects(1, searchQuery);
-      if (result?.projects) {
-        setRepositories(orderBy(result.projects, [(res) => res.name.toLowerCase()], ['asc']));
-        setRepositoryPaging(result.projectsPaging);
-      }
-    }, REPOSITORY_SEARCH_DEBOUNCE_TIME);
-
-    return () => {
-      clearTimeout(repositorySearchDebounceId.current);
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchQuery]);
 
   return isMonorepoSetup ? (
     <MonorepoProjectCreate
-      canAdmin={canAdmin}
       dopSettings={dopSettings}
       error={false}
       loadingBindings={isLoadingBindings}
       loadingOrganizations={false}
       loadingRepositories={isLoadingRepositories}
       onProjectSetupDone={onProjectSetupDone}
-      onSearchRepositories={setSearchQuery}
+      onSearchRepositories={onSearch}
       onSelectDopSetting={onSelectDopSetting}
       onSelectRepository={handleSelectRepository}
       personalAccessTokenComponent={
@@ -238,15 +187,14 @@ export default function GitlabProjectCreate(props: Readonly<Props>) {
         key: dopSetting.key,
         url: dopSetting.url,
       }))}
-      canAdmin={canAdmin}
       loading={isLoadingRepositories || isLoadingBindings}
       onImport={handleImportRepository}
       onLoadMore={handleLoadMore}
       onPersonalAccessTokenCreated={handlePersonalAccessTokenCreated}
-      onSearch={setSearchQuery}
+      onSearch={onSearch}
       onSelectedAlmInstanceChange={onSelectedAlmInstanceChange}
       projects={repositories}
-      projectsPaging={repositoryPaging}
+      projectsPaging={projectsPaging}
       resetPat={resetPersonalAccessToken || Boolean(location.query.resetPat)}
       searchQuery={searchQuery}
       selectedAlmInstance={

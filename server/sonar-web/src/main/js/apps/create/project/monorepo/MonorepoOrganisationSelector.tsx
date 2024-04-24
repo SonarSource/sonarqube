@@ -21,12 +21,12 @@ import { Link, Spinner } from '@sonarsource/echoes-react';
 import { DarkLabel, FlagMessage, InputSelect } from 'design-system';
 import React from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
+import { useAppState } from '../../../../app/components/app-state/withAppStateContext';
 import { LabelValueSelectOption } from '../../../../helpers/search';
 import { AlmKeys } from '../../../../types/alm-settings';
 
 interface Props {
   almKey: AlmKeys;
-  canAdmin: boolean;
   error: boolean;
   loadingOrganizations?: boolean;
   onSelectOrganization?: (organizationKey: string) => void;
@@ -36,7 +36,6 @@ interface Props {
 
 export function MonorepoOrganisationSelector({
   almKey,
-  canAdmin,
   error,
   loadingOrganizations,
   onSelectOrganization,
@@ -44,6 +43,7 @@ export function MonorepoOrganisationSelector({
   selectedOrganization,
 }: Readonly<Props>) {
   const { formatMessage } = useIntl();
+  const { canAdmin } = useAppState();
 
   return (
     !error && (
@@ -55,7 +55,7 @@ export function MonorepoOrganisationSelector({
         <Spinner isLoading={loadingOrganizations && !error}>
           {organizationOptions.length > 0 ? (
             <InputSelect
-              size="large"
+              size="full"
               isSearchable
               inputId={`${almKey}-monorepo-choose-organization`}
               options={organizationOptions}

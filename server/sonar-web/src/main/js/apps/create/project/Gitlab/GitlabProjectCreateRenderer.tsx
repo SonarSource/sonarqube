@@ -35,7 +35,7 @@ import { CreateProjectModes } from '../types';
 import GitlabPersonalAccessTokenForm from './GItlabPersonalAccessTokenForm';
 
 export interface GitlabProjectCreateRendererProps {
-  canAdmin?: boolean;
+  almInstances?: AlmSettingsInstance[];
   loading: boolean;
   onImport: (id: string[]) => void;
   onLoadMore: () => void;
@@ -45,10 +45,9 @@ export interface GitlabProjectCreateRendererProps {
   projectsPaging: Paging;
   resetPat: boolean;
   searchQuery: string;
-  almInstances?: AlmSettingsInstance[];
   selectedAlmInstance?: AlmSettingsInstance;
-  showPersonalAccessTokenForm?: boolean;
   onSelectedAlmInstanceChange: (instance: AlmInstanceBase) => void;
+  showPersonalAccessTokenForm?: boolean;
 }
 
 export default function GitlabProjectCreateRenderer(
@@ -60,7 +59,6 @@ export default function GitlabProjectCreateRenderer(
 
   const {
     almInstances,
-    canAdmin,
     loading,
     onLoadMore,
     onSearch,
@@ -139,8 +137,8 @@ export default function GitlabProjectCreateRenderer(
 
       <Spinner isLoading={loading} />
 
-      {!loading && !selectedAlmInstance && (
-        <WrongBindingCountAlert alm={AlmKeys.GitLab} canAdmin={!!canAdmin} />
+      {!loading && almInstances && almInstances.length === 0 && !selectedAlmInstance && (
+        <WrongBindingCountAlert alm={AlmKeys.GitLab} />
       )}
 
       {!loading &&

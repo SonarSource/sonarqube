@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { LinkHighlight, LinkStandalone, Spinner } from '@sonarsource/echoes-react';
+import { LinkHighlight, LinkStandalone } from '@sonarsource/echoes-react';
 import { DarkLabel, FlagMessage, InputSelect } from 'design-system';
 import React from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
@@ -67,70 +67,71 @@ export function MonorepoRepositorySelector({
     !loadingRepositories &&
     ((showOrganizations && !!selectedOrganization) || !showOrganizations);
   const showWarningMessage =
-    error || (repositorySelectorEnabled && repositoryOptions && repositoryOptions.length === 0);
+    error ||
+    (repositorySelectorEnabled &&
+      repositoryOptions &&
+      repositoryOptions.length === 0 &&
+      repositorySearchQuery === '');
 
   return (
     <>
       <DarkLabel htmlFor={`${almKey}-monorepo-choose-repository`} className="sw-mb-2">
         <FormattedMessage id="onboarding.create_project.monorepo.choose_repository" />
       </DarkLabel>
-      <Spinner isLoading={loadingRepositories && !error}>
-        {showWarningMessage ? (
-          <FormattedMessage
-            id="onboarding.create_project.monorepo.no_projects"
-            defaultMessage={formatMessage({ id: 'onboarding.create_project.monorepo.no_projects' })}
-            values={{
-              almKey: formatMessage({ id: `alm.${almKey}` }),
+      {showWarningMessage ? (
+        <FormattedMessage
+          id="onboarding.create_project.monorepo.no_projects"
+          defaultMessage={formatMessage({ id: 'onboarding.create_project.monorepo.no_projects' })}
+          values={{
+            almKey: formatMessage({ id: `alm.${almKey}` }),
+          }}
+        />
+      ) : (
+        <>
+          <InputSelect
+            inputId={`${almKey}-monorepo-choose-repository`}
+            inputValue={repositorySearchQuery}
+            isLoading={loadingRepositories}
+            isSearchable
+            noOptionsMessage={() => formatMessage({ id: 'no_results' })}
+            onChange={({ value }: LabelValueSelectOption) => {
+              onSelectRepository(value);
             }}
+            onInputChange={onSearchRepositories}
+            options={repositoryOptions}
+            placeholder={formatMessage({
+              id: `onboarding.create_project.monorepo.choose_repository.placeholder`,
+            })}
+            size="full"
+            value={selectedRepository}
           />
-        ) : (
-          <>
-            <InputSelect
-              inputId={`${almKey}-monorepo-choose-repository`}
-              inputValue={repositorySearchQuery}
-              isDisabled={!repositorySelectorEnabled}
-              isLoading={loadingRepositories}
-              isSearchable
-              noOptionsMessage={() => formatMessage({ id: 'no_results' })}
-              onChange={({ value }: LabelValueSelectOption) => {
-                onSelectRepository(value);
-              }}
-              onInputChange={onSearchRepositories}
-              options={repositoryOptions}
-              placeholder={formatMessage({
-                id: `onboarding.create_project.monorepo.choose_repository.placeholder`,
-              })}
-              size="full"
-              value={selectedRepository}
-            />
-            {selectedRepository &&
-              !isLoadingAlreadyBoundProjects &&
-              !isFetchingAlreadyBoundProjects && (
-                <FlagMessage className="sw-mt-2" variant="info">
-                  {alreadyBoundProjects.length === 0 ? (
-                    <FormattedMessage id="onboarding.create_project.monorepo.choose_repository.no_already_bound_projects" />
-                  ) : (
-                    <div>
-                      <FormattedMessage id="onboarding.create_project.monorepo.choose_repository.existing_already_bound_projects" />
-                      <ul className="sw-mt-4">
-                        {alreadyBoundProjects.map(({ projectId, projectName }) => (
-                          <li key={projectId}>
-                            <LinkStandalone
-                              to={getProjectUrl(projectId)}
-                              highlight={LinkHighlight.Subdued}
-                            >
-                              {projectName}
-                            </LinkStandalone>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                </FlagMessage>
-              )}
-          </>
-        )}
-      </Spinner>
+          {selectedRepository &&
+            !isLoadingAlreadyBoundProjects &&
+            !isFetchingAlreadyBoundProjects && (
+              <FlagMessage className="sw-mt-2" variant="info">
+                {alreadyBoundProjects.length === 0 ? (
+                  <FormattedMessage id="onboarding.create_project.monorepo.choose_repository.no_already_bound_projects" />
+                ) : (
+                  <div>
+                    <FormattedMessage id="onboarding.create_project.monorepo.choose_repository.existing_already_bound_projects" />
+                    <ul className="sw-mt-4">
+                      {alreadyBoundProjects.map(({ projectId, projectName }) => (
+                        <li key={projectId}>
+                          <LinkStandalone
+                            to={getProjectUrl(projectId)}
+                            highlight={LinkHighlight.Subdued}
+                          >
+                            {projectName}
+                          </LinkStandalone>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </FlagMessage>
+            )}
+        </>
+      )}
     </>
   );
 }

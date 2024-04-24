@@ -17,19 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { LightPrimary, Spinner, Title } from 'design-system';
-import * as React from 'react';
+import { Link, Spinner } from '@sonarsource/echoes-react';
+import { LightPrimary, Title } from 'design-system';
+import React, { useContext } from 'react';
+import { FormattedMessage } from 'react-intl';
+import { AvailableFeaturesContext } from '../../../../app/components/available-features/AvailableFeaturesContext';
 import { translate } from '../../../../helpers/l10n';
+import { queryToSearch } from '../../../../helpers/urls';
 import { BitbucketCloudRepository } from '../../../../types/alm-integration';
 import { AlmKeys, AlmSettingsInstance } from '../../../../types/alm-settings';
+import { Feature } from '../../../../types/features';
 import AlmSettingsInstanceDropdown from '../components/AlmSettingsInstanceDropdown';
 import WrongBindingCountAlert from '../components/WrongBindingCountAlert';
+import { CreateProjectModes } from '../types';
 import BitbucketCloudPersonalAccessTokenForm from './BitbucketCloudPersonalAccessTokenForm';
 import BitbucketCloudSearchForm from './BitbucketCloudSearchForm';
 
 export interface BitbucketCloudProjectCreateRendererProps {
+  almInstances: AlmSettingsInstance[];
   isLastPage: boolean;
-  canAdmin?: boolean;
   loading: boolean;
   loadingMore: boolean;
   onImport: (repositorySlug: string) => void;
@@ -41,19 +47,21 @@ export interface BitbucketCloudProjectCreateRendererProps {
   resetPat: boolean;
   searching: boolean;
   searchQuery: string;
-  showPersonalAccessTokenForm: boolean;
-  almInstances: AlmSettingsInstance[];
   selectedAlmInstance?: AlmSettingsInstance;
+  showPersonalAccessTokenForm: boolean;
 }
 
 export default function BitbucketCloudProjectCreateRenderer(
   props: Readonly<BitbucketCloudProjectCreateRendererProps>,
 ) {
+  const isMonorepoSupported = useContext(AvailableFeaturesContext).includes(
+    Feature.MonoRepositoryPullRequestDecoration,
+  );
+
   const {
     almInstances,
     isLastPage,
     selectedAlmInstance,
-    canAdmin,
     loading,
     loadingMore,
     repositories,
@@ -70,7 +78,28 @@ export default function BitbucketCloudProjectCreateRenderer(
           {translate('onboarding.create_project.bitbucketcloud.title')}
         </Title>
         <LightPrimary className="sw-body-sm">
-          {translate('onboarding.create_project.bitbucketcloud.subtitle')}
+          {isMonorepoSupported ? (
+            <FormattedMessage
+              id="onboarding.create_project.bitbucketcloud.subtitle.with_monorepo"
+              values={{
+                monorepoSetupLink: (
+                  <Link
+                    to={{
+                      pathname: '/projects/create',
+                      search: queryToSearch({
+                        mode: CreateProjectModes.BitbucketCloud,
+                        mono: true,
+                      }),
+                    }}
+                  >
+                    <FormattedMessage id="onboarding.create_project.subtitle_monorepo_setup_link" />
+                  </Link>
+                ),
+              }}
+            />
+          ) : (
+            <FormattedMessage id="onboarding.create_project.bitbucketcloud.subtitle" />
+          )}
         </LightPrimary>
       </header>
 
@@ -81,10 +110,10 @@ export default function BitbucketCloudProjectCreateRenderer(
         onChangeConfig={props.onSelectedAlmInstanceChange}
       />
 
-      <Spinner loading={loading} />
+      <Spinner isLoading={loading} />
 
-      {!loading && !selectedAlmInstance && (
-        <WrongBindingCountAlert alm={AlmKeys.BitbucketCloud} canAdmin={!!canAdmin} />
+      {!loading && almInstances && almInstances.length === 0 && !selectedAlmInstance && (
+        <WrongBindingCountAlert alm={AlmKeys.BitbucketCloud} />
       )}
 
       {!loading &&

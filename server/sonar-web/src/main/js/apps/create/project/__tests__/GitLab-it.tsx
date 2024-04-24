@@ -113,8 +113,9 @@ it('should ask for PAT when it is not set yet and show the import project featur
 
   expect(await ui.importProjectsTitle.find()).toBeInTheDocument();
   expect(ui.instanceSelector.get()).toBeInTheDocument();
+  await selectEvent.select(ui.instanceSelector.get(), [/conf-final-1/]);
 
-  expect(screen.getByText('onboarding.create_project.enter_pat')).toBeInTheDocument();
+  expect(await screen.findByText('onboarding.create_project.enter_pat')).toBeInTheDocument();
   expect(ui.patHelpInstructions.get()).toBeInTheDocument();
   expect(ui.saveButton.get()).toBeInTheDocument();
 

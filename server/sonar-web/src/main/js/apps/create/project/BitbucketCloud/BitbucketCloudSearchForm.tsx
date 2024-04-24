@@ -26,7 +26,7 @@ import { getBaseUrl } from '../../../../helpers/system';
 import { queryToSearch } from '../../../../helpers/urls';
 import { BitbucketCloudRepository } from '../../../../types/alm-integration';
 import AlmRepoItem from '../components/AlmRepoItem';
-import { BITBUCKET_CLOUD_PROJECTS_PAGESIZE } from '../constants';
+import { REPOSITORY_PAGE_SIZE } from '../constants';
 import { CreateProjectModes } from '../types';
 
 export interface BitbucketCloudSearchFormProps {
@@ -112,7 +112,7 @@ export default function BitbucketCloudSearchForm(props: BitbucketCloudSearchForm
         count={repositories.length}
         // we don't know the total, so only provide when we've reached the last page
         total={isLastPage ? repositories.length : undefined}
-        pageSize={BITBUCKET_CLOUD_PROJECTS_PAGESIZE}
+        pageSize={REPOSITORY_PAGE_SIZE}
         loadMore={props.onLoadMore}
         loading={loadingMore}
       />

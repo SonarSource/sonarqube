@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Link, Spinner } from '@sonarsource/echoes-react';
 import {
   ButtonPrimary,
   FlagErrorIcon,
@@ -24,17 +25,15 @@ import {
   FormField,
   InputField,
   LightPrimary,
-  Link,
-  Spinner,
 } from 'design-system';
 import React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { translate } from '../../../../helpers/l10n';
-import { AlmSettingsInstance } from '../../../../types/alm-settings';
+import { AlmInstanceBase } from '../../../../types/alm-settings';
 import { usePersonalAccessToken } from '../usePersonalAccessToken';
 
 interface Props {
-  almSetting: AlmSettingsInstance;
+  almSetting: AlmInstanceBase;
   resetPat: boolean;
   onPersonalAccessTokenCreated: () => void;
 }
@@ -43,7 +42,7 @@ export default function BitbucketCloudPersonalAccessTokenForm({
   almSetting,
   resetPat,
   onPersonalAccessTokenCreated,
-}: Props) {
+}: Readonly<Props>) {
   const {
     username,
     password,
@@ -59,12 +58,12 @@ export default function BitbucketCloudPersonalAccessTokenForm({
   } = usePersonalAccessToken(almSetting, resetPat, onPersonalAccessTokenCreated);
 
   if (checkingPat) {
-    return <Spinner className="sw-ml-2" loading />;
+    return <Spinner className="sw-ml-2" isLoading />;
   }
 
   const isInvalid = validationFailed && !touched;
   const canSubmit = Boolean(password) && Boolean(username);
-  const submitButtonDiabled = isInvalid || submitting || !canSubmit;
+  const submitButtonDisabled = isInvalid || submitting || !canSubmit;
 
   const errorMessage =
     validationErrorMessage ?? translate('onboarding.create_project.pat_incorrect.bitbucket_cloud');
@@ -175,10 +174,10 @@ export default function BitbucketCloudPersonalAccessTokenForm({
         </FlagMessage>
       </div>
 
-      <ButtonPrimary type="submit" disabled={submitButtonDiabled} className="sw-mb-6">
+      <ButtonPrimary type="submit" disabled={submitButtonDisabled} className="sw-mb-6">
         {translate('save')}
       </ButtonPrimary>
-      <Spinner className="sw-ml-2" loading={submitting} />
+      <Spinner className="sw-ml-2" isLoading={submitting} />
     </form>
   );
 }

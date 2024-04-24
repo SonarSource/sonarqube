@@ -35,7 +35,6 @@ interface Props {
     projectId: string;
     projectName: string;
   }[];
-  canAdmin: boolean;
   dopSettings: DopSetting[];
   error: boolean;
   isFetchingAlreadyBoundProjects: boolean;
@@ -61,7 +60,6 @@ interface Props {
 export function MonorepoConnectionSelector({
   almKey,
   alreadyBoundProjects,
-  canAdmin,
   dopSettings,
   error,
   isFetchingAlreadyBoundProjects,
@@ -106,14 +104,13 @@ export function MonorepoConnectionSelector({
       ) : (
         <>
           {showOrganizations && error && selectedDopSetting && !loadingOrganizations && (
-            <MonorepoNoOrganisations almKey={almKey} canAdmin={canAdmin} />
+            <MonorepoNoOrganisations almKey={almKey} />
           )}
 
           {showOrganizations && organizationOptions && (
             <div className="sw-flex sw-flex-col">
               <MonorepoOrganisationSelector
                 almKey={almKey}
-                canAdmin={canAdmin}
                 error={error}
                 organizationOptions={organizationOptions}
                 loadingOrganizations={loadingOrganizations}

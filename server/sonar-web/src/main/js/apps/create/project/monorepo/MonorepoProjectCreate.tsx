@@ -38,7 +38,6 @@ import { MonorepoProjectHeader } from './MonorepoProjectHeader';
 import { MonorepoProjectsList } from './MonorepoProjectsList';
 
 interface MonorepoProjectCreateProps {
-  canAdmin: boolean;
   dopSettings: DopSetting[];
   error: boolean;
   loadingBindings: boolean;

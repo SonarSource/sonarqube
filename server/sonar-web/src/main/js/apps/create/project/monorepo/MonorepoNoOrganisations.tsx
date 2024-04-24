@@ -18,16 +18,15 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { Link } from '@sonarsource/echoes-react';
-import { FlagMessage } from 'design-system/lib';
+import { FlagMessage } from 'design-system';
 import React from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
+import { useAppState } from '../../../../app/components/app-state/withAppStateContext';
 import { AlmKeys } from '../../../../types/alm-settings';
 
-export default function MonorepoNoOrganisations({
-  almKey,
-  canAdmin,
-}: Readonly<{ almKey: AlmKeys; canAdmin: boolean }>) {
+export default function MonorepoNoOrganisations({ almKey }: Readonly<{ almKey: AlmKeys }>) {
   const { formatMessage } = useIntl();
+  const { canAdmin } = useAppState();
 
   return (
     <FlagMessage variant="warning">

@@ -23,6 +23,7 @@ import { Link, Spinner } from '@sonarsource/echoes-react';
 import { DarkLabel, FlagMessage, InputSelect, LightPrimary, Title } from 'design-system';
 import React, { useContext, useEffect, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
+import { useAppState } from '../../../../app/components/app-state/withAppStateContext';
 import { AvailableFeaturesContext } from '../../../../app/components/available-features/AvailableFeaturesContext';
 import { translate } from '../../../../helpers/l10n';
 import { LabelValueSelectOption } from '../../../../helpers/search';
@@ -36,7 +37,6 @@ import RepositoryList from '../components/RepositoryList';
 import { CreateProjectModes } from '../types';
 
 interface GitHubProjectCreateRendererProps {
-  canAdmin: boolean;
   error: boolean;
   loadingBindings: boolean;
   loadingOrganizations: boolean;
@@ -67,7 +67,6 @@ export default function GitHubProjectCreateRenderer(
   );
 
   const {
-    canAdmin,
     error,
     loadingBindings,
     loadingOrganizations,
@@ -78,6 +77,7 @@ export default function GitHubProjectCreateRenderer(
     repositories,
   } = props;
   const [selected, setSelected] = useState<Set<string>>(new Set());
+  const { canAdmin } = useAppState();
 
   useEffect(() => {
     const selectedKeys = Array.from(selected).filter((key) =>

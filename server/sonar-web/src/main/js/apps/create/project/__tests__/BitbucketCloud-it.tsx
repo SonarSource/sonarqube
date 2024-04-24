@@ -28,8 +28,10 @@ import DopTranslationServiceMock from '../../../../api/mocks/DopTranslationServi
 import NewCodeDefinitionServiceMock from '../../../../api/mocks/NewCodeDefinitionServiceMock';
 import { renderApp } from '../../../../helpers/testReactTestingUtils';
 import { byLabelText, byRole, byText } from '../../../../helpers/testSelector';
+import { Feature } from '../../../../types/features';
 import CreateProjectPage from '../CreateProjectPage';
-import { BITBUCKET_CLOUD_PROJECTS_PAGESIZE } from '../constants';
+import { REPOSITORY_PAGE_SIZE } from '../constants';
+import { CreateProjectModes } from '../types';
 
 jest.mock('../../../../api/alm-integrations');
 jest.mock('../../../../api/alm-settings');
@@ -39,13 +41,29 @@ let dopTranslationHandler: DopTranslationServiceMock;
 let newCodePeriodHandler: NewCodeDefinitionServiceMock;
 
 const ui = {
+  cancelButton: byRole('button', { name: 'cancel' }),
   bitbucketCloudCreateProjectButton: byText(
     'onboarding.create_project.select_method.bitbucketcloud',
   ),
+  bitbucketCloudOnboardingTitle: byRole('heading', {
+    name: 'onboarding.create_project.bitbucketcloud.title',
+  }),
+  monorepoSetupLink: byRole('link', {
+    name: 'onboarding.create_project.subtitle_monorepo_setup_link',
+  }),
+  monorepoTitle: byRole('heading', {
+    name: 'onboarding.create_project.monorepo.titlealm.bitbucketcloud',
+  }),
   personalAccessTokenInput: byRole('textbox', {
     name: /onboarding.create_project.enter_pat/,
   }),
   instanceSelector: byLabelText(/alm.configuration.selector.label/),
+  userName: byRole('textbox', {
+    name: /onboarding\.create_project\.bitbucket_cloud\.enter_username/,
+  }),
+  password: byRole('textbox', {
+    name: /onboarding\.create_project\.bitbucket_cloud\.enter_password/,
+  }),
 };
 
 const original = window.location;
@@ -78,8 +96,10 @@ it('should ask for PAT when it is not set yet and show the import project featur
   expect(screen.getByText('onboarding.create_project.bitbucketcloud.title')).toBeInTheDocument();
   expect(await ui.instanceSelector.find()).toBeInTheDocument();
 
+  await selectEvent.select(ui.instanceSelector.get(), [/conf-bitbucketcloud-1/]);
+
   expect(
-    screen.getByText('onboarding.create_project.bitbucket_cloud.enter_password'),
+    await screen.findByText('onboarding.create_project.bitbucket_cloud.enter_password'),
   ).toBeInTheDocument();
   expect(
     screen.getByText('onboarding.create_project.enter_password.instructions.bitbucket_cloud'),
@@ -93,21 +113,15 @@ it('should ask for PAT when it is not set yet and show the import project featur
 
   expect(screen.getByRole('button', { name: 'save' })).toBeDisabled();
 
-  await user.click(
-    screen.getByRole('textbox', {
-      name: /onboarding.create_project.bitbucket_cloud.enter_username/,
-    }),
-  );
+  await user.click(ui.userName.get());
+  await user.type(ui.userName.get(), 'username');
 
-  await user.keyboard('username');
+  expect(ui.userName.get()).toHaveValue('username');
 
-  await user.click(
-    screen.getByRole('textbox', {
-      name: /onboarding.create_project.bitbucket_cloud.enter_password/,
-    }),
-  );
+  await user.click(ui.password.get());
+  await user.type(ui.password.get(), 'password');
 
-  await user.keyboard('password');
+  expect(ui.password.get()).toHaveValue('password');
 
   expect(screen.getByRole('button', { name: 'save' })).toBeEnabled();
   await user.click(screen.getByRole('button', { name: 'save' }));
@@ -176,7 +190,7 @@ it('should show search filter when PAT is already set', async () => {
     expect(searchForBitbucketCloudRepositories).toHaveBeenLastCalledWith(
       'conf-bitbucketcloud-2',
       '',
-      BITBUCKET_CLOUD_PROJECTS_PAGESIZE,
+      REPOSITORY_PAGE_SIZE,
       1,
     ),
   );
@@ -185,13 +199,15 @@ it('should show search filter when PAT is already set', async () => {
     name: 'onboarding.create_project.search_prompt',
   });
   await user.click(inputSearch);
-  await user.keyboard('search');
+  await user.type(inputSearch, 'search');
 
-  expect(searchForBitbucketCloudRepositories).toHaveBeenLastCalledWith(
-    'conf-bitbucketcloud-2',
-    'search',
-    BITBUCKET_CLOUD_PROJECTS_PAGESIZE,
-    1,
+  await waitFor(() =>
+    expect(searchForBitbucketCloudRepositories).toHaveBeenLastCalledWith(
+      'conf-bitbucketcloud-2',
+      'search',
+      REPOSITORY_PAGE_SIZE,
+      1,
+    ),
   );
 });
 
@@ -212,8 +228,8 @@ it('should show no result message when there are no projects', async () => {
 it('should have load more', async () => {
   const user = userEvent.setup();
   almIntegrationHandler.createRandomBitbucketCloudProjectsWithLoadMore(
-    BITBUCKET_CLOUD_PROJECTS_PAGESIZE,
-    BITBUCKET_CLOUD_PROJECTS_PAGESIZE + 1,
+    REPOSITORY_PAGE_SIZE,
+    REPOSITORY_PAGE_SIZE + 1,
   );
   renderCreateProject();
 
@@ -229,16 +245,18 @@ it('should have load more', async () => {
    * loadmore button disapperance.
    */
   almIntegrationHandler.createRandomBitbucketCloudProjectsWithLoadMore(
-    BITBUCKET_CLOUD_PROJECTS_PAGESIZE + 1,
-    BITBUCKET_CLOUD_PROJECTS_PAGESIZE + 1,
+    REPOSITORY_PAGE_SIZE + 1,
+    REPOSITORY_PAGE_SIZE + 1,
   );
   await user.click(screen.getByRole('button', { name: 'show_more' }));
 
-  expect(searchForBitbucketCloudRepositories).toHaveBeenLastCalledWith(
-    'conf-bitbucketcloud-2',
-    '',
-    BITBUCKET_CLOUD_PROJECTS_PAGESIZE,
-    2,
+  await waitFor(() =>
+    expect(searchForBitbucketCloudRepositories).toHaveBeenLastCalledWith(
+      'conf-bitbucketcloud-2',
+      '',
+      REPOSITORY_PAGE_SIZE,
+      2,
+    ),
   );
 
   await waitFor(() => {
@@ -246,8 +264,38 @@ it('should have load more', async () => {
   });
 });
 
-function renderCreateProject() {
-  renderApp('project/create', <CreateProjectPage />, {
-    navigateTo: 'project/create?mode=bitbucketcloud',
+describe('Bitbucket Cloud monorepo project navigation', () => {
+  it('should be able to access monorepo setup page from Bitbucket Cloud project import page', async () => {
+    const user = userEvent.setup();
+    renderCreateProject();
+
+    await user.click(await ui.monorepoSetupLink.find());
+
+    expect(ui.monorepoTitle.get()).toBeInTheDocument();
+  });
+
+  it('should be able to go back to Bitbucket Cloud onboarding page from monorepo setup page', async () => {
+    const user = userEvent.setup();
+    renderCreateProject({ isMonorepo: true });
+
+    await user.click(await ui.cancelButton.find());
+
+    expect(ui.bitbucketCloudOnboardingTitle.get()).toBeInTheDocument();
+  });
+});
+
+function renderCreateProject({
+  isMonorepo = false,
+}: {
+  isMonorepo?: boolean;
+} = {}) {
+  let queryString = `mode=${CreateProjectModes.BitbucketCloud}`;
+  if (isMonorepo) {
+    queryString += '&mono=true';
+  }
+
+  renderApp('projects/create', <CreateProjectPage />, {
+    navigateTo: `projects/create?${queryString}`,
+    featureList: [Feature.MonoRepositoryPullRequestDecoration],
   });
 }
