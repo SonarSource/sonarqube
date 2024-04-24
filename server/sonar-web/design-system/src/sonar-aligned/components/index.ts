@@ -21,3 +21,4 @@
 export * from './Card';
 export * from './MetricsRatingBadge';
 export * from './buttons';
+export * from './typography';

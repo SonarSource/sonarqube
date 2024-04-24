@@ -17,34 +17,5 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { screen } from '@testing-library/react';
-import { renderWithContext } from '../../helpers/testUtils';
-import { Note } from '../../sonar-aligned';
-import { FCProps } from '../../types/misc';
-import { Banner } from '../Banner';
 
-it('should render with close button', async () => {
-  const onDismiss = jest.fn();
-  const { user } = setupWithProps({ onDismiss });
-  expect(
-    screen.getByRole('button', {
-      name: 'dismiss',
-    }),
-  ).toBeVisible();
-
-  await user.click(
-    screen.getByRole('button', {
-      name: 'dismiss',
-    }),
-  );
-
-  expect(onDismiss).toHaveBeenCalledTimes(1);
-});
-
-function setupWithProps(props: Partial<FCProps<typeof Banner>> = {}) {
-  return renderWithContext(
-    <Banner {...props} variant="warning">
-      <Note className="sw-body-sm">{props.children ?? 'Test Message'}</Note>
-    </Banner>,
-  );
-}
+export * from './Note';

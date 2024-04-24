@@ -24,7 +24,7 @@ import React, { ReactNode } from 'react';
 import tw from 'twin.macro';
 import { themeColor } from '../helpers';
 import { BareButton } from '../sonar-aligned/components/buttons';
-import { Note } from './Text';
+import { Note } from '../sonar-aligned/components/typography';
 import { OpenCloseIndicator } from './icons';
 
 interface Props {

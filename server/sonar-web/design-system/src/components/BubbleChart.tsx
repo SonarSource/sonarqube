@@ -30,8 +30,8 @@ import { AutoSizer } from 'react-virtualized/dist/commonjs/AutoSizer';
 import tw from 'twin.macro';
 import { themeColor, themeContrast } from '../helpers';
 import { ButtonSecondary } from '../sonar-aligned/components/buttons';
+import { Note } from '../sonar-aligned/components/typography';
 import { BubbleColorVal } from '../types/charts';
-import { Note } from './Text';
 import { Tooltip } from './Tooltip';
 
 const TICKS_COUNT = 5;

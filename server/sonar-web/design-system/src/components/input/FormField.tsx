@@ -20,7 +20,8 @@
 import styled from '@emotion/styled';
 import { ReactNode } from 'react';
 import tw from 'twin.macro';
-import { Highlight, Note } from '../Text';
+import { Note } from '../../sonar-aligned';
+import { Highlight } from '../Text';
 import { RequiredIcon } from '../icons';
 
 interface Props {

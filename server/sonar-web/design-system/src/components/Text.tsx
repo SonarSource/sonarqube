@@ -158,9 +158,3 @@ export const Highlight = styled.strong`
 
   ${tw`sw-body-sm-highlight`}
 `;
-
-export const Note = styled.span`
-  color: ${themeColor('pageContentLight')};
-
-  ${tw`sw-body-sm`}
-`;
