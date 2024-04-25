@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { throwGlobalError } from '~sonar-aligned/helpers/error';
-import { getJSON } from '../helpers/request';
+import { getJSON } from '~sonar-aligned/helpers/request';
 import { AppState } from '../types/appstate';
 import { BranchParameters } from '../types/branch-like';
 import { Extension, NavigationComponent } from '../types/types';
@@ -41,5 +41,5 @@ export function getSettingsNavigation(): Promise<{
 }
 
 export function getGlobalNavigation(): Promise<AppState> {
-  return getJSON('/api/navigation/global', undefined, true);
+  return getJSON('/api/navigation/global', undefined, { bypassRedirect: true });
 }

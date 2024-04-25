@@ -20,10 +20,10 @@
 
 import { addGlobalSuccessMessage } from 'design-system';
 import { throwGlobalError } from '~sonar-aligned/helpers/error';
+import { getJSON } from '~sonar-aligned/helpers/request';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import {
   get,
-  getJSON,
   getText,
   omitNil,
   parseError,

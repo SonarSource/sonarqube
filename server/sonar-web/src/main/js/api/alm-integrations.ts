@@ -18,7 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { throwGlobalError } from '~sonar-aligned/helpers/error';
-import { get, getJSON, parseError, post, postJSON } from '../helpers/request';
+import { getJSON } from '~sonar-aligned/helpers/request';
+import { get, parseError, post, postJSON } from '../helpers/request';
 import {
   AzureProject,
   AzureRepository,

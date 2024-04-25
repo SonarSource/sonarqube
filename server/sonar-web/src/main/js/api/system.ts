@@ -18,7 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { throwGlobalError } from '~sonar-aligned/helpers/error';
-import { getJSON, post, postJSON, requestTryAndRepeatUntil } from '../helpers/request';
+import { getJSON } from '~sonar-aligned/helpers/request';
+import { post, postJSON, requestTryAndRepeatUntil } from '../helpers/request';
 import { SystemUpgrade } from '../types/system';
 import { SysInfoCluster, SysInfoStandalone, SysStatus } from '../types/types';
 

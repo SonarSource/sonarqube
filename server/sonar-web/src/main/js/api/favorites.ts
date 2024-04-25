@@ -17,7 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { getJSON, post } from '../helpers/request';
+import { getJSON } from '~sonar-aligned/helpers/request';
+import { post } from '../helpers/request';
 
 export function getFavorites(): Promise<any> {
   return getJSON('/api/favorites/search');

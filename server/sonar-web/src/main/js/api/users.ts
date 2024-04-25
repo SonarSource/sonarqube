@@ -19,7 +19,8 @@
  */
 import axios from 'axios';
 import { throwGlobalError } from '~sonar-aligned/helpers/error';
-import { HttpStatus, axiosToCatch, getJSON, parseJSON, post } from '../helpers/request';
+import { getJSON } from '~sonar-aligned/helpers/request';
+import { HttpStatus, axiosToCatch, parseJSON, post } from '../helpers/request';
 import { IdentityProvider, Paging } from '../types/types';
 import {
   ChangePasswordResults,
@@ -33,7 +34,7 @@ import {
 const USERS_ENDPOINT = '/api/v2/users-management/users';
 
 export function getCurrentUser(): Promise<CurrentUser> {
-  return getJSON('/api/users/current', undefined, true);
+  return getJSON('/api/users/current', undefined, { bypassRedirect: true });
 }
 
 export function dismissNotice(notice: NoticeType) {

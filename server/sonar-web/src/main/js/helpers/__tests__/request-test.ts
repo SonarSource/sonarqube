@@ -24,7 +24,6 @@ import { Dict } from '../../types/types';
 import handleRequiredAuthentication from '../handleRequiredAuthentication';
 import {
   checkStatus,
-  getJSON,
   getText,
   HttpStatus,
   isSuccessStatus,
@@ -44,26 +43,6 @@ const url = '/my-url';
 beforeEach(() => {
   jest.clearAllMocks();
   window.fetch = jest.fn().mockResolvedValue(mockResponse({}, HttpStatus.Ok, {}));
-});
-
-describe('getJSON', () => {
-  it('should get json without parameters', async () => {
-    const response = mockResponse({}, HttpStatus.Ok, {});
-    window.fetch = jest.fn().mockResolvedValue(response);
-    getJSON(url);
-    await new Promise(setImmediate);
-
-    expect(window.fetch).toHaveBeenCalledWith(url, expect.objectContaining({ method: 'GET' }));
-    expect(response.json).toHaveBeenCalled();
-  });
-
-  it('should get json with parameters', () => {
-    getJSON(url, { data: 'test' });
-    expect(window.fetch).toHaveBeenCalledWith(
-      url + '?data=test',
-      expect.objectContaining({ method: 'GET' }),
-    );
-  });
 });
 
 describe('getText', () => {

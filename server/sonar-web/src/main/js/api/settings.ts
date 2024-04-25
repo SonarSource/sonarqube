@@ -19,8 +19,9 @@
  */
 import { omitBy } from 'lodash';
 import { throwGlobalError } from '~sonar-aligned/helpers/error';
+import { getJSON } from '~sonar-aligned/helpers/request';
 import { isCategoryDefinition } from '../apps/settings/utils';
-import { getJSON, post, postJSON, RequestData } from '../helpers/request';
+import { post, postJSON, RequestData } from '../helpers/request';
 import { BranchParameters } from '../types/branch-like';
 import {
   ExtendedSettingDefinition,

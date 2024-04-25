@@ -19,7 +19,8 @@
  */
 import { HttpStatusCode } from 'axios';
 import { throwGlobalError } from '~sonar-aligned/helpers/error';
-import { axiosToCatch, getJSON, post, postJSON } from '../helpers/request';
+import { getJSON } from '~sonar-aligned/helpers/request';
+import { axiosToCatch, post, postJSON } from '../helpers/request';
 import { CleanCodeAttribute, SoftwareImpact } from '../types/clean-code-taxonomy';
 import { GetRulesAppResponse, SearchRulesResponse } from '../types/coding-rules';
 import { SearchRulesQuery } from '../types/rules';

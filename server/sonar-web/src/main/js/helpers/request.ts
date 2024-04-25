@@ -222,13 +222,6 @@ export function get(url: string, data?: RequestData, bypassRedirect = false): Pr
 }
 
 /**
- * Shortcut to do a GET request and return response json
- */
-export function getJSON(url: string, data?: RequestData, bypassRedirect = false): Promise<any> {
-  return get(url, data, bypassRedirect).then(parseJSON);
-}
-
-/**
  * Shortcut to do a GET request and return response text
  */
 export function getText(url: string, data?: RequestData, bypassRedirect = false): Promise<string> {

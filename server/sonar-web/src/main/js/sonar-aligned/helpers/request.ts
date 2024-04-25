@@ -17,26 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { throwGlobalError } from '~sonar-aligned/helpers/error';
-import { getJSON } from '~sonar-aligned/helpers/request';
-import { post, postJSON } from '../helpers/request';
-import { ProjectLink } from '../types/types';
+import { RequestData, get, parseJSON } from '../../helpers/request';
 
-export function getProjectLinks(projectKey: string): Promise<ProjectLink[]> {
-  return getJSON('/api/project_links/search', { projectKey }).then(
-    (r) => r.links,
-    throwGlobalError,
-  );
+interface CustomHeader {
+  accept?: string;
+  apiVersion?: string;
+  isJSON?: boolean;
 }
 
-export function deleteLink(linkId: string) {
-  return post('/api/project_links/delete', { id: linkId }).catch(throwGlobalError);
+interface RequestOptions {
+  bypassRedirect?: boolean;
+  customHeaders?: CustomHeader; // used only in SonarCloud
+  isExternal?: boolean; // used only in SonarCloud
+  useQueryParams?: boolean; // used only in SonarCloud
 }
 
-export function createLink(data: {
-  name: string;
-  projectKey: string;
-  url: string;
-}): Promise<ProjectLink> {
-  return postJSON('/api/project_links/create', data).then((r) => r.link, throwGlobalError);
+/**
+ * Shortcut to do a GET request and return response json
+ */
+export function getJSON(
+  url: string,
+  data?: RequestData,
+  options: RequestOptions = {},
+): Promise<any> {
+  return get(url, data, options.bypassRedirect).then(parseJSON);
 }

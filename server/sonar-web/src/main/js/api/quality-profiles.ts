@@ -19,9 +19,10 @@
  */
 import { map } from 'lodash';
 import { throwGlobalError } from '~sonar-aligned/helpers/error';
+import { getJSON } from '~sonar-aligned/helpers/request';
 import { Exporter, ProfileChangelogEvent } from '../apps/quality-profiles/types';
 import { csvEscape } from '../helpers/csv';
-import { RequestData, getJSON, post, postJSON } from '../helpers/request';
+import { RequestData, post, postJSON } from '../helpers/request';
 import { CleanCodeAttributeCategory, SoftwareImpact } from '../types/clean-code-taxonomy';
 import { Dict, Paging, ProfileInheritanceDetails, UserSelected } from '../types/types';
 
