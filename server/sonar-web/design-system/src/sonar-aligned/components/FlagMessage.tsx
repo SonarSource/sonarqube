@@ -22,10 +22,16 @@ import classNames from 'classnames';
 import * as React from 'react';
 import { useIntl } from 'react-intl';
 import tw from 'twin.macro';
-import { themeBorder, themeColor, themeContrast } from '../helpers/theme';
-import { ThemeColors } from '../types/theme';
-import { InteractiveIcon } from './InteractiveIcon';
-import { CloseIcon, FlagErrorIcon, FlagInfoIcon, FlagSuccessIcon, FlagWarningIcon } from './icons';
+import { ThemeColors } from '~types/theme';
+import { InteractiveIcon } from '../../components/InteractiveIcon';
+import {
+  CloseIcon,
+  FlagErrorIcon,
+  FlagInfoIcon,
+  FlagSuccessIcon,
+  FlagWarningIcon,
+} from '../../components/icons';
+import { themeBorder, themeColor, themeContrast } from '../../helpers/theme';
 
 export type Variant = 'error' | 'warning' | 'success' | 'info';
 

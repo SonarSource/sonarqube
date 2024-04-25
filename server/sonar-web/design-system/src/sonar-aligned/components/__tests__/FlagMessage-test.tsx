@@ -19,8 +19,8 @@
  */
 import { screen } from '@testing-library/react';
 import { IntlShape } from 'react-intl';
-import { render } from '../../helpers/testUtils';
-import { FCProps } from '../../types/misc';
+import { FCProps } from '~types/misc';
+import { render } from '../../../helpers/testUtils';
 import { DismissableFlagMessage, FlagMessage, Variant } from '../FlagMessage';
 
 jest.mock(
