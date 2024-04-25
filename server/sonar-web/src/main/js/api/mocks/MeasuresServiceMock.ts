@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { cloneDeep } from 'lodash';
+import { BranchParameters } from '~sonar-aligned/types/branch-like';
 import { mockMetric, mockPeriod } from '../../helpers/testMocks';
-import { BranchParameters } from '../../types/branch-like';
 import { MetricKey } from '../../types/metrics';
 import { Metric, Period } from '../../types/types';
 import { getMeasures, getMeasuresWithPeriod, getMeasuresWithPeriodAndMetrics } from '../measures';

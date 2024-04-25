@@ -20,9 +20,10 @@
 import { Path, To } from 'react-router-dom';
 import { getBranchLikeQuery, isBranch, isMainBranch } from '~sonar-aligned/helpers/branch-like';
 import { queryToSearch } from '~sonar-aligned/helpers/urls';
+import { BranchParameters } from '~sonar-aligned/types/branch-like';
 import { getProfilePath } from '../apps/quality-profiles/utils';
 import { DEFAULT_ISSUES_QUERY } from '../components/shared/utils';
-import { BranchLike, BranchParameters } from '../types/branch-like';
+import { BranchLike } from '../types/branch-like';
 import { ComponentQualifier, isApplication, isPortfolioLike } from '../types/component';
 import { MeasurePageView } from '../types/measures';
 import { GraphType } from '../types/project-activity';

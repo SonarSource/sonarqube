@@ -19,7 +19,7 @@
  */
 import { throwGlobalError } from '~sonar-aligned/helpers/error';
 import { getJSON } from '~sonar-aligned/helpers/request';
-import { BranchParameters } from '../types/branch-like';
+import { BranchParameters } from '~sonar-aligned/types/branch-like';
 import { MetricKey } from '../types/metrics';
 import { Paging } from '../types/types';
 

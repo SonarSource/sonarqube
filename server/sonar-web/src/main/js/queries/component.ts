@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { UseQueryResult, useQuery } from '@tanstack/react-query';
+import { BranchParameters } from '~sonar-aligned/types/branch-like';
 import { getTasksForComponent } from '../api/ce';
 import { getMeasuresWithMetrics } from '../api/measures';
-import { BranchParameters } from '../types/branch-like';
 import { MeasuresAndMetaWithMetrics } from '../types/measures';
 import { Component } from '../types/types';
 

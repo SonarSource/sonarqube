@@ -59,8 +59,6 @@ export interface BranchLikeTree {
   orphanPullRequests: PullRequest[];
 }
 
-export type BranchParameters = { branch?: string } | { pullRequest?: string };
-
 export interface BranchWithNewCodePeriod extends Branch {
   newCodePeriod?: NewCodeDefinition;
 }

@@ -18,10 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { cloneDeep, isArray, isObject, isString } from 'lodash';
+import { BranchParameters } from '~sonar-aligned/types/branch-like';
 import { HousekeepingPolicy } from '../../apps/audit-logs/utils';
 import { mockDefinition, mockSettingFieldDefinition } from '../../helpers/mocks/settings';
 import { isDefined } from '../../helpers/types';
-import { BranchParameters } from '../../types/branch-like';
 import {
   ExtendedSettingDefinition,
   SettingDefinition,

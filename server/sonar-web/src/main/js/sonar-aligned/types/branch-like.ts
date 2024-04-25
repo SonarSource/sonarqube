@@ -17,28 +17,4 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
-import { useQuery } from '@tanstack/react-query';
-import { BranchParameters } from '~sonar-aligned/types/branch-like';
-import { getAllTimeMachineData } from '../api/time-machine';
-
-export function useAllMeasuresHistoryQuery(
-  component: string | undefined,
-  branchParams: BranchParameters,
-  metrics: string,
-  enabled = true,
-) {
-  return useQuery({
-    queryKey: ['measures', 'history', component, branchParams, metrics],
-    queryFn: () => {
-      if (metrics.length <= 0) {
-        return Promise.resolve({
-          measures: [],
-          paging: { pageIndex: 1, pageSize: 1, total: 0 },
-        });
-      }
-      return getAllTimeMachineData({ component, metrics, ...branchParams, p: 1 });
-    },
-    enabled,
-  });
-}
+export type BranchParameters = { branch?: string } | { pullRequest?: string };

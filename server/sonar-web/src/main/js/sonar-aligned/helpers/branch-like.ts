@@ -19,7 +19,8 @@
  */
 import { isPullRequest } from '../../helpers/branch-like';
 
-import { Branch, BranchLike, BranchParameters, MainBranch } from '../../types/branch-like';
+import { BranchParameters } from '~sonar-aligned/types/branch-like';
+import { Branch, BranchLike, MainBranch } from '../../types/branch-like';
 
 export function getBranchLikeQuery(
   branchLike?: BranchLike,
