@@ -3,6 +3,8 @@
 exports[`[Function isApplication] should work properly 1`] = `
 {
   "APP": true,
+  "BRC": false,
+  "DEV": false,
   "DIR": false,
   "FIL": false,
   "SVW": false,
@@ -15,6 +17,8 @@ exports[`[Function isApplication] should work properly 1`] = `
 exports[`[Function isFile] should work properly 1`] = `
 {
   "APP": false,
+  "BRC": false,
+  "DEV": false,
   "DIR": false,
   "FIL": true,
   "SVW": false,
@@ -27,6 +31,8 @@ exports[`[Function isFile] should work properly 1`] = `
 exports[`[Function isPortfolioLike] should work properly 1`] = `
 {
   "APP": false,
+  "BRC": false,
+  "DEV": false,
   "DIR": false,
   "FIL": false,
   "SVW": true,
@@ -39,6 +45,8 @@ exports[`[Function isPortfolioLike] should work properly 1`] = `
 exports[`[Function isProject] should work properly 1`] = `
 {
   "APP": false,
+  "BRC": false,
+  "DEV": false,
   "DIR": false,
   "FIL": false,
   "SVW": false,
@@ -51,6 +59,8 @@ exports[`[Function isProject] should work properly 1`] = `
 exports[`[Function isView] should work properly 1`] = `
 {
   "APP": true,
+  "BRC": false,
+  "DEV": false,
   "DIR": false,
   "FIL": false,
   "SVW": true,

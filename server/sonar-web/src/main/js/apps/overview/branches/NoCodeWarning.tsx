@@ -20,10 +20,10 @@
 import { FlagMessage } from 'design-system';
 import * as React from 'react';
 import { isMainBranch } from '~sonar-aligned/helpers/branch-like';
+import { ComponentQualifier } from '~sonar-aligned/types/component';
 import { getBranchLikeDisplayName } from '../../../helpers/branch-like';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { BranchLike } from '../../../types/branch-like';
-import { ComponentQualifier } from '../../../types/component';
 import { MetricKey } from '../../../types/metrics';
 import { Component, MeasureEnhanced } from '../../../types/types';
 

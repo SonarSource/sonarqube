@@ -17,22 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { ComponentQualifier } from '~sonar-aligned/types/component';
 import { Task } from './tasks';
 import { Component, LightComponent } from './types';
 
 export enum Visibility {
   Public = 'public',
   Private = 'private',
-}
-
-export enum ComponentQualifier {
-  Application = 'APP',
-  Directory = 'DIR',
-  File = 'FIL',
-  Portfolio = 'VW',
-  Project = 'TRK',
-  SubPortfolio = 'SVW',
-  TestFile = 'UTS',
 }
 
 export enum ProjectKeyValidationResult {

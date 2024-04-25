@@ -19,6 +19,7 @@
  */
 import { HttpStatusCode } from 'axios';
 import { cloneDeep, countBy, pick, trim } from 'lodash';
+import { ComponentQualifier } from '~sonar-aligned/types/component';
 import { RuleDescriptionSections } from '../../apps/coding-rules/rule';
 import { mapRestRuleToRule } from '../../apps/coding-rules/utils';
 import { getStandards } from '../../helpers/security-standard';
@@ -30,7 +31,7 @@ import {
   mockRuleRepository,
 } from '../../helpers/testMocks';
 import { RuleRepository, SearchRulesResponse } from '../../types/coding-rules';
-import { ComponentQualifier, Visibility } from '../../types/component';
+import { Visibility } from '../../types/component';
 import { RawIssuesResponse } from '../../types/issues';
 import { RuleStatus, SearchRulesQuery } from '../../types/rules';
 import { SecurityStandard } from '../../types/security';

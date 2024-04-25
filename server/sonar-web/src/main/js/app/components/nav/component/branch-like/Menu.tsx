@@ -22,6 +22,7 @@ import * as React from 'react';
 import { withRouter } from '~sonar-aligned/components/hoc/withRouter';
 import { isBranch } from '~sonar-aligned/helpers/branch-like';
 import { queryToSearch } from '~sonar-aligned/helpers/urls';
+import { ComponentQualifier } from '~sonar-aligned/types/component';
 import { Router } from '~sonar-aligned/types/router';
 import {
   getBrancheLikesAsTree,
@@ -32,7 +33,6 @@ import { KeyboardKeys } from '../../../../../helpers/keycodes';
 import { translate } from '../../../../../helpers/l10n';
 import { getBranchLikeUrl } from '../../../../../helpers/urls';
 import { BranchLike, BranchLikeTree } from '../../../../../types/branch-like';
-import { ComponentQualifier } from '../../../../../types/component';
 import { Component } from '../../../../../types/types';
 import MenuItemList from './MenuItemList';
 

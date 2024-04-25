@@ -21,13 +21,14 @@ import classNames from 'classnames';
 import { Breadcrumbs, ClipboardIconButton, HoverLink } from 'design-system';
 import * as React from 'react';
 import { getBranchLikeQuery } from '~sonar-aligned/helpers/branch-like';
+import { ComponentQualifier } from '~sonar-aligned/types/component';
 import { getBreadcrumbs } from '../../../api/components';
 import { isSameBranchLike } from '../../../helpers/branch-like';
 import { KeyboardKeys } from '../../../helpers/keycodes';
 import { translate } from '../../../helpers/l10n';
 import { collapsePath, limitComponentName } from '../../../helpers/path';
 import { BranchLike } from '../../../types/branch-like';
-import { ComponentQualifier, isProject } from '../../../types/component';
+import { isProject } from '../../../types/component';
 import { ComponentMeasure, ComponentMeasureIntern } from '../../../types/types';
 
 interface Props {

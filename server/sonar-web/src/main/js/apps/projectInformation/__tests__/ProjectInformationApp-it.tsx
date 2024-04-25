@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { screen } from '@testing-library/react';
+import { ComponentQualifier } from '~sonar-aligned/types/component';
 import BranchesServiceMock from '../../../api/mocks/BranchesServiceMock';
 import CodingRulesServiceMock from '../../../api/mocks/CodingRulesServiceMock';
 import ComponentsServiceMock from '../../../api/mocks/ComponentsServiceMock';
@@ -29,7 +30,7 @@ import { mockComponent } from '../../../helpers/mocks/component';
 import { mockCurrentUser, mockLoggedInUser, mockMeasure } from '../../../helpers/testMocks';
 import { renderAppWithComponentContext } from '../../../helpers/testReactTestingUtils';
 import { byRole } from '../../../helpers/testSelector';
-import { ComponentQualifier, Visibility } from '../../../types/component';
+import { Visibility } from '../../../types/component';
 import { MetricKey } from '../../../types/metrics';
 import { Component } from '../../../types/types';
 import { CurrentUser } from '../../../types/users';

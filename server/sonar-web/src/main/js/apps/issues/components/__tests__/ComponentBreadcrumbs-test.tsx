@@ -19,10 +19,10 @@
  */
 import { screen } from '@testing-library/react';
 import * as React from 'react';
+import { ComponentQualifier } from '~sonar-aligned/types/component';
 import { mockComponent } from '../../../../helpers/mocks/component';
 import { mockIssue } from '../../../../helpers/testMocks';
 import { renderComponent } from '../../../../helpers/testReactTestingUtils';
-import { ComponentQualifier } from '../../../../types/component';
 import { Component, Issue } from '../../../../types/types';
 import ComponentBreadcrumbs from '../ComponentBreadcrumbs';
 

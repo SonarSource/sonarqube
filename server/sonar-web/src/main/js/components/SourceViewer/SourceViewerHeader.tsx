@@ -44,6 +44,7 @@ import {
   getComponentIssuesUrl,
   getComponentSecurityHotspotsUrl,
 } from '~sonar-aligned/helpers/urls';
+import { ComponentQualifier } from '~sonar-aligned/types/component';
 import { SOFTWARE_QUALITIES } from '../../helpers/constants';
 import {
   ISSUETYPE_METRIC_KEYS_MAP,
@@ -57,7 +58,6 @@ import { getBaseUrl } from '../../helpers/system';
 import { isDefined } from '../../helpers/types';
 import { getBranchLikeUrl, getCodeUrl } from '../../helpers/urls';
 import type { BranchLike } from '../../types/branch-like';
-import { ComponentQualifier } from '../../types/component';
 import { IssueType } from '../../types/issues';
 import { MetricKey, MetricType } from '../../types/metrics';
 import type { Measure, SourceViewerFile } from '../../types/types';

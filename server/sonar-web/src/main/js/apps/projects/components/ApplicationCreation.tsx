@@ -21,6 +21,7 @@ import { ButtonSecondary } from 'design-system';
 import * as React from 'react';
 import { withRouter } from '~sonar-aligned/components/hoc/withRouter';
 import { throwGlobalError } from '~sonar-aligned/helpers/error';
+import { ComponentQualifier } from '~sonar-aligned/types/component';
 import { Router } from '~sonar-aligned/types/router';
 import { getComponentNavigation } from '../../../api/navigation';
 import withAppStateContext from '../../../app/components/app-state/withAppStateContext';
@@ -30,7 +31,6 @@ import { translate } from '../../../helpers/l10n';
 import { getComponentAdminUrl, getComponentOverviewUrl } from '../../../helpers/urls';
 import { hasGlobalPermission } from '../../../helpers/users';
 import { AppState } from '../../../types/appstate';
-import { ComponentQualifier } from '../../../types/component';
 import { Permissions } from '../../../types/permissions';
 import { LoggedInUser } from '../../../types/users';
 

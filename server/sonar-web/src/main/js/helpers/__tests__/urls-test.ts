@@ -19,8 +19,8 @@
  */
 import { searchParamsToQuery } from '~sonar-aligned/helpers/router';
 import { queryToSearch } from '~sonar-aligned/helpers/urls';
+import { ComponentQualifier } from '~sonar-aligned/types/component';
 import { AlmKeys } from '../../types/alm-settings';
-import { ComponentQualifier } from '../../types/component';
 import { IssueType } from '../../types/issues';
 import { MeasurePageView } from '../../types/measures';
 import { mockBranch, mockMainBranch, mockPullRequest } from '../mocks/branch-like';

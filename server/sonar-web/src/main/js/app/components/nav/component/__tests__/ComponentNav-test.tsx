@@ -20,12 +20,12 @@
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
+import { ComponentQualifier } from '~sonar-aligned/types/component';
 import AlmSettingsServiceMock from '../../../../../api/mocks/AlmSettingsServiceMock';
 import BranchesServiceMock from '../../../../../api/mocks/BranchesServiceMock';
 import { mockProjectAlmBindingConfigurationErrors } from '../../../../../helpers/mocks/alm-settings';
 import { mockComponent } from '../../../../../helpers/mocks/component';
 import { renderApp } from '../../../../../helpers/testReactTestingUtils';
-import { ComponentQualifier } from '../../../../../types/component';
 import ComponentNav, { ComponentNavProps } from '../ComponentNav';
 
 const branchesHandler = new BranchesServiceMock();

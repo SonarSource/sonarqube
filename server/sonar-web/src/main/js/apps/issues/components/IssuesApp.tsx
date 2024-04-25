@@ -36,6 +36,7 @@ import { Helmet } from 'react-helmet-async';
 import { FormattedMessage } from 'react-intl';
 import { withRouter } from '~sonar-aligned/components/hoc/withRouter';
 import { getBranchLikeQuery } from '~sonar-aligned/helpers/branch-like';
+import { ComponentQualifier } from '~sonar-aligned/types/component';
 import { Location, RawQuery, Router } from '~sonar-aligned/types/router';
 import { listIssues, searchIssues } from '../../../api/issues';
 import { getRuleDetails } from '../../../api/rules';
@@ -62,7 +63,7 @@ import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { serializeDate } from '../../../helpers/query';
 import { withBranchLikes } from '../../../queries/branch';
 import { BranchLike } from '../../../types/branch-like';
-import { ComponentQualifier, isPortfolioLike, isProject } from '../../../types/component';
+import { isPortfolioLike, isProject } from '../../../types/component';
 import {
   ASSIGNEE_ME,
   Facet,

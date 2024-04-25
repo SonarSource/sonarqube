@@ -19,7 +19,8 @@
  */
 import * as React from 'react';
 import { getWrappedDisplayName } from '~sonar-aligned/components/hoc/utils';
-import { ComponentContextShape, ComponentQualifier } from '../../../types/component';
+import { ComponentQualifier } from '~sonar-aligned/types/component';
+import { ComponentContextShape } from '../../../types/component';
 import { ComponentContext } from './ComponentContext';
 
 export default function withComponentContext<P extends Partial<ComponentContextShape>>(

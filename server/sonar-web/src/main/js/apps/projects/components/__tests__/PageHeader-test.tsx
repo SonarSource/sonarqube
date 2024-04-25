@@ -19,13 +19,13 @@
  */
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
+import { ComponentQualifier } from '~sonar-aligned/types/component';
 import { getAlmSettings } from '../../../../api/alm-settings';
 import CurrentUserContextProvider from '../../../../app/components/current-user/CurrentUserContextProvider';
 import { mockAppState, mockCurrentUser, mockLoggedInUser } from '../../../../helpers/testMocks';
 import { renderComponent } from '../../../../helpers/testReactTestingUtils';
 import { byLabelText, byRole, byText } from '../../../../helpers/testSelector';
 import { AlmKeys } from '../../../../types/alm-settings';
-import { ComponentQualifier } from '../../../../types/component';
 import { FCProps } from '../../../../types/misc';
 import { CurrentUser } from '../../../../types/users';
 import PageHeader from '../PageHeader';

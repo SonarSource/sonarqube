@@ -20,8 +20,8 @@
 import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
+import { ComponentQualifier } from '~sonar-aligned/types/component';
 import { mockLoggedInUser } from '../../../helpers/testMocks';
-import { ComponentQualifier } from '../../../types/component';
 import { IssueType } from '../../../types/issues';
 import { NoticeType } from '../../../types/users';
 import {

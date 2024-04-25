@@ -22,6 +22,7 @@ import userEvent from '@testing-library/user-event';
 import { keyBy, times } from 'lodash';
 import React from 'react';
 import { Route } from 'react-router-dom';
+import { ComponentQualifier } from '~sonar-aligned/types/component';
 import ApplicationServiceMock from '../../../../api/mocks/ApplicationServiceMock';
 import { ProjectActivityServiceMock } from '../../../../api/mocks/ProjectActivityServiceMock';
 import { TimeMachineServiceMock } from '../../../../api/mocks/TimeMachineServiceMock';
@@ -38,7 +39,6 @@ import { get } from '../../../../helpers/storage';
 import { mockMetric } from '../../../../helpers/testMocks';
 import { renderAppWithComponentContext } from '../../../../helpers/testReactTestingUtils';
 import { byLabelText, byRole, byTestId, byText } from '../../../../helpers/testSelector';
-import { ComponentQualifier } from '../../../../types/component';
 import { MetricKey, MetricType } from '../../../../types/metrics';
 import {
   ApplicationAnalysisEventCategory,

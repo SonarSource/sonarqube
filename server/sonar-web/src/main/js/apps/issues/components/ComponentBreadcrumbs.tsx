@@ -20,9 +20,10 @@
 import styled from '@emotion/styled';
 import { Badge, BranchIcon, themeBorder, themeContrast } from 'design-system';
 import * as React from 'react';
+import { ComponentQualifier } from '~sonar-aligned/types/component';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { collapsePath, limitComponentName } from '../../../helpers/path';
-import { ComponentQualifier, isView } from '../../../types/component';
+import { isView } from '../../../types/component';
 import { Component, Issue } from '../../../types/types';
 import { getSelectedLocation } from '../utils';
 

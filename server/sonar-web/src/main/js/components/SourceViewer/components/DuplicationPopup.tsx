@@ -26,12 +26,12 @@ import {
 } from 'design-system';
 import { groupBy, sortBy } from 'lodash';
 import React, { Fragment, PureComponent } from 'react';
+import { ComponentQualifier } from '~sonar-aligned/types/component';
 import { isPullRequest } from '../../../helpers/branch-like';
 import { translate } from '../../../helpers/l10n';
 import { collapsedDirFromPath, fileFromPath } from '../../../helpers/path';
 import { getProjectUrl } from '../../../helpers/urls';
 import { BranchLike } from '../../../types/branch-like';
-import { ComponentQualifier } from '../../../types/component';
 import { Dict, DuplicatedFile, DuplicationBlock, SourceViewerFile } from '../../../types/types';
 import { WorkspaceContextShape } from '../../workspace/context';
 

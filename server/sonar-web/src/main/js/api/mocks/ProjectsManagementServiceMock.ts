@@ -18,8 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { cloneDeep } from 'lodash';
+import { ComponentQualifier } from '~sonar-aligned/types/component';
 import { mockProject } from '../../helpers/mocks/projects';
-import { ComponentQualifier, Visibility } from '../../types/component';
+import { Visibility } from '../../types/component';
 import { SettingsKey } from '../../types/settings';
 import {
   Project,

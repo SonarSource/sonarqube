@@ -17,28 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { ComponentQualifier } from '~sonar-aligned/types/component';
-import { Visibility } from '../../types/component';
-import { Dict } from '../../types/types';
 
-export interface Project {
-  analysisDate?: string;
-  isFavorite?: boolean;
-  key: string;
-  leakPeriodDate?: string;
-  measures: Dict<string>;
-  name: string;
-  projects?: number;
-  qualifier: ComponentQualifier;
-  tags: string[];
-  visibility: Visibility;
-  isScannable: boolean;
-}
-
-export interface Facet {
-  [value: string]: number;
-}
-
-export interface Facets {
-  [property: string]: Facet;
+export enum ComponentQualifier {
+  Application = 'APP',
+  Directory = 'DIR',
+  Developer = 'DEV',
+  File = 'FIL',
+  Portfolio = 'VW',
+  Project = 'TRK',
+  SubPortfolio = 'SVW',
+  SubProject = 'BRC',
+  TestFile = 'UTS',
 }

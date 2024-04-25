@@ -23,12 +23,12 @@ import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { getBranchLikeQuery } from '~sonar-aligned/helpers/branch-like';
 import { queryToSearch } from '~sonar-aligned/helpers/urls';
+import { ComponentQualifier } from '~sonar-aligned/types/component';
 import DocumentationLink from '../../../components/common/DocumentationLink';
 import { Image } from '../../../components/common/Image';
 import { translate } from '../../../helpers/l10n';
 import { CodeScope } from '../../../helpers/urls';
 import { Branch } from '../../../types/branch-like';
-import { ComponentQualifier } from '../../../types/component';
 import { NewCodeDefinitionType } from '../../../types/new-code-definition';
 import { Component, Period } from '../../../types/types';
 

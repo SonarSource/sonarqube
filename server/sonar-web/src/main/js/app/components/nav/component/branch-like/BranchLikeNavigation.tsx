@@ -20,11 +20,11 @@
 import styled from '@emotion/styled';
 import { ButtonSecondary, Popup, PopupPlacement, PopupZLevel } from 'design-system';
 import * as React from 'react';
+import { ComponentQualifier } from '~sonar-aligned/types/component';
 import EscKeydownHandler from '../../../../../components/controls/EscKeydownHandler';
 import FocusOutHandler from '../../../../../components/controls/FocusOutHandler';
 import OutsideClickHandler from '../../../../../components/controls/OutsideClickHandler';
 import { useBranchesQuery } from '../../../../../queries/branch';
-import { ComponentQualifier } from '../../../../../types/component';
 import { Feature } from '../../../../../types/features';
 import { Component } from '../../../../../types/types';
 import withAvailableFeatures, {

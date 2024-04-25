@@ -21,11 +21,11 @@
 import { IconProject, Spinner } from '@sonarsource/echoes-react';
 import { omit } from 'lodash';
 import * as React from 'react';
+import { ComponentQualifier } from '~sonar-aligned/types/component';
 import { getTree, searchProjects } from '../../../api/components';
 import { translate } from '../../../helpers/l10n';
 import { highlightTerm } from '../../../helpers/search';
 import { useProjectQuery } from '../../../queries/projects';
-import { ComponentQualifier } from '../../../types/component';
 import { Facet, ReferencedComponent } from '../../../types/issues';
 import { MetricKey } from '../../../types/metrics';
 import { Component, Dict, Paging } from '../../../types/types';

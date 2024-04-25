@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { sortBy } from 'lodash';
-import { ComponentQualifier } from '../../../../js/types/component';
+import { ComponentQualifier } from '~sonar-aligned/types/component';
 
 const ORDER = [
   ComponentQualifier.Portfolio,

@@ -20,11 +20,11 @@
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
+import { ComponentQualifier } from '~sonar-aligned/types/component';
 import BranchesServiceMock from '../../../../../api/mocks/BranchesServiceMock';
 import { mockComponent } from '../../../../../helpers/mocks/component';
 import { renderComponent } from '../../../../../helpers/testReactTestingUtils';
 import { ComponentPropsType } from '../../../../../helpers/testUtils';
-import { ComponentQualifier } from '../../../../../types/component';
 import { Feature } from '../../../../../types/features';
 import { Menu } from '../Menu';
 

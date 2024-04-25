@@ -22,13 +22,13 @@ import { differenceInDays } from 'date-fns';
 import { Highlight, Note, themeBorder, themeColor } from 'design-system';
 import * as React from 'react';
 import { WrappedComponentProps, injectIntl } from 'react-intl';
+import { ComponentQualifier } from '~sonar-aligned/types/component';
 import Tooltip from '../../../components/controls/Tooltip';
 import DateFormatter, { longFormatterOption } from '../../../components/intl/DateFormatter';
 import DateFromNow from '../../../components/intl/DateFromNow';
 import DateTimeFormatter, { formatterOption } from '../../../components/intl/DateTimeFormatter';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { getNewCodePeriodDate, getNewCodePeriodLabel } from '../../../helpers/new-code-period';
-import { ComponentQualifier } from '../../../types/component';
 import { NewCodeDefinitionType } from '../../../types/new-code-definition';
 import { ComponentMeasure, Period } from '../../../types/types';
 

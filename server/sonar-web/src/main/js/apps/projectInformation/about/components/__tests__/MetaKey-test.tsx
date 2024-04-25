@@ -19,8 +19,8 @@
  */
 import { screen } from '@testing-library/react';
 import * as React from 'react';
+import { ComponentQualifier } from '~sonar-aligned/types/component';
 import { renderComponent } from '../../../../../helpers/testReactTestingUtils';
-import { ComponentQualifier } from '../../../../../types/component';
 import MetaKey from '../MetaKey';
 
 it('should render correctly', () => {

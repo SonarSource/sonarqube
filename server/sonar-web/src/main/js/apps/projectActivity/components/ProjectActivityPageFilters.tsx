@@ -19,8 +19,9 @@
  */
 import { InputSelect, LabelValueSelectOption } from 'design-system';
 import * as React from 'react';
+import { ComponentQualifier } from '~sonar-aligned/types/component';
 import { translate } from '../../../helpers/l10n';
-import { ComponentQualifier, isPortfolioLike } from '../../../types/component';
+import { isPortfolioLike } from '../../../types/component';
 import {
   ApplicationAnalysisEventCategory,
   ProjectAnalysisEventCategory,

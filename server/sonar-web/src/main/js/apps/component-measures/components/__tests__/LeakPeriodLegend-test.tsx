@@ -19,9 +19,9 @@
  */
 import { screen } from '@testing-library/react';
 import * as React from 'react';
+import { ComponentQualifier } from '~sonar-aligned/types/component';
 import { mockComponentMeasure } from '../../../../helpers/mocks/component';
 import { renderComponent } from '../../../../helpers/testReactTestingUtils';
-import { ComponentQualifier } from '../../../../types/component';
 import { Period } from '../../../../types/types';
 import LeakPeriodLegend, { LeakPeriodLegendProps } from '../LeakPeriodLegend';
 

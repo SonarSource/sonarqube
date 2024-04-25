@@ -19,10 +19,10 @@
  */
 import { omit } from 'lodash';
 import * as React from 'react';
+import { ComponentQualifier } from '~sonar-aligned/types/component';
 import { searchIssueAuthors } from '../../../api/issues';
 import { translate } from '../../../helpers/l10n';
 import { highlightTerm } from '../../../helpers/search';
-import { ComponentQualifier } from '../../../types/component';
 import { Facet } from '../../../types/issues';
 import { Component, Dict } from '../../../types/types';
 import { Query } from '../utils';

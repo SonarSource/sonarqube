@@ -20,10 +20,10 @@
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
+import { ComponentQualifier } from '~sonar-aligned/types/component';
 import { setApplicationTags, setProjectTags } from '../../../../../api/components';
 import { mockComponent } from '../../../../../helpers/mocks/component';
 import { renderComponent } from '../../../../../helpers/testReactTestingUtils';
-import { ComponentQualifier } from '../../../../../types/component';
 import { Component } from '../../../../../types/types';
 import MetaTags from '../MetaTags';
 

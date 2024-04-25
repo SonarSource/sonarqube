@@ -20,6 +20,7 @@
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
+import { ComponentQualifier } from '~sonar-aligned/types/component';
 import AlmSettingsServiceMock from '../../../../../api/mocks/AlmSettingsServiceMock';
 import BranchesServiceMock from '../../../../../api/mocks/BranchesServiceMock';
 import { mockMainBranch, mockPullRequest } from '../../../../../helpers/mocks/branch-like';
@@ -27,7 +28,6 @@ import { mockComponent } from '../../../../../helpers/mocks/component';
 import { mockCurrentUser, mockLoggedInUser } from '../../../../../helpers/testMocks';
 import { renderApp } from '../../../../../helpers/testReactTestingUtils';
 import { AlmKeys } from '../../../../../types/alm-settings';
-import { ComponentQualifier } from '../../../../../types/component';
 import { Feature } from '../../../../../types/features';
 import { Header, HeaderProps } from '../Header';
 

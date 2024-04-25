@@ -20,6 +20,7 @@
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
+import { ComponentQualifier } from '~sonar-aligned/types/component';
 import BranchesServiceMock from '../../../../api/mocks/BranchesServiceMock';
 import { fetchQualityGate, getQualityGateProjectStatus } from '../../../../api/quality-gates';
 import CurrentUserContextProvider from '../../../../app/components/current-user/CurrentUserContextProvider';
@@ -33,7 +34,6 @@ import { mockLoggedInUser, mockMeasure, mockMetric } from '../../../../helpers/t
 import { renderComponent } from '../../../../helpers/testReactTestingUtils';
 import { byLabelText, byRole } from '../../../../helpers/testSelector';
 import { ComponentPropsType } from '../../../../helpers/testUtils';
-import { ComponentQualifier } from '../../../../types/component';
 import { MetricKey, MetricType } from '../../../../types/metrics';
 import { CaycStatus } from '../../../../types/types';
 import { NoticeType } from '../../../../types/users';

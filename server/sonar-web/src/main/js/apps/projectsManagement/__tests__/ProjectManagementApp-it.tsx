@@ -20,6 +20,7 @@
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import selectEvent from 'react-select-event';
+import { ComponentQualifier } from '~sonar-aligned/types/component';
 import GithubProvisioningServiceMock from '../../../api/mocks/GithubProvisioningServiceMock';
 import PermissionsServiceMock from '../../../api/mocks/PermissionsServiceMock';
 import ProjectManagementServiceMock from '../../../api/mocks/ProjectsManagementServiceMock';
@@ -30,7 +31,6 @@ import { mockAppState, mockCurrentUser } from '../../../helpers/testMocks';
 import { RenderContext, renderAppWithAdminContext } from '../../../helpers/testReactTestingUtils';
 import { byPlaceholderText, byRole, byText } from '../../../helpers/testSelector';
 import { AppState } from '../../../types/appstate';
-import { ComponentQualifier } from '../../../types/component';
 import { Feature } from '../../../types/features';
 import { Permissions } from '../../../types/permissions';
 import { GlobalSettingKeys } from '../../../types/settings';

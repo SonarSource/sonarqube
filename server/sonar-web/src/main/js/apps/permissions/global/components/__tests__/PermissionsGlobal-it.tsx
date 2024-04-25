@@ -20,13 +20,13 @@
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { without } from 'lodash';
+import { ComponentQualifier } from '~sonar-aligned/types/component';
 import PermissionsServiceMock from '../../../../../api/mocks/PermissionsServiceMock';
 import { mockPermissionGroup, mockPermissionUser } from '../../../../../helpers/mocks/permissions';
 import { PERMISSIONS_ORDER_GLOBAL } from '../../../../../helpers/permissions';
 import { mockAppState } from '../../../../../helpers/testMocks';
 import { renderAppRoutes } from '../../../../../helpers/testReactTestingUtils';
 import { AppState } from '../../../../../types/appstate';
-import { ComponentQualifier } from '../../../../../types/component';
 import { Permissions } from '../../../../../types/permissions';
 import { PermissionGroup, PermissionUser } from '../../../../../types/types';
 import { globalPermissionsRoutes } from '../../../routes';

@@ -18,10 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { sortBy } from 'lodash';
+import { ComponentQualifier } from '~sonar-aligned/types/component';
 import { decorateWithUnderlineFlags } from '../../../helpers/code-viewer';
 import { isDefined } from '../../../helpers/types';
 import { useUsersQueries } from '../../../queries/users';
-import { ComponentQualifier } from '../../../types/component';
 import { ReviewHistoryElement, ReviewHistoryType } from '../../../types/security-hotspots';
 import {
   ExpandDirection,

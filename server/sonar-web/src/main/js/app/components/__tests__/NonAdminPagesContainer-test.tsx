@@ -20,8 +20,9 @@
 import { render, screen } from '@testing-library/react';
 import * as React from 'react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
+import { ComponentQualifier } from '~sonar-aligned/types/component';
 import { mockComponent } from '../../../helpers/mocks/component';
-import { ComponentContextShape, ComponentQualifier } from '../../../types/component';
+import { ComponentContextShape } from '../../../types/component';
 import { Component } from '../../../types/types';
 import NonAdminPagesContainer from '../NonAdminPagesContainer';
 import { ComponentContext } from '../componentContext/ComponentContext';

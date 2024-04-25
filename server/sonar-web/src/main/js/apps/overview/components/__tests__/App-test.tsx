@@ -19,6 +19,7 @@
  */
 import { screen, waitFor } from '@testing-library/react';
 import * as React from 'react';
+import { ComponentQualifier } from '~sonar-aligned/types/component';
 import { getScannableProjects } from '../../../../api/components';
 import BranchesServiceMock from '../../../../api/mocks/BranchesServiceMock';
 import ComputeEngineServiceMock from '../../../../api/mocks/ComputeEngineServiceMock';
@@ -29,7 +30,6 @@ import { mockTask } from '../../../../helpers/mocks/tasks';
 import { mockCurrentUser, mockLoggedInUser } from '../../../../helpers/testMocks';
 import { renderComponent } from '../../../../helpers/testReactTestingUtils';
 import { getProjectTutorialLocation } from '../../../../helpers/urls';
-import { ComponentQualifier } from '../../../../types/component';
 import { TaskStatuses, TaskTypes } from '../../../../types/tasks';
 import { App } from '../App';
 

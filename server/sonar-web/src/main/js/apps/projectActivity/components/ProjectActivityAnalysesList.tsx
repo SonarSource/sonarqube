@@ -27,7 +27,7 @@ import DateFormatter from '../../../components/intl/DateFormatter';
 import { toShortISO8601String } from '../../../helpers/dates';
 import { translate } from '../../../helpers/l10n';
 
-import { ComponentQualifier } from '../../../types/component';
+import { ComponentQualifier } from '~sonar-aligned/types/component';
 import { ParsedAnalysis } from '../../../types/project-activity';
 import { AnalysesByDay, Query, activityQueryChanged, getAnalysesByVersionByDay } from '../utils';
 import ProjectActivityAnalysis, { BaselineMarker } from './ProjectActivityAnalysis';

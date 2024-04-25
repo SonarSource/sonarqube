@@ -19,7 +19,8 @@
  */
 import { BasicSeparator, Card, Spinner } from 'design-system';
 import * as React from 'react';
-import { ComponentQualifier, isApplication } from '../../../types/component';
+import { ComponentQualifier } from '~sonar-aligned/types/component';
+import { isApplication } from '../../../types/component';
 import { QualityGateStatus } from '../../../types/quality-gates';
 import { CaycStatus, Component, QualityGate } from '../../../types/types';
 import IgnoredConditionWarning from '../components/IgnoredConditionWarning';

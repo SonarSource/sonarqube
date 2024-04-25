@@ -26,10 +26,11 @@ import {
   RadioButton,
 } from 'design-system';
 import * as React from 'react';
+import { ComponentQualifier } from '~sonar-aligned/types/component';
 import { createApplication } from '../../../api/application';
 import MandatoryFieldsExplanation from '../../../components/ui/MandatoryFieldsExplanation';
 import { translate } from '../../../helpers/l10n';
-import { ComponentQualifier, Visibility } from '../../../types/component';
+import { Visibility } from '../../../types/component';
 
 interface Props {
   onClose: () => void;

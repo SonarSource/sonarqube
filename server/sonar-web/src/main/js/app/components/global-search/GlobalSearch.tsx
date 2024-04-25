@@ -30,6 +30,7 @@ import {
 import { debounce, uniqBy } from 'lodash';
 import * as React from 'react';
 import { withRouter } from '~sonar-aligned/components/hoc/withRouter';
+import { ComponentQualifier } from '~sonar-aligned/types/component';
 import { Router } from '~sonar-aligned/types/router';
 import { getSuggestions } from '../../../api/components';
 import FocusOutHandler from '../../../components/controls/FocusOutHandler';
@@ -41,7 +42,6 @@ import { KeyboardKeys } from '../../../helpers/keycodes';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { getKeyboardShortcutEnabled } from '../../../helpers/preferences';
 import { getComponentOverviewUrl } from '../../../helpers/urls';
-import { ComponentQualifier } from '../../../types/component';
 import { Dict } from '../../../types/types';
 import RecentHistory from '../RecentHistory';
 import GlobalSearchResult from './GlobalSearchResult';

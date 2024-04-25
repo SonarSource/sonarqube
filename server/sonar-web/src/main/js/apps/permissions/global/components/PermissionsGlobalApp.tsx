@@ -21,6 +21,7 @@ import { LargeCenteredLayout, PageContentFontWrapper } from 'design-system';
 import { without } from 'lodash';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
+import { ComponentQualifier } from '~sonar-aligned/types/component';
 import * as api from '../../../../api/permissions';
 import withAppStateContext, {
   WithAppStateContextProps,
@@ -34,7 +35,6 @@ import {
   convertToPermissionDefinitions,
   filterPermissions,
 } from '../../../../helpers/permissions';
-import { ComponentQualifier } from '../../../../types/component';
 import { Paging, PermissionGroup, PermissionUser } from '../../../../types/types';
 import '../../styles.css';
 import PageHeader from './PageHeader';

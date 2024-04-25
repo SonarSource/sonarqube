@@ -24,11 +24,11 @@ import React from 'react';
 import withCurrentUserContext from '../../../app/components/current-user/withCurrentUserContext';
 
 import { LinkHighlight, LinkStandalone } from '@sonarsource/echoes-react';
+import { ComponentQualifier } from '~sonar-aligned/types/component';
 import { translate } from '../../../helpers/l10n';
 import { collapsedDirFromPath, fileFromPath } from '../../../helpers/path';
 import { getBranchLikeUrl } from '../../../helpers/urls';
 import { BranchLike } from '../../../types/branch-like';
-import { ComponentQualifier } from '../../../types/component';
 import { Hotspot } from '../../../types/security-hotspots';
 import { Component } from '../../../types/types';
 import { CurrentUser, isLoggedIn } from '../../../types/users';

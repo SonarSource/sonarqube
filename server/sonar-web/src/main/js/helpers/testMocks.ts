@@ -19,6 +19,7 @@
  */
 import { omit } from 'lodash';
 import { To } from 'react-router-dom';
+import { ComponentQualifier } from '~sonar-aligned/types/component';
 import { Location, Router } from '~sonar-aligned/types/router';
 import { CompareResponse } from '../api/quality-profiles';
 import { RuleDescriptionSections } from '../apps/coding-rules/rule';
@@ -33,7 +34,6 @@ import {
   SoftwareQuality,
 } from '../types/clean-code-taxonomy';
 import { RuleRepository } from '../types/coding-rules';
-import { ComponentQualifier } from '../types/component';
 import { EditionKey } from '../types/editions';
 import {
   IssueDeprecatedStatus,

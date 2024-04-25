@@ -34,6 +34,7 @@ import {
 import * as React from 'react';
 import { getBranchLikeQuery, isBranch } from '~sonar-aligned/helpers/branch-like';
 import { getComponentIssuesUrl } from '~sonar-aligned/helpers/urls';
+import { ComponentQualifier } from '~sonar-aligned/types/component';
 import { ComponentContext } from '../../../app/components/componentContext/ComponentContext';
 import { useCurrentUser } from '../../../app/components/current-user/CurrentUserContext';
 import { DEFAULT_ISSUES_QUERY } from '../../../components/shared/utils';
@@ -42,7 +43,6 @@ import { translate } from '../../../helpers/l10n';
 import { collapsedDirFromPath, fileFromPath } from '../../../helpers/path';
 import { getBranchLikeUrl } from '../../../helpers/urls';
 import { useBranchesQuery } from '../../../queries/branch';
-import { ComponentQualifier } from '../../../types/component';
 import { SourceViewerFile } from '../../../types/types';
 import { isLoggedIn } from '../../../types/users';
 import { IssueOpenInIdeButton } from '../components/IssueOpenInIdeButton';

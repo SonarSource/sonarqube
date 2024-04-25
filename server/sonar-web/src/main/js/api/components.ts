@@ -20,13 +20,9 @@
 import { throwGlobalError } from '~sonar-aligned/helpers/error';
 import { getJSON } from '~sonar-aligned/helpers/request';
 import { BranchParameters } from '~sonar-aligned/types/branch-like';
+import { ComponentQualifier } from '~sonar-aligned/types/component';
 import { post, RequestData } from '../helpers/request';
-import {
-  ComponentQualifier,
-  TreeComponent,
-  TreeComponentWithPath,
-  Visibility,
-} from '../types/component';
+import { TreeComponent, TreeComponentWithPath, Visibility } from '../types/component';
 import {
   ComponentMeasure,
   Dict,

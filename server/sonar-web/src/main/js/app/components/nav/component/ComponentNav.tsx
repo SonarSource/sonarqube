@@ -19,12 +19,12 @@
  */
 import { TopBar } from 'design-system';
 import * as React from 'react';
+import { ComponentQualifier } from '~sonar-aligned/types/component';
 import NCDAutoUpdateMessage from '../../../../components/new-code-definition/NCDAutoUpdateMessage';
 import { translate } from '../../../../helpers/l10n';
 import { withBranchLikes } from '../../../../queries/branch';
 import { ProjectAlmBindingConfigurationErrors } from '../../../../types/alm-settings';
 import { Branch } from '../../../../types/branch-like';
-import { ComponentQualifier } from '../../../../types/component';
 import { Feature } from '../../../../types/features';
 import { Component } from '../../../../types/types';
 import RecentHistory from '../../RecentHistory';

@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { ComponentQualifier } from '~sonar-aligned/types/component';
 import { colors } from '../app/theme';
 import { AlmKeys } from '../types/alm-settings';
 import {
@@ -25,7 +26,6 @@ import {
   SoftwareImpactSeverity,
   SoftwareQuality,
 } from '../types/clean-code-taxonomy';
-import { ComponentQualifier } from '../types/component';
 import {
   IssueResolution,
   IssueScope,

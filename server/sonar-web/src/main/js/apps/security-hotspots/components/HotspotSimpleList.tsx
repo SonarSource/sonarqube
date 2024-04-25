@@ -25,9 +25,9 @@ import { FormattedMessage } from 'react-intl';
 import ListFooter from '../../../components/controls/ListFooter';
 import Tooltip from '../../../components/controls/Tooltip';
 
+import { ComponentQualifier } from '~sonar-aligned/types/component';
 import { translate } from '../../../helpers/l10n';
 import { fileFromPath } from '../../../helpers/path';
-import { ComponentQualifier } from '../../../types/component';
 import { SecurityStandard, Standards } from '../../../types/security';
 import { RawHotspot } from '../../../types/security-hotspots';
 import { SECURITY_STANDARD_RENDERER } from '../utils';

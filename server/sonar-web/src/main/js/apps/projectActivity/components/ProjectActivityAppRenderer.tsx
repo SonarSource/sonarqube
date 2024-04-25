@@ -26,10 +26,10 @@ import {
 } from 'design-system';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
+import { ComponentQualifier } from '~sonar-aligned/types/component';
 import A11ySkipTarget from '../../../components/a11y/A11ySkipTarget';
 import Suggestions from '../../../components/embed-docs-modal/Suggestions';
 import { translate } from '../../../helpers/l10n';
-import { ComponentQualifier } from '../../../types/component';
 import { MeasureHistory, ParsedAnalysis } from '../../../types/project-activity';
 import { Component, Metric } from '../../../types/types';
 import { Query } from '../utils';

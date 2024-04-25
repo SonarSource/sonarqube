@@ -22,6 +22,7 @@ import classNames from 'classnames';
 import { MetricsRatingBadge, RatingLabel } from 'design-system';
 import * as React from 'react';
 import { formatMeasure } from '~sonar-aligned/helpers/measures';
+import { ComponentQualifier } from '~sonar-aligned/types/component';
 import LanguageDistribution from '../../../components/charts/LanguageDistribution';
 import Tooltip from '../../../components/controls/Tooltip';
 import Measure from '../../../components/measure/Measure';
@@ -29,7 +30,6 @@ import { getLocalizedMetricName, translate, translateWithParameters } from '../.
 import { isDiffMetric } from '../../../helpers/measures';
 import { getMeasureHistoryUrl } from '../../../helpers/urls';
 import { BranchLike } from '../../../types/branch-like';
-import { ComponentQualifier } from '../../../types/component';
 import { MetricKey, MetricType } from '../../../types/metrics';
 import { ComponentMeasure, Metric, Period, Measure as TypeMeasure } from '../../../types/types';
 import { getMetricSubnavigationName, hasFullMeasures } from '../utils';

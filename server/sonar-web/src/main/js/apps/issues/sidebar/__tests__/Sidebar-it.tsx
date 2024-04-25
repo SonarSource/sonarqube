@@ -19,11 +19,11 @@
  */
 import { screen, waitFor } from '@testing-library/react';
 import * as React from 'react';
+import { ComponentQualifier } from '~sonar-aligned/types/component';
 import { mockComponent } from '../../../../helpers/mocks/component';
 import { mockQuery } from '../../../../helpers/mocks/issues';
 import { mockAppState } from '../../../../helpers/testMocks';
 import { renderComponent } from '../../../../helpers/testReactTestingUtils';
-import { ComponentQualifier } from '../../../../types/component';
 import { GlobalSettingKeys } from '../../../../types/settings';
 import { SidebarClass as Sidebar } from '../Sidebar';
 

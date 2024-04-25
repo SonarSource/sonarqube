@@ -19,10 +19,10 @@
  */
 import { ContentCell, NumericalCell, TableRowInteractive } from 'design-system';
 import * as React from 'react';
+import { ComponentQualifier } from '~sonar-aligned/types/component';
 import DateFromNow from '../../../components/intl/DateFromNow';
 import { WorkspaceContext } from '../../../components/workspace/context';
 import { BranchLike } from '../../../types/branch-like';
-import { ComponentQualifier } from '../../../types/component';
 import { Metric, ComponentMeasure as TypeComponentMeasure } from '../../../types/types';
 import ComponentMeasure from './ComponentMeasure';
 import ComponentName from './ComponentName';

@@ -30,10 +30,10 @@ import {
   Spinner,
 } from 'design-system';
 import * as React from 'react';
+import { ComponentQualifier } from '~sonar-aligned/types/component';
 import { getSuggestions } from '../../../api/components';
 import { KeyboardKeys } from '../../../helpers/keycodes';
 import { translate } from '../../../helpers/l10n';
-import { ComponentQualifier } from '../../../types/component';
 import { NotificationProject } from '../../../types/notifications';
 
 interface Props {

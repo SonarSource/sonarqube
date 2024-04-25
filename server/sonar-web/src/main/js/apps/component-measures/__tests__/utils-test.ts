@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { ComponentQualifier } from '../../../types/component';
+import { ComponentQualifier } from '~sonar-aligned/types/component';
 import { MeasurePageView } from '../../../types/measures';
 import { MetricKey, MetricType } from '../../../types/metrics';
 import { ComponentMeasure } from '../../../types/types';

@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { cloneDeep } from 'lodash';
+import { ComponentQualifier } from '~sonar-aligned/types/component';
 import { mockComponent } from '../../../helpers/mocks/component';
 import { mockWebhook, mockWebhookDelivery } from '../../../helpers/mocks/webhook';
-import { ComponentQualifier } from '../../../types/component';
 import { WebhookDelivery, WebhookResponse } from '../../../types/webhook';
 import {
   WEBHOOK_GLOBAL_1,

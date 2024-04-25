@@ -22,16 +22,12 @@ import { Badge, BranchIcon, LightLabel, Note, QualifierIcon } from 'design-syste
 import * as React from 'react';
 import { getBranchLikeQuery } from '~sonar-aligned/helpers/branch-like';
 import { queryToSearch } from '~sonar-aligned/helpers/urls';
+import { ComponentQualifier } from '~sonar-aligned/types/component';
 import { translate } from '../../../helpers/l10n';
 import { isDefined } from '../../../helpers/types';
 import { CodeScope, getComponentOverviewUrl } from '../../../helpers/urls';
 import { BranchLike } from '../../../types/branch-like';
-import {
-  ComponentQualifier,
-  isApplication,
-  isPortfolioLike,
-  isProject,
-} from '../../../types/component';
+import { isApplication, isPortfolioLike, isProject } from '../../../types/component';
 import { ComponentMeasure } from '../../../types/types';
 import { mostCommonPrefix } from '../utils';
 

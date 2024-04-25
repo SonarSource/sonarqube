@@ -24,6 +24,7 @@ import { createPortal } from 'react-dom';
 import { Helmet } from 'react-helmet-async';
 import { Outlet } from 'react-router-dom';
 import { useLocation, useRouter } from '~sonar-aligned/components/hoc/withRouter';
+import { ComponentQualifier } from '~sonar-aligned/types/component';
 import { validateProjectAlmBinding } from '../../api/alm-settings';
 import { getTasksForComponent } from '../../api/ce';
 import { getComponentData } from '../../api/components';
@@ -34,7 +35,7 @@ import { getPortfolioUrl, getProjectUrl, getPullRequestUrl } from '../../helpers
 import { useBranchesQuery } from '../../queries/branch';
 import { ProjectAlmBindingConfigurationErrors } from '../../types/alm-settings';
 import { Branch } from '../../types/branch-like';
-import { ComponentQualifier, isFile, isPortfolioLike } from '../../types/component';
+import { isFile, isPortfolioLike } from '../../types/component';
 import { Feature } from '../../types/features';
 import { Task, TaskStatuses, TaskTypes } from '../../types/tasks';
 import { Component } from '../../types/types';

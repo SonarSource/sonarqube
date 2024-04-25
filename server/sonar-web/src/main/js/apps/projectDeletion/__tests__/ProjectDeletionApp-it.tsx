@@ -19,13 +19,14 @@
  */
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
+import { ComponentQualifier } from '~sonar-aligned/types/component';
 import { deleteApplication } from '../../../api/application';
 import { deletePortfolio, deleteProject } from '../../../api/project-management';
 import { ComponentContext } from '../../../app/components/componentContext/ComponentContext';
 import { mockComponent } from '../../../helpers/mocks/component';
 import { renderApp } from '../../../helpers/testReactTestingUtils';
 import { byRole, byText } from '../../../helpers/testSelector';
-import { ComponentContextShape, ComponentQualifier } from '../../../types/component';
+import { ComponentContextShape } from '../../../types/component';
 import { Component } from '../../../types/types';
 import App from '../App';
 

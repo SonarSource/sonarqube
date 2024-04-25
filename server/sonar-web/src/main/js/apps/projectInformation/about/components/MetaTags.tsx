@@ -21,11 +21,11 @@ import { Spinner } from '@sonarsource/echoes-react';
 import { MultiSelector, SubHeading, Tags } from 'design-system';
 import { difference, without } from 'lodash';
 import React, { useEffect, useState } from 'react';
+import { ComponentQualifier } from '~sonar-aligned/types/component';
 import { searchProjectTags, setApplicationTags, setProjectTags } from '../../../../api/components';
 import Tooltip from '../../../../components/controls/Tooltip';
 import { PopupPlacement } from '../../../../components/ui/popups';
 import { translate } from '../../../../helpers/l10n';
-import { ComponentQualifier } from '../../../../types/component';
 import { Component } from '../../../../types/types';
 
 interface Props {

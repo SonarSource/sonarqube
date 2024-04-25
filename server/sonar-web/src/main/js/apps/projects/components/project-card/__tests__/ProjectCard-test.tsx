@@ -19,9 +19,10 @@
  */
 import { screen } from '@testing-library/react';
 import React from 'react';
+import { ComponentQualifier } from '~sonar-aligned/types/component';
 import { mockCurrentUser, mockLoggedInUser } from '../../../../../helpers/testMocks';
 import { renderComponent } from '../../../../../helpers/testReactTestingUtils';
-import { ComponentQualifier, Visibility } from '../../../../../types/component';
+import { Visibility } from '../../../../../types/component';
 import { MetricKey } from '../../../../../types/metrics';
 import { CurrentUser } from '../../../../../types/users';
 import { Project } from '../../../types';

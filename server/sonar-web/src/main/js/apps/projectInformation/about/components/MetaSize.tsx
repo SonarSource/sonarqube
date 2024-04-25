@@ -20,10 +20,10 @@
 import { DrilldownLink, Note, SizeIndicator, SubHeading } from 'design-system';
 import * as React from 'react';
 import { formatMeasure } from '~sonar-aligned/helpers/measures';
+import { ComponentQualifier } from '~sonar-aligned/types/component';
 import { translate, translateWithParameters } from '../../../../helpers/l10n';
 import { localizeMetric } from '../../../../helpers/measures';
 import { getComponentDrilldownUrl } from '../../../../helpers/urls';
-import { ComponentQualifier } from '../../../../types/component';
 import { MetricKey, MetricType } from '../../../../types/metrics';
 import { Component, Measure } from '../../../../types/types';
 

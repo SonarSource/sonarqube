@@ -19,6 +19,7 @@
  */
 import { groupBy, memoize, sortBy, toPairs } from 'lodash';
 import { isBranch } from '~sonar-aligned/helpers/branch-like';
+import { ComponentQualifier } from '~sonar-aligned/types/component';
 import { RawQuery } from '~sonar-aligned/types/router';
 import { enhanceMeasure } from '../../components/measure/utils';
 import { isPullRequest } from '../../helpers/branch-like';
@@ -45,7 +46,6 @@ import {
   serializeString,
 } from '../../helpers/query';
 import { BranchLike } from '../../types/branch-like';
-import { ComponentQualifier } from '../../types/component';
 import { Domain, MeasurePageView } from '../../types/measures';
 import { MetricKey, MetricType } from '../../types/metrics';
 import {

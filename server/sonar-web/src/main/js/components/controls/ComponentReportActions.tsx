@@ -20,6 +20,7 @@
 
 import { addGlobalSuccessMessage } from 'design-system';
 import * as React from 'react';
+import { ComponentQualifier } from '~sonar-aligned/types/component';
 import {
   getReportStatus,
   subscribeToEmailReport,
@@ -30,7 +31,6 @@ import withCurrentUserContext from '../../app/components/current-user/withCurren
 import { translate, translateWithParameters } from '../../helpers/l10n';
 import { AppState } from '../../types/appstate';
 import { Branch } from '../../types/branch-like';
-import { ComponentQualifier } from '../../types/component';
 import { ComponentReportStatus } from '../../types/component-report';
 import { Component } from '../../types/types';
 import { CurrentUser, isLoggedIn } from '../../types/users';

@@ -22,6 +22,7 @@ import { FlagMessage } from 'design-system';
 import { intersection } from 'lodash';
 import * as React from 'react';
 import { getBranchLikeQuery } from '~sonar-aligned/helpers/branch-like';
+import { ComponentQualifier } from '~sonar-aligned/types/component';
 import {
   getComponentData,
   getComponentForSourceViewer,
@@ -33,7 +34,6 @@ import { isSameBranchLike } from '../../helpers/branch-like';
 import { translate } from '../../helpers/l10n';
 import { HttpStatus } from '../../helpers/request';
 import { BranchLike } from '../../types/branch-like';
-import { ComponentQualifier } from '../../types/component';
 import {
   Dict,
   DuplicatedFile,

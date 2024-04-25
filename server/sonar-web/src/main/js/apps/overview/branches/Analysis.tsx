@@ -21,8 +21,8 @@ import { QualityGateIndicator } from 'design-system';
 import { sortBy } from 'lodash';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
+import { ComponentQualifier } from '~sonar-aligned/types/component';
 import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
-import { ComponentQualifier } from '../../../types/component';
 import {
   AnalysisMeasuresVariations,
   ProjectAnalysisEventCategory,

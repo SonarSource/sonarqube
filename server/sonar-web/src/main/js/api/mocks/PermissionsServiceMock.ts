@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { chunk, cloneDeep, remove, uniq } from 'lodash';
+import { ComponentQualifier } from '~sonar-aligned/types/component';
 import {
   mockPermission,
   mockPermissionGroup,
@@ -26,7 +27,7 @@ import {
   mockPermissionUser,
 } from '../../helpers/mocks/permissions';
 import { PERMISSIONS_ORDER_FOR_PROJECT_TEMPLATE } from '../../helpers/permissions';
-import { ComponentQualifier, Visibility } from '../../types/component';
+import { Visibility } from '../../types/component';
 import { Permissions } from '../../types/permissions';
 import { Permission, PermissionGroup, PermissionTemplate, PermissionUser } from '../../types/types';
 import { BaseSearchProjectsParameters } from '../components';

@@ -20,11 +20,11 @@
 import { ContentCell, Table, TableRow } from 'design-system';
 import { sortBy, times } from 'lodash';
 import * as React from 'react';
+import { ComponentQualifier } from '~sonar-aligned/types/component';
 import withKeyboardNavigation from '../../../components/hoc/withKeyboardNavigation';
 import { getComponentMeasureUniqueKey } from '../../../helpers/component';
 import { isDefined } from '../../../helpers/types';
 import { BranchLike } from '../../../types/branch-like';
-import { ComponentQualifier } from '../../../types/component';
 import { ComponentMeasure, Metric } from '../../../types/types';
 import Component from './Component';
 import ComponentsEmpty from './ComponentsEmpty';

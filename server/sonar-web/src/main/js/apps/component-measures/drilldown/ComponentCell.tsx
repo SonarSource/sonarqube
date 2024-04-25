@@ -20,11 +20,12 @@
 import { ContentCell, HoverLink, Note, QualifierIcon } from 'design-system';
 import * as React from 'react';
 import { To } from 'react-router-dom';
+import { ComponentQualifier } from '~sonar-aligned/types/component';
 import { fillBranchLike } from '../../../helpers/branch-like';
 import { limitComponentName, splitPath } from '../../../helpers/path';
 import { getComponentDrilldownUrlWithSelection, getProjectUrl } from '../../../helpers/urls';
 import { BranchLike } from '../../../types/branch-like';
-import { ComponentQualifier, isApplication, isProject } from '../../../types/component';
+import { isApplication, isProject } from '../../../types/component';
 import { MeasurePageView } from '../../../types/measures';
 import { MetricKey } from '../../../types/metrics';
 import { ComponentMeasure, ComponentMeasureEnhanced, Metric } from '../../../types/types';

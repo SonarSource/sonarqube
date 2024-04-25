@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { uniqueId } from 'lodash';
-import { ComponentQualifier } from '../../types/component';
+import { ComponentQualifier } from '~sonar-aligned/types/component';
 import { Task, TaskStatuses, TaskTypes, TaskWarning } from '../../types/tasks';
 
 export function mockTask(overrides: Partial<Task> = {}): Task {
