@@ -19,6 +19,7 @@
  */
 import { Card, LargeCenteredLayout, PageContentFontWrapper, Title } from 'design-system';
 import React, { useEffect, useState } from 'react';
+import { MetricKey } from '~sonar-aligned/types/metrics';
 import { getMeasures } from '../../api/measures';
 import withAvailableFeatures, {
   WithAvailableFeaturesProps,
@@ -30,7 +31,6 @@ import { translate } from '../../helpers/l10n';
 import { BranchLike } from '../../types/branch-like';
 import { isApplication, isProject } from '../../types/component';
 import { Feature } from '../../types/features';
-import { MetricKey } from '../../types/metrics';
 import { Component, Dict, Measure, Metric } from '../../types/types';
 import { CurrentUser, isLoggedIn } from '../../types/users';
 import AboutProject from './about/AboutProject';

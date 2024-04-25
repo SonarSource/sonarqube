@@ -22,7 +22,7 @@ import * as React from 'react';
 import { useIntl } from 'react-intl';
 import { To } from 'react-router-dom';
 import { formatMeasure } from '~sonar-aligned/helpers/measures';
-import { MetricKey, MetricType } from '../../../types/metrics';
+import { MetricKey, MetricType } from '~sonar-aligned/types/metrics';
 import { QualityGateStatusConditionEnhanced } from '../../../types/quality-gates';
 import { Status, getConditionRequiredLabel } from '../utils';
 import MeasuresCard, { MeasuresCardProps } from './MeasuresCard';

@@ -19,6 +19,7 @@
  */
 import { startOfDay } from 'date-fns';
 import { isEqual, uniq } from 'lodash';
+import { MetricKey } from '~sonar-aligned/types/metrics';
 import { RawQuery } from '~sonar-aligned/types/router';
 import { DEFAULT_GRAPH } from '../../components/activity-graph/utils';
 import { parseDate } from '../../helpers/dates';
@@ -32,7 +33,6 @@ import {
   serializeString,
   serializeStringArray,
 } from '../../helpers/query';
-import { MetricKey } from '../../types/metrics';
 import { GraphType, ParsedAnalysis } from '../../types/project-activity';
 import { Dict } from '../../types/types';
 

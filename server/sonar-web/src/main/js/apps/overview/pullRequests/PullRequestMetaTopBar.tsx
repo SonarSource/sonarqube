@@ -21,11 +21,11 @@ import { SeparatorCircleIcon } from 'design-system';
 import React from 'react';
 import { useIntl } from 'react-intl';
 import { formatMeasure } from '~sonar-aligned/helpers/measures';
+import { MetricKey, MetricType } from '~sonar-aligned/types/metrics';
 import CurrentBranchLikeMergeInformation from '../../../app/components/nav/component/branch-like/CurrentBranchLikeMergeInformation';
 import { getLeakValue } from '../../../components/measure/utils';
 import { findMeasure } from '../../../helpers/measures';
 import { PullRequest } from '../../../types/branch-like';
-import { MetricKey, MetricType } from '../../../types/metrics';
 import { MeasureEnhanced } from '../../../types/types';
 import LastAnalysisLabel from '../components/LastAnalysisLabel';
 

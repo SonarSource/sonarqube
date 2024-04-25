@@ -20,10 +20,10 @@
 import { ButtonSecondary, ChevronDownIcon, Dropdown, TextMuted } from 'design-system';
 import { sortBy } from 'lodash';
 import * as React from 'react';
+import { MetricKey, MetricType } from '~sonar-aligned/types/metrics';
 import { CCT_SOFTWARE_QUALITY_METRICS, HIDDEN_METRICS } from '../../helpers/constants';
 import { getLocalizedMetricName, translate } from '../../helpers/l10n';
 import { isDiffMetric } from '../../helpers/measures';
-import { MetricKey, MetricType } from '../../types/metrics';
 import { Metric } from '../../types/types';
 import AddGraphMetricPopup from './AddGraphMetricPopup';
 

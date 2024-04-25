@@ -23,12 +23,12 @@ import { isEmpty, max } from 'lodash';
 import * as React from 'react';
 import { WrappedComponentProps, injectIntl } from 'react-intl';
 import { formatMeasure } from '~sonar-aligned/helpers/measures';
+import { MetricType } from '~sonar-aligned/types/metrics';
 import { longFormatterOption } from '../../../components/intl/DateFormatter';
 import DateFromNow from '../../../components/intl/DateFromNow';
 import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
 import { parseDate } from '../../../helpers/dates';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
-import { MetricType } from '../../../types/metrics';
 import { Component, Dict } from '../../../types/types';
 import { Query } from '../utils';
 

@@ -22,12 +22,12 @@ import userEvent from '@testing-library/user-event';
 import * as React from 'react';
 import selectEvent from 'react-select-event';
 import { ComponentQualifier } from '~sonar-aligned/types/component';
+import { MetricKey } from '~sonar-aligned/types/metrics';
 import { getProjectBadgesToken } from '../../../../api/project-badges';
 import { mockBranch } from '../../../../helpers/mocks/branch-like';
 import { mockComponent } from '../../../../helpers/mocks/component';
 import { renderComponent } from '../../../../helpers/testReactTestingUtils';
 import { Location } from '../../../../helpers/urls';
-import { MetricKey } from '../../../../types/metrics';
 import ProjectBadges, { ProjectBadgesProps } from '../ProjectBadges';
 import { BadgeType } from '../utils';
 

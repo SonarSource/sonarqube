@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { ComponentQualifier } from '~sonar-aligned/types/component';
+import { MetricKey, MetricType } from '~sonar-aligned/types/metrics';
 import { MeasurePageView } from '../../../types/measures';
-import { MetricKey, MetricType } from '../../../types/metrics';
 import { ComponentMeasure } from '../../../types/types';
 import * as utils from '../utils';
 

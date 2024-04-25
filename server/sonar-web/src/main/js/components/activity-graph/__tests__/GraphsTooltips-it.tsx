@@ -19,6 +19,7 @@
  */
 import { screen } from '@testing-library/react';
 import * as React from 'react';
+import { MetricKey } from '~sonar-aligned/types/metrics';
 import { parseDate } from '../../../helpers/dates';
 import {
   mockAnalysisEvent,
@@ -27,7 +28,6 @@ import {
 } from '../../../helpers/mocks/project-activity';
 import { mockMetric } from '../../../helpers/testMocks';
 import { renderComponent } from '../../../helpers/testReactTestingUtils';
-import { MetricKey } from '../../../types/metrics';
 import { GraphType, MeasureHistory } from '../../../types/project-activity';
 import { Metric } from '../../../types/types';
 import { GraphsTooltips, Props } from '../GraphsTooltips';

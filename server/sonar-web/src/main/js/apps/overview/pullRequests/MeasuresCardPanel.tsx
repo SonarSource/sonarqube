@@ -20,11 +20,11 @@
 import classNames from 'classnames';
 import * as React from 'react';
 import { getComponentSecurityHotspotsUrl } from '~sonar-aligned/helpers/urls';
+import { MetricKey } from '~sonar-aligned/types/metrics';
 import { getLeakValue } from '../../../components/measure/utils';
 import { findMeasure } from '../../../helpers/measures';
 import { getComponentDrilldownUrl } from '../../../helpers/urls';
 import { PullRequest } from '../../../types/branch-like';
-import { MetricKey } from '../../../types/metrics';
 import { QualityGateStatusConditionEnhanced } from '../../../types/quality-gates';
 import { Component, MeasureEnhanced } from '../../../types/types';
 import MeasuresCardNumber from '../components/MeasuresCardNumber';

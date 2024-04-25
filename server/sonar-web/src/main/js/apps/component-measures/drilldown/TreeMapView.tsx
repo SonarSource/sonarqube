@@ -33,13 +33,13 @@ import { isEmpty } from 'lodash';
 import * as React from 'react';
 import { AutoSizer } from 'react-virtualized/dist/commonjs/AutoSizer';
 import { formatMeasure } from '~sonar-aligned/helpers/measures';
+import { MetricKey, MetricType } from '~sonar-aligned/types/metrics';
 import ColorBoxLegend from '../../../components/charts/ColorBoxLegend';
 import ColorGradientLegend from '../../../components/charts/ColorGradientLegend';
 import { getComponentMeasureUniqueKey } from '../../../helpers/component';
 import { getLocalizedMetricName, translate } from '../../../helpers/l10n';
 import { isDiffMetric } from '../../../helpers/measures';
 import { isDefined } from '../../../helpers/types';
-import { MetricKey, MetricType } from '../../../types/metrics';
 import { ComponentMeasureEnhanced, ComponentMeasureIntern, Metric } from '../../../types/types';
 import EmptyResult from './EmptyResult';
 

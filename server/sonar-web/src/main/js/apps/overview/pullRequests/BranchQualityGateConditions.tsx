@@ -27,6 +27,7 @@ import {
   getComponentIssuesUrl,
   getComponentSecurityHotspotsUrl,
 } from '~sonar-aligned/helpers/urls';
+import { MetricType } from '~sonar-aligned/types/metrics';
 import {
   DEFAULT_ISSUES_QUERY,
   isIssueMeasure,
@@ -37,7 +38,6 @@ import { getShortType, isDiffMetric } from '../../../helpers/measures';
 import { getComponentDrilldownUrl } from '../../../helpers/urls';
 import { BranchLike } from '../../../types/branch-like';
 import { IssueType } from '../../../types/issues';
-import { MetricType } from '../../../types/metrics';
 import { QualityGateStatusConditionEnhanced } from '../../../types/quality-gates';
 import { Component } from '../../../types/types';
 import {

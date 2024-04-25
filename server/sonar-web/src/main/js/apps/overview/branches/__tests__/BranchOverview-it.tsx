@@ -20,6 +20,7 @@
 import { screen, waitFor } from '@testing-library/react';
 import * as React from 'react';
 import { ComponentQualifier } from '~sonar-aligned/types/component';
+import { MetricKey } from '~sonar-aligned/types/metrics';
 import AlmSettingsServiceMock from '../../../../api/mocks/AlmSettingsServiceMock';
 import ApplicationServiceMock from '../../../../api/mocks/ApplicationServiceMock';
 import BranchesServiceMock from '../../../../api/mocks/BranchesServiceMock';
@@ -40,7 +41,6 @@ import { mockLoggedInUser, mockMeasure, mockPaging } from '../../../../helpers/t
 import { renderComponent } from '../../../../helpers/testReactTestingUtils';
 import { byRole, byText } from '../../../../helpers/testSelector';
 import { SoftwareImpactSeverity, SoftwareQuality } from '../../../../types/clean-code-taxonomy';
-import { MetricKey } from '../../../../types/metrics';
 import { ProjectAnalysisEventCategory } from '../../../../types/project-activity';
 import { CaycStatus } from '../../../../types/types';
 import BranchOverview, { NO_CI_DETECTED } from '../BranchOverview';

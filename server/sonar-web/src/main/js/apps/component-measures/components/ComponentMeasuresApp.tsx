@@ -35,6 +35,7 @@ import HelpTooltip from '~sonar-aligned/components/controls/HelpTooltip';
 import { withRouter } from '~sonar-aligned/components/hoc/withRouter';
 import { getBranchLikeQuery } from '~sonar-aligned/helpers/branch-like';
 import { ComponentQualifier } from '~sonar-aligned/types/component';
+import { MetricKey } from '~sonar-aligned/types/metrics';
 import { Location, Router } from '~sonar-aligned/types/router';
 import { getMeasuresWithPeriod } from '../../../api/measures';
 import { getAllMetrics } from '../../../api/metrics';
@@ -49,7 +50,6 @@ import { areLeakAndOverallCCTMeasuresComputed } from '../../../helpers/measures'
 import { WithBranchLikesProps, useBranchesQuery } from '../../../queries/branch';
 import { isPortfolioLike } from '../../../types/component';
 import { MeasurePageView } from '../../../types/measures';
-import { MetricKey } from '../../../types/metrics';
 import { ComponentMeasure, Dict, MeasureEnhanced, Metric, Period } from '../../../types/types';
 import Sidebar from '../sidebar/Sidebar';
 import {

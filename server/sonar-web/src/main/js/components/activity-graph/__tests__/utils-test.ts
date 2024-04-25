@@ -17,11 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { MetricKey, MetricType } from '~sonar-aligned/types/metrics';
 import * as dates from '../../../helpers/dates';
 import { mockMeasureHistory, mockSerie } from '../../../helpers/mocks/project-activity';
 import { get, save } from '../../../helpers/storage';
 import { mockMetric } from '../../../helpers/testMocks';
-import { MetricKey, MetricType } from '../../../types/metrics';
 import { GraphType } from '../../../types/project-activity';
 import * as utils from '../utils';
 

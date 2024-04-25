@@ -19,8 +19,8 @@
  */
 import { render, screen } from '@testing-library/react';
 import * as React from 'react';
+import { MetricKey, MetricType } from '~sonar-aligned/types/metrics';
 import { Status } from '../../../apps/overview/utils';
-import { MetricKey, MetricType } from '../../../types/metrics';
 import MeasureIndicator from '../MeasureIndicator';
 
 it('renders correctly for coverage', () => {

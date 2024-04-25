@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { chunk, flatMap, groupBy, sortBy } from 'lodash';
+import { MetricKey, MetricType } from '~sonar-aligned/types/metrics';
 import {
   CCT_SOFTWARE_QUALITY_METRICS,
   OLD_TO_NEW_TAXONOMY_METRICS_MAP,
@@ -25,7 +26,6 @@ import {
 import { getLocalizedMetricName, translate } from '../../helpers/l10n';
 import { localizeMetric } from '../../helpers/measures';
 import { get, save } from '../../helpers/storage';
-import { MetricKey, MetricType } from '../../types/metrics';
 import { GraphType, MeasureHistory, ParsedAnalysis, Serie } from '../../types/project-activity';
 import { Dict, Metric } from '../../types/types';
 

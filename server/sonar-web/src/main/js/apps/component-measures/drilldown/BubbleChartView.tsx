@@ -29,6 +29,7 @@ import {
 import * as React from 'react';
 import HelpTooltip from '~sonar-aligned/components/controls/HelpTooltip';
 import { formatMeasure } from '~sonar-aligned/helpers/measures';
+import { MetricKey } from '~sonar-aligned/types/metrics';
 import {
   getLocalizedMetricDomain,
   getLocalizedMetricName,
@@ -40,7 +41,6 @@ import { isDefined } from '../../../helpers/types';
 import { getComponentDrilldownUrl } from '../../../helpers/urls';
 import { BranchLike } from '../../../types/branch-like';
 import { isProject, isView } from '../../../types/component';
-import { MetricKey } from '../../../types/metrics';
 import {
   ComponentMeasureEnhanced,
   ComponentMeasure as ComponentMeasureI,

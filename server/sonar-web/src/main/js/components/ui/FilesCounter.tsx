@@ -22,9 +22,9 @@ import classNames from 'classnames';
 import { Note, themeColor } from 'design-system';
 import React from 'react';
 import { formatMeasure } from '~sonar-aligned/helpers/measures';
+import { MetricType } from '~sonar-aligned/types/metrics';
 import { translate } from '../../helpers/l10n';
 import { isDefined } from '../../helpers/types';
-import { MetricType } from '../../types/metrics';
 
 interface Props {
   className?: string;

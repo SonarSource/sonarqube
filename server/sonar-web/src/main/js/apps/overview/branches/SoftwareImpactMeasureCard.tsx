@@ -24,6 +24,7 @@ import * as React from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { formatMeasure } from '~sonar-aligned/helpers/measures';
 import { getComponentIssuesUrl } from '~sonar-aligned/helpers/urls';
+import { MetricKey, MetricType } from '~sonar-aligned/types/metrics';
 import Tooltip from '../../../components/controls/Tooltip';
 import { DEFAULT_ISSUES_QUERY } from '../../../components/shared/utils';
 import {
@@ -37,7 +38,6 @@ import {
   SoftwareImpactSeverity,
   SoftwareQuality,
 } from '../../../types/clean-code-taxonomy';
-import { MetricKey, MetricType } from '../../../types/metrics';
 import { QualityGateStatusConditionEnhanced } from '../../../types/quality-gates';
 import { Component, MeasureEnhanced } from '../../../types/types';
 import { Status, softwareQualityToMeasure } from '../utils';

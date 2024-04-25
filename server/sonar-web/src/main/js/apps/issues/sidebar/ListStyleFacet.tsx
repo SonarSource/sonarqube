@@ -21,13 +21,13 @@ import { FacetBox, FacetItem, FlagMessage, InputSearch, Note } from 'design-syst
 import { max, sortBy, values, without } from 'lodash';
 import * as React from 'react';
 import { formatMeasure } from '~sonar-aligned/helpers/measures';
+import { MetricType } from '~sonar-aligned/types/metrics';
 import { RawQuery } from '~sonar-aligned/types/router';
 import ListFooter from '../../../components/controls/ListFooter';
 import Tooltip from '../../../components/controls/Tooltip';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { queriesEqual } from '../../../helpers/query';
 import { isDefined } from '../../../helpers/types';
-import { MetricType } from '../../../types/metrics';
 import { Dict, Paging } from '../../../types/types';
 import { FacetItemsList } from './FacetItemsList';
 import { ListStyleFacetFooter } from './ListStyleFacetFooter';

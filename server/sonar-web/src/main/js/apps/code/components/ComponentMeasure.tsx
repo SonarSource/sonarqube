@@ -27,6 +27,7 @@ import {
 } from 'design-system';
 import * as React from 'react';
 import { formatMeasure } from '~sonar-aligned/helpers/measures';
+import { MetricKey, MetricType } from '~sonar-aligned/types/metrics';
 import Measure from '../../../components/measure/Measure';
 import { getLeakValue } from '../../../components/measure/utils';
 import {
@@ -39,7 +40,6 @@ import {
   isDiffMetric,
 } from '../../../helpers/measures';
 import { isApplication, isProject } from '../../../types/component';
-import { MetricKey, MetricType } from '../../../types/metrics';
 import { Metric, Status, ComponentMeasure as TypeComponentMeasure } from '../../../types/types';
 
 interface Props {

@@ -19,11 +19,11 @@
  */
 import { screen } from '@testing-library/react';
 import * as React from 'react';
+import { MetricKey, MetricType } from '~sonar-aligned/types/metrics';
 import { mockBranch } from '../../../../helpers/mocks/branch-like';
 import { mockQualityGateStatusConditionEnhanced } from '../../../../helpers/mocks/quality-gates';
 import { mockMetric } from '../../../../helpers/testMocks';
 import { renderComponent } from '../../../../helpers/testReactTestingUtils';
-import { MetricKey, MetricType } from '../../../../types/metrics';
 import { QualityGateStatusConditionEnhanced } from '../../../../types/quality-gates';
 import QualityGateCondition from '../QualityGateCondition';
 

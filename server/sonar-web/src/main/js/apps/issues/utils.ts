@@ -19,6 +19,7 @@
  */
 import { intersection, isArray, uniq } from 'lodash';
 import { formatMeasure } from '~sonar-aligned/helpers/measures';
+import { MetricType } from '~sonar-aligned/types/metrics';
 import { RawQuery } from '~sonar-aligned/types/router';
 import { getUsers } from '../../api/users';
 import { DEFAULT_ISSUES_QUERY } from '../../components/shared/utils';
@@ -48,7 +49,6 @@ import {
   IssueStatus,
   RawFacet,
 } from '../../types/issues';
-import { MetricType } from '../../types/metrics';
 import { SecurityStandard } from '../../types/security';
 import { Dict, Flow, FlowType, Issue, Paging } from '../../types/types';
 import { RestUser } from '../../types/users';

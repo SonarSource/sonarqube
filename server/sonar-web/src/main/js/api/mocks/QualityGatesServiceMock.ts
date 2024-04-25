@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { cloneDeep, flatten, omit, remove } from 'lodash';
+import { MetricKey } from '~sonar-aligned/types/metrics';
 import { Project } from '../../apps/quality-gates/components/Projects';
 import {
   mockQualityGate,
@@ -26,7 +27,6 @@ import {
 } from '../../helpers/mocks/quality-gates';
 import { mockUserBase } from '../../helpers/mocks/users';
 import { mockCondition, mockGroup } from '../../helpers/testMocks';
-import { MetricKey } from '../../types/metrics';
 import {
   QualityGateApplicationStatus,
   QualityGateProjectStatus,

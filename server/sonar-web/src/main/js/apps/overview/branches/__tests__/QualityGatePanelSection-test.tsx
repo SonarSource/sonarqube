@@ -19,12 +19,12 @@
  */
 import { screen } from '@testing-library/react';
 import * as React from 'react';
+import { MetricKey } from '~sonar-aligned/types/metrics';
 import CurrentUserContextProvider from '../../../../app/components/current-user/CurrentUserContextProvider';
 import { mockQualityGate, mockQualityGateStatus } from '../../../../helpers/mocks/quality-gates';
 import { mockLoggedInUser } from '../../../../helpers/testMocks';
 import { renderComponent } from '../../../../helpers/testReactTestingUtils';
 import { byRole } from '../../../../helpers/testSelector';
-import { MetricKey } from '../../../../types/metrics';
 import { CaycStatus, Status } from '../../../../types/types';
 import { CurrentUser, NoticeType } from '../../../../types/users';
 import QualityGatePanelSection, { QualityGatePanelSectionProps } from '../QualityGatePanelSection';

@@ -33,6 +33,7 @@ import {
 import * as React from 'react';
 import HelpTooltip from '~sonar-aligned/components/controls/HelpTooltip';
 import { isBranch } from '~sonar-aligned/helpers/branch-like';
+import { MetricKey, MetricType } from '~sonar-aligned/types/metrics';
 import withComponentContext from '../../../app/components/componentContext/withComponentContext';
 import withCurrentUserContext from '../../../app/components/current-user/withCurrentUserContext';
 import Tooltip from '../../../components/controls/Tooltip';
@@ -41,7 +42,6 @@ import { PopupPlacement } from '../../../components/ui/popups';
 import { translate } from '../../../helpers/l10n';
 import { BranchLike } from '../../../types/branch-like';
 import { ComponentContextShape } from '../../../types/component';
-import { MetricKey, MetricType } from '../../../types/metrics';
 import { HotspotFilters } from '../../../types/security-hotspots';
 import { CurrentUser, isLoggedIn } from '../../../types/users';
 import { HotspotDisabledFilterTooltip } from './HotspotDisabledFilterTooltip';

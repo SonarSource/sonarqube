@@ -22,6 +22,7 @@ import userEvent from '@testing-library/user-event';
 import { times } from 'lodash';
 import selectEvent from 'react-select-event';
 import { ComponentQualifier } from '~sonar-aligned/types/component';
+import { MetricKey } from '~sonar-aligned/types/metrics';
 import BranchesServiceMock from '../../../api/mocks/BranchesServiceMock';
 import ComponentsServiceMock from '../../../api/mocks/ComponentsServiceMock';
 import IssuesServiceMock from '../../../api/mocks/IssuesServiceMock';
@@ -32,7 +33,6 @@ import { renderAppWithComponentContext } from '../../../helpers/testReactTesting
 import { byLabelText, byRole, byTestId, byText } from '../../../helpers/testSelector';
 import { ComponentContextShape } from '../../../types/component';
 import { Feature } from '../../../types/features';
-import { MetricKey } from '../../../types/metrics';
 import routes from '../routes';
 
 jest.mock('lodash', () => ({

@@ -29,12 +29,12 @@ import * as React from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { To } from 'react-router-dom';
 import { formatMeasure } from '~sonar-aligned/helpers/measures';
+import { MetricKey, MetricType } from '~sonar-aligned/types/metrics';
 import { duplicationRatingConverter, getLeakValue } from '../../../components/measure/utils';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { findMeasure, localizeMetric } from '../../../helpers/measures';
 import { getComponentDrilldownUrl } from '../../../helpers/urls';
 import { BranchLike } from '../../../types/branch-like';
-import { MetricKey, MetricType } from '../../../types/metrics';
 import { QualityGateStatusConditionEnhanced } from '../../../types/quality-gates';
 import { MeasureEnhanced } from '../../../types/types';
 import {

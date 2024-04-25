@@ -21,8 +21,8 @@ import { screen } from '@testing-library/react';
 import * as React from 'react';
 
 import { ComponentQualifier } from '~sonar-aligned/types/component';
+import { MetricKey } from '~sonar-aligned/types/metrics';
 import { renderComponent } from '../../../../../helpers/testReactTestingUtils';
-import { MetricKey } from '../../../../../types/metrics';
 import { Dict } from '../../../../../types/types';
 import ProjectCardMeasures, { ProjectCardMeasuresProps } from '../ProjectCardMeasures';
 

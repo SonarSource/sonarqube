@@ -18,13 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { MetricKey, MetricType } from '~sonar-aligned/types/metrics';
 import { mockPullRequest } from '../../../../helpers/mocks/branch-like';
 import { mockComponent } from '../../../../helpers/mocks/component';
 import { mockQualityGateStatusConditionEnhanced } from '../../../../helpers/mocks/quality-gates';
 import { mockMeasureEnhanced, mockMetric } from '../../../../helpers/testMocks';
 import { renderComponent } from '../../../../helpers/testReactTestingUtils';
 import { byLabelText, byRole } from '../../../../helpers/testSelector';
-import { MetricKey, MetricType } from '../../../../types/metrics';
 import { FCProps } from '../../../../types/misc';
 import { Status } from '../../utils';
 import BranchQualityGate from '../BranchQualityGate';

@@ -22,6 +22,7 @@ import userEvent from '@testing-library/user-event';
 import { UserEvent } from '@testing-library/user-event/dist/types/setup/setup';
 import { keyBy, omit, times } from 'lodash';
 import { ComponentQualifier } from '~sonar-aligned/types/component';
+import { MetricKey } from '~sonar-aligned/types/metrics';
 import BranchesServiceMock from '../../../api/mocks/BranchesServiceMock';
 import ComponentsServiceMock from '../../../api/mocks/ComponentsServiceMock';
 import IssuesServiceMock from '../../../api/mocks/IssuesServiceMock';
@@ -31,7 +32,6 @@ import { mockComponent } from '../../../helpers/mocks/component';
 import { mockMeasure } from '../../../helpers/testMocks';
 import { renderAppWithComponentContext } from '../../../helpers/testReactTestingUtils';
 import { QuerySelector, byLabelText, byRole, byText } from '../../../helpers/testSelector';
-import { MetricKey } from '../../../types/metrics';
 import { Component } from '../../../types/types';
 import routes from '../routes';
 

@@ -21,6 +21,7 @@ import { ButtonSecondary, FlagMessage } from 'design-system';
 import { throttle } from 'lodash';
 import * as React from 'react';
 import { formatMeasure } from '~sonar-aligned/helpers/measures';
+import { MetricType } from '~sonar-aligned/types/metrics';
 import ListFooter from '../../../components/controls/ListFooter';
 import { isInput, isShortcut } from '../../../helpers/keyboardEventHelpers';
 import { KeyboardKeys } from '../../../helpers/keycodes';
@@ -28,7 +29,6 @@ import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { isDiffMetric, isPeriodBestValue } from '../../../helpers/measures';
 import { BranchLike } from '../../../types/branch-like';
 import { MeasurePageView } from '../../../types/measures';
-import { MetricType } from '../../../types/metrics';
 import {
   ComponentMeasure,
   ComponentMeasureEnhanced,

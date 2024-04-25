@@ -22,6 +22,7 @@ import { keyBy } from 'lodash';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { formatMeasure } from '~sonar-aligned/helpers/measures';
+import { MetricType } from '~sonar-aligned/types/metrics';
 import { getComponentData } from '../../../api/components';
 import { getFacet } from '../../../api/issues';
 import withAvailableFeatures, {
@@ -33,7 +34,6 @@ import { translate } from '../../../helpers/l10n';
 import { getIssuesUrl } from '../../../helpers/urls';
 import { Feature } from '../../../types/features';
 import { FacetName } from '../../../types/issues';
-import { MetricType } from '../../../types/metrics';
 import { Dict, RuleDetails } from '../../../types/types';
 
 interface Props extends WithAvailableFeaturesProps {

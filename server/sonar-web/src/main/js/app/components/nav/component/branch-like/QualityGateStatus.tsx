@@ -21,9 +21,9 @@ import classNames from 'classnames';
 import { QualityGateIndicator } from 'design-system';
 import React from 'react';
 import { formatMeasure } from '~sonar-aligned/helpers/measures';
+import { MetricType } from '~sonar-aligned/types/metrics';
 import { translateWithParameters } from '../../../../../helpers/l10n';
 import { BranchLike } from '../../../../../types/branch-like';
-import { MetricType } from '../../../../../types/metrics';
 
 interface Props {
   branchLike: BranchLike;

@@ -20,7 +20,7 @@
 import { throwGlobalError } from '~sonar-aligned/helpers/error';
 import { getJSON } from '~sonar-aligned/helpers/request';
 import { BranchParameters } from '~sonar-aligned/types/branch-like';
-import { MetricKey } from '../types/metrics';
+import { MetricKey } from '~sonar-aligned/types/metrics';
 import { Paging } from '../types/types';
 
 export interface TimeMachineResponse {

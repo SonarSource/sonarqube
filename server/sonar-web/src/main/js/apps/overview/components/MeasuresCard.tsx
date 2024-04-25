@@ -22,9 +22,9 @@ import { LinkHighlight, LinkStandalone } from '@sonarsource/echoes-react';
 import { Badge, Card, themeBorder, themeColor } from 'design-system';
 import * as React from 'react';
 import { To } from 'react-router-dom';
+import { MetricKey } from '~sonar-aligned/types/metrics';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { localizeMetric } from '../../../helpers/measures';
-import { MetricKey } from '../../../types/metrics';
 
 export interface MeasuresCardProps {
   url: To;

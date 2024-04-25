@@ -18,12 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { invert } from 'lodash';
+import { MetricKey } from '~sonar-aligned/types/metrics';
 import { Facet, getScannableProjects, searchProjects } from '../../api/components';
 import { getMeasuresForProjects } from '../../api/measures';
 import { translate, translateWithParameters } from '../../helpers/l10n';
 import { isDiffMetric } from '../../helpers/measures';
 import { RequestData } from '../../helpers/request';
-import { MetricKey } from '../../types/metrics';
 import { Dict } from '../../types/types';
 import { Query, convertToFilter } from './query';
 

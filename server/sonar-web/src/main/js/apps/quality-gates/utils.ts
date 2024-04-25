@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { sortBy } from 'lodash';
+import { MetricKey } from '~sonar-aligned/types/metrics';
 import { getLocalizedMetricName } from '../../helpers/l10n';
 import { isDiffMetric } from '../../helpers/measures';
-import { MetricKey } from '../../types/metrics';
 import { CaycStatus, Condition, Dict, Metric, QualityGate } from '../../types/types';
 
 interface GroupedByMetricConditions {

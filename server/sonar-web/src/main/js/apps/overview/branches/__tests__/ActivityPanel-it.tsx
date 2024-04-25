@@ -30,9 +30,9 @@ import { mockMetric } from '../../../../helpers/testMocks';
 
 import userEvent from '@testing-library/user-event';
 import { Route, useSearchParams } from 'react-router-dom';
+import { MetricKey } from '~sonar-aligned/types/metrics';
 import { parseDate } from '../../../../helpers/dates';
 import { renderAppRoutes } from '../../../../helpers/testReactTestingUtils';
-import { MetricKey } from '../../../../types/metrics';
 import {
   ApplicationAnalysisEventCategory,
   DefinitionChangeType,

@@ -19,7 +19,7 @@
  */
 import { render } from '@testing-library/react';
 import * as React from 'react';
-import { MetricType } from '../../../types/metrics';
+import { MetricType } from '~sonar-aligned/types/metrics';
 import { AdvancedTimeline, PropsWithoutTheme } from '../AdvancedTimeline';
 
 // Replace scaleTime with scaleUtc to avoid timezone-dependent snapshots

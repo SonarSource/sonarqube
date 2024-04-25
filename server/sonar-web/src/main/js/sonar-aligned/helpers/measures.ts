@@ -18,10 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+import { MetricType } from '~sonar-aligned/types/metrics';
 import { ONE_SECOND } from '../../helpers/constants';
 import { translate, translateWithParameters } from '../../helpers/l10n';
 import { getCurrentLocale } from '../../helpers/l10nBundle';
-import { MetricType } from '../../types/metrics';
 
 import { Dict } from '../../types/types';
 

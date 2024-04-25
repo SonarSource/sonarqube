@@ -19,6 +19,7 @@
  */
 import * as React from 'react';
 import { formatMeasure } from '~sonar-aligned/helpers/measures';
+import { MetricKey, MetricType } from '~sonar-aligned/types/metrics';
 import withAppStateContext from '../../app/components/app-state/withAppStateContext';
 import { translate, translateWithParameters } from '../../helpers/l10n';
 import { isDiffMetric } from '../../helpers/measures';
@@ -29,7 +30,6 @@ import {
   getMaintainabilityGrid,
 } from '../../helpers/ratings';
 import { AppState } from '../../types/appstate';
-import { MetricKey, MetricType } from '../../types/metrics';
 import { GlobalSettingKeys } from '../../types/settings';
 import { KNOWN_RATINGS } from './utils';
 

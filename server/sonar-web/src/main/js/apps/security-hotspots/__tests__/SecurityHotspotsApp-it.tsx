@@ -21,6 +21,7 @@ import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
 import { Route } from 'react-router-dom';
+import { MetricKey } from '~sonar-aligned/types/metrics';
 import BranchesServiceMock from '../../../api/mocks/BranchesServiceMock';
 import CodingRulesServiceMock from '../../../api/mocks/CodingRulesServiceMock';
 import SecurityHotspotServiceMock from '../../../api/mocks/SecurityHotspotServiceMock';
@@ -33,7 +34,6 @@ import { mockLoggedInUser } from '../../../helpers/testMocks';
 import { renderAppWithComponentContext } from '../../../helpers/testReactTestingUtils';
 import { byDisplayValue, byRole, byTestId, byText } from '../../../helpers/testSelector';
 import { ComponentContextShape } from '../../../types/component';
-import { MetricKey } from '../../../types/metrics';
 import SecurityHotspotsApp from '../SecurityHotspotsApp';
 import useStickyDetection from '../hooks/useStickyDetection';
 

@@ -19,10 +19,10 @@
  */
 import { screen } from '@testing-library/react';
 import * as React from 'react';
+import { MetricKey } from '~sonar-aligned/types/metrics';
 import { mockQualityGateStatusCondition } from '../../../../helpers/mocks/quality-gates';
 import { mockCurrentUser } from '../../../../helpers/testMocks';
 import { renderComponent } from '../../../../helpers/testReactTestingUtils';
-import { MetricKey } from '../../../../types/metrics';
 import { SonarLintPromotion, SonarLintPromotionProps } from '../SonarLintPromotion';
 
 it('should render correctly', () => {

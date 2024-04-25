@@ -25,7 +25,7 @@ import {
 } from 'design-system';
 import * as React from 'react';
 import { formatMeasure } from '~sonar-aligned/helpers/measures';
-import { MetricKey, MetricType } from '../../types/metrics';
+import { MetricKey, MetricType } from '~sonar-aligned/types/metrics';
 import Measure from './Measure';
 import { duplicationRatingConverter } from './utils';
 

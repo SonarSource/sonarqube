@@ -20,9 +20,9 @@
 import { BasicSeparator, Link } from 'design-system';
 import { sortBy } from 'lodash';
 import * as React from 'react';
+import { MetricKey } from '~sonar-aligned/types/metrics';
 import { translate } from '../../../helpers/l10n';
 import { BranchLike } from '../../../types/branch-like';
-import { MetricKey } from '../../../types/metrics';
 import { QualityGateStatusConditionEnhanced } from '../../../types/quality-gates';
 import { Component } from '../../../types/types';
 import { CAYC_CONDITION_ORDER_PRIORITIES } from '../../quality-gates/utils';

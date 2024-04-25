@@ -19,10 +19,10 @@
  */
 import { CoverageIndicator } from 'design-system';
 import * as React from 'react';
+import { MetricKey } from '~sonar-aligned/types/metrics';
 import { RawQuery } from '~sonar-aligned/types/router';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { getCoverageRatingAverageValue, getCoverageRatingLabel } from '../../../helpers/ratings';
-import { MetricKey } from '../../../types/metrics';
 import { Facet } from '../types';
 import RangeFacetBase from './RangeFacetBase';
 

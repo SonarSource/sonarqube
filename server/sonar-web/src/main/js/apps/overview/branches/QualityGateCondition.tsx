@@ -26,6 +26,7 @@ import {
   getComponentIssuesUrl,
   getComponentSecurityHotspotsUrl,
 } from '~sonar-aligned/helpers/urls';
+import { MetricKey, MetricType } from '~sonar-aligned/types/metrics';
 import IssueTypeIcon from '../../../components/icon-mappers/IssueTypeIcon';
 import MeasureIndicator from '../../../components/measure/MeasureIndicator';
 import {
@@ -39,7 +40,6 @@ import { getOperatorLabel } from '../../../helpers/qualityGates';
 import { getComponentDrilldownUrl } from '../../../helpers/urls';
 import { BranchLike } from '../../../types/branch-like';
 import { IssueType } from '../../../types/issues';
-import { MetricKey, MetricType } from '../../../types/metrics';
 import { QualityGateStatusConditionEnhanced } from '../../../types/quality-gates';
 import { Component, Dict } from '../../../types/types';
 import { RATING_TO_SEVERITIES_MAPPING } from '../utils';

@@ -20,6 +20,7 @@
 import { omit } from 'lodash';
 import { To } from 'react-router-dom';
 import { ComponentQualifier } from '~sonar-aligned/types/component';
+import { MetricKey, MetricType } from '~sonar-aligned/types/metrics';
 import { Location, Router } from '~sonar-aligned/types/router';
 import { CompareResponse } from '../api/quality-profiles';
 import { RuleDescriptionSections } from '../apps/coding-rules/rule';
@@ -44,7 +45,6 @@ import {
   RawIssue,
 } from '../types/issues';
 import { Language } from '../types/languages';
-import { MetricKey, MetricType } from '../types/metrics';
 import { Notification } from '../types/notifications';
 import { DumpStatus, DumpTask } from '../types/project-dump';
 import { TaskStatuses } from '../types/tasks';

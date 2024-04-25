@@ -19,9 +19,9 @@
  */
 import { chunk, cloneDeep, times } from 'lodash';
 import { BranchParameters } from '~sonar-aligned/types/branch-like';
+import { MetricKey } from '~sonar-aligned/types/metrics';
 import { parseDate } from '../../helpers/dates';
 import { mockHistoryItem, mockMeasureHistory } from '../../helpers/mocks/project-activity';
-import { MetricKey } from '../../types/metrics';
 import { MeasureHistory } from '../../types/project-activity';
 import { TimeMachineResponse, getAllTimeMachineData, getTimeMachineData } from '../time-machine';
 

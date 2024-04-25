@@ -23,9 +23,9 @@ import React from 'react';
 import { FormattedMessage } from 'react-intl';
 import DocHelpTooltip from '~sonar-aligned/components/controls/DocHelpTooltip';
 import { formatMeasure } from '~sonar-aligned/helpers/measures';
+import { MetricKey } from '~sonar-aligned/types/metrics';
 import withMetricsContext from '../../../app/components/metrics/withMetricsContext';
 import { translate } from '../../../helpers/l10n';
-import { MetricKey } from '../../../types/metrics';
 import { Condition, Dict, Metric } from '../../../types/types';
 import { getCaycConditionMetadata, getLocalizedMetricNameNoDiffMetric } from '../utils';
 

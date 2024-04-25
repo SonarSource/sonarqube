@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 export enum MetricKey {
+  accepted_issues = 'accepted_issues',
   alert_status = 'alert_status',
   blocker_violations = 'blocker_violations',
   branch_coverage = 'branch_coverage',
@@ -58,7 +59,9 @@ export enum MetricKey {
   functions = 'functions',
   generated_lines = 'generated_lines',
   generated_ncloc = 'generated_ncloc',
+  high_impact_accepted_issues = 'high_impact_accepted_issues',
   info_violations = 'info_violations',
+  issues = 'issues',
   last_change_on_maintainability_rating = 'last_change_on_maintainability_rating',
   last_change_on_releasability_rating = 'last_change_on_releasability_rating',
   last_change_on_reliability_rating = 'last_change_on_reliability_rating',
@@ -90,6 +93,7 @@ export enum MetricKey {
   new_duplicated_lines = 'new_duplicated_lines',
   new_duplicated_lines_density = 'new_duplicated_lines_density',
   new_info_violations = 'new_info_violations',
+  new_issues = 'new_issues',
   new_line_coverage = 'new_line_coverage',
   new_lines = 'new_lines',
   new_lines_to_cover = 'new_lines_to_cover',
@@ -100,8 +104,8 @@ export enum MetricKey {
   new_minor_violations = 'new_minor_violations',
   new_reliability_issues = 'new_reliability_issues',
   new_reliability_rating = 'new_reliability_rating',
-  new_reliability_remediation_effort = 'new_reliability_remediation_effort',
   new_reliability_rating_distribution = 'new_reliability_rating_distribution',
+  new_reliability_remediation_effort = 'new_reliability_remediation_effort',
   new_security_hotspots = 'new_security_hotspots',
   new_security_hotspots_reviewed = 'new_security_hotspots_reviewed',
   new_security_issues = 'new_security_issues',
@@ -115,6 +119,7 @@ export enum MetricKey {
   new_uncovered_conditions = 'new_uncovered_conditions',
   new_uncovered_lines = 'new_uncovered_lines',
   new_violations = 'new_violations',
+  new_violations_rating = 'new_violations_rating',
   new_vulnerabilities = 'new_vulnerabilities',
   open_issues = 'open_issues',
   projects = 'projects',
@@ -129,16 +134,16 @@ export enum MetricKey {
   releasability_rating_distribution = 'releasability_rating_distribution',
   reliability_issues = 'reliability_issues',
   reliability_rating = 'reliability_rating',
-  reliability_rating_effort = 'reliability_rating_effort',
   reliability_rating_distribution = 'reliability_rating_distribution',
+  reliability_rating_effort = 'reliability_rating_effort',
   reliability_remediation_effort = 'reliability_remediation_effort',
   reopened_issues = 'reopened_issues',
   security_hotspots = 'security_hotspots',
   security_hotspots_reviewed = 'security_hotspots_reviewed',
   security_issues = 'security_issues',
   security_rating = 'security_rating',
-  security_rating_effort = 'security_rating_effort',
   security_rating_distribution = 'security_rating_distribution',
+  security_rating_effort = 'security_rating_effort',
   security_remediation_effort = 'security_remediation_effort',
   security_review_rating = 'security_review_rating',
   security_review_rating_distribution = 'security_review_rating_distribution',
@@ -159,9 +164,8 @@ export enum MetricKey {
   uncovered_conditions = 'uncovered_conditions',
   uncovered_lines = 'uncovered_lines',
   violations = 'violations',
+  violations_rating = 'violations_rating',
   vulnerabilities = 'vulnerabilities',
-  accepted_issues = 'accepted_issues',
-  high_impact_accepted_issues = 'high_impact_accepted_issues',
   wont_fix_issues = 'wont_fix_issues',
 }
 
@@ -169,13 +173,12 @@ export enum MetricType {
   Rating = 'RATING',
   Percent = 'PERCENT',
   Integer = 'INT',
+  Float = 'FLOAT',
+  MilliSeconds = 'MILLISEC',
   Level = 'LEVEL',
   ShortInteger = 'SHORT_INT',
   ShortWorkDuration = 'SHORT_WORK_DUR',
   Data = 'DATA',
   Distribution = 'DISTRIB',
-}
-
-export function isMetricKey(key: string): key is MetricKey {
-  return (Object.values(MetricKey) as string[]).includes(key);
+  WorkDuration = 'WORK_DUR',
 }

@@ -20,11 +20,11 @@
 import { ButtonPrimary, FlagMessage, FormField, Modal, Spinner } from 'design-system';
 import * as React from 'react';
 import { formatMeasure } from '~sonar-aligned/helpers/measures';
+import { MetricType } from '~sonar-aligned/types/metrics';
 import { Profile, bulkActivateRules, bulkDeactivateRules } from '../../../api/quality-profiles';
 import withLanguagesContext from '../../../app/components/languages/withLanguagesContext';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { Languages } from '../../../types/languages';
-import { MetricType } from '../../../types/metrics';
 import { Dict } from '../../../types/types';
 import { Query, serializeQuery } from '../query';
 import { QualityProfileSelector } from './QualityProfileSelector';

@@ -18,10 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { MetricKey } from '~sonar-aligned/types/metrics';
 import { getComponentDrilldownUrl } from '../../../helpers/urls';
 import { BranchLike } from '../../../types/branch-like';
 import { isApplication } from '../../../types/component';
-import { MetricKey } from '../../../types/metrics';
 import { QualityGateStatusConditionEnhanced } from '../../../types/quality-gates';
 import { Component, MeasureEnhanced } from '../../../types/types';
 import MeasuresCardPercent from '../components/MeasuresCardPercent';

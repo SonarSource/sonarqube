@@ -20,6 +20,7 @@
 import { Highlight, KeyboardHint } from 'design-system';
 import * as React from 'react';
 import { getBranchLikeQuery } from '~sonar-aligned/helpers/branch-like';
+import { MetricKey } from '~sonar-aligned/types/metrics';
 import { Router } from '~sonar-aligned/types/router';
 import { getComponentTree } from '../../../api/components';
 import { getMeasures } from '../../../api/measures';
@@ -37,7 +38,6 @@ import { getProjectUrl } from '../../../helpers/urls';
 import { BranchLike } from '../../../types/branch-like';
 import { isApplication, isFile, isView } from '../../../types/component';
 import { MeasurePageView } from '../../../types/measures';
-import { MetricKey } from '../../../types/metrics';
 import {
   ComponentMeasure,
   ComponentMeasureEnhanced,

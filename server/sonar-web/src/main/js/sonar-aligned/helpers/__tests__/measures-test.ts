@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { MetricType } from '~sonar-aligned/types/metrics';
 import { getMessages } from '../../../helpers/l10nBundle';
-import { MetricType } from '../../../types/metrics';
 import { Dict } from '../../../types/types';
 import { formatMeasure } from '../measures';
 

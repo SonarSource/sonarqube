@@ -21,6 +21,7 @@ import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
 import { ComponentQualifier } from '~sonar-aligned/types/component';
+import { MetricKey, MetricType } from '~sonar-aligned/types/metrics';
 import BranchesServiceMock from '../../../../api/mocks/BranchesServiceMock';
 import { fetchQualityGate, getQualityGateProjectStatus } from '../../../../api/quality-gates';
 import CurrentUserContextProvider from '../../../../app/components/current-user/CurrentUserContextProvider';
@@ -34,14 +35,13 @@ import { mockLoggedInUser, mockMeasure, mockMetric } from '../../../../helpers/t
 import { renderComponent } from '../../../../helpers/testReactTestingUtils';
 import { byLabelText, byRole } from '../../../../helpers/testSelector';
 import { ComponentPropsType } from '../../../../helpers/testUtils';
-import { MetricKey, MetricType } from '../../../../types/metrics';
 import { CaycStatus } from '../../../../types/types';
 import { NoticeType } from '../../../../types/users';
 import PullRequestOverview from '../PullRequestOverview';
 
 jest.mock('../../../../api/measures', () => {
   return {
-    ...jest.requireActual('../../../../types/metrics'),
+    ...jest.requireActual('../../../../sonar-aligned/types/metrics'),
     getMeasuresWithMetrics: jest.fn().mockResolvedValue({
       component: {
         key: '',
@@ -83,7 +83,7 @@ jest.mock('../../../../api/measures', () => {
 jest.mock('../../../../api/quality-gates', () => {
   const { mockQualityGateProjectStatus, mockQualityGateApplicationStatus, mockQualityGate } =
     jest.requireActual('../../../../helpers/mocks/quality-gates');
-  const { MetricKey } = jest.requireActual('../../../../types/metrics');
+  const { MetricKey } = jest.requireActual('../../../../sonar-aligned/types/metrics');
   return {
     getQualityGateProjectStatus: jest.fn().mockResolvedValue(
       mockQualityGateProjectStatus({

@@ -18,11 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { keyBy } from 'lodash';
+import { MetricKey, MetricType } from '~sonar-aligned/types/metrics';
 import { isDiffMetric } from '../../../helpers/measures';
 import { mockMeasure } from '../../../helpers/testMocks';
 import { SoftwareImpactSeverity } from '../../../types/clean-code-taxonomy';
 import { IssueDeprecatedStatus, IssueType, RawIssue } from '../../../types/issues';
-import { MetricKey, MetricType } from '../../../types/metrics';
 import { Measure } from '../../../types/types';
 import { ComponentTree } from './components';
 import { IssueData } from './issues';

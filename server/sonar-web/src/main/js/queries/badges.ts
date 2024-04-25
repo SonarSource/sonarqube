@@ -18,10 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { MetricKey } from '~sonar-aligned/types/metrics';
 import { getProjectBadgesToken, renewProjectBadgesToken } from '../api/project-badges';
 import { translate } from '../helpers/l10n';
 import { localizeMetric } from '../helpers/measures';
-import { MetricKey } from '../types/metrics';
 import { useWebApiQuery } from './web-api';
 
 export function useRenewBagdeTokenMutation() {

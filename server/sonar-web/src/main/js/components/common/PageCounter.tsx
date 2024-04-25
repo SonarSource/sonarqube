@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { formatMeasure } from '~sonar-aligned/helpers/measures';
-import { MetricType } from '../../types/metrics';
+import { MetricType } from '~sonar-aligned/types/metrics';
 
 export interface PageCounterProps {
   className?: string;

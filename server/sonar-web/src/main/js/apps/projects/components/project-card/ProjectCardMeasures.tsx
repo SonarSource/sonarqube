@@ -27,12 +27,12 @@ import {
 } from 'design-system';
 import * as React from 'react';
 import { ComponentQualifier } from '~sonar-aligned/types/component';
+import { MetricKey, MetricType } from '~sonar-aligned/types/metrics';
 import Measure from '../../../../components/measure/Measure';
 import { duplicationRatingConverter } from '../../../../components/measure/utils';
 import { translate } from '../../../../helpers/l10n';
 import { formatRating } from '../../../../helpers/measures';
 import { isDefined } from '../../../../helpers/types';
-import { MetricKey, MetricType } from '../../../../types/metrics';
 import { Dict } from '../../../../types/types';
 import ProjectCardMeasure from './ProjectCardMeasure';
 

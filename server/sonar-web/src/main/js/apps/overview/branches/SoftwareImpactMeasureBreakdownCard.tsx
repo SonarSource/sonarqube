@@ -24,10 +24,10 @@ import * as React from 'react';
 import { useIntl } from 'react-intl';
 import { formatMeasure } from '~sonar-aligned/helpers/measures';
 import { getComponentIssuesUrl } from '~sonar-aligned/helpers/urls';
+import { MetricType } from '~sonar-aligned/types/metrics';
 import { DEFAULT_ISSUES_QUERY } from '../../../components/shared/utils';
 import { Branch } from '../../../types/branch-like';
 import { SoftwareImpactSeverity, SoftwareQuality } from '../../../types/clean-code-taxonomy';
-import { MetricType } from '../../../types/metrics';
 import { Component } from '../../../types/types';
 
 export interface SoftwareImpactMeasureBreakdownCardProps {

@@ -22,7 +22,7 @@ import { TrendDirection, TrendIcon, TrendType, themeColor } from 'design-system'
 import React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { formatMeasure } from '~sonar-aligned/helpers/measures';
-import { MetricType } from '../../../types/metrics';
+import { MetricType } from '~sonar-aligned/types/metrics';
 import { AnalysisMeasuresVariations } from '../../../types/project-activity';
 
 interface AnalysisVariationsProps {

@@ -21,6 +21,7 @@ import { QualifierIcon } from 'design-system';
 import { omit } from 'lodash';
 import * as React from 'react';
 import { getBranchLikeQuery } from '~sonar-aligned/helpers/branch-like';
+import { MetricKey } from '~sonar-aligned/types/metrics';
 import { getFiles } from '../../../api/components';
 import { translate } from '../../../helpers/l10n';
 import { collapsePath, splitPath } from '../../../helpers/path';
@@ -29,7 +30,6 @@ import { isDefined } from '../../../helpers/types';
 import { BranchLike } from '../../../types/branch-like';
 import { TreeComponentWithPath } from '../../../types/component';
 import { Facet } from '../../../types/issues';
-import { MetricKey } from '../../../types/metrics';
 import { Query } from '../utils';
 import { ListStyleFacet } from './ListStyleFacet';
 

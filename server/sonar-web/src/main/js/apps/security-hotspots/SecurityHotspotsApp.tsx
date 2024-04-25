@@ -23,6 +23,7 @@ import * as React from 'react';
 import { withRouter } from '~sonar-aligned/components/hoc/withRouter';
 import { getBranchLikeQuery } from '~sonar-aligned/helpers/branch-like';
 import { ComponentQualifier } from '~sonar-aligned/types/component';
+import { MetricKey } from '~sonar-aligned/types/metrics';
 import { Location, Router } from '~sonar-aligned/types/router';
 import { getMeasures } from '../../api/measures';
 import { getSecurityHotspotList, getSecurityHotspots } from '../../api/security-hotspots';
@@ -36,7 +37,6 @@ import { KeyboardKeys } from '../../helpers/keycodes';
 import { getStandards } from '../../helpers/security-standard';
 import { withBranchLikes } from '../../queries/branch';
 import { BranchLike } from '../../types/branch-like';
-import { MetricKey } from '../../types/metrics';
 import { SecurityStandard, Standards } from '../../types/security';
 import {
   HotspotFilters,

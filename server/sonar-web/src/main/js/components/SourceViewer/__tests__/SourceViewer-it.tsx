@@ -20,6 +20,7 @@
 import { queryHelpers, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
+import { MetricKey } from '~sonar-aligned/types/metrics';
 import ComponentsServiceMock from '../../../api/mocks/ComponentsServiceMock';
 import IssuesServiceMock from '../../../api/mocks/IssuesServiceMock';
 import UsersServiceMock from '../../../api/mocks/UsersServiceMock';
@@ -29,7 +30,6 @@ import { HttpStatus } from '../../../helpers/request';
 import { mockIssue, mockLoggedInUser, mockMeasure } from '../../../helpers/testMocks';
 import { renderComponent } from '../../../helpers/testReactTestingUtils';
 import { byLabelText } from '../../../helpers/testSelector';
-import { MetricKey } from '../../../types/metrics';
 import { RestUserDetailed } from '../../../types/users';
 import SourceViewer, { Props } from '../SourceViewer';
 import loadIssues from '../helpers/loadIssues';

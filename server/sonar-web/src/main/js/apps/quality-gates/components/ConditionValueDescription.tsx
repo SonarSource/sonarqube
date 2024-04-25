@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import { formatMeasure } from '~sonar-aligned/helpers/measures';
+import { MetricKey } from '~sonar-aligned/types/metrics';
 import { translate } from '../../../helpers/l10n';
-import { MetricKey } from '../../../types/metrics';
 import { Condition, Metric } from '../../../types/types';
 import { GreenColorText } from './ConditionValue';
 

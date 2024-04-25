@@ -19,13 +19,13 @@
  */
 import { ContentCell, NumericalCell, RatingCell } from 'design-system';
 import * as React from 'react';
+import { MetricKey } from '~sonar-aligned/types/metrics';
 import {
   CCT_SOFTWARE_QUALITY_METRICS,
   OLD_TO_NEW_TAXONOMY_METRICS_MAP,
 } from '../../../helpers/constants';
 import { translate } from '../../../helpers/l10n';
 import { isPortfolioLike } from '../../../types/component';
-import { MetricKey } from '../../../types/metrics';
 import { ComponentMeasure } from '../../../types/types';
 
 interface ComponentsHeaderProps {

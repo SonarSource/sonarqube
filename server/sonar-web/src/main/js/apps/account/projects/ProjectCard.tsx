@@ -28,13 +28,13 @@ import {
 } from 'design-system';
 import * as React from 'react';
 import { formatMeasure } from '~sonar-aligned/helpers/measures';
+import { MetricType } from '~sonar-aligned/types/metrics';
 import MetaLink from '../../../components/common/MetaLink';
 import Tooltip from '../../../components/controls/Tooltip';
 import DateFromNow from '../../../components/intl/DateFromNow';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { orderLinks } from '../../../helpers/projectLinks';
 import { getProjectUrl } from '../../../helpers/urls';
-import { MetricType } from '../../../types/metrics';
 import { MyProject, ProjectLink, Status } from '../../../types/types';
 
 interface Props {

@@ -20,10 +20,10 @@
 import { Card, DiscreetLink } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
+import { MetricKey } from '~sonar-aligned/types/metrics';
 import withCurrentUserContext from '../../../app/components/current-user/withCurrentUserContext';
 import { SonarLintLogo } from '../../../components/logos/SonarLintLogo';
 import { translate } from '../../../helpers/l10n';
-import { MetricKey } from '../../../types/metrics';
 import { QualityGateStatusCondition } from '../../../types/quality-gates';
 import { CurrentUser } from '../../../types/users';
 

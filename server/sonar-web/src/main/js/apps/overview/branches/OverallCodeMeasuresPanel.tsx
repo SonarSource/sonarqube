@@ -32,13 +32,13 @@ import {
   getComponentIssuesUrl,
   getComponentSecurityHotspotsUrl,
 } from '~sonar-aligned/helpers/urls';
+import { MetricKey, MetricType } from '~sonar-aligned/types/metrics';
 import { findMeasure, formatRating } from '../../../helpers/measures';
 import { CodeScope } from '../../../helpers/urls';
 import { Branch } from '../../../types/branch-like';
 import { SoftwareQuality } from '../../../types/clean-code-taxonomy';
 import { isApplication } from '../../../types/component';
 import { IssueStatus } from '../../../types/issues';
-import { MetricKey, MetricType } from '../../../types/metrics';
 import { QualityGateStatus } from '../../../types/quality-gates';
 import { Component, MeasureEnhanced } from '../../../types/types';
 import MeasuresCard from '../components/MeasuresCard';

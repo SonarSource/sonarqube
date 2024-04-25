@@ -31,9 +31,9 @@ import {
 } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
+import { MetricKey } from '~sonar-aligned/types/metrics';
 import { DEPRECATED_ACTIVITY_METRICS } from '../../helpers/constants';
 import { translateWithParameters } from '../../helpers/l10n';
-import { MetricKey } from '../../types/metrics';
 import Tooltip from '../controls/Tooltip';
 import { ChartLegend } from './ChartLegend';
 import { getDeprecatedTranslationKeyForTooltip } from './utils';

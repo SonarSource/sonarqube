@@ -25,7 +25,7 @@ import { CSSColor, DraggableIcon, themeColor } from 'design-system';
 import { flatten, sortBy, throttle } from 'lodash';
 import * as React from 'react';
 import Draggable, { DraggableBounds, DraggableCore, DraggableData } from 'react-draggable';
-import { MetricType } from '../../types/metrics';
+import { MetricType } from '~sonar-aligned/types/metrics';
 import { Chart } from '../../types/types';
 import { LINE_CHART_DASHES } from '../activity-graph/utils';
 

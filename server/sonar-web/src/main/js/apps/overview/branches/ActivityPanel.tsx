@@ -20,6 +20,7 @@
 import styled from '@emotion/styled';
 import { BasicSeparator, Card, Spinner, TextSubdued, themeColor } from 'design-system';
 import * as React from 'react';
+import { MetricKey } from '~sonar-aligned/types/metrics';
 import GraphsHeader from '../../../components/activity-graph/GraphsHeader';
 import GraphsHistory from '../../../components/activity-graph/GraphsHistory';
 import {
@@ -33,7 +34,6 @@ import { parseDate } from '../../../helpers/dates';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { localizeMetric } from '../../../helpers/measures';
 import { BranchLike } from '../../../types/branch-like';
-import { MetricKey } from '../../../types/metrics';
 import {
   Analysis as AnalysisType,
   GraphType,

@@ -19,9 +19,9 @@
  */
 import { BugIcon, CodeSmellIcon, SecurityHotspotIcon, VulnerabilityIcon } from 'design-system';
 import { flatten, sortBy } from 'lodash';
+import { MetricKey } from '~sonar-aligned/types/metrics';
 import { SoftwareQuality } from '../types/clean-code-taxonomy';
 import { IssueType, RawIssue } from '../types/issues';
-import { MetricKey } from '../types/metrics';
 import { Dict, Flow, FlowLocation, FlowType, Issue, TextRange } from '../types/types';
 import { UserBase } from '../types/users';
 import { ISSUE_TYPES } from './constants';

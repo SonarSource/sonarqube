@@ -23,9 +23,9 @@ import classNames from 'classnames';
 import { Badge, NoDataIcon, themeColor } from 'design-system';
 import * as React from 'react';
 import { Path } from 'react-router-dom';
+import { MetricKey } from '~sonar-aligned/types/metrics';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { localizeMetric } from '../../../helpers/measures';
-import { MetricKey } from '../../../types/metrics';
 
 interface IssueMeasuresCardInnerProps extends React.HTMLAttributes<HTMLDivElement> {
   metric: MetricKey;
