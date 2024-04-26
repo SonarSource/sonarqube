@@ -23,6 +23,7 @@ import com.google.common.collect.ImmutableMap;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributeView;
 import java.nio.file.attribute.FileTime;
 import java.util.Collections;
@@ -70,6 +71,7 @@ public class GlobalTempFolderProviderTest {
       File tmp = new File(workingDir, ".sonartmp_" + i);
       tmp.mkdirs();
       setFileCreationDate(tmp, creationTime);
+      assumeCorrectFileCreationDate(tmp, creationTime);
     }
 
     tempFolderProvider.provide(
@@ -78,6 +80,17 @@ public class GlobalTempFolderProviderTest {
     assertThat(getCreatedTempDir(workingDir)).exists();
 
     FileUtils.deleteQuietly(workingDir);
+  }
+
+  // See SONAR-22159, the test started failing due to issues in setting the correct creation time on Cirrus, skipping the test if the problem
+  // happens
+  private void assumeCorrectFileCreationDate(File tmp, long creationTime) throws IOException {
+    Path tmpFilePath = tmp.toPath();
+    FileTime fileCreationTimeSet = Files.getFileAttributeView(tmpFilePath, BasicFileAttributeView.class).readAttributes().creationTime();
+    FileTime expectedCreationTime = FileTime.fromMillis(creationTime);
+
+    assumeTrue(String.format("Incorrect creation date set on temporary file %s: %s set instead of %s", tmpFilePath.toAbsolutePath(), fileCreationTimeSet, expectedCreationTime),
+      expectedCreationTime.compareTo(fileCreationTimeSet) >= 0);
   }
 
   @Test
