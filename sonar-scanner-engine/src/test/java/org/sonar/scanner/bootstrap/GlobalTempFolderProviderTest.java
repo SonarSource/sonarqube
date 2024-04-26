@@ -67,6 +67,7 @@ class GlobalTempFolderProviderTest {
       Path tmp = workingDir.resolve(".sonartmp_" + i);
       Files.createDirectories(tmp);
       setFileCreationDate(tmp, creationTime);
+      assumeCorrectFileCreationDate(tmp, creationTime);
     }
 
     underTest.provide(
@@ -74,6 +75,16 @@ class GlobalTempFolderProviderTest {
 
     // this also checks that all other temps were deleted
     assertThat(workingDir.toFile().list()).hasSize(1);
+  }
+
+  // See SONAR-22159, the test started failing due to issues in setting the correct creation time on Cirrus, skipping the test if the problem
+  // happens
+  private void assumeCorrectFileCreationDate(Path tmp, long creationTime) throws IOException {
+    FileTime fileCreationTimeSet = Files.getFileAttributeView(tmp, BasicFileAttributeView.class).readAttributes().creationTime();
+    FileTime expectedCreationTime = FileTime.fromMillis(creationTime);
+
+    assumeTrue(expectedCreationTime.compareTo(fileCreationTimeSet) >= 0,
+      String.format("Incorrect creation date set on temporary file %s: %s set instead of %s", tmp.toAbsolutePath(), fileCreationTimeSet, expectedCreationTime));
   }
 
   @Test
