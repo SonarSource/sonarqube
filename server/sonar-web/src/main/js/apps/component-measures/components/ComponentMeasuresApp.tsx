@@ -48,7 +48,7 @@ import { isPullRequest, isSameBranchLike } from '../../../helpers/branch-like';
 import { translate } from '../../../helpers/l10n';
 import { areLeakAndOverallCCTMeasuresComputed } from '../../../helpers/measures';
 import { WithBranchLikesProps, useBranchesQuery } from '../../../queries/branch';
-import { isPortfolioLike } from '../../../types/component';
+import { isPortfolioLike } from '../../../sonar-aligned/helpers/component';
 import { MeasurePageView } from '../../../types/measures';
 import { ComponentMeasure, Dict, MeasureEnhanced, Metric, Period } from '../../../types/types';
 import Sidebar from '../sidebar/Sidebar';

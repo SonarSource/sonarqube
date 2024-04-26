@@ -20,6 +20,7 @@
 import React from 'react';
 import { useLocation, useRouter } from '~sonar-aligned/components/hoc/withRouter';
 import { getBranchLikeQuery } from '~sonar-aligned/helpers/branch-like';
+import { isPortfolioLike } from '~sonar-aligned/helpers/component';
 import { MetricKey } from '~sonar-aligned/types/metrics';
 import {
   useComponent,
@@ -37,7 +38,7 @@ import useApplicationLeakQuery from '../../../queries/applications';
 import { useBranchesQuery } from '../../../queries/branch';
 import { useAllMeasuresHistoryQuery } from '../../../queries/measures';
 import { useAllProjectAnalysesQuery } from '../../../queries/project-analyses';
-import { isApplication, isPortfolioLike, isProject } from '../../../types/component';
+import { isApplication, isProject } from '../../../types/component';
 import { MeasureHistory, ParsedAnalysis } from '../../../types/project-activity';
 import { Query, parseQuery, serializeUrlQuery } from '../utils';
 import ProjectActivityAppRenderer from './ProjectActivityAppRenderer';

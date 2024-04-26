@@ -39,8 +39,9 @@ import { CCT_SOFTWARE_QUALITY_METRICS, OLD_TAXONOMY_METRICS } from '../../../hel
 import { KeyboardKeys } from '../../../helpers/keycodes';
 import { translate } from '../../../helpers/l10n';
 import { areCCTMeasuresComputed } from '../../../helpers/measures';
+import { isPortfolioLike } from '../../../sonar-aligned/helpers/component';
 import { BranchLike } from '../../../types/branch-like';
-import { isApplication, isPortfolioLike } from '../../../types/component';
+import { isApplication } from '../../../types/component';
 import { Breadcrumb, Component, ComponentMeasure, Dict, Metric } from '../../../types/types';
 import { getCodeMetrics } from '../utils';
 import CodeBreadcrumbs from './CodeBreadcrumbs';

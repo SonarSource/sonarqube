@@ -32,9 +32,9 @@ import AnalysisMissingInfoMessage from '../../../components/shared/AnalysisMissi
 import { parseDate } from '../../../helpers/dates';
 import { areCCTMeasuresComputed, isDiffMetric } from '../../../helpers/measures';
 import { CodeScope } from '../../../helpers/urls';
+import { isPortfolioLike } from '../../../sonar-aligned/helpers/component';
 import { ApplicationPeriod } from '../../../types/application';
 import { Branch } from '../../../types/branch-like';
-import { isPortfolioLike } from '../../../types/component';
 import { Analysis, GraphType, MeasureHistory } from '../../../types/project-activity';
 import { QualityGateStatus } from '../../../types/quality-gates';
 import { Component, MeasureEnhanced, Metric, Period, QualityGate } from '../../../types/types';

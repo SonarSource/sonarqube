@@ -25,7 +25,8 @@ import { Image } from '../../../../components/common/Image';
 import { translate } from '../../../../helpers/l10n';
 import { isDefined } from '../../../../helpers/types';
 import { useGithubProvisioningEnabledQuery } from '../../../../queries/identity-provider/github';
-import { isApplication, isPortfolioLike, isProject } from '../../../../types/component';
+import { isPortfolioLike } from '../../../../sonar-aligned/helpers/component';
+import { isApplication, isProject } from '../../../../types/component';
 import { Component } from '../../../../types/types';
 import ApplyTemplate from './ApplyTemplate';
 

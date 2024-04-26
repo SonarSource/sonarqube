@@ -28,8 +28,9 @@ import { Location, Router } from '~sonar-aligned/types/router';
 import { getTree } from '../../../api/components';
 import { KeyboardKeys } from '../../../helpers/keycodes';
 import { translate } from '../../../helpers/l10n';
+import { isPortfolioLike } from '../../../sonar-aligned/helpers/component';
 import { BranchLike } from '../../../types/branch-like';
-import { isPortfolioLike, isView } from '../../../types/component';
+import { isView } from '../../../types/component';
 import { ComponentMeasure } from '../../../types/types';
 
 interface Props {

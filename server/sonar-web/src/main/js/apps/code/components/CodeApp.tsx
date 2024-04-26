@@ -25,7 +25,7 @@ import withComponentContext from '../../../app/components/componentContext/withC
 import withMetricsContext from '../../../app/components/metrics/withMetricsContext';
 import { CodeScope, getCodeUrl, getProjectUrl } from '../../../helpers/urls';
 import { WithBranchLikesProps, useBranchesQuery } from '../../../queries/branch';
-import { isPortfolioLike } from '../../../types/component';
+import { isPortfolioLike } from '../../../sonar-aligned/helpers/component';
 import { Breadcrumb, Component, ComponentMeasure, Dict, Metric } from '../../../types/types';
 import { addComponent, addComponentBreadcrumbs, clearBucket } from '../bucket';
 import { loadMoreChildren, retrieveComponent, retrieveComponentChildren } from '../utils';

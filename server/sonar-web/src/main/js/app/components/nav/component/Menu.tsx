@@ -35,7 +35,8 @@ import { isPullRequest } from '../../../../helpers/branch-like';
 import { hasMessage, translate, translateWithParameters } from '../../../../helpers/l10n';
 import { getPortfolioUrl, getProjectQueryUrl } from '../../../../helpers/urls';
 import { useBranchesQuery } from '../../../../queries/branch';
-import { isApplication, isPortfolioLike, isProject } from '../../../../types/component';
+import { isPortfolioLike } from '../../../../sonar-aligned/helpers/component';
+import { isApplication, isProject } from '../../../../types/component';
 import { Feature } from '../../../../types/features';
 import { Component, Dict, Extension } from '../../../../types/types';
 import withAvailableFeatures, {

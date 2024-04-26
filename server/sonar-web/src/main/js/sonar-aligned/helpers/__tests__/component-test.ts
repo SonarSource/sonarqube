@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { ComponentQualifier } from '~sonar-aligned/types/component';
-import { isApplication, isFile, isProject, isView } from '../component';
+import { isPortfolioLike } from '../component';
 
-it.each([[isFile], [isView], [isProject], [isApplication]])(
+it.each([[isPortfolioLike]])(
   '%p should work properly',
   (utilityMethod: (componentQualifier: ComponentQualifier) => void) => {
     const results = Object.values(ComponentQualifier).reduce(

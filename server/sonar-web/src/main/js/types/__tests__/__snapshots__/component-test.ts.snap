@@ -28,20 +28,6 @@ exports[`[Function isFile] should work properly 1`] = `
 }
 `;
 
-exports[`[Function isPortfolioLike] should work properly 1`] = `
-{
-  "APP": false,
-  "BRC": false,
-  "DEV": false,
-  "DIR": false,
-  "FIL": false,
-  "SVW": true,
-  "TRK": false,
-  "UTS": false,
-  "VW": true,
-}
-`;
-
 exports[`[Function isProject] should work properly 1`] = `
 {
   "APP": false,

@@ -26,8 +26,9 @@ import { ComponentQualifier } from '~sonar-aligned/types/component';
 import { translate } from '../../../helpers/l10n';
 import { isDefined } from '../../../helpers/types';
 import { CodeScope, getComponentOverviewUrl } from '../../../helpers/urls';
+import { isPortfolioLike } from '../../../sonar-aligned/helpers/component';
 import { BranchLike } from '../../../types/branch-like';
-import { isApplication, isPortfolioLike, isProject } from '../../../types/component';
+import { isApplication, isProject } from '../../../types/component';
 import { ComponentMeasure } from '../../../types/types';
 import { mostCommonPrefix } from '../utils';
 

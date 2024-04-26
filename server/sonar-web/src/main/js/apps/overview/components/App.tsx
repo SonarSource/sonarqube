@@ -27,7 +27,7 @@ import Suggestions from '../../../components/embed-docs-modal/Suggestions';
 import { isPullRequest } from '../../../helpers/branch-like';
 import { translate } from '../../../helpers/l10n';
 import { useBranchesQuery } from '../../../queries/branch';
-import { isPortfolioLike } from '../../../types/component';
+import { isPortfolioLike } from '../../../sonar-aligned/helpers/component';
 import { Feature } from '../../../types/features';
 import { Component } from '../../../types/types';
 import BranchOverview from '../branches/BranchOverview';

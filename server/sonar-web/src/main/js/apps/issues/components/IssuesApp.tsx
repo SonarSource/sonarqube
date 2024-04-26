@@ -62,8 +62,9 @@ import { KeyboardKeys } from '../../../helpers/keycodes';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { serializeDate } from '../../../helpers/query';
 import { withBranchLikes } from '../../../queries/branch';
+import { isPortfolioLike } from '../../../sonar-aligned/helpers/component';
 import { BranchLike } from '../../../types/branch-like';
-import { isPortfolioLike, isProject } from '../../../types/component';
+import { isProject } from '../../../types/component';
 import {
   ASSIGNEE_ME,
   Facet,

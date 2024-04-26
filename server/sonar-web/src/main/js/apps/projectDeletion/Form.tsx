@@ -26,7 +26,8 @@ import { deleteApplication } from '../../api/application';
 import { deletePortfolio, deleteProject } from '../../api/project-management';
 import ConfirmButton from '../../components/controls/ConfirmButton';
 import { translate, translateWithParameters } from '../../helpers/l10n';
-import { isApplication, isPortfolioLike } from '../../types/component';
+import { isPortfolioLike } from '../../sonar-aligned/helpers/component';
+import { isApplication } from '../../types/component';
 import { Component } from '../../types/types';
 
 interface Props {

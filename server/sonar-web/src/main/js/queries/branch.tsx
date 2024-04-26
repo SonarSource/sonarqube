@@ -39,8 +39,9 @@ import { getQualityGateProjectStatus } from '../api/quality-gates';
 import { AvailableFeaturesContext } from '../app/components/available-features/AvailableFeaturesContext';
 import { isPullRequest } from '../helpers/branch-like';
 import { extractStatusConditionsFromProjectStatus } from '../helpers/qualityGates';
+import { isPortfolioLike } from '../sonar-aligned/helpers/component';
 import { Branch, BranchLike } from '../types/branch-like';
-import { isApplication, isPortfolioLike, isProject } from '../types/component';
+import { isApplication, isProject } from '../types/component';
 import { Feature } from '../types/features';
 import { Component, LightComponent } from '../types/types';
 

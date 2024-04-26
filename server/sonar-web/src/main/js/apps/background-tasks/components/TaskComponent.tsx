@@ -34,7 +34,7 @@ import {
   getProjectUrl,
   getPullRequestUrl,
 } from '../../../helpers/urls';
-import { isPortfolioLike } from '../../../types/component';
+import { isPortfolioLike } from '../../../sonar-aligned/helpers/component';
 import { Task } from '../../../types/tasks';
 
 interface Props {
