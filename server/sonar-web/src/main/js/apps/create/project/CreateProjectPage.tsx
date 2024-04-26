@@ -21,13 +21,13 @@ import classNames from 'classnames';
 import { LargeCenteredLayout } from 'design-system';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
+import A11ySkipTarget from '~sonar-aligned/components/a11y/A11ySkipTarget';
 import { withRouter } from '~sonar-aligned/components/hoc/withRouter';
 import { Location, Router } from '~sonar-aligned/types/router';
 import { getDopSettings } from '../../../api/dop-translation';
 import withAvailableFeatures, {
   WithAvailableFeaturesProps,
 } from '../../../app/components/available-features/withAvailableFeatures';
-import A11ySkipTarget from '../../../components/a11y/A11ySkipTarget';
 import { translate } from '../../../helpers/l10n';
 import { AlmKeys, AlmSettingsInstance } from '../../../types/alm-settings';
 import { DopSetting } from '../../../types/dop-translation';

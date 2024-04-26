@@ -30,7 +30,7 @@ import {
   themeColor,
 } from 'design-system';
 import * as React from 'react';
-import A11ySkipTarget from '../../../components/a11y/A11ySkipTarget';
+import A11ySkipTarget from '~sonar-aligned/components/a11y/A11ySkipTarget';
 import { translate } from '../../../helpers/l10n';
 import useFollowScroll from '../../../hooks/useFollowScroll';
 import { Domain } from '../../../types/measures';

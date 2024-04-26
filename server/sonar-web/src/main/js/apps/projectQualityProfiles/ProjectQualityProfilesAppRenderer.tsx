@@ -36,9 +36,9 @@ import {
 import { groupBy, orderBy } from 'lodash';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
+import A11ySkipTarget from '~sonar-aligned/components/a11y/A11ySkipTarget';
 import HelpTooltip from '~sonar-aligned/components/controls/HelpTooltip';
 import { Profile } from '../../api/quality-profiles';
-import A11ySkipTarget from '../../components/a11y/A11ySkipTarget';
 import Suggestions from '../../components/embed-docs-modal/Suggestions';
 import { translate } from '../../helpers/l10n';
 import { getRulesUrl } from '../../helpers/urls';

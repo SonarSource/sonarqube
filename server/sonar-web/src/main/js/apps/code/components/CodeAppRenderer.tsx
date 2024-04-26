@@ -29,9 +29,9 @@ import {
 import { difference, intersection } from 'lodash';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
+import A11ySkipTarget from '~sonar-aligned/components/a11y/A11ySkipTarget';
 import HelpTooltip from '~sonar-aligned/components/controls/HelpTooltip';
 import { Location } from '~sonar-aligned/types/router';
-import A11ySkipTarget from '../../../components/a11y/A11ySkipTarget';
 import ListFooter from '../../../components/controls/ListFooter';
 import Suggestions from '../../../components/embed-docs-modal/Suggestions';
 import AnalysisMissingInfoMessage from '../../../components/shared/AnalysisMissingInfoMessage';

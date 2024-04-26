@@ -25,9 +25,9 @@ import {
   PageContentFontWrapper,
 } from 'design-system';
 import * as React from 'react';
+import A11ySkipTarget from '~sonar-aligned/components/a11y/A11ySkipTarget';
 import { useLocation, useRouter } from '~sonar-aligned/components/hoc/withRouter';
 import { ComponentQualifier } from '~sonar-aligned/types/component';
-import A11ySkipTarget from '../../../components/a11y/A11ySkipTarget';
 import AnalysisMissingInfoMessage from '../../../components/shared/AnalysisMissingInfoMessage';
 import { parseDate } from '../../../helpers/dates';
 import { areCCTMeasuresComputed, isDiffMetric } from '../../../helpers/measures';

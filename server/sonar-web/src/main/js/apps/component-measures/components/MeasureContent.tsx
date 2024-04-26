@@ -19,13 +19,13 @@
  */
 import { Highlight, KeyboardHint } from 'design-system';
 import * as React from 'react';
+import A11ySkipTarget from '~sonar-aligned/components/a11y/A11ySkipTarget';
 import { getBranchLikeQuery } from '~sonar-aligned/helpers/branch-like';
 import { MetricKey } from '~sonar-aligned/types/metrics';
 import { Router } from '~sonar-aligned/types/router';
 import { getComponentTree } from '../../../api/components';
 import { getMeasures } from '../../../api/measures';
 import SourceViewer from '../../../components/SourceViewer/SourceViewer';
-import A11ySkipTarget from '../../../components/a11y/A11ySkipTarget';
 import FilesCounter from '../../../components/ui/FilesCounter';
 import { isSameBranchLike } from '../../../helpers/branch-like';
 import { getComponentMeasureUniqueKey } from '../../../helpers/component';

@@ -19,7 +19,7 @@
  */
 import { sortBy } from 'lodash';
 import * as React from 'react';
-import { A11ySkipLink } from '../../types/types';
+import { A11ySkipLink } from '../../../types/types';
 import { A11yContext } from './A11yContext';
 
 interface State {

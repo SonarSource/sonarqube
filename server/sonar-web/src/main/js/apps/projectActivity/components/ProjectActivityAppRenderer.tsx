@@ -26,8 +26,8 @@ import {
 } from 'design-system';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
+import A11ySkipTarget from '~sonar-aligned/components/a11y/A11ySkipTarget';
 import { ComponentQualifier } from '~sonar-aligned/types/component';
-import A11ySkipTarget from '../../../components/a11y/A11ySkipTarget';
 import Suggestions from '../../../components/embed-docs-modal/Suggestions';
 import { translate } from '../../../helpers/l10n';
 import { MeasureHistory, ParsedAnalysis } from '../../../types/project-activity';

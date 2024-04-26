@@ -19,10 +19,10 @@
  */
 import { Spinner } from 'design-system';
 import * as React from 'react';
+import A11ySkipTarget from '~sonar-aligned/components/a11y/A11ySkipTarget';
 import { getBranchLikeQuery } from '~sonar-aligned/helpers/branch-like';
 import { getComponentLeaves } from '../../../api/components';
 import SourceViewer from '../../../components/SourceViewer/SourceViewer';
-import A11ySkipTarget from '../../../components/a11y/A11ySkipTarget';
 import { isSameBranchLike } from '../../../helpers/branch-like';
 import { BranchLike } from '../../../types/branch-like';
 import { isFile } from '../../../types/component';

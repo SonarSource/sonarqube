@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { createContext } from 'react';
-import { A11ySkipLink } from '../../types/types';
+import { A11ySkipLink } from '../../../types/types';
 
 export interface A11yContextShape {
   addA11ySkipLink: (link: A11ySkipLink) => void;

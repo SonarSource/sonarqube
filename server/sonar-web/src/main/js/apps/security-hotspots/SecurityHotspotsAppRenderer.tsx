@@ -31,10 +31,10 @@ import {
 } from 'design-system';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
+import A11ySkipTarget from '~sonar-aligned/components/a11y/A11ySkipTarget';
 import { isBranch } from '~sonar-aligned/helpers/branch-like';
 import { ComponentQualifier } from '~sonar-aligned/types/component';
 import { MetricKey } from '~sonar-aligned/types/metrics';
-import A11ySkipTarget from '../../components/a11y/A11ySkipTarget';
 import Suggestions from '../../components/embed-docs-modal/Suggestions';
 import { translate } from '../../helpers/l10n';
 import useFollowScroll from '../../hooks/useFollowScroll';

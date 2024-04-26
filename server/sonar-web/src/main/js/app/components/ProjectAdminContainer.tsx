@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { Outlet } from 'react-router-dom';
-import A11ySkipTarget from '../../components/a11y/A11ySkipTarget';
+import A11ySkipTarget from '~sonar-aligned/components/a11y/A11ySkipTarget';
 import { Component } from '../../types/types';
 import handleRequiredAuthorization from '../utils/handleRequiredAuthorization';
 import withComponentContext from './componentContext/withComponentContext';
