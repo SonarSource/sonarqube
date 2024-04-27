@@ -102,8 +102,11 @@ public class RuleCreator {
       .collect(Collectors.toMap(
         RuleDto::getKey,
         Function.identity()));
-
-    checkArgument(!templateRules.isEmpty() && templateKeys.size() == templateRules.size(), "Rule template keys should exists for each custom rule!");
+    if (!templateRules.isEmpty()) {
+        final Set keys = new java.util.HashSet(templateKeys);
+        keys.removeAll(templateRules.keySet());
+        checkArgument(keys.isEmpty(), "Rule template keys(" + keys + ") should exists for each custom rule!");
+    }
     templateRules.values().forEach(ruleDto -> {
       checkArgument(ruleDto.isTemplate(), "This rule is not a template rule: %s", ruleDto.getKey().toString());
       checkArgument(ruleDto.getStatus() != RuleStatus.REMOVED, TEMPLATE_KEY_NOT_EXIST_FORMAT, ruleDto.getKey().toString());
