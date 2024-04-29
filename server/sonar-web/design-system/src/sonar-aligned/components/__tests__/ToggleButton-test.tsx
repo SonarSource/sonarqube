@@ -19,9 +19,9 @@
  */
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { render } from '../../../helpers/testUtils';
+import { FCProps } from '../../../types/misc';
 import { getTabPanelId } from '../../helpers';
-import { render } from '../../helpers/testUtils';
-import { FCProps } from '../../types/misc';
 import { ToggleButton, ToggleButtonsOption } from '../ToggleButton';
 
 it('should render all options', async () => {

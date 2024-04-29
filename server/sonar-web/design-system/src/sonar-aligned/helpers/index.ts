@@ -18,6 +18,4 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-export * from './components';
-export * from './helpers';
-export * from './types';
+export * from './tabs';
