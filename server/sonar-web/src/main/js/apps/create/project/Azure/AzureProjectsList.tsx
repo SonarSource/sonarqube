@@ -21,7 +21,7 @@ import { FlagMessage, Link } from 'design-system';
 import { uniqBy } from 'lodash';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { queryToSearch } from '~sonar-aligned/helpers/urls';
+import { queryToSearchString } from '~sonar-aligned/helpers/urls';
 import ListFooter from '../../../../components/controls/ListFooter';
 import { translate, translateWithParameters } from '../../../../helpers/l10n';
 import { AzureProject, AzureRepository } from '../../../../types/alm-integration';
@@ -66,7 +66,10 @@ export default function AzureProjectsList(props: AzureProjectsListProps) {
                 <Link
                   to={{
                     pathname: '/projects/create',
-                    search: queryToSearch({ mode: CreateProjectModes.AzureDevOps, resetPat: 1 }),
+                    search: queryToSearchString({
+                      mode: CreateProjectModes.AzureDevOps,
+                      resetPat: 1,
+                    }),
                   }}
                 >
                   {translate('onboarding.create_project.update_your_token')}

@@ -17,50 +17,36 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { isArray, mapValues, omitBy, pick } from 'lodash';
-import { Path } from 'react-router-dom';
+import { mapValues, omitBy, pick } from 'lodash';
+import { Path, URLSearchParamsInit, createSearchParams } from 'react-router-dom';
+import { cleanQuery } from '../../helpers/query';
 import { Query } from '../../helpers/urls';
 import { BranchLike } from '../../types/branch-like';
 import { SecurityStandard } from '../../types/security';
 import { getBranchLikeQuery } from '../helpers/branch-like';
 import { RawQuery } from '../types/router';
 
-export function queryToSearch(query: RawQuery = {}) {
-  const arrayParams: Array<{ key: string; values: string[] }> = [];
+export function queryToSearchString(query: RawQuery | URLSearchParamsInit = {}) {
+  let filteredQuery = query;
 
-  const stringParams = mapValues(query, (value, key) => {
-    // array values are added afterwards
-    if (isArray(value)) {
-      arrayParams.push({ key, values: value });
-      return '';
-    }
+  if (typeof query !== 'string' && !Array.isArray(query) && !(query instanceof URLSearchParams)) {
+    filteredQuery = cleanQuery(query);
+    mapValues(filteredQuery, (value) => (value as string).toString());
+    filteredQuery = omitBy(filteredQuery, (value) => value.length === 0);
+  }
 
-    return value != null ? `${value}` : '';
-  });
-  const filteredParams = omitBy(stringParams, (v: string) => v.length === 0);
-  const searchParams = new URLSearchParams(filteredParams);
+  const queryString = createSearchParams(filteredQuery as URLSearchParamsInit).toString();
 
-  /*
-   * Add each value separately
-   * e.g. author: ['a', 'b'] should be serialized as
-   * author=a&author=b
-   */
-  arrayParams.forEach(({ key, values }) => {
-    values.forEach((value) => {
-      searchParams.append(key, value);
-    });
-  });
-
-  return `?${searchParams.toString()}`;
+  return queryString ? `?${queryString}` : undefined;
 }
 
 /**
  * Generate URL for a component's issues page
  */
-export function getComponentIssuesUrl(componentKey: string, query?: Query): Path {
+export function getComponentIssuesUrl(componentKey: string, query?: Query): Partial<Path> {
   return {
     pathname: '/project/issues',
-    search: queryToSearch({ ...(query || {}), id: componentKey }),
+    search: queryToSearchString({ ...(query || {}), id: componentKey }),
     hash: '',
   };
 }
@@ -72,11 +58,11 @@ export function getComponentSecurityHotspotsUrl(
   componentKey: string,
   branchLike?: BranchLike,
   query: Query = {},
-): Path {
+): Partial<Path> {
   const { inNewCodePeriod, hotspots, assignedToMe, files } = query;
   return {
     pathname: '/security_hotspots',
-    search: queryToSearch({
+    search: queryToSearchString({
       id: componentKey,
       inNewCodePeriod,
       hotspots,

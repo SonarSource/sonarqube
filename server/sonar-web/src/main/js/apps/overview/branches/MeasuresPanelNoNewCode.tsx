@@ -22,7 +22,7 @@ import { Note, getTabPanelId } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { getBranchLikeQuery } from '~sonar-aligned/helpers/branch-like';
-import { queryToSearch } from '~sonar-aligned/helpers/urls';
+import { queryToSearchString } from '~sonar-aligned/helpers/urls';
 import { ComponentQualifier } from '~sonar-aligned/types/component';
 import DocumentationLink from '../../../components/common/DocumentationLink';
 import { Image } from '../../../components/common/Image';
@@ -89,7 +89,10 @@ export default function MeasuresPanelNoNewCode(props: MeasuresPanelNoNewCodeProp
                     <Link
                       to={{
                         pathname: '/project/baseline',
-                        search: queryToSearch({ id: component.key, ...getBranchLikeQuery(branch) }),
+                        search: queryToSearchString({
+                          id: component.key,
+                          ...getBranchLikeQuery(branch),
+                        }),
                       }}
                     >
                       {translate('settings.new_code_period.category')}

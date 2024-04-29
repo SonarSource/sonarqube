@@ -20,7 +20,7 @@
 import { SubnavigationGroup, SubnavigationItem } from 'design-system';
 import * as React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { queryToSearch } from '~sonar-aligned/helpers/urls';
+import { queryToSearchString } from '~sonar-aligned/helpers/urls';
 import { WebApi } from '../../../types/types';
 import { Query, actionsFilter, isDomainPathActive, serializeQuery } from '../utils';
 import DeprecatedBadge from './DeprecatedBadge';
@@ -41,7 +41,7 @@ export default function Menu(props: Props) {
     (domainPath: string) => {
       navigateTo({
         pathname: '/web_api/' + domainPath,
-        search: queryToSearch(serializeQuery(query)),
+        search: queryToSearchString(serializeQuery(query)),
       });
     },
     [query, navigateTo],

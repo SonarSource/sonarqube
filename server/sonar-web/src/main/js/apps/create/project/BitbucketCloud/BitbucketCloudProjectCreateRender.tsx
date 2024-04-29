@@ -21,7 +21,7 @@ import { Link, Spinner } from '@sonarsource/echoes-react';
 import { LightPrimary, Title } from 'design-system';
 import React, { useContext } from 'react';
 import { FormattedMessage } from 'react-intl';
-import { queryToSearch } from '~sonar-aligned/helpers/urls';
+import { queryToSearchString } from '~sonar-aligned/helpers/urls';
 import { AvailableFeaturesContext } from '../../../../app/components/available-features/AvailableFeaturesContext';
 import { translate } from '../../../../helpers/l10n';
 import { BitbucketCloudRepository } from '../../../../types/alm-integration';
@@ -86,7 +86,7 @@ export default function BitbucketCloudProjectCreateRenderer(
                   <Link
                     to={{
                       pathname: '/projects/create',
-                      search: queryToSearch({
+                      search: queryToSearchString({
                         mode: CreateProjectModes.BitbucketCloud,
                         mono: true,
                       }),

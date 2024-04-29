@@ -35,7 +35,7 @@ import { useEffect } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { useNavigate, unstable_usePrompt as usePrompt } from 'react-router-dom';
 import { useLocation } from '~sonar-aligned/components/hoc/withRouter';
-import { queryToSearch } from '~sonar-aligned/helpers/urls';
+import { queryToSearchString } from '~sonar-aligned/helpers/urls';
 import NewCodeDefinitionSelector from '../../../../components/new-code-definition/NewCodeDefinitionSelector';
 import { useDocUrl } from '../../../../helpers/docs';
 import { translate } from '../../../../helpers/l10n';
@@ -90,7 +90,7 @@ export default function NewCodeDefinitionSelection(props: Props) {
       } else {
         navigate({
           pathname: '/projects',
-          search: queryToSearch({ sort: '-creation_date' }),
+          search: queryToSearchString({ sort: '-creation_date' }),
         });
       }
     };

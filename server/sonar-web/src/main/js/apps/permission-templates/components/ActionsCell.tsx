@@ -21,7 +21,7 @@ import { ActionsDropdown, ItemButton, ItemLink, PopupZLevel } from 'design-syste
 import { difference } from 'lodash';
 import * as React from 'react';
 import { withRouter } from '~sonar-aligned/components/hoc/withRouter';
-import { queryToSearch } from '~sonar-aligned/helpers/urls';
+import { queryToSearchString } from '~sonar-aligned/helpers/urls';
 import { Router } from '~sonar-aligned/types/router';
 import {
   deletePermissionTemplate,
@@ -169,7 +169,10 @@ class ActionsCell extends React.PureComponent<Props, State> {
 
             {!this.props.fromDetails && (
               <ItemLink
-                to={{ pathname: PERMISSION_TEMPLATES_PATH, search: queryToSearch({ id: t.id }) }}
+                to={{
+                  pathname: PERMISSION_TEMPLATES_PATH,
+                  search: queryToSearchString({ id: t.id }),
+                }}
               >
                 {translate('edit_permissions')}
               </ItemLink>

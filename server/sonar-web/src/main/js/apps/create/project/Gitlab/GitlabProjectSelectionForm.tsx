@@ -21,7 +21,7 @@ import { Link } from '@sonarsource/echoes-react';
 import { FlagMessage, InputSearch, LightPrimary } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { queryToSearch } from '~sonar-aligned/helpers/urls';
+import { queryToSearchString } from '~sonar-aligned/helpers/urls';
 import ListFooter from '../../../../components/controls/ListFooter';
 import Tooltip from '../../../../components/controls/Tooltip';
 import { translate } from '../../../../helpers/l10n';
@@ -59,7 +59,7 @@ export default function GitlabProjectSelectionForm(
                 <Link
                   to={{
                     pathname: '/projects/create',
-                    search: queryToSearch({ mode: CreateProjectModes.GitLab, resetPat: 1 }),
+                    search: queryToSearchString({ mode: CreateProjectModes.GitLab, resetPat: 1 }),
                   }}
                 >
                   {translate('onboarding.create_project.update_your_token')}

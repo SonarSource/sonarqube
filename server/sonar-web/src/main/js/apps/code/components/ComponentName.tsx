@@ -21,7 +21,7 @@ import { LinkHighlight, LinkStandalone } from '@sonarsource/echoes-react';
 import { Badge, BranchIcon, LightLabel, Note, QualifierIcon } from 'design-system';
 import * as React from 'react';
 import { getBranchLikeQuery } from '~sonar-aligned/helpers/branch-like';
-import { queryToSearch } from '~sonar-aligned/helpers/urls';
+import { queryToSearchString } from '~sonar-aligned/helpers/urls';
 import { ComponentQualifier } from '~sonar-aligned/types/component';
 import { translate } from '../../../helpers/l10n';
 import { isDefined } from '../../../helpers/types';
@@ -170,7 +170,7 @@ function renderNameWithIcon(
       <LinkStandalone
         highlight={LinkHighlight.CurrentColor}
         iconLeft={showIcon && <QualifierIcon className="sw-mr-2" qualifier={component.qualifier} />}
-        to={{ pathname: '/code', search: queryToSearch(query) }}
+        to={{ pathname: '/code', search: queryToSearchString(query) }}
       >
         {name}
       </LinkStandalone>

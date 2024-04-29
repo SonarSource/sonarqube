@@ -20,7 +20,7 @@
 
 import { ItemLink } from 'design-system';
 import * as React from 'react';
-import { queryToSearch } from '~sonar-aligned/helpers/urls';
+import { queryToSearchString } from '~sonar-aligned/helpers/urls';
 import { Image } from '../../../components/common/Image';
 import { translate } from '../../../helpers/l10n';
 import { AlmKeys } from '../../../types/alm-settings';
@@ -38,7 +38,7 @@ export default function ProjectCreationMenuItem(props: ProjectCreationMenuItemPr
   return (
     <ItemLink
       className="sw-flex sw-items-center"
-      to={{ pathname: '/projects/create', search: queryToSearch({ mode: alm }) }}
+      to={{ pathname: '/projects/create', search: queryToSearchString({ mode: alm }) }}
     >
       {alm !== 'manual' && (
         <Image alt={alm} className="sw-mr-2" width={16} src={`/images/alm/${almIcon}.svg`} />

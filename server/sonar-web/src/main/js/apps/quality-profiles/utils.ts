@@ -19,7 +19,7 @@
  */
 import { differenceInYears } from 'date-fns';
 import { sortBy } from 'lodash';
-import { queryToSearch } from '~sonar-aligned/helpers/urls';
+import { queryToSearchString } from '~sonar-aligned/helpers/urls';
 import { Profile as BaseProfile } from '../../api/quality-profiles';
 import { isValidDate, parseDate } from '../../helpers/dates';
 import { PROFILE_COMPARE_PATH, PROFILE_PATH } from './constants';
@@ -68,12 +68,12 @@ export function isStagnant(profile: Profile): boolean {
 
 export const getProfilesForLanguagePath = (language: string) => ({
   pathname: PROFILE_PATH,
-  search: queryToSearch({ language }),
+  search: queryToSearchString({ language }),
 });
 
 export const getProfilePath = (name: string, language: string) => ({
   pathname: `${PROFILE_PATH}/show`,
-  search: queryToSearch({ name, language }),
+  search: queryToSearchString({ name, language }),
 });
 
 export const getProfileComparePath = (name: string, language: string, withKey?: string) => {
@@ -83,7 +83,7 @@ export const getProfileComparePath = (name: string, language: string, withKey?: 
   }
   return {
     pathname: PROFILE_COMPARE_PATH,
-    search: queryToSearch(query),
+    search: queryToSearchString(query),
   };
 };
 
@@ -103,7 +103,7 @@ export const getProfileChangelogPath = (
   }
   return {
     pathname: `${PROFILE_PATH}/changelog`,
-    search: queryToSearch(query),
+    search: queryToSearchString(query),
   };
 };
 

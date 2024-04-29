@@ -20,7 +20,7 @@
 import { FlagMessage, InputSearch, Link } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { queryToSearch } from '~sonar-aligned/helpers/urls';
+import { queryToSearchString } from '~sonar-aligned/helpers/urls';
 import { translate } from '../../../../helpers/l10n';
 import {
   BitbucketProject,
@@ -55,7 +55,7 @@ export default function BitbucketImportRepositoryForm(props: BitbucketImportRepo
                 <Link
                   to={{
                     pathname: '/projects/create',
-                    search: queryToSearch({
+                    search: queryToSearchString({
                       mode: CreateProjectModes.BitbucketServer,
                       resetPat: 1,
                     }),

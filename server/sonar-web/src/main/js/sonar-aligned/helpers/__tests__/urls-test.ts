@@ -19,25 +19,51 @@
  */
 import { DEFAULT_ISSUES_QUERY } from '../../../components/shared/utils';
 import { SecurityStandard } from '../../../types/security';
-import { getComponentIssuesUrl, getComponentSecurityHotspotsUrl, queryToSearch } from '../urls';
+import {
+  getComponentIssuesUrl,
+  getComponentSecurityHotspotsUrl,
+  queryToSearchString,
+} from '../urls';
 
 const SIMPLE_COMPONENT_KEY = 'sonarqube';
 
-describe('queryToSearch', () => {
-  it('should return query by default', () => {
-    expect(queryToSearch()).toBe('?');
+describe('#queryToSearchString', () => {
+  it('should handle query as array', () => {
+    expect(
+      queryToSearchString([
+        ['key1', 'value1'],
+        ['key1', 'value2'],
+        ['key2', 'value1'],
+      ]),
+    ).toBe('?key1=value1&key1=value2&key2=value1');
   });
 
-  it('should return query with string values', () => {
-    expect(queryToSearch({ key: 'value' })).toBe('?key=value');
+  it('should handle query as string', () => {
+    expect(queryToSearchString('a=1')).toBe('?a=1');
   });
 
-  it('should remove empty values', () => {
-    expect(queryToSearch({ key: 'value', anotherKey: '' })).toBe('?key=value');
+  it('should handle query as URLSearchParams', () => {
+    expect(queryToSearchString(new URLSearchParams({ a: '1', b: '2' }))).toBe('?a=1&b=2');
   });
 
-  it('should return query with array values', () => {
-    expect(queryToSearch({ key: ['value1', 'value2'] })).toBe('?key=value1&key=value2');
+  it('should handle all types', () => {
+    const query = {
+      author: ['GRRM', 'JKR', 'Stross'],
+      b1: true,
+      b2: false,
+      number: 0,
+      emptyArray: [],
+      normalString: 'hello',
+      undef: undefined,
+    };
+
+    expect(queryToSearchString(query)).toBe(
+      '?author=GRRM&author=JKR&author=Stross&b1=true&b2=false&number=0&normalString=hello',
+    );
+  });
+
+  it('should handle an missing query', () => {
+    expect(queryToSearchString()).toBeUndefined();
   });
 });
 
@@ -46,7 +72,7 @@ describe('#getComponentIssuesUrl', () => {
     expect(getComponentIssuesUrl(SIMPLE_COMPONENT_KEY)).toEqual(
       expect.objectContaining({
         pathname: '/project/issues',
-        search: queryToSearch({ id: SIMPLE_COMPONENT_KEY }),
+        search: queryToSearchString({ id: SIMPLE_COMPONENT_KEY }),
       }),
     );
   });
@@ -55,7 +81,7 @@ describe('#getComponentIssuesUrl', () => {
     expect(getComponentIssuesUrl(SIMPLE_COMPONENT_KEY, DEFAULT_ISSUES_QUERY)).toEqual(
       expect.objectContaining({
         pathname: '/project/issues',
-        search: queryToSearch({ ...DEFAULT_ISSUES_QUERY, id: SIMPLE_COMPONENT_KEY }),
+        search: queryToSearchString({ ...DEFAULT_ISSUES_QUERY, id: SIMPLE_COMPONENT_KEY }),
       }),
     );
   });
@@ -66,7 +92,7 @@ describe('#getComponentSecurityHotspotsUrl', () => {
     expect(getComponentSecurityHotspotsUrl(SIMPLE_COMPONENT_KEY)).toEqual(
       expect.objectContaining({
         pathname: '/security_hotspots',
-        search: queryToSearch({ id: SIMPLE_COMPONENT_KEY }),
+        search: queryToSearchString({ id: SIMPLE_COMPONENT_KEY }),
       }),
     );
   });
@@ -86,7 +112,7 @@ describe('#getComponentSecurityHotspotsUrl', () => {
     ).toEqual(
       expect.objectContaining({
         pathname: '/security_hotspots',
-        search: queryToSearch({
+        search: queryToSearchString({
           id: SIMPLE_COMPONENT_KEY,
           inNewCodePeriod: 'true',
           [SecurityStandard.OWASP_TOP10_2021]: 'a1',

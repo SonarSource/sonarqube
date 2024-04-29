@@ -19,7 +19,7 @@
  */
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
-import { queryToSearch } from '~sonar-aligned/helpers/urls';
+import { queryToSearchString } from '~sonar-aligned/helpers/urls';
 import { ComponentQualifier } from '~sonar-aligned/types/component';
 import { createApplication } from '../../../../api/application';
 import { getComponentNavigation } from '../../../../api/navigation';
@@ -109,7 +109,7 @@ it('should be able to create application when user is logged in and has permissi
   );
   expect(routerPush).toHaveBeenCalledWith({
     pathname: '/project/admin/extension/developer-server/application-console',
-    search: queryToSearch({
+    search: queryToSearchString({
       id: 'app',
     }),
   });

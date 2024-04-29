@@ -22,7 +22,7 @@ import { Link, Spinner } from '@sonarsource/echoes-react';
 import { DarkLabel, FlagMessage, InputSelect, LightPrimary, Title } from 'design-system';
 import React, { useContext, useEffect, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
-import { queryToSearch } from '~sonar-aligned/helpers/urls';
+import { queryToSearchString } from '~sonar-aligned/helpers/urls';
 import { useAppState } from '../../../../app/components/app-state/withAppStateContext';
 import { AvailableFeaturesContext } from '../../../../app/components/available-features/AvailableFeaturesContext';
 import { translate } from '../../../../helpers/l10n';
@@ -123,7 +123,7 @@ export default function GitHubProjectCreateRenderer(
                   <Link
                     to={{
                       pathname: '/projects/create',
-                      search: queryToSearch({
+                      search: queryToSearchString({
                         mode: CreateProjectModes.GitHub,
                         mono: true,
                       }),

@@ -19,7 +19,7 @@
  */
 import { CodeSnippet, ContentCell, Link } from 'design-system';
 import * as React from 'react';
-import { queryToSearch } from '~sonar-aligned/helpers/urls';
+import { queryToSearchString } from '~sonar-aligned/helpers/urls';
 import { PermissionTemplate } from '../../../types/types';
 import { PERMISSION_TEMPLATES_PATH } from '../utils';
 import Defaults from './Defaults';
@@ -35,7 +35,7 @@ export default function NameCell({ template }: Props) {
     <ContentCell>
       <div className="sw-flex sw-flex-col">
         <span>
-          <Link to={{ pathname, search: queryToSearch({ id: template.id }) }}>
+          <Link to={{ pathname, search: queryToSearchString({ id: template.id }) }}>
             <span className="js-name">{template.name}</span>
           </Link>
         </span>

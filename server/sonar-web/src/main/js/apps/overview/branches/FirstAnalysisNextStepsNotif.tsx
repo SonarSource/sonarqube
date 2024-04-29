@@ -20,7 +20,7 @@
 import { Link } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { queryToSearch } from '~sonar-aligned/helpers/urls';
+import { queryToSearchString } from '~sonar-aligned/helpers/urls';
 import { ComponentQualifier } from '~sonar-aligned/types/component';
 import withCurrentUserContext from '../../../app/components/current-user/withCurrentUserContext';
 import DismissableAlert from '../../../components/ui/DismissableAlert';
@@ -62,7 +62,7 @@ export function FirstAnalysisNextStepsNotif(props: FirstAnalysisNextStepsNotifPr
     <Link
       to={{
         pathname: '/tutorials',
-        search: queryToSearch({ id: component.key }),
+        search: queryToSearchString({ id: component.key }),
       }}
     >
       {translate('overview.project.next_steps.links.set_up_ci')}
@@ -72,7 +72,7 @@ export function FirstAnalysisNextStepsNotif(props: FirstAnalysisNextStepsNotifPr
     <Link
       to={{
         pathname: '/project/settings',
-        search: queryToSearch({
+        search: queryToSearchString({
           id: component.key,
           category: PULL_REQUEST_DECORATION_BINDING_CATEGORY,
         }),

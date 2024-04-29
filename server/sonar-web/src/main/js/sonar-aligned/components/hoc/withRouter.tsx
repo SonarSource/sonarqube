@@ -27,7 +27,7 @@ import {
   useSearchParams,
 } from 'react-router-dom';
 import { searchParamsToQuery } from '../../helpers/router';
-import { queryToSearch } from '../../helpers/urls';
+import { queryToSearchString } from '../../helpers/urls';
 import { Location, Router } from '../../types/router';
 import { getWrappedDisplayName } from './utils';
 
@@ -62,13 +62,13 @@ export function useRouter() {
     () => ({
       replace: (path: string | Partial<Location>) => {
         if ((path as Location).query) {
-          path.search = queryToSearch((path as Location).query);
+          path.search = queryToSearchString((path as Location).query);
         }
         navigate(path, { replace: true });
       },
       push: (path: string | Partial<Location>) => {
         if ((path as Location).query) {
-          path.search = queryToSearch((path as Location).query);
+          path.search = queryToSearchString((path as Location).query);
         }
         navigate(path);
       },

@@ -20,7 +20,7 @@
 import { Accordion, FlagMessage, Link, SearchHighlighter, Spinner } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { queryToSearch } from '~sonar-aligned/helpers/urls';
+import { queryToSearchString } from '~sonar-aligned/helpers/urls';
 import ListFooter from '../../../../components/controls/ListFooter';
 import { translate } from '../../../../helpers/l10n';
 import { getBaseUrl } from '../../../../helpers/system';
@@ -78,7 +78,7 @@ export default function AzureProjectAccordion(props: AzureProjectAccordionProps)
                       <Link
                         to={{
                           pathname: '/projects/create',
-                          search: queryToSearch({
+                          search: queryToSearchString({
                             mode: CreateProjectModes.AzureDevOps,
                             resetPat: 1,
                           }),

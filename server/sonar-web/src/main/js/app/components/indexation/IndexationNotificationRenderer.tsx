@@ -31,7 +31,7 @@ import {
 } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { queryToSearch } from '~sonar-aligned/helpers/urls';
+import { queryToSearchString } from '~sonar-aligned/helpers/urls';
 import DocumentationLink from '../../../components/common/DocumentationLink';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { IndexationNotificationType } from '../../../types/indexation';
@@ -202,7 +202,7 @@ function renderBackgroundTasksPageLink(hasError: boolean, text: string) {
     <Link
       to={{
         pathname: '/admin/background_tasks',
-        search: queryToSearch({
+        search: queryToSearchString({
           taskType: TaskTypes.IssueSync,
           status: hasError ? TaskStatuses.Failed : undefined,
         }),

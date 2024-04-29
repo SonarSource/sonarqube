@@ -29,7 +29,7 @@ import {
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { FormattedMessage } from 'react-intl';
-import { queryToSearch } from '~sonar-aligned/helpers/urls';
+import { queryToSearchString } from '~sonar-aligned/helpers/urls';
 import Suggestions from '../../../components/embed-docs-modal/Suggestions';
 import { now } from '../../../helpers/dates';
 import { translate } from '../../../helpers/l10n';
@@ -96,7 +96,7 @@ export default function AuditAppRenderer(props: Readonly<AuditAppRendererProps>)
                 <Link
                   to={{
                     pathname: '/admin/settings',
-                    search: queryToSearch({ category: 'housekeeping' }),
+                    search: queryToSearchString({ category: 'housekeeping' }),
                     hash: '#auditLogs',
                   }}
                 >

@@ -20,7 +20,7 @@
 import { Banner, Link } from 'design-system';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
-import { queryToSearch } from '~sonar-aligned/helpers/urls';
+import { queryToSearchString } from '~sonar-aligned/helpers/urls';
 import { MessageTypes, checkMessageDismissed, setMessageDismissed } from '../../api/messages';
 import { CurrentUserContextInterface } from '../../app/components/current-user/CurrentUserContext';
 import withCurrentUserContext from '../../app/components/current-user/withCurrentUserContext';
@@ -60,13 +60,13 @@ function NCDAutoUpdateMessage(props: Readonly<NCDAutoUpdateMessageProps>) {
       isGlobalBanner
         ? {
             pathname: '/admin/settings',
-            search: queryToSearch({
+            search: queryToSearchString({
               category: NEW_CODE_PERIOD_CATEGORY,
             }),
           }
         : {
             pathname: '/project/baseline',
-            search: queryToSearch({
+            search: queryToSearchString({
               id: component.key,
             }),
           },

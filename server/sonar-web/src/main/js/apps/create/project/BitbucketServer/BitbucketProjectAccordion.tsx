@@ -20,7 +20,7 @@
 import { Accordion, FlagMessage, Link } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { queryToSearch } from '~sonar-aligned/helpers/urls';
+import { queryToSearchString } from '~sonar-aligned/helpers/urls';
 import { translate, translateWithParameters } from '../../../../helpers/l10n';
 import { getBaseUrl } from '../../../../helpers/system';
 import { BitbucketProject, BitbucketRepository } from '../../../../types/alm-integration';
@@ -70,7 +70,7 @@ export default function BitbucketProjectAccordion(props: BitbucketProjectAccordi
                         <Link
                           to={{
                             pathname: '/projects/create',
-                            search: queryToSearch({
+                            search: queryToSearchString({
                               mode: CreateProjectModes.BitbucketServer,
                               resetPat: 1,
                             }),

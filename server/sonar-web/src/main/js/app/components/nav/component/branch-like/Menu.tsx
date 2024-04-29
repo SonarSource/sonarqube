@@ -21,7 +21,7 @@ import { DropdownMenu, InputSearch, ItemDivider, Link } from 'design-system';
 import * as React from 'react';
 import { withRouter } from '~sonar-aligned/components/hoc/withRouter';
 import { isBranch } from '~sonar-aligned/helpers/branch-like';
-import { queryToSearch } from '~sonar-aligned/helpers/urls';
+import { queryToSearchString } from '~sonar-aligned/helpers/urls';
 import { ComponentQualifier } from '~sonar-aligned/types/component';
 import { Router } from '~sonar-aligned/types/router';
 import {
@@ -189,7 +189,10 @@ export class Menu extends React.PureComponent<Props, State> {
                 onClick={() => {
                   onClose();
                 }}
-                to={{ pathname: '/project/branches', search: queryToSearch({ id: component.key }) }}
+                to={{
+                  pathname: '/project/branches',
+                  search: queryToSearchString({ id: component.key }),
+                }}
               >
                 {translate('branch_like_navigation.manage')}
               </Link>

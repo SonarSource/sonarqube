@@ -31,7 +31,7 @@ interface IssueMeasuresCardInnerProps extends React.HTMLAttributes<HTMLDivElemen
   metric: MetricKey;
   value?: string;
   header: React.ReactNode;
-  url: Path;
+  url: Partial<Path>;
   failed?: boolean;
   icon?: React.ReactNode;
   disabled?: boolean;

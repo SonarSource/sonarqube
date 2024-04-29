@@ -19,7 +19,7 @@
  */
 import { Badge, Card, LinkBox, LinkIcon, SubHeading, Tabs } from 'design-system';
 import * as React from 'react';
-import { queryToSearch } from '~sonar-aligned/helpers/urls';
+import { queryToSearchString } from '~sonar-aligned/helpers/urls';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { WebApi } from '../../../types/types';
 import { getActionKey, serializeQuery } from '../utils';
@@ -71,7 +71,7 @@ export default function Action(props: Props) {
         <LinkBox
           to={{
             pathname: '/web_api/' + actionKey,
-            search: queryToSearch(
+            search: queryToSearchString(
               serializeQuery({
                 deprecated: Boolean(action.deprecatedSince),
                 internal: Boolean(action.internal),

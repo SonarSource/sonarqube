@@ -20,7 +20,7 @@
 import { FlagMessage, InputSearch, LightPrimary, Link } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { queryToSearch } from '~sonar-aligned/helpers/urls';
+import { queryToSearchString } from '~sonar-aligned/helpers/urls';
 import ListFooter from '../../../../components/controls/ListFooter';
 import { translate } from '../../../../helpers/l10n';
 import { getBaseUrl } from '../../../../helpers/system';
@@ -59,7 +59,10 @@ export default function BitbucketCloudSearchForm(props: BitbucketCloudSearchForm
                 <Link
                   to={{
                     pathname: '/projects/create',
-                    search: queryToSearch({ mode: CreateProjectModes.BitbucketCloud, resetPat: 1 }),
+                    search: queryToSearchString({
+                      mode: CreateProjectModes.BitbucketCloud,
+                      resetPat: 1,
+                    }),
                   }}
                 >
                   {translate('onboarding.create_project.update_your_token')}

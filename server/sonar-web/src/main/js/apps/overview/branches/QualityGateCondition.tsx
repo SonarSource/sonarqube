@@ -90,7 +90,7 @@ export default class QualityGateCondition extends React.PureComponent<Props> {
 
     const metricKey = condition.measure.metric.key;
 
-    const METRICS_TO_URL_MAPPING: Dict<() => Path> = {
+    const METRICS_TO_URL_MAPPING: Dict<() => Partial<Path>> = {
       [MetricKey.reliability_rating]: () =>
         this.getUrlForBugsOrVulnerabilities(IssueType.Bug, false),
       [MetricKey.new_reliability_rating]: () =>
