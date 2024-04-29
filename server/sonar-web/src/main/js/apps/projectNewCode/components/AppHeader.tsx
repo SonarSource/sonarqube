@@ -29,7 +29,7 @@ export interface AppHeaderProps {
 
 export default function AppHeader(props: AppHeaderProps) {
   const { canAdmin } = props;
-  const toUrl = useDocUrl('/project-administration/defining-new-code/');
+  const toUrl = useDocUrl('/project-administration/clean-as-you-code-settings/defining-new-code/');
 
   return (
     <header className="sw-mt-8 sw-mb-4">

@@ -61,7 +61,7 @@ public class UnsetAction implements NewCodePeriodsWsAction {
     this.componentFinder = componentFinder;
     this.editionProvider = editionProvider;
     this.newCodePeriodDao = newCodePeriodDao;
-    this.newCodeDefinitionDocumentationUrl = documentationLinkGenerator.getDocumentationLink("/project-administration/defining-new-code/");
+    this.newCodeDefinitionDocumentationUrl = documentationLinkGenerator.getDocumentationLink("/project-administration/clean-as-you-code-settings/defining-new-code/");
   }
 
   @Override

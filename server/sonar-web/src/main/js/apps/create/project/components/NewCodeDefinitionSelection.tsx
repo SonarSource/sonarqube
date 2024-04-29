@@ -215,7 +215,11 @@ export default function NewCodeDefinitionSelection(props: Props) {
           id="onboarding.create_project.new_code_definition.description"
           values={{
             link: (
-              <Link to={getDocUrl('/project-administration/defining-new-code/')}>
+              <Link
+                to={getDocUrl(
+                  '/project-administration/clean-as-you-code-settings/defining-new-code/',
+                )}
+              >
                 {translate('onboarding.create_project.new_code_definition.description.link')}
               </Link>
             ),

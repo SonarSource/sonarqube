@@ -65,7 +65,7 @@ public class ShowActionIT {
 
   @Before
   public void setup() {
-    when(documentationLinkGenerator.getDocumentationLink(any())).thenReturn("https://docs.sonarsource.com/sonarqube/latest/project-administration/defining-new-code/");
+    when(documentationLinkGenerator.getDocumentationLink(any())).thenReturn("https://docs.sonarsource.com/someddoc");
     ws = new WsActionTester(new ShowAction(dbClient, userSession, componentFinder, dao, documentationLinkGenerator));
   }
 
@@ -73,7 +73,7 @@ public class ShowActionIT {
   public void test_definition() {
     WebService.Action definition = ws.getDef();
 
-    assertThat(definition.description()).contains("https://docs.sonarsource.com/sonarqube/latest/project-administration/defining-new-code/");
+    assertThat(definition.description()).contains("https://docs.sonarsource.com/someddoc");
 
     assertThat(definition.key()).isEqualTo("show");
     assertThat(definition.isInternal()).isFalse();

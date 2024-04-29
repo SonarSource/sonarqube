@@ -102,7 +102,7 @@ export default function NewCodeDefinition() {
                         id="settings.new_code_period.description3"
                         values={{
                           link: (
-                            <DocumentationLink to="/project-administration/defining-new-code/">
+                            <DocumentationLink to="/project-administration/clean-as-you-code-settings/defining-new-code/">
                               {translate('settings.new_code_period.description3.link')}
                             </DocumentationLink>
                           ),

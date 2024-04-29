@@ -69,7 +69,7 @@ public class UnsetActionIT {
 
   @Before
   public void setup(){
-    when(documentationLinkGenerator.getDocumentationLink(any())).thenReturn("https://docs.sonarsource.com/sonarqube/9.9/project-administration/defining-new-code/");
+    when(documentationLinkGenerator.getDocumentationLink(any())).thenReturn("https://docs.sonarsource.com/someddoc");
     ws = new WsActionTester(new UnsetAction(dbClient, userSession, componentFinder, editionProvider, dao, documentationLinkGenerator));
   }
 
@@ -77,7 +77,7 @@ public class UnsetActionIT {
   public void test_definition() {
     WebService.Action definition = ws.getDef();
 
-    assertThat(definition.description()).contains("https://docs.sonarsource.com/sonarqube/9.9/project-administration/defining-new-code/");
+    assertThat(definition.description()).contains("https://docs.sonarsource.com/someddoc");
 
     assertThat(definition.key()).isEqualTo("unset");
     assertThat(definition.isInternal()).isFalse();

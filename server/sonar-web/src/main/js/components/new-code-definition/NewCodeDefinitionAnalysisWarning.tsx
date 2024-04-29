@@ -23,7 +23,9 @@ import { useDocUrl } from '../../helpers/docs';
 import { translate } from '../../helpers/l10n';
 
 export default function NewCodeDefinitionAnalysisWarning() {
-  const toStatic = useDocUrl('/project-administration/defining-new-code/');
+  const toStatic = useDocUrl(
+    '/project-administration/clean-as-you-code-settings/defining-new-code/',
+  );
   return (
     <FlagMessage variant="warning" className="sw-mb-4 sw-max-w-[800px]">
       <div>

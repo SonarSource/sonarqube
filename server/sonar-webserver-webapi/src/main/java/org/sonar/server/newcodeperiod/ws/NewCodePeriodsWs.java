@@ -37,7 +37,7 @@ public class NewCodePeriodsWs implements WebService {
   @Override
   public void define(Context context) {
     NewController controller = context.createController("api/new_code_periods")
-      .setDescription("Manage "+ createHtmlExternalLink(documentationLinkGenerator.getDocumentationLink("/project-administration/defining-new-code/"), "new code definition") +".")
+      .setDescription("Manage "+ createHtmlExternalLink(documentationLinkGenerator.getDocumentationLink("/project-administration/clean-as-you-code-settings/defining-new-code/"), "new code definition") +".")
       .setSince("8.0");
     for (NewCodePeriodsWsAction action : actions) {
       action.define(controller);

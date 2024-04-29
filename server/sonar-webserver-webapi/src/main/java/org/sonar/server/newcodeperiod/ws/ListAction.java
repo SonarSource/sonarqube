@@ -66,7 +66,7 @@ public class ListAction implements NewCodePeriodsWsAction {
     this.userSession = userSession;
     this.componentFinder = componentFinder;
     this.newCodePeriodDao = newCodePeriodDao;
-    this.newCodeDefinitionDocumentationUrl = documentationLinkGenerator.getDocumentationLink("/project-administration/defining-new-code/");
+    this.newCodeDefinitionDocumentationUrl = documentationLinkGenerator.getDocumentationLink("/project-administration/clean-as-you-code-settings/defining-new-code/");
   }
 
   @Override

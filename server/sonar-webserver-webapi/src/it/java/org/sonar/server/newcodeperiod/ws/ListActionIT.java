@@ -74,7 +74,7 @@ public class ListActionIT {
 
   @Before
   public void setup() {
-    when(documentationLinkGenerator.getDocumentationLink(any())).thenReturn("https://docs.sonarsource.com/sonarqube/9.9/project-administration/defining-new-code/");
+    when(documentationLinkGenerator.getDocumentationLink(any())).thenReturn("https://docs.sonarsource.com/someddoc");
     ws = new WsActionTester(new ListAction(dbClient, userSession, componentFinder, dao, documentationLinkGenerator));
   }
 
@@ -83,7 +83,7 @@ public class ListActionIT {
 
     WebService.Action definition = ws.getDef();
 
-    assertThat(definition.description()).contains("https://docs.sonarsource.com/sonarqube/9.9/project-administration/defining-new-code/");
+    assertThat(definition.description()).contains("https://docs.sonarsource.com/someddoc");
 
     assertThat(definition.key()).isEqualTo("list");
     assertThat(definition.isInternal()).isFalse();
