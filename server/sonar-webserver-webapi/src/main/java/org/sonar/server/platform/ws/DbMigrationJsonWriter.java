@@ -22,6 +22,8 @@ package org.sonar.server.platform.ws;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.server.platform.db.migration.DatabaseMigrationState;
 
+import static org.sonar.server.platform.db.migration.DatabaseMigrationState.Status.FAILED;
+import static org.sonar.server.platform.db.migration.DatabaseMigrationState.Status.MIGRATION_REQUIRED;
 import static org.sonar.server.platform.db.migration.DatabaseMigrationState.Status.RUNNING;
 
 public class DbMigrationJsonWriter {
@@ -29,21 +31,6 @@ public class DbMigrationJsonWriter {
   static final String FIELD_MESSAGE = "message";
   static final String FIELD_STARTED_AT = "startedAt";
 
-  static final String STATUS_NO_MIGRATION = "NO_MIGRATION";
-  static final String STATUS_NOT_SUPPORTED = "NOT_SUPPORTED";
-  static final String STATUS_MIGRATION_RUNNING = "MIGRATION_RUNNING";
-  static final String STATUS_MIGRATION_FAILED = "MIGRATION_FAILED";
-  static final String STATUS_MIGRATION_SUCCEEDED = "MIGRATION_SUCCEEDED";
-  static final String STATUS_MIGRATION_REQUIRED = "MIGRATION_REQUIRED";
-
-  static final String NO_CONNECTION_TO_DB = "Cannot connect to Database.";
-  static final String UNSUPPORTED_DATABASE_MIGRATION_STATUS = "Unsupported DatabaseMigration status";
-  static final String MESSAGE_NO_MIGRATION_ON_EMBEDDED_DATABASE = "Upgrade is not supported on embedded database.";
-  static final String MESSAGE_MIGRATION_REQUIRED = "Database migration is required. DB migration can be started using WS /api/system/migrate_db.";
-  static final String MESSAGE_STATUS_NONE = "Database is up-to-date, no migration needed.";
-  static final String MESSAGE_STATUS_RUNNING = "Database migration is running.";
-  static final String MESSAGE_STATUS_SUCCEEDED = "Migration succeeded.";
-  static final String MESSAGE_STATUS_FAILED = "Migration failed: %s.<br/> Please check logs.";
 
   private DbMigrationJsonWriter() {
     // static methods only
@@ -51,71 +38,41 @@ public class DbMigrationJsonWriter {
 
   static void write(JsonWriter json, DatabaseMigrationState databaseMigrationState) {
     json.beginObject()
-      .prop(FIELD_STATE, statusToJson(databaseMigrationState.getStatus()))
-      .prop(FIELD_MESSAGE, buildMessage(databaseMigrationState))
+      .prop(FIELD_STATE, databaseMigrationState.getStatus().toString())
+      .prop(FIELD_MESSAGE, writeMessageIncludingError(databaseMigrationState))
       .propDateTime(FIELD_STARTED_AT, databaseMigrationState.getStartedAt())
       .endObject();
   }
 
+  private static String writeMessageIncludingError(DatabaseMigrationState state) {
+    if (state.getStatus() == FAILED) {
+      Throwable error = state.getError();
+      return String.format(state.getStatus().getMessage(), error != null ? error.getMessage() : "No failure error");
+    } else {
+      return state.getStatus().getMessage();
+    }
+  }
+
   static void writeNotSupportedResponse(JsonWriter json) {
     json.beginObject()
-      .prop(FIELD_STATE, STATUS_NOT_SUPPORTED)
-      .prop(FIELD_MESSAGE, MESSAGE_NO_MIGRATION_ON_EMBEDDED_DATABASE)
+      .prop(FIELD_STATE, DatabaseMigrationState.Status.STATUS_NOT_SUPPORTED.toString())
+      .prop(FIELD_MESSAGE, DatabaseMigrationState.Status.STATUS_NOT_SUPPORTED.getMessage())
       .endObject();
   }
 
   static void writeJustStartedResponse(JsonWriter json, DatabaseMigrationState databaseMigrationState) {
     json.beginObject()
-      .prop(FIELD_STATE, statusToJson(RUNNING))
-      .prop(FIELD_MESSAGE, MESSAGE_STATUS_RUNNING)
+      .prop(FIELD_STATE, RUNNING.toString())
+      .prop(FIELD_MESSAGE, RUNNING.getMessage())
       .propDateTime(FIELD_STARTED_AT, databaseMigrationState.getStartedAt())
       .endObject();
   }
 
   static void writeMigrationRequiredResponse(JsonWriter json) {
     json.beginObject()
-      .prop(FIELD_STATE, STATUS_MIGRATION_REQUIRED)
-      .prop(FIELD_MESSAGE, MESSAGE_MIGRATION_REQUIRED)
+      .prop(FIELD_STATE, MIGRATION_REQUIRED.toString())
+      .prop(FIELD_MESSAGE, MIGRATION_REQUIRED.getMessage())
       .endObject();
-  }
-
-  private static String statusToJson(DatabaseMigrationState.Status status) {
-    switch (status) {
-      case NONE:
-        return STATUS_NO_MIGRATION;
-      case RUNNING:
-        return STATUS_MIGRATION_RUNNING;
-      case FAILED:
-        return STATUS_MIGRATION_FAILED;
-      case SUCCEEDED:
-        return STATUS_MIGRATION_SUCCEEDED;
-      default:
-        throw new IllegalArgumentException(
-          "Unsupported DatabaseMigration.Status " + status + " can not be converted to JSON value");
-    }
-  }
-
-  private static String buildMessage(DatabaseMigrationState databaseMigrationState) {
-    switch (databaseMigrationState.getStatus()) {
-      case NONE:
-        return MESSAGE_STATUS_NONE;
-      case RUNNING:
-        return MESSAGE_STATUS_RUNNING;
-      case SUCCEEDED:
-        return MESSAGE_STATUS_SUCCEEDED;
-      case FAILED:
-        return String.format(MESSAGE_STATUS_FAILED, failureMessage(databaseMigrationState));
-      default:
-        return UNSUPPORTED_DATABASE_MIGRATION_STATUS;
-    }
-  }
-
-  private static String failureMessage(DatabaseMigrationState databaseMigrationState) {
-    Throwable failureError = databaseMigrationState.getError();
-    if (failureError == null) {
-      return "No failure error";
-    }
-    return failureError.getMessage();
   }
 
   static String statusDescription() {

@@ -19,11 +19,15 @@
  */
 package org.sonar.server.v2.config;
 
+import org.sonar.db.Database;
 import org.sonar.server.common.health.DbConnectionNodeCheck;
 import org.sonar.server.common.platform.LivenessChecker;
 import org.sonar.server.common.platform.SafeModeLivenessCheckerImpl;
 import org.sonar.server.health.HealthChecker;
+import org.sonar.server.platform.db.migration.DatabaseMigrationState;
+import org.sonar.server.platform.db.migration.version.DatabaseVersion;
 import org.sonar.server.user.SystemPasscode;
+import org.sonar.server.v2.api.system.controller.DatabaseMigrationsController;
 import org.sonar.server.v2.api.system.controller.DefaultLivenessController;
 import org.sonar.server.v2.api.system.controller.HealthController;
 import org.sonar.server.v2.api.system.controller.LivenessController;
@@ -50,5 +54,11 @@ public class SafeModeWebConfig {
   @Bean
   public HealthController healthController(HealthChecker healthChecker, SystemPasscode systemPasscode) {
     return new HealthController(healthChecker, systemPasscode);
+  }
+
+  @Bean
+  public DatabaseMigrationsController databaseMigrationsController(DatabaseVersion databaseVersion, DatabaseMigrationState databaseMigrationState,
+    Database database) {
+    return new DatabaseMigrationsController(databaseVersion, databaseMigrationState, database);
   }
 }

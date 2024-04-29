@@ -22,6 +22,7 @@ package org.sonar.server.v2.config;
 import javax.annotation.Nullable;
 import org.sonar.api.platform.Server;
 import org.sonar.api.resources.Languages;
+import org.sonar.db.Database;
 import org.sonar.db.DbClient;
 import org.sonar.server.common.gitlab.config.GitlabConfigurationService;
 import org.sonar.server.common.group.service.GroupMembershipService;
@@ -41,6 +42,8 @@ import org.sonar.server.common.user.service.UserService;
 import org.sonar.server.health.HealthChecker;
 import org.sonar.server.platform.NodeInformation;
 import org.sonar.server.platform.ServerFileSystem;
+import org.sonar.server.platform.db.migration.DatabaseMigrationState;
+import org.sonar.server.platform.db.migration.version.DatabaseVersion;
 import org.sonar.server.rule.RuleDescriptionFormatter;
 import org.sonar.server.user.SystemPasscode;
 import org.sonar.server.user.UserSession;
@@ -69,6 +72,7 @@ import org.sonar.server.v2.api.projects.controller.DefaultBoundProjectsControlle
 import org.sonar.server.v2.api.rule.controller.DefaultRuleController;
 import org.sonar.server.v2.api.rule.controller.RuleController;
 import org.sonar.server.v2.api.rule.converter.RuleRestResponseGenerator;
+import org.sonar.server.v2.api.system.controller.DatabaseMigrationsController;
 import org.sonar.server.v2.api.system.controller.DefaultLivenessController;
 import org.sonar.server.v2.api.system.controller.HealthController;
 import org.sonar.server.v2.api.system.controller.LivenessController;
@@ -100,6 +104,12 @@ public class PlatformLevel4WebConfig {
   public HealthController healthController(HealthChecker healthChecker, SystemPasscode systemPasscode, NodeInformation nodeInformation,
     UserSession userSession) {
     return new HealthController(healthChecker, systemPasscode, nodeInformation, userSession);
+  }
+
+  @Bean
+  public DatabaseMigrationsController databaseMigrationsController(DatabaseVersion databaseVersion, DatabaseMigrationState databaseMigrationState,
+    Database database) {
+    return new DatabaseMigrationsController(databaseVersion, databaseMigrationState, database);
   }
 
   @Bean

@@ -24,8 +24,34 @@ import javax.annotation.CheckForNull;
 
 public interface DatabaseMigrationState {
 
+  String UNSUPPORTED_DATABASE_MIGRATION_STATUS = "Unsupported DatabaseMigration status";
+  String NO_CONNECTION_TO_DB = "Cannot connect to Database.";
+
   enum Status {
-    NONE, RUNNING, FAILED, SUCCEEDED
+    NONE("NO_MIGRATION", "Database is up-to-date, no migration needed."),
+    RUNNING("MIGRATION_RUNNING", "Database migration is running."),
+    FAILED("MIGRATION_FAILED", "Migration failed: %s.<br/> Please check logs."),
+    SUCCEEDED("MIGRATION_SUCCEEDED", "Migration succeeded."),
+    STATUS_NOT_SUPPORTED("NOT_SUPPORTED", "Upgrade is not supported on embedded database."),
+    MIGRATION_REQUIRED("MIGRATION_REQUIRED", "Database migration is required. DB migration can be started using WS /api/system/migrate_db.");
+
+    private final String stringRepresentation;
+    private final String message;
+
+    Status(String stringRepresentation, String message) {
+      this.stringRepresentation = stringRepresentation;
+      this.message = message;
+    }
+
+    public String getMessage() {
+      return message;
+    }
+
+    @Override
+    public String toString() {
+      return stringRepresentation;
+    }
+
   }
 
   /**

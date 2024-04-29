@@ -47,20 +47,10 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.when;
 import static org.sonar.server.platform.db.migration.DatabaseMigrationState.Status.FAILED;
+import static org.sonar.server.platform.db.migration.DatabaseMigrationState.Status.MIGRATION_REQUIRED;
 import static org.sonar.server.platform.db.migration.DatabaseMigrationState.Status.NONE;
 import static org.sonar.server.platform.db.migration.DatabaseMigrationState.Status.RUNNING;
 import static org.sonar.server.platform.db.migration.DatabaseMigrationState.Status.SUCCEEDED;
-import static org.sonar.server.platform.ws.DbMigrationJsonWriter.MESSAGE_MIGRATION_REQUIRED;
-import static org.sonar.server.platform.ws.DbMigrationJsonWriter.MESSAGE_NO_MIGRATION_ON_EMBEDDED_DATABASE;
-import static org.sonar.server.platform.ws.DbMigrationJsonWriter.MESSAGE_STATUS_NONE;
-import static org.sonar.server.platform.ws.DbMigrationJsonWriter.MESSAGE_STATUS_RUNNING;
-import static org.sonar.server.platform.ws.DbMigrationJsonWriter.MESSAGE_STATUS_SUCCEEDED;
-import static org.sonar.server.platform.ws.DbMigrationJsonWriter.STATUS_MIGRATION_FAILED;
-import static org.sonar.server.platform.ws.DbMigrationJsonWriter.STATUS_MIGRATION_REQUIRED;
-import static org.sonar.server.platform.ws.DbMigrationJsonWriter.STATUS_MIGRATION_RUNNING;
-import static org.sonar.server.platform.ws.DbMigrationJsonWriter.STATUS_MIGRATION_SUCCEEDED;
-import static org.sonar.server.platform.ws.DbMigrationJsonWriter.STATUS_NOT_SUPPORTED;
-import static org.sonar.server.platform.ws.DbMigrationJsonWriter.STATUS_NO_MIGRATION;
 import static org.sonar.test.JsonAssert.assertJson;
 
 @RunWith(DataProviderRunner.class)
@@ -111,7 +101,7 @@ public class DbMigrationStatusActionTest {
 
     TestResponse response = tester.newRequest().execute();
 
-    assertJson(response.getInput()).isSimilarTo(expectedResponse(STATUS_NO_MIGRATION, MESSAGE_STATUS_NONE));
+    assertJson(response.getInput()).isSimilarTo(expectedResponse(NONE.toString(), NONE.getMessage()));
   }
 
   // this test will raise a IllegalArgumentException when an unsupported value is added to the Status enum
@@ -133,7 +123,7 @@ public class DbMigrationStatusActionTest {
 
     TestResponse response = tester.newRequest().execute();
 
-    assertJson(response.getInput()).isSimilarTo(expectedResponse(STATUS_NO_MIGRATION, MESSAGE_STATUS_NONE));
+    assertJson(response.getInput()).isSimilarTo(expectedResponse(NONE.toString(), NONE.getMessage()));
   }
 
   @Test
@@ -144,7 +134,7 @@ public class DbMigrationStatusActionTest {
 
     TestResponse response = tester.newRequest().execute();
 
-    assertJson(response.getInput()).isSimilarTo(expectedResponse(STATUS_NOT_SUPPORTED, MESSAGE_NO_MIGRATION_ON_EMBEDDED_DATABASE));
+    assertJson(response.getInput()).isSimilarTo(expectedResponse(Status.STATUS_NOT_SUPPORTED.toString(), Status.STATUS_NOT_SUPPORTED.getMessage()));
   }
 
   @Test
@@ -157,7 +147,7 @@ public class DbMigrationStatusActionTest {
 
     TestResponse response = tester.newRequest().execute();
 
-    assertJson(response.getInput()).isSimilarTo(expectedResponse(STATUS_MIGRATION_RUNNING, MESSAGE_STATUS_RUNNING, SOME_DATE));
+    assertJson(response.getInput()).isSimilarTo(expectedResponse(RUNNING.toString(), RUNNING.getMessage(), SOME_DATE));
   }
 
   @Test
@@ -171,7 +161,7 @@ public class DbMigrationStatusActionTest {
 
     TestResponse response = tester.newRequest().execute();
 
-    assertJson(response.getInput()).isSimilarTo(expectedResponse(STATUS_MIGRATION_FAILED, failedMsg(SOME_THROWABLE_MSG), SOME_DATE));
+    assertJson(response.getInput()).isSimilarTo(expectedResponse(FAILED.toString(), failedMsg(SOME_THROWABLE_MSG), SOME_DATE));
   }
 
   @Test
@@ -185,7 +175,7 @@ public class DbMigrationStatusActionTest {
 
     TestResponse response = tester.newRequest().execute();
 
-    assertJson(response.getInput()).isSimilarTo(expectedResponse(STATUS_MIGRATION_FAILED, failedMsg(DEFAULT_ERROR_MSG), SOME_DATE));
+    assertJson(response.getInput()).isSimilarTo(expectedResponse(FAILED.toString(), failedMsg(DEFAULT_ERROR_MSG), SOME_DATE));
   }
 
   @Test
@@ -198,7 +188,7 @@ public class DbMigrationStatusActionTest {
 
     TestResponse response = tester.newRequest().execute();
 
-    assertJson(response.getInput()).isSimilarTo(expectedResponse(STATUS_MIGRATION_SUCCEEDED, MESSAGE_STATUS_SUCCEEDED, SOME_DATE));
+    assertJson(response.getInput()).isSimilarTo(expectedResponse(SUCCEEDED.toString(), SUCCEEDED.getMessage(), SOME_DATE));
   }
 
   @Test
@@ -211,7 +201,7 @@ public class DbMigrationStatusActionTest {
 
     TestResponse response = tester.newRequest().execute();
 
-    assertJson(response.getInput()).isSimilarTo(expectedResponse(STATUS_MIGRATION_REQUIRED, MESSAGE_MIGRATION_REQUIRED));
+    assertJson(response.getInput()).isSimilarTo(expectedResponse(MIGRATION_REQUIRED.toString(), MIGRATION_REQUIRED.getMessage()));
   }
 
   @DataProvider
