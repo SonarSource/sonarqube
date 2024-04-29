@@ -43,7 +43,6 @@ public class MarkdownTest {
         .isEqualTo("For more details, please <a href=\"http://docs.sonarsource.com/sonarqube/display/SONAR\" target=\"_blank\" rel=\"noopener noreferrer\">check online documentation</a>.");
   }
 
-
   @Test
   public void shouldDecorateEndOfLine() {
     assertThat(Markdown.convertToHtml("1\r2\r\n3\n")).isEqualTo("1<br/>2<br/>3<br/>");
@@ -121,6 +120,25 @@ public class MarkdownTest {
   @Test
   public void shouldNotChangeAnythingInTheText() {
     assertThat(Markdown.convertToHtml("My text is $123 ''")).isEqualTo("My text is $123 ''");
+  }
+
+  @Test
+  public void shouldSupportEmptyQuoteLineWithAndWithoutLeadingSpace() {
+    assertThat(Markdown.convertToHtml("""
+        >just some quotation without leading space
+        > 
+        >
+        > continue quotation"""
+    )).isEqualTo("""
+        <blockquote>just some quotation without leading space<br/>
+        <br/>
+        <br/>
+        continue quotation<br/></blockquote>""");
+  }
+
+  @Test
+  public void shouldConvertSingleGreaterThanChar() {
+    assertThat(Markdown.convertToHtml(">")).isEqualTo("<blockquote><br/></blockquote>");
   }
 
 }
