@@ -117,6 +117,19 @@ class QualityGateConditionDaoIT {
   }
 
   @Test
+  void testDeleteForQualityGate() {
+    QualityGateConditionDto condition1 = insertQGCondition("qualityGateUuid");
+    QualityGateConditionDto condition2 = insertQGCondition("qualityGateUuid");
+
+    underTest.deleteForQualityGate("qualityGateUuid", dbSession);
+    dbSession.commit();
+
+    assertThat(underTest.selectForQualityGate(dbSession, "qualityGateUuid")).isEmpty();
+    assertThat(underTest.selectByUuid(condition1.getUuid(), dbSession)).isNull();
+    assertThat(underTest.selectByUuid(condition2.getUuid(), dbSession)).isNull();
+  }
+
+  @Test
   void testUpdate() {
     QualityGateConditionDto condition1 = insertQGCondition("2");
     QualityGateConditionDto condition2 = insertQGCondition("3");

@@ -37,6 +37,10 @@
     delete from quality_gate_conditions where uuid=#{uuid}
   </update>
 
+  <update id="deleteForQualityGate" parameterType="String">
+    delete from quality_gate_conditions where qgate_uuid=#{qGateUuid}
+  </update>
+
   <update id="update" parameterType="QualityGateCondition">
     update quality_gate_conditions set
     metric_uuid=#{metricUuid},

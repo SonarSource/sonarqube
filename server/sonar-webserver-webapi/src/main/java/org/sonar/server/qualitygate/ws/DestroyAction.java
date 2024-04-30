@@ -82,6 +82,7 @@ public class DestroyAction implements QualityGatesWsAction {
       dbClient.qualityGateGroupPermissionsDao().deleteByQualityGate(dbSession, qualityGate);
       dbClient.qualityGateUserPermissionDao().deleteByQualityGate(dbSession, qualityGate);
       dbClient.qualityGateDao().delete(qualityGate, dbSession);
+      dbClient.gateConditionDao().deleteForQualityGate(qualityGate.getUuid(), dbSession);
       dbSession.commit();
       response.noContent();
     }
