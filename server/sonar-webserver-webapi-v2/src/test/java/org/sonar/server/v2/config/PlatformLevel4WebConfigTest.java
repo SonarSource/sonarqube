@@ -19,20 +19,35 @@
  */
 package org.sonar.server.v2.config;
 
-import org.junit.Test;
+import java.util.stream.Stream;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.sonar.api.platform.Server;
+import org.sonar.server.v2.api.analysis.controller.DefaultJresController;
 import org.sonar.server.v2.api.analysis.controller.DefaultVersionController;
+import org.sonar.server.v2.api.analysis.service.JresHandler;
+import org.sonar.server.v2.api.analysis.service.JresHandlerImpl;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.Mockito.mock;
 
 public class PlatformLevel4WebConfigTest {
 
-  private final PlatformLevel4WebConfig platformLevel4WebConfig = new PlatformLevel4WebConfig();
+  private static final PlatformLevel4WebConfig platformLevel4WebConfig = new PlatformLevel4WebConfig();
 
-  @Test
-  public void versionController() {
-    assertThat(platformLevel4WebConfig.versionController(mock(Server.class))).isNotNull()
-      .isInstanceOf(DefaultVersionController.class);
+  private static Stream<Arguments> components() {
+    return Stream.of(
+      arguments(platformLevel4WebConfig.versionController(mock(Server.class)), DefaultVersionController.class),
+      arguments(platformLevel4WebConfig.jresHandler(), JresHandlerImpl.class),
+      arguments(platformLevel4WebConfig.jresController(mock(JresHandler.class)), DefaultJresController.class)
+    );
+  }
+
+  @ParameterizedTest
+  @MethodSource("components")
+  void components_shouldBeInjectedInPlatformLevel4WebConfig(Object component, Class<?> instanceClass) {
+    assertThat(component).isNotNull().isInstanceOf(instanceClass);
   }
 }

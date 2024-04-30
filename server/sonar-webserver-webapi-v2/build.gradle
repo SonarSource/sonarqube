@@ -17,6 +17,7 @@ dependencies {
 
     testImplementation 'javax.servlet:javax.servlet-api'
     testImplementation 'org.junit.jupiter:junit-jupiter-api'
+    testImplementation 'org.junit.jupiter:junit-jupiter-params'
     testImplementation 'org.mockito:mockito-core'
     testImplementation 'org.mockito:mockito-junit-jupiter'
     testImplementation 'org.skyscreamer:jsonassert:1.5.1'

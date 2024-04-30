@@ -19,7 +19,7 @@
  */
 package org.sonar.server.v2.api.analysis.controller;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.sonar.api.platform.Server;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -31,14 +31,14 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-public class DefaultVersionControllerTest {
+class DefaultVersionControllerTest {
 
   private final Server server = mock(Server.class);
 
   private final MockMvc mockMvc = getMockMvc(new DefaultVersionController(server));
 
   @Test
-  public void getVersion_shouldReturnServerVersion() throws Exception {
+  void getVersion_shouldReturnServerVersion() throws Exception {
     String serverVersion = "10.6";
     when(server.getVersion()).thenReturn(serverVersion);
 

@@ -43,8 +43,12 @@ import org.sonar.server.platform.NodeInformation;
 import org.sonar.server.rule.RuleDescriptionFormatter;
 import org.sonar.server.user.SystemPasscode;
 import org.sonar.server.user.UserSession;
+import org.sonar.server.v2.api.analysis.controller.DefaultJresController;
 import org.sonar.server.v2.api.analysis.controller.DefaultVersionController;
+import org.sonar.server.v2.api.analysis.controller.JresController;
 import org.sonar.server.v2.api.analysis.controller.VersionController;
+import org.sonar.server.v2.api.analysis.service.JresHandler;
+import org.sonar.server.v2.api.analysis.service.JresHandlerImpl;
 import org.sonar.server.v2.api.dop.controller.DefaultDopSettingsController;
 import org.sonar.server.v2.api.dop.controller.DopSettingsController;
 import org.sonar.server.v2.api.gitlab.config.controller.DefaultGitlabConfigurationController;
@@ -157,6 +161,16 @@ public class PlatformLevel4WebConfig {
   @Bean
   public VersionController versionController(Server server) {
     return new DefaultVersionController(server);
+  }
+
+  @Bean
+  public JresHandler jresHandler() {
+    return new JresHandlerImpl();
+  }
+
+  @Bean
+  public JresController jresController(JresHandler jresHandler) {
+    return new DefaultJresController(jresHandler);
   }
 
 }

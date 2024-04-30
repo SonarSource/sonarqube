@@ -1,0 +1,22 @@
+[ {
+  "id" : "1",
+  "filename" : "jre1",
+  "sha256" : "checksum1",
+  "javaPath" : "java1",
+  "os" : "alpine",
+  "arch" : "aarch64"
+}, {
+  "id" : "2",
+  "filename" : "jre2",
+  "sha256" : "checksum2",
+  "javaPath" : "java2",
+  "os" : "linux",
+  "arch" : "aarch64"
+}, {
+  "id" : "3",
+  "filename" : "jre3",
+  "sha256" : "checksum3",
+  "javaPath" : "java3",
+  "os" : "alpine",
+  "arch" : "x64"
+} ]
