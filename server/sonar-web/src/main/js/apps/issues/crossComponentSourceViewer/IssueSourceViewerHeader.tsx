@@ -77,6 +77,7 @@ export function IssueSourceViewerHeader(props: Readonly<Props>) {
   const { data: branchData, isLoading: isLoadingBranches } = useBranchesQuery(
     component ?? {
       key: project,
+      name: projectName,
       qualifier: ComponentQualifier.Project,
     },
   );

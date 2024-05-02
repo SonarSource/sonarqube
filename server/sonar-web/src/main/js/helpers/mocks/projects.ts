@@ -17,9 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { ComponentQualifier } from '~sonar-aligned/types/component';
+import { ComponentQualifier, Visibility } from '~sonar-aligned/types/component';
 import { Project } from '../../api/project-management';
-import { Visibility } from '../../types/component';
 
 export function mockProject(overrides: Partial<Project> = {}): Project {
   return {

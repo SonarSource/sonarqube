@@ -19,9 +19,9 @@
  */
 import { throwGlobalError } from '~sonar-aligned/helpers/error';
 import { getJSON } from '~sonar-aligned/helpers/request';
+import { Visibility } from '~sonar-aligned/types/component';
 import { post, postJSON } from '../helpers/request';
 import { Application, ApplicationPeriod } from '../types/application';
-import { Visibility } from '../types/component';
 
 export function getApplicationLeak(
   application: string,

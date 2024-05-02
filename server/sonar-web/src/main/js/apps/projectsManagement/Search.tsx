@@ -32,12 +32,12 @@ import { sortBy } from 'lodash';
 import * as React from 'react';
 import { OptionProps, SingleValueProps, components } from 'react-select';
 import HelpTooltip from '~sonar-aligned/components/controls/HelpTooltip';
+import { Visibility } from '~sonar-aligned/types/component';
 import { Project } from '../../api/project-management';
 import withAppStateContext from '../../app/components/app-state/withAppStateContext';
 import { translate } from '../../helpers/l10n';
 import { LabelValueSelectOption } from '../../helpers/search';
 import { AppState } from '../../types/appstate';
-import { Visibility } from '../../types/component';
 import BulkApplyTemplateModal from './BulkApplyTemplateModal';
 import DeleteModal from './DeleteModal';
 

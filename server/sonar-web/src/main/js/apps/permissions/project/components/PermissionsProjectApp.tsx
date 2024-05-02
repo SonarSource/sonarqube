@@ -21,6 +21,7 @@ import { LargeCenteredLayout, PageContentFontWrapper } from 'design-system';
 import { noop, without } from 'lodash';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
+import { Visibility } from '~sonar-aligned/types/component';
 import * as api from '../../../../api/permissions';
 import withComponentContext from '../../../../app/components/componentContext/withComponentContext';
 import VisibilitySelector from '../../../../components/common/VisibilitySelector';
@@ -34,7 +35,7 @@ import {
 } from '../../../../helpers/permissions';
 import { useIsGitHubProjectQuery } from '../../../../queries/devops-integration';
 import { useGithubProvisioningEnabledQuery } from '../../../../queries/identity-provider/github';
-import { ComponentContextShape, Visibility } from '../../../../types/component';
+import { ComponentContextShape } from '../../../../types/component';
 import { Permissions } from '../../../../types/permissions';
 import { Component, Paging, PermissionGroup, PermissionUser } from '../../../../types/types';
 import '../../styles.css';

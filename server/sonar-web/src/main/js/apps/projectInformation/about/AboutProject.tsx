@@ -20,10 +20,9 @@
 import classNames from 'classnames';
 import { BasicSeparator, SubTitle } from 'design-system';
 import React, { PropsWithChildren, useEffect, useState } from 'react';
-import { ComponentQualifier } from '~sonar-aligned/types/component';
+import { ComponentQualifier, Visibility } from '~sonar-aligned/types/component';
 import { getProjectLinks } from '../../../api/projectLinks';
 import { translate } from '../../../helpers/l10n';
-import { Visibility } from '../../../types/component';
 import { Component, Measure, ProjectLink } from '../../../types/types';
 import MetaDescription from './components/MetaDescription';
 import MetaKey from './components/MetaKey';

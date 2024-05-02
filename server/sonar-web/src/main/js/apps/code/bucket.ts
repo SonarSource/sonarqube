@@ -17,7 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Breadcrumb, ComponentMeasure, Dict } from '../../types/types';
+import { Breadcrumb } from '~sonar-aligned/types/component';
+import { ComponentMeasure, Dict } from '../../types/types';
 
 let bucket: Dict<ComponentMeasure> = {};
 let childrenBucket: Dict<{

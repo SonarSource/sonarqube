@@ -19,8 +19,9 @@
  */
 import { Breadcrumbs } from 'design-system';
 import * as React from 'react';
+import { Breadcrumb } from '~sonar-aligned/types/component';
 import { BranchLike } from '../../../types/branch-like';
-import { Breadcrumb, ComponentMeasure } from '../../../types/types';
+import { ComponentMeasure } from '../../../types/types';
 import ComponentName from './ComponentName';
 
 interface Props {

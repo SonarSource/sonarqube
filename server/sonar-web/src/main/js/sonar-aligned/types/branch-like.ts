@@ -34,8 +34,8 @@ export interface PullRequestBase {
   analysisDate?: string;
   base: string;
   branch: string;
-  key: string;
   isOrphan?: true;
+  key: string;
   status?: { qualityGateStatus: Status };
   target: string;
   title: string;

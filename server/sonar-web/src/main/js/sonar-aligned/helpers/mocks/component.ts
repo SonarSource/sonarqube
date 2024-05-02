@@ -17,38 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Visibility } from '~sonar-aligned/types/component';
-import { Branch } from './branch-like';
+import { ComponentBase, ComponentQualifier } from '../../types/component';
 
-export interface ApplicationPeriod {
-  date: string;
-  project: string;
-  projectName: string;
-}
-
-export interface Application {
-  branches: Pick<Branch, 'isMain' | 'name'>[];
-  description?: string;
-  key: string;
-  name: string;
-  projects: ApplicationProjectBranch[];
-  visibility: Visibility;
-}
-
-export interface ApplicationProject {
-  enabled?: boolean;
-  key: string;
-  name: string;
-  selected?: boolean;
-  accessible?: boolean;
-}
-
-export interface ApplicationProjectBranch {
-  branch: string;
-  enabled?: boolean;
-  isMain: boolean;
-  key: string;
-  name: string;
-  selected?: boolean;
-  accessible?: boolean;
+export function mockComponentBase(overrides: Partial<ComponentBase> = {}): ComponentBase {
+  return {
+    breadcrumbs: [],
+    key: 'my-project',
+    name: 'MyProject',
+    qualifier: ComponentQualifier.Project,
+    qualityGate: { isDefault: true, key: '30', name: 'Sonar way' },
+    qualityProfiles: [
+      {
+        deleted: false,
+        key: 'my-qp',
+        language: 'ts',
+        name: 'Sonar way',
+      },
+    ],
+    tags: [],
+    ...overrides,
+  };
 }

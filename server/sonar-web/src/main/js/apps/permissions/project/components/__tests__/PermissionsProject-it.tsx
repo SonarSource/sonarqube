@@ -19,7 +19,7 @@
  */
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { ComponentQualifier } from '~sonar-aligned/types/component';
+import { ComponentQualifier, Visibility } from '~sonar-aligned/types/component';
 import AlmSettingsServiceMock from '../../../../../api/mocks/AlmSettingsServiceMock';
 import GithubProvisioningServiceMock from '../../../../../api/mocks/GithubProvisioningServiceMock';
 import PermissionsServiceMock from '../../../../../api/mocks/PermissionsServiceMock';
@@ -35,7 +35,7 @@ import {
   renderAppWithComponentContext,
 } from '../../../../../helpers/testReactTestingUtils';
 import { AlmKeys } from '../../../../../types/alm-settings';
-import { ComponentContextShape, Visibility } from '../../../../../types/component';
+import { ComponentContextShape } from '../../../../../types/component';
 import { Feature } from '../../../../../types/features';
 import { Permissions } from '../../../../../types/permissions';
 import { Component, PermissionGroup, PermissionUser, Provider } from '../../../../../types/types';

@@ -26,6 +26,7 @@ import { useLocation } from '~sonar-aligned/components/hoc/withRouter';
 import { isBranch, isPullRequest } from '~sonar-aligned/helpers/branch-like';
 import { isPortfolioLike } from '~sonar-aligned/helpers/component';
 import { searchParamsToQuery } from '~sonar-aligned/helpers/router';
+import { LightComponent } from '~sonar-aligned/types/component';
 import {
   deleteBranch,
   deletePullRequest,
@@ -42,7 +43,7 @@ import { extractStatusConditionsFromProjectStatus } from '../helpers/qualityGate
 import { Branch, BranchLike } from '../types/branch-like';
 import { isApplication, isProject } from '../types/component';
 import { Feature } from '../types/features';
-import { Component, LightComponent } from '../types/types';
+import { Component } from '../types/types';
 
 // This will prevent refresh when navigating from page to page.
 const BRANCHES_STALE_TIME = 30_000;

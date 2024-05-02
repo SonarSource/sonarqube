@@ -18,14 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { isPortfolioLike } from '~sonar-aligned/helpers/component';
-import { ComponentQualifier } from '~sonar-aligned/types/component';
+import { ComponentQualifier, LightComponent, Visibility } from '~sonar-aligned/types/component';
 import { Task } from './tasks';
-import { Component, LightComponent } from './types';
-
-export enum Visibility {
-  Public = 'public',
-  Private = 'private',
-}
+import { Component } from './types';
 
 export enum ProjectKeyValidationResult {
   Valid = 'valid',
@@ -37,7 +32,6 @@ export enum ProjectKeyValidationResult {
 
 export interface TreeComponent extends LightComponent {
   id?: string;
-  name: string;
   path?: string;
   refId?: string;
   refKey?: string;

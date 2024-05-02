@@ -2,7 +2,7 @@ sonar {
   properties {
     property "sonar.projectName", "${projectTitle} :: Web"
     property "sonar.sources", "src/main/js"
-    property "sonar.exclusions", "src/main/js/**/__tests__/**,src/main/js/**/__mocks__/**,src/main/js/@types/**,src/main/js/helpers/mocks/**,src/main/js/api/mocks/**,src/main/js/helpers/testUtils.ts,src/main/js/helpers/testMocks.ts,src/main/js/helpers/testReactTestingUtils.tsx,src/main/js/helpers/testSelector.ts"
+    property "sonar.exclusions", "src/main/js/**/__tests__/**,src/main/js/**/__mocks__/**,src/main/js/@types/**,src/main/js/helpers/mocks/**,src/main/js/sonar-aligned/helpers/mocks/**,src/main/js/api/mocks/**,src/main/js/helpers/testUtils.ts,src/main/js/helpers/testMocks.ts,src/main/js/helpers/testReactTestingUtils.tsx,src/main/js/helpers/testSelector.ts"
     property "sonar.tests", "src/main/js"
     property "sonar.test.inclusions", "src/main/js/**/__tests__/**"
     property "sonar.coverage.exclusions", "src/main/js/api/**,src/main/js/**/routes.ts,src/main/js/app/index.ts,src/main/js/app/utils/startReactApp.tsx,src/main/js/components/icons/**"

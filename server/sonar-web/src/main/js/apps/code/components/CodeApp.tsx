@@ -20,13 +20,13 @@
 import * as React from 'react';
 import { withRouter } from '~sonar-aligned/components/hoc/withRouter';
 import { isPortfolioLike } from '~sonar-aligned/helpers/component';
-import { ComponentQualifier } from '~sonar-aligned/types/component';
+import { Breadcrumb, ComponentQualifier } from '~sonar-aligned/types/component';
 import { Location, Router } from '~sonar-aligned/types/router';
 import withComponentContext from '../../../app/components/componentContext/withComponentContext';
 import withMetricsContext from '../../../app/components/metrics/withMetricsContext';
 import { CodeScope, getCodeUrl, getProjectUrl } from '../../../helpers/urls';
 import { WithBranchLikesProps, useBranchesQuery } from '../../../queries/branch';
-import { Breadcrumb, Component, ComponentMeasure, Dict, Metric } from '../../../types/types';
+import { Component, ComponentMeasure, Dict, Metric } from '../../../types/types';
 import { addComponent, addComponentBreadcrumbs, clearBucket } from '../bucket';
 import { loadMoreChildren, retrieveComponent, retrieveComponentChildren } from '../utils';
 import CodeAppRenderer from './CodeAppRenderer';

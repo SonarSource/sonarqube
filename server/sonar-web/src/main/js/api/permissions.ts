@@ -19,8 +19,8 @@
  */
 import { throwGlobalError } from '~sonar-aligned/helpers/error';
 import { getJSON } from '~sonar-aligned/helpers/request';
+import { Visibility } from '~sonar-aligned/types/component';
 import { post, postJSON, RequestData } from '../helpers/request';
-import { Visibility } from '../types/component';
 import {
   Paging,
   Permission,

@@ -21,8 +21,8 @@ import { ButtonPrimary, InteractiveIcon, PencilIcon, Title } from 'design-system
 import * as React from 'react';
 import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { Visibility } from '~sonar-aligned/types/component';
 import { translate } from '../../helpers/l10n';
-import { Visibility } from '../../types/component';
 import ChangeDefaultVisibilityForm from './ChangeDefaultVisibilityForm';
 
 export interface Props {

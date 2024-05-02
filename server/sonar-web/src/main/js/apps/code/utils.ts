@@ -19,12 +19,12 @@
  */
 import { getBranchLikeQuery, isPullRequest } from '~sonar-aligned/helpers/branch-like';
 import { isPortfolioLike } from '~sonar-aligned/helpers/component';
-import { ComponentQualifier } from '~sonar-aligned/types/component';
+import { Breadcrumb, ComponentQualifier } from '~sonar-aligned/types/component';
 import { MetricKey } from '~sonar-aligned/types/metrics';
 import { getBreadcrumbs, getChildren, getComponent, getComponentData } from '../../api/components';
 import { CCT_SOFTWARE_QUALITY_METRICS, OLD_TAXONOMY_METRICS } from '../../helpers/constants';
 import { BranchLike } from '../../types/branch-like';
-import { Breadcrumb, ComponentMeasure } from '../../types/types';
+import { ComponentMeasure } from '../../types/types';
 import {
   addComponent,
   addComponentBreadcrumbs,

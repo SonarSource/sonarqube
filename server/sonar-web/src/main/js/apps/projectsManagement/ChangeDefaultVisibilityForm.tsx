@@ -20,9 +20,9 @@
 import { RadioButtonGroup } from '@sonarsource/echoes-react';
 import { ButtonPrimary, FlagMessage, Modal } from 'design-system';
 import React, { useState } from 'react';
+import { Visibility } from '~sonar-aligned/types/component';
 import { translate } from '../../helpers/l10n';
 import { useGithubProvisioningEnabledQuery } from '../../queries/identity-provider/github';
-import { Visibility } from '../../types/component';
 
 export interface Props {
   defaultVisibility: Visibility;

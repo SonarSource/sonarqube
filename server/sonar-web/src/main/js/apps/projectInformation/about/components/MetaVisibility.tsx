@@ -19,9 +19,9 @@
  */
 import { SubHeading } from 'design-system';
 import * as React from 'react';
+import { Visibility } from '~sonar-aligned/types/component';
 import PrivacyBadgeContainer from '../../../../components/common/PrivacyBadgeContainer';
 import { translate } from '../../../../helpers/l10n';
-import { Visibility } from '../../../../types/component';
 
 interface Props {
   qualifier: string;

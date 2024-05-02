@@ -29,3 +29,38 @@ export enum ComponentQualifier {
   SubProject = 'BRC',
   TestFile = 'UTS',
 }
+export interface Breadcrumb {
+  key: string;
+  name: string;
+  qualifier: string;
+}
+export interface LightComponent {
+  key: string;
+  name: string;
+  qualifier: string;
+}
+export enum Visibility {
+  Public = 'public',
+  Private = 'private',
+}
+export interface ComponentBase extends LightComponent {
+  alm?: { key: string; url: string };
+  analysisDate?: string;
+  breadcrumbs: Breadcrumb[];
+  description?: string;
+  isFavorite?: boolean;
+  leakPeriodDate?: string;
+  path?: string;
+  qualityGate?: { isDefault?: boolean; key: string | number; name: string };
+  qualityProfiles?: ComponentQualityProfile[];
+  refKey?: string;
+  tags?: string[];
+  version?: string;
+  visibility?: Visibility;
+}
+export interface ComponentQualityProfile {
+  deleted?: boolean;
+  key: string;
+  language: string;
+  name: string;
+}

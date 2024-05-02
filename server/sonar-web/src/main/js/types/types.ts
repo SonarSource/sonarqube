@@ -17,14 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { ComponentQualifier } from '~sonar-aligned/types/component';
+import { ComponentBase, ComponentQualifier } from '~sonar-aligned/types/component';
 import { RuleDescriptionSection } from '../apps/coding-rules/rule';
 import {
   CleanCodeAttribute,
   CleanCodeAttributeCategory,
   SoftwareImpact,
 } from './clean-code-taxonomy';
-import { Visibility } from './component';
 import { IssueStatus, IssueTransition, MessageFormatting } from './issues';
 import { NewCodeDefinitionType } from './new-code-definition';
 import { UserActive, UserBase } from './users';
@@ -56,12 +55,6 @@ export interface AlmUnboundApplication {
   name: string;
 }
 
-export interface Breadcrumb {
-  key: string;
-  name: string;
-  qualifier: string;
-}
-
 export namespace Chart {
   export interface Point {
     x: Date;
@@ -76,26 +69,12 @@ export namespace Chart {
   }
 }
 
-export interface Component extends LightComponent {
-  alm?: { key: string; url: string };
-  analysisDate?: string;
-  breadcrumbs: Breadcrumb[];
+export interface Component extends ComponentBase {
   branch?: string;
   canBrowseAllChildProjects?: boolean;
   configuration?: ComponentConfiguration;
-  description?: string;
   extensions?: Extension[];
-  isFavorite?: boolean;
-  leakPeriodDate?: string;
-  name: string;
   needIssueSync?: boolean;
-  path?: string;
-  refKey?: string;
-  qualityProfiles?: ComponentQualityProfile[];
-  qualityGate?: { isDefault?: boolean; key: string; name: string };
-  tags?: string[];
-  version?: string;
-  visibility?: Visibility;
 }
 
 export interface NavigationComponent
@@ -114,13 +93,6 @@ interface ComponentConfiguration {
   showPermissions?: boolean;
   showSettings?: boolean;
   showUpdateKey?: boolean;
-}
-
-export interface ComponentQualityProfile {
-  deleted?: boolean;
-  key: string;
-  language: string;
-  name: string;
 }
 
 export interface ComponentMeasureIntern {
@@ -344,11 +316,6 @@ export interface Language {
 }
 
 export type Languages = Dict<Language>;
-
-export interface LightComponent {
-  key: string;
-  qualifier: string;
-}
 
 export interface LinearIssueLocation {
   from: number;

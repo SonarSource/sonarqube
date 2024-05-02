@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { cloneDeep } from 'lodash';
-import { Visibility } from '../../types/component';
+import { Visibility } from '~sonar-aligned/types/component';
 import { getApplicationDetails, getApplicationLeak } from '../application';
 
 jest.mock('../application');

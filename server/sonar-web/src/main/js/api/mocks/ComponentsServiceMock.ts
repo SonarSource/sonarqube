@@ -19,11 +19,12 @@
  */
 import { cloneDeep, pick } from 'lodash';
 import { BranchParameters } from '~sonar-aligned/types/branch-like';
+import { Visibility } from '~sonar-aligned/types/component';
 import { DEFAULT_METRICS } from '../../helpers/mocks/metrics';
 import { HttpStatus, RequestData } from '../../helpers/request';
 import { mockMetric } from '../../helpers/testMocks';
 import { isDefined } from '../../helpers/types';
-import { TreeComponent, Visibility } from '../../types/component';
+import { TreeComponent } from '../../types/component';
 import {
   Component,
   ComponentMeasure,

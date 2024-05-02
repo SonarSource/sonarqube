@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { cloneDeep, uniqueId } from 'lodash';
+import { Visibility } from '~sonar-aligned/types/component';
 import {
   mockAzureProject,
   mockAzureRepository,
@@ -36,7 +37,6 @@ import {
   GithubRepository,
   GitlabProject,
 } from '../../types/alm-integration';
-import { Visibility } from '../../types/component';
 import { Paging } from '../../types/types';
 import {
   checkPersonalAccessTokenIsValid,

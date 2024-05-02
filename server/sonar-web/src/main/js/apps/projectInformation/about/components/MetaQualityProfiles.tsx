@@ -19,13 +19,14 @@
  */
 import { Badge, Link, SubHeading } from 'design-system';
 import React, { useContext, useEffect } from 'react';
+import { ComponentQualityProfile } from '~sonar-aligned/types/component';
 import { searchRules } from '../../../../api/rules';
 import { LanguagesContext } from '../../../../app/components/languages/LanguagesContext';
 import Tooltip from '../../../../components/controls/Tooltip';
 import { translate, translateWithParameters } from '../../../../helpers/l10n';
 import { getQualityProfileUrl } from '../../../../helpers/urls';
 import { Languages } from '../../../../types/languages';
-import { ComponentQualityProfile, Dict } from '../../../../types/types';
+import { Dict } from '../../../../types/types';
 
 interface Props {
   profiles: ComponentQualityProfile[];

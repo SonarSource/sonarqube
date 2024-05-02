@@ -22,6 +22,7 @@ import { debounce, uniq } from 'lodash';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { throwGlobalError } from '~sonar-aligned/helpers/error';
+import { Visibility } from '~sonar-aligned/types/component';
 import {
   Project,
   changeProjectDefaultVisibility,
@@ -34,7 +35,6 @@ import Suggestions from '../../components/embed-docs-modal/Suggestions';
 import { toShortISO8601String } from '../../helpers/dates';
 import { translate } from '../../helpers/l10n';
 import { hasGlobalPermission } from '../../helpers/users';
-import { Visibility } from '../../types/component';
 import { Permissions } from '../../types/permissions';
 import { SettingsKey } from '../../types/settings';
 import { LoggedInUser } from '../../types/users';
