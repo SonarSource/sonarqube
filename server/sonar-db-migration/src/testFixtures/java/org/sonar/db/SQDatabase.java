@@ -45,6 +45,7 @@ import org.sonar.server.platform.db.migration.MigrationConfigurationModule;
 import org.sonar.server.platform.db.migration.engine.MigrationContainer;
 import org.sonar.server.platform.db.migration.engine.MigrationContainerImpl;
 import org.sonar.server.platform.db.migration.history.MigrationHistoryTableImpl;
+import org.sonar.server.platform.db.migration.step.MigrationStatusListener;
 import org.sonar.server.platform.db.migration.step.MigrationStep;
 import org.sonar.server.platform.db.migration.step.MigrationStepExecutionException;
 import org.sonar.server.platform.db.migration.step.MigrationSteps;
@@ -144,7 +145,7 @@ public class SQDatabase extends DefaultDatabase {
     }
 
     @Override
-    public void execute(List<RegisteredMigrationStep> steps) {
+    public void execute(List<RegisteredMigrationStep> steps, MigrationStatusListener listener) {
       steps.forEach(step -> execute(step, container));
     }
 
@@ -195,7 +196,7 @@ public class SQDatabase extends DefaultDatabase {
     if (stepClass != null) {
       steps = filterUntilStep(steps, stepClass);
     }
-    executor.execute(steps);
+    executor.execute(steps, null);
   }
 
   private static List<RegisteredMigrationStep> filterUntilStep(List<RegisteredMigrationStep> steps, Class<? extends MigrationStep> stepClass) {

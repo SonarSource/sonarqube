@@ -44,12 +44,15 @@ public class MigrationStepsExecutorImpl implements MigrationStepsExecutor {
   }
 
   @Override
-  public void execute(List<RegisteredMigrationStep> steps) {
+  public void execute(List<RegisteredMigrationStep> steps, MigrationStatusListener listener) {
     Profiler globalProfiler = Profiler.create(LOGGER);
     globalProfiler.startInfo(GLOBAL_START_MESSAGE);
     boolean allStepsExecuted = false;
     try {
-      steps.forEach(this::execute);
+      for (RegisteredMigrationStep step : steps) {
+        this.execute(step);
+        listener.onMigrationStepCompleted();
+      }
       allStepsExecuted = true;
     } finally {
       if (allStepsExecuted) {

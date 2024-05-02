@@ -34,6 +34,7 @@ import org.sonar.server.platform.DefaultServerUpgradeStatus;
 import org.sonar.server.platform.db.migration.engine.MigrationEngine;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -74,7 +75,7 @@ public class AutoDbMigrationTest {
 
     underTest.start();
 
-    verify(migrationEngine).execute();
+    verify(migrationEngine).execute(any());
     verifyInfoLog();
   }
 
@@ -96,7 +97,7 @@ public class AutoDbMigrationTest {
 
     underTest.start();
 
-    verify(migrationEngine).execute();
+    verify(migrationEngine).execute(any());
     assertThat(logTester.logs(Level.INFO)).contains("Automatically perform DB migration, as automatic database upgrade is enabled");
   }
 

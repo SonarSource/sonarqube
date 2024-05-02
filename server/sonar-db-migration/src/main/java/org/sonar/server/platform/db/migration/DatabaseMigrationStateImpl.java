@@ -29,9 +29,13 @@ import javax.annotation.Nullable;
 public class DatabaseMigrationStateImpl implements MutableDatabaseMigrationState {
   private Status status = Status.NONE;
   @Nullable
-  private Date startedAt;
+  private Date startedAt = null;
   @Nullable
-  private Throwable error;
+  private Throwable error = null;
+  private int completedMigrations = 0;
+  private int totalMigrations = 0;
+  @Nullable
+  private Date completionExpectedAt = null;
 
   @Override
   public Status getStatus() {
@@ -61,7 +65,40 @@ public class DatabaseMigrationStateImpl implements MutableDatabaseMigrationState
   }
 
   @Override
+  public void incrementCompletedMigrations() {
+    completedMigrations++;
+    updateExpectedFinishDate();
+  }
+
+  @Override
+  public int getCompletedMigrations() {
+    return completedMigrations;
+  }
+
+  @Override
+  public void setTotalMigrations(int totalMigrations) {
+    this.totalMigrations = totalMigrations;
+  }
+
+  @Override
+  public int getTotalMigrations() {
+    return totalMigrations;
+  }
+
+  @Override
   public void setError(@Nullable Throwable error) {
     this.error = error;
   }
+
+  @Override
+  public Date getExpectedFinishDate() {
+    return completionExpectedAt;
+  }
+
+  private void updateExpectedFinishDate() {
+    // Here the logic is to calculate the expected finish date based on the current time and the number of migrations completed and total
+    // migrations
+    this.completionExpectedAt = new Date();
+  }
+
 }

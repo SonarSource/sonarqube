@@ -20,35 +20,34 @@
 package org.sonar.server.platform.db.migration;
 
 import java.util.Date;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class DatabaseMigrationStateImplTest {
+class DatabaseMigrationStateImplTest {
   private DatabaseMigrationStateImpl underTest = new DatabaseMigrationStateImpl();
 
   @Test
-  public void getStatus_returns_NONE_when_component_is_created() {
+  void getStatus_whenComponentIsCreated_shouldReturnNONE() {
     assertThat(underTest.getStatus()).isEqualTo(DatabaseMigrationState.Status.NONE);
   }
 
   @Test
-  public void getStatus_returns_argument_of_setStatus() {
+  void getStatus_shouldReturnArgumentOfSetStatus() {
     for (DatabaseMigrationState.Status status : DatabaseMigrationState.Status.values()) {
       underTest.setStatus(status);
 
       assertThat(underTest.getStatus()).isEqualTo(status);
     }
-
   }
 
   @Test
-  public void getStartedAt_returns_null_when_component_is_created() {
+  void getStartedAt_whenComponentIsCreated_shouldReturnNull() {
     assertThat(underTest.getStartedAt()).isNull();
   }
 
   @Test
-  public void getStartedAt_returns_argument_of_setStartedAt() {
+  void getStartedAt_shouldReturnArgumentOfSetStartedAt() {
     Date expected = new Date();
     underTest.setStartedAt(expected);
 
@@ -56,15 +55,42 @@ public class DatabaseMigrationStateImplTest {
   }
 
   @Test
-  public void getError_returns_null_when_component_is_created() {
+  void getError_whenComponentIsCreated_shouldReturnNull() {
     assertThat(underTest.getError()).isNull();
   }
 
   @Test
-  public void getError_returns_argument_of_setError() {
+  void getError_shouldReturnArgumentOfSetError() {
     RuntimeException expected = new RuntimeException();
     underTest.setError(expected);
 
     assertThat(underTest.getError()).isSameAs(expected);
   }
+  
+  @Test
+  void incrementCompletedMigrations_shouldIncrementCompletedMigrations() {
+    assertThat(underTest.getCompletedMigrations()).isZero();
+    
+    underTest.incrementCompletedMigrations();
+    
+    assertThat(underTest.getCompletedMigrations()).isEqualTo(1);
+  }
+
+  @Test
+  void getTotalMigrations_shouldReturnArgumentOfSetTotalMigrations() {
+    underTest.setTotalMigrations(10);
+
+    assertThat(underTest.getTotalMigrations()).isEqualTo(10);
+  }
+
+  @Test
+  void incrementCompletedMigrations_shouldUpdateExpectedFinishDate() {
+    Date startDate = new Date();
+
+    underTest.incrementCompletedMigrations();
+
+    // At the moment the expected finish date gets update with the timestamp of the last migration completed
+    assertThat(underTest.getExpectedFinishDate()).isAfterOrEqualTo(startDate);
+  }
+  
 }

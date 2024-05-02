@@ -19,20 +19,23 @@
  */
 package org.sonar.server.platform.db.migration.step;
 
-import java.util.List;
+import org.sonar.server.platform.db.migration.MutableDatabaseMigrationState;
 
-/**
- * Responsible for:
- * <ul>
- *   <li>looping over all the {@link MigrationStep} to execute</li>
- *   <li>put INFO log between each {@link MigrationStep} for user information</li>
- *   <li>handle errors during the execution of {@link MigrationStep}</li>
- *   <li>update the content of table {@code SCHEMA_MIGRATION}</li>
- * </ul>
- */
-public interface MigrationStepsExecutor {
-  /**
-   * @throws MigrationStepExecutionException at the first failing migration step execution
-   */
-  void execute(List<RegisteredMigrationStep> steps, MigrationStatusListener listener);
+public class MigrationStatusListenerImpl implements MigrationStatusListener {
+
+  private final MutableDatabaseMigrationState migrationState;
+
+  public MigrationStatusListenerImpl(MutableDatabaseMigrationState migrationState) {
+    this.migrationState = migrationState;
+  }
+
+  @Override
+  public void onMigrationStepCompleted() {
+    migrationState.incrementCompletedMigrations();
+  }
+
+  @Override
+  public void onMigrationsStart(int totalMigrations) {
+    migrationState.setTotalMigrations(totalMigrations);
+  }
 }

@@ -28,4 +28,8 @@ public interface MutableDatabaseMigrationState extends DatabaseMigrationState {
   void setStartedAt(@Nullable Date startedAt);
 
   void setError(@Nullable Throwable error);
+
+  void incrementCompletedMigrations();
+
+  void setTotalMigrations(int completedMigrations);
 }

@@ -19,20 +19,14 @@
  */
 package org.sonar.server.platform.db.migration.step;
 
-import java.util.List;
+public class NoOpMigrationStatusListener implements MigrationStatusListener {
+  @Override
+  public void onMigrationStepCompleted() {
+    // no op
+  }
 
-/**
- * Responsible for:
- * <ul>
- *   <li>looping over all the {@link MigrationStep} to execute</li>
- *   <li>put INFO log between each {@link MigrationStep} for user information</li>
- *   <li>handle errors during the execution of {@link MigrationStep}</li>
- *   <li>update the content of table {@code SCHEMA_MIGRATION}</li>
- * </ul>
- */
-public interface MigrationStepsExecutor {
-  /**
-   * @throws MigrationStepExecutionException at the first failing migration step execution
-   */
-  void execute(List<RegisteredMigrationStep> steps, MigrationStatusListener listener);
+  @Override
+  public void onMigrationsStart(int totalMigrations) {
+    // no op
+  }
 }

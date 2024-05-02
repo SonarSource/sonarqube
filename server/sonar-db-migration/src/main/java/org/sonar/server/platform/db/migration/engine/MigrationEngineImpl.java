@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Optional;
 import org.sonar.core.platform.SpringComponentContainer;
 import org.sonar.server.platform.db.migration.history.MigrationHistory;
+import org.sonar.server.platform.db.migration.step.MigrationStatusListener;
 import org.sonar.server.platform.db.migration.step.MigrationSteps;
 import org.sonar.server.platform.db.migration.step.MigrationStepsExecutor;
 import org.sonar.server.platform.db.migration.step.MigrationStepsExecutorImpl;
@@ -40,7 +41,7 @@ public class MigrationEngineImpl implements MigrationEngine {
   }
 
   @Override
-  public void execute() {
+  public void execute(MigrationStatusListener listener) {
     MigrationContainer migrationContainer = new MigrationContainerImpl(serverContainer, MigrationStepsExecutorImpl.class);
     try {
       MigrationStepsExecutor stepsExecutor = migrationContainer.getComponentByType(MigrationStepsExecutor.class);
@@ -50,8 +51,8 @@ public class MigrationEngineImpl implements MigrationEngine {
         .map(i -> migrationSteps.readFrom(i + 1))
         .orElse(migrationSteps.readAll());
 
-
-      stepsExecutor.execute(steps);
+      listener.onMigrationsStart(steps.size());
+      stepsExecutor.execute(steps, listener);
 
     } finally {
       migrationContainer.cleanup();

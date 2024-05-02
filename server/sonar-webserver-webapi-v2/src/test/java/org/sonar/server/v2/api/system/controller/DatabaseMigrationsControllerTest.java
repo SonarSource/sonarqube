@@ -19,8 +19,10 @@
  */
 package org.sonar.server.v2.api.system.controller;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Optional;
+import java.util.TimeZone;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -44,6 +46,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class DatabaseMigrationsControllerTest {
 
   private static final Date SOME_DATE = new Date();
+  private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+
   private final DatabaseVersion databaseVersion = mock();
   private final DatabaseMigrationState migrationState = mock();
   private final Dialect dialect = mock(Dialect.class);
@@ -98,9 +102,15 @@ class DatabaseMigrationsControllerTest {
     when(dialect.supportsMigration()).thenReturn(true);
     when(migrationState.getStatus()).thenReturn(RUNNING);
     when(migrationState.getStartedAt()).thenReturn(SOME_DATE);
+    when(migrationState.getExpectedFinishDate()).thenReturn(SOME_DATE);
+    when(migrationState.getCompletedMigrations()).thenReturn(1);
+    when(migrationState.getTotalMigrations()).thenReturn(10);
+    
+    DATE_FORMAT.setTimeZone(TimeZone.getTimeZone("UTC"));
 
     mockMvc.perform(get(DATABASE_MIGRATIONS_ENDPOINT)).andExpectAll(status().isOk(),
-      content().json("{\"status\":\"MIGRATION_RUNNING\",\"message\":\"Database migration is running.\"}"));
+      content().json("{\"status\":\"MIGRATION_RUNNING\",\"completedSteps\":1,\"totalSteps\":10," +
+        "\"message\":\"Database migration is running.\",\"expectedFinishTimestamp\":\""+DATE_FORMAT.format(SOME_DATE)+"\"}"));
   }
 
   @Test
@@ -124,7 +134,6 @@ class DatabaseMigrationsControllerTest {
     mockMvc.perform(get(DATABASE_MIGRATIONS_ENDPOINT)).andExpectAll(status().isOk(),
       content().json("{\"status\":\"MIGRATION_SUCCEEDED\",\"message\":\"Migration succeeded.\"}"));
   }
-
 
   @Test
   void getStatus_whenMigrationRequired_returnMigrationRequired() throws Exception {

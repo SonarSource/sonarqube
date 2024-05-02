@@ -77,4 +77,20 @@ public interface DatabaseMigrationState {
    */
   @CheckForNull
   Throwable getError();
+
+  /**
+   * The amount of migrations already completed.
+   */
+  int getCompletedMigrations();
+
+  /**
+   * The total amount of migrations to be performed.
+   */
+  int getTotalMigrations();
+
+  /**
+   * The expected finish timestamp of the migration.
+   */
+  Date getExpectedFinishDate();
+
 }

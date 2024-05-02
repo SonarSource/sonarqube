@@ -19,6 +19,8 @@
  */
 package org.sonar.server.platform.db.migration.engine;
 
+import org.sonar.server.platform.db.migration.step.MigrationStatusListener;
+
 /**
  * This class is responsible for:
  * <ul>
@@ -29,5 +31,5 @@ package org.sonar.server.platform.db.migration.engine;
  * </ul>
  */
 public interface MigrationEngine {
-  void execute();
+  void execute(MigrationStatusListener listener);
 }

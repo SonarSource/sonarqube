@@ -23,6 +23,7 @@ import org.sonar.api.Startable;
 import org.slf4j.LoggerFactory;
 import org.sonar.server.platform.DefaultServerUpgradeStatus;
 import org.sonar.server.platform.db.migration.engine.MigrationEngine;
+import org.sonar.server.platform.db.migration.step.NoOpMigrationStatusListener;
 
 public class AutoDbMigration implements Startable {
   private final DefaultServerUpgradeStatus serverUpgradeStatus;
@@ -37,10 +38,10 @@ public class AutoDbMigration implements Startable {
   public void start() {
     if (serverUpgradeStatus.isFreshInstall()) {
       LoggerFactory.getLogger(getClass()).info("Automatically perform DB migration on fresh install");
-      migrationEngine.execute();
+      migrationEngine.execute(new NoOpMigrationStatusListener());
     } else if (serverUpgradeStatus.isUpgraded() && serverUpgradeStatus.isAutoDbUpgrade()) {
       LoggerFactory.getLogger(getClass()).info("Automatically perform DB migration, as automatic database upgrade is enabled");
-      migrationEngine.execute();
+      migrationEngine.execute(new NoOpMigrationStatusListener());
     }
   }
 

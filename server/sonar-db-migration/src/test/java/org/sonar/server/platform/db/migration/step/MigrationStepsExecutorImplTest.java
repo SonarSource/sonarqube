@@ -47,10 +47,11 @@ public class MigrationStepsExecutorImplTest {
   private MigrationContainer migrationContainer = new SimpleMigrationContainer();
   private MigrationHistory migrationHistor = mock(MigrationHistory.class);
   private MigrationStepsExecutorImpl underTest = new MigrationStepsExecutorImpl(migrationContainer, migrationHistor);
+  private NoOpMigrationStatusListener noOpMigrationStatusListener = new NoOpMigrationStatusListener();
 
   @Test
   public void execute_does_not_fail_when_stream_is_empty_and_log_start_stop_INFO() {
-    underTest.execute(Collections.emptyList());
+    underTest.execute(Collections.emptyList(), null);
 
     assertThat(logTester.logs()).hasSize(2);
     assertLogLevel(Level.INFO, "Executing DB migrations...", "Executed DB migrations: success | time=");
@@ -62,7 +63,7 @@ public class MigrationStepsExecutorImplTest {
 
     ((SpringComponentContainer) migrationContainer).startComponents();
     try {
-      underTest.execute(steps);
+      underTest.execute(steps, noOpMigrationStatusListener);
       fail("execute should have thrown a IllegalStateException");
     } catch (IllegalStateException e) {
       assertThat(e).hasMessage("Unable to load component " + MigrationStep1.class);
@@ -94,7 +95,7 @@ public class MigrationStepsExecutorImplTest {
     underTest.execute(asList(
       registeredStepOf(1, MigrationStep2.class),
       registeredStepOf(2, MigrationStep1.class),
-      registeredStepOf(3, MigrationStep3.class)));
+      registeredStepOf(3, MigrationStep3.class)), new NoOpMigrationStatusListener());
 
     assertThat(SingleCallCheckerMigrationStep.calledSteps)
       .containsExactly(MigrationStep2.class, MigrationStep1.class, MigrationStep3.class);
@@ -124,7 +125,7 @@ public class MigrationStepsExecutorImplTest {
 
     ((SpringComponentContainer) migrationContainer).startComponents();
     try {
-      underTest.execute(steps);
+      underTest.execute(steps, noOpMigrationStatusListener);
       fail("a MigrationStepExecutionException should have been thrown");
     } catch (MigrationStepExecutionException e) {
       assertThat(e).hasMessage("Execution of migration step #2 '2-SqlExceptionFailingMigrationStep' failed");
@@ -153,7 +154,7 @@ public class MigrationStepsExecutorImplTest {
 
     ((SpringComponentContainer) migrationContainer).startComponents();
     try {
-      underTest.execute(steps);
+      underTest.execute(steps, noOpMigrationStatusListener);
       fail("should throw MigrationStepExecutionException");
     } catch (MigrationStepExecutionException e) {
       assertThat(e).hasMessage("Execution of migration step #2 '2-RuntimeExceptionFailingMigrationStep' failed");

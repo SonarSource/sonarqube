@@ -26,6 +26,7 @@ import org.junit.Test;
 import org.sonar.api.Startable;
 import org.sonar.core.platform.SpringComponentContainer;
 import org.sonar.server.platform.db.migration.step.InternalMigrationStepRegistry;
+import org.sonar.server.platform.db.migration.step.MigrationStatusListener;
 import org.sonar.server.platform.db.migration.step.MigrationStep;
 import org.sonar.server.platform.db.migration.step.MigrationStepRegistryImpl;
 import org.sonar.server.platform.db.migration.step.MigrationStepsExecutor;
@@ -96,7 +97,7 @@ public class MigrationContainerImplTest {
 
   private static class NoOpExecutor implements MigrationStepsExecutor {
     @Override
-    public void execute(List<RegisteredMigrationStep> steps) {
+    public void execute(List<RegisteredMigrationStep> steps, MigrationStatusListener listener) {
 
     }
   }

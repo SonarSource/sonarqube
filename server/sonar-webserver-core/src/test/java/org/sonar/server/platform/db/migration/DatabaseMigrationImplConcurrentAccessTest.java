@@ -29,6 +29,8 @@ import org.junit.After;
 import org.junit.Test;
 import org.sonar.server.platform.Platform;
 import org.sonar.server.platform.db.migration.engine.MigrationEngine;
+import org.sonar.server.platform.db.migration.step.MigrationStatusListener;
+import org.sonar.server.platform.db.migration.step.NoOpMigrationStatusListener;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -54,7 +56,7 @@ public class DatabaseMigrationImplConcurrentAccessTest {
   private AtomicInteger triggerCount = new AtomicInteger();
   private MigrationEngine incrementingMigrationEngine = new MigrationEngine() {
     @Override
-    public void execute() {
+    public void execute(MigrationStatusListener listener){
       // need execute to consume some time to avoid UT to fail because it ran too fast and threads never executed concurrently
       try {
         Thread.sleep(200);

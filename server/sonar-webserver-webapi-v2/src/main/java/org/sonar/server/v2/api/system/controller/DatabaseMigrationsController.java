@@ -20,12 +20,13 @@
 package org.sonar.server.v2.api.system.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import java.text.SimpleDateFormat;
 import java.util.Optional;
+import java.util.TimeZone;
 import javax.annotation.Nullable;
 import org.sonar.db.Database;
 import org.sonar.server.platform.db.migration.DatabaseMigrationState;
 import org.sonar.server.platform.db.migration.version.DatabaseVersion;
-import org.sonar.server.v2.common.DateString;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -43,10 +44,13 @@ public class DatabaseMigrationsController {
   private final DatabaseMigrationState databaseMigrationState;
   private final Database database;
 
+  private static final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+
   public DatabaseMigrationsController(DatabaseVersion databaseVersion, DatabaseMigrationState databaseMigrationState, Database database) {
     this.databaseVersion = databaseVersion;
     this.databaseMigrationState = databaseMigrationState;
     this.database = database;
+    simpleDateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
   }
 
   @Operation(summary = "Gets the status of ongoing database migrations, if any", description = "Return the detailed status of ongoing database migrations" +
@@ -70,16 +74,25 @@ public class DatabaseMigrationsController {
 
   }
 
-  public record DatabaseMigrationsResponse(String status, @Nullable String startedAt, @Nullable String message) {
+  public record DatabaseMigrationsResponse(
+    String status,
+    @Nullable Integer completedSteps,
+    @Nullable Integer totalSteps,
+    @Nullable String startedAt,
+    @Nullable String message,
+    @Nullable String expectedFinishTimestamp) {
 
     public DatabaseMigrationsResponse(DatabaseMigrationState state) {
       this(state.getStatus().toString(),
-        DateString.from(state.getStartedAt()),
-        state.getError() != null ? state.getError().getMessage() : state.getStatus().getMessage());
+        state.getCompletedMigrations(),
+        state.getTotalMigrations(),
+        state.getStartedAt() != null ? simpleDateFormat.format(state.getStartedAt()) : null,
+        state.getError() != null ? state.getError().getMessage() : state.getStatus().getMessage(),
+        state.getExpectedFinishDate() != null ? simpleDateFormat.format(state.getExpectedFinishDate()) : null);
     }
 
     public DatabaseMigrationsResponse(DatabaseMigrationState.Status status) {
-      this(status.toString(), null, status.getMessage());
+      this(status.toString(), null, null, null, status.getMessage(), null);
     }
   }
 
