@@ -121,7 +121,6 @@ public class GitLabIdentityProviderTest {
     IllegalStateException exception = new IllegalStateException("GitLab authentication is disabled");
     when(scribeFactory.newScribe(any(), any(), any())).thenThrow(exception);
 
-    OAuth2IdentityProvider.InitContext initContext = mock(OAuth2IdentityProvider.InitContext.class);
     when(initContext.getCallbackUrl()).thenReturn("http://server/callback");
 
     assertThatIllegalStateException()
