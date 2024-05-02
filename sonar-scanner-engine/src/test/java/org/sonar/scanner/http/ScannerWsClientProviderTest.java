@@ -66,9 +66,7 @@ class ScannerWsClientProviderTest {
   private static final GlobalAnalysisMode GLOBAL_ANALYSIS_MODE = new GlobalAnalysisMode(new ScannerProperties(Collections.emptyMap()));
   private static final AnalysisWarnings ANALYSIS_WARNINGS = warning -> {
   };
-  @TempDir
-  private Path sonarUserHomeDir;
-  private final SonarUserHome sonarUserHome = mock(SonarUserHome.class);
+  private SonarUserHome sonarUserHome = mock(SonarUserHome.class);
   private final Map<String, String> scannerProps = new HashMap<>();
 
   private final ScannerWsClientProvider underTest = new ScannerWsClientProvider();
@@ -78,9 +76,9 @@ class ScannerWsClientProviderTest {
   private final Properties systemProps = new Properties();
 
   @BeforeEach
-  void configureMocks() {
+  void configureMocks(@TempDir Path sonarUserHomeDir) {
     when(system2.properties()).thenReturn(systemProps);
-    when(sonarUserHome.getPath()).thenReturn(sonarUserHomeDir);
+    sonarUserHome = new SonarUserHome(sonarUserHomeDir);
   }
 
   @Test

@@ -78,7 +78,7 @@ class PluginFilesTest {
   private PluginFiles underTest;
 
   @BeforeEach
-  void setUp(@TempDir Path sonarUserHomeDir) throws Exception {
+  void setUp(@TempDir Path sonarUserHomeDir) {
     when(sonarUserHome.getPath()).thenReturn(sonarUserHomeDir);
 
     HttpConnector connector = HttpConnector.newBuilder().acceptGzip(true).url(sonarqube.url("/")).build();

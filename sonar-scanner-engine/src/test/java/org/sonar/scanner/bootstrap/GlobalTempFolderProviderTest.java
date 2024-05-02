@@ -19,7 +19,6 @@
  */
 package org.sonar.scanner.bootstrap;
 
-import com.google.common.collect.ImmutableMap;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -49,7 +48,7 @@ class GlobalTempFolderProviderTest {
     Files.delete(workingDir);
 
     var tempFolder = underTest.provide(
-      new ScannerProperties(ImmutableMap.of(CoreProperties.GLOBAL_WORKING_DIRECTORY, workingDir.toAbsolutePath().toString())), sonarUserHome);
+      new ScannerProperties(Map.of(CoreProperties.GLOBAL_WORKING_DIRECTORY, workingDir.toAbsolutePath().toString())), sonarUserHome);
     tempFolder.newDir();
     tempFolder.newFile();
 
@@ -71,7 +70,7 @@ class GlobalTempFolderProviderTest {
     }
 
     underTest.provide(
-      new ScannerProperties(ImmutableMap.of(CoreProperties.GLOBAL_WORKING_DIRECTORY, workingDir.toAbsolutePath().toString())), sonarUserHome);
+      new ScannerProperties(Map.of(CoreProperties.GLOBAL_WORKING_DIRECTORY, workingDir.toAbsolutePath().toString())), sonarUserHome);
 
     // this also checks that all other temps were deleted
     assertThat(workingDir.toFile().list()).hasSize(1);
@@ -88,7 +87,7 @@ class GlobalTempFolderProviderTest {
   }
 
   @Test
-  void createTempFolderFromSonarHome(@TempDir Path sonarUserHomePath) throws Exception {
+  void createTempFolderFromSonarHome(@TempDir Path sonarUserHomePath) {
     // with sonar home, it will be in {sonar.home}/.sonartmp
     when(sonarUserHome.getPath()).thenReturn(sonarUserHomePath);
     
@@ -109,7 +108,7 @@ class GlobalTempFolderProviderTest {
     when(sonarUserHome.getPath()).thenReturn(sonarUserHomePath);
     String globalWorkDir = ".";
     ScannerProperties globalProperties = new ScannerProperties(
-      ImmutableMap.of(CoreProperties.GLOBAL_WORKING_DIRECTORY, globalWorkDir));
+      Map.of(CoreProperties.GLOBAL_WORKING_DIRECTORY, globalWorkDir));
 
     var tempFolder = underTest.provide(globalProperties, sonarUserHome);
     File newFile = tempFolder.newFile();

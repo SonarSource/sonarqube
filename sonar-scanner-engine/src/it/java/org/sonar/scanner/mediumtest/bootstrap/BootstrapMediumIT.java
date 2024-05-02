@@ -57,9 +57,11 @@ class BootstrapMediumIT {
   @BeforeEach
   void mockBareMinimalServerEndpoints() {
     sonarqube.stubFor(get("/api/plugins/installed")
-      .willReturn(okJson("{\n"
-        + "  \"plugins\": []\n"
-        + "}")));
+      .willReturn(okJson("""
+        {
+          "plugins": []
+        }
+        """)));
 
     sonarqube.stubFor(get("/api/qualityprofiles/search.protobuf?project=" + PROJECT_KEY)
       .willReturn(aResponse()
@@ -77,17 +79,21 @@ class BootstrapMediumIT {
           .build()))));
 
     sonarqube.stubFor(get("/api/languages/list")
-      .willReturn(okJson("{\n"
-        + "  \"languages\": []\n"
-        + "}")));
+      .willReturn(okJson("""
+        {
+          "languages": []
+        }
+        """)));
 
     sonarqube.stubFor(get("/api/metrics/search?ps=500&p=1")
-      .willReturn(okJson("{\n"
-        + "  \"metrics\": [],\n"
-        + "  \"total\": 0,\n"
-        + "  \"p\": 1,\n"
-        + "  \"ps\": 100"
-        + "}")));
+      .willReturn(okJson("""
+        {
+          "metrics": [],
+          "total": 0,
+          "p": 1,
+          "ps": 100
+        }
+        """)));
 
     sonarqube.stubFor(post("/api/ce/submit?projectKey=" + PROJECT_KEY)
       .willReturn(aResponse()
