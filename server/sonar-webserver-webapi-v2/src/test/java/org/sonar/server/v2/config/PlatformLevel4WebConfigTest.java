@@ -24,16 +24,20 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.sonar.api.platform.Server;
+import org.sonar.server.platform.ServerFileSystem;
 import org.sonar.server.v2.api.analysis.controller.DefaultJresController;
 import org.sonar.server.v2.api.analysis.controller.DefaultVersionController;
+import org.sonar.server.v2.api.analysis.controller.DefaultScannerEngineController;
 import org.sonar.server.v2.api.analysis.service.JresHandler;
 import org.sonar.server.v2.api.analysis.service.JresHandlerImpl;
+import org.sonar.server.v2.api.analysis.service.ScannerEngineHandler;
+import org.sonar.server.v2.api.analysis.service.ScannerEngineHandlerImpl;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.Mockito.mock;
 
-public class PlatformLevel4WebConfigTest {
+class PlatformLevel4WebConfigTest {
 
   private static final PlatformLevel4WebConfig platformLevel4WebConfig = new PlatformLevel4WebConfig();
 
@@ -41,7 +45,9 @@ public class PlatformLevel4WebConfigTest {
     return Stream.of(
       arguments(platformLevel4WebConfig.versionController(mock(Server.class)), DefaultVersionController.class),
       arguments(platformLevel4WebConfig.jresHandler(), JresHandlerImpl.class),
-      arguments(platformLevel4WebConfig.jresController(mock(JresHandler.class)), DefaultJresController.class)
+      arguments(platformLevel4WebConfig.jresController(mock(JresHandler.class)), DefaultJresController.class),
+      arguments(platformLevel4WebConfig.scannerEngineHandler(mock(ServerFileSystem.class)), ScannerEngineHandlerImpl.class),
+      arguments(platformLevel4WebConfig.scannerEngineController(mock(ScannerEngineHandler.class)), DefaultScannerEngineController.class)
     );
   }
 

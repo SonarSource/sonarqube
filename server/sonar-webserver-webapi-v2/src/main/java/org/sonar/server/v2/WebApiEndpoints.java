@@ -49,6 +49,7 @@ public class WebApiEndpoints {
   public static final String ANALYSIS_ENDPOINT = "/analysis";
   public static final String VERSION_ENDPOINT = ANALYSIS_ENDPOINT + "/version";
   public static final String JRE_ENDPOINT = ANALYSIS_ENDPOINT + "/jres";
+  public static final String SCANNER_ENGINE_ENDPOINT = ANALYSIS_ENDPOINT + "/engine";
 
   private WebApiEndpoints() {
   }
