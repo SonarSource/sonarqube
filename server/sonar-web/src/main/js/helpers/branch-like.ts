@@ -18,15 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { orderBy } from 'lodash';
-import { isBranch, isMainBranch } from '~sonar-aligned/helpers/branch-like';
+import { isBranch, isMainBranch, isPullRequest } from '~sonar-aligned/helpers/branch-like';
 import { Branch, BranchLike, BranchLikeTree, PullRequest } from '../types/branch-like';
 
 export function sortBranches(branches: Branch[]) {
   return orderBy(branches, [(b) => b.isMain, (b) => b.name], ['desc', 'asc']);
-}
-
-export function isPullRequest(branchLike?: BranchLike): branchLike is PullRequest {
-  return branchLike !== undefined && (branchLike as PullRequest).key !== undefined;
 }
 
 export function sortPullRequests(pullRequests: PullRequest[]) {

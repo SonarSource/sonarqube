@@ -31,9 +31,9 @@ import {
 } from 'design-system';
 import React from 'react';
 import { useIntl } from 'react-intl';
+import { Status } from '~sonar-aligned/types/common';
 import { useCurrentUser } from '../../../app/components/current-user/CurrentUserContext';
 import useLocalStorage from '../../../hooks/useLocalStorage';
-import { Status } from '../../../types/types';
 import { isLoggedIn } from '../../../types/users';
 import { Status as QGStatus } from '../utils';
 

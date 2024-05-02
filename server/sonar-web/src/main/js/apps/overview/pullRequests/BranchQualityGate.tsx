@@ -21,9 +21,10 @@ import { HelperHintIcon, LightPrimary, QualityGateIndicator, TextMuted } from 'd
 import React from 'react';
 import { useIntl } from 'react-intl';
 import HelpTooltip from '~sonar-aligned/components/controls/HelpTooltip';
+import { Status } from '~sonar-aligned/types/common';
 import { BranchLike } from '../../../types/branch-like';
 import { QualityGateStatusConditionEnhanced } from '../../../types/quality-gates';
-import { Component, Status } from '../../../types/types';
+import { Component } from '../../../types/types';
 import BranchQualityGateConditions from './BranchQualityGateConditions';
 
 interface Props {

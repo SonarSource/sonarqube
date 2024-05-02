@@ -32,13 +32,12 @@ import {
   themeColor,
 } from 'design-system';
 import * as React from 'react';
-import { getBranchLikeQuery, isBranch } from '~sonar-aligned/helpers/branch-like';
+import { getBranchLikeQuery, isBranch, isPullRequest } from '~sonar-aligned/helpers/branch-like';
 import { getComponentIssuesUrl } from '~sonar-aligned/helpers/urls';
 import { ComponentQualifier } from '~sonar-aligned/types/component';
 import { ComponentContext } from '../../../app/components/componentContext/ComponentContext';
 import { useCurrentUser } from '../../../app/components/current-user/CurrentUserContext';
 import { DEFAULT_ISSUES_QUERY } from '../../../components/shared/utils';
-import { isPullRequest } from '../../../helpers/branch-like';
 import { translate } from '../../../helpers/l10n';
 import { collapsedDirFromPath, fileFromPath } from '../../../helpers/path';
 import { getBranchLikeUrl } from '../../../helpers/urls';

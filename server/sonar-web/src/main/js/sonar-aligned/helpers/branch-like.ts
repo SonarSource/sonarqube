@@ -17,25 +17,37 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { isPullRequest } from '../../helpers/branch-like';
+import {
+  BranchBase,
+  BranchLikeBase,
+  BranchParameters,
+  PullRequestBase,
+} from '~sonar-aligned/types/branch-like';
 
-import { BranchParameters } from '~sonar-aligned/types/branch-like';
-import { Branch, BranchLike, MainBranch } from '../../types/branch-like';
-
-export function getBranchLikeQuery(
-  branchLike?: BranchLike,
-  includeMainBranch = false,
+export function getBranchLikeQuery<T extends BranchLikeBase>(
+  branchLike?: T,
+  withMainBranch = false,
 ): BranchParameters {
-  if (isBranch(branchLike) && (includeMainBranch || !isMainBranch(branchLike))) {
+  if (isBranch(branchLike) && (withMainBranch || !isMainBranch(branchLike))) {
     return { branch: branchLike.name };
   } else if (isPullRequest(branchLike)) {
     return { pullRequest: branchLike.key };
   }
   return {};
 }
-export function isBranch(branchLike?: BranchLike): branchLike is Branch {
-  return branchLike !== undefined && (branchLike as Branch).isMain !== undefined;
+
+export function isBranch<T extends BranchBase>(branchLike?: T | PullRequestBase): branchLike is T {
+  return branchLike !== undefined && (branchLike as T).isMain !== undefined;
 }
-export function isMainBranch(branchLike?: BranchLike): branchLike is MainBranch {
+
+export function isMainBranch<T extends BranchBase>(
+  branchLike?: T | PullRequestBase,
+): branchLike is T & { isMain: true } {
   return isBranch(branchLike) && branchLike.isMain;
+}
+
+export function isPullRequest<T extends PullRequestBase>(
+  branchLike?: T | BranchBase,
+): branchLike is T {
+  return branchLike !== undefined && (branchLike as T).key !== undefined;
 }

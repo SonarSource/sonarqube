@@ -19,15 +19,15 @@
  */
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
+import { isPullRequest } from '~sonar-aligned/helpers/branch-like';
+import { isPortfolioLike } from '~sonar-aligned/helpers/component';
 import withAvailableFeatures, {
   WithAvailableFeaturesProps,
 } from '../../../app/components/available-features/withAvailableFeatures';
 import withComponentContext from '../../../app/components/componentContext/withComponentContext';
 import Suggestions from '../../../components/embed-docs-modal/Suggestions';
-import { isPullRequest } from '../../../helpers/branch-like';
 import { translate } from '../../../helpers/l10n';
 import { useBranchesQuery } from '../../../queries/branch';
-import { isPortfolioLike } from '../../../sonar-aligned/helpers/component';
 import { Feature } from '../../../types/features';
 import { Component } from '../../../types/types';
 import BranchOverview from '../branches/BranchOverview';

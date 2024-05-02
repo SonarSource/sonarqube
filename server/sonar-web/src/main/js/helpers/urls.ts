@@ -18,20 +18,24 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { Path, To } from 'react-router-dom';
-import { getBranchLikeQuery, isBranch, isMainBranch } from '~sonar-aligned/helpers/branch-like';
+import {
+  getBranchLikeQuery,
+  isBranch,
+  isMainBranch,
+  isPullRequest,
+} from '~sonar-aligned/helpers/branch-like';
+import { isPortfolioLike } from '~sonar-aligned/helpers/component';
 import { queryToSearchString } from '~sonar-aligned/helpers/urls';
 import { BranchParameters } from '~sonar-aligned/types/branch-like';
 import { ComponentQualifier } from '~sonar-aligned/types/component';
 import { getProfilePath } from '../apps/quality-profiles/utils';
 import { DEFAULT_ISSUES_QUERY } from '../components/shared/utils';
-import { isPortfolioLike } from '../sonar-aligned/helpers/component';
 import { BranchLike } from '../types/branch-like';
 import { isApplication } from '../types/component';
 import { MeasurePageView } from '../types/measures';
 import { GraphType } from '../types/project-activity';
 import { Dict } from '../types/types';
 import { HomePage } from '../types/users';
-import { isPullRequest } from './branch-like';
 import { serializeOptionalBoolean } from './query';
 import { getBaseUrl } from './system';
 

@@ -17,27 +17,4 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Status } from './common';
-
-export type BranchParameters = { branch?: string } | { pullRequest?: string };
-
-export type BranchLikeBase = BranchBase | PullRequestBase;
-
-export interface BranchBase {
-  analysisDate?: string;
-  isMain: boolean;
-  name: string;
-  status?: { qualityGateStatus: Status };
-}
-
-export interface PullRequestBase {
-  analysisDate?: string;
-  base: string;
-  branch: string;
-  key: string;
-  isOrphan?: true;
-  status?: { qualityGateStatus: Status };
-  target: string;
-  title: string;
-  url?: string;
-}
+export type Status = 'ERROR' | 'OK' | 'NONE';

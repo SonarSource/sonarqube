@@ -20,7 +20,8 @@
 import { DangerButtonPrimary, Modal } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { getBranchLikeDisplayName, isPullRequest } from '../../../helpers/branch-like';
+import { isPullRequest } from '~sonar-aligned/helpers/branch-like';
+import { getBranchLikeDisplayName } from '../../../helpers/branch-like';
 import { useDeletBranchMutation } from '../../../queries/branch';
 import { BranchLike } from '../../../types/branch-like';
 import { Component } from '../../../types/types';

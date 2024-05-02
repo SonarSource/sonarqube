@@ -23,7 +23,8 @@ import * as React from 'react';
 import { useCallback, useContext } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useLocation } from '~sonar-aligned/components/hoc/withRouter';
-import { isBranch } from '~sonar-aligned/helpers/branch-like';
+import { isBranch, isPullRequest } from '~sonar-aligned/helpers/branch-like';
+import { isPortfolioLike } from '~sonar-aligned/helpers/component';
 import { searchParamsToQuery } from '~sonar-aligned/helpers/router';
 import {
   deleteBranch,
@@ -37,9 +38,7 @@ import {
 import { dismissAnalysisWarning, getAnalysisStatus } from '../api/ce';
 import { getQualityGateProjectStatus } from '../api/quality-gates';
 import { AvailableFeaturesContext } from '../app/components/available-features/AvailableFeaturesContext';
-import { isPullRequest } from '../helpers/branch-like';
 import { extractStatusConditionsFromProjectStatus } from '../helpers/qualityGates';
-import { isPortfolioLike } from '../sonar-aligned/helpers/component';
 import { Branch, BranchLike } from '../types/branch-like';
 import { isApplication, isProject } from '../types/component';
 import { Feature } from '../types/features';

@@ -27,12 +27,12 @@ import {
 import * as React from 'react';
 import A11ySkipTarget from '~sonar-aligned/components/a11y/A11ySkipTarget';
 import { useLocation, useRouter } from '~sonar-aligned/components/hoc/withRouter';
+import { isPortfolioLike } from '~sonar-aligned/helpers/component';
 import { ComponentQualifier } from '~sonar-aligned/types/component';
 import AnalysisMissingInfoMessage from '../../../components/shared/AnalysisMissingInfoMessage';
 import { parseDate } from '../../../helpers/dates';
 import { areCCTMeasuresComputed, isDiffMetric } from '../../../helpers/measures';
 import { CodeScope } from '../../../helpers/urls';
-import { isPortfolioLike } from '../../../sonar-aligned/helpers/component';
 import { ApplicationPeriod } from '../../../types/application';
 import { Branch } from '../../../types/branch-like';
 import { Analysis, GraphType, MeasureHistory } from '../../../types/project-activity';

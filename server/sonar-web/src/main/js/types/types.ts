@@ -712,8 +712,6 @@ export interface SourceViewerFile {
 
 export type StandardSecurityCategories = Dict<{ title: string; description?: string }>;
 
-export type Status = 'ERROR' | 'OK';
-
 export interface SubscriptionPlan {
   maxNcloc: number;
   price: number;

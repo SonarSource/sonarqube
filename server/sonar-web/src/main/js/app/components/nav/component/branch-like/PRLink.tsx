@@ -20,8 +20,8 @@
 
 import { LinkStandalone } from '@sonarsource/echoes-react';
 import React from 'react';
+import { isPullRequest } from '~sonar-aligned/helpers/branch-like';
 import { Image } from '../../../../../components/common/Image';
-import { isPullRequest } from '../../../../../helpers/branch-like';
 import { translate, translateWithParameters } from '../../../../../helpers/l10n';
 import { isDefined } from '../../../../../helpers/types';
 import { AlmKeys } from '../../../../../types/alm-settings';

@@ -21,12 +21,12 @@
 import { DangerButtonPrimary, addGlobalSuccessMessage } from 'design-system';
 import * as React from 'react';
 import { withRouter } from '~sonar-aligned/components/hoc/withRouter';
+import { isPortfolioLike } from '~sonar-aligned/helpers/component';
 import { Router } from '~sonar-aligned/types/router';
 import { deleteApplication } from '../../api/application';
 import { deletePortfolio, deleteProject } from '../../api/project-management';
 import ConfirmButton from '../../components/controls/ConfirmButton';
 import { translate, translateWithParameters } from '../../helpers/l10n';
-import { isPortfolioLike } from '../../sonar-aligned/helpers/component';
 import { isApplication } from '../../types/component';
 import { Component } from '../../types/types';
 

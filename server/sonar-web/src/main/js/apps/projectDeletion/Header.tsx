@@ -19,8 +19,8 @@
  */
 import { Title } from 'design-system';
 import * as React from 'react';
+import { isPortfolioLike } from '~sonar-aligned/helpers/component';
 import { translate } from '../../helpers/l10n';
-import { isPortfolioLike } from '../../sonar-aligned/helpers/component';
 import { isApplication } from '../../types/component';
 import { Component } from '../../types/types';
 

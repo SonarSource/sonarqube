@@ -21,6 +21,7 @@ import { QualityGateIndicator } from 'design-system';
 import { sortBy } from 'lodash';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
+import { Status } from '~sonar-aligned/types/common';
 import { ComponentQualifier } from '~sonar-aligned/types/component';
 import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
 import {
@@ -28,7 +29,6 @@ import {
   ProjectAnalysisEventCategory,
   Analysis as TypeAnalysis,
 } from '../../../types/project-activity';
-import { Status } from '../../../types/types';
 import { AnalysisVariations } from './AnalysisVariations';
 import Event from './Event';
 

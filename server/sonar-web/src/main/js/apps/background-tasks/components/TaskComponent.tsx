@@ -27,6 +27,7 @@ import {
   StandoutLink,
 } from 'design-system';
 import * as React from 'react';
+import { isPortfolioLike } from '~sonar-aligned/helpers/component';
 import { translate } from '../../../helpers/l10n';
 import {
   getBranchUrl,
@@ -34,7 +35,6 @@ import {
   getProjectUrl,
   getPullRequestUrl,
 } from '../../../helpers/urls';
-import { isPortfolioLike } from '../../../sonar-aligned/helpers/component';
 import { Task } from '../../../types/tasks';
 
 interface Props {

@@ -27,11 +27,11 @@ import {
   TableRowInteractive,
 } from 'design-system';
 import * as React from 'react';
-import { isBranch, isMainBranch } from '~sonar-aligned/helpers/branch-like';
+import { isBranch, isMainBranch, isPullRequest } from '~sonar-aligned/helpers/branch-like';
 import QualityGateStatus from '../../../app/components/nav/component/branch-like/QualityGateStatus';
 import BranchLikeIcon from '../../../components/icon-mappers/BranchLikeIcon';
 import DateFromNow from '../../../components/intl/DateFromNow';
-import { getBranchLikeDisplayName, isPullRequest } from '../../../helpers/branch-like';
+import { getBranchLikeDisplayName } from '../../../helpers/branch-like';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { BranchLike } from '../../../types/branch-like';
 import { Component } from '../../../types/types';

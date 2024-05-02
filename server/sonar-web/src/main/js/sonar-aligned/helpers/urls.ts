@@ -21,9 +21,9 @@ import { mapValues, omitBy, pick } from 'lodash';
 import { Path, URLSearchParamsInit, createSearchParams } from 'react-router-dom';
 import { cleanQuery } from '../../helpers/query';
 import { Query } from '../../helpers/urls';
-import { BranchLike } from '../../types/branch-like';
 import { SecurityStandard } from '../../types/security';
 import { getBranchLikeQuery } from '../helpers/branch-like';
+import { BranchLikeBase } from '../types/branch-like';
 import { RawQuery } from '../types/router';
 
 export function queryToSearchString(query: RawQuery | URLSearchParamsInit = {}) {
@@ -56,7 +56,7 @@ export function getComponentIssuesUrl(componentKey: string, query?: Query): Part
  */
 export function getComponentSecurityHotspotsUrl(
   componentKey: string,
-  branchLike?: BranchLike,
+  branchLike?: BranchLikeBase,
   query: Query = {},
 ): Partial<Path> {
   const { inNewCodePeriod, hotspots, assignedToMe, files } = query;

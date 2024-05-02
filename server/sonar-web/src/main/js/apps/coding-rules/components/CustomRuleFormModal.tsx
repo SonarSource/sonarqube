@@ -30,6 +30,7 @@ import {
   Modal,
 } from 'design-system';
 import * as React from 'react';
+import { Status } from '~sonar-aligned/types/common';
 import FormattingTips from '../../../components/common/FormattingTips';
 import MandatoryFieldsExplanation from '../../../components/ui/MandatoryFieldsExplanation';
 import { RULE_STATUSES } from '../../../helpers/constants';
@@ -43,7 +44,7 @@ import {
   CleanCodeAttributeCategory,
   SoftwareImpact,
 } from '../../../types/clean-code-taxonomy';
-import { Dict, RuleDetails, RuleParameter, Status } from '../../../types/types';
+import { Dict, RuleDetails, RuleParameter } from '../../../types/types';
 import {
   CleanCodeAttributeField,
   CleanCodeCategoryField,

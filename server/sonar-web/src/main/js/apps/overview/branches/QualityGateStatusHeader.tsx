@@ -20,8 +20,8 @@
 import { QualityGateIndicator, TextError } from 'design-system';
 import React from 'react';
 import { useIntl } from 'react-intl';
+import { Status } from '~sonar-aligned/types/common';
 import { translate } from '../../../helpers/l10n';
-import { Status } from '../../../types/types';
 
 interface Props {
   status: Status;
