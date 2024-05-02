@@ -19,35 +19,26 @@
  */
 import classNames from 'classnames';
 import { omit } from 'lodash';
-import React, { RefObject } from 'react';
+import React from 'react';
 import { GroupBase, InputProps } from 'react-select';
 import AsyncSelect, { AsyncProps } from 'react-select/async';
-import Select from 'react-select/dist/declarations/src/Select';
 import { INPUT_SIZES } from '../../helpers';
 import { Key } from '../../helpers/keyboard';
+import { SelectProps, selectStyle } from '../../sonar-aligned/components/input';
 import { InputSearch } from './InputSearch';
-import { LabelValueSelectOption, SelectProps, selectStyle } from './InputSelect';
 
 type SearchSelectProps<
-  V,
-  Option extends LabelValueSelectOption<V>,
+  Option,
   IsMulti extends boolean = false,
   Group extends GroupBase<Option> = GroupBase<Option>,
-> = SelectProps<V, Option, IsMulti, Group> & AsyncProps<Option, IsMulti, Group>;
+> = SelectProps<Option, IsMulti, Group> & AsyncProps<Option, IsMulti, Group>;
 
 export function SearchSelect<
-  V,
-  Option extends LabelValueSelectOption<V>,
+  Option,
   IsMulti extends boolean = false,
   Group extends GroupBase<Option> = GroupBase<Option>,
->({
-  size = 'full',
-  selectRef,
-  ...props
-}: SearchSelectProps<V, Option, IsMulti, Group> & {
-  selectRef?: RefObject<Select<Option, IsMulti, Group>>;
-}) {
-  const styles = selectStyle<V, Option, IsMulti, Group>({ size });
+>({ size = 'full', selectRef, ...props }: SearchSelectProps<Option, IsMulti, Group>) {
+  const styles = selectStyle<Option, IsMulti, Group>({ size });
   return (
     <AsyncSelect<Option, IsMulti, Group>
       {...omit(props, 'className', 'large')}
@@ -82,8 +73,7 @@ export function SearchSelect<
 }
 
 export function SearchSelectInput<
-  V,
-  Option extends LabelValueSelectOption<V>,
+  Option,
   IsMulti extends boolean = false,
   Group extends GroupBase<Option> = GroupBase<Option>,
 >(props: InputProps<Option, IsMulti, Group>) {

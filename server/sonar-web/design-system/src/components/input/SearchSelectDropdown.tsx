@@ -30,10 +30,14 @@ import { AsyncProps } from 'react-select/async';
 import Select from 'react-select/dist/declarations/src/Select';
 import tw from 'twin.macro';
 import { PopupPlacement, PopupZLevel, themeBorder } from '../../helpers';
+import {
+  IconOption,
+  LabelValueSelectOption,
+  SelectProps,
+} from '../../sonar-aligned/components/input';
 import { InputSizeKeys } from '../../types/theme';
 import { DropdownToggler } from '../DropdownToggler';
 import { SearchHighlighterContext } from '../SearchHighlighter';
-import { IconOption, LabelValueSelectOption, SelectProps } from './InputSelect';
 import { SearchSelect } from './SearchSelect';
 import { SearchSelectDropdownControl } from './SearchSelectDropdownControl';
 
@@ -48,7 +52,7 @@ export interface SearchSelectDropdownProps<
   Option extends LabelValueSelectOption<V>,
   IsMulti extends boolean = false,
   Group extends GroupBase<Option> = GroupBase<Option>,
-> extends SelectProps<V, Option, IsMulti, Group>,
+> extends SelectProps<Option, IsMulti, Group>,
     AsyncProps<Option, IsMulti, Group> {
   className?: string;
   controlAriaLabel?: string;

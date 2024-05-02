@@ -224,7 +224,7 @@ export default function CustomRuleFormModal(props: Readonly<Props>) {
   );
 
   const StatusField = React.useMemo(() => {
-    const statusesOptions = RULE_STATUSES.map((status) => ({
+    const statusesOptions = RULE_STATUSES.map((status: Status) => ({
       label: translate('rules.status', status),
       value: status,
     }));

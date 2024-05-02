@@ -32,7 +32,7 @@ interface StatusFilterProps {
 export default function StatusFilter(props: Readonly<StatusFilterProps>) {
   const { id, value, onChange } = props;
 
-  const options: LabelValueSelectOption<string>[] = [
+  const options: LabelValueSelectOption[] = [
     { value: STATUSES.ALL, label: translate('background_task.status.ALL') },
     {
       value: STATUSES.ALL_EXCEPT_PENDING,
@@ -46,7 +46,7 @@ export default function StatusFilter(props: Readonly<StatusFilterProps>) {
   ];
 
   const handleChange = React.useCallback(
-    ({ value }: LabelValueSelectOption<string>) => {
+    ({ value }: LabelValueSelectOption) => {
       onChange(value);
     },
     [onChange],

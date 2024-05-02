@@ -33,10 +33,10 @@ export const MIN_QUERY_LENGTH = 2;
 const UNASSIGNED = { value: '', label: translate('unassigned') };
 
 export interface AssigneeSelectProps {
-  assignee?: SingleValue<LabelValueSelectOption<string>>;
+  assignee?: SingleValue<LabelValueSelectOption>;
   className?: string;
   issues: Issue[];
-  onAssigneeSelect: (assignee: SingleValue<LabelValueSelectOption<string>>) => void;
+  onAssigneeSelect: (assignee: SingleValue<LabelValueSelectOption>) => void;
   inputId: string;
 }
 

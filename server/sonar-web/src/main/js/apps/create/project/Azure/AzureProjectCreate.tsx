@@ -304,7 +304,7 @@ export default function AzureProjectCreate({
 function transformToOptions(
   projects: AzureProject[],
   repositories?: Dict<AzureRepository[]>,
-): Array<GroupBase<LabelValueSelectOption<string>>> {
+): Array<GroupBase<LabelValueSelectOption>> {
   return projects.map(({ name: projectName }) => ({
     label: projectName,
     options:
@@ -314,6 +314,6 @@ function transformToOptions(
   }));
 }
 
-function transformToOption({ name }: AzureRepository): LabelValueSelectOption<string> {
+function transformToOption({ name }: AzureRepository): LabelValueSelectOption {
   return { value: name, label: name };
 }

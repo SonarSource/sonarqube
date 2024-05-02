@@ -19,8 +19,8 @@
  */
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { renderWithContext } from '../../../helpers/testUtils';
-import { FCProps } from '../../../types/misc';
+import { renderWithContext } from '../../../../helpers/testUtils';
+import { FCProps } from '../../../../types/misc';
 import { InputSelect } from '../InputSelect';
 
 it('should render select input and be able to click and change', async () => {
@@ -66,6 +66,18 @@ it('should render select input with disabled prop', () => {
   setupWithProps({ placeholder: 'placeholder-foo', onChange: setValue, isDisabled: true });
   expect(screen.getByText('placeholder-foo')).toBeInTheDocument();
   expect(screen.getByRole('combobox')).toBeDisabled();
+});
+
+it('should render the select options with sorting when shouldSortOption is true and getOptionLabel passed', async () => {
+  const { user } = setupWithProps({
+    shouldSortOption: true,
+    getOptionLabel: (o: { label: string }) => o.label,
+  });
+  await user.click(screen.getByRole('combobox'));
+  const options = screen.getAllByRole('option');
+  expect(options).toHaveLength(2);
+  expect(options[0]).toHaveTextContent('bar-foo');
+  expect(options[1]).toHaveTextContent('foo-bar');
 });
 
 function setupWithProps(props: Partial<FCProps<typeof InputSelect>>) {

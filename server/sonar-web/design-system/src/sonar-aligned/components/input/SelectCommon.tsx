@@ -18,11 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { useTheme as themeInfo } from '@emotion/react';
-import classNames from 'classnames';
-import { omit } from 'lodash';
-import { ReactNode } from 'react';
+import { RefObject } from 'react';
 import { useIntl } from 'react-intl';
-import ReactSelect, {
+import {
   ClearIndicatorProps,
   GroupBase,
   Props as NamedProps,
@@ -30,45 +28,42 @@ import ReactSelect, {
   StylesConfig,
   components,
 } from 'react-select';
-import { INPUT_SIZES } from '../../helpers';
-import { themeBorder, themeColor, themeContrast } from '../../helpers/theme';
-import { InputSizeKeys } from '../../types/theme';
-import { InteractiveIcon } from '../InteractiveIcon';
-import { SearchHighlighter } from '../SearchHighlighter';
+import Select from 'react-select/dist/declarations/src/Select';
+import { InteractiveIcon } from '../../../components/InteractiveIcon';
+import { SearchHighlighter } from '../../../components/SearchHighlighter';
+import { ChevronDownIcon, CloseIcon } from '../../../components/icons';
+import { INPUT_SIZES } from '../../../helpers';
+import { themeBorder, themeColor, themeContrast } from '../../../helpers/theme';
+import { InputSizeKeys } from '../../../types/theme';
 
-import { ChevronDownIcon, CloseIcon } from '../icons';
-
-export interface LabelValueSelectOption<V> {
-  Icon?: ReactNode;
-  label: string;
-  value: V;
-}
-
-interface ExtensionProps {
+export interface ExtensionProps<
+  Option,
+  IsMulti extends boolean = false,
+  Group extends GroupBase<Option> = GroupBase<Option>,
+> {
   clearLabel?: string;
+  selectRef?: RefObject<Select<Option, IsMulti, Group>>;
+  shouldSortOption?: boolean;
   size?: InputSizeKeys;
 }
 
 export type SelectProps<
-  V,
-  Option extends LabelValueSelectOption<V>,
+  Option,
   IsMulti extends boolean = false,
   Group extends GroupBase<Option> = GroupBase<Option>,
-> = NamedProps<Option, IsMulti, Group> & ExtensionProps;
+> = NamedProps<Option, IsMulti, Group> & ExtensionProps<Option, IsMulti, Group>;
 
 export function IconOption<
-  V,
-  Option extends LabelValueSelectOption<V>,
+  Option,
   IsMulti extends boolean = false,
   Group extends GroupBase<Option> = GroupBase<Option>,
 >(props: OptionProps<Option, IsMulti, Group>) {
-  const {
-    data: { label, Icon },
-  } = props;
+  const { label, isSelected } = props;
+  const { Icon } = props.data as { Icon: JSX.Element };
 
   return (
     <components.Option {...props}>
-      <div className="sw-flex sw-items-center sw-gap-1">
+      <div aria-selected={isSelected} className="sw-flex sw-items-center sw-gap-1" role="option">
         {Icon}
         <SearchHighlighter>{label}</SearchHighlighter>
       </div>
@@ -76,15 +71,13 @@ export function IconOption<
   );
 }
 
-function SingleValue<
-  V,
-  Option extends LabelValueSelectOption<V>,
+export function SingleValue<
+  Option,
   IsMulti extends boolean = false,
   Group extends GroupBase<Option> = GroupBase<Option>,
 >(props: OptionProps<Option, IsMulti, Group>) {
-  const {
-    data: { label, Icon },
-  } = props;
+  const label = props.selectProps.getOptionLabel(props.data);
+  const { Icon } = props.data as { Icon: JSX.Element };
 
   return (
     <components.SingleValue {...props}>
@@ -96,14 +89,13 @@ function SingleValue<
   );
 }
 
-function ClearIndicator<
-  V,
-  Option extends LabelValueSelectOption<V>,
+export function ClearIndicator<
+  Option,
   IsMulti extends boolean = false,
   Group extends GroupBase<Option> = GroupBase<Option>,
 >(
   props: ClearIndicatorProps<Option, IsMulti, Group> & {
-    selectProps: SelectProps<V, Option, IsMulti, Group>;
+    selectProps: SelectProps<Option, IsMulti, Group>;
   },
 ) {
   const intl = useIntl();
@@ -123,9 +115,8 @@ function ClearIndicator<
   );
 }
 
-function DropdownIndicator<
-  V,
-  Option extends LabelValueSelectOption<V>,
+export function DropdownIndicator<
+  Option,
   IsMulti extends boolean = false,
   Group extends GroupBase<Option> = GroupBase<Option>,
 >(props: OptionProps<Option, IsMulti, Group>) {
@@ -138,55 +129,8 @@ function DropdownIndicator<
   );
 }
 
-export function InputSelect<
-  V,
-  Option extends LabelValueSelectOption<V>,
-  IsMulti extends boolean = false,
-  Group extends GroupBase<Option> = GroupBase<Option>,
->({ size = 'medium', className, ...props }: SelectProps<V, Option, IsMulti, Group>) {
-  return (
-    <ReactSelect<Option, IsMulti, Group>
-      {...omit(props, 'className', 'large')}
-      className={classNames('react-select', className)}
-      classNamePrefix="react-select"
-      classNames={{
-        container: () => 'sw-relative sw-inline-block sw-align-middle',
-        placeholder: () => 'sw-truncate sw-leading-4',
-        menu: () => 'sw-z-dropdown-menu sw-ml-1/2 sw-mt-2',
-        menuList: () => 'sw-overflow-y-auto sw-py-2 sw-max-h-[12.25rem]',
-        clearIndicator: () => 'sw-p-0',
-        dropdownIndicator: () => classNames(props.isClearable && 'sw-p-0'),
-        control: ({ isDisabled }) =>
-          classNames(
-            'sw-box-border sw-rounded-2 sw-overflow-hidden',
-            isDisabled && 'sw-pointer-events-none sw-cursor-not-allowed',
-          ),
-        option: ({ isDisabled }) =>
-          classNames(
-            'it__select-option sw-py-2 sw-px-3 sw-cursor-pointer',
-            isDisabled && 'sw-pointer-events-none sw-cursor-not-allowed',
-          ),
-        ...props.classNames,
-      }}
-      components={{
-        ClearIndicator,
-        Option: IconOption,
-        SingleValue,
-        DropdownIndicator,
-        IndicatorSeparator: null,
-        ...props.components,
-      }}
-      isClearable={props.isClearable ?? false}
-      isSearchable={props.isSearchable ?? false}
-      onMenuOpen={props.onMenuOpen}
-      styles={selectStyle({ size })}
-    />
-  );
-}
-
 export function selectStyle<
-  V,
-  Option extends LabelValueSelectOption<V>,
+  Option,
   IsMulti extends boolean = false,
   Group extends GroupBase<Option> = GroupBase<Option>,
 >({ size }: { size: InputSizeKeys }): StylesConfig<Option, IsMulti, Group> {
@@ -230,4 +174,10 @@ export function selectStyle<
       color: themeContrast('inputPlaceholder')({ theme }),
     }),
   };
+}
+
+export interface LabelValueSelectOption<V = string> {
+  Icon?: React.ReactNode;
+  label: string;
+  value: V;
 }

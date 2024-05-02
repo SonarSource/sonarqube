@@ -130,7 +130,7 @@ export default class BulkApplyTemplateModal extends React.PureComponent<Props, S
     }
   };
 
-  handlePermissionTemplateChange = ({ value }: LabelValueSelectOption<string>) => {
+  handlePermissionTemplateChange = ({ value }: LabelValueSelectOption) => {
     this.setState({ permissionTemplate: value });
   };
 

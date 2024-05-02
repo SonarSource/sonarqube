@@ -256,6 +256,6 @@ export default function GitHubProjectCreate(props: Readonly<Props>) {
 function transformToOption({
   key,
   name,
-}: GithubOrganization | GithubRepository): LabelValueSelectOption<string> {
+}: GithubOrganization | GithubRepository): LabelValueSelectOption {
   return { value: key, label: name };
 }

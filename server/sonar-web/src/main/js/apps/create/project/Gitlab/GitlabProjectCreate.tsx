@@ -200,6 +200,6 @@ export default function GitlabProjectCreate(props: Readonly<Props>) {
   );
 }
 
-function transformToOption({ id, name }: GitlabProject): LabelValueSelectOption<string> {
+function transformToOption({ id, name }: GitlabProject): LabelValueSelectOption {
   return { value: id, label: name };
 }

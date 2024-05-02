@@ -20,8 +20,8 @@
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { renderWithContext } from '../../../helpers/testUtils';
+import { LabelValueSelectOption } from '../../../sonar-aligned';
 import { FCProps } from '../../../types/misc';
-import { LabelValueSelectOption } from '../InputSelect';
 import { SearchSelectDropdown } from '../SearchSelectDropdown';
 
 const defaultOptions = [

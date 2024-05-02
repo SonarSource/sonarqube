@@ -24,7 +24,7 @@ import { FCProps } from '../../../types/misc';
 import { DiscreetSelect } from '../DiscreetSelect';
 
 it('should render discreet select and invoke CB on value click', async () => {
-  const value = 'foo';
+  const value = options[0];
   const setValue = jest.fn();
 
   const user = userEvent.setup();
@@ -36,24 +36,21 @@ it('should render discreet select and invoke CB on value click', async () => {
   expect(setValue).toHaveBeenCalled();
 });
 
+const options = [
+  { label: 'foo-bar', value: 'foo', default: 1 },
+  {
+    label: 'bar-foo',
+    value: 'bar',
+    Icon: (
+      <span role="note" title="Icon">
+        Icon
+      </span>
+    ),
+  },
+];
+
 function setupWithProps(props: Partial<FCProps<typeof DiscreetSelect>>) {
   return render(
-    <DiscreetSelect
-      options={[
-        { label: 'foo-bar', value: 'foo' },
-        {
-          label: 'bar-foo',
-          value: 'bar',
-          Icon: (
-            <span role="note" title="Icon">
-              Icon
-            </span>
-          ),
-        },
-      ]}
-      setValue={jest.fn()}
-      value="foo"
-      {...props}
-    />,
+    <DiscreetSelect options={options} setValue={jest.fn()} value={options[0]} {...props} />,
   );
 }

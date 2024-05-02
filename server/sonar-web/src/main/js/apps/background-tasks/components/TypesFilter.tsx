@@ -30,7 +30,7 @@ interface Props {
 }
 
 export default class TypesFilter extends React.PureComponent<Props> {
-  handleChange = ({ value }: LabelValueSelectOption<string>) => {
+  handleChange = ({ value }: LabelValueSelectOption) => {
     this.props.onChange(value);
   };
 
@@ -43,7 +43,7 @@ export default class TypesFilter extends React.PureComponent<Props> {
       };
     });
 
-    const allOptions: LabelValueSelectOption<string>[] = [
+    const allOptions: LabelValueSelectOption[] = [
       { value: ALL_TYPES, label: translate('background_task.type.ALL') },
       ...options,
     ];

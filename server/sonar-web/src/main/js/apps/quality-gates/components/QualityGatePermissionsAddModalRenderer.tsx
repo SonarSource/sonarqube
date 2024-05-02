@@ -77,7 +77,9 @@ export default function QualityGatePermissionsAddModalRenderer(
               noOptionsMessage={() => translate('no_results')}
               onChange={props.onSelection}
               loadOptions={props.handleSearch}
-              getOptionValue={({ value }) => (isUser(value) ? value.login : value.name)}
+              getOptionValue={({ value }: LabelValueSelectOption<UserBase | UserGroup>) =>
+                isUser(value) ? value.login : value.name
+              }
               controlLabel={renderedSelection}
               components={{
                 Option,

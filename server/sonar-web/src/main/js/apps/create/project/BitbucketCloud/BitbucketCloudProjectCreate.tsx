@@ -212,9 +212,6 @@ export default function BitbucketCloudProjectCreate(props: Readonly<Props>) {
   );
 }
 
-function transformToOption({
-  name,
-  slug,
-}: BitbucketCloudRepository): LabelValueSelectOption<string> {
+function transformToOption({ name, slug }: BitbucketCloudRepository): LabelValueSelectOption {
   return { value: slug, label: name };
 }

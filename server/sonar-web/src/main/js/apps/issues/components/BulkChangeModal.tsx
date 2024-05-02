@@ -54,7 +54,7 @@ interface Props {
 
 interface FormFields {
   addTags?: Array<string>;
-  assignee?: SingleValue<LabelValueSelectOption<string>>;
+  assignee?: SingleValue<LabelValueSelectOption>;
   comment?: string;
   notifications?: boolean;
   removeTags?: Array<string>;
@@ -126,7 +126,7 @@ export class BulkChangeModal extends React.PureComponent<Props, State> {
     return this.props.fetchIssues({ additionalFields: 'actions,transitions', ps: MAX_PAGE_SIZE });
   };
 
-  handleAssigneeSelect = (assignee: SingleValue<LabelValueSelectOption<string>>) => {
+  handleAssigneeSelect = (assignee: SingleValue<LabelValueSelectOption>) => {
     this.setState({ assignee });
   };
 

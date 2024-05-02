@@ -18,44 +18,30 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import styled from '@emotion/styled';
+import { GroupBase, OnChangeValue } from 'react-select';
 import tw from 'twin.macro';
 import { themeBorder, themeColor, themeContrast } from '../../helpers/theme';
-import { InputSizeKeys } from '../../types/theme';
-import { InputSelect, LabelValueSelectOption } from './InputSelect';
+import { InputSelect, SelectProps } from '../../sonar-aligned/components/input';
 
-interface Props<V> {
-  className?: string;
-  components?: Parameters<typeof InputSelect>[0]['components'];
+type DiscreetProps<
+  Option,
+  IsMulti extends boolean = false,
+  Group extends GroupBase<Option> = GroupBase<Option>,
+> = SelectProps<Option, IsMulti, Group> & {
   customValue?: JSX.Element;
-  isDisabled?: boolean;
-  menuIsOpen?: boolean;
-  onMenuClose?: () => void;
-  onMenuOpen?: () => void;
-  options: Array<LabelValueSelectOption<V>>;
-  setValue: ({ value }: LabelValueSelectOption<V>) => void;
-  size?: InputSizeKeys;
-  value: V;
-}
+  setValue: (value: OnChangeValue<Option, IsMulti>) => void;
+};
 
-export function DiscreetSelect<V>({
-  className,
-  customValue,
-  onMenuOpen,
-  options,
-  size = 'small',
-  setValue,
-  value,
-  ...props
-}: Props<V>) {
+export function DiscreetSelect<
+  Option,
+  IsMulti extends boolean = false,
+  Group extends GroupBase<Option> = GroupBase<Option>,
+>({ customValue, size = 'small', setValue, ...props }: DiscreetProps<Option, IsMulti, Group>) {
   return (
-    <StyledSelect
-      className={className}
+    <StyledSelect<Option, IsMulti, Group>
       onChange={setValue}
-      onMenuOpen={onMenuOpen}
-      options={options}
       placeholder={customValue}
       size={size}
-      value={options.find((item) => item.value === value)}
       {...props}
     />
   );
@@ -121,4 +107,4 @@ const StyledSelect = styled(InputSelect)`
   & .react-select__control--menu-is-open {
     ${tw`sw-border-none`};
   }
-`;
+` as typeof InputSelect;

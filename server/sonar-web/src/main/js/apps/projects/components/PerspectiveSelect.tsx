@@ -57,7 +57,7 @@ export default class PerspectiveSelect extends React.PureComponent<Props> {
         <InputSelect
           aria-labelledby="aria-projects-perspective"
           className="sw-mr-4 sw-body-sm"
-          onChange={(data: LabelValueSelectOption<string>) => this.handleChange(data)}
+          onChange={(data: LabelValueSelectOption) => this.handleChange(data)}
           options={options}
           placeholder={translate('project_activity.filter_events')}
           size="small"

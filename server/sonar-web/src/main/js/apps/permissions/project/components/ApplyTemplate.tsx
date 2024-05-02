@@ -89,7 +89,7 @@ export default class ApplyTemplate extends React.PureComponent<Props, State> {
     }
   };
 
-  handlePermissionTemplateChange = ({ value }: LabelValueSelectOption<string>) => {
+  handlePermissionTemplateChange = ({ value }: LabelValueSelectOption) => {
     this.setState({ permissionTemplate: value });
   };
 

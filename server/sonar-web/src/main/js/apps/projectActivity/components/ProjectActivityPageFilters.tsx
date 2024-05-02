@@ -45,7 +45,7 @@ export default function ProjectActivityPageFilters(props: ProjectActivityPageFil
   const eventTypes = isApp
     ? Object.values(ApplicationAnalysisEventCategory)
     : Object.values(ProjectAnalysisEventCategory);
-  const options: LabelValueSelectOption<string>[] = eventTypes.map((category) => ({
+  const options: LabelValueSelectOption[] = eventTypes.map((category) => ({
     label: translate('event.category', category),
     value: category,
   }));
@@ -64,7 +64,7 @@ export default function ProjectActivityPageFilters(props: ProjectActivityPageFil
           aria-label={translate('project_activity.filter_events')}
           className="sw-mr-8 sw-body-sm sw-w-abs-200"
           isClearable
-          onChange={(data: LabelValueSelectOption<string>) => handleCategoryChange(data)}
+          onChange={(data: LabelValueSelectOption) => handleCategoryChange(data)}
           options={options}
           placeholder={translate('project_activity.filter_events')}
           size="full"

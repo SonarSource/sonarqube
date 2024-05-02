@@ -33,9 +33,9 @@ import {
   useDayPicker,
 } from 'react-day-picker';
 import { useIntl } from 'react-intl';
+import { InputSelect } from '../../sonar-aligned/components/input';
 import { InteractiveIcon } from '../InteractiveIcon';
 import { ChevronLeftIcon, ChevronRightIcon } from '../icons';
-import { InputSelect } from './InputSelect';
 
 const YEARS_TO_DISPLAY = 10;
 const MONTHS_IN_A_YEAR = 12;
