@@ -21,6 +21,7 @@ package org.sonar.server.platform.ws;
 
 import com.google.common.io.Resources;
 import java.util.Optional;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -55,11 +56,14 @@ public class DbMigrationStatusAction implements SystemWsAction {
   @Override
   public void define(WebService.NewController controller) {
     controller.createAction("db_migration_status")
+      .setHandler(this)
       .setDescription("Display the database migration status of SonarQube." +
         "<br/>" +
         statusDescription())
       .setSince("5.2")
-      .setHandler(this)
+      .setDeprecatedSince("10.6")
+      .setChangelog(
+        new Change("10.6", "This endpoint is deprecated, please use its API v2 version /api/v2/system/migrations-status instead."))
       .setResponseExample(Resources.getResource(this.getClass(), "example-migrate_db.json"));
   }
 
