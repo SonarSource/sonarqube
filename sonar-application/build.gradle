@@ -1,3 +1,5 @@
+import groovy.json.JsonBuilder
+import groovy.json.JsonSlurper
 import org.apache.tools.ant.filters.ReplaceTokens
 import org.sonar.build.LicenseReader
 
@@ -106,9 +108,23 @@ downloadLicenses {
   dependencyConfiguration = 'appLicenses'
 }
 
+tasks.register('downloadJres') {
+  doLast {
+    def jresMetadata = new JsonSlurper().parse(file(layout.projectDirectory.dir('src/main/resources/jres-metadata.json').asFile))
+    jresMetadata.each { jre ->
+      downloadJreFromAdoptium(jre.os, jre.arch, jre.filename, jre.sha256)
+    }
+  }
+}
+
 task zip(type: Zip, dependsOn: [configurations.compileClasspath]) {
   duplicatesStrategy DuplicatesStrategy.EXCLUDE
   def archiveDir = "sonarqube-$project.version"
+
+  dependsOn tasks.downloadJres
+  into("${archiveDir}/jres") {
+    from(layout.buildDirectory.dir('jres'))
+  }
 
   if(release) {
     dependsOn tasks.downloadLicenses
@@ -322,7 +338,7 @@ task zip(type: Zip, dependsOn: [configurations.compileClasspath]) {
 // Check the size of the archive
 zip.doLast {
   def minLength = 340000000
-  def maxLength = 476000000
+  def maxLength = 727000000
 
   def length = archiveFile.get().asFile.length()
   if (length < minLength)
@@ -376,5 +392,61 @@ publishing {
         artifact bomArtifact
       }
     }
+  }
+}
+
+String.metaClass.urlEncode = { -> URLEncoder.encode(delegate as String, 'UTF-8') }
+ext {
+  WINDOWS = 'windows'
+  MAC = 'mac'
+  ALPINE_ADOPTIUM = 'alpine-linux'
+  ALPINE = 'alpine'
+}
+
+/**
+ * Run this task only when you want to update embedded JREs metadata. Please double check the generated file jres-metadata.json before committing.
+ */
+tasks.register('updateJresMetadata') {
+  doLast {
+    // download JSON file from Adoptium API
+    URL apiUrl = new URL("https://api.adoptium.net/v3/assets/release_name/eclipse/${jre_release_name.urlEncode()}?heap_size=normal&image_type=jre&project=jdk")
+    def response = new JsonSlurper().parse(apiUrl)
+
+    def metadataContent = []
+
+    def supportedOsAndArch = [[os:'linux', arch:'x64'], [os:'linux', arch:'aarch64'], [os:ext.ALPINE_ADOPTIUM, arch:'x64'], [os: ext.WINDOWS, arch:'x64'], [os:ext.MAC, arch:'x64'], [os:'mac', arch:'aarch64']]
+
+    for (jreFlavor in supportedOsAndArch) {
+      var candidates = response.binaries.findAll {
+        it.os == jreFlavor.os && it.architecture == jreFlavor.arch
+      }
+      assert candidates.size() == 1, "Expected one JRE package for ${jreFlavor.os} ${jreFlavor.arch} but got ${candidates.size()}"
+      var jre = candidates[0]
+      metadataContent <<  [
+          'id': UUID.randomUUID(),
+          'filename': jre.package.name,
+          'sha256': jre.package.checksum,
+          'javaPath': "${jre_release_name}-jre" + (jreFlavor.os == ext.MAC ? '/Contents/Home' : '') + '/bin/java' + (jreFlavor.os == ext.WINDOWS ? '.exe' : ''),
+          'os': jreFlavor.os.replace(ext.ALPINE_ADOPTIUM, ext.ALPINE),
+          'arch': jreFlavor.arch
+        ]
+    }
+
+    def jresMetadata = file(layout.projectDirectory.dir('src/main/resources/jres-metadata.json').asFile)
+    jresMetadata.text = new JsonBuilder(metadataContent).toPrettyString()
+  }
+}
+
+def downloadJreFromAdoptium(os, arch, filename, sha256) {
+  def jreFile = layout.buildDirectory.file("jres/${filename}")
+  download.run {
+    src "https://api.adoptium.net/v3/binary/version/${jre_release_name.urlEncode()}/${os.replace(ext.ALPINE, ext.ALPINE_ADOPTIUM).urlEncode()}/${arch.urlEncode()}/jre/hotspot/normal/eclipse?project=jdk"
+    dest jreFile
+    overwrite false
+  }
+  verifyChecksum.run {
+    src jreFile
+    algorithm 'SHA-256'
+    checksum sha256
   }
 }
