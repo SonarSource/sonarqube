@@ -19,7 +19,6 @@
  */
 package org.sonar.server.qualitygate;
 
-import org.sonar.core.util.UuidFactory;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -32,19 +31,16 @@ import static org.sonar.server.util.Validation.IS_ALREADY_USED_MESSAGE;
 public class QualityGateUpdater {
 
   private final DbClient dbClient;
-  private final UuidFactory uuidFactory;
 
-  public QualityGateUpdater(DbClient dbClient, UuidFactory uuidFactory) {
+  public QualityGateUpdater(DbClient dbClient) {
     this.dbClient = dbClient;
-    this.uuidFactory = uuidFactory;
   }
 
   public QualityGateDto create(DbSession dbSession, String name) {
     validateQualityGate(dbSession, name);
     QualityGateDto newQualityGate = new QualityGateDto()
       .setName(name)
-      .setBuiltIn(false)
-      .setUuid(uuidFactory.create());
+      .setBuiltIn(false);
     dbClient.qualityGateDao().insert(dbSession, newQualityGate);
     return newQualityGate;
   }

@@ -28,7 +28,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.utils.System2;
-import org.sonar.core.util.Uuids;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.BranchDto;
@@ -53,7 +52,6 @@ class QualityGateDaoIT {
   @Test
   void insert() {
     QualityGateDto newQgate = new QualityGateDto()
-      .setUuid(Uuids.createFast())
       .setName("My Quality Gate")
       .setBuiltIn(false)
       .setUpdatedAt(new Date());
@@ -71,7 +69,7 @@ class QualityGateDaoIT {
 
   @Test
   void insert_built_in() {
-    underTest.insert(db.getSession(), new QualityGateDto().setName("test").setBuiltIn(true).setUuid(Uuids.createFast()));
+    underTest.insert(db.getSession(), new QualityGateDto().setName("test").setBuiltIn(true));
 
     QualityGateDto reloaded = underTest.selectByName(db.getSession(), "test");
 

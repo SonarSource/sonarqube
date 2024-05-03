@@ -29,10 +29,8 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -65,8 +63,7 @@ public class CreateActionIT {
 
   private final DbClient dbClient = db.getDbClient();
   private final DbSession dbSession = db.getSession();
-  private final CreateAction underTest = new CreateAction(dbClient, userSession, new QualityGateUpdater(dbClient,
-    UuidFactoryFast.getInstance()),
+  private final CreateAction underTest = new CreateAction(dbClient, userSession, new QualityGateUpdater(dbClient),
     new QualityGateConditionsUpdater(dbClient));
   private final WsActionTester ws = new WsActionTester(underTest);
 
