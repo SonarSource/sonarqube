@@ -17,253 +17,244 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
-import { Location, Router } from '~sonar-aligned/types/router';
+import { LabelValueSelectOption } from 'design-system';
+import React, { useCallback, useMemo } from 'react';
+import { GroupBase } from 'react-select';
+import { useLocation } from '~sonar-aligned/components/hoc/withRouter';
 import {
   getBitbucketServerProjects,
   getBitbucketServerRepositories,
   searchForBitbucketServerRepositories,
 } from '../../../../api/alm-integrations';
-import {
-  BitbucketProject,
-  BitbucketProjectRepositories,
-  BitbucketRepository,
-} from '../../../../types/alm-integration';
-import { AlmSettingsInstance } from '../../../../types/alm-settings';
+import { BitbucketProject, BitbucketRepository } from '../../../../types/alm-integration';
+import { AlmKeys } from '../../../../types/alm-settings';
+import { DopSetting } from '../../../../types/dop-translation';
+import { Dict } from '../../../../types/types';
 import { ImportProjectParam } from '../CreateProjectPage';
-import { DEFAULT_BBS_PAGE_SIZE } from '../constants';
+import MonorepoProjectCreate from '../monorepo/MonorepoProjectCreate';
 import { CreateProjectModes } from '../types';
+import { useProjectCreate } from '../useProjectCreate';
+import { useProjectRepositorySearch } from '../useProjectRepositorySearch';
 import BitbucketCreateProjectRenderer from './BitbucketProjectCreateRenderer';
+import BitbucketServerPersonalAccessTokenForm from './BitbucketServerPersonalAccessTokenForm';
 
 interface Props {
-  almInstances: AlmSettingsInstance[];
-  loadingBindings: boolean;
-  location: Location;
-  router: Router;
+  dopSettings: DopSetting[];
+  isLoadingBindings: boolean;
   onProjectSetupDone: (importProjects: ImportProjectParam) => void;
 }
 
-interface State {
-  selectedAlmInstance?: AlmSettingsInstance;
-  loading: boolean;
-  projects?: BitbucketProject[];
-  projectRepositories?: BitbucketProjectRepositories;
-  searching: boolean;
-  searchResults?: BitbucketRepository[];
-  showPersonalAccessTokenForm: boolean;
-}
+export default function BitbucketProjectCreate({
+  dopSettings,
+  isLoadingBindings,
+  onProjectSetupDone,
+}: Readonly<Props>) {
+  const {
+    almInstances,
+    handlePersonalAccessTokenCreated,
+    handleSelectRepository: defaultRepositorySelect,
+    isLoadingRepositories,
+    isMonorepoSetup,
+    onSelectedAlmInstanceChange,
+    organizations: projects,
+    repositories,
+    resetPersonalAccessToken,
+    searchQuery,
+    selectedAlmInstance,
+    selectedDopSetting,
+    selectedRepository,
+    setIsLoadingRepositories,
+    setOrganizations: setProjects,
+    setRepositories,
+    setSearchQuery,
+    setSelectedDopSetting,
+    setSelectedRepository,
+    setShowPersonalAccessTokenForm,
+    showPersonalAccessTokenForm,
+  } = useProjectCreate<BitbucketRepository, Dict<BitbucketRepository[]>, BitbucketProject>(
+    AlmKeys.BitbucketServer,
+    dopSettings,
+    ({ slug }) => slug,
+  );
 
-export default class BitbucketProjectCreate extends React.PureComponent<Props, State> {
-  mounted = false;
+  const location = useLocation();
 
-  constructor(props: Props) {
-    super(props);
-    this.state = {
-      selectedAlmInstance: props.almInstances[0],
-      loading: false,
-      searching: false,
-      showPersonalAccessTokenForm: true,
-    };
-  }
-
-  componentDidMount() {
-    this.mounted = true;
-  }
-
-  componentDidUpdate(prevProps: Props) {
-    if (prevProps.almInstances.length === 0 && this.props.almInstances.length > 0) {
-      this.setState({ selectedAlmInstance: this.props.almInstances[0] }, () => {
-        this.fetchInitialData().catch(() => {
-          /* noop */
-        });
-      });
+  const fetchBitbucketProjects = useCallback((): Promise<BitbucketProject[] | undefined> => {
+    if (!selectedDopSetting) {
+      return Promise.resolve(undefined);
     }
-  }
 
-  componentWillUnmount() {
-    this.mounted = false;
-  }
+    return getBitbucketServerProjects(selectedDopSetting.key).then(({ projects }) => projects);
+  }, [selectedDopSetting]);
 
-  fetchInitialData = async () => {
-    const { showPersonalAccessTokenForm } = this.state;
+  const fetchBitbucketRepositories = useCallback(
+    (projects: BitbucketProject[]): Promise<Dict<BitbucketRepository[]> | undefined> => {
+      if (!selectedDopSetting) {
+        return Promise.resolve(undefined);
+      }
 
+      return Promise.all(
+        projects.map((p) => {
+          return getBitbucketServerRepositories(selectedDopSetting.key, p.name).then(
+            ({ repositories }) => {
+              // Because the WS uses the project name rather than its key to find
+              // repositories, we can match more repositories than we expect. For
+              // example, p.name = "A1" would find repositories for projects "A1",
+              // "A10", "A11", etc. This is a limitation of BBS. To make sure we
+              // don't display incorrect information, filter on the project key.
+              const filteredRepositories = repositories.filter((r) => r.projectKey === p.key);
+
+              return {
+                repositories: filteredRepositories,
+                projectKey: p.key,
+              };
+            },
+          );
+        }),
+      ).then((results) => {
+        return results.reduce((acc: Dict<BitbucketRepository[]>, { projectKey, repositories }) => {
+          return { ...acc, [projectKey]: repositories };
+        }, {});
+      });
+    },
+    [selectedDopSetting],
+  );
+
+  const handleImportRepository = useCallback(
+    (selectedRepository: BitbucketRepository) => {
+      if (selectedDopSetting) {
+        onProjectSetupDone({
+          creationMode: CreateProjectModes.BitbucketServer,
+          almSetting: selectedDopSetting.key,
+          monorepo: false,
+          projects: [
+            {
+              projectKey: selectedRepository.projectKey,
+              repositorySlug: selectedRepository.slug,
+            },
+          ],
+        });
+      }
+    },
+    [onProjectSetupDone, selectedDopSetting],
+  );
+
+  const handleMonorepoSetupDone = useCallback(
+    (monorepoSetup: ImportProjectParam) => {
+      const bitbucketMonorepoSetup = {
+        ...monorepoSetup,
+        projectIdentifier: selectedRepository?.projectKey,
+      };
+
+      onProjectSetupDone(bitbucketMonorepoSetup);
+    },
+    [onProjectSetupDone, selectedRepository?.projectKey],
+  );
+
+  const fetchData = useCallback(async () => {
     if (!showPersonalAccessTokenForm) {
-      this.setState({ loading: true });
-      const projects = await this.fetchBitbucketProjects().catch(() => undefined);
+      setIsLoadingRepositories(true);
+      const projects = await fetchBitbucketProjects().catch(() => undefined);
 
       let projectRepositories;
       if (projects && projects.length > 0) {
-        projectRepositories = await this.fetchBitbucketRepositories(projects).catch(
-          () => undefined,
-        );
+        projectRepositories = await fetchBitbucketRepositories(projects).catch(() => undefined);
       }
 
-      if (this.mounted) {
-        this.setState({
-          projects,
-          projectRepositories,
-          loading: false,
-        });
+      setProjects(projects ?? []);
+      setRepositories(projectRepositories ?? {});
+      setIsLoadingRepositories(false);
+    }
+  }, [
+    fetchBitbucketProjects,
+    fetchBitbucketRepositories,
+    showPersonalAccessTokenForm,
+    setIsLoadingRepositories,
+    setProjects,
+    setRepositories,
+  ]);
+
+  const { isSearching, onSearch, onSelectRepository, searchResults } =
+    useProjectRepositorySearch<BitbucketRepository>({
+      defaultRepositorySelect,
+      fetchData,
+      fetchSearchResults: (query: string, dopKey: string) =>
+        searchForBitbucketServerRepositories(dopKey, query),
+      getRepositoryKey: ({ slug }) => slug,
+      isMonorepoSetup,
+      selectedDopSetting,
+      setSearchQuery,
+      setSelectedRepository,
+      setShowPersonalAccessTokenForm,
+    });
+
+  const repositoryOptions = useMemo(() => {
+    if (searchResults) {
+      const dict = projects?.reduce((acc: Dict<BitbucketRepository[]>, { key }) => {
+        return { ...acc, [key]: searchResults?.filter((o) => o.projectKey === key) };
+      }, {});
+      return transformToOptions(projects ?? [], dict);
+    }
+
+    return transformToOptions(projects ?? [], repositories);
+  }, [projects, repositories, searchResults]);
+
+  return isMonorepoSetup ? (
+    <MonorepoProjectCreate
+      dopSettings={dopSettings}
+      error={false}
+      loadingBindings={isLoadingBindings}
+      loadingOrganizations={false}
+      loadingRepositories={isLoadingRepositories}
+      onProjectSetupDone={handleMonorepoSetupDone}
+      onSearchRepositories={onSearch}
+      onSelectDopSetting={setSelectedDopSetting}
+      onSelectRepository={onSelectRepository}
+      personalAccessTokenComponent={
+        !isLoadingRepositories &&
+        selectedDopSetting && (
+          <BitbucketServerPersonalAccessTokenForm
+            almSetting={selectedDopSetting}
+            onPersonalAccessTokenCreated={handlePersonalAccessTokenCreated}
+            resetPat={resetPersonalAccessToken}
+          />
+        )
       }
-    }
-  };
+      repositoryOptions={repositoryOptions}
+      repositorySearchQuery={searchQuery}
+      selectedDopSetting={selectedDopSetting}
+      selectedRepository={selectedRepository ? transformToOption(selectedRepository) : undefined}
+      showPersonalAccessToken={showPersonalAccessTokenForm || Boolean(location.query.resetPat)}
+    />
+  ) : (
+    <BitbucketCreateProjectRenderer
+      almInstances={almInstances}
+      isLoading={isLoadingRepositories || isLoadingBindings}
+      onImportRepository={handleImportRepository}
+      onPersonalAccessTokenCreated={handlePersonalAccessTokenCreated}
+      onSearch={onSearch}
+      onSelectedAlmInstanceChange={onSelectedAlmInstanceChange}
+      projectRepositories={repositories}
+      projects={projects}
+      resetPat={Boolean(location.query.resetPat)}
+      searchResults={searchResults}
+      searching={isSearching}
+      selectedAlmInstance={selectedAlmInstance}
+      showPersonalAccessTokenForm={showPersonalAccessTokenForm || Boolean(location.query.resetPat)}
+    />
+  );
+}
 
-  fetchBitbucketProjects = (): Promise<BitbucketProject[] | undefined> => {
-    const { selectedAlmInstance } = this.state;
+function transformToOptions(
+  projects: BitbucketProject[],
+  repositories?: Dict<BitbucketRepository[]>,
+): Array<GroupBase<LabelValueSelectOption<string>>> {
+  return projects.map(({ name, key }) => ({
+    label: name,
+    options: repositories?.[key] !== undefined ? repositories[key].map(transformToOption) : [],
+  }));
+}
 
-    if (!selectedAlmInstance) {
-      return Promise.resolve(undefined);
-    }
-
-    return getBitbucketServerProjects(selectedAlmInstance.key).then(({ projects }) => projects);
-  };
-
-  fetchBitbucketRepositories = (
-    projects: BitbucketProject[],
-  ): Promise<BitbucketProjectRepositories | undefined> => {
-    const { selectedAlmInstance } = this.state;
-
-    if (!selectedAlmInstance) {
-      return Promise.resolve(undefined);
-    }
-
-    return Promise.all(
-      projects.map((p) => {
-        return getBitbucketServerRepositories(selectedAlmInstance.key, p.name).then(
-          ({ isLastPage, repositories }) => {
-            // Because the WS uses the project name rather than its key to find
-            // repositories, we can match more repositories than we expect. For
-            // example, p.name = "A1" would find repositories for projects "A1",
-            // "A10", "A11", etc. This is a limitation of BBS. To make sure we
-            // don't display incorrect information, filter on the project key.
-            const filteredRepositories = repositories.filter((r) => r.projectKey === p.key);
-
-            // And because of the above, the "isLastPage" cannot be relied upon
-            // either. This one is impossible to get 100% for now. We can only
-            // make some assumptions: by default, the page size for BBS is 25
-            // (this is not part of the payload, so we don't know the actual
-            // number; but changing this implies changing some advanced config,
-            // so it's not likely). If the filtered repos is larger than this
-            // number AND isLastPage is false, we'll keep it at false.
-            // Otherwise, we assume it's true.
-            const realIsLastPage =
-              isLastPage || filteredRepositories.length < DEFAULT_BBS_PAGE_SIZE;
-
-            return {
-              repositories: filteredRepositories,
-              isLastPage: realIsLastPage,
-              projectKey: p.key,
-            };
-          },
-        );
-      }),
-    ).then((results) => {
-      return results.reduce(
-        (acc: BitbucketProjectRepositories, { isLastPage, projectKey, repositories }) => {
-          return { ...acc, [projectKey]: { allShown: isLastPage, repositories } };
-        },
-        {},
-      );
-    });
-  };
-
-  cleanUrl = () => {
-    const { location, router } = this.props;
-    delete location.query.resetPat;
-    router.replace(location);
-  };
-
-  handlePersonalAccessTokenCreated = () => {
-    this.cleanUrl();
-
-    this.setState({ showPersonalAccessTokenForm: false }, () => {
-      this.fetchInitialData();
-    });
-  };
-
-  handleImportRepository = (selectedRepository: BitbucketRepository) => {
-    const { selectedAlmInstance } = this.state;
-
-    if (selectedAlmInstance) {
-      this.props.onProjectSetupDone({
-        creationMode: CreateProjectModes.BitbucketServer,
-        almSetting: selectedAlmInstance.key,
-        monorepo: false,
-        projects: [
-          {
-            projectKey: selectedRepository.projectKey,
-            repositorySlug: selectedRepository.slug,
-          },
-        ],
-      });
-    }
-  };
-
-  handleSearch = (query: string) => {
-    const { selectedAlmInstance } = this.state;
-
-    if (!selectedAlmInstance) {
-      return;
-    }
-
-    if (!query) {
-      this.setState({ searching: false, searchResults: undefined });
-      return;
-    }
-
-    this.setState({ searching: true });
-    searchForBitbucketServerRepositories(selectedAlmInstance.key, query)
-      .then(({ repositories }) => {
-        if (this.mounted) {
-          this.setState({ searching: false, searchResults: repositories });
-        }
-      })
-      .catch(() => {
-        if (this.mounted) {
-          this.setState({ searching: false });
-        }
-      });
-  };
-
-  onSelectedAlmInstanceChange = (instance: AlmSettingsInstance) => {
-    this.setState({
-      selectedAlmInstance: instance,
-      showPersonalAccessTokenForm: true,
-      searching: false,
-      searchResults: undefined,
-    });
-  };
-
-  render() {
-    const { loadingBindings, location, almInstances } = this.props;
-    const {
-      selectedAlmInstance,
-      loading,
-      projectRepositories,
-      projects,
-      searching,
-      searchResults,
-      showPersonalAccessTokenForm,
-    } = this.state;
-
-    return (
-      <BitbucketCreateProjectRenderer
-        selectedAlmInstance={selectedAlmInstance}
-        almInstances={almInstances}
-        loading={loading || loadingBindings}
-        onImportRepository={this.handleImportRepository}
-        onPersonalAccessTokenCreated={this.handlePersonalAccessTokenCreated}
-        onSearch={this.handleSearch}
-        onSelectedAlmInstanceChange={this.onSelectedAlmInstanceChange}
-        projectRepositories={projectRepositories}
-        projects={projects}
-        resetPat={Boolean(location.query.resetPat)}
-        searchResults={searchResults}
-        searching={searching}
-        showPersonalAccessTokenForm={
-          showPersonalAccessTokenForm || Boolean(location.query.resetPat)
-        }
-      />
-    );
-  }
+function transformToOption({ name, slug }: BitbucketRepository): LabelValueSelectOption<string> {
+  return { value: slug, label: name };
 }

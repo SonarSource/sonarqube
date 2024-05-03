@@ -29,7 +29,7 @@ import withAvailableFeatures, {
   WithAvailableFeaturesProps,
 } from '../../../app/components/available-features/withAvailableFeatures';
 import { translate } from '../../../helpers/l10n';
-import { AlmKeys, AlmSettingsInstance } from '../../../types/alm-settings';
+import { AlmKeys } from '../../../types/alm-settings';
 import { DopSetting } from '../../../types/dop-translation';
 import { Feature } from '../../../types/features';
 import AlmBindingDefinitionForm from '../../settings/components/almIntegration/AlmBindingDefinitionForm';
@@ -50,7 +50,7 @@ export interface CreateProjectPageProps extends WithAvailableFeaturesProps {
 
 interface State {
   azureSettings: DopSetting[];
-  bitbucketSettings: AlmSettingsInstance[];
+  bitbucketSettings: DopSetting[];
   bitbucketCloudSettings: DopSetting[];
   githubSettings: DopSetting[];
   gitlabSettings: DopSetting[];
@@ -192,9 +192,7 @@ export class CreateProjectPage extends React.PureComponent<CreateProjectPageProp
       .then(({ dopSettings }) => {
         this.setState({
           azureSettings: dopSettings.filter(({ type }) => type === AlmKeys.Azure),
-          bitbucketSettings: dopSettings
-            .filter(({ type }) => type === AlmKeys.BitbucketServer)
-            .map(({ key, type, url }) => ({ alm: type, key, url })),
+          bitbucketSettings: dopSettings.filter(({ type }) => type === AlmKeys.BitbucketServer),
           bitbucketCloudSettings: dopSettings.filter(({ type }) => type === AlmKeys.BitbucketCloud),
           githubSettings: dopSettings.filter(({ type }) => type === AlmKeys.GitHub),
           gitlabSettings: dopSettings.filter(({ type }) => type === AlmKeys.GitLab),
@@ -250,7 +248,6 @@ export class CreateProjectPage extends React.PureComponent<CreateProjectPageProp
   };
 
   renderProjectCreation(mode?: CreateProjectModes) {
-    const { location, router } = this.props;
     const {
       azureSettings,
       bitbucketSettings,
@@ -275,10 +272,8 @@ export class CreateProjectPage extends React.PureComponent<CreateProjectPageProp
       case CreateProjectModes.BitbucketServer: {
         return (
           <BitbucketProjectCreate
-            almInstances={bitbucketSettings}
-            loadingBindings={loading}
-            location={location}
-            router={router}
+            dopSettings={bitbucketSettings}
+            isLoadingBindings={loading}
             onProjectSetupDone={this.handleProjectSetupDone}
           />
         );

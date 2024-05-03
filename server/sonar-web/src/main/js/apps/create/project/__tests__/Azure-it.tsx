@@ -90,7 +90,9 @@ it('should ask for PAT when it is not set yet and show the import project featur
   expect(await screen.findByText('onboarding.create_project.azure.title')).toBeInTheDocument();
   expect(screen.getByText('alm.configuration.selector.label.alm.azure.long')).toBeInTheDocument();
 
-  expect(screen.getByText('onboarding.create_project.enter_pat')).toBeInTheDocument();
+  await selectEvent.select(ui.instanceSelector.get(), [/conf-azure-1/]);
+
+  expect(await screen.findByText('onboarding.create_project.enter_pat')).toBeInTheDocument();
   expect(screen.getByText('onboarding.create_project.pat_form.title')).toBeInTheDocument();
   expect(screen.getByRole('button', { name: 'save' })).toBeInTheDocument();
 
@@ -135,11 +137,13 @@ it('should show import project feature when PAT is already set', async () => {
   ).toBeInTheDocument();
 
   await user.type(ui.searchbox.get(), 'repo 2');
-  expect(
-    screen.queryByRole('listitem', {
-      name: 'Azure repo 1',
-    }),
-  ).not.toBeInTheDocument();
+  await waitFor(() =>
+    expect(
+      screen.queryByRole('listitem', {
+        name: 'Azure repo 1',
+      }),
+    ).not.toBeInTheDocument(),
+  );
   expect(
     screen.queryByRole('listitem', {
       name: 'Azure repo 3',
@@ -199,7 +203,7 @@ it('should show search filter when PAT is already set', async () => {
   await user.click(inputSearch);
   await user.keyboard('s');
 
-  expect(searchAzureRepositories).toHaveBeenCalledWith('conf-azure-2', 's');
+  await waitFor(() => expect(searchAzureRepositories).toHaveBeenCalledWith('conf-azure-2', 's'));
 
   // Should search with empty results
   almIntegrationHandler.setSearchAzureRepositories([]);

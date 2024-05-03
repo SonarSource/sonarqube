@@ -29,7 +29,7 @@ import { REPOSITORY_PAGE_SIZE } from '../constants';
 import MonorepoProjectCreate from '../monorepo/MonorepoProjectCreate';
 import { CreateProjectModes } from '../types';
 import { useProjectCreate } from '../useProjectCreate';
-import { useProjectRepositorySearch } from '../useProjectRepositorySearch';
+import { useRepositorySearch } from '../useRepositorySearch';
 import GitHubProjectCreateRenderer from './GitHubProjectCreateRenderer';
 import { redirectToGithub } from './utils';
 
@@ -43,6 +43,7 @@ export default function GitHubProjectCreate(props: Readonly<Props>) {
   const { dopSettings, isLoadingBindings, onProjectSetupDone } = props;
 
   const {
+    almInstances,
     handleSelectRepository,
     isInitialized,
     isLoadingOrganizations,
@@ -54,6 +55,7 @@ export default function GitHubProjectCreate(props: Readonly<Props>) {
     organizations,
     repositories,
     searchQuery,
+    selectedAlmInstance,
     selectedDopSetting,
     selectedRepository,
     setIsInitialized,
@@ -65,11 +67,10 @@ export default function GitHubProjectCreate(props: Readonly<Props>) {
     setSelectedOrganization,
     selectedOrganization,
     setIsLoadingOrganizations,
-  } = useProjectCreate<GithubRepository, GithubOrganization>(
+  } = useProjectCreate<GithubRepository, GithubRepository[], GithubOrganization>(
     AlmKeys.GitHub,
     dopSettings,
     ({ key }) => key,
-    REPOSITORY_PAGE_SIZE,
   );
 
   const [isInError, setIsInError] = useState(false);
@@ -79,10 +80,10 @@ export default function GitHubProjectCreate(props: Readonly<Props>) {
   const router = useRouter();
 
   const organizationOptions = useMemo(() => {
-    return organizations.map(transformToOption);
+    return organizations?.map(transformToOption);
   }, [organizations]);
   const repositoryOptions = useMemo(() => {
-    return repositories.map(transformToOption);
+    return repositories?.map(transformToOption);
   }, [repositories]);
 
   const fetchRepositories = useCallback(
@@ -104,7 +105,7 @@ export default function GitHubProjectCreate(props: Readonly<Props>) {
         .then(({ paging, repositories }) => {
           setProjectsPaging(paging);
           setRepositories((prevRepositories) =>
-            pageIndex === 1 ? repositories : [...prevRepositories, ...repositories],
+            pageIndex === 1 ? repositories : [...(prevRepositories ?? []), ...repositories],
           );
           setIsInitialized(true);
         })
@@ -164,7 +165,7 @@ export default function GitHubProjectCreate(props: Readonly<Props>) {
   const handleSelectOrganization = useCallback(
     (organizationKey: string) => {
       setSearchQuery('');
-      setSelectedOrganization(organizations.find(({ key }) => key === organizationKey));
+      setSelectedOrganization(organizations?.find(({ key }) => key === organizationKey));
     },
     [organizations, setSearchQuery, setSelectedOrganization],
   );
@@ -201,7 +202,7 @@ export default function GitHubProjectCreate(props: Readonly<Props>) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedDopSetting]);
 
-  const { onSearch } = useProjectRepositorySearch(
+  const { onSearch } = useRepositorySearch(
     AlmKeys.GitHub,
     fetchRepositories,
     isInitialized,
@@ -232,11 +233,7 @@ export default function GitHubProjectCreate(props: Readonly<Props>) {
     />
   ) : (
     <GitHubProjectCreateRenderer
-      almInstances={dopSettings.map(({ key, type, url }) => ({
-        alm: type,
-        key,
-        url,
-      }))}
+      almInstances={almInstances}
       error={isInError}
       loadingBindings={isLoadingBindings}
       loadingOrganizations={isLoadingOrganizations}
@@ -250,13 +247,7 @@ export default function GitHubProjectCreate(props: Readonly<Props>) {
       repositories={repositories}
       repositoryPaging={projectsPaging}
       searchQuery={searchQuery}
-      selectedAlmInstance={
-        selectedDopSetting && {
-          alm: selectedDopSetting.type,
-          key: selectedDopSetting.key,
-          url: selectedDopSetting.url,
-        }
-      }
+      selectedAlmInstance={selectedAlmInstance}
       selectedOrganization={selectedOrganization}
     />
   );

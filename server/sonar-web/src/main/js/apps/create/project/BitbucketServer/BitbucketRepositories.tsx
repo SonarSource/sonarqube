@@ -19,17 +19,15 @@
  */
 import { uniq, without } from 'lodash';
 import * as React from 'react';
-import {
-  BitbucketProject,
-  BitbucketProjectRepositories,
-  BitbucketRepository,
-} from '../../../../types/alm-integration';
+import { BitbucketProject, BitbucketRepository } from '../../../../types/alm-integration';
+import { Dict } from '../../../../types/types';
+import { DEFAULT_BBS_PAGE_SIZE } from '../constants';
 import BitbucketProjectAccordion from './BitbucketProjectAccordion';
 
 export interface BitbucketRepositoriesProps {
   onImportRepository: (repo: BitbucketRepository) => void;
   projects: BitbucketProject[];
-  projectRepositories: BitbucketProjectRepositories;
+  projectRepositories: Dict<BitbucketRepository[]>;
 }
 
 export default function BitbucketRepositories(props: BitbucketRepositoriesProps) {
@@ -49,7 +47,7 @@ export default function BitbucketRepositories(props: BitbucketRepositoriesProps)
     <>
       {projects.map((project) => {
         const isOpen = openProjectKeys.includes(project.key);
-        const { allShown, repositories = [] } = projectRepositories[project.key] || {};
+        const repositories = projectRepositories[project.key] ?? [];
 
         return (
           <BitbucketProjectAccordion
@@ -58,7 +56,7 @@ export default function BitbucketRepositories(props: BitbucketRepositoriesProps)
             open={isOpen}
             project={project}
             repositories={repositories}
-            showingAllRepositories={allShown}
+            showingAllRepositories={repositories.length < DEFAULT_BBS_PAGE_SIZE}
             onImportRepository={props.onImportRepository}
           />
         );

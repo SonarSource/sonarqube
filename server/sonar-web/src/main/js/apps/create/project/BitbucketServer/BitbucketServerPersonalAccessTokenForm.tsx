@@ -30,11 +30,11 @@ import {
 import React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { translate } from '../../../../helpers/l10n';
-import { AlmSettingsInstance } from '../../../../types/alm-settings';
+import { AlmInstanceBase } from '../../../../types/alm-settings';
 import { usePersonalAccessToken } from '../usePersonalAccessToken';
 
 interface Props {
-  almSetting: AlmSettingsInstance;
+  almSetting: AlmInstanceBase;
   resetPat: boolean;
   onPersonalAccessTokenCreated: () => void;
 }

@@ -41,28 +41,28 @@ let dopTranslationHandler: DopTranslationServiceMock;
 let newCodePeriodHandler: NewCodeDefinitionServiceMock;
 
 const ui = {
-  cancelButton: byRole('button', { name: 'cancel' }),
   bitbucketCloudCreateProjectButton: byText(
     'onboarding.create_project.select_method.bitbucketcloud',
   ),
   bitbucketCloudOnboardingTitle: byRole('heading', {
     name: 'onboarding.create_project.bitbucketcloud.title',
   }),
+  cancelButton: byRole('button', { name: 'cancel' }),
+  instanceSelector: byLabelText(/alm.configuration.selector.label/),
   monorepoSetupLink: byRole('link', {
     name: 'onboarding.create_project.subtitle_monorepo_setup_link',
   }),
   monorepoTitle: byRole('heading', {
     name: 'onboarding.create_project.monorepo.titlealm.bitbucketcloud',
   }),
+  password: byRole('textbox', {
+    name: /onboarding\.create_project\.bitbucket_cloud\.enter_password/,
+  }),
   personalAccessTokenInput: byRole('textbox', {
     name: /onboarding.create_project.enter_pat/,
   }),
-  instanceSelector: byLabelText(/alm.configuration.selector.label/),
   userName: byRole('textbox', {
     name: /onboarding\.create_project\.bitbucket_cloud\.enter_username/,
-  }),
-  password: byRole('textbox', {
-    name: /onboarding\.create_project\.bitbucket_cloud\.enter_password/,
   }),
 };
 

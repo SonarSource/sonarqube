@@ -34,7 +34,7 @@ export interface AzureProjectsListProps {
   onOpenProject: (key: string) => void;
   onImportRepository: (repository: AzureRepository) => void;
   projects?: AzureProject[];
-  repositories: Dict<AzureRepository[]>;
+  repositories?: Dict<AzureRepository[]>;
   searchResults?: AzureRepository[];
   searchQuery?: string;
 }
@@ -121,7 +121,7 @@ export default function AzureProjectsList(props: AzureProjectsListProps) {
             repositories={
               searchResults
                 ? searchResults.filter((s) => s.projectName === p.name)
-                : repositories[p.name]
+                : repositories?.[p.name]
             }
             searchQuery={searchQuery}
             startsOpen={searchResults !== undefined || i === 0}

@@ -22,11 +22,8 @@ import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { queryToSearchString } from '~sonar-aligned/helpers/urls';
 import { translate } from '../../../../helpers/l10n';
-import {
-  BitbucketProject,
-  BitbucketProjectRepositories,
-  BitbucketRepository,
-} from '../../../../types/alm-integration';
+import { BitbucketProject, BitbucketRepository } from '../../../../types/alm-integration';
+import { Dict } from '../../../../types/types';
 import { CreateProjectModes } from '../types';
 import BitbucketRepositories from './BitbucketRepositories';
 import BitbucketSearchResults from './BitbucketSearchResults';
@@ -35,7 +32,7 @@ export interface BitbucketImportRepositoryFormProps {
   onSearch: (query: string) => void;
   onImportRepository: (repo: BitbucketRepository) => void;
   projects?: BitbucketProject[];
-  projectRepositories?: BitbucketProjectRepositories;
+  projectRepositories?: Dict<BitbucketRepository[]>;
   searching: boolean;
   searchResults?: BitbucketRepository[];
 }

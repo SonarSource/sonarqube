@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { screen, within } from '@testing-library/react';
+import { screen, waitFor, within } from '@testing-library/react';
 
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
@@ -28,7 +28,9 @@ import DopTranslationServiceMock from '../../../../api/mocks/DopTranslationServi
 import NewCodeDefinitionServiceMock from '../../../../api/mocks/NewCodeDefinitionServiceMock';
 import { renderApp } from '../../../../helpers/testReactTestingUtils';
 import { byLabelText, byRole, byText } from '../../../../helpers/testSelector';
+import { Feature } from '../../../../types/features';
 import CreateProjectPage from '../CreateProjectPage';
+import { CreateProjectModes } from '../types';
 
 jest.mock('../../../../api/alm-integrations');
 jest.mock('../../../../api/alm-settings');
@@ -38,7 +40,17 @@ let dopTranslationHandler: DopTranslationServiceMock;
 let newCodePeriodHandler: NewCodeDefinitionServiceMock;
 
 const ui = {
+  bitbucketServerOnboardingTitle: byRole('heading', {
+    name: 'onboarding.create_project.bitbucket.title',
+  }),
   bitbucketServerCreateProjectButton: byText('onboarding.create_project.select_method.bitbucket'),
+  cancelButton: byRole('button', { name: 'cancel' }),
+  monorepoSetupLink: byRole('link', {
+    name: 'onboarding.create_project.subtitle_monorepo_setup_link',
+  }),
+  monorepoTitle: byRole('heading', {
+    name: 'onboarding.create_project.monorepo.titlealm.bitbucket',
+  }),
   personalAccessTokenInput: byRole('textbox', {
     name: /onboarding.create_project.enter_pat/,
   }),
@@ -73,8 +85,9 @@ it('should ask for PAT when it is not set yet and show the import project featur
 
   expect(screen.getByText('onboarding.create_project.bitbucket.title')).toBeInTheDocument();
   expect(await ui.instanceSelector.find()).toBeInTheDocument();
+  await selectEvent.select(ui.instanceSelector.get(), [/conf-bitbucketserver-1/]);
 
-  expect(screen.getByText('onboarding.create_project.pat_form.title')).toBeInTheDocument();
+  expect(await screen.findByText('onboarding.create_project.pat_form.title')).toBeInTheDocument();
 
   expect(screen.getByRole('button', { name: 'save' })).toBeDisabled();
 
@@ -162,9 +175,11 @@ it('should show search filter when PAT is already set', async () => {
   await user.click(inputSearch);
   await user.keyboard('search');
 
-  expect(searchForBitbucketServerRepositories).toHaveBeenLastCalledWith(
-    'conf-bitbucketserver-2',
-    'search',
+  await waitFor(() =>
+    expect(searchForBitbucketServerRepositories).toHaveBeenLastCalledWith(
+      'conf-bitbucketserver-2',
+      'search',
+    ),
   );
 });
 
@@ -179,8 +194,38 @@ it('should show no result message when there are no projects', async () => {
   expect(await screen.findByText('onboarding.create_project.no_bbs_projects')).toBeInTheDocument();
 });
 
-function renderCreateProject() {
-  renderApp('project/create', <CreateProjectPage />, {
-    navigateTo: 'project/create?mode=bitbucket',
+describe('Bitbucket Server monorepo project navigation', () => {
+  it('should be able to access monorepo setup page from Bitbucket Server project import page', async () => {
+    const user = userEvent.setup();
+    renderCreateProject();
+
+    await user.click(await ui.monorepoSetupLink.find());
+
+    expect(ui.monorepoTitle.get()).toBeInTheDocument();
+  });
+
+  it('should be able to go back to Bitbucket Server onboarding page from monorepo setup page', async () => {
+    const user = userEvent.setup();
+    renderCreateProject({ isMonorepo: true });
+
+    await user.click(await ui.cancelButton.find());
+
+    expect(ui.bitbucketServerOnboardingTitle.get()).toBeInTheDocument();
+  });
+});
+
+function renderCreateProject({
+  isMonorepo = false,
+}: {
+  isMonorepo?: boolean;
+} = {}) {
+  let queryString = `mode=${CreateProjectModes.BitbucketServer}`;
+  if (isMonorepo) {
+    queryString += '&mono=true';
+  }
+
+  renderApp('projects/create', <CreateProjectPage />, {
+    navigateTo: `projects/create?${queryString}`,
+    featureList: [Feature.MonoRepositoryPullRequestDecoration],
   });
 }

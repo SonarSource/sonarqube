@@ -29,7 +29,7 @@ import { REPOSITORY_PAGE_SIZE } from '../constants';
 import MonorepoProjectCreate from '../monorepo/MonorepoProjectCreate';
 import { CreateProjectModes } from '../types';
 import { useProjectCreate } from '../useProjectCreate';
-import { useProjectRepositorySearch } from '../useProjectRepositorySearch';
+import { useRepositorySearch } from '../useRepositorySearch';
 import BitbucketCloudPersonalAccessTokenForm from './BitbucketCloudPersonalAccessTokenForm';
 import BitbucketCloudProjectCreateRenderer from './BitbucketCloudProjectCreateRender';
 
@@ -49,6 +49,7 @@ export default function BitbucketCloudProjectCreate(props: Readonly<Props>) {
   });
 
   const {
+    almInstances,
     handlePersonalAccessTokenCreated,
     handleSelectRepository,
     isInitialized,
@@ -61,6 +62,7 @@ export default function BitbucketCloudProjectCreate(props: Readonly<Props>) {
     resetLoading,
     resetPersonalAccessToken,
     searchQuery,
+    selectedAlmInstance,
     selectedDopSetting,
     selectedRepository,
     setIsInitialized,
@@ -69,11 +71,10 @@ export default function BitbucketCloudProjectCreate(props: Readonly<Props>) {
     setSearchQuery,
     setShowPersonalAccessTokenForm,
     showPersonalAccessTokenForm,
-  } = useProjectCreate<BitbucketCloudRepository, undefined>(
+  } = useProjectCreate<BitbucketCloudRepository, BitbucketCloudRepository[], undefined>(
     AlmKeys.BitbucketCloud,
     dopSettings,
     ({ slug }) => slug,
-    REPOSITORY_PAGE_SIZE,
   );
 
   const location = useLocation();
@@ -153,7 +154,7 @@ export default function BitbucketCloudProjectCreate(props: Readonly<Props>) {
     [onProjectSetupDone, selectedDopSetting],
   );
 
-  const { isSearching, onSearch } = useProjectRepositorySearch(
+  const { isSearching, onSearch } = useRepositorySearch(
     AlmKeys.BitbucketCloud,
     fetchRepositories,
     isInitialized,
@@ -192,21 +193,8 @@ export default function BitbucketCloudProjectCreate(props: Readonly<Props>) {
     />
   ) : (
     <BitbucketCloudProjectCreateRenderer
+      almInstances={almInstances}
       isLastPage={isLastPage}
-      selectedAlmInstance={
-        selectedDopSetting
-          ? {
-              alm: selectedDopSetting.type,
-              key: selectedDopSetting.key,
-              url: selectedDopSetting.url,
-            }
-          : undefined
-      }
-      almInstances={dopSettings?.map((instance) => ({
-        alm: instance.type,
-        key: instance.key,
-        url: instance.url,
-      }))}
       loadingMore={isLoadingMoreRepositories}
       loading={isLoadingRepositories || isLoadingBindings}
       onImport={handleImportRepository}
@@ -215,9 +203,10 @@ export default function BitbucketCloudProjectCreate(props: Readonly<Props>) {
       onSearch={onSearch}
       onSelectedAlmInstanceChange={onSelectedAlmInstanceChange}
       repositories={repositories}
+      resetPat={resetPersonalAccessToken || Boolean(location.query.resetPat)}
       searching={isSearching}
       searchQuery={searchQuery}
-      resetPat={resetPersonalAccessToken || Boolean(location.query.resetPat)}
+      selectedAlmInstance={selectedAlmInstance}
       showPersonalAccessTokenForm={showPersonalAccessTokenForm || Boolean(location.query.resetPat)}
     />
   );

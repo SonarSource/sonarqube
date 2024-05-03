@@ -51,7 +51,7 @@ export interface AzureProjectCreateRendererProps {
   onPersonalAccessTokenCreate: () => void;
   onSearch: (query: string) => void;
   projects?: AzureProject[];
-  repositories: Dict<AzureRepository[]>;
+  repositories?: Dict<AzureRepository[]>;
   searching?: boolean;
   searchResults?: AzureRepository[];
   searchQuery?: string;

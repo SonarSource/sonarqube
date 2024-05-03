@@ -20,31 +20,46 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useLocation, useRouter } from '~sonar-aligned/components/hoc/withRouter';
 import { isDefined } from '../../../helpers/types';
+import {
+  AzureRepository,
+  BitbucketCloudRepository,
+  BitbucketRepository,
+  GithubRepository,
+  GitlabProject,
+} from '../../../types/alm-integration';
 import { AlmInstanceBase, AlmKeys } from '../../../types/alm-settings';
 import { DopSetting } from '../../../types/dop-translation';
-import { Paging } from '../../../types/types';
+import { Dict, Paging } from '../../../types/types';
+import { REPOSITORY_PAGE_SIZE } from './constants';
 
-export function useProjectCreate<RepoType, GroupType>(
-  almKey: AlmKeys,
-  dopSettings: DopSetting[],
-  getKey: (repo: RepoType) => string,
-  pageSize: number,
-) {
+type RepoTypes =
+  | AzureRepository
+  | BitbucketRepository
+  | BitbucketCloudRepository
+  | GithubRepository
+  | GitlabProject;
+type RepoCollectionTypes = Dict<RepoTypes[]> | RepoTypes[];
+
+export function useProjectCreate<
+  RepoType extends RepoTypes,
+  RepoCollectionType extends RepoCollectionTypes,
+  GroupType,
+>(almKey: AlmKeys, dopSettings: DopSetting[], getKey: (repo: RepoType) => string) {
   const [isInitialized, setIsInitialized] = useState(false);
   const [selectedDopSetting, setSelectedDopSetting] = useState<DopSetting>();
   const [isLoadingOrganizations, setIsLoadingOrganizations] = useState(true);
-  const [organizations, setOrganizations] = useState<GroupType[]>([]);
+  const [organizations, setOrganizations] = useState<GroupType[]>();
   const [selectedOrganization, setSelectedOrganization] = useState<GroupType>();
   const [isLoadingRepositories, setIsLoadingRepositories] = useState<boolean>(false);
   const [isLoadingMoreRepositories, setIsLoadingMoreRepositories] = useState<boolean>(false);
-  const [repositories, setRepositories] = useState<RepoType[]>([]);
+  const [repositories, setRepositories] = useState<RepoCollectionType>();
   const [selectedRepository, setSelectedRepository] = useState<RepoType>();
   const [showPersonalAccessTokenForm, setShowPersonalAccessTokenForm] = useState<boolean>(true);
   const [resetPersonalAccessToken, setResetPersonalAccessToken] = useState<boolean>(false);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [projectsPaging, setProjectsPaging] = useState<Paging>({
     pageIndex: 1,
-    pageSize,
+    pageSize: REPOSITORY_PAGE_SIZE,
     total: 0,
   });
 
@@ -53,6 +68,26 @@ export function useProjectCreate<RepoType, GroupType>(
 
   const isMonorepoSetup = location.query?.mono === 'true';
   const hasDopSettings = useMemo(() => Boolean(dopSettings?.length), [dopSettings]);
+
+  const almInstances = useMemo(
+    () =>
+      dopSettings?.map((dopSetting) => ({
+        alm: dopSetting.type,
+        key: dopSetting.key,
+        url: dopSetting.url,
+      })) ?? [],
+    [dopSettings],
+  );
+
+  const selectedAlmInstance = useMemo(
+    () =>
+      selectedDopSetting && {
+        alm: selectedDopSetting.type,
+        key: selectedDopSetting.key,
+        url: selectedDopSetting.url,
+      },
+    [selectedDopSetting],
+  );
 
   const cleanUrl = useCallback(() => {
     delete location.query.resetPat;
@@ -70,7 +105,7 @@ export function useProjectCreate<RepoType, GroupType>(
     setSelectedDopSetting(setting);
     setShowPersonalAccessTokenForm(true);
     setOrganizations([]);
-    setRepositories([]);
+    setRepositories(undefined);
     setSearchQuery('');
   }, []);
 
@@ -93,7 +128,16 @@ export function useProjectCreate<RepoType, GroupType>(
 
   const handleSelectRepository = useCallback(
     (repositoryKey: string) => {
-      setSelectedRepository(repositories.find((repo) => getKey(repo) === repositoryKey));
+      if (Array.isArray(repositories)) {
+        const repos = repositories as RepoType[];
+        setSelectedRepository(repos.find((repo) => getKey(repo) === repositoryKey));
+      } else {
+        const repos = repositories as Dict<RepoType[]>;
+        const selected = Object.values(repos)
+          .flat()
+          .find((repo) => getKey(repo) === repositoryKey);
+        setSelectedRepository(selected);
+      }
     },
     [getKey, repositories, setSelectedRepository],
   );
@@ -124,6 +168,7 @@ export function useProjectCreate<RepoType, GroupType>(
   }, [almKey, dopSettings, hasDopSettings, location, selectedDopSetting, setSelectedDopSetting]);
 
   return {
+    almInstances,
     handlePersonalAccessTokenCreated,
     handleSelectRepository,
     hasDopSettings,
@@ -148,6 +193,7 @@ export function useProjectCreate<RepoType, GroupType>(
     setIsLoadingOrganizations,
     setProjectsPaging,
     setOrganizations,
+    selectedAlmInstance,
     selectedOrganization,
     setRepositories,
     setResetPersonalAccessToken,

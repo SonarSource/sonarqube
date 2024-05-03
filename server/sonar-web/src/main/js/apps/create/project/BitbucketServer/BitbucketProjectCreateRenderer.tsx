@@ -17,56 +17,85 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { LightPrimary, PageContentFontWrapper, Spinner, Title } from 'design-system';
-import * as React from 'react';
+import { Link, Spinner } from '@sonarsource/echoes-react';
+import { LightPrimary, PageContentFontWrapper, Title } from 'design-system';
+import React from 'react';
+import { FormattedMessage } from 'react-intl';
+import { queryToSearchString } from '~sonar-aligned/helpers/urls';
+import { AvailableFeaturesContext } from '../../../../app/components/available-features/AvailableFeaturesContext';
 import { translate } from '../../../../helpers/l10n';
-import {
-  BitbucketProject,
-  BitbucketProjectRepositories,
-  BitbucketRepository,
-} from '../../../../types/alm-integration';
+import { BitbucketProject, BitbucketRepository } from '../../../../types/alm-integration';
 import { AlmKeys, AlmSettingsInstance } from '../../../../types/alm-settings';
+import { Feature } from '../../../../types/features';
+import { Dict } from '../../../../types/types';
 import AlmSettingsInstanceDropdown from '../components/AlmSettingsInstanceDropdown';
 import WrongBindingCountAlert from '../components/WrongBindingCountAlert';
+import { CreateProjectModes } from '../types';
 import BitbucketImportRepositoryForm from './BitbucketImportRepositoryForm';
 import BitbucketServerPersonalAccessTokenForm from './BitbucketServerPersonalAccessTokenForm';
 
 export interface BitbucketProjectCreateRendererProps {
-  selectedAlmInstance?: AlmSettingsInstance;
   almInstances: AlmSettingsInstance[];
-  loading: boolean;
+  isLoading: boolean;
   onImportRepository: (repository: BitbucketRepository) => void;
   onSearch: (query: string) => void;
   onPersonalAccessTokenCreated: () => void;
   onSelectedAlmInstanceChange: (instance: AlmSettingsInstance) => void;
   projects?: BitbucketProject[];
-  projectRepositories?: BitbucketProjectRepositories;
+  projectRepositories?: Dict<BitbucketRepository[]>;
   resetPat: boolean;
   searching: boolean;
   searchResults?: BitbucketRepository[];
+  selectedAlmInstance?: AlmSettingsInstance;
   showPersonalAccessTokenForm?: boolean;
 }
 
-export default function BitbucketProjectCreateRenderer(props: BitbucketProjectCreateRendererProps) {
+export default function BitbucketProjectCreateRenderer(
+  props: Readonly<BitbucketProjectCreateRendererProps>,
+) {
   const {
     almInstances,
-    selectedAlmInstance,
-    loading,
+    isLoading,
     projects,
     projectRepositories,
-
+    resetPat,
     searching,
     searchResults,
+    selectedAlmInstance,
     showPersonalAccessTokenForm,
-    resetPat,
   } = props;
+
+  const isMonorepoSupported = React.useContext(AvailableFeaturesContext).includes(
+    Feature.MonoRepositoryPullRequestDecoration,
+  );
 
   return (
     <PageContentFontWrapper>
       <header className="sw-mb-10">
         <Title className="sw-mb-4">{translate('onboarding.create_project.bitbucket.title')}</Title>
         <LightPrimary className="sw-body-sm">
-          {translate('onboarding.create_project.bitbucket.subtitle')}
+          {isMonorepoSupported ? (
+            <FormattedMessage
+              id="onboarding.create_project.bitbucket.subtitle.with_monorepo"
+              values={{
+                monorepoSetupLink: (
+                  <Link
+                    to={{
+                      pathname: '/projects/create',
+                      search: queryToSearchString({
+                        mode: CreateProjectModes.BitbucketServer,
+                        mono: true,
+                      }),
+                    }}
+                  >
+                    <FormattedMessage id="onboarding.create_project.subtitle_monorepo_setup_link" />
+                  </Link>
+                ),
+              }}
+            />
+          ) : (
+            <FormattedMessage id="onboarding.create_project.bitbucket.subtitle" />
+          )}
         </LightPrimary>
       </header>
 
@@ -77,12 +106,12 @@ export default function BitbucketProjectCreateRenderer(props: BitbucketProjectCr
         onChangeConfig={props.onSelectedAlmInstanceChange}
       />
 
-      <Spinner loading={loading}>
-        {!loading && !selectedAlmInstance && (
+      <Spinner isLoading={isLoading}>
+        {!isLoading && almInstances && almInstances.length === 0 && !selectedAlmInstance && (
           <WrongBindingCountAlert alm={AlmKeys.BitbucketServer} />
         )}
 
-        {!loading &&
+        {!isLoading &&
           selectedAlmInstance &&
           (showPersonalAccessTokenForm ? (
             <BitbucketServerPersonalAccessTokenForm

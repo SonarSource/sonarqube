@@ -18,21 +18,23 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { LabelValueSelectOption } from 'design-system';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { GroupBase } from 'react-select';
-import { useLocation, useRouter } from '~sonar-aligned/components/hoc/withRouter';
+import { useLocation } from '~sonar-aligned/components/hoc/withRouter';
 import {
   getAzureProjects,
   getAzureRepositories,
   searchAzureRepositories,
 } from '../../../../api/alm-integrations';
 import { AzureProject, AzureRepository } from '../../../../types/alm-integration';
-import { AlmSettingsInstance } from '../../../../types/alm-settings';
+import { AlmKeys } from '../../../../types/alm-settings';
 import { DopSetting } from '../../../../types/dop-translation';
 import { Dict } from '../../../../types/types';
 import { ImportProjectParam } from '../CreateProjectPage';
 import MonorepoProjectCreate from '../monorepo/MonorepoProjectCreate';
 import { CreateProjectModes } from '../types';
+import { useProjectCreate } from '../useProjectCreate';
+import { useProjectRepositorySearch } from '../useProjectRepositorySearch';
 import AzurePersonalAccessTokenForm from './AzurePersonalAccessTokenForm';
 import AzureCreateProjectRenderer from './AzureProjectCreateRenderer';
 
@@ -42,51 +44,41 @@ interface Props {
   onProjectSetupDone: (importProjects: ImportProjectParam) => void;
 }
 
-export default function AzureProjectCreate(props: Readonly<Props>) {
-  const { dopSettings, isLoadingBindings, onProjectSetupDone } = props;
-  const [isLoading, setIsLoading] = useState(false);
+export default function AzureProjectCreate({
+  dopSettings,
+  isLoadingBindings,
+  onProjectSetupDone,
+}: Readonly<Props>) {
+  const {
+    almInstances,
+    handlePersonalAccessTokenCreated,
+    handleSelectRepository: defaultRepositorySelect,
+    isLoadingRepositories,
+    isMonorepoSetup,
+    onSelectedAlmInstanceChange,
+    organizations: projects,
+    repositories,
+    searchQuery,
+    selectedAlmInstance,
+    selectedDopSetting,
+    selectedRepository,
+    setSearchQuery,
+    setIsLoadingRepositories,
+    setOrganizations: setProjects,
+    setRepositories,
+    setSelectedDopSetting,
+    setSelectedRepository,
+    setShowPersonalAccessTokenForm,
+    showPersonalAccessTokenForm,
+  } = useProjectCreate<AzureRepository, Dict<AzureRepository[]>, AzureProject>(
+    AlmKeys.Azure,
+    dopSettings,
+    ({ name }) => name,
+  );
+
   const [loadingRepositories, setLoadingRepositories] = useState<Dict<boolean>>({});
-  const [isSearching, setIsSearching] = useState(false);
-  const [projects, setProjects] = useState<AzureProject[] | undefined>();
-  const [repositories, setRepositories] = useState<Dict<AzureRepository[]>>({});
-  const [searchQuery, setSearchQuery] = useState<string>('');
-  const [searchResults, setSearchResults] = useState<AzureRepository[] | undefined>();
-  const [selectedDopSetting, setSelectedDopSetting] = useState<DopSetting | undefined>();
-  const [selectedRepository, setSelectedRepository] = useState<AzureRepository>();
-  const [showPersonalAccessTokenForm, setShowPersonalAccessTokenForm] = useState(true);
 
   const location = useLocation();
-  const router = useRouter();
-
-  const almInstances = useMemo(
-    () =>
-      dopSettings?.map((dopSetting) => ({
-        alm: dopSetting.type,
-        key: dopSetting.key,
-        url: dopSetting.url,
-      })) ?? [],
-    [dopSettings],
-  );
-  const isMonorepoSetup = location.query?.mono === 'true';
-  const hasDopSettings = Boolean(dopSettings?.length);
-  const selectedAlmInstance = useMemo(
-    () =>
-      selectedDopSetting && {
-        alm: selectedDopSetting.type,
-        key: selectedDopSetting.key,
-        url: selectedDopSetting.url,
-      },
-    [selectedDopSetting],
-  );
-  const repositoryOptions = useMemo(
-    () => transformToOptions(projects ?? [], repositories),
-    [projects, repositories],
-  );
-
-  const cleanUrl = useCallback(() => {
-    delete location.query.resetPat;
-    router.replace(location);
-  }, [location, router]);
 
   const fetchAzureProjects = useCallback(async (): Promise<AzureProject[] | undefined> => {
     if (selectedDopSetting === undefined) {
@@ -119,13 +111,13 @@ export default function AzureProjectCreate(props: Readonly<Props>) {
       return;
     }
 
-    setIsLoading(true);
+    setIsLoadingRepositories(true);
     let projects: AzureProject[] | undefined;
     try {
       projects = await fetchAzureProjects();
     } catch (_) {
       setShowPersonalAccessTokenForm(true);
-      setIsLoading(false);
+      setIsLoadingRepositories(false);
       return;
     }
 
@@ -171,8 +163,17 @@ export default function AzureProjectCreate(props: Readonly<Props>) {
     }
 
     setProjects(projects);
-    setIsLoading(false);
-  }, [fetchAzureProjects, fetchAzureRepositories, isMonorepoSetup, showPersonalAccessTokenForm]);
+    setIsLoadingRepositories(false);
+  }, [
+    fetchAzureProjects,
+    fetchAzureRepositories,
+    isMonorepoSetup,
+    setIsLoadingRepositories,
+    setProjects,
+    setRepositories,
+    setShowPersonalAccessTokenForm,
+    showPersonalAccessTokenForm,
+  ]);
 
   const handleImportRepository = useCallback(
     (selectedRepository: AzureRepository) => {
@@ -205,6 +206,19 @@ export default function AzureProjectCreate(props: Readonly<Props>) {
     [onProjectSetupDone, selectedRepository?.projectName],
   );
 
+  const { isSearching, onSearch, onSelectRepository, searchResults } =
+    useProjectRepositorySearch<AzureRepository>({
+      defaultRepositorySelect,
+      fetchData,
+      fetchSearchResults: (query: string, dopKey: string) => searchAzureRepositories(dopKey, query),
+      getRepositoryKey: ({ name }) => name,
+      isMonorepoSetup,
+      selectedDopSetting,
+      setSearchQuery,
+      setSelectedRepository,
+      setShowPersonalAccessTokenForm,
+    });
+
   const handleOpenProject = useCallback(
     async (projectName: string) => {
       if (searchResults !== undefined) {
@@ -224,75 +238,19 @@ export default function AzureProjectCreate(props: Readonly<Props>) {
       }));
       setRepositories((repositories) => ({ ...repositories, [projectName]: projectRepos }));
     },
-    [fetchAzureRepositories, searchResults],
+    [fetchAzureRepositories, searchResults, setRepositories],
   );
 
-  const handlePersonalAccessTokenCreate = useCallback(() => {
-    cleanUrl();
-    setShowPersonalAccessTokenForm(false);
-  }, [cleanUrl]);
+  const repositoryOptions = useMemo(() => {
+    if (searchResults) {
+      const dict = projects?.reduce((acc: Dict<AzureRepository[]>, { name }) => {
+        return { ...acc, [name]: searchResults?.filter((o) => o.projectName === name) };
+      }, {});
+      return transformToOptions(projects ?? [], dict);
+    }
 
-  const handleSearchRepositories = useCallback(
-    async (searchQuery: string) => {
-      if (!selectedDopSetting) {
-        return;
-      }
-
-      if (searchQuery.length === 0) {
-        setSearchResults(undefined);
-        setSearchQuery('');
-        return;
-      }
-
-      setIsSearching(true);
-
-      const searchResults: AzureRepository[] = await searchAzureRepositories(
-        selectedDopSetting.key,
-        searchQuery,
-      )
-        .then(({ repositories }) => repositories)
-        .catch(() => []);
-
-      setIsSearching(false);
-      setSearchQuery(searchQuery);
-      setSearchResults(searchResults);
-    },
-    [selectedDopSetting],
-  );
-
-  const handleSelectRepository = useCallback(
-    (repositoryKey: string) => {
-      setSelectedRepository(
-        Object.values(repositories)
-          .flat()
-          .find(({ name }) => name === repositoryKey),
-      );
-    },
-    [repositories],
-  );
-
-  const onSelectedAlmInstanceChange = useCallback(
-    (almInstance: AlmSettingsInstance) => {
-      setSelectedDopSetting(dopSettings?.find((dopSetting) => dopSetting.key === almInstance.key));
-    },
-    [dopSettings],
-  );
-
-  useEffect(() => {
-    setSelectedDopSetting(dopSettings?.[0]);
-    // We want to update this value only when the list of DOP settings changes from empty to not-empty (or vice-versa)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hasDopSettings]);
-
-  useEffect(() => {
-    setSearchResults(undefined);
-    setSearchQuery('');
-    setShowPersonalAccessTokenForm(true);
-  }, [isMonorepoSetup, selectedDopSetting]);
-
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+    return transformToOptions(projects ?? [], repositories);
+  }, [projects, repositories, searchResults]);
 
   return isMonorepoSetup ? (
     <MonorepoProjectCreate
@@ -300,17 +258,17 @@ export default function AzureProjectCreate(props: Readonly<Props>) {
       error={false}
       loadingBindings={isLoadingBindings}
       loadingOrganizations={false}
-      loadingRepositories={isLoading}
+      loadingRepositories={isLoadingRepositories}
       onProjectSetupDone={handleMonorepoSetupDone}
-      onSearchRepositories={setSearchQuery}
+      onSearchRepositories={onSearch}
       onSelectDopSetting={setSelectedDopSetting}
-      onSelectRepository={handleSelectRepository}
+      onSelectRepository={onSelectRepository}
       personalAccessTokenComponent={
-        !isLoading &&
+        !isLoadingRepositories &&
         selectedAlmInstance && (
           <AzurePersonalAccessTokenForm
             almSetting={selectedAlmInstance}
-            onPersonalAccessTokenCreate={handlePersonalAccessTokenCreate}
+            onPersonalAccessTokenCreate={handlePersonalAccessTokenCreated}
             resetPat={Boolean(location.query.resetPat)}
           />
         )
@@ -324,12 +282,12 @@ export default function AzureProjectCreate(props: Readonly<Props>) {
   ) : (
     <AzureCreateProjectRenderer
       almInstances={almInstances}
-      loading={isLoading || isLoadingBindings}
+      loading={isLoadingRepositories || isLoadingBindings}
       loadingRepositories={loadingRepositories}
       onImportRepository={handleImportRepository}
       onOpenProject={handleOpenProject}
-      onPersonalAccessTokenCreate={handlePersonalAccessTokenCreate}
-      onSearch={handleSearchRepositories}
+      onPersonalAccessTokenCreate={handlePersonalAccessTokenCreated}
+      onSearch={onSearch}
       onSelectedAlmInstanceChange={onSelectedAlmInstanceChange}
       projects={projects}
       repositories={repositories}
@@ -345,11 +303,14 @@ export default function AzureProjectCreate(props: Readonly<Props>) {
 
 function transformToOptions(
   projects: AzureProject[],
-  repositories: Dict<AzureRepository[]>,
+  repositories?: Dict<AzureRepository[]>,
 ): Array<GroupBase<LabelValueSelectOption<string>>> {
   return projects.map(({ name: projectName }) => ({
     label: projectName,
-    options: repositories[projectName]?.map(transformToOption) ?? [],
+    options:
+      repositories?.[projectName] !== undefined
+        ? repositories[projectName].map(transformToOption)
+        : [],
   }));
 }
 

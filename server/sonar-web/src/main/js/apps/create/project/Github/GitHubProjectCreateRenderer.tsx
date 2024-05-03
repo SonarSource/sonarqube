@@ -44,7 +44,7 @@ interface GitHubProjectCreateRendererProps {
   onLoadMore: () => void;
   onSearch: (q: string) => void;
   onSelectOrganization: (key: string) => void;
-  organizations: GithubOrganization[];
+  organizations?: GithubOrganization[];
   repositories?: GithubRepository[];
   repositoryPaging: Paging;
   searchQuery: string;
@@ -175,7 +175,7 @@ export default function GitHubProjectCreateRenderer(
             <DarkLabel htmlFor="github-choose-organization" className="sw-mb-2">
               {translate('onboarding.create_project.github.choose_organization')}
             </DarkLabel>
-            {organizations.length > 0 ? (
+            {organizations && organizations.length > 0 ? (
               <InputSelect
                 className="sw-w-7/12 sw-mb-9"
                 size="full"
