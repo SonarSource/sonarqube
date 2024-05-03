@@ -17,11 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import axios from 'axios';
 import { throwGlobalError } from '~sonar-aligned/helpers/error';
 import { getJSON } from '~sonar-aligned/helpers/request';
 import { post, postJSON, requestTryAndRepeatUntil } from '../helpers/request';
-import { SystemUpgrade } from '../types/system';
+import { MigrationStatus, MigrationsStatusResponse, SystemUpgrade } from '../types/system';
 import { SysInfoCluster, SysInfoStandalone, SysStatus } from '../types/types';
+
+const MIGRATIONS_STATUS_ENDPOINT = '/api/v2/system/migrations-status';
 
 export function setLogLevel(level: string): Promise<void | Response> {
   return post('/api/system/change_log_level', { level }).catch(throwGlobalError);
@@ -44,18 +47,14 @@ export function getSystemUpgrades(): Promise<{
   return getJSON('/api/system/upgrades');
 }
 
-export function getMigrationStatus(): Promise<{
-  message?: string;
-  startedAt?: string;
-  state: string;
-}> {
-  return getJSON('/api/system/db_migration_status');
+export function getMigrationsStatus() {
+  return axios.get<MigrationsStatusResponse>(MIGRATIONS_STATUS_ENDPOINT);
 }
 
 export function migrateDatabase(): Promise<{
   message?: string;
   startedAt?: string;
-  state: string;
+  state: MigrationStatus;
 }> {
   return postJSON('/api/system/migrate_db');
 }

@@ -20,13 +20,15 @@
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
-import { getMigrationStatus, getSystemStatus, migrateDatabase } from '../../../../api/system';
+import { getMigrationsStatus, getSystemStatus, migrateDatabase } from '../../../../api/system';
 import { mockLocation } from '../../../../helpers/testMocks';
 import { renderApp } from '../../../../helpers/testReactTestingUtils';
+import { byText } from '../../../../helpers/testSelector';
+import { MigrationStatus } from '../../../../types/system';
 import App from '../App';
 
 jest.mock('../../../../api/system', () => ({
-  getMigrationStatus: jest.fn().mockResolvedValue(null),
+  getMigrationsStatus: jest.fn().mockResolvedValue(null),
   getSystemStatus: jest.fn().mockResolvedValue(null),
   migrateDatabase: jest.fn().mockResolvedValue(null),
 }));
@@ -155,13 +157,13 @@ describe('Maintenance', () => {
 describe('Setup', () => {
   it.each([
     [
-      'NO_MIGRATION',
+      MigrationStatus.noMigration,
       'maintenance.database_is_up_to_date',
       undefined,
       { name: 'layout.home', href: '/' },
     ],
     [
-      'MIGRATION_REQUIRED',
+      MigrationStatus.required,
       'maintenance.upgrade_database',
       [
         'maintenance.upgrade_database.1',
@@ -170,28 +172,28 @@ describe('Setup', () => {
       ],
     ],
     [
-      'NOT_SUPPORTED',
+      MigrationStatus.notSupported,
       'maintenance.migration_not_supported',
       ['maintenance.migration_not_supported.text'],
     ],
     [
-      'MIGRATION_RUNNING',
+      MigrationStatus.running,
       'maintenance.database_migration',
       undefined,
       undefined,
       { message: 'MESSAGE', startedAt: '2022-12-01' },
     ],
     [
-      'MIGRATION_SUCCEEDED',
+      MigrationStatus.succeeded,
       'maintenance.database_is_up_to_date',
       undefined,
       { name: 'layout.home', href: '/' },
     ],
-    ['MIGRATION_FAILED', 'maintenance.upgrade_failed', ['maintenance.upgrade_failed.text']],
+    [MigrationStatus.failed, 'maintenance.upgrade_failed', ['maintenance.upgrade_failed.text']],
   ])(
     'should handle "%p" state correctly',
-    async (state, heading, bodyText: string[] = [], linkInfo = undefined, payload = undefined) => {
-      (getMigrationStatus as jest.Mock).mockResolvedValueOnce({ state, ...payload });
+    async (status, heading, bodyText: string[] = [], linkInfo = undefined, payload = undefined) => {
+      jest.mocked(getMigrationsStatus).mockResolvedValueOnce({ status, ...payload });
       renderSetupApp();
 
       const title = await screen.findByRole('heading', { name: heading });
@@ -227,10 +229,16 @@ describe('Setup', () => {
       startedAt: '2022-12-01',
       state: 'MIGRATION_RUNNING',
     });
-    (getMigrationStatus as jest.Mock)
-      .mockResolvedValueOnce({ state: 'MIGRATION_REQUIRED' })
-      .mockResolvedValueOnce({ state: 'MIGRATION_RUNNING' })
-      .mockResolvedValueOnce({ state: 'MIGRATION_SUCCEEDED' });
+    jest
+      .mocked(getMigrationsStatus)
+      .mockResolvedValueOnce({ status: MigrationStatus.required })
+      .mockResolvedValueOnce({
+        status: MigrationStatus.running,
+        completedSteps: 28,
+        totalSteps: 42,
+        expectedFinishTimestamp: '2027-11-10T13:42:20',
+      })
+      .mockResolvedValueOnce({ status: MigrationStatus.succeeded });
 
     renderSetupApp();
     const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
@@ -252,6 +260,8 @@ describe('Setup', () => {
 
     title = await screen.findByRole('heading', { name: 'maintenance.database_migration' });
     expect(title).toBeInTheDocument();
+
+    expect(byText(/maintenance.running.progress/).get()).toBeInTheDocument();
 
     // Trigger refresh; migration done.
     jest.runOnlyPendingTimers();

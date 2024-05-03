@@ -35,3 +35,21 @@ export enum InstanceType {
   SonarQube = 'SonarQube',
   SonarCloud = 'SonarCloud',
 }
+
+export enum MigrationStatus {
+  noMigration = 'NO_MIGRATION',
+  notSupported = 'NOT_SUPPORTED',
+  required = 'MIGRATION_REQUIRED',
+  running = 'MIGRATION_RUNNING',
+  succeeded = 'MIGRATION_SUCCEEDED',
+  failed = 'MIGRATION_FAILED',
+}
+
+export interface MigrationsStatusResponse {
+  status: MigrationStatus;
+  completedSteps?: number;
+  totalSteps?: number;
+  startedAt?: string;
+  message?: string;
+  expectedFinishTimestamp?: string;
+}

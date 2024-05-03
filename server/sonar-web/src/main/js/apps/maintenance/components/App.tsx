@@ -24,7 +24,7 @@ import { ButtonPrimary, Card, CenteredLayout, Note, Title } from 'design-system'
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { FormattedMessage } from 'react-intl';
-import { getMigrationStatus, getSystemStatus, migrateDatabase } from '../../../api/system';
+import { getMigrationsStatus, getSystemStatus, migrateDatabase } from '../../../api/system';
 import DocumentationLink from '../../../components/common/DocumentationLink';
 import InstanceMessage from '../../../components/common/InstanceMessage';
 import DateFromNow from '../../../components/intl/DateFromNow';
@@ -33,6 +33,8 @@ import { translate } from '../../../helpers/l10n';
 import { getBaseUrl } from '../../../helpers/system';
 import { isDefined } from '../../../helpers/types';
 import { getReturnUrl } from '../../../helpers/urls';
+import { MigrationStatus } from '../../../types/system';
+import { MigrationProgress } from './MigrationProgress';
 
 interface Props {
   location: { query?: { return_to?: string } };
@@ -42,9 +44,14 @@ interface Props {
 interface State {
   message?: string;
   startedAt?: string;
-  state?: string;
-  status?: string;
+  migrationState?: MigrationStatus;
+  systemStatus?: string;
   wasStarting?: boolean;
+  progress?: {
+    completedSteps: number;
+    totalSteps: number;
+    expectedFinishTimestamp: string;
+  };
 }
 
 const DELAY_REDIRECT_PREV_PAGE = 2500;
@@ -76,22 +83,22 @@ export default class App extends React.PureComponent<Props, State> {
         this.setState({
           message: undefined,
           startedAt: undefined,
-          state: undefined,
-          status: 'OFFLINE',
+          migrationState: undefined,
+          systemStatus: 'OFFLINE',
         });
       }
     });
   };
 
   fetchSystemStatus = () => {
-    return getSystemStatus().then(({ status }) => {
+    return getSystemStatus().then(({ status: systemStatus }) => {
       if (this.mounted) {
-        this.setState({ status });
+        this.setState({ systemStatus });
 
-        if (status === 'STARTING') {
+        if (systemStatus === 'STARTING') {
           this.setState({ wasStarting: true });
           this.scheduleRefresh();
-        } else if (status === 'UP') {
+        } else if (systemStatus === 'UP') {
           if (this.state.wasStarting) {
             this.loadPreviousPage();
           }
@@ -103,16 +110,39 @@ export default class App extends React.PureComponent<Props, State> {
   };
 
   fetchMigrationState = () => {
-    return getMigrationStatus().then(({ message, startedAt, state }) => {
-      if (this.mounted) {
-        this.setState({ message, startedAt, state });
-        if (state === 'MIGRATION_SUCCEEDED') {
-          this.loadPreviousPage();
-        } else if (state !== 'NO_MIGRATION') {
-          this.scheduleRefresh();
+    return getMigrationsStatus().then(
+      ({
+        message,
+        startedAt,
+        status: migrationState,
+        completedSteps,
+        totalSteps,
+        expectedFinishTimestamp,
+      }) => {
+        if (this.mounted) {
+          const progress =
+            isDefined(completedSteps) && isDefined(totalSteps) && isDefined(expectedFinishTimestamp)
+              ? {
+                  completedSteps,
+                  totalSteps,
+                  expectedFinishTimestamp,
+                }
+              : undefined;
+
+          this.setState({
+            message,
+            startedAt,
+            migrationState,
+            progress,
+          });
+          if (migrationState === 'MIGRATION_SUCCEEDED') {
+            this.loadPreviousPage();
+          } else if (migrationState !== 'NO_MIGRATION') {
+            this.scheduleRefresh();
+          }
         }
-      }
-    });
+      },
+    );
   };
 
   scheduleRefresh = () => {
@@ -129,7 +159,7 @@ export default class App extends React.PureComponent<Props, State> {
     migrateDatabase().then(
       ({ message, startedAt, state }) => {
         if (this.mounted) {
-          this.setState({ message, startedAt, state });
+          this.setState({ message, startedAt, migrationState: state });
         }
       },
       () => {},
@@ -137,7 +167,7 @@ export default class App extends React.PureComponent<Props, State> {
   };
 
   render() {
-    const { state, status } = this.state;
+    const { migrationState, systemStatus, progress } = this.state;
 
     return (
       <>
@@ -145,7 +175,7 @@ export default class App extends React.PureComponent<Props, State> {
 
         <CenteredLayout className="sw-flex sw-justify-around sw-mt-32" id="bd">
           <Card className="sw-body-sm sw-p-10 sw-w-abs-400" id="nonav">
-            {status === 'OFFLINE' && (
+            {systemStatus === 'OFFLINE' && (
               <>
                 <MaintenanceTitle className="text-danger">
                   <InstanceMessage message={translate('maintenance.is_offline')} />
@@ -163,7 +193,7 @@ export default class App extends React.PureComponent<Props, State> {
               </>
             )}
 
-            {status === 'UP' && (
+            {systemStatus === 'UP' && (
               <>
                 <MaintenanceTitle>
                   <InstanceMessage message={translate('maintenance.is_up')} />
@@ -179,7 +209,7 @@ export default class App extends React.PureComponent<Props, State> {
               </>
             )}
 
-            {status === 'STARTING' && (
+            {systemStatus === 'STARTING' && (
               <>
                 <MaintenanceTitle>
                   <InstanceMessage message={translate('maintenance.is_starting')} />
@@ -191,7 +221,7 @@ export default class App extends React.PureComponent<Props, State> {
               </>
             )}
 
-            {status === 'DOWN' && (
+            {systemStatus === 'DOWN' && (
               <>
                 <MaintenanceTitle className="text-danger">
                   <InstanceMessage message={translate('maintenance.is_down')} />
@@ -207,7 +237,8 @@ export default class App extends React.PureComponent<Props, State> {
               </>
             )}
 
-            {(status === 'DB_MIGRATION_NEEDED' || status === 'DB_MIGRATION_RUNNING') && (
+            {(systemStatus === 'DB_MIGRATION_NEEDED' ||
+              systemStatus === 'DB_MIGRATION_RUNNING') && (
               <>
                 <MaintenanceTitle>
                   <InstanceMessage message={translate('maintenance.is_under_maintenance')} />
@@ -243,7 +274,7 @@ export default class App extends React.PureComponent<Props, State> {
               </>
             )}
 
-            {state === 'NO_MIGRATION' && (
+            {migrationState === MigrationStatus.noMigration && (
               <>
                 <MaintenanceTitle>
                   {translate('maintenance.database_is_up_to_date')}
@@ -255,7 +286,7 @@ export default class App extends React.PureComponent<Props, State> {
               </>
             )}
 
-            {state === 'MIGRATION_REQUIRED' && (
+            {migrationState === MigrationStatus.required && (
               <>
                 <MaintenanceTitle>{translate('maintenance.upgrade_database')}</MaintenanceTitle>
 
@@ -273,7 +304,7 @@ export default class App extends React.PureComponent<Props, State> {
               </>
             )}
 
-            {state === 'NOT_SUPPORTED' && (
+            {migrationState === MigrationStatus.notSupported && (
               <>
                 <MaintenanceTitle className="text-danger">
                   {translate('maintenance.migration_not_supported')}
@@ -283,7 +314,7 @@ export default class App extends React.PureComponent<Props, State> {
               </>
             )}
 
-            {state === 'MIGRATION_RUNNING' && (
+            {migrationState === MigrationStatus.running && (
               <>
                 <MaintenanceTitle>{translate('maintenance.database_migration')}</MaintenanceTitle>
 
@@ -303,12 +334,13 @@ export default class App extends React.PureComponent<Props, State> {
                 )}
 
                 <MaintenanceSpinner>
-                  <Spinner />
+                  <Spinner className="sw-mb-4" />
+                  {progress && <MigrationProgress progress={progress} />}
                 </MaintenanceSpinner>
               </>
             )}
 
-            {state === 'MIGRATION_SUCCEEDED' && (
+            {migrationState === MigrationStatus.succeeded && (
               <>
                 <MaintenanceTitle className="text-success">
                   {translate('maintenance.database_is_up_to_date')}
@@ -320,7 +352,7 @@ export default class App extends React.PureComponent<Props, State> {
               </>
             )}
 
-            {state === 'MIGRATION_FAILED' && (
+            {migrationState === MigrationStatus.failed && (
               <>
                 <MaintenanceTitle className="text-danger">
                   {translate('maintenance.upgrade_failed')}
