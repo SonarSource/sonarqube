@@ -44,10 +44,11 @@ public class AutoDbMigrationTest {
   @Rule
   public LogTester logTester = new LogTester();
 
-  private DbClient dbClient = mock(DbClient.class, Mockito.RETURNS_DEEP_STUBS);
-  private DefaultServerUpgradeStatus serverUpgradeStatus = mock(DefaultServerUpgradeStatus.class);
-  private MigrationEngine migrationEngine = mock(MigrationEngine.class);
-  private AutoDbMigration underTest = new AutoDbMigration(serverUpgradeStatus, migrationEngine);
+  private final DbClient dbClient = mock(DbClient.class, Mockito.RETURNS_DEEP_STUBS);
+  private final DefaultServerUpgradeStatus serverUpgradeStatus = mock(DefaultServerUpgradeStatus.class);
+  private final MigrationEngine migrationEngine = mock(MigrationEngine.class);
+  private final MutableDatabaseMigrationState mutableDatabaseMigrationState = mock(MutableDatabaseMigrationState.class);
+  private final AutoDbMigration underTest = new AutoDbMigration(serverUpgradeStatus, migrationEngine, mutableDatabaseMigrationState);
 
   @Test
   public void start_runs_MigrationEngine_on_h2_if_fresh_install() {

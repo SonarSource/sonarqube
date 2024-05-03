@@ -25,6 +25,7 @@ import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.sonar.core.platform.SpringComponentContainer;
+import org.sonar.server.platform.db.migration.MutableDatabaseMigrationState;
 import org.sonar.server.platform.db.migration.history.MigrationHistory;
 import org.sonar.server.platform.db.migration.step.MigrationStep;
 import org.sonar.server.platform.db.migration.step.MigrationSteps;
@@ -40,6 +41,7 @@ import static org.mockito.Mockito.when;
 
 class MigrationEngineImplTest {
   private final MigrationHistory migrationHistory = mock(MigrationHistory.class);
+  private final MutableDatabaseMigrationState databaseMigrationState = mock();
   private final SpringComponentContainer serverContainer = new SpringComponentContainer();
   private final MigrationSteps migrationSteps = mock(MigrationSteps.class);
   private final StepRegistry stepRegistry = new StepRegistry();
@@ -50,6 +52,7 @@ class MigrationEngineImplTest {
     serverContainer.add(migrationSteps);
     serverContainer.add(migrationHistory);
     serverContainer.add(stepRegistry);
+    serverContainer.add(databaseMigrationState);
     serverContainer.startComponents();
   }
 
@@ -85,9 +88,8 @@ class MigrationEngineImplTest {
   private record TestMigrationStep(StepRegistry registry) implements MigrationStep {
 
     @Override
-      public void execute() throws SQLException {
-        registry.stepRan = true;
-      }
+    public void execute() throws SQLException {
+      registry.stepRan = true;
     }
-
+  }
 }

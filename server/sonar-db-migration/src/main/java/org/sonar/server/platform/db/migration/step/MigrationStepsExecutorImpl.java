@@ -24,29 +24,33 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.core.platform.Container;
 import org.sonar.core.util.logs.Profiler;
+import org.sonar.server.platform.db.migration.MutableDatabaseMigrationState;
 import org.sonar.server.platform.db.migration.history.MigrationHistory;
 
 import static com.google.common.base.Preconditions.checkState;
 
 public class MigrationStepsExecutorImpl implements MigrationStepsExecutor {
   private static final Logger LOGGER = LoggerFactory.getLogger("DbMigrations");
-  private static final String GLOBAL_START_MESSAGE = "Executing DB migrations...";
-  private static final String GLOBAL_END_MESSAGE = "Executed DB migrations: {}";
-  private static final String STEP_START_PATTERN = "{}...";
-  private static final String STEP_STOP_PATTERN = "{}: {}";
+  private static final String GLOBAL_START_MESSAGE = "Executing {} DB migrations...";
+  private static final String GLOBAL_END_MESSAGE = "Executed {}/{} DB migrations: {}";
+  private static final String STEP_START_PATTERN = "{}/{} {}...";
+  private static final String STEP_STOP_PATTERN = "{}/{} {}: {}";
 
   private final Container migrationContainer;
   private final MigrationHistory migrationHistory;
+  private final MutableDatabaseMigrationState databaseMigrationState;
 
-  public MigrationStepsExecutorImpl(Container migrationContainer, MigrationHistory migrationHistory) {
+  public MigrationStepsExecutorImpl(
+    Container migrationContainer, MigrationHistory migrationHistory, MutableDatabaseMigrationState databaseMigrationState) {
     this.migrationContainer = migrationContainer;
     this.migrationHistory = migrationHistory;
+    this.databaseMigrationState = databaseMigrationState;
   }
 
   @Override
   public void execute(List<RegisteredMigrationStep> steps, MigrationStatusListener listener) {
     Profiler globalProfiler = Profiler.create(LOGGER);
-    globalProfiler.startInfo(GLOBAL_START_MESSAGE);
+    globalProfiler.startInfo(GLOBAL_START_MESSAGE, databaseMigrationState.getTotalMigrations());
     boolean allStepsExecuted = false;
     try {
       for (RegisteredMigrationStep step : steps) {
@@ -56,9 +60,15 @@ public class MigrationStepsExecutorImpl implements MigrationStepsExecutor {
       allStepsExecuted = true;
     } finally {
       if (allStepsExecuted) {
-        globalProfiler.stopInfo(GLOBAL_END_MESSAGE, "success");
+        globalProfiler.stopInfo(GLOBAL_END_MESSAGE,
+          databaseMigrationState.getCompletedMigrations(),
+          databaseMigrationState.getTotalMigrations(),
+          "success");
       } else {
-        globalProfiler.stopError(GLOBAL_END_MESSAGE, "failure");
+        globalProfiler.stopError(GLOBAL_END_MESSAGE,
+          databaseMigrationState.getCompletedMigrations(),
+          databaseMigrationState.getTotalMigrations(),
+          "failure");
       }
     }
   }
@@ -72,7 +82,10 @@ public class MigrationStepsExecutorImpl implements MigrationStepsExecutor {
 
   private void execute(RegisteredMigrationStep step, MigrationStep migrationStep) {
     Profiler stepProfiler = Profiler.create(LOGGER);
-    stepProfiler.startInfo(STEP_START_PATTERN, step);
+    stepProfiler.startInfo(STEP_START_PATTERN,
+      databaseMigrationState.getCompletedMigrations() + 1,
+      databaseMigrationState.getTotalMigrations(),
+      step);
     boolean done = false;
     try {
       migrationStep.execute();
@@ -82,9 +95,17 @@ public class MigrationStepsExecutorImpl implements MigrationStepsExecutor {
       throw new MigrationStepExecutionException(step, e);
     } finally {
       if (done) {
-        stepProfiler.stopInfo(STEP_STOP_PATTERN, step, "success");
+        stepProfiler.stopInfo(STEP_STOP_PATTERN,
+          databaseMigrationState.getCompletedMigrations() + 1,
+          databaseMigrationState.getTotalMigrations(),
+          step,
+          "success");
       } else {
-        stepProfiler.stopError(STEP_STOP_PATTERN, step, "failure");
+        stepProfiler.stopError(STEP_STOP_PATTERN,
+          databaseMigrationState.getCompletedMigrations() + 1,
+          databaseMigrationState.getTotalMigrations(),
+          step,
+          "failure");
       }
     }
   }

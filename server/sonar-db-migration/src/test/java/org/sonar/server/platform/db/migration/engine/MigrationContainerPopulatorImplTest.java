@@ -21,6 +21,7 @@ package org.sonar.server.platform.db.migration.engine;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.server.platform.db.migration.MutableDatabaseMigrationState;
 import org.sonar.server.platform.db.migration.history.MigrationHistory;
 import org.sonar.server.platform.db.migration.step.MigrationStep;
 import org.sonar.server.platform.db.migration.step.MigrationSteps;
@@ -49,6 +50,7 @@ public class MigrationContainerPopulatorImplTest {
 
     // add MigrationStepsExecutorImpl's dependencies
     migrationContainer.add(mock(MigrationHistory.class));
+    migrationContainer.add(mock(MutableDatabaseMigrationState.class));
 
     migrationContainer.startComponents();
     underTest.populateContainer(migrationContainer);
