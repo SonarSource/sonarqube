@@ -19,15 +19,13 @@
  */
 import { LinkStandalone } from '@sonarsource/echoes-react';
 import classNames from 'classnames';
-import { MetricsRatingBadge, RatingLabel } from 'design-system';
 import * as React from 'react';
-import { formatMeasure } from '~sonar-aligned/helpers/measures';
+import Measure from '~sonar-aligned/components/measure/Measure';
 import { ComponentQualifier } from '~sonar-aligned/types/component';
-import { MetricKey, MetricType } from '~sonar-aligned/types/metrics';
+import { MetricKey } from '~sonar-aligned/types/metrics';
 import LanguageDistribution from '../../../components/charts/LanguageDistribution';
 import Tooltip from '../../../components/controls/Tooltip';
-import Measure from '../../../components/measure/Measure';
-import { getLocalizedMetricName, translate, translateWithParameters } from '../../../helpers/l10n';
+import { getLocalizedMetricName, translate } from '../../../helpers/l10n';
 import { isDiffMetric } from '../../../helpers/measures';
 import { getMeasureHistoryUrl } from '../../../helpers/urls';
 import { BranchLike } from '../../../types/branch-like';
@@ -69,19 +67,7 @@ export default function MeasureHeader(props: Readonly<Props>) {
               metricKey={metric.key}
               metricType={metric.type}
               value={measureValue}
-              ratingComponent={
-                <MetricsRatingBadge
-                  label={
-                    measureValue
-                      ? translateWithParameters(
-                          'metric.has_rating_X',
-                          formatMeasure(measureValue, MetricType.Rating),
-                        )
-                      : translate('metric.no_rating')
-                  }
-                  rating={formatMeasure(measureValue, MetricType.Rating) as RatingLabel}
-                />
-              }
+              badgeSize="sm"
             />
           </div>
 

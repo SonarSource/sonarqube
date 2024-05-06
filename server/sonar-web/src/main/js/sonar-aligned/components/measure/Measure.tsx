@@ -17,41 +17,55 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { MetricsRatingBadge, QualityGateIndicator, RatingLabel } from 'design-system';
-import * as React from 'react';
+import classNames from 'classnames';
+import { MetricsRatingBadge, QualityGateIndicator, RatingLabel, Tooltip } from 'design-system';
+import React from 'react';
+import { useIntl } from 'react-intl';
 import { formatMeasure } from '~sonar-aligned/helpers/measures';
 import { Status } from '~sonar-aligned/types/common';
 import { MetricType } from '~sonar-aligned/types/metrics';
-import Tooltip from '../../components/controls/Tooltip';
-import { translate, translateWithParameters } from '../../helpers/l10n';
-import RatingTooltipContent from './RatingTooltipContent';
+import RatingTooltipContent from '../../../components/measure/RatingTooltipContent';
 
 interface Props {
   className?: string;
+  badgeSize?: 'xs' | 'sm' | 'md';
   decimals?: number;
+  fontClassName?: `sw-body-${string}` | `sw-heading-lg`;
   metricKey: string;
   metricType: string;
   small?: boolean;
   value: string | number | undefined;
-  ratingComponent?: JSX.Element;
 }
 
 export default function Measure({
   className,
+  badgeSize,
   decimals,
+  fontClassName,
   metricKey,
   metricType,
   small,
   value,
-  ratingComponent,
-}: Props) {
+}: Readonly<Props>) {
+  const intl = useIntl();
+  const classNameWithFont = classNames(className, fontClassName);
+
   if (value === undefined) {
-    return <span className={className}>—</span>;
+    return (
+      <span
+        className={classNameWithFont}
+        aria-label={
+          metricType === MetricType.Rating ? intl.formatMessage({ id: 'metric.no_rating' }) : ''
+        }
+      >
+        —
+      </span>
+    );
   }
 
   if (metricType === MetricType.Level) {
     const formatted = formatMeasure(value, MetricType.Level);
-    const ariaLabel = translateWithParameters('overview.quality_gate_x', formatted);
+    const ariaLabel = intl.formatMessage({ id: 'overview.quality_gate_x' }, { '0': formatted });
 
     return (
       <>
@@ -71,17 +85,20 @@ export default function Measure({
       decimals,
       omitExtraDecimalZeros: metricType === MetricType.Percent,
     });
-    return <span className={className}>{formattedValue ?? '—'}</span>;
+    return <span className={classNameWithFont}>{formattedValue ?? '—'}</span>;
   }
 
   const tooltip = <RatingTooltipContent metricKey={metricKey} value={value} />;
-  const rating = ratingComponent ?? (
+  const rating = (
     <MetricsRatingBadge
-      size={small ? 'sm' : 'md'}
+      size={badgeSize ?? small ? 'sm' : 'md'}
       label={
         value
-          ? translateWithParameters('metric.has_rating_X', formatMeasure(value, MetricType.Rating))
-          : translate('metric.no_rating')
+          ? intl.formatMessage(
+              { id: 'metric.has_rating_X' },
+              { '0': formatMeasure(value, MetricType.Rating) },
+            )
+          : intl.formatMessage({ id: 'metric.no_rating' })
       }
       rating={formatMeasure(value, MetricType.Rating) as RatingLabel}
     />

@@ -17,12 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { MetricsRatingBadge, NumericalCell, RatingLabel } from 'design-system';
+import { NumericalCell } from 'design-system';
 import * as React from 'react';
-import { formatMeasure } from '~sonar-aligned/helpers/measures';
-import { MetricType } from '~sonar-aligned/types/metrics';
-import Measure from '../../../components/measure/Measure';
-import { translate, translateWithParameters } from '../../../helpers/l10n';
+import Measure from '~sonar-aligned/components/measure/Measure';
 import { getCCTMeasureValue, isDiffMetric } from '../../../helpers/measures';
 import { ComponentMeasureEnhanced, MeasureEnhanced, Metric } from '../../../types/types';
 
@@ -32,7 +29,7 @@ interface Props {
   metric: Metric;
 }
 
-export default function MeasureCell({ component, measure, metric }: Props) {
+export default function MeasureCell({ component, measure, metric }: Readonly<Props>) {
   const getValue = (item: { leak?: string; value?: string }) =>
     isDiffMetric(metric.key) ? item.leak : item.value;
 
@@ -41,25 +38,7 @@ export default function MeasureCell({ component, measure, metric }: Props) {
 
   return (
     <NumericalCell className="sw-py-3">
-      <Measure
-        metricKey={metric.key}
-        metricType={metric.type}
-        value={value}
-        small
-        ratingComponent={
-          <MetricsRatingBadge
-            label={
-              value
-                ? translateWithParameters(
-                    'metric.has_rating_X',
-                    formatMeasure(value, MetricType.Rating),
-                  )
-                : translate('metric.no_rating')
-            }
-            rating={formatMeasure(value, MetricType.Rating) as RatingLabel}
-          />
-        }
-      />
+      <Measure metricKey={metric.key} metricType={metric.type} value={value} small />
     </NumericalCell>
   );
 }

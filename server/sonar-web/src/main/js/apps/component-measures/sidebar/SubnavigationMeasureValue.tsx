@@ -17,12 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { MetricsRatingBadge, Note, RatingLabel } from 'design-system';
+import { Note } from 'design-system';
 import React from 'react';
-import { formatMeasure } from '~sonar-aligned/helpers/measures';
-import { MetricType } from '~sonar-aligned/types/metrics';
-import Measure from '../../../components/measure/Measure';
-import { translate, translateWithParameters } from '../../../helpers/l10n';
+import Measure from '~sonar-aligned/components/measure/Measure';
 import { isDiffMetric } from '../../../helpers/measures';
 import { MeasureEnhanced } from '../../../types/types';
 
@@ -33,7 +30,6 @@ interface Props {
 export default function SubnavigationMeasureValue({ measure }: Readonly<Props>) {
   const isDiff = isDiffMetric(measure.metric.key);
   const value = isDiff ? measure.leak : measure.value;
-  const formatted = formatMeasure(value, MetricType.Rating);
 
   return (
     <Note
@@ -41,17 +37,7 @@ export default function SubnavigationMeasureValue({ measure }: Readonly<Props>) 
       id={`measure-${measure.metric.key}-${isDiff ? 'leak' : 'value'}`}
     >
       <Measure
-        ratingComponent={
-          <MetricsRatingBadge
-            size="xs"
-            label={
-              value
-                ? translateWithParameters('metric.has_rating_X', formatted)
-                : translate('metric.no_rating')
-            }
-            rating={formatted as RatingLabel}
-          />
-        }
+        badgeSize="xs"
         metricKey={measure.metric.key}
         metricType={measure.metric.type}
         small

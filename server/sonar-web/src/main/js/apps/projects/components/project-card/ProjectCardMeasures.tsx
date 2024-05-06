@@ -26,9 +26,9 @@ import {
   RatingLabel,
 } from 'design-system';
 import * as React from 'react';
+import Measure from '~sonar-aligned/components/measure/Measure';
 import { ComponentQualifier } from '~sonar-aligned/types/component';
 import { MetricKey, MetricType } from '~sonar-aligned/types/metrics';
-import Measure from '../../../../components/measure/Measure';
 import { duplicationRatingConverter } from '../../../../components/measure/utils';
 import { translate } from '../../../../helpers/l10n';
 import { formatRating } from '../../../../helpers/measures';

@@ -17,16 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import {
-  CoverageIndicator,
-  DuplicationsIndicator,
-  MetricsRatingBadge,
-  RatingEnum,
-} from 'design-system';
+import { CoverageIndicator, DuplicationsIndicator } from 'design-system';
 import * as React from 'react';
-import { formatMeasure } from '~sonar-aligned/helpers/measures';
+import Measure from '~sonar-aligned/components/measure/Measure';
 import { MetricKey, MetricType } from '~sonar-aligned/types/metrics';
-import Measure from './Measure';
 import { duplicationRatingConverter } from './utils';
 
 interface Props {
@@ -61,10 +55,5 @@ export default function MeasureIndicator(props: Props) {
     );
   }
 
-  const ratingFormatted = formatMeasure(value, MetricType.Rating);
-  const ratingComponent = (
-    <MetricsRatingBadge rating={ratingFormatted as RatingEnum} label={ratingFormatted} />
-  );
-
-  return <Measure {...props} ratingComponent={ratingComponent} />;
+  return <Measure {...props} badgeSize="sm" />;
 }

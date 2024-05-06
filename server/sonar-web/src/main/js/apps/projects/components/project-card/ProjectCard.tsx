@@ -37,6 +37,7 @@ import {
 import { isEmpty } from 'lodash';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
+import Measure from '~sonar-aligned/components/measure/Measure';
 import { formatMeasure } from '~sonar-aligned/helpers/measures';
 import { Status } from '~sonar-aligned/types/common';
 import { ComponentQualifier } from '~sonar-aligned/types/component';
@@ -45,7 +46,6 @@ import Favorite from '../../../../components/controls/Favorite';
 import Tooltip from '../../../../components/controls/Tooltip';
 import DateFromNow from '../../../../components/intl/DateFromNow';
 import DateTimeFormatter from '../../../../components/intl/DateTimeFormatter';
-import Measure from '../../../../components/measure/Measure';
 import { translate, translateWithParameters } from '../../../../helpers/l10n';
 import { isDefined } from '../../../../helpers/types';
 import { getProjectUrl } from '../../../../helpers/urls';
