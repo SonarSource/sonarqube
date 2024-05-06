@@ -251,7 +251,7 @@ subprojects {
       dependency 'com.sonarsource.dbd:sonar-dbd-python-frontend-plugin:1.26.0.8705'
       dependency 'com.sonarsource.pli:sonar-pli-plugin:1.15.0.4810'
       dependency 'com.sonarsource.plsql:sonar-plsql-plugin:3.12.0.6513'
-      dependency 'com.sonarsource.plugins.vb:sonar-vb-plugin:2.12.0.4860'
+      dependency 'com.sonarsource.plugins.vb:sonar-vb-plugin:2.13.0.5130'
       dependency 'com.sonarsource.rpg:sonar-rpg-plugin:3.8.0.4662'
       dependency 'com.sonarsource.security:sonar-security-csharp-frontend-plugin:10.5.0.30668'
       dependency 'com.sonarsource.security:sonar-security-java-frontend-plugin:10.5.0.30668'
