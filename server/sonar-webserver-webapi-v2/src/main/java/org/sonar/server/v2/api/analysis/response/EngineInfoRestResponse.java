@@ -19,5 +19,5 @@
  */
 package org.sonar.server.v2.api.analysis.response;
 
-public record EngineInfoRestResponse(String filename, String checksum) {
+public record EngineInfoRestResponse(String filename, String sha256) {
 }

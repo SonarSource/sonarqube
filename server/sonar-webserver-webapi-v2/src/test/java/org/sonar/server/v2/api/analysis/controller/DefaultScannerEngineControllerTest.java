@@ -53,7 +53,7 @@ class DefaultScannerEngineControllerTest {
     String anyName = "anyName";
     String anyChecksum = "anyChecksum";
     when(scannerEngineHandler.getScannerEngineMetadata()).thenReturn(new ScannerEngineMetadata(anyName, anyChecksum));
-    String expectedJson = format("{\"filename\":\"%s\",\"checksum\":\"%s\"}", anyName, anyChecksum);
+    String expectedJson = format("{\"filename\":\"%s\",\"sha256\":\"%s\"}", anyName, anyChecksum);
 
     mockMvc.perform(get(SCANNER_ENGINE_ENDPOINT))
       .andExpectAll(
