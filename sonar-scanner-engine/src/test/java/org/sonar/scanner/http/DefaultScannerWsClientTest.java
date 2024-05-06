@@ -19,62 +19,73 @@
  */
 package org.sonar.scanner.http;
 
+import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.mockito.Mockito;
 import org.slf4j.event.Level;
 import org.sonar.api.notifications.AnalysisWarnings;
 import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.api.utils.MessageException;
-import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.scanner.bootstrap.GlobalAnalysisMode;
 import org.sonar.scanner.bootstrap.ScannerProperties;
 import org.sonarqube.ws.client.GetRequest;
+import org.sonarqube.ws.client.HttpConnector;
 import org.sonarqube.ws.client.HttpException;
-import org.sonarqube.ws.client.MockWsResponse;
 import org.sonarqube.ws.client.WsClient;
+import org.sonarqube.ws.client.WsClientFactories;
 import org.sonarqube.ws.client.WsRequest;
-import org.sonarqube.ws.client.WsResponse;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.get;
+import static com.github.tomakehurst.wiremock.client.WireMock.ok;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
+import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 import static org.sonar.api.utils.DateUtils.DATETIME_FORMAT;
+import static org.sonar.scanner.http.DefaultScannerWsClient.SQ_TOKEN_EXPIRATION_HEADER;
 
 public class DefaultScannerWsClientTest {
 
+  public static final String URL_ENDPOINT = "/api/issues/search";
   @Rule
   public LogTester logTester = new LogTester();
 
-  private final WsClient wsClient = mock(WsClient.class, Mockito.RETURNS_DEEP_STUBS);
+  @Rule
+  public WireMockRule server = new WireMockRule(options().dynamicPort());
+
+  private WsClient wsClient;
 
   private final AnalysisWarnings analysisWarnings = mock(AnalysisWarnings.class);
+
+  @Before
+  public void prepareWsClient() {
+    wsClient = WsClientFactories.getDefault().newClient(HttpConnector.newBuilder().url(server.baseUrl()).build());
+  }
 
   @Test
   public void call_whenDebugLevel_shouldLogAndProfileRequest() {
     WsRequest request = newRequest();
-    WsResponse response = newResponse().setRequestUrl("https://local/api/issues/search");
-    when(wsClient.wsConnector().call(request)).thenReturn(response);
+    server.stubFor(get(urlEqualTo(URL_ENDPOINT)).willReturn(ok()));
 
-    logTester.setLevel(LoggerLevel.DEBUG);
+    logTester.setLevel(Level.DEBUG);
     DefaultScannerWsClient underTest = new DefaultScannerWsClient(wsClient, false, new GlobalAnalysisMode(new ScannerProperties(Collections.emptyMap())), analysisWarnings);
 
-    WsResponse result = underTest.call(request);
-
-    // do not fail the execution -> interceptor returns the response
-    assertThat(result).isSameAs(response);
+    underTest.call(request);
 
     // check logs
     List<String> debugLogs = logTester.logs(Level.DEBUG);
-    assertThat(debugLogs).hasSize(1);
-    assertThat(debugLogs.get(0)).contains("GET 200 https://local/api/issues/search | time=");
+    assertThat(debugLogs).hasSize(2);
+    assertThat(debugLogs.get(0)).isEqualTo("--> GET " + server.url(URL_ENDPOINT));
+    assertThat(debugLogs.get(1)).matches("<-- 200 OK " + server.url(URL_ENDPOINT) + " \\(.*ms, unknown-length body\\)");
   }
 
   @Test
@@ -98,14 +109,13 @@ public class DefaultScannerWsClientTest {
   @Test
   public void call_whenUnauthorizedAndDebugEnabled_shouldLogResponseDetails() {
     WsRequest request = newRequest();
-    WsResponse response = newResponse()
-      .setContent("Missing credentials")
-      .setHeader("Authorization: ", "Bearer ImNotAValidToken")
-      .setCode(403);
+    server.stubFor(get(urlEqualTo(URL_ENDPOINT))
+      .willReturn(aResponse()
+        .withStatus(403)
+        .withBody("Missing credentials")
+        .withHeader("Authorization", "Bearer ImNotAValidToken")));
 
-    logTester.setLevel(LoggerLevel.DEBUG);
-
-    when(wsClient.wsConnector().call(request)).thenReturn(response);
+    logTester.setLevel(Level.DEBUG);
 
     DefaultScannerWsClient client = new DefaultScannerWsClient(wsClient, false,
       new GlobalAnalysisMode(new ScannerProperties(Collections.emptyMap())), analysisWarnings);
@@ -115,21 +125,20 @@ public class DefaultScannerWsClientTest {
         "You're not authorized to analyze this project or the project doesn't exist on SonarQube and you're not authorized to create it. Please contact an administrator.");
 
     List<String> debugLogs = logTester.logs(Level.DEBUG);
-    assertThat(debugLogs).hasSize(2);
-    assertThat(debugLogs.get(1)).contains("Error response content: Missing credentials, headers: {Authorization: =[Bearer ImNotAValidToken]}");
+    assertThat(debugLogs).hasSize(3);
+    assertThat(debugLogs.get(2)).contains("Error response content: Missing credentials, headers: {authorization=[Bearer ImNotAValidToken]");
   }
 
   @Test
   public void call_whenUnauthenticatedAndDebugEnabled_shouldLogResponseDetails() {
     WsRequest request = newRequest();
-    WsResponse response = newResponse()
-      .setContent("Missing authentication")
-      .setHeader("X-Test-Header: ", "ImATestHeader")
-      .setCode(401);
+    server.stubFor(get(urlEqualTo(URL_ENDPOINT))
+      .willReturn(aResponse()
+        .withStatus(401)
+        .withBody("Missing authentication")
+        .withHeader("X-Test-Header", "ImATestHeader")));
 
-    logTester.setLevel(LoggerLevel.DEBUG);
-
-    when(wsClient.wsConnector().call(request)).thenReturn(response);
+    logTester.setLevel(Level.DEBUG);
 
     DefaultScannerWsClient client = new DefaultScannerWsClient(wsClient, false,
       new GlobalAnalysisMode(new ScannerProperties(Collections.emptyMap())), analysisWarnings);
@@ -139,17 +148,17 @@ public class DefaultScannerWsClientTest {
         "or the credentials in the properties 'sonar.login' and 'sonar.password'.");
 
     List<String> debugLogs = logTester.logs(Level.DEBUG);
-    assertThat(debugLogs).hasSize(2);
-    assertThat(debugLogs.get(1)).contains("Error response content: Missing authentication, headers: {X-Test-Header: =[ImATestHeader]}");
+    assertThat(debugLogs).hasSize(3);
+    assertThat(debugLogs.get(2)).matches("Error response content: Missing authentication, headers: \\{.*x-test-header=\\[ImATestHeader\\].*");
   }
 
   @Test
   public void call_whenMissingCredentials_shouldFailWithMsg() {
     WsRequest request = newRequest();
-    WsResponse response = newResponse()
-      .setContent("Missing authentication")
-      .setCode(401);
-    when(wsClient.wsConnector().call(request)).thenReturn(response);
+    server.stubFor(get(urlEqualTo(URL_ENDPOINT))
+      .willReturn(aResponse()
+        .withStatus(401)
+        .withBody("Missing authentication")));
 
     DefaultScannerWsClient client = new DefaultScannerWsClient(wsClient, false,
       new GlobalAnalysisMode(new ScannerProperties(Collections.emptyMap())), analysisWarnings);
@@ -162,10 +171,10 @@ public class DefaultScannerWsClientTest {
   @Test
   public void call_whenInvalidCredentials_shouldFailWithMsg() {
     WsRequest request = newRequest();
-    WsResponse response = newResponse()
-      .setContent("Invalid credentials")
-      .setCode(401);
-    when(wsClient.wsConnector().call(request)).thenReturn(response);
+    server.stubFor(get(urlEqualTo(URL_ENDPOINT))
+      .willReturn(aResponse()
+        .withStatus(401)
+        .withBody("Invalid credentials")));
 
     DefaultScannerWsClient client = new DefaultScannerWsClient(wsClient, /* credentials are configured */true,
       new GlobalAnalysisMode(new ScannerProperties(Collections.emptyMap())), analysisWarnings);
@@ -177,10 +186,10 @@ public class DefaultScannerWsClientTest {
   @Test
   public void call_whenMissingPermissions_shouldFailWithMsg() {
     WsRequest request = newRequest();
-    WsResponse response = newResponse()
-      .setContent("Unauthorized")
-      .setCode(403);
-    when(wsClient.wsConnector().call(request)).thenReturn(response);
+    server.stubFor(get(urlEqualTo(URL_ENDPOINT))
+      .willReturn(aResponse()
+        .withStatus(403)
+        .withBody("Unauthorized")));
 
     DefaultScannerWsClient client = new DefaultScannerWsClient(wsClient, true,
       new GlobalAnalysisMode(new ScannerProperties(Collections.emptyMap())), analysisWarnings);
@@ -197,12 +206,11 @@ public class DefaultScannerWsClientTest {
     String expirationDate = DateTimeFormatter
       .ofPattern(DATETIME_FORMAT)
       .format(fiveDaysLatter);
-    WsResponse response = newResponse()
-      .setCode(200)
-      .setExpirationDate(expirationDate);
-    when(wsClient.wsConnector().call(request)).thenReturn(response);
+    server.stubFor(get(urlEqualTo(URL_ENDPOINT))
+      .willReturn(ok()
+        .withHeader(SQ_TOKEN_EXPIRATION_HEADER, expirationDate)));
 
-    logTester.setLevel(LoggerLevel.DEBUG);
+    logTester.setLevel(Level.DEBUG);
     DefaultScannerWsClient underTest = new DefaultScannerWsClient(wsClient, false, new GlobalAnalysisMode(new ScannerProperties(Collections.emptyMap())), analysisWarnings);
     underTest.call(request);
     // the second call should not add the same warning twice
@@ -218,20 +226,16 @@ public class DefaultScannerWsClientTest {
   @Test
   public void call_whenBadRequest_shouldFailWithMessage() {
     WsRequest request = newRequest();
-    WsResponse response = newResponse()
-      .setCode(400)
-      .setContent("{\"errors\":[{\"msg\":\"Boo! bad request! bad!\"}]}");
-    when(wsClient.wsConnector().call(request)).thenReturn(response);
+    server.stubFor(get(urlEqualTo(URL_ENDPOINT))
+      .willReturn(aResponse()
+        .withStatus(400)
+        .withBody("{\"errors\":[{\"msg\":\"Boo! bad request! bad!\"}]}")));
 
     DefaultScannerWsClient client = new DefaultScannerWsClient(wsClient, true,
       new GlobalAnalysisMode(new ScannerProperties(Collections.emptyMap())), analysisWarnings);
     assertThatThrownBy(() -> client.call(request))
       .isInstanceOf(MessageException.class)
       .hasMessage("Boo! bad request! bad!");
-  }
-
-  private MockWsResponse newResponse() {
-    return new MockWsResponse().setRequestUrl("https://local/api/issues/search");
   }
 
   private WsRequest newRequest() {

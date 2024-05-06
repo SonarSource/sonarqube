@@ -315,7 +315,7 @@ subprojects {
         exclude 'junit:junit'
       }
       dependency 'com.squareup.okio:okio:3.9.0'
-      dependency 'io.github.hakky54:sslcontext-kickstart:8.3.4'
+      dependency 'io.github.hakky54:sslcontext-kickstart:8.3.5'
       dependency 'io.prometheus:simpleclient:0.16.0'
       dependency 'io.prometheus:simpleclient_common:0.16.0'
       dependency 'io.prometheus:simpleclient_servlet:0.16.0'
@@ -346,6 +346,7 @@ subprojects {
         entry 'okhttp'
         entry 'mockwebserver'
         entry 'okhttp-tls'
+        entry 'logging-interceptor'
       }
       dependency 'org.json:json:20240303'
       // To be removed after migration to JUnit5 is finished

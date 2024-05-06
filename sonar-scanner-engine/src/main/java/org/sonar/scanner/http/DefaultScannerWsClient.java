@@ -33,12 +33,11 @@ import java.util.Map;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.notifications.AnalysisWarnings;
 import org.sonar.api.utils.MessageException;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
-import org.sonar.api.utils.log.Profiler;
 import org.sonar.scanner.bootstrap.GlobalAnalysisMode;
 import org.sonarqube.ws.client.HttpException;
 import org.sonarqube.ws.client.WsClient;
@@ -56,9 +55,9 @@ import static org.sonar.api.utils.Preconditions.checkState;
 
 public class DefaultScannerWsClient implements ScannerWsClient {
   private static final int MAX_ERROR_MSG_LEN = 128;
-  private static final String SQ_TOKEN_EXPIRATION_HEADER = "SonarQube-Authentication-Token-Expiration";
+  static final String SQ_TOKEN_EXPIRATION_HEADER = "SonarQube-Authentication-Token-Expiration";
   private static final DateTimeFormatter USER_FRIENDLY_DATETIME_FORMAT = DateTimeFormatter.ofPattern("MMMM dd, yyyy");
-  private static final Logger LOG = Loggers.get(DefaultScannerWsClient.class);
+  private static final Logger LOG = LoggerFactory.getLogger(DefaultScannerWsClient.class);
 
   private final Set<String> warningMessages = new HashSet<>();
 
@@ -85,9 +84,7 @@ public class DefaultScannerWsClient implements ScannerWsClient {
    */
   public WsResponse call(WsRequest request) {
     checkState(!globalMode.isMediumTest(), "No WS call should be made in medium test mode");
-    Profiler profiler = Profiler.createIfDebug(LOG).start();
     WsResponse response = target.wsConnector().call(request);
-    profiler.stopDebug(format("%s %d %s", request.getMethod(), response.code(), response.requestUrl()));
     failIfUnauthorized(response);
     checkAuthenticationWarnings(response);
     return response;

@@ -82,9 +82,8 @@ public class AzureDevOpsHttpClientTest {
     assertThat(azureDevOpsUrlCall).isEqualTo(server.url("") + "_apis/projects?api-version=3.0");
     assertThat(request.getMethod()).isEqualTo("GET");
 
-    assertThat(logTester.logs()).hasSize(1);
     assertThat(logTester.logs(Level.DEBUG))
-      .contains("check pat : [" + server.url("").toString() + "_apis/projects?api-version=3.0]");
+      .contains("--> GET " + server.url("").toString() + "_apis/projects?api-version=3.0");
   }
 
   @Test
@@ -136,9 +135,8 @@ public class AzureDevOpsHttpClientTest {
     assertThat(azureDevOpsUrlCall).isEqualTo(server.url("") + "_apis/projects?api-version=3.0");
     assertThat(request.getMethod()).isEqualTo("GET");
 
-    assertThat(logTester.logs(Level.DEBUG)).hasSize(1);
     assertThat(logTester.logs(Level.DEBUG))
-      .contains("get projects : [" + server.url("") + "_apis/projects?api-version=3.0]");
+      .contains("--> GET " + server.url("") + "_apis/projects?api-version=3.0");
     assertThat(projects.getValues()).hasSize(2);
     assertThat(projects.getValues())
       .extracting(GsonAzureProject::getName, GsonAzureProject::getDescription)
@@ -227,9 +225,8 @@ public class AzureDevOpsHttpClientTest {
     assertThat(azureDevOpsUrlCall).isEqualTo(server.url("") + "projectName/_apis/git/repositories?api-version=3.0");
     assertThat(request.getMethod()).isEqualTo("GET");
 
-    assertThat(logTester.logs(Level.DEBUG)).hasSize(1);
     assertThat(logTester.logs(Level.DEBUG))
-      .contains("get repos : [" + server.url("").toString() + "projectName/_apis/git/repositories?api-version=3.0]");
+      .contains("--> GET " + server.url("").toString() + "projectName/_apis/git/repositories?api-version=3.0");
     assertThat(repos.getValues()).hasSize(1);
     assertThat(repos.getValues())
       .extracting(GsonAzureRepo::getName, GsonAzureRepo::getUrl, r -> r.getProject().getName())
@@ -280,9 +277,8 @@ public class AzureDevOpsHttpClientTest {
     assertThat(azureDevOpsUrlCall).isEqualTo(server.url("") + "Project-Name/_apis/git/repositories/Repo-Name-1?api-version=3.0");
     assertThat(request.getMethod()).isEqualTo("GET");
 
-    assertThat(logTester.logs(Level.DEBUG)).hasSize(1);
     assertThat(logTester.logs(Level.DEBUG))
-      .contains("get repo : [" + server.url("").toString() + "Project-Name/_apis/git/repositories/Repo-Name-1?api-version=3.0]");
+      .contains("--> GET " + server.url("").toString() + "Project-Name/_apis/git/repositories/Repo-Name-1?api-version=3.0");
     assertThat(repo.getId()).isEqualTo("Repo-Id-1");
     assertThat(repo.getName()).isEqualTo("Repo-Name-1");
     assertThat(repo.getUrl()).isEqualTo("https://ado.sonarqube.com/DefaultCollection/Repo-Id-1");

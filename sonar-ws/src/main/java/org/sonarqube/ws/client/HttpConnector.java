@@ -91,6 +91,7 @@ public class HttpConnector implements WsConnector {
     okHttpClientBuilder.setSSLSocketFactory(builder.sslSocketFactory);
     okHttpClientBuilder.setTrustManager(builder.sslTrustManager);
     okHttpClientBuilder.acceptGzip(builder.acceptGzip);
+
     this.okHttpClient = okHttpClientBuilder.build();
     this.noRedirectOkHttpClient = newClientWithoutRedirect(this.okHttpClient);
   }

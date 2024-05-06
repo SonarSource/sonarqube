@@ -46,6 +46,9 @@ import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+import okhttp3.logging.HttpLoggingInterceptor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Arrays.asList;
@@ -57,6 +60,8 @@ import static org.sonarqube.ws.WsUtils.nullToEmpty;
  * sending of User-Agent header.
  */
 public class OkHttpClientBuilder {
+
+  private static final Logger LOG = LoggerFactory.getLogger(OkHttpClientBuilder.class);
 
   private static final String NONE = "NONE";
   private static final String P11KEYSTORE = "PKCS11";
@@ -204,7 +209,7 @@ public class OkHttpClientBuilder {
       builder.callTimeout(responseTimeoutMs, TimeUnit.MILLISECONDS);
     }
     builder.addNetworkInterceptor(this::addHeaders);
-    if(!acceptGzip) {
+    if (!acceptGzip) {
       builder.addNetworkInterceptor(new GzipRejectorInterceptor());
     }
     if (proxyLogin != null) {
@@ -236,7 +241,15 @@ public class OkHttpClientBuilder {
     SSLSocketFactory sslFactory = sslSocketFactory != null ? sslSocketFactory : systemDefaultSslSocketFactory(trustManager);
     builder.sslSocketFactory(sslFactory, trustManager);
 
+    builder.addInterceptor(buildLoggingInterceptor());
+
     return builder.build();
+  }
+
+  private static HttpLoggingInterceptor buildLoggingInterceptor() {
+    var logging = new HttpLoggingInterceptor(LOG::debug);
+    logging.setLevel(HttpLoggingInterceptor.Level.BASIC);
+    return logging;
   }
 
   private Response addHeaders(Interceptor.Chain chain) throws IOException {
