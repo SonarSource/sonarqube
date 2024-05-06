@@ -19,6 +19,7 @@
  */
 import { keyframes } from '@emotion/react';
 import styled from '@emotion/styled';
+import { LinkStandalone } from '@sonarsource/echoes-react';
 import React from 'react';
 import { useIntl } from 'react-intl';
 import ReactJoyride, {
@@ -26,6 +27,7 @@ import ReactJoyride, {
   Step as JoyrideStep,
   TooltipRenderProps,
 } from 'react-joyride';
+import { LinkProps } from 'react-router-dom';
 import tw from 'twin.macro';
 import { GLOBAL_POPUP_Z_INDEX, PopupZLevel, themeColor } from '../helpers';
 import { findAnchor } from '../helpers/dom';
@@ -37,6 +39,8 @@ import { PopupWrapper } from './popups';
 type Placement = 'left' | 'right' | 'top' | 'bottom' | 'center';
 
 export interface SpotlightTourProps extends Omit<JoyrideProps, 'steps'> {
+  actionLabel?: string;
+  actionPath?: LinkProps['to'];
   backLabel?: string;
   closeLabel?: string;
   nextLabel?: string;
@@ -60,6 +64,8 @@ const DEFAULT_WIDTH = 315;
 const defultRect = new DOMRect(0, 0, 0, 0);
 
 function TooltipComponent({
+  actionLabel,
+  actionPath,
   continuous,
   index,
   step,
@@ -73,6 +79,8 @@ function TooltipComponent({
   tooltipProps,
   width = DEFAULT_WIDTH,
 }: TooltipRenderProps & {
+  actionLabel?: string;
+  actionPath?: LinkProps['to'];
   step: SpotlightTourStep;
   stepXofYLabel: SpotlightTourProps['stepXofYLabel'];
   width?: number;
@@ -154,6 +162,13 @@ function TooltipComponent({
         </WrapperButton>
       </div>
       <div>{step.content}</div>
+
+      {actionLabel && actionPath && (
+        <div className="sw-pt-4">
+          <LinkStandalone to={actionPath}>{actionLabel}</LinkStandalone>
+        </div>
+      )}
+
       <div className="sw-flex sw-justify-between sw-items-center sw-mt-4">
         {(stepXofYLabel || size > 1) && (
           <strong>
@@ -183,6 +198,8 @@ function TooltipComponent({
 
 export function SpotlightTour(props: SpotlightTourProps) {
   const {
+    actionLabel,
+    actionPath,
     steps,
     skipLabel,
     backLabel,
@@ -227,7 +244,15 @@ export function SpotlightTour(props: SpotlightTourProps) {
       }))}
       tooltipComponent={(
         tooltipProps: React.PropsWithChildren<TooltipRenderProps & { step: SpotlightTourStep }>,
-      ) => <TooltipComponent stepXofYLabel={stepXofYLabel} width={width} {...tooltipProps} />}
+      ) => (
+        <TooltipComponent
+          actionLabel={actionLabel}
+          actionPath={actionPath}
+          stepXofYLabel={stepXofYLabel}
+          width={width}
+          {...tooltipProps}
+        />
+      )}
       {...otherProps}
     />
   );

@@ -29,10 +29,12 @@ import { MeasuresServiceMock } from '../../../../api/mocks/MeasuresServiceMock';
 import { ProjectActivityServiceMock } from '../../../../api/mocks/ProjectActivityServiceMock';
 import { QualityGatesServiceMock } from '../../../../api/mocks/QualityGatesServiceMock';
 import { TimeMachineServiceMock } from '../../../../api/mocks/TimeMachineServiceMock';
+import UsersServiceMock from '../../../../api/mocks/UsersServiceMock';
 import { PARENT_COMPONENT_KEY } from '../../../../api/mocks/data/ids';
 import { getProjectActivity } from '../../../../api/projectActivity';
 import { getQualityGateProjectStatus } from '../../../../api/quality-gates';
 import CurrentUserContextProvider from '../../../../app/components/current-user/CurrentUserContextProvider';
+import { Header } from '../../../../app/components/nav/component/Header';
 import { parseDate } from '../../../../helpers/dates';
 import { mockMainBranch } from '../../../../helpers/mocks/branch-like';
 import { mockComponent } from '../../../../helpers/mocks/component';
@@ -51,6 +53,7 @@ let branchesHandler: BranchesServiceMock;
 let measuresHandler: MeasuresServiceMock;
 let applicationHandler: ApplicationServiceMock;
 let projectActivityHandler: ProjectActivityServiceMock;
+let usersHandler: UsersServiceMock;
 let timeMarchineHandler: TimeMachineServiceMock;
 let qualityGatesHandler: QualityGatesServiceMock;
 
@@ -59,6 +62,7 @@ beforeAll(() => {
   measuresHandler = new MeasuresServiceMock();
   applicationHandler = new ApplicationServiceMock();
   projectActivityHandler = new ProjectActivityServiceMock();
+  usersHandler = new UsersServiceMock();
   projectActivityHandler.setAnalysesList([
     mockAnalysis({ key: 'a1', detectedCI: 'Cirrus CI' }),
     mockAnalysis({ key: 'a2' }),
@@ -116,6 +120,7 @@ afterEach(() => {
   measuresHandler.reset();
   applicationHandler.reset();
   projectActivityHandler.reset();
+  usersHandler.reset();
   timeMarchineHandler.reset();
   qualityGatesHandler.reset();
   almHandler.reset();
@@ -453,6 +458,61 @@ describe('project overview', () => {
       expect(await screen.findByText('overview.missing_project_dataTRK')).toBeInTheDocument();
     },
   );
+
+  it('should dismiss CaYC promoted section', async () => {
+    qualityGatesHandler.setQualityGateProjectStatus(
+      mockQualityGateProjectStatus({
+        status: 'OK',
+      }),
+    );
+    const { user } = getPageObjects();
+    renderBranchOverview();
+
+    // Meta info
+    expect(await byText('overview.promoted_section.title').find()).toBeInTheDocument();
+
+    await user.click(
+      byRole('button', { name: 'overview.promoted_section.button_secondary' }).get(),
+    );
+
+    expect(byText('overview.promoted_section.title').query()).not.toBeInTheDocument();
+
+    expect(byText('guiding.replay_tour_button.1.title').get()).toBeInTheDocument();
+  });
+
+  it('should show CaYC tour', async () => {
+    qualityGatesHandler.setQualityGateProjectStatus(
+      mockQualityGateProjectStatus({
+        status: 'OK',
+      }),
+    );
+    const { user } = getPageObjects();
+    renderBranchOverview();
+
+    expect(await byText('overview.promoted_section.title').find()).toBeInTheDocument();
+
+    await user.click(byRole('button', { name: 'overview.promoted_section.button_primary' }).get());
+
+    expect(byText('overview.promoted_section.title').query()).not.toBeInTheDocument();
+
+    expect(await byText('guiding.cayc_promotion.1.title').find()).toBeInTheDocument();
+
+    await user.click(byRole('button', { name: 'next' }).get());
+
+    expect(byText('guiding.cayc_promotion.2.title').get()).toBeInTheDocument();
+
+    await user.click(byRole('button', { name: 'next' }).get());
+
+    expect(byText('guiding.cayc_promotion.3.title').get()).toBeInTheDocument();
+
+    await user.click(await byRole('button', { name: 'next' }).find());
+
+    expect(byText('guiding.cayc_promotion.4.title').get()).toBeInTheDocument();
+
+    await user.click(byRole('button', { name: 'complete' }).get());
+
+    expect(byText('guiding.replay_tour_button.tour_completed.1.title').get()).toBeInTheDocument();
+  });
 });
 
 describe('application overview', () => {
@@ -716,18 +776,17 @@ it.each([
 );
 
 function renderBranchOverview(props: Partial<BranchOverview['props']> = {}) {
+  const user = mockLoggedInUser();
+  const component = mockComponent({
+    breadcrumbs: [mockComponent({ key: 'foo' })],
+    key: 'foo',
+    name: 'Foo',
+    version: 'version-1.0',
+  });
   return renderComponent(
-    <CurrentUserContextProvider currentUser={mockLoggedInUser()}>
-      <BranchOverview
-        branch={mockMainBranch()}
-        component={mockComponent({
-          breadcrumbs: [mockComponent({ key: 'foo' })],
-          key: 'foo',
-          name: 'Foo',
-          version: 'version-1.0',
-        })}
-        {...props}
-      />
+    <CurrentUserContextProvider currentUser={user}>
+      <Header component={component} currentUser={user} />
+      <BranchOverview branch={mockMainBranch()} component={component} {...props} />
     </CurrentUserContextProvider>,
   );
 }

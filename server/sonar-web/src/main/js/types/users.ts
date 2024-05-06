@@ -36,6 +36,7 @@ export enum NoticeType {
   ISSUE_NEW_STATUS_AND_TRANSITION_GUIDE = 'issueNewIssueStatusAndTransitionGuide',
   QG_CAYC_CONDITIONS_SIMPLIFICATION = 'qualityGateCaYCConditionsSimplification',
   OVERVIEW_ZERO_NEW_ISSUES_SIMPLIFICATION = 'overviewZeroNewIssuesSimplification',
+  ONBOARDING_CAYC_BRANCH_SUMMARY_GUIDE = 'onboardingDismissCaycBranchSummaryGuide',
 }
 
 export interface LoggedInUser extends CurrentUser, UserActive {

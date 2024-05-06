@@ -17,7 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { SeparatorCircleIcon } from 'design-system';
+import { IconSlideshow } from '@sonarsource/echoes-react';
+import { ButtonSecondary, SeparatorCircleIcon } from 'design-system';
 import React from 'react';
 import { useIntl } from 'react-intl';
 import { formatMeasure } from '~sonar-aligned/helpers/measures';
@@ -25,6 +26,8 @@ import { MetricKey, MetricType } from '~sonar-aligned/types/metrics';
 import { getCurrentPage } from '../../../app/components/nav/component/utils';
 import ComponentReportActions from '../../../components/controls/ComponentReportActions';
 import HomePageSelect from '../../../components/controls/HomePageSelect';
+import Tooltip from '../../../components/controls/Tooltip';
+import { translate } from '../../../helpers/l10n';
 import { findMeasure } from '../../../helpers/measures';
 import { Branch } from '../../../types/branch-like';
 import { Component, MeasureEnhanced } from '../../../types/types';
@@ -34,9 +37,17 @@ interface Props {
   component: Component;
   branch: Branch;
   measures: MeasureEnhanced[];
+  showTakeTheTourButton: boolean;
+  startTour?: () => void;
 }
 
-export default function BranchMetaTopBar({ branch, measures, component }: Readonly<Props>) {
+export default function BranchMetaTopBar({
+  branch,
+  measures,
+  component,
+  showTakeTheTourButton,
+  startTour,
+}: Readonly<Props>) {
   const intl = useIntl();
 
   const currentPage = getCurrentPage(component, branch) as HomePage;
@@ -66,6 +77,18 @@ export default function BranchMetaTopBar({ branch, measures, component }: Readon
       )}
       <HomePageSelect currentPage={currentPage} type="button" />
       <ComponentReportActions component={component} branch={branch} />
+      {showTakeTheTourButton && (
+        <Tooltip overlay={translate('overview.promoted_section.button_tooltip')}>
+          <ButtonSecondary
+            className="sw-pl-4 sw-shrink-0"
+            data-spotlight-id="take-tour-1"
+            onClick={startTour}
+          >
+            <IconSlideshow className="sw-mr-1" />
+            {translate('overview.promoted_section.button_primary')}
+          </ButtonSecondary>
+        </Tooltip>
+      )}
     </div>
   );
 

@@ -50,7 +50,7 @@ export function getCommonNodes(ci: TutorialModes) {
     linkToRepo: byRole('link', {
       name: `onboarding.tutorial.with.${CI_TRANSLATE_MAP[ci]}.${
         ci === TutorialModes.GitHubActions ? 'secret' : 'variables'
-      }.intro.link open_in_new_window`,
+      }.intro.link open_in_new_tab`,
     }),
     allSetSentence: byText('onboarding.tutorial.ci_outro.done'),
   };

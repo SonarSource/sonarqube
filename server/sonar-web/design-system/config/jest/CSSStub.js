@@ -17,28 +17,5 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+module.exports = {};
 
-import React from 'react';
-import { useIntl } from 'react-intl';
-import DateFromNow from '../../../components/intl/DateFromNow';
-
-interface Props {
-  analysisDate?: string;
-}
-
-export default function LastAnalysisLabel({ analysisDate }: Readonly<Props>) {
-  const intl = useIntl();
-
-  return analysisDate ? (
-    <span className="sw-pl-4" data-spotlight-id="cayc-promotion-2">
-      {intl.formatMessage(
-        {
-          id: 'overview.last_analysis_x',
-        },
-        {
-          date: <DateFromNow className="sw-body-sm-highlight" date={analysisDate} />,
-        },
-      )}
-    </span>
-  ) : null;
-}

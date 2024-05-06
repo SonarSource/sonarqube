@@ -119,7 +119,11 @@ export function TabsPanel(props: React.PropsWithChildren<MeasuresPanelProps>) {
   ];
 
   return (
-    <div className="sw-mt-3" data-testid="overview__measures-panel">
+    <div
+      className="sw-mt-3"
+      data-testid="overview__measures-panel"
+      data-spotlight-id="cayc-promotion-1"
+    >
       {loading ? (
         <div>
           <Spinner isLoading={loading} />

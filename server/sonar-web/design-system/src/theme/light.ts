@@ -525,6 +525,7 @@ export const lightTheme = {
     projectCardInfo: COLORS.blueGrey[35],
 
     // overview
+    backgroundPromotedSection: secondary.light,
     overviewCardDefaultIcon: secondary.light,
     iconOverviewIssue: COLORS.blueGrey[400],
     overviewCardWarningIcon: COLORS.yellow[50],
