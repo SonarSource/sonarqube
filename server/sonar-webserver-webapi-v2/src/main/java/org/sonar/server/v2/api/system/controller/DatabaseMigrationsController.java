@@ -20,9 +20,10 @@
 package org.sonar.server.v2.api.system.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
-import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.Optional;
-import java.util.TimeZone;
 import javax.annotation.Nullable;
 import org.sonar.db.Database;
 import org.sonar.server.platform.db.migration.DatabaseMigrationState;
@@ -44,13 +45,10 @@ public class DatabaseMigrationsController {
   private final DatabaseMigrationState databaseMigrationState;
   private final Database database;
 
-  private static final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-
   public DatabaseMigrationsController(DatabaseVersion databaseVersion, DatabaseMigrationState databaseMigrationState, Database database) {
     this.databaseVersion = databaseVersion;
     this.databaseMigrationState = databaseMigrationState;
     this.database = database;
-    simpleDateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
   }
 
   @Operation(summary = "Gets the status of ongoing database migrations, if any", description = "Return the detailed status of ongoing database migrations" +
@@ -86,9 +84,9 @@ public class DatabaseMigrationsController {
       this(state.getStatus().toString(),
         state.getCompletedMigrations(),
         state.getTotalMigrations(),
-        state.getStartedAt() != null ? simpleDateFormat.format(state.getStartedAt()) : null,
-        state.getError() != null ? state.getError().getMessage() : state.getStatus().getMessage(),
-        state.getExpectedFinishDate() != null ? simpleDateFormat.format(state.getExpectedFinishDate()) : null);
+        state.getStartedAt().map(d -> d.atZone(ZoneOffset.UTC)).map(DateTimeFormatter.ISO_DATE_TIME::format).orElse(null),
+        state.getError().map(Throwable::getMessage).orElse(state.getStatus().getMessage()),
+        state.getExpectedFinishDate(Instant.now()).map(d -> d.atZone(ZoneOffset.UTC)).map(DateTimeFormatter.ISO_DATE_TIME::format).orElse(null));
     }
 
     public DatabaseMigrationsResponse(DatabaseMigrationState.Status status) {

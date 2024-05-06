@@ -19,6 +19,7 @@
  */
 package org.sonar.server.platform.ws;
 
+import java.util.Date;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.server.platform.db.migration.DatabaseMigrationState;
 
@@ -40,13 +41,13 @@ public class DbMigrationJsonWriter {
     json.beginObject()
       .prop(FIELD_STATE, databaseMigrationState.getStatus().toString())
       .prop(FIELD_MESSAGE, writeMessageIncludingError(databaseMigrationState))
-      .propDateTime(FIELD_STARTED_AT, databaseMigrationState.getStartedAt())
+      .propDateTime(FIELD_STARTED_AT, databaseMigrationState.getStartedAt().map(Date::from).orElse(null))
       .endObject();
   }
 
   private static String writeMessageIncludingError(DatabaseMigrationState state) {
     if (state.getStatus() == FAILED) {
-      Throwable error = state.getError();
+      Throwable error = state.getError().orElse(null);
       return String.format(state.getStatus().getMessage(), error != null ? error.getMessage() : "No failure error");
     } else {
       return state.getStatus().getMessage();
@@ -64,7 +65,7 @@ public class DbMigrationJsonWriter {
     json.beginObject()
       .prop(FIELD_STATE, RUNNING.toString())
       .prop(FIELD_MESSAGE, RUNNING.getMessage())
-      .propDateTime(FIELD_STARTED_AT, databaseMigrationState.getStartedAt())
+      .propDateTime(FIELD_STARTED_AT, databaseMigrationState.getStartedAt().map(Date::from).orElse(null))
       .endObject();
   }
 

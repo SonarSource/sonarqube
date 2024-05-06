@@ -19,8 +19,9 @@
  */
 package org.sonar.server.platform.db.migration;
 
+import java.time.Instant;
 import java.util.Date;
-import javax.annotation.CheckForNull;
+import java.util.Optional;
 
 public interface DatabaseMigrationState {
 
@@ -62,21 +63,19 @@ public interface DatabaseMigrationState {
   /**
    * The time and day the last migration was started.
    * <p>
-   * If no migration was ever started, the returned date is {@code null}.
+   * If no migration was ever started, the returned date is empty.
    * </p>
    *
-   * @return a {@link Date} or {@code null}
+   * @return a {@link Date} if present
    */
-  @CheckForNull
-  Date getStartedAt();
+  Optional<Instant> getStartedAt();
 
   /**
    * The error of the last migration if it failed.
    *
-   * @return a {@link Throwable} or {@code null}
+   * @return a {@link Throwable} if present.
    */
-  @CheckForNull
-  Throwable getError();
+  Optional<Throwable> getError();
 
   /**
    * The amount of migrations already completed.
@@ -89,8 +88,8 @@ public interface DatabaseMigrationState {
   int getTotalMigrations();
 
   /**
-   * The expected finish timestamp of the migration.
+   * The expected finish timestamp of the migration if known.
    */
-  Date getExpectedFinishDate();
+  Optional<Instant> getExpectedFinishDate(Instant now);
 
 }

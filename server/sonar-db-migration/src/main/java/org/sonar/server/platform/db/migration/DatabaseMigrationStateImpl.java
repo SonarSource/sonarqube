@@ -19,8 +19,9 @@
  */
 package org.sonar.server.platform.db.migration;
 
-import java.util.Date;
-import javax.annotation.CheckForNull;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.Optional;
 import javax.annotation.Nullable;
 
 /**
@@ -29,13 +30,11 @@ import javax.annotation.Nullable;
 public class DatabaseMigrationStateImpl implements MutableDatabaseMigrationState {
   private Status status = Status.NONE;
   @Nullable
-  private Date startedAt = null;
+  private Instant startedAt = null;
   @Nullable
   private Throwable error = null;
   private int completedMigrations = 0;
   private int totalMigrations = 0;
-  @Nullable
-  private Date completionExpectedAt = null;
 
   @Override
   public Status getStatus() {
@@ -48,26 +47,23 @@ public class DatabaseMigrationStateImpl implements MutableDatabaseMigrationState
   }
 
   @Override
-  @CheckForNull
-  public Date getStartedAt() {
-    return startedAt;
+  public Optional<Instant> getStartedAt() {
+    return Optional.ofNullable(startedAt);
   }
 
   @Override
-  public void setStartedAt(@Nullable Date startedAt) {
+  public void setStartedAt(Instant startedAt) {
     this.startedAt = startedAt;
   }
 
   @Override
-  @CheckForNull
-  public Throwable getError() {
-    return error;
+  public Optional<Throwable> getError() {
+    return Optional.ofNullable(error);
   }
 
   @Override
   public void incrementCompletedMigrations() {
     completedMigrations++;
-    updateExpectedFinishDate();
   }
 
   @Override
@@ -91,14 +87,12 @@ public class DatabaseMigrationStateImpl implements MutableDatabaseMigrationState
   }
 
   @Override
-  public Date getExpectedFinishDate() {
-    return completionExpectedAt;
+  public Optional<Instant> getExpectedFinishDate(Instant now) {
+    if (startedAt == null || totalMigrations == 0 || completedMigrations == 0) {
+      return Optional.empty();
+    }
+    Duration elapsed = Duration.between(startedAt, now);
+    double progress = (double) completedMigrations / totalMigrations;
+    return Optional.of(startedAt.plusMillis((long) (elapsed.toMillis() / progress)));
   }
-
-  private void updateExpectedFinishDate() {
-    // Here the logic is to calculate the expected finish date based on the current time and the number of migrations completed and total
-    // migrations
-    this.completionExpectedAt = new Date();
-  }
-
 }

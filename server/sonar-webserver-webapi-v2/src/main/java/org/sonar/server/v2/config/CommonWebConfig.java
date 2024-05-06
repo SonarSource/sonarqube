@@ -74,5 +74,4 @@ public class CommonWebConfig implements WebMvcConfigurer {
   public BeanFactoryPostProcessor beanFactoryPostProcessor1(SpringDocConfigProperties springDocConfigProperties) {
     return beanFactory -> springDocConfigProperties.setDefaultProducesMediaType(MediaType.APPLICATION_JSON_VALUE);
   }
-
 }

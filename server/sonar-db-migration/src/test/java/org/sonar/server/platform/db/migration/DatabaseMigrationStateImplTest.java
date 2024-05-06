@@ -19,13 +19,16 @@
  */
 package org.sonar.server.platform.db.migration;
 
-import java.util.Date;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import org.assertj.core.api.InstanceOfAssertFactories;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.within;
 
 class DatabaseMigrationStateImplTest {
-  private DatabaseMigrationStateImpl underTest = new DatabaseMigrationStateImpl();
+  private final DatabaseMigrationStateImpl underTest = new DatabaseMigrationStateImpl();
 
   @Test
   void getStatus_whenComponentIsCreated_shouldReturnNONE() {
@@ -42,21 +45,21 @@ class DatabaseMigrationStateImplTest {
   }
 
   @Test
-  void getStartedAt_whenComponentIsCreated_shouldReturnNull() {
-    assertThat(underTest.getStartedAt()).isNull();
+  void getStartedAt_whenComponentIsCreated_shouldNotBePresent() {
+    assertThat(underTest.getStartedAt()).isEmpty();
   }
 
   @Test
   void getStartedAt_shouldReturnArgumentOfSetStartedAt() {
-    Date expected = new Date();
+    Instant expected = Instant.now();
     underTest.setStartedAt(expected);
 
-    assertThat(underTest.getStartedAt()).isSameAs(expected);
+    assertThat(underTest.getStartedAt()).get().isSameAs(expected);
   }
 
   @Test
-  void getError_whenComponentIsCreated_shouldReturnNull() {
-    assertThat(underTest.getError()).isNull();
+  void getError_whenComponentIsCreated_shouldNotBePresent() {
+    assertThat(underTest.getError()).isEmpty();
   }
 
   @Test
@@ -64,7 +67,7 @@ class DatabaseMigrationStateImplTest {
     RuntimeException expected = new RuntimeException();
     underTest.setError(expected);
 
-    assertThat(underTest.getError()).isSameAs(expected);
+    assertThat(underTest.getError()).get().isSameAs(expected);
   }
   
   @Test
@@ -84,13 +87,37 @@ class DatabaseMigrationStateImplTest {
   }
 
   @Test
-  void incrementCompletedMigrations_shouldUpdateExpectedFinishDate() {
-    Date startDate = new Date();
+  void when_noStartedMigration_expectedFinishDateShouldBeAbsent() {
+    Instant startDate = Instant.now();
+    Instant later = startDate.plus(1, ChronoUnit.MINUTES);
 
+    underTest.setTotalMigrations(2);
+
+    assertThat(underTest.getExpectedFinishDate(later)).isEmpty();
+  }
+
+  @Test
+  void when_noStepCompleted_expectedFinishDateShouldBeAbsent() {
+    Instant startDate = Instant.now();
+    Instant later = startDate.plus(1, ChronoUnit.MINUTES);
+
+    underTest.setStartedAt(startDate);
+    underTest.setTotalMigrations(2);
+
+    assertThat(underTest.getExpectedFinishDate(later)).isEmpty();
+  }
+
+  @Test
+  void when_StepCompleted_expectedFinishDateShouldBePresent() {
+    Instant startDate = Instant.now();
+    Instant later = startDate.plus(1, ChronoUnit.MINUTES);
+    Instant expectedEnd = startDate.plus(2, ChronoUnit.MINUTES);
+
+    underTest.setStartedAt(startDate);
+    underTest.setTotalMigrations(2);
     underTest.incrementCompletedMigrations();
 
-    // At the moment the expected finish date gets update with the timestamp of the last migration completed
-    assertThat(underTest.getExpectedFinishDate()).isAfterOrEqualTo(startDate);
+    assertThat(underTest.getExpectedFinishDate(later)).get(InstanceOfAssertFactories.INSTANT)
+      .isCloseTo(expectedEnd, within(1, ChronoUnit.SECONDS));
   }
-  
 }

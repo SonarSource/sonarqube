@@ -19,7 +19,7 @@
  */
 package org.sonar.server.platform.db.migration;
 
-import java.util.Date;
+import java.time.Instant;
 import org.junit.Test;
 import org.mockito.InOrder;
 import org.sonar.server.platform.Platform;
@@ -68,7 +68,7 @@ public class DatabaseMigrationImplTest {
     underTest.startIt();
 
     assertThat(migrationState.getStatus()).isEqualTo(DatabaseMigrationState.Status.SUCCEEDED);
-    assertThat(migrationState.getError()).isNull();
+    assertThat(migrationState.getError()).isEmpty();
     assertThat(migrationState.getStartedAt()).isNotNull();
   }
 
@@ -79,7 +79,7 @@ public class DatabaseMigrationImplTest {
     underTest.startIt();
 
     assertThat(migrationState.getStatus()).isEqualTo(DatabaseMigrationState.Status.FAILED);
-    assertThat(migrationState.getError()).isSameAs(AN_ERROR);
+    assertThat(migrationState.getError()).get().isSameAs(AN_ERROR);
     assertThat(migrationState.getStartedAt()).isNotNull();
   }
 
@@ -90,17 +90,19 @@ public class DatabaseMigrationImplTest {
     underTest.startIt();
 
     assertThat(migrationState.getStatus()).isEqualTo(DatabaseMigrationState.Status.FAILED);
-    assertThat(migrationState.getError()).isSameAs(AN_ERROR);
-    Date firstStartDate = migrationState.getStartedAt();
-    assertThat(firstStartDate).isNotNull();
+    assertThat(migrationState.getError()).get().isSameAs(AN_ERROR);
+    assertThat(migrationState.getStartedAt()).isPresent();
+    Instant firstStartDate = migrationState.getStartedAt().get();
 
     mockMigrationDoesNothing();
 
     underTest.startIt();
 
     assertThat(migrationState.getStatus()).isEqualTo(DatabaseMigrationState.Status.SUCCEEDED);
-    assertThat(migrationState.getError()).isNull();
-    assertThat(migrationState.getStartedAt()).isNotSameAs(firstStartDate);
+    assertThat(migrationState.getError()).isEmpty();
+    assertThat(migrationState.getStartedAt())
+      .get()
+      .isNotSameAs(firstStartDate);
   }
 
   private void mockMigrationThrowsError() {

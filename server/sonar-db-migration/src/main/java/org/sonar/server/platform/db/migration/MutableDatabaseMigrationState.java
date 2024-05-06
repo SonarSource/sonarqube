@@ -19,15 +19,14 @@
  */
 package org.sonar.server.platform.db.migration;
 
-import java.util.Date;
-import javax.annotation.Nullable;
+import java.time.Instant;
 
 public interface MutableDatabaseMigrationState extends DatabaseMigrationState {
   void setStatus(Status status);
 
-  void setStartedAt(@Nullable Date startedAt);
+  void setStartedAt(Instant startedAt);
 
-  void setError(@Nullable Throwable error);
+  void setError(Throwable error);
 
   void incrementCompletedMigrations();
 

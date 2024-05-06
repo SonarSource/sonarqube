@@ -19,7 +19,7 @@
  */
 package org.sonar.server.platform.db.migration;
 
-import java.util.Date;
+import java.time.Instant;
 import java.util.concurrent.Semaphore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,7 +73,7 @@ public class DatabaseMigrationImpl implements DatabaseMigration {
 
   private void doDatabaseMigration() {
     migrationState.setStatus(Status.RUNNING);
-    migrationState.setStartedAt(new Date());
+    migrationState.setStartedAt(Instant.now());
     migrationState.setError(null);
     Profiler profiler = Profiler.create(LOGGER);
     try {

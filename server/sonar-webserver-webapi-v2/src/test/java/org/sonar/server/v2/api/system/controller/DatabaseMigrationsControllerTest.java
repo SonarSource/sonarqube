@@ -19,20 +19,22 @@
  */
 package org.sonar.server.v2.api.system.controller;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.Instant;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.Optional;
-import java.util.TimeZone;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.sonar.db.Database;
 import org.sonar.db.dialect.Dialect;
 import org.sonar.server.platform.db.migration.DatabaseMigrationState;
+import org.sonar.server.platform.db.migration.DatabaseMigrationStateImpl;
 import org.sonar.server.platform.db.migration.version.DatabaseVersion;
 import org.sonar.server.v2.api.ControllerTester;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.server.platform.db.migration.DatabaseMigrationState.Status.FAILED;
@@ -45,11 +47,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 class DatabaseMigrationsControllerTest {
 
-  private static final Date SOME_DATE = new Date();
-  private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-
+  private static final Instant SOME_DATE = Instant.now();
+  private static final String SOME_DATE_STRING = DateTimeFormatter.ISO_DATE_TIME.format(SOME_DATE.atZone(ZoneOffset.UTC));
   private final DatabaseVersion databaseVersion = mock();
-  private final DatabaseMigrationState migrationState = mock();
+  private final DatabaseMigrationStateImpl migrationState = mock();
   private final Dialect dialect = mock(Dialect.class);
   private final Database database = mock();
   private final MockMvc mockMvc = ControllerTester.getMockMvc(new DatabaseMigrationsController(databaseVersion, migrationState, database));
@@ -101,16 +102,14 @@ class DatabaseMigrationsControllerTest {
     when(databaseVersion.getStatus()).thenReturn(DatabaseVersion.Status.REQUIRES_UPGRADE);
     when(dialect.supportsMigration()).thenReturn(true);
     when(migrationState.getStatus()).thenReturn(RUNNING);
-    when(migrationState.getStartedAt()).thenReturn(SOME_DATE);
-    when(migrationState.getExpectedFinishDate()).thenReturn(SOME_DATE);
+    when(migrationState.getStartedAt()).thenReturn(Optional.of(SOME_DATE));
+    when(migrationState.getExpectedFinishDate(any())).thenReturn(Optional.of(SOME_DATE));
     when(migrationState.getCompletedMigrations()).thenReturn(1);
     when(migrationState.getTotalMigrations()).thenReturn(10);
-    
-    DATE_FORMAT.setTimeZone(TimeZone.getTimeZone("UTC"));
 
     mockMvc.perform(get(DATABASE_MIGRATIONS_ENDPOINT)).andExpectAll(status().isOk(),
       content().json("{\"status\":\"MIGRATION_RUNNING\",\"completedSteps\":1,\"totalSteps\":10," +
-        "\"message\":\"Database migration is running.\",\"expectedFinishTimestamp\":\""+DATE_FORMAT.format(SOME_DATE)+"\"}"));
+        "\"message\":\"Database migration is running.\",\"expectedFinishTimestamp\":\"" + SOME_DATE_STRING + "\"}"));
   }
 
   @Test
@@ -118,7 +117,7 @@ class DatabaseMigrationsControllerTest {
     when(databaseVersion.getStatus()).thenReturn(DatabaseVersion.Status.REQUIRES_UPGRADE);
     when(dialect.supportsMigration()).thenReturn(true);
     when(migrationState.getStatus()).thenReturn(DatabaseMigrationState.Status.FAILED);
-    when(migrationState.getStartedAt()).thenReturn(SOME_DATE);
+    when(migrationState.getStartedAt()).thenReturn(Optional.of(SOME_DATE));
 
     mockMvc.perform(get(DATABASE_MIGRATIONS_ENDPOINT)).andExpectAll(status().isOk(),
       content().json("{\"status\":\"MIGRATION_FAILED\",\"message\":\"Migration failed: %s.<br/> Please check logs.\"}"));
@@ -129,7 +128,7 @@ class DatabaseMigrationsControllerTest {
     when(databaseVersion.getStatus()).thenReturn(DatabaseVersion.Status.REQUIRES_UPGRADE);
     when(dialect.supportsMigration()).thenReturn(true);
     when(migrationState.getStatus()).thenReturn(DatabaseMigrationState.Status.SUCCEEDED);
-    when(migrationState.getStartedAt()).thenReturn(SOME_DATE);
+    when(migrationState.getStartedAt()).thenReturn(Optional.of(SOME_DATE));
 
     mockMvc.perform(get(DATABASE_MIGRATIONS_ENDPOINT)).andExpectAll(status().isOk(),
       content().json("{\"status\":\"MIGRATION_SUCCEEDED\",\"message\":\"Migration succeeded.\"}"));
@@ -140,7 +139,7 @@ class DatabaseMigrationsControllerTest {
     when(databaseVersion.getStatus()).thenReturn(DatabaseVersion.Status.REQUIRES_UPGRADE);
     when(dialect.supportsMigration()).thenReturn(true);
     when(migrationState.getStatus()).thenReturn(NONE);
-    when(migrationState.getStartedAt()).thenReturn(SOME_DATE);
+    when(migrationState.getStartedAt()).thenReturn(Optional.of(SOME_DATE));
 
     mockMvc.perform(get(DATABASE_MIGRATIONS_ENDPOINT)).andExpectAll(status().isOk(),
       content().json("{\"status\":\"MIGRATION_REQUIRED\",\"message\":\"Database migration is required. DB migration " +
@@ -152,8 +151,8 @@ class DatabaseMigrationsControllerTest {
     when(databaseVersion.getStatus()).thenReturn(DatabaseVersion.Status.FRESH_INSTALL);
     when(dialect.supportsMigration()).thenReturn(true);
     when(migrationState.getStatus()).thenReturn(FAILED);
-    when(migrationState.getStartedAt()).thenReturn(SOME_DATE);
-    when(migrationState.getError()).thenReturn(new UnsupportedOperationException("error message"));
+    when(migrationState.getStartedAt()).thenReturn(Optional.of(SOME_DATE));
+    when(migrationState.getError()).thenReturn(Optional.of(new UnsupportedOperationException("error message")));
 
     mockMvc.perform(get(DATABASE_MIGRATIONS_ENDPOINT)).andExpectAll(status().isOk(),
       content().json("{\"status\":\"MIGRATION_FAILED\",\"message\":\"error message\"}"));
