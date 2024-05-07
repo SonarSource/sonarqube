@@ -19,13 +19,13 @@
  */
 import { screen, waitForElementToBeRemoved } from '@testing-library/react';
 import * as React from 'react';
+import { byRole, byText } from '~sonar-aligned/helpers/testSelector';
 import BranchesServiceMock from '../../../../api/mocks/BranchesServiceMock';
 import { AvailableFeaturesContext } from '../../../../app/components/available-features/AvailableFeaturesContext';
 import { ComponentContext } from '../../../../app/components/componentContext/ComponentContext';
 import { mockComponent } from '../../../../helpers/mocks/component';
 import { mockSourceViewerFile } from '../../../../helpers/mocks/sources';
 import { renderComponent } from '../../../../helpers/testReactTestingUtils';
-import { byRole, byText } from '../../../../helpers/testSelector';
 import { Feature } from '../../../../types/features';
 import { IssueSourceViewerHeader, Props } from '../IssueSourceViewerHeader';
 

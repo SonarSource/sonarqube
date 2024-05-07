@@ -19,10 +19,10 @@
  */
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { byRole, byText } from '~sonar-aligned/helpers/testSelector';
 import QualityProfilesServiceMock from '../../../../api/mocks/QualityProfilesServiceMock';
 import { mockQualityProfileChangelogEvent } from '../../../../helpers/testMocks';
 import { renderAppRoutes } from '../../../../helpers/testReactTestingUtils';
-import { byRole, byText } from '../../../../helpers/testSelector';
 import routes from '../../routes';
 
 jest.mock('../../../../api/quality-profiles');

@@ -19,7 +19,7 @@
  */
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
-import { byRole, byTestId } from '../../../../helpers/testSelector';
+import { byRole, byTestId } from '../../../helpers/testSelector';
 
 import Link from '../../../../components/common/Link';
 import { renderComponent } from '../../../../helpers/testReactTestingUtils';

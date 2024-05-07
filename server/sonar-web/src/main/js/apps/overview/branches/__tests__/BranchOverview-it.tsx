@@ -19,6 +19,7 @@
  */
 import { screen, waitFor } from '@testing-library/react';
 import * as React from 'react';
+import { byRole, byText } from '~sonar-aligned/helpers/testSelector';
 import { ComponentQualifier } from '~sonar-aligned/types/component';
 import { MetricKey } from '~sonar-aligned/types/metrics';
 import AlmSettingsServiceMock from '../../../../api/mocks/AlmSettingsServiceMock';
@@ -39,7 +40,6 @@ import { mockAnalysis, mockAnalysisEvent } from '../../../../helpers/mocks/proje
 import { mockQualityGateProjectStatus } from '../../../../helpers/mocks/quality-gates';
 import { mockLoggedInUser, mockMeasure, mockPaging } from '../../../../helpers/testMocks';
 import { renderComponent } from '../../../../helpers/testReactTestingUtils';
-import { byRole, byText } from '../../../../helpers/testSelector';
 import { SoftwareImpactSeverity, SoftwareQuality } from '../../../../types/clean-code-taxonomy';
 import { ProjectAnalysisEventCategory } from '../../../../types/project-activity';
 import { CaycStatus } from '../../../../types/types';

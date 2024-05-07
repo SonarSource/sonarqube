@@ -20,9 +20,9 @@
 import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
+import { byRole, byText } from '~sonar-aligned/helpers/testSelector';
 import { TabKeys } from '../../../components/rules/RuleTabViewer';
 import { mockLoggedInUser } from '../../../helpers/testMocks';
-import { byRole, byText } from '../../../helpers/testSelector';
 import { RestUserDetailed } from '../../../types/users';
 import {
   branchHandler,

@@ -17,13 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
-import { byRole } from '~sonar-aligned/helpers/testSelector';
-import { renderComponent } from '../../../helpers/testReactTestingUtils';
-import FormattingHelp from '../FormattingHelp';
 
-it('should render correctly', () => {
-  renderComponent(<FormattingHelp />);
+import { BranchBase } from '../../types/branch-like';
 
-  expect(byRole('row').getAll()).toHaveLength(10);
-});
+export function mockBranchBase(overrides: Partial<BranchBase> = {}): BranchBase {
+  return {
+    analysisDate: '2018-01-01',
+    isMain: false,
+    name: 'branch-6.7',
+    status: { qualityGateStatus: 'OK' },
+    ...overrides,
+  };
+}

@@ -20,11 +20,11 @@
 import userEvent from '@testing-library/user-event';
 import { addDays, formatISO, subDays } from 'date-fns';
 import * as React from 'react';
+import { byRole } from '~sonar-aligned/helpers/testSelector';
 import { getSystemUpgrades } from '../../../api/system';
 import { UpdateUseCase } from '../../../components/upgrade/utils';
 import { mockAppState, mockCurrentUser } from '../../../helpers/testMocks';
 import { renderComponent } from '../../../helpers/testReactTestingUtils';
-import { byRole } from '../../../helpers/testSelector';
 import { AppState } from '../../../types/appstate';
 import { Permissions } from '../../../types/permissions';
 import { CurrentUser } from '../../../types/users';

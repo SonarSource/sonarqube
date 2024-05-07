@@ -20,6 +20,7 @@
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
+import { byRole, byText } from '~sonar-aligned/helpers/testSelector';
 import GithubProvisioningServiceMock from '../../../api/mocks/GithubProvisioningServiceMock';
 import GroupMembershipsServiceMock from '../../../api/mocks/GroupMembersipsServiceMock';
 import GroupsServiceMock from '../../../api/mocks/GroupsServiceMock';
@@ -27,7 +28,6 @@ import SystemServiceMock from '../../../api/mocks/SystemServiceMock';
 import UsersServiceMock from '../../../api/mocks/UsersServiceMock';
 import { mockGroup, mockGroupMembership, mockRestUser } from '../../../helpers/testMocks';
 import { renderApp } from '../../../helpers/testReactTestingUtils';
-import { byRole, byText } from '../../../helpers/testSelector';
 import { Feature } from '../../../types/features';
 import { TaskStatuses } from '../../../types/tasks';
 import { Provider } from '../../../types/types';

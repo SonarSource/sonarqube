@@ -20,13 +20,13 @@
 import { within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
+import { byLabelText, byRole } from '~sonar-aligned/helpers/testSelector';
 import BranchesServiceMock from '../../../api/mocks/BranchesServiceMock';
 import SettingsServiceMock from '../../../api/mocks/SettingsServiceMock';
 import { ComponentContext } from '../../../app/components/componentContext/ComponentContext';
 import { mockComponent } from '../../../helpers/mocks/component';
 import { mockAppState } from '../../../helpers/testMocks';
 import { renderComponent } from '../../../helpers/testReactTestingUtils';
-import { byLabelText, byRole } from '../../../helpers/testSelector';
 import { AppState } from '../../../types/appstate';
 import { Feature } from '../../../types/features';
 import { SettingsKey } from '../../../types/settings';

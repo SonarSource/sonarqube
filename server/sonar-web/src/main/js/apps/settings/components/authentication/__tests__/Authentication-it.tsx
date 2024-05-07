@@ -20,6 +20,7 @@
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
+import { byRole, byText } from '~sonar-aligned/helpers/testSelector';
 import GithubProvisioningServiceMock from '../../../../../api/mocks/GithubProvisioningServiceMock';
 import GitlabProvisioningServiceMock from '../../../../../api/mocks/GitlabProvisioningServiceMock';
 import ScimProvisioningServiceMock from '../../../../../api/mocks/ScimProvisioningServiceMock';
@@ -28,7 +29,6 @@ import SystemServiceMock from '../../../../../api/mocks/SystemServiceMock';
 import { AvailableFeaturesContext } from '../../../../../app/components/available-features/AvailableFeaturesContext';
 import { definitions } from '../../../../../helpers/mocks/definitions-list';
 import { renderComponent } from '../../../../../helpers/testReactTestingUtils';
-import { byRole, byText } from '../../../../../helpers/testSelector';
 import { Feature } from '../../../../../types/features';
 import Authentication from '../Authentication';
 

@@ -20,17 +20,17 @@
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import selectEvent from 'react-select-event';
-import ComputeEngineServiceMock from '../../../api/mocks/ComputeEngineServiceMock';
-import { parseDate } from '../../../helpers/dates';
-import { mockAppState } from '../../../helpers/testMocks';
-import { RenderContext, renderAppWithAdminContext } from '../../../helpers/testReactTestingUtils';
 import {
   byLabelText,
   byPlaceholderText,
   byRole,
   byTestId,
   byText,
-} from '../../../helpers/testSelector';
+} from '~sonar-aligned/helpers/testSelector';
+import ComputeEngineServiceMock from '../../../api/mocks/ComputeEngineServiceMock';
+import { parseDate } from '../../../helpers/dates';
+import { mockAppState } from '../../../helpers/testMocks';
+import { RenderContext, renderAppWithAdminContext } from '../../../helpers/testReactTestingUtils';
 import { EditionKey } from '../../../types/editions';
 import { TaskStatuses, TaskTypes } from '../../../types/tasks';
 import { PAGE_SIZE } from '../constants';

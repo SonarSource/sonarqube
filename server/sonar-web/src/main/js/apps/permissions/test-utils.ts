@@ -20,8 +20,8 @@
 import { waitFor } from '@testing-library/react';
 import { UserEvent } from '@testing-library/user-event/dist/types/setup/setup';
 import selectEvent from 'react-select-event';
+import { byRole, byText } from '~sonar-aligned/helpers/testSelector';
 import { Visibility } from '~sonar-aligned/types/component';
-import { byRole, byText } from '../../helpers/testSelector';
 import { Permissions } from '../../types/permissions';
 
 export function getPageObject(user: UserEvent) {

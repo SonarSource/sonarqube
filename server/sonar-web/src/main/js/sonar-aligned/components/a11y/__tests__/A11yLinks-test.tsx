@@ -20,7 +20,7 @@
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
 import { renderComponent } from '../../../../helpers/testReactTestingUtils';
-import { byRole } from '../../../../helpers/testSelector';
+import { byRole } from '../../../helpers/testSelector';
 import { A11yContext } from '../A11yContext';
 import A11yProvider from '../A11yProvider';
 import A11ySkipLinks from '../A11ySkipLinks';

@@ -19,6 +19,7 @@
  */
 import userEvent from '@testing-library/user-event';
 import React from 'react';
+import { byRole } from '~sonar-aligned/helpers/testSelector';
 import ComputeEngineServiceMock from '../../../../../api/mocks/ComputeEngineServiceMock';
 import GitlabProvisioningServiceMock from '../../../../../api/mocks/GitlabProvisioningServiceMock';
 import SettingsServiceMock from '../../../../../api/mocks/SettingsServiceMock';
@@ -27,7 +28,6 @@ import { AvailableFeaturesContext } from '../../../../../app/components/availabl
 import { mockGitlabConfiguration } from '../../../../../helpers/mocks/alm-integrations';
 import { definitions } from '../../../../../helpers/mocks/definitions-list';
 import { renderComponent } from '../../../../../helpers/testReactTestingUtils';
-import { byRole } from '../../../../../helpers/testSelector';
 import { AlmKeys } from '../../../../../types/alm-settings';
 import { Feature } from '../../../../../types/features';
 import { ProvisioningType } from '../../../../../types/provisioning';

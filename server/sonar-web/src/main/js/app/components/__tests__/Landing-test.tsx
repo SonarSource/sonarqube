@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { byText } from '~sonar-aligned/helpers/testSelector';
 import { mockCurrentUser, mockLoggedInUser } from '../../../helpers/testMocks';
 import { renderApp } from '../../../helpers/testReactTestingUtils';
-import { byText } from '../../../helpers/testSelector';
 import { CurrentUser } from '../../../types/users';
 import { Landing, LandingProps } from '../Landing';
 

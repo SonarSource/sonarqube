@@ -19,9 +19,9 @@
  */
 import userEvent from '@testing-library/user-event';
 import React from 'react';
+import { byLabelText, byRole, byText } from '~sonar-aligned/helpers/testSelector';
 import AlmSettingsServiceMock from '../../../../../api/mocks/AlmSettingsServiceMock';
 import { renderComponent } from '../../../../../helpers/testReactTestingUtils';
-import { byLabelText, byRole, byText } from '../../../../../helpers/testSelector';
 import { AlmKeys } from '../../../../../types/alm-settings';
 import AlmBindingDefinitionForm, {
   AlmBindingDefinitionFormProps,

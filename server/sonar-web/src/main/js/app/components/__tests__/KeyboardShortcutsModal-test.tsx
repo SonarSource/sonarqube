@@ -19,8 +19,8 @@
  */
 import userEvent from '@testing-library/user-event';
 import React from 'react';
+import { byRole } from '~sonar-aligned/helpers/testSelector';
 import { renderComponent } from '../../../helpers/testReactTestingUtils';
-import { byRole } from '../../../helpers/testSelector';
 import KeyboardShortcutsModal from '../KeyboardShortcutsModal';
 
 it('should render correctly', async () => {

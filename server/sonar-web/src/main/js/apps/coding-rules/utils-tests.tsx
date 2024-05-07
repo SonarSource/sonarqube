@@ -19,15 +19,15 @@
  */
 import { waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { Profile } from '../../api/quality-profiles';
-import { renderAppRoutes } from '../../helpers/testReactTestingUtils';
 import {
   byLabelText,
   byPlaceholderText,
   byRole,
   byTestId,
   byText,
-} from '../../helpers/testSelector';
+} from '~sonar-aligned/helpers/testSelector';
+import { Profile } from '../../api/quality-profiles';
+import { renderAppRoutes } from '../../helpers/testReactTestingUtils';
 import {
   CleanCodeAttribute,
   CleanCodeAttributeCategory,

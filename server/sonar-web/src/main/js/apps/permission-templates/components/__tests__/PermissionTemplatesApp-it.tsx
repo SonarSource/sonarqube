@@ -21,6 +21,7 @@ import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { UserEvent } from '@testing-library/user-event/dist/types/setup/setup';
 import { uniq } from 'lodash';
+import { byRole, byText } from '~sonar-aligned/helpers/testSelector';
 import { ComponentQualifier } from '~sonar-aligned/types/component';
 import GithubProvisioningServiceMock from '../../../../api/mocks/GithubProvisioningServiceMock';
 import PermissionsServiceMock from '../../../../api/mocks/PermissionsServiceMock';
@@ -28,7 +29,6 @@ import { mockPermissionGroup, mockPermissionUser } from '../../../../helpers/moc
 import { PERMISSIONS_ORDER_FOR_PROJECT_TEMPLATE } from '../../../../helpers/permissions';
 import { mockAppState } from '../../../../helpers/testMocks';
 import { renderAppWithAdminContext } from '../../../../helpers/testReactTestingUtils';
-import { byRole, byText } from '../../../../helpers/testSelector';
 import { Feature } from '../../../../types/features';
 import { Permissions } from '../../../../types/permissions';
 import { PermissionGroup, PermissionUser } from '../../../../types/types';

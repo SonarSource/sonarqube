@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import userEvent from '@testing-library/user-event';
+import { byLabelText, byRole, byText } from '~sonar-aligned/helpers/testSelector';
 import WebApiServiceMock from '../../../api/mocks/WebApiServiceMock';
 import { renderAppRoutes } from '../../../helpers/testReactTestingUtils';
-import { byLabelText, byRole, byText } from '../../../helpers/testSelector';
 import routes from '../routes';
 
 jest.mock('../../../components/common/ScreenPositionHelper');

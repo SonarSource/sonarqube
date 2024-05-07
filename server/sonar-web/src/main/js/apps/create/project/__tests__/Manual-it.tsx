@@ -20,6 +20,7 @@
 import { waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { UserEvent } from '@testing-library/user-event/dist/types/setup/setup';
+import { byRole, byText } from '~sonar-aligned/helpers/testSelector';
 import AlmSettingsServiceMock from '../../../../api/mocks/AlmSettingsServiceMock';
 import DopTranslationServiceMock from '../../../../api/mocks/DopTranslationServiceMock';
 import NewCodeDefinitionServiceMock from '../../../../api/mocks/NewCodeDefinitionServiceMock';
@@ -28,7 +29,6 @@ import { getNewCodeDefinition } from '../../../../api/newCodeDefinition';
 import { mockProject } from '../../../../helpers/mocks/projects';
 import { mockAppState, mockCurrentUser } from '../../../../helpers/testMocks';
 import { renderAppRoutes } from '../../../../helpers/testReactTestingUtils';
-import { byRole, byText } from '../../../../helpers/testSelector';
 import { NewCodeDefinitionType } from '../../../../types/new-code-definition';
 import { Permissions } from '../../../../types/permissions';
 import routes from '../../../projects/routes';

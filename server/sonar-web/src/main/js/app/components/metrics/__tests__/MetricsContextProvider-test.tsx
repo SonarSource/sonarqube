@@ -18,11 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { byRole } from '~sonar-aligned/helpers/testSelector';
 import { MetricKey } from '~sonar-aligned/types/metrics';
 import { getAllMetrics } from '../../../../api/metrics';
 import { mockMetric } from '../../../../helpers/testMocks';
 import { renderComponent } from '../../../../helpers/testReactTestingUtils';
-import { byRole } from '../../../../helpers/testSelector';
 import { MetricsContext } from '../MetricsContext';
 import MetricsContextProvider from '../MetricsContextProvider';
 

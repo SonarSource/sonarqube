@@ -19,10 +19,10 @@
  */
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
+import { byRole } from '~sonar-aligned/helpers/testSelector';
 import { setSimpleSettingValue } from '../../../api/settings';
 import { mockLoggedInUser, mockRouter } from '../../../helpers/testMocks';
 import { renderComponent } from '../../../helpers/testReactTestingUtils';
-import { byRole } from '../../../helpers/testSelector';
 import { PluginRiskConsent, PluginRiskConsentProps } from '../PluginRiskConsent';
 
 jest.mock('../../../api/settings', () => ({

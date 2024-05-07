@@ -21,6 +21,7 @@ import { waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
 import selectEvent from 'react-select-event';
+import { byRole, byText } from '~sonar-aligned/helpers/testSelector';
 import AlmIntegrationsServiceMock from '../../../../api/mocks/AlmIntegrationsServiceMock';
 import AlmSettingsServiceMock from '../../../../api/mocks/AlmSettingsServiceMock';
 import ComponentsServiceMock from '../../../../api/mocks/ComponentsServiceMock';
@@ -30,7 +31,6 @@ import ProjectManagementServiceMock from '../../../../api/mocks/ProjectsManageme
 import SettingsServiceMock from '../../../../api/mocks/SettingsServiceMock';
 import { mockProject } from '../../../../helpers/mocks/projects';
 import { renderApp } from '../../../../helpers/testReactTestingUtils';
-import { byRole, byText } from '../../../../helpers/testSelector';
 import { AlmKeys } from '../../../../types/alm-settings';
 import { Feature } from '../../../../types/features';
 import CreateProjectPage from '../CreateProjectPage';

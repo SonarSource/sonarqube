@@ -19,9 +19,9 @@
  */
 import { act } from '@testing-library/react';
 import * as React from 'react';
+import { byText } from '~sonar-aligned/helpers/testSelector';
 import { mockCurrentUser, mockLoggedInUser } from '../../../../helpers/testMocks';
 import { renderComponent } from '../../../../helpers/testReactTestingUtils';
-import { byText } from '../../../../helpers/testSelector';
 import { Permissions } from '../../../../types/permissions';
 import { IndexationNotification } from '../IndexationNotification';
 import IndexationNotificationHelper from '../IndexationNotificationHelper';

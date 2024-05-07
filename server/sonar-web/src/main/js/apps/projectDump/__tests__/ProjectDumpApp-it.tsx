@@ -19,11 +19,11 @@
  */
 import { act, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { byRole, byText } from '~sonar-aligned/helpers/testSelector';
 import ComputeEngineServiceMock from '../../../api/mocks/ComputeEngineServiceMock';
 import { ProjectDumpServiceMock } from '../../../api/mocks/ProjectDumpServiceMock';
 import { mockComponent } from '../../../helpers/mocks/component';
 import { renderAppWithComponentContext } from '../../../helpers/testReactTestingUtils';
-import { byRole, byText } from '../../../helpers/testSelector';
 import { Feature } from '../../../types/features';
 import { TaskStatuses, TaskTypes } from '../../../types/tasks';
 import routes from '../routes';

@@ -19,7 +19,7 @@
  */
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { byLabelText, byRole } from '../../../helpers/testSelector';
+import { byLabelText, byRole } from '~sonar-aligned/helpers/testSelector';
 import {
   componentsHandler,
   issuesHandler,

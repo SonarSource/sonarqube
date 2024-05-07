@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { byRole } from '~sonar-aligned/helpers/testSelector';
 import { getLanguages } from '../../../../api/languages';
 import { renderComponent } from '../../../../helpers/testReactTestingUtils';
-import { byRole } from '../../../../helpers/testSelector';
 import { Language } from '../../../../types/languages';
 import { LanguagesContext } from '../LanguagesContext';
 import LanguagesContextProvider from '../LanguagesContextProvider';

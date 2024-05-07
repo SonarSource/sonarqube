@@ -22,12 +22,12 @@ import { waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { addGlobalErrorMessage } from 'design-system';
 import * as React from 'react';
+import { byLabelText, byRole, byText } from '~sonar-aligned/helpers/testSelector';
 import { getLoginMessage } from '../../../../api/settings';
 import { getIdentityProviders } from '../../../../api/users';
 import { getBaseUrl } from '../../../../helpers/system';
 import { mockLocation } from '../../../../helpers/testMocks';
 import { renderComponent } from '../../../../helpers/testReactTestingUtils';
-import { byLabelText, byRole, byText } from '../../../../helpers/testSelector';
 import { LoginContainer } from '../LoginContainer';
 
 jest.mock('../../../../helpers/system', () => ({

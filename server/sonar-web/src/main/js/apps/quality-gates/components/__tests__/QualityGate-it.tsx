@@ -20,13 +20,13 @@
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import selectEvent from 'react-select-event';
+import { byRole, byTestId } from '~sonar-aligned/helpers/testSelector';
 import { QualityGatesServiceMock } from '../../../../api/mocks/QualityGatesServiceMock';
 import UsersServiceMock from '../../../../api/mocks/UsersServiceMock';
 import { searchProjects, searchUsers } from '../../../../api/quality-gates';
 import { dismissNotice } from '../../../../api/users';
 import { mockLoggedInUser } from '../../../../helpers/testMocks';
 import { RenderContext, renderAppRoutes } from '../../../../helpers/testReactTestingUtils';
-import { byRole, byTestId } from '../../../../helpers/testSelector';
 import { Feature } from '../../../../types/features';
 import { CaycStatus } from '../../../../types/types';
 import { NoticeType } from '../../../../types/users';

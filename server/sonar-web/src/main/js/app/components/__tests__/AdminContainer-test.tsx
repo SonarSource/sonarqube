@@ -20,10 +20,10 @@
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
 import { Route, useOutletContext } from 'react-router-dom';
+import { byLabelText, byRole, byText } from '~sonar-aligned/helpers/testSelector';
 import { getSystemStatus, waitSystemUPStatus } from '../../../api/system';
 import { mockAppState } from '../../../helpers/testMocks';
 import { renderAppRoutes } from '../../../helpers/testReactTestingUtils';
-import { byLabelText, byRole, byText } from '../../../helpers/testSelector';
 import { AdminPagesContext } from '../../../types/admin';
 import { AdminContainer, AdminContainerProps } from '../AdminContainer';
 import AdminContext from '../AdminContext';

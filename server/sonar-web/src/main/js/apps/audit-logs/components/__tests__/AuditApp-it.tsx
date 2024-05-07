@@ -19,11 +19,11 @@
  */
 import userEvent from '@testing-library/user-event';
 import { getDate, getMonth, getYear, subDays } from 'date-fns';
+import { byPlaceholderText, byRole, byTestId, byText } from '~sonar-aligned/helpers/testSelector';
 import SettingsServiceMock from '../../../../api/mocks/SettingsServiceMock';
 import { now } from '../../../../helpers/dates';
 import { getShortMonthName } from '../../../../helpers/l10n';
 import { renderAppWithAdminContext } from '../../../../helpers/testReactTestingUtils';
-import { byPlaceholderText, byRole, byTestId, byText } from '../../../../helpers/testSelector';
 import { AdminPageExtension } from '../../../../types/extension';
 import { SettingsKey } from '../../../../types/settings';
 import routes from '../../routes';

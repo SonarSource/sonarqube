@@ -19,11 +19,11 @@
  */
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
+import { byRole, byText } from '~sonar-aligned/helpers/testSelector';
 import { ComponentQualifier } from '~sonar-aligned/types/component';
 import { mockBranch } from '../../../helpers/mocks/branch-like';
 import { get, save } from '../../../helpers/storage';
 import { renderComponent } from '../../../helpers/testReactTestingUtils';
-import { byRole, byText } from '../../../helpers/testSelector';
 import { BranchLike } from '../../../types/branch-like';
 import Workspace, { TYPE_KEY, WorkspaceTypes } from '../Workspace';
 import { WorkspaceContext } from '../context';

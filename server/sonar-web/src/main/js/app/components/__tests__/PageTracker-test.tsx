@@ -20,11 +20,11 @@
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
 import { Link } from 'react-router-dom';
+import { byRole } from '~sonar-aligned/helpers/testSelector';
 import { installScript } from '../../../helpers/extensions';
 import { getWebAnalyticsPageHandlerFromCache } from '../../../helpers/extensionsHandler';
 import { mockAppState } from '../../../helpers/testMocks';
 import { renderComponent } from '../../../helpers/testReactTestingUtils';
-import { byRole } from '../../../helpers/testSelector';
 import PageTracker from '../PageTracker';
 
 jest.mock('../../../helpers/extensions', () => ({

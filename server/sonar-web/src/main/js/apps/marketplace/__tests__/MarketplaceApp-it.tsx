@@ -19,13 +19,13 @@
  */
 import userEvent from '@testing-library/user-event';
 import React, { useState } from 'react';
+import { byRole, byText } from '~sonar-aligned/helpers/testSelector';
 import { NavigationServiceMock } from '../../../api/mocks/NavigationServiceMock';
 import PluginsServiceMock from '../../../api/mocks/PluginsServiceMock';
 import SettingsServiceMock from '../../../api/mocks/SettingsServiceMock';
 import AdminContext from '../../../app/components/AdminContext';
 import { mockAppState } from '../../../helpers/testMocks';
 import { renderApp } from '../../../helpers/testReactTestingUtils';
-import { byRole, byText } from '../../../helpers/testSelector';
 import { AppState } from '../../../types/appstate';
 import { EditionKey } from '../../../types/editions';
 import { PendingPluginResult } from '../../../types/plugins';

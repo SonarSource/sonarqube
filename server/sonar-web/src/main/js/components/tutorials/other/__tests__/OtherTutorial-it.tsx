@@ -20,11 +20,11 @@
 import userEvent from '@testing-library/user-event';
 import React from 'react';
 import selectEvent from 'react-select-event';
+import { byRole, byText } from '~sonar-aligned/helpers/testSelector';
 import UserTokensMock from '../../../../api/mocks/UserTokensMock';
 import { mockComponent } from '../../../../helpers/mocks/component';
 import { mockLanguage, mockLoggedInUser } from '../../../../helpers/testMocks';
 import { RenderContext, renderApp } from '../../../../helpers/testReactTestingUtils';
-import { byRole, byText } from '../../../../helpers/testSelector';
 import {
   getCopyToClipboardValue,
   getTutorialActionButtons,

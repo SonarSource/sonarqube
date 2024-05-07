@@ -20,9 +20,9 @@
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
+import { byRole } from '~sonar-aligned/helpers/testSelector';
 import { doesComponentExists } from '../../../../api/components';
 import { renderComponent } from '../../../../helpers/testReactTestingUtils';
-import { byRole } from '../../../../helpers/testSelector';
 import ManualProjectCreate from '../manual/ManualProjectCreate';
 
 const ui = {

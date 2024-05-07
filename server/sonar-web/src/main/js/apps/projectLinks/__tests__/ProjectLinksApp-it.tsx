@@ -21,10 +21,10 @@ import userEvent from '@testing-library/user-event';
 import { last } from 'lodash';
 import React from 'react';
 import { Route } from 'react-router-dom';
+import { byRole, byText } from '~sonar-aligned/helpers/testSelector';
 import ProjectLinksServiceMock from '../../../api/mocks/ProjectLinksServiceMock';
 import { mockComponent } from '../../../helpers/mocks/component';
 import { renderAppWithComponentContext } from '../../../helpers/testReactTestingUtils';
-import { byRole, byText } from '../../../helpers/testSelector';
 import ProjectLinksApp from '../ProjectLinksApp';
 
 const componentsMock = new ProjectLinksServiceMock();

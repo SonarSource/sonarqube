@@ -20,12 +20,12 @@
 import userEvent from '@testing-library/user-event';
 import React from 'react';
 import selectEvent from 'react-select-event';
+import { byRole, byText } from '~sonar-aligned/helpers/testSelector';
 import AlmSettingsServiceMock from '../../../../../api/mocks/AlmSettingsServiceMock';
 import CurrentUserContextProvider from '../../../../../app/components/current-user/CurrentUserContextProvider';
 import { mockComponent } from '../../../../../helpers/mocks/component';
 import { mockCurrentUser } from '../../../../../helpers/testMocks';
 import { renderComponent } from '../../../../../helpers/testReactTestingUtils';
-import { byRole, byText } from '../../../../../helpers/testSelector';
 import {
   AlmKeys,
   ProjectAlmBindingConfigurationErrorScope,

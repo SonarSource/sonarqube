@@ -19,9 +19,9 @@
  */
 import userEvent from '@testing-library/user-event';
 import React from 'react';
+import { byRole } from '~sonar-aligned/helpers/testSelector';
 import SettingsServiceMock from '../../../../api/mocks/SettingsServiceMock';
 import { renderComponent } from '../../../../helpers/testReactTestingUtils';
-import { byRole } from '../../../../helpers/testSelector';
 import EncryptionApp from '../EncryptionApp';
 
 let settingsMock: SettingsServiceMock;

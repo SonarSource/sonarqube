@@ -19,10 +19,10 @@
  */
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
+import { byRole, byText } from '~sonar-aligned/helpers/testSelector';
 import { dismissNotice } from '../../../../api/users';
 import { mockCurrentUser, mockLoggedInUser } from '../../../../helpers/testMocks';
 import { renderComponent } from '../../../../helpers/testReactTestingUtils';
-import { byRole, byText } from '../../../../helpers/testSelector';
 import { CurrentUser, NoticeType } from '../../../../types/users';
 import PromotionNotification from '../PromotionNotification';
 

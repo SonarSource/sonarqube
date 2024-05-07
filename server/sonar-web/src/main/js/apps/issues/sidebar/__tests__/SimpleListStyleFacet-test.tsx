@@ -19,8 +19,8 @@
  */
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
+import { byRole } from '~sonar-aligned/helpers/testSelector';
 import { renderComponent } from '../../../../helpers/testReactTestingUtils';
-import { byRole } from '../../../../helpers/testSelector';
 import { FCProps } from '../../../../types/misc';
 import { SimpleListStyleFacet } from '../SimpleListStyleFacet';
 

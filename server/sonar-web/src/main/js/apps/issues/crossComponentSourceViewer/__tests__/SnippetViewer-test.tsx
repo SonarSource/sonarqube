@@ -20,9 +20,9 @@
 import { screen } from '@testing-library/react';
 import { range } from 'lodash';
 import * as React from 'react';
+import { byRole } from '~sonar-aligned/helpers/testSelector';
 import { mockSourceLine, mockSourceViewerFile } from '../../../../helpers/mocks/sources';
 import { renderComponent } from '../../../../helpers/testReactTestingUtils';
-import { byRole } from '../../../../helpers/testSelector';
 import SnippetViewer, { SnippetViewerProps } from '../SnippetViewer';
 
 beforeEach(() => {

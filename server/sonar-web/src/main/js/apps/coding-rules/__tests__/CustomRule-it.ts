@@ -18,10 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import selectEvent from 'react-select-event';
+import { byText } from '~sonar-aligned/helpers/testSelector';
 import CodingRulesServiceMock from '../../../api/mocks/CodingRulesServiceMock';
 import SettingsServiceMock from '../../../api/mocks/SettingsServiceMock';
 import { mockLoggedInUser } from '../../../helpers/testMocks';
-import { byText } from '../../../helpers/testSelector';
 import { SoftwareQuality } from '../../../types/clean-code-taxonomy';
 import { getPageObjects, renderCodingRulesApp } from '../utils-tests';
 

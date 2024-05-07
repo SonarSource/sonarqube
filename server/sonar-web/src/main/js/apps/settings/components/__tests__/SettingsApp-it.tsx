@@ -22,6 +22,7 @@ import userEvent from '@testing-library/user-event';
 import React from 'react';
 import { Route } from 'react-router-dom';
 import selectEvent from 'react-select-event';
+import { byRole } from '~sonar-aligned/helpers/testSelector';
 import SettingsServiceMock from '../../../../api/mocks/SettingsServiceMock';
 import { KeyboardKeys } from '../../../../helpers/keycodes';
 import { mockComponent } from '../../../../helpers/mocks/component';
@@ -30,7 +31,6 @@ import {
   renderAppWithComponentContext,
   RenderContext,
 } from '../../../../helpers/testReactTestingUtils';
-import { byRole } from '../../../../helpers/testSelector';
 import { Feature } from '../../../../types/features';
 import { Component } from '../../../../types/types';
 import routes from '../../routes';

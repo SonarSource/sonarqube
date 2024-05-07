@@ -22,12 +22,12 @@ import userEvent from '@testing-library/user-event';
 import { omit, pick } from 'lodash';
 import * as React from 'react';
 import { Route } from 'react-router-dom';
+import { byLabelText, byRole, byText } from '~sonar-aligned/helpers/testSelector';
 import IssuesServiceMock from '../../../api/mocks/IssuesServiceMock';
 import UsersServiceMock from '../../../api/mocks/UsersServiceMock';
 import { KeyboardKeys } from '../../../helpers/keycodes';
 import { mockIssue, mockLoggedInUser, mockRawIssue } from '../../../helpers/testMocks';
 import { renderAppRoutes } from '../../../helpers/testReactTestingUtils';
-import { byLabelText, byRole, byText } from '../../../helpers/testSelector';
 import { ComponentPropsType } from '../../../helpers/testUtils';
 import {
   IssueActions,

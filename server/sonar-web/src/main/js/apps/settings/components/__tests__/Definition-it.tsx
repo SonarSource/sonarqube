@@ -22,13 +22,13 @@ import userEvent from '@testing-library/user-event';
 import { last } from 'lodash';
 import React from 'react';
 import selectEvent from 'react-select-event';
+import { byLabelText, byRole, byText } from '~sonar-aligned/helpers/testSelector';
 import SettingsServiceMock, {
   DEFAULT_DEFINITIONS_MOCK,
 } from '../../../../api/mocks/SettingsServiceMock';
 import { mockComponent } from '../../../../helpers/mocks/component';
 import { mockDefinition } from '../../../../helpers/mocks/settings';
 import { renderComponent } from '../../../../helpers/testReactTestingUtils';
-import { byLabelText, byRole, byText } from '../../../../helpers/testSelector';
 import { ExtendedSettingDefinition, SettingType, SettingValue } from '../../../../types/settings';
 import { Component } from '../../../../types/types';
 import Definition from '../Definition';

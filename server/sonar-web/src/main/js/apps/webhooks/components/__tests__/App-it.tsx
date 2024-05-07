@@ -20,11 +20,11 @@
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
+import { byLabelText, byRole, byText } from '~sonar-aligned/helpers/testSelector';
 import WebhooksMock from '../../../../api/mocks/WebhooksMock';
 import { mockComponent } from '../../../../helpers/mocks/component';
 import { mockWebhook } from '../../../../helpers/mocks/webhook';
 import { renderComponent } from '../../../../helpers/testReactTestingUtils';
-import { byLabelText, byRole, byText } from '../../../../helpers/testSelector';
 import { App, AppProps } from '../App';
 import { WEBHOOKS_LIMIT } from '../PageActions';
 

@@ -19,11 +19,11 @@
  */
 import userEvent from '@testing-library/user-event';
 import React from 'react';
+import { byRole, byTestId, byText } from '~sonar-aligned/helpers/testSelector';
 import SettingsServiceMock from '../../../../../api/mocks/SettingsServiceMock';
 import { AvailableFeaturesContext } from '../../../../../app/components/available-features/AvailableFeaturesContext';
 import { definitions } from '../../../../../helpers/mocks/definitions-list';
 import { renderComponent } from '../../../../../helpers/testReactTestingUtils';
-import { byRole, byTestId, byText } from '../../../../../helpers/testSelector';
 import { AlmKeys } from '../../../../../types/alm-settings';
 import { Feature } from '../../../../../types/features';
 import Authentication from '../Authentication';

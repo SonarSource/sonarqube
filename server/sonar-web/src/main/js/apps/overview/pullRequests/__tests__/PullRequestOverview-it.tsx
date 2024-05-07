@@ -20,6 +20,7 @@
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
+import { byLabelText, byRole } from '~sonar-aligned/helpers/testSelector';
 import { ComponentQualifier } from '~sonar-aligned/types/component';
 import { MetricKey, MetricType } from '~sonar-aligned/types/metrics';
 import BranchesServiceMock from '../../../../api/mocks/BranchesServiceMock';
@@ -33,7 +34,6 @@ import {
 } from '../../../../helpers/mocks/quality-gates';
 import { mockLoggedInUser, mockMeasure, mockMetric } from '../../../../helpers/testMocks';
 import { renderComponent } from '../../../../helpers/testReactTestingUtils';
-import { byLabelText, byRole } from '../../../../helpers/testSelector';
 import { ComponentPropsType } from '../../../../helpers/testUtils';
 import { CaycStatus } from '../../../../types/types';
 import { NoticeType } from '../../../../types/users';

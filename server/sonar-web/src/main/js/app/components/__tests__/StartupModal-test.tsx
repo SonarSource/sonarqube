@@ -19,11 +19,11 @@
  */
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
+import { byRole, byText } from '~sonar-aligned/helpers/testSelector';
 import { showLicense } from '../../../api/editions';
 import { save } from '../../../helpers/storage';
 import { mockAppState, mockCurrentUser } from '../../../helpers/testMocks';
 import { renderApp } from '../../../helpers/testReactTestingUtils';
-import { byRole, byText } from '../../../helpers/testSelector';
 import { EditionKey } from '../../../types/editions';
 import { LoggedInUser } from '../../../types/users';
 import { StartupModal } from '../StartupModal';

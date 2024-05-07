@@ -21,13 +21,18 @@ import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { times } from 'lodash';
 import * as React from 'react';
+import {
+  byLabelText,
+  byPlaceholderText,
+  byRole,
+  byText,
+} from '~sonar-aligned/helpers/testSelector';
 import { MetricKey, MetricType } from '~sonar-aligned/types/metrics';
 import { CCT_SOFTWARE_QUALITY_METRICS } from '../../../helpers/constants';
 import { parseDate } from '../../../helpers/dates';
 import { mockHistoryItem, mockMeasureHistory } from '../../../helpers/mocks/project-activity';
 import { mockMetric } from '../../../helpers/testMocks';
 import { renderComponent } from '../../../helpers/testReactTestingUtils';
-import { byLabelText, byPlaceholderText, byRole, byText } from '../../../helpers/testSelector';
 import { ComponentPropsType } from '../../../helpers/testUtils';
 import { GraphType, MeasureHistory } from '../../../types/project-activity';
 import { Metric } from '../../../types/types';

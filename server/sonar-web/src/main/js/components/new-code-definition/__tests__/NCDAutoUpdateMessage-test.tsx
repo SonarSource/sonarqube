@@ -20,13 +20,13 @@
 import userEvent from '@testing-library/user-event';
 import React from 'react';
 import { Route } from 'react-router-dom';
+import { byRole, byText } from '~sonar-aligned/helpers/testSelector';
 import { MessageTypes } from '../../../api/messages';
 import MessagesServiceMock from '../../../api/mocks/MessagesServiceMock';
 import NewCodeDefinitionServiceMock from '../../../api/mocks/NewCodeDefinitionServiceMock';
 import { mockComponent } from '../../../helpers/mocks/component';
 import { mockLoggedInUser } from '../../../helpers/testMocks';
 import { renderAppRoutes } from '../../../helpers/testReactTestingUtils';
-import { byRole, byText } from '../../../helpers/testSelector';
 import { NewCodeDefinitionType } from '../../../types/new-code-definition';
 import { Component } from '../../../types/types';
 import NCDAutoUpdateMessage from '../NCDAutoUpdateMessage';

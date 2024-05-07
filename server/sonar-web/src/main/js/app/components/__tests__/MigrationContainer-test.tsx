@@ -19,9 +19,9 @@
  */
 import * as React from 'react';
 import { Route } from 'react-router-dom';
+import { byText } from '~sonar-aligned/helpers/testSelector';
 import { getSystemStatus } from '../../../helpers/system';
 import { renderAppRoutes } from '../../../helpers/testReactTestingUtils';
-import { byText } from '../../../helpers/testSelector';
 import MigrationContainer from '../MigrationContainer';
 
 jest.mock('../../../helpers/system', () => ({

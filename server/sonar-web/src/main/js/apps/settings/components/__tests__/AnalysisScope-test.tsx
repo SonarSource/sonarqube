@@ -19,12 +19,12 @@
  */
 import { uniq } from 'lodash';
 import * as React from 'react';
+import { byRole, byText } from '~sonar-aligned/helpers/testSelector';
 import SettingsServiceMock, {
   DEFAULT_DEFINITIONS_MOCK,
 } from '../../../../api/mocks/SettingsServiceMock';
 import { mockComponent } from '../../../../helpers/mocks/component';
 import { renderComponent } from '../../../../helpers/testReactTestingUtils';
-import { byRole, byText } from '../../../../helpers/testSelector';
 import { AdditionalCategoryComponentProps } from '../AdditionalCategories';
 import { AnalysisScope } from '../AnalysisScope';
 

@@ -19,8 +19,8 @@
  */
 import { act } from '@testing-library/react';
 import React from 'react';
+import { byRole } from '~sonar-aligned/helpers/testSelector';
 import { renderComponent } from '../../../../helpers/testReactTestingUtils';
-import { byRole } from '../../../../helpers/testSelector';
 import { mockIntersectionObserver } from '../../../../helpers/testUtils';
 import useStickyDetection from '../useStickyDetection';
 

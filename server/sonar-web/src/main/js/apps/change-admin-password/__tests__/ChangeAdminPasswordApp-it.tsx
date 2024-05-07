@@ -19,10 +19,10 @@
  */
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
+import { byLabelText, byRole, byText } from '~sonar-aligned/helpers/testSelector';
 import { changePassword } from '../../../api/users';
 import { mockAppState } from '../../../helpers/testMocks';
 import { renderApp } from '../../../helpers/testReactTestingUtils';
-import { byLabelText, byRole, byText } from '../../../helpers/testSelector';
 import { AppState } from '../../../types/appstate';
 import ChangeAdminPasswordApp from '../ChangeAdminPasswordApp';
 import { DEFAULT_ADMIN_PASSWORD } from '../constants';

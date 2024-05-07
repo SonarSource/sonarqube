@@ -22,6 +22,7 @@ import { waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { addGlobalErrorMessage, addGlobalSuccessMessage } from 'design-system';
 import selectEvent from 'react-select-event';
+import { byRole, byText } from '~sonar-aligned/helpers/testSelector';
 import { QualityGatesServiceMock } from '../../../api/mocks/QualityGatesServiceMock';
 import handleRequiredAuthorization from '../../../app/utils/handleRequiredAuthorization';
 import { mockComponent } from '../../../helpers/mocks/component';
@@ -29,7 +30,6 @@ import {
   RenderContext,
   renderAppWithComponentContext,
 } from '../../../helpers/testReactTestingUtils';
-import { byRole, byText } from '../../../helpers/testSelector';
 import { Component } from '../../../types/types';
 import routes from '../routes';
 

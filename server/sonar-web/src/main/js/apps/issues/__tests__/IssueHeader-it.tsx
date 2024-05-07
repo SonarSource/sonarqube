@@ -18,10 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { byRole, byText } from '~sonar-aligned/helpers/testSelector';
 import { WorkspaceContext } from '../../../components/workspace/context';
 import { mockIssue, mockRuleDetails } from '../../../helpers/testMocks';
 import { renderComponent } from '../../../helpers/testReactTestingUtils';
-import { byRole, byText } from '../../../helpers/testSelector';
 import { Dict } from '../../../types/types';
 import IssueHeader from '../components/IssueHeader';
 

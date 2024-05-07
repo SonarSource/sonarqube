@@ -20,6 +20,7 @@
 import userEvent from '@testing-library/user-event';
 import { last } from 'lodash';
 import selectEvent from 'react-select-event';
+import { byLabelText, byRole, byText } from '~sonar-aligned/helpers/testSelector';
 import { MessageTypes } from '../../../../api/messages';
 import BranchesServiceMock from '../../../../api/mocks/BranchesServiceMock';
 import MessagesServiceMock from '../../../../api/mocks/MessagesServiceMock';
@@ -33,7 +34,6 @@ import {
   RenderContext,
   renderAppWithComponentContext,
 } from '../../../../helpers/testReactTestingUtils';
-import { byLabelText, byRole, byText } from '../../../../helpers/testSelector';
 import { Feature } from '../../../../types/features';
 import { NewCodeDefinitionType } from '../../../../types/new-code-definition';
 import routes from '../../routes';

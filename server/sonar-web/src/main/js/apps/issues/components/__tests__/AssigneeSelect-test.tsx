@@ -20,11 +20,11 @@
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
+import { byLabelText } from '~sonar-aligned/helpers/testSelector';
 import CurrentUserContextProvider from '../../../../app/components/current-user/CurrentUserContextProvider';
 import { mockUserBase } from '../../../../helpers/mocks/users';
 import { mockCurrentUser, mockIssue, mockLoggedInUser } from '../../../../helpers/testMocks';
 import { renderComponent } from '../../../../helpers/testReactTestingUtils';
-import { byLabelText } from '../../../../helpers/testSelector';
 import { CurrentUser } from '../../../../types/users';
 import AssigneeSelect, { AssigneeSelectProps, MIN_QUERY_LENGTH } from '../AssigneeSelect';
 

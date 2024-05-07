@@ -19,10 +19,10 @@
  */
 import * as React from 'react';
 import { Route } from 'react-router-dom';
+import { byText } from '~sonar-aligned/helpers/testSelector';
 import handleRequiredAuthorization from '../../../app/utils/handleRequiredAuthorization';
 import { mockComponent } from '../../../helpers/mocks/component';
 import { renderAppRoutes } from '../../../helpers/testReactTestingUtils';
-import { byText } from '../../../helpers/testSelector';
 import { ProjectAdminContainer } from '../ProjectAdminContainer';
 
 jest.mock('../../utils/handleRequiredAuthorization', () => {

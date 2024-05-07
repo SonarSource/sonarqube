@@ -19,8 +19,8 @@
  */
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
+import { byRole, byText } from '~sonar-aligned/helpers/testSelector';
 import { renderComponent } from '../../../helpers/testReactTestingUtils';
-import { byRole, byText } from '../../../helpers/testSelector';
 import SelectList, { SelectListFilter } from '../SelectList';
 
 const elements = ['foo', 'bar', 'baz'];

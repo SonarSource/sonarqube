@@ -20,9 +20,9 @@
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { first } from 'lodash';
+import { byRole, byText } from '~sonar-aligned/helpers/testSelector';
 import SystemServiceMock from '../../../../api/mocks/SystemServiceMock';
 import { renderAppRoutes } from '../../../../helpers/testReactTestingUtils';
-import { byRole, byText } from '../../../../helpers/testSelector';
 import { AppState } from '../../../../types/appstate';
 import routes from '../../routes';
 import { LogsLevels } from '../../utils';

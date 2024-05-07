@@ -20,6 +20,7 @@
 import userEvent from '@testing-library/user-event';
 import { addGlobalSuccessMessage } from 'design-system';
 import selectEvent from 'react-select-event';
+import { byLabelText, byRole, byText } from '~sonar-aligned/helpers/testSelector';
 import {
   ProfileProject,
   associateProject,
@@ -32,7 +33,6 @@ import {
   RenderContext,
   renderAppWithComponentContext,
 } from '../../../helpers/testReactTestingUtils';
-import { byLabelText, byRole, byText } from '../../../helpers/testSelector';
 import { Component } from '../../../types/types';
 import routes from '../routes';
 
