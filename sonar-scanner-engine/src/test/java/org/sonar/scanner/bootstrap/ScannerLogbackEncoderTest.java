@@ -30,9 +30,9 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 class ScannerLogbackEncoderTest {
-  
+
   ScannerLogbackEncoder underTest = new ScannerLogbackEncoder();
-  
+
   @Test
   void no_headers_and_footers() {
     assertThat(underTest.headerBytes()).isEmpty();
@@ -70,7 +70,9 @@ class ScannerLogbackEncoderTest {
 
     var bytes = underTest.encode(logEvent);
 
-    assertThat(new String(bytes, StandardCharsets.UTF_8)).isEqualTo("{\"level\":\"DEBUG\",\"message\":\"message\",\"stacktrace\":\"java.lang.IllegalArgumentException: foo\\n\"}\n");
+    assertThat(new String(bytes, StandardCharsets.UTF_8))
+      .startsWith(
+        "{\"level\":\"DEBUG\",\"message\":\"message\",\"stacktrace\":\"java.lang.IllegalArgumentException: foo\\n\\tat org.sonar.scanner.bootstrap.ScannerLogbackEncoderTest.should_encode_with_stacktrace");
   }
 
 }

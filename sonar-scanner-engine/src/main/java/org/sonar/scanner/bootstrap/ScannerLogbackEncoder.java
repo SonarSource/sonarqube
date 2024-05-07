@@ -24,6 +24,7 @@ import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.classic.spi.IThrowableProxy;
 import ch.qos.logback.core.CoreConstants;
 import ch.qos.logback.core.encoder.EncoderBase;
+import java.util.List;
 import org.apache.commons.text.StringEscapeUtils;
 
 import static ch.qos.logback.core.CoreConstants.COMMA_CHAR;
@@ -40,6 +41,11 @@ public class ScannerLogbackEncoder extends EncoderBase<ILoggingEvent> {
   private static final String QUOTE_COL = "\":";
 
   private final ThrowableProxyConverter tpc = new ThrowableProxyConverter();
+
+  public ScannerLogbackEncoder() {
+    tpc.setOptionList(List.of("full"));
+    tpc.start();
+  }
 
   @Override
   public byte[] headerBytes() {
