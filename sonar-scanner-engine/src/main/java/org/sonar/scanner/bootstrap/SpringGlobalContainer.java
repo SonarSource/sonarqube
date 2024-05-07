@@ -23,6 +23,7 @@ import java.time.Clock;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Priority;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,6 +68,9 @@ public class SpringGlobalContainer extends SpringComponentContainer {
   }
 
   public static SpringGlobalContainer create(Map<String, String> scannerProperties, List<?> extensions) {
+    if (LOG.isDebugEnabled()) {
+      LOG.debug("JVM max available memory: {}", FileUtils.byteCountToDisplaySize(Runtime.getRuntime().maxMemory()));
+    }
     return new SpringGlobalContainer(scannerProperties, extensions);
   }
 
