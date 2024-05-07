@@ -19,7 +19,7 @@
  */
 import styled from '@emotion/styled';
 import tw from 'twin.macro';
-import { themeColor } from '../helpers/theme';
+import { themeColor } from '../../../helpers/theme';
 
 export const Title = styled.h1`
   ${tw`sw-heading-lg`}

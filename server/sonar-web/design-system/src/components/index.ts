@@ -74,7 +74,6 @@ export * from './Tabs';
 export * from './Tags';
 export * from './Text';
 export * from './TextAccordion';
-export * from './Title';
 export { Tooltip } from './Tooltip';
 export { TopBar } from './TopBar';
 export * from './TreeMap';
