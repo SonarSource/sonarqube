@@ -61,7 +61,7 @@ public class PluginFiles {
     var home = sonarUserHome.getPath();
     this.cacheDir = mkdir(home.resolve("cache"), "user cache");
     this.tempDir = mkdir(home.resolve("_tmp"), "temp dir");
-    LOGGER.info("User cache: {}", cacheDir);
+    LOGGER.debug("User cache: {}", cacheDir);
   }
 
   public File createTempDir() {
