@@ -30,9 +30,11 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import javax.annotation.CheckForNull;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.utils.MessageException;
 import org.sonar.batch.bootstrapper.EnvironmentInformation;
 import org.sonar.batch.bootstrapper.LoggingConfiguration;
 
@@ -47,26 +49,53 @@ public class ScannerMain {
   private static final String SCANNER_APP_VERSION_KEY = "sonar.scanner.appVersion";
 
   public static void main(String... args) {
+    System.exit(run(System.in));
+  }
+
+  public static int run(InputStream in) {
     try {
-      run(System.in);
+      LOG.info("Starting SonarScanner Engine...");
+
+      var properties = parseInputProperties(in);
+
+      EnvironmentConfig.processEnvVariables(properties);
+
+      configureLogLevel(properties);
+
+      runScannerEngine(properties);
+
+      LOG.info("SonarScanner Engine completed successfully");
+      return 0;
     } catch (Exception e) {
-      LOG.error("Error during SonarScanner Engine execution", e);
-      System.exit(1);
+      handleException(e);
+      return 1;
     }
   }
 
-  public static void run(InputStream in) {
-    LOG.info("Starting SonarScanner Engine...");
+  private static void handleException(Exception e) {
+    var messageException = unwrapMessageException(e);
+    if (messageException.isPresent()) {
+      // Don't show the stacktrace for a message exception to not pollute the logs
+      if (LoggerFactory.getLogger(ScannerMain.class).isDebugEnabled()) {
+        LOG.error(messageException.get(), e);
+      } else {
+        LOG.error(messageException.get());
+      }
+    } else {
+      LOG.error("Error during SonarScanner Engine execution", e);
+    }
+  }
 
-    var properties = parseInputProperties(in);
+  private static Optional<String> unwrapMessageException(Exception t) {
+    Throwable y = t;
+    do {
+      if (y instanceof MessageException messageException) {
+        return Optional.of(messageException.getMessage());
+      }
+      y = y.getCause();
+    } while (y != null);
 
-    EnvironmentConfig.processEnvVariables(properties);
-
-    configureLogLevel(properties);
-
-    runScannerEngine(properties);
-
-    LOG.info("SonarScanner Engine completed successfully");
+    return Optional.empty();
   }
 
   private static @NotNull Map<String, String> parseInputProperties(InputStream in) {

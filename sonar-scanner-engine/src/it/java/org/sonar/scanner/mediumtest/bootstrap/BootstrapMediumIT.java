@@ -26,6 +26,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.slf4j.event.Level;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.scanner.bootstrap.ScannerMain;
@@ -39,7 +41,6 @@ import static com.github.tomakehurst.wiremock.client.WireMock.okJson;
 import static com.github.tomakehurst.wiremock.client.WireMock.post;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static testutils.TestUtils.protobufBody;
 
 class BootstrapMediumIT {
@@ -104,37 +105,37 @@ class BootstrapMediumIT {
   @Test
   void should_fail_if_invalid_json_input() {
     var in = new ByteArrayInputStream("}".getBytes());
-    var e = assertThrows(IllegalArgumentException.class, () -> ScannerMain.run(in));
-    assertThat(e).hasMessage("Failed to parse JSON input");
 
-    assertThat(logTester.logs()).contains("Starting SonarScanner Engine...");
+    var exitCode = ScannerMain.run(in);
+
+    assertThat(exitCode).isEqualTo(1);
+    assertThat(logTester.getLogs(Level.ERROR)).hasSize(1);
+    assertThat(logTester.getLogs(Level.ERROR).get(0).getFormattedMsg()).isEqualTo("Error during SonarScanner Engine execution");
+    assertThat(logTester.getLogs(Level.ERROR).get(0).getThrowable()).isInstanceOf(IllegalArgumentException.class).hasMessage("Failed to parse JSON input");
   }
 
   @Test
   void should_warn_if_null_property_key() {
-    try {
-      ScannerMain.run(new ByteArrayInputStream("{\"scannerProperties\": [{\"value\": \"aValueWithoutKey\"}]}".getBytes()));
-    } catch (Exception ignored) {
-    }
-    assertThat(logTester.logs()).contains("Ignoring property with null key: 'aValueWithoutKey'");
+    ScannerMain.run(new ByteArrayInputStream("""
+      {"scannerProperties": [{"value": "aValueWithoutKey"}]}""".getBytes()));
+
+    assertThat(logTester.logs(Level.WARN)).contains("Ignoring property with null key: 'aValueWithoutKey'");
   }
 
   @Test
   void should_warn_if_duplicate_property_keys() {
-    try {
-      ScannerMain.run(new ByteArrayInputStream("{\"scannerProperties\": [{\"key\": \"aKey\"}, {\"key\": \"aKey\"}]}".getBytes()));
-    } catch (Exception ignored) {
-    }
-    assertThat(logTester.logs()).contains("Duplicated properties with key: 'aKey'");
+    ScannerMain.run(new ByteArrayInputStream("""
+      {"scannerProperties": [{"key": "aKey"}, {"key": "aKey"}]}""".getBytes()));
+
+    assertThat(logTester.logs(Level.WARN)).contains("Duplicated properties with key: 'aKey'");
   }
 
   @Test
   void should_warn_if_null_property() {
-    try {
-      ScannerMain.run(new ByteArrayInputStream("{\"scannerProperties\": [{\"key\": \"aKey\", \"value\": \"aValue\"},]}".getBytes()));
-    } catch (Exception ignored) {
-    }
-    assertThat(logTester.logs()).contains("Ignoring null property");
+    ScannerMain.run(new ByteArrayInputStream("""
+      {"scannerProperties": [{"key": "aKey", "value": "aValue"},]}""".getBytes()));
+
+    assertThat(logTester.logs(Level.WARN)).contains("Ignoring null property");
   }
 
   /**
@@ -142,14 +143,41 @@ class BootstrapMediumIT {
    */
   @Test
   void should_complete_successfully(@TempDir Path baseDir) {
-
-    ScannerMain.run(new ByteArrayInputStream(("{\"scannerProperties\": ["
+    var exitCode = ScannerMain.run(new ByteArrayInputStream(("{\"scannerProperties\": ["
       + "{\"key\": \"sonar.host.url\", \"value\": \"" + sonarqube.baseUrl() + "\"},"
       + "{\"key\": \"sonar.projectKey\", \"value\": \"" + PROJECT_KEY + "\"},"
       + "{\"key\": \"sonar.projectBaseDir\", \"value\": \"" + baseDir + "\"}"
       + "]}").getBytes()));
 
+    assertThat(exitCode).isZero();
     assertThat(logTester.logs()).contains("SonarScanner Engine completed successfully");
+  }
+
+  @Test
+  void should_unwrap_message_exception_without_stacktrace(@TempDir Path baseDir) {
+    var exitCode = ScannerMain.run(new ByteArrayInputStream(("{\"scannerProperties\": ["
+      + "{\"key\": \"sonar.host.url\", \"value\": \"" + sonarqube.baseUrl() + "\"},"
+      + "{\"key\": \"sonar.projectBaseDir\", \"value\": \"" + baseDir + "\"}"
+      + "]}").getBytes()));
+
+    assertThat(exitCode).isEqualTo(1);
+    assertThat(logTester.getLogs(Level.ERROR)).hasSize(1);
+    assertThat(logTester.getLogs(Level.ERROR).get(0).getFormattedMsg()).isEqualTo("You must define the following mandatory properties for 'Unknown': sonar.projectKey");
+    assertThat(logTester.getLogs(Level.ERROR).get(0).getThrowable()).isNull();
+  }
+
+  @Test
+  void should_show_message_exception_stacktrace_in_debug(@TempDir Path baseDir) {
+    var exitCode = ScannerMain.run(new ByteArrayInputStream(("{\"scannerProperties\": ["
+      + "{\"key\": \"sonar.host.url\", \"value\": \"" + sonarqube.baseUrl() + "\"},"
+      + "{\"key\": \"sonar.projectBaseDir\", \"value\": \"" + baseDir + "\"},"
+      + "{\"key\": \"sonar.verbose\", \"value\": \"true\"}"
+      + "]}").getBytes()));
+
+    assertThat(exitCode).isEqualTo(1);
+    assertThat(logTester.getLogs(Level.ERROR)).hasSize(1);
+    assertThat(logTester.getLogs(Level.ERROR).get(0).getFormattedMsg()).isEqualTo("You must define the following mandatory properties for 'Unknown': sonar.projectKey");
+    assertThat(logTester.getLogs(Level.ERROR).get(0).getThrowable()).isNotNull();
   }
 
   @Test
