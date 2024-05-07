@@ -55,6 +55,7 @@ public class ScannerMain {
   public static int run(InputStream in) {
     try {
       LOG.info("Starting SonarScanner Engine...");
+      LOG.atInfo().log(ScannerMain::java);
 
       var properties = parseInputProperties(in);
 
@@ -70,6 +71,20 @@ public class ScannerMain {
       handleException(e);
       return 1;
     }
+  }
+
+  static String java() {
+    StringBuilder sb = new StringBuilder();
+    sb
+      .append("Java ")
+      .append(System.getProperty("java.version"))
+      .append(" ")
+      .append(System.getProperty("java.vendor"));
+    String bits = System.getProperty("sun.arch.data.model");
+    if ("32".equals(bits) || "64".equals(bits)) {
+      sb.append(" (").append(bits).append("-bit)");
+    }
+    return sb.toString();
   }
 
   private static void handleException(Exception e) {
