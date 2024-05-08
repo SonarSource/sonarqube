@@ -17,13 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import styled from '@emotion/styled';
+import { themeColor } from '../../helpers/theme';
 
-export * from './Card';
-export { DismissableFlagMessage, FlagMessage } from './FlagMessage';
-export * from './MetricsRatingBadge';
-export * from './Table';
-export * from './Text';
-export * from './ToggleButton';
-export * from './buttons';
-export * from './input';
-export * from './typography';
+export const PageContentFontWrapper = styled.div`
+  color: ${themeColor('pageContent')};
+`;

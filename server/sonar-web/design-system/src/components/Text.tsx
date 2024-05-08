@@ -149,10 +149,6 @@ export const LightPrimary = styled.span`
   color: ${themeContrast('primaryLight')};
 `;
 
-export const PageContentFontWrapper = styled.div`
-  color: ${themeColor('pageContent')};
-`;
-
 export const Highlight = styled.strong`
   color: ${themeColor('pageContentDark')};
 

@@ -1,5 +1,5 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`should render branch icon correctly 1`] = `"<div><span class="css-nk2far-StyledText-StyledMutedText en0eo9410"><span aria-hidden="true" class="css-lr6nas" role="img">&amp;</span></span></div>"`;
+exports[`should render branch icon correctly 1`] = `"<div><span class="css-nk2far-StyledText-StyledMutedText en0eo949"><span aria-hidden="true" class="css-lr6nas" role="img">&amp;</span></span></div>"`;
 
-exports[`should render pull request icon correctly 1`] = `"<div><span class="css-nk2far-StyledText-StyledMutedText en0eo9410"><span aria-hidden="true" class="css-lr6nas" role="img">)</span></span></div>"`;
+exports[`should render pull request icon correctly 1`] = `"<div><span class="css-nk2far-StyledText-StyledMutedText en0eo949"><span aria-hidden="true" class="css-lr6nas" role="img">)</span></span></div>"`;
