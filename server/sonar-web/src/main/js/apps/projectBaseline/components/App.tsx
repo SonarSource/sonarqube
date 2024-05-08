@@ -203,7 +203,7 @@ export class App extends React.PureComponent<Props, State> {
   handleSubmit = (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    const { component } = this.props;
+    const { component, branchLike } = this.props;
     const { analysis, days, selected: type, referenceBranch, overrideGeneralSetting } = this.state;
 
     if (!overrideGeneralSetting) {
@@ -217,6 +217,7 @@ export class App extends React.PureComponent<Props, State> {
       this.setState({ saving: true });
       setNewCodePeriod({
         project: component.key,
+        branch: branchLike.name,
         type,
         value,
       }).then(
