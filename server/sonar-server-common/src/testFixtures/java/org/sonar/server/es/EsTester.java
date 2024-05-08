@@ -85,6 +85,8 @@ import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 import org.elasticsearch.transport.Netty4Plugin;
+import org.junit.jupiter.api.extension.AfterEachCallback;
+import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.rules.ExternalResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -109,7 +111,7 @@ import static org.sonar.server.es.Index.ALL_INDICES;
 import static org.sonar.server.es.IndexType.FIELD_INDEX_TYPE;
 import static org.sonar.server.es.newindex.DefaultIndexSettings.REFRESH_IMMEDIATE;
 
-public class EsTester extends ExternalResource {
+public class EsTester extends ExternalResource implements AfterEachCallback {
 
   private static final int MIN_PORT = 1;
   private static final int MAX_PORT = 49151;
@@ -173,6 +175,11 @@ public class EsTester extends ExternalResource {
     deleteIndexIfExists(ALL_INDICES.getName());
     CORE_INDICES_CREATED.set(false);
     create();
+  }
+
+  @Override
+  public void afterEach(ExtensionContext extensionContext) throws Exception {
+    after();
   }
 
   @Override
