@@ -20,7 +20,7 @@
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { formatISO, parseISO } from 'date-fns';
-import { byRole } from '../../../../../src/main/js/helpers/testSelector';
+import { byRole } from '../../../../../src/main/js/sonar-aligned/helpers/testSelector';
 import { IntlWrapper, render } from '../../../helpers/testUtils';
 import { DateRangePicker } from '../DateRangePicker';
 
