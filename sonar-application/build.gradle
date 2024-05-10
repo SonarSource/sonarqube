@@ -80,9 +80,9 @@ dependencies {
     def artifactoryUsername = System.env.'ARTIFACTORY_PRIVATE_USERNAME' ?: (project.hasProperty('artifactoryUsername') ? project.getProperty('artifactoryUsername') : '')
     def artifactoryPassword = System.env.'ARTIFACTORY_PRIVATE_PASSWORD' ?: (project.hasProperty('artifactoryPassword') ? project.getProperty('artifactoryPassword') : '')
     if (artifactoryUsername && artifactoryPassword) {
-      zipDist "sonarqube:elasticsearch:${elasticsearchVersion}-no-jdk-linux-x86_64@tar.gz"
+      zipDist "sonarqube:elasticsearch:${elasticSearchServerVersion}-no-jdk-linux-x86_64@tar.gz"
     } else {
-      zipDist "elasticsearch:elasticsearch:${elasticsearchVersion}-linux-x86_64@tar.gz"
+      zipDist "elasticsearch:elasticsearch:${elasticSearchServerVersion}-linux-x86_64@tar.gz"
     }
 
 }
