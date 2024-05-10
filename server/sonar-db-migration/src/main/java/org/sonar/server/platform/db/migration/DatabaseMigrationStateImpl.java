@@ -88,7 +88,7 @@ public class DatabaseMigrationStateImpl implements MutableDatabaseMigrationState
 
   @Override
   public Optional<Instant> getExpectedFinishDate(Instant now) {
-    if (startedAt == null || totalMigrations == 0 || completedMigrations == 0) {
+    if (this.getStatus() != Status.RUNNING || startedAt == null || totalMigrations == 0 || completedMigrations == 0) {
       return Optional.empty();
     }
     Duration elapsed = Duration.between(startedAt, now);

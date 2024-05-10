@@ -23,6 +23,8 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import org.assertj.core.api.InstanceOfAssertFactories;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.within;
@@ -69,13 +71,13 @@ class DatabaseMigrationStateImplTest {
 
     assertThat(underTest.getError()).get().isSameAs(expected);
   }
-  
+
   @Test
   void incrementCompletedMigrations_shouldIncrementCompletedMigrations() {
     assertThat(underTest.getCompletedMigrations()).isZero();
-    
+
     underTest.incrementCompletedMigrations();
-    
+
     assertThat(underTest.getCompletedMigrations()).isEqualTo(1);
   }
 
@@ -103,6 +105,7 @@ class DatabaseMigrationStateImplTest {
 
     underTest.setStartedAt(startDate);
     underTest.setTotalMigrations(2);
+    underTest.setStatus(DatabaseMigrationState.Status.RUNNING);
 
     assertThat(underTest.getExpectedFinishDate(later)).isEmpty();
   }
@@ -116,8 +119,51 @@ class DatabaseMigrationStateImplTest {
     underTest.setStartedAt(startDate);
     underTest.setTotalMigrations(2);
     underTest.incrementCompletedMigrations();
+    underTest.setStatus(DatabaseMigrationState.Status.RUNNING);
 
     assertThat(underTest.getExpectedFinishDate(later)).get(InstanceOfAssertFactories.INSTANT)
       .isCloseTo(expectedEnd, within(1, ChronoUnit.SECONDS));
   }
+
+  @ParameterizedTest
+  @EnumSource(value = DatabaseMigrationStateImpl.Status.class,
+    names = {"SUCCEEDED", "FAILED", "MIGRATION_REQUIRED", "NONE", "STATUS_NOT_SUPPORTED"})
+  void getExpectedFinishDate_whenStatusIsNotRunning_shouldReturnEmptyOptional(DatabaseMigrationState.Status status) {
+    Instant startDate = Instant.now();
+    Instant later = startDate.plus(1, ChronoUnit.MINUTES);
+
+    underTest.setStartedAt(startDate);
+    underTest.setTotalMigrations(1);
+    underTest.incrementCompletedMigrations();
+    underTest.setStatus(status);
+
+    assertThat(underTest.getExpectedFinishDate(later)).isEmpty();
+  }
+
+  @Test
+  void getExpectedFinishDate_whenTotalMigrationsAreZero_shouldReturnEmptyOptional() {
+    Instant startDate = Instant.now();
+    Instant later = startDate.plus(1, ChronoUnit.MINUTES);
+
+    underTest.setStartedAt(startDate);
+    underTest.setTotalMigrations(0);
+    underTest.incrementCompletedMigrations();
+    underTest.setStatus(DatabaseMigrationState.Status.RUNNING);
+
+    assertThat(underTest.getExpectedFinishDate(later)).isEmpty();
+  }
+
+  @Test
+  void getExpectedFinishDate_whenStartedAtIsNull_shouldReturnEmptyOptional() {
+    Instant startDate = Instant.now();
+    Instant later = startDate.plus(1, ChronoUnit.MINUTES);
+
+    underTest.setStartedAt(null);
+    underTest.setTotalMigrations(1);
+    underTest.incrementCompletedMigrations();
+    underTest.setStatus(DatabaseMigrationState.Status.RUNNING);
+
+    assertThat(underTest.getExpectedFinishDate(later)).isEmpty();
+  }
+
 }
