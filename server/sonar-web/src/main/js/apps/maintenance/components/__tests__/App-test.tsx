@@ -20,10 +20,10 @@
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
+import { byText } from '~sonar-aligned/helpers/testSelector';
 import { getMigrationsStatus, getSystemStatus, migrateDatabase } from '../../../../api/system';
 import { mockLocation } from '../../../../helpers/testMocks';
 import { renderApp } from '../../../../helpers/testReactTestingUtils';
-import { byText } from '../../../../helpers/testSelector';
 import { MigrationStatus } from '../../../../types/system';
 import App from '../App';
 
