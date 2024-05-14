@@ -15,7 +15,7 @@
     "@react-spring/web": "9.7.3",
     "@sonarsource/echoes-react": "0.2.2",
     "@tanstack/react-query": "5.18.1",
-    "axios": "1.6.7",
+    "axios": "1.6.8",
     "classnames": "2.5.1",
     "clipboard": "2.0.11",
     "core-js": "3.35.1",
@@ -143,5 +143,5 @@
   "browser": {
     "path": "path-browserify"
   },
-  "packageManager": "yarn@4.1.0"
+  "packageManager": "yarn@4.2.2"
 }
