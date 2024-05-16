@@ -5810,6 +5810,7 @@ __metadata:
     esbuild: "npm:0.20.0"
     eslint: "npm:8.56.0"
     eslint-config-sonarqube: "npm:2.1.3"
+    eslint-plugin-header: "npm:3.1.1"
     eslint-plugin-import: "npm:2.29.1"
     eslint-plugin-jest: "npm:27.6.3"
     eslint-plugin-jest-dom: "npm:5.1.0"
