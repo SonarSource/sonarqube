@@ -61,7 +61,7 @@ public class ComponentCleanerService {
   }
 
   private void updateProjectNcloc(DbSession dbSession, String projectUuid) {
-    long maxncloc = dbClient.liveMeasureDao().sumNclocOfBiggestBranchForProject(dbSession, projectUuid);
+    long maxncloc = dbClient.liveMeasureDao().findNclocOfBiggestBranchForProject(dbSession, projectUuid);
     dbClient.projectDao().updateNcloc(dbSession, projectUuid, maxncloc);
   }
 

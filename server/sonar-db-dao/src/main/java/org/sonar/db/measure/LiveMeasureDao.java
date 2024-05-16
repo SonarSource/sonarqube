@@ -94,8 +94,8 @@ public class LiveMeasureDao implements Dao {
     mapper(dbSession).selectTreeByQuery(query, baseComponent.uuid(), query.getUuidPath(baseComponent), resultHandler);
   }
 
-  public long sumNclocOfBiggestBranchForProject(DbSession dbSession, String projectUuid){
-    Long ncloc = mapper(dbSession).sumNclocOfBiggestBranchForProject(projectUuid, NCLOC_KEY);
+  public long findNclocOfBiggestBranchForProject(DbSession dbSession, String projectUuid){
+    Long ncloc = mapper(dbSession).findNclocOfBiggestBranchForProject(projectUuid, NCLOC_KEY);
     return ncloc == null ? 0L : ncloc;
   }
 

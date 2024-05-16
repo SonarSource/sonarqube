@@ -62,19 +62,16 @@
     and lm.component_uuid = #{componentUuid, jdbcType=VARCHAR}
   </select>
 
-  <select id="sumNclocOfBiggestBranchForProject" parameterType="map" resultType="long">
-    select sumncloc.maxncloc from (
-      select b.project_uuid as projectUuid, max(lm.value) as maxncloc
-      from live_measures lm
-      inner join metrics m on m.uuid = lm.metric_uuid
-      inner join project_branches b on b.uuid = lm.component_uuid
-      inner join projects p on p.uuid = b.project_uuid and p.qualifier = 'TRK'
-      <where>
-        m.name = #{ncloc, jdbcType=VARCHAR}
-        and b.project_uuid = #{projectUuid,jdbcType=VARCHAR}
-      </where>
-      group by b.project_uuid
-    ) sumncloc
+  <select id="findNclocOfBiggestBranchForProject" parameterType="map" resultType="long">
+    select max(lm.value)
+    from live_measures lm
+    inner join metrics m on m.uuid = lm.metric_uuid
+    inner join project_branches b on b.uuid = lm.component_uuid
+    inner join projects p on p.uuid = b.project_uuid and p.qualifier = 'TRK'
+    <where>
+      m.name = #{ncloc, jdbcType=VARCHAR}
+      and b.project_uuid = #{projectUuid,jdbcType=VARCHAR}
+    </where>
   </select>
 
   <select id="getLargestBranchNclocPerProject" parameterType="map" resultType="LargestBranchNclocDto">

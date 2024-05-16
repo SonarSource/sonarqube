@@ -410,9 +410,9 @@ class LiveMeasureDaoIT {
     db.measures().insertLiveMeasure(projectWithLinesButNoLoc, lines, m -> m.setValue(365d));
     db.measures().insertLiveMeasure(projectWithLinesButNoLoc, ncloc, m -> m.setValue(0d));
 
-    assertThat(underTest.sumNclocOfBiggestBranchForProject(db.getSession(), simpleProject.projectUuid())).isEqualTo(10L);
-    assertThat(underTest.sumNclocOfBiggestBranchForProject(db.getSession(), projectWithBiggerBranch.projectUuid())).isEqualTo(200L);
-    assertThat(underTest.sumNclocOfBiggestBranchForProject(db.getSession(), projectWithLinesButNoLoc.projectUuid())).isZero();
+    assertThat(underTest.findNclocOfBiggestBranchForProject(db.getSession(), simpleProject.projectUuid())).isEqualTo(10L);
+    assertThat(underTest.findNclocOfBiggestBranchForProject(db.getSession(), projectWithBiggerBranch.projectUuid())).isEqualTo(200L);
+    assertThat(underTest.findNclocOfBiggestBranchForProject(db.getSession(), projectWithLinesButNoLoc.projectUuid())).isZero();
   }
 
   @Test
@@ -473,7 +473,7 @@ class LiveMeasureDaoIT {
   void countNcloc_empty() {
     db.measures().insertMetric(m -> m.setKey("ncloc").setValueType(INT.toString()));
     db.measures().insertMetric(m -> m.setKey("lines").setValueType(INT.toString()));
-    long result = underTest.sumNclocOfBiggestBranchForProject(db.getSession(), "non-existing-project-uuid");
+    long result = underTest.findNclocOfBiggestBranchForProject(db.getSession(), "non-existing-project-uuid");
 
     assertThat(result).isZero();
   }

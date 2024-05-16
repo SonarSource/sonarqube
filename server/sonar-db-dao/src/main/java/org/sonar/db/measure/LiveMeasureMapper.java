@@ -58,7 +58,7 @@ public interface LiveMeasureMapper {
     ResultHandler<LiveMeasureDto> resultHandler);
 
   @CheckForNull
-  Long sumNclocOfBiggestBranchForProject(@Param("projectUuid") String projectUuid, @Param("ncloc") String nclocKey);
+  Long findNclocOfBiggestBranchForProject(@Param("projectUuid") String projectUuid, @Param("ncloc") String nclocKey);
 
   List<LargestBranchNclocDto> getLargestBranchNclocPerProject(@Param("nclocUuid") String nclocUuid);
 
