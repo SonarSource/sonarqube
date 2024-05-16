@@ -94,7 +94,7 @@ export default function IssueTransition(props: Readonly<Props>) {
         }
         placement={PopupPlacement.Bottom}
         zLevel={PopupZLevel.Absolute}
-        size="medium"
+        size="full"
       >
         {({ a11yAttrs }) => (
           <SearchSelectDropdownControl

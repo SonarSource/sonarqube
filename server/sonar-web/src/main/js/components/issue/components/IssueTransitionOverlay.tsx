@@ -122,8 +122,8 @@ export function IssueTransitionOverlay(props: Readonly<Props>) {
               )}
               rows={5}
               value={comment}
-              size="auto"
-              className="sw-mt-2 sw-resize-y sw-w-full"
+              size="large"
+              className="sw-mt-2"
             />
             <Spinner loading={loading} className="sw-float-right sw-m-2">
               <div className="sw-mt-2 sw-flex sw-gap-3 sw-justify-end">
