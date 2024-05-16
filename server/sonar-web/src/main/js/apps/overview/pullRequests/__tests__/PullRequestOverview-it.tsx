@@ -52,6 +52,9 @@ jest.mock('../../../../api/measures', () => {
             metric: MetricKey.new_coverage,
           }),
           mockMeasure({
+            metric: MetricKey.coverage,
+          }),
+          mockMeasure({
             metric: MetricKey.duplicated_lines,
           }),
           mockMeasure({
@@ -70,6 +73,7 @@ jest.mock('../../../../api/measures', () => {
       },
       metrics: [
         mockMetric({ key: MetricKey.new_coverage }),
+        mockMetric({ key: MetricKey.coverage }),
         mockMetric({ key: MetricKey.duplicated_lines }),
         mockMetric({ key: MetricKey.new_lines, type: MetricType.ShortInteger }),
         mockMetric({ key: MetricKey.new_bugs, type: MetricType.Integer }),
@@ -181,6 +185,9 @@ it('should render correctly for a passed QG', async () => {
   expect(screen.getByLabelText('overview.quality_gate_x.overview.gate.OK')).toBeInTheDocument();
 
   expect(screen.getByText('metric.new_lines.name')).toBeInTheDocument();
+  expect(
+    screen.getByText('component_measures.facet_category.overall_category.estimated'),
+  ).toBeInTheDocument();
   expect(screen.getByText(/overview.last_analysis_x/)).toBeInTheDocument();
 });
 

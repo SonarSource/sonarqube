@@ -17,14 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { LinkHighlight, LinkStandalone } from '@sonarsource/echoes-react';
 import classNames from 'classnames';
-import {
-  ContentLink,
-  CoverageIndicator,
-  DuplicationsIndicator,
-  LightLabel,
-  TextError,
-} from 'design-system';
+import { CoverageIndicator, DuplicationsIndicator, LightLabel, TextError } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { To } from 'react-router-dom';
@@ -34,6 +29,7 @@ import { duplicationRatingConverter, getLeakValue } from '../../../components/me
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { findMeasure, localizeMetric } from '../../../helpers/measures';
 import { getComponentDrilldownUrl } from '../../../helpers/urls';
+import { isPullRequest } from '../../../sonar-aligned/helpers/branch-like';
 import { BranchLike } from '../../../types/branch-like';
 import { QualityGateStatusConditionEnhanced } from '../../../types/quality-gates';
 import { MeasureEnhanced } from '../../../types/types';
@@ -43,6 +39,7 @@ import {
   getConditionRequiredLabel,
   getMeasurementMetricKey,
 } from '../utils';
+import AfterMergeNote from './AfterMergeNote';
 import MeasuresCard from './MeasuresCard';
 
 interface Props {
@@ -55,6 +52,7 @@ interface Props {
   conditions: QualityGateStatusConditionEnhanced[];
   conditionMetric: MetricKey;
   linesMetric: MetricKey;
+  overallConditionMetric?: MetricKey;
   useDiffMetric?: boolean;
   showRequired?: boolean;
 }
@@ -71,6 +69,7 @@ export default function MeasuresCardPercent(
     measures,
     conditions,
     conditionMetric,
+    overallConditionMetric,
     linesMetric,
     useDiffMetric = false,
     showRequired = false,
@@ -131,7 +130,8 @@ export default function MeasuresCardPercent(
             id={linesLabel}
             values={{
               link: (
-                <ContentLink
+                <LinkStandalone
+                  highlight={LinkHighlight.Default}
                   aria-label={translateWithParameters(
                     'overview.see_more_details_on_x_y',
                     linesValue ?? '0',
@@ -141,12 +141,15 @@ export default function MeasuresCardPercent(
                   to={linesUrl}
                 >
                   {formatMeasure(linesValue ?? '0', MetricType.ShortInteger)}
-                </ContentLink>
+                </LinkStandalone>
               ),
             }}
           />
         </LightLabel>
       </div>
+      {overallConditionMetric && isPullRequest(branchLike) && (
+        <AfterMergeNote measures={measures} overallMetric={overallConditionMetric} />
+      )}
     </MeasuresCard>
   );
 }

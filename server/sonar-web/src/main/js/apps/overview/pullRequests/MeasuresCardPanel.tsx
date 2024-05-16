@@ -71,6 +71,7 @@ export default function MeasuresCardPanel(props: React.PropsWithChildren<Props>)
             })}
             conditions={conditions}
             conditionMetric={MetricKey.new_coverage}
+            overallConditionMetric={MetricKey.coverage}
             linesMetric={MetricKey.new_lines_to_cover}
             measures={measures}
             showRequired
@@ -106,6 +107,7 @@ export default function MeasuresCardPanel(props: React.PropsWithChildren<Props>)
             })}
             conditions={conditions}
             conditionMetric={MetricKey.new_duplicated_lines_density}
+            overallConditionMetric={MetricKey.duplicated_lines_density}
             linesMetric={MetricKey.new_lines}
             measures={measures}
             useDiffMetric
