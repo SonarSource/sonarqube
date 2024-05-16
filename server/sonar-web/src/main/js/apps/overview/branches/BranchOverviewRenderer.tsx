@@ -199,7 +199,7 @@ export default function BranchOverviewRenderer(props: BranchOverviewRendererProp
               <div>
                 {branch && (
                   <>
-                    {currentUser.isLoggedIn && (
+                    {currentUser.isLoggedIn && hasNewCodeMeasures && (
                       <PromotedSection
                         content={translate('overview.promoted_section.content')}
                         dismissed={dismissedTour ?? false}
@@ -217,7 +217,9 @@ export default function BranchOverviewRenderer(props: BranchOverviewRendererProp
                       branch={branch}
                       component={component}
                       measures={measures}
-                      showTakeTheTourButton={dismissedTour && currentUser.isLoggedIn}
+                      showTakeTheTourButton={
+                        dismissedTour && currentUser.isLoggedIn && hasNewCodeMeasures
+                      }
                       startTour={startTourGuide}
                     />
                     <BasicSeparator />

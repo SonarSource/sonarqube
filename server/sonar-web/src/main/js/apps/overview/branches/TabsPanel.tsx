@@ -155,7 +155,10 @@ export function TabsPanel(props: React.PropsWithChildren<MeasuresPanelProps>) {
               value={isNewCode ? CodeScope.New : CodeScope.Overall}
             >
               {isNewCode && leakPeriod && (
-                <LightLabel className="sw-body-sm sw-flex sw-items-center sw-mr-6">
+                <LightLabel
+                  className="sw-body-sm sw-flex sw-items-center sw-mr-6 sw-pl-4"
+                  data-spotlight-id="cayc-promotion-2"
+                >
                   <span className="sw-mr-1">{translate('overview.new_code')}:</span>
                   <LeakPeriodInfo leakPeriod={leakPeriod} />
                 </LightLabel>
