@@ -65,7 +65,7 @@ export default function PromotedSection({
   }
 
   return (
-    <StyledWrapper className="sw-p-4 sw-pl-6 sw-my-6 sw-rounded-2 sw-w-8/12">
+    <StyledWrapper className="sw-p-4 sw-pl-6 sw-my-6 sw-rounded-2">
       <div className="sw-flex sw-justify-between sw-mb-2">
         <StyledTitle className="sw-body-md-highlight">{title}</StyledTitle>
         <InteractiveIcon
