@@ -22,11 +22,9 @@ import {
   HelperHintIcon,
   LightGreyCard,
   LightLabel,
-  PopupPlacement,
   SnoozeCircleIcon,
   TextError,
   TextSubdued,
-  Tooltip,
   TrendDownCircleIcon,
   TrendUpCircleIcon,
   themeColor,
@@ -37,6 +35,7 @@ import { getBranchLikeQuery } from '~sonar-aligned/helpers/branch-like';
 import { formatMeasure } from '~sonar-aligned/helpers/measures';
 import { getComponentIssuesUrl } from '~sonar-aligned/helpers/urls';
 import { MetricKey, MetricType } from '~sonar-aligned/types/metrics';
+import Tooltip from '../../../components/controls/Tooltip';
 import { getLeakValue } from '../../../components/measure/utils';
 import { DEFAULT_ISSUES_QUERY } from '../../../components/shared/utils';
 import { findMeasure } from '../../../helpers/measures';
@@ -134,17 +133,19 @@ export default function IssueMeasuresCard(
           <>
             {intl.formatMessage({ id: 'overview.pull_request.fixed_issues' })}
             <Tooltip
-              overlay={
+              content={
                 <div className="sw-flex sw-flex-col sw-gap-4">
                   <span>
                     {intl.formatMessage({ id: 'overview.pull_request.fixed_issues.disclaimer' })}
                   </span>
                   <span>
-                    {intl.formatMessage({ id: 'overview.pull_request.fixed_issues.disclaimer.2' })}
+                    {intl.formatMessage({
+                      id: 'overview.pull_request.fixed_issues.disclaimer.2',
+                    })}
                   </span>
                 </div>
               }
-              placement={PopupPlacement.Top}
+              side="top"
             >
               <HelperHintIcon raised />
             </Tooltip>

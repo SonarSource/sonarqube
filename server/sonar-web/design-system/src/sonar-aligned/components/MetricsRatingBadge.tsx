@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import styled from '@emotion/styled';
+import { forwardRef } from 'react';
 import tw from 'twin.macro';
 import { getProp, themeColor, themeContrast } from '../../helpers/theme';
 import { RatingLabel } from '../types/measures';
@@ -38,37 +39,37 @@ const SIZE_MAPPING = {
   xl: '4rem',
 };
 
-export function MetricsRatingBadge({
-  className,
-  size = 'sm',
-  label,
-  rating,
-  ...ariaAttrs
-}: Readonly<Props>) {
-  if (!rating) {
+export const MetricsRatingBadge = forwardRef<HTMLDivElement, Props>(
+  ({ className, size = 'sm', label, rating, ...ariaAttrs }: Readonly<Props>, ref) => {
+    if (!rating) {
+      return (
+        <StyledNoRatingBadge
+          aria-label={label}
+          className={className}
+          ref={ref}
+          size={SIZE_MAPPING[size]}
+          {...ariaAttrs}
+        >
+          —
+        </StyledNoRatingBadge>
+      );
+    }
     return (
-      <StyledNoRatingBadge
+      <MetricsRatingBadgeStyled
         aria-label={label}
         className={className}
+        rating={rating}
+        ref={ref}
         size={SIZE_MAPPING[size]}
         {...ariaAttrs}
       >
-        —
-      </StyledNoRatingBadge>
+        {rating}
+      </MetricsRatingBadgeStyled>
     );
-  }
-  return (
-    <MetricsRatingBadgeStyled
-      aria-label={label}
-      className={className}
-      rating={rating}
-      size={SIZE_MAPPING[size]}
-      {...ariaAttrs}
-    >
-      {rating}
-    </MetricsRatingBadgeStyled>
-  );
-}
+  },
+);
+
+MetricsRatingBadge.displayName = 'MetricsRatingBadge';
 
 const StyledNoRatingBadge = styled.div<{ size: string }>`
   display: inline-flex;

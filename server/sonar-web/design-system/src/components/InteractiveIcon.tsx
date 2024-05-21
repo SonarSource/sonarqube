@@ -20,13 +20,12 @@
 import { css } from '@emotion/react';
 import styled from '@emotion/styled';
 import classNames from 'classnames';
-import React from 'react';
+import React, { ForwardedRef, MouseEvent, forwardRef, useCallback } from 'react';
 import tw from 'twin.macro';
 import { OPACITY_20_PERCENT } from '../helpers/constants';
 import { themeBorder, themeColor, themeContrast } from '../helpers/theme';
 import { isDefined } from '../helpers/types';
 import { ThemedProps } from '../types/theme';
-import { BaseLink, LinkProps } from './Link';
 import { IconProps } from './icons/Icon';
 
 export type InteractiveIconSize = 'small' | 'medium';
@@ -41,63 +40,54 @@ export interface InteractiveIconProps {
   iconProps?: IconProps;
   id?: string;
   innerRef?: React.Ref<HTMLButtonElement>;
-  onClick?: VoidFunction;
+  onClick?: (event: MouseEvent<HTMLButtonElement>) => void;
   size?: InteractiveIconSize;
   stopPropagation?: boolean;
-  to?: LinkProps['to'];
 }
 
-export class InteractiveIconBase extends React.PureComponent<InteractiveIconProps> {
-  handleClick = (event: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>) => {
-    const { disabled, onClick, stopPropagation = true } = this.props;
-
-    if (stopPropagation) {
-      event.stopPropagation();
-    }
-
-    if (onClick && !disabled) {
-      onClick();
-    }
-  };
-
-  render() {
+export const InteractiveIconBase = forwardRef(
+  (props: InteractiveIconProps, ref: ForwardedRef<HTMLButtonElement>) => {
     const {
       Icon,
       children,
       disabled,
-      innerRef,
       onClick,
       size = 'medium',
-      to,
       iconProps = {},
+      stopPropagation = true,
       ...htmlProps
-    } = this.props;
+    } = props;
 
-    const props = {
+    const handleClick = useCallback(
+      (event: React.MouseEvent<HTMLButtonElement>) => {
+        if (stopPropagation) {
+          event.stopPropagation();
+        }
+
+        if (onClick && !disabled) {
+          onClick(event);
+        }
+      },
+      [disabled, onClick, stopPropagation],
+    );
+
+    const propsForInteractiveWrapper = {
       ...htmlProps,
       'aria-disabled': disabled,
       disabled,
       size,
-      type: 'button' as const,
     };
 
-    if (to) {
-      return (
-        <IconLink {...props} onClick={onClick} showExternalIcon={false} stopPropagation to={to}>
-          <Icon className={classNames({ 'sw-mr-1': isDefined(children) })} {...iconProps} />
-          {children}
-        </IconLink>
-      );
-    }
-
     return (
-      <IconButton {...props} onClick={this.handleClick} ref={innerRef}>
+      <IconButton {...propsForInteractiveWrapper} onClick={handleClick} ref={ref} type="button">
         <Icon className={classNames({ 'sw-mr-1': isDefined(children) })} {...iconProps} />
         {children}
       </IconButton>
     );
-  }
-}
+  },
+);
+
+InteractiveIconBase.displayName = 'InteractiveIconBase';
 
 const buttonIconStyle = (props: ThemedProps & { size: InteractiveIconSize }) => css`
   box-sizing: border-box;
@@ -141,17 +131,11 @@ const buttonIconStyle = (props: ThemedProps & { size: InteractiveIconSize }) => 
   }
 `;
 
-const IconLink = styled(BaseLink)`
-  ${buttonIconStyle}
-`;
-
 const IconButton = styled.button`
   ${buttonIconStyle}
 `;
 
-export const InteractiveIcon: React.FC<React.PropsWithChildren<InteractiveIconProps>> = styled(
-  InteractiveIconBase,
-)`
+export const InteractiveIcon = styled(InteractiveIconBase)`
   --background: ${themeColor('interactiveIcon')};
   --backgroundHover: ${themeColor('interactiveIconHover')};
   --color: ${({ currentColor, theme }) =>
@@ -160,14 +144,11 @@ export const InteractiveIcon: React.FC<React.PropsWithChildren<InteractiveIconPr
   --focus: ${themeColor('interactiveIconFocus', OPACITY_20_PERCENT)};
 `;
 
-export const DiscreetInteractiveIcon: React.FC<React.PropsWithChildren<InteractiveIconProps>> =
-  styled(InteractiveIcon)`
-    --color: ${themeColor('discreetInteractiveIcon')};
-  `;
+export const DiscreetInteractiveIcon = styled(InteractiveIcon)`
+  --color: ${themeColor('discreetInteractiveIcon')};
+`;
 
-export const DestructiveIcon: React.FC<React.PropsWithChildren<InteractiveIconProps>> = styled(
-  InteractiveIconBase,
-)`
+export const DestructiveIcon = styled(InteractiveIconBase)`
   --background: ${themeColor('destructiveIcon')};
   --backgroundHover: ${themeColor('destructiveIconHover')};
   --color: ${themeContrast('destructiveIcon')};
@@ -175,13 +156,12 @@ export const DestructiveIcon: React.FC<React.PropsWithChildren<InteractiveIconPr
   --focus: ${themeColor('destructiveIconFocus', OPACITY_20_PERCENT)};
 `;
 
-export const DismissProductNewsIcon: React.FC<React.PropsWithChildren<InteractiveIconProps>> =
-  styled(InteractiveIcon)`
-    --background: ${themeColor('productNews')};
-    --backgroundHover: ${themeColor('productNewsHover')};
-    --color: ${themeContrast('productNews')};
-    --colorHover: ${themeContrast('productNewsHover')};
-    --focus: ${themeColor('interactiveIconFocus', OPACITY_20_PERCENT)};
+export const DismissProductNewsIcon = styled(InteractiveIcon)`
+  --background: ${themeColor('productNews')};
+  --backgroundHover: ${themeColor('productNewsHover')};
+  --color: ${themeContrast('productNews')};
+  --colorHover: ${themeContrast('productNewsHover')};
+  --focus: ${themeColor('interactiveIconFocus', OPACITY_20_PERCENT)};
 
-    height: 28px;
-  `;
+  height: 28px;
+`;

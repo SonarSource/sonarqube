@@ -31,11 +31,11 @@ import {
   PopupPlacement,
   popupPositioning,
 } from '../helpers/positioning';
-import { themeColor, themeContrast } from '../helpers/theme';
+import { themeColor } from '../helpers/theme';
 
 const MILLISECONDS_IN_A_SECOND = 1000;
 
-export interface TooltipProps {
+interface TooltipProps {
   children: React.ReactElement;
   mouseEnterDelay?: number;
   mouseLeaveDelay?: number;
@@ -67,6 +67,19 @@ function isMeasured(state: State): state is OwnState & Measurements {
   return state.height !== undefined;
 }
 
+/** @deprecated Use {@link Echoes.Tooltip | Tooltip} from Echoes instead.
+ *
+ * Echoes Tooltip component should mainly be used on interactive element and contain very simple text based content.
+ * If the content is more complex use a Popover component instead (not available yet).
+ *
+ * Some of the props have changed or been renamed:
+ * - `children` is the trigger for the tooltip, should be an interactive Element. If not an Echoes component, make sure the component forwards the props and the ref to an interactive DOM node, it's needed by the tooltip to position itself.
+ * - `overlay` is now `content`, that's the tooltip content. It's a ReactNode for convenience but should render only text based content, no interactivity is allowed inside the tooltip.
+ * - ~`mouseEnterDelay`~ doesn't exist anymore, was mostly used in situation that should be replaced by a Popover component.
+ * - ~`mouseLeaveDelay`~ doesn't exist anymore, was mostly used in situation that should be replaced by a Popover component.
+ * - `placement` is now `align` and `side`, based on the {@link Echoes.TooltipAlign | TooltipAlign} and {@link Echoes.TooltipSide | TooltipSide} enums.
+ * - `visible` is now `isOpen`
+ */
 export function Tooltip(props: TooltipProps) {
   // overlay is a ReactNode, so it can be a boolean, `undefined` or `null`
   // this allows to easily render a tooltip conditionally
@@ -517,16 +530,17 @@ const TooltipWrapperArrow = styled.div`
 `;
 
 export const TooltipWrapperInner = styled.div`
-  color: ${themeContrast('tooltipBackground')};
-  background-color: ${themeColor('tooltipBackground')};
+  font: var(--echoes-typography-paragraph-small-regular);
+  padding: var(--echoes-dimension-space-50) var(--echoes-dimension-space-150);
+  color: var(--echoes-color-text-on-color);
+  background-color: var(--echoes-color-background-inverse);
+  border-radius: var(--echoes-border-radius-200);
 
   ${tw`sw-max-w-[22rem]`}
-  ${tw`sw-py-3 sw-px-4`};
   ${tw`sw-overflow-hidden`};
   ${tw`sw-text-left`};
   ${tw`sw-no-underline`};
   ${tw`sw-break-words`};
-  ${tw`sw-rounded-2`};
 
   hr {
     background-color: ${themeColor('tooltipSeparator')};

@@ -17,18 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import {
-  HelperHintIcon,
-  ItemButton,
-  PageContentFontWrapper,
-  PopupPlacement,
-  TextBold,
-  TextMuted,
-  Tooltip,
-} from 'design-system';
+import { IconQuestionMark } from '@sonarsource/echoes-react';
+import { ItemButton, PageContentFontWrapper, TextBold, TextMuted } from 'design-system';
 import * as React from 'react';
 import { useIntl } from 'react-intl';
 import { translate } from '../../../helpers/l10n';
+import HelpTooltip from '../../../sonar-aligned/components/controls/HelpTooltip';
 import { IssueTransition } from '../../../types/issues';
 
 type Props = {
@@ -68,9 +62,9 @@ export function IssueTransitionItem({ transition, selected, onSelectTransition }
         <PageContentFontWrapper className="sw-font-semibold sw-flex sw-gap-1 sw-items-center">
           <TextBold name={intl.formatMessage({ id: `issue.transition.${transition}` })} />
           {tooltips[transition] && (
-            <Tooltip overlay={<div>{tooltips[transition]}</div>} placement={PopupPlacement.Right}>
-              <HelperHintIcon />
-            </Tooltip>
+            <HelpTooltip overlay={tooltips[transition]} placement="right">
+              <IconQuestionMark />
+            </HelpTooltip>
           )}
         </PageContentFontWrapper>
         <TextMuted text={translate('issue.transition', transition, 'description')} />

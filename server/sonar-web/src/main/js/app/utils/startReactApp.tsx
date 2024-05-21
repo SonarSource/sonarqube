@@ -19,6 +19,8 @@
  */
 
 import { ThemeProvider } from '@emotion/react';
+import styled from '@emotion/styled';
+import { TooltipProvider } from '@sonarsource/echoes-react';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { ToastMessageContainer, lightTheme } from 'design-system';
 import * as React from 'react';
@@ -275,7 +277,11 @@ export default function startReactApp(
                   <GlobalStyles />
                   <ToastMessageContainer />
                   <Helmet titleTemplate={translate('page_title.template.default')} />
-                  <RouterProvider router={router} />
+                  <StackContext>
+                    <TooltipProvider>
+                      <RouterProvider router={router} />
+                    </TooltipProvider>
+                  </StackContext>
                 </QueryClientProvider>
               </ThemeProvider>
             </RawIntlProvider>
@@ -285,3 +291,12 @@ export default function startReactApp(
     </HelmetProvider>,
   );
 }
+
+/*
+ * This ensures tooltips and other "floating" elements appended to the body are placed on top
+ * of the rest of the UI.
+ */
+const StackContext = styled.div`
+  z-index: 0;
+  position: relative;
+`;

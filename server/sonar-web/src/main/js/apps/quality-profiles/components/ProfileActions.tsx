@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Tooltip, TooltipSide } from '@sonarsource/echoes-react';
 import {
   ActionsDropdown,
   ItemButton,
@@ -24,9 +25,7 @@ import {
   ItemDivider,
   ItemDownload,
   ItemLink,
-  PopupPlacement,
   PopupZLevel,
-  Tooltip,
 } from 'design-system';
 import { some } from 'lodash';
 import * as React from 'react';
@@ -250,8 +249,8 @@ class ProfileActions extends React.PureComponent<Props, State> {
           {actions.copy && (
             <>
               <Tooltip
-                overlay={translateWithParameters('quality_profiles.extend_help', profile.name)}
-                placement={PopupPlacement.Left}
+                content={translateWithParameters('quality_profiles.extend_help', profile.name)}
+                side={TooltipSide.Left}
               >
                 <ItemButton
                   className="it__quality-profiles__extend"
@@ -262,8 +261,8 @@ class ProfileActions extends React.PureComponent<Props, State> {
               </Tooltip>
 
               <Tooltip
-                overlay={translateWithParameters('quality_profiles.copy_help', profile.name)}
-                placement={PopupPlacement.Left}
+                content={translateWithParameters('quality_profiles.copy_help', profile.name)}
+                side={TooltipSide.Left}
               >
                 <ItemButton className="it__quality-profiles__copy" onClick={this.handleCopyClick}>
                   {translate('copy')}
@@ -281,8 +280,8 @@ class ProfileActions extends React.PureComponent<Props, State> {
           {actions.setAsDefault &&
             (hasNoActiveRules ? (
               <Tooltip
-                placement={PopupPlacement.Left}
-                overlay={translate('quality_profiles.cannot_set_default_no_rules')}
+                content={translate('quality_profiles.cannot_set_default_no_rules')}
+                side={TooltipSide.Left}
               >
                 <ItemButton
                   className="it__quality-profiles__set-as-default"

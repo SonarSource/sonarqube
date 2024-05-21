@@ -18,14 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import styled from '@emotion/styled';
-import { LinkHighlight, LinkStandalone } from '@sonarsource/echoes-react';
+import { LinkHighlight, LinkStandalone, Tooltip } from '@sonarsource/echoes-react';
 import { Badge, LightGreyCard, LightGreyCardTitle, TextBold, TextSubdued } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { formatMeasure } from '~sonar-aligned/helpers/measures';
 import { getComponentIssuesUrl } from '~sonar-aligned/helpers/urls';
 import { MetricKey, MetricType } from '~sonar-aligned/types/metrics';
-import Tooltip from '../../../components/controls/Tooltip';
 import { DEFAULT_ISSUES_QUERY } from '../../../components/shared/utils';
 import {
   SOFTWARE_QUALITIES_METRIC_KEYS_MAP,
@@ -109,7 +108,7 @@ export function SoftwareImpactMeasureCard(props: Readonly<SoftwareImpactBreakdow
         <div className="sw-flex sw-mt-4">
           <div className="sw-flex sw-gap-1 sw-items-center">
             {count ? (
-              <Tooltip overlay={countTooltipOverlay}>
+              <Tooltip content={countTooltipOverlay}>
                 <LinkStandalone
                   data-testid={`overview__software-impact-${softwareQuality}`}
                   aria-label={intl.formatMessage(

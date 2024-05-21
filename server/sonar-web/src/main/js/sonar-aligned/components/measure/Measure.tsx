@@ -17,8 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Tooltip } from '@sonarsource/echoes-react';
 import classNames from 'classnames';
-import { MetricsRatingBadge, QualityGateIndicator, RatingLabel, Tooltip } from 'design-system';
+import { MetricsRatingBadge, QualityGateIndicator, RatingLabel } from 'design-system';
 import React from 'react';
 import { useIntl } from 'react-intl';
 import { formatMeasure } from '~sonar-aligned/helpers/measures';
@@ -105,8 +106,11 @@ export default function Measure({
   );
 
   return (
-    <Tooltip overlay={tooltip}>
-      <span className={className}>{rating}</span>
+    <Tooltip content={tooltip}>
+      {/* eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex */}
+      <span className={className} tabIndex={0}>
+        {rating}
+      </span>
     </Tooltip>
   );
 }

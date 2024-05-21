@@ -19,7 +19,7 @@
  */
 import { css } from '@emotion/react';
 import styled from '@emotion/styled';
-import React from 'react';
+import React, { MouseEvent, ReactNode, forwardRef, useCallback } from 'react';
 import tw from 'twin.macro';
 import { BaseLink, LinkProps } from '../../../components/Link';
 import { themeBorder, themeColor, themeContrast } from '../../../helpers/theme';
@@ -31,15 +31,14 @@ type AllowedButtonAttributes = Pick<
 >;
 
 export interface ButtonProps extends AllowedButtonAttributes {
-  children?: React.ReactNode;
+  children?: ReactNode;
   className?: string;
   disabled?: boolean;
   download?: string;
-  icon?: React.ReactNode;
-  innerRef?: React.Ref<HTMLButtonElement>;
+  icon?: ReactNode;
   isExternal?: LinkProps['isExternal'];
+  onClick?: (event: MouseEvent<HTMLButtonElement | HTMLAnchorElement>) => unknown;
 
-  onClick?: (event: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>) => unknown;
   preventDefault?: boolean;
   reloadDocument?: LinkProps['reloadDocument'];
   showExternalIcon?: boolean;
@@ -48,62 +47,60 @@ export interface ButtonProps extends AllowedButtonAttributes {
   to?: LinkProps['to'];
 }
 
-export class Button extends React.PureComponent<ButtonProps> {
-  handleClick = (event: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>) => {
-    const { disabled, onClick, stopPropagation = false, type } = this.props;
-    const { preventDefault = type !== 'submit' } = this.props;
+export const Button = forwardRef<HTMLButtonElement, ButtonProps>((props, ref) => {
+  const {
+    children,
+    disabled,
+    icon,
+    onClick,
+    preventDefault = props.type !== 'submit',
+    stopPropagation = false,
+    to,
+    type = 'button',
+    ...htmlProps
+  } = props;
 
-    if (preventDefault || disabled) {
-      event.preventDefault();
-    }
+  const handleClick = useCallback(
+    (event: MouseEvent<HTMLButtonElement | HTMLAnchorElement>) => {
+      if (preventDefault || disabled) {
+        event.preventDefault();
+      }
 
-    if (stopPropagation) {
-      event.stopPropagation();
-    }
+      if (stopPropagation) {
+        event.stopPropagation();
+      }
 
-    if (onClick && !disabled) {
-      onClick(event);
-    }
+      if (onClick && !disabled) {
+        onClick(event);
+      }
+    },
+    [disabled, onClick, preventDefault, stopPropagation],
+  );
+
+  const buttonProps = {
+    ...htmlProps,
+    'aria-disabled': disabled,
+    disabled,
+    type,
   };
 
-  render() {
-    const {
-      children,
-      disabled,
-      icon,
-      innerRef,
-      onClick,
-      preventDefault,
-      stopPropagation,
-      to,
-      type = 'button',
-      ...htmlProps
-    } = this.props;
-
-    const props = {
-      ...htmlProps,
-      'aria-disabled': disabled,
-      disabled,
-      type,
-    };
-
-    if (to) {
-      return (
-        <BaseButtonLink {...props} onClick={onClick} to={to}>
-          {icon}
-          {children}
-        </BaseButtonLink>
-      );
-    }
-
+  if (to) {
     return (
-      <BaseButton {...props} onClick={this.handleClick} ref={innerRef}>
+      <BaseButtonLink {...buttonProps} onClick={onClick} to={to}>
         {icon}
         {children}
-      </BaseButton>
+      </BaseButtonLink>
     );
   }
-}
+
+  return (
+    <BaseButton {...buttonProps} onClick={handleClick} ref={ref}>
+      {icon}
+      {children}
+    </BaseButton>
+  );
+});
+Button.displayName = 'Button';
 
 export const buttonStyle = (props: ThemedProps) => css`
   box-sizing: border-box;

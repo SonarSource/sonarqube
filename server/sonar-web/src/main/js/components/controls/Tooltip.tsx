@@ -31,7 +31,7 @@ import './Tooltip.css';
 
 export type Placement = 'bottom' | 'right' | 'left' | 'top';
 
-export interface TooltipProps {
+interface TooltipProps {
   classNameSpace?: string;
   children: React.ReactElement;
   mouseEnterDelay?: number;
@@ -74,6 +74,19 @@ function isMeasured(state: State): state is OwnState & Measurements {
   return state.height !== undefined;
 }
 
+/** @deprecated Use {@link Echoes.Tooltip | Tooltip} from Echoes instead.
+ *
+ * Echoes Tooltip component should mainly be used on interactive element and contain very simple text based content.
+ * If the content is more complex use a Popover component instead (not available yet).
+ *
+ * Some of the props have changed or been renamed:
+ * - `children` is the trigger for the tooltip, should be an interactive Element. If not an Echoes component, make sure the component forwards the props and the ref to an interactive DOM node, it's needed by the tooltip to position itself.
+ * - `overlay` is now `content`, that's the tooltip content. It's a ReactNode for convenience but should render only text based content, no interactivity is allowed inside the tooltip.
+ * - ~`mouseEnterDelay`~ doesn't exist anymore, was mostly used in situation that should be replaced by a Popover component.
+ * - ~`mouseLeaveDelay`~ doesn't exist anymore, was mostly used in situation that should be replaced by a Popover component.
+ * - `placement` is now `align` and `side`, based on the {@link Echoes.TooltipAlign | TooltipAlign} and {@link Echoes.TooltipSide | TooltipSide} enums.
+ * - `visible` is now `isOpen`
+ */
 export default function Tooltip(props: TooltipProps) {
   // `overlay` is a ReactNode, so it can be `undefined` or `null`. This allows to easily
   // render a tooltip conditionally. More generally, we avoid rendering empty tooltips.

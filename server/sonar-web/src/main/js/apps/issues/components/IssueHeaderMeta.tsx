@@ -17,7 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { LightLabel, Note, SeparatorCircleIcon, Tooltip } from 'design-system';
+import { Tooltip } from '@sonarsource/echoes-react';
+import { LightLabel, Note, SeparatorCircleIcon } from 'design-system';
 import React from 'react';
 import DateFromNow from '../../../components/intl/DateFromNow';
 import IssueSeverity from '../../../components/issue/components/IssueSeverity';
@@ -62,11 +63,11 @@ export default function IssueHeaderMeta({ issue }: Readonly<Props>) {
       </div>
       <SeparatorCircleIcon />
 
-      {!!issue.codeVariants?.length && (
+      {(issue.codeVariants?.length ?? 0) > 0 && (
         <>
           <div className="sw-flex sw-gap-1">
             <span>{translate('issue.code_variants')}</span>
-            <Tooltip overlay={issue.codeVariants?.join(', ')}>
+            <Tooltip content={issue.codeVariants?.join(', ')}>
               <span className="sw-font-semibold">
                 <LightLabel>{issue.codeVariants?.join(', ')}</LightLabel>
               </span>

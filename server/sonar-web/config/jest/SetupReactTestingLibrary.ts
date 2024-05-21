@@ -18,7 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import '@testing-library/jest-dom';
-import { configure, fireEvent, screen, waitFor } from '@testing-library/react';
+import { configure, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 
 configure({
   asyncUtilTimeout: 3000,
@@ -26,6 +27,8 @@ configure({
 
 expect.extend({
   async toHaveATooltipWithContent(received: any, content: string) {
+    const user = userEvent.setup();
+
     if (!(received instanceof Element)) {
       return {
         pass: false,
@@ -33,7 +36,8 @@ expect.extend({
       };
     }
 
-    fireEvent.pointerEnter(received);
+    await user.hover(received);
+
     const tooltip = await screen.findByRole('tooltip');
 
     const result = tooltip.textContent?.includes(content)
@@ -47,7 +51,7 @@ expect.extend({
             `Tooltip content "${tooltip.textContent}" does not contain expected "${content}"`,
         };
 
-    fireEvent.pointerLeave(received);
+    await user.keyboard('{Escape}');
 
     await waitFor(() => {
       expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();

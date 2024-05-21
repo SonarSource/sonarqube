@@ -18,8 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import styled from '@emotion/styled';
+import { Tooltip } from '@sonarsource/echoes-react';
 import classNames from 'classnames';
-import { DiscreetLinkBox, Tooltip, themeColor, themeContrast } from 'design-system';
+import { DiscreetLinkBox, themeColor, themeContrast } from 'design-system';
 import * as React from 'react';
 import { useIntl } from 'react-intl';
 import { formatMeasure } from '~sonar-aligned/helpers/measures';
@@ -72,7 +73,7 @@ export function SoftwareImpactMeasureBreakdownCard(
 
   return (
     <Tooltip
-      overlay={intl.formatMessage({
+      content={intl.formatMessage({
         id: `overview.measures.software_impact.severity.${severity}.tooltip`,
       })}
     >

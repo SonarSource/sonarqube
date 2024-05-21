@@ -50,15 +50,16 @@
 }
 
 .tooltip-inner {
+  font: var(--echoes-typography-paragraph-small-regular);
   max-width: 22rem;
   text-align: left;
   text-decoration: none;
-  border-radius: 8px;
+  border-radius: var(--echoes-border-radius-200);
   overflow: hidden;
   word-break: break-word;
-  padding: 12px 17px;
-  color: #eff2f9;
-  background-color: #2a2f40;
+  padding: var(--echoes-dimension-space-50) var(--echoes-dimension-space-150);
+  color: var(--echoes-color-text-on-color);
+  background-color: var(--echoes-color-background-inverse);
 }
 
 .tooltip-inner .alert {

@@ -17,10 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { PopupPlacement, Tags, Tooltip } from 'design-system';
+import { PopupPlacement, Tags } from 'design-system';
 import * as React from 'react';
 import { translate, translateWithParameters } from '../../helpers/l10n';
-import './TagsList.css';
+import Tooltip from '../controls/Tooltip';
 
 interface Props {
   allowUpdate?: boolean;

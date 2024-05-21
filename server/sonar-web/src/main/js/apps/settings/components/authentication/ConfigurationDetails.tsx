@@ -17,12 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Tooltip } from '@sonarsource/echoes-react';
 import {
   ButtonPrimary,
   ButtonSecondary,
   DangerButtonSecondary,
+  FlagMessage,
   SubHeading,
-  Tooltip,
 } from 'design-system';
 import React, { ReactElement } from 'react';
 import { translate } from '../../../../helpers/l10n';
@@ -50,19 +51,20 @@ export default function ConfigurationDetails(props: Readonly<Props>) {
           {title}
         </SubHeading>
         <p>{url}</p>
-        <Tooltip
-          overlay={!canDisable ? translate('settings.authentication.form.disable.tooltip') : null}
-        >
-          {enabled ? (
-            <ButtonSecondary className="sw-mt-4" onClick={onToggle} disabled={!canDisable}>
-              {translate('settings.authentication.form.disable')}
-            </ButtonSecondary>
-          ) : (
-            <ButtonPrimary className="sw-mt-4" onClick={onToggle} disabled={!canDisable}>
-              {translate('settings.authentication.form.enable')}
-            </ButtonPrimary>
-          )}
-        </Tooltip>
+        {enabled ? (
+          <ButtonSecondary className="sw-mt-4" onClick={onToggle} disabled={!canDisable}>
+            {translate('settings.authentication.form.disable')}
+          </ButtonSecondary>
+        ) : (
+          <ButtonPrimary className="sw-mt-4" onClick={onToggle} disabled={!canDisable}>
+            {translate('settings.authentication.form.enable')}
+          </ButtonPrimary>
+        )}
+        {!canDisable && (
+          <FlagMessage className="sw-mt-2" variant="warning">
+            {translate('settings.authentication.form.disable.tooltip')}
+          </FlagMessage>
+        )}
       </div>
       <div className="sw-flex sw-gap-2 sw-flex-nowrap sw-shrink-0">
         {extraActions}
@@ -70,7 +72,7 @@ export default function ConfigurationDetails(props: Readonly<Props>) {
           {translate('settings.authentication.form.edit')}
         </ButtonSecondary>
         <Tooltip
-          overlay={
+          content={
             enabled || isDeleting ? translate('settings.authentication.form.delete.tooltip') : null
           }
         >

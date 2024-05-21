@@ -17,16 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import {
-  ActionCell,
-  Avatar,
-  ContentCell,
-  InteractiveIcon,
-  MenuIcon,
-  Spinner,
-  TableRow,
-  Tooltip,
-} from 'design-system';
+import { IconMoreVertical, Spinner, Tooltip } from '@sonarsource/echoes-react';
+import { ActionCell, Avatar, ContentCell, InteractiveIcon, TableRow } from 'design-system';
 import * as React from 'react';
 import DateFromNow from '../../../components/intl/DateFromNow';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
@@ -85,12 +77,12 @@ export default function UserListItem(props: Readonly<UserListItemProps>) {
         <DateFromNow date={sonarLintLastConnectionDate ?? ''} hourPrecision />
       </ContentCell>
       <ContentCell>
-        <Spinner loading={groupsAreLoading}>
+        <Spinner isLoading={groupsAreLoading}>
           {groupsCount}
           {manageProvider === undefined && (
-            <Tooltip overlay={translate('users.update_groups')}>
+            <Tooltip content={translate('users.update_groups')}>
               <InteractiveIcon
-                Icon={MenuIcon}
+                Icon={IconMoreVertical}
                 className="it__user-groups sw-ml-2"
                 aria-label={translateWithParameters('users.update_users_groups', user.login)}
                 onClick={() => setOpenGroupForm(true)}
@@ -101,11 +93,11 @@ export default function UserListItem(props: Readonly<UserListItemProps>) {
         </Spinner>
       </ContentCell>
       <ContentCell>
-        <Spinner loading={tokensAreLoading}>
+        <Spinner isLoading={tokensAreLoading}>
           {tokens?.length}
-          <Tooltip overlay={translateWithParameters('users.update_tokens')}>
+          <Tooltip content={translateWithParameters('users.update_tokens')}>
             <InteractiveIcon
-              Icon={MenuIcon}
+              Icon={IconMoreVertical}
               className="it__user-tokens sw-ml-2"
               aria-label={translateWithParameters('users.update_tokens_for_x', name ?? login)}
               onClick={() => setOpenTokenForm(true)}
