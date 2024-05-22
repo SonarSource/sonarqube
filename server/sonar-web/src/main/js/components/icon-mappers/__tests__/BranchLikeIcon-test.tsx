@@ -17,19 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { render } from '@testing-library/react';
+
+import { render, screen } from '@testing-library/react';
 import * as React from 'react';
-import { mockBranch, mockPullRequest } from '../../../helpers/mocks/branch-like';
+import { mockBranch, mockMainBranch, mockPullRequest } from '../../../helpers/mocks/branch-like';
 import BranchLikeIcon, { BranchLikeIconProps } from '../../icon-mappers/BranchLikeIcon';
 
-it('should render branch icon correctly', () => {
+it('should render the branch icon correctly', () => {
   renderBranchLikeIcon({ branchLike: mockBranch() });
-  expect(document.body.innerHTML).toMatchSnapshot();
+  expect(screen.getByTestId('branch-like-icon-branch')).toBeInTheDocument();
 });
 
-it('should render pull request icon correctly', () => {
+it('should render the main branch icon correctly', () => {
+  renderBranchLikeIcon({ branchLike: mockMainBranch() });
+  expect(screen.getByTestId('branch-like-icon-main-branch')).toBeInTheDocument();
+});
+
+it('should render the pull request icon correctly', () => {
   renderBranchLikeIcon({ branchLike: mockPullRequest() });
-  expect(document.body.innerHTML).toMatchSnapshot();
+  expect(screen.getByTestId('branch-like-icon-pull-request')).toBeInTheDocument();
 });
 
 function renderBranchLikeIcon(props: BranchLikeIconProps) {

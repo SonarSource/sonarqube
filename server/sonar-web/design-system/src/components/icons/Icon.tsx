@@ -39,10 +39,9 @@ interface Props {
  * - ~`aria-hidden`~ is now inferred from the absence of an `aria-label`
  * - ~`data-guiding-id`~ is no longer passed down to the DOM, put it on a wrapper instead
  * - ~`description`~ doesn't exist anymore
- * - ~`fill`~ doesn't exist anymore, icon colors cannot be overrriden anymore, they take the color
- *   of their surroundings (currentColor) or have an intrinsic color. If you need to change the
- *   color, either make sure the wrapper has a color, or define a styled(MyIcon). Those cases should
- *   be rare and happen only during the transition to Echoes icons.
+ * - ~`fill`~ is now `color`. You can use "echoes-colors-icons-*" design tokens for the `color`
+ *     prop. Without a specific `color`, icons take the color of their surroundings (currentColor)
+ *     or have an intrinsic color.
  * - ~`height`~ doesn't exist anymore, icons are sized based on the font-size of their parent
  * - ~`transform`~ doesn't exist anymore
  * - ~`viewbox`~ doesn't exist anymore, icons are sized based on the font-size of their parent

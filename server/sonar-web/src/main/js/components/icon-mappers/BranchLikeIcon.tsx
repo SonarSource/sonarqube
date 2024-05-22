@@ -28,15 +28,27 @@ export interface BranchLikeIconProps extends IconProps {
   branchLike: BranchLike;
 }
 
+function BranchIcon(props: Readonly<IconProps>) {
+  return <IconGitBranch data-testid="branch-like-icon-branch" {...props} />;
+}
+
+function MainBranchIcon(props: Readonly<IconProps>) {
+  return <IconBranch data-testid="branch-like-icon-main-branch" {...props} />;
+}
+
+function PullRequestIcon(props: Readonly<IconProps>) {
+  return <IconPullrequest data-testid="branch-like-icon-pull-request" {...props} />;
+}
+
 export default function BranchLikeIcon({ branchLike, ...props }: Readonly<BranchLikeIconProps>) {
   let Icon;
 
   if (isPullRequest(branchLike)) {
-    Icon = IconPullrequest;
+    Icon = PullRequestIcon;
   } else if (isMainBranch(branchLike)) {
-    Icon = IconBranch;
+    Icon = MainBranchIcon;
   } else {
-    Icon = IconGitBranch;
+    Icon = BranchIcon;
   }
 
   return (

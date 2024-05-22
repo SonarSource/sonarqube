@@ -23,7 +23,7 @@
     "@babel/preset-typescript": "7.23.3",
     "@emotion/babel-plugin": "11.11.0",
     "@emotion/babel-plugin-jsx-pragmatic": "0.2.1",
-    "@sonarsource/echoes-react": "0.2.2",
+    "@sonarsource/echoes-react": "0.3.0",
     "@testing-library/dom": "9.3.4",
     "@testing-library/jest-dom": "6.4.2",
     "@testing-library/react": "14.2.1",
