@@ -81,7 +81,7 @@ function OptionRenderer(props: Readonly<OptionProps<Option, false>>) {
     <components.Option {...props}>
       <span>{label}</span>
       {isDefault && (
-        <Tooltip overlay={intl.formatMessage({ id: 'quality_profiles.list.default.help' })}>
+        <Tooltip content={intl.formatMessage({ id: 'quality_profiles.list.default.help' })}>
           <span>
             <Badge className="sw-ml-1">{intl.formatMessage({ id: 'default' })}</Badge>
           </span>

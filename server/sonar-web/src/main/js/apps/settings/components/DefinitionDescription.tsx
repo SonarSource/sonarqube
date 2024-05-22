@@ -45,7 +45,7 @@ export default function DefinitionDescription({ definition }: Readonly<Props>) {
         />
       )}
 
-      <Tooltip overlay={translateWithParameters('settings.key_x', definition.key)}>
+      <Tooltip content={translateWithParameters('settings.key_x', definition.key)}>
         <Note as="div" className="sw-mt-4">
           {translateWithParameters('settings.key_x', definition.key)}
         </Note>

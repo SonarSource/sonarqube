@@ -21,7 +21,7 @@ import { css } from '@emotion/react';
 import styled from '@emotion/styled';
 import { OPACITY_20_PERCENT, themeBorder, themeColor, themeContrast } from '../../../helpers';
 import { ThemedProps } from '../../../types';
-import { Button, ButtonProps } from './Button';
+import { Button } from './Button';
 
 export const PrimaryStyle = (props: ThemedProps) => css`
   --background: ${themeColor('button')(props)};
@@ -31,6 +31,6 @@ export const PrimaryStyle = (props: ThemedProps) => css`
   --border: ${themeBorder('default', 'transparent')(props)};
 `;
 
-export const ButtonPrimary: React.FC<React.PropsWithChildren<ButtonProps>> = styled(Button)`
+export const ButtonPrimary = styled(Button)`
   ${PrimaryStyle}
 `;

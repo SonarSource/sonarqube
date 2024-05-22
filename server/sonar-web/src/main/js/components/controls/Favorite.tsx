@@ -96,7 +96,7 @@ export default class Favorite extends React.PureComponent<Props, State> {
         toggleFavorite={this.toggleFavorite}
         tooltip={Tooltip}
         favorite={favorite}
-        innerRef={(node) => (this.buttonNode = node)}
+        innerRef={(node: HTMLElement | null) => (this.buttonNode = node)}
       />
     );
   }

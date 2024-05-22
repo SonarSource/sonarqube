@@ -31,7 +31,7 @@ export default function DisableableSelectOption(props: DisableableSelectOptionPr
   const { option, disableTooltipOverlay, disabledReason, className = '' } = props;
   const label = option.label || option.value;
   return option.isDisabled ? (
-    <Tooltip overlay={disableTooltipOverlay()} placement="left">
+    <Tooltip content={disableTooltipOverlay()} side="left">
       <span className={className}>
         {label}
         {disabledReason !== undefined && <em className="small sw-ml-1">({disabledReason})</em>}

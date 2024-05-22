@@ -121,8 +121,8 @@ export default function DocHelpTooltip(props: Readonly<DocHelpTooltipProps>) {
         mouseLeaveDelay={0.25}
         onShow={handleShowTooltip}
         onHide={handleHideTooltip}
-        overlay={overlay}
-        placement={placement}
+        content={overlay}
+        side={placement}
         isInteractive
       >
         <span

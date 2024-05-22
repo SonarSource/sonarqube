@@ -49,7 +49,7 @@ export default function HotspotHeaderRightSection(props: Props) {
       {hotspot.codeVariants && hotspot.codeVariants.length > 0 && (
         <HotspotHeaderInfo title={translate('issues.facet.codeVariants')} className="sw-truncate">
           <LightLabel className="sw-body-sm">
-            <Tooltip overlay={hotspot.codeVariants.join(', ')}>
+            <Tooltip content={hotspot.codeVariants.join(', ')}>
               <span>{hotspot.codeVariants.join(', ')}</span>
             </Tooltip>
           </LightLabel>

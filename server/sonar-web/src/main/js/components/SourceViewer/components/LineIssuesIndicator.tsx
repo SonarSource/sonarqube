@@ -67,7 +67,7 @@ export function LineIssuesIndicator(props: LineIssuesIndicatorProps) {
 
   return (
     <LineMeta className="it__source-line-with-issues" data-line-number={line.line}>
-      <Tooltip mouseLeaveDelay={MOUSE_LEAVE_DELAY} overlay={tooltipContent}>
+      <Tooltip mouseLeaveDelay={MOUSE_LEAVE_DELAY} content={tooltipContent}>
         <IssueIndicatorButton
           aria-label={tooltipContent}
           aria-expanded={issuesOpen}

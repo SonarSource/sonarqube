@@ -50,7 +50,7 @@ export interface FacetBoxProps {
   onClear?: () => void;
   onClick?: (isOpen: boolean) => void;
   open?: boolean;
-  tooltipComponent?: React.ComponentType<React.PropsWithChildren<{ overlay: React.ReactNode }>>;
+  tooltipComponent?: React.ComponentType<React.PropsWithChildren<{ content: React.ReactNode }>>;
 }
 
 export function FacetBox(props: FacetBoxProps) {
@@ -105,7 +105,7 @@ export function FacetBox(props: FacetBoxProps) {
           {expandable && <OpenCloseIndicator aria-hidden open={open} />}
 
           {disabled ? (
-            <Tooltip overlay={disabledHelper}>
+            <Tooltip content={disabledHelper}>
               <HeaderTitle
                 aria-disabled
                 aria-label={`${name}, ${disabledHelper ?? ''}`}
@@ -130,7 +130,7 @@ export function FacetBox(props: FacetBoxProps) {
             </Badge>
 
             {Boolean(clearable) && (
-              <Tooltip overlay={clearIconLabel}>
+              <Tooltip content={clearIconLabel}>
                 <ClearIcon
                   Icon={CloseIcon}
                   aria-label={clearIconLabel ?? ''}

@@ -56,7 +56,7 @@ function renderBranchOption(props: OptionProps<BranchOption, false>) {
     <components.Option {...props}>
       {option.isInvalid ? (
         <Tooltip
-          overlay={translateWithParameters(
+          content={translateWithParameters(
             'baseline.reference_branch.does_not_exist',
             option.value,
           )}

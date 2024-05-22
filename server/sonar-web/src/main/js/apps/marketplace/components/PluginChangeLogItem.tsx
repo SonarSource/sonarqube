@@ -38,7 +38,7 @@ export default function PluginChangeLogItem({ release, update }: Props) {
             {release.version}
           </Badge>
         ) : (
-          <Tooltip overlay={translate('marketplace.update_status', update.status)}>
+          <Tooltip content={translate('marketplace.update_status', update.status)}>
             <span>
               <Badge className="sw-mr-4">{release.version}</Badge>
             </span>

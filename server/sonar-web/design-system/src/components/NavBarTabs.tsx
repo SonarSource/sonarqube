@@ -75,7 +75,7 @@ export function NavBarTabLink(props: NavBarTabLinkProps) {
 export function DisabledTabLink(props: { label: string; overlay: React.ReactNode }) {
   return (
     <NavBarTabLinkWrapper>
-      <Tooltip overlay={props.overlay}>
+      <Tooltip content={props.overlay}>
         <a aria-disabled="true" className="disabled-link" role="link">
           {props.label}
         </a>

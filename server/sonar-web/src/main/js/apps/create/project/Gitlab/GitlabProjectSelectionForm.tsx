@@ -100,12 +100,12 @@ export default function GitlabProjectSelectionForm(
               sqProjectKey={project.sqProjectKey}
               onImport={props.onImport}
               primaryTextNode={
-                <Tooltip overlay={project.slug}>
+                <Tooltip content={project.slug}>
                   <span>{project.name}</span>
                 </Tooltip>
               }
               secondaryTextNode={
-                <Tooltip overlay={project.pathSlug}>
+                <Tooltip content={project.pathSlug}>
                   <span>{project.pathName}</span>
                 </Tooltip>
               }

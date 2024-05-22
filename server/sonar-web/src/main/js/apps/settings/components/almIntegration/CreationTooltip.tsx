@@ -46,7 +46,7 @@ export function CreationTooltip(props: CreationTooltipProps) {
 
   return (
     <Tooltip
-      overlay={
+      content={
         preventCreation ? (
           <FormattedMessage
             id="settings.almintegration.create.tooltip"

@@ -89,7 +89,7 @@ export default function HotspotSimpleList(props: HotspotSimpleListProps) {
             <SubNavigationContainer className="sw-flex sw-justify-between">
               <div className="sw-flex sw-items-center">
                 {filterByFile ? (
-                  <Tooltip overlay={filterByFile}>
+                  <Tooltip content={filterByFile}>
                     <span>
                       <QualifierIcon className="sw-mr-1" qualifier={ComponentQualifier.File} />
                       {fileFromPath(filterByFile)}

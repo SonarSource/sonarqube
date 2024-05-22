@@ -75,7 +75,7 @@ export default function IssueMetaBar(props: Readonly<Props>) {
         <>
           <li className={issueMetaListItemClassNames}>
             <Tooltip
-              overlay={translateWithParameters('issue.from_external_rule_engine', ruleEngine)}
+              content={translateWithParameters('issue.from_external_rule_engine', ruleEngine)}
             >
               <span>
                 <Badge>{ruleEngine}</Badge>
@@ -89,7 +89,7 @@ export default function IssueMetaBar(props: Readonly<Props>) {
       {!!issue.codeVariants?.length && (
         <>
           <IssueMetaListItem>
-            <Tooltip overlay={issue.codeVariants.join(', ')}>
+            <Tooltip content={issue.codeVariants.join(', ')}>
               <span>
                 {issue.codeVariants.length > 1
                   ? translateWithParameters('issue.x_code_variants', issue.codeVariants.length)
@@ -116,7 +116,7 @@ export default function IssueMetaBar(props: Readonly<Props>) {
 
       {showLine && isDefined(issue.textRange) && (
         <>
-          <Tooltip overlay={translate('line_number')}>
+          <Tooltip content={translate('line_number')}>
             <IssueMetaListItem className={issueMetaListItemClassNames}>
               {translateWithParameters('issue.ncloc_x.short', issue.textRange.endLine)}
             </IssueMetaListItem>

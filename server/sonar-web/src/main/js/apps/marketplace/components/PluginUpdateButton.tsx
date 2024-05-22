@@ -40,7 +40,7 @@ export default function PluginUpdateButton(props: Readonly<Props>) {
     return null;
   }
   return (
-    <Tooltip overlay={translate('marketplace.requires_restart')}>
+    <Tooltip content={translate('marketplace.requires_restart')}>
       <ButtonSecondary disabled={disabled} onClick={handleClick}>
         {translateWithParameters('marketplace.update_to_x', update.release.version)}
       </ButtonSecondary>

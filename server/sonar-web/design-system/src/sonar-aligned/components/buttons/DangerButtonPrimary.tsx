@@ -19,9 +19,9 @@
  */
 import styled from '@emotion/styled';
 import { OPACITY_20_PERCENT, themeBorder, themeColor, themeContrast } from '../../../helpers';
-import { Button, ButtonProps } from './Button';
+import { Button } from './Button';
 
-export const DangerButtonPrimary: React.FC<React.PropsWithChildren<ButtonProps>> = styled(Button)`
+export const DangerButtonPrimary = styled(Button)`
   --background: ${themeColor('dangerButton')};
   --backgroundHover: ${themeColor('dangerButtonHover')};
   --color: ${themeContrast('dangerButton')};

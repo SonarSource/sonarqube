@@ -39,7 +39,7 @@ export default function SonarLintBadge({ compact }: Readonly<Props>) {
 function SonarLintBadgeFull() {
   return (
     <Tooltip
-      overlay={translate('issue.quick_fix_available_with_sonarlint_no_link')}
+      content={translate('issue.quick_fix_available_with_sonarlint_no_link')}
       mouseLeaveDelay={0.5}
     >
       <LinkStandalone
@@ -65,7 +65,7 @@ function SonarLintBadgeFull() {
 function SonarLintBadgeCompact() {
   return (
     <Tooltip
-      overlay={
+      content={
         <FormattedMessage
           id="issue.quick_fix_available_with_sonarlint"
           defaultMessage={translate('issue.quick_fix_available_with_sonarlint')}

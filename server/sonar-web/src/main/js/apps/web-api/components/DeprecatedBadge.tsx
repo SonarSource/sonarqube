@@ -32,7 +32,7 @@ export default function DeprecatedBadge({ since }: { since?: string }) {
     ? translateWithParameters('api_documentation.deprecated_since_x', since)
     : translate('api_documentation.deprecated');
   return (
-    <Tooltip overlay={overlay}>
+    <Tooltip content={overlay}>
       <span>
         <Badge variant="default">{label}</Badge>
       </span>

@@ -28,7 +28,7 @@ interface Props {
 
 export default function BuiltInQualityGateBadge({ className }: Props) {
   return (
-    <Tooltip overlay={translate('quality_gates.built_in.help')}>
+    <Tooltip content={translate('quality_gates.built_in.help')}>
       <Badge className={className}>{translate('quality_gates.built_in')}</Badge>
     </Tooltip>
   );

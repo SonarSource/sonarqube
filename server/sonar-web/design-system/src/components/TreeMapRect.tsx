@@ -83,7 +83,7 @@ export function TreeMapRect(props: Props) {
   const isIconVisible = width >= ICON_VISIBLE_AT_WIDTH && height >= ICON_VISIBLE_AT_HEIGHT;
 
   return (
-    <Tooltip overlay={tooltip} placement={placement ?? PopupPlacement.Left}>
+    <Tooltip content={tooltip} placement={placement ?? PopupPlacement.Left}>
       <StyledCell style={cellStyles}>
         <StyledCellLink href="#" onClick={handleRectClick}>
           <StyledCellLabel width={width}>

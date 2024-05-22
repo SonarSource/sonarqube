@@ -35,7 +35,7 @@ export default function BuiltInQualityProfileBadge({ className, tooltip = true }
   );
 
   if (tooltip) {
-    return <Tooltip overlay={translate('quality_profiles.built_in.description')}>{badge}</Tooltip>;
+    return <Tooltip content={translate('quality_profiles.built_in.description')}>{badge}</Tooltip>;
   }
 
   return badge;

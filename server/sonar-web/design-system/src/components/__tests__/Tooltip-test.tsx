@@ -96,7 +96,7 @@ describe('TooltipInner', () => {
     children = <div role="note" />,
   ) {
     return render(
-      <TooltipInner mouseLeaveDelay={0} overlay={<span id="overlay" />} {...props}>
+      <TooltipInner content={<span id="overlay" />} mouseLeaveDelay={0} {...props}>
         {children}
       </TooltipInner>,
     );
@@ -105,19 +105,19 @@ describe('TooltipInner', () => {
 
 describe('Tooltip', () => {
   it('should not render tooltip without overlay', async () => {
-    const { user } = setupWithProps({ overlay: undefined });
+    const { user } = setupWithProps({ content: undefined });
     await user.hover(screen.getByRole('note'));
     expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
   });
 
   it('should not render undefined tooltips', async () => {
-    const { user } = setupWithProps({ overlay: undefined, visible: true });
+    const { user } = setupWithProps({ content: undefined, visible: true });
     await user.hover(screen.getByRole('note'));
     expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
   });
 
   it('should not render empty tooltips', async () => {
-    const { user } = setupWithProps({ overlay: '', visible: true });
+    const { user } = setupWithProps({ content: '', visible: true });
     await user.hover(screen.getByRole('note'));
     expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
   });
@@ -127,7 +127,7 @@ describe('Tooltip', () => {
     children = <div role="note" />,
   ) {
     return render(
-      <Tooltip overlay={<span id="overlay" />} {...props}>
+      <Tooltip content={<span id="overlay" />} {...props}>
         {children}
       </Tooltip>,
     );

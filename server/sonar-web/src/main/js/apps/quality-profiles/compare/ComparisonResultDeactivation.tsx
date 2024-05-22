@@ -53,7 +53,7 @@ export default function ComparisonResultDeactivation(props: React.PropsWithChild
     >
       {({ onClick }) => (
         <Tooltip
-          overlay={
+          content={
             canDeactivateInheritedRules
               ? intl.formatMessage(
                   { id: 'quality_profiles.comparison.deactivate_rule' },

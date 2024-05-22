@@ -40,7 +40,7 @@ interface Props {
   tags: string[];
   tagsClassName?: string;
   tagsToDisplay?: number;
-  tooltip?: React.ComponentType<React.PropsWithChildren<{ overlay: React.ReactNode }>>;
+  tooltip?: React.ComponentType<React.PropsWithChildren<{ content: React.ReactNode }>>;
 }
 
 export function Tags({
@@ -63,7 +63,7 @@ export function Tags({
   const Tooltip = tooltip || React.Fragment;
 
   const displayedTagsContent = (open = false) => (
-    <Tooltip overlay={open ? undefined : tags.join(', ')}>
+    <Tooltip content={open ? undefined : tags.join(', ')}>
       <span className="sw-inline-flex sw-items-center sw-gap-1">
         {/* Display first 3 (tagsToDisplay) tags */}
         {displayedTags.map((tag) => (

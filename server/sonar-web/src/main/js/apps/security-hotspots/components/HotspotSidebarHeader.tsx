@@ -128,8 +128,8 @@ function HotspotSidebarHeader(props: SecurityHotspotsAppRendererProps) {
                 {userLoggedIn && (
                   <Tooltip
                     classNameSpace={component?.needIssueSync ? 'tooltip' : 'sw-hidden'}
-                    overlay={<HotspotDisabledFilterTooltip />}
-                    placement="right"
+                    content={<HotspotDisabledFilterTooltip />}
+                    side="right"
                   >
                     <ItemCheckbox
                       checked={Boolean(filters.assignedToMe)}

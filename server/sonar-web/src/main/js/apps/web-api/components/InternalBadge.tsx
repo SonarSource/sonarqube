@@ -24,7 +24,7 @@ import { translate } from '../../../helpers/l10n';
 
 export default function InternalBadge() {
   return (
-    <Tooltip overlay={translate('api_documentation.internal_tooltip')}>
+    <Tooltip content={translate('api_documentation.internal_tooltip')}>
       <span>
         <Badge variant="deleted">{translate('internal')}</Badge>
       </span>

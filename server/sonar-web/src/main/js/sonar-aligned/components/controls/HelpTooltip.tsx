@@ -43,7 +43,7 @@ export default function HelpTooltip(props: Readonly<Props>) {
         props.className,
       )}
     >
-      <Tooltip mouseLeaveDelay={0.25} overlay={overlay} placement={placement}>
+      <Tooltip mouseLeaveDelay={0.25} content={overlay} side={placement}>
         <span
           aria-label={props['aria-label']}
           className="sw-inline-flex sw-items-center"

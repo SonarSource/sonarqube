@@ -52,7 +52,7 @@ function Event(props: Readonly<EventProps>) {
       {showActions && (
         <div className="sw-grow-0 sw-shrink-0 sw-ml-2">
           {canChange && (
-            <Tooltip overlay={translate('project_activity.events.tooltip.edit')}>
+            <Tooltip content={translate('project_activity.events.tooltip.edit')}>
               <InteractiveIcon
                 Icon={PencilIcon}
                 aria-label={translate('project_activity.events.tooltip.edit')}
@@ -64,7 +64,7 @@ function Event(props: Readonly<EventProps>) {
             </Tooltip>
           )}
           {canDelete && (
-            <Tooltip overlay={translate('project_activity.events.tooltip.delete')}>
+            <Tooltip content={translate('project_activity.events.tooltip.delete')}>
               <DestructiveIcon
                 Icon={TrashIcon}
                 aria-label={translate('project_activity.events.tooltip.delete')}

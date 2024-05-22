@@ -365,7 +365,7 @@ export function BubbleChart<T>(props: BubbleChartProps<T>) {
   return (
     <div>
       <div className="sw-flex sw-items-center sw-justify-end sw-h-control sw-mb-4">
-        <Tooltip overlay={zoomTooltipText}>
+        <Tooltip content={zoomTooltipText}>
           <span>
             <Note className="sw-body-sm-highlight">{zoomLabel}</Note>
             {': '}
@@ -423,7 +423,7 @@ function Bubble<T>(props: BubbleProps<T>) {
     </a>
   );
 
-  return <Tooltip overlay={tooltip}>{circle}</Tooltip>;
+  return <Tooltip content={tooltip}>{circle}</Tooltip>;
 }
 
 const BubbleStyled = styled.circle`

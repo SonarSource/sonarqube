@@ -58,7 +58,7 @@ export default function PageHeader(props: Props) {
       </div>
       <div className="sw-flex sw-justify-between">
         <div className="sw-flex sw-flex-1">
-          <Tooltip overlay={translate('projects.search')}>
+          <Tooltip content={translate('projects.search')}>
             <InputSearch
               className="sw-mr-4 it__page-header-search sw-max-w-abs-300 sw-flex-1"
               minLength={MIN_SEARCH_QUERY_LENGTH}

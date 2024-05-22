@@ -72,7 +72,7 @@ export default function MeasureHeader(props: Readonly<Props>) {
           </div>
 
           {!isDiff && hasHistory && (
-            <Tooltip overlay={translate('component_measures.show_metric_history')}>
+            <Tooltip content={translate('component_measures.show_metric_history')}>
               <span className="sw-ml-4">
                 <LinkStandalone
                   className="it__show-history-link sw-font-semibold"

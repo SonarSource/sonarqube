@@ -99,7 +99,7 @@ function renderFirstLine(
 
           {qualifier === ComponentQualifier.Application && (
             <Tooltip
-              overlay={
+              content={
                 <span>
                   {translate('qualifier.APP')}
                   {measures.projects !== '' && (
@@ -117,14 +117,14 @@ function renderFirstLine(
             </Tooltip>
           )}
 
-          <Tooltip overlay={translate('visibility', visibility, 'description', qualifier)}>
+          <Tooltip content={translate('visibility', visibility, 'description', qualifier)}>
             <span>
               <Badge className="sw-ml-2">{translate('visibility', visibility)}</Badge>
             </span>
           </Tooltip>
 
           {awaitingScan && !isNewCode && !isEmpty(analysisDate) && measures.ncloc !== undefined && (
-            <Tooltip overlay={translate(`projects.awaiting_scan.description.${qualifier}`)}>
+            <Tooltip content={translate(`projects.awaiting_scan.description.${qualifier}`)}>
               <span>
                 <Badge variant="new" className="sw-ml-2">
                   {translate('projects.awaiting_scan')}
@@ -135,7 +135,7 @@ function renderFirstLine(
         </div>
 
         {isDefined(analysisDate) && analysisDate !== '' && (
-          <Tooltip overlay={qualityGateLabel}>
+          <Tooltip content={qualityGateLabel}>
             <span className="sw-flex sw-items-center">
               <QualityGateIndicator
                 status={(measures[MetricKey.alert_status] as Status) ?? 'NONE'}

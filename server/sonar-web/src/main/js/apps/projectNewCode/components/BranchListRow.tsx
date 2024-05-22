@@ -117,7 +117,7 @@ export default function BranchListRow(props: BranchListRowProps) {
         {branch.isMain && <Badge className="sw-ml-1">{translate('branches.main_branch')}</Badge>}
       </ContentCell>
       <ContentCell>
-        <Tooltip overlay={settingWarning}>
+        <Tooltip content={settingWarning}>
           <span>
             {settingWarning !== undefined && <FlagWarningIcon className="sw-mr-1" />}
             {branch.newCodePeriod
@@ -143,7 +143,7 @@ export default function BranchListRow(props: BranchListRowProps) {
             ariaLabel={translateWithParameters('branch_list.show_actions_for_x', branch.name)}
           >
             <Tooltip
-              overlay={
+              content={
                 isCompliant ? null : translate('project_baseline.compliance.warning.title.project')
               }
             >

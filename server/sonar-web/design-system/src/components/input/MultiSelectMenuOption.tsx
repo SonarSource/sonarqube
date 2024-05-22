@@ -56,7 +56,7 @@ export function MultiSelectMenuOption(props: MultiSelectOptionProps) {
   const label = renderLabel(element);
 
   return (
-    <Tooltip overlay={renderTooltip?.(element, disabled)} placement={PopupPlacement.Right}>
+    <Tooltip content={renderTooltip?.(element, disabled)} placement={PopupPlacement.Right}>
       <ItemCheckbox
         checked={Boolean(selected)}
         className={classNames('sw-flex sw-py-2 sw-px-4', { active })}

@@ -59,7 +59,7 @@ export function ProjectCardLanguages({ className, distribution, languages }: Pro
     ) : null;
 
   return (
-    <Tooltip overlay={tooltip}>
+    <Tooltip content={tooltip}>
       <span className={className}>{languagesText}</span>
     </Tooltip>
   );

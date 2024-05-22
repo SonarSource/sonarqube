@@ -78,7 +78,7 @@ export default function BranchMetaTopBar({
       <HomePageSelect currentPage={currentPage} type="button" />
       <ComponentReportActions component={component} branch={branch} />
       {showTakeTheTourButton && (
-        <Tooltip overlay={translate('overview.promoted_section.button_tooltip')}>
+        <Tooltip content={translate('overview.promoted_section.button_tooltip')}>
           <ButtonSecondary
             className="sw-pl-4 sw-shrink-0"
             data-spotlight-id="take-tour-1"

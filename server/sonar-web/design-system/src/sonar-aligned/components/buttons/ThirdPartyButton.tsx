@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import styled from '@emotion/styled';
-import React from 'react';
 import { OPACITY_20_PERCENT } from '../../../helpers/constants';
 import { themeBorder, themeColor, themeContrast } from '../../../helpers/theme';
 import { Button, ButtonProps } from './Button';
@@ -43,7 +42,7 @@ export function ThirdPartyButton({
   );
 }
 
-const ThirdPartyButtonStyled: React.FC<React.PropsWithChildren<ButtonProps>> = styled(Button)`
+const ThirdPartyButtonStyled = styled(Button)`
   --background: ${themeColor('thirdPartyButton')};
   --backgroundHover: ${themeColor('thirdPartyButtonHover')};
   --color: ${themeContrast('thirdPartyButton')};

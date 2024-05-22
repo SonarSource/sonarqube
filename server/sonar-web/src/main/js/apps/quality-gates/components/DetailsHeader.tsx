@@ -82,7 +82,7 @@ export default function DetailsHeader({ qualityGate }: Readonly<Props>) {
             )}
             {actions.copy && (
               <Tooltip
-                overlay={
+                content={
                   qualityGate.caycStatus === CaycStatus.NonCompliant
                     ? translate('quality_gates.cannot_copy_no_cayc')
                     : null
@@ -98,7 +98,7 @@ export default function DetailsHeader({ qualityGate }: Readonly<Props>) {
             )}
             {actions.setAsDefault && (
               <Tooltip
-                overlay={
+                content={
                   qualityGate.caycStatus === CaycStatus.NonCompliant
                     ? translate('quality_gates.cannot_set_default_no_cayc')
                     : null
@@ -129,7 +129,7 @@ export default function DetailsHeader({ qualityGate }: Readonly<Props>) {
             )}
             {actions.copy && (
               <Tooltip
-                overlay={
+                content={
                   qualityGate.caycStatus === CaycStatus.NonCompliant
                     ? translate('quality_gates.cannot_copy_no_cayc')
                     : null
@@ -145,7 +145,7 @@ export default function DetailsHeader({ qualityGate }: Readonly<Props>) {
             )}
             {actions.setAsDefault && (
               <Tooltip
-                overlay={
+                content={
                   qualityGate.caycStatus === CaycStatus.NonCompliant
                     ? translate('quality_gates.cannot_set_default_no_cayc')
                     : null

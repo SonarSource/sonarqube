@@ -52,7 +52,7 @@ export default function PageActions(props: Props) {
 
   if (webhooksCount >= WEBHOOKS_LIMIT) {
     return (
-      <Tooltip overlay={translateWithParameters('webhooks.maximum_reached', WEBHOOKS_LIMIT)}>
+      <Tooltip content={translateWithParameters('webhooks.maximum_reached', WEBHOOKS_LIMIT)}>
         <ButtonPrimary className="it__webhook-create" disabled>
           {translate('create')}
         </ButtonPrimary>

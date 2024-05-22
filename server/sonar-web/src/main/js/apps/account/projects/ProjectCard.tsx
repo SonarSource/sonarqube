@@ -77,7 +77,7 @@ export default function ProjectCard({ project }: Readonly<Props>) {
 
         {project.qualityGate !== undefined && (
           <div>
-            <Tooltip overlay={qualityGateLabel}>
+            <Tooltip content={qualityGateLabel}>
               <span className="sw-flex sw-items-center">
                 <QualityGateIndicator
                   status={(project.qualityGate as Status) ?? 'NONE'}

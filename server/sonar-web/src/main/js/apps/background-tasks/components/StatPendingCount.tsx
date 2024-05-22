@@ -50,7 +50,7 @@ function StatPendingCount({ appState, onCancelAllPending, pendingCount }: Readon
           onConfirm={onCancelAllPending}
         >
           {({ onClick }) => (
-            <Tooltip overlay={translate('background_tasks.cancel_all_tasks')}>
+            <Tooltip content={translate('background_tasks.cancel_all_tasks')}>
               <DestructiveIcon
                 aria-label={translate('background_tasks.cancel_all_tasks')}
                 className="sw-ml-1"

@@ -117,7 +117,7 @@ export default class ProjectsSortingSelect extends React.PureComponent<Props> {
         />
         <Tooltip
           mouseLeaveDelay={1}
-          overlay={
+          content={
             sortDesc ? translate('projects.sort_descending') : translate('projects.sort_ascending')
           }
         >

@@ -50,7 +50,7 @@ function LineCoverageFunc({ lineNumber, coverageStatus, status, scrollToUncovere
   }
 
   return (
-    <Tooltip overlay={status} placement={PopupPlacement.Right}>
+    <Tooltip content={status} placement={PopupPlacement.Right}>
       <LineMeta data-line-number={lineNumber} ref={coverageMarker}>
         {coverageStatus === 'covered' && <CoveredBlock aria-label={status} />}
         {coverageStatus === 'uncovered' && <UncoveredBlock aria-label={status} />}

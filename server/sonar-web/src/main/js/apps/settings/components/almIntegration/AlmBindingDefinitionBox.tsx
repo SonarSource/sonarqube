@@ -182,7 +182,7 @@ export default function AlmBindingDefinitionBox(props: AlmBindingDefinitionBoxPr
       {status.type !== AlmSettingsBindingStatusType.Warning && (
         <div className="sw-flex sw-mb-3">
           <div className="sw-mr-10">
-            <Tooltip overlay={getPrDecoFeatureDescription(alm)}>
+            <Tooltip content={getPrDecoFeatureDescription(alm)}>
               <span>{translate('settings.almintegration.feature.status_reporting.title')}</span>
             </Tooltip>
             {getPRDecorationFeatureStatus(branchesEnabled, status.type)}
@@ -190,7 +190,7 @@ export default function AlmBindingDefinitionBox(props: AlmBindingDefinitionBoxPr
           {IMPORT_COMPATIBLE_ALMS.includes(alm) && (
             <div>
               <Tooltip
-                overlay={translate('settings.almintegration.feature.alm_repo_import.description')}
+                content={translate('settings.almintegration.feature.alm_repo_import.description')}
               >
                 <span>{translate('settings.almintegration.feature.alm_repo_import.title')}</span>
               </Tooltip>

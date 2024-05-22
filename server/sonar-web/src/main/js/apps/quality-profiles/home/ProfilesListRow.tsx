@@ -66,7 +66,7 @@ export function ProfilesListRow(props: Readonly<ProfilesListRowProps>) {
 
       <ContentCell>
         {profile.isDefault ? (
-          <Tooltip overlay={intl.formatMessage({ id: 'quality_profiles.list.default.help' })}>
+          <Tooltip content={intl.formatMessage({ id: 'quality_profiles.list.default.help' })}>
             <Badge>{intl.formatMessage({ id: 'default' })}</Badge>
           </Tooltip>
         ) : (
@@ -80,7 +80,7 @@ export function ProfilesListRow(props: Readonly<ProfilesListRowProps>) {
 
           {profile.activeDeprecatedRuleCount > 0 && (
             <span className="sw-ml-2">
-              <Tooltip overlay={intl.formatMessage({ id: 'quality_profiles.deprecated_rules' })}>
+              <Tooltip content={intl.formatMessage({ id: 'quality_profiles.deprecated_rules' })}>
                 <BaseLink to={deprecatedRulesUrl} className="sw-border-0">
                   <Badge variant="deleted">{profile.activeDeprecatedRuleCount}</Badge>
                 </BaseLink>

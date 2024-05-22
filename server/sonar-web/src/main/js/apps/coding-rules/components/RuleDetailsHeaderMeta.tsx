@@ -43,7 +43,7 @@ export default function RuleDetailsHeaderMeta(props: Readonly<Props>) {
       {!ruleDetails.isExternal && ruleDetails.isTemplate && (
         <>
           <li>
-            <Tooltip overlay={translate('coding_rules.rule_template.title')}>
+            <Tooltip content={translate('coding_rules.rule_template.title')}>
               <span className="it__coding-rules-detail-property">
                 {translate('coding_rules.rule_template')}
               </span>
@@ -117,7 +117,7 @@ export default function RuleDetailsHeaderMeta(props: Readonly<Props>) {
           <SeparatorCircleIcon aria-hidden as="li" />
           <li>
             <Tooltip
-              overlay={translateWithParameters(
+              content={translateWithParameters(
                 'coding_rules.external_rule.engine_tooltip',
                 externalEngine,
               )}
@@ -141,7 +141,7 @@ export default function RuleDetailsHeaderMeta(props: Readonly<Props>) {
         <>
           <SeparatorCircleIcon aria-hidden as="li" />
           <li>
-            <Tooltip overlay={translate('status')}>
+            <Tooltip content={translate('status')}>
               <Note data-meta="status">
                 <Badge variant="deleted">{translate('rules.status', ruleDetails.status)}</Badge>
               </Note>

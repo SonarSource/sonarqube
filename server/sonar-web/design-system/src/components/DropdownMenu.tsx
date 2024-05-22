@@ -213,7 +213,7 @@ export function ItemCopy(props: ItemCopyProps) {
   return (
     <ClipboardBase>
       {({ setCopyButton, copySuccess }) => (
-        <Tooltip overlay={tooltipOverlay} visible={copySuccess}>
+        <Tooltip content={tooltipOverlay} visible={copySuccess}>
           <li role="none">
             <ItemButtonStyled
               className={className}

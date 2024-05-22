@@ -129,7 +129,7 @@ function WorkspaceHeaderButton({
   tooltipContent,
 }: Readonly<WorkspaceHeaderButtonProps>) {
   return (
-    <Tooltip overlay={translate(tooltipContent)}>
+    <Tooltip content={translate(tooltipContent)}>
       <InteractiveIcon
         aria-label={translate(tooltipContent)}
         Icon={icon}

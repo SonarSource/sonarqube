@@ -117,9 +117,9 @@ export function Breadcrumbs(props: Props) {
       if (isLastBreadcrumb && breadcrumbSize > maxWidth) {
         onlyVisibleBreadcrumbs.push(
           <Tooltip
-            key={modifiedChildren[index].key}
             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-            overlay={modifiedChildren[index].props.children as React.ReactNode}
+            content={modifiedChildren[index].props.children as React.ReactNode}
+            key={modifiedChildren[index].key}
           >
             {modifiedChildren[index]}
           </Tooltip>,

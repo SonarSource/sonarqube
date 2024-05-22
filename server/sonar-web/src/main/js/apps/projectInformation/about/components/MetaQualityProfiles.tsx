@@ -99,7 +99,7 @@ function ProfileItem({
           {profile.deleted ? (
             <Tooltip
               key={profile.key}
-              overlay={translateWithParameters('overview.deleted_profile', profile.name)}
+              content={translateWithParameters('overview.deleted_profile', profile.name)}
             >
               <div className="project-info-deleted-profile">{profile.name}</div>
             </Tooltip>
@@ -119,7 +119,7 @@ function ProfileItem({
               {count > 0 && (
                 <Tooltip
                   key={profile.key}
-                  overlay={translateWithParameters('overview.deprecated_profile', count)}
+                  content={translateWithParameters('overview.deprecated_profile', count)}
                 >
                   <span className="sw-ml-6">
                     <Badge variant="deleted">{translate('deprecated')}</Badge>

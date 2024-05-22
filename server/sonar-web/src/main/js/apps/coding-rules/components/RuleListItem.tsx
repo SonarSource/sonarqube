@@ -107,7 +107,7 @@ export default class RuleListItem extends React.PureComponent<Props> {
       <div className="sw-mr-2 sw-shrink-0">
         {activation.inherit === 'OVERRIDES' && (
           <Tooltip
-            overlay={translateWithParameters(
+            content={translateWithParameters(
               'coding_rules.overrides',
               selectedProfile.name,
               selectedProfile.parentName,
@@ -118,7 +118,7 @@ export default class RuleListItem extends React.PureComponent<Props> {
         )}
         {activation.inherit === 'INHERITED' && (
           <Tooltip
-            overlay={translateWithParameters(
+            content={translateWithParameters(
               'coding_rules.inherits',
               selectedProfile.name,
               selectedProfile.parentName,
@@ -142,7 +142,7 @@ export default class RuleListItem extends React.PureComponent<Props> {
     if (selectedProfile.isBuiltIn && canCopy) {
       return (
         <div className="sw-ml-4">
-          <Tooltip overlay={translate('coding_rules.need_extend_or_copy')}>
+          <Tooltip content={translate('coding_rules.need_extend_or_copy')}>
             <DangerButtonSecondary disabled>
               {translate('coding_rules', activation ? 'deactivate' : 'activate')}
             </DangerButtonSecondary>
@@ -173,7 +173,7 @@ export default class RuleListItem extends React.PureComponent<Props> {
               )}
             </ConfirmButton>
           ) : (
-            <Tooltip overlay={translate('coding_rules.can_not_deactivate')}>
+            <Tooltip content={translate('coding_rules.can_not_deactivate')}>
               <DangerButtonSecondary disabled>
                 {translate('coding_rules.deactivate')}
               </DangerButtonSecondary>
@@ -271,7 +271,7 @@ export default class RuleListItem extends React.PureComponent<Props> {
                 <>
                   <SeparatorCircleIcon aria-hidden as="li" />
                   <li>
-                    <Tooltip overlay={translate('coding_rules.rule_template.title')}>
+                    <Tooltip content={translate('coding_rules.rule_template.title')}>
                       <span>
                         <Badge>{translate('coding_rules.rule_template')}</Badge>
                       </span>

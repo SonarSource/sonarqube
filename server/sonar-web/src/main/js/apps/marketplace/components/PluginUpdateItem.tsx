@@ -37,7 +37,7 @@ export default function PluginUpdateItem({ release, update, pluginName }: Readon
         {update.status === 'COMPATIBLE' ? (
           <Badge variant="new">{release.version}</Badge>
         ) : (
-          <Tooltip overlay={translate('marketplace.update_status', update.status)}>
+          <Tooltip content={translate('marketplace.update_status', update.status)}>
             <span>
               <Badge>{release.version}</Badge>
             </span>

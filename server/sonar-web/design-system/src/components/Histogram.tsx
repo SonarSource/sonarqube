@@ -67,7 +67,7 @@ export class Histogram extends React.PureComponent<Props> {
     const y = Math.round((yScale(index) ?? 0) + yScale.bandwidth() / 2 + BAR_HEIGHT / 2);
 
     return (
-      <Tooltip overlay={this.props.yTooltips && this.props.yTooltips[index]}>
+      <Tooltip content={this.props.yTooltips && this.props.yTooltips[index]}>
         <HistogramTick dx="1em" dy="0.3em" textAnchor="start" x={x} y={y}>
           {value}
         </HistogramTick>

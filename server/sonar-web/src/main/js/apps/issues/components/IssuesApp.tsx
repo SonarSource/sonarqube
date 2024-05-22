@@ -965,7 +965,7 @@ export class App extends React.PureComponent<Props, State> {
         <ButtonSecondary
           disabled={checked.length === 0}
           id="issues-bulk-change"
-          innerRef={this.bulkButtonRef}
+          ref={this.bulkButtonRef}
           onClick={this.handleOpenBulkChange}
         >
           {this.getButtonLabel(checked, checkAll, paging)}

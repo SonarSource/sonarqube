@@ -33,7 +33,7 @@ export default function PluginLicense({ license }: Readonly<Props>) {
   }
   return (
     <ListItem>
-      <Tooltip overlay={license}>
+      <Tooltip content={license}>
         <div>
           <FormattedMessage
             id="marketplace.licensed_under_x"

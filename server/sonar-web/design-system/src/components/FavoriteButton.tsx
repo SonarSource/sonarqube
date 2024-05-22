@@ -28,7 +28,7 @@ interface Props {
   innerRef?: React.Ref<HTMLButtonElement>;
   overlay: string;
   toggleFavorite: VoidFunction;
-  tooltip?: React.ComponentType<React.PropsWithChildren<{ overlay: React.ReactNode }>>;
+  tooltip?: React.ComponentType<React.PropsWithChildren<{ content: React.ReactNode }>>;
 }
 
 export function FavoriteButton(props: Props) {
@@ -36,7 +36,7 @@ export function FavoriteButton(props: Props) {
   const Tooltip = tooltip ?? React.Fragment;
 
   return (
-    <Tooltip overlay={overlay}>
+    <Tooltip content={overlay}>
       <InteractiveIcon
         Icon={favorite ? StarFillIcon : StarIcon}
         aria-label={overlay}

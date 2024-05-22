@@ -38,9 +38,9 @@ interface TooltipProps {
   mouseLeaveDelay?: number;
   onShow?: () => void;
   onHide?: () => void;
-  overlay: React.ReactNode;
-  placement?: Placement;
-  visible?: boolean;
+  content: React.ReactNode;
+  side?: Placement;
+  isOpen?: boolean;
   // If tooltip overlay has interactive content (links for instance) we may set this to true to stop
   // default behavior of tabbing (other changes should be done outside of this component to make it work)
   // See example DocHelpTooltip
@@ -90,7 +90,7 @@ function isMeasured(state: State): state is OwnState & Measurements {
 export default function Tooltip(props: TooltipProps) {
   // `overlay` is a ReactNode, so it can be `undefined` or `null`. This allows to easily
   // render a tooltip conditionally. More generally, we avoid rendering empty tooltips.
-  return props.overlay != null && props.overlay !== '' ? (
+  return props.content != null && props.content !== '' ? (
     <TooltipInner {...props} />
   ) : (
     props.children
@@ -114,8 +114,8 @@ export class TooltipInner extends React.Component<TooltipProps, State> {
     super(props);
     this.state = {
       flipped: false,
-      placement: props.placement,
-      visible: props.visible ?? false,
+      placement: props.side,
+      visible: props.isOpen ?? false,
     };
     this.id = uniqueId('tooltip-');
     this.throttledPositionTooltip = throttle(this.positionTooltip, 10);
@@ -123,15 +123,15 @@ export class TooltipInner extends React.Component<TooltipProps, State> {
 
   componentDidMount() {
     this.mounted = true;
-    if (this.props.visible === true) {
+    if (this.props.isOpen === true) {
       this.positionTooltip();
       this.addEventListeners();
     }
   }
 
   componentDidUpdate(prevProps: TooltipProps, prevState: State) {
-    if (this.props.placement !== prevProps.placement) {
-      this.setState({ placement: this.props.placement });
+    if (this.props.side !== prevProps.side) {
+      this.setState({ placement: this.props.side });
       // Break. This will trigger a new componentDidUpdate() call, so the below
       // positionTooltip() call will be correct. Otherwise, it might not use
       // the new state.placement value.
@@ -140,15 +140,15 @@ export class TooltipInner extends React.Component<TooltipProps, State> {
 
     if (
       // opens
-      (this.props.visible === true && !prevProps.visible) ||
-      (this.props.visible === undefined && this.state.visible && !prevState.visible)
+      (this.props.isOpen === true && !prevProps.isOpen) ||
+      (this.props.isOpen === undefined && this.state.visible && !prevState.visible)
     ) {
       this.positionTooltip();
       this.addEventListeners();
     } else if (
       // closes
-      (!this.props.visible && prevProps.visible === true) ||
-      (this.props.visible === undefined && !this.state.visible && prevState.visible)
+      (!this.props.isOpen && prevProps.isOpen === true) ||
+      (this.props.isOpen === undefined && !this.state.visible && prevState.visible)
     ) {
       this.clearPosition();
       this.removeEventListeners();
@@ -177,7 +177,7 @@ export class TooltipInner extends React.Component<TooltipProps, State> {
   };
 
   isVisible = () => {
-    return this.props.visible ?? this.state.visible;
+    return this.props.isOpen ?? this.state.visible;
   };
 
   getPlacement = (): Placement => {
@@ -255,7 +255,7 @@ export class TooltipInner extends React.Component<TooltipProps, State> {
       top: undefined,
       width: undefined,
       height: undefined,
-      placement: this.props.placement,
+      placement: this.props.side,
     });
   };
 
@@ -267,7 +267,7 @@ export class TooltipInner extends React.Component<TooltipProps, State> {
         // (if it's `undefined`, it means the timer has been reset).
         if (
           this.mounted &&
-          this.props.visible === undefined &&
+          this.props.isOpen === undefined &&
           this.mouseEnterTimeout !== undefined
         ) {
           this.setState({ visible: true });
@@ -290,7 +290,7 @@ export class TooltipInner extends React.Component<TooltipProps, State> {
     if (!this.mouseIn) {
       this.mouseLeaveTimeout = window.setTimeout(
         () => {
-          if (this.mounted && this.props.visible === undefined && !this.mouseIn) {
+          if (this.mounted && this.props.isOpen === undefined && !this.mouseIn) {
             this.setState({ visible: false });
           }
           if (this.props.onHide && !this.mouseIn) {
@@ -415,7 +415,12 @@ export class TooltipInner extends React.Component<TooltipProps, State> {
 
   renderOverlay() {
     const isVisible = this.isVisible();
-    const { classNameSpace = 'tooltip', isInteractive, overlay, classNameInner } = this.props;
+    const {
+      classNameSpace = 'tooltip',
+      isInteractive,
+      content: overlay,
+      classNameInner,
+    } = this.props;
     return (
       <div
         className={classNames(`${classNameSpace}-inner sw-font-sans`, classNameInner, {

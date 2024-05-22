@@ -155,7 +155,7 @@ export class RuleDetailsIssues extends React.PureComponent<Props, State> {
     }
 
     return (
-      <Tooltip overlay={translate('coding_rules.issues.only_main_branches')}>{totalItem}</Tooltip>
+      <Tooltip content={translate('coding_rules.issues.only_main_branches')}>{totalItem}</Tooltip>
     );
   };
 

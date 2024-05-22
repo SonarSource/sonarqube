@@ -116,12 +116,12 @@ export function ClipboardButton({
   return (
     <ClipboardBase>
       {({ setCopyButton, copySuccess }) => (
-        <Tooltip overlay={copiedLabel} visible={copySuccess}>
+        <Tooltip content={copiedLabel} visible={copySuccess}>
           <ButtonSecondary
             className={classNames('sw-select-none', className)}
             data-clipboard-text={copyValue}
             icon={icon}
-            innerRef={setCopyButton}
+            ref={setCopyButton}
           >
             {children ?? copyLabel}
           </ButtonSecondary>
@@ -159,12 +159,12 @@ export function ClipboardIconButton(props: IconButtonProps) {
       {({ setCopyButton, copySuccess }) => {
         return (
           <Tooltip
-            mouseEnterDelay={INTERACTIVE_TOOLTIP_DELAY}
-            overlay={
+            content={
               <div className="sw-w-abs-150 sw-text-center">
                 {copySuccess ? copiedLabel : copyLabel}
               </div>
             }
+            mouseEnterDelay={INTERACTIVE_TOOLTIP_DELAY}
             {...(copySuccess ? { visible: copySuccess } : undefined)}
           >
             <InteractiveIconComponent

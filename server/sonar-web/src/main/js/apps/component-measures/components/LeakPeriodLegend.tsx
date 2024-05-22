@@ -86,7 +86,7 @@ class LeakPeriodLegend extends React.PureComponent<LeakPeriodLegendProps & Wrapp
       </div>
     );
 
-    return <Tooltip overlay={tooltip}>{label}</Tooltip>;
+    return <Tooltip content={tooltip}>{label}</Tooltip>;
   }
 }
 

@@ -76,7 +76,7 @@ export function GraphsLegendItem({
       </span>
       {isDeprecated && (
         <Tooltip
-          overlay={
+          content={
             <FormattedMessage
               id={getDeprecatedTranslationKeyForTooltip(metric as MetricKey)}
               tagName="div"

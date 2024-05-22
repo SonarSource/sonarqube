@@ -49,7 +49,7 @@ export function ColorsLegend(props: ColorLegendProps) {
     <ColorsLegendWrapper className={className}>
       {colors.map((color, idx) => (
         <li className="sw-ml-4" key={color.value}>
-          <Tooltip overlay={color.overlay}>
+          <Tooltip content={color.overlay}>
             <div>
               <Checkbox
                 checked={color.selected}

@@ -61,7 +61,7 @@ export default function ProjectRow(props: Readonly<Props>) {
           highlight={LinkHighlight.CurrentColor}
           to={getComponentOverviewUrl(project.key, project.qualifier)}
         >
-          <Tooltip overlay={project.name} placement="left">
+          <Tooltip content={project.name} side="left">
             <span>{project.name}</span>
           </Tooltip>
         </LinkStandalone>
@@ -73,7 +73,7 @@ export default function ProjectRow(props: Readonly<Props>) {
         <PrivacyBadgeContainer qualifier={project.qualifier} visibility={project.visibility} />
       </ContentCell>
       <ContentCell className="it__project-row-text-cell">
-        <Tooltip overlay={project.key} placement="left">
+        <Tooltip content={project.key} side="left">
           <Note>{project.key}</Note>
         </Tooltip>
       </ContentCell>

@@ -37,11 +37,11 @@ const MILLISECONDS_IN_A_SECOND = 1000;
 
 interface TooltipProps {
   children: React.ReactElement;
+  content: React.ReactNode;
   mouseEnterDelay?: number;
   mouseLeaveDelay?: number;
   onHide?: VoidFunction;
   onShow?: VoidFunction;
-  overlay: React.ReactNode;
   placement?: BasePlacement;
   visible?: boolean;
 }
@@ -84,7 +84,7 @@ export function Tooltip(props: TooltipProps) {
   // overlay is a ReactNode, so it can be a boolean, `undefined` or `null`
   // this allows to easily render a tooltip conditionally
   // more generaly we avoid rendering empty tooltips
-  return props.overlay ? <TooltipInner {...props}>{props.children}</TooltipInner> : props.children;
+  return props.content ? <TooltipInner {...props}>{props.children}</TooltipInner> : props.children;
 }
 
 export class TooltipInner extends React.Component<TooltipProps, State> {
@@ -404,7 +404,7 @@ export class TooltipInner extends React.Component<TooltipProps, State> {
               role="tooltip"
               style={style}
             >
-              <TooltipWrapperInner>{this.props.overlay}</TooltipWrapperInner>
+              <TooltipWrapperInner>{this.props.content}</TooltipWrapperInner>
               <TooltipWrapperArrow
                 style={
                   isMeasured(this.state)

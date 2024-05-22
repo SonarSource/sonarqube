@@ -92,7 +92,7 @@ export default class Workers extends React.PureComponent<{}, State> {
     return (
       <div className="sw-flex sw-items-center">
         {!loading && workerCount > 1 && (
-          <Tooltip overlay={translate('background_tasks.number_of_workers.warning')}>
+          <Tooltip content={translate('background_tasks.number_of_workers.warning')}>
             <div className="sw-py-1/2 sw-mr-1">
               <FlagWarningIcon />
             </div>
@@ -108,7 +108,7 @@ export default class Workers extends React.PureComponent<{}, State> {
         </Spinner>
 
         {!loading && canSetWorkerCount && (
-          <Tooltip overlay={translate('background_tasks.change_number_of_workers')}>
+          <Tooltip content={translate('background_tasks.change_number_of_workers')}>
             <InteractiveIcon
               Icon={PencilIcon}
               aria-label={translate('background_tasks.change_number_of_workers')}

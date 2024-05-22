@@ -65,7 +65,7 @@ export function HomePageSelect(props: Readonly<Props>) {
   const Icon = isChecked ? HomeFillIcon : HomeIcon;
 
   return (
-    <Tooltip overlay={tooltip}>
+    <Tooltip content={tooltip}>
       {type === 'icon' ? (
         <DiscreetInteractiveIcon
           aria-label={tooltip}

@@ -149,7 +149,7 @@ export default class PluginActions extends React.PureComponent<Props, State> {
                 />
               </div>
             ))}
-            <Tooltip overlay={translate('marketplace.requires_restart')}>
+            <Tooltip content={translate('marketplace.requires_restart')}>
               <DangerButtonSecondary disabled={loading} onClick={this.handleUninstall}>
                 {translate('marketplace.uninstall')}
               </DangerButtonSecondary>
@@ -157,7 +157,7 @@ export default class PluginActions extends React.PureComponent<Props, State> {
           </>
         )}
         {isAvailablePlugin(plugin) && (
-          <Tooltip overlay={translate('marketplace.requires_restart')}>
+          <Tooltip content={translate('marketplace.requires_restart')}>
             <ButtonSecondary
               disabled={
                 loading || (plugin.termsAndConditionsUrl != null && !this.state.acceptTerms)

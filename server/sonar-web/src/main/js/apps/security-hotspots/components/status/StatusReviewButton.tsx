@@ -41,8 +41,8 @@ export function StatusReviewButton(props: StatusProps) {
   return (
     <>
       <Tooltip
-        overlay={readonly ? translate('hotspots.status.cannot_change_status') : null}
-        placement="bottom"
+        content={readonly ? translate('hotspots.status.cannot_change_status') : null}
+        side="bottom"
       >
         <ButtonPrimary id="status-trigger" onClick={() => setIsOpen(true)} disabled={readonly}>
           {translate('hotspots.status.review')}

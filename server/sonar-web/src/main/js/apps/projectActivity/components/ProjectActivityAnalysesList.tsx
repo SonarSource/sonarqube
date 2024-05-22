@@ -159,8 +159,8 @@ export default class ProjectActivityAnalysesList extends React.PureComponent<Pro
                 {translate('project_activity.new_code_period_start')}
               </span>
               <Tooltip
-                overlay={translate('project_activity.new_code_period_start.help')}
-                placement="top"
+                content={translate('project_activity.new_code_period_start.help')}
+                side="top"
               >
                 <HelperHintIcon className="sw-ml-1" />
               </Tooltip>
@@ -186,7 +186,7 @@ export default class ProjectActivityAnalysesList extends React.PureComponent<Pro
                 >
                   <Tooltip
                     mouseEnterDelay={0.5}
-                    overlay={`${translate('version')} ${version.version}`}
+                    content={`${translate('version')} ${version.version}`}
                   >
                     <Badge className="sw-p-1">{version.version}</Badge>
                   </Tooltip>

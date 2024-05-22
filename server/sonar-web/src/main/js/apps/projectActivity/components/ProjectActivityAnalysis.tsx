@@ -101,7 +101,7 @@ function ProjectActivityAnalysis(props: ProjectActivityAnalysisProps) {
 
   return (
     <>
-      <Tooltip mouseEnterDelay={0.5} overlay={tooltipContent} placement="left">
+      <Tooltip mouseEnterDelay={0.5} content={tooltipContent} side="left">
         <ActivityAnalysisListItem
           className={classNames(
             'it__project-activity-analysis sw-flex sw-cursor-pointer sw-p-1 sw-relative',
@@ -205,10 +205,7 @@ function ProjectActivityAnalysis(props: ProjectActivityAnalysisProps) {
           <span className="sw-py-1/2 sw-px-1">
             {translate('project_activity.new_code_period_start')}
           </span>
-          <Tooltip
-            overlay={translate('project_activity.new_code_period_start.help')}
-            placement="top"
-          >
+          <Tooltip content={translate('project_activity.new_code_period_start.help')} side="top">
             <HelperHintIcon className="sw-ml-1" />
           </Tooltip>
         </BaselineMarker>

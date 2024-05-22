@@ -43,7 +43,7 @@ it('should render a full menu correctly', () => {
 
 it('menu items should work with tooltips', async () => {
   render(
-    <Tooltip overlay="test tooltip">
+    <Tooltip content="test tooltip">
       <ItemButton onClick={jest.fn()}>button</ItemButton>
     </Tooltip>,
     {},

@@ -48,7 +48,7 @@ export function LineDuplicationBlock(props: LineDuplicationBlockProps) {
   const handleClose = React.useCallback(() => setPopupOpen(false), []);
 
   return duplicated ? (
-    <Tooltip overlay={tooltip} placement={PopupPlacement.Right}>
+    <Tooltip content={tooltip} side={PopupPlacement.Right}>
       <LineMeta
         className="it__source-line-duplicated"
         data-index={index}
@@ -56,10 +56,10 @@ export function LineDuplicationBlock(props: LineDuplicationBlockProps) {
       >
         <OutsideClickHandler onClickOutside={handleClose}>
           <Tooltip
-            placement={PopupPlacement.Right}
-            visible={popupOpen}
+            side={PopupPlacement.Right}
+            isOpen={popupOpen}
             isInteractive
-            overlay={popupOpen ? props.renderDuplicationPopup(index, line.line) : undefined}
+            content={popupOpen ? props.renderDuplicationPopup(index, line.line) : undefined}
             classNameInner="sw-max-w-abs-400"
           >
             <DuplicationBlock

@@ -420,7 +420,7 @@ export class GlobalSearch extends React.PureComponent<Props, State> {
     return (
       <form role="search">
         {!open && !query ? (
-          <Tooltip mouseEnterDelay={INTERACTIVE_TOOLTIP_DELAY} overlay={translate('search_verb')}>
+          <Tooltip mouseEnterDelay={INTERACTIVE_TOOLTIP_DELAY} content={translate('search_verb')}>
             <InteractiveIcon
               className="it__search-icon"
               Icon={MenuSearchIcon}

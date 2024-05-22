@@ -66,9 +66,9 @@ function LineSCM({ line, previousLine }: Props) {
     <LineMeta data-line-number={line.line}>
       <OutsideClickHandler onClickOutside={handleClose}>
         <Tooltip
-          overlay={<SCMPopup line={line} />}
-          placement={PopupPlacement.Right}
-          visible={isOpen}
+          content={<SCMPopup line={line} />}
+          side={PopupPlacement.Right}
+          isOpen={isOpen}
           isInteractive
           classNameInner="sw-max-w-abs-600"
         >

@@ -76,7 +76,7 @@ export default function List({ qualityGates, currentQualityGate }: Props) {
               )}
             </div>
             {qualityGate.caycStatus !== CaycStatus.NonCompliant && (
-              <Tooltip overlay={translate('quality_gates.cayc.tooltip.message')}>
+              <Tooltip content={translate('quality_gates.cayc.tooltip.message')}>
                 <span>
                   <QGRecommendedIcon />
                 </span>
