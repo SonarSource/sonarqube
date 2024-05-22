@@ -21,7 +21,7 @@ import { fireEvent, screen, within } from '@testing-library/react';
 import selectEvent from 'react-select-event';
 import CodingRulesServiceMock, { RULE_TAGS_MOCK } from '../../../api/mocks/CodingRulesServiceMock';
 import SettingsServiceMock from '../../../api/mocks/SettingsServiceMock';
-import { QP_2, RULE_1 } from '../../../api/mocks/data/ids';
+import { QP_2, RULE_1, RULE_10 } from '../../../api/mocks/data/ids';
 import { CLEAN_CODE_CATEGORIES, SOFTWARE_QUALITIES } from '../../../helpers/constants';
 import { mockCurrentUser, mockLoggedInUser } from '../../../helpers/testMocks';
 import {
@@ -298,7 +298,7 @@ describe('Rules app list', () => {
     });
   });
 
-  it('can activate/deactivate specific rule for quality profile', async () => {
+  it('can activate/change/deactivate specific rule for quality profile', async () => {
     const { ui, user } = getPageObjects();
     rulesHandler.setIsAdmin();
     renderCodingRulesApp(mockLoggedInUser());
@@ -314,20 +314,78 @@ describe('Rules app list', () => {
     await user.click(ui.qpInactiveRadio.get(ui.facetItem('QP Bar Python').get()));
     expect(ui.getAllRuleListItems()).toHaveLength(2);
     expect(ui.activateButton.getAll()).toHaveLength(2);
+    expect(ui.changeButton(QP_2).query()).not.toBeInTheDocument();
 
     // Activate Rule for qp
     await user.click(ui.activateButton.getAll()[0]);
+    expect(ui.selectValue.get(ui.activateQPDialog.get())).toHaveTextContent('severity.MAJOR');
     await selectEvent.select(ui.oldSeveritySelect.get(), 'severity.MINOR');
     await user.click(ui.activateButton.get(ui.activateQPDialog.get()));
 
     expect(ui.activateButton.getAll()).toHaveLength(1);
+    expect(ui.changeButton('QP Bar').get()).toBeInTheDocument();
     expect(ui.deactivateButton.getAll()).toHaveLength(1);
+
+    // Change Rule for qp
+    await user.click(ui.changeButton('QP Bar').get());
+    expect(ui.selectValue.get(ui.changeQPDialog.get())).toHaveTextContent('severity.MINOR');
+    await selectEvent.select(ui.oldSeveritySelect.get(), 'severity.BLOCKER');
+    await user.click(ui.saveButton.get(ui.changeQPDialog.get()));
+
+    // Check that new severity is saved
+    await user.click(ui.changeButton('QP Bar').get());
+    expect(ui.selectValue.get(ui.changeQPDialog.get())).toHaveTextContent('severity.BLOCKER');
+    await user.click(ui.cancelButton.get(ui.changeQPDialog.get()));
 
     // Deactivate activated rule
     await user.click(ui.deactivateButton.get());
     await user.click(ui.yesButton.get());
     expect(ui.deactivateButton.query()).not.toBeInTheDocument();
     expect(ui.activateButton.getAll()).toHaveLength(2);
+  });
+
+  it('can revert to parent definition specific rule for quality profile', async () => {
+    const { ui, user } = getPageObjects();
+    settingsHandler.set(SettingsKey.QPAdminCanDisableInheritedRules, 'false');
+    rulesHandler.setIsAdmin();
+    renderCodingRulesApp(mockLoggedInUser());
+    await ui.appLoaded();
+
+    await user.click(ui.qpFacet.get());
+    await user.click(ui.facetItem('QP Bar Python').get());
+
+    // Only 4 rules are activated in selected QP
+    expect(ui.getAllRuleListItems()).toHaveLength(4);
+
+    // 3 rules have deactivate button and 1 rule has revert to parent definition button
+    expect(ui.deactivateButton.getAll()).toHaveLength(3);
+    expect(ui.revertToParentDefinitionButton.get()).toBeInTheDocument();
+
+    await user.type(ui.searchInput.get(), RULE_10);
+
+    // Only 1 rule left after search
+    expect(ui.getAllRuleListItems()).toHaveLength(1);
+    expect(ui.revertToParentDefinitionButton.get()).toBeInTheDocument();
+    expect(ui.changeButton('QP Bar').get()).toBeInTheDocument();
+
+    // Check that severity is reflected correctly
+    await user.click(ui.changeButton('QP Bar').get());
+    expect(ui.selectValue.get(ui.changeQPDialog.get())).toHaveTextContent('severity.MAJOR');
+    await user.click(ui.cancelButton.get(ui.changeQPDialog.get()));
+
+    await user.click(ui.revertToParentDefinitionButton.get());
+    await user.click(ui.yesButton.get());
+
+    expect(ui.getAllRuleListItems()).toHaveLength(1);
+    expect(ui.revertToParentDefinitionButton.query()).not.toBeInTheDocument();
+    expect(ui.deactivateButton.get()).toBeInTheDocument();
+    expect(ui.deactivateButton.get()).toBeDisabled();
+    expect(ui.changeButton('QP Bar').get()).toBeInTheDocument();
+
+    // Check that severity is reflected correctly
+    await user.click(ui.changeButton('QP Bar').get());
+    expect(ui.selectValue.get(ui.changeQPDialog.get())).toHaveTextContent('severity.MINOR');
+    await user.click(ui.cancelButton.get(ui.changeQPDialog.get()));
   });
 
   it('can not deactivate rules for quality profile if setting is false', async () => {

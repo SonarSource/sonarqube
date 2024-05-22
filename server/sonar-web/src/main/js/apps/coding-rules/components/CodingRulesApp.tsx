@@ -57,7 +57,6 @@ import {
   shouldOpenStandardsFacet,
 } from '../../issues/utils';
 import {
-  Activation,
   Actives,
   FacetKey,
   Facets,
@@ -512,7 +511,7 @@ export class CodingRulesApp extends React.PureComponent<Props, State> {
     }
   };
 
-  handleRuleActivate = (profile: string, rule: string, activation: Activation) =>
+  handleRuleActivate = (profile: string, rule: string, activation: RuleActivation) =>
     this.setState((state: State) => {
       const { actives = {} } = state;
       if (!actives[rule]) {
@@ -701,8 +700,8 @@ function parseActives(rawActives: Dict<RuleActivation[]>) {
   const actives: Actives = {};
   for (const [rule, activations] of Object.entries(rawActives)) {
     actives[rule] = {};
-    for (const { inherit, qProfile, severity } of activations) {
-      actives[rule][qProfile] = { inherit, severity };
+    for (const activation of activations) {
+      actives[rule][activation.qProfile] = { ...activation };
     }
   }
   return actives;

@@ -38,8 +38,7 @@ import {
   useRuleDetailsQuery,
   useUpdateRuleMutation,
 } from '../../../queries/rules';
-import { Dict } from '../../../types/types';
-import { Activation } from '../query';
+import { Dict, RuleActivation } from '../../../types/types';
 import CustomRuleButton from './CustomRuleButton';
 import RuleDetailsCustomRules from './RuleDetailsCustomRules';
 import RuleDetailsDescription from './RuleDetailsDescription';
@@ -52,7 +51,7 @@ interface Props {
   allowCustomRules?: boolean;
   canWrite?: boolean;
   canDeactivateInherited?: boolean;
-  onActivate: (profile: string, rule: string, activation: Activation) => void;
+  onActivate: (profile: string, rule: string, activation: RuleActivation) => void;
   onDeactivate: (profile: string, rule: string) => void;
   onDelete: (rule: string) => void;
   referencedProfiles: Dict<Profile>;

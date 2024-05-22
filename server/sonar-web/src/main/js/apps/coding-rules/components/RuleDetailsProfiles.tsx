@@ -23,7 +23,6 @@ import {
   ActionCell,
   CellComponent,
   ContentCell,
-  DangerButtonSecondary,
   DiscreetLink,
   InheritanceIcon,
   Link,
@@ -36,8 +35,7 @@ import { filter } from 'lodash';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { Profile } from '../../../api/quality-profiles';
-import ConfirmButton from '../../../components/controls/ConfirmButton';
-import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { translate } from '../../../helpers/l10n';
 import { getQualityProfileUrl } from '../../../helpers/urls';
 import {
   useActivateRuleMutation,
@@ -45,6 +43,7 @@ import {
 } from '../../../queries/quality-profiles';
 import { Dict, RuleActivation, RuleDetails } from '../../../types/types';
 import BuiltInQualityProfileBadge from '../../quality-profiles/components/BuiltInQualityProfileBadge';
+import ActivatedRuleActions from './ActivatedRuleActions';
 import ActivationButton from './ActivationButton';
 
 interface Props {
@@ -90,69 +89,17 @@ export default function RuleDetailsProfiles(props: Readonly<Props>) {
   };
 
   const renderRowActions = (activation: RuleActivation, profile: Profile) => {
-    const canEdit = profile.actions?.edit && !profile.isBuiltIn;
-    const hasParent = activation.inherit !== 'NONE' && profile.parentKey;
-
     return (
       <ActionCell>
-        {canEdit && (
-          <>
-            {!ruleDetails.isTemplate && (
-              <ActivationButton
-                activation={activation}
-                ariaLabel={translateWithParameters('coding_rules.change_details_x', profile.name)}
-                buttonText={translate('change_verb')}
-                modalHeader={translate('coding_rules.change_details')}
-                onDone={props.onActivate}
-                profiles={[profile]}
-                rule={ruleDetails}
-              />
-            )}
-
-            {hasParent && activation.inherit === 'OVERRIDES' && profile.parentName && (
-              <ConfirmButton
-                confirmButtonText={translate('yes')}
-                confirmData={profile.key}
-                isDestructive
-                modalBody={translateWithParameters(
-                  'coding_rules.revert_to_parent_definition.confirm',
-                  profile.parentName,
-                )}
-                modalHeader={translate('coding_rules.revert_to_parent_definition')}
-                onConfirm={handleRevert}
-              >
-                {({ onClick }) => (
-                  <DangerButtonSecondary className="sw-ml-2 sw-whitespace-nowrap" onClick={onClick}>
-                    {translate('coding_rules.revert_to_parent_definition')}
-                  </DangerButtonSecondary>
-                )}
-              </ConfirmButton>
-            )}
-
-            {(!hasParent || canDeactivateInherited) && (
-              <ConfirmButton
-                confirmButtonText={translate('yes')}
-                confirmData={profile.key}
-                modalBody={translate('coding_rules.deactivate.confirm')}
-                modalHeader={translate('coding_rules.deactivate')}
-                onConfirm={handleDeactivate}
-              >
-                {({ onClick }) => (
-                  <DangerButtonSecondary
-                    className="sw-ml-2 sw-whitespace-nowrap"
-                    aria-label={translateWithParameters(
-                      'coding_rules.deactivate_in_quality_profile_x',
-                      profile.name,
-                    )}
-                    onClick={onClick}
-                  >
-                    {translate('coding_rules.deactivate')}
-                  </DangerButtonSecondary>
-                )}
-              </ConfirmButton>
-            )}
-          </>
-        )}
+        <ActivatedRuleActions
+          activation={activation}
+          profile={profile}
+          ruleDetails={ruleDetails}
+          onActivate={props.onActivate}
+          handleDeactivate={handleDeactivate}
+          handleRevert={handleRevert}
+          canDeactivateInherited={canDeactivateInherited}
+        />
       </ActionCell>
     );
   };

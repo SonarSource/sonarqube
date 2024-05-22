@@ -36,7 +36,7 @@ import {
   SoftwareImpactSeverity,
   SoftwareQuality,
 } from '../../types/clean-code-taxonomy';
-import { Dict, RuleInheritance } from '../../types/types';
+import { Dict, RuleActivation, RuleInheritance } from '../../types/types';
 
 export interface Query {
   activation: boolean | undefined;
@@ -72,14 +72,9 @@ export type Facets = { [F in FacetKey]?: Facet };
 
 export type OpenFacets = Dict<boolean>;
 
-export interface Activation {
-  inherit: RuleInheritance;
-  severity: string;
-}
-
 export interface Actives {
   [rule: string]: {
-    [profile: string]: Activation;
+    [profile: string]: RuleActivation;
   };
 }
 

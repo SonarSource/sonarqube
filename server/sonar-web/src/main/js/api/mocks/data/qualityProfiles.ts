@@ -29,7 +29,14 @@ export function mockQualityProfilesList() {
       languageName: 'Java',
       actions: { edit: true },
     }),
-    mockQualityProfile({ key: QP_2, name: 'QP Bar', language: 'py', languageName: 'Python' }),
+    mockQualityProfile({
+      key: QP_2,
+      name: 'QP Bar',
+      language: 'py',
+      languageName: 'Python',
+      parentKey: 'sonar_way',
+      parentName: 'Sonar Way',
+    }),
     mockQualityProfile({ key: QP_3, name: 'QP FooBar', language: 'java', languageName: 'Java' }),
     mockQualityProfile({
       key: QP_4,

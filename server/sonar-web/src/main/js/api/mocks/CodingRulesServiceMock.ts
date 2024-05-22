@@ -251,7 +251,7 @@ export default class CodingRulesServiceMock {
       filteredRules = filteredRules.filter((r) => matchingRules.includes(r.key));
     }
     if (q && q.length > 2) {
-      filteredRules = filteredRules.filter((r) => r.name.includes(q));
+      filteredRules = filteredRules.filter((r) => r.name.includes(q) || r.key.includes(q));
     }
     if (tags) {
       filteredRules = filteredRules.filter((r) => r.tags && r.tags.some((t) => tags.includes(t)));
