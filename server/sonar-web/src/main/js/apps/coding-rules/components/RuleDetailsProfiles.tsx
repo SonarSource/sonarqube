@@ -29,18 +29,21 @@ import {
   Note,
   SubTitle,
   Table,
+  TableRow,
   TableRowInteractive,
 } from 'design-system';
 import { filter } from 'lodash';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { Profile } from '../../../api/quality-profiles';
+import { useAvailableFeatures } from '../../../app/components/available-features/withAvailableFeatures';
 import { translate } from '../../../helpers/l10n';
 import { getQualityProfileUrl } from '../../../helpers/urls';
 import {
   useActivateRuleMutation,
   useDeactivateRuleMutation,
 } from '../../../queries/quality-profiles';
+import { Feature } from '../../../types/features';
 import { Dict, RuleActivation, RuleDetails } from '../../../types/types';
 import BuiltInQualityProfileBadge from '../../quality-profiles/components/BuiltInQualityProfileBadge';
 import ActivatedRuleActions from './ActivatedRuleActions';
@@ -55,8 +58,7 @@ interface Props {
   ruleDetails: RuleDetails;
 }
 
-const COLUMN_COUNT_WITH_PARAMS = 3;
-const COLUMN_COUNT_WITHOUT_PARAMS = 2;
+const MANDATORY_COLUMNS_COUNT = 2;
 
 const PROFILES_HEADING_ID = 'rule-details-profiles-heading';
 
@@ -64,10 +66,17 @@ export default function RuleDetailsProfiles(props: Readonly<Props>) {
   const { activations = [], referencedProfiles, ruleDetails, canDeactivateInherited } = props;
   const { mutate: activateRule } = useActivateRuleMutation(props.onActivate);
   const { mutate: deactivateRule } = useDeactivateRuleMutation(props.onDeactivate);
+  const { hasFeature } = useAvailableFeatures();
 
   const canActivate = Object.values(referencedProfiles).some((profile) =>
     Boolean(profile.actions?.edit && profile.language === ruleDetails.lang),
   );
+  const showParamsColumn =
+    ruleDetails.templateKey === undefined &&
+    ruleDetails?.params !== undefined &&
+    ruleDetails.params.length > 0;
+  const showPrioritizedRuleColumn =
+    hasFeature(Feature.PrioritizedRules) && activations.some((a) => a.prioritized);
 
   const handleDeactivate = (key?: string) => {
     if (key !== undefined) {
@@ -154,7 +163,7 @@ export default function RuleDetailsProfiles(props: Readonly<Props>) {
           {inheritedProfileSection}
         </ContentCell>
 
-        {!ruleDetails.templateKey && (
+        {showParamsColumn && (
           <CellComponent>
             {activation.params.map((param: { key: string; value: string }) => {
               const originalParam = parentActivation?.params.find((p) => p.key === param.key);
@@ -185,10 +194,15 @@ export default function RuleDetailsProfiles(props: Readonly<Props>) {
           </CellComponent>
         )}
 
+        {showPrioritizedRuleColumn && (
+          <ContentCell>{activation.prioritized && <span>{translate('yes')}</span>}</ContentCell>
+        )}
+
         {renderRowActions(activation, profile)}
       </TableRowInteractive>
     );
   };
+
   return (
     <div className="js-rule-profiles sw-mb-8">
       <SubTitle id={PROFILES_HEADING_ID}>
@@ -213,8 +227,16 @@ export default function RuleDetailsProfiles(props: Readonly<Props>) {
         <Table
           aria-labelledby={PROFILES_HEADING_ID}
           className="sw-my-6"
-          columnCount={
-            ruleDetails.templateKey ? COLUMN_COUNT_WITHOUT_PARAMS : COLUMN_COUNT_WITH_PARAMS
+          columnCount={MANDATORY_COLUMNS_COUNT + +showParamsColumn + +showPrioritizedRuleColumn}
+          header={
+            <TableRow>
+              <ContentCell>{translate('profile_name')}</ContentCell>
+              {showParamsColumn && <ContentCell>{translate('parameters')}</ContentCell>}
+              {showPrioritizedRuleColumn && (
+                <ContentCell>{translate('coding_rules.prioritized_rule.title')}</ContentCell>
+              )}
+              <ActionCell>{translate('actions')}</ActionCell>
+            </TableRow>
           }
           id="coding-rules-detail-quality-profiles"
         >

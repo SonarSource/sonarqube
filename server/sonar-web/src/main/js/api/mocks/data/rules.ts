@@ -270,6 +270,6 @@ export function mockRulesActivationsInQP() {
     [RULE_7]: [mockRuleActivation({ qProfile: QP_2 })],
     [RULE_8]: [mockRuleActivation({ qProfile: QP_2 })],
     [RULE_9]: [mockRuleActivation({ qProfile: QP_2, inherit: 'INHERITED' })],
-    [RULE_10]: [mockRuleActivation({ qProfile: QP_2, inherit: 'OVERRIDES' })],
+    [RULE_10]: [mockRuleActivation({ qProfile: QP_2, inherit: 'OVERRIDES', prioritized: true })],
   };
 }

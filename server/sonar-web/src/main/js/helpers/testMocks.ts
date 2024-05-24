@@ -624,6 +624,7 @@ export function mockRuleActivation(overrides: Partial<RuleActivation> = {}): Rul
     params: [{ key: 'foo', value: 'Bar' }],
     qProfile: 'baz',
     severity: 'MAJOR',
+    prioritized: false,
     ...overrides,
   };
 }

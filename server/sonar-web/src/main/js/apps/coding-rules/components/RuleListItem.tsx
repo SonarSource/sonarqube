@@ -79,6 +79,7 @@ export default function RuleListItem(props: Readonly<Props>) {
         ...activation,
         // Actually the severity should be taken from the inherited qprofile, but we don't have this information
         severity: rule.severity,
+        prioritized: false,
         inherit: 'INHERITED',
       });
     }
@@ -88,22 +89,25 @@ export default function RuleListItem(props: Readonly<Props>) {
   );
   const handleDeactivate = () => {
     if (selectedProfile) {
-      const data = {
+      deactivateRule({
         key: selectedProfile.key,
         rule: rule.key,
-      };
-      deactivateRule(data);
+      });
     }
   };
 
-  const handleActivate = (severity: string) => {
+  const handleActivate = (severity: string, prioritized: boolean) => {
     if (selectedProfile) {
+      const isOverriden =
+        activation && (activation.prioritized !== prioritized || activation.severity !== severity);
+
       onActivate(selectedProfile.key, rule.key, {
         createdAt: new Date().toISOString(),
         severity,
         params: [],
         qProfile: selectedProfile.key,
-        inherit: activation ? 'OVERRIDES' : 'NONE',
+        prioritized,
+        inherit: isOverriden ? 'OVERRIDES' : activation?.inherit ?? 'NONE',
       });
     }
     return Promise.resolve();

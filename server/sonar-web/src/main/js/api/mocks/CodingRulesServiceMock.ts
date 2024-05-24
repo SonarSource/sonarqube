@@ -531,13 +531,7 @@ export default class CodingRulesServiceMock {
     });
   };
 
-  handleActivateRule = (data: {
-    key: string;
-    params?: Dict<string>;
-    reset?: boolean;
-    rule: string;
-    severity?: string;
-  }) => {
+  handleActivateRule: typeof activateRule = (data) => {
     if (data.reset) {
       const parentQP = this.qualityProfile.find((p) => p.key === data.key)?.parentKey!;
       const parentActivation = this.rulesActivations[data.rule]?.find(
@@ -548,6 +542,8 @@ export default class CodingRulesServiceMock {
         ({ qProfile }) => qProfile === data.key,
       )!;
       activation.inherit = 'INHERITED';
+      activation.prioritized = parentActivation?.prioritized ?? false;
+      activation.severity = parentActivation?.severity ?? 'MAJOR';
       activation.params = parentParams;
 
       return this.reply(undefined);
@@ -557,6 +553,7 @@ export default class CodingRulesServiceMock {
       mockRuleActivation({
         qProfile: data.key,
         severity: data.severity,
+        prioritized: data.prioritized,
         params: Object.entries(data.params ?? {}).map(([key, value]) => ({ key, value })),
       }),
     ];
@@ -569,6 +566,7 @@ export default class CodingRulesServiceMock {
         mockRuleActivation({
           qProfile: profile.key,
           severity: data.severity,
+          prioritized: data.prioritized,
           inherit: 'INHERITED',
           params: Object.entries(data.params ?? {}).map(([key, value]) => ({ key, value })),
         }),

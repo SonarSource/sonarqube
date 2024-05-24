@@ -29,7 +29,7 @@ interface Props {
   activation: RuleActivation;
   profile: Profile;
   ruleDetails: Rule;
-  onActivate: (severity: string) => Promise<void> | void;
+  onActivate: (severity: string, prioritized: boolean) => Promise<void> | void;
   handleRevert: (key?: string) => void;
   handleDeactivate: (key?: string) => void;
   showDeactivated?: boolean;

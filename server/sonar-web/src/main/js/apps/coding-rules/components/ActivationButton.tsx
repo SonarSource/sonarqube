@@ -28,7 +28,7 @@ interface Props {
   buttonText: string;
   className?: string;
   modalHeader: string;
-  onDone?: (severity: string) => Promise<void> | void;
+  onDone?: (severity: string, prioritized: boolean) => Promise<void> | void;
   profiles: BaseProfile[];
   rule: Rule | RuleDetails;
   ariaLabel?: string;
