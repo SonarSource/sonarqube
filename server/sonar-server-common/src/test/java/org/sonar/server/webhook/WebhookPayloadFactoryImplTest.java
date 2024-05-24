@@ -20,6 +20,9 @@
 package org.sonar.server.webhook;
 
 import com.google.common.collect.ImmutableMap;
+
+import java.io.StringWriter;
+import java.io.Writer;
 import java.util.Map;
 import javax.annotation.Nullable;
 import org.junit.Before;
@@ -27,6 +30,7 @@ import org.junit.Test;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.platform.Server;
 import org.sonar.api.utils.System2;
+import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.server.qualitygate.Condition;
 import org.sonar.server.qualitygate.EvaluatedCondition;
 import org.sonar.server.qualitygate.EvaluatedQualityGate;
@@ -300,6 +304,22 @@ public class WebhookPayloadFactoryImplTest {
         "  \"url\": \"http://foo/dashboard?id=P1\"" +
         "}" +
         "}");
+  }
+
+  @Test
+  public void verify_validate_SonarCloud_signature_fail_was_caused_by_the_JsonWriter_build_request_payload() {
+    String val1 = "key&val";
+    String val2 = "https://sonarcloud.io/dashboard?id=myOrganization";
+    String targetJson = "{\"key\":\"" + val1 +"\",\"url\":\""+ val2+"\"}";
+
+    Writer payload = new StringWriter();
+    JsonWriter writer = JsonWriter.of(payload);
+    writer.beginObject();
+    writer.prop("key", val1);
+    writer.prop("url", val2);
+    writer.endObject().close();
+
+    assertThat(payload.toString()).isNotEqualTo(targetJson);
   }
 
   private static ProjectAnalysis newAnalysis(@Nullable CeTask task, @Nullable EvaluatedQualityGate gate,
