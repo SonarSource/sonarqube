@@ -13,7 +13,8 @@
     r.plugin_name as "repository",
     rp.uuid as "ruleProfileUuid",
     a.created_at as "createdAt",
-    a.updated_at as "updatedAt"
+    a.updated_at as "updatedAt",
+    a.prioritized_rule as "prioritizedRule"
   </sql>
 
   <sql id="orgActiveRuleColumns">
@@ -22,6 +23,7 @@
     a.rule_uuid as "ruleUuid",
     a.failure_level as "severity",
     a.inheritance as "inheritance",
+    a.prioritized_rule as "prioritizedRule",
     r.plugin_rule_key as "rulefield",
     r.plugin_name as "repository",
     r.security_standards as "securityStandards",
@@ -44,6 +46,7 @@
       rule_uuid,
       failure_level,
       inheritance,
+      prioritized_rule,
       created_at,
       updated_at
     ) values (
@@ -52,6 +55,7 @@
       #{ruleUuid, jdbcType=VARCHAR},
       #{severity, jdbcType=INTEGER},
       #{inheritance, jdbcType=VARCHAR},
+      #{prioritizedRule, jdbcType=BOOLEAN},
       #{createdAt, jdbcType=BIGINT},
       #{updatedAt, jdbcType=BIGINT}
     )
@@ -62,6 +66,7 @@
     set
       failure_level = #{severity, jdbcType=INTEGER},
       inheritance = #{inheritance, jdbcType=VARCHAR},
+      prioritized_rule = #{prioritizedRule, jdbcType=BOOLEAN},
       updated_at = #{updatedAt, jdbcType=BIGINT}
     where
       uuid = #{uuid, jdbcType=BIGINT}
@@ -306,6 +311,7 @@
     ar.uuid as "uuid",
     ar.failure_level as "severity",
     ar.inheritance as "inheritance",
+    ar.prioritized_rule as "prioritizedRule",
     r.uuid as "ruleUuid",
     r.plugin_name as "repository",
     r.plugin_rule_key as "key",

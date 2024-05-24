@@ -87,6 +87,7 @@ public final class IssueDto implements Serializable {
   private boolean quickFixAvailable;
   private boolean isNewCodeReferenceIssue;
   private String ruleDescriptionContextKey;
+  private boolean prioritizedRule;
 
   // functional dates stored as Long
   private Long issueCreationDate;
@@ -862,6 +863,15 @@ public final class IssueDto implements Serializable {
       .collect(toUnmodifiableMap(ImpactDto::getSoftwareQuality, ImpactDto::getSeverity));
   }
 
+  public boolean isPrioritizedRule() {
+    return prioritizedRule;
+  }
+
+  public IssueDto setPrioritizedRule(boolean isBlockerRule) {
+    this.prioritizedRule = isBlockerRule;
+    return this;
+  }
+
   @Override
   public String toString() {
     return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
@@ -880,6 +890,7 @@ public final class IssueDto implements Serializable {
     issue.setLine(line);
     issue.setChecksum(checksum);
     issue.setSeverity(severity);
+    issue.setPrioritizedRule(prioritizedRule);
     issue.setAssigneeUuid(assigneeUuid);
     issue.setAssigneeLogin(assigneeLogin);
     issue.setComponentKey(componentKey);

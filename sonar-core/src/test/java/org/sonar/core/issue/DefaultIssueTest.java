@@ -22,7 +22,7 @@ package org.sonar.core.issue;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueStatus;
 import org.sonar.api.issue.impact.Severity;
@@ -35,12 +35,12 @@ import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class DefaultIssueTest {
+class DefaultIssueTest {
 
   private final DefaultIssue issue = new DefaultIssue();
 
   @Test
-  public void set_empty_dates() {
+  void set_empty_dates() {
     issue
       .setCreationDate(null)
       .setUpdateDate(null)
@@ -54,7 +54,7 @@ public class DefaultIssueTest {
   }
 
   @Test
-  public void fail_on_empty_status() {
+  void fail_on_empty_status() {
     try {
       issue.setStatus("");
       fail();
@@ -64,7 +64,7 @@ public class DefaultIssueTest {
   }
 
   @Test
-  public void fail_on_bad_severity() {
+  void fail_on_bad_severity() {
     try {
       issue.setSeverity("FOO");
       fail();
@@ -74,19 +74,19 @@ public class DefaultIssueTest {
   }
 
   @Test
-  public void message_should_be_abbreviated_if_too_long() {
+  void message_should_be_abbreviated_if_too_long() {
     issue.setMessage(StringUtils.repeat("a", 5_000));
     assertThat(issue.message()).hasSize(1_333);
   }
 
   @Test
-  public void message_could_be_null() {
+  void message_could_be_null() {
     issue.setMessage(null);
     assertThat(issue.message()).isNull();
   }
 
   @Test
-  public void test_nullable_fields() {
+  void test_nullable_fields() {
     issue.setGap(null).setSeverity(null).setLine(null);
     assertThat(issue.gap()).isNull();
     assertThat(issue.severity()).isNull();
@@ -94,7 +94,7 @@ public class DefaultIssueTest {
   }
 
   @Test
-  public void test_equals_and_hashCode() {
+  void test_equals_and_hashCode() {
     DefaultIssue a1 = new DefaultIssue().setKey("AAA");
     DefaultIssue a2 = new DefaultIssue().setKey("AAA");
     DefaultIssue b = new DefaultIssue().setKey("BBB");
@@ -106,7 +106,7 @@ public class DefaultIssueTest {
   }
 
   @Test
-  public void comments_should_not_be_modifiable() {
+  void comments_should_not_be_modifiable() {
     DefaultIssue issue = new DefaultIssue().setKey("AAA");
 
     List<DefaultIssueComment> comments = issue.defaultIssueComments();
@@ -123,7 +123,7 @@ public class DefaultIssueTest {
   }
 
   @Test
-  public void all_changes_contain_current_change() {
+  void all_changes_contain_current_change() {
     IssueChangeContext issueChangeContext = mock(IssueChangeContext.class);
     when(issueChangeContext.getExternalUser()).thenReturn("toto");
     when(issueChangeContext.getWebhookSource()).thenReturn("github");
@@ -139,7 +139,7 @@ public class DefaultIssueTest {
   }
 
   @Test
-  public void setFieldChange_whenAddingChange_shouldUpdateCurrentChange() {
+  void setFieldChange_whenAddingChange_shouldUpdateCurrentChange() {
     IssueChangeContext issueChangeContext = mock(IssueChangeContext.class);
     DefaultIssue issue = new DefaultIssue().setKey("AAA");
 
@@ -158,7 +158,7 @@ public class DefaultIssueTest {
   }
 
   @Test
-  public void adding_null_change_has_no_effect() {
+  void adding_null_change_has_no_effect() {
     DefaultIssue issue = new DefaultIssue();
 
     issue.addChange(null);
@@ -167,7 +167,7 @@ public class DefaultIssueTest {
   }
 
   @Test
-  public void test_isToBeMigratedAsNewCodeReferenceIssue_is_correctly_calculated() {
+  void test_isToBeMigratedAsNewCodeReferenceIssue_is_correctly_calculated() {
     issue.setKey("ABCD")
       .setIsOnChangedLine(true)
       .setIsNewCodeReferenceIssue(false)
@@ -219,7 +219,7 @@ public class DefaultIssueTest {
   }
 
   @Test
-  public void isQuickFixAvailable_givenQuickFixAvailable_returnTrue() {
+  void isQuickFixAvailable_givenQuickFixAvailable_returnTrue() {
     DefaultIssue defaultIssue = new DefaultIssue();
 
     defaultIssue.setQuickFixAvailable(true);
@@ -232,7 +232,7 @@ public class DefaultIssueTest {
   }
 
   @Test
-  public void setLine_whenLineIsNegative_shouldThrowException() {
+  void setLine_whenLineIsNegative_shouldThrowException() {
     int anyNegativeValue = Integer.MIN_VALUE;
     assertThatThrownBy(() -> issue.setLine(anyNegativeValue))
       .isInstanceOf(IllegalArgumentException.class)
@@ -240,14 +240,14 @@ public class DefaultIssueTest {
   }
 
   @Test
-  public void setLine_whenLineIsZero_shouldThrowException() {
+  void setLine_whenLineIsZero_shouldThrowException() {
     assertThatThrownBy(() -> issue.setLine(0))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("Line must be null or greater than zero (got 0)");
   }
 
   @Test
-  public void setGap_whenGapIsNegative_shouldThrowException() {
+  void setGap_whenGapIsNegative_shouldThrowException() {
     Double anyNegativeValue = -1.0;
     assertThatThrownBy(() -> issue.setGap(anyNegativeValue))
       .isInstanceOf(IllegalArgumentException.class)
@@ -255,41 +255,41 @@ public class DefaultIssueTest {
   }
 
   @Test
-  public void setGap_whenGapIsZero_shouldWork() {
+  void setGap_whenGapIsZero_shouldWork() {
     issue.setGap(0.0);
     assertThat(issue.gap()).isEqualTo(0.0);
   }
 
   @Test
-  public void effortInMinutes_shouldConvertEffortToMinutes() {
+  void effortInMinutes_shouldConvertEffortToMinutes() {
     issue.setEffort(Duration.create(60));
     assertThat(issue.effortInMinutes()).isEqualTo(60L);
   }
 
   @Test
-  public void effortInMinutes_whenNull_shouldReturnNull() {
+  void effortInMinutes_whenNull_shouldReturnNull() {
     issue.setEffort(null);
     assertThat(issue.effortInMinutes()).isNull();
   }
 
   @Test
-  public void tags_whenNull_shouldReturnEmptySet() {
+  void tags_whenNull_shouldReturnEmptySet() {
     assertThat(issue.tags()).isEmpty();
   }
 
   @Test
-  public void codeVariants_whenNull_shouldReturnEmptySet() {
+  void codeVariants_whenNull_shouldReturnEmptySet() {
     assertThat(issue.codeVariants()).isEmpty();
   }
 
   @Test
-  public void issueByDefault_shouldNotHaveAppliedAnticipatedTransitions() {
+  void issueByDefault_shouldNotHaveAppliedAnticipatedTransitions() {
     DefaultIssue defaultIssue = new DefaultIssue();
     assertThat(defaultIssue.getAnticipatedTransitionUuid()).isNotPresent();
   }
 
   @Test
-  public void anticipatedTransitions_WhenSetTrue_shouldReturnTrue() {
+  void anticipatedTransitions_WhenSetTrue_shouldReturnTrue() {
     DefaultIssue defaultIssue = new DefaultIssue();
     defaultIssue.setAnticipatedTransitionUuid("uuid");
     assertThat(defaultIssue.getAnticipatedTransitionUuid()).isPresent();
@@ -297,15 +297,16 @@ public class DefaultIssueTest {
   }
 
   @Test
-  public void getImpacts_whenAddingNewImpacts_shouldReturnListOfImpacts() {
+  void getImpacts_whenAddingNewImpacts_shouldReturnListOfImpacts() {
     issue.addImpact(SoftwareQuality.MAINTAINABILITY, Severity.HIGH);
     issue.addImpact(SoftwareQuality.RELIABILITY, Severity.LOW);
 
-    assertThat(issue.impacts()).containsExactlyInAnyOrderEntriesOf(Map.of(SoftwareQuality.MAINTAINABILITY, Severity.HIGH, SoftwareQuality.RELIABILITY, Severity.LOW));
+    assertThat(issue.impacts()).containsExactlyInAnyOrderEntriesOf(Map.of(SoftwareQuality.MAINTAINABILITY, Severity.HIGH,
+      SoftwareQuality.RELIABILITY, Severity.LOW));
   }
 
   @Test
-  public void getIssueStatus_shouldReturnExpectedStatus() {
+  void getIssueStatus_shouldReturnExpectedStatus() {
     issue.setStatus(Issue.STATUS_RESOLVED);
     issue.setResolution(Issue.RESOLUTION_FIXED);
 
@@ -313,12 +314,19 @@ public class DefaultIssueTest {
   }
 
   @Test
-  public void replaceImpacts_shouldReplaceExistingImpacts() {
+  void replaceImpacts_shouldReplaceExistingImpacts() {
     issue.addImpact(SoftwareQuality.MAINTAINABILITY, Severity.HIGH);
     issue.addImpact(SoftwareQuality.RELIABILITY, Severity.LOW);
 
     issue.replaceImpacts(Map.of(SoftwareQuality.SECURITY, Severity.LOW));
 
     assertThat(issue.impacts()).containsExactlyEntriesOf(Map.of(SoftwareQuality.SECURITY, Severity.LOW));
+  }
+
+  @Test
+  void prioritizedRule_shouldHaveCorrectDefaultValue() {
+    assertThat(issue.isPrioritizedRule()).isFalse();
+    issue.setPrioritizedRule(true);
+    assertThat(issue.isPrioritizedRule()).isTrue();
   }
 }

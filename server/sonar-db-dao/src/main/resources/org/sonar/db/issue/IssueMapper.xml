@@ -42,6 +42,7 @@
     i.issue_type as type,
     i.quick_fix_available as quickFixAvailable,
     i.code_variants as codeVariantsString,
+    i.prioritized_rule as prioritizedRule,
     <include refid="issueImpactsColumns"/>
     <include refid="ruleDefaultImpactsColumns"/>
     <include refid="isNewCodeReferenceIssue"/>
@@ -75,7 +76,8 @@
     i.issue_type,
     i.quick_fix_available,
     i.code_variants,
-    i.clean_code_attribute
+    i.clean_code_attribute,
+    i.prioritized_rule
   </sql>
 
   <sql id="isNewCodeReferenceIssue" databaseId="mssql">
@@ -131,7 +133,7 @@
       <result property="severity" column="ii_severity"/>
     </collection>
     <collection property="ruleDefaultImpacts" column="rdi_softwareQuality" notNullColumn="rdi_softwareQuality"
-                    javaType="java.util.Set" ofType="Impact">
+                javaType="java.util.Set" ofType="Impact">
       <result property="softwareQuality" column="rdi_softwareQuality"/>
       <result property="severity" column="rdi_severity"/>
     </collection>
@@ -142,7 +144,7 @@
     message, message_formattings, line, locations, gap, effort, status, tags, rule_description_context_key,
     resolution, checksum, assignee, author_login, issue_creation_date, issue_update_date,
     issue_close_date, created_at, updated_at, component_uuid, project_uuid, issue_type, quick_fix_available, code_variants,
-    clean_code_attribute)
+    clean_code_attribute, prioritized_rule)
     VALUES (
     #{kee,jdbcType=VARCHAR},
     #{ruleUuid,jdbcType=VARCHAR},
@@ -164,7 +166,8 @@
     #{componentUuid,jdbcType=VARCHAR}, #{projectUuid,jdbcType=VARCHAR}, #{type,jdbcType=INTEGER},
     #{quickFixAvailable, jdbcType=BOOLEAN},
     #{codeVariantsString,jdbcType=VARCHAR},
-    #{effectiveCleanCodeAttribute,jdbcType=VARCHAR})
+    #{effectiveCleanCodeAttribute,jdbcType=VARCHAR},
+    #{prioritizedRule,jdbcType=BOOLEAN})
   </insert>
 
   <insert id="insertAsNewCodeOnReferenceBranch" parameterType="NewCodeReferenceIssue" useGeneratedKeys="false">
@@ -183,12 +186,12 @@
     #{dto.severity,jdbcType=VARCHAR})
   </insert>
 
-  <delete id="deleteAsNewCodeOnReferenceBranch" parameterType="String" >
+  <delete id="deleteAsNewCodeOnReferenceBranch" parameterType="String">
     DELETE FROM new_code_reference_issues
     where issue_key = #{issueKey, jdbcType=VARCHAR}
   </delete>
 
-  <delete id="deleteIssueImpacts" parameterType="String" >
+  <delete id="deleteIssueImpacts" parameterType="String">
     DELETE FROM issues_impacts
     where issue_key = #{issueUuid, jdbcType=VARCHAR}
   </delete>
@@ -220,7 +223,8 @@
     updated_at=#{updatedAt,jdbcType=BIGINT},
     issue_type=#{type,jdbcType=INTEGER},
     code_variants=#{codeVariantsString,jdbcType=VARCHAR},
-    clean_code_attribute=#{effectiveCleanCodeAttribute,jdbcType=VARCHAR}
+    clean_code_attribute=#{effectiveCleanCodeAttribute,jdbcType=VARCHAR},
+    prioritized_rule=#{prioritizedRule,jdbcType=BOOLEAN}
     where kee = #{kee}
   </update>
 
@@ -252,7 +256,8 @@
     updated_at=#{updatedAt,jdbcType=BIGINT},
     issue_type=#{type,jdbcType=INTEGER},
     code_variants=#{codeVariantsString,jdbcType=VARCHAR},
-    clean_code_attribute=#{effectiveCleanCodeAttribute,jdbcType=VARCHAR}
+    clean_code_attribute=#{effectiveCleanCodeAttribute,jdbcType=VARCHAR},
+    prioritized_rule=#{prioritizedRule,jdbcType=BOOLEAN}
     where kee = #{kee} and updated_at &lt;= #{selectedAt}
   </update>
 
@@ -271,7 +276,8 @@
     where i.kee=#{kee,jdbcType=VARCHAR}
   </select>
 
-  <select id="scrollNonClosedByComponentUuid" parameterType="String" resultMap="issueResultMap" fetchSize="${_scrollFetchSize}" resultSetType="FORWARD_ONLY" resultOrdered="true">
+  <select id="scrollNonClosedByComponentUuid" parameterType="String" resultMap="issueResultMap" fetchSize="${_scrollFetchSize}"
+          resultSetType="FORWARD_ONLY" resultOrdered="true">
     select
     <include refid="issueColumns"/>
     from issues i
@@ -362,6 +368,7 @@
       r.security_standards as securityStandards,
       c.qualifier,
       i.code_variants as codeVariants,
+      i.prioritized_rule as prioritizedRule,
       <include refid="issueImpactsColumns"/>
       <include refid="ruleDefaultImpactsColumns"/>
       <include refid="isNewCodeReferenceIssue"/>
@@ -634,6 +641,7 @@
     i.assignee as assigneeUuid,
     u.login as assigneeLogin,
     i.rule_description_context_key as ruleDescriptionContextKey,
+    i.prioritized_rule as prioritizedRule,
     <include refid="issueImpactsColumns"/>
     <include refid="ruleDefaultImpactsColumns"/>
     i.clean_code_attribute as cleanCodeAttribute,

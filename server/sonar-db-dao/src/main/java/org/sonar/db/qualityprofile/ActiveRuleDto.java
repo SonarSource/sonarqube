@@ -41,9 +41,9 @@ public class ActiveRuleDto {
   private String ruleUuid;
   private Integer severity;
   private String inheritance;
-
   private long createdAt;
   private long updatedAt;
+  private boolean prioritizedRule;
 
   // These fields do not exists in db, it's only retrieve by joins
   private String repository;
@@ -167,6 +167,15 @@ public class ActiveRuleDto {
 
   public ActiveRuleDto setIsExternal(boolean isExternal) {
     this.isExternal = isExternal;
+    return this;
+  }
+
+  public boolean isPrioritizedRule(){
+    return prioritizedRule;
+  }
+
+  public ActiveRuleDto setPrioritizedRule(boolean isBlockerRule){
+    this.prioritizedRule = isBlockerRule;
     return this;
   }
 

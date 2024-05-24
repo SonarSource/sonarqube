@@ -81,6 +81,7 @@ public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.
   private List<DefaultIssueComment> comments = null;
   private Set<String> tags = null;
   private Set<String> codeVariants = null;
+  private boolean prioritizedRule = false;
   // temporarily an Object as long as DefaultIssue is used by sonar-batch
   private Object locations = null;
 
@@ -536,7 +537,8 @@ public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.
     return this;
   }
 
-  public DefaultIssue setFieldChange(IssueChangeContext context, String field, @Nullable Serializable oldValue, @Nullable Serializable newValue) {
+  public DefaultIssue setFieldChange(IssueChangeContext context, String field, @Nullable Serializable oldValue,
+    @Nullable Serializable newValue) {
     if (!Objects.equals(oldValue, newValue)) {
       if (currentChange == null) {
         currentChange = new FieldDiffs();
@@ -723,6 +725,15 @@ public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.
 
   public DefaultIssue setCleanCodeAttribute(@Nullable CleanCodeAttribute cleanCodeAttribute) {
     this.cleanCodeAttribute = cleanCodeAttribute;
+    return this;
+  }
+
+  public boolean isPrioritizedRule() {
+    return prioritizedRule;
+  }
+
+  public DefaultIssue setPrioritizedRule(boolean isBlockerRule) {
+    this.prioritizedRule = isBlockerRule;
     return this;
   }
 
