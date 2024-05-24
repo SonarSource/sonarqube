@@ -82,8 +82,11 @@ function isMeasured(state: State): state is OwnState & Measurements {
  * Some of the props have changed or been renamed:
  * - `children` is the trigger for the tooltip, should be an interactive Element. If not an Echoes component, make sure the component forwards the props and the ref to an interactive DOM node, it's needed by the tooltip to position itself.
  * - `overlay` is now `content`, that's the tooltip content. It's a ReactNode for convenience but should render only text based content, no interactivity is allowed inside the tooltip.
+ * - ~`classNameSpace`~ doesn't exist anymore, was mostly used in situation that should be replaced by a Popover component.
  * - ~`mouseEnterDelay`~ doesn't exist anymore, was mostly used in situation that should be replaced by a Popover component.
  * - ~`mouseLeaveDelay`~ doesn't exist anymore, was mostly used in situation that should be replaced by a Popover component.
+ * - ~`onHide`~ doesn't exist anymore, was mostly used in situation that should be replaced by a Popover component.
+ * - ~`onShow`~ doesn't exist anymore, was mostly used in situation that should be replaced by a Popover component.
  * - `placement` is now `align` and `side`, based on the {@link Echoes.TooltipAlign | TooltipAlign} and {@link Echoes.TooltipSide | TooltipSide} enums.
  * - `visible` is now `isOpen`
  */

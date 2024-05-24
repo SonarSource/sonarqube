@@ -77,6 +77,8 @@ function isMeasured(state: State): state is OwnState & Measurements {
  * - `overlay` is now `content`, that's the tooltip content. It's a ReactNode for convenience but should render only text based content, no interactivity is allowed inside the tooltip.
  * - ~`mouseEnterDelay`~ doesn't exist anymore, was mostly used in situation that should be replaced by a Popover component.
  * - ~`mouseLeaveDelay`~ doesn't exist anymore, was mostly used in situation that should be replaced by a Popover component.
+ * - ~`onHide`~ doesn't exist anymore, was mostly used in situation that should be replaced by a Popover component.
+ * - ~`onShow`~ doesn't exist anymore, was mostly used in situation that should be replaced by a Popover component.
  * - `placement` is now `align` and `side`, based on the {@link Echoes.TooltipAlign | TooltipAlign} and {@link Echoes.TooltipSide | TooltipSide} enums.
  * - `visible` is now `isOpen`
  */

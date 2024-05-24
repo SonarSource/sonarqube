@@ -23,7 +23,7 @@ import * as React from 'react';
 import { useIntl } from 'react-intl';
 import { formatRating } from '../../../helpers/measures';
 import { SoftwareQuality } from '../../../types/clean-code-taxonomy';
-import SoftwareImpactRatingTooltip from './SoftwareImpactRatingTooltip';
+import SoftwareImpactRatingTooltipContent from './SoftwareImpactRatingTooltip';
 
 export interface SoftwareImpactMeasureRatingProps {
   softwareQuality: SoftwareQuality;
@@ -37,11 +37,9 @@ export function SoftwareImpactMeasureRating(props: Readonly<SoftwareImpactMeasur
 
   const rating = formatRating(value);
 
-  const additionalInfo =
-    SoftwareImpactRatingTooltip({
-      rating,
-      softwareQuality,
-    }) ?? undefined;
+  const additionalInfo = (
+    <SoftwareImpactRatingTooltipContent rating={rating} softwareQuality={softwareQuality} />
+  );
 
   return (
     <>
