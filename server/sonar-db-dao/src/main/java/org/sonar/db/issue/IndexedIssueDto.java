@@ -58,6 +58,7 @@ public final class IndexedIssueDto {
   private String qualifier = null;
   private boolean isNewCodeReferenceIssue = false;
   private String codeVariants = null;
+  private boolean prioritizedRule = false;
 
   private Set<ImpactDto> impacts = new HashSet<>();
   private Set<ImpactDto> ruleDefaultImpacts = new HashSet<>();
@@ -337,6 +338,15 @@ public final class IndexedIssueDto {
 
   public IndexedIssueDto setRuleCleanCodeAttribute(String ruleCleanCodeAttribute) {
     this.ruleCleanCodeAttribute = ruleCleanCodeAttribute;
+    return this;
+  }
+
+  public boolean isPrioritizedRule(){
+    return prioritizedRule;
+  }
+
+  public IndexedIssueDto setPrioritizedRule(boolean prioritizedRule){
+    this.prioritizedRule = prioritizedRule;
     return this;
   }
 }

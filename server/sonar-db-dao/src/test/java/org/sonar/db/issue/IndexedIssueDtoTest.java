@@ -60,7 +60,8 @@ class IndexedIssueDtoTest {
       .setSeverity("severity")
       .setTags("tags")
       .setIssueType(6)
-      .setBranchUuid("branchUuid");
+      .setBranchUuid("branchUuid")
+      .setPrioritizedRule(true);
 
     indexedIssueDto.getImpacts().add(new ImpactDto().setSoftwareQuality(SoftwareQuality.SECURITY).setSeverity(Severity.HIGH));
     indexedIssueDto.getRuleDefaultImpacts().add(new ImpactDto().setSoftwareQuality(SoftwareQuality.MAINTAINABILITY).setSeverity(Severity.MEDIUM));
@@ -76,11 +77,11 @@ class IndexedIssueDtoTest {
         IndexedIssueDto::getPath, IndexedIssueDto::getProjectUuid, IndexedIssueDto::getQualifier, IndexedIssueDto::getResolution,
         IndexedIssueDto::getRuleUuid, IndexedIssueDto::getScope, IndexedIssueDto::getSeverity, IndexedIssueDto::getTags,
         IndexedIssueDto::getIssueType,
-        IndexedIssueDto::getBranchUuid)
+        IndexedIssueDto::getBranchUuid, IndexedIssueDto::isPrioritizedRule)
       .containsExactly("issueKey", "assignee", "authorLogin", "status", true, "cleanCodeAttribute", "ruleCleanCodeAttribute",
         "codeVariants", "securityStandards",
         "componentUuid", 1L, 2L, 3L, 4L, true, "language", 5, "path", "projectUuid", "qualifier", "resolution", "ruleUuid",
-        "scope", "severity", "tags", 6, "branchUuid");
+        "scope", "severity", "tags", 6, "branchUuid", true);
 
     assertThat(indexedIssueDto.getImpacts())
       .extracting(ImpactDto::getSoftwareQuality, ImpactDto::getSeverity)

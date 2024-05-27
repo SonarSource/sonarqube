@@ -424,4 +424,13 @@ public class IssueDoc extends BaseDoc {
     setField(IssueIndexDefinition.FIELD_ISSUE_CODE_VARIANTS, codeVariants);
     return this;
   }
+
+  public boolean isPrioritizedRule(){
+    return getField(IssueIndexDefinition.FIELD_PRIORITIZED_RULE);
+  }
+
+  public IssueDoc setPrioritizedRule(boolean prioritizedRule){
+    setField(IssueIndexDefinition.FIELD_PRIORITIZED_RULE, prioritizedRule);
+    return this;
+  }
 }
