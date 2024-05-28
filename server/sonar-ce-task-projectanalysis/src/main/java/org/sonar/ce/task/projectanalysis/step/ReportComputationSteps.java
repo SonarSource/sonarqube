@@ -60,6 +60,7 @@ public class ReportComputationSteps extends AbstractComputationSteps {
     LoadFileHashesAndStatusStep.class,
     LoadQualityGateStep.class,
     LoadPeriodsStep.class,
+    LoadPrioritizedRulesStep.class,
     FileMoveDetectionStep.class,
     PullRequestFileMoveDetectionStep.class,
 

@@ -125,6 +125,7 @@ import org.sonar.ce.task.projectanalysis.qualitymodel.RatingSettings;
 import org.sonar.ce.task.projectanalysis.qualitymodel.ReliabilityAndSecurityRatingMeasuresVisitor;
 import org.sonar.ce.task.projectanalysis.qualitymodel.SecurityReviewMeasuresVisitor;
 import org.sonar.ce.task.projectanalysis.qualityprofile.ActiveRulesHolderImpl;
+import org.sonar.ce.task.projectanalysis.qualityprofile.PrioritizedRulesHolderImpl;
 import org.sonar.ce.task.projectanalysis.qualityprofile.QProfileStatusRepositoryImpl;
 import org.sonar.ce.task.projectanalysis.qualityprofile.QualityProfileRuleChangeResolver;
 import org.sonar.ce.task.projectanalysis.scm.ScmInfoDbLoader;
@@ -206,6 +207,7 @@ public final class ProjectAnalysisTaskContainerPopulator implements ContainerPop
       BatchReportDirectoryHolderImpl.class,
       TreeRootHolderImpl.class,
       PeriodHolderImpl.class,
+      PrioritizedRulesHolderImpl.class,
       QualityGateHolderImpl.class,
       QualityGateStatusHolderImpl.class,
       RatingSettings.class,

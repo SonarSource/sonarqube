@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.function.Consumer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -147,6 +148,12 @@ class ActiveRuleDaoIT {
       .containsOnly(tuple(profile1.getKee(), profile1.getRulesProfileUuid()));
 
     assertThat(underTest.selectByProfile(dbSession, profile2)).isEmpty();
+  }
+
+  @Test
+  void selectPrioritizedRulesUuids() {
+    db.qualityProfiles().activateRule(profile1, rule1, r -> r.setPrioritizedRule(true));
+    assertThat(underTest.selectPrioritizedRulesUuids(dbSession, Set.of(profile1.getKee()))).contains(rule1.getUuid());
   }
 
   @Test
