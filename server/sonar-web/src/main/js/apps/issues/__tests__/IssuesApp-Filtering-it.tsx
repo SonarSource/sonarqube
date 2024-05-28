@@ -22,6 +22,7 @@ import userEvent from '@testing-library/user-event';
 import React from 'react';
 import { renderOwaspTop102021Category } from '../../../helpers/security-standard';
 import { mockLoggedInUser, mockRawIssue } from '../../../helpers/testMocks';
+import { Feature } from '../../../types/features';
 import { NoticeType } from '../../../types/users';
 import IssuesList from '../components/IssuesList';
 import {
@@ -65,8 +66,9 @@ beforeEach(() => {
 describe('issues app filtering', () => {
   it('should combine sidebar filters properly', async () => {
     jest.useFakeTimers();
+    issuesHandler.setPageSize(50);
     const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
-    renderIssueApp();
+    renderIssueApp(undefined, [Feature.PrioritizedRules]);
     await waitOnDataLoaded();
 
     // Select CC responsible category (should make the first issue disappear)
@@ -137,13 +139,19 @@ describe('issues app filtering', () => {
     await user.click(ui.typeFacet.get());
     await user.click(ui.codeSmellIssueTypeFilter.get());
 
+    // Prioritized Rule
+    expect(ui.issueItem7.get()).toBeInTheDocument();
+    await user.click(ui.prioritizedRuleFacet.get());
+    await user.click(ui.prioritizedRuleFilter.get());
+
     expect(ui.issueItem1.query()).not.toBeInTheDocument();
     expect(ui.issueItem2.query()).not.toBeInTheDocument();
     expect(ui.issueItem3.query()).not.toBeInTheDocument();
     expect(ui.issueItem4.query()).not.toBeInTheDocument();
     expect(ui.issueItem5.query()).not.toBeInTheDocument();
     expect(ui.issueItem6.query()).not.toBeInTheDocument();
-    expect(ui.issueItem7.get()).toBeInTheDocument();
+    expect(ui.issueItem7.query()).not.toBeInTheDocument();
+    expect(ui.issueItem10.get()).toBeInTheDocument();
 
     // Clear filters one by one
     await user.click(ui.clearCodeCategoryFacet.get());
@@ -156,6 +164,7 @@ describe('issues app filtering', () => {
     await user.click(ui.clearProjectFacet.get());
     await user.click(ui.clearAssigneeFacet.get());
     await user.click(ui.clearAuthorFacet.get());
+    await user.click(ui.clearPrioritizedRuleFacet.get());
     expect(ui.issueItem1.get()).toBeInTheDocument();
     expect(ui.issueItem2.get()).toBeInTheDocument();
     expect(ui.issueItem3.get()).toBeInTheDocument();
@@ -163,6 +172,7 @@ describe('issues app filtering', () => {
     expect(ui.issueItem5.get()).toBeInTheDocument();
     expect(ui.issueItem6.get()).toBeInTheDocument();
     expect(ui.issueItem7.get()).toBeInTheDocument();
+    expect(ui.issueItem10.get()).toBeInTheDocument();
     jest.runOnlyPendingTimers();
     jest.useRealTimers();
   });
@@ -309,12 +319,13 @@ describe('issues app filtering', () => {
 
   it('should show the new code issues only', async () => {
     const user = userEvent.setup();
+    issuesHandler.setPageSize(50);
 
     renderProjectIssuesApp('project/issues?id=myproject');
 
-    expect(await ui.issueItems.findAll()).toHaveLength(7);
+    expect(await ui.issueItems.findAll()).toHaveLength(11);
     await user.click(await ui.inNewCodeFilter.find());
-    expect(await ui.issueItems.findAll()).toHaveLength(6);
+    expect(await ui.issueItems.findAll()).toHaveLength(7);
   });
 
   it('should support OWASP Top 10 version 2021', async () => {

@@ -212,7 +212,7 @@ describe('issues app', () => {
 
       await user.click(screen.getByRole('button', { name: 'show_more' }));
 
-      expect(ui.issueItems.getAll()).toHaveLength(10);
+      expect(ui.issueItems.getAll()).toHaveLength(11);
       expect(ui.issueItem8.get()).toBeInTheDocument();
     });
 
@@ -232,13 +232,13 @@ describe('issues app', () => {
       // Select all issues
       await user.click(screen.getByRole('checkbox', { name: 'issues.select_all_issues' }));
       expect(
-        screen.getByRole('button', { name: 'issues.bulk_change_X_issues.10' }),
+        screen.getByRole('button', { name: 'issues.bulk_change_X_issues.11' }),
       ).toBeInTheDocument();
 
       // Open bulk change modal and close it
-      await user.click(screen.getByRole('button', { name: 'issues.bulk_change_X_issues.10' }));
+      await user.click(screen.getByRole('button', { name: 'issues.bulk_change_X_issues.11' }));
       await user.click(screen.getByRole('button', { name: 'cancel' }));
-      expect(screen.getByRole('button', { name: 'issues.bulk_change_X_issues.10' })).toHaveFocus();
+      expect(screen.getByRole('button', { name: 'issues.bulk_change_X_issues.11' })).toHaveFocus();
 
       // Unselect all
       await user.click(screen.getByRole('checkbox', { name: 'issues.select_all_issues' }));

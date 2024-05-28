@@ -73,6 +73,7 @@ describe('serialize/deserialize', () => {
         tags: ['a', 'b'],
         types: ['a', 'b'],
         fixedInPullRequest: '',
+        prioritizedRule: true,
       }),
     ).toStrictEqual({
       assignees: 'a,b',
@@ -106,6 +107,7 @@ describe('serialize/deserialize', () => {
       issueStatuses: 'ACCEPTED,CONFIRMED',
       tags: 'a,b',
       types: 'a,b',
+      prioritizedRule: 'true',
     });
   });
 
@@ -119,6 +121,7 @@ describe('serialize/deserialize', () => {
         impactSeverities: 'LOW',
         severities: 'CRITICAL,MAJOR',
         impactSoftwareQualities: 'MAINTAINABILITY',
+        prioritizedRule: 'true',
       }),
     ).toStrictEqual({
       assigned: true,
@@ -155,6 +158,7 @@ describe('serialize/deserialize', () => {
       types: [],
       fixedInPullRequest: '',
       resolved: undefined,
+      prioritizedRule: true,
     });
   });
 

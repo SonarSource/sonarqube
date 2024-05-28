@@ -97,6 +97,8 @@ function generateReferenceComponentsForIssues(issueData: IssueData[]) {
     .map((key) => mockReferenceComponent({ key, enabled: true }));
 }
 
+const DEFAULT_PAGE_SIZE = 7;
+
 export default class IssuesServiceMock {
   isAdmin = false;
   standards?: Standards;
@@ -104,11 +106,13 @@ export default class IssuesServiceMock {
   defaultList: IssueData[];
   rulesList: Rule[];
   list: IssueData[];
+  pageSize: number;
 
   constructor(usersServiceMock?: UsersServiceMock) {
     this.usersServiceMock = usersServiceMock;
     this.defaultList = mockIssuesList();
     this.rulesList = mockRuleList();
+    this.pageSize = DEFAULT_PAGE_SIZE;
 
     this.list = cloneDeep(this.defaultList);
 
@@ -133,6 +137,7 @@ export default class IssuesServiceMock {
 
   reset = () => {
     this.list = cloneDeep(this.defaultList);
+    this.pageSize = DEFAULT_PAGE_SIZE;
   };
 
   setIssueList = (list: IssueData[]) => {
@@ -336,6 +341,7 @@ export default class IssuesServiceMock {
             rules: ['simpleRuleId', 'advancedRuleId', 'other'],
             assignees: ['email1@sonarsource.com', 'email2@sonarsource.com'],
             author: ['email3@sonarsource.com', 'email4@sonarsource.com'],
+            prioritizedRule: ['true', 'false'],
           }[name] ?? []
         ).map((val) => ({
           val,
@@ -355,8 +361,10 @@ export default class IssuesServiceMock {
 
     // Splice list items according to paging using a fixed page size
     const pageIndex = query.p || 1;
-    const pageSize = 7;
-    const listItems = filteredList.slice((pageIndex - 1) * pageSize, pageIndex * pageSize);
+    const listItems = filteredList.slice(
+      (pageIndex - 1) * this.pageSize,
+      pageIndex * this.pageSize,
+    );
 
     // Generate response
     return this.reply({
@@ -364,7 +372,7 @@ export default class IssuesServiceMock {
       issues: listItems.map((line) => line.issue),
       paging: mockPaging({
         pageIndex,
-        pageSize,
+        pageSize: this.pageSize,
         total: filteredList.length,
       }),
       rules: this.rulesList,
@@ -461,12 +469,20 @@ export default class IssuesServiceMock {
           return true;
         }
         return query.issues.split(',').includes(item.issue.key);
+      })
+      .filter((item) => {
+        if (!query.prioritizedRule) {
+          return true;
+        }
+        return item.issue.prioritizedRule === true;
       });
 
     // Splice list items according to paging using a fixed page size
     const pageIndex = query.p || 1;
-    const pageSize = 7;
-    const listItems = filteredList.slice((pageIndex - 1) * pageSize, pageIndex * pageSize);
+    const listItems = filteredList.slice(
+      (pageIndex - 1) * this.pageSize,
+      pageIndex * this.pageSize,
+    );
 
     // Generate response
     return this.reply({
@@ -477,7 +493,7 @@ export default class IssuesServiceMock {
       languages: [{ name: 'java' }, { name: 'python' }, { name: 'ts' }],
       paging: mockPaging({
         pageIndex,
-        pageSize,
+        pageSize: this.pageSize,
         total: filteredList.length,
       }),
       rules: this.rulesList,
@@ -550,6 +566,10 @@ export default class IssuesServiceMock {
   handleSetIssueTags = (data: { issue: string; tags: string }) => {
     const tagsArr = data.tags.split(',');
     return this.getActionsResponse({ tags: tagsArr }, data.issue);
+  };
+
+  setPageSize = (size: number) => {
+    this.pageSize = size;
   };
 
   handleAddComment = (data: { issue: string; text: string }) => {

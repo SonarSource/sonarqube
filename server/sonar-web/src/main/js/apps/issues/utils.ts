@@ -28,6 +28,7 @@ import {
   parseAsArray,
   parseAsBoolean,
   parseAsDate,
+  parseAsOptionalBoolean,
   parseAsString,
   queriesEqual,
   serializeDateShort,
@@ -90,6 +91,7 @@ export interface Query {
   tags: string[];
   types: string[];
   resolved?: boolean;
+  prioritizedRule?: boolean;
 }
 
 export const STANDARDS = 'standards';
@@ -139,6 +141,7 @@ export function parseQuery(query: RawQuery, needIssueSync = false): Query {
     types: parseAsArray(query.types, parseAsString),
     codeVariants: parseAsArray(query.codeVariants, parseAsString),
     fixedInPullRequest: parseAsString(query.fixedInPullRequest),
+    prioritizedRule: parseAsOptionalBoolean(query.prioritizedRule),
     // While reindexing, we need to use resolved param for issues/list endpoint
     // False is used to show unresolved issues only
     resolved: needIssueSync ? false : undefined,
@@ -253,6 +256,7 @@ export function serializeQuery(query: Query): RawQuery {
     types: serializeStringArray(query.types),
     codeVariants: serializeStringArray(query.codeVariants),
     resolved: serializeOptionalBoolean(query.resolved),
+    prioritizedRule: serializeOptionalBoolean(query.prioritizedRule),
   };
 
   return cleanQuery(filter);

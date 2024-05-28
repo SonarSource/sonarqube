@@ -69,6 +69,7 @@ export const ui = {
   issueItem7: byRole('region', { name: 'Issue with tags' }),
   issueItem8: byRole('region', { name: 'Issue on page 2' }),
   issueItem9: byRole('region', { name: 'Issue inside folderA' }),
+  issueItem10: byRole('region', { name: 'Issue with prioritized rule' }),
   projectIssueItem6: byRole('button', { name: 'Second issue' }),
 
   conciseIssueTotal: byTestId('page-counter-total'),
@@ -94,6 +95,7 @@ export const ui = {
     name: 'issues.facet.impactSoftwareQualities',
   }),
   severityFacet: byRole('button', { name: 'issues.facet.impactSeverities' }),
+  prioritizedRuleFacet: byRole('button', { name: 'issues.facet.prioritized_rule.category' }),
 
   clearCodeCategoryFacet: byTestId('clear-issues.facet.cleanCodeAttributeCategories'),
   clearSoftwareQualityFacet: byTestId('clear-issues.facet.impactSoftwareQualities'),
@@ -109,6 +111,7 @@ export const ui = {
   clearSeverityFacet: byTestId('clear-issues.facet.impactSeverities'),
   clearIssueStatusFacet: byTestId('clear-issues.facet.issueStatuses'),
   clearTagFacet: byTestId('clear-issues.facet.tags'),
+  clearPrioritizedRuleFacet: byTestId('clear-issues.facet.prioritized_rule.category'),
 
   responsibleCategoryFilter: byRole('checkbox', {
     name: `issue.clean_code_attribute_category.${CleanCodeAttributeCategory.Responsible}`,
@@ -126,6 +129,7 @@ export const ui = {
   mediumSeverityFilter: byRole('checkbox', { name: `severity.${SoftwareImpactSeverity.Medium}` }),
   openStatusFilter: byRole('checkbox', { name: 'issue.issue_status.OPEN' }),
   vulnerabilityIssueTypeFilter: byRole('checkbox', { name: 'issue.type.VULNERABILITY' }),
+  prioritizedRuleFilter: byRole('checkbox', { name: 'issues.facet.prioritized_rule' }),
 
   bulkChangeComment: byRole('textbox', { name: /issue_bulk_change.resolution_comment/ }),
 
@@ -164,8 +168,9 @@ export function renderIssueApp(
       [NoticeType.ISSUE_NEW_STATUS_AND_TRANSITION_GUIDE]: true,
     },
   }),
+  featureList: Feature[] = [],
 ) {
-  renderApp('issues', <IssuesApp />, { currentUser });
+  renderApp('issues', <IssuesApp />, { currentUser, featureList });
 }
 
 export function renderProjectIssuesApp(

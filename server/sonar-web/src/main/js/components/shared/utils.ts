@@ -44,6 +44,7 @@ const ISSUE_MEASURES = [
   MetricKey.new_bugs,
   MetricKey.vulnerabilities,
   MetricKey.new_vulnerabilities,
+  MetricKey.prioritized_rule_issues,
 ];
 
 export const DEFAULT_ISSUES_QUERY = {
@@ -71,6 +72,7 @@ const issueParamsPerMetric: Dict<Dict<string>> = {
   [MetricKey.new_bugs]: { types: 'BUG' },
   [MetricKey.vulnerabilities]: { types: 'VULNERABILITY' },
   [MetricKey.new_vulnerabilities]: { types: 'VULNERABILITY' },
+  [MetricKey.prioritized_rule_issues]: { prioritizedRule: 'true' },
 };
 
 export function isIssueMeasure(metric: string) {

@@ -23,9 +23,10 @@ import { ComponentQualifier } from '~sonar-aligned/types/component';
 import { mockComponent } from '../../../../helpers/mocks/component';
 import { mockQuery } from '../../../../helpers/mocks/issues';
 import { mockAppState } from '../../../../helpers/testMocks';
-import { renderComponent } from '../../../../helpers/testReactTestingUtils';
+import { renderApp } from '../../../../helpers/testReactTestingUtils';
+import { Feature } from '../../../../types/features';
 import { GlobalSettingKeys } from '../../../../types/settings';
-import { SidebarClass as Sidebar } from '../Sidebar';
+import { Sidebar } from '../Sidebar';
 
 jest.mock('../../../../helpers/security-standard', () => {
   return {
@@ -34,6 +35,35 @@ jest.mock('../../../../helpers/security-standard', () => {
     renderOwaspTop102021Category: jest.fn(),
     renderSonarSourceSecurityCategory: jest.fn(),
   };
+});
+
+it('should render correct facets for Projects with PrioritizedRules feature', () => {
+  renderSidebar(
+    {
+      component: mockComponent({ qualifier: ComponentQualifier.Project }),
+    },
+    [Feature.PrioritizedRules],
+  );
+
+  expect(screen.getAllByRole('button').map((button) => button.textContent)).toStrictEqual([
+    'issues.facet.cleanCodeAttributeCategories',
+    'issues.facet.impactSoftwareQualities',
+    'issues.facet.impactSeverities',
+    'issues.facet.types',
+    'issues.facet.scopes',
+    'issues.facet.issueStatuses',
+    'issues.facet.standards',
+    'issues.facet.createdAt',
+    'issues.facet.languages',
+    'issues.facet.rules',
+    'issues.facet.tags',
+    'issues.facet.directories',
+    'issues.facet.files',
+    'issues.facet.assignees',
+    '',
+    'issues.facet.authors',
+    'issues.facet.prioritized_rule.category',
+  ]);
 });
 
 it('should render correct facets for Application', () => {
@@ -134,12 +164,13 @@ it('should render correctly for standards', async () => {
   });
 });
 
-function renderSidebar(props: Partial<Sidebar['props']> = {}) {
-  return renderComponent(
+function renderSidebar(
+  props: Partial<Parameters<typeof Sidebar>[0]> = {},
+  features: Feature[] = [],
+) {
+  return renderApp(
+    'sidebar',
     <Sidebar
-      appState={mockAppState({
-        settings: { [GlobalSettingKeys.DeveloperAggregatedInfoDisabled]: 'false' },
-      })}
       component={mockComponent()}
       createdAfterIncludesTime={false}
       facets={{}}
@@ -158,5 +189,11 @@ function renderSidebar(props: Partial<Sidebar['props']> = {}) {
       referencedUsers={{}}
       {...props}
     />,
+    {
+      appState: mockAppState({
+        settings: { [GlobalSettingKeys.DeveloperAggregatedInfoDisabled]: 'false' },
+      }),
+      featureList: features,
+    },
   );
 }
