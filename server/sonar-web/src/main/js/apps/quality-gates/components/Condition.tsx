@@ -35,8 +35,13 @@ import { useMetrics } from '../../../app/components/metrics/withMetricsContext';
 import { getLocalizedMetricName, translate, translateWithParameters } from '../../../helpers/l10n';
 import { getOperatorLabel } from '../../../helpers/qualityGates';
 import { useDeleteConditionMutation } from '../../../queries/quality-gates';
+import { MetricKey } from '../../../sonar-aligned/types/metrics';
 import { CaycStatus, Condition as ConditionType, Metric, QualityGate } from '../../../types/types';
-import { getLocalizedMetricNameNoDiffMetric, isConditionWithFixedValue } from '../utils';
+import {
+  getLocalizedMetricNameNoDiffMetric,
+  isConditionWithFixedValue,
+  isNonEditableMetric,
+} from '../utils';
 import ConditionValue from './ConditionValue';
 import EditConditionModal from './EditConditionModal';
 
@@ -109,27 +114,31 @@ export default function ConditionComponent({
           <>
             {(!isCaycCompliantAndOverCompliant ||
               !isConditionWithFixedValue(condition) ||
-              (isCaycCompliantAndOverCompliant && showEdit)) && (
-              <>
-                <InteractiveIcon
-                  Icon={PencilIcon}
-                  aria-label={translateWithParameters('quality_gates.condition.edit', metric.name)}
-                  data-test="quality-gates__condition-update"
-                  onClick={handleOpenUpdate}
-                  className="sw-mr-4"
-                  size="small"
-                />
-                {modal && (
-                  <EditConditionModal
-                    condition={condition}
-                    header={translate('quality_gates.update_condition')}
-                    metric={metric}
-                    onClose={handleUpdateClose}
-                    qualityGate={qualityGate}
+              (isCaycCompliantAndOverCompliant && showEdit)) &&
+              !isNonEditableMetric(condition.metric as MetricKey) && (
+                <>
+                  <InteractiveIcon
+                    Icon={PencilIcon}
+                    aria-label={translateWithParameters(
+                      'quality_gates.condition.edit',
+                      metric.name,
+                    )}
+                    data-test="quality-gates__condition-update"
+                    onClick={handleOpenUpdate}
+                    className="sw-mr-4"
+                    size="small"
                   />
-                )}
-              </>
-            )}
+                  {modal && (
+                    <EditConditionModal
+                      condition={condition}
+                      header={translate('quality_gates.update_condition')}
+                      metric={metric}
+                      onClose={handleUpdateClose}
+                      qualityGate={qualityGate}
+                    />
+                  )}
+                </>
+              )}
             {(!isCaycCompliantAndOverCompliant ||
               !condition.isCaycCondition ||
               (isCaycCompliantAndOverCompliant && showEdit)) && (

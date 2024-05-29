@@ -25,6 +25,7 @@ import { Metric } from '../../../types/types';
 interface Props {
   name: string;
   value: string;
+  disabled?: boolean;
   metric: Metric;
   onChange: (value: string) => void;
 }
@@ -67,7 +68,7 @@ export default class ThresholdInput extends React.PureComponent<Props> {
   }
 
   render() {
-    const { name, value, metric } = this.props;
+    const { name, value, disabled, metric } = this.props;
 
     if (metric.type === 'RATING') {
       return this.renderRatingInput();
@@ -77,6 +78,7 @@ export default class ThresholdInput extends React.PureComponent<Props> {
       <InputField
         size="small"
         data-type={metric.type}
+        disabled={disabled}
         id="condition-threshold"
         name={name}
         onChange={this.handleChange}

@@ -23,8 +23,9 @@ import * as React from 'react';
 import { translate } from '../../../helpers/l10n';
 import { isDiffMetric } from '../../../helpers/measures';
 import { useCreateConditionMutation } from '../../../queries/quality-gates';
+import { MetricKey } from '../../../sonar-aligned/types/metrics';
 import { Condition, Metric, QualityGate } from '../../../types/types';
-import { getPossibleOperators } from '../utils';
+import { getPossibleOperators, isNonEditableMetric } from '../utils';
 import ConditionOperator from './ConditionOperator';
 import MetricSelect from './MetricSelect';
 import ThresholdInput from './ThresholdInput';
@@ -79,7 +80,7 @@ export default function AddConditionModal({ metrics, onClose, qualityGate }: Rea
   const handleMetricChange = (metric: Metric) => {
     setSelectedMetric(metric);
     setSelectedOperator(undefined);
-    setErrorThreshold('');
+    setErrorThreshold(metric.key === MetricKey.prioritized_rule_issues ? '0' : '');
   };
 
   const handleOperatorChange = (op: string) => {
@@ -137,6 +138,7 @@ export default function AddConditionModal({ metrics, onClose, qualityGate }: Rea
             >
               <ThresholdInput
                 metric={selectedMetric}
+                disabled={isNonEditableMetric(selectedMetric.key as MetricKey)}
                 name="error"
                 onChange={handleErrorChange}
                 value={errorThreshold}

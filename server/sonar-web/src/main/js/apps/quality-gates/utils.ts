@@ -141,9 +141,14 @@ const CAYC_CONDITIONS_WITH_FIXED_VALUE: AllCaycMetricKeys[] = [
   MetricKey.new_security_rating,
   MetricKey.new_maintainability_rating,
 ];
+const NON_EDITABLE_CONDITIONS: MetricKey[] = [MetricKey.prioritized_rule_issues];
 
 export function isConditionWithFixedValue(condition: Condition) {
   return CAYC_CONDITIONS_WITH_FIXED_VALUE.includes(condition.metric as OptimizedCaycMetricKeys);
+}
+
+export function isNonEditableMetric(metricKey: MetricKey) {
+  return NON_EDITABLE_CONDITIONS.includes(metricKey);
 }
 
 export function getCaycConditionMetadata(condition: Condition) {

@@ -122,6 +122,7 @@ export enum MetricKey {
   new_violations_rating = 'new_violations_rating',
   new_vulnerabilities = 'new_vulnerabilities',
   open_issues = 'open_issues',
+  prioritized_rule_issues = 'prioritized_rule_issues',
   projects = 'projects',
   public_api = 'public_api',
   public_documented_api_density = 'public_documented_api_density',

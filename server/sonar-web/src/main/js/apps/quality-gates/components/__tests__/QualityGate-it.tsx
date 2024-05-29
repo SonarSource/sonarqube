@@ -20,7 +20,7 @@
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import selectEvent from 'react-select-event';
-import { byRole, byTestId } from '~sonar-aligned/helpers/testSelector';
+import { byLabelText, byRole, byTestId } from '~sonar-aligned/helpers/testSelector';
 import { QualityGatesServiceMock } from '../../../../api/mocks/QualityGatesServiceMock';
 import UsersServiceMock from '../../../../api/mocks/UsersServiceMock';
 import { searchProjects, searchUsers } from '../../../../api/quality-gates';
@@ -554,6 +554,41 @@ it('should not display CaYC condition simplification tour for users who dismisse
   await user.click(qualityGate);
 
   expect(byRole('alertdialog').query()).not.toBeInTheDocument();
+});
+
+it('should not allow to change value of prioritized_rule_issues', async () => {
+  const user = userEvent.setup();
+  qualityGateHandler.setIsAdmin(true);
+  renderQualityGateApp();
+
+  await user.click(await screen.findByText('SonarSource way - CFamily'));
+
+  await user.click(await screen.findByText('quality_gates.add_condition'));
+
+  const dialog = byRole('dialog');
+
+  await user.click(dialog.byRole('radio', { name: 'quality_gates.conditions.overall_code' }).get());
+  await selectEvent.select(dialog.byRole('combobox').get(), ['Issues from prioritized rules']);
+
+  expect(dialog.byRole('textbox', { name: 'quality_gates.conditions.value' }).get()).toBeDisabled();
+  expect(dialog.byRole('textbox', { name: 'quality_gates.conditions.value' }).get()).toHaveValue(
+    '0',
+  );
+
+  await user.click(dialog.byRole('button', { name: 'quality_gates.add_condition' }).get());
+
+  const overallConditions = byTestId('quality-gates__conditions-overall');
+
+  expect(
+    await overallConditions.byRole('cell', { name: 'Issues from prioritized rules' }).find(),
+  ).toBeInTheDocument();
+
+  expect(
+    byLabelText('quality_gates.condition.edit.Issues from prioritized rules').query(),
+  ).not.toBeInTheDocument();
+  expect(
+    byLabelText('quality_gates.condition.delete.Issues from prioritized rules').get(),
+  ).toBeInTheDocument();
 });
 
 describe('The Project section', () => {

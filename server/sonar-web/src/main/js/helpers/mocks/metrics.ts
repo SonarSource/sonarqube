@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { MetricKey } from '../../sonar-aligned/types/metrics';
 import { Dict, Metric } from '../../types/types';
 
 export const DEFAULT_METRICS: Dict<Metric> = {
@@ -829,6 +830,16 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     direction: 0,
     qualitative: false,
     hidden: true,
+  },
+  [MetricKey.prioritized_rule_issues]: {
+    key: 'prioritized_rule_issues',
+    type: 'INT',
+    name: 'Issues from prioritized rules',
+    description: 'Count of issues that have a flag Prioritized Rule.',
+    domain: 'Issues',
+    direction: -1,
+    qualitative: true,
+    hidden: false,
   },
   projects: {
     key: 'projects',
