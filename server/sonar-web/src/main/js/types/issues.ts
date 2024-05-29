@@ -139,6 +139,7 @@ export interface RawIssue {
   key: string;
   line?: number;
   messageFormattings?: MessageFormatting[];
+  prioritizedRule?: boolean;
   project: string;
   rule: string;
   resolution?: string;

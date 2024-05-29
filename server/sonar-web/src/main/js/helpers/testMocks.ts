@@ -336,6 +336,7 @@ export function mockRawIssue(withLocations = false, overrides: Partial<RawIssue>
     impacts: [
       { softwareQuality: SoftwareQuality.Maintainability, severity: SoftwareImpactSeverity.Medium },
     ],
+    prioritizedRule: false,
     ...overrides,
   };
 
@@ -384,7 +385,7 @@ export function mockIssue(withLocations = false, overrides: Partial<Issue> = {})
     issueStatus: IssueStatus.Open,
     textRange: { startLine: 25, endLine: 26, startOffset: 0, endOffset: 15 },
     transitions: [],
-    type: 'BUG',
+    type: IssueType.Bug,
     cleanCodeAttributeCategory: CleanCodeAttributeCategory.Responsible,
     cleanCodeAttribute: CleanCodeAttribute.Respectful,
     impacts: [

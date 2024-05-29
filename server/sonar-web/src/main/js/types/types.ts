@@ -26,7 +26,7 @@ import {
   CleanCodeAttributeCategory,
   SoftwareImpact,
 } from './clean-code-taxonomy';
-import { IssueStatus, IssueTransition, MessageFormatting } from './issues';
+import { MessageFormatting, RawIssue } from './issues';
 import { NewCodeDefinitionType } from './new-code-definition';
 import { UserActive, UserBase } from './users';
 
@@ -226,54 +226,28 @@ export interface IdentityProvider {
   manage?: boolean;
 }
 
-export interface Issue {
-  actions: string[];
-  assignee?: string;
+export interface Issue extends Omit<RawIssue, 'flows' | 'comments'> {
   assigneeActive?: boolean;
   assigneeAvatar?: string;
   assigneeLogin?: string;
   assigneeName?: string;
-  author?: string;
   branch?: string;
-  cleanCodeAttributeCategory: CleanCodeAttributeCategory;
-  cleanCodeAttribute: CleanCodeAttribute;
-  impacts: SoftwareImpact[];
-  codeVariants?: string[];
   comments?: IssueComment[];
-  component: string;
   componentEnabled?: boolean;
   componentLongName: string;
   componentQualifier: string;
   componentUuid: string;
-  creationDate: string;
   effort?: string;
   externalRuleEngine?: string;
   fromExternalRule?: boolean;
-  quickFixAvailable?: boolean;
-  key: string;
   flows: FlowLocation[][];
   flowsWithType: Flow[];
-  line?: number;
   message: string;
-  messageFormattings?: MessageFormatting[];
-  project: string;
   projectName: string;
   projectKey: string;
   pullRequest?: string;
-  resolution?: string;
-  rule: string;
-  ruleDescriptionContextKey?: string;
   ruleName: string;
-  ruleStatus?: string;
-  scope: string;
   secondaryLocations: FlowLocation[];
-  severity: string;
-  status: string;
-  issueStatus: IssueStatus;
-  tags?: string[];
-  textRange?: TextRange;
-  transitions: IssueTransition[];
-  type: IssueType;
 }
 
 export interface IssueChangelog {

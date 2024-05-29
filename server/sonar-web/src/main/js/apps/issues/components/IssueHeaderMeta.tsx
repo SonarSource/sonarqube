@@ -21,6 +21,7 @@ import { Tooltip } from '@sonarsource/echoes-react';
 import { LightLabel, Note, SeparatorCircleIcon } from 'design-system';
 import React from 'react';
 import DateFromNow from '../../../components/intl/DateFromNow';
+import IssuePrioritized from '../../../components/issue/components/IssuePrioritized';
 import IssueSeverity from '../../../components/issue/components/IssueSeverity';
 import IssueType from '../../../components/issue/components/IssueType';
 import { translate } from '../../../helpers/l10n';
@@ -80,6 +81,12 @@ export default function IssueHeaderMeta({ issue }: Readonly<Props>) {
       <IssueType issue={issue} />
       <SeparatorCircleIcon data-guiding-id="issue-4" />
       <IssueSeverity issue={issue} />
+      {issue.prioritizedRule && (
+        <>
+          <SeparatorCircleIcon />
+          <IssuePrioritized />
+        </>
+      )}
     </Note>
   );
 }

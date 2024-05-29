@@ -17,16 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { IssueType } from '../../types/issues';
 import { parseIssueFromResponse, sortByType } from '../issues';
 import { mockIssue } from '../testMocks';
 
 it('should sort issues correctly by type', () => {
-  const bug1 = mockIssue(false, { type: 'BUG', key: 'bug1' });
-  const bug2 = mockIssue(false, { type: 'BUG', key: 'bug2' });
-  const codeSmell = mockIssue(false, { type: 'CODE_SMELL', key: 'code_smell' });
-  const vulnerability1 = mockIssue(false, { type: 'VULNERABILITY', key: 'vulnerability1' });
-  const vulnerability2 = mockIssue(false, { type: 'VULNERABILITY', key: 'vulnerability2' });
-  const securityHotspot = mockIssue(false, { type: 'SECURITY_HOTSPOT', key: 'security_hotspot' });
+  const bug1 = mockIssue(false, { type: IssueType.Bug, key: 'bug1' });
+  const bug2 = mockIssue(false, { type: IssueType.Bug, key: 'bug2' });
+  const codeSmell = mockIssue(false, { type: IssueType.CodeSmell, key: 'code_smell' });
+  const vulnerability1 = mockIssue(false, { type: IssueType.Vulnerability, key: 'vulnerability1' });
+  const vulnerability2 = mockIssue(false, { type: IssueType.Vulnerability, key: 'vulnerability2' });
+  const securityHotspot = mockIssue(false, {
+    type: IssueType.SecurityHotspot,
+    key: 'security_hotspot',
+  });
 
   expect(
     sortByType([bug1, codeSmell, bug2, securityHotspot, vulnerability1, vulnerability2]),
