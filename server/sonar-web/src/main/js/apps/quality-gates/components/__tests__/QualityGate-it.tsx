@@ -200,7 +200,7 @@ it('should be able to set as default a quality gate which is CaYC compliant', as
   expect(await screen.findByRole('button', { name: /Sonar way default/ })).toBeInTheDocument();
 });
 
-it('should be able to add a condition', async () => {
+it('should be able to add a condition on new code', async () => {
   const user = userEvent.setup();
   qualityGateHandler.setIsAdmin(true);
   renderQualityGateApp();
@@ -223,9 +223,19 @@ it('should be able to add a condition', async () => {
   const newConditions = byTestId('quality-gates__conditions-new');
   expect(await newConditions.byRole('cell', { name: 'Issues' }).find()).toBeInTheDocument();
   expect(await newConditions.byRole('cell', { name: '12' }).find()).toBeInTheDocument();
+});
+
+it('should be able to add a condition on overall code', async () => {
+  const user = userEvent.setup();
+  qualityGateHandler.setIsAdmin(true);
+  renderQualityGateApp();
+
+  await user.click(await screen.findByText('SonarSource way - CFamily'));
 
   // On overall code
   await user.click(await screen.findByText('quality_gates.add_condition'));
+
+  const dialog = byRole('dialog');
 
   await selectEvent.select(dialog.byRole('combobox').get(), ['Info Issues']);
   await user.click(dialog.byRole('radio', { name: 'quality_gates.conditions.overall_code' }).get());
@@ -242,15 +252,27 @@ it('should be able to add a condition', async () => {
     await overallConditions.byRole('cell', { name: 'Info Issues' }).find(),
   ).toBeInTheDocument();
   expect(await overallConditions.byRole('cell', { name: '42' }).find()).toBeInTheDocument();
+});
+
+it('should be able to select a rating', async () => {
+  const user = userEvent.setup();
+  qualityGateHandler.setIsAdmin(true);
+  renderQualityGateApp();
+
+  await user.click(await screen.findByText('SonarSource way - CFamily'));
 
   // Select a rating
   await user.click(await screen.findByText('quality_gates.add_condition'));
+
+  const dialog = byRole('dialog');
 
   await user.click(dialog.byRole('radio', { name: 'quality_gates.conditions.overall_code' }).get());
   await selectEvent.select(dialog.byRole('combobox').get(), ['Maintainability Rating']);
   await user.click(dialog.byLabelText('quality_gates.conditions.value').get());
   await user.click(dialog.byText('B').get());
   await user.click(dialog.byRole('button', { name: 'quality_gates.add_condition' }).get());
+
+  const overallConditions = byTestId('quality-gates__conditions-overall');
 
   expect(
     await overallConditions.byRole('cell', { name: 'Maintainability Rating' }).find(),
