@@ -19,19 +19,19 @@
  */
 package org.sonar.ce.task.projectanalysis.qualityprofile;
 
-import com.google.common.collect.ImmutableSet;
 import java.util.Set;
+import org.sonar.api.rule.RuleKey;
 
 public class PrioritizedRulesHolderImpl implements PrioritizedRulesHolder{
 
-  private Set<String> prioritizedRulesUuids;
+  private Set<RuleKey> getPrioritizedRules;
 
   @Override
-  public Set<String> getPrioritizedRulesUuids() {
-    return ImmutableSet.copyOf(prioritizedRulesUuids);
+  public Set<RuleKey> getPrioritizedRules() {
+    return Set.copyOf(getPrioritizedRules);
   }
 
-  public void setPrioritizedRulesUuids(Set<String> prioritizedRulesUuids) {
-    this.prioritizedRulesUuids = prioritizedRulesUuids;
+  public void setPrioritizedRules(Set<RuleKey> getPrioritizedRules) {
+    this.getPrioritizedRules = getPrioritizedRules;
   }
 }

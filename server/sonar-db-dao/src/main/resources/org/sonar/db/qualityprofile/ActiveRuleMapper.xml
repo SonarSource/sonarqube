@@ -148,8 +148,10 @@
     and rp.uuid in <foreach collection="ruleProfileUuids" item="ruleProfileUuid" separator="," open="(" close=")">#{ruleProfileUuid, jdbcType=VARCHAR}</foreach>
   </select>
 
-  <select id="selectPrioritizedRulesUuids" parameterType="map" resultType="string">
-    select ar.rule_uuid
+  <select id="selectPrioritizedRules" parameterType="map" resultType="org.sonar.db.qualityprofile.OrgActiveRuleDto">
+    select
+      r.plugin_rule_key as "rulefield",
+      r.plugin_name as "repository"
     from active_rules ar
         inner join rules_profiles rp on rp.uuid = ar.profile_uuid
         inner join org_qprofiles oq on oq.rules_profile_uuid = rp.uuid
@@ -157,6 +159,7 @@
         <foreach item="qprofile_uuid" collection="ruleProfileUuids" open="(" separator="," close=")">
           #{qprofile_uuid, jdbcType=VARCHAR}
         </foreach>
+        inner join rules r on r.uuid = ar.rule_uuid
     <include refid="isPrioritizedRule"/>
   </select>
 

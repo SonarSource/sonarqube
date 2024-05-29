@@ -214,6 +214,7 @@ public class IssueLifecycle {
     updater.setCodeVariants(raw, requireNonNull(base.codeVariants()), changeContext);
     updater.setImpacts(raw, base.impacts(), changeContext);
     updater.setCleanCodeAttribute(raw, base.getCleanCodeAttribute(), changeContext);
+    updater.setPrioritizedRule(raw, base.isPrioritizedRule(), changeContext);
   }
 
   public void doAutomaticTransition(DefaultIssue issue) {
@@ -251,5 +252,6 @@ public class IssueLifecycle {
     toIssue.setOnDisabledRule(fromIssue.isOnDisabledRule());
     toIssue.setSelectedAt(fromIssue.selectedAt());
     toIssue.setIsNewCodeReferenceIssue(fromIssue.isNewCodeReferenceIssue());
+    toIssue.setPrioritizedRule(fromIssue.isPrioritizedRule());
   }
 }

@@ -151,9 +151,9 @@ class ActiveRuleDaoIT {
   }
 
   @Test
-  void selectPrioritizedRulesUuids() {
+  void selectPrioritizedRules() {
     db.qualityProfiles().activateRule(profile1, rule1, r -> r.setPrioritizedRule(true));
-    assertThat(underTest.selectPrioritizedRulesUuids(dbSession, Set.of(profile1.getKee()))).contains(rule1.getUuid());
+    assertThat(underTest.selectPrioritizedRules(dbSession, Set.of(profile1.getKee()))).contains(rule1.getKey());
   }
 
   @Test

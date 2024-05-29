@@ -369,6 +369,16 @@ public class IssueFieldsSetter {
     issue.setChanged(true);
   }
 
+  public void setPrioritizedRule(DefaultIssue issue, boolean prioritizedRule, IssueChangeContext context) {
+    if (!Objects.equals(prioritizedRule, issue.isPrioritizedRule())) {
+      issue.setPrioritizedRule(prioritizedRule);
+      if (!issue.isNew()){
+        issue.setUpdateDate(context.date());
+        issue.setChanged(true);
+      }
+    }
+  }
+
   public void setCloseDate(DefaultIssue issue, @Nullable Date d, IssueChangeContext context) {
     if (relevantDateDifference(d, issue.closeDate())) {
       issue.setCloseDate(d);

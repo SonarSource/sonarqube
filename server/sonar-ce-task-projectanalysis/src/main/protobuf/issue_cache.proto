@@ -86,6 +86,7 @@ message Issue {
   optional string anticipatedTransitionUuid = 48;
   repeated Impact impacts = 49;
   optional string cleanCodeAttribute = 50;
+  optional bool isPrioritizedRule = 51;
 }
 
 message Comment {

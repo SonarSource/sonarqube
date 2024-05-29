@@ -21,7 +21,6 @@ package org.sonar.db.qualityprofile;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.ibatis.annotations.Param;
@@ -60,7 +59,7 @@ public interface ActiveRuleMapper {
     @Param("ruleUuids") Collection<String> ruleUuids,
     @Param("ruleProfileUuids") Collection<String> ruleProfileUuids);
 
-  Set<String> selectPrioritizedRulesUuids(@Param("ruleProfileUuids") Collection<String> ruleProfileUuids);
+  List<OrgActiveRuleDto> selectPrioritizedRules(@Param("ruleProfileUuids") Collection<String> ruleProfileUuids);
 
   void insertParameter(ActiveRuleParamDto dto);
 

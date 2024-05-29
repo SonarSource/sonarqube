@@ -21,6 +21,7 @@
 package org.sonar.ce.task.projectanalysis.qualityprofile;
 
 import java.util.Set;
+import org.sonar.api.rule.RuleKey;
 
 /**
  * Repository of prioritized rules defined in the quality profile
@@ -28,8 +29,8 @@ import java.util.Set;
 public interface PrioritizedRulesHolder {
 
   /**
-   * Returns the rules Uuids marked as "Priority rules"
+   * Returns the rules keys marked as "Priority rules"
    */
-  Set<String> getPrioritizedRulesUuids();
+  Set<RuleKey> getPrioritizedRules();
 
 }

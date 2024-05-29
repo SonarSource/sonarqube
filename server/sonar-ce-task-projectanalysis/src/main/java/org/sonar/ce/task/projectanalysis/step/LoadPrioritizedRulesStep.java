@@ -21,6 +21,7 @@ package org.sonar.ce.task.projectanalysis.step;
 
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.qualityprofile.PrioritizedRulesHolderImpl;
 import org.sonar.ce.task.step.ComputationStep;
@@ -56,8 +57,8 @@ public class LoadPrioritizedRulesStep implements ComputationStep {
       analysisMetadataHolder.getQProfilesByLanguage().values().stream().map(QualityProfile::getQpKey).collect(Collectors.toSet());
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-      Set<String> prioritizedRulesUuids = dbClient.activeRuleDao().selectPrioritizedRulesUuids(dbSession, qpKeys);
-      prioritizedRulesHolder.setPrioritizedRulesUuids(prioritizedRulesUuids);
+      Set<RuleKey> prioritizedRules = dbClient.activeRuleDao().selectPrioritizedRules(dbSession, qpKeys);
+      prioritizedRulesHolder.setPrioritizedRules(prioritizedRules);
     }
   }
 }
