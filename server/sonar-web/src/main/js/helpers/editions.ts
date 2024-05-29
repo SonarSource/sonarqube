@@ -43,7 +43,7 @@ const EDITIONS: { [x in EditionKey]: Edition } = {
   datacenter: {
     key: EditionKey.datacenter,
     name: 'Data Center Edition',
-    homeUrl: 'https://www.sonarsource.com/products/sonarqube/data-center/marketplace/',
+    homeUrl: 'https://www.sonarsource.com/products/sonarqube/data-center-edition/marketplace/',
     downloadProperty: 'downloadDatacenterUrl',
   },
 };
