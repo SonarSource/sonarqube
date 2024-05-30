@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import {
   DismissableFlagMessage,
   FlagErrorIcon,
@@ -29,6 +30,7 @@ import * as React from 'react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { MessageTypes, checkMessageDismissed, setMessageDismissed } from '../../api/messages';
+import { DocLink } from '../../helpers/doc-links';
 import { translate, translateWithParameters } from '../../helpers/l10n';
 import {
   NUMBER_OF_DAYS_MAX_VALUE,
@@ -165,7 +167,7 @@ export default function NewCodeDefinitionDaysOption(props: Props) {
                     days: currentDaysValue,
                     date: isDefined(updatedAt) && new Date(updatedAt).toLocaleDateString(),
                     link: (
-                      <DocumentationLink to="/project-administration/clean-as-you-code-settings/defining-new-code/#new-code-definition-options">
+                      <DocumentationLink to={DocLink.NewCodeDefinitionOptions}>
                         {translate('learn_more')}
                       </DocumentationLink>
                     ),

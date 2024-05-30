@@ -17,12 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import styled from '@emotion/styled';
 import { FacetBox, FacetItem, HelperHintIcon, Note, themeColor } from 'design-system';
 import { sortBy } from 'lodash';
 import * as React from 'react';
 import DocHelpTooltip from '~sonar-aligned/components/controls/DocHelpTooltip';
 import { Profile } from '../../../api/quality-profiles';
+import { DocLink } from '../../../helpers/doc-links';
 import { translate } from '../../../helpers/l10n';
 import { Dict } from '../../../types/types';
 import { FacetItemsList } from '../../issues/sidebar/FacetItemsList';
@@ -179,7 +181,7 @@ export default class ProfileFacet extends React.PureComponent<Props> {
             content={translate('coding_rules.facet.qprofile.help')}
             links={[
               {
-                href: '/instance-administration/quality-profiles/',
+                href: DocLink.InstanceAdminQualityProfiles,
                 label: translate('coding_rules.facet.qprofile.link'),
               },
             ]}

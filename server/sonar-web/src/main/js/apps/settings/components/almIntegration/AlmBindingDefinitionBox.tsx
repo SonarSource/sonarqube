@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import {
   BasicSeparator,
   ButtonSecondary,
@@ -32,7 +33,8 @@ import { FormattedMessage } from 'react-intl';
 import HelpTooltip from '~sonar-aligned/components/controls/HelpTooltip';
 import DocumentationLink from '../../../../components/common/DocumentationLink';
 import Tooltip from '../../../../components/controls/Tooltip';
-import { ALM_DOCUMENTATION_PATHS, IMPORT_COMPATIBLE_ALMS } from '../../../../helpers/constants';
+import { IMPORT_COMPATIBLE_ALMS } from '../../../../helpers/constants';
+import { DocLink } from '../../../../helpers/doc-links';
 import { getEdition, getEditionUrl } from '../../../../helpers/editions';
 import { translate, translateWithParameters } from '../../../../helpers/l10n';
 import {
@@ -232,7 +234,7 @@ export default function AlmBindingDefinitionBox(props: AlmBindingDefinitionBoxPr
                     )}
                     values={{
                       link: (
-                        <DocumentationLink to={ALM_DOCUMENTATION_PATHS[AlmKeys.GitHub]}>
+                        <DocumentationLink to={DocLink.AlmGitHubIntegration}>
                           {translate('learn_more')}
                         </DocumentationLink>
                       ),

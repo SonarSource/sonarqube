@@ -17,9 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { CodeSnippet, Link, SubHeading } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
+import { DocLink } from '../../../../helpers/doc-links';
 import { useDocUrl } from '../../../../helpers/docs';
 import { translate } from '../../../../helpers/l10n';
 import { Component } from '../../../../types/types';
@@ -32,7 +34,7 @@ export interface DotNetExecuteProps {
 }
 
 export default function DotNetExecute({ commands, component }: DotNetExecuteProps) {
-  const docUrl = useDocUrl();
+  const docUrl = useDocUrl(DocLink.SonarScannerDotNet);
 
   return (
     <>
@@ -58,11 +60,7 @@ export default function DotNetExecute({ commands, component }: DotNetExecuteProp
           defaultMessage={translate('onboarding.analysis.docs')}
           id="onboarding.analysis.docs"
           values={{
-            link: (
-              <Link to={docUrl('/analyzing-source-code/scanners/sonarscanner-for-dotnet/')}>
-                {translate('onboarding.analysis.msbuild.docs_link')}
-              </Link>
-            ),
+            link: <Link to={docUrl}>{translate('onboarding.analysis.msbuild.docs_link')}</Link>,
           }}
         />
       </p>

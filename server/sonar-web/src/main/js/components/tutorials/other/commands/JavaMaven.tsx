@@ -17,9 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { CodeSnippet, Link, SubHeading } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
+import { DocLink } from '../../../../helpers/doc-links';
 import { useDocUrl } from '../../../../helpers/docs';
 import { translate } from '../../../../helpers/l10n';
 import { Component } from '../../../../types/types';
@@ -42,7 +44,7 @@ export default function JavaMaven(props: JavaMavenProps) {
     `-Dsonar.token=${token}`,
   ];
 
-  const docUrl = useDocUrl();
+  const docUrl = useDocUrl(DocLink.SonarScannerMaven);
 
   return (
     <div>
@@ -58,11 +60,7 @@ export default function JavaMaven(props: JavaMavenProps) {
           defaultMessage={translate('onboarding.analysis.docs')}
           id="onboarding.analysis.docs"
           values={{
-            link: (
-              <Link to={docUrl('/analyzing-source-code/scanners/sonarscanner-for-maven/')}>
-                {translate('onboarding.analysis.java.maven.docs_link')}
-              </Link>
-            ),
+            link: <Link to={docUrl}>{translate('onboarding.analysis.java.maven.docs_link')}</Link>,
           }}
         />
       </p>

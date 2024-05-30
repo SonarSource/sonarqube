@@ -21,6 +21,7 @@
 import { IconProps, TextSubdued } from 'design-system';
 import * as React from 'react';
 import DocHelpTooltip from '~sonar-aligned/components/controls/DocHelpTooltip';
+import { DocLink } from '../../../helpers/doc-links';
 import { translate } from '../../../helpers/l10n';
 import { IssueSeverity as IssueSeverityType } from '../../../types/issues';
 import { Issue } from '../../../types/types';
@@ -37,7 +38,7 @@ export default function IssueSeverity({ issue, ...iconProps }: Readonly<Props>) 
       content={<DeprecatedFieldTooltip field="severity" />}
       links={[
         {
-          href: '/user-guide/issues',
+          href: DocLink.Issues,
           label: translate('learn_more'),
         },
       ]}

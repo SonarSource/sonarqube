@@ -48,13 +48,6 @@ export type AuthenticationTabs =
   | AlmKeys.GitLab
   | AlmKeys.BitbucketServer;
 
-export const DOCUMENTATION_LINK_SUFFIXES = {
-  [SAML]: 'saml/overview',
-  [AlmKeys.GitHub]: 'github',
-  [AlmKeys.GitLab]: 'gitlab',
-  [AlmKeys.BitbucketServer]: 'bitbucket-cloud',
-};
-
 function renderDevOpsIcon(key: string) {
   return <Image alt={key} className="sw-mr-2" height={16} src={`/images/alm/${key}.svg`} />;
 }

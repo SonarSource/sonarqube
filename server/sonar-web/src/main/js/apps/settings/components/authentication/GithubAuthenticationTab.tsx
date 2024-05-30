@@ -17,11 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { ButtonSecondary, FlagMessage, Highlight, Note, Spinner } from 'design-system';
 import React, { FormEvent, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
 import GitHubSynchronisationWarning from '../../../../app/components/GitHubSynchronisationWarning';
 import DocumentationLink from '../../../../components/common/DocumentationLink';
+import { DocLink } from '../../../../helpers/doc-links';
 import { translate, translateWithParameters } from '../../../../helpers/l10n';
 import { useIdentityProviderQuery } from '../../../../queries/identity-provider/common';
 import {
@@ -32,7 +34,7 @@ import { AlmKeys } from '../../../../types/alm-settings';
 import { ProvisioningType } from '../../../../types/provisioning';
 import { ExtendedSettingDefinition } from '../../../../types/settings';
 import { Provider } from '../../../../types/types';
-import { AuthenticationTabs, DOCUMENTATION_LINK_SUFFIXES } from './Authentication';
+import { AuthenticationTabs } from './Authentication';
 import AuthenticationFormField from './AuthenticationFormField';
 import AutoProvisioningConsent from './AutoProvisionningConsent';
 import ConfigurationDetails from './ConfigurationDetails';
@@ -155,7 +157,7 @@ export default function GithubAuthenticationTab(props: GithubAuthenticationProps
                 defaultMessage={translate('settings.authentication.github.form.legacy_configured')}
                 values={{
                   documentation: (
-                    <DocumentationLink to="/instance-administration/authentication/github">
+                    <DocumentationLink to={DocLink.AlmGitHubAuth}>
                       {translate('settings.authentication.github.form.legacy_configured.link')}
                     </DocumentationLink>
                   ),
@@ -198,11 +200,7 @@ export default function GithubAuthenticationTab(props: GithubAuthenticationProps
                   id="settings.authentication.github.form.provisioning_at_login.description"
                   values={{
                     documentation: (
-                      <DocumentationLink
-                        to={`/instance-administration/authentication/${
-                          DOCUMENTATION_LINK_SUFFIXES[AlmKeys.GitHub]
-                        }/`}
-                      >
+                      <DocumentationLink to={DocLink.AlmGitHubAuth}>
                         {translate('learn_more')}
                       </DocumentationLink>
                     ),
@@ -239,7 +237,7 @@ export default function GithubAuthenticationTab(props: GithubAuthenticationProps
                   )}
                   values={{
                     documentation: (
-                      <DocumentationLink to="/instance-administration/authentication/github">
+                      <DocumentationLink to={DocLink.AlmGitHubAuth}>
                         {translate('documentation')}
                       </DocumentationLink>
                     ),
@@ -251,11 +249,7 @@ export default function GithubAuthenticationTab(props: GithubAuthenticationProps
                   id="settings.authentication.github.form.provisioning_with_github.description"
                   values={{
                     documentation: (
-                      <DocumentationLink
-                        to={`/instance-administration/authentication/${
-                          DOCUMENTATION_LINK_SUFFIXES[AlmKeys.GitHub]
-                        }/`}
-                      >
+                      <DocumentationLink to={DocLink.AlmGitHubAuth}>
                         {translate('learn_more')}
                       </DocumentationLink>
                     ),

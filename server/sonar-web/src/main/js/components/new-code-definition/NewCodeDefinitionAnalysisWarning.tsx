@@ -17,15 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { FlagMessage, Link } from 'design-system';
 import * as React from 'react';
+import { DocLink } from '../../helpers/doc-links';
 import { useDocUrl } from '../../helpers/docs';
 import { translate } from '../../helpers/l10n';
 
 export default function NewCodeDefinitionAnalysisWarning() {
-  const toStatic = useDocUrl(
-    '/project-administration/clean-as-you-code-settings/defining-new-code/',
-  );
+  const toStatic = useDocUrl(DocLink.NewCodeDefinition);
   return (
     <FlagMessage variant="warning" className="sw-mb-4 sw-max-w-[800px]">
       <div>

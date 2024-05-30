@@ -25,7 +25,6 @@ import { Helmet } from 'react-helmet-async';
 import { Outlet } from 'react-router-dom';
 import A11ySkipTarget from '~sonar-aligned/components/a11y/A11ySkipTarget';
 import { useCurrentLoginUser } from '../../app/components/current-user/CurrentUserContext';
-import Suggestions from '../../components/embed-docs-modal/Suggestions';
 import { translate, translateWithParameters } from '../../helpers/l10n';
 import Nav from './components/Nav';
 import UserCard from './components/UserCard';
@@ -59,8 +58,6 @@ export default function Account() {
 
       <LargeCenteredLayout as="main">
         <PageContentFontWrapper className="sw-body-sm sw-py-8">
-          <Suggestions suggestions="account" />
-
           <Helmet
             defaultTitle={title}
             defer={false}

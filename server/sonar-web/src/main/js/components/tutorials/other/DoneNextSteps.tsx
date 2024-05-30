@@ -17,10 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import styled from '@emotion/styled';
 import { animated, config, useSpring } from '@react-spring/web';
 import { BasicSeparator, FlagVisual, Link } from 'design-system';
 import * as React from 'react';
+import { DocLink } from '../../../helpers/doc-links';
 import { useDocUrl } from '../../../helpers/docs';
 import { translate } from '../../../helpers/l10n';
 import useIntersectionObserver from '../../../hooks/useIntersectionObserver';
@@ -75,7 +77,7 @@ export default function DoneNextSteps({ component }: DoneNextStepsProps) {
           </span>
           <ul className="sw-flex sw-flex-col sw-gap-2 sw-mt-2">
             <li>
-              <Link to={docUrl('/analyzing-source-code/branches/branch-analysis/')}>
+              <Link to={docUrl(DocLink.BranchAnalysis)}>
                 {translate(
                   'onboarding.analysis.auto_refresh_after_analysis.check_these_links.branches',
                 )}
@@ -83,7 +85,7 @@ export default function DoneNextSteps({ component }: DoneNextStepsProps) {
             </li>
 
             <li>
-              <Link to={docUrl('/analyzing-source-code/pull-request-analysis')}>
+              <Link to={docUrl(DocLink.PullRequestAnalysis)}>
                 {translate(
                   'onboarding.analysis.auto_refresh_after_analysis.check_these_links.pr_analysis',
                 )}

@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import {
   CardWithPrimaryBackground,
   CheckIcon,
@@ -26,6 +27,7 @@ import {
 import React from 'react';
 import { FormattedMessage } from 'react-intl';
 import DocumentationLink from '../../../components/common/DocumentationLink';
+import { DocLink } from '../../../helpers/doc-links';
 import { translate } from '../../../helpers/l10n';
 import { OPTIMIZED_CAYC_CONDITIONS } from '../utils';
 import QGRecommendedIcon from './QGRecommendedIcon';
@@ -45,7 +47,7 @@ export default function CaycCompliantBanner() {
           id="quality_gates.cayc.banner.description1"
           values={{
             cayc_link: (
-              <DocumentationLink to="/user-guide/clean-as-you-code/">
+              <DocumentationLink to={DocLink.CaYC}>
                 {translate('quality_gates.cayc')}
               </DocumentationLink>
             ),

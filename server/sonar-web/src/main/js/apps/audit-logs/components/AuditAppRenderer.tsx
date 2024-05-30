@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { Link, RadioButtonGroup } from '@sonarsource/echoes-react';
 import { subDays } from 'date-fns';
 import {
@@ -30,7 +31,6 @@ import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { FormattedMessage } from 'react-intl';
 import { queryToSearchString } from '~sonar-aligned/helpers/urls';
-import Suggestions from '../../../components/embed-docs-modal/Suggestions';
 import { now } from '../../../helpers/dates';
 import { translate } from '../../../helpers/l10n';
 import '../style.css';
@@ -79,7 +79,6 @@ export default function AuditAppRenderer(props: Readonly<AuditAppRendererProps>)
   return (
     <LargeCenteredLayout as="main" id="audit-logs-page">
       <PageContentFontWrapper className="sw-body-sm sw-my-8">
-        <Suggestions suggestions="audit-logs" />
         <Helmet title={translate('audit_logs.page')} />
 
         <Title>{translate('audit_logs.page')}</Title>

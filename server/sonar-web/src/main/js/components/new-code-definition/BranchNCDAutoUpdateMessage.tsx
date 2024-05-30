@@ -17,10 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { DismissableFlagMessage, Link } from 'design-system';
 import React, { useCallback, useEffect, useState } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { MessageTypes, checkMessageDismissed, setMessageDismissed } from '../../api/messages';
+import { DocLink } from '../../helpers/doc-links';
 import { useDocUrl } from '../../helpers/docs';
 import { Component } from '../../types/types';
 import { PreviouslyNonCompliantBranchNCD } from './utils';
@@ -33,9 +35,7 @@ interface NCDAutoUpdateMessageProps {
 export default function NCDAutoUpdateMessage(props: NCDAutoUpdateMessageProps) {
   const { component, previouslyNonCompliantBranchNCDs } = props;
   const intl = useIntl();
-  const toUrl = useDocUrl(
-    '/project-administration/clean-as-you-code-settings/defining-new-code/#new-code-definition-options',
-  );
+  const toUrl = useDocUrl(DocLink.NewCodeDefinitionOptions);
 
   const [dismissed, setDismissed] = useState(true);
 

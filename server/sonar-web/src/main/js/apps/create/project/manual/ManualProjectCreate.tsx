@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import classNames from 'classnames';
 import {
   ButtonPrimary,
@@ -36,6 +37,7 @@ import { isEmpty } from 'lodash';
 import * as React from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { getValue } from '../../../../api/settings';
+import { DocLink } from '../../../../helpers/doc-links';
 import { useDocUrl } from '../../../../helpers/docs';
 import { translate } from '../../../../helpers/l10n';
 import { GlobalSettingKeys } from '../../../../types/settings';
@@ -70,7 +72,7 @@ export default function ManualProjectCreate(props: Readonly<Props>) {
   });
 
   const intl = useIntl();
-  const docUrl = useDocUrl();
+  const docUrl = useDocUrl(DocLink.BranchAnalysis);
 
   React.useEffect(() => {
     async function fetchMainBranchName() {
@@ -194,11 +196,7 @@ export default function ManualProjectCreate(props: Readonly<Props>) {
                 id="onboarding.create_project.main_branch_name.description"
                 defaultMessage={translate('onboarding.create_project.main_branch_name.description')}
                 values={{
-                  learn_more: (
-                    <Link to={docUrl('/analyzing-source-code/branches/branch-analysis')}>
-                      {translate('learn_more')}
-                    </Link>
-                  ),
+                  learn_more: <Link to={docUrl}>{translate('learn_more')}</Link>,
                 }}
               />
             </Note>

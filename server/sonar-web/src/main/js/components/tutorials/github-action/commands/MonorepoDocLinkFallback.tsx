@@ -17,18 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { NumberedListItem } from 'design-system';
 import * as React from 'react';
+import { DocLink } from '../../../../helpers/doc-links';
 import { translate } from '../../../../helpers/l10n';
 import DocumentationLink from '../../../common/DocumentationLink';
-
-const MONOREPO_DOC =
-  '/devops-platform-integration/github-integration/monorepo/#workflow-file-example';
 
 export default function MonorepoDocLinkFallback() {
   return (
     <NumberedListItem>
-      <DocumentationLink className="sw-mt-4" to={MONOREPO_DOC}>
+      <DocumentationLink className="sw-mt-4" to={DocLink.AlmGitHubMonorepoWorkfileExample}>
         {translate('onboarding.tutorial.with.github_action.monorepo.see_yaml_instructions')}
       </DocumentationLink>
     </NumberedListItem>

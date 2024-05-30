@@ -17,10 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { CodeSnippet, Link, Note, SubHeading } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { GRADLE_SCANNER_VERSION } from '../../../../helpers/constants';
+import { DocLink } from '../../../../helpers/doc-links';
 import { useDocUrl } from '../../../../helpers/docs';
 import { translate } from '../../../../helpers/l10n';
 import { Component } from '../../../../types/types';
@@ -54,7 +56,7 @@ const config = {
 export default function JavaGradle(props: JavaGradleProps) {
   const { baseUrl, component, token } = props;
 
-  const docUrl = useDocUrl();
+  const docUrl = useDocUrl(DocLink.SonarScannerGradle);
 
   const command = [
     './gradlew sonar',
@@ -99,11 +101,7 @@ export default function JavaGradle(props: JavaGradleProps) {
             defaultMessage={translate('onboarding.analysis.java.gradle.latest_version')}
             id="onboarding.analysis.java.gradle.latest_version"
             values={{
-              link: (
-                <Link to={docUrl('/analyzing-source-code/scanners/sonarscanner-for-gradle/')}>
-                  {translate('here')}
-                </Link>
-              ),
+              link: <Link to={docUrl}>{translate('here')}</Link>,
             }}
           />
         </Note>
@@ -115,11 +113,7 @@ export default function JavaGradle(props: JavaGradleProps) {
           defaultMessage={translate('onboarding.analysis.docs')}
           id="onboarding.analysis.docs"
           values={{
-            link: (
-              <Link to={docUrl('/analyzing-source-code/scanners/sonarscanner-for-gradle/')}>
-                {translate('onboarding.analysis.java.gradle.docs_link')}
-              </Link>
-            ),
+            link: <Link to={docUrl}>{translate('onboarding.analysis.java.gradle.docs_link')}</Link>,
           }}
         />
       </p>

@@ -17,9 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { CodeSnippet, Link, SubHeading } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
+import { DocLink } from '../../../../helpers/doc-links';
 import { useDocUrl } from '../../../../helpers/docs';
 import { translate } from '../../../../helpers/l10n';
 import { OSs } from '../../types';
@@ -37,7 +39,7 @@ const executables: { [x in OSs]: string } = {
 export default function ExecBuildWrapper(props: ExecBuildWrapperProps) {
   const { os } = props;
 
-  const docUrl = useDocUrl();
+  const docUrl = useDocUrl(DocLink.CFamily);
 
   return (
     <>
@@ -58,9 +60,7 @@ export default function ExecBuildWrapper(props: ExecBuildWrapperProps) {
           id="onboarding.analysis.build_wrapper.docs"
           values={{
             link: (
-              <Link to={docUrl('/analyzing-source-code/languages/c-family/')}>
-                {translate('onboarding.analysis.build_wrapper.docs_link')}
-              </Link>
+              <Link to={docUrl}>{translate('onboarding.analysis.build_wrapper.docs_link')}</Link>
             ),
           }}
         />

@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { UserEvent } from '@testing-library/user-event/dist/types/setup/setup';
@@ -74,7 +75,7 @@ const ui = {
     'onboarding.tutorial.with.github_action.create_secret.monorepo_project_level_token_info.link',
   ),
   monoRepoYamlDocLink: byRole('link', {
-    name: 'onboarding.tutorial.with.github_action.monorepo.see_yaml_instructions',
+    name: /^onboarding\.tutorial\.with\.github_action\.monorepo\.see_yaml_instructions\b/,
   }),
   chooseTutorialLink: (mode: TutorialModes) =>
     byRole('link', { name: `onboarding.tutorial.choose_method.${mode}` }),

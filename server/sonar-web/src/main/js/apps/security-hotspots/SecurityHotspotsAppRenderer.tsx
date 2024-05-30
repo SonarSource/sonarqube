@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { withTheme } from '@emotion/react';
 import styled from '@emotion/styled';
 import {
@@ -35,7 +36,6 @@ import A11ySkipTarget from '~sonar-aligned/components/a11y/A11ySkipTarget';
 import { isBranch } from '~sonar-aligned/helpers/branch-like';
 import { ComponentQualifier } from '~sonar-aligned/types/component';
 import { MetricKey } from '~sonar-aligned/types/metrics';
-import Suggestions from '../../components/embed-docs-modal/Suggestions';
 import { translate } from '../../helpers/l10n';
 import useFollowScroll from '../../hooks/useFollowScroll';
 import { BranchLike } from '../../types/branch-like';
@@ -115,8 +115,6 @@ export default function SecurityHotspotsAppRenderer(props: SecurityHotspotsAppRe
 
   return (
     <>
-      <Suggestions suggestions={MetricKey.security_hotspots} />
-
       <Helmet title={translate('hotspots.page')} />
 
       <A11ySkipTarget anchor="security_hotspots_main" />

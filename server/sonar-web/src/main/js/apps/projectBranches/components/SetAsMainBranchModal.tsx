@@ -17,10 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { ButtonPrimary, FlagMessage, Modal } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import DocumentationLink from '../../../components/common/DocumentationLink';
+import { DocLink } from '../../../helpers/doc-links';
 import { translate } from '../../../helpers/l10n';
 import { useSetMainBranchMutation } from '../../../queries/branch';
 import { Branch } from '../../../types/branch-like';
@@ -70,7 +72,7 @@ export default function SetAsMainBranchModal(props: SetAsMainBranchModalProps) {
               id="project_branch_pull_request.branch.main_branch.learn_more"
               values={{
                 documentation: (
-                  <DocumentationLink to="/analyzing-source-code/branches/branch-analysis/#main-branch">
+                  <DocumentationLink to={DocLink.MainBranchAnalysis}>
                     {translate('documentation')}
                   </DocumentationLink>
                 ),

@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { isPullRequest } from '~sonar-aligned/helpers/branch-like';
@@ -54,12 +55,12 @@ export function App(props: AppProps) {
       <Helmet defer={false} title={translate('overview.page')} />
       {isPullRequest(branchLike) ? (
         <main>
-          <Suggestions suggestions="pull_requests" />
+          <Suggestions suggestionGroup="pull_requests" />
           <PullRequestOverview pullRequest={branchLike} component={component} />
         </main>
       ) : (
         <main>
-          <Suggestions suggestions="overview" />
+          <Suggestions suggestionGroup="overview" />
 
           {!component.analysisDate && (
             <EmptyOverview

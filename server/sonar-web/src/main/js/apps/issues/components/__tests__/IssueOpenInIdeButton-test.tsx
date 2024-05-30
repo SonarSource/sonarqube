@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { addGlobalErrorMessage, addGlobalSuccessMessage } from 'design-system';
@@ -24,6 +25,7 @@ import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import UserTokensMock from '../../../../api/mocks/UserTokensMock';
 import DocumentationLink from '../../../../components/common/DocumentationLink';
+import { DocLink } from '../../../../helpers/doc-links';
 import {
   openIssue as openSonarLintIssue,
   probeSonarLintServers,
@@ -97,7 +99,7 @@ it('handles button click with no ide found', async () => {
       id="issues.open_in_ide.failure"
       values={{
         link: (
-          <DocumentationLink to="user-guide/sonarlint-connected-mode/">
+          <DocumentationLink to={DocLink.SonarLintConnectedMode}>
             sonarlint-connected-mode-doc
           </DocumentationLink>
         ),

@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import {
   Checkbox,
   DangerButtonPrimary,
@@ -27,6 +28,7 @@ import {
 } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
+import { DocLink } from '../../../helpers/doc-links';
 import { useDocUrl } from '../../../helpers/docs';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { useDeactivateUserMutation } from '../../../queries/users';
@@ -56,7 +58,7 @@ export default function DeactivateForm(props: Props) {
   };
 
   const header = translate('users.deactivate_user');
-  const docUrl = useDocUrl('/instance-administration/authentication/overview/');
+  const docUrl = useDocUrl(DocLink.AuthOverview);
 
   return (
     <Modal

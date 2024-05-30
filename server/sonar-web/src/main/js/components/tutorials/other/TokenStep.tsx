@@ -43,6 +43,7 @@ import { FormattedMessage } from 'react-intl';
 import { SingleValue } from 'react-select';
 import DocHelpTooltip from '~sonar-aligned/components/controls/DocHelpTooltip';
 import { generateToken, getTokens, revokeToken } from '../../../api/user-tokens';
+import { DocLink } from '../../../helpers/doc-links';
 import { translate } from '../../../helpers/l10n';
 import {
   EXPIRATION_OPTIONS,
@@ -218,7 +219,7 @@ export default class TokenStep extends React.PureComponent<Props, State> {
                 content={translate('onboarding.token.name.help')}
                 links={[
                   {
-                    href: '/user-guide/user-account/generating-and-using-tokens/',
+                    href: DocLink.AccountTokens,
                     label: translate('learn_more'),
                   },
                 ]}
@@ -281,7 +282,7 @@ export default class TokenStep extends React.PureComponent<Props, State> {
                 content={translate('onboarding.token.use_existing_token.help')}
                 links={[
                   {
-                    href: '/user-guide/user-account/generating-and-using-tokens/',
+                    href: DocLink.AccountTokens,
                     label: translate('learn_more'),
                   },
                 ]}

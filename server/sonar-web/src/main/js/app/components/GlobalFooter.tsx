@@ -31,6 +31,7 @@ import React from 'react';
 import { useIntl } from 'react-intl';
 import InstanceMessage from '../../components/common/InstanceMessage';
 import AppVersionStatus from '../../components/shared/AppVersionStatus';
+import { DocLink } from '../../helpers/doc-links';
 import { useDocUrl } from '../../helpers/docs';
 import { getEdition } from '../../helpers/editions';
 import GlobalFooterBranding from './GlobalFooterBranding';
@@ -97,7 +98,7 @@ export default function GlobalFooter({ hideLoggedInInfo }: Readonly<GlobalFooter
             </li>
 
             <li>
-              <LinkStandalone highlight={LinkHighlight.CurrentColor} to={docUrl('/')}>
+              <LinkStandalone highlight={LinkHighlight.CurrentColor} to={docUrl(DocLink.Root)}>
                 {intl.formatMessage({ id: 'footer.documentation' })}
               </LinkStandalone>
             </li>
@@ -105,7 +106,7 @@ export default function GlobalFooter({ hideLoggedInInfo }: Readonly<GlobalFooter
             <li>
               <LinkStandalone
                 highlight={LinkHighlight.CurrentColor}
-                to={docUrl('/instance-administration/plugin-version-matrix/')}
+                to={docUrl(DocLink.InstanceAdminPluginVersionMatrix)}
               >
                 {intl.formatMessage({ id: 'footer.plugins' })}
               </LinkStandalone>

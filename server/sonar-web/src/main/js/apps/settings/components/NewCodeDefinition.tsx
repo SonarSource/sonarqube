@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { Spinner } from '@sonarsource/echoes-react';
 import classNames from 'classnames';
 import { ButtonPrimary, ButtonSecondary } from 'design-system';
@@ -26,6 +27,7 @@ import DocumentationLink from '../../../components/common/DocumentationLink';
 import NewCodeDefinitionDaysOption from '../../../components/new-code-definition/NewCodeDefinitionDaysOption';
 import NewCodeDefinitionPreviousVersionOption from '../../../components/new-code-definition/NewCodeDefinitionPreviousVersionOption';
 import { NewCodeDefinitionLevels } from '../../../components/new-code-definition/utils';
+import { DocLink } from '../../../helpers/doc-links';
 import { translate } from '../../../helpers/l10n';
 import {
   getNumberOfDaysDefaultValue,
@@ -102,7 +104,7 @@ export default function NewCodeDefinition() {
                         id="settings.new_code_period.description3"
                         values={{
                           link: (
-                            <DocumentationLink to="/project-administration/clean-as-you-code-settings/defining-new-code/">
+                            <DocumentationLink to={DocLink.NewCodeDefinition}>
                               {translate('settings.new_code_period.description3.link')}
                             </DocumentationLink>
                           ),

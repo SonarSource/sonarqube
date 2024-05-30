@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import {
   BasicSeparator,
   FlagMessage,
@@ -35,7 +36,7 @@ import { getAvailablePlugins, getInstalledPlugins } from '../../api/plugins';
 import { getValue, setSimpleSettingValue } from '../../api/settings';
 import DocumentationLink from '../../components/common/DocumentationLink';
 import ListFooter from '../../components/controls/ListFooter';
-import Suggestions from '../../components/embed-docs-modal/Suggestions';
+import { DocLink } from '../../helpers/doc-links';
 import { translate } from '../../helpers/l10n';
 import { EditionKey } from '../../types/editions';
 import { PendingPluginResult, Plugin, RiskConsent } from '../../types/plugins';
@@ -167,7 +168,6 @@ class App extends React.PureComponent<Props, State> {
     return (
       <LargeCenteredLayout as="main" id="marketplace-page">
         <PageContentFontWrapper className="sw-body-sm sw-py-8">
-          <Suggestions suggestions="marketplace" />
           <Helmet title={translate('marketplace.page')} />
           <Header currentEdition={currentEdition} />
           <EditionBoxes currentEdition={currentEdition} />
@@ -186,7 +186,7 @@ class App extends React.PureComponent<Props, State> {
                       defaultMessage={translate('marketplace.page.plugins.description2')}
                       values={{
                         link: (
-                          <DocumentationLink to="/instance-administration/marketplace/">
+                          <DocumentationLink to={DocLink.InstanceAdminMarketplace}>
                             {translate('marketplace.page.plugins.description2.link')}
                           </DocumentationLink>
                         ),

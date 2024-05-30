@@ -17,13 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { FlagMessage, Link } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { ALM_DOCUMENTATION_PATHS } from '../../../../helpers/constants';
-import { useDocUrl } from '../../../../helpers/docs';
+import DocumentationLink from '../../../../components/common/DocumentationLink';
+import { DocLink } from '../../../../helpers/doc-links';
 import { translate } from '../../../../helpers/l10n';
-import { AlmKeys, BitbucketCloudBindingDefinition } from '../../../../types/alm-settings';
+import { BitbucketCloudBindingDefinition } from '../../../../types/alm-settings';
 import { BITBUCKET_CLOUD_WORKSPACE_ID_FORMAT } from '../../constants';
 import { AlmBindingDefinitionFormField } from './AlmBindingDefinitionFormField';
 
@@ -37,8 +38,6 @@ export default function BitbucketCloudForm(props: BitbucketCloudFormProps) {
   const workspaceIDIsInvalid = Boolean(
     formData.workspace && !BITBUCKET_CLOUD_WORKSPACE_ID_FORMAT.test(formData.workspace),
   );
-
-  const toStatic = useDocUrl(ALM_DOCUMENTATION_PATHS[AlmKeys.BitbucketCloud]);
 
   return (
     <>
@@ -57,7 +56,11 @@ export default function BitbucketCloudForm(props: BitbucketCloudFormProps) {
                 </Link>
               ),
               permission: <strong>Pull Requests: Read</strong>,
-              doc_link: <Link to={toStatic}>{translate('learn_more')}</Link>,
+              doc_link: (
+                <DocumentationLink to={DocLink.AlmBitBucketCloudIntegration}>
+                  {translate('learn_more')}
+                </DocumentationLink>
+              ),
             }}
           />
         </div>

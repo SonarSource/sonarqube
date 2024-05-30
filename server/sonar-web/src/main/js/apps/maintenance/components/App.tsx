@@ -29,6 +29,7 @@ import DocumentationLink from '../../../components/common/DocumentationLink';
 import InstanceMessage from '../../../components/common/InstanceMessage';
 import DateFromNow from '../../../components/intl/DateFromNow';
 import TimeFormatter from '../../../components/intl/TimeFormatter';
+import { DocLink } from '../../../helpers/doc-links';
 import { translate } from '../../../helpers/l10n';
 import { getBaseUrl } from '../../../helpers/system';
 import { isDefined } from '../../../helpers/types';
@@ -264,7 +265,7 @@ export default class App extends React.PureComponent<Props, State> {
                     id="maintenance.sonarqube_is_under_maintenance.2"
                     values={{
                       link: (
-                        <DocumentationLink to="/setup-and-upgrade/upgrade-the-server/roadmap/">
+                        <DocumentationLink to={DocLink.ServerUpgradeRoadmap}>
                           {translate('maintenance.sonarqube_is_under_maintenance_link.2')}
                         </DocumentationLink>
                       ),

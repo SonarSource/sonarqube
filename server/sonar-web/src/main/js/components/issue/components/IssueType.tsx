@@ -21,6 +21,7 @@
 import { IconProps, TextSubdued } from 'design-system';
 import * as React from 'react';
 import DocHelpTooltip from '~sonar-aligned/components/controls/DocHelpTooltip';
+import { DocLink } from '../../../helpers/doc-links';
 import { translate } from '../../../helpers/l10n';
 import { Issue } from '../../../types/types';
 import IssueTypeIcon from '../../icon-mappers/IssueTypeIcon';
@@ -36,7 +37,7 @@ export default function IssueType({ issue, ...iconProps }: Readonly<Props>) {
       content={<DeprecatedFieldTooltip field="type" />}
       links={[
         {
-          href: '/user-guide/issues',
+          href: DocLink.Issues,
           label: translate('learn_more'),
         },
       ]}

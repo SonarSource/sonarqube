@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { Spinner } from 'design-system';
 import { isEmpty, omitBy } from 'lodash';
 import React, { FormEvent, useContext } from 'react';
@@ -24,6 +25,7 @@ import { FormattedMessage } from 'react-intl';
 import GitLabSynchronisationWarning from '../../../../app/components/GitLabSynchronisationWarning';
 import { AvailableFeaturesContext } from '../../../../app/components/available-features/AvailableFeaturesContext';
 import DocumentationLink from '../../../../components/common/DocumentationLink';
+import { DocLink } from '../../../../helpers/doc-links';
 import { translate, translateWithParameters } from '../../../../helpers/l10n';
 import { useIdentityProviderQuery } from '../../../../queries/identity-provider/common';
 import {
@@ -32,12 +34,10 @@ import {
   useSyncWithGitLabNow,
   useUpdateGitLabConfigurationMutation,
 } from '../../../../queries/identity-provider/gitlab';
-import { AlmKeys } from '../../../../types/alm-settings';
 import { Feature } from '../../../../types/features';
 import { GitLabConfigurationUpdateBody, ProvisioningType } from '../../../../types/provisioning';
 import { DefinitionV2, SettingType } from '../../../../types/settings';
 import { Provider } from '../../../../types/types';
-import { DOCUMENTATION_LINK_SUFFIXES } from './Authentication';
 import AuthenticationFormField from './AuthenticationFormField';
 import ConfigurationDetails from './ConfigurationDetails';
 import ConfirmProvisioningModal from './ConfirmProvisioningModal';
@@ -273,11 +273,7 @@ export default function GitLabAuthenticationTab() {
                   id="settings.authentication.gitlab.provisioning_at_login.description"
                   values={{
                     documentation: (
-                      <DocumentationLink
-                        to={`/instance-administration/authentication/${
-                          DOCUMENTATION_LINK_SUFFIXES[AlmKeys.GitLab]
-                        }/#choosing-the-provisioning-method`}
-                      >
+                      <DocumentationLink to={DocLink.AlmGitLabAuthProvisioningMethod}>
                         {translate(`learn_more`)}
                       </DocumentationLink>
                     ),
@@ -323,7 +319,7 @@ export default function GitLabAuthenticationTab() {
                   )}
                   values={{
                     documentation: (
-                      <DocumentationLink to="/instance-administration/authentication/gitlab">
+                      <DocumentationLink to={DocLink.AlmGitLabAuth}>
                         {translate('documentation')}
                       </DocumentationLink>
                     ),
@@ -335,11 +331,7 @@ export default function GitLabAuthenticationTab() {
                   id="settings.authentication.gitlab.form.provisioning_with_gitlab.description"
                   values={{
                     documentation: (
-                      <DocumentationLink
-                        to={`/instance-administration/authentication/${
-                          DOCUMENTATION_LINK_SUFFIXES[AlmKeys.GitLab]
-                        }/#choosing-the-provisioning-method`}
-                      >
+                      <DocumentationLink to={DocLink.AlmGitLabAuthProvisioningMethod}>
                         {translate(`learn_more`)}
                       </DocumentationLink>
                     ),

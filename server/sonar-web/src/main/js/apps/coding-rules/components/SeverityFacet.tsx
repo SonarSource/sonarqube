@@ -17,11 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { HelperHintIcon } from 'design-system';
 import * as React from 'react';
 import DocHelpTooltip from '~sonar-aligned/components/controls/DocHelpTooltip';
 import SoftwareImpactSeverityIcon from '../../../components/icon-mappers/SoftwareImpactSeverityIcon';
 import { IMPACT_SEVERITIES } from '../../../helpers/constants';
+import { DocLink } from '../../../helpers/doc-links';
 import { translate } from '../../../helpers/l10n';
 import Facet, { BasicProps } from './Facet';
 
@@ -59,7 +61,7 @@ export default function SeverityFacet(props: BasicProps) {
           }
           links={[
             {
-              href: '/user-guide/clean-code/introduction',
+              href: DocLink.CleanCodeIntroduction,
               label: translate('learn_more'),
             },
           ]}

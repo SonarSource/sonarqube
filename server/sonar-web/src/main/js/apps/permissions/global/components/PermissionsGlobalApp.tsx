@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { LargeCenteredLayout, PageContentFontWrapper } from 'design-system';
 import { without } from 'lodash';
 import * as React from 'react';
@@ -26,7 +27,6 @@ import * as api from '../../../../api/permissions';
 import withAppStateContext, {
   WithAppStateContextProps,
 } from '../../../../app/components/app-state/withAppStateContext';
-import Suggestions from '../../../../components/embed-docs-modal/Suggestions';
 import AllHoldersList from '../../../../components/permissions/AllHoldersList';
 import { FilterOption } from '../../../../components/permissions/SearchForm';
 import { translate } from '../../../../helpers/l10n';
@@ -259,7 +259,6 @@ class PermissionsGlobalApp extends React.PureComponent<Props, State> {
     return (
       <LargeCenteredLayout id="project-permissions-page">
         <PageContentFontWrapper className="sw-my-8 sw-body-sm">
-          <Suggestions suggestions="global_permissions" />
           <Helmet defer={false} title={translate('global_permissions.permission')} />
           <PageHeader />
           <AllHoldersList

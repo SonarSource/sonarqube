@@ -17,9 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { DiscreetLink, FlagMessage, Link } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
+import { DocLink } from '../../../helpers/doc-links';
 import { useDocUrl } from '../../../helpers/docs';
 import { translate } from '../../../helpers/l10n';
 import { getQualityGateUrl } from '../../../helpers/urls';
@@ -30,7 +32,7 @@ interface Props {
 }
 
 export default function CleanAsYouCodeWarning({ component }: Props) {
-  const caycUrl = useDocUrl('/user-guide/clean-as-you-code/');
+  const caycUrl = useDocUrl(DocLink.CaYC);
 
   return (
     <>

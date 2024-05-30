@@ -17,11 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { ButtonPrimary, CardWithPrimaryBackground, SubHeadingHighlight } from 'design-system';
 import React from 'react';
 import { FormattedMessage } from 'react-intl';
 import DocumentationLink from '../../../components/common/DocumentationLink';
 import ModalButton from '../../../components/controls/ModalButton';
+import { DocLink } from '../../../helpers/doc-links';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {
@@ -48,7 +50,7 @@ export default function CaycNonCompliantBanner({ renderCaycModal, isOptimizing }
           }
           values={{
             cayc_link: (
-              <DocumentationLink to="/user-guide/clean-as-you-code/">
+              <DocumentationLink to={DocLink.CaYC}>
                 {translate('quality_gates.cayc')}
               </DocumentationLink>
             ),

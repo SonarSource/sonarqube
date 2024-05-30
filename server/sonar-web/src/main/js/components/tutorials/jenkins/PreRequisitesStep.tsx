@@ -17,9 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { FlagMessage, Link, ListItem, TutorialStep, UnorderedList } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
+import { DocLink } from '../../../helpers/doc-links';
 import { useDocUrl } from '../../../helpers/docs';
 import { translate } from '../../../helpers/l10n';
 import { AlmKeys } from '../../../types/alm-settings';
@@ -33,7 +35,7 @@ export interface PreRequisitesStepProps {
 export default function PreRequisitesStep(props: PreRequisitesStepProps) {
   const { alm, branchesEnabled } = props;
 
-  const docUrl = useDocUrl();
+  const docUrl = useDocUrl(DocLink.CIJenkins);
 
   return (
     <TutorialStep title={translate('onboarding.tutorial.with.jenkins.prereqs.title')}>
@@ -66,7 +68,7 @@ export default function PreRequisitesStep(props: PreRequisitesStepProps) {
           id="onboarding.tutorial.with.jenkins.prereqs.step_by_step_guide"
           values={{
             link: (
-              <Link to={docUrl('/analyzing-source-code/ci-integration/jenkins-integration/')}>
+              <Link to={docUrl}>
                 {translate('onboarding.tutorial.with.jenkins.prereqs.step_by_step_guide.link')}
               </Link>
             ),

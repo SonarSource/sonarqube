@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import {
   ButtonPrimary,
   ButtonSecondary,
@@ -37,6 +38,7 @@ import { useNavigate, unstable_usePrompt as usePrompt } from 'react-router-dom';
 import { useLocation } from '~sonar-aligned/components/hoc/withRouter';
 import { queryToSearchString } from '~sonar-aligned/helpers/urls';
 import NewCodeDefinitionSelector from '../../../../components/new-code-definition/NewCodeDefinitionSelector';
+import { DocLink } from '../../../../helpers/doc-links';
 import { useDocUrl } from '../../../../helpers/docs';
 import { translate } from '../../../../helpers/l10n';
 import { getProjectUrl } from '../../../../helpers/urls';
@@ -69,7 +71,7 @@ export default function NewCodeDefinitionSelection(props: Props) {
   const intl = useIntl();
   const location = useLocation();
   const navigate = useNavigate();
-  const getDocUrl = useDocUrl();
+  const docUrl = useDocUrl(DocLink.NewCodeDefinition);
   usePrompt({
     when: isImporting,
     message: translate('onboarding.create_project.please_dont_leave'),
@@ -215,11 +217,7 @@ export default function NewCodeDefinitionSelection(props: Props) {
           id="onboarding.create_project.new_code_definition.description"
           values={{
             link: (
-              <Link
-                to={getDocUrl(
-                  '/project-administration/clean-as-you-code-settings/defining-new-code/',
-                )}
-              >
+              <Link to={docUrl}>
                 {translate('onboarding.create_project.new_code_definition.description.link')}
               </Link>
             ),

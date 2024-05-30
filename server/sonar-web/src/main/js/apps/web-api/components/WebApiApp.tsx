@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import styled from '@emotion/styled';
 import {
   LAYOUT_FOOTER_HEIGHT,
@@ -33,7 +34,6 @@ import A11ySkipTarget from '~sonar-aligned/components/a11y/A11ySkipTarget';
 import { withRouter } from '~sonar-aligned/components/hoc/withRouter';
 import { Location, Router } from '~sonar-aligned/types/router';
 import { fetchWebApi } from '../../../api/web-api';
-import Suggestions from '../../../components/embed-docs-modal/Suggestions';
 import { translate } from '../../../helpers/l10n';
 import { WebApi } from '../../../types/types';
 import '../styles/web-api.css';
@@ -168,7 +168,6 @@ export class WebApiApp extends React.PureComponent<Props, State> {
     return (
       <LargeCenteredLayout>
         <PageContentFontWrapper className="sw-body-sm sw-w-full sw-flex">
-          <Suggestions suggestions="api_documentation" />
           <Helmet defer={false} title={translate('api_documentation.page')} />
           <div className="sw-w-full sw-flex">
             <NavContainer

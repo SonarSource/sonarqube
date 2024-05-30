@@ -17,16 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { BasicSeparator, FlagMessage, Link, NumberedListItem } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import withAvailableFeatures, {
   WithAvailableFeaturesProps,
 } from '../../../../app/components/available-features/withAvailableFeatures';
-import { ALM_DOCUMENTATION_PATHS } from '../../../../helpers/constants';
+import { DocLink } from '../../../../helpers/doc-links';
 import { useDocUrl } from '../../../../helpers/docs';
 import { translate } from '../../../../helpers/l10n';
-import { AlmKeys } from '../../../../types/alm-settings';
 import { Feature } from '../../../../types/features';
 import SentenceWithHighlights from '../../components/SentenceWithHighlights';
 
@@ -35,7 +35,7 @@ export interface PublishStepsProps extends WithAvailableFeaturesProps {}
 export function PublishSteps(props: PublishStepsProps) {
   const branchSupportEnabled = props.hasFeature(Feature.BranchSupport);
 
-  const docUrl = useDocUrl();
+  const docUrl = useDocUrl(DocLink.AlmAzureIntegration);
 
   return (
     <>
@@ -71,7 +71,7 @@ export function PublishSteps(props: PublishStepsProps) {
               )}
               values={{
                 link: (
-                  <Link to={docUrl(ALM_DOCUMENTATION_PATHS[AlmKeys.Azure])}>
+                  <Link to={docUrl}>
                     {translate(
                       'onboarding.tutorial.with.azure_pipelines.BranchAnalysis.branch_protection.link',
                     )}

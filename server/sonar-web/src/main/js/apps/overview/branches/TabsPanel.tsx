@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { Spinner } from '@sonarsource/echoes-react';
 import { isBefore, sub } from 'date-fns';
 import { ButtonLink, FlagMessage, LightLabel, Tabs } from 'design-system';
@@ -24,6 +25,7 @@ import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { ComponentQualifier } from '~sonar-aligned/types/component';
 import DocumentationLink from '../../../components/common/DocumentationLink';
+import { DocLink } from '../../../helpers/doc-links';
 import { translate } from '../../../helpers/l10n';
 import { isDiffMetric } from '../../../helpers/measures';
 import { CodeScope } from '../../../helpers/urls';
@@ -174,7 +176,7 @@ export function TabsPanel(props: React.PropsWithChildren<MeasuresPanelProps>) {
                 )}`}
                 <DocumentationLink
                   className="sw-ml-1 sw-whitespace-nowrap"
-                  to="/instance-administration/reindexing/"
+                  to={DocLink.InstanceAdminReindexation}
                 >
                   {translate('learn_more')}
                 </DocumentationLink>

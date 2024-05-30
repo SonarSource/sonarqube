@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { LargeCenteredLayout, PageContentFontWrapper } from 'design-system';
 import { debounce, uniq } from 'lodash';
 import * as React from 'react';
@@ -31,7 +32,6 @@ import {
 import { getValue } from '../../api/settings';
 import withCurrentUserContext from '../../app/components/current-user/withCurrentUserContext';
 import ListFooter from '../../components/controls/ListFooter';
-import Suggestions from '../../components/embed-docs-modal/Suggestions';
 import { toShortISO8601String } from '../../helpers/dates';
 import { translate } from '../../helpers/l10n';
 import { hasGlobalPermission } from '../../helpers/users';
@@ -205,7 +205,6 @@ class ProjectManagementApp extends React.PureComponent<Props, State> {
     return (
       <LargeCenteredLayout as="main" id="projects-management-page">
         <PageContentFontWrapper className="sw-body-sm sw-my-8">
-          <Suggestions suggestions="projects_management" />
           <Helmet defer={false} title={translate('projects_management')} />
 
           <Header

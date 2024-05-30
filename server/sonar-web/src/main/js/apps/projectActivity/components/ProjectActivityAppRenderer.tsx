@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import styled from '@emotion/styled';
 import {
   LargeCenteredLayout,
@@ -28,7 +29,6 @@ import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import A11ySkipTarget from '~sonar-aligned/components/a11y/A11ySkipTarget';
 import { ComponentQualifier } from '~sonar-aligned/types/component';
-import Suggestions from '../../../components/embed-docs-modal/Suggestions';
 import { translate } from '../../../helpers/l10n';
 import { MeasureHistory, ParsedAnalysis } from '../../../types/project-activity';
 import { Component, Metric } from '../../../types/types';
@@ -69,7 +69,6 @@ export default function ProjectActivityAppRenderer(props: Props) {
   const canDeleteAnalyses = configuration?.showHistory;
   return (
     <main className="sw-p-5" id="project-activity">
-      <Suggestions suggestions="project_activity" />
       <Helmet defer={false} title={translate('project_activity.page')} />
 
       <A11ySkipTarget anchor="activity_main" />

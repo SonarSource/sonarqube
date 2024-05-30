@@ -17,11 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { Link } from 'design-system';
 import * as React from 'react';
-import DocumentationLink from '../../../components/common/DocumentationLink';
+import { DocLink } from '../../../helpers/doc-links';
+import { useDocUrl } from '../../../helpers/docs';
 import { translate } from '../../../helpers/l10n';
 
 export function HotspotDisabledFilterTooltip() {
+  const docUrl = useDocUrl(DocLink.InstanceAdminReindexation);
+
   return (
     <div className="sw-body-sm sw-w-[190px]">
       <p>
@@ -30,7 +35,7 @@ export function HotspotDisabledFilterTooltip() {
       </p>
       <hr className="sw-mx-0 sw-my-3 sw-p-0 sw-w-full" />
       <span className="sw-body-sm-highlight">{translate('indexation.learn_more')}</span>
-      <DocumentationLink
+      <Link
         className="sw-ml-1"
         onMouseDown={(e) => {
           // This tooltip content is rendered in the context of a <Dropdown>, and <DropdownToggler>
@@ -38,10 +43,10 @@ export function HotspotDisabledFilterTooltip() {
           // this link. We preventDefault() to avoid this behavior.
           e.preventDefault();
         }}
-        to="/instance-administration/reindexing/"
+        to={docUrl}
       >
         {translate('indexation.reindexing')}
-      </DocumentationLink>
+      </Link>
     </div>
   );
 }

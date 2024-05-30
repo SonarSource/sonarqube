@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import {
   ButtonPrimary,
   FlagMessage,
@@ -31,6 +32,7 @@ import {
 import * as React from 'react';
 import { Profile } from '../../../api/quality-profiles';
 import DocumentationLink from '../../../components/common/DocumentationLink';
+import { DocLink } from '../../../helpers/doc-links';
 import { translate } from '../../../helpers/l10n';
 import { sanitizeString } from '../../../helpers/sanitize';
 import { useActivateRuleMutation } from '../../../queries/quality-profiles';
@@ -119,7 +121,7 @@ export default function ActivationFormModal(props: Readonly<Props>) {
             {translate('coding_rules.severity_deprecated')}
             <DocumentationLink
               className="sw-ml-2 sw-whitespace-nowrap"
-              to="/user-guide/clean-code/introduction/"
+              to={DocLink.CleanCodeIntroduction}
             >
               {translate('learn_more')}
             </DocumentationLink>

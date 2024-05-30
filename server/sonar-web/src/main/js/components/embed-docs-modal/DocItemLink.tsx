@@ -17,14 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { ItemLink, OpenNewTabIcon } from 'design-system';
 import * as React from 'react';
+import { DocLink } from '../../helpers/doc-links';
 import { useDocUrl } from '../../helpers/docs';
 
 interface Props {
-  to: string;
-  innerRef?: React.Ref<HTMLAnchorElement>;
   children: React.ReactNode;
+  innerRef?: React.Ref<HTMLAnchorElement>;
+  to: DocLink;
 }
 
 export function DocItemLink({ to, innerRef, children }: Props) {

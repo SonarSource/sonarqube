@@ -17,17 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Link } from 'design-system';
+
+import { LinkStandalone } from '@sonarsource/echoes-react';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useLocation } from 'react-router-dom';
-import { useDocUrl } from '../../helpers/docs';
+import { useUncataloguedDocUrl } from '../../helpers/docs';
 
 const PAUSE_REDIRECT = 1;
 
 export default function DocumentationRedirect() {
   const location = useLocation();
-  const url = useDocUrl(location.pathname.replace(/^\/documentation/, ''));
+  const url = useUncataloguedDocUrl(location.pathname.replace(/^\/documentation/, '')) as string;
 
   return (
     <>
@@ -40,7 +41,9 @@ export default function DocumentationRedirect() {
           <span className="global-loading-text">Redirecting...</span>
         </div>
         <div>
-          <Link to={url}>Click here if you&apos;re not being redirected automatically</Link>
+          <LinkStandalone to={url}>
+            Click here if you&apos;re not being redirected automatically
+          </LinkStandalone>
         </div>
       </div>
     </>

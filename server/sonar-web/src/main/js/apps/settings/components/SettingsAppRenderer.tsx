@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import styled from '@emotion/styled';
 import { LargeCenteredLayout, PageContentFontWrapper, themeBorder } from 'design-system';
 import { uniqBy } from 'lodash';
@@ -24,7 +25,6 @@ import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { withRouter } from '~sonar-aligned/components/hoc/withRouter';
 import { Location } from '~sonar-aligned/types/router';
-import Suggestions from '../../../components/embed-docs-modal/Suggestions';
 import { translate } from '../../../helpers/l10n';
 import { ExtendedSettingDefinition } from '../../../types/settings';
 import { Component } from '../../../types/types';
@@ -70,7 +70,6 @@ function SettingsAppRenderer(props: Readonly<SettingsAppRendererProps>) {
 
   return (
     <LargeCenteredLayout id="settings-page">
-      <Suggestions suggestions="settings" />
       <Helmet defer={false} title={translate('settings.page')} />
 
       <PageContentFontWrapper className="sw-my-8">

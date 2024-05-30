@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { LargeCenteredLayout, PageContentFontWrapper } from 'design-system';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
@@ -24,7 +25,6 @@ import { withRouter } from '~sonar-aligned/components/hoc/withRouter';
 import { Location, Router } from '~sonar-aligned/types/router';
 import { getSystemInfo } from '../../../api/system';
 import UpdateNotification from '../../../app/components/update-notification/UpdateNotification';
-import Suggestions from '../../../components/embed-docs-modal/Suggestions';
 import { translate } from '../../../helpers/l10n';
 import { SysInfoCluster, SysInfoStandalone } from '../../../types/types';
 import '../styles.css';
@@ -126,7 +126,6 @@ class SystemApp extends React.PureComponent<Props, State> {
     const { loading, sysInfoData } = this.state;
     return (
       <LargeCenteredLayout as="main">
-        <Suggestions suggestions="system_info" />
         <Helmet defer={false} title={translate('system_info.page')} />
         <PageContentFontWrapper className="sw-body-sm sw-pb-8">
           <div>

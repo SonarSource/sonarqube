@@ -17,9 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { DownloadButton, Link, SubHeading } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
+import { DocLink } from '../../helpers/doc-links';
 import {
   getEdition,
   getEditionDownloadFilename,
@@ -94,7 +96,7 @@ export default function SystemUpgradeItem(props: SystemUpgradeItemProps) {
           {translateWithParameters('system.download_x', lastUpgrade.version)}
         </DownloadButton>
 
-        <DocumentationLink className="sw-ml-2" to="/setup-and-upgrade/upgrade-the-server/roadmap/">
+        <DocumentationLink className="sw-ml-2" to={DocLink.ServerUpgradeRoadmap}>
           {translate('system.how_to_upgrade')}
         </DocumentationLink>
       </div>

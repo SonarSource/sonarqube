@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 /* eslint-disable react/no-unused-prop-types */
 import styled from '@emotion/styled';
 import {
@@ -33,6 +34,7 @@ import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { queryToSearchString } from '~sonar-aligned/helpers/urls';
 import DocumentationLink from '../../../components/common/DocumentationLink';
+import { DocLink } from '../../../helpers/doc-links';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { IndexationNotificationType } from '../../../types/indexation';
 import { TaskStatuses, TaskTypes } from '../../../types/tasks';
@@ -215,7 +217,7 @@ function renderBackgroundTasksPageLink(hasError: boolean, text: string) {
 
 function renderIndexationDocPageLink() {
   return (
-    <DocumentationLink className="sw-whitespace-nowrap" to="/instance-administration/reindexing/">
+    <DocumentationLink className="sw-whitespace-nowrap" to={DocLink.InstanceAdminReindexation}>
       <FormattedMessage id="indexation.features_partly_available.link" />
     </DocumentationLink>
   );

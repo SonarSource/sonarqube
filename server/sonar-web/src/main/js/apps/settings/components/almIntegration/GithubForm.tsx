@@ -17,13 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { FlagMessage, Link } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { ALM_DOCUMENTATION_PATHS } from '../../../../helpers/constants';
+import { DocLink } from '../../../../helpers/doc-links';
 import { useDocUrl } from '../../../../helpers/docs';
 import { translate } from '../../../../helpers/l10n';
-import { AlmKeys, GithubBindingDefinition } from '../../../../types/alm-settings';
+import { GithubBindingDefinition } from '../../../../types/alm-settings';
 import { AlmBindingDefinitionFormField } from './AlmBindingDefinitionFormField';
 
 export interface GithubFormProps {
@@ -33,7 +34,7 @@ export interface GithubFormProps {
 
 export default function GithubForm(props: GithubFormProps) {
   const { formData, onFieldChange } = props;
-  const toStatic = useDocUrl(ALM_DOCUMENTATION_PATHS[AlmKeys.GitHub]);
+  const toStatic = useDocUrl(DocLink.AlmGitHubIntegration);
   return (
     <>
       <FlagMessage variant="info" className="sw-mb-8">

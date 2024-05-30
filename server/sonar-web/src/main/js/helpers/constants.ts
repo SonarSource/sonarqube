@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { ComponentQualifier } from '~sonar-aligned/types/component';
 import { MetricKey } from '~sonar-aligned/types/metrics';
 import { colors } from '../app/theme';
@@ -166,16 +167,6 @@ export const DEPRECATED_ACTIVITY_METRICS = [
 ];
 
 export const PROJECT_KEY_MAX_LEN = 400;
-
-export const ALM_DOCUMENTATION_PATHS = {
-  [AlmKeys.Azure]: '/devops-platform-integration/azure-devops-integration/',
-  [AlmKeys.BitbucketServer]:
-    '/devops-platform-integration/bitbucket-integration/bitbucket-server-integration/',
-  [AlmKeys.BitbucketCloud]:
-    '/devops-platform-integration/bitbucket-integration/bitbucket-cloud-integration/',
-  [AlmKeys.GitHub]: '/devops-platform-integration/github-integration/',
-  [AlmKeys.GitLab]: '/devops-platform-integration/gitlab-integration/',
-};
 
 export const IMPORT_COMPATIBLE_ALMS = [
   AlmKeys.Azure,

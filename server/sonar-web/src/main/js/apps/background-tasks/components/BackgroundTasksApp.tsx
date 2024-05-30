@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { Spinner } from '@sonarsource/echoes-react';
 import { LargeCenteredLayout, PageContentFontWrapper } from 'design-system';
 import { debounce } from 'lodash';
@@ -35,6 +36,7 @@ import withComponentContext from '../../../app/components/componentContext/withC
 import ListFooter from '../../../components/controls/ListFooter';
 import Suggestions from '../../../components/embed-docs-modal/Suggestions';
 import { toShortISO8601String } from '../../../helpers/dates';
+import { DocLink } from '../../../helpers/doc-links';
 import { translate } from '../../../helpers/l10n';
 import { parseAsDate } from '../../../helpers/query';
 import { Task, TaskStatuses } from '../../../types/tasks';
@@ -227,7 +229,7 @@ export class BackgroundTasksApp extends React.PureComponent<Props, State> {
     return (
       <LargeCenteredLayout id="background-tasks">
         <PageContentFontWrapper className="sw-my-4 sw-body-sm">
-          <Suggestions suggestions="background_tasks" />
+          <Suggestions suggestion={DocLink.BackgroundTasks} />
           <Helmet defer={false} title={translate('background_tasks.page')} />
           <Spinner isLoading={!types}>
             <Header component={component} />

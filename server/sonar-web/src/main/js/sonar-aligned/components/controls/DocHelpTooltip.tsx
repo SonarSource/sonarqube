@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import classNames from 'classnames';
 import { HelperHintIcon } from 'design-system';
 import { first, last } from 'lodash';
@@ -24,6 +25,7 @@ import * as React from 'react';
 import DocumentationLink from '../../../components/common/DocumentationLink';
 import Link from '../../../components/common/Link';
 import Tooltip, { Placement } from '../../../components/controls/Tooltip';
+import { DocLink } from '../../../helpers/doc-links';
 import { KeyboardKeys } from '../../../helpers/keycodes';
 import { translate } from '../../../helpers/l10n';
 
@@ -32,7 +34,12 @@ export interface DocHelpTooltipProps {
   className?: string;
   content?: React.ReactNode;
   linkTextLabel?: string;
-  links?: Array<{ href: string; label?: string; inPlace?: boolean; doc?: boolean }>;
+  links?: Array<
+    { label?: string; inPlace?: boolean } & (
+      | { doc?: true; href: DocLink }
+      | { doc: false; href: string }
+    )
+  >;
   placement?: Placement;
   title?: string;
 }
@@ -91,7 +98,10 @@ export default function DocHelpTooltip(props: Readonly<DocHelpTooltipProps>) {
             <div className="sw-mb-1" key={label}>
               {index === 0 && linkTextLabel && `${linkTextLabel}: `}
               {doc ? (
-                <DocumentationLink to={href} innerRef={(ref) => (linksRef.current[index] = ref)}>
+                <DocumentationLink
+                  to={href as DocLink} // the map above messed up type inference
+                  innerRef={(ref) => (linksRef.current[index] = ref)}
+                >
                   {label}
                 </DocumentationLink>
               ) : (

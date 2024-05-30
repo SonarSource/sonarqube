@@ -24,12 +24,13 @@ import { keyBy } from 'lodash';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import DocumentationLink from '../../../../components/common/DocumentationLink';
+import { AlmAuthDocLinkKeys } from '../../../../helpers/doc-links';
 import { translate } from '../../../../helpers/l10n';
 import { useSaveValuesMutation } from '../../../../queries/settings';
 import { AlmKeys } from '../../../../types/alm-settings';
 import { ProvisioningType } from '../../../../types/provisioning';
 import { Dict, Provider } from '../../../../types/types';
-import { AuthenticationTabs, DOCUMENTATION_LINK_SUFFIXES } from './Authentication';
+import { AuthenticationTabs } from './Authentication';
 import AuthenticationFormField from './AuthenticationFormField';
 import ConfirmProvisioningModal from './ConfirmProvisioningModal';
 import { SettingValue } from './hook/useConfiguration';
@@ -125,9 +126,7 @@ export default function ConfigurationForm(props: Readonly<Props>) {
               id={`settings.authentication.${helpMessage}`}
               values={{
                 link: (
-                  <DocumentationLink
-                    to={`/instance-administration/authentication/${DOCUMENTATION_LINK_SUFFIXES[tab]}/`}
-                  >
+                  <DocumentationLink to={AlmAuthDocLinkKeys[tab]}>
                     {translate('settings.authentication.help.link')}
                   </DocumentationLink>
                 ),

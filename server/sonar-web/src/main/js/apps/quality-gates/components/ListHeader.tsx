@@ -17,10 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { ButtonPrimary, HelperHintIcon, Title } from 'design-system';
 import * as React from 'react';
 import DocHelpTooltip from '~sonar-aligned/components/controls/DocHelpTooltip';
 import ModalButton, { ModalProps } from '../../../components/controls/ModalButton';
+import { DocLink } from '../../../helpers/doc-links';
 import { translate } from '../../../helpers/l10n';
 import CreateQualityGateForm from './CreateQualityGateForm';
 
@@ -59,7 +61,7 @@ export default function ListHeader({ canCreate }: Readonly<Props>) {
           content={translate('quality_gates.help')}
           links={[
             {
-              href: '/user-guide/quality-gates/',
+              href: DocLink.QualityGates,
               label: translate('learn_more'),
             },
           ]}

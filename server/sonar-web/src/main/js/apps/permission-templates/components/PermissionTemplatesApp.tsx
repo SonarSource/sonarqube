@@ -17,13 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { withRouter } from '~sonar-aligned/components/hoc/withRouter';
 import { Location } from '~sonar-aligned/types/router';
 import { getPermissionTemplates } from '../../../api/permissions';
 import withAppStateContext from '../../../app/components/app-state/withAppStateContext';
-import Suggestions from '../../../components/embed-docs-modal/Suggestions';
 import { translate } from '../../../helpers/l10n';
 import { AppState } from '../../../types/appstate';
 import { Permission, PermissionTemplate } from '../../../types/types';
@@ -102,7 +102,6 @@ class PermissionTemplatesApp extends React.PureComponent<Props, State> {
     const { permissionTemplates, permissions, ready } = this.state;
     return (
       <>
-        <Suggestions suggestions="permission_templates" />
         <Helmet defer={false} title={translate('permission_templates.page')} />
 
         {id === undefined ? (

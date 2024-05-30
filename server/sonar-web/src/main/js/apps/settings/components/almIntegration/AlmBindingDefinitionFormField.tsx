@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import {
   ButtonSecondary,
   FlagMessage,
@@ -27,6 +28,7 @@ import {
 } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
+import { DocLink } from '../../../../helpers/doc-links';
 import { useDocUrl } from '../../../../helpers/docs';
 import { translate, translateWithParameters } from '../../../../helpers/l10n';
 import { AlmBindingDefinitionBase } from '../../../../types/alm-settings';
@@ -65,7 +67,7 @@ export function AlmBindingDefinitionFormField<B extends AlmBindingDefinitionBase
   } = props;
   const [showField, setShowField] = React.useState(!overwriteOnly);
 
-  const toStatic = useDocUrl('/instance-administration/security/#settings-encryption');
+  const toStatic = useDocUrl(DocLink.InstanceAdminEncryption);
 
   return (
     <FormField

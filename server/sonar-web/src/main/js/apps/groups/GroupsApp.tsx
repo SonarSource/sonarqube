@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { InputSearch, LargeCenteredLayout, PageContentFontWrapper } from 'design-system';
 import * as React from 'react';
 import { useState } from 'react';
@@ -25,7 +26,6 @@ import GitHubSynchronisationWarning from '../../app/components/GitHubSynchronisa
 import GitLabSynchronisationWarning from '../../app/components/GitLabSynchronisationWarning';
 import ListFooter from '../../components/controls/ListFooter';
 import { ManagedFilter } from '../../components/controls/ManagedFilter';
-import Suggestions from '../../components/embed-docs-modal/Suggestions';
 import { translate } from '../../helpers/l10n';
 import { useGroupsQueries } from '../../queries/groups';
 import { useIdentityProviderQuery } from '../../queries/identity-provider/common';
@@ -48,7 +48,6 @@ export default function GroupsApp() {
   return (
     <LargeCenteredLayout>
       <PageContentFontWrapper className="sw-my-8 sw-body-sm">
-        <Suggestions suggestions="user_groups" />
         <Helmet defer={false} title={translate('user_groups.page')} />
         <main>
           <Header manageProvider={manageProvider?.provider} />

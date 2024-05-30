@@ -17,10 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { FlagMessage } from 'design-system';
 import React from 'react';
 import { FormattedMessage } from 'react-intl';
 import DocumentationLink from '../../../../components/common/DocumentationLink';
+import { DocLink } from '../../../../helpers/doc-links';
 import { translate } from '../../../../helpers/l10n';
 import { useGetValueQuery } from '../../../../queries/settings';
 import { AlmKeys } from '../../../../types/alm-settings';
@@ -53,7 +55,7 @@ export default function BitbucketAuthenticationTab(props: Readonly<Props>) {
               id="settings.authentication.gitlab.configuration.insecure"
               values={{
                 documentation: (
-                  <DocumentationLink to="/instance-administration/authentication/bitbucket-cloud/#setting-your-authentication-settings-in-sonarqube">
+                  <DocumentationLink to={DocLink.AlmBitBucketCloudSettings}>
                     {translate('documentation')}
                   </DocumentationLink>
                 ),
@@ -69,7 +71,7 @@ export default function BitbucketAuthenticationTab(props: Readonly<Props>) {
             defaultMessage={translate('settings.authentication.help')}
             values={{
               link: (
-                <DocumentationLink to="/instance-administration/authentication/bitbucket-cloud/">
+                <DocumentationLink to={DocLink.AlmBitBucketCloudAuth}>
                   {translate('settings.authentication.help.link')}
                 </DocumentationLink>
               ),

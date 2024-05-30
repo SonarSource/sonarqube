@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import {
   ClipboardIconButton,
   CodeSnippet,
@@ -27,6 +28,7 @@ import {
 } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
+import { DocLink } from '../../../../helpers/doc-links';
 import { useDocUrl } from '../../../../helpers/docs';
 import { translate } from '../../../../helpers/l10n';
 import { InlineSnippet } from '../../components/InlineSnippet';
@@ -41,7 +43,7 @@ export interface DownloadScannerProps {
 export default function DownloadScanner(props: DownloadScannerProps) {
   const { os, isLocal, token } = props;
 
-  const docUrl = useDocUrl();
+  const docUrl = useDocUrl(DocLink.SonarScanner);
 
   return (
     <div className="sw-mb-4">
@@ -57,9 +59,7 @@ export default function DownloadScanner(props: DownloadScannerProps) {
               dir: <InlineSnippet snippet="bin" />,
               env_var: <InlineSnippet snippet={os === OSs.Windows ? '%PATH%' : 'PATH'} />,
               link: (
-                <Link to={docUrl('/analyzing-source-code/scanners/sonarscanner/')}>
-                  {translate('onboarding.analysis.sq_scanner.docs_link')}
-                </Link>
+                <Link to={docUrl}>{translate('onboarding.analysis.sq_scanner.docs_link')}</Link>
               ),
             }}
           />

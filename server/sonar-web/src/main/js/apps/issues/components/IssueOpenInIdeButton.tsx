@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import {
   ButtonSecondary,
   DropdownMenu,
@@ -30,6 +31,7 @@ import {
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import DocumentationLink from '../../../components/common/DocumentationLink';
+import { DocLink } from '../../../helpers/doc-links';
 import { translate } from '../../../helpers/l10n';
 import {
   generateSonarLintUserToken,
@@ -58,7 +60,7 @@ const showError = () =>
       id="issues.open_in_ide.failure"
       values={{
         link: (
-          <DocumentationLink to="user-guide/sonarlint-connected-mode/">
+          <DocumentationLink to={DocLink.SonarLintConnectedMode}>
             {translate('sonarlint-connected-mode-doc')}
           </DocumentationLink>
         ),

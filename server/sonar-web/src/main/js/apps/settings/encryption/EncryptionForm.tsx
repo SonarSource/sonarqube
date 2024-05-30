@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import {
   ButtonPrimary,
   ButtonSecondary,
@@ -30,6 +31,7 @@ import { useCallback, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { encryptValue } from '../../../api/settings';
 import DocumentationLink from '../../../components/common/DocumentationLink';
+import { DocLink } from '../../../helpers/doc-links';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {
@@ -122,7 +124,7 @@ export default function EncryptionForm({ generateSecretKey }: Readonly<Props>) {
             id="encryption.form_note"
             values={{
               moreInformationLink: (
-                <DocumentationLink to="/instance-administration/security/">
+                <DocumentationLink to={DocLink.InstanceAdminSecurity}>
                   {translate('more_information')}
                 </DocumentationLink>
               ),

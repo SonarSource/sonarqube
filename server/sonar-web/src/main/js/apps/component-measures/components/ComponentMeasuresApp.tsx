@@ -287,7 +287,7 @@ class ComponentMeasuresApp extends React.PureComponent<Props, State> {
 
     return (
       <LargeCenteredLayout id="component-measures" className="sw-pt-8">
-        <Suggestions suggestions="component_measures" />
+        <Suggestions suggestionGroup="component_measures" />
         <Helmet defer={false} title={translate('layout.measures')} />
         <PageContentFontWrapper className="sw-body-sm">
           <Spinner isLoading={this.state.loading} />

@@ -17,11 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
 import { byRole, byTestId } from '../../../helpers/testSelector';
 
 import Link from '../../../../components/common/Link';
+import { DocLink } from '../../../../helpers/doc-links';
 import { renderComponent } from '../../../../helpers/testReactTestingUtils';
 import DocHelpTooltip, { DocHelpTooltipProps } from '../DocHelpTooltip';
 
@@ -31,7 +33,7 @@ const ui = {
   helpIcon: byTestId('help-tooltip-activator'),
   helpLink: byRole('link', { name: 'Icon' }),
   linkInTooltip: byRole('link', { name: 'Label' }),
-  linkInTooltip2: byRole('link', { name: 'Label2' }),
+  linkInTooltip2: byRole('link', { name: /^Label2\b/ }),
   afterLink: byRole('link', { name: 'Interactive element after' }),
 };
 
@@ -70,15 +72,15 @@ function renderDocHelpTooltip(props: Partial<DocHelpTooltipProps> = {}) {
         content="Tooltip content"
         links={[
           {
-            href: '/user-guide/clean-as-you-code/',
-            label: 'Label',
             doc: false,
+            href: '/user-guide/clean-as-you-code2/',
+            label: 'Label',
           },
           {
-            href: '/user-guide/clean-as-you-code2/',
-            label: 'Label2',
             doc: true,
+            href: DocLink.CaYC,
             inPlace: true,
+            label: 'Label2',
           },
         ]}
         {...props}

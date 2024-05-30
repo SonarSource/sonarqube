@@ -17,11 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { Link } from '@sonarsource/echoes-react';
 import { HelperHintIcon } from 'design-system';
 import React from 'react';
 import DocHelpTooltip from '~sonar-aligned/components/controls/DocHelpTooltip';
 import HelpTooltip from '~sonar-aligned/components/controls/HelpTooltip';
+import { DocLink } from '../../../../../helpers/doc-links';
 import { translate, translateWithParameters } from '../../../../../helpers/l10n';
 import { getApplicationAdminUrl } from '../../../../../helpers/urls';
 import { useProjectBindingQuery } from '../../../../../queries/devops-integration';
@@ -103,18 +105,18 @@ export default function BranchHelpTooltip({
           data-test="only-one-branch-like"
           links={[
             {
-              href: '/analyzing-source-code/branches/branch-analysis/',
+              href: DocLink.BranchAnalysis,
               label: translate('branch_like_navigation.only_one_branch.documentation'),
             },
             {
-              href: '/analyzing-source-code/pull-request-analysis',
+              href: DocLink.PullRequestAnalysis,
               label: translate('branch_like_navigation.only_one_branch.pr_analysis'),
             },
             {
-              href: `/tutorials?id=${component.key}`,
-              label: translate('branch_like_navigation.tutorial_for_ci'),
-              inPlace: true,
               doc: false,
+              href: `/tutorials?id=${component.key}`,
+              inPlace: true,
+              label: translate('branch_like_navigation.tutorial_for_ci'),
             },
           ]}
           title={translate('branch_like_navigation.only_one_branch.title')}

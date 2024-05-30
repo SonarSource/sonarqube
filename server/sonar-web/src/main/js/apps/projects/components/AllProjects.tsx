@@ -34,13 +34,11 @@ import { useSearchParams } from 'react-router-dom';
 import A11ySkipTarget from '~sonar-aligned/components/a11y/A11ySkipTarget';
 import { withRouter } from '~sonar-aligned/components/hoc/withRouter';
 import { ComponentQualifier } from '~sonar-aligned/types/component';
-import { MetricKey } from '~sonar-aligned/types/metrics';
 import { Location, RawQuery, Router } from '~sonar-aligned/types/router';
 import { searchProjects } from '../../../api/components';
 import withAppStateContext from '../../../app/components/app-state/withAppStateContext';
 import withCurrentUserContext from '../../../app/components/current-user/withCurrentUserContext';
 import ScreenPositionHelper from '../../../components/common/ScreenPositionHelper';
-import Suggestions from '../../../components/embed-docs-modal/Suggestions';
 import '../../../components/search-navigator.css';
 import handleRequiredAuthentication from '../../../helpers/handleRequiredAuthentication';
 import { translate } from '../../../helpers/l10n';
@@ -307,7 +305,6 @@ export class AllProjects extends React.PureComponent<Props, State> {
   render() {
     return (
       <StyledWrapper id="projects-page">
-        <Suggestions suggestions={MetricKey.projects} />
         <Helmet defer={false} title={translate('projects.page')} />
 
         <h1 className="sw-sr-only">{translate('projects.page')}</h1>

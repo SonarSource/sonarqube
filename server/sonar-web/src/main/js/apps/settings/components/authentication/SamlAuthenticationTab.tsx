@@ -17,11 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { ButtonSecondary, Spinner } from 'design-system';
 import React, { FormEvent } from 'react';
 import { FormattedMessage } from 'react-intl';
 import DocumentationLink from '../../../../components/common/DocumentationLink';
 import ConfirmModal from '../../../../components/controls/ConfirmModal';
+import { DocLink } from '../../../../helpers/doc-links';
 import { translate } from '../../../../helpers/l10n';
 import { useIdentityProviderQuery } from '../../../../queries/identity-provider/common';
 import { useToggleScimMutation } from '../../../../queries/identity-provider/scim';
@@ -167,7 +169,7 @@ export default function SamlAuthenticationTab(props: SamlAuthenticationProps) {
                   id="settings.authentication.saml.form.provisioning.disabled"
                   values={{
                     documentation: (
-                      <DocumentationLink to="/instance-administration/authentication/saml/scim/overview">
+                      <DocumentationLink to={DocLink.AlmSamlScimAuth}>
                         {translate('documentation')}
                       </DocumentationLink>
                     ),
@@ -192,7 +194,7 @@ export default function SamlAuthenticationTab(props: SamlAuthenticationProps) {
                       )}
                       values={{
                         documentation: (
-                          <DocumentationLink to="/instance-administration/authentication/saml/scim/overview">
+                          <DocumentationLink to={DocLink.AlmSamlScimAuth}>
                             {translate('documentation')}
                           </DocumentationLink>
                         ),

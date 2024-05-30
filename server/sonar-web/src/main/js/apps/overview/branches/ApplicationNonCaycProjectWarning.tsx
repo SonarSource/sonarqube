@@ -17,9 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { Card, FlagMessage, Link } from 'design-system';
 import * as React from 'react';
 import { getBranchLikeQuery } from '~sonar-aligned/helpers/branch-like';
+import { DocLink } from '../../../helpers/doc-links';
 import { useDocUrl } from '../../../helpers/docs';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { getProjectQueryUrl } from '../../../helpers/urls';
@@ -30,7 +32,7 @@ interface Props {
 }
 
 export default function ApplicationNonCaycProjectWarning({ projects }: Props) {
-  const caycUrl = useDocUrl('/user-guide/clean-as-you-code/');
+  const caycUrl = useDocUrl(DocLink.CaYC);
 
   return (
     <Card className="sw-mt-4 sw-body-sm">

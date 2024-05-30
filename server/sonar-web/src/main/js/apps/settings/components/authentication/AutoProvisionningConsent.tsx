@@ -17,11 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { ButtonSecondary, Modal } from 'design-system';
 import { noop } from 'lodash';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import DocumentationLink from '../../../../components/common/DocumentationLink';
+import { DocLink } from '../../../../helpers/doc-links';
 import { translate } from '../../../../helpers/l10n';
 import { useToggleGithubProvisioningMutation } from '../../../../queries/identity-provider/github';
 import { useGetValueQuery, useResetSettingsMutation } from '../../../../queries/settings';
@@ -67,7 +69,7 @@ export default function AutoProvisioningConsent() {
           tagName="p"
           values={{
             documentation: (
-              <DocumentationLink to="/instance-administration/authentication/github/">
+              <DocumentationLink to={DocLink.AlmGitHubAuth}>
                 <FormattedMessage id="documentation" />
               </DocumentationLink>
             ),

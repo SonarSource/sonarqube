@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { FlagMessage } from 'design-system';
 import { debounce, findLast, maxBy, minBy, sortBy } from 'lodash';
 import * as React from 'react';
@@ -35,6 +36,7 @@ import {
 } from '../../../components/activity-graph/utils';
 import DocumentationLink from '../../../components/common/DocumentationLink';
 import { CCT_SOFTWARE_QUALITY_METRICS } from '../../../helpers/constants';
+import { DocLink } from '../../../helpers/doc-links';
 import { translate } from '../../../helpers/l10n';
 import {
   GraphType,
@@ -229,10 +231,7 @@ export default class ProjectActivityGraphs extends React.PureComponent<Props, St
             tagName="div"
             values={{
               learn_more: (
-                <DocumentationLink
-                  className="sw-whitespace-nowrap"
-                  to="/user-guide/clean-code/code-analysis/"
-                >
+                <DocumentationLink className="sw-whitespace-nowrap" to={DocLink.CodeAnalysis}>
                   {translate('learn_more')}
                 </DocumentationLink>
               ),

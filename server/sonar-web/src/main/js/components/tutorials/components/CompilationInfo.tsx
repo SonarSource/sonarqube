@@ -17,9 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { FlagMessage, Link } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
+import { DocLink } from '../../../helpers/doc-links';
 import { useDocUrl } from '../../../helpers/docs';
 import { translate } from '../../../helpers/l10n';
 
@@ -39,7 +41,7 @@ export function CompilationInfo({ className = 'sw-my-2' }: CompilationInfoProps)
             defaultMessage={translate('onboarding.tutorial.cfamilly.compilation_database_info')}
             values={{
               link: (
-                <Link to={docUrl('/analyzing-source-code/languages/c-family/')}>
+                <Link to={docUrl(DocLink.CFamily)}>
                   {translate('onboarding.tutorial.cfamilly.compilation_database_info.link')}
                 </Link>
               ),
@@ -52,7 +54,7 @@ export function CompilationInfo({ className = 'sw-my-2' }: CompilationInfoProps)
             defaultMessage={translate('onboarding.tutorial.cfamilly.speed_caching')}
             values={{
               link: (
-                <Link to={docUrl('/analyzing-source-code/languages/c-family/#analysis-cache')}>
+                <Link to={docUrl(DocLink.CFamilyAnalysisCache)}>
                   {translate('onboarding.tutorial.cfamilly.speed_caching.link')}
                 </Link>
               ),

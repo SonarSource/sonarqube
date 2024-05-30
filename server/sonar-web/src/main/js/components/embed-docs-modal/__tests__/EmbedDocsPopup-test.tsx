@@ -17,9 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
+import { DocLink, DocTitleKey } from '../../../helpers/doc-links';
 import { renderComponent } from '../../../helpers/testReactTestingUtils';
 import EmbedDocsPopupHelper from '../EmbedDocsPopupHelper';
 import Suggestions from '../Suggestions';
@@ -60,10 +62,10 @@ it('should be able to render with suggestions and remove them', async () => {
 
 function renderEmbedDocsPopup() {
   function Test() {
-    const [suggestions, setSuggestions] = React.useState<string[]>(['account']);
+    const [suggestions, setSuggestions] = React.useState<DocTitleKey[]>([]);
 
     const addSuggestion = () => {
-      setSuggestions([...suggestions, 'background_tasks']);
+      setSuggestions([...suggestions, DocLink.BackgroundTasks]);
     };
 
     return (
@@ -81,7 +83,7 @@ function renderEmbedDocsPopup() {
         </button>
         <EmbedDocsPopupHelper />
         {suggestions.map((suggestion) => (
-          <Suggestions key={suggestion} suggestions={suggestion} />
+          <Suggestions key={suggestion} suggestion={suggestion} />
         ))}
       </SuggestionsProvider>
     );

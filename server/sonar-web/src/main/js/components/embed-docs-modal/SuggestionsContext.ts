@@ -17,12 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { createContext } from 'react';
+import { DocTitleKey } from '../../helpers/doc-links';
 import { SuggestionLink } from '../../types/types';
 
-interface SuggestionsContextShape {
-  addSuggestions: (key: string) => void;
-  removeSuggestions: (key: string) => void;
+export interface SuggestionsContextShape {
+  addSuggestions: (keys: DocTitleKey[]) => void;
+  removeSuggestions: (keys: DocTitleKey[]) => void;
   suggestions: SuggestionLink[];
 }
 

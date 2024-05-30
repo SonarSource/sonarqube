@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import {
   ButtonPrimary,
   FlagMessage,
@@ -39,6 +40,7 @@ import A11ySkipTarget from '~sonar-aligned/components/a11y/A11ySkipTarget';
 import HelpTooltip from '~sonar-aligned/components/controls/HelpTooltip';
 import DisableableSelectOption from '../../components/common/DisableableSelectOption';
 import Suggestions from '../../components/embed-docs-modal/Suggestions';
+import { DocLink } from '../../helpers/doc-links';
 import { translate } from '../../helpers/l10n';
 import { isDiffMetric } from '../../helpers/measures';
 import { LabelValueSelectOption } from '../../helpers/search';
@@ -127,7 +129,7 @@ export default function ProjectQualityGateAppRenderer(props: ProjectQualityGateA
   return (
     <LargeCenteredLayout id="project-quality-gate">
       <PageContentFontWrapper className="sw-my-8 sw-body-sm">
-        <Suggestions suggestions="project_quality_gate" />
+        <Suggestions suggestion={DocLink.CaYC} />
         <Helmet defer={false} title={translate('project_quality_gate.page')} />
         <A11ySkipTarget anchor="qg_main" />
 

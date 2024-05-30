@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { Link } from '@sonarsource/echoes-react';
 import { Note, getTabPanelId } from 'design-system';
 import * as React from 'react';
@@ -26,6 +27,7 @@ import { queryToSearchString } from '~sonar-aligned/helpers/urls';
 import { ComponentQualifier } from '~sonar-aligned/types/component';
 import DocumentationLink from '../../../components/common/DocumentationLink';
 import { Image } from '../../../components/common/Image';
+import { DocLink } from '../../../helpers/doc-links';
 import { translate } from '../../../helpers/l10n';
 import { CodeScope } from '../../../helpers/urls';
 import { Branch } from '../../../types/branch-like';
@@ -109,9 +111,7 @@ export default function MeasuresPanelNoNewCode(props: MeasuresPanelNoNewCodeProp
               id="overview.measures.empty_link"
               values={{
                 learn_more_link: (
-                  <DocumentationLink to="/user-guide/clean-as-you-code/">
-                    {translate('learn_more')}
-                  </DocumentationLink>
+                  <DocumentationLink to={DocLink.CaYC}>{translate('learn_more')}</DocumentationLink>
                 ),
               }}
             />

@@ -17,11 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { SpotlightTour, SpotlightTourStep } from 'design-system';
 import React from 'react';
 import { dismissNotice } from '../../../api/users';
 import { CurrentUserContext } from '../../../app/components/current-user/CurrentUserContext';
 import DocumentationLink from '../../../components/common/DocumentationLink';
+import { DocLink } from '../../../helpers/doc-links';
 import { translate } from '../../../helpers/l10n';
 import { QualityGate } from '../../../types/types';
 import { NoticeType } from '../../../types/users';
@@ -65,7 +67,7 @@ export default function CaYCConditionsSimplificationGuide({ qualityGate }: Props
           <p className="sw-mb-4">
             {translate('quality_gates.cayc.condition_simplification_tour.page_3.content1')}
           </p>
-          <DocumentationLink to="/user-guide/issues/#resolutions">
+          <DocumentationLink to={DocLink.IssueResolutions}>
             {translate('quality_gates.cayc.condition_simplification_tour.page_3.content2')}
           </DocumentationLink>
         </>

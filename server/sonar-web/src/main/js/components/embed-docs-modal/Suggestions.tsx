@@ -17,21 +17,31 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import * as React from 'react';
-import { SuggestionsContext } from './SuggestionsContext';
+import { DocSection, DocSectionKey, DocTitleKey } from '../../helpers/doc-links';
+import { isDefined } from '../../helpers/types';
+import { SuggestionsContext, SuggestionsContextShape } from './SuggestionsContext';
 
-interface Props {
-  suggestions: string;
-}
+type Props =
+  | {
+      suggestion: DocTitleKey;
+      suggestionGroup?: never;
+    }
+  | {
+      suggestion?: never;
+      suggestionGroup: DocSectionKey;
+    };
 
-export default function Suggestions({ suggestions }: Props) {
+export default function Suggestions({ suggestion, suggestionGroup }: Readonly<Props>) {
   return (
     <SuggestionsContext.Consumer>
       {({ addSuggestions, removeSuggestions }) => (
         <SuggestionsInner
           addSuggestions={addSuggestions}
           removeSuggestions={removeSuggestions}
-          suggestions={suggestions}
+          suggestion={suggestion}
+          suggestionGroup={suggestionGroup}
         />
       )}
     </SuggestionsContext.Consumer>
@@ -39,25 +49,31 @@ export default function Suggestions({ suggestions }: Props) {
 }
 
 interface SuggestionsInnerProps {
-  addSuggestions: (key: string) => void;
-  removeSuggestions: (key: string) => void;
-  suggestions: string;
+  addSuggestions: SuggestionsContextShape['addSuggestions'];
+  removeSuggestions: SuggestionsContextShape['removeSuggestions'];
+  suggestion: Props['suggestion'];
+  suggestionGroup: Props['suggestionGroup'];
 }
 
 class SuggestionsInner extends React.PureComponent<SuggestionsInnerProps> {
   componentDidMount() {
-    this.props.addSuggestions(this.props.suggestions);
-  }
-
-  componentDidUpdate(prevProps: Props) {
-    if (prevProps.suggestions !== this.props.suggestions) {
-      this.props.removeSuggestions(this.props.suggestions);
-      this.props.addSuggestions(prevProps.suggestions);
-    }
+    this.props.addSuggestions(this.getSuggestionListFromProps());
   }
 
   componentWillUnmount() {
-    this.props.removeSuggestions(this.props.suggestions);
+    this.props.removeSuggestions(this.getSuggestionListFromProps());
+  }
+
+  getSuggestionListFromProps() {
+    const { suggestion, suggestionGroup } = this.props;
+
+    const suggestions: DocTitleKey[] = isDefined(suggestion) ? [suggestion] : [];
+
+    if (suggestionGroup) {
+      suggestions.push(...DocSection[suggestionGroup]);
+    }
+
+    return suggestions;
   }
 
   render() {

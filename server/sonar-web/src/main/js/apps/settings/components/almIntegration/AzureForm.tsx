@@ -17,13 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { Link } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { ALM_DOCUMENTATION_PATHS } from '../../../../helpers/constants';
+import { DocLink } from '../../../../helpers/doc-links';
 import { useDocUrl } from '../../../../helpers/docs';
 import { translate } from '../../../../helpers/l10n';
-import { AlmKeys, AzureBindingDefinition } from '../../../../types/alm-settings';
+import { AzureBindingDefinition } from '../../../../types/alm-settings';
 import { AlmBindingDefinitionFormField } from './AlmBindingDefinitionFormField';
 
 export interface AzureFormProps {
@@ -33,7 +34,7 @@ export interface AzureFormProps {
 
 export default function AzureForm(props: AzureFormProps) {
   const { formData, onFieldChange } = props;
-  const toStatic = useDocUrl(ALM_DOCUMENTATION_PATHS[AlmKeys.Azure]);
+  const toStatic = useDocUrl(DocLink.AlmAzureIntegration);
   return (
     <>
       <AlmBindingDefinitionFormField

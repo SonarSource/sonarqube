@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { withTheme } from '@emotion/react';
 import styled from '@emotion/styled';
 import {
@@ -35,6 +36,7 @@ import { Helmet } from 'react-helmet-async';
 import { useNavigate, useParams } from 'react-router-dom';
 import Suggestions from '../../../components/embed-docs-modal/Suggestions';
 import '../../../components/search-navigator.css';
+import { DocLink } from '../../../helpers/doc-links';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { getQualityGateUrl } from '../../../helpers/urls';
 import { useQualityGatesQuery } from '../../../queries/quality-gates';
@@ -84,7 +86,7 @@ export default function App() {
           )}
         />
         <div className="sw-grid sw-gap-x-12 sw-gap-y-6 sw-grid-cols-12 sw-w-full">
-          <Suggestions suggestions="quality_gates" />
+          <Suggestions suggestion={DocLink.CaYC} />
 
           <StyledContentWrapper
             className="sw-col-span-3 sw-px-4 sw-py-6 sw-border-y-0"

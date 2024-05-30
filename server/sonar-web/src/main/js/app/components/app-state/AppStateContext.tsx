@@ -17,7 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import * as React from 'react';
+import { DOC_URL } from '../../../helpers/doc-links';
 import { AppState } from '../../../types/appstate';
 
 export const DEFAULT_APP_STATE = {
@@ -29,6 +31,6 @@ export const DEFAULT_APP_STATE = {
   settings: {},
   version: '',
   versionEOL: '',
-  documentationUrl: 'https://docs.sonarsource.com/sonarqube/latest',
+  documentationUrl: DOC_URL,
 };
 export const AppStateContext = React.createContext<AppState>(DEFAULT_APP_STATE);

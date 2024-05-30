@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { LargeCenteredLayout, PageContentFontWrapper, Spinner } from 'design-system';
 import * as React from 'react';
 import { useCallback, useEffect, useState } from 'react';
@@ -24,6 +25,7 @@ import { Helmet } from 'react-helmet-async';
 import { createWebhook, deleteWebhook, searchWebhooks, updateWebhook } from '../../../api/webhooks';
 import withComponentContext from '../../../app/components/componentContext/withComponentContext';
 import Suggestions from '../../../components/embed-docs-modal/Suggestions';
+import { DocLink } from '../../../helpers/doc-links';
 import { translate } from '../../../helpers/l10n';
 import { Component } from '../../../types/types';
 import { WebhookResponse } from '../../../types/webhook';
@@ -100,7 +102,7 @@ export function App({ component }: AppProps) {
   return (
     <LargeCenteredLayout id="project-webhooks">
       <PageContentFontWrapper className="sw-my-8 sw-body-sm">
-        <Suggestions suggestions="webhooks" />
+        <Suggestions suggestion={DocLink.Webhooks} />
         <Helmet defer={false} title={translate('webhooks.page')} />
         <PageHeader>
           <PageActions loading={loading} onCreate={handleCreate} webhooksCount={webhooks.length} />

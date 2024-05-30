@@ -17,9 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { Pill } from 'design-system';
 import React from 'react';
 import DocHelpTooltip from '~sonar-aligned/components/controls/DocHelpTooltip';
+import { DocLink } from '../../helpers/doc-links';
 import { translate } from '../../helpers/l10n';
 import { CleanCodeAttribute, CleanCodeAttributeCategory } from '../../types/clean-code-taxonomy';
 
@@ -57,7 +59,7 @@ export function CleanCodeAttributePill(props: Readonly<Props>) {
       }
       links={[
         {
-          href: '/user-guide/clean-code/introduction',
+          href: DocLink.CleanCodeIntroduction,
           label: translate('learn_more'),
         },
       ]}

@@ -17,9 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { HeadingDark, Link, Title } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
+import { DocLink } from '../../../helpers/doc-links';
 import { useDocUrl } from '../../../helpers/docs';
 import { translate } from '../../../helpers/l10n';
 
@@ -29,7 +31,7 @@ export interface AppHeaderProps {
 
 export default function AppHeader(props: AppHeaderProps) {
   const { canAdmin } = props;
-  const toUrl = useDocUrl('/project-administration/clean-as-you-code-settings/defining-new-code/');
+  const toUrl = useDocUrl(DocLink.NewCodeDefinition);
 
   return (
     <header className="sw-mt-8 sw-mb-4">

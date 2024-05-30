@@ -35,7 +35,6 @@ import { isPortfolioLike } from '~sonar-aligned/helpers/component';
 import { Breadcrumb } from '~sonar-aligned/types/component';
 import { Location } from '~sonar-aligned/types/router';
 import ListFooter from '../../../components/controls/ListFooter';
-import Suggestions from '../../../components/embed-docs-modal/Suggestions';
 import AnalysisMissingInfoMessage from '../../../components/shared/AnalysisMissingInfoMessage';
 import { CCT_SOFTWARE_QUALITY_METRICS, OLD_TAXONOMY_METRICS } from '../../../helpers/constants';
 import { KeyboardKeys } from '../../../helpers/keycodes';
@@ -125,7 +124,6 @@ export default function CodeAppRenderer(props: Readonly<Props>) {
 
   return (
     <LargeCenteredLayout className="sw-py-8 sw-body-md" id="code-page">
-      <Suggestions suggestions="code" />
       <Helmet defer={false} title={sourceViewer !== undefined ? sourceViewer.name : defaultTitle} />
 
       <A11ySkipTarget anchor="code_main" />

@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { subDays, subSeconds } from 'date-fns';
 import {
   HelperHintIcon,
@@ -35,7 +36,6 @@ import GitHubSynchronisationWarning from '../../app/components/GitHubSynchronisa
 import GitLabSynchronisationWarning from '../../app/components/GitLabSynchronisationWarning';
 import ListFooter from '../../components/controls/ListFooter';
 import { ManagedFilter } from '../../components/controls/ManagedFilter';
-import Suggestions from '../../components/embed-docs-modal/Suggestions';
 import { now, toISO8601WithOffsetString } from '../../helpers/dates';
 import { translate } from '../../helpers/l10n';
 import { LabelValueSelectOption } from '../../helpers/search';
@@ -98,7 +98,6 @@ export default function UsersApp() {
   return (
     <LargeCenteredLayout as="main" id="users-page">
       <PageContentFontWrapper className="sw-my-8 sw-body-sm">
-        <Suggestions suggestions="users" />
         <Helmet defer={false} title={translate('users.page')} />
         <Header manageProvider={manageProvider?.provider} />
         {manageProvider?.provider === Provider.Github && <GitHubSynchronisationWarning short />}

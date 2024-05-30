@@ -22,6 +22,7 @@ import { LinkHighlight, LinkStandalone } from '@sonarsource/echoes-react';
 import React, { useMemo } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { useAppState } from '../../app/components/app-state/withAppStateContext';
+import { DocLink } from '../../helpers/doc-links';
 import { useDocUrl } from '../../helpers/docs';
 import { getInstanceVersionNumber } from '../../helpers/strings';
 import { isCurrentVersionEOLActive } from '../../helpers/system';
@@ -39,7 +40,7 @@ export default function AppVersionStatus() {
     return isCurrentVersionEOLActive(versionEOL);
   }, [data?.installedVersionActive, versionEOL]);
 
-  const docUrl = useDocUrl();
+  const docUrl = useDocUrl(DocLink.ActiveVersions);
   const intl = useIntl();
 
   return intl.formatMessage(
@@ -47,11 +48,7 @@ export default function AppVersionStatus() {
     {
       version: getInstanceVersionNumber(version),
       status: (
-        <LinkStandalone
-          className="sw-ml-1"
-          highlight={LinkHighlight.CurrentColor}
-          to={docUrl('/setup-and-upgrade/upgrade-the-server/active-versions/')}
-        >
+        <LinkStandalone className="sw-ml-1" highlight={LinkHighlight.CurrentColor} to={docUrl}>
           <FormattedMessage
             id={`footer.version.status.${isActiveVersion ? 'active' : 'inactive'}`}
           />

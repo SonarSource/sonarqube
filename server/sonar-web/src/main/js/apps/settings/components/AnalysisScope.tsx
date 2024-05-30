@@ -22,6 +22,7 @@ import styled from '@emotion/styled';
 import { LightLabel } from 'design-system';
 import * as React from 'react';
 import DocumentationLink from '../../../components/common/DocumentationLink';
+import { DocLink } from '../../../helpers/doc-links';
 import { translate } from '../../../helpers/l10n';
 import { AdditionalCategoryComponentProps } from './AdditionalCategories';
 import CategoryDefinitionsList from './CategoryDefinitionsList';
@@ -46,7 +47,7 @@ export function AnalysisScope(props: AdditionalCategoryComponentProps) {
         <LightLabel>{translate('settings.analysis_scope.wildcards.single_char')}</LightLabel>
 
         <div className="sw-col-span-2">
-          <DocumentationLink to="/project-administration/analysis-scope/">
+          <DocumentationLink to={DocLink.AnalysisScope}>
             {translate('learn_more')}
           </DocumentationLink>
         </div>

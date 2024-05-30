@@ -17,10 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import classNames from 'classnames';
 import { FlagMessage, Link } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
+import { DocLink } from '../../../helpers/doc-links';
 import { useDocUrl } from '../../../helpers/docs';
 import { translate } from '../../../helpers/l10n';
 
@@ -29,7 +31,7 @@ export interface ProjectTokenScopeInfoProps {
 }
 
 export default function ProjectTokenScopeInfo({ className }: ProjectTokenScopeInfoProps) {
-  const docUrl = useDocUrl('/user-guide/user-account/generating-and-using-tokens/');
+  const docUrl = useDocUrl(DocLink.AccountTokens);
 
   return (
     <FlagMessage variant="info" className={classNames('sw-mt-2', className)}>

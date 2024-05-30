@@ -17,10 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { ButtonPrimary, FlagMessage, Title } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import DocumentationLink from '../../../components/common/DocumentationLink';
+import { DocLink } from '../../../helpers/doc-links';
 import { translate } from '../../../helpers/l10n';
 import { Provider } from '../../../types/types';
 import GroupForm from './GroupForm';
@@ -57,7 +59,7 @@ export default function Header({ manageProvider }: Readonly<HeaderProps>) {
                 values={{
                   provider: manageProvider,
                   link: (
-                    <DocumentationLink to="/instance-administration/authentication/overview/">
+                    <DocumentationLink to={DocLink.AuthOverview}>
                       {translate('documentation')}
                     </DocumentationLink>
                   ),

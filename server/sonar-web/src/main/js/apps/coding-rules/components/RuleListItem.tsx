@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import styled from '@emotion/styled';
 import {
   Badge,
@@ -37,6 +38,7 @@ import { CleanCodeAttributePill } from '../../../components/shared/CleanCodeAttr
 import SoftwareImpactPillList from '../../../components/shared/SoftwareImpactPillList';
 import TypeHelper from '../../../components/shared/TypeHelper';
 import TagsList from '../../../components/tags/TagsList';
+import { DocLink } from '../../../helpers/doc-links';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { getRuleUrl } from '../../../helpers/urls';
 import { Rule } from '../../../types/types';
@@ -254,7 +256,7 @@ export default class RuleListItem extends React.PureComponent<Props> {
                   }
                   links={[
                     {
-                      href: '/user-guide/clean-code/introduction',
+                      href: DocLink.CleanCodeIntroduction,
                       label: translate('learn_more'),
                     },
                   ]}

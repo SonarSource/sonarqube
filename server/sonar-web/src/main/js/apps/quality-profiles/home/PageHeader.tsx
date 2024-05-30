@@ -22,6 +22,7 @@ import * as React from 'react';
 import { useIntl } from 'react-intl';
 import { useLocation, useRouter } from '~sonar-aligned/components/hoc/withRouter';
 import { Actions } from '../../../api/quality-profiles';
+import { DocLink } from '../../../helpers/doc-links';
 import { useDocUrl } from '../../../helpers/docs';
 import { translate } from '../../../helpers/l10n';
 import { Profile } from '../types';
@@ -41,7 +42,7 @@ export default function PageHeader(props: Readonly<Props>) {
   const intl = useIntl();
   const location = useLocation();
   const router = useRouter();
-  const docUrl = useDocUrl();
+  const docUrl = useDocUrl(DocLink.InstanceAdminQualityProfiles);
 
   const [modal, setModal] = React.useState<'' | 'createProfile' | 'restoreProfile'>('');
 
@@ -63,7 +64,7 @@ export default function PageHeader(props: Readonly<Props>) {
         <div className="sw-body-sm">
           {intl.formatMessage({ id: 'quality_profiles.intro' })}
 
-          <Link className="sw-ml-2" to={docUrl('/instance-administration/quality-profiles/')}>
+          <Link className="sw-ml-2" to={docUrl}>
             {intl.formatMessage({ id: 'learn_more' })}
           </Link>
         </div>

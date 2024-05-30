@@ -17,9 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { Title } from 'design-system';
 import * as React from 'react';
 import DocumentationLink from '../../../components/common/DocumentationLink';
+import { DocLink } from '../../../helpers/doc-links';
 import { translate } from '../../../helpers/l10n';
 import { Component } from '../../../types/types';
 import Workers from './Workers';
@@ -35,7 +37,7 @@ export default function Header(props: Readonly<Props>) {
         <Title className="sw-mb-4">{translate('background_tasks.page')}</Title>
         <p className="sw-max-w-3/4">
           {translate('background_tasks.page.description')}
-          <DocumentationLink className="sw-ml-2" to="/analyzing-source-code/background-tasks/">
+          <DocumentationLink className="sw-ml-2" to={DocLink.BackgroundTasks}>
             {translate('learn_more')}
           </DocumentationLink>
         </p>

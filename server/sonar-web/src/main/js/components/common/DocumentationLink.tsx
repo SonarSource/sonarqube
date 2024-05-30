@@ -17,13 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Link, LinkProps } from 'design-system';
+
+import { Link, LinkProps } from '@sonarsource/echoes-react';
 import * as React from 'react';
+import { DocLink } from '../../helpers/doc-links';
 import { useDocUrl } from '../../helpers/docs';
 
-type Props = Omit<LinkProps, 'to'> & { to: string; innerRef?: React.Ref<HTMLAnchorElement> };
+type Props = Omit<LinkProps, 'to'> & { to: DocLink; innerRef?: React.Ref<HTMLAnchorElement> };
 
 export default function DocumentationLink({ to, innerRef, ...props }: Props) {
   const toStatic = useDocUrl(to);
-  return <Link ref={innerRef} to={toStatic} target="_blank" {...props} />;
+
+  return <Link ref={innerRef} to={toStatic} {...props} />;
 }

@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { FlagMessage, InputField, Note, RequiredIcon, SubHeading, Switch } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
@@ -24,6 +25,7 @@ import withAvailableFeatures, {
   WithAvailableFeaturesProps,
 } from '../../../../app/components/available-features/withAvailableFeatures';
 import DocumentationLink from '../../../../components/common/DocumentationLink';
+import { DocLink } from '../../../../helpers/doc-links';
 import { translate } from '../../../../helpers/l10n';
 import { convertGithubApiUrlToLink, stripTrailingSlash } from '../../../../helpers/urls';
 import {
@@ -293,7 +295,7 @@ export function AlmSpecificForm(props: AlmSpecificFormProps) {
           help: true,
           helpParams: {
             doc_link: (
-              <DocumentationLink to="/project-administration/monorepos/">
+              <DocumentationLink to={DocLink.Monorepos}>
                 {translate('learn_more')}
               </DocumentationLink>
             ),

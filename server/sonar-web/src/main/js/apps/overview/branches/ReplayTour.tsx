@@ -17,8 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { SpotlightTour, SpotlightTourStep } from 'design-system';
 import React from 'react';
+import { DocLink } from '../../../helpers/doc-links';
 import { useDocUrl } from '../../../helpers/docs';
 import { translate } from '../../../helpers/l10n';
 
@@ -37,7 +39,7 @@ export default function ReplayTourGuide({ run, closeTour, tourCompleted }: Reado
 
   const constructContent = (first: string) => <p className="sw-mt-2">{translate(first)}</p>;
 
-  const docUrl = useDocUrl('improving/clean-as-you-code/');
+  const docUrl = useDocUrl(DocLink.CaYC);
 
   const steps: SpotlightTourStep[] = [
     {

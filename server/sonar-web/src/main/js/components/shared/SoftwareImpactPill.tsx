@@ -17,11 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import classNames from 'classnames';
 import { Pill } from 'design-system';
 import React from 'react';
 import { FormattedMessage } from 'react-intl';
 import DocHelpTooltip from '~sonar-aligned/components/controls/DocHelpTooltip';
+import { DocLink } from '../../helpers/doc-links';
 import { translate } from '../../helpers/l10n';
 import { SoftwareImpactSeverity } from '../../types/clean-code-taxonomy';
 import SoftwareImpactSeverityIcon from '../icon-mappers/SoftwareImpactSeverityIcon';
@@ -56,7 +58,7 @@ export default function SoftwareImpactPill(props: Props) {
       }
       links={[
         {
-          href: '/user-guide/clean-code/introduction',
+          href: DocLink.CleanCodeIntroduction,
           label: translate('learn_more'),
         },
       ]}

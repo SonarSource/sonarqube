@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { SpotlightTour, SpotlightTourStep } from 'design-system';
 import React, { useState } from 'react';
 import { useIntl } from 'react-intl';
@@ -24,6 +25,7 @@ import { CallBackProps } from 'react-joyride';
 import { useCurrentUser } from '../../../app/components/current-user/CurrentUserContext';
 import DocumentationLink from '../../../components/common/DocumentationLink';
 import { SCREEN_POSITION_COMPUTE_DELAY } from '../../../components/common/ScreenPositionHelper';
+import { DocLink } from '../../../helpers/doc-links';
 import { useDismissNoticeMutation } from '../../../queries/users';
 import { IssueTransition } from '../../../types/issues';
 import { Issue } from '../../../types/types';
@@ -36,7 +38,6 @@ interface Props {
 }
 
 const PLACEMENT_RIGHT = 'right';
-const DOC_LINK = '/user-guide/issues/#statuses';
 export const SESSION_STORAGE_TRANSITION_GUIDE_KEY = 'issueNewStatusAndTransitionGuideStep';
 const EXTRA_DELAY = 100;
 const GUIDE_WIDTH = 360;
@@ -145,7 +146,7 @@ export default function IssueNewStatusAndTransitionGuide(props: Readonly<Props>)
           <span>{intl.formatMessage({ id: `guiding.issue_accept.${stepIndex}.content.1` })}</span>
           <span>{intl.formatMessage({ id: `guiding.issue_accept.${stepIndex}.content.2` })}</span>
         </div>
-        <DocumentationLink to={DOC_LINK} className="sw-mt-1 sw-inline-block">
+        <DocumentationLink to={DocLink.IssueStatuses} className="sw-mt-1 sw-inline-block">
           {intl.formatMessage({ id: `guiding.issue_accept.${stepIndex}.content.link` })}
         </DocumentationLink>
       </>

@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import styled from '@emotion/styled';
 import {
   InputSearch,
@@ -40,6 +41,7 @@ import withCurrentUserContext from '../../../app/components/current-user/withCur
 import ListFooter from '../../../components/controls/ListFooter';
 import Suggestions from '../../../components/embed-docs-modal/Suggestions';
 import '../../../components/search-navigator.css';
+import { DocLink } from '../../../helpers/doc-links';
 import { isInput, isShortcut } from '../../../helpers/keyboardEventHelpers';
 import { KeyboardKeys } from '../../../helpers/keycodes';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
@@ -566,7 +568,7 @@ export class CodingRulesApp extends React.PureComponent<Props, State> {
 
     return (
       <>
-        <Suggestions suggestions="coding_rules" />
+        <Suggestions suggestion={DocLink.InstanceAdminQualityProfiles} />
         {openRule ? (
           <Helmet
             defer={false}

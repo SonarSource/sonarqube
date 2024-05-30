@@ -17,8 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { ComponentBase, ComponentQualifier } from '~sonar-aligned/types/component';
 import { RuleDescriptionSection } from '../apps/coding-rules/rule';
+import { DocTitleKey } from '../helpers/doc-links';
 import {
   CleanCodeAttribute,
   CleanCodeAttributeCategory,
@@ -685,8 +687,7 @@ export interface SubscriptionPlan {
 }
 
 export interface SuggestionLink {
-  link: string;
-  scope?: 'sonarcloud';
+  link: DocTitleKey;
   text: string;
 }
 

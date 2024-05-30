@@ -17,12 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { Note, SeparatorCircleIcon, TextSubdued } from 'design-system';
 import * as React from 'react';
 import DocHelpTooltip from '~sonar-aligned/components/controls/DocHelpTooltip';
 import IssueSeverityIcon from '../../../components/icon-mappers/IssueSeverityIcon';
 import IssueTypeIcon from '../../../components/icon-mappers/IssueTypeIcon';
 import TagsList from '../../../components/tags/TagsList';
+import { DocLink } from '../../../helpers/doc-links';
 import { translate } from '../../../helpers/l10n';
 import { IssueSeverity } from '../../../types/issues';
 import { Dict, RuleDetails } from '../../../types/types';
@@ -53,7 +55,7 @@ export default function RuleDetailsHeaderActions(props: Readonly<Props>) {
         }
         links={[
           {
-            href: '/user-guide/rules/overview',
+            href: DocLink.RulesOverview,
             label: translate('learn_more'),
           },
         ]}
@@ -84,7 +86,7 @@ export default function RuleDetailsHeaderActions(props: Readonly<Props>) {
         }
         links={[
           {
-            href: '/user-guide/rules/overview',
+            href: DocLink.RulesOverview,
             label: translate('learn_more'),
           },
         ]}

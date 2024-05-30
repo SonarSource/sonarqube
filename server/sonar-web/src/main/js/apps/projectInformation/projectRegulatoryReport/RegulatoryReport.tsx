@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import {
   BasicSeparator,
   DownloadButton,
@@ -34,6 +35,7 @@ import { getBranches } from '../../../api/branches';
 import { getRegulatoryReportUrl } from '../../../api/regulatory-report';
 import DocumentationLink from '../../../components/common/DocumentationLink';
 import { getBranchLikeDisplayName, getBranchLikeKey } from '../../../helpers/branch-like';
+import { DocLink } from '../../../helpers/doc-links';
 import { translate } from '../../../helpers/l10n';
 import { LabelValueSelectOption } from '../../../helpers/search';
 import { BranchLike } from '../../../types/branch-like';
@@ -140,7 +142,7 @@ export default function RegulatoryReport({ component, branchLike }: Props) {
                 defaultMessage={translate('regulatory_page.available_branches_info.more_info')}
                 values={{
                   doc_link: (
-                    <DocumentationLink to="/analyzing-source-code/branches/branch-analysis/#inactive-branches">
+                    <DocumentationLink to={DocLink.InactiveBranches}>
                       {translate('regulatory_page.available_branches_info.more_info.doc_link')}
                     </DocumentationLink>
                   ),

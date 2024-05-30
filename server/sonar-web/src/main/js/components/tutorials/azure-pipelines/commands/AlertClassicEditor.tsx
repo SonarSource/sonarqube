@@ -17,16 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { FlagMessage, Link } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { ALM_DOCUMENTATION_PATHS } from '../../../../helpers/constants';
+import { DocLink } from '../../../../helpers/doc-links';
 import { useDocUrl } from '../../../../helpers/docs';
 import { translate } from '../../../../helpers/l10n';
-import { AlmKeys } from '../../../../types/alm-settings';
 
 export default function AlertClassicEditor() {
-  const docUrl = useDocUrl();
+  const docUrl = useDocUrl(DocLink.AlmAzureIntegration);
 
   return (
     <FlagMessage variant="info" className="sw-mt-4">
@@ -36,7 +36,7 @@ export default function AlertClassicEditor() {
           defaultMessage={translate('onboarding.tutorial.with.azure_pipelines.BranchAnalysis.info')}
           values={{
             doc_link: (
-              <Link to={docUrl(ALM_DOCUMENTATION_PATHS[AlmKeys.Azure])}>
+              <Link to={docUrl}>
                 {translate('onboarding.tutorial.with.azure_pipelines.BranchAnalysis.info.doc_link')}
               </Link>
             ),

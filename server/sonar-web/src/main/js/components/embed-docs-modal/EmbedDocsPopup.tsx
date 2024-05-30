@@ -20,6 +20,7 @@
 
 import { ItemDivider, ItemHeader, ItemLink, OpenNewTabIcon } from 'design-system';
 import * as React from 'react';
+import { DocLink } from '../../helpers/doc-links';
 import { translate } from '../../helpers/l10n';
 import { SuggestionLink } from '../../types/types';
 import { Image } from '../common/Image';
@@ -87,7 +88,7 @@ export function EmbedDocsPopup() {
       {suggestions.length !== 0 && (
         <Suggestions firstItemRef={firstItemRef} suggestions={suggestions} />
       )}
-      <DocItemLink innerRef={suggestions.length === 0 ? firstItemRef : undefined} to="/">
+      <DocItemLink innerRef={suggestions.length === 0 ? firstItemRef : undefined} to={DocLink.Root}>
         {translate('docs.documentation')}
       </DocItemLink>
       <ItemLink to="/web_api">{translate('api_documentation.page')}</ItemLink>
