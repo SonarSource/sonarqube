@@ -559,7 +559,7 @@ it('should not display CaYC condition simplification tour for users who dismisse
 it('should not allow to change value of prioritized_rule_issues', async () => {
   const user = userEvent.setup();
   qualityGateHandler.setIsAdmin(true);
-  renderQualityGateApp();
+  renderQualityGateApp({ featureList: [Feature.PrioritizedRules] });
 
   await user.click(await screen.findByText('SonarSource way - CFamily'));
 
@@ -589,6 +589,24 @@ it('should not allow to change value of prioritized_rule_issues', async () => {
   expect(
     byLabelText('quality_gates.condition.delete.Issues from prioritized rules').get(),
   ).toBeInTheDocument();
+});
+
+it('should not allow to add prioritized_rule_issues condition if feature is not enabled', async () => {
+  const user = userEvent.setup();
+  qualityGateHandler.setIsAdmin(true);
+  renderQualityGateApp();
+
+  await user.click(await screen.findByText('SonarSource way - CFamily'));
+
+  await user.click(await screen.findByText('quality_gates.add_condition'));
+
+  const dialog = byRole('dialog');
+
+  await user.click(dialog.byRole('radio', { name: 'quality_gates.conditions.overall_code' }).get());
+  await selectEvent.openMenu(dialog.byRole('combobox').get());
+  expect(
+    byRole('option', { name: 'Issues from prioritized rules' }).query(),
+  ).not.toBeInTheDocument();
 });
 
 describe('The Project section', () => {

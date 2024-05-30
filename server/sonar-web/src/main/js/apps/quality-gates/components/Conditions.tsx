@@ -109,7 +109,11 @@ export default function Conditions({ qualityGate, isFetching }: Readonly<Props>)
           (metric) =>
             !metric.hidden &&
             !FORBIDDEN_METRIC_TYPES.includes(metric.type) &&
-            !FORBIDDEN_METRICS.includes(metric.key),
+            !FORBIDDEN_METRICS.includes(metric.key) &&
+            !(
+              metric.key === MetricKey.prioritized_rule_issues &&
+              !hasFeature(Feature.PrioritizedRules)
+            ),
         ),
         conditions,
         (metric, condition) => metric.key === condition.metric,
