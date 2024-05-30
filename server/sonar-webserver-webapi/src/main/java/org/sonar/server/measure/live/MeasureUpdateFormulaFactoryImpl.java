@@ -42,6 +42,7 @@ import static org.sonar.api.measures.CoreMetrics.SECURITY_HOTSPOTS_REVIEWED;
 import static org.sonar.api.measures.CoreMetrics.SECURITY_HOTSPOTS_REVIEWED_STATUS;
 import static org.sonar.api.measures.CoreMetrics.SECURITY_HOTSPOTS_TO_REVIEW_STATUS;
 import static org.sonar.server.measure.Rating.RATING_BY_SEVERITY;
+import static org.sonar.server.metric.IssueCountMetrics.PRIORITIZED_RULE_ISSUES;
 import static org.sonar.server.security.SecurityReviewRating.computePercent;
 import static org.sonar.server.security.SecurityReviewRating.computeRating;
 
@@ -55,6 +56,9 @@ public class MeasureUpdateFormulaFactoryImpl implements MeasureUpdateFormulaFact
 
     new MeasureUpdateFormula(CoreMetrics.VULNERABILITIES, false, new AddChildren(),
       (context, issues) -> context.setValue(issues.countUnresolvedByType(RuleType.VULNERABILITY, false))),
+
+    new MeasureUpdateFormula(PRIORITIZED_RULE_ISSUES, false, new AddChildren(),
+      (context, issues) -> context.setValue(issues.countPrioritizedRuleIssues())),
 
     new MeasureUpdateFormula(CoreMetrics.SECURITY_HOTSPOTS, false, new AddChildren(),
       (context, issues) -> context.setValue(issues.countUnresolvedByType(RuleType.SECURITY_HOTSPOT, false))),

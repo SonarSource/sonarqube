@@ -60,6 +60,7 @@ import static org.sonar.api.measures.CoreMetrics.SECURITY_HOTSPOTS_REVIEWED;
 import static org.sonar.api.measures.CoreMetrics.SECURITY_HOTSPOTS_REVIEWED_STATUS;
 import static org.sonar.api.measures.CoreMetrics.SECURITY_HOTSPOTS_TO_REVIEW_STATUS;
 import static org.sonar.api.measures.CoreMetrics.SECURITY_REVIEW_RATING;
+import static org.sonar.server.metric.IssueCountMetrics.PRIORITIZED_RULE_ISSUES;
 import static org.sonar.test.JsonAssert.assertJson;
 
 class MeasureUpdateFormulaFactoryImplTest {
@@ -163,6 +164,12 @@ class MeasureUpdateFormulaFactoryImplTest {
     // include issues on leak
     IssueGroupDto onLeak = newGroup().setCount(11).setInLeak(true);
     with(newGroup(), newGroup(), onLeak).assertThatValueIs(CoreMetrics.VIOLATIONS, 1 + 1 + 11);
+  }
+
+  @Test
+  void test_prioritized_rules() {
+    withNoIssues().assertThatValueIs(PRIORITIZED_RULE_ISSUES, 0);
+    with(newGroup().setPrioritizedRule(1), newGroup().setPrioritizedRule(4)).assertThatValueIs(PRIORITIZED_RULE_ISSUES, 5);
   }
 
   @Test

@@ -464,6 +464,7 @@
       i.resolution as resolution,
       i.status as status, sum(i.effort) as effort,
       count(i.issue_type) as "count",
+      sum(case when i.prioritized_rule = true then 1 else 0 end) as prioritizedRule,
       <if test="leakPeriodBeginningDate &gt;= 0">
         (i.issue_creation_date &gt; #{leakPeriodBeginningDate,jdbcType=BIGINT}) as inLeak
       </if>
@@ -495,6 +496,7 @@
       i2.status as status,
       sum(i2.effort) as effort,
       count(i2.issue_type) as "count",
+      sum(i2.prioritized_rule) as prioritizedRule,
       i2.inLeak as inLeak
     from (
       select
@@ -503,6 +505,7 @@
         i.resolution,
         i.status,
         i.effort,
+        case when prioritized_rule = 1 then 1 else 0 end as prioritized_rule,
         <if test="leakPeriodBeginningDate &gt;= 0">
           case when i.issue_creation_date &gt; #{leakPeriodBeginningDate,jdbcType=BIGINT} then 1 else 0 end as inLeak
         </if>

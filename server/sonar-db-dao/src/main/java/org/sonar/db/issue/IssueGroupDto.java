@@ -30,6 +30,7 @@ public class IssueGroupDto {
   private String status;
   private double effort;
   private long count;
+  private long prioritizedRule;
   private boolean inLeak;
 
   public IssueGroupDto() {
@@ -65,6 +66,10 @@ public class IssueGroupDto {
     return inLeak;
   }
 
+  public long getPrioritizedRule() {
+    return prioritizedRule;
+  }
+
   public IssueGroupDto setRuleType(int ruleType) {
     this.ruleType = ruleType;
     return this;
@@ -97,6 +102,11 @@ public class IssueGroupDto {
 
   public IssueGroupDto setInLeak(boolean inLeak) {
     this.inLeak = inLeak;
+    return this;
+  }
+
+  public IssueGroupDto setPrioritizedRule(long prioritizedRule) {
+    this.prioritizedRule = prioritizedRule;
     return this;
   }
 }

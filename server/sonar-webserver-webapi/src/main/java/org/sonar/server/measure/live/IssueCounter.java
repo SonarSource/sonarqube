@@ -47,6 +47,7 @@ class IssueCounter {
   private final Map<String, Count> byStatus = new HashMap<>();
   private final Map<String, Count> hotspotsByStatus = new HashMap<>();
   private final Count unresolved = new Count();
+  private long prioritizedRuleIssues = 0;
   private final Count highImpactAccepted = new Count();
   private final Map<SoftwareQuality, Map<Severity, Count>> bySoftwareQualityAndSeverity = new EnumMap<>(SoftwareQuality.class);
 
@@ -68,6 +69,7 @@ class IssueCounter {
       unresolvedByType
         .computeIfAbsent(SECURITY_HOTSPOT, k -> new Count())
         .add(group);
+      prioritizedRuleIssues += group.getPrioritizedRule();
     }
     if (group.getStatus() != null) {
       hotspotsByStatus
@@ -92,6 +94,7 @@ class IssueCounter {
         .computeIfAbsent(ruleType, k -> new Count())
         .add(group);
       unresolved.add(group);
+      prioritizedRuleIssues += group.getPrioritizedRule();
     } else {
       byResolution
         .computeIfAbsent(group.getResolution(), k -> new Count())
@@ -150,6 +153,10 @@ class IssueCounter {
 
   public long countUnresolved(boolean onlyInLeak) {
     return value(unresolved, onlyInLeak);
+  }
+
+  public long countPrioritizedRuleIssues() {
+    return prioritizedRuleIssues;
   }
 
   public long countHighImpactAccepted(boolean onlyInLeak) {

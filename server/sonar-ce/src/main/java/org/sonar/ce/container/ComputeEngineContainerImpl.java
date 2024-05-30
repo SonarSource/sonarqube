@@ -107,6 +107,7 @@ import org.sonar.server.issue.workflow.IssueWorkflow;
 import org.sonar.server.l18n.ServerI18n;
 import org.sonar.server.log.ServerLogging;
 import org.sonar.server.measure.index.ProjectMeasuresIndexer;
+import org.sonar.server.metric.IssueCountMetrics;
 import org.sonar.server.metric.UnanalyzedLanguageMetrics;
 import org.sonar.server.notification.DefaultNotificationManager;
 import org.sonar.server.notification.NotificationService;
@@ -372,6 +373,7 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
 
       // measure
       UnanalyzedLanguageMetrics.class,
+      IssueCountMetrics.class,
 
       // components,
       FavoriteUpdater.class,
