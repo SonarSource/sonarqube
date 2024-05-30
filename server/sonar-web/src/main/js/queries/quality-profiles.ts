@@ -73,7 +73,7 @@ export function useActivateRuleMutation(onSuccess: (data: ActivateRuleParameters
   return useMutation({
     mutationFn: activateRule,
     onSuccess: (_, data) => {
-      queryClient.invalidateQueries({ queryKey: ['rules', 'details'] });
+      queryClient.invalidateQueries({ queryKey: ['rules', 'details', data.rule] });
       onSuccess(data);
     },
   });
@@ -85,7 +85,7 @@ export function useDeactivateRuleMutation(onSuccess: (data: DeactivateRuleParame
   return useMutation({
     mutationFn: deactivateRule,
     onSuccess: (_, data) => {
-      queryClient.invalidateQueries({ queryKey: ['rules', 'details'] });
+      queryClient.invalidateQueries({ queryKey: ['rules', 'details', data.rule] });
       onSuccess(data);
     },
   });

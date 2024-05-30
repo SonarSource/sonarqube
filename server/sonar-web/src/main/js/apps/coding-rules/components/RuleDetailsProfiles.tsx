@@ -76,7 +76,7 @@ export default function RuleDetailsProfiles(props: Readonly<Props>) {
     ruleDetails?.params !== undefined &&
     ruleDetails.params.length > 0;
   const showPrioritizedRuleColumn =
-    hasFeature(Feature.PrioritizedRules) && activations.some((a) => a.prioritized);
+    hasFeature(Feature.PrioritizedRules) && activations.some((a) => a.prioritizedRule);
 
   const handleDeactivate = (key?: string) => {
     if (key !== undefined) {
@@ -195,7 +195,7 @@ export default function RuleDetailsProfiles(props: Readonly<Props>) {
         )}
 
         {showPrioritizedRuleColumn && (
-          <ContentCell>{activation.prioritized && <span>{translate('yes')}</span>}</ContentCell>
+          <ContentCell>{activation.prioritizedRule && <span>{translate('yes')}</span>}</ContentCell>
         )}
 
         {renderRowActions(activation, profile)}

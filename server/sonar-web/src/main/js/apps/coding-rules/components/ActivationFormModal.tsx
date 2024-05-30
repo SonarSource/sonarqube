@@ -48,7 +48,7 @@ interface Props {
   activation?: RuleActivation;
   modalHeader: string;
   onClose: () => void;
-  onDone?: (severity: string, prioritized: boolean) => Promise<void> | void;
+  onDone?: (severity: string, prioritizedRule: boolean) => Promise<void> | void;
   profiles: Profile[];
   rule: Rule | RuleDetails;
 }
@@ -63,13 +63,13 @@ const FORM_ID = 'rule-activation-modal-form';
 export default function ActivationFormModal(props: Readonly<Props>) {
   const { activation, rule, profiles, modalHeader } = props;
   const { mutate: activateRule, isPending: submitting } = useActivateRuleMutation((data) => {
-    props.onDone?.(data.severity as string, data.prioritized as boolean);
+    props.onDone?.(data.severity as string, data.prioritizedRule as boolean);
     props.onClose();
   });
   const { hasFeature } = useAvailableFeatures();
   const intl = useIntl();
-  const [prioritized, setIsPrioritized] = React.useState(
-    activation ? activation.prioritized : false,
+  const [prioritizedRule, setPrioritizedRule] = React.useState(
+    activation ? activation.prioritizedRule : false,
   );
 
   const profilesWithDepth = getQualityProfilesWithDepth(profiles, rule.lang);
@@ -91,7 +91,7 @@ export default function ActivationFormModal(props: Readonly<Props>) {
       params,
       rule: rule.key,
       severity,
-      prioritized,
+      prioritizedRule,
     };
     activateRule(data);
   };
@@ -184,8 +184,8 @@ export default function ActivationFormModal(props: Readonly<Props>) {
                       { state: 'off' },
                     ),
                   }}
-                  onChange={setIsPrioritized}
-                  value={prioritized}
+                  onChange={setPrioritizedRule}
+                  value={prioritizedRule}
                 />
                 <span className="sw-text-xs">
                   {intl.formatMessage({ id: 'coding_rules.prioritized_rule.switch_label' })}

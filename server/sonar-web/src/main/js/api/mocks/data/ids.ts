@@ -53,6 +53,7 @@ export const RULE_12 = 'rule12';
 
 // Quality Profiles.
 export const QP_1 = 'p1';
+export const QP_2_Parent = 'p2parent';
 export const QP_2 = 'p2';
 export const QP_3 = 'p3';
 export const QP_4 = 'p4';

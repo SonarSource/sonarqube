@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { HttpStatusCode } from 'axios';
-import { cloneDeep, countBy, pick, trim } from 'lodash';
+import { cloneDeep, countBy, isEqual, pick, trim } from 'lodash';
 import { ComponentQualifier, Visibility } from '~sonar-aligned/types/component';
 import { RuleDescriptionSections } from '../../apps/coding-rules/rule';
 import { mapRestRuleToRule } from '../../apps/coding-rules/utils';
@@ -542,10 +542,25 @@ export default class CodingRulesServiceMock {
         ({ qProfile }) => qProfile === data.key,
       )!;
       activation.inherit = 'INHERITED';
-      activation.prioritized = parentActivation?.prioritized ?? false;
+      activation.prioritizedRule = parentActivation?.prioritizedRule ?? false;
       activation.severity = parentActivation?.severity ?? 'MAJOR';
       activation.params = parentParams;
 
+      return this.reply(undefined);
+    }
+
+    const currentActivation = this.rulesActivations[data.rule]?.find(
+      (a) => a.qProfile === data.key,
+    );
+    if (
+      currentActivation &&
+      isEqual(
+        currentActivation.params,
+        Object.entries(data.params ?? {}).map(([key, value]) => ({ key, value })),
+      ) &&
+      currentActivation.severity === data.severity &&
+      currentActivation.prioritizedRule === data.prioritizedRule
+    ) {
       return this.reply(undefined);
     }
 
@@ -553,7 +568,7 @@ export default class CodingRulesServiceMock {
       mockRuleActivation({
         qProfile: data.key,
         severity: data.severity,
-        prioritized: data.prioritized,
+        prioritizedRule: data.prioritizedRule,
         params: Object.entries(data.params ?? {}).map(([key, value]) => ({ key, value })),
       }),
     ];
@@ -566,7 +581,7 @@ export default class CodingRulesServiceMock {
         mockRuleActivation({
           qProfile: profile.key,
           severity: data.severity,
-          prioritized: data.prioritized,
+          prioritizedRule: data.prioritizedRule,
           inherit: 'INHERITED',
           params: Object.entries(data.params ?? {}).map(([key, value]) => ({ key, value })),
         }),

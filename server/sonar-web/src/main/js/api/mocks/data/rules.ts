@@ -29,6 +29,7 @@ import {
   ADVANCED_RULE,
   QP_1,
   QP_2,
+  QP_2_Parent,
   QP_4,
   QP_5,
   QP_6,
@@ -269,7 +270,19 @@ export function mockRulesActivationsInQP() {
     ],
     [RULE_7]: [mockRuleActivation({ qProfile: QP_2 })],
     [RULE_8]: [mockRuleActivation({ qProfile: QP_2 })],
-    [RULE_9]: [mockRuleActivation({ qProfile: QP_2, inherit: 'INHERITED' })],
-    [RULE_10]: [mockRuleActivation({ qProfile: QP_2, inherit: 'OVERRIDES', prioritized: true })],
+    [RULE_9]: [
+      mockRuleActivation({
+        qProfile: QP_2,
+        params: [
+          { key: '1', value: '' },
+          { key: '2', value: 'default value for key 2' },
+        ],
+        inherit: 'INHERITED',
+      }),
+    ],
+    [RULE_10]: [
+      mockRuleActivation({ qProfile: QP_2, inherit: 'OVERRIDES', prioritizedRule: true }),
+      mockRuleActivation({ qProfile: QP_2_Parent, severity: 'MINOR' }),
+    ],
   };
 }

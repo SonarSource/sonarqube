@@ -547,7 +547,7 @@ export interface RuleActivation {
   inherit: RuleInheritance;
   params: { key: string; value: string }[];
   qProfile: string;
-  prioritized: boolean;
+  prioritizedRule: boolean;
   severity: string;
 }
 

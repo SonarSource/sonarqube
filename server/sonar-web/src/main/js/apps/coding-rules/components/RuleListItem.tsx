@@ -43,6 +43,7 @@ import {
   useActivateRuleMutation,
   useDeactivateRuleMutation,
 } from '../../../queries/quality-profiles';
+import { useRuleDetailsQuery } from '../../../queries/rules';
 import { Rule, RuleActivation } from '../../../types/types';
 import ActivatedRuleActions from './ActivatedRuleActions';
 import ActivationButton from './ActivationButton';
@@ -62,7 +63,7 @@ interface Props {
 
 export default function RuleListItem(props: Readonly<Props>) {
   const {
-    activation,
+    activation: initialActivation,
     rule,
     selectedProfile,
     isLoggedIn,
@@ -73,20 +74,33 @@ export default function RuleListItem(props: Readonly<Props>) {
     onActivate,
     onOpen,
   } = props;
-  const { mutate: activateRule } = useActivateRuleMutation((data) => {
-    if (data.reset && activation) {
-      onActivate(data.key, data.rule, {
-        ...activation,
-        // Actually the severity should be taken from the inherited qprofile, but we don't have this information
-        severity: rule.severity,
-        prioritized: false,
-        inherit: 'INHERITED',
-      });
-    }
+  const [ruleIsChanged, setRuleIsChanged] = React.useState(false);
+  const { data } = useRuleDetailsQuery(
+    { key: rule.key, actives: true },
+    { enabled: ruleIsChanged },
+  );
+  const { mutate: activateRule } = useActivateRuleMutation(() => {
+    setRuleIsChanged(true);
   });
   const { mutate: deactivateRule } = useDeactivateRuleMutation((data) =>
     onDeactivate(data.key, data.rule),
   );
+
+  const activation =
+    data && ruleIsChanged
+      ? data.actives?.find((item) => item.qProfile === selectedProfile?.key)
+      : initialActivation;
+
+  React.useEffect(() => {
+    if (data && selectedProfile) {
+      const newActivation = data.actives?.find((item) => item.qProfile === selectedProfile?.key);
+      if (newActivation) {
+        onActivate(selectedProfile?.key, rule.key, newActivation);
+        setRuleIsChanged(false);
+      }
+    }
+  }, [data, rule.key, selectedProfile, onActivate]);
+
   const handleDeactivate = () => {
     if (selectedProfile) {
       deactivateRule({
@@ -96,20 +110,8 @@ export default function RuleListItem(props: Readonly<Props>) {
     }
   };
 
-  const handleActivate = (severity: string, prioritized: boolean) => {
-    if (selectedProfile) {
-      const isOverriden =
-        activation && (activation.prioritized !== prioritized || activation.severity !== severity);
-
-      onActivate(selectedProfile.key, rule.key, {
-        createdAt: new Date().toISOString(),
-        severity,
-        params: [],
-        qProfile: selectedProfile.key,
-        prioritized,
-        inherit: isOverriden ? 'OVERRIDES' : activation?.inherit ?? 'NONE',
-      });
-    }
+  const handleActivate = () => {
+    setRuleIsChanged(true);
     return Promise.resolve();
   };
 

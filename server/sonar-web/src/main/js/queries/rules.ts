@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { UseQueryOptions, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { createRule, deleteRule, getRuleDetails, searchRules, updateRule } from '../api/rules';
 import { mapRestRuleToRule } from '../apps/coding-rules/utils';
 import { SearchRulesResponse } from '../types/coding-rules';
@@ -45,10 +45,17 @@ export function useSearchRulesQuery(data: SearchRulesQuery) {
   });
 }
 
-export function useRuleDetailsQuery(data: { key: string; actives?: boolean }) {
+export function useRuleDetailsQuery<T = Awaited<ReturnType<typeof getRuleDetails>>>(
+  data: { key: string; actives?: boolean },
+  options?: Omit<
+    UseQueryOptions<Awaited<ReturnType<typeof getRuleDetails>>, Error, T>,
+    'queryKey' | 'queryFn'
+  >,
+) {
   return useQuery({
     queryKey: getRulesQueryKey('details', data.key),
     queryFn: () => getRuleDetails(data),
+    ...options,
   });
 }
 

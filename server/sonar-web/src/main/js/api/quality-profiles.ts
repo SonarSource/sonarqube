@@ -323,7 +323,7 @@ export interface ActivateRuleParameters {
   reset?: boolean;
   rule: string;
   severity?: string;
-  prioritized?: boolean;
+  prioritizedRule?: boolean;
 }
 
 export function activateRule(data: ActivateRuleParameters) {
