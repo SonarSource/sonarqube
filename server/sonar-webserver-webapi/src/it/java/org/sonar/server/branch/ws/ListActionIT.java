@@ -100,14 +100,20 @@ public class ListActionIT {
 
   @Test
   public void test_example() {
+    String mainBranchUuid = "57f02458-65db-4e7f-a144-20122af12a4c]";
     ProjectData projectData = db.components().insertPrivateProject(p -> p.setKey("sonarqube"));
     ProjectDto project = projectData.getProjectDto();
+    projectData.getMainBranchDto().setUuid(mainBranchUuid);
+    projectData.getMainBranchComponent().setUuid(mainBranchUuid);
+    db.executeUpdateSql("UPDATE project_branches SET uuid = ? where kee = 'main' and project_uuid = ?",
+      mainBranchUuid, project.getUuid());
+
     db.getDbClient().snapshotDao().insert(db.getSession(),
       newAnalysis(projectData.getMainBranchDto()).setLast(true).setCreatedAt(parseDateTime("2017-04-01T01:15:42+0100").getTime()));
     db.measures().insertLiveMeasure(projectData.getMainBranchComponent(), qualityGateStatus, m -> m.setData("ERROR"));
 
     BranchDto branch = db.components()
-      .insertProjectBranch(project, b -> b.setKey("feature/foo").setBranchType(BRANCH));
+      .insertProjectBranch(project, b -> b.setKey("feature/foo").setBranchType(BRANCH).setUuid("ac312cc6-26a2-4e2c-9eff-1072358f2017"));
     db.getDbClient().snapshotDao().insert(db.getSession(),
       newAnalysis(branch).setLast(true).setCreatedAt(parseDateTime("2017-04-03T13:37:00+0100").getTime()));
     db.measures().insertLiveMeasure(branch, qualityGateStatus, m -> m.setData("OK"));
@@ -130,14 +136,20 @@ public class ListActionIT {
 
   @Test
   public void test_with_SCAN_EXCUTION_permission() {
+    String mainBranchUuid = "57f02458-65db-4e7f-a144-20122af12a4c]";
     ProjectData projectData = db.components().insertPrivateProject(p -> p.setKey("sonarqube"));
     ProjectDto project = projectData.getProjectDto();
+    projectData.getMainBranchDto().setUuid(mainBranchUuid);
+    projectData.getMainBranchComponent().setUuid(mainBranchUuid);
+    db.executeUpdateSql("UPDATE project_branches SET uuid = ? where kee = 'main' and project_uuid = ?",
+      mainBranchUuid, project.getUuid());
+
     db.getDbClient().snapshotDao().insert(db.getSession(),
       newAnalysis(projectData.getMainBranchDto()).setLast(true).setCreatedAt(parseDateTime("2017-04-01T01:15:42+0100").getTime()));
     db.measures().insertLiveMeasure(projectData.getMainBranchDto(), qualityGateStatus, m -> m.setData("ERROR"));
 
     BranchDto branch = db.components()
-      .insertProjectBranch(project, b -> b.setKey("feature/foo").setBranchType(BRANCH));
+      .insertProjectBranch(project, b -> b.setKey("feature/foo").setBranchType(BRANCH).setUuid("ac312cc6-26a2-4e2c-9eff-1072358f2017"));
     db.getDbClient().snapshotDao().insert(db.getSession(),
       newAnalysis(branch).setLast(true).setCreatedAt(parseDateTime("2017-04-03T13:37:00+0100").getTime()));
     db.measures().insertLiveMeasure(branch, qualityGateStatus, m -> m.setData("OK"));

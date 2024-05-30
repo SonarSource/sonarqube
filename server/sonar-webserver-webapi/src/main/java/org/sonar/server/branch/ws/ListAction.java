@@ -73,7 +73,9 @@ public class ListAction implements BranchWsAction {
       .setDescription("List the branches of a project or application.<br/>" +
         "Requires 'Browse' or 'Execute analysis' rights on the specified project or application.")
       .setResponseExample(Resources.getResource(getClass(), "list-example.json"))
-      .setChangelog(new Change("7.2", "Application can be used on this web service"))
+      .setChangelog(
+        new Change("7.2", "Application can be used on this web service"),
+        new Change("10.6", "Field 'branchId' added to the response"))
       .setHandler(this);
 
     addProjectParam(action);
@@ -123,6 +125,7 @@ public class ListAction implements BranchWsAction {
     builder.setIsMain(branch.isMain());
     builder.setType(Common.BranchType.valueOf(branch.getBranchType().name()));
     builder.setExcludedFromPurge(branch.isExcludeFromPurge());
+    builder.setBranchId(branch.getUuid());
     return builder;
   }
 
