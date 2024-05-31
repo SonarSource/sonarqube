@@ -47,6 +47,7 @@ import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_IS_TEMPLATE;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_LANGUAGES;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_OWASP_TOP_10;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_OWASP_TOP_10_2021;
+import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_PRIORITIZED_RULE;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_QPROFILE;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_REPOSITORIES;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_RULE_KEY;
@@ -73,6 +74,7 @@ public class RuleQueryFactory {
   public RuleQuery createRuleSearchQuery(DbSession dbSession, Request request) {
     RuleQuery query = createRuleQuery(dbSession, request);
     query.setIncludeExternal(request.mandatoryParamAsBoolean(PARAM_INCLUDE_EXTERNAL));
+    query.setPrioritizedRule(request.paramAsBoolean(PARAM_PRIORITIZED_RULE));
     return query;
   }
 

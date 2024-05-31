@@ -96,6 +96,7 @@ import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_IMPA
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_INHERITANCE;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_PROFILE_UUID;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_SEVERITY;
+import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_PRIORITIZED_RULE;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_RULE_CLEAN_CODE_ATTRIBUTE_CATEGORY;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_RULE_CREATED_AT;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_RULE_CWE;
@@ -443,6 +444,7 @@ public class RuleIndex {
     addTermFilter(activeRuleFilter, FIELD_ACTIVE_RULE_PROFILE_UUID, profile.getRulesProfileUuid());
     addTermFilter(activeRuleFilter, FIELD_ACTIVE_RULE_INHERITANCE, query.getInheritance());
     addTermFilter(activeRuleFilter, FIELD_ACTIVE_RULE_SEVERITY, query.getActiveSeverities());
+    addTermFilter(activeRuleFilter, FIELD_PRIORITIZED_RULE, query.getPrioritizedRule());
 
     // ChildQuery
     QueryBuilder childQuery;
@@ -468,6 +470,13 @@ public class RuleIndex {
 
   private static BoolQueryBuilder addTermFilter(BoolQueryBuilder filter, String field, @Nullable String value) {
     if (StringUtils.isNotEmpty(value)) {
+      filter.must(QueryBuilders.termQuery(field, value));
+    }
+    return filter;
+  }
+
+  private static BoolQueryBuilder addTermFilter(BoolQueryBuilder filter, String field, @Nullable Boolean value) {
+    if (value != null) {
       filter.must(QueryBuilders.termQuery(field, value));
     }
     return filter;

@@ -21,6 +21,8 @@ package org.sonar.server.qualityprofile.index;
 
 import com.google.common.collect.Maps;
 import java.util.Map;
+import java.util.Optional;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.server.es.BaseDoc;
 import org.sonar.server.qualityprofile.ActiveRuleInheritance;
@@ -30,6 +32,7 @@ import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_PROFILE_UUID;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_SEVERITY;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_UUID;
+import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_PRIORITIZED_RULE;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_RULE_UUID;
 import static org.sonar.server.rule.index.RuleIndexDefinition.TYPE_ACTIVE_RULE;
 
@@ -84,6 +87,12 @@ public class ActiveRuleDoc extends BaseDoc {
 
   ActiveRuleDoc setRuleProfileUuid(String s) {
     setField(FIELD_ACTIVE_RULE_PROFILE_UUID, s);
+    return this;
+  }
+
+  ActiveRuleDoc setPrioritizedRule(@Nullable Boolean b) {
+    Boolean notNull = Optional.ofNullable(b).orElse(Boolean.FALSE);
+    setField(FIELD_PRIORITIZED_RULE, notNull);
     return this;
   }
 

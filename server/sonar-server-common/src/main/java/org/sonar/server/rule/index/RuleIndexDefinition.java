@@ -86,6 +86,7 @@ public class RuleIndexDefinition implements IndexDefinition {
   public static final String SUB_FIELD_SEVERITY = "severity";
   public static final String FIELD_RULE_IMPACT_SOFTWARE_QUALITY = FIELD_RULE_IMPACTS + "." + SUB_FIELD_SOFTWARE_QUALITY;
   public static final String FIELD_RULE_IMPACT_SEVERITY = FIELD_RULE_IMPACTS + "." + SUB_FIELD_SEVERITY;
+  public static final String FIELD_PRIORITIZED_RULE = "activeRule_prioritizedRule";
 
   private final Configuration config;
   private final boolean enableSource;
@@ -166,6 +167,7 @@ public class RuleIndexDefinition implements IndexDefinition {
       .keywordFieldBuilder(FIELD_ACTIVE_RULE_UUID).disableNorms().build()
       .keywordFieldBuilder(FIELD_ACTIVE_RULE_PROFILE_UUID).disableNorms().build()
       .keywordFieldBuilder(FIELD_ACTIVE_RULE_INHERITANCE).disableNorms().build()
-      .keywordFieldBuilder(FIELD_ACTIVE_RULE_SEVERITY).disableNorms().build();
+      .keywordFieldBuilder(FIELD_ACTIVE_RULE_SEVERITY).disableNorms().build()
+      .createBooleanField(FIELD_PRIORITIZED_RULE);
   }
 }

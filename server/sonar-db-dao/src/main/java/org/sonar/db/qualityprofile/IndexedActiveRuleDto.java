@@ -29,6 +29,7 @@ public class IndexedActiveRuleDto {
   private String repository;
   private String key;
   private String ruleProfileUuid;
+  private Boolean prioritizedRule;
 
   public IndexedActiveRuleDto() {
     // nothing to do here
@@ -61,5 +62,9 @@ public class IndexedActiveRuleDto {
 
   public String getRuleProfileUuid() {
     return ruleProfileUuid;
+  }
+
+  public Boolean getPrioritizedRule() {
+    return prioritizedRule;
   }
 }

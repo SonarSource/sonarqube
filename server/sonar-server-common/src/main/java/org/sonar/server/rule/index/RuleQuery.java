@@ -61,6 +61,7 @@ public class RuleQuery {
   private Collection<String> impactSeverities;
   private Collection<String> impactSoftwareQualities;
   private Collection<String> cleanCodeAttributesCategories;
+  private Boolean prioritizedRule;
 
 
   @CheckForNull
@@ -369,4 +370,13 @@ public class RuleQuery {
     return this;
   }
 
+  @Nullable
+  public Boolean getPrioritizedRule() {
+    return prioritizedRule;
+  }
+
+  public RuleQuery setPrioritizedRule(@Nullable Boolean prioritizedRule) {
+    this.prioritizedRule = prioritizedRule;
+    return this;
+  }
 }

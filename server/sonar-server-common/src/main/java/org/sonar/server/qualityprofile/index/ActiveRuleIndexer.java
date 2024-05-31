@@ -225,7 +225,8 @@ public class ActiveRuleIndexer implements ResilientIndexer {
     ActiveRuleDoc doc = new ActiveRuleDoc(dto.getUuid())
       .setRuleUuid(dto.getRuleUuid())
       .setRuleProfileUuid(dto.getRuleProfileUuid())
-      .setSeverity(SeverityUtil.getSeverityFromOrdinal(dto.getSeverity()));
+      .setSeverity(SeverityUtil.getSeverityFromOrdinal(dto.getSeverity()))
+      .setPrioritizedRule(dto.getPrioritizedRule());
     // all the fields must be present, even if value is null
     String inheritance = dto.getInheritance();
     doc.setInheritance(inheritance == null ? ActiveRuleInheritance.NONE.name() : inheritance);

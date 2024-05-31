@@ -33,6 +33,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.Severity;
@@ -89,6 +90,7 @@ import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_IMPACT_SOFTWARE_Q
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_LANGUAGES;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_OWASP_TOP_10;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_OWASP_TOP_10_2021;
+import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_PRIORITIZED_RULE;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_REPOSITORIES;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_SANS_TOP_25;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_SEVERITIES;
@@ -139,6 +141,7 @@ public class SearchAction implements RulesWsAction {
       .addPagingParams(100, MAX_PAGE_SIZE)
       .setHandler(this)
       .setChangelog(
+        new Change("10.6", format("Parameter '%s has been added", PARAM_PRIORITIZED_RULE)),
         new Change("5.5", "The field 'effortToFixDescription' has been deprecated, use 'gapDescription' instead"),
         new Change("5.5", "The field 'debtRemFnCoeff' has been deprecated, use 'remFnGapMultiplier' instead"),
         new Change("5.5", "The field 'defaultDebtRemFnCoeff' has been deprecated, use 'defaultRemFnGapMultiplier' instead"),
@@ -201,6 +204,7 @@ public class SearchAction implements RulesWsAction {
     // Rule-specific search parameters
     RuleWsSupport.defineGenericRuleSearchParameters(action);
     RuleWsSupport.defineIsExternalParam(action);
+    RuleWsSupport.definePrioritizedRuleParam(action);
   }
 
   @Override
@@ -423,7 +427,8 @@ public class SearchAction implements RulesWsAction {
       .setOwaspTop10(request.paramAsStrings(PARAM_OWASP_TOP_10))
       .setOwaspTop10For2021(request.paramAsStrings(PARAM_OWASP_TOP_10_2021))
       .setSansTop25(request.paramAsStrings(PARAM_SANS_TOP_25))
-      .setSonarsourceSecurity(request.paramAsStrings(PARAM_SONARSOURCE_SECURITY));
+      .setSonarsourceSecurity(request.paramAsStrings(PARAM_SONARSOURCE_SECURITY))
+      .setPrioritizedRule(request.paramAsBoolean(PARAM_PRIORITIZED_RULE));
   }
 
   private static class SearchRequest {
@@ -447,6 +452,7 @@ public class SearchAction implements RulesWsAction {
     private List<String> impactSeverities;
     private List<String> impactSoftwareQualities;
     private List<String> cleanCodeAttributesCategories;
+    private Boolean prioritizedRule;
 
     private SearchRequest setActiveSeverities(List<String> activeSeverities) {
       this.activeSeverities = activeSeverities;
@@ -621,6 +627,16 @@ public class SearchAction implements RulesWsAction {
 
     public SearchRequest setCleanCodeAttributesCategories(@Nullable List<String> cleanCodeAttributesCategories) {
       this.cleanCodeAttributesCategories = cleanCodeAttributesCategories;
+      return this;
+    }
+
+    @CheckForNull
+    public Boolean getPrioritizedRule() {
+      return prioritizedRule;
+    }
+
+    public SearchRequest setPrioritizedRule(@Nullable Boolean prioritizedRule) {
+      this.prioritizedRule = prioritizedRule;
       return this;
     }
   }
