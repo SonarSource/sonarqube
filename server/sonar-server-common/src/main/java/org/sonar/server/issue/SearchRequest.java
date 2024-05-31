@@ -57,6 +57,7 @@ public class SearchRequest {
   private List<String> projectKeys;
   private List<String> resolutions;
   private Boolean resolved;
+  private Boolean prioritizedRule;
   private List<String> rules;
   private String sort;
   private List<String> severities;
@@ -302,6 +303,16 @@ public class SearchRequest {
 
   public SearchRequest setResolved(@Nullable Boolean resolved) {
     this.resolved = resolved;
+    return this;
+  }
+
+  @CheckForNull
+  public Boolean getPrioritizedRule() {
+    return prioritizedRule;
+  }
+
+  public SearchRequest setPrioritizedRule(@Nullable Boolean prioritizedRule) {
+    this.prioritizedRule = prioritizedRule;
     return this;
   }
 

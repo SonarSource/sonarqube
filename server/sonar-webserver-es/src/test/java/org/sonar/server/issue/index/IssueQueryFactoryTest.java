@@ -107,7 +107,8 @@ public class IssueQueryFactoryTest {
       .setRules(asList(rule1.getKey().toString(), rule2.getKey().toString()))
       .setSort("CREATION_DATE")
       .setAsc(true)
-      .setCodeVariants(asList("variant1", "variant2"));
+      .setCodeVariants(asList("variant1", "variant2"))
+      .setPrioritizedRule(true);
 
     IssueQuery query = underTest.create(request);
 
@@ -133,6 +134,7 @@ public class IssueQueryFactoryTest {
     assertThat(query.sort()).isEqualTo(IssueQuery.SORT_BY_CREATION_DATE);
     assertThat(query.asc()).isTrue();
     assertThat(query.codeVariants()).containsOnly("variant1", "variant2");
+    assertThat(query.prioritizedRule()).isTrue();
   }
 
   @Test
@@ -165,7 +167,8 @@ public class IssueQueryFactoryTest {
       .setRules(asList(rule1.getKey().toString(), rule2.getKey().toString()))
       .setSort("CREATION_DATE")
       .setAsc(true)
-      .setCodeVariants(asList("variant1", "variant2"));
+      .setCodeVariants(asList("variant1", "variant2"))
+      .setPrioritizedRule(false);
 
     IssueQuery query = underTest.create(request);
 
@@ -191,6 +194,7 @@ public class IssueQueryFactoryTest {
     assertThat(query.sort()).isEqualTo(IssueQuery.SORT_BY_CREATION_DATE);
     assertThat(query.asc()).isTrue();
     assertThat(query.codeVariants()).containsOnly("variant1", "variant2");
+    assertThat(query.prioritizedRule()).isFalse();
   }
 
   @Test

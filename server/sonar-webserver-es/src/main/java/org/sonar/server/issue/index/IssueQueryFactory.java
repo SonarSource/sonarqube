@@ -137,6 +137,7 @@ public class IssueQueryFactory {
         .resolutions(request.getResolutions())
         .issueStatuses(request.getIssueStatuses())
         .resolved(request.getResolved())
+        .prioritizedRule(request.getPrioritizedRule())
         .rules(ruleDtos)
         .ruleUuids(ruleUuids)
         .assigneeUuids(request.getAssigneeUuids())

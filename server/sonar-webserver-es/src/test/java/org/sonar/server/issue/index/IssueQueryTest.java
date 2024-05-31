@@ -22,7 +22,7 @@ package org.sonar.server.issue.index;
 import com.google.common.collect.ImmutableMap;
 import java.util.Date;
 import java.util.List;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.Severity;
 import org.sonar.core.util.Uuids;
@@ -32,10 +32,10 @@ import org.sonar.server.issue.index.IssueQuery.PeriodStart;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 
-public class IssueQueryTest {
+class IssueQueryTest {
 
   @Test
-  public void build_query() {
+  void build_query() {
     RuleDto rule = new RuleDto().setUuid(Uuids.createFast());
     PeriodStart filterDate = new IssueQuery.PeriodStart(new Date(10_000_000_000L), false);
     IssueQuery query = IssueQuery.builder()
@@ -64,6 +64,7 @@ public class IssueQueryTest {
       .sort(IssueQuery.SORT_BY_CREATION_DATE)
       .asc(true)
       .codeVariants(List.of("codeVariant1", "codeVariant2"))
+      .prioritizedRule(true)
       .build();
     assertThat(query.issueKeys()).containsOnly("ABCDE");
     assertThat(query.severities()).containsOnly(Severity.BLOCKER);
@@ -90,10 +91,11 @@ public class IssueQueryTest {
     assertThat(query.sort()).isEqualTo(IssueQuery.SORT_BY_CREATION_DATE);
     assertThat(query.asc()).isTrue();
     assertThat(query.codeVariants()).containsOnly("codeVariant1", "codeVariant2");
+    assertThat(query.prioritizedRule()).isTrue();
   }
 
   @Test
-  public void build_pci_dss_query() {
+  void build_pci_dss_query() {
     IssueQuery query = IssueQuery.builder()
       .pciDss32(List.of("1.2.3", "3.2.1"))
       .pciDss40(List.of("3.4.5", "5.6"))
@@ -104,7 +106,7 @@ public class IssueQueryTest {
   }
 
   @Test
-  public void build_owasp_asvs_query() {
+  void build_owasp_asvs_query() {
     IssueQuery query = IssueQuery.builder()
       .owaspAsvs40(List.of("1.2.3", "3.2.1"))
       .owaspAsvsLevel(2)
@@ -115,7 +117,7 @@ public class IssueQueryTest {
   }
 
   @Test
-  public void build_owasp_query() {
+  void build_owasp_query() {
     IssueQuery query = IssueQuery.builder()
       .owaspTop10(List.of("a1", "a2"))
       .owaspTop10For2021(List.of("a3", "a4"))
@@ -127,7 +129,7 @@ public class IssueQueryTest {
 
 
   @Test
-  public void build_query_without_dates() {
+  void build_query_without_dates() {
     IssueQuery query = IssueQuery.builder()
       .issueKeys(List.of("ABCDE"))
       .createdAfter(null)
@@ -142,7 +144,7 @@ public class IssueQueryTest {
   }
 
   @Test
-  public void throw_exception_if_sort_is_not_valid() {
+  void throw_exception_if_sort_is_not_valid() {
     try {
       IssueQuery.builder()
         .sort("UNKNOWN")
@@ -153,7 +155,7 @@ public class IssueQueryTest {
   }
 
   @Test
-  public void collection_params_should_not_be_null_but_empty_except_issue_keys() {
+  void collection_params_should_not_be_null_but_empty_except_issue_keys() {
     IssueQuery query = IssueQuery.builder()
       .issueKeys(null)
       .projectUuids(null)
@@ -189,7 +191,7 @@ public class IssueQueryTest {
   }
 
   @Test
-  public void test_default_query() {
+  void test_default_query() {
     IssueQuery query = IssueQuery.builder().build();
     assertThat(query.projectUuids()).isEmpty();
     assertThat(query.componentUuids()).isEmpty();
@@ -209,10 +211,11 @@ public class IssueQueryTest {
     assertThat(query.resolved()).isNull();
     assertThat(query.sort()).isNull();
     assertThat(query.createdAfterByProjectUuids()).isEmpty();
+    assertThat(query.prioritizedRule()).isNull();
   }
 
   @Test
-  public void should_accept_null_sort() {
+  void should_accept_null_sort() {
     IssueQuery query = IssueQuery.builder().sort(null).build();
     assertThat(query.sort()).isNull();
   }

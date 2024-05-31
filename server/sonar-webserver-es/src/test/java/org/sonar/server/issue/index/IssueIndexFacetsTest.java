@@ -25,7 +25,7 @@ import java.util.Date;
 import java.util.Map;
 import java.util.Set;
 import org.elasticsearch.action.search.SearchResponse;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.sonar.api.issue.IssueStatus;
 import org.sonar.api.issue.impact.Severity;
 import org.sonar.api.rules.RuleType;
@@ -73,10 +73,10 @@ import static org.sonar.db.rule.RuleTesting.newRule;
 import static org.sonar.server.issue.IssueDocTesting.newDoc;
 import static org.sonar.server.issue.IssueDocTesting.newDocForProject;
 
-public class IssueIndexFacetsTest extends IssueIndexTestCommon {
+class IssueIndexFacetsTest extends IssueIndexTestCommon {
 
   @Test
-  public void facet_on_projectUuids() {
+  void facet_on_projectUuids() {
     ComponentDto project = newPrivateProjectDto("ABCD");
     ComponentDto project2 = newPrivateProjectDto("EFGH");
 
@@ -89,7 +89,7 @@ public class IssueIndexFacetsTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void facet_on_projectUuids_return_100_entries_plus_selected_values() {
+  void facet_on_projectUuids_return_100_entries_plus_selected_values() {
 
     indexIssues(rangeClosed(1, 110).mapToObj(i -> newDocForProject(newPrivateProjectDto("a" + i))).toArray(IssueDoc[]::new));
     IssueDoc issue1 = newDocForProject(newPrivateProjectDto("project1"));
@@ -101,7 +101,7 @@ public class IssueIndexFacetsTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void facets_on_files() {
+  void facets_on_files() {
     ComponentDto project = newPrivateProjectDto("A");
     ComponentDto dir = newDirectory(project, "src");
     ComponentDto file1 = newFileDto(project, dir, "ABCD");
@@ -119,7 +119,7 @@ public class IssueIndexFacetsTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void facet_on_files_return_100_entries_plus_selected_values() {
+  void facet_on_files_return_100_entries_plus_selected_values() {
     ComponentDto project = newPrivateProjectDto();
     indexIssues(rangeClosed(1, 110).mapToObj(i -> newDoc(newFileDto(project, null, "a" + i), project.uuid())).toArray(IssueDoc[]::new));
     IssueDoc issue1 = newDoc(newFileDto(project, null, "file1"), project.uuid());
@@ -131,7 +131,7 @@ public class IssueIndexFacetsTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void facets_on_directories() {
+  void facets_on_directories() {
     ComponentDto project = newPrivateProjectDto();
     ComponentDto file1 = newFileDto(project).setPath("src/main/xoo/F1.xoo");
     ComponentDto file2 = newFileDto(project).setPath("F2.xoo");
@@ -144,7 +144,7 @@ public class IssueIndexFacetsTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void facet_on_directories_return_100_entries_plus_selected_values() {
+  void facet_on_directories_return_100_entries_plus_selected_values() {
     ComponentDto project = newPrivateProjectDto();
     indexIssues(
       rangeClosed(1, 110).mapToObj(i -> newDoc(newFileDto(project, newDirectory(project, "dir" + i)), project.uuid()).setDirectoryPath("a" + i)).toArray(IssueDoc[]::new));
@@ -157,7 +157,7 @@ public class IssueIndexFacetsTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void facets_on_cwe() {
+  void facets_on_cwe() {
     ComponentDto project = newPrivateProjectDto();
     ComponentDto file = newFileDto(project);
 
@@ -174,7 +174,7 @@ public class IssueIndexFacetsTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void facets_on_pciDss32() {
+  void facets_on_pciDss32() {
     ComponentDto project = newPrivateProjectDto();
     ComponentDto file = newFileDto(project);
 
@@ -190,7 +190,7 @@ public class IssueIndexFacetsTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void facets_on_pciDss40() {
+  void facets_on_pciDss40() {
     ComponentDto project = newPrivateProjectDto();
     ComponentDto file = newFileDto(project);
 
@@ -206,7 +206,7 @@ public class IssueIndexFacetsTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void facets_on_owaspAsvs40() {
+  void facets_on_owaspAsvs40() {
     ComponentDto project = newPrivateProjectDto();
     ComponentDto file = newFileDto(project);
 
@@ -222,7 +222,7 @@ public class IssueIndexFacetsTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void facets_on_owaspTop10() {
+  void facets_on_owaspTop10() {
     ComponentDto project = newPrivateProjectDto();
     ComponentDto file = newFileDto(project);
 
@@ -238,7 +238,7 @@ public class IssueIndexFacetsTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void facets_on_owaspTop10_2021() {
+  void facets_on_owaspTop10_2021() {
     ComponentDto project = newPrivateProjectDto();
     ComponentDto file = newFileDto(project);
 
@@ -254,7 +254,7 @@ public class IssueIndexFacetsTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void facets_on_owaspTop10_2021_stay_ordered() {
+  void facets_on_owaspTop10_2021_stay_ordered() {
     ComponentDto project = newPrivateProjectDto();
     ComponentDto file = newFileDto(project);
 
@@ -270,7 +270,7 @@ public class IssueIndexFacetsTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void facets_on_sansTop25() {
+  void facets_on_sansTop25() {
     ComponentDto project = newPrivateProjectDto();
     ComponentDto file = newFileDto(project);
 
@@ -286,7 +286,7 @@ public class IssueIndexFacetsTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void facets_on_sonarSourceSecurity() {
+  void facets_on_sonarSourceSecurity() {
     ComponentDto project = newPrivateProjectDto();
     ComponentDto file = newFileDto(project);
 
@@ -301,7 +301,7 @@ public class IssueIndexFacetsTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void facets_on_severities() {
+  void facets_on_severities() {
     ComponentDto project = newPrivateProjectDto();
     ComponentDto file = newFileDto(project);
 
@@ -314,7 +314,7 @@ public class IssueIndexFacetsTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void facet_on_severities_return_5_entries_max() {
+  void facet_on_severities_return_5_entries_max() {
     ComponentDto project = newPrivateProjectDto();
     ComponentDto file = newFileDto(project);
 
@@ -330,7 +330,7 @@ public class IssueIndexFacetsTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void facets_on_statuses() {
+  void facets_on_statuses() {
     ComponentDto project = newPrivateProjectDto();
     ComponentDto file = newFileDto(project);
 
@@ -343,7 +343,7 @@ public class IssueIndexFacetsTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void facet_on_statuses_return_5_entries_max() {
+  void facet_on_statuses_return_5_entries_max() {
     ComponentDto project = newPrivateProjectDto();
     ComponentDto file = newFileDto(project);
 
@@ -359,7 +359,7 @@ public class IssueIndexFacetsTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void facets_on_resolutions() {
+  void facets_on_resolutions() {
     ComponentDto project = newPrivateProjectDto();
     ComponentDto file = newFileDto(project);
 
@@ -372,7 +372,7 @@ public class IssueIndexFacetsTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void search_shouldReturnIssueStatusesFacet() {
+  void search_shouldReturnIssueStatusesFacet() {
     ComponentDto mainBranch = newPrivateProjectDto();
     ComponentDto file = newFileDto(mainBranch);
 
@@ -397,7 +397,7 @@ public class IssueIndexFacetsTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void facets_on_resolutions_return_5_entries_max() {
+  void facets_on_resolutions_return_5_entries_max() {
     ComponentDto project = newPrivateProjectDto();
     ComponentDto file = newFileDto(project);
 
@@ -412,7 +412,7 @@ public class IssueIndexFacetsTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void facets_on_languages() {
+  void facets_on_languages() {
     ComponentDto project = newPrivateProjectDto();
     ComponentDto file = newFileDto(project);
     RuleDto ruleDefinitionDto = newRule();
@@ -424,7 +424,7 @@ public class IssueIndexFacetsTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void facets_on_languages_return_100_entries_plus_selected_values() {
+  void facets_on_languages_return_100_entries_plus_selected_values() {
     ComponentDto project = newPrivateProjectDto();
     indexIssues(rangeClosed(1, 100).mapToObj(i -> newDoc(newFileDto(project), project.uuid()).setLanguage("a" + i)).toArray(IssueDoc[]::new));
     IssueDoc issue1 = newDoc(newFileDto(project), project.uuid()).setLanguage("language1");
@@ -436,7 +436,7 @@ public class IssueIndexFacetsTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void facets_on_assignees() {
+  void facets_on_assignees() {
     ComponentDto project = newPrivateProjectDto();
     ComponentDto file = newFileDto(project);
 
@@ -450,7 +450,7 @@ public class IssueIndexFacetsTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void facets_on_assignees_return_only_100_entries_plus_selected_values() {
+  void facets_on_assignees_return_only_100_entries_plus_selected_values() {
     ComponentDto project = newPrivateProjectDto();
     indexIssues(rangeClosed(1, 110).mapToObj(i -> newDoc(newFileDto(project), project.uuid()).setAssigneeUuid("a" + i)).toArray(IssueDoc[]::new));
     IssueDoc issue1 = newDoc(newFileDto(project), project.uuid()).setAssigneeUuid("user1");
@@ -462,7 +462,7 @@ public class IssueIndexFacetsTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void facets_on_assignees_supports_dashes() {
+  void facets_on_assignees_supports_dashes() {
     ComponentDto project = newPrivateProjectDto();
     ComponentDto file = newFileDto(project);
 
@@ -477,7 +477,7 @@ public class IssueIndexFacetsTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void facets_on_author() {
+  void facets_on_author() {
     ComponentDto project = newPrivateProjectDto();
     ComponentDto file = newFileDto(project);
 
@@ -491,7 +491,21 @@ public class IssueIndexFacetsTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void facets_on_authors_return_100_entries_plus_selected_values() {
+  void facets_on_prioritized_rule() {
+    ComponentDto project = newPrivateProjectDto();
+    ComponentDto file = newFileDto(project);
+
+    indexIssues(
+      newDoc("I1", project.uuid(), file).setPrioritizedRule(false),
+      newDoc("I2", project.uuid(), file).setPrioritizedRule(true),
+      newDoc("I3", project.uuid(), file).setPrioritizedRule(true)
+    );
+
+    assertThatFacetHasOnly(IssueQuery.builder(), "prioritizedRule", entry("true", 2L), entry("false", 1L));
+  }
+
+  @Test
+  void facets_on_authors_return_100_entries_plus_selected_values() {
     ComponentDto project = newPrivateProjectDto();
     indexIssues(rangeClosed(1, 110).mapToObj(i -> newDoc(newFileDto(project), project.uuid()).setAuthorLogin("a" + i)).toArray(IssueDoc[]::new));
     IssueDoc issue1 = newDoc(newFileDto(project), project.uuid()).setAuthorLogin("user1");
@@ -503,7 +517,7 @@ public class IssueIndexFacetsTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void facet_on_created_at_with_less_than_20_days_use_system_timezone_by_default() {
+  void facet_on_created_at_with_less_than_20_days_use_system_timezone_by_default() {
     SearchOptions options = fixtureForCreatedAtFacet();
 
     IssueQuery query = IssueQuery.builder()
@@ -524,7 +538,7 @@ public class IssueIndexFacetsTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void facet_on_created_at_with_less_than_20_days_use_user_timezone_if_provided() {
+  void facet_on_created_at_with_less_than_20_days_use_user_timezone_if_provided() {
     // Use timezones very far from each other in order to see some issues moving to a different calendar day
     final ZoneId plus14 = ZoneId.of("Pacific/Kiritimati");
     final ZoneId minus11 = ZoneId.of("Pacific/Pago_Pago");
@@ -570,7 +584,7 @@ public class IssueIndexFacetsTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void facet_on_created_at_with_less_than_20_weeks() {
+  void facet_on_created_at_with_less_than_20_weeks() {
     SearchOptions options = fixtureForCreatedAtFacet();
 
     SearchResponse result = underTest.search(IssueQuery.builder()
@@ -586,7 +600,7 @@ public class IssueIndexFacetsTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void facet_on_created_at_with_less_than_20_months() {
+  void facet_on_created_at_with_less_than_20_months() {
     SearchOptions options = fixtureForCreatedAtFacet();
 
     SearchResponse result = underTest.search(IssueQuery.builder()
@@ -604,7 +618,7 @@ public class IssueIndexFacetsTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void facet_on_created_at_with_more_than_20_months() {
+  void facet_on_created_at_with_more_than_20_months() {
     SearchOptions options = fixtureForCreatedAtFacet();
 
     SearchResponse result = underTest.search(IssueQuery.builder()
@@ -622,7 +636,7 @@ public class IssueIndexFacetsTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void facet_on_created_at_with_one_day() {
+  void facet_on_created_at_with_one_day() {
     SearchOptions options = fixtureForCreatedAtFacet();
 
     SearchResponse result = underTest.search(IssueQuery.builder()
@@ -635,7 +649,7 @@ public class IssueIndexFacetsTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void facet_on_created_at_with_bounds_outside_of_data() {
+  void facet_on_created_at_with_bounds_outside_of_data() {
     SearchOptions options = fixtureForCreatedAtFacet();
 
     SearchResponse result = underTest.search(IssueQuery.builder()
@@ -655,7 +669,7 @@ public class IssueIndexFacetsTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void facet_on_created_at_without_start_bound() {
+  void facet_on_created_at_without_start_bound() {
     SearchOptions searchOptions = fixtureForCreatedAtFacet();
 
     SearchResponse result = underTest.search(IssueQuery.builder()
@@ -671,7 +685,7 @@ public class IssueIndexFacetsTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void facet_on_created_at_without_issues() {
+  void facet_on_created_at_without_issues() {
     SearchOptions searchOptions = new SearchOptions().addFacets("createdAt");
 
     SearchResponse result = underTest.search(IssueQuery.builder().build(), searchOptions);
@@ -680,7 +694,7 @@ public class IssueIndexFacetsTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void search_shouldReturnCodeVariantsFacet() {
+  void search_shouldReturnCodeVariantsFacet() {
     ComponentDto project = newPrivateProjectDto();
     ComponentDto file = newFileDto(project);
 
@@ -697,7 +711,7 @@ public class IssueIndexFacetsTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void search_shouldReturnImpactSoftwareQualitiesFacet() {
+  void search_shouldReturnImpactSoftwareQualitiesFacet() {
     ComponentDto project = newPrivateProjectDto();
     ComponentDto file = newFileDto(project);
 
@@ -719,7 +733,7 @@ public class IssueIndexFacetsTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void search_whenFilteredOnSeverity_shouldReturnImpactSoftwareQualitiesFacet() {
+  void search_whenFilteredOnSeverity_shouldReturnImpactSoftwareQualitiesFacet() {
     ComponentDto project = newPrivateProjectDto();
     ComponentDto file = newFileDto(project);
 
@@ -765,7 +779,7 @@ public class IssueIndexFacetsTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void search_whenFilteredOnSeverityAndSoftwareQuality_shouldReturnImpactFacets() {
+  void search_whenFilteredOnSeverityAndSoftwareQuality_shouldReturnImpactFacets() {
     ComponentDto project = newPrivateProjectDto();
     ComponentDto file = newFileDto(project);
 
@@ -792,7 +806,7 @@ public class IssueIndexFacetsTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void search_shouldReturnImpactSeverityFacet() {
+  void search_shouldReturnImpactSeverityFacet() {
     ComponentDto project = newPrivateProjectDto();
     ComponentDto file = newFileDto(project);
 
@@ -814,7 +828,7 @@ public class IssueIndexFacetsTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void search_whenFilteredOnSoftwareQuality_shouldReturnImpactSeverityFacet() {
+  void search_whenFilteredOnSoftwareQuality_shouldReturnImpactSeverityFacet() {
     ComponentDto project = newPrivateProjectDto();
     ComponentDto file = newFileDto(project);
 
@@ -836,7 +850,7 @@ public class IssueIndexFacetsTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void search_shouldReturnCleanCodeAttributeCategoryFacet() {
+  void search_shouldReturnCleanCodeAttributeCategoryFacet() {
     ComponentDto project = newPrivateProjectDto();
     ComponentDto file = newFileDto(project);
 
@@ -858,7 +872,7 @@ public class IssueIndexFacetsTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void search_whenFilteredByTags_shouldReturnCleanCodeAttributeCategoryFacet() {
+  void search_whenFilteredByTags_shouldReturnCleanCodeAttributeCategoryFacet() {
     ComponentDto project = newPrivateProjectDto();
     ComponentDto file = newFileDto(project);
 

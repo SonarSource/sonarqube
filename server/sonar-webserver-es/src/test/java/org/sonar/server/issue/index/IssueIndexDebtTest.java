@@ -20,7 +20,7 @@
 package org.sonar.server.issue.index;
 
 import java.util.Map;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.Severity;
 import org.sonar.db.component.ComponentDto;
@@ -38,10 +38,10 @@ import static org.sonar.api.issue.Issue.STATUS_OPEN;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.FACET_MODE_EFFORT;
 
-public class IssueIndexDebtTest extends IssueIndexTestCommon {
+class IssueIndexDebtTest extends IssueIndexTestCommon {
 
   @Test
-  public void facets_on_projects() {
+  void facets_on_projects() {
     ComponentDto project = ComponentTesting.newPrivateProjectDto("ABCD");
     ComponentDto project2 = ComponentTesting.newPrivateProjectDto("EFGH");
 
@@ -57,7 +57,7 @@ public class IssueIndexDebtTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void facets_on_components() {
+  void facets_on_components() {
     ComponentDto project = ComponentTesting.newPrivateProjectDto("A");
     ComponentDto file1 = ComponentTesting.newFileDto(project, null, "ABCD");
     ComponentDto file2 = ComponentTesting.newFileDto(project, null, "BCDE");
@@ -78,7 +78,7 @@ public class IssueIndexDebtTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void facets_on_directories() {
+  void facets_on_directories() {
     ComponentDto project = ComponentTesting.newPrivateProjectDto();
     ComponentDto file1 = ComponentTesting.newFileDto(project).setPath("src/main/xoo/F1.xoo");
     ComponentDto file2 = ComponentTesting.newFileDto(project).setPath("F2.xoo");
@@ -94,7 +94,7 @@ public class IssueIndexDebtTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void facets_on_severities() {
+  void facets_on_severities() {
     ComponentDto project = ComponentTesting.newPrivateProjectDto();
     ComponentDto file = ComponentTesting.newFileDto(project);
 
@@ -110,7 +110,7 @@ public class IssueIndexDebtTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void facets_on_statuses() {
+  void facets_on_statuses() {
     ComponentDto project = ComponentTesting.newPrivateProjectDto();
     ComponentDto file = ComponentTesting.newFileDto(project);
 
@@ -126,7 +126,7 @@ public class IssueIndexDebtTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void facets_on_resolutions() {
+  void facets_on_resolutions() {
     ComponentDto project = ComponentTesting.newPrivateProjectDto();
     ComponentDto file = ComponentTesting.newFileDto(project);
 
@@ -142,7 +142,7 @@ public class IssueIndexDebtTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void facets_on_languages() {
+  void facets_on_languages() {
     ComponentDto project = ComponentTesting.newPrivateProjectDto();
     ComponentDto file = ComponentTesting.newFileDto(project);
 
@@ -155,7 +155,7 @@ public class IssueIndexDebtTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void facets_on_assignees() {
+  void facets_on_assignees() {
     ComponentDto project = ComponentTesting.newPrivateProjectDto();
     ComponentDto file = ComponentTesting.newFileDto(project);
 
@@ -172,7 +172,7 @@ public class IssueIndexDebtTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void facets_on_author() {
+  void facets_on_author() {
     ComponentDto project = ComponentTesting.newPrivateProjectDto();
     ComponentDto file = ComponentTesting.newFileDto(project);
 
@@ -189,7 +189,7 @@ public class IssueIndexDebtTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void facet_on_created_at() {
+  void facet_on_created_at() {
     SearchOptions searchOptions = fixtureForCreatedAtFacet();
 
     Builder query = newQueryBuilder().createdBefore(parseDateTime("2016-01-01T00:00:00+0100"));

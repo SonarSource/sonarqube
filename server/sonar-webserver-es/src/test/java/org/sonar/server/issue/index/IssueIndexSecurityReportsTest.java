@@ -25,7 +25,7 @@ import java.util.Map;
 import java.util.OptionalInt;
 import java.util.stream.Collectors;
 import org.jetbrains.annotations.NotNull;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.RuleType;
@@ -47,10 +47,10 @@ import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.server.issue.IssueDocTesting.newDocForProject;
 import static org.sonar.server.security.SecurityStandards.UNKNOWN_STANDARD;
 
-public class IssueIndexSecurityReportsTest extends IssueIndexTestCommon {
+class IssueIndexSecurityReportsTest extends IssueIndexTestCommon {
 
   @Test
-  public void getOwaspTop10Report_dont_count_vulnerabilities_from_other_projects() {
+  void getOwaspTop10Report_dont_count_vulnerabilities_from_other_projects() {
     ComponentDto project = newPrivateProjectDto();
     ComponentDto another = newPrivateProjectDto();
 
@@ -79,7 +79,7 @@ public class IssueIndexSecurityReportsTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void getOwaspTop10Report_dont_count_closed_vulnerabilities() {
+  void getOwaspTop10Report_dont_count_closed_vulnerabilities() {
     ComponentDto project = newPrivateProjectDto();
     indexIssues(
       newDocForProject("openvul1", project).setOwaspTop10(List.of("a1")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_OPEN).setSeverity(Severity.MAJOR),
@@ -105,7 +105,7 @@ public class IssueIndexSecurityReportsTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void getOwaspTop10Report_dont_count_old_vulnerabilities() {
+  void getOwaspTop10Report_dont_count_old_vulnerabilities() {
     ComponentDto project = newPrivateProjectDto();
     indexIssues(
       // Previous vulnerabilities in projects that are not reanalyzed will have no owasp nor cwe attributes (not even 'unknown')
@@ -127,7 +127,7 @@ public class IssueIndexSecurityReportsTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void getOwaspTop10Report_dont_count_hotspots_from_other_projects() {
+  void getOwaspTop10Report_dont_count_hotspots_from_other_projects() {
     ComponentDto project = newPrivateProjectDto();
     ComponentDto another = newPrivateProjectDto();
     indexIssues(
@@ -150,7 +150,7 @@ public class IssueIndexSecurityReportsTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void getOwaspTop10Report_dont_count_closed_hotspots() {
+  void getOwaspTop10Report_dont_count_closed_hotspots() {
     ComponentDto project = newPrivateProjectDto();
     indexIssues(
       newDocForProject("openhotspot1", project).setOwaspTop10(List.of("a1")).setType(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_TO_REVIEW),
@@ -174,7 +174,7 @@ public class IssueIndexSecurityReportsTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void getOwaspTop10Report_aggregation_no_cwe() {
+  void getOwaspTop10Report_aggregation_no_cwe() {
     List<SecurityStandardCategoryStatistics> owaspTop10Report = indexIssuesAndAssertOwaspReport(false);
 
     assertThat(owaspTop10Report)
@@ -183,7 +183,7 @@ public class IssueIndexSecurityReportsTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void getPciDss32Report_aggregation() {
+  void getPciDss32Report_aggregation() {
     List<SecurityStandardCategoryStatistics> pciDss32Report = indexIssuesAndAssertPciDss32Report();
 
     assertThat(pciDss32Report)
@@ -204,7 +204,7 @@ public class IssueIndexSecurityReportsTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void getOwaspAsvs40Report_aggregation() {
+  void getOwaspAsvs40Report_aggregation() {
     List<SecurityStandardCategoryStatistics> owaspAsvsReport = indexIssuesAndAssertOwaspAsvsReport();
 
     assertThat(owaspAsvsReport)
@@ -227,7 +227,7 @@ public class IssueIndexSecurityReportsTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void getOwaspAsvs40ReportGroupedByLevel_aggregation() {
+  void getOwaspAsvs40ReportGroupedByLevel_aggregation() {
     List<SecurityStandardCategoryStatistics> owaspAsvsReportGroupedByLevel = indexIssuesAndAssertOwaspAsvsReportGroupedByLevel();
 
     assertThat(owaspAsvsReportGroupedByLevel)
@@ -239,7 +239,7 @@ public class IssueIndexSecurityReportsTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void getOwaspTop10Report_aggregation_with_cwe() {
+  void getOwaspTop10Report_aggregation_with_cwe() {
     List<SecurityStandardCategoryStatistics> owaspTop10Report = indexIssuesAndAssertOwaspReport(true);
 
     Map<String, List<SecurityStandardCategoryStatistics>> cweByOwasp = owaspTop10Report.stream()
@@ -262,7 +262,7 @@ public class IssueIndexSecurityReportsTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void getOwaspTop10For2021Report_aggregation_with_cwe() {
+  void getOwaspTop10For2021Report_aggregation_with_cwe() {
     List<SecurityStandardCategoryStatistics> owaspTop10Report = indexIssuesAndAssertOwasp2021Report(true);
 
     Map<String, List<SecurityStandardCategoryStatistics>> cweByOwasp = owaspTop10Report.stream()
@@ -469,7 +469,7 @@ public class IssueIndexSecurityReportsTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void getPciDssReport_aggregation_on_portfolio() {
+  void getPciDssReport_aggregation_on_portfolio() {
     ComponentDto portfolio1 = db.components().insertPrivateApplication().getMainBranchComponent();
     ComponentDto portfolio2 = db.components().insertPrivateApplication().getMainBranchComponent();
     ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
@@ -516,7 +516,7 @@ public class IssueIndexSecurityReportsTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void getOwaspAsvsReport_aggregation_on_portfolio() {
+  void getOwaspAsvsReport_aggregation_on_portfolio() {
     ComponentDto portfolio1 = db.components().insertPrivateApplication().getMainBranchComponent();
     ComponentDto portfolio2 = db.components().insertPrivateApplication().getMainBranchComponent();
     ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
@@ -565,7 +565,7 @@ public class IssueIndexSecurityReportsTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void getCWETop25Report_aggregation() {
+  void getCWETop25Report_aggregation() {
     ComponentDto project = newPrivateProjectDto();
     indexIssues(
       newDocForProject("openvul", project).setCwe(List.of("119")).setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_OPEN)
@@ -645,7 +645,7 @@ public class IssueIndexSecurityReportsTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void getCWETop25Report_aggregation_on_portfolio() {
+  void getCWETop25Report_aggregation_on_portfolio() {
     ComponentDto application = db.components().insertPrivateApplication().getMainBranchComponent();
     ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();

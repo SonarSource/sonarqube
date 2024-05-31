@@ -22,7 +22,7 @@ package org.sonar.server.issue.index;
 import java.util.Arrays;
 import java.util.List;
 import org.elasticsearch.search.SearchHit;
-import org.junit.Rule;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
@@ -45,12 +45,12 @@ import static org.sonar.api.resources.Qualifiers.PROJECT;
 
 public class IssueIndexTestCommon {
 
-  @Rule
+  @RegisterExtension
   public EsTester es = EsTester.create();
-  @Rule
+  @RegisterExtension
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
   protected final System2 system2 = new TestSystem2().setNow(1_500_000_000_000L).setDefaultTimeZone(getTimeZone("GMT-01:00"));
-  @Rule
+  @RegisterExtension
   public DbTester db = DbTester.create(system2);
 
   private final AsyncIssueIndexing asyncIssueIndexing = mock(AsyncIssueIndexing.class);

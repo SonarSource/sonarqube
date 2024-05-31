@@ -21,7 +21,7 @@ package org.sonar.server.issue.index;
 
 import java.util.Map;
 import org.elasticsearch.action.search.SearchResponse;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.sonar.api.rule.Severity;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.server.es.Facets;
@@ -41,10 +41,10 @@ import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.server.issue.IssueDocTesting.newDoc;
 
-public class IssueIndexSecurityHotspotsTest extends IssueIndexTestCommon {
+class IssueIndexSecurityHotspotsTest extends IssueIndexTestCommon {
 
   @Test
-  public void filter_by_security_hotspots_type() {
+  void filter_by_security_hotspots_type() {
     ComponentDto project = newPrivateProjectDto();
     ComponentDto file = newFileDto(project);
 
@@ -62,7 +62,7 @@ public class IssueIndexSecurityHotspotsTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void filter_by_severities_ignore_hotspots() {
+  void filter_by_severities_ignore_hotspots() {
     ComponentDto project = newPrivateProjectDto();
     ComponentDto file = newFileDto(project);
 
@@ -80,7 +80,7 @@ public class IssueIndexSecurityHotspotsTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void facet_on_severities_ignore_hotspots() {
+  void facet_on_severities_ignore_hotspots() {
     ComponentDto project = newPrivateProjectDto();
     ComponentDto file = newFileDto(project);
 

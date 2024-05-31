@@ -19,15 +19,15 @@
  */
 package org.sonar.server.issue.index;
 
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterators;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import org.apache.lucene.search.TotalHits;
 import org.apache.lucene.search.TotalHits.Relation;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.SearchHit;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.sonar.api.issue.Issue;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ProjectData;
@@ -49,10 +49,10 @@ import static org.sonar.db.user.UserTesting.newUserDto;
 import static org.sonar.server.issue.IssueDocTesting.newDoc;
 import static org.sonar.server.issue.IssueDocTesting.newDocForProject;
 
-public class IssueIndexTest extends IssueIndexTestCommon {
+class IssueIndexTest extends IssueIndexTestCommon {
 
   @Test
-  public void paging() {
+  void paging() {
     ComponentDto project = newPrivateProjectDto();
     ComponentDto file = newFileDto(project);
     for (int i = 0; i < 12; i++) {
@@ -75,7 +75,7 @@ public class IssueIndexTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void search_with_max_limit() {
+  void search_with_max_limit() {
     ComponentDto project = newPrivateProjectDto();
     ComponentDto file = newFileDto(project);
     List<IssueDoc> issues = new ArrayList<>();
@@ -92,7 +92,7 @@ public class IssueIndexTest extends IssueIndexTestCommon {
 
   // SONAR-14224
   @Test
-  public void search_exceeding_default_index_max_window() {
+  void search_exceeding_default_index_max_window() {
     ComponentDto project = newPrivateProjectDto();
     ComponentDto file = newFileDto(project);
     List<IssueDoc> issues = new ArrayList<>();
@@ -110,7 +110,7 @@ public class IssueIndexTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void search_nine_issues_with_same_creation_date_sorted_by_creation_date_order_is_sorted_also_by_key() {
+  void search_nine_issues_with_same_creation_date_sorted_by_creation_date_order_is_sorted_also_by_key() {
     ComponentDto project = newPrivateProjectDto();
     ComponentDto file = newFileDto(project);
     List<IssueDoc> issues = new ArrayList<>();
@@ -131,7 +131,7 @@ public class IssueIndexTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void search_nine_issues_5_times_with_same_creation_date_sorted_by_creation_date_returned_issues_same_order() {
+  void search_nine_issues_5_times_with_same_creation_date_sorted_by_creation_date_returned_issues_same_order() {
     ComponentDto project = newPrivateProjectDto();
     ComponentDto file = newFileDto(project);
     List<IssueDoc> issues = new ArrayList<>();
@@ -157,7 +157,7 @@ public class IssueIndexTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void authorized_issues_on_groups() {
+  void authorized_issues_on_groups() {
     ProjectData project1 = db.components().insertPublicProject();
     ProjectData project2 = db.components().insertPublicProject();
     ProjectData project3 = db.components().insertPublicProject();
@@ -194,7 +194,7 @@ public class IssueIndexTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void authorized_issues_on_user() {
+  void authorized_issues_on_user() {
     ProjectData project1 = db.components().insertPublicProject();
     ProjectData project2 = db.components().insertPublicProject();
     ProjectData project3 = db.components().insertPublicProject();
@@ -224,7 +224,7 @@ public class IssueIndexTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void list_tags() {
+  void list_tags() {
     RuleDto r1 = db.rules().insert();
     RuleDto r2 = db.rules().insert();
     ruleIndexer.commitAndIndex(db.getSession(), asList(r1.getUuid(), r2.getUuid()));
@@ -245,7 +245,7 @@ public class IssueIndexTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void list_authors() {
+  void list_authors() {
     ComponentDto project = newPrivateProjectDto();
     indexIssues(
       newDocForProject("issue1", project).setAuthorLogin("luke.skywalker"),
@@ -262,7 +262,19 @@ public class IssueIndexTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void list_authors_escapes_regexp_special_characters() {
+  void prioritized_rules() {
+    ComponentDto project = newPrivateProjectDto();
+    indexIssues(
+      newDocForProject("issue1", project).setPrioritizedRule(true),
+      newDocForProject("issue2", project).setPrioritizedRule(false));
+
+    assertThatSearchReturnsOnly(IssueQuery.builder(), "issue1", "issue2");
+    assertThatSearchReturnsOnly(IssueQuery.builder().prioritizedRule(true), "issue1");
+    assertThatSearchReturnsOnly(IssueQuery.builder().prioritizedRule(false), "issue2");
+  }
+
+  @Test
+  void list_authors_escapes_regexp_special_characters() {
     ComponentDto project = newPrivateProjectDto();
     indexIssues(
       newDocForProject("issue1", project).setAuthorLogin("name++"));
@@ -275,14 +287,14 @@ public class IssueIndexTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void countTags() {
+  void countTags() {
     ComponentDto project = newPrivateProjectDto();
     indexIssues(
-      newDocForProject("issue1", project).setTags(ImmutableSet.of("convention", "java8", "bug")),
-      newDocForProject("issue2", project).setTags(ImmutableSet.of("convention", "bug")),
+      newDocForProject("issue1", project).setTags(Set.of("convention", "java8", "bug")),
+      newDocForProject("issue2", project).setTags(Set.of("convention", "bug")),
       newDocForProject("issue3", project).setTags(emptyList()),
-      newDocForProject("issue4", project).setTags(ImmutableSet.of("convention", "java8", "bug")).setResolution(Issue.RESOLUTION_FIXED),
-      newDocForProject("issue5", project).setTags(ImmutableSet.of("convention")));
+      newDocForProject("issue4", project).setTags(Set.of("convention", "java8", "bug")).setResolution(Issue.RESOLUTION_FIXED),
+      newDocForProject("issue5", project).setTags(Set.of("convention")));
 
     assertThat(underTest.countTags(projectQuery(project.uuid()), 5)).containsOnly(entry("convention", 3L), entry("bug", 2L), entry("java8", 1L));
     assertThat(underTest.countTags(projectQuery(project.uuid()), 2)).contains(entry("convention", 3L), entry("bug", 2L)).doesNotContainEntry("java8", 1L);

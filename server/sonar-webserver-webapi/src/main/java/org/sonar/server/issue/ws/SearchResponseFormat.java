@@ -229,6 +229,7 @@ public class SearchResponseFormat {
       .ifPresentOrElse(issueBuilder::setQuickFixAvailable, () -> issueBuilder.setQuickFixAvailable(false));
 
     issueBuilder.setScope(UNIT_TEST_FILE.equals(component.qualifier()) ? IssueScope.TEST.name() : IssueScope.MAIN.name());
+    issueBuilder.setPrioritizedRule(dto.isPrioritizedRule());
   }
 
   private static void addAdditionalFieldsToIssueBuilder(Collection<SearchAdditionalField> fields, SearchResponseData data, IssueDto dto, Issue.Builder issueBuilder) {

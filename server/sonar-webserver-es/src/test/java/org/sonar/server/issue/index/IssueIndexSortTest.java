@@ -20,7 +20,7 @@
 package org.sonar.server.issue.index;
 
 import org.elasticsearch.action.search.SearchResponse;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.Severity;
 import org.sonar.db.component.ComponentDto;
@@ -31,10 +31,10 @@ import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.server.issue.IssueDocTesting.newDoc;
 
-public class IssueIndexSortTest extends IssueIndexTestCommon {
+class IssueIndexSortTest extends IssueIndexTestCommon {
 
   @Test
-  public void sort_by_status() {
+  void sort_by_status() {
     ComponentDto project = newPrivateProjectDto();
     ComponentDto file = newFileDto(project);
 
@@ -51,7 +51,7 @@ public class IssueIndexSortTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void sort_by_severity() {
+  void sort_by_severity() {
     ComponentDto project = newPrivateProjectDto();
     ComponentDto file = newFileDto(project);
 
@@ -70,7 +70,7 @@ public class IssueIndexSortTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void sort_by_creation_date() {
+  void sort_by_creation_date() {
     ComponentDto project = newPrivateProjectDto();
     ComponentDto file = newFileDto(project);
 
@@ -87,7 +87,7 @@ public class IssueIndexSortTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void sort_by_update_date() {
+  void sort_by_update_date() {
     ComponentDto project = newPrivateProjectDto();
     ComponentDto file = newFileDto(project);
 
@@ -104,7 +104,7 @@ public class IssueIndexSortTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void sort_by_close_date() {
+  void sort_by_close_date() {
     ComponentDto project = newPrivateProjectDto();
     ComponentDto file = newFileDto(project);
 
@@ -122,7 +122,7 @@ public class IssueIndexSortTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void sort_by_file_and_line() {
+  void sort_by_file_and_line() {
     ComponentDto project = newPrivateProjectDto();
     ComponentDto file1 = newFileDto(project, null, "F1").setPath("src/main/xoo/org/sonar/samples/File.xoo");
     ComponentDto file2 = newFileDto(project, null, "F2").setPath("src/main/xoo/org/sonar/samples/File2.xoo");
@@ -149,7 +149,7 @@ public class IssueIndexSortTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void default_sort_is_by_creation_date_then_project_then_file_then_line_then_issue_key() {
+  void default_sort_is_by_creation_date_then_project_then_file_then_line_then_issue_key() {
     ComponentDto project1 = newPrivateProjectDto("P1");
     ComponentDto file1 = newFileDto(project1, null, "F1").setPath("src/main/xoo/org/sonar/samples/File.xoo");
     ComponentDto file2 = newFileDto(project1, null, "F2").setPath("src/main/xoo/org/sonar/samples/File2.xoo");

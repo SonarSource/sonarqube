@@ -13,6 +13,7 @@
       "cleanCodeAttribute": "CLEAR",
       "cleanCodeAttributeCategory": "INTENTIONAL",
       "issueStatus": "ACCEPTED",
+      "prioritizedRule": false,
       "impacts": [
         {
           "softwareQuality": "SECURITY",

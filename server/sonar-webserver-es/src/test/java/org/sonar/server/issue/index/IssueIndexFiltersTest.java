@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.assertj.core.api.Fail;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueStatus;
 import org.sonar.api.rule.Severity;
@@ -57,10 +57,10 @@ import static org.sonar.db.rule.RuleTesting.newRule;
 import static org.sonar.server.issue.IssueDocTesting.newDoc;
 import static org.sonar.server.issue.IssueDocTesting.newDocForProject;
 
-public class IssueIndexFiltersTest extends IssueIndexTestCommon {
+class IssueIndexFiltersTest extends IssueIndexTestCommon {
 
   @Test
-  public void filter_by_keys() {
+  void filter_by_keys() {
     ComponentDto project = newPrivateProjectDto();
 
     indexIssues(
@@ -73,7 +73,7 @@ public class IssueIndexFiltersTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void filter_by_projects() {
+  void filter_by_projects() {
     ComponentDto project = newPrivateProjectDto();
 
     indexIssues(
@@ -85,7 +85,7 @@ public class IssueIndexFiltersTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void filter_by_components_on_contextualized_search() {
+  void filter_by_components_on_contextualized_search() {
     ComponentDto project = newPrivateProjectDto();
     ComponentDto file1 = newFileDto(project);
     String view = "ABCD";
@@ -103,7 +103,7 @@ public class IssueIndexFiltersTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void filter_by_components_on_non_contextualized_search() {
+  void filter_by_components_on_non_contextualized_search() {
     ComponentDto project = newPrivateProjectDto("project");
     ComponentDto file1 = newFileDto(project, null, "file1");
     String view = "ABCD";
@@ -121,7 +121,7 @@ public class IssueIndexFiltersTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void filter_by_directories() {
+  void filter_by_directories() {
     ComponentDto project = newPrivateProjectDto();
     ComponentDto file1 = newFileDto(project).setPath("src/main/xoo/F1.xoo");
     ComponentDto file2 = newFileDto(project).setPath("F2.xoo");
@@ -136,7 +136,7 @@ public class IssueIndexFiltersTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void filter_by_portfolios() {
+  void filter_by_portfolios() {
     ComponentDto portfolio1 = db.components().insertPrivateApplication().getMainBranchComponent();
     ComponentDto portfolio2 = db.components().insertPrivateApplication().getMainBranchComponent();
     ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
@@ -161,7 +161,7 @@ public class IssueIndexFiltersTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void filter_by_portfolios_not_having_projects() {
+  void filter_by_portfolios_not_having_projects() {
     ComponentDto project1 = newPrivateProjectDto();
     ComponentDto file1 = newFileDto(project1);
     indexIssues(newDoc("I2", project1.uuid(), file1));
@@ -172,7 +172,7 @@ public class IssueIndexFiltersTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void do_not_return_issues_from_project_branch_when_filtering_by_portfolios() {
+  void do_not_return_issues_from_project_branch_when_filtering_by_portfolios() {
     ComponentDto portfolio = db.components().insertPrivateApplication().getMainBranchComponent();
     ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto projectBranch = db.components().insertProjectBranch(project);
@@ -191,7 +191,7 @@ public class IssueIndexFiltersTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void filter_one_issue_by_project_and_branch() {
+  void filter_one_issue_by_project_and_branch() {
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto branch = db.components().insertProjectBranch(project);
     ComponentDto anotherbBranch = db.components().insertProjectBranch(project);
@@ -213,7 +213,7 @@ public class IssueIndexFiltersTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void issues_from_branch_component_children() {
+  void issues_from_branch_component_children() {
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto projectFile = db.components().insertComponent(newFileDto(project));
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("my_branch"));
@@ -231,7 +231,7 @@ public class IssueIndexFiltersTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void issues_from_main_branch() {
+  void issues_from_main_branch() {
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto branch = db.components().insertProjectBranch(project);
 
@@ -248,7 +248,7 @@ public class IssueIndexFiltersTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void branch_issues_are_ignored_when_no_branch_param() {
+  void branch_issues_are_ignored_when_no_branch_param() {
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("my_branch"));
 
@@ -260,7 +260,7 @@ public class IssueIndexFiltersTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void filter_by_main_application() {
+  void filter_by_main_application() {
     ComponentDto application1 = db.components().insertPrivateApplication().getMainBranchComponent();
     ComponentDto application2 = db.components().insertPrivateApplication().getMainBranchComponent();
     ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
@@ -284,7 +284,7 @@ public class IssueIndexFiltersTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void filter_by_application_branch() {
+  void filter_by_application_branch() {
     ComponentDto application = db.components().insertPublicProject(c -> c.setQualifier(APP)).getMainBranchComponent();
     ComponentDto branch1 = db.components().insertProjectBranch(application);
     ComponentDto branch2 = db.components().insertProjectBranch(application);
@@ -310,7 +310,7 @@ public class IssueIndexFiltersTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void filter_by_application_branch_having_project_branches() {
+  void filter_by_application_branch_having_project_branches() {
     ComponentDto application = db.components().insertPublicProject(c -> c.setQualifier(APP).setKey("app")).getMainBranchComponent();
     ComponentDto applicationBranch1 = db.components().insertProjectBranch(application, a -> a.setKey("app-branch1"));
     ComponentDto applicationBranch2 = db.components().insertProjectBranch(application, a -> a.setKey("app-branch2"));
@@ -343,7 +343,7 @@ public class IssueIndexFiltersTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void filter_by_created_after_by_projects() {
+  void filter_by_created_after_by_projects() {
     Date now = new Date();
     ComponentDto project1 = newPrivateProjectDto();
     IssueDoc project1Issue1 = newDocForProject(project1).setFuncCreationDate(addDays(now, -10));
@@ -379,7 +379,7 @@ public class IssueIndexFiltersTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void filter_by_created_after_by_project_branches() {
+  void filter_by_created_after_by_project_branches() {
     Date now = new Date();
 
     ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
@@ -432,7 +432,7 @@ public class IssueIndexFiltersTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void filter_by_new_code_reference_by_projects() {
+  void filter_by_new_code_reference_by_projects() {
     ComponentDto project1 = newPrivateProjectDto();
     IssueDoc project1Issue1 = newDocForProject(project1).setIsNewCodeReference(true);
     IssueDoc project1Issue2 = newDocForProject(project1).setIsNewCodeReference(false);
@@ -448,7 +448,7 @@ public class IssueIndexFiltersTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void filter_by_new_code_reference_branches() {
+  void filter_by_new_code_reference_branches() {
     ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
     IssueDoc project1Issue1 = newDocForProject(project1).setIsNewCodeReference(true);
     IssueDoc project1Issue2 = newDocForProject(project1).setIsNewCodeReference(false);
@@ -477,7 +477,7 @@ public class IssueIndexFiltersTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void filter_by_severities() {
+  void filter_by_severities() {
     ComponentDto project = newPrivateProjectDto();
     ComponentDto file = newFileDto(project);
 
@@ -491,7 +491,7 @@ public class IssueIndexFiltersTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void filter_by_statuses() {
+  void filter_by_statuses() {
     ComponentDto project = newPrivateProjectDto();
     ComponentDto file = newFileDto(project);
 
@@ -505,7 +505,7 @@ public class IssueIndexFiltersTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void filter_by_resolutions() {
+  void filter_by_resolutions() {
     ComponentDto project = newPrivateProjectDto();
     ComponentDto file = newFileDto(project);
 
@@ -519,7 +519,7 @@ public class IssueIndexFiltersTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void filter_by_resolved() {
+  void filter_by_resolved() {
     ComponentDto project = newPrivateProjectDto();
     ComponentDto file = newFileDto(project);
 
@@ -534,7 +534,7 @@ public class IssueIndexFiltersTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void filter_by_rules() {
+  void filter_by_rules() {
     ComponentDto project = newPrivateProjectDto();
     ComponentDto file = newFileDto(project);
     RuleDto ruleDefinitionDto = newRule();
@@ -547,7 +547,7 @@ public class IssueIndexFiltersTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void filter_by_languages() {
+  void filter_by_languages() {
     ComponentDto project = newPrivateProjectDto();
     ComponentDto file = newFileDto(project);
     RuleDto ruleDefinitionDto = newRule();
@@ -560,7 +560,7 @@ public class IssueIndexFiltersTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void filter_by_assignees() {
+  void filter_by_assignees() {
     ComponentDto project = newPrivateProjectDto();
     ComponentDto file = newFileDto(project);
 
@@ -575,7 +575,7 @@ public class IssueIndexFiltersTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void filter_by_assigned() {
+  void filter_by_assigned() {
     ComponentDto project = newPrivateProjectDto();
     ComponentDto file = newFileDto(project);
 
@@ -590,7 +590,7 @@ public class IssueIndexFiltersTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void filter_by_authors() {
+  void filter_by_authors() {
     ComponentDto project = newPrivateProjectDto();
     ComponentDto file = newFileDto(project);
 
@@ -605,7 +605,22 @@ public class IssueIndexFiltersTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void filter_by_created_after() {
+  void filter_by_prioritized_rule() {
+    ComponentDto project = newPrivateProjectDto();
+    ComponentDto file = newFileDto(project);
+
+    indexIssues(
+      newDoc("I1", project.uuid(), file).setPrioritizedRule(true),
+      newDoc("I2", project.uuid(), file).setPrioritizedRule(true),
+      newDoc("I3", project.uuid(), file).setPrioritizedRule(false));
+
+    assertThatSearchReturnsOnly(IssueQuery.builder().prioritizedRule(null), "I1", "I2", "I3");
+    assertThatSearchReturnsOnly(IssueQuery.builder().prioritizedRule(true), "I1", "I2");
+    assertThatSearchReturnsOnly(IssueQuery.builder().prioritizedRule(false), "I3");
+  }
+
+  @Test
+  void filter_by_created_after() {
     ComponentDto project = newPrivateProjectDto();
     ComponentDto file = newFileDto(project);
 
@@ -621,7 +636,7 @@ public class IssueIndexFiltersTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void filter_by_created_before() {
+  void filter_by_created_before() {
     ComponentDto project = newPrivateProjectDto();
     ComponentDto file = newFileDto(project);
 
@@ -637,7 +652,7 @@ public class IssueIndexFiltersTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void filter_by_created_after_and_before() {
+  void filter_by_created_after_and_before() {
     ComponentDto project = newPrivateProjectDto();
     ComponentDto file = newFileDto(project);
 
@@ -677,7 +692,7 @@ public class IssueIndexFiltersTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void filter_by_created_after_and_before_take_into_account_timezone() {
+  void filter_by_created_after_and_before_take_into_account_timezone() {
     ComponentDto project = newPrivateProjectDto();
     ComponentDto file = newFileDto(project);
 
@@ -692,7 +707,7 @@ public class IssueIndexFiltersTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void filter_by_created_before_must_be_lower_than_after() {
+  void filter_by_created_before_must_be_lower_than_after() {
     try {
       underTest.search(IssueQuery.builder().createdAfter(parseDate("2014-09-20")).createdBefore(parseDate("2014-09-19")).build(),
         new SearchOptions());
@@ -703,7 +718,7 @@ public class IssueIndexFiltersTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void fail_if_created_before_equals_created_after() {
+  void fail_if_created_before_equals_created_after() {
     assertThatThrownBy(() -> underTest.search(IssueQuery.builder().createdAfter(parseDate("2014-09-20"))
       .createdBefore(parseDate("2014-09-20")).build(), new SearchOptions()))
         .isInstanceOf(IllegalArgumentException.class)
@@ -711,7 +726,7 @@ public class IssueIndexFiltersTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void filter_by_created_after_must_not_be_in_future() {
+  void filter_by_created_after_must_not_be_in_future() {
     try {
       underTest.search(IssueQuery.builder().createdAfter(new Date(Long.MAX_VALUE)).build(), new SearchOptions());
       Fail.failBecauseExceptionWasNotThrown(IllegalArgumentException.class);
@@ -721,7 +736,7 @@ public class IssueIndexFiltersTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void filter_by_created_at() {
+  void filter_by_created_at() {
     ComponentDto project = newPrivateProjectDto();
     ComponentDto file = newFileDto(project);
 
@@ -732,7 +747,7 @@ public class IssueIndexFiltersTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void filter_by_new_code_reference() {
+  void filter_by_new_code_reference() {
     ComponentDto project = newPrivateProjectDto();
     ComponentDto file = newFileDto(project);
 
@@ -743,7 +758,7 @@ public class IssueIndexFiltersTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void filter_by_cwe() {
+  void filter_by_cwe() {
     ComponentDto project = newPrivateProjectDto();
     ComponentDto file = newFileDto(project);
 
@@ -756,7 +771,7 @@ public class IssueIndexFiltersTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void filter_by_owaspAsvs40_category() {
+  void filter_by_owaspAsvs40_category() {
     ComponentDto project = newPrivateProjectDto();
     ComponentDto file = newFileDto(project);
 
@@ -771,7 +786,7 @@ public class IssueIndexFiltersTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void filter_by_owaspAsvs40_specific_requirement() {
+  void filter_by_owaspAsvs40_specific_requirement() {
     ComponentDto project = newPrivateProjectDto();
     ComponentDto file = newFileDto(project);
 
@@ -786,7 +801,7 @@ public class IssueIndexFiltersTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void filter_by_owaspAsvs40_level() {
+  void filter_by_owaspAsvs40_level() {
     ComponentDto project = newPrivateProjectDto();
     ComponentDto file = newFileDto(project);
 
@@ -808,7 +823,7 @@ public class IssueIndexFiltersTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void filter_by_owaspTop10() {
+  void filter_by_owaspTop10() {
     ComponentDto project = newPrivateProjectDto();
     ComponentDto file = newFileDto(project);
 
@@ -821,7 +836,7 @@ public class IssueIndexFiltersTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void filter_by_sansTop25() {
+  void filter_by_sansTop25() {
     ComponentDto project = newPrivateProjectDto();
     ComponentDto file = newFileDto(project);
 
@@ -834,7 +849,7 @@ public class IssueIndexFiltersTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void filter_by_sonarSecurity() {
+  void filter_by_sonarSecurity() {
     ComponentDto project = newPrivateProjectDto();
     ComponentDto file = newFileDto(project);
 
@@ -847,7 +862,7 @@ public class IssueIndexFiltersTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void search_whenFilteringByCodeVariants_shouldReturnRelevantIssues() {
+  void search_whenFilteringByCodeVariants_shouldReturnRelevantIssues() {
     ComponentDto project = newPrivateProjectDto();
     ComponentDto file = newFileDto(project);
 
@@ -861,7 +876,7 @@ public class IssueIndexFiltersTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void search_whenFilteringBySoftwareQualities_shouldReturnRelevantIssues() {
+  void search_whenFilteringBySoftwareQualities_shouldReturnRelevantIssues() {
     ComponentDto project = newPrivateProjectDto();
     ComponentDto file = newFileDto(project);
 
@@ -899,7 +914,7 @@ public class IssueIndexFiltersTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void search_whenFilteringByCleanCodeAttributeCategory_shouldReturnRelevantIssues() {
+  void search_whenFilteringByCleanCodeAttributeCategory_shouldReturnRelevantIssues() {
     ComponentDto project = newPrivateProjectDto();
     ComponentDto file = newFileDto(project);
 
@@ -925,7 +940,7 @@ public class IssueIndexFiltersTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void search_whenFilteringByIssueStatus_shouldReturnRelevantIssues() {
+  void search_whenFilteringByIssueStatus_shouldReturnRelevantIssues() {
     ComponentDto project = newPrivateProjectDto();
     ComponentDto file = newFileDto(project);
 

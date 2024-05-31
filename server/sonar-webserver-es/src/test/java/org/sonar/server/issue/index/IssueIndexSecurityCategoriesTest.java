@@ -20,7 +20,7 @@
 package org.sonar.server.issue.index;
 
 import java.util.List;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.RuleType;
@@ -32,10 +32,10 @@ import static java.util.stream.Collectors.toList;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.server.issue.IssueDocTesting.newDocForProject;
 
-public class IssueIndexSecurityCategoriesTest extends IssueIndexTestCommon {
+class IssueIndexSecurityCategoriesTest extends IssueIndexTestCommon {
 
   @Test
-  public void searchSinglePciDss32Category() {
+  void searchSinglePciDss32Category() {
     ComponentDto project = newPrivateProjectDto();
 
     indexIssues(
@@ -51,7 +51,7 @@ public class IssueIndexSecurityCategoriesTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void searchMultiplePciDss32Categories() {
+  void searchMultiplePciDss32Categories() {
     ComponentDto project = newPrivateProjectDto();
 
     indexIssues(
@@ -69,7 +69,7 @@ public class IssueIndexSecurityCategoriesTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void searchSinglePciDss40Category() {
+  void searchSinglePciDss40Category() {
     ComponentDto project = newPrivateProjectDto();
 
     indexIssues(
@@ -85,7 +85,7 @@ public class IssueIndexSecurityCategoriesTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void searchMultiplePciDss40Categories() {
+  void searchMultiplePciDss40Categories() {
     ComponentDto project = newPrivateProjectDto();
 
     indexIssues(
@@ -103,7 +103,7 @@ public class IssueIndexSecurityCategoriesTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void searchMixedPciDssCategories() {
+  void searchMixedPciDssCategories() {
     ComponentDto project = newPrivateProjectDto();
 
     indexIssues(

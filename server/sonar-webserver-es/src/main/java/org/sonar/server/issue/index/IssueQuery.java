@@ -87,6 +87,7 @@ public class IssueQuery {
   private final Boolean onComponentOnly;
   private final Boolean assigned;
   private final Boolean resolved;
+  private final Boolean prioritizedRule;
   private final Date createdAt;
   private final PeriodStart createdAfter;
   private final Date createdBefore;
@@ -135,6 +136,7 @@ public class IssueQuery {
     this.onComponentOnly = builder.onComponentOnly;
     this.assigned = builder.assigned;
     this.resolved = builder.resolved;
+    this.prioritizedRule = builder.prioritizedRule;
     this.createdAt = builder.createdAt;
     this.createdAfter = builder.createdAfter;
     this.createdBefore = builder.createdBefore;
@@ -290,6 +292,11 @@ public class IssueQuery {
   }
 
   @CheckForNull
+  public Boolean prioritizedRule() {
+    return prioritizedRule;
+  }
+
+  @CheckForNull
   public PeriodStart createdAfter() {
     return createdAfter;
   }
@@ -392,6 +399,7 @@ public class IssueQuery {
     private Boolean onComponentOnly = false;
     private Boolean assigned = null;
     private Boolean resolved = null;
+    private Boolean prioritizedRule = null;
     private Date createdAt;
     private PeriodStart createdAfter;
     private Date createdBefore;
@@ -590,6 +598,12 @@ public class IssueQuery {
       this.resolved = resolved;
       return this;
     }
+
+    public Builder prioritizedRule(@Nullable Boolean prioritizedRule) {
+      this.prioritizedRule = prioritizedRule;
+      return this;
+    }
+
 
     public Builder createdAt(@Nullable Date d) {
       this.createdAt = d == null ? null : new Date(d.getTime());

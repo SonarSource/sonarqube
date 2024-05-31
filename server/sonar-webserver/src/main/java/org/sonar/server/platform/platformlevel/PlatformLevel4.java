@@ -132,6 +132,7 @@ import org.sonar.server.issue.AddTagsAction;
 import org.sonar.server.issue.AssignAction;
 import org.sonar.server.issue.CommentAction;
 import org.sonar.server.issue.IssueChangePostProcessorImpl;
+import org.sonar.server.issue.PrioritizedRulesFeature;
 import org.sonar.server.issue.RemoveTagsAction;
 import org.sonar.server.issue.SetSeverityAction;
 import org.sonar.server.issue.SetTypeAction;
@@ -472,6 +473,7 @@ public class PlatformLevel4 extends PlatformLevel {
       IssueIndexer.class,
       IssueIteratorFactory.class,
       PermissionIndexer.class,
+      PrioritizedRulesFeature.class,
       new IssueWsModule(),
       NewIssuesEmailTemplate.class,
       MyNewIssuesEmailTemplate.class,
