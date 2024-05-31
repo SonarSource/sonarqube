@@ -68,6 +68,7 @@
       "qProfile": "Sonar way with Findbugs:java",
       "inherit": "NONE",
       "severity": "MAJOR",
+      "prioritizedRule": false,
       "params": [
         {
           "key": "max",
@@ -79,6 +80,7 @@
       "qProfile": "Sonar way:java",
       "inherit": "NONE",
       "severity": "MAJOR",
+      "prioritizedRule": true,
       "params": [
         {
           "key": "max",

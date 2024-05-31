@@ -191,6 +191,7 @@ message Active {
   repeated Param params = 5;
   optional string createdAt = 6;
   optional string updatedAt = 7;
+  optional bool prioritizedRule = 8;
 
   message Param {
     optional string key = 1;

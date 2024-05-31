@@ -96,6 +96,7 @@ public class QualityProfileDbTester {
   public ActiveRuleDto activateRule(QProfileDto profile, RuleDto rule, Consumer<ActiveRuleDto> consumer) {
     ActiveRuleDto activeRule = createFor(profile, rule)
       .setSeverity(Severity.ALL.get(random.nextInt(Severity.ALL.size())))
+      .setPrioritizedRule(random.nextBoolean())
       .setCreatedAt(random.nextLong(Long.MAX_VALUE))
       .setUpdatedAt(random.nextLong(Long.MAX_VALUE));
     consumer.accept(activeRule);
