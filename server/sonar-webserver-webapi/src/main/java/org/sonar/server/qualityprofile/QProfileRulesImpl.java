@@ -75,10 +75,11 @@ public class QProfileRulesImpl implements QProfileRules {
   }
 
   @Override
-  public BulkChangeResult bulkActivateAndCommit(DbSession dbSession, QProfileDto profile, RuleQuery ruleQuery, @Nullable String severity) {
+  public BulkChangeResult bulkActivateAndCommit(DbSession dbSession, QProfileDto profile, RuleQuery ruleQuery, @Nullable String severity,
+    @Nullable Boolean prioritizedRule) {
     verifyNotBuiltIn(profile);
     BulkChangeResult bulkChangeResult = doBulk(dbSession, profile, ruleQuery, (context, ruleDto) -> {
-      RuleActivation activation = RuleActivation.create(ruleDto.getUuid(), severity, null);
+      RuleActivation activation = RuleActivation.create(ruleDto.getUuid(), severity, prioritizedRule, null);
       return ruleActivator.activate(dbSession, activation, context);
     });
     qualityProfileChangeEventService.distributeRuleChangeEvent(List.of(profile), bulkChangeResult.getChanges(), profile.getLanguage());

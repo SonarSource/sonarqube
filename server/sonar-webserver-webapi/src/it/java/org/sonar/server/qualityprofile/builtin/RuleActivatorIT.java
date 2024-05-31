@@ -19,11 +19,10 @@
  */
 package org.sonar.server.qualityprofile.builtin;
 
-import com.google.common.collect.ImmutableMap;
 import java.util.List;
 import javax.annotation.Nullable;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.api.rule.RuleKey;
@@ -52,9 +51,11 @@ import org.sonar.server.util.IntegerTypeValidation;
 import org.sonar.server.util.StringTypeValidation;
 import org.sonar.server.util.TypeValidations;
 
+import static java.lang.Boolean.TRUE;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
+import static java.util.Map.of;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.mock;
@@ -65,11 +66,11 @@ import static org.sonar.server.qualityprofile.ActiveRuleInheritance.OVERRIDES;
  * Class org.sonar.server.qualityprofile.builtin.RuleActivator is mostly covered in
  * org.sonar.server.qualityprofile.builtin.BuiltInQProfileUpdateImplTest
  */
-public class RuleActivatorIT {
-  @Rule
+class RuleActivatorIT {
+  @RegisterExtension
   public final DbTester db = DbTester.create();
 
-  @Rule
+  @RegisterExtension
   public final UserSessionRule userSession = UserSessionRule.standalone();
 
   private static final long NOW = 1_000;
@@ -79,21 +80,22 @@ public class RuleActivatorIT {
 
   private final QualityProfileChangeEventService qualityProfileChangeEventService = mock(QualityProfileChangeEventService.class);
   private final SonarQubeVersion sonarQubeVersion = new SonarQubeVersion(Version.create(10, 3));
-  private final RuleActivator underTest = new RuleActivator(system2, db.getDbClient(), typeValidations, userSession, mock(Configuration.class), sonarQubeVersion);
+  private final RuleActivator underTest = new RuleActivator(system2, db.getDbClient(), typeValidations, userSession,
+    mock(Configuration.class), sonarQubeVersion);
 
   @Test
-  public void reset_overridden_active_rule() {
+  void reset_overridden_active_rule() {
     RuleDto rule = db.rules().insert(r -> r.setLanguage("xoo").setSeverity(Severity.BLOCKER));
     RuleParamDto ruleParam = db.rules().insertRuleParam(rule, p -> p.setName("min").setDefaultValue("10"));
 
     QProfileDto parentProfile = db.qualityProfiles().insert(p -> p.setLanguage(rule.getLanguage()).setIsBuiltIn(true));
     ActiveRuleDto parentActiveRuleDto = activateRuleInDb(RulesProfileDto.from(parentProfile), rule,
-      RulePriority.valueOf(Severity.BLOCKER), null);
+      RulePriority.valueOf(Severity.BLOCKER), false, null);
     ActiveRuleParamDto parentActiveRuleParam = activateRuleParamInDb(parentActiveRuleDto, ruleParam, "10");
 
     QProfileDto childProfile = createChildProfile(parentProfile);
     ActiveRuleDto childActiveRuleDto = activateRuleInDb(RulesProfileDto.from(childProfile), rule,
-      RulePriority.valueOf(Severity.MINOR), OVERRIDES);
+      RulePriority.valueOf(Severity.MINOR), true, OVERRIDES);
     ActiveRuleParamDto childActiveRuleParam = activateRuleParamInDb(childActiveRuleDto, ruleParam, "15");
 
     DbSession session = db.getSession();
@@ -112,45 +114,49 @@ public class RuleActivatorIT {
     List<ActiveRuleChange> result = underTest.activate(session, resetRequest, context);
 
     assertThat(result).hasSize(1);
-    assertThat(result.get(0).getParameters()).containsEntry("min", "10");
-    assertThat(result.get(0).getSeverity()).isEqualTo(Severity.BLOCKER);
-    assertThat(result.get(0).getInheritance()).isEqualTo(ActiveRuleInheritance.INHERITED);
+    ActiveRuleChange activeRuleResult = result.get(0);
+    assertThat(activeRuleResult.getParameters()).containsEntry("min", "10");
+    assertThat(activeRuleResult.getSeverity()).isEqualTo(Severity.BLOCKER);
+    assertThat(activeRuleResult.isPrioritizedRule()).isFalse();
+    assertThat(activeRuleResult.getInheritance()).isEqualTo(ActiveRuleInheritance.INHERITED);
   }
 
   @Test
-  public void request_new_severity_and_param_for_child_rule() {
+  void request_new_severity_and_prioritized_rule_and_param_for_child_rule() {
     RuleDto rule = db.rules().insert(r -> r.setLanguage("xoo").setSeverity(Severity.BLOCKER));
     RuleParamDto ruleParam = db.rules().insertRuleParam(rule, p -> p.setName("min").setDefaultValue("10"));
 
     QProfileDto parentProfile = db.qualityProfiles().insert(p -> p.setLanguage(rule.getLanguage()).setIsBuiltIn(true));
     ActiveRuleDto parentActiveRuleDto = activateRuleInDb(RulesProfileDto.from(parentProfile), rule,
-        RulePriority.valueOf(Severity.BLOCKER), null);
+      RulePriority.valueOf(Severity.BLOCKER), null, null);
     ActiveRuleParamDto parentActiveRuleParam = activateRuleParamInDb(parentActiveRuleDto, ruleParam, "10");
 
     QProfileDto childProfile = createChildProfile(parentProfile);
     ActiveRuleDto childActiveRuleDto = activateRuleInDb(RulesProfileDto.from(childProfile), rule,
-        RulePriority.valueOf(Severity.BLOCKER), INHERITED);
+      RulePriority.valueOf(Severity.BLOCKER), null, INHERITED);
     ActiveRuleParamDto childActiveRuleParam = activateRuleParamInDb(childActiveRuleDto, ruleParam, "10");
 
     DbSession session = db.getSession();
-    RuleActivation resetRequest = RuleActivation.create(rule.getUuid(), Severity.MINOR, ImmutableMap.of("min", "15"));
+    RuleActivation resetRequest = RuleActivation.create(rule.getUuid(), Severity.MINOR, true, of("min", "15"));
     RuleActivationContext context = new RuleActivationContext.Builder()
-        .setProfiles(asList(parentProfile, childProfile))
-        .setBaseProfile(RulesProfileDto.from(childProfile))
-        .setDate(NOW)
-        .setDescendantProfilesSupplier((profiles, ruleUuids) -> new Result(emptyList(), emptyList(), emptyList()))
-        .setRules(singletonList(rule))
-        .setRuleParams(singletonList(ruleParam))
-        .setActiveRules(asList(parentActiveRuleDto, childActiveRuleDto))
-        .setActiveRuleParams(asList(parentActiveRuleParam, childActiveRuleParam))
-        .build();
+      .setProfiles(asList(parentProfile, childProfile))
+      .setBaseProfile(RulesProfileDto.from(childProfile))
+      .setDate(NOW)
+      .setDescendantProfilesSupplier((profiles, ruleUuids) -> new Result(emptyList(), emptyList(), emptyList()))
+      .setRules(singletonList(rule))
+      .setRuleParams(singletonList(ruleParam))
+      .setActiveRules(asList(parentActiveRuleDto, childActiveRuleDto))
+      .setActiveRuleParams(asList(parentActiveRuleParam, childActiveRuleParam))
+      .build();
 
     List<ActiveRuleChange> result = underTest.activate(session, resetRequest, context);
 
     assertThat(result).hasSize(1);
-    assertThat(result.get(0).getParameters()).containsEntry("min", "15");
-    assertThat(result.get(0).getSeverity()).isEqualTo(Severity.MINOR);
-    assertThat(result.get(0).getInheritance()).isEqualTo(OVERRIDES);
+    ActiveRuleChange activeRuleResult = result.get(0);
+    assertThat(activeRuleResult.getParameters()).containsEntry("min", "15");
+    assertThat(activeRuleResult.getSeverity()).isEqualTo(Severity.MINOR);
+    assertThat(activeRuleResult.isPrioritizedRule()).isTrue();
+    assertThat(activeRuleResult.getInheritance()).isEqualTo(OVERRIDES);
   }
 
   @Test
@@ -165,15 +171,15 @@ public class RuleActivatorIT {
     DbSession session = db.getSession();
     RuleActivation resetRequest = RuleActivation.create(rule.getUuid());
     RuleActivationContext context = new RuleActivationContext.Builder()
-        .setProfiles(asList(parentProfile, childProfile))
-        .setBaseProfile(RulesProfileDto.from(childProfile))
-        .setDate(NOW)
-        .setDescendantProfilesSupplier((profiles, ruleUuids) -> new Result(emptyList(), emptyList(), emptyList()))
-        .setRules(singletonList(rule))
-        .setRuleParams(singletonList(ruleParam))
-        .setActiveRules(emptyList())
-        .setActiveRuleParams(emptyList())
-        .build();
+      .setProfiles(asList(parentProfile, childProfile))
+      .setBaseProfile(RulesProfileDto.from(childProfile))
+      .setDate(NOW)
+      .setDescendantProfilesSupplier((profiles, ruleUuids) -> new Result(emptyList(), emptyList(), emptyList()))
+      .setRules(singletonList(rule))
+      .setRuleParams(singletonList(ruleParam))
+      .setActiveRules(emptyList())
+      .setActiveRuleParams(emptyList())
+      .build();
 
     List<ActiveRuleChange> result = underTest.activate(session, resetRequest, context);
 
@@ -184,7 +190,7 @@ public class RuleActivatorIT {
   }
 
   @Test
-  public void fail_if_rule_language_doesnt_match_qp() {
+  void fail_if_rule_language_doesnt_match_qp() {
     RuleDto rule = db.rules().insert(r -> r.setLanguage("xoo")
       .setRepositoryKey("repo")
       .setRuleKey("rule")
@@ -210,11 +216,13 @@ public class RuleActivatorIT {
   }
 
 
-  private ActiveRuleDto activateRuleInDb(RulesProfileDto ruleProfile, RuleDto rule, RulePriority severity, @Nullable ActiveRuleInheritance inheritance) {
+  private ActiveRuleDto activateRuleInDb(RulesProfileDto ruleProfile, RuleDto rule, RulePriority severity,
+    @Nullable Boolean prioritizedRule, @Nullable ActiveRuleInheritance inheritance) {
     ActiveRuleDto dto = new ActiveRuleDto()
       .setKey(ActiveRuleKey.of(ruleProfile, RuleKey.of(rule.getRepositoryKey(), rule.getRuleKey())))
       .setProfileUuid(ruleProfile.getUuid())
       .setSeverity(severity.name())
+      .setPrioritizedRule(TRUE.equals(prioritizedRule))
       .setRuleUuid(rule.getUuid())
       .setInheritance(inheritance != null ? inheritance.name() : null)
       .setCreatedAt(PAST)
@@ -237,9 +245,9 @@ public class RuleActivatorIT {
 
   private QProfileDto createChildProfile(QProfileDto parent) {
     return db.qualityProfiles().insert(p -> p
-      .setLanguage(parent.getLanguage())
-      .setParentKee(parent.getKee())
-      .setName("Child of " + parent.getName()))
+        .setLanguage(parent.getLanguage())
+        .setParentKee(parent.getKee())
+        .setName("Child of " + parent.getName()))
       .setIsBuiltIn(false);
   }
 }

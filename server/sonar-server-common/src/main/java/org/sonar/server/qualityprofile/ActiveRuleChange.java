@@ -42,6 +42,7 @@ public class ActiveRuleChange {
   private final ActiveRuleKey key;
   private final String ruleUuid;
   private String severity = null;
+  private Boolean prioritizedRule = null;
   private ActiveRuleInheritance inheritance = null;
   private final Map<String, String> parameters = new HashMap<>();
 
@@ -78,6 +79,16 @@ public class ActiveRuleChange {
   public ActiveRuleChange setSeverity(@Nullable String s) {
     this.severity = s;
     return this;
+  }
+
+  public ActiveRuleChange setPrioritizedRule(@Nullable Boolean prioritizedRule){
+    this.prioritizedRule = prioritizedRule;
+    return this;
+  }
+
+  @CheckForNull
+  public Boolean isPrioritizedRule(){
+    return prioritizedRule;
   }
 
   public ActiveRuleChange setInheritance(@Nullable ActiveRuleInheritance i) {
@@ -147,6 +158,7 @@ public class ActiveRuleChange {
       .add("severity", severity)
       .add("inheritance", inheritance)
       .add("parameters", parameters)
+      .add("prioritizedRule", prioritizedRule)
       .toString();
   }
 }

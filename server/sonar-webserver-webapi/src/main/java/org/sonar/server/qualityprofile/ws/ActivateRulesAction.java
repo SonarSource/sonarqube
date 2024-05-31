@@ -33,6 +33,7 @@ import org.sonar.server.rule.index.RuleQuery;
 import org.sonar.server.rule.ws.RuleQueryFactory;
 import org.sonar.server.user.UserSession;
 
+import static java.lang.Boolean.TRUE;
 import static java.lang.String.format;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_03;
 import static org.sonar.server.qualityprofile.ws.BulkChangeWsResponse.writeResponse;
@@ -42,6 +43,7 @@ import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_ACTIVE_SEVERITIES
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_SEVERITIES;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_TYPES;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_ACTIVATE_RULES;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PRIORITIZED_RULE;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_TARGET_KEY;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_TARGET_SEVERITY;
 
@@ -73,6 +75,7 @@ public class ActivateRulesAction implements QProfileWsAction {
       .setPost(true)
       .setSince("4.4")
       .setChangelog(
+        new Change("10.6", format("Add parameter '%s'.", PARAM_PRIORITIZED_RULE)),
         new Change("10.2", format("Parameters '%s', '%s', '%s', and '%s' are now deprecated.", PARAM_SEVERITIES, PARAM_TARGET_SEVERITY, PARAM_ACTIVE_SEVERITIES, PARAM_TYPES)),
         new Change("10.0", "Parameter 'sansTop25' is deprecated"))
       .setHandler(this);
@@ -88,6 +91,11 @@ public class ActivateRulesAction implements QProfileWsAction {
       .setDescription("Severity to set on the activated rules")
       .setDeprecatedSince("10.2")
       .setPossibleValues(Severity.ALL);
+
+    activate.createParam(PARAM_PRIORITIZED_RULE)
+      .setDescription("Mark activated rules as prioritized, so all corresponding Issues will have to be fixed.")
+      .setBooleanPossibleValues()
+      .setSince("10.6");
   }
 
   @Override
@@ -101,7 +109,7 @@ public class ActivateRulesAction implements QProfileWsAction {
       wsSupport.checkNotBuiltIn(profile);
       RuleQuery ruleQuery = ruleQueryFactory.createRuleQuery(dbSession, request);
       ruleQuery.setIncludeExternal(false);
-      result = qProfileRules.bulkActivateAndCommit(dbSession, profile, ruleQuery, request.param(PARAM_TARGET_SEVERITY));
+      result = qProfileRules.bulkActivateAndCommit(dbSession, profile, ruleQuery, request.param(PARAM_TARGET_SEVERITY), request.paramAsBoolean(PARAM_PRIORITIZED_RULE));
     }
 
     writeResponse(result, response);

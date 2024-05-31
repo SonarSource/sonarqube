@@ -36,12 +36,15 @@ public class RuleActivation {
   private final String ruleUuid;
   private final boolean reset;
   private final String severity;
+  private final Boolean prioritizedRule;
   private final Map<String, String> parameters = new HashMap<>();
 
-  private RuleActivation(String ruleUuid, boolean reset, @Nullable String severity, @Nullable Map<String, String> parameters) {
+  private RuleActivation(String ruleUuid, boolean reset, @Nullable String severity, @Nullable Boolean prioritizedRule, @Nullable Map<String,
+    String> parameters) {
     this.ruleUuid = ruleUuid;
     this.reset = reset;
     this.severity = severity;
+    this.prioritizedRule = prioritizedRule;
     if (severity != null && !Severity.ALL.contains(severity)) {
       throw new IllegalArgumentException("Unknown severity: " + severity);
     }
@@ -53,15 +56,20 @@ public class RuleActivation {
   }
 
   public static RuleActivation createReset(String ruleUuid) {
-    return new RuleActivation(ruleUuid, true, null, null);
+    return new RuleActivation(ruleUuid, true, null, null, null);
+  }
+
+  public static RuleActivation create(String ruleUuid, @Nullable String severity, @Nullable Boolean prioritizedRule,
+    @Nullable Map<String, String> parameters) {
+    return new RuleActivation(ruleUuid, false, severity, prioritizedRule, parameters);
   }
 
   public static RuleActivation create(String ruleUuid, @Nullable String severity, @Nullable Map<String, String> parameters) {
-    return new RuleActivation(ruleUuid, false, severity, parameters);
+    return create(ruleUuid, severity, null, parameters);
   }
 
   public static RuleActivation create(String ruleUuid) {
-    return create(ruleUuid, null, null);
+    return create(ruleUuid, null, null, null);
   }
 
   /**
@@ -87,5 +95,10 @@ public class RuleActivation {
 
   public boolean isReset() {
     return reset;
+  }
+
+  @CheckForNull
+  public Boolean isPrioritizedRule() {
+    return prioritizedRule;
   }
 }

@@ -50,7 +50,8 @@ public interface QProfileRules {
    * - rules are activated with default parameters
    * - an activation failure does not break others. No exception is thrown.
    */
-  BulkChangeResult bulkActivateAndCommit(DbSession dbSession, QProfileDto profile, RuleQuery ruleQuery, @Nullable String severity);
+  BulkChangeResult bulkActivateAndCommit(DbSession dbSession, QProfileDto profile, RuleQuery ruleQuery, @Nullable String severity,
+    @Nullable Boolean prioritizedRule);
 
   List<ActiveRuleChange> deactivateAndCommit(DbSession dbSession, QProfileDto profile, Collection<String> ruleUuids);
 

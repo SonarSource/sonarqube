@@ -69,6 +69,7 @@ public class QualityProfileWsParameters {
   public static final String PARAM_TARGET_SEVERITY = "targetSeverity";
   public static final String PARAM_TO = "to";
   public static final String PARAM_TO_NAME = "toName";
+  public static final String PARAM_PRIORITIZED_RULE = "prioritizedRule";
 
   private QualityProfileWsParameters() {
     // Only static stuff

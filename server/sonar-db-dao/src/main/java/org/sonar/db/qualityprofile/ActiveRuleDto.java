@@ -174,8 +174,8 @@ public class ActiveRuleDto {
     return prioritizedRule;
   }
 
-  public ActiveRuleDto setPrioritizedRule(boolean isBlockerRule){
-    this.prioritizedRule = isBlockerRule;
+  public ActiveRuleDto setPrioritizedRule(boolean prioritizedRule){
+    this.prioritizedRule = prioritizedRule;
     return this;
   }
 

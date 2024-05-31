@@ -21,9 +21,9 @@ package org.sonar.server.qualityprofile.ws;
 
 import java.net.HttpURLConnection;
 import java.util.Collection;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.mockito.ArgumentCaptor;
 import org.mockito.MockitoAnnotations;
 import org.sonar.api.rule.RuleKey;
@@ -56,13 +56,14 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.UUID_SIZE;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_KEY;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PRIORITIZED_RULE;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_RULE;
 
-public class ActivateRuleActionIT {
+class ActivateRuleActionIT {
 
-  @Rule
+  @RegisterExtension
   public DbTester db = DbTester.create();
-  @Rule
+  @RegisterExtension
   public UserSessionRule userSession = UserSessionRule.standalone();
 
   private final ArgumentCaptor<Collection<RuleActivation>> ruleActivationCaptor = ArgumentCaptor.forClass(Collection.class);
@@ -72,21 +73,22 @@ public class ActivateRuleActionIT {
 
   private final WsActionTester ws = new WsActionTester(new ActivateRuleAction(dbClient, qProfileRules, userSession, wsSupport));
 
-  @Before
-  public void before() {
+  @BeforeEach
+  void before() {
     MockitoAnnotations.initMocks(this);
   }
 
   @Test
-  public void define_activate_rule_action() {
+  void define_activate_rule_action() {
     WebService.Action definition = ws.getDef();
     assertThat(definition).isNotNull();
     assertThat(definition.isPost()).isTrue();
-    assertThat(definition.params()).extracting(WebService.Param::key).containsExactlyInAnyOrder("severity", "key", "reset", "rule", "params");
+    assertThat(definition.params()).extracting(WebService.Param::key).containsExactlyInAnyOrder("severity", "prioritizedRule", "key",
+      "reset", "rule", "params");
   }
 
   @Test
-  public void fail_if_not_logged_in() {
+  void fail_if_not_logged_in() {
     TestRequest request = ws.newRequest()
       .setMethod("POST")
       .setParam(PARAM_RULE, RuleTesting.newRule().getKey().toString())
@@ -97,7 +99,7 @@ public class ActivateRuleActionIT {
   }
 
   @Test
-  public void fail_if_not_global_quality_profile_administrator() {
+  void fail_if_not_global_quality_profile_administrator() {
     userSession.logIn(db.users().insertUser());
     QProfileDto qualityProfile = db.qualityProfiles().insert();
     TestRequest request = ws.newRequest()
@@ -110,10 +112,11 @@ public class ActivateRuleActionIT {
   }
 
   @Test
-  public void fail_activate_if_built_in_profile() {
+  void fail_activate_if_built_in_profile() {
     userSession.logIn(db.users().insertUser()).addPermission(GlobalPermission.ADMINISTER_QUALITY_PROFILES);
 
-    QProfileDto qualityProfile = db.qualityProfiles().insert(profile -> profile.setIsBuiltIn(true).setName("Xoo profile").setLanguage("xoo"));
+    QProfileDto qualityProfile = db.qualityProfiles().insert(profile -> profile.setIsBuiltIn(true).setName("Xoo profile").setLanguage(
+      "xoo"));
     TestRequest request = ws.newRequest()
       .setMethod("POST")
       .setParam(PARAM_RULE, RuleTesting.newRule().getKey().toString())
@@ -125,7 +128,7 @@ public class ActivateRuleActionIT {
   }
 
   @Test
-  public void fail_activate_external_rule() {
+  void fail_activate_external_rule() {
     userSession.logIn(db.users().insertUser()).addPermission(GlobalPermission.ADMINISTER_QUALITY_PROFILES);
     QProfileDto qualityProfile = db.qualityProfiles().insert();
     RuleDto rule = db.rules().insert(r -> r.setIsExternal(true));
@@ -141,7 +144,7 @@ public class ActivateRuleActionIT {
   }
 
   @Test
-  public void activate_rule() {
+  void activate_rule() {
     userSession.logIn().addPermission(GlobalPermission.ADMINISTER_QUALITY_PROFILES);
     QProfileDto qualityProfile = db.qualityProfiles().insert();
     RuleDto rule = db.rules().insert(RuleTesting.randomRuleKey());
@@ -150,6 +153,7 @@ public class ActivateRuleActionIT {
       .setParam(PARAM_RULE, rule.getKey().toString())
       .setParam(PARAM_KEY, qualityProfile.getKee())
       .setParam("severity", "BLOCKER")
+      .setParam(PARAM_PRIORITIZED_RULE, "true")
       .setParam("params", "key1=v1;key2=v2")
       .setParam("reset", "false");
 
@@ -164,11 +168,12 @@ public class ActivateRuleActionIT {
     RuleActivation activation = activations.iterator().next();
     assertThat(activation.getRuleUuid()).isEqualTo(rule.getUuid());
     assertThat(activation.getSeverity()).isEqualTo(Severity.BLOCKER);
+    assertThat(activation.isPrioritizedRule()).isTrue();
     assertThat(activation.isReset()).isFalse();
   }
 
   @Test
-  public void as_qprofile_editor() {
+  void as_qprofile_editor() {
     UserDto user = db.users().insertUser();
     QProfileDto qualityProfile = db.qualityProfiles().insert();
     db.qualityProfiles().addUserPermission(qualityProfile, user);

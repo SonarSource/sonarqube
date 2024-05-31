@@ -21,8 +21,8 @@ package org.sonar.server.qualityprofile;
 
 import com.google.common.collect.ImmutableMap;
 import java.util.Collections;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.utils.System2;
@@ -53,40 +53,42 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-public class QProfileRulesImplIT {
+class QProfileRulesImplIT {
 
-  @Rule
+  @RegisterExtension
   public UserSessionRule userSession = UserSessionRule.standalone();
-  @Rule
+  @RegisterExtension
   public DbTester db = DbTester.create();
-  @Rule
+  @RegisterExtension
   public EsTester es = EsTester.create();
 
   private RuleIndex ruleIndex = new RuleIndex(es.client(), System2.INSTANCE);
   private ActiveRuleIndexer activeRuleIndexer = new ActiveRuleIndexer(db.getDbClient(), es.client());
   private final SonarQubeVersion sonarQubeVersion = new SonarQubeVersion(Version.create(10, 3));
-  private RuleActivator ruleActivator = new RuleActivator(System2.INSTANCE, db.getDbClient(), new TypeValidations(singletonList(new IntegerTypeValidation())),
+  private RuleActivator ruleActivator = new RuleActivator(System2.INSTANCE, db.getDbClient(),
+    new TypeValidations(singletonList(new IntegerTypeValidation())),
     userSession, mock(Configuration.class), sonarQubeVersion);
   private QualityProfileChangeEventService qualityProfileChangeEventService = mock(QualityProfileChangeEventService.class);
 
-  private QProfileRules qProfileRules = new QProfileRulesImpl(db.getDbClient(), ruleActivator, ruleIndex, activeRuleIndexer, qualityProfileChangeEventService);
+  private QProfileRules qProfileRules = new QProfileRulesImpl(db.getDbClient(), ruleActivator, ruleIndex, activeRuleIndexer,
+    qualityProfileChangeEventService);
 
   @Test
-  public void activate_one_rule() {
+  void activate_one_rule() {
     QProfileDto qProfile = db.qualityProfiles().insert();
     RuleDto rule = db.rules().insert(r -> r.setLanguage(qProfile.getLanguage()));
-    RuleActivation ruleActivation = RuleActivation.create(rule.getUuid(), Severity.CRITICAL, Collections.emptyMap());
+    RuleActivation ruleActivation = RuleActivation.create(rule.getUuid(), Severity.CRITICAL, true, Collections.emptyMap());
 
     qProfileRules.activateAndCommit(db.getSession(), qProfile, singleton(ruleActivation));
 
     assertThat(db.getDbClient().activeRuleDao().selectByProfile(db.getSession(), qProfile))
-      .extracting(ActiveRuleDto::getRuleKey, ActiveRuleDto::getSeverityString)
-      .containsExactlyInAnyOrder(tuple(rule.getKey(), Severity.CRITICAL));
+      .extracting(ActiveRuleDto::getRuleKey, ActiveRuleDto::getSeverityString, ActiveRuleDto::isPrioritizedRule)
+      .containsExactlyInAnyOrder(tuple(rule.getKey(), Severity.CRITICAL, true));
     verify(qualityProfileChangeEventService).distributeRuleChangeEvent(any(), any(), eq(qProfile.getLanguage()));
   }
 
   @Test
-  public void active_rule_change() {
+  void active_rule_change() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
     QProfileDto qProfile = db.qualityProfiles().insert();

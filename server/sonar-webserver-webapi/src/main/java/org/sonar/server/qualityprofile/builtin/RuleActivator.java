@@ -59,6 +59,7 @@ import org.sonar.server.user.UserSession;
 import org.sonar.server.util.TypeValidations;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static java.lang.Boolean.TRUE;
 import static org.sonar.server.exceptions.BadRequestException.checkRequest;
 
 /**
@@ -74,7 +75,8 @@ public class RuleActivator {
   private final Configuration configuration;
   private final SonarQubeVersion sonarQubeVersion;
 
-  public RuleActivator(System2 system2, DbClient db, TypeValidations typeValidations, UserSession userSession, Configuration configuration, SonarQubeVersion sonarQubeVersion) {
+  public RuleActivator(System2 system2, DbClient db, TypeValidations typeValidations, UserSession userSession,
+    Configuration configuration, SonarQubeVersion sonarQubeVersion) {
     this.system2 = system2;
     this.db = db;
     this.typeValidations = typeValidations;
@@ -120,7 +122,8 @@ public class RuleActivator {
         change = new ActiveRuleChange(ActiveRuleChange.Type.UPDATED, activeRuleKey, rule);
         handleUpdatedRuleActivation(activation, context, change, activeRule);
 
-        if (isSame(change, activeRule) || (context.isCascading() && activeRule.get().getInheritance() != null && !isSameAsParent(change, context))) {
+        if (isSame(change, activeRule) || (context.isCascading() && activeRule.get().getInheritance() != null && !isSameAsParent(change,
+          context))) {
           // The rule config hasn't changed; or the rule is being propagated but the parent has a different config,
           // which means the rule was overridden by a profile in the inheritance chain
           change = null;
@@ -156,7 +159,7 @@ public class RuleActivator {
       }
       change.setInheritance(isSameAsParent(change, context) ? ActiveRuleInheritance.INHERITED : ActiveRuleInheritance.OVERRIDES);
     } else {
-      applySeverityAndParamToChange(activation, context, change);
+      applySeverityAndPrioritizedRuleAndParamToChange(activation, context, change);
       if (!context.isCascading() && context.getParentActiveRule() != null) {
         // override rule which is already declared on parents
         change.setInheritance(isSameAsParent(change, context) ? ActiveRuleInheritance.INHERITED : ActiveRuleInheritance.OVERRIDES);
@@ -164,9 +167,10 @@ public class RuleActivator {
     }
   }
 
-  private ActiveRuleChange handleNewRuleActivation(RuleActivation activation, RuleActivationContext context, RuleDto rule, ActiveRuleKey activeRuleKey) {
+  private ActiveRuleChange handleNewRuleActivation(RuleActivation activation, RuleActivationContext context, RuleDto rule,
+    ActiveRuleKey activeRuleKey) {
     ActiveRuleChange change = new ActiveRuleChange(ActiveRuleChange.Type.ACTIVATED, activeRuleKey, rule);
-    applySeverityAndParamToChange(activation, context, change);
+    applySeverityAndPrioritizedRuleAndParamToChange(activation, context, change);
     if (context.isCascading() || context.getParentActiveRule() != null) {
       change.setInheritance(isSameAsParent(change, context) ? ActiveRuleInheritance.INHERITED : ActiveRuleInheritance.OVERRIDES);
     }
@@ -179,32 +183,35 @@ public class RuleActivator {
     db.qualityProfileDao().update(dbSession, ruleProfile);
 
     if (userSession.isLoggedIn()) {
-      context.getProfiles().forEach(p -> db.qualityProfileDao().update(dbSession, OrgQProfileDto.from(p).setUserUpdatedAt(context.getDate())));
+      context.getProfiles().forEach(p -> db.qualityProfileDao().update(dbSession,
+        OrgQProfileDto.from(p).setUserUpdatedAt(context.getDate())));
     }
   }
 
   /**
-   * Update severity and params
+   * Update severity, prioritizedRule and params
    */
-  private void applySeverityAndParamToChange(RuleActivation request, RuleActivationContext context, ActiveRuleChange change) {
+  private void applySeverityAndPrioritizedRuleAndParamToChange(RuleActivation request, RuleActivationContext context, ActiveRuleChange change) {
     RuleWrapper rule = context.getRule();
     ActiveRuleWrapper activeRule = context.getActiveRule();
     ActiveRuleWrapper parentActiveRule = context.getParentActiveRule();
 
     if (request.isReset()) {
-      applySeverityAndParamsWhenResetRequested(change, rule, parentActiveRule);
+      applySeverityAndPrioritizedRuleAndParamsWhenResetRequested(change, rule, parentActiveRule);
     } else if (context.getRulesProfile().isBuiltIn()) {
-      applySeverityAndParamsWhenBuiltInProfile(request, context, change, rule);
+      applySeverityAndPrioritizedRuleAndParamsWhenBuiltInProfile(request, context, change, rule);
     } else {
-      applySeverityAndParamsWhenNonBuiltInProfile(request, context, change, rule, activeRule, parentActiveRule);
+      applySeverityAndPrioritizedRuleAndParamsWhenNonBuiltInProfile(request, context, change, rule, activeRule, parentActiveRule);
     }
   }
 
-  private void applySeverityAndParamsWhenResetRequested(ActiveRuleChange change, RuleWrapper rule, @Nullable ActiveRuleWrapper parentActiveRule) {
+  private void applySeverityAndPrioritizedRuleAndParamsWhenResetRequested(ActiveRuleChange change, RuleWrapper rule,
+    @Nullable ActiveRuleWrapper parentActiveRule) {
     String severity = firstNonNull(
       parentActiveRule != null ? parentActiveRule.get().getSeverityString() : null,
       rule.get().getSeverityString());
     change.setSeverity(severity);
+    change.setPrioritizedRule(parentActiveRule != null && parentActiveRule.get().isPrioritizedRule());
 
     for (RuleParamDto ruleParamDto : rule.getParams()) {
       String paramKey = ruleParamDto.getName();
@@ -217,11 +224,14 @@ public class RuleActivator {
     }
   }
 
-  private void applySeverityAndParamsWhenBuiltInProfile(RuleActivation request, RuleActivationContext context, ActiveRuleChange change,
-    RuleWrapper rule) {
+  private void applySeverityAndPrioritizedRuleAndParamsWhenBuiltInProfile(RuleActivation request, RuleActivationContext context,
+    ActiveRuleChange change, RuleWrapper rule) {
     // for builtin quality profiles, the severity from profile, when null use the default severity of the rule
     String severity = firstNonNull(request.getSeverity(), rule.get().getSeverityString());
     change.setSeverity(severity);
+
+    boolean prioritizedRule = TRUE.equals(request.isPrioritizedRule());
+    change.setPrioritizedRule(prioritizedRule);
 
     for (RuleParamDto ruleParamDto : rule.getParams()) {
       String paramKey = ruleParamDto.getName();
@@ -239,10 +249,13 @@ public class RuleActivator {
    * 3. apply parent value
    * 4. apply defaults
    */
-  private void applySeverityAndParamsWhenNonBuiltInProfile(RuleActivation request, RuleActivationContext context, ActiveRuleChange change,
+  private void applySeverityAndPrioritizedRuleAndParamsWhenNonBuiltInProfile(RuleActivation request, RuleActivationContext context,
+    ActiveRuleChange change,
     RuleWrapper rule, @Nullable ActiveRuleWrapper activeRule, @Nullable ActiveRuleWrapper parentActiveRule) {
     String severity = getSeverityForNonBuiltInProfile(request, rule, activeRule, parentActiveRule);
+    boolean prioritizedRule = getPrioritizedRuleForNonBuiltInProfile(request, activeRule, parentActiveRule);
     change.setSeverity(severity);
+    change.setPrioritizedRule(prioritizedRule);
 
     for (RuleParamDto ruleParamDto : rule.getParams()) {
       String paramKey = ruleParamDto.getName();
@@ -255,8 +268,8 @@ public class RuleActivator {
           parentValue,
           rule.getParamDefaultValue(paramKey));
       } else if (activeRule != null) {
-        // If the request doesn't contain the parameter, then we're using either user value from db, or parent value if rule inherited, or default
-        // value
+        // If the request doesn't contain the parameter, then we're using either user value from db, or parent value if rule inherited,
+        // or default value
         paramValue = firstNonNull(
           activeRule.get().doesOverride() ? activeRule.getParamValue(paramKey) : null,
           parentValue == null ? activeRule.getParamValue(paramKey) : parentValue,
@@ -291,6 +304,25 @@ public class RuleActivator {
     return severity;
   }
 
+  private static boolean getPrioritizedRuleForNonBuiltInProfile(RuleActivation request, @Nullable ActiveRuleWrapper activeRule,
+    @Nullable ActiveRuleWrapper parentActiveRule) {
+    boolean prioritizedRule;
+    if (activeRule != null) {
+      ActiveRuleDto activeRuleDto = activeRule.get();
+      // load prioritizedRule from request, else keep existing one (if overridden), else from parent if rule inherited, else 'false'
+      prioritizedRule = firstNonNull(
+        request.isPrioritizedRule(),
+        activeRuleDto.doesOverride() ? activeRuleDto.isPrioritizedRule() : null,
+        parentActiveRule != null && parentActiveRule.get().isPrioritizedRule());
+    } else {
+      // load prioritizedRule from request, else from parent, else 'false'
+      prioritizedRule = firstNonNull(
+        request.isPrioritizedRule(),
+        parentActiveRule != null && parentActiveRule.get().isPrioritizedRule());
+    }
+    return prioritizedRule;
+  }
+
   private void persist(ActiveRuleChange change, RuleActivationContext context, DbSession dbSession) {
     ActiveRuleDto activeRule = null;
     if (change.getType() == ActiveRuleChange.Type.ACTIVATED) {
@@ -322,6 +354,7 @@ public class RuleActivator {
     if (severity != null) {
       activeRule.setSeverity(severity);
     }
+    activeRule.setPrioritizedRule(TRUE.equals(change.isPrioritizedRule()));
     ActiveRuleInheritance inheritance = change.getInheritance();
     if (inheritance != null) {
       activeRule.setInheritance(inheritance.name());
@@ -349,15 +382,20 @@ public class RuleActivator {
     }
     ActiveRuleDao dao = db.activeRuleDao();
     String severity = change.getSeverity();
+    ActiveRuleDto ruleDto = activeRule.get();
     if (severity != null) {
-      activeRule.get().setSeverity(severity);
+      ruleDto.setSeverity(severity);
+    }
+    Boolean prioritizedRule = change.isPrioritizedRule();
+    if (prioritizedRule != null) {
+      ruleDto.setPrioritizedRule(prioritizedRule);
     }
     ActiveRuleInheritance inheritance = change.getInheritance();
     if (inheritance != null) {
-      activeRule.get().setInheritance(inheritance.name());
+      ruleDto.setInheritance(inheritance.name());
     }
-    activeRule.get().setUpdatedAt(system2.now());
-    dao.update(dbSession, activeRule.get());
+    ruleDto.setUpdatedAt(system2.now());
+    dao.update(dbSession, ruleDto);
 
     for (Map.Entry<String, String> param : change.getParameters().entrySet()) {
       ActiveRuleParamDto activeRuleParamDto = activeRule.getParam(param.getKey());
@@ -366,7 +404,7 @@ public class RuleActivator {
         if (param.getValue() != null) {
           activeRuleParamDto = ActiveRuleParamDto.createFor(context.getRule().getParam(param.getKey()));
           activeRuleParamDto.setValue(param.getValue());
-          dao.insertParam(dbSession, activeRule.get(), activeRuleParamDto);
+          dao.insertParam(dbSession, ruleDto, activeRuleParamDto);
         }
       } else {
         if (param.getValue() != null) {
@@ -377,7 +415,7 @@ public class RuleActivator {
         }
       }
     }
-    return activeRule.get();
+    return ruleDto;
   }
 
   public List<ActiveRuleChange> deactivate(DbSession dbSession, RuleActivationContext context, String ruleUuid, boolean force) {
@@ -428,7 +466,8 @@ public class RuleActivator {
     return value;
   }
 
-  public RuleActivationContext createContextForBuiltInProfile(DbSession dbSession, RulesProfileDto builtInProfile, Collection<String> ruleUuids) {
+  public RuleActivationContext createContextForBuiltInProfile(DbSession dbSession, RulesProfileDto builtInProfile,
+    Collection<String> ruleUuids) {
     checkArgument(builtInProfile.isBuiltIn(), "Rules profile with UUID %s is not built-in", builtInProfile.getUuid());
 
     RuleActivationContext.Builder builder = new RuleActivationContext.Builder();
@@ -495,7 +534,8 @@ public class RuleActivator {
     builder.setRuleParams(db.ruleDao().selectRuleParamsByRuleUuids(dbSession, ruleUuids));
   }
 
-  private void completeWithActiveRules(DbSession dbSession, RuleActivationContext.Builder builder, Collection<String> ruleUuids, Collection<String> ruleProfileUuids) {
+  private void completeWithActiveRules(DbSession dbSession, RuleActivationContext.Builder builder, Collection<String> ruleUuids,
+    Collection<String> ruleProfileUuids) {
     Collection<ActiveRuleDto> activeRules = db.activeRuleDao().selectByRulesAndRuleProfileUuids(dbSession, ruleUuids, ruleProfileUuids);
     builder.setActiveRules(activeRules);
     List<String> activeRuleUuids = activeRules.stream().map(ActiveRuleDto::getUuid).toList();
@@ -509,6 +549,10 @@ public class RuleActivator {
     }
     String severity = change.getSeverity();
     if (severity != null && !severity.equals(activeRule.get().getSeverityString())) {
+      return false;
+    }
+    Boolean prioritizedRule = change.isPrioritizedRule();
+    if (prioritizedRule != null && prioritizedRule != activeRule.get().isPrioritizedRule()) {
       return false;
     }
     for (Map.Entry<String, String> changeParam : change.getParameters().entrySet()) {
@@ -547,5 +591,14 @@ public class RuleActivator {
       }
     }
     return null;
+  }
+
+  private static boolean firstNonNull(Boolean... booleans) {
+    for (Boolean b : booleans) {
+      if (b != null) {
+        return b;
+      }
+    }
+    return false;
   }
 }

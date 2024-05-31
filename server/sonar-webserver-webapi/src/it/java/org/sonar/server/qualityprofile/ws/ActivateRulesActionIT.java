@@ -19,8 +19,9 @@
  */
 package org.sonar.server.qualityprofile.ws;
 
-import org.junit.Rule;
-import org.junit.Test;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.mockito.Mockito;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
@@ -47,11 +48,11 @@ import static org.sonar.db.permission.GlobalPermission.ADMINISTER_QUALITY_PROFIL
 import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.UUID_SIZE;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_TARGET_KEY;
 
-public class ActivateRulesActionIT {
+class ActivateRulesActionIT {
 
-  @Rule
+  @RegisterExtension
   public DbTester db = DbTester.create();
-  @Rule
+  @RegisterExtension
   public UserSessionRule userSession = UserSessionRule.standalone();
 
   private DbClient dbClient = db.getDbClient();
@@ -59,10 +60,11 @@ public class ActivateRulesActionIT {
   private RuleQueryFactory ruleQueryFactory = mock(RuleQueryFactory.class, Mockito.RETURNS_MOCKS);
 
   private QProfileRules qProfileRules = mock(QProfileRules.class, Mockito.RETURNS_DEEP_STUBS);
-  private WsActionTester ws = new WsActionTester(new ActivateRulesAction(ruleQueryFactory, userSession, qProfileRules, wsSupport, dbClient));
+  private WsActionTester ws = new WsActionTester(new ActivateRulesAction(ruleQueryFactory, userSession, qProfileRules, wsSupport,
+    dbClient));
 
   @Test
-  public void define_bulk_activate_rule_action() {
+  void define_bulk_activate_rule_action() {
     WebService.Action definition = ws.getDef();
     assertThat(definition).isNotNull();
     assertThat(definition.isPost()).isTrue();
@@ -79,6 +81,7 @@ public class ActivateRulesActionIT {
       "asc",
       "q",
       "active_severities",
+      "prioritizedRule",
       "s",
       "repositories",
       "targetKey",
@@ -98,7 +101,7 @@ public class ActivateRulesActionIT {
   }
 
   @Test
-  public void as_global_qprofile_admin() {
+  void as_global_qprofile_admin() {
     userSession.logIn(db.users().insertUser()).addPermission(ADMINISTER_QUALITY_PROFILES);
     QProfileDto qualityProfile = db.qualityProfiles().insert();
 
@@ -107,11 +110,11 @@ public class ActivateRulesActionIT {
       .setParam(PARAM_TARGET_KEY, qualityProfile.getKee())
       .execute();
 
-    verify(qProfileRules).bulkActivateAndCommit(any(), any(), any(), any());
+    verify(qProfileRules).bulkActivateAndCommit(any(), any(), any(), any(), any());
   }
 
   @Test
-  public void as_qprofile_editor() {
+  void as_qprofile_editor() {
     UserDto user = db.users().insertUser();
     GroupDto group = db.users().insertGroup();
     QProfileDto qualityProfile = db.qualityProfiles().insert();
@@ -123,11 +126,11 @@ public class ActivateRulesActionIT {
       .setParam(PARAM_TARGET_KEY, qualityProfile.getKee())
       .execute();
 
-    verify(qProfileRules).bulkActivateAndCommit(any(), any(), any(), any());
+    verify(qProfileRules).bulkActivateAndCommit(any(), any(), any(), any(), any());
   }
 
   @Test
-  public void fail_if_not_logged_in() {
+  void fail_if_not_logged_in() {
     TestRequest request = ws.newRequest()
       .setMethod("POST")
       .setParam(PARAM_TARGET_KEY, randomAlphanumeric(UUID_SIZE));
@@ -137,7 +140,7 @@ public class ActivateRulesActionIT {
   }
 
   @Test
-  public void fail_if_built_in_profile() {
+  void fail_if_built_in_profile() {
     userSession.logIn().addPermission(ADMINISTER_QUALITY_PROFILES);
     QProfileDto qualityProfile = db.qualityProfiles().insert(p -> p.setIsBuiltIn(true));
     TestRequest request = ws.newRequest()
@@ -149,7 +152,7 @@ public class ActivateRulesActionIT {
   }
 
   @Test
-  public void fail_if_not_enough_permission() {
+  void fail_if_not_enough_permission() {
     userSession.logIn(db.users().insertUser());
     QProfileDto qualityProfile = db.qualityProfiles().insert();
 
