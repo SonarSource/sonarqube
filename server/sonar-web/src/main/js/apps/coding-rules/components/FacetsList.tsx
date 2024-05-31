@@ -20,7 +20,9 @@
 import { BasicSeparator } from 'design-system';
 import * as React from 'react';
 import { Profile } from '../../../api/quality-profiles';
+import { useAvailableFeatures } from '../../../app/components/available-features/withAvailableFeatures';
 import { translate } from '../../../helpers/l10n';
+import { Feature } from '../../../types/features';
 import { Dict } from '../../../types/types';
 import { LanguageFacet } from '../../issues/sidebar/LanguageFacet';
 import { StandardFacet } from '../../issues/sidebar/StandardFacet';
@@ -28,6 +30,7 @@ import { Facets, OpenFacets, Query } from '../query';
 import AttributeCategoryFacet from './AttributeCategoryFacet';
 import AvailableSinceFacet from './AvailableSinceFacet';
 import InheritanceFacet from './InheritanceFacet';
+import PrioritizedRulesFacet from './PrioritizedRulesFacet';
 import ProfileFacet from './ProfileFacet';
 import RepositoryFacet from './RepositoryFacet';
 import SeverityFacet from './SeverityFacet';
@@ -52,12 +55,15 @@ export interface FacetsListProps {
 const MAX_INITIAL_LANGUAGES = 5;
 
 export default function FacetsList(props: FacetsListProps) {
+  const { hasFeature } = useAvailableFeatures();
   const languageDisabled = !props.hideProfileFacet && props.query.profile !== undefined;
 
   const inheritanceDisabled =
     props.query.compareToProfile !== undefined ||
     props.selectedProfile === undefined ||
     !props.selectedProfile.isInherited;
+
+  const showPrioritizedRuleFacet = hasFeature(Feature.PrioritizedRules);
 
   return (
     <>
@@ -206,6 +212,18 @@ export default function FacetsList(props: FacetsListProps) {
             open={!!props.openFacets.inheritance}
             value={props.query.inheritance}
           />
+          {showPrioritizedRuleFacet && (
+            <>
+              <BasicSeparator className="sw-my-4" />
+              <PrioritizedRulesFacet
+                disabled={props.selectedProfile === undefined}
+                onChange={props.onFilterChange}
+                onToggle={props.onFacetToggle}
+                open={!!props.openFacets.prioritizedRule}
+                value={props.query.prioritizedRule}
+              />
+            </>
+          )}
         </>
       )}
     </>

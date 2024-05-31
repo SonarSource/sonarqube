@@ -95,6 +95,7 @@ type FacetFilter = Pick<
   | 'cwe'
   | 'is_template'
   | 'cleanCodeAttributeCategories'
+  | 'prioritizedRule'
 >;
 
 const FACET_RULE_MAP: { [key: string]: keyof Rule } = {
@@ -182,6 +183,7 @@ export default class CodingRulesServiceMock {
     'owaspTop10-2021': owasp2021Top10,
     cwe,
     activation,
+    prioritizedRule,
   }: FacetFilter) {
     let filteredRules = this.getRulesFilteredByRemovedStatus();
     if (cleanCodeAttributeCategories) {
@@ -255,6 +257,15 @@ export default class CodingRulesServiceMock {
     }
     if (tags) {
       filteredRules = filteredRules.filter((r) => r.tags && r.tags.some((t) => tags.includes(t)));
+    }
+    if (qprofile && prioritizedRule !== undefined) {
+      filteredRules = filteredRules.filter((r) => {
+        const qProfilesInRule = this.rulesActivations[r.key] ?? [];
+        const ruleHasQueriedProfile = qProfilesInRule.find((q) => q.qProfile === qprofile);
+        return prioritizedRule === 'true'
+          ? ruleHasQueriedProfile?.prioritizedRule
+          : !ruleHasQueriedProfile?.prioritizedRule;
+      });
     }
     return this.getRulesWithoutDetails(filteredRules);
   }
@@ -434,6 +445,7 @@ export default class CodingRulesServiceMock {
     is_template,
     activation,
     cleanCodeAttributeCategories,
+    prioritizedRule,
   }: SearchRulesQuery): Promise<SearchRulesResponse> => {
     const standards = await getStandards();
     const facetCounts: Array<{ property: string; values: { val: string; count: number }[] }> = [];
@@ -493,6 +505,7 @@ export default class CodingRulesServiceMock {
         'owaspTop10-2021': owasp2021Top10,
         cwe,
         activation,
+        prioritizedRule,
       });
     }
 

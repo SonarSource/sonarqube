@@ -143,7 +143,7 @@ describe('Rules app list', () => {
       expect(ui.getAllRuleListItems()).toHaveLength(1);
     });
 
-    it('filter by quality profile, tag and search by tag', async () => {
+    it('filter by quality profile, tag and search by tag, does not show prioritized rule', async () => {
       const { ui, user } = getPageObjects();
       renderCodingRulesApp(mockCurrentUser());
       await ui.appLoaded();
@@ -154,6 +154,8 @@ describe('Rules app list', () => {
       await user.click(ui.qpFacet.get());
       await user.click(ui.facetItem('QP Foo Java').get());
       expect(ui.getAllRuleListItems()).toHaveLength(1);
+
+      expect(ui.prioritizedRuleFacet.query()).not.toBeInTheDocument();
 
       // Filter by tag
       await user.click(ui.facetClear('clear-coding_rules.facet.qprofile').get()); // Clear quality profile facet
@@ -231,6 +233,34 @@ describe('Rules app list', () => {
       await user.clear(ui.searchInput.get());
       await user.type(ui.searchInput.get(), 'Hot hotspot');
       expect(ui.getAllRuleListItems()).toHaveLength(1);
+    });
+
+    it('filter by quality profileand prioritizedRule', async () => {
+      const { ui, user } = getPageObjects();
+      renderCodingRulesApp(mockCurrentUser(), undefined, [Feature.PrioritizedRules]);
+      await ui.appLoaded();
+
+      expect(ui.getAllRuleListItems()).toHaveLength(11);
+
+      expect(ui.prioritizedRuleFacet.get()).toHaveAttribute('aria-disabled', 'true');
+
+      // Filter by quality profile
+      await user.click(ui.qpFacet.get());
+      await user.click(ui.facetItem('QP Bar Python').get());
+      expect(ui.getAllRuleListItems()).toHaveLength(4);
+
+      // Filter by prioritized rule
+      expect(ui.prioritizedRuleFacet.get()).not.toHaveAttribute('aria-disabled', 'true');
+      await user.click(ui.prioritizedRuleFacet.get());
+      await user.click(ui.facetItem('coding_rules.filters.prioritizedRule.true').get());
+      expect(ui.getAllRuleListItems()).toHaveLength(1);
+
+      // Filter by non-prioritized rule
+      await user.click(ui.facetItem('coding_rules.filters.prioritizedRule.false').get());
+      expect(ui.getAllRuleListItems()).toHaveLength(3);
+
+      await user.click(ui.facetClear('clear-coding_rules.facet.prioritizedRule').get());
+      expect(ui.getAllRuleListItems()).toHaveLength(4);
     });
   });
 

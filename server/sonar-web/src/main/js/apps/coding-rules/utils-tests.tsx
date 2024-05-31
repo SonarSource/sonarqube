@@ -72,6 +72,7 @@ const selectors = {
   availableSinceFacet: byRole('button', { name: 'coding_rules.facet.available_since' }),
   templateFacet: byRole('button', { name: 'coding_rules.facet.template' }),
   qpFacet: byRole('button', { name: 'coding_rules.facet.qprofile' }),
+  prioritizedRuleFacet: byRole('button', { name: 'coding_rules.facet.prioritizedRule' }),
   facetClear: (name: string) => byTestId(name),
   facetSearchInput: (name: string) => byRole('searchbox', { name }),
   facetItem: (name: string | RegExp) => byRole('checkbox', { name }),

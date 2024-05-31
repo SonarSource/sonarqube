@@ -60,6 +60,7 @@ export interface Query {
   tags: string[];
   template: boolean | undefined;
   types: string[];
+  prioritizedRule: boolean | undefined;
 }
 
 export type FacetKey = keyof Query;
@@ -107,6 +108,7 @@ export function parseQuery(query: RawQuery): Query {
     tags: parseAsArray(query.tags, parseAsString),
     template: parseAsOptionalBoolean(query.is_template),
     types: parseAsArray(query.types, parseAsString),
+    prioritizedRule: parseAsOptionalBoolean(query.prioritizedRule),
   };
 }
 
@@ -133,6 +135,7 @@ export function serializeQuery(query: Query): RawQuery {
     statuses: serializeStringArray(query.statuses),
     tags: serializeStringArray(query.tags),
     types: serializeStringArray(query.types),
+    prioritizedRule: serializeOptionalBoolean(query.prioritizedRule),
   });
 }
 

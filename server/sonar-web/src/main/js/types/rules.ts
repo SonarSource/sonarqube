@@ -53,6 +53,7 @@ export interface SearchRulesQuery {
   tags?: string;
   template_key?: string;
   types?: string;
+  prioritizedRule?: boolean | string;
 }
 
 export enum RulesFacetName {
