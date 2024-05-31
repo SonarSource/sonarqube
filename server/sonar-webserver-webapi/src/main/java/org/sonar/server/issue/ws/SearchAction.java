@@ -173,7 +173,8 @@ public class SearchAction implements IssuesWsAction {
     PARAM_CLEAN_CODE_ATTRIBUTE_CATEGORIES,
     PARAM_IMPACT_SOFTWARE_QUALITIES,
     PARAM_IMPACT_SEVERITIES,
-    PARAM_ISSUE_STATUSES);
+    PARAM_ISSUE_STATUSES,
+    PARAM_PRIORITIZED_RULE);
 
   private static final String INTERNAL_PARAMETER_DISCLAIMER = "This parameter is mostly used by the Issues page, please prefer usage of " +
     "the componentKeys parameter. ";
