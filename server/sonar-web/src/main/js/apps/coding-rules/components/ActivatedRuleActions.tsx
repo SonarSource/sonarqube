@@ -17,10 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { DangerButtonSecondary, Tooltip } from 'design-system';
+import { DangerButtonSecondary } from 'design-system';
 import * as React from 'react';
 import { Profile } from '../../../api/quality-profiles';
 import ConfirmButton from '../../../components/controls/ConfirmButton';
+import Tooltip from '../../../components/controls/Tooltip';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { Rule, RuleActivation } from '../../../types/types';
 import ActivationButton from './ActivationButton';
@@ -115,7 +116,7 @@ export default function ActivatedRuleActions(props: Readonly<Props>) {
             hasParent &&
             !canDeactivateInherited &&
             activation.inherit !== 'OVERRIDES' && (
-              <Tooltip overlay={translate('coding_rules.can_not_deactivate')}>
+              <Tooltip content={translate('coding_rules.can_not_deactivate')}>
                 <DangerButtonSecondary
                   disabled
                   className="sw-ml-2"

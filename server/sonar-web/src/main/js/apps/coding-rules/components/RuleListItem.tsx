@@ -37,6 +37,7 @@ import { CleanCodeAttributePill } from '../../../components/shared/CleanCodeAttr
 import SoftwareImpactPillList from '../../../components/shared/SoftwareImpactPillList';
 import TypeHelper from '../../../components/shared/TypeHelper';
 import TagsList from '../../../components/tags/TagsList';
+import { DocLink } from '../../../helpers/doc-links';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { getRuleUrl } from '../../../helpers/urls';
 import {
@@ -282,7 +283,7 @@ export default function RuleListItem(props: Readonly<Props>) {
                 }
                 links={[
                   {
-                    href: '/user-guide/clean-code/introduction',
+                    href: DocLink.CleanCodeIntroduction,
                     label: translate('learn_more'),
                   },
                 ]}
@@ -299,7 +300,7 @@ export default function RuleListItem(props: Readonly<Props>) {
               <>
                 <SeparatorCircleIcon aria-hidden as="li" />
                 <li>
-                  <Tooltip overlay={translate('coding_rules.rule_template.title')}>
+                  <Tooltip content={translate('coding_rules.rule_template.title')}>
                     <span>
                       <Badge>{translate('coding_rules.rule_template')}</Badge>
                     </span>

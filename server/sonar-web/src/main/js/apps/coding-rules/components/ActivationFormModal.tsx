@@ -158,7 +158,7 @@ export default function ActivationFormModal(props: Readonly<Props>) {
                   {intl.formatMessage({ id: 'coding_rules.prioritized_rule.note' })}
                   <DocumentationLink
                     className="sw-ml-2 sw-whitespace-nowrap"
-                    to="/instance-administration/quality-profiles/#prioritizing-rules"
+                    to={DocLink.InstanceAdminQualityProfilesPrioritizingRules}
                   >
                     {intl.formatMessage({ id: 'learn_more' })}
                   </DocumentationLink>

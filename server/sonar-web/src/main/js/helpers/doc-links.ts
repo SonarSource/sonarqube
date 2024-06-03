@@ -56,6 +56,7 @@ export enum DocLink {
   InstanceAdminMarketplace = '/instance-administration/marketplace/',
   InstanceAdminPluginVersionMatrix = '/instance-administration/plugin-version-matrix/',
   InstanceAdminQualityProfiles = '/instance-administration/quality-profiles/',
+  InstanceAdminQualityProfilesPrioritizingRules = '/instance-administration/quality-profiles/#prioritizing-rules',
   InstanceAdminReindexation = '/instance-administration/reindexing/',
   InstanceAdminSecurity = '/instance-administration/security/',
   IssueResolutions = '/user-guide/issues/#resolutions-deprecated',
