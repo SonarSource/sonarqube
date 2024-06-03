@@ -577,7 +577,7 @@ public class RuleActivator {
     if (!StringUtils.equals(change.getSeverity(), parentActiveRule.get().getSeverityString())) {
       return false;
     }
-    if (!(Objects.equals(change.isPrioritizedRule(), parentActiveRule.get().isPrioritizedRule()))) {
+    if (change.isPrioritizedRule() != null && !Objects.equals(change.isPrioritizedRule(), parentActiveRule.get().isPrioritizedRule())) {
       return false;
     }
     for (Map.Entry<String, String> entry : change.getParameters().entrySet()) {
