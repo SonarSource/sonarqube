@@ -22,7 +22,6 @@ package org.sonar.server.qualityprofile.index;
 import com.google.common.collect.Maps;
 import java.util.Map;
 import java.util.Optional;
-import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.server.es.BaseDoc;
 import org.sonar.server.qualityprofile.ActiveRuleInheritance;
