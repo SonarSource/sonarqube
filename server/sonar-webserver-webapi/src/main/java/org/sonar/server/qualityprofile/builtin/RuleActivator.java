@@ -25,6 +25,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -191,7 +192,8 @@ public class RuleActivator {
   /**
    * Update severity, prioritizedRule and params
    */
-  private void applySeverityAndPrioritizedRuleAndParamToChange(RuleActivation request, RuleActivationContext context, ActiveRuleChange change) {
+  private void applySeverityAndPrioritizedRuleAndParamToChange(RuleActivation request, RuleActivationContext context,
+    ActiveRuleChange change) {
     RuleWrapper rule = context.getRule();
     ActiveRuleWrapper activeRule = context.getActiveRule();
     ActiveRuleWrapper parentActiveRule = context.getParentActiveRule();
@@ -573,6 +575,9 @@ public class RuleActivator {
       return false;
     }
     if (!StringUtils.equals(change.getSeverity(), parentActiveRule.get().getSeverityString())) {
+      return false;
+    }
+    if (!(Objects.equals(change.isPrioritizedRule(), parentActiveRule.get().isPrioritizedRule()))) {
       return false;
     }
     for (Map.Entry<String, String> entry : change.getParameters().entrySet()) {
