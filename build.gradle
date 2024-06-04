@@ -282,7 +282,7 @@ subprojects {
       dependency 'org.sonarsource.iac:sonar-iac-plugin:1.31.0.10579'
       dependency 'org.sonarsource.text:sonar-text-plugin:2.10.0.2188'
       dependency 'com.sonarsource.text:sonar-text-enterprise-plugin:2.10.0.2188'
-      dependency 'com.sonarsource.jcl:sonar-jcl-plugin:1.1.0.855'
+      dependency 'com.sonarsource.jcl:sonar-jcl-plugin:1.2.0.1148'
 
       // please keep this list alphabetically ordered
       dependencySet(group: 'ch.qos.logback', version: '1.5.3') {
