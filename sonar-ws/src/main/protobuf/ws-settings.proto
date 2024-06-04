@@ -87,6 +87,8 @@ enum Type {
 }
 
 // Response of GET api/settings/values
+//IMPORTANT: As of August 2023 we have to align the protobuf response of values endpoint with SonarCloud, as SonarLint depends on it.
+//See https://xtranet-sonarsource.atlassian.net/wiki/spaces/DEV/pages/2878669037/Cross-product+consistency+in+protobuf+Web+endpoints
 message ValuesWsResponse {
   repeated Setting settings = 1;
   repeated string setSecuredSettings = 2;
@@ -105,6 +107,7 @@ message Setting {
     Values parentValues = 7;
     FieldValues parentFieldValues = 8;
   }
+  Origin parentOrigin = 9;
 }
 
 message Values {
@@ -117,4 +120,11 @@ message FieldValues {
   message Value {
     map<string, string> value = 1;
   }
+}
+
+enum Origin {
+  UNDEFINED = 0;
+  INSTANCE = 1;
+  ORGANIZATION = 2;
+  PROJECT = 3;
 }
