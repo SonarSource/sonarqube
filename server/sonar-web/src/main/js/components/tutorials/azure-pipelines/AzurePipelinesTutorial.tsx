@@ -24,6 +24,7 @@ import { AlmKeys } from '../../../types/alm-settings';
 import { Component } from '../../../types/types';
 import { LoggedInUser } from '../../../types/users';
 import AllSet from '../components/AllSet';
+import { TutorialConfig } from '../types';
 import BranchAnalysisStepContent from './BranchAnalysisStepContent';
 import ExtensionInstallationStepContent from './ExtensionInstallationStepContent';
 import ServiceEndpointStepContent from './ServiceEndpointStepContent';
@@ -44,7 +45,13 @@ export enum Steps {
 
 export default function AzurePipelinesTutorial(props: AzurePipelinesTutorialProps) {
   const { alm, baseUrl, component, currentUser, willRefreshAutomatically } = props;
+
+  const [config, setConfig] = React.useState<TutorialConfig>({});
   const [done, setDone] = React.useState<boolean>(false);
+
+  React.useEffect(() => {
+    setDone(Boolean(config.buildTool));
+  }, [config.buildTool]);
 
   return (
     <>
@@ -76,7 +83,7 @@ export default function AzurePipelinesTutorial(props: AzurePipelinesTutorialProp
             `onboarding.tutorial.with.azure_pipelines.${Steps.BranchAnalysis}.title`,
           )}
         >
-          <BranchAnalysisStepContent component={component} onDone={setDone} />
+          <BranchAnalysisStepContent config={config} setConfig={setConfig} component={component} />
         </TutorialStep>
 
         {done && (

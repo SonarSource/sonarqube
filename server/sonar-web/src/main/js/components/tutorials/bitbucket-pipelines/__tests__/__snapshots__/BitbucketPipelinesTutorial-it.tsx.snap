@@ -31,7 +31,69 @@ pipelines:
       - step: *build-step"
 `;
 
-exports[`should follow and complete all steps: CFamily: bitbucket-pipelines.yml 1`] = `
+exports[`should follow and complete all steps: C++ (automatic) and other: .github/workflows/build.yml 1`] = `
+"image: maven:3.3.9
+
+definitions:
+  steps:
+    - step: &build-step
+        name: SonarQube analysis
+        script:
+          - pipe: sonarsource/sonarqube-scan:2.0.1
+            variables:
+              SONAR_HOST_URL: \${SONAR_HOST_URL} # Get the value from the repository/workspace variable.
+              SONAR_TOKEN: \${SONAR_TOKEN} # Get the value from the repository/workspace variable. You shouldn't set secret in clear text here.
+  caches:
+    sonar: ~/.sonar
+
+clone:
+  depth: full
+
+pipelines:
+  branches:
+    '{main}':
+      - step: *build-step
+
+  pull-requests:
+    '**':
+      - step: *build-step
+"
+`;
+
+exports[`should follow and complete all steps: C++ (automatic) and other: bitbucket-pipelines.yml 1`] = `
+"image: maven:3.3.9
+
+definitions:
+  steps:
+    - step: &build-step
+        name: SonarQube analysis
+        script:
+          - pipe: sonarsource/sonarqube-scan:2.0.1
+            variables:
+              SONAR_HOST_URL: \${SONAR_HOST_URL} # Get the value from the repository/workspace variable.
+              SONAR_TOKEN: \${SONAR_TOKEN} # Get the value from the repository/workspace variable. You shouldn't set secret in clear text here.
+  caches:
+    sonar: ~/.sonar
+
+clone:
+  depth: full
+
+pipelines:
+  branches:
+    '{main}':
+      - step: *build-step
+
+  pull-requests:
+    '**':
+      - step: *build-step
+"
+`;
+
+exports[`should follow and complete all steps: C++ (automatic) and other: sonar-project.properties 1`] = `"sonar.projectKey=my-project"`;
+
+exports[`should follow and complete all steps: C++ (automatic) and other: sonar-project.properties 2`] = `"sonar.projectKey=my-project"`;
+
+exports[`should follow and complete all steps: C++ (manual) and Objective-C: bitbucket-pipelines.yml 1`] = `
 "image: <image ready for your build toolchain>
 
 definitions:
@@ -65,7 +127,43 @@ pipelines:
       - step: *build-step"
 `;
 
-exports[`should follow and complete all steps: CFamily: sonar-project.properties 1`] = `"sonar.projectKey=my-project"`;
+exports[`should follow and complete all steps: C++ (manual) and Objective-C: bitbucket-pipelines.yml 2`] = `"sonar.projectKey=my-project"`;
+
+exports[`should follow and complete all steps: C++ (manual) and Objective-C: sonar-project.properties 1`] = `"sonar.projectKey=my-project"`;
+
+exports[`should follow and complete all steps: C++ (manual) and Objective-C: sonar-project.properties 2`] = `
+"image: <image ready for your build toolchain>
+
+definitions:
+  steps:
+    - step: &build-step
+        name: Build the project, and run the SonarQube analysis
+        script:
+          - export SONAR_SCANNER_VERSION=5.0.1.3006
+          - mkdir $HOME/.sonar
+          - curl -sSLo $HOME/.sonar/build-wrapper-linux-x86.zip \${SONAR_HOST_URL}/static/cpp/build-wrapper-linux-x86.zip
+          - unzip -o $HOME/.sonar/build-wrapper-linux-x86.zip -d $HOME/.sonar/
+          - curl -sSLo $HOME/.sonar/sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-\${SONAR_SCANNER_VERSION}-linux.zip
+          - unzip -o $HOME/.sonar/sonar-scanner.zip -d $HOME/.sonar/
+          - export PATH="$PATH:$HOME/.sonar/sonar-scanner-\${SONAR_SCANNER_VERSION}-linux/bin"
+          - <any step required before running your build, like ./configure>
+          - $HOME/.sonar/build-wrapper-linux-x86/build-wrapper-linux-x86-64 --out-dir bw-output <your clean build command>
+          - sonar-scanner -Dsonar.cfamily.compile-commands=bw-output/compile_commands.json  
+  caches:
+    sonar: ~/.sonar
+
+clone:
+  depth: full
+
+pipelines:
+  branches:
+    '{main}':
+      - step: *build-step
+
+  pull-requests:
+    '**':
+      - step: *build-step"
+`;
 
 exports[`should follow and complete all steps: Gradle: bitbucket-pipelines.yml 1`] = `
 "image: eclipse-temurin:17
@@ -148,37 +246,6 @@ pipelines:
     '**':
       - step: *build-step"
 `;
-
-exports[`should follow and complete all steps: Other: .github/workflows/build.yml 1`] = `
-"image: maven:3.3.9
-
-definitions:
-  steps:
-    - step: &build-step
-        name: SonarQube analysis
-        script:
-          - pipe: sonarsource/sonarqube-scan:2.0.1
-            variables:
-              SONAR_HOST_URL: \${SONAR_HOST_URL} # Get the value from the repository/workspace variable.
-              SONAR_TOKEN: \${SONAR_TOKEN} # Get the value from the repository/workspace variable. You shouldn't set secret in clear text here.
-  caches:
-    sonar: ~/.sonar
-
-clone:
-  depth: full
-
-pipelines:
-  branches:
-    '{main}':
-      - step: *build-step
-
-  pull-requests:
-    '**':
-      - step: *build-step
-"
-`;
-
-exports[`should follow and complete all steps: Other: sonar-project.properties 1`] = `"sonar.projectKey=my-project"`;
 
 exports[`should follow and complete all steps: sonar token key 1`] = `"SONAR_TOKEN"`;
 

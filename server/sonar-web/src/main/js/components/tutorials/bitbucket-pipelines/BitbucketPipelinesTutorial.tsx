@@ -26,7 +26,8 @@ import { LoggedInUser } from '../../../types/users';
 import AllSet from '../components/AllSet';
 import GithubCFamilyExampleRepositories from '../components/GithubCFamilyExampleRepositories';
 import YamlFileStep from '../components/YamlFileStep';
-import { BuildTools, TutorialModes } from '../types';
+import { TutorialConfig, TutorialModes } from '../types';
+import { shouldShowGithubCFamilyExampleRepositories } from '../utils';
 import AnalysisCommand from './AnalysisCommand';
 import RepositoryVariables from './RepositoryVariables';
 
@@ -49,7 +50,13 @@ export default function BitbucketPipelinesTutorial(props: BitbucketPipelinesTuto
   const { almBinding, baseUrl, currentUser, component, willRefreshAutomatically, mainBranchName } =
     props;
 
-  const [done, setDone] = React.useState<boolean>(false);
+  const [config, setConfig] = React.useState<TutorialConfig>({});
+  const [done, setDone] = React.useState(false);
+
+  React.useEffect(() => {
+    setDone(Boolean(config.buildTool));
+  }, [config.buildTool]);
+
   return (
     <>
       <Title>{translate('onboarding.tutorial.with.bitbucket_ci.title')}</Title>
@@ -66,17 +73,17 @@ export default function BitbucketPipelinesTutorial(props: BitbucketPipelinesTuto
           />
         </TutorialStep>
         <TutorialStep title={translate('onboarding.tutorial.with.bitbucket_pipelines.yaml.title')}>
-          <YamlFileStep setDone={setDone}>
-            {(buildTool) => (
+          <YamlFileStep config={config} setConfig={setConfig} ci={TutorialModes.BitbucketPipelines}>
+            {(config) => (
               <>
-                {buildTool === BuildTools.CFamily && (
+                {shouldShowGithubCFamilyExampleRepositories(config) && (
                   <GithubCFamilyExampleRepositories
                     className="sw-my-4 sw-w-abs-600"
                     ci={TutorialModes.BitbucketPipelines}
                   />
                 )}
                 <AnalysisCommand
-                  buildTool={buildTool}
+                  config={config}
                   component={component}
                   mainBranchName={mainBranchName}
                 />

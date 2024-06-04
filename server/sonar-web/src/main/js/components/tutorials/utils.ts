@@ -21,7 +21,7 @@ import { GRADLE_SCANNER_VERSION } from '../../helpers/constants';
 import { convertGithubApiUrlToLink, stripTrailingSlash } from '../../helpers/urls';
 import { AlmSettingsInstance, ProjectAlmBindingResponse } from '../../types/alm-settings';
 import { UserToken } from '../../types/token';
-import { GradleBuildDSL } from './types';
+import { AutoConfig, BuildTools, GradleBuildDSL, TutorialConfig } from './types';
 
 export function quote(os: string): (s: string) => string {
   return os === 'win' ? (s: string) => `"${s}"` : (s: string) => s;
@@ -90,4 +90,32 @@ export function buildBitbucketCloudLink(
   }
 
   return `${stripTrailingSlash(almBinding.url)}/${projectBinding.repository}`;
+}
+
+export function supportsAutoConfig(buildTool: BuildTools) {
+  return buildTool === BuildTools.Cpp;
+}
+
+export function getBuildToolOptions(supportCFamily: boolean) {
+  const list = [BuildTools.Maven, BuildTools.Gradle, BuildTools.DotNet];
+  if (supportCFamily) {
+    list.push(BuildTools.Cpp);
+    list.push(BuildTools.ObjectiveC);
+  }
+  list.push(BuildTools.Other);
+  return list;
+}
+
+export function isCFamily(buildTool?: BuildTools) {
+  return buildTool === BuildTools.Cpp || buildTool === BuildTools.ObjectiveC;
+}
+
+export function shouldShowGithubCFamilyExampleRepositories(config: TutorialConfig) {
+  if (config.buildTool === BuildTools.Cpp && config.autoConfig === AutoConfig.Manual) {
+    return true;
+  }
+  if (config.buildTool === BuildTools.ObjectiveC) {
+    return true;
+  }
+  return false;
 }

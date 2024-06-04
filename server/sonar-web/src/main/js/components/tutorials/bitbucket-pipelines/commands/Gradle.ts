@@ -17,7 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export default function gradleExample(branchesEnabled: boolean, mainBranchName: string) {
+import { BuildToolExampleBuilder } from '../AnalysisCommand';
+
+const gradleExample: BuildToolExampleBuilder = ({ branchesEnabled, mainBranchName }) => {
   return `image: eclipse-temurin:17
 
 definitions:
@@ -47,4 +49,6 @@ ${
       - step: *build-step`
     : ''
 }`;
-}
+};
+
+export default gradleExample;

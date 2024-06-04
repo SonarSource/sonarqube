@@ -43,14 +43,10 @@ const DotOS: { [key in keyof typeof DotNetFlavor]: OSDotNet } = {
 };
 
 export default function DotNet(props: LanguageProps) {
-  const { component, onDone } = props;
+  const { component } = props;
   const [flavorComponent, setFlavorComponent] =
     React.useState<keyof typeof DotNetFlavor>('win_core');
   const DotNetTutorial = flavorComponent && DotNetFlavor[flavorComponent];
-
-  React.useEffect(() => {
-    onDone(flavorComponent !== undefined);
-  }, [flavorComponent, onDone]);
 
   return (
     <>

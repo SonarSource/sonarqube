@@ -22,7 +22,7 @@ import * as React from 'react';
 import { translate } from '../../../helpers/l10n';
 import { Component } from '../../../types/types';
 import Step from '../components/Step';
-import { ManualTutorialConfig } from '../types';
+import { OSs, TutorialConfig } from '../types';
 import BuildToolForm from './BuildToolForm';
 import AnalysisCommand from './commands/AnalysisCommand';
 
@@ -30,58 +30,46 @@ interface Props {
   baseUrl: string;
   component: Component;
   isLocal: boolean;
-  onFinish?: (projectKey?: string) => void;
   open: boolean;
   stepNumber: number;
   token?: string;
 }
 
-interface State {
-  config?: ManualTutorialConfig;
-}
+export default function ProjectAnalysisStep(props: Readonly<Props>) {
+  const { component, open, stepNumber, baseUrl, isLocal, token } = props;
 
-export default class ProjectAnalysisStep extends React.PureComponent<Props, State> {
-  state: State = {};
+  const [config, setConfig] = React.useState<TutorialConfig>({});
+  const [os, setOs] = React.useState<OSs>(OSs.Linux);
 
-  handleBuildToolSelect = (config: ManualTutorialConfig) => {
-    const { component } = this.props;
-    this.setState({ config });
-    if (this.props.onFinish) {
-      this.props.onFinish(component.key);
-    }
-  };
-
-  renderForm = () => {
-    const { component, baseUrl, isLocal, token } = this.props;
+  function renderForm() {
     return (
       <div className="sw-pb-4">
-        <BuildToolForm onDone={this.handleBuildToolSelect} />
+        <BuildToolForm config={config} setConfig={setConfig} os={os} setOs={setOs} />
 
-        {this.state.config && (
+        {config && (
           <div className="sw-mt-4">
             <AnalysisCommand
+              config={config}
+              os={os}
               component={component}
               baseUrl={baseUrl}
               isLocal={isLocal}
-              languageConfig={this.state.config}
               token={token}
             />
           </div>
         )}
       </div>
     );
-  };
-
-  render() {
-    return (
-      <Step
-        finished={false}
-        onOpen={noop}
-        open={this.props.open}
-        renderForm={this.renderForm}
-        stepNumber={this.props.stepNumber}
-        stepTitle={translate('onboarding.analysis.header')}
-      />
-    );
   }
+
+  return (
+    <Step
+      finished={false}
+      onOpen={noop}
+      open={open}
+      renderForm={renderForm}
+      stepNumber={stepNumber}
+      stepTitle={translate('onboarding.analysis.header')}
+    />
+  );
 }

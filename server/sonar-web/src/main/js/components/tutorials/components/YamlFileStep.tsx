@@ -19,42 +19,33 @@
  */
 import { NumberedList, NumberedListItem } from 'design-system';
 import * as React from 'react';
-import { translate } from '../../../helpers/l10n';
 import { withCLanguageFeature } from '../../hoc/withCLanguageFeature';
-import RenderOptions from '../components/RenderOptions';
-import { BuildTools } from '../types';
+import { TutorialConfig, TutorialModes } from '../types';
+import BuildConfigSelection from './BuildConfigSelection';
 
 export interface YamlFileStepProps {
-  children?: (buildTool: BuildTools) => React.ReactElement<{}>;
+  children?: (config: TutorialConfig) => React.ReactElement<{}>;
+  ci: TutorialModes;
+  config: TutorialConfig;
   hasCLanguageFeature: boolean;
-  setDone?: (doneStatus: boolean) => void;
+  setConfig: (config: TutorialConfig) => void;
 }
 
 export function YamlFileStep(props: YamlFileStepProps) {
-  const { children, hasCLanguageFeature } = props;
-
-  const buildTools = [BuildTools.Maven, BuildTools.Gradle, BuildTools.DotNet];
-  if (hasCLanguageFeature) {
-    buildTools.push(BuildTools.CFamily);
-  }
-  buildTools.push(BuildTools.Other);
-
-  const [buildToolSelected, setBuildToolSelected] = React.useState<BuildTools>();
+  const { ci, config, setConfig, children, hasCLanguageFeature } = props;
 
   return (
     <NumberedList>
       <NumberedListItem>
-        {translate('onboarding.build')}
-        <RenderOptions
-          label={translate('onboarding.build')}
-          checked={buildToolSelected}
-          onCheck={(value) => setBuildToolSelected(value as BuildTools)}
-          options={buildTools}
-          optionLabelKey="onboarding.build"
-          setDone={props.setDone}
+        <BuildConfigSelection
+          ci={ci}
+          config={config}
+          onSetConfig={setConfig}
+          supportCFamily={hasCLanguageFeature}
         />
       </NumberedListItem>
-      {children && buildToolSelected && children(buildToolSelected)}
+
+      {children && config && children(config)}
     </NumberedList>
   );
 }

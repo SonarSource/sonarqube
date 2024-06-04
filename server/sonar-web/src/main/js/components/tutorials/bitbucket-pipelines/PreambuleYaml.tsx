@@ -33,7 +33,8 @@ export function PreambuleYaml(props: PreambuleYamlProps) {
   switch (buildTool) {
     case BuildTools.Gradle:
       return <GradleBuild component={component} />;
-    case BuildTools.CFamily:
+    case BuildTools.Cpp:
+    case BuildTools.ObjectiveC:
     case BuildTools.Other:
       return <DefaultProjectKey component={component} />;
     default:

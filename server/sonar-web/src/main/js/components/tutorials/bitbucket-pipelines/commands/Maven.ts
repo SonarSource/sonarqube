@@ -17,12 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export default function mavenExample(
-  branchesEnabled: boolean,
-  mainBranchName: string,
-  projectKey: string,
-  projectName: string,
-) {
+import { BuildToolExampleBuilder } from '../AnalysisCommand';
+
+const mavenExample: BuildToolExampleBuilder = ({
+  branchesEnabled,
+  mainBranchName,
+  projectKey,
+  projectName,
+}) => {
   return `image: maven:3-eclipse-temurin-17
 
 definitions:
@@ -52,4 +54,6 @@ ${
       - step: *build-step`
     : ''
 }`;
-}
+};
+
+export default mavenExample;

@@ -23,7 +23,7 @@ import withAvailableFeatures, {
 } from '../../../app/components/available-features/withAvailableFeatures';
 import { Feature } from '../../../types/features';
 import { Component } from '../../../types/types';
-import { BuildTools } from '../types';
+import { BuildTools, TutorialConfig } from '../types';
 import CFamily from './commands/CFamily';
 import DotNet from './commands/DotNet';
 import Gradle from './commands/Gradle';
@@ -31,17 +31,17 @@ import JavaMaven from './commands/JavaMaven';
 import Others from './commands/Others';
 
 export interface AnalysisCommandProps extends WithAvailableFeaturesProps {
-  buildTool: BuildTools;
   component: Component;
+  config: TutorialConfig;
   mainBranchName: string;
   monorepo?: boolean;
 }
 
 export function AnalysisCommand(props: Readonly<AnalysisCommandProps>) {
-  const { buildTool, component, mainBranchName, monorepo } = props;
+  const { config, component, mainBranchName, monorepo } = props;
   const branchSupportEnabled = props.hasFeature(Feature.BranchSupport);
 
-  switch (buildTool) {
+  switch (config.buildTool) {
     case BuildTools.Maven:
       return (
         <JavaMaven
@@ -69,9 +69,11 @@ export function AnalysisCommand(props: Readonly<AnalysisCommandProps>) {
           component={component}
         />
       );
-    case BuildTools.CFamily:
+    case BuildTools.Cpp:
+    case BuildTools.ObjectiveC:
       return (
         <CFamily
+          config={config}
           branchesEnabled={branchSupportEnabled}
           mainBranchName={mainBranchName}
           monorepo={monorepo}

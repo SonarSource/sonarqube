@@ -25,9 +25,10 @@ import { CompilationInfo } from '../../components/CompilationInfo';
 import DefaultProjectKey from '../../components/DefaultProjectKey';
 import GithubCFamilyExampleRepositories from '../../components/GithubCFamilyExampleRepositories';
 import RenderOptions from '../../components/RenderOptions';
-import { OSs, TutorialModes } from '../../types';
+import { AutoConfig, BuildTools, OSs, TutorialModes } from '../../types';
 import { LanguageProps } from '../JenkinsStep';
 import CreateJenkinsfileBulletPoint from './CreateJenkinsfileBulletPoint';
+import Other from './Other';
 
 const YAML_MAP: Record<OSs, (baseUrl: string) => string> = {
   [OSs.Linux]: (baseUrl) => `node {
@@ -103,13 +104,13 @@ const YAML_MAP: Record<OSs, (baseUrl: string) => string> = {
 }`,
 };
 
-export default function CFamilly(props: LanguageProps) {
-  const { baseUrl, component, onDone } = props;
+export default function CFamily(props: Readonly<LanguageProps>) {
+  const { baseUrl, config, component } = props;
   const [os, setOs] = React.useState<OSs>(OSs.Linux);
 
-  React.useEffect(() => {
-    onDone(os !== undefined);
-  }, [os, onDone]);
+  if (config.buildTool === BuildTools.Cpp && config.autoConfig === AutoConfig.Automatic) {
+    return <Other {...props} />;
+  }
 
   return (
     <>
@@ -120,25 +121,25 @@ export default function CFamilly(props: LanguageProps) {
           label={translate('onboarding.build.other.os')}
           checked={os}
           optionLabelKey="onboarding.build.other.os"
-          onCheck={(value) => setOs(value as OSs)}
+          onCheck={(value: OSs) => setOs(value)}
           options={Object.values(OSs)}
         />
-        {os && (
+        {
           <GithubCFamilyExampleRepositories
-            className="sw-my-4 sw-w-abs-600"
-            os={os}
             ci={TutorialModes.Jenkins}
+            os={os}
+            className="sw-my-4 sw-w-abs-600"
           />
-        )}
+        }
       </NumberedListItem>
-      {os && (
+      {
         <CreateJenkinsfileBulletPoint
           alertTranslationKeyPart="onboarding.tutorial.with.jenkins.jenkinsfile.other.step3"
           snippet={YAML_MAP[os](baseUrl)}
         >
           <CompilationInfo />
         </CreateJenkinsfileBulletPoint>
-      )}
+      }
     </>
   );
 }

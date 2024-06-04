@@ -17,11 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export default function dotNetExample(
-  branchesEnabled: boolean,
-  mainBranchName: string,
-  projectKey: string,
-) {
+import { BuildToolExampleBuilder } from '../AnalysisCommand';
+
+const dotNetExample: BuildToolExampleBuilder = ({
+  branchesEnabled,
+  mainBranchName,
+  projectKey,
+}) => {
   return `image: mcr.microsoft.com/dotnet/sdk:7.0
 
 definitions:
@@ -54,4 +56,6 @@ ${
       - step: *build-step`
     : ''
 }`;
-}
+};
+
+export default dotNetExample;

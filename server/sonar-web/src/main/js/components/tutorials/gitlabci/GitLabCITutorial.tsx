@@ -44,6 +44,7 @@ export default function GitLabCITutorial(props: GitLabCITutorialProps) {
   const { baseUrl, component, currentUser, willRefreshAutomatically } = props;
 
   const [done, setDone] = React.useState<boolean>(false);
+
   return (
     <>
       <Title>{translate('onboarding.tutorial.with.gitlab_ci.title')}</Title>

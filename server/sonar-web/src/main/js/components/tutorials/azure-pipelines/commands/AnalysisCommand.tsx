@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { BuildTools } from '../../types';
+import { BuildTools, TutorialConfig } from '../../types';
 import ClangGCC from './ClangGCC';
 import DotNet from './DotNet';
 import JavaGradle from './JavaGradle';
@@ -26,24 +26,19 @@ import JavaMaven from './JavaMaven';
 import Other from './Other';
 
 export interface AnalysisCommandProps {
-  buildTool?: BuildTools;
-  onStepValidationChange: (isValid: boolean) => void;
+  config: TutorialConfig;
   projectKey: string;
   projectName: string;
 }
 
 export default function AnalysisCommand(props: AnalysisCommandProps) {
-  const { buildTool, onStepValidationChange, projectKey, projectName } = props;
-
-  React.useEffect(() => {
-    if (buildTool && buildTool !== BuildTools.CFamily) {
-      onStepValidationChange(true);
-    }
-  }, [buildTool, onStepValidationChange]);
+  const { config, projectKey, projectName } = props;
+  const { buildTool } = config;
 
   if (!buildTool) {
     return null;
   }
+
   switch (buildTool) {
     case BuildTools.Maven:
       return <JavaMaven projectKey={projectKey} projectName={projectName} />;
@@ -54,10 +49,9 @@ export default function AnalysisCommand(props: AnalysisCommandProps) {
     case BuildTools.DotNet:
       return <DotNet projectKey={projectKey} />;
 
-    case BuildTools.CFamily:
-      return (
-        <ClangGCC onStepValidationChange={props.onStepValidationChange} projectKey={projectKey} />
-      );
+    case BuildTools.Cpp:
+    case BuildTools.ObjectiveC:
+      return <ClangGCC config={config} projectKey={projectKey} />;
 
     case BuildTools.Other:
       return <Other projectKey={projectKey} />;

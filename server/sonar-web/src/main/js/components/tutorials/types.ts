@@ -30,7 +30,8 @@ export enum TutorialModes {
 export enum BuildTools {
   Maven = 'maven',
   Gradle = 'gradle',
-  CFamily = 'cfamily',
+  Cpp = 'cpp',
+  ObjectiveC = 'objectivec',
   DotNet = 'dotnet',
   Other = 'other',
 }
@@ -46,6 +47,12 @@ export enum OSs {
   MacOS = 'mac',
 }
 
-export type ManualTutorialConfig =
-  | { buildTool?: BuildTools.Maven | BuildTools.Gradle | BuildTools.DotNet }
-  | { buildTool: BuildTools.Other | BuildTools.CFamily; os?: OSs };
+export enum AutoConfig {
+  Automatic = 'automatic',
+  Manual = 'manual',
+}
+
+export type TutorialConfig = {
+  autoConfig?: AutoConfig;
+  buildTool?: BuildTools;
+};

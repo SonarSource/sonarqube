@@ -17,24 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { FlagMessage, NumberedList, NumberedListItem, TutorialStep } from 'design-system';
+import { NumberedList, NumberedListItem, TutorialStep } from 'design-system';
 import * as React from 'react';
 import { translate } from '../../../helpers/l10n';
 import { Component } from '../../../types/types';
 import { withCLanguageFeature } from '../../hoc/withCLanguageFeature';
-import RenderOptions from '../components/RenderOptions';
-import { BuildTools } from '../types';
-import CFamilly from './buildtool-steps/CFamilly';
+import BuildConfigSelection from '../components/BuildConfigSelection';
+import { BuildTools, TutorialConfig, TutorialModes } from '../types';
+import CFamily from './buildtool-steps/CFamily';
 import DotNet from './buildtool-steps/DotNet';
 import Gradle from './buildtool-steps/Gradle';
 import Maven from './buildtool-steps/Maven';
 import Other from './buildtool-steps/Other';
-
-const BUILD_TOOLS_WITH_NO_ADDITIONAL_OPTIONS = [
-  BuildTools.Maven,
-  BuildTools.Gradle,
-  BuildTools.Other,
-];
 
 const BUILDTOOL_COMPONENT_MAP: {
   [x in BuildTools]: React.ComponentType<React.PropsWithChildren<LanguageProps>>;
@@ -42,65 +36,52 @@ const BUILDTOOL_COMPONENT_MAP: {
   [BuildTools.Maven]: Maven,
   [BuildTools.Gradle]: Gradle,
   [BuildTools.DotNet]: DotNet,
-  [BuildTools.CFamily]: CFamilly,
+  [BuildTools.Cpp]: CFamily,
+  [BuildTools.ObjectiveC]: CFamily,
   [BuildTools.Other]: Other,
 };
+
+export interface LanguageProps {
+  baseUrl: string;
+  component: Component;
+  config: TutorialConfig;
+}
 
 export interface JenkinsfileStepProps {
   baseUrl: string;
   component: Component;
   hasCLanguageFeature: boolean;
-  onDone: (done: boolean) => void;
+  setDone: (done: boolean) => void;
 }
 
-export interface LanguageProps {
-  baseUrl: string;
-  component: Component;
-  onDone: (done: boolean) => void;
-}
+export function JenkinsStep(props: Readonly<JenkinsfileStepProps>) {
+  const { component, hasCLanguageFeature, baseUrl, setDone } = props;
 
-export function JenkinsfileStep(props: JenkinsfileStepProps) {
-  const { component, hasCLanguageFeature, baseUrl, onDone } = props;
-
-  const [buildTool, setBuildTool] = React.useState<BuildTools>();
-
-  const buildToolOrder = Object.keys(BUILDTOOL_COMPONENT_MAP);
-  if (!hasCLanguageFeature) {
-    buildToolOrder.splice(buildToolOrder.indexOf(BuildTools.CFamily), 1);
-  }
-
-  const BuildToolComponent = buildTool ? BUILDTOOL_COMPONENT_MAP[buildTool] : undefined;
+  const [config, setConfig] = React.useState<TutorialConfig>({});
 
   React.useEffect(() => {
-    if (buildTool && BUILD_TOOLS_WITH_NO_ADDITIONAL_OPTIONS.includes(buildTool)) {
-      onDone(true);
-    }
-  }, [buildTool, onDone]);
+    setDone(Boolean(config.buildTool));
+  }, [config.buildTool, setDone]);
+
+  const BuildToolComponent = config.buildTool && BUILDTOOL_COMPONENT_MAP[config.buildTool];
 
   return (
     <TutorialStep title={translate('onboarding.tutorial.with.jenkins.jenkinsfile.title')}>
       <NumberedList>
         <NumberedListItem>
-          {translate('onboarding.build')}
-          <RenderOptions
-            label={translate('onboarding.build')}
-            checked={buildTool}
-            onCheck={(value) => setBuildTool(value as BuildTools)}
-            optionLabelKey="onboarding.build"
-            options={buildToolOrder}
+          <BuildConfigSelection
+            ci={TutorialModes.Jenkins}
+            config={config}
+            supportCFamily={hasCLanguageFeature}
+            onSetConfig={setConfig}
           />
-          {buildTool === BuildTools.CFamily && (
-            <FlagMessage variant="info" className="sw-mt-2 sw-w-abs-600">
-              {translate('onboarding.tutorial.with.jenkins.jenkinsfile.cfamilly.agent_setup')}
-            </FlagMessage>
-          )}
         </NumberedListItem>
-        {BuildToolComponent !== undefined && (
-          <BuildToolComponent component={component} baseUrl={baseUrl} onDone={props.onDone} />
+        {BuildToolComponent && (
+          <BuildToolComponent config={config} component={component} baseUrl={baseUrl} />
         )}
       </NumberedList>
     </TutorialStep>
   );
 }
 
-export default withCLanguageFeature(JenkinsfileStep);
+export default withCLanguageFeature(JenkinsStep);

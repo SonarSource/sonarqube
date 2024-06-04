@@ -28,7 +28,7 @@ import { AlmKeys, AlmSettingsInstance } from '../../../types/alm-settings';
 import { Feature } from '../../../types/features';
 import { Component } from '../../../types/types';
 import AllSet from '../components/AllSet';
-import JenkinsfileStep from './JenkinsStep';
+import JenkinsStep from './JenkinsStep';
 import MultiBranchPipelineStep from './MultiBranchPipelineStep';
 import PipelineStep from './PipelineStep';
 import PreRequisitesStep from './PreRequisitesStep';
@@ -81,7 +81,7 @@ export function JenkinsTutorial(props: JenkinsTutorialProps) {
               projectBinding={projectBinding}
             />
 
-            <JenkinsfileStep component={component} baseUrl={baseUrl} onDone={setDone} />
+            <JenkinsStep component={component} baseUrl={baseUrl} setDone={setDone} />
           </TutorialStepList>
           {done && (
             <>

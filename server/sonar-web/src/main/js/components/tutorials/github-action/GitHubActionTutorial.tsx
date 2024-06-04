@@ -25,6 +25,7 @@ import { Component } from '../../../types/types';
 import { LoggedInUser } from '../../../types/users';
 import AllSet from '../components/AllSet';
 import YamlFileStep from '../components/YamlFileStep';
+import { TutorialConfig, TutorialModes } from '../types';
 import AnalysisCommand from './AnalysisCommand';
 import SecretStep from './SecretStep';
 
@@ -39,7 +40,6 @@ export interface GitHubActionTutorialProps {
 }
 
 export default function GitHubActionTutorial(props: GitHubActionTutorialProps) {
-  const [done, setDone] = React.useState<boolean>(false);
   const {
     almBinding,
     baseUrl,
@@ -49,6 +49,13 @@ export default function GitHubActionTutorial(props: GitHubActionTutorialProps) {
     mainBranchName,
     willRefreshAutomatically,
   } = props;
+
+  const [config, setConfig] = React.useState<TutorialConfig>({});
+  const [done, setDone] = React.useState<boolean>(false);
+
+  React.useEffect(() => {
+    setDone(Boolean(config.buildTool));
+  }, [config.buildTool]);
 
   return (
     <>
@@ -66,10 +73,10 @@ export default function GitHubActionTutorial(props: GitHubActionTutorialProps) {
           />
         </TutorialStep>
         <TutorialStep title={translate('onboarding.tutorial.with.github_action.yaml.title')}>
-          <YamlFileStep setDone={setDone}>
-            {(buildTool) => (
+          <YamlFileStep config={config} setConfig={setConfig} ci={TutorialModes.GitHubActions}>
+            {(config) => (
               <AnalysisCommand
-                buildTool={buildTool}
+                config={config}
                 mainBranchName={mainBranchName}
                 component={component}
                 monorepo={monorepo}

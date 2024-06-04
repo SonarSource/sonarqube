@@ -131,25 +131,61 @@ it.each([AlmKeys.BitbucketCloud, AlmKeys.BitbucketServer, AlmKeys.GitHub, AlmKey
     await user.click(ui.linuxDotnetCoreButton.get());
     expect(getCopyToClipboardValue(2, 'Copy')).toMatchSnapshot(`linux dotnet core jenkinsfile`);
 
-    // CFamilly
-    await user.click(ui.cFamilyBuildButton.get());
+    // C++ (automatic)
+    await user.click(ui.cppBuildButton.get());
+    expect(getCopyToClipboardValue(2, 'Copy')).toMatchSnapshot(
+      `c++ (automatic and other): build tools sonar-project.properties code`,
+    );
+    expect(getCopyToClipboardValue(3, 'Copy')).toMatchSnapshot(
+      `c++ (automatic and other): build tools jenkinsfile`,
+    );
+
+    // C++ (manual)
+    await user.click(ui.autoConfigManual.get());
     expect(getCopyToClipboardValue(2, 'Copy')).toMatchSnapshot(`sonar-project.properties code`);
 
     await user.click(ui.linuxButton.get());
-    expect(getCopyToClipboardValue(3, 'Copy')).toMatchSnapshot(`cfamily linux jenkinsfile`);
+    expect(getCopyToClipboardValue(3, 'Copy')).toMatchSnapshot(
+      `c++ (manual) and objectivec: linux jenkinsfile`,
+    );
 
     await user.click(ui.windowsButton.get());
-    expect(getCopyToClipboardValue(3, 'Copy')).toMatchSnapshot(`cfamily windows jenkinsfile`);
+    expect(getCopyToClipboardValue(3, 'Copy')).toMatchSnapshot(
+      `c++ (manual) and objectivec: windows jenkinsfile`,
+    );
 
     await user.click(ui.macosButton.get());
-    expect(getCopyToClipboardValue(3, 'Copy')).toMatchSnapshot(`cfamily macos jenkinsfile`);
+    expect(getCopyToClipboardValue(3, 'Copy')).toMatchSnapshot(
+      `c++ (manual) and objectivec: macos jenkinsfile`,
+    );
+
+    // Objective-C
+    await user.click(ui.objCBuildButton.get());
+    expect(getCopyToClipboardValue(2, 'Copy')).toMatchSnapshot(`sonar-project.properties code`);
+
+    await user.click(ui.linuxButton.get());
+    expect(getCopyToClipboardValue(3, 'Copy')).toMatchSnapshot(
+      `c++ (manual) and objectivec: linux jenkinsfile`,
+    );
+
+    await user.click(ui.windowsButton.get());
+    expect(getCopyToClipboardValue(3, 'Copy')).toMatchSnapshot(
+      `c++ (manual) and objectivec: windows jenkinsfile`,
+    );
+
+    await user.click(ui.macosButton.get());
+    expect(getCopyToClipboardValue(3, 'Copy')).toMatchSnapshot(
+      `c++ (manual) and objectivec: macos jenkinsfile`,
+    );
 
     // Other
     await user.click(ui.otherBuildButton.get());
     expect(getCopyToClipboardValue(2, 'Copy')).toMatchSnapshot(
-      `other build tools sonar-project.properties code`,
+      `c++ (automatic and other): build tools sonar-project.properties code`,
     );
-    expect(getCopyToClipboardValue(3, 'Copy')).toMatchSnapshot(`other build tools jenkinsfile`);
+    expect(getCopyToClipboardValue(3, 'Copy')).toMatchSnapshot(
+      `c++ (automatic and other): build tools jenkinsfile`,
+    );
 
     expect(ui.allSetSentence.get()).toBeInTheDocument();
   },

@@ -24,6 +24,7 @@ import { translate } from '../../../../helpers/l10n';
 import { InlineSnippet } from '../../components/InlineSnippet';
 import SentenceWithHighlights from '../../components/SentenceWithHighlights';
 import { BuildTools } from '../../types';
+import { isCFamily } from '../../utils';
 
 export enum PrepareType {
   JavaMavenGradle,
@@ -118,7 +119,7 @@ sonar.projectName=${projectName}
               />
             </span>
           </ListItem>
-          {buildTool === BuildTools.CFamily && (
+          {isCFamily(buildTool) && (
             <ListItem>
               <span className="sw-flex sw-items-center sw-flex-wrap">
                 <FormattedMessage

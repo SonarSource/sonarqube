@@ -34,17 +34,18 @@ import { GRADLE_SCANNER_VERSION } from '../../../helpers/constants';
 import { translate } from '../../../helpers/l10n';
 import { Component } from '../../../types/types';
 import { withCLanguageFeature } from '../../hoc/withCLanguageFeature';
+import BuildConfigSelection from '../components/BuildConfigSelection';
 import GithubCFamilyExampleRepositories from '../components/GithubCFamilyExampleRepositories';
 import GradleBuildSelection from '../components/GradleBuildSelection';
 import { InlineSnippet } from '../components/InlineSnippet';
-import RenderOptions from '../components/RenderOptions';
-import { BuildTools, GradleBuildDSL, TutorialModes } from '../types';
+import { BuildTools, GradleBuildDSL, TutorialConfig, TutorialModes } from '../types';
+import { isCFamily } from '../utils';
 import PipeCommand from './commands/PipeCommand';
 
 export interface YmlFileStepProps extends WithAvailableFeaturesProps {
   component: Component;
   hasCLanguageFeature: boolean;
-  setDone: (doneStatus: boolean) => void;
+  setDone: (done: boolean) => void;
 }
 
 const mavenSnippet = (key: string, name: string) => `<properties>
@@ -86,54 +87,55 @@ sonar.qualitygate.wait=true
 `;
 
 const snippetForBuildTool = {
-  [BuildTools.CFamily]: otherSnippet,
+  [BuildTools.Cpp]: otherSnippet,
+  [BuildTools.ObjectiveC]: otherSnippet,
   [BuildTools.Gradle]: gradleSnippet,
   [BuildTools.Maven]: mavenSnippet,
   [BuildTools.Other]: otherSnippet,
 };
 
 const filenameForBuildTool = {
-  [BuildTools.CFamily]: 'sonar-project.properties',
+  [BuildTools.Cpp]: 'sonar-project.properties',
+  [BuildTools.ObjectiveC]: 'sonar-project.properties',
   [BuildTools.Gradle]: GradleBuildDSL.Groovy,
   [BuildTools.Maven]: 'pom.xml',
   [BuildTools.Other]: 'sonar-project.properties',
 };
 
 const snippetLanguageForBuildTool = {
-  [BuildTools.CFamily]: undefined,
+  [BuildTools.Cpp]: undefined,
+  [BuildTools.ObjectiveC]: undefined,
   [BuildTools.Gradle]: undefined,
   [BuildTools.Maven]: 'xml',
   [BuildTools.Other]: undefined,
 };
 
 export function YmlFileStep(props: YmlFileStepProps) {
-  const { component, hasCLanguageFeature } = props;
+  const { component, hasCLanguageFeature, setDone } = props;
 
-  const [buildTool, setBuildTool] = React.useState<BuildTools>();
+  const [config, setConfig] = React.useState<TutorialConfig>({});
+  const { buildTool } = config;
 
-  const buildTools = [BuildTools.Maven, BuildTools.Gradle, BuildTools.DotNet];
-
-  if (hasCLanguageFeature) {
-    buildTools.push(BuildTools.CFamily);
+  function onSetConfig(config: TutorialConfig) {
+    setConfig(config);
   }
 
-  buildTools.push(BuildTools.Other);
+  React.useEffect(() => {
+    setDone(Boolean(config.buildTool));
+  }, [config.buildTool, setDone]);
 
   const renderForm = () => (
     <NumberedList>
       <NumberedListItem>
-        {translate('onboarding.build')}
-
-        <RenderOptions
-          checked={buildTool}
-          label={translate('onboarding.build')}
-          onCheck={setBuildTool as (key: string) => void}
-          optionLabelKey="onboarding.build"
-          options={buildTools}
-          setDone={props.setDone}
+        <BuildConfigSelection
+          ci={TutorialModes.GitLabCI}
+          config={config}
+          supportCFamily={hasCLanguageFeature}
+          hideAutoConfig
+          onSetConfig={onSetConfig}
         />
 
-        {buildTool === BuildTools.CFamily && (
+        {isCFamily(config.buildTool) && (
           <GithubCFamilyExampleRepositories
             ci={TutorialModes.GitLabCI}
             className="sw-my-4 sw-w-abs-600"
@@ -142,7 +144,8 @@ export function YmlFileStep(props: YmlFileStepProps) {
       </NumberedListItem>
 
       {buildTool !== undefined &&
-        buildTool !== BuildTools.CFamily &&
+        buildTool !== BuildTools.Cpp &&
+        buildTool !== BuildTools.ObjectiveC &&
         buildTool !== BuildTools.DotNet && (
           <NumberedListItem>
             <FormattedMessage
@@ -201,7 +204,7 @@ export function YmlFileStep(props: YmlFileStepProps) {
 
       {buildTool && (
         <>
-          {buildTool !== BuildTools.CFamily && (
+          {buildTool !== BuildTools.Cpp && buildTool !== BuildTools.ObjectiveC && (
             <NumberedListItem>
               <FormattedMessage
                 defaultMessage={translate('onboarding.tutorial.with.gitlab_ci.yaml.description')}

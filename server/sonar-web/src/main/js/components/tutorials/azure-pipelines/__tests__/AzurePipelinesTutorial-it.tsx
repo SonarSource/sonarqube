@@ -53,10 +53,10 @@ it('should render correctly and allow token generation', async () => {
     screen.getByRole('heading', { name: 'onboarding.tutorial.with.azure_pipelines.title' }),
   ).toBeInTheDocument();
 
-  //// Default step.
+  // Default step.
   assertDefaultStepIsCorrectlyRendered();
 
-  //// Token step.
+  // Token step.
   assertServiceEndpointStepIsCorrectlyRendered();
 
   // Generate a token.
@@ -73,36 +73,50 @@ it('should render correctly and allow token generation', async () => {
   ).toBeInTheDocument();
   await clickButton(user, 'continue', modal);
 
-  //// Analysis step: .NET
+  // Analysis step: .NET
   await user.click(getTutorialBuildButtons().dotnetBuildButton.get());
   assertDotNetStepIsCorrectlyRendered();
 
-  //// Analysis step: Maven
+  // Analysis step: Maven
   await user.click(getTutorialBuildButtons().mavenBuildButton.get());
   assertMavenStepIsCorrectlyRendered();
 
-  //// Analysis step: Gradle
+  // Analysis step: Gradle
   await user.click(getTutorialBuildButtons().gradleBuildButton.get());
   assertGradleStepIsCorrectlyRendered();
 
-  //// Analysis step: C Family
-  await user.click(getTutorialBuildButtons().cFamilyBuildButton.get());
+  // Analysis step: C Family
+  await user.click(getTutorialBuildButtons().cppBuildButton.get());
+  // Default: Automatic configuration
+  // expect linux/win/macos buttons not to be present
+  expect(getTutorialBuildButtons().linuxButton.query()).not.toBeInTheDocument();
+  expect(getTutorialBuildButtons().windowsButton.query()).not.toBeInTheDocument();
+  expect(getTutorialBuildButtons().macosButton.query()).not.toBeInTheDocument();
+  assertAutomaticCppStepIsCorrectlyRendered();
 
-  // OS's
+  // Switch to manual configuration
+  await user.click(getTutorialBuildButtons().autoConfigManual.get());
   await user.click(getTutorialBuildButtons().linuxButton.get());
-  assertCFamilyStepIsCorrectlyRendered(OSs.Linux);
-
+  assertManualCppStepIsCorrectlyRendered(OSs.Linux);
   await user.click(getTutorialBuildButtons().windowsButton.get());
-  assertCFamilyStepIsCorrectlyRendered(OSs.Windows);
-
+  assertObjCStepIsCorrectlyRendered(OSs.Windows);
   await user.click(getTutorialBuildButtons().macosButton.get());
-  assertCFamilyStepIsCorrectlyRendered(OSs.MacOS);
+  assertObjCStepIsCorrectlyRendered(OSs.MacOS);
 
-  //// Analysis step: Other
+  // Analysis step: C Family
+  await user.click(getTutorialBuildButtons().objCBuildButton.get());
+  await user.click(getTutorialBuildButtons().linuxButton.get());
+  assertObjCStepIsCorrectlyRendered(OSs.Linux);
+  await user.click(getTutorialBuildButtons().windowsButton.get());
+  assertObjCStepIsCorrectlyRendered(OSs.Windows);
+  await user.click(getTutorialBuildButtons().macosButton.get());
+  assertObjCStepIsCorrectlyRendered(OSs.MacOS);
+
+  // Analysis step: Other
   await user.click(getTutorialBuildButtons().otherBuildButton.get());
   assertOtherStepIsCorrectlyRendered();
 
-  //// Finish tutorial
+  // Finish tutorial
   assertFinishStepIsCorrectlyRendered();
 });
 
@@ -110,7 +124,7 @@ it('should not offer CFamily analysis if the language is not available', () => {
   renderAzurePipelinesTutorial(undefined, { languages: {} });
 
   expect(getTutorialBuildButtons().dotnetBuildButton.get()).toBeInTheDocument();
-  expect(getTutorialBuildButtons().cFamilyBuildButton.query()).not.toBeInTheDocument();
+  expect(getTutorialBuildButtons().cppBuildButton.query()).not.toBeInTheDocument();
 });
 
 function assertDefaultStepIsCorrectlyRendered() {
@@ -151,14 +165,29 @@ function assertGradleStepIsCorrectlyRendered() {
   expect(getCopyToClipboardValue(0, 'Copy')).toMatchSnapshot('gradle, copy additional properties');
 }
 
-function assertCFamilyStepIsCorrectlyRendered(os: string) {
-  expect(getCopyToClipboardValue(0, 'Copy')).toMatchSnapshot(`cfamily ${os}, copy shell script`);
+function assertObjCStepIsCorrectlyRendered(os: string) {
+  expect(getCopyToClipboardValue(0, 'Copy')).toMatchSnapshot(`objectivec ${os}, copy shell script`);
   expect(getCopyToClipboardValue(1, 'Copy to clipboard')).toBe('foo');
   expect(getCopyToClipboardValue(2, 'Copy to clipboard')).toMatchSnapshot(
-    `cfamily ${os}, copy additional properties`,
+    `objectivec ${os}, copy additional properties`,
   );
   expect(getCopyToClipboardValue(1, 'Copy')).toMatchSnapshot(
-    `cfamily ${os}, copy build-wrapper command`,
+    `objectivec ${os}, copy build-wrapper command`,
+  );
+}
+
+function assertAutomaticCppStepIsCorrectlyRendered() {
+  assertOtherStepIsCorrectlyRendered();
+}
+
+function assertManualCppStepIsCorrectlyRendered(os: string) {
+  expect(getCopyToClipboardValue(0, 'Copy')).toMatchSnapshot(`manual-cpp ${os}, copy shell script`);
+  expect(getCopyToClipboardValue(1, 'Copy to clipboard')).toBe('foo');
+  expect(getCopyToClipboardValue(2, 'Copy to clipboard')).toMatchSnapshot(
+    `manual-cpp ${os}, copy additional properties`,
+  );
+  expect(getCopyToClipboardValue(1, 'Copy')).toMatchSnapshot(
+    `manual-cpp ${os}, copy build-wrapper command`,
   );
 }
 

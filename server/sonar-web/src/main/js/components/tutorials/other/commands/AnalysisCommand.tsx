@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { Component } from '../../../../types/types';
-import { BuildTools, ManualTutorialConfig } from '../../types';
+import { AutoConfig, BuildTools, OSs, TutorialConfig } from '../../types';
 import ClangGCCCustom from './ClangGCCCommand';
 import DotNet from './DotNet';
 import JavaGradle from './JavaGradle';
@@ -29,19 +29,20 @@ import Other from './Other';
 export interface AnalysisCommandProps {
   baseUrl: string;
   component: Component;
+  config: TutorialConfig;
   isLocal: boolean;
-  languageConfig: ManualTutorialConfig;
+  os: OSs;
   token?: string;
 }
 
 export default function AnalysisCommand(props: AnalysisCommandProps) {
-  const { component, baseUrl, isLocal, languageConfig, token } = props;
+  const { config, os, component, baseUrl, isLocal, token } = props;
 
-  if (!token) {
+  if (typeof token === 'undefined') {
     return null;
   }
 
-  switch (languageConfig.buildTool) {
+  switch (config.buildTool) {
     case BuildTools.Maven:
       return <JavaMaven baseUrl={baseUrl} component={component} token={token} />;
 
@@ -51,27 +52,27 @@ export default function AnalysisCommand(props: AnalysisCommandProps) {
     case BuildTools.DotNet:
       return <DotNet baseUrl={baseUrl} component={component} token={token} />;
 
-    case BuildTools.CFamily:
-      return languageConfig.os !== undefined ? (
-        <ClangGCCCustom
-          os={languageConfig.os}
-          baseUrl={baseUrl}
-          component={component}
-          isLocal={isLocal}
-          token={token}
-        />
-      ) : null;
-
     case BuildTools.Other:
-      return languageConfig.os !== undefined ? (
-        <Other
+      return (
+        <Other baseUrl={baseUrl} os={os} component={component} isLocal={isLocal} token={token} />
+      );
+
+    case BuildTools.Cpp:
+    case BuildTools.ObjectiveC:
+      if (config.buildTool === BuildTools.Cpp && config.autoConfig === AutoConfig.Automatic) {
+        return (
+          <Other os={os} baseUrl={baseUrl} component={component} isLocal={isLocal} token={token} />
+        );
+      }
+      return (
+        <ClangGCCCustom
+          os={os}
           baseUrl={baseUrl}
-          os={languageConfig.os}
           component={component}
           isLocal={isLocal}
           token={token}
         />
-      ) : null;
+      );
 
     default:
       return null;

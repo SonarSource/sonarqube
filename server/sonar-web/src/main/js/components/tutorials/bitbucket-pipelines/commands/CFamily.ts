@@ -17,7 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export default function cFamilyExample(branchesEnabled: boolean, mainBranchName: string) {
+import { AutoConfig, BuildTools } from '../../types';
+import { BuildToolExampleBuilder } from '../AnalysisCommand';
+import othersExample from './Others';
+
+const cFamilyExample: BuildToolExampleBuilder = ({ config, branchesEnabled, mainBranchName }) => {
+  if (config.buildTool === BuildTools.Cpp && config.autoConfig === AutoConfig.Automatic) {
+    return othersExample({ config, branchesEnabled, mainBranchName });
+  }
   return `image: <image ready for your build toolchain>
 
 definitions:
@@ -53,4 +60,6 @@ ${
       - step: *build-step`
     : ''
 }`;
-}
+};
+
+export default cFamilyExample;

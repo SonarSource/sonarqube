@@ -26,13 +26,15 @@ import CreateYmlFile from '../../components/CreateYmlFile';
 import DefaultProjectKey from '../../components/DefaultProjectKey';
 import GithubCFamilyExampleRepositories from '../../components/GithubCFamilyExampleRepositories';
 import RenderOptions from '../../components/RenderOptions';
-import { OSs, TutorialModes } from '../../types';
+import { AutoConfig, BuildTools, OSs, TutorialConfig, TutorialModes } from '../../types';
 import { generateGitHubActionsYaml } from '../utils';
 import MonorepoDocLinkFallback from './MonorepoDocLinkFallback';
+import Others from './Others';
 
 export interface CFamilyProps {
   branchesEnabled?: boolean;
   component: Component;
+  config: TutorialConfig;
   mainBranchName: string;
   monorepo?: boolean;
 }
@@ -86,8 +88,12 @@ const STEPS = {
 };
 
 export default function CFamily(props: CFamilyProps) {
-  const { component, branchesEnabled, mainBranchName, monorepo } = props;
-  const [os, setOs] = React.useState<undefined | OSs>(OSs.Linux);
+  const { config, component, branchesEnabled, mainBranchName, monorepo } = props;
+  const [os, setOs] = React.useState<OSs>(OSs.Linux);
+
+  if (config.buildTool === BuildTools.Cpp && config.autoConfig === AutoConfig.Automatic) {
+    return <Others {...props} />;
+  }
 
   const runsOn = {
     [OSs.Linux]: 'ubuntu-latest',
@@ -106,33 +112,30 @@ export default function CFamily(props: CFamilyProps) {
           optionLabelKey="onboarding.build.other.os"
           options={Object.values(OSs)}
         />
-        {os && (
-          <GithubCFamilyExampleRepositories
-            className="sw-mt-4 sw-w-abs-600"
-            os={os}
-            ci={TutorialModes.GitHubActions}
-          />
-        )}
+        <GithubCFamilyExampleRepositories
+          className="sw-mt-4 sw-w-abs-600"
+          os={os}
+          ci={TutorialModes.GitHubActions}
+        />
       </NumberedListItem>
-      {os &&
-        (monorepo ? (
-          <MonorepoDocLinkFallback />
-        ) : (
-          <>
-            <CreateYmlFile
-              yamlFileName=".github/workflows/build.yml"
-              yamlTemplate={generateGitHubActionsYaml(
-                mainBranchName,
-                !!branchesEnabled,
-                runsOn[os],
-                STEPS[os],
-                `env:
+      {monorepo ? (
+        <MonorepoDocLinkFallback />
+      ) : (
+        <>
+          <CreateYmlFile
+            yamlFileName=".github/workflows/build.yml"
+            yamlTemplate={generateGitHubActionsYaml(
+              mainBranchName,
+              !!branchesEnabled,
+              runsOn[os],
+              STEPS[os],
+              `env:
       BUILD_WRAPPER_OUT_DIR: build_wrapper_output_directory # Directory where build-wrapper output will be placed`,
-              )}
-            />
-            <CompilationInfo />
-          </>
-        ))}
+            )}
+          />
+          <CompilationInfo />
+        </>
+      )}
     </>
   );
 }

@@ -22,7 +22,7 @@ import * as React from 'react';
 import { BuildTools } from '../../types';
 
 export interface PipeCommandProps {
-  buildTool: Exclude<BuildTools, BuildTools.CFamily>;
+  buildTool: Exclude<BuildTools, BuildTools.Cpp | BuildTools.ObjectiveC>;
   projectKey: string;
 }
 

@@ -27,7 +27,6 @@ export interface RenderOptionsProps {
   onCheck: (checked: string) => void;
   optionLabelKey: string;
   options: string[];
-  setDone?: (doneStatus: boolean) => void;
   titleLabelKey?: string;
 }
 
@@ -35,15 +34,11 @@ export default function RenderOptions({
   checked,
   label,
   onCheck,
-  setDone,
   optionLabelKey,
   options,
   titleLabelKey,
 }: RenderOptionsProps) {
   const onChange = (checked: string) => {
-    if (setDone) {
-      setDone(true);
-    }
     onCheck(checked);
   };
 

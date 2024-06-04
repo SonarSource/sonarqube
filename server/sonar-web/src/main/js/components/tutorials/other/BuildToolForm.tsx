@@ -17,97 +17,70 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { ToggleButton } from 'design-system';
 import * as React from 'react';
 import { translate } from '../../../helpers/l10n';
 import { withCLanguageFeature } from '../../hoc/withCLanguageFeature';
+import BuildConfigSelection from '../components/BuildConfigSelection';
 import GithubCFamilyExampleRepositories from '../components/GithubCFamilyExampleRepositories';
 import RenderOptions from '../components/RenderOptions';
-import { BuildTools, ManualTutorialConfig, OSs, TutorialModes } from '../types';
+import { BuildTools, OSs, TutorialConfig, TutorialModes } from '../types';
+import { shouldShowGithubCFamilyExampleRepositories } from '../utils';
 
 interface Props {
-  config?: ManualTutorialConfig;
+  config: TutorialConfig;
   hasCLanguageFeature: boolean;
-  onDone: (config: ManualTutorialConfig) => void;
+  os?: OSs;
+  setConfig: (config: TutorialConfig) => void;
+  setOs: (os: OSs) => void;
 }
 
-interface State {
-  config: ManualTutorialConfig;
-}
+export function BuildToolForm(props: Readonly<Props>) {
+  const { config, setConfig, os, setOs, hasCLanguageFeature } = props;
 
-export class BuildToolForm extends React.PureComponent<Props, State> {
-  constructor(props: Props) {
-    super(props);
-    this.state = {
-      config: this.props.config || {},
-    };
-  }
-
-  handleBuildToolChange = (buildTool: BuildTools) => {
-    const selectOsByDefault = (buildTool === BuildTools.CFamily ||
-      buildTool === BuildTools.Other) && {
+  function handleConfigChange(newConfig: TutorialConfig) {
+    const selectOsByDefault = (newConfig.buildTool === BuildTools.Cpp ||
+      newConfig.buildTool === BuildTools.ObjectiveC ||
+      newConfig.buildTool === BuildTools.Other) && {
       os: OSs.Linux,
     };
 
-    this.setState({ config: { buildTool, ...selectOsByDefault } }, () => {
-      this.props.onDone(this.state.config);
+    setConfig({
+      ...config,
+      ...newConfig,
+      ...selectOsByDefault,
     });
-  };
-
-  handleOSChange = (os: OSs) => {
-    this.setState(
-      ({ config }) => ({ config: { buildTool: config.buildTool, os } }),
-      () => {
-        this.props.onDone(this.state.config);
-      },
-    );
-  };
-
-  render() {
-    const { config } = this.state;
-    const { hasCLanguageFeature } = this.props;
-    const buildTools = [BuildTools.Maven, BuildTools.Gradle, BuildTools.DotNet];
-    if (hasCLanguageFeature) {
-      buildTools.push(BuildTools.CFamily);
-    }
-    buildTools.push(BuildTools.Other);
-
-    return (
-      <>
-        <div>
-          <label className="sw-block sw-mb-1">{translate('onboarding.build')}</label>
-          <ToggleButton
-            label={translate('onboarding.build')}
-            onChange={this.handleBuildToolChange}
-            options={buildTools.map((tool) => ({
-              label: translate('onboarding.build', tool),
-              value: tool,
-            }))}
-            value={config.buildTool}
-          />
-        </div>
-
-        {(config.buildTool === BuildTools.Other || config.buildTool === BuildTools.CFamily) && (
-          <RenderOptions
-            label={translate('onboarding.build.other.os')}
-            checked={config.os}
-            onCheck={this.handleOSChange}
-            optionLabelKey="onboarding.build.other.os"
-            options={[OSs.Linux, OSs.Windows, OSs.MacOS]}
-            titleLabelKey="onboarding.build.other.os"
-          />
-        )}
-
-        {config.buildTool === BuildTools.CFamily && config.os && (
-          <GithubCFamilyExampleRepositories
-            className="sw-mt-4 sw-w-abs-600"
-            os={config.os}
-            ci={TutorialModes.Local}
-          />
-        )}
-      </>
-    );
   }
+
+  return (
+    <>
+      {config && (
+        <BuildConfigSelection
+          ci={TutorialModes.OtherCI}
+          config={config}
+          supportCFamily={hasCLanguageFeature}
+          onSetConfig={handleConfigChange}
+        />
+      )}
+      {(config.buildTool === BuildTools.Other ||
+        config.buildTool === BuildTools.Cpp ||
+        config.buildTool === BuildTools.ObjectiveC) && (
+        <RenderOptions
+          label={translate('onboarding.build.other.os')}
+          checked={os}
+          onCheck={(value: OSs) => setOs(value)}
+          optionLabelKey="onboarding.build.other.os"
+          options={[OSs.Linux, OSs.Windows, OSs.MacOS]}
+          titleLabelKey="onboarding.build.other.os"
+        />
+      )}
+      {shouldShowGithubCFamilyExampleRepositories(config) && (
+        <GithubCFamilyExampleRepositories
+          ci={TutorialModes.OtherCI}
+          className="sw-my-4 sw-w-abs-600"
+        />
+      )}
+    </>
+  );
 }
 
 export default withCLanguageFeature(BuildToolForm);
