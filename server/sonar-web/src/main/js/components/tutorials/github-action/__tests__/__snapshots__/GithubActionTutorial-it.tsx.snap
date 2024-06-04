@@ -83,7 +83,7 @@ jobs:
           SONAR_TOKEN: \${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: \${{secrets.SONAR_HOST_URL}}
         run: |
-          sonar-scanner --define sonar.cfamily.build-wrapper-output="\${{ env.BUILD_WRAPPER_OUT_DIR }}""
+          sonar-scanner --define sonar.cfamily.compile-commands="\${{ env.BUILD_WRAPPER_OUT_DIR }}/compile_commands.json""
 `;
 
 exports[`should follow and complete all steps: CFamily MacOS: .github/workflows/build.yml 1`] = `
@@ -119,7 +119,7 @@ jobs:
           SONAR_TOKEN: \${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: \${{secrets.SONAR_HOST_URL}}
         run: |
-          sonar-scanner --define sonar.cfamily.build-wrapper-output="\${{ env.BUILD_WRAPPER_OUT_DIR }}""
+          sonar-scanner --define sonar.cfamily.compile-commands="\${{ env.BUILD_WRAPPER_OUT_DIR }}/compile_commands.json""
 `;
 
 exports[`should follow and complete all steps: CFamily Windows: .github/workflows/build.yml 1`] = `
@@ -155,7 +155,7 @@ jobs:
           SONAR_TOKEN: \${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: \${{secrets.SONAR_HOST_URL}}
         run: |
-          sonar-scanner --define sonar.cfamily.build-wrapper-output="\${{ env.BUILD_WRAPPER_OUT_DIR }}""
+          sonar-scanner --define sonar.cfamily.compile-commands="\${{ env.BUILD_WRAPPER_OUT_DIR }}/compile_commands.json""
 `;
 
 exports[`should follow and complete all steps: CFamily: sonar-project.properties 1`] = `"sonar.projectKey=my-project"`;

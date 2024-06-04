@@ -34,7 +34,7 @@ definitions:
           - export PATH="$PATH:$HOME/.sonar/sonar-scanner-\${SONAR_SCANNER_VERSION}-linux/bin"
           - <any step required before running your build, like ./configure>
           - $HOME/.sonar/build-wrapper-linux-x86/build-wrapper-linux-x86-64 --out-dir bw-output <your clean build command>
-          - sonar-scanner -Dsonar.cfamily.build-wrapper-output=bw-output  
+          - sonar-scanner -Dsonar.cfamily.compile-commands=bw-output/compile_commands.json  
   caches:
     sonar: ~/.sonar
 

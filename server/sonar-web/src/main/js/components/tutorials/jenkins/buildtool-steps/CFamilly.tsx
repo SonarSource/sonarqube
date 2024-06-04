@@ -45,7 +45,7 @@ const YAML_MAP: Record<OSs, (baseUrl: string) => string> = {
   stage('SonarQube Analysis') {
     def scannerHome = tool 'SonarScanner';
     withSonarQubeEnv() {
-      sh "\${scannerHome}/bin/sonar-scanner -Dsonar.cfamily.build-wrapper-output=bw-output"
+      sh "\${scannerHome}/bin/sonar-scanner -Dsonar.cfamily.compile-commands=bw-output/compile_commands.json"
     }
   }
 }`,
@@ -68,7 +68,7 @@ const YAML_MAP: Record<OSs, (baseUrl: string) => string> = {
   stage('SonarQube Analysis') {
     def scannerHome = tool 'SonarScanner';
     withSonarQubeEnv() {
-      sh "\${scannerHome}/bin/sonar-scanner -Dsonar.cfamily.build-wrapper-output=bw-output"
+      sh "\${scannerHome}/bin/sonar-scanner -Dsonar.cfamily.compile-commands=bw-output/compile_commands.json"
     }
   }
 }`,
@@ -97,7 +97,7 @@ const YAML_MAP: Record<OSs, (baseUrl: string) => string> = {
   stage('SonarQube Analysis') {
     def scannerHome = tool 'SonarScanner';
     withSonarQubeEnv() {
-      powershell "\${scannerHome}/bin/sonar-scanner -Dsonar.cfamily.build-wrapper-output=bw-output"
+      powershell "\${scannerHome}/bin/sonar-scanner -Dsonar.cfamily.compile-commands=bw-output/compile_commands.json"
     }
   }
 }`,

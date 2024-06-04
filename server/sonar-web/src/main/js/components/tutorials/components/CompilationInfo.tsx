@@ -48,19 +48,6 @@ export function CompilationInfo({ className = 'sw-my-2' }: CompilationInfoProps)
             }}
           />
         </p>
-        <p>
-          <FormattedMessage
-            id="onboarding.tutorial.cfamilly.speed_caching"
-            defaultMessage={translate('onboarding.tutorial.cfamilly.speed_caching')}
-            values={{
-              link: (
-                <Link to={docUrl(DocLink.CFamilyAnalysisCache)}>
-                  {translate('onboarding.tutorial.cfamilly.speed_caching.link')}
-                </Link>
-              ),
-            }}
-          />
-        </p>
       </div>
     </FlagMessage>
   );

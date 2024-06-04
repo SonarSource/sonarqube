@@ -41,7 +41,7 @@ export interface PrepareAnalysisCommandProps {
 export default function PrepareAnalysisCommand(props: PrepareAnalysisCommandProps) {
   const { buildTool, kind, projectKey, projectName } = props;
 
-  const ADDITIONAL_PROPERTY = 'sonar.cfamily.build-wrapper-output=bw-output';
+  const ADDITIONAL_PROPERTY = 'sonar.cfamily.compile-commands=bw-output/compile_commands.json';
 
   const MAVEN_GRADLE_PROPS_SNIPPET = `# Additional properties that will be passed to the scanner,
 # Put one key=value per line, example:

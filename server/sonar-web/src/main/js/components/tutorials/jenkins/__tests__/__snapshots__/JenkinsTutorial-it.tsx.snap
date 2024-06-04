@@ -42,7 +42,7 @@ exports[`bitbucket: can select devops platform and complete all the steps with c
   stage('SonarQube Analysis') {
     def scannerHome = tool 'SonarScanner';
     withSonarQubeEnv() {
-      sh "\${scannerHome}/bin/sonar-scanner -Dsonar.cfamily.build-wrapper-output=bw-output"
+      sh "\${scannerHome}/bin/sonar-scanner -Dsonar.cfamily.compile-commands=bw-output/compile_commands.json"
     }
   }
 }"
@@ -68,7 +68,7 @@ exports[`bitbucket: can select devops platform and complete all the steps with c
   stage('SonarQube Analysis') {
     def scannerHome = tool 'SonarScanner';
     withSonarQubeEnv() {
-      sh "\${scannerHome}/bin/sonar-scanner -Dsonar.cfamily.build-wrapper-output=bw-output"
+      sh "\${scannerHome}/bin/sonar-scanner -Dsonar.cfamily.compile-commands=bw-output/compile_commands.json"
     }
   }
 }"
@@ -100,7 +100,7 @@ exports[`bitbucket: can select devops platform and complete all the steps with c
   stage('SonarQube Analysis') {
     def scannerHome = tool 'SonarScanner';
     withSonarQubeEnv() {
-      powershell "\${scannerHome}/bin/sonar-scanner -Dsonar.cfamily.build-wrapper-output=bw-output"
+      powershell "\${scannerHome}/bin/sonar-scanner -Dsonar.cfamily.compile-commands=bw-output/compile_commands.json"
     }
   }
 }"
@@ -249,7 +249,7 @@ exports[`bitbucketcloud: can select devops platform and complete all the steps w
   stage('SonarQube Analysis') {
     def scannerHome = tool 'SonarScanner';
     withSonarQubeEnv() {
-      sh "\${scannerHome}/bin/sonar-scanner -Dsonar.cfamily.build-wrapper-output=bw-output"
+      sh "\${scannerHome}/bin/sonar-scanner -Dsonar.cfamily.compile-commands=bw-output/compile_commands.json"
     }
   }
 }"
@@ -275,7 +275,7 @@ exports[`bitbucketcloud: can select devops platform and complete all the steps w
   stage('SonarQube Analysis') {
     def scannerHome = tool 'SonarScanner';
     withSonarQubeEnv() {
-      sh "\${scannerHome}/bin/sonar-scanner -Dsonar.cfamily.build-wrapper-output=bw-output"
+      sh "\${scannerHome}/bin/sonar-scanner -Dsonar.cfamily.compile-commands=bw-output/compile_commands.json"
     }
   }
 }"
@@ -307,7 +307,7 @@ exports[`bitbucketcloud: can select devops platform and complete all the steps w
   stage('SonarQube Analysis') {
     def scannerHome = tool 'SonarScanner';
     withSonarQubeEnv() {
-      powershell "\${scannerHome}/bin/sonar-scanner -Dsonar.cfamily.build-wrapper-output=bw-output"
+      powershell "\${scannerHome}/bin/sonar-scanner -Dsonar.cfamily.compile-commands=bw-output/compile_commands.json"
     }
   }
 }"
@@ -456,7 +456,7 @@ exports[`github: can select devops platform and complete all the steps with copy
   stage('SonarQube Analysis') {
     def scannerHome = tool 'SonarScanner';
     withSonarQubeEnv() {
-      sh "\${scannerHome}/bin/sonar-scanner -Dsonar.cfamily.build-wrapper-output=bw-output"
+      sh "\${scannerHome}/bin/sonar-scanner -Dsonar.cfamily.compile-commands=bw-output/compile_commands.json"
     }
   }
 }"
@@ -482,7 +482,7 @@ exports[`github: can select devops platform and complete all the steps with copy
   stage('SonarQube Analysis') {
     def scannerHome = tool 'SonarScanner';
     withSonarQubeEnv() {
-      sh "\${scannerHome}/bin/sonar-scanner -Dsonar.cfamily.build-wrapper-output=bw-output"
+      sh "\${scannerHome}/bin/sonar-scanner -Dsonar.cfamily.compile-commands=bw-output/compile_commands.json"
     }
   }
 }"
@@ -514,7 +514,7 @@ exports[`github: can select devops platform and complete all the steps with copy
   stage('SonarQube Analysis') {
     def scannerHome = tool 'SonarScanner';
     withSonarQubeEnv() {
-      powershell "\${scannerHome}/bin/sonar-scanner -Dsonar.cfamily.build-wrapper-output=bw-output"
+      powershell "\${scannerHome}/bin/sonar-scanner -Dsonar.cfamily.compile-commands=bw-output/compile_commands.json"
     }
   }
 }"
@@ -663,7 +663,7 @@ exports[`gitlab: can select devops platform and complete all the steps with copy
   stage('SonarQube Analysis') {
     def scannerHome = tool 'SonarScanner';
     withSonarQubeEnv() {
-      sh "\${scannerHome}/bin/sonar-scanner -Dsonar.cfamily.build-wrapper-output=bw-output"
+      sh "\${scannerHome}/bin/sonar-scanner -Dsonar.cfamily.compile-commands=bw-output/compile_commands.json"
     }
   }
 }"
@@ -689,7 +689,7 @@ exports[`gitlab: can select devops platform and complete all the steps with copy
   stage('SonarQube Analysis') {
     def scannerHome = tool 'SonarScanner';
     withSonarQubeEnv() {
-      sh "\${scannerHome}/bin/sonar-scanner -Dsonar.cfamily.build-wrapper-output=bw-output"
+      sh "\${scannerHome}/bin/sonar-scanner -Dsonar.cfamily.compile-commands=bw-output/compile_commands.json"
     }
   }
 }"
@@ -721,7 +721,7 @@ exports[`gitlab: can select devops platform and complete all the steps with copy
   stage('SonarQube Analysis') {
     def scannerHome = tool 'SonarScanner';
     withSonarQubeEnv() {
-      powershell "\${scannerHome}/bin/sonar-scanner -Dsonar.cfamily.build-wrapper-output=bw-output"
+      powershell "\${scannerHome}/bin/sonar-scanner -Dsonar.cfamily.compile-commands=bw-output/compile_commands.json"
     }
   }
 }"

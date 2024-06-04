@@ -49,7 +49,9 @@ export default function ExecScanner(props: ExecScannerProps) {
     os === OSs.Windows ? 'sonar-scanner.bat' : 'sonar-scanner',
     '-D' + q(`sonar.projectKey=${component.key}`),
     '-D' + q('sonar.sources=.'),
-    cfamily ? '-D' + q('sonar.cfamily.build-wrapper-output=bw-output') : undefined,
+    cfamily
+      ? '-D' + q('sonar.cfamily.compile-commands=bw-output/compile_commands.json')
+      : undefined,
     '-D' + q(`sonar.host.url=${baseUrl}`),
     isLocal ? '-D' + q(`sonar.token=${token}`) : undefined,
   ];

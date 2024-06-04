@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`should render correctly and allow token generation: cfamily linux, copy additional properties 1`] = `"sonar.cfamily.build-wrapper-output=bw-output"`;
+exports[`should render correctly and allow token generation: cfamily linux, copy additional properties 1`] = `"sonar.cfamily.compile-commands=bw-output/compile_commands.json"`;
 
 exports[`should render correctly and allow token generation: cfamily linux, copy build-wrapper command 1`] = `"./build-wrapper-linux-x86/build-wrapper-linux-x86-64 --out-dir bw-output <your build command here>"`;
 
@@ -9,7 +9,7 @@ exports[`should render correctly and allow token generation: cfamily linux, copy
 unzip build-wrapper.zip"
 `;
 
-exports[`should render correctly and allow token generation: cfamily mac, copy additional properties 1`] = `"sonar.cfamily.build-wrapper-output=bw-output"`;
+exports[`should render correctly and allow token generation: cfamily mac, copy additional properties 1`] = `"sonar.cfamily.compile-commands=bw-output/compile_commands.json"`;
 
 exports[`should render correctly and allow token generation: cfamily mac, copy build-wrapper command 1`] = `"./build-wrapper-macosx-x86/build-wrapper-macosx-x86 --out-dir bw-output <your build command here>"`;
 
@@ -18,7 +18,7 @@ exports[`should render correctly and allow token generation: cfamily mac, copy s
 unzip build-wrapper.zip"
 `;
 
-exports[`should render correctly and allow token generation: cfamily win, copy additional properties 1`] = `"sonar.cfamily.build-wrapper-output=bw-output"`;
+exports[`should render correctly and allow token generation: cfamily win, copy additional properties 1`] = `"sonar.cfamily.compile-commands=bw-output/compile_commands.json"`;
 
 exports[`should render correctly and allow token generation: cfamily win, copy build-wrapper command 1`] = `"build-wrapper-win-x86/build-wrapper-win-x86-64.exe --out-dir bw-output <your build command here>"`;
 
