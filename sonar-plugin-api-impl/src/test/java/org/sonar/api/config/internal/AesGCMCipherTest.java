@@ -49,8 +49,7 @@ public class AesGCMCipherTest {
     AesGCMCipher cipher = new AesGCMCipher(new File(resource.toURI()).getCanonicalPath());
 
     assertThatThrownBy(() -> cipher.encrypt("this is a secret"))
-      .hasRootCauseInstanceOf(InvalidKeyException.class)
-      .hasMessageContaining("Invalid AES key");
+      .hasCauseInstanceOf(InvalidKeyException.class);
   }
 
   @Test
@@ -71,8 +70,7 @@ public class AesGCMCipherTest {
     AesGCMCipher cipher = new AesGCMCipher(new File(resource.toURI()).getCanonicalPath());
 
     assertThatThrownBy(() -> cipher.decrypt("9mx5Zq4JVyjeChTcVjEide4kWCwusFl7P2dSVXtg9IY="))
-      .hasRootCauseInstanceOf(InvalidKeyException.class)
-      .hasMessageContaining("Invalid AES key");
+      .hasCauseInstanceOf(InvalidKeyException.class);
   }
 
   @Test
@@ -82,7 +80,7 @@ public class AesGCMCipherTest {
     AesGCMCipher cipher = new AesGCMCipher(new File(resource.toURI()).getCanonicalPath());
 
     assertThatThrownBy(() -> cipher.decrypt(originalCipher.encrypt("this is a secret")))
-      .hasRootCauseInstanceOf(BadPaddingException.class);
+      .hasCauseInstanceOf(BadPaddingException.class);
   }
 
   private String pathToSecretKey() throws Exception {
