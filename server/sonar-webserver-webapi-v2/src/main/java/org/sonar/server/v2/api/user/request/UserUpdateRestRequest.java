@@ -76,11 +76,11 @@ public class UserUpdateRestRequest {
     this.scmAccounts = UpdateField.withValue(scmAccounts);
   }
 
-  @Schema(implementation = String.class, description = "New external provider. Only authentication system installed are available. " +
-    "Use 'LDAP' identity provider for single server LDAP setup. " +
-    "Use 'LDAP_{serverKey}' identity provider for multiple LDAP servers setup. " +
-    "Warning: when this information has been updated for a user, the user will only be able to authenticate via the new identity provider. " +
-    "It is not possible to migrate external user to local one.")
+  @Schema(implementation = String.class, description = """
+    New identity provider. Only providers configured in your platform are supported. This could be: github, gitlab, bitbucket, saml, LDAP, LDAP_{serverKey}
+    (according to your server configuration file).
+    Warning: when this is updated, the user will only be able to authenticate using the new identity provider. Also, it is not possible to remove the identity provider of a user.
+    """)
   public UpdateField<String> getExternalProvider() {
     return externalProvider;
   }
