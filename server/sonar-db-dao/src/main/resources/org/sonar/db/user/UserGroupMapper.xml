@@ -42,13 +42,13 @@
      <where>
         1=1
         <if test="query.uuid != null">
-            AND gu.uuid='${query.uuid}'
+            AND gu.uuid=#{query.uuid, jdbcType=VARCHAR}
         </if>
         <if test="query.userUuid != null">
-            AND gu.user_uuid='${query.userUuid}'
+            AND gu.user_uuid=#{query.userUuid, jdbcType=VARCHAR}
         </if>
         <if test="query.groupUuid != null">
-            AND gu.group_uuid='${query.groupUuid}'
+            AND gu.group_uuid=#{query.groupUuid, jdbcType=VARCHAR}
         </if>
     </where>
   </sql>
