@@ -160,7 +160,7 @@ class RuleActivatorIT {
   }
 
   @Test
-  public void set_severity_and_param_for_child_rule_when_activating() {
+  void set_severity_and_param_for_child_rule_when_activating() {
     RuleDto rule = db.rules().insert(r -> r.setLanguage("xoo").setSeverity(Severity.BLOCKER));
     RuleParamDto ruleParam = db.rules().insertRuleParam(rule, p -> p.setName("min").setDefaultValue("10"));
 
