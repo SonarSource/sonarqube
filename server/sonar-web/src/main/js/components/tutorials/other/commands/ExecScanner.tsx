@@ -31,12 +31,12 @@ import { quote } from '../../utils';
 import DoneNextSteps from '../DoneNextSteps';
 
 export interface ExecScannerProps {
-  component: Component;
   baseUrl: string;
+  cfamily?: boolean;
+  component: Component;
   isLocal: boolean;
   os: OSs;
   token: string;
-  cfamily?: boolean;
 }
 
 export default function ExecScanner(props: ExecScannerProps) {

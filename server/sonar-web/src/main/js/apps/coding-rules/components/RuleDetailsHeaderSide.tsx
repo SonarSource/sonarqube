@@ -55,8 +55,8 @@ export default function RuleDetailsHeaderSide({ ruleDetails }: Readonly<Props>) 
 
 interface RuleHeaderMetaItemProps {
   children: React.ReactNode;
-  title: string;
   className?: string;
+  title: string;
 }
 
 function RuleHeaderInfo({ children, title, ...props }: Readonly<RuleHeaderMetaItemProps>) {

@@ -28,8 +28,8 @@ interface Props {
   component: string;
   componentName?: string;
   favorite: boolean;
-  qualifier: string;
   handleFavorite?: (component: string, isFavorite: boolean) => void;
+  qualifier: string;
 }
 
 interface State {

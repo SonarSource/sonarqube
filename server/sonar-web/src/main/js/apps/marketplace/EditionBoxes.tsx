@@ -30,8 +30,8 @@ export interface Props {
 }
 
 interface State {
-  serverId?: string;
   ncloc?: number;
+  serverId?: string;
 }
 
 export default class EditionBoxes extends React.PureComponent<Props, State> {

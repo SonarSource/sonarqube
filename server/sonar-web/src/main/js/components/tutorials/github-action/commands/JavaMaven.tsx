@@ -26,9 +26,9 @@ import MonorepoDocLinkFallback from './MonorepoDocLinkFallback';
 
 export interface JavaMavenProps {
   branchesEnabled?: boolean;
+  component: Component;
   mainBranchName: string;
   monorepo?: boolean;
-  component: Component;
 }
 
 function mavenYamlSteps(projectKey: string, projectName: string) {

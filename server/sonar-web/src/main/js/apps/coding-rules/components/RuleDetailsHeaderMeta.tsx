@@ -28,8 +28,8 @@ import { Dict, RuleDetails } from '../../../types/types';
 const EXTERNAL_RULE_REPO_PREFIX = 'external_';
 
 interface Props {
-  ruleDetails: RuleDetails;
   referencedRepositories: Dict<{ key: string; language: string; name: string }>;
+  ruleDetails: RuleDetails;
 }
 
 export default function RuleDetailsHeaderMeta(props: Readonly<Props>) {

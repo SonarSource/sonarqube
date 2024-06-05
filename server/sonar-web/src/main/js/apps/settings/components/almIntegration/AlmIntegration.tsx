@@ -52,8 +52,8 @@ export type AlmTabs = AlmKeys.Azure | AlmKeys.GitHub | AlmKeys.GitLab | AlmKeys.
 interface State {
   currentAlmTab: AlmTabs;
   definitionKeyForDeletion?: string;
-  definitions: AlmSettingsBindingDefinitions;
   definitionStatus: Dict<AlmSettingsBindingStatus>;
+  definitions: AlmSettingsBindingDefinitions;
   loadingAlmDefinitions: boolean;
   loadingProjectCount: boolean;
   projectCount?: number;

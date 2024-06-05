@@ -29,12 +29,12 @@ import BitbucketRepositories from './BitbucketRepositories';
 import BitbucketSearchResults from './BitbucketSearchResults';
 
 export interface BitbucketImportRepositoryFormProps {
-  onSearch: (query: string) => void;
   onImportRepository: (repo: BitbucketRepository) => void;
-  projects?: BitbucketProject[];
+  onSearch: (query: string) => void;
   projectRepositories?: Dict<BitbucketRepository[]>;
-  searching: boolean;
+  projects?: BitbucketProject[];
   searchResults?: BitbucketRepository[];
+  searching: boolean;
 }
 
 export default function BitbucketImportRepositoryForm(props: BitbucketImportRepositoryFormProps) {

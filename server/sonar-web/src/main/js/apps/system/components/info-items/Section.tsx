@@ -24,8 +24,8 @@ import { SysInfoValueObject } from '../../../../types/types';
 import SysInfoItem from './SysInfoItem';
 
 interface Props {
-  name?: string;
   items: SysInfoValueObject;
+  name?: string;
 }
 
 const COLUMNS = ['0', 'auto'];

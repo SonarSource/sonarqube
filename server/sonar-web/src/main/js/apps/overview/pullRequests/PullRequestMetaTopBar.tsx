@@ -30,8 +30,8 @@ import { MeasureEnhanced } from '../../../types/types';
 import LastAnalysisLabel from '../components/LastAnalysisLabel';
 
 interface Props {
-  pullRequest: PullRequest;
   measures: MeasureEnhanced[];
+  pullRequest: PullRequest;
 }
 
 export default function PullRequestMetaTopBar({ pullRequest, measures }: Readonly<Props>) {

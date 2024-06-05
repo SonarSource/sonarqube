@@ -31,12 +31,13 @@ export enum SelectListFilter {
 
 type Props = {
   allowBulkSelection?: boolean;
+  autoFocusSearch?: boolean;
+  disabledElements?: string[];
   elements: string[];
   elementsTotalCount?: number;
-  disabledElements?: string[];
+  labelAll?: string;
   labelSelected?: string;
   labelUnselected?: string;
-  labelAll?: string;
   needToReload?: boolean;
   onSelect: (element: string) => Promise<void>;
   onUnselect: (element: string) => Promise<void>;
@@ -45,11 +46,10 @@ type Props = {
   renderElement: (element: string) => React.ReactNode;
   selectedElements: string[];
   withPaging?: boolean;
-  autoFocusSearch?: boolean;
 } & (
   | {
-      onSearch: (searchParams: SelectListSearchParams) => Promise<void>;
       loading?: never;
+      onSearch: (searchParams: SelectListSearchParams) => Promise<void>;
     }
   | {
       loading: boolean;

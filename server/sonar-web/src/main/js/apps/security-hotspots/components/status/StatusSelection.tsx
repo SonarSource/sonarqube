@@ -28,8 +28,8 @@ import StatusSelectionRenderer from './StatusSelectionRenderer';
 
 interface Props {
   hotspot: Hotspot;
-  onStatusOptionChange: (statusOption: HotspotStatusOption) => Promise<void>;
   onClose: () => void;
+  onStatusOptionChange: (statusOption: HotspotStatusOption) => Promise<void>;
 }
 
 export default function StatusSelection(props: Props) {

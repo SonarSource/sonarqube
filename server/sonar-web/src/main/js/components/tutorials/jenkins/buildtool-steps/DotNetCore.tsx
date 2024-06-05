@@ -24,7 +24,7 @@ import { OSs } from '../../types';
 import { DotNetCoreFrameworkProps, OSDotNet } from './DotNet';
 import DotNetPrereqsScanner from './DotNetPrereqsScanner';
 
-const OSS_DEP: { [key in OSDotNet]: { shell: string; pathSeparator: string } } = {
+const OSS_DEP: { [key in OSDotNet]: { pathSeparator: string; shell: string } } = {
   [OSs.Linux]: { shell: 'sh', pathSeparator: '/' },
   [OSs.Windows]: { shell: 'bat', pathSeparator: '\\\\' },
 };

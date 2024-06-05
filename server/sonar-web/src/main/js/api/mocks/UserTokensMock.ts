@@ -59,11 +59,11 @@ export default class UserTokensMock {
     projectKey,
     expirationDate,
   }: {
-    name: string;
-    login: string;
-    type: TokenType;
-    projectKey: string;
     expirationDate?: string;
+    login: string;
+    name: string;
+    projectKey: string;
+    type: TokenType;
   }) => {
     if (this.failGeneration) {
       this.failGeneration = false;
@@ -90,7 +90,7 @@ export default class UserTokensMock {
     return Promise.resolve(token);
   };
 
-  handleRevokeToken = ({ name }: { name: string; login?: string }) => {
+  handleRevokeToken = ({ name }: { login?: string; name: string }) => {
     this.tokens = this.tokens.filter((t) => t.name !== name);
 
     return Promise.resolve();

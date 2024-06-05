@@ -102,7 +102,7 @@ export function createSnippets(params: {
       const startIndex = Math.max(1, loc.textRange.startLine - LINES_ABOVE);
       const endIndex = addLinesBellow({ issue, locationEnd: loc.textRange.endLine });
 
-      let firstCollision: { start: number; end: number } | undefined;
+      let firstCollision: { end: number; start: number } | undefined;
 
       // Remove ranges that collide into the first collision
       snippets = snippets.filter((snippet) => {

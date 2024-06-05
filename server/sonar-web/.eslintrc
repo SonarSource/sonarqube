@@ -1,6 +1,6 @@
 {
   "extends": "sonarqube",
-  "plugins": ["header", "eslint-plugin-local-rules"],
+  "plugins": ["header", "typescript-sort-keys", "eslint-plugin-local-rules"],
   "ignorePatterns": ["eslint-local-rules/**/*"],
   "root": true,
   "parserOptions": {
@@ -48,6 +48,7 @@
     ],
     "react/jsx-curly-brace-presence": "warn",
     "testing-library/render-result-naming-convention": "off",
+    "typescript-sort-keys/interface": "error",
     /* Local rules, defined in ./eslint-local-rules/ */
     "local-rules/use-componentqualifier-enum": "warn",
     "local-rules/use-metrickey-enum": "warn",

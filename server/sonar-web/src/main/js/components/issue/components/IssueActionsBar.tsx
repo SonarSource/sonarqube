@@ -27,14 +27,14 @@ import IssueTransition from './IssueTransition';
 import SonarLintBadge from './SonarLintBadge';
 
 interface Props {
-  issue: Issue;
+  canSetTags?: boolean;
   currentPopup?: string;
+  issue: Issue;
   onAssign: (login: string) => void;
   onChange: (issue: Issue) => void;
-  togglePopup: (popup: string, show?: boolean) => void;
   showSonarLintBadge?: boolean;
   showTags?: boolean;
-  canSetTags?: boolean;
+  togglePopup: (popup: string, show?: boolean) => void;
 }
 
 export default function IssueActionsBar(props: Readonly<Props>) {

@@ -18,23 +18,23 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 export interface Plugin {
-  key: string;
-  name: string;
   category?: string;
   description?: string;
   editionBundled?: boolean;
-  license?: string;
-  organizationName?: string;
   homepageUrl?: string;
-  organizationUrl?: string;
   issueTrackerUrl?: string;
+  key: string;
+  license?: string;
+  name: string;
+  organizationName?: string;
+  organizationUrl?: string;
   termsAndConditionsUrl?: string;
 }
 
 export interface PendingPluginResult {
   installing: PendingPlugin[];
-  updating: PendingPlugin[];
   removing: PendingPlugin[];
+  updating: PendingPlugin[];
 }
 
 export interface AvailablePlugin extends Plugin {
@@ -43,32 +43,32 @@ export interface AvailablePlugin extends Plugin {
 }
 
 export interface PendingPlugin extends Plugin {
-  version: string;
   implementationBuild: string;
+  version: string;
 }
 
 export interface InstalledPlugin extends PendingPlugin {
   documentationPath?: string;
-  issueTrackerUrl?: string;
   filename: string;
   hash: string;
+  issueTrackerUrl?: string;
   sonarLintSupported: boolean;
   updatedAt: number;
   updates?: Update[];
 }
 
 export interface Release {
-  version: string;
+  changeLogUrl?: string;
   date: string;
   description?: string;
-  changeLogUrl?: string;
+  version: string;
 }
 
 export interface Update {
-  status: string;
+  previousUpdates?: Update[];
   release?: Release;
   requires: Plugin[];
-  previousUpdates?: Update[];
+  status: string;
 }
 
 export enum PluginType {

@@ -40,21 +40,21 @@ export interface Actions {
 
 export interface Profile {
   actions?: ProfileActions;
+  activeDeprecatedRuleCount: number;
+  activeRuleCount: number;
+  isBuiltIn?: boolean;
+  isDefault?: boolean;
+  isInherited?: boolean;
   key: string;
-  name: string;
   language: string;
   languageName: string;
-  isInherited?: boolean;
+  lastUsed?: string;
+  name: string;
   parentKey?: string;
   parentName?: string;
-  isDefault?: boolean;
-  activeRuleCount: number;
-  activeDeprecatedRuleCount: number;
-  rulesUpdatedAt?: string;
-  lastUsed?: string;
-  userUpdatedAt?: string;
-  isBuiltIn?: boolean;
   projectCount?: number;
+  rulesUpdatedAt?: string;
+  userUpdatedAt?: string;
 }
 
 export interface SearchQualityProfilesParameters {
@@ -190,25 +190,25 @@ export function getProfileChangelog(
 }
 
 export interface RuleCompare {
-  key: string;
-  name: string;
   cleanCodeAttributeCategory?: CleanCodeAttributeCategory;
   impacts: SoftwareImpact[];
+  key: string;
   left?: { params: Dict<string>; severity: string };
+  name: string;
   right?: { params: Dict<string>; severity: string };
 }
 
 export interface CompareResponse {
-  left: { name: string };
-  right: { name: string };
   inLeft: Array<RuleCompare>;
   inRight: Array<RuleCompare>;
+  left: { name: string };
   modified: Array<
     RuleCompare & {
       left: { params: Dict<string>; severity: string };
       right: { params: Dict<string>; severity: string };
     }
   >;
+  right: { name: string };
 }
 
 export function compareProfiles(leftKey: string, rightKey: string): Promise<CompareResponse> {
@@ -233,14 +233,14 @@ export function dissociateProject({ language, name: qualityProfile }: Profile, p
 
 export interface SearchUsersGroupsParameters {
   language: string;
-  qualityProfile: string;
   q?: string;
+  qualityProfile: string;
   selected?: 'all' | 'selected' | 'deselected';
 }
 
 interface SearchUsersResponse {
-  users: UserSelected[];
   paging: Paging;
+  users: UserSelected[];
 }
 
 export function searchUsers(parameters: SearchUsersGroupsParameters): Promise<SearchUsersResponse> {
@@ -320,10 +320,10 @@ export function bulkDeactivateRules(data: BulkActivateParameters) {
 export interface ActivateRuleParameters {
   key: string;
   params?: Dict<string>;
+  prioritizedRule?: boolean;
   reset?: boolean;
   rule: string;
   severity?: string;
-  prioritizedRule?: boolean;
 }
 
 export function activateRule(data: ActivateRuleParameters) {

@@ -29,9 +29,9 @@ import QualityGateStatus from './QualityGateStatus';
 
 export interface MenuItemProps {
   branchLike: BranchLike;
+  indent: boolean;
   onSelect: (branchLike: BranchLike) => void;
   selected: boolean;
-  indent: boolean;
   setSelectedNode?: (node: HTMLLIElement) => void;
 }
 

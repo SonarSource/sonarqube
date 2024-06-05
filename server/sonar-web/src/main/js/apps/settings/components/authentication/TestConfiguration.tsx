@@ -25,11 +25,11 @@ import { translate } from '../../../../helpers/l10n';
 const intlPrefix = 'settings.authentication.configuration';
 
 interface Props {
-  loading: boolean;
-  onTestConf: () => void;
-  flagMessageVariant: Variant;
   flagMessageContent: React.ReactNode;
   flagMessageTitle: string;
+  flagMessageVariant: Variant;
+  loading: boolean;
+  onTestConf: () => void;
 }
 
 export default function GitLabConfigurationValidity(props: Readonly<Props>) {

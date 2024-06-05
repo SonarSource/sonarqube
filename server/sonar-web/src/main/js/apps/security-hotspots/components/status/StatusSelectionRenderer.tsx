@@ -24,13 +24,13 @@ import { translate } from '../../../../helpers/l10n';
 import { HotspotStatusOption } from '../../../../types/security-hotspots';
 
 export interface StatusSelectionRendererProps {
-  status: HotspotStatusOption;
-  onStatusChange: (statusOption: HotspotStatusOption) => void;
   comment?: string;
-  onCommentChange: (comment: string) => void;
-  onCancel: () => void;
-  onSubmit: () => Promise<void>;
   loading: boolean;
+  onCancel: () => void;
+  onCommentChange: (comment: string) => void;
+  onStatusChange: (statusOption: HotspotStatusOption) => void;
+  onSubmit: () => Promise<void>;
+  status: HotspotStatusOption;
   submitDisabled: boolean;
 }
 

@@ -63,8 +63,8 @@ export function useUpdateGitLabConfigurationMutation() {
       id,
       data,
     }: {
-      id: Parameters<typeof updateGitLabConfiguration>[0];
       data: Parameters<typeof updateGitLabConfiguration>[1];
+      id: Parameters<typeof updateGitLabConfiguration>[0];
     }) => updateGitLabConfiguration(id, data),
     onSuccess(data) {
       client.invalidateQueries({ queryKey: ['identity_provider', 'users_and_groups_provider'] });

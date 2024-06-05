@@ -54,15 +54,15 @@ const PAGE_SIZE = 500;
 
 interface Props {
   branchLike?: BranchLike;
-  currentUser: CurrentUser;
   component: Component;
+  currentUser: CurrentUser;
   location: Location;
   router: Router;
 }
 
 interface State {
-  filterByCategory?: { standard: SecurityStandard; category: string };
   filterByCWE?: string;
+  filterByCategory?: { category: string; standard: SecurityStandard };
   filterByFile?: string;
   filters: HotspotFilters;
   hotspotKeys?: string[];
@@ -340,14 +340,14 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
     filterByFile,
     page,
   }: {
+    filterByCWE: string | undefined;
+
     filterByCategory:
       | {
-          standard: SecurityStandard;
           category: string;
+          standard: SecurityStandard;
         }
       | undefined;
-
-    filterByCWE: string | undefined;
     filterByFile: string | undefined;
     page: number;
   }) {

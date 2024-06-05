@@ -26,8 +26,8 @@ import { DocLink } from '../../../helpers/doc-links';
 import { translate } from '../../../helpers/l10n';
 
 export interface EmptyHotspotsPageProps {
-  filtered: boolean;
   filterByFile: boolean;
+  filtered: boolean;
   isStaticListOfHotspots: boolean;
 }
 

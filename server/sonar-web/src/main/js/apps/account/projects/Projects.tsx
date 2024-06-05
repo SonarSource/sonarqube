@@ -24,8 +24,8 @@ import { MyProject } from '../../../types/types';
 import ProjectCard from './ProjectCard';
 
 interface Props {
-  loading: boolean;
   loadMore: () => void;
+  loading: boolean;
   projects: MyProject[];
   total?: number;
 }

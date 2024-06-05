@@ -54,9 +54,9 @@ export interface JenkinsfileStepProps {
 }
 
 export interface LanguageProps {
-  onDone: (done: boolean) => void;
-  component: Component;
   baseUrl: string;
+  component: Component;
+  onDone: (done: boolean) => void;
 }
 
 export function JenkinsfileStep(props: JenkinsfileStepProps) {

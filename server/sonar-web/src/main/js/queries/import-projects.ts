@@ -32,19 +32,19 @@ import { CreateProjectModes } from '../apps/create/project/types';
 
 export type MutationArg<AlmImport extends ImportProjectParam = ImportProjectParam> =
   AlmImport extends {
-    creationMode: infer A;
     almSetting: string;
+    creationMode: infer A;
     monorepo: false;
     projects: (infer R)[];
   }
-    ? { creationMode: A; almSetting: string; monorepo: false } & R
+    ? { almSetting: string; creationMode: A; monorepo: false } & R
     :
         | {
             creationMode: CreateProjectModes.Manual;
-            project: string;
-            name: string;
             mainBranch: string;
             monorepo: false;
+            name: string;
+            project: string;
           }
         | {
             creationMode: CreateProjectModes;

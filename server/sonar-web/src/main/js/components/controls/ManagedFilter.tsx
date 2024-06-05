@@ -23,8 +23,8 @@ import { translate } from '../../helpers/l10n';
 import { Provider } from '../../types/types';
 
 interface ManagedFilterProps {
-  manageProvider: Provider | undefined;
   loading: boolean;
+  manageProvider: Provider | undefined;
   managed: boolean | undefined;
   setManaged: (managed: boolean | undefined) => void;
 }

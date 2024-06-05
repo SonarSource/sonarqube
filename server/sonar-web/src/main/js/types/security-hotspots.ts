@@ -59,6 +59,9 @@ export interface RawHotspot {
   author?: string;
   component: string;
   creationDate: string;
+  flows?: Array<{
+    locations?: Array<Omit<FlowLocation, 'componentName'>>;
+  }>;
   key: string;
   line?: number;
   message: string;
@@ -70,9 +73,6 @@ export interface RawHotspot {
   status: HotspotStatus;
   updateDate: string;
   vulnerabilityProbability: HotspotRatingEnum;
-  flows?: Array<{
-    locations?: Array<Omit<FlowLocation, 'componentName'>>;
-  }>;
 }
 
 export interface Hotspot {
@@ -101,18 +101,18 @@ export interface Hotspot {
 }
 
 export interface HotspotComponent {
-  key: string;
-  qualifier: ComponentQualifier;
-  name: string;
-  longName: string;
-  path: string;
   branch?: string;
+  key: string;
+  longName: string;
+  name: string;
+  path: string;
   pullRequest?: string;
+  qualifier: ComponentQualifier;
 }
 
 export interface HotspotUpdateFields {
-  status: HotspotStatus;
   resolution?: HotspotResolution;
+  status: HotspotStatus;
 }
 
 export interface HotspotUpdate extends HotspotUpdateFields {
@@ -127,24 +127,24 @@ export interface HotspotRule {
 }
 
 export interface HotspotComment {
-  key: string;
+  createdAt: string;
   htmlText: string;
+  key: string;
+  login: string;
   markdown: string;
   updatable: boolean;
-  createdAt: string;
-  login: string;
   user: UserBase;
 }
 
 export interface ReviewHistoryElement {
-  type: ReviewHistoryType;
   date: string;
-  user: Pick<UserBase, 'active' | 'avatar' | 'name'>;
   diffs?: IssueChangelogDiff[];
   html?: string;
   key?: string;
-  updatable?: boolean;
   markdown?: string;
+  type: ReviewHistoryType;
+  updatable?: boolean;
+  user: Pick<UserBase, 'active' | 'avatar' | 'name'>;
 }
 
 export enum ReviewHistoryType {
@@ -154,15 +154,15 @@ export enum ReviewHistoryType {
 }
 
 export interface HotspotSearchResponse {
-  components?: { key: string; qualifier: string; name: string }[];
+  components?: { key: string; name: string; qualifier: string }[];
   hotspots: RawHotspot[];
   paging: Paging;
 }
 
 export interface HotspotSetStatusRequest {
-  status: HotspotStatus;
-  resolution?: HotspotResolution;
   comment?: string;
+  resolution?: HotspotResolution;
+  status: HotspotStatus;
 }
 
 export interface HotspotAssignRequest {

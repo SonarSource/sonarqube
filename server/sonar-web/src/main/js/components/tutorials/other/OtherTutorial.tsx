@@ -31,9 +31,9 @@ export enum Steps {
 }
 
 interface Props {
+  baseUrl: string;
   component: Component;
   currentUser: LoggedInUser;
-  baseUrl: string;
   isLocal?: boolean;
 }
 

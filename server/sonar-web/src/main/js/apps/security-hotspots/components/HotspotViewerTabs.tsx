@@ -44,13 +44,13 @@ import StatusReviewButton from './status/StatusReviewButton';
 
 interface Props {
   activityTabContent: React.ReactNode;
+  branchLike?: BranchLike;
   codeTabContent: React.ReactNode;
+  component: Component;
   hotspot: Hotspot;
   onUpdateHotspot: (statusUpdate?: boolean, statusOption?: HotspotStatusOption) => Promise<void>;
   ruleDescriptionSections?: RuleDescriptionSection[];
   ruleLanguage?: string;
-  component: Component;
-  branchLike?: BranchLike;
 }
 
 interface Tab {
@@ -244,7 +244,7 @@ export default function HotspotViewerTabs(props: Props) {
   );
 }
 
-const StickyTabs = styled.div<{ top: number; isSticky: boolean }>`
+const StickyTabs = styled.div<{ isSticky: boolean; top: number }>`
   background-color: ${themeColor('pageBlock')};
   box-shadow: ${({ isSticky }) => (isSticky ? themeShadow('sm') : 'none')};
   top: ${({ top }) => top}px;

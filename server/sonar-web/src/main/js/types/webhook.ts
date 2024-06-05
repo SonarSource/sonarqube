@@ -50,7 +50,7 @@ export interface WebhookDelivery {
 export type WebhookSearchDeliveriesPayload = {
   ceTaskId?: string;
   componentKey?: string;
-  webhook?: string;
   p?: number;
   ps?: number;
+  webhook?: string;
 };

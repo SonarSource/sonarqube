@@ -41,8 +41,8 @@ export interface AlmIntegrationRendererProps {
   branchesEnabled: boolean;
   currentAlmTab: AlmTabs;
   definitionKeyForDeletion?: string;
-  definitions: AlmSettingsBindingDefinitions;
   definitionStatus: Dict<AlmSettingsBindingStatus>;
+  definitions: AlmSettingsBindingDefinitions;
   loadingAlmDefinitions: boolean;
   loadingProjectCount: boolean;
   multipleAlmEnabled: boolean;

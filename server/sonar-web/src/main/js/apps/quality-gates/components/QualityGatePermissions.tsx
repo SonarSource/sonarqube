@@ -38,10 +38,10 @@ interface Props {
 
 interface State {
   groups: Group[];
-  submitting: boolean;
   loading: boolean;
-  showAddModal: boolean;
   permissionToDelete?: UserBase | Group;
+  showAddModal: boolean;
+  submitting: boolean;
   users: UserBase[];
 }
 

@@ -34,15 +34,15 @@ export function getSystemInfo(): Promise<SysInfoCluster | SysInfoStandalone> {
   return getJSON('/api/system/info').catch(throwGlobalError);
 }
 
-export function getSystemStatus(): Promise<{ id: string; version: string; status: SysStatus }> {
+export function getSystemStatus(): Promise<{ id: string; status: SysStatus; version: string }> {
   return getJSON('/api/system/status');
 }
 
 export function getSystemUpgrades(): Promise<{
-  upgrades: SystemUpgrade[];
-  latestLTA?: string;
   installedVersionActive?: boolean;
+  latestLTA?: string;
   updateCenterRefresh?: string;
+  upgrades: SystemUpgrade[];
 }> {
   return getJSON('/api/system/upgrades');
 }
@@ -65,8 +65,8 @@ export function restart(): Promise<void | Response> {
 
 export function waitSystemUPStatus(): Promise<{
   id: string;
-  version: string;
   status: SysStatus;
+  version: string;
 }> {
   return requestTryAndRepeatUntil(
     getSystemStatus,

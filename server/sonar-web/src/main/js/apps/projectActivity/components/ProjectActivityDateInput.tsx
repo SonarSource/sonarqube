@@ -24,8 +24,8 @@ import { Query } from '../utils';
 
 interface Props {
   from?: Date;
-  to?: Date;
   onChange: (changes: Partial<Query>) => void;
+  to?: Date;
 }
 
 export default class ProjectActivityDateInput extends React.PureComponent<Props> {

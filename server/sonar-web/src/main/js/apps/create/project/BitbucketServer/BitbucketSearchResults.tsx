@@ -26,8 +26,8 @@ import BitbucketProjectAccordion from './BitbucketProjectAccordion';
 export interface BitbucketSearchResultsProps {
   onImportRepository: (repo: BitbucketRepository) => void;
   projects: BitbucketProject[];
-  searching: boolean;
   searchResults?: BitbucketRepository[];
+  searching: boolean;
 }
 
 export default function BitbucketSearchResults(props: BitbucketSearchResultsProps) {

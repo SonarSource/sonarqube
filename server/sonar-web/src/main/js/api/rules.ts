@@ -35,14 +35,14 @@ import {
 const RULES_ENDPOINT = '/api/v2/clean-code-policy/rules';
 
 export interface CreateRuleData {
+  cleanCodeAttribute: CleanCodeAttribute;
+  impacts: SoftwareImpact[];
   key: string;
   markdownDescription: string;
   name: string;
   parameters?: Partial<RestRuleParameter>[];
   status?: string;
   templateKey: string;
-  cleanCodeAttribute: CleanCodeAttribute;
-  impacts: SoftwareImpact[];
 }
 
 export function getRulesApp(): Promise<GetRulesAppResponse> {

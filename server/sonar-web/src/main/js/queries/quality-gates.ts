@@ -167,8 +167,8 @@ export function useFixQualityGateMutation(gateName: string) {
       weakConditions,
       missingConditions,
     }: {
-      weakConditions: Condition[];
       missingConditions: Condition[];
+      weakConditions: Condition[];
     }) => {
       const promiseArr = weakConditions
         .map((condition) => {

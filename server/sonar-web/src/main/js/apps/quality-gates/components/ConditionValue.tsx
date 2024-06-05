@@ -28,9 +28,9 @@ import ConditionValueDescription from './ConditionValueDescription';
 
 interface Props {
   condition: Condition;
+  isCaycCompliantAndOverCompliant?: boolean;
   isCaycModal?: boolean;
   metric: Metric;
-  isCaycCompliantAndOverCompliant?: boolean;
 }
 
 function ConditionValue({

@@ -24,9 +24,9 @@ import { useCreateEventMutation } from '../../../../queries/project-analyses';
 import { ParsedAnalysis } from '../../../../types/project-activity';
 
 interface Props {
-  category?: string;
   addEventButtonText: string;
   analysis: ParsedAnalysis;
+  category?: string;
   onClose: () => void;
 }
 

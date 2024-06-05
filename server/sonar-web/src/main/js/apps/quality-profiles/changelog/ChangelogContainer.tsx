@@ -32,8 +32,8 @@ import ChangelogEmpty from './ChangelogEmpty';
 import ChangelogSearch from './ChangelogSearch';
 
 interface Props {
-  profile: Profile;
   location: Location;
+  profile: Profile;
   router: Router;
 }
 

@@ -40,8 +40,8 @@ import DownloadButton from './DownloadButton';
 export interface AuditAppRendererProps {
   dateRange?: { from?: Date; to?: Date };
   downloadStarted: boolean;
-  handleOptionSelection: (option: RangeOption) => void;
   handleDateSelection: (dateRange: { from?: Date; to?: Date }) => void;
+  handleOptionSelection: (option: RangeOption) => void;
   handleStartDownload: () => void;
   housekeepingPolicy: HousekeepingPolicy;
   selection: RangeOption;

@@ -31,27 +31,27 @@ import { translate } from '../../../../helpers/l10n';
 import { ProvisioningType } from '../../../../types/provisioning';
 
 interface Props {
-  isLoading?: boolean;
-  provisioningType: ProvisioningType;
-  onChangeProvisioningType: (val: ProvisioningType) => void;
-  disabledConfigText: string;
-  jitTitle: string;
-  jitDescription: string | ReactElement;
-  jitSettings?: ReactElement;
-  autoTitle: string;
   autoDescription: ReactElement;
-  synchronizationDetails?: ReactElement;
-  autoSettings?: ReactElement;
-  hasFeatureEnabled: boolean;
-  hasDifferentProvider: boolean;
   autoFeatureDisabledText: string | ReactElement;
-  onSave: (e: FormEvent) => void;
-  onSyncNow?: () => void;
-  onCancel: () => void;
-  hasUnsavedChanges: boolean;
+  autoSettings?: ReactElement;
+  autoTitle: string;
   canSave?: boolean;
   canSync?: boolean;
+  disabledConfigText: string;
   enabled: boolean;
+  hasDifferentProvider: boolean;
+  hasFeatureEnabled: boolean;
+  hasUnsavedChanges: boolean;
+  isLoading?: boolean;
+  jitDescription: string | ReactElement;
+  jitSettings?: ReactElement;
+  jitTitle: string;
+  onCancel: () => void;
+  onChangeProvisioningType: (val: ProvisioningType) => void;
+  onSave: (e: FormEvent) => void;
+  onSyncNow?: () => void;
+  provisioningType: ProvisioningType;
+  synchronizationDetails?: ReactElement;
 }
 
 export default function ProvisioningSection(props: Readonly<Props>) {

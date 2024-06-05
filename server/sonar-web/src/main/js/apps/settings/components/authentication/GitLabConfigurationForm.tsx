@@ -44,9 +44,9 @@ interface ErrorValue {
 }
 
 interface FormData {
-  value: string | boolean | string[];
-  required: boolean;
   definition: DefinitionV2;
+  required: boolean;
+  value: string | boolean | string[];
 }
 
 const DEFAULT_URL = 'https://gitlab.com';

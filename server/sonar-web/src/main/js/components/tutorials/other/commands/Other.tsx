@@ -24,9 +24,9 @@ import DownloadScanner from './DownloadScanner';
 import ExecScanner from './ExecScanner';
 
 export interface OtherProps {
+  baseUrl: string;
   component: Component;
   isLocal: boolean;
-  baseUrl: string;
   os: OSs;
   token: string;
 }

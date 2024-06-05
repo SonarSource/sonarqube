@@ -28,8 +28,8 @@ import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
 interface Props {
   progress: {
     completedSteps: number;
-    totalSteps: number;
     expectedFinishTimestamp: string;
+    totalSteps: number;
   };
 }
 

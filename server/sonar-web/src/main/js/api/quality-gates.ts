@@ -58,7 +58,7 @@ export function renameQualityGate(data: {
   return post('/api/qualitygates/rename', data).catch(throwGlobalError);
 }
 
-export function copyQualityGate(data: { sourceName: string; name: string }): Promise<QualityGate> {
+export function copyQualityGate(data: { name: string; sourceName: string }): Promise<QualityGate> {
   return postJSON('/api/qualitygates/copy', data).catch(throwGlobalError);
 }
 
@@ -125,8 +125,8 @@ export function getApplicationQualityGate(data: {
 
 export function getQualityGateProjectStatus(
   data: {
-    projectKey?: string;
     projectId?: string;
+    projectKey?: string;
   } & BranchParameters,
 ): Promise<QualityGateProjectStatus> {
   return getJSON('/api/qualitygates/project_status', data)

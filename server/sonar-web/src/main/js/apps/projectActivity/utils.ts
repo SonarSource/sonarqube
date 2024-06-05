@@ -64,8 +64,8 @@ export function historyQueryChanged(prevQuery: Query, nextQuery: Query) {
 
 export interface AnalysesByDay {
   byDay: Dict<ParsedAnalysis[]>;
-  version: string | null;
   key: string | null;
+  version: string | null;
 }
 
 export function getAnalysesByVersionByDay(

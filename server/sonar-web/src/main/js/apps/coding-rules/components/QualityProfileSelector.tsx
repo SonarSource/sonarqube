@@ -30,8 +30,8 @@ import { translate } from '../../../helpers/l10n';
 
 interface Props {
   inputId?: string;
-  profiles: Profile[];
   onChange: (selected: Profile[]) => void;
+  profiles: Profile[];
   selectedProfiles: Profile[];
 }
 

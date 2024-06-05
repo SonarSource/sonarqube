@@ -34,8 +34,8 @@ import { usePersonalAccessToken } from '../usePersonalAccessToken';
 
 interface Props {
   almSetting: AlmInstanceBase;
-  resetPat: boolean;
   onPersonalAccessTokenCreated: () => void;
+  resetPat: boolean;
 }
 
 export default function BitbucketCloudPersonalAccessTokenForm({

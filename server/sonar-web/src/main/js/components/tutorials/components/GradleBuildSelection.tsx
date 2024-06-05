@@ -22,8 +22,8 @@ import React from 'react';
 import { GradleBuildDSL } from '../types';
 
 interface Props {
-  className?: string;
   children: (build: GradleBuildDSL) => React.ReactNode;
+  className?: string;
 }
 
 export default function GradleBuildSelection({ children, className }: Props) {

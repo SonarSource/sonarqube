@@ -174,13 +174,13 @@ export function getIssuesUrl(query: Query): To {
  * Generate URL for a component's drilldown page
  */
 export function getComponentDrilldownUrl(options: {
-  componentKey: string;
-  metric: string;
+  asc?: boolean;
   branchLike?: BranchLike;
+  componentKey: string;
+  listView?: boolean;
+  metric: string;
   selectionKey?: string;
   treemapView?: boolean;
-  listView?: boolean;
-  asc?: boolean;
 }): To {
   const { componentKey, metric, branchLike, selectionKey, treemapView, listView, asc } = options;
   const query: Query = { id: componentKey, metric, ...getBranchLikeQuery(branchLike) };

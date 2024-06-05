@@ -24,10 +24,10 @@ import { CaycStatus, MeasureEnhanced, Metric } from './types';
 import { UserBase } from './users';
 
 export interface QualityGateProjectStatus {
+  caycStatus: CaycStatus;
   conditions?: QualityGateProjectStatusCondition[];
   ignoredConditions: boolean;
   status: Status;
-  caycStatus: CaycStatus;
 }
 
 export interface QualityGateProjectStatusCondition {
@@ -49,30 +49,30 @@ export interface QualityGateApplicationStatusCondition {
   comparator: string;
   errorThreshold?: string;
   metric: string;
-  periodIndex?: number;
   onLeak?: boolean;
+  periodIndex?: number;
   status: Status;
   value: string;
   warningThreshold?: string;
 }
 
 export interface QualityGateApplicationStatusChildProject {
+  caycStatus: CaycStatus;
   conditions: QualityGateApplicationStatusCondition[];
   key: string;
   name: string;
   status: Status;
-  caycStatus: CaycStatus;
 }
 
 export interface QualityGateStatus {
+  branchLike?: BranchLike;
+  caycStatus: CaycStatus;
   conditions: QualityGateStatusConditionEnhanced[];
   failedConditions: QualityGateStatusConditionEnhanced[];
   ignoredConditions?: boolean;
-  caycStatus: CaycStatus;
   key: string;
   name: string;
   status: Status;
-  branchLike?: BranchLike;
 }
 
 export interface QualityGateStatusCondition {

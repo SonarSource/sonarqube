@@ -61,10 +61,10 @@ function LSComponent({
   initialValue,
   valueToSet,
 }: Readonly<{
-  lsKey: string;
   condition: (value: boolean | string) => boolean;
-  valueToSet: boolean | string;
   initialValue?: boolean | string;
+  lsKey: string;
+  valueToSet: boolean | string;
 }>) {
   const [value, setValue] = useLocalStorage(lsKey, initialValue);
 

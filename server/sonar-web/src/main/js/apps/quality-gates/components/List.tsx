@@ -29,8 +29,8 @@ import BuiltInQualityGateBadge from './BuiltInQualityGateBadge';
 import QGRecommendedIcon from './QGRecommendedIcon';
 
 interface Props {
-  qualityGates: QualityGate[];
   currentQualityGate?: string;
+  qualityGates: QualityGate[];
 }
 
 export default function List({ qualityGates, currentQualityGate }: Props) {

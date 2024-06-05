@@ -60,9 +60,9 @@ export function getFacet(
 }
 
 export function searchIssueTags(data: {
-  project?: string;
-  branch?: string;
   all?: boolean;
+  branch?: string;
+  project?: string;
   ps?: number;
   q?: string;
 }): Promise<string[]> {
@@ -92,8 +92,8 @@ export function editIssueComment(data: { comment: string; text: string }): Promi
 }
 
 export function setIssueAssignee(data: {
-  issue: string;
   assignee?: string;
+  issue: string;
 }): Promise<IssueResponse> {
   return postJSON('/api/issues/assign', data);
 }

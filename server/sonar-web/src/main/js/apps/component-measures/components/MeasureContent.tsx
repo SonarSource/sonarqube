@@ -58,14 +58,14 @@ import MeasureViewSelect from './MeasureViewSelect';
 import MeasuresBreadcrumbs from './MeasuresBreadcrumbs';
 
 interface Props {
+  asc?: boolean;
   branchLike?: BranchLike;
   leakPeriod?: Period;
-  requestedMetric: Pick<Metric, 'key' | 'direction'>;
   metrics: Dict<Metric>;
+  requestedMetric: Pick<Metric, 'key' | 'direction'>;
   rootComponent: ComponentMeasure;
   router: Router;
   selected?: string;
-  asc?: boolean;
   updateQuery: (query: Partial<Query>) => void;
   view: MeasurePageView;
 }

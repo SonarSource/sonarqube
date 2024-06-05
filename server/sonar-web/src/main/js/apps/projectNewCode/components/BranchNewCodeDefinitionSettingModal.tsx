@@ -37,9 +37,9 @@ interface Props {
   branch: BranchWithNewCodePeriod;
   branchList: Branch[];
   component: string;
-  onClose: (branch?: string, newSetting?: NewCodeDefinition) => void;
-  inheritedSetting: NewCodeDefinition;
   globalNewCodeDefinition: NewCodeDefinition;
+  inheritedSetting: NewCodeDefinition;
+  onClose: (branch?: string, newSetting?: NewCodeDefinition) => void;
 }
 
 interface State {

@@ -33,6 +33,6 @@ export interface GetRulesAppResponse {
 export interface SearchRulesResponse {
   actives?: Dict<RuleActivation[]>;
   facets?: { property: string; values: { count: number; val: string }[] }[];
-  rules: Rule[];
   paging: Paging;
+  rules: Rule[];
 }

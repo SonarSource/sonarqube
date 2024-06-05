@@ -35,10 +35,10 @@ import ComparisonResultsSummary from './ComparisonResultsSummary';
 type Params = Dict<string>;
 
 interface Props extends CompareResponse {
+  canDeactivateInheritedRules: boolean;
   leftProfile: Profile;
   refresh: () => Promise<void>;
   rightProfile?: Profile;
-  canDeactivateInheritedRules: boolean;
 }
 
 export default function ComparisonResults(props: Readonly<Props>) {

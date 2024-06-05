@@ -33,9 +33,9 @@ import IssueLocationsNavigator from './IssueLocationsNavigator';
 
 export interface ConciseIssueProps {
   issue: Issue;
+  onClick: (issueKey: string) => void;
   onFlowSelect: (index?: number) => void;
   onLocationSelect: (index: number) => void;
-  onClick: (issueKey: string) => void;
   selected: boolean;
   selectedFlowIndex: number | undefined;
   selectedLocationIndex: number | undefined;

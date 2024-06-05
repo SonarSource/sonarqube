@@ -59,8 +59,8 @@ import {
 interface Props {
   currentEdition?: EditionKey;
   fetchPendingPlugins: () => void;
-  pendingPlugins: PendingPluginResult;
   location: Location;
+  pendingPlugins: PendingPluginResult;
   router: Router;
   standaloneMode?: boolean;
   updateCenterActive: boolean;

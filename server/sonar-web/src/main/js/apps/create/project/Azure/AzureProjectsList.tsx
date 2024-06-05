@@ -31,12 +31,12 @@ import AzureProjectAccordion from './AzureProjectAccordion';
 
 export interface AzureProjectsListProps {
   loadingRepositories: Dict<boolean>;
-  onOpenProject: (key: string) => void;
   onImportRepository: (repository: AzureRepository) => void;
+  onOpenProject: (key: string) => void;
   projects?: AzureProject[];
   repositories?: Dict<AzureRepository[]>;
-  searchResults?: AzureRepository[];
   searchQuery?: string;
+  searchResults?: AzureRepository[];
 }
 
 const PAGE_SIZE = 10;

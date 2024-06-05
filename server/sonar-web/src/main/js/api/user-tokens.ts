@@ -28,15 +28,15 @@ export function getTokens(login: string): Promise<UserToken[]> {
 }
 
 export function generateToken(data: {
+  expirationDate?: string;
+  login?: string;
   name: string;
   projectKey?: string;
   type?: string;
-  login?: string;
-  expirationDate?: string;
 }): Promise<NewUserToken> {
   return postJSON('/api/user_tokens/generate', data).catch(throwGlobalError);
 }
 
-export function revokeToken(data: { name: string; login?: string }) {
+export function revokeToken(data: { login?: string; name: string }) {
   return post('/api/user_tokens/revoke', data).catch(throwGlobalError);
 }

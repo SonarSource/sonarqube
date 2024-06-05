@@ -41,12 +41,12 @@ export interface GitlabProjectCreateRendererProps {
   onLoadMore: () => void;
   onPersonalAccessTokenCreated: () => void;
   onSearch: (searchQuery: string) => void;
+  onSelectedAlmInstanceChange: (instance: AlmInstanceBase) => void;
   projects?: GitlabProject[];
   projectsPaging: Paging;
   resetPat: boolean;
   searchQuery: string;
   selectedAlmInstance?: AlmSettingsInstance;
-  onSelectedAlmInstanceChange: (instance: AlmInstanceBase) => void;
   showPersonalAccessTokenForm?: boolean;
 }
 

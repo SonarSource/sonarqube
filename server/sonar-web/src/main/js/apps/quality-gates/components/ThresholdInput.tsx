@@ -23,11 +23,11 @@ import { LabelValueSelectOption } from '../../../helpers/search';
 import { Metric } from '../../../types/types';
 
 interface Props {
-  name: string;
-  value: string;
   disabled?: boolean;
   metric: Metric;
+  name: string;
   onChange: (value: string) => void;
+  value: string;
 }
 
 export default class ThresholdInput extends React.PureComponent<Props> {

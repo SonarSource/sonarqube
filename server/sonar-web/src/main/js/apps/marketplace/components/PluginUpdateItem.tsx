@@ -26,8 +26,8 @@ import PluginChangeLogButton from './PluginChangeLogButton';
 
 interface Props {
   pluginName: string;
-  update: Update;
   release: Release;
+  update: Update;
 }
 
 export default function PluginUpdateItem({ release, update, pluginName }: Readonly<Props>) {

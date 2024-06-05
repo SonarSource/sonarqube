@@ -32,22 +32,22 @@ import SearchForm, { FilterOption } from './SearchForm';
 
 interface Props {
   filter: FilterOption;
-  query: string;
-  onFilter: (filter: string) => void;
-  onQuery: (query: string) => void;
   groups: PermissionGroup[];
   groupsPaging?: Paging;
-  onRevokePermissionFromGroup: (group: string, permission: string) => Promise<void>;
+  loading?: boolean;
+  onFilter: (filter: string) => void;
   onGrantPermissionToGroup: (group: string, permission: string) => Promise<void>;
+  onGrantPermissionToUser: (user: string, permission: string) => Promise<void>;
+  onLoadMore: () => void;
+  onQuery: (query: string) => void;
+  onRevokePermissionFromGroup: (group: string, permission: string) => Promise<void>;
+  onRevokePermissionFromUser: (user: string, permission: string) => Promise<void>;
+  onSelectPermission?: (permissions?: string) => void;
+  permissions: Array<PermissionDefinition | PermissionDefinitionGroup>;
+  query: string;
+  selectedPermission?: string;
   users: PermissionUser[];
   usersPaging?: Paging;
-  onRevokePermissionFromUser: (user: string, permission: string) => Promise<void>;
-  onGrantPermissionToUser: (user: string, permission: string) => Promise<void>;
-  permissions: Array<PermissionDefinition | PermissionDefinitionGroup>;
-  onLoadMore: () => void;
-  selectedPermission?: string;
-  onSelectPermission?: (permissions?: string) => void;
-  loading?: boolean;
 }
 
 export default class AllHoldersList extends React.PureComponent<Props> {

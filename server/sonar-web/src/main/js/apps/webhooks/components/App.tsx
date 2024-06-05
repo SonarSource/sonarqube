@@ -79,10 +79,10 @@ export function App({ component }: AppProps) {
   }
 
   async function handleUpdate(data: {
-    webhook: string;
     name: string;
     secret?: string;
     url: string;
+    webhook: string;
   }) {
     await updateWebhook({ ...data });
     setWebhooks((webhooks) =>

@@ -88,8 +88,8 @@ export class TimeMachineServiceMock {
   handleGetAllTimeMachineData = (
     data: {
       component: string;
-      metrics: string;
       from?: string;
+      metrics: string;
       p?: number;
       to?: string;
     } & BranchParameters,

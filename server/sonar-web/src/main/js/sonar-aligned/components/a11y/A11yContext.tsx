@@ -22,8 +22,8 @@ import { A11ySkipLink } from '../../../types/types';
 
 export interface A11yContextShape {
   addA11ySkipLink: (link: A11ySkipLink) => void;
-  removeA11ySkipLink: (link: A11ySkipLink) => void;
   links: A11ySkipLink[];
+  removeA11ySkipLink: (link: A11ySkipLink) => void;
 }
 
 export const A11yContext = createContext<A11yContextShape>({

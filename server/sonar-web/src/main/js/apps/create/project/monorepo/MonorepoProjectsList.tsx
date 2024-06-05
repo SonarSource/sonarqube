@@ -23,10 +23,10 @@ import { FormattedMessage } from 'react-intl';
 import { ProjectData, ProjectValidationCard } from '../components/ProjectValidation';
 
 interface Props {
-  projectKeys: string[];
   onAddProject: () => void;
   onChangeProject: (project: ProjectData<number>) => void;
   onRemoveProject: (id?: number) => void;
+  projectKeys: string[];
   projects: ProjectData<number>[];
 }
 

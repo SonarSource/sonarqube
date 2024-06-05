@@ -39,9 +39,9 @@ export interface AdminContainerProps {
 }
 
 interface State {
+  adminPages: Extension[];
   pendingPlugins: PendingPluginResult;
   systemStatus: SysStatus;
-  adminPages: Extension[];
 }
 
 export class AdminContainer extends React.PureComponent<AdminContainerProps, State> {

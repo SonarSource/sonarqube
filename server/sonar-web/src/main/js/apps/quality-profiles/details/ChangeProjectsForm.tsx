@@ -39,8 +39,8 @@ interface Props {
 }
 
 interface State {
-  needToReload: boolean;
   lastSearchParams?: SelectListSearchParams;
+  needToReload: boolean;
   projects: ProfileProject[];
   projectsTotalCount?: number;
   selectedProjects: string[];

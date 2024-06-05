@@ -35,7 +35,7 @@ export interface DocHelpTooltipProps {
   content?: React.ReactNode;
   linkTextLabel?: string;
   links?: Array<
-    { label?: string; inPlace?: boolean } & (
+    { inPlace?: boolean; label?: string } & (
       | { doc?: true; href: DocLink }
       | { doc: false; href: string }
     )

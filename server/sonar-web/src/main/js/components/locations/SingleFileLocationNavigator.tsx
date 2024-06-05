@@ -27,12 +27,12 @@ import LocationMessage from '../common/LocationMessage';
 import './SingleFileLocationNavigator.css';
 
 interface Props {
+  concealedMarker?: boolean;
   index: number;
   message: string | undefined;
   messageFormattings?: MessageFormatting[];
   onClick: (index: number) => void;
   selected: boolean;
-  concealedMarker?: boolean;
 }
 
 export default class SingleFileLocationNavigator extends React.PureComponent<Props> {

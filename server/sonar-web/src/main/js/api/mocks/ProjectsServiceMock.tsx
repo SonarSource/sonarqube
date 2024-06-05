@@ -57,9 +57,9 @@ export class ProjectsServiceMock {
     filter = '',
     s,
   }: {
-    ps: number;
     facets: string;
     filter: string;
+    ps: number;
     s?: string;
   }) => {
     /*

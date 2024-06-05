@@ -29,8 +29,8 @@ import { Query } from '../utils';
 import { ListStyleFacet } from './ListStyleFacet';
 
 interface Props {
-  component: Component | undefined;
   branch?: string;
+  component: Component | undefined;
   fetching: boolean;
   loadSearchResultCount: (property: string, changes: Partial<Query>) => Promise<Facet>;
   onChange: (changes: Partial<Query>) => void;

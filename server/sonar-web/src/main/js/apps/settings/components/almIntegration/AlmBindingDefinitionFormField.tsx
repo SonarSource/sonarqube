@@ -39,6 +39,7 @@ export interface AlmBindingDefinitionFormFieldProps<B extends AlmBindingDefiniti
   help?: React.ReactNode;
   id: string;
   isInvalid?: boolean;
+  isSecret?: boolean;
   isTextArea?: boolean;
   maxLength?: number;
   onFieldChange: (id: keyof B, value: string) => void;
@@ -46,7 +47,6 @@ export interface AlmBindingDefinitionFormFieldProps<B extends AlmBindingDefiniti
   overwriteOnly?: boolean;
   propKey: keyof B;
   value: string;
-  isSecret?: boolean;
 }
 
 export function AlmBindingDefinitionFormField<B extends AlmBindingDefinitionBase>(

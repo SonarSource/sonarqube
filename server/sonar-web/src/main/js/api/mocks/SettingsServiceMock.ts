@@ -158,7 +158,7 @@ export default class SettingsServiceMock {
     jest.mocked(encryptValue).mockImplementation(this.handleEcnryptValue);
   }
 
-  handleGetValue = (data: { key: string; component?: string } & BranchParameters) => {
+  handleGetValue = (data: { component?: string; key: string } & BranchParameters) => {
     const setting = this.#settingValues.find((s) => s.key === data.key) as SettingValue;
     const definition = this.#definitions.find(
       (d) => d.key === data.key,
@@ -172,7 +172,7 @@ export default class SettingsServiceMock {
     return this.reply(setting ?? undefined);
   };
 
-  handleGetValues = (data: { keys: string[]; component?: string } & BranchParameters) => {
+  handleGetValues = (data: { component?: string; keys: string[] } & BranchParameters) => {
     const settings = data.keys
       .map((k) => {
         const def = this.#definitions.find((d) => d.key === k);
@@ -215,7 +215,7 @@ export default class SettingsServiceMock {
     return this.reply(undefined);
   };
 
-  handleResetSettingValue = (data: { keys: string; component?: string } & BranchParameters) => {
+  handleResetSettingValue = (data: { component?: string; keys: string } & BranchParameters) => {
     const setting = this.#settingValues.find((s) => s.key === data.keys) as SettingValue;
     const definition = this.#definitions.find(
       (d) => d.key === data.keys,

@@ -39,11 +39,11 @@ import HotspotHeaderRightSection from './HotspotHeaderRightSection';
 import Status from './status/Status';
 
 export interface HotspotHeaderProps {
-  hotspot: Hotspot;
-  component: Component;
   branchLike?: BranchLike;
-  standards?: Standards;
+  component: Component;
+  hotspot: Hotspot;
   onUpdateHotspot: (statusUpdate?: boolean, statusOption?: HotspotStatusOption) => Promise<void>;
+  standards?: Standards;
 }
 
 export function HotspotHeader(props: HotspotHeaderProps) {

@@ -40,11 +40,11 @@ export interface QualityGatePermissionsRendererProps {
   groups: Group[];
   loading: boolean;
   onClickAddPermission: () => void;
+  onClickDeletePermission: (item: UserBase | Group) => void;
   onCloseAddPermission: () => void;
-  onSubmitAddPermission: (item: UserBase | Group) => void;
   onCloseDeletePermission: () => void;
   onConfirmDeletePermission: (item: UserBase | Group) => void;
-  onClickDeletePermission: (item: UserBase | Group) => void;
+  onSubmitAddPermission: (item: UserBase | Group) => void;
   permissionToDelete?: UserBase | Group;
   qualityGate: QualityGate;
   showAddModal: boolean;

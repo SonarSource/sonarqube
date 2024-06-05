@@ -156,8 +156,8 @@ function TestComponent({
   componentKey,
   branchLike,
 }: {
-  componentKey: string;
   branchLike?: BranchLike;
+  componentKey: string;
 }) {
   const { openComponent } = React.useContext(WorkspaceContext);
 

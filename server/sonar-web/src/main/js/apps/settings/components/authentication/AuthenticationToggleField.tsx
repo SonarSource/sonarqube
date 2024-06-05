@@ -23,9 +23,9 @@ import { DefinitionV2, ExtendedSettingDefinition } from '../../../../types/setti
 import { getPropertyName } from '../../utils';
 
 interface SamlToggleFieldProps {
+  definition: ExtendedSettingDefinition | DefinitionV2;
   onChange: (value: boolean) => void;
   settingValue?: string | boolean;
-  definition: ExtendedSettingDefinition | DefinitionV2;
 }
 
 export default function AuthenticationToggleField(props: SamlToggleFieldProps) {

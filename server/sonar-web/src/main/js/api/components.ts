@@ -52,15 +52,15 @@ export interface ProjectBase {
 }
 
 export interface ComponentRaw {
-  key: string;
-  name: string;
-  isFavorite?: boolean;
   analysisDate?: string;
+  isFavorite?: boolean;
+  key: string;
+  leakPeriodDate?: string;
+  name: string;
+  needIssueSync?: boolean;
   qualifier: ComponentQualifier;
   tags: string[];
   visibility: Visibility;
-  leakPeriodDate?: string;
-  needIssueSync?: boolean;
 }
 
 export function searchProjectTags(data?: { ps?: number; q?: string }): Promise<any> {
@@ -175,7 +175,7 @@ export function getMyProjects(data: {
 
 export interface Facet {
   property: string;
-  values: Array<{ val: string; count: number }>;
+  values: Array<{ count: number; val: string }>;
 }
 
 export function searchProjects(data: RequestData): Promise<{
@@ -188,9 +188,9 @@ export function searchProjects(data: RequestData): Promise<{
 }
 
 export function searchComponents(data?: {
+  ps?: number;
   q?: string;
   qualifiers?: string;
-  ps?: number;
 }): Promise<any> {
   return getJSON('/api/components/search', data);
 }
@@ -241,7 +241,7 @@ export function getComponentForSourceViewer(
 }
 
 export function getSources(
-  data: { key: string; from?: number; to?: number } & BranchParameters,
+  data: { from?: number; key: string; to?: number } & BranchParameters,
 ): Promise<SourceLine[]> {
   return getJSON('/api/sources/lines', data).then((r) => r.sources);
 }

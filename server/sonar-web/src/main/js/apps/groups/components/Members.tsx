@@ -25,8 +25,8 @@ import EditMembersModal from './EditMembersModal';
 import ViewMembersModal from './ViewMembersModal';
 
 interface Props {
-  isManaged: boolean;
   group: Group;
+  isManaged: boolean;
   onEdit: () => void;
 }
 

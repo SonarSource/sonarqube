@@ -28,10 +28,10 @@ import { Component } from '../../../types/types';
 import BranchQualityGateConditions from './BranchQualityGateConditions';
 
 interface Props {
-  status: Status;
   branchLike?: BranchLike;
   component: Pick<Component, 'key'>;
   failedConditions: QualityGateStatusConditionEnhanced[];
+  status: Status;
 }
 
 export default function BranchQualityGate(props: Readonly<Props>) {

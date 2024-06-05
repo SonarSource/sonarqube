@@ -43,18 +43,18 @@ import { NewCodeDefinitionLevels } from './utils';
 
 export interface Props {
   className?: string;
-  days: string;
   currentDaysValue?: string;
-  previousNonCompliantValue?: string;
-  projectKey?: string;
-  updatedAt?: number;
+  days: string;
   disabled?: boolean;
   isChanged: boolean;
   isValid: boolean;
   onChangeDays: (value: string) => void;
   onSelect: (selection: NewCodeDefinitionType) => void;
+  previousNonCompliantValue?: string;
+  projectKey?: string;
   selected: boolean;
   settingLevel: NewCodeDefinitionLevels;
+  updatedAt?: number;
 }
 
 export default function NewCodeDefinitionDaysOption(props: Props) {

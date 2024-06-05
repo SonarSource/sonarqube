@@ -56,7 +56,7 @@ export class NavigationServiceMock {
     return Promise.resolve(this.componentNavigation);
   };
 
-  handleGetMarketplaceNavigation(): Promise<{ serverId: string; ncloc: number }> {
+  handleGetMarketplaceNavigation(): Promise<{ ncloc: number; serverId: string }> {
     return Promise.resolve({ serverId: 'foo', ncloc: 0 });
   }
 

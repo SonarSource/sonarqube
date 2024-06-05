@@ -23,8 +23,8 @@ import { translate } from '../../../helpers/l10n';
 import { CURRENTS } from '../constants';
 
 interface CurrentsFilterProps {
-  value?: string;
   onChange: (value: string) => void;
+  value?: string;
 }
 
 export default function CurrentsFilter(props: Readonly<CurrentsFilterProps>) {

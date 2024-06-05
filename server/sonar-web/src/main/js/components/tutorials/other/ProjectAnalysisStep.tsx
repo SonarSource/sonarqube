@@ -27,12 +27,12 @@ import BuildToolForm from './BuildToolForm';
 import AnalysisCommand from './commands/AnalysisCommand';
 
 interface Props {
+  baseUrl: string;
   component: Component;
+  isLocal: boolean;
   onFinish?: (projectKey?: string) => void;
   open: boolean;
-  baseUrl: string;
   stepNumber: number;
-  isLocal: boolean;
   token?: string;
 }
 

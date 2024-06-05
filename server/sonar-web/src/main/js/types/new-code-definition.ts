@@ -26,22 +26,22 @@ export enum NewCodeDefinitionType {
 }
 
 export interface NewCodeDefinition {
-  projectKey?: string;
-  type: NewCodeDefinitionType;
-  value?: string;
   effectiveValue?: string;
   inherited?: boolean;
   previousNonCompliantValue?: string;
+  projectKey?: string;
+  type: NewCodeDefinitionType;
   updatedAt?: number;
+  value?: string;
 }
 
 export interface NewCodeDefinitiondWithCompliance {
+  isCompliant: boolean;
   type?: NewCodeDefinitionType;
   value?: string;
-  isCompliant: boolean;
 }
 
 export interface NewCodeDefinitionBranch extends NewCodeDefinition {
-  projectKey: string;
   branchKey: string;
+  projectKey: string;
 }

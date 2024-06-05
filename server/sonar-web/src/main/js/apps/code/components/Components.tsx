@@ -35,9 +35,9 @@ interface ComponentsProps {
   branchLike?: BranchLike;
   components: ComponentMeasure[];
   metrics: Metric[];
+  newCodeSelected?: boolean;
   rootComponent: ComponentMeasure;
   selected?: ComponentMeasure;
-  newCodeSelected?: boolean;
   showAnalysisDate?: boolean;
 }
 

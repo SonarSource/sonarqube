@@ -40,10 +40,10 @@ export interface BranchTree {
 }
 
 export interface BranchLikeTree {
-  mainBranchTree?: BranchTree;
   branchTree: BranchTree[];
-  parentlessPullRequests: PullRequest[];
+  mainBranchTree?: BranchTree;
   orphanPullRequests: PullRequest[];
+  parentlessPullRequests: PullRequest[];
 }
 
 export interface BranchWithNewCodePeriod extends Branch {

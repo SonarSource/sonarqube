@@ -46,8 +46,8 @@ export interface Props {
 export type PropsWithDefaults = Props & typeof ZoomTimeLine.defaultProps;
 
 interface State {
-  overlayLeftPos?: number;
   newZoomStart?: number;
+  overlayLeftPos?: number;
 }
 
 type XScale = ScaleTime<number, number>;
@@ -246,12 +246,12 @@ export class ZoomTimeLine extends React.PureComponent<Props, State> {
   };
 
   renderZoomHandle = (options: {
-    xScale: XScale;
-    xPos: number;
-    fixedPos: number;
-    yDim: number[];
-    xDim: number[];
     direction: string;
+    fixedPos: number;
+    xDim: number[];
+    xPos: number;
+    xScale: XScale;
+    yDim: number[];
   }) => (
     <Draggable
       axis="x"

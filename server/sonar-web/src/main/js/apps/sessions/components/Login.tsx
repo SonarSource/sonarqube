@@ -42,9 +42,9 @@ import OAuthProviders from './OAuthProviders';
 export interface LoginProps {
   identityProviders: IdentityProvider[];
   loading: boolean;
+  location: Location;
   message?: string;
   onSubmit: (login: string, password: string) => Promise<void>;
-  location: Location;
 }
 
 export default function Login(props: Readonly<LoginProps>) {

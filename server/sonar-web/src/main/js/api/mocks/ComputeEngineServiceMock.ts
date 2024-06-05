@@ -102,7 +102,7 @@ export default class ComputeEngineServiceMock {
     this.taskWarnings = taskWarnings;
   };
 
-  handleAnalysisStatus = (data: { component: string; branch?: string; pullRequest?: string }) => {
+  handleAnalysisStatus = (data: { branch?: string; component: string; pullRequest?: string }) => {
     return Promise.resolve({
       component: {
         key: data.component,

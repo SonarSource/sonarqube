@@ -28,8 +28,8 @@ import { getLocalizedMetricNameNoDiffMetric } from '../utils';
 
 interface Props {
   metric?: Metric;
-  metricsArray: Metric[];
   metrics: Dict<Metric>;
+  metricsArray: Metric[];
   onMetricChange: (metric: Metric) => void;
 }
 

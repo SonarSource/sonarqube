@@ -26,22 +26,22 @@ import { Dict } from '../../../../../types/types';
 
 export type SettingValue =
   | {
-      key: string;
-      multiValues: false;
-      mandatory: boolean;
-      isNotSet: boolean;
-      value?: string;
-      newValue?: string | boolean;
       definition: ExtendedSettingDefinition;
+      isNotSet: boolean;
+      key: string;
+      mandatory: boolean;
+      multiValues: false;
+      newValue?: string | boolean;
+      value?: string;
     }
   | {
-      key: string;
-      multiValues: true;
-      mandatory: boolean;
-      isNotSet: boolean;
-      value?: string[];
-      newValue?: string[];
       definition: ExtendedSettingDefinition;
+      isNotSet: boolean;
+      key: string;
+      mandatory: boolean;
+      multiValues: true;
+      newValue?: string[];
+      value?: string[];
     };
 
 export default function useConfiguration(

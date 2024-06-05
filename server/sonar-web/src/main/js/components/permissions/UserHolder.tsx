@@ -29,12 +29,12 @@ import PermissionCell from './PermissionCell';
 import usePermissionChange from './usePermissionChange';
 
 interface Props {
+  disabled?: boolean;
   onToggle: (user: PermissionUser, permission: string) => Promise<void>;
   permissions: PermissionDefinitions;
+  removeOnly?: boolean;
   selectedPermission?: string;
   user: PermissionUser;
-  disabled?: boolean;
-  removeOnly?: boolean;
 }
 
 export default function UserHolder(props: Props) {

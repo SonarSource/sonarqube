@@ -24,9 +24,9 @@ import { isDiffMetric } from '../../helpers/measures';
 import { CaycStatus, Condition, Dict, Metric, QualityGate } from '../../types/types';
 
 interface GroupedByMetricConditions {
-  overallCodeConditions: Condition[];
-  newCodeConditions: Condition[];
   caycConditions: Condition[];
+  newCodeConditions: Condition[];
+  overallCodeConditions: Condition[];
 }
 
 type CommonCaycMetricKeys =
@@ -181,8 +181,8 @@ function isWeakCondition(key: AllCaycMetricKeys, selectedCondition: Condition) {
 
 export function getWeakMissingAndNonCaycConditions(conditions: Condition[]) {
   const result: {
-    weakConditions: Condition[];
     missingConditions: Condition[];
+    weakConditions: Condition[];
   } = {
     weakConditions: [],
     missingConditions: [],

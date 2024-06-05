@@ -87,7 +87,7 @@ it.each([
   },
 ])(
   'should get, set, delete and validate binding for $alm',
-  async ({ key, alm }: { key: string; alm: AlmKeys }) => {
+  async ({ key, alm }: { alm: AlmKeys; key: string }) => {
     const { ui, user } = getPageObjects();
     almSettings.setProjectBindingConfigurationErrors({
       scope: ProjectAlmBindingConfigurationErrorScope.Global,

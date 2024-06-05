@@ -23,10 +23,10 @@ import { translate } from '../../../helpers/l10n';
 import { ALL_TYPES } from '../constants';
 
 interface Props {
-  value: string;
   id: string;
   onChange: Function;
   types: string[];
+  value: string;
 }
 
 export default class TypesFilter extends React.PureComponent<Props> {

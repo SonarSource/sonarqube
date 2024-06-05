@@ -35,10 +35,10 @@ interface Props {
   component: TypeComponentMeasure;
   isBaseComponent?: boolean;
   metrics: Metric[];
+  newCodeSelected?: boolean;
   previous?: TypeComponentMeasure;
   rootComponent: TypeComponentMeasure;
   selected?: boolean;
-  newCodeSelected?: boolean;
   showAnalysisDate?: boolean;
 }
 

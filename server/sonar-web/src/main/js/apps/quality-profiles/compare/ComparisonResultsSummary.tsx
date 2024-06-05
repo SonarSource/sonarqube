@@ -22,10 +22,10 @@ import React from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
 
 interface Props {
-  profileName: string;
-  comparedProfileName?: string;
   additionalCount: number;
+  comparedProfileName?: string;
   fewerCount: number;
+  profileName: string;
 }
 
 export default function ComparisonResultsSummary(props: Readonly<Props>) {

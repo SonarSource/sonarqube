@@ -29,8 +29,8 @@ import ThresholdInput from './ThresholdInput';
 
 interface Props {
   condition: Condition;
-  metric: Metric;
   header: string;
+  metric: Metric;
   onClose: () => void;
   qualityGate: QualityGate;
 }

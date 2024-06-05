@@ -175,7 +175,7 @@ export function saveActivityGraph(
 export function getActivityGraph(
   namespace: string,
   project: string,
-): { graph: GraphType; customGraphs: string[] } {
+): { customGraphs: string[]; graph: GraphType } {
   const customGraphs = get(`${namespace}.custom`, project);
 
   return {

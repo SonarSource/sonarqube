@@ -25,8 +25,8 @@ import { ActivityRequestParameters, Task, TaskWarning } from '../types/tasks';
 import { Paging } from '../types/types';
 
 export function getAnalysisStatus(data: {
-  component: string;
   branch?: string;
+  component: string;
   pullRequest?: string;
 }): Promise<{
   component: {
@@ -42,7 +42,7 @@ export function getAnalysisStatus(data: {
 
 export function getActivity(
   data: ActivityRequestParameters,
-): Promise<{ tasks: Task[]; paging: Paging }> {
+): Promise<{ paging: Paging; tasks: Task[] }> {
   return getJSON('/api/ce/activity', data);
 }
 
@@ -69,7 +69,7 @@ export function cancelAllTasks(): Promise<any> {
 
 export function getTasksForComponent(
   component: string,
-): Promise<{ queue: Task[]; current?: Task }> {
+): Promise<{ current?: Task; queue: Task[] }> {
   return getJSON('/api/ce/component', { component }).catch(throwGlobalError);
 }
 

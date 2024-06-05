@@ -46,7 +46,7 @@ export function useGetValueQuery(key: string, component?: string) {
 export function useResetSettingsMutation() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ keys, component }: { keys: string[]; component?: string }) =>
+    mutationFn: ({ keys, component }: { component?: string; keys: string[] }) =>
       resetSettingValue({ keys: keys.join(','), component }),
     onSuccess: (_, { keys }) => {
       keys.forEach((key) => {
@@ -62,8 +62,8 @@ export function useSaveValuesMutation() {
   return useMutation({
     mutationFn: (
       values: {
-        newValue?: SettingValue;
         definition: ExtendedSettingDefinition;
+        newValue?: SettingValue;
       }[],
     ) => {
       return Promise.all(
@@ -103,9 +103,9 @@ export function useSaveValueMutation() {
       definition,
       component,
     }: {
-      newValue: SettingValue;
-      definition: ExtendedSettingDefinition;
       component?: string;
+      definition: ExtendedSettingDefinition;
+      newValue: SettingValue;
     }) => {
       if (isDefaultValue(newValue, definition)) {
         return resetSettingValue({ keys: definition.key, component });

@@ -28,13 +28,13 @@ import ActivationButton from './ActivationButton';
 
 interface Props {
   activation: RuleActivation;
+  canDeactivateInherited?: boolean;
+  handleDeactivate: (key?: string) => void;
+  handleRevert: (key?: string) => void;
+  onActivate: (severity: string, prioritizedRule: boolean) => Promise<void> | void;
   profile: Profile;
   ruleDetails: Rule;
-  onActivate: (severity: string, prioritizedRule: boolean) => Promise<void> | void;
-  handleRevert: (key?: string) => void;
-  handleDeactivate: (key?: string) => void;
   showDeactivated?: boolean;
-  canDeactivateInherited?: boolean;
 }
 
 export default function ActivatedRuleActions(props: Readonly<Props>) {

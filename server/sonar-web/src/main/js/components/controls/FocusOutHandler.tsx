@@ -20,8 +20,8 @@
 import * as React from 'react';
 
 interface Props extends React.BaseHTMLAttributes<HTMLDivElement> {
-  onFocusOut: () => void;
   innerRef?: (instance: HTMLDivElement) => void;
+  onFocusOut: () => void;
 }
 
 export default class FocusOutHandler extends React.PureComponent<React.PropsWithChildren<Props>> {

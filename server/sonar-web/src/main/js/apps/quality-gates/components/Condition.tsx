@@ -52,12 +52,12 @@ export enum ConditionChange {
 }
 
 interface Props {
-  condition: ConditionType;
   canEdit: boolean;
+  condition: ConditionType;
+  isCaycModal?: boolean;
   metric: Metric;
   qualityGate: QualityGate;
   showEdit?: boolean;
-  isCaycModal?: boolean;
 }
 
 export default function ConditionComponent({

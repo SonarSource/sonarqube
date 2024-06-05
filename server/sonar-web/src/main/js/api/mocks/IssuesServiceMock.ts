@@ -513,7 +513,7 @@ export default class IssuesServiceMock {
     return this.getActionsResponse({ severity: data.severity }, data.issue);
   };
 
-  handleSetIssueAssignee = (data: { issue: string; assignee?: string }) => {
+  handleSetIssueAssignee = (data: { assignee?: string; issue: string }) => {
     return this.getActionsResponse(
       {
         assignee:

@@ -54,8 +54,8 @@ export enum SoftwareQuality {
 }
 
 export interface SoftwareImpact {
-  softwareQuality: SoftwareQuality;
   severity: SoftwareImpactSeverity;
+  softwareQuality: SoftwareQuality;
 }
 
 export interface SoftwareImpactMeasureData {

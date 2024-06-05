@@ -27,15 +27,15 @@ import { getRulesUrl } from '../../../helpers/urls';
 import { RulesFacetName } from '../../../types/rules';
 
 interface Props {
-  title: string;
   className?: string;
   count: number | null;
-  qprofile: string;
-  total: number | null;
   propertyName:
     | RulesFacetName.CleanCodeAttributeCategories
     | RulesFacetName.ImpactSoftwareQualities;
   propertyValue: string;
+  qprofile: string;
+  title: string;
+  total: number | null;
 }
 
 export default function ProfileRulesRow(props: Readonly<Props>) {

@@ -24,8 +24,8 @@ import { Status } from '~sonar-aligned/types/common';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {
-  status: Status;
   failedConditionCount: number;
+  status: Status;
 }
 
 export default function QualityGateStatusHeader(props: Props) {

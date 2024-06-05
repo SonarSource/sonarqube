@@ -29,7 +29,7 @@ export function getComponentNavigation(
   return getJSON('/api/navigation/component', data);
 }
 
-export function getMarketplaceNavigation(): Promise<{ serverId: string; ncloc: number }> {
+export function getMarketplaceNavigation(): Promise<{ ncloc: number; serverId: string }> {
   return getJSON('/api/navigation/marketplace').catch(throwGlobalError);
 }
 

@@ -32,20 +32,20 @@ import './Tooltip.css';
 export type Placement = 'bottom' | 'right' | 'left' | 'top';
 
 interface TooltipProps {
-  classNameSpace?: string;
   children: React.ReactElement;
-  mouseEnterDelay?: number;
-  mouseLeaveDelay?: number;
-  onShow?: () => void;
-  onHide?: () => void;
+  classNameInner?: string;
+  classNameSpace?: string;
   content: React.ReactNode;
-  side?: Placement;
-  isOpen?: boolean;
   // If tooltip overlay has interactive content (links for instance) we may set this to true to stop
   // default behavior of tabbing (other changes should be done outside of this component to make it work)
   // See example DocHelpTooltip
   isInteractive?: boolean;
-  classNameInner?: string;
+  isOpen?: boolean;
+  mouseEnterDelay?: number;
+  mouseLeaveDelay?: number;
+  onHide?: () => void;
+  onShow?: () => void;
+  side?: Placement;
 }
 
 interface Measurements {

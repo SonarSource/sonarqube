@@ -51,14 +51,14 @@ import ActivationButton from './ActivationButton';
 
 interface Props {
   activation?: RuleActivation;
-  isLoggedIn: boolean;
   canDeactivateInherited?: boolean;
+  isLoggedIn: boolean;
   onActivate: (profile: string, rule: string, activation: RuleActivation) => void;
   onDeactivate: (profile: string, rule: string) => void;
   onOpen: (ruleKey: string) => void;
   rule: Rule;
-  selected: boolean;
   selectRule: (key: string) => void;
+  selected: boolean;
   selectedProfile?: Profile;
 }
 

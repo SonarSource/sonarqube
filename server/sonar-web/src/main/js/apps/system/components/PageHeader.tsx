@@ -28,11 +28,11 @@ import { AppState } from '../../../types/appstate';
 import PageActions from './PageActions';
 
 export interface Props {
+  appState: AppState;
   isCluster: boolean;
   loading: boolean;
   logLevel: string;
   onLogLevelChange: () => void;
-  appState: AppState;
   serverId?: string;
   version?: string;
 }

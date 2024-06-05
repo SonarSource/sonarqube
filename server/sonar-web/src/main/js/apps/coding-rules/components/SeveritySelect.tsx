@@ -27,8 +27,8 @@ import { IssueSeverity } from '../../../types/issues';
 
 export interface SeveritySelectProps {
   isDisabled: boolean;
-  severity: string;
   onChange: (value: LabelValueSelectOption<IssueSeverity>) => void;
+  severity: string;
 }
 
 function Option(props: Readonly<OptionProps<LabelValueSelectOption<IssueSeverity>, false>>) {

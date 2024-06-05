@@ -34,8 +34,8 @@ import UserScmAccounts from './UserScmAccounts';
 
 export interface UserListItemProps {
   identityProvider?: IdentityProvider;
-  user: RestUserDetailed;
   manageProvider: Provider | undefined;
+  user: RestUserDetailed;
 }
 
 export default function UserListItem(props: Readonly<UserListItemProps>) {

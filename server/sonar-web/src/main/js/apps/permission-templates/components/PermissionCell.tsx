@@ -24,9 +24,9 @@ import { translate } from '../../../helpers/l10n';
 
 interface Props {
   permission: {
+    groupsCount: number;
     key: string;
     usersCount: number;
-    groupsCount: number;
     withProjectCreator?: boolean;
   };
 }

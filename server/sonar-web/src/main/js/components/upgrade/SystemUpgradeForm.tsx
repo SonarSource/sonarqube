@@ -28,9 +28,9 @@ import SystemUpgradeItem from './SystemUpgradeItem';
 import { SYSTEM_VERSION_REGEXP, UpdateUseCase } from './utils';
 
 interface Props {
+  latestLTA?: string;
   onClose: () => void;
   systemUpgrades: SystemUpgrade[][];
-  latestLTA?: string;
   updateUseCase: UpdateUseCase;
 }
 

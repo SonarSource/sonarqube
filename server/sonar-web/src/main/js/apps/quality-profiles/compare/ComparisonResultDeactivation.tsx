@@ -26,10 +26,10 @@ import ConfirmButton from '../../../components/controls/ConfirmButton';
 import Tooltip from '../../../components/controls/Tooltip';
 
 interface Props {
+  canDeactivateInheritedRules: boolean;
   onDone: () => Promise<void>;
   profile: Profile;
   ruleKey: string;
-  canDeactivateInheritedRules: boolean;
 }
 
 export default function ComparisonResultDeactivation(props: React.PropsWithChildren<Props>) {

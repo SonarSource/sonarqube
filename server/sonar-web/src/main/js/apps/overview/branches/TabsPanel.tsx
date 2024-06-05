@@ -40,11 +40,11 @@ export interface MeasuresPanelProps {
   analyses?: Analysis[];
   appLeak?: ApplicationPeriod;
   component: Component;
+  isNewCode: boolean;
   loading?: boolean;
+  onTabSelect: (tab: CodeScope) => void;
   period?: Period;
   qgStatuses?: QualityGateStatus[];
-  isNewCode: boolean;
-  onTabSelect: (tab: CodeScope) => void;
 }
 
 const SQ_UPGRADE_NOTIFICATION_TIMEOUT = { weeks: 3 };

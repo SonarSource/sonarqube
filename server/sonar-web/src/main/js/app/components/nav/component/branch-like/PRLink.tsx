@@ -52,8 +52,8 @@ export default function PRLink({
   currentBranchLike,
   component,
 }: Readonly<{
-  currentBranchLike: BranchLike;
   component: Component;
+  currentBranchLike: BranchLike;
 }>) {
   if (!isPullRequest(currentBranchLike)) {
     return null;

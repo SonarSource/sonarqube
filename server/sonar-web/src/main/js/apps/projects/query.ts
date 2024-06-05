@@ -24,28 +24,28 @@ import { Dict } from '../../types/types';
 type Level = 'ERROR' | 'WARN' | 'OK';
 
 export interface Query {
-  gate?: Level;
-  reliability?: number;
-  new_reliability?: number;
-  security?: number;
-  new_security?: number;
-  security_review_rating?: number;
-  new_security_review_rating?: number;
-  maintainability?: number;
-  new_maintainability?: number;
-  coverage?: number;
-  new_coverage?: number;
-  duplications?: number;
-  new_duplications?: number;
-  size?: number;
-  new_lines?: number;
-  languages?: string[];
-  qualifier?: ComponentQualifier;
-  tags?: string[];
-  search?: string;
-  sort?: string;
-  view?: string;
   [x: string]: string | number | string[] | undefined;
+  coverage?: number;
+  duplications?: number;
+  gate?: Level;
+  languages?: string[];
+  maintainability?: number;
+  new_coverage?: number;
+  new_duplications?: number;
+  new_lines?: number;
+  new_maintainability?: number;
+  new_reliability?: number;
+  new_security?: number;
+  new_security_review_rating?: number;
+  qualifier?: ComponentQualifier;
+  reliability?: number;
+  search?: string;
+  security?: number;
+  security_review_rating?: number;
+  size?: number;
+  sort?: string;
+  tags?: string[];
+  view?: string;
 }
 
 export function parseUrlQuery(urlQuery: RawQuery): Query {

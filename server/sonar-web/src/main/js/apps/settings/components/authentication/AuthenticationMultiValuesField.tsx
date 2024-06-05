@@ -24,9 +24,9 @@ import { DefinitionV2, ExtendedSettingDefinition } from '../../../../types/setti
 import { getPropertyName } from '../../utils';
 
 interface Props {
+  definition: ExtendedSettingDefinition | DefinitionV2;
   onFieldChange: (value: string[]) => void;
   settingValue?: string[];
-  definition: ExtendedSettingDefinition | DefinitionV2;
 }
 
 export default function AuthenticationMultiValueField(props: Props) {

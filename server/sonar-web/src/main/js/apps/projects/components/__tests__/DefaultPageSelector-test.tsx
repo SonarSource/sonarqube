@@ -117,8 +117,8 @@ function renderDefaultPageSelector({
   path = '/projects',
   currentUser = mockLoggedInUser(),
 }: {
-  path?: string;
   currentUser?: CurrentUser;
+  path?: string;
 } = {}) {
   return render(
     <MemoryRouter initialEntries={[path]}>

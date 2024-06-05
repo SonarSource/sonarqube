@@ -25,13 +25,13 @@ import ActivationFormModal from './ActivationFormModal';
 
 interface Props {
   activation?: RuleActivation;
+  ariaLabel?: string;
   buttonText: string;
   className?: string;
   modalHeader: string;
   onDone?: (severity: string, prioritizedRule: boolean) => Promise<void> | void;
   profiles: BaseProfile[];
   rule: Rule | RuleDetails;
-  ariaLabel?: string;
 }
 
 export default function ActivationButton(props: Props) {

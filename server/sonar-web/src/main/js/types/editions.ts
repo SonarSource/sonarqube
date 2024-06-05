@@ -34,9 +34,12 @@ export interface Edition {
 }
 
 export interface License {
+  canActivateGracePeriod: boolean;
   contactEmail: string;
   edition: string;
   expiresAt: string;
+  gracePeriodEndDate?: string;
+  gracePeriodExpired?: boolean;
   isExpired: boolean;
   isOfficialDistribution: boolean;
   isSupported: boolean;
@@ -48,7 +51,4 @@ export interface License {
   remainingLocThreshold: number;
   serverId: string;
   type: string;
-  canActivateGracePeriod: boolean;
-  gracePeriodEndDate?: string;
-  gracePeriodExpired?: boolean;
 }

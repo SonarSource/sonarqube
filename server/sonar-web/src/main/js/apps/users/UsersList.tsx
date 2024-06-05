@@ -27,8 +27,8 @@ import UserListItem from './components/UserListItem';
 
 interface Props {
   identityProviders: IdentityProvider[];
-  users: RestUserDetailed[];
   manageProvider: Provider | undefined;
+  users: RestUserDetailed[];
 }
 
 export default function UsersList({ identityProviders, users, manageProvider }: Props) {

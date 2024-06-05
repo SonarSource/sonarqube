@@ -38,8 +38,8 @@ export interface GitlabProjectSelectionFormProps {
   onSearch: (searchQuery: string) => void;
   projects?: GitlabProject[];
   projectsPaging: Paging;
-  searching: boolean;
   searchQuery: string;
+  searching: boolean;
 }
 
 export default function GitlabProjectSelectionForm(

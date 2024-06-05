@@ -46,10 +46,10 @@ export enum MigrationStatus {
 }
 
 export interface MigrationsStatusResponse {
-  status: MigrationStatus;
   completedSteps?: number;
-  totalSteps?: number;
-  startedAt?: string;
-  message?: string;
   expectedFinishTimestamp?: string;
+  message?: string;
+  startedAt?: string;
+  status: MigrationStatus;
+  totalSteps?: number;
 }

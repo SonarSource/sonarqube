@@ -23,9 +23,9 @@ import FormattingTips from '../../../components/common/FormattingTips';
 import { translate } from '../../../helpers/l10n';
 
 export interface HotspotCommentPopupProps {
-  value?: string;
-  onSubmit: (comment: string) => void;
   onCancel: () => void;
+  onSubmit: (comment: string) => void;
+  value?: string;
 }
 
 export default function HotspotCommentModal(props: HotspotCommentPopupProps) {

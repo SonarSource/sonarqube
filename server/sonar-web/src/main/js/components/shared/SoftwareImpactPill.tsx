@@ -30,9 +30,9 @@ import SoftwareImpactSeverityIcon from '../icon-mappers/SoftwareImpactSeverityIc
 
 export interface Props {
   className?: string;
+  quality: string;
   severity: SoftwareImpactSeverity;
   type?: 'issue' | 'rule';
-  quality: string;
 }
 
 export default function SoftwareImpactPill(props: Props) {

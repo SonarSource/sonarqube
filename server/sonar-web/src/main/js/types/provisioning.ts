@@ -21,15 +21,14 @@ import { TaskStatuses } from './tasks';
 
 export type GithubStatusDisabled = {
   enabled: false;
-  nextSync?: never;
   lastSync?: never;
+  nextSync?: never;
 };
 export interface GithubStatusEnabled extends AlmSyncStatus {
   enabled: true;
 }
 
 export interface AlmSyncStatus {
-  nextSync?: { status: TaskStatuses.Pending | TaskStatuses.InProgress };
   lastSync?: {
     executionTimeMs: number;
     finishedAt: number;
@@ -37,16 +36,17 @@ export interface AlmSyncStatus {
     warningMessage?: string;
   } & (
     | {
+        errorMessage?: never;
         status: TaskStatuses.Success;
         summary?: string;
-        errorMessage?: never;
       }
     | {
+        errorMessage?: string;
         status: TaskStatuses.Canceled | TaskStatuses.Failed;
         summary?: never;
-        errorMessage?: string;
       }
   );
+  nextSync?: { status: TaskStatuses.Pending | TaskStatuses.InProgress };
 }
 
 export type GithubStatus = GithubStatusDisabled | GithubStatusEnabled;
@@ -58,70 +58,70 @@ export enum GitHubProvisioningStatus {
 
 type GitHubProvisioning =
   | {
-      status: GitHubProvisioningStatus.Success;
       errorMessage?: never;
+      status: GitHubProvisioningStatus.Success;
     }
   | {
-      status: GitHubProvisioningStatus.Failed;
       errorMessage: string;
+      status: GitHubProvisioningStatus.Failed;
     };
 
 export interface GitHubConfigurationStatus {
   application: {
-    jit: GitHubProvisioning;
     autoProvisioning: GitHubProvisioning;
+    jit: GitHubProvisioning;
   };
   installations: {
-    organization: string;
-    jit: GitHubProvisioning;
     autoProvisioning: GitHubProvisioning;
+    jit: GitHubProvisioning;
+    organization: string;
   }[];
 }
 
 export interface GitHubMapping {
-  readonly id: string;
-  readonly githubRole: string;
   readonly baseRole?: boolean;
+  readonly githubRole: string;
+  readonly id: string;
   permissions: {
-    user: boolean;
+    admin: boolean;
     codeViewer: boolean;
     issueAdmin: boolean;
-    securityHotspotAdmin: boolean;
-    admin: boolean;
     scan: boolean;
+    securityHotspotAdmin: boolean;
+    user: boolean;
   };
 }
 
 export interface GitLabConfigurationCreateBody {
   applicationId: string;
-  url: string;
   secret: string;
   synchronizeGroups: boolean;
+  url: string;
 }
 
 export type GitLabConfigurationUpdateBody = {
+  allowUsersToSignUp?: boolean;
+  allowedGroups?: string[];
   applicationId?: string;
-  url?: string;
+  enabled?: boolean;
+  provisioningToken?: string;
+  provisioningType?: ProvisioningType;
   secret?: string;
   synchronizeGroups?: boolean;
-  enabled?: boolean;
-  provisioningType?: ProvisioningType;
-  provisioningToken?: string;
-  allowedGroups?: string[];
-  allowUsersToSignUp?: boolean;
+  url?: string;
 };
 
 export type GitlabConfiguration = {
-  id: string;
-  enabled: boolean;
+  allowUsersToSignUp: boolean;
+  allowedGroups: string[];
   applicationId: string;
+  enabled: boolean;
+  errorMessage?: string;
+  id: string;
+  isProvisioningTokenSet: boolean;
+  provisioningType: ProvisioningType;
   synchronizeGroups: boolean;
   url: string;
-  provisioningType: ProvisioningType;
-  allowedGroups: string[];
-  allowUsersToSignUp: boolean;
-  errorMessage?: string;
-  isProvisioningTokenSet: boolean;
 };
 
 export enum ProvisioningType {

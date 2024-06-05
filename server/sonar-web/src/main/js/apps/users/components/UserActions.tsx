@@ -34,8 +34,8 @@ import PasswordForm from './PasswordForm';
 import UserForm from './UserForm';
 
 interface Props {
-  user: RestUserDetailed;
   manageProvider: Provider | undefined;
+  user: RestUserDetailed;
 }
 
 export default function UserActions(props: Props) {

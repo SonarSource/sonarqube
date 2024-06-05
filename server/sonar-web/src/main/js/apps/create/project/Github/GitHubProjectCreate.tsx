@@ -34,9 +34,9 @@ import GitHubProjectCreateRenderer from './GitHubProjectCreateRenderer';
 import { redirectToGithub } from './utils';
 
 interface Props {
+  dopSettings: DopSetting[];
   isLoadingBindings: boolean;
   onProjectSetupDone: (importProjects: ImportProjectParam) => void;
-  dopSettings: DopSetting[];
 }
 
 export default function GitHubProjectCreate(props: Readonly<Props>) {

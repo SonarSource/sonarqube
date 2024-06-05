@@ -50,8 +50,8 @@ interface State {
 }
 
 interface RuleDescriptionContextDisplay {
-  displayName: string;
   content: string;
+  displayName: string;
   key: string;
 }
 

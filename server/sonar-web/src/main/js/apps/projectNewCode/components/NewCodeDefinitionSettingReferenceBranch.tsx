@@ -30,6 +30,7 @@ export interface BaselineSettingReferenceBranchProps {
   branchList: BranchOption[];
   className?: string;
   disabled?: boolean;
+  inputSelectMenuPlacement?: MenuPlacement;
   onChangeReferenceBranch: (value: string) => void;
   onSelect: (selection: NewCodeDefinitionType) => void;
   referenceBranch: string;
@@ -38,7 +39,6 @@ export interface BaselineSettingReferenceBranchProps {
     NewCodeDefinitionLevels,
     NewCodeDefinitionLevels.NewProject | NewCodeDefinitionLevels.Global
   >;
-  inputSelectMenuPlacement?: MenuPlacement;
 }
 
 export interface BranchOption {

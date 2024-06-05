@@ -30,11 +30,11 @@ import { NewCodeDefinitionType } from '../../../types/new-code-definition';
 import { Analysis } from '../../../types/project-activity';
 
 export interface Props {
-  onSelect: (selection: NewCodeDefinitionType) => void;
-  selected: boolean;
   analysis: string;
   branch: string;
   component: string;
+  onSelect: (selection: NewCodeDefinitionType) => void;
+  selected: boolean;
 }
 
 export default function NewCodeDefinitionSettingAnalysis({

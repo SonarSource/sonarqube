@@ -20,8 +20,8 @@
 import { useEffect, useState } from 'react';
 
 interface Options {
-  offset: number;
   direction?: 'HORIZONTAL' | 'VERTICAL';
+  offset: number;
 }
 
 /*

@@ -36,8 +36,8 @@ export interface BitbucketCloudSearchFormProps {
   onLoadMore: () => void;
   onSearch: (searchQuery: string) => void;
   repositories?: BitbucketCloudRepository[];
-  searching: boolean;
   searchQuery: string;
+  searching: boolean;
 }
 
 function getRepositoryUrl(workspace: string, slug: string) {

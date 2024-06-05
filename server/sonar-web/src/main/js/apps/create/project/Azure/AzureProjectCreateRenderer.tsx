@@ -44,22 +44,22 @@ import AzurePersonalAccessTokenForm from './AzurePersonalAccessTokenForm';
 import AzureProjectsList from './AzureProjectsList';
 
 export interface AzureProjectCreateRendererProps {
+  almInstances?: AlmSettingsInstance[];
   loading: boolean;
   loadingRepositories: Dict<boolean>;
   onImportRepository: (resository: AzureRepository) => void;
   onOpenProject: (key: string) => void;
   onPersonalAccessTokenCreate: () => void;
   onSearch: (query: string) => void;
+  onSelectedAlmInstanceChange: (instance: AlmSettingsInstance) => void;
   projects?: AzureProject[];
   repositories?: Dict<AzureRepository[]>;
-  searching?: boolean;
-  searchResults?: AzureRepository[];
+  resetPat: boolean;
   searchQuery?: string;
-  almInstances?: AlmSettingsInstance[];
+  searchResults?: AzureRepository[];
+  searching?: boolean;
   selectedAlmInstance?: AlmSettingsInstance;
   showPersonalAccessTokenForm?: boolean;
-  resetPat: boolean;
-  onSelectedAlmInstanceChange: (instance: AlmSettingsInstance) => void;
 }
 
 export default function AzureProjectCreateRenderer(

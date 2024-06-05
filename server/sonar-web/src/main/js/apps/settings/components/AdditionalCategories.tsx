@@ -38,14 +38,14 @@ import PullRequestDecorationBinding from './pullRequestDecorationBinding/PRDecor
 
 export interface AdditionalCategoryComponentProps {
   categories: string[];
-  definitions: ExtendedSettingDefinition[];
   component: Component | undefined;
+  definitions: ExtendedSettingDefinition[];
   selectedCategory: string;
 }
 
 export interface AdditionalCategory {
-  availableGlobally: boolean;
   availableForProject: boolean;
+  availableGlobally: boolean;
   displayTab: boolean;
   key: string;
   name: string;

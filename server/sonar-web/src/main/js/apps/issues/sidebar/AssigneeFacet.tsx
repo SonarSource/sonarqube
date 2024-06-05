@@ -37,8 +37,8 @@ interface Props {
   onToggle: (property: string) => void;
   open: boolean;
   query: Query;
-  stats: Dict<number> | undefined;
   referencedUsers: Dict<UserBase>;
+  stats: Dict<number> | undefined;
 }
 
 export class AssigneeFacet extends React.PureComponent<Props> {

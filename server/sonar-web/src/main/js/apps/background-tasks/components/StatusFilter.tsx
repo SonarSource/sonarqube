@@ -24,9 +24,9 @@ import { TaskStatuses } from '../../../types/tasks';
 import { STATUSES } from '../constants';
 
 interface StatusFilterProps {
-  value?: string;
   id: string;
   onChange: (value?: string) => void;
+  value?: string;
 }
 
 export default function StatusFilter(props: Readonly<StatusFilterProps>) {

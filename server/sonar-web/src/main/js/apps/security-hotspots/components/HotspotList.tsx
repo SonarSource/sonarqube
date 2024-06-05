@@ -47,8 +47,8 @@ interface Props {
 interface State {
   expandedCategories: Dict<boolean>;
   groupedHotspots: Array<{
+    categories: Array<{ hotspots: RawHotspot[]; key: string; title: string }>;
     risk: HotspotRatingEnum;
-    categories: Array<{ key: string; hotspots: RawHotspot[]; title: string }>;
   }>;
 }
 

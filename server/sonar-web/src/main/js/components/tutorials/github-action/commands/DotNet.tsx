@@ -26,9 +26,9 @@ import MonorepoDocLinkFallback from './MonorepoDocLinkFallback';
 
 export interface DotNetProps {
   branchesEnabled?: boolean;
+  component: Component;
   mainBranchName: string;
   monorepo?: boolean;
-  component: Component;
 }
 
 function dotnetYamlSteps(projectKey: string) {

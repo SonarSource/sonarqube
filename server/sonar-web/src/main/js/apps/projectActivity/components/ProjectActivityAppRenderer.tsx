@@ -41,13 +41,13 @@ interface Props {
   analyses: ParsedAnalysis[];
   analysesLoading: boolean;
   graphLoading: boolean;
-  leakPeriodDate?: Date;
   initializing: boolean;
-  project: Pick<Component, 'configuration' | 'key' | 'leakPeriodDate' | 'qualifier'>;
-  metrics: Metric[];
+  leakPeriodDate?: Date;
   measuresHistory: MeasureHistory[];
-  query: Query;
+  metrics: Metric[];
   onUpdateQuery: (changes: Partial<Query>) => void;
+  project: Pick<Component, 'configuration' | 'key' | 'leakPeriodDate' | 'qualifier'>;
+  query: Query;
 }
 
 export default function ProjectActivityAppRenderer(props: Props) {

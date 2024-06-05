@@ -22,10 +22,10 @@ import React, { ReactElement } from 'react';
 import { translate } from '../../../../helpers/l10n';
 
 interface Props {
-  title: string;
-  showCreate: boolean;
-  onCreate: () => void;
   configurationValidity?: ReactElement;
+  onCreate: () => void;
+  showCreate: boolean;
+  title: string;
 }
 
 export default function TabHeader({

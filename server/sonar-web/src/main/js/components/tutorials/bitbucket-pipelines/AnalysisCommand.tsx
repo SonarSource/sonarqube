@@ -36,8 +36,8 @@ import othersExample from './commands/Others';
 
 export interface AnalysisCommandProps extends WithAvailableFeaturesProps {
   buildTool: BuildTools;
-  mainBranchName: string;
   component: Component;
+  mainBranchName: string;
 }
 
 const YamlTemplate: Dictionary<

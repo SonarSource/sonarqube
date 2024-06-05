@@ -39,8 +39,8 @@ interface Props {
   blocks: DuplicationBlock[];
   branchLike: BranchLike | undefined;
   duplicatedFiles?: Dict<DuplicatedFile>;
-  inRemovedComponent: boolean;
   duplicationHeader: string;
+  inRemovedComponent: boolean;
   openComponent: WorkspaceContextShape['openComponent'];
   sourceViewerFile: SourceViewerFile;
 }

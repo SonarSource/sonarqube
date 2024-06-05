@@ -29,9 +29,9 @@ import Section from './Section';
 interface Props {
   health?: HealthTypes;
   healthCauses?: string[];
+  name: string;
   onClick: (toggledCard: string) => void;
   open: boolean;
-  name: string;
   sysInfoData: SysInfoValueObject;
 }
 

@@ -88,7 +88,7 @@ class Request {
     private readonly options: { method?: string } = {},
   ) {}
 
-  getSubmitData(customHeaders: any = {}): { url: string; options: RequestInit } {
+  getSubmitData(customHeaders: any = {}): { options: RequestInit; url: string } {
     let { url } = this;
     const options: RequestInit = { ...DEFAULT_OPTIONS, ...this.options };
 

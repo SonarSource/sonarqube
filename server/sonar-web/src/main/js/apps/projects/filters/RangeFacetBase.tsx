@@ -30,24 +30,24 @@ import { Facet } from '../types';
 export type Option = string | number;
 
 interface Props {
-  property: string;
   className?: string;
+  facet?: Facet;
+  getFacetValueForOption?: (facet: Facet, option: Option) => number;
+  header: string;
+  highlightUnder?: number;
+  highlightUnderMax?: number;
+
+  maxFacetValue?: number;
   onQueryChange: (change: RawQuery) => void;
+  optionClassName?: string;
   options: Option[];
+
+  property: string;
+
   renderAccessibleLabel: (option: Option) => string;
   renderOption: (option: Option, isSelected: boolean) => React.ReactNode;
 
   value?: Option;
-  facet?: Facet;
-  maxFacetValue?: number;
-  optionClassName?: string;
-
-  getFacetValueForOption?: (facet: Facet, option: Option) => number;
-
-  highlightUnder?: number;
-  highlightUnderMax?: number;
-
-  header: string;
 }
 
 const defaultGetFacetValueForOption = (facet: Facet, option: string | number) => facet[option];

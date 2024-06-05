@@ -27,9 +27,9 @@ import { Image } from '../../common/Image';
 import { OSs, TutorialModes } from '../types';
 
 export interface GithubCFamilyExampleRepositoriesProps {
+  ci?: TutorialModes;
   className?: string;
   os?: OSs;
-  ci?: TutorialModes;
 }
 
 const OS_SEARCH_MAP = {

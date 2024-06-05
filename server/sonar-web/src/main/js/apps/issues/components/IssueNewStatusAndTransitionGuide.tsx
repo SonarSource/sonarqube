@@ -32,9 +32,9 @@ import { Issue } from '../../../types/types';
 import { NoticeType } from '../../../types/users';
 
 interface Props {
+  issues: Issue[];
   run?: boolean;
   togglePopup: (issue: string, popup: string, show?: boolean) => void;
-  issues: Issue[];
 }
 
 const PLACEMENT_RIGHT = 'right';

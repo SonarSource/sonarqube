@@ -40,10 +40,10 @@ interface Props {
   createdBefore: Date | undefined;
   createdInLast: string;
   fetching: boolean;
+  inNewCodePeriod: boolean;
   onChange: (changes: Partial<Query>) => void;
   onToggle: (property: string) => void;
   open: boolean;
-  inNewCodePeriod: boolean;
   stats: Dict<number> | undefined;
 }
 

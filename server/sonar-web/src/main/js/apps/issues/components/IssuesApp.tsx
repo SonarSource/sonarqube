@@ -125,13 +125,12 @@ export interface State {
   facets: Dict<Facet>;
   issues: Issue[];
   loading: boolean;
-  loadingRule: boolean;
   loadingFacets: Dict<boolean>;
   loadingMore: boolean;
+  loadingRule: boolean;
   locationsNavigator: boolean;
   myIssues: boolean;
   openFacets: Dict<boolean>;
-  showVariantsFilter: boolean;
   openIssue?: Issue;
   openPopup?: { issue: string; name: string };
   openRuleDetails?: RuleDetails;
@@ -145,6 +144,7 @@ export interface State {
   selected?: string;
   selectedFlowIndex?: number;
   selectedLocationIndex?: number;
+  showVariantsFilter: boolean;
 }
 
 // When opening a specific issue, number of issues to fetch through pagination before loading it specifically

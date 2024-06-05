@@ -39,14 +39,6 @@ export interface ParsedAnalysis extends BaseAnalysis {
 
 export interface AnalysisEvent {
   category: ProjectAnalysisEventCategory | ApplicationAnalysisEventCategory;
-  description?: string;
-  key: string;
-  name: string;
-  qualityGate?: {
-    failing: Array<{ branch: string; key: string; name: string }>;
-    status: Status;
-    stillFailing: boolean;
-  };
   definitionChange?: {
     projects: Array<{
       branch?: string;
@@ -56,6 +48,14 @@ export interface AnalysisEvent {
       newBranch?: string;
       oldBranch?: string;
     }>;
+  };
+  description?: string;
+  key: string;
+  name: string;
+  qualityGate?: {
+    failing: Array<{ branch: string; key: string; name: string }>;
+    status: Status;
+    stillFailing: boolean;
   };
   qualityProfile?: {
     key: string;
@@ -97,8 +97,8 @@ export interface HistoryItem {
 }
 
 export interface MeasureHistory {
-  metric: MetricKey;
   history: HistoryItem[];
+  metric: MetricKey;
 }
 
 export interface Serie {

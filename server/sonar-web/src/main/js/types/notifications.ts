@@ -54,6 +54,6 @@ export interface NotificationsResponse {
 
 export interface AddRemoveNotificationParameters {
   channel: string;
-  type: string;
   project?: string;
+  type: string;
 }

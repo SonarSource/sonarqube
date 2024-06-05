@@ -33,40 +33,40 @@ import { BaseSearchProjectsParameters } from './components';
 const PAGE_SIZE = 100;
 
 export function grantPermissionToUser(data: {
-  projectKey?: string;
   login: string;
   permission: string;
+  projectKey?: string;
 }) {
   return post('/api/permissions/add_user', data).catch(throwGlobalError);
 }
 
 export function revokePermissionFromUser(data: {
-  projectKey?: string;
   login: string;
   permission: string;
+  projectKey?: string;
 }) {
   return post('/api/permissions/remove_user', data).catch(throwGlobalError);
 }
 
 export function grantPermissionToGroup(data: {
-  projectKey?: string;
   groupName: string;
   permission: string;
+  projectKey?: string;
 }) {
   return post('/api/permissions/add_group', data).catch(throwGlobalError);
 }
 
 export function revokePermissionFromGroup(data: {
-  projectKey?: string;
   groupName: string;
   permission: string;
+  projectKey?: string;
 }) {
   return post('/api/permissions/remove_group', data).catch(throwGlobalError);
 }
 
 interface GetPermissionTemplatesResponse {
+  defaultTemplates: Array<{ qualifier: string; templateId: string }>;
   permissionTemplates: PermissionTemplate[];
-  defaultTemplates: Array<{ templateId: string; qualifier: string }>;
   permissions: Array<Permission>;
 }
 
@@ -76,16 +76,16 @@ export function getPermissionTemplates(): Promise<GetPermissionTemplatesResponse
 }
 
 export function createPermissionTemplate(data: {
-  name: string;
   description?: string;
+  name: string;
   projectKeyPattern?: string;
 }): Promise<{ permissionTemplate: Omit<PermissionTemplate, 'defaultFor'> }> {
   return postJSON('/api/permissions/create_template', data);
 }
 
 export function updatePermissionTemplate(data: {
-  id: string;
   description?: string;
+  id: string;
   name?: string;
   projectKeyPattern?: string;
 }): Promise<void> {
@@ -112,17 +112,17 @@ export function bulkApplyTemplate(data: BaseSearchProjectsParameters): Promise<v
 }
 
 export function grantTemplatePermissionToUser(data: {
-  templateId: string;
   login: string;
   permission: string;
+  templateId: string;
 }): Promise<void> {
   return post('/api/permissions/add_user_to_template', data);
 }
 
 export function revokeTemplatePermissionFromUser(data: {
-  templateId: string;
   login: string;
   permission: string;
+  templateId: string;
 }): Promise<void> {
   return post('/api/permissions/remove_user_from_template', data);
 }
@@ -147,11 +147,11 @@ export function removeProjectCreatorFromTemplate(
 }
 
 export function getPermissionsUsersForComponent(data: {
-  projectKey: string;
-  q?: string;
-  permission?: string;
   p?: number;
+  permission?: string;
+  projectKey: string;
   ps?: number;
+  q?: string;
 }): Promise<{ paging: Paging; users: PermissionUser[] }> {
   if (!data.ps) {
     data.ps = PAGE_SIZE;
@@ -160,12 +160,12 @@ export function getPermissionsUsersForComponent(data: {
 }
 
 export function getPermissionsGroupsForComponent(data: {
-  projectKey: string;
-  q?: string;
-  permission?: string;
   p?: number;
+  permission?: string;
+  projectKey: string;
   ps?: number;
-}): Promise<{ paging: Paging; groups: PermissionGroup[] }> {
+  q?: string;
+}): Promise<{ groups: PermissionGroup[]; paging: Paging }> {
   if (!data.ps) {
     data.ps = PAGE_SIZE;
   }
@@ -173,10 +173,10 @@ export function getPermissionsGroupsForComponent(data: {
 }
 
 export function getGlobalPermissionsUsers(data: {
-  q?: string;
-  permission?: string;
   p?: number;
+  permission?: string;
   ps?: number;
+  q?: string;
 }): Promise<{ paging: Paging; users: PermissionUser[] }> {
   if (!data.ps) {
     data.ps = PAGE_SIZE;
@@ -185,11 +185,11 @@ export function getGlobalPermissionsUsers(data: {
 }
 
 export function getGlobalPermissionsGroups(data: {
-  q?: string;
-  permission?: string;
   p?: number;
+  permission?: string;
   ps?: number;
-}): Promise<{ paging: Paging; groups: PermissionGroup[] }> {
+  q?: string;
+}): Promise<{ groups: PermissionGroup[]; paging: Paging }> {
   if (!data.ps) {
     data.ps = PAGE_SIZE;
   }
@@ -197,11 +197,11 @@ export function getGlobalPermissionsGroups(data: {
 }
 
 export function getPermissionTemplateUsers(data: {
-  templateId: string;
-  q?: string;
-  permission?: string;
   p?: number;
+  permission?: string;
   ps?: number;
+  q?: string;
+  templateId: string;
 }): Promise<{ paging: Paging; users: PermissionUser[] }> {
   if (data.ps === undefined) {
     data.ps = PAGE_SIZE;
@@ -210,12 +210,12 @@ export function getPermissionTemplateUsers(data: {
 }
 
 export function getPermissionTemplateGroups(data: {
-  templateId: string;
-  q?: string;
-  permission?: string;
   p?: number;
+  permission?: string;
   ps?: number;
-}): Promise<{ paging: Paging; groups: PermissionGroup[] }> {
+  q?: string;
+  templateId: string;
+}): Promise<{ groups: PermissionGroup[]; paging: Paging }> {
   if (data.ps === undefined) {
     data.ps = PAGE_SIZE;
   }

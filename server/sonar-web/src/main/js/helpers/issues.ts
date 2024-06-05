@@ -104,7 +104,7 @@ const FLOW_ORDER_MAP = {
 function splitFlows(
   issue: RawIssue,
   components: Component[] = [],
-): { secondaryLocations: FlowLocation[]; flows: FlowLocation[][]; flowsWithType: Flow[] } {
+): { flows: FlowLocation[][]; flowsWithType: Flow[]; secondaryLocations: FlowLocation[] } {
   if (issue.flows?.some((flow) => flow.type !== undefined)) {
     const flowsWithType = issue.flows.filter((flow) => flow.type !== undefined) as Flow[];
     flowsWithType.sort((f1, f2) => FLOW_ORDER_MAP[f1.type] - FLOW_ORDER_MAP[f2.type]);

@@ -38,8 +38,8 @@ interface Props {
   loadingRepositories: boolean;
   onSearchRepositories: (query: string) => void;
   onSelectRepository: (repositoryKey: string) => void;
-  repositorySearchQuery: string;
   repositoryOptions?: LabelValueSelectOption[] | GroupBase<LabelValueSelectOption>[];
+  repositorySearchQuery: string;
   selectedOrganization?: LabelValueSelectOption;
   selectedRepository?: LabelValueSelectOption;
   showOrganizations?: boolean;

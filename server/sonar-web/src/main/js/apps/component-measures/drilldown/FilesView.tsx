@@ -43,8 +43,8 @@ interface Props {
   components: ComponentMeasureEnhanced[];
   defaultShowBestMeasures: boolean;
   fetchMore: () => void;
-  handleSelect: (component: ComponentMeasureEnhanced) => void;
   handleOpen: (component: ComponentMeasureEnhanced) => void;
+  handleSelect: (component: ComponentMeasureEnhanced) => void;
   loadingMore: boolean;
   metric: Metric;
   metrics: Dict<Metric>;

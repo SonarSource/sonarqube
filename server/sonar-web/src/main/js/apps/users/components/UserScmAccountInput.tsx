@@ -23,9 +23,9 @@ import { translate, translateWithParameters } from '../../../helpers/l10n';
 
 export interface Props {
   idx: number;
-  scmAccount: string;
   onChange: (idx: number, scmAccount: string) => void;
   onRemove: (idx: number) => void;
+  scmAccount: string;
 }
 
 export default function UserScmAccountInput(props: Props) {

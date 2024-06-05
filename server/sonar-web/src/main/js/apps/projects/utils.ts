@@ -154,7 +154,7 @@ export function localizeSorting(sort?: string): string {
   return translate('projects.sort', sort ?? 'name');
 }
 
-export function parseSorting(sort: string): { sortValue: string; sortDesc: boolean } {
+export function parseSorting(sort: string): { sortDesc: boolean; sortValue: string } {
   const desc = sort.startsWith('-');
 
   return { sortValue: desc ? sort.substring(1) : sort, sortDesc: desc };
@@ -178,9 +178,9 @@ export function fetchProjects({
   query,
   pageIndex = 1,
 }: {
-  query: Query;
   isFavorite: boolean;
   pageIndex?: number;
+  query: Query;
 }) {
   const ps = PAGE_SIZE;
 
@@ -271,7 +271,7 @@ export function fetchProjectMeasures(projects: Array<{ key: string }>, query: Qu
   return getMeasuresForProjects(projectKeys, metrics);
 }
 
-function mapFacetValues(values: Array<{ val: string; count: number }>) {
+function mapFacetValues(values: Array<{ count: number; val: string }>) {
   const map: Dict<number> = {};
 
   values.forEach((value) => {
@@ -324,7 +324,7 @@ function getFacetsMap(facets: Facet[]) {
   return map;
 }
 
-export function convertToSorting({ sort }: Query): { s?: string; asc?: boolean } {
+export function convertToSorting({ sort }: Query): { asc?: boolean; s?: string } {
   if (sort?.startsWith('-')) {
     return { s: propertyToMetricMap[sort.substring(1)], asc: false };
   }
@@ -338,7 +338,7 @@ const ONE_DAY = 24 * ONE_HOUR;
 const ONE_MONTH = 30 * ONE_DAY;
 const ONE_YEAR = 12 * ONE_MONTH;
 
-function format(periods: Array<{ value: number; label: string }>) {
+function format(periods: Array<{ label: string; value: number }>) {
   let result = '';
   let count = 0;
   let lastId = -1;

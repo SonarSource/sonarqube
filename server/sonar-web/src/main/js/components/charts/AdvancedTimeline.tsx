@@ -41,15 +41,14 @@ import './AdvancedTimeline.css';
 import './LineChart.css';
 
 export interface PropsWithoutTheme {
-  graphDescription?: string;
   basisCurve?: boolean;
-  endDate?: Date;
   disableZoom?: boolean;
+  endDate?: Date;
   formatYTick?: (tick: number | string) => string;
+  graphDescription?: string;
+  height: number;
   hideGrid?: boolean;
   hideXAxis?: boolean;
-  height: number;
-  width: number;
   leakPeriodDate?: Date;
   // used to avoid same y ticks labels
   maxYTicksCount?: number;
@@ -62,6 +61,7 @@ export interface PropsWithoutTheme {
   updateSelectedDate?: (selectedDate?: Date) => void;
   updateTooltip?: (selectedDate?: Date, tooltipXPos?: number, tooltipIdx?: number) => void;
   updateZoom?: (start?: Date, endDate?: Date) => void;
+  width: number;
   zoomSpeed?: number;
 }
 
@@ -79,10 +79,10 @@ interface State {
   maxXRange: number[];
   mouseOver?: boolean;
   selectedDate?: Date;
-  selectedDateXPos?: number;
   selectedDateIdx?: number;
-  yScale: YScale;
+  selectedDateXPos?: number;
   xScale: XScale;
+  yScale: YScale;
 }
 
 export class AdvancedTimelineClass extends React.PureComponent<Props, State> {

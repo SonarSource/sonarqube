@@ -22,13 +22,13 @@ import * as React from 'react';
 export type FacetItemsListProps =
   | {
       children?: React.ReactNode;
-      labelledby: string;
       label?: never;
+      labelledby: string;
     }
   | {
       children?: React.ReactNode;
-      labelledby?: never;
       label: string;
+      labelledby?: never;
     };
 
 export function FacetItemsList({ children, labelledby, label }: FacetItemsListProps) {

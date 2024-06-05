@@ -47,10 +47,10 @@ import IssueHeaderSide from './IssueHeaderSide';
 import IssueNewStatusAndTransitionGuide from './IssueNewStatusAndTransitionGuide';
 
 interface Props {
-  issue: Issue;
-  ruleDetails: RuleDetails;
   branchLike?: BranchLike;
+  issue: Issue;
   onIssueChange: (issue: Issue) => void;
+  ruleDetails: RuleDetails;
 }
 
 interface State {

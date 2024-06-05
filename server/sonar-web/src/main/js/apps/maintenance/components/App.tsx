@@ -44,15 +44,15 @@ interface Props {
 
 interface State {
   message?: string;
-  startedAt?: string;
   migrationState?: MigrationStatus;
-  systemStatus?: string;
-  wasStarting?: boolean;
   progress?: {
     completedSteps: number;
-    totalSteps: number;
     expectedFinishTimestamp: string;
+    totalSteps: number;
   };
+  startedAt?: string;
+  systemStatus?: string;
+  wasStarting?: boolean;
 }
 
 const DELAY_REDIRECT_PREV_PAGE = 2500;

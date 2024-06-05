@@ -35,12 +35,12 @@ export enum ProjectActivityStatuses {
 }
 
 export type ProjectActivityParams = {
-  project?: string;
-  statuses?: string;
   category?: string;
   from?: string;
   p?: number;
+  project?: string;
   ps?: number;
+  statuses?: string;
 } & BranchParameters;
 
 export interface ProjectActivityResponse {
@@ -79,17 +79,17 @@ export function getAllTimeProjectActivity(
 
 export interface CreateEventResponse {
   analysis: string;
-  key: string;
-  name: string;
   category: ProjectAnalysisEventCategory | ApplicationAnalysisEventCategory;
   description?: string;
+  key: string;
+  name: string;
 }
 
 export function createEvent(data: {
   analysis: string;
-  name: string;
   category?: string;
   description?: string;
+  name: string;
 }): Promise<CreateEventResponse> {
   return postJSON('/api/project_analyses/create_event', data).then(
     (r) => r.event,
@@ -102,9 +102,9 @@ export function deleteEvent(event: string): Promise<void | Response> {
 }
 
 export function changeEvent(data: {
+  description?: string;
   event: string;
   name?: string;
-  description?: string;
 }): Promise<CreateEventResponse> {
   return postJSON('/api/project_analyses/update_event', data).then(
     (r) => r.event,

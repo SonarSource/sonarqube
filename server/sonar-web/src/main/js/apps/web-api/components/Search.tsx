@@ -24,10 +24,10 @@ import { translate } from '../../../helpers/l10n';
 import { Query } from '../utils';
 
 interface Props {
-  query: Query;
   onSearch: (search: string) => void;
-  onToggleInternal: () => void;
   onToggleDeprecated: () => void;
+  onToggleInternal: () => void;
+  query: Query;
 }
 
 export default function Search(props: Props) {

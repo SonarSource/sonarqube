@@ -36,8 +36,8 @@ import {
 } from '../utils';
 
 interface Props {
-  profile: Profile;
   isComparable: boolean;
+  profile: Profile;
   updateProfiles: () => Promise<void>;
 }
 

@@ -33,8 +33,8 @@ import { GradleBuildDSL } from '../../types';
 import DoneNextSteps from '../DoneNextSteps';
 
 export interface JavaGradleProps {
-  component: Component;
   baseUrl: string;
+  component: Component;
   token: string;
 }
 

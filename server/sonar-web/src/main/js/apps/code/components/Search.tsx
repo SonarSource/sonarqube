@@ -39,15 +39,15 @@ interface Props {
   component: ComponentMeasure;
   location: Location;
   newCodeSelected: boolean;
-  onSearchClear: () => void;
   onNewCodeToggle: (newCode: boolean) => void;
+  onSearchClear: () => void;
   onSearchResults: (results?: ComponentMeasure[]) => void;
   router: Router;
 }
 
 interface State {
-  query: string;
   loading: boolean;
+  query: string;
 }
 
 class Search extends React.PureComponent<Props, State> {

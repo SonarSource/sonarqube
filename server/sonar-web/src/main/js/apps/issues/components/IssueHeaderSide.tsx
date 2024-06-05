@@ -51,8 +51,8 @@ export default function IssueHeaderSide({ issue }: Readonly<Props>) {
 
 interface IssueHeaderMetaItemProps extends React.HTMLAttributes<HTMLDivElement> {
   children: React.ReactNode;
-  title: string;
   className?: string;
+  title: string;
 }
 
 function IssueHeaderInfo({

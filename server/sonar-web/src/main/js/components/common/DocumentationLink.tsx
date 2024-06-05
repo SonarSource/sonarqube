@@ -23,7 +23,7 @@ import * as React from 'react';
 import { DocLink } from '../../helpers/doc-links';
 import { useDocUrl } from '../../helpers/docs';
 
-type Props = Omit<LinkProps, 'to'> & { to: DocLink; innerRef?: React.Ref<HTMLAnchorElement> };
+type Props = Omit<LinkProps, 'to'> & { innerRef?: React.Ref<HTMLAnchorElement>; to: DocLink };
 
 export default function DocumentationLink({ to, innerRef, ...props }: Props) {
   const toStatic = useDocUrl(to);

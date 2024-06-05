@@ -25,8 +25,8 @@ import { Query } from '../utils';
 import { FacetItemsList } from './FacetItemsList';
 
 export interface PeriodFilterProps {
-  onChange: (changes: Partial<Query>) => void;
   newCodeSelected: boolean;
+  onChange: (changes: Partial<Query>) => void;
 }
 
 enum Period {

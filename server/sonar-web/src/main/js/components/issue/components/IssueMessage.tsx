@@ -30,9 +30,9 @@ import { BranchLike } from '../../../types/branch-like';
 import { Issue } from '../../../types/types';
 
 export interface IssueMessageProps {
-  issue: Issue;
   branchLike?: BranchLike;
   displayWhyIsThisAnIssue?: boolean;
+  issue: Issue;
 }
 
 export default function IssueMessage(props: IssueMessageProps) {

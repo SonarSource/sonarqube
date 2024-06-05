@@ -34,8 +34,8 @@ interface Props {
 }
 
 interface State {
-  loading: boolean;
   dismissedWarning?: string;
+  loading: boolean;
   warnings: TaskWarning[];
 }
 

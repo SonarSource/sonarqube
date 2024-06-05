@@ -50,20 +50,11 @@ import Search from './Search';
 import SourceViewerWrapper from './SourceViewerWrapper';
 
 interface Props {
-  branchLike?: BranchLike;
-  component: Component;
-  location: Location;
-  metrics: Dict<Metric>;
   baseComponent?: ComponentMeasure;
+  branchLike?: BranchLike;
   breadcrumbs: Breadcrumb[];
+  component: Component;
   components?: ComponentMeasure[];
-  highlighted?: ComponentMeasure;
-  loading: boolean;
-  searchResults?: ComponentMeasure[];
-  sourceViewer?: ComponentMeasure;
-  total: number;
-  newCodeSelected: boolean;
-
   handleGoToParent: () => void;
   handleHighlight: (highlighted: ComponentMeasure) => void;
   handleLoadMore: () => void;
@@ -71,6 +62,15 @@ interface Props {
   handleSearchResults: (searchResults: ComponentMeasure[]) => void;
   handleSelect: (component: ComponentMeasure) => void;
   handleSelectNewCode: (newCodeSelected: boolean) => void;
+  highlighted?: ComponentMeasure;
+
+  loading: boolean;
+  location: Location;
+  metrics: Dict<Metric>;
+  newCodeSelected: boolean;
+  searchResults?: ComponentMeasure[];
+  sourceViewer?: ComponentMeasure;
+  total: number;
 }
 
 export default function CodeAppRenderer(props: Readonly<Props>) {

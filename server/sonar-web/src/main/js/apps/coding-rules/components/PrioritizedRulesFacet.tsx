@@ -22,8 +22,8 @@ import { translate } from '../../../helpers/l10n';
 import Facet, { BasicProps } from './Facet';
 
 interface Props extends Omit<BasicProps, 'onChange' | 'values'> {
-  onChange: (changes: { prioritizedRule: boolean | undefined }) => void;
   disabled: boolean;
+  onChange: (changes: { prioritizedRule: boolean | undefined }) => void;
   value: boolean | undefined;
 }
 

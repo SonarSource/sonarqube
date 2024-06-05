@@ -32,13 +32,13 @@ import ConditionsTable from './ConditionsTable';
 
 interface Props {
   canEdit: boolean;
-  metrics: Dict<Metric>;
   conditions: Condition[];
-  scope: 'new' | 'overall' | 'new-cayc';
-  onClose: () => void;
-  lockEditing: () => void;
-  qualityGate: QualityGate;
   isOptimizing?: boolean;
+  lockEditing: () => void;
+  metrics: Dict<Metric>;
+  onClose: () => void;
+  qualityGate: QualityGate;
+  scope: 'new' | 'overall' | 'new-cayc';
 }
 
 export default function CaycReviewUpdateConditionsModal(props: Readonly<Props>) {

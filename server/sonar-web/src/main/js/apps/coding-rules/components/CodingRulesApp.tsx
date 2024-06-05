@@ -89,8 +89,8 @@ interface Props {
 
 interface State {
   actives?: Actives;
-  canWrite?: boolean;
   canDeactivateInherited?: boolean;
+  canWrite?: boolean;
   facets?: Facets;
   loading: boolean;
   openFacets: OpenFacets;

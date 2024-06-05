@@ -32,9 +32,9 @@ interface Props {
 }
 
 interface State {
-  passwordValue: string;
-  confirmPasswordValue: string;
   canSubmit?: boolean;
+  confirmPasswordValue: string;
+  passwordValue: string;
   submitting: boolean;
   success: boolean;
 }

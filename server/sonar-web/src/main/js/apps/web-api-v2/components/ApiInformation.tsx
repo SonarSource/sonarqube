@@ -28,10 +28,10 @@ import ApiResponses from './ApiResponses';
 import RestMethodPill from './RestMethodPill';
 
 interface Props {
-  data: ExcludeReferences<OpenAPIV3.OperationObject<InternalExtension>>;
   apiUrl: string;
-  name: string;
+  data: ExcludeReferences<OpenAPIV3.OperationObject<InternalExtension>>;
   method: string;
+  name: string;
 }
 
 export default function ApiInformation({ name, data, method, apiUrl }: Readonly<Props>) {

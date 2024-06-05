@@ -51,8 +51,8 @@ interface Props {
 }
 
 interface ByType {
-  val: string;
   count: number | null;
+  val: string;
 }
 
 export default function ProfileRules({ profile }: Readonly<Props>) {
@@ -65,9 +65,9 @@ export default function ProfileRules({ profile }: Readonly<Props>) {
   const [countsBySoftwareImpact, setCountsBySoftwareImpact] = useState<Dict<ByType>>({});
   const [totalBySoftwareQuality, setTotalBySoftwareQuality] = useState<Dict<ByType>>({});
   const [sonarWayDiff, setSonarWayDiff] = useState<{
+    missingRuleCount: number;
     profile: string;
     profileName: string;
-    missingRuleCount: number;
   } | null>(null);
 
   useEffect(() => {

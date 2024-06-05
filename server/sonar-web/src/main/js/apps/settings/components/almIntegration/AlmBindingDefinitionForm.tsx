@@ -48,28 +48,28 @@ import { BITBUCKET_CLOUD_WORKSPACE_ID_FORMAT } from '../../constants';
 import AlmBindingDefinitionFormRenderer from './AlmBindingDefinitionFormRenderer';
 
 export interface AlmBindingDefinitionFormProps {
+  afterSubmit: (data: AlmBindingDefinitionBase) => void;
   alm: AlmKeys;
   bindingDefinition?: AlmBindingDefinition;
-  onCancel: () => void;
-  afterSubmit: (data: AlmBindingDefinitionBase) => void;
   enforceValidation?: boolean;
+  onCancel: () => void;
 }
 
 interface State {
-  formData: AlmBindingDefinition;
-  touched: boolean;
-  submitting: boolean;
-  bitbucketVariant?: AlmKeys.BitbucketServer | AlmKeys.BitbucketCloud;
   alreadySavedFormData?: AlmBindingDefinition;
+  bitbucketVariant?: AlmKeys.BitbucketServer | AlmKeys.BitbucketCloud;
+  formData: AlmBindingDefinition;
+  submitting: boolean;
+  touched: boolean;
   validationError?: string;
 }
 
 const BINDING_PER_ALM: {
   [key in AlmKeys]: {
     createApi: (def: AlmBindingDefinition) => Promise<void>;
-    updateApi: (def: AlmBindingDefinition) => Promise<void>;
     defaultBinding: AlmBindingDefinition;
     optionalFields: Dict<boolean>;
+    updateApi: (def: AlmBindingDefinition) => Promise<void>;
   };
 } = {
   [AlmKeys.Azure]: {

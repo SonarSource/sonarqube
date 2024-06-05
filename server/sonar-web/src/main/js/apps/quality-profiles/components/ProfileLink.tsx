@@ -22,8 +22,8 @@ import * as React from 'react';
 import { getProfilePath } from '../utils';
 
 interface Props {
-  className?: string;
   children?: React.ReactElement<any> | string;
+  className?: string;
   language: string;
   name: string;
 }

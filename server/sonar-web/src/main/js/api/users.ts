@@ -61,17 +61,17 @@ export function getIdentityProviders(): Promise<{ identityProviders: IdentityPro
 }
 
 export function getUsers<T extends RestUserBase>(data: {
-  q: string;
   active?: boolean;
-  managed?: boolean;
-  sonarQubeLastConnectionDateFrom?: string;
-  sonarQubeLastConnectionDateTo?: string;
-  sonarLintLastConnectionDateFrom?: string;
-  sonarLintLastConnectionDateTo?: string;
-  pageSize?: number;
-  pageIndex?: number;
   groupId?: string;
   'groupId!'?: string;
+  managed?: boolean;
+  pageIndex?: number;
+  pageSize?: number;
+  q: string;
+  sonarLintLastConnectionDateFrom?: string;
+  sonarLintLastConnectionDateTo?: string;
+  sonarQubeLastConnectionDateFrom?: string;
+  sonarQubeLastConnectionDateTo?: string;
 }) {
   return axios.get<{ page: Paging; users: T[] }>(USERS_ENDPOINT, {
     params: data,
@@ -95,7 +95,7 @@ export function updateUser(
   return axiosToCatch.patch<RestUserDetailed>(`${USERS_ENDPOINT}/${id}`, data);
 }
 
-export function deleteUser({ id, anonymize }: { id: string; anonymize?: boolean }) {
+export function deleteUser({ id, anonymize }: { anonymize?: boolean; id: string }) {
   return axios.delete(`${USERS_ENDPOINT}/${id}`, { params: { anonymize } });
 }
 

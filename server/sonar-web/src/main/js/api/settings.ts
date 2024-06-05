@@ -39,13 +39,13 @@ export function getDefinitions(component?: string): Promise<ExtendedSettingDefin
 }
 
 export function getValue(
-  data: { key: string; component?: string } & BranchParameters,
+  data: { component?: string; key: string } & BranchParameters,
 ): Promise<SettingValue> {
   return getValues({ keys: [data.key], component: data.component }).then(([result]) => result);
 }
 
 export function getValues(
-  data: { keys: string[]; component?: string } & BranchParameters,
+  data: { component?: string; keys: string[] } & BranchParameters,
 ): Promise<SettingValue[]> {
   return getJSON('/api/settings/values', {
     keys: data.keys.join(','),
@@ -87,13 +87,13 @@ export function setSettingValue(
 }
 
 export function setSimpleSettingValue(
-  data: { component?: string; value?: string; values?: string[]; key: string } & BranchParameters,
+  data: { component?: string; key: string; value?: string; values?: string[] } & BranchParameters,
 ): Promise<void | Response> {
   return post('/api/settings/set', data).catch(throwGlobalError);
 }
 
 export function resetSettingValue(
-  data: { keys: string; component?: string } & BranchParameters,
+  data: { component?: string; keys: string } & BranchParameters,
 ): Promise<void> {
   return post('/api/settings/reset', data);
 }

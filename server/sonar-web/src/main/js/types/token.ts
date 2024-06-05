@@ -31,13 +31,13 @@ export enum TokenExpiration {
 }
 
 export interface UserToken {
-  name: string;
   createdAt: string;
-  lastConnectionDate?: string;
   expirationDate?: string;
   isExpired: boolean;
+  lastConnectionDate?: string;
+  name: string;
+  project?: { key: string; name: string };
   type: TokenType;
-  project?: { name: string; key: string };
 }
 
 export interface NewUserToken extends UserToken {

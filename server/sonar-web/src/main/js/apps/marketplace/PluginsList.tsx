@@ -26,12 +26,12 @@ import PluginAvailable from './components/PluginAvailable';
 import PluginInstalled from './components/PluginInstalled';
 
 export interface PluginsListProps {
-  plugins: Plugin[];
   pending: {
     installing: PendingPlugin[];
-    updating: PendingPlugin[];
     removing: PendingPlugin[];
+    updating: PendingPlugin[];
   };
+  plugins: Plugin[];
   readOnly: boolean;
   refreshPending: () => void;
 }

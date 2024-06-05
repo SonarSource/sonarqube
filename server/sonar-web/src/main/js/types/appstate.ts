@@ -25,6 +25,7 @@ export interface AppState {
   authenticationError?: boolean;
   authorizationError?: boolean;
   canAdmin?: boolean;
+  documentationUrl: string;
   edition?: EditionKey;
   globalPages?: Extension[];
   instanceUsesDefaultAdminCredentials?: boolean;
@@ -36,5 +37,4 @@ export interface AppState {
   version: string;
   versionEOL: string;
   webAnalyticsJsPath?: string;
-  documentationUrl: string;
 }

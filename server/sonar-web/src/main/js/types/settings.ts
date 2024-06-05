@@ -90,17 +90,17 @@ export interface ExtendedSettingDefinition extends SettingDefinition {
 }
 
 export interface DefinitionV2 {
-  name: string;
-  key: string;
   description?: string;
-  secured: boolean;
+  key: string;
   multiValues?: boolean;
+  name: string;
+  secured: boolean;
   type?: SettingType;
 }
 
 export interface SettingValueResponse {
-  settings: SettingValue[];
   setSecuredSettings: string[];
+  settings: SettingValue[];
 }
 
 export interface SettingValue {

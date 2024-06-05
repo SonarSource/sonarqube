@@ -33,14 +33,14 @@ import { Branch } from '../../types/branch-like';
 import { Component } from '../../types/types';
 
 export interface ComponentReportActionsRendererProps {
-  component: Component;
   branch?: Branch;
-  frequency: string;
-  subscribed: boolean;
   canSubscribe: boolean;
+  component: Component;
   currentUserHasEmail: boolean;
+  frequency: string;
   handleSubscription: () => void;
   handleUnsubscription: () => void;
+  subscribed: boolean;
 }
 
 const getSubscriptionText = ({

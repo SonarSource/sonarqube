@@ -38,8 +38,8 @@ import { Dict } from '../../../../types/types';
 
 export interface AlmSpecificFormProps extends WithAvailableFeaturesProps {
   alm: AlmKeys;
-  instances: AlmSettingsInstance[];
   formData: Omit<ProjectAlmBindingResponse, 'alm'>;
+  instances: AlmSettingsInstance[];
   onFieldChange: (id: keyof ProjectAlmBindingResponse, value: string | boolean) => void;
 }
 
@@ -50,8 +50,8 @@ interface LabelProps {
 
 interface CommonFieldProps extends LabelProps {
   help?: boolean;
-  helpParams?: Dict<string | JSX.Element>;
   helpExample?: JSX.Element;
+  helpParams?: Dict<string | JSX.Element>;
   onFieldChange: (id: keyof ProjectAlmBindingResponse, value: string | boolean) => void;
   propKey: keyof ProjectAlmBindingResponse;
 }
@@ -103,8 +103,8 @@ function renderLabel(props: LabelProps) {
 
 function renderBooleanField(
   props: Omit<CommonFieldProps, 'optional'> & {
-    value: boolean;
     inputExtra?: React.ReactNode;
+    value: boolean;
   },
 ) {
   const { id, value, onFieldChange, propKey, inputExtra } = props;

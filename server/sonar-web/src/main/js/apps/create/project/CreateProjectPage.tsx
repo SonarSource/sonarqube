@@ -50,13 +50,13 @@ export interface CreateProjectPageProps extends WithAvailableFeaturesProps {
 
 interface State {
   azureSettings: DopSetting[];
-  bitbucketSettings: DopSetting[];
   bitbucketCloudSettings: DopSetting[];
+  bitbucketSettings: DopSetting[];
+  creatingAlmDefinition?: AlmKeys;
   githubSettings: DopSetting[];
   gitlabSettings: DopSetting[];
-  loading: boolean;
-  creatingAlmDefinition?: AlmKeys;
   importProjects?: ImportProjectParam;
+  loading: boolean;
   redirectTo: string;
 }
 
@@ -70,8 +70,8 @@ const PROJECT_MODE_FOR_ALM_KEY = {
 
 export type ImportProjectParam =
   | {
-      creationMode: CreateProjectModes.AzureDevOps;
       almSetting: string;
+      creationMode: CreateProjectModes.AzureDevOps;
       monorepo: false;
       projects: {
         projectName: string;
@@ -79,33 +79,33 @@ export type ImportProjectParam =
       }[];
     }
   | {
+      almSetting: string;
       creationMode: CreateProjectModes.BitbucketCloud;
-      almSetting: string;
       monorepo: false;
       projects: {
         repositorySlug: string;
       }[];
     }
   | {
+      almSetting: string;
       creationMode: CreateProjectModes.BitbucketServer;
-      almSetting: string;
       monorepo: false;
       projects: {
-        repositorySlug: string;
         projectKey: string;
+        repositorySlug: string;
       }[];
     }
   | {
-      creationMode: CreateProjectModes.GitHub;
       almSetting: string;
+      creationMode: CreateProjectModes.GitHub;
       monorepo: false;
       projects: {
         repositoryKey: string;
       }[];
     }
   | {
-      creationMode: CreateProjectModes.GitLab;
       almSetting: string;
+      creationMode: CreateProjectModes.GitLab;
       monorepo: false;
       projects: {
         gitlabProjectId: string;
@@ -115,20 +115,20 @@ export type ImportProjectParam =
       creationMode: CreateProjectModes.Manual;
       monorepo: false;
       projects: {
-        project: string;
-        name: string;
         mainBranch: string;
+        name: string;
+        project: string;
       }[];
     }
   | {
       creationMode: CreateProjectModes;
       devOpsPlatformSettingId: string;
       monorepo: true;
+      projectIdentifier?: string;
       projects: {
         projectKey: string;
         projectName: string;
       }[];
-      projectIdentifier?: string;
       repositoryIdentifier: string;
     };
 

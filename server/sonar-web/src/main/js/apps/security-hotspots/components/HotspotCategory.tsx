@@ -25,11 +25,11 @@ import HotspotListItem from './HotspotListItem';
 
 interface HotspotCategoryProps {
   expanded: boolean;
-  onSetExpanded: (expanded: boolean) => void;
   hotspots: RawHotspot[];
   isLastAndIncomplete: boolean;
   onHotspotClick: (hotspot: RawHotspot) => void;
   onLocationClick: (index: number) => void;
+  onSetExpanded: (expanded: boolean) => void;
   rating: HotspotRatingEnum;
   selectedHotspot: RawHotspot;
   selectedHotspotLocation?: number;

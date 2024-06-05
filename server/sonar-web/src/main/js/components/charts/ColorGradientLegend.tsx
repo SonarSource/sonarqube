@@ -26,9 +26,10 @@ interface Props {
   className?: string;
   colorScale:
     | ScaleOrdinal<string, string> // used for LEVEL type
-    | ScaleLinear<string, string | number>; // used for RATING or PERCENT type
-  naColors?: [CSSColor, CSSColor];
+    | ScaleLinear<string, string | number>;
   height: number;
+  // used for RATING or PERCENT type
+  naColors?: [CSSColor, CSSColor];
   padding?: [number, number, number, number];
   showColorNA?: boolean;
   width: number;

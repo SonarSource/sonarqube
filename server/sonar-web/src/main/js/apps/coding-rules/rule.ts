@@ -27,12 +27,12 @@ export enum RuleDescriptionSections {
 }
 
 export interface RuleDescriptionContext {
-  key: string;
   displayName: string;
+  key: string;
 }
 
 export interface RuleDescriptionSection {
-  key: RuleDescriptionSections;
   content: string;
   context?: RuleDescriptionContext;
+  key: RuleDescriptionSections;
 }

@@ -49,18 +49,18 @@ import {
 } from './ids';
 
 export interface ComponentTree {
-  component: Component;
   ancestors: Component[];
   children: ComponentTree[];
+  component: Component;
 }
 
 export interface SourceFile {
   component: SourceViewerFile;
-  lines: SourceLine[];
   duplication?: {
     duplications: Duplication[];
     files: Dict<DuplicatedFile>;
   };
+  lines: SourceLine[];
 }
 
 export function mockFullComponentTree(

@@ -28,8 +28,8 @@ interface Props {
 }
 
 export interface PerspectiveOption {
-  value: string;
   label: string;
+  value: string;
 }
 
 export default class PerspectiveSelect extends React.PureComponent<Props> {

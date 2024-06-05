@@ -34,8 +34,8 @@ import { Component, MeasureEnhanced } from '../../../types/types';
 import { HomePage } from '../../../types/users';
 
 interface Props {
-  component: Component;
   branch: Branch;
+  component: Component;
   measures: MeasureEnhanced[];
   showTakeTheTourButton: boolean;
   startTour?: () => void;

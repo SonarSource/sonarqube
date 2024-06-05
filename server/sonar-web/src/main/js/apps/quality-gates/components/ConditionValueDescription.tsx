@@ -36,8 +36,8 @@ const NO_DESCRIPTION_CONDITION = [
 
 interface Props {
   condition: Condition;
-  metric: Metric;
   isToBeModified?: boolean;
+  metric: Metric;
 }
 
 export default function ConditionValueDescription({

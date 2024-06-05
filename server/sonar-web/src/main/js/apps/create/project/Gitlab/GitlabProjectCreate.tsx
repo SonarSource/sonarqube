@@ -34,9 +34,9 @@ import GitlabPersonalAccessTokenForm from './GItlabPersonalAccessTokenForm';
 import GitlabProjectCreateRenderer from './GitlabProjectCreateRenderer';
 
 interface Props {
+  dopSettings: DopSetting[];
   isLoadingBindings: boolean;
   onProjectSetupDone: (importProjects: ImportProjectParam) => void;
-  dopSettings: DopSetting[];
 }
 
 export default function GitlabProjectCreate(props: Readonly<Props>) {

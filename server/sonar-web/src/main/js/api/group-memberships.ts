@@ -23,18 +23,18 @@ import { GroupMembership, Paging } from '../types/types';
 const GROUPS_MEMBERSHIPS_ENDPOINT = '/api/v2/authorizations/group-memberships';
 
 export function getGroupMemberships(data: {
-  userId?: string;
   groupId?: string;
-  pageSize?: number;
   pageIndex?: number;
+  pageSize?: number;
+  userId?: string;
 }) {
-  return axios.get<{ page: Paging; groupMemberships: GroupMembership[] }>(
+  return axios.get<{ groupMemberships: GroupMembership[]; page: Paging }>(
     GROUPS_MEMBERSHIPS_ENDPOINT,
     { params: data },
   );
 }
 
-export function addGroupMembership(data: { userId: string; groupId: string }) {
+export function addGroupMembership(data: { groupId: string; userId: string }) {
   return axios.post<GroupMembership>(GROUPS_MEMBERSHIPS_ENDPOINT, data);
 }
 

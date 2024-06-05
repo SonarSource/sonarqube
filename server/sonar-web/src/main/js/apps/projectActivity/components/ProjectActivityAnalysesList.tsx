@@ -39,9 +39,9 @@ interface Props {
   canDeleteAnalyses?: boolean;
   initializing: boolean;
   leakPeriodDate?: Date;
+  onUpdateQuery: (changes: Partial<Query>) => void;
   project: { qualifier: string };
   query: Query;
-  onUpdateQuery: (changes: Partial<Query>) => void;
 }
 
 const LIST_MARGIN_TOP = 24;
@@ -68,8 +68,8 @@ export default class ProjectActivityAnalysesList extends React.PureComponent<Pro
   };
 
   getNewCodePeriodStartKey(versionByDay: AnalysesByDay[]): {
-    firstNewCodeAnalysisKey: string | undefined;
     baselineAnalysisKey: string | undefined;
+    firstNewCodeAnalysisKey: string | undefined;
   } {
     const { leakPeriodDate } = this.props;
     if (!leakPeriodDate) {

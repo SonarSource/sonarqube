@@ -28,12 +28,12 @@ import { Status, getConditionRequiredLabel } from '../utils';
 import MeasuresCard, { MeasuresCardProps } from './MeasuresCard';
 
 interface Props extends MeasuresCardProps {
+  conditionMetric: MetricKey;
   conditions: QualityGateStatusConditionEnhanced[];
   label: string;
+  showRequired?: boolean;
   url: To;
   value?: string;
-  conditionMetric: MetricKey;
-  showRequired?: boolean;
 }
 
 export default function MeasuresCardNumber(

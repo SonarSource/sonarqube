@@ -27,8 +27,8 @@ export type BadgeFormats = 'md' | 'url';
 export interface BadgeOptions {
   branch?: string;
   format?: BadgeFormats;
-  project?: string;
   metric?: string;
+  project?: string;
   pullRequest?: string;
 }
 

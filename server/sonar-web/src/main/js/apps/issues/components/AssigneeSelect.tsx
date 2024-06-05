@@ -35,9 +35,9 @@ const UNASSIGNED = { value: '', label: translate('unassigned') };
 export interface AssigneeSelectProps {
   assignee?: SingleValue<LabelValueSelectOption>;
   className?: string;
+  inputId: string;
   issues: Issue[];
   onAssigneeSelect: (assignee: SingleValue<LabelValueSelectOption>) => void;
-  inputId: string;
 }
 
 function userToOption(user: RestUser | UserActive) {

@@ -31,8 +31,8 @@ import withAppStateContext from './app-state/withAppStateContext';
 import withCurrentUserContext from './current-user/withCurrentUserContext';
 
 interface Props {
-  currentUser: CurrentUser;
   appState: AppState;
+  currentUser: CurrentUser;
 }
 
 interface State {

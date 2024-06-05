@@ -39,30 +39,30 @@ import MoreInfoRuleDescription from './MoreInfoRuleDescription';
 import RuleDescription from './RuleDescription';
 
 interface IssueTabViewerProps extends CurrentUserContextInterface {
-  ruleDetails: RuleDetails;
-  extendedDescription?: string;
-  ruleDescriptionContextKey?: string;
-  codeTabContent?: React.ReactNode;
   activityTabContent?: React.ReactNode;
+  codeTabContent?: React.ReactNode;
+  extendedDescription?: string;
+  issue: Issue;
   location: Location;
+  onIssueChange: (issue: Issue) => void;
+  ruleDescriptionContextKey?: string;
+  ruleDetails: RuleDetails;
   selectedFlowIndex?: number;
   selectedLocationIndex?: number;
-  issue: Issue;
-  onIssueChange: (issue: Issue) => void;
 }
 interface State {
-  tabs: Tab[];
-  selectedTab?: Tab;
   displayEducationalPrinciplesNotification?: boolean;
   educationalPrinciplesNotificationHasBeenDismissed?: boolean;
+  selectedTab?: Tab;
+  tabs: Tab[];
 }
 
 export interface Tab {
-  value: TabKeys;
-  key: TabKeys;
-  label: string;
   content: React.ReactNode;
   counter?: number;
+  key: TabKeys;
+  label: string;
+  value: TabKeys;
 }
 
 export enum TabKeys {

@@ -47,10 +47,10 @@ import ProvisioningSection from './ProvisioningSection';
 import TabHeader from './TabHeader';
 
 interface ChangesForm {
-  provisioningType?: GitLabConfigurationUpdateBody['provisioningType'];
   allowUsersToSignUp?: GitLabConfigurationUpdateBody['allowUsersToSignUp'];
-  provisioningToken?: GitLabConfigurationUpdateBody['provisioningToken'];
   allowedGroups?: GitLabConfigurationUpdateBody['allowedGroups'];
+  provisioningToken?: GitLabConfigurationUpdateBody['provisioningToken'];
+  provisioningType?: GitLabConfigurationUpdateBody['provisioningType'];
 }
 
 const getDefinitions = (

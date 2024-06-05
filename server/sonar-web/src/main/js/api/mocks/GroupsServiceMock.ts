@@ -45,7 +45,7 @@ export default class GroupsServiceMock {
     this.groups = cloneDeep(this.readOnlyGroups);
   }
 
-  handleCreateGroup = (group: { name: string; description?: string }): Promise<Group> => {
+  handleCreateGroup = (group: { description?: string; name: string }): Promise<Group> => {
     const newGroup = mockGroup(group);
     this.groups.push(newGroup);
     return this.reply(newGroup);

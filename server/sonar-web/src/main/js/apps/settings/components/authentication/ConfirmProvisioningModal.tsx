@@ -26,11 +26,11 @@ import { Provider } from '../../../../types/types';
 
 interface Props {
   allowUsersToSignUp?: boolean;
-  provider: Provider.Github | Provider.Gitlab;
+  hasProvisioningTypeChange?: boolean;
   isAllowListEmpty: boolean;
   onClose: VoidFunction;
   onConfirm: VoidFunction;
-  hasProvisioningTypeChange?: boolean;
+  provider: Provider.Github | Provider.Gitlab;
   provisioningStatus: ProvisioningType;
 }
 

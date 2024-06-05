@@ -107,12 +107,12 @@ export class ProjectActivityServiceMock {
 
   getActivityHandler = (
     data: {
-      project: string;
-      statuses?: string;
       category?: string;
       from?: string;
       p?: number;
+      project: string;
       ps?: number;
+      statuses?: string;
     } & BranchParameters,
   ) => {
     const { project, ps = PAGE_SIZE, p = DEFAULT_PAGE, category, from } = data;
@@ -140,12 +140,12 @@ export class ProjectActivityServiceMock {
 
   getAllTimeProjectActivityHandler = (
     data: {
-      project: string;
-      statuses?: string;
       category?: string;
       from?: string;
       p?: number;
+      project: string;
       ps?: number;
+      statuses?: string;
     } & BranchParameters,
   ) => {
     const { project, p = DEFAULT_PAGE, category, from } = data;
@@ -179,9 +179,9 @@ export class ProjectActivityServiceMock {
 
   createEventHandler = (data: {
     analysis: string;
-    name: string;
     category?: ProjectAnalysisEventCategory;
     description?: string;
+    name: string;
   }) => {
     const {
       analysis: analysisKey,
@@ -203,7 +203,7 @@ export class ProjectActivityServiceMock {
     });
   };
 
-  changeEventHandler = (data: { event: string; name: string; description?: string }) => {
+  changeEventHandler = (data: { description?: string; event: string; name: string }) => {
     const { event: eventKey, name, description } = data;
     const [eventIndex, analysisKey] = this.findEvent(eventKey);
     const analysis = this.findAnalysis(analysisKey);

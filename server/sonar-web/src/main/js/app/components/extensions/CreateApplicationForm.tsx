@@ -40,8 +40,8 @@ interface State {
   description: string;
   key: string;
   name: string;
-  visibility: Visibility;
   submitting: boolean;
+  visibility: Visibility;
 }
 
 export default class CreateApplicationForm extends React.PureComponent<Props, State> {

@@ -34,25 +34,25 @@ import { translate } from '../../../../helpers/l10n';
 import { getProjectUrl } from '../../../../helpers/urls';
 
 type AlmRepoItemProps = {
-  primaryTextNode: React.ReactNode;
-  secondaryTextNode?: React.ReactNode;
-  sqProjectKey?: string;
+  almIconSrc: string;
   almKey: string;
   almUrl?: string;
   almUrlText?: string;
-  almIconSrc: string;
+  primaryTextNode: React.ReactNode;
+  secondaryTextNode?: React.ReactNode;
+  sqProjectKey?: string;
 } & (
   | {
       multiple: true;
       onCheck: (key: string) => void;
-      selected: boolean;
       onImport?: never;
+      selected: boolean;
     }
   | {
       multiple?: false;
       onCheck?: never;
-      selected?: never;
       onImport: (key: string) => void;
+      selected?: never;
     }
 );
 
@@ -152,7 +152,7 @@ export default function AlmRepoItem({
   );
 }
 
-const RepositoryItem = styled.li<{ selected?: boolean; imported?: boolean }>`
+const RepositoryItem = styled.li<{ imported?: boolean; selected?: boolean }>`
   box-sizing: border-box;
   border: ${({ selected }) =>
     selected ? themeBorder('default', 'primary') : themeBorder('default')};

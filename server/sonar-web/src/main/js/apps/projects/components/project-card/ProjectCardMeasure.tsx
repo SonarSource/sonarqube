@@ -21,9 +21,9 @@ import classNames from 'classnames';
 import * as React from 'react';
 
 export interface ProjectCardMeasureProps {
+  className?: string;
   label: string;
   metricKey: string;
-  className?: string;
 }
 
 export default function ProjectCardMeasure(

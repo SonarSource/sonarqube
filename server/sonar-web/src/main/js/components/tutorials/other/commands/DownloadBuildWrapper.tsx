@@ -26,9 +26,9 @@ import { InlineSnippet } from '../../components/InlineSnippet';
 import { OSs } from '../../types';
 
 export interface DownloadBuildWrapperProps {
+  baseUrl: string;
   isLocal: boolean;
   os: OSs;
-  baseUrl: string;
 }
 
 const FILENAMES: { [x in OSs]: string } = {

@@ -44,8 +44,8 @@ interface Props {
   handleFavorite: (component: string, isFavorite: boolean) => void;
   isFavorite: boolean;
   isFiltered: boolean;
-  loading: boolean;
   loadMore: () => void;
+  loading: boolean;
   projects: Project[];
   query: Query;
   total?: number;

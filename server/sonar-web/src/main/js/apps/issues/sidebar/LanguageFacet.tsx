@@ -29,19 +29,19 @@ import { Query } from '../utils';
 import { ListStyleFacet } from './ListStyleFacet';
 
 interface Props {
+  disabled?: boolean;
+  disabledHelper?: string;
   fetching?: boolean;
   languages: Languages;
-  maxInitialItems?: number;
-  selectedLanguages: string[];
   loadSearchResultCount?: (property: string, changes: Partial<Query>) => Promise<Facet>;
+  maxInitialItems?: number;
   onChange: (changes: Partial<Query>) => void;
   onToggle: (property: string) => void;
   open: boolean;
   query?: Query;
   referencedLanguages?: Dict<ReferencedLanguage>;
+  selectedLanguages: string[];
   stats: Dict<number> | undefined;
-  disabled?: boolean;
-  disabledHelper?: string;
 }
 
 class LanguageFacetClass extends React.PureComponent<Props> {

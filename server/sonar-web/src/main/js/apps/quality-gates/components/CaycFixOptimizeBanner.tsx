@@ -27,8 +27,8 @@ import { DocLink } from '../../../helpers/doc-links';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {
-  renderCaycModal: ({ onClose }: { onClose: () => void }) => React.ReactNode;
   isOptimizing?: boolean;
+  renderCaycModal: ({ onClose }: { onClose: () => void }) => React.ReactNode;
 }
 
 export default function CaycNonCompliantBanner({ renderCaycModal, isOptimizing }: Readonly<Props>) {

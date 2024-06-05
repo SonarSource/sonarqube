@@ -101,8 +101,8 @@ interface Comment {
 }
 
 export interface MessageFormatting {
-  start: number;
   end: number;
+  start: number;
   type: MessageFormattingType;
 }
 
@@ -120,39 +120,39 @@ export interface RawFlowLocation {
 
 export interface RawIssue {
   actions: string[];
-  transitions: IssueTransition[];
-  tags?: string[];
   assignee?: string;
   author?: string;
-  cleanCodeAttributeCategory: CleanCodeAttributeCategory;
   cleanCodeAttribute: CleanCodeAttribute;
-  impacts: SoftwareImpact[];
+  cleanCodeAttributeCategory: CleanCodeAttributeCategory;
   codeVariants?: string[];
   comments?: Comment[];
-  creationDate: string;
   component: string;
+  creationDate: string;
   flows?: Array<{
-    type?: string;
     description?: string;
     locations?: RawFlowLocation[];
+    type?: string;
   }>;
+  impacts: SoftwareImpact[];
+  issueStatus: IssueStatus;
   key: string;
   line?: number;
+  message?: string;
   messageFormattings?: MessageFormatting[];
   prioritizedRule?: boolean;
   project: string;
-  rule: string;
+  quickFixAvailable?: boolean;
   resolution?: string;
-  message?: string;
-  severity: string;
-  status: string;
-  issueStatus: IssueStatus;
-  textRange?: TextRange;
-  type: IssueType;
-  scope: string;
+  rule: string;
   ruleDescriptionContextKey?: string;
   ruleStatus?: string;
-  quickFixAvailable?: boolean;
+  scope: string;
+  severity: string;
+  status: string;
+  tags?: string[];
+  textRange?: TextRange;
+  transitions: IssueTransition[];
+  type: IssueType;
 }
 
 export interface IssueResponse {
@@ -198,11 +198,11 @@ export interface ListIssuesPromise {
 }
 
 export interface ReferencedComponent {
+  enabled?: boolean;
   key: string;
+  longName?: string;
   name: string;
   path?: string;
-  enabled?: boolean;
-  longName?: string;
   uuid: string;
 }
 
@@ -217,7 +217,7 @@ export interface ReferencedRule {
 
 export interface RawFacet {
   property: string;
-  values: Array<{ val: string; count: number }>;
+  values: Array<{ count: number; val: string }>;
 }
 
 export interface Facet {

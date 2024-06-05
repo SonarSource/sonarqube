@@ -31,18 +31,18 @@ import { Paging } from '../../../../types/types';
 import AlmRepoItem from '../components/AlmRepoItem';
 
 interface RepositoryListProps {
+  almKey: AlmKeys.GitHub | AlmKeys.GitLab;
+  checkAll: () => void;
   loadingRepositories: boolean;
+  onCheck: (key: string) => void;
+  onImport: () => void;
+  onLoadMore: () => void;
+  onSearch: (query: string) => void;
   repositories?: GithubRepository[] | GitlabProject[];
   repositoryPaging: Paging;
   searchQuery: string;
-  onLoadMore: () => void;
-  onSearch: (query: string) => void;
-  almKey: AlmKeys.GitHub | AlmKeys.GitLab;
   selected: Set<string>;
-  checkAll: () => void;
   uncheckAll: () => void;
-  onCheck: (key: string) => void;
-  onImport: () => void;
 }
 
 export default function RepositoryList(props: Readonly<RepositoryListProps>) {

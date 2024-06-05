@@ -35,14 +35,14 @@ import { Group as UserGroup, isUser } from '../../../types/quality-gates';
 import { UserBase } from '../../../types/users';
 
 export interface QualityGatePermissionsAddModalRendererProps {
-  onClose: () => void;
   handleSearch: (
     q: string,
     resolve: (options: Options<LabelValueSelectOption<UserBase | UserGroup>>) => void,
   ) => void;
+  onClose: () => void;
   onSelection: (selection: SingleValue<LabelValueSelectOption<UserBase | UserGroup>>) => void;
-  selection?: UserBase | UserGroup;
   onSubmit: (event: React.SyntheticEvent<HTMLFormElement>) => void;
+  selection?: UserBase | UserGroup;
   submitting: boolean;
 }
 

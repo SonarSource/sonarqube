@@ -22,8 +22,8 @@ import { RawQuery } from '~sonar-aligned/types/router';
 import { cleanQuery, parseAsString, serializeString } from '../../helpers/query';
 
 export interface Query {
-  search: string;
   managed?: boolean;
+  search: string;
 }
 
 export const parseQuery = memoize(

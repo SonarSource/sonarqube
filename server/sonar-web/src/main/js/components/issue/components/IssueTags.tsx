@@ -33,8 +33,8 @@ interface Props extends ComponentContextShape {
   issue: Pick<Issue, 'key' | 'tags'>;
   onChange: (issue: Issue) => void;
   open?: boolean;
-  togglePopup: (popup: string, show?: boolean) => void;
   tagsToDisplay?: number;
+  togglePopup: (popup: string, show?: boolean) => void;
 }
 
 export class IssueTags extends React.PureComponent<Props> {

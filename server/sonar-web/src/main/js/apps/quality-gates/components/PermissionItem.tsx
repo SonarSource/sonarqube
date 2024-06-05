@@ -32,8 +32,8 @@ import { Group, isUser } from '../../../types/quality-gates';
 import { UserBase } from '../../../types/users';
 
 export interface PermissionItemProps {
-  onClickDelete: (item: UserBase | Group) => void;
   item: UserBase | Group;
+  onClickDelete: (item: UserBase | Group) => void;
 }
 
 export default function PermissionItem(props: PermissionItemProps) {

@@ -46,9 +46,9 @@ import ProjectActivityAppRenderer from './ProjectActivityAppRenderer';
 export interface State {
   analyses: ParsedAnalysis[];
   analysesLoading: boolean;
-  leakPeriodDate?: Date;
   graphLoading: boolean;
   initialized: boolean;
+  leakPeriodDate?: Date;
   measuresHistory: MeasureHistory[];
   query: Query;
 }

@@ -75,8 +75,8 @@ export function isView(
 export interface ComponentContextShape {
   component?: Component;
   currentTask?: Task;
+  fetchComponent: () => Promise<void>;
   isInProgress?: boolean;
   isPending?: boolean;
   onComponentChange: (changes: Partial<Component>) => void;
-  fetchComponent: () => Promise<void>;
 }

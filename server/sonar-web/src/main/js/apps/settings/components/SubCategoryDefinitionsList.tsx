@@ -32,11 +32,11 @@ import EmailForm from './EmailForm';
 export interface SubCategoryDefinitionsListProps {
   category: string;
   component?: Component;
+  displaySubCategoryTitle?: boolean;
   location: Location;
+  noPadding?: boolean;
   settings: Array<SettingDefinitionAndValue>;
   subCategory?: string;
-  displaySubCategoryTitle?: boolean;
-  noPadding?: boolean;
 }
 
 class SubCategoryDefinitionsList extends React.PureComponent<SubCategoryDefinitionsListProps> {

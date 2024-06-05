@@ -53,11 +53,11 @@ interface Props {
   onToggle: (property: string) => void;
   open: boolean;
   owaspTop10: string[];
-  owaspTop10Open: boolean;
-  owaspTop10Stats: Dict<number> | undefined;
   'owaspTop10-2021': string[];
   'owaspTop10-2021Open': boolean;
   'owaspTop10-2021Stats': Dict<number> | undefined;
+  owaspTop10Open: boolean;
+  owaspTop10Stats: Dict<number> | undefined;
   query: Partial<Query>;
   sonarsourceSecurity: string[];
   sonarsourceSecurityOpen: boolean;
@@ -65,8 +65,8 @@ interface Props {
 }
 
 interface State {
-  standards: Standards;
   showFullSonarSourceList: boolean;
+  standards: Standards;
 }
 
 type StatsProp =

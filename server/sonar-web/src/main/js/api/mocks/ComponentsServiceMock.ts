@@ -343,8 +343,8 @@ export default class ComponentsServiceMock {
     if (tree) {
       const { component, ancestors } = tree;
       return this.reply({ component, ancestors } as {
-        component: ComponentRaw;
         ancestors: ComponentRaw[];
+        component: ComponentRaw;
       });
     }
     throw new Error(`Couldn't find component with key ${data.component}`);
@@ -368,7 +368,7 @@ export default class ComponentsServiceMock {
     return this.reply({ duplications: [], files: {} });
   };
 
-  handleGetSources = (data: { key: string; from?: number; to?: number } & BranchParameters) => {
+  handleGetSources = (data: { from?: number; key: string; to?: number } & BranchParameters) => {
     const { lines } = this.findSourceFile(data.key);
     const from = data.from || 1;
     const to = data.to || lines.length;

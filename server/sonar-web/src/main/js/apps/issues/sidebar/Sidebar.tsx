@@ -70,13 +70,13 @@ export interface Props {
   onFacetToggle: (property: string) => void;
   onFilterChange: (changes: Partial<Query>) => void;
   openFacets: Dict<boolean>;
-  showVariantsFilter: boolean;
   query: Query;
   referencedComponentsById: Dict<ReferencedComponent>;
   referencedComponentsByKey: Dict<ReferencedComponent>;
   referencedLanguages: Dict<ReferencedLanguage>;
   referencedRules: Dict<ReferencedRule>;
   referencedUsers: Dict<UserBase>;
+  showVariantsFilter: boolean;
 }
 
 export function Sidebar(props: Readonly<Props>) {

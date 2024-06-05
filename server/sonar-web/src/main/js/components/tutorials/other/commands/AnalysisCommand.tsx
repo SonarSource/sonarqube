@@ -27,8 +27,8 @@ import JavaMaven from './JavaMaven';
 import Other from './Other';
 
 export interface AnalysisCommandProps {
-  component: Component;
   baseUrl: string;
+  component: Component;
   isLocal: boolean;
   languageConfig: ManualTutorialConfig;
   token?: string;

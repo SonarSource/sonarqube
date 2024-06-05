@@ -22,10 +22,10 @@ import { useIntl } from 'react-intl';
 import { CleanCodeAttribute, CleanCodeAttributeCategory } from '../../../types/clean-code-taxonomy';
 
 interface Props {
-  oldCleanCodeAttribute: CleanCodeAttribute;
-  oldCleanCodeAttributeCategory: CleanCodeAttributeCategory;
   newCleanCodeAttribute: CleanCodeAttribute;
   newCleanCodeAttributeCategory: CleanCodeAttributeCategory;
+  oldCleanCodeAttribute: CleanCodeAttribute;
+  oldCleanCodeAttributeCategory: CleanCodeAttributeCategory;
 }
 
 export default function CleanCodeAttributeChange(props: Readonly<Props>) {

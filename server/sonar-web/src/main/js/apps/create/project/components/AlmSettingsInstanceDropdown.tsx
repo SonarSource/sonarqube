@@ -24,10 +24,10 @@ import { hasMessage, translate, translateWithParameters } from '../../../../help
 import { AlmKeys, AlmSettingsInstance } from '../../../../types/alm-settings';
 
 interface Props {
-  almKey: AlmKeys;
   almInstances?: AlmSettingsInstance[];
-  selectedAlmInstance?: AlmSettingsInstance;
+  almKey: AlmKeys;
   onChangeConfig: (instance: AlmSettingsInstance) => void;
+  selectedAlmInstance?: AlmSettingsInstance;
 }
 
 const MIN_SIZE_INSTANCES = 2;

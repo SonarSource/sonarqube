@@ -87,7 +87,7 @@ export default class Template extends React.PureComponent<Props, State> {
           })
         : Promise.resolve({ paging: undefined, users: [] });
 
-    const getGroups: Promise<{ paging?: Paging; groups: PermissionGroup[] }> =
+    const getGroups: Promise<{ groups: PermissionGroup[]; paging?: Paging }> =
       filter !== 'users'
         ? api.getPermissionTemplateGroups({
             templateId: template.id,

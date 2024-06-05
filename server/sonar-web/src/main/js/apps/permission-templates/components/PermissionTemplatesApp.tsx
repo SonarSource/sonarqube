@@ -33,14 +33,14 @@ import Home from './Home';
 import Template from './Template';
 
 interface Props {
-  location: Location;
   appState: AppState;
+  location: Location;
 }
 
 interface State {
-  ready: boolean;
-  permissions: Permission[];
   permissionTemplates: PermissionTemplate[];
+  permissions: Permission[];
+  ready: boolean;
 }
 
 class PermissionTemplatesApp extends React.PureComponent<Props, State> {

@@ -103,9 +103,9 @@ export default function RuleDetailsCustomRules(props: Readonly<Props>) {
 
 function RuleListItem(
   props: Readonly<{
-    rule: Rule;
     editable?: boolean;
     onDelete: (ruleKey: string) => void;
+    rule: Rule;
   }>,
 ) {
   const { rule, editable } = props;

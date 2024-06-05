@@ -48,6 +48,7 @@ import {
 } from '../../../types/types';
 
 export interface SnippetViewerProps {
+  className?: string;
   component: SourceViewerFile;
   displayLineNumberOptions?: boolean;
   displaySCM?: boolean;
@@ -55,6 +56,7 @@ export interface SnippetViewerProps {
   duplicationsByLine?: { [line: number]: number[] };
   expandBlock: (snippetIndex: number, direction: ExpandDirection) => Promise<void>;
   handleSymbolClick: (symbols: string[]) => void;
+  hideLocationIndex?: boolean;
   highlightedLocationMessage: { index: number; text: string | undefined } | undefined;
   highlightedSymbols: string[];
   index: number;
@@ -65,9 +67,7 @@ export interface SnippetViewerProps {
   renderAdditionalChildInLine?: (line: SourceLine) => React.ReactNode | undefined;
   renderDuplicationPopup: (index: number, line: number) => React.ReactNode;
   snippet: SourceLine[];
-  className?: string;
   snippetSourcesMap?: LineMap;
-  hideLocationIndex?: boolean;
 }
 
 type Props = SnippetViewerProps & ThemeProp;

@@ -37,8 +37,8 @@ interface Props {
 
 interface State {
   actions?: Actions;
-  loading: boolean;
   exporters?: Exporter[];
+  loading: boolean;
   profiles?: Profile[];
 }
 

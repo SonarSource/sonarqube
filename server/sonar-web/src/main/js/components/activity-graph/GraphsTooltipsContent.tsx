@@ -21,8 +21,8 @@ import * as React from 'react';
 import { ChartLegend } from './ChartLegend';
 
 interface Props {
-  name: string;
   index: number;
+  name: string;
   translatedName: string;
   value: string;
 }

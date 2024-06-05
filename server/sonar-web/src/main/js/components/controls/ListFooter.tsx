@@ -26,15 +26,15 @@ import { MetricType } from '~sonar-aligned/types/metrics';
 import { translate, translateWithParameters } from '../../helpers/l10n';
 
 export interface ListFooterProps {
-  loadMoreAriaLabel?: string;
-  count: number;
   className?: string;
-  loading?: boolean;
+  count: number;
   loadMore?: () => void;
+  loadMoreAriaLabel?: string;
+  loading?: boolean;
   needReload?: boolean;
   pageSize?: number;
-  reload?: () => void;
   ready?: boolean;
+  reload?: () => void;
   total?: number;
 }
 

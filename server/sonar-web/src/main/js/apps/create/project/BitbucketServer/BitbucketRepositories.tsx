@@ -26,8 +26,8 @@ import BitbucketProjectAccordion from './BitbucketProjectAccordion';
 
 export interface BitbucketRepositoriesProps {
   onImportRepository: (repo: BitbucketRepository) => void;
-  projects: BitbucketProject[];
   projectRepositories: Dict<BitbucketRepository[]>;
+  projects: BitbucketProject[];
 }
 
 export default function BitbucketRepositories(props: BitbucketRepositoriesProps) {

@@ -25,8 +25,8 @@ import Tooltip from '../controls/Tooltip';
 interface Props {
   allowUpdate?: boolean;
   className?: string;
-  tags: string[];
   overlay?: React.ReactNode;
+  tags: string[];
   tagsClassName?: string;
   tagsToDisplay?: number;
 }

@@ -45,12 +45,12 @@ import RemoveAnalysisForm from './forms/RemoveAnalysisForm';
 export interface ProjectActivityAnalysisProps extends WrappedComponentProps {
   analysis: ParsedAnalysis;
   canAdmin?: boolean;
-  canDeleteAnalyses?: boolean;
   canCreateVersion: boolean;
+  canDeleteAnalyses?: boolean;
   isBaseline: boolean;
   isFirst: boolean;
-  selected: boolean;
   onUpdateSelectedDate: (date: Date) => void;
+  selected: boolean;
 }
 
 export enum Dialog {

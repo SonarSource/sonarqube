@@ -34,10 +34,10 @@ interface Props {
   onBlur: (event: React.FocusEvent<HTMLInputElement>) => void;
   onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
   placeholder?: string;
+  required?: boolean;
   touched: boolean | undefined;
   type?: string;
   value: string;
-  required?: boolean;
 }
 
 export default function InputValidationField({ ...props }: Readonly<Props>) {

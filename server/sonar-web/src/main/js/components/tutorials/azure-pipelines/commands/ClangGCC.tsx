@@ -37,8 +37,8 @@ import PrepareAnalysisCommand, { PrepareType } from './PrepareAnalysisCommand';
 import PublishSteps from './PublishSteps';
 
 export interface ClangGCCProps {
-  projectKey: string;
   onStepValidationChange: (isValid: boolean) => void;
+  projectKey: string;
 }
 
 type OsConstant = {

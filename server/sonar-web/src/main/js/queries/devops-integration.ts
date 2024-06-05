@@ -155,7 +155,7 @@ type SetBindingParams = ProjectAlmBindingParams & {
   repository: string;
 } & (
     | { alm: AlmKeys.Azure | AlmKeys.BitbucketServer; slug: string; summaryCommentEnabled?: never }
-    | { alm: AlmKeys.GitHub; summaryCommentEnabled: boolean; slug?: never }
+    | { alm: AlmKeys.GitHub; slug?: never; summaryCommentEnabled: boolean }
     | {
         alm: Exclude<AlmKeys, AlmKeys.Azure | AlmKeys.GitHub | AlmKeys.BitbucketServer>;
         slug?: never;

@@ -27,9 +27,9 @@ import MonorepoDocLinkFallback from './MonorepoDocLinkFallback';
 
 export interface GradleProps {
   branchesEnabled?: boolean;
+  component: Component;
   mainBranchName: string;
   monorepo?: boolean;
-  component: Component;
 }
 
 const GRADLE_YAML_STEPS = `

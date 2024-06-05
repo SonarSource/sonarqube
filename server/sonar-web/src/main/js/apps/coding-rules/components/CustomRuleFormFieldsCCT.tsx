@@ -44,9 +44,9 @@ import {
 } from '../../../types/clean-code-taxonomy';
 
 interface Props<T> {
-  value: T;
-  onChange: (value: T) => void;
   disabled?: boolean;
+  onChange: (value: T) => void;
+  value: T;
 }
 
 export function CleanCodeCategoryField(props: Readonly<Props<CleanCodeAttributeCategory>>) {

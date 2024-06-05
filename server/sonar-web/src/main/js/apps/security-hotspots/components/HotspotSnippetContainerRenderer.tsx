@@ -38,13 +38,13 @@ export interface HotspotSnippetContainerRendererProps {
   hotspot: Hotspot;
   loading: boolean;
   locations: { [line: number]: LinearIssueLocation[] };
-  selectedHotspotLocation?: number;
   onExpandBlock: (direction: ExpandDirection) => Promise<void>;
-  onSymbolClick: (symbols: string[]) => void;
   onLocationSelect: (index: number) => void;
+  onSymbolClick: (symbols: string[]) => void;
+  secondaryLocations: FlowLocation[];
+  selectedHotspotLocation?: number;
   sourceLines: SourceLine[];
   sourceViewerFile: SourceViewerFile;
-  secondaryLocations: FlowLocation[];
 }
 
 const noop = () => undefined;

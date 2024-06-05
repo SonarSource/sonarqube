@@ -29,9 +29,9 @@ interface GraphsZoomProps {
   leakPeriodDate?: Date;
   loading: boolean;
   metricsType: string;
+  onUpdateGraphZoom: (from?: Date, to?: Date) => void;
   series: Serie[];
   showAreas?: boolean;
-  onUpdateGraphZoom: (from?: Date, to?: Date) => void;
 }
 
 const ZOOM_TIMELINE_PADDING_TOP = 0;

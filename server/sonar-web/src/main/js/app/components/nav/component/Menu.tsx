@@ -104,9 +104,9 @@ export function Menu(props: Readonly<Props>) {
     pathname,
     additionalQueryParams = {},
   }: {
+    additionalQueryParams?: Dict<string>;
     label: string;
     pathname: string;
-    additionalQueryParams?: Dict<string>;
   }) => {
     const query = getQuery();
     if (isApplicationChildInaccessble) {

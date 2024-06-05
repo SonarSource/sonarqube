@@ -33,8 +33,8 @@ export interface GitHubActionTutorialProps {
   baseUrl: string;
   component: Component;
   currentUser: LoggedInUser;
-  monorepo?: boolean;
   mainBranchName: string;
+  monorepo?: boolean;
   willRefreshAutomatically?: boolean;
 }
 

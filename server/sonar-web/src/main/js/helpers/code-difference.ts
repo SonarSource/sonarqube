@@ -23,7 +23,7 @@ import { sanitizeString } from './sanitize';
 
 const NUMBER_OF_EXAMPLES = 2;
 
-type DiffBlock = { noncompliant: Element; compliant: Element };
+type DiffBlock = { compliant: Element; noncompliant: Element };
 
 export default function applyCodeDifferences(element: Element | null) {
   if (element === null) {

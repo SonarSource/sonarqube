@@ -61,9 +61,9 @@ import EmptyResult from './EmptyResult';
 const HEIGHT = 500;
 
 interface Props {
+  branchLike?: BranchLike;
   component: ComponentMeasureI;
   components: ComponentMeasureEnhanced[];
-  branchLike?: BranchLike;
   domain: string;
   metrics: Dict<Metric>;
   paging?: Paging;
@@ -89,8 +89,8 @@ export default class BubbleChartView extends React.PureComponent<Props, State> {
 
   getTooltip(
     component: ComponentMeasureEnhanced,
-    values: { x: number; y: number; size: number; colors?: Array<number | undefined> },
-    metrics: { x: Metric; y: Metric; size: Metric; colors?: Metric[] },
+    values: { colors?: Array<number | undefined>; size: number; x: number; y: number },
+    metrics: { colors?: Metric[]; size: Metric; x: Metric; y: Metric },
   ) {
     const inner = [
       [component.name, isProject(component.qualifier) ? component.branch : undefined]
@@ -139,7 +139,7 @@ export default class BubbleChartView extends React.PureComponent<Props, State> {
     return translatedDescription;
   }
 
-  renderBubbleChart(metrics: { x: Metric; y: Metric; size: Metric; colors?: Metric[] }) {
+  renderBubbleChart(metrics: { colors?: Metric[]; size: Metric; x: Metric; y: Metric }) {
     const { ratingFilters } = this.state;
 
     const items = this.props.components

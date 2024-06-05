@@ -31,11 +31,11 @@ import { AlmKeys } from '../../../../../types/alm-settings';
 import { Component } from '../../../../../types/types';
 
 interface Props {
-  component: Component;
-  isApplication: boolean;
-  hasManyBranches: boolean;
-  canAdminComponent?: boolean;
   branchSupportEnabled: boolean;
+  canAdminComponent?: boolean;
+  component: Component;
+  hasManyBranches: boolean;
+  isApplication: boolean;
 }
 
 export default function BranchHelpTooltip({

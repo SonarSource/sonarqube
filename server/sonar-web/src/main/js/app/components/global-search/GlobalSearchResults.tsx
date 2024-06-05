@@ -24,11 +24,11 @@ import GlobalSearchShowMore from './GlobalSearchShowMore';
 import { ComponentResult, More, Results, sortQualifiers } from './utils';
 
 export interface Props {
-  query: string;
   loadingMore?: string;
   more: More;
   onMoreClick: (qualifier: string) => void;
   onSelect: (componentKey: string) => void;
+  query: string;
   renderNoResults: () => React.ReactElement;
   renderResult: (component: ComponentResult) => React.ReactNode;
   results: Results;

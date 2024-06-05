@@ -29,15 +29,15 @@ import React, { ReactElement } from 'react';
 import { translate } from '../../../../helpers/l10n';
 
 interface Props {
-  title: string;
-  url: string | string[] | undefined;
   canDisable: boolean;
-  onEdit: () => void;
-  onDelete: () => void;
-  onToggle: () => void;
+  enabled: boolean;
   extraActions?: ReactElement;
   isDeleting: boolean;
-  enabled: boolean;
+  onDelete: () => void;
+  onEdit: () => void;
+  onToggle: () => void;
+  title: string;
+  url: string | string[] | undefined;
 }
 
 export default function ConfigurationDetails(props: Readonly<Props>) {

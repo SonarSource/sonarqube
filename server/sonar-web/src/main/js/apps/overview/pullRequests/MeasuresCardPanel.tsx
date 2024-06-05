@@ -34,10 +34,10 @@ import IssueMeasuresCard from './IssueMeasuresCard';
 
 interface Props {
   className?: string;
-  pullRequest: PullRequest;
   component: Component;
-  measures: MeasureEnhanced[];
   conditions: QualityGateStatusConditionEnhanced[];
+  measures: MeasureEnhanced[];
+  pullRequest: PullRequest;
 }
 
 export default function MeasuresCardPanel(props: React.PropsWithChildren<Props>) {

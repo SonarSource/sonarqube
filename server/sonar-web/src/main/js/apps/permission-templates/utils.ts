@@ -55,7 +55,7 @@ export function mergePermissionsToTemplates(
 
 export function mergeDefaultsToTemplates(
   permissionTemplates: PermissionTemplate[],
-  defaultTemplates: Array<{ templateId: string; qualifier: string }> = [],
+  defaultTemplates: Array<{ qualifier: string; templateId: string }> = [],
 ): PermissionTemplate[] {
   return permissionTemplates.map((permissionTemplate) => {
     const defaultFor: string[] = [];

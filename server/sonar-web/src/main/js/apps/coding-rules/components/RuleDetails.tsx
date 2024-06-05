@@ -49,8 +49,8 @@ import RuleDetailsProfiles from './RuleDetailsProfiles';
 
 interface Props {
   allowCustomRules?: boolean;
-  canWrite?: boolean;
   canDeactivateInherited?: boolean;
+  canWrite?: boolean;
   onActivate: (profile: string, rule: string, activation: RuleActivation) => void;
   onDeactivate: (profile: string, rule: string) => void;
   onDelete: (rule: string) => void;

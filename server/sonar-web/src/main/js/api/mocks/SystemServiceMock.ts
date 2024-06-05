@@ -27,10 +27,10 @@ import { getSystemInfo, getSystemUpgrades, setLogLevel } from '../system';
 jest.mock('../system');
 
 type SystemUpgrades = {
-  upgrades: [];
+  installedVersionActive: boolean;
   latestLTA: string;
   updateCenterRefresh: string;
-  installedVersionActive: boolean;
+  upgrades: [];
 };
 
 export default class SystemServiceMock {

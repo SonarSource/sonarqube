@@ -30,9 +30,9 @@ interface Props {
   ariaLabel?: string;
   canShowDataAsTable?: boolean;
   graph: GraphType;
-  graphs: Serie[][];
   graphEndDate?: Date;
   graphStartDate?: Date;
+  graphs: Serie[][];
   leakPeriodDate?: Date;
   loading: boolean;
   measuresHistory: MeasureHistory[];

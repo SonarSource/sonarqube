@@ -31,13 +31,13 @@ import {
 
 export interface PermissionCellProps {
   disabled?: boolean;
-  removeOnly?: boolean;
   loading: string[];
   onCheck: (checked: boolean, permission?: string) => void;
   permission: PermissionDefinition | PermissionDefinitionGroup;
   permissionItem: PermissionGroup | PermissionUser;
-  selectedPermission?: string;
   prefixID: string;
+  removeOnly?: boolean;
+  selectedPermission?: string;
 }
 
 export default function PermissionCell(props: PermissionCellProps) {

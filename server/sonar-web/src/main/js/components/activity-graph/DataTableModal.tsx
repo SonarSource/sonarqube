@@ -34,8 +34,8 @@ export interface DataTableModalProps {
   analyses: ParsedAnalysis[];
   graphEndDate?: Date;
   graphStartDate?: Date;
-  series: Serie[];
   onClose: () => void;
+  series: Serie[];
 }
 
 type DataTableEntry = { date: Date } & { [x: string]: string | undefined };

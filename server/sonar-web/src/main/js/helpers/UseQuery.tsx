@@ -23,9 +23,9 @@ import { ReactElement } from 'react';
 type QueryHook<TData, TArgs extends any[]> = (...args: TArgs) => UseQueryResult<TData>;
 
 interface Props<TData, TArgs extends any[]> {
-  query: QueryHook<TData, TArgs>;
   args?: TArgs;
   children: (value: UseQueryResult<TData>) => ReactElement | null;
+  query: QueryHook<TData, TArgs>;
 }
 
 export default function UseQuery<TData, TArgs extends any[]>(props: Props<TData, TArgs>) {

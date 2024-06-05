@@ -39,8 +39,8 @@ import PullRequestMetaTopBar from './PullRequestMetaTopBar';
 import SonarLintAd from './SonarLintAd';
 
 interface Props {
-  pullRequest: PullRequest;
   component: Component;
+  pullRequest: PullRequest;
 }
 
 export default function PullRequestOverview(props: Readonly<Readonly<Props>>) {

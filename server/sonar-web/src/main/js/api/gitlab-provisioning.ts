@@ -29,7 +29,7 @@ import { Paging } from '../types/types';
 const GITLAB_CONFIGURATIONS = '/api/v2/dop-translation/gitlab-configurations';
 
 export function fetchGitLabConfigurations() {
-  return axios.get<{ page: Paging; gitlabConfigurations: GitlabConfiguration[] }>(
+  return axios.get<{ gitlabConfigurations: GitlabConfiguration[]; page: Paging }>(
     GITLAB_CONFIGURATIONS,
   );
 }

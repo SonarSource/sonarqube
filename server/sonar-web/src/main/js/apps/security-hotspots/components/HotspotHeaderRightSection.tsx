@@ -26,8 +26,8 @@ import { Hotspot, HotspotStatusOption } from '../../../types/security-hotspots';
 import Assignee from './Assignee';
 
 interface Props {
-  hotspot: Hotspot;
   categoryStandard?: string;
+  hotspot: Hotspot;
   onUpdateHotspot: (statusUpdate?: boolean, statusOption?: HotspotStatusOption) => Promise<void>;
 }
 
@@ -64,8 +64,8 @@ export default function HotspotHeaderRightSection(props: Props) {
 
 interface HotspotHeaderInfoProps {
   children: React.ReactNode;
-  title: string;
   className?: string;
+  title: string;
 }
 
 function HotspotHeaderInfo({ children, title, className }: HotspotHeaderInfoProps) {

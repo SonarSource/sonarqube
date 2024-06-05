@@ -134,8 +134,8 @@ export default class SecurityHotspotServiceMock {
   handleGetSecurityHotspotList = (
     hotspotKeys: string[],
     data: {
-      project: string;
       branch?: string;
+      project: string;
     },
   ) => {
     if (data?.branch === 'normal-branch') {
@@ -190,14 +190,14 @@ export default class SecurityHotspotServiceMock {
   };
 
   handleGetSecurityHotspots = (data: {
-    project: string;
-    p: number;
-    ps: number;
-    status?: HotspotStatus;
-    resolution?: HotspotResolution;
-    onlyMine?: boolean;
-    inNewCodePeriod?: boolean;
     branch?: string;
+    inNewCodePeriod?: boolean;
+    onlyMine?: boolean;
+    p: number;
+    project: string;
+    ps: number;
+    resolution?: HotspotResolution;
+    status?: HotspotStatus;
   }) => {
     if (data?.branch === 'normal-branch') {
       return this.reply({

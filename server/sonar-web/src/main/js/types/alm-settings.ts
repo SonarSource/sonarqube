@@ -70,11 +70,11 @@ export interface GitlabBindingDefinition extends AlmBindingDefinitionBase {
 export interface ProjectAlmBindingResponse {
   alm: AlmKeys;
   key: string;
+  monorepo: boolean;
   repository: string;
   slug?: string;
-  url?: string;
   summaryCommentEnabled?: boolean;
-  monorepo: boolean;
+  url?: string;
 }
 
 export interface ProjectAzureBindingResponse extends ProjectAlmBindingResponse {
@@ -103,8 +103,8 @@ export interface ProjectGitLabBindingResponse extends ProjectAlmBindingResponse 
 
 export interface ProjectAlmBindingParams {
   almSetting: string;
-  project: string;
   monorepo: boolean;
+  project: string;
 }
 
 export interface AzureProjectAlmBindingParams extends ProjectAlmBindingParams {
@@ -167,8 +167,8 @@ export enum ProjectAlmBindingConfigurationErrorScope {
 }
 
 export interface ProjectAlmBindingConfigurationErrors {
-  scope: ProjectAlmBindingConfigurationErrorScope;
   errors: { msg: string }[];
+  scope: ProjectAlmBindingConfigurationErrorScope;
 }
 
 export function isProjectBitbucketBindingResponse(

@@ -38,14 +38,14 @@ export interface BitbucketProjectCreateRendererProps {
   almInstances: AlmSettingsInstance[];
   isLoading: boolean;
   onImportRepository: (repository: BitbucketRepository) => void;
-  onSearch: (query: string) => void;
   onPersonalAccessTokenCreated: () => void;
+  onSearch: (query: string) => void;
   onSelectedAlmInstanceChange: (instance: AlmSettingsInstance) => void;
-  projects?: BitbucketProject[];
   projectRepositories?: Dict<BitbucketRepository[]>;
+  projects?: BitbucketProject[];
   resetPat: boolean;
-  searching: boolean;
   searchResults?: BitbucketRepository[];
+  searching: boolean;
   selectedAlmInstance?: AlmSettingsInstance;
   showPersonalAccessTokenForm?: boolean;
 }

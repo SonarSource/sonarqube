@@ -26,8 +26,8 @@ import { LabelValueSelectOption } from '../../../helpers/search';
 import { getQualityProfileUrl } from '../../../helpers/urls';
 
 export interface ProfileOption extends LabelValueSelectOption {
-  language: string;
   isDisabled: boolean;
+  language: string;
 }
 
 export type LanguageProfileSelectOptionProps = OptionProps<ProfileOption, false>;

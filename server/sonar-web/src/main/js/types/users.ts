@@ -18,10 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 export interface CurrentUser {
+  dismissedNotices: { [key: string]: boolean };
   isLoggedIn: boolean;
   permissions?: { global: string[] };
   usingSonarLintConnectedMode?: boolean;
-  dismissedNotices: { [key: string]: boolean };
 }
 
 export interface Notice {
@@ -52,13 +52,13 @@ export interface LoggedInUser extends CurrentUser, UserActive {
 }
 
 export type HomePage =
-  | { type: 'APPLICATION'; branch: string | undefined; component: string }
+  | { branch: string | undefined; component: string; type: 'APPLICATION' }
   | { type: 'ISSUES' }
   | { type: 'MY_ISSUES' }
   | { type: 'MY_PROJECTS' }
-  | { type: 'PORTFOLIO'; component: string }
+  | { component: string; type: 'PORTFOLIO' }
   | { type: 'PORTFOLIOS' }
-  | { type: 'PROJECT'; branch: string | undefined; component: string }
+  | { branch: string | undefined; component: string; type: 'PROJECT' }
   | { type: 'PROJECTS' };
 
 export interface CurrentUserSetting {
@@ -81,10 +81,10 @@ export interface User extends UserBase {
   externalProvider?: string;
   groups?: string[];
   lastConnectionDate?: string;
-  sonarLintLastConnectionDate?: string;
   local: boolean;
   managed: boolean;
   scmAccounts?: string[];
+  sonarLintLastConnectionDate?: string;
   tokensCount?: number;
 }
 
@@ -103,19 +103,19 @@ export interface RestUserBase {
 }
 
 export interface RestUser extends RestUserBase {
-  email: string | null;
   active: boolean;
-  local: boolean;
-  externalProvider: string;
   avatar: string;
+  email: string | null;
+  externalProvider: string;
+  local: boolean;
 }
 
 export interface RestUserDetailed extends RestUser {
-  managed: boolean;
   externalLogin: string;
-  sonarQubeLastConnectionDate: string | null;
-  sonarLintLastConnectionDate: string | null;
+  managed: boolean;
   scmAccounts: string[];
+  sonarLintLastConnectionDate: string | null;
+  sonarQubeLastConnectionDate: string | null;
 }
 
 export const enum ChangePasswordResults {

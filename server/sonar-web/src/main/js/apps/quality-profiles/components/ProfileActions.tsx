@@ -49,9 +49,9 @@ import DeleteProfileForm from './DeleteProfileForm';
 import ProfileModalForm from './ProfileModalForm';
 
 interface Props {
+  isComparable: boolean;
   profile: Profile;
   router: Router;
-  isComparable: boolean;
   updateProfiles: () => Promise<void>;
 }
 

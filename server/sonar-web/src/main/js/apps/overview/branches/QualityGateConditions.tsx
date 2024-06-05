@@ -33,8 +33,8 @@ const LEVEL_ORDER = ['ERROR', 'WARN'];
 
 export interface QualityGateConditionsProps {
   branchLike?: BranchLike;
-  component: Pick<Component, 'key'>;
   collapsible?: boolean;
+  component: Pick<Component, 'key'>;
   failedConditions: QualityGateStatusConditionEnhanced[];
   isBuiltInQualityGate?: boolean;
 }

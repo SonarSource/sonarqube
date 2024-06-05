@@ -50,8 +50,8 @@ export function useNewCodeDefinitionMutation() {
 
   return useMutation({
     mutationFn: (newCodeDefinition: {
-      project?: string;
       branch?: string;
+      project?: string;
       type?: NewCodeDefinitionType;
       value?: string;
     }) => {

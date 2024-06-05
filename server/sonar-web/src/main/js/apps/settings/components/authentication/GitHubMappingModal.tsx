@@ -45,14 +45,14 @@ import { GitHubMapping } from '../../../../types/provisioning';
 
 interface Props {
   mapping: GitHubMapping[] | null;
-  setMapping: React.Dispatch<React.SetStateAction<GitHubMapping[] | null>>;
   onClose: () => void;
+  setMapping: React.Dispatch<React.SetStateAction<GitHubMapping[] | null>>;
 }
 
 interface PermissionCellProps {
+  list?: GitHubMapping[];
   mapping: GitHubMapping;
   setMapping: React.Dispatch<React.SetStateAction<GitHubMapping[] | null>>;
-  list?: GitHubMapping[];
 }
 
 const DEFAULT_CUSTOM_ROLE_PERMISSIONS: GitHubMapping['permissions'] = {

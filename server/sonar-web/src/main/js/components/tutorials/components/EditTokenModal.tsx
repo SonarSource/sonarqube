@@ -52,9 +52,9 @@ import ProjectTokenScopeInfo from './ProjectTokenScopeInfo';
 interface State {
   loading: boolean;
   token?: string;
-  tokenName: string;
   tokenExpiration: TokenExpiration;
-  tokenExpirationOptions: { value: TokenExpiration; label: string }[];
+  tokenExpirationOptions: { label: string; value: TokenExpiration }[];
+  tokenName: string;
 }
 
 interface Props {

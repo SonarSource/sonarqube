@@ -78,10 +78,10 @@ export class DefinitionChangeEventInner extends React.PureComponent<Props, State
   );
 
   renderProjectChange(project: {
+    branch?: string;
     changeType: DefinitionChangeType;
     key: string;
     name: string;
-    branch?: string;
     newBranch?: string;
     oldBranch?: string;
   }) {

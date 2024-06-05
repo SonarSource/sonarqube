@@ -21,8 +21,8 @@ import { debounce } from 'lodash';
 import * as React from 'react';
 
 interface Props {
+  children: (position: { left: number; top: number }) => React.ReactElement<any>;
   className?: string;
-  children: (position: { top: number; left: number }) => React.ReactElement<any>;
 }
 
 export const SCREEN_POSITION_COMPUTE_DELAY = 250;

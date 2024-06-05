@@ -25,8 +25,8 @@ import { Paging } from '../types/types';
 
 export interface TimeMachineResponse {
   measures: {
-    metric: MetricKey;
     history: Array<{ date: string; value?: string }>;
+    metric: MetricKey;
   }[];
   paging: Paging;
 }
@@ -47,8 +47,8 @@ export function getTimeMachineData(
 export function getAllTimeMachineData(
   data: {
     component?: string;
-    metrics: string;
     from?: string;
+    metrics: string;
     p?: number;
     to?: string;
   } & BranchParameters,

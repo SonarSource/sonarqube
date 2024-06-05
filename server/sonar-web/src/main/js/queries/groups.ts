@@ -52,8 +52,8 @@ export function useUpdateGroupMutation() {
       id,
       data,
     }: {
-      id: Parameters<typeof updateGroup>[0];
       data: Parameters<typeof updateGroup>[1];
+      id: Parameters<typeof updateGroup>[0];
     }) => updateGroup(id, data),
     onSuccess() {
       queryClient.invalidateQueries({ queryKey: ['group', 'list'] });

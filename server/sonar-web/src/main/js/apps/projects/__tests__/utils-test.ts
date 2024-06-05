@@ -148,8 +148,8 @@ describe('fetchProjects', () => {
         projects: components.map(
           (
             component: Component & {
-              measures: { languages?: string; new_coverage?: string };
               isScannable: boolean;
+              measures: { languages?: string; new_coverage?: string };
             },
           ) => {
             // eslint-disable-next-line jest/no-conditional-in-test

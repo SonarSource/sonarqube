@@ -56,19 +56,19 @@ import { DEFAULT_METRICS } from './mocks/metrics';
 import { mockAppState, mockCurrentUser } from './testMocks';
 
 export interface RenderContext {
-  metrics?: Dict<Metric>;
   appState?: AppState;
-  languages?: Languages;
   currentUser?: CurrentUser;
-  navigateTo?: string;
   featureList?: Feature[];
+  languages?: Languages;
+  metrics?: Dict<Metric>;
+  navigateTo?: string;
 }
 
 export function renderAppWithAdminContext(
   indexPath: string,
   routes: () => JSX.Element,
   context: RenderContext = {},
-  overrides: { systemStatus?: SysStatus; adminPages?: Extension[] } = {},
+  overrides: { adminPages?: Extension[]; systemStatus?: SysStatus } = {},
 ): RenderResult {
   function MockAdminContainer() {
     return (

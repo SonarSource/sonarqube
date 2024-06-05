@@ -27,9 +27,9 @@ import { CleanCodeAttribute, CleanCodeAttributeCategory } from '../../types/clea
 
 export interface Props {
   className?: string;
-  type?: 'issue' | 'rule';
-  cleanCodeAttributeCategory: CleanCodeAttributeCategory;
   cleanCodeAttribute?: CleanCodeAttribute;
+  cleanCodeAttributeCategory: CleanCodeAttributeCategory;
+  type?: 'issue' | 'rule';
 }
 
 export function CleanCodeAttributePill(props: Readonly<Props>) {

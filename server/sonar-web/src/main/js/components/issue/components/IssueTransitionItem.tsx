@@ -26,9 +26,9 @@ import HelpTooltip from '../../../sonar-aligned/components/controls/HelpTooltip'
 import { IssueTransition } from '../../../types/issues';
 
 type Props = {
-  transition: IssueTransition;
-  selected: boolean;
   onSelectTransition: (transition: IssueTransition) => void;
+  selected: boolean;
+  transition: IssueTransition;
 };
 
 export function IssueTransitionItem({ transition, selected, onSelectTransition }: Readonly<Props>) {

@@ -49,12 +49,12 @@ export const OPTIONAL_FIELDS = [
 ];
 
 export interface SamlSettingValue {
+  definition: ExtendedSettingDefinition;
+  isNotSet: boolean;
   key: string;
   mandatory: boolean;
-  isNotSet: boolean;
-  value?: string;
   newValue?: string | boolean;
-  definition: ExtendedSettingDefinition;
+  value?: string;
 }
 
 export const isOrganizationListEmpty = (values: Record<string, SettingValue>) =>

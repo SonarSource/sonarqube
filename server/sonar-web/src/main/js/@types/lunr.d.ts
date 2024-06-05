@@ -23,16 +23,16 @@ declare module 'lunr' {
 
     field(field: string, options?: { boost?: number }): void;
 
+    metadataWhitelist?: string[];
+
     ref(field: string): void;
 
     use(fn: Function): void;
-
-    metadataWhitelist?: string[];
   }
 
   export interface LunrBuilder {
-    pipeline: any;
     metadataWhitelist: string[];
+    pipeline: any;
   }
 
   export interface LunrIndex {
@@ -44,14 +44,14 @@ declare module 'lunr' {
   }
 
   export interface LunrMatch {
+    matchData: { metadata: any };
     ref: string;
     score: number;
-    matchData: { metadata: any };
   }
 
   export interface LunrToken {
-    str: string;
     metadata: any;
+    str: string;
   }
 
   function lunr(initializer: LunrInit): LunrIndex;

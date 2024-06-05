@@ -37,8 +37,8 @@ import { TutorialModes } from './types';
 export interface TutorialSelectionProps {
   component: Component;
   currentUser: LoggedInUser;
-  willRefreshAutomatically?: boolean;
   location: Location;
+  willRefreshAutomatically?: boolean;
 }
 
 export function TutorialSelection(props: Readonly<TutorialSelectionProps>) {

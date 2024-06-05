@@ -148,8 +148,8 @@ export class AllProjects extends React.PureComponent<Props, State> {
 
   handlePerspectiveChange = ({ view }: { view?: string }) => {
     const query: {
-      view: string | undefined;
       sort?: string;
+      view: string | undefined;
     } = {
       view: view === 'overall' ? undefined : view,
     };

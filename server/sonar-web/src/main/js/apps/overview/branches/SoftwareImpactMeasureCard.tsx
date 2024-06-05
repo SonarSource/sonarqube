@@ -44,12 +44,12 @@ import SoftwareImpactMeasureBreakdownCard from './SoftwareImpactMeasureBreakdown
 import SoftwareImpactMeasureRating from './SoftwareImpactMeasureRating';
 
 export interface SoftwareImpactBreakdownCardProps {
+  branch?: Branch;
   component: Component;
   conditions: QualityGateStatusConditionEnhanced[];
-  softwareQuality: SoftwareQuality;
-  ratingMetricKey: MetricKey;
   measures: MeasureEnhanced[];
-  branch?: Branch;
+  ratingMetricKey: MetricKey;
+  softwareQuality: SoftwareQuality;
 }
 
 export function SoftwareImpactMeasureCard(props: Readonly<SoftwareImpactBreakdownCardProps>) {

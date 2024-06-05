@@ -25,16 +25,16 @@ import Tooltip from '../../../components/controls/Tooltip';
 import { Profile } from '../types';
 
 interface Props {
+  onCompare: (rule: string) => void;
   profile: Profile;
   profiles: Profile[];
-  onCompare: (rule: string) => void;
   withKey?: string;
 }
 
 interface Option {
-  value: string;
-  label: string;
   isDefault: boolean | undefined;
+  label: string;
+  value: string;
 }
 
 export default function ComparisonForm(props: Readonly<Props>) {

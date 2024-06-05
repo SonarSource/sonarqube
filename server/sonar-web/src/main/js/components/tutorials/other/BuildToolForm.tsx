@@ -26,8 +26,8 @@ import RenderOptions from '../components/RenderOptions';
 import { BuildTools, ManualTutorialConfig, OSs, TutorialModes } from '../types';
 
 interface Props {
-  hasCLanguageFeature: boolean;
   config?: ManualTutorialConfig;
+  hasCLanguageFeature: boolean;
   onDone: (config: ManualTutorialConfig) => void;
 }
 

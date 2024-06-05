@@ -52,11 +52,11 @@ import HotspotViewer from './components/HotspotViewer';
 export interface SecurityHotspotsAppRendererProps {
   branchLike?: BranchLike;
   component: Component;
-  filterByCategory?: {
-    standard: SecurityStandard;
-    category: string;
-  };
   filterByCWE?: string;
+  filterByCategory?: {
+    category: string;
+    standard: SecurityStandard;
+  };
   filterByFile?: string;
   filters: HotspotFilters;
   hotspots: RawHotspot[];

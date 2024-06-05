@@ -27,8 +27,8 @@ import { getRulesUrl } from '../../../helpers/urls';
 interface Props {
   language: string;
   profile: string;
-  sonarway: string;
   sonarWayMissingRules: number;
+  sonarway: string;
 }
 
 export default function ProfileRulesSonarWayComparison(props: Props) {

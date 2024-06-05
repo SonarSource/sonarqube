@@ -35,13 +35,13 @@ import { openHotspot, probeSonarLintServers } from '../../../helpers/sonarlint';
 import { Ide } from '../../../types/sonarlint';
 
 interface Props {
-  projectKey: string;
   hotspotKey: string;
+  projectKey: string;
 }
 
 interface State {
-  loading: boolean;
   ides: Ide[];
+  loading: boolean;
 }
 
 export default class HotspotOpenInIdeButton extends React.PureComponent<Props, State> {

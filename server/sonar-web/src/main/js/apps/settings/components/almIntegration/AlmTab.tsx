@@ -30,8 +30,8 @@ import AlmTabRenderer from './AlmTabRenderer';
 interface Props {
   almTab: AlmTabs;
   branchesEnabled: boolean;
-  definitions: AlmBindingDefinition[];
   definitionStatus: Dict<AlmSettingsBindingStatus>;
+  definitions: AlmBindingDefinition[];
   loadingAlmDefinitions: boolean;
   loadingProjectCount: boolean;
   multipleAlmEnabled: boolean;
@@ -41,8 +41,8 @@ interface Props {
 }
 
 interface State {
-  editedDefinition?: AlmBindingDefinition;
   editDefinition?: boolean;
+  editedDefinition?: AlmBindingDefinition;
 }
 
 export default class AlmTab extends React.PureComponent<Props, State> {

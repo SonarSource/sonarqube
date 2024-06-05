@@ -448,7 +448,7 @@ export default class CodingRulesServiceMock {
     prioritizedRule,
   }: SearchRulesQuery): Promise<SearchRulesResponse> => {
     const standards = await getStandards();
-    const facetCounts: Array<{ property: string; values: { val: string; count: number }[] }> = [];
+    const facetCounts: Array<{ property: string; values: { count: number; val: string }[] }> = [];
     for (const facet of facets?.split(',') ?? []) {
       // If we can count facet values from the list of rules
       if (FACET_RULE_MAP[facet]) {

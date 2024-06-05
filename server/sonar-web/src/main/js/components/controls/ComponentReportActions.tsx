@@ -38,8 +38,8 @@ import ComponentReportActionsRenderer from './ComponentReportActionsRenderer';
 
 interface Props {
   appState: AppState;
-  component: Component;
   branch?: Branch;
+  component: Component;
   currentUser: CurrentUser;
 }
 

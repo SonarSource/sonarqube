@@ -203,7 +203,7 @@ export class WebApiApp extends React.PureComponent<Props, State> {
   }
 }
 
-function WebApiAppWithParams(props: { router: Router; location: Location }) {
+function WebApiAppWithParams(props: { location: Location; router: Router }) {
   const params = useParams();
 
   return <WebApiApp {...props} params={{ splat: params['*'] }} />;

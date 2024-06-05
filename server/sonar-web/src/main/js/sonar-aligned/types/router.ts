@@ -31,8 +31,8 @@ export interface Location extends LocationRouter {
 
 export interface Router {
   navigate: NavigateFunction;
-  replace: (location: string | Partial<Location>) => void;
   push: (location: string | Partial<Location>) => void;
+  replace: (location: string | Partial<Location>) => void;
   searchParams: URLSearchParams;
   setSearchParams: (
     nextInit: URLSearchParamsInit,

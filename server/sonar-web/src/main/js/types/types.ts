@@ -44,8 +44,8 @@ export interface AlmApplication extends IdentityProvider {
 }
 
 export interface AlmRepository {
-  label: string;
   installationKey: string;
+  label: string;
   linkedProjectKey?: string;
   linkedProjectName?: string;
   private?: boolean;
@@ -90,9 +90,9 @@ interface ComponentConfiguration {
   showBackgroundTasks?: boolean;
   showHistory?: boolean;
   showLinks?: boolean;
+  showPermissions?: boolean;
   showQualityGates?: boolean;
   showQualityProfiles?: boolean;
-  showPermissions?: boolean;
   showSettings?: boolean;
   showUpdateKey?: boolean;
 }
@@ -100,10 +100,10 @@ interface ComponentConfiguration {
 export interface ComponentMeasureIntern {
   analysisDate?: string;
   branch?: string;
+  canBrowseAllChildProjects?: boolean;
   description?: string;
   isFavorite?: boolean;
   isRecentlyBrowsed?: boolean;
-  canBrowseAllChildProjects?: boolean;
   key: string;
   match?: string;
   name: string;
@@ -118,17 +118,17 @@ export interface ComponentMeasure extends ComponentMeasureIntern {
 }
 
 export interface ComponentMeasureEnhanced extends ComponentMeasureIntern {
-  value?: string;
   leak?: string;
   measures: MeasureEnhanced[];
+  value?: string;
 }
 
 export interface Condition {
   error: string;
   id: string;
+  isCaycCondition?: boolean;
   metric: string;
   op?: string;
-  isCaycCondition?: boolean;
 }
 
 export interface CustomMeasure {
@@ -136,16 +136,16 @@ export interface CustomMeasure {
   description?: string;
   id: string;
   metric: {
+    domain?: string;
     key: string;
     name: string;
-    domain?: string;
     type: string;
   };
-  projectKey: string;
   pending?: boolean;
+  projectKey: string;
+  updatedAt?: string;
   user: UserBase;
   value: string;
-  updatedAt?: string;
 }
 
 export interface Duplication {
@@ -183,9 +183,9 @@ export enum FlowType {
 }
 
 export interface Flow {
-  type: FlowType;
   description?: string;
   locations: FlowLocation[];
+  type: FlowType;
 }
 
 export interface FlowLocation {
@@ -198,16 +198,16 @@ export interface FlowLocation {
 }
 
 export interface Group {
-  id: string;
   default?: boolean;
-  name: string;
   description?: string;
+  id: string;
   managed: boolean;
+  name: string;
 }
 
 export interface GroupMembership {
-  id: string;
   groupId: string;
+  id: string;
   userId: string;
 }
 
@@ -222,8 +222,8 @@ export interface IdentityProvider {
   helpMessage?: string;
   iconPath: string;
   key: string;
-  name: string;
   manage?: boolean;
+  name: string;
 }
 
 export interface Issue extends Omit<RawIssue, 'flows' | 'comments'> {
@@ -239,12 +239,12 @@ export interface Issue extends Omit<RawIssue, 'flows' | 'comments'> {
   componentUuid: string;
   effort?: string;
   externalRuleEngine?: string;
-  fromExternalRule?: boolean;
   flows: FlowLocation[][];
   flowsWithType: Flow[];
+  fromExternalRule?: boolean;
   message: string;
-  projectName: string;
   projectKey: string;
+  projectName: string;
   pullRequest?: string;
   ruleName: string;
   secondaryLocations: FlowLocation[];
@@ -254,10 +254,10 @@ export interface IssueChangelog {
   avatar?: string;
   creationDate: string;
   diffs: IssueChangelogDiff[];
-  user: string;
-  isUserActive: boolean;
-  userName: string;
   externalUser?: string;
+  isUserActive: boolean;
+  user: string;
+  userName: string;
   webhookSource?: string;
 }
 
@@ -319,8 +319,8 @@ export interface Measure extends MeasureIntern {
 }
 
 export interface MeasureEnhanced extends MeasureIntern {
-  metric: Metric;
   leak?: string;
+  metric: Metric;
 }
 
 export interface MeasureIntern {
@@ -350,9 +350,9 @@ export interface MyProject {
   key: string;
   lastAnalysisDate?: string;
   links: Array<{
+    href: string;
     name: string;
     type: string;
-    href: string;
   }>;
   name: string;
   qualityGate?: string;
@@ -397,9 +397,9 @@ export interface Permission {
 }
 
 export interface PermissionDefinition {
+  description: string;
   key: string;
   name: string;
-  description: string;
 }
 
 export type PermissionDefinitions = Array<PermissionDefinition | PermissionDefinitionGroup>;
@@ -412,32 +412,32 @@ export interface PermissionDefinitionGroup {
 export interface PermissionGroup {
   description?: string;
   id?: string;
+  managed?: boolean;
   name: string;
   permissions: string[];
-  managed?: boolean;
 }
 
 export interface PermissionUser extends UserActive {
-  permissions: string[];
   managed?: boolean;
+  permissions: string[];
 }
 
 export interface PermissionTemplateGroup {
+  groupsCount: number;
   key: string;
   usersCount: number;
-  groupsCount: number;
   withProjectCreator?: boolean;
 }
 
 export interface PermissionTemplate {
+  createdAt: string;
   defaultFor: string[];
+  description?: string;
   id: string;
   name: string;
-  description?: string;
-  projectKeyPattern?: string;
-  createdAt: string;
-  updatedAt?: string;
   permissions: Array<PermissionTemplateGroup>;
+  projectKeyPattern?: string;
+  updatedAt?: string;
 }
 
 export interface ProfileInheritanceDetails {
@@ -477,14 +477,14 @@ export interface QualityGate extends QualityGatePreview {
     rename?: boolean;
     setAsDefault?: boolean;
   };
+  caycStatus?: CaycStatus;
   conditions?: Condition[];
   isBuiltIn?: boolean;
-  caycStatus?: CaycStatus;
 }
 
 export interface Rule {
-  cleanCodeAttributeCategory?: CleanCodeAttributeCategory;
   cleanCodeAttribute?: CleanCodeAttribute;
+  cleanCodeAttributeCategory?: CleanCodeAttributeCategory;
   impacts: SoftwareImpact[];
   isTemplate?: boolean;
   key: string;
@@ -500,10 +500,9 @@ export interface Rule {
 }
 
 export interface RestRule {
-  cleanCodeAttributeCategory?: CleanCodeAttributeCategory;
   cleanCodeAttribute?: CleanCodeAttribute;
+  cleanCodeAttributeCategory?: CleanCodeAttributeCategory;
   impacts: SoftwareImpact[];
-  template?: boolean;
   key: string;
   language?: string;
   languageName?: string;
@@ -513,6 +512,7 @@ export interface RestRule {
   status: string;
   systemTags?: string[];
   tags?: string[];
+  template?: boolean;
   type: RuleType;
 }
 
@@ -520,8 +520,8 @@ export interface RuleActivation {
   createdAt: string;
   inherit: RuleInheritance;
   params: { key: string; value: string }[];
-  qProfile: string;
   prioritizedRule: boolean;
+  qProfile: string;
   severity: string;
 }
 
@@ -564,11 +564,11 @@ export interface RestRuleDetails extends RestRule {
   createdAt: string;
   descriptionSections?: RuleDescriptionSection[];
   educationPrinciples?: string[];
+  external?: boolean;
   gapDescription?: string;
   htmlDesc?: string;
   htmlNote?: string;
   internalKey?: string;
-  external?: boolean;
   markdownDescription?: string;
   markdownNote?: string;
   remFnBaseEffort?: string;
@@ -600,9 +600,9 @@ export type RuleScope = 'MAIN' | 'TEST' | 'ALL';
 export type RuleType = 'BUG' | 'VULNERABILITY' | 'CODE_SMELL' | 'SECURITY_HOTSPOT' | 'UNKNOWN';
 
 export interface Snippet {
-  start: number;
   end: number;
   index: number;
+  start: number;
   toDelete?: boolean;
 }
 
@@ -634,9 +634,11 @@ export interface SourceLine {
 export type SourceLineCoverageStatus = 'uncovered' | 'partially-covered' | 'covered';
 
 export interface SourceViewerFile {
+  canMarkAsFavorite?: boolean;
   fav?: boolean;
   key: string;
   leakPeriodDate?: string;
+  longName?: string;
   measures: {
     coverage?: string;
     duplicationDensity?: string;
@@ -644,17 +646,15 @@ export interface SourceViewerFile {
     lines?: string;
     tests?: string;
   };
-  canMarkAsFavorite?: boolean;
-  path: string;
   name?: string;
-  longName?: string;
+  path: string;
   project: string;
   projectName: string;
   q: ComponentQualifier;
   uuid: string;
 }
 
-export type StandardSecurityCategories = Dict<{ title: string; description?: string }>;
+export type StandardSecurityCategories = Dict<{ description?: string; title: string }>;
 
 export interface SubscriptionPlan {
   maxNcloc: number;
@@ -695,10 +695,10 @@ export interface SysInfoCluster extends SysInfoBase {
     ncloc: number;
   };
   System: {
+    'External Users and Groups Provisioning'?: Provider;
     'High Availability': true;
     'Server ID': string;
     Version: string;
-    'External Users and Groups Provisioning'?: Provider;
   };
 }
 
@@ -761,10 +761,10 @@ export interface TestCase {
 }
 
 export interface TextRange {
-  startLine: number;
-  startOffset: number;
   endLine: number;
   endOffset: number;
+  startLine: number;
+  startOffset: number;
 }
 
 export interface UserSelected extends UserActive {
@@ -772,20 +772,20 @@ export interface UserSelected extends UserActive {
 }
 
 export interface UserGroupMember {
-  selected: boolean;
   login: string;
-  name: string;
   managed: boolean;
+  name: string;
+  selected: boolean;
 }
 
 export namespace WebApi {
   export interface Action {
-    key: string;
     changelog: Changelog[];
-    description: string;
     deprecatedSince?: string;
+    description: string;
     hasResponseExample: boolean;
     internal: boolean;
+    key: string;
     params?: Param[];
     post: boolean;
     since?: string;
@@ -819,9 +819,9 @@ export namespace WebApi {
     exampleValue?: string;
     internal: boolean;
     key: string;
+    maxValuesAllowed?: number;
     maximumLength?: number;
     maximumValue?: number;
-    maxValuesAllowed?: number;
     minimumLength?: number;
     minimumValue?: number;
     possibleValues?: string[];

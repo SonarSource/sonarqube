@@ -28,40 +28,40 @@ import { IssueSeverity } from '../../types/issues';
 import { Dict } from '../../types/types';
 
 export interface Profile extends BaseProfile {
-  depth: number;
   childrenCount: number;
+  depth: number;
 }
 
 export interface Exporter {
   key: string;
-  name: string;
   languages: string[];
+  name: string;
 }
 
 export interface ProfileChangelogEventImpactChange {
-  oldSoftwareQuality?: SoftwareQuality;
+  newSeverity?: SoftwareImpactSeverity;
   newSoftwareQuality?: SoftwareQuality;
   oldSeverity?: SoftwareImpactSeverity;
-  newSeverity?: SoftwareImpactSeverity;
+  oldSoftwareQuality?: SoftwareQuality;
 }
 
 export interface ProfileChangelogEvent {
   action: string;
   authorName?: string;
   cleanCodeAttributeCategory?: CleanCodeAttributeCategory;
+  date: string;
   // impacts should be always set in the wild. But Next currently has a specific database state for which this field is undefined. May be possible to make this field required in the future.
   impacts?: {
-    softwareQuality: SoftwareQuality;
     severity: SoftwareImpactSeverity;
+    softwareQuality: SoftwareQuality;
   }[];
-  date: string;
   params?: {
-    severity?: IssueSeverity;
-    oldCleanCodeAttribute?: CleanCodeAttribute;
-    oldCleanCodeAttributeCategory?: CleanCodeAttributeCategory;
+    impactChanges?: ProfileChangelogEventImpactChange[];
     newCleanCodeAttribute?: CleanCodeAttribute;
     newCleanCodeAttributeCategory?: CleanCodeAttributeCategory;
-    impactChanges?: ProfileChangelogEventImpactChange[];
+    oldCleanCodeAttribute?: CleanCodeAttribute;
+    oldCleanCodeAttributeCategory?: CleanCodeAttributeCategory;
+    severity?: IssueSeverity;
   } & Dict<string | ProfileChangelogEventImpactChange[] | null>;
   ruleKey: string;
   ruleName: string;

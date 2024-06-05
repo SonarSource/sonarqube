@@ -26,9 +26,9 @@ export interface LineIssuesListProps {
   branchLike: BranchLike | undefined;
   displayAllIssues?: boolean;
   displayWhyIsThisAnIssue: boolean;
-  issuesForLine: TypeIssue[];
-  issuePopup: { issue: string; name: string } | undefined;
   issueLocationsByLine: { [line: number]: LinearIssueLocation[] };
+  issuePopup: { issue: string; name: string } | undefined;
+  issuesForLine: TypeIssue[];
   line: SourceLine;
   onIssueChange: (issue: TypeIssue) => void;
   onIssueClick: (issueKey: string) => void;

@@ -27,17 +27,17 @@ import { AlmInstanceBase } from '../../../types/alm-settings';
 import { tokenExistedBefore } from './utils';
 
 export interface PATType {
-  validationFailed: boolean;
-  validationErrorMessage?: string;
-  touched: boolean;
-  password: string;
-  username?: string;
-  submitting: boolean;
   checkingPat: boolean;
   firstConnection: boolean;
-  handleUsernameChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
   handlePasswordChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
   handleSubmit: (e: React.SyntheticEvent<HTMLFormElement>) => Promise<void>;
+  handleUsernameChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  password: string;
+  submitting: boolean;
+  touched: boolean;
+  username?: string;
+  validationErrorMessage?: string;
+  validationFailed: boolean;
 }
 
 export const usePersonalAccessToken = (

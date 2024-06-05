@@ -20,8 +20,8 @@
 import { Dispatch, SetStateAction, createContext } from 'react';
 
 const ApiFilterContext = createContext<{
-  showInternal: boolean;
   setShowInternal: Dispatch<SetStateAction<boolean>>;
+  showInternal: boolean;
 }>({
   showInternal: false,
   setShowInternal: () => {},

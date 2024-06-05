@@ -34,14 +34,14 @@ import AddGraphMetric from './AddGraphMetric';
 import { getGraphTypes, isCustomGraph } from './utils';
 
 interface Props {
-  onAddCustomMetric?: (metric: string) => void;
   className?: string;
-  onRemoveCustomMetric?: (metric: string) => void;
   graph: GraphType;
   metrics: Metric[];
   metricsTypeFilter?: string[];
-  selectedMetrics?: string[];
+  onAddCustomMetric?: (metric: string) => void;
+  onRemoveCustomMetric?: (metric: string) => void;
   onUpdateGraph: (graphType: string) => void;
+  selectedMetrics?: string[];
 }
 
 export default function GraphsHeader(props: Props) {

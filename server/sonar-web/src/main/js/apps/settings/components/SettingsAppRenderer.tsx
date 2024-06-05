@@ -36,8 +36,8 @@ import CategoryDefinitionsList from './CategoryDefinitionsList';
 import PageHeader from './PageHeader';
 
 export interface SettingsAppRendererProps {
-  definitions: ExtendedSettingDefinition[];
   component?: Component;
+  definitions: ExtendedSettingDefinition[];
   loading: boolean;
   location: Location;
 }

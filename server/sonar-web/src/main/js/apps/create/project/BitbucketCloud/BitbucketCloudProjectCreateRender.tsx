@@ -45,8 +45,8 @@ export interface BitbucketCloudProjectCreateRendererProps {
   onSelectedAlmInstanceChange: (instance: AlmSettingsInstance) => void;
   repositories?: BitbucketCloudRepository[];
   resetPat: boolean;
-  searching: boolean;
   searchQuery: string;
+  searching: boolean;
   selectedAlmInstance?: AlmSettingsInstance;
   showPersonalAccessTokenForm: boolean;
 }

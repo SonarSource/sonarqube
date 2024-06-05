@@ -38,15 +38,15 @@ import { buildSettingLink, isRealSettingKey } from '../utils';
 const SEARCH_INPUT_ID = 'settings-search-input';
 export interface SettingsSearchRendererProps {
   component?: Component;
-  results?: ExtendedSettingDefinition[];
-  searchQuery: string;
-  selectedResult?: string;
-  showResults: boolean;
   onClickOutside: () => void;
   onMouseOverResult: (key: string) => void;
   onSearchInputChange: (query: string) => void;
   onSearchInputFocus: () => void;
   onSearchInputKeyDown: (event: React.KeyboardEvent) => void;
+  results?: ExtendedSettingDefinition[];
+  searchQuery: string;
+  selectedResult?: string;
+  showResults: boolean;
 }
 
 export default function SettingsSearchRenderer(props: Readonly<SettingsSearchRendererProps>) {

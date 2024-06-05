@@ -51,10 +51,10 @@ import BranchList from './BranchList';
 import ProjectNewCodeDefinitionSelector from './ProjectNewCodeDefinitionSelector';
 
 interface ProjectNewCodeDefinitionAppProps extends WithAvailableFeaturesProps {
+  appState: AppState;
   branchLike: Branch;
   branchLikes: BranchLike[];
   component: Component;
-  appState: AppState;
 }
 
 function ProjectNewCodeDefinitionApp(props: Readonly<ProjectNewCodeDefinitionAppProps>) {

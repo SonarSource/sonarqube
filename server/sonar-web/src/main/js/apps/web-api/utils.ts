@@ -28,9 +28,9 @@ import {
 import { WebApi } from '../../types/types';
 
 export interface Query {
-  search: string;
   deprecated: boolean;
   internal: boolean;
+  search: string;
 }
 
 export function actionsFilter(query: Query, domain: WebApi.Domain, action: WebApi.Action) {

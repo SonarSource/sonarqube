@@ -30,7 +30,7 @@ export interface L10nBundleRequestResponse {
 }
 
 export interface L10nBundle {
-  timestamp?: string;
   locale?: string;
   messages?: Dict<string>;
+  timestamp?: string;
 }

@@ -29,9 +29,9 @@ import ProfileLink from '../components/ProfileLink';
 import { Profile } from '../types';
 
 export interface ProfilesListRowProps {
+  isComparable: boolean;
   profile: Profile;
   updateProfiles: () => Promise<void>;
-  isComparable: boolean;
 }
 
 export function ProfilesListRow(props: Readonly<ProfilesListRowProps>) {

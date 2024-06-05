@@ -29,8 +29,8 @@ import InstanceMessage from '../../../common/InstanceMessage';
 import DoneNextSteps from '../DoneNextSteps';
 
 export interface JavaMavenProps {
-  component: Component;
   baseUrl: string;
+  component: Component;
   token: string;
 }
 

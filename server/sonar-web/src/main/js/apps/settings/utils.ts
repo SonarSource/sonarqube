@@ -37,8 +37,8 @@ import { Component, Dict } from '../../types/types';
 export const DEFAULT_CATEGORY = 'general';
 
 export type DefaultSpecializedInputProps = DefaultInputProps & {
-  className?: string;
   autoComplete?: string;
+  className?: string;
   isDefault: boolean;
   name: string;
   type?: string;
@@ -46,15 +46,15 @@ export type DefaultSpecializedInputProps = DefaultInputProps & {
 
 export interface DefaultInputProps {
   autoFocus?: boolean;
+  hasValueChanged?: boolean;
   isEditing?: boolean;
   isInvalid?: boolean;
-  size?: InputSizeKeys;
-  hasValueChanged?: boolean;
   onCancel?: () => void;
   onChange: (value: any) => void;
   onEditing?: () => void;
   onSave?: () => void;
   setting: Setting;
+  size?: InputSizeKeys;
   value: any;
 }
 

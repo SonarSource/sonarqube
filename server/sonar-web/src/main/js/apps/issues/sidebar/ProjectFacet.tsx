@@ -34,8 +34,8 @@ import { ListStyleFacet } from './ListStyleFacet';
 
 interface Props {
   component: Component | undefined;
-  loadSearchResultCount: (property: string, changes: Partial<Query>) => Promise<Facet>;
   fetching: boolean;
+  loadSearchResultCount: (property: string, changes: Partial<Query>) => Promise<Facet>;
   onChange: (changes: Partial<Query>) => void;
   onToggle: (property: string) => void;
   open: boolean;
@@ -66,7 +66,7 @@ export function ProjectFacet(props: Readonly<Props>) {
   const handleSearch = (
     query: string,
     page = 1,
-  ): Promise<{ results: SearchedProject[]; paging: Paging }> => {
+  ): Promise<{ paging: Paging; results: SearchedProject[] }> => {
     if (
       component &&
       [

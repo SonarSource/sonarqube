@@ -40,12 +40,12 @@ interface Props {
 }
 
 interface State {
+  error?: string;
+  loading: boolean;
+  message: string;
   recipient: string;
   subject: string;
-  message: string;
-  loading: boolean;
   success?: string;
-  error?: string;
 }
 
 export class EmailForm extends React.PureComponent<Props, State> {

@@ -29,8 +29,8 @@ import { RestUserDetailed } from '../../../types/users';
 
 export interface Props {
   identityProvider?: IdentityProvider;
-  user: RestUserDetailed;
   manageProvider: Provider | undefined;
+  user: RestUserDetailed;
 }
 
 export default function UserListItemIdentity({ identityProvider, user, manageProvider }: Props) {

@@ -58,24 +58,24 @@ import { getUniqueTokenName } from '../utils';
 
 interface Props {
   currentUser: Pick<LoggedInUser, 'login'>;
-  projectKey: string;
   finished: boolean;
   initialTokenName?: string;
-  stepNumber: number;
-  open: boolean;
   onContinue: (token: string) => void;
   onOpen: VoidFunction;
+  open: boolean;
+  projectKey: string;
+  stepNumber: number;
 }
 
 interface State {
   existingToken: string;
   loading: boolean;
   selection: string;
-  tokenName?: string;
   token?: string;
-  tokens?: UserToken[];
   tokenExpiration: TokenExpiration;
-  tokenExpirationOptions: { value: TokenExpiration; label: string }[];
+  tokenExpirationOptions: { label: string; value: TokenExpiration }[];
+  tokenName?: string;
+  tokens?: UserToken[];
 }
 
 const TOKEN_FORMAT_REGEX = /^[_a-z0-9]+$/;

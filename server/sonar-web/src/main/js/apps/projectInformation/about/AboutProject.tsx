@@ -104,8 +104,8 @@ export default function AboutProject(props: AboutProjectProps) {
 }
 
 interface ProjectInformationSectionProps {
-  last?: boolean;
   className?: string;
+  last?: boolean;
 }
 
 function ProjectInformationSection(props: PropsWithChildren<ProjectInformationSectionProps>) {

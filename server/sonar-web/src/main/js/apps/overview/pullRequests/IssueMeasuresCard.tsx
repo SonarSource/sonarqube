@@ -46,9 +46,9 @@ import { IssueMeasuresCardInner } from '../components/IssueMeasuresCardInner';
 import { Status, getConditionRequiredLabel } from '../utils';
 
 interface Props {
+  component: Component;
   conditions: QualityGateStatusConditionEnhanced[];
   measures: MeasureEnhanced[];
-  component: Component;
   pullRequest: PullRequest;
 }
 

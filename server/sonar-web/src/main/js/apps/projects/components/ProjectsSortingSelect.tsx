@@ -41,10 +41,10 @@ interface Props {
 }
 
 export interface Option {
-  label: string;
-  value: string;
   className?: string;
+  label: string;
   short?: string;
+  value: string;
 }
 
 export default class ProjectsSortingSelect extends React.PureComponent<Props> {

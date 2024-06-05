@@ -36,11 +36,11 @@ import { isTransitionDeprecated, isTransitionHidden, transitionRequiresComment }
 import { IssueTransitionItem } from './IssueTransitionItem';
 
 export type Props = {
+  guideStepIndex: number;
   issue: Pick<Issue, 'transitions' | 'actions'>;
+  loading?: boolean;
   onClose: () => void;
   onSetTransition: (transition: IssueTransition, comment?: string) => void;
-  guideStepIndex: number;
-  loading?: boolean;
 };
 
 export function IssueTransitionOverlay(props: Readonly<Props>) {

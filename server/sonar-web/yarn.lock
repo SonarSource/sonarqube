@@ -6025,6 +6025,7 @@ __metadata:
     eslint-plugin-react: "npm:7.33.2"
     eslint-plugin-react-hooks: "npm:4.6.0"
     eslint-plugin-testing-library: "npm:6.2.0"
+    eslint-plugin-typescript-sort-keys: "npm:3.2.0"
     formik: "npm:2.4.5"
     fs-extra: "npm:11.2.0"
     http-proxy: "npm:1.18.1"
@@ -8875,6 +8876,21 @@ __metadata:
     eslint: ^7 || ^8
     typescript: ^3 || ^4 || ^5
   checksum: 10/7ebb5accfc0cfabdd17257ec91a86a3083018f039a9c9e899be1db62615ebb1446455062571818d646685e25277aec88f80a5a95570e71c2b0f0b38d8b945f92
+  languageName: node
+  linkType: hard
+
+"eslint-plugin-typescript-sort-keys@npm:3.2.0":
+  version: 3.2.0
+  resolution: "eslint-plugin-typescript-sort-keys@npm:3.2.0"
+  dependencies:
+    "@typescript-eslint/experimental-utils": "npm:^5.0.0"
+    json-schema: "npm:^0.4.0"
+    natural-compare-lite: "npm:^1.4.0"
+  peerDependencies:
+    "@typescript-eslint/parser": ^6 || ^7
+    eslint: ^7 || ^8
+    typescript: ^3 || ^4 || ^5
+  checksum: 10/6ef3273ed1a0a1c60dd6750b4c9884f6c43668f552021d622492c26f2f2d8f7d86ca7f9fbfff23e3b756854bf1014e5f8e690eddccfb6ad569987b88650a9d55
   languageName: node
   linkType: hard
 

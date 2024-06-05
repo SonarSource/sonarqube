@@ -35,12 +35,13 @@ import { AlmTabs } from './AlmIntegration';
 import CreationTooltip from './CreationTooltip';
 
 export interface AlmTabRendererProps {
+  afterSubmit: (config: AlmBindingDefinitionBase) => void;
   almTab: AlmTabs;
   branchesEnabled: boolean;
   definitionStatus: Dict<AlmSettingsBindingStatus>;
+  definitions: AlmBindingDefinition[];
   editDefinition?: boolean;
   editedDefinition?: AlmBindingDefinition;
-  definitions: AlmBindingDefinition[];
   loadingAlmDefinitions: boolean;
   loadingProjectCount: boolean;
   multipleAlmEnabled: boolean;
@@ -49,7 +50,6 @@ export interface AlmTabRendererProps {
   onCreate: () => void;
   onDelete: (definitionKey: string) => void;
   onEdit: (definitionKey: string) => void;
-  afterSubmit: (config: AlmBindingDefinitionBase) => void;
 }
 
 const AUTHENTICATION_AVAILABLE_PLATFORMS = [

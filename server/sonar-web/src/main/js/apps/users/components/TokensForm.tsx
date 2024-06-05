@@ -71,7 +71,7 @@ export function TokensForm(props: Readonly<Props>) {
   );
 
   const [tokenExpirationOptions, setTokenExpirationOptions] =
-    React.useState<{ value: TokenExpiration; label: string }[]>(EXPIRATION_OPTIONS);
+    React.useState<{ label: string; value: TokenExpiration }[]>(EXPIRATION_OPTIONS);
 
   const { mutateAsync: generate, isPending: generating } = useGenerateTokenMutation();
 

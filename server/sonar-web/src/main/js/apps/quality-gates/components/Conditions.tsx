@@ -56,8 +56,8 @@ import ConditionsTable from './ConditionsTable';
 import QGRecommendedIcon from './QGRecommendedIcon';
 
 interface Props {
-  qualityGate: QualityGate;
   isFetching?: boolean;
+  qualityGate: QualityGate;
 }
 
 const FORBIDDEN_METRIC_TYPES = ['DATA', 'DISTRIB', 'STRING', 'BOOL'];

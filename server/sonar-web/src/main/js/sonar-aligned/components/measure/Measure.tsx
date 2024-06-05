@@ -28,8 +28,8 @@ import { MetricType } from '~sonar-aligned/types/metrics';
 import RatingTooltipContent from '../../../components/measure/RatingTooltipContent';
 
 interface Props {
-  className?: string;
   badgeSize?: 'xs' | 'sm' | 'md';
+  className?: string;
   decimals?: number;
   fontClassName?: `sw-body-${string}` | `sw-heading-lg`;
   metricKey: string;

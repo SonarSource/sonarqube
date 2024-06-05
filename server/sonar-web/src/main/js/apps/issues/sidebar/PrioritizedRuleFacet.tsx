@@ -30,8 +30,8 @@ export interface PrioritizedRuleFacetProps {
   onChange: (changes: Partial<Query>) => void;
   onToggle: (property: string) => void;
   open: boolean;
-  value: true | undefined;
   stats: Dict<number> | undefined;
+  value: true | undefined;
 }
 
 export function PrioritizedRuleFacet(props: Readonly<PrioritizedRuleFacetProps>) {

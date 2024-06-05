@@ -104,8 +104,8 @@ const defaultAlmSettings = [
 
 interface EnhancedProjectAlmBindingParam extends ProjectAlmBindingParams {
   projectName?: string;
-  repositoryName?: string;
   repository?: string;
+  repositoryName?: string;
   slug?: string;
   summaryCommentEnabled?: boolean;
 }

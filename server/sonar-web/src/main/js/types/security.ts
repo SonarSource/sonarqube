@@ -32,5 +32,5 @@ export enum SecurityStandard {
 export type StandardType = SecurityStandard;
 
 export type Standards = {
-  [key in StandardType]: Dict<{ title: string; description?: string; level?: string }>;
+  [key in StandardType]: Dict<{ description?: string; level?: string; title: string }>;
 };

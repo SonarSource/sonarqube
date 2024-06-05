@@ -27,8 +27,8 @@ import ExecBuildWrapper from './ExecBuildWrapper';
 import ExecScanner from './ExecScanner';
 
 export interface ClangGCCCustomProps {
-  component: Component;
   baseUrl: string;
+  component: Component;
   isLocal: boolean;
   os: OSs;
   token: string;

@@ -32,9 +32,9 @@ import MonorepoDocLinkFallback from './MonorepoDocLinkFallback';
 
 export interface CFamilyProps {
   branchesEnabled?: boolean;
+  component: Component;
   mainBranchName: string;
   monorepo?: boolean;
-  component: Component;
 }
 
 const STEPS = {

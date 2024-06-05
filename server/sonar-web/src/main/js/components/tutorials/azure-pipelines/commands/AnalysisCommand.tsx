@@ -26,10 +26,10 @@ import JavaMaven from './JavaMaven';
 import Other from './Other';
 
 export interface AnalysisCommandProps {
-  projectKey: string;
-  projectName: string;
   buildTool?: BuildTools;
   onStepValidationChange: (isValid: boolean) => void;
+  projectKey: string;
+  projectName: string;
 }
 
 export default function AnalysisCommand(props: AnalysisCommandProps) {

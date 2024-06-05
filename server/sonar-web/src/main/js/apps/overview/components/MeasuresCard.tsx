@@ -27,12 +27,12 @@ import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { localizeMetric } from '../../../helpers/measures';
 
 export interface MeasuresCardProps {
-  url: To;
-  value?: string;
-  metric: MetricKey;
-  label: string;
   failed?: boolean;
   icon?: React.ReactElement;
+  label: string;
+  metric: MetricKey;
+  url: To;
+  value?: string;
 }
 
 export default function MeasuresCard(

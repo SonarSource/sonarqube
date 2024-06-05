@@ -39,7 +39,7 @@ export interface AddLanguageModalProps {
 export function AddLanguageModal(props: AddLanguageModalProps) {
   const { languages, profilesByLanguage, unavailableLanguages } = props;
 
-  const [{ language, key }, setSelected] = React.useState<{ language?: string; key?: string }>({
+  const [{ language, key }, setSelected] = React.useState<{ key?: string; language?: string }>({
     language: undefined,
     key: undefined,
   });

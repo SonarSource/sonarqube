@@ -28,9 +28,9 @@ import { RestUser, isLoggedIn, isUserActive } from '../../../types/users';
 import Avatar from '../../ui/Avatar';
 
 interface Props {
-  issue: Issue;
-  isOpen: boolean;
   canAssign: boolean;
+  isOpen: boolean;
+  issue: Issue;
   onAssign: (login: string) => void;
   togglePopup: (popup: string, show?: boolean) => void;
 }

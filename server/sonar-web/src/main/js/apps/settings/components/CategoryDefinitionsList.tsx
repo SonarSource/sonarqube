@@ -32,9 +32,9 @@ interface Props {
   category: string;
   component?: Component;
   definitions: ExtendedSettingDefinition[];
-  subCategory?: string;
   displaySubCategoryTitle?: boolean;
   noPadding?: boolean;
+  subCategory?: string;
 }
 
 interface State {

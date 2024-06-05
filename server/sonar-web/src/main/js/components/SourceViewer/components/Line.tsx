@@ -36,14 +36,17 @@ export interface LineProps {
   children?: React.ReactNode;
   displayAllIssues?: boolean;
   displayCoverage: boolean;
+  displayCoverageUnderline: boolean;
   displayDuplications: boolean;
   displayIssues: boolean;
   displayLineNumberOptions?: boolean;
   displayLocationMarkers?: boolean;
+  displayNewCodeUnderline: boolean;
   displaySCM?: boolean;
   duplications: number[];
   duplicationsCount: number;
   firstLineNumber: number;
+  hideLocationIndex?: boolean;
   highlighted: boolean;
   highlightedLocationMessage: { index: number; text: string | undefined } | undefined;
   highlightedSymbols: string[] | undefined;
@@ -51,10 +54,12 @@ export interface LineProps {
   issues: Issue[];
   line: SourceLine;
   loadDuplications: (line: SourceLine) => void;
-  onIssuesClose: (line: SourceLine) => void;
   onIssueSelect: (issueKey: string) => void;
-  onIssuesOpen: (line: SourceLine) => void;
   onIssueUnselect: () => void;
+  onIssuesClose: (line: SourceLine) => void;
+  onIssuesOpen: (line: SourceLine) => void;
+  onLineMouseEnter: (line: number) => void;
+  onLineMouseLeave: (line: number) => void;
   onLocationSelect: ((x: number) => void) | undefined;
   onSymbolClick: (symbols: string[]) => void;
   openIssues: boolean;
@@ -62,11 +67,6 @@ export interface LineProps {
   renderDuplicationPopup: (index: number, line: number) => React.ReactNode;
   scrollToUncoveredLine?: boolean;
   secondaryIssueLocations: LinearIssueLocation[];
-  onLineMouseEnter: (line: number) => void;
-  onLineMouseLeave: (line: number) => void;
-  displayCoverageUnderline: boolean;
-  displayNewCodeUnderline: boolean;
-  hideLocationIndex?: boolean;
 }
 
 export default function Line(props: LineProps) {

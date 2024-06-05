@@ -45,21 +45,21 @@ import { ALM_INTEGRATION_CATEGORY } from '../../constants';
 import AlmSpecificForm from './AlmSpecificForm';
 
 export interface PRDecorationBindingRendererProps {
+  checkingConfiguration: boolean;
+  configurationErrors?: ProjectAlmBindingConfigurationErrors;
   formData: Omit<ProjectAlmBindingResponse, 'alm'>;
   instances: AlmSettingsInstance[];
   isChanged: boolean;
   isConfigured: boolean;
+  isSysAdmin: boolean;
   isValid: boolean;
   loading: boolean;
+  onCheckConfiguration: () => void;
   onFieldChange: (id: keyof ProjectAlmBindingResponse, value: string | boolean) => void;
   onReset: () => void;
   onSubmit: () => void;
-  updating: boolean;
   successfullyUpdated: boolean;
-  onCheckConfiguration: () => void;
-  checkingConfiguration: boolean;
-  configurationErrors?: ProjectAlmBindingConfigurationErrors;
-  isSysAdmin: boolean;
+  updating: boolean;
 }
 
 export default function PRDecorationBindingRenderer(props: PRDecorationBindingRendererProps) {

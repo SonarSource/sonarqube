@@ -28,14 +28,14 @@ import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { localizeMetric } from '../../../helpers/measures';
 
 interface IssueMeasuresCardInnerProps extends React.HTMLAttributes<HTMLDivElement> {
-  metric: MetricKey;
-  value?: string;
-  header: React.ReactNode;
-  url: Partial<Path>;
-  failed?: boolean;
-  icon?: React.ReactNode;
   disabled?: boolean;
+  failed?: boolean;
   footer?: React.ReactNode;
+  header: React.ReactNode;
+  icon?: React.ReactNode;
+  metric: MetricKey;
+  url: Partial<Path>;
+  value?: string;
 }
 
 export function IssueMeasuresCardInner(props: Readonly<IssueMeasuresCardInnerProps>) {

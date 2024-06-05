@@ -36,19 +36,19 @@ import GitlabForm from './GitlabForm';
 
 export interface Props {
   alm: AlmKeys;
-  isUpdate: boolean;
-  canSubmit: boolean;
-  onCancel: () => void;
-  onSubmit: () => void;
-  onFieldChange: (fieldId: keyof AlmBindingDefinition, value: string) => void;
-  formData: AlmBindingDefinition;
-  submitting: boolean;
   bitbucketVariant?: AlmKeys.BitbucketServer | AlmKeys.BitbucketCloud;
+  canSubmit: boolean;
+  errorListElementRef: React.RefObject<HTMLDivElement>;
+  formData: AlmBindingDefinition;
+  isUpdate: boolean;
   onBitbucketVariantChange: (
     bitbucketVariant: AlmKeys.BitbucketServer | AlmKeys.BitbucketCloud,
   ) => void;
+  onCancel: () => void;
+  onFieldChange: (fieldId: keyof AlmBindingDefinition, value: string) => void;
+  onSubmit: () => void;
+  submitting: boolean;
   validationError?: string;
-  errorListElementRef: React.RefObject<HTMLDivElement>;
 }
 
 export default class AlmBindingDefinitionFormRenderer extends React.PureComponent<Readonly<Props>> {

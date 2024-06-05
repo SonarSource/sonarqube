@@ -149,7 +149,7 @@ jest.mock('../permissions');
 export default class PermissionsServiceMock {
   #permissionTemplates: PermissionTemplate[] = [];
   #permissions: Permission[];
-  #defaultTemplates: Array<{ templateId: string; qualifier: string }> = [];
+  #defaultTemplates: Array<{ qualifier: string; templateId: string }> = [];
   #groups: PermissionGroup[];
   #users: PermissionUser[];
   #isAllowedToChangePermissions = true;
@@ -226,21 +226,21 @@ export default class PermissionsServiceMock {
   };
 
   handleGetPermissionTemplateUsers = (data: {
-    templateId: string;
-    q?: string;
-    permission?: string;
     p?: number;
+    permission?: string;
     ps?: number;
+    q?: string;
+    templateId: string;
   }) => {
     return this.handleGetPermissionUsers(data);
   };
 
   handleGetPermissionTemplateGroups = (data: {
-    templateId: string;
-    q?: string;
-    permission?: string;
     p?: number;
+    permission?: string;
     ps?: number;
+    q?: string;
+    templateId: string;
   }) => {
     return this.handleGetPermissionGroups(data);
   };
@@ -250,10 +250,10 @@ export default class PermissionsServiceMock {
   };
 
   handleGetPermissionUsers = (data: {
-    q?: string;
-    permission?: string;
     p?: number;
+    permission?: string;
     ps?: number;
+    q?: string;
   }) => {
     const { ps = PAGE_SIZE, p = DEFAULT_PAGE, q, permission } = data;
 
@@ -278,10 +278,10 @@ export default class PermissionsServiceMock {
   };
 
   handleGetPermissionGroups = (data: {
-    q?: string;
-    permission?: string;
     p?: number;
+    permission?: string;
     ps?: number;
+    q?: string;
   }) => {
     const { ps = PAGE_SIZE, p = DEFAULT_PAGE, q, permission } = data;
 
@@ -302,29 +302,29 @@ export default class PermissionsServiceMock {
   };
 
   handleGetPermissionGroupsForComponent = (data: {
-    projectKey: string;
-    q?: string;
-    permission?: string;
     p?: number;
+    permission?: string;
+    projectKey: string;
     ps?: number;
+    q?: string;
   }) => {
     return this.handleGetPermissionGroups(data);
   };
 
   handleGetPermissionUsersForComponent = (data: {
-    projectKey: string;
-    q?: string;
-    permission?: string;
     p?: number;
+    permission?: string;
+    projectKey: string;
     ps?: number;
+    q?: string;
   }) => {
     return this.handleGetPermissionUsers(data);
   };
 
   handleGrantPermissionToGroup = (data: {
-    projectKey?: string;
     groupName: string;
     permission: string;
+    projectKey?: string;
   }) => {
     if (!this.#isAllowedToChangePermissions) {
       return Promise.reject();
@@ -340,9 +340,9 @@ export default class PermissionsServiceMock {
   };
 
   handleRevokePermissionFromGroup = (data: {
-    projectKey?: string;
     groupName: string;
     permission: string;
+    projectKey?: string;
   }) => {
     if (!this.#isAllowedToChangePermissions) {
       return Promise.reject();
@@ -358,9 +358,9 @@ export default class PermissionsServiceMock {
   };
 
   handleGrantPermissionToUser = (data: {
-    projectKey?: string;
     login: string;
     permission: string;
+    projectKey?: string;
   }) => {
     if (!this.#isAllowedToChangePermissions) {
       return Promise.reject();
@@ -376,9 +376,9 @@ export default class PermissionsServiceMock {
   };
 
   handleRevokePermissionFromUser = (data: {
-    projectKey?: string;
     login: string;
     permission: string;
+    projectKey?: string;
   }) => {
     if (!this.#isAllowedToChangePermissions) {
       return Promise.reject();
@@ -398,8 +398,8 @@ export default class PermissionsServiceMock {
   };
 
   handleCreatePermissionTemplate = (data: {
-    name: string;
     description?: string;
+    name: string;
     projectKeyPattern?: string;
   }) => {
     const newTemplate = mockPermissionTemplate({
@@ -411,8 +411,8 @@ export default class PermissionsServiceMock {
   };
 
   handleUpdatePermissionTemplate = (data: {
-    id: string;
     description?: string;
+    id: string;
     name?: string;
     projectKeyPattern?: string;
   }) => {

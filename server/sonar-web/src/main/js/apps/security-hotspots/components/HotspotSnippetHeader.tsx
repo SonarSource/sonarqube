@@ -35,10 +35,10 @@ import { CurrentUser, isLoggedIn } from '../../../types/users';
 import HotspotOpenInIdeButton from './HotspotOpenInIdeButton';
 
 export interface HotspotSnippetHeaderProps {
-  hotspot: Hotspot;
-  currentUser: CurrentUser;
-  component: Component;
   branchLike?: BranchLike;
+  component: Component;
+  currentUser: CurrentUser;
+  hotspot: Hotspot;
 }
 
 function HotspotSnippetHeader(props: HotspotSnippetHeaderProps) {

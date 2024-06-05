@@ -28,11 +28,11 @@ import MeasuresCardPercent from '../components/MeasuresCardPercent';
 import { MeasurementType, getMeasurementMetricKey } from '../utils';
 
 interface Props {
-  useDiffMetric?: boolean;
   branch?: BranchLike;
   component: Component;
-  measures: MeasureEnhanced[];
   conditions: QualityGateStatusConditionEnhanced[];
+  measures: MeasureEnhanced[];
+  useDiffMetric?: boolean;
 }
 
 /**

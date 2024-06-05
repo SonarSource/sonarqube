@@ -27,8 +27,8 @@ import Projects from './Projects';
 import QualityGatePermissions from './QualityGatePermissions';
 
 export interface DetailsContentProps {
-  qualityGate: QualityGate;
   isFetching?: boolean;
+  qualityGate: QualityGate;
 }
 
 export function DetailsContent(props: DetailsContentProps) {

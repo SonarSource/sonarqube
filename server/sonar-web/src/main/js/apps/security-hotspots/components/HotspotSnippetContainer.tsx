@@ -39,8 +39,8 @@ interface State {
   highlightedSymbols: string[];
   lastLine?: number;
   loading: boolean;
-  sourceLines: SourceLine[];
   secondaryLocations: FlowLocation[];
+  sourceLines: SourceLine[];
 }
 
 const BUFFER_LINES = 10;

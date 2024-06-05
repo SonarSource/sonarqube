@@ -34,18 +34,18 @@ import { SECURITY_STANDARD_RENDERER } from '../utils';
 import HotspotListItem from './HotspotListItem';
 
 export interface HotspotSimpleListProps {
-  filterByCategory?: {
-    standard: SecurityStandard;
-    category: string;
-  };
   filterByCWE?: string;
+  filterByCategory?: {
+    category: string;
+    standard: SecurityStandard;
+  };
   filterByFile?: string;
   hotspots: RawHotspot[];
   hotspotsTotal: number;
   loadingMore: boolean;
   onHotspotClick: (hotspot: RawHotspot) => void;
-  onLocationClick: (index?: number) => void;
   onLoadMore: () => void;
+  onLocationClick: (index?: number) => void;
   selectedHotspot: RawHotspot;
   selectedHotspotLocation?: number;
   standards: Standards;

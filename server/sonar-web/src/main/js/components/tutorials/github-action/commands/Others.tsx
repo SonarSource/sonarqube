@@ -27,9 +27,9 @@ import MonorepoDocLinkFallback from './MonorepoDocLinkFallback';
 
 export interface OthersProps {
   branchesEnabled?: boolean;
+  component: Component;
   mainBranchName: string;
   monorepo?: boolean;
-  component: Component;
 }
 
 function otherYamlSteps(branchesEnabled: boolean) {

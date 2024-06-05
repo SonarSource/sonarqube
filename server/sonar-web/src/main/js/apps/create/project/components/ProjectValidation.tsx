@@ -48,20 +48,20 @@ interface Props<I> {
 }
 
 interface State {
-  name: string;
-  nameError?: boolean;
-  nameTouched: boolean;
   key: string;
   keyError?: ProjectKeyErrors;
   keyTouched: boolean;
+  name: string;
+  nameError?: boolean;
+  nameTouched: boolean;
   validatingKey: boolean;
 }
 
 export interface ProjectData<I = string> {
   hasError: boolean;
   id?: I;
-  name: string;
   key: string;
+  name: string;
   touched: boolean;
 }
 

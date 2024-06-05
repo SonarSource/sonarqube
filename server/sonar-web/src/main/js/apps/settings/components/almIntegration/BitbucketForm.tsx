@@ -35,8 +35,8 @@ export interface BitbucketFormProps {
     fieldId: keyof (BitbucketServerBindingDefinition & BitbucketCloudBindingDefinition),
     value: string,
   ) => void;
-  variant?: AlmKeys.BitbucketServer | AlmKeys.BitbucketCloud;
   onVariantChange: (variant: AlmKeys.BitbucketServer | AlmKeys.BitbucketCloud) => void;
+  variant?: AlmKeys.BitbucketServer | AlmKeys.BitbucketCloud;
 }
 
 export default function BitbucketForm(props: Readonly<BitbucketFormProps>) {

@@ -295,7 +295,7 @@ function getPageObject() {
     },
     checkWebhookRow: (
       index: number,
-      expected: { name: string; url: string; secret: boolean; lastDeliveryDate?: string },
+      expected: { lastDeliveryDate?: string; name: string; secret: boolean; url: string },
     ) => {
       const row = ui.getWebhookRow(index);
       const [name, url, secret, lastDelivery] = within(row).getAllByRole('cell');

@@ -47,8 +47,8 @@ import { CreateProjectModes } from '../types';
 
 interface Props {
   branchesEnabled: boolean;
-  onProjectSetupDone: (importProjects: ImportProjectParam) => void;
   onClose: () => void;
+  onProjectSetupDone: (importProjects: ImportProjectParam) => void;
 }
 
 interface MainBranchState {

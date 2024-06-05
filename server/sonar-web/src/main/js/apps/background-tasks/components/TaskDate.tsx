@@ -25,8 +25,8 @@ import TimeFormatter from '../../../components/intl/TimeFormatter';
 import { isValidDate, parseDate } from '../../../helpers/dates';
 
 interface Props {
-  date?: string;
   baseDate?: string;
+  date?: string;
 }
 
 export default function TaskDate({ date, baseDate }: Readonly<Props>) {

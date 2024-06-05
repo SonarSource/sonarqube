@@ -33,6 +33,8 @@ export interface SearchRulesQuery {
   cwe?: string;
   f?: string;
   facets?: string;
+  impactSeverities?: string;
+  impactSoftwareQualities?: string;
   include_external?: boolean | string;
   inheritance?: string;
   is_template?: boolean | string;
@@ -40,20 +42,18 @@ export interface SearchRulesQuery {
   owaspTop10?: string;
   ['owaspTop10-2021']?: string;
   p?: number;
+  prioritizedRule?: boolean | string;
   ps?: number;
   q?: string;
   qprofile?: string;
   repositories?: string;
   rule_key?: string;
   s?: string;
-  impactSoftwareQualities?: string;
-  impactSeverities?: string;
   sonarsourceSecurity?: string;
   statuses?: string;
   tags?: string;
   template_key?: string;
   types?: string;
-  prioritizedRule?: boolean | string;
 }
 
 export enum RulesFacetName {

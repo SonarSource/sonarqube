@@ -31,12 +31,12 @@ import { MultipleSelectionHint } from '../../issues/sidebar/MultipleSelectionHin
 import { FacetKey } from '../query';
 
 export interface BasicProps {
+  help?: React.ReactNode;
   onChange: (changes: Dict<string | string[] | undefined>) => void;
   onToggle: (facet: FacetKey) => void;
   open: boolean;
   stats?: Dict<number>;
   values: string[];
-  help?: React.ReactNode;
 }
 
 interface Props extends BasicProps {

@@ -21,10 +21,10 @@ import { MetricKey } from '~sonar-aligned/types/metrics';
 
 export const bubbles: {
   [domain: string]: {
+    colors?: string[];
+    size: string;
     x: string;
     y: string;
-    size: string;
-    colors?: string[];
     yDomain?: [number, number];
   };
 } = {

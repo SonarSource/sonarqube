@@ -26,8 +26,8 @@ import { hasList, hasTree, hasTreemap } from '../utils';
 
 export interface MeasureViewSelectProps {
   className?: string;
-  metric: Metric;
   handleViewChange: (view: MeasurePageView) => void;
+  metric: Metric;
   view: MeasurePageView;
 }
 

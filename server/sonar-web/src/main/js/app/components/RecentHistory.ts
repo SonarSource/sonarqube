@@ -23,9 +23,9 @@ const RECENT_HISTORY = 'sonar_recent_history';
 const HISTORY_LIMIT = 10;
 
 export type History = Array<{
+  icon: string;
   key: string;
   name: string;
-  icon: string;
 }>;
 
 export default class RecentHistory {

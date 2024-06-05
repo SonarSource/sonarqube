@@ -50,6 +50,7 @@ export interface Query {
   languages: string[];
   owaspTop10: string[];
   'owaspTop10-2021': string[];
+  prioritizedRule: boolean | undefined;
   profile: string | undefined;
   repositories: string[];
   ruleKey: string | undefined;
@@ -60,7 +61,6 @@ export interface Query {
   tags: string[];
   template: boolean | undefined;
   types: string[];
-  prioritizedRule: boolean | undefined;
 }
 
 export type FacetKey = keyof Query;

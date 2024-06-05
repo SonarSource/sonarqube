@@ -26,10 +26,10 @@ import { HealthTypes } from '../../../../types/types';
 import HealthCauseItem from './HealthCauseItem';
 
 interface Props {
-  name?: string;
   className?: string;
   health: HealthTypes;
   healthCauses?: string[];
+  name?: string;
 }
 
 export default function HealthItem({ className, name, health, healthCauses }: Readonly<Props>) {

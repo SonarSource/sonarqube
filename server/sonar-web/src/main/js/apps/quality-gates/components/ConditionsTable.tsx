@@ -25,12 +25,12 @@ import Condition from './Condition';
 
 interface Props {
   canEdit: boolean;
+  conditions: ConditionType[];
+  isCaycModal?: boolean;
   metrics: Dict<Metric>;
   qualityGate: QualityGate;
-  conditions: ConditionType[];
   scope: 'new' | 'overall' | 'new-cayc';
   showEdit?: boolean;
-  isCaycModal?: boolean;
 }
 
 function Header() {

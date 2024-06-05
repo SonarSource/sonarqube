@@ -43,18 +43,18 @@ import AfterMergeNote from './AfterMergeNote';
 import MeasuresCard from './MeasuresCard';
 
 interface Props {
-  componentKey: string;
   branchLike?: BranchLike;
-  measurementType: MeasurementType;
-  label: string;
-  url: To;
-  measures: MeasureEnhanced[];
-  conditions: QualityGateStatusConditionEnhanced[];
+  componentKey: string;
   conditionMetric: MetricKey;
+  conditions: QualityGateStatusConditionEnhanced[];
+  label: string;
   linesMetric: MetricKey;
+  measurementType: MeasurementType;
+  measures: MeasureEnhanced[];
   overallConditionMetric?: MetricKey;
-  useDiffMetric?: boolean;
   showRequired?: boolean;
+  url: To;
+  useDiffMetric?: boolean;
 }
 
 export default function MeasuresCardPercent(

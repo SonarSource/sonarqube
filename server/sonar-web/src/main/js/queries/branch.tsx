@@ -228,7 +228,7 @@ export function useExcludeFromPurgeMutation() {
   const queryClient = useQueryClient();
   const invalidateKey = useMutateBranchQueryKey();
 
-  type ExcludeFromPurgeArg = { component: Component; key: string; exclude: boolean };
+  type ExcludeFromPurgeArg = { component: Component; exclude: boolean; key: string };
 
   return useMutation({
     mutationFn: async ({ component, key, exclude }: ExcludeFromPurgeArg) => {
@@ -286,7 +286,7 @@ export function useDeletBranchMutation() {
 }
 
 export function useRenameMainBranchMutation() {
-  type RenameMainBranchArg = { name: string; component: Component };
+  type RenameMainBranchArg = { component: Component; name: string };
   const queryClient = useQueryClient();
   const invalidateKey = useMutateBranchQueryKey();
 
@@ -349,8 +349,8 @@ export function useRefreshBranches() {
 }
 
 export interface WithBranchLikesProps {
-  branchLikes?: BranchLike[];
   branchLike?: BranchLike;
+  branchLikes?: BranchLike[];
   isFetchingBranch?: boolean;
 }
 

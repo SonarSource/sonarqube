@@ -22,9 +22,9 @@ import Tooltip from '../../components/controls/Tooltip';
 
 export interface DisableableSelectOptionProps {
   className?: string;
-  disabledReason?: string;
-  option: { label?: string; value?: string | number | boolean; isDisabled?: boolean };
   disableTooltipOverlay: () => React.ReactNode;
+  disabledReason?: string;
+  option: { isDisabled?: boolean; label?: string; value?: string | number | boolean };
 }
 
 export default function DisableableSelectOption(props: DisableableSelectOptionProps) {

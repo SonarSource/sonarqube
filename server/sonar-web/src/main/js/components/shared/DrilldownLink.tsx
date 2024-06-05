@@ -31,8 +31,8 @@ interface Props {
   children?: React.ReactNode;
   className?: string;
   component: string;
-  metric: string;
   inNewCodePeriod?: boolean;
+  metric: string;
 }
 
 export default class DrilldownLink extends React.PureComponent<Props> {

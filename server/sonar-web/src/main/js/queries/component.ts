@@ -27,8 +27,8 @@ import { Component } from '../types/types';
 const TASK_RETRY = 10_000;
 
 type QueryKeyData = {
-  metricKeys: string[];
   branchParameters: BranchParameters;
+  metricKeys: string[];
 };
 
 function getComponentQueryKey(key: string, type: 'tasks'): string[];
@@ -37,7 +37,7 @@ function getComponentQueryKey(key: string, type: string, data?: QueryKeyData): s
   return ['component', key, type, JSON.stringify(data)];
 }
 
-function extractQueryKeyData(queryKey: string[]): { key: string; data?: QueryKeyData } {
+function extractQueryKeyData(queryKey: string[]): { data?: QueryKeyData; key: string } {
   const [, key, , data] = queryKey;
   return { key, data: JSON.parse(data ?? 'null') };
 }

@@ -23,6 +23,7 @@ import { Dict } from '../../types/types';
 export interface Project {
   analysisDate?: string;
   isFavorite?: boolean;
+  isScannable: boolean;
   key: string;
   leakPeriodDate?: string;
   measures: Dict<string>;
@@ -31,7 +32,6 @@ export interface Project {
   qualifier: ComponentQualifier;
   tags: string[];
   visibility: Visibility;
-  isScannable: boolean;
 }
 
 export interface Facet {

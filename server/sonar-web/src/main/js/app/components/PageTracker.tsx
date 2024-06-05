@@ -28,8 +28,8 @@ import { AppState } from '../../types/appstate';
 import withAppStateContext from './app-state/withAppStateContext';
 
 interface Props {
-  location: Location;
   appState: AppState;
+  location: Location;
 }
 
 interface State {

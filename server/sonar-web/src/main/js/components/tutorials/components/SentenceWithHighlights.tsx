@@ -24,8 +24,8 @@ import { Dict } from '../../../types/types';
 
 export interface SentenceWithHighlightsProps {
   highlightKeys: string[];
-  translationKey: string;
   highlightPrefixKeys?: string;
+  translationKey: string;
 }
 
 export default function SentenceWithHighlights({

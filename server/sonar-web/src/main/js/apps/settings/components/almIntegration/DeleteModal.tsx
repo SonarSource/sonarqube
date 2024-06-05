@@ -24,9 +24,9 @@ import { translate, translateWithParameters } from '../../../../helpers/l10n';
 
 export interface DeleteModalProps {
   id: string;
-  projectCount?: number;
-  onDelete: (id: string) => void;
   onCancel: () => void;
+  onDelete: (id: string) => void;
+  projectCount?: number;
 }
 
 function showProjectCountWarning(projectCount?: number) {

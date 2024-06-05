@@ -38,8 +38,8 @@ interface Props {
 }
 
 interface State {
-  needToReload: boolean;
   lastSearchParams?: SelectListSearchParams;
+  needToReload: boolean;
   projects: Project[];
   projectsTotalCount?: number;
   selectedProjects: string[];

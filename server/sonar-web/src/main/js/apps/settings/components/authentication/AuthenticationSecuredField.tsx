@@ -24,11 +24,11 @@ import { DefinitionV2, ExtendedSettingDefinition, SettingType } from '../../../.
 import { isSecuredDefinition } from '../../utils';
 
 interface SamlToggleFieldProps {
-  onFieldChange: (key: string, value: string) => void;
-  settingValue?: string;
   definition: ExtendedSettingDefinition | DefinitionV2;
-  optional?: boolean;
   isNotSet: boolean;
+  onFieldChange: (key: string, value: string) => void;
+  optional?: boolean;
+  settingValue?: string;
 }
 
 export default function AuthenticationSecuredField(props: SamlToggleFieldProps) {

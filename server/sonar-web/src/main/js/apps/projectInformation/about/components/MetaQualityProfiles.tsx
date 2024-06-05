@@ -83,9 +83,9 @@ function ProfileItem({
   languages,
   deprecatedByKey,
 }: {
-  profile: ComponentQualityProfile;
-  languages: Languages;
   deprecatedByKey: Dict<number>;
+  languages: Languages;
+  profile: ComponentQualityProfile;
 }) {
   const languageFromStore = languages[profile.language];
   const languageName = languageFromStore ? languageFromStore.name : profile.language;

@@ -27,8 +27,8 @@ import { BuildTools } from '../types';
 import AnalysisCommand from './commands/AnalysisCommand';
 
 export interface BranchesAnalysisStepProps {
-  languages: Languages;
   component: Component;
+  languages: Languages;
   onDone: (done: boolean) => void;
 }
 

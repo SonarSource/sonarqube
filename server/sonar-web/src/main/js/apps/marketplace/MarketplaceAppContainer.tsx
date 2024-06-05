@@ -28,8 +28,8 @@ import { GlobalSettingKeys } from '../../types/settings';
 import App from './App';
 
 export interface MarketplaceAppContainerProps {
-  location: Location;
   appState: AppState;
+  location: Location;
 }
 
 function MarketplaceAppContainer(props: MarketplaceAppContainerProps) {

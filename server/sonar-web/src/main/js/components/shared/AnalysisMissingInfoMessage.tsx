@@ -25,9 +25,9 @@ import { DocLink } from '../../helpers/doc-links';
 import DocumentationLink from '../common/DocumentationLink';
 
 interface AnalysisMissingInfoMessageProps {
+  className?: string;
   hide?: boolean;
   qualifier: string;
-  className?: string;
 }
 
 export default function AnalysisMissingInfoMessage({

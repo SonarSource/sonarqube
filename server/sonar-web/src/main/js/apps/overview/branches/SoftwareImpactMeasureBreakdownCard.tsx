@@ -32,12 +32,12 @@ import { SoftwareImpactSeverity, SoftwareQuality } from '../../../types/clean-co
 import { Component } from '../../../types/types';
 
 export interface SoftwareImpactMeasureBreakdownCardProps {
-  softwareQuality: SoftwareQuality;
+  active?: boolean;
   branch?: Branch;
   component: Component;
-  value?: string;
   severity: SoftwareImpactSeverity;
-  active?: boolean;
+  softwareQuality: SoftwareQuality;
+  value?: string;
 }
 
 export function SoftwareImpactMeasureBreakdownCard(

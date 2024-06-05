@@ -30,8 +30,8 @@ import { CreateProjectModes } from '../types';
 
 export interface AzureProjectAccordionProps {
   loading: boolean;
-  onOpen: (key: string) => void;
   onImportRepository: (repository: AzureRepository) => void;
+  onOpen: (key: string) => void;
   project: AzureProject;
   repositories?: AzureRepository[];
   searchQuery?: string;

@@ -45,8 +45,8 @@ export default class GroupMembershipsServiceMock {
     userId,
     groupId,
   }: {
-    userId: string;
     groupId: string;
+    userId: string;
   }): Promise<GroupMembership> => {
     const newMembership = mockGroupMembership({ userId, groupId });
     this.memberships.push(newMembership);

@@ -68,8 +68,8 @@ export function useUpdateUserMutation() {
       id,
       data,
     }: {
-      id: Parameters<typeof updateUser>[0];
       data: Parameters<typeof updateUser>[1];
+      id: Parameters<typeof updateUser>[0];
     }) => updateUser(id, data),
     onSuccess() {
       queryClient.invalidateQueries({ queryKey: ['user', 'list'] });

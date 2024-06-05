@@ -96,7 +96,7 @@ class PermissionsProjectApp extends React.PureComponent<Props, State> {
           })
         : Promise.resolve({ paging: undefined, users: [] });
 
-    const getGroups: Promise<{ paging?: Paging; groups: PermissionGroup[] }> =
+    const getGroups: Promise<{ groups: PermissionGroup[]; paging?: Paging }> =
       filter !== 'users'
         ? api.getPermissionsGroupsForComponent({
             projectKey: component.key,

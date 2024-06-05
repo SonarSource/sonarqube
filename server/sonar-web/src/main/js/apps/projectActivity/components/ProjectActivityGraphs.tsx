@@ -61,10 +61,10 @@ interface Props {
 }
 
 interface State {
-  graphStartDate?: Date;
   graphEndDate?: Date;
-  series: Serie[];
+  graphStartDate?: Date;
   graphs: Serie[][];
+  series: Serie[];
 }
 
 const MAX_GRAPH_NB = 2;

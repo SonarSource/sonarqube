@@ -26,8 +26,8 @@ import { RestUserDetailed } from '../../../types/users';
 import TokensForm from './TokensForm';
 
 interface Props {
-  user: RestUserDetailed;
   onClose: () => void;
+  user: RestUserDetailed;
 }
 
 export default function TokensFormModal(props: Readonly<Props>) {

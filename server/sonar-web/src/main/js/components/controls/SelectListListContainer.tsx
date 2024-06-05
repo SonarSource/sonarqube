@@ -26,8 +26,8 @@ import SelectListListElement from './SelectListListElement';
 
 interface Props {
   allowBulkSelection?: boolean;
-  elements: string[];
   disabledElements: string[];
+  elements: string[];
   filter: SelectListFilter;
   onSelect: (element: string) => Promise<void>;
   onUnselect: (element: string) => Promise<void>;

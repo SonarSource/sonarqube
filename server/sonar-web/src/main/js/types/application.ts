@@ -36,19 +36,19 @@ export interface Application {
 }
 
 export interface ApplicationProject {
+  accessible?: boolean;
   enabled?: boolean;
   key: string;
   name: string;
   selected?: boolean;
-  accessible?: boolean;
 }
 
 export interface ApplicationProjectBranch {
+  accessible?: boolean;
   branch: string;
   enabled?: boolean;
   isMain: boolean;
   key: string;
   name: string;
   selected?: boolean;
-  accessible?: boolean;
 }

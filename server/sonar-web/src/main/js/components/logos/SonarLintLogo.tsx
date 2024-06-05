@@ -23,8 +23,8 @@ import { isDefined } from '../../helpers/types';
 
 interface Props {
   className?: string;
-  size?: number;
   description?: React.ReactNode;
+  size?: number;
 }
 
 export function SonarLintLogo({ className, description, size }: Readonly<Props>) {

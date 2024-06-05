@@ -34,22 +34,22 @@ import MoreInfoRuleDescription from './MoreInfoRuleDescription';
 import RuleDescription from './RuleDescription';
 
 interface RuleTabViewerProps extends CurrentUserContextInterface {
-  ruleDetails: RuleDetails;
   location: Location;
+  ruleDetails: RuleDetails;
 }
 
 interface State {
-  tabs: Tab[];
-  selectedTab?: Tab;
   displayEducationalPrinciplesNotification?: boolean;
   educationalPrinciplesNotificationHasBeenDismissed?: boolean;
+  selectedTab?: Tab;
+  tabs: Tab[];
 }
 
 export interface Tab {
-  value: TabKeys;
-  label: string;
   content: React.ReactNode;
   counter?: number;
+  label: string;
+  value: TabKeys;
 }
 
 export enum TabKeys {

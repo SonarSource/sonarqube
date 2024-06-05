@@ -397,7 +397,7 @@ export class QualityGatesServiceMock {
     return Promise.resolve();
   };
 
-  copyHandler = ({ sourceName, name }: { sourceName: string; name: string }) => {
+  copyHandler = ({ sourceName, name }: { name: string; sourceName: string }) => {
     const newQG = cloneDeep(this.list.find((q) => q.name === sourceName));
     if (newQG === undefined) {
       return Promise.reject({
@@ -491,8 +491,8 @@ export class QualityGatesServiceMock {
     query,
   }: {
     gateName: string;
-    selected: string;
     query: string | undefined;
+    selected: string;
   }) => {
     let filteredProjects = this.projects;
     if (selected === 'selected') {

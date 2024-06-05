@@ -22,8 +22,8 @@ import { PendingPluginResult } from '../../types/plugins';
 import { SysStatus } from '../../types/types';
 
 export interface AdminContextInterface {
-  fetchSystemStatus: () => void;
   fetchPendingPlugins: () => void;
+  fetchSystemStatus: () => void;
   pendingPlugins: PendingPluginResult;
   systemStatus: SysStatus;
 }

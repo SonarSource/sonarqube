@@ -41,8 +41,8 @@ import BranchNewCodeDefinitionSettingModal from './BranchNewCodeDefinitionSettin
 interface Props {
   branchList: Branch[];
   component: Component;
-  inheritedSetting: NewCodeDefinition;
   globalNewCodeDefinition: NewCodeDefinition;
+  inheritedSetting: NewCodeDefinition;
 }
 
 interface State {

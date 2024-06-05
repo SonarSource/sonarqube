@@ -35,8 +35,8 @@ import NewCodeDefinitionSettingReferenceBranch from './NewCodeDefinitionSettingR
 export interface ProjectBaselineSelectorProps {
   analysis?: string;
   branch?: Branch;
-  branchesEnabled?: boolean;
   branchList: Branch[];
+  branchesEnabled?: boolean;
   component: string;
   days: string;
   globalNewCodeDefinition: NewCodeDefinition;

@@ -53,8 +53,8 @@ import useGithubConfiguration, {
 } from './hook/useGithubConfiguration';
 
 interface GithubAuthenticationProps {
-  definitions: ExtendedSettingDefinition[];
   currentTab: AuthenticationTabs;
+  definitions: ExtendedSettingDefinition[];
 }
 
 const GITHUB_EXCLUDED_FIELD = ['sonar.auth.github.enabled', ...GITHUB_ADDITIONAL_FIELDS];

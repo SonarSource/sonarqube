@@ -28,8 +28,8 @@ import { MultipleSelectionHint } from './MultipleSelectionHint';
 
 export interface CommonProps {
   fetching: boolean;
-  needIssueSync?: boolean;
   help?: React.ReactNode;
+  needIssueSync?: boolean;
   onChange: (changes: Partial<Query>) => void;
   onToggle: (property: string) => void;
   open: boolean;
@@ -37,11 +37,11 @@ export interface CommonProps {
 }
 
 interface Props<T = string> extends CommonProps {
-  property: string;
-  listItems: Array<T>;
   itemNamePrefix: string;
-  selectedItems: Array<T>;
+  listItems: Array<T>;
+  property: string;
   renderIcon?: (item: string, disabled: boolean) => React.ReactNode;
+  selectedItems: Array<T>;
 }
 
 export function SimpleListStyleFacet(props: Props) {

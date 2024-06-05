@@ -799,7 +799,7 @@ export function mockUserGroupMember(overrides: Partial<UserGroupMember> = {}): U
 }
 
 export function mockDocumentationMarkdown(
-  overrides: Partial<{ content: string; title: string; key: string }> = {},
+  overrides: Partial<{ content: string; key: string; title: string }> = {},
 ): string {
   const content =
     overrides.content ||

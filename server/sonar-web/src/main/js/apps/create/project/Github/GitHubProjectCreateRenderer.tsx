@@ -36,6 +36,7 @@ import RepositoryList from '../components/RepositoryList';
 import { CreateProjectModes } from '../types';
 
 interface GitHubProjectCreateRendererProps {
+  almInstances: AlmSettingsInstance[];
   error: boolean;
   loadingBindings: boolean;
   loadingOrganizations: boolean;
@@ -44,14 +45,13 @@ interface GitHubProjectCreateRendererProps {
   onLoadMore: () => void;
   onSearch: (q: string) => void;
   onSelectOrganization: (key: string) => void;
+  onSelectedAlmInstanceChange: (instance: AlmSettingsInstance) => void;
   organizations?: GithubOrganization[];
   repositories?: GithubRepository[];
   repositoryPaging: Paging;
   searchQuery: string;
-  selectedOrganization?: GithubOrganization;
-  almInstances: AlmSettingsInstance[];
   selectedAlmInstance?: AlmSettingsInstance;
-  onSelectedAlmInstanceChange: (instance: AlmSettingsInstance) => void;
+  selectedOrganization?: GithubOrganization;
 }
 
 function orgToOption({ key, name }: GithubOrganization) {

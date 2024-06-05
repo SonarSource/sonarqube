@@ -26,10 +26,10 @@ import { translate } from '../../helpers/l10n';
 export interface VisibilitySelectorProps {
   canTurnToPrivate?: boolean;
   className?: string;
-  onChange: (visibility: Visibility) => void;
-  visibility?: Visibility;
   disabled?: boolean;
   loading?: boolean;
+  onChange: (visibility: Visibility) => void;
+  visibility?: Visibility;
 }
 
 export default function VisibilitySelector(props: Readonly<VisibilitySelectorProps>) {

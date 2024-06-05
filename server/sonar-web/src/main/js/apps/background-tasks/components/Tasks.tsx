@@ -27,10 +27,10 @@ import { Task as ITask } from '../../../types/tasks';
 import Task from './Task';
 
 interface Props {
-  tasks: ITask[];
   component?: unknown;
   onCancelTask: (task: ITask) => Promise<void>;
   onFilterTask: (task: ITask) => void;
+  tasks: ITask[];
 }
 
 const COLUMN_WIDTHS = [0, 'auto', 'auto', 0, 0, 0, 0];

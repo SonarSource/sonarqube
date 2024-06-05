@@ -224,7 +224,7 @@ export const groupByDomains = memoize((measures: MeasureEnhanced[]) => {
   }));
 
   return sortBy(domains, [
-    (domain: { name: string; measures: MeasureEnhanced[] }) => {
+    (domain: { measures: MeasureEnhanced[]; name: string }) => {
       const idx = KNOWN_DOMAINS.indexOf(domain.name);
       return idx >= 0 ? idx : KNOWN_DOMAINS.length;
     },
@@ -300,10 +300,10 @@ function parseView(metric: MetricKey, rawView?: string): MeasurePageView {
 }
 
 export interface Query {
+  asc?: boolean;
   metric: string;
   selected?: string;
   view: MeasurePageView;
-  asc?: boolean;
 }
 
 export const parseQuery = memoize((urlQuery: RawQuery): Query => {

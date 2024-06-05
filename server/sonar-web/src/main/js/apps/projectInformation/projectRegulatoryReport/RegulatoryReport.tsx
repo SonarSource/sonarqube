@@ -42,8 +42,8 @@ import { BranchLike } from '../../../types/branch-like';
 import { Component } from '../../../types/types';
 
 interface Props {
-  component: Pick<Component, 'key' | 'name'>;
   branchLike?: BranchLike;
+  component: Pick<Component, 'key' | 'name'>;
 }
 
 export default function RegulatoryReport({ component, branchLike }: Props) {

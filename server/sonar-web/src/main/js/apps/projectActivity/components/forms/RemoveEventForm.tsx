@@ -27,8 +27,8 @@ export interface RemoveEventFormProps {
   analysisKey: string;
   event: AnalysisEvent;
   header: string;
-  removeEventQuestion: string;
   onClose: () => void;
+  removeEventQuestion: string;
 }
 
 export default function RemoveEventForm(props: RemoveEventFormProps) {

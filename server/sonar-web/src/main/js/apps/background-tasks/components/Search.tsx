@@ -31,13 +31,13 @@ interface Props {
   component?: unknown;
   currents: string;
   loading: boolean;
+  maxExecutedAt: Date | undefined;
+  minSubmittedAt: Date | undefined;
   onFilterUpdate: (changes: Partial<Query>) => void;
   onReload: () => void;
   query: string;
   status: string;
   taskType: string;
-  maxExecutedAt: Date | undefined;
-  minSubmittedAt: Date | undefined;
   types: string[];
 }
 

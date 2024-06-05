@@ -37,13 +37,13 @@ import AuthenticationSecuredField from './AuthenticationSecuredField';
 import AuthenticationToggleFormField from './AuthenticationToggleField';
 
 interface Props {
-  settingValue?: string | boolean | string[];
+  className?: string;
   definition: ExtendedSettingDefinition | DefinitionV2;
+  error?: string;
+  isNotSet: boolean;
   mandatory?: boolean;
   onFieldChange: (key: string, value: string | boolean | string[]) => void;
-  isNotSet: boolean;
-  error?: string;
-  className?: string;
+  settingValue?: string | boolean | string[];
 }
 
 export default function AuthenticationFormField(props: Readonly<Props>) {

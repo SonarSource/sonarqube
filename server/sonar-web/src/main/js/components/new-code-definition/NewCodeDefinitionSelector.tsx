@@ -44,8 +44,8 @@ import NewCodeDefinitionPreviousVersionOption from './NewCodeDefinitionPreviousV
 import { NewCodeDefinitionLevels } from './utils';
 
 interface Props {
-  onNcdChanged: (ncd: NewCodeDefinitiondWithCompliance) => void;
   isMultipleProjects?: boolean;
+  onNcdChanged: (ncd: NewCodeDefinitiondWithCompliance) => void;
 }
 
 export default function NewCodeDefinitionSelector(props: Props) {

@@ -28,8 +28,8 @@ import {
 import SoftwareImpactPill from './SoftwareImpactPill';
 
 interface SoftwareImpactPillListProps extends React.HTMLAttributes<HTMLUListElement> {
-  softwareImpacts: SoftwareImpact[];
   className?: string;
+  softwareImpacts: SoftwareImpact[];
   type?: Parameters<typeof SoftwareImpactPill>[0]['type'];
 }
 

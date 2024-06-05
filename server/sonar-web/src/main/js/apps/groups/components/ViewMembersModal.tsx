@@ -25,8 +25,8 @@ import { useGroupMembersQuery } from '../../../queries/group-memberships';
 import { Group } from '../../../types/types';
 
 interface Props {
-  isManaged: boolean;
   group: Group;
+  isManaged: boolean;
   onClose: () => void;
 }
 

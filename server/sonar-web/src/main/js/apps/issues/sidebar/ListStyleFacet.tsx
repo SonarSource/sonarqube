@@ -35,14 +35,14 @@ import { MultipleSelectionHint } from './MultipleSelectionHint';
 
 interface SearchResponse<S> {
   maxResults?: boolean;
-  results: S[];
   paging?: Paging;
+  results: S[];
 }
 
 export interface Props<S> {
+  disableZero?: boolean;
   disabled?: boolean;
   disabledHelper?: string;
-  disableZero?: boolean;
   facetHeader: string;
   fetching: boolean;
   getFacetItemText: (item: string) => string;
@@ -64,10 +64,10 @@ export interface Props<S> {
   query?: RawQuery;
   renderFacetItem: (item: string) => string | JSX.Element;
   renderSearchResult: (result: S, query: string) => React.ReactNode;
+  searchInputAriaLabel?: string;
   searchPlaceholder: string;
   showLessAriaLabel?: string;
   showMoreAriaLabel?: string;
-  searchInputAriaLabel?: string;
   showStatBar?: boolean;
   stats: Dict<number> | undefined;
   values: string[];
@@ -76,11 +76,11 @@ export interface Props<S> {
 interface State<S> {
   autoFocus: boolean;
   query: string;
-  searching: boolean;
   searchMaxResults?: boolean;
   searchPaging?: Paging;
   searchResults?: S[];
   searchResultsCounts: Dict<number>;
+  searching: boolean;
   showFullList: boolean;
 }
 

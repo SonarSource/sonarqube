@@ -42,7 +42,6 @@ export enum TaskStatuses {
 export interface Task {
   analysisId?: string;
   branch?: string;
-  nodeName?: string;
   componentKey?: string;
   componentName?: string;
   componentQualifier?: string;
@@ -54,6 +53,8 @@ export interface Task {
   hasErrorStacktrace?: boolean;
   hasScannerContext?: boolean;
   id: string;
+  infoMessages?: string[];
+  nodeName?: string;
   pullRequest?: string;
   pullRequestTitle?: string;
   scannerContext?: string;
@@ -64,23 +65,22 @@ export interface Task {
   type: TaskTypes;
   warningCount?: number;
   warnings?: string[];
-  infoMessages?: string[];
 }
 
 export interface TaskWarning {
+  dismissable: boolean;
   key: string;
   message: string;
-  dismissable: boolean;
 }
 
 export interface ActivityRequestParameters {
   component?: string;
+  maxExecutedAt?: string;
+  minSubmittedAt?: string;
+  onlyCurrents?: boolean;
   p?: number;
   ps?: number;
+  q?: string;
   status?: string;
   type?: string;
-  onlyCurrents?: boolean;
-  minSubmittedAt?: string;
-  maxExecutedAt?: string;
-  q?: string;
 }

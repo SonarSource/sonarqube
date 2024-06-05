@@ -51,11 +51,11 @@ function orgToOption(alm: AlmInstanceBase) {
 }
 
 interface Props {
-  instances: AlmInstanceBase[];
-  initialValue?: string;
-  onChange: (instance: AlmInstanceBase) => void;
   className: string;
+  initialValue?: string;
   inputId: string;
+  instances: AlmInstanceBase[];
+  onChange: (instance: AlmInstanceBase) => void;
 }
 
 export default function AlmSettingsInstanceSelector(props: Props) {

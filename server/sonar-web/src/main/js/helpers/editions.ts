@@ -60,7 +60,7 @@ export function getAllEditionsAbove(currentEdition?: EditionKey) {
 
 export function getEditionUrl(
   edition: Edition,
-  data: { serverId?: string; ncloc?: number; sourceEdition?: EditionKey },
+  data: { ncloc?: number; serverId?: string; sourceEdition?: EditionKey },
 ) {
   let url = edition.homeUrl;
   const query = new URLSearchParams(omitNil(data)).toString();

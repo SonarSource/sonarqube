@@ -38,9 +38,9 @@ import { RestUserDetailed } from '../../../types/users';
 import UserScmAccountInput from './UserScmAccountInput';
 
 export interface Props {
+  isInstanceManaged: boolean;
   onClose: () => void;
   user?: RestUserDetailed;
-  isInstanceManaged: boolean;
 }
 
 const BAD_REQUEST = 400;

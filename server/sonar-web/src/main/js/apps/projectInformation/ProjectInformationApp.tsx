@@ -42,8 +42,8 @@ interface Props extends WithAvailableFeaturesProps {
   branchLike?: BranchLike;
   component: Component;
   currentUser: CurrentUser;
-  onComponentChange: (changes: {}) => void;
   metrics: Dict<Metric>;
+  onComponentChange: (changes: {}) => void;
 }
 
 function ProjectInformationApp(props: Props) {

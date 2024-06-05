@@ -46,6 +46,8 @@ interface Props {
 }
 
 interface State {
+  checkingConfiguration: boolean;
+  configurationErrors?: ProjectAlmBindingConfigurationErrors;
   formData: FormData;
   instances: AlmSettingsInstance[];
   isChanged: boolean;
@@ -53,10 +55,8 @@ interface State {
   isValid: boolean;
   loading: boolean;
   originalData?: FormData;
-  updating: boolean;
   successfullyUpdated: boolean;
-  checkingConfiguration: boolean;
-  configurationErrors?: ProjectAlmBindingConfigurationErrors;
+  updating: boolean;
 }
 
 const REQUIRED_FIELDS_BY_ALM: {

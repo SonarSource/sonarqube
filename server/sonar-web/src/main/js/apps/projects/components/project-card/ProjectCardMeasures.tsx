@@ -37,9 +37,9 @@ import { Dict } from '../../../../types/types';
 import ProjectCardMeasure from './ProjectCardMeasure';
 
 export interface ProjectCardMeasuresProps {
+  componentQualifier: ComponentQualifier;
   isNewCode: boolean;
   measures: Dict<string | undefined>;
-  componentQualifier: ComponentQualifier;
 }
 
 function renderNewIssues(props: ProjectCardMeasuresProps) {

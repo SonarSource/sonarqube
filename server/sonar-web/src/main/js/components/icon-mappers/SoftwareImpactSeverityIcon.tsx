@@ -29,8 +29,8 @@ import { SoftwareImpactSeverity } from '../../types/clean-code-taxonomy';
 import { Dict } from '../../types/types';
 
 interface Props extends IconProps {
-  severity: string | null | undefined;
   disabled?: boolean;
+  severity: string | null | undefined;
 }
 
 const severityIcons: Dict<(props: IconProps) => React.ReactElement> = {

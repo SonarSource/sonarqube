@@ -71,8 +71,8 @@ export default class NewCodeDefinitionServiceMock {
   };
 
   handleSetNewCodePeriod = (data: {
-    project?: string;
     branch?: string;
+    project?: string;
     type: NewCodeDefinitionType;
     value?: string;
   }) => {
@@ -89,7 +89,7 @@ export default class NewCodeDefinitionServiceMock {
     return this.reply(undefined);
   };
 
-  handleResetNewCodePeriod = (data: { project?: string; branch?: string }) => {
+  handleResetNewCodePeriod = (data: { branch?: string; project?: string }) => {
     const { branch } = data;
     if (branch) {
       const index = this.#listBranchesNewCode.findIndex((bNew) => bNew.branchKey === branch);

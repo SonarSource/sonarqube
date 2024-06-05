@@ -30,13 +30,13 @@ import PermissionCell from './PermissionCell';
 import usePermissionChange from './usePermissionChange';
 
 interface Props {
+  disabled?: boolean;
   group: PermissionGroup;
   isComponentPrivate?: boolean;
   onToggle: (group: PermissionGroup, permission: string) => Promise<void>;
   permissions: PermissionDefinitions;
-  selectedPermission?: string;
-  disabled?: boolean;
   removeOnly?: boolean;
+  selectedPermission?: string;
 }
 
 export const ANYONE = 'Anyone';

@@ -32,8 +32,8 @@ import Others from './commands/Others';
 
 export interface AnalysisCommandProps extends WithAvailableFeaturesProps {
   buildTool: BuildTools;
-  mainBranchName: string;
   component: Component;
+  mainBranchName: string;
   monorepo?: boolean;
 }
 

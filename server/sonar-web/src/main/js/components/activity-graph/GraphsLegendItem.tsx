@@ -43,8 +43,8 @@ interface Props {
   index: number;
   metric: string;
   name: string;
-  showWarning?: boolean;
   removeMetric?: (metric: string) => void;
+  showWarning?: boolean;
 }
 
 export function GraphsLegendItem({

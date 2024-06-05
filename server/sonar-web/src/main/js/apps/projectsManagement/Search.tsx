@@ -43,21 +43,21 @@ import DeleteModal from './DeleteModal';
 
 export interface Props {
   analyzedBefore: Date | undefined;
+  appState: AppState;
   onAllDeselected: () => void;
   onAllSelected: () => void;
   onDateChanged: (analyzedBefore: Date | undefined) => void;
   onDeleteProjects: () => void;
   onProvisionedChanged: (provisioned: boolean) => void;
   onQualifierChanged: (qualifier: string) => void;
-  onVisibilityChanged: (qualifier: string) => void;
   onSearch: (query: string) => void;
+  onVisibilityChanged: (qualifier: string) => void;
   projects: Project[];
   provisioned: boolean;
   qualifiers: string;
   query: string;
   ready: boolean;
   selection: any[];
-  appState: AppState;
   total: number;
   visibility?: Visibility;
 }

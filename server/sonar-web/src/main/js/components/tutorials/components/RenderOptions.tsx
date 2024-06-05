@@ -27,8 +27,8 @@ export interface RenderOptionsProps {
   onCheck: (checked: string) => void;
   optionLabelKey: string;
   options: string[];
-  titleLabelKey?: string;
   setDone?: (doneStatus: boolean) => void;
+  titleLabelKey?: string;
 }
 
 export default function RenderOptions({

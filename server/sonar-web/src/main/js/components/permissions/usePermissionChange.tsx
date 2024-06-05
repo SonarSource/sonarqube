@@ -32,9 +32,9 @@ import ConfirmModal from '../controls/ConfirmModal';
 
 interface Props<T extends PermissionGroup | PermissionUser> {
   holder: T;
-  removeOnly?: boolean;
-  permissions: PermissionDefinitions;
   onToggle: (holder: T, permission: string) => Promise<void>;
+  permissions: PermissionDefinitions;
+  removeOnly?: boolean;
 }
 
 export default function usePermissionChange<T extends PermissionGroup | PermissionUser>(

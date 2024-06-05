@@ -36,9 +36,9 @@ const USER_SUB_DOMAIN = 'groups-of-user';
 
 export function useGroupMembersQuery(params: {
   filter?: SelectListFilter;
-  q?: string;
   groupId: string;
   pageIndex?: number;
+  q?: string;
 }) {
   return useInfiniteQuery({
     queryKey: [DOMAIN, GROUP_SUB_DOMAIN, 'list', params],
@@ -187,7 +187,7 @@ export function useRemoveGroupMembershipMutation() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ userId, groupId }: { userId: string; groupId: string }) => {
+    mutationFn: async ({ userId, groupId }: { groupId: string; userId: string }) => {
       const memberships = await getGroupMemberships({ userId, groupId, pageSize: 1 });
       if (!memberships.page.total) {
         throw new Error(

@@ -54,8 +54,8 @@ interface Props {
   selectedDopSetting?: DopSetting;
   selectedOrganization?: LabelValueSelectOption;
   selectedRepository?: LabelValueSelectOption;
-  showPersonalAccessToken?: boolean;
   showOrganizations?: boolean;
+  showPersonalAccessToken?: boolean;
 }
 
 export function MonorepoConnectionSelector({
