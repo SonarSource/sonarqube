@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 import javax.annotation.Nullable;
+import org.kohsuke.github.GHRateLimit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.alm.client.ApplicationHttpClient.GetResponse;
@@ -65,7 +66,8 @@ public abstract class GenericPaginatedHttpClient implements PaginatedHttpClient 
       return;
     }
     try {
-      rateLimitChecker.checkRateLimit(rateLimit);
+      GHRateLimit.Record rateLimitRecord = new GHRateLimit.Record(rateLimit.limit(), rateLimit.remaining(), rateLimit.reset());
+      rateLimitChecker.checkRateLimit(rateLimitRecord, 0);
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();
       LOG.warn(format("Thread interrupted: %s", e.getMessage()), e);

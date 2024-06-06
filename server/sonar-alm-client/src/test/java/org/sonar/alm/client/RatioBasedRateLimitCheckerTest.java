@@ -22,9 +22,11 @@ package org.sonar.alm.client;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
+import java.util.Date;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.kohsuke.github.GHRateLimit;
 import org.slf4j.event.Level;
 import org.sonar.api.testfixtures.log.LogTester;
 
@@ -60,19 +62,20 @@ public class RatioBasedRateLimitCheckerTest {
   @Test
   @UseDataProvider("rates")
   public void checkRateLimit(int limit, int remaining, boolean rateLimitShouldBeExceeded) throws InterruptedException {
-    ApplicationHttpClient.RateLimit record = mock();
-    when(record.limit()).thenReturn(limit);
-    when(record.remaining()).thenReturn(remaining);
-    when(record.reset()).thenReturn(System.currentTimeMillis() / 1000 + TIME_UNTIL_RESET);
+    GHRateLimit.Record ghRateLimitRecord = mock();
+    when(ghRateLimitRecord.getLimit()).thenReturn(limit);
+    when(ghRateLimitRecord.getRemaining()).thenReturn(remaining);
+    when(ghRateLimitRecord.getResetDate()).thenReturn(new Date(System.currentTimeMillis() + MILLIS_BEFORE_RESET));
+    when(ghRateLimitRecord.getResetEpochSeconds()).thenReturn(System.currentTimeMillis() / 1000 + TIME_UNTIL_RESET);
 
     long start = System.currentTimeMillis();
-    boolean result = ratioBasedRateLimitChecker.checkRateLimit(record);
+    boolean result = ratioBasedRateLimitChecker.checkRateLimit(ghRateLimitRecord, 0);
     long stop = System.currentTimeMillis();
     long totalTime = stop - start;
 
     if (rateLimitShouldBeExceeded) {
       assertThat(result).isTrue();
-      assertThat(stop).isGreaterThanOrEqualTo(record.reset());
+      assertThat(stop).isGreaterThanOrEqualTo(ghRateLimitRecord.getResetEpochSeconds());
       assertThat(logTester.logs(Level.WARN)).contains(
         format(RATE_RATIO_EXCEEDED_MESSAGE.replaceAll("\\{\\}", "%s"), limit - remaining, limit));
     } else {

@@ -28,6 +28,7 @@ import java.util.Optional;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.kohsuke.github.GHRateLimit;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -40,6 +41,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -123,12 +125,12 @@ public class GenericPaginatedHttpClientImplTest {
     assertThat(results)
       .containsExactly("result1", "result2", "result3");
 
-    ArgumentCaptor<ApplicationHttpClient.RateLimit> rateLimitRecordCaptor = ArgumentCaptor.forClass(ApplicationHttpClient.RateLimit.class);
-    verify(rateLimitChecker).checkRateLimit(rateLimitRecordCaptor.capture());
-    ApplicationHttpClient.RateLimit rateLimitRecord = rateLimitRecordCaptor.getValue();
-    assertThat(rateLimitRecord.limit()).isEqualTo(10);
-    assertThat(rateLimitRecord.remaining()).isEqualTo(1);
-    assertThat(rateLimitRecord.reset()).isZero();
+    ArgumentCaptor<GHRateLimit.Record> rateLimitRecordCaptor = ArgumentCaptor.forClass(GHRateLimit.Record.class);
+    verify(rateLimitChecker).checkRateLimit(rateLimitRecordCaptor.capture(), anyLong());
+    GHRateLimit.Record rateLimitRecord = rateLimitRecordCaptor.getValue();
+    assertThat(rateLimitRecord.getLimit()).isEqualTo(10);
+    assertThat(rateLimitRecord.getRemaining()).isEqualTo(1);
+    assertThat(rateLimitRecord.getResetEpochSeconds()).isZero();
   }
 
   private static GetResponse mockResponseWithPaginationAndRateLimit(String content, String nextEndpoint) {
@@ -165,7 +167,7 @@ public class GenericPaginatedHttpClientImplTest {
     GetResponse response2 = mockResponseWithoutPagination("[\"result3\"]");
     when(appHttpClient.get(APP_URL, accessToken, ENDPOINT + "?per_page=100")).thenReturn(response1);
     when(appHttpClient.get(APP_URL, accessToken, "/next-endpoint")).thenReturn(response2);
-    doThrow(new InterruptedException("interrupted")).when(rateLimitChecker).checkRateLimit(any(ApplicationHttpClient.RateLimit.class));
+    doThrow(new InterruptedException("interrupted")).when(rateLimitChecker).checkRateLimit(any(GHRateLimit.Record.class), anyLong());
 
     assertThatNoException()
       .isThrownBy(() -> underTest.get(APP_URL, accessToken, ENDPOINT, result -> gson.fromJson(result, STRING_LIST_TYPE)));

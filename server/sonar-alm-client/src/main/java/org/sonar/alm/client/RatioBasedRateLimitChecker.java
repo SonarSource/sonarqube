@@ -38,15 +38,15 @@ public class RatioBasedRateLimitChecker extends RateLimitChecker {
 
   private static final int MAX_PERCENTAGE_OF_CALLS_FOR_PROVISIONING = 90;
 
-  public boolean checkRateLimit(ApplicationHttpClient.RateLimit rateLimitRecord) throws InterruptedException {
-    int limit = rateLimitRecord.limit();
-    int apiCallsUsed = limit - rateLimitRecord.remaining();
+  @Override
+  protected boolean checkRateLimit(GHRateLimit.Record rateLimitRecord, long count) throws InterruptedException {
+    int limit = rateLimitRecord.getLimit();
+    int apiCallsUsed = limit - rateLimitRecord.getRemaining();
     double percentageOfCallsUsed = computePercentageOfCallsUsed(apiCallsUsed, limit);
     LOGGER.debug("{} external system API calls used of {}", apiCallsUsed, limit);
     if (percentageOfCallsUsed >= MAX_PERCENTAGE_OF_CALLS_FOR_PROVISIONING) {
       LOGGER.warn(RATE_RATIO_EXCEEDED_MESSAGE, apiCallsUsed, limit);
-      GHRateLimit.Record rateLimit = new GHRateLimit.Record(rateLimitRecord.limit(), rateLimitRecord.remaining(), rateLimitRecord.reset());
-      return sleepUntilReset(rateLimit);
+      return sleepUntilReset(rateLimitRecord);
     }
     return false;
   }
