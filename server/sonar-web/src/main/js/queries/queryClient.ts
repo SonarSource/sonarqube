@@ -18,23 +18,25 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { QueryClient } from '@tanstack/react-query';
+import { QueryClient, QueryOptions } from '@tanstack/react-query';
+
+export const queryClientDefaultRetryFn: QueryOptions['retry'] = (failureCount, error) => {
+  if (typeof error === 'object' && error !== null && 'status' in error) {
+    const { status } = error as unknown as Response;
+
+    if (status >= 400 && status < 500) {
+      // no point in retrying on 4xx errors
+      return false;
+    }
+  }
+
+  return failureCount < 2;
+};
 
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      retry: (failureCount, error) => {
-        if (typeof error === 'object' && error !== null && 'status' in error) {
-          const { status } = error as unknown as Response;
-
-          if (status >= 400 && status < 500) {
-            // no point in retrying on 4xx errors
-            return false;
-          }
-        }
-
-        return failureCount < 2;
-      },
+      retry: queryClientDefaultRetryFn,
     },
   },
 });
