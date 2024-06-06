@@ -41,7 +41,7 @@ export function CompilationInfo({ className = 'sw-my-2' }: CompilationInfoProps)
             defaultMessage={translate('onboarding.tutorial.cfamilly.compilation_database_info')}
             values={{
               link: (
-                <Link to={docUrl(DocLink.CFamily)}>
+                <Link to={docUrl(DocLink.CFamilyCompilationDatabase)}>
                   {translate('onboarding.tutorial.cfamilly.compilation_database_info.link')}
                 </Link>
               ),

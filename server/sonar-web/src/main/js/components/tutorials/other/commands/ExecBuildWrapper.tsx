@@ -39,7 +39,7 @@ const executables: { [x in OSs]: string } = {
 export default function ExecBuildWrapper(props: ExecBuildWrapperProps) {
   const { os } = props;
 
-  const docUrl = useDocUrl(DocLink.CFamily);
+  const docUrl = useDocUrl(DocLink.CFamilyBuildWrapper);
 
   return (
     <>
