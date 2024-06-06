@@ -25,11 +25,11 @@ import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Locale;
-import org.apache.commons.codec.digest.DigestUtils;
 import org.jetbrains.annotations.NotNull;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.telemetry.TelemetryExtension;
+import org.sonar.server.util.DigestUtil;
 
 import static org.sonar.api.utils.DateUtils.DATETIME_FORMAT;
 
@@ -117,7 +117,7 @@ public class TelemetryDataJsonWriter {
       json.beginArray();
       telemetryData.getUserTelemetries().forEach(user -> {
         json.beginObject();
-        json.prop("userUuid", DigestUtils.sha3_224Hex(user.getUuid()));
+        json.prop("userUuid", DigestUtil.sha3_224Hex(user.getUuid()));
         json.prop("status", user.isActive() ? "active" : "inactive");
         json.prop("identityProvider", user.getExternalIdentityProvider());
 

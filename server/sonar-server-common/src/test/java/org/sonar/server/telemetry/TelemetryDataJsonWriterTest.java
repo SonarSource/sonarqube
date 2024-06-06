@@ -32,7 +32,6 @@ import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import org.apache.commons.codec.digest.DigestUtils;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -43,6 +42,7 @@ import org.sonar.core.telemetry.TelemetryExtension;
 import org.sonar.db.project.CreationMethod;
 import org.sonar.db.user.UserTelemetryDto;
 import org.sonar.server.qualitygate.Condition;
+import org.sonar.server.util.DigestUtil;
 
 import static java.util.stream.Collectors.joining;
 import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
@@ -397,7 +397,7 @@ public class TelemetryDataJsonWriterTest {
         ]
       }
       """
-      .formatted(DigestUtils.sha3_224Hex("uuid-0"), DigestUtils.sha3_224Hex("uuid-1"), DigestUtils.sha3_224Hex("uuid-2")));
+      .formatted(DigestUtil.sha3_224Hex("uuid-0"), DigestUtil.sha3_224Hex("uuid-1"), DigestUtil.sha3_224Hex("uuid-2")));
   }
 
   @Test

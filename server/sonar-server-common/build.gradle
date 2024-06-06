@@ -9,13 +9,14 @@ sonar {
 dependencies {
   // please keep the list grouped by configuration and ordered by name
 
-  api 'org.apache.commons:commons-email'
   api 'commons-io:commons-io'
-  api 'org.apache.commons:commons-lang3'
   api 'com.google.guava:guava'
-  api 'org.slf4j:slf4j-api'
   api 'com.squareup.okhttp3:okhttp'
+  api 'org.apache.commons:commons-email'
+  api 'org.apache.commons:commons-lang3'
+  api 'org.bouncycastle:bcprov-jdk18on'
   api 'org.elasticsearch.client:elasticsearch-rest-high-level-client'
+  api 'org.slf4j:slf4j-api'
   api 'org.sonarsource.api.plugin:sonar-plugin-api'
   api project(':server:sonar-db-dao')
   api project(':server:sonar-db-migration')
@@ -25,7 +26,6 @@ dependencies {
   api project(':sonar-ws')
 
   compileOnlyApi 'com.google.code.findbugs:jsr305'
-
   testImplementation 'org.elasticsearch.plugin:transport-netty4-client'
   testImplementation 'ch.qos.logback:logback-core'
   testImplementation 'com.google.code.findbugs:jsr305'
@@ -47,7 +47,7 @@ dependencies {
   testImplementation testFixtures(project(':server:sonar-webserver-es'))
   testImplementation project(':sonar-plugin-api-impl')
   testImplementation project(':sonar-testing-harness')
-    
+
   testFixturesApi 'junit:junit'
   testFixturesApi testFixtures(project(':server:sonar-db-dao'))
 
