@@ -49,7 +49,7 @@ export default function CreateWebhookForm({ webhook, onClose, onDone }: Props) {
     } else if (!isWebUri(url)) {
       errors.url = translate('webhooks.url.bad_format');
     }
-    if (secret && secret.length > 200) {
+    if (secret && (secret.length > 200 || secret.length < 16)) {
       errors.secret = translate('webhooks.secret.bad_format');
     }
     return errors;

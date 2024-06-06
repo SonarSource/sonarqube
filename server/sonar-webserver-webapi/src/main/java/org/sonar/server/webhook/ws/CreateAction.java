@@ -20,6 +20,7 @@
 package org.sonar.server.webhook.ws;
 
 import javax.annotation.Nullable;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -40,6 +41,7 @@ import static org.sonar.server.webhook.ws.WebhooksWsParameters.PROJECT_KEY_PARAM
 import static org.sonar.server.webhook.ws.WebhooksWsParameters.PROJECT_KEY_PARAM_MAXIMUM_LENGTH;
 import static org.sonar.server.webhook.ws.WebhooksWsParameters.SECRET_PARAM;
 import static org.sonar.server.webhook.ws.WebhooksWsParameters.SECRET_PARAM_MAXIMUM_LENGTH;
+import static org.sonar.server.webhook.ws.WebhooksWsParameters.SECRET_PARAM_MINIMUM_LENGTH;
 import static org.sonar.server.webhook.ws.WebhooksWsParameters.URL_PARAM;
 import static org.sonar.server.webhook.ws.WebhooksWsParameters.URL_PARAM_MAXIMUM_LENGTH;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
@@ -74,6 +76,7 @@ public class CreateAction implements WebhooksWsAction {
       .setDescription("Create a Webhook.<br>" +
         "Requires 'Administer' permission on the specified project, or global 'Administer' permission.")
       .setSince("7.1")
+      .setChangelog(new Change("10.6", "The minimum length of parameter '" + SECRET_PARAM + "' increased to 16."))
       .setResponseExample(getClass().getResource("example-webhook-create.json"))
       .setHandler(this);
 
@@ -99,7 +102,7 @@ public class CreateAction implements WebhooksWsAction {
 
     action.createParam(SECRET_PARAM)
       .setRequired(false)
-      .setMinimumLength(1)
+      .setMinimumLength(SECRET_PARAM_MINIMUM_LENGTH)
       .setMaximumLength(SECRET_PARAM_MAXIMUM_LENGTH)
       .setDescription("If provided, secret will be used as the key to generate the HMAC hex (lowercase) digest value in the 'X-Sonar-Webhook-HMAC-SHA256' header")
       .setExampleValue("your_secret")

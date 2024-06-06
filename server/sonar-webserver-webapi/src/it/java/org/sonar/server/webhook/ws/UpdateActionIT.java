@@ -54,6 +54,8 @@ import static org.sonar.server.ws.KeyExamples.URL_WEBHOOK_EXAMPLE_001;
 
 public class UpdateActionIT {
 
+  private static final String DEFAULT_COMPLIANT_SECRET = "at_least_16_characters";
+
   @Rule
   public UserSessionRule userSession = standalone();
 
@@ -126,7 +128,7 @@ public class UpdateActionIT {
     assertThat(reloaded.get().getName()).isEqualTo(NAME_WEBHOOK_EXAMPLE_001);
     assertThat(reloaded.get().getUrl()).isEqualTo(URL_WEBHOOK_EXAMPLE_001);
     assertThat(reloaded.get().getProjectUuid()).isEqualTo(dto.getProjectUuid());
-    assertThat(reloaded.get().getSecret()).isEqualTo(null);
+    assertThat(reloaded.get().getSecret()).isNull();
   }
 
   @Test
@@ -139,7 +141,7 @@ public class UpdateActionIT {
       .setParam("webhook", dto.getUuid())
       .setParam("name", NAME_WEBHOOK_EXAMPLE_001)
       .setParam("url", URL_WEBHOOK_EXAMPLE_001)
-      .setParam("secret", "a_new_secret")
+      .setParam("secret", DEFAULT_COMPLIANT_SECRET)
       .execute();
 
     assertThat(response.getStatus()).isEqualTo(HTTP_NO_CONTENT);
@@ -148,7 +150,7 @@ public class UpdateActionIT {
     assertThat(reloaded.get().getName()).isEqualTo(NAME_WEBHOOK_EXAMPLE_001);
     assertThat(reloaded.get().getUrl()).isEqualTo(URL_WEBHOOK_EXAMPLE_001);
     assertThat(reloaded.get().getProjectUuid()).isEqualTo(dto.getProjectUuid());
-    assertThat(reloaded.get().getSecret()).isEqualTo("a_new_secret");
+    assertThat(reloaded.get().getSecret()).isEqualTo(DEFAULT_COMPLIANT_SECRET);
   }
 
   @Test
@@ -160,7 +162,7 @@ public class UpdateActionIT {
       .setParam("webhook", dto.getUuid())
       .setParam("name", NAME_WEBHOOK_EXAMPLE_001)
       .setParam("url", URL_WEBHOOK_EXAMPLE_001)
-      .setParam("secret", "a_new_secret")
+      .setParam("secret", DEFAULT_COMPLIANT_SECRET)
       .execute();
 
     assertThat(response.getStatus()).isEqualTo(HTTP_NO_CONTENT);
@@ -169,7 +171,7 @@ public class UpdateActionIT {
     assertThat(reloaded.get().getName()).isEqualTo(NAME_WEBHOOK_EXAMPLE_001);
     assertThat(reloaded.get().getUrl()).isEqualTo(URL_WEBHOOK_EXAMPLE_001);
     assertThat(reloaded.get().getProjectUuid()).isNull();
-    assertThat(reloaded.get().getSecret()).isEqualTo("a_new_secret");
+    assertThat(reloaded.get().getSecret()).isEqualTo(DEFAULT_COMPLIANT_SECRET);
   }
 
   @Test
@@ -236,6 +238,21 @@ public class UpdateActionIT {
       .setParam("webhook", dto.getUuid())
       .setParam("name", NAME_WEBHOOK_EXAMPLE_001)
       .setParam("url", "htp://www.wrong-protocol.com/");
+
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(IllegalArgumentException.class);
+  }
+
+  @Test
+  public void handle_whenSecretIsTooShort_fail() {
+    ProjectDto project = componentDbTester.insertPrivateProject().getProjectDto();
+    WebhookDto dto = webhookDbTester.insertWebhook(project);
+    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
+    TestRequest request = wsActionTester.newRequest()
+      .setParam("webhook", dto.getUuid())
+      .setParam("name", NAME_WEBHOOK_EXAMPLE_001)
+      .setParam("url", URL_WEBHOOK_EXAMPLE_001)
+      .setParam("secret", "short");
 
     assertThatThrownBy(request::execute)
       .isInstanceOf(IllegalArgumentException.class);

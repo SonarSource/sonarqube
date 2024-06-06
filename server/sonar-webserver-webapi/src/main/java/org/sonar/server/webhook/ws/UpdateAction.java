@@ -39,12 +39,14 @@ import static org.sonar.server.webhook.ws.WebhooksWsParameters.NAME_PARAM;
 import static org.sonar.server.webhook.ws.WebhooksWsParameters.NAME_PARAM_MAXIMUM_LENGTH;
 import static org.sonar.server.webhook.ws.WebhooksWsParameters.SECRET_PARAM;
 import static org.sonar.server.webhook.ws.WebhooksWsParameters.SECRET_PARAM_MAXIMUM_LENGTH;
+import static org.sonar.server.webhook.ws.WebhooksWsParameters.SECRET_PARAM_MINIMUM_LENGTH;
 import static org.sonar.server.webhook.ws.WebhooksWsParameters.UPDATE_ACTION;
 import static org.sonar.server.webhook.ws.WebhooksWsParameters.URL_PARAM;
 import static org.sonar.server.webhook.ws.WebhooksWsParameters.URL_PARAM_MAXIMUM_LENGTH;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.NAME_WEBHOOK_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.URL_WEBHOOK_EXAMPLE_001;
+import static org.sonarqube.ws.WsUtils.checkArgument;
 
 public class UpdateAction implements WebhooksWsAction {
 
@@ -106,6 +108,8 @@ public class UpdateAction implements WebhooksWsAction {
     String url = request.mandatoryParam(URL_PARAM);
     String secret = request.param(SECRET_PARAM);
 
+    validateSecretLength(secret);
+
     webhookSupport.checkUrlPattern(url, "Url parameter with value '%s' is not a valid url", url);
 
     try (DbSession dbSession = dbClient.openSession(false)) {
@@ -127,6 +131,13 @@ public class UpdateAction implements WebhooksWsAction {
     }
 
     response.noContent();
+  }
+
+  private static void validateSecretLength(@Nullable String secret) {
+    if (secret != null && !secret.isEmpty()) {
+      checkArgument(secret.length() >= SECRET_PARAM_MINIMUM_LENGTH && secret.length() <= SECRET_PARAM_MAXIMUM_LENGTH,
+        "Secret length must between %s and %s characters", SECRET_PARAM_MINIMUM_LENGTH, SECRET_PARAM_MAXIMUM_LENGTH);
+    }
   }
 
   private void updateWebhook(DbSession dbSession, WebhookDto dto, String name, String url, @Nullable String secret,

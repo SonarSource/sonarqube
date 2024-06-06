@@ -129,7 +129,11 @@ describe('webhook CRUD', () => {
     await ui.waitForWebhooksLoaded();
 
     await ui.clickWebhookRowAction(1, 'Global webhook 2', 'update_verb', 'menuitem');
-    await ui.fillUpdateForm('modified-webhook', 'https://webhook.example.sonarqube.com', 'secret');
+    await ui.fillUpdateForm(
+      'modified-webhook',
+      'https://webhook.example.sonarqube.com',
+      'at_least_16_characters',
+    );
     await ui.submitForm();
 
     ui.checkWebhookRow(1, {

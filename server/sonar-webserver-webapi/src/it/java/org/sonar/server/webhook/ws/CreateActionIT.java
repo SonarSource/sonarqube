@@ -58,6 +58,8 @@ import static org.sonar.server.ws.KeyExamples.URL_WEBHOOK_EXAMPLE_001;
 
 public class CreateActionIT {
 
+  private static final String DEFAULT_COMPLIANT_SECRET = "at_least_16_characters";
+
   @Rule
   public UserSessionRule userSession = standalone();
 
@@ -90,7 +92,6 @@ public class CreateActionIT {
         tuple("name", true),
         tuple("url", true),
         tuple("secret", false));
-
   }
 
   @Test
@@ -104,7 +105,7 @@ public class CreateActionIT {
       .setParam("project", longProjectKey)
       .setParam("name", NAME_WEBHOOK_EXAMPLE_001)
       .setParam("url", URL_WEBHOOK_EXAMPLE_001)
-      .setParam("secret", "a_secret")
+      .setParam("secret", DEFAULT_COMPLIANT_SECRET)
       .executeProtobuf(CreateWsResponse.class);
 
     assertThat(response.getWebhook()).isNotNull();
@@ -121,7 +122,7 @@ public class CreateActionIT {
     CreateWsResponse response = wsActionTester.newRequest()
       .setParam("name", NAME_WEBHOOK_EXAMPLE_001)
       .setParam("url", URL_WEBHOOK_EXAMPLE_001)
-      .setParam("secret", "a_secret")
+      .setParam("secret", DEFAULT_COMPLIANT_SECRET)
       .executeProtobuf(CreateWsResponse.class);
 
     assertThat(response.getWebhook()).isNotNull();
@@ -136,7 +137,7 @@ public class CreateActionIT {
         assertThat(reloaded.getName()).isEqualTo(NAME_WEBHOOK_EXAMPLE_001);
         assertThat(reloaded.getUrl()).isEqualTo(URL_WEBHOOK_EXAMPLE_001);
         assertThat(reloaded.getProjectUuid()).isNull();
-        assertThat(reloaded.getSecret()).isEqualTo("a_secret");
+        assertThat(reloaded.getSecret()).isEqualTo(DEFAULT_COMPLIANT_SECRET);
       });
   }
 
@@ -232,6 +233,18 @@ public class CreateActionIT {
   }
 
   @Test
+  public void execute_whenSecretIsTooShort_fail() {
+    userSession.logIn().addPermission(GlobalPermission.ADMINISTER);
+    TestRequest request = wsActionTester.newRequest()
+      .setParam(NAME_PARAM, NAME_WEBHOOK_EXAMPLE_001)
+      .setParam(URL_PARAM, URL_WEBHOOK_EXAMPLE_001)
+      .setParam("secret", "short");
+
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(IllegalArgumentException.class);
+  }
+
+  @Test
   public void fail_if_credential_in_url_is_have_a_wrong_format() {
     userSession.logIn().addPermission(GlobalPermission.ADMINISTER);
     TestRequest request = wsActionTester.newRequest()
@@ -286,7 +299,7 @@ public class CreateActionIT {
       .setParam("project", longProjectKey)
       .setParam("name", NAME_WEBHOOK_EXAMPLE_001)
       .setParam("url", URL_WEBHOOK_EXAMPLE_001)
-      .setParam("secret", "a_secret");
+      .setParam("secret", DEFAULT_COMPLIANT_SECRET);
 
     assertThatThrownBy(() -> request.executeProtobuf(CreateWsResponse.class))
       .isInstanceOf(IllegalArgumentException.class)
