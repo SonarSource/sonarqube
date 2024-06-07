@@ -115,7 +115,7 @@ const selectors = {
   caycNotificationButton: byRole('button', { name: 'coding_rules.more_info.scroll_message' }),
   extendDescriptionButton: byRole('button', { name: 'coding_rules.extend_description' }),
   extendDescriptionTextbox: byRole('textbox', { name: 'coding_rules.extend_description' }),
-  prioritizedYesCell: byRole('cell', { name: 'yes' }),
+  prioritizedRuleCell: byRole('cell', { name: /coding_rules.prioritized_rule.title/ }),
   saveButton: byRole('button', { name: 'save' }),
   cancelButton: byRole('button', { name: 'cancel' }),
   removeButton: byRole('button', { name: 'remove' }),

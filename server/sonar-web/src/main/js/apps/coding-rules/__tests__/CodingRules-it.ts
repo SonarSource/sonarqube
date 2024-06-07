@@ -636,13 +636,13 @@ describe('Rule app details', () => {
     expect(ui.qpLink('QP Foo').get()).toBeInTheDocument();
 
     // Activate rule in quality profile
-    expect(ui.prioritizedYesCell.query()).not.toBeInTheDocument();
+    expect(ui.prioritizedRuleCell.query()).not.toBeInTheDocument();
     await user.click(ui.activateButton.get());
     await selectEvent.select(ui.qualityProfileSelect.get(), 'QP FooBar');
     await user.click(ui.prioritizedSwitch.get());
     await user.click(ui.activateButton.get(ui.activateQPDialog.get()));
     expect(ui.qpLink('QP FooBar').get()).toBeInTheDocument();
-    expect(ui.prioritizedYesCell.get()).toBeInTheDocument();
+    expect(ui.prioritizedRuleCell.get()).toBeInTheDocument();
 
     // Activate last java rule
     await user.click(ui.activateButton.get());
