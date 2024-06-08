@@ -1191,6 +1191,26 @@ public class SetActionTest {
   }
 
   @Test
+  public void fail_when_key_constraints_are_not_met() {
+    propertyDb.insertProperty(newGlobalPropertyDto("sonar.auth.gitlab.secret.secured", "secret"), null, null, null, null);
+
+    assertThatThrownBy(() -> {
+      callForGlobalSetting("sonar.auth.gitlab.url", "http://new.url");
+    })
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("Setting 'sonar.auth.gitlab.secret.secured' must be empty to set 'sonar.auth.gitlab.url'");
+  }
+
+  @Test
+  public void succeed_when_key_constraints_are_met() {
+    assertGlobalSettingIsNotSet("sonar.auth.gitlab.secret.secured");
+
+    callForGlobalSetting("sonar.auth.gitlab.url", "http://new.url");
+
+    assertGlobalSetting("sonar.auth.gitlab.url", "http://new.url");
+  }
+
+  @Test
   public void definition() {
     WebService.Action definition = ws.getDef();
 
@@ -1208,6 +1228,12 @@ public class SetActionTest {
     assertThat(result)
       .extracting(PropertyDto::getKey, PropertyDto::getValue, PropertyDto::getComponentUuid)
       .containsExactly(key, value, null);
+  }
+
+  private void assertGlobalSettingIsNotSet(String key) {
+    PropertyDto result = dbClient.propertiesDao().selectGlobalProperty(key);
+
+    assertThat(result).isNull();
   }
 
   private void assertUserSetting(String key, String value, String userUuid) {
