@@ -1129,6 +1129,16 @@ public class SetActionIT {
   }
 
   @Test
+  public void fail_when_setting_key_is_forbidden() {
+    TestRequest testRequest = ws.newRequest()
+      .setParam("key", "sonar.auth.gitlab.url")
+      .setParam("value", "http://malicious.url");
+    assertThatThrownBy(testRequest::execute)
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("For security reasons, the key 'sonar.auth.gitlab.url' cannot be updated using this webservice. Please use the API v2");
+  }
+
+  @Test
   public void definition() {
     WebService.Action definition = ws.getDef();
 

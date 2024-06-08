@@ -295,6 +295,36 @@ public class GitlabConfigurationServiceIT {
     verify(managedInstanceService, times(0)).queueSynchronisationTask();
   }
 
+  @Test
+  public void updateConfiguration_whenURLChangesWithoutSecret_shouldFail() {
+    gitlabConfigurationService.createConfiguration(buildGitlabConfiguration(JIT));
+
+    UpdateGitlabConfigurationRequest updateUrlRequest = builder()
+      .gitlabConfigurationId(UNIQUE_GITLAB_CONFIGURATION_ID)
+      .url(withValueOrThrow("http://malicious.url"))
+      .build();
+
+    assertThatThrownBy(() -> gitlabConfigurationService.updateConfiguration(updateUrlRequest))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("For security reasons, the URL can't be updated without providing the secret.");
+  }
+
+  @Test
+  public void updateConfiguration_whenURLChangesWithAllSecrets_shouldUpdate() {
+    gitlabConfigurationService.createConfiguration(buildGitlabConfiguration(JIT));
+
+    UpdateGitlabConfigurationRequest updateUrlRequest = builder()
+      .gitlabConfigurationId(UNIQUE_GITLAB_CONFIGURATION_ID)
+      .url(withValueOrThrow("http://new.url"))
+      .secret(withValueOrThrow("new_secret"))
+      .build();
+
+    gitlabConfigurationService.updateConfiguration(updateUrlRequest);
+
+    verifySettingWasSet(GITLAB_AUTH_URL, "http://new.url");
+    verifySettingWasSet(GITLAB_AUTH_SECRET, "new_secret");
+  }
+
   private static void assertConfigurationFields(GitlabConfiguration configuration) {
     assertThat(configuration).isNotNull();
     assertThat(configuration.id()).isEqualTo("gitlab-configuration");

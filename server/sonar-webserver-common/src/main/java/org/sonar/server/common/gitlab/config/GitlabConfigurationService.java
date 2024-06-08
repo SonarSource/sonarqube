@@ -42,6 +42,7 @@ import static java.lang.String.format;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.sonar.alm.client.gitlab.GitlabGlobalSettingsValidator.ValidationMode.AUTH_ONLY;
 import static org.sonar.alm.client.gitlab.GitlabGlobalSettingsValidator.ValidationMode.COMPLETE;
+import static org.sonar.api.utils.Preconditions.checkArgument;
 import static org.sonar.api.utils.Preconditions.checkState;
 import static org.sonar.auth.gitlab.GitLabSettings.GITLAB_AUTH_ALLOWED_GROUPS;
 import static org.sonar.auth.gitlab.GitLabSettings.GITLAB_AUTH_ALLOW_USERS_TO_SIGNUP;
@@ -86,6 +87,7 @@ public class GitlabConfigurationService {
 
   public GitlabConfiguration updateConfiguration(UpdateGitlabConfigurationRequest updateRequest) {
     UpdatedValue<Boolean> provisioningEnabled = updateRequest.provisioningType().map(GitlabConfigurationService::shouldEnableAutoProvisioning);
+    throwIfUrlIsUpdatedWithoutSecrets(updateRequest);
     try (DbSession dbSession = dbClient.openSession(true)) {
       throwIfConfigurationDoesntExist(dbSession);
       GitlabConfiguration currentConfiguration = getConfiguration(updateRequest.gitlabConfigurationId(), dbSession);
@@ -111,6 +113,12 @@ public class GitlabConfigurationService {
       }
       dbSession.commit();
       return updatedConfiguration;
+    }
+  }
+
+  private static void throwIfUrlIsUpdatedWithoutSecrets(UpdateGitlabConfigurationRequest request) {
+    if (request.url().isDefined()) {
+      checkArgument(request.secret().isDefined(), "For security reasons, the URL can't be updated without providing the secret.");
     }
   }
 

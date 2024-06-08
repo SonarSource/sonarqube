@@ -69,8 +69,9 @@ public class SetAction implements SettingsWsAction {
   private static final Collector<CharSequence, ?, String> COMMA_JOINER = Collectors.joining(",");
   private static final String MSG_NO_EMPTY_VALUE = "A non empty value must be provided";
   private static final int VALUE_MAXIMUM_LENGTH = 4000;
-  private static final TypeToken<Map<String, String>> MAP_TYPE_TOKEN = new TypeToken<>() {
-  };
+  private static final TypeToken<Map<String, String>> MAP_TYPE_TOKEN = new TypeToken<>() {};
+  private static final Set<String> FORBIDDEN_KEYS = Set.of("sonar.auth.gitlab.url");
+
 
   private final PropertyDefinitions propertyDefinitions;
   private final DbClient dbClient;
@@ -138,10 +139,17 @@ public class SetAction implements SettingsWsAction {
   public void handle(Request request, Response response) throws Exception {
     try (DbSession dbSession = dbClient.openSession(false)) {
       SetRequest wsRequest = toWsRequest(request);
+      throwIfForbiddenKey(wsRequest.getKey());
       SettingsWsSupport.validateKey(wsRequest.getKey());
       doHandle(dbSession, wsRequest);
     }
     response.noContent();
+  }
+
+  private static void throwIfForbiddenKey(String key) {
+    if (FORBIDDEN_KEYS.contains(key)) {
+      throw new IllegalArgumentException(format("For security reasons, the key '%s' cannot be updated using this webservice. Please use the API v2", key));
+    }
   }
 
   private void doHandle(DbSession dbSession, SetRequest request) {

@@ -19,11 +19,11 @@
  */
 package org.sonar.server.common;
 
-import java.util.StringJoiner;
-import javax.annotation.Nullable;
 import java.util.Objects;
+import java.util.StringJoiner;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import javax.annotation.Nullable;
 
 public class UpdatedValue<T> {
   final T value;
@@ -60,6 +60,10 @@ public class UpdatedValue<T> {
       return value.equals(testValue);
     }
     return false;
+  }
+
+  public boolean isDefined() {
+    return isDefined;
   }
 
   @Override
