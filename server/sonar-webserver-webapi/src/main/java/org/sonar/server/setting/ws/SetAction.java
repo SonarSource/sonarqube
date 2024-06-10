@@ -71,7 +71,9 @@ public class SetAction implements SettingsWsAction {
   private static final String MSG_NO_EMPTY_VALUE = "A non empty value must be provided";
   private static final int VALUE_MAXIMUM_LENGTH = 4000;
   static final Map<String, String> KEY_CONSTRAINTS = Map.of(
-    "sonar.auth.gitlab.url", "sonar.auth.gitlab.secret.secured"
+    "sonar.auth.gitlab.url", "sonar.auth.gitlab.secret.secured",
+    "sonar.auth.github.webUrl", "sonar.auth.github.clientSecret.secured",
+    "sonar.auth.github.apiUrl", "sonar.auth.github.clientSecret.secured"
   );
 
   private final PropertyDefinitions propertyDefinitions;
