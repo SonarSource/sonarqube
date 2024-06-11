@@ -18,7 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { Link, SubHeading } from 'design-system';
+import { LinkStandalone as Link } from '@sonarsource/echoes-react';
+import { SubHeading } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { DocLink } from '../../../../helpers/doc-links';
@@ -50,14 +51,15 @@ export default function DotNetFramework(props: DotNetProps) {
             defaultMessage={translate('onboarding.analysis.msbuild.text')}
             id="onboarding.analysis.msbuild.text"
             values={{
-              code: <InlineSnippet snippet="%PATH%" />,
+              code: <InlineSnippet snippet="SonarScanner.MSBuild.exe" />,
+              path: <InlineSnippet snippet="%PATH%" />,
               link: <Link to={docUrl}>{translate('onboarding.analysis.msbuild.docs_link')}</Link>,
             }}
           />
         </p>
       </div>
 
-      <DotNetExecute commands={commands} component={component} />
+      <DotNetExecute commands={commands} />
     </div>
   );
 }

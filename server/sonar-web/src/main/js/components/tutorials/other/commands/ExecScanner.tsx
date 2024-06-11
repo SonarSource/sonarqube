@@ -74,7 +74,7 @@ export default function ExecScanner(props: ExecScannerProps) {
           }}
         />
       </p>
-      <DoneNextSteps component={component} />
+      <DoneNextSteps />
     </div>
   );
 }

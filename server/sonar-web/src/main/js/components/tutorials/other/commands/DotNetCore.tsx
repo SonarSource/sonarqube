@@ -46,7 +46,7 @@ export default function DotNetCore(props: DotNetProps) {
       <FlagMessage className="sw-mt-2" variant="info">
         {translate('onboarding.analysis.dotnetcore.global.text.path')}
       </FlagMessage>
-      <DotNetExecute commands={commands} component={component} />
+      <DotNetExecute commands={commands} />
     </div>
   );
 }

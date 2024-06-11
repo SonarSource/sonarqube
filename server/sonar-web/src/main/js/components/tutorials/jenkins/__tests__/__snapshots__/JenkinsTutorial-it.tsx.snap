@@ -239,7 +239,7 @@ exports[`bitbucket: can select devops platform and complete all the steps with c
     checkout scm
   }
   stage('SonarQube Analysis') {
-    def scannerHome = tool 'SonarScanner for MSBuild'
+    def scannerHome = tool 'SonarScanner for .NET'
     withSonarQubeEnv() {
       sh "dotnet \${scannerHome}/SonarScanner.MSBuild.dll begin /k:\\"my-project\\""
       sh "dotnet build"
@@ -276,7 +276,7 @@ exports[`bitbucket: can select devops platform and complete all the steps with c
     checkout scm
   }
   stage('SonarQube Analysis') {
-    def scannerHome = tool 'SonarScanner for MSBuild'
+    def scannerHome = tool 'SonarScanner for .NET'
     withSonarQubeEnv() {
       bat "dotnet \${scannerHome}\\\\SonarScanner.MSBuild.dll begin /k:\\"my-project\\""
       bat "dotnet build"
@@ -294,7 +294,7 @@ exports[`bitbucket: can select devops platform and complete all the steps with c
   }
   stage('SonarQube Analysis') {
     def msbuildHome = tool 'Default MSBuild'
-    def scannerHome = tool 'SonarScanner for MSBuild'
+    def scannerHome = tool 'SonarScanner for .NET'
     withSonarQubeEnv() {
       bat "\\"\${scannerHome}\\\\SonarScanner.MSBuild.exe\\" begin /k:\\"my-project\\""
       bat "\\"\${msbuildHome}\\\\MSBuild.exe\\" /t:Rebuild"
@@ -544,7 +544,7 @@ exports[`bitbucketcloud: can select devops platform and complete all the steps w
     checkout scm
   }
   stage('SonarQube Analysis') {
-    def scannerHome = tool 'SonarScanner for MSBuild'
+    def scannerHome = tool 'SonarScanner for .NET'
     withSonarQubeEnv() {
       sh "dotnet \${scannerHome}/SonarScanner.MSBuild.dll begin /k:\\"my-project\\""
       sh "dotnet build"
@@ -581,7 +581,7 @@ exports[`bitbucketcloud: can select devops platform and complete all the steps w
     checkout scm
   }
   stage('SonarQube Analysis') {
-    def scannerHome = tool 'SonarScanner for MSBuild'
+    def scannerHome = tool 'SonarScanner for .NET'
     withSonarQubeEnv() {
       bat "dotnet \${scannerHome}\\\\SonarScanner.MSBuild.dll begin /k:\\"my-project\\""
       bat "dotnet build"
@@ -599,7 +599,7 @@ exports[`bitbucketcloud: can select devops platform and complete all the steps w
   }
   stage('SonarQube Analysis') {
     def msbuildHome = tool 'Default MSBuild'
-    def scannerHome = tool 'SonarScanner for MSBuild'
+    def scannerHome = tool 'SonarScanner for .NET'
     withSonarQubeEnv() {
       bat "\\"\${scannerHome}\\\\SonarScanner.MSBuild.exe\\" begin /k:\\"my-project\\""
       bat "\\"\${msbuildHome}\\\\MSBuild.exe\\" /t:Rebuild"
@@ -849,7 +849,7 @@ exports[`github: can select devops platform and complete all the steps with copy
     checkout scm
   }
   stage('SonarQube Analysis') {
-    def scannerHome = tool 'SonarScanner for MSBuild'
+    def scannerHome = tool 'SonarScanner for .NET'
     withSonarQubeEnv() {
       sh "dotnet \${scannerHome}/SonarScanner.MSBuild.dll begin /k:\\"my-project\\""
       sh "dotnet build"
@@ -886,7 +886,7 @@ exports[`github: can select devops platform and complete all the steps with copy
     checkout scm
   }
   stage('SonarQube Analysis') {
-    def scannerHome = tool 'SonarScanner for MSBuild'
+    def scannerHome = tool 'SonarScanner for .NET'
     withSonarQubeEnv() {
       bat "dotnet \${scannerHome}\\\\SonarScanner.MSBuild.dll begin /k:\\"my-project\\""
       bat "dotnet build"
@@ -904,7 +904,7 @@ exports[`github: can select devops platform and complete all the steps with copy
   }
   stage('SonarQube Analysis') {
     def msbuildHome = tool 'Default MSBuild'
-    def scannerHome = tool 'SonarScanner for MSBuild'
+    def scannerHome = tool 'SonarScanner for .NET'
     withSonarQubeEnv() {
       bat "\\"\${scannerHome}\\\\SonarScanner.MSBuild.exe\\" begin /k:\\"my-project\\""
       bat "\\"\${msbuildHome}\\\\MSBuild.exe\\" /t:Rebuild"
@@ -1154,7 +1154,7 @@ exports[`gitlab: can select devops platform and complete all the steps with copy
     checkout scm
   }
   stage('SonarQube Analysis') {
-    def scannerHome = tool 'SonarScanner for MSBuild'
+    def scannerHome = tool 'SonarScanner for .NET'
     withSonarQubeEnv() {
       sh "dotnet \${scannerHome}/SonarScanner.MSBuild.dll begin /k:\\"my-project\\""
       sh "dotnet build"
@@ -1191,7 +1191,7 @@ exports[`gitlab: can select devops platform and complete all the steps with copy
     checkout scm
   }
   stage('SonarQube Analysis') {
-    def scannerHome = tool 'SonarScanner for MSBuild'
+    def scannerHome = tool 'SonarScanner for .NET'
     withSonarQubeEnv() {
       bat "dotnet \${scannerHome}\\\\SonarScanner.MSBuild.dll begin /k:\\"my-project\\""
       bat "dotnet build"
@@ -1209,7 +1209,7 @@ exports[`gitlab: can select devops platform and complete all the steps with copy
   }
   stage('SonarQube Analysis') {
     def msbuildHome = tool 'Default MSBuild'
-    def scannerHome = tool 'SonarScanner for MSBuild'
+    def scannerHome = tool 'SonarScanner for .NET'
     withSonarQubeEnv() {
       bat "\\"\${scannerHome}\\\\SonarScanner.MSBuild.exe\\" begin /k:\\"my-project\\""
       bat "\\"\${msbuildHome}\\\\MSBuild.exe\\" /t:Rebuild"

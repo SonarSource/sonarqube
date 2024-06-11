@@ -117,7 +117,7 @@ export default function JavaGradle(props: JavaGradleProps) {
           }}
         />
       </p>
-      <DoneNextSteps component={component} />
+      <DoneNextSteps />
     </div>
   );
 }

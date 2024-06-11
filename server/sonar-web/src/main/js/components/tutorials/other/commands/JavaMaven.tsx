@@ -64,7 +64,7 @@ export default function JavaMaven(props: JavaMavenProps) {
           }}
         />
       </p>
-      <DoneNextSteps component={component} />
+      <DoneNextSteps />
     </div>
   );
 }

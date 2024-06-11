@@ -34,7 +34,7 @@ const jenkinsfileSnippet = (key: string, shell: OSDotNet) => `node {
     checkout scm
   }
   stage('SonarQube Analysis') {
-    def scannerHome = tool 'SonarScanner for MSBuild'
+    def scannerHome = tool 'SonarScanner for .NET'
     withSonarQubeEnv() {
       ${OSS_DEP[shell].shell} "dotnet \${scannerHome}${OSS_DEP[shell].pathSeparator}SonarScanner.MSBuild.dll begin /k:\\"${key}\\""
       ${OSS_DEP[shell].shell} "dotnet build"

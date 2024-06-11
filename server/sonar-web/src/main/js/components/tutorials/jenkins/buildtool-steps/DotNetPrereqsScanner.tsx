@@ -58,11 +58,8 @@ export default function DotNetPrereqsScanner() {
             highlightKeys={['name']}
             translationKey="onboarding.tutorial.with.jenkins.dotnet.scanner.prereqs.step3"
           />
-          <InlineSnippet className="sw-ml-1" snippet="SonarScanner for MSBuild" />
-          <ClipboardIconButton
-            className="sw-ml-2 sw-align-sub"
-            copyValue="SonarScanner for MSBuild"
-          />
+          <InlineSnippet className="sw-ml-1" snippet="SonarScanner for .NET" />
+          <ClipboardIconButton className="sw-ml-2 sw-align-sub" copyValue="SonarScanner for .NET" />
         </ListItem>
         <ListItem>
           <SentenceWithHighlights

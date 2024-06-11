@@ -30,7 +30,7 @@ const jenkinsfileSnippet = (key: string) => `node {
   }
   stage('SonarQube Analysis') {
     def msbuildHome = tool 'Default MSBuild'
-    def scannerHome = tool 'SonarScanner for MSBuild'
+    def scannerHome = tool 'SonarScanner for .NET'
     withSonarQubeEnv() {
       bat "\\"\${scannerHome}\\\\SonarScanner.MSBuild.exe\\" begin /k:\\"${key}\\""
       bat "\\"\${msbuildHome}\\\\MSBuild.exe\\" /t:Rebuild"

@@ -18,22 +18,21 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { CodeSnippet, Link, SubHeading } from 'design-system';
+import { LinkStandalone as Link } from '@sonarsource/echoes-react';
+import { CodeSnippet, SubHeading } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { DocLink } from '../../../../helpers/doc-links';
 import { useDocUrl } from '../../../../helpers/docs';
 import { translate } from '../../../../helpers/l10n';
-import { Component } from '../../../../types/types';
 import InstanceMessage from '../../../common/InstanceMessage';
 import DoneNextSteps from '../DoneNextSteps';
 
 export interface DotNetExecuteProps {
   commands: string[];
-  component: Component;
 }
 
-export default function DotNetExecute({ commands, component }: DotNetExecuteProps) {
+export default function DotNetExecute({ commands }: Readonly<DotNetExecuteProps>) {
   const docUrl = useDocUrl(DocLink.SonarScannerDotNet);
 
   return (
@@ -64,7 +63,7 @@ export default function DotNetExecute({ commands, component }: DotNetExecuteProp
           }}
         />
       </p>
-      <DoneNextSteps component={component} />
+      <DoneNextSteps />
     </>
   );
 }
