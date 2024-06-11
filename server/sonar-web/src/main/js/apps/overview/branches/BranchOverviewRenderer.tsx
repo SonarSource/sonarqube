@@ -17,13 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import {
-  BasicSeparator,
-  LargeCenteredLayout,
-  LightGreyCard,
-  LightGreyCardTitle,
-  PageContentFontWrapper,
-} from 'design-system';
+import { CardSeparator, CenteredLayout, PageContentFontWrapper } from 'design-system';
 import * as React from 'react';
 import { useState } from 'react';
 import A11ySkipTarget from '~sonar-aligned/components/a11y/A11ySkipTarget';
@@ -45,6 +39,7 @@ import { Component, MeasureEnhanced, Metric, Period, QualityGate } from '../../.
 import { NoticeType } from '../../../types/users';
 import { AnalysisStatus } from '../components/AnalysisStatus';
 import LastAnalysisLabel from '../components/LastAnalysisLabel';
+import { Status } from '../utils';
 import ActivityPanel from './ActivityPanel';
 import BranchMetaTopBar from './BranchMetaTopBar';
 import CaycPromotionGuide from './CaycPromotionGuide';
@@ -54,11 +49,9 @@ import NewCodeMeasuresPanel from './NewCodeMeasuresPanel';
 import NoCodeWarning from './NoCodeWarning';
 import OverallCodeMeasuresPanel from './OverallCodeMeasuresPanel';
 import PromotedSection from './PromotedSection';
-import QualityGatePanel from './QualityGatePanel';
-import { QualityGateStatusTitle } from './QualityGateStatusTitle';
+import QGStatus from './QualityGateStatus';
 import ReplayTourGuide from './ReplayTour';
-import SonarLintPromotion from './SonarLintPromotion';
-import { TabsPanel } from './TabsPanel';
+import TabsPanel from './TabsPanel';
 
 export interface BranchOverviewRendererProps {
   analyses?: Analysis[];
@@ -173,6 +166,8 @@ export default function BranchOverviewRenderer(props: BranchOverviewRendererProp
     setStartTour(true);
   };
 
+  const qgStatus = qgStatuses?.map((s) => s.status).includes('ERROR') ? Status.ERROR : Status.OK;
+
   return (
     <>
       <FirstAnalysisNextStepsNotif
@@ -180,7 +175,7 @@ export default function BranchOverviewRenderer(props: BranchOverviewRendererProp
         branchesEnabled={branchesEnabled}
         detectedCIOnLastAnalysis={detectedCIOnLastAnalysis}
       />
-      <LargeCenteredLayout>
+      <CenteredLayout>
         <PageContentFontWrapper>
           <CaycPromotionGuide closeTour={closeTour} run={startTour} />
           {showReplay && (
@@ -199,6 +194,18 @@ export default function BranchOverviewRenderer(props: BranchOverviewRendererProp
               <div>
                 {branch && (
                   <>
+                    <BranchMetaTopBar
+                      branch={branch}
+                      component={component}
+                      measures={measures}
+                      showTakeTheTourButton={
+                        dismissedTour && currentUser.isLoggedIn && hasNewCodeMeasures
+                      }
+                      startTour={startTourGuide}
+                    />
+
+                    <CardSeparator />
+
                     {currentUser.isLoggedIn && hasNewCodeMeasures && (
                       <PromotedSection
                         content={translate('overview.promoted_section.content')}
@@ -212,103 +219,71 @@ export default function BranchOverviewRenderer(props: BranchOverviewRendererProp
                         title={translate('overview.promoted_section.title')}
                       />
                     )}
-
-                    <BranchMetaTopBar
-                      branch={branch}
-                      component={component}
-                      measures={measures}
-                      showTakeTheTourButton={
-                        dismissedTour && currentUser.isLoggedIn && hasNewCodeMeasures
-                      }
-                      startTour={startTourGuide}
-                    />
-                    <BasicSeparator />
                   </>
                 )}
                 <AnalysisStatus className="sw-mt-6" component={component} />
-                <div className="sw-flex sw-gap-3 sw-mt-6">
-                  <div className="sw-w-1/4">
-                    <LightGreyCard>
-                      <QualityGateStatusTitle />
-                      <QualityGatePanel
-                        component={component}
-                        loading={loadingStatus}
-                        qgStatuses={qgStatuses}
-                        qualityGate={qualityGate}
-                      />
-                    </LightGreyCard>
-                    <SonarLintPromotion
-                      qgConditions={qgStatuses?.flatMap((qg) => qg.failedConditions)}
-                    />
-                  </div>
-
-                  <div className="sw-flex-1">
-                    <LightGreyCard className="sw-flex sw-flex-col">
-                      <LightGreyCardTitle>
-                        <div>&nbsp;</div>
-                        <LastAnalysisLabel analysisDate={branch?.analysisDate} />
-                      </LightGreyCardTitle>
-                      <TabsPanel
-                        analyses={analyses}
-                        appLeak={appLeak}
-                        component={component}
-                        loading={loadingStatus}
-                        period={period}
-                        qgStatuses={qgStatuses}
-                        isNewCode={isNewCodeTab}
-                        onTabSelect={selectTab}
-                      >
-                        {isNewCodeTab && (
-                          <>
-                            {hasNewCodeMeasures ? (
-                              <NewCodeMeasuresPanel
-                                qgStatuses={qgStatuses}
-                                branch={branch}
-                                component={component}
-                                measures={measures}
-                              />
-                            ) : (
-                              <MeasuresPanelNoNewCode
-                                branch={branch}
-                                component={component}
-                                period={period}
-                              />
-                            )}
-                          </>
+                <div className="sw-flex sw-justify-between sw-items-start sw-my-6">
+                  <QGStatus status={qgStatus} titleSize="extra-large" />
+                  <LastAnalysisLabel analysisDate={branch?.analysisDate} />
+                </div>
+                <div className="sw-flex sw-flex-col sw-mt-6">
+                  <TabsPanel
+                    analyses={analyses}
+                    component={component}
+                    loading={loadingStatus}
+                    qgStatuses={qgStatuses}
+                    isNewCode={isNewCodeTab}
+                    onTabSelect={selectTab}
+                  >
+                    {isNewCodeTab && (
+                      <>
+                        {hasNewCodeMeasures ? (
+                          <NewCodeMeasuresPanel
+                            qgStatuses={qgStatuses}
+                            branch={branch}
+                            component={component}
+                            measures={measures}
+                          />
+                        ) : (
+                          <MeasuresPanelNoNewCode
+                            branch={branch}
+                            component={component}
+                            period={period}
+                          />
                         )}
+                      </>
+                    )}
 
-                        {!isNewCodeTab && (
-                          <>
-                            {analysisMissingInfo}
-                            <OverallCodeMeasuresPanel
-                              branch={branch}
-                              qgStatuses={qgStatuses}
-                              component={component}
-                              measures={measures}
-                            />
-                          </>
-                        )}
-                      </TabsPanel>
+                    {!isNewCodeTab && (
+                      <>
+                        {analysisMissingInfo}
+                        <OverallCodeMeasuresPanel
+                          branch={branch}
+                          qgStatuses={qgStatuses}
+                          component={component}
+                          measures={measures}
+                        />
+                      </>
+                    )}
+                  </TabsPanel>
 
-                      <ActivityPanel
-                        analyses={analyses}
-                        branchLike={branch}
-                        component={component}
-                        graph={graph}
-                        leakPeriodDate={leakPeriod && parseDate(leakPeriod.date)}
-                        loading={loadingHistory}
-                        measuresHistory={measuresHistory}
-                        metrics={metrics}
-                        onGraphChange={onGraphChange}
-                      />
-                    </LightGreyCard>
-                  </div>
+                  <ActivityPanel
+                    analyses={analyses}
+                    branchLike={branch}
+                    component={component}
+                    graph={graph}
+                    leakPeriodDate={leakPeriod && parseDate(leakPeriod.date)}
+                    loading={loadingHistory}
+                    measuresHistory={measuresHistory}
+                    metrics={metrics}
+                    onGraphChange={onGraphChange}
+                  />
                 </div>
               </div>
             )}
           </div>
         </PageContentFontWrapper>
-      </LargeCenteredLayout>
+      </CenteredLayout>
     </>
   );
 }

@@ -27,7 +27,6 @@ import IgnoredConditionWarning from '../components/IgnoredConditionWarning';
 import ApplicationNonCaycProjectWarning from './ApplicationNonCaycProjectWarning';
 import CleanAsYouCodeWarning from './CleanAsYouCodeWarning';
 import QualityGatePanelSection from './QualityGatePanelSection';
-import QualityGateStatusHeader from './QualityGateStatusHeader';
 import QualityGateStatusPassedView from './QualityGateStatusPassedView';
 
 export interface QualityGatePanelProps {
@@ -70,10 +69,6 @@ export function QualityGatePanel(props: QualityGatePanelProps) {
     <div data-testid="overview__quality-gate-panel">
       <div className="sw-pt-5">
         <Spinner loading={loading}>
-          <QualityGateStatusHeader
-            status={overallLevel}
-            failedConditionCount={overallFailedConditionsCount}
-          />
           {success && <QualityGateStatusPassedView />}
 
           {showIgnoredConditionWarning && <IgnoredConditionWarning />}

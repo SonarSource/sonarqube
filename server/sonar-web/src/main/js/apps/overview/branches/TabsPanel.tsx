@@ -20,7 +20,7 @@
 
 import { Spinner } from '@sonarsource/echoes-react';
 import { isBefore, sub } from 'date-fns';
-import { ButtonLink, FlagMessage, LightLabel, Tabs } from 'design-system';
+import { ButtonLink, Card, FlagMessage, Tabs, themeBorder } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { ComponentQualifier } from '~sonar-aligned/types/component';
@@ -29,39 +29,24 @@ import { DocLink } from '../../../helpers/doc-links';
 import { translate } from '../../../helpers/l10n';
 import { isDiffMetric } from '../../../helpers/measures';
 import { CodeScope } from '../../../helpers/urls';
-import { ApplicationPeriod } from '../../../types/application';
 import { Analysis, ProjectAnalysisEventCategory } from '../../../types/project-activity';
 import { QualityGateStatus } from '../../../types/quality-gates';
-import { Component, Period } from '../../../types/types';
+import { Component } from '../../../types/types';
 import { MAX_ANALYSES_NB } from './ActivityPanel';
-import { LeakPeriodInfo } from './LeakPeriodInfo';
 
 export interface MeasuresPanelProps {
   analyses?: Analysis[];
-  appLeak?: ApplicationPeriod;
   component: Component;
   isNewCode: boolean;
   loading?: boolean;
   onTabSelect: (tab: CodeScope) => void;
-  period?: Period;
   qgStatuses?: QualityGateStatus[];
 }
 
 const SQ_UPGRADE_NOTIFICATION_TIMEOUT = { weeks: 3 };
 
-export function TabsPanel(props: React.PropsWithChildren<MeasuresPanelProps>) {
-  const {
-    analyses,
-    appLeak,
-    component,
-    loading,
-    period,
-    qgStatuses = [],
-    isNewCode,
-    children,
-  } = props;
-  const isApp = component.qualifier === ComponentQualifier.Application;
-  const leakPeriod = isApp ? appLeak : period;
+export default function TabsPanel(props: React.PropsWithChildren<MeasuresPanelProps>) {
+  const { analyses, component, loading, qgStatuses = [], isNewCode, children } = props;
 
   const { failingConditionsOnNewCode, failingConditionsOnOverallCode } =
     countFailingConditions(qgStatuses);
@@ -150,48 +135,40 @@ export function TabsPanel(props: React.PropsWithChildren<MeasuresPanelProps>) {
               </FlagMessage>
             </div>
           )}
-          <div className="sw-flex sw-items-center sw--mx-6">
+          <div className="sw-flex sw-items-center">
             <Tabs
+              borderColor={themeBorder('default', 'projectCardBorder')}
+              large
               onChange={props.onTabSelect}
               options={tabs}
               value={isNewCode ? CodeScope.New : CodeScope.Overall}
-            >
-              {isNewCode && leakPeriod && (
-                <LightLabel
-                  className="sw-body-sm sw-flex sw-items-center sw-mr-6 sw-pl-4"
-                  data-spotlight-id="cayc-promotion-2"
-                >
-                  <span className="sw-mr-1">{translate('overview.new_code')}:</span>
-                  <LeakPeriodInfo leakPeriod={leakPeriod} />
-                </LightLabel>
-              )}
-            </Tabs>
+            />
           </div>
 
-          {component.qualifier === ComponentQualifier.Application && component.needIssueSync && (
-            <FlagMessage className="sw-mt-4" variant="info">
-              <span>
-                {`${translate('indexation.in_progress')} ${translate(
-                  'indexation.details_unavailable',
-                )}`}
-                <DocumentationLink
-                  className="sw-ml-1 sw-whitespace-nowrap"
-                  to={DocLink.InstanceAdminReindexation}
-                >
-                  {translate('learn_more')}
-                </DocumentationLink>
-              </span>
-            </FlagMessage>
-          )}
+          <Card className="sw-rounded-b-2 sw-rounded-t-0 sw-border-t-0">
+            {component.qualifier === ComponentQualifier.Application && component.needIssueSync && (
+              <FlagMessage className="sw-mt-4" variant="info">
+                <span>
+                  {`${translate('indexation.in_progress')} ${translate(
+                    'indexation.details_unavailable',
+                  )}`}
+                  <DocumentationLink
+                    className="sw-ml-1 sw-whitespace-nowrap"
+                    to={DocLink.InstanceAdminReindexation}
+                  >
+                    {translate('learn_more')}
+                  </DocumentationLink>
+                </span>
+              </FlagMessage>
+            )}
 
-          {children}
+            {children}
+          </Card>
         </>
       )}
     </div>
   );
 }
-
-export default React.memo(TabsPanel);
 
 function countFailingConditions(qgStatuses: QualityGateStatus[]) {
   let failingConditionsOnNewCode = 0;

@@ -19,6 +19,7 @@
  */
 import styled from '@emotion/styled';
 import { PropsWithChildren } from 'react';
+import { FormattedMessage } from 'react-intl';
 import tw from 'twin.macro';
 import { OPACITY_20_PERCENT, themeBorder, themeColor } from '../helpers';
 import { BareButton } from '../sonar-aligned/components/buttons';
@@ -35,29 +36,42 @@ export interface TabOption<T extends TabValueType> {
 }
 
 export interface TabsProps<T extends TabValueType> {
+  borderColor?: ReturnType<typeof themeBorder>;
   className?: string;
   disabled?: boolean;
   label?: string;
+  large?: boolean;
   onChange: (value: T) => void;
   options: ReadonlyArray<TabOption<T>>;
   value?: T;
 }
 
 export function Tabs<T extends TabValueType>(props: PropsWithChildren<TabsProps<T>>) {
-  const { disabled = false, label, options, value, className, children } = props;
+  const {
+    disabled = false,
+    label,
+    options,
+    value,
+    className,
+    children,
+    large = false,
+    borderColor = themeBorder('default'),
+  } = props;
 
   return (
-    <TabsContainer className={className}>
+    <TabsContainer borderColor={borderColor} className={className} large={large}>
       <TabList aria-label={label} role="tablist">
         {options.map((option) => (
           <TabButton
             aria-controls={getTabPanelId(String(option.value))}
             aria-current={option.value === value}
             aria-selected={option.value === value}
+            borderColor={borderColor}
             data-value={option.value}
             disabled={disabled || option.disabled}
             id={getTabId(String(option.value))}
             key={option.value.toString()}
+            large={large}
             onClick={() => {
               if (option.value !== value) {
                 props.onChange(option.value);
@@ -68,8 +82,8 @@ export function Tabs<T extends TabValueType>(props: PropsWithChildren<TabsProps<
           >
             {option.label}
             {option.counter ? (
-              <Badge className="sw-ml-2" variant="counterFailed">
-                {option.counter}
+              <Badge className="sw-ml-2 sw-font-semibold" variant="counterFailed">
+                <FormattedMessage id="overview.failed.badge" values={{ counter: option.counter }} />
               </Badge>
             ) : null}
           </TabButton>
@@ -80,21 +94,26 @@ export function Tabs<T extends TabValueType>(props: PropsWithChildren<TabsProps<
   );
 }
 
-const TabsContainer = styled.div`
+const TabsContainer = styled.div<{ borderColor: ReturnType<typeof themeBorder>; large: boolean }>`
   ${tw`sw-w-full`};
-  ${tw`sw-pl-4`};
+  ${(props) => !props.large && tw`sw-pl-4`}
   ${tw`sw-flex sw-justify-between`};
-  border-bottom: ${themeBorder('default')};
+  border-bottom: ${(props) => props.borderColor};
 `;
 
 const TabList = styled.div`
   ${tw`sw-inline-flex`};
 `;
 
-const TabButton = styled(BareButton)<{ selected: boolean }>`
+const TabButton = styled(BareButton)<{
+  borderColor: ReturnType<typeof themeBorder>;
+  large: boolean;
+  selected: boolean;
+}>`
   ${tw`sw-relative`};
-  ${tw`sw-px-3 sw-py-1 sw-mb-[-1px]`};
+  ${tw` sw-mb-[-1px]`};
   ${tw`sw-flex sw-items-center`};
+  ${(props) => (props.large ? tw`sw-body-md sw-px-6 sw-py-4` : tw`sw-body-sm sw-px-3 sw-py-1`)}
   ${tw`sw-body-sm`};
   ${tw`sw-font-semibold`};
   ${tw`sw-rounded-t-1`};
@@ -103,12 +122,13 @@ const TabButton = styled(BareButton)<{ selected: boolean }>`
   background: ${(props) => (props.selected ? themeColor('backgroundSecondary') : 'none')};
   color: ${(props) => (props.selected ? themeColor('tabSelected') : themeColor('tab'))};
   border: ${(props) =>
-    props.selected ? themeBorder('default') : themeBorder('default', 'transparent')};
+    props.selected ? props.borderColor : themeBorder('default', 'transparent')};
   border-bottom: ${(props) =>
-    themeBorder('default', props.selected ? 'backgroundSecondary' : undefined)};
+    props.selected ? themeBorder('default', 'backgroundSecondary') : props.borderColor};
 
   &:hover {
-    background: ${themeColor('tabHover')};
+    background: ${(props) =>
+      props.selected ? themeColor('backgroundSecondary') : themeColor('tabHover')};
   }
 
   &:active {

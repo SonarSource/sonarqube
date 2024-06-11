@@ -330,7 +330,7 @@ export const lightTheme = {
     // tabs
     tab: COLORS.blueGrey[400],
     tabSelected: primary.default,
-    tabHover: COLORS.blueGrey[25],
+    tabHover: COLORS.blueGrey[50],
 
     //table
     tableRowHover: COLORS.indigo[25],

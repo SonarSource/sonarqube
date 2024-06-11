@@ -19,7 +19,7 @@
  */
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { render } from '../../helpers/testUtils';
+import { renderWithContext } from '../../helpers/testUtils';
 import { FCProps } from '../../types/misc';
 import { TabOption, Tabs } from '../Tabs';
 
@@ -45,5 +45,5 @@ it('should render all options', async () => {
 });
 
 function renderToggleButtons(props: Partial<FCProps<typeof Tabs>> = {}) {
-  return render(<Tabs onChange={jest.fn()} options={[]} {...props} />);
+  return renderWithContext(<Tabs onChange={jest.fn()} options={[]} {...props} />);
 }

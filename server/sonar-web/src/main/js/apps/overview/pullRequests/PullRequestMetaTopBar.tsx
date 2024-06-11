@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { SeparatorCircleIcon } from 'design-system';
 import React from 'react';
 import { useIntl } from 'react-intl';
 import { formatMeasure } from '~sonar-aligned/helpers/measures';
@@ -27,7 +26,6 @@ import { getLeakValue } from '../../../components/measure/utils';
 import { findMeasure } from '../../../helpers/measures';
 import { PullRequest } from '../../../types/branch-like';
 import { MeasureEnhanced } from '../../../types/types';
-import LastAnalysisLabel from '../components/LastAnalysisLabel';
 
 interface Props {
   measures: MeasureEnhanced[];
@@ -51,13 +49,6 @@ export default function PullRequestMetaTopBar({ pullRequest, measures }: Readonl
   const rightSection = (
     <div className="sw-flex sw-items-center sw-gap-2">
       <CurrentBranchLikeMergeInformation pullRequest={pullRequest} />
-
-      {pullRequest.analysisDate && (
-        <>
-          <SeparatorCircleIcon />
-          <LastAnalysisLabel analysisDate={pullRequest.analysisDate} />
-        </>
-      )}
     </div>
   );
 
