@@ -74,7 +74,6 @@ public class EsJvmOptionsTest {
         "-Dlog4j2.disable.jmx=true",
         "-Dlog4j2.formatMsgNoLookups=true",
         "-Djava.locale.providers=COMPAT",
-        "-Dcom.redhat.fips=false",
         "-Des.enforce.bootstrap.checks=true",
         "-Xlog:disable");
   }
@@ -212,7 +211,6 @@ public class EsJvmOptionsTest {
         "-Dlog4j2.disable.jmx=true\n" +
         "-Dlog4j2.formatMsgNoLookups=true\n" +
         "-Djava.locale.providers=COMPAT\n" +
-        "-Dcom.redhat.fips=false\n" +
         "-Des.enforce.bootstrap.checks=true\n" +
         "-foo\n" +
         "-bar");

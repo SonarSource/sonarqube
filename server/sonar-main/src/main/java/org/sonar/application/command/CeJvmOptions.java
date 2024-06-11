@@ -46,9 +46,6 @@ public class CeJvmOptions extends JvmOptions<CeJvmOptions> {
     res.put("--add-opens=java.management/sun.management=ALL-UNNAMED", "");
     res.put("--add-opens=jdk.management/com.sun.management.internal=ALL-UNNAMED", "");
 
-    // disable FIPS mode for the JVM so SonarQube can use certain algorithms
-    res.put("-Dcom.redhat.fips=", "false");
-    
     return res;
   }
 }

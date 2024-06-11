@@ -51,7 +51,6 @@ public class CeJvmOptionsTest {
       "--add-opens=java.base/java.nio=ALL-UNNAMED",
       "--add-opens=java.base/sun.nio.ch=ALL-UNNAMED",
       "--add-opens=java.management/sun.management=ALL-UNNAMED",
-      "--add-opens=jdk.management/com.sun.management.internal=ALL-UNNAMED",
-      "-Dcom.redhat.fips=false");
+      "--add-opens=jdk.management/com.sun.management.internal=ALL-UNNAMED");
   }
 }
