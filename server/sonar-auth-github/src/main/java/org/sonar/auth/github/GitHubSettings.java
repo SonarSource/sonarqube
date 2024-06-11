@@ -19,7 +19,6 @@
  */
 package org.sonar.auth.github;
 
-import com.google.common.annotations.VisibleForTesting;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
@@ -48,24 +47,21 @@ import static org.sonar.api.utils.Preconditions.checkState;
 @ComputeEngineSide
 public class GitHubSettings implements DevOpsPlatformSettings {
 
-  public static final String CLIENT_ID = "sonar.auth.github.clientId.secured";
-  public static final String CLIENT_SECRET = "sonar.auth.github.clientSecret.secured";
-  public static final String APP_ID = "sonar.auth.github.appId";
-  public static final String PRIVATE_KEY = "sonar.auth.github.privateKey.secured";
-  public static final String ENABLED = "sonar.auth.github.enabled";
-  public static final String ALLOW_USERS_TO_SIGN_UP = "sonar.auth.github.allowUsersToSignUp";
-  public static final String GROUPS_SYNC = "sonar.auth.github.groupsSync";
-  public static final String API_URL = "sonar.auth.github.apiUrl";
+  public static final String GITHUB_CLIENT_ID = "sonar.auth.github.clientId.secured";
+  public static final String GITHUB_CLIENT_SECRET = "sonar.auth.github.clientSecret.secured";
+  public static final String GITHUB_APP_ID = "sonar.auth.github.appId";
+  public static final String GITHUB_PRIVATE_KEY = "sonar.auth.github.privateKey.secured";
+  public static final String GITHUB_ENABLED = "sonar.auth.github.enabled";
+  public static final String GITHUB_ALLOW_USERS_TO_SIGN_UP = "sonar.auth.github.allowUsersToSignUp";
+  public static final String GITHUB_GROUPS_SYNC = "sonar.auth.github.groupsSync";
+  public static final String GITHUB_API_URL = "sonar.auth.github.apiUrl";
   public static final String DEFAULT_API_URL = "https://api.github.com/";
-  public static final String WEB_URL = "sonar.auth.github.webUrl";
+  public static final String GITHUB_WEB_URL = "sonar.auth.github.webUrl";
   public static final String DEFAULT_WEB_URL = "https://github.com/";
-  public static final String ORGANIZATIONS = "sonar.auth.github.organizations";
-  @VisibleForTesting
-  static final String PROVISIONING = "provisioning.github.enabled";
-  @VisibleForTesting
-  static final String PROVISION_VISIBILITY = "provisioning.github.project.visibility.enabled";
-  @VisibleForTesting
-  static final String USER_CONSENT_FOR_PERMISSIONS_REQUIRED_AFTER_UPGRADE = "sonar.auth.github.userConsentForPermissionProvisioningRequired";
+  public static final String GITHUB_ORGANIZATIONS = "sonar.auth.github.organizations";
+  public static final String GITHUB_PROVISIONING = "provisioning.github.enabled";
+  public static final String GITHUB_PROVISION_PROJECT_VISIBILITY = "provisioning.github.project.visibility.enabled";
+  public static final String GITHUB_USER_CONSENT_FOR_PERMISSIONS_REQUIRED_AFTER_UPGRADE = "sonar.auth.github.userConsentForPermissionProvisioningRequired";
 
   private static final String CATEGORY = "authentication";
   private static final String SUBCATEGORY = "github";
@@ -82,49 +78,49 @@ public class GitHubSettings implements DevOpsPlatformSettings {
   }
 
   public String clientId() {
-    return configuration.get(CLIENT_ID).orElse("");
+    return configuration.get(GITHUB_CLIENT_ID).orElse("");
   }
 
   public String clientSecret() {
-    return configuration.get(CLIENT_SECRET).orElse("");
+    return configuration.get(GITHUB_CLIENT_SECRET).orElse("");
   }
 
   public String appId() {
-    return configuration.get(APP_ID).orElse("");
+    return configuration.get(GITHUB_APP_ID).orElse("");
   }
 
   public String privateKey() {
-    return configuration.get(PRIVATE_KEY).orElse("");
+    return configuration.get(GITHUB_PRIVATE_KEY).orElse("");
   }
 
   public boolean isEnabled() {
-    return configuration.getBoolean(ENABLED).orElse(false) && !clientId().isEmpty() && !clientSecret().isEmpty();
+    return configuration.getBoolean(GITHUB_ENABLED).orElse(false) && !clientId().isEmpty() && !clientSecret().isEmpty();
   }
 
   public boolean allowUsersToSignUp() {
-    return configuration.getBoolean(ALLOW_USERS_TO_SIGN_UP).orElse(false);
+    return configuration.getBoolean(GITHUB_ALLOW_USERS_TO_SIGN_UP).orElse(false);
   }
 
   public boolean syncGroups() {
-    return configuration.getBoolean(GROUPS_SYNC).orElse(false);
+    return configuration.getBoolean(GITHUB_GROUPS_SYNC).orElse(false);
   }
 
   @CheckForNull
   String webURL() {
-    return urlWithEndingSlash(configuration.get(WEB_URL).orElse(""));
+    return urlWithEndingSlash(configuration.get(GITHUB_WEB_URL).orElse(""));
   }
 
   @CheckForNull
   public String apiURL() {
-    return urlWithEndingSlash(configuration.get(API_URL).orElse(""));
+    return urlWithEndingSlash(configuration.get(GITHUB_API_URL).orElse(""));
   }
 
   public String apiURLOrDefault() {
-    return configuration.get(API_URL).map(GitHubSettings::urlWithEndingSlash).orElse(DEFAULT_API_URL);
+    return configuration.get(GITHUB_API_URL).map(GitHubSettings::urlWithEndingSlash).orElse(DEFAULT_API_URL);
   }
 
   public Set<String> getOrganizations() {
-    return Set.of(configuration.getStringArray(ORGANIZATIONS));
+    return Set.of(configuration.getStringArray(GITHUB_ORGANIZATIONS));
   }
 
   @CheckForNull
@@ -141,7 +137,7 @@ public class GitHubSettings implements DevOpsPlatformSettings {
     } else {
       removeExternalGroupsForGithub();
     }
-    internalProperties.write(PROVISIONING, String.valueOf(enableProvisioning));
+    internalProperties.write(GITHUB_PROVISIONING, String.valueOf(enableProvisioning));
   }
 
   private void removeExternalGroupsForGithub() {
@@ -169,22 +165,22 @@ public class GitHubSettings implements DevOpsPlatformSettings {
 
   @Override
   public boolean isProvisioningEnabled() {
-    return isEnabled() && internalProperties.read(PROVISIONING).map(Boolean::parseBoolean).orElse(false);
+    return isEnabled() && internalProperties.read(GITHUB_PROVISIONING).map(Boolean::parseBoolean).orElse(false);
   }
 
   public boolean isUserConsentRequiredAfterUpgrade() {
-    return configuration.get(USER_CONSENT_FOR_PERMISSIONS_REQUIRED_AFTER_UPGRADE).isPresent();
+    return configuration.get(GITHUB_USER_CONSENT_FOR_PERMISSIONS_REQUIRED_AFTER_UPGRADE).isPresent();
   }
 
   @Override
   public boolean isProjectVisibilitySynchronizationActivated() {
-    return configuration.getBoolean(PROVISION_VISIBILITY).orElse(true);
+    return configuration.getBoolean(GITHUB_PROVISION_PROJECT_VISIBILITY).orElse(true);
   }
 
   public static List<PropertyDefinition> definitions() {
     int index = 1;
     return Arrays.asList(
-      PropertyDefinition.builder(ENABLED)
+      PropertyDefinition.builder(GITHUB_ENABLED)
         .name("Enabled")
         .description("Enable GitHub users to login. Value is ignored if client ID and secret are not defined.")
         .category(CATEGORY)
@@ -193,14 +189,14 @@ public class GitHubSettings implements DevOpsPlatformSettings {
         .defaultValue(valueOf(false))
         .index(index++)
         .build(),
-      PropertyDefinition.builder(CLIENT_ID)
+      PropertyDefinition.builder(GITHUB_CLIENT_ID)
         .name("Client ID")
         .description("Client ID provided by GitHub when registering the application.")
         .category(CATEGORY)
         .subCategory(SUBCATEGORY)
         .index(index++)
         .build(),
-      PropertyDefinition.builder(CLIENT_SECRET)
+      PropertyDefinition.builder(GITHUB_CLIENT_SECRET)
         .name("Client Secret")
         .description("Client password provided by GitHub when registering the application.")
         .category(CATEGORY)
@@ -208,7 +204,7 @@ public class GitHubSettings implements DevOpsPlatformSettings {
         .type(PASSWORD)
         .index(index++)
         .build(),
-      PropertyDefinition.builder(APP_ID)
+      PropertyDefinition.builder(GITHUB_APP_ID)
         .name("App ID")
         .description("The App ID is found on your GitHub App's page on GitHub at Settings > Developer Settings > GitHub Apps.")
         .category(CATEGORY)
@@ -216,7 +212,7 @@ public class GitHubSettings implements DevOpsPlatformSettings {
         .type(STRING)
         .index(index++)
         .build(),
-      PropertyDefinition.builder(PRIVATE_KEY)
+      PropertyDefinition.builder(GITHUB_PRIVATE_KEY)
         .name("Private Key")
         .description("""
           Your GitHub App's private key. You can generate a .pem file from your GitHub App's page under Private keys.
@@ -226,7 +222,7 @@ public class GitHubSettings implements DevOpsPlatformSettings {
         .type(PropertyType.TEXT)
         .index(index++)
         .build(),
-      PropertyDefinition.builder(ALLOW_USERS_TO_SIGN_UP)
+      PropertyDefinition.builder(GITHUB_ALLOW_USERS_TO_SIGN_UP)
         .name("Allow users to sign up")
         .description("Allow new users to authenticate. When set to disabled, only existing users will be able to authenticate to the server.")
         .category(CATEGORY)
@@ -235,7 +231,7 @@ public class GitHubSettings implements DevOpsPlatformSettings {
         .defaultValue(valueOf(true))
         .index(index++)
         .build(),
-      PropertyDefinition.builder(GROUPS_SYNC)
+      PropertyDefinition.builder(GITHUB_GROUPS_SYNC)
         .name("Synchronize teams as groups")
         .description("Synchronize GitHub team with SonarQube group memberships when users log in to SonarQube."
           + " For each GitHub team they belong to, users will be associated to a group of the same name if it exists in SonarQube.")
@@ -245,7 +241,7 @@ public class GitHubSettings implements DevOpsPlatformSettings {
         .defaultValue(valueOf(false))
         .index(index++)
         .build(),
-      PropertyDefinition.builder(API_URL)
+      PropertyDefinition.builder(GITHUB_API_URL)
         .name("The API url for a GitHub instance.")
         .description(String.format("The API url for a GitHub instance. %s for Github.com, https://github.company.com/api/v3/ when using Github Enterprise", DEFAULT_API_URL))
         .category(CATEGORY)
@@ -254,7 +250,7 @@ public class GitHubSettings implements DevOpsPlatformSettings {
         .defaultValue(DEFAULT_API_URL)
         .index(index++)
         .build(),
-      PropertyDefinition.builder(WEB_URL)
+      PropertyDefinition.builder(GITHUB_WEB_URL)
         .name("The WEB url for a GitHub instance.")
         .description(String.format("The WEB url for a GitHub instance. %s for Github.com, https://github.company.com/ when using GitHub Enterprise.", DEFAULT_WEB_URL))
         .category(CATEGORY)
@@ -263,7 +259,7 @@ public class GitHubSettings implements DevOpsPlatformSettings {
         .defaultValue(DEFAULT_WEB_URL)
         .index(index++)
         .build(),
-      PropertyDefinition.builder(ORGANIZATIONS)
+      PropertyDefinition.builder(GITHUB_ORGANIZATIONS)
         .name("Organizations")
         .description("Only members of these organizations will be able to authenticate to the server. "
           + "⚠ if not set, users from any organization where the GitHub App is installed will be able to login to this SonarQube instance.")
@@ -272,7 +268,7 @@ public class GitHubSettings implements DevOpsPlatformSettings {
         .subCategory(SUBCATEGORY)
         .index(index)
         .build(),
-      PropertyDefinition.builder(PROVISION_VISIBILITY)
+      PropertyDefinition.builder(GITHUB_PROVISION_PROJECT_VISIBILITY)
         .name("Provision project visibility")
         .description("Change project visibility based on GitHub repository visibility. If disabled, every provisioned project will be private in SonarQube and visible only"
           + " to users with explicit GitHub permissions for the corresponding repository. Changes take effect at the next synchronization.")

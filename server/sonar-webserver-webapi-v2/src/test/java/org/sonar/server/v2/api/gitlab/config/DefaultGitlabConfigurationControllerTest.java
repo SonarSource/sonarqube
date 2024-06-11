@@ -38,6 +38,7 @@ import org.sonar.server.v2.api.ControllerTester;
 import org.sonar.server.v2.api.gitlab.config.controller.DefaultGitlabConfigurationController;
 import org.sonar.server.v2.api.gitlab.config.resource.GitlabConfigurationResource;
 import org.sonar.server.v2.api.gitlab.config.response.GitlabConfigurationSearchRestResponse;
+import org.sonar.server.v2.api.model.ProvisioningType;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -83,7 +84,7 @@ public class DefaultGitlabConfigurationControllerTest {
     GITLAB_CONFIGURATION.synchronizeGroups(),
     List.of("group1", "group2"),
     GITLAB_CONFIGURATION.allowUsersToSignUp(),
-    org.sonar.server.v2.api.gitlab.config.resource.ProvisioningType.valueOf(GITLAB_CONFIGURATION.provisioningType().name()),
+    ProvisioningType.valueOf(GITLAB_CONFIGURATION.provisioningType().name()),
     !GITLAB_CONFIGURATION.provisioningToken().isEmpty(),
     "error-message");
 

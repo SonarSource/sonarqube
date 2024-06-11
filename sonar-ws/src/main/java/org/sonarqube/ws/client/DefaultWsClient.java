@@ -34,8 +34,8 @@ import org.sonarqube.ws.client.duplications.DuplicationsService;
 import org.sonarqube.ws.client.editions.EditionsService;
 import org.sonarqube.ws.client.emails.EmailsService;
 import org.sonarqube.ws.client.favorites.FavoritesService;
+import org.sonarqube.ws.client.github.configuration.GithubConfigurationService;
 import org.sonarqube.ws.client.github.provisioning.permissions.GithubPermissionsService;
-import org.sonarqube.ws.client.githubprovisioning.GithubProvisioningService;
 import org.sonarqube.ws.client.gitlab.configuration.GitlabConfigurationService;
 import org.sonarqube.ws.client.gitlab.synchronization.run.GitlabSynchronizationRunService;
 import org.sonarqube.ws.client.governancereports.GovernanceReportsService;
@@ -144,7 +144,7 @@ class DefaultWsClient implements WsClient {
   private final SecurityReportsService securityReportsService;
   private final RegulatoryReportsService regulatoryReportsService;
   private final SonarLintServerPushService sonarLintPushService;
-  private final GithubProvisioningService githubProvisioningService;
+  private final GithubConfigurationService githubConfigurationService;
   private final GithubPermissionsService githubPermissionsService;
   private final GitlabConfigurationService gitlabConfigurationService;
 
@@ -207,7 +207,7 @@ class DefaultWsClient implements WsClient {
     this.securityReportsService = new SecurityReportsService(wsConnector);
     this.sonarLintPushService = new SonarLintServerPushService(wsConnector);
     this.regulatoryReportsService = new RegulatoryReportsService(wsConnector);
-    this.githubProvisioningService = new GithubProvisioningService(wsConnector);
+    this.githubConfigurationService = new GithubConfigurationService(wsConnector);
     this.githubPermissionsService = new GithubPermissionsService(wsConnector);
     this.gitlabConfigurationService = new GitlabConfigurationService(wsConnector);
     this.gitlabSynchronizationRunService = new GitlabSynchronizationRunService(wsConnector);
@@ -287,6 +287,11 @@ class DefaultWsClient implements WsClient {
   @Override
   public FavoritesService favorites() {
     return favoritesService;
+  }
+
+  @Override
+  public GithubConfigurationService githubConfigurationService() {
+    return githubConfigurationService;
   }
 
   @Override
@@ -442,11 +447,6 @@ class DefaultWsClient implements WsClient {
   @Override
   public SettingsService settings() {
     return settingsService;
-  }
-
-  @Override
-  public GithubProvisioningService githubProvisioning() {
-    return githubProvisioningService;
   }
 
   @Override

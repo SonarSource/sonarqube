@@ -24,6 +24,7 @@ import org.sonar.api.platform.Server;
 import org.sonar.api.resources.Languages;
 import org.sonar.db.Database;
 import org.sonar.db.DbClient;
+import org.sonar.server.common.github.config.GithubConfigurationService;
 import org.sonar.server.common.gitlab.config.GitlabConfigurationService;
 import org.sonar.server.common.group.service.GroupMembershipService;
 import org.sonar.server.common.group.service.GroupService;
@@ -48,10 +49,10 @@ import org.sonar.server.rule.RuleDescriptionFormatter;
 import org.sonar.server.user.SystemPasscode;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.v2.api.analysis.controller.DefaultJresController;
+import org.sonar.server.v2.api.analysis.controller.DefaultScannerEngineController;
 import org.sonar.server.v2.api.analysis.controller.DefaultVersionController;
 import org.sonar.server.v2.api.analysis.controller.JresController;
 import org.sonar.server.v2.api.analysis.controller.ScannerEngineController;
-import org.sonar.server.v2.api.analysis.controller.DefaultScannerEngineController;
 import org.sonar.server.v2.api.analysis.controller.VersionController;
 import org.sonar.server.v2.api.analysis.service.JresHandler;
 import org.sonar.server.v2.api.analysis.service.JresHandlerImpl;
@@ -59,6 +60,8 @@ import org.sonar.server.v2.api.analysis.service.ScannerEngineHandler;
 import org.sonar.server.v2.api.analysis.service.ScannerEngineHandlerImpl;
 import org.sonar.server.v2.api.dop.controller.DefaultDopSettingsController;
 import org.sonar.server.v2.api.dop.controller.DopSettingsController;
+import org.sonar.server.v2.api.github.config.controller.DefaultGithubConfigurationController;
+import org.sonar.server.v2.api.github.config.controller.GithubConfigurationController;
 import org.sonar.server.v2.api.gitlab.config.controller.DefaultGitlabConfigurationController;
 import org.sonar.server.v2.api.gitlab.config.controller.GitlabConfigurationController;
 import org.sonar.server.v2.api.group.controller.DefaultGroupController;
@@ -156,6 +159,11 @@ public class PlatformLevel4WebConfig {
   @Bean
   public GitlabConfigurationController gitlabConfigurationController(UserSession userSession, GitlabConfigurationService gitlabConfigurationService) {
     return new DefaultGitlabConfigurationController(userSession, gitlabConfigurationService);
+  }
+
+  @Bean
+  public GithubConfigurationController githubConfigurationController(UserSession userSession, GithubConfigurationService githubConfigurationService) {
+    return new DefaultGithubConfigurationController(userSession, githubConfigurationService);
   }
 
   @Bean

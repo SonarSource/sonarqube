@@ -34,8 +34,8 @@ import org.sonarqube.ws.client.duplications.DuplicationsService;
 import org.sonarqube.ws.client.editions.EditionsService;
 import org.sonarqube.ws.client.emails.EmailsService;
 import org.sonarqube.ws.client.favorites.FavoritesService;
+import org.sonarqube.ws.client.github.configuration.GithubConfigurationService;
 import org.sonarqube.ws.client.github.provisioning.permissions.GithubPermissionsService;
-import org.sonarqube.ws.client.githubprovisioning.GithubProvisioningService;
 import org.sonarqube.ws.client.gitlab.configuration.GitlabConfigurationService;
 import org.sonarqube.ws.client.gitlab.synchronization.run.GitlabSynchronizationRunService;
 import org.sonarqube.ws.client.governancereports.GovernanceReportsService;
@@ -128,6 +128,8 @@ public interface WsClient {
 
   FavoritesService favorites();
 
+  GithubConfigurationService githubConfigurationService();
+
   GithubPermissionsService githubPermissionsService();
 
   GitlabConfigurationService gitlabConfigurationService();
@@ -185,8 +187,6 @@ public interface WsClient {
   ServerService server();
 
   SettingsService settings();
-
-  GithubProvisioningService githubProvisioning();
 
   SourcesService sources();
 

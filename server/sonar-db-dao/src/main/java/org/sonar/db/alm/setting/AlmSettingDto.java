@@ -160,6 +160,10 @@ public class AlmSettingDto {
     return privateKey;
   }
 
+  public String getPrivateKey() {
+    return privateKey;
+  }
+
   public AlmSettingDto setPrivateKey(@Nullable String privateKey) {
     this.privateKey = privateKey;
     return this;
@@ -193,6 +197,10 @@ public class AlmSettingDto {
     if (!isNullOrEmpty(clientSecret) && encryption.isEncrypted(clientSecret)) {
       return encryption.decrypt(clientSecret);
     }
+    return clientSecret;
+  }
+
+  public String getClientSecret() {
     return clientSecret;
   }
 

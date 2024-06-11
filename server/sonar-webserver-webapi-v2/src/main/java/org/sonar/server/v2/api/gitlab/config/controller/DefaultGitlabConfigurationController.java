@@ -136,11 +136,11 @@ public class DefaultGitlabConfigurationController implements GitlabConfiguration
       configurationError.orElse(null));
   }
 
-  private static org.sonar.server.v2.api.gitlab.config.resource.ProvisioningType toRestProvisioningType(GitlabConfiguration configuration) {
-    return org.sonar.server.v2.api.gitlab.config.resource.ProvisioningType.valueOf(configuration.provisioningType().name());
+  private static org.sonar.server.v2.api.model.ProvisioningType toRestProvisioningType(GitlabConfiguration configuration) {
+    return org.sonar.server.v2.api.model.ProvisioningType.valueOf(configuration.provisioningType().name());
   }
 
-  private static ProvisioningType toProvisioningType(org.sonar.server.v2.api.gitlab.config.resource.ProvisioningType provisioningType) {
+  private static ProvisioningType toProvisioningType(org.sonar.server.v2.api.model.ProvisioningType provisioningType) {
     return ProvisioningType.valueOf(provisioningType.name());
   }
 

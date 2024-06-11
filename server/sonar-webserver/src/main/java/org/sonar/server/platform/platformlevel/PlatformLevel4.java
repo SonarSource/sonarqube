@@ -87,6 +87,7 @@ import org.sonar.server.common.almsettings.bitbucketserver.BitbucketServerProjec
 import org.sonar.server.common.almsettings.github.GithubProjectCreatorFactory;
 import org.sonar.server.common.almsettings.gitlab.GitlabProjectCreatorFactory;
 import org.sonar.server.common.component.ComponentUpdater;
+import org.sonar.server.common.github.config.GithubConfigurationService;
 import org.sonar.server.common.gitlab.config.GitlabConfigurationService;
 import org.sonar.server.common.group.service.GroupMembershipService;
 import org.sonar.server.common.group.service.GroupService;
@@ -404,6 +405,7 @@ public class PlatformLevel4 extends PlatformLevel {
       new AuthenticationWsModule(),
       new BitbucketModule(),
       GitHubSettings.class,
+      GithubConfigurationService.class,
       new GitHubModule(),
       new GitLabModule(),
       new LdapModule(),

@@ -57,6 +57,9 @@ import org.sonar.server.user.UserSession;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
+import static org.sonar.auth.github.GitHubSettings.GITHUB_API_URL;
+import static org.sonar.auth.github.GitHubSettings.GITHUB_WEB_URL;
+import static org.sonar.auth.gitlab.GitLabSettings.GITLAB_AUTH_URL;
 import static org.sonar.server.exceptions.BadRequestException.checkRequest;
 import static org.sonar.server.setting.ws.SettingsWsParameters.PARAM_COMPONENT;
 import static org.sonar.server.setting.ws.SettingsWsParameters.PARAM_FIELD_VALUES;
@@ -70,7 +73,7 @@ public class SetAction implements SettingsWsAction {
   private static final String MSG_NO_EMPTY_VALUE = "A non empty value must be provided";
   private static final int VALUE_MAXIMUM_LENGTH = 4000;
   private static final TypeToken<Map<String, String>> MAP_TYPE_TOKEN = new TypeToken<>() {};
-  private static final Set<String> FORBIDDEN_KEYS = Set.of("sonar.auth.gitlab.url");
+  private static final Set<String> FORBIDDEN_KEYS = Set.of(GITLAB_AUTH_URL, GITHUB_API_URL, GITHUB_WEB_URL);
 
 
   private final PropertyDefinitions propertyDefinitions;

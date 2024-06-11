@@ -17,8 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.v2.api.gitlab.config.resource;
+@ParametersAreNonnullByDefault
+package org.sonar.server.v2.api.github.config.resource;
 
-public enum ProvisioningType {
-  JIT, AUTO_PROVISIONING
-}
+import javax.annotation.ParametersAreNonnullByDefault;

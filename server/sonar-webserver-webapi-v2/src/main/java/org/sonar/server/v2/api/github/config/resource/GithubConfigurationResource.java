@@ -17,39 +17,43 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.v2.api.gitlab.config.resource;
+package org.sonar.server.v2.api.github.config.resource;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;
 import javax.annotation.Nullable;
 import org.sonar.server.v2.api.model.ProvisioningType;
 
-public record GitlabConfigurationResource(
+public record GithubConfigurationResource(
 
   @Schema(accessMode = Schema.AccessMode.READ_ONLY)
   String id,
 
   boolean enabled,
 
-  @Schema(implementation = String.class, description = "Gitlab Application id")
+  @Schema(implementation = String.class, description = "GitHub Application id")
   String applicationId,
-
-  @Schema(description = "Url of Gitlab instance for authentication (for instance https://gitlab.com/api/v4)")
-  String url,
 
   boolean synchronizeGroups,
 
-  @Schema(description = "Root Gitlab groups allowed to authenticate and provisioned")
-  List<String> allowedGroups,
+  @Schema(description = "Url of GitHub instance for API connectivity (for instance https://api.github.com)")
+  String apiUrl,
 
-  boolean allowUsersToSignUp,
+  @Schema(description = "Url of GitHub instance for authentication (for instance https://github.com)")
+  String webUrl,
+
+  @Schema(description = "GitHub organizations allowed to authenticate and provisioned")
+  List<String> allowedOrganizations,
 
   ProvisioningType provisioningType,
 
-  @Schema(accessMode = Schema.AccessMode.READ_ONLY, description = "Whether or not the provisioningToken is defined")
-  boolean isProvisioningTokenSet,
+  boolean allowUsersToSignUp,
 
-  @Schema(accessMode = Schema.AccessMode.READ_ONLY, description = "In case the GitLab configuration is incorrect, error message")
+  boolean projectVisibility,
+
+  boolean userConsentRequiredAfterUpgrade,
+
+  @Schema(accessMode = Schema.AccessMode.READ_ONLY, description = "In case the GitHub configuration is incorrect, error message")
   @Nullable
   String errorMessage
 ) {

@@ -37,8 +37,8 @@ import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.sonar.auth.github.GitHubSettings.PROVISION_VISIBILITY;
-import static org.sonar.auth.github.GitHubSettings.USER_CONSENT_FOR_PERMISSIONS_REQUIRED_AFTER_UPGRADE;
+import static org.sonar.auth.github.GitHubSettings.GITHUB_PROVISION_PROJECT_VISIBILITY;
+import static org.sonar.auth.github.GitHubSettings.GITHUB_USER_CONSENT_FOR_PERMISSIONS_REQUIRED_AFTER_UPGRADE;
 
 public class GitHubSettingsIT {
   @Rule
@@ -80,27 +80,27 @@ public class GitHubSettingsIT {
   @Test
   public void isProvisioningEnabled_returnsFalseByDefault() {
     enableGithubAuthentication();
-    when(internalProperties.read(GitHubSettings.PROVISIONING)).thenReturn(Optional.empty());
+    when(internalProperties.read(GitHubSettings.GITHUB_PROVISIONING)).thenReturn(Optional.empty());
     assertThat(underTest.isProvisioningEnabled()).isFalse();
   }
 
   @Test
   public void isProvisioningEnabled_ifProvisioningEnabledButGithubAuthNotSet_returnsFalse() {
     enableGithubAuthentication();
-    when(internalProperties.read(GitHubSettings.PROVISIONING)).thenReturn(Optional.of(Boolean.FALSE.toString()));
+    when(internalProperties.read(GitHubSettings.GITHUB_PROVISIONING)).thenReturn(Optional.of(Boolean.FALSE.toString()));
     assertThat(underTest.isProvisioningEnabled()).isFalse();
   }
 
   @Test
   public void isProvisioningEnabled_ifProvisioningEnabledButGithubAuthDisabled_returnsFalse() {
-    when(internalProperties.read(GitHubSettings.PROVISIONING)).thenReturn(Optional.of(Boolean.TRUE.toString()));
+    when(internalProperties.read(GitHubSettings.GITHUB_PROVISIONING)).thenReturn(Optional.of(Boolean.TRUE.toString()));
     assertThat(underTest.isProvisioningEnabled()).isFalse();
   }
 
   @Test
   public void isProvisioningEnabled_ifProvisioningEnabledAndGithubAuthEnabled_returnsTrue() {
     enableGithubAuthenticationWithGithubApp();
-    when(internalProperties.read(GitHubSettings.PROVISIONING)).thenReturn(Optional.of(Boolean.TRUE.toString()));
+    when(internalProperties.read(GitHubSettings.GITHUB_PROVISIONING)).thenReturn(Optional.of(Boolean.TRUE.toString()));
     assertThat(underTest.isProvisioningEnabled()).isTrue();
   }
 
@@ -111,7 +111,7 @@ public class GitHubSettingsIT {
 
   @Test
   public void isUserConsentRequiredAfterUpgrade_returnsTrueIfPropertyPresent() {
-    settings.setProperty(USER_CONSENT_FOR_PERMISSIONS_REQUIRED_AFTER_UPGRADE, "");
+    settings.setProperty(GITHUB_USER_CONSENT_FOR_PERMISSIONS_REQUIRED_AFTER_UPGRADE, "");
     assertThat(underTest.isUserConsentRequiredAfterUpgrade()).isTrue();
   }
 
@@ -122,13 +122,13 @@ public class GitHubSettingsIT {
 
   @Test
   public void isProjectVisibilitySynchronizationActivated_whenPropertyIsSetToFalse_returnsFalse() {
-    settings.setProperty(PROVISION_VISIBILITY, "false");
+    settings.setProperty(GITHUB_PROVISION_PROJECT_VISIBILITY, "false");
     assertThat(underTest.isProjectVisibilitySynchronizationActivated()).isFalse();
   }
 
   @Test
   public void isProjectVisibilitySynchronizationActivated_whenPropertyIsSetToTrue_returnsTrue() {
-    settings.setProperty(PROVISION_VISIBILITY, "true");
+    settings.setProperty(GITHUB_PROVISION_PROJECT_VISIBILITY, "true");
     assertThat(underTest.isProjectVisibilitySynchronizationActivated()).isTrue();
   }
 
@@ -166,7 +166,7 @@ public class GitHubSettingsIT {
   public void setProvisioning_whenPassedTrue_delegatesToInternalPropertiesWrite() {
     enableGithubAuthenticationWithGithubApp();
     underTest.setProvisioning(true);
-    verify(internalProperties).write(GitHubSettings.PROVISIONING, Boolean.TRUE.toString());
+    verify(internalProperties).write(GitHubSettings.GITHUB_PROVISIONING, Boolean.TRUE.toString());
   }
 
   @Test
@@ -176,7 +176,7 @@ public class GitHubSettingsIT {
 
     underTest.setProvisioning(false);
 
-    verify(internalProperties).write(GitHubSettings.PROVISIONING, Boolean.FALSE.toString());
+    verify(internalProperties).write(GitHubSettings.GITHUB_PROVISIONING, Boolean.FALSE.toString());
     assertThat(db.getDbClient().externalGroupDao().selectByIdentityProvider(db.getSession(), GitHubIdentityProvider.KEY)).isEmpty();
     assertThat(db.getDbClient().githubOrganizationGroupDao().findAll(db.getSession())).isEmpty();
   }

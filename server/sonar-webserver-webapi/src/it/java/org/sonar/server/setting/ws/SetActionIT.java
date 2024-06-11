@@ -69,6 +69,9 @@ import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.groups.Tuple.tuple;
+import static org.sonar.auth.github.GitHubSettings.GITHUB_API_URL;
+import static org.sonar.auth.github.GitHubSettings.GITHUB_WEB_URL;
+import static org.sonar.auth.gitlab.GitLabSettings.GITLAB_AUTH_URL;
 import static org.sonar.db.property.PropertyTesting.newComponentPropertyDto;
 import static org.sonar.db.property.PropertyTesting.newGlobalPropertyDto;
 import static org.sonar.db.user.UserTesting.newUserDto;
@@ -1126,6 +1129,26 @@ public class SetActionIT {
     assertThatThrownBy(testRequest::execute)
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage(format("Setting '%s' can only be used in sonar.properties", settingKey));
+  }
+
+  @DataProvider
+  public static Object[][] forbiddenProperties() {
+    return new Object[][] {
+      {GITLAB_AUTH_URL},
+      {GITHUB_API_URL},
+      {GITHUB_WEB_URL},
+    };
+  }
+
+  @Test
+  @UseDataProvider("forbiddenProperties")
+  public void fail_when_setting_key_is_forbidden(String property) {
+    TestRequest testRequest = ws.newRequest()
+      .setParam("key", property)
+      .setParam("value", "value");
+    assertThatThrownBy(testRequest::execute)
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("For security reasons, the key '%s' cannot be updated using this webservice. Please use the API v2", property);
   }
 
   @Test

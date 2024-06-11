@@ -17,26 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonarqube.ws.client.githubprovisioning;
+package org.sonar.server.common.github.config;
 
-import org.sonarqube.ws.client.BaseService;
-import org.sonarqube.ws.client.PostRequest;
-import org.sonarqube.ws.client.WsConnector;
+import java.util.Set;
+import org.sonar.server.common.gitlab.config.ProvisioningType;
 
-public class GithubProvisioningService extends BaseService {
-  public GithubProvisioningService(WsConnector wsConnector) {
-    super(wsConnector, "api/github_provisioning");
-  }
-
-  public void enable() {
-    call(
-      new PostRequest(path("enable"))
-    );
-  }
-
-  public void disable() {
-    call(
-      new PostRequest(path("disable"))
-    );
-  }
+public record GithubConfiguration(
+  String id,
+  boolean enabled,
+  String clientId,
+  String clientSecret,
+  String applicationId,
+  String privateKey,
+  boolean synchronizeGroups,
+  String apiUrl,
+  String webUrl,
+  Set<String> allowedOrganizations,
+  ProvisioningType provisioningType,
+  boolean allowUsersToSignUp,
+  boolean provisionProjectVisibility,
+  boolean userConsentRequiredAfterUpgrade
+) {
 }

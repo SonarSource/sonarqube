@@ -18,6 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 @ParametersAreNonnullByDefault
-package org.sonarqube.ws.client.githubprovisioning;
+package org.sonar.server.common.github.config;
 
 import javax.annotation.ParametersAreNonnullByDefault;

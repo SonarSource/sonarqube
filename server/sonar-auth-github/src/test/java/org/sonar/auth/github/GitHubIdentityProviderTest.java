@@ -43,12 +43,12 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.server.authentication.OAuth2IdentityProvider.CallbackContext;
 import static org.sonar.api.server.authentication.OAuth2IdentityProvider.InitContext;
-import static org.sonar.auth.github.GitHubSettings.APP_ID;
-import static org.sonar.auth.github.GitHubSettings.CLIENT_ID;
-import static org.sonar.auth.github.GitHubSettings.CLIENT_SECRET;
-import static org.sonar.auth.github.GitHubSettings.ENABLED;
-import static org.sonar.auth.github.GitHubSettings.ORGANIZATIONS;
-import static org.sonar.auth.github.GitHubSettings.PRIVATE_KEY;
+import static org.sonar.auth.github.GitHubSettings.GITHUB_APP_ID;
+import static org.sonar.auth.github.GitHubSettings.GITHUB_CLIENT_ID;
+import static org.sonar.auth.github.GitHubSettings.GITHUB_CLIENT_SECRET;
+import static org.sonar.auth.github.GitHubSettings.GITHUB_ENABLED;
+import static org.sonar.auth.github.GitHubSettings.GITHUB_ORGANIZATIONS;
+import static org.sonar.auth.github.GitHubSettings.GITHUB_PRIVATE_KEY;
 
 public class GitHubIdentityProviderTest {
 
@@ -180,7 +180,7 @@ public class GitHubIdentityProviderTest {
     UserIdentity userIdentity = mock(UserIdentity.class);
     CallbackContext context = mockUserBelongingToOrganization(userIdentity);
 
-    settings.setProperty(ORGANIZATIONS, "organization1,organization2");
+    settings.setProperty(GITHUB_ORGANIZATIONS, "organization1,organization2");
     underTest.callback(context);
 
     verify(context).authenticate(userIdentity);
@@ -192,7 +192,7 @@ public class GitHubIdentityProviderTest {
     UserIdentity userIdentity = mock(UserIdentity.class);
     CallbackContext context = mockUserNotBelongingToOrganization(userIdentity);
 
-    settings.setProperty(ORGANIZATIONS, "organization1,organization2");
+    settings.setProperty(GITHUB_ORGANIZATIONS, "organization1,organization2");
 
     assertThatThrownBy(() -> underTest.callback(context))
       .isInstanceOf(UnauthorizedException.class)
@@ -280,13 +280,13 @@ public class GitHubIdentityProviderTest {
 
   private void setSettings(boolean enabled) {
     if (enabled) {
-      settings.setProperty(CLIENT_ID, "id");
-      settings.setProperty(CLIENT_SECRET, "secret");
-      settings.setProperty(ENABLED, true);
-      settings.setProperty(APP_ID, "1");
-      settings.setProperty(PRIVATE_KEY, "private");
+      settings.setProperty(GITHUB_CLIENT_ID, "id");
+      settings.setProperty(GITHUB_CLIENT_SECRET, "secret");
+      settings.setProperty(GITHUB_ENABLED, true);
+      settings.setProperty(GITHUB_APP_ID, "1");
+      settings.setProperty(GITHUB_PRIVATE_KEY, "private");
     } else {
-      settings.setProperty(ENABLED, false);
+      settings.setProperty(GITHUB_ENABLED, false);
     }
   }
 }
