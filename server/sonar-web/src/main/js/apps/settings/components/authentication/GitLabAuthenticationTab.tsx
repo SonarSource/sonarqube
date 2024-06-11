@@ -387,7 +387,10 @@ export default function GitLabAuthenticationTab() {
         />
       )}
       {openForm && (
-        <GitLabConfigurationForm data={configuration ?? null} onClose={() => setOpenForm(false)} />
+        <GitLabConfigurationForm
+          gitlabConfiguration={configuration ?? null}
+          onClose={() => setOpenForm(false)}
+        />
       )}
     </Spinner>
   );

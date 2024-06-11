@@ -20,7 +20,7 @@
 
 import { ButtonPrimary, FlagMessage, Modal, Spinner } from 'design-system';
 import { keyBy } from 'lodash';
-import * as React from 'react';
+import React, { SyntheticEvent, useEffect, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
 import DocumentationLink from '../../../../components/common/DocumentationLink';
 import { DocLink } from '../../../../helpers/doc-links';
@@ -34,7 +34,7 @@ import { DefinitionV2, SettingType } from '../../../../types/settings';
 import AuthenticationFormField from './AuthenticationFormField';
 
 interface Props {
-  data: GitlabConfiguration | null;
+  gitlabConfiguration: GitlabConfiguration | null;
   onClose: () => void;
 }
 
@@ -50,19 +50,18 @@ interface FormData {
 }
 
 const DEFAULT_URL = 'https://gitlab.com';
+const FORM_ID = 'gitlab-configuration-form';
 
 export default function GitLabConfigurationForm(props: Readonly<Props>) {
-  const { data } = props;
-  const isCreate = data === null;
-  const [errors, setErrors] = React.useState<Record<string, ErrorValue>>({});
+  const { gitlabConfiguration } = props;
+  const isCreate = gitlabConfiguration === null;
+  const [errors, setErrors] = useState<Record<string, ErrorValue>>({});
   const { mutate: createConfig, isPending: createLoading } = useCreateGitLabConfigurationMutation();
   const { mutate: updateConfig, isPending: updateLoading } = useUpdateGitLabConfigurationMutation();
 
-  const [formData, setFormData] = React.useState<
-    Record<keyof GitLabConfigurationCreateBody, FormData>
-  >({
+  const [formData, setFormData] = useState<Record<keyof GitLabConfigurationCreateBody, FormData>>({
     applicationId: {
-      value: data?.applicationId ?? '',
+      value: gitlabConfiguration?.applicationId ?? '',
       required: true,
       definition: {
         name: translate('settings.authentication.gitlab.form.applicationId.name'),
@@ -72,7 +71,7 @@ export default function GitLabConfigurationForm(props: Readonly<Props>) {
       },
     },
     url: {
-      value: data?.url ?? DEFAULT_URL,
+      value: gitlabConfiguration?.url ?? DEFAULT_URL,
       required: true,
       definition: {
         name: translate('settings.authentication.gitlab.form.url.name'),
@@ -92,7 +91,7 @@ export default function GitLabConfigurationForm(props: Readonly<Props>) {
       },
     },
     synchronizeGroups: {
-      value: data?.synchronizeGroups ?? false,
+      value: gitlabConfiguration?.synchronizeGroups ?? false,
       required: false,
       definition: {
         name: translate('settings.authentication.gitlab.form.synchronizeGroups.name'),
@@ -106,17 +105,26 @@ export default function GitLabConfigurationForm(props: Readonly<Props>) {
 
   const header = translate('settings.authentication.gitlab.form', isCreate ? 'create' : 'edit');
 
-  const canBeSaved = Object.values(formData).every(({ definition, required, value }) => {
-    return (!isCreate && definition.secured) || !required || value !== '';
-  });
+  // In case of URL update, the user must provide the secret again
+  // This relation is specific to URL & Secret so no need for a generic solution here
+  const isSecretMissingToUpdateUrl =
+    !isCreate && formData.url.value !== gitlabConfiguration.url && formData.secret.value === '';
+  const canBeSaved =
+    !isSecretMissingToUpdateUrl &&
+    Object.values(formData).every(({ definition, required, value }) => {
+      return (!isCreate && definition.secured) || !required || value !== '';
+    });
 
-  const handleSubmit = (event: React.SyntheticEvent<HTMLFormElement>) => {
+  const handleSubmit = (event: SyntheticEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     if (canBeSaved) {
       const submitData = Object.entries(formData).reduce<GitLabConfigurationCreateBody>(
         (acc, [key, { value }]: [keyof GitLabConfigurationCreateBody, FormData]) => {
-          if (value === '') {
+          if (
+            value === '' ||
+            (key !== 'secret' && !isCreate && value === gitlabConfiguration[key])
+          ) {
             return acc;
           }
           return {
@@ -126,20 +134,21 @@ export default function GitLabConfigurationForm(props: Readonly<Props>) {
         },
         {} as GitLabConfigurationCreateBody,
       );
-      if (data) {
-        updateConfig({ id: data.id, data: submitData }, { onSuccess: props.onClose });
+      if (!isCreate) {
+        updateConfig(
+          { id: gitlabConfiguration.id, data: submitData },
+          { onSuccess: props.onClose },
+        );
       } else {
         createConfig(submitData, { onSuccess: props.onClose });
       }
     } else {
       const errors = Object.entries(formData)
-        .filter(([_, v]) => v.required && !v.value)
+        .filter(([_, v]) => v.required && Boolean(v.value) !== false)
         .map(([key]) => ({ key, message: translate('field_required') }));
       setErrors(keyBy(errors, 'key'));
     }
   };
-
-  const FORM_ID = 'gitlab-configuration-form';
 
   const formBody = (
     <form id={FORM_ID} onSubmit={handleSubmit}>
@@ -178,6 +187,28 @@ export default function GitLabConfigurationForm(props: Readonly<Props>) {
       )}
     </form>
   );
+
+  useEffect(() => {
+    if (isSecretMissingToUpdateUrl) {
+      setErrors({
+        ...errors,
+        secret: {
+          key: 'secret',
+          message: translate('settings.authentication.gitlab.form.secret.required_for_url_change'),
+        },
+      });
+    }
+
+    return () => {
+      const newErrors = {
+        ...errors,
+      };
+      delete newErrors.secret;
+      setErrors(newErrors);
+    };
+    // We only want to run this effect when isSecretMissingToUpdateUrl changes:
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isSecretMissingToUpdateUrl]);
 
   return (
     <Modal

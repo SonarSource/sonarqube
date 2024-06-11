@@ -92,11 +92,9 @@ export interface GitHubMapping {
   };
 }
 
-export interface GitLabConfigurationCreateBody {
-  applicationId: string;
+export interface GitLabConfigurationCreateBody
+  extends Pick<GitlabConfiguration, 'applicationId' | 'synchronizeGroups' | 'url'> {
   secret: string;
-  synchronizeGroups: boolean;
-  url: string;
 }
 
 export type GitLabConfigurationUpdateBody = {

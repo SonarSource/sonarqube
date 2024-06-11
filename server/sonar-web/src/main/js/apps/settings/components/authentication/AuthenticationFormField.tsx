@@ -18,15 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import styled from '@emotion/styled';
-import {
-  FlagErrorIcon,
-  FormField,
-  Highlight,
-  InputField,
-  Note,
-  RequiredIcon,
-  TextError,
-} from 'design-system';
+import { IconError } from '@sonarsource/echoes-react';
+import { FormField, Highlight, InputField, Note, RequiredIcon, TextError } from 'design-system';
 import React from 'react';
 import { useIntl } from 'react-intl';
 import { isDefined } from '../../../../helpers/types';
@@ -75,7 +68,7 @@ export default function AuthenticationFormField(props: Readonly<Props>) {
             onChange={(value) => props.onFieldChange(definition.key, value)}
           />
         </div>
-        {description && <Note className="sw-mt-2">{description}</Note>}
+        {description !== undefined && <Note className="sw-mt-2">{description}</Note>}
       </>
     );
   }
@@ -97,12 +90,25 @@ export default function AuthenticationFormField(props: Readonly<Props>) {
         />
       )}
       {isSecuredDefinition(definition) && (
-        <AuthenticationSecuredField
-          definition={definition}
-          settingValue={String(settingValue ?? '')}
-          onFieldChange={props.onFieldChange}
-          isNotSet={isNotSet}
-        />
+        <>
+          <AuthenticationSecuredField
+            definition={definition}
+            settingValue={String(settingValue ?? '')}
+            onFieldChange={props.onFieldChange}
+            isNotSet={isNotSet}
+          />
+          {isDefined(error) && error !== '' && (
+            <TextError
+              className="sw-mt-2"
+              text={
+                <>
+                  <IconError className="sw-mr-1" />
+                  {error}
+                </>
+              }
+            />
+          )}
+        </>
       )}
       {!isSecuredDefinition(definition) &&
         definition.type === undefined &&
@@ -123,7 +129,7 @@ export default function AuthenticationFormField(props: Readonly<Props>) {
                 className="sw-mt-2"
                 text={
                   <>
-                    <FlagErrorIcon className="sw-mr-1" />
+                    <IconError className="sw-mr-1" />
                     {error}
                   </>
                 }

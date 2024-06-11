@@ -19,7 +19,7 @@
  */
 import userEvent from '@testing-library/user-event';
 import React from 'react';
-import { byRole } from '~sonar-aligned/helpers/testSelector';
+import { byRole, byText } from '~sonar-aligned/helpers/testSelector';
 import ComputeEngineServiceMock from '../../../../../api/mocks/ComputeEngineServiceMock';
 import GitlabProvisioningServiceMock from '../../../../../api/mocks/GitlabProvisioningServiceMock';
 import SettingsServiceMock from '../../../../../api/mocks/SettingsServiceMock';
@@ -138,6 +138,9 @@ const ui = {
   gitlabConfigurationStatus: glContainer.byRole('status', {
     name: /settings.authentication.gitlab.configuration/,
   }),
+  gitlabMissingSecretErrorMessage: byText(
+    'settings.authentication.gitlab.form.secret.required_for_url_change',
+  ),
   testConfiguration: glContainer.byRole('button', {
     name: 'settings.authentication.configuration.test',
   }),
@@ -198,6 +201,11 @@ it('should edit a configuration with proper validation and delete it', async () 
   await user.clear(ui.url.get());
   expect(ui.saveConfigButton.get()).toBeDisabled();
   await user.type(ui.url.get(), 'www.internet.com');
+  expect(ui.saveConfigButton.get()).toBeDisabled();
+  expect(ui.gitlabMissingSecretErrorMessage.get()).toBeInTheDocument();
+  await user.click(ui.autoProvisioningUpdateTokenButton.get());
+  await user.type(ui.secret.get(), '123');
+  expect(ui.gitlabMissingSecretErrorMessage.query()).not.toBeInTheDocument();
   expect(ui.saveConfigButton.get()).toBeEnabled();
   await user.click(ui.saveConfigButton.get());
 
