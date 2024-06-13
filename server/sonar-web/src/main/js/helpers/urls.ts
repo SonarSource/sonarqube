@@ -188,9 +188,9 @@ export function getIssuesUrl(query: Query): To {
   return { pathname, search: queryToSearch(query) };
 }
 
-export function getOrgIssuesUrl(query: Query, organization?: string): Location {
+export function getOrgIssuesUrl(query: Query, organization?: string): To {
   const pathname = organization ? `/organizations/${organization}/issues` : '/issues';
-  return { pathname, query };
+  return { pathname, search: queryToSearch(query)};
 }
 
 /**
