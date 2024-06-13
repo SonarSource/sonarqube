@@ -35,6 +35,7 @@
     "org.sonarsource.html:sonar-html-plugin",
     "org.sonarsource.jacoco:sonar-jacoco-plugin",
     "org.sonarsource.java:sonar-java-plugin",
+    "org.sonarsource.java:sonar-java-symbolic-execution-plugin",
     "org.sonarsource.javascript:sonar-javascript-plugin",
     "org.sonarsource.php:sonar-php-plugin",
     "org.sonarsource.python:sonar-python-plugin",
