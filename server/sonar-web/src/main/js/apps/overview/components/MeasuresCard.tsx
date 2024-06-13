@@ -19,7 +19,7 @@
  */
 import styled from '@emotion/styled';
 import { LinkHighlight, LinkStandalone } from '@sonarsource/echoes-react';
-import { Badge, Card, themeBorder, themeColor } from 'design-system';
+import { Badge, themeColor } from 'design-system';
 import * as React from 'react';
 import { To } from 'react-router-dom';
 import { MetricKey } from '~sonar-aligned/types/metrics';
@@ -38,10 +38,10 @@ export interface MeasuresCardProps {
 export default function MeasuresCard(
   props: React.PropsWithChildren<MeasuresCardProps & React.HTMLAttributes<HTMLDivElement>>,
 ) {
-  const { failed, children, metric, icon, value, url, label, ...rest } = props;
+  const { failed, children, metric, icon, value, url, label } = props;
 
   return (
-    <StyledCard className="sw-p-6 sw-rounded-2 sw-text-base" {...rest}>
+    <div>
       <ColorBold className="sw-body-sm-highlight">{translate(label)}</ColorBold>
       {failed && (
         <Badge className="sw-mt-1/2 sw-px-1 sw-ml-2" variant="deleted">
@@ -69,13 +69,9 @@ export default function MeasuresCard(
         {icon}
       </div>
       {children && <div className="sw-flex sw-flex-col">{children}</div>}
-    </StyledCard>
+    </div>
   );
 }
-
-const StyledCard = styled(Card)`
-  border: ${themeBorder('default')};
-`;
 
 const ColorBold = styled.span`
   color: ${themeColor('pageTitle')};

@@ -142,7 +142,6 @@ describe('project overview', () => {
 
     // QG panel
     expect(screen.getByText('metric.level.OK')).toBeInTheDocument();
-    expect(screen.getByText('overview.passed.clean_code')).toBeInTheDocument();
     expect(
       screen.queryByText('overview.quality_gate.conditions.cayc.warning'),
     ).not.toBeInTheDocument();
@@ -253,7 +252,6 @@ describe('project overview', () => {
     renderBranchOverview();
 
     expect(await screen.findByText('metric.level.ERROR')).toBeInTheDocument();
-    expect(screen.getByText(/overview.X_conditions_failed/)).toBeInTheDocument();
     expect(screen.getAllByText(/overview.quality_gate.required_x/)).toHaveLength(3);
     expect(
       screen.getByRole('link', {
@@ -616,7 +614,7 @@ describe('application overview', () => {
         name: 'overview.quality_gate.hide_project_conditions_x.fourth project',
       }).get(),
     ).toBeInTheDocument();
-    expect(byText('quality_gates.conditions.new_code_1').get()).toBeInTheDocument();
+    expect(byText(/quality_gates.conditions.x_conditions_failed/).get()).toBeInTheDocument();
     expect(byText('1 metric.new_violations.name').get()).toBeInTheDocument();
   });
 

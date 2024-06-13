@@ -19,7 +19,7 @@
  */
 import styled from '@emotion/styled';
 import { LinkHighlight, LinkStandalone, Tooltip } from '@sonarsource/echoes-react';
-import { Badge, LightGreyCard, LightGreyCardTitle, TextBold, TextSubdued } from 'design-system';
+import { Badge, TextBold, TextSubdued } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { formatMeasure } from '~sonar-aligned/helpers/measures';
@@ -92,18 +92,18 @@ export function SoftwareImpactMeasureCard(props: Readonly<SoftwareImpactBreakdow
   const failed = conditions.some((c) => c.level === Status.ERROR && c.metric === ratingMetricKey);
 
   return (
-    <LightGreyCard
+    <div
       data-testid={`overview__software-impact-card-${softwareQuality}`}
-      className="sw-w-1/3 sw-overflow-hidden sw-rounded-2 sw-p-4 sw-flex-col"
+      className="sw-overflow-hidden sw-rounded-2 sw-flex-col"
     >
-      <LightGreyCardTitle>
+      <div className="sw-flex sw-items-center">
         <TextBold name={intl.formatMessage({ id: `software_quality.${softwareQuality}` })} />
         {failed && (
-          <Badge className="sw-h-fit" variant="deleted">
+          <Badge className="sw-h-fit sw-ml-2" variant="deleted">
             <FormattedMessage id="overview.measures.failed_badge" />
           </Badge>
         )}
-      </LightGreyCardTitle>
+      </div>
       <div className="sw-flex sw-flex-col sw-gap-3">
         <div className="sw-flex sw-mt-4">
           <div className="sw-flex sw-gap-1 sw-items-center">
@@ -164,7 +164,7 @@ export function SoftwareImpactMeasureCard(props: Readonly<SoftwareImpactBreakdow
           </div>
         )}
       </div>
-    </LightGreyCard>
+    </div>
   );
 }
 

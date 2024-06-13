@@ -80,11 +80,17 @@ const qgStatus = mockQualityGateStatus({
   status: 'ERROR' as Status,
 });
 
-it('should render correctly for an application with 1 new code condition and 1 overall code condition', async () => {
+it('should render correctly for an application for new code section', async () => {
   renderQualityGatePanelSection();
 
-  expect(await screen.findByText('quality_gates.conditions.new_code_x.2')).toBeInTheDocument();
-  expect(await screen.findByText('quality_gates.conditions.overall_code_1')).toBeInTheDocument();
+  expect(await screen.findByText('metric.new_coverage.name')).toBeInTheDocument();
+  expect(screen.getByText('metric.new_violations.name')).toBeInTheDocument();
+});
+
+it('should render correctly for an application for overall code section', async () => {
+  renderQualityGatePanelSection({ isNewCode: false });
+
+  expect(await screen.findByText('metric.security_hotspots.name')).toBeInTheDocument();
 });
 
 it('should render correctly for a project with 1 new code condition', () => {
@@ -130,7 +136,7 @@ function renderQualityGatePanelSection(
 ) {
   return renderComponent(
     <CurrentUserContextProvider currentUser={currentUser}>
-      <QualityGatePanelSection isApplication qgStatus={qgStatus} {...props} />
+      <QualityGatePanelSection isApplication qgStatus={qgStatus} isNewCode {...props} />
     </CurrentUserContextProvider>,
   );
 }
