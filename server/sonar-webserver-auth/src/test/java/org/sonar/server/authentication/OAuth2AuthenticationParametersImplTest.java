@@ -157,6 +157,8 @@ public class OAuth2AuthenticationParametersImplTest {
       {generatePath("/admin/..%2fsettings/"), "/settings"},
       {generatePath("/admin/%2e%2e%2fsettings/"), "/settings"},
       {generatePath("../admin/settings"), null},
+      {generatePath("/dashboard?id=project&pullRequest=PRID"), "/dashboard?id=project&pullRequest=PRID"},
+      {generatePath("%2Fdashboard%3Fid%3Dproject%26pullRequest%3DPRID&authorizationError=true"), "/dashboard?id=project&pullRequest=PRID&authorizationError=true"},
     };
   }
 

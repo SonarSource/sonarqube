@@ -24,6 +24,8 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import java.io.UnsupportedEncodingException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
@@ -131,11 +133,17 @@ public class OAuth2AuthenticationParametersImpl implements OAuth2AuthenticationP
       return empty();
     }
 
-    Path sanitizedPath = escapePathTraversalChars(trimmedUrl);
-    return Optional.of(sanitizedPath.toString());
+    try {
+      URI uri = new URI(trimmedUrl);
+      String sanitizedPath = escapePathTraversalChars(uri.getPath());
+      URI sanitizedUri = new URI(uri.getScheme(), uri.getUserInfo(), uri.getHost(), uri.getPort(), sanitizedPath, uri.getQuery(), uri.getFragment());
+      return Optional.of(sanitizedUri.toString());
+    } catch (URISyntaxException e) {
+      throw new IllegalStateException(e);
+    }
   }
 
-  private static Path escapePathTraversalChars(String sanitizedUrl) {
-    return Path.of(sanitizedUrl).normalize();
+  private static String escapePathTraversalChars(String path) {
+    return Path.of(path).normalize().toString();
   }
 }
