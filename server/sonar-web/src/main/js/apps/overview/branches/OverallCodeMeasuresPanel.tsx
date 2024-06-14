@@ -41,7 +41,7 @@ import { SoftwareQuality } from '../../../types/clean-code-taxonomy';
 import { isApplication } from '../../../types/component';
 import { IssueStatus } from '../../../types/issues';
 import { QualityGateStatus } from '../../../types/quality-gates';
-import { CaycStatus, Component, MeasureEnhanced, QualityGate } from '../../../types/types';
+import { Component, MeasureEnhanced, QualityGate } from '../../../types/types';
 import MeasuresCard from '../components/MeasuresCard';
 import MeasuresCardNumber from '../components/MeasuresCardNumber';
 import MeasuresCardPercent from '../components/MeasuresCardPercent';
@@ -72,26 +72,7 @@ export default function OverallCodeMeasuresPanel(props: Readonly<OverallCodeMeas
   const securityHotspots = findMeasure(measures, MetricKey.security_hotspots)?.value;
   const securityRating = findMeasure(measures, MetricKey.security_review_rating)?.value;
 
-  const nonCaycProjectsInApp =
-    isApp && qgStatuses
-      ? qgStatuses
-          .filter(({ caycStatus }) => caycStatus === CaycStatus.NonCompliant)
-          .sort(({ name: a }, { name: b }) =>
-            a.localeCompare(b, undefined, { sensitivity: 'base' }),
-          )
-      : [];
-
-  const showCaycWarningInProject =
-    qgStatuses &&
-    qgStatuses.length === 1 &&
-    qgStatuses[0].caycStatus === CaycStatus.NonCompliant &&
-    qualityGate?.actions?.manageConditions &&
-    !isApp;
-
-  const showCaycWarningInApp = nonCaycProjectsInApp.length > 0;
-
-  const noConditionsAndWarningForOverallCode =
-    totalOverallFailedCondition.length === 0 && !showCaycWarningInApp && !showCaycWarningInProject;
+  const noConditionsAndWarningForOverallCode = totalOverallFailedCondition.length === 0;
 
   return (
     <GridContainer
@@ -108,8 +89,6 @@ export default function OverallCodeMeasuresPanel(props: Readonly<OverallCodeMeas
             loading={loading}
             qgStatuses={qgStatuses}
             qualityGate={qualityGate}
-            showCaycWarningInApp={showCaycWarningInApp}
-            showCaycWarningInProject={showCaycWarningInProject ?? false}
             totalFailedConditionLength={totalOverallFailedCondition.length}
           />
         </StyledConditionsCard>

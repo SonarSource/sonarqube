@@ -114,7 +114,6 @@ const TabButton = styled(BareButton)<{
   ${tw` sw-mb-[-1px]`};
   ${tw`sw-flex sw-items-center`};
   ${(props) => (props.large ? tw`sw-body-md sw-px-6 sw-py-4` : tw`sw-body-sm sw-px-3 sw-py-1`)}
-  ${tw`sw-body-sm`};
   ${tw`sw-font-semibold`};
   ${tw`sw-rounded-t-1`};
 

@@ -60,6 +60,20 @@ export const CardWithPrimaryBackground = styled(Card)`
   background-color: ${themeColor('backgroundPrimary')};
 `;
 
+export function InfoCard(props: Readonly<CardProps & { footer?: React.ReactNode }>) {
+  return (
+    <BlueCard>
+      <CardContent>{props.children}</CardContent>
+      {props.footer !== undefined && (
+        <>
+          <BasicSeparator />
+          <CardContent>{props.footer}</CardContent>
+        </>
+      )}
+    </BlueCard>
+  );
+}
+
 const CardStyled = styled.div`
   background-color: ${themeColor('backgroundSecondary')};
   border: ${themeBorder('default', 'projectCardBorder')};
@@ -74,4 +88,13 @@ const LightGreyCardStyled = styled(CardStyled)`
 
 const GreyCardStyled = styled(CardStyled)`
   border: ${themeBorder('default', 'almCardBorder')};
+`;
+
+const BlueCard = styled.div`
+  ${tw`sw-rounded-1`};
+  border: 1px solid var(--echoes-color-border-default);
+  background: var(--echoes-color-background-info-weak);
+`;
+const CardContent = styled.div`
+  padding: var(--echoes-dimension-space-200);
 `;

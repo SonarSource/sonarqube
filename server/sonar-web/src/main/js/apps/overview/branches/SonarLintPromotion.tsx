@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Card, DiscreetLink } from 'design-system';
+import { DiscreetLink, InfoCard } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { MetricKey } from '~sonar-aligned/types/metrics';
@@ -56,7 +56,7 @@ export function SonarLintPromotion({ currentUser, qgConditions }: SonarLintPromo
     return null;
   }
   return (
-    <Card className="it__overview__sonarlint-promotion sw-my-4 sw-body-sm">
+    <InfoCard className="it__overview__sonarlint-promotion sw-body-sm">
       <FormattedMessage
         id="overview.fix_failed_conditions_with_sonarlint"
         defaultMessage={translate('overview.fix_failed_conditions_with_sonarlint')}
@@ -79,7 +79,7 @@ export function SonarLintPromotion({ currentUser, qgConditions }: SonarLintPromo
           ),
         }}
       />
-    </Card>
+    </InfoCard>
   );
 }
 

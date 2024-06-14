@@ -220,7 +220,6 @@ export default function BranchOverviewRenderer(props: BranchOverviewRendererProp
                     )}
                   </>
                 )}
-                <AnalysisStatus className="sw-mt-6" component={component} />
                 <div
                   data-testid="overview__quality-gate-panel"
                   className="sw-flex sw-justify-between sw-items-start sw-my-6"
@@ -228,6 +227,7 @@ export default function BranchOverviewRenderer(props: BranchOverviewRendererProp
                   <QGStatus status={qgStatus} titleSize="extra-large" />
                   <LastAnalysisLabel analysisDate={branch?.analysisDate} />
                 </div>
+                <AnalysisStatus component={component} />
                 <div className="sw-flex sw-flex-col sw-mt-6">
                   <TabsPanel
                     analyses={analyses}

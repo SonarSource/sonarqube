@@ -18,46 +18,47 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { DiscreetLink, FlagMessage, Link } from 'design-system';
+import { Link } from '@sonarsource/echoes-react';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { DocLink } from '../../../helpers/doc-links';
-import { useDocUrl } from '../../../helpers/docs';
 import { translate } from '../../../helpers/l10n';
 import { getQualityGateUrl } from '../../../helpers/urls';
-import { Component } from '../../../types/types';
+import { Component, QualityGate } from '../../../types/types';
 
 interface Props {
   component: Pick<Component, 'key' | 'qualifier' | 'qualityGate'>;
+  qualityGate?: QualityGate;
 }
 
 export default function CleanAsYouCodeWarning({ component }: Props) {
-  const caycUrl = useDocUrl(DocLink.CaYC);
-
   return (
     <>
-      <FlagMessage variant="warning">
-        {translate('overview.quality_gate.conditions.cayc.warning')}
-      </FlagMessage>
+      <p className="sw-mb-4 sw-font-bold">
+        <FormattedMessage
+          id={`overview.quality_gate.conditions.cayc.warning.title.${component.qualifier}`}
+        />
+      </p>
       {component.qualityGate ? (
-        <p className="sw-my-4">
+        <p>
           <FormattedMessage
             id="overview.quality_gate.conditions.cayc.details_with_link"
             defaultMessage={translate('overview.quality_gate.conditions.cayc.details_with_link')}
             values={{
               link: (
-                <DiscreetLink to={getQualityGateUrl(component.qualityGate.name)}>
+                <Link to={getQualityGateUrl(component.qualityGate.name)}>
                   {translate('overview.quality_gate.conditions.non_cayc.warning.link')}
-                </DiscreetLink>
+                </Link>
               ),
             }}
           />
         </p>
       ) : (
-        <p className="sw-my-4">{translate('overview.quality_gate.conditions.cayc.details')}</p>
+        <p>
+          <FormattedMessage
+            id={`overview.quality_gate.conditions.cayc.details.${component.qualifier}`}
+          />
+        </p>
       )}
-
-      <Link to={caycUrl}>{translate('overview.quality_gate.conditions.cayc.link')}</Link>
     </>
   );
 }

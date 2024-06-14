@@ -23,12 +23,12 @@ import { getBranchLikeQuery } from '~sonar-aligned/helpers/branch-like';
 import { formatMeasure } from '~sonar-aligned/helpers/measures';
 import { getComponentIssuesUrl } from '~sonar-aligned/helpers/urls';
 import { MetricKey, MetricType } from '~sonar-aligned/types/metrics';
+import { useMetrics } from '../../../app/components/metrics/withMetricsContext';
 import { propsToIssueParams } from '../../../components/shared/utils';
-import { translate } from '../../../helpers/l10n';
-import { isDiffMetric, localizeMetric } from '../../../helpers/measures';
 import { BranchLike } from '../../../types/branch-like';
 import { QualityGateStatusConditionEnhanced } from '../../../types/quality-gates';
 import { Component } from '../../../types/types';
+import { getLocalizedMetricNameNoDiffMetric } from '../../quality-gates/utils';
 
 interface Props {
   branchLike?: BranchLike;
@@ -41,15 +41,12 @@ export default function QualityGateSimplifiedCondition({
   component,
   condition,
 }: Readonly<Props>) {
+  const metrics = useMetrics();
   const getPrimaryText = () => {
     const { measure } = condition;
     const { metric } = measure;
-    const isDiff = isDiffMetric(metric.key);
 
-    const subText =
-      !isDiff && condition.period != null
-        ? `${localizeMetric(metric.key)} ${translate('quality_gates.conditions.new_code')}`
-        : localizeMetric(metric.key);
+    const subText = getLocalizedMetricNameNoDiffMetric(metric, metrics);
 
     return subText;
   };

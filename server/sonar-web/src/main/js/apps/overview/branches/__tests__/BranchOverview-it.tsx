@@ -143,7 +143,7 @@ describe('project overview', () => {
     // QG panel
     expect(screen.getByText('metric.level.OK')).toBeInTheDocument();
     expect(
-      screen.queryByText('overview.quality_gate.conditions.cayc.warning'),
+      screen.queryByText('overview.quality_gate.conditions.cayc.warning.title.TRK'),
     ).not.toBeInTheDocument();
 
     // Measures panel
@@ -171,7 +171,7 @@ describe('project overview', () => {
 
     expect(await screen.findByText('metric.level.OK')).toBeInTheDocument();
     expect(
-      screen.queryByText('overview.quality_gate.conditions.cayc.warning'),
+      screen.queryByText('overview.quality_gate.conditions.cayc.warning.title.TRK'),
     ).not.toBeInTheDocument();
   });
 
@@ -188,7 +188,7 @@ describe('project overview', () => {
 
     await screen.findByText('metric.level.OK');
     expect(
-      await screen.findByText('overview.quality_gate.conditions.cayc.warning'),
+      await screen.findByText('overview.quality_gate.conditions.cayc.warning.title.TRK'),
     ).toBeInTheDocument();
   });
 
@@ -255,7 +255,7 @@ describe('project overview', () => {
     expect(screen.getAllByText(/overview.quality_gate.required_x/)).toHaveLength(3);
     expect(
       screen.getByRole('link', {
-        name: '1 1 metric.new_security_hotspots_reviewed.name quality_gates.operator.GT 2',
+        name: '1 1 new_security_hotspots_reviewed quality_gates.operator.GT 2',
       }),
     ).toHaveAttribute('href', '/security_hotspots?id=foo&inNewCodePeriod=true');
   });
@@ -615,13 +615,15 @@ describe('application overview', () => {
       }).get(),
     ).toBeInTheDocument();
     expect(byText(/quality_gates.conditions.x_conditions_failed/).get()).toBeInTheDocument();
-    expect(byText('1 metric.new_violations.name').get()).toBeInTheDocument();
+    expect(
+      byRole('link', { name: '1 1 new_violations quality_gates.operator.GT 0' }).get(),
+    ).toBeInTheDocument();
   });
 
   it("should show projects that don't have a compliant quality gate", async () => {
     renderBranchOverview({ component });
     expect(
-      await screen.findByText('overview.quality_gate.application.non_cayc.projects_x.3'),
+      await screen.findByText('overview.quality_gate.conditions.cayc.details.APP'),
     ).toBeInTheDocument();
     expect(screen.getByText('first project')).toBeInTheDocument();
     expect(screen.queryByText('second project')).not.toBeInTheDocument();
@@ -667,7 +669,7 @@ it.each([
     renderBranchOverview();
 
     // wait for loading
-    await screen.findByText('overview.quality_gate.status');
+    await screen.findByText('overview.quality_gate');
 
     expect(screen.queryByText('overview.project.next_steps.set_up_ci') === null).toBe(expected);
   },
@@ -761,7 +763,7 @@ it.each([
 
     await user.click(await ui.overallCodeButton.find());
 
-    expect(await byText('overview.quality_gate.status').find()).toBeInTheDocument();
+    expect(await byText('overview.quality_gate').find()).toBeInTheDocument();
 
     await waitFor(() =>
       expect(

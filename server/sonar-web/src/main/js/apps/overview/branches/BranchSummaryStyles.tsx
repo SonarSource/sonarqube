@@ -22,10 +22,12 @@ import styled from '@emotion/styled';
 import { themeColor } from 'design-system/lib';
 
 export const GridContainer = styled.div`
-  --grids-gaps: var(--echoes-dimension-space-500);
+  --column-grids-gaps: var(--echoes-dimension-space-600);
+  --row-grids-gaps: var(--echoes-dimension-space-800);
   display: grid;
   grid-template-columns: repeat(12, minmax(0, 1fr));
-  gap: var(--grids-gaps);
+  row-gap: var(--row-grids-gaps);
+  column-gap: var(--column-grids-gaps);
 `;
 
 export const StyleMeasuresCard = styled.div`
@@ -36,7 +38,7 @@ export const StyleMeasuresCard = styled.div`
     content: '';
     position: absolute;
     top: 0;
-    right: calc(var(--grids-gaps) / -2);
+    right: calc(var(--column-grids-gaps) / -2);
     height: 100%;
     width: 1px;
     background: ${themeColor('pageBlockBorder')};
@@ -45,7 +47,7 @@ export const StyleMeasuresCard = styled.div`
   &:not(:last-child):after {
     content: '';
     position: absolute;
-    bottom: calc(var(--grids-gaps) / -2);
+    bottom: calc(var(--row-grids-gaps) / -2);
     right: 0;
     left: 0px;
     height: 1px;
@@ -62,7 +64,7 @@ export const StyleMeasuresCardRightBorder = styled.div`
     content: '';
     position: absolute;
     top: 0;
-    right: calc(var(--grids-gaps) / -2);
+    right: calc(var(--column-grids-gaps) / -2);
     height: 100%;
     width: 1px;
     background: ${themeColor('pageBlockBorder')};
@@ -76,7 +78,7 @@ export const StyledConditionsCard = styled.div`
     content: '';
     position: absolute;
     top: 0;
-    right: calc(var(--grids-gaps) / -2);
+    right: calc(var(--column-grids-gaps) / -2);
     height: 100%;
     width: 1px;
     background: ${themeColor('pageBlockBorder')};

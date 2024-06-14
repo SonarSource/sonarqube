@@ -70,9 +70,7 @@ export default function FailedConditions({
           <CardSeparator />
         </>
       )}
-      {qualityGate?.isBuiltIn && isNewCode && (
-        <ZeroNewIssuesSimplificationGuide qualityGate={qualityGate} />
-      )}
+      {qualityGate && isNewCode && <ZeroNewIssuesSimplificationGuide qualityGate={qualityGate} />}
       <QualityGateConditions
         component={component}
         branchLike={branchLike}

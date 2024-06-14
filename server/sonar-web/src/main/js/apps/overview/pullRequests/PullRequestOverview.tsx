@@ -32,7 +32,6 @@ import QGStatus from '../branches/QualityGateStatus';
 import { AnalysisStatus } from '../components/AnalysisStatus';
 import IgnoredConditionWarning from '../components/IgnoredConditionWarning';
 import LastAnalysisLabel from '../components/LastAnalysisLabel';
-import ZeroNewIssuesSimplificationGuide from '../components/ZeroNewIssuesSimplificationGuide';
 import '../styles.css';
 import { PR_METRICS } from '../utils';
 import MeasuresCardPanel from './MeasuresCardPanel';
@@ -111,10 +110,9 @@ export default function PullRequestOverview(props: Readonly<Readonly<Props>>) {
             pullRequest={pullRequest}
             component={component}
             conditions={enhancedConditions}
+            qualityGate={qualityGate}
             measures={measures}
           />
-
-          {qualityGate?.isBuiltIn && <ZeroNewIssuesSimplificationGuide qualityGate={qualityGate} />}
 
           <SonarLintAd status={status} />
         </div>

@@ -27,6 +27,7 @@ import {
   getComponentSecurityHotspotsUrl,
 } from '~sonar-aligned/helpers/urls';
 import { MetricKey, MetricType } from '~sonar-aligned/types/metrics';
+import withMetricsContext from '../../../app/components/metrics/withMetricsContext';
 import IssueTypeIcon from '../../../components/icon-mappers/IssueTypeIcon';
 import MeasureIndicator from '../../../components/measure/MeasureIndicator';
 import {
@@ -34,23 +35,23 @@ import {
   isIssueMeasure,
   propsToIssueParams,
 } from '../../../components/shared/utils';
-import { translate } from '../../../helpers/l10n';
-import { isDiffMetric, localizeMetric } from '../../../helpers/measures';
 import { getOperatorLabel } from '../../../helpers/qualityGates';
 import { getComponentDrilldownUrl } from '../../../helpers/urls';
 import { BranchLike } from '../../../types/branch-like';
 import { IssueType } from '../../../types/issues';
 import { QualityGateStatusConditionEnhanced } from '../../../types/quality-gates';
-import { Component, Dict } from '../../../types/types';
+import { Component, Dict, Metric } from '../../../types/types';
+import { getLocalizedMetricNameNoDiffMetric } from '../../quality-gates/utils';
 import { RATING_TO_SEVERITIES_MAPPING } from '../utils';
 
 interface Props {
   branchLike?: BranchLike;
   component: Pick<Component, 'key'>;
   condition: QualityGateStatusConditionEnhanced;
+  metrics: Dict<Metric>;
 }
 
-export default class QualityGateCondition extends React.PureComponent<Props> {
+export class QualityGateCondition extends React.PureComponent<Props> {
   getIssuesUrl = (inNewCodePeriod: boolean, customQuery: Dict<string>) => {
     const query: Dict<string | undefined> = {
       ...DEFAULT_ISSUES_QUERY,
@@ -128,12 +129,8 @@ export default class QualityGateCondition extends React.PureComponent<Props> {
     const { condition } = this.props;
     const { measure } = condition;
     const { metric } = measure;
-    const isDiff = isDiffMetric(metric.key);
 
-    const subText =
-      !isDiff && condition.period != null
-        ? `${localizeMetric(metric.key)} ${translate('quality_gates.conditions.new_code')}`
-        : localizeMetric(metric.key);
+    const subText = getLocalizedMetricNameNoDiffMetric(metric, this.props.metrics);
 
     if (metric.type !== MetricType.Rating) {
       const actual = (condition.period ? measure.period?.value : measure.value) as string;
@@ -179,3 +176,5 @@ export default class QualityGateCondition extends React.PureComponent<Props> {
     );
   }
 }
+
+export default withMetricsContext(QualityGateCondition);

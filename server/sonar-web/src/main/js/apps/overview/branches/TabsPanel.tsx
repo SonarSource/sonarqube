@@ -106,11 +106,7 @@ export default function TabsPanel(props: React.PropsWithChildren<MeasuresPanelPr
   ];
 
   return (
-    <div
-      className="sw-mt-3"
-      data-testid="overview__measures-panel"
-      data-spotlight-id="cayc-promotion-1"
-    >
+    <div data-testid="overview__measures-panel" data-spotlight-id="cayc-promotion-1">
       {loading ? (
         <div>
           <Spinner isLoading={loading} />
@@ -145,7 +141,7 @@ export default function TabsPanel(props: React.PropsWithChildren<MeasuresPanelPr
             />
           </div>
 
-          <Card className="sw-rounded-b-2 sw-rounded-t-0 sw-border-t-0">
+          <Card className="sw-rounded-b-2 sw-rounded-t-0 sw-border-t-0 sw-pt-8 sw-pb-12 sw-px-6">
             {component.qualifier === ComponentQualifier.Application && component.needIssueSync && (
               <FlagMessage className="sw-mt-4" variant="info">
                 <span>

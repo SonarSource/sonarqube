@@ -72,8 +72,8 @@ export function QualityGateConditions(props: Readonly<QualityGateConditionsProps
   }
 
   return (
-    <ul id="overview-quality-gate-conditions-list" className="sw-mb-2">
-      {renderConditions.map((condition) => (
+    <ul id="overview-quality-gate-conditions-list">
+      {renderConditions.map((condition, idx) => (
         <div key={condition.measure.metric.key}>
           {isSimplifiedCondition(condition) ? (
             <QualityGateSimplifiedCondition
@@ -88,7 +88,7 @@ export function QualityGateConditions(props: Readonly<QualityGateConditionsProps
               condition={condition}
             />
           )}
-          <CardSeparator />
+          {idx !== renderConditions.length - 1 && <CardSeparator />}
         </div>
       ))}
       {renderCollapsed && (

@@ -20,7 +20,7 @@
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
-import { byLabelText, byRole } from '~sonar-aligned/helpers/testSelector';
+import { byRole, byText } from '~sonar-aligned/helpers/testSelector';
 import { ComponentQualifier } from '~sonar-aligned/types/component';
 import { MetricKey, MetricType } from '~sonar-aligned/types/metrics';
 import BranchesServiceMock from '../../../../api/mocks/BranchesServiceMock';
@@ -142,7 +142,7 @@ it('should render links correctly', async () => {
   renderPullRequestOverview();
 
   await waitFor(async () => expect(await screen.findByText('metric.level.OK')).toBeInTheDocument());
-  expect(screen.getByLabelText('overview.quality_gate_x.overview.gate.OK')).toBeInTheDocument();
+  expect(screen.getByText('metric.level.OK')).toBeInTheDocument();
 
   expect(
     byRole('link', {
@@ -181,8 +181,7 @@ it('should render correctly for a passed QG', async () => {
   });
   renderPullRequestOverview();
 
-  await waitFor(async () => expect(await screen.findByText('metric.level.OK')).toBeInTheDocument());
-  expect(screen.getByLabelText('overview.quality_gate_x.overview.gate.OK')).toBeInTheDocument();
+  expect(await screen.findByText('metric.level.OK')).toBeInTheDocument();
 
   expect(screen.getByText('metric.new_lines.name')).toBeInTheDocument();
   expect(
@@ -230,20 +229,16 @@ it('should render correctly for a failed QG', async () => {
   });
   renderPullRequestOverview();
 
-  await waitFor(async () =>
-    expect(
-      await byLabelText('overview.quality_gate_x.overview.gate.ERROR').find(),
-    ).toBeInTheDocument(),
-  );
+  expect(await byText('metric.level.ERROR').find()).toBeInTheDocument();
 
   expect(
     byRole('link', {
-      name: 'overview.measures.failed_badge overview.failed_condition.x_required 10.0% duplicated_lines≤ 1.0%',
+      name: '1 1 new_bugs quality_gates.operator.GT 3',
     }).get(),
   ).toBeInTheDocument();
   expect(
     byRole('link', {
-      name: 'overview.measures.failed_badge overview.failed_condition.x_required 10 new_bugs≤ 3',
+      name: '1.0% new_coverage quality_gates.operator.GT 2.0%',
     }).get(),
   ).toBeInTheDocument();
 });
@@ -296,9 +291,7 @@ it('should render correctly 0 New issues onboarding', async () => {
 
   renderPullRequestOverview();
 
-  expect(
-    await byLabelText('overview.quality_gate_x.overview.gate.ERROR').find(),
-  ).toBeInTheDocument();
+  expect(await byText('metric.level.ERROR').find()).toBeInTheDocument();
   expect(await byRole('alertdialog').find()).toBeInTheDocument();
 });
 
@@ -325,11 +318,7 @@ it('should not render 0 New issues onboarding when user dismissed it', async () 
     }),
   );
 
-  await waitFor(async () =>
-    expect(
-      await byLabelText('overview.quality_gate_x.overview.gate.ERROR').find(),
-    ).toBeInTheDocument(),
-  );
+  expect(await byText('metric.level.ERROR').find()).toBeInTheDocument();
 
   expect(await byRole('alertdialog').query()).not.toBeInTheDocument();
 });

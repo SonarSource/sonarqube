@@ -114,7 +114,7 @@ export function ActivityPanel(props: ActivityPanelProps) {
     <div>
       <h2 className="sw-pt-6 sw-pb-4 sw-body-md-highlight">{translate('overview.activity')}</h2>
 
-      <Card data-test="overview__activity-panel">
+      <Card className="sw-rounded-2" data-test="overview__activity-panel">
         <GraphsHeader graph={graph} metrics={metrics} onUpdateGraph={props.onGraphChange} />
 
         <GraphsHistory

@@ -157,7 +157,7 @@ export default function NewCodeMeasuresPanel(props: Readonly<Props>) {
     <div id={getTabPanelId(CodeScope.New)}>
       {leakPeriod && (
         <span
-          className="sw-body-xs sw-flex sw-items-center sw-mt-8 sw-mr-6"
+          className="sw-body-xs sw-flex sw-items-center sw-mr-6"
           data-spotlight-id="cayc-promotion-2"
         >
           <LightLabel className="sw-mr-1">{translate('overview.new_code')}:</LightLabel>
@@ -168,7 +168,7 @@ export default function NewCodeMeasuresPanel(props: Readonly<Props>) {
       )}
       <GridContainer className=" sw-relative sw-overflow-hidden sw-mt-8 js-summary">
         {!noConditionsAndWarningForNewCode && (
-          <StyledConditionsCard className="sw-row-span-4 sw-col-span-4">
+          <StyledConditionsCard className="sw-row-span-3 sw-col-span-4">
             <QualityGatePanel
               component={component}
               loading={loading}

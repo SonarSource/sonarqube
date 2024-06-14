@@ -37,7 +37,7 @@ export default function QualityGateStatus(props: Readonly<Props>) {
       <QualityGateIndicator size="xl" status={status} />
       <div className="sw-flex sw-flex-col sw-ml-2 sw-justify-around">
         <div className="sw-flex sw-items-center">
-          <Note>{translate('overview.quality_gate.status')}</Note>
+          <Note>{translate('overview.quality_gate')}</Note>
           <HelpTooltip
             className="sw-ml-2"
             overlay={<div>{translate('overview.quality_gate.help')}</div>}

@@ -17,10 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Card, CardSeparator, Spinner, TextError } from 'design-system';
+import styled from '@emotion/styled';
+import { LinkStandalone, Spinner } from '@sonarsource/echoes-react';
+import { CardSeparator, InfoCard, TextError } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { ComponentQualifier } from '~sonar-aligned/types/component';
+import { DocLink } from '../../../helpers/doc-links';
+import { useDocUrl } from '../../../helpers/docs';
 import { translate } from '../../../helpers/l10n';
 import { isDiffMetric } from '../../../helpers/measures';
 import { isApplication } from '../../../types/component';
@@ -55,6 +59,8 @@ export function QualityGatePanel(props: QualityGatePanelProps) {
     showCaycWarningInApp = false,
   } = props;
 
+  const caycUrl = useDocUrl(DocLink.CaYC);
+
   if (qgStatuses === undefined) {
     return null;
   }
@@ -76,9 +82,9 @@ export function QualityGatePanel(props: QualityGatePanelProps) {
     qgStatuses.some((p) => Boolean(p.ignoredConditions));
 
   return (
-    <div data-testid="overview__quality-gate-panel-conditions">
-      <div>
-        <Spinner loading={loading}>
+    <Spinner isLoading={loading}>
+      <Column data-testid="overview__quality-gate-panel-conditions">
+        <Conditions>
           {showIgnoredConditionWarning && isNewCode && <IgnoredConditionWarning />}
 
           {isApp && (
@@ -120,20 +126,49 @@ export function QualityGatePanel(props: QualityGatePanelProps) {
               })}
             </div>
           )}
-        </Spinner>
-      </div>
+        </Conditions>
 
-      {showCaycWarningInApp && <ApplicationNonCaycProjectWarning projects={nonCaycProjectsInApp} />}
+        {showCaycWarningInApp && (
+          <InfoCard
+            className="sw-body-sm"
+            footer={
+              <LinkStandalone to={caycUrl}>
+                <FormattedMessage id="overview.quality_gate.conditions.cayc.link" />
+              </LinkStandalone>
+            }
+          >
+            <ApplicationNonCaycProjectWarning projects={nonCaycProjectsInApp} />
+          </InfoCard>
+        )}
 
-      {showCaycWarningInProject && (
-        <Card className="sw-mt-4 sw-body-sm">
-          <CleanAsYouCodeWarning component={component} />
-        </Card>
-      )}
-
-      <SonarLintPromotion qgConditions={qgStatuses?.flatMap((qg) => qg.failedConditions)} />
-    </div>
+        {showCaycWarningInProject && (
+          <InfoCard
+            className="sw-body-sm"
+            footer={
+              <LinkStandalone to={caycUrl}>
+                <FormattedMessage id="overview.quality_gate.conditions.cayc.link" />
+              </LinkStandalone>
+            }
+          >
+            <CleanAsYouCodeWarning component={component} />
+          </InfoCard>
+        )}
+        <SonarLintPromotion qgConditions={qgStatuses?.flatMap((qg) => qg.failedConditions)} />
+      </Column>
+    </Spinner>
   );
 }
 
 export default React.memo(QualityGatePanel);
+
+const Column = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: var(--echoes-dimension-space-400);
+`;
+
+const Conditions = styled.div`
+  &:empty {
+    display: contents;
+  }
+`;

@@ -44,7 +44,7 @@ import { getBranchLikeQuery } from '../../../sonar-aligned/helpers/branch-like';
 import { formatMeasure } from '../../../sonar-aligned/helpers/measures';
 import { PullRequest } from '../../../types/branch-like';
 import { QualityGateStatusConditionEnhanced } from '../../../types/quality-gates';
-import { Component, MeasureEnhanced } from '../../../types/types';
+import { Component, MeasureEnhanced, QualityGate } from '../../../types/types';
 import {
   GridContainer,
   StyleMeasuresCard,
@@ -67,10 +67,11 @@ interface Props {
   conditions: QualityGateStatusConditionEnhanced[];
   measures: MeasureEnhanced[];
   pullRequest: PullRequest;
+  qualityGate?: QualityGate;
 }
 
 export default function MeasuresCardPanel(props: React.PropsWithChildren<Props>) {
-  const { pullRequest, component, measures, conditions } = props;
+  const { pullRequest, component, measures, conditions, qualityGate } = props;
 
   const newSecurityHotspots = getLeakValue(
     findMeasure(measures, MetricKey.new_security_hotspots),
@@ -100,9 +101,9 @@ export default function MeasuresCardPanel(props: React.PropsWithChildren<Props>)
   const totalFailedConditions = conditions.filter((condition) => condition.level === Status.ERROR);
 
   return (
-    <Card>
+    <Card className="sw-py-8 sw-px-6">
       <GridContainer
-        className={classNames('sw-relative sw-overflow-hidden sw-mt-8 js-summary', {
+        className={classNames('sw-relative sw-overflow-hidden js-summary', {
           'sw-grid-cols-3': totalFailedConditions.length === 0,
           'sw-grid-cols-4': totalFailedConditions.length > 0,
         })}
@@ -110,6 +111,7 @@ export default function MeasuresCardPanel(props: React.PropsWithChildren<Props>)
         {totalFailedConditions.length > 0 && (
           <StyledConditionsCard className="sw-row-span-3">
             <FailedConditions
+              qualityGate={qualityGate}
               branchLike={pullRequest}
               failedConditions={totalFailedConditions}
               isNewCode
@@ -121,9 +123,6 @@ export default function MeasuresCardPanel(props: React.PropsWithChildren<Props>)
           <IssueMeasuresCardInner
             header={intl.formatMessage({ id: 'overview.new_issues' })}
             data-testid={`overview__measures-${MetricKey.new_violations}`}
-            data-guiding-id={
-              isIssuesConditionFailed ? 'overviewZeroNewIssuesSimplification' : undefined
-            }
             metric={MetricKey.new_violations}
             value={formatMeasure(issuesCount, MetricType.ShortInteger)}
             url={issuesUrl}

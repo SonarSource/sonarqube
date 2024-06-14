@@ -18,13 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { Card, FlagMessage, Link } from 'design-system';
+import { Link } from '@sonarsource/echoes-react';
 import * as React from 'react';
+import { FormattedMessage } from 'react-intl';
 import { getBranchLikeQuery } from '~sonar-aligned/helpers/branch-like';
-import { DocLink } from '../../../helpers/doc-links';
-import { useDocUrl } from '../../../helpers/docs';
-import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { getProjectQueryUrl } from '../../../helpers/urls';
+import { ComponentQualifier } from '../../../sonar-aligned/types/component';
 import { QualityGateStatus } from '../../../types/quality-gates';
 
 interface Props {
@@ -32,28 +31,27 @@ interface Props {
 }
 
 export default function ApplicationNonCaycProjectWarning({ projects }: Props) {
-  const caycUrl = useDocUrl(DocLink.CaYC);
-
   return (
-    <Card className="sw-mt-4 sw-body-sm">
-      <FlagMessage variant="warning">
-        {translateWithParameters(
-          'overview.quality_gate.application.non_cayc.projects_x',
-          projects.length,
-        )}
-      </FlagMessage>
+    <>
+      <p className="sw-font-bold">
+        <FormattedMessage
+          id={`overview.quality_gate.conditions.cayc.warning.title.${ComponentQualifier.Application}`}
+        />
+      </p>
 
-      <ul className="sw-mt-4 sw-ml-2 sw-mb-2">
+      <p className="sw-my-4">
+        <FormattedMessage
+          id={`overview.quality_gate.conditions.cayc.details.${ComponentQualifier.Application}`}
+        />
+      </p>
+
+      <ul className="sw-ml-2 sw-list-disc sw-list-inside">
         {projects.map(({ key, name, branchLike }) => (
-          <li key={key} className="sw-text-ellipsis sw-mb-2" title={name}>
+          <li key={key} className="sw-text-ellipsis" title={name}>
             <Link to={getProjectQueryUrl(key, getBranchLikeQuery(branchLike))}>{name}</Link>
           </li>
         ))}
       </ul>
-      <hr className="sw-my-4" />
-      <div className="sw-m-2 sw-mt-4">
-        <Link to={caycUrl}>{translate('overview.quality_gate.conditions.cayc.link')}</Link>
-      </div>
-    </Card>
+    </>
   );
 }

@@ -34,6 +34,7 @@ interface Props {
 export default function ZeroNewIssuesSimplificationGuide({ qualityGate }: Readonly<Props>) {
   const { currentUser, updateDismissedNotices } = React.useContext(CurrentUserContext);
   const shouldRun =
+    Boolean(qualityGate.isBuiltIn) &&
     currentUser.isLoggedIn &&
     !currentUser.dismissedNotices[NoticeType.OVERVIEW_ZERO_NEW_ISSUES_SIMPLIFICATION];
 
