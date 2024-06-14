@@ -64,7 +64,9 @@ export function QualityGatePanelSection(props: QualityGatePanelSectionProps) {
               isNewCode={isNewCode}
               isApplication={isApplication}
               qualityGate={qualityGate}
-              qgStatus={qgStatus}
+              failedConditions={qgStatus.failedConditions}
+              branchLike={qgStatus.branchLike}
+              component={qgStatus}
             />
           </BorderlessAccordion>
 
@@ -75,7 +77,9 @@ export function QualityGatePanelSection(props: QualityGatePanelSectionProps) {
           isNewCode={isNewCode}
           isApplication={isApplication}
           qualityGate={qualityGate}
-          qgStatus={qgStatus}
+          failedConditions={qgStatus.failedConditions}
+          branchLike={qgStatus.branchLike}
+          component={qgStatus}
         />
       )}
     </>

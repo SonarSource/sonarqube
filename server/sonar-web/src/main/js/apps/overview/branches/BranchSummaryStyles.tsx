@@ -54,6 +54,21 @@ export const StyleMeasuresCard = styled.div`
   }
 `;
 
+export const StyleMeasuresCardRightBorder = styled.div`
+  box-sizing: border-box;
+  position: relative;
+
+  &:not(:last-child):before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: calc(var(--grids-gaps) / -2);
+    height: 100%;
+    width: 1px;
+    background: ${themeColor('pageBlockBorder')};
+  }
+`;
+
 export const StyledConditionsCard = styled.div`
   box-sizing: border-box;
   position: relative;

@@ -22,15 +22,18 @@ import _ from 'lodash';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { isDiffMetric } from '../../../helpers/measures';
-import { QualityGateStatus } from '../../../types/quality-gates';
-import { QualityGate } from '../../../types/types';
+import { BranchLike } from '../../../types/branch-like';
+import { QualityGateStatusConditionEnhanced } from '../../../types/quality-gates';
+import { Component, QualityGate } from '../../../types/types';
 import ZeroNewIssuesSimplificationGuide from '../components/ZeroNewIssuesSimplificationGuide';
 import QualityGateConditions from './QualityGateConditions';
 
 export interface FailedConditionsProps {
+  branchLike?: BranchLike;
+  component: Pick<Component, 'key'>;
+  failedConditions: QualityGateStatusConditionEnhanced[];
   isApplication?: boolean;
   isNewCode: boolean;
-  qgStatus: QualityGateStatus;
   qualityGate?: QualityGate;
 }
 
@@ -38,9 +41,10 @@ export default function FailedConditions({
   isApplication,
   isNewCode,
   qualityGate,
-  qgStatus,
+  failedConditions,
+  component,
+  branchLike,
 }: FailedConditionsProps) {
-  const { failedConditions, branchLike } = qgStatus;
   const [newCodeFailedConditions, overallFailedConditions] = _.partition(
     failedConditions,
     (condition) => isDiffMetric(condition.metric),
@@ -70,7 +74,7 @@ export default function FailedConditions({
         <ZeroNewIssuesSimplificationGuide qualityGate={qualityGate} />
       )}
       <QualityGateConditions
-        component={qgStatus}
+        component={component}
         branchLike={branchLike}
         failedConditions={isNewCode ? newCodeFailedConditions : overallFailedConditions}
         isBuiltInQualityGate={isNewCode && qualityGate?.isBuiltIn}

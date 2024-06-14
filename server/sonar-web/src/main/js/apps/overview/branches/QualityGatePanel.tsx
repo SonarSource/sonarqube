@@ -38,8 +38,8 @@ export interface QualityGatePanelProps {
   loading?: boolean;
   qgStatuses?: QualityGateStatus[];
   qualityGate?: QualityGate;
-  showCaycWarningInApp: boolean;
-  showCaycWarningInProject: boolean;
+  showCaycWarningInApp?: boolean;
+  showCaycWarningInProject?: boolean;
   totalFailedConditionLength: number;
 }
 
@@ -51,8 +51,8 @@ export function QualityGatePanel(props: QualityGatePanelProps) {
     qualityGate,
     isNewCode = false,
     totalFailedConditionLength,
-    showCaycWarningInProject,
-    showCaycWarningInApp,
+    showCaycWarningInProject = false,
+    showCaycWarningInApp = false,
   } = props;
 
   if (qgStatuses === undefined) {

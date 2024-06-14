@@ -98,8 +98,6 @@ export default function PullRequestOverview(props: Readonly<Readonly<Props>>) {
           <PullRequestMetaTopBar pullRequest={pullRequest} measures={measures} />
           <BasicSeparator className="sw-my-4" />
 
-          <AnalysisStatus className="sw-mb-4" component={component} />
-
           {ignoredConditions && <IgnoredConditionWarning />}
 
           <div className="sw-flex sw-justify-between sw-items-start sw-my-6">
@@ -107,8 +105,9 @@ export default function PullRequestOverview(props: Readonly<Readonly<Props>>) {
             <LastAnalysisLabel analysisDate={pullRequest.analysisDate} />
           </div>
 
+          <AnalysisStatus className="sw-mb-4" component={component} />
+
           <MeasuresCardPanel
-            className="sw-flex-1"
             pullRequest={pullRequest}
             component={component}
             conditions={enhancedConditions}
