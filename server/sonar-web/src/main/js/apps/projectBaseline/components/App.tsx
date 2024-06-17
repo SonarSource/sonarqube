@@ -136,7 +136,7 @@ export class App extends React.PureComponent<Props, State> {
     Promise.all([
       getNewCodePeriod(),
       getNewCodePeriod({
-        branch: branchLike.name,
+        branch: this.props.hasFeature(Feature.BranchSupport) ? undefined : branchLike.name,
         project: component.key,
       }),
     ]).then(
@@ -203,7 +203,7 @@ export class App extends React.PureComponent<Props, State> {
   handleSubmit = (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    const { component, branchLike } = this.props;
+    const { component } = this.props;
     const { analysis, days, selected: type, referenceBranch, overrideGeneralSetting } = this.state;
 
     if (!overrideGeneralSetting) {
@@ -217,7 +217,6 @@ export class App extends React.PureComponent<Props, State> {
       this.setState({ saving: true });
       setNewCodePeriod({
         project: component.key,
-        branch: branchLike.name,
         type,
         value,
       }).then(

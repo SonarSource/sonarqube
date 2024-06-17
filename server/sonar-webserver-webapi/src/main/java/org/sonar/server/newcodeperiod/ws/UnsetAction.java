@@ -96,18 +96,12 @@ public class UnsetAction implements NewCodePeriodsWsAction {
 
         if (branchKey != null) {
           branchUuid = getBranch(dbSession, project, branchKey).getUuid();
-        } else if (isCommunityEdition) {
-          branchUuid = getMainBranch(dbSession, project).getUuid();
         }
       } else {
         userSession.checkIsSystemAdministrator();
       }
 
       newCodePeriodDao.delete(dbSession, projectUuid, branchUuid);
-      if (isCommunityEdition && projectUuid != null) {
-        // also delete project default in case it was somehow set (downgrade from another edition, for example)
-        newCodePeriodDao.delete(dbSession, projectUuid, null);
-      }
 
       dbSession.commit();
     }

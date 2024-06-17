@@ -151,12 +151,7 @@ public class SetAction implements NewCodePeriodsWsAction {
         if (branchKey != null) {
           branch = getBranch(dbSession, project, branchKey);
           dto.setBranchUuid(branch.getUuid());
-        } else if (isCommunityEdition) {
-          // in CE set main branch value instead of project value
-          branch = getMainBranch(dbSession, project);
-          dto.setBranchUuid(branch.getUuid());
         }
-
         dto.setProjectUuid(project.getUuid());
       } else {
         userSession.checkIsSystemAdministrator();
