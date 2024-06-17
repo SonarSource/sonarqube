@@ -60,6 +60,14 @@
     "local-rules/use-await-expect-async-matcher": "warn",
     "local-rules/no-implicit-coercion": "warn",
     "local-rules/no-api-imports": "warn",
-    "local-rules/no-within": "warn"
+    "local-rules/no-within": "warn",
+    "no-restricted-properties": [
+      "warn",
+      {
+        "object": "Math",
+        "property": "random",
+        "message": "Tests can fail when the same random number is used as a key for several React elements."
+      }
+    ]
   }
 }
