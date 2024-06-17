@@ -47,6 +47,11 @@ export enum OSs {
   MacOS = 'mac',
 }
 
+export enum Arch {
+  X86_64 = 'x86_64',
+  Arm64 = 'arm64',
+}
+
 export enum AutoConfig {
   Automatic = 'automatic',
   Manual = 'manual',

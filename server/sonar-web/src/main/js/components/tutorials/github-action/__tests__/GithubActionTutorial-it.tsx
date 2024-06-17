@@ -99,6 +99,10 @@ it('should follow and complete all steps', async () => {
   expect(getCopyToClipboardValue(1, 'Copy')).toMatchSnapshot(
     'C++ Linux: .github/workflows/build.yml',
   );
+  await user.click(ui.arm64Button.get());
+  expect(getCopyToClipboardValue(1, 'Copy')).toMatchSnapshot(
+    'C++ Linux arm64: .github/workflows/build.yml',
+  );
   await user.click(ui.windowsButton.get());
   expect(getCopyToClipboardValue(1, 'Copy')).toMatchSnapshot(
     'C++ Windows: .github/workflows/build.yml',
@@ -115,8 +119,13 @@ it('should follow and complete all steps', async () => {
   );
 
   await user.click(ui.linuxButton.get());
+  await user.click(ui.x86_64Button.get());
   expect(getCopyToClipboardValue(1, 'Copy')).toMatchSnapshot(
     'Objective-C Linux: .github/workflows/build.yml',
+  );
+  await user.click(ui.arm64Button.get());
+  expect(getCopyToClipboardValue(1, 'Copy')).toMatchSnapshot(
+    'Objective-C Linux arm64: .github/workflows/build.yml',
   );
   await user.click(ui.windowsButton.get());
   expect(getCopyToClipboardValue(1, 'Copy')).toMatchSnapshot(

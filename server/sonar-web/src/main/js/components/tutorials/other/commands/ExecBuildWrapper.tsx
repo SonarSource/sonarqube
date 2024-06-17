@@ -24,20 +24,16 @@ import { FormattedMessage } from 'react-intl';
 import { DocLink } from '../../../../helpers/doc-links';
 import { useDocUrl } from '../../../../helpers/docs';
 import { translate } from '../../../../helpers/l10n';
-import { OSs } from '../../types';
+import { Arch, OSs } from '../../types';
+import { getBuildWrapperExecutable } from '../../utils';
 
 export interface ExecBuildWrapperProps {
+  arch: Arch;
   os: OSs;
 }
 
-const executables: { [x in OSs]: string } = {
-  linux: 'build-wrapper-linux-x86-64',
-  win: 'build-wrapper-win-x86-64.exe',
-  mac: 'build-wrapper-macosx-x86',
-};
-
 export default function ExecBuildWrapper(props: ExecBuildWrapperProps) {
-  const { os } = props;
+  const { os, arch } = props;
 
   const docUrl = useDocUrl(DocLink.CFamilyBuildWrapper);
 
@@ -50,7 +46,7 @@ export default function ExecBuildWrapper(props: ExecBuildWrapperProps) {
       <CodeSnippet
         className="sw-px-4"
         isOneLine
-        snippet={`${executables[os]} --out-dir bw-output ${translate(
+        snippet={`${getBuildWrapperExecutable(os, arch)} --out-dir bw-output ${translate(
           'onboarding.analysis.build_wrapper.execute_build_command',
         )}`}
       />

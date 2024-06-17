@@ -98,6 +98,8 @@ it('should render correctly and allow token generation', async () => {
   await user.click(getTutorialBuildButtons().autoConfigManual.get());
   await user.click(getTutorialBuildButtons().linuxButton.get());
   assertManualCppStepIsCorrectlyRendered(OSs.Linux);
+  await user.click(getTutorialBuildButtons().arm64Button.get());
+  assertManualCppStepIsCorrectlyRendered(OSs.Linux, 'arm64');
   await user.click(getTutorialBuildButtons().windowsButton.get());
   assertObjCStepIsCorrectlyRendered(OSs.Windows);
   await user.click(getTutorialBuildButtons().macosButton.get());
@@ -106,7 +108,10 @@ it('should render correctly and allow token generation', async () => {
   // Analysis step: C Family
   await user.click(getTutorialBuildButtons().objCBuildButton.get());
   await user.click(getTutorialBuildButtons().linuxButton.get());
+  await user.click(getTutorialBuildButtons().x86_64Button.get());
   assertObjCStepIsCorrectlyRendered(OSs.Linux);
+  await user.click(getTutorialBuildButtons().arm64Button.get());
+  assertObjCStepIsCorrectlyRendered(OSs.Linux, 'arm64');
   await user.click(getTutorialBuildButtons().windowsButton.get());
   assertObjCStepIsCorrectlyRendered(OSs.Windows);
   await user.click(getTutorialBuildButtons().macosButton.get());
@@ -165,14 +170,16 @@ function assertGradleStepIsCorrectlyRendered() {
   expect(getCopyToClipboardValue(0, 'Copy')).toMatchSnapshot('gradle, copy additional properties');
 }
 
-function assertObjCStepIsCorrectlyRendered(os: string) {
-  expect(getCopyToClipboardValue(0, 'Copy')).toMatchSnapshot(`objectivec ${os}, copy shell script`);
+function assertObjCStepIsCorrectlyRendered(os: string, arch: string = 'x86_64') {
+  expect(getCopyToClipboardValue(0, 'Copy')).toMatchSnapshot(
+    `objectivec ${os} ${arch}, copy shell script`,
+  );
   expect(getCopyToClipboardValue(1, 'Copy to clipboard')).toBe('foo');
   expect(getCopyToClipboardValue(2, 'Copy to clipboard')).toMatchSnapshot(
-    `objectivec ${os}, copy additional properties`,
+    `objectivec ${os} ${arch}, copy additional properties`,
   );
   expect(getCopyToClipboardValue(1, 'Copy')).toMatchSnapshot(
-    `objectivec ${os}, copy build-wrapper command`,
+    `objectivec ${os} ${arch}, copy build-wrapper command`,
   );
 }
 
@@ -180,14 +187,16 @@ function assertAutomaticCppStepIsCorrectlyRendered() {
   assertOtherStepIsCorrectlyRendered();
 }
 
-function assertManualCppStepIsCorrectlyRendered(os: string) {
-  expect(getCopyToClipboardValue(0, 'Copy')).toMatchSnapshot(`manual-cpp ${os}, copy shell script`);
+function assertManualCppStepIsCorrectlyRendered(os: string, arch: string = 'x86_64') {
+  expect(getCopyToClipboardValue(0, 'Copy')).toMatchSnapshot(
+    `manual-cpp ${os} ${arch}, copy shell script`,
+  );
   expect(getCopyToClipboardValue(1, 'Copy to clipboard')).toBe('foo');
   expect(getCopyToClipboardValue(2, 'Copy to clipboard')).toMatchSnapshot(
-    `manual-cpp ${os}, copy additional properties`,
+    `manual-cpp ${os} ${arch}, copy additional properties`,
   );
   expect(getCopyToClipboardValue(1, 'Copy')).toMatchSnapshot(
-    `manual-cpp ${os}, copy build-wrapper command`,
+    `manual-cpp ${os} ${arch}, copy build-wrapper command`,
   );
 }
 

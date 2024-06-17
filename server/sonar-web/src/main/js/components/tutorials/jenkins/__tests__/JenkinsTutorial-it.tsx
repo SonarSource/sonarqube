@@ -149,6 +149,11 @@ it.each([AlmKeys.BitbucketCloud, AlmKeys.BitbucketServer, AlmKeys.GitHub, AlmKey
       `c++ (manual) and objectivec: linux jenkinsfile`,
     );
 
+    await user.click(ui.arm64Button.get());
+    expect(getCopyToClipboardValue(3, 'Copy')).toMatchSnapshot(
+      `c++ (manual) and objectivec: linux arm64 jenkinsfile`,
+    );
+
     await user.click(ui.windowsButton.get());
     expect(getCopyToClipboardValue(3, 'Copy')).toMatchSnapshot(
       `c++ (manual) and objectivec: windows jenkinsfile`,
@@ -164,19 +169,19 @@ it.each([AlmKeys.BitbucketCloud, AlmKeys.BitbucketServer, AlmKeys.GitHub, AlmKey
     expect(getCopyToClipboardValue(2, 'Copy')).toMatchSnapshot(`sonar-project.properties code`);
 
     await user.click(ui.linuxButton.get());
+    await user.click(ui.x86_64Button.get());
+    expect(getCopyToClipboardValue(3, 'Copy')).toMatchSnapshot(`objectivec: linux jenkinsfile`);
+
+    await user.click(ui.arm64Button.get());
     expect(getCopyToClipboardValue(3, 'Copy')).toMatchSnapshot(
-      `c++ (manual) and objectivec: linux jenkinsfile`,
+      `objectivec: linux arm64 jenkinsfile`,
     );
 
     await user.click(ui.windowsButton.get());
-    expect(getCopyToClipboardValue(3, 'Copy')).toMatchSnapshot(
-      `c++ (manual) and objectivec: windows jenkinsfile`,
-    );
+    expect(getCopyToClipboardValue(3, 'Copy')).toMatchSnapshot(`objectivec: windows jenkinsfile`);
 
     await user.click(ui.macosButton.get());
-    expect(getCopyToClipboardValue(3, 'Copy')).toMatchSnapshot(
-      `c++ (manual) and objectivec: macos jenkinsfile`,
-    );
+    expect(getCopyToClipboardValue(3, 'Copy')).toMatchSnapshot(`objectivec: macos jenkinsfile`);
 
     // Other
     await user.click(ui.otherBuildButton.get());

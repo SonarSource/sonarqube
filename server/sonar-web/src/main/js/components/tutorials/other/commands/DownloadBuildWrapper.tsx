@@ -23,22 +23,18 @@ import { FormattedMessage } from 'react-intl';
 import { translate } from '../../../../helpers/l10n';
 import { getBaseUrl } from '../../../../helpers/system';
 import { InlineSnippet } from '../../components/InlineSnippet';
-import { OSs } from '../../types';
+import { Arch, OSs } from '../../types';
+import { getBuildWrapperFolder } from '../../utils';
 
 export interface DownloadBuildWrapperProps {
+  arch: Arch;
   baseUrl: string;
   isLocal: boolean;
   os: OSs;
 }
 
-const FILENAMES: { [x in OSs]: string } = {
-  win: 'build-wrapper-win-x86',
-  linux: 'build-wrapper-linux-x86',
-  mac: 'build-wrapper-macosx-x86',
-};
-
-export default function DownloadBuildWrapper(props: DownloadBuildWrapperProps) {
-  const { os, isLocal, baseUrl } = props;
+export default function DownloadBuildWrapper(props: Readonly<DownloadBuildWrapperProps>) {
+  const { os, arch, isLocal, baseUrl } = props;
   return (
     <div className="sw-mb-4">
       <SubHeading className="sw-mb-2">
@@ -57,8 +53,8 @@ export default function DownloadBuildWrapper(props: DownloadBuildWrapperProps) {
           </p>
           <p className="sw-mb-2">
             <DownloadButton
-              download={`${FILENAMES[os]}.zip`}
-              href={`${getBaseUrl()}/static/cpp/${FILENAMES[os]}.zip`}
+              download={`${getBuildWrapperFolder(os, arch)}.zip`}
+              href={`${getBaseUrl()}/static/cpp/${getBuildWrapperFolder(os, arch)}.zip`}
               rel="noopener noreferrer"
               target="_blank"
             >
@@ -70,14 +66,14 @@ export default function DownloadBuildWrapper(props: DownloadBuildWrapperProps) {
         <CodeSnippet
           className="sw-p-4"
           language={os === OSs.Windows ? 'powershell' : 'bash'}
-          snippet={getRemoteDownloadSnippet(os, baseUrl)}
+          snippet={getRemoteDownloadSnippet(os, arch, baseUrl)}
         />
       )}
     </div>
   );
 }
 
-function getRemoteDownloadSnippet(os: OSs, baseUrl: string) {
+function getRemoteDownloadSnippet(os: OSs, arch: Arch, baseUrl: string) {
   if (os === OSs.Windows) {
     return `$env:SONAR_DIRECTORY = [System.IO.Path]::Combine($(get-location).Path,".sonar")
 rm "$env:SONAR_DIRECTORY/build-wrapper-win-x86" -Force -Recurse -ErrorAction SilentlyContinue
@@ -88,8 +84,9 @@ Add-Type -AssemblyName System.IO.Compression.FileSystem
 $env:Path += ";$env:SONAR_DIRECTORY/build-wrapper-win-x86"
 `;
   }
-  return `curl --create-dirs -sSLo $HOME/.sonar/${FILENAMES[os]}.zip ${baseUrl}/static/cpp/${FILENAMES[os]}.zip
-unzip -o $HOME/.sonar/${FILENAMES[os]}.zip -d $HOME/.sonar/
-export PATH=$HOME/.sonar/${FILENAMES[os]}:$PATH
+  const folder = getBuildWrapperFolder(os, arch);
+  return `curl --create-dirs -sSLo $HOME/.sonar/${folder}.zip ${baseUrl}/static/cpp/${folder}.zip
+unzip -o $HOME/.sonar/${folder}.zip -d $HOME/.sonar/
+export PATH=$HOME/.sonar/${folder}:$PATH
 `;
 }

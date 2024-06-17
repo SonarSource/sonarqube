@@ -31,7 +31,8 @@ import { CompilationInfo } from '../../components/CompilationInfo';
 import GithubCFamilyExampleRepositories from '../../components/GithubCFamilyExampleRepositories';
 import RenderOptions from '../../components/RenderOptions';
 import SentenceWithHighlights from '../../components/SentenceWithHighlights';
-import { AutoConfig, BuildTools, OSs, TutorialConfig, TutorialModes } from '../../types';
+import { Arch, AutoConfig, BuildTools, OSs, TutorialConfig, TutorialModes } from '../../types';
+import { getBuildWrapperExecutableLinux, getBuildWrapperFolderLinux } from '../../utils';
 import AlertClassicEditor from './AlertClassicEditor';
 import Other from './Other';
 import PrepareAnalysisCommand, { PrepareType } from './PrepareAnalysisCommand';
@@ -53,16 +54,16 @@ type OsConstant = {
 export default function ClangGCC(props: ClangGCCProps) {
   const { config, projectKey } = props;
   const [os, setOs] = React.useState<OSs>(OSs.Linux);
+  const [arch, setArch] = React.useState<Arch>(Arch.X86_64);
   const host = getHostUrl();
 
   const codeSnippetDownload: OsConstant = {
     [OSs.Linux]: {
-      script: `curl '${host}/static/cpp/build-wrapper-linux-x86.zip' --output build-wrapper.zip
+      script: `curl '${host}/static/cpp/${getBuildWrapperFolderLinux(arch)}.zip' --output build-wrapper.zip
 unzip build-wrapper.zip`,
       highlightScriptKey:
         'onboarding.tutorial.with.azure_pipelines.BranchAnalysis.build_wrapper.ccpp.nix',
-      scriptBuild:
-        './build-wrapper-linux-x86/build-wrapper-linux-x86-64 --out-dir bw-output <your build command here>',
+      scriptBuild: `./${getBuildWrapperFolderLinux(arch)}/${getBuildWrapperExecutableLinux(arch)} --out-dir bw-output <your build command here>`,
     },
     [OSs.Windows]: {
       script: `Invoke-WebRequest -Uri '${host}/static/cpp/build-wrapper-win-x86.zip' -OutFile 'build-wrapper.zip'
@@ -96,6 +97,20 @@ unzip build-wrapper.zip`,
         optionLabelKey="onboarding.build.other.os"
         options={Object.values(OSs)}
       />
+      {os === OSs.Linux && (
+        <>
+          <div className="sw-mt-4">
+            {translate('onboarding.tutorial.with.azure_pipelines.architecture')}
+          </div>
+          <RenderOptions
+            label={translate('onboarding.tutorial.with.azure_pipelines.architecture')}
+            checked={arch}
+            onCheck={(value: Arch) => setArch(value)}
+            optionLabelKey="onboarding.build.other.architecture"
+            options={[Arch.X86_64, Arch.Arm64]}
+          />
+        </>
+      )}
 
       <GithubCFamilyExampleRepositories
         className="sw-mt-4 sw-w-abs-600"

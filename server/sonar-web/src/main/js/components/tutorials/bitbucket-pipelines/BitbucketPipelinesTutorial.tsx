@@ -25,9 +25,10 @@ import { Component } from '../../../types/types';
 import { LoggedInUser } from '../../../types/users';
 import AllSet from '../components/AllSet';
 import GithubCFamilyExampleRepositories from '../components/GithubCFamilyExampleRepositories';
+import RenderOptions from '../components/RenderOptions';
 import YamlFileStep from '../components/YamlFileStep';
-import { TutorialConfig, TutorialModes } from '../types';
-import { shouldShowGithubCFamilyExampleRepositories } from '../utils';
+import { Arch, OSs, TutorialConfig, TutorialModes } from '../types';
+import { shouldShowArchSelector, shouldShowGithubCFamilyExampleRepositories } from '../utils';
 import AnalysisCommand from './AnalysisCommand';
 import RepositoryVariables from './RepositoryVariables';
 
@@ -46,12 +47,15 @@ export interface BitbucketPipelinesTutorialProps {
   willRefreshAutomatically?: boolean;
 }
 
-export default function BitbucketPipelinesTutorial(props: BitbucketPipelinesTutorialProps) {
+export default function BitbucketPipelinesTutorial(
+  props: Readonly<BitbucketPipelinesTutorialProps>,
+) {
   const { almBinding, baseUrl, currentUser, component, willRefreshAutomatically, mainBranchName } =
     props;
 
   const [config, setConfig] = React.useState<TutorialConfig>({});
   const [done, setDone] = React.useState(false);
+  const [arch, setArch] = React.useState<Arch>(Arch.X86_64);
 
   React.useEffect(() => {
     setDone(Boolean(config.buildTool));
@@ -82,8 +86,21 @@ export default function BitbucketPipelinesTutorial(props: BitbucketPipelinesTuto
                     ci={TutorialModes.BitbucketPipelines}
                   />
                 )}
+                {shouldShowArchSelector(OSs.Linux, config) && (
+                  <div className="sw-my-4">
+                    <RenderOptions
+                      label={translate('onboarding.build.other.architecture')}
+                      checked={arch}
+                      onCheck={(value: Arch) => setArch(value)}
+                      optionLabelKey="onboarding.build.other.architecture"
+                      options={[Arch.X86_64, Arch.Arm64]}
+                      titleLabelKey="onboarding.build.other.architecture"
+                    />
+                  </div>
+                )}
                 <AnalysisCommand
                   config={config}
+                  arch={arch}
                   component={component}
                   mainBranchName={mainBranchName}
                 />

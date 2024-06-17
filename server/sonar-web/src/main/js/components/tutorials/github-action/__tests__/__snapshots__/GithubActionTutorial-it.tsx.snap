@@ -120,6 +120,42 @@ exports[`should follow and complete all steps: C++ (automatic) and other: sonar-
 
 exports[`should follow and complete all steps: C++ (automatic) and other: sonar-project.properties 2`] = `"sonar.projectKey=my-project"`;
 
+exports[`should follow and complete all steps: C++ Linux arm64: .github/workflows/build.yml 1`] = `
+"name: Build
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  build:
+    name: Build and analyze
+    runs-on: ubuntu-latest
+    env:
+      BUILD_WRAPPER_OUT_DIR: build_wrapper_output_directory # Directory where build-wrapper output will be placed
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+      - name: Install sonar-scanner and build-wrapper
+        env:
+          SONAR_HOST_URL: \${{secrets.SONAR_HOST_URL}}
+        uses: SonarSource/sonarqube-github-c-cpp@v1
+      - name: Run build-wrapper
+        run: |
+          build-wrapper-linux-aarch64 --out-dir \${{ env.BUILD_WRAPPER_OUT_DIR }} <insert_your_clean_build_command>
+      - name: Run sonar-scanner
+        env:
+          GITHUB_TOKEN: \${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: \${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: \${{secrets.SONAR_HOST_URL}}
+        run: |
+          sonar-scanner --define sonar.cfamily.compile-commands="\${{ env.BUILD_WRAPPER_OUT_DIR }}/compile_commands.json""
+`;
+
 exports[`should follow and complete all steps: C++ Linux: .github/workflows/build.yml 1`] = `
 "name: Build
 
@@ -338,6 +374,42 @@ jobs:
           SONAR_TOKEN: \${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: \${{ secrets.SONAR_HOST_URL }}
         run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=my-project -Dsonar.projectName='MyProject'"
+`;
+
+exports[`should follow and complete all steps: Objective-C Linux arm64: .github/workflows/build.yml 1`] = `
+"name: Build
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  build:
+    name: Build and analyze
+    runs-on: ubuntu-latest
+    env:
+      BUILD_WRAPPER_OUT_DIR: build_wrapper_output_directory # Directory where build-wrapper output will be placed
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+      - name: Install sonar-scanner and build-wrapper
+        env:
+          SONAR_HOST_URL: \${{secrets.SONAR_HOST_URL}}
+        uses: SonarSource/sonarqube-github-c-cpp@v1
+      - name: Run build-wrapper
+        run: |
+          build-wrapper-linux-aarch64 --out-dir \${{ env.BUILD_WRAPPER_OUT_DIR }} <insert_your_clean_build_command>
+      - name: Run sonar-scanner
+        env:
+          GITHUB_TOKEN: \${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: \${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: \${{secrets.SONAR_HOST_URL}}
+        run: |
+          sonar-scanner --define sonar.cfamily.compile-commands="\${{ env.BUILD_WRAPPER_OUT_DIR }}/compile_commands.json""
 `;
 
 exports[`should follow and complete all steps: Objective-C Linux: .github/workflows/build.yml 1`] = `

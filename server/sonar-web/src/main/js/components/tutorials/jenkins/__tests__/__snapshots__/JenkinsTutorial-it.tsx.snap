@@ -58,18 +58,18 @@ exports[`bitbucket: can select devops platform and complete all the steps with c
 
 exports[`bitbucket: can select devops platform and complete all the steps with copying code snippets: c++ (automatic and other): build tools sonar-project.properties code 2`] = `"sonar.projectKey=my-project"`;
 
-exports[`bitbucket: can select devops platform and complete all the steps with copying code snippets: c++ (manual) and objectivec: linux jenkinsfile 1`] = `
+exports[`bitbucket: can select devops platform and complete all the steps with copying code snippets: c++ (manual) and objectivec: linux arm64 jenkinsfile 1`] = `
 "node {
   stage('SCM') {
     checkout scm
   }
   stage('Download Build Wrapper') {
     sh "mkdir -p .sonar"
-    sh "curl -sSLo build-wrapper-linux-x86.zip http://localhost:9000/static/cpp/build-wrapper-linux-x86.zip"
-    sh "unzip -o build-wrapper-linux-x86.zip -d .sonar"
+    sh "curl -sSLo build-wrapper-linux-aarch64.zip http://localhost:9000/static/cpp/build-wrapper-linux-aarch64.zip"
+    sh "unzip -o build-wrapper-linux-aarch64.zip -d .sonar"
   }
   stage('Build') {
-    sh ".sonar/build-wrapper-linux-x86/build-wrapper-linux-x86-64 --out-dir bw-output <your clean build command>"
+    sh ".sonar/build-wrapper-linux-aarch64/build-wrapper-linux-aarch64 --out-dir bw-output <your clean build command>"
   }
   stage('SonarQube Analysis') {
     def scannerHome = tool 'SonarScanner';
@@ -80,7 +80,7 @@ exports[`bitbucket: can select devops platform and complete all the steps with c
 }"
 `;
 
-exports[`bitbucket: can select devops platform and complete all the steps with copying code snippets: c++ (manual) and objectivec: linux jenkinsfile 2`] = `
+exports[`bitbucket: can select devops platform and complete all the steps with copying code snippets: c++ (manual) and objectivec: linux jenkinsfile 1`] = `
 "node {
   stage('SCM') {
     checkout scm
@@ -128,65 +128,7 @@ exports[`bitbucket: can select devops platform and complete all the steps with c
 }"
 `;
 
-exports[`bitbucket: can select devops platform and complete all the steps with copying code snippets: c++ (manual) and objectivec: macos jenkinsfile 2`] = `
-"node {
-  stage('SCM') {
-    checkout scm
-  }
-  stage('Download Build Wrapper') {
-    sh '''
-      mkdir -p .sonar
-      curl -sSLo build-wrapper-macosx-x86.zip http://localhost:9000/static/cpp/build-wrapper-macosx-x86.zip
-      unzip -o build-wrapper-macosx-x86.zip -d .sonar
-    '''
-  }
-  stage('Build') {
-    sh '''
-      .sonar/build-wrapper-macosx-x86/build-wrapper-macosx-x86 --out-dir bw-output <your clean build command>
-    '''
-  }
-  stage('SonarQube Analysis') {
-    def scannerHome = tool 'SonarScanner';
-    withSonarQubeEnv() {
-      sh "\${scannerHome}/bin/sonar-scanner -Dsonar.cfamily.compile-commands=bw-output/compile_commands.json"
-    }
-  }
-}"
-`;
-
 exports[`bitbucket: can select devops platform and complete all the steps with copying code snippets: c++ (manual) and objectivec: windows jenkinsfile 1`] = `
-"node {
-  stage('SCM') {
-    checkout scm
-  }
-  stage('Download Build Wrapper') {
-    powershell '''
-      $path = "$HOME/.sonar/build-wrapper-win-x86.zip"
-      rm build-wrapper-win-x86 -Recurse -Force -ErrorAction SilentlyContinue
-      rm $path -Force -ErrorAction SilentlyContinue
-      mkdir $HOME/.sonar
-      [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-      (New-Object System.Net.WebClient).DownloadFile(http://localhost:9000/static/cpp/build-wrapper-win-x86.zip", $path)
-      Add-Type -AssemblyName System.IO.Compression.FileSystem
-      [System.IO.Compression.ZipFile]::ExtractToDirectory($path, "$HOME/.sonar")
-    '''
-  }
-  stage('Build') {
-    powershell '''
-      $env:Path += ";$HOME/.sonar/build-wrapper-win-x86"
-      build-wrapper-win-x86-64 --out-dir bw-output <your clean build command>
-    '''
-  }
-  stage('SonarQube Analysis') {
-    def scannerHome = tool 'SonarScanner';
-    withSonarQubeEnv() {
-      powershell "\${scannerHome}/bin/sonar-scanner -Dsonar.cfamily.compile-commands=bw-output/compile_commands.json"
-    }
-  }
-}"
-`;
-
-exports[`bitbucket: can select devops platform and complete all the steps with copying code snippets: c++ (manual) and objectivec: windows jenkinsfile 2`] = `
 "node {
   stage('SCM') {
     checkout scm
@@ -259,6 +201,108 @@ exports[`bitbucket: can select devops platform and complete all the steps with c
     def mvn = tool 'Default Maven';
     withSonarQubeEnv() {
       sh "\${mvn}/bin/mvn clean verify sonar:sonar -Dsonar.projectKey=my-project -Dsonar.projectName='MyProject'"
+    }
+  }
+}"
+`;
+
+exports[`bitbucket: can select devops platform and complete all the steps with copying code snippets: objectivec: linux arm64 jenkinsfile 1`] = `
+"node {
+  stage('SCM') {
+    checkout scm
+  }
+  stage('Download Build Wrapper') {
+    sh "mkdir -p .sonar"
+    sh "curl -sSLo build-wrapper-linux-aarch64.zip http://localhost:9000/static/cpp/build-wrapper-linux-aarch64.zip"
+    sh "unzip -o build-wrapper-linux-aarch64.zip -d .sonar"
+  }
+  stage('Build') {
+    sh ".sonar/build-wrapper-linux-aarch64/build-wrapper-linux-aarch64 --out-dir bw-output <your clean build command>"
+  }
+  stage('SonarQube Analysis') {
+    def scannerHome = tool 'SonarScanner';
+    withSonarQubeEnv() {
+      sh "\${scannerHome}/bin/sonar-scanner -Dsonar.cfamily.compile-commands=bw-output/compile_commands.json"
+    }
+  }
+}"
+`;
+
+exports[`bitbucket: can select devops platform and complete all the steps with copying code snippets: objectivec: linux jenkinsfile 1`] = `
+"node {
+  stage('SCM') {
+    checkout scm
+  }
+  stage('Download Build Wrapper') {
+    sh "mkdir -p .sonar"
+    sh "curl -sSLo build-wrapper-linux-x86.zip http://localhost:9000/static/cpp/build-wrapper-linux-x86.zip"
+    sh "unzip -o build-wrapper-linux-x86.zip -d .sonar"
+  }
+  stage('Build') {
+    sh ".sonar/build-wrapper-linux-x86/build-wrapper-linux-x86-64 --out-dir bw-output <your clean build command>"
+  }
+  stage('SonarQube Analysis') {
+    def scannerHome = tool 'SonarScanner';
+    withSonarQubeEnv() {
+      sh "\${scannerHome}/bin/sonar-scanner -Dsonar.cfamily.compile-commands=bw-output/compile_commands.json"
+    }
+  }
+}"
+`;
+
+exports[`bitbucket: can select devops platform and complete all the steps with copying code snippets: objectivec: macos jenkinsfile 1`] = `
+"node {
+  stage('SCM') {
+    checkout scm
+  }
+  stage('Download Build Wrapper') {
+    sh '''
+      mkdir -p .sonar
+      curl -sSLo build-wrapper-macosx-x86.zip http://localhost:9000/static/cpp/build-wrapper-macosx-x86.zip
+      unzip -o build-wrapper-macosx-x86.zip -d .sonar
+    '''
+  }
+  stage('Build') {
+    sh '''
+      .sonar/build-wrapper-macosx-x86/build-wrapper-macosx-x86 --out-dir bw-output <your clean build command>
+    '''
+  }
+  stage('SonarQube Analysis') {
+    def scannerHome = tool 'SonarScanner';
+    withSonarQubeEnv() {
+      sh "\${scannerHome}/bin/sonar-scanner -Dsonar.cfamily.compile-commands=bw-output/compile_commands.json"
+    }
+  }
+}"
+`;
+
+exports[`bitbucket: can select devops platform and complete all the steps with copying code snippets: objectivec: windows jenkinsfile 1`] = `
+"node {
+  stage('SCM') {
+    checkout scm
+  }
+  stage('Download Build Wrapper') {
+    powershell '''
+      $path = "$HOME/.sonar/build-wrapper-win-x86.zip"
+      rm build-wrapper-win-x86 -Recurse -Force -ErrorAction SilentlyContinue
+      rm $path -Force -ErrorAction SilentlyContinue
+      mkdir $HOME/.sonar
+      [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+      (New-Object System.Net.WebClient).DownloadFile(http://localhost:9000/static/cpp/build-wrapper-win-x86.zip", $path)
+      Add-Type -AssemblyName System.IO.Compression.FileSystem
+      [System.IO.Compression.ZipFile]::ExtractToDirectory($path, "$HOME/.sonar")
+    '''
+  }
+  stage('Build') {
+    powershell '''
+      $env:Path += ";$HOME/.sonar/build-wrapper-win-x86"
+      build-wrapper-win-x86-64 --out-dir bw-output <your clean build command>
+    '''
+  }
+  stage('SonarQube Analysis') {
+    def scannerHome = tool 'SonarScanner';
+    withSonarQubeEnv() {
+      powershell "\${scannerHome}/bin/sonar-scanner -Dsonar.cfamily.compile-commands=bw-output/compile_commands.json"
     }
   }
 }"
@@ -363,18 +407,18 @@ exports[`bitbucketcloud: can select devops platform and complete all the steps w
 
 exports[`bitbucketcloud: can select devops platform and complete all the steps with copying code snippets: c++ (automatic and other): build tools sonar-project.properties code 2`] = `"sonar.projectKey=my-project"`;
 
-exports[`bitbucketcloud: can select devops platform and complete all the steps with copying code snippets: c++ (manual) and objectivec: linux jenkinsfile 1`] = `
+exports[`bitbucketcloud: can select devops platform and complete all the steps with copying code snippets: c++ (manual) and objectivec: linux arm64 jenkinsfile 1`] = `
 "node {
   stage('SCM') {
     checkout scm
   }
   stage('Download Build Wrapper') {
     sh "mkdir -p .sonar"
-    sh "curl -sSLo build-wrapper-linux-x86.zip http://localhost:9000/static/cpp/build-wrapper-linux-x86.zip"
-    sh "unzip -o build-wrapper-linux-x86.zip -d .sonar"
+    sh "curl -sSLo build-wrapper-linux-aarch64.zip http://localhost:9000/static/cpp/build-wrapper-linux-aarch64.zip"
+    sh "unzip -o build-wrapper-linux-aarch64.zip -d .sonar"
   }
   stage('Build') {
-    sh ".sonar/build-wrapper-linux-x86/build-wrapper-linux-x86-64 --out-dir bw-output <your clean build command>"
+    sh ".sonar/build-wrapper-linux-aarch64/build-wrapper-linux-aarch64 --out-dir bw-output <your clean build command>"
   }
   stage('SonarQube Analysis') {
     def scannerHome = tool 'SonarScanner';
@@ -385,7 +429,7 @@ exports[`bitbucketcloud: can select devops platform and complete all the steps w
 }"
 `;
 
-exports[`bitbucketcloud: can select devops platform and complete all the steps with copying code snippets: c++ (manual) and objectivec: linux jenkinsfile 2`] = `
+exports[`bitbucketcloud: can select devops platform and complete all the steps with copying code snippets: c++ (manual) and objectivec: linux jenkinsfile 1`] = `
 "node {
   stage('SCM') {
     checkout scm
@@ -433,65 +477,7 @@ exports[`bitbucketcloud: can select devops platform and complete all the steps w
 }"
 `;
 
-exports[`bitbucketcloud: can select devops platform and complete all the steps with copying code snippets: c++ (manual) and objectivec: macos jenkinsfile 2`] = `
-"node {
-  stage('SCM') {
-    checkout scm
-  }
-  stage('Download Build Wrapper') {
-    sh '''
-      mkdir -p .sonar
-      curl -sSLo build-wrapper-macosx-x86.zip http://localhost:9000/static/cpp/build-wrapper-macosx-x86.zip
-      unzip -o build-wrapper-macosx-x86.zip -d .sonar
-    '''
-  }
-  stage('Build') {
-    sh '''
-      .sonar/build-wrapper-macosx-x86/build-wrapper-macosx-x86 --out-dir bw-output <your clean build command>
-    '''
-  }
-  stage('SonarQube Analysis') {
-    def scannerHome = tool 'SonarScanner';
-    withSonarQubeEnv() {
-      sh "\${scannerHome}/bin/sonar-scanner -Dsonar.cfamily.compile-commands=bw-output/compile_commands.json"
-    }
-  }
-}"
-`;
-
 exports[`bitbucketcloud: can select devops platform and complete all the steps with copying code snippets: c++ (manual) and objectivec: windows jenkinsfile 1`] = `
-"node {
-  stage('SCM') {
-    checkout scm
-  }
-  stage('Download Build Wrapper') {
-    powershell '''
-      $path = "$HOME/.sonar/build-wrapper-win-x86.zip"
-      rm build-wrapper-win-x86 -Recurse -Force -ErrorAction SilentlyContinue
-      rm $path -Force -ErrorAction SilentlyContinue
-      mkdir $HOME/.sonar
-      [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-      (New-Object System.Net.WebClient).DownloadFile(http://localhost:9000/static/cpp/build-wrapper-win-x86.zip", $path)
-      Add-Type -AssemblyName System.IO.Compression.FileSystem
-      [System.IO.Compression.ZipFile]::ExtractToDirectory($path, "$HOME/.sonar")
-    '''
-  }
-  stage('Build') {
-    powershell '''
-      $env:Path += ";$HOME/.sonar/build-wrapper-win-x86"
-      build-wrapper-win-x86-64 --out-dir bw-output <your clean build command>
-    '''
-  }
-  stage('SonarQube Analysis') {
-    def scannerHome = tool 'SonarScanner';
-    withSonarQubeEnv() {
-      powershell "\${scannerHome}/bin/sonar-scanner -Dsonar.cfamily.compile-commands=bw-output/compile_commands.json"
-    }
-  }
-}"
-`;
-
-exports[`bitbucketcloud: can select devops platform and complete all the steps with copying code snippets: c++ (manual) and objectivec: windows jenkinsfile 2`] = `
 "node {
   stage('SCM') {
     checkout scm
@@ -564,6 +550,108 @@ exports[`bitbucketcloud: can select devops platform and complete all the steps w
     def mvn = tool 'Default Maven';
     withSonarQubeEnv() {
       sh "\${mvn}/bin/mvn clean verify sonar:sonar -Dsonar.projectKey=my-project -Dsonar.projectName='MyProject'"
+    }
+  }
+}"
+`;
+
+exports[`bitbucketcloud: can select devops platform and complete all the steps with copying code snippets: objectivec: linux arm64 jenkinsfile 1`] = `
+"node {
+  stage('SCM') {
+    checkout scm
+  }
+  stage('Download Build Wrapper') {
+    sh "mkdir -p .sonar"
+    sh "curl -sSLo build-wrapper-linux-aarch64.zip http://localhost:9000/static/cpp/build-wrapper-linux-aarch64.zip"
+    sh "unzip -o build-wrapper-linux-aarch64.zip -d .sonar"
+  }
+  stage('Build') {
+    sh ".sonar/build-wrapper-linux-aarch64/build-wrapper-linux-aarch64 --out-dir bw-output <your clean build command>"
+  }
+  stage('SonarQube Analysis') {
+    def scannerHome = tool 'SonarScanner';
+    withSonarQubeEnv() {
+      sh "\${scannerHome}/bin/sonar-scanner -Dsonar.cfamily.compile-commands=bw-output/compile_commands.json"
+    }
+  }
+}"
+`;
+
+exports[`bitbucketcloud: can select devops platform and complete all the steps with copying code snippets: objectivec: linux jenkinsfile 1`] = `
+"node {
+  stage('SCM') {
+    checkout scm
+  }
+  stage('Download Build Wrapper') {
+    sh "mkdir -p .sonar"
+    sh "curl -sSLo build-wrapper-linux-x86.zip http://localhost:9000/static/cpp/build-wrapper-linux-x86.zip"
+    sh "unzip -o build-wrapper-linux-x86.zip -d .sonar"
+  }
+  stage('Build') {
+    sh ".sonar/build-wrapper-linux-x86/build-wrapper-linux-x86-64 --out-dir bw-output <your clean build command>"
+  }
+  stage('SonarQube Analysis') {
+    def scannerHome = tool 'SonarScanner';
+    withSonarQubeEnv() {
+      sh "\${scannerHome}/bin/sonar-scanner -Dsonar.cfamily.compile-commands=bw-output/compile_commands.json"
+    }
+  }
+}"
+`;
+
+exports[`bitbucketcloud: can select devops platform and complete all the steps with copying code snippets: objectivec: macos jenkinsfile 1`] = `
+"node {
+  stage('SCM') {
+    checkout scm
+  }
+  stage('Download Build Wrapper') {
+    sh '''
+      mkdir -p .sonar
+      curl -sSLo build-wrapper-macosx-x86.zip http://localhost:9000/static/cpp/build-wrapper-macosx-x86.zip
+      unzip -o build-wrapper-macosx-x86.zip -d .sonar
+    '''
+  }
+  stage('Build') {
+    sh '''
+      .sonar/build-wrapper-macosx-x86/build-wrapper-macosx-x86 --out-dir bw-output <your clean build command>
+    '''
+  }
+  stage('SonarQube Analysis') {
+    def scannerHome = tool 'SonarScanner';
+    withSonarQubeEnv() {
+      sh "\${scannerHome}/bin/sonar-scanner -Dsonar.cfamily.compile-commands=bw-output/compile_commands.json"
+    }
+  }
+}"
+`;
+
+exports[`bitbucketcloud: can select devops platform and complete all the steps with copying code snippets: objectivec: windows jenkinsfile 1`] = `
+"node {
+  stage('SCM') {
+    checkout scm
+  }
+  stage('Download Build Wrapper') {
+    powershell '''
+      $path = "$HOME/.sonar/build-wrapper-win-x86.zip"
+      rm build-wrapper-win-x86 -Recurse -Force -ErrorAction SilentlyContinue
+      rm $path -Force -ErrorAction SilentlyContinue
+      mkdir $HOME/.sonar
+      [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+      (New-Object System.Net.WebClient).DownloadFile(http://localhost:9000/static/cpp/build-wrapper-win-x86.zip", $path)
+      Add-Type -AssemblyName System.IO.Compression.FileSystem
+      [System.IO.Compression.ZipFile]::ExtractToDirectory($path, "$HOME/.sonar")
+    '''
+  }
+  stage('Build') {
+    powershell '''
+      $env:Path += ";$HOME/.sonar/build-wrapper-win-x86"
+      build-wrapper-win-x86-64 --out-dir bw-output <your clean build command>
+    '''
+  }
+  stage('SonarQube Analysis') {
+    def scannerHome = tool 'SonarScanner';
+    withSonarQubeEnv() {
+      powershell "\${scannerHome}/bin/sonar-scanner -Dsonar.cfamily.compile-commands=bw-output/compile_commands.json"
     }
   }
 }"
@@ -668,18 +756,18 @@ exports[`github: can select devops platform and complete all the steps with copy
 
 exports[`github: can select devops platform and complete all the steps with copying code snippets: c++ (automatic and other): build tools sonar-project.properties code 2`] = `"sonar.projectKey=my-project"`;
 
-exports[`github: can select devops platform and complete all the steps with copying code snippets: c++ (manual) and objectivec: linux jenkinsfile 1`] = `
+exports[`github: can select devops platform and complete all the steps with copying code snippets: c++ (manual) and objectivec: linux arm64 jenkinsfile 1`] = `
 "node {
   stage('SCM') {
     checkout scm
   }
   stage('Download Build Wrapper') {
     sh "mkdir -p .sonar"
-    sh "curl -sSLo build-wrapper-linux-x86.zip http://localhost:9000/static/cpp/build-wrapper-linux-x86.zip"
-    sh "unzip -o build-wrapper-linux-x86.zip -d .sonar"
+    sh "curl -sSLo build-wrapper-linux-aarch64.zip http://localhost:9000/static/cpp/build-wrapper-linux-aarch64.zip"
+    sh "unzip -o build-wrapper-linux-aarch64.zip -d .sonar"
   }
   stage('Build') {
-    sh ".sonar/build-wrapper-linux-x86/build-wrapper-linux-x86-64 --out-dir bw-output <your clean build command>"
+    sh ".sonar/build-wrapper-linux-aarch64/build-wrapper-linux-aarch64 --out-dir bw-output <your clean build command>"
   }
   stage('SonarQube Analysis') {
     def scannerHome = tool 'SonarScanner';
@@ -690,7 +778,7 @@ exports[`github: can select devops platform and complete all the steps with copy
 }"
 `;
 
-exports[`github: can select devops platform and complete all the steps with copying code snippets: c++ (manual) and objectivec: linux jenkinsfile 2`] = `
+exports[`github: can select devops platform and complete all the steps with copying code snippets: c++ (manual) and objectivec: linux jenkinsfile 1`] = `
 "node {
   stage('SCM') {
     checkout scm
@@ -738,65 +826,7 @@ exports[`github: can select devops platform and complete all the steps with copy
 }"
 `;
 
-exports[`github: can select devops platform and complete all the steps with copying code snippets: c++ (manual) and objectivec: macos jenkinsfile 2`] = `
-"node {
-  stage('SCM') {
-    checkout scm
-  }
-  stage('Download Build Wrapper') {
-    sh '''
-      mkdir -p .sonar
-      curl -sSLo build-wrapper-macosx-x86.zip http://localhost:9000/static/cpp/build-wrapper-macosx-x86.zip
-      unzip -o build-wrapper-macosx-x86.zip -d .sonar
-    '''
-  }
-  stage('Build') {
-    sh '''
-      .sonar/build-wrapper-macosx-x86/build-wrapper-macosx-x86 --out-dir bw-output <your clean build command>
-    '''
-  }
-  stage('SonarQube Analysis') {
-    def scannerHome = tool 'SonarScanner';
-    withSonarQubeEnv() {
-      sh "\${scannerHome}/bin/sonar-scanner -Dsonar.cfamily.compile-commands=bw-output/compile_commands.json"
-    }
-  }
-}"
-`;
-
 exports[`github: can select devops platform and complete all the steps with copying code snippets: c++ (manual) and objectivec: windows jenkinsfile 1`] = `
-"node {
-  stage('SCM') {
-    checkout scm
-  }
-  stage('Download Build Wrapper') {
-    powershell '''
-      $path = "$HOME/.sonar/build-wrapper-win-x86.zip"
-      rm build-wrapper-win-x86 -Recurse -Force -ErrorAction SilentlyContinue
-      rm $path -Force -ErrorAction SilentlyContinue
-      mkdir $HOME/.sonar
-      [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-      (New-Object System.Net.WebClient).DownloadFile(http://localhost:9000/static/cpp/build-wrapper-win-x86.zip", $path)
-      Add-Type -AssemblyName System.IO.Compression.FileSystem
-      [System.IO.Compression.ZipFile]::ExtractToDirectory($path, "$HOME/.sonar")
-    '''
-  }
-  stage('Build') {
-    powershell '''
-      $env:Path += ";$HOME/.sonar/build-wrapper-win-x86"
-      build-wrapper-win-x86-64 --out-dir bw-output <your clean build command>
-    '''
-  }
-  stage('SonarQube Analysis') {
-    def scannerHome = tool 'SonarScanner';
-    withSonarQubeEnv() {
-      powershell "\${scannerHome}/bin/sonar-scanner -Dsonar.cfamily.compile-commands=bw-output/compile_commands.json"
-    }
-  }
-}"
-`;
-
-exports[`github: can select devops platform and complete all the steps with copying code snippets: c++ (manual) and objectivec: windows jenkinsfile 2`] = `
 "node {
   stage('SCM') {
     checkout scm
@@ -869,6 +899,108 @@ exports[`github: can select devops platform and complete all the steps with copy
     def mvn = tool 'Default Maven';
     withSonarQubeEnv() {
       sh "\${mvn}/bin/mvn clean verify sonar:sonar -Dsonar.projectKey=my-project -Dsonar.projectName='MyProject'"
+    }
+  }
+}"
+`;
+
+exports[`github: can select devops platform and complete all the steps with copying code snippets: objectivec: linux arm64 jenkinsfile 1`] = `
+"node {
+  stage('SCM') {
+    checkout scm
+  }
+  stage('Download Build Wrapper') {
+    sh "mkdir -p .sonar"
+    sh "curl -sSLo build-wrapper-linux-aarch64.zip http://localhost:9000/static/cpp/build-wrapper-linux-aarch64.zip"
+    sh "unzip -o build-wrapper-linux-aarch64.zip -d .sonar"
+  }
+  stage('Build') {
+    sh ".sonar/build-wrapper-linux-aarch64/build-wrapper-linux-aarch64 --out-dir bw-output <your clean build command>"
+  }
+  stage('SonarQube Analysis') {
+    def scannerHome = tool 'SonarScanner';
+    withSonarQubeEnv() {
+      sh "\${scannerHome}/bin/sonar-scanner -Dsonar.cfamily.compile-commands=bw-output/compile_commands.json"
+    }
+  }
+}"
+`;
+
+exports[`github: can select devops platform and complete all the steps with copying code snippets: objectivec: linux jenkinsfile 1`] = `
+"node {
+  stage('SCM') {
+    checkout scm
+  }
+  stage('Download Build Wrapper') {
+    sh "mkdir -p .sonar"
+    sh "curl -sSLo build-wrapper-linux-x86.zip http://localhost:9000/static/cpp/build-wrapper-linux-x86.zip"
+    sh "unzip -o build-wrapper-linux-x86.zip -d .sonar"
+  }
+  stage('Build') {
+    sh ".sonar/build-wrapper-linux-x86/build-wrapper-linux-x86-64 --out-dir bw-output <your clean build command>"
+  }
+  stage('SonarQube Analysis') {
+    def scannerHome = tool 'SonarScanner';
+    withSonarQubeEnv() {
+      sh "\${scannerHome}/bin/sonar-scanner -Dsonar.cfamily.compile-commands=bw-output/compile_commands.json"
+    }
+  }
+}"
+`;
+
+exports[`github: can select devops platform and complete all the steps with copying code snippets: objectivec: macos jenkinsfile 1`] = `
+"node {
+  stage('SCM') {
+    checkout scm
+  }
+  stage('Download Build Wrapper') {
+    sh '''
+      mkdir -p .sonar
+      curl -sSLo build-wrapper-macosx-x86.zip http://localhost:9000/static/cpp/build-wrapper-macosx-x86.zip
+      unzip -o build-wrapper-macosx-x86.zip -d .sonar
+    '''
+  }
+  stage('Build') {
+    sh '''
+      .sonar/build-wrapper-macosx-x86/build-wrapper-macosx-x86 --out-dir bw-output <your clean build command>
+    '''
+  }
+  stage('SonarQube Analysis') {
+    def scannerHome = tool 'SonarScanner';
+    withSonarQubeEnv() {
+      sh "\${scannerHome}/bin/sonar-scanner -Dsonar.cfamily.compile-commands=bw-output/compile_commands.json"
+    }
+  }
+}"
+`;
+
+exports[`github: can select devops platform and complete all the steps with copying code snippets: objectivec: windows jenkinsfile 1`] = `
+"node {
+  stage('SCM') {
+    checkout scm
+  }
+  stage('Download Build Wrapper') {
+    powershell '''
+      $path = "$HOME/.sonar/build-wrapper-win-x86.zip"
+      rm build-wrapper-win-x86 -Recurse -Force -ErrorAction SilentlyContinue
+      rm $path -Force -ErrorAction SilentlyContinue
+      mkdir $HOME/.sonar
+      [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+      (New-Object System.Net.WebClient).DownloadFile(http://localhost:9000/static/cpp/build-wrapper-win-x86.zip", $path)
+      Add-Type -AssemblyName System.IO.Compression.FileSystem
+      [System.IO.Compression.ZipFile]::ExtractToDirectory($path, "$HOME/.sonar")
+    '''
+  }
+  stage('Build') {
+    powershell '''
+      $env:Path += ";$HOME/.sonar/build-wrapper-win-x86"
+      build-wrapper-win-x86-64 --out-dir bw-output <your clean build command>
+    '''
+  }
+  stage('SonarQube Analysis') {
+    def scannerHome = tool 'SonarScanner';
+    withSonarQubeEnv() {
+      powershell "\${scannerHome}/bin/sonar-scanner -Dsonar.cfamily.compile-commands=bw-output/compile_commands.json"
     }
   }
 }"
@@ -973,18 +1105,18 @@ exports[`gitlab: can select devops platform and complete all the steps with copy
 
 exports[`gitlab: can select devops platform and complete all the steps with copying code snippets: c++ (automatic and other): build tools sonar-project.properties code 2`] = `"sonar.projectKey=my-project"`;
 
-exports[`gitlab: can select devops platform and complete all the steps with copying code snippets: c++ (manual) and objectivec: linux jenkinsfile 1`] = `
+exports[`gitlab: can select devops platform and complete all the steps with copying code snippets: c++ (manual) and objectivec: linux arm64 jenkinsfile 1`] = `
 "node {
   stage('SCM') {
     checkout scm
   }
   stage('Download Build Wrapper') {
     sh "mkdir -p .sonar"
-    sh "curl -sSLo build-wrapper-linux-x86.zip http://localhost:9000/static/cpp/build-wrapper-linux-x86.zip"
-    sh "unzip -o build-wrapper-linux-x86.zip -d .sonar"
+    sh "curl -sSLo build-wrapper-linux-aarch64.zip http://localhost:9000/static/cpp/build-wrapper-linux-aarch64.zip"
+    sh "unzip -o build-wrapper-linux-aarch64.zip -d .sonar"
   }
   stage('Build') {
-    sh ".sonar/build-wrapper-linux-x86/build-wrapper-linux-x86-64 --out-dir bw-output <your clean build command>"
+    sh ".sonar/build-wrapper-linux-aarch64/build-wrapper-linux-aarch64 --out-dir bw-output <your clean build command>"
   }
   stage('SonarQube Analysis') {
     def scannerHome = tool 'SonarScanner';
@@ -995,7 +1127,7 @@ exports[`gitlab: can select devops platform and complete all the steps with copy
 }"
 `;
 
-exports[`gitlab: can select devops platform and complete all the steps with copying code snippets: c++ (manual) and objectivec: linux jenkinsfile 2`] = `
+exports[`gitlab: can select devops platform and complete all the steps with copying code snippets: c++ (manual) and objectivec: linux jenkinsfile 1`] = `
 "node {
   stage('SCM') {
     checkout scm
@@ -1043,65 +1175,7 @@ exports[`gitlab: can select devops platform and complete all the steps with copy
 }"
 `;
 
-exports[`gitlab: can select devops platform and complete all the steps with copying code snippets: c++ (manual) and objectivec: macos jenkinsfile 2`] = `
-"node {
-  stage('SCM') {
-    checkout scm
-  }
-  stage('Download Build Wrapper') {
-    sh '''
-      mkdir -p .sonar
-      curl -sSLo build-wrapper-macosx-x86.zip http://localhost:9000/static/cpp/build-wrapper-macosx-x86.zip
-      unzip -o build-wrapper-macosx-x86.zip -d .sonar
-    '''
-  }
-  stage('Build') {
-    sh '''
-      .sonar/build-wrapper-macosx-x86/build-wrapper-macosx-x86 --out-dir bw-output <your clean build command>
-    '''
-  }
-  stage('SonarQube Analysis') {
-    def scannerHome = tool 'SonarScanner';
-    withSonarQubeEnv() {
-      sh "\${scannerHome}/bin/sonar-scanner -Dsonar.cfamily.compile-commands=bw-output/compile_commands.json"
-    }
-  }
-}"
-`;
-
 exports[`gitlab: can select devops platform and complete all the steps with copying code snippets: c++ (manual) and objectivec: windows jenkinsfile 1`] = `
-"node {
-  stage('SCM') {
-    checkout scm
-  }
-  stage('Download Build Wrapper') {
-    powershell '''
-      $path = "$HOME/.sonar/build-wrapper-win-x86.zip"
-      rm build-wrapper-win-x86 -Recurse -Force -ErrorAction SilentlyContinue
-      rm $path -Force -ErrorAction SilentlyContinue
-      mkdir $HOME/.sonar
-      [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-      (New-Object System.Net.WebClient).DownloadFile(http://localhost:9000/static/cpp/build-wrapper-win-x86.zip", $path)
-      Add-Type -AssemblyName System.IO.Compression.FileSystem
-      [System.IO.Compression.ZipFile]::ExtractToDirectory($path, "$HOME/.sonar")
-    '''
-  }
-  stage('Build') {
-    powershell '''
-      $env:Path += ";$HOME/.sonar/build-wrapper-win-x86"
-      build-wrapper-win-x86-64 --out-dir bw-output <your clean build command>
-    '''
-  }
-  stage('SonarQube Analysis') {
-    def scannerHome = tool 'SonarScanner';
-    withSonarQubeEnv() {
-      powershell "\${scannerHome}/bin/sonar-scanner -Dsonar.cfamily.compile-commands=bw-output/compile_commands.json"
-    }
-  }
-}"
-`;
-
-exports[`gitlab: can select devops platform and complete all the steps with copying code snippets: c++ (manual) and objectivec: windows jenkinsfile 2`] = `
 "node {
   stage('SCM') {
     checkout scm
@@ -1174,6 +1248,108 @@ exports[`gitlab: can select devops platform and complete all the steps with copy
     def mvn = tool 'Default Maven';
     withSonarQubeEnv() {
       sh "\${mvn}/bin/mvn clean verify sonar:sonar -Dsonar.projectKey=my-project -Dsonar.projectName='MyProject'"
+    }
+  }
+}"
+`;
+
+exports[`gitlab: can select devops platform and complete all the steps with copying code snippets: objectivec: linux arm64 jenkinsfile 1`] = `
+"node {
+  stage('SCM') {
+    checkout scm
+  }
+  stage('Download Build Wrapper') {
+    sh "mkdir -p .sonar"
+    sh "curl -sSLo build-wrapper-linux-aarch64.zip http://localhost:9000/static/cpp/build-wrapper-linux-aarch64.zip"
+    sh "unzip -o build-wrapper-linux-aarch64.zip -d .sonar"
+  }
+  stage('Build') {
+    sh ".sonar/build-wrapper-linux-aarch64/build-wrapper-linux-aarch64 --out-dir bw-output <your clean build command>"
+  }
+  stage('SonarQube Analysis') {
+    def scannerHome = tool 'SonarScanner';
+    withSonarQubeEnv() {
+      sh "\${scannerHome}/bin/sonar-scanner -Dsonar.cfamily.compile-commands=bw-output/compile_commands.json"
+    }
+  }
+}"
+`;
+
+exports[`gitlab: can select devops platform and complete all the steps with copying code snippets: objectivec: linux jenkinsfile 1`] = `
+"node {
+  stage('SCM') {
+    checkout scm
+  }
+  stage('Download Build Wrapper') {
+    sh "mkdir -p .sonar"
+    sh "curl -sSLo build-wrapper-linux-x86.zip http://localhost:9000/static/cpp/build-wrapper-linux-x86.zip"
+    sh "unzip -o build-wrapper-linux-x86.zip -d .sonar"
+  }
+  stage('Build') {
+    sh ".sonar/build-wrapper-linux-x86/build-wrapper-linux-x86-64 --out-dir bw-output <your clean build command>"
+  }
+  stage('SonarQube Analysis') {
+    def scannerHome = tool 'SonarScanner';
+    withSonarQubeEnv() {
+      sh "\${scannerHome}/bin/sonar-scanner -Dsonar.cfamily.compile-commands=bw-output/compile_commands.json"
+    }
+  }
+}"
+`;
+
+exports[`gitlab: can select devops platform and complete all the steps with copying code snippets: objectivec: macos jenkinsfile 1`] = `
+"node {
+  stage('SCM') {
+    checkout scm
+  }
+  stage('Download Build Wrapper') {
+    sh '''
+      mkdir -p .sonar
+      curl -sSLo build-wrapper-macosx-x86.zip http://localhost:9000/static/cpp/build-wrapper-macosx-x86.zip
+      unzip -o build-wrapper-macosx-x86.zip -d .sonar
+    '''
+  }
+  stage('Build') {
+    sh '''
+      .sonar/build-wrapper-macosx-x86/build-wrapper-macosx-x86 --out-dir bw-output <your clean build command>
+    '''
+  }
+  stage('SonarQube Analysis') {
+    def scannerHome = tool 'SonarScanner';
+    withSonarQubeEnv() {
+      sh "\${scannerHome}/bin/sonar-scanner -Dsonar.cfamily.compile-commands=bw-output/compile_commands.json"
+    }
+  }
+}"
+`;
+
+exports[`gitlab: can select devops platform and complete all the steps with copying code snippets: objectivec: windows jenkinsfile 1`] = `
+"node {
+  stage('SCM') {
+    checkout scm
+  }
+  stage('Download Build Wrapper') {
+    powershell '''
+      $path = "$HOME/.sonar/build-wrapper-win-x86.zip"
+      rm build-wrapper-win-x86 -Recurse -Force -ErrorAction SilentlyContinue
+      rm $path -Force -ErrorAction SilentlyContinue
+      mkdir $HOME/.sonar
+      [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+      (New-Object System.Net.WebClient).DownloadFile(http://localhost:9000/static/cpp/build-wrapper-win-x86.zip", $path)
+      Add-Type -AssemblyName System.IO.Compression.FileSystem
+      [System.IO.Compression.ZipFile]::ExtractToDirectory($path, "$HOME/.sonar")
+    '''
+  }
+  stage('Build') {
+    powershell '''
+      $env:Path += ";$HOME/.sonar/build-wrapper-win-x86"
+      build-wrapper-win-x86-64 --out-dir bw-output <your clean build command>
+    '''
+  }
+  stage('SonarQube Analysis') {
+    def scannerHome = tool 'SonarScanner';
+    withSonarQubeEnv() {
+      powershell "\${scannerHome}/bin/sonar-scanner -Dsonar.cfamily.compile-commands=bw-output/compile_commands.json"
     }
   }
 }"

@@ -22,7 +22,7 @@ import * as React from 'react';
 import { translate } from '../../../helpers/l10n';
 import { Component } from '../../../types/types';
 import Step from '../components/Step';
-import { OSs, TutorialConfig } from '../types';
+import { Arch, OSs, TutorialConfig } from '../types';
 import BuildToolForm from './BuildToolForm';
 import AnalysisCommand from './commands/AnalysisCommand';
 
@@ -40,17 +40,26 @@ export default function ProjectAnalysisStep(props: Readonly<Props>) {
 
   const [config, setConfig] = React.useState<TutorialConfig>({});
   const [os, setOs] = React.useState<OSs>(OSs.Linux);
+  const [arch, setArch] = React.useState<Arch>(Arch.X86_64);
 
   function renderForm() {
     return (
       <div className="sw-pb-4">
-        <BuildToolForm config={config} setConfig={setConfig} os={os} setOs={setOs} />
+        <BuildToolForm
+          config={config}
+          setConfig={setConfig}
+          os={os}
+          setOs={setOs}
+          arch={arch}
+          setArch={setArch}
+        />
 
         {config && (
           <div className="sw-mt-4">
             <AnalysisCommand
               config={config}
               os={os}
+              arch={arch}
               component={component}
               baseUrl={baseUrl}
               isLocal={isLocal}

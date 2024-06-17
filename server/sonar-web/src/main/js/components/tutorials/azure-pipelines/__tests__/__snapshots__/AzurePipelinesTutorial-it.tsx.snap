@@ -9,11 +9,20 @@ sonar.projectName=MyProject
 "
 `;
 
-exports[`should render correctly and allow token generation: manual-cpp linux, copy additional properties 1`] = `"sonar.cfamily.compile-commands=bw-output/compile_commands.json"`;
+exports[`should render correctly and allow token generation: manual-cpp linux arm64, copy additional properties 1`] = `"sonar.cfamily.compile-commands=bw-output/compile_commands.json"`;
 
-exports[`should render correctly and allow token generation: manual-cpp linux, copy build-wrapper command 1`] = `"./build-wrapper-linux-x86/build-wrapper-linux-x86-64 --out-dir bw-output <your build command here>"`;
+exports[`should render correctly and allow token generation: manual-cpp linux arm64, copy build-wrapper command 1`] = `"./build-wrapper-linux-aarch64/build-wrapper-linux-aarch64 --out-dir bw-output <your build command here>"`;
 
-exports[`should render correctly and allow token generation: manual-cpp linux, copy shell script 1`] = `
+exports[`should render correctly and allow token generation: manual-cpp linux arm64, copy shell script 1`] = `
+"curl 'http://localhost/static/cpp/build-wrapper-linux-aarch64.zip' --output build-wrapper.zip
+unzip build-wrapper.zip"
+`;
+
+exports[`should render correctly and allow token generation: manual-cpp linux x86_64, copy additional properties 1`] = `"sonar.cfamily.compile-commands=bw-output/compile_commands.json"`;
+
+exports[`should render correctly and allow token generation: manual-cpp linux x86_64, copy build-wrapper command 1`] = `"./build-wrapper-linux-x86/build-wrapper-linux-x86-64 --out-dir bw-output <your build command here>"`;
+
+exports[`should render correctly and allow token generation: manual-cpp linux x86_64, copy shell script 1`] = `
 "curl 'http://localhost/static/cpp/build-wrapper-linux-x86.zip' --output build-wrapper.zip
 unzip build-wrapper.zip"
 `;
@@ -27,47 +36,56 @@ sonar.projectName=MyProject
 "
 `;
 
-exports[`should render correctly and allow token generation: objectivec linux, copy additional properties 1`] = `"sonar.cfamily.compile-commands=bw-output/compile_commands.json"`;
+exports[`should render correctly and allow token generation: objectivec linux arm64, copy additional properties 1`] = `"sonar.cfamily.compile-commands=bw-output/compile_commands.json"`;
 
-exports[`should render correctly and allow token generation: objectivec linux, copy build-wrapper command 1`] = `"./build-wrapper-linux-x86/build-wrapper-linux-x86-64 --out-dir bw-output <your build command here>"`;
+exports[`should render correctly and allow token generation: objectivec linux arm64, copy build-wrapper command 1`] = `"./build-wrapper-linux-aarch64/build-wrapper-linux-aarch64 --out-dir bw-output <your build command here>"`;
 
-exports[`should render correctly and allow token generation: objectivec linux, copy shell script 1`] = `
+exports[`should render correctly and allow token generation: objectivec linux arm64, copy shell script 1`] = `
+"curl 'http://localhost/static/cpp/build-wrapper-linux-aarch64.zip' --output build-wrapper.zip
+unzip build-wrapper.zip"
+`;
+
+exports[`should render correctly and allow token generation: objectivec linux x86_64, copy additional properties 1`] = `"sonar.cfamily.compile-commands=bw-output/compile_commands.json"`;
+
+exports[`should render correctly and allow token generation: objectivec linux x86_64, copy build-wrapper command 1`] = `"./build-wrapper-linux-x86/build-wrapper-linux-x86-64 --out-dir bw-output <your build command here>"`;
+
+exports[`should render correctly and allow token generation: objectivec linux x86_64, copy shell script 1`] = `
 "curl 'http://localhost/static/cpp/build-wrapper-linux-x86.zip' --output build-wrapper.zip
 unzip build-wrapper.zip"
 `;
 
-exports[`should render correctly and allow token generation: objectivec mac, copy additional properties 1`] = `"sonar.cfamily.compile-commands=bw-output/compile_commands.json"`;
+exports[`should render correctly and allow token generation: objectivec mac x86_64, copy additional properties 1`] = `"sonar.cfamily.compile-commands=bw-output/compile_commands.json"`;
 
-exports[`should render correctly and allow token generation: objectivec mac, copy additional properties 2`] = `"sonar.cfamily.compile-commands=bw-output/compile_commands.json"`;
+exports[`should render correctly and allow token generation: objectivec mac x86_64, copy additional properties 2`] = `"sonar.cfamily.compile-commands=bw-output/compile_commands.json"`;
 
-exports[`should render correctly and allow token generation: objectivec mac, copy build-wrapper command 1`] = `"./build-wrapper-macosx-x86/build-wrapper-macosx-x86 --out-dir bw-output <your build command here>"`;
+exports[`should render correctly and allow token generation: objectivec mac x86_64, copy build-wrapper command 1`] = `"./build-wrapper-macosx-x86/build-wrapper-macosx-x86 --out-dir bw-output <your build command here>"`;
 
-exports[`should render correctly and allow token generation: objectivec mac, copy build-wrapper command 2`] = `"./build-wrapper-macosx-x86/build-wrapper-macosx-x86 --out-dir bw-output <your build command here>"`;
+exports[`should render correctly and allow token generation: objectivec mac x86_64, copy build-wrapper command 2`] = `"./build-wrapper-macosx-x86/build-wrapper-macosx-x86 --out-dir bw-output <your build command here>"`;
 
-exports[`should render correctly and allow token generation: objectivec mac, copy shell script 1`] = `
+exports[`should render correctly and allow token generation: objectivec mac x86_64, copy shell script 1`] = `
 "curl 'http://localhost/static/cpp/build-wrapper-macosx-x86.zip' --output build-wrapper.zip
 unzip build-wrapper.zip"
 `;
 
-exports[`should render correctly and allow token generation: objectivec mac, copy shell script 2`] = `
+exports[`should render correctly and allow token generation: objectivec mac x86_64, copy shell script 2`] = `
 "curl 'http://localhost/static/cpp/build-wrapper-macosx-x86.zip' --output build-wrapper.zip
 unzip build-wrapper.zip"
 `;
 
-exports[`should render correctly and allow token generation: objectivec win, copy additional properties 1`] = `"sonar.cfamily.compile-commands=bw-output/compile_commands.json"`;
+exports[`should render correctly and allow token generation: objectivec win x86_64, copy additional properties 1`] = `"sonar.cfamily.compile-commands=bw-output/compile_commands.json"`;
 
-exports[`should render correctly and allow token generation: objectivec win, copy additional properties 2`] = `"sonar.cfamily.compile-commands=bw-output/compile_commands.json"`;
+exports[`should render correctly and allow token generation: objectivec win x86_64, copy additional properties 2`] = `"sonar.cfamily.compile-commands=bw-output/compile_commands.json"`;
 
-exports[`should render correctly and allow token generation: objectivec win, copy build-wrapper command 1`] = `"build-wrapper-win-x86/build-wrapper-win-x86-64.exe --out-dir bw-output <your build command here>"`;
+exports[`should render correctly and allow token generation: objectivec win x86_64, copy build-wrapper command 1`] = `"build-wrapper-win-x86/build-wrapper-win-x86-64.exe --out-dir bw-output <your build command here>"`;
 
-exports[`should render correctly and allow token generation: objectivec win, copy build-wrapper command 2`] = `"build-wrapper-win-x86/build-wrapper-win-x86-64.exe --out-dir bw-output <your build command here>"`;
+exports[`should render correctly and allow token generation: objectivec win x86_64, copy build-wrapper command 2`] = `"build-wrapper-win-x86/build-wrapper-win-x86-64.exe --out-dir bw-output <your build command here>"`;
 
-exports[`should render correctly and allow token generation: objectivec win, copy shell script 1`] = `
+exports[`should render correctly and allow token generation: objectivec win x86_64, copy shell script 1`] = `
 "Invoke-WebRequest -Uri 'http://localhost/static/cpp/build-wrapper-win-x86.zip' -OutFile 'build-wrapper.zip'
 Expand-Archive -Path 'build-wrapper.zip' -DestinationPath '.'"
 `;
 
-exports[`should render correctly and allow token generation: objectivec win, copy shell script 2`] = `
+exports[`should render correctly and allow token generation: objectivec win x86_64, copy shell script 2`] = `
 "Invoke-WebRequest -Uri 'http://localhost/static/cpp/build-wrapper-win-x86.zip' -OutFile 'build-wrapper.zip'
 Expand-Archive -Path 'build-wrapper.zip' -DestinationPath '.'"
 `;

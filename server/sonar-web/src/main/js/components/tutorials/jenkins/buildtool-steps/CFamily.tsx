@@ -25,23 +25,27 @@ import { CompilationInfo } from '../../components/CompilationInfo';
 import DefaultProjectKey from '../../components/DefaultProjectKey';
 import GithubCFamilyExampleRepositories from '../../components/GithubCFamilyExampleRepositories';
 import RenderOptions from '../../components/RenderOptions';
-import { AutoConfig, BuildTools, OSs, TutorialModes } from '../../types';
+import { Arch, AutoConfig, BuildTools, OSs, TutorialModes } from '../../types';
+import { getBuildWrapperExecutableLinux, getBuildWrapperFolderLinux } from '../../utils';
 import { LanguageProps } from '../JenkinsStep';
 import CreateJenkinsfileBulletPoint from './CreateJenkinsfileBulletPoint';
 import Other from './Other';
 
-const YAML_MAP: Record<OSs, (baseUrl: string) => string> = {
-  [OSs.Linux]: (baseUrl) => `node {
+const YAML_MAP: Record<OSs, (baseUrl: string, arch: Arch) => string> = {
+  [OSs.Linux]: (baseUrl, arch) => {
+    const buildWrapperFolder = getBuildWrapperFolderLinux(arch);
+    const buildWrapperExecutable = getBuildWrapperExecutableLinux(arch);
+    return `node {
   stage('SCM') {
     checkout scm
   }
   stage('Download Build Wrapper') {
     sh "mkdir -p .sonar"
-    sh "curl -sSLo build-wrapper-linux-x86.zip ${baseUrl}/static/cpp/build-wrapper-linux-x86.zip"
-    sh "unzip -o build-wrapper-linux-x86.zip -d .sonar"
+    sh "curl -sSLo ${buildWrapperFolder}.zip ${baseUrl}/static/cpp/${buildWrapperFolder}.zip"
+    sh "unzip -o ${buildWrapperFolder}.zip -d .sonar"
   }
   stage('Build') {
-    sh ".sonar/build-wrapper-linux-x86/build-wrapper-linux-x86-64 --out-dir bw-output <your clean build command>"
+    sh ".sonar/${buildWrapperFolder}/${buildWrapperExecutable} --out-dir bw-output <your clean build command>"
   }
   stage('SonarQube Analysis') {
     def scannerHome = tool 'SonarScanner';
@@ -49,8 +53,9 @@ const YAML_MAP: Record<OSs, (baseUrl: string) => string> = {
       sh "\${scannerHome}/bin/sonar-scanner -Dsonar.cfamily.compile-commands=bw-output/compile_commands.json"
     }
   }
-}`,
-  [OSs.MacOS]: (baseUrl) => `node {
+}`;
+  },
+  [OSs.MacOS]: (baseUrl, _) => `node {
   stage('SCM') {
     checkout scm
   }
@@ -73,7 +78,7 @@ const YAML_MAP: Record<OSs, (baseUrl: string) => string> = {
     }
   }
 }`,
-  [OSs.Windows]: (baseUrl) => `node {
+  [OSs.Windows]: (baseUrl, _) => `node {
   stage('SCM') {
     checkout scm
   }
@@ -107,6 +112,7 @@ const YAML_MAP: Record<OSs, (baseUrl: string) => string> = {
 export default function CFamily(props: Readonly<LanguageProps>) {
   const { baseUrl, config, component } = props;
   const [os, setOs] = React.useState<OSs>(OSs.Linux);
+  const [arch, setArch] = React.useState<Arch>(Arch.X86_64);
 
   if (config.buildTool === BuildTools.Cpp && config.autoConfig === AutoConfig.Automatic) {
     return <Other {...props} />;
@@ -131,11 +137,25 @@ export default function CFamily(props: Readonly<LanguageProps>) {
             className="sw-my-4 sw-w-abs-600"
           />
         }
+        {os === OSs.Linux && (
+          <>
+            <div className="sw-mt-4">
+              {translate('onboarding.tutorial.with.azure_pipelines.architecture')}
+            </div>
+            <RenderOptions
+              label={translate('onboarding.tutorial.with.azure_pipelines.architecture')}
+              checked={arch}
+              onCheck={(value: Arch) => setArch(value)}
+              optionLabelKey="onboarding.build.other.architecture"
+              options={[Arch.X86_64, Arch.Arm64]}
+            />
+          </>
+        )}
       </NumberedListItem>
       {
         <CreateJenkinsfileBulletPoint
           alertTranslationKeyPart="onboarding.tutorial.with.jenkins.jenkinsfile.other.step3"
-          snippet={YAML_MAP[os](baseUrl)}
+          snippet={YAML_MAP[os](baseUrl, arch)}
         >
           <CompilationInfo />
         </CreateJenkinsfileBulletPoint>

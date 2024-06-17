@@ -93,6 +93,8 @@ export function getTutorialBuildButtons() {
     linuxButton: byRole('radio', { name: `onboarding.build.other.os.${OSs.Linux}` }),
     windowsButton: byRole('radio', { name: `onboarding.build.other.os.${OSs.Windows}` }),
     macosButton: byRole('radio', { name: `onboarding.build.other.os.${OSs.MacOS}` }),
+    arm64Button: byRole('radio', { name: `onboarding.build.other.architecture.arm64` }),
+    x86_64Button: byRole('radio', { name: `onboarding.build.other.architecture.x86_64` }),
     autoConfigAutomatic: byRole('radio', { name: 'onboarding.build.cpp.autoconfig.automatic' }),
     autoConfigManual: byRole('radio', { name: 'onboarding.build.cpp.autoconfig.manual' }),
   };

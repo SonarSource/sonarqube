@@ -20,13 +20,14 @@
 import * as React from 'react';
 import { Component } from '../../../../types/types';
 import { CompilationInfo } from '../../components/CompilationInfo';
-import { OSs } from '../../types';
+import { Arch, OSs } from '../../types';
 import DownloadBuildWrapper from './DownloadBuildWrapper';
 import DownloadScanner from './DownloadScanner';
 import ExecBuildWrapper from './ExecBuildWrapper';
 import ExecScanner from './ExecScanner';
 
 export interface ClangGCCCustomProps {
+  arch: Arch;
   baseUrl: string;
   component: Component;
   isLocal: boolean;
@@ -35,13 +36,13 @@ export interface ClangGCCCustomProps {
 }
 
 export default function ClangGCCCustom(props: ClangGCCCustomProps) {
-  const { os, baseUrl, component, isLocal, token } = props;
+  const { os, arch, baseUrl, component, isLocal, token } = props;
 
   return (
     <div>
-      <DownloadBuildWrapper isLocal={isLocal} baseUrl={baseUrl} os={os} />
+      <DownloadBuildWrapper isLocal={isLocal} baseUrl={baseUrl} os={os} arch={arch} />
       <DownloadScanner isLocal={isLocal} os={os} token={token} />
-      <ExecBuildWrapper os={os} />
+      <ExecBuildWrapper os={os} arch={arch} />
       <CompilationInfo />
       <ExecScanner
         baseUrl={baseUrl}

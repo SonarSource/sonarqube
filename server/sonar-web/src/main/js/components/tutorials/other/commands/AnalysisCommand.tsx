@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { Component } from '../../../../types/types';
-import { AutoConfig, BuildTools, OSs, TutorialConfig } from '../../types';
+import { Arch, AutoConfig, BuildTools, OSs, TutorialConfig } from '../../types';
 import ClangGCCCustom from './ClangGCCCommand';
 import DotNet from './DotNet';
 import JavaGradle from './JavaGradle';
@@ -27,6 +27,7 @@ import JavaMaven from './JavaMaven';
 import Other from './Other';
 
 export interface AnalysisCommandProps {
+  arch: Arch;
   baseUrl: string;
   component: Component;
   config: TutorialConfig;
@@ -35,8 +36,8 @@ export interface AnalysisCommandProps {
   token?: string;
 }
 
-export default function AnalysisCommand(props: AnalysisCommandProps) {
-  const { config, os, component, baseUrl, isLocal, token } = props;
+export default function AnalysisCommand(props: Readonly<AnalysisCommandProps>) {
+  const { config, os, arch, component, baseUrl, isLocal, token } = props;
 
   if (typeof token === 'undefined') {
     return null;
@@ -67,6 +68,7 @@ export default function AnalysisCommand(props: AnalysisCommandProps) {
       return (
         <ClangGCCCustom
           os={os}
+          arch={arch}
           baseUrl={baseUrl}
           component={component}
           isLocal={isLocal}

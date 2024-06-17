@@ -23,19 +23,21 @@ import { withCLanguageFeature } from '../../hoc/withCLanguageFeature';
 import BuildConfigSelection from '../components/BuildConfigSelection';
 import GithubCFamilyExampleRepositories from '../components/GithubCFamilyExampleRepositories';
 import RenderOptions from '../components/RenderOptions';
-import { BuildTools, OSs, TutorialConfig, TutorialModes } from '../types';
-import { shouldShowGithubCFamilyExampleRepositories } from '../utils';
+import { Arch, BuildTools, OSs, TutorialConfig, TutorialModes } from '../types';
+import { shouldShowArchSelector, shouldShowGithubCFamilyExampleRepositories } from '../utils';
 
 interface Props {
+  arch?: Arch;
   config: TutorialConfig;
   hasCLanguageFeature: boolean;
   os?: OSs;
+  setArch: (arch: Arch) => void;
   setConfig: (config: TutorialConfig) => void;
   setOs: (os: OSs) => void;
 }
 
 export function BuildToolForm(props: Readonly<Props>) {
-  const { config, setConfig, os, setOs, hasCLanguageFeature } = props;
+  const { config, setConfig, os, setOs, arch, setArch, hasCLanguageFeature } = props;
 
   function handleConfigChange(newConfig: TutorialConfig) {
     const selectOsByDefault = (newConfig.buildTool === BuildTools.Cpp ||
@@ -71,6 +73,16 @@ export function BuildToolForm(props: Readonly<Props>) {
           optionLabelKey="onboarding.build.other.os"
           options={[OSs.Linux, OSs.Windows, OSs.MacOS]}
           titleLabelKey="onboarding.build.other.os"
+        />
+      )}
+      {shouldShowArchSelector(os, config) && (
+        <RenderOptions
+          label={translate('onboarding.build.other.architecture')}
+          checked={arch}
+          onCheck={(value: Arch) => setArch(value)}
+          optionLabelKey="onboarding.build.other.architecture"
+          options={[Arch.X86_64, Arch.Arm64]}
+          titleLabelKey="onboarding.build.other.architecture"
         />
       )}
       {shouldShowGithubCFamilyExampleRepositories(config) && (

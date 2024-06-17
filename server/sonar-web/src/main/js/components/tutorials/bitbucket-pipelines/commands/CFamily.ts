@@ -18,13 +18,21 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { AutoConfig, BuildTools } from '../../types';
+import { getBuildWrapperExecutableLinux, getBuildWrapperFolderLinux } from '../../utils';
 import { BuildToolExampleBuilder } from '../AnalysisCommand';
 import othersExample from './Others';
 
-const cFamilyExample: BuildToolExampleBuilder = ({ config, branchesEnabled, mainBranchName }) => {
+const cFamilyExample: BuildToolExampleBuilder = ({
+  config,
+  arch,
+  branchesEnabled,
+  mainBranchName,
+}) => {
   if (config.buildTool === BuildTools.Cpp && config.autoConfig === AutoConfig.Automatic) {
     return othersExample({ config, branchesEnabled, mainBranchName });
   }
+  const buildWrapperExecutable = getBuildWrapperExecutableLinux(arch);
+  const buildWrapperFolder = getBuildWrapperFolderLinux(arch);
   return `image: <image ready for your build toolchain>
 
 definitions:
@@ -34,13 +42,13 @@ definitions:
         script:
           - export SONAR_SCANNER_VERSION=5.0.1.3006
           - mkdir $HOME/.sonar
-          - curl -sSLo $HOME/.sonar/build-wrapper-linux-x86.zip \${SONAR_HOST_URL}/static/cpp/build-wrapper-linux-x86.zip
-          - unzip -o $HOME/.sonar/build-wrapper-linux-x86.zip -d $HOME/.sonar/
+          - curl -sSLo $HOME/.sonar/${buildWrapperFolder}.zip \${SONAR_HOST_URL}/static/cpp/${buildWrapperFolder}.zip
+          - unzip -o $HOME/.sonar/${buildWrapperFolder}.zip -d $HOME/.sonar/
           - curl -sSLo $HOME/.sonar/sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-\${SONAR_SCANNER_VERSION}-linux.zip
           - unzip -o $HOME/.sonar/sonar-scanner.zip -d $HOME/.sonar/
           - export PATH="$PATH:$HOME/.sonar/sonar-scanner-\${SONAR_SCANNER_VERSION}-linux/bin"
           - <any step required before running your build, like ./configure>
-          - $HOME/.sonar/build-wrapper-linux-x86/build-wrapper-linux-x86-64 --out-dir bw-output <your clean build command>
+          - $HOME/.sonar/${buildWrapperFolder}/${buildWrapperExecutable} --out-dir bw-output <your clean build command>
           - sonar-scanner -Dsonar.cfamily.compile-commands=bw-output/compile_commands.json  
   caches:
     sonar: ~/.sonar

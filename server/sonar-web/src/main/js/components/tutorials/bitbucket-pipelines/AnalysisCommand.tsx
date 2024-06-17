@@ -26,7 +26,7 @@ import { Feature } from '../../../types/features';
 import { Component } from '../../../types/types';
 import { CompilationInfo } from '../components/CompilationInfo';
 import CreateYmlFile from '../components/CreateYmlFile';
-import { BuildTools, TutorialConfig } from '../types';
+import { Arch, BuildTools, TutorialConfig } from '../types';
 import { isCFamily } from '../utils';
 import { PreambuleYaml } from './PreambuleYaml';
 import cFamilyExample from './commands/CFamily';
@@ -36,12 +36,14 @@ import mavenExample from './commands/Maven';
 import othersExample from './commands/Others';
 
 export interface AnalysisCommandProps extends WithAvailableFeaturesProps {
+  arch: Arch;
   component: Component;
   config: TutorialConfig;
   mainBranchName: string;
 }
 
 export type BuildToolExampleBuilder = (data: {
+  arch?: Arch;
   branchesEnabled?: boolean;
   config: TutorialConfig;
   mainBranchName?: string;
@@ -58,8 +60,8 @@ const YamlTemplate: Dictionary<BuildToolExampleBuilder> = {
   [BuildTools.Other]: othersExample,
 };
 
-export function AnalysisCommand(props: AnalysisCommandProps) {
-  const { config, mainBranchName, component } = props;
+export function AnalysisCommand(props: Readonly<AnalysisCommandProps>) {
+  const { config, arch, mainBranchName, component } = props;
   const branchesEnabled = props.hasFeature(Feature.BranchSupport);
 
   if (!config.buildTool) {
@@ -67,6 +69,7 @@ export function AnalysisCommand(props: AnalysisCommandProps) {
   }
 
   const yamlTemplate = YamlTemplate[config.buildTool]({
+    arch,
     config,
     branchesEnabled,
     mainBranchName,

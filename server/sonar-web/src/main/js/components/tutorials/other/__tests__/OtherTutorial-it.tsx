@@ -136,29 +136,116 @@ it('can choose build tools and copy provided settings', async () => {
     'c++ (automatic) and other macos: execute scanner',
   );
 
-  // C++ - Linux
+  // C++ - Linux (x86_64)
   await user.click(ui.autoConfigManual.get());
   await user.click(ui.linuxButton.get());
   expect(getCopyToClipboardValue(0, 'Copy')).toMatchSnapshot(
+    'c++ (manual) linux: download build wrapper',
+  );
+  expect(getCopyToClipboardValue(1, 'Copy')).toMatchSnapshot(
+    'c++ (manual) linux: download scanner',
+  );
+  expect(getCopyToClipboardValue(2, 'Copy')).toMatchSnapshot(
     'c++ (manual) linux: execute build wrapper',
   );
-  expect(getCopyToClipboardValue(1, 'Copy')).toMatchSnapshot('c++ (manual) linux: execute scanner');
+  expect(getCopyToClipboardValue(3, 'Copy')).toMatchSnapshot('c++ (manual) linux: execute scanner');
+
+  // C++ - Linux (ARM64)
+  await user.click(ui.arm64Button.get());
+  expect(getCopyToClipboardValue(0, 'Copy')).toMatchSnapshot(
+    'c++ (manual) linux arm64: download build wrapper',
+  );
+  expect(getCopyToClipboardValue(1, 'Copy')).toMatchSnapshot(
+    'c++ (manual) linux arm64: download scanner',
+  );
+  expect(getCopyToClipboardValue(2, 'Copy')).toMatchSnapshot(
+    'c++ (manual) linux arm64: execute build wrapper',
+  );
+  expect(getCopyToClipboardValue(3, 'Copy')).toMatchSnapshot(
+    'c++ (manual) linux arm64: execute scanner',
+  );
 
   // C++ - Windows
   await user.click(ui.windowsButton.get());
   expect(getCopyToClipboardValue(0, 'Copy')).toMatchSnapshot(
-    'c++ (manual) windows: execute build wrapper',
+    'c++ (manual) windows: download build wrapper',
   );
   expect(getCopyToClipboardValue(1, 'Copy')).toMatchSnapshot(
+    'c++ (manual) windows: download scanner',
+  );
+  expect(getCopyToClipboardValue(2, 'Copy')).toMatchSnapshot(
+    'c++ (manual) windows: execute build wrapper',
+  );
+  expect(getCopyToClipboardValue(3, 'Copy')).toMatchSnapshot(
     'c++ (manual) windows: execute scanner',
   );
 
   // C++ - MacOS
   await user.click(ui.macosButton.get());
   expect(getCopyToClipboardValue(0, 'Copy')).toMatchSnapshot(
+    'c++ (manual) macos: download build wrapper',
+  );
+  expect(getCopyToClipboardValue(1, 'Copy')).toMatchSnapshot(
+    'c++ (manual) macos: download scanner',
+  );
+  expect(getCopyToClipboardValue(2, 'Copy')).toMatchSnapshot(
     'c++ (manual) macos: execute build wrapper',
   );
-  expect(getCopyToClipboardValue(1, 'Copy')).toMatchSnapshot('c++ (manual) macos: execute scanner');
+  expect(getCopyToClipboardValue(3, 'Copy')).toMatchSnapshot('c++ (manual) macos: execute scanner');
+
+  // Objective-C - Linux (x86_64)
+  await user.click(ui.objCBuildButton.get());
+  await user.click(ui.linuxButton.get());
+  await user.click(ui.x86_64Button.get());
+  expect(getCopyToClipboardValue(0, 'Copy')).toMatchSnapshot(
+    'objective-c linux: download build wrapper',
+  );
+  expect(getCopyToClipboardValue(1, 'Copy')).toMatchSnapshot('objective-c linux: download scanner');
+  expect(getCopyToClipboardValue(2, 'Copy')).toMatchSnapshot(
+    'objective-c linux: execute build wrapper',
+  );
+  expect(getCopyToClipboardValue(3, 'Copy')).toMatchSnapshot('objective-c linux: execute scanner');
+
+  // Objective-C - Linux (ARM64)
+  await user.click(ui.arm64Button.get());
+  expect(getCopyToClipboardValue(0, 'Copy')).toMatchSnapshot(
+    'objective-c linux arm64: download build wrapper',
+  );
+  expect(getCopyToClipboardValue(1, 'Copy')).toMatchSnapshot(
+    'objective-c linux arm64: download scanner',
+  );
+  expect(getCopyToClipboardValue(2, 'Copy')).toMatchSnapshot(
+    'objective-c linux arm64: execute build wrapper',
+  );
+  expect(getCopyToClipboardValue(3, 'Copy')).toMatchSnapshot(
+    'objective-c linux arm64: execute scanner',
+  );
+
+  // Objective-C - Windows
+  await user.click(ui.windowsButton.get());
+  expect(getCopyToClipboardValue(0, 'Copy')).toMatchSnapshot(
+    'objective-c windows: download build wrapper',
+  );
+  expect(getCopyToClipboardValue(1, 'Copy')).toMatchSnapshot(
+    'objective-c windows: download scanner',
+  );
+  expect(getCopyToClipboardValue(2, 'Copy')).toMatchSnapshot(
+    'objective-c windows: execute build wrapper',
+  );
+  expect(getCopyToClipboardValue(3, 'Copy')).toMatchSnapshot(
+    'objective-c windows: execute scanner',
+  );
+
+  // Objective-C - MacOS
+  await user.click(ui.macosButton.get());
+  expect(getCopyToClipboardValue(0, 'Copy')).toMatchSnapshot(
+    'objective-c macos: download build wrapper',
+  );
+  expect(getCopyToClipboardValue(1, 'Copy')).toMatchSnapshot('objective-c macos: download scanner');
+  expect(getCopyToClipboardValue(2, 'Copy')).toMatchSnapshot(
+    'objective-c macos: execute build wrapper',
+  );
+  expect(getCopyToClipboardValue(3, 'Copy')).toMatchSnapshot('objective-c macos: execute scanner');
 
   // Other - Linux
   await user.click(ui.otherBuildButton.get());
