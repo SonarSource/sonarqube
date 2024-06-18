@@ -36,7 +36,7 @@ public class IssueFilters {
   private IssueFilterChain filterChain;
   private final DefaultInputProject project;
 
-  @Autowired(required = false)
+  @Autowired
   public IssueFilters(DefaultInputProject project) {
     this.project = project;
   }
