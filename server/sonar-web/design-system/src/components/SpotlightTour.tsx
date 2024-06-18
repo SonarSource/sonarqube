@@ -152,7 +152,15 @@ function TooltipComponent({
         </SpotlightArrowWrapper>
       )}
 
-      <div className="sw-flex sw-justify-between" ref={setRef}>
+      <div
+        className="sw-flex sw-justify-between"
+        ref={(r) => {
+          setRef(r);
+          setTimeout(() => {
+            setTimeStamp(1);
+          }, 100);
+        }}
+      >
         <strong className="sw-body-md-highlight sw-mb-2">{step.title}</strong>
         <WrapperButton
           className="sw-w-[30px] sw-h-[30px] sw--mt-2 sw--mr-2 sw-flex sw-justify-center"
