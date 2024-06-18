@@ -166,9 +166,9 @@ export default function NewCodeMeasuresPanel(props: Readonly<Props>) {
           </b>
         </span>
       )}
-      <GridContainer className=" sw-relative sw-overflow-hidden sw-mt-8 js-summary">
+      <GridContainer className="sw-relative sw-overflow-hidden sw-mt-8 js-summary">
         {!noConditionsAndWarningForNewCode && (
-          <StyledConditionsCard className="sw-row-span-3 sw-col-span-4">
+          <StyledConditionsCard className="sw-row-span-4 sw-col-span-4">
             <QualityGatePanel
               component={component}
               loading={loading}

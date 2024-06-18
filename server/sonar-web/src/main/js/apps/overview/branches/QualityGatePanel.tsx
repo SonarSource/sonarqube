@@ -67,8 +67,6 @@ export function QualityGatePanel(props: QualityGatePanelProps) {
 
   const failedQgStatuses = qgStatuses.filter((qgStatus) => qgStatus.failedConditions.length > 0);
 
-  const totalFailedCondition = qgStatuses?.flatMap((qg) => qg.failedConditions) ?? [];
-
   const isApp = isApplication(component.qualifier);
 
   const nonCaycProjectsInApp = isApp
@@ -105,7 +103,7 @@ export function QualityGatePanel(props: QualityGatePanelProps) {
             </>
           )}
 
-          {totalFailedCondition.length > 0 && (
+          {totalFailedConditionLength > 0 && (
             <div data-test="overview__quality-gate-conditions">
               {failedQgStatuses.map((qgStatus, qgStatusIdx) => {
                 const failedConditionLength = qgStatus.failedConditions.filter((con) =>
@@ -123,6 +121,7 @@ export function QualityGatePanel(props: QualityGatePanelProps) {
                     />
                   );
                 }
+                return null;
               })}
             </div>
           )}

@@ -17,17 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { IconQuestionMark, Tooltip, TooltipSide } from '@sonarsource/echoes-react';
 import classNames from 'classnames';
 import {
   Card,
-  HelperHintIcon,
   LightLabel,
   SnoozeCircleIcon,
   TextError,
   TextSubdued,
   TrendDownCircleIcon,
   TrendUpCircleIcon,
-} from 'design-system/lib';
+} from 'design-system';
 import * as React from 'react';
 import { useIntl } from 'react-intl';
 import {
@@ -35,7 +35,6 @@ import {
   getComponentSecurityHotspotsUrl,
 } from '~sonar-aligned/helpers/urls';
 import { MetricKey, MetricType } from '~sonar-aligned/types/metrics';
-import Tooltip from '../../../components/controls/Tooltip';
 import { getLeakValue } from '../../../components/measure/utils';
 import { DEFAULT_ISSUES_QUERY } from '../../../components/shared/utils';
 import { findMeasure } from '../../../helpers/measures';
@@ -152,7 +151,7 @@ export default function MeasuresCardPanel(props: React.PropsWithChildren<Props>)
             disabled={component.needIssueSync}
             url={acceptedUrl}
             icon={
-              acceptedCount && (
+              acceptedCount !== undefined && (
                 <SnoozeCircleIcon
                   color={
                     acceptedCount === '0' ? 'overviewCardDefaultIcon' : 'overviewCardWarningIcon'
@@ -187,9 +186,11 @@ export default function MeasuresCardPanel(props: React.PropsWithChildren<Props>)
                       </span>
                     </div>
                   }
-                  side="top"
+                  side={TooltipSide.Top}
                 >
-                  <HelperHintIcon raised />
+                  <span className="sw-body-sm sw-cursor-default">
+                    <IconQuestionMark color="echoes-color-icon-subdued" />
+                  </span>
                 </Tooltip>
               </>
             }
@@ -198,7 +199,7 @@ export default function MeasuresCardPanel(props: React.PropsWithChildren<Props>)
             value={formatMeasure(fixedCount, MetricType.ShortInteger)}
             disabled={component.needIssueSync}
             url={fixedUrl}
-            icon={fixedCount && fixedCount !== '0' && <TrendDownCircleIcon />}
+            icon={fixedCount !== undefined && fixedCount !== '0' && <TrendDownCircleIcon />}
             footer={
               <TextSubdued className="sw-body-xs">
                 {intl.formatMessage({ id: 'overview.pull_request.fixed_issues.help' })}

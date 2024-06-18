@@ -44,7 +44,7 @@ export default function FailedConditions({
   failedConditions,
   component,
   branchLike,
-}: FailedConditionsProps) {
+}: Readonly<FailedConditionsProps>) {
   const [newCodeFailedConditions, overallFailedConditions] = _.partition(
     failedConditions,
     (condition) => isDiffMetric(condition.metric),
