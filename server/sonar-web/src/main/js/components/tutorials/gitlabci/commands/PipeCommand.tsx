@@ -77,22 +77,22 @@ sonarqube-check:
       - .sonar/cache
   script: ${script(projectKey)}
   allow_failure: true
-  only:
-    - merge_requests
-    - master
-    - main
-    - develop
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+    - if: $CI_COMMIT_BRANCH == 'master'
+    - if: $CI_COMMIT_BRANCH == 'main'
+    - if: $CI_COMMIT_BRANCH == 'develop'
 
 sonarqube-vulnerability-report:
   stage: sonarqube-vulnerability-report
   script:
     - 'curl -u "\${SONAR_TOKEN}:" "\${SONAR_HOST_URL}/api/issues/gitlab_sast_export?projectKey=${projectKey}&branch=\${CI_COMMIT_BRANCH}&pullRequest=\${CI_MERGE_REQUEST_IID}" -o gl-sast-sonar-report.json'
   allow_failure: true
-  only:
-    - merge_requests
-    - master
-    - main
-    - develop
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+    - if: $CI_COMMIT_BRANCH == 'master'
+    - if: $CI_COMMIT_BRANCH == 'main'
+    - if: $CI_COMMIT_BRANCH == 'develop'
   artifacts:
     expire_in: 1 day
     reports:
