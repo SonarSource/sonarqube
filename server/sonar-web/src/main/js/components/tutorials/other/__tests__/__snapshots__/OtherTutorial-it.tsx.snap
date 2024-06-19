@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`can choose build tools and copy provided settings: c++ (automatic) and other linux arm64: download scanner 1`] = `
-"export SONAR_SCANNER_VERSION=5.0.1.3006
+"export SONAR_SCANNER_VERSION=6.0.0.4432
 export SONAR_SCANNER_HOME=$HOME/.sonar/sonar-scanner-$SONAR_SCANNER_VERSION
 curl --create-dirs -sSLo $HOME/.sonar/sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-$SONAR_SCANNER_VERSION.zip
 unzip -o $HOME/.sonar/sonar-scanner.zip -d $HOME/.sonar/
@@ -18,7 +18,7 @@ exports[`can choose build tools and copy provided settings: c++ (automatic) and 
 `;
 
 exports[`can choose build tools and copy provided settings: c++ (automatic) and other linux: download scanner 1`] = `
-"export SONAR_SCANNER_VERSION=5.0.1.3006
+"export SONAR_SCANNER_VERSION=6.0.0.4432
 export SONAR_SCANNER_HOME=$HOME/.sonar/sonar-scanner-$SONAR_SCANNER_VERSION-linux
 curl --create-dirs -sSLo $HOME/.sonar/sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-$SONAR_SCANNER_VERSION-linux.zip
 unzip -o $HOME/.sonar/sonar-scanner.zip -d $HOME/.sonar/
@@ -35,7 +35,7 @@ exports[`can choose build tools and copy provided settings: c++ (automatic) and 
 `;
 
 exports[`can choose build tools and copy provided settings: c++ (automatic) and other linux: execute scanner 2`] = `
-"export SONAR_SCANNER_VERSION=5.0.1.3006
+"export SONAR_SCANNER_VERSION=6.0.0.4432
 export SONAR_SCANNER_HOME=$HOME/.sonar/sonar-scanner-$SONAR_SCANNER_VERSION-linux
 curl --create-dirs -sSLo $HOME/.sonar/sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-$SONAR_SCANNER_VERSION-linux.zip
 unzip -o $HOME/.sonar/sonar-scanner.zip -d $HOME/.sonar/
@@ -52,7 +52,7 @@ exports[`can choose build tools and copy provided settings: c++ (automatic) and 
 `;
 
 exports[`can choose build tools and copy provided settings: c++ (automatic) and other macos: execute scanner 2`] = `
-"export SONAR_SCANNER_VERSION=5.0.1.3006
+"export SONAR_SCANNER_VERSION=6.0.0.4432
 export SONAR_SCANNER_HOME=$HOME/.sonar/sonar-scanner-$SONAR_SCANNER_VERSION-macosx
 curl --create-dirs -sSLo $HOME/.sonar/sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-$SONAR_SCANNER_VERSION-macosx.zip
 unzip -o $HOME/.sonar/sonar-scanner.zip -d $HOME/.sonar/
@@ -64,7 +64,7 @@ export SONAR_SCANNER_OPTS="-server"
 exports[`can choose build tools and copy provided settings: c++ (automatic) and other windows: execute scanner 1`] = `"sonar-scanner.bat -D"sonar.projectKey=my-project" -D"sonar.sources=." -D"sonar.host.url=http://localhost:9000""`;
 
 exports[`can choose build tools and copy provided settings: c++ (automatic) and other windows: execute scanner 2`] = `
-"$env:SONAR_SCANNER_VERSION = "5.0.1.3006"
+"$env:SONAR_SCANNER_VERSION = "6.0.0.4432"
 $env:SONAR_DIRECTORY = [System.IO.Path]::Combine($(get-location).Path,".sonar")
 $env:SONAR_SCANNER_HOME = "$env:SONAR_DIRECTORY/sonar-scanner-$env:SONAR_SCANNER_VERSION-windows"
 rm $env:SONAR_SCANNER_HOME -Force -Recurse -ErrorAction SilentlyContinue
@@ -86,7 +86,7 @@ export PATH=$HOME/.sonar/build-wrapper-linux-aarch64:$PATH
 `;
 
 exports[`can choose build tools and copy provided settings: c++ (manual) linux arm64: download scanner 1`] = `
-"export SONAR_SCANNER_VERSION=5.0.1.3006
+"export SONAR_SCANNER_VERSION=6.0.0.4432
 export SONAR_SCANNER_HOME=$HOME/.sonar/sonar-scanner-$SONAR_SCANNER_VERSION
 curl --create-dirs -sSLo $HOME/.sonar/sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-$SONAR_SCANNER_VERSION.zip
 unzip -o $HOME/.sonar/sonar-scanner.zip -d $HOME/.sonar/
@@ -113,7 +113,7 @@ export PATH=$HOME/.sonar/build-wrapper-linux-x86:$PATH
 `;
 
 exports[`can choose build tools and copy provided settings: c++ (manual) linux: download scanner 1`] = `
-"export SONAR_SCANNER_VERSION=5.0.1.3006
+"export SONAR_SCANNER_VERSION=6.0.0.4432
 export SONAR_SCANNER_HOME=$HOME/.sonar/sonar-scanner-$SONAR_SCANNER_VERSION-linux
 curl --create-dirs -sSLo $HOME/.sonar/sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-$SONAR_SCANNER_VERSION-linux.zip
 unzip -o $HOME/.sonar/sonar-scanner.zip -d $HOME/.sonar/
@@ -140,7 +140,7 @@ export PATH=$HOME/.sonar/build-wrapper-macosx-x86:$PATH
 `;
 
 exports[`can choose build tools and copy provided settings: c++ (manual) macos: download scanner 1`] = `
-"export SONAR_SCANNER_VERSION=5.0.1.3006
+"export SONAR_SCANNER_VERSION=6.0.0.4432
 export SONAR_SCANNER_HOME=$HOME/.sonar/sonar-scanner-$SONAR_SCANNER_VERSION-macosx
 curl --create-dirs -sSLo $HOME/.sonar/sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-$SONAR_SCANNER_VERSION-macosx.zip
 unzip -o $HOME/.sonar/sonar-scanner.zip -d $HOME/.sonar/
@@ -171,7 +171,7 @@ $env:Path += ";$env:SONAR_DIRECTORY/build-wrapper-win-x86"
 `;
 
 exports[`can choose build tools and copy provided settings: c++ (manual) windows: download scanner 1`] = `
-"$env:SONAR_SCANNER_VERSION = "5.0.1.3006"
+"$env:SONAR_SCANNER_VERSION = "6.0.0.4432"
 $env:SONAR_DIRECTORY = [System.IO.Path]::Combine($(get-location).Path,".sonar")
 $env:SONAR_SCANNER_HOME = "$env:SONAR_DIRECTORY/sonar-scanner-$env:SONAR_SCANNER_VERSION-windows"
 rm $env:SONAR_SCANNER_HOME -Force -Recurse -ErrorAction SilentlyContinue
@@ -233,7 +233,7 @@ export PATH=$HOME/.sonar/build-wrapper-linux-aarch64:$PATH
 `;
 
 exports[`can choose build tools and copy provided settings: objective-c linux arm64: download scanner 1`] = `
-"export SONAR_SCANNER_VERSION=5.0.1.3006
+"export SONAR_SCANNER_VERSION=6.0.0.4432
 export SONAR_SCANNER_HOME=$HOME/.sonar/sonar-scanner-$SONAR_SCANNER_VERSION
 curl --create-dirs -sSLo $HOME/.sonar/sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-$SONAR_SCANNER_VERSION.zip
 unzip -o $HOME/.sonar/sonar-scanner.zip -d $HOME/.sonar/
@@ -260,7 +260,7 @@ export PATH=$HOME/.sonar/build-wrapper-linux-x86:$PATH
 `;
 
 exports[`can choose build tools and copy provided settings: objective-c linux: download scanner 1`] = `
-"export SONAR_SCANNER_VERSION=5.0.1.3006
+"export SONAR_SCANNER_VERSION=6.0.0.4432
 export SONAR_SCANNER_HOME=$HOME/.sonar/sonar-scanner-$SONAR_SCANNER_VERSION-linux
 curl --create-dirs -sSLo $HOME/.sonar/sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-$SONAR_SCANNER_VERSION-linux.zip
 unzip -o $HOME/.sonar/sonar-scanner.zip -d $HOME/.sonar/
@@ -287,7 +287,7 @@ export PATH=$HOME/.sonar/build-wrapper-macosx-x86:$PATH
 `;
 
 exports[`can choose build tools and copy provided settings: objective-c macos: download scanner 1`] = `
-"export SONAR_SCANNER_VERSION=5.0.1.3006
+"export SONAR_SCANNER_VERSION=6.0.0.4432
 export SONAR_SCANNER_HOME=$HOME/.sonar/sonar-scanner-$SONAR_SCANNER_VERSION-macosx
 curl --create-dirs -sSLo $HOME/.sonar/sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-$SONAR_SCANNER_VERSION-macosx.zip
 unzip -o $HOME/.sonar/sonar-scanner.zip -d $HOME/.sonar/
@@ -318,7 +318,7 @@ $env:Path += ";$env:SONAR_DIRECTORY/build-wrapper-win-x86"
 `;
 
 exports[`can choose build tools and copy provided settings: objective-c windows: download scanner 1`] = `
-"$env:SONAR_SCANNER_VERSION = "5.0.1.3006"
+"$env:SONAR_SCANNER_VERSION = "6.0.0.4432"
 $env:SONAR_DIRECTORY = [System.IO.Path]::Combine($(get-location).Path,".sonar")
 $env:SONAR_SCANNER_HOME = "$env:SONAR_DIRECTORY/sonar-scanner-$env:SONAR_SCANNER_VERSION-windows"
 rm $env:SONAR_SCANNER_HOME -Force -Recurse -ErrorAction SilentlyContinue

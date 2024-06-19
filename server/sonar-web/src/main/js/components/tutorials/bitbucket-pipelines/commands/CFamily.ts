@@ -19,6 +19,7 @@
  */
 import { AutoConfig, BuildTools, OSs } from '../../types';
 import {
+  SONAR_SCANNER_CLI_LATEST_VERSION,
   getBuildWrapperExecutableLinux,
   getBuildWrapperFolderLinux,
   getScannerUrlSuffix,
@@ -45,7 +46,7 @@ definitions:
     - step: &build-step
         name: Build the project, and run the SonarQube analysis
         script:
-          - export SONAR_SCANNER_VERSION=5.0.1.3006
+          - export SONAR_SCANNER_VERSION=${SONAR_SCANNER_CLI_LATEST_VERSION}
           - mkdir $HOME/.sonar
           - curl -sSLo $HOME/.sonar/${buildWrapperFolder}.zip \${SONAR_HOST_URL}/static/cpp/${buildWrapperFolder}.zip
           - unzip -o $HOME/.sonar/${buildWrapperFolder}.zip -d $HOME/.sonar/

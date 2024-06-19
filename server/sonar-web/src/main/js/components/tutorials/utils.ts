@@ -23,6 +23,8 @@ import { AlmSettingsInstance, ProjectAlmBindingResponse } from '../../types/alm-
 import { UserToken } from '../../types/token';
 import { Arch, AutoConfig, BuildTools, GradleBuildDSL, OSs, TutorialConfig } from './types';
 
+export const SONAR_SCANNER_CLI_LATEST_VERSION = '6.0.0.4432';
+
 export function quote(os: string): (s: string) => string {
   return os === 'win' ? (s: string) => `"${s}"` : (s: string) => s;
 }
@@ -184,4 +186,14 @@ export function getScannerUrlSuffix(os: OSs, arch?: Arch) {
     return '-linux';
   }
   return '';
+}
+
+export function showJreWarning(config: TutorialConfig, arch: Arch) {
+  if (!isCFamily(config.buildTool)) {
+    return false;
+  }
+  if (config.autoConfig === AutoConfig.Automatic) {
+    return false;
+  }
+  return arch === Arch.Arm64;
 }

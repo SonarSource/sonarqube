@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { ClipboardIconButton, CodeSnippet, FlagMessage, NumberedListItem } from 'design-system';
+import { ClipboardIconButton, CodeSnippet, NumberedListItem } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { translate } from '../../../helpers/l10n';
@@ -45,13 +45,7 @@ export default function CreateYmlFile(props: Readonly<CreateYmlFileProps>) {
           ),
         }}
       />
-      {warning && (
-        <div>
-          <FlagMessage className="sw-mt-2 sw-w-abs-600" variant="warning">
-            {warning}
-          </FlagMessage>
-        </div>
-      )}
+      {warning}
       <CodeSnippet className="sw-p-6 sw-overflow-auto" snippet={yamlTemplate} language="yml" />
     </NumberedListItem>
   );

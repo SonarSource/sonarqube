@@ -38,8 +38,14 @@ import BuildConfigSelection from '../components/BuildConfigSelection';
 import GithubCFamilyExampleRepositories from '../components/GithubCFamilyExampleRepositories';
 import GradleBuildSelection from '../components/GradleBuildSelection';
 import { InlineSnippet } from '../components/InlineSnippet';
-import { BuildTools, GradleBuildDSL, TutorialConfig, TutorialModes } from '../types';
-import { isCFamily } from '../utils';
+import { JreRequiredWarning } from '../components/JreRequiredWarning';
+import RenderOptions from '../components/RenderOptions';
+import { Arch, BuildTools, GradleBuildDSL, OSs, TutorialConfig, TutorialModes } from '../types';
+import {
+  shouldShowArchSelector,
+  shouldShowGithubCFamilyExampleRepositories,
+  showJreWarning,
+} from '../utils';
 import PipeCommand from './commands/PipeCommand';
 
 export interface YmlFileStepProps extends WithAvailableFeaturesProps {
@@ -110,8 +116,10 @@ const snippetLanguageForBuildTool = {
   [BuildTools.Other]: undefined,
 };
 
-export function YmlFileStep(props: YmlFileStepProps) {
+export function YmlFileStep(props: Readonly<YmlFileStepProps>) {
   const { component, hasCLanguageFeature, setDone } = props;
+  const [os, setOs] = React.useState<OSs>(OSs.Linux);
+  const [arch, setArch] = React.useState<Arch>(Arch.X86_64);
 
   const [config, setConfig] = React.useState<TutorialConfig>({});
   const { buildTool } = config;
@@ -131,11 +139,32 @@ export function YmlFileStep(props: YmlFileStepProps) {
           ci={TutorialModes.GitLabCI}
           config={config}
           supportCFamily={hasCLanguageFeature}
-          hideAutoConfig
           onSetConfig={onSetConfig}
         />
+        {(config.buildTool === BuildTools.Other ||
+          config.buildTool === BuildTools.Cpp ||
+          config.buildTool === BuildTools.ObjectiveC) && (
+          <RenderOptions
+            label={translate('onboarding.build.other.os')}
+            checked={os}
+            onCheck={(value: OSs) => setOs(value)}
+            optionLabelKey="onboarding.build.other.os"
+            options={[OSs.Linux, OSs.Windows, OSs.MacOS]}
+            titleLabelKey="onboarding.build.other.os"
+          />
+        )}
+        {shouldShowArchSelector(os, config) && (
+          <RenderOptions
+            label={translate('onboarding.build.other.architecture')}
+            checked={arch}
+            onCheck={(value: Arch) => setArch(value)}
+            optionLabelKey="onboarding.build.other.architecture"
+            options={[Arch.X86_64, Arch.Arm64]}
+            titleLabelKey="onboarding.build.other.architecture"
+          />
+        )}
 
-        {isCFamily(config.buildTool) && (
+        {shouldShowGithubCFamilyExampleRepositories(config) && (
           <GithubCFamilyExampleRepositories
             ci={TutorialModes.GitLabCI}
             className="sw-my-4 sw-w-abs-600"
@@ -143,102 +172,104 @@ export function YmlFileStep(props: YmlFileStepProps) {
         )}
       </NumberedListItem>
 
-      {buildTool !== undefined &&
-        buildTool !== BuildTools.Cpp &&
-        buildTool !== BuildTools.ObjectiveC &&
-        buildTool !== BuildTools.DotNet && (
-          <NumberedListItem>
-            <FormattedMessage
-              defaultMessage={translate(
-                `onboarding.tutorial.with.gitlab_ci.project_key.${buildTool}.step2`,
-              )}
-              id={`onboarding.tutorial.with.gitlab_ci.project_key.${buildTool}.step2`}
-              values={Object.assign(
-                {
-                  file: (
-                    <>
-                      <InlineSnippet snippet={filenameForBuildTool[buildTool]} />
-
-                      <ClipboardIconButton
-                        className="sw-ml-2 sw-align-sub"
-                        copyValue={filenameForBuildTool[buildTool]}
-                      />
-                    </>
-                  ),
-                },
-                buildTool === BuildTools.Gradle
-                  ? {
-                      file2: (
-                        <>
-                          <InlineSnippet snippet={GradleBuildDSL.Kotlin} />
-
-                          <ClipboardIconButton
-                            className="sw-ml-2 sw-align-sub"
-                            copyValue={GradleBuildDSL.Kotlin}
-                          />
-                        </>
-                      ),
-                    }
-                  : {},
-              )}
-            />
-            {buildTool === BuildTools.Gradle ? (
-              <GradleBuildSelection className="sw-mb-4 sw-mt-2">
-                {(build) => (
-                  <CodeSnippet
-                    className="sw-p-6"
-                    language="gradle"
-                    snippet={snippetForBuildTool[buildTool](component.key, component.name, build)}
-                  />
-                )}
-              </GradleBuildSelection>
-            ) : (
-              <CodeSnippet
-                className="sw-p-6"
-                language={snippetLanguageForBuildTool[buildTool]}
-                snippet={snippetForBuildTool[buildTool](component.key, component.name)}
-              />
+      {/* Step 2 */}
+      {buildTool !== undefined && buildTool !== BuildTools.DotNet && (
+        <NumberedListItem>
+          <FormattedMessage
+            defaultMessage={translate(
+              `onboarding.tutorial.with.gitlab_ci.project_key.${buildTool}.step2`,
             )}
-          </NumberedListItem>
-        )}
+            id={`onboarding.tutorial.with.gitlab_ci.project_key.${buildTool}.step2`}
+            values={Object.assign(
+              {
+                file: (
+                  <>
+                    <InlineSnippet snippet={filenameForBuildTool[buildTool]} />
 
-      {buildTool && (
-        <>
-          {buildTool !== BuildTools.Cpp && buildTool !== BuildTools.ObjectiveC && (
-            <NumberedListItem>
-              <FormattedMessage
-                defaultMessage={translate('onboarding.tutorial.with.gitlab_ci.yaml.description')}
-                id="onboarding.tutorial.with.gitlab_ci.yaml.description"
-                values={{
-                  filename: (
-                    <>
-                      <InlineSnippet
-                        snippet={translate('onboarding.tutorial.with.gitlab_ci.yaml.filename')}
-                      />
+                    <ClipboardIconButton
+                      className="sw-ml-2 sw-align-sub"
+                      copyValue={filenameForBuildTool[buildTool]}
+                    />
+                  </>
+                ),
+              },
+              buildTool === BuildTools.Gradle
+                ? {
+                    file2: (
+                      <>
+                        <InlineSnippet snippet={GradleBuildDSL.Kotlin} />
 
-                      <ClipboardIconButton
-                        className="sw-ml-2 sw-align-sub"
-                        copyValue={translate('onboarding.tutorial.with.gitlab_ci.yaml.filename')}
-                      />
-                    </>
-                  ),
-                }}
-              />
-
-              <PipeCommand buildTool={buildTool} projectKey={component.key} />
-
-              <FlagMessage className="sw-mb-4 sw-mt-2" variant="warning">
-                {translate('onboarding.tutorial.with.gitlab_ci.yaml.premium')}
-              </FlagMessage>
-
-              <p className="sw-mb-1">
-                {translate('onboarding.tutorial.with.gitlab_ci.yaml.baseconfig')}
-              </p>
-
-              <p>{translate('onboarding.tutorial.with.gitlab_ci.yaml.existing')}</p>
-            </NumberedListItem>
+                        <ClipboardIconButton
+                          className="sw-ml-2 sw-align-sub"
+                          copyValue={GradleBuildDSL.Kotlin}
+                        />
+                      </>
+                    ),
+                  }
+                : {},
+            )}
+          />
+          {buildTool === BuildTools.Gradle ? (
+            <GradleBuildSelection className="sw-mb-4 sw-mt-2">
+              {(build) => (
+                <CodeSnippet
+                  className="sw-p-6"
+                  language="gradle"
+                  snippet={snippetForBuildTool[buildTool](component.key, component.name, build)}
+                />
+              )}
+            </GradleBuildSelection>
+          ) : (
+            <CodeSnippet
+              className="sw-p-6"
+              language={snippetLanguageForBuildTool[buildTool]}
+              snippet={snippetForBuildTool[buildTool](component.key, component.name)}
+            />
           )}
-        </>
+        </NumberedListItem>
+      )}
+
+      {/* Step 3 */}
+      {buildTool && (
+        <NumberedListItem>
+          <FormattedMessage
+            defaultMessage={translate('onboarding.tutorial.with.gitlab_ci.yaml.description')}
+            id="onboarding.tutorial.with.gitlab_ci.yaml.description"
+            values={{
+              filename: (
+                <>
+                  <InlineSnippet
+                    snippet={translate('onboarding.tutorial.with.gitlab_ci.yaml.filename')}
+                  />
+
+                  <ClipboardIconButton
+                    className="sw-ml-2 sw-align-sub"
+                    copyValue={translate('onboarding.tutorial.with.gitlab_ci.yaml.filename')}
+                  />
+                </>
+              ),
+            }}
+          />
+          {showJreWarning(config, arch) && <JreRequiredWarning />}
+
+          <PipeCommand
+            buildTool={buildTool}
+            projectKey={component.key}
+            os={os}
+            arch={arch}
+            config={config}
+          />
+
+          <FlagMessage className="sw-mb-4 sw-mt-2" variant="warning">
+            {translate('onboarding.tutorial.with.gitlab_ci.yaml.premium')}
+          </FlagMessage>
+
+          <p className="sw-mb-1">
+            {translate('onboarding.tutorial.with.gitlab_ci.yaml.baseconfig')}
+          </p>
+
+          <p>{translate('onboarding.tutorial.with.gitlab_ci.yaml.existing')}</p>
+        </NumberedListItem>
       )}
     </NumberedList>
   );

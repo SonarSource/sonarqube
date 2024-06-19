@@ -34,7 +34,7 @@ import { useDocUrl } from '../../../../helpers/docs';
 import { translate } from '../../../../helpers/l10n';
 import { InlineSnippet } from '../../components/InlineSnippet';
 import { Arch, OSs } from '../../types';
-import { getScannerUrlSuffix } from '../../utils';
+import { SONAR_SCANNER_CLI_LATEST_VERSION, getScannerUrlSuffix } from '../../utils';
 
 export interface DownloadScannerProps {
   arch: Arch;
@@ -121,7 +121,7 @@ export default function DownloadScanner(props: Readonly<DownloadScannerProps>) {
 
 function getRemoteDownloadSnippet(os: OSs, arch: Arch) {
   if (os === OSs.Windows) {
-    return `$env:SONAR_SCANNER_VERSION = "5.0.1.3006"
+    return `$env:SONAR_SCANNER_VERSION = "${SONAR_SCANNER_CLI_LATEST_VERSION}"
 $env:SONAR_DIRECTORY = [System.IO.Path]::Combine($(get-location).Path,".sonar")
 $env:SONAR_SCANNER_HOME = "$env:SONAR_DIRECTORY/sonar-scanner-$env:SONAR_SCANNER_VERSION-windows"
 rm $env:SONAR_SCANNER_HOME -Force -Recurse -ErrorAction SilentlyContinue
@@ -135,7 +135,7 @@ $env:SONAR_SCANNER_OPTS="-server"
 `;
   }
   const suffix = getScannerUrlSuffix(os, arch);
-  return `export SONAR_SCANNER_VERSION=5.0.1.3006
+  return `export SONAR_SCANNER_VERSION=${SONAR_SCANNER_CLI_LATEST_VERSION}
 export SONAR_SCANNER_HOME=$HOME/.sonar/sonar-scanner-$SONAR_SCANNER_VERSION${suffix}
 curl --create-dirs -sSLo $HOME/.sonar/sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-$SONAR_SCANNER_VERSION${suffix}.zip
 unzip -o $HOME/.sonar/sonar-scanner.zip -d $HOME/.sonar/

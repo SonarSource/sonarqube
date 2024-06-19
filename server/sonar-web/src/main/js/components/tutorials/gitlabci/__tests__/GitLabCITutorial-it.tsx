@@ -79,6 +79,32 @@ it('should follow and complete all steps', async () => {
   await user.click(ui.dotnetBuildButton.get());
   expect(getCopyToClipboardValue(0, 'Copy')).toMatchSnapshot('.NET: gitlab-ci.yml');
 
+  // C++/Objective-C
+  await user.click(ui.cppBuildButton.get());
+  //linux
+  expect(getCopyToClipboardValue(0, 'Copy')).toMatchSnapshot('CPP: sonar-project.properties');
+  expect(getCopyToClipboardValue(1, 'Copy')).toMatchSnapshot('CPP: gitlab-ci.yml');
+  //windows
+  await user.click(ui.windowsButton.get());
+  expect(getCopyToClipboardValue(1, 'Copy')).toMatchSnapshot('CPP - windows: gitlab-ci.yml');
+  //macos
+  await user.click(ui.macosButton.get());
+  expect(getCopyToClipboardValue(1, 'Copy')).toMatchSnapshot('CPP - macos: gitlab-ci.yml');
+
+  // c++ manual config
+  await user.click(ui.autoConfigManual.get());
+
+  //linux
+  await user.click(ui.linuxButton.get());
+  expect(getCopyToClipboardValue(1, 'Copy')).toMatchSnapshot('CPP - manual: gitlab-ci.yml');
+
+  //windows
+  await user.click(ui.windowsButton.get());
+  expect(getCopyToClipboardValue(1, 'Copy')).toMatchSnapshot('CPP - windows: gitlab-ci.yml');
+  //macos
+  await user.click(ui.macosButton.get());
+  expect(getCopyToClipboardValue(1, 'Copy')).toMatchSnapshot('CPP - macos: gitlab-ci.yml');
+
   // Other
   await user.click(ui.otherBuildButton.get());
   expect(getCopyToClipboardValue(0, 'Copy')).toMatchSnapshot('Other: sonar-project.properties');
