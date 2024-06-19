@@ -135,6 +135,7 @@ export default function BranchOverviewRenderer(props: BranchOverviewRendererProp
     <AnalysisMissingInfoMessage
       qualifier={component.qualifier}
       hide={isPortfolioLike(component.qualifier)}
+      className="sw-mb-8"
     />
   );
 

@@ -77,7 +77,7 @@ export default function OverallCodeMeasuresPanel(props: Readonly<OverallCodeMeas
   return (
     <GridContainer
       id={getTabPanelId(CodeScope.Overall)}
-      className={classNames('sw-grid sw-gap-12 sw-relative sw-overflow-hidden sw-mt-8 js-summary', {
+      className={classNames('sw-grid sw-gap-12 sw-relative sw-overflow-hidden js-summary', {
         'sw-grid-cols-3': noConditionsAndWarningForOverallCode,
         'sw-grid-cols-4': !noConditionsAndWarningForOverallCode,
       })}
