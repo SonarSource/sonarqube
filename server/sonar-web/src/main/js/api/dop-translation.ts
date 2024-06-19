@@ -18,13 +18,20 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import axios from 'axios';
-import { BoundProject, DopSetting, ProjectBinding } from '../types/dop-translation';
+import {
+  BoundProject,
+  DopSetting,
+  GitHubConfigurationPayload,
+  GitHubConfigurationResponse,
+  ProjectBinding,
+} from '../types/dop-translation';
 import { Paging } from '../types/types';
 
 const DOP_TRANSLATION_PATH = '/api/v2/dop-translation';
 const BOUND_PROJECTS_PATH = `${DOP_TRANSLATION_PATH}/bound-projects`;
 const DOP_SETTINGS_PATH = `${DOP_TRANSLATION_PATH}/dop-settings`;
 const PROJECT_BINDINGS_PATH = `${DOP_TRANSLATION_PATH}/project-bindings`;
+const GITHUB_CONFIGURATIONS_PATH = `${DOP_TRANSLATION_PATH}/github-configurations`;
 
 export function createBoundProject(data: BoundProject) {
   return axios.post(BOUND_PROJECTS_PATH, data);
@@ -43,4 +50,35 @@ export function getProjectBindings(data: {
   return axios.get<{ page: Paging; projectBindings: ProjectBinding[] }>(PROJECT_BINDINGS_PATH, {
     params: data,
   });
+}
+
+export function searchGitHubConfigurations() {
+  return axios.get<{ githubConfigurations: GitHubConfigurationResponse[]; page: Paging }>(
+    GITHUB_CONFIGURATIONS_PATH,
+  );
+}
+
+export function fetchGitHubConfiguration(id: string) {
+  return axios.get<GitHubConfigurationResponse>(`${GITHUB_CONFIGURATIONS_PATH}/${id}`);
+}
+
+export function createGitHubConfiguration(gitHubConfiguration: GitHubConfigurationPayload) {
+  return axios.post<GitHubConfigurationResponse, GitHubConfigurationPayload>(
+    GITHUB_CONFIGURATIONS_PATH,
+    gitHubConfiguration,
+  );
+}
+
+export function updateGitHubConfiguration(
+  id: string,
+  gitHubConfiguration: Partial<GitHubConfigurationPayload>,
+) {
+  return axios.patch<GitHubConfigurationResponse>(
+    `${GITHUB_CONFIGURATIONS_PATH}/${id}`,
+    gitHubConfiguration,
+  );
+}
+
+export function deleteGitHubConfiguration(id: string) {
+  return axios.delete(`${GITHUB_CONFIGURATIONS_PATH}/${id}`);
 }

@@ -34,8 +34,8 @@ import { AlmKeys } from '../../../../types/alm-settings';
 import { Feature } from '../../../../types/features';
 import { ExtendedSettingDefinition } from '../../../../types/settings';
 import BitbucketAuthenticationTab from './BitbucketAuthenticationTab';
+import GitHubAuthenticationTab from './GitHubAuthenticationTab';
 import GitLabAuthenticationTab from './GitLabAuthenticationTab';
-import GithubAuthenticationTab from './GithubAuthenticationTab';
 import SamlAuthenticationTab, { SAML } from './SamlAuthenticationTab';
 
 interface Props {
@@ -93,10 +93,9 @@ export function Authentication(props: Props & WithAvailableFeaturesProps) {
     },
   ] as const;
 
-  const [samlDefinitions, githubDefinitions, bitbucketDefinitions] = React.useMemo(
+  const [samlDefinitions, bitbucketDefinitions] = React.useMemo(
     () => [
       definitions.filter((def) => def.subCategory === SAML),
-      definitions.filter((def) => def.subCategory === AlmKeys.GitHub),
       definitions.filter((def) => def.subCategory === AlmKeys.BitbucketServer),
     ],
     [definitions],
@@ -150,9 +149,7 @@ export function Authentication(props: Props & WithAvailableFeaturesProps) {
             <div className="sw-mt-6">
               {tab.value === SAML && <SamlAuthenticationTab definitions={samlDefinitions} />}
 
-              {tab.value === AlmKeys.GitHub && (
-                <GithubAuthenticationTab currentTab={currentTab} definitions={githubDefinitions} />
-              )}
+              {tab.value === AlmKeys.GitHub && <GitHubAuthenticationTab />}
 
               {tab.value === AlmKeys.GitLab && <GitLabAuthenticationTab />}
 

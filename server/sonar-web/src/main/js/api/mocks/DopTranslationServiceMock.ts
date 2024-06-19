@@ -17,11 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { cloneDeep } from 'lodash';
+import { cloneDeep, omit } from 'lodash';
+import { mockGitHubConfiguration } from '../../helpers/mocks/dop-translation';
 import { mockPaging } from '../../helpers/testMocks';
 import { AlmKeys } from '../../types/alm-settings';
-import { DopSetting, ProjectBinding } from '../../types/dop-translation';
-import { createBoundProject, getDopSettings, getProjectBindings } from '../dop-translation';
+import {
+  DopSetting,
+  GitHubConfigurationResponse,
+  ProjectBinding,
+} from '../../types/dop-translation';
+import {
+  createBoundProject,
+  createGitHubConfiguration,
+  deleteGitHubConfiguration,
+  fetchGitHubConfiguration,
+  getDopSettings,
+  getProjectBindings,
+  searchGitHubConfigurations,
+  updateGitHubConfiguration,
+} from '../dop-translation';
 import { mockDopSetting, mockProjectBinding } from './data/dop-translation';
 
 jest.mock('../dop-translation');
@@ -71,14 +85,25 @@ const defaultProjectBindings = [
 export default class DopTranslationServiceMock {
   projectBindings: ProjectBinding[] = [];
   dopSettings: DopSetting[] = [];
+  gitHubConfigurations: GitHubConfigurationResponse[] = [];
 
   constructor() {
     this.reset();
     jest.mocked(createBoundProject).mockImplementation(this.createBoundProject);
     jest.mocked(getDopSettings).mockImplementation(this.getDopSettings);
     jest.mocked(getProjectBindings).mockImplementation(this.getProjectBindings);
+    jest
+      .mocked(searchGitHubConfigurations)
+      .mockImplementation(this.handleSearchGitHubConfigurations);
+    jest.mocked(fetchGitHubConfiguration).mockImplementation(this.handleFetchGitHubConfiguration);
+    jest.mocked(createGitHubConfiguration).mockImplementation(this.handleCreateGitHubConfiguration);
+    jest.mocked(updateGitHubConfiguration).mockImplementation(this.handleUpdateGitHubConfiguration);
+    jest.mocked(deleteGitHubConfiguration).mockImplementation(this.handleDeleteGitHubConfiguration);
   }
 
+  /*
+   * Project bindings
+   */
   createBoundProject: typeof createBoundProject = (data) => {
     this.projectBindings.push(
       mockProjectBinding({
@@ -119,9 +144,52 @@ export default class DopTranslationServiceMock {
     );
   };
 
+  /*
+   * GitHub configurations
+   */
+  handleSearchGitHubConfigurations: typeof searchGitHubConfigurations = () => {
+    return Promise.resolve({
+      githubConfigurations: this.gitHubConfigurations,
+      page: mockPaging({ total: this.gitHubConfigurations.length }),
+    });
+  };
+
+  handleFetchGitHubConfiguration: typeof fetchGitHubConfiguration = (id: string) => {
+    const configuration = this.gitHubConfigurations.find((c) => c.id === id);
+    if (!configuration) {
+      return Promise.reject();
+    }
+    return Promise.resolve(configuration);
+  };
+
+  handleCreateGitHubConfiguration: typeof createGitHubConfiguration = (gitHubConfiguration) => {
+    const newConfig = mockGitHubConfiguration({
+      ...omit(gitHubConfiguration, 'clientId', 'clientSecret', 'privateKey'),
+      id: '1',
+      enabled: false,
+    });
+    this.gitHubConfigurations = [...this.gitHubConfigurations, newConfig];
+    return Promise.resolve(newConfig);
+  };
+
+  handleUpdateGitHubConfiguration: typeof updateGitHubConfiguration = (id, gitHubConfiguration) => {
+    const index = this.gitHubConfigurations.findIndex((c) => c.id === id);
+    this.gitHubConfigurations[index] = {
+      ...this.gitHubConfigurations[index],
+      ...gitHubConfiguration,
+    };
+    return Promise.resolve(this.gitHubConfigurations[index]);
+  };
+
+  handleDeleteGitHubConfiguration: typeof deleteGitHubConfiguration = (id) => {
+    this.gitHubConfigurations = this.gitHubConfigurations.filter((c) => c.id !== id);
+    return Promise.resolve();
+  };
+
   reset() {
     this.projectBindings = cloneDeep(defaultProjectBindings);
     this.dopSettings = cloneDeep(defaultDopSettings);
+    this.gitHubConfigurations = [];
   }
 
   reply<T>(response: T): Promise<T> {

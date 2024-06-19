@@ -23,22 +23,27 @@ import { UserEvent } from '@testing-library/user-event/dist/types/setup/setup';
 import { uniq } from 'lodash';
 import { byRole, byText } from '~sonar-aligned/helpers/testSelector';
 import { ComponentQualifier } from '~sonar-aligned/types/component';
+import DopTranslationServiceMock from '../../../../api/mocks/DopTranslationServiceMock';
 import GithubProvisioningServiceMock from '../../../../api/mocks/GithubProvisioningServiceMock';
 import PermissionsServiceMock from '../../../../api/mocks/PermissionsServiceMock';
+import { mockGitHubConfiguration } from '../../../../helpers/mocks/dop-translation';
 import { mockPermissionGroup, mockPermissionUser } from '../../../../helpers/mocks/permissions';
 import { PERMISSIONS_ORDER_FOR_PROJECT_TEMPLATE } from '../../../../helpers/permissions';
 import { mockAppState } from '../../../../helpers/testMocks';
 import { renderAppWithAdminContext } from '../../../../helpers/testReactTestingUtils';
 import { Feature } from '../../../../types/features';
 import { Permissions } from '../../../../types/permissions';
+import { ProvisioningType } from '../../../../types/provisioning';
 import { PermissionGroup, PermissionUser } from '../../../../types/types';
 import routes from '../../routes';
 
 const serviceMock = new PermissionsServiceMock();
-const githubHandler = new GithubProvisioningServiceMock();
+const dopTranslationHandler = new DopTranslationServiceMock();
+const githubHandler = new GithubProvisioningServiceMock(dopTranslationHandler);
 
 beforeEach(() => {
   serviceMock.reset();
+  dopTranslationHandler.reset();
   githubHandler.reset();
 });
 
@@ -394,7 +399,9 @@ it.each([ComponentQualifier.Project, ComponentQualifier.Application, ComponentQu
 it('should show github warning', async () => {
   const user = userEvent.setup();
   const ui = getPageObject(user);
-  githubHandler.githubProvisioningStatus = true;
+  dopTranslationHandler.gitHubConfigurations.push(
+    mockGitHubConfiguration({ provisioningType: ProvisioningType.auto }),
+  );
   renderPermissionTemplatesApp(undefined, [Feature.GithubProvisioning]);
 
   expect(await ui.githubWarning.find()).toBeInTheDocument();

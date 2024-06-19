@@ -21,6 +21,7 @@ import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
 import { byRole, byText } from '~sonar-aligned/helpers/testSelector';
+import DopTranslationServiceMock from '../../../../../api/mocks/DopTranslationServiceMock';
 import GithubProvisioningServiceMock from '../../../../../api/mocks/GithubProvisioningServiceMock';
 import GitlabProvisioningServiceMock from '../../../../../api/mocks/GitlabProvisioningServiceMock';
 import ScimProvisioningServiceMock from '../../../../../api/mocks/ScimProvisioningServiceMock';
@@ -33,6 +34,7 @@ import { Feature } from '../../../../../types/features';
 import Authentication from '../Authentication';
 
 let scimHandler: ScimProvisioningServiceMock;
+let dopTranslationHandler: DopTranslationServiceMock;
 let githubHandler: GithubProvisioningServiceMock;
 let gitlabHandler: GitlabProvisioningServiceMock;
 let system: SystemServiceMock;
@@ -40,6 +42,7 @@ let settingsHandler: SettingsServiceMock;
 
 beforeEach(() => {
   scimHandler = new ScimProvisioningServiceMock();
+  dopTranslationHandler = new DopTranslationServiceMock();
   githubHandler = new GithubProvisioningServiceMock();
   gitlabHandler = new GitlabProvisioningServiceMock();
   system = new SystemServiceMock();
@@ -48,6 +51,7 @@ beforeEach(() => {
 
 afterEach(() => {
   scimHandler.reset();
+  dopTranslationHandler.reset();
   githubHandler.reset();
   gitlabHandler.reset();
   settingsHandler.reset();

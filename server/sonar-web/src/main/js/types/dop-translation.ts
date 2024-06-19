@@ -19,6 +19,7 @@
  */
 
 import { AlmInstanceBase, AlmKeys } from './alm-settings';
+import { ProvisioningType } from './provisioning';
 
 export interface DopSetting extends AlmInstanceBase {
   appId?: string;
@@ -44,4 +45,28 @@ export interface ProjectBinding {
   projectKey: string;
   repository: string;
   slug: string;
+}
+
+export interface GitHubConfigurationBase {
+  allowUsersToSignUp: boolean;
+  allowedOrganizations: string[];
+  apiUrl: string;
+  applicationId: string;
+  enabled: boolean;
+  projectVisibility: boolean;
+  provisioningType: ProvisioningType;
+  synchronizeGroups: boolean;
+  userConsentRequiredAfterUpgrade: boolean;
+  webUrl: string;
+}
+
+export interface GitHubConfigurationPayload extends GitHubConfigurationBase {
+  clientId: string;
+  clientSecret: string;
+  privateKey: string;
+}
+
+export interface GitHubConfigurationResponse extends GitHubConfigurationBase {
+  errorMessage?: string;
+  id: string;
 }

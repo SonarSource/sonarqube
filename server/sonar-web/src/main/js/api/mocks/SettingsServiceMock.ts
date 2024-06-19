@@ -296,16 +296,6 @@ export default class SettingsServiceMock {
     this.#secretKeyAvailable = val;
   };
 
-  presetGithubAutoProvisioning = () => {
-    this.set('sonar.auth.github.enabled', 'true');
-    this.set('sonar.auth.github.clientId.secured', 'client ID');
-    this.set('sonar.auth.github.clientSecret.secured', 'shut');
-    this.set('sonar.auth.github.appId', 'Appid');
-    this.set('sonar.auth.github.privateKey.secured', 'private key');
-    this.set('sonar.auth.github.apiUrl', 'API url');
-    this.set('sonar.auth.github.webUrl', 'web URL');
-  };
-
   reset = () => {
     this.#settingValues = cloneDeep(this.#defaultValues);
     this.#definitions = cloneDeep(DEFAULT_DEFINITIONS_MOCK);

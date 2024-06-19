@@ -22,10 +22,8 @@ import { addGlobalSuccessMessage } from 'design-system';
 import { isEqual, keyBy, partition, pick, unionBy } from 'lodash';
 import { useContext } from 'react';
 import {
-  activateGithubProvisioning,
   addGithubRolesMapping,
   checkConfigurationValidity,
-  deactivateGithubProvisioning,
   deleteGithubRolesMapping,
   fetchGithubProvisioningStatus,
   fetchGithubRolesMapping,
@@ -39,17 +37,6 @@ import { Feature } from '../../types/features';
 import { GitHubMapping } from '../../types/provisioning';
 
 const MAPPING_STALE_TIME = 60_000;
-
-export function useToggleGithubProvisioningMutation() {
-  const client = useQueryClient();
-  return useMutation({
-    mutationFn: (activate: boolean) =>
-      activate ? activateGithubProvisioning() : deactivateGithubProvisioning(),
-    onSuccess: () => {
-      client.invalidateQueries({ queryKey: ['identity_provider'] });
-    },
-  });
-}
 
 export const useCheckGitHubConfigQuery = (githubEnabled: boolean) => {
   return useQuery({

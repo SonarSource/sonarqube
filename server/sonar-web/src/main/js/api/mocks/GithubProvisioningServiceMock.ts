@@ -23,18 +23,18 @@ import {
   GitHubConfigurationStatus,
   GitHubMapping,
   GitHubProvisioningStatus,
+  ProvisioningType,
 } from '../../types/provisioning';
 import { Task, TaskStatuses, TaskTypes } from '../../types/tasks';
 import {
-  activateGithubProvisioning,
   addGithubRolesMapping,
   checkConfigurationValidity,
-  deactivateGithubProvisioning,
   deleteGithubRolesMapping,
   fetchGithubProvisioningStatus,
   fetchGithubRolesMapping,
   updateGithubRolesMapping,
 } from '../github-provisioning';
+import DopTranslationServiceMock from './DopTranslationServiceMock';
 
 jest.mock('../github-provisioning');
 
@@ -99,22 +99,16 @@ const defaultMapping: GitHubMapping[] = [
 ];
 
 export default class GithubProvisioningServiceMock {
-  githubProvisioningStatus: boolean;
+  dopTranslationServiceMock?: DopTranslationServiceMock;
   githubConfigurationStatus: GitHubConfigurationStatus;
   githubMapping: GitHubMapping[];
   tasks: Task[];
 
-  constructor() {
-    this.githubProvisioningStatus = false;
+  constructor(dopTranslationServiceMock?: DopTranslationServiceMock) {
+    this.dopTranslationServiceMock = dopTranslationServiceMock;
     this.githubConfigurationStatus = cloneDeep(defaultConfigurationStatus);
     this.githubMapping = cloneDeep(defaultMapping);
     this.tasks = [];
-    jest
-      .mocked(activateGithubProvisioning)
-      .mockImplementation(this.handleActivateGithubProvisioning);
-    jest
-      .mocked(deactivateGithubProvisioning)
-      .mockImplementation(this.handleDeactivateGithubProvisioning);
     jest
       .mocked(fetchGithubProvisioningStatus)
       .mockImplementation(this.handleFetchGithubProvisioningStatus);
@@ -144,22 +138,12 @@ export default class GithubProvisioningServiceMock {
     };
   };
 
-  enableGithubProvisioning = () => {
-    this.githubProvisioningStatus = true;
-  };
-
-  handleActivateGithubProvisioning = () => {
-    this.githubProvisioningStatus = true;
-    return Promise.resolve();
-  };
-
-  handleDeactivateGithubProvisioning = () => {
-    this.githubProvisioningStatus = false;
-    return Promise.resolve();
-  };
-
   handleFetchGithubProvisioningStatus = () => {
-    if (!this.githubProvisioningStatus) {
+    if (
+      this.dopTranslationServiceMock?.gitHubConfigurations[0]?.enabled !== true ||
+      this.dopTranslationServiceMock?.gitHubConfigurations[0]?.provisioningType !==
+        ProvisioningType.auto
+    ) {
       return Promise.resolve({ enabled: false });
     }
 
@@ -222,7 +206,6 @@ export default class GithubProvisioningServiceMock {
   };
 
   reset = () => {
-    this.githubProvisioningStatus = false;
     this.githubConfigurationStatus = cloneDeep(defaultConfigurationStatus);
     this.githubMapping = cloneDeep(defaultMapping);
     this.tasks = [];

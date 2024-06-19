@@ -21,40 +21,48 @@
 import { ButtonSecondary, Modal } from 'design-system';
 import { noop } from 'lodash';
 import * as React from 'react';
-import { FormattedMessage } from 'react-intl';
+import { FormattedMessage, useIntl } from 'react-intl';
 import DocumentationLink from '../../../../components/common/DocumentationLink';
 import { DocLink } from '../../../../helpers/doc-links';
-import { translate } from '../../../../helpers/l10n';
-import { useToggleGithubProvisioningMutation } from '../../../../queries/identity-provider/github';
-import { useGetValueQuery, useResetSettingsMutation } from '../../../../queries/settings';
-
-const GITHUB_PERMISSION_USER_CONSENT =
-  'sonar.auth.github.userConsentForPermissionProvisioningRequired';
+import {
+  useSearchGitHubConfigurationsQuery,
+  useUpdateGitHubConfigurationMutation,
+} from '../../../../queries/dop-translation';
+import { ProvisioningType } from '../../../../types/provisioning';
 
 export default function AutoProvisioningConsent() {
-  const toggleGithubProvisioning = useToggleGithubProvisioningMutation();
-  const resetSettingsMutation = useResetSettingsMutation();
-  const { data } = useGetValueQuery(GITHUB_PERMISSION_USER_CONSENT);
+  const { formatMessage } = useIntl();
+  const { data: list } = useSearchGitHubConfigurationsQuery();
+  const gitHubConfiguration = list?.githubConfigurations[0];
 
-  const header = translate('settings.authentication.github.confirm_auto_provisioning.header');
+  const { mutate: updateConfig } = useUpdateGitHubConfigurationMutation();
 
-  const removeConsentFlag = () => {
-    resetSettingsMutation.mutate({ keys: [GITHUB_PERMISSION_USER_CONSENT] });
-  };
-
-  const switchToJIT = async () => {
-    await toggleGithubProvisioning.mutateAsync(false);
-    removeConsentFlag();
-  };
-
-  const continueWithAuto = async () => {
-    await toggleGithubProvisioning.mutateAsync(true);
-    removeConsentFlag();
-  };
-
-  if (data?.value !== '') {
+  if (gitHubConfiguration?.userConsentRequiredAfterUpgrade !== true) {
     return null;
   }
+
+  const header = formatMessage({
+    id: 'settings.authentication.github.confirm_auto_provisioning.header',
+  });
+
+  const onClickAutoProvisioning = () => {
+    updateConfig({
+      id: gitHubConfiguration.id,
+      gitHubConfiguration: {
+        userConsentRequiredAfterUpgrade: false,
+      },
+    });
+  };
+
+  const onClickJitProvisioning = () => {
+    updateConfig({
+      id: gitHubConfiguration.id,
+      gitHubConfiguration: {
+        provisioningType: ProvisioningType.jit,
+        userConsentRequiredAfterUpgrade: false,
+      },
+    });
+  };
 
   return (
     <Modal onClose={noop} closeOnOverlayClick={false} isLarge>
@@ -82,13 +90,13 @@ export default function AutoProvisioningConsent() {
       </Modal.Body>
       <Modal.Footer
         primaryButton={
-          <ButtonSecondary onClick={continueWithAuto}>
-            {translate('settings.authentication.github.confirm_auto_provisioning.continue')}
+          <ButtonSecondary onClick={onClickAutoProvisioning}>
+            <FormattedMessage id="settings.authentication.github.confirm_auto_provisioning.continue" />
           </ButtonSecondary>
         }
         secondaryButton={
-          <ButtonSecondary onClick={switchToJIT}>
-            {translate('settings.authentication.github.confirm_auto_provisioning.switch_jit')}
+          <ButtonSecondary onClick={onClickJitProvisioning}>
+            <FormattedMessage id="settings.authentication.github.confirm_auto_provisioning.switch_jit" />
           </ButtonSecondary>
         }
       />

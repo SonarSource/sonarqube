@@ -22,17 +22,20 @@ import userEvent from '@testing-library/user-event';
 import selectEvent from 'react-select-event';
 import { byPlaceholderText, byRole, byText } from '~sonar-aligned/helpers/testSelector';
 import { ComponentQualifier } from '~sonar-aligned/types/component';
+import DopTranslationServiceMock from '../../../api/mocks/DopTranslationServiceMock';
 import GithubProvisioningServiceMock from '../../../api/mocks/GithubProvisioningServiceMock';
 import PermissionsServiceMock from '../../../api/mocks/PermissionsServiceMock';
 import ProjectManagementServiceMock from '../../../api/mocks/ProjectsManagementServiceMock';
 import SettingsServiceMock from '../../../api/mocks/SettingsServiceMock';
 import { mockComponent } from '../../../helpers/mocks/component';
+import { mockGitHubConfiguration } from '../../../helpers/mocks/dop-translation';
 import { mockProject } from '../../../helpers/mocks/projects';
 import { mockAppState, mockCurrentUser } from '../../../helpers/testMocks';
 import { RenderContext, renderAppWithAdminContext } from '../../../helpers/testReactTestingUtils';
 import { AppState } from '../../../types/appstate';
 import { Feature } from '../../../types/features';
 import { Permissions } from '../../../types/permissions';
+import { ProvisioningType } from '../../../types/provisioning';
 import { GlobalSettingKeys } from '../../../types/settings';
 import { LoggedInUser } from '../../../types/users';
 import routes from '../routes';
@@ -41,7 +44,8 @@ let login: string;
 
 const permissionsHandler = new PermissionsServiceMock();
 const settingsHandler = new SettingsServiceMock();
-const githubHandler = new GithubProvisioningServiceMock();
+const dopTranslationHandler = new DopTranslationServiceMock();
+const githubHandler = new GithubProvisioningServiceMock(dopTranslationHandler);
 const handler = new ProjectManagementServiceMock(settingsHandler);
 
 jest.mock('../../../api/navigation', () => ({
@@ -175,6 +179,7 @@ afterEach(() => {
 
   permissionsHandler.reset();
   settingsHandler.reset();
+  dopTranslationHandler.reset();
   githubHandler.reset();
   handler.reset();
 });
@@ -481,7 +486,9 @@ it('should restore access to admin', async () => {
 
 it('should restore access for github project', async () => {
   const user = userEvent.setup();
-  githubHandler.enableGithubProvisioning();
+  dopTranslationHandler.gitHubConfigurations.push(
+    mockGitHubConfiguration({ provisioningType: ProvisioningType.auto }),
+  );
   renderProjectManagementApp(
     {},
     { login: 'gooduser2', local: true },
@@ -502,7 +509,9 @@ it('should restore access for github project', async () => {
 
 it('should not allow to restore access on github project for GH user', async () => {
   const user = userEvent.setup();
-  githubHandler.githubProvisioningStatus = true;
+  dopTranslationHandler.gitHubConfigurations.push(
+    mockGitHubConfiguration({ provisioningType: ProvisioningType.auto }),
+  );
   renderProjectManagementApp(
     {},
     { login: 'gooduser2', local: false },
@@ -517,7 +526,9 @@ it('should not allow to restore access on github project for GH user', async () 
 
 it('should show github warning on changing default visibility to admin', async () => {
   const user = userEvent.setup();
-  githubHandler.githubProvisioningStatus = true;
+  dopTranslationHandler.gitHubConfigurations.push(
+    mockGitHubConfiguration({ provisioningType: ProvisioningType.auto }),
+  );
   renderProjectManagementApp({}, {}, { featureList: [Feature.GithubProvisioning] });
   await user.click(ui.editDefaultVisibility.get());
   expect(await ui.changeDefaultVisibilityDialog.find()).toBeInTheDocument();
@@ -544,7 +555,9 @@ it('should not apply permissions for github projects', async () => {
 });
 
 it('should not show local badge for applications and portfolios', async () => {
-  githubHandler.enableGithubProvisioning();
+  dopTranslationHandler.gitHubConfigurations.push(
+    mockGitHubConfiguration({ provisioningType: ProvisioningType.auto }),
+  );
   renderProjectManagementApp({}, {}, { featureList: [Feature.GithubProvisioning] });
   await waitFor(() => expect(screen.getAllByText('local')).toHaveLength(3));
 

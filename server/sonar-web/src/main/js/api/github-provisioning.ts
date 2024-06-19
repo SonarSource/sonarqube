@@ -29,14 +29,6 @@ export function fetchGithubProvisioningStatus(): Promise<GithubStatus> {
   return getJSON('/api/github_provisioning/status').catch(throwGlobalError);
 }
 
-export function activateGithubProvisioning(): Promise<void> {
-  return post('/api/github_provisioning/enable').catch(throwGlobalError);
-}
-
-export function deactivateGithubProvisioning(): Promise<void> {
-  return post('/api/github_provisioning/disable').catch(throwGlobalError);
-}
-
 export function checkConfigurationValidity(): Promise<GitHubConfigurationStatus> {
   return postJSON('/api/github_provisioning/check').catch(throwGlobalError);
 }

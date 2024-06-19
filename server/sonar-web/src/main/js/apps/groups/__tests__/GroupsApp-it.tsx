@@ -21,14 +21,17 @@ import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
 import { byRole, byText } from '~sonar-aligned/helpers/testSelector';
+import DopTranslationServiceMock from '../../../api/mocks/DopTranslationServiceMock';
 import GithubProvisioningServiceMock from '../../../api/mocks/GithubProvisioningServiceMock';
 import GroupMembershipsServiceMock from '../../../api/mocks/GroupMembersipsServiceMock';
 import GroupsServiceMock from '../../../api/mocks/GroupsServiceMock';
 import SystemServiceMock from '../../../api/mocks/SystemServiceMock';
 import UsersServiceMock from '../../../api/mocks/UsersServiceMock';
+import { mockGitHubConfiguration } from '../../../helpers/mocks/dop-translation';
 import { mockGroup, mockGroupMembership, mockRestUser } from '../../../helpers/testMocks';
 import { renderApp } from '../../../helpers/testReactTestingUtils';
 import { Feature } from '../../../types/features';
+import { ProvisioningType } from '../../../types/provisioning';
 import { TaskStatuses } from '../../../types/tasks';
 import { Provider } from '../../../types/types';
 import GroupsApp from '../GroupsApp';
@@ -37,7 +40,8 @@ const systemHandler = new SystemServiceMock();
 const handler = new GroupsServiceMock();
 const groupMembershipsHandler = new GroupMembershipsServiceMock();
 const userHandler = new UsersServiceMock(groupMembershipsHandler);
-const githubHandler = new GithubProvisioningServiceMock();
+const dopTranslationHandler = new DopTranslationServiceMock();
+const githubHandler = new GithubProvisioningServiceMock(dopTranslationHandler);
 
 const ui = {
   createGroupButton: byRole('button', { name: 'groups.create_group' }),
@@ -100,6 +104,7 @@ const ui = {
 beforeEach(() => {
   handler.reset();
   systemHandler.reset();
+  dopTranslationHandler.reset();
   githubHandler.reset();
   userHandler.reset();
   groupMembershipsHandler.reset();
@@ -357,7 +362,9 @@ describe('in manage mode', () => {
 
   describe('Github Provisioning', () => {
     beforeEach(() => {
-      githubHandler.handleActivateGithubProvisioning();
+      dopTranslationHandler.gitHubConfigurations.push(
+        mockGitHubConfiguration({ provisioningType: ProvisioningType.auto }),
+      );
       systemHandler.setProvider(Provider.Github);
     });
 

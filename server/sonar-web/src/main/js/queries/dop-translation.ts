@@ -18,9 +18,21 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { useQuery } from '@tanstack/react-query';
-import { getProjectBindings } from '../api/dop-translation';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { addGlobalSuccessMessage } from 'design-system';
+import {
+  createGitHubConfiguration,
+  deleteGitHubConfiguration,
+  fetchGitHubConfiguration,
+  getProjectBindings,
+  searchGitHubConfigurations,
+  updateGitHubConfiguration,
+} from '../api/dop-translation';
+import { translate } from '../helpers/l10n';
 
+/*
+ * Project bindings
+ */
 export function useProjectBindingsQuery(
   data: {
     dopSettingId?: string;
@@ -34,5 +46,86 @@ export function useProjectBindingsQuery(
     enabled,
     queryKey: ['dop-translation', 'project-bindings', data],
     queryFn: () => getProjectBindings(data),
+  });
+}
+
+/*
+ * GitHub configurations
+ */
+export function useSearchGitHubConfigurationsQuery() {
+  return useQuery({
+    queryKey: ['dop-translation', 'github-configs', 'search'],
+    queryFn: searchGitHubConfigurations,
+  });
+}
+
+export function useFetchGitHubConfigurationQuery(id: string) {
+  return useQuery({
+    queryKey: ['dop-translation', 'github-configs', 'fetch'],
+    queryFn: () => fetchGitHubConfiguration(id),
+  });
+}
+
+export function useCreateGitHubConfigurationMutation() {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: (gitHubConfiguration: Parameters<typeof createGitHubConfiguration>[0]) =>
+      createGitHubConfiguration(gitHubConfiguration),
+    onSuccess(gitHubConfiguration) {
+      client.setQueryData(['dop-translation', 'github-configs', 'search'], {
+        githubConfigurations: [gitHubConfiguration],
+        page: {
+          pageIndex: 1,
+          pageSize: 1,
+          total: 1,
+        },
+      });
+      client.setQueryData(['dop-translation', 'github-configs', 'fetch'], gitHubConfiguration);
+    },
+  });
+}
+
+export function useUpdateGitHubConfigurationMutation() {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      gitHubConfiguration,
+      id,
+    }: {
+      gitHubConfiguration: Parameters<typeof updateGitHubConfiguration>[1];
+      id: Parameters<typeof updateGitHubConfiguration>[0];
+    }) => updateGitHubConfiguration(id, gitHubConfiguration),
+    onSuccess(gitHubConfiguration) {
+      client.setQueryData(['dop-translation', 'github-configs', 'search'], {
+        githubConfigurations: [gitHubConfiguration],
+        page: {
+          pageIndex: 1,
+          pageSize: 1,
+          total: 1,
+        },
+      });
+      client.setQueryData(['dop-translation', 'github-configs', 'fetch'], gitHubConfiguration);
+      client.invalidateQueries({ queryKey: ['identity_provider'] });
+      addGlobalSuccessMessage(translate('settings.authentication.form.settings.save_success'));
+    },
+  });
+}
+
+export function useDeleteGitHubConfigurationMutation() {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: (id: Parameters<typeof deleteGitHubConfiguration>[0]) =>
+      deleteGitHubConfiguration(id),
+    onSuccess() {
+      client.setQueryData(['dop-translation', 'github-configs', 'search'], {
+        githubConfigurations: [],
+        page: {
+          pageIndex: 1,
+          pageSize: 1,
+          total: 1,
+        },
+      });
+      client.setQueryData(['dop-translation', 'github-configs', 'fetch'], undefined);
+    },
   });
 }

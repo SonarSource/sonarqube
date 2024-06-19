@@ -27,23 +27,17 @@ import DocumentationLink from '../../../../components/common/DocumentationLink';
 import { AlmAuthDocLinkKeys } from '../../../../helpers/doc-links';
 import { translate } from '../../../../helpers/l10n';
 import { useSaveValuesMutation } from '../../../../queries/settings';
-import { AlmKeys } from '../../../../types/alm-settings';
-import { ProvisioningType } from '../../../../types/provisioning';
-import { Dict, Provider } from '../../../../types/types';
+import { Dict } from '../../../../types/types';
 import { AuthenticationTabs } from './Authentication';
 import AuthenticationFormField from './AuthenticationFormField';
-import ConfirmProvisioningModal from './ConfirmProvisioningModal';
 import { SettingValue } from './hook/useConfiguration';
-import { isAllowToSignUpEnabled, isOrganizationListEmpty } from './hook/useGithubConfiguration';
 
 interface Props {
   canBeSave: boolean;
   create: boolean;
   excludedField: string[];
-  hasLegacyConfiguration?: boolean;
   loading: boolean;
   onClose: () => void;
-  provisioningStatus?: ProvisioningType;
   setNewValue: (key: string, value: string | boolean) => void;
   tab: AuthenticationTabs;
   values: Dict<SettingValue>;
@@ -54,20 +48,11 @@ interface ErrorValue {
   message: string;
 }
 
+const FORM_ID = 'configuration-form';
+
 export default function ConfigurationForm(props: Readonly<Props>) {
-  const {
-    canBeSave,
-    create,
-    excludedField,
-    hasLegacyConfiguration,
-    loading,
-    provisioningStatus,
-    setNewValue,
-    tab,
-    values,
-  } = props;
+  const { canBeSave, create, excludedField, loading, setNewValue, tab, values } = props;
   const [errors, setErrors] = React.useState<Dict<ErrorValue>>({});
-  const [showConfirmModal, setShowConfirmModal] = React.useState(false);
 
   const { mutateAsync: changeConfig } = useSaveValuesMutation();
 
@@ -77,15 +62,7 @@ export default function ConfigurationForm(props: Readonly<Props>) {
     event.preventDefault();
 
     if (canBeSave) {
-      if (
-        tab === AlmKeys.GitHub &&
-        isOrganizationListEmpty(values) &&
-        (provisioningStatus === ProvisioningType.auto || isAllowToSignUpEnabled(values))
-      ) {
-        setShowConfirmModal(true);
-      } else {
-        await onSave();
-      }
+      await onSave();
     } else {
       const errors = Object.values(values)
         .filter((v) => v.newValue === undefined && v.value === undefined && v.mandatory)
@@ -109,21 +86,13 @@ export default function ConfigurationForm(props: Readonly<Props>) {
     }
   };
 
-  const helpMessage = hasLegacyConfiguration ? `legacy_help.${tab}` : 'help';
-
-  const FORM_ID = 'configuration-form';
-
   const formBody = (
     <form id={FORM_ID} onSubmit={handleSubmit}>
       <Spinner ariaLabel={translate('settings.authentication.form.loading')} isLoading={loading}>
-        <FlagMessage
-          className="sw-w-full sw-mb-8"
-          variant={hasLegacyConfiguration ? 'warning' : 'info'}
-        >
+        <FlagMessage className="sw-w-full sw-mb-8" variant="info">
           <span>
             <FormattedMessage
-              defaultMessage={translate(`settings.authentication.${helpMessage}`)}
-              id={`settings.authentication.${helpMessage}`}
+              id="settings.authentication.help"
               values={{
                 link: (
                   <DocumentationLink to={AlmAuthDocLinkKeys[tab]}>
@@ -140,14 +109,12 @@ export default function ConfigurationForm(props: Readonly<Props>) {
             return null;
           }
 
-          const isSet = hasLegacyConfiguration ? false : !val.isNotSet;
-
           return (
             <div key={val.key} className="sw-mb-8">
               <AuthenticationFormField
                 definition={val.definition}
                 error={errors[val.key]?.message}
-                isNotSet={!isSet}
+                isNotSet={val.isNotSet}
                 mandatory={val.mandatory}
                 onFieldChange={setNewValue}
                 settingValue={values[val.key]?.newValue ?? values[val.key]?.value}
@@ -160,30 +127,18 @@ export default function ConfigurationForm(props: Readonly<Props>) {
   );
 
   return (
-    <>
-      <Modal
-        body={formBody}
-        headerTitle={header}
-        isScrollable
-        onClose={props.onClose}
-        primaryButton={
-          <ButtonPrimary form={FORM_ID} type="submit" autoFocus disabled={!canBeSave}>
-            {translate('settings.almintegration.form.save')}
+    <Modal
+      body={formBody}
+      headerTitle={header}
+      isScrollable
+      onClose={props.onClose}
+      primaryButton={
+        <ButtonPrimary form={FORM_ID} type="submit" autoFocus disabled={!canBeSave}>
+          {translate('settings.almintegration.form.save')}
 
-            <Spinner className="sw-ml-2" isLoading={loading} />
-          </ButtonPrimary>
-        }
-      />
-      {showConfirmModal && (
-        <ConfirmProvisioningModal
-          allowUsersToSignUp={isAllowToSignUpEnabled(values)}
-          isAllowListEmpty={isOrganizationListEmpty(values)}
-          onClose={() => setShowConfirmModal(false)}
-          onConfirm={onSave}
-          provider={Provider.Github}
-          provisioningStatus={provisioningStatus ?? ProvisioningType.jit}
-        />
-      )}
-    </>
+          <Spinner className="sw-ml-2" isLoading={loading} />
+        </ButtonPrimary>
+      }
+    />
   );
 }

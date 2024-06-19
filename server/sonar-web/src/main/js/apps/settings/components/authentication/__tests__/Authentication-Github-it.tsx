@@ -23,15 +23,17 @@ import { UserEvent } from '@testing-library/user-event/dist/types/setup/setup';
 import React from 'react';
 import { byLabelText, byRole, byText } from '~sonar-aligned/helpers/testSelector';
 import ComputeEngineServiceMock from '../../../../../api/mocks/ComputeEngineServiceMock';
+import DopTranslationServiceMock from '../../../../../api/mocks/DopTranslationServiceMock';
 import GithubProvisioningServiceMock from '../../../../../api/mocks/GithubProvisioningServiceMock';
 import SettingsServiceMock from '../../../../../api/mocks/SettingsServiceMock';
 import SystemServiceMock from '../../../../../api/mocks/SystemServiceMock';
 import { AvailableFeaturesContext } from '../../../../../app/components/available-features/AvailableFeaturesContext';
 import { definitions } from '../../../../../helpers/mocks/definitions-list';
+import { mockGitHubConfiguration } from '../../../../../helpers/mocks/dop-translation';
 import { renderComponent } from '../../../../../helpers/testReactTestingUtils';
 import { AlmKeys } from '../../../../../types/alm-settings';
 import { Feature } from '../../../../../types/features';
-import { GitHubProvisioningStatus } from '../../../../../types/provisioning';
+import { GitHubProvisioningStatus, ProvisioningType } from '../../../../../types/provisioning';
 import { TaskStatuses } from '../../../../../types/tasks';
 import Authentication from '../Authentication';
 
@@ -39,9 +41,18 @@ let handler: GithubProvisioningServiceMock;
 let system: SystemServiceMock;
 let settingsHandler: SettingsServiceMock;
 let computeEngineHandler: ComputeEngineServiceMock;
+let dopTranslationHandler: DopTranslationServiceMock;
+
+const mockedGitHubConfigurationResponse = mockGitHubConfiguration({
+  apiUrl: 'API url',
+  applicationId: 'Appid',
+  provisioningType: ProvisioningType.auto,
+  webUrl: 'web URL',
+});
 
 beforeEach(() => {
-  handler = new GithubProvisioningServiceMock();
+  dopTranslationHandler = new DopTranslationServiceMock();
+  handler = new GithubProvisioningServiceMock(dopTranslationHandler);
   system = new SystemServiceMock();
   settingsHandler = new SettingsServiceMock();
   computeEngineHandler = new ComputeEngineServiceMock();
@@ -52,6 +63,7 @@ afterEach(() => {
   settingsHandler.reset();
   system.reset();
   computeEngineHandler.reset();
+  dopTranslationHandler.reset();
 });
 
 const ghContainer = byRole('tabpanel', { name: 'github GitHub' });
@@ -70,25 +82,25 @@ const ui = {
     name: 'settings.authentication.form.create',
   }),
   clientId: byRole('textbox', {
-    name: 'property.sonar.auth.github.clientId.secured.name',
+    name: 'property.clientId.name',
   }),
-  appId: byRole('textbox', { name: 'property.sonar.auth.github.appId.name' }),
+  appId: byRole('textbox', { name: 'property.applicationId.name' }),
   privateKey: byRole('textbox', {
-    name: 'property.sonar.auth.github.privateKey.secured.name',
+    name: 'property.privateKey.name',
   }),
   clientSecret: byRole('textbox', {
-    name: 'property.sonar.auth.github.clientSecret.secured.name',
+    name: 'property.clientSecret.name',
   }),
-  githubApiUrl: byRole('textbox', { name: 'property.sonar.auth.github.apiUrl.name' }),
-  githubWebUrl: byRole('textbox', { name: 'property.sonar.auth.github.webUrl.name' }),
+  githubApiUrl: byRole('textbox', { name: 'property.apiUrl.name' }),
+  githubWebUrl: byRole('textbox', { name: 'property.webUrl.name' }),
   allowUsersToSignUp: byRole('switch', {
-    name: 'property.sonar.auth.github.allowUsersToSignUp.name',
+    name: 'property.allowUsersToSignUp.name',
   }),
   projectVisibility: byRole('switch', {
-    name: 'property.provisioning.github.project.visibility.enabled.name',
+    name: 'property.projectVisibility.name',
   }),
   organizations: byRole('textbox', {
-    name: 'property.sonar.auth.github.organizations.name',
+    name: 'property.allowedOrganizations.name',
   }),
   saveConfigButton: byRole('button', { name: 'settings.almintegration.form.save' }),
   confirmProvisioningButton: byRole('button', {
@@ -138,7 +150,7 @@ const ui = {
   }),
   deleteOrg: (org: string) =>
     byRole('button', {
-      name: `settings.definition.delete_value.property.sonar.auth.github.organizations.name.${org}`,
+      name: `settings.definition.delete_value.property.allowedOrganizations.name.${org}`,
     }),
   enableFirstMessage: ghContainer.byText('settings.authentication.github.enable_first'),
   insecureConfigWarning: byRole('dialog').byText(
@@ -200,7 +212,9 @@ const ui = {
     await user.type(ui.clientSecret.get(), 'Client shut');
     await user.type(ui.appId.get(), 'App id');
     await user.type(ui.privateKey.get(), 'Private Key');
+    await user.clear(ui.githubApiUrl.get());
     await user.type(ui.githubApiUrl.get(), 'API Url');
+    await user.clear(ui.githubWebUrl.get());
     await user.type(ui.githubWebUrl.get(), 'WEb Url');
     await user.type(ui.organizations.get(), 'organization1');
   },
@@ -716,9 +730,10 @@ describe('Github tab', () => {
 
     it('should display a modal if user was already using auto and continue using auto provisioning', async () => {
       const user = userEvent.setup();
-      settingsHandler.presetGithubAutoProvisioning();
-      handler.enableGithubProvisioning();
-      settingsHandler.set('sonar.auth.github.userConsentForPermissionProvisioningRequired', '');
+      dopTranslationHandler.gitHubConfigurations.push({
+        ...mockedGitHubConfigurationResponse,
+        userConsentRequiredAfterUpgrade: true,
+      });
       renderAuthentication([Feature.GithubProvisioning]);
 
       await user.click(await ui.tab.find());
@@ -732,9 +747,10 @@ describe('Github tab', () => {
 
     it('should display a modal if user was already using auto and switch to JIT', async () => {
       const user = userEvent.setup();
-      settingsHandler.presetGithubAutoProvisioning();
-      handler.enableGithubProvisioning();
-      settingsHandler.set('sonar.auth.github.userConsentForPermissionProvisioningRequired', '');
+      dopTranslationHandler.gitHubConfigurations.push({
+        ...mockedGitHubConfigurationResponse,
+        userConsentRequiredAfterUpgrade: true,
+      });
       renderAuthentication([Feature.GithubProvisioning]);
 
       await user.click(await ui.tab.find());
@@ -748,8 +764,7 @@ describe('Github tab', () => {
 
     it('should sort mapping rows', async () => {
       const user = userEvent.setup();
-      settingsHandler.presetGithubAutoProvisioning();
-      handler.enableGithubProvisioning();
+      dopTranslationHandler.gitHubConfigurations.push(mockedGitHubConfigurationResponse);
       renderAuthentication([Feature.GithubProvisioning]);
       await user.click(await ui.tab.find());
 
@@ -816,8 +831,7 @@ describe('Github tab', () => {
 
     it('should apply new mapping on auto-provisioning', async () => {
       const user = userEvent.setup();
-      settingsHandler.presetGithubAutoProvisioning();
-      handler.enableGithubProvisioning();
+      dopTranslationHandler.gitHubConfigurations.push(mockedGitHubConfigurationResponse);
       renderAuthentication([Feature.GithubProvisioning]);
       await user.click(await ui.tab.find());
 
@@ -851,8 +865,7 @@ describe('Github tab', () => {
 
     it('should add/remove/update custom roles', async () => {
       const user = userEvent.setup();
-      settingsHandler.presetGithubAutoProvisioning();
-      handler.enableGithubProvisioning();
+      dopTranslationHandler.gitHubConfigurations.push(mockedGitHubConfigurationResponse);
       handler.addGitHubCustomRole('custom1', ['user', 'codeViewer', 'scan']);
       handler.addGitHubCustomRole('custom2', ['user', 'codeViewer', 'issueAdmin', 'scan']);
       renderAuthentication([Feature.GithubProvisioning]);
@@ -949,7 +962,10 @@ describe('Github tab', () => {
 
     it('should should show insecure config warning', async () => {
       const user = userEvent.setup();
-      settingsHandler.presetGithubAutoProvisioning();
+      dopTranslationHandler.gitHubConfigurations.push({
+        ...mockedGitHubConfigurationResponse,
+        provisioningType: ProvisioningType.jit,
+      });
       renderAuthentication([Feature.GithubProvisioning]);
       await user.click(await ui.tab.find());
 

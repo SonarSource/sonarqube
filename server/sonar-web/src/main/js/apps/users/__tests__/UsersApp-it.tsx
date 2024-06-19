@@ -23,6 +23,7 @@ import * as React from 'react';
 import selectEvent from 'react-select-event';
 import { byLabelText, byRole, byText } from '~sonar-aligned/helpers/testSelector';
 import ComponentsServiceMock from '../../../api/mocks/ComponentsServiceMock';
+import DopTranslationServiceMock from '../../../api/mocks/DopTranslationServiceMock';
 import GithubProvisioningServiceMock from '../../../api/mocks/GithubProvisioningServiceMock';
 import GroupMembershipsServiceMock from '../../../api/mocks/GroupMembersipsServiceMock';
 import GroupsServiceMock from '../../../api/mocks/GroupsServiceMock';
@@ -30,6 +31,7 @@ import SettingsServiceMock from '../../../api/mocks/SettingsServiceMock';
 import SystemServiceMock from '../../../api/mocks/SystemServiceMock';
 import UserTokensMock from '../../../api/mocks/UserTokensMock';
 import UsersServiceMock from '../../../api/mocks/UsersServiceMock';
+import { mockGitHubConfiguration } from '../../../helpers/mocks/dop-translation';
 import {
   mockCurrentUser,
   mockGroup,
@@ -39,6 +41,7 @@ import {
 } from '../../../helpers/testMocks';
 import { renderApp } from '../../../helpers/testReactTestingUtils';
 import { Feature } from '../../../types/features';
+import { ProvisioningType } from '../../../types/provisioning';
 import { TaskStatuses } from '../../../types/tasks';
 import { Provider } from '../../../types/types';
 import { ChangePasswordResults, CurrentUser } from '../../../types/users';
@@ -49,7 +52,8 @@ const tokenHandler = new UserTokensMock();
 const systemHandler = new SystemServiceMock();
 const componentsHandler = new ComponentsServiceMock();
 const settingsHandler = new SettingsServiceMock();
-const githubHandler = new GithubProvisioningServiceMock();
+const dopTranslationHandler = new DopTranslationServiceMock();
+const githubHandler = new GithubProvisioningServiceMock(dopTranslationHandler);
 const membershipHandler = new GroupMembershipsServiceMock();
 const groupsHandler = new GroupsServiceMock();
 
@@ -156,6 +160,7 @@ beforeEach(() => {
   componentsHandler.reset();
   settingsHandler.reset();
   systemHandler.reset();
+  dopTranslationHandler.reset();
   githubHandler.reset();
   membershipHandler.reset();
   groupsHandler.reset();
@@ -633,7 +638,9 @@ describe('in manage mode', () => {
 
   describe('Github Provisioning', () => {
     beforeEach(() => {
-      githubHandler.handleActivateGithubProvisioning();
+      dopTranslationHandler.gitHubConfigurations.push(
+        mockGitHubConfiguration({ provisioningType: ProvisioningType.auto }),
+      );
     });
 
     it('should display a success status when the synchronisation is a success', async () => {
