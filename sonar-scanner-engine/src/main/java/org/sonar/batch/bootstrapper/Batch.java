@@ -25,8 +25,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
-import org.eclipse.jgit.internal.util.ShutdownHook;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.utils.MessageException;
 import org.sonar.scanner.bootstrap.EnvironmentConfig;
 import org.sonar.scanner.bootstrap.SpringGlobalContainer;
@@ -75,16 +73,6 @@ public final class Batch {
       SpringGlobalContainer.create(scannerProperties, components).execute();
     } catch (RuntimeException e) {
       throw handleException(e);
-    } finally {
-      // Workaround for SONAR-22152
-      // Call the cleanup method ourselves to avoid ClassNotFound errors when the Shutdown hook is called after the classloader is closed
-      try {
-        var cleanupMethod = ShutdownHook.class.getDeclaredMethod("cleanup");
-        cleanupMethod.setAccessible(true);
-        cleanupMethod.invoke(ShutdownHook.INSTANCE);
-      } catch (Exception e) {
-        LoggerFactory.getLogger(Batch.class).debug("Failed to call JGit cleanup method", e);
-      }
     }
     return this;
   }
