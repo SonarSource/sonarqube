@@ -172,7 +172,7 @@ export function ClipboardIconButton(props: IconButtonProps) {
               aria-label={props['aria-label'] ?? copyLabel}
               className={className}
               data-clipboard-text={copyValue}
-              innerRef={setCopyButton}
+              ref={setCopyButton}
               size={size}
             />
           </Tooltip>

@@ -32,7 +32,7 @@ afterEach(() => {
 });
 
 describe('ClipboardButton', () => {
-  it('should display correctly', async () => {
+  it('should display and function correctly', async () => {
     /* Delay: null is necessary to play well with fake timers
      * https://github.com/testing-library/user-event/issues/833
      */
@@ -60,10 +60,23 @@ describe('ClipboardButton', () => {
 });
 
 describe('ClipboardIconButton', () => {
-  it('should display correctly', () => {
+  it('should display and function correctly', async () => {
+    /* Delay: null is necessary to play well with fake timers
+     * https://github.com/testing-library/user-event/issues/833
+     */
+    const user = userEvent.setup({ delay: null });
     renderWithContext(<ClipboardIconButton copyValue="foo" />);
 
     const copyButton = screen.getByRole('button', { name: 'Copy to clipboard' });
     expect(copyButton).toBeInTheDocument();
+
+    expect(screen.getByRole('button', { name: 'Copy to clipboard' })).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Copy to clipboard' }));
+
+    expect(await screen.findByText('Copied')).toBeVisible();
+
+    await waitForElementToBeRemoved(() => screen.queryByText('Copied'));
+    jest.runAllTimers();
   });
 });
