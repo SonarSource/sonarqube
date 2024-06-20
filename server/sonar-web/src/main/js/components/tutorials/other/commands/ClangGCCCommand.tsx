@@ -35,13 +35,13 @@ export interface ClangGCCCustomProps {
   token: string;
 }
 
-export default function ClangGCCCustom(props: ClangGCCCustomProps) {
+export default function ClangGCCCustom(props: Readonly<ClangGCCCustomProps>) {
   const { os, arch, baseUrl, component, isLocal, token } = props;
 
   return (
     <div>
       <DownloadBuildWrapper isLocal={isLocal} baseUrl={baseUrl} os={os} arch={arch} />
-      <DownloadScanner isLocal={isLocal} os={os} token={token} />
+      <DownloadScanner arch={arch} isLocal={isLocal} os={os} token={token} />
       <ExecBuildWrapper os={os} arch={arch} />
       <CompilationInfo />
       <ExecScanner

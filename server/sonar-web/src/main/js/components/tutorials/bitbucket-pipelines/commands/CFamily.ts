@@ -17,8 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { AutoConfig, BuildTools } from '../../types';
-import { getBuildWrapperExecutableLinux, getBuildWrapperFolderLinux } from '../../utils';
+import { AutoConfig, BuildTools, OSs } from '../../types';
+import {
+  getBuildWrapperExecutableLinux,
+  getBuildWrapperFolderLinux,
+  getScannerUrlSuffix,
+} from '../../utils';
 import { BuildToolExampleBuilder } from '../AnalysisCommand';
 import othersExample from './Others';
 
@@ -33,6 +37,7 @@ const cFamilyExample: BuildToolExampleBuilder = ({
   }
   const buildWrapperExecutable = getBuildWrapperExecutableLinux(arch);
   const buildWrapperFolder = getBuildWrapperFolderLinux(arch);
+  const scannerSuffix = getScannerUrlSuffix(OSs.Linux, arch);
   return `image: <image ready for your build toolchain>
 
 definitions:
@@ -44,9 +49,9 @@ definitions:
           - mkdir $HOME/.sonar
           - curl -sSLo $HOME/.sonar/${buildWrapperFolder}.zip \${SONAR_HOST_URL}/static/cpp/${buildWrapperFolder}.zip
           - unzip -o $HOME/.sonar/${buildWrapperFolder}.zip -d $HOME/.sonar/
-          - curl -sSLo $HOME/.sonar/sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-\${SONAR_SCANNER_VERSION}-linux.zip
+          - curl -sSLo $HOME/.sonar/sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-\${SONAR_SCANNER_VERSION}${scannerSuffix}.zip
           - unzip -o $HOME/.sonar/sonar-scanner.zip -d $HOME/.sonar/
-          - export PATH="$PATH:$HOME/.sonar/sonar-scanner-\${SONAR_SCANNER_VERSION}-linux/bin"
+          - export PATH="$PATH:$HOME/.sonar/sonar-scanner-\${SONAR_SCANNER_VERSION}${scannerSuffix}/bin"
           - <any step required before running your build, like ./configure>
           - $HOME/.sonar/${buildWrapperFolder}/${buildWrapperExecutable} --out-dir bw-output <your clean build command>
           - sonar-scanner -Dsonar.cfamily.compile-commands=bw-output/compile_commands.json  

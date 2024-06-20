@@ -47,6 +47,7 @@ export default function ProjectAnalysisStep(props: Readonly<Props>) {
       <div className="sw-pb-4">
         <BuildToolForm
           config={config}
+          isLocal={isLocal}
           setConfig={setConfig}
           os={os}
           setOs={setOs}

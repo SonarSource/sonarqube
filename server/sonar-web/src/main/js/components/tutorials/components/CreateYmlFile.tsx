@@ -17,19 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { ClipboardIconButton, CodeSnippet, NumberedListItem } from 'design-system';
+import { ClipboardIconButton, CodeSnippet, FlagMessage, NumberedListItem } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { translate } from '../../../helpers/l10n';
 import { InlineSnippet } from './InlineSnippet';
 
 export interface CreateYmlFileProps {
+  warning?: React.ReactNode;
   yamlFileName: string;
   yamlTemplate: string;
 }
 
-export default function CreateYmlFile(props: CreateYmlFileProps) {
-  const { yamlTemplate, yamlFileName } = props;
+export default function CreateYmlFile(props: Readonly<CreateYmlFileProps>) {
+  const { yamlTemplate, yamlFileName, warning } = props;
   return (
     <NumberedListItem>
       <FormattedMessage
@@ -44,6 +45,13 @@ export default function CreateYmlFile(props: CreateYmlFileProps) {
           ),
         }}
       />
+      {warning && (
+        <div>
+          <FlagMessage className="sw-mt-2 sw-w-abs-600" variant="warning">
+            {warning}
+          </FlagMessage>
+        </div>
+      )}
       <CodeSnippet className="sw-p-6 sw-overflow-auto" snippet={yamlTemplate} language="yml" />
     </NumberedListItem>
   );

@@ -17,16 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Link } from '@sonarsource/echoes-react';
 import { Dictionary } from 'lodash';
 import * as React from 'react';
+import { FormattedMessage } from 'react-intl';
 import withAvailableFeatures, {
   WithAvailableFeaturesProps,
 } from '../../../app/components/available-features/withAvailableFeatures';
+import { DocLink } from '../../../helpers/doc-links';
+import { useDocUrl } from '../../../helpers/docs';
+import { translate } from '../../../helpers/l10n';
 import { Feature } from '../../../types/features';
 import { Component } from '../../../types/types';
 import { CompilationInfo } from '../components/CompilationInfo';
 import CreateYmlFile from '../components/CreateYmlFile';
-import { Arch, BuildTools, TutorialConfig } from '../types';
+import { Arch, AutoConfig, BuildTools, TutorialConfig } from '../types';
 import { isCFamily } from '../utils';
 import { PreambuleYaml } from './PreambuleYaml';
 import cFamilyExample from './commands/CFamily';
@@ -60,9 +65,20 @@ const YamlTemplate: Dictionary<BuildToolExampleBuilder> = {
   [BuildTools.Other]: othersExample,
 };
 
+const showJreWarning = (config: TutorialConfig, arch: Arch) => {
+  if (!isCFamily(config.buildTool)) {
+    return false;
+  }
+  if (config.autoConfig === AutoConfig.Automatic) {
+    return false;
+  }
+  return arch === Arch.Arm64;
+};
+
 export function AnalysisCommand(props: Readonly<AnalysisCommandProps>) {
   const { config, arch, mainBranchName, component } = props;
   const branchesEnabled = props.hasFeature(Feature.BranchSupport);
+  const scannerRequirementsUrl = useDocUrl(DocLink.SonarScannerRequirements);
 
   if (!config.buildTool) {
     return null;
@@ -77,10 +93,30 @@ export function AnalysisCommand(props: Readonly<AnalysisCommandProps>) {
     projectName: component.name,
   });
 
+  const warning = showJreWarning(config, arch) && (
+    <p className="sw-mb-2">
+      <FormattedMessage
+        defaultMessage={translate('onboarding.analysis.sq_scanner.jre_required_warning')}
+        id="onboarding.analysis.sq_scanner.jre_required_warning"
+        values={{
+          link: (
+            <Link to={scannerRequirementsUrl}>
+              {translate('onboarding.analysis.sq_scanner.jre_required_warning.link')}
+            </Link>
+          ),
+        }}
+      />
+    </p>
+  );
+
   return (
     <>
       <PreambuleYaml buildTool={config.buildTool} component={component} />
-      <CreateYmlFile yamlFileName="bitbucket-pipelines.yml" yamlTemplate={yamlTemplate} />
+      <CreateYmlFile
+        yamlFileName="bitbucket-pipelines.yml"
+        yamlTemplate={yamlTemplate}
+        warning={warning}
+      />
       {isCFamily(config.buildTool) && <CompilationInfo />}
     </>
   );

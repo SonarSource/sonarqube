@@ -55,14 +55,28 @@ export default function AnalysisCommand(props: Readonly<AnalysisCommandProps>) {
 
     case BuildTools.Other:
       return (
-        <Other baseUrl={baseUrl} os={os} component={component} isLocal={isLocal} token={token} />
+        <Other
+          arch={Arch.X86_64}
+          baseUrl={baseUrl}
+          os={os}
+          component={component}
+          isLocal={isLocal}
+          token={token}
+        />
       );
 
     case BuildTools.Cpp:
     case BuildTools.ObjectiveC:
       if (config.buildTool === BuildTools.Cpp && config.autoConfig === AutoConfig.Automatic) {
         return (
-          <Other os={os} baseUrl={baseUrl} component={component} isLocal={isLocal} token={token} />
+          <Other
+            arch={arch}
+            os={os}
+            baseUrl={baseUrl}
+            component={component}
+            isLocal={isLocal}
+            token={token}
+          />
         );
       }
       return (

@@ -30,6 +30,7 @@ interface Props {
   arch?: Arch;
   config: TutorialConfig;
   hasCLanguageFeature: boolean;
+  isLocal: boolean;
   os?: OSs;
   setArch: (arch: Arch) => void;
   setConfig: (config: TutorialConfig) => void;
@@ -37,7 +38,7 @@ interface Props {
 }
 
 export function BuildToolForm(props: Readonly<Props>) {
-  const { config, setConfig, os, setOs, arch, setArch, hasCLanguageFeature } = props;
+  const { config, setConfig, os, setOs, arch, setArch, isLocal, hasCLanguageFeature } = props;
 
   function handleConfigChange(newConfig: TutorialConfig) {
     const selectOsByDefault = (newConfig.buildTool === BuildTools.Cpp ||
@@ -75,7 +76,7 @@ export function BuildToolForm(props: Readonly<Props>) {
           titleLabelKey="onboarding.build.other.os"
         />
       )}
-      {shouldShowArchSelector(os, config) && (
+      {shouldShowArchSelector(os, config, !isLocal) && (
         <RenderOptions
           label={translate('onboarding.build.other.architecture')}
           checked={arch}

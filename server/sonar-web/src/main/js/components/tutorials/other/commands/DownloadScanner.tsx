@@ -18,10 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+import { Link } from '@sonarsource/echoes-react';
 import {
   ClipboardIconButton,
   CodeSnippet,
-  Link,
+  FlagMessage,
   NumberedList,
   NumberedListItem,
   SubHeading,
@@ -32,18 +33,21 @@ import { DocLink } from '../../../../helpers/doc-links';
 import { useDocUrl } from '../../../../helpers/docs';
 import { translate } from '../../../../helpers/l10n';
 import { InlineSnippet } from '../../components/InlineSnippet';
-import { OSs } from '../../types';
+import { Arch, OSs } from '../../types';
+import { getScannerUrlSuffix } from '../../utils';
 
 export interface DownloadScannerProps {
+  arch: Arch;
   isLocal: boolean;
   os: OSs;
   token: string;
 }
 
-export default function DownloadScanner(props: DownloadScannerProps) {
-  const { os, isLocal, token } = props;
+export default function DownloadScanner(props: Readonly<DownloadScannerProps>) {
+  const { arch, os, isLocal, token } = props;
 
   const docUrl = useDocUrl(DocLink.SonarScanner);
+  const scannerRequirementsUrl = useDocUrl(DocLink.SonarScannerRequirements);
 
   return (
     <div className="sw-mb-4">
@@ -66,12 +70,29 @@ export default function DownloadScanner(props: DownloadScannerProps) {
         </p>
       ) : (
         <>
+          {os === OSs.Linux && arch === Arch.Arm64 && (
+            <FlagMessage className="sw-mt-2 sw-w-abs-600" variant="warning">
+              <p className="sw-mb-2">
+                <FormattedMessage
+                  defaultMessage={translate('onboarding.analysis.sq_scanner.jre_required_warning')}
+                  id="onboarding.analysis.sq_scanner.jre_required_warning"
+                  values={{
+                    link: (
+                      <Link to={scannerRequirementsUrl}>
+                        {translate('onboarding.analysis.sq_scanner.jre_required_warning.link')}
+                      </Link>
+                    ),
+                  }}
+                />
+              </p>
+            </FlagMessage>
+          )}
           <CodeSnippet
             className="sw-p-4"
             wrap
             language={os === OSs.Windows ? 'powershell' : 'bash'}
-            snippet={getRemoteDownloadSnippet(os)}
-            render={`<code>${getRemoteDownloadSnippet(os)}</code>`}
+            snippet={getRemoteDownloadSnippet(os, arch)}
+            render={`<code>${getRemoteDownloadSnippet(os, arch)}</code>`}
           />
           <SubHeading className="sw-mb-2 sw-mt-4">
             {translate('onboarding.analysis.sq_scanner.sonar_token_env.header')}
@@ -98,7 +119,7 @@ export default function DownloadScanner(props: DownloadScannerProps) {
   );
 }
 
-function getRemoteDownloadSnippet(os: OSs) {
+function getRemoteDownloadSnippet(os: OSs, arch: Arch) {
   if (os === OSs.Windows) {
     return `$env:SONAR_SCANNER_VERSION = "5.0.1.3006"
 $env:SONAR_DIRECTORY = [System.IO.Path]::Combine($(get-location).Path,".sonar")
@@ -113,10 +134,10 @@ $env:Path += ";$env:SONAR_SCANNER_HOME/bin"
 $env:SONAR_SCANNER_OPTS="-server"
 `;
   }
-  const suffix = os === OSs.MacOS ? 'macosx' : 'linux';
+  const suffix = getScannerUrlSuffix(os, arch);
   return `export SONAR_SCANNER_VERSION=5.0.1.3006
-export SONAR_SCANNER_HOME=$HOME/.sonar/sonar-scanner-$SONAR_SCANNER_VERSION-${suffix}
-curl --create-dirs -sSLo $HOME/.sonar/sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-$SONAR_SCANNER_VERSION-${suffix}.zip
+export SONAR_SCANNER_HOME=$HOME/.sonar/sonar-scanner-$SONAR_SCANNER_VERSION${suffix}
+curl --create-dirs -sSLo $HOME/.sonar/sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-$SONAR_SCANNER_VERSION${suffix}.zip
 unzip -o $HOME/.sonar/sonar-scanner.zip -d $HOME/.sonar/
 export PATH=$SONAR_SCANNER_HOME/bin:$PATH
 export SONAR_SCANNER_OPTS="-server"

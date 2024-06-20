@@ -124,8 +124,18 @@ it('can choose build tools and copy provided settings', async () => {
   // C++ - Automatic
   await user.click(ui.cppBuildButton.get());
   await user.click(ui.linuxButton.get());
+  expect(getCopyToClipboardValue(0, 'Copy')).toMatchSnapshot(
+    'c++ (automatic) and other linux: download scanner',
+  );
   expect(getCopyToClipboardValue(1, 'Copy')).toMatchSnapshot(
     'c++ (automatic) and other linux: execute scanner',
+  );
+  await user.click(ui.arm64Button.get());
+  expect(getCopyToClipboardValue(0, 'Copy')).toMatchSnapshot(
+    'c++ (automatic) and other linux arm64: download scanner',
+  );
+  expect(getCopyToClipboardValue(1, 'Copy')).toMatchSnapshot(
+    'c++ (automatic) and other linux arm64: execute scanner',
   );
   await user.click(ui.windowsButton.get());
   expect(getCopyToClipboardValue(1, 'Copy')).toMatchSnapshot(
@@ -139,6 +149,7 @@ it('can choose build tools and copy provided settings', async () => {
   // C++ - Linux (x86_64)
   await user.click(ui.autoConfigManual.get());
   await user.click(ui.linuxButton.get());
+  await user.click(ui.x86_64Button.get());
   expect(getCopyToClipboardValue(0, 'Copy')).toMatchSnapshot(
     'c++ (manual) linux: download build wrapper',
   );
