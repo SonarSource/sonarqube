@@ -30,7 +30,7 @@ import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class OracleTest {
+class OracleTest {
 
   private final Oracle underTest = new Oracle();
 

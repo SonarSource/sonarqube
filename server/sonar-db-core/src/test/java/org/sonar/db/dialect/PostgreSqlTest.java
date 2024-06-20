@@ -34,7 +34,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class PostgreSqlTest {
+class PostgreSqlTest {
 
   @RegisterExtension
   public final LogTesterJUnit5 logs = new LogTesterJUnit5();
