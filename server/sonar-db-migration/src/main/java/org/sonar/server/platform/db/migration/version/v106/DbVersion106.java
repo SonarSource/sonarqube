@@ -42,6 +42,7 @@ public class DbVersion106 implements DbVersion {
   public void addSteps(MigrationStepRegistry registry) {
     registry
       .add(10_6_000,"Add 'prioritized_rule' column to 'issues' table", AddPrioritizedRuleColumnToIssuesTable.class)
-      .add(10_6_001,"Add 'prioritized_rule' column to 'active_rules' table", AddPrioritizedRuleColumnToActiveRulesTable.class);
+      .add(10_6_001,"Add 'prioritized_rule' column to 'active_rules' table", AddPrioritizedRuleColumnToActiveRulesTable.class)
+      .add(10_6_002,"Ensure 'value' column is resized to 400 in 'rule_tags' table", ResizeValueColumnInRuleTagsTable.class);
   }
 }

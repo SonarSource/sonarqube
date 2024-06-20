@@ -32,11 +32,10 @@ public class CreateRuleTagsTable extends CreateTableChange {
 
   static final String RULE_TAGS_TABLE_NAME = "rule_tags";
 
-  static final String UUID_COLUMN_NAME = "uuid";
   static final String VALUE_COLUMN_NAME = "value";
   static final String IS_SYSTEM_TAG_COLUMN_NAME = "is_system_tag";
   static final String RULE_UUID_COLUMN_NAME = "rule_uuid";
-  static final int VALUE_COLUMN_SIZE = 40;
+  static final int VALUE_COLUMN_SIZE = 400;
 
   public CreateRuleTagsTable(Database db) {
     super(db, RULE_TAGS_TABLE_NAME);

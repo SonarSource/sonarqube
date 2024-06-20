@@ -75,6 +75,21 @@ class PopulateRuleTagsTableIT {
   }
 
   @Test
+  void execute_whenSystemAndCustomTagShareTheSameTag_removeDuplicates() throws SQLException {
+    insertRule("uuid-1", "test,other1", "test,other2");
+
+    migration.execute();
+
+    assertThat(db.select("select value, is_system_tag, rule_uuid from rule_tags"))
+      .extracting(t -> t.get("value"), t -> t.get("is_system_tag"), t -> t.get("rule_uuid"))
+      .containsExactlyInAnyOrder(
+        tuple("test", true, "uuid-1"),
+        tuple("other1", true, "uuid-1"),
+        tuple("other2", false, "uuid-1")
+      );
+  }
+
+  @Test
   void execute_whenRunMoreThanOnce_shouldBeReentrant() throws SQLException {
     insertRule("uuid-3", "sys_tag", "tag");
     migration.execute();
@@ -86,7 +101,7 @@ class PopulateRuleTagsTableIT {
   private void verifyMapping() {
     assertThat(db.select("select value, is_system_tag, rule_uuid from rule_tags"))
       .extracting(t -> t.get("value"), t -> t.get("is_system_tag"), t -> t.get("rule_uuid"))
-      .containsExactly(
+      .containsExactlyInAnyOrder(
         tuple("sys_tag", true, "uuid-3"),
         tuple("tag", false, "uuid-3")
       );

@@ -20,8 +20,11 @@
 package org.sonar.server.platform.db.migration.version.v104;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -33,14 +36,14 @@ import org.sonar.server.platform.db.migration.step.Upsert;
 public class PopulateRuleTagsTable extends DataChange {
 
   private static final String SELECT_QUERY = """
-   SELECT uuid, system_tags AS tag, 1 as is_system_tag
-    FROM rules
-    WHERE system_tags IS NOT NULL
-   UNION ALL
-   SELECT uuid, tags AS tag, 0 as is_system_tag
-    FROM rules
-    WHERE tags IS NOT NULL
-     """;
+    SELECT uuid, system_tags AS tag, 1 as is_system_tag
+     FROM rules
+     WHERE system_tags IS NOT NULL
+    UNION ALL
+    SELECT uuid, tags AS tag, 0 as is_system_tag
+     FROM rules
+     WHERE tags IS NOT NULL
+      """;
 
   private static final String INSERT_QUERY = """
     INSERT INTO rule_tags (rule_uuid, is_system_tag, value)
@@ -57,16 +60,53 @@ public class PopulateRuleTagsTable extends DataChange {
       return;
     }
 
-    List<PopulateRuleTagsTable.Tag> allTags = findAllTags(context);
+    List<Tags> allTags = findAllTags(context);
     if (allTags.isEmpty()) {
       return;
     }
+    allTags = removeDuplicatesForAllRule(allTags);
 
     Upsert insertTagsQuery = context.prepareUpsert(INSERT_QUERY);
-    for (PopulateRuleTagsTable.Tag tag : allTags) {
-      insertEveryTag(insertTagsQuery, tag.ruleUuid(), tag.values(), tag.isSystemTag());
+    for (Tags tags : allTags) {
+      insertEveryTag(insertTagsQuery, tags.ruleUuid(), tags.values(), tags.isSystemTag());
     }
     insertTagsQuery.execute().commit();
+  }
+
+  /**
+   * System tags and custom tags can contain the same values. In this case, we keep only the system tag.
+   */
+  private static List<Tags> removeDuplicatesForAllRule(List<Tags> allTags) {
+    Map<String, List<Tags>> tagsByRuleUuid = allTags.stream().collect(Collectors.groupingBy(Tags::ruleUuid));
+    List<Tags> listWithoutDuplicates = new ArrayList<>();
+
+    for (Map.Entry<String, List<Tags>> entry : tagsByRuleUuid.entrySet()) {
+      listWithoutDuplicates.addAll(removeDuplicateForRule(entry.getValue()));
+    }
+    return listWithoutDuplicates;
+  }
+
+  private static List<Tags> removeDuplicateForRule(List<Tags> ruleTags) {
+    Optional<Tags> systemTags = ruleTags.stream().filter(Tags::isSystemTag).findFirst();
+    Optional<Tags> manualTags = ruleTags.stream().filter(t -> !t.isSystemTag()).findFirst();
+
+    if (systemTags.isEmpty()) {
+      return List.of(manualTags.orElseThrow());
+    } else if (manualTags.isEmpty()) {
+      return List.of(systemTags.orElseThrow());
+    } else {
+      Set<String> systemTagValues = systemTags.get().values();
+      Set<String> manualTagValues = manualTags.get().values();
+      Set<String> commonValues = new HashSet<>(systemTagValues);
+      commonValues.retainAll(manualTagValues);
+
+      if (commonValues.isEmpty()) {
+        return List.of(manualTags.orElseThrow(), systemTags.orElseThrow());
+      } else {
+        manualTagValues.removeAll(commonValues);
+        return List.of(systemTags.orElseThrow(), new Tags(manualTags.get().ruleUuid(), manualTagValues, false));
+      }
+    }
   }
 
   private static void insertEveryTag(Upsert insertRuleTags, String ruleUuid, Set<String> values, boolean isSystemTag) throws SQLException {
@@ -79,9 +119,9 @@ public class PopulateRuleTagsTable extends DataChange {
     }
   }
 
-  private static List<PopulateRuleTagsTable.Tag> findAllTags(Context context) throws SQLException {
+  private static List<Tags> findAllTags(Context context) throws SQLException {
     return context.prepareSelect(SELECT_QUERY)
-      .list(r -> new PopulateRuleTagsTable.Tag(r.getString(1), parseTagString(r.getString(2)), r.getBoolean(3)));
+      .list(r -> new Tags(r.getString(1), parseTagString(r.getString(2)), r.getBoolean(3)));
   }
 
   private static boolean isTableAlreadyPopulated(Context context) throws SQLException {
@@ -97,7 +137,7 @@ public class PopulateRuleTagsTable extends DataChange {
       .collect(Collectors.toSet());
   }
 
-  private record Tag(String ruleUuid, Set<String> values, boolean isSystemTag) {
+  private record Tags(String ruleUuid, Set<String> values, boolean isSystemTag) {
   }
 
 }
