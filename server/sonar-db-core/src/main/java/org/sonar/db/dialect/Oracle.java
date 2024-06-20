@@ -29,7 +29,7 @@ import org.sonar.api.utils.Version;
 public class Oracle extends AbstractDialect {
   public static final String ID = "oracle";
   private static final List<String> INIT_STATEMENTS = List.of("ALTER SESSION SET NLS_SORT='BINARY'");
-  private static final Version MIN_SUPPORTED_VERSION = Version.create(11, 0, 0);
+  private static final Version MIN_SUPPORTED_VERSION = Version.create(19, 0, 0);
 
   public Oracle() {
     super(ID, "oracle.jdbc.OracleDriver", "1", "0", "SELECT 1 FROM DUAL");

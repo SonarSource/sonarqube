@@ -52,6 +52,7 @@ dependencies {
 }
 
 test {
+  useJUnitPlatform()
   if (System.hasProperty('orchestrator.configUrl'))
     systemProperty 'orchestrator.configUrl', System.getProperty('orchestrator.configUrl')
 }

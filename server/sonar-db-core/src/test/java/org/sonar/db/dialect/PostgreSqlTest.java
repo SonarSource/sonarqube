@@ -21,86 +21,83 @@ package org.sonar.db.dialect;
 
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.mockito.Mockito;
 import org.slf4j.event.Level;
-import org.sonar.api.testfixtures.log.LogTester;
+import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.api.utils.MessageException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class PostgreSqlTest {
 
-  @Rule
-  public LogTester logs = new LogTester();
+  @RegisterExtension
+  public final LogTesterJUnit5 logs = new LogTesterJUnit5();
 
-  private PostgreSql underTest = new PostgreSql();
+  private final PostgreSql underTest = new PostgreSql();
 
   @Test
-  public void matchesJdbcURL() {
+  void matchesJdbcURL() {
     assertThat(underTest.matchesJdbcUrl("jdbc:postgresql://localhost/sonar")).isTrue();
     assertThat(underTest.matchesJdbcUrl("jdbc:hsql:foo")).isFalse();
   }
 
   @Test
-  public void should_set_connection_properties() {
+  void should_set_connection_properties() {
     assertThat(underTest.getConnectionInitStatements()).isEqualTo(PostgreSql.INIT_STATEMENTS);
   }
 
   @Test
-  public void testBooleanSqlValues() {
+  void testBooleanSqlValues() {
     assertThat(underTest.getTrueSqlValue()).isEqualTo("true");
     assertThat(underTest.getFalseSqlValue()).isEqualTo("false");
   }
 
   @Test
-  public void should_configure() {
+  void should_configure() {
     assertThat(underTest.getId()).isEqualTo("postgresql");
     assertThat(underTest.getDefaultDriverClassName()).isEqualTo("org.postgresql.Driver");
     assertThat(underTest.getValidationQuery()).isEqualTo("SELECT 1");
   }
 
   @Test
-  public void testFetchSizeForScrolling() {
+  void testFetchSizeForScrolling() {
     assertThat(underTest.getScrollDefaultFetchSize()).isEqualTo(200);
   }
 
   @Test
-  public void postgres_does_supportMigration() {
+  void postgres_does_supportMigration() {
     assertThat(underTest.supportsMigration()).isTrue();
   }
 
   @Test
-  public void getSqlFromDual() {
+  void postgres_does_supportUpsert() {
+    assertThat(underTest.supportsUpsert()).isTrue();
+  }
+
+  @Test
+  void getSqlFromDual() {
     assertThat(underTest.getSqlFromDual()).isEmpty();
   }
 
   @Test
-  public void postgresql_9_2_is_not_supported() throws Exception {
+  void postgresql_9_2_is_not_supported() {
     assertThatThrownBy(() -> {
       DatabaseMetaData metadata = newMetadata(9, 2);
       underTest.init(metadata);
     })
       .isInstanceOf(MessageException.class)
-      .hasMessage("Unsupported postgresql version: 9.2. Minimal supported version is 9.3.");
+      .hasMessage("Unsupported postgresql version: 9.2. Minimal supported version is 11.0.");
   }
 
   @Test
-  public void postgresql_9_3_is_supported_without_upsert() throws Exception {
-    DatabaseMetaData metadata = newMetadata(9, 3);
-    underTest.init(metadata);
-
-    assertThat(underTest.supportsUpsert()).isFalse();
-    assertThat(logs.logs(Level.WARN)).contains("Upgrading PostgreSQL to 9.5 or greater is recommended for better performances");
-  }
-
-  @Test
-  public void postgresql_9_5_is_supported_with_upsert() throws Exception {
-    DatabaseMetaData metadata = newMetadata(9, 5);
+  void postgresql_11_0_is_supported_with_upsert() throws Exception {
+    DatabaseMetaData metadata = newMetadata(11, 0);
     underTest.init(metadata);
 
     assertThat(underTest.supportsUpsert()).isTrue();
@@ -108,8 +105,8 @@ public class PostgreSqlTest {
   }
 
   @Test
-  public void init_throws_ISE_if_called_twice() throws Exception {
-    DatabaseMetaData metaData = newMetadata(9, 5);
+  void init_throws_ISE_if_called_twice() throws Exception {
+    DatabaseMetaData metaData = newMetadata(11, 0);
     underTest.init(metaData);
 
     assertThatThrownBy(() -> underTest.init(metaData))
@@ -118,28 +115,26 @@ public class PostgreSqlTest {
   }
 
   @Test
-  public void supportsUpsert_throws_ISE_if_not_initialized() {
-    assertThatThrownBy(() -> underTest.supportsUpsert())
-      .isInstanceOf(IllegalStateException.class)
-      .hasMessage("onInit() must be called before calling supportsUpsert()");
+  void supportsUpsert_returns_true_even_if_not_initialized() {
+    assertTrue(underTest.supportsUpsert());
   }
 
   @Test
-  public void supportsNullNotDistinct_throws_ISE_if_not_initialized() {
-    assertThatThrownBy(() -> underTest.supportsNullNotDistinct())
+  void supportsNullNotDistinct_throws_ISE_if_not_initialized() {
+    assertThatThrownBy(underTest::supportsNullNotDistinct)
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("onInit() must be called before calling supportsNullNotDistinct()");
   }
 
   @Test
-  public void supportsNullNotDistinct_shouldReturnTrue_WhenPostgres15OrGreater() throws SQLException {
+  void supportsNullNotDistinct_shouldReturnTrue_WhenPostgres15OrGreater() throws SQLException {
     DatabaseMetaData metadata = newMetadata(15, 0);
     underTest.init(metadata);
     assertThat(underTest.supportsNullNotDistinct()).isTrue();
   }
 
   @Test
-  public void supportsNullNotDistinct_shouldReturnFalse_WhenPostgres14OrLesser() throws SQLException {
+  void supportsNullNotDistinct_shouldReturnFalse_WhenPostgres14OrLesser() throws SQLException {
     DatabaseMetaData metadata = newMetadata(14, 0);
     underTest.init(metadata);
     assertThat(underTest.supportsNullNotDistinct()).isFalse();
