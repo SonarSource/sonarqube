@@ -41,7 +41,7 @@ public interface BoundProjectsController {
   @Operation(summary = "Create a SonarQube project with the information from the provided DevOps platform project.", description = """
     Create a SonarQube project with the information from the provided DevOps platform project.
     Autoconfigure Pull-Request decoration mechanism.
-    Requires the 'Create Projects' permission
+    Requires the 'Create Projects' permission and setting a Personal Access Token with api/alm_integrations/set_pat for a user who will be using this endpoint
     """)
   @ResponseStatus(HttpStatus.CREATED)
   BoundProjectCreateRestResponse createBoundProject(@Valid @RequestBody BoundProjectCreateRestRequest request);
