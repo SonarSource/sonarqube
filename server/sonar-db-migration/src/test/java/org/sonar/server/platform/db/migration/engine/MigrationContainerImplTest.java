@@ -98,14 +98,14 @@ public class MigrationContainerImplTest {
   private static class NoOpExecutor implements MigrationStepsExecutor {
     @Override
     public void execute(List<RegisteredMigrationStep> steps, MigrationStatusListener listener) {
-
+      // do nothing
     }
   }
 
   private static class NoOpMigrationStep implements MigrationStep {
     @Override
     public void execute() throws SQLException {
-
+      // do nothing
     }
   }
 
