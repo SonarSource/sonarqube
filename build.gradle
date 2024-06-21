@@ -30,8 +30,8 @@ if (!JavaVersion.current().isCompatibleWith(VERSION_17)) {
 def bomTasks = "cyclonedxBom"
 def ghBranch = System.getenv()["GITHUB_BRANCH"]
 def isMainBranch = ghBranch in ['master'] || ghBranch ==~ 'branch-[\\d.]+'
-def isNightlyBuild = ghBranch == "branch-nightly-build"
-boolean enableBom = System.getenv('CI') == "true" && (isMainBranch || isNightlyBuild) ||
+
+boolean enableBom = System.getenv('CI') == "true" && (isMainBranch) ||
         System.getProperty("bom") != null ||
         gradle.startParameter.taskNames.findAll({ it.matches(".*:($bomTasks)") })
 
@@ -65,6 +65,7 @@ allprojects {
     release = project.hasProperty('release') && project.getProperty('release')
     official = project.hasProperty('official') && project.getProperty('official')
     testMonitoringEnabled = project.hasProperty('withTestMonitoring')
+    utMonitoringEnabled = project.hasProperty('withUtMonitoring')
   }
 
   ext.enableBom = enableBom
@@ -756,7 +757,7 @@ subprojects {
     }
   }
 
-  if (isNightlyBuild) {
+  if (ext.utMonitoringEnabled) {
     tasks.withType(Test) {
       doFirst {
         ext {
