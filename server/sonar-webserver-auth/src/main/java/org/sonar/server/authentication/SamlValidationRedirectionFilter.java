@@ -26,7 +26,7 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import javax.annotation.Nullable;
 import org.apache.commons.lang3.StringUtils;
-import org.sonar.api.internal.apachecommons.lang.StringEscapeUtils;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.sonar.api.platform.Server;
 import org.sonar.api.server.http.HttpRequest;
 import org.sonar.api.server.http.HttpResponse;
@@ -78,7 +78,7 @@ public class SamlValidationRedirectionFilter extends HttpFilter {
       URI redirectionEndpointUrl = URI.create(server.getContextPath() + "/")
         .resolve(SAML_VALIDATION_CONTROLLER_CONTEXT + "/")
         .resolve(SAML_VALIDATION_KEY);
-      String samlResponse = StringEscapeUtils.escapeHtml(request.getParameter(SAML_RESPONSE_PARAMETER));
+      String samlResponse = StringEscapeUtils.escapeHtml3(request.getParameter(SAML_RESPONSE_PARAMETER));
       String csrfToken = getCsrfTokenFromRelayState(relayState);
 
       String nonce = SamlValidationCspHeaders.addCspHeadersWithNonceToResponse(response);
@@ -103,7 +103,7 @@ public class SamlValidationRedirectionFilter extends HttpFilter {
 
   private static String getCsrfTokenFromRelayState(@Nullable String relayState) {
     if (relayState != null && relayState.contains("/")) {
-      return StringEscapeUtils.escapeHtml(relayState.split("/")[1]);
+      return StringEscapeUtils.escapeHtml3(relayState.split("/")[1]);
     }
     return "";
   }

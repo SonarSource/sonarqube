@@ -46,6 +46,7 @@ public class LivenessActionSupport {
         "</p>")
       .setSince("9.1")
       .setInternal(true)
+      .setContentType(Response.ContentType.NO_CONTENT)
       .setHandler(handler);
   }
 

@@ -42,7 +42,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.server.exceptions.NotFoundException;
 
-import static org.sonar.api.internal.apachecommons.lang.StringUtils.removeEnd;
+import static org.apache.commons.lang3.StringUtils.removeEnd;
 
 @ServerSide
 public class BitbucketCloudRestClient {

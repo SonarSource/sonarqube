@@ -67,6 +67,7 @@ public class GetAction implements AnalysisCacheWsAction {
         + "Data is returned gzipped if the corresponding 'Accept-Encoding' header is set in the request.")
       .setChangelog(new Change("9.9", "The web service is no longer internal"))
       .setSince("9.4")
+      .setContentType(Response.ContentType.BINARY)
       .setHandler(this);
 
     action.createParam(PROJECT)

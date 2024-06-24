@@ -56,6 +56,7 @@ public class CheckAction implements DismissMessageWsAction {
     WebService.NewAction action = context.createAction("check")
       .setDescription("Check if a message has been dismissed.")
       .setSince("10.2")
+      .setResponseExample(getClass().getResource("check-example.json"))
       .setInternal(true)
       .setHandler(this);
 

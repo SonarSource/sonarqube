@@ -47,7 +47,7 @@ public class DownloadAction implements PluginsWsAction {
       .setSince("7.2")
       .setDescription("Download plugin JAR, for usage by scanner engine")
       .setInternal(true)
-      .setResponseExample(getClass().getResource("example-download.json"))
+      .setContentType(Response.ContentType.BINARY)
       .setHandler(this);
 
     action.createParam(PLUGIN_PARAM)

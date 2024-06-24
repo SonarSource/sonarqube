@@ -36,7 +36,7 @@ import org.slf4j.event.Level;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.internal.apachecommons.io.IOUtils;
-import org.sonar.api.internal.apachecommons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.es.response.NodeStatsResponse;

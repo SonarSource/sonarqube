@@ -1,0 +1,44 @@
+# HELP sonarqube_compute_engine_tasks_running_duration_seconds Compute engine task running time in seconds
+# TYPE sonarqube_compute_engine_tasks_running_duration_seconds summary
+# HELP sonarqube_health_web_status Tells whether Web process is up or down. 1 for up, 0 for down
+# TYPE sonarqube_health_web_status gauge
+sonarqube_health_web_status 1.0
+# HELP sonarqube_license_days_before_expiration_total Days until the SonarQube license will expire.
+# TYPE sonarqube_license_days_before_expiration_total gauge
+sonarqube_license_days_before_expiration_total 28.0
+# HELP sonarqube_license_number_of_lines_remaining_total Number of lines remaining until the limit for the current license is hit.
+# TYPE sonarqube_license_number_of_lines_remaining_total gauge
+sonarqube_license_number_of_lines_remaining_total 5000000.0
+# HELP sonarqube_health_compute_engine_status Tells whether Compute Engine is up (healthy, ready to take tasks) or down. 1 for up, 0 for down
+# TYPE sonarqube_health_compute_engine_status gauge
+sonarqube_health_compute_engine_status 1.0
+# HELP sonarqube_license_number_of_lines_analyzed_total Number of lines analyzed.
+# TYPE sonarqube_license_number_of_lines_analyzed_total gauge
+sonarqube_license_number_of_lines_analyzed_total 0.0
+# HELP sonarqube_web_uptime_minutes Number of minutes for how long the SonarQube instance is running
+# TYPE sonarqube_web_uptime_minutes gauge
+sonarqube_web_uptime_minutes 13.0
+# HELP sonarqube_health_integration_azuredevops_status Tells whether SonarQube instance has configured Azure integration and its status is green. 1 for green, 0 otherwise .
+# TYPE sonarqube_health_integration_azuredevops_status gauge
+sonarqube_health_integration_azuredevops_status 0.0
+# HELP sonarqube_health_elasticsearch_status Tells whether Elasticsearch is up or down. 1 for Up, 0 for down
+# TYPE sonarqube_health_elasticsearch_status gauge
+sonarqube_health_elasticsearch_status 1.0
+# HELP sonarqube_health_integration_gitlab_status Tells whether SonarQube instance has configured GitLab integration and its status is green. 1 for green, 0 otherwise .
+# TYPE sonarqube_health_integration_gitlab_status gauge
+sonarqube_health_integration_gitlab_status 0.0
+# HELP sonarqube_health_integration_github_status Tells whether SonarQube instance has configured GitHub integration and its status is green. 1 for green, 0 otherwise .
+# TYPE sonarqube_health_integration_github_status gauge
+sonarqube_health_integration_github_status 0.0
+# HELP sonarqube_health_integration_bitbucket_status Tells whether SonarQube instance has configured BitBucket integration and its status is green. 1 for green, 0 otherwise .
+# TYPE sonarqube_health_integration_bitbucket_status gauge
+sonarqube_health_integration_bitbucket_status 0.0
+# HELP sonarqube_elasticsearch_disk_space_total_bytes Total disk space on the device
+# TYPE sonarqube_elasticsearch_disk_space_total_bytes gauge
+sonarqube_elasticsearch_disk_space_total_bytes{node_name="sonarqube",} 9.9466258432E11
+# HELP sonarqube_elasticsearch_disk_space_free_bytes Space left on device
+# TYPE sonarqube_elasticsearch_disk_space_free_bytes gauge
+sonarqube_elasticsearch_disk_space_free_bytes{node_name="sonarqube",} 9.00287975424E11
+# HELP sonarqube_compute_engine_pending_tasks_total Number of tasks at given point of time that were pending in the Compute Engine queue [SHARED, same value for every SonarQube instance]
+# TYPE sonarqube_compute_engine_pending_tasks_total gauge
+sonarqube_compute_engine_pending_tasks_total 0.0

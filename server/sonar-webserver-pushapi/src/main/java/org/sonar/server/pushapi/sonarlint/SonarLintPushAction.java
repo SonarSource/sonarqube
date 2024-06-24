@@ -62,6 +62,7 @@ public class SonarLintPushAction extends ServerPushAction {
       .setInternal(true)
       .setDescription("Endpoint for listening to server side events. Currently it notifies listener about change to activation of a rule")
       .setSince("9.4")
+      .setContentType(Response.ContentType.NO_CONTENT)
       .setHandler(this);
 
     action

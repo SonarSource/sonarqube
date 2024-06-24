@@ -74,6 +74,7 @@ public class CheckPatAction implements AlmIntegrationsWsAction {
       .setInternal(true)
       .setSince("8.2")
       .setHandler(this)
+      .setContentType(Response.ContentType.NO_CONTENT)
       .setChangelog(new Change("9.0", "Bitbucket Cloud support was added"));
 
     action.createParam(PARAM_ALM_SETTING)

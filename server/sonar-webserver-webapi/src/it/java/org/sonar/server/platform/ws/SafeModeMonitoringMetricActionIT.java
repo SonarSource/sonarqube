@@ -52,6 +52,11 @@ public class SafeModeMonitoringMetricActionIT {
   private final WsActionTester ws = new WsActionTester(safeModeMonitoringMetricAction);
 
   @Test
+  public void define_containsResponseExample() {
+    assertThat(ws.getDef().responseExampleAsString()).isNotEmpty();
+  }
+
+  @Test
   public void no_authentication_throw_insufficient_privileges_error() {
     TestRequest request = ws.newRequest();
     Assertions.assertThatThrownBy(request::execute)

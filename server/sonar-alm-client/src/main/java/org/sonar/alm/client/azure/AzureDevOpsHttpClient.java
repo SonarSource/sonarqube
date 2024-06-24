@@ -43,8 +43,8 @@ import org.sonar.api.server.ServerSide;
 import org.sonarqube.ws.client.OkHttpClientBuilder;
 
 import static java.util.stream.Collectors.joining;
-import static org.sonar.api.internal.apachecommons.lang.StringUtils.isBlank;
-import static org.sonar.api.internal.apachecommons.lang.StringUtils.substringBeforeLast;
+import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.substringBeforeLast;
 
 @ServerSide
 public class AzureDevOpsHttpClient {

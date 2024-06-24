@@ -47,7 +47,7 @@ import static java.lang.String.format;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
 import static java.util.Locale.ENGLISH;
-import static org.sonar.api.internal.apachecommons.lang.StringUtils.removeEnd;
+import static org.apache.commons.lang3.StringUtils.removeEnd;
 
 @ServerSide
 public class BitbucketServerRestClient {

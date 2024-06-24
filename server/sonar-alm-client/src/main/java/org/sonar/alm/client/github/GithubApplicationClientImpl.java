@@ -42,7 +42,7 @@ import org.sonar.alm.client.ApplicationHttpClient.GetResponse;
 import org.sonar.alm.client.github.security.AppToken;
 import org.sonar.alm.client.github.security.GithubAppSecurity;
 import org.sonar.alm.client.gitlab.GsonApp;
-import org.sonar.api.internal.apachecommons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.sonar.auth.github.AppInstallationToken;
 import org.sonar.auth.github.GitHubSettings;
 import org.sonar.auth.github.GithubAppConfiguration;

@@ -59,6 +59,7 @@ public class CheckActionIT {
     assertThat(def.params()).extracting(WebService.Param::key, WebService.Param::isRequired).containsOnly(
       tuple("projectKey", false),
       tuple("messageType", true));
+    assertThat(def.responseExampleAsString()).isNotEmpty();
   }
 
   @Test

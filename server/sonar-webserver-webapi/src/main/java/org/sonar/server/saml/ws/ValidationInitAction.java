@@ -22,6 +22,7 @@ package org.sonar.server.saml.ws;
 import java.io.IOException;
 import org.sonar.api.server.http.HttpRequest;
 import org.sonar.api.server.http.HttpResponse;
+import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.web.FilterChain;
 import org.sonar.api.web.HttpFilter;
@@ -67,6 +68,7 @@ public class ValidationInitAction extends HttpFilter implements SamlAction {
       .setPost(false)
       .setHandler(ServletFilterHandler.INSTANCE)
       .setDescription("Initiate a SAML request to the identity Provider for configuration validation purpose.")
+      .setContentType(Response.ContentType.NO_CONTENT)
       .setSince("9.7");
   }
 
