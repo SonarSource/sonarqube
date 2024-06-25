@@ -25,14 +25,12 @@ import {
   FormField,
   Highlight,
   InputTextArea,
-  LabelValueSelectOption,
   LightLabel,
   Modal,
 } from 'design-system';
 import { countBy, flattenDeep, pickBy, sortBy } from 'lodash';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { SingleValue } from 'react-select';
 import { throwGlobalError } from '~sonar-aligned/helpers/error';
 import { bulkChangeIssues, searchIssueTags } from '../../../api/issues';
 import FormattingTips from '../../../components/common/FormattingTips';
@@ -54,7 +52,7 @@ interface Props {
 
 interface FormFields {
   addTags?: Array<string>;
-  assignee?: SingleValue<LabelValueSelectOption>;
+  assignee?: string;
   comment?: string;
   notifications?: boolean;
   removeTags?: Array<string>;
@@ -126,7 +124,7 @@ export class BulkChangeModal extends React.PureComponent<Props, State> {
     return this.props.fetchIssues({ additionalFields: 'actions,transitions', ps: MAX_PAGE_SIZE });
   };
 
-  handleAssigneeSelect = (assignee: SingleValue<LabelValueSelectOption>) => {
+  handleAssigneeSelect = (assignee: string) => {
     this.setState({ assignee });
   };
 
@@ -160,21 +158,33 @@ export class BulkChangeModal extends React.PureComponent<Props, State> {
   handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
+    const {
+      addTags,
+      assignee,
+      comment,
+      issues,
+      notifications,
+      removeTags,
+      severity,
+      transition,
+      type,
+    } = this.state;
+
     const query = pickBy(
       {
-        add_tags: this.state.addTags?.join(),
-        assign: this.state.assignee ? this.state.assignee.value : null,
-        comment: this.state.comment,
-        do_transition: this.state.transition,
-        remove_tags: this.state.removeTags?.join(),
-        sendNotifications: this.state.notifications,
-        set_severity: this.state.severity,
-        set_type: this.state.type,
+        add_tags: addTags?.join(),
+        assign: assignee,
+        comment,
+        do_transition: transition,
+        remove_tags: removeTags?.join(),
+        sendNotifications: notifications,
+        set_severity: severity,
+        set_type: type,
       },
       (x) => x !== undefined,
     );
 
-    const issueKeys = this.state.issues.map((issue) => issue.key);
+    const issueKeys = issues.map((issue) => issue.key);
 
     this.setState({ submitting: true });
 
@@ -207,7 +217,7 @@ export class BulkChangeModal extends React.PureComponent<Props, State> {
     return Boolean(
       (addTags && addTags.length > 0) ||
         (removeTags && removeTags.length > 0) ||
-        assignee ||
+        assignee !== undefined ||
         severity ||
         transition ||
         type,
@@ -242,17 +252,23 @@ export class BulkChangeModal extends React.PureComponent<Props, State> {
       return null;
     }
 
-    const input = (
-      <AssigneeSelect
-        assignee={assignee}
-        className="sw-max-w-abs-300"
-        inputId={`issues-bulk-change-${field}`}
-        issues={issues}
-        onAssigneeSelect={this.handleAssigneeSelect}
-      />
+    return (
+      <div className="sw-flex sw-items-center sw-justify-between sw-mb-6">
+        <AssigneeSelect
+          className="sw-max-w-abs-300"
+          inputId={`issues-bulk-change-${field}`}
+          issues={issues}
+          label={translate('issue.assign.formlink')}
+          onAssigneeSelect={this.handleAssigneeSelect}
+          selectedAssigneeKey={assignee}
+        />
+        {affected !== undefined && (
+          <LightLabel>
+            ({translateWithParameters('issue_bulk_change.x_issues', affected)})
+          </LightLabel>
+        )}
+      </div>
     );
-
-    return this.renderField(field, 'issue.assign.formlink', affected, input);
   };
 
   renderTagsField = (
@@ -298,6 +314,7 @@ export class BulkChangeModal extends React.PureComponent<Props, State> {
           </Highlight>
 
           <RadioButtonGroup
+            ariaLabel="a"
             id="bulk-change-transition"
             options={transitions.map(({ transition, count }) => ({
               label: translate('issue.transition', transition),

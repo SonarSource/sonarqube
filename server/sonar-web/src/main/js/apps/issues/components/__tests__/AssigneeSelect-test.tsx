@@ -54,7 +54,6 @@ jest.mock('../../utils', () => ({
 
 const ui = {
   combobox: byLabelText('issue_bulk_change.assignee.change'),
-  searchbox: byLabelText('search.search_for_users'),
 };
 
 it('should show correct suggestions when there is assignable issue for the current user', async () => {
@@ -97,13 +96,13 @@ it('should handle assignee search correctly', async () => {
 
   // Minimum MIN_QUERY_LENGTH charachters to trigger search
   await user.click(ui.combobox.get());
-  await user.type(ui.searchbox.get(), 'a');
+  await user.type(ui.combobox.get(), 'a');
 
-  expect(await screen.findByText(`select2.tooShort.${MIN_QUERY_LENGTH}`)).toBeInTheDocument();
+  expect(await screen.findByText(`select.search.tooShort.${MIN_QUERY_LENGTH}`)).toBeInTheDocument();
 
   // Trigger search
   await user.click(ui.combobox.get());
-  await user.type(ui.searchbox.get(), 'someone');
+  await user.type(ui.combobox.get(), 'someone');
 
   expect(await screen.findByText('toto')).toBeInTheDocument();
   expect(await screen.findByText('user.x_deleted.tata')).toBeInTheDocument();
@@ -116,7 +115,7 @@ it('should handle assignee selection', async () => {
   renderAssigneeSelect({ onAssigneeSelect });
 
   await user.click(ui.combobox.get());
-  await user.type(ui.searchbox.get(), 'tot');
+  await user.type(ui.combobox.get(), 'tot');
 
   // Do not select assignee until suggestion is selected
   expect(onAssigneeSelect).not.toHaveBeenCalled();
@@ -132,7 +131,13 @@ function renderAssigneeSelect(
 ) {
   return renderComponent(
     <CurrentUserContextProvider currentUser={currentUser}>
-      <AssigneeSelect inputId="id" issues={[]} onAssigneeSelect={jest.fn()} {...overrides} />
+      <AssigneeSelect
+        inputId="id"
+        issues={[]}
+        label=""
+        onAssigneeSelect={jest.fn()}
+        {...overrides}
+      />
     </CurrentUserContextProvider>,
   );
 }

@@ -17,12 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { LabelValueSelectOption, SearchSelectDropdown } from 'design-system';
+import { SelectAsync } from '@sonarsource/echoes-react';
 import * as React from 'react';
-import { Options, SingleValue } from 'react-select';
 import { CurrentUserContext } from '../../../app/components/current-user/CurrentUserContext';
 import Avatar from '../../../components/ui/Avatar';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { isDefined } from '../../../helpers/types';
 import { Issue } from '../../../types/types';
 import { RestUser, UserActive, isLoggedIn, isUserActive } from '../../../types/users';
 import { searchAssignees } from '../utils';
@@ -30,18 +30,25 @@ import { searchAssignees } from '../utils';
 // exported for test
 export const MIN_QUERY_LENGTH = 2;
 
-const UNASSIGNED = { value: '', label: translate('unassigned') };
+const UNASSIGNED: Option = { value: '', label: translate('unassigned') };
+
+interface Option {
+  Icon?: React.JSX.Element;
+  label: string;
+  value: string;
+}
 
 export interface AssigneeSelectProps {
-  assignee?: SingleValue<LabelValueSelectOption>;
   className?: string;
   inputId: string;
   issues: Issue[];
-  onAssigneeSelect: (assignee: SingleValue<LabelValueSelectOption>) => void;
+  label: string;
+  onAssigneeSelect: (assigneeKey: string) => void;
+  selectedAssigneeKey?: string;
 }
 
 function userToOption(user: RestUser | UserActive) {
-  const userInfo = user.name || user.login;
+  const userInfo = user.name ?? user.login;
   return {
     value: user.login,
     label: isUserActive(user) ? userInfo : translateWithParameters('user.x_deleted', userInfo),
@@ -50,58 +57,59 @@ function userToOption(user: RestUser | UserActive) {
 }
 
 export default function AssigneeSelect(props: AssigneeSelectProps) {
-  const { assignee, className, issues, inputId } = props;
+  const { className, issues, inputId, label, selectedAssigneeKey } = props;
 
   const { currentUser } = React.useContext(CurrentUserContext);
 
-  const allowCurrentUserSelection =
-    isLoggedIn(currentUser) && issues.some((issue) => currentUser.login !== issue.assignee);
+  const [options, setOptions] = React.useState<Option[]>();
 
-  const defaultOptions = allowCurrentUserSelection
-    ? [UNASSIGNED, userToOption(currentUser)]
-    : [UNASSIGNED];
+  const defaultOptions = React.useMemo((): Option[] => {
+    const allowCurrentUserSelection =
+      isLoggedIn(currentUser) && issues.some((issue) => currentUser.login !== issue.assignee);
 
-  const controlLabel = assignee ? (
-    <>
-      {assignee.Icon} {assignee.label}
-    </>
-  ) : (
-    translate('select_verb')
-  );
+    return allowCurrentUserSelection ? [UNASSIGNED, userToOption(currentUser)] : [UNASSIGNED];
+  }, [currentUser, issues]);
 
   const handleAssigneeSearch = React.useCallback(
-    (query: string, resolve: (options: Options<LabelValueSelectOption<string>>) => void) => {
+    async (query: string) => {
       if (query.length < MIN_QUERY_LENGTH) {
-        resolve([]);
+        setOptions(defaultOptions);
         return;
       }
 
-      searchAssignees(query)
-        .then(({ results }) => results.map(userToOption))
-        .then(resolve)
-        .catch(() => resolve([]));
+      const assignees = await searchAssignees(query).then(({ results }) =>
+        results.map(userToOption),
+      );
+
+      setOptions(assignees);
     },
-    [],
+    [defaultOptions],
   );
 
   return (
-    <SearchSelectDropdown
-      aria-label={translate('search.search_for_users')}
+    <SelectAsync
+      ariaLabel={translate('issue_bulk_change.assignee.change')}
       className={className}
-      size="full"
-      controlSize="full"
-      inputId={inputId}
-      defaultOptions={defaultOptions}
-      loadOptions={handleAssigneeSearch}
+      id={inputId}
+      data={options ?? defaultOptions}
+      helpText={translateWithParameters('select.search.tooShort', MIN_QUERY_LENGTH)}
+      label={label}
+      labelNotFound={translate('select.search.noMatches')}
       onChange={props.onAssigneeSelect}
-      noOptionsMessage={({ inputValue }) =>
-        inputValue.length < MIN_QUERY_LENGTH
-          ? translateWithParameters('select2.tooShort', MIN_QUERY_LENGTH)
-          : translate('select2.noMatches')
-      }
-      placeholder={translate('search.search_for_users')}
-      controlLabel={controlLabel}
-      controlAriaLabel={translate('issue_bulk_change.assignee.change')}
+      onSearch={handleAssigneeSearch}
+      optionComponent={AssigneeOption}
+      value={selectedAssigneeKey}
     />
+  );
+}
+
+function AssigneeOption(props: Omit<Option, 'value'>) {
+  const { label, Icon } = props;
+
+  return (
+    <div className="sw-flex sw-flex-nowrap sw-items-center sw-overflow-hidden">
+      {isDefined(Icon) && <span className="sw-mr-2">{Icon}</span>}
+      <span className="sw-whitespace-nowrap sw-text-ellipsis">{label}</span>
+    </div>
   );
 }

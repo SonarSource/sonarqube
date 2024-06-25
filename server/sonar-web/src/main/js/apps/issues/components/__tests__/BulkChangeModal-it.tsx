@@ -151,9 +151,7 @@ it('should properly submit', async () => {
   expect(onDone).toHaveBeenCalledTimes(0);
 
   // Assign
-  await user.click(
-    await screen.findByRole('combobox', { name: 'issue_bulk_change.assignee.change' }),
-  );
+  await user.click(await screen.findByLabelText('issue_bulk_change.assignee.change'));
 
   await user.click(await screen.findByText('Toto'));
 
