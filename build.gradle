@@ -1,4 +1,3 @@
-import groovy.json.JsonOutput
 import groovy.text.SimpleTemplateEngine
 import org.sonar.build.BlackBoxTest
 
@@ -65,8 +64,6 @@ allprojects {
   ext {
     release = project.hasProperty('release') && project.getProperty('release')
     official = project.hasProperty('official') && project.getProperty('official')
-    testMonitoringEnabled = project.hasProperty('withTestMonitoring')
-    utMonitoringEnabled = project.hasProperty('withUtMonitoring')
   }
 
   ext.enableBom = enableBom
@@ -719,20 +716,12 @@ subprojects {
     }
   }
 
-
   tasks.withType(Test) {
     configurations {
-      utMonitoring
-      testMonitoring
       ddAgent
     }
 
     dependencies {
-      testImplementation project(":ut-monitoring")
-      testImplementation project(":test-monitoring")
-
-      utMonitoring 'org.aspectj:aspectjweaver:1.9.22.1'
-      testMonitoring 'org.aspectj:aspectjweaver:1.9.22.1'
       ddAgent 'com.datadoghq:dd-java-agent'
     }
 
@@ -768,29 +757,6 @@ subprojects {
       bbtImplementation testFixtures(project(":sonar-ws"))
     }
   }
-
-  if (ext.utMonitoringEnabled) {
-    tasks.withType(Test) {
-      doFirst {
-        ext {
-          aspectJWeaver = configurations.utMonitoring.resolvedConfiguration.resolvedArtifacts.find { it.name == 'aspectjweaver' }
-        }
-        jvmArgs "-javaagent:${aspectJWeaver.file}"
-      }
-    }
-  }
-
-  if (ext.testMonitoringEnabled) {
-    tasks.withType(Test) {
-      doFirst {
-        ext {
-          aspectJWeaver = configurations.testMonitoring.resolvedConfiguration.resolvedArtifacts.find { it.name == 'aspectjweaver' }
-        }
-        jvmArgs "-javaagent:${aspectJWeaver.file}"
-      }
-    }
-  }
-
 
   signing {
     def signingKeyId = findProperty("signingKeyId")
@@ -837,19 +803,4 @@ ext.osAdaptiveCommand = { commands ->
   newCommands.addAll(commands)
 
   return newCommands
-}
-
-tasks.named('sonarqube') {
-  onlyIf {
-    System.getenv('CI') == "true"
-  }
-  long taskStart
-  doFirst {
-    taskStart = System.currentTimeMillis()
-  }
-  doLast {
-    long taskDuration = System.currentTimeMillis() - taskStart
-    File outputFile = new File("/tmp/analysis-monitoring.log")
-    outputFile.append(JsonOutput.toJson([category: "Analysis", suite: "Standalone", operation: "total", duration: taskDuration]) + '\n')
-  }
 }

@@ -71,12 +71,6 @@ module.exports = {
         titleTemplate: '{title}',
       },
     ],
-    [
-      './config/jest/DataDogReporter.js',
-      {
-        outputFilepath: '/tmp/ut-ts-web-test-monitoring.log',
-      },
-    ],
     ['jest-slow-test-reporter', { numTests: 5, warnOnSlowerThan: 10000, color: true }],
   ],
   testTimeout: 60000,

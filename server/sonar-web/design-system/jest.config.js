@@ -67,13 +67,7 @@ module.exports = {
   },
   transformIgnorePatterns: ['/node_modules/(?!(d3-.+))/'],
   reporters: [
-    'default',
-    [
-      '../config/jest/DataDogReporter.js',
-      {
-        outputFilepath: '/tmp/ut-ts-designsystem-test-monitoring.log',
-      },
-    ],
+    'default'
   ],
   testTimeout: 60000,
 };
