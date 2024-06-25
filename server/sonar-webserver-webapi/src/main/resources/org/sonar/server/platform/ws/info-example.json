@@ -310,7 +310,6 @@
     "sonar.auth.saml.user.name": "name",
     "sonar.authenticator.ignoreStartupFailure": "false",
     "sonar.autoDatabaseUpgrade": "false",
-    "sonar.blueGreenEnabled": "false",
     "sonar.buildbreaker.skip": "true",
     "sonar.c.predefinedMacros": "#define MY_MACRO(a) struct a {}",
     "sonar.ce.gracefulStopTimeOutInMs": "21600000",
