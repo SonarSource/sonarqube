@@ -288,7 +288,7 @@ subprojects {
       dependency 'com.sonarsource.jcl:sonar-jcl-plugin:1.2.0.1148'
 
       // please keep this list alphabetically ordered
-      dependencySet(group: 'ch.qos.logback', version: '1.5.3') {
+      dependencySet(group: 'ch.qos.logback', version: '1.5.6') {
         entry 'logback-classic'
         entry 'logback-core'
       }
