@@ -3,7 +3,7 @@ load("cirrus", "env", "fs", "yaml")
 
 
 def main(ctx):
-    if env.get("CIRRUS_REPO_FULL_NAME") == 'SonarSource/sonar-enterprise':
+    if env.get("CIRRUS_REPO_FULL_NAME") == 'SonarSource/sonar-enterprise' and fs.exists("private/.cirrus.yml"):
         features = yaml.dumps(load_features(ctx, only_if=dict()))
         doc = fs.read("private/.cirrus.yml")
     else:
