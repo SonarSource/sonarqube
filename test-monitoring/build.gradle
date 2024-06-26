@@ -15,7 +15,7 @@ dependencies {
 
     testImplementation 'org.assertj:assertj-core'
     testImplementation 'org.mockito:mockito-core'
-    testImplementation 'org.aspectj:aspectjweaver:1.9.22'
+    testImplementation 'org.aspectj:aspectjweaver:1.9.22.1'
 }
 
 tasks.withType(JavaCompile) {

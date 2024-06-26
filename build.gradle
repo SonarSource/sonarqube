@@ -721,8 +721,8 @@ subprojects {
       testImplementation project(":ut-monitoring")
       testImplementation project(":test-monitoring")
 
-      utMonitoring 'org.aspectj:aspectjweaver:1.9.22'
-      testMonitoring 'org.aspectj:aspectjweaver:1.9.22'
+      utMonitoring 'org.aspectj:aspectjweaver:1.9.22.1'
+      testMonitoring 'org.aspectj:aspectjweaver:1.9.22.1'
       ddAgent 'com.datadoghq:dd-java-agent'
     }
 
