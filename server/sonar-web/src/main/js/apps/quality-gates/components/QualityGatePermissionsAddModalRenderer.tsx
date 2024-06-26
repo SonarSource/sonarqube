@@ -17,31 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import {
-  ButtonPrimary,
-  FormField,
-  GenericAvatar,
-  LabelValueSelectOption,
-  Modal,
-  Note,
-  SearchSelectDropdown,
-  UserGroupIcon,
-} from 'design-system';
+import { IconPeople, SelectAsync } from '@sonarsource/echoes-react';
+import { ButtonPrimary, GenericAvatar, Modal, Note } from 'design-system';
 import * as React from 'react';
-import { GroupBase, OptionProps, Options, SingleValue, components } from 'react-select';
 import Avatar from '../../../components/ui/Avatar';
 import { translate } from '../../../helpers/l10n';
 import { Group as UserGroup, isUser } from '../../../types/quality-gates';
 import { UserBase } from '../../../types/users';
+import { QGPermissionOption } from '../utils';
 
 export interface QualityGatePermissionsAddModalRendererProps {
-  handleSearch: (
-    q: string,
-    resolve: (options: Options<LabelValueSelectOption<UserBase | UserGroup>>) => void,
-  ) => void;
+  handleSearch: (q: string) => void;
+  loading: boolean;
   onClose: () => void;
-  onSelection: (selection: SingleValue<LabelValueSelectOption<UserBase | UserGroup>>) => void;
+  onSelection: (selection: string) => void;
   onSubmit: (event: React.SyntheticEvent<HTMLFormElement>) => void;
+  options: QGPermissionOption[];
   selection?: UserBase | UserGroup;
   submitting: boolean;
 }
@@ -52,11 +43,9 @@ const USER_SELECT_INPUT_ID = 'quality-gate-permissions-add-modal-select-input';
 export default function QualityGatePermissionsAddModalRenderer(
   props: Readonly<QualityGatePermissionsAddModalRendererProps>,
 ) {
-  const { selection, submitting } = props;
+  const { loading, options, selection, submitting } = props;
 
-  const renderedSelection = React.useMemo(() => {
-    return <OptionRenderer option={selection} small />;
-  }, [selection]);
+  const selectValue = selection && isUser(selection) ? selection.login : selection?.name;
 
   return (
     <Modal
@@ -64,28 +53,19 @@ export default function QualityGatePermissionsAddModalRenderer(
       headerTitle={translate('quality_gates.permissions.grant')}
       body={
         <form onSubmit={props.onSubmit} id={FORM_ID}>
-          <FormField
+          <SelectAsync
+            ariaLabel={translate('quality_gates.permissions.search')}
+            className="sw-mb-4"
+            data={options}
+            id={USER_SELECT_INPUT_ID}
+            isLoading={loading}
             label={translate('quality_gates.permissions.search')}
-            htmlFor={USER_SELECT_INPUT_ID}
-          >
-            <SearchSelectDropdown
-              className="sw-mb-2"
-              controlAriaLabel={translate('quality_gates.permissions.search')}
-              inputId={USER_SELECT_INPUT_ID}
-              autoFocus
-              defaultOptions
-              noOptionsMessage={() => translate('no_results')}
-              onChange={props.onSelection}
-              loadOptions={props.handleSearch}
-              getOptionValue={({ value }: LabelValueSelectOption<UserBase | UserGroup>) =>
-                isUser(value) ? value.login : value.name
-              }
-              controlLabel={renderedSelection}
-              components={{
-                Option,
-              }}
-            />
-          </FormField>
+            labelNotFound={translate('select.search.noMatches')}
+            onChange={props.onSelection}
+            onSearch={props.handleSearch}
+            optionComponent={OptionRenderer}
+            value={selectValue}
+          />
         </form>
       }
       primaryButton={
@@ -98,60 +78,27 @@ export default function QualityGatePermissionsAddModalRenderer(
   );
 }
 
-function OptionRenderer({
-  option,
-  small = false,
-}: Readonly<{
-  option?: UserBase | UserGroup;
-  small?: boolean;
-}>) {
+function OptionRenderer(option: Readonly<QGPermissionOption>) {
   if (!option) {
     return null;
   }
   return (
-    <>
+    <div className="sw-flex sw-items-center sw-justify-start">
       {isUser(option) ? (
         <>
-          <Avatar
-            className={small ? 'sw-my-1' : ''}
-            hash={option.avatar}
-            name={option.name}
-            size={small ? 'xs' : 'sm'}
-          />
-          <span className="sw-ml-2">
+          <Avatar hash={option.avatar} name={option.name} />
+          <div className="sw-ml-2">
             <strong className="sw-body-sm-highlight sw-mr-1">{option.name}</strong>
+            <br />
             <Note>{option.login}</Note>
-          </span>
+          </div>
         </>
       ) : (
         <>
-          <GenericAvatar
-            className={small ? 'sw-my-1' : ''}
-            Icon={UserGroupIcon}
-            name={option.name}
-            size={small ? 'xs' : 'sm'}
-          />
+          <GenericAvatar Icon={IconPeople} name={option.name} />
           <strong className="sw-body-sm-highlight sw-ml-2">{option.name}</strong>
         </>
       )}
-    </>
-  );
-}
-
-function Option<
-  Option extends LabelValueSelectOption<UserBase | UserGroup>,
-  IsMulti extends boolean = false,
-  Group extends GroupBase<Option> = GroupBase<Option>,
->(props: OptionProps<Option, IsMulti, Group>) {
-  const {
-    data: { value },
-  } = props;
-
-  return (
-    <components.Option {...props}>
-      <div className="sw-flex sw-items-center">
-        <OptionRenderer option={value} />
-      </div>
-    </components.Option>
+    </div>
   );
 }

@@ -735,7 +735,7 @@ describe('The Permissions section', () => {
     });
     await user.click(grantPermissionButton);
     const popup = screen.getByRole('dialog');
-    const searchUserInput = within(popup).getByRole('combobox', {
+    const searchUserInput = within(popup).getByRole('searchbox', {
       name: 'quality_gates.permissions.search',
     });
     expect(searchUserInput).toBeInTheDocument();
@@ -744,7 +744,7 @@ describe('The Permissions section', () => {
     });
     expect(addUserButton).toBeDisabled();
     await user.click(searchUserInput);
-    await user.click(screen.getByText('userlogin'));
+    await user.click(screen.getByRole('option', { name: 'userlogin' }));
     expect(addUserButton).toBeEnabled();
     await user.click(addUserButton);
     expect(screen.getByText('userlogin')).toBeInTheDocument();
@@ -784,14 +784,14 @@ describe('The Permissions section', () => {
     });
     await user.click(grantPermissionButton);
     const popup = screen.getByRole('dialog');
-    const searchUserInput = within(popup).getByRole('combobox', {
+    const searchUserInput = within(popup).getByRole('searchbox', {
       name: 'quality_gates.permissions.search',
     });
     const addUserButton = screen.getByRole('button', {
       name: 'add_verb',
     });
     await user.click(searchUserInput);
-    await user.click(within(popup).getByLabelText('Foo'));
+    await user.click(within(popup).getByRole('option', { name: 'Foo Foo' }));
     await user.click(addUserButton);
     expect(screen.getByText('Foo')).toBeInTheDocument();
 
@@ -817,12 +817,12 @@ describe('The Permissions section', () => {
     });
     await user.click(grantPermissionButton);
     const popup = screen.getByRole('dialog');
-    const searchUserInput = within(popup).getByRole('combobox', {
+    const searchUserInput = within(popup).getByRole('searchbox', {
       name: 'quality_gates.permissions.search',
     });
     await user.click(searchUserInput);
 
-    expect(screen.getByText('no_results')).toBeInTheDocument();
+    expect(screen.getByText('select.search.noMatches')).toBeInTheDocument();
   });
 });
 

@@ -21,7 +21,8 @@ import { sortBy } from 'lodash';
 import { MetricKey } from '~sonar-aligned/types/metrics';
 import { getLocalizedMetricName } from '../../helpers/l10n';
 import { isDiffMetric } from '../../helpers/measures';
-import { CaycStatus, Condition, Dict, Metric, QualityGate } from '../../types/types';
+import { CaycStatus, Condition, Dict, Group, Metric, QualityGate } from '../../types/types';
+import { UserBase } from '../../types/users';
 
 interface GroupedByMetricConditions {
   caycConditions: Condition[];
@@ -43,6 +44,9 @@ type UnoptimizedCaycMetricKeys =
   | CommonCaycMetricKeys;
 
 type AllCaycMetricKeys = OptimizedCaycMetricKeys | UnoptimizedCaycMetricKeys;
+
+type UserOrGroup = UserBase | Group;
+export type QGPermissionOption = UserOrGroup & { label: string; value: string };
 
 const COMMON_CONDITIONS: Record<
   CommonCaycMetricKeys,
