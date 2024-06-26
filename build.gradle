@@ -471,7 +471,7 @@ subprojects {
       dependency 'org.hibernate:hibernate-validator:6.2.5.Final'
       dependency 'javax.el:javax.el-api:3.0.0'
       dependency 'org.glassfish:jakarta.el:3.0.4'
-      dependency 'org.kohsuke:github-api:1.321'
+      dependency 'org.kohsuke:github-api:1.322'
       dependency 'org.wiremock:wiremock-standalone:3.7.0'
 
       // please keep this list alphabetically ordered
