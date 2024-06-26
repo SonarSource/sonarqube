@@ -378,8 +378,8 @@ subprojects {
         entry 'junit-vintage-engine'
       }
       dependency 'org.junit-pioneer:junit-pioneer:2.2.0'
-      dependency 'org.xmlunit:xmlunit-core:2.9.1'
-      dependency 'org.xmlunit:xmlunit-matchers:2.9.1'
+      dependency 'org.xmlunit:xmlunit-core:2.10.0'
+      dependency 'org.xmlunit:xmlunit-matchers:2.10.0'
       dependency 'org.lz4:lz4-java:1.8.0'
       dependency 'net.lightbody.bmp:littleproxy:1.1.0-beta-bmp-17'
       dependency 'org.awaitility:awaitility:4.2.1'
