@@ -319,7 +319,7 @@ subprojects {
         exclude 'junit:junit'
       }
       dependency 'com.squareup.okio:okio:3.9.0'
-      dependency 'io.github.hakky54:sslcontext-kickstart:8.3.5'
+      dependency 'io.github.hakky54:sslcontext-kickstart:8.3.6'
       dependency 'io.prometheus:simpleclient:0.16.0'
       dependency 'io.prometheus:simpleclient_common:0.16.0'
       dependency 'io.prometheus:simpleclient_servlet:0.16.0'
