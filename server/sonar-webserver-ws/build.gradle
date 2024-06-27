@@ -16,13 +16,13 @@ dependencies {
   api project(':sonar-plugin-api-impl')
   api project(':sonar-ws')
 
-  compileOnlyApi 'com.google.code.findbugs:jsr305'
+  compileOnlyApi 'com.github.spotbugs:spotbugs-annotations'
   compileOnlyApi 'javax.servlet:javax.servlet-api'
   compileOnlyApi 'org.apache.tomcat.embed:tomcat-embed-core'
 
   testImplementation 'com.tngtech.java:junit-dataprovider'
   testImplementation 'junit:junit'
-  testImplementation 'com.google.code.findbugs:jsr305'
+  testImplementation 'com.github.spotbugs:spotbugs-annotations'
   testImplementation 'javax.servlet:javax.servlet-api'
   testImplementation 'org.apache.tomcat.embed:tomcat-embed-core'
   testImplementation 'org.mockito:mockito-core'
@@ -30,5 +30,5 @@ dependencies {
 
   testFixturesApi project(':sonar-testing-harness')
 
-  testFixturesCompileOnly 'com.google.code.findbugs:jsr305'
+  testFixturesCompileOnly 'com.github.spotbugs:spotbugs-annotations'
 }

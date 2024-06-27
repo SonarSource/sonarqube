@@ -28,13 +28,13 @@ dependencies {
   }
   api project(':sonar-scanner-protocol')
 
-  compileOnlyApi 'com.google.code.findbugs:jsr305'
+  compileOnlyApi 'com.github.spotbugs:spotbugs-annotations'
   compileOnlyApi 'javax.servlet:javax.servlet-api'
 
   testImplementation 'org.apache.logging.log4j:log4j-api'
   testImplementation 'org.apache.logging.log4j:log4j-core'
   testImplementation 'org.assertj:assertj-guava'
-  testImplementation 'com.google.code.findbugs:jsr305'
+  testImplementation 'com.github.spotbugs:spotbugs-annotations'
   testImplementation 'com.tngtech.java:junit-dataprovider'
   testImplementation 'com.squareup.okhttp3:mockwebserver'
   testImplementation 'javax.servlet:javax.servlet-api'

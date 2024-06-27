@@ -16,7 +16,7 @@ dependencies {
   api 'org.jsoup:jsoup'
   api 'org.mockito:mockito-core'
 
-  compileOnlyApi 'com.google.code.findbugs:jsr305'
+  compileOnlyApi 'com.github.spotbugs:spotbugs-annotations'
 }
 
 artifactoryPublish.skip = false

@@ -47,7 +47,7 @@ dependencies {
   api project(':sonar-duplications')
   api project(':sonar-plugin-api-impl')
 
-  compileOnlyApi 'com.google.code.findbugs:jsr305'
+  compileOnlyApi 'com.github.spotbugs:spotbugs-annotations'
 
   testImplementation 'com.squareup.okhttp3:mockwebserver'
   testImplementation 'com.squareup.okhttp3:okhttp'

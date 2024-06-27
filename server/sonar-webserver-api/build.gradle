@@ -27,11 +27,11 @@ dependencies {
   api project(':sonar-plugin-api-impl')
   api 'org.mindrot:jbcrypt'
 
-  compileOnlyApi 'com.google.code.findbugs:jsr305'
+  compileOnlyApi 'com.github.spotbugs:spotbugs-annotations'
   compileOnlyApi 'javax.servlet:javax.servlet-api'
 
   testImplementation 'org.assertj:assertj-guava'
-  testImplementation 'com.google.code.findbugs:jsr305'
+  testImplementation 'com.github.spotbugs:spotbugs-annotations'
   testImplementation 'com.tngtech.java:junit-dataprovider'
   testImplementation 'javax.servlet:javax.servlet-api'
   testImplementation 'org.junit.jupiter:junit-jupiter-api'
@@ -42,7 +42,7 @@ dependencies {
 
   testFixturesApi 'junit:junit'
 
-  testFixturesCompileOnly 'com.google.code.findbugs:jsr305'
+  testFixturesCompileOnly 'com.github.spotbugs:spotbugs-annotations'
 
   testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
   testRuntimeOnly 'org.junit.vintage:junit-vintage-engine'

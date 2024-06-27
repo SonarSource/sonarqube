@@ -13,7 +13,7 @@ dependencies {
     api project(':server:sonar-auth-common')
     api project(':server:sonar-server-common')
 
-    compileOnlyApi 'com.google.code.findbugs:jsr305'
+    compileOnlyApi 'com.github.spotbugs:spotbugs-annotations'
     compileOnlyApi 'com.squareup.okhttp3:okhttp'
     compileOnlyApi 'javax.servlet:javax.servlet-api'
     compileOnlyApi project(':sonar-core')

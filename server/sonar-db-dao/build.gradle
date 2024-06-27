@@ -19,7 +19,7 @@ dependencies {
   api project(':server:sonar-db-migration')
   api project(':sonar-core')
 
-  compileOnlyApi 'com.google.code.findbugs:jsr305'
+  compileOnlyApi 'com.github.spotbugs:spotbugs-annotations'
 
   testImplementation 'commons-dbutils:commons-dbutils'
   testImplementation 'org.assertj:assertj-core'
@@ -32,7 +32,7 @@ dependencies {
   testImplementation project(':sonar-testing-harness')
   testImplementation project(':sonar-plugin-api-impl')
 
-  testCompileOnly 'com.google.code.findbugs:jsr305'
+  testCompileOnly 'com.github.spotbugs:spotbugs-annotations'
 
   testRuntimeOnly 'com.h2database:h2'
   testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
@@ -48,7 +48,7 @@ dependencies {
 
   testFixturesImplementation 'com.h2database:h2'
 
-  testFixturesCompileOnly 'com.google.code.findbugs:jsr305'
+  testFixturesCompileOnly 'com.github.spotbugs:spotbugs-annotations'
 }
 
 test {

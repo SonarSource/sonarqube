@@ -24,9 +24,9 @@ dependencies {
   api project(':sonar-plugin-api-impl')
   api project(':sonar-ws')
   
-  compileOnlyApi 'com.google.code.findbugs:jsr305'
+  compileOnlyApi 'com.github.spotbugs:spotbugs-annotations'
 
-  testImplementation 'com.google.code.findbugs:jsr305'
+  testImplementation 'com.github.spotbugs:spotbugs-annotations'
   testImplementation 'com.tngtech.java:junit-dataprovider'
   testImplementation 'junit:junit'
   testImplementation 'org.assertj:assertj-core'

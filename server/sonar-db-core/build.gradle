@@ -19,9 +19,9 @@ dependencies {
   api project(':server:sonar-process')
   api project(':sonar-plugin-api-impl')
 
-  compileOnlyApi 'com.google.code.findbugs:jsr305'
+  compileOnlyApi 'com.github.spotbugs:spotbugs-annotations'
 
-  testImplementation 'com.google.code.findbugs:jsr305'
+  testImplementation 'com.github.spotbugs:spotbugs-annotations'
   testImplementation 'com.h2database:h2'
   testImplementation 'com.microsoft.sqlserver:mssql-jdbc'
   testImplementation 'com.oracle.database.jdbc:ojdbc11'
@@ -48,7 +48,7 @@ dependencies {
   testFixturesImplementation 'com.oracle.database.jdbc:ojdbc11'
   testFixturesImplementation 'org.junit.jupiter:junit-jupiter-api'
 
-  testFixturesCompileOnly 'com.google.code.findbugs:jsr305'
+  testFixturesCompileOnly 'com.github.spotbugs:spotbugs-annotations'
 }
 
 test {

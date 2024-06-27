@@ -20,7 +20,7 @@ dependencies {
   api project(':server:sonar-auth-ldap')
   api 'org.mindrot:jbcrypt'
 
-  compileOnlyApi 'com.google.code.findbugs:jsr305'
+  compileOnlyApi 'com.github.spotbugs:spotbugs-annotations'
   compileOnlyApi 'javax.servlet:javax.servlet-api'
 
   testImplementation 'com.tngtech.java:junit-dataprovider'
@@ -34,13 +34,13 @@ dependencies {
   testImplementation testFixtures(project(':server:sonar-server-common'))
   testImplementation project(':sonar-testing-harness')
 
-  testCompileOnly  'com.google.code.findbugs:jsr305'
+  testCompileOnly  'com.github.spotbugs:spotbugs-annotations'
 
   runtimeOnly 'io.jsonwebtoken:jjwt-jackson'
 
   testFixturesApi 'junit:junit'
 
-  testFixturesCompileOnly 'com.google.code.findbugs:jsr305'
+  testFixturesCompileOnly 'com.github.spotbugs:spotbugs-annotations'
   testFixturesCompileOnly 'org.junit.jupiter:junit-jupiter-api'
 
   testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'

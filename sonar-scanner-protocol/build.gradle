@@ -13,7 +13,7 @@ dependencies {
   api 'org.apache.commons:commons-lang3'
   api project(':sonar-core')
 
-  compileOnlyApi 'com.google.code.findbugs:jsr305'
+  compileOnlyApi 'com.github.spotbugs:spotbugs-annotations'
 
   testImplementation 'com.google.guava:guava'
   testImplementation 'junit:junit'

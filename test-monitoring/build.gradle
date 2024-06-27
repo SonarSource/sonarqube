@@ -11,7 +11,7 @@ dependencies {
     api 'junit:junit'
 
     compileOnlyApi 'org.aspectj:aspectjtools'
-    compileOnlyApi 'com.google.code.findbugs:jsr305'
+    compileOnlyApi 'com.github.spotbugs:spotbugs-annotations'
 
     testImplementation 'org.assertj:assertj-core'
     testImplementation 'org.mockito:mockito-core'

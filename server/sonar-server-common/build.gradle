@@ -25,10 +25,10 @@ dependencies {
   api project(':sonar-markdown')
   api project(':sonar-ws')
 
-  compileOnlyApi 'com.google.code.findbugs:jsr305'
+  compileOnlyApi 'com.github.spotbugs:spotbugs-annotations'
   testImplementation 'org.elasticsearch.plugin:transport-netty4-client'
   testImplementation 'ch.qos.logback:logback-core'
-  testImplementation 'com.google.code.findbugs:jsr305'
+  testImplementation 'com.github.spotbugs:spotbugs-annotations'
   testImplementation 'org.subethamail:subethasmtp'
   testImplementation 'com.squareup.okhttp3:mockwebserver'
   testImplementation 'com.squareup.okhttp3:okhttp-tls'
@@ -51,7 +51,7 @@ dependencies {
   testFixturesApi 'junit:junit'
   testFixturesApi testFixtures(project(':server:sonar-db-dao'))
 
-  testFixturesCompileOnly 'com.google.code.findbugs:jsr305'
+  testFixturesCompileOnly 'com.github.spotbugs:spotbugs-annotations'
   testFixturesImplementation 'org.elasticsearch.plugin:transport-netty4-client'
   testFixturesImplementation 'org.codelibs.elasticsearch.module:analysis-common'
   testFixturesImplementation 'org.codelibs.elasticsearch.module:reindex'

@@ -4,7 +4,7 @@ configurations {
 
 dependencies {
     compileOnlyApi 'org.sonarsource.api.plugin:sonar-plugin-api'
-    compileOnlyApi 'com.google.code.findbugs:jsr305'
+    compileOnlyApi 'com.github.spotbugs:spotbugs-annotations'
     implementation 'commons-io:commons-io'
 
     testImplementation 'junit:junit'

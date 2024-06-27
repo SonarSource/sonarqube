@@ -21,9 +21,9 @@ dependencies {
   api 'org.sonarsource.api.plugin:sonar-plugin-api'
   api project(':sonar-core')
 
-  compileOnlyApi 'com.google.code.findbugs:jsr305'
+  compileOnlyApi 'com.github.spotbugs:spotbugs-annotations'
 
-  testImplementation 'com.google.code.findbugs:jsr305'
+  testImplementation 'com.github.spotbugs:spotbugs-annotations'
   testImplementation 'com.google.protobuf:protobuf-java'
   testImplementation 'com.tngtech.java:junit-dataprovider'
   testImplementation 'junit:junit'

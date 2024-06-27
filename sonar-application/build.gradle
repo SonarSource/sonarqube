@@ -66,7 +66,7 @@ dependencies {
     api project(':sonar-core')
     api project(':sonar-plugin-api-impl')
 
-    compileOnlyApi 'com.google.code.findbugs:jsr305'
+    compileOnlyApi 'com.github.spotbugs:spotbugs-annotations'
 
     scanner project(path: ':sonar-scanner-engine-shaded', configuration: 'shadow')
     cyclonedx project(path: ':sonar-scanner-engine-shaded')

@@ -5,7 +5,7 @@ dependencies {
   api 'org.apache.commons:commons-lang3'
   api 'org.apache.commons:commons-csv'
 
-  compileOnlyApi 'com.google.code.findbugs:jsr305'
+  compileOnlyApi 'com.github.spotbugs:spotbugs-annotations'
   compileOnlyApi 'org.sonarsource.api.plugin:sonar-plugin-api'
 
   testImplementation 'junit:junit'

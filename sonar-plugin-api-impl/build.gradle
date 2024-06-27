@@ -13,10 +13,10 @@ dependencies {
   api 'org.apache.commons:commons-csv'
   api 'org.sonarsource.api.plugin:sonar-plugin-api'
 
-  compileOnlyApi 'com.google.code.findbugs:jsr305'
+  compileOnlyApi 'com.github.spotbugs:spotbugs-annotations'
   compileOnlyApi 'junit:junit'
 
-  testCompileOnly 'com.google.code.findbugs:jsr305'
+  testCompileOnly 'com.github.spotbugs:spotbugs-annotations'
 
   testImplementation 'com.google.guava:guava'
   testImplementation 'com.tngtech.java:junit-dataprovider'

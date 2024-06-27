@@ -10,7 +10,7 @@ dependencies {
   api 'org.codehaus.sonar:sonar-channel'
   api 'org.sonarsource.api.plugin:sonar-plugin-api'
 
-  compileOnlyApi 'com.google.code.findbugs:jsr305'
+  compileOnlyApi 'com.github.spotbugs:spotbugs-annotations'
 
   testImplementation 'ch.qos.logback:logback-classic'
   testImplementation 'commons-io:commons-io'

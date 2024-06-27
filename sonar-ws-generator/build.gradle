@@ -15,7 +15,7 @@ dependencies {
   api 'org.slf4j:log4j-over-slf4j'
   api 'org.sonarsource.orchestrator:sonar-orchestrator-junit4'
 
-  compileOnlyApi 'com.google.code.findbugs:jsr305'
+  compileOnlyApi 'com.github.spotbugs:spotbugs-annotations'
 }
 
 task fatJar(type: Jar) {

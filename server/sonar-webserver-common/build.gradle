@@ -14,12 +14,12 @@ dependencies {
   implementation project(path: ':server:sonar-auth-gitlab')
   implementation project(path: ':server:sonar-alm-client')
 
-  compileOnlyApi 'com.google.code.findbugs:jsr305'
+  compileOnlyApi 'com.github.spotbugs:spotbugs-annotations'
   compileOnlyApi 'javax.servlet:javax.servlet-api'
 
   testImplementation 'org.apache.logging.log4j:log4j-api'
   testImplementation 'org.apache.logging.log4j:log4j-core'
-  testImplementation 'com.google.code.findbugs:jsr305'
+  testImplementation 'com.github.spotbugs:spotbugs-annotations'
   testImplementation 'com.tngtech.java:junit-dataprovider'
 
   testImplementation 'junit:junit'

@@ -26,7 +26,7 @@ dependencies {
   implementation 'org.apache.commons:commons-text'
   api 'com.google.code.gson:gson'
   api 'com.google.guava:guava'
-  api 'com.google.code.findbugs:jsr305'
+  api 'com.github.spotbugs:spotbugs-annotations'
   api 'com.google.protobuf:protobuf-java'
   api 'com.googlecode.java-diff-utils:diffutils'
   api 'org.mybatis:mybatis'
@@ -42,11 +42,11 @@ dependencies {
   api project(':sonar-duplications')
   api project(':sonar-scanner-protocol')
 
-  compileOnlyApi 'com.google.code.findbugs:jsr305'
+  compileOnlyApi 'com.github.spotbugs:spotbugs-annotations'
 
   api project(':server:sonar-db-dao')
 
-  testImplementation 'com.google.code.findbugs:jsr305'
+  testImplementation 'com.github.spotbugs:spotbugs-annotations'
   testImplementation 'com.tngtech.java:junit-dataprovider'
   testImplementation 'org.apache.logging.log4j:log4j-api'
   testImplementation 'org.apache.logging.log4j:log4j-core'
@@ -65,7 +65,7 @@ dependencies {
   testFixturesApi 'org.mockito:mockito-core'
   testFixturesApi testFixtures(project(':server:sonar-ce-task'))
 
-  testFixturesCompileOnly 'com.google.code.findbugs:jsr305'
+  testFixturesCompileOnly 'com.github.spotbugs:spotbugs-annotations'
 
   testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
   testRuntimeOnly 'org.junit.vintage:junit-vintage-engine'
