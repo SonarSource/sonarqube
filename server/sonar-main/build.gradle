@@ -18,7 +18,6 @@ dependencies {
   api 'org.apache.logging.log4j:log4j-to-slf4j'
   api 'org.apache.logging.log4j:log4j-api'
   api 'org.elasticsearch.client:elasticsearch-rest-high-level-client'
-  api 'org.elasticsearch:elasticsearch'
   api 'org.slf4j:slf4j-api'
   api 'org.yaml:snakeyaml'
   

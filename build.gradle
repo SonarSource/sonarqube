@@ -382,13 +382,21 @@ subprojects {
       dependency 'org.xmlunit:xmlunit-matchers:2.10.0'
       dependency 'org.lz4:lz4-java:1.8.0'
       dependency 'org.littleshoot:littleproxy:1.1.2'
+      dependency 'net.sf.trove4j:core:3.1.0'
       dependency 'org.awaitility:awaitility:4.2.1'
       dependency 'org.apache.commons:commons-collections4:4.4'
       dependency 'org.apache.commons:commons-csv:1.11.0'
       dependency 'org.apache.commons:commons-lang3:3.14.0'
       dependency 'org.apache.commons:commons-email:1.6.0'
       dependency 'org.apache.commons:commons-text:1.12.0'
+      dependency 'org.apache.mina:mina-core:2.2.3'
+      dependency 'org.apache.kerby:kerb-simplekdc:2.0.3'
+      dependency 'org.apache.kerby:ldap-backend:2.0.3'
+      dependency 'commons-logging:commons-logging:1.3.1'
       dependency 'com.zaxxer:HikariCP:5.1.0'
+      dependency ('org.apache.directory.server:apacheds-server-integ:2.0.0.AM27') {
+        exclude 'log4j:log4j'
+      }
       dependency('org.apache.httpcomponents:httpclient:4.5.14') {
         exclude 'commons-logging:commons-logging'
       }
@@ -473,6 +481,11 @@ subprojects {
       dependency 'org.glassfish:jakarta.el:3.0.4'
       dependency 'org.kohsuke:github-api:1.322'
       dependency 'org.wiremock:wiremock-standalone:3.7.0'
+      dependency 'org.skyscreamer:jsonassert:1.5.1'
+      // to be used only in sonar-ws-generator
+      dependency ("org.apache.velocity:velocity:1.7") {
+        dependency 'commons-collections:commons-collections:3.2.2'
+      }
 
       // please keep this list alphabetically ordered
     }

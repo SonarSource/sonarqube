@@ -13,9 +13,9 @@ dependencies {
     compileOnlyApi 'org.aspectj:aspectjtools'
     compileOnlyApi 'com.github.spotbugs:spotbugs-annotations'
 
+    testImplementation 'org.aspectj:aspectjtools'
     testImplementation 'org.assertj:assertj-core'
     testImplementation 'org.mockito:mockito-core'
-    testImplementation 'org.aspectj:aspectjweaver:1.9.22.1'
 }
 
 tasks.withType(JavaCompile) {

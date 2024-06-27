@@ -20,7 +20,7 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter-params'
     testImplementation 'org.mockito:mockito-core'
     testImplementation 'org.mockito:mockito-junit-jupiter'
-    testImplementation 'org.skyscreamer:jsonassert:1.5.1'
+    testImplementation 'org.skyscreamer:jsonassert'
     testImplementation 'org.sonarsource.api.plugin:sonar-plugin-api-test-fixtures'
     testImplementation 'com.tngtech.java:junit-dataprovider'
     testImplementation project(':sonar-testing-harness')
