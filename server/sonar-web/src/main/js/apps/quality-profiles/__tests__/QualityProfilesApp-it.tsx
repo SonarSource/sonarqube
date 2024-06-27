@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { getByText, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import selectEvent from 'react-select-event';
 import { byRole, byText } from '~sonar-aligned/helpers/testSelector';
@@ -101,11 +101,11 @@ const ui = {
   }),
   listLinkJavaQualityProfile: byRole('link', { name: 'java quality profile' }),
   returnToList: byRole('link', { name: 'quality_profiles.page' }),
-  languageSelect: byRole('combobox', { name: 'language' }),
-  profileExtendSelect: byRole('combobox', {
+  languageSelect: byRole('searchbox', { name: 'language' }),
+  profileExtendSelect: byRole('searchbox', {
     name: 'quality_profiles.creation.choose_parent_quality_profile',
   }),
-  profileCopySelect: byRole('combobox', {
+  profileCopySelect: byRole('searchbox', {
     name: 'quality_profiles.creation.choose_copy_quality_profile',
   }),
   nameCreatePopupInput: byRole('textbox', { name: 'name required' }),
@@ -142,8 +142,7 @@ it('should list Quality Profiles and filter by language', async () => {
   // Creation form should have language pre-selected
   await user.click(await ui.createButton.find());
 
-  // eslint-disable-next-line testing-library/prefer-screen-queries
-  expect(getByText(ui.popup.get(), 'C')).toBeInTheDocument();
+  expect(ui.languageSelect.get()).toHaveValue('C');
 });
 
 describe('Evolution', () => {
@@ -203,8 +202,13 @@ describe('Create', () => {
     await user.click(ui.returnToList.get());
     await user.click(ui.createButton.get());
     await user.click(ui.extendRadio.get());
-    await selectEvent.select(ui.languageSelect.get(), 'C');
-    await selectEvent.select(ui.profileExtendSelect.get(), ui.newCQualityProfileName);
+
+    await user.click(ui.languageSelect.get());
+    await user.click(byRole('option', { name: 'C' }).get());
+
+    await user.click(ui.profileExtendSelect.get());
+    await user.click(byRole('option', { name: ui.newCQualityProfileName }).get());
+
     await user.type(ui.nameCreatePopupInput.get(), ui.newCQualityProfileNameFromCreateButton);
     await user.click(ui.createButton.get(ui.popup.get()));
 
@@ -227,8 +231,13 @@ describe('Create', () => {
     await user.click(ui.returnToList.get());
     await user.click(ui.createButton.get());
     await user.click(ui.copyRadio.get());
-    await selectEvent.select(ui.languageSelect.get(), 'C');
-    await selectEvent.select(ui.profileCopySelect.get(), ui.newCQualityProfileName);
+
+    await user.click(ui.languageSelect.get());
+    await user.click(byRole('option', { name: 'C' }).get());
+
+    await user.click(ui.profileCopySelect.get());
+    await user.click(byRole('option', { name: ui.newCQualityProfileName }).get());
+
     await user.type(ui.nameCreatePopupInput.get(), ui.newCQualityProfileNameFromCreateButton);
     await user.click(ui.createButton.get(ui.popup.get()));
 
@@ -242,7 +251,10 @@ describe('Create', () => {
 
     await user.click(await ui.createButton.find());
     await user.click(ui.blankRadio.get());
-    await selectEvent.select(ui.languageSelect.get(), 'C');
+
+    await user.click(ui.languageSelect.get());
+    await user.click(byRole('option', { name: 'C' }).get());
+
     await user.type(ui.nameCreatePopupInput.get(), ui.newCQualityProfileName);
     await user.click(ui.createButton.get(ui.popup.get()));
 
@@ -256,7 +268,9 @@ describe('Create', () => {
 
     await user.click(await ui.createButton.find());
     await user.click(ui.blankRadio.get());
-    await selectEvent.select(ui.languageSelect.get(), 'C');
+
+    await user.click(ui.languageSelect.get());
+    await user.click(byRole('option', { name: 'C' }).get());
 
     expect(ui.importerA.get()).toBeInTheDocument();
     expect(ui.importerB.get()).toBeInTheDocument();

@@ -17,26 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Select, Spinner } from '@sonarsource/echoes-react';
 import {
   ButtonPrimary,
   FileInput,
   FlagMessage,
   FormField,
   InputField,
-  LabelValueSelectOption,
   LightLabel,
   Modal,
   Note,
-  PopupZLevel,
-  SearchSelectDropdown,
   SelectionCard,
-  Spinner,
 } from 'design-system';
 import { sortBy } from 'lodash';
 import * as React from 'react';
 import { useRef } from 'react';
 import { useIntl } from 'react-intl';
-import { SingleValue } from 'react-select';
 import { Location } from '~sonar-aligned/types/router';
 import {
   changeProfileParent,
@@ -110,21 +106,13 @@ export default function CreateProfileForm(props: Readonly<Props>) {
   );
 
   const handleLanguageChange = React.useCallback(
-    (option: SingleValue<LabelValueSelectOption<string>>) => {
-      setLanguage(option?.value);
+    (option: string) => {
+      setLanguage(option);
       setIsValidLanguage(true);
       setProfile(undefined);
       setIsValidProfile(false);
     },
     [setLanguage, setIsValidLanguage],
-  );
-
-  const handleQualityProfileChange = React.useCallback(
-    (option: SingleValue<LabelValueSelectOption<Profile>>) => {
-      setProfile(option?.value);
-      setIsValidProfile(Boolean(option?.value));
-    },
-    [setProfile, setIsValidProfile],
   );
 
   const handleFormSubmit = React.useCallback(async () => {
@@ -194,24 +182,26 @@ export default function CreateProfileForm(props: Readonly<Props>) {
 
   const profilesForSelectedLanguage = profiles.filter((p) => p.language === selectedLanguage);
   const profileOptions = sortBy(profilesForSelectedLanguage, 'name').map((profile) => ({
+    ...profile,
     label: profile.isBuiltIn
       ? `${profile.name} (${intl.formatMessage({ id: 'quality_profiles.built_in' })})`
       : profile.name,
-    value: profile,
+    value: profile.key,
   }));
+
+  const handleQualityProfileChange = React.useCallback(
+    (option: string) => {
+      const selectedProfile = profileOptions.find((p) => p.key === option);
+      setProfile(selectedProfile);
+      setIsValidProfile(selectedProfile !== undefined);
+    },
+    [setProfile, setIsValidProfile, profileOptions],
+  );
 
   const languagesOptions = sortBy(languages, 'name').map((l) => ({
     label: l.name,
     value: l.key,
   }));
-
-  function handleSearch<T>(
-    options: { label: string; value: T }[],
-    query: string,
-    cb: (options: LabelValueSelectOption<T>[]) => void,
-  ) {
-    cb(options.filter((option) => option.label.toLowerCase().includes(query.toLowerCase())));
-  }
 
   return (
     <Modal
@@ -284,38 +274,37 @@ export default function CreateProfileForm(props: Readonly<Props>) {
           <div className="sw-my-4">
             <MandatoryFieldsExplanation />
           </div>
-          <FormField label={intl.formatMessage({ id: 'language' })} required>
-            <SearchSelectDropdown
-              controlAriaLabel={intl.formatMessage({ id: 'language' })}
-              autoFocus
-              inputId="create-profile-language-input"
-              name="language"
-              onChange={handleLanguageChange}
-              defaultOptions={languagesOptions}
-              loadOptions={(inputValue, cb) => handleSearch(languagesOptions, inputValue, cb)}
-              value={languagesOptions.find((o) => o.value === selectedLanguage)}
-              zLevel={PopupZLevel.Global}
-            />
-          </FormField>
+
+          <Select
+            className="sw-mb-4"
+            data={languagesOptions}
+            id="create-profile-language-input"
+            isRequired
+            isSearchable
+            label={intl.formatMessage({ id: 'language' })}
+            name="language"
+            onChange={handleLanguageChange}
+            value={selectedLanguage}
+          />
+
           {action !== undefined && (
-            <FormField label={intl.formatMessage({ id: 'quality_profiles.parent' })} required>
-              <SearchSelectDropdown
-                controlAriaLabel={intl.formatMessage({
-                  id:
-                    action === ProfileActionModals.Copy
-                      ? 'quality_profiles.creation.choose_copy_quality_profile'
-                      : 'quality_profiles.creation.choose_parent_quality_profile',
-                })}
-                autoFocus
-                inputId="create-profile-parent-input"
-                name="parentKey"
-                onChange={handleQualityProfileChange}
-                defaultOptions={profileOptions}
-                loadOptions={(inputValue, cb) => handleSearch(profileOptions, inputValue, cb)}
-                isSearchable
-                value={profileOptions.find((o) => o.value === profile)}
-              />
-            </FormField>
+            <Select
+              ariaLabel={intl.formatMessage({
+                id:
+                  action === ProfileActionModals.Copy
+                    ? 'quality_profiles.creation.choose_copy_quality_profile'
+                    : 'quality_profiles.creation.choose_parent_quality_profile',
+              })}
+              className="sw-mb-4"
+              data={profileOptions}
+              id="create-profile-parent-input"
+              isRequired
+              isSearchable
+              label={intl.formatMessage({ id: 'quality_profiles.parent' })}
+              name="parentKey"
+              onChange={handleQualityProfileChange}
+              value={profile?.key}
+            />
           )}
           <FormField
             htmlFor="create-profile-name"
@@ -354,11 +343,11 @@ export default function CreateProfileForm(props: Readonly<Props>) {
                     {intl.formatMessage({ id: 'quality_profiles.optional_configuration_file' })}
                   </Note>
                 </FormField>
-              ))}{' '}
+              ))}
             </form>
           )}
 
-          <Spinner loading={submitting || isLoading} />
+          <Spinner isLoading={submitting || isLoading} />
         </>
       }
     />

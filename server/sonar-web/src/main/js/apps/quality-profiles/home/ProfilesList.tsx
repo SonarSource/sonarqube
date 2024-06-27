@@ -97,7 +97,7 @@ export default function ProfilesList(props: Readonly<Props>) {
           header={renderHeader(languageKey, profilesToShow[languageKey].length)}
           data-language={languageKey}
         >
-          {profilesToShow[languageKey].map((profile) => (
+          {(profilesToShow[languageKey] ?? []).map((profile) => (
             <ProfilesListRow
               key={profile.key}
               profile={profile}
