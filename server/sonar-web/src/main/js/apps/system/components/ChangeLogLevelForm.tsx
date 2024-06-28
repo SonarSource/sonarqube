@@ -68,6 +68,7 @@ export default class ChangeLogLevelForm extends React.PureComponent<Props, State
           <form id={FORM_ID} onSubmit={this.handleFormSubmit}>
             <div className="sw-mt-1">
               <RadioButtonGroup
+                ariaLabel={header}
                 id="system-loglevel-radio"
                 options={LOGS_LEVELS.map((level) => ({ label: level, value: level }))}
                 value={newLevel}

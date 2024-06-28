@@ -94,7 +94,10 @@ export default function AddConditionModal({ metrics, onClose, qualityGate }: Rea
   const renderBody = () => {
     return (
       <form onSubmit={handleFormSubmit} id={ADD_CONDITION_MODAL_ID}>
-        <FormField label={translate('quality_gates.conditions.where')}>
+        <FormField
+          label={translate('quality_gates.conditions.where')}
+          htmlFor="quality_gates-add-condition-scope-radio"
+        >
           <RadioButtonGroup
             id="quality_gates-add-condition-scope-radio"
             options={[

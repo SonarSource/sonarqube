@@ -309,12 +309,12 @@ export class BulkChangeModal extends React.PureComponent<Props, State> {
     return (
       <div className="sw-mb-6">
         <fieldset>
-          <Highlight as="legend" className="sw-mb-2">
+          <Highlight id="bulk-change-transition-label" as="legend" className="sw-mb-2">
             {translate('issue.change_status')}
           </Highlight>
 
           <RadioButtonGroup
-            ariaLabel="a"
+            ariaLabelledBy="bulk-change-transition-label"
             id="bulk-change-transition"
             options={transitions.map(({ transition, count }) => ({
               label: translate('issue.transition', transition),

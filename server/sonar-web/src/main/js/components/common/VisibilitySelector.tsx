@@ -37,6 +37,7 @@ export default function VisibilitySelector(props: Readonly<VisibilitySelectorPro
   return (
     <div className={classNames(className)}>
       <RadioButtonGroup
+        ariaLabel={translate('roles.page.change_visibility')}
         id="project-visiblity-radio"
         isDisabled={disabled}
         options={Object.values(Visibility).map((v) => ({

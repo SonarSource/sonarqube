@@ -107,9 +107,12 @@ export default function AuditAppRenderer(props: Readonly<AuditAppRendererProps>)
         </p>
 
         <div className="sw-mb-6">
-          <h3 className="sw-mb-4">{translate('audit_logs.download')}</h3>
+          <h3 className="sw-mb-4" id="audit-logs-housekeeping-radio-label">
+            {translate('audit_logs.download')}
+          </h3>
 
           <RadioButtonGroup
+            ariaLabelledBy="audit-logs-housekeeping-radio-label"
             id="audit-logs-housekeeping-radio"
             options={getRangeOptions(housekeepingPolicy).map((option) => ({
               label: translate('audit_logs.range_option', option),

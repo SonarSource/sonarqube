@@ -51,6 +51,7 @@ export default function ChangeDefaultVisibilityForm(props: Readonly<Props>) {
   const body = (
     <form id={FORM_ID} onSubmit={handleConfirmClick}>
       <RadioButtonGroup
+        ariaLabel={header}
         id="settings-projects-visibility-radio"
         options={Object.values(Visibility).map((visibilityValue) => ({
           label: translate('visibility', visibilityValue),
