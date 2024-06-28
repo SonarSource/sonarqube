@@ -19,7 +19,7 @@ dependencies {
   api 'org.sonarsource.api.plugin:sonar-plugin-api'
 
   compileOnlyApi 'com.github.spotbugs:spotbugs-annotations'
-  compileOnlyApi 'javax.annotation:javax.annotation-api'
+  compileOnlyApi 'jakarta.annotation:jakarta.annotation-api'
 
     testImplementation 'com.squareup.okhttp3:mockwebserver'
     testImplementation 'com.squareup.okio:okio'
