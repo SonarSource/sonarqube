@@ -381,7 +381,7 @@ subprojects {
       dependency 'org.xmlunit:xmlunit-core:2.10.0'
       dependency 'org.xmlunit:xmlunit-matchers:2.10.0'
       dependency 'org.lz4:lz4-java:1.8.0'
-      dependency 'net.lightbody.bmp:littleproxy:1.1.0-beta-bmp-17'
+      dependency 'org.littleshoot:littleproxy:1.1.2'
       dependency 'org.awaitility:awaitility:4.2.1'
       dependency 'org.apache.commons:commons-collections4:4.4'
       dependency 'org.apache.commons:commons-csv:1.11.0'
