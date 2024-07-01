@@ -28,7 +28,7 @@ dependencies {
   api 'com.squareup.okhttp3:okhttp'
   api 'com.fasterxml.staxmate:staxmate'
   implementation 'io.github.hakky54:sslcontext-kickstart'
-  api 'jakarta.annotation:jakarta.annotation-api'
+  api 'javax.annotation:javax.annotation-api'
   api 'org.eclipse.jgit:org.eclipse.jgit'
   api 'org.tmatesoft.svnkit:svnkit'
   api 'org.slf4j:jcl-over-slf4j'
