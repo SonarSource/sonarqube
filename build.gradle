@@ -397,9 +397,6 @@ subprojects {
       dependency ('org.apache.directory.server:apacheds-server-integ:2.0.0.AM27') {
         exclude 'log4j:log4j'
       }
-      dependency('org.apache.httpcomponents:httpclient:4.5.14') {
-        exclude 'commons-logging:commons-logging'
-      }
       // Be aware that Log4j is used by Elasticsearch client
       dependencySet(group: 'org.apache.logging.log4j', version: '2.23.1') {
         entry 'log4j-core'

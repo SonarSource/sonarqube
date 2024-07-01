@@ -25,7 +25,6 @@ dependencies {
   api 'com.google.protobuf:protobuf-java'
   api 'io.jsonwebtoken:jjwt-api'
   api 'io.jsonwebtoken:jjwt-impl'
-  api 'org.apache.httpcomponents:httpclient'
   api 'org.apache.logging.log4j:log4j-api'
   api 'org.apache.tomcat.embed:tomcat-embed-core'
   api 'com.zaxxer:HikariCP'
