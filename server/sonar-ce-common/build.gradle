@@ -49,7 +49,7 @@ dependencies {
   testImplementation 'org.apache.logging.log4j:log4j-core'
   testImplementation 'org.assertj:assertj-core'
   testImplementation 'org.assertj:assertj-guava'
-  testImplementation 'org.hamcrest:hamcrest-all'
+  testImplementation 'org.hamcrest:hamcrest'
   testImplementation 'org.junit.jupiter:junit-jupiter-api'
   testImplementation 'org.mockito:mockito-core'
   testImplementation project(':sonar-plugin-api-impl')

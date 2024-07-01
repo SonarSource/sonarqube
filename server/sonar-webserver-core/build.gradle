@@ -67,7 +67,7 @@ dependencies {
   testImplementation 'org.assertj:assertj-guava'
   testImplementation 'org.eclipse.jetty:jetty-server'
   testImplementation 'org.eclipse.jetty:jetty-servlet'
-  testImplementation 'org.hamcrest:hamcrest-all'
+  testImplementation 'org.hamcrest:hamcrest'
   testImplementation 'org.junit.jupiter:junit-jupiter-api'
   testImplementation 'org.mockito:mockito-core'
   testImplementation 'org.sonarsource.api.plugin:sonar-plugin-api-test-fixtures'
