@@ -29,7 +29,7 @@ dependencies {
   api project(':sonar-scanner-protocol')
 
   compileOnlyApi 'com.github.spotbugs:spotbugs-annotations'
-  compileOnlyApi 'javax.servlet:javax.servlet-api'
+  compileOnlyApi 'jakarta.servlet:jakarta.servlet-api'
 
   testImplementation 'org.apache.logging.log4j:log4j-api'
   testImplementation 'org.apache.logging.log4j:log4j-core'
@@ -37,7 +37,7 @@ dependencies {
   testImplementation 'com.github.spotbugs:spotbugs-annotations'
   testImplementation 'com.tngtech.java:junit-dataprovider'
   testImplementation 'com.squareup.okhttp3:mockwebserver'
-  testImplementation 'javax.servlet:javax.servlet-api'
+  testImplementation 'jakarta.servlet:jakarta.servlet-api'
   testImplementation 'org.junit.jupiter:junit-jupiter-api'
   testImplementation 'org.mockito:mockito-core'
   testImplementation 'org.mockito:mockito-junit-jupiter'

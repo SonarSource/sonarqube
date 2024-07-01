@@ -28,12 +28,12 @@ dependencies {
   api 'org.mindrot:jbcrypt'
 
   compileOnlyApi 'com.github.spotbugs:spotbugs-annotations'
-  compileOnlyApi 'javax.servlet:javax.servlet-api'
+  compileOnlyApi 'jakarta.servlet:jakarta.servlet-api'
 
   testImplementation 'org.assertj:assertj-guava'
   testImplementation 'com.github.spotbugs:spotbugs-annotations'
   testImplementation 'com.tngtech.java:junit-dataprovider'
-  testImplementation 'javax.servlet:javax.servlet-api'
+  testImplementation 'jakarta.servlet:jakarta.servlet-api'
   testImplementation 'org.junit.jupiter:junit-jupiter-api'
   testImplementation 'org.mockito:mockito-core'
   testImplementation 'org.sonarsource.api.plugin:sonar-plugin-api-test-fixtures'

@@ -11,7 +11,7 @@ dependencies {
 
     compileOnlyApi 'com.github.spotbugs:spotbugs-annotations'
     compileOnlyApi 'com.squareup.okhttp3:okhttp'
-    compileOnlyApi 'javax.servlet:javax.servlet-api'
+    compileOnlyApi 'jakarta.servlet:jakarta.servlet-api'
     compileOnlyApi 'org.json:json'
     compileOnlyApi project(':server:sonar-db-dao')
     compileOnlyApi project(':server:sonar-webserver-api')

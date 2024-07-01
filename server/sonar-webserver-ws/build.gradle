@@ -17,13 +17,13 @@ dependencies {
   api project(':sonar-ws')
 
   compileOnlyApi 'com.github.spotbugs:spotbugs-annotations'
-  compileOnlyApi 'javax.servlet:javax.servlet-api'
+  compileOnlyApi 'jakarta.servlet:jakarta.servlet-api'
   compileOnlyApi 'org.apache.tomcat.embed:tomcat-embed-core'
 
   testImplementation 'com.tngtech.java:junit-dataprovider'
   testImplementation 'junit:junit'
   testImplementation 'com.github.spotbugs:spotbugs-annotations'
-  testImplementation 'javax.servlet:javax.servlet-api'
+  testImplementation 'jakarta.servlet:jakarta.servlet-api'
   testImplementation 'org.apache.tomcat.embed:tomcat-embed-core'
   testImplementation 'org.mockito:mockito-core'
   testImplementation 'org.sonarsource.api.plugin:sonar-plugin-api-test-fixtures'

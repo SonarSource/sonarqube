@@ -5,7 +5,7 @@ sonar {
 }
 dependencies {
 
-    api 'javax.servlet:javax.servlet-api'
+    api 'jakarta.servlet:jakarta.servlet-api'
     api 'org.json:json'
 
     api project(':server:sonar-webserver-ws')

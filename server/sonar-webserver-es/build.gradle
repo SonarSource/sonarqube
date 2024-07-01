@@ -13,7 +13,7 @@ dependencies {
   api project(':server:sonar-webserver-auth')
 
   compileOnlyApi 'com.github.spotbugs:spotbugs-annotations'
-  compileOnlyApi 'javax.servlet:javax.servlet-api'
+  compileOnlyApi 'jakarta.servlet:jakarta.servlet-api'
 
   testImplementation 'org.apache.logging.log4j:log4j-api'
   testImplementation 'org.apache.logging.log4j:log4j-core'

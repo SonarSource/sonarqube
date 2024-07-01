@@ -15,7 +15,7 @@ dependencies {
     api project(':server:sonar-db-dao')
     api project(':server:sonar-webserver-common')
 
-    testImplementation 'javax.servlet:javax.servlet-api'
+    testImplementation 'jakarta.servlet:jakarta.servlet-api'
     testImplementation 'org.junit.jupiter:junit-jupiter-api'
     testImplementation 'org.junit.jupiter:junit-jupiter-params'
     testImplementation 'org.mockito:mockito-core'

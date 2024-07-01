@@ -10,7 +10,7 @@ dependencies {
     api 'org.apache.commons:commons-lang3'
 
     compileOnlyApi 'com.github.spotbugs:spotbugs-annotations'
-    compileOnlyApi 'javax.servlet:javax.servlet-api'
+    compileOnlyApi 'jakarta.servlet:jakarta.servlet-api'
     compileOnlyApi project(':server:sonar-process')
     compileOnlyApi project(':sonar-core')
 

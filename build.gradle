@@ -367,8 +367,8 @@ subprojects {
       dependency 'com.sun.mail:jakarta.mail:1.6.7'
       dependency 'javax.annotation:javax.annotation-api:1.3.2'
       dependency 'javax.inject:javax.inject:1'
-      dependency 'javax.servlet:javax.servlet-api:4.0.1'
       dependency 'javax.xml.bind:jaxb-api:2.3.1'
+      dependency 'jakarta.servlet:jakarta.servlet-api:4.0.4'
       dependency 'junit:junit:4.13.2'
       // JUnit 5
       dependencySet(group: 'org.junit.jupiter', version: '5.10.2') {
