@@ -9,7 +9,7 @@ dependencies {
     api 'org.springdoc:springdoc-openapi-webmvc-core'
     api 'org.springframework:spring-webmvc'
     api 'org.hibernate:hibernate-validator'
-    api 'javax.el:javax.el-api'
+    api 'jakarta.el:jakarta.el-api'
     api 'org.glassfish:jakarta.el'
 
     api project(':server:sonar-db-dao')
