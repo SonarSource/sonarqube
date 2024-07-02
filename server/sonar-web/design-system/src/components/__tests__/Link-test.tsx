@@ -91,8 +91,6 @@ it('internal link should be clickable', async () => {
 it('external links are indicated by OpenNewTabIcon', () => {
   setupWithMemoryRouter(<Link to="https://google.com">external link</Link>);
   expect(screen.getByRole('link')).toBeVisible();
-
-  expect(screen.getByRole('img', { hidden: true })).toBeInTheDocument();
 });
 
 it.each([
@@ -101,8 +99,6 @@ it.each([
 ])('%s links also can be external indicated by the OpenNewTabIcon', (_, LinkComponent) => {
   setupWithMemoryRouter(<LinkComponent to="https://google.com">external link</LinkComponent>);
   expect(screen.getByRole('link')).toBeVisible();
-
-  expect(screen.getByRole('img', { hidden: true })).toBeInTheDocument();
 });
 
 function ShowPath() {

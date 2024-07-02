@@ -35,7 +35,7 @@ exports[`should highlight code content correctly 1`] = `
   -ms-flex-align: center;
   align-items: center;
   height: 2.25rem;
-  font-family: Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
+  font-family: Inter,ui-sans-serif,system-ui,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
   font-size: 0.875rem;
   line-height: 1.25rem;
   font-weight: 600;
@@ -54,7 +54,7 @@ exports[`should highlight code content correctly 1`] = `
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
-  font-family: Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
+  font-family: Inter,ui-sans-serif,system-ui,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
   font-size: 0.875rem;
   line-height: 1.25rem;
   font-weight: 400;
@@ -181,7 +181,6 @@ exports[`should highlight code content correctly 1`] = `
         fill="currentColor"
         focusable="false"
         height="16"
-        role="img"
         style="display: inline-block; user-select: none; vertical-align: middle; overflow: visible;"
         viewBox="0 0 16 16"
         width="16"
@@ -241,7 +240,7 @@ exports[`should show full size when multiline with no editing 1`] = `
   -ms-flex-align: center;
   align-items: center;
   height: 2.25rem;
-  font-family: Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
+  font-family: Inter,ui-sans-serif,system-ui,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
   font-size: 0.875rem;
   line-height: 1.25rem;
   font-weight: 600;
@@ -260,7 +259,7 @@ exports[`should show full size when multiline with no editing 1`] = `
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
-  font-family: Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
+  font-family: Inter,ui-sans-serif,system-ui,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
   font-size: 0.875rem;
   line-height: 1.25rem;
   font-weight: 400;
@@ -388,7 +387,6 @@ bar"
         fill="currentColor"
         focusable="false"
         height="16"
-        role="img"
         style="display: inline-block; user-select: none; vertical-align: middle; overflow: visible;"
         viewBox="0 0 16 16"
         width="16"
@@ -449,7 +447,7 @@ exports[`should show reduced size when single line with no editing 1`] = `
   -ms-flex-align: center;
   align-items: center;
   height: 2.25rem;
-  font-family: Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
+  font-family: Inter,ui-sans-serif,system-ui,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
   font-size: 0.875rem;
   line-height: 1.25rem;
   font-weight: 600;
@@ -468,7 +466,7 @@ exports[`should show reduced size when single line with no editing 1`] = `
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
-  font-family: Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
+  font-family: Inter,ui-sans-serif,system-ui,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
   font-size: 0.875rem;
   line-height: 1.25rem;
   font-weight: 400;
@@ -597,7 +595,6 @@ exports[`should show reduced size when single line with no editing 1`] = `
         fill="currentColor"
         focusable="false"
         height="16"
-        role="img"
         style="display: inline-block; user-select: none; vertical-align: middle; overflow: visible;"
         viewBox="0 0 16 16"
         width="16"

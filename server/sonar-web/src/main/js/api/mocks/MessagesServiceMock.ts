@@ -59,7 +59,6 @@ export default class MessagesServiceMock {
   setMessageDismissed = ({ projectKey, messageType }: MessageDismissParams) => {
     if (projectKey) {
       this.#messageResponse[messageType] ||= {
-        ...this.#messageResponse[messageType],
         [projectKey]: {
           dismissed: true,
         },

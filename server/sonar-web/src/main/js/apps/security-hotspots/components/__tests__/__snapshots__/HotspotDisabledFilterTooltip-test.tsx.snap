@@ -74,7 +74,6 @@ exports[`should render correctly and stop event propagation 1`] = `
         fill="currentColor"
         focusable="false"
         height="16"
-        role="img"
         style="display: inline-block; user-select: none; vertical-align: middle; overflow: visible;"
         viewBox="0 0 16 16"
         width="16"

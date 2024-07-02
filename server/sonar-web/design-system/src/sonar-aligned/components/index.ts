@@ -18,12 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+export * from './buttons';
 export * from './Card';
 export { DismissableFlagMessage, FlagMessage } from './FlagMessage';
+export * from './input';
 export * from './MetricsRatingBadge';
 export * from './Table';
 export * from './Text';
 export * from './ToggleButton';
-export * from './buttons';
-export * from './input';
 export * from './typography';
