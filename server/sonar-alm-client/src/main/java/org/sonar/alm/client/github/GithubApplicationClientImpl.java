@@ -22,7 +22,6 @@ package org.sonar.alm.client.github;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import java.io.IOException;
-import java.lang.reflect.Type;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -234,7 +233,7 @@ public class GithubApplicationClientImpl implements GithubApplicationClient {
       Long.toString(gsonInstallation.getId()),
       gsonInstallation.getAccount().getLogin(),
       gsonInstallation.getPermissions(),
-      org.apache.commons.lang3.StringUtils.isNotEmpty(gsonInstallation.getSuspendedAt()));
+      StringUtils.isNotEmpty(gsonInstallation.getSuspendedAt()));
   }
 
   private static boolean isOrganizationWhiteListed(Set<String> allowedOrganizations, String organizationName) {
