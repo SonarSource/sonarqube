@@ -33,8 +33,6 @@ import org.sonar.alm.client.github.GithubPermissionConverter;
 import org.sonar.auth.github.AppInstallationToken;
 import org.sonar.auth.github.GitHubSettings;
 import org.sonar.auth.github.client.GithubApplicationClient;
-import org.sonar.auth.github.security.AccessToken;
-import org.sonar.auth.github.security.UserAccessToken;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.alm.pat.AlmPatDto;
@@ -164,7 +162,7 @@ public class GithubProjectCreatorFactoryTest {
     when(devOpsProjectService.createDevOpsProject(almSettingDto, GITHUB_PROJECT_DESCRIPTOR, appInstallationToken)).thenReturn(DEV_OPS_PROJECT);
     DevOpsProjectCreator devOpsProjectCreator = githubProjectCreatorFactory.getDevOpsProjectCreator(dbSession, VALID_GITHUB_PROJECT_COORDINATES).orElseThrow();
 
-    GithubProjectCreator expectedGithubProjectCreator = getExpectedGithubProjectCreator(almSettingDto, false, appInstallationToken);
+    GithubProjectCreator expectedGithubProjectCreator = getExpectedGithubProjectCreator(false);
     assertThat(devOpsProjectCreator).usingRecursiveComparison().isEqualTo(expectedGithubProjectCreator);
   }
 
@@ -184,7 +182,7 @@ public class GithubProjectCreatorFactoryTest {
     when(devOpsProjectService.createDevOpsProject(almSettingDto, GITHUB_PROJECT_DESCRIPTOR, authAppInstallationToken)).thenReturn(DEV_OPS_PROJECT);
     DevOpsProjectCreator devOpsProjectCreator = githubProjectCreatorFactory.getDevOpsProjectCreator(dbSession, VALID_GITHUB_PROJECT_COORDINATES).orElseThrow();
 
-    GithubProjectCreator expectedGithubProjectCreator = getExpectedGithubProjectCreator(almSettingDto, true, appInstallationToken);
+    GithubProjectCreator expectedGithubProjectCreator = getExpectedGithubProjectCreator(true);
     assertThat(devOpsProjectCreator).usingRecursiveComparison().isEqualTo(expectedGithubProjectCreator);
   }
 
@@ -199,7 +197,7 @@ public class GithubProjectCreatorFactoryTest {
     when(devOpsProjectService.createDevOpsProject(matchingAlmSettingDto, GITHUB_PROJECT_DESCRIPTOR, appInstallationToken)).thenReturn(DEV_OPS_PROJECT);
     DevOpsProjectCreator devOpsProjectCreator = githubProjectCreatorFactory.getDevOpsProjectCreator(dbSession, VALID_GITHUB_PROJECT_COORDINATES).orElseThrow();
 
-    GithubProjectCreator expectedGithubProjectCreator = getExpectedGithubProjectCreator(matchingAlmSettingDto, false, appInstallationToken);
+    GithubProjectCreator expectedGithubProjectCreator = getExpectedGithubProjectCreator(false);
     assertThat(devOpsProjectCreator).usingRecursiveComparison().isEqualTo(expectedGithubProjectCreator);
   }
 
@@ -213,7 +211,7 @@ public class GithubProjectCreatorFactoryTest {
     when(devOpsProjectService.create(mockAlmSettingDto, GITHUB_PROJECT_DESCRIPTOR)).thenReturn(DEV_OPS_PROJECT);
     DevOpsProjectCreator devOpsProjectCreator = githubProjectCreatorFactory.getDevOpsProjectCreator(mockAlmSettingDto, GITHUB_PROJECT_DESCRIPTOR).orElseThrow();
 
-    GithubProjectCreator expectedGithubProjectCreator = getExpectedGithubProjectCreator(mockAlmSettingDto, false, new UserAccessToken(USER_ACCESS_TOKEN));
+    GithubProjectCreator expectedGithubProjectCreator = getExpectedGithubProjectCreator(false);
     assertThat(devOpsProjectCreator).usingRecursiveComparison().isEqualTo(expectedGithubProjectCreator);
   }
 
@@ -247,7 +245,7 @@ public class GithubProjectCreatorFactoryTest {
     when(githubApplicationClient.createAppInstallationToken(any(), eq(APP_INSTALLATION_ID))).thenReturn(Optional.of(appInstallationToken));
   }
 
-  private GithubProjectCreator getExpectedGithubProjectCreator(AlmSettingDto almSettingDto, boolean isInstanceManaged, AccessToken accessToken) {
+  private GithubProjectCreator getExpectedGithubProjectCreator(boolean isInstanceManaged) {
     AppInstallationToken authAppInstallToken = isInstanceManaged ? authAppInstallationToken : null;
     return new GithubProjectCreator(dbClient, DEV_OPS_PROJECT,
       projectKeyGenerator, gitHubSettings, projectCreator, permissionService, permissionUpdater, managedProjectService, githubApplicationClient,
