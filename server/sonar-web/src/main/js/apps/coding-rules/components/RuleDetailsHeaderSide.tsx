@@ -30,6 +30,14 @@ interface Props {
 }
 
 export default function RuleDetailsHeaderSide({ ruleDetails }: Readonly<Props>) {
+  const hasCleanCodeAttribute =
+    ruleDetails.cleanCodeAttributeCategory && ruleDetails.cleanCodeAttribute;
+  const hasSoftwareImpact = ruleDetails.impacts.length > 0;
+
+  if (!hasCleanCodeAttribute && !hasSoftwareImpact) {
+    return null;
+  }
+
   return (
     <StyledSection className="sw-flex sw-flex-col sw-pl-4 sw-gap-6 sw-max-w-[250px]">
       {ruleDetails.cleanCodeAttributeCategory && ruleDetails.cleanCodeAttribute && (
@@ -42,13 +50,15 @@ export default function RuleDetailsHeaderSide({ ruleDetails }: Readonly<Props>) 
         </RuleHeaderInfo>
       )}
 
-      <RuleHeaderInfo title={translate('coding_rules.software_qualities.label')}>
-        <SoftwareImpactPillList
-          className="sw-flex-wrap"
-          softwareImpacts={ruleDetails.impacts}
-          type="rule"
-        />
-      </RuleHeaderInfo>
+      {hasSoftwareImpact && (
+        <RuleHeaderInfo title={translate('coding_rules.software_qualities.label')}>
+          <SoftwareImpactPillList
+            className="sw-flex-wrap"
+            softwareImpacts={ruleDetails.impacts}
+            type="rule"
+          />
+        </RuleHeaderInfo>
+      )}
     </StyledSection>
   );
 }

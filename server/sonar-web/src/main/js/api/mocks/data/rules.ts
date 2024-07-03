@@ -119,6 +119,9 @@ export function mockRuleDetailsList() {
           content: resourceContent,
         },
       ],
+      impacts: [],
+      cleanCodeAttributeCategory: undefined,
+      cleanCodeAttribute: undefined,
       langName: 'JavaScript',
     }),
     mockRuleDetails({

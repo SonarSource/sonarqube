@@ -177,16 +177,16 @@ describe('Rules app list', () => {
       // Filter by clean code category
       await user.click(ui.facetItem('issue.clean_code_attribute_category.INTENTIONAL').get());
 
-      expect(ui.getAllRuleListItems()).toHaveLength(10);
+      expect(ui.getAllRuleListItems()).toHaveLength(9);
 
       // Filter by software quality
       await user.click(ui.facetItem('software_quality.MAINTAINABILITY').get());
-      expect(ui.getAllRuleListItems()).toHaveLength(10);
+      expect(ui.getAllRuleListItems()).toHaveLength(9);
 
       // Filter by severity
       await user.click(ui.severetiesFacet.get());
       await user.click(ui.facetItem(/severity.HIGH/).get());
-      expect(ui.getAllRuleListItems()).toHaveLength(9);
+      expect(ui.getAllRuleListItems()).toHaveLength(8);
     });
 
     it('filter by standards', async () => {
@@ -529,6 +529,8 @@ describe('Rule app details', () => {
       // Check params data
       expect(screen.getByText('html description for key 1')).toBeInTheDocument();
       expect(screen.getByText('default value for key 2')).toBeInTheDocument();
+      expect(ui.softwareQualitiesSection.get()).toBeInTheDocument();
+      expect(ui.cleanCodeAttributeSection.get()).toBeInTheDocument();
     });
 
     it('shows external rule', async () => {
@@ -545,6 +547,8 @@ describe('Rule app details', () => {
       await ui.detailsloaded();
       expect(ui.ruleTitle('Hot hotspot').get()).toBeInTheDocument();
       expect(ui.introTitle.get()).toBeInTheDocument();
+      expect(ui.softwareQualitiesSection.query()).not.toBeInTheDocument();
+      expect(ui.cleanCodeAttributeSection.query()).not.toBeInTheDocument();
 
       // Shows correct tabs
       [ui.whatRiskTab, ui.assessTab, ui.moreInfoTab].forEach((tab) => {

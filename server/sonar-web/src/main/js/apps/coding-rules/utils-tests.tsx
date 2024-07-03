@@ -198,6 +198,8 @@ const selectors = {
   createButton: byRole('button', { name: 'create' }),
   reactivateButton: byRole('button', { name: 'coding_rules.reactivate' }),
   deleteButton: byRole('button', { name: 'delete' }),
+  softwareQualitiesSection: byText('coding_rules.software_qualities.label'),
+  cleanCodeAttributeSection: byText('coding_rules.cct_attribute.label'),
 };
 
 export function getPageObjects() {
