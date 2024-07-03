@@ -47,7 +47,7 @@ import '../../../components/search-navigator.css';
 import AnalysisMissingInfoMessage from '../../../components/shared/AnalysisMissingInfoMessage';
 import { isSameBranchLike } from '../../../helpers/branch-like';
 import { translate } from '../../../helpers/l10n';
-import { areLeakAndOverallCCTMeasuresComputed } from '../../../helpers/measures';
+import { areCCTMeasuresComputed } from '../../../helpers/measures';
 import { WithBranchLikesProps, useBranchesQuery } from '../../../queries/branch';
 import { MeasurePageView } from '../../../types/measures';
 import { ComponentMeasure, Dict, MeasureEnhanced, Metric, Period } from '../../../types/types';
@@ -311,7 +311,7 @@ class ComponentMeasuresApp extends React.PureComponent<Props, State> {
                     />
                   </FlagMessage>
                 )}
-                {!areLeakAndOverallCCTMeasuresComputed(measures) && (
+                {!areCCTMeasuresComputed(measures) && (
                   <AnalysisMissingInfoMessage className="sw-mb-4" qualifier={qualifier} />
                 )}
                 {this.renderContent(displayOverview, query, metric)}
