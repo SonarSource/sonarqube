@@ -125,11 +125,9 @@ export const HISTORY_METRICS_LIST: string[] = [
 ];
 
 const MEASURES_VARIATIONS_METRICS = [
-  MetricKey.bugs,
-  MetricKey.code_smells,
   MetricKey.coverage,
   MetricKey.duplicated_lines_density,
-  MetricKey.vulnerabilities,
+  MetricKey.violations,
 ];
 
 export enum MeasurementType {

@@ -55,17 +55,17 @@ it('should render correctly', async () => {
   expect(screen.getAllByText(/project_activity\.graphs\.coverage$/)).toHaveLength(3);
   expect(screen.getAllByText(/project_activity\.graphs\.duplications$/)).toHaveLength(3);
   // Analysis 1 (latest)
-  expect(screen.getByText(/^\+0 project_activity\.graphs\.issues$/)).toBeInTheDocument();
+  expect(screen.getByText(/^-5 project_activity\.graphs\.issues$/)).toBeInTheDocument();
   expect(screen.getByText(/^\+6\.5% project_activity\.graphs\.duplications$/)).toBeInTheDocument();
   // Analysis 2
-  expect(screen.getByText(/^\+2 project_activity\.graphs\.issues$/)).toBeInTheDocument();
+  expect(screen.getByText(/^-100 project_activity\.graphs\.issues$/)).toBeInTheDocument();
   expect(screen.getByText(/^-1\.0% project_activity\.graphs\.coverage$/)).toBeInTheDocument();
   // Analysis 3
-  expect(screen.getByText(/^-100 project_activity\.graphs\.issues$/)).toBeInTheDocument();
+  expect(screen.getByText(/^\+0 project_activity\.graphs\.issues$/)).toBeInTheDocument();
   expect(screen.getByText(/^\+15\.2% project_activity\.graphs\.coverage$/)).toBeInTheDocument();
   expect(screen.getByText(/^-1\.5% project_activity\.graphs\.duplications$/)).toBeInTheDocument();
   // Analysis 4 (first one)
-  expect(screen.getByText(/^502 project_activity\.graphs\.issues$/)).toBeInTheDocument();
+  expect(screen.getByText(/^200 project_activity\.graphs\.issues$/)).toBeInTheDocument();
   expect(screen.getByText(/^0\.0% project_activity\.graphs\.coverage$/)).toBeInTheDocument();
   expect(screen.getByText(/^10\.0% project_activity\.graphs\.duplications$/)).toBeInTheDocument();
 
@@ -86,30 +86,12 @@ it('should render correctly', async () => {
 function renderActivityPanel() {
   const mockedMeasureHistory = [
     mockMeasureHistory({
-      metric: MetricKey.code_smells,
+      metric: MetricKey.violations,
       history: [
-        mockHistoryItem({ date: parseDate('2018-10-27T10:21:15+0200'), value: '500' }),
-        mockHistoryItem({ date: parseDate('2018-10-27T12:21:15+0200'), value: '400' }),
-        mockHistoryItem({ date: parseDate('2020-10-27T16:33:50+0200'), value: '400' }),
-        mockHistoryItem({ date: parseDate('2020-10-27T18:33:50+0200'), value: '400' }),
-      ],
-    }),
-    mockMeasureHistory({
-      metric: MetricKey.bugs,
-      history: [
-        mockHistoryItem({ date: parseDate('2018-10-27T10:21:15+0200'), value: '0' }),
-        mockHistoryItem({ date: parseDate('2018-10-27T12:21:15+0200'), value: '0' }),
-        mockHistoryItem({ date: parseDate('2020-10-27T16:33:50+0200'), value: '2' }),
-        mockHistoryItem({ date: parseDate('2020-10-27T18:33:50+0200'), value: '0' }),
-      ],
-    }),
-    mockMeasureHistory({
-      metric: MetricKey.vulnerabilities,
-      history: [
-        mockHistoryItem({ date: parseDate('2018-10-27T10:21:15+0200'), value: '2' }),
-        mockHistoryItem({ date: parseDate('2018-10-27T12:21:15+0200'), value: '2' }),
-        mockHistoryItem({ date: parseDate('2020-10-27T16:33:50+0200'), value: '2' }),
-        mockHistoryItem({ date: parseDate('2020-10-27T18:33:50+0200'), value: '4' }),
+        mockHistoryItem({ date: parseDate('2018-10-27T10:21:15+0200'), value: '200' }),
+        mockHistoryItem({ date: parseDate('2018-10-27T12:21:15+0200'), value: '200' }),
+        mockHistoryItem({ date: parseDate('2020-10-27T16:33:50+0200'), value: '100' }),
+        mockHistoryItem({ date: parseDate('2020-10-27T18:33:50+0200'), value: '95' }),
       ],
     }),
     mockMeasureHistory({

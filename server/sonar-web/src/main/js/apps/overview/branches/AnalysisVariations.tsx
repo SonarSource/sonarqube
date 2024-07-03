@@ -89,8 +89,7 @@ function Variation(props: Readonly<VariationProps>) {
 export function AnalysisVariations(props: Readonly<AnalysisVariationsProps>) {
   const { isFirstAnalysis, variations } = props;
 
-  const issuesVariation =
-    (variations.bugs ?? 0) + (variations.code_smells ?? 0) + (variations.vulnerabilities ?? 0);
+  const issuesVariation = variations.violations ?? 0;
   const coverageVariation = variations.coverage;
   const duplicationsVariation = variations.duplicated_lines_density;
 
