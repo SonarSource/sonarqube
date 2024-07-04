@@ -143,7 +143,7 @@ jobs:
       - name: Install sonar-scanner and build-wrapper
         env:
           SONAR_HOST_URL: \${{secrets.SONAR_HOST_URL}}
-        uses: SonarSource/sonarqube-github-c-cpp@v1
+        uses: SonarSource/sonarqube-github-c-cpp@v2
       - name: Run build-wrapper
         run: |
           build-wrapper-linux-aarch64 --out-dir \${{ env.BUILD_WRAPPER_OUT_DIR }} <insert_your_clean_build_command>
@@ -179,7 +179,7 @@ jobs:
       - name: Install sonar-scanner and build-wrapper
         env:
           SONAR_HOST_URL: \${{secrets.SONAR_HOST_URL}}
-        uses: SonarSource/sonarqube-github-c-cpp@v1
+        uses: SonarSource/sonarqube-github-c-cpp@v2
       - name: Run build-wrapper
         run: |
           build-wrapper-linux-x86-64 --out-dir \${{ env.BUILD_WRAPPER_OUT_DIR }} <insert_your_clean_build_command>
@@ -215,7 +215,7 @@ jobs:
       - name: Install sonar-scanner and build-wrapper
         env:
           SONAR_HOST_URL: \${{secrets.SONAR_HOST_URL}}
-        uses: SonarSource/sonarqube-github-c-cpp@v1
+        uses: SonarSource/sonarqube-github-c-cpp@v2
       - name: Run build-wrapper
         run: |
           build-wrapper-macosx-x86 --out-dir \${{ env.BUILD_WRAPPER_OUT_DIR }} <insert_your_clean_build_command>
@@ -251,7 +251,7 @@ jobs:
       - name: Install sonar-scanner and build-wrapper
         env:
           SONAR_HOST_URL: \${{secrets.SONAR_HOST_URL}}
-        uses: SonarSource/sonarqube-github-c-cpp@v1
+        uses: SonarSource/sonarqube-github-c-cpp@v2
       - name: Run build-wrapper
         run: |
           build-wrapper-win-x86-64 --out-dir \${{ env.BUILD_WRAPPER_OUT_DIR }} <insert_your_clean_build_command>
@@ -399,7 +399,7 @@ jobs:
       - name: Install sonar-scanner and build-wrapper
         env:
           SONAR_HOST_URL: \${{secrets.SONAR_HOST_URL}}
-        uses: SonarSource/sonarqube-github-c-cpp@v1
+        uses: SonarSource/sonarqube-github-c-cpp@v2
       - name: Run build-wrapper
         run: |
           build-wrapper-linux-aarch64 --out-dir \${{ env.BUILD_WRAPPER_OUT_DIR }} <insert_your_clean_build_command>
@@ -435,7 +435,7 @@ jobs:
       - name: Install sonar-scanner and build-wrapper
         env:
           SONAR_HOST_URL: \${{secrets.SONAR_HOST_URL}}
-        uses: SonarSource/sonarqube-github-c-cpp@v1
+        uses: SonarSource/sonarqube-github-c-cpp@v2
       - name: Run build-wrapper
         run: |
           build-wrapper-linux-x86-64 --out-dir \${{ env.BUILD_WRAPPER_OUT_DIR }} <insert_your_clean_build_command>
@@ -471,7 +471,7 @@ jobs:
       - name: Install sonar-scanner and build-wrapper
         env:
           SONAR_HOST_URL: \${{secrets.SONAR_HOST_URL}}
-        uses: SonarSource/sonarqube-github-c-cpp@v1
+        uses: SonarSource/sonarqube-github-c-cpp@v2
       - name: Run build-wrapper
         run: |
           build-wrapper-macosx-x86 --out-dir \${{ env.BUILD_WRAPPER_OUT_DIR }} <insert_your_clean_build_command>
@@ -507,7 +507,7 @@ jobs:
       - name: Install sonar-scanner and build-wrapper
         env:
           SONAR_HOST_URL: \${{secrets.SONAR_HOST_URL}}
-        uses: SonarSource/sonarqube-github-c-cpp@v1
+        uses: SonarSource/sonarqube-github-c-cpp@v2
       - name: Run build-wrapper
         run: |
           build-wrapper-win-x86-64 --out-dir \${{ env.BUILD_WRAPPER_OUT_DIR }} <insert_your_clean_build_command>

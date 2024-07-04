@@ -101,13 +101,13 @@ definitions:
     - step: &build-step
         name: Build the project, and run the SonarQube analysis
         script:
-          - export SONAR_SCANNER_VERSION=6.0.0.4432
+          - export SONAR_SCANNER_VERSION=6.1.0.4477
           - mkdir $HOME/.sonar
           - curl -sSLo $HOME/.sonar/build-wrapper-linux-aarch64.zip \${SONAR_HOST_URL}/static/cpp/build-wrapper-linux-aarch64.zip
           - unzip -o $HOME/.sonar/build-wrapper-linux-aarch64.zip -d $HOME/.sonar/
-          - curl -sSLo $HOME/.sonar/sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-\${SONAR_SCANNER_VERSION}.zip
+          - curl -sSLo $HOME/.sonar/sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-\${SONAR_SCANNER_VERSION}-linux-aarch64.zip
           - unzip -o $HOME/.sonar/sonar-scanner.zip -d $HOME/.sonar/
-          - export PATH="$PATH:$HOME/.sonar/sonar-scanner-\${SONAR_SCANNER_VERSION}/bin"
+          - export PATH="$PATH:$HOME/.sonar/sonar-scanner-\${SONAR_SCANNER_VERSION}-linux-aarch64/bin"
           - <any step required before running your build, like ./configure>
           - $HOME/.sonar/build-wrapper-linux-aarch64/build-wrapper-linux-aarch64 --out-dir bw-output <your clean build command>
           - sonar-scanner -Dsonar.cfamily.compile-commands=bw-output/compile_commands.json  
@@ -139,13 +139,13 @@ definitions:
     - step: &build-step
         name: Build the project, and run the SonarQube analysis
         script:
-          - export SONAR_SCANNER_VERSION=6.0.0.4432
+          - export SONAR_SCANNER_VERSION=6.1.0.4477
           - mkdir $HOME/.sonar
           - curl -sSLo $HOME/.sonar/build-wrapper-linux-aarch64.zip \${SONAR_HOST_URL}/static/cpp/build-wrapper-linux-aarch64.zip
           - unzip -o $HOME/.sonar/build-wrapper-linux-aarch64.zip -d $HOME/.sonar/
-          - curl -sSLo $HOME/.sonar/sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-\${SONAR_SCANNER_VERSION}.zip
+          - curl -sSLo $HOME/.sonar/sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-\${SONAR_SCANNER_VERSION}-linux-aarch64.zip
           - unzip -o $HOME/.sonar/sonar-scanner.zip -d $HOME/.sonar/
-          - export PATH="$PATH:$HOME/.sonar/sonar-scanner-\${SONAR_SCANNER_VERSION}/bin"
+          - export PATH="$PATH:$HOME/.sonar/sonar-scanner-\${SONAR_SCANNER_VERSION}-linux-aarch64/bin"
           - <any step required before running your build, like ./configure>
           - $HOME/.sonar/build-wrapper-linux-aarch64/build-wrapper-linux-aarch64 --out-dir bw-output <your clean build command>
           - sonar-scanner -Dsonar.cfamily.compile-commands=bw-output/compile_commands.json  
@@ -173,13 +173,13 @@ definitions:
     - step: &build-step
         name: Build the project, and run the SonarQube analysis
         script:
-          - export SONAR_SCANNER_VERSION=6.0.0.4432
+          - export SONAR_SCANNER_VERSION=6.1.0.4477
           - mkdir $HOME/.sonar
           - curl -sSLo $HOME/.sonar/build-wrapper-linux-x86.zip \${SONAR_HOST_URL}/static/cpp/build-wrapper-linux-x86.zip
           - unzip -o $HOME/.sonar/build-wrapper-linux-x86.zip -d $HOME/.sonar/
-          - curl -sSLo $HOME/.sonar/sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-\${SONAR_SCANNER_VERSION}-linux.zip
+          - curl -sSLo $HOME/.sonar/sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-\${SONAR_SCANNER_VERSION}-linux-x64.zip
           - unzip -o $HOME/.sonar/sonar-scanner.zip -d $HOME/.sonar/
-          - export PATH="$PATH:$HOME/.sonar/sonar-scanner-\${SONAR_SCANNER_VERSION}-linux/bin"
+          - export PATH="$PATH:$HOME/.sonar/sonar-scanner-\${SONAR_SCANNER_VERSION}-linux-x64/bin"
           - <any step required before running your build, like ./configure>
           - $HOME/.sonar/build-wrapper-linux-x86/build-wrapper-linux-x86-64 --out-dir bw-output <your clean build command>
           - sonar-scanner -Dsonar.cfamily.compile-commands=bw-output/compile_commands.json  
@@ -211,13 +211,13 @@ definitions:
     - step: &build-step
         name: Build the project, and run the SonarQube analysis
         script:
-          - export SONAR_SCANNER_VERSION=6.0.0.4432
+          - export SONAR_SCANNER_VERSION=6.1.0.4477
           - mkdir $HOME/.sonar
           - curl -sSLo $HOME/.sonar/build-wrapper-linux-x86.zip \${SONAR_HOST_URL}/static/cpp/build-wrapper-linux-x86.zip
           - unzip -o $HOME/.sonar/build-wrapper-linux-x86.zip -d $HOME/.sonar/
-          - curl -sSLo $HOME/.sonar/sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-\${SONAR_SCANNER_VERSION}-linux.zip
+          - curl -sSLo $HOME/.sonar/sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-\${SONAR_SCANNER_VERSION}-linux-x64.zip
           - unzip -o $HOME/.sonar/sonar-scanner.zip -d $HOME/.sonar/
-          - export PATH="$PATH:$HOME/.sonar/sonar-scanner-\${SONAR_SCANNER_VERSION}-linux/bin"
+          - export PATH="$PATH:$HOME/.sonar/sonar-scanner-\${SONAR_SCANNER_VERSION}-linux-x64/bin"
           - <any step required before running your build, like ./configure>
           - $HOME/.sonar/build-wrapper-linux-x86/build-wrapper-linux-x86-64 --out-dir bw-output <your clean build command>
           - sonar-scanner -Dsonar.cfamily.compile-commands=bw-output/compile_commands.json  

@@ -22,7 +22,6 @@ import { Link } from '@sonarsource/echoes-react';
 import {
   ClipboardIconButton,
   CodeSnippet,
-  FlagMessage,
   NumberedList,
   NumberedListItem,
   SubHeading,
@@ -47,7 +46,6 @@ export default function DownloadScanner(props: Readonly<DownloadScannerProps>) {
   const { arch, os, isLocal, token } = props;
 
   const docUrl = useDocUrl(DocLink.SonarScanner);
-  const scannerRequirementsUrl = useDocUrl(DocLink.SonarScannerRequirements);
 
   return (
     <div className="sw-mb-4">
@@ -70,23 +68,6 @@ export default function DownloadScanner(props: Readonly<DownloadScannerProps>) {
         </p>
       ) : (
         <>
-          {os === OSs.Linux && arch === Arch.Arm64 && (
-            <FlagMessage className="sw-mt-2 sw-w-abs-600" variant="warning">
-              <p className="sw-mb-2">
-                <FormattedMessage
-                  defaultMessage={translate('onboarding.analysis.sq_scanner.jre_required_warning')}
-                  id="onboarding.analysis.sq_scanner.jre_required_warning"
-                  values={{
-                    link: (
-                      <Link to={scannerRequirementsUrl}>
-                        {translate('onboarding.analysis.sq_scanner.jre_required_warning.link')}
-                      </Link>
-                    ),
-                  }}
-                />
-              </p>
-            </FlagMessage>
-          )}
           <CodeSnippet
             className="sw-p-4"
             wrap
@@ -120,13 +101,14 @@ export default function DownloadScanner(props: Readonly<DownloadScannerProps>) {
 }
 
 function getRemoteDownloadSnippet(os: OSs, arch: Arch) {
+  const suffix = getScannerUrlSuffix(os, arch);
   if (os === OSs.Windows) {
     return `$env:SONAR_SCANNER_VERSION = "${SONAR_SCANNER_CLI_LATEST_VERSION}"
 $env:SONAR_DIRECTORY = [System.IO.Path]::Combine($(get-location).Path,".sonar")
-$env:SONAR_SCANNER_HOME = "$env:SONAR_DIRECTORY/sonar-scanner-$env:SONAR_SCANNER_VERSION-windows"
+$env:SONAR_SCANNER_HOME = "$env:SONAR_DIRECTORY/sonar-scanner-$env:SONAR_SCANNER_VERSION${suffix}"
 rm $env:SONAR_SCANNER_HOME -Force -Recurse -ErrorAction SilentlyContinue
 New-Item -path $env:SONAR_SCANNER_HOME -type directory
-(New-Object System.Net.WebClient).DownloadFile("https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-$env:SONAR_SCANNER_VERSION-windows.zip", "$env:SONAR_DIRECTORY/sonar-scanner.zip")
+(New-Object System.Net.WebClient).DownloadFile("https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-$env:SONAR_SCANNER_VERSION${suffix}.zip", "$env:SONAR_DIRECTORY/sonar-scanner.zip")
 Add-Type -AssemblyName System.IO.Compression.FileSystem
 [System.IO.Compression.ZipFile]::ExtractToDirectory("$env:SONAR_DIRECTORY/sonar-scanner.zip", "$env:SONAR_DIRECTORY")
 rm ./.sonar/sonar-scanner.zip -Force -ErrorAction SilentlyContinue
@@ -134,7 +116,6 @@ $env:Path += ";$env:SONAR_SCANNER_HOME/bin"
 $env:SONAR_SCANNER_OPTS="-server"
 `;
   }
-  const suffix = getScannerUrlSuffix(os, arch);
   return `export SONAR_SCANNER_VERSION=${SONAR_SCANNER_CLI_LATEST_VERSION}
 export SONAR_SCANNER_HOME=$HOME/.sonar/sonar-scanner-$SONAR_SCANNER_VERSION${suffix}
 curl --create-dirs -sSLo $HOME/.sonar/sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-$SONAR_SCANNER_VERSION${suffix}.zip

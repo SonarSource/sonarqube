@@ -26,8 +26,7 @@ import { Feature } from '../../../types/features';
 import { Component } from '../../../types/types';
 import { CompilationInfo } from '../components/CompilationInfo';
 import CreateYmlFile from '../components/CreateYmlFile';
-import { JreRequiredWarning } from '../components/JreRequiredWarning';
-import { Arch, AutoConfig, BuildTools, TutorialConfig } from '../types';
+import { Arch, BuildTools, TutorialConfig } from '../types';
 import { isCFamily } from '../utils';
 import { PreambuleYaml } from './PreambuleYaml';
 import cFamilyExample from './commands/CFamily';
@@ -61,16 +60,6 @@ const YamlTemplate: Dictionary<BuildToolExampleBuilder> = {
   [BuildTools.Other]: othersExample,
 };
 
-const showJreWarning = (config: TutorialConfig, arch: Arch) => {
-  if (!isCFamily(config.buildTool)) {
-    return false;
-  }
-  if (config.autoConfig === AutoConfig.Automatic) {
-    return false;
-  }
-  return arch === Arch.Arm64;
-};
-
 export function AnalysisCommand(props: Readonly<AnalysisCommandProps>) {
   const { config, arch, mainBranchName, component } = props;
   const branchesEnabled = props.hasFeature(Feature.BranchSupport);
@@ -91,11 +80,7 @@ export function AnalysisCommand(props: Readonly<AnalysisCommandProps>) {
   return (
     <>
       <PreambuleYaml buildTool={config.buildTool} component={component} />
-      <CreateYmlFile
-        yamlFileName="bitbucket-pipelines.yml"
-        yamlTemplate={yamlTemplate}
-        warning={showJreWarning(config, arch) && <JreRequiredWarning />}
-      />
+      <CreateYmlFile yamlFileName="bitbucket-pipelines.yml" yamlTemplate={yamlTemplate} />
       {isCFamily(config.buildTool) && <CompilationInfo />}
     </>
   );

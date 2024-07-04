@@ -13,16 +13,7 @@ stages:
 
 sonarqube-check:
   stage: sonarqube-check
-  dependencies:
-    - get-binaries
-    - build
-  cache:
-    policy: pull
-    key: "\${CI_COMMIT_SHORT_SHA}"
-    paths:
-      - sonar-scanner/
-      
-      
+  
   script: 
       - "apt-get update"
       - "apt-get install --yes --no-install-recommends openjdk-17-jre"
@@ -31,180 +22,6 @@ sonarqube-check:
       - "dotnet sonarscanner begin /k:\\"my-project\\" /d:sonar.token=\\"$SONAR_TOKEN\\" /d:\\"sonar.host.url=$SONAR_HOST_URL\\" "
       - "dotnet build"
       - "dotnet sonarscanner end /d:sonar.token=\\"$SONAR_TOKEN\\""
-  allow_failure: true
-  rules:
-    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
-    - if: $CI_COMMIT_BRANCH == 'master'
-    - if: $CI_COMMIT_BRANCH == 'main'
-    - if: $CI_COMMIT_BRANCH == 'develop'
-
-sonarqube-vulnerability-report:
-  stage: sonarqube-vulnerability-report
-  script:
-    - 'curl -u "\${SONAR_TOKEN}:" "\${SONAR_HOST_URL}/api/issues/gitlab_sast_export?projectKey=my-project&branch=\${CI_COMMIT_BRANCH}&pullRequest=\${CI_MERGE_REQUEST_IID}" -o gl-sast-sonar-report.json'
-  allow_failure: true
-  rules:
-    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
-    - if: $CI_COMMIT_BRANCH == 'master'
-    - if: $CI_COMMIT_BRANCH == 'main'
-    - if: $CI_COMMIT_BRANCH == 'develop'
-  artifacts:
-    expire_in: 1 day
-    reports:
-      sast: gl-sast-sonar-report.json
-"
-`;
-
-exports[`should follow and complete all steps: CPP - macos: gitlab-ci.yml 1`] = `
-"image: gcc
-
-variables:
-  SONAR_USER_HOME: "\${CI_PROJECT_DIR}/.sonar"  # Defines the location of the analysis task cache
-  GIT_DEPTH: "0"  # Tells git to fetch all the branches of the project, required by the analysis task
-  
-
-stages:
-  - get-binaries
-  - build
-  - sonarqube-check
-  - sonarqube-vulnerability-report
-
-get-binaries:
-  stage: get-binaries
-  cache:
-    policy: push
-    key: "\${CI_COMMIT_SHORT_SHA}"
-    paths:
-      - sonar-scanner/
-      
-  script:
-    # Download sonar-scanner
-    - curl -sSLo ./sonar-scanner.zip 'https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-6.0.0.4432-macosx.zip'
-    - unzip -o sonar-scanner.zip
-    - mv sonar-scanner-6.0.0.4432-macosx sonar-scanner
-    
-        
-  rules:
-    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
-    - if: $CI_COMMIT_BRANCH == 'master'
-    - if: $CI_COMMIT_BRANCH == 'main'
-    - if: $CI_COMMIT_BRANCH == 'develop'
-
-build:
-  stage: build
-  script:
-    # prepare the build tree
-    - mkdir build
-    
-  cache:
-    policy: pull-push
-    key: "\${CI_COMMIT_SHORT_SHA}"
-    paths:
-    - sonar-scanner/
-    
-
-sonarqube-check:
-  stage: sonarqube-check
-  dependencies:
-    - get-binaries
-    - build
-  cache:
-    policy: pull
-    key: "\${CI_COMMIT_SHORT_SHA}"
-    paths:
-      - sonar-scanner/
-      
-      
-  script: sonar-scanner/bin/sonar-scanner --define sonar.host.url="\${SONAR_HOST_URL}" 
-  allow_failure: true
-  rules:
-    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
-    - if: $CI_COMMIT_BRANCH == 'master'
-    - if: $CI_COMMIT_BRANCH == 'main'
-    - if: $CI_COMMIT_BRANCH == 'develop'
-
-sonarqube-vulnerability-report:
-  stage: sonarqube-vulnerability-report
-  script:
-    - 'curl -u "\${SONAR_TOKEN}:" "\${SONAR_HOST_URL}/api/issues/gitlab_sast_export?projectKey=my-project&branch=\${CI_COMMIT_BRANCH}&pullRequest=\${CI_MERGE_REQUEST_IID}" -o gl-sast-sonar-report.json'
-  allow_failure: true
-  rules:
-    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
-    - if: $CI_COMMIT_BRANCH == 'master'
-    - if: $CI_COMMIT_BRANCH == 'main'
-    - if: $CI_COMMIT_BRANCH == 'develop'
-  artifacts:
-    expire_in: 1 day
-    reports:
-      sast: gl-sast-sonar-report.json
-"
-`;
-
-exports[`should follow and complete all steps: CPP - macos: gitlab-ci.yml 2`] = `
-"image: gcc
-
-variables:
-  SONAR_USER_HOME: "\${CI_PROJECT_DIR}/.sonar"  # Defines the location of the analysis task cache
-  GIT_DEPTH: "0"  # Tells git to fetch all the branches of the project, required by the analysis task
-  BUILD_WRAPPER_OUT_DIR: build_wrapper_output_directory # Directory where build-wrapper output will be placed
-
-stages:
-  - get-binaries
-  - build
-  - sonarqube-check
-  - sonarqube-vulnerability-report
-
-get-binaries:
-  stage: get-binaries
-  cache:
-    policy: push
-    key: "\${CI_COMMIT_SHORT_SHA}"
-    paths:
-      - sonar-scanner/
-      - build-wrapper/
-  script:
-    # Download sonar-scanner
-    - curl -sSLo ./sonar-scanner.zip 'https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-6.0.0.4432-macosx.zip'
-    - unzip -o sonar-scanner.zip
-    - mv sonar-scanner-6.0.0.4432-macosx sonar-scanner
-    # Download build-wrapper
-    - curl -sSLo ./build-wrapper-macosx-x86.zip "$SONAR_HOST_URL/static/cpp/build-wrapper-macosx-x86.zip"
-    - unzip -o build-wrapper-macosx-x86.zip
-    - mv build-wrapper-macosx-x86 build-wrapper
-        
-  rules:
-    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
-    - if: $CI_COMMIT_BRANCH == 'master'
-    - if: $CI_COMMIT_BRANCH == 'main'
-    - if: $CI_COMMIT_BRANCH == 'develop'
-
-build:
-  stage: build
-  script:
-    # prepare the build tree
-    - mkdir build
-    - build-wrapper/build-wrapper-macosx-x86 --out-dir "\${BUILD_WRAPPER_OUT_DIR}" <your clean build command>
-  cache:
-    policy: pull-push
-    key: "\${CI_COMMIT_SHORT_SHA}"
-    paths:
-    - sonar-scanner/
-    - build-wrapper/
-    - "\${BUILD_WRAPPER_OUT_DIR}"
-
-sonarqube-check:
-  stage: sonarqube-check
-  dependencies:
-    - get-binaries
-    - build
-  cache:
-    policy: pull
-    key: "\${CI_COMMIT_SHORT_SHA}"
-    paths:
-      - sonar-scanner/
-      - "\${BUILD_WRAPPER_OUT_DIR}"
-      
-  script: sonar-scanner/bin/sonar-scanner --define sonar.host.url="\${SONAR_HOST_URL}" 
   allow_failure: true
   rules:
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
@@ -239,8 +56,7 @@ variables:
 
 stages:
   - get-binaries
-  - build
-  - sonarqube-check
+  - build-analyze
   - sonarqube-vulnerability-report
 
 get-binaries:
@@ -253,14 +69,14 @@ get-binaries:
       - build-wrapper/
   script:
     # Download sonar-scanner
-    - curl -sSLo ./sonar-scanner.zip 'https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-6.0.0.4432-linux.zip'
+    - curl -sSLo ./sonar-scanner.zip 'https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-6.1.0.4477-linux-x64.zip'
     - unzip -o sonar-scanner.zip
-    - mv sonar-scanner-6.0.0.4432-linux sonar-scanner
+    - mv sonar-scanner-6.1.0.4477-linux-x64 sonar-scanner
     # Download build-wrapper
     - curl -sSLo ./build-wrapper-linux-x86.zip "$SONAR_HOST_URL/static/cpp/build-wrapper-linux-x86.zip"
     - unzip -o build-wrapper-linux-x86.zip
     - mv build-wrapper-linux-x86 build-wrapper
-        
+
   rules:
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
     - if: $CI_COMMIT_BRANCH == 'master'
@@ -268,212 +84,16 @@ get-binaries:
     - if: $CI_COMMIT_BRANCH == 'develop'
 
 build:
-  stage: build
+  stage: build-analyze
   script:
-    # prepare the build tree
-    - mkdir build
     - build-wrapper/build-wrapper-linux-x86-64 --out-dir "\${BUILD_WRAPPER_OUT_DIR}" <your clean build command>
+    - sonar-scanner/bin/sonar-scanner --define sonar.host.url="\${SONAR_HOST_URL}" --define sonar.cfamily.compile-commands="\${BUILD_WRAPPER_OUT_DIR}/compile_commands.json"
   cache:
-    policy: pull-push
+    policy: pull
     key: "\${CI_COMMIT_SHORT_SHA}"
     paths:
     - sonar-scanner/
     - build-wrapper/
-    - "\${BUILD_WRAPPER_OUT_DIR}"
-
-sonarqube-check:
-  stage: sonarqube-check
-  dependencies:
-    - get-binaries
-    - build
-  cache:
-    policy: pull
-    key: "\${CI_COMMIT_SHORT_SHA}"
-    paths:
-      - sonar-scanner/
-      - "\${BUILD_WRAPPER_OUT_DIR}"
-      
-  script: sonar-scanner/bin/sonar-scanner --define sonar.host.url="\${SONAR_HOST_URL}" 
-  allow_failure: true
-  rules:
-    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
-    - if: $CI_COMMIT_BRANCH == 'master'
-    - if: $CI_COMMIT_BRANCH == 'main'
-    - if: $CI_COMMIT_BRANCH == 'develop'
-
-sonarqube-vulnerability-report:
-  stage: sonarqube-vulnerability-report
-  script:
-    - 'curl -u "\${SONAR_TOKEN}:" "\${SONAR_HOST_URL}/api/issues/gitlab_sast_export?projectKey=my-project&branch=\${CI_COMMIT_BRANCH}&pullRequest=\${CI_MERGE_REQUEST_IID}" -o gl-sast-sonar-report.json'
-  allow_failure: true
-  rules:
-    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
-    - if: $CI_COMMIT_BRANCH == 'master'
-    - if: $CI_COMMIT_BRANCH == 'main'
-    - if: $CI_COMMIT_BRANCH == 'develop'
-  artifacts:
-    expire_in: 1 day
-    reports:
-      sast: gl-sast-sonar-report.json
-"
-`;
-
-exports[`should follow and complete all steps: CPP - windows: gitlab-ci.yml 1`] = `
-"image: gcc
-
-variables:
-  SONAR_USER_HOME: "\${CI_PROJECT_DIR}/.sonar"  # Defines the location of the analysis task cache
-  GIT_DEPTH: "0"  # Tells git to fetch all the branches of the project, required by the analysis task
-  
-
-stages:
-  - get-binaries
-  - build
-  - sonarqube-check
-  - sonarqube-vulnerability-report
-
-get-binaries:
-  stage: get-binaries
-  cache:
-    policy: push
-    key: "\${CI_COMMIT_SHORT_SHA}"
-    paths:
-      - sonar-scanner/
-      
-  script:
-    # Download sonar-scanner
-    - curl -sSLo ./sonar-scanner.zip 'https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-6.0.0.4432-windows.zip'
-    - unzip -o sonar-scanner.zip
-    - mv sonar-scanner-6.0.0.4432-windows sonar-scanner
-    
-        
-  rules:
-    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
-    - if: $CI_COMMIT_BRANCH == 'master'
-    - if: $CI_COMMIT_BRANCH == 'main'
-    - if: $CI_COMMIT_BRANCH == 'develop'
-
-build:
-  stage: build
-  script:
-    # prepare the build tree
-    - mkdir build
-    
-  cache:
-    policy: pull-push
-    key: "\${CI_COMMIT_SHORT_SHA}"
-    paths:
-    - sonar-scanner/
-    
-
-sonarqube-check:
-  stage: sonarqube-check
-  dependencies:
-    - get-binaries
-    - build
-  cache:
-    policy: pull
-    key: "\${CI_COMMIT_SHORT_SHA}"
-    paths:
-      - sonar-scanner/
-      
-      
-  script: sonar-scanner/bin/sonar-scanner --define sonar.host.url="\${SONAR_HOST_URL}" 
-  allow_failure: true
-  rules:
-    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
-    - if: $CI_COMMIT_BRANCH == 'master'
-    - if: $CI_COMMIT_BRANCH == 'main'
-    - if: $CI_COMMIT_BRANCH == 'develop'
-
-sonarqube-vulnerability-report:
-  stage: sonarqube-vulnerability-report
-  script:
-    - 'curl -u "\${SONAR_TOKEN}:" "\${SONAR_HOST_URL}/api/issues/gitlab_sast_export?projectKey=my-project&branch=\${CI_COMMIT_BRANCH}&pullRequest=\${CI_MERGE_REQUEST_IID}" -o gl-sast-sonar-report.json'
-  allow_failure: true
-  rules:
-    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
-    - if: $CI_COMMIT_BRANCH == 'master'
-    - if: $CI_COMMIT_BRANCH == 'main'
-    - if: $CI_COMMIT_BRANCH == 'develop'
-  artifacts:
-    expire_in: 1 day
-    reports:
-      sast: gl-sast-sonar-report.json
-"
-`;
-
-exports[`should follow and complete all steps: CPP - windows: gitlab-ci.yml 2`] = `
-"image: gcc
-
-variables:
-  SONAR_USER_HOME: "\${CI_PROJECT_DIR}/.sonar"  # Defines the location of the analysis task cache
-  GIT_DEPTH: "0"  # Tells git to fetch all the branches of the project, required by the analysis task
-  BUILD_WRAPPER_OUT_DIR: build_wrapper_output_directory # Directory where build-wrapper output will be placed
-
-stages:
-  - get-binaries
-  - build
-  - sonarqube-check
-  - sonarqube-vulnerability-report
-
-get-binaries:
-  stage: get-binaries
-  cache:
-    policy: push
-    key: "\${CI_COMMIT_SHORT_SHA}"
-    paths:
-      - sonar-scanner/
-      - build-wrapper/
-  script:
-    # Download sonar-scanner
-    - curl -sSLo ./sonar-scanner.zip 'https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-6.0.0.4432-windows.zip'
-    - unzip -o sonar-scanner.zip
-    - mv sonar-scanner-6.0.0.4432-windows sonar-scanner
-    # Download build-wrapper
-    - curl -sSLo ./build-wrapper-win-x86.zip "$SONAR_HOST_URL/static/cpp/build-wrapper-win-x86.zip"
-    - unzip -o build-wrapper-win-x86.zip
-    - mv build-wrapper-win-x86 build-wrapper
-        
-  rules:
-    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
-    - if: $CI_COMMIT_BRANCH == 'master'
-    - if: $CI_COMMIT_BRANCH == 'main'
-    - if: $CI_COMMIT_BRANCH == 'develop'
-
-build:
-  stage: build
-  script:
-    # prepare the build tree
-    - mkdir build
-    - build-wrapper/build-wrapper-win-x86-64.exe --out-dir "\${BUILD_WRAPPER_OUT_DIR}" <your clean build command>
-  cache:
-    policy: pull-push
-    key: "\${CI_COMMIT_SHORT_SHA}"
-    paths:
-    - sonar-scanner/
-    - build-wrapper/
-    - "\${BUILD_WRAPPER_OUT_DIR}"
-
-sonarqube-check:
-  stage: sonarqube-check
-  dependencies:
-    - get-binaries
-    - build
-  cache:
-    policy: pull
-    key: "\${CI_COMMIT_SHORT_SHA}"
-    paths:
-      - sonar-scanner/
-      - "\${BUILD_WRAPPER_OUT_DIR}"
-      
-  script: sonar-scanner/bin/sonar-scanner --define sonar.host.url="\${SONAR_HOST_URL}" 
-  allow_failure: true
-  rules:
-    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
-    - if: $CI_COMMIT_BRANCH == 'master'
-    - if: $CI_COMMIT_BRANCH == 'main'
-    - if: $CI_COMMIT_BRANCH == 'develop'
 
 sonarqube-vulnerability-report:
   stage: sonarqube-vulnerability-report
@@ -502,7 +122,6 @@ variables:
 
 stages:
   - get-binaries
-  - build
   - sonarqube-check
   - sonarqube-vulnerability-report
 
@@ -516,42 +135,26 @@ get-binaries:
       
   script:
     # Download sonar-scanner
-    - curl -sSLo ./sonar-scanner.zip 'https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-6.0.0.4432-linux.zip'
+    - curl -sSLo ./sonar-scanner.zip 'https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-6.1.0.4477-linux-x64.zip'
     - unzip -o sonar-scanner.zip
-    - mv sonar-scanner-6.0.0.4432-linux sonar-scanner
+    - mv sonar-scanner-6.1.0.4477-linux-x64 sonar-scanner
     
-        
   rules:
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
     - if: $CI_COMMIT_BRANCH == 'master'
     - if: $CI_COMMIT_BRANCH == 'main'
     - if: $CI_COMMIT_BRANCH == 'develop'
 
-build:
-  stage: build
-  script:
-    # prepare the build tree
-    - mkdir build
-    
-  cache:
-    policy: pull-push
-    key: "\${CI_COMMIT_SHORT_SHA}"
-    paths:
-    - sonar-scanner/
-    
-
 sonarqube-check:
   stage: sonarqube-check
   dependencies:
     - get-binaries
-    - build
   cache:
     policy: pull
     key: "\${CI_COMMIT_SHORT_SHA}"
     paths:
       - sonar-scanner/
-      
-      
+
   script: sonar-scanner/bin/sonar-scanner --define sonar.host.url="\${SONAR_HOST_URL}" 
   allow_failure: true
   rules:
@@ -596,16 +199,7 @@ stages:
 
 sonarqube-check:
   stage: sonarqube-check
-  dependencies:
-    - get-binaries
-    - build
-  cache:
-    policy: pull
-    key: "\${CI_COMMIT_SHORT_SHA}"
-    paths:
-      - sonar-scanner/
-      
-      
+  
   script: gradle sonar
   allow_failure: true
   rules:
@@ -672,16 +266,7 @@ stages:
 
 sonarqube-check:
   stage: sonarqube-check
-  dependencies:
-    - get-binaries
-    - build
-  cache:
-    policy: pull
-    key: "\${CI_COMMIT_SHORT_SHA}"
-    paths:
-      - sonar-scanner/
-      
-      
+  
   script: 
     - mvn verify sonar:sonar
   allow_failure: true
@@ -731,18 +316,9 @@ stages:
 
 sonarqube-check:
   stage: sonarqube-check
-  dependencies:
-    - get-binaries
-    - build
-  cache:
-    policy: pull
-    key: "\${CI_COMMIT_SHORT_SHA}"
-    paths:
-      - sonar-scanner/
-      
-      
+  
   script: 
-    - sonar-scanner
+    - sonar-scanner --define sonar.host.url="\${SONAR_HOST_URL}"
   allow_failure: true
   rules:
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event'

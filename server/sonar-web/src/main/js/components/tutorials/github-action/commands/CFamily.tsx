@@ -46,7 +46,7 @@ const STEPS = (os?: OSs, arch?: Arch) => {
       - name: Install sonar-scanner and build-wrapper
         env:
           SONAR_HOST_URL: \${{secrets.SONAR_HOST_URL}}
-        uses: SonarSource/sonarqube-github-c-cpp@v1
+        uses: SonarSource/sonarqube-github-c-cpp@v2
       - name: Run build-wrapper
         run: |
           ${getBuildWrapperExecutableLinux(arch)} --out-dir \${{ env.BUILD_WRAPPER_OUT_DIR }} <insert_your_clean_build_command>
@@ -62,7 +62,7 @@ const STEPS = (os?: OSs, arch?: Arch) => {
       - name: Install sonar-scanner and build-wrapper
         env:
           SONAR_HOST_URL: \${{secrets.SONAR_HOST_URL}}
-        uses: SonarSource/sonarqube-github-c-cpp@v1
+        uses: SonarSource/sonarqube-github-c-cpp@v2
       - name: Run build-wrapper
         run: |
           build-wrapper-macosx-x86 --out-dir \${{ env.BUILD_WRAPPER_OUT_DIR }} <insert_your_clean_build_command>
@@ -78,7 +78,7 @@ const STEPS = (os?: OSs, arch?: Arch) => {
       - name: Install sonar-scanner and build-wrapper
         env:
           SONAR_HOST_URL: \${{secrets.SONAR_HOST_URL}}
-        uses: SonarSource/sonarqube-github-c-cpp@v1
+        uses: SonarSource/sonarqube-github-c-cpp@v2
       - name: Run build-wrapper
         run: |
           build-wrapper-win-x86-64 --out-dir \${{ env.BUILD_WRAPPER_OUT_DIR }} <insert_your_clean_build_command>

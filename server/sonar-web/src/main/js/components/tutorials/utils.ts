@@ -23,7 +23,7 @@ import { AlmSettingsInstance, ProjectAlmBindingResponse } from '../../types/alm-
 import { UserToken } from '../../types/token';
 import { Arch, AutoConfig, BuildTools, GradleBuildDSL, OSs, TutorialConfig } from './types';
 
-export const SONAR_SCANNER_CLI_LATEST_VERSION = '6.0.0.4432';
+export const SONAR_SCANNER_CLI_LATEST_VERSION = '6.1.0.4477';
 
 export function quote(os: string): (s: string) => string {
   return os === 'win' ? (s: string) => `"${s}"` : (s: string) => s;
@@ -177,23 +177,20 @@ export function getBuildWrapperExecutableLinux(arch?: Arch) {
 
 export function getScannerUrlSuffix(os: OSs, arch?: Arch) {
   if (os === OSs.Windows) {
-    return '-windows';
+    return '-windows-x64';
   }
   if (os === OSs.MacOS) {
-    return '-macosx';
+    return '-macosx-x64';
   }
-  if (os === OSs.Linux && arch === Arch.X86_64) {
-    return '-linux';
+  if (os === OSs.Linux) {
+    return '-linux-' + (arch === Arch.Arm64 ? 'aarch64' : 'x64');
   }
   return '';
 }
 
-export function showJreWarning(config: TutorialConfig, arch: Arch) {
-  if (!isCFamily(config.buildTool)) {
-    return false;
-  }
-  if (config.autoConfig === AutoConfig.Automatic) {
-    return false;
-  }
-  return arch === Arch.Arm64;
+export function shouldFetchBuildWrapper(buildTool: BuildTools, autoConfig?: AutoConfig) {
+  return (
+    (buildTool === BuildTools.Cpp && autoConfig === AutoConfig.Manual) ||
+    buildTool === BuildTools.ObjectiveC
+  );
 }
