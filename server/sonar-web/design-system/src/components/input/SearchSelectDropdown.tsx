@@ -47,7 +47,7 @@ declare module 'react-select/dist/declarations/src/Select' {
   }
 }
 
-export interface SearchSelectDropdownProps<
+interface SearchSelectDropdownProps<
   V,
   Option extends LabelValueSelectOption<V>,
   IsMulti extends boolean = false,
@@ -63,6 +63,9 @@ export interface SearchSelectDropdownProps<
   zLevel?: PopupZLevel;
 }
 
+/**
+ * @deprecated Use Select or SelectAsync from Echoes instead.
+ */
 export function SearchSelectDropdown<
   V,
   Option extends LabelValueSelectOption<V>,

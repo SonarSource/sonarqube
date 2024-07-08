@@ -30,6 +30,9 @@ import {
   selectStyle,
 } from './SelectCommon';
 
+/**
+ * @deprecated Use Select or SelectAsync from Echoes instead.
+ */
 export function InputSelect<
   Option,
   IsMulti extends boolean = false,

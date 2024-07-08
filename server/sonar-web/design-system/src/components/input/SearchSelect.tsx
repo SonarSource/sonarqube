@@ -33,6 +33,9 @@ type SearchSelectProps<
   Group extends GroupBase<Option> = GroupBase<Option>,
 > = SelectProps<Option, IsMulti, Group> & AsyncProps<Option, IsMulti, Group>;
 
+/**
+ * @deprecated Use Select or SelectAsync from Echoes instead.
+ */
 export function SearchSelect<
   Option,
   IsMulti extends boolean = false,
@@ -72,6 +75,9 @@ export function SearchSelect<
   );
 }
 
+/**
+ * @deprecated Use Select or SelectAsync from Echoes instead.
+ */
 export function SearchSelectInput<
   Option,
   IsMulti extends boolean = false,

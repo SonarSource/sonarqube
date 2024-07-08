@@ -40,6 +40,9 @@ interface SearchSelectDropdownControlProps {
   size?: InputSizeKeys;
 }
 
+/**
+ * @deprecated Use Select or SelectAsync from Echoes instead.
+ */
 export function SearchSelectDropdownControl(props: SearchSelectDropdownControlProps) {
   const {
     className,
@@ -103,7 +106,7 @@ export function SearchSelectDropdownControl(props: SearchSelectDropdownControlPr
   );
 }
 
-export const StyledControl = styled.div`
+const StyledControl = styled.div`
   color: ${themeContrast('inputBackground')};
   background: ${themeColor('inputBackground')};
   border: ${themeBorder('default', 'inputBorder')};

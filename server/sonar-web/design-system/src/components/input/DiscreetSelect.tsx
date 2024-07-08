@@ -32,6 +32,11 @@ type DiscreetProps<
   setValue: (value: OnChangeValue<Option, IsMulti>) => void;
 };
 
+/**
+ * @deprecated Use Select or SelectAsync from Echoes instead.
+ *
+ * Use the `highlight` prop value `SelectHighlight.Ghost` to make it "discreet"
+ */
 export function DiscreetSelect<
   Option,
   IsMulti extends boolean = false,
