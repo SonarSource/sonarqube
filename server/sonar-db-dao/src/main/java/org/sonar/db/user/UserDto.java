@@ -32,8 +32,6 @@ import static java.util.Comparator.comparing;
  * @since 3.2
  */
 public class UserDto implements UserId {
-  public static final char SCM_ACCOUNTS_SEPARATOR = '\n';
-
   /** Technical unique identifier, can't be null */
   private String uuid;
   private String login;
