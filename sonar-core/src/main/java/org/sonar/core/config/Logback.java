@@ -22,7 +22,7 @@ package org.sonar.core.config;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.joran.JoranConfigurator;
 import ch.qos.logback.core.joran.spi.JoranException;
-import ch.qos.logback.core.util.StatusPrinter;
+import ch.qos.logback.core.util.StatusPrinter2;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -74,7 +74,8 @@ public class Logback {
     } finally {
       IOUtils.closeQuietly(input);
     }
-    StatusPrinter.printInCaseOfErrorsOrWarnings(lc);
+    var statusPrinter2 = new StatusPrinter2();
+    statusPrinter2.printInCaseOfErrorsOrWarnings(lc);
   }
 
   private static LoggerContext configureContext(LoggerContext context, Map<String, String> substitutionVariables) {
