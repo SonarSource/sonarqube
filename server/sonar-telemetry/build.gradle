@@ -1,0 +1,32 @@
+description = 'Module providing a platform for telemetry in SonarQube. Contains both old and new versions of telemetry.'
+
+sonar {
+    properties {
+        property 'sonar.projectName', "${projectTitle} :: Server :: Telemetry"
+    }
+}
+
+dependencies {
+    testImplementation(platform("org.junit:junit-bom:5.9.1"))
+    testImplementation 'com.squareup.okhttp3:mockwebserver'
+    testImplementation 'com.tngtech.java:junit-dataprovider'
+    testImplementation 'org.assertj:assertj-core'
+    testImplementation("org.junit.jupiter:junit-jupiter")
+    testImplementation 'org.mockito:mockito-core'
+    testImplementation 'org.sonarsource.api.plugin:sonar-plugin-api-test-fixtures'
+    testImplementation project(':sonar-testing-harness')
+    testImplementation testFixtures(project(':server:sonar-server-common'))
+
+    api project(':server:sonar-process')
+    api project(':server:sonar-server-common')
+    api project(':server:sonar-webserver-core')
+    api project(':server:sonar-webserver-webapi')
+    api project(':sonar-core')
+
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+    testRuntimeOnly 'org.junit.vintage:junit-vintage-engine'
+}
+
+tasks.test {
+    useJUnitPlatform()
+}
