@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { InputSelect } from 'design-system';
+import { Select } from '@sonarsource/echoes-react';
 import * as React from 'react';
 import { translate } from '../../../helpers/l10n';
 import { MeasurePageView } from '../../../types/measures';
@@ -31,47 +31,40 @@ export interface MeasureViewSelectProps {
   view: MeasurePageView;
 }
 
-interface ViewOption {
-  label: string;
-  value: MeasurePageView;
-}
+export default function MeasureViewSelect(props: Readonly<MeasureViewSelectProps>) {
+  const { metric, view, className, handleViewChange } = props;
 
-export default function MeasureViewSelect(props: MeasureViewSelectProps) {
-  const { metric, view, className } = props;
-  const options = [];
-  if (hasTree(metric.key)) {
-    options.push({
-      label: translate('component_measures.tab.tree'),
-      value: MeasurePageView.tree,
-    });
-  }
-  if (hasList(metric.key)) {
-    options.push({
-      label: translate('component_measures.tab.list'),
-      value: MeasurePageView.list,
-    });
-  }
-  if (hasTreemap(metric.key, metric.type)) {
-    options.push({
-      label: translate('component_measures.tab.treemap'),
-      value: MeasurePageView.treemap,
-    });
-  }
-
-  const handleChange = (option: ViewOption) => {
-    return props.handleViewChange(option.value);
-  };
+  const measureViewOptions = React.useMemo(() => {
+    const options = [];
+    if (hasTree(metric.key)) {
+      options.push({
+        label: translate('component_measures.tab.tree'),
+        value: MeasurePageView.tree,
+      });
+    }
+    if (hasList(metric.key)) {
+      options.push({
+        label: translate('component_measures.tab.list'),
+        value: MeasurePageView.list,
+      });
+    }
+    if (hasTreemap(metric.key, metric.type)) {
+      options.push({
+        label: translate('component_measures.tab.treemap'),
+        value: MeasurePageView.treemap,
+      });
+    }
+    return options;
+  }, [metric]);
 
   return (
-    <InputSelect
-      size="small"
-      aria-labelledby="measures-view-selection-label"
-      blurInputOnSelect
+    <Select
+      ariaLabelledBy="measures-view-selection-label"
       className={className}
-      onChange={handleChange}
-      options={options}
-      isSearchable={false}
-      value={options.find((o) => o.value === view)}
+      data={measureViewOptions}
+      isNotClearable
+      onChange={handleViewChange}
+      value={view}
     />
   );
 }

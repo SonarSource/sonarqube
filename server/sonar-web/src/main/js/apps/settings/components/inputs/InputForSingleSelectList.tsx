@@ -17,34 +17,30 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { InputSelect } from 'design-system';
+import { InputSize, Select } from '@sonarsource/echoes-react';
 import * as React from 'react';
 import { ExtendedSettingDefinition } from '../../../../types/settings';
 import { DefaultSpecializedInputProps, getPropertyName } from '../../utils';
 
 type Props = DefaultSpecializedInputProps & Pick<ExtendedSettingDefinition, 'options'>;
 
-export default class InputForSingleSelectList extends React.PureComponent<Props> {
-  handleInputChange = ({ value }: { label: string; value: string }) => {
-    this.props.onChange(value);
-  };
+export default function InputForSingleSelectList(props: Readonly<Props>) {
+  const { name, options: opts, value, setting } = props;
 
-  render() {
-    const { options: opts, name, value, setting } = this.props;
+  const options = React.useMemo(
+    () => opts.map((option) => ({ label: option, value: option })),
+    [opts],
+  );
 
-    const options = opts.map((option) => ({
-      label: option,
-      value: option,
-    }));
-
-    return (
-      <InputSelect
-        name={name}
-        onChange={this.handleInputChange}
-        aria-label={getPropertyName(setting.definition)}
-        options={options}
-        value={options.find((option) => option.value === value) ?? null}
-      />
-    );
-  }
+  return (
+    <Select
+      ariaLabel={getPropertyName(setting.definition)}
+      data={options}
+      isNotClearable
+      name={name}
+      onChange={props.onChange}
+      size={InputSize.Large}
+      value={value}
+    />
+  );
 }

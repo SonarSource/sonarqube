@@ -17,7 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { InputSelect, LabelValueSelectOption, StyledPageTitle } from 'design-system';
+import { Select } from '@sonarsource/echoes-react';
+import { StyledPageTitle } from 'design-system';
 import * as React from 'react';
 import { translate } from '../../../helpers/l10n';
 import { VIEWS } from '../utils';
@@ -27,43 +28,39 @@ interface Props {
   view: string;
 }
 
-export interface PerspectiveOption {
-  label: string;
-  value: string;
-}
+export default function PerspectiveSelect(props: Readonly<Props>) {
+  const { onChange, view } = props;
 
-export default class PerspectiveSelect extends React.PureComponent<Props> {
-  handleChange = (option: PerspectiveOption) => {
-    this.props.onChange({ view: option.value });
-  };
+  const handleChange = React.useCallback(
+    (value: string) => {
+      onChange({ view: value });
+    },
+    [onChange],
+  );
 
-  render() {
-    const { view } = this.props;
-    const options: PerspectiveOption[] = [
-      ...VIEWS.map((opt) => ({
-        value: opt.value,
-        label: translate('projects.view', opt.label),
-      })),
-    ];
-    return (
-      <div className="sw-flex sw-items-center">
-        <StyledPageTitle
-          id="aria-projects-perspective"
-          as="label"
-          className="sw-body-sm-highlight sw-mr-2"
-        >
-          {translate('projects.perspective')}
-        </StyledPageTitle>
-        <InputSelect
-          aria-labelledby="aria-projects-perspective"
-          className="sw-mr-4 sw-body-sm"
-          onChange={(data: LabelValueSelectOption) => this.handleChange(data)}
-          options={options}
-          placeholder={translate('project_activity.filter_events')}
-          size="small"
-          value={options.find((option) => option.value === view)}
-        />
-      </div>
-    );
-  }
+  const options = React.useMemo(
+    () => VIEWS.map((opt) => ({ value: opt.value, label: translate('projects.view', opt.label) })),
+    [],
+  );
+
+  return (
+    <div className="sw-flex sw-items-center">
+      <StyledPageTitle
+        id="aria-projects-perspective"
+        as="label"
+        className="sw-body-sm-highlight sw-mr-2"
+      >
+        {translate('projects.perspective')}
+      </StyledPageTitle>
+      <Select
+        ariaLabelledBy="aria-projects-perspective"
+        className="sw-mr-4 sw-body-sm"
+        isNotClearable
+        onChange={handleChange}
+        data={options}
+        placeholder={translate('project_activity.filter_events')}
+        value={view}
+      />
+    </div>
+  );
 }

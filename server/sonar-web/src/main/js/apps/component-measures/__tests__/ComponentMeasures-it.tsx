@@ -20,7 +20,6 @@
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { times } from 'lodash';
-import selectEvent from 'react-select-event';
 import { byLabelText, byRole, byTestId, byText } from '~sonar-aligned/helpers/testSelector';
 import { ComponentQualifier } from '~sonar-aligned/types/component';
 import { MetricKey } from '~sonar-aligned/types/metrics';
@@ -380,7 +379,10 @@ describe('navigation', () => {
     await user.click(
       ui.measureBtn('component_measures.metric.maintainability_issues.name 2').get(),
     );
-    await waitFor(() => ui.changeViewToList());
+
+    // Click list option in view select
+    await user.click(ui.viewSelect.get());
+    await user.click(ui.selectOptions('component_measures.tab.list').get());
 
     expect(
       within(await ui.measuresRow('out.tsx').find()).getByRole('cell', { name: '2' }),
@@ -400,7 +402,10 @@ describe('navigation', () => {
 
     await user.click(ui.maintainabilityDomainBtn.get());
     await user.click(ui.measureBtn('Maintainability Rating metric.has_rating_X.E').get());
-    await waitFor(() => ui.changeViewToTreeMap());
+
+    // Click treemap option in view select
+    await user.click(ui.viewSelect.get());
+    await user.click(ui.selectOptions('component_measures.tab.treemap').get());
 
     expect(await ui.treeMapCell(/folderA/).find()).toBeInTheDocument();
     expect(ui.treeMapCell(/test1\.js/).get()).toBeInTheDocument();
@@ -600,6 +605,7 @@ function getPageObject() {
       name: 'component_measures.hidden_best_score_metrics_show_label',
     }),
     goToActivityLink: byRole('link', { name: 'component_measures.see_metric_history' }),
+    selectOptions: (name: string) => byRole('option', { name }),
   };
 
   const ui = {
@@ -609,12 +615,6 @@ function getPageObject() {
       await waitFor(() => {
         expect(selectors.loading.query()).not.toBeInTheDocument();
       });
-    },
-    async changeViewToList() {
-      await selectEvent.select(ui.viewSelect.get(), 'component_measures.tab.list');
-    },
-    async changeViewToTreeMap() {
-      await selectEvent.select(ui.viewSelect.get(), 'component_measures.tab.treemap');
     },
     async arrowDown() {
       await user.keyboard('[ArrowDown]');

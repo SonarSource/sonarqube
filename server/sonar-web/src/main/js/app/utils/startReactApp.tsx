@@ -20,7 +20,7 @@
 
 import { ThemeProvider } from '@emotion/react';
 import styled from '@emotion/styled';
-import { TooltipProvider } from '@sonarsource/echoes-react';
+import { EchoesProvider } from '@sonarsource/echoes-react';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { ToastMessageContainer, lightTheme } from 'design-system';
 import * as React from 'react';
@@ -278,9 +278,9 @@ export default function startReactApp(
                   <ToastMessageContainer />
                   <Helmet titleTemplate={translate('page_title.template.default')} />
                   <StackContext>
-                    <TooltipProvider>
+                    <EchoesProvider>
                       <RouterProvider router={router} />
-                    </TooltipProvider>
+                    </EchoesProvider>
                   </StackContext>
                 </QueryClientProvider>
               </ThemeProvider>

@@ -21,7 +21,6 @@ import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { last } from 'lodash';
 import React from 'react';
-import selectEvent from 'react-select-event';
 import { byLabelText, byRole, byText } from '~sonar-aligned/helpers/testSelector';
 import SettingsServiceMock, {
   DEFAULT_DEFINITIONS_MOCK,
@@ -57,7 +56,8 @@ const ui = {
   jsonFormatStatus: byText('settings.json.format_error'),
   jsonFormatButton: byRole('button', { name: 'settings.json.format' }),
   toggleButton: byRole('switch'),
-  selectOption: (value: string) => byText(value),
+  selectOption: (name: string) => byRole('option', { name }),
+  selectInput: byRole('searchbox', { name: 'property.test.single.select.list.name' }),
   saveButton: byRole('button', { name: 'save' }),
   cancelButton: byRole('button', { name: 'cancel' }),
   changeButton: byRole('button', { name: 'change_verb' }),
@@ -176,35 +176,40 @@ it('renders definition for SettingType = BOOLEAN and can do operations', async (
 
 it('renders definition for SettingType = SINGLE_SELECT_LIST and can do operations', async () => {
   const user = userEvent.setup();
-  renderDefinition({
+  const definition = {
+    ...DEFAULT_DEFINITIONS_MOCK[0],
+    key: 'test.single.select.list',
     type: SettingType.SINGLE_SELECT_LIST,
-    options: ['first', 'second'],
-  });
+    defaultValue: 'default',
+    options: ['first', 'second', 'default'],
+  };
+  settingsMock.setDefinition(definition);
+  renderDefinition(definition, { key: definition.key, value: 'default' });
 
-  expect(
-    await ui.nameHeading('property.sonar.announcement.message.name').find(),
-  ).toBeInTheDocument();
+  expect(await ui.nameHeading('property.test.single.select.list.name').find()).toBeInTheDocument();
 
   // Can select option
-  expect(ui.selectOption('Select...').get()).toBeInTheDocument();
-  await selectEvent.select(ui.announcementInput.get(), 'first');
-  expect(ui.selectOption('first').get()).toBeInTheDocument();
+  expect(ui.selectInput.get()).toHaveValue('default');
+  await user.click(ui.selectInput.get());
+  await user.click(ui.selectOption('first').get());
+  expect(ui.selectInput.get()).toHaveValue('first');
 
   // Can cancel action
   await user.click(ui.cancelButton.get());
-  expect(ui.selectOption('Select...').get()).toBeInTheDocument();
+  expect(ui.selectInput.get()).toHaveValue('default');
 
   // Can save
-  await selectEvent.select(ui.announcementInput.get(), 'second');
+  await user.click(ui.selectInput.get());
+  await user.click(ui.selectOption('second').get());
   await user.click(ui.saveButton.get());
   expect(ui.savedMsg.get()).toBeInTheDocument();
 
   // Can reset
   await user.click(
-    ui.resetButton('settings.definition.reset.property.sonar.announcement.message.name').get(),
+    ui.resetButton('settings.definition.reset.property.test.single.select.list.name').get(),
   );
   await user.click(ui.resetButton().get());
-  expect(ui.selectOption('Select...').get()).toBeInTheDocument();
+  expect(ui.selectInput.get()).toHaveValue('default');
 });
 
 it('renders definition for SettingType = FORMATTED_TEXT and can do operations', async () => {
