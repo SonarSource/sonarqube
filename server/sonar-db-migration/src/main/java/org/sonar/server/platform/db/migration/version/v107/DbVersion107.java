@@ -17,14 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v106;
+package org.sonar.server.platform.db.migration.version.v107;
 
 import org.sonar.server.platform.db.migration.step.MigrationStepRegistry;
 import org.sonar.server.platform.db.migration.version.DbVersion;
 
-// ignoring bad number formatting, as it's indented that we align the migration numbers to SQ versions
-@SuppressWarnings("java:S3937")
-public class DbVersion106 implements DbVersion {
+public class DbVersion107 implements DbVersion {
 
   /**
    * We use the start of the 10.X cycle as an opportunity to align migration numbers with the SQ version number.
@@ -41,8 +39,7 @@ public class DbVersion106 implements DbVersion {
   @Override
   public void addSteps(MigrationStepRegistry registry) {
     registry
-      .add(10_6_000, "Add 'prioritized_rule' column to 'issues' table", AddPrioritizedRuleColumnToIssuesTable.class)
-      .add(10_6_001, "Add 'prioritized_rule' column to 'active_rules' table", AddPrioritizedRuleColumnToActiveRulesTable.class)
-      .add(10_6_002, "Ensure 'value' column is resized to 400 in 'rule_tags' table", ResizeValueColumnInRuleTagsTable.class);
+      .add(10_7_000, "Create 'telemetry_metrics_sent' table", CreateTelemetryMetricsSentTable.class);
   }
+
 }
