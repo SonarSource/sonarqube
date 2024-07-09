@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import styled from '@emotion/styled';
+import Echoes from '@sonarsource/echoes-react';
 import { GroupBase, OnChangeValue } from 'react-select';
 import tw from 'twin.macro';
 import { themeBorder, themeColor, themeContrast } from '../../helpers/theme';
@@ -33,9 +34,9 @@ type DiscreetProps<
 };
 
 /**
- * @deprecated Use Select or SelectAsync from Echoes instead.
+ * @deprecated Use {@link Echoes.Select | Select} or {@link Echoes.SelectAsync | SelectAsync} from Echoes instead, and use the {@link Echoes.SelectHighlight.Ghost | SelectHighlight.Ghost} highlight property.
  *
- * Use the `highlight` prop value `SelectHighlight.Ghost` to make it "discreet"
+ * See the [Migration Guide](https://xtranet-sonarsource.atlassian.net/wiki/x/K4AYxw)
  */
 export function DiscreetSelect<
   Option,

@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import Echoes from '@sonarsource/echoes-react';
 import classNames from 'classnames';
 import { omit } from 'lodash';
 import { useMemo } from 'react';
@@ -31,7 +32,8 @@ import {
 } from './SelectCommon';
 
 /**
- * @deprecated Use Select or SelectAsync from Echoes instead.
+ * @deprecated Use {@link Echoes.Select | Select} or {@link Echoes.SelectAsync | SelectAsync} from Echoes instead.
+ * See the [Migration Guide](https://xtranet-sonarsource.atlassian.net/wiki/x/K4AYxw)
  */
 export function InputSelect<
   Option,
