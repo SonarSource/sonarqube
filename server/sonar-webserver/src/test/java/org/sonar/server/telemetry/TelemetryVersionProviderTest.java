@@ -1,0 +1,50 @@
+/*
+ * SonarQube
+ * Copyright (C) 2009-2024 SonarSource SA
+ * mailto:info AT sonarsource DOT com
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+package org.sonar.server.telemetry;
+
+import org.junit.jupiter.api.Test;
+import org.sonar.api.platform.Server;
+import org.sonar.server.platform.telemetry.TelemetryVersionProvider;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+class TelemetryVersionProviderTest {
+
+  /**
+   * To increase coverage :shrug:
+   */
+  @Test
+  void testGetters() {
+    Server server = mock();
+    when(server.getVersion()).thenReturn("10.6");
+
+    TelemetryVersionProvider telemetryVersionProvider = new TelemetryVersionProvider(server);
+
+    assertEquals("version", telemetryVersionProvider.getMetricKey());
+    assertEquals(Dimension.INSTALLATION, telemetryVersionProvider.getDimension());
+    assertEquals(Granularity.DAILY, telemetryVersionProvider.getGranularity());
+    assertEquals(TelemetryDataType.STRING, telemetryVersionProvider.getType());
+    assertEquals("10.6", telemetryVersionProvider.getValue());
+    assertThrows(IllegalStateException.class, telemetryVersionProvider::getUuidValues);
+  }
+}
