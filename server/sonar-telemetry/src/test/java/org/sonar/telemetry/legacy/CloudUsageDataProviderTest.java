@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.telemetry.deprecated;
+package org.sonar.telemetry.legacy;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -44,10 +44,10 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.sonar.telemetry.deprecated.CloudUsageDataProvider.DOCKER_RUNNING;
-import static org.sonar.telemetry.deprecated.CloudUsageDataProvider.KUBERNETES_SERVICE_HOST;
-import static org.sonar.telemetry.deprecated.CloudUsageDataProvider.KUBERNETES_SERVICE_PORT;
-import static org.sonar.telemetry.deprecated.CloudUsageDataProvider.SONAR_HELM_CHART_VERSION;
+import static org.sonar.telemetry.legacy.CloudUsageDataProvider.DOCKER_RUNNING;
+import static org.sonar.telemetry.legacy.CloudUsageDataProvider.KUBERNETES_SERVICE_HOST;
+import static org.sonar.telemetry.legacy.CloudUsageDataProvider.KUBERNETES_SERVICE_PORT;
+import static org.sonar.telemetry.legacy.CloudUsageDataProvider.SONAR_HELM_CHART_VERSION;
 
 public class CloudUsageDataProviderTest {
 

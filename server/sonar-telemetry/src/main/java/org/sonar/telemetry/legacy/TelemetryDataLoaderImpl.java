@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.telemetry.deprecated;
+package org.sonar.telemetry.legacy;
 
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
@@ -65,8 +65,8 @@ import org.sonar.server.property.InternalProperties;
 import org.sonar.server.qualitygate.Condition;
 import org.sonar.server.qualitygate.QualityGateCaycChecker;
 import org.sonar.server.qualitygate.QualityGateFinder;
-import org.sonar.telemetry.deprecated.TelemetryData.Database;
-import org.sonar.telemetry.deprecated.TelemetryData.NewCodeDefinition;
+import org.sonar.telemetry.legacy.TelemetryData.Database;
+import org.sonar.telemetry.legacy.TelemetryData.NewCodeDefinition;
 
 import static java.util.Arrays.asList;
 import static java.util.Optional.ofNullable;
@@ -89,7 +89,7 @@ import static org.sonar.db.newcodeperiod.NewCodePeriodType.REFERENCE_BRANCH;
 import static org.sonar.server.metric.UnanalyzedLanguageMetrics.UNANALYZED_CPP_KEY;
 import static org.sonar.server.metric.UnanalyzedLanguageMetrics.UNANALYZED_C_KEY;
 import static org.sonar.server.qualitygate.Condition.Operator.fromDbValue;
-import static org.sonar.telemetry.deprecated.TelemetryDaemon.I_PROP_MESSAGE_SEQUENCE;
+import static org.sonar.telemetry.legacy.TelemetryDaemon.I_PROP_MESSAGE_SEQUENCE;
 
 @ServerSide
 public class TelemetryDataLoaderImpl implements TelemetryDataLoader {

@@ -282,12 +282,12 @@ import org.sonar.server.webhook.WebhookQGChangeEventListener;
 import org.sonar.server.webhook.ws.WebhooksWsModule;
 import org.sonar.server.ws.WebServiceEngine;
 import org.sonar.server.ws.ws.WebServicesWsModule;
-import org.sonar.telemetry.deprecated.CloudUsageDataProvider;
-import org.sonar.telemetry.deprecated.QualityProfileDataProvider;
-import org.sonar.telemetry.deprecated.TelemetryClient;
-import org.sonar.telemetry.deprecated.TelemetryDaemon;
-import org.sonar.telemetry.deprecated.TelemetryDataJsonWriter;
-import org.sonar.telemetry.deprecated.TelemetryDataLoaderImpl;
+import org.sonar.telemetry.legacy.CloudUsageDataProvider;
+import org.sonar.telemetry.legacy.QualityProfileDataProvider;
+import org.sonar.telemetry.legacy.TelemetryClient;
+import org.sonar.telemetry.legacy.TelemetryDaemon;
+import org.sonar.telemetry.legacy.TelemetryDataJsonWriter;
+import org.sonar.telemetry.legacy.TelemetryDataLoaderImpl;
 
 import static org.sonar.core.extension.CoreExtensionsInstaller.noAdditionalSideFilter;
 import static org.sonar.core.extension.PlatformLevelPredicates.hasPlatformLevel4OrNone;

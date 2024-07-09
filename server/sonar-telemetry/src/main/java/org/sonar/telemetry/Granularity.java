@@ -17,13 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.telemetry;
+package org.sonar.telemetry;
 
 /**
- * Represents the dimension of the data provided by a {@link TelemetryDataProvider}.
- * {@link Dimension#PROJECT}, {@link Dimension#LANGUAGE} and {@link Dimension#USER} should not provide aggregated data.
- * For aggregated data (i.e. average number of lines of code per project), use #INSTALLATION.
+ * Represent the granularity of the data provided by a {@link TelemetryDataProvider}. This both defines the time period between to pushes to
+ * telemetry server for a given metric and the time period that the data represents.
+ * Modifying this enum needs to be discussed beforehand with Data Platform team.
  */
-public enum Dimension {
-  INSTALLATION, PROJECT, USER, LANGUAGE
+public enum Granularity {
+  DAILY, WEEKLY, MONTHLY;
 }

@@ -17,12 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.telemetry;
+@ParametersAreNonnullByDefault
+package org.sonar.telemetry.legacy;
 
-/**
- * Represents the type of the data provided by a {@link TelemetryDataProvider}.
- * Modifying this enum needs to be discussed beforehand with Data Platform team.
- */
-public enum TelemetryDataType {
-  BOOLEAN, STRING, INTEGER, FLOAT
-}
+import javax.annotation.ParametersAreNonnullByDefault;

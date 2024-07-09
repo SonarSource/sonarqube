@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.telemetry.deprecated;
+package org.sonar.telemetry.legacy;
 
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
@@ -67,10 +67,10 @@ import org.sonar.server.property.MapInternalProperties;
 import org.sonar.server.qualitygate.QualityGateCaycChecker;
 import org.sonar.server.qualitygate.QualityGateFinder;
 import org.sonar.server.qualityprofile.QProfileComparison;
-import org.sonar.telemetry.deprecated.TelemetryData.Branch;
-import org.sonar.telemetry.deprecated.TelemetryData.CloudUsage;
-import org.sonar.telemetry.deprecated.TelemetryData.NewCodeDefinition;
-import org.sonar.telemetry.deprecated.TelemetryData.ProjectStatistics;
+import org.sonar.telemetry.legacy.TelemetryData.Branch;
+import org.sonar.telemetry.legacy.TelemetryData.CloudUsage;
+import org.sonar.telemetry.legacy.TelemetryData.NewCodeDefinition;
+import org.sonar.telemetry.legacy.TelemetryData.ProjectStatistics;
 import org.sonar.updatecenter.common.Version;
 
 import static java.util.Arrays.asList;
@@ -101,7 +101,7 @@ import static org.sonar.db.component.BranchType.BRANCH;
 import static org.sonar.server.metric.UnanalyzedLanguageMetrics.UNANALYZED_CPP_KEY;
 import static org.sonar.server.metric.UnanalyzedLanguageMetrics.UNANALYZED_C_KEY;
 import static org.sonar.server.qualitygate.QualityGateCaycStatus.NON_COMPLIANT;
-import static org.sonar.telemetry.deprecated.TelemetryDataLoaderImpl.EXTERNAL_SECURITY_REPORT_EXPORTED_AT;
+import static org.sonar.telemetry.legacy.TelemetryDataLoaderImpl.EXTERNAL_SECURITY_REPORT_EXPORTED_AT;
 
 @RunWith(DataProviderRunner.class)
 public class TelemetryDataLoaderImplIT {

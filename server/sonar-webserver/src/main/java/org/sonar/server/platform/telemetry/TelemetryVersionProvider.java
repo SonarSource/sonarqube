@@ -20,10 +20,10 @@
 package org.sonar.server.platform.telemetry;
 
 import org.sonar.api.platform.Server;
-import org.sonar.server.telemetry.Dimension;
-import org.sonar.server.telemetry.Granularity;
-import org.sonar.server.telemetry.TelemetryDataProvider;
-import org.sonar.server.telemetry.TelemetryDataType;
+import org.sonar.telemetry.Dimension;
+import org.sonar.telemetry.Granularity;
+import org.sonar.telemetry.TelemetryDataProvider;
+import org.sonar.telemetry.TelemetryDataType;
 
 public class TelemetryVersionProvider implements TelemetryDataProvider<String> {
 

@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.telemetry;
+package org.sonar.telemetry;
 
 import java.util.Map;
 
@@ -27,8 +27,8 @@ import java.util.Map;
  * If you want to add new metric to the telemetry system, you need to create a new implementation of this interface and register it in the
  * Spring context as a bean.
  *
- * @param <T> type of the value provided by this instance. Should be either {@link java.lang.Boolean}, {@link java.lang.String},
- * {@link java.lang.Integer} or {@link java.lang.Float}.
+ * @param <T> type of the value provided by this instance. Should be either {@link Boolean}, {@link String},
+ * {@link Integer} or {@link Float}.
  */
 public interface TelemetryDataProvider<T> {
 
